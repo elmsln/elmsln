@@ -35,12 +35,31 @@ define('ELMSLN_MENU_SITE_ONLINE', 5);
  * Internal menu status code - Request method is not allowed.
  */
 define('ELMSLN_MENU_METHOD_NOT_ALLOWED', 6);
+define('ELMSLN_API_BASE_PATH', 'api');
 
 /**
  * Implements hook_menu().
  */
 function elmsln_api_menu() {
-  $items['elmsln_api'] = array(
+  $items[ELMSLN_API_BASE_PATH] = array(
+    'page callback' => '_elmsln_api_tree',
+    'page arguments' => array(ELMSLN_API_BASE_PATH, TRUE),
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_CALLBACK,
+  );
+  $items[ELMSLN_API_BASE_PATH . '/v1'] = array(
+    'page callback' => '_elmsln_api_tree',
+    'page arguments' => array(ELMSLN_API_BASE_PATH . '/v1', TRUE),
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_CALLBACK,
+  );
+  $items[ELMSLN_API_BASE_PATH . '/v1/elmsln'] = array(
+    'page callback' => '_elmsln_api_tree',
+    'page arguments' => array(ELMSLN_API_BASE_PATH . '/v1/elmsln', TRUE),
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_CALLBACK,
+  );
+  $items[ELMSLN_API_BASE_PATH . '/v1/elmsln/bridge'] = array(
     'title' => 'ELMSLN API Bridge',
     'page callback' => '_elmsln_api_bridge',
     'page arguments' => array(1, 2, 3),
@@ -48,20 +67,70 @@ function elmsln_api_menu() {
     'access arguments' => array(array('administrator', 'instructor', 'staff')),
     'type' => MENU_CALLBACK,
   );
-  // tee-up our application
-  $items['api/v1/elmsln/user'] = array(
+  $items[ELMSLN_API_BASE_PATH . '/v1/elmsln/user'] = array(
     'page callback' => '_elmsln_api_user_request',
     'access callback' => 'user_is_logged_in',
     'type' => MENU_CALLBACK,
   );
   return $items;
 }
+
+/**
+ * Callback to return the possible API endpoints.
+ * @return json
+ */
+function _elmsln_api_tree($search = ELMSLN_API_BASE_PATH, $deliver = TRUE) {
+  $tmp = explode('/', $search);
+  $searchkey = array_pop($tmp);
+  $vars = array('links' => array());
+  // discover other parts of the API
+  $router = array_keys(menu_get_router());
+  // search the router for matches against our API base
+  foreach ($router as $item) {
+    if (strpos($item, $search) === 0) {
+      $apipaths[] = $item;
+    }
+  }
+  sort($apipaths);
+  foreach ($apipaths as $item) {
+    $item = str_replace($search, '', $item);
+    $pathary = explode('/', $item);
+    $prev = &$vars['links'];
+    foreach ($pathary as $tmp) {
+      if (!isset($prev[$tmp])) {
+        $prev[$tmp] = array('self' => $GLOBALS['base_url'] . '/' . $search . $item);
+      }
+      $prev = &$prev[$tmp];
+    }
+  }
+  // account for empty set correction, weird but needed
+  if (isset($vars['links'][''])) {
+    $vars['links'][$search] = $vars['links'][''];
+    unset($vars['links']['']);
+  }
+  // deliver to the screen or return array
+  if ($deliver) {
+    _elmsln_api_deliver_output($vars);
+  }
+  else {
+    return $vars;
+  }
+}
+
+/**
+ * Return json output to the screen in correct format.
+ */
+function _elmsln_api_deliver_output($vars) {
+  drupal_add_http_header('Content-Type', 'application/json');
+  print drupal_json_output($vars);
+  drupal_exit();
+}
+
 /**
  * Page callback: returns information to establish a headless application
  * to connect to the site. This assumes a user session already exists.
  */
 function _elmsln_api_user_request() {
-  drupal_add_http_header('Content-Type', 'application/json');
   $vars = array(
     'site' => array(
       'base-url' => $GLOBALS['base_url'],
@@ -71,8 +140,7 @@ function _elmsln_api_user_request() {
       'csrf-token' => drupal_get_token('restws'),
     ),
   );
-  print drupal_json_output($vars);
-  drupal_exit();
+  _elmsln_api_deliver_output($vars);
 }
 
 /**
@@ -115,9 +183,8 @@ function _elmsln_api_bridge($token, $api, $bucket) {
     $response = _elmsln_api_request($request);
     // decode and output the response as json; even if it failed which should
     // give us FALSE encoded as a bool appropriately
-    echo drupal_json_output($response);
+    _elmsln_api_deliver_output($response);
   }
-  exit;
 }
 /**
  * ELMSLN API request handler

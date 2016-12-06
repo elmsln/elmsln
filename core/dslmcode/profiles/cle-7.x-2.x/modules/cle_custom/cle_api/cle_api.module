@@ -11,43 +11,13 @@ function cle_api_menu() {
   $items = array();
 
   $items['api/v1/cle'] = array(
-    'page callback' => '_cle_api_v1_cle',
+    'page callback' => '_elmsln_api_tree',
+    'page arguments' => array('api/v1/cle', TRUE),
     'access callback' => 'user_is_logged_in',
     'type' => MENU_CALLBACK,
   );
 
   return $items;
-}
-
-/**
- * Callback to return the possible API endpoints.
- * @return json
- */
-function _cle_api_v1_cle() {
-  $apipaths = $vars = array();
-  // discover other parts of the API
-  $router = array_keys(menu_get_router());
-  // search the router for matches against our API base
-  foreach ($router as $item) {
-    if (strpos($item, 'api/v1/cle') !== FALSE) {
-      $tmp = explode('/', $item);
-      $callkey = array_pop($tmp);
-      if ($callkey == 'cle') {
-        $callkey = 'self';
-      }
-      $vars['links'][$callkey] = $GLOBALS['base_url'] . '/' . $item;
-    }
-  }
-  _cle_api_deliver_output($vars);
-}
-
-/**
- * Return json output to the screen in correct format.
- */
-function _cle_api_deliver_output($vars) {
-  drupal_add_http_header('Content-Type', 'application/json');
-  print drupal_json_output($vars);
-  drupal_exit();
 }
 
 /**

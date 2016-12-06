@@ -13,27 +13,84 @@ include_once 'cle_assignment.features.inc';
  */
 function cle_assignment_menu() {
   $items = array();
-
   $items['api/v1/cle/assignments'] = array(
-    'page callback' => '_cle_assignemnts_v1_cle_assignments',
+    'page callback' => '_cle_assignments_v1_page_callback',
     'page arguments' => array('assignments_endpoint'),
     'access callback' => 'user_is_logged_in',
     'type' => MENU_CALLBACK,
   );
   $items['api/v1/cle/assignments/%'] = array(
-    'page callback' => 'cle_assignments_v1_page_callback',
+    'page callback' => '_cle_assignments_v1_page_callback',
     'page arguments' => array('assignment_endpoint', 4),
     'access callback' => 'user_is_logged_in',
     'type' => MENU_CALLBACK,
   );
-
   return $items;
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function cle_assignment_form_cle_assignment_node_form_alter(&$form, &$form_state, $form_id) {
+  unset($form['body']['und'][0]['summary']);
+}
+
+/**
+ * Implements hook_init().
+ */
+function cle_assignment_init() {
+  if (arg(0) == 'node' && arg(2) == 'assignment_bulk') {
+    $file = 'assignment_bulk';
+    $path = drupal_get_path('module', 'cle_assignment') . '/';
+    drupal_add_js($path . 'js/' . $file . '.js');
+    drupal_add_css($path . 'css/' . $file . '.css');
+  }
+}
+
+/**
+ * Implements hook_page_build().
+ */
+function cle_assignment_page_build(&$page) {
+  $node = menu_get_object();
+  if ($node && $node->type == 'cle_assignment' && arg(2) != 'edit') {
+    $field_conditions = array('field_assignment' => array('target_id', array($node->nid), 'IN'));
+    $submission = _cis_connector_assemble_entity_list('node', 'cle_submission', 'nid', 'title', $field_conditions, array('uid' => $GLOBALS['user']->uid));
+    $output = '';
+    foreach ($submission as $nid => $title) {
+      $output .= l($title, 'node/' . $nid) . ' ';
+    }
+    if (empty($output)) {
+      $output = l(t('Submit assignment'),'node/add/cle-submission', array('query' => array('field_assignment' => $node->nid)));
+    }
+    $page['content']['assignment_submission'] = array(
+      '#markup' => $output,
+      '#weight' => 100,
+    );
+  }
+}
+
+/**
+ * Implements hook_node_insert().
+ */
+function cle_assignment_node_insert($node) {
+  // make sure there's an outline associated to this
+  // but only if we have at least 1 to do so with
+  if ($node->type == 'cle_assignment') {
+    // add this assignment to the master section assignment list automatically
+    if ($gid = _cis_section_load_section_by_id(CIS_SECTION_MASTER)) {
+      // this case can be triggered if the dates get updated downstream in CIS
+      // or if we create something ahead of the semester
+      $section = node_load($gid);
+      $section->field_cle_assignments['und'][] = array('target_id' => $node->nid);
+      node_save($section);
+    }
+  }
 }
 
 /**
  * Page Callback that will handle all of the incoming api calls.
  */
-function cle_assignments_v1_page_callback($id, $page_arguments = NULL) {
+function _cle_assignments_v1_page_callback($id, $page_arguments = NULL) {
   // CSRF protection on write operations.
   if (!in_array($_SERVER['REQUEST_METHOD'], array('GET', 'HEAD', 'OPTIONS', 'TRACE')) && !restws_csrf_validation()) {
     restws_terminate_request('403 Forbidden', '403 Access Denied: CSRF validation failed');
@@ -55,7 +112,7 @@ function cle_assignments_v1_page_callback($id, $page_arguments = NULL) {
         'status' => '400',
         'detail' => 'Invalid endpoint',
       );
-      _cle_api_deliver_output($vars);
+      _elmsln_api_deliver_output($vars);
       break;
   }
 }
@@ -65,19 +122,12 @@ function cle_assignments_v1_page_callback($id, $page_arguments = NULL) {
  */
 function _cle_assignemnts_v1_cle_assignments() {
   global $base_url;
-  $vars = array();
-
+  $vars = _elmsln_api_tree('api/v1/cle/assignments', FALSE);
   // gather the list of assignments to send
   $assignments_filter = array();
   // check the url parmas for filters
   $assignments_filter = drupal_get_query_parameters();
   $assignments = _cle_assignemnts_v1_get_assignments($assignments_filter);
-
-  // assemble the call
-  $vars['links'] = array(
-    'self' => $base_url . '/api/v1/cle/assignments',
-    'create' => $base_url . '/api/v1/cle/assignments/create',
-  );
   // get the assignment ready for sending and place them as an array of items
   // under the 'data' property
   foreach ($assignments as $assignment) {
@@ -85,7 +135,7 @@ function _cle_assignemnts_v1_cle_assignments() {
     $vars['data'][] = $_assignment;
   }
 
-  _cle_api_deliver_output($vars);
+  _elmsln_api_deliver_output($vars);
 }
 
 /**
@@ -112,7 +162,7 @@ function _cle_assignemnts_v1_cle_assignment($argument) {
     'status' => '400',
     'detail' => 'Invalid endpoint argument',
   );
-  _cle_api_deliver_output($vars);
+  _elmsln_api_deliver_output($vars);
 }
 
 /**
@@ -129,7 +179,7 @@ function _cle_assignment_v1_assignment_create() {
       'id' => 43 // the node id of the assignment
     )
   );
-  _cle_api_deliver_output($vars);
+  _elmsln_api_deliver_output($vars);
 }
 
 /**
@@ -149,7 +199,7 @@ function _cle_assignemnts_v1_cle_assignment_id($assignment_id) {
   // place the formatted assignment under the 'data' property
   $vars['data'] = $assignment_apiformat;
 
-  _cle_api_deliver_output($vars);
+  _elmsln_api_deliver_output($vars);
 }
 
 
@@ -222,63 +272,4 @@ function _cle_assignemnts_v1_get_assignments($filter = array()) {
   }
 
   return $assignments;
-}
-
-/**
- * Implements hook_form_FORM_ID_alter().
- */
-function cle_assignment_form_cle_assignment_node_form_alter(&$form, &$form_state, $form_id) {
-  unset($form['body']['und'][0]['summary']);
-}
-
-/**
- * Implements hook_init().
- */
-function cle_assignment_init() {
-  if (arg(0) == 'node' && arg(2) == 'assignment_bulk') {
-    $file = 'assignment_bulk';
-    $path = drupal_get_path('module', 'cle_assignment') . '/';
-    drupal_add_js($path . 'js/' . $file . '.js');
-    drupal_add_css($path . 'css/' . $file . '.css');
-  }
-}
-
-/**
- * Implements hook_page_build().
- */
-function cle_assignment_page_build(&$page) {
-  $node = menu_get_object();
-  if ($node && $node->type == 'cle_assignment' && arg(2) != 'edit') {
-    $field_conditions = array('field_assignment' => array('target_id', array($node->nid), 'IN'));
-    $submission = _cis_connector_assemble_entity_list('node', 'cle_submission', 'nid', 'title', $field_conditions, array('uid' => $GLOBALS['user']->uid));
-    $output = '';
-    foreach ($submission as $nid => $title) {
-      $output .= l($title, 'node/' . $nid) . ' ';
-    }
-    if (empty($output)) {
-      $output = l(t('Submit assignment'),'node/add/cle-submission', array('query' => array('field_assignment' => $node->nid)));
-    }
-    $page['content']['assignment_submission'] = array(
-      '#markup' => $output,
-      '#weight' => 100,
-    );
-  }
-}
-
-/**
- * Implements hook_node_insert().
- */
-function cle_assignment_node_insert($node) {
-  // make sure there's an outline associated to this
-  // but only if we have at least 1 to do so with
-  if ($node->type == 'cle_assignment') {
-    // add this assignment to the master section assignment list automatically
-    if ($gid = _cis_section_load_section_by_id(CIS_SECTION_MASTER)) {
-      // this case can be triggered if the dates get updated downstream in CIS
-      // or if we create something ahead of the semester
-      $section = node_load($gid);
-      $section->field_cle_assignments['und'][] = array('target_id' => $node->nid);
-      node_save($section);
-    }
-  }
 }
