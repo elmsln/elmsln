@@ -1,14 +1,17 @@
 import { Injectable } from '@angular/core';
 import { Http, Headers, Response } from '@angular/http';
 import { AppSettings } from './app-settings';
+import { Cookie } from 'ng2-cookies/ng2-cookies';
 
 @Injectable()
 export class ElmslnService {
 
-  constructor(private http: Http) { }
+  constructor(
+    private http: Http
+  ) { }
 
   createAuthorizationHeader(headers:Headers) {
-    let basicAuthCredentials =  localStorage.getItem('basicAuthCredentials');
+    let basicAuthCredentials =  Cookie.get('basicAuthCredentials');
     if (basicAuthCredentials) {
       headers.append('Authorization', 'Basic ' + basicAuthCredentials);
     }
@@ -16,16 +19,18 @@ export class ElmslnService {
 
   createCSRFTokenHeader(headers:Headers) {
     if (!localStorage.getItem('x-csrf')) {
-      return this.http
+      this.http
         .get(AppSettings.BASE_PATH + 'restws/session/token', {headers})
-        .map(data => data.json())
         .subscribe(data => {
           // Get the CSRF Token and set it to local storage
-          console.log(data);
-          localStorage.setItem('x-csrf', data);
+          let token = data['_body'];
+          Cookie.set('x-csrf-token', token);
+          return headers;
         });
     }
-    headers.append('x-csrf-token', localStorage.getItem('x-csrf'));
+    else {
+      return headers;
+    }
   }
 
   login() {
@@ -46,7 +51,7 @@ export class ElmslnService {
   get(url) {
     let headers = new Headers();
     this.createAuthorizationHeader(headers);
-    this.createCSRFTokenHeader(headers);
+    // this.createCSRFTokenHeader(headers);
 
     return this.http.get(url, {
       headers: headers
@@ -56,7 +61,7 @@ export class ElmslnService {
   post(url, data) {
     let headers = new Headers();
     this.createAuthorizationHeader(headers);
-    this.createCSRFTokenHeader(headers);
+    // this.createCSRFTokenHeader(headers);
     
     return this.http.post(url, data, {
       headers: headers

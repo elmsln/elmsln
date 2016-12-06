@@ -3,6 +3,7 @@ import { Http, Headers, Response } from '@angular/http';
 import { Observable } from 'rxjs';
 import { AppSettings } from './app-settings';
 import { ElmslnService } from './elmsln.service';
+import { Cookie } from 'ng2-cookies/ng2-cookies';
 
 @Injectable()
 export class UserService {
@@ -13,7 +14,7 @@ export class UserService {
   ) { }
 
   login(username:string, password:string) {
-    localStorage.setItem('basicAuthCredentials',  btoa(username + ":" + password));
+    Cookie.set('basicAuthCredentials',  btoa(username + ":" + password));
     this.elmslnService.login();
   }
 
