@@ -1,0 +1,54 @@
+<?php
+/**
+ * @file
+ * Code for the CLE API.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function cle_api_menu() {
+  $items = array();
+
+  $items['api/v1/cle'] = array(
+    'page callback' => '_cle_api_v1_cle',
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_CALLBACK,
+  );
+
+  return $items;
+}
+
+function _cle_api_v1_cle() {
+  $vars = array();
+  global $base_url;
+  // assemble the call
+  $vars['links'] = array(
+    'self' => $base_url . '/api/v1/cle',
+    'assignments' => $base_url . '/api/v1/cle/assignments',
+  );
+
+  // output the assginments
+  drupal_add_http_header('Content-Type', 'application/json');
+  print drupal_json_output($vars);
+  drupal_exit();
+}
+
+/**
+ * Helper function to randomly choose from an array. For development purposes
+ * only.
+ */
+function _cle_api_random($array, $amount = 1) {
+  $index = array_rand($array, $amount);
+
+  if (is_array($index)) {
+    $a = array();
+    foreach($index as $i) {
+      $a[] = $array[$i];
+    }
+    return $a;
+  }
+  else {
+    return $array[$index];
+  }
+}

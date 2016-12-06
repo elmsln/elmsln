@@ -11,11 +11,6 @@ include_once 'cle_assignment.features.inc';
 function cle_assignment_menu() {
   $items = array();
 
-  $items['api/v1/cle'] = array(
-    'page callback' => '_cle_assignments_v1_cle',
-    'access callback' => 'user_is_logged_in',
-    'type' => MENU_CALLBACK,
-  );
   $items['api/v1/cle/assignments'] = array(
     'page callback' => '_cle_assignemnts_v1_cle_assignments',
     'page arguments' => array('assignments_endpoint'),
@@ -62,22 +57,6 @@ function cle_assignments_v1_page_callback($id, $page_arguments = NULL) {
       drupal_exit();
       break;
   }
-}
-
-function _cle_assignments_v1_cle() {
-  $vars = array();
-  global $base_url;
-
-  // assemble the call
-  $vars['links'] = array(
-    'self' => $base_url . '/api/v1/cle',
-    'assignments' => $base_url . '/api/v1/cle/assignments',
-  );
-
-  // output the assginments
-  drupal_add_http_header('Content-Type', 'application/json');
-  print drupal_json_output($vars);
-  drupal_exit();
 }
 
 /**
@@ -212,16 +191,16 @@ function _cle_assignment_v1_assignment_output($assignment) {
     // Need to replace static values below
     'startDate' => $_startDate, //optional
     'endDate' => $_endDate, //optional
-    'type' => _cle_random(array('open', 'closed', 'open', 'people see', 'closed', 'is private submission')),
-    'dependency' => _cle_random(array('none', 'previous', 'parent')),// default: none
-    'assets' => _cle_random(array('text', 'links', 'video', 'images', 'files'), 2), // unlimited
+    'type' => _cle_api_random(array('open', 'closed', 'open', 'people see', 'closed', 'is private submission')),
+    'dependency' => _cle_api_random(array('none', 'previous', 'parent')),// default: none
+    'assets' => _cle_api_random(array('text', 'links', 'video', 'images', 'files'), 2), // unlimited
     'critique' => array(
-      'method' => _cle_random(array('random', 'partner', 'open')),// default: random
-      'style' => _cle_random(array('double_blind', 'blind', 'open')),// default: double blind
-      'outline' => _cle_random(array('', 'Outline A')), //optional @todo: not sure what this is for
-      'public' => _cle_random(array('public', 'private')), // default: public
+      'method' => _cle_api_random(array('random', 'partner', 'open')),// default: random
+      'style' => _cle_api_random(array('double_blind', 'blind', 'open')),// default: double blind
+      'outline' => _cle_api_random(array('', 'Outline A')), //optional @todo: not sure what this is for
+      'public' => _cle_api_random(array('public', 'private')), // default: public
     ),
-    'complete' => _cle_random(array(0,1)), // determines whether the assignment is complete.
+    'complete' => _cle_api_random(array(0,1)), // determines whether the assignment is complete.
   );
 
   return $return;
@@ -310,24 +289,5 @@ function cle_assignment_node_insert($node) {
       $section->field_cle_assignments['und'][] = array('target_id' => $node->nid);
       node_save($section);
     }
-  }
-}
-
-/**
- * Helper function to randomly choose from an array. For development purposes
- * only.
- */
-function _cle_random($array, $amount = 1) {
-  $index = array_rand($array, $amount);
-
-  if (is_array($index)) {
-    $a = array();
-    foreach($index as $i) {
-      $a[] = $array[$i];
-    }
-    return $a;
-  }
-  else {
-    return $array[$index];
   }
 }
