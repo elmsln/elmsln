@@ -19,15 +19,25 @@ function cle_api_menu() {
   return $items;
 }
 
+/**
+ * Callback to return the possible API endpoints.
+ * @return json
+ */
 function _cle_api_v1_cle() {
-  $vars = array();
-  global $base_url;
-  // assemble the call
-  $vars['links'] = array(
-    'self' => $base_url . '/api/v1/cle',
-    'assignments' => $base_url . '/api/v1/cle/assignments',
-  );
-
+  $apipaths = $vars = array();
+  // discover other parts of the API
+  $router = array_keys(menu_get_router());
+  // search the router for matches against our API base
+  foreach ($router as $item) {
+    if (strpos($item, 'api/v1/cle') !== FALSE) {
+      $tmp = explode('/', $item);
+      $callkey = array_pop($tmp);
+      if ($callkey == 'cle') {
+        $callkey = 'self';
+      }
+      $vars['links'][$callkey] = $GLOBALS['base_url'] . '/' . $item;
+    }
+  }
   // output the assginments
   drupal_add_http_header('Content-Type', 'application/json');
   print drupal_json_output($vars);

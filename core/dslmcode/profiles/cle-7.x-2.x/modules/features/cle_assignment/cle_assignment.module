@@ -8,6 +8,9 @@ define('CLE_ASSIGNMENT_DEFAULT_COLOR', 'aac');
 
 include_once 'cle_assignment.features.inc';
 
+/**
+ * Implements hook_menu().
+ */
 function cle_assignment_menu() {
   $items = array();
 
