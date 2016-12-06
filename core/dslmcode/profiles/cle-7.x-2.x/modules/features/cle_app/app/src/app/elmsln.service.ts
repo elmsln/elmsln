@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
-import { Http, Headers, Response } from '@angular/http';
+import { Http, Headers, Response, RequestOptions } from '@angular/http';
 import { AppSettings } from './app-settings';
 import { Cookie } from 'ng2-cookies/ng2-cookies';
+declare const Drupal:any;
 
 @Injectable()
 export class ElmslnService {
@@ -18,17 +19,22 @@ export class ElmslnService {
   }
 
   createCSRFTokenHeader(headers:Headers) {
-    if (!localStorage.getItem('x-csrf')) {
+    let csrftoken = Cookie.get('x-csrf-token');
+    console.log('Current CSRF Token ', csrftoken);
+    if (!csrftoken) {
       this.http
         .get(AppSettings.BASE_PATH + 'restws/session/token', {headers})
         .subscribe(data => {
           // Get the CSRF Token and set it to local storage
+          console.log('Got the CSRF Token ', data);
           let token = data['_body'];
           Cookie.set('x-csrf-token', token);
+          headers.append('x-csrf-token', token);
           return headers;
         });
     }
     else {
+      headers.append('x-csrf-token', csrftoken);
       return headers;
     }
   }
@@ -42,8 +48,8 @@ export class ElmslnService {
   }
 
   logout() {
-    localStorage.removeItem('basicAuthCredentials');
-    localStorage.removeItem('x-csrf');
+    Cookie.delete('x-csrf-token');
+    Cookie.delete('basicAuthCredentials');
 
     return true;
   }
@@ -51,7 +57,7 @@ export class ElmslnService {
   get(url) {
     let headers = new Headers();
     this.createAuthorizationHeader(headers);
-    // this.createCSRFTokenHeader(headers);
+    this.createCSRFTokenHeader(headers);
 
     return this.http.get(url, {
       headers: headers
@@ -60,8 +66,11 @@ export class ElmslnService {
 
   post(url, data) {
     let headers = new Headers();
+    headers.append('Content-Type', 'application/json');
     this.createAuthorizationHeader(headers);
-    // this.createCSRFTokenHeader(headers);
+    this.createCSRFTokenHeader(headers);
+
+    console.log('Post headers ', headers);
     
     return this.http.post(url, data, {
       headers: headers
