@@ -38,7 +38,13 @@ function _cle_api_v1_cle() {
       $vars['links'][$callkey] = $GLOBALS['base_url'] . '/' . $item;
     }
   }
-  // output the assginments
+  _cle_api_deliver_output($vars);
+}
+
+/**
+ * Return json output to the screen in correct format.
+ */
+function _cle_api_deliver_output($vars) {
   drupal_add_http_header('Content-Type', 'application/json');
   print drupal_json_output($vars);
   drupal_exit();

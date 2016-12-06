@@ -55,9 +55,7 @@ function cle_assignments_v1_page_callback($id, $page_arguments = NULL) {
         'status' => '400',
         'detail' => 'Invalid endpoint',
       );
-      drupal_add_http_header('Content-Type', 'application/json');
-      print drupal_json_output($vars);
-      drupal_exit();
+      _cle_api_deliver_output($vars);
       break;
   }
 }
@@ -87,10 +85,7 @@ function _cle_assignemnts_v1_cle_assignments() {
     $vars['data'][] = $_assignment;
   }
 
-  // output the assginments
-  drupal_add_http_header('Content-Type', 'application/json');
-  print drupal_json_output($vars);
-  drupal_exit();
+  _cle_api_deliver_output($vars);
 }
 
 /**
@@ -117,9 +112,7 @@ function _cle_assignemnts_v1_cle_assignment($argument) {
     'status' => '400',
     'detail' => 'Invalid endpoint argument',
   );
-  drupal_add_http_header('Content-Type', 'application/json');
-  print drupal_json_output($vars);
-  drupal_exit();
+  _cle_api_deliver_output($vars);
 }
 
 /**
@@ -136,9 +129,7 @@ function _cle_assignment_v1_assignment_create() {
       'id' => 43 // the node id of the assignment
     )
   );
-  drupal_add_http_header('Content-Type', 'application/json');
-  print drupal_json_output($vars);
-  drupal_exit();
+  _cle_api_deliver_output($vars);
 }
 
 /**
@@ -158,10 +149,7 @@ function _cle_assignemnts_v1_cle_assignment_id($assignment_id) {
   // place the formatted assignment under the 'data' property
   $vars['data'] = $assignment_apiformat;
 
-  // output the assginment
-  drupal_add_http_header('Content-Type', 'application/json');
-  print drupal_json_output($vars);
-  drupal_exit();
+  _cle_api_deliver_output($vars);
 }
 
 
