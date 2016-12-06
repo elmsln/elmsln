@@ -43,7 +43,7 @@ apt-get install mariadb-server -y
 apt-get -y install apache2
 
 # using apt-get to install the main packages
-apt-get -y install sendmail uuid uuid-runtime curl policycoreutils unzip patch git nano gcc make mcrypt lib
+apt-get -y install sendmail libyaml-dev libyaml uuid uuid-runtime curl policycoreutils unzip patch git nano gcc make mcrypt
 
 #install php
 apt-get -y install php php-fpm php-common php-mysql php-ldap php-cgi php-pear php-xml-parser php-curl php-gd php-cli php-fpm php-apcu php-dev php-mcrypt mcrypt
