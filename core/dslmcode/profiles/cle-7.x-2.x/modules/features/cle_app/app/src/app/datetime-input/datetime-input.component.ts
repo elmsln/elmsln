@@ -38,7 +38,7 @@ export class DatetimeInputComponent implements OnInit, ControlValueAccessor {
   }
 
   // convert day and time into a date and uptdate the date property
-  updateDatetime($event) {
+  updateDatetime() {
     // make sure that both date and time have been added
     if (typeof this.day !== 'undefined' && typeof this.time !== 'undefined') {
       // concate day and time into a string
