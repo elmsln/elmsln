@@ -18,9 +18,10 @@ export class AssignmentFormComponent implements OnInit {
   @Output() assignment: Assignment;
   // assignment creation event
   @Output() assignmentCreated: EventEmitter<any> = new EventEmitter();
-  
   // The assignment form that we will attach all of the fields to
   form: FormGroup;
+  startDate:any;
+  endDate:any;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -28,10 +29,10 @@ export class AssignmentFormComponent implements OnInit {
     private router: Router
   ) { 
     this.form = this.formBuilder.group({
-      title: '',
-      body: '',
-      endDate: '',
-      startDate: ''
+      title: <string>'',
+      body: <string>'',
+      endDate: <string>null,
+      startDate: <string>null
     })
   } 
 
@@ -46,6 +47,7 @@ export class AssignmentFormComponent implements OnInit {
   }
 
   submitAssignment() {
+    console.log('Submit Assignment initiated', this.form.value);
     let assignment = new Assignment();
     assignment.title = this.form.value.title;
     assignment.body = this.form.value.body;
@@ -53,8 +55,11 @@ export class AssignmentFormComponent implements OnInit {
     assignment.startDate = this.form.value.startDate;
     assignment.project = this.project.id;
 
+    console.log('Submission Assignment put together ', assignment); 
+
     this.assignmentService.createAssignment(assignment)
       .subscribe(data => {
+        console.log('Assignment creation response: ', data);
         if (data.id) {
           this.assignmentCreated.emit();
           this.form.reset();

@@ -4,12 +4,11 @@
 
   <div class="start-date">
     <label>Start Date</label>
-    <datetime formControlName="startDate" [(ngModel)]="startDate"></datetime>
   </div>
 
   <div class="due-date">
     <label>Due Date</label>
-    <datetime formControlName="endDate" [(ngModel)]="endDate"></datetime>
+    <app-datetime-input formControlName="endDate"></app-datetime-input>
   </div>
 
   <a (click)="submitAssignment()" class="waves-effect waves-light btn">Create Assignment</a>
