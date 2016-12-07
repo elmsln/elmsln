@@ -74,7 +74,7 @@ chown -R ulmusdrush:elmsln /home/ulmusdrush/
 chmod -R 770 /home/ulmusdrush
 elmslnecho "users created for ulmus and ulmusdrush to run backend commands"
 
-# commands this user can do
+# revert ulmusdrush for security so this user can only do minimal stuff...
 echo "ulmusdrush ALL=(ALL) NOPASSWD: /sbin/service mysqld status" > /etc/sudoers.d/ulmusdrush
 echo "ulmusdrush ALL=(ALL) NOPASSWD: /sbin/service httpd status" >> /etc/sudoers.d/ulmusdrush
 echo "ulmusdrush ALL=(ALL) NOPASSWD: /sbin/service mysqld restart" >> /etc/sudoers.d/ulmusdrush
