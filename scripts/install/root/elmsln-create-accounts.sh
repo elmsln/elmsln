@@ -70,7 +70,7 @@ cp -R $HOME/.config /home/ulmusdrush/
 chown -R ulmusdrush:elmsln /home/ulmusdrush/
 
 # this user can just run drush commands and is used much more often
-sudo -u ulmusdrush bash /var/www/elmsln/scripts/install/users/elmsln-admin-user.sh /home/ulmusdrush
+sudo -i -u ulmusdrush bash /var/www/elmsln/scripts/install/users/elmsln-admin-user.sh /home/ulmusdrush
 
 chown -R ulmusdrush:elmsln /home/ulmusdrush/
 chmod -R 770 /home/ulmusdrush
