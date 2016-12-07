@@ -18,7 +18,6 @@
   "dependencies": {
     "froala-wysiwyg-editor": "^2.3.5",
     "trumbowyg": "^2.4.1",
-    "wysiwyg.js": "*",
-    "jquery": "1.11.3"
+    "wysiwyg.js": "*"
   }
 }

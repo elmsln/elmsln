@@ -2,7 +2,7 @@ import { Component, OnInit, Input, ElementRef, ContentChildren, AfterContentInit
 import { Project } from '../../project';
 import { ProjectService } from '../../project.service';
 import { AssignmentListComponent } from '../../assignment/assignment-list/assignment-list.component';
-declare const jQuery:any;
+
 declare const Materialize:any;
 
 @Component({
@@ -22,27 +22,27 @@ export class ProjectItemComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    jQuery(this.el.nativeElement.getElementsByClassName('modal')).modal();
-    jQuery(this.el.nativeElement.getElementsByClassName('tooltipped')).tooltip({delay:40});
+    (<any>$(this.el.nativeElement.getElementsByClassName('modal'))).modal();
+    (<any>$(this.el.nativeElement.getElementsByClassName('tooltipped'))).tooltip({delay:40});
   }
 
   ngOnDestroy() {
-    jQuery(this.el.nativeElement.getElementsByClassName('modal')).modal('close');
-    jQuery(this.el.nativeElement.getElementsByClassName('tooltipped')).tooltip('remove');
+    (<any>$(this.el.nativeElement.getElementsByClassName('modal'))).modal('close');
+    (<any>$(this.el.nativeElement.getElementsByClassName('tooltipped'))).tooltip('remove');
   }
 
   createAssignment() {
-    jQuery(this.el.nativeElement.getElementsByClassName('assignment-form')).modal('open');
+    (<any>$(this.el.nativeElement.getElementsByClassName('assignment-form'))).modal('open');
   }
 
-  assignmentCreated(event) {
-    jQuery(this.el.nativeElement.getElementsByClassName('assignment-form')).modal('close');
+  assignmentCreated($event) {
+    (<any>$(this.el.nativeElement.getElementsByClassName('assignment-form'))).modal('close');
     Materialize.toast('Assignment created!', 1000);
     this.assignmentListComponent.getAssignments();
   }
 
   deleteProject() {
-    jQuery(this.el.nativeElement.getElementsByClassName('delete-project-form')).modal('open');
+    (<any>$(this.el.nativeElement.getElementsByClassName('delete-project-form'))).modal('open');
   }
 
   confirmDelete(confirm:boolean) {
@@ -55,15 +55,15 @@ export class ProjectItemComponent implements OnInit, OnDestroy {
         });
     }
     else {
-      jQuery(this.el.nativeElement.getElementsByClassName('delete-project-form')).modal('close');
+      (<any>$(this.el.nativeElement.getElementsByClassName('delete-project-form'))).modal('close');
     }
   }
 
-  updateTitle(event) {
+  updateTitle($event) {
     // remember the old title in case the update fails
     let oldTitle = this.project.title;
     // update the project title on the page
-    this.project.title = event;
+    this.project.title = $event;
 
     // the project object that we are going to save
     let newProject:Project = {

@@ -1,12 +1,15 @@
 <form [formGroup]="form" class="assignment-form">
   <input formControlName="title" placeholder="Title">
+  <wysiwygjs (onChange)="bodyChanged($event)"></wysiwygjs>
 
   <div class="start-date">
     <label>Start Date</label>
+    <datetime formControlName="startDate" [(ngModel)]="startDate"></datetime>
   </div>
 
   <div class="due-date">
     <label>Due Date</label>
+    <datetime formControlName="endDate" [(ngModel)]="endDate"></datetime>
   </div>
 
   <a (click)="submitAssignment()" class="waves-effect waves-light btn">Create Assignment</a>
