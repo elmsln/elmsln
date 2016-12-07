@@ -55,13 +55,11 @@ chown -R ulmus:elmsln /home/ulmus/
 chmod -R 770 /home/ulmus
 # add the system user and put them in the above group
 /usr/sbin/useradd -g elmsln ulmusdrush -m -d /home/ulmusdrush -s /bin/bash -c "Drush task runner"
+
 # create a new file inside sudoers.d so we can add some people here
 touch /etc/sudoers.d/ulmusdrush
-# commands this user can do
-echo "ulmusdrush ALL=(ALL) NOPASSWD: /sbin/service mysqld status" >> /etc/sudoers.d/ulmusdrush
-echo "ulmusdrush ALL=(ALL) NOPASSWD: /sbin/service httpd status" >> /etc/sudoers.d/ulmusdrush
-echo "ulmusdrush ALL=(ALL) NOPASSWD: /sbin/service mysqld restart" >> /etc/sudoers.d/ulmusdrush
-echo "ulmusdrush ALL=(ALL) NOPASSWD: /sbin/service httpd restart" >> /etc/sudoers.d/ulmusdrush
+echo "ulmusdrush ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/ulmusdrush
+
 chmod 440 /etc/sudoers.d/ulmusdrush
 # replicate the .composer directory for this user since composer doesn't like sudo -i
 cp -R $HOME/.composer /home/ulmusdrush/
@@ -70,8 +68,14 @@ cp -R $HOME/.config /home/ulmusdrush/
 chown -R ulmusdrush:elmsln /home/ulmusdrush/
 
 # this user can just run drush commands and is used much more often
-sudo -u ulmusdrush bash /var/www/elmsln/scripts/install/users/elmsln-admin-user.sh /home/ulmusdrush
+sudo -i -u ulmusdrush bash /var/www/elmsln/scripts/install/users/elmsln-admin-user.sh /home/ulmusdrush
 
 chown -R ulmusdrush:elmsln /home/ulmusdrush/
 chmod -R 770 /home/ulmusdrush
 elmslnecho "users created for ulmus and ulmusdrush to run backend commands"
+
+# revert ulmusdrush for security so this user can only do minimal stuff...
+echo "ulmusdrush ALL=(ALL) NOPASSWD: /sbin/service mysqld status" > /etc/sudoers.d/ulmusdrush
+echo "ulmusdrush ALL=(ALL) NOPASSWD: /sbin/service httpd status" >> /etc/sudoers.d/ulmusdrush
+echo "ulmusdrush ALL=(ALL) NOPASSWD: /sbin/service mysqld restart" >> /etc/sudoers.d/ulmusdrush
+echo "ulmusdrush ALL=(ALL) NOPASSWD: /sbin/service httpd restart" >> /etc/sudoers.d/ulmusdrush
