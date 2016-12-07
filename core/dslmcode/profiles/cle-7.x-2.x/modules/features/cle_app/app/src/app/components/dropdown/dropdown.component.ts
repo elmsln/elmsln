@@ -1,5 +1,5 @@
 import { Component, OnInit, ContentChildren, QueryList, ElementRef, Input, Output } from '@angular/core';
-declare const $:JQueryStatic;
+declare const jQuery:any;
 
 @Component({
   selector: 'app-dropdown',
@@ -17,6 +17,6 @@ export class DropdownComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    (<any>$(this.el.nativeElement.firstElementChild)).dropdown();
+    jQuery(this.el.nativeElement.firstElementChild).dropdown();
   }
 }

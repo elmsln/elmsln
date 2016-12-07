@@ -36,7 +36,7 @@ export class AssignmentService {
       field_assignment_project: assignment.project
     }
     
-    return this.elmsln.post(AppSettings.BASE_PATH + 'node.json', newAssignment)
+    return this.elmsln.post(AppSettings.BASE_PATH + 'node', newAssignment)
       .map(data => data.json())
   }
 }

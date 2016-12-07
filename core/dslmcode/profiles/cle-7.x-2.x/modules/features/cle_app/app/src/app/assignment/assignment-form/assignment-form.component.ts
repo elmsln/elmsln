@@ -39,9 +39,9 @@ export class AssignmentFormComponent implements OnInit {
   }
 
   // Update the body from the WYSIWYG changed event.
-  bodyChanged($event) {
+  bodyChanged(event) {
     this.form.patchValue({
-      body: $event
+      body: event
     })
   }
 

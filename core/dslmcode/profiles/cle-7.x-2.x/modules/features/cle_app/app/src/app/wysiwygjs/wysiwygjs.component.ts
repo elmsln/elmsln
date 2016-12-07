@@ -2,7 +2,7 @@ import { Component, OnInit, ElementRef, AfterViewInit, Input, Output, EventEmitt
 import { Observable, Subject } from 'rxjs/Rx';
 
 // non-typescript definitions
-declare var $:JQueryStatic;
+declare var $:any;
 
 @Component({
   selector: 'wysiwygjs',
@@ -24,7 +24,7 @@ export class WysiwygjsComponent implements OnInit {
       let newThis = this;
 
       $(this.el.nativeElement.firstElementChild).each(function (index, element) {
-          (<any>$(element)).wysiwyg({
+          $(element).wysiwyg({
               // 'selection'|'top'|'top-selection'|'bottom'|'bottom-selection'
               toolbar: 'top',
               buttons: {
@@ -64,7 +64,7 @@ export class WysiwygjsComponent implements OnInit {
                                   .css('font-family', font)
                                   .html(name)
                                   .click(function (event) {
-                                      (<any>$(element)).wysiwyg('shell').fontName(font).closePopup();
+                                      $(element).wysiwyg('shell').fontName(font).closePopup();
                                       // prevent link-href-#
                                       event.stopPropagation();
                                       event.preventDefault();
@@ -97,8 +97,8 @@ export class WysiwygjsComponent implements OnInit {
                               var $link = $('<a/>').attr('href', '#')
                                   .html(size)
                                   .click(function (event) {
-                                      (<any>$(element)).wysiwyg('shell').fontSize(7).closePopup();
-                                      (<any>$(element)).wysiwyg('container')
+                                      $(element).wysiwyg('shell').fontSize(7).closePopup();
+                                      $(element).wysiwyg('container')
                                           .find('font[size=7]')
                                           .removeAttr("size")
                                           .css("font-size", size);
@@ -135,7 +135,7 @@ export class WysiwygjsComponent implements OnInit {
                                   .css('font-family', format)
                                   .html(name)
                                   .click(function (event) {
-                                      (<any>$(element)).wysiwyg('shell').format(format).closePopup();
+                                      $(element).wysiwyg('shell').format(format).closePopup();
                                       // prevent link-href-#
                                       event.stopPropagation();
                                       event.preventDefault();
@@ -280,7 +280,7 @@ export class WysiwygjsComponent implements OnInit {
                           $(iframe).remove();
                       })
                       .appendTo(document.body);
-                  var $input = $(this);
+                  var $input = jQuery(this);
                   $input.attr('name', 'upload-filename')
                       .parents('form')
                       .attr('action', '/script.php') // accessing cross domain <iframes> could be difficult
@@ -315,7 +315,7 @@ export class WysiwygjsComponent implements OnInit {
         .change(function () {
             // Assign the wysiwyg get contents to the content Observable
             // emit the change
-            newThis.onChange.emit((<any>$(newThis.el.nativeElement).find('.wysiwyg-editor').html()));
+            newThis.onChange.emit($(newThis.el.nativeElement).find('.wysiwyg-editor').html());
         })
         .focus(function () {
             newThis.onFocus.emit();

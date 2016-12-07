@@ -20,15 +20,13 @@
       "styles": [
         "../bower_components/font-awesome/css/font-awesome.css",
         "../bower_components/wysiwyg.js/src/wysiwyg-editor.css",
-        "../node_modules/ng2-datetime/src/vendor/bootstrap-timepicker/bootstrap-timepicker.min.css",
-        "../node_modules/ng2-datetime/src/vendor/bootstrap-datepicker/bootstrap-datepicker3.min.css",
         "styles.css"
       ],
       "scripts": [
+        "../bower_components/jquery/dist/jquery.min.js",
+        "../node_modules/materialize-css/dist/js/materialize.min.js",
         "../bower_components/wysiwyg.js/src/wysiwyg.js",
-        "../bower_components/wysiwyg.js/src/wysiwyg-editor.js",
-        "../node_modules/ng2-datetime/src/vendor/bootstrap-timepicker/bootstrap-timepicker.min.js",
-        "../node_modules/ng2-datetime/src/vendor/bootstrap-datepicker/bootstrap-datepicker.min.js"
+        "../bower_components/wysiwyg.js/src/wysiwyg-editor.js"
       ],
       "environments": {
         "source": "environments/environment.ts",

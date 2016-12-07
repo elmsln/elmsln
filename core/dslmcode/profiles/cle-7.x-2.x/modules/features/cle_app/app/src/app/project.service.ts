@@ -27,7 +27,7 @@ export class ProjectService {
   createProject(project:any) {
     // first we need to prepare the object for Drupal
     let body = this.prepareForDrupal(project);
-    return this.elmsln.post(AppSettings.BASE_PATH + 'node.json', body)
+    return this.elmsln.post(AppSettings.BASE_PATH + 'node', body)
       .map(data => data.json())
   }
 

@@ -7,7 +7,6 @@ import { routing } from './app.routing';
 
 // material
 import { MaterialModule } from '@angular/material';
-import { NKDatetimeModule } from 'ng2-datetime/ng2-datetime';
 
 // services
 import { ElmslnService } from './elmsln.service';
@@ -70,8 +69,7 @@ import { EditableFieldComponent } from './editable-field/editable-field.componen
     HttpModule,
     routing,
     MaterialModule.forRoot(),
-    MomentModule,
-    NKDatetimeModule
+    MomentModule
   ],
   providers: [
     ElmslnService,

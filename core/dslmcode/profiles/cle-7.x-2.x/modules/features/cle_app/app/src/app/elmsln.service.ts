@@ -1,31 +1,42 @@
 import { Injectable } from '@angular/core';
-import { Http, Headers, Response } from '@angular/http';
+import { Http, Headers, Response, RequestOptions } from '@angular/http';
 import { AppSettings } from './app-settings';
+import { Cookie } from 'ng2-cookies/ng2-cookies';
+declare const Drupal:any;
 
 @Injectable()
 export class ElmslnService {
 
-  constructor(private http: Http) { }
+  constructor(
+    private http: Http
+  ) { }
 
   createAuthorizationHeader(headers:Headers) {
-    let basicAuthCredentials =  localStorage.getItem('basicAuthCredentials');
+    let basicAuthCredentials =  Cookie.get('basicAuthCredentials');
     if (basicAuthCredentials) {
       headers.append('Authorization', 'Basic ' + basicAuthCredentials);
     }
   }
 
   createCSRFTokenHeader(headers:Headers) {
-    if (!localStorage.getItem('x-csrf')) {
-      return this.http
+    let csrftoken = Cookie.get('x-csrf-token');
+    console.log('Current CSRF Token ', csrftoken);
+    if (!csrftoken) {
+      this.http
         .get(AppSettings.BASE_PATH + 'restws/session/token', {headers})
-        .map(data => data.json())
         .subscribe(data => {
           // Get the CSRF Token and set it to local storage
-          console.log(data);
-          localStorage.setItem('x-csrf', data);
+          console.log('Got the CSRF Token ', data);
+          let token = data['_body'];
+          Cookie.set('x-csrf-token', token);
+          headers.append('x-csrf-token', token);
+          return headers;
         });
     }
-    headers.append('x-csrf-token', localStorage.getItem('x-csrf'));
+    else {
+      headers.append('x-csrf-token', csrftoken);
+      return headers;
+    }
   }
 
   login() {
@@ -37,8 +48,8 @@ export class ElmslnService {
   }
 
   logout() {
-    localStorage.removeItem('basicAuthCredentials');
-    localStorage.removeItem('x-csrf');
+    Cookie.delete('x-csrf-token');
+    Cookie.delete('basicAuthCredentials');
 
     return true;
   }
@@ -55,8 +66,11 @@ export class ElmslnService {
 
   post(url, data) {
     let headers = new Headers();
+    headers.append('Content-Type', 'application/json');
     this.createAuthorizationHeader(headers);
     this.createCSRFTokenHeader(headers);
+
+    console.log('Post headers ', headers);
     
     return this.http.post(url, data, {
       headers: headers
