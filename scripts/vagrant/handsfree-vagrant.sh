@@ -92,7 +92,7 @@ bash /var/www/elmsln/scripts/utilities/harden-security.sh vagrant
 
 # disable varnish this way when we're doing local development we don't get cached anything
 # port swap to not use varnish in local dev
-//sed -i 's/Listen 8080/Listen 80/g' /etc/httpd/conf/httpd.conf
+#//sed -i 's/Listen 8080/Listen 80/g' /etc/httpd/conf/httpd.conf
 
 #service varnish stop
 service apache2 restart
