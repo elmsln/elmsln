@@ -59,7 +59,7 @@ echo 'fi' >> /etc/profile.d/chkon.sh
 # test for apache
 echo 'if [[ $httpd == *"inactive (dead)"* ]]' >> /etc/profile.d/chkon.sh
 echo 'then' >> /etc/profile.d/chkon.sh
-echo '  sudo /sbin/service httpd restart' >> /etc/profile.d/chkon.sh
+echo '  sudo /sbin/service apache2 restart' >> /etc/profile.d/chkon.sh
 echo 'fi' >> /etc/profile.d/chkon.sh
 # test for phpfpm
 echo 'if [[ $phpfpm == *"inactive (dead)"* ]]' >> /etc/profile.d/chkon.sh
