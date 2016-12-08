@@ -8,7 +8,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # centos 7.2 - 64 bit
   #config.vm.box = "bradallenfisher/centos7"
   # primed centos 7.2 - 64 bit
-  config.vm.box = "elmsln/centos7"
+  config.vm.box = "bento/ubuntu-16.04"
   if Vagrant.has_plugin?("vagrant-cachier")
     config.cache.scope = :box
   end
@@ -43,7 +43,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   end
   # run script as root
   config.vm.provision "shell",
-    args: "https://github.com/elmsln/elmsln.git 0.7.x https://github.com/elmsln/elmsln-config-vagrant.git",
+    args: "https://github.com/bradallenfisher/elmsln.git 0.7.x https://github.com/elmsln/elmsln-config-vagrant.git",
     path: "scripts/vagrant/handsfree-vagrant.sh"
 
   # run as the vagrant user

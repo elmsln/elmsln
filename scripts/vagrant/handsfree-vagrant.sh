@@ -30,7 +30,7 @@ git checkout -b $branch
 git fetch --all
 git reset --hard origin/$branch
 cd $HOME
-bash /var/www/elmsln/scripts/install/handsfree/centos7/centos7-install.sh elmsln ln elmsln.local http admin@elmsln.local yes
+bash /var/www/elmsln/scripts/install/handsfree/ubuntu16/ubuntu16-install.sh elmsln ln elmsln.local http admin@elmsln.local yes
 cd $HOME && source .bashrc
 
 git clone $configrepo /var/www/elmsln-config-vagrant
@@ -48,9 +48,9 @@ cp /var/www/elmsln-config-vagrant/shared/drupal-7.x/settings/shared_settings.php
 # vagrant and core services on the VM starting correctly
 # when ever networking is screwed up
 echo '#!/bin/bash' >> /etc/profile.d/chkon.sh
-echo 'phpfpm=$(sudo /sbin/service php-fpm status)' >> /etc/profile.d/chkon.sh
+echo 'phpfpm=$(sudo /sbin/service php7.0-fpm status)' >> /etc/profile.d/chkon.sh
 echo 'mysql=$(sudo /sbin/service mysqld status)' >> /etc/profile.d/chkon.sh
-echo 'httpd=$(sudo /sbin/service httpd status)' >> /etc/profile.d/chkon.sh
+echo 'httpd=$(sudo /sbin/service apache2 status)' >> /etc/profile.d/chkon.sh
 # test for mysql
 echo 'if [[ $mysql == *"inactive (dead)"* ]]' >> /etc/profile.d/chkon.sh
 echo 'then' >> /etc/profile.d/chkon.sh
@@ -64,7 +64,7 @@ echo 'fi' >> /etc/profile.d/chkon.sh
 # test for phpfpm
 echo 'if [[ $phpfpm == *"inactive (dead)"* ]]' >> /etc/profile.d/chkon.sh
 echo 'then' >> /etc/profile.d/chkon.sh
-echo '  sudo /sbin/service php-fpm restart' >> /etc/profile.d/chkon.sh
+echo '  sudo /sbin/service php7.0-fpm restart' >> /etc/profile.d/chkon.sh
 echo 'fi' >> /etc/profile.d/chkon.sh
 
 # vagrant specific stuff
@@ -82,6 +82,7 @@ service httpd restart
 su - vagrant bash /var/www/elmsln/scripts/install/users/elmsln-admin-user.sh /home/vagrant
 
 sed -i '1i export PATH="/home/vagrant/.config/composer/vendor/bin:$PATH"' /home/vagrant/.bashrc
+sed -i '1i export PATH="/home/vagrant/.composer/vendor/bin:$PATH"' /home/vagrant/.bashrc
 
 # add vagrant to the elmsln group
 usermod -a -G elmsln vagrant
@@ -91,10 +92,10 @@ bash /var/www/elmsln/scripts/utilities/harden-security.sh vagrant
 
 # disable varnish this way when we're doing local development we don't get cached anything
 # port swap to not use varnish in local dev
-sed -i 's/Listen 8080/Listen 80/g' /etc/httpd/conf/httpd.conf
+//sed -i 's/Listen 8080/Listen 80/g' /etc/httpd/conf/httpd.conf
 
 service varnish stop
-service httpd restart
+service apache2 restart
 service mysqld restart
 
 # disable varnish from starting automatically on reboot
