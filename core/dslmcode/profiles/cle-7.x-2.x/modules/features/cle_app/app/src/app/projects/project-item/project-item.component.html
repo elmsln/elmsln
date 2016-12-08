@@ -1,7 +1,7 @@
 <div class="project">
   <div class="project__header">
     <div class="project__title-container">
-      <app-editable-field [type]="text" [content]="project.title" (contentUpdated)="updateTitle(event)">
+      <app-editable-field [type]="text" [content]="project.title" (contentUpdated)="updateTitle($event)">
         <h1 class="project__title">{{ project.title }}</h1>
       </app-editable-field>
       <div class="project__description" [innerHTML]="project.description"></div>
@@ -19,7 +19,7 @@
 <!-- Modal Structure -->
 <div id="modal-{{project.id}}" class="modal assignment-form">
   <div class="modal-content">
-    <app-assignment-form [project]="project" (assignmentCreated)="assignmentCreated(event)"></app-assignment-form>
+    <app-assignment-form [project]="project" (assignmentCreated)="assignmentCreated($event)"></app-assignment-form>
   </div>
 </div>
 

@@ -3,6 +3,7 @@ import { Project } from '../../project';
 import { ProjectService } from '../../project.service';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
+declare const $:JQueryStatic;
 
 @Component({
   selector: 'app-projects-list',

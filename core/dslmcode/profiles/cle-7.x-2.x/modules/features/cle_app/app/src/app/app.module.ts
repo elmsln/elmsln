@@ -7,6 +7,7 @@ import { routing } from './app.routing';
 
 // material
 import { MaterialModule } from '@angular/material';
+import { NKDatetimeModule } from 'ng2-datetime/ng2-datetime';
 
 // services
 import { ElmslnService } from './elmsln.service';
@@ -37,6 +38,7 @@ import { DropdownComponent } from './components/dropdown/dropdown.component';
 import { ProjectCardComponent } from './projects/project-card/project-card.component';
 import { ProjectItemComponent } from './projects/project-item/project-item.component';
 import { EditableFieldComponent } from './editable-field/editable-field.component';
+import { DatetimeInputComponent } from './datetime-input/datetime-input.component';
 
 @NgModule({
   declarations: [
@@ -60,7 +62,8 @@ import { EditableFieldComponent } from './editable-field/editable-field.componen
     DropdownComponent,
     ProjectCardComponent,
     ProjectItemComponent,
-    EditableFieldComponent
+    EditableFieldComponent,
+    DatetimeInputComponent
   ],
   imports: [
     BrowserModule,
@@ -69,7 +72,8 @@ import { EditableFieldComponent } from './editable-field/editable-field.componen
     HttpModule,
     routing,
     MaterialModule.forRoot(),
-    MomentModule
+    MomentModule,
+    NKDatetimeModule
   ],
   providers: [
     ElmslnService,

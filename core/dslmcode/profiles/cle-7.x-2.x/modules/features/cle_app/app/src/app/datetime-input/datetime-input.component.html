@@ -1,4 +1,4 @@
-<div [formGroup]="form">
-  <input formControlName="date" type="date" class="datepicker">
-  <input formControlName="time" type="time" name="usr_time">
+<div>
+  <input [(ngModel)]="day" (ngModelChange)="updateDatetime($event)" type="date" class="datepicker">
+  <input [(ngModel)]="time" (ngModelChange)="updateDatetime($event)" type="time">
 </div>
