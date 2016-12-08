@@ -82,21 +82,17 @@ export class AssignmentService {
     if (assignment.endDate !== null) {
       if (assignment.startDate !== null) {
         newAssignment.field_assignment_due_date = {
-          value: assignment.startDate 
-        }
-        newAssignment.field_assignment_due_date = {
+          value: assignment.startDate,
           value2: assignment.endDate
         }
       }
       else {
         newAssignment.field_assignment_due_date = {
-          value: assignment.endDate,
-          value2: assignment.endDate
+          value: assignment.endDate
         }
       }
     }
 
     return newAssignment;
   }
-
 }
