@@ -4,6 +4,7 @@ import { ProjectService } from '../../project.service';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 declare const $:JQueryStatic;
+declare const Materialize:any;
 
 @Component({
   selector: 'app-projects-list',
@@ -41,6 +42,7 @@ export class ProjectsListComponent implements OnInit {
         // array of projects
         this.projectService.getProject(data.id)
           .subscribe((project:Project) => {
+            Materialize.toast('Project created!', 1000);
             this.projects.push(project);
           })
       })

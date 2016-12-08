@@ -19,6 +19,7 @@
 <!-- Modal Structure -->
 <div id="modal-{{project.id}}" class="modal assignment-form">
   <div class="modal-content">
+    <h4>Create assignment</h4>
     <app-assignment-form [project]="project" (assignmentCreated)="assignmentCreated($event)"></app-assignment-form>
   </div>
 </div>

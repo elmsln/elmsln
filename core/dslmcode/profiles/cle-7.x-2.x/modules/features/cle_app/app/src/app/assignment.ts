@@ -10,6 +10,6 @@ export class Assignment {
   endDate: string;
   dependency: string;
   assets: Array<string>;
-  critique: Array<any>;
+  critique: string;
   project: number;
 }

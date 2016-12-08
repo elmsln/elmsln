@@ -207,18 +207,12 @@ function _cle_assignemnts_v1_cle_assignment_id($assignment_id) {
  * Helper function that prepares an assignment for api output.
  */
 function _cle_assignment_v1_assignment_output($assignment) {
-  // MOCK CONTENT:random date
-  $rand_date = mt_rand(1493827200,1499827200);
-  $_startDate = Date('c', $rand_date);
-  $_endDate = Date('c', $rand_date + 300000);
-
+  // get an array of formatted dates
+  $dates = _cle_api_format_date_field($assignment->field_assignment_due_date[LANGUAGE_NONE][0]);
 
   global $base_url;
   // this will be our json formatted output
-  $return = array();
-
   $return = array(
-    'type' => 'assignment',
     'id' => (int)$assignment->nid,
     'title' => $assignment->title,
     'status' => (int)$assignment->status,
@@ -227,12 +221,12 @@ function _cle_assignment_v1_assignment_output($assignment) {
     'links' => array(
       'self' => $base_url . '/api/v1/cle/assignments/' . $assignment->nid,
     ),
+    'type' => ($assignment->field_assignment_privacy_setting ? $assignment->field_assignment_privacy_setting[LANGUAGE_NONE][0]['value'] : 'open'),
+    'startDate' => $dates[0],
+    'endDate' => $dates[1],
 
     // @todo
     // Need to replace static values below
-    'startDate' => $_startDate, //optional
-    'endDate' => $_endDate, //optional
-    'type' => _cle_api_random(array('open', 'closed', 'open', 'people see', 'closed', 'is private submission')),
     'dependency' => _cle_api_random(array('none', 'previous', 'parent')),// default: none
     'assets' => _cle_api_random(array('text', 'links', 'video', 'images', 'files'), 2), // unlimited
     'critique' => array(

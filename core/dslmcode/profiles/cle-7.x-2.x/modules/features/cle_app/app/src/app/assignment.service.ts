@@ -30,6 +30,22 @@ export class AssignmentService {
       .map(data => data.json())
   }
 
+  /**
+   * @todo: this should eventually be more dynamic
+   */
+  getAssignmentTypes() {
+    return [
+      {
+        value: 'open',
+        display: 'Open'
+      },
+      {
+        value: 'closed',
+        display: 'Closed'
+      }
+    ];
+  }
+
   private prepareForDrupal(assignment:Assignment) {
     // Convert date fields
     let newAssignment: any = {};
@@ -47,6 +63,12 @@ export class AssignmentService {
     if (assignment.project) {
       newAssignment.field_assignment_project = assignment.project
     }
+    if (assignment.type) {
+      newAssignment.field_assignment_privacy_setting = assignment.type;
+    }
+    if (assignment.critique) {
+      newAssignment.field_critique_method = assignment.critique;
+    }
     
     let dateFields = ['startDate', 'endDate'];
     dateFields.forEach(function(field) {
@@ -60,21 +82,17 @@ export class AssignmentService {
     if (assignment.endDate !== null) {
       if (assignment.startDate !== null) {
         newAssignment.field_assignment_due_date = {
-          value: assignment.startDate 
-        }
-        newAssignment.field_assignment_due_date = {
+          value: assignment.startDate,
           value2: assignment.endDate
         }
       }
       else {
         newAssignment.field_assignment_due_date = {
-          value: assignment.endDate,
-          value2: assignment.endDate
+          value: assignment.endDate
         }
       }
     }
 
     return newAssignment;
   }
-
 }
