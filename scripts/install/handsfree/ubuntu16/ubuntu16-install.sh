@@ -54,9 +54,6 @@ a2enconf php7.0-fpm
 a2enmod ssl rewrite headers
 pecl channel-update pecl.php.net
 
-pecl install yaml-2.0.0 && echo "extension=yaml.so" > /etc/php/7.0/mods-available/yaml.ini
-phpenmod yaml
-
 # install uploadprogress
 pecl install uploadprogress
 
@@ -88,6 +85,13 @@ groupadd elmsln
 # get base mysql tables established
 #mysql_install_db
 # run the handsfree installer that's the same for all deployments
+
+# Not sure why but run this at the end...
+apt-get install libyaml-dev -y
+yes '' | pecl install -f yaml-2.0.0
+echo "extension=yaml.so" > /etc/php/7.0/mods-available/yaml.ini
+phpenmod yaml
+service php7.0-fpm restart
 
 # kick off hands free deployment
 cd $HOME
