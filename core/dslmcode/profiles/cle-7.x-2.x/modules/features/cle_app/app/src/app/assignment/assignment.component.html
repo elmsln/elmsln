@@ -1,16 +1,32 @@
-<a (click)="gotToProjects()" class="waves-effect waves-light btn"><i class="material-icons left">&#xE14A;</i> Projects</a>
+<div class="container" *ngIf="assignment">
+  <div class="col s12">
 
-<div class="assignment" *ngIf="assignment">
-  <h1 class="assignment__title">{{ assignment.title }}</h1>
-  <div class="assignment__meta">
-    <div class="assignment__dates">
-      <span *ngIf="assignment.startDate">{{ assignment.startDate | amDateFormat:'LL hh:mmA' }} - </span>
-      {{ assignment.endDate | amDateFormat:'LL hh:mmA' }}
+    <nav>
+      <div class="nav-wrapper">
+        <ul id="nav-mobile" class="left hide-on-med-and-down">
+          <li><a routerLink="/projects"><i class="material-icons left">&#xE5C4;</i> back</a></li>
+        </ul>
+        <ul *ngIf="editing == false" id="nav-mobile" class="right hide-on-med-and-down">
+          <li><a (click)="editAssignment()"><i class="material-icons">&#xE3C9;</i></a></li>
+        </ul>
+        <ul *ngIf="editing == true" id="nav-mobile" class="right hide-on-med-and-down">
+          <li><a (click)="stopEditing()"><i class="material-icons">&#xE5C9;</i></a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <div class="assignment" *ngIf="editing === false">
+      <h1 class="assignment__title">{{ assignment.title }}</h1>
+      <div class="assignment__meta">
+        <div class="assignment__dates">
+          <span *ngIf="assignment.startDate">{{ assignment.startDate | amDateFormat:'LL hh:mmA' }} - </span>
+          {{ assignment.endDate | amDateFormat:'LL hh:mmA' }}
+        </div>
+      </div>
+      <div class="assignment__description" [innerHTML]="assignment.description"> </div>
     </div>
-  </div>
-  <div class="assignment__body" [innerHTML]="assignment.body"> </div>
 
-  <code><pre>
-    {{ assignment | json }}
-  </pre></code>
+    <app-assignment-form *ngIf="editing" (assignmentCreated)="onAssignmentCreated($event)"></app-assignment-form>
+
+  </div>
 </div>

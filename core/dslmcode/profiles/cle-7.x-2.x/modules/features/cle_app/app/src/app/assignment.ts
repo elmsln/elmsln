@@ -12,4 +12,5 @@ export class Assignment {
   assets: Array<string>;
   critique: string;
   project: number;
+  description?: string;
 }

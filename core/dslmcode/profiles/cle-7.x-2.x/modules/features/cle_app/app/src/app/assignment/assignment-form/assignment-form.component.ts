@@ -34,6 +34,7 @@ export class AssignmentFormComponent implements OnInit {
       endDate: <string>null,
       startDate: <string>null,
       type: <string>null,
+      description: <string>''
     });
 
     this.assignmentTypes = this.assignmentService.getAssignmentTypes();
@@ -45,7 +46,7 @@ export class AssignmentFormComponent implements OnInit {
   // Update the body from the WYSIWYG changed event.
   bodyChanged($event) {
     this.form.patchValue({
-      body: $event
+      description: $event
     })
   }
 

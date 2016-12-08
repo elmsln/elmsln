@@ -69,6 +69,11 @@ export class AssignmentService {
     if (assignment.critique) {
       newAssignment.field_critique_method = assignment.critique;
     }
+    if (assignment.description) {
+      newAssignment.field_assignment_description = {
+        value: assignment.description
+      }
+    }
     
     let dateFields = ['startDate', 'endDate'];
     dateFields.forEach(function(field) {

@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ElementRef, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { Assignment } from '../assignment';
 import { AssignmentService } from '../assignment.service';
 import { Observable } from 'rxjs';
+declare const jQuery:any;
 
 @Component({
   selector: 'cle-assignment',
@@ -11,16 +12,18 @@ import { Observable } from 'rxjs';
   styleUrls: ['./assignment.component.css'],
   providers: [AssignmentService]
 })
-export class AssignmentComponent implements OnInit {
-  assignmentId: number;
-  assignment: Assignment;
-  date: number;
+export class AssignmentComponent implements OnInit, OnDestroy {
+  assignmentId:number;
+  assignment:Assignment;
+  date:number;
+  editing:boolean = false;
 
   constructor(
     private router: Router,
     private route: ActivatedRoute,
     private location: Location,
-    private assignmentService: AssignmentService
+    private assignmentService: AssignmentService,
+    private el:ElementRef
   ) { }
 
   ngOnInit() {
@@ -43,13 +46,18 @@ export class AssignmentComponent implements OnInit {
           this.assignment = data.data;
         });
     }
+
   }
 
-  backButton() {
-    this.location.back();
+  editAssignment() {
+    this.editing = true;
   }
 
-  gotToProjects() {
-    this.router.navigate(['/projects']);
+  stopEditing() {
+    this.editing = false;
+  }
+
+  onAssignmentSave($event) {
+    this.editing = false;
   }
 }
