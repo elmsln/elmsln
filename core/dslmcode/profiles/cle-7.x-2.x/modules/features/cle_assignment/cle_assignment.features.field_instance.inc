@@ -137,7 +137,7 @@ function cle_assignment_field_default_field_instances() {
       'module' => 'jquery_colorpicker',
       'settings' => array(),
       'type' => 'jquery_colorpicker',
-      'weight' => 5,
+      'weight' => 4,
     ),
   );
 
@@ -213,12 +213,12 @@ function cle_assignment_field_default_field_instances() {
           'multiple_to' => '',
         ),
         'type' => 'date_default',
-        'weight' => 19,
+        'weight' => 31,
       ),
     ),
     'entity_type' => 'node',
     'field_name' => 'field_assignment_due_date',
-    'label' => 'Due date',
+    'label' => 'Assignment Due Date',
     'required' => 0,
     'settings' => array(
       'authcache' => array(
@@ -244,14 +244,14 @@ function cle_assignment_field_default_field_instances() {
       'active' => 1,
       'module' => 'date',
       'settings' => array(
-        'increment' => 30,
-        'input_format' => 'M j Y - g:i:sa',
+        'increment' => 15,
+        'input_format' => 'm/d/Y - H:i:s',
         'input_format_custom' => '',
-        'label_position' => 'none',
+        'label_position' => 'above',
         'text_parts' => array(),
-        'year_range' => '-0:+2',
+        'year_range' => '-3:+3',
       ),
-      'type' => 'date_popup',
+      'type' => 'date_text',
       'weight' => 2,
     ),
   );
@@ -352,7 +352,7 @@ function cle_assignment_field_default_field_instances() {
         'apply_chosen' => '',
       ),
       'type' => 'options_select',
-      'weight' => 7,
+      'weight' => 6,
     ),
   );
 
@@ -431,7 +431,7 @@ function cle_assignment_field_default_field_instances() {
         'progress_indicator' => 'throbber',
       ),
       'type' => 'image_image',
-      'weight' => 6,
+      'weight' => 5,
     ),
   );
 
@@ -534,6 +534,62 @@ function cle_assignment_field_default_field_instances() {
       ),
       'type' => 'options_select',
       'weight' => 1,
+    ),
+  );
+
+  // Exported field_instance: 'node-cle_assignment-field_assignment_project'.
+  $field_instances['node-cle_assignment-field_assignment_project'] = array(
+    'bundle' => 'cle_assignment',
+    'default_value' => NULL,
+    'default_value_function' => '',
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'entityreference',
+        'settings' => array(
+          'link' => FALSE,
+        ),
+        'type' => 'entityreference_label',
+        'weight' => 30,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_assignment_project',
+    'label' => 'Project',
+    'required' => 0,
+    'settings' => array(
+      'authcache' => array(
+        'clients' => array(
+          'authcache_ajax' => array(
+            'status' => 1,
+            'weight' => 0,
+          ),
+        ),
+        'fallback' => 'cancel',
+        'lifespan' => 3600,
+        'perpage' => 0,
+        'peruser' => 1,
+        'status' => 0,
+      ),
+      'behaviors' => array(
+        'prepopulate' => array(
+          'status' => 0,
+        ),
+      ),
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'entityreference',
+      'settings' => array(
+        'match_operator' => 'CONTAINS',
+        'path' => '',
+        'size' => 60,
+      ),
+      'type' => 'entityreference_autocomplete',
+      'weight' => 24,
     ),
   );
 
@@ -779,11 +835,11 @@ function cle_assignment_field_default_field_instances() {
   // Included for use with string extractors like potx.
   t('Allow late submissions');
   t('Artifacts');
+  t('Assignment Due Date');
   t('Assignment dependencies');
   t('Color');
   t('Comment');
   t('Competencies');
-  t('Due date');
   t('Evidence method');
   t('How students demonstrate they have completed the assignment. Artifacts are through production like text, media, and links. Critique is through evaluation of peers.');
   t('Image');
@@ -791,6 +847,7 @@ function cle_assignment_field_default_field_instances() {
   t('Optional color when this assignment is referenced.');
   t('Outline');
   t('Privacy setting');
+  t('Project');
   t('Public critique');
   t('Student Feedback');
   t('Will the student\'s critique be visible to other students?');

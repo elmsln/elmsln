@@ -1,12 +1,30 @@
 <form [formGroup]="form" class="assignment-form">
   <input formControlName="title" placeholder="Title">
-
-  <div class="start-date">
-    <label>Start Date</label>
-  </div>
+  <wysiwygjs (onChange)="bodyChanged($event)"></wysiwygjs>
 
   <div class="due-date">
-    <label>Due Date</label>
+    <div class="display" *ngIf="form.value.endDate !==null">
+      Due date:
+      <span *ngIf="form.value.startDate !== null" class="start-date">
+        {{ form.value.startDate | amDateFormat:'LL hh:mma' }} 
+        <span class="separator">
+          to
+        </span>
+      </span>
+      <span class="end-date">
+        {{ form.value.endDate | amDateFormat:'LL hh:mma' }}
+      </span>
+    </div>
+    
+    <div *ngIf="form.value.endDate !== null" class="start-date">
+      <label>Start Date</label>
+      <app-datetime-input formControlName="startDate"></app-datetime-input>
+    </div>
+
+    <div class="due-date">
+      <label>Due Date</label>
+      <app-datetime-input formControlName="endDate"></app-datetime-input>
+    </div>
   </div>
 
   <a (click)="submitAssignment()" class="waves-effect waves-light btn">Create Assignment</a>

@@ -24,19 +24,57 @@ export class AssignmentService {
   }
 
   createAssignment(assignment:Assignment) {
-    let newAssignment: any;
-
-    // We have to construct a new assignment object to send to RESTws
-    newAssignment = {
-      type: 'cle_assignment',
-      title: assignment.title,
-      body: {
-        value: assignment.body,
-      },
-      field_assignment_project: assignment.project
-    }
+    let newAssignment = this.prepareForDrupal(assignment);
     
     return this.elmsln.post(AppSettings.BASE_PATH + 'node', newAssignment)
       .map(data => data.json())
   }
+
+  private prepareForDrupal(assignment:Assignment) {
+    // Convert date fields
+    let newAssignment: any = {};
+
+    // We have to construct a new assignment object to send to RESTws
+    newAssignment.type = 'cle_assignment';
+    if (assignment.title) {
+      newAssignment.title = assignment.title
+    }
+    if (assignment.body) {
+      newAssignment.body = {
+        value: assignment.body
+      }
+    }
+    if (assignment.project) {
+      newAssignment.field_assignment_project = assignment.project
+    }
+    
+    let dateFields = ['startDate', 'endDate'];
+    dateFields.forEach(function(field) {
+      if (assignment[field]) {
+        assignment[field] = (Date.parse(assignment[field]) / 1000);
+        assignment[field] = assignment[field].toString();
+      }
+    });
+    // the due date works weird so we need to do some custom logic to find out what field to populate
+    // in Drupal
+    if (assignment.endDate !== null) {
+      if (assignment.startDate !== null) {
+        newAssignment.field_assignment_due_date = {
+          value: assignment.startDate 
+        }
+        newAssignment.field_assignment_due_date = {
+          value2: assignment.endDate
+        }
+      }
+      else {
+        newAssignment.field_assignment_due_date = {
+          value: assignment.endDate,
+          value2: assignment.endDate
+        }
+      }
+    }
+
+    return newAssignment;
+  }
+
 }
