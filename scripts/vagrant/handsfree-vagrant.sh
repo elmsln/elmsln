@@ -48,23 +48,23 @@ cp /var/www/elmsln-config-vagrant/shared/drupal-7.x/settings/shared_settings.php
 # vagrant and core services on the VM starting correctly
 # when ever networking is screwed up
 echo '#!/bin/bash' >> /etc/profile.d/chkon.sh
-echo 'phpfpm=$(sudo /sbin/service php7.0-fpm status)' >> /etc/profile.d/chkon.sh
-echo 'mysql=$(sudo /sbin/service mysqld status)' >> /etc/profile.d/chkon.sh
-echo 'httpd=$(sudo /sbin/service apache2 status)' >> /etc/profile.d/chkon.sh
+echo 'phpfpm=$(sudo /usr/sbin/service php7.0-fpm status)' >> /etc/profile.d/chkon.sh
+echo 'mysql=$(sudo /usr/sbin/service mysqld status)' >> /etc/profile.d/chkon.sh
+echo 'httpd=$(sudo /usr/sbin/service apache2 status)' >> /etc/profile.d/chkon.sh
 # test for mysql
 echo 'if [[ $mysql == *"inactive (dead)"* ]]' >> /etc/profile.d/chkon.sh
 echo 'then' >> /etc/profile.d/chkon.sh
-echo '  sudo /sbin/service mysqld restart' >> /etc/profile.d/chkon.sh
+echo '  sudo /usr/sbin/service mysqld restart' >> /etc/profile.d/chkon.sh
 echo 'fi' >> /etc/profile.d/chkon.sh
 # test for apache
 echo 'if [[ $httpd == *"inactive (dead)"* ]]' >> /etc/profile.d/chkon.sh
 echo 'then' >> /etc/profile.d/chkon.sh
-echo '  sudo /sbin/service apache2 restart' >> /etc/profile.d/chkon.sh
+echo '  sudo /usr/sbin/service apache2 restart' >> /etc/profile.d/chkon.sh
 echo 'fi' >> /etc/profile.d/chkon.sh
 # test for phpfpm
 echo 'if [[ $phpfpm == *"inactive (dead)"* ]]' >> /etc/profile.d/chkon.sh
 echo 'then' >> /etc/profile.d/chkon.sh
-echo '  sudo /sbin/service php7.0-fpm restart' >> /etc/profile.d/chkon.sh
+echo '  sudo /usr/sbin/service php7.0-fpm restart' >> /etc/profile.d/chkon.sh
 echo 'fi' >> /etc/profile.d/chkon.sh
 
 # vagrant specific stuff
