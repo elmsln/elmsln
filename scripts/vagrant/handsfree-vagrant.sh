@@ -1,6 +1,6 @@
 #!/bin/bash
 # hands free installer for vagrant environment based on cloud deployment 1liners
-yes | yum -y install git
+yes | apt-get install git
 
 if [ -z $1 ]; then
   repo='https://github.com/elmsln/elmsln.git'
