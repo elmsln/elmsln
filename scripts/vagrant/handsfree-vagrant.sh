@@ -77,7 +77,7 @@ drush @elmsln upwd admin --password=admin --y
 # enable devel everywhere
 drush @elmsln en devel --y
 # restart apache to frag some caches because of the different settings that changed inside
-service httpd restart
+service apache2 restart
 
 su - vagrant bash /var/www/elmsln/scripts/install/users/elmsln-admin-user.sh /home/vagrant
 
@@ -94,9 +94,9 @@ bash /var/www/elmsln/scripts/utilities/harden-security.sh vagrant
 # port swap to not use varnish in local dev
 //sed -i 's/Listen 8080/Listen 80/g' /etc/httpd/conf/httpd.conf
 
-service varnish stop
+#service varnish stop
 service apache2 restart
 service mysqld restart
 
 # disable varnish from starting automatically on reboot
-chkconfig varnish off
+#chkconfig varnish off
