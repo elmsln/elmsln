@@ -50,8 +50,11 @@ export class AssignmentFormComponent implements OnInit {
   }
 
   save(model:Assignment) {
-    // add project id
-    model.project = this.project.id;
+    // if the project was specified then that means we need to manually set the
+    // project id
+    if (this.project) {
+      model.project = this.project.id;
+    }
     console.log('Submit Assignment initiated', model);
     this.assignmentService.createAssignment(model)
       .subscribe(data => {
