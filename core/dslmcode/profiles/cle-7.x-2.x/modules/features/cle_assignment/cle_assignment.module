@@ -227,12 +227,12 @@ function _cle_assignment_v1_assignment_output($assignment) {
     'links' => array(
       'self' => $base_url . '/api/v1/cle/assignments/' . $assignment->nid,
     ),
+    'type' => ($assignment->field_assignment_privacy_setting ? $assignment->field_assignment_privacy_setting[LANGUAGE_NONE][0]['value'] : 'open'),
 
     // @todo
     // Need to replace static values below
     'startDate' => $_startDate, //optional
     'endDate' => $_endDate, //optional
-    'type' => _cle_api_random(array('open', 'closed', 'open', 'people see', 'closed', 'is private submission')),
     'dependency' => _cle_api_random(array('none', 'previous', 'parent')),// default: none
     'assets' => _cle_api_random(array('text', 'links', 'video', 'images', 'files'), 2), // unlimited
     'critique' => array(

@@ -21,3 +21,7 @@
 :host >>> .wysiwyg-editor {
   min-height: 10em;
 }
+
+select {
+  display: block;
+}

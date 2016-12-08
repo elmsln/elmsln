@@ -1,6 +1,14 @@
-<form [formGroup]="form" class="assignment-form">
+<form [formGroup]="form" class="assignment-form" (ngSubmit)="save(form.value)">
   <input formControlName="title" placeholder="Title">
   <wysiwygjs (onChange)="bodyChanged($event)"></wysiwygjs>
+
+  <div class="privacy">
+    <label>Privacy Setting:</label>
+    <select formControlName="type">
+      <option value="" disabled selected>Choose your option</option>
+      <option *ngFor="let type of assignmentTypes" [value]="type.value">{{ type.display }}</option>
+    </select>
+  </div>
 
   <div class="due-date">
     <div class="display" *ngIf="form.value.endDate !==null">
@@ -27,5 +35,7 @@
     </div>
   </div>
 
-  <a (click)="submitAssignment()" class="waves-effect waves-light btn">Create Assignment</a>
+  <button type="submit" class="waves-effect waves-light btn">Save</button>
 </form>
+
+{{ form.value | json }}

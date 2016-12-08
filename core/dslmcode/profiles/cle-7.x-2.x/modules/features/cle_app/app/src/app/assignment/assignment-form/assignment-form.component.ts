@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { Assignment } from '../../assignment';
 import { AssignmentService } from '../../assignment.service';
 import { Project } from '../../project';
+declare const jQuery:any;
 
 @Component({
   selector: 'app-assignment-form',
@@ -20,8 +21,7 @@ export class AssignmentFormComponent implements OnInit {
   @Output() assignmentCreated: EventEmitter<any> = new EventEmitter();
   // The assignment form that we will attach all of the fields to
   form: FormGroup;
-  startDate:any;
-  endDate:any;
+  assignmentTypes:any[];
 
   constructor(
     private formBuilder: FormBuilder,
@@ -32,8 +32,11 @@ export class AssignmentFormComponent implements OnInit {
       title: <string>'',
       body: <string>'',
       endDate: <string>null,
-      startDate: <string>null
-    })
+      startDate: <string>null,
+      type: <string>null,
+    });
+
+    this.assignmentTypes = this.assignmentService.getAssignmentTypes();
   } 
 
   ngOnInit() {
@@ -46,18 +49,11 @@ export class AssignmentFormComponent implements OnInit {
     })
   }
 
-  submitAssignment() {
-    console.log('Submit Assignment initiated', this.form.value);
-    let assignment = new Assignment();
-    assignment.title = this.form.value.title;
-    assignment.body = this.form.value.body;
-    assignment.endDate = this.form.value.endDate;
-    assignment.startDate = this.form.value.startDate;
-    assignment.project = this.project.id;
-
-    console.log('Submission Assignment put together ', assignment); 
-
-    this.assignmentService.createAssignment(assignment)
+  save(model:Assignment) {
+    // add project id
+    model.project = this.project.id;
+    console.log('Submit Assignment initiated', model);
+    this.assignmentService.createAssignment(model)
       .subscribe(data => {
         console.log('Assignment creation response: ', data);
         if (data.id) {
