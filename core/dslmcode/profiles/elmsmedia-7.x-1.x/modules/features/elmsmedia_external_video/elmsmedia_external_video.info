@@ -18,6 +18,7 @@ dependencies[] = og
 dependencies[] = options
 dependencies[] = strongarm
 dependencies[] = taxonomy
+dependencies[] = text
 dependencies[] = video_embed_field
 features[ctools][] = ds:ds:1
 features[ctools][] = field_group:field_group:1
