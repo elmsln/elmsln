@@ -1,3 +1,7 @@
+.h5p-multichoice .h5p-radio-or-checkbox {
+  line-height: 1.3rem;
+}
+
 @media (max-width: 80rem) {
   .btn-floating.btn-large {
     width: 2rem;
