@@ -1,0 +1,39 @@
+diff --git a/blob.module b/blob.module
+index 16c6185..ab3a6db 100644
+--- a/blob.module
++++ b/blob.module
+@@ -17,17 +17,34 @@ function blob_field_info() {
+       'description' => t('This field stores blob in the database.'),
+       'default_widget' => 'blob_widget_none',
+       'default_formatter' => 'blob_default',
++      'property_type' => 'field_blob',
++      'property_callbacks' => array('blob_field_property_info_callback'),
+     ),
+     'blob_long' => array(
+       'label' => t('Long blob'),
+       'description' => t('This field stores long blob in the database.'),
+       'default_widget' => 'blob_widget_none',
+       'default_formatter' => 'blob_default',
++      'property_type' => 'field_blob',
++      'property_callbacks' => array('blob_field_property_info_callback'),
+     ),
+   );
+ }
+ 
+ /**
++ * Callback for blob property.
++ */
++function blob_field_property_info_callback(&$info, $entity_type, $field, $instance, $field_type) {
++  $property = &$info[$entity_type]['bundles'][$instance['bundle']]['properties'][$field['field_name']];
++
++  // Provide standard getter and setter.
++  $property['getter callback'] = 'entity_metadata_field_verbatim_get';
++  $property['setter callback'] = 'entity_metadata_field_verbatim_set';
++
++  unset($property['query callback']);
++}
++
++/**
+  * Implements hook_field_is_empty().
+  */
+ function blob_field_is_empty($item, $field) {

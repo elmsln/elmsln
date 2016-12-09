@@ -1,0 +1,37 @@
+.projects-container {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: flex-start;
+  align-items: flex-start;
+  overflow-x: scroll;
+}
+
+.projects-container >>> app-project-item {
+  width: 100%;
+  min-width: 400px;
+  max-width: 500px;
+}
+
+.create-project {
+  margin: 3em auto;
+  max-width: 300px;
+  display: block;
+  cursor: pointer;
+}
+
+.face {
+  text-align: center;
+  margin: auto;
+  display: block;
+  font-size: 5em;
+  margin-bottom: 2rem;
+  margin-top: 2rem;
+  color: #ababab;
+}
+
+.preloader-wrapper {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+}

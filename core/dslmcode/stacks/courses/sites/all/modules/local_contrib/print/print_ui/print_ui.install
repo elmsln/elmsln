@@ -11,7 +11,7 @@
  * Implements hook_enable().
  */
 function print_ui_enable() {
-  // Module weight
+  // Module weight.
   db_update('system')
     ->fields(array(
       'weight' => 1,

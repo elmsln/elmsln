@@ -1,0 +1,106 @@
+<?php
+
+/**
+ * @file
+ * Installation hooks for the CAS Server module.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function cas_server_schema() {
+  $schema = array();
+
+  $schema['cas_server_tickets'] = array(
+    'description' => 'Stores CAS server tickets.',
+    'fields' => array(
+      'service' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'ticket' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'uid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'timestamp' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+      'valid' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 1,
+      ),
+    ),
+    'primary key' => array('ticket'),
+  );
+
+  return $schema;
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function cas_server_uninstall() {
+  variable_del('cas_server_service_whitelist');
+  variable_del('cas_server_whitelist_failure');
+}
+
+/**
+ * Creates CAS server tickets table.
+ */
+function cas_server_update_7000() {
+  $schema = array();
+
+  $schema['cas_server_tickets'] = array(
+    'description' => 'Stores CAS server tickets.',
+    'fields' => array(
+      'service' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'ticket' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'uid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'timestamp' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+    ),
+    'primary key' => array('ticket'),
+  );
+
+  $ret = array();
+  if (!db_table_exists('cas_server_tickets')) {
+    db_create_table('cas_server_tickets', $schema['cas_server_tickets']);
+  }
+  return $ret;
+}
+
+/**
+ * Adds valid field to indicate when ticket is valid for reuse.
+ */
+function cas_server_update_7101() {
+  if (!db_field_exists('cas_server_tickets', 'valid')) {
+    db_add_field('cas_server_tickets', 'valid', array('type' => 'int', 'not null' => TRUE, 'default' => 1, ));
+  }
+}

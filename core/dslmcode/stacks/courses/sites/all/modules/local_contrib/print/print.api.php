@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Main API entry point for the Printer, email and PDF versions
+ * Main API entry point for the Printer, email and PDF versions.
  *
  * @ingroup print
  */
@@ -109,7 +109,7 @@
  * etc.).
  *
  * @param string $url
- *   the url to be modified.
+ *   The url to be modified.
  *
  * @ingroup print_hooks
  */

@@ -14,17 +14,17 @@
  * Generate a EPUB version of the provided HTML.
  *
  * @param string $html
- *   HTML content of the EPUB
+ *   HTML content of the EPUB.
  * @param array $meta
  *   Meta information to be used in the EPUB
  *   - url: original URL
  *   - name: author's name
  *   - title: Page title
- *   - node: node object
+ *   - node: node object.
  * @param string $filename
- *   (optional) Filename of the generated EPUB
+ *   (optional) Filename of the generated EPUB.
  *
- * @return
+ * @return string|null
  *   generated EPUB page, or NULL in case of error
  *
  * @see print_epub_controller_html()
@@ -80,7 +80,7 @@ function hook_print_epub_available_libs_alter(&$epub_tools) {
  * '.epub' extension, as the module will do that automatically.
  *
  * @param string $epub_filename
- *   current value of the epub_filename variable, after processing tokens and
+ *   Current value of the epub_filename variable, after processing tokens and
  *   any transliteration steps.
  * @param string $path
  *   original alias/system path of the page being converted to EPUB.
@@ -88,7 +88,7 @@ function hook_print_epub_available_libs_alter(&$epub_tools) {
  * @ingroup print_hooks
  */
 function hook_print_epub_filename_alter(&$epub_filename, &$path) {
-  $epub_filename = 'foo';
+  $epub_filename = $path . '/foo';
 }
 
 /**

@@ -1,8 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Assignment } from '../../assignment';
 import { AssignmentService } from '../../assignment.service';
+import { Project } from '../../project';
+declare const jQuery:any;
 
 @Component({
   selector: 'app-assignment-form',
@@ -11,7 +13,15 @@ import { AssignmentService } from '../../assignment.service';
   providers: [Assignment, AssignmentService]
 })
 export class AssignmentFormComponent implements OnInit {
+  // assignments will always have a project attached to it
+  @Input() project: Project;
+  // this is the newly created assignment
+  @Output() assignment: Assignment;
+  // assignment creation event
+  @Output() assignmentCreated: EventEmitter<any> = new EventEmitter();
+  // The assignment form that we will attach all of the fields to
   form: FormGroup;
+  assignmentTypes:any[];
 
   constructor(
     private formBuilder: FormBuilder,
@@ -19,11 +29,14 @@ export class AssignmentFormComponent implements OnInit {
     private router: Router
   ) { 
     this.form = this.formBuilder.group({
-      title: '',
-      body: '',
-      endDate: '',
-      startDate: ''
-    })
+      title: <string>'',
+      body: <string>'',
+      endDate: <string>null,
+      startDate: <string>null,
+      type: <string>null,
+    });
+
+    this.assignmentTypes = this.assignmentService.getAssignmentTypes();
   } 
 
   ngOnInit() {
@@ -36,19 +49,20 @@ export class AssignmentFormComponent implements OnInit {
     })
   }
 
-  submitAssignment() {
-    let assignment = new Assignment();
-    assignment.title = this.form.value.title;
-    assignment.body = this.form.value.body;
-    assignment.endDate = this.form.value.endDate;
-    assignment.startDate = this.form.value.startDate;
-
-    this.assignmentService.createAssignment(assignment)
+  save(model:Assignment) {
+    // if the project was specified then that means we need to manually set the
+    // project id
+    if (this.project) {
+      model.project = this.project.id;
+    }
+    console.log('Submit Assignment initiated', model);
+    this.assignmentService.createAssignment(model)
       .subscribe(data => {
+        console.log('Assignment creation response: ', data);
         if (data.id) {
-          this.router.navigate(['/assignments/' + data.id]);
+          this.assignmentCreated.emit();
+          this.form.reset();
         }
-        console.log(data);
       })
   }
 }

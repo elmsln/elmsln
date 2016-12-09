@@ -19,7 +19,9 @@ function print_main_settings() {
   $print_css = variable_get('print_css', PRINT_CSS_DEFAULT);
   // Check that the stylesheet path is indeed valid and relative to base_path()
   if (!empty($print_css) && empty($_POST)) {
-    $css_path = dirname($_SERVER['SCRIPT_FILENAME']) . '/' . strtr($print_css, array('%t' => drupal_get_path('theme', variable_get('theme_default', 'garland'))));
+    $css_path = DRUPAL_ROOT . '/' . strtr($print_css, array(
+      '%t' => drupal_get_path('theme', variable_get('theme_default', 'garland')),
+    ));
     if (!is_file($css_path) || !is_readable($css_path)) {
       drupal_set_message(t("File %file is not readable by the web server.", array('%file' => $css_path)), 'warning', FALSE);
     }
@@ -37,8 +39,10 @@ function print_main_settings() {
     '#size' => 60,
     '#maxlength' => 250,
     '#description' => t('The path to your custom print cascading stylesheet, if any. The path provided must be relative to the base path. When none is specified, the default module CSS file is used.') . '<br />' .
-                      t('Macros: %t (path to theme: "%theme")', array('%theme' => drupal_get_path('theme', variable_get('theme_default', 'bartik')))) . '<br />' .
-                      t('Requires the <em>Administer site configuration</em> permission.'),
+      t('Macros: %t (path to theme: "%theme")', array(
+        '%theme' => drupal_get_path('theme', variable_get('theme_default', 'bartik')),
+      )) . '<br />' .
+      t('Requires the <em>Administer site configuration</em> permission.'),
     '#disabled' => !user_access('administer site configuration'),
   );
 
@@ -54,7 +58,9 @@ function print_main_settings() {
     '#title' => t('Printer-friendly URLs list'),
     '#default_value' => variable_get('print_urls', PRINT_URLS_DEFAULT),
     '#description' => t('If set, a list of the destination URLs for the page links will be displayed at the bottom of the page.') . '<br />' .
-                      t('Note that you can enable/disable the URL list for each content type individually from the !url.', array('!url' => l(t('Content Types page'), 'admin/structure/types'))),
+      t('Note that you can enable/disable the URL list for each content type individually from the !url.', array(
+        '!url' => l(t('Content Types page'), 'admin/structure/types'),
+      )),
   );
 
   $form['settings']['print_urls_anchors'] = array(
@@ -89,7 +95,11 @@ function print_main_settings() {
   $form['settings']['logo']['print_logo_options'] = array(
     '#type' => 'radios',
     '#title' => t('Logo type'),
-    '#options' => array(t('None (Disabled)'), t("Current theme's logo"), t('User-specified')),
+    '#options' => array(
+      t('None (Disabled)'),
+      t("Current theme's logo"),
+      t('User-specified'),
+    ),
     '#default_value' => variable_get('print_logo_options', PRINT_LOGO_OPTIONS_DEFAULT),
     '#description' => t("Select the type of logo to display on the printer-friendly version. In case of a user-specified location, insert the path or URL below."),
   );
@@ -120,7 +130,11 @@ function print_main_settings() {
   $form['settings']['footer']['print_footer_options'] = array(
     '#type' => 'radios',
     '#title' => t('Footer type'),
-    '#options' => array(t('None (Disabled)'), t("Site's footer"), t('User-specified')),
+    '#options' => array(
+      t('None (Disabled)'),
+      t("Site's footer"),
+      t('User-specified'),
+    ),
     '#default_value' => variable_get('print_footer_options', PRINT_FOOTER_OPTIONS_DEFAULT),
     '#description' => t("Select the type of footer to display on the printer-friendly version. In case of a user-specified footer, insert it below."),
   );
@@ -179,6 +193,7 @@ function _print_main_settings_validate($form, &$form_state) {
     // files table as a temporary file. We'll make a copy and let the garbage
     // collector delete the original upload.
     if ($filename = file_unmanaged_copy($file->uri)) {
+      /** @var DrupalStreamWrapperInterface $wrapper */
       $wrapper = file_stream_wrapper_get_instance_by_uri($filename);
 
       $form_state['values']['print_logo_options'] = 2;

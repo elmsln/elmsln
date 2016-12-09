@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Params } from '@angular/router';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { Assignment } from '../assignment';
 import { AssignmentService } from '../assignment.service';
-import 'rxjs';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'cle-assignment',
@@ -17,6 +17,7 @@ export class AssignmentComponent implements OnInit {
   date: number;
 
   constructor(
+    private router: Router,
     private route: ActivatedRoute,
     private location: Location,
     private assignmentService: AssignmentService
@@ -46,5 +47,9 @@ export class AssignmentComponent implements OnInit {
 
   backButton() {
     this.location.back();
+  }
+
+  gotToProjects() {
+    this.router.navigate(['/projects']);
   }
 }

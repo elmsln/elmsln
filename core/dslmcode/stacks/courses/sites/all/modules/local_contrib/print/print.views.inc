@@ -2,11 +2,10 @@
 
 /**
  * @file
- * Printer-friendly version Views integration
+ * Printer-friendly version Views integration.
  *
  * @ingroup print
  */
-
 
 /**
  * Implements hook_views_data().
@@ -26,18 +25,16 @@ function print_views_data() {
     // 'field' is the foreign key in this table.
     'left_field' => 'nid',
     'field' => 'nid',
-//    'type' => 'INNER',
   );
   $data['print_page_counter']['table']['join']['node'] = array(
     // 'left_field' is the primary key in the referenced table.
     // 'field' is the foreign key in this table.
     'left_field' => 'nid',
     'field' => 'path',
-//    'type' => 'INNER',
     'handler' => 'print_join_page_counter',
   );
 
-  // print_node_conf fields
+  // print_node_conf fields.
   $data['print_node_conf']['link'] = array(
     'title' => t('Web: Show link'),
     'help' => t('Whether to show the printer-friendly version link.'),
@@ -87,8 +84,7 @@ function print_views_data() {
     ),
   );
 
-
-  // print_page_counter fields
+  // print_page_counter fields.
   $data['print_page_counter']['totalcount'] = array(
     'title' => t('Web: Number of page accesses'),
     'help' => t('Counter of accesses to the printer-friendly version for this node.'),

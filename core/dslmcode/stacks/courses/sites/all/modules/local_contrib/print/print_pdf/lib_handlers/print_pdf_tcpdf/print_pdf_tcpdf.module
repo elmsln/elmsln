@@ -81,12 +81,12 @@ function print_pdf_tcpdf_menu() {
  */
 function print_pdf_tcpdf_pdf_tool_version($pdf_tool) {
   if (variable_get('print_pdf_autoconfig', PRINT_PDF_AUTOCONFIG_DEFAULT)) {
-    // prevent TCPDF default configs
+    // Prevent TCPDF default configs.
     define('K_TCPDF_EXTERNAL_CONFIG', TRUE);
   }
-  require_once(DRUPAL_ROOT . '/' . $pdf_tool);
+  require_once DRUPAL_ROOT . '/' . $pdf_tool;
 
-  // Hide warnings, as some TCPDF constants may still be undefined
+  // Hide warnings, as some TCPDF constants may still be undefined.
   if (class_exists('TCPDF')) {
     @$pdf = new TCPDF();
 

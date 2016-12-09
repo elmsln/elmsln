@@ -1,0 +1,5 @@
+name = CLE API
+description = API endpoints and glue code
+core = 7.x
+package = CLE
+dependencies[] = cle_helper

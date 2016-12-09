@@ -28,7 +28,7 @@ function print_pdf_tcpdf_settings() {
     '#size' => 60,
     '#maxlength' => 250,
     '#description' => t('Set the font family to be used. Examples: %examples.', array('%examples' => 'helvetica, times, courier, dejavusans, dejavuserif, freesans, freeserif, freemono')) . '<br />' .
-                      t("CAUTION: TCPDF embeds the complete font in the generated PDF. If you're not using Unicode, then helvetica or times are safe choices that will keep the PDF small. Unicode fonts can increase the size of the PDF to the 1MB region."),
+      t("CAUTION: TCPDF embeds the complete font in the generated PDF. If you're not using Unicode, then helvetica or times are safe choices that will keep the PDF small. Unicode fonts can increase the size of the PDF to the 1MB region."),
   );
   $form['settings']['print_pdf_font_size'] = array(
     '#type' => 'textfield',
@@ -52,6 +52,11 @@ function print_pdf_tcpdf_settings() {
 
 /**
  * Form validation handler for print_pdf_tcpdf_settings().
+ *
+ * @param array $form
+ *   Form.
+ * @param array $form_state
+ *   Form state.
  *
  * @see print_pdf_tcpdf_settings()
  * @ingroup forms

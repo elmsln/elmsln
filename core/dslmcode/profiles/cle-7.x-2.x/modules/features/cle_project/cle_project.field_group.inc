@@ -23,12 +23,11 @@ function cle_project_field_group_info() {
     'label' => 'Details',
     'weight' => '0',
     'children' => array(
-      0 => 'field_project_description',
-      1 => 'field_project_color',
-      2 => 'field_project_image',
-      3 => 'field_project_due_date',
-      4 => 'field_project_allow_late',
-      5 => 'title',
+      0 => 'field_project_color',
+      1 => 'field_project_description',
+      2 => 'field_project_due_date',
+      3 => 'field_project_image',
+      4 => 'title',
     ),
     'format_type' => 'fieldset',
     'format_settings' => array(
@@ -55,7 +54,9 @@ function cle_project_field_group_info() {
   $field_group->data = array(
     'label' => 'Phases',
     'weight' => '2',
-    'children' => array(),
+    'children' => array(
+      0 => 'field_project_phases',
+    ),
     'format_type' => 'fieldset',
     'format_settings' => array(
       'formatter' => 'collapsible',

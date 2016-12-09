@@ -105,5 +105,23 @@ function cle_project_field_default_field_bases() {
     'type' => 'image',
   );
 
+  // Exported field_base: 'field_project_phases'.
+  $field_bases['field_project_phases'] = array(
+    'active' => 1,
+    'cardinality' => 1,
+    'deleted' => 0,
+    'entity_types' => array(),
+    'field_name' => 'field_project_phases',
+    'indexes' => array(),
+    'locked' => 0,
+    'module' => 'blob',
+    'settings' => array(
+      'cis_connector_access' => FALSE,
+      'cis_connector_disable' => FALSE,
+    ),
+    'translatable' => 0,
+    'type' => 'blob',
+  );
+
   return $field_bases;
 }

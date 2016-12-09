@@ -258,7 +258,7 @@ function _cis_lmsless_assemble_network() {
         // ensure we don't get two of these to display
         $list[$reg[$service['field_distribution']]['group']][$service['field_machine_name']] = array(
           'title' => $service['title'],
-          'url' => url($service['field_location']['url'] . '/' . $course_context),
+          'url' => url(_cis_connector_format_address($reg[$service['field_distribution']], '/' . $course_context, 'front')),
           'machine_name' => $service['field_machine_name'],
           'distro' => $service['field_distribution'],
           'weight' => $reg[$service['field_distribution']]['weight'],

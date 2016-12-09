@@ -2,10 +2,10 @@
 
 /**
  * @file
- * Generates the PDF version using wkhtmltopdf
+ * Generates the PDF version using wkhtmltopdf.
  *
  * This file is included by the print_pdf_wkhtmltopdf module and includes the
- * functions that interface with the wkhtmltopdf library
+ * functions that interface with the wkhtmltopdf library.
  *
  * @ingroup print
  */
@@ -21,7 +21,6 @@ function print_pdf_wkhtmltopdf_print_pdf_generate($html, $meta, $paper_size = NU
   if (empty($page_orientation)) {
     $page_orientation = variable_get('print_pdf_page_orientation', PRINT_PDF_PAGE_ORIENTATION_DEFAULT);
   }
-  $content_disposition = variable_get('print_pdf_content_disposition', PRINT_PDF_CONTENT_DISPOSITION_DEFAULT);
   $wkhtmltopdf_options = variable_get('print_pdf_wkhtmltopdf_options', PRINT_PDF_WKHTMLTOPDF_OPTIONS);
 
   $dpi = 96;
@@ -30,9 +29,9 @@ function print_pdf_wkhtmltopdf_print_pdf_generate($html, $meta, $paper_size = NU
     $wkhtmltopdf_options = token_replace($wkhtmltopdf_options, array('node' => $meta['node']), array('clear' => TRUE));
   }
 
-  $version = print_pdf_wkhtmltopdf_pdf_tool_version($pdf_tool[1]);
+  $version = print_pdf_wkhtmltopdf_pdf_tool_version($pdf_tool[1], FALSE);
 
-  // 0.10.0 beta2 identifies itself as 0.9.9
+  // 0.10.0 beta2 identifies itself as 0.9.9.
   if (version_compare($version, '0.9.9', '>=')) {
     $wkhtmltopdf_options = '--disable-local-file-access ' . $wkhtmltopdf_options;
   }
@@ -44,12 +43,16 @@ function print_pdf_wkhtmltopdf_print_pdf_generate($html, $meta, $paper_size = NU
     exit;
   }
 
-  // use basic http authentication to fetch included CSS, etc
+  // Use basic http authentication to fetch included CSS, etc.
   if (isset($_SERVER['PHP_AUTH_USER']) && isset($_SERVER['PHP_AUTH_PW'])) {
     $wkhtmltopdf_options .= ' --username ' . check_plain($_SERVER['PHP_AUTH_USER']) . ' --password ' . check_plain($_SERVER['PHP_AUTH_PW']);
   }
 
-  $descriptor = array(0 => array('pipe', 'r'), 1 => array('pipe', 'w'), 2 => array('pipe', 'a'));
+  $descriptor = array(
+    0 => array('pipe', 'r'),
+    1 => array('pipe', 'w'),
+    2 => array('pipe', 'a'),
+  );
   $cmd = '"' . realpath($pdf_tool[1]) . "\" --page-size $paper_size --orientation $page_orientation --dpi $dpi $wkhtmltopdf_options - -";
 
   $process = proc_open($cmd, $descriptor, $pipes, NULL, NULL);
@@ -70,7 +73,8 @@ function print_pdf_wkhtmltopdf_print_pdf_generate($html, $meta, $paper_size = NU
       if (empty($error)) {
         $error = 'No stderr output available.';
       }
-      watchdog('print_pdf', 'wkhtmltopdf [%cmd] (returned %ret): %error', array('%cmd' => $cmd, '%ret' => $retval, '%error' => $error));
+      watchdog('print_pdf', 'wkhtmltopdf [%cmd] (returned %ret): %error',
+        array('%cmd' => $cmd, '%ret' => $retval, '%error' => $error));
     }
   }
 
