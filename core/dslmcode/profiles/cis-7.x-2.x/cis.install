@@ -126,3 +126,10 @@ function cis_update_7010(&$sandbox) {
   features_revert_module('cis_types');
   features_revert_module('cis_competencies');
 }
+
+/**
+ * Competency engine
+ */
+function cis_update_7011(&$sandbox) {
+  features_revert_module('cis_types');
+}
