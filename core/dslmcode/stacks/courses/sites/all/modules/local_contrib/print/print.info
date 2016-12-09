@@ -6,9 +6,9 @@ files[] = print_join_page_counter.inc
 dependencies[] = node
 configure = admin/config/user-interface/print
 
-; Information added by Drupal.org packaging script on 2016-06-09
-version = "7.x-2.0+1-dev"
+; Information added by Drupal.org packaging script on 2016-12-06
+version = "7.x-2.0+13-dev"
 core = "7.x"
 project = "print"
-datestamp = "1465500557"
+datestamp = "1481048287"
 

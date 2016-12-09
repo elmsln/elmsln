@@ -2,7 +2,7 @@
 
 /**
  * @file
- * EPUB Version Views integration
+ * EPUB Version Views integration.
  *
  * @ingroup print
  */
@@ -25,18 +25,16 @@ function print_epub_views_data() {
     // 'field' is the foreign key in this table.
     'left_field' => 'nid',
     'field' => 'nid',
-//    'type' => 'INNER',
   );
   $data['print_epub_page_counter']['table']['join']['node'] = array(
     // 'left_field' is the primary key in the referenced table.
     // 'field' is the foreign key in this table.
     'left_field' => 'nid',
     'field' => 'path',
-//    'type' => 'INNER',
     'handler' => 'print_join_page_counter',
   );
 
-  // print_epub_node_conf fields
+  // print_epub_node_conf fields.
   $data['print_epub_node_conf']['link'] = array(
     'title' => t('EPUB: Show link'),
     'help' => t('Whether to show the EPUB version link.'),
@@ -86,8 +84,7 @@ function print_epub_views_data() {
     ),
   );
 
-
-  // print_epub_page_counter fields
+  // print_epub_page_counter fields.
   $data['print_epub_page_counter']['totalcount'] = array(
     'title' => t('EPUB: Number of page accesses'),
     'help' => t('Counter of accesses to the EPUB version for this node.'),

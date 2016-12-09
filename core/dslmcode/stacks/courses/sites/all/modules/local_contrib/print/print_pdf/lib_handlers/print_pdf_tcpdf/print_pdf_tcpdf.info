@@ -6,9 +6,9 @@ dependencies[] = print_pdf
 files[] = print_pdf_tcpdf.class.inc
 configure = admin/config/user-interface/print/pdf/tcpdf
 
-; Information added by Drupal.org packaging script on 2016-06-09
-version = "7.x-2.0+1-dev"
+; Information added by Drupal.org packaging script on 2016-12-06
+version = "7.x-2.0+13-dev"
 core = "7.x"
 project = "print"
-datestamp = "1465500557"
+datestamp = "1481048287"
 

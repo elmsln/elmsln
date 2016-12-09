@@ -76,23 +76,18 @@ function hook_link_allowed($args) {
 }
 
 /**
- * Checks if the link is allowed according to the appropriate sub-module.
+ * Allows the user to change the new window behaviour.
  *
- * Normally checks if the user holds the required access permission, but can
- * be used for extra checks, such as the proper module configuration, etc.
- *
- * @param array $args
- *   An associative array containing:
- *   - path: path to the non-node page being displayed.
- *   - node: path to the node beign displayed.
- *   - view_mode: current view mode of the node being displayed.
- *   - type: 'node' or 'comment'.
+ * @param string $new_window
+ *   New window status.
+ * @param string $format
+ *   Format being processed.
  *
  * @ingroup print_hooks
  */
 function hook_print_new_window_alter(&$new_window, $format) {
   if ($format == 'foo') {
-    $new_window = variable_get('print_foo_new_windo',  FALSE);
+    $new_window = variable_get('print_foo_new_window', FALSE);
   }
 }
 

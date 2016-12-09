@@ -10,8 +10,8 @@
  * @ingroup print
  */
 
-// Include MIME library
-@include_once('Mail/mime.php');
+// Include MIME library, if available.
+@include_once 'Mail/mime.php';
 
 /**
  * Form constructor for the send by email module settings form.
@@ -30,7 +30,9 @@ function print_mail_settings() {
     '#type' => 'select',
     '#title' => t('Hourly threshold'),
     '#default_value' => variable_get('print_mail_hourly_threshold', PRINT_MAIL_HOURLY_THRESHOLD),
-    '#options' => drupal_map_assoc(array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 30, 40, 50)),
+    '#options' => drupal_map_assoc(
+      array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 30, 40, 50)
+    ),
     '#description' => t('The maximum number of emails a user can send per hour.'),
   );
 

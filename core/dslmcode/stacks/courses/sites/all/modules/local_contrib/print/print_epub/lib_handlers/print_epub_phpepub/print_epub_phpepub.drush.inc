@@ -2,15 +2,15 @@
 
 /**
  * @file
- * drush integration for print_epub_phpepub module EPUB libraries download.
+ * Provides drush integration for print_epub_phpepub module.
  */
 
 /**
- * The EPUB project download URL
+ * The EPUB project download URL.
  */
 
-// URI to the the latest PHPePub version.. Hardcoded version unfortunately
-define('PHPEPUB_DOWNLOAD_URI', 'https://github.com/Grandt/PHPePub/tarball/2.04');
+// URI to the the latest PHPePub version.
+define('PHPEPUB_DOWNLOAD_URI', 'https://api.github.com/repos/Grandt/PHPePub/releases/latest');
 
 /**
  * Implements hook_drush_command().

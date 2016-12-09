@@ -13,7 +13,7 @@
 /**
  * Provide some information on the needs of the PDF library.
  *
- * @return
+ * @return array
  *   Associative array with the following data:
  *   - name: name of the PDF library.
  *   - min_version: minimum version of the PDF library supported by the
@@ -47,7 +47,7 @@ function hook_pdf_tool_info() {
 }
 
 /**
- * Find out the version of the PDF library
+ * Find out the version of the PDF library.
  *
  * @param string $pdf_tool
  *   Filename of the tool to be analysed.
@@ -55,8 +55,8 @@ function hook_pdf_tool_info() {
  * @return string
  *   version number of the library
  */
-function hook_pdf_tool_version() {
-  require_once(DRUPAL_ROOT . '/' . $pdf_tool);
+function hook_pdf_tool_version($pdf_tool) {
+  require_once DRUPAL_ROOT . '/' . $pdf_tool;
 
   return '1.0';
 }
@@ -65,26 +65,26 @@ function hook_pdf_tool_version() {
  * Generate a PDF version of the provided HTML.
  *
  * @param string $html
- *   HTML content of the PDF
+ *   HTML content of the PDF.
  * @param array $meta
  *   Meta information to be used in the PDF
  *   - url: original URL
  *   - name: author's name
  *   - title: Page title
- *   - node: node object
+ *   - node: node object.
  * @param string $paper_size
- *   (optional) Paper size of the generated PDF
+ *   (optional) Paper size of the generated PDF.
  * @param string $page_orientation
- *   (optional) Page orientation of the generated PDF
+ *   (optional) Page orientation of the generated PDF.
  *
- * @return
+ * @return Object|null
  *   generated PDF page, or NULL in case of error
  *
  * @see print_pdf_controller_html()
  * @ingroup print_hooks
  */
 function hook_print_pdf_generate($html, $meta, $paper_size = NULL, $page_orientation = NULL) {
-  $pdf = new PDF();
+  $pdf = new PDF($meta, $paper_size, $page_orientation);
   $pdf->writeHTML($html);
 
   return $pdf->Output();
@@ -128,7 +128,7 @@ function hook_print_pdf_available_libs_alter(&$pdf_tools) {
  * '.pdf' extension, as the module will do that automatically.
  *
  * @param string $pdf_filename
- *   current value of the pdf_filename variable, after processing tokens and
+ *   Current value of the pdf_filename variable, after processing tokens and
  *   any transliteration steps.
  * @param string $path
  *   original alias/system path of the page being converted to PDF.
@@ -136,7 +136,7 @@ function hook_print_pdf_available_libs_alter(&$pdf_tools) {
  * @ingroup print_hooks
  */
 function hook_print_pdf_filename_alter(&$pdf_filename, &$path) {
-  $pdf_filename = 'foo';
+  $pdf_filename = $path . 'foo';
 }
 
 /**

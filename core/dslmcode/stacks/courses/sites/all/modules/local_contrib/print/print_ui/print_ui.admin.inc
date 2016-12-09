@@ -31,7 +31,12 @@ function print_ui_settings() {
         '#type' => 'checkboxes',
         '#title' => t('Link location'),
         '#default_value' => variable_get('print_' . $format . '_link_pos', drupal_json_decode(PRINT_UI_LINK_POS_DEFAULT)),
-        '#options' => array('link' => t('Links area'), 'corner' => t('Content corner'), 'block' => t('Block'), 'help' => t('Help area')),
+        '#options' => array(
+          'link' => t('Links area'),
+          'corner' => t('Content corner'),
+          'block' => t('Block'),
+          'help' => t('Help area'),
+        ),
         '#description' => t('Choose the location of the link(s) to the printer-friendly version pages. The Links area is usually below the node content, whereas the Content corner is placed in the upper-right corner of the node content (these apply only in node pages). The Help area is used for system pages. Enabling the block area link will allow links of this format in the provided links module. Unselect all options to disable the link. Even if the link is disabled, you can still go to %path where nid is the numeric id of the node.', array('%path' => $link['path'] . '/nid')),
       );
 
@@ -61,7 +66,11 @@ function print_ui_settings() {
         '#type' => 'radios',
         '#title' => t('Link style'),
         '#default_value' => variable_get('print_' . $format . '_show_link', PRINT_UI_SHOW_LINK_DEFAULT),
-        '#options' => array(1 => t('Text only'), 2 => t('Icon only'), 3 => t('Icon and Text')),
+        '#options' => array(
+          1 => t('Text only'),
+          2 => t('Icon only'),
+          3 => t('Icon and Text'),
+        ),
         '#description' => t('Select the visual style of the link.'),
       );
 
@@ -94,7 +103,11 @@ function print_ui_settings() {
         '#default_value' => variable_get('print_' . $format . '_sys_link_pages', PRINT_UI_SYS_LINK_PAGES_DEFAULT),
         '#rows' => 3,
         '#description' => t('Setting this option will add a link on pages created by Drupal or the enabled modules.') . '<br />' .
-                          t("Enter one page per line as Drupal paths. The '*' character is a wildcard. Example paths are %blog for the blog page and %blog-wildcard for every personal blog. %front is the front page.", array('%blog' => 'blog', '%blog-wildcard' => 'blog/*', '%front' => '<front>')),
+          t("Enter one page per line as Drupal paths. The '*' character is a wildcard. Example paths are %blog for the blog page and %blog-wildcard for every personal blog. %front is the front page.", array(
+            '%blog' => 'blog',
+            '%blog-wildcard' => 'blog/*',
+            '%front' => '<front>',
+          )),
       );
 
       if (module_exists('php')) {
@@ -114,7 +127,11 @@ function print_ui_settings() {
         '#type' => 'radios',
         '#title' => t('Link in book hierarchy nodes'),
         '#default_value' => variable_get('print_' . $format . '_book_link', PRINT_UI_BOOK_LINK_DEFAULT),
-        '#options' => array(t('No link'), t('Current page and sub-pages'), t('Current page only')),
+        '#options' => array(
+          t('No link'),
+          t('Current page and sub-pages'),
+          t('Current page only'),
+        ),
       );
     }
   }
@@ -130,6 +147,9 @@ function print_ui_settings() {
  * @param array $variables
  *   An associative array containing:
  *   - form: A render element representing the form.
+ *
+ * @return string
+ *   HTML for the link settings page.
  *
  * @ingroup themeable
  * @ingroup print_themeable
@@ -161,7 +181,7 @@ function theme_print_ui_settings($variables) {
           $item = $form['settings'][$group][$elem]['print_' . $format . '_' . $elem];
 
           if (empty($row)) {
-            // Start row, fill title and description
+            // Start row, fill title and description.
             $row_desc = array(
               '#type' => 'item',
               '#markup' => isset($item['#title']) ? $item['#title'] : '',
@@ -182,7 +202,11 @@ function theme_print_ui_settings($variables) {
       $rows[] = $row;
     }
 
-    $form['settings'][$group]['#children'] = theme('table', array('header' => $header, 'rows' => $rows, 'attributes' => array('id' => 'permissions')));
+    $form['settings'][$group]['#children'] = theme('table', array(
+      'header' => $header,
+      'rows' => $rows,
+      'attributes' => array('id' => 'permissions'),
+    ));
   }
 
   $output = drupal_render_children($form);

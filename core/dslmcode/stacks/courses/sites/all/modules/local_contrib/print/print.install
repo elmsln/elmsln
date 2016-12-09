@@ -21,7 +21,7 @@ function print_install() {
  * Implements hook_enable().
  */
 function print_enable() {
-  // Module weight
+  // Module weight.
   db_update('system')
     ->fields(array(
       'weight' => 0,
@@ -146,7 +146,7 @@ function print_schema() {
 }
 
 /**
- * Remove hardcoded numeric deltas from all blocks
+ * Remove hardcoded numeric deltas from all blocks.
  */
 function print_update_7000(&$sandbox) {
   $renamed_deltas = array(
@@ -160,14 +160,14 @@ function print_update_7000(&$sandbox) {
 }
 
 /**
- * Enable the print UI module
+ * Enable the print UI module.
  */
 function print_update_7199(&$sandbox) {
   module_enable(array('print_ui'), FALSE);
 }
 
 /**
- * Delete old variables
+ * Delete old variables.
  */
 function print_update_7200(&$sandbox) {
   variable_del('print_settings');
@@ -193,7 +193,7 @@ function print_update_7200(&$sandbox) {
 }
 
 /**
- * Enable block and help area links
+ * Enable block and help area links.
  */
 function print_update_7202(&$sandbox) {
   $link_pos = variable_get('print_html_link_pos', drupal_json_decode('{ "link": "link", "block": "block", "help": "help" }'));
@@ -203,11 +203,16 @@ function print_update_7202(&$sandbox) {
 }
 
 /**
- * Increase size of the path field in the print_page_counter table
+ * Increase size of the path field in the print_page_counter table.
  */
 function print_update_7203(&$sandbox) {
   db_drop_primary_key('print_page_counter');
   db_change_field('print_page_counter', 'path', 'path',
-    array('type' => 'varchar', 'length' => 255, 'not null' => TRUE, 'description' => 'Page path'),
+    array(
+      'type' => 'varchar',
+      'length' => 255,
+      'not null' => TRUE,
+      'description' => 'Page path',
+    ),
     array('primary key' => array('path')));
 }

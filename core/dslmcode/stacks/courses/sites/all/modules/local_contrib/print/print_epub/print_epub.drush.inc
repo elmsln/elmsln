@@ -2,7 +2,7 @@
 
 /**
  * @file
- * drush integration for print_epub module EPUB libraries download.
+ * Provides drush integration for print_epub module EPUB libraries download.
  */
 
 /**
@@ -23,21 +23,25 @@ function print_epub_drush_command() {
       'path' => dt('A path to the download folder. If omitted Drush will use the default location (@path).', array('@path' => 'sites/all/libraries')),
     ),
     'aliases' => array('epubdl'),
-    'bootstrap' => DRUSH_BOOTSTRAP_DRUPAL_ROOT, // No site or config needed.
+    // No site or config needed.
+    'bootstrap' => DRUSH_BOOTSTRAP_DRUPAL_ROOT,
   );
 
   return $items;
 }
 
 /**
- * Implements of drush_hook_COMMAND_validate().
+ * Implements drush_hook_COMMAND_validate().
  */
 function drush_print_epub_download_validate($library = NULL) {
   if (is_null($library)) {
     $epub_libs = array();
     drush_command_invoke_all_ref('drush_epub_libs_alter', $epub_libs);
 
-    drush_set_error('DRUSH_EPUBDL_MISSING_ARG', dt("Usage: drush !cmd <library>\nWhere <library> is one of the following: !libs\n\nTry 'drush !cmd --help' for more information.", array('!cmd' => 'print-epub-download', '!libs' => implode(', ', array_keys($epub_libs)))));
+    drush_set_error('DRUSH_EPUBDL_MISSING_ARG', dt("Usage: drush !cmd <library>\nWhere <library> is one of the following: !libs\n\nTry 'drush !cmd --help' for more information.", array(
+      '!cmd' => 'print-epub-download',
+      '!libs' => implode(', ', array_keys($epub_libs)),
+    )));
   }
 }
 
@@ -45,7 +49,7 @@ function drush_print_epub_download_validate($library = NULL) {
  * Download and extract EPUB archive.
  *
  * @param string $library
- *   library to download
+ *   Library to download.
  */
 function drush_print_epub_download($library) {
   $epub_libs = array();

@@ -8,6 +8,7 @@
  */
 
 define('PRINT_PDF_WKHTMLTOPDF_OPTIONS', "--footer-font-size 7 --footer-right '[page]'");
+define('PRINT_PDF_WKHTMLTOPDF_VERSION_DEFAULT', '');
 
 /**
  * Implements hook_pdf_tool_info().
@@ -16,7 +17,7 @@ function print_pdf_wkhtmltopdf_pdf_tool_info() {
   return array(
     'name' => 'wkhtmltopdf',
     'min_version' => '0.9.6',
-    'url' => 'http://code.google.com/p/wkhtmltopdf/downloads/list',
+    'url' => 'http://wkhtmltopdf.org/downloads.html',
     'expand_css' => FALSE,
   );
 }
@@ -41,54 +42,49 @@ function print_pdf_wkhtmltopdf_menu() {
 }
 
 /**
- * Implements hook_requirements().
+ * Implements hook_flush_caches().
  */
-function print_pdf_wkhtmltopdf_requirements($phase) {
-  $requirements = array();
-  $t = get_t();
-  switch ($phase) {
-    // At runtime, make sure that a PDF generation tool is selected
-    case 'runtime':
-      $print_pdf_pdf_tool = variable_get('print_pdf_pdf_tool', PRINT_PDF_PDF_TOOL_DEFAULT);
-      if (!empty($print_pdf_pdf_tool)) {
-        $tool = explode('|', $print_pdf_pdf_tool);
-
-        if (is_file($tool[1]) && is_readable($tool[1])) {
-          if (drupal_substr(basename($tool[1], '.exe'), 0, 11) == 'wkhtmltopdf') {
-            if (function_exists('is_executable') && !is_executable($tool[1])) {
-              $requirements['print_pdf_wkhtmltopdf'] = array(
-                'title' => $t('wkhtmltopdf library'),
-                'value' => $t('Non-executable permissions'),
-                'description' => $t('You must modify the permissions of the wkhtmltopdf file (%file) to make it executable.', array('%file' => $tool[1])),
-                'severity' => REQUIREMENT_ERROR,
-              );
-            }
-          }
-        }
-      }
-      break;
-  }
-  return $requirements;
+function print_pdf_wkhtmltopdf_flush_caches() {
+  // Delete the cached version info during cache clear.
+  variable_del('print_pdf_wkhtmltopdf_version');
+  return array();
 }
 
 /**
  * Implements hook_pdf_tool_version().
  */
-function print_pdf_wkhtmltopdf_pdf_tool_version($pdf_tool) {
-  $descriptor = array(0 => array('pipe', 'r'), 1 => array('pipe', 'w'), 2 => array('pipe', 'w'));
+function print_pdf_wkhtmltopdf_pdf_tool_version($pdf_tool, $reset = TRUE) {
+  $version = variable_get('print_pdf_wkhtmltopdf_version', PRINT_PDF_WKHTMLTOPDF_VERSION_DEFAULT);
 
-  $cmd = '"' . realpath($pdf_tool) . '" --version';
-  $process = proc_open($cmd, $descriptor, $pipes, NULL, NULL);
-  if (is_resource($process)) {
-    $content = stream_get_contents($pipes[1]);
-    $out = preg_match('!.*?(\d+\.\d+\.\d+).*$!m', $content, $matches);
-    fclose($pipes[0]);
-    fclose($pipes[1]);
-    fclose($pipes[2]);
-    $retval = proc_close($process);
+  if ($reset || empty($version)) {
+    // Ask the version information from the executable.
+    $descriptor = array(
+      0 => array('pipe', 'r'),
+      1 => array('pipe', 'w'),
+      2 => array('pipe', 'w'),
+    );
+
+    $cmd = '"' . realpath($pdf_tool) . '" --version';
+    $process = proc_open($cmd, $descriptor, $pipes, NULL, NULL);
+    if (is_resource($process)) {
+      $content = stream_get_contents($pipes[1]);
+      preg_match('!.*?(\d+\.\d+\.\d+).*$!m', $content, $matches);
+      fclose($pipes[0]);
+      fclose($pipes[1]);
+      fclose($pipes[2]);
+      proc_close($process);
+
+      // Cache the results of this expensive operation.
+      variable_set('print_pdf_wkhtmltopdf_version', $matches[1]);
+      return ($matches[1]);
+    }
+  }
+  else {
+    // For performance sake, usually use the cached value.
+    return $version;
   }
 
-  return ($matches[1]);
+  return 'unknown';
 }
 
 /**
@@ -99,7 +95,7 @@ function print_pdf_wkhtmltopdf_print_pdf_available_libs_alter(&$pdf_tools) {
   $tools = _print_scan_libs('wkhtmltopdf', '!^wkhtmltopdf!');
 
   foreach ($tools as $tool) {
-    $version = print_pdf_wkhtmltopdf_pdf_tool_version($tool);
+    $version = print_pdf_wkhtmltopdf_pdf_tool_version($tool, TRUE);
 
     $pdf_tools['print_pdf_wkhtmltopdf|' . $tool] = 'wkhtmltopdf ' . $version . ' (' . $tool . ')';
   }

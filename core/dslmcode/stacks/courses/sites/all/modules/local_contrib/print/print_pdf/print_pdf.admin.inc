@@ -23,7 +23,7 @@ function print_pdf_settings() {
     $link = print_pdf_print_link();
 
     $current_pdf_tool = variable_get('print_pdf_pdf_tool', PRINT_PDF_PDF_TOOL_DEFAULT);
-    $pdf_tool_default =  array_key_exists($current_pdf_tool, $pdf_tools) ? $current_pdf_tool : PRINT_PDF_PDF_TOOL_DEFAULT;
+    $pdf_tool_default = array_key_exists($current_pdf_tool, $pdf_tools) ? $current_pdf_tool : PRINT_PDF_PDF_TOOL_DEFAULT;
 
     $form['settings'] = array(
       '#type' => 'fieldset',
@@ -41,7 +41,11 @@ function print_pdf_settings() {
     $form['settings']['print_pdf_content_disposition'] = array(
       '#type' => 'radios',
       '#title' => t('Open PDF in'),
-      '#options' => array(t('Same browser window'), t('New browser window'), t('Save dialog')),
+      '#options' => array(
+        t('Same browser window'),
+        t('New browser window'),
+        t('Save dialog'),
+      ),
       '#default_value' => variable_get('print_pdf_content_disposition', PRINT_PDF_CONTENT_DISPOSITION_DEFAULT),
       '#description' => t("Select the desired method for opening the PDF in the user's browser."),
     );
@@ -162,6 +166,11 @@ function print_pdf_settings() {
 
 /**
  * Form validation handler for print_pdf_settings().
+ *
+ * @param array $form
+ *   Form.
+ * @param array $form_state
+ *   Form state.
  *
  * @see print_pdf_settings()
  * @ingroup forms

@@ -13,7 +13,7 @@
 function print_pdf_mpdf_pdf_tool_info() {
   return array(
     'name' => 'mPDF',
-    'url' => 'http://www.mpdf1.com/mpdf/download',
+    'url' => 'https://github.com/mpdf/mpdf/releases/latest',
     'expand_css' => FALSE,
     'public_dirs' => array(
       'ttfontdata',
@@ -29,7 +29,7 @@ function print_pdf_mpdf_pdf_tool_info() {
  * Implements hook_pdf_tool_version().
  */
 function print_pdf_mpdf_pdf_tool_version($pdf_tool) {
-  require_once(DRUPAL_ROOT . '/' . $pdf_tool);
+  require_once DRUPAL_ROOT . '/' . $pdf_tool;
 
   if (defined('mPDF_VERSION')) {
     return mPDF_VERSION;

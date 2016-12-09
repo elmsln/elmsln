@@ -11,9 +11,7 @@
  * Implements hook_enable().
  */
 function print_pdf_enable() {
-  $t = get_t();
-
-  // Module weight
+  // Module weight.
   db_update('system')
     ->fields(array(
       'weight' => 2,
@@ -139,7 +137,100 @@ function print_pdf_schema() {
 }
 
 /**
- * Remove hardcoded numeric deltas from all blocks
+ * Implements hook_requirements().
+ */
+function print_pdf_requirements($phase) {
+  $requirements = array();
+  $t = get_t();
+  switch ($phase) {
+    // At runtime, make sure that a PDF generation tool is selected.
+    case 'runtime':
+      $print_pdf_pdf_tool = variable_get('print_pdf_pdf_tool', PRINT_PDF_PDF_TOOL_DEFAULT);
+      if (empty($print_pdf_pdf_tool)) {
+        $requirements['print_pdf_tool'] = array(
+          'title' => $t('Printer, email and PDF versions - PDF generation library'),
+          'value' => $t('No PDF tool selected'),
+          'description' => $t('Please configure it in the !url.', array('!url' => l($t('PDF settings page'), 'admin/config/user-interface/print/pdf'))),
+          'severity' => REQUIREMENT_ERROR,
+        );
+      }
+      else {
+        // Tool is defined, get some data from it's handler module.
+        $tool = explode('|', $print_pdf_pdf_tool);
+        $function = $tool[0] . '_pdf_tool_info';
+        if (function_exists($function)) {
+          $info = $function();
+        }
+
+        // Is the file there?
+        if (!is_file($tool[1]) || !is_readable($tool[1])) {
+          $requirements['print_pdf_tool'] = array(
+            'title' => $t('Printer, email and PDF versions - PDF generation library'),
+            'value' => $t('File not found'),
+            'description' => $t('The currently selected PDF generation library (%file) is no longer accessible.', array('%file' => $tool[1])),
+            'severity' => REQUIREMENT_ERROR,
+          );
+        }
+        else {
+          // Get the version number.
+          $function = $tool[0] . '_pdf_tool_version';
+          if (function_exists($function)) {
+            $version = $function($tool[1]);
+
+            if (isset($info['min_version']) && version_compare($version, $info['min_version'], '<')) {
+              $requirements['print_pdf_tool_version'] = array(
+                'title' => $t('Printer, email and PDF versions - PDF generation library'),
+                'value' => $t('Unsupported %lib version', array('%lib' => $info['name'])),
+                'description' => $t('The currently selected version of %lib (@version) is not supported. Please update to a !url.', array(
+                  '%lib' => $info['name'],
+                  '@version' => $version,
+                  '!url' => l($t('newer version'), $info['url']),
+                )),
+                'severity' => REQUIREMENT_ERROR,
+              );
+            }
+            else {
+              $requirements['print_pdf_tool_version'] = array(
+                'title' => $t('Printer, email and PDF versions - PDF generation library'),
+                'value' => $info['name'] . ' ' . $version,
+              );
+            }
+          }
+        }
+
+        // If auto-config is on, check for write access to the appropriate dirs.
+        if (variable_get('print_pdf_autoconfig', PRINT_PDF_AUTOCONFIG_DEFAULT)) {
+          $directories = array();
+          if (isset($info['public_dirs'])) {
+            foreach ($info['public_dirs'] as $dir) {
+              $directories[] = 'public://print_pdf/' . $tool[0] . '/' . $dir;
+            }
+          }
+          if (isset($info['tool_dirs'])) {
+            foreach ($info['tool_dirs'] as $dir) {
+              $directories[] = dirname($tool[1]) . '/' . $dir;
+            }
+          }
+
+          foreach ($directories as $dir) {
+            if (!is_dir($dir) || !is_writable($dir)) {
+              $requirements['print_pdf_tool_' . $dir] = array(
+                'title' => $t('%lib directory', array('%lib' => $info['name'])),
+                'value' => $t('Non-writable permissions'),
+                'description' => $t('You must change the %libdir permissions to be writable, as %lib requires write-access to that directory.', array('%lib' => $info['name'], '%libdir' => $dir)),
+                'severity' => REQUIREMENT_ERROR,
+              );
+            }
+          }
+        }
+      }
+      break;
+  }
+  return $requirements;
+}
+
+/**
+ * Remove hardcoded numeric deltas from all blocks.
  */
 function print_pdf_update_7000(&$sandbox) {
   $renamed_deltas = array(
@@ -156,7 +247,7 @@ function print_pdf_update_7000(&$sandbox) {
 }
 
 /**
- * Delete old variables
+ * Delete old variables.
  */
 function print_pdf_update_7200(&$sandbox) {
   variable_del('print_pdf_settings');
@@ -166,13 +257,13 @@ function print_pdf_update_7200(&$sandbox) {
 }
 
 /**
- * Update pdf_tool variable to new module|path format
+ * Update pdf_tool variable to new module|path format.
  */
 function print_pdf_update_7201(&$sandbox) {
-  $tool =  explode('|', variable_get('print_pdf_pdf_tool', PRINT_PDF_PDF_TOOL_DEFAULT));
+  $tool = explode('|', variable_get('print_pdf_pdf_tool', PRINT_PDF_PDF_TOOL_DEFAULT));
 
   if (count($tool) == 1) {
-    // Not an array yet, update variable to new format
+    // Not an array yet, update variable to new format.
     if (preg_match('!dompdf_config.inc.php$!', $tool[0])) {
       $tool[0] = 'print_pdf_dompdf|' . $tool[0];
     }
@@ -191,7 +282,7 @@ function print_pdf_update_7201(&$sandbox) {
 }
 
 /**
- * Enable block and help area links
+ * Enable block and help area links.
  */
 function print_pdf_update_7202(&$sandbox) {
   $link_pos = variable_get('print_pdf_link_pos', drupal_json_decode('{ "link": "link", "block": "block", "help": "help" }'));
@@ -201,7 +292,7 @@ function print_pdf_update_7202(&$sandbox) {
 }
 
 /**
- * Add Size and Orientation fields for per content type Size and Orientation
+ * Add Size and Orientation fields for per content type Size and Orientation.
  */
 function print_pdf_update_7203(&$sandbox) {
   $spec = array(
@@ -219,11 +310,11 @@ function print_pdf_update_7203(&$sandbox) {
 }
 
 /**
- * Enable the PDF generation sub-module being used
+ * Enable the PDF generation sub-module being used.
  */
 function print_pdf_update_7204(&$sandbox) {
-  // Since update_7201 already has stored the correct module in the array, use that
-  $tool =  explode('|', variable_get('print_pdf_pdf_tool', PRINT_PDF_PDF_TOOL_DEFAULT));
+  // Since update_7201 already stored the correct module in the array, use that.
+  $tool = explode('|', variable_get('print_pdf_pdf_tool', PRINT_PDF_PDF_TOOL_DEFAULT));
 
   if (count($tool) == 2) {
     module_enable(array($tool[0]), FALSE);
@@ -231,11 +322,16 @@ function print_pdf_update_7204(&$sandbox) {
 }
 
 /**
- * Increase size of the path field in the print_pdf_page_counter table
+ * Increase size of the path field in the print_pdf_page_counter table.
  */
 function print_pdf_update_7205(&$sandbox) {
   db_drop_primary_key('print_pdf_page_counter');
   db_change_field('print_pdf_page_counter', 'path', 'path',
-    array('type' => 'varchar', 'length' => 255, 'not null' => TRUE, 'description' => 'Page path'),
+    array(
+      'type' => 'varchar',
+      'length' => 255,
+      'not null' => TRUE,
+      'description' => 'Page path',
+    ),
     array('primary key' => array('path')));
 }

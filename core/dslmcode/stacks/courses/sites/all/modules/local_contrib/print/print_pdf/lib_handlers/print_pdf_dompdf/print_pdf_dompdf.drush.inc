@@ -2,15 +2,14 @@
 
 /**
  * @file
- * drush integration for print_pdf_dompdf module PDF libraries download.
+ * Provide drush integration for print_pdf_dompdf module PDF libraries download.
  */
 
 /**
- * The PDF project download URL
+ * The PDF project download URL.
  */
-
-// URI to the the latest dompdf version.. Hardcoded version unfortunately
-define('DOMPDF_DOWNLOAD_URI', 'https://github.com/dompdf/dompdf/releases/download/v0.6.1/dompdf-0.6.1.zip');
+// URI to the the latest dompdf version.
+define('DOMPDF_DOWNLOAD_URI', 'https://api.github.com/repos/dompdf/dompdf/releases/latest');
 
 /**
  * Implements hook_drush_command().
