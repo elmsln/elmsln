@@ -90,3 +90,11 @@ function icor_update_7006(&$sandbox) {
   features_revert_module('views_timelinejs_extras');
   features_revert_module('views_timelinejs_feature');
 }
+
+/**
+ * Support selecting multiple courses in icor.
+ */
+function icor_update_7006(&$sandbox) {
+  features_revert_module('icor_interactive_player');
+  features_revert_module('icor_ux');
+}

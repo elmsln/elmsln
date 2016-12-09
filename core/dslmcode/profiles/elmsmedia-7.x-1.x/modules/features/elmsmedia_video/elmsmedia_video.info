@@ -28,7 +28,6 @@ features[field_base][] = field_video
 features[field_group][] = group_details|node|video|full
 features[field_instance][] = node-video-field_caption
 features[field_instance][] = node-video-field_cis_course_ref
-features[field_instance][] = node-video-field_elmsln_competency
 features[field_instance][] = node-video-field_poster
 features[field_instance][] = node-video-field_tagging
 features[field_instance][] = node-video-field_transcript
