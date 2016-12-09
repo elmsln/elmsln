@@ -66,6 +66,7 @@ export class ElmslnService {
 
   post(url, data) {
     let headers = new Headers();
+    headers.append('Accept', 'application/json');
     headers.append('Content-Type', 'application/json');
     this.createAuthorizationHeader(headers);
     this.createCSRFTokenHeader(headers);

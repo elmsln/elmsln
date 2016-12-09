@@ -13,10 +13,7 @@ declare const jQuery:any;
   providers: [Assignment, AssignmentService]
 })
 export class AssignmentFormComponent implements OnInit {
-  // assignments will always have a project attached to it
-  @Input() project: Project;
-  // this is the newly created assignment
-  @Output() assignment: Assignment;
+  @Input() assignment: Assignment;
   // assignment creation event
   @Output() assignmentCreated: EventEmitter<any> = new EventEmitter();
   // The assignment form that we will attach all of the fields to
@@ -28,19 +25,14 @@ export class AssignmentFormComponent implements OnInit {
     private assignmentService: AssignmentService,
     private router: Router
   ) { 
-    this.form = this.formBuilder.group({
-      title: <string>'',
-      body: <string>'',
-      endDate: <string>null,
-      startDate: <string>null,
-      type: <string>null,
-      description: <string>''
-    });
-
-    this.assignmentTypes = this.assignmentService.getAssignmentTypes();
   } 
 
   ngOnInit() {
+    // create the form from the assignment object that we recieved
+    this.form = this.formBuilder.group(this.assignment);
+    // get a list of assignment 'types' that we have available so we can display
+    // those in the select field
+    this.assignmentTypes = this.assignmentService.getAssignmentTypes()
   }
 
   // Update the body from the WYSIWYG changed event.
@@ -51,11 +43,6 @@ export class AssignmentFormComponent implements OnInit {
   }
 
   save(model:Assignment) {
-    // if the project was specified then that means we need to manually set the
-    // project id
-    if (this.project) {
-      model.project = this.project.id;
-    }
     console.log('Submit Assignment initiated', model);
     this.assignmentService.createAssignment(model)
       .subscribe(data => {

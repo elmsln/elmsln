@@ -2,6 +2,7 @@ import { Component, OnInit, Input, ElementRef, ContentChildren, AfterContentInit
 import { Project } from '../../project';
 import { ProjectService } from '../../project.service';
 import { AssignmentListComponent } from '../../assignment/assignment-list/assignment-list.component';
+import { Assignment } from '../../assignment';
 
 declare const Materialize:any;
 
@@ -14,16 +15,19 @@ export class ProjectItemComponent implements OnInit, OnDestroy {
   @Input() project: Project;
   @Output() delete: EventEmitter<any> = new EventEmitter();
   @ViewChild(AssignmentListComponent) assignmentListComponent:AssignmentListComponent;
+  assignment:Assignment;
   
   constructor(
     private projectService:ProjectService,
     private el:ElementRef
-  ) { 
+  ) {
   }
 
   ngOnInit() {
     (<any>$(this.el.nativeElement.getElementsByClassName('modal'))).modal();
     (<any>$(this.el.nativeElement.getElementsByClassName('tooltipped'))).tooltip({delay:40});
+    this.assignment = new Assignment();
+    this.assignment.project = this.project.id;
   }
 
   ngOnDestroy() {

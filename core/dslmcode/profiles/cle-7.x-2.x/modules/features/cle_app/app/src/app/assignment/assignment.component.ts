@@ -12,7 +12,7 @@ declare const jQuery:any;
   styleUrls: ['./assignment.component.css'],
   providers: [AssignmentService]
 })
-export class AssignmentComponent implements OnInit, OnDestroy {
+export class AssignmentComponent implements OnInit {
   assignmentId:number;
   assignment:Assignment;
   date:number;
