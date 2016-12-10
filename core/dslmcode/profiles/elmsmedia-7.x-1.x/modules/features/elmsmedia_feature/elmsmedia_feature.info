@@ -18,6 +18,7 @@ dependencies[] = strongarm
 dependencies[] = svg_sanitizer
 dependencies[] = video_embed_field
 dependencies[] = view_mode_tab
+dependencies[] = views
 dependencies[] = views_content_cache
 dependencies[] = views_fluid_grid
 features[ctools][] = views:views_default:3.0

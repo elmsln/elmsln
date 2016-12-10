@@ -193,3 +193,14 @@ function elmsmedia_update_7014(&$sandbox) {
   features_revert_module('elmsmedia_svg');
   features_revert_module('elmsmedia_video');
 }
+
+/**
+ * Support for multiple course selection for media content.
+ */
+function elmsmedia_update_7015(&$sandbox) {
+  features_revert_module('elmsmedia_audio');
+  features_revert_module('elmsmedia_document');
+  features_revert_module('elmsmedia_external_video');
+  features_revert_module('elmsmedia_feature');
+  features_revert_module('elmsmedia_image');
+}
