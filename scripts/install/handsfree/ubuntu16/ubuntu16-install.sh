@@ -26,7 +26,7 @@ start="$(timestamp)"
 # make sure we're up to date with 5.6 repos
 apt-get update -y
 
-# Needed to make sure that we have mcrypt which apparently is ok again. 
+# Needed to make sure that we have mcrypt which apparently is ok again.
 apt-get upgrade -y
 export DEBIAN_FRONTEND=noninteractive
 
@@ -46,16 +46,13 @@ apt-get -y install apache2
 apt-get -y install sendmail uuid uuid-runtime curl policycoreutils unzip patch git nano gcc make mcrypt
 
 #install php
-apt-get -y install php php-fpm php-common php-mysql php-ldap php-cgi php-pear php-xml-parser php-curl php-gd php-cli php-fpm php-apcu php-dev php-mcrypt mcrypt
+apt-get -y install php php-fpm php-common php-mysql php-ldap php-cgi php-pear php-mbstring php-zip php-xml-parser php-curl php-gd php-cli php-fpm php-apcu php-dev php-mcrypt mcrypt
 a2enmod proxy_fcgi setenvif
 a2enconf php7.0-fpm
 
 # enable apache headers
 a2enmod ssl rewrite headers
 pecl channel-update pecl.php.net
-
-pecl install yaml-2.0.0 && echo "extension=yaml.so" > /etc/php/7.0/mods-available/yaml.ini
-phpenmod yaml
 
 # install uploadprogress
 pecl install uploadprogress
@@ -88,6 +85,13 @@ groupadd elmsln
 # get base mysql tables established
 #mysql_install_db
 # run the handsfree installer that's the same for all deployments
+
+# Not sure why but run this at the end...
+apt-get install libyaml-dev -y
+yes '' | pecl install -f yaml-2.0.0
+echo "extension=yaml.so" > /etc/php/7.0/mods-available/yaml.ini
+phpenmod yaml
+service php7.0-fpm restart
 
 # kick off hands free deployment
 cd $HOME
