@@ -1,0 +1,442 @@
+<?php
+
+/**
+ * @file
+ * A Tin Can API module to handle quiz tracking.
+ */
+function tincanapi_quiz5_quiz_result_insert($entity, $type) {
+  $data = array();
+  $quiz = node_load($entity->nid);
+  $data['verb'] = tincanapi_get_verb('started');
+  $data['object'] = tincanapi_get_object('node', $quiz);
+
+  tincanapi_track_data('quiz', $data);
+
+}
+function tincanapi_quiz5_quiz_result_update($entity) {
+ // if(isset($entity->is_evaluated) && $entity->is_evaluated ) {
+  if(isset($entity->time_end) && is_numeric($entity->time_end)) {
+      $quiz_nid = $entity->nid;
+      $quiz_vid = $entity->vid;
+      $quiz = node_load($quiz_nid, $quiz_vid);
+
+      $rid = $entity->result_id;
+
+
+      $score = quiz_calculate_score($quiz_nid, $rid);
+
+      $timestamp = $entity->time_end - $entity->time_start;
+
+      $data = array();
+
+      $data['verb'] = tincanapi_get_verb('finished');
+      $data['object'] = tincanapi_get_object('node', $quiz);
+
+      $data['context']['extensions'][TINCANAPI_CUSTOM_URI . '/duration'] = tincanapi_format_iso8601_duration($timestamp);
+
+      if (isset($entity->is_evaluated) && $entity->is_evaluated) {
+         $data['result'] = _tincanapi_quiz5_get_result($score, $quiz);
+      }
+      else {
+        $data['result']['completion'] = FALSE;
+      }
+
+      tincanapi_track_data('quiz', $data);
+
+  }
+}
+function tincanapi_quiz5_quiz_result_answer_presave($answer) {
+  if(!$answer->is_new) {
+    _tincanapi_quiz5_track_answer($answer);
+  }
+}
+
+/**
+ * Implements hook_tincanapi_quiz_data_TYPE().
+ *
+ * Long answer type specific data.
+ */
+function tincanapi_quiz5_tincanapi_quiz_data_long_answer(&$data, $question, $answer) {
+
+  $result = db_select('quiz_long_answer_user_answers', 'q')
+    ->fields('q')
+    ->condition('result_answer_id', $answer->result_answer_id, '=')
+    ->execute()
+    ->fetchAssoc();
+
+  $data['result']['response'] = $result['answer'];
+
+  if($result['is_evaluated'] == 1) {
+    $score = $result['score'];
+    $max = $question->max_score;
+
+    $data['result']['score'] = array(
+      'scaled' => _tincanapi_quiz5_get_score($score, $max),
+      'min' => 0,
+      'max' => (int) $max,
+    );
+  }
+}
+
+/**
+ * Implements hook_tincanapi_quiz_data_TYPE().
+ *
+ * Matching type specific data.
+ */
+function tincanapi_quiz5_tincanapi_quiz_data_matching(&$data, $question, $answer) {
+  $correct_response_pattern = '';
+
+  $data['object']['definition']['source'] = array();
+  $data['object']['definition']['target'] = array();
+
+  foreach ($question->match as $match) {
+    $source = array(
+      'id' => 'question_' . $match['match_id'],
+    );
+
+    tincanapi_add_language_value($source, 'description', $match['question']);
+
+    $target = array(
+      'id' => 'answer_' . $match['match_id'],
+    );
+
+    tincanapi_add_language_value($target, 'description', $match['answer']);
+
+    $data['object']['definition']['source'][] = $source;
+    $data['object']['definition']['target'][] = $target;
+
+    if (!empty($correct_response_pattern)) {
+      $correct_response_pattern .= '[,]';
+    }
+
+    $correct_response_pattern .= $source['id'] . '[.]' . $target['id'];
+  }
+
+  $response = '';
+  $score = 0;
+  $max = $question->max_score;
+  $result = db_select('quiz_matching_user_answers', 'q')
+    ->fields('q')
+    ->condition('result_answer_id', $answer->result_answer_id, '=')
+    ->execute();
+  while ($record = $result->fetchAssoc()) {
+    if ($record['match_id'] == $record['answer']) {
+      $score++;
+    }
+
+    if (!empty($response)) {
+      $response .= '[,]';
+    }
+
+    $response .= 'question_' . $record['match_id'] . '[.]answer_' . $record['answer'];
+  }
+
+  $data['result']['response'] = $response;
+
+  $data['result']['score'] = array(
+    'scaled' => _tincanapi_quiz5_get_score($score, $max),
+    'min' => 0,
+    'max' => (int) $max,
+  );
+
+  $data['object']['definition']['correctResponsesPattern'] = array($correct_response_pattern);
+}
+
+/**
+ * Implements hook_tincanapi_quiz_data_TYPE().
+ *
+ * Multiple choice type specific data.
+ */
+function tincanapi_quiz5_tincanapi_quiz_data_multichoice(&$data, $question, $answer) {
+
+  $data['result']['success'] = ($answer->is_correct == 1 ? TRUE : FALSE);
+
+  $query = db_select('quiz_multichoice_user_answers', 'u')
+    ->condition('result_answer_id', $answer->result_answer_id, '=');
+
+  $query->join('quiz_multichoice_user_answer_multi', 'a', 'u.id = a.user_answer_id');
+
+  $result = $query->fields('u')
+    ->fields('a')
+    ->execute()
+    ->fetchAssoc();
+
+  $answer_id = $result['answer_id'];
+
+  $correct = '';
+  $choices = array();
+
+  foreach ($question->alternatives as $alternative) {
+    if ($alternative['id'] == $answer_id) {
+      //$data['result']['response'] = $alternative['id'];
+      $data['result']['response'] = trim(strip_tags($alternative['answer']['value']));
+    }
+
+    if ($alternative['score_if_chosen'] > 0 || $alternative['score_if_not_chosen'] > 0) {
+      if (!empty($correct)) {
+        $correct .= '[,]';
+      }
+
+      $correct .= $alternative['id'];
+    }
+
+    $choice = array(
+      'id' => $alternative['id'],
+    );
+
+    tincanapi_add_language_value($choice, 'description', trim(strip_tags($alternative['answer']['value'])));
+
+    $choices[] = $choice;
+  }
+
+  $data['object']['definition']['correctResponsesPattern'] = array($correct);
+  $data['object']['definition']['choices'] = $choices;
+}
+
+/**
+ * Implements hook_tincanapi_quiz_data_TYPE().
+ *
+ * Directions type specific data.
+ */
+function tincanapi_quiz5_tincanapi_quiz_data_quiz_directions(&$data, $question, $answer) {
+  $data['verb'] = tincanapi_get_verb('viewed');
+}
+
+/**
+ * Implements hook_tincanapi_quiz_data_TYPE().
+ *
+ * Scale type specific data.
+ */
+function tincanapi_quiz5_tincanapi_quiz_data_scale(&$data, $question, $answer) {
+  $query = db_select('quiz_scale_node_properties', 'p')
+    ->condition('nid', $question->nid, '=');
+
+  $query->join('quiz_scale_answer', 'a', 'p.answer_collection_id = a.answer_collection_id');
+
+  $result = $query->fields('p')
+    ->fields('a')
+    ->execute();
+
+  $response = db_select('quiz_scale_user_answers', 's')
+    ->fields('s')
+    ->condition('result_answer_id', $answer->result_answer_id, '=')
+    ->execute()
+    ->fetchAssoc();
+
+  $response_answer = db_select('quiz_scale_answer', 'sa')
+    ->fields('sa')
+    ->condition('id', $response['answer_id'], '=')
+    ->execute()
+    ->fetchAssoc();
+
+  $scale = array();
+
+  while ($record = $result->fetchAssoc()) {
+    if ($record['answer'] == $response_answer['answer']) {
+      $data['result']['response'] = $record['answer'];
+      $data['object']['definition']['correctResponsesPattern'] = array('likert_' . $record['id']);
+    }
+
+    $option = array(
+      'id' => 'likert_' . $record['id'],
+    );
+
+    tincanapi_add_language_value($option, 'description', $record['answer']);
+
+    $scale[] = $option;
+  }
+
+  $data['object']['definition']['scale'] = $scale;
+}
+
+/**
+ * Implements hook_tincanapi_quiz_data_TYPE().
+ *
+ * Short answer type specific data.
+ */
+function tincanapi_quiz5_tincanapi_quiz_data_short_answer(&$data, $question, $answer) {
+  if(isset($answer->is_correct) && $answer->is_correct == 1) {
+    $data['result']['success'] = TRUE;
+  }
+
+  $result = db_select('quiz_short_answer_user_answers', 'q')
+    ->fields('q')
+    ->condition('result_answer_id', $answer->result_answer_id, '=')
+    ->execute()
+    ->fetchAssoc();
+
+  if (isset($result['answer'])) {
+    $data['result']['response'] = $result['answer'];
+  }
+
+  $score = $result['score'];
+  $max = $question->max_score;
+
+  $data['result']['score'] = array(
+    'scaled' => _tincanapi_quiz5_get_score($score, $max),
+    'min' => 0,
+    'max' => (int) $max,
+  );
+}
+
+/**
+ * Implements hook_tincanapi_quiz_data_TYPE().
+ *
+ * True/false type specific data.
+ */
+function tincanapi_quiz5_tincanapi_quiz_data_truefalse(&$data, $question, $answer) {
+
+  $data['result']['success'] = ($answer->is_correct == 1 ? TRUE : FALSE);
+  $result = db_select('quiz_truefalse_user_answers', 'q')
+    ->fields('q')
+    ->condition('result_answer_id', $answer->result_answer_id, '=')
+    ->execute()
+    ->fetchAssoc();
+
+  if(isset($result['answer'])) {
+    $data['result']['response'] = ($result['answer']== 1 ? 'true' : 'false');
+  }
+
+  $correct = ($question->correct_answer == 1 ? 'true' : 'false');
+  $data['object']['definition']['correctResponsesPattern'] = array($correct);
+}
+
+/**
+ * Track an answer to a quiz question.
+ *
+ * @param object $quiz
+ *   The Drupal quiz node.
+ * @param int $rid
+ *   The quiz result id.
+ */
+function _tincanapi_quiz5_track_answer($result_answer_entity, $uid = NULL) {
+  global $base_url;
+  $rid = $result_answer_entity->result_id;
+  $order_num = $result_answer_entity->number;
+  $result_set = entity_load_single('quiz_result', $rid);
+  $quiz = node_load($result_set->nid);
+  $question = node_load($result_answer_entity->question_nid, $result_answer_entity->question_vid);
+
+
+  $data = array();
+  $data['verb'] = tincanapi_get_verb('answered');
+
+  $data['object'] = tincanapi_get_object('node', $question);
+  $data['object']['objectType'] = 'Activity';
+  $data['object']['definition']['type'] = 'http://adlnet.gov/expapi/activities/cmi.interaction';
+
+  $parent = array(
+    'id' => $base_url . '/node/' . $quiz->nid,
+    'objectType' => 'Activity',
+  );
+
+  $data['context']['contextActivities']['parent'] = $parent;
+  $data['context']['extensions'][TINCANAPI_CUSTOM_URI . '/order'] = $order_num;
+
+  $body = field_get_items('node', $question, 'body');
+
+  if (!empty($body)) {
+    $description = reset($body);
+    tincanapi_add_language_value($data['object']['definition'], 'description', strip_tags($description['value']));
+  }
+
+  if ($interaction_type = _tincanapi_quiz5_interaction_type_map($question->type)) {
+    $data['object']['definition']['interactionType'] = $interaction_type;
+  }
+
+  $hook = 'tincanapi_quiz_data_' . $question->type;
+   
+  foreach (module_implements($hook) as $module) {
+    $function = $module . '_' . $hook;
+    $function($data, $question, $result_answer_entity);
+  }
+
+  if (!empty($data)) {
+    if (isset($uid)) {
+      tincanapi_track_data('quiz', $data, $uid);
+    }
+    else {
+      tincanapi_track_data('quiz', $data);
+    }
+  }
+
+}
+
+/**
+ * Get a completed result array for the Tin Can API.
+ *
+ * @param array $score
+ *   An associative array containing the score results.
+ * @param object $quiz
+ *   The quiz node.
+ *
+ * @return array
+ *   A result array.
+ */
+function _tincanapi_quiz5_get_result(array $score, $quiz) {
+  $result = array();
+
+  $result['score']['scaled'] = _tincanapi_quiz5_get_score($score['percentage_score']);
+  $result['completion'] = TRUE;
+  $result['success'] = _tincanapi_quiz5_passed($score['percentage_score'], $quiz);
+
+  return $result;
+}
+
+/**
+ * Return the scaled score value for the quiz.
+ *
+ * @param int $score
+ *   The percentage scored.
+ * @param int $total
+ *   The total possible points.
+ *
+ * @return int
+ *   The scaled score value.
+ */
+function _tincanapi_quiz5_get_score($score, $total = 100) {
+  return ($score / $total);
+}
+
+/**
+ * Determine if the user passed the quiz.
+ *
+ * @param int $score
+ *   The percentage scored.
+ * @param object $quiz
+ *   The quiz node.
+ *
+ * @return bool
+ *   Value representing pass or fail.
+ */
+function _tincanapi_quiz5_passed($score, $quiz) {
+  if ($score >= $quiz->pass_rate) {
+    return TRUE;
+  }
+  else {
+    return FALSE;
+  }
+}
+
+/**
+ * Map the Quiz question type to the Tin Can equivalent.
+ *
+ * @param string $question_type
+ *   The Quiz question node type.
+ *
+ * @return string
+ *   The Tin Can interaction type.
+ */
+function _tincanapi_quiz5_interaction_type_map($question_type) {
+  $map = array(
+    'long_answer' => 'fill-in',
+    'matching' => 'matching',
+    'multichoice' => 'choice',
+    'scale' => 'likert',
+    'truefalse' => 'true-false',
+  );
+
+  if (array_key_exists($question_type, $map)) {
+    return $map[$question_type];
+  }
+}
