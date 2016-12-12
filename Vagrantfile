@@ -8,7 +8,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # centos 7.2 - 64 bit
   #config.vm.box = "bradallenfisher/centos7"
   # primed centos 7.2 - 64 bit
-  config.vm.box = "bento/ubuntu-16.04"
+  config.vm.box = "elmsln/ubuntu16"
   if Vagrant.has_plugin?("vagrant-cachier")
     config.cache.scope = :box
   end
