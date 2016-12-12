@@ -2,7 +2,7 @@ import { Component, OnInit, ElementRef, AfterViewInit, Input, Output, EventEmitt
 import { Observable, Subject } from 'rxjs/Rx';
 
 // non-typescript definitions
-declare var $:JQueryStatic;
+declare var $:any;
 
 @Component({
   selector: 'wysiwygjs',

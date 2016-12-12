@@ -5,8 +5,6 @@ import { SubmissionService } from '../submission.service';
 import { CritiqueFormComponent } from '../critique/critique-form/critique-form.component';
 import { CritiqueListComponent } from '../critique/critique-list/critique-list.component';
 
-import { MdTabGroup, MdTab } from '@angular/material';
-
 @Component({
   selector: 'cle-submission',
   templateUrl: './submission.component.html',

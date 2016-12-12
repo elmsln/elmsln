@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormGroup, FormBuilder } from '@angular/forms';
 import { UserService } from '../user.service';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 declare const Drupal:any;

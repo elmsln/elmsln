@@ -1,11 +1,7 @@
 <div class="row">
-  <div *ngFor="let submission of submissions" class="col s12 m4">
-    <md-card >
-      <md-card-title>{{submission.title}}</md-card-title>
-      <md-card-content><span [innerHTML]="submission.body.value"></span> </md-card-content>
-      <md-card-actions>
-        <button md-button (click)="viewSubmission(submission.nid)">View Submission</button>
-      </md-card-actions>
-    </md-card>
+  <div *ngFor="let submission of submissions" class="col s12 m4"(click)="viewSubmission(submission.nid)">
+      <h3>{{submission.title}}</h3>
+      <span [innerHTML]="submission.body.value"></span>
+      <button (click)="viewSubmission(submission.nid)">View Submission</button>
   </div>
 </div>

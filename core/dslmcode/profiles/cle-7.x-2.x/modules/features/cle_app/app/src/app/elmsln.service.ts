@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Http, Headers, Response, RequestOptions } from '@angular/http';
 import { AppSettings } from './app-settings';
 import { Cookie } from 'ng2-cookies/ng2-cookies';
+import {Observable} from "rxjs";
 declare const Drupal:any;
 
 @Injectable()

@@ -5,6 +5,7 @@ import { AssignmentListComponent } from '../../assignment/assignment-list/assign
 import { Assignment } from '../../assignment';
 
 declare const Materialize:any;
+declare const $:any;
 
 @Component({
   selector: 'app-project-item',

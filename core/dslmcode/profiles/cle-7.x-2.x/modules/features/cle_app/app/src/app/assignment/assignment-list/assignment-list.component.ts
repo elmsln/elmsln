@@ -4,7 +4,7 @@ import { Assignment } from '../../assignment';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { Project } from '../../project';
-declare const $:JQueryStatic;
+declare const $:any;
 
 @Component({
   selector: 'cle-assignment-list',

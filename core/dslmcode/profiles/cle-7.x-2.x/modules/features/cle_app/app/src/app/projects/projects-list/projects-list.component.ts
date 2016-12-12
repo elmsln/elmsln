@@ -3,7 +3,7 @@ import { Project } from '../../project';
 import { ProjectService } from '../../project.service';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
-declare const $:JQueryStatic;
+declare const $:any;
 declare const Materialize:any;
 
 @Component({
