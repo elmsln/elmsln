@@ -488,13 +488,20 @@ function _cis_connector_course_context() {
           return $course;
         }
         // check for GET in address bar
-        if (isset($_GET['elmsln_course'])) {
+        if (isset($_GET['elmsln_course']) && $_GET['elmsln_course'] != 1) {
           $course = $_GET['elmsln_course'];
           return $course;
         }
         // bleh case scenario, we need to start loading some nodes and what not
         // see if this is on a node, then check if we are in an authority
-        if ($node = menu_get_object('node', 1, arg(0) . '/' . arg(1))) {
+        $node = menu_get_object('node', 1, arg(0) . '/' . arg(1));
+        // BEYOND EDGECASE: see if this is a redirect internal to itself
+        if (empty($node) && (arg(0) . '/' . arg(1) == 'elmsln/redirect') && arg(2) == elmsln_core_get_profile_key()) {
+          $parts = explode('/', $_SERVER['HTTP_REFERER']);
+          $node = menu_get_object('node', 1, $parts[3] . '/' . $parts[4]);
+        }
+        // see if we have a node in scope to dig into
+        if (!empty($node)) {
           // test for authority course type
           if ($node->type == 'cis_course' && isset($node->field_course_machine_name['und'][0]['value'])) {
             $course = $node->field_course_machine_name['und'][0]['value'];
@@ -506,8 +513,8 @@ function _cis_connector_course_context() {
             return $course;
           }
           // see if we are on a section
-          elseif ($node->type == 'section' && isset($node->field_section_course_ref['und'][0]['entity'])) {
-            $node = $node->field_section_course_ref['und'][0]['entity'];
+          elseif ($node->type == 'section' && isset($node->field_section_course_ref['und'][0]['target_id'])) {
+            $node = node_load($node->field_section_course_ref['und'][0]['target_id']);
             if ($node->type == 'cis_course' && isset($node->field_course_machine_name['und'][0]['value'])) {
               $course = $node->field_course_machine_name['und'][0]['value'];
               return $course;
@@ -515,8 +522,8 @@ function _cis_connector_course_context() {
           }
           // see if we are on something that references a course
           // if it does, run the previous test again
-          elseif (isset($node->field_cis_course_ref['und'][0]['entity'])) {
-            $node = $node->field_cis_course_ref['und'][0]['entity'];
+          elseif (isset($node->field_cis_course_ref['und'][0]['target_id'])) {
+            $node = node_load($node->field_cis_course_ref['und'][0]['target_id']);
             if ($node->type == 'cis_course' && isset($node->field_course_machine_name['und'][0]['value'])) {
               $course = $node->field_course_machine_name['und'][0]['value'];
               return $course;
