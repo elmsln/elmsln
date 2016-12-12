@@ -204,3 +204,10 @@ function elmsmedia_update_7015(&$sandbox) {
   features_revert_module('elmsmedia_feature');
   features_revert_module('elmsmedia_image');
 }
+
+/**
+ * Support for embedding cis tokens into static content type.
+ */
+function elmsmedia_update_7016(&$sandbox) {
+  features_revert_module('elmsmedia_feature');
+}
