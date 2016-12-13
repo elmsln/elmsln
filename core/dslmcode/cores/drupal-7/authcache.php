@@ -17,8 +17,7 @@
  * Root directory of Drupal installation.
  */
 define('DRUPAL_ROOT', getcwd());
-// support ELMSLN config loading globally
-require_once DRUPAL_ROOT . '/../../elmsln_environment/elmsln_environment.php';
+
 /**
  * Root directory of Authcache Personalization module.
  */

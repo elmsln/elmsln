@@ -1,14 +1,13 @@
-diff --git a/index.php b/index.php
-index 8b83199..974fc0f 100644
---- a/index.php
-+++ b/index.php
-@@ -15,7 +15,8 @@
-  * Root directory of Drupal installation.
-  */
- define('DRUPAL_ROOT', getcwd());
--
+diff --git a/includes/bootstrap.inc b/includes/bootstrap.inc
+index 99ce118..77258c9 100644
+--- a/includes/bootstrap.inc
++++ b/includes/bootstrap.inc
+@@ -1,5 +1,8 @@
+ <?php
+ 
 +// support ELMSLN config loading globally
 +require_once DRUPAL_ROOT . '/../../elmsln_environment/elmsln_environment.php';
- require_once DRUPAL_ROOT . '/includes/bootstrap.inc';
- drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);
- menu_execute_active_handler();
++
+ /**
+  * @file
+  * Functions that need to be loaded on every Drupal request.
