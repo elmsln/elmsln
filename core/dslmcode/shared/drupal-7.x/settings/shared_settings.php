@@ -32,11 +32,16 @@ $conf['cache_backends'][] = 'sites/all/modules/ulmus/apdqc/apdqc.cache.inc';
 $conf['cache_backends'][] = 'sites/all/modules/ulmus/authcache/authcache.cache.inc';
 $conf['cache_backends'][] = 'sites/all/modules/ulmus/authcache/modules/authcache_builtin/authcache_builtin.cache.inc';
 // Default backend controller to be apdqc
-$conf['cache_default_class']    = 'DrupalDatabaseCache';
+$conf['cache_default_class']    = 'APDQCache';
 // THIS MUST BE SERVED FROM DB FOR STABILITY
-#$conf['cache_class_cache_cis_connector'] = 'APDQCache';
-#$conf['cache_class_cache_form'] = 'APDQCache';
-// look issues for books of menu items
+$conf['cache_class_cache_cis_connector'] = 'DrupalDatabaseCache';
+$conf['cache_class_cache_form'] = 'DrupalDatabaseCache';
+// issue with APDQC and books / big menus
+$conf['cache_class_cache_book'] = 'DrupalDatabaseCache';
+$conf['cache_class_cache_mooc_helper_book_nav'] = 'DrupalDatabaseCache';
+$conf['cache_class_cache'] = 'DrupalDatabaseCache';
+$conf['cache_class_cache_bootstrap'] = 'DrupalDatabaseCache';
+$conf['cache_class_cache_entity_node'] = 'DrupalDatabaseCache';
 $conf['cache_class_cache_menu'] = 'DrupalDatabaseCache';
 
 // pathcache settings
