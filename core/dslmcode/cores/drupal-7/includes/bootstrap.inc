@@ -1,6 +1,4 @@
 <?php
-// support ELMSLN config loading globally
-require_once DRUPAL_ROOT . '/../../elmsln_environment/elmsln_environment.php';
 
 /**
  * @file

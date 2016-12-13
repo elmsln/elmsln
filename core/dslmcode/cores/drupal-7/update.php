@@ -4,7 +4,8 @@
  * Defines the root directory of the Drupal installation.
  */
 define('DRUPAL_ROOT', getcwd());
-
+// support ELMSLN config loading globally
+include_once DRUPAL_ROOT . '/../../elmsln_environment/elmsln_environment.php';
 /**
  * @file
  * Administrative page for handling updates from one Drupal version to another.
