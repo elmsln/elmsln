@@ -24,12 +24,13 @@ function cle_assignment_field_group_info() {
     'weight' => '0',
     'children' => array(
       0 => 'field_assignment_color',
-      1 => 'field_assignment_feedback',
-      2 => 'field_assignment_image',
-      3 => 'field_assignment_late_submission',
-      4 => 'field_assignment_privacy_setting',
-      5 => 'field_assignment_due_date',
-      6 => 'title',
+      1 => 'field_assignment_due_date',
+      2 => 'field_assignment_feedback',
+      3 => 'field_assignment_image',
+      4 => 'field_assignment_late_submission',
+      5 => 'field_assignment_privacy_setting',
+      6 => 'field_assignment_description',
+      7 => 'title',
     ),
     'format_type' => 'fieldset',
     'format_settings' => array(
@@ -78,6 +79,35 @@ function cle_assignment_field_group_info() {
   $field_group = new stdClass();
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
   $field_group->api_version = 1;
+  $field_group->identifier = 'group_assignment_hierarchy|node|cle_assignment|form';
+  $field_group->group_name = 'group_assignment_hierarchy';
+  $field_group->entity_type = 'node';
+  $field_group->bundle = 'cle_assignment';
+  $field_group->mode = 'form';
+  $field_group->parent_name = '';
+  $field_group->data = array(
+    'label' => 'Hierarchy',
+    'weight' => '2',
+    'children' => array(
+      0 => 'field_assignment_dependencies',
+      1 => 'field_assignment_project',
+    ),
+    'format_type' => 'fieldset',
+    'format_settings' => array(
+      'formatter' => 'collapsible',
+      'instance_settings' => array(
+        'description' => '',
+        'classes' => 'group-assignment-hierarchy field-group-fieldset',
+        'required_fields' => 1,
+        'id' => '',
+      ),
+    ),
+  );
+  $field_groups['group_assignment_hierarchy|node|cle_assignment|form'] = $field_group;
+
+  $field_group = new stdClass();
+  $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
+  $field_group->api_version = 1;
   $field_group->identifier = 'group_critique|node|cle_assignment|form';
   $field_group->group_name = 'group_critique';
   $field_group->entity_type = 'node';
@@ -110,6 +140,7 @@ function cle_assignment_field_group_info() {
   t('Critique');
   t('Details');
   t('Evidence');
+  t('Hierarchy');
 
   return $field_groups;
 }

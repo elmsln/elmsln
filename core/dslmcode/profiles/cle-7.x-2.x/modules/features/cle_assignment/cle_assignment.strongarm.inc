@@ -137,22 +137,22 @@ function cle_assignment_strongarm() {
           'weight' => '0',
         ),
         'path' => array(
-          'weight' => '5',
-        ),
-        'hidden_nodes' => array(
           'weight' => '7',
         ),
+        'hidden_nodes' => array(
+          'weight' => '9',
+        ),
         'book' => array(
-          'weight' => '4',
-        ),
-        'options' => array(
-          'weight' => '8',
-        ),
-        'author' => array(
           'weight' => '6',
         ),
+        'options' => array(
+          'weight' => '10',
+        ),
+        'author' => array(
+          'weight' => '8',
+        ),
         'revision_information' => array(
-          'weight' => '3',
+          'weight' => '5',
         ),
       ),
       'display' => array(),

@@ -119,6 +119,28 @@ function cle_assignment_field_default_field_bases() {
     'type' => 'entityreference',
   );
 
+  // Exported field_base: 'field_assignment_description'.
+  $field_bases['field_assignment_description'] = array(
+    'active' => 1,
+    'cardinality' => 1,
+    'deleted' => 0,
+    'entity_types' => array(),
+    'field_name' => 'field_assignment_description',
+    'indexes' => array(
+      'format' => array(
+        0 => 'format',
+      ),
+    ),
+    'locked' => 0,
+    'module' => 'text',
+    'settings' => array(
+      'cis_connector_access' => FALSE,
+      'cis_connector_disable' => FALSE,
+    ),
+    'translatable' => 0,
+    'type' => 'text_long',
+  );
+
   // Exported field_base: 'field_assignment_due_date'.
   $field_bases['field_assignment_due_date'] = array(
     'active' => 1,

@@ -137,7 +137,7 @@ function cle_assignment_field_default_field_instances() {
       'module' => 'jquery_colorpicker',
       'settings' => array(),
       'type' => 'jquery_colorpicker',
-      'weight' => 4,
+      'weight' => 5,
     ),
   );
 
@@ -192,7 +192,77 @@ function cle_assignment_field_default_field_instances() {
         'apply_chosen' => '',
       ),
       'type' => 'options_select',
-      'weight' => 20,
+      'weight' => 3,
+    ),
+  );
+
+  // Exported field_instance:
+  // 'node-cle_assignment-field_assignment_description'.
+  $field_instances['node-cle_assignment-field_assignment_description'] = array(
+    'bundle' => 'cle_assignment',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'text',
+        'settings' => array(),
+        'type' => 'text_default',
+        'weight' => 32,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_assignment_description',
+    'label' => 'Description',
+    'required' => 0,
+    'settings' => array(
+      'authcache' => array(
+        'clients' => array(
+          'authcache_ajax' => array(
+            'status' => 1,
+            'weight' => 0,
+          ),
+        ),
+        'fallback' => 'cancel',
+        'lifespan' => 3600,
+        'perpage' => 0,
+        'peruser' => 1,
+        'status' => 0,
+      ),
+      'better_formats' => array(
+        'allowed_formats' => array(
+          'plain_text' => 'plain_text',
+          'student_format' => 'student_format',
+          'textbook_editor' => 'textbook_editor',
+        ),
+        'allowed_formats_toggle' => 0,
+        'default_order_toggle' => 0,
+        'default_order_wrapper' => array(
+          'formats' => array(
+            'plain_text' => array(
+              'weight' => 10,
+            ),
+            'student_format' => array(
+              'weight' => 0,
+            ),
+            'textbook_editor' => array(
+              'weight' => -10,
+            ),
+          ),
+        ),
+      ),
+      'text_processing' => 0,
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'text',
+      'settings' => array(
+        'rows' => 5,
+      ),
+      'type' => 'text_textarea',
+      'weight' => 1,
     ),
   );
 
@@ -252,7 +322,7 @@ function cle_assignment_field_default_field_instances() {
         'year_range' => '-3:+3',
       ),
       'type' => 'date_text',
-      'weight' => 2,
+      'weight' => 3,
     ),
   );
 
@@ -352,7 +422,7 @@ function cle_assignment_field_default_field_instances() {
         'apply_chosen' => '',
       ),
       'type' => 'options_select',
-      'weight' => 6,
+      'weight' => 7,
     ),
   );
 
@@ -431,7 +501,7 @@ function cle_assignment_field_default_field_instances() {
         'progress_indicator' => 'throbber',
       ),
       'type' => 'image_image',
-      'weight' => 5,
+      'weight' => 6,
     ),
   );
 
@@ -482,7 +552,7 @@ function cle_assignment_field_default_field_instances() {
         'display_label' => 1,
       ),
       'type' => 'options_onoff',
-      'weight' => 3,
+      'weight' => 4,
     ),
   );
 
@@ -533,7 +603,7 @@ function cle_assignment_field_default_field_instances() {
         'apply_chosen' => '',
       ),
       'type' => 'options_select',
-      'weight' => 1,
+      'weight' => 2,
     ),
   );
 
@@ -589,7 +659,7 @@ function cle_assignment_field_default_field_instances() {
         'size' => 60,
       ),
       'type' => 'entityreference_autocomplete',
-      'weight' => 24,
+      'weight' => 4,
     ),
   );
 
@@ -840,6 +910,7 @@ function cle_assignment_field_default_field_instances() {
   t('Color');
   t('Comment');
   t('Competencies');
+  t('Description');
   t('Evidence method');
   t('How students demonstrate they have completed the assignment. Artifacts are through production like text, media, and links. Critique is through evaluation of peers.');
   t('Image');

@@ -7,6 +7,7 @@ dependencies[] = cle_assignment
 dependencies[] = ctools
 dependencies[] = date
 dependencies[] = date_popup
+dependencies[] = entityreference
 dependencies[] = features
 dependencies[] = field_group
 dependencies[] = filefield_paths
