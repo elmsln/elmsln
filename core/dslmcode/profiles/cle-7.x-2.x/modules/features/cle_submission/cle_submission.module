@@ -7,6 +7,29 @@
 include_once 'cle_submission.features.inc';
 
 /**
+ * Implements hook_menu().
+ */
+function cle_submission_menu() {
+  $items['api/v1/cle/submissions'] = array(
+    'page callback' => '_elmsln_api_tree',
+    'page arguments' => array('api/v1/cle/submissions', TRUE),
+    'type' => MENU_CALLBACK,
+  );
+  $items['api/v1/cle/submissions/%'] = array(
+    'page callback' => '_elmsln_api_tree',
+    'page arguments' => array('api/v1/cle/submissions/%', TRUE),
+    'type' => MENU_CALLBACK,
+  );
+  $items['api/v1/cle/submissions/random-critique'] = array(
+    'page callback' => '_cle_critique_api_random_critique',
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_CALLBACK,
+  );
+
+  return $items;
+}
+
+/**
  * Implements hook_form_FORM_ID_alter().
  */
 function cle_submission_form_cle_submission_node_form_alter(&$form, &$form_state, $form_id) {
