@@ -13,13 +13,13 @@ function cle_submission_menu() {
   $items = array();
   $items['api/v1/cle/submissions'] = array(
     'page callback' => '_elmsln_api_v1_page_callback',
-    'page arguments' => array('submissions'),
+    'page arguments' => array('submission'),
     'access callback' => 'user_is_logged_in',
     'type' => MENU_CALLBACK,
   );
   $items['api/v1/cle/submissions/%'] = array(
     'page callback' => '_elmsln_api_v1_page_callback',
-    'page arguments' => array('submissions', 4),
+    'page arguments' => array('submission', 4),
     'access callback' => 'user_is_logged_in',
     'type' => MENU_CALLBACK,
   );
@@ -37,7 +37,7 @@ function cle_submission_menu() {
  */
 function cle_submission_elmsln_jsapi_info() {
   // submissions api router
-  $items['submissions'] = array(
+  $items['submission'] = array(
     'list' => '_cle_submission_v1_get_submissions',
     'output' => '_cle_submission_v1_submission_output',
   );

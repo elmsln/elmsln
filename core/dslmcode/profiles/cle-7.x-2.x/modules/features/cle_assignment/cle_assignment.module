@@ -15,13 +15,13 @@ function cle_assignment_menu() {
   $items = array();
   $items['api/v1/cle/assignments'] = array(
     'page callback' => '_elmsln_api_v1_page_callback',
-    'page arguments' => array('assignments'),
+    'page arguments' => array('assignment'),
     'access callback' => 'user_is_logged_in',
     'type' => MENU_CALLBACK,
   );
   $items['api/v1/cle/assignments/%'] = array(
     'page callback' => '_elmsln_api_v1_page_callback',
-    'page arguments' => array('assignments', 4),
+    'page arguments' => array('assignment', 4),
     'access callback' => 'user_is_logged_in',
     'type' => MENU_CALLBACK,
   );
@@ -33,7 +33,7 @@ function cle_assignment_menu() {
  */
 function cle_assignment_elmsln_jsapi_info() {
   // assignment api router
-  $items['assignments'] = array(
+  $items['assignment'] = array(
     'list' => '_cle_assignment_v1_get_assignments',
     'output' => '_cle_assignment_v1_assignment_output',
   );

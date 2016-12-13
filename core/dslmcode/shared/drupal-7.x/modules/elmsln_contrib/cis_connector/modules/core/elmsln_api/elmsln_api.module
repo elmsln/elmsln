@@ -1085,25 +1085,29 @@ function _elmsln_api_is_alive(&$buckets) {
 /**
  * Page Callback that will handle all of the incoming api calls.
  */
-function _elmsln_api_v1_page_callback($id, $filter = NULL) {
+function _elmsln_api_v1_page_callback($type, $etid = NULL) {
   // CSRF protection on write operations.
   if (!in_array($_SERVER['REQUEST_METHOD'], array('GET', 'HEAD', 'OPTIONS', 'TRACE')) && !restws_csrf_validation()) {
     restws_terminate_request('403 Forbidden', '403 Access Denied: CSRF validation failed');
   }
   $jsapis = elmsln_api_get_elmsln_jsapis();
   // see if we have triggered a defined endpoint for loading this bundle
-  if (isset($jsapis[$id])) {
-    global $base_url;
-    $vars = _elmsln_api_tree(current_path(), FALSE);
-    // gather the list of assignments to send
-    $filter = array();
-    // check the url parmas for filters
-    $filter = drupal_get_query_parameters();
-    $items = call_user_func($jsapis[$id]['list'], $filter);
+  if (isset($jsapis[$type])) {
+    $path = current_path();
+    if (is_null($etid)) {
+      // check the url parmas for filters
+      $params = drupal_get_query_parameters();
+    }
+    else {
+      $params[$type] = $etid;
+      $path = str_replace('/' . $etid, '', $path);
+    }
+    $vars = _elmsln_api_tree($path, FALSE);
+    $items = call_user_func($jsapis[$type]['list'], $params);
     // get the assignment ready for sending and place them as an array of items
     // under the 'data' property
     foreach ($items as $item) {
-      $_item = call_user_func($jsapis[$id]['output'], $item);
+      $_item = call_user_func($jsapis[$type]['output'], $item);
       $vars['data'][] = $_item;
     }
     _elmsln_api_deliver_output($vars);
