@@ -40,6 +40,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     # you can modify these manually if you want specific specs
     v.customize ["modifyvm", :id, "--memory", mem]
     v.customize ["modifyvm", :id, "--cpus", 1]
+    v.name = "elmsln"
   end
   # run script as root
   config.vm.provision "shell",
