@@ -1,4 +1,4 @@
-default_title="People registry"
+default_title="Account registry"
 type="authority"
 subdomain="people"
 group="Administrative"
