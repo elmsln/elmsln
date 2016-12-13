@@ -503,7 +503,24 @@ function features_override_var_export($var, $prefix = '') {
     // Objects do not export cleanily.
     else {
       if (method_exists($var, 'export')) {
-        $output = $var->export();
+        $outputtmp = $var->export();
+        // ensure this was placed into a string format
+        if (is_array($outputtmp)) {
+          if (empty($outputtmp)) {
+            $output = 'array()';
+          }
+          else {
+            $output = "array(\n";
+            foreach ($var as $key => $value) {
+              // Using normal var_export on the key to ensure correct quoting.
+              $output .= "  " . var_export($key, TRUE) . " => " . features_override_var_export($value, '  ', FALSE) . ",\n";
+            }
+            $output .= ')';
+          }
+        }
+        else {
+          $output = $outputtmp;
+        }
       }
       elseif (get_class($var) === 'stdClass') {
         $output = '(object) ' . features_override_var_export((array) $var, $prefix);
@@ -526,7 +543,6 @@ function features_override_var_export($var, $prefix = '') {
   if ($prefix) {
     $output = str_replace("\n", "\n$prefix", $output);
   }
-
   return $output;
 }
 
