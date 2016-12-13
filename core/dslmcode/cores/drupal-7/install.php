@@ -9,8 +9,6 @@
  * Defines the root directory of the Drupal installation.
  */
 define('DRUPAL_ROOT', getcwd());
-// support ELMSLN config loading globally
-require_once DRUPAL_ROOT . '/../../elmsln_environment/elmsln_environment.php';
 
 /**
  * Global flag to indicate the site is in installation mode.
