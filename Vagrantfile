@@ -8,7 +8,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # centos 7.2 - 64 bit
   #config.vm.box = "bradallenfisher/centos7"
   # primed centos 7.2 - 64 bit
-  config.vm.box = "bento/ubuntu-16.04"
+  config.vm.box = "elmsln/ubuntu16"
   if Vagrant.has_plugin?("vagrant-cachier")
     config.cache.scope = :box
   end
@@ -40,6 +40,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     # you can modify these manually if you want specific specs
     v.customize ["modifyvm", :id, "--memory", mem]
     v.customize ["modifyvm", :id, "--cpus", 1]
+    v.name = "elmsln"
   end
   # run script as root
   config.vm.provision "shell",
