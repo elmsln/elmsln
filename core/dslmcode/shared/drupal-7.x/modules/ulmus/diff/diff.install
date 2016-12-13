@@ -6,6 +6,14 @@
  */
 
 /**
+ * Implements hook_install().
+ */
+function diff_install() {
+  user_role_grant_permissions(DRUPAL_ANONYMOUS_RID, array('diff view changes'));
+  user_role_grant_permissions(DRUPAL_AUTHENTICATED_RID, array('diff view changes'));
+}
+
+/**
  * Implements hook_uninstall().
  */
 function diff_uninstall() {
@@ -16,6 +24,7 @@ function diff_uninstall() {
     'diff_view_mode_',
     'diff_admin_path_',
     'diff_default_state_',
+    'diff_additional_options_',
   );
   foreach ($prefixes as $prefix) {
     db_delete('variable')
@@ -56,26 +65,18 @@ function diff_update_7300() {
 }
 
 /**
- * Removed diff_update_7301().
- */
-
-/**
- * Removed diff_update_7302().
- */
-
-/**
  * Renames some internal settings names.
  */
 function diff_update_7303() {
-  // Get current values
+  // Get current values.
   $radio = variable_get('diff_script_revisioning', 'simple');
   $leading = variable_get('diff_leading_context_lines', 2);
   $trailing = variable_get('diff_trailing_context_lines', 2);
-  // Create new variable names
+  // Create new variable names.
   variable_set('diff_radio_behavior', $radio);
   variable_set('diff_context_lines_leading', $leading);
   variable_set('diff_context_lines_trailing', $trailing);
-  // Delete old variables
+  // Delete old variables.
   variable_del('diff_script_revisioning');
   variable_del('diff_leading_context_lines');
   variable_del('diff_trailing_context_lines');
@@ -88,8 +89,8 @@ function diff_update_7304() {
   // This is now always applied to text fields.
   variable_del('diff_normalise_text');
 
-  // Merge the content type settings for the inline diff block into a single variable.
-  // diff_update_7300() - show_diff_inline_TYPE to diff_show_diff_inline_node_TYPE
+  // Merge the content type settings for the inline diff block into a single
+  // variable.
   $node_types = array_keys(node_type_get_types());
   $enabled_types = array();
   foreach ($node_types as $node_type) {
@@ -121,4 +122,20 @@ function diff_update_7305() {
   db_delete('variable')
       ->condition('name', db_like('diff_view_mode_inline_') . '%', 'LIKE')
       ->execute();
+}
+
+/**
+ * Sets the optional additional node properties to render so that the title
+ * still shows by default when doing node comparisons.
+ */
+function diff_update_7306() {
+  variable_set('diff_additional_options_node', array('title' => 'title'));
+}
+
+/**
+ * Grants access to the Diff "View Changes" button permission to all users.
+ */
+function diff_update_7307() {
+  user_role_grant_permissions(DRUPAL_ANONYMOUS_RID, array('diff view changes'));
+  user_role_grant_permissions(DRUPAL_AUTHENTICATED_RID, array('diff view changes'));
 }

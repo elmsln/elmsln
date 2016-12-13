@@ -58,13 +58,16 @@ e.g. http://www.example.com/admin/structure/types/manage/page
   
     i) "Show View changes button on node edit form" adds a new "Preview" like
         submit button to node editing pages. This shows a diff preview.
+        
+        This can be conditionally restricted per role using the user permission
+        "Access View changes button".
   
     ii) "Enable the Revisions page for this content type" adds the revisioning
          tab to content. This allows users to compare between various revisions
          that they have access to.
   
     iii) "Standard comparison preview" option allows you to control how the most
-          current revision is show on the revision comparision page.
+          current revision is shown on the revision comparison page.
        
   b) Publishing options
 

@@ -11,27 +11,75 @@
  */
 
 /**
- * Allow modules to provide a comparison about entities.
+ * Allow modules to provide a comparison about entity properties.
  *
  * @param object $old_entity
  *   The older entity revision.
+ *
  * @param object $new_entity
  *   The newer entity revision.
+ *
  * @param array $context
  *   An associative array containing:
  *   - entity_type: The entity type; e.g., 'node' or 'user'.
- *   - view_mode: The view mode to use. Defaults to FALSE.
+ *   - old_entity: The older entity.
+ *   - new_entity: The newer entity.
+ *   - view_mode: The view mode to use. Defaults to FALSE. If no view mode is
+ *                given, the recommended fallback view mode is 'default'.
+ *   - states: An array of view states. These could be one of:
+ *     - raw: The raw value of the diff, the classic 7.x-2.x view.
+ *     - rendered: The rendered HTML as determined by the view mode. Only
+ *                 return markup for this state if the value is normally shown
+ *                 by this view mode. The user will most likely be able to see
+ *                 the raw or raw_plain state, so this is optional.
+ *
+ *                 The rendering state is a work in progress.
+ *
+ *     Conditionally, you can get these states, but setting these will override
+ *     the user selectable markdown method.
+ *
+ *     - raw_plain: As raw, but text should be markdowned.
+ *     - rendered_plain: As rendered, but text should be markdowned.
  *
  * @return array
  *   An associative array of values keyed by the entity property.
  *
- * @todo
- *   Investiagate options and document these.
+ *   This is effectively an unnested Form API-like structure.
+ *
+ *   States are returned as follows:
+ *
+ *   $results['line'] = array(
+ *     '#name' => t('Line'),
+ *     '#states' => array(
+ *       'raw' => array(
+ *         '#old' => '<p class="line">This was the old line number [tag].</p>',
+ *         '#new' => '<p class="line">This is the new line [tag].</p>',
+ *       ),
+ *       'rendered' => array(
+ *         '#old' => '<p class="line">This was the old line number <span class="line-number">57</span>.</p>',
+ *         '#new' => '<p class="line">This is the new line <span class="line-number">57</span>.</p>',
+ *       ),
+ *     ),
+ *   );
+ *
+ *   For backwards compatibility, no changes are required to support states,
+ *   but it is recommended to provide a better UI for end users.
+ *
+ *   For example, the following example is equivalent to returning the raw
+ *   state from the example above.
+ *
+ *   $results['line'] = array(
+ *     '#name' => t('Line'),
+ *     '#old' => '<p class="line">This was the old line number [tag].</p>',
+ *     '#new' => '<p class="line">This is the new line [tag].</p>',
+ *   );
  */
 function hook_entity_diff($old_entity, $new_entity, $context) {
+  $results = array();
+
   if ($context['entity_type'] == 'node') {
     $type = node_type_get_type($new_entity);
-    $result['title'] = array(
+    $results['title'] = array(
       '#name' => $type->title_label,
       '#old' => array($old_entity->title),
       '#new' => array($new_entity->title),
@@ -41,6 +89,8 @@ function hook_entity_diff($old_entity, $new_entity, $context) {
       ),
     );
   }
+
+  return $results;
 }
 
 /**
@@ -57,7 +107,7 @@ function hook_entity_diff($old_entity, $new_entity, $context) {
  *
  * @see hook_entity_diff()
  */
-function hook_entity_diff_alter($entity_diffs, $context) {
+function hook_entity_diff_alter(&$entity_diffs, $context) {
 }
 
 /**

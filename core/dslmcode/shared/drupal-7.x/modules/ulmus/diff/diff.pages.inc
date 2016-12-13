@@ -10,6 +10,9 @@
  */
 function diff_latest($node) {
   $revisions = node_revision_list($node);
+  if (count($revisions) < 2 || !diff_node_revision_access($node, 'view')) {
+    drupal_goto('node/' . $node->nid);
+  }
   $new = array_shift($revisions);
   $old = array_shift($revisions);
   drupal_goto("node/{$node->nid}/revisions/view/{$old->vid}/{$new->vid}");
@@ -35,19 +38,20 @@ function diff_node_revisions($form, $form_state, $node) {
     '#value' => $node->nid,
   );
 
-  $revision_list = node_revision_list($node);
+  $revision_list = diff_node_revision_list($node);
+  $revision_count = count($revision_list);
 
-  if (count($revision_list) > REVISION_LIST_SIZE) {
+  if ($revision_count > REVISION_LIST_SIZE) {
     // If the list of revisions is longer than the number shown on one page
     // split the array.
     $page = isset($_GET['page']) ? $_GET['page'] : '0';
-    $revision_chunks = array_chunk(node_revision_list($node), REVISION_LIST_SIZE);
+    $revision_chunks = array_chunk($revision_list, REVISION_LIST_SIZE);
     $revisions = $revision_chunks[$page];
     // Set up global pager variables as would 'pager_query' do.
     // These variables are then used in the theme('pager') call later.
     global $pager_page_array, $pager_total, $pager_total_items;
-    $pager_total_items[0] = count($revision_list);
-    $pager_total[0] = ceil(count($revision_list) / REVISION_LIST_SIZE);
+    $pager_total_items[0] = $revision_count;
+    $pager_total[0] = ceil($revision_count / REVISION_LIST_SIZE);
     $pager_page_array[0] = max(0, min($page, ((int) $pager_total[0]) - 1));
   }
   else {
@@ -73,6 +77,7 @@ function diff_node_revisions($form, $form_state, $node) {
         '#markup' => t('!date by !username', array(
           '!date' => l(format_date($revision->timestamp, 'small'), "node/$node->nid"),
           '!username' => theme('username', array('account' => $revision)))) . $revision_log,
+        '#revision' => $revision,
       );
     }
     else {
@@ -82,6 +87,7 @@ function diff_node_revisions($form, $form_state, $node) {
           '!date' => $diff_date,
           '!username' => theme('username', array('account' => $revision)))
         ) . $revision_log,
+        '#revision' => $revision,
       );
       if ($revert_permission) {
         $operations[] = array(
@@ -117,21 +123,11 @@ function diff_node_revisions($form, $form_state, $node) {
 
   $form['submit'] = array('#type' => 'submit', '#value' => t('Compare'));
 
-  if (count($revision_list) > REVISION_LIST_SIZE) {
+  if ($revision_count > REVISION_LIST_SIZE) {
     $form['#suffix'] = theme('pager');
   }
   $form['#attached'] = diff_build_attachments(TRUE);
   return $form;
-}
-
-/**
- * Submit code for input form to select two revisions.
- */
-function diff_node_revisions_submit($form, &$form_state) {
-  // The ids are ordered so the old revision is always on the left.
-  $old_vid = min($form_state['values']['old'], $form_state['values']['new']);
-  $new_vid = max($form_state['values']['old'], $form_state['values']['new']);
-  $form_state['redirect'] = 'node/' . $form_state['values']['nid'] . '/revisions/view/' . $old_vid . '/' . $new_vid;
 }
 
 /**
@@ -146,13 +142,26 @@ function diff_node_revisions_validate($form, &$form_state) {
 }
 
 /**
+ * Submit code for input form to select two revisions.
+ */
+function diff_node_revisions_submit($form, &$form_state) {
+  // The ids are ordered so the old revision is always on the left.
+  $old_vid = min($form_state['values']['old'], $form_state['values']['new']);
+  $new_vid = max($form_state['values']['old'], $form_state['values']['new']);
+  if (isset($_GET['destination'])) {
+    unset($_GET['destination']);
+  }
+  $form_state['redirect'] = 'node/' . $form_state['values']['nid'] . '/revisions/view/' . $old_vid . '/' . $new_vid;
+}
+
+/**
  * Create a comparison for the node between versions 'old_vid' and 'new_vid'.
  *
  * @param object $node
- *   Node on which to perform comparison
- * @param integer $old_vid
+ *   Node on which to perform comparison.
+ * @param int $old_vid
  *   Version ID of the old revision.
- * @param integer $new_vid
+ * @param int $new_vid
  *   Version ID of the new revision.
  */
 function diff_diffs_show($node, $old_vid, $new_vid, $state = NULL) {
@@ -161,7 +170,7 @@ function diff_diffs_show($node, $old_vid, $new_vid, $state = NULL) {
 
   $default_state = variable_get('diff_default_state_node', 'raw');
   if (empty($state)) {
-  	$state = $default_state;
+    $state = $default_state;
   }
   $state = str_replace('-', '_', $state);
   if (!array_key_exists($state, diff_available_states())) {
@@ -279,7 +288,7 @@ function diff_diffs_show($node, $old_vid, $new_vid, $state = NULL) {
     }
     $build['diff_preview']['header']['#markup'] = $header;
     // Don't include node links or comments when viewing the diff.
-    $build['diff_preview']['content'] = node_view($new_node, $view_mode);
+    $build['diff_preview']['content'] = function_exists('entity_view') ? entity_view('node', array($new_node), $view_mode) : node_view($new_node, $view_mode);
     if (isset($build['diff_preview']['content']['links'])) {
       unset($build['diff_preview']['content']['links']);
     }
@@ -291,33 +300,33 @@ function diff_diffs_show($node, $old_vid, $new_vid, $state = NULL) {
 }
 
 /**
- * Creates an array of rows which represent the difference between nodes.
+ * Creates an array of rows which represent the difference between two entities.
  *
- * @param object $old_node
- *   Node for comparison which will be displayed on the left side.
- * @param object $new_node
- *   Node for comparison which will be displayed on the right side.
- * @param boolean $state
- *   The state to render for the diff.
+ * @param object $left_entity
+ *   Entity for comparison which will be displayed on the left side.
+ * @param object $right_entity
+ *   Entity for comparison which will be displayed on the right side.
+ * @param array $context
+ *   The context used to render the diff.
  */
-function _diff_body_rows($old_node, $new_node, $state = 'raw') {
+function diff_entity_body_rows($entity_type, $left_entity, $right_entity, $context = array()) {
   // This is an unique index only, so no need for drupal_static().
   static $table_row_counter = 0;
 
   if ($theme = variable_get('diff_theme', 'default')) {
     drupal_add_css(drupal_get_path('module', 'diff') . "/css/diff.{$theme}.css");
   }
-  module_load_include('inc', 'diff', 'includes/node');
 
   $rows = array();
   $any_visible_change = FALSE;
-  $context = array(
-    'entity_type' => 'node',
-    'states' => array($state),
+  $context += array(
+    'entity_type' => $entity_type,
+    'states' => array('raw'),
     'view_mode' => 'diff_standard',
   );
+  $state = current($context['states']);
 
-  $node_diffs = diff_compare_entities($old_node, $new_node, $context);
+  $entity_diffs = diff_compare_entities($left_entity, $right_entity, $context);
 
   // Track line numbers between multiple diffs.
   $line_stats = array(
@@ -326,19 +335,19 @@ function _diff_body_rows($old_node, $new_node, $state = 'raw') {
   );
 
   // Render diffs for each.
-  foreach ($node_diffs as $node_diff) {
-    $show_header = !empty($node_diff['#name']);
+  foreach ($entity_diffs as $entity_diff) {
+    $show_header = !empty($entity_diff['#name']);
     // These are field level settings.
-    if ($show_header && isset($node_diff['#settings']['show_header'])) {
-      $show_header = $show_header && $node_diff['#settings']['show_header'];
+    if ($show_header && isset($entity_diff['#settings']['show_header'])) {
+      $show_header = $show_header && $entity_diff['#settings']['show_header'];
     }
 
     // Line counting and line header options.
-    if (empty($node_diff['#settings']['line_counter'])) {
+    if (empty($entity_diff['#settings']['line_counter'])) {
       $line_counter = FALSE;
     }
     else {
-      $line_counter = $node_diff['#settings']['line_counter'];
+      $line_counter = $entity_diff['#settings']['line_counter'];
     }
     // Every call to 'line' resets the counters.
     if ($line_counter) {
@@ -354,8 +363,8 @@ function _diff_body_rows($old_node, $new_node, $state = 'raw') {
       $line_stats_ref = NULL;
     }
 
-    list($old, $new) = diff_extract_state($node_diff, $state);
-    if ($node_diff_rows = diff_get_rows($old, $new, $line_counter && $line_counter != 'hidden', $line_stats_ref)) {
+    list($left, $right) = diff_extract_state($entity_diff, $state);
+    if ($entity_diff_rows = diff_get_rows($left, $right, $line_counter && $line_counter != 'hidden', $line_stats_ref)) {
       if ($line_counter && $line_counter != 'line') {
         $line_stats['offset']['x'] += $line_stats_ref['counter']['x'];
         $line_stats['offset']['y'] += $line_stats_ref['counter']['y'];
@@ -363,7 +372,7 @@ function _diff_body_rows($old_node, $new_node, $state = 'raw') {
       if ($show_header) {
         $rows['diff-header-' . $table_row_counter++] = array(
           array(
-            'data' => t('Changes to %name', array('%name' => $node_diff['#name'])),
+            'data' => t('Changes to %name', array('%name' => $entity_diff['#name'])),
             'class' => 'diff-section-title',
             'colspan' => 4,
           ),
@@ -371,7 +380,7 @@ function _diff_body_rows($old_node, $new_node, $state = 'raw') {
       }
       // To avoid passing counter to the Diff engine, index rows manually here
       // to allow modules to interact with the table. i.e. no array_merge().
-      foreach ($node_diff_rows as $row) {
+      foreach ($entity_diff_rows as $row) {
         $rows['diff-row-' . $table_row_counter++] = $row;
       }
       $any_visible_change = TRUE;
@@ -385,17 +394,26 @@ function _diff_body_rows($old_node, $new_node, $state = 'raw') {
         'colspan' => 4,
       ),
     );
-    // @todo: revise this.
-    // Needed to keep safari happy.
-    $rows['diff-empty-' . $table_row_counter++] = array(
-      array('data' => ''),
-      array('data' => ''),
-      array('data' => ''),
-      array('data' => ''),
-    );
   }
-
   return $rows;
+}
+
+/**
+ * Creates an array of rows which represent the difference between nodes.
+ *
+ * @param object $old_node
+ *   Node for comparison which will be displayed on the left side.
+ * @param object $new_node
+ *   Node for comparison which will be displayed on the right side.
+ * @param bool $state
+ *   The state to render for the diff.
+ */
+function _diff_body_rows($old_node, $new_node, $state = 'raw') {
+  $context = array(
+    'states' => array($state),
+    'view_mode' => 'diff_standard',
+  );
+  return diff_entity_body_rows('node', $old_node, $new_node, $context);
 }
 
 /**
@@ -460,6 +478,9 @@ function diff_compare_entities($left_entity, $right_entity, $context) {
   if (!isset($diff['#sorted'])) {
     uasort($diff, 'element_sort');
   }
+  else {
+    unset($diff['#sorted']);
+  }
 
   // Process the array and get line counts per field.
   array_walk($diff, 'diff_process_state_lines');
@@ -467,6 +488,9 @@ function diff_compare_entities($left_entity, $right_entity, $context) {
   return $diff;
 }
 
+/**
+ * Helper function to get line counts per field.
+ */
 function diff_process_state_lines(&$diff, $key) {
   foreach ($diff['#states'] as $state => $data) {
     if (isset($data['#old'])) {
@@ -509,20 +533,29 @@ function diff_markdown_state(&$diff, $state) {
   }
 
   if (!isset($plain_old) && isset($old)) {
-    if (is_array($old)) {
-      $diff['#states'][$state . '_plain']['#old'] = $markdown ? array_map($markdown, $old) : $old;
-    }
-    else {
-      $diff['#states'][$state . '_plain']['#old'] = $markdown ? $markdown($old) : $old;
-    }
+    $diff['#states'][$state . '_plain']['#old'] = _diff_apply_markdown($markdown, $old);
   }
   if (!isset($plain_new) && isset($new)) {
-    if (is_array($new)) {
-      $diff['#states'][$state . '_plain']['#new'] = $markdown ? array_map($markdown, $new) : $new;
+    $diff['#states'][$state . '_plain']['#new'] = _diff_apply_markdown($markdown, $new);
+  }
+}
+
+/**
+ * Helper function to clear newlines from the content.
+ */
+function _diff_apply_markdown($markdown, $items) {
+  if (!$markdown) {
+    return $items;
+  }
+  if (is_array($items)) {
+    $items = array_map($markdown, $items);
+    foreach ($items as &$item) {
+      $item = trim($item, "\n");
     }
-    else {
-      $diff['#states'][$state . '_plain']['#new'] = $markdown ? $markdown($new) : $new;
-    }
+    return $items;
+  }
+  else {
+    return trim($markdown($items), "\n");
   }
 }
 
@@ -534,7 +567,7 @@ function diff_markdown_state(&$diff, $state) {
  * @param int $vid
  *   Version ID to look for.
  *
- * @return boolean|integer
+ * @return bool|int
  *   Returns FALSE if $vid is the last entry.
  */
 function _diff_get_next_vid($node_revisions, $vid) {
@@ -553,10 +586,10 @@ function _diff_get_next_vid($node_revisions, $vid) {
  *
  * @param array $node_revisions
  *   Array of node revision IDs in descending order.
- * @param integer $vid
+ * @param int $vid
  *   Version ID to look for.
  *
- * @return boolean|integer
+ * @return bool|int
  *   Returns FALSE if $vid is the first entry.
  */
 function _diff_get_previous_vid($node_revisions, $vid) {
@@ -615,13 +648,13 @@ function _diff_default_header($old_header = '', $new_header = '') {
  * normally rendered content of the specified revision.
  */
 function diff_inline_show($node, $vid = 0, $metadata = TRUE) {
-  $new_node = $vid ? node_load($node->nid, $vid, TRUE) : clone $node;
+  $new_node = $vid ? node_load($node->nid, $vid) : clone $node;
   node_build_content($new_node);
   $new = drupal_render($new_node->content);
 
   $old = $vid ? _diff_get_previous_vid(node_revision_list($node), $vid) : 0;
   if ($old) {
-    $old_node = node_load($node->nid, $old, TRUE);
+    $old_node = node_load($node->nid, $old);
     node_build_content($old_node);
     $old = drupal_render($old_node->content);
     $output = $metadata ? theme('diff_inline_metadata', array('node' => $new_node)) : '';
