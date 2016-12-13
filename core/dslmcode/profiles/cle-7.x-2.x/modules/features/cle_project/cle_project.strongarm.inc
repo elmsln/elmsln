@@ -127,22 +127,22 @@ function cle_project_strongarm() {
           'weight' => '1',
         ),
         'path' => array(
-          'weight' => '7',
+          'weight' => '9',
         ),
         'hidden_nodes' => array(
-          'weight' => '8',
+          'weight' => '10',
         ),
         'book' => array(
-          'weight' => '6',
+          'weight' => '8',
         ),
         'options' => array(
-          'weight' => '5',
+          'weight' => '7',
         ),
         'author' => array(
-          'weight' => '3',
+          'weight' => '5',
         ),
         'revision_information' => array(
-          'weight' => '4',
+          'weight' => '6',
         ),
       ),
       'display' => array(),

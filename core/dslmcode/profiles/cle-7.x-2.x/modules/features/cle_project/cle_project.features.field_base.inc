@@ -28,6 +28,44 @@ function cle_project_field_default_field_bases() {
     'type' => 'jquery_colorpicker',
   );
 
+  // Exported field_base: 'field_project_dependencies'.
+  $field_bases['field_project_dependencies'] = array(
+    'active' => 1,
+    'cardinality' => -1,
+    'deleted' => 0,
+    'entity_types' => array(),
+    'field_name' => 'field_project_dependencies',
+    'indexes' => array(
+      'target_id' => array(
+        0 => 'target_id',
+      ),
+    ),
+    'locked' => 0,
+    'module' => 'entityreference',
+    'settings' => array(
+      'behaviors' => array(),
+      'cis_connector_access' => FALSE,
+      'cis_connector_disable' => FALSE,
+      'handler' => 'base',
+      'handler_settings' => array(
+        'behaviors' => array(
+          'views-select-list' => array(
+            'status' => 1,
+          ),
+        ),
+        'sort' => array(
+          'type' => 'none',
+        ),
+        'target_bundles' => array(
+          'cle_project' => 'cle_project',
+        ),
+      ),
+      'target_type' => 'node',
+    ),
+    'translatable' => 0,
+    'type' => 'entityreference',
+  );
+
   // Exported field_base: 'field_project_description'.
   $field_bases['field_project_description'] = array(
     'active' => 1,
@@ -105,22 +143,83 @@ function cle_project_field_default_field_bases() {
     'type' => 'image',
   );
 
-  // Exported field_base: 'field_project_phases'.
-  $field_bases['field_project_phases'] = array(
+  // Exported field_base: 'field_project_parent'.
+  $field_bases['field_project_parent'] = array(
     'active' => 1,
     'cardinality' => 1,
     'deleted' => 0,
     'entity_types' => array(),
-    'field_name' => 'field_project_phases',
-    'indexes' => array(),
+    'field_name' => 'field_project_parent',
+    'indexes' => array(
+      'target_id' => array(
+        0 => 'target_id',
+      ),
+    ),
     'locked' => 0,
-    'module' => 'blob',
+    'module' => 'entityreference',
     'settings' => array(
+      'behaviors' => array(),
       'cis_connector_access' => FALSE,
       'cis_connector_disable' => FALSE,
+      'handler' => 'base',
+      'handler_settings' => array(
+        'behaviors' => array(
+          'views-select-list' => array(
+            'status' => 0,
+          ),
+        ),
+        'sort' => array(
+          'type' => 'none',
+        ),
+        'target_bundles' => array(
+          'cle_project' => 'cle_project',
+        ),
+      ),
+      'target_type' => 'node',
     ),
     'translatable' => 0,
-    'type' => 'blob',
+    'type' => 'entityreference',
+  );
+
+  // Exported field_base: 'field_project_steps'.
+  $field_bases['field_project_steps'] = array(
+    'active' => 1,
+    'cardinality' => -1,
+    'deleted' => 0,
+    'entity_types' => array(),
+    'field_name' => 'field_project_steps',
+    'indexes' => array(
+      'target_id' => array(
+        0 => 'target_id',
+      ),
+    ),
+    'locked' => 0,
+    'module' => 'entityreference',
+    'settings' => array(
+      'behaviors' => array(),
+      'cis_connector_access' => FALSE,
+      'cis_connector_disable' => FALSE,
+      'handler' => 'base',
+      'handler_settings' => array(
+        'behaviors' => array(
+          'views-select-list' => array(
+            'status' => 1,
+          ),
+        ),
+        'sort' => array(
+          'direction' => 'ASC',
+          'property' => 'title',
+          'type' => 'property',
+        ),
+        'target_bundles' => array(
+          'cle_assignment' => 'cle_assignment',
+          'cle_project' => 'cle_project',
+        ),
+      ),
+      'target_type' => 'node',
+    ),
+    'translatable' => 0,
+    'type' => 'entityreference',
   );
 
   return $field_bases;

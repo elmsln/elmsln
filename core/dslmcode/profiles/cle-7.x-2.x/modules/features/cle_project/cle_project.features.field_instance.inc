@@ -10,6 +10,63 @@
 function cle_project_field_default_field_instances() {
   $field_instances = array();
 
+  // Exported field_instance:
+  // 'node-cle_project-field_assignment_late_submission'.
+  $field_instances['node-cle_project-field_assignment_late_submission'] = array(
+    'bundle' => 'cle_project',
+    'default_value' => array(
+      0 => array(
+        'value' => 0,
+      ),
+    ),
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'list',
+        'settings' => array(),
+        'type' => 'list_default',
+        'weight' => 7,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_assignment_late_submission',
+    'label' => 'Allow late submissions',
+    'required' => 0,
+    'settings' => array(
+      'authcache' => array(
+        'clients' => array(
+          'authcache_ajax' => array(
+            'status' => 1,
+            'weight' => 0,
+          ),
+        ),
+        'fallback' => 'cancel',
+        'lifespan' => 3600,
+        'perpage' => 0,
+        'peruser' => 1,
+        'status' => 0,
+      ),
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'options',
+      'settings' => array(
+        'display_label' => 0,
+      ),
+      'type' => 'options_onoff',
+      'weight' => 4,
+    ),
+  );
+
   // Exported field_instance: 'node-cle_project-field_project_color'.
   $field_instances['node-cle_project-field_project_color'] = array(
     'bundle' => 'cle_project',
@@ -57,6 +114,66 @@ function cle_project_field_default_field_instances() {
       'settings' => array(),
       'type' => 'jquery_colorpicker',
       'weight' => 5,
+    ),
+  );
+
+  // Exported field_instance: 'node-cle_project-field_project_dependencies'.
+  $field_instances['node-cle_project-field_project_dependencies'] = array(
+    'bundle' => 'cle_project',
+    'default_value' => NULL,
+    'default_value_function' => '',
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'entityreference',
+        'settings' => array(
+          'link' => FALSE,
+        ),
+        'type' => 'entityreference_label',
+        'weight' => 5,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_project_dependencies',
+    'label' => 'Dependencies',
+    'required' => 0,
+    'settings' => array(
+      'authcache' => array(
+        'clients' => array(
+          'authcache_ajax' => array(
+            'status' => 1,
+            'weight' => 0,
+          ),
+        ),
+        'fallback' => 'cancel',
+        'lifespan' => 3600,
+        'perpage' => 0,
+        'peruser' => 1,
+        'status' => 0,
+      ),
+      'behaviors' => array(
+        'prepopulate' => array(
+          'status' => 0,
+        ),
+      ),
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'options',
+      'settings' => array(
+        'apply_chosen' => '',
+      ),
+      'type' => 'options_select',
+      'weight' => 14,
     ),
   );
 
@@ -286,19 +403,22 @@ function cle_project_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-cle_project-field_project_phases'.
-  $field_instances['node-cle_project-field_project_phases'] = array(
+  // Exported field_instance: 'node-cle_project-field_project_parent'.
+  $field_instances['node-cle_project-field_project_parent'] = array(
     'bundle' => 'cle_project',
     'default_value' => NULL,
+    'default_value_function' => '',
     'deleted' => 0,
     'description' => '',
     'display' => array(
       'default' => array(
         'label' => 'above',
-        'module' => 'blob',
-        'settings' => array(),
-        'type' => 'blob_default',
-        'weight' => 4,
+        'module' => 'entityreference',
+        'settings' => array(
+          'link' => FALSE,
+        ),
+        'type' => 'entityreference_label',
+        'weight' => 6,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -308,8 +428,8 @@ function cle_project_field_default_field_instances() {
       ),
     ),
     'entity_type' => 'node',
-    'field_name' => 'field_project_phases',
-    'label' => 'Phases',
+    'field_name' => 'field_project_parent',
+    'label' => 'Project parent',
     'required' => 0,
     'settings' => array(
       'authcache' => array(
@@ -325,24 +445,94 @@ function cle_project_field_default_field_instances() {
         'peruser' => 1,
         'status' => 0,
       ),
+      'behaviors' => array(
+        'prepopulate' => array(
+          'status' => 0,
+        ),
+      ),
       'user_register_form' => FALSE,
     ),
     'widget' => array(
-      'active' => 0,
-      'module' => 'blob',
-      'settings' => array(),
-      'type' => 'blob_widget_none',
-      'weight' => 9,
+      'active' => 1,
+      'module' => 'options',
+      'settings' => array(
+        'apply_chosen' => '',
+      ),
+      'type' => 'options_select',
+      'weight' => 13,
+    ),
+  );
+
+  // Exported field_instance: 'node-cle_project-field_project_steps'.
+  $field_instances['node-cle_project-field_project_steps'] = array(
+    'bundle' => 'cle_project',
+    'default_value' => NULL,
+    'default_value_function' => '',
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'entityreference',
+        'settings' => array(
+          'link' => FALSE,
+        ),
+        'type' => 'entityreference_label',
+        'weight' => 4,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_project_steps',
+    'label' => 'Steps to completion',
+    'required' => 0,
+    'settings' => array(
+      'authcache' => array(
+        'clients' => array(
+          'authcache_ajax' => array(
+            'status' => 1,
+            'weight' => 0,
+          ),
+        ),
+        'fallback' => 'cancel',
+        'lifespan' => 3600,
+        'perpage' => 0,
+        'peruser' => 1,
+        'status' => 0,
+      ),
+      'behaviors' => array(
+        'prepopulate' => array(
+          'status' => 0,
+        ),
+      ),
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'options',
+      'settings' => array(
+        'apply_chosen' => '',
+      ),
+      'type' => 'options_select',
+      'weight' => 15,
     ),
   );
 
   // Translatables
   // Included for use with string extractors like potx.
+  t('Allow late submissions');
   t('Color');
+  t('Dependencies');
   t('Description');
   t('Due date');
   t('Image');
-  t('Phases');
+  t('Project parent');
+  t('Steps to completion');
 
   return $field_instances;
 }
