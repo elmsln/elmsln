@@ -46,6 +46,9 @@ $conf['lock_inc'] = 'sites/all/modules/ulmus/apdqc/apdqc.lock.inc';
 // apdqc session file
 $conf['session_inc'] = 'sites/all/modules/ulmus/apdqc/apdqc.session.inc';
 
+# Drupal overrides php.ini settings so we need to re-override them here...
+ini_set('error_reporting', E_ALL & ~E_NOTICE & ~E_STRICT & ~E_DEPRECATED);
+
 // allow user deployment settings to always take priority
 include_once "/var/www/elmsln/config/shared/drupal-7.x/settings/shared_settings.php";
 if (file_exists("/var/www/elmsln/_elmsln_env_config/shared_settings.php")) {
