@@ -14,16 +14,28 @@ include_once 'cle_assignment.features.inc';
 function cle_assignment_menu() {
   $items = array();
   $items['api/v1/cle/assignments'] = array(
-    'page callback' => '_cle_assignments_v1_page_callback',
-    'page arguments' => array('assignments_endpoint'),
+    'page callback' => '_elmsln_api_v1_page_callback',
+    'page arguments' => array('assignments'),
     'access callback' => 'user_is_logged_in',
     'type' => MENU_CALLBACK,
   );
   $items['api/v1/cle/assignments/%'] = array(
-    'page callback' => '_cle_assignments_v1_page_callback',
-    'page arguments' => array('assignment_endpoint', 4),
+    'page callback' => '_elmsln_api_v1_page_callback',
+    'page arguments' => array('assignments', 4),
     'access callback' => 'user_is_logged_in',
     'type' => MENU_CALLBACK,
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_elmsln_jsapi_info().
+ */
+function cle_assignment_elmsln_jsapi_info() {
+  // assignment api router
+  $items['assignments'] = array(
+    'list' => '_cle_assignment_v1_get_assignments',
+    'output' => '_cle_assignment_v1_assignment_output',
   );
   return $items;
 }
@@ -88,64 +100,13 @@ function cle_assignment_node_insert($node) {
 }
 
 /**
- * Page Callback that will handle all of the incoming api calls.
- */
-function _cle_assignments_v1_page_callback($id, $page_arguments = NULL) {
-  // CSRF protection on write operations.
-  if (!in_array($_SERVER['REQUEST_METHOD'], array('GET', 'HEAD', 'OPTIONS', 'TRACE')) && !restws_csrf_validation()) {
-    restws_terminate_request('403 Forbidden', '403 Access Denied: CSRF validation failed');
-  }
-
-  // find out what endpoint is being called and forward it to the appropriate callback
-  switch ($id) {
-    case 'assignments_endpoint':
-      _cle_assignemnts_v1_cle_assignments();
-      break;
-
-    case 'assignment_endpoint':
-      _cle_assignemnts_v1_cle_assignment($page_arguments);
-      break;
-
-    default:
-      // if it got this far then that means the user is hitting and enpoint that doesn't exist.
-      $vars = array(
-        'status' => '400',
-        'detail' => 'Invalid endpoint',
-      );
-      _elmsln_api_deliver_output($vars);
-      break;
-  }
-}
-
-/**
- * Page callback to return list of assignments
- */
-function _cle_assignemnts_v1_cle_assignments() {
-  global $base_url;
-  $vars = _elmsln_api_tree('api/v1/cle/assignments', FALSE);
-  // gather the list of assignments to send
-  $assignments_filter = array();
-  // check the url parmas for filters
-  $assignments_filter = drupal_get_query_parameters();
-  $assignments = _cle_assignemnts_v1_get_assignments($assignments_filter);
-  // get the assignment ready for sending and place them as an array of items
-  // under the 'data' property
-  foreach ($assignments as $assignment) {
-    $_assignment = _cle_assignment_v1_assignment_output($assignment);
-    $vars['data'][] = $_assignment;
-  }
-
-  _elmsln_api_deliver_output($vars);
-}
-
-/**
  * Page Callback to return either a single assignment or a method.
  */
-function _cle_assignemnts_v1_cle_assignment($argument) {
+function _cle_assignment_v1_cle_assignment($argument) {
   // Check if the argument is a verb a.k.a an endpoint method
   // if it is numeric then that means we are targeting an assignment ID
   if (is_numeric($argument)) {
-    _cle_assignemnts_v1_cle_assignment_id($argument);
+    _cle_assignment_v1_cle_assignment_id($argument);
   }
   // check and see if we are dealing with any of the known verbs/method
   else {
@@ -185,7 +146,7 @@ function _cle_assignment_v1_assignment_create() {
 /**
  * Helper function to output a single assignment
  */
-function _cle_assignemnts_v1_cle_assignment_id($assignment_id) {
+function _cle_assignment_v1_cle_assignment_id($assignment_id) {
   $vars = array();
   // load the assignment
   $assignment = node_load($assignment_id);
@@ -202,29 +163,27 @@ function _cle_assignemnts_v1_cle_assignment_id($assignment_id) {
   _elmsln_api_deliver_output($vars);
 }
 
-
 /**
  * Helper function that prepares an assignment for api output.
  */
-function _cle_assignment_v1_assignment_output($assignment) {
+function _cle_assignment_v1_assignment_output($node) {
   // get an array of formatted dates
-  $dates = _cle_api_format_date_field($assignment->field_assignment_due_date[LANGUAGE_NONE][0]);
+  $dates = _cle_api_format_date_field($node->field_assignment_due_date[LANGUAGE_NONE][0]);
 
   global $base_url;
   // this will be our json formatted output
   $return = array(
-    'id' => (int)$assignment->nid,
-    'title' => $assignment->title,
-    'status' => (int)$assignment->status,
-    'created' => (int)$assignment->created,
-    'body' => $assignment->body[LANGUAGE_NONE][0]['safe_value'],
+    'id' => (int)$node->nid,
+    'title' => $node->title,
+    'status' => (int)$node->status,
+    'created' => (int)$node->created,
+    'body' => $node->field_assignment_description[LANGUAGE_NONE][0]['safe_value'],
     'links' => array(
-      'self' => $base_url . '/api/v1/cle/assignments/' . $assignment->nid,
+      'self' => $base_url . '/api/v1/cle/assignments/' . $node->nid,
     ),
-    'type' => ($assignment->field_assignment_privacy_setting ? $assignment->field_assignment_privacy_setting[LANGUAGE_NONE][0]['value'] : 'open'),
+    'type' => ($node->field_assignment_privacy_setting ? $node->field_assignment_privacy_setting[LANGUAGE_NONE][0]['value'] : 'open'),
     'startDate' => $dates[0],
     'endDate' => $dates[1],
-
     // @todo
     // Need to replace static values below
     'dependency' => _cle_api_random(array('none', 'previous', 'parent')),// default: none
@@ -247,23 +206,18 @@ function _cle_assignment_v1_assignment_output($assignment) {
  * - Make sure they have permission to see assignments
  * - Make sure that they are seeing assignments for their current section
  */
-function _cle_assignemnts_v1_get_assignments($filter = array()) {
-  $assignments = array();
-
-  $query = new EntityFieldQuery();
-  $query->entityCondition('entity_type', 'node')
-    ->entityCondition('bundle', 'cle_assignment')
-    ->propertyCondition('status', NODE_PUBLISHED);
-  // check if the project filter was set
+function _cle_assignment_v1_get_assignments($filter = array()) {
+  $items = array();
+  $field_conditions = array();
   if (isset($filter['project'])) {
-    $query->fieldCondition('field_assignment_project', 'target_id', $filter['project'], '=');
+    $field_conditions = array('field_assignment_project' => array('target_id', $filter['project'], '='));
   }
-
-  $result = $query->execute();
-  if (isset($result['node'])) {
-    $assignment_nids = array_keys($result['node']);
-    $assignments = entity_load('node', $assignment_nids);
+  $property_conditions = array('status' => array(NODE_PUBLISHED, '='));
+  $orderby = array();
+  $list = _cis_connector_assemble_entity_list('node', 'cle_assignment', 'nid', 'title', $field_conditions, $property_conditions, $orderby);
+  if (!empty($list)) {
+    $nids = array_keys($list);
+    $items = entity_load('node', $nids);
   }
-
-  return $assignments;
+  return $items;
 }

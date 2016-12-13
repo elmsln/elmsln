@@ -1083,6 +1083,53 @@ function _elmsln_api_is_alive(&$buckets) {
 }
 
 /**
+ * Page Callback that will handle all of the incoming api calls.
+ */
+function _elmsln_api_v1_page_callback($id, $filter = NULL) {
+  // CSRF protection on write operations.
+  if (!in_array($_SERVER['REQUEST_METHOD'], array('GET', 'HEAD', 'OPTIONS', 'TRACE')) && !restws_csrf_validation()) {
+    restws_terminate_request('403 Forbidden', '403 Access Denied: CSRF validation failed');
+  }
+  $jsapis = elmsln_api_get_elmsln_jsapis();
+  // see if we have triggered a defined endpoint for loading this bundle
+  if (isset($jsapis[$id])) {
+    global $base_url;
+    $vars = _elmsln_api_tree(current_path(), FALSE);
+    // gather the list of assignments to send
+    $filter = array();
+    // check the url parmas for filters
+    $filter = drupal_get_query_parameters();
+    $items = call_user_func($jsapis[$id]['list'], $filter);
+    // get the assignment ready for sending and place them as an array of items
+    // under the 'data' property
+    foreach ($items as $item) {
+      $_item = call_user_func($jsapis[$id]['output'], $item);
+      $vars['data'][] = $_item;
+    }
+    _elmsln_api_deliver_output($vars);
+  }
+  else {
+    // if it got this far then that means the user is hitting and enpoint that doesn't exist.
+    $vars = array(
+      'status' => '400',
+      'detail' => 'Invalid endpoint',
+    );
+  }
+  _elmsln_api_deliver_output($vars);
+}
+
+/**
+ * Return all available elmsln jsapis
+ * @return array  possible callbacks for delivering assets.
+ */
+function elmsln_api_get_elmsln_jsapis() {
+  $ary = array();
+  $ary = module_invoke_all('elmsln_jsapi_info');
+  drupal_alter('elmsln_jsapi_info', $ary);
+  return $ary;
+}
+
+/**
  * Implements hook_elmsln_api_info().
  */
 function elmsln_api_elmsln_api_info() {

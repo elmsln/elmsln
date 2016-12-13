@@ -5,3 +5,76 @@
  */
 
 include_once 'cle_project.features.inc';
+
+/**
+ * Implements hook_menu().
+ */
+function cle_project_menu() {
+  $items = array();
+  $items['api/v1/cle/projects'] = array(
+    'page callback' => '_elmsln_api_v1_page_callback',
+    'page arguments' => array('projects'),
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_CALLBACK,
+  );
+  $items['api/v1/cle/projects/%'] = array(
+    'page callback' => '_elmsln_api_v1_page_callback',
+    'page arguments' => array('projects', 4),
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_CALLBACK,
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_elmsln_jsapi_info().
+ */
+function cle_project_elmsln_jsapi_info() {
+  // assignment api router
+  $items['projects'] = array(
+    'list' => '_cle_project_v1_get_projects',
+    'output' => '_cle_project_v1_project_output',
+  );
+  return $items;
+}
+
+/**
+ * @todo
+ * Get all of the projects for the current user
+ * - Make sure they have permission to see projects
+ * - Make sure that they are seeing projects for their current section
+ */
+function _cle_project_v1_get_projects($filter = array()) {
+  $items = array();
+  $field_conditions = array();
+  $property_conditions = array('status' => array(NODE_PUBLISHED, '='));
+  if (isset($filter['project'])) {
+    $property_conditions['nid'] = array($filter['project'], '=');
+  }
+  $orderby = array();
+  $list = _cis_connector_assemble_entity_list('node', 'cle_project', 'nid', 'title', $field_conditions, $property_conditions, $orderby);
+  if (!empty($list)) {
+    $nids = array_keys($list);
+    $items = entity_load('node', $nids);
+  }
+  return $items;
+}
+
+/**
+ * Helper function that prepares a submission for api output.
+ */
+function _cle_project_v1_project_output($node) {
+  global $base_url;
+  // this will be our json formatted output
+  $return = array(
+    'id' => (int)$node->nid,
+    'title' => $node->title,
+    'status' => (int)$node->status,
+    'created' => (int)$node->created,
+    'body' => $node->field_project_description[LANGUAGE_NONE][0]['safe_value'],
+    'links' => array(
+      'self' => $base_url . '/api/v1/cle/projects/' . $node->nid,
+    ),
+  );
+  return $return;
+}

@@ -9,14 +9,12 @@
  */
 function cle_api_menu() {
   $items = array();
-
   $items['api/v1/cle'] = array(
     'page callback' => '_elmsln_api_tree',
     'page arguments' => array('api/v1/cle', TRUE),
     'access callback' => 'user_is_logged_in',
     'type' => MENU_CALLBACK,
   );
-
   return $items;
 }
 
