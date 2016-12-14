@@ -34,7 +34,9 @@ function cle_assignment_menu() {
 function cle_assignment_elmsln_jsapi_info() {
   // assignment api router
   $items['assignment'] = array(
-    'list' => '_cle_assignment_v1_get_assignments',
+    'type' =>   'cle_assignment',
+    'create' => '_cle_assignment_v1_assignment_create',
+    'list' =>   '_cle_assignment_v1_get_assignments',
     'output' => '_cle_assignment_v1_assignment_output',
   );
   return $items;
@@ -48,21 +50,15 @@ function cle_assignment_form_cle_assignment_node_form_alter(&$form, &$form_state
 }
 
 /**
- * Implements hook_init().
+ * Implements hook_page_build().
  */
-function cle_assignment_init() {
+function cle_assignment_page_build(&$page) {
   if (arg(0) == 'node' && arg(2) == 'assignment_bulk') {
     $file = 'assignment_bulk';
     $path = drupal_get_path('module', 'cle_assignment') . '/';
     drupal_add_js($path . 'js/' . $file . '.js');
     drupal_add_css($path . 'css/' . $file . '.css');
   }
-}
-
-/**
- * Implements hook_page_build().
- */
-function cle_assignment_page_build(&$page) {
   $node = menu_get_object();
   if ($node && $node->type == 'cle_assignment' && arg(2) != 'edit') {
     $field_conditions = array('field_assignment' => array('target_id', array($node->nid), 'IN'));
@@ -100,67 +96,19 @@ function cle_assignment_node_insert($node) {
 }
 
 /**
- * Page Callback to return either a single assignment or a method.
+ * ELMSLN JSapi callback for creating an assignment.
  */
-function _cle_assignment_v1_cle_assignment($argument) {
-  // Check if the argument is a verb a.k.a an endpoint method
-  // if it is numeric then that means we are targeting an assignment ID
-  if (is_numeric($argument)) {
-    _cle_assignment_v1_cle_assignment_id($argument);
-  }
-  // check and see if we are dealing with any of the known verbs/method
-  else {
-    switch ($argument) {
-      case 'create':
-        // initialize the create assignment method
-        _cle_assignment_v1_assignment_create();
-        break;
-    }
-  }
-
-  // if it got this far then that means there was an invalid argument in the url
-  $vars = array(
-    'status' => '400',
-    'detail' => 'Invalid endpoint argument',
-  );
-  _elmsln_api_deliver_output($vars);
-}
-
-/**
- * @todo: Need to make this endopint handle POST requests to create assignments
- *        - needs to accept a custom data that looks like the generated output
- *          of this function _cle_assignment_v1_assignment_output();
- */
-function _cle_assignment_v1_assignment_create() {
+function _cle_assignment_v1_assignment_create($type, $params = NULL) {
+  $node = _elmsln_api_stub_node($type);
+  // @todo use the params
+  node_save($node);
   // output the newly created assignment
   $vars = array(
     'status' => '200',
     'detail' => 'Assignment created',
-    'assignment' => array(
-      'id' => 43 // the node id of the assignment
-    )
+    'assignment' => (array) $node,
   );
-  _elmsln_api_deliver_output($vars);
-}
-
-/**
- * Helper function to output a single assignment
- */
-function _cle_assignment_v1_cle_assignment_id($assignment_id) {
-  $vars = array();
-  // load the assignment
-  $assignment = node_load($assignment_id);
-  // get the assignment ready for sending
-  $assignment_apiformat = _cle_assignment_v1_assignment_output($assignment);
-
-  // assemble the call
-  $vars['links'] = array(
-    'self' => $base_url . '/api/v1/cle/assignments',
-  );
-  // place the formatted assignment under the 'data' property
-  $vars['data'] = $assignment_apiformat;
-
-  _elmsln_api_deliver_output($vars);
+  return $vars;
 }
 
 /**

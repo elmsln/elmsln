@@ -32,7 +32,9 @@ function cle_project_menu() {
 function cle_project_elmsln_jsapi_info() {
   // assignment api router
   $items['project'] = array(
-    'list' => '_cle_project_v1_get_projects',
+    'type' =>   'cle_project',
+    'create' => '_cle_project_v1_project_create',
+    'list' =>   '_cle_project_v1_get_projects',
     'output' => '_cle_project_v1_project_output',
   );
   return $items;
@@ -77,4 +79,20 @@ function _cle_project_v1_project_output($node) {
     ),
   );
   return $return;
+}
+
+/**
+ * ELMSLN JSapi callback for creating an assignment.
+ */
+function _cle_project_v1_project_create($type, $params = NULL) {
+  $node = _elmsln_api_stub_node($type);
+  // @todo use the params
+  node_save($node);
+  // output the newly created assignment
+  $vars = array(
+    'status' => '200',
+    'detail' => 'Project created',
+    'assignment' => (array) $node,
+  );
+  return $vars;
 }

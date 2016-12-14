@@ -1093,24 +1093,31 @@ function _elmsln_api_v1_page_callback($type, $etid = NULL) {
   $jsapis = elmsln_api_get_elmsln_jsapis();
   // see if we have triggered a defined endpoint for loading this bundle
   if (isset($jsapis[$type])) {
-    $path = current_path();
-    if (is_null($etid)) {
-      // check the url parmas for filters
-      $params = drupal_get_query_parameters();
+    if (is_numeric($etid) || is_null($etid)) {
+      $path = current_path();
+      if (is_null($etid)) {
+        // check the url parmas for filters
+        $params = drupal_get_query_parameters();
+      }
+      else {
+        $params[$type] = $etid;
+        $path = str_replace('/' . $etid, '', $path);
+      }
+      $vars = _elmsln_api_tree($path, FALSE);
+      $items = call_user_func($jsapis[$type]['list'], $params);
+      // get the assignment ready for sending and place them as an array of items
+      // under the 'data' property
+      foreach ($items as $item) {
+        $_item = call_user_func($jsapis[$type]['output'], $item);
+        $vars['data'][] = $_item;
+      }
     }
-    else {
-      $params[$type] = $etid;
-      $path = str_replace('/' . $etid, '', $path);
+    // support for creating via this same end point as querying
+    elseif ($etid == 'create') {
+      // pass down the $_POST to the create callback
+      $params = filter_var_array($_POST, FILTER_SANITIZE_STRING);
+      $vars = call_user_func($jsapis[$type]['create'], $jsapis[$type]['type'], $params);
     }
-    $vars = _elmsln_api_tree($path, FALSE);
-    $items = call_user_func($jsapis[$type]['list'], $params);
-    // get the assignment ready for sending and place them as an array of items
-    // under the 'data' property
-    foreach ($items as $item) {
-      $_item = call_user_func($jsapis[$type]['output'], $item);
-      $vars['data'][] = $_item;
-    }
-    _elmsln_api_deliver_output($vars);
   }
   else {
     // if it got this far then that means the user is hitting and enpoint that doesn't exist.
@@ -1120,6 +1127,25 @@ function _elmsln_api_v1_page_callback($type, $etid = NULL) {
     );
   }
   _elmsln_api_deliver_output($vars);
+}
+
+/**
+ * Generates a stub node for population.
+ * @see  _cle_assignment_v1_assignment_create()
+ * @param  string $type bundle / node type
+ * @return object       start of a node for creation
+ */
+function _elmsln_api_stub_node($type) {
+  $node = new stdClass();
+  $node->type = $type;
+  node_object_prepare($node);
+  $node->language = LANGUAGE_NONE;
+  $node->uid = $GLOBALS['user']->uid;
+  $node->status = 1;
+  $node->promote = 0;
+  $node->revision = 1;
+  $node->title = 'new ' . $type;
+  return $node;
 }
 
 /**

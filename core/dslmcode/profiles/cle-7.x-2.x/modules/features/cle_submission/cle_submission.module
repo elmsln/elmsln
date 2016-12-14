@@ -38,7 +38,9 @@ function cle_submission_menu() {
 function cle_submission_elmsln_jsapi_info() {
   // submissions api router
   $items['submission'] = array(
-    'list' => '_cle_submission_v1_get_submissions',
+    'type' =>   'cle_submission',
+    'create' => '_cle_submission_v1_submission_create',
+    'list' =>   '_cle_submission_v1_get_submissions',
     'output' => '_cle_submission_v1_submission_output',
   );
   return $items;
@@ -84,6 +86,24 @@ function _cle_submission_v1_submission_output($node) {
   );
   return $return;
 }
+
+/**
+ * ELMSLN JSapi callback for creating an assignment.
+ */
+function _cle_submission_v1_submission_create($type, $params = NULL) {
+  $node = _elmsln_api_stub_node($type);
+  // @todo use the params
+  node_save($node);
+  // output the newly created assignment
+  $vars = array(
+    'status' => '200',
+    'detail' => 'Submission created',
+    'assignment' => (array) $node,
+  );
+  return $vars;
+}
+
+
 
 /**
  * Implements hook_form_FORM_ID_alter().
