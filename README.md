@@ -30,7 +30,7 @@ Test, ask, jump in on the issue queues on github, drupal.org, twitter, email, ph
 
 LICENSE
 ==============
-ELMSLN is a collection of many, many projects, all individually licensed, all open source. The myiad of License files is why this section is added to avoid confusion.
+ELMSLN is a collection of many, many projects, all individually licensed, all open source. The myriad of License files is why this section is added to avoid confusion.
 
 - ELMSLN code on github (and not referenced or pulled in from other sources) is GPLv3.
 - Drupal and Drupal contributed modules and themes are GPLv2 due to licensing requirements of the drupal.org community.
