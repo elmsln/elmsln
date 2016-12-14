@@ -233,10 +233,10 @@ function cle_assignment_field_default_field_instances() {
       'better_formats' => array(
         'allowed_formats' => array(
           'plain_text' => 'plain_text',
-          'student_format' => 'student_format',
+          'student_format' => 0,
           'textbook_editor' => 'textbook_editor',
         ),
-        'allowed_formats_toggle' => 0,
+        'allowed_formats_toggle' => 1,
         'default_order_toggle' => 0,
         'default_order_wrapper' => array(
           'formats' => array(
@@ -252,7 +252,7 @@ function cle_assignment_field_default_field_instances() {
           ),
         ),
       ),
-      'text_processing' => 0,
+      'text_processing' => 1,
       'user_register_form' => FALSE,
     ),
     'widget' => array(
