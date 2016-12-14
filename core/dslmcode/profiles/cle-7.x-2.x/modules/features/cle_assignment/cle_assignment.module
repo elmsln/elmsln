@@ -109,10 +109,19 @@ function cle_assignment_node_insert($node) {
 
 /**
  * ELMSLN JSapi callback for creating an assignment.
+ * @todo  make this use the full POST data sanitized and in params.
  */
 function _cle_assignment_v1_assignment_create($type, $params = NULL) {
   $node = _elmsln_api_stub_node($type);
-  // @todo use the params
+  foreach ($params as $key => $value) {
+    // fields we support in a POST
+    switch ($key) {
+      case 'uid':
+      case 'title':
+        $node->{$key} = $value;
+      break;
+    }
+  }
   node_save($node);
   // output the newly created assignment
   $vars = array(
@@ -163,7 +172,6 @@ function _cle_assignment_v1_assignment_output($node) {
 /**
  * @todo
  * Get all of the assignments for the current user
- * - Make sure they have permission to see assignments
  * - Make sure that they are seeing assignments for their current section
  */
 function _cle_assignment_v1_get_assignments($filter = array()) {
@@ -174,10 +182,6 @@ function _cle_assignment_v1_get_assignments($filter = array()) {
   }
   $property_conditions = array('status' => array(NODE_PUBLISHED, '='));
   $orderby = array();
-  $list = _cis_connector_assemble_entity_list('node', 'cle_assignment', 'nid', 'title', $field_conditions, $property_conditions, $orderby);
-  if (!empty($list)) {
-    $nids = array_keys($list);
-    $items = entity_load('node', $nids);
-  }
+  $items = _cis_connector_assemble_entity_list('node', 'cle_assignment', 'nid', '_entity', $field_conditions, $property_conditions, $orderby);
   return $items;
 }
