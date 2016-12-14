@@ -19,6 +19,18 @@ function cle_assignment_menu() {
     'access callback' => 'user_is_logged_in',
     'type' => MENU_CALLBACK,
   );
+  $items['api/v1/cle/assignments/create'] = array(
+    'page callback' => '_elmsln_api_v1_page_callback',
+    'page arguments' => array('assignment', 4),
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_CALLBACK,
+  );
+  $items['api/v1/cle/assignments/fields'] = array(
+    'page callback' => '_elmsln_api_v1_page_callback',
+    'page arguments' => array('assignment', 4),
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_CALLBACK,
+  );
   $items['api/v1/cle/assignments/%'] = array(
     'page callback' => '_elmsln_api_v1_page_callback',
     'page arguments' => array('assignment', 4),

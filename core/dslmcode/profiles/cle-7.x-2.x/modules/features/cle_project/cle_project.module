@@ -17,6 +17,18 @@ function cle_project_menu() {
     'access callback' => 'user_is_logged_in',
     'type' => MENU_CALLBACK,
   );
+  $items['api/v1/cle/projects/create'] = array(
+    'page callback' => '_elmsln_api_v1_page_callback',
+    'page arguments' => array('project', 4),
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_CALLBACK,
+  );
+  $items['api/v1/cle/projects/fields'] = array(
+    'page callback' => '_elmsln_api_v1_page_callback',
+    'page arguments' => array('project', 4),
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_CALLBACK,
+  );
   $items['api/v1/cle/projects/%'] = array(
     'page callback' => '_elmsln_api_v1_page_callback',
     'page arguments' => array('project', 4),

@@ -1118,6 +1118,22 @@ function _elmsln_api_v1_page_callback($type, $etid = NULL) {
       $params = filter_var_array($_POST, FILTER_SANITIZE_STRING);
       $vars = call_user_func($jsapis[$type]['create'], $jsapis[$type]['type'], $params);
     }
+    elseif ($etid == 'fields') {
+      module_load_include('inc', 'node', 'node.pages');
+      $node = _elmsln_api_stub_node($jsapis[$type]['type']);
+      $form_output = drupal_get_form($jsapis[$type]['type'] . '_node_form', $node);
+      foreach($form_output as $key => $field) {
+        // strip out stuff that's for design / hierarchy purposes
+        if (strpos($key, '#') === 0 || in_array($key, array('comment_settings', 'path', 'revision_information', 'author', 'options'))) {
+          unset($form_output[$key]);
+        }
+      }
+      $vars = array(
+        'status' => '200',
+        'detail' => $jsapis[$type]['type'] . ' fields',
+        'fields' => serialize($form_output),
+      );
+    }
   }
   else {
     // if it got this far then that means the user is hitting and enpoint that doesn't exist.
@@ -1141,6 +1157,7 @@ function _elmsln_api_stub_node($type) {
   node_object_prepare($node);
   $node->language = LANGUAGE_NONE;
   $node->uid = $GLOBALS['user']->uid;
+  $node->name = (isset($GLOBALS['user']->name) ? $GLOBALS['user']->name : '');
   $node->status = 1;
   $node->promote = 0;
   $node->revision = 1;
