@@ -1,5 +1,15 @@
 (function($) {
 'use strict';
+  /**
+   * behavior to make sure select lists are applied every time we do an ajax reload.
+   */
+  Drupal.behaviors.materializeCSS = {
+    attach: function (context, settings) {
+      // select lists but not the chosen ones
+      $('select').not('.chosen').not('.cke_dialog_body select').not('.form-select.initialized').material_select();
+    }
+  };
+
   Drupal.settings.activeSideNav = null;
   // add support for accessibility of materialized components
   $(document).bind('keydown', function(event) {
@@ -18,8 +28,6 @@
   });
   // events that help with teeing up materialize styles the first run
   $(document).ready(function(){
-    // select lists but not the chosen ones
-    $('select').not('.chosen').not('.cke_dialog_body select').material_select();
     // enable parallax
     $('.parallax').parallax();
     // normal carousel
