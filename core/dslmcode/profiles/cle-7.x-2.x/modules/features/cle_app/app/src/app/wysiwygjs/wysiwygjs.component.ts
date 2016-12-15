@@ -1,4 +1,5 @@
-import { Component, OnInit, ElementRef, AfterViewInit, Input, Output, EventEmitter, OnChanges } from '@angular/core';
+import { Component, OnInit, ElementRef, AfterViewInit, Input, Output, EventEmitter, OnDestroy, forwardRef } from '@angular/core';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms'
 import { Observable, Subject } from 'rxjs/Rx';
 
 // non-typescript definitions
@@ -7,21 +8,37 @@ declare var $:any;
 @Component({
   selector: 'wysiwygjs',
   templateUrl: './wysiwygjs.component.html',
-  styleUrls: ['./wysiwygjs.component.css']
+  styleUrls: ['./wysiwygjs.component.css'],
+  providers:[
+    {
+      provide:NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => WysiwygjsComponent),
+      multi: true
+    }
+  ]
 })
-export class WysiwygjsComponent implements OnInit, OnChanges {
+
+export class WysiwygjsComponent implements OnInit, ControlValueAccessor {
   @Input() content:string;
-  @Output() onChange: EventEmitter<any> = new EventEmitter();
-  @Output() onFocus: EventEmitter<any> = new EventEmitter();
-  @Output() onBlur: EventEmitter<any> = new EventEmitter();
 
   constructor(
     private el: ElementRef
   ) { }
 
+  //ControlValueAccessor
+  writeValue(value:any) {
+    this.content = value;
+    this.updateContent();
+  }
+  propagateChange = (_: any) => {};
+  registerOnChange(fn) {
+    this.propagateChange = fn;
+  }
+  registerOnTouched() { 
+  }
+
   ngOnInit() {
       let newThis = this;
-
       $(this.el.nativeElement.firstElementChild).each(function (index, element) {
         let wysiwygEditor = (<any>$(element)).wysiwyg({
               // 'selection'|'top'|'top-selection'|'bottom'|'bottom-selection'
@@ -314,22 +331,11 @@ export class WysiwygjsComponent implements OnInit, OnChanges {
     
 
     .change(function () {
-        // Assign the wysiwyg get contents to the content Observable
-        // emit the change
-        newThis.onChange.emit((<any>$(newThis.el.nativeElement).find('.wysiwyg-editor').html()));
+      // Assign the wysiwyg get contents to the content Observable
+      // emit the change
+      newThis.content = (<any>$(newThis.el.nativeElement).find('.wysiwyg-editor').html());
+      newThis.propagateChange(newThis.content);
     })
-    .focus(function () {
-        newThis.onFocus.emit();
-    })
-    .blur(function () {
-        newThis.onBlur.emit();
-    });
-
-    this.updateContent();
-  }
-
-  ngOnChanges() {
-    this.updateContent();
   }
 
   updateContent() {

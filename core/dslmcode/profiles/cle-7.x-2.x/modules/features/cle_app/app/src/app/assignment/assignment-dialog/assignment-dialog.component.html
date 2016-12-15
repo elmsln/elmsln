@@ -1,1 +1,12 @@
-<app-assignment-form [assignment]="assignment" (assignmentSave)="onAssignmentSave($event)"></app-assignment-form>
+<!-- Modal Structure -->
+<div id="modal-assignment-dialog" class="modal modal-fixed-footer assignment-dialog">
+  <div class="modal-content">
+    <h2 *ngIf="assignment.id">Edit Assignment</h2>
+    <h2 *ngIf="!assignment.id">Create Assignment</h2>
+    <app-assignment-form [assignment]="assignment" (assignmentSave)="onAssignmentSave($event)"></app-assignment-form>
+  </div>
+  <div class="modal-footer">
+    <a (click)="onSave()" class="modal-action modal-close waves-effect waves-green btn-flat">Save</a>
+    <a (click)="onCancel()" class=" modal-action modal-close waves-effect waves-green btn-flat">Cancel</a>
+  </div>
+</div>

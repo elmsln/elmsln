@@ -3,8 +3,11 @@
 
     <nav>
       <div class="nav-wrapper">
-        <ul id="nav-mobile" class="left hide-on-med-and-down">
+        <ul id="nav-mobile" class="left">
           <li><a routerLink="/projects"><i class="material-icons left">&#xE5C4;</i> back</a></li>
+        </ul>
+        <ul id="nav-mobile" class="right">
+          <li><a (click)="onEditAssignment(assignment)" title="Edit this assignment"><i class="material-icons left">edit</i></a></li>
         </ul>
       </div>
     </nav>

@@ -49,6 +49,12 @@ export class AssignmentComponent implements OnInit {
 
   }
 
+  onEditAssignment(assignment:Assignment) {
+    const url = 'assignment-edit/' + assignment.id;
+    this.router.navigate([{outlets: {dialog: url}}])
+  }
+
+
   editAssignment() {
     this.editing = true;
   }

@@ -41,14 +41,9 @@ export class AssignmentFormComponent implements OnInit, OnChanges {
     this.form = this.formBuilder.group(this.assignment);
   }
 
-  // Update the body from the WYSIWYG changed event.
-  bodyChanged($event) {
-    this.form.patchValue({
-      description: $event
-    })
-  }
-
-  save(model:Assignment) {
+  save() {
+    let model = this.form.value;
+    console.log('Saving', model)
     if (model.id) {
       this.assignmentService.updateAssignment(model)
         .subscribe(data => {

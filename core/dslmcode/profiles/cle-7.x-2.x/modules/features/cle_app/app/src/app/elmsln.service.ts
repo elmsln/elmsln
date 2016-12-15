@@ -21,13 +21,11 @@ export class ElmslnService {
 
   createCSRFTokenHeader(headers:Headers) {
     let csrftoken = Cookie.get('x-csrf-token');
-    console.log('Current CSRF Token ', csrftoken);
     if (!csrftoken) {
       this.http
         .get(AppSettings.BASE_PATH + 'restws/session/token', {headers})
         .subscribe(data => {
           // Get the CSRF Token and set it to local storage
-          console.log('Got the CSRF Token ', data);
           let token = data['_body'];
           Cookie.set('x-csrf-token', token);
           headers.append('x-csrf-token', token);
