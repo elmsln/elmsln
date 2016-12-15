@@ -1,4 +1,4 @@
-import { Component, OnInit, ElementRef, AfterViewInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, ElementRef, AfterViewInit, Input, Output, EventEmitter, OnChanges } from '@angular/core';
 import { Observable, Subject } from 'rxjs/Rx';
 
 // non-typescript definitions
@@ -9,13 +9,12 @@ declare var $:any;
   templateUrl: './wysiwygjs.component.html',
   styleUrls: ['./wysiwygjs.component.css']
 })
-export class WysiwygjsComponent implements OnInit {
+export class WysiwygjsComponent implements OnInit, OnChanges {
+  @Input() content:string;
   @Output() onChange: EventEmitter<any> = new EventEmitter();
   @Output() onFocus: EventEmitter<any> = new EventEmitter();
   @Output() onBlur: EventEmitter<any> = new EventEmitter();
 
-  content$: Observable<any> = new Observable();
-  
   constructor(
     private el: ElementRef
   ) { }
@@ -24,7 +23,7 @@ export class WysiwygjsComponent implements OnInit {
       let newThis = this;
 
       $(this.el.nativeElement.firstElementChild).each(function (index, element) {
-          (<any>$(element)).wysiwyg({
+        let wysiwygEditor = (<any>$(element)).wysiwyg({
               // 'selection'|'top'|'top-selection'|'bottom'|'bottom-selection'
               toolbar: 'top',
               buttons: {
@@ -310,19 +309,30 @@ export class WysiwygjsComponent implements OnInit {
 
                   // undefined -> create '<video/>' tag
               }
-          })
+          });
       })
-        .change(function () {
-            // Assign the wysiwyg get contents to the content Observable
-            // emit the change
-            newThis.onChange.emit((<any>$(newThis.el.nativeElement).find('.wysiwyg-editor').html()));
-        })
-        .focus(function () {
-            newThis.onFocus.emit();
-        })
-        .blur(function () {
-            newThis.onBlur.emit();
-        });
+    
+
+    .change(function () {
+        // Assign the wysiwyg get contents to the content Observable
+        // emit the change
+        newThis.onChange.emit((<any>$(newThis.el.nativeElement).find('.wysiwyg-editor').html()));
+    })
+    .focus(function () {
+        newThis.onFocus.emit();
+    })
+    .blur(function () {
+        newThis.onBlur.emit();
+    });
+
+    this.updateContent();
   }
 
+  ngOnChanges() {
+    this.updateContent();
+  }
+
+  updateContent() {
+    (<any>$(this.el.nativeElement)).find('.wysiwyg-editor').html(this.content);
+  }
 }
