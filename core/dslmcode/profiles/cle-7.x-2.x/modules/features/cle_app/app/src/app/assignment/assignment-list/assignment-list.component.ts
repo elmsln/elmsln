@@ -30,8 +30,8 @@ ngOnInit() {
 getAssignments() {
   this.assignmentService.getAssignments(this.project.id)
     .subscribe(data => {
-      this.assignments = data
-      this.sortAssignmentsByDate('desc');
+      this.assignments = data;
+      this.sortAssignmentsByDate();
     });
 }
 
@@ -48,10 +48,10 @@ onEditAssignment(assignment:Assignment) {
   this.router.navigate([{outlets: {dialog: url}}])
 }
 
-sortAssignmentsByDate(direction:string = 'asc') {
+sortAssignmentsByDate() {
   this.assignments.sort((a:Assignment,b:Assignment) => {
-      let aDate;
-      let bDate;
+      let aDate = null;
+      let bDate = null;
 
       if (!a.startDate) {
         aDate = a.endDate;
@@ -60,31 +60,25 @@ sortAssignmentsByDate(direction:string = 'asc') {
         bDate = b.endDate;
       }
 
-      aDate = Date.parse(a.startDate);
-      bDate = Date.parse(b.startDate);
+      if (aDate && bDate) {
+        if (aDate < bDate) {
+          return -1;
+        }
+        else if (aDate > bDate) {
+          return 1;
+        }
+        else {
+          return 0;
+        }
+      }
+      else if (aDate && !bDate) {
+        return -1;
+      }
+      else if (!aDate && bDate) {
+        return 1;
+      }
+    });
 
-      if (direction === 'desc') {
-        if (aDate < bDate) {
-          return -1;
-        }
-        else if (aDate > bDate) {
-          return 1;
-        }
-        else {
-          return 0;
-        }
-      }
-      else {
-        if (aDate < bDate) {
-          return -1;
-        }
-        else if (aDate > bDate) {
-          return 1;
-        }
-        else {
-          return 0;
-        }
-      }
-    }); 
+
   }
 }
