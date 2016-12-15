@@ -41,7 +41,12 @@ export class ProjectItemComponent implements OnInit, OnDestroy {
   }
 
   onAssignmentSave($event) {
+    // close the model
     (<any>$(this.el.nativeElement.getElementsByClassName('assignment-form'))).modal('close');
+    // reset the form
+    this.assignment = new Assignment();
+    this.assignment.project = this.project.id;
+    // load the new assignments into the project
     this.assignmentListComponent.getAssignments();
   }
 
