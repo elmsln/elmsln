@@ -31,7 +31,6 @@ export class AssignmentFormComponent implements OnInit, OnChanges {
 
   ngOnInit() {
     // create the form from the assignment object that we recieved
-    console.log('Assignmentform, onInit', this.assignment);
     this.form = this.formBuilder.group(this.assignment);
     // get a list of assignment 'types' that we have available so we can display
     // those in the select field
@@ -39,7 +38,6 @@ export class AssignmentFormComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges() {
-    console.log('Assignmentform, onChanges', this.assignment);
     this.form = this.formBuilder.group(this.assignment);
   }
 
@@ -51,7 +49,6 @@ export class AssignmentFormComponent implements OnInit, OnChanges {
   }
 
   save(model:Assignment) {
-    console.log('Submit Assignment initiated', model);
     if (model.id) {
       this.assignmentService.updateAssignment(model)
         .subscribe(data => {
@@ -62,7 +59,6 @@ export class AssignmentFormComponent implements OnInit, OnChanges {
     else {
       this.assignmentService.createAssignment(model)
         .subscribe(data => {
-          console.log('Assignment creation response: ', data);
           if (data.id) {
             Materialize.toast('Assignment Created', 1000);
             this.assignmentSave.emit();

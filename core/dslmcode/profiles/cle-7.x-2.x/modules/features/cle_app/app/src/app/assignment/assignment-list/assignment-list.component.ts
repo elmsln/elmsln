@@ -29,10 +29,8 @@ ngOnInit() {
 
 getAssignments() {
   this.assignmentService.getAssignments(this.project.id)
-    .map(data => data.data)
     .subscribe(data => {
-      this.assignments = data;
-      // sort the array by date
+      this.assignments = data
       this.sortAssignmentsByDate('desc');
     });
 }

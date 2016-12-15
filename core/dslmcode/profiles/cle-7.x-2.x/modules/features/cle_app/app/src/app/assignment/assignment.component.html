@@ -6,12 +6,6 @@
         <ul id="nav-mobile" class="left hide-on-med-and-down">
           <li><a routerLink="/projects"><i class="material-icons left">&#xE5C4;</i> back</a></li>
         </ul>
-        <ul *ngIf="editing == false" id="nav-mobile" class="right hide-on-med-and-down">
-          <li><a (click)="editAssignment()"><i class="material-icons">&#xE3C9;</i></a></li>
-        </ul>
-        <ul *ngIf="editing == true" id="nav-mobile" class="right hide-on-med-and-down">
-          <li><a (click)="stopEditing()"><i class="material-icons">&#xE5C9;</i></a></li>
-        </ul>
       </div>
     </nav>
 
@@ -25,8 +19,6 @@
       </div>
       <div class="assignment__description" [innerHTML]="assignment.description"> </div>
     </div>
-
-    <app-assignment-form *ngIf="editing" (assignmentCreated)="onAssignmentCreated($event)"></app-assignment-form>
 
   </div>
 </div>

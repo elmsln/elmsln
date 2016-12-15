@@ -12,10 +12,15 @@ export class AssignmentService {
   ) { }
 
   getAssignments(projectId?:number) {
-    // 
     let query = projectId ? '?project=' + projectId : '';
     return this.elmsln.get(AppSettings.BASE_PATH + 'api/v1/cle/assignments' + query)
-      .map(data => data.json())
+      .map(data => data.json().data)
+      .map((data:any[]) => {
+        // convert list of data into list of Assignments
+        let d:any[] = [];
+        data.forEach(item => d.push(this.convertToAssignment(item)));
+        return d;
+      });
   }
 
   getAssignment(assignmentId) {
