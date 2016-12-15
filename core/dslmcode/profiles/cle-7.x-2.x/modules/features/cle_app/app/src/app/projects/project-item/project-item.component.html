@@ -7,20 +7,12 @@
       <div class="project__description" [innerHTML]="project.description"></div>
     </div>
     <div class="project__options">
-      <a (click)="createAssignment()" class="waves-effect btn-flat tooltipped" data-tooltip="create assignment"><i class="material-icons">add</i></a>
-      <a (click)="deleteProject()" class="waves-effect btn-flat tooltipped" data-tooltip="create assignment"><i class="material-icons">delete</i></a>
+      <a (click)="onCreateAssignment()" class="waves-effect btn-flat tooltipped" data-tooltip="create assignment"><i class="material-icons">add</i></a>
+      <a (click)="onDeleteProject()" class="waves-effect btn-flat tooltipped" data-tooltip="create assignment"><i class="material-icons">delete</i></a>
     </div>
   </div>
   <div class="project__board">
     <cle-assignment-list [project]="project"></cle-assignment-list>
-  </div>
-</div>
-
-<!-- Modal Structure -->
-<div id="modal-{{project.id}}" class="modal assignment-form">
-  <div class="modal-content">
-    <h4>Create assignment</h4>
-    <app-assignment-form *ngIf="assignment" [assignment]="assignment" (assignmentSave)="onAssignmentSave($event)"></app-assignment-form>
   </div>
 </div>
 

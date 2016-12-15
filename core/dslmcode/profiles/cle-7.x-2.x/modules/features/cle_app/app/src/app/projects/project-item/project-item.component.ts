@@ -1,4 +1,5 @@
 import { Component, OnInit, Input, ElementRef, ContentChildren, AfterContentInit, EventEmitter, Output, ViewChild, OnDestroy } from '@angular/core';
+import { Router } from '@angular/router';
 import { Project } from '../../project';
 import { ProjectService } from '../../project.service';
 import { AssignmentListComponent } from '../../assignment/assignment-list/assignment-list.component';
@@ -15,42 +16,29 @@ declare const $:any;
 export class ProjectItemComponent implements OnInit, OnDestroy {
   @Input() project: Project;
   @Output() delete: EventEmitter<any> = new EventEmitter();
-  @ViewChild(AssignmentListComponent) assignmentListComponent:AssignmentListComponent;
-  assignment:Assignment;
   
   constructor(
     private projectService:ProjectService,
-    private el:ElementRef
+    private el:ElementRef,
+    private router:Router
   ) {
   }
 
   ngOnInit() {
-    (<any>$(this.el.nativeElement.getElementsByClassName('modal'))).modal();
     (<any>$(this.el.nativeElement.getElementsByClassName('tooltipped'))).tooltip({delay:40});
-    this.assignment = new Assignment();
-    this.assignment.project = this.project.id;
   }
 
   ngOnDestroy() {
-    (<any>$(this.el.nativeElement.getElementsByClassName('modal'))).modal('close');
     (<any>$(this.el.nativeElement.getElementsByClassName('tooltipped'))).tooltip('remove');
   }
 
-  createAssignment() {
-    (<any>$(this.el.nativeElement.getElementsByClassName('assignment-form'))).modal('open');
+
+  onCreateAssignment() {
+    const url = 'assignment-create/' + this.project.id;
+    this.router.navigate([{outlets: {dialog: url}}]);
   }
 
-  onAssignmentSave($event) {
-    // close the model
-    (<any>$(this.el.nativeElement.getElementsByClassName('assignment-form'))).modal('close');
-    // reset the form
-    this.assignment = new Assignment();
-    this.assignment.project = this.project.id;
-    // load the new assignments into the project
-    this.assignmentListComponent.getAssignments();
-  }
-
-  deleteProject() {
+  onDeleteProject() {
     (<any>$(this.el.nativeElement.getElementsByClassName('delete-project-form'))).modal('open');
   }
 

@@ -32,6 +32,11 @@ export class AssignmentDialogComponent implements OnInit, OnDestroy {
               this.assignment = data;
             });
         }
+        else if (typeof params['projectId'] !== 'undefined') {
+          let a:Assignment = new Assignment();
+          a.project = params['projectId'];
+          this.assignment = a;
+        }
       })
     
     jQuery(this.el.nativeElement.getElementsByClassName('modal')).modal({
