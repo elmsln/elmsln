@@ -16,10 +16,12 @@ export class AssignmentService {
     return this.elmsln.get(AppSettings.BASE_PATH + 'api/v1/cle/assignments' + query)
       .map(data => data.json().data)
       .map((data:any[]) => {
-        // convert list of data into list of Assignments
-        let d:any[] = [];
-        data.forEach(item => d.push(this.convertToAssignment(item)));
-        return d;
+        if (data) {
+          // convert list of data into list of Assignments
+          let d:any[] = [];
+          data.forEach(item => d.push(this.convertToAssignment(item)));
+          return d;
+        }
       });
   }
 

@@ -49,36 +49,36 @@ onEditAssignment(assignment:Assignment) {
 }
 
 sortAssignmentsByDate() {
-  this.assignments.sort((a:Assignment,b:Assignment) => {
-      let aDate = null;
-      let bDate = null;
+  if (this.assignments) {
+    this.assignments.sort((a:Assignment,b:Assignment) => {
+        let aDate = null;
+        let bDate = null;
 
-      if (!a.startDate) {
-        aDate = a.endDate;
-      }
-      if (!b.startDate) {
-        bDate = b.endDate;
-      }
+        if (!a.startDate) {
+          aDate = a.endDate;
+        }
+        if (!b.startDate) {
+          bDate = b.endDate;
+        }
 
-      if (aDate && bDate) {
-        if (aDate < bDate) {
+        if (aDate && bDate) {
+          if (aDate < bDate) {
+            return -1;
+          }
+          else if (aDate > bDate) {
+            return 1;
+          }
+          else {
+            return 0;
+          }
+        }
+        else if (aDate && !bDate) {
           return -1;
         }
-        else if (aDate > bDate) {
+        else if (!aDate && bDate) {
           return 1;
         }
-        else {
-          return 0;
-        }
-      }
-      else if (aDate && !bDate) {
-        return -1;
-      }
-      else if (!aDate && bDate) {
-        return 1;
-      }
-    });
-
-
+      });
+    }
   }
 }
