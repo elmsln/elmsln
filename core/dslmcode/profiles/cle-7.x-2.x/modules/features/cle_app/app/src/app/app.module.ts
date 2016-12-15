@@ -31,6 +31,7 @@ import { ProjectCardComponent } from './projects/project-card/project-card.compo
 import { ProjectItemComponent } from './projects/project-item/project-item.component';
 import { EditableFieldComponent } from './editable-field/editable-field.component';
 import { DatetimeInputComponent } from './datetime-input/datetime-input.component';
+import { AssignmentDialogComponent } from './assignment/assignment-dialog/assignment-dialog.component';
 
 @NgModule({
   declarations: [
@@ -54,7 +55,8 @@ import { DatetimeInputComponent } from './datetime-input/datetime-input.componen
     ProjectCardComponent,
     ProjectItemComponent,
     EditableFieldComponent,
-    DatetimeInputComponent
+    DatetimeInputComponent,
+    AssignmentDialogComponent
   ],
   imports: [
     BrowserModule,

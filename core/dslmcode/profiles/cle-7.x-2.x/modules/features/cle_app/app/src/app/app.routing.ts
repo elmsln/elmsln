@@ -12,6 +12,7 @@ import { CritiqueComponent } from './critique/critique.component';
 import { LoginComponent } from './login/login.component';
 import { LogoutComponent } from './logout/logout.component';
 import { ProjectsListComponent } from './projects/projects-list/projects-list.component';
+import { AssignmentDialogComponent } from './assignment/assignment-dialog/assignment-dialog.component';
 
 const appRoutes: Routes = [
   {
@@ -33,6 +34,16 @@ const appRoutes: Routes = [
   {
     path: 'assignments/:id',
     component: AssignmentComponent
+  },
+  {
+    path: 'assignment-create/:projectId',
+    outlet: 'dialog',
+    component: AssignmentDialogComponent
+  },
+  {
+    path: 'assignment-edit/:assignmentId',
+    outlet: 'dialog',
+    component: AssignmentDialogComponent
   }
 ];
 

@@ -45,6 +45,11 @@ createAssignment() {
   this.router.navigate(['/assignments/new']);
 }
 
+onEditAssignment(assignment:Assignment) {
+  const url = 'assignment-edit/' + assignment.id;
+  this.router.navigate([{outlets: {dialog: url}}])
+}
+
 sortAssignmentsByDate(direction:string = 'asc') {
   this.assignments.sort((a:Assignment,b:Assignment) => {
       let aDate;

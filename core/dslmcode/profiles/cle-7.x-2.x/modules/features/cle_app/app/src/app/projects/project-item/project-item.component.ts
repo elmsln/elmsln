@@ -42,7 +42,6 @@ export class ProjectItemComponent implements OnInit, OnDestroy {
 
   assignmentCreated($event) {
     (<any>$(this.el.nativeElement.getElementsByClassName('assignment-form'))).modal('close');
-    Materialize.toast('Assignment created!', 1000);
     this.assignmentListComponent.getAssignments();
   }
 

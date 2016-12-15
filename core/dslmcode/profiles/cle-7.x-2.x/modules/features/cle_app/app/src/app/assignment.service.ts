@@ -20,13 +20,21 @@ export class AssignmentService {
 
   getAssignment(assignmentId) {
     return this.elmsln.get(AppSettings.BASE_PATH + 'api/v1/cle/assignments/' + assignmentId)
-      .map(data => data.json())
+      .map(data => data.json().data)
+      .map(data => this.convertToAssignment(data));
   }
 
   createAssignment(assignment:Assignment) {
     let newAssignment = this.prepareForDrupal(assignment);
     
     return this.elmsln.post(AppSettings.BASE_PATH + 'node', newAssignment)
+      .map(data => data.json())
+  }
+
+  updateAssignment(assignment:Assignment) {
+    let newAssignment = this.prepareForDrupal(assignment);
+
+    return this.elmsln.put(AppSettings.BASE_PATH + 'node/' + assignment.id, newAssignment)
       .map(data => data.json())
   }
 
@@ -46,6 +54,17 @@ export class AssignmentService {
     ];
   }
 
+  private convertToAssignment(data:any) {
+    let converted:Assignment = new Assignment();
+    for(var propertyName in converted) {
+      if (data[propertyName]) {
+        converted[propertyName] = data[propertyName];
+      }
+    }
+
+    return converted;
+  }
+
   private prepareForDrupal(assignment:Assignment) {
     // Convert date fields
     let newAssignment: any = {};
@@ -55,9 +74,9 @@ export class AssignmentService {
     if (assignment.title) {
       newAssignment.title = assignment.title
     }
-    if (assignment.body) {
+    if (assignment.description) {
       newAssignment.body = {
-        value: assignment.body
+        value: assignment.description
       }
     }
     if (assignment.project) {
@@ -65,9 +84,6 @@ export class AssignmentService {
     }
     if (assignment.type) {
       newAssignment.field_assignment_privacy_setting = assignment.type;
-    }
-    if (assignment.critique) {
-      newAssignment.field_critique_method = assignment.critique;
     }
     if (assignment.description) {
       newAssignment.field_assignment_description = {
