@@ -1,0 +1,11 @@
+name = CLE Section
+description = Section fields and changes specific to CLE
+core = 7.x
+package = CLE
+dependencies[] = cle_project
+dependencies[] = entityreference
+dependencies[] = features
+dependencies[] = options
+features[features_api][] = api:2
+features[field_base][] = field_section_projects
+features[field_instance][] = node-section-field_section_projects

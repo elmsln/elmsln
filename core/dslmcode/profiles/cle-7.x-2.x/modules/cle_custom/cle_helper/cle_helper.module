@@ -11,7 +11,7 @@ define('CLE_HELPER_GROUP_BUNDLE', 'section');
  */
 function cle_helper_form_node_form_alter(&$form, &$form_state, $form_id) {
   // if only part of one group select it automatically
-  if (arg(0) == 'node' && arg(2) != 'edit' && ($form_id == 'cle_assignment_node_form' || $form_id == 'cle_submission_node_form')) {
+  if (arg(0) == 'node' && arg(2) != 'edit' && in_array($form_id, array('cle_project_node_form', 'cle_assignment_node_form', 'cle_submission_node_form'))) {
     // if only 1 group, set to that value
     if (isset($form['og_group_ref']) && count($form['og_group_ref']['und'][0]['default']['#options']) == 2) {
       // flip around to get key associations
@@ -70,15 +70,15 @@ function cle_helper_form_views_exposed_form_alter(&$form, &$form_state, $form_id
  * Implements hook_form_FORM_ID_alter().
  */
 function cle_helper_form_cis_service_connection_ux_form_alter(&$form, &$form_state, $form_id) {
-  $form['site_information']['cle_default_assignments'] = array(
-    '#description' => t('This is the default assignments for new sections that are registered.'),
-    '#default_value' => variable_get('cle_default_assignments', array()),
+  $form['site_information']['cle_default_projects'] = array(
+    '#description' => t('This is the default projects for new sections that are registered.'),
+    '#default_value' => variable_get('cle_default_projects', array()),
     '#weight' => '0',
-    '#title' => t('Default assignments'),
+    '#title' => t('Default projects'),
     '#type' => 'select',
     '#required' => '1',
     '#multiple' => '1',
-    '#options' => _cis_connector_assemble_entity_list('node', 'cle_assignment', 'nid', 'title', array(), array(), array('field' => array('field_number' => 'value'))),
+    '#options' => _cis_connector_assemble_entity_list('node', 'cle_project', 'nid', 'title'),
   );
 }
 
@@ -89,17 +89,17 @@ function cle_helper_node_presave($node) {
   // make sure there's assignments associated to this
   if ($node->type == 'section') {
     // ensure assignments are set, if not use default
-    if (empty($node->field_cle_assignments['und'])) {
-      $default = variable_get('cle_default_assignments', array());
+    if (empty($node->field_section_projects['und'])) {
+      $default = variable_get('cle_default_projects', array());
       // edge case, default was never set
       if ($default == array()) {
-        // load all books
-        $default = _cis_connector_assemble_entity_list('node', 'cle_assignment', 'nid', 'title');
+        // load all projects
+        $default = _cis_connector_assemble_entity_list('node', 'cle_project', 'nid', 'title');
       }
       // make sure we have something to set
       if (!empty($default)) {
         foreach ($default as $key => $title) {
-          $node->field_cle_assignments['und'][] = array('target_id' => $key);
+          $node->field_section_projects['und'][] = array('target_id' => $key);
         }
       }
     }
