@@ -1,6 +1,6 @@
 <form [formGroup]="form" class="assignment-form" (ngSubmit)="save(form.value)">
   <input formControlName="title" placeholder="Title">
-  <wysiwygjs [content]="assignment.description" (onChange)="bodyChanged($event)"></wysiwygjs>
+  <wysiwygjs [content]="form.value.description" (onChange)="bodyChanged($event)"></wysiwygjs>
 
   <div class="privacy">
     <label>Privacy Setting:</label>

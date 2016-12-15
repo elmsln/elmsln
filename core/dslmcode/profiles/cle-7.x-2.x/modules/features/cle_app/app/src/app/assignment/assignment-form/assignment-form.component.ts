@@ -54,6 +54,7 @@ export class AssignmentFormComponent implements OnInit, OnChanges {
         .subscribe(data => {
             Materialize.toast('Assignment Updated', 1000);
             this.assignmentSave.emit();
+            this.form.reset();
         })
     }
     else {
