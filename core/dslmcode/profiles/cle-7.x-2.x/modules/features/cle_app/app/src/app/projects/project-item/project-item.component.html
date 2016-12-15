@@ -20,7 +20,7 @@
 <div id="modal-{{project.id}}" class="modal assignment-form">
   <div class="modal-content">
     <h4>Create assignment</h4>
-    <app-assignment-form *ngIf="assignment" [assignment]="assignment" (assignmentCreated)="assignmentCreated($event)"></app-assignment-form>
+    <app-assignment-form *ngIf="assignment" [assignment]="assignment" (assignmentSave)="onAssignmentSave($event)"></app-assignment-form>
   </div>
 </div>
 

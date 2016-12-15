@@ -40,7 +40,7 @@ export class ProjectItemComponent implements OnInit, OnDestroy {
     (<any>$(this.el.nativeElement.getElementsByClassName('assignment-form'))).modal('open');
   }
 
-  assignmentCreated($event) {
+  onAssignmentSave($event) {
     (<any>$(this.el.nativeElement.getElementsByClassName('assignment-form'))).modal('close');
     this.assignmentListComponent.getAssignments();
   }
