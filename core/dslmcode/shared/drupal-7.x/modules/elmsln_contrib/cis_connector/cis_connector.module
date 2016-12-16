@@ -574,7 +574,12 @@ function _cis_connector_section_context($account = NULL) {
     // check for global session override
     if (isset($_SESSION['cis_section_context'])) {
       $section = $_SESSION['cis_section_context'];
-      return $_SESSION['cis_section_context'];
+      return $section;
+    }
+    // check for GET in address bar
+    if (isset($_GET['elmsln_section']) && $_GET['elmsln_section'] != 1) {
+      $section = $_GET['elmsln_section'];
+      return $section;
     }
     // use current user if acount is not set
     if (empty($account)) {
