@@ -33,15 +33,32 @@ function cis_helper_elmsln_api_callback_populate_course_network() {
     // pull together roster per section
     $roster = _cis_helper_assemble_roster($sections);
     // add in the users from CIS who are global users
-    $staff = _cis_connector_assemble_entity_list('user', 'user', 'uid', 'name', array('__role' => _cis_connector_role_groups('staff')));
+    $query = db_select('users', 'u');
+    $query->addField('u', 'uid');
+    $query->addField('u', 'name', 'user_name');
+    $query->addField('u', 'mail', 'mail');
+    $query->condition('u.status', 1);
+    $query->innerJoin('users_roles', 'ur', 'u.uid = ur.uid');
+    $query->innerJoin('role', 'r', 'ur.rid = r.rid');
+    $query->addField('r', 'name', 'role_name');
+    $query->condition('r.name', 'staff');
+    $result = $query->execute();
+    $staff = array();
+    // Build up the array of data to return
+    foreach ($result->fetchAll() as $row) {
+      $staff[$row->user_name] = $row->mail;
+    }
     $active = array();
     // simplify section data so we can send along if its active or not
     foreach ($sections as $section_id => $section) {
       // mix in the staff people from CIS
       // so they get section access
-      foreach ($staff as $uname) {
+      foreach ($staff as $uname => $mail) {
         if (!isset($roster[$section_id][$uname]) && strpos($uname, 'SERVICE_') === FALSE) {
-          $roster[$section_id][$uname] = 'staff';
+          $roster[$section_id][$uname] = array(
+            'role' => 'staff',
+            'mail' => $mail,
+          );
         }
       }
       $active[$section_id] = $section->active;

@@ -393,7 +393,9 @@ function _cis_section_create_accounts($roster) {
       if (is_array($userdata)) {
         $role_name = $userdata['role'];
         $mail = $userdata['mail'];
-        $pass = $userdata['pass'];
+        if (isset($userdata['pass'])) {
+          $pass = $userdata['pass'];
+        }
       }
       else {
         $role_name = $userdata;
