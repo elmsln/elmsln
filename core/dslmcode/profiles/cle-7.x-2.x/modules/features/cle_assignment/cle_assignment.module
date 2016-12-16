@@ -15,25 +15,43 @@ function cle_assignment_menu() {
   $items = array();
   $items['api/v1/cle/assignments'] = array(
     'page callback' => '_elmsln_api_v1_page_callback',
-    'page arguments' => array('assignment'),
+    'page arguments' => array('assignment', NULL, NULL),
     'access callback' => 'user_is_logged_in',
     'type' => MENU_CALLBACK,
   );
   $items['api/v1/cle/assignments/create'] = array(
     'page callback' => '_elmsln_api_v1_page_callback',
-    'page arguments' => array('assignment', 4),
+    'page arguments' => array('assignment', NULL, 4),
     'access callback' => 'user_is_logged_in',
     'type' => MENU_CALLBACK,
   );
   $items['api/v1/cle/assignments/fields'] = array(
     'page callback' => '_elmsln_api_v1_page_callback',
-    'page arguments' => array('assignment', 4),
+    'page arguments' => array('assignment', NULL, 4),
     'access callback' => 'user_is_logged_in',
     'type' => MENU_CALLBACK,
   );
   $items['api/v1/cle/assignments/%'] = array(
     'page callback' => '_elmsln_api_v1_page_callback',
-    'page arguments' => array('assignment', 4),
+    'page arguments' => array('assignment', 4, 'query'),
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_CALLBACK,
+  );
+  $items['api/v1/cle/assignments/%/fields'] = array(
+    'page callback' => '_elmsln_api_v1_page_callback',
+    'page arguments' => array('assignment', 4, 5),
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_CALLBACK,
+  );
+  $items['api/v1/cle/assignments/%/update'] = array(
+    'page callback' => '_elmsln_api_v1_page_callback',
+    'page arguments' => array('assignment', 4, 'update'),
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_CALLBACK,
+  );
+  $items['api/v1/cle/assignments/%/delete'] = array(
+    'page callback' => '_elmsln_api_v1_page_callback',
+    'page arguments' => array('assignment', 4, 'delete'),
     'access callback' => 'user_is_logged_in',
     'type' => MENU_CALLBACK,
   );
@@ -47,7 +65,7 @@ function cle_assignment_elmsln_jsapi_info() {
   // assignment api router
   $items['assignment'] = array(
     'type' =>   'cle_assignment',
-    'create' => '_cle_assignment_v1_assignment_create',
+    'modify' => '_cle_assignment_v1_assignment_modify',
     'list' =>   '_cle_assignment_v1_get_assignments',
     'output' => '_cle_assignment_v1_assignment_output',
   );
@@ -93,8 +111,14 @@ function cle_assignment_page_build(&$page) {
  * ELMSLN JSapi callback for creating an assignment.
  * @todo  make this use the full POST data sanitized and in params.
  */
-function _cle_assignment_v1_assignment_create($type, $params = NULL) {
-  $node = _elmsln_api_stub_node($type);
+function _cle_assignment_v1_assignment_modify($node, $params = NULL) {
+  if (!isset($node->nid)) {
+    $detail = t('Assignment created');
+  }
+  else {
+    $detail = t('Assignment updated');
+  }
+  // loop through supported parameters and set them for create or update
   foreach ($params as $key => $value) {
     // fields we support in a POST
     switch ($key) {
@@ -105,11 +129,11 @@ function _cle_assignment_v1_assignment_create($type, $params = NULL) {
     }
   }
   node_save($node);
-  // output the newly created assignment
+  // output the newly created node
   $vars = array(
     'status' => '200',
-    'detail' => 'Assignment created',
-    'assignment' => (array) $node,
+    'detail' => $detail,
+    'node' => (array) $node,
   );
   return $vars;
 }
@@ -159,10 +183,10 @@ function _cle_assignment_v1_assignment_output($node) {
 function _cle_assignment_v1_get_assignments($filter = array()) {
   $items = array();
   $field_conditions = array();
-  if (isset($filter['project'])) {
-    $field_conditions = array('field_assignment_project' => array('target_id', $filter['project'], '='));
-  }
   $property_conditions = array('status' => array(NODE_PUBLISHED, '='));
+  if (isset($filter['assignment'])) {
+    $property_conditions['nid'] = array($filter['assignment'], '=');
+  }
   $orderby = array();
   $items = _cis_connector_assemble_entity_list('node', 'cle_assignment', 'nid', '_entity', $field_conditions, $property_conditions, $orderby);
   return $items;

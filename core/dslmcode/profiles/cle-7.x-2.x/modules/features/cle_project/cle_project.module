@@ -13,25 +13,43 @@ function cle_project_menu() {
   $items = array();
   $items['api/v1/cle/projects'] = array(
     'page callback' => '_elmsln_api_v1_page_callback',
-    'page arguments' => array('project'),
+    'page arguments' => array('project', NULL, NULL),
     'access callback' => 'user_is_logged_in',
     'type' => MENU_CALLBACK,
   );
   $items['api/v1/cle/projects/create'] = array(
     'page callback' => '_elmsln_api_v1_page_callback',
-    'page arguments' => array('project', 4),
+    'page arguments' => array('project', NULL, 4),
     'access callback' => 'user_is_logged_in',
     'type' => MENU_CALLBACK,
   );
   $items['api/v1/cle/projects/fields'] = array(
     'page callback' => '_elmsln_api_v1_page_callback',
-    'page arguments' => array('project', 4),
+    'page arguments' => array('project', NULL, 4),
     'access callback' => 'user_is_logged_in',
     'type' => MENU_CALLBACK,
   );
   $items['api/v1/cle/projects/%'] = array(
     'page callback' => '_elmsln_api_v1_page_callback',
-    'page arguments' => array('project', 4),
+    'page arguments' => array('project', 4, 'query'),
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_CALLBACK,
+  );
+  $items['api/v1/cle/projects/%/fields'] = array(
+    'page callback' => '_elmsln_api_v1_page_callback',
+    'page arguments' => array('project', 4, 5),
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_CALLBACK,
+  );
+  $items['api/v1/cle/projects/%/update'] = array(
+    'page callback' => '_elmsln_api_v1_page_callback',
+    'page arguments' => array('project', 4, 'update'),
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_CALLBACK,
+  );
+  $items['api/v1/cle/projects/%/delete'] = array(
+    'page callback' => '_elmsln_api_v1_page_callback',
+    'page arguments' => array('project', 4, 'delete'),
     'access callback' => 'user_is_logged_in',
     'type' => MENU_CALLBACK,
   );
@@ -45,7 +63,7 @@ function cle_project_elmsln_jsapi_info() {
   // assignment api router
   $items['project'] = array(
     'type' =>   'cle_project',
-    'create' => '_cle_project_v1_project_create',
+    'modify' => '_cle_project_v1_project_modify',
     'list' =>   '_cle_project_v1_get_projects',
     'output' => '_cle_project_v1_project_output',
   );
@@ -92,8 +110,14 @@ function _cle_project_v1_project_output($node) {
  * ELMSLN JSapi callback for creating an assignment.
  * @todo  make this use the full POST data sanitized and in params.
  */
-function _cle_project_v1_project_create($type, $params = NULL) {
-  $node = _elmsln_api_stub_node($type);
+function _cle_project_v1_project_modify($node, $params = NULL) {
+  if (!isset($node->nid)) {
+    $detail = t('Project created');
+  }
+  else {
+    $detail = t('Project updated');
+  }
+  // loop through supported parameters and set them for create or update
   foreach ($params as $key => $value) {
     // fields we support in a POST
     switch ($key) {
@@ -104,11 +128,11 @@ function _cle_project_v1_project_create($type, $params = NULL) {
     }
   }
   node_save($node);
-  // output the newly created assignment
+  // output the newly created node
   $vars = array(
     'status' => '200',
-    'detail' => 'Project created',
-    'assignment' => (array) $node,
+    'detail' => $detail,
+    'node' => (array) $node,
   );
   return $vars;
 }

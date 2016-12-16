@@ -13,28 +13,47 @@ function cle_submission_menu() {
   $items = array();
   $items['api/v1/cle/submissions'] = array(
     'page callback' => '_elmsln_api_v1_page_callback',
-    'page arguments' => array('submission'),
+    'page arguments' => array('submission', NULL, NULL),
     'access callback' => 'user_is_logged_in',
     'type' => MENU_CALLBACK,
   );
   $items['api/v1/cle/submissions/create'] = array(
     'page callback' => '_elmsln_api_v1_page_callback',
-    'page arguments' => array('submission', 4),
+    'page arguments' => array('submission', NULL, 4),
     'access callback' => 'user_is_logged_in',
     'type' => MENU_CALLBACK,
   );
   $items['api/v1/cle/submissions/fields'] = array(
     'page callback' => '_elmsln_api_v1_page_callback',
-    'page arguments' => array('submission', 4),
+    'page arguments' => array('submission', NULL, 4),
     'access callback' => 'user_is_logged_in',
     'type' => MENU_CALLBACK,
   );
   $items['api/v1/cle/submissions/%'] = array(
     'page callback' => '_elmsln_api_v1_page_callback',
-    'page arguments' => array('submission', 4),
+    'page arguments' => array('submission', 4, 'query'),
     'access callback' => 'user_is_logged_in',
     'type' => MENU_CALLBACK,
   );
+  $items['api/v1/cle/submissions/%/fields'] = array(
+    'page callback' => '_elmsln_api_v1_page_callback',
+    'page arguments' => array('submission', 4, 5),
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_CALLBACK,
+  );
+  $items['api/v1/cle/submissions/%/update'] = array(
+    'page callback' => '_elmsln_api_v1_page_callback',
+    'page arguments' => array('submission', 4, 'update'),
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_CALLBACK,
+  );
+  $items['api/v1/cle/submissions/%/delete'] = array(
+    'page callback' => '_elmsln_api_v1_page_callback',
+    'page arguments' => array('submission', 4, 'delete'),
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_CALLBACK,
+  );
+
   $items['api/v1/cle/submissions/random-critique'] = array(
     'page callback' => '_cle_critique_api_random_critique',
     'access callback' => 'user_is_logged_in',
@@ -51,7 +70,7 @@ function cle_submission_elmsln_jsapi_info() {
   // submissions api router
   $items['submission'] = array(
     'type' =>   'cle_submission',
-    'create' => '_cle_submission_v1_submission_create',
+    'modify' => '_cle_submission_v1_submission_modify',
     'list' =>   '_cle_submission_v1_get_submissions',
     'output' => '_cle_submission_v1_submission_output',
   );
@@ -98,8 +117,14 @@ function _cle_submission_v1_submission_output($node) {
  * ELMSLN JSapi callback for creating an assignment.
  * @todo  make this use the full POST data sanitized and in params.
  */
-function _cle_submission_v1_submission_create($type, $params = NULL) {
-  $node = _elmsln_api_stub_node($type);
+function _cle_submission_v1_submission_modify($node, $params = NULL) {
+  if (!isset($node->nid)) {
+    $detail = t('Submission created');
+  }
+  else {
+    $detail = t('Submission updated');
+  }
+  // loop through supported parameters and set them for create or update
   foreach ($params as $key => $value) {
     // fields we support in a POST
     switch ($key) {
@@ -110,11 +135,11 @@ function _cle_submission_v1_submission_create($type, $params = NULL) {
     }
   }
   node_save($node);
-  // output the newly created assignment
+  // output the newly created node
   $vars = array(
     'status' => '200',
-    'detail' => 'Submission created',
-    'assignment' => (array) $node,
+    'detail' => $detail,
+    'node' => (array) $node,
   );
   return $vars;
 }
