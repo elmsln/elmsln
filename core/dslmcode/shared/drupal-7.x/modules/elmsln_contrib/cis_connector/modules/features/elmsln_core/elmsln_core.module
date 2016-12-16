@@ -925,6 +925,26 @@ function elmsln_core_admin_paths() {
 }
 
 /**
+ * Implements hook_form_node_form_alter().
+ */
+function elmsln_core_form_node_form_alter(&$form, &$form_state, $form_id) {
+  // only apply these to new nodes
+  if (arg(0) == 'node' && arg(1) == 'add') {
+    // prepopulate course and section references if they exist
+    if (isset($form['field_cis_course_ref']['und']['#default_value']) && empty($form['field_cis_course_ref']['und']['#default_value']
+  ) && $course_nid = _cis_connector_get_course_by_machine_name(_cis_connector_course_context())) {
+      $form['field_cis_course_ref']['und']['#default_value'] = $course_nid;
+    }
+    // prepopulate section reference if it exists in the current context for whatever reason
+    // and hasn't existed previously but ONLY for new stuff
+    if (isset($form['og_group_ref']['und'][0]['default']['#default_value']) && empty($form['og_group_ref']['und'][0]['default']['#default_value']
+  ) && $section_nid = _cis_section_load_section_by_id(_cis_connector_section_context())) {
+      $form['og_group_ref']['und'][0]['default']['#default_value'] = $section_nid;
+    }
+  }
+}
+
+/**
  * Implements hook_form_FORM_ID_alter().
  */
 function elmsln_core_form_a11y_admin_settings_alter(&$form, &$form_state) {
@@ -968,6 +988,9 @@ function elmsln_core_url_inbound_alter(&$path, $original_path, $path_language) {
       // check for transition from authority to service as name of section changes
       if (_cis_connector_is_master($section_id) && _cis_connector_system_type() == 'service' && strpos($section_id, '_')) {
         $section_id = CIS_SECTION_MASTER;
+      }
+      elseif(_cis_connector_is_master($section_id) && _cis_connector_system_type() == 'authority') {
+        $section_id = CIS_SECTION_MASTER . '_' . _cis_connector_course_context();
       }
       // set the active session
       $_SESSION['cis_section_context'] = $section_id;
