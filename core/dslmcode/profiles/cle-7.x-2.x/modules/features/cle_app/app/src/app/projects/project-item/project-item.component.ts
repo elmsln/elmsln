@@ -25,6 +25,7 @@ export class ProjectItemComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    (<any>$(this.el.nativeElement.getElementsByClassName('delete-project-form'))).modal();
     (<any>$(this.el.nativeElement.getElementsByClassName('tooltipped'))).tooltip({delay:40});
   }
 
