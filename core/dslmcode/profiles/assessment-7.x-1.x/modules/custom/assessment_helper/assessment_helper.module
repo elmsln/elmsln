@@ -33,16 +33,30 @@ function assessment_helper_permission() {
  */
 function assessment_helper_menu() {
   $items = array();
-  $items['node/%/exportresults'] = array(
+  $items['node/%node/exportresults'] = array(
     'title' => 'Export results',
     'description' => 'Export quiz results',
     'page callback' => '_assessment_helper_make_file',
     'page arguments' => array(1),
-    'access arguments' => array('export quiz results'),
+    'access callback' =>'_assessment_helper_access_callback',
+    'access arguments' => array(1),
     'type' => MENU_LOCAL_TASK,
     'weight' => 10,
   );
   return $items;
+}
+
+/**
+ * Acces callback for node/%node/exportresults
+ * @param  object $node  node object
+ * @return boolean
+ */
+function _assessment_helper_access_callback($node) {
+  // only display for quiz if they have access
+  if (user_access('export quiz results') && $node->type == 'quiz') {
+    return TRUE;
+  }
+  return FALSE;
 }
 
 /**
@@ -57,9 +71,7 @@ function assessment_helper_form_quiz_results_manage_results_form_alter(&$form, &
 /**
  * Get records from the database and generate csv file.
  */
-function _assessment_helper_make_file($nid) {
-  $node = node_load($nid);
-
+function _assessment_helper_make_file($node) {
   module_load_include('inc', 'quiz', 'quiz.admin');
 
   $browser = array(
