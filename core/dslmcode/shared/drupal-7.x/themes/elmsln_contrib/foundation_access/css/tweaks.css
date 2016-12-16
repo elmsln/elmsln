@@ -371,41 +371,33 @@ nav ul.left-nav-section a img {
 }
 /* System badge */
 .elmsln-system-badge {
-  position: absolute;
+  position: fixed;
   z-index: 5;
   -o-transition:.3s;
   -ms-transition:.3s;
   -moz-transition:.3s;
   -webkit-transition:.3s;
   transition:.3s;
-  height: 5.5rem;
-  width: 7.5rem;
+  top: 0;
+  left: 0;
 }
 @media screen and (max-width: 600px) {
   .elmsln-system-badge {
-    top: .5rem;
-    right: 2rem;
     transform:scale(.5,.5);
   }
 }
 @media screen and (min-width: 600px) {
   .elmsln-system-badge {
-    top: .5rem;
-    right: 4rem;
     transform:scale(.75,.75);
   }
 }
 @media screen and (min-width: 992px) {
   .elmsln-system-badge {
-    top: 5.5rem;
-    right: 15rem;
     transform:scale(1,1);
   }
 }
 @media screen and (min-width: 1200px) {
   .elmsln-system-badge {
-    top: 5.5rem;
-    right: 20rem;
     transform:scale(1,1);
   }
 }
@@ -414,15 +406,15 @@ nav ul.left-nav-section a img {
   height: 2rem;
   width: 2rem;
   position: absolute;
-  margin: 1.75rem 1rem;
+  margin: .75rem 1rem;
   z-index: 4;
   font-size: 2.5rem;
   line-height: 2rem;
 }
 .elmsln-system-badge .elmsln-badge-middle-name {
   position: absolute;
-  margin: 1.25rem 0 0 4.25rem;
-  height: 2.75rem;
+  margin: 0 0 0 4.25rem;
+  height: 2.8rem;
   border-top-width: .2rem;
   border-bottom-width: .2rem;
   border-right-width: .2rem;
@@ -442,17 +434,11 @@ nav ul.left-nav-section a img {
   z-index: 3;
   width: 5rem;
   height: 5rem;
-  margin: .25rem .25rem;
+  margin: .2rem;
 }
-.elmsln-system-badge .elmsln-badge-inner .elmsln-badge-top {
-  width: 0;
-  border-bottom-width: 1.2rem;
-  border-bottom-style: solid;
-  border-left: 2rem solid transparent;
-  border-right: 2rem solid transparent;
-}
+
 .elmsln-system-badge .elmsln-badge-inner .elmsln-badge-middle {
-  width: 4rem;
+  width: 4.1rem;
   height: 2.4rem;
   position: relative;
   z-index: 10;
@@ -470,14 +456,7 @@ nav ul.left-nav-section a img {
   position: absolute;
   z-index: 2;
 }
-.elmsln-system-badge .elmsln-badge-outer .elmsln-badge-top {
-  width: 0;
-  border-bottom-width: 1.35rem;
-  border-bottom-style: solid;
-  border-left: 2.25rem solid transparent;
-  border-right: 2.25rem solid transparent;
-  position: relative;
-}
+
 .elmsln-system-badge .elmsln-badge-outer .elmsln-badge-middle {
   width: 4.5rem;
   height: 2.7rem;
