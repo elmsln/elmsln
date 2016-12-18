@@ -12,5 +12,10 @@
         window.location = $('.page-next').attr('href');
       }
     });
+
+    // ensure left highlighted column isn't flowing over the footer height
+    $('.highlighted-block-area').each(function(){
+      $('article.node').css('min-height', $('.highlighted-block-area').outerHeight());
+    });
   });
 })(jQuery);
