@@ -61,7 +61,6 @@ pecl install uploadprogress
 touch /etc/php/7.0/mods-available/uploadprogress.ini
 echo extension=uploadprogress.so > /etc/php/7.0/mods-available/uploadprogress.ini
 
-
 # Sanity Logs
 mkdir /var/log/php-fpm/
 echo slowlog = /var/log/php-fpm/www-slow.log >> /etc/php/7.0/fpm/pool.d/www.conf
@@ -96,6 +95,8 @@ service php7.0-fpm restart
 # kick off hands free deployment
 cd $HOME
 bash /var/www/elmsln/scripts/install/handsfree/handsfree-install.sh 2 $1 $2 $3 $3 $3 data- $4 $5 $5 elmsln $6
+
+
 cd $HOME
 source .bashrc
 end="$(timestamp)"
