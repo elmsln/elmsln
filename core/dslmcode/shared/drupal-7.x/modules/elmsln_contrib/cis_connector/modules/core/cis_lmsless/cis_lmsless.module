@@ -275,30 +275,32 @@ function _cis_lmsless_assemble_network() {
     // @ignore druplart_conditional_assignment
     if (user_access('view lmsless administration links') && is_array($reg)) {
       foreach ($reg as $key => $value) {
-        $addr = explode('.', $value['address']);
-        if ($value['type'] != 'service') {
-          // LRSs are outside network scope and don't have a context
-          // neither does piwik if we see that
-          $tmppath = '/';
-          if (strpos($key, '_') !== 0 && $value['type'] != 'custom' && $value['type'] != 'external') {
-            $tmppath .= $course_context;
-            $url = url(_cis_connector_format_address($reg[$key], $tmppath, 'front'));
+        if (!isset($value['show_in_network']) || (isset($value['show_in_network']) && $value['show_in_network'] == TRUE)) {
+          $addr = explode('.', $value['address']);
+          if ($value['type'] != 'service') {
+            // LRSs are outside network scope and don't have a context
+            // neither does piwik if we see that
+            $tmppath = '/';
+            if (strpos($key, '_') !== 0 && $value['type'] != 'custom' && $value['type'] != 'external') {
+              $tmppath .= $course_context;
+              $url = url(_cis_connector_format_address($reg[$key], $tmppath, 'front'));
+            }
+            else {
+              $url = $reg[$key]['address'];
+            }
+            $distrocolor = $key;
+            if (!isset($vars['lmsless_classes'][$key])) {
+              $distrocolor = '_default_';
+            }
+            $list[$value['group']][$addr[0]] = array(
+              'title' => $reg[$key]['default_title'],
+              'url' => $url,
+              'machine_name' => $addr[0],
+              'distro' => $distrocolor,
+              'weight' => $value['weight'],
+              'icon' => $value['icon'],
+            );
           }
-          else {
-            $url = $reg[$key]['address'];
-          }
-          $distrocolor = $key;
-          if (!isset($vars['lmsless_classes'][$key])) {
-            $distrocolor = '_default_';
-          }
-          $list[$value['group']][$addr[0]] = array(
-            'title' => $reg[$key]['default_title'],
-            'url' => $url,
-            'machine_name' => $addr[0],
-            'distro' => $distrocolor,
-            'weight' => $value['weight'],
-            'icon' => $value['icon'],
-          );
         }
       }
 
