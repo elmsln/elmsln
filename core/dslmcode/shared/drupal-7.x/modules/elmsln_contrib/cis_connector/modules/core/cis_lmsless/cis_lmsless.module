@@ -286,7 +286,7 @@ function _cis_lmsless_assemble_network() {
               $url = url(_cis_connector_format_address($reg[$key], $tmppath, 'front'));
             }
             else {
-              $url = $reg[$key]['address'];
+              $url = $reg[$key]['protocol'] . '://' . $reg[$key]['address'];
             }
             $distrocolor = $key;
             if (!isset($vars['lmsless_classes'][$key])) {
