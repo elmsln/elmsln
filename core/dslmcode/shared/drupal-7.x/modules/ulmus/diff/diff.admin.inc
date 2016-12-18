@@ -20,17 +20,6 @@ function diff_admin_settings($form, $form_state) {
     '#empty_option' => t('- None -'),
     '#description' => t('Alter the CSS used when displaying diff results.'),
   );
-  $form['diff_default_state_node'] = array(
-    '#type' => 'select',
-    '#title' => t('Diff default state'),
-    '#default_value' => variable_get('diff_default_state_node', 'raw'),
-    '#options' => array(
-      'raw' => t('HTML view'),
-      'raw_plain' => t('Plain view'),
-    ),
-    '#empty_option' => t('- None -'),
-    '#description' => t('Default display to show when viewing a diff, html tags in diffed result or as plain text.'),
-  );
   $form['diff_radio_behavior'] = array(
     '#type' => 'select',
     '#title' => t('Diff radio behavior'),
@@ -68,16 +57,49 @@ function diff_admin_settings($form, $form_state) {
 function diff_admin_global_entity_settings($form, $form_state, $entity_type) {
   $entity_info = entity_get_info($entity_type);
   drupal_set_title(t('Diff settings for %entity_label entities', array('%entity_label' => $entity_info['label'])), PASS_THROUGH);
+
+  if ($options = module_invoke_all('entity_diff_options', $entity_type)) {
+    $form['diff_additional_options_' . $entity_type] = array(
+      '#type' => 'checkboxes',
+      '#title' => t('Property options'),
+      '#default_value' => variable_get('diff_additional_options_' . $entity_type, array()),
+      '#options' => $options,
+    );
+  }
+  else {
+    $form['diff_additional_options_' . $entity_type] = array(
+      '#type' => 'value',
+      '#value' => array(),
+    );
+  }
+
   $form['diff_show_header_' . $entity_type] = array(
     '#type' => 'checkbox',
-    '#title' => t('Show entity label header'),
+    '#title' => t('Show entity label row header'),
     '#default_value' => variable_get('diff_show_header_' . $entity_type, 1),
   );
+  if (user_access('administer permissions')) {
+    $admin_link = l(t('View the administration theme'), 'admin/people/permissions', array('fragment' => 'edit-view-the-administration-theme'));
+  }
+  else {
+    $admin_link = t('View the administration theme');
+  }
   $form['diff_admin_path_' . $entity_type] = array(
     '#type' => 'checkbox',
-    '#title' => t('Treat diff pages as administrative'),
-    '#description' => t('Diff pages are treated as administrative pages by default, although it is up to each module to enforce this and to implement this optional setting.'),
+    '#title' => t('Use administration theme'),
+    '#description' => t('This option will enable users with the <em>!link</em> permission to use the admin theme when doing comparisons.', array('!link' => $admin_link)),
     '#default_value' => variable_get('diff_admin_path_' . $entity_type, 1),
+  );
+  $form['diff_default_state_' . $entity_type] = array(
+    '#type' => 'select',
+    '#title' => t('Diff default state'),
+    '#default_value' => variable_get('diff_default_state_' . $entity_type, 'raw'),
+    '#options' => array(
+      'raw' => t('HTML view'),
+      'raw_plain' => t('Plain view'),
+    ),
+    '#empty_option' => t('- None -'),
+    '#description' => t('Default display to show when viewing a diff, html tags in diffed result or as plain text.'),
   );
   return system_settings_form($form);
 }

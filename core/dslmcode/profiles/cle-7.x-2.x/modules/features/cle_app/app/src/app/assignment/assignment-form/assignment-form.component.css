@@ -3,6 +3,25 @@
   margin: auto;
 }
 
+.assignment-form > * {
+  margin-top: 2em;
+}
+
+.due-date .display {
+  font-size: 1.2em;
+  text-align: center;
+  margin: 1em;
+  color: gray;
+}
+
+.due-date .separator {
+  margin: 0 .5em;
+}
+
 :host >>> .wysiwyg-editor {
   min-height: 10em;
+}
+
+select {
+  display: block;
 }

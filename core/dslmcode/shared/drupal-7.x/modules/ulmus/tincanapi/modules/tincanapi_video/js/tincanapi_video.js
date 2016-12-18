@@ -213,16 +213,28 @@
       // mediavideo specific src
       if ($(iframe.context).attr('data-mediavideo-src')) {
         var tmp = $(iframe.context).attr('data-mediavideo-src');
+        if (tmp.indexOf('?') == -1) {
+          var append = '?enablejsapi=1';
+        }
+        else {
+          var append = '&enablejsapi=1';
+        }
         $(iframe.context).attr('data-mediavideo-src', '');
-        $(iframe.context).attr('data-mediavideo-src', tmp + '?enablejsapi=1');
+        $(iframe.context).attr('data-mediavideo-src', tmp + append);
         new YoutubeTracker(id);
         video.addClass('tincan-processed');
       }
       // add in youtubetracker stuff if we have an src on the iframe
       else if ($(iframe.context).attr('src')) {
         var tmp = $(iframe.context).attr('src');
+        if (tmp.indexOf('?') == -1) {
+          var append = '?enablejsapi=1';
+        }
+        else {
+          var append = '&enablejsapi=1';
+        }
         $(iframe.context).attr('src', '');
-        $(iframe.context).attr('src', tmp + '?enablejsapi=1');
+        $(iframe.context).attr('src', tmp + append);
         new YoutubeTracker(id);
         video.addClass('tincan-processed');
       }

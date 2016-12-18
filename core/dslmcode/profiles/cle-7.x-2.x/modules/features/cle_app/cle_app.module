@@ -24,7 +24,6 @@ function cle_app_page_build(&$page) {
 function cle_app_preprocess_html(&$vars) {
   global $base_url;
   $current_path = current_path();
-
   // if we are on the cle critique app route then we need to add a base tag to
   // ensure that angular works properly.
   if (preg_match('/^cle\/app/', $current_path)) {

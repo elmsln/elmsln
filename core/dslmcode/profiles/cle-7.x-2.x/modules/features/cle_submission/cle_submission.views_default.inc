@@ -510,10 +510,39 @@ function cle_submission_views_default_views() {
   /* Display: Master */
   $handler = $view->new_display('default', 'Master', 'default');
   $handler->display->display_options['title'] = 'Open Studio';
+  $handler->display->display_options['css_class'] = 'row';
   $handler->display->display_options['use_ajax'] = TRUE;
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['access']['type'] = 'perm';
-  $handler->display->display_options['cache']['type'] = 'none';
+  $handler->display->display_options['cache']['type'] = 'views_content_cache';
+  $handler->display->display_options['cache']['results_min_lifespan'] = '-1';
+  $handler->display->display_options['cache']['results_max_lifespan'] = '21600';
+  $handler->display->display_options['cache']['output_min_lifespan'] = '-1';
+  $handler->display->display_options['cache']['output_max_lifespan'] = '21600';
+  $handler->display->display_options['cache']['keys'] = array(
+    'comment' => array(
+      'changed' => 0,
+    ),
+    'node' => array(
+      'cle_submission' => 'cle_submission',
+      'cle_assignment' => 0,
+      'section' => 0,
+      'cle_project' => 0,
+    ),
+    'node_only' => array(
+      'node_changed' => 0,
+    ),
+    'og' => array(
+      'current' => 0,
+      'user' => 0,
+    ),
+    'votingapi' => array(
+      'tag:vote' => 0,
+      'function:count' => 0,
+      'function:average' => 0,
+      'function:sum' => 0,
+    ),
+  );
   $handler->display->display_options['query']['type'] = 'views_query';
   $handler->display->display_options['exposed_form']['type'] = 'better_exposed_filters';
   $handler->display->display_options['exposed_form']['options']['reset_button'] = TRUE;
@@ -822,11 +851,35 @@ function cle_submission_views_default_views() {
     67296478 => 67296478,
     30037204 => 30037204,
   );
-  $handler->display->display_options['cache']['type'] = 'time';
-  $handler->display->display_options['cache']['results_lifespan'] = '300';
-  $handler->display->display_options['cache']['results_lifespan_custom'] = '0';
-  $handler->display->display_options['cache']['output_lifespan'] = '300';
-  $handler->display->display_options['cache']['output_lifespan_custom'] = '0';
+  $handler->display->display_options['cache']['type'] = 'views_content_cache';
+  $handler->display->display_options['cache']['results_min_lifespan'] = '-1';
+  $handler->display->display_options['cache']['results_max_lifespan'] = '21600';
+  $handler->display->display_options['cache']['output_min_lifespan'] = '-1';
+  $handler->display->display_options['cache']['output_max_lifespan'] = '21600';
+  $handler->display->display_options['cache']['keys'] = array(
+    'comment' => array(
+      'changed' => 0,
+    ),
+    'node' => array(
+      'cle_submission' => 'cle_submission',
+      'cle_assignment' => 0,
+      'section' => 0,
+      'cle_project' => 0,
+    ),
+    'node_only' => array(
+      'node_changed' => 0,
+    ),
+    'og' => array(
+      'current' => 0,
+      'user' => 0,
+    ),
+    'votingapi' => array(
+      'tag:vote' => 0,
+      'function:count' => 0,
+      'function:average' => 0,
+      'function:sum' => 0,
+    ),
+  );
   $handler->display->display_options['query']['type'] = 'views_query';
   $handler->display->display_options['exposed_form']['type'] = 'basic';
   $handler->display->display_options['pager']['type'] = 'lite';
@@ -1192,22 +1245,6 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['fields']['delta_3']['field'] = 'delta';
   $handler->display->display_options['fields']['delta_3']['group_type'] = 'count_distinct';
   $handler->display->display_options['fields']['delta_3']['label'] = 'Videos';
-  /* Field: Broken/missing handler */
-  $handler->display->display_options['fields']['field_due_date']['id'] = 'field_due_date';
-  $handler->display->display_options['fields']['field_due_date']['table'] = 'field_data_field_due_date';
-  $handler->display->display_options['fields']['field_due_date']['field'] = 'field_due_date';
-  $handler->display->display_options['fields']['field_due_date']['relationship'] = 'field_assignment_target_id';
-  $handler->display->display_options['fields']['field_due_date']['label'] = '';
-  $handler->display->display_options['fields']['field_due_date']['exclude'] = TRUE;
-  $handler->display->display_options['fields']['field_due_date']['element_label_colon'] = FALSE;
-  /* Field: Broken/missing handler */
-  $handler->display->display_options['fields']['field_media_requirements']['id'] = 'field_media_requirements';
-  $handler->display->display_options['fields']['field_media_requirements']['table'] = 'field_data_field_media_requirements';
-  $handler->display->display_options['fields']['field_media_requirements']['field'] = 'field_media_requirements';
-  $handler->display->display_options['fields']['field_media_requirements']['relationship'] = 'field_assignment_target_id';
-  $handler->display->display_options['fields']['field_media_requirements']['label'] = '';
-  $handler->display->display_options['fields']['field_media_requirements']['exclude'] = TRUE;
-  $handler->display->display_options['fields']['field_media_requirements']['element_label_colon'] = FALSE;
   $handler->display->display_options['defaults']['sorts'] = FALSE;
   /* Sort criterion: Content: Post date */
   $handler->display->display_options['sorts']['created']['id'] = 'created';
@@ -1646,11 +1683,35 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['title'] = 'My Studio';
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['access']['type'] = 'perm';
-  $handler->display->display_options['cache']['type'] = 'time';
-  $handler->display->display_options['cache']['results_lifespan'] = '1800';
-  $handler->display->display_options['cache']['results_lifespan_custom'] = '0';
-  $handler->display->display_options['cache']['output_lifespan'] = '1800';
-  $handler->display->display_options['cache']['output_lifespan_custom'] = '0';
+  $handler->display->display_options['cache']['type'] = 'views_content_cache';
+  $handler->display->display_options['cache']['results_min_lifespan'] = '-1';
+  $handler->display->display_options['cache']['results_max_lifespan'] = '21600';
+  $handler->display->display_options['cache']['output_min_lifespan'] = '-1';
+  $handler->display->display_options['cache']['output_max_lifespan'] = '21600';
+  $handler->display->display_options['cache']['keys'] = array(
+    'comment' => array(
+      'changed' => 0,
+    ),
+    'node' => array(
+      'cle_submission' => 'cle_submission',
+      'cle_assignment' => 0,
+      'section' => 0,
+      'cle_project' => 0,
+    ),
+    'node_only' => array(
+      'node_changed' => 0,
+    ),
+    'og' => array(
+      'current' => 0,
+      'user' => 0,
+    ),
+    'votingapi' => array(
+      'tag:vote' => 0,
+      'function:count' => 0,
+      'function:average' => 0,
+      'function:sum' => 0,
+    ),
+  );
   $handler->display->display_options['query']['type'] = 'views_query';
   $handler->display->display_options['exposed_form']['type'] = 'basic';
   $handler->display->display_options['exposed_form']['options']['reset_button'] = TRUE;

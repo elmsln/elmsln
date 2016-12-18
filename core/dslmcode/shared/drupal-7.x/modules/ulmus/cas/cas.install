@@ -1,0 +1,383 @@
+<?php
+
+/**
+ * @file
+ * Installation hooks for the CAS module.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function cas_schema() {
+  $schema = array();
+
+  $schema['cas_login_data'] = array(
+    'description' => 'Stores CAS session information.',
+    'fields' => array(
+      'cas_session_id' => array(
+        'description' => 'CAS session ID',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'uid' => array(
+        'description' => 'The {users}.uid associated with the CAS session.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+    ),
+    'primary key' => array('cas_session_id'),
+  );
+
+  $schema['cas_user'] = array(
+    'description' => 'Stores CAS authentication mapping.',
+    'fields' => array(
+      'aid' => array(
+        'description' => 'Primary Key: Unique authmap ID.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'uid' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => "User's {users}.uid.",
+      ),
+      'cas_name' => array(
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => 'Unique authentication name.',
+      ),
+    ),
+    'unique keys' => array(
+      'cas_name' => array('cas_name'),
+    ),
+
+    'indexes' => array('cas_user' => array('uid')),
+    'primary key' => array('aid'),
+    'foreign keys' => array(
+      'user' => array(
+        'table' => 'users',
+        'columns' => array('uid' => 'uid'),
+      ),
+    ),
+  );
+
+  return $schema;
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function cas_uninstall() {
+  // Delete variables.
+  variable_del('cas_access');
+  variable_del('cas_allow_rememberme');
+  variable_del('cas_authmap');
+  variable_del('cas_auto_assigned_role');
+  variable_del('cas_cert');
+  variable_del('cas_changePasswordURL');
+  variable_del('cas_check_frequency');
+  variable_del('cas_debugfile');
+  variable_del('cas_domain');
+  variable_del('cas_exclude');
+  variable_del('cas_first_login_destination');
+  variable_del('cas_hide_email');
+  variable_del('cas_hide_password');
+  variable_del('cas_library_dir');
+  variable_del('cas_login_drupal_invite');
+  variable_del('cas_login_form');
+  variable_del('cas_login_invite');
+  variable_del('cas_login_message');
+  variable_del('cas_login_redir_message');
+  variable_del('cas_logout_destination');
+  variable_del('cas_pages');
+  variable_del('cas_pgtformat');
+  variable_del('cas_pgtpath');
+  variable_del('cas_port');
+  variable_del('cas_proxy');
+  variable_del('cas_proxy_list');
+  variable_del('cas_registerURL');
+  variable_del('cas_server');
+  variable_del('cas_uri');
+  variable_del('cas_user_register');
+  variable_del('cas_version');
+
+  // And old (un-used) variables.
+  variable_del('cas_cert_verify');
+  variable_del('cas_check_first');
+  variable_del('cas_first_login');
+  variable_del('cas_hijack_user');
+  variable_del('cas_ldap_email_attribute');
+  variable_del('cas_logout_redirect');
+  variable_del('cas_signout');
+  variable_del('cas_useldap');
+  variable_del('cas_useldap_groups');
+  variable_del('cas_verify');
+}
+
+/**
+ * Implements hook_requirements().
+ */
+function cas_requirements($phase) {
+  $requirements = array();
+  $t = get_t();
+
+  if ($phase == 'runtime') {
+    $phpcas_url = 'https://wiki.jasig.org/display/CASC/phpCAS';
+
+    $requirements['phpcas']['title'] = $t('phpCAS');
+    // Okay to call functions from cas.module since we are in the runtime
+    // phase. We hide errors here in case phpcas could not be loaded.
+    if ($version = @cas_phpcas_load()) {
+      $requirements['phpcas']['value'] = $version;
+      $requirements['phpcas']['severity'] = REQUIREMENT_INFO;
+      $requirements['phpcas']['description'] = $t('Please check periodically for <a href="@phpcas_url">security updates</a> to phpCAS.', array('@phpcas_url' => $phpcas_url));
+    }
+    else {
+      $requirements['phpcas']['value'] = $t('Not found');
+      $requirements['phpcas']['severity'] = REQUIREMENT_ERROR;
+      $requirements['phpcas']['description'] = $t('phpCAS could not be loaded. Please <a href="@phpcas_url">download phpCAS</a> and <a href="@cas_url">configure its location</a>.', array('@phpcas_url' => $phpcas_url, '@cas_url' => url('admin/config/people/cas')));
+    }
+  }
+  return $requirements;
+}
+
+/**
+ * Creates CAS login data table for Single-Sign-Out.
+ */
+function cas_update_1() {
+  $schema = array();
+
+  $schema['cas_login_data'] = array(
+    'description' => 'Stores CAS session information.',
+    'fields' => array(
+      'cas_session_id' => array(
+        'description' => 'CAS session ID',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'uid' => array(
+        'description' => 'The {users}.uid associated with the CAS session.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+    ),
+    'primary key' => array('cas_session_id'),
+  );
+
+  db_create_table('cas_login_data', $schema['cas_login_data']);
+}
+
+/**
+ * Depreciate "Verify the server using PEM cerificate" option.
+ */
+function cas_update_6300() {
+  if (variable_get('cas_cert_verify', 'none') == 'verify') {
+    variable_set('cas_cert_verify', 'none');
+  }
+}
+
+/**
+ * Migrate authmap entries to new {cas_user} table.
+ */
+function cas_update_6301() {
+  $schema = array();
+
+  $schema['cas_user'] = array(
+    'description' => 'Stores CAS authentication mapping.',
+    'fields' => array(
+      'aid' => array(
+        'description' => 'Primary Key: Unique CAS authentication mapping ID.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'uid' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => "User's {users}.uid.",
+      ),
+      'cas_name' => array(
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => 'Unique CAS username.',
+      ),
+    ),
+    'unique keys' => array(
+      'cas_name' => array('cas_name'),
+    ),
+    'primary key' => array('aid'),
+    'foreign keys' => array(
+      'user' => array(
+        'table' => 'users',
+        'columns' => array('uid' => 'uid'),
+      ),
+    ),
+  );
+
+  // Create {cas_user} table.
+  db_create_table('cas_user', $schema['cas_user']);
+
+  // Migrate entries from {authmap} to {cas_user}.
+  $query = db_select('authmap', 'a')
+    ->condition('module', 'cas')
+    ->condition('uid', 0, '<>');
+  $query->addField('a', 'uid');
+  $query->addField('a', 'authname', 'cas_name');
+  db_insert('cas_user')
+    ->from($query)
+    ->execute();
+
+  // Remove old entries in {authmap}.
+  db_delete('authmap')
+    ->condition('module', 'cas')
+    ->execute();
+}
+
+/**
+ * Remove 'hijack user' and 'Drupal is CAS user repository' options.
+ */
+function cas_update_6302() {
+  $message = NULL;
+  $t = get_t();
+
+  if (variable_get('cas_authmap', 0) || variable_get('cas_hijack_user', 0)) {
+    // Create a mapping in {cas_user} for each current Drupal user.
+    // The code below generates SQL equivalent to:
+    //   INSERT INTO cas_user (uid, cas_name)
+    //   SELECT u.uid AS uid, u.name as cas_name
+    //   FROM users u
+    //   WHERE uid <> 0 AND NOT EXISTS (SELECT cas_name FROM cas_user c WHERE c.cas_name = u.name);
+
+    $query = db_select('users', 'u');
+    $query->addField('u', 'uid', 'uid');
+    $query->addField('u', 'name', 'cas_name');
+    $query->condition('uid', 0, '<>');
+    $query->notExists(
+      db_select('cas_user', 'c')
+      ->fields('c', array('cas_name'))
+      ->where('c.cas_name = u.name')
+    );
+    db_insert('cas_user')
+      ->from($query)
+      ->execute();
+
+    $message = $t('Users have been automatically assigned their CAS username. For more information, see "Associating CAS usernames with Drupal users" in the CAS module README.txt.');
+  }
+
+  variable_del('cas_authmap');
+  variable_del('cas_hijack_user');
+  return $message;
+}
+
+/**
+ * Remove unnecessary CAS settings.
+ */
+function cas_update_6303() {
+  // We have removed the cas_first_login option, and instead verify that
+  // cas_first_login_destination is non-empty. To preserve functionality,
+  // we need to update the destination to '<front>' if previously the option
+  // was selected but the destination was empty.
+  if (variable_get('cas_first_login', FALSE)) {
+    if (variable_get('cas_first_login_destination', '') == '') {
+      variable_set('cas_first_login_destination', '<front>');
+    }
+  }
+  else {
+    variable_set('cas_first_login_destination', '');
+  }
+  variable_del('cas_first_login');
+
+  // Similarly for the cas_logout_redirect and cas_logout_destination
+  // variables.
+  if (variable_get('cas_logout_redirect', FALSE)) {
+    if (variable_get('cas_logout_destination', '') == '') {
+      variable_set('cas_logout_destination', '<front>');
+    }
+  }
+  else {
+    variable_set('cas_logout_destination', '');
+  }
+  variable_del('cas_logout_redirect');
+
+  // If the Certicate Authority is not being verified, ensure that the
+  // certificate field is empty.
+  if (variable_get('cas_cert_verify', 'none') == 'none') {
+    variable_set('cas_cert', '');
+  }
+  variable_del('cas_cert_verify');
+
+  // Also remove the variable controlling CAS Single Sign-Out which is now
+  // always enabled.
+  variable_del('cas_signout');
+
+  return array();
+}
+
+/**
+ * Add destination parameter to CAS Login / CAS Logout menu links.
+ */
+function cas_update_6304() {
+  // Load and save each link to 'cas' or 'caslogout' so that the 'alter' option
+  // is enabled. This allows us to append the destination parameter to the
+  // links at runtime. Since the menu items 'cas' and 'caslogout' are not
+  // functional without the destination parameter, we do this for all menu
+  // links, even custom defined ones (i.e., those with module = 'menu').
+  $result = db_query("SELECT mlid FROM {menu_links} WHERE link_path IN (:link_path)", array(':link_path' => array('cas', 'caslogout')));
+  foreach ($result as $record) {
+    $link = menu_link_load($record->mlid);
+    menu_link_save($link);
+  }
+}
+
+/**
+ * Transform numeric block deltas to string block deltas.
+ */
+function cas_update_7000(&$sandbox) {
+  $renamed_deltas = array(
+    'cas' => array('0' => 'login'),
+  );
+  $moved_deltas = array();
+  update_fix_d7_block_deltas($sandbox, $renamed_deltas, $moved_deltas);
+}
+
+/**
+ * Use variable 'cas_check_frequency' instead of 'cas_gateway'.
+ */
+function cas_update_7101() {
+  if (variable_get('cas_check_first', NULL) === NULL) {
+    // The old variable was not set, nothing to do.
+    return;
+  }
+
+  if (variable_get('cas_check_first', FALSE)) {
+    // Check once, but not again until login.
+    variable_set('cas_check_frequency', -1);
+  }
+  else {
+    // Check never.
+    variable_set('cas_check_frequency', -2);
+  }
+  variable_del('cas_check_first');
+}
+
+/**
+ * Add index on cas_user.uid
+ */
+function cas_update_7102() {
+  if (!db_index_exists('cas_user', 'cas_user')) {
+    db_add_index('cas_user', 'cas_user', array('uid'));
+  }
+}

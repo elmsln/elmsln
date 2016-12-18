@@ -1,5 +1,33 @@
+diff --git a/authorize.php b/authorize.php
+index 3ea2b20..9596f28 100644
+--- a/authorize.php
++++ b/authorize.php
+@@ -24,7 +24,8 @@
+  * Defines the root directory of the Drupal installation.
+  */
+ define('DRUPAL_ROOT', getcwd());
+-
++// support ELMSLN config loading globally
++include_once DRUPAL_ROOT . '/../../elmsln_environment/elmsln_environment.php';
+ /**
+  * Global flag to identify update.php and authorize.php runs.
+  *
+diff --git a/cron.php b/cron.php
+index c6ce531..43b5192 100644
+--- a/cron.php
++++ b/cron.php
+@@ -9,7 +9,8 @@
+  * Root directory of Drupal installation.
+  */
+ define('DRUPAL_ROOT', getcwd());
+-
++// support ELMSLN config loading globally
++include_once DRUPAL_ROOT . '/../../elmsln_environment/elmsln_environment.php';
+ include_once DRUPAL_ROOT . '/includes/bootstrap.inc';
+ drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);
+ 
 diff --git a/index.php b/index.php
-index 8b83199..974fc0f 100644
+index 8b83199..dd1ea08 100644
 --- a/index.php
 +++ b/index.php
 @@ -15,7 +15,8 @@
@@ -8,7 +36,48 @@ index 8b83199..974fc0f 100644
  define('DRUPAL_ROOT', getcwd());
 -
 +// support ELMSLN config loading globally
-+require_once DRUPAL_ROOT . '/../../elmsln_environment/elmsln_environment.php';
++include_once DRUPAL_ROOT . '/../../elmsln_environment/elmsln_environment.php';
  require_once DRUPAL_ROOT . '/includes/bootstrap.inc';
  drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);
  menu_execute_active_handler();
+diff --git a/install.php b/install.php
+index 685d3b4..ad23542 100644
+--- a/install.php
++++ b/install.php
+@@ -9,7 +9,8 @@
+  * Defines the root directory of the Drupal installation.
+  */
+ define('DRUPAL_ROOT', getcwd());
+-
++// support ELMSLN config loading globally
++include_once DRUPAL_ROOT . '/../../elmsln_environment/elmsln_environment.php';
+ /**
+  * Global flag to indicate the site is in installation mode.
+  */
+diff --git a/update.php b/update.php
+index d792703..e01bb40 100644
+--- a/update.php
++++ b/update.php
+@@ -4,7 +4,8 @@
+  * Defines the root directory of the Drupal installation.
+  */
+ define('DRUPAL_ROOT', getcwd());
+-
++// support ELMSLN config loading globally
++include_once DRUPAL_ROOT . '/../../elmsln_environment/elmsln_environment.php';
+ /**
+  * @file
+  * Administrative page for handling updates from one Drupal version to another.
+diff --git a/xmlrpc.php b/xmlrpc.php
+index b202dc2..ac7b179 100644
+--- a/xmlrpc.php
++++ b/xmlrpc.php
+@@ -9,6 +9,8 @@
+  * Root directory of Drupal installation.
+  */
+ define('DRUPAL_ROOT', getcwd());
++// support ELMSLN config loading globally
++include_once DRUPAL_ROOT . '/../../elmsln_environment/elmsln_environment.php';
+ 
+ include_once DRUPAL_ROOT . '/includes/bootstrap.inc';
+ drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);

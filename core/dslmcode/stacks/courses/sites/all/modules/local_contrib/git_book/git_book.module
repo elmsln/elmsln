@@ -232,7 +232,14 @@ function _git_book_make_node($title, $content, $parent, $weight, $path = '') {
   $node->status = 1;
   $node->promote = 0;
   $node->revision = 1;
-  $node->uid = $GLOBALS['user']->uid;
+  // account for drush executing this and ensure it's owned by admin
+  // as drush operates as anon account in uid checks
+  if (drupal_is_cli()) {
+    $node->uid = 1;
+  }
+  else {
+    $node->uid = $GLOBALS['user']->uid;
+  }
   // set values we pull in for the outline
   $node->title = $title;
   $node->log = t(GIT_BOOK_STANDARD_LOG);
@@ -250,6 +257,8 @@ function _git_book_make_node($title, $content, $parent, $weight, $path = '') {
   }
   return $node;
 }
+
+
 
 /**
  * Build the book outline as a nested array

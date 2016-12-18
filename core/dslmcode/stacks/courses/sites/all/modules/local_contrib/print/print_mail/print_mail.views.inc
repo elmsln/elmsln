@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Send by email Views integration
+ * Send by email Views integration.
  *
  * @ingroup print
  */
@@ -25,18 +25,16 @@ function print_mail_views_data() {
     // 'field' is the foreign key in this table.
     'left_field' => 'nid',
     'field' => 'nid',
-//    'type' => 'INNER',
   );
   $data['print_mail_page_counter']['table']['join']['node'] = array(
     // 'left_field' is the primary key in the referenced table.
     // 'field' is the foreign key in this table.
     'left_field' => 'nid',
     'field' => 'path',
-//    'type' => 'INNER',
     'handler' => 'print_join_page_counter',
   );
 
-  // print_mail_node_conf fields
+  // print_mail_node_conf fields.
   $data['print_mail_node_conf']['link'] = array(
     'title' => t('Email: Show link'),
     'help' => t('Whether to show the send by email link.'),
@@ -86,8 +84,7 @@ function print_mail_views_data() {
     ),
   );
 
-
-  // print_mail_page_counter fields
+  // print_mail_page_counter fields.
   $data['print_mail_page_counter']['totalcount'] = array(
     'title' => t('Email: Number of page accesses'),
     'help' => t('Counter of accesses to the send by email form for this node.'),

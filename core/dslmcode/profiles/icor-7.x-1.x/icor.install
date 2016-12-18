@@ -90,3 +90,12 @@ function icor_update_7006(&$sandbox) {
   features_revert_module('views_timelinejs_extras');
   features_revert_module('views_timelinejs_feature');
 }
+
+/**
+ * Layout of items exported.
+ */
+function icor_update_7007(&$sandbox) {
+  features_revert_module('icor_ux');
+  features_revert_module('icor_interactive_player');
+}
+

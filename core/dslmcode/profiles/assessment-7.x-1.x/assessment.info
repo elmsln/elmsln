@@ -152,7 +152,6 @@ dependencies[] = truefalse
 
 ; Tin Can Goodness
 dependencies[] = tincanapi
-dependencies[] = tincanapi_quiz
 ; Assessment Core
 dependencies[] = assessment_item
 dependencies[] = assessment_assignment

@@ -11,9 +11,7 @@
  * Implements hook_enable().
  */
 function print_mail_enable() {
-  $t = get_t();
-
-  // Module weight
+  // Module weight.
   db_update('system')
     ->fields(array(
       'weight' => 1,
@@ -25,6 +23,31 @@ function print_mail_enable() {
   if (module_exists('mailsystem')) {
     mailsystem_set(array('print_mail' => 'DefaultMailSystem'));
   }
+}
+
+/**
+ * Implements hook_requirements().
+ */
+function print_mail_requirements($phase) {
+  $requirements = array();
+  $t = get_t();
+  switch ($phase) {
+    // At runtime, make sure that a PDF generation tool is selected.
+    case 'runtime':
+      if (module_exists('mailsystem')) {
+        $mail_system = mailsystem_get();
+        if (($mail_system['default-system'] != 'DefaultMailSystem') && (!isset($mail_system['print_mail']) || ($mail_system['print_mail'] != 'DefaultMailSystem'))) {
+          $requirements['print_mail_mailsystem'] = array(
+            'title' => $t('Printer, email and PDF versions - Send by email'),
+            'value' => $t('Incompatible Mail System setting detected'),
+            'description' => $t('The send by email module requires the use of the DefaultMailSystem, please configure it in the !url.', array('!url' => l($t('Mail System Settings page'), 'admin/config/system/mailsystem'))),
+            'severity' => REQUIREMENT_WARNING,
+          );
+        }
+      }
+  }
+
+  return $requirements;
 }
 
 /**
@@ -154,7 +177,7 @@ function print_mail_schema() {
 }
 
 /**
- * Remove hardcoded numeric deltas from all blocks
+ * Remove hardcoded numeric deltas from all blocks.
  */
 function print_mail_update_7000(&$sandbox) {
   $renamed_deltas = array(
@@ -167,7 +190,7 @@ function print_mail_update_7000(&$sandbox) {
 }
 
 /**
- * Disable MimeMailSystem for now
+ * Disable MimeMailSystem for now.
  */
 function print_mail_update_7100(&$sandbox) {
   if (module_exists('mailsystem')) {
@@ -176,7 +199,7 @@ function print_mail_update_7100(&$sandbox) {
 }
 
 /**
- * Update permissions to new spellings
+ * Update permissions to new spellings.
  */
 function print_mail_update_7101(&$sandbox) {
   db_update('role_permission')
@@ -190,7 +213,7 @@ function print_mail_update_7101(&$sandbox) {
 }
 
 /**
- * Delete old variables
+ * Delete old variables.
  */
 function print_mail_update_7200(&$sandbox) {
   variable_del('print_mail_settings');
@@ -206,7 +229,7 @@ function print_mail_update_7200(&$sandbox) {
 }
 
 /**
- * Enable block and help area links
+ * Enable block and help area links.
  */
 function print_mail_update_7202(&$sandbox) {
   $link_pos = variable_get('print_mail_link_pos', drupal_json_decode('{ "link": "link", "block": "block", "help": "help" }'));
@@ -216,11 +239,16 @@ function print_mail_update_7202(&$sandbox) {
 }
 
 /**
- * Increase size of the path field in the print_mail_page_counter table
+ * Increase size of the path field in the print_mail_page_counter table.
  */
 function print_mail_update_7203(&$sandbox) {
   db_drop_primary_key('print_mail_page_counter');
   db_change_field('print_mail_page_counter', 'path', 'path',
-    array('type' => 'varchar', 'length' => 255, 'not null' => TRUE, 'description' => 'Page path'),
+    array(
+      'type' => 'varchar',
+      'length' => 255,
+      'not null' => TRUE,
+      'description' => 'Page path',
+    ),
     array('primary key' => array('path')));
 }

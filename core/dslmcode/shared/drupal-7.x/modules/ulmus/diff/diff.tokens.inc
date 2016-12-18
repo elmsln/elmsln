@@ -38,13 +38,13 @@ function diff_tokens($type, $tokens, array $data = array(), array $options = arr
         // Basic diff standard comparison information.
         case 'diff':
         case 'diff-markdown':
-          $revisons = node_revision_list($node);
-          if (count($revisons) == 1) {
+          $revisions = node_revision_list($node);
+          if (count($revisions) == 1) {
             $replacements[$original] = t('(No previous revision available.)');
           }
           else {
             module_load_include('inc', 'diff', 'diff.pages');
-            $old_vid = _diff_get_previous_vid($revisons, $node->vid);
+            $old_vid = _diff_get_previous_vid($revisions, $node->vid);
             $state = $name == 'diff' ? 'raw' : 'raw_plain';
             $build = diff_diffs_show($node, $old_vid, $node->vid, $state);
             unset($build['diff_table']['#rows']['states']);
@@ -52,7 +52,10 @@ function diff_tokens($type, $tokens, array $data = array(), array $options = arr
             unset($build['diff_preview']);
 
             $output = drupal_render_children($build);
-            $replacements[$original] = $sanitize ? check_plain($output) : $output;
+            if ($sanitize) {
+              $output = filter_xss($output, array('a', 'em', 'strong', 'cite', 'blockquote', 'code', 'ul', 'ol', 'li', 'dl', 'dt', 'dd', 'table', 'tr', 'th', 'td'));
+            }
+            $replacements[$original] = $output;
           }
           break;
 

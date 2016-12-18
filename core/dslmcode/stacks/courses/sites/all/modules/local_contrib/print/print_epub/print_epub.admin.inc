@@ -23,7 +23,7 @@ function print_epub_settings() {
     $link = print_epub_print_link();
 
     $current_epub_tool = variable_get('print_epub_epub_tool', PRINT_EPUB_EPUB_TOOL_DEFAULT);
-    $epub_tool_default =  array_key_exists($current_epub_tool, $epub_tools) ? $current_epub_tool : PRINT_EPUB_EPUB_TOOL_DEFAULT;
+    $epub_tool_default = array_key_exists($current_epub_tool, $epub_tools) ? $current_epub_tool : PRINT_EPUB_EPUB_TOOL_DEFAULT;
 
     $form['settings'] = array(
       '#type' => 'fieldset',

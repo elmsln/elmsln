@@ -258,7 +258,7 @@ function _cis_lmsless_assemble_network() {
         // ensure we don't get two of these to display
         $list[$reg[$service['field_distribution']]['group']][$service['field_machine_name']] = array(
           'title' => $service['title'],
-          'url' => url($service['field_location']['url'] . '/' . $course_context),
+          'url' => url(_cis_connector_format_address($reg[$service['field_distribution']], '/' . $course_context, 'front')),
           'machine_name' => $service['field_machine_name'],
           'distro' => $service['field_distribution'],
           'weight' => $reg[$service['field_distribution']]['weight'],
@@ -309,6 +309,42 @@ function _cis_lmsless_assemble_network() {
       }
     }
     if (!empty($list)) {
+      // consistent ordering of the network flyout based on certain items we always want at the top and bottom
+      uksort($list, function($a, $b) {
+        switch ($a) {
+          case 'Network':
+            return -1;
+          break;
+          case 'Media':
+            if ($b != 'Network') {
+              return 1;
+            }
+            return -1;
+          break;
+          default:
+            if (in_array($b, array('Network', 'Media'))) {
+              return 1;
+            }
+            elseif (in_array($b, array('Administrative', 'Experimental'))) {
+              return -1;
+            }
+            else {
+              return strcmp($a, $b);
+            }
+          break;
+          case 'Administrative':
+            if ($b == 'Experimental') {
+              return -1;
+            }
+            else {
+              return 1;
+            }
+          break;
+          case 'Experimental':
+            return 1;
+          break;
+        }
+      });
       // sort by title so that network icons are in alphabetical order
       foreach ($list as &$order) {
         usort($order, function($a, $b) {

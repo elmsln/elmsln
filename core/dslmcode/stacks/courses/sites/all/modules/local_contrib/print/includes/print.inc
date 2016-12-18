@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Common functions used by several of the print modules
+ * Common functions used by several of the print modules.
  *
  * @ingroup print
  */
@@ -29,18 +29,18 @@ function _print_scan_libs($lib, $mask) {
 }
 
 /**
- * Callback function for the preg_replace_callback replacing spaces with %20
+ * Callback function for the preg_replace_callback replacing spaces with %20.
  *
  * Replace spaces in URLs with %20
  *
  * @param array $matches
- *   array with the matched tag patterns, usually <a...>+text+</a>
+ *   Array with the matched tag patterns, usually <a...>+text+</a>.
  *
  * @return string
  *   tag with re-written URL
  */
 function _print_replace_spaces($matches) {
-  // first, split the html into the different tag attributes
+  // Split the html into the different tag attributes.
   $pattern = '!\s*(\w+\s*=\s*"(?:\\\"|[^"])*")\s*|\s*(\w+\s*=\s*\'(?:\\\\\'|[^\'])*\')\s*|\s*(\w+\s*=\s*\w+)\s*|\s+!';
   $attribs = preg_split($pattern, $matches[1], -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
   foreach ($attribs as $key => $value) {
@@ -48,8 +48,8 @@ function _print_replace_spaces($matches) {
   }
 
   $size = count($attribs);
-  for ($i=1; $i < $size; $i++) {
-    // If the attribute is href or src, we may need to rewrite the URL in the value
+  for ($i = 1; $i < $size; $i++) {
+    // If the attribute is href or src, we need to rewrite the URL in the value.
     if (preg_match('!^(?:href|src)\s*?=(.*)!i', $attribs[$i], $urls) > 0) {
       $url = trim($urls[1], " \t\n\r\0\x0B\"'");
       $new_url = str_replace(' ', '%20', $url);
@@ -66,7 +66,7 @@ function _print_replace_spaces($matches) {
 }
 
 /**
- * Convert image paths to the file:// protocol
+ * Convert image paths to the file:// protocol.
  *
  * In some Drupal setups, the use of the 'private' filesystem or Apache's
  * configuration prevent access to the images of the page. This function
@@ -74,9 +74,9 @@ function _print_replace_spaces($matches) {
  * filesystem.
  *
  * @param string $html
- *   contents of the post-processed template already with the node data
+ *   Contents of the post-processed template already with the node data.
  * @param bool $images_via_file
- *   if TRUE, convert also files in the 'public' filesystem to local paths
+ *   If TRUE, convert also files in the 'public' filesystem to local paths.
  *
  * @return string
  *   converted file names
@@ -86,13 +86,13 @@ function _print_access_images_via_file($html, $images_via_file) {
 
   $lang = (function_exists('language_negotiation_get_any') && language_negotiation_get_any('locale-url')) ? $language->language : '';
 
-  // Always convert private to local paths
-  $pattern = "!(<img\s[^>]*?src\s*?=\s*?['\"]?)${base_url}/(?:(?:index.php)?\?q=)?(?:${lang}/)?system/files/([^>]*?>)!is";
-  $replacement = '$1file://' . realpath(variable_get('file_private_path', '')) . '/$2';
+  // Always convert private to local paths.
+  $pattern = "!(<img\s[^>]*?src\s*?=\s*?['\"]?)${base_url}/(?:(?:index.php)?\?q=)?(?:${lang}/)?system/files/([^>\?]*)(?:\?itok=[a-zA-Z0-9\-_]{8})?([^>]*?>)!is";
+  $replacement = '$1file://' . realpath(variable_get('file_private_path', '')) . '/$2$3';
   $html = preg_replace($pattern, $replacement, $html);
   if ($images_via_file) {
-    $pattern = "!(<img\s[^>]*?src\s*?=\s*?['\"]?)${base_url}/(?:(?:index.php)?\?q=)?(?:${lang}/)?([^>]*?>)!is";
-    $replacement = '$1file://' . dirname($_SERVER['SCRIPT_FILENAME']) . '/$2';
+    $pattern = "!(<img\s[^>]*?src\s*?=\s*?['\"]?)${base_url}/(?:(?:index.php)?\?q=)?(?:${lang}/)?([^>\?]*)(?:\?itok=[a-zA-Z0-9\-_]{8})?([^>]*?>)!is";
+    $replacement = '$1file://' . DRUPAL_ROOT . '/$2$3';
     $html = preg_replace($pattern, $replacement, $html);
   }
 

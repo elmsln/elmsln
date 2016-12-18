@@ -85,18 +85,14 @@
   </div>
   <?php if (!empty($banner_image)) : ?>
   <div class="header-image-container">
-    <?php print $banner_image; ?>
-  </div>
-  <?php endif; ?>
+  <?php if ($install_profile != 'mooc') : ?>
     <div class="elmsln-system-badge">
       <div class="elmsln-icon icon-<?php print $system_icon . ' ' . $lmsless_classes['text'];?> elmsln-badge"></div>
       <div class="elmsln-badge-inner">
-        <div class="elmsln-badge-top white-border"></div>
         <div class="elmsln-badge-middle white"></div>
         <div class="elmsln-badge-bottom white-border"></div>
       </div>
       <div class="elmsln-badge-outer">
-        <div class="elmsln-badge-top <?php print $lmsless_classes['color'];?>-border"></div>
         <div class="elmsln-badge-middle <?php print $lmsless_classes['color'];?>"></div>
         <div class="elmsln-badge-bottom <?php print $lmsless_classes['color'];?>-border"></div>
       </div>
@@ -107,6 +103,10 @@
         </a>
       </div>
     </div>
+  <?php endif; ?>
+    <?php print $banner_image; ?>
+  </div>
+  <?php endif; ?>
   <?php print preg_replace('~>\s+<~', '><', $page_top . $page . $page_bottom); ?>
   </body>
 </html>

@@ -1,30 +1,47 @@
-
-html.js .diff-js-hidden { display: none; }
+html.js .diff-js-hidden {
+  display: none;
+}
 
 /**
  * Inline diff metadata
  */
 .diff-inline-metadata {
-  padding:4px;
-  border:1px solid #ddd;
-  background:#fff;
-  margin:0px 0px 10px;
+  padding: 4px;
+  border: 1px solid #ddd;
+  background: #fff;
+  margin: 0 0 10px;
 }
 
-.diff-inline-legend { font-size:11px; }
+.diff-inline-legend {
+  font-size: 11px;
+}
 
 .diff-inline-legend span,
-.diff-inline-legend label { margin-right:5px; }
+.diff-inline-legend label {
+  margin-right: 5px;
+}
 
 /**
  * Inline diff markup
  */
-span.diff-deleted { color:#ccc; }
-span.diff-deleted img { border: solid 2px #ccc; }
-span.diff-changed { background:#ffb; }
-span.diff-changed img { border:solid 2px #ffb; }
-span.diff-added { background:#cfc; }
-span.diff-added img { border: solid 2px #cfc; }
+span.diff-deleted {
+  color: #ccc;
+}
+span.diff-deleted img {
+  border: solid 2px #ccc;
+}
+span.diff-changed {
+  background: #ffb;
+}
+span.diff-changed img {
+  border: solid 2px #ffb;
+}
+span.diff-added {
+  background: #cfc;
+}
+span.diff-added img {
+  border: solid 2px #cfc;
+}
 
 /**
  * Traditional split diff theming
@@ -35,7 +52,8 @@ table.diff {
   table-layout: fixed;
   width: 100%;
 }
-table.diff tr.even, table.diff tr.odd {
+table.diff tr.even,
+table.diff tr.odd {
   background-color: inherit;
   border: none;
 }
@@ -45,7 +63,8 @@ td.diff-prevlink {
 td.diff-nextlink {
   text-align: right;
 }
-td.diff-section-title, div.diff-section-title {
+td.diff-section-title,
+div.diff-section-title {
   background-color: #f0f0ff;
   font-size: 0.83em;
   font-weight: bold;
@@ -83,4 +102,8 @@ table.diff td div {
 }
 table.diff td {
   padding: 0.1ex 0.4em;
+}
+
+table.diff-revisions tr.revision-published td {
+  background-color: #aaffaa;
 }

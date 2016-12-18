@@ -103,11 +103,12 @@ function print_epub_block_info() {
  * Implements hook_block_view().
  */
 function print_epub_block_view($delta = 0) {
+  $block = array();
   switch ($delta) {
     case 'print_epub-top':
       $block['subject'] = t('Most EPUBd');
       $result = db_query_range("SELECT path FROM {print_epub_page_counter} LEFT JOIN {node} n ON path = CONCAT('node/', n.nid) WHERE status <> 0 OR status IS NULL ORDER BY totalcount DESC", 0, 3)
-                  ->fetchAll();
+        ->fetchAll();
       if (count($result)) {
         $items = array();
         foreach ($result as $obj) {
@@ -127,7 +128,7 @@ function print_epub_requirements($phase) {
   $requirements = array();
   $t = get_t();
   switch ($phase) {
-    // At runtime, make sure that a EPUB generation tool is selected
+    // At runtime, make sure that a EPUB generation tool is selected.
     case 'runtime':
       $print_epub_epub_tool = variable_get('print_epub_epub_tool', PRINT_EPUB_EPUB_TOOL_DEFAULT);
       if (empty($print_epub_epub_tool)) {
@@ -165,7 +166,7 @@ function print_epub_node_delete($node) {
 }
 
 /**
- * Auxiliary function to display a formatted EPUB version link
+ * Auxiliary function to display a formatted EPUB version link.
  *
  * Function made available so that developers may call this function from
  * their defined pages/blocks.
@@ -176,7 +177,7 @@ function print_epub_node_delete($node) {
  *   node object, to be used in checking node access. If the path argument is
  *   not provided, the path used will be node/nid.
  * @param string $location
- *   where in the page where the link is being inserted ('link', 'corner',
+ *   Where in the page where the link is being inserted ('link', 'corner',
  *   'block', 'help').
  *
  * @return bool
@@ -186,7 +187,11 @@ function print_epub_node_delete($node) {
  */
 function print_epub_insert_link($path = NULL, $node = NULL, $location = '') {
   if (function_exists('print_ui_insert_link')) {
-    return print_ui_insert_link(print_epub_print_link(), array('path' => $path, 'node' => $node, 'location' => $location));
+    return print_ui_insert_link(print_epub_print_link(), array(
+      'path' => $path,
+      'node' => $node,
+      'location' => $location,
+    ));
   }
   else {
     return FALSE;
@@ -194,11 +199,11 @@ function print_epub_insert_link($path = NULL, $node = NULL, $location = '') {
 }
 
 /**
- * Check if the link to the EPUB version is allowed depending on the settings
+ * Check if the link to the EPUB version is allowed depending on the settings.
  *
  * @param array $args
- *   array containing the possible parameters:
- *    view_mode, node, type, path
+ *   Array containing the possible parameters:
+ *    view_mode, node, type, path.
  *
  * @return bool
  *   FALSE if not allowed, TRUE otherwise
@@ -213,17 +218,17 @@ function print_epub_link_allowed($args) {
  * Generate a EPUB version of the provided HTML.
  *
  * @param string $html
- *   HTML content of the EPUB
+ *   HTML content of the EPUB.
  * @param array $meta
  *   Meta information to be used in the EPUB
  *   - url: original URL
  *   - name: author's name
  *   - title: Page title
- *   - node: node object
+ *   - node: node object.
  * @param string $filename
- *   (optional) Filename of the generated EPUB
+ *   (optional) Filename of the generated EPUB.
  *
- * @return
+ * @return string|null
  *   generated EPUB page, or NULL in case of error
  *
  * @see print_epub_controller()

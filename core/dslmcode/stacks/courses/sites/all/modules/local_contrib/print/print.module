@@ -85,7 +85,13 @@ function print_permission() {
 function print_theme() {
   return array(
     'print' => array(
-      'variables' => array('node' => NULL, 'query' => NULL, 'format' => '', 'expand_css' => FALSE, 'message' => ''),
+      'variables' => array(
+        'node' => NULL,
+        'query' => NULL,
+        'format' => '',
+        'expand_css' => FALSE,
+        'message' => '',
+      ),
       'template' => 'print',
       'file' => 'print.pages.inc',
     ),
@@ -207,7 +213,7 @@ function print_block_view($delta = '') {
     case 'print-top':
       $block['subject'] = t('Most printed');
       $result = db_query_range("SELECT path FROM {print_page_counter} LEFT JOIN {node} n ON path = CONCAT('node/', n.nid) WHERE status <> 0 OR status IS NULL ORDER BY totalcount DESC", 0, 3)
-                  ->fetchAll();
+        ->fetchAll();
       if (count($result)) {
         $items = array();
         foreach ($result as $obj) {
@@ -224,11 +230,13 @@ function print_block_view($delta = '') {
  * Implements hook_help().
  */
 function print_help($path, $arg) {
+  $ret = '';
   switch ($path) {
     case 'admin/help#print':
-      // Return a line-break version of the module README
-      return _filter_autop(file_get_contents(drupal_get_path('module', 'print') . '/README.txt'));
+      // Return a line-break version of the module README.
+      $ret = _filter_autop(file_get_contents(drupal_get_path('module', 'print') . '/README.txt'));
   }
+  return $ret;
 }
 
 /**
@@ -251,7 +259,7 @@ function print_entity_info_alter(&$info) {
       'custom settings' => FALSE,
     ),
   );
-  // Add the 'Print' view mode for field_collections
+  // Add the 'Print' view mode for field_collections.
   if (module_exists('field_collection')) {
     $info['field_collection_item']['view modes'] += array(
       PRINT_VIEW_MODE => array(
@@ -263,10 +271,10 @@ function print_entity_info_alter(&$info) {
 }
 
 /**
- * Auxiliary function to discover a given page's title
+ * Auxiliary function to discover a given page's title.
  *
  * @param string $path
- *   path of the page being identified
+ *   Path of the page being identified.
  *
  * @return string
  *   string with the page's title
@@ -276,16 +284,16 @@ function _print_get_title($path) {
   $nid = preg_replace('!^node/!', '', $path);
   if (ctype_digit($nid)) {
     return db_query("SELECT title FROM {node} WHERE nid = :nid", array(':nid' => $nid))
-              ->fetchField();
+      ->fetchField();
   }
   else {
-    // Not a node, try to get title from the menu system
+    // Not a node, try to get title from the menu system.
     $menu_item = menu_get_item($path);
     if (!empty($menu_item['title'])) {
       return $menu_item['title'];
     }
     elseif (drupal_substr($menu_item['page_callback'], 0, 6) == 'views_') {
-      // It's a view, load the view to have access to the title
+      // It's a view, load the view to have access to the title.
       $view = views_get_view($menu_item['page_arguments']['0']);
       return $view->get_title();
     }
@@ -296,7 +304,7 @@ function _print_get_title($path) {
 }
 
 /**
- * Auxiliary function to display a formatted Printer-friendly link
+ * Auxiliary function to display a formatted Printer-friendly link.
  *
  * Function made available so that developers may call this function from
  * their defined pages/blocks.
@@ -307,7 +315,7 @@ function _print_get_title($path) {
  *   node object, to be used in checking node access. If the path argument is
  *   not provided, the path used will be node/nid.
  * @param string $location
- *   where in the page where the link is being inserted ('link', 'corner',
+ *   Where in the page where the link is being inserted ('link', 'corner',
  *   'block', 'help').
  *
  * @return string
@@ -317,7 +325,11 @@ function _print_get_title($path) {
  */
 function print_insert_link($path = NULL, $node = NULL, $location = '') {
   if (function_exists('print_ui_insert_link')) {
-    return print_ui_insert_link(print_print_link(), array('path' => $path, 'node' => $node, 'location' => $location));
+    return print_ui_insert_link(print_print_link(), array(
+      'path' => $path,
+      'node' => $node,
+      'location' => $location,
+    ));
   }
   else {
     return FALSE;
@@ -325,11 +337,11 @@ function print_insert_link($path = NULL, $node = NULL, $location = '') {
 }
 
 /**
- * Check if the link to the PF version is allowed depending on the settings
+ * Check if the link to the PF version is allowed depending on the settings.
  *
  * @param array $args
- *   array containing the possible parameters:
- *    view_mode, node, type, path
+ *   Array containing the possible parameters:
+ *    view_mode, node, type, path.
  *
  * @return bool
  *   FALSE if not allowed, TRUE otherwise
@@ -342,7 +354,7 @@ function print_link_allowed($args) {
  * Implements hook_contextual_links_view_alter().
  */
 function print_contextual_links_view_alter(&$element, $items) {
-  // Hide all contextual links
+  // Hide all contextual links.
   if (preg_match('!^print!', $_GET['q'])) {
     unset($element['#links']);
   }

@@ -2,7 +2,7 @@
 
 /**
  * @file
- * PDF Version Views integration
+ * PDF Version Views integration.
  *
  * @ingroup print
  */
@@ -25,18 +25,16 @@ function print_pdf_views_data() {
     // 'field' is the foreign key in this table.
     'left_field' => 'nid',
     'field' => 'nid',
-//    'type' => 'INNER',
   );
   $data['print_pdf_page_counter']['table']['join']['node'] = array(
     // 'left_field' is the primary key in the referenced table.
     // 'field' is the foreign key in this table.
     'left_field' => 'nid',
     'field' => 'path',
-//    'type' => 'INNER',
     'handler' => 'print_join_page_counter',
   );
 
-  // print_pdf_node_conf fields
+  // print_pdf_node_conf fields.
   $data['print_pdf_node_conf']['link'] = array(
     'title' => t('PDF: Show link'),
     'help' => t('Whether to show the PDF version link.'),
@@ -114,8 +112,7 @@ function print_pdf_views_data() {
     ),
   );
 
-
-  // print_pdf_page_counter fields
+  // print_pdf_page_counter fields.
   $data['print_pdf_page_counter']['totalcount'] = array(
     'title' => t('PDF: Number of page accesses'),
     'help' => t('Counter of accesses to the PDF version for this node.'),

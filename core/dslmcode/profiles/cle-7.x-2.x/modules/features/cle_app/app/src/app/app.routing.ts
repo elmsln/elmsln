@@ -11,6 +11,7 @@ import { SubmissionComponent } from './submission/submission.component';
 import { CritiqueComponent } from './critique/critique.component';
 import { LoginComponent } from './login/login.component';
 import { LogoutComponent } from './logout/logout.component';
+import { ProjectsListComponent } from './projects/projects-list/projects-list.component';
 
 const appRoutes: Routes = [
   {
@@ -26,24 +27,12 @@ const appRoutes: Routes = [
     component: LogoutComponent
   },
   {
-    path: 'assignments',
-    component: AssignmentListComponent
-  },
-  {
-    path: 'assignments/new',
-    component: AssignmentFormComponent
+    path: 'projects',
+    component: ProjectsListComponent
   },
   {
     path: 'assignments/:id',
     component: AssignmentComponent
-  },
-  {
-    path: 'submissions',
-    component: SubmissionListComponent
-  },
-  {
-    path: 'submissions/:id',
-    component: SubmissionComponent
   }
 ];
 

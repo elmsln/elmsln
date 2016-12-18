@@ -127,22 +127,22 @@ function cle_project_strongarm() {
           'weight' => '1',
         ),
         'path' => array(
-          'weight' => '7',
-        ),
-        'hidden_nodes' => array(
-          'weight' => '8',
-        ),
-        'book' => array(
           'weight' => '6',
         ),
-        'options' => array(
+        'hidden_nodes' => array(
+          'weight' => '7',
+        ),
+        'book' => array(
           'weight' => '5',
         ),
+        'options' => array(
+          'weight' => '4',
+        ),
         'author' => array(
-          'weight' => '3',
+          'weight' => '2',
         ),
         'revision_information' => array(
-          'weight' => '4',
+          'weight' => '3',
         ),
       ),
       'display' => array(),
@@ -199,17 +199,14 @@ function cle_project_strongarm() {
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'unique_field_comp_cle_project';
-  $strongarm->value = 'each';
+  $strongarm->value = 'all';
   $export['unique_field_comp_cle_project'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'unique_field_fields_cle_project';
-  $strongarm->value = array(
-    0 => 'title',
-    1 => 'name',
-  );
+  $strongarm->value = array();
   $export['unique_field_fields_cle_project'] = $strongarm;
 
   $strongarm = new stdClass();

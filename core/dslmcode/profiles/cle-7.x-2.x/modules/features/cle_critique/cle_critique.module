@@ -28,12 +28,6 @@ function cle_critique_menu() {
     'file path' => drupal_get_path('module', 'node'),
   );
 
-  $items['api/v1/cle/critiques/random'] = array(
-    'page callback' => '_cle_critique_api_random_critique',
-    'access callback' => 'user_is_logged_in',
-    'type' => MENU_CALLBACK,
-  );
-
   return $items;
 }
 

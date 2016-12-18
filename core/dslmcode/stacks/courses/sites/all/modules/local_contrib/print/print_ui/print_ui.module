@@ -91,9 +91,9 @@ function print_ui_block_view($delta = '') {
       if (ctype_digit($nid)) {
         $node = node_load($nid);
         if (!node_access('view', $node)) {
-          // If the user doesn't have access to the node, don't show any links
+          // If the user doesn't have access to the node, don't show any links.
           $block['content'] = '';
-          return;
+          return array();
         }
       }
       else {
@@ -150,6 +150,7 @@ function print_ui_help($path, $arg) {
       }
     }
   }
+  return '';
 }
 
 /**
@@ -166,10 +167,12 @@ function print_ui_node_view_alter(&$build) {
       if (!empty($link_pos['link'])) {
         $format = theme('print_ui_format_link', array('format' => 'html', 'location' => 'link'));
 
+        $path = '';
         switch ($book_link) {
           case 1:
             $path = $build['links']['book']['#links']['book_printer']['href'];
             break;
+
           case 2:
             $link_use_alias = variable_get('print_html_link_use_alias', PRINT_UI_LINK_USE_ALIAS_DEFAULT);
             $path = ($link_use_alias && ($alias = drupal_lookup_path('alias', 'node/' . $build['#node']->nid))) ? $alias : $build['#node']->nid;
@@ -205,23 +208,27 @@ function print_ui_node_view($node, $view_mode) {
       $link_use_alias = variable_get('print_' . $link['format'] . '_link_use_alias', PRINT_UI_LINK_USE_ALIAS_DEFAULT);
 
       if (!preg_match('!^node/[\d]*/revisions/[\d]*/view$!', $_GET['q'])) {
-        // Not a revision, use node->nid to build the path
+        // Not a revision, use node->nid to build the path.
         $path = (($link_use_alias) && ($alias = drupal_lookup_path('alias', 'node/' . $node->nid))) ? $alias : $node->nid;
       }
       else {
-        // This is a node revision, replace only the node component
+        // This is a node revision, replace only the node component.
         $path = preg_replace('!^node/!', '', $_GET['q']);
       }
       $path = $link['path'] . '/' . $path;
 
       foreach (array('node', 'comment') as $type) {
-        $allowed_type = print_ui_link_allowed($link, array('type' => $type, 'node' => $node, 'view_mode' => $view_mode));
+        $allowed_type = print_ui_link_allowed($link, array(
+          'type' => $type,
+          'node' => $node,
+          'view_mode' => $view_mode,
+        ));
         if ($allowed_type) {
           drupal_add_css(drupal_get_path('module', 'print_ui') . '/css/print_ui.theme.css');
           $links = array();
           $format = theme('print_ui_format_link', array('format' => $link['format'], 'location' => 'link'));
 
-          // Show book link
+          // Show book link.
           if ($allowed_type === PRINT_UI_ALLOW_BOOK_LINK) {
             $path = $link['path'] . '/book/export/html/' . $node->nid;
 
@@ -238,7 +245,7 @@ function print_ui_node_view($node, $view_mode) {
               'title' => $format['text'],
               'attributes' => $format['attributes'],
               'html' => $format['html'],
-              'query' =>  _print_ui_query_string_encode($_GET, array('q')),
+              'query' => _print_ui_query_string_encode($_GET, array('q')),
             );
           }
 
@@ -248,7 +255,8 @@ function print_ui_node_view($node, $view_mode) {
             '#attributes' => array('class' => array('links', 'inline')),
           );
 
-          // If it's a node, and configured to show the link, but it's not the html version of a book then show it
+          // If it's a node, and configured to show the link, but it's not the
+          // html version of a book then show it.
           if (($type == 'node') && !empty($link_pos['link']) && !(isset($node->book) && ($link['format'] == 'html'))) {
             $node->content['links']['print_' . $link['format']] = $link_content;
           }
@@ -264,13 +272,17 @@ function print_ui_node_view($node, $view_mode) {
       }
 
       if (!empty($link_pos['corner'])) {
-        $corner_markup .= print_ui_insert_link($link, array('node' => $node, 'path' => $path, 'location' => 'corner'));
+        $corner_markup .= print_ui_insert_link($link, array(
+          'node' => $node,
+          'path' => $path,
+          'location' => 'corner',
+        ));
       }
     }
   }
 
   if (($view_mode == 'full') && (!empty($corner_markup))) {
-    // Insert content corner links
+    // Insert content corner links.
     $node->content['print_links'] = array(
       '#prefix' => '<span class="print-link">',
       '#markup' => $corner_markup,
@@ -296,7 +308,7 @@ function print_ui_node_load($nodes, $types) {
 
       $display = 'print_' . $link['format'] . '_display';
       $display_comment = 'print_' . $link['format'] . '_display_comment';
-      $display_urllist =  'print_' . $link['format'] . '_display_urllist';
+      $display_urllist = 'print_' . $link['format'] . '_display_urllist';
 
       $result = db_query('SELECT nid, link, comments, url_list FROM {' . $module . '_node_conf} WHERE nid IN (:nids)', array(':nids' => $ids))->fetchAllAssoc('nid');
 
@@ -313,7 +325,7 @@ function print_ui_node_load($nodes, $types) {
  * Implements hook_node_insert().
  */
 function print_ui_node_insert($node) {
-  return print_ui_node_update($node);
+  print_ui_node_update($node);
 }
 
 /**
@@ -328,7 +340,7 @@ function print_ui_node_update($node) {
 
         $display = 'print_' . $link['format'] . '_display';
         $display_comment = 'print_' . $link['format'] . '_display_comment';
-        $display_urllist =  'print_' . $link['format'] . '_display_urllist';
+        $display_urllist = 'print_' . $link['format'] . '_display_urllist';
 
         if (!isset($node->{$display}) || $node->{$display} === NULL) {
           $node->{$display} = variable_get($display . '_' . $node->type, PRINT_UI_TYPE_SHOW_LINK_DEFAULT);
@@ -360,7 +372,7 @@ function print_ui_node_delete($node) {
   foreach (module_implements('print_link') as $module) {
     $function = $module . '_print_link';
     if (function_exists($function)) {
-      $link = call_user_func_array($function, array());
+      call_user_func_array($function, array());
 
       db_delete($module . '_node_conf')
         ->condition('nid', $node->nid)
@@ -373,7 +385,8 @@ function print_ui_node_delete($node) {
  * Implements hook_form_alter().
  */
 function print_ui_form_alter(&$form, &$form_state, $form_id) {
-  // Add the node-type settings option to activate the printer-friendly version link
+  // Add the node-type settings option to activate the printer-friendly
+  // version link.
   if ((user_access('administer print') || user_access('node-specific print configuration')) &&
       (($form_id == 'node_type_form') || !empty($form['#node_edit_form']))) {
     $form['print'] = array(
@@ -398,7 +411,7 @@ function print_ui_form_alter(&$form, &$form_state, $form_id) {
 
         $display = 'print_' . $link['format'] . '_display';
         $display_comment = 'print_' . $link['format'] . '_display_comment';
-        $display_urllist =  'print_' . $link['format'] . '_display_urllist';
+        $display_urllist = 'print_' . $link['format'] . '_display_urllist';
 
         $form['print']['print_' . $link['format']][$display] = array(
           '#type' => 'checkbox',
@@ -430,14 +443,14 @@ function print_ui_form_alter(&$form, &$form_state, $form_id) {
 }
 
 /**
- * Auxiliary function to fill the Printer-friendly link attributes
+ * Auxiliary function to fill the Printer-friendly link attributes.
  *
  * @param string $title
- *   text to displayed by the link when hovering over it with the mouse
+ *   Text to displayed by the link when hovering over it with the mouse.
  * @param string $class
- *   class attribute to be used in the link
+ *   Class attribute to be used in the link.
  * @param bool $new_window
- *   if TRUE opens the target page in a new window
+ *   If TRUE opens the target page in a new window.
  *
  * @return array
  *   An associative array containing:
@@ -460,12 +473,13 @@ function _print_ui_fill_attributes($title = '', $class = '', $new_window = FALSE
 
   if ($new_window) {
     switch ($print_newwindow) {
-    case 0:
-      $attributes['target'] = '_blank';
-      break;
-    case 1:
-      $attributes['onclick'] = 'window.open(this.href); return false';
-      break;
+      case 0:
+        $attributes['target'] = '_blank';
+        break;
+
+      case 1:
+        $attributes['onclick'] = 'window.open(this.href); return false';
+        break;
     }
   }
   if (!empty($print_robots_noindex)) {
@@ -475,7 +489,7 @@ function _print_ui_fill_attributes($title = '', $class = '', $new_window = FALSE
 }
 
 /**
- * Format the Printer-friendly link
+ * Format the Printer-friendly link.
  *
  * @return array
  *   An associative array containing:
@@ -508,14 +522,30 @@ function theme_print_ui_format_link($vars) {
         $show_link = variable_get('print_' . $link['format'] . '_show_link', PRINT_UI_SHOW_LINK_DEFAULT);
         $link_text = filter_xss(variable_get('print_' . $link['format'] . '_link_text', $link['text']));
 
+        $text = '';
         if ($show_link >= 2) {
           $img = drupal_get_path('module', $module) . '/icons/' . $link['icon'];
           switch ($show_link) {
             case 2:
-              $text = theme('image', array('path' => $img, 'width' => '16px', 'height' => '16px', 'alt' => $link_text, 'title' => $link_text, 'attributes' => array('class' => array('print-icon'))));
+              $text = theme('image', array(
+                'path' => $img,
+                'width' => '16px',
+                'height' => '16px',
+                'alt' => $link_text,
+                'title' => $link_text,
+                'attributes' => array('class' => array('print-icon')),
+              ));
               break;
+
             case 3:
-              $text = theme('image', array('path' => $img, 'width' => '16px', 'height' => '16px', 'alt' => $link_text, 'title' => $link_text, 'attributes' => array('class' => array('print-icon', 'print-icon-margin')))) . $link_text;
+              $text = theme('image', array(
+                'path' => $img,
+                'width' => '16px',
+                'height' => '16px',
+                'alt' => $link_text,
+                'title' => $link_text,
+                'attributes' => array('class' => array('print-icon', 'print-icon-margin')),
+              )) . $link_text;
               break;
           }
           $html = TRUE;
@@ -533,16 +563,17 @@ function theme_print_ui_format_link($vars) {
       }
     }
   }
+  return array();
 }
 
 /**
- * Auxiliary function to display a formatted Printer-friendly link
+ * Auxiliary function to display a formatted Printer-friendly link.
  *
  * Function made available so that developers may call this function from
  * their defined pages/blocks.
  *
  * @param array $link
- *    array returned by the hook_print_link() call.
+ *    Array returned by the hook_print_link() call.
  * @param array $args
  *   Array of optional arguments:
  *   - node: node object, to be used in checking node access. If the path
@@ -599,7 +630,12 @@ function print_ui_insert_link($link, $args = array()) {
     }
     drupal_add_css(drupal_get_path('module', 'print_ui') . '/css/print_ui.theme.css');
     $format = theme('print_ui_format_link', array('format' => $link['format'], 'location' => $location));
-    return '<span class="print_' . $link['format'] . '">' . l($format['text'], $path, array('attributes' => $format['attributes'], 'query' => $query, 'absolute' => TRUE, 'html' => $format['html'])) . '</span>';
+    return '<span class="print_' . $link['format'] . '">' . l($format['text'], $path, array(
+      'attributes' => $format['attributes'],
+      'query' => $query,
+      'absolute' => TRUE,
+      'html' => $format['html'],
+    )) . '</span>';
   }
   else {
     return FALSE;
@@ -607,15 +643,15 @@ function print_ui_insert_link($link, $args = array()) {
 }
 
 /**
- * Check if the link to the PF version is allowed depending on the settings
+ * Check if the link to the PF version is allowed depending on the settings.
  *
  * @param array $link
- *    array returned by the hook_print_link() call.
+ *   Array returned by the hook_print_link() call.
  * @param array $args
- *   array containing the possible parameters:
- *    view_mode, node, type, path
+ *   Array containing the possible parameters:
+ *    view_mode, node, type, path.
  *
- * @return
+ * @return int
  *   FALSE if not allowed
  *   PRINT_UI_ALLOW_NORMAL_LINK if a normal link is allowed
  *   PRINT_UI_ALLOW_BOOK_LINK if a link is allowed in a book node
@@ -625,14 +661,14 @@ function print_ui_link_allowed($link, $args) {
     $view_mode = $args['view_mode'];
     if ((($view_mode == 'teaser') && !variable_get('print_' . $link['format'] . '_link_teaser', PRINT_UI_LINK_TEASER_DEFAULT))
       || !in_array($view_mode, array('full', 'teaser'))) {
-      // If the teaser link is disabled
+      // If the teaser link is disabled.
       return FALSE;
     }
   }
   $link_allowed_func = $link['module'] . '_link_allowed';
   if (function_exists($link_allowed_func)) {
     if (!$link_allowed_func($args)) {
-      // If the format-specific function disallows the link
+      // If the format-specific function disallows the link.
       return FALSE;
     }
   }
@@ -649,7 +685,7 @@ function print_ui_link_allowed($link, $args) {
     if (isset($node->type)) {
       $node_type = $node->type;
     }
-    // Node
+    // Node.
     if (isset($args['type']) && ($args['type'] == 'comment') && isset($node_type)) {
       // Link is for a comment, return the configured setting
       // Cache this statically to avoid duplicate queries for every comment.
@@ -663,14 +699,14 @@ function print_ui_link_allowed($link, $args) {
       }
     }
     else {
-      // Node link
+      // Node link.
       $display = 'print_' . $link['format'] . '_display';
       if (isset($node->{$display}) && !$node->{$display}) {
-        // Link for this node is disabled
+        // Link for this node is disabled.
         return FALSE;
       }
       elseif (isset($node->book)) {
-        // Node is a book;
+        // Node is a book.
         $book_link = variable_get('print_' . $link['format'] . '_book_link', PRINT_UI_BOOK_LINK_DEFAULT);
         switch ($book_link) {
           case 1:
@@ -678,6 +714,7 @@ function print_ui_link_allowed($link, $args) {
               return PRINT_UI_ALLOW_BOOK_LINK;
             }
             break;
+
           case 2:
             return PRINT_UI_ALLOW_NORMAL_LINK;
         }
@@ -688,7 +725,7 @@ function print_ui_link_allowed($link, $args) {
     }
   }
   else {
-    // 'System' page
+    // 'System' page.
     $sys_link_visibility = variable_get('print_' . $link['format'] . '_sys_link_visibility', PRINT_UI_SYS_LINK_VISIBILITY_DEFAULT);
     $sys_link_pages = variable_get('print_' . $link['format'] . '_sys_link_pages', PRINT_UI_SYS_LINK_PAGES_DEFAULT);
 
@@ -698,16 +735,16 @@ function print_ui_link_allowed($link, $args) {
 }
 
 /**
- * Check if the provided page is enabled according to the visibility settings
+ * Check if the provided page is enabled according to the visibility settings.
  *
  * @param int $visibility
- *   current visibility settings:
+ *   Current visibility settings:
  *    0 for show on every page except the listed pages
- *    1 for show on only the listed pages
+ *    1 for show on only the listed pages.
  * @param string $path
- *   current path
+ *   Current path.
  * @param string $pages
- *   list of pages
+ *   List of pages.
  *
  * @return bool
  *   TRUE if it is enabled, FALSE otherwise
@@ -742,7 +779,7 @@ function _print_ui_page_match($visibility, $path, $pages) {
  * encoded original. (see #301192)
  *
  * @param array $query
- *   The array to be processed e.g. $_GET
+ *   The array to be processed e.g. $_GET.
  * @param array $exclude
  *   The array filled with keys to be excluded.
  * @param string $parent

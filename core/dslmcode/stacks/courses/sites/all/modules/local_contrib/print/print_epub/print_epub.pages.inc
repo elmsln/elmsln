@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Generates the EPUB versions of the pages
+ * Generates the EPUB versions of the pages.
  *
  * This file is included by the print_epub module and includes the
  * functions that interface with the EPUB generation packages.
@@ -13,32 +13,34 @@
 module_load_include('inc', 'print', 'print.pages');
 
 /**
- * Generate a EPUB version of the printer-friendly page
+ * Generate a EPUB version of the printer-friendly page.
  *
  * @see print_controller()
  * @see _print_epub_domepub()
  * @see _print_epub_tcepub()
  */
 function print_epub_controller() {
-  // Disable caching for generated EPUBs, as Drupal doesn't ouput the proper headers from the cache
+  // Disable caching for generated EPUBs, as Drupal doesn't ouput the proper
+  // headers from the cache.
   $GLOBALS['conf']['cache'] = FALSE;
 
   $args = func_get_args();
   $path = filter_xss(implode('/', $args));
-  $cid = isset($_GET['comment']) ? (int)$_GET['comment'] : NULL;
+  $cid = isset($_GET['comment']) ? (int) $_GET['comment'] : NULL;
 
-  // Handle the query
+  // Handle the query.
   $query = $_GET;
   unset($query['q']);
 
+  $node = NULL;
   if (!empty($path)) {
     if ($alias = drupal_lookup_path('source', $path)) {
-      // Alias
+      // Alias.
       $path_arr = explode('/', $alias);
       $node = node_load($path_arr[1]);
     }
     elseif (ctype_digit($args[0])) {
-      // normal nid
+      // Normal nid.
       $node = node_load($args[0]);
     }
 
@@ -49,7 +51,7 @@ function print_epub_controller() {
     else {
       $epub_filename = token_replace($epub_filename, array('site'), array('clear' => TRUE));
       if (empty($epub_filename)) {
-        // If empty, use a fallback solution
+        // If empty, use a fallback solution.
         $epub_filename = str_replace('/', '_', $path);
       }
     }
@@ -74,8 +76,8 @@ function print_epub_controller() {
   db_merge('print_epub_page_counter')
     ->key(array('path' => $nodepath))
     ->fields(array(
-        'totalcount' => 1,
-        'timestamp' => REQUEST_TIME,
+      'totalcount' => 1,
+      'timestamp' => REQUEST_TIME,
     ))
     ->expression('totalcount', 'totalcount + 1')
     ->execute();
@@ -87,36 +89,43 @@ function print_epub_controller() {
  * Gennerate a EPUB for a given Drupal path.
  *
  * @param string $path
- *   path of the page to convert to EPUB
+ *   path of the page to convert to EPUB.
  * @param array $query
- *   (optional) array of key/value pairs as used in the url() function for the
- *   query
+ *   (Optional) array of key/value pairs as used in the url() function for the
+ *   query.
  * @param int $cid
- *   (optional) comment ID of the comment to render.
+ *   (Optional) comment ID of the comment to render.
  * @param string $epub_filename
- *   (optional) filename of the generated EPUB
+ *   (Optional) filename of the generated EPUB.
  * @param string $view_mode
- *   (optional) view mode to be used when rendering the content
+ *   (Optional) view mode to be used when rendering the content.
  *
- * @return
+ * @return string|null
  *   generated EPUB page, or NULL in case of error
  *
  * @see print_epub_controller()
  */
 function print_epub_generate_path($path, $query = NULL, $cid = NULL, $epub_filename = NULL, $view_mode = PRINT_VIEW_MODE) {
-  global $base_url;
-
   $link = print_epub_print_link();
   $node = print_controller($path, $link['format'], $cid, $view_mode);
   if ($node) {
-    $html = theme('print', array('node' => $node, 'query' => $query, 'expand_css' => TRUE, 'format' => $link['format']));
+    $html = theme('print', array(
+      'node' => $node,
+      'query' => $query,
+      'expand_css' => TRUE,
+      'format' => $link['format'],
+    ));
 
     $meta = array(
       'node' => $node,
       'url' => url(drupal_get_path_alias(empty($node->nid) ? $node->path : "node/$node->nid"), array('absolute' => TRUE)),
     );
-    if (isset($node->name)) $meta['name'] = $node->name;
-    if (isset($node->title)) $meta['title'] = $node->title;
+    if (isset($node->name)) {
+      $meta['name'] = $node->name;
+    }
+    if (isset($node->title)) {
+      $meta['title'] = $node->title;
+    }
 
     return print_epub_generate_html($html, $meta, $epub_filename);
   }

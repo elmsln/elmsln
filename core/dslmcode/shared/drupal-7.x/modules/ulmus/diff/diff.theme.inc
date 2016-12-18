@@ -48,14 +48,21 @@ function theme_diff_node_revisions($vars) {
           'data' => drupal_render($form['diff']['new'][$key]),
           'class' => array('revision-current'),
         );
+        $revision = $form['info'][$key]['#revision'];
+        if ($revision && !empty($revision->status)) {
+          $message = t('This is the published revision.');
+        }
+        else {
+          $message = t('This is the current revision.');
+        }
         $row[] = array(
-          'data' => t('current revision'),
+          'data' => '<strong>' . $message . '</strong>',
           'class' => array('revision-current'),
           'colspan' => '2',
         );
         $rows[] = array(
           'data' => $row,
-          'class' => array('error diff-revision'),
+          'class' => array('revision-published diff-revision'),
         );
       }
     }
@@ -64,16 +71,12 @@ function theme_diff_node_revisions($vars) {
     'header' => $header,
     'rows' => $rows,
     'sticky' => FALSE,
-    'attributes' => array('class' => 'diff-revisions'),
+    'attributes' => array('class' => array('diff-revisions')),
   ));
 
   $output .= drupal_render_children($form);
   return $output;
 }
-
-/**
- * Theme functions
- */
 
 /**
  * Theme function for a header line in the diff.
@@ -139,11 +142,15 @@ function theme_diff_inline_chunk($vars) {
   switch ($vars['type']) {
     case 'add':
       return "<span class='diff-added'>{$vars['text']}</span>";
+
     case 'change':
       return "<span class='diff-changed'>{$vars['text']}</span>";
+
     case 'delete':
       return "<span class='diff-deleted'>{$vars['text']}</span>";
+
     default:
       return $vars['text'];
+
   }
 }

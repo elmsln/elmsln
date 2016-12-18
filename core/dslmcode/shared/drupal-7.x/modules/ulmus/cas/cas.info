@@ -1,0 +1,15 @@
+name = CAS
+package = Central Authentication Service
+core = 7.x
+description = "Provides single sign-on Central Authentication Services (CAS)"
+configure = admin/config/people/cas
+
+files[] = cas.test
+files[] = includes/views/handlers/cas_handler_field_cas_name.inc
+
+; Information added by Drupal.org packaging script on 2016-02-09
+version = "7.x-1.5"
+core = "7.x"
+project = "cas"
+datestamp = "1455051844"
+

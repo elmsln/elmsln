@@ -104,35 +104,6 @@ function cle_assignment_views_default_views() {
   $handler->display->display_options['fields']['title_editable']['element_label_colon'] = FALSE;
   $handler->display->display_options['fields']['title_editable']['link_to_node'] = FALSE;
   $handler->display->display_options['fields']['title_editable']['textfield_size'] = '30';
-  /* Field: Broken/missing handler */
-  $handler->display->display_options['fields']['field_number_editable']['id'] = 'field_number_editable';
-  $handler->display->display_options['fields']['field_number_editable']['table'] = 'field_data_field_number';
-  $handler->display->display_options['fields']['field_number_editable']['field'] = 'field_number_editable';
-  $handler->display->display_options['fields']['field_number_editable']['label'] = 'Number';
-  $handler->display->display_options['fields']['field_number_editable']['element_type'] = 'span';
-  $handler->display->display_options['fields']['field_number_editable']['element_wrapper_type'] = 'span';
-  /* Field: Broken/missing handler */
-  $handler->display->display_options['fields']['field_sub_number_editable']['id'] = 'field_sub_number_editable';
-  $handler->display->display_options['fields']['field_sub_number_editable']['table'] = 'field_data_field_sub_number';
-  $handler->display->display_options['fields']['field_sub_number_editable']['field'] = 'field_sub_number_editable';
-  $handler->display->display_options['fields']['field_sub_number_editable']['label'] = 'Sub-number';
-  $handler->display->display_options['fields']['field_sub_number_editable']['element_type'] = 'span';
-  $handler->display->display_options['fields']['field_sub_number_editable']['element_wrapper_type'] = 'span';
-  /* Field: Broken/missing handler */
-  $handler->display->display_options['fields']['field_color_editable']['id'] = 'field_color_editable';
-  $handler->display->display_options['fields']['field_color_editable']['table'] = 'field_data_field_color';
-  $handler->display->display_options['fields']['field_color_editable']['field'] = 'field_color_editable';
-  $handler->display->display_options['fields']['field_color_editable']['label'] = 'Color';
-  /* Field: Broken/missing handler */
-  $handler->display->display_options['fields']['field_due_date_editable']['id'] = 'field_due_date_editable';
-  $handler->display->display_options['fields']['field_due_date_editable']['table'] = 'field_data_field_due_date';
-  $handler->display->display_options['fields']['field_due_date_editable']['field'] = 'field_due_date_editable';
-  $handler->display->display_options['fields']['field_due_date_editable']['label'] = 'Due Date';
-  /* Field: Broken/missing handler */
-  $handler->display->display_options['fields']['field_media_requirements_editable']['id'] = 'field_media_requirements_editable';
-  $handler->display->display_options['fields']['field_media_requirements_editable']['table'] = 'field_data_field_media_requirements';
-  $handler->display->display_options['fields']['field_media_requirements_editable']['field'] = 'field_media_requirements_editable';
-  $handler->display->display_options['fields']['field_media_requirements_editable']['label'] = 'Media Requirements';
   /* Field: Content: Edit link */
   $handler->display->display_options['fields']['edit_node']['id'] = 'edit_node';
   $handler->display->display_options['fields']['edit_node']['table'] = 'views_entity_node';
@@ -140,14 +111,6 @@ function cle_assignment_views_default_views() {
   $handler->display->display_options['fields']['edit_node']['label'] = 'Operations';
   $handler->display->display_options['fields']['edit_node']['element_label_colon'] = FALSE;
   $handler->display->display_options['fields']['edit_node']['text'] = 'edit';
-  /* Sort criterion: Broken/missing handler */
-  $handler->display->display_options['sorts']['field_number_value']['id'] = 'field_number_value';
-  $handler->display->display_options['sorts']['field_number_value']['table'] = 'field_data_field_number';
-  $handler->display->display_options['sorts']['field_number_value']['field'] = 'field_number_value';
-  /* Sort criterion: Broken/missing handler */
-  $handler->display->display_options['sorts']['field_sub_number_value']['id'] = 'field_sub_number_value';
-  $handler->display->display_options['sorts']['field_sub_number_value']['table'] = 'field_data_field_sub_number';
-  $handler->display->display_options['sorts']['field_sub_number_value']['field'] = 'field_sub_number_value';
   /* Contextual filter: Content: Section (og_group_ref) */
   $handler->display->display_options['arguments']['og_group_ref_target_id']['id'] = 'og_group_ref_target_id';
   $handler->display->display_options['arguments']['og_group_ref_target_id']['table'] = 'og_membership';
@@ -213,11 +176,35 @@ function cle_assignment_views_default_views() {
     67296478 => 67296478,
     30037204 => 30037204,
   );
-  $handler->display->display_options['cache']['type'] = 'time';
-  $handler->display->display_options['cache']['results_lifespan'] = '21600';
-  $handler->display->display_options['cache']['results_lifespan_custom'] = '0';
-  $handler->display->display_options['cache']['output_lifespan'] = '21600';
-  $handler->display->display_options['cache']['output_lifespan_custom'] = '0';
+  $handler->display->display_options['cache']['type'] = 'views_content_cache';
+  $handler->display->display_options['cache']['results_min_lifespan'] = '-1';
+  $handler->display->display_options['cache']['results_max_lifespan'] = '21600';
+  $handler->display->display_options['cache']['output_min_lifespan'] = '-1';
+  $handler->display->display_options['cache']['output_max_lifespan'] = '21600';
+  $handler->display->display_options['cache']['keys'] = array(
+    'comment' => array(
+      'changed' => 0,
+    ),
+    'node' => array(
+      'cle_assignment' => 'cle_assignment',
+      'section' => 0,
+      'cle_project' => 0,
+      'cle_submission' => 0,
+    ),
+    'node_only' => array(
+      'node_changed' => 0,
+    ),
+    'og' => array(
+      'current' => 0,
+      'user' => 0,
+    ),
+    'votingapi' => array(
+      'tag:vote' => 0,
+      'function:count' => 0,
+      'function:average' => 0,
+      'function:sum' => 0,
+    ),
+  );
   $handler->display->display_options['query']['type'] = 'views_query';
   $handler->display->display_options['exposed_form']['type'] = 'basic';
   $handler->display->display_options['pager']['type'] = 'none';
@@ -291,7 +278,7 @@ function cle_assignment_views_default_views() {
   );
   $handler->display->display_options['style_options']['sticky'] = TRUE;
   $handler->display->display_options['style_options']['caption'] = 'Listing of studio assignments';
-  /* Relationship: Entity Reference: Referenced Entity */
+  /* Relationship: Broken/missing handler */
   $handler->display->display_options['relationships']['field_cle_assignments_target_id']['id'] = 'field_cle_assignments_target_id';
   $handler->display->display_options['relationships']['field_cle_assignments_target_id']['table'] = 'field_data_field_cle_assignments';
   $handler->display->display_options['relationships']['field_cle_assignments_target_id']['field'] = 'field_cle_assignments_target_id';
@@ -305,26 +292,6 @@ function cle_assignment_views_default_views() {
   $handler->display->display_options['fields']['nid']['label'] = '';
   $handler->display->display_options['fields']['nid']['exclude'] = TRUE;
   $handler->display->display_options['fields']['nid']['element_label_colon'] = FALSE;
-  /* Field: Broken/missing handler */
-  $handler->display->display_options['fields']['field_color']['id'] = 'field_color';
-  $handler->display->display_options['fields']['field_color']['table'] = 'field_data_field_color';
-  $handler->display->display_options['fields']['field_color']['field'] = 'field_color';
-  $handler->display->display_options['fields']['field_color']['relationship'] = 'field_cle_assignments_target_id';
-  $handler->display->display_options['fields']['field_color']['label'] = '';
-  $handler->display->display_options['fields']['field_color']['element_label_colon'] = FALSE;
-  /* Field: Broken/missing handler */
-  $handler->display->display_options['fields']['field_number']['id'] = 'field_number';
-  $handler->display->display_options['fields']['field_number']['table'] = 'field_data_field_number';
-  $handler->display->display_options['fields']['field_number']['field'] = 'field_number';
-  $handler->display->display_options['fields']['field_number']['relationship'] = 'field_cle_assignments_target_id';
-  $handler->display->display_options['fields']['field_number']['element_label_colon'] = FALSE;
-  /* Field: Broken/missing handler */
-  $handler->display->display_options['fields']['field_sub_number']['id'] = 'field_sub_number';
-  $handler->display->display_options['fields']['field_sub_number']['table'] = 'field_data_field_sub_number';
-  $handler->display->display_options['fields']['field_sub_number']['field'] = 'field_sub_number';
-  $handler->display->display_options['fields']['field_sub_number']['relationship'] = 'field_cle_assignments_target_id';
-  $handler->display->display_options['fields']['field_sub_number']['label'] = '';
-  $handler->display->display_options['fields']['field_sub_number']['element_label_colon'] = FALSE;
   /* Field: Content: Title */
   $handler->display->display_options['fields']['title']['id'] = 'title';
   $handler->display->display_options['fields']['title']['table'] = 'node';
@@ -332,29 +299,11 @@ function cle_assignment_views_default_views() {
   $handler->display->display_options['fields']['title']['relationship'] = 'field_cle_assignments_target_id';
   $handler->display->display_options['fields']['title']['alter']['word_boundary'] = FALSE;
   $handler->display->display_options['fields']['title']['alter']['ellipsis'] = FALSE;
-  /* Field: Broken/missing handler */
-  $handler->display->display_options['fields']['field_cle_sub_type']['id'] = 'field_cle_sub_type';
-  $handler->display->display_options['fields']['field_cle_sub_type']['table'] = 'field_data_field_cle_sub_type';
-  $handler->display->display_options['fields']['field_cle_sub_type']['field'] = 'field_cle_sub_type';
-  $handler->display->display_options['fields']['field_cle_sub_type']['relationship'] = 'field_cle_assignments_target_id';
-  $handler->display->display_options['fields']['field_cle_sub_type']['label'] = 'Type';
-  /* Field: Broken/missing handler */
-  $handler->display->display_options['fields']['field_due_date']['id'] = 'field_due_date';
-  $handler->display->display_options['fields']['field_due_date']['table'] = 'field_data_field_due_date';
-  $handler->display->display_options['fields']['field_due_date']['field'] = 'field_due_date';
-  $handler->display->display_options['fields']['field_due_date']['relationship'] = 'field_cle_assignments_target_id';
-  $handler->display->display_options['fields']['field_due_date']['element_label_colon'] = FALSE;
   /* Field: Global: Custom text */
   $handler->display->display_options['fields']['nothing']['id'] = 'nothing';
   $handler->display->display_options['fields']['nothing']['table'] = 'views';
   $handler->display->display_options['fields']['nothing']['field'] = 'nothing';
   $handler->display->display_options['fields']['nothing']['label'] = 'My submission';
-  /* Sort criterion: Broken/missing handler */
-  $handler->display->display_options['sorts']['field_cle_order_value']['id'] = 'field_cle_order_value';
-  $handler->display->display_options['sorts']['field_cle_order_value']['table'] = 'field_data_field_cle_order';
-  $handler->display->display_options['sorts']['field_cle_order_value']['field'] = 'field_cle_order_value';
-  $handler->display->display_options['sorts']['field_cle_order_value']['relationship'] = 'field_cle_assignments_target_id';
-  $handler->display->display_options['sorts']['field_cle_order_value']['group_type'] = 'sum';
   /* Contextual filter: Content: Nid */
   $handler->display->display_options['arguments']['nid']['id'] = 'nid';
   $handler->display->display_options['arguments']['nid']['table'] = 'node';

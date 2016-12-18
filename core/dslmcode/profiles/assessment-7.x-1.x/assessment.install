@@ -58,3 +58,10 @@ function assessment_update_7004(&$sandbox) {
   module_disable(array('entity_iframe_provider', 'entity_iframe_consumer'));
 }
 
+/**
+ * TincanAPI Quiz integration was for 4.x, let's wait on the 5.x part.
+ */
+function assessment_update_7005(&$sandbox) {
+  module_disable(array('tincanapi_quiz'));
+}
+

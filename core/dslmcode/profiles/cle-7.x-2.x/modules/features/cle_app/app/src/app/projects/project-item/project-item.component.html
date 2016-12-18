@@ -1,0 +1,36 @@
+<div class="project">
+  <div class="project__header">
+    <div class="project__title-container">
+      <app-editable-field [type]="text" [content]="project.title" (contentUpdated)="updateTitle($event)">
+        <h1 class="project__title">{{ project.title }}</h1>
+      </app-editable-field>
+      <div class="project__description" [innerHTML]="project.description"></div>
+    </div>
+    <div class="project__options">
+      <a (click)="createAssignment()" class="waves-effect btn-flat tooltipped" data-tooltip="create assignment"><i class="material-icons">add</i></a>
+      <a (click)="deleteProject()" class="waves-effect btn-flat tooltipped" data-tooltip="create assignment"><i class="material-icons">delete</i></a>
+    </div>
+  </div>
+  <div class="project__board">
+    <cle-assignment-list [project]="project"></cle-assignment-list>
+  </div>
+</div>
+
+<!-- Modal Structure -->
+<div id="modal-{{project.id}}" class="modal assignment-form">
+  <div class="modal-content">
+    <h4>Create assignment</h4>
+    <app-assignment-form [project]="project" (assignmentCreated)="assignmentCreated($event)"></app-assignment-form>
+  </div>
+</div>
+
+<div id="modal-{{project.id}}" class="modal delete-project-form">
+  <div class="modal-content">
+    <h4>Delete project confirmation</h4>
+    <p>Are you sure you want to delete the project titled "{{ project.title }}"?</p>
+  </div>
+  <div class="modal-footer">
+    <a (click)="confirmDelete(false)" class="modal-action modal-close waves-effect waves-green btn-flat">Cancel</a>
+    <a (click)="confirmDelete(true)" class=" modal-action modal-close waves-effect waves-red btn-flat">Delete</a>
+  </div>
+</div>

@@ -1,0 +1,299 @@
+<?php
+
+/**
+ * @file
+ * Dummy module implementing a CAS Server.
+ */
+
+/**
+ *
+ */
+function cas_test_cas_phpcas_alter() {
+
+  // Set the User-Agent field which is used by SimpleTest to identify testing
+  // requests.
+  $test_info = &$GLOBALS['drupal_test_info'];
+  if (!empty($test_info['test_run_id'])) {
+    phpCAS::setExtraCurlOption(CURLOPT_USERAGENT, drupal_generate_test_ua($test_info['test_run_id']));
+  }
+
+  // Set all CAS server URLs manually, as this is the only way to specify an
+  // HTTP (i.e., not HTTPS) connection.
+  $service_url = phpCAS::getServiceURL();
+  phpCAS::setServerLoginURL(url('cas_test/login', array(
+    'query' => array('service' => $service_url),
+    'absolute' => TRUE,
+  )));
+
+  switch (variable_get('cas_version', '3.0')) {
+    case CAS_VERSION_1_0:
+      phpCAS::setServerServiceValidateURL(url('cas_test/validate', array('absolute' => TRUE)));
+      break;
+    case CAS_VERSION_2_0:
+      phpCAS::setServerServiceValidateURL(url('cas_test/serviceValidate', array('absolute' => TRUE)));
+      phpCAS::setServerProxyValidateURL(url('cas_test/proxyValidate',  array('absolute' => TRUE)));
+      break;
+    case CAS_VERSION_3_0:
+      phpCAS::setServerServiceValidateURL(url('cas_test/p3/serviceValidate', array('absolute' => TRUE)));
+      phpCAS::setServerProxyValidateURL(url('cas_test/p3/proxyValidate',  array('absolute' => TRUE)));
+      break;
+    default:
+      throw new Exception('Unknown CAS server version.');
+      break;
+  }
+
+  phpCAS::setServerLogoutURL(url('cas_test/logout',  array('absolute' => TRUE)));
+
+  // SAML not currently implemented.
+  // phpCAS::setServerSamlValidateURL(url('cas_test/samlValidate', array('absolute' => TRUE)));
+}
+
+/**
+ * Implements hook_menu().
+ */
+function cas_test_menu() {
+  $items = array();
+  $items['cas_test/login'] = array(
+    'page callback' => 'cas_test_login',
+    'title' => 'CAS Login',
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+  $items['cas_test/validate'] = array(
+    'page callback' => 'cas_test_validate',
+    'title' => 'CAS Validate',
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+  $items['cas_test/serviceValidate'] = array(
+    'page callback' => 'cas_test_service_validate',
+    'title' => 'CAS Service Validate',
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+  $items['cas_test/proxyValidate'] = array(
+    'page callback' => 'cas_test_service_validate',
+    'title' => 'CAS Proxy Ticket Validate',
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+  $items['cas_test/p3/serviceValidate'] = array(
+    'page callback' => 'cas_test_service_validate',
+    'title' => 'CAS 3.0 Service Validate',
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+  $items['cas_test/p3/proxyValidate'] = array(
+    'page callback' => 'cas_test_service_validate',
+    'title' => 'CAS 3.0 Proxy Ticket Validate',
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+  $items['cas_test/logout'] = array(
+    'page callback' => 'cas_test_logout',
+    'title' => 'CAS Logout',
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+  $items['cas_test/token'] = array(
+    'page callback' => 'cas_test_token_evaluate',
+    'title' => 'CAS Token Test',
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+  return $items;
+}
+
+/**
+ * Initiate a login request.
+ *
+ * Set the 'cas_test_cas_user' variable to an associative array containing:
+ * - 'name': CAS username.
+ * - 'attributes': (optional) Any other name-value pairs to be returned by the
+ *   CAS server.
+ */
+function cas_test_login() {
+  // Get the service and make a ticket.
+  $service = $_REQUEST['service'];
+  $cas_user = variable_get('cas_test_cas_user', '');
+
+  if ($cas_user) {
+    if (!is_array($cas_user)) {
+      $cas_user = array('name' => $cas_user, 'attributes' => array());
+    }
+    // Generate a ticket and redirect to the service URL with the login ticket.
+    $ticket = _cas_test_ticket_generate($service, $cas_user);
+    // Force redirection.
+    unset($_GET['destination']);
+    drupal_goto($service, array('query' => array('ticket' => $ticket)));
+  }
+  elseif (isset($_GET['gateway']) && $_GET['gateway'] == 'true') {
+    // We were not able to log in the user, so redirect to the service URL.
+    // Force redirection.
+    unset($_GET['destination']);
+    drupal_goto($service);
+  }
+  else {
+    // No CAS name was provided, print an error message.
+    print "Warning: No CAS name provided.\n";
+    exit();
+  }
+}
+
+/**
+ * Validate a ticket using the CAS 1.x protocol.
+ */
+function cas_test_validate() {
+  // Prevent this page from being cached.
+  drupal_page_is_cacheable(FALSE);
+
+  // Set content type.
+  drupal_add_http_header('Content-Type', 'text/plain; charset=utf-8');
+
+  //Obtain the ticket from the url and validate it.
+  $ticket = $_GET['ticket'];
+  $service = $_GET['service'];
+  $cas_user = _cas_test_ticket_validate($service, $ticket);
+  if ($cas_user) {
+    $cas_name = $cas_user['name'];
+    print "yes\n";
+    print "$cas_name\n";
+  }
+  else {
+    print "no\n";
+    print "\n";
+  }
+  exit();
+}
+
+/**
+ * Validate a ticket using the CAS 2.0 and CAS 3.0 protocols.
+ */
+function cas_test_service_validate() {
+  // Prevent this page from being cached.
+  drupal_page_is_cacheable(FALSE);
+
+  // Set content type.
+  drupal_add_http_header('Content-Type', 'text/xml; charset=utf-8');
+
+  $ticket = $_GET['ticket'];
+  $service = $_GET['service'];
+
+  if ($cas_user = _cas_test_ticket_validate($service, $ticket)) {
+    print theme('cas_service_validate_success', $cas_user);
+  }
+  else {
+    $error_code = (!$ticket || !$service) ? 'INVALID_REQUEST' : 'INVALID_TICKET';
+    print theme('cas_service_validate_failure', array('ticket' => $ticket, 'error_code' => $error_code));
+  }
+  exit();
+}
+
+/**
+ * Log out a user.
+ */
+function cas_test_logout() {
+  if (isset($_GET['url'])) {
+    print t('Logged out. Continue to @url.', array('@url' => $_GET['url']));
+  }
+  else {
+    print t('Logged out. No redirection provided.');
+  }
+  exit();
+}
+
+/**
+ * Generate a login ticket.
+ *
+ * @param $service
+ *   The service URL.
+ * @param $cas_user
+ *   An associative array containing the following keys:
+ *     - 'name': The CAS username.
+ *     - 'attributes': Any other key-value pairs the CAS server should return.
+ *
+ * @return
+ *   A login ticket which may be used to authenticate the CAS username at the
+ *   service URL.
+ */
+function _cas_test_ticket_generate($service, $cas_user) {
+  // Generate a one-time ticket.
+  $ticket = 'ST-' . user_password(32);
+
+  // Save the ticket in the database.
+  $tickets = variable_get('cas_test_tickets', array());
+  $tickets[$service][$ticket] = $cas_user;
+  variable_set('cas_test_tickets', $tickets);
+
+  // Save the name in the database for single sign-out.
+  $sso = variable_get('cas_test_sso', array());
+  $sso[$cas_user['name']][$service][] = $ticket;
+  variable_set('cas_test_sso', $sso);
+
+  return $ticket;
+}
+
+/**
+ * Validate a one-time-use login ticket.
+ *
+ * @param $service
+ *   The service URL.
+ * @param $ticket
+ *   The login or proxy ticket.
+ *
+ * @return
+ *   The CAS username corresponding to the ticket, or FALSE if the ticket is
+ *   invalid.
+ */
+function _cas_test_ticket_validate($service, $ticket) {
+  // Look up the ticket
+  $cas_name = FALSE;
+  $tickets = variable_get('cas_test_tickets', array());
+  if (isset($tickets[$service][$ticket])) {
+    $cas_name = $tickets[$service][$ticket];
+    unset($tickets[$service][$ticket]);
+  }
+  return $cas_name;
+}
+
+/**
+ * Sign out the specified CAS user.
+ *
+ * @param $cas_user
+ */
+function cas_test_single_sign_out($cas_name, $double_encode=FALSE) {
+  $sso = variable_get('cas_test_sso', array());
+  foreach ($sso[$cas_name] as $service => $tickets) {
+    foreach ($tickets as $ticket) {
+      // Generate posting:
+      $data = array(
+        'logoutRequest' => t("<samlp:LogoutRequest xmlns:samlp=\"urn:oasis:names:tc:SAML:2.0:protocol\" xmlns:saml=\"urn:oasis:names:tc:SAML:2.0:assertion\" ID=\"!id\" Version=\"2.0\" IssueInstant=\"!time\">\n<saml:NameID>@NOT_USED@</saml:NameID>\n<samlp:SessionIndex>!ticket</samlp:SessionIndex>\n</samlp:LogoutRequest>", array('!id' => user_password(10), '!time' => time(), '!ticket' => $ticket)),
+      );
+
+      if ($double_encode) {
+        // Certain CAS servers urlencode the logoutRequest.
+        $data['logoutRequest'] = urlencode($data['logoutRequest']);
+      }
+
+      // Sign out the user.
+      $options = array(
+        'method' => 'POST',
+        'headers' => array(
+          'Content-Type' => 'application/x-www-form-urlencoded',
+        ),
+        'data' => drupal_http_build_query($data),
+      );
+      drupal_http_request($service, $options);
+    }
+  }
+  unset($sso[$cas_name]);
+  variable_set('cas_test_sso', $sso);
+}
+
+/**
+ * Evaluate the specified token.
+ */
+function cas_test_token_evaluate() {
+  print token_replace($_GET['token'], array('cas' => $_GET['name']));
+  exit(0);
+}

@@ -116,10 +116,48 @@ function textbook_templates_wysiwyg_template_default_templates() {
     'description' => 'implements materialize style collapse',
     'weight' => 17,
     'fid' => 0,
-    'body' => '<ul class="collapsible" data-collapsible="accordion"><li><div class="collapsible-header"><i class="material-icons">filter_drama</i>First</div>
-<div class="collapsible-body"><p>Lorem ipsum dolor sit amet.</p></div></li><li><div class="collapsible-header"><i class="material-icons">place</i>Second</div>
-<div class="collapsible-body"><p>Lorem ipsum dolor sit amet.</p></div></li><li><div class="collapsible-header"><i class="material-icons">whatshot</i>Third</div>
-<div class="collapsible-body"><p>Lorem ipsum dolor sit amet.</p></div></li></ul>',
+    'body' => '<ul class="collapsible popout" data-collapsible="accordion" role="tablist">
+    <li class="collapsible-li">
+    	<a href="#" class="collapsible-header vibrate cis-lmsless-background black-text"><i class="material-icons">directions_walk</i>1. Take action</a>
+  		<div class="collapsible-body cis-lmsless-background">
+		    <div class="elmsln-collapsible-body">
+		      <p>Content</p>
+		    </div>
+	  	</div>
+  	</li>
+    <li class="collapsible-li">
+    	<a href="#" class="collapsible-header vibrate cis-lmsless-background black-text"><i class="material-icons">forward</i>2. Move forward</a>
+  		<div class="collapsible-body cis-lmsless-background">
+		    <div class="elmsln-collapsible-body">
+		      <p>Content</p>
+		    </div>
+	  	</div>
+  	</li>
+    <li class="collapsible-li">
+    	<a href="#" class="collapsible-header vibrate cis-lmsless-background black-text"><i class="material-icons">slow_motion_video</i>3. Ignore detractors</a>
+  		<div class="collapsible-body cis-lmsless-background">
+		    <div class="elmsln-collapsible-body">
+		      <p>Content</p>
+		    </div>
+	  	</div>
+  	</li>
+    <li class="collapsible-li">
+    	<a href="#" class="collapsible-header vibrate cis-lmsless-background black-text"><i class="material-icons">payment</i>4. Pay forward Process</a>
+  		<div class="collapsible-body cis-lmsless-background">
+		    <div class="elmsln-collapsible-body">
+		      <p>Content</p>
+		    </div>
+	  	</div>
+  	</li>
+    <li class="collapsible-li">
+    	<a href="#" class="collapsible-header vibrate cis-lmsless-background black-text"><i class="material-icons">account_balance</i>5. Change industry</a>
+  		<div class="collapsible-body cis-lmsless-background">
+		    <div class="elmsln-collapsible-body">
+		      <p>Content</p>
+		    </div>
+	  	</div>
+  	</li>
+</ul>',
     'format' => 'textbook_editor',
     'name' => 'materialize_collapsible',
     'content_types' => array(),

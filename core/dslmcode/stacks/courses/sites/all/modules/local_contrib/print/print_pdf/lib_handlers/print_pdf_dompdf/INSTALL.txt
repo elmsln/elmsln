@@ -2,17 +2,20 @@ dompdf support:
   The dompdf tool produces results that are more faithful to the HTML
   printer-friendly page. Good support of CSS 2.1 and partially CSS3.
 
-  1. Download dompdf from http://code.google.com/p/dompdf/downloads/list
+  1. Download dompdf from https://github.com/dompdf/dompdf/releases. Make
+  sure to download the full release zipfile. If you download only a source
+  code file, you will also need to download and install the php-font-lib.
   2. Extract the contents of the downloaded package into one of the
   supported paths.
-  3. Check if dompdf_config.inc.php fits your installation. In 99% of cases,
-  no changes are necessary, so just try to use it and only edit anything if
-  the PDF generation fails.
-  4. Grant write access to the lib/fonts directory to your webserver user.
-  5. If you're using dompdf-0.5.1, delete the dompdf.php file as it contains
-  a security vulnerability
-  6. If you're using dompdf-0.6 or later, you can try to enable the Unicode
-  support, but you'll need to add some Unicode fonts. See 
+  3. If using dompdf 0.6 or 0.5, check if dompdf_config.inc.php fits your
+  installation. In 99% of cases, no changes are necessary, so just try to use
+  it and only edit anything if the PDF generation fails.
+  4. If  using dompdf 0.6 or 0.5, delete the dompdf.php file as it contains a
+  security vulnerability. Delete also the index.php and www folder, as they are
+  not needed.
+  5. Grant write access to the lib/fonts directory to your webserver user.
+  6. If you're using dompdf 0.6, you can try to enable the Unicode support, but
+  you'll need to add some Unicode fonts. See
   http://groups.google.com/group/dompdf/browse_thread/thread/9f7bc0162b04d5cf
   for further info on this.
-  7. Check http://code.google.com/p/dompdf/ for further information.
+  7. Check https://dompdf.github.io/ for further information.

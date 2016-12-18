@@ -7,7 +7,7 @@
  * @ingroup print
  */
 
-define('PRINT_PDF_PDF_TOOL_DEFAULT', 0);
+define('PRINT_PDF_PDF_TOOL_DEFAULT', FALSE);
 define('PRINT_PDF_CONTENT_DISPOSITION_DEFAULT', 2);
 define('PRINT_PDF_PAPER_SIZE_DEFAULT', 'A4');
 define('PRINT_PDF_PAGE_ORIENTATION_DEFAULT', 'portrait');
@@ -15,7 +15,8 @@ define('PRINT_PDF_IMAGES_VIA_FILE_DEFAULT', 0);
 define('PRINT_PDF_AUTOCONFIG_DEFAULT', 1);
 define('PRINT_PDF_FILENAME_DEFAULT', '[site:name] - [node:title] - [node:changed:custom:Y-m-d]');
 define('PRINT_PDF_CACHE_ENABLED_DEFAULT', 0);
-define('PRINT_PDF_CACHE_LIFETIME_DEFAULT', 86400); // 1 day
+// 1 day.
+define('PRINT_PDF_CACHE_LIFETIME_DEFAULT', 86400);
 
 /**
  * Implements hook_print_link().
@@ -66,6 +67,7 @@ function print_pdf_init() {
     if (isset($info['public_dirs'])) {
       foreach ($info['public_dirs'] as $dir) {
         $directory = 'public://print_pdf/' . $tool[0] . '/' . $dir;
+        /** @var DrupalLocalStreamWrapper $wrapper */
         $wrapper = file_stream_wrapper_get_instance_by_uri($directory);
         $real_directory_path = $wrapper->getDirectoryPath() . "/" . file_uri_target($directory);
         $result = file_prepare_directory($real_directory_path, FILE_CREATE_DIRECTORY);
@@ -160,11 +162,12 @@ function print_pdf_block_info() {
  * Implements hook_block_view().
  */
 function print_pdf_block_view($delta = 0) {
+  $block = array();
   switch ($delta) {
     case 'print_pdf-top':
       $block['subject'] = t('Most PDFd');
       $result = db_query_range("SELECT path FROM {print_pdf_page_counter} LEFT JOIN {node} n ON path = CONCAT('node/', n.nid) WHERE status <> 0 OR status IS NULL ORDER BY totalcount DESC", 0, 3)
-                  ->fetchAll();
+        ->fetchAll();
       if (count($result)) {
         $items = array();
         foreach ($result as $obj) {
@@ -175,96 +178,6 @@ function print_pdf_block_view($delta = 0) {
       break;
   }
   return $block;
-}
-
-/**
- * Implements hook_requirements().
- */
-function print_pdf_requirements($phase) {
-  $requirements = array();
-  $t = get_t();
-  switch ($phase) {
-    // At runtime, make sure that a PDF generation tool is selected
-    case 'runtime':
-      $print_pdf_pdf_tool = variable_get('print_pdf_pdf_tool', PRINT_PDF_PDF_TOOL_DEFAULT);
-      if (empty($print_pdf_pdf_tool)) {
-        $requirements['print_pdf_tool'] = array(
-          'title' => $t('Printer, email and PDF versions - PDF generation library'),
-          'value' => $t('No PDF tool selected'),
-          'description' => $t('Please configure it in the !url.', array('!url' => l($t('PDF settings page'), 'admin/config/user-interface/print/pdf'))),
-          'severity' => REQUIREMENT_ERROR,
-        );
-      }
-      else {
-        // Tool is defined, get some data from it's handler module
-        $tool = explode('|', $print_pdf_pdf_tool);
-        $function = $tool[0] . '_pdf_tool_info';
-        if (function_exists($function)) {
-          $info = $function();
-        }
-
-        // Is the file there?
-        if (!is_file($tool[1]) || !is_readable($tool[1])) {
-          $requirements['print_pdf_tool'] = array(
-            'title' => $t('Printer, email and PDF versions - PDF generation library'),
-            'value' => $t('File not found'),
-            'description' => $t('The currently selected PDF generation library (%file) is no longer accessible.', array('%file' => $tool[1])),
-            'severity' => REQUIREMENT_ERROR,
-          );
-        }
-        else {
-          // Get the version number
-          $function = $tool[0] . '_pdf_tool_version';
-          if (function_exists($function)) {
-            $version = $function($tool[1]);
-
-            if (isset($info['min_version']) && version_compare($version, $info['min_version'], '<')) {
-              $requirements['print_pdf_tool_version'] = array(
-                'title' => $t('Printer, email and PDF versions - PDF generation library'),
-                'value' => $t('Unsupported %lib version', array('%lib' => $info['name'])),
-                'description' => $t('The currently selected version of %lib (@version) is not supported. Please update to a !url.',
-                                    array('%lib' => $info['name'], '@version' => $version, '!url' => l($t('newer version'), $info['url']))),
-                'severity' => REQUIREMENT_ERROR,
-              );
-            }
-            else {
-              $requirements['print_pdf_tool_version'] = array(
-                'title' => $t('Printer, email and PDF versions - PDF generation library'),
-                'value' => $info['name'] . ' ' . $version,
-              );
-            }
-          }
-        }
-
-        // If auto-config is on, check for write access to the appropriate dirs
-        if (variable_get('print_pdf_autoconfig', PRINT_PDF_AUTOCONFIG_DEFAULT)) {
-          $directories = array();
-          if (isset($info['public_dirs'])) {
-            foreach ($info['public_dirs'] as $dir) {
-              $directories[] = 'public://print_pdf/' . $tool[0] . '/' . $dir;
-            }
-          }
-          if (isset($info['tool_dirs'])) {
-            foreach ($info['tool_dirs'] as $dir) {
-              $directories[] = dirname($tool[1]) . '/' . $dir;
-            }
-          }
-
-          foreach ($directories as $dir) {
-            if (!is_dir($dir) || !is_writable($dir)) {
-              $requirements['print_pdf_tool_' . $dir] = array(
-                'title' => $t('%lib directory', array('%lib' => $info['name'])),
-                'value' => $t('Non-writable permissions'),
-                'description' => $t('You must change the %libdir permissions to be writable, as %lib requires write-access to that directory.', array('%lib' => $info['name'], '%libdir' => $dir)),
-                'severity' => REQUIREMENT_ERROR,
-              );
-            }
-          }
-        }
-      }
-      break;
-  }
-  return $requirements;
 }
 
 /**
@@ -293,7 +206,7 @@ function print_pdf_node_load($nodes, $types) {
  * Implements hook_node_insert().
  */
 function print_pdf_node_insert($node) {
-  return print_pdf_node_update($node);
+  print_pdf_node_update($node);
 }
 
 /**
@@ -306,8 +219,12 @@ function print_pdf_node_update($node) {
     $size = 'print_' . $link['format'] . '_size';
     $orientation = 'print_' . $link['format'] . '_orientation';
 
-    if (!isset($node->{$size})) $node->{$size} = variable_get($size . '_' . $node->type);
-    if (!isset($node->{$orientation})) $node->{$orientation} = variable_get($orientation . '_' . $node->type);
+    if (!isset($node->{$size})) {
+      $node->{$size} = variable_get($size . '_' . $node->type);
+    }
+    if (!isset($node->{$orientation})) {
+      $node->{$orientation} = variable_get($orientation . '_' . $node->type);
+    }
 
     db_merge('print_pdf_node_conf')
       ->key(array('nid' => $node->nid))
@@ -336,7 +253,7 @@ function print_pdf_node_delete($node) {
  * Implements hook_form_alter().
  */
 function print_pdf_form_alter(&$form, &$form_state, $form_id) {
-  // Add the node-type settings option to activate the printer-friendly version link
+  // Add the node-type settings to activate the printer-friendly version link.
   if ((user_access('administer print') || user_access('node-specific print configuration')) &&
       (($form_id == 'node_type_form') || !empty($form['#node_edit_form']))) {
     $link = print_pdf_print_link();
@@ -354,7 +271,11 @@ function print_pdf_form_alter(&$form, &$form_state, $form_id) {
     $form['print']['print_' . $link['format']][$orientation] = array(
       '#type' => 'select',
       '#title' => t('Page orientation'),
-      '#options' => array('' => 'Unchanged', 'portrait' => t('Portrait'), 'landscape' => t('Landscape')),
+      '#options' => array(
+        '' => 'Unchanged',
+        'portrait' => t('Portrait'),
+        'landscape' => t('Landscape'),
+      ),
       '#description' => t('Choose the page orientation of the generated PDF.'),
     );
 
@@ -371,18 +292,18 @@ function print_pdf_form_alter(&$form, &$form_state, $form_id) {
 }
 
 /**
- * Auxiliary function to display a formatted PDF version link
+ * Auxiliary function to display a formatted PDF version link.
  *
  * Function made available so that developers may call this function from
  * their defined pages/blocks.
  *
  * @param string $path
- *   path to be used in the link. If not specified, the current URL is used.
+ *   Path to be used in the link. If not specified, the current URL is used.
  * @param object $node
- *   node object, to be used in checking node access. If the path argument is
+ *   Node object, to be used in checking node access. If the path argument is
  *   not provided, the path used will be node/nid.
  * @param string $location
- *   where in the page where the link is being inserted ('link', 'corner',
+ *   Where in the page where the link is being inserted ('link', 'corner',
  *   'block', 'help').
  *
  * @return bool
@@ -392,7 +313,11 @@ function print_pdf_form_alter(&$form, &$form_state, $form_id) {
  */
 function print_pdf_insert_link($path = NULL, $node = NULL, $location = '') {
   if (function_exists('print_ui_insert_link')) {
-    return print_ui_insert_link(print_pdf_print_link(), array('path' => $path, 'node' => $node, 'location' => $location));
+    return print_ui_insert_link(print_pdf_print_link(), array(
+      'path' => $path,
+      'node' => $node,
+      'location' => $location,
+    ));
   }
   else {
     return FALSE;
@@ -400,11 +325,11 @@ function print_pdf_insert_link($path = NULL, $node = NULL, $location = '') {
 }
 
 /**
- * Check if the link to the PDF version is allowed depending on the settings
+ * Check if the link to the PDF version is allowed depending on the settings.
  *
  * @param array $args
- *   array containing the possible parameters:
- *    view_mode, node, type, path
+ *   Array containing the possible parameters:
+ *    view_mode, node, type, path.
  *
  * @return bool
  *   FALSE if not allowed, TRUE otherwise
@@ -431,11 +356,11 @@ function print_pdf_cache_clean() {
   if ($lifetime > 0) {
     $files = file_scan_directory(print_pdf_cache_dir(), '!\d+\.pdf$!');
     foreach ($files as $file) {
-      // For all files in the cache directory, see when they were last accessed
+      // For all files in the cache directory, see when they were last accessed.
       $result = db_query("SELECT timestamp FROM {print_pdf_page_counter} WHERE path = :path", array(':path' => 'node/' . $file->name))
-                  ->fetchField();
+        ->fetchField();
 
-      // Keep the file only if the last access was within the cache max life value
+      // Keep the file only if last access was within the cache max life value.
       if (($result === FALSE) || ($result + $lifetime < REQUEST_TIME)) {
         print_pdf_cache_delete($file->name);
       }
@@ -460,7 +385,7 @@ function print_pdf_cache_dir() {
 /**
  * Deletes one or more files from the PDF cache directory.
  *
- * @param int nid
+ * @param int $nid
  *   The node ID of the page for which the cached PDF should be deleted.
  *   If not provided, the entire cache directory will be deleted.
  */
@@ -485,9 +410,9 @@ function print_pdf_cache_delete($nid = NULL) {
  * Displays the PDF as inline or a downloadable file.
  *
  * @param string $pdf
- *   PDF content string
+ *   PDF content string.
  * @param string $filename
- *   Filename of the generated PDF
+ *   Filename of the generated PDF.
  *
  * @return string
  *   The disposed PDF file
@@ -500,7 +425,7 @@ function print_pdf_dispose_content($pdf, $filename) {
   header('Content-Type: application/pdf');
 
   $content_disposition = variable_get('print_pdf_content_disposition', PRINT_PDF_CONTENT_DISPOSITION_DEFAULT);
-  $attachment =  ($content_disposition == 2) ?  'attachment' :  'inline';
+  $attachment = ($content_disposition == 2) ? 'attachment' : 'inline';
 
   header("Content-Disposition: $attachment; filename=\"$filename\"");
 
@@ -514,21 +439,21 @@ function print_pdf_dispose_content($pdf, $filename) {
  * Generate a PDF version of the provided HTML.
  *
  * @param string $html
- *   HTML content of the PDF
+ *   HTML content of the PDF.
  * @param array $meta
  *   Meta information to be used in the PDF
  *   - url: original URL
  *   - name: author's name
  *   - title: Page title
- *   - node: node object
+ *   - node: node object.
  * @param string $filename
- *   (optional) Filename of the generated PDF
+ *   (optional) Filename of the generated PDF.
  * @param string $paper_size
- *   (optional) Paper size of the generated PDF
+ *   (optional) Paper size of the generated PDF.
  * @param string $page_orientation
- *   (optional) Page orientation of the generated PDF
+ *   (optional) Page orientation of the generated PDF.
  *
- * @return
+ * @return string|null
  *   generated PDF page, or NULL in case of error
  *
  * @see print_pdf_controller()
@@ -541,9 +466,7 @@ function print_pdf_generate_html($html, $meta, $filename = NULL, $paper_size = N
   module_load_include('inc', $pdf_tool[0], $pdf_tool[0] . '.pages');
 
   $function = $pdf_tool[0] . '_print_pdf_generate';
-  if (function_exists($function)) {
-    $pdf = $function($html, $meta, $paper_size, $page_orientation);
-  }
+  $pdf = function_exists($function) ? $function($html, $meta, $paper_size, $page_orientation) : NULL;
   if ($filename) {
     return print_pdf_dispose_content($pdf, $filename);
   }
@@ -562,31 +485,67 @@ function print_pdf_views_api() {
 }
 
 /**
- * Lists all possible paper sizes
+ * Lists all possible paper sizes.
  *
- * @return
+ * @param bool $include_default
+ *   Flag indicating whether to include the tool's default value.
+ *
+ * @return array
  *   array of strings with the available paper sizes
  */
 function _print_pdf_paper_sizes($include_default = FALSE) {
-  $ret = array();
-
   $ret = ($include_default) ? array('' => 'Unchanged') : array();
 
   $ret += array(
-    '4A0' => '4A0', '2A0' => '2A0', 'A0' => 'A0',
-    'A1' => 'A1', 'A2' => 'A2', 'A3' => 'A3', 'A4' => 'A4',
-    'A5' => 'A5', 'A6' => 'A6', 'A7' => 'A7', 'A8' => 'A8',
-    'A9' => 'A9', 'A10' => 'A10', 'B0' => 'B0', 'B1' => 'B1',
-    'B2' => 'B2', 'B3' => 'B3', 'B4' => 'B4', 'B5' => 'B5',
-    'B6' => 'B6', 'B7' => 'B7', 'B8' => 'B8', 'B9' => 'B9',
-    'B10' => 'B10', 'C0' => 'C0', 'C1' => 'C1', 'C2' => 'C2',
-    'C3' => 'C3', 'C4' => 'C4', 'C5' => 'C5', 'C6' => 'C6',
-    'C7' => 'C7', 'C8' => 'C8', 'C9' => 'C9', 'C10' => 'C10',
-    'RA0' => 'RA0', 'RA1' => 'RA1', 'RA2' => 'RA2',
-    'RA3' => 'RA3', 'RA4' => 'RA4', 'SRA0' => 'SRA0',
-    'SRA1' => 'SRA1', 'SRA2' => 'SRA2', 'SRA3' => 'SRA3',
-    'SRA4' => 'SRA4', 'LETTER' => 'Letter', 'LEGAL' => 'Legal',
-    'EXECUTIVE' => 'Executive', 'FOLIO' => 'Folio',
+    '4A0' => '4A0',
+    '2A0' => '2A0',
+    'A0' => 'A0',
+    'A1' => 'A1',
+    'A2' => 'A2',
+    'A3' => 'A3',
+    'A4' => 'A4',
+    'A5' => 'A5',
+    'A6' => 'A6',
+    'A7' => 'A7',
+    'A8' => 'A8',
+    'A9' => 'A9',
+    'A10' => 'A10',
+    'B0' => 'B0',
+    'B1' => 'B1',
+    'B2' => 'B2',
+    'B3' => 'B3',
+    'B4' => 'B4',
+    'B5' => 'B5',
+    'B6' => 'B6',
+    'B7' => 'B7',
+    'B8' => 'B8',
+    'B9' => 'B9',
+    'B10' => 'B10',
+    'C0' => 'C0',
+    'C1' => 'C1',
+    'C2' => 'C2',
+    'C3' => 'C3',
+    'C4' => 'C4',
+    'C5' => 'C5',
+    'C6' => 'C6',
+    'C7' => 'C7',
+    'C8' => 'C8',
+    'C9' => 'C9',
+    'C10' => 'C10',
+    'RA0' => 'RA0',
+    'RA1' => 'RA1',
+    'RA2' => 'RA2',
+    'RA3' => 'RA3',
+    'RA4' => 'RA4',
+    'SRA0' => 'SRA0',
+    'SRA1' => 'SRA1',
+    'SRA2' => 'SRA2',
+    'SRA3' => 'SRA3',
+    'SRA4' => 'SRA4',
+    'LETTER' => 'Letter',
+    'LEGAL' => 'Legal',
+    'EXECUTIVE' => 'Executive',
+    'FOLIO' => 'Folio',
   );
 
   return $ret;

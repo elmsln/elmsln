@@ -8,241 +8,68 @@ define('CLE_ASSIGNMENT_DEFAULT_COLOR', 'aac');
 
 include_once 'cle_assignment.features.inc';
 
+/**
+ * Implements hook_menu().
+ */
 function cle_assignment_menu() {
   $items = array();
-
-  $items['api/v1/cle'] = array(
-    'page callback' => '_cle_assignments_v1_cle',
+  $items['api/v1/cle/assignments'] = array(
+    'page callback' => '_elmsln_api_v1_page_callback',
+    'page arguments' => array('assignment', NULL, NULL),
     'access callback' => 'user_is_logged_in',
     'type' => MENU_CALLBACK,
   );
-  $items['api/v1/cle/assignments'] = array(
-    'page callback' => '_cle_assignemnts_v1_cle_assignments',
-    'page arguments' => array('assignments_endpoint'),
+  $items['api/v1/cle/assignments/create'] = array(
+    'page callback' => '_elmsln_api_v1_page_callback',
+    'page arguments' => array('assignment', NULL, 4),
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_CALLBACK,
+  );
+  $items['api/v1/cle/assignments/fields'] = array(
+    'page callback' => '_elmsln_api_v1_page_callback',
+    'page arguments' => array('assignment', NULL, 4),
     'access callback' => 'user_is_logged_in',
     'type' => MENU_CALLBACK,
   );
   $items['api/v1/cle/assignments/%'] = array(
-    'page callback' => 'cle_assignments_v1_page_callback',
-    'page arguments' => array('assignment_endpoint', 4),
+    'page callback' => '_elmsln_api_v1_page_callback',
+    'page arguments' => array('assignment', 4, 'query'),
     'access callback' => 'user_is_logged_in',
     'type' => MENU_CALLBACK,
   );
-
+  $items['api/v1/cle/assignments/%/fields'] = array(
+    'page callback' => '_elmsln_api_v1_page_callback',
+    'page arguments' => array('assignment', 4, 5),
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_CALLBACK,
+  );
+  $items['api/v1/cle/assignments/%/update'] = array(
+    'page callback' => '_elmsln_api_v1_page_callback',
+    'page arguments' => array('assignment', 4, 'update'),
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_CALLBACK,
+  );
+  $items['api/v1/cle/assignments/%/delete'] = array(
+    'page callback' => '_elmsln_api_v1_page_callback',
+    'page arguments' => array('assignment', 4, 'delete'),
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_CALLBACK,
+  );
   return $items;
 }
 
 /**
- * Page Callback that will handle all of the incoming api calls.
+ * Implements hook_elmsln_jsapi_info().
  */
-function cle_assignments_v1_page_callback($id, $page_arguments = NULL) {
-  // CSRF protection on write operations.
-  if (!in_array($_SERVER['REQUEST_METHOD'], array('GET', 'HEAD', 'OPTIONS', 'TRACE')) && !restws_csrf_validation()) {
-    restws_terminate_request('403 Forbidden', '403 Access Denied: CSRF validation failed');
-  }
-
-  // find out what endpoint is being called and forward it to the appropriate callback
-  switch ($id) {
-    case 'assignments_endpoint':
-      _cle_assignemnts_v1_cle_assignments();
-      break;
-
-    case 'assignment_endpoint':
-      _cle_assignemnts_v1_cle_assignment($page_arguments);
-      break;
-
-    default:
-      // if it got this far then that means the user is hitting and enpoint that doesn't exist.
-      $vars = array(
-        'status' => '400',
-        'detail' => 'Invalid endpoint',
-      );
-      drupal_add_http_header('Content-Type', 'application/json');
-      print drupal_json_output($vars);
-      drupal_exit();
-      break;
-  }
-}
-
-function _cle_assignments_v1_cle() {
-  $vars = array();
-  global $base_url;
-
-  // assemble the call
-  $vars['links'] = array(
-    'self' => $base_url . '/api/v1/cle',
-    'assignments' => $base_url . '/api/v1/cle/assignments',
+function cle_assignment_elmsln_jsapi_info() {
+  // assignment api router
+  $items['assignment'] = array(
+    'type' =>   'cle_assignment',
+    'modify' => '_cle_assignment_v1_assignment_modify',
+    'list' =>   '_cle_assignment_v1_get_assignments',
+    'output' => '_cle_assignment_v1_assignment_output',
   );
-
-  // output the assginments
-  drupal_add_http_header('Content-Type', 'application/json');
-  print drupal_json_output($vars);
-  drupal_exit();
-}
-
-/**
- * Page callback to return list of assignments
- */
-function _cle_assignemnts_v1_cle_assignments() {
-  global $base_url;
-  $vars = array();
-  // gather the list of assignments to send
-  $assignments = _cle_assignemnts_v1_get_assignments();
-
-  // assemble the call
-  $vars['links'] = array(
-    'self' => $base_url . '/api/v1/cle/assignments',
-    'create' => $base_url . '/api/v1/cle/assignments/create',
-  );
-  // get the assignment ready for sending and place them as an array of items
-  // under the 'data' property
-  foreach ($assignments as $assignment) {
-    $_assignment = _cle_assignment_v1_assignment_output($assignment);
-    $vars['data'][] = $_assignment;
-  }
-
-  // output the assginments
-  drupal_add_http_header('Content-Type', 'application/json');
-  print drupal_json_output($vars);
-  drupal_exit();
-}
-
-/**
- * Page Callback to return either a single assignment or a method.
- */
-function _cle_assignemnts_v1_cle_assignment($argument) {
-  // Check if the argument is a verb a.k.a an endpoint method
-  // if it is numeric then that means we are targeting an assignment ID
-  if (is_numeric($argument)) {
-    _cle_assignemnts_v1_cle_assignment_id($argument);
-  }
-  // check and see if we are dealing with any of the known verbs/method
-  else {
-    switch ($argument) {
-      case 'create':
-        // initialize the create assignment method
-        _cle_assignment_v1_assignment_create();
-        break;
-    }
-  }
-
-  // if it got this far then that means there was an invalid argument in the url
-  $vars = array(
-    'status' => '400',
-    'detail' => 'Invalid endpoint argument',
-  );
-  drupal_add_http_header('Content-Type', 'application/json');
-  print drupal_json_output($vars);
-  drupal_exit();
-}
-
-/**
- * @todo: Need to make this endopint handle POST requests to create assignments
- *        - needs to accept a custom data that looks like the generated output
- *          of this function _cle_assignment_v1_assignment_output();
- */
-function _cle_assignment_v1_assignment_create() {
-  // output the newly created assignment
-  $vars = array(
-    'status' => '200',
-    'detail' => 'Assignment created',
-    'assignment' => array(
-      'id' => 43 // the node id of the assignment
-    )
-  );
-  drupal_add_http_header('Content-Type', 'application/json');
-  print drupal_json_output($vars);
-  drupal_exit();
-}
-
-/**
- * Helper function to output a single assignment
- */
-function _cle_assignemnts_v1_cle_assignment_id($assignment_id) {
-  $vars = array();
-  // load the assignment
-  $assignment = node_load($assignment_id);
-  // get the assignment ready for sending
-  $assignment_apiformat = _cle_assignment_v1_assignment_output($assignment);
-
-  // assemble the call
-  $vars['links'] = array(
-    'self' => $base_url . '/api/v1/cle/assignments',
-  );
-  // place the formatted assignment under the 'data' property
-  $vars['data'] = $assignment_apiformat;
-
-  // output the assginment
-  drupal_add_http_header('Content-Type', 'application/json');
-  print drupal_json_output($vars);
-  drupal_exit();
-}
-
-
-/**
- * Helper function that prepares an assignment for api output.
- */
-function _cle_assignment_v1_assignment_output($assignment) {
-  // MOCK CONTENT:random date
-  $rand_date = mt_rand(1493827200,1499827200);
-  $_startDate = Date('c', $rand_date);
-  $_endDate = Date('c', $rand_date + 300000);
-
-
-  global $base_url;
-  // this will be our json formatted output
-  $return = array();
-
-  $return = array(
-    'type' => 'assignment',
-    'id' => (int)$assignment->nid,
-    'title' => $assignment->title,
-    'status' => (int)$assignment->status,
-    'created' => (int)$assignment->created,
-    'body' => $assignment->body[LANGUAGE_NONE][0]['safe_value'],
-    'links' => array(
-      'self' => $base_url . '/api/v1/cle/assignments/' . $assignment->nid,
-    ),
-
-    // @todo
-    // Need to replace static values below
-    'startDate' => $_startDate, //optional
-    'endDate' => $_endDate, //optional
-    'type' => _cle_random(array('open', 'closed', 'open', 'people see', 'closed', 'is private submission')),
-    'dependency' => _cle_random(array('none', 'previous', 'parent')),// default: none
-    'assets' => _cle_random(array('text', 'links', 'video', 'images', 'files'), 2), // unlimited
-    'critique' => array(
-      'method' => _cle_random(array('random', 'partner', 'open')),// default: random
-      'style' => _cle_random(array('double_blind', 'blind', 'open')),// default: double blind
-      'outline' => _cle_random(array('', 'Outline A')), //optional @todo: not sure what this is for
-      'public' => _cle_random(array('public', 'private')), // default: public
-    ),
-    'complete' => _cle_random(array(0,1)), // determines whether the assignment is complete.
-  );
-
-  return $return;
-}
-
-/**
- * @todo
- * Get all of the assignments for the current user
- * - Make sure they have permission to see assignments
- * - Make sure that they are seeing assignments for their current section
- */
-function _cle_assignemnts_v1_get_assignments() {
-  $assignments = array();
-  $query = new EntityFieldQuery();
-  $query->entityCondition('entity_type', 'node')
-    ->entityCondition('bundle', 'cle_assignment')
-    ->propertyCondition('status', NODE_PUBLISHED);
-
-  $result = $query->execute();
-  if (isset($result['node'])) {
-    $assignment_nids = array_keys($result['node']);
-    $assignments = entity_load('node', $assignment_nids);
-  }
-
-  return $assignments;
+  return $items;
 }
 
 /**
@@ -253,21 +80,15 @@ function cle_assignment_form_cle_assignment_node_form_alter(&$form, &$form_state
 }
 
 /**
- * Implements hook_init().
+ * Implements hook_page_build().
  */
-function cle_assignment_init() {
+function cle_assignment_page_build(&$page) {
   if (arg(0) == 'node' && arg(2) == 'assignment_bulk') {
     $file = 'assignment_bulk';
     $path = drupal_get_path('module', 'cle_assignment') . '/';
     drupal_add_js($path . 'js/' . $file . '.js');
     drupal_add_css($path . 'css/' . $file . '.css');
   }
-}
-
-/**
- * Implements hook_page_build().
- */
-function cle_assignment_page_build(&$page) {
   $node = menu_get_object();
   if ($node && $node->type == 'cle_assignment' && arg(2) != 'edit') {
     $field_conditions = array('field_assignment' => array('target_id', array($node->nid), 'IN'));
@@ -287,38 +108,86 @@ function cle_assignment_page_build(&$page) {
 }
 
 /**
- * Implements hook_node_insert().
+ * ELMSLN JSapi callback for creating an assignment.
+ * @todo  make this use the full POST data sanitized and in params.
  */
-function cle_assignment_node_insert($node) {
-  // make sure there's an outline associated to this
-  // but only if we have at least 1 to do so with
-  if ($node->type == 'cle_assignment') {
-    // add this assignment to the master section assignment list automatically
-    if ($gid = _cis_section_load_section_by_id(CIS_SECTION_MASTER)) {
-      // this case can be triggered if the dates get updated downstream in CIS
-      // or if we create something ahead of the semester
-      $section = node_load($gid);
-      $section->field_cle_assignments['und'][] = array('target_id' => $node->nid);
-      node_save($section);
+function _cle_assignment_v1_assignment_modify($node, $params = NULL) {
+  if (!isset($node->nid)) {
+    $detail = t('Assignment created');
+  }
+  else {
+    $detail = t('Assignment updated');
+  }
+  // loop through supported parameters and set them for create or update
+  foreach ($params as $key => $value) {
+    // fields we support in a POST
+    switch ($key) {
+      case 'uid':
+      case 'title':
+        $node->{$key} = $value;
+      break;
     }
   }
+  node_save($node);
+  // output the newly created node
+  $vars = array(
+    'status' => '200',
+    'detail' => $detail,
+    'node' => (array) $node,
+  );
+  return $vars;
 }
 
 /**
- * Helper function to randomly choose from an array. For development purposes
- * only.
+ * Helper function that prepares an assignment for api output.
  */
-function _cle_random($array, $amount = 1) {
-  $index = array_rand($array, $amount);
+function _cle_assignment_v1_assignment_output($node) {
+  // get an array of formatted dates
+  $dates = _cle_api_format_date_field($node->field_assignment_due_date[LANGUAGE_NONE][0]);
 
-  if (is_array($index)) {
-    $a = array();
-    foreach($index as $i) {
-      $a[] = $array[$i];
-    }
-    return $a;
+  global $base_url;
+  // this will be our json formatted output
+  $return = array(
+    'id' => (int)$node->nid,
+    'title' => $node->title,
+    'status' => (int)$node->status,
+    'created' => (int)$node->created,
+    'body' => $node->field_assignment_description[LANGUAGE_NONE][0]['safe_value'],
+    'links' => array(
+      'self' => $base_url . '/api/v1/cle/assignments/' . $node->nid,
+    ),
+    'type' => ($node->field_assignment_privacy_setting ? $node->field_assignment_privacy_setting[LANGUAGE_NONE][0]['value'] : 'open'),
+    'startDate' => $dates[0],
+    'endDate' => $dates[1],
+    // @todo
+    // Need to replace static values below
+    'dependency' => _cle_api_random(array('none', 'previous', 'parent')),// default: none
+    'assets' => _cle_api_random(array('text', 'links', 'video', 'images', 'files'), 2), // unlimited
+    'critique' => array(
+      'method' => _cle_api_random(array('random', 'partner', 'open')),// default: random
+      'style' => _cle_api_random(array('double_blind', 'blind', 'open')),// default: double blind
+      'outline' => _cle_api_random(array('', 'Outline A')), //optional @todo: not sure what this is for
+      'public' => _cle_api_random(array('public', 'private')), // default: public
+    ),
+    'complete' => _cle_api_random(array(0,1)), // determines whether the assignment is complete.
+  );
+
+  return $return;
+}
+
+/**
+ * @todo
+ * Get all of the assignments for the current user
+ * - Make sure that they are seeing assignments for their current section
+ */
+function _cle_assignment_v1_get_assignments($filter = array()) {
+  $items = array();
+  $field_conditions = array();
+  $property_conditions = array('status' => array(NODE_PUBLISHED, '='));
+  if (isset($filter['assignment'])) {
+    $property_conditions['nid'] = array($filter['assignment'], '=');
   }
-  else {
-    return $array[$index];
-  }
+  $orderby = array();
+  $items = _cis_connector_assemble_entity_list('node', 'cle_assignment', 'nid', '_entity', $field_conditions, $property_conditions, $orderby);
+  return $items;
 }

@@ -12,17 +12,6 @@
  *
  * This manually invokes hook_diff() to avoid a function name clash with the
  * PHP 5 (>= 5.3.0) date_diff() function or the Dates modules implementation.
- *
- * @param object $old_entity
- *   The older node revision.
- * @param object $new_entity
- *   The newer node revision.
- * @param array $context
- *   An associative array containing:
- *   - entity_type: The entity type; e.g., 'node' or 'user'.
- *   - old_entity: The older entity.
- *   - new_entity: The newer entity.
- *   - view_mode: The view mode to use. Defaults to FALSE.
  */
 function diff_entity_diff($old_entity, $new_entity, $context) {
   $return = array();
@@ -52,11 +41,13 @@ function diff_entity_diff($old_entity, $new_entity, $context) {
  *   - old_entity: The older entity.
  *   - new_entity: The newer entity.
  *   - view_mode: The view mode to use. Defaults to FALSE.
+ * @param string $default_langcode
+ *   (optional) Language code to force comparison in.
  *
  * @return array
  *   An associative array of values keyed by the field name and delta value.
  */
-function diff_entity_fields_diff($old_entity, $new_entity, $context) {
+function diff_entity_fields_diff($old_entity, $new_entity, $context, $default_langcode = NULL) {
   $result = array();
 
   $entity_type = $context['entity_type'];
@@ -65,7 +56,7 @@ function diff_entity_fields_diff($old_entity, $new_entity, $context) {
   $field_context = $context;
 
   $actual_mode = FALSE;
-  list(,, $bundle_name) = entity_extract_ids($entity_type, $new_entity);
+  list(, , $bundle_name) = entity_extract_ids($entity_type, $new_entity);
   $instances = field_info_instances($entity_type, $bundle_name);
 
   // Some fields piggy back the display settings, so we need to fake these by
@@ -98,7 +89,7 @@ function diff_entity_fields_diff($old_entity, $new_entity, $context) {
 
     // We provide a loose check on the field access.
     if (field_access('view', $field, $entity_type) || field_access('edit', $field, $entity_type)) {
-      $langcode = field_language($entity_type, $new_entity, $field_name);
+      $langcode = $default_langcode ? $default_langcode : field_language($entity_type, $new_entity, $field_name);
 
       $field_context['language'] = $langcode;
       $field_context['field'] = $field;
@@ -136,10 +127,18 @@ function diff_entity_fields_diff($old_entity, $new_entity, $context) {
         $func = 'diff_field_diff_view';
       }
 
+      // Copy the static ID cache to ensure this is the same for each comparison.
+      $original_html_ids = drupal_static('drupal_html_id');
+      $html_ids = &drupal_static('drupal_html_id');
+
       // These callbacks should be independent of revision.
       $old_context = $field_context;
       $old_context['entity'] = $old_entity;
       $old_values = $func($old_items, $old_context);
+
+      // Restores the ID cache to the original.
+      $html_ids = $original_html_ids;
+
       $new_context = $field_context;
       $new_context['entity'] = $new_entity;
       $new_values = $func($new_items, $new_context);
@@ -200,22 +199,29 @@ function diff_entity_fields_diff($old_entity, $new_entity, $context) {
  *   An array of strings representing the value, keyed by delta index.
  */
 function diff_field_diff_view($items, $context) {
-  $diff_items = array();
-   $entity = clone $context['entity'];
-   $langcode = field_language($context['entity_type'], $entity, $context['field']['field_name']);
-   $view_mode = empty($context['view_mode']) ? 'diff_standard' : $context['view_mode'];
-   $element = field_view_field($context['entity_type'], $entity, $context['field']['field_name'], $view_mode, $langcode);
+  // Prevent unnecessary rendering of the field. This also prevents issues
+  // where field_view_field() will use a language fallback for display that
+  // may not match the requested diff comparison language.
+  if (!$items) {
+    return array();
+  }
 
-   foreach (element_children($element) as $delta) {
-     $diff_items[$delta] = drupal_render($element[$delta]);
-   }
+  $diff_items = array();
+  $entity = clone $context['entity'];
+  $langcode = field_language($context['entity_type'], $entity, $context['field']['field_name']);
+  $view_mode = empty($context['view_mode']) ? 'diff_standard' : $context['view_mode'];
+  $element = field_view_field($context['entity_type'], $entity, $context['field']['field_name'], $view_mode, $langcode);
+
+  foreach (element_children($element) as $delta) {
+    $diff_items[$delta] = drupal_render($element[$delta]);
+  }
   return $diff_items;
 }
 
 /**
  * Helper function to get the settings for a given field or formatter.
  *
- * @param array $context
+ * @param array $field_context
  *   This will get the settings for a field.
  *   - field (required): The field that the items belong to.
  *   - entity: The entity that we are looking up.
@@ -274,31 +280,6 @@ function diff_global_settings_form(&$subform, $form_state, $type, $settings) {
     ),
   );
 
-  /*
-This would be cool, but to do anything else than inline with the text appears
-to be very hard, requiring a refactoring of both the modules API but also the
-DiffFormatter and Diff classes. Diff 8.x-4.x maybe.
-
-  $subform['show_delta'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Show delta values'),
-    '#default_value' => $settings['show_delta'],
-  );
-  $subform['delta_format'] = array(
-    '#type' => 'radios',
-    '#title' => t('Delta insertion method'),
-    '#default_value' => $settings['delta_format'],
-    '#options' => array(
-      'inline' => t('Prefix to item'),
-      'row' => t('Individual row'),
-    ),
-    '#states' => array(
-      'invisible' => array(
-        "input[id$='show-delta']" => array('checked' => FALSE),
-      ),
-    ),
-  );
-  */
 }
 
 /**
@@ -323,11 +304,8 @@ function _diff_field_default_settings($module, $field_type, $settings = array())
     'markdown' => function_exists($func) ? '' : 'drupal_html_to_text',
     'line_counter' => '',
     'show_header' => 1,
-    // Can we? This seems too hard to track in the DiffFormatter as all we
-    // have is a string or an array of strings.
-    //'show_delta' => 0,
-    //'delta_format' => 'row',
   );
+
   return $settings;
 }
 

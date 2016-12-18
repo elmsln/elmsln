@@ -172,10 +172,10 @@ dependencies[] = votingapi
 ; Features
 dependencies[] = cle_cis_ux
 dependencies[] = cle_assignment
-dependencies[] = cle_section_assigmement
 dependencies[] = cle_submission
 dependencies[] = cle_critique
 dependencies[] = cle_app
 dependencies[] = cle_project
+dependencies[] = cle_section
 dependencies[] = cle_perms
 dependencies[] = elmsln_student_filter

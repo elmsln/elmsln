@@ -1,22 +1,22 @@
 <?php
 /**
  * @file
- * cle_section_assigmement.features.field_base.inc
+ * cle_section.features.field_base.inc
  */
 
 /**
  * Implements hook_field_default_field_bases().
  */
-function cle_section_assigmement_field_default_field_bases() {
+function cle_section_field_default_field_bases() {
   $field_bases = array();
 
-  // Exported field_base: 'field_cle_assignments'
-  $field_bases['field_cle_assignments'] = array(
+  // Exported field_base: 'field_section_projects'.
+  $field_bases['field_section_projects'] = array(
     'active' => 1,
     'cardinality' => -1,
     'deleted' => 0,
     'entity_types' => array(),
-    'field_name' => 'field_cle_assignments',
+    'field_name' => 'field_section_projects',
     'indexes' => array(
       'target_id' => array(
         0 => 'target_id',
@@ -25,6 +25,7 @@ function cle_section_assigmement_field_default_field_bases() {
     'locked' => 0,
     'module' => 'entityreference',
     'settings' => array(
+      'behaviors' => array(),
       'cis_connector_access' => FALSE,
       'cis_connector_disable' => FALSE,
       'handler' => 'base',
@@ -35,12 +36,10 @@ function cle_section_assigmement_field_default_field_bases() {
           ),
         ),
         'sort' => array(
-          'direction' => 'ASC',
-          'field' => 'field_number:value',
-          'type' => 'field',
+          'type' => 'none',
         ),
         'target_bundles' => array(
-          'cle_assignment' => 'cle_assignment',
+          'cle_project' => 'cle_project',
         ),
       ),
       'target_type' => 'node',

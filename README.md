@@ -8,7 +8,7 @@ Learn more about ELMSLN @ [elmsln.org](https://www.elmsln.org/)
 
 Version | PHP | Includes | Code Status
 ------------- | ------  | --- | -------------------------- | -----------
-[0.6.2](https://github.com/elmsln/elmsln/archive/0.6.2.zip)  | 5.4+ & 7 | Drupal 7.x | [![Build Status](https://travis-ci.org/elmsln/elmsln.svg?branch=master)](https://travis-ci.org/elmsln/elmsln) [![Stories in Ready](https://badge.waffle.io/elmsln/elmsln.png?label=ready&title=Ready)](http://waffle.io/elmsln/elmsln)
+[0.6.3](https://github.com/elmsln/elmsln/archive/0.6.3.zip)  | 5.4+ & 7 | Drupal 7.x | [![Build Status](https://travis-ci.org/elmsln/elmsln.svg?branch=master)](https://travis-ci.org/elmsln/elmsln) [![Stories in Ready](https://badge.waffle.io/elmsln/elmsln.png?label=ready&title=Ready)](http://waffle.io/elmsln/elmsln)
 
 Play quickly
 ==============

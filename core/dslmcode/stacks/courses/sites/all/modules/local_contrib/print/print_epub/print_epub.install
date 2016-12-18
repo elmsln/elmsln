@@ -11,9 +11,7 @@
  * Implements hook_enable().
  */
 function print_epub_enable() {
-  $t = get_t();
-
-  // Module weight
+  // Module weight.
   db_update('system')
     ->fields(array(
       'weight' => 4,
@@ -122,7 +120,7 @@ function print_epub_schema() {
 }
 
 /**
- * Remove hardcoded numeric deltas from all blocks
+ * Remove hardcoded numeric deltas from all blocks.
  */
 function print_epub_update_7000(&$sandbox) {
   $renamed_deltas = array(
@@ -139,7 +137,7 @@ function print_epub_update_7000(&$sandbox) {
 }
 
 /**
- * Enable block and help area links
+ * Enable block and help area links.
  */
 function print_epub_update_7202(&$sandbox) {
   $link_pos = variable_get('print_epub_link_pos', drupal_json_decode('{ "link": "link", "block": "block", "help": "help" }'));
@@ -149,11 +147,16 @@ function print_epub_update_7202(&$sandbox) {
 }
 
 /**
- * Increase size of the path field in the print_epub_page_counter table
+ * Increase size of the path field in the print_epub_page_counter table.
  */
 function print_epub_update_7203(&$sandbox) {
   db_drop_primary_key('print_epub_page_counter');
   db_change_field('print_epub_page_counter', 'path', 'path',
-    array('type' => 'varchar', 'length' => 255, 'not null' => TRUE, 'description' => 'Page path'),
+    array(
+      'type' => 'varchar',
+      'length' => 255,
+      'not null' => TRUE,
+      'description' => 'Page path',
+    ),
     array('primary key' => array('path')));
 }

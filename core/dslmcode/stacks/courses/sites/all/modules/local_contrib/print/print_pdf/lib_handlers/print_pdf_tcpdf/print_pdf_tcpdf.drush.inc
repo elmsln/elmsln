@@ -2,14 +2,13 @@
 
 /**
  * @file
- * drush integration for print_pdf_tcpdf module PDF libraries download.
+ * Provides drush integration for print_pdf_tcpdf module PDF libraries download.
  */
 
 /**
- * The PDF project download URL
+ * The PDF project download URL.
  */
-
-// TCPDF is in sourceforge, and nicely provides a link to the latest version
+// TCPDF is in sourceforge, and nicely provides a link to the latest version.
 define('TCPDF_DOWNLOAD_URI', 'http://sourceforge.net/projects/tcpdf/files/latest');
 
 /**

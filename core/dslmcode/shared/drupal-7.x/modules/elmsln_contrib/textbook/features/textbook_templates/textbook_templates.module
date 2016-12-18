@@ -26,6 +26,7 @@ function textbook_templates_wysiwyg_templates_load_alter(&$templates) {
     'table_style_1',
     'table_style_2',
     'materialize_card',
+    'materialize_collapsible',
   );
   foreach ($templates as $key => $template) {
     // see if the template matches one in the textbook definition

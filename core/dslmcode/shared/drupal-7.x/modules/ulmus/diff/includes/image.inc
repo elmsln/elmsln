@@ -68,7 +68,8 @@ function image_field_diff_view($items, $context) {
       if ($settings['show_id']) {
         $output[] = t('File ID: !fid', $t_args);
       }
-      $diff_items[$delta] = implode('; ', $output);
+      $separator = $settings['property_separator'] == 'nl' ? "\n" : $settings['property_separator'];
+      $diff_items[$delta] = implode($separator, $output);
     }
   }
 
@@ -83,6 +84,7 @@ function image_field_diff_default_options($field_type) {
     'show_id' => 0,
     'compare_alt_field' => 0,
     'compare_title_field' => 0,
+    'property_separator' => '; ',
   );
 }
 
@@ -108,5 +110,21 @@ function image_field_diff_options_form($field_type, $settings) {
     '#default_value' => $settings['compare_title_field'],
     '#description' => t('This is only used if the "Enable <em>Title</em> field" is checked in the instance settings.'),
   );
+  $options_form['property_separator'] = array(
+    '#type' => 'select',
+    '#title' => t('Property separator'),
+    '#default_value' => $settings['property_separator'],
+    '#description' => t('Provides the ability to show properties inline or across multiple lines.'),
+    '#options' => array(
+      ', ' => t('Comma (,)'),
+      '; ' => t('Semicolon (;)'),
+      ' ' => t('Space'),
+      'nl' => t('New line'),
+    ),
+  );
+  // Allow users to set their own separator using variable_set().
+  if (!isset($options_form['#options'][$settings['property_separator']])) {
+    $options_form['#options'][$settings['property_separator']] = $settings['property_separator'];
+  }
   return $options_form;
 }
