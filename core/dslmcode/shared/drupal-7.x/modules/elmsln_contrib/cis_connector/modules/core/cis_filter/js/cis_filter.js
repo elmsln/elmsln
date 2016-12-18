@@ -25,13 +25,13 @@
   // ability to disable background scrolling on modal open
   Drupal.behaviors.cisfilterModalReveal = {
   attach: function (context, settings) {
-    $('.close-reveal-modal').on("click", function () {
+    $('.close-reveal-modal').click(function () {
       $("body").removeClass("scroll-disabled");
       if (typeof Drupal.settings.entity_iframe !== "undefined" && typeof Drupal.settings.entity_iframe.autoClose !== "undefined") {
         location.reload();
       }
     });
-    $('#cis-modal-cancel').on("click", function () {
+    $('#cis-modal-cancel').click(function () {
       $('.close-reveal-modal').click();
     });
   }
@@ -44,7 +44,7 @@
     // accessibility page order and visibility
     $('.elmsln-modal-append-container').appendTo('.elmsln-modal-container');
 
-    $('.ctools-modal-cis-filter-modal.disable-scroll').on("click", function () {
+    $('.ctools-modal-cis-filter-modal.disable-scroll').click(function () {
       $("body").addClass("scroll-disabled");
     });
     // @todo need to disable escape closing colorbox or both events firing
