@@ -1,3 +1,8 @@
+ELMSLN 0.6.3, 2016-12-18 - Evergreen
+This release now adds support for CAS, cleans up multiple minor installation issues with Ubuntu 16, fixes some minor UX issues and enhances the internal ELMSLNJS API for building Angular apps against ELMSLN.
+
+To read about the changes in this release see: https://github.com/elmsln/elmsln/milestone/16?closed=1
+
 ELMSLN 0.6.2, 2016-12-02 - Dominant
 This release includes lots of edge-case performance, edge-case stability, usability and minor bug fixes noticed after deployment of 0.6.1.
 
