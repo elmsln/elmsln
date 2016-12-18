@@ -30,7 +30,7 @@ function mooc_content_theming_context_default_contexts() {
           'module' => 'mooc_content_theming',
           'delta' => 'mooc_content_theming_banner',
           'region' => 'content',
-          'weight' => '-20',
+          'weight' => '-27',
         ),
       ),
     ),
