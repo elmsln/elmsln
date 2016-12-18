@@ -68,6 +68,9 @@
   height: 2.5rem;
   font-size: .75rem;
   font-weight: bold;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 #block-mooc-nav-block-mooc-nav-nav.block-mooc-nav-block-mooc-nav {
