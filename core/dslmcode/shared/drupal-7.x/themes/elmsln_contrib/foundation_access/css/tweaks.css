@@ -1,3 +1,87 @@
+/* heading lines / icon styles backported from Buttercups */
+.hrlines{
+  overflow: hidden;
+  color:black !important;
+  text-align:center !important;
+}
+.hrlines i.material-icons,
+.hrimg {
+  width: 2rem;
+  font-size: 1.25rem;
+  line-height: 2rem;
+  height: 2rem;
+}
+.hrlines span{
+  position: relative;
+  font-weight: 300;
+}
+.hrlines span:before,
+.hrlines span:after{
+  content: "";
+  position: absolute;
+  height: .1rem;
+  border-top: .1rem solid black;
+  width: 200rem;
+  margin-top:1.25rem;
+
+}
+.hrlines span:before {
+  right: 100%;
+  margin-right: 1rem;
+}
+.hrlines span:after {
+  left: 100%;
+  margin-left: 1rem;
+}
+
+.etb-book h1.headinglines,
+.etb-book h2.headinglines,
+.etb-book h3.headinglines,
+.etb-book h4.headinglines,
+.etb-book h5.headinglines,
+.etb-book h6.headinglines {
+  overflow: hidden;
+  margin-bottom:.5rem;
+  font-weight: 300;
+  text-align:center;
+}
+.headingicon {
+  overflow: hidden;
+  font-weight: 300;
+  margin-bottom:.5rem;
+  padding-top:.25rem 0;
+  line-height: 2rem;
+}
+.headinglines span {
+  position: relative;
+}
+.headinglines span:before,
+.headinglines span:after{
+  content: "";
+  position: absolute;
+  top: 50%;
+  height: .4rem;
+  border-top: .1rem solid black;
+  width: 200rem;
+}
+.headinglines span:before {
+  right: 100%;
+  margin-right: .5em
+}
+.headinglines span:after {
+  left: 100%;
+  margin-left: .5em;
+}
+@media (max-width: 80rem) {
+  .headinglines span:before {
+    visibility: hidden;
+  }
+  .headinglines span:after {
+    visibility: hidden;
+  }
+}
+
+/* special accounting for H5P elements */
 .h5p-multichoice .h5p-radio-or-checkbox {
   line-height: 1.3rem;
 }

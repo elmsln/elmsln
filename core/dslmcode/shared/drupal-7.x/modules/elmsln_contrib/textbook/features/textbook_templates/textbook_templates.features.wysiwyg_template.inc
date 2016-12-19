@@ -83,6 +83,26 @@ function textbook_templates_wysiwyg_template_default_templates() {
     'name' => 'grid_of_video',
     'content_types' => array(),
   );
+  $templates['icon_header'] = array(
+    'title' => 'Icon header',
+    'description' => 'Head name with an icon leading it',
+    'weight' => 0,
+    'fid' => 0,
+    'body' => '<h3 class="hrlines"><span><i class="material-icons black white-text circle">assignment</i> Assignment directions</span></h3>',
+    'format' => 'textbook_editor',
+    'name' => 'icon_header',
+    'content_types' => array(),
+  );
+  $templates['line_header'] = array(
+    'title' => 'Line header',
+    'description' => 'Header centered with a line breaking the content up.',
+    'weight' => 0,
+    'fid' => 0,
+    'body' => '<h3 class="headinglines"><span>Heading 4</span></h3>',
+    'format' => 'textbook_editor',
+    'name' => 'line_header',
+    'content_types' => array(),
+  );
   $templates['lorem_ipsum'] = array(
     'title' => 'Lorem ipsum',
     'description' => 'Sample random latin to simulate paragraphs',
