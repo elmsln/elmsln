@@ -1042,7 +1042,7 @@ ul.pagination li a {
 /* structure in media */
 .scrollspy-toc .table-of-contents {
   margin-left: 0;
-  max-height: 45vh;
+  max-height: 65vh;
   overflow-y: scroll;
   width: calc(50vw - 52%);
   max-width: 30em;
@@ -1050,7 +1050,7 @@ ul.pagination li a {
 /* structure in mooc */
 .scrollspy-toc.table-of-contents {
   margin-left: 0;
-  max-height: 45vh;
+  max-height: 65vh;
   overflow-y: scroll;
   width: 100%;
   max-width: 30em;
@@ -1064,7 +1064,7 @@ ul.pagination li a {
     width: calc(50vw - 52%);
     max-width: 30em;
     display: block;
-    max-height: 45vh;
+    max-height: 65vh;
     overflow-y: scroll;
   }
 }
