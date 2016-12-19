@@ -1,0 +1,31 @@
+<?php
+/**
+ * @file
+ * Code for the ICOR Zip feature.
+ */
+
+include_once 'icor_zip.features.inc';
+
+/**
+ * Implements hook_node_insert().
+ */
+function icor_zip_node_insert($node) {
+    $fid = $node->field_archive[$node->language][0]['fid'];
+	$file = file_load($fid);
+	if ($file = file_move($file, $file->uri, FILE_EXISTS_RENAME)) {
+		$form_state['values']['file'] = $file;
+		$realpath = drupal_realpath($file->uri);
+		$zip = new ZipArchive();
+		$zip->open($realpath);
+		$path = drupal_realpath('public://icor_unpacked/' . drupal_basename($file->uri));
+		$result = @$zip->extractTo($path);
+	if ($result === TRUE) {
+		drupal_set_message(t('All media have been extracted to %path', array('%path' => drupal_realpath($uri))));
+	}
+	else {
+		watchdog('error', 'There is some problem related to extraction of the file. Please upload and try again.', array(), WATCHDOG_ERROR, NULL);
+		drupal_set_message(t('There is some problem related to extraction of the file. Please upload and try again.'), 'error', FALSE);
+	}
+	$zip->close();
+	}
+}
