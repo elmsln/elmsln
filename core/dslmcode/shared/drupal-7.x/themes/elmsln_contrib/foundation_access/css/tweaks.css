@@ -1,3 +1,10 @@
+#elmsln-tools-menu li .nolink {
+  font-weight: bold;
+  text-transform: uppercase;
+  text-align: center;
+  border-bottom: .2rem solid;
+}
+
 /* Example card */
 .egletter p {
   position:relative;
