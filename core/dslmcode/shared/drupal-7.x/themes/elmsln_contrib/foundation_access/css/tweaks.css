@@ -1,5 +1,82 @@
+/* Example card */
+.egletter p {
+  position:relative;
+  z-index:3;
+  line-height:1.5rem;
+}
+
+.egletter ul {
+  position:relative;
+  z-index:3;
+  line-height:1.5rem;
+}
+
+.egletter h2,
+.egletter h3,
+.egletter h4,
+.egletter h5,
+.egletter h6 {
+  font-family: cursive;
+  margin: 0 auto;
+  position: relative;
+  z-index: 3;
+  line-height: 4rem;
+}
+
+.egletter h2 i,
+.egletter h3 i,
+.egletter h4 i,
+.egletter h5 i,
+.egletter h6 i {
+  font-size: 1.5rem;
+  height: 2rem;
+  width: 2rem;
+  margin-right: .5rem;
+  line-height: 2rem;
+  padding: 0 .25rem;
+}
+
+.egletter h2 span,
+.egletter h3 span,
+.egletter h4 span,
+.egletter h5 span,
+.egletter h6 span {
+  line-height: 4rem;
+}
+
+.egletter {
+  margin: 1.5rem auto 0;
+  min-height: 10rem;
+  padding: .75rem 1.5rem;
+  position: relative;
+  width: 80%;
+  z-index:4;
+  margin-bottom: 3rem;
+}
+.egletter:before, .egletter:after {
+  content: "";
+  height: 98%;
+  position: absolute;
+  width: 100%;
+  z-index: 2;
+}
+.egletter:before {
+  background: #fafafa;
+  box-shadow: 0 0 .5rem rgba(0,0,0,0.2);
+  left: -.2rem;
+  top: .2rem;
+  transform: rotate(-2.5deg);
+}
+.egletter:after {
+  background: #ffffff;
+  box-shadow: 0 0 .2rem rgba(0,0,0,0.2);
+  right: -.2rem;
+  top: .1rem;
+  transform: rotate(1.4deg);
+}
+
 /* heading lines / icon styles backported from Buttercups */
-.hrlines{
+.hrlines {
   overflow: hidden;
   color:black !important;
   text-align:center !important;
@@ -16,7 +93,7 @@
   font-weight: 300;
 }
 .hrlines span:before,
-.hrlines span:after{
+.hrlines span:after {
   content: "";
   position: absolute;
   height: .1rem;

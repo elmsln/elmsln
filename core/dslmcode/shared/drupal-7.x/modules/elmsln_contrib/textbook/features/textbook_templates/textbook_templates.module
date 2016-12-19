@@ -10,6 +10,9 @@
 function textbook_templates_wysiwyg_templates_load_alter(&$templates) {
   // This is the array we need to add stuff to...
   $textbook = array(
+    'vocab_term',
+    'secondary_sources_list',
+    'paperstack',
     'line_header',
     'icon_header',
     'grid_of_video',

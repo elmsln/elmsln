@@ -12,7 +12,7 @@ function textbook_templates_wysiwyg_template_default_templates() {
   $templates['buttons'] = array(
     'title' => 'Buttons',
     'description' => 'Some example buttons that are links, styled to look like buttons to improve accessibility.',
-    'weight' => 29,
+    'weight' => 19,
     'fid' => 0,
     'body' => '<p><a class="button" href="#">Default Button</a> <a class="button success" href="#">Success Button</a> <a class="button secondary" href="#">Secondary Button</a> <a class="button alert" href="#">Alert Button</a> <a class="button info" href="#">Info Button</a> <a class="button disabled" href="#">Disabled Button</a></p>',
     'format' => 'textbook_editor',
@@ -22,7 +22,7 @@ function textbook_templates_wysiwyg_template_default_templates() {
   $templates['callout_panel'] = array(
     'title' => 'Callout Panel',
     'description' => 'Call attention to an item',
-    'weight' => 21,
+    'weight' => 11,
     'fid' => 0,
     'body' => '<div class="panel callout radius">
   <h4>This is a callout panel.</h4>
@@ -35,7 +35,7 @@ function textbook_templates_wysiwyg_template_default_templates() {
   $templates['case_study'] = array(
     'title' => 'Case Study',
     'description' => 'Call out area for case studies, icon and slight mark up.',
-    'weight' => 19,
+    'weight' => 9,
     'fid' => 0,
     'body' => '<div class="row">
   <div class="s10 push-s1 col">
@@ -56,7 +56,7 @@ function textbook_templates_wysiwyg_template_default_templates() {
   $templates['clean_table'] = array(
     'title' => 'Clean Table',
     'description' => 'A Clean example tabl',
-    'weight' => 24,
+    'weight' => 14,
     'fid' => 0,
     'body' => '<table class="responsive-table"><thead><tr><th>Table Header</th><th>Table Header</th><th>Table Header</th><th>Table Header</th></tr></thead><tbody><tr><td>Content Goes Here</td><td>This is longer content Donec id elit non mi porta gravida at eget metus.</td><td>Content Goes Here</td><td>Content Goes Here</td></tr><tr><td>Content Goes Here</td><td>This is longer Content Goes Here Donec id elit non mi porta gravida at eget metus.</td><td>Content Goes Here</td><td>Content Goes Here</td></tr><tr><td>Content Goes Here</td><td>This is longer Content Goes Here Donec id elit non mi porta gravida at eget metus.</td><td>Content Goes Here</td><td>Content Goes Here</td></tr></tbody></table>',
     'format' => 'textbook_editor',
@@ -66,7 +66,7 @@ function textbook_templates_wysiwyg_template_default_templates() {
   $templates['flex_video'] = array(
     'title' => 'Flex Video',
     'description' => 'Flexible video template for embedding youtube / other sources',
-    'weight' => 23,
+    'weight' => 13,
     'fid' => 0,
     'body' => '<div class="video-container"><iframe allowfullscreen frameborder="0" height="225" mozallowfullscreen src="//www.youtube.com/embed/4oZaA5BOjNI" webkitallowfullscreen width="400"></iframe></div>',
     'format' => 'textbook_editor',
@@ -76,7 +76,7 @@ function textbook_templates_wysiwyg_template_default_templates() {
   $templates['grid_of_video'] = array(
     'title' => 'Grid of Video',
     'description' => 'a grid of three videos in a row that scale correctly',
-    'weight' => 20,
+    'weight' => 10,
     'fid' => 0,
     'body' => '<ul class="small-block-grid-3"><li><div class="flex-video widescreen"><iframe allowfullscreen="" frameborder="1" height="100" mozallowfullscreen="" name="name here" scrolling="yes" src="https://www.youtube-nocookie.com/embed/4oZaA5BOjNI?rel=0" title="advisory title here" webkitallowfullscreen="" width="200"></iframe></div></li><li><div class="flex-video widescreen"><iframe allowfullscreen="" frameborder="1" height="100" mozallowfullscreen="" name="name here" scrolling="yes" src="https://www.youtube-nocookie.com/embed/4oZaA5BOjNI?rel=0" title="advisory title here" webkitallowfullscreen="" width="200"></iframe></div></li><li><div class="flex-video widescreen"><iframe allowfullscreen="" frameborder="1" height="100" mozallowfullscreen="" name="name here" scrolling="yes" src="https://www.youtube-nocookie.com/embed/4oZaA5BOjNI?rel=0" title="advisory title here" webkitallowfullscreen="" width="200"></iframe></div></li></ul>',
     'format' => 'textbook_editor',
@@ -86,7 +86,7 @@ function textbook_templates_wysiwyg_template_default_templates() {
   $templates['icon_header'] = array(
     'title' => 'Icon header',
     'description' => 'Head name with an icon leading it',
-    'weight' => 0,
+    'weight' => 1,
     'fid' => 0,
     'body' => '<h3 class="hrlines"><span><i class="material-icons black white-text circle">assignment</i> Assignment directions</span></h3>',
     'format' => 'textbook_editor',
@@ -96,7 +96,7 @@ function textbook_templates_wysiwyg_template_default_templates() {
   $templates['line_header'] = array(
     'title' => 'Line header',
     'description' => 'Header centered with a line breaking the content up.',
-    'weight' => 0,
+    'weight' => 2,
     'fid' => 0,
     'body' => '<h3 class="headinglines"><span>Heading 4</span></h3>',
     'format' => 'textbook_editor',
@@ -106,7 +106,7 @@ function textbook_templates_wysiwyg_template_default_templates() {
   $templates['lorem_ipsum'] = array(
     'title' => 'Lorem ipsum',
     'description' => 'Sample random latin to simulate paragraphs',
-    'weight' => 30,
+    'weight' => 20,
     'fid' => 0,
     'body' => '<p></p>
 <p>Lorem ipsum dolor sit amet, elit fusce erat, arcu pretium et ultricies velit, parturient faucibus sit dignissim varius, dui nibh ut tellus mauris dolor. Cursus vulputate erat dolore arcu sit egestas, suspendilacus vel in fringilla elit. Fusce tempus ante congue faucibus odio sed, gravida eu libero, elit gravida pede a id varius tempus. Aut massa vel sagittis sed vel donec, et eros. Amet nunc vivamus, gravida suspendisse integer vivamus ligula. Ultrices sociosqu ornare duis, eget tempor quisque.</p>
@@ -120,7 +120,7 @@ function textbook_templates_wysiwyg_template_default_templates() {
   $templates['materialize_card'] = array(
     'title' => 'Materialize Card',
     'description' => 'Design element to present information as a card',
-    'weight' => 16,
+    'weight' => 6,
     'fid' => 0,
     'body' => '<div class="materialize-card-wrapper col s4"><div class="card"><div class="card-image waves-effect waves-block waves-light"><img class="activator" src="//materializecss.com/images/office.jpg"></div>
 <div class="card-content"><span class="card-title activator grey-text text-darken-4">Card Title<i class="material-icons right">more_vert</i></span>
@@ -134,7 +134,7 @@ function textbook_templates_wysiwyg_template_default_templates() {
   $templates['materialize_collapsible'] = array(
     'title' => 'Materialize Collapsible',
     'description' => 'implements materialize style collapse',
-    'weight' => 17,
+    'weight' => 7,
     'fid' => 0,
     'body' => '<ul class="collapsible popout" data-collapsible="accordion" role="tablist">
     <li class="collapsible-li">
@@ -182,10 +182,24 @@ function textbook_templates_wysiwyg_template_default_templates() {
     'name' => 'materialize_collapsible',
     'content_types' => array(),
   );
+  $templates['paperstack'] = array(
+    'title' => 'Paperstack',
+    'description' => 'A stack of papers, good for examples / callouts.',
+    'weight' => 5,
+    'fid' => 0,
+    'body' => '<div class="egletter">
+  <h3><i class="material-icons circle black white-text">directions_walk</i><span>Example</span></h3>
+  <p>This is a great example, one of the best example I\'ve ever seen. In fact, it\'s the best example ever produced and it says a lot about your content that you are about to see here.
+  </p>
+</div>',
+    'format' => 'textbook_editor',
+    'name' => 'paperstack',
+    'content_types' => array(),
+  );
   $templates['quote'] = array(
     'title' => 'Quote',
     'description' => 'Block quote, offset left with a border',
-    'weight' => 18,
+    'weight' => 8,
     'fid' => 0,
     'body' => '<p class="txtbk-pullquote">Above all was the sense of hearing acute. I heard all things in the heaven and in the earth. I heard many things in hell. How, then, am I mad?</p>
 ',
@@ -196,17 +210,40 @@ function textbook_templates_wysiwyg_template_default_templates() {
   $templates['regular_panel'] = array(
     'title' => 'Regular Panel',
     'description' => 'Regular panel of content',
-    'weight' => 22,
+    'weight' => 12,
     'fid' => 0,
     'body' => '<div class="panel"><h5>This is a regular panel.</h5><p>It has an easy to override visual style, and is appropriately subdued.</p></div>',
     'format' => 'textbook_editor',
     'name' => 'regular_panel',
     'content_types' => array(),
   );
+  $templates['secondary_sources_list'] = array(
+    'title' => 'secondary sources list',
+    'description' => 'A collection of secondary sources / external links.',
+    'weight' => 4,
+    'fid' => 0,
+    'body' => '<ul class="collection">
+  <li class="collection-item">
+    <a target="_blank" href="https://youtube.com/">Youtube video 1</a><a target="_blank" class="secondary-content" href="https://youtube.com/"><i class="material-icons">play_circle_outlined</i></a>
+  </li>
+  <li class="collection-item">
+    <a target="_blank" href="https://youtube.com/">Youtube video 2</a><a target="_blank" class="secondary-content" href="https://youtube.com/"><i class="material-icons">play_circle_outlined</i></a>
+  </li>
+  <li class="collection-item">
+    <a target="_blank" href="https://youtube.com/">Youtube video 3</a><a target="_blank" class="secondary-content" href="https://youtube.com/"><i class="material-icons">play_circle_outlined</i></a>
+  </li>
+  <li class="collection-item">
+    <a target="_blank" href="https://youtube.com/">Youtube video 4</a><a target="_blank" class="secondary-content" href="https://youtube.com/"><i class="material-icons">play_circle_outlined</i></a>
+  </li>
+</ul>',
+    'format' => 'textbook_editor',
+    'name' => 'secondary_sources_list',
+    'content_types' => array(),
+  );
   $templates['table_of_terms'] = array(
     'title' => 'Table of terms',
     'description' => 'A cleanly formatted table of terms',
-    'weight' => 25,
+    'weight' => 15,
     'fid' => 0,
     'body' => '<table border="1" cellpadding="0" cellspacing="0" class="textbook_table_1" summary="You can print this study sheet and use it to take notes.">
   <caption>Lesson x.x Terms Study Sheet</caption>
@@ -252,7 +289,7 @@ function textbook_templates_wysiwyg_template_default_templates() {
   $templates['table_style_2'] = array(
     'title' => 'Table style 2',
     'description' => 'A well made table for presenting figures of data with a left column heading',
-    'weight' => 26,
+    'weight' => 16,
     'fid' => 0,
     'body' => '<table border="1" cellpadding="0" cellspacing="0" class="textbook_table_2" summary="Figure 1-A">
   <caption>Figure 1-A</caption>
@@ -292,7 +329,7 @@ function textbook_templates_wysiwyg_template_default_templates() {
   $templates['topic_reading'] = array(
     'title' => 'Topic Reading',
     'description' => 'Use this for communicating Reading to students',
-    'weight' => 15,
+    'weight' => 3,
     'fid' => 0,
     'body' => '<h2>Step X: Complete the Topic Readings</h2>
 <p>This topic uses one or more required readings and one or more optional readings. By completing these readings before studying the lecture, you will make the most effective use of both. As you read, remember to take good notes using your study sheets.</p>
@@ -317,7 +354,7 @@ function textbook_templates_wysiwyg_template_default_templates() {
   $templates['two_column_list_image'] = array(
     'title' => 'Two column list image',
     'description' => 'A two column layout of a bulleted list with an image to the right',
-    'weight' => 27,
+    'weight' => 17,
     'fid' => 0,
     'body' => '<div class="panel callout radius row">
   <div class="s6 col">
@@ -334,11 +371,28 @@ function textbook_templates_wysiwyg_template_default_templates() {
   $templates['two_column_list_video'] = array(
     'title' => 'Two column list video',
     'description' => 'A two column template with a bulleted list and video to the right of it',
-    'weight' => 28,
+    'weight' => 18,
     'fid' => 0,
     'body' => '<div class="panel callout radius row"><div class="s6 col"><ul><li>Item 1</li><li>Item 2</li><li>Item 3</li><li>Item 4</li></ul></div><div class="s6 col"><div class="flex-video widescreen"><iframe allowfullscreen="" frameborder="1" height="100" mozallowfullscreen="" name="name here" scrolling="yes" src="https://www.youtube-nocookie.com/embed/4oZaA5BOjNI?rel=0" webkitallowfullscreen="" width="200"></iframe></div></div></div>',
     'format' => 'textbook_editor',
     'name' => 'two_column_list_video',
+    'content_types' => array(),
+  );
+  $templates['vocab_term'] = array(
+    'title' => 'Vocab term',
+    'description' => 'A single Vocabulary term',
+    'weight' => 5,
+    'fid' => 0,
+    'body' => '<div class="card">
+  <div class="card-content card-panel light-blue darken-3"><span class="card-title activator white-text">Vocab term<a href="#reveal-info" class="white-text"><i class="material-icons right">more_vert</i></a></span>
+  </div>
+  <div class="card-reveal white black-text"><span class="card-title">Leading<a href="#close-more-info" class="black-text"><i class="material-icons right">close</i></a></span>
+    <p>The definition of the term.
+    </p>
+  </div>
+</div>',
+    'format' => 'textbook_editor',
+    'name' => 'vocab_term',
     'content_types' => array(),
   );
   return $templates;
