@@ -207,6 +207,7 @@ function _cle_assignment_v1_assignment_output($assignment) {
     'startDate' => $dates[0],
     'endDate' => $dates[1],
     'description' => ($assignment->field_assignment_description ? $assignment->field_assignment_description[LANGUAGE_NONE][0]['value'] : null),
+    'project' => ($assignment->field_assignment_project ? $assignment->field_assignment_project[LANGUAGE_NONE][0]['target_id'] : null),
 
     // @todo
     // Need to replace static values below

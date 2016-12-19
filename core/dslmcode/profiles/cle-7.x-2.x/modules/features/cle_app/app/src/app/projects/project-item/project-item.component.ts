@@ -38,9 +38,7 @@ export class ProjectItemComponent implements OnInit, OnDestroy {
 
     this.assignments = this.assignmentService.assignments
       .map(assignments => assignments.filter(assignment => {
-        console.log(assignment);
         if (assignment.project) {
-          console.log(assignment);
           if (assignment.project === this.project.id) {
             return true;
           }
