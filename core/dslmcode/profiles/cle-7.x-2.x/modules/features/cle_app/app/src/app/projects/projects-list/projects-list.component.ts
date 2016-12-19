@@ -18,9 +18,8 @@ export class ProjectsListComponent implements OnInit {
 
   constructor(
     private projectService:ProjectService,
-    private router:Router
+    private router: Router,
   ) {
-    this.loading = true;
   }
 
   ngOnInit() {

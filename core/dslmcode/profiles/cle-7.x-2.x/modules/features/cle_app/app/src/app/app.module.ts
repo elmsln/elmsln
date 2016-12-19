@@ -3,7 +3,10 @@ import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 import { routing } from './app.routing';
+import { StoreModule } from '@ngrx/store';
+import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 
+import { Assignment, assignments } from  './assignment';
 // services
 import { ElmslnService } from './elmsln.service';
 import { CritiqueService } from './critique.service';
@@ -64,7 +67,11 @@ import { AssignmentDialogComponent } from './assignment/assignment-dialog/assign
     routing,
     FormsModule,
     ReactiveFormsModule,
-    MomentModule
+    MomentModule,
+    StoreModule.provideStore({
+      assignments
+    }),
+    StoreDevtoolsModule.instrumentOnlyWithExtension()
   ],
   providers: [
     ElmslnService,

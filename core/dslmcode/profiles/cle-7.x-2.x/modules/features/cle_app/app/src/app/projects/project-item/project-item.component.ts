@@ -2,8 +2,12 @@ import { Component, OnInit, Input, ElementRef, ContentChildren, AfterContentInit
 import { Router } from '@angular/router';
 import { Project } from '../../project';
 import { ProjectService } from '../../project.service';
+import { AssignmentService } from '../../assignment.service';
 import { AssignmentListComponent } from '../../assignment/assignment-list/assignment-list.component';
 import { Assignment } from '../../assignment';
+import { Store } from '@ngrx/store';
+import { AppState } from '../../state';
+import { Observable } from 'rxjs'
 
 declare const Materialize:any;
 declare const $:any;
@@ -11,14 +15,17 @@ declare const $:any;
 @Component({
   selector: 'app-project-item',
   templateUrl: './project-item.component.html',
-  styleUrls: ['./project-item.component.css']
+  styleUrls: ['./project-item.component.css'],
+  providers: [AssignmentService]
 })
 export class ProjectItemComponent implements OnInit, OnDestroy {
   @Input() project: Project;
   @Output() delete: EventEmitter<any> = new EventEmitter();
+  assignments:Observable<Assignment[]>;
   
   constructor(
     private projectService:ProjectService,
+    private assignmentService: AssignmentService,
     private el:ElementRef,
     private router:Router
   ) {
@@ -27,6 +34,20 @@ export class ProjectItemComponent implements OnInit, OnDestroy {
   ngOnInit() {
     (<any>$(this.el.nativeElement.getElementsByClassName('delete-project-form'))).modal();
     (<any>$(this.el.nativeElement.getElementsByClassName('tooltipped'))).tooltip({delay:40});
+    this.assignmentService.getAssignments();
+
+    this.assignments = this.assignmentService.assignments
+      .map(assignments => assignments.filter(assignment => {
+        console.log(assignment);
+        if (assignment.project) {
+          console.log(assignment);
+          if (assignment.project === this.project.id) {
+            return true;
+          }
+        }
+
+        return false;
+      }));
   }
 
   ngOnDestroy() {

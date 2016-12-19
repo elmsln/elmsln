@@ -1,19 +1,26 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Inject } from '@angular/core';
 import { Http, Response } from '@angular/http';
 import { Observable } from 'rxjs';
+import { Store } from '@ngrx/store';
+import { AppState } from './state';
 import { ElmslnService } from './elmsln.service';
 import { AppSettings } from './app-settings';
 import { Assignment } from './assignment';
 
 @Injectable()
 export class AssignmentService {
+  assignments: Observable<Array<Assignment>>;
+
   constructor(
-    private elmsln: ElmslnService
-  ) { }
+    private elmsln: ElmslnService,
+    private store: Store<AppState>
+  ) {
+    this.assignments = this.store.select(state => state.assignments);
+  }
 
   getAssignments(projectId?:number) {
     let query = projectId ? '?project=' + projectId : '';
-    return this.elmsln.get(AppSettings.BASE_PATH + 'api/v1/cle/assignments' + query)
+    this.elmsln.get(AppSettings.BASE_PATH + 'api/v1/cle/assignments' + query)
       .map(data => data.json().data)
       .map((data:any[]) => {
         if (data) {
@@ -22,7 +29,9 @@ export class AssignmentService {
           data.forEach(item => d.push(this.convertToAssignment(item)));
           return d;
         }
-      });
+      })
+      .map(payload => ({ type: 'ADD_ASSIGNMENTS', payload }))
+      .subscribe(action => this.store.dispatch(action));
   }
 
   getAssignment(assignmentId) {

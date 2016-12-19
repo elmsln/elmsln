@@ -12,28 +12,15 @@ declare const $:any;
   styleUrls: ['./assignment-list.component.css'],
   providers: [AssignmentService]
 })
-export class AssignmentListComponent implements OnInit {
+export class AssignmentListComponent {
   // takes in optional project id parameter which will filter assignments
   // by the project
-  @Input() project:Project;
-  assignments: Assignment[];
+  @Input() assignments:Assignment[];
 
   constructor(
     private assignmentService: AssignmentService,
     private router: Router
   ) { }
-
-ngOnInit() {
-  this.getAssignments();
-}
-
-getAssignments() {
-  this.assignmentService.getAssignments(this.project.id)
-    .subscribe(data => {
-      this.assignments = data;
-      this.sortAssignmentsByDate();
-    });
-}
 
 viewAssignment(assignmentId) {
   this.router.navigate(['/assignments/' + assignmentId]);
@@ -49,36 +36,36 @@ onEditAssignment(assignment:Assignment) {
 }
 
 sortAssignmentsByDate() {
-  if (this.assignments) {
-    this.assignments.sort((a:Assignment,b:Assignment) => {
-        let aDate = null;
-        let bDate = null;
+  // if (this.assignments) {
+  //   this.assignments.sort((a:Assignment,b:Assignment) => {
+  //       let aDate = null;
+  //       let bDate = null;
 
-        if (!a.startDate) {
-          aDate = a.endDate;
-        }
-        if (!b.startDate) {
-          bDate = b.endDate;
-        }
+  //       if (!a.startDate) {
+  //         aDate = a.endDate;
+  //       }
+  //       if (!b.startDate) {
+  //         bDate = b.endDate;
+  //       }
 
-        if (aDate && bDate) {
-          if (aDate < bDate) {
-            return -1;
-          }
-          else if (aDate > bDate) {
-            return 1;
-          }
-          else {
-            return 0;
-          }
-        }
-        else if (aDate && !bDate) {
-          return -1;
-        }
-        else if (!aDate && bDate) {
-          return 1;
-        }
-      });
-    }
+  //       if (aDate && bDate) {
+  //         if (aDate < bDate) {
+  //           return -1;
+  //         }
+  //         else if (aDate > bDate) {
+  //           return 1;
+  //         }
+  //         else {
+  //           return 0;
+  //         }
+  //       }
+  //       else if (aDate && !bDate) {
+  //         return -1;
+  //       }
+  //       else if (!aDate && bDate) {
+  //         return 1;
+  //       }
+  //     });
+  //   }
   }
 }
