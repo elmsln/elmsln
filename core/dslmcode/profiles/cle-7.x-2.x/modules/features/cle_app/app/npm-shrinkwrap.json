@@ -42,6 +42,21 @@
       "from": "@angular/router@3.2.3",
       "resolved": "https://registry.npmjs.org/@angular/router/-/router-3.2.3.tgz"
     },
+    "@ngrx/core": {
+      "version": "1.2.0",
+      "from": "@ngrx/core@latest",
+      "resolved": "https://registry.npmjs.org/@ngrx/core/-/core-1.2.0.tgz"
+    },
+    "@ngrx/store": {
+      "version": "2.2.1",
+      "from": "@ngrx/store@>=2.2.1 <3.0.0",
+      "resolved": "https://registry.npmjs.org/@ngrx/store/-/store-2.2.1.tgz"
+    },
+    "@ngrx/store-devtools": {
+      "version": "3.2.2",
+      "from": "@ngrx/store-devtools@latest",
+      "resolved": "https://registry.npmjs.org/@ngrx/store-devtools/-/store-devtools-3.2.2.tgz"
+    },
     "angular2-moment": {
       "version": "1.0.0",
       "from": "angular2-moment@>=1.0.0 <2.0.0",
