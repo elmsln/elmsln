@@ -28,6 +28,7 @@
     "@ngrx/store": "^2.2.1",
     "@ngrx/store-devtools": "^3.2.2",
     "angular2-moment": "^1.0.0",
+    "bower": "^1.8.0",
     "core-js": "^2.4.1",
     "ng2-cookies": "^1.0.3",
     "rxjs": "5.0.0-beta.12",
