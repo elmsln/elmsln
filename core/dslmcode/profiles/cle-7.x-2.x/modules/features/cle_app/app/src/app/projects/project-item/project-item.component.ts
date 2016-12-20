@@ -31,7 +31,6 @@ export class ProjectItemComponent implements OnInit, OnDestroy {
     private router:Router,
     private store:Store<{}>
   ) {
-    this.store.dispatch(loadAssignments());
     this.assignments = store.select('assignments')
       .map((state:any) => state.assignments.filter(assignment => {
         if (assignment.project) {
