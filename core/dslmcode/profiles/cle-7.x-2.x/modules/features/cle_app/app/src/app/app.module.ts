@@ -5,11 +5,14 @@ import { HttpModule } from '@angular/http';
 import { routing } from './app.routing';
 import { StoreModule } from '@ngrx/store';
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
+import { EffectsModule } from '@ngrx/effects';
+import { AppEffects } from './app.effects';
 
-import { Assignment, assignments } from  './assignment';
+import { reducer as assignmentReducer } from './reducers/assignments';
 // services
 import { ElmslnService } from './elmsln.service';
 import { CritiqueService } from './critique.service';
+import { AssignmentService } from './assignment.service';
 // Moment.js
 import { MomentModule } from 'angular2-moment';
 // components
@@ -69,13 +72,15 @@ import { AssignmentDialogComponent } from './assignment/assignment-dialog/assign
     ReactiveFormsModule,
     MomentModule,
     StoreModule.provideStore({
-      assignments
+      assignments: assignmentReducer
     }),
+    EffectsModule.run(AppEffects),
     StoreDevtoolsModule.instrumentOnlyWithExtension()
   ],
   providers: [
     ElmslnService,
-    CritiqueService
+    CritiqueService,
+    AssignmentService
   ],
   bootstrap: [AppComponent]
 })

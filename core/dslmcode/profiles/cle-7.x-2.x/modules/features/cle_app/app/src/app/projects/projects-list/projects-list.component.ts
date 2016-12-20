@@ -3,6 +3,8 @@ import { Project } from '../../project';
 import { ProjectService } from '../../project.service';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
+import { Store } from '@ngrx/store';
+import { loadAssignments } from '../../app.actions';
 declare const $:any;
 declare const Materialize:any;
 
@@ -19,7 +21,9 @@ export class ProjectsListComponent implements OnInit {
   constructor(
     private projectService:ProjectService,
     private router: Router,
+    private store: Store<{}>
   ) {
+    store.dispatch(loadAssignments());
   }
 
   ngOnInit() {

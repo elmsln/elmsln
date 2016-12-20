@@ -35,6 +35,19 @@ export class AssignmentService {
       .subscribe(action => this.store.dispatch(action));
   }
 
+  loadAssignments(): Observable<Assignment[]> {
+    return this.elmsln.get(AppSettings.BASE_PATH + 'api/v1/cle/assignments')
+      .map(data => data.json().data)
+      .map((data:any[]) => {
+        if (data) {
+          // convert list of data into list of Assignments
+          let d:any[] = [];
+          data.forEach(item => d.push(this.convertToAssignment(item)));
+          return d;
+        }
+      })
+  }
+
   getAssignment(assignmentId) {
     return this.elmsln.get(AppSettings.BASE_PATH + 'api/v1/cle/assignments/' + assignmentId)
       .map(data => data.json().data)

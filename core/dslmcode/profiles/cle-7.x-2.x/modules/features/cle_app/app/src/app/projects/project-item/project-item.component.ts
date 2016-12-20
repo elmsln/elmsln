@@ -6,8 +6,9 @@ import { AssignmentService } from '../../assignment.service';
 import { AssignmentListComponent } from '../../assignment/assignment-list/assignment-list.component';
 import { Assignment } from '../../assignment';
 import { Store } from '@ngrx/store';
+import { ActionTypes, loadAssignments } from '../../app.actions';
 import { AppState } from '../../state';
-import { Observable } from 'rxjs'
+import { Observable } from 'rxjs';
 
 declare const Materialize:any;
 declare const $:any;
@@ -21,31 +22,33 @@ declare const $:any;
 export class ProjectItemComponent implements OnInit, OnDestroy {
   @Input() project: Project;
   @Output() delete: EventEmitter<any> = new EventEmitter();
-  assignments:Observable<Assignment[]>;
+  assignments:Observable<any>;
   
   constructor(
     private projectService:ProjectService,
     private assignmentService: AssignmentService,
     private el:ElementRef,
-    private router:Router
+    private router:Router,
+    private store:Store<{}>
   ) {
-  }
-
-  ngOnInit() {
-    (<any>$(this.el.nativeElement.getElementsByClassName('delete-project-form'))).modal();
-    (<any>$(this.el.nativeElement.getElementsByClassName('tooltipped'))).tooltip({delay:40});
-    this.assignmentService.getAssignments();
-
-    this.assignments = this.assignmentService.assignments
-      .map(assignments => assignments.filter(assignment => {
+    this.store.dispatch(loadAssignments());
+    this.assignments = store.select('assignments')
+      .map((state:any) => state.assignments.filter(assignment => {
         if (assignment.project) {
           if (assignment.project === this.project.id) {
             return true;
           }
         }
-
         return false;
       }));
+  }
+
+  ngOnInit() {
+    (<any>$(this.el.nativeElement.getElementsByClassName('delete-project-form'))).modal();
+    (<any>$(this.el.nativeElement.getElementsByClassName('tooltipped'))).tooltip({delay:40});
+
+    // this.assignments = this.assignmentService.assignments
+    //   }));
   }
 
   ngOnDestroy() {
