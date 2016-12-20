@@ -1,11 +1,12 @@
 import { Injectable, Inject } from '@angular/core';
 import { Http, Response } from '@angular/http';
-import { Observable } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { AppState } from './state';
 import { ElmslnService } from './elmsln.service';
 import { AppSettings } from './app-settings';
 import { Assignment } from './assignment';
+declare const Materialize:any;
 
 @Injectable()
 export class AssignmentService {
@@ -45,6 +46,11 @@ export class AssignmentService {
     
     return this.elmsln.post(AppSettings.BASE_PATH + 'node', newAssignment)
       .map(data => data.json())
+      .map(data => ({ type: 'ADD_ASSIGNMENT', payload: Object.assign({}, assignment, {id: parseInt(data.id)})}))
+      .subscribe(action => {
+        this.store.dispatch(action);
+        Materialize.toast('Assignment created', 1000);
+      });
   }
 
   updateAssignment(assignment:Assignment) {

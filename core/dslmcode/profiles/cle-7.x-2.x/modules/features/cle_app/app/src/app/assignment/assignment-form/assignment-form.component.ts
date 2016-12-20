@@ -43,7 +43,6 @@ export class AssignmentFormComponent implements OnInit, OnChanges {
 
   save() {
     let model = this.form.value;
-    console.log('Saving', model)
     if (model.id) {
       this.assignmentService.updateAssignment(model)
         .subscribe(data => {
@@ -53,14 +52,9 @@ export class AssignmentFormComponent implements OnInit, OnChanges {
         })
     }
     else {
-      this.assignmentService.createAssignment(model)
-        .subscribe(data => {
-          if (data.id) {
-            Materialize.toast('Assignment Created', 1000);
-            this.assignmentSave.emit();
-            this.form.reset();
-          }
-        })
+      this.assignmentService.createAssignment(model);
+      this.assignmentSave.emit();
+      this.form.reset();
     }
   }
 }
