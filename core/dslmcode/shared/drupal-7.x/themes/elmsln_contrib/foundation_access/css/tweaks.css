@@ -182,12 +182,13 @@
 }
 
 /* support shifting highlighted block region off to left column on big displays */
-@media screen and (min-width: 80rem) {
+@media screen and (min-width: 82rem) {
   .highlighted-block-area {
     position: absolute;
     right: 100%;
     width: calc(50vw - 52%);
-    max-width: 30em;
+    max-width: 20rem;
+    min-width: 10rem;
     top:0; }
 }
 /* shift exposed filters over on REALLY big displays */
@@ -1177,30 +1178,37 @@ ul.pagination li a {
 #scrollspy-nav li.scrollspy-depth-1 {
 }
 #scrollspy-nav li.scrollspy-depth-2 {
-  padding-left:.75rem;
 }
 #scrollspy-nav li.scrollspy-depth-3 {
-  padding-left:1.5rem;
+  padding-left:.2rem;
 }
 #scrollspy-nav li.scrollspy-depth-4 {
-  padding-left:2.25rem;
+  padding-left:.5rem;
 }
 
 #scrollspy-nav .scrollspy-link.active {
   border-left: unset;
   border-left-style: solid;
   border-left-width: .2rem;
+  padding: 0;
+}
+.table-of-contents li {
+  padding: 0;
 }
 .table-of-contents a {
-  line-height: 2.25rem;
-  height: 2.25rem;
+  line-height: 2rem;
+  height: 2rem;
+  outline: none;
+  padding: 0;
   width: 100%;
+  font-size: .8rem;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 .table-of-contents a.active {
   color:unset;
+  font-size: 1rem;
 }
 #scrollspy-nav a:hover {
   border-left: unset;
@@ -1209,16 +1217,18 @@ ul.pagination li a {
 }
 /* structure in media */
 .scrollspy-toc .table-of-contents {
-  margin-left: 0;
   max-height: 65vh;
+  min-width: 10rem;
   overflow-y: scroll;
   width: calc(50vw - 52%);
   max-width: 30em;
+  margin: 0;
 }
 /* structure in mooc */
 .scrollspy-toc.table-of-contents {
-  margin-left: 0;
+  margin: 0;
   max-height: 65vh;
+  min-width: 10rem;
   overflow-y: scroll;
   width: 100%;
   max-width: 30em;
@@ -1229,8 +1239,9 @@ ul.pagination li a {
   #scrollspy-nav {
     position: absolute !important;
     left: 100%;
-    width: calc(50vw - 52%);
+    width: calc(52vw - 52%);
     max-width: 30em;
+    min-width: 10rem;
     display: block;
     max-height: 65vh;
     overflow-y: scroll;
@@ -1553,7 +1564,17 @@ div.read-time-wrapper div.chip i {
 .cke_bottom {
   z-index: 1;
 }
-
+article,
+article p,
+article div,
+article h1,
+article h2,
+article h3,
+article h4,
+article h5,
+article h6 {
+  font-size: 1.3rem;
+}
 /* ELMSLN bullets */
 article.node div.body ul li {
   list-style-type: initial;
