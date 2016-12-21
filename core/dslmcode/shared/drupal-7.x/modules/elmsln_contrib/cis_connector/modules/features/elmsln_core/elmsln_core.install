@@ -197,3 +197,22 @@ function elmsln_core_update_7019(&$sandbox) {
   variable_set('preprocess_css', '0');
   variable_set('preprocess_js', '0');
 }
+
+/**
+ * Implements hook_update_N().
+ * Make sure service account users are all UPPERCASE, by force
+ */
+function elmsln_core_update_7020(&$sandbox) {
+  $distro = elmsln_core_get_profile_key();
+  $registry = _cis_connector_build_registry($distro);
+  // ensure that user and pass are set
+  if (isset($registry['user'])) {
+    // make sure this account exist to avoid an error
+    if ($account = user_load_by_name($registry['user'])) {
+      $tmp = $account->name;
+      $account->name = strtoupper($account->name);
+      $account->mail = str_replace($tmp, $account->name, $account->mail);
+      user_save($account);
+    }
+  }
+}
