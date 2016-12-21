@@ -52,19 +52,19 @@ function foundation_access_preprocess_html(&$variables) {
   // google font / icons from google
   drupal_add_css('//fonts.googleapis.com/css?family=Material+Icons%7CDroid+Serif:400,700,400italic,700italic%7COpen+Sans:300,600,700', array('type' => 'external', 'group' => CSS_THEME, 'weight' => 1000));
   $libraries = libraries_get_libraries();
-  if (isset($libraries['jquery.vibrate.js'])) {
-    drupal_add_js($libraries['jquery.vibrate.js'] .'/jquery.vibrate.min.js');
-    drupal_add_js(drupal_get_path('theme', 'foundation_access') . '/legacy/js/vibrate-enable.js');
+  if (!_entity_iframe_mode_enabled()) {
+    if (isset($libraries['jquery.vibrate.js'])) {
+      drupal_add_js($libraries['jquery.vibrate.js'] .'/jquery.vibrate.min.js');
+      drupal_add_js(drupal_get_path('theme', 'foundation_access') . '/legacy/js/vibrate-enable.js');
+    }
+    // gifs need to be done as a player for accessibility reasons
+    if (isset($libraries['jquery.vibrate.js'])) {
+      drupal_add_js($libraries['freezeframe.js'] .'/src/js/vendor/imagesloaded.pkgd.js');
+      drupal_add_js($libraries['freezeframe.js'] .'/build/js/freezeframe.js');
+      drupal_add_css($libraries['freezeframe.js'] .'/build/css/freezeframe_styles.min.css');
+      drupal_add_js(drupal_get_path('theme', 'foundation_access') . '/legacy/js/freezeframe-enable.js');
+    }
   }
-  // gifs need to be done as a player for accessibility reasons
-  if (isset($libraries['jquery.vibrate.js'])) {
-    drupal_add_js($libraries['freezeframe.js'] .'/src/js/vendor/imagesloaded.pkgd.js');
-    drupal_add_js($libraries['freezeframe.js'] .'/build/js/freezeframe.js');
-    drupal_add_css($libraries['freezeframe.js'] .'/build/css/freezeframe_styles.min.css');
-    drupal_add_js(drupal_get_path('theme', 'foundation_access') . '/legacy/js/freezeframe-enable.js');
-  }
-  // bring in materialize
-  $libraries = libraries_get_libraries();
   // see if we have it locally before serviing CDN
   // This allows EASY CDN module to switch to CDN later if that's the intention
   if (isset($libraries['materialize'])) {
