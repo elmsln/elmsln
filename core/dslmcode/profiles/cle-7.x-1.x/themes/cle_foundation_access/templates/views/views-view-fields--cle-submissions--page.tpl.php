@@ -45,13 +45,13 @@
     );
     // create the image
     $image = l(theme('image_style', $build_image), file_create_url($image_array['rendered']['#item']['uri']), $link_ary);
-    $images .= '<div class="carousel-item ferpa-protect">' . $image . '</div>';
+    $images .= '<div class="ferpa-protect">' . $image . '</div>';
   }
 ?>
 <div class="col s12 m6 l4 elmsln-card">
   <div class="card small sticky-action">
     <div class="card-image waves-effect waves-block waves-light">
-       <div class="carousel carousel-slider center" data-indicators="true">
+       <div class="center" data-indicators="true">
          <?php print $images; ?>
       </div>
     </div>
