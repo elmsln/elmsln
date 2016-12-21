@@ -1,0 +1,41 @@
+<?php
+
+/**
+ * @file flag_comment_flag_test.module
+ * Test module for comment flags.
+ */
+
+/**
+ * Implements hook_comment_load().
+ *
+ * This is only called once when viewing a node with comments, and before
+ * hook_entity_view() is invoked. We use this to check the initial state of the
+ * cache.
+ */
+function flag_comment_flag_test_comment_load($comments) {
+  $flag_get_user_flags_cache = drupal_static('flag_get_user_flags');
+
+  // Store the value of the flag_get_user_flags() static cache in the variable,
+  // so the test can retrieve it.
+  $tracking_variable = variable_get('flag_comment_flag_test_user_flags_cache_tracking', array());
+  $tracking_variable['hook_comment_load'] = $flag_get_user_flags_cache;
+  variable_set('flag_comment_flag_test_user_flags_cache_tracking', $tracking_variable);
+}
+
+/**
+ * Implements hook_entity_view().
+ *
+ * Use hook_entity_view() rather than hook_comment_view() so we are in the same
+ * invocation as flag_entity_view().
+ */
+function flag_comment_flag_test_entity_view($entity, $type, $view_mode, $langcode) {
+  if ($type == 'comment') {
+    $flag_get_user_flags_cache = drupal_static('flag_get_user_flags');
+
+    // Store the value of the flag_get_user_flags() static cache in the variable,
+    // so the test can retrieve it.
+    $tracking_variable = variable_get('flag_comment_flag_test_user_flags_cache_tracking', array());
+    $tracking_variable['hook_entity_view_' . $entity->cid] = $flag_get_user_flags_cache;
+    variable_set('flag_comment_flag_test_user_flags_cache_tracking', $tracking_variable);
+  }
+}
