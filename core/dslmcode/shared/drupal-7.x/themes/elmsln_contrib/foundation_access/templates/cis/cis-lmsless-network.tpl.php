@@ -20,11 +20,11 @@
         $activetool = '';
         $iconcolor = $lmsless_classes[$service['distro']]['color'] . '-text text-darken-4';
         if ($service['machine_name'] == $active['machine_name']) {
-          $activetool = $lmsless_classes[$service['distro']]['color'] . ' ' . $lmsless_classes[$service['distro']]['light'] . ' active-system ';
-          $iconcolor = $lmsless_classes[$service['distro']]['color'] . ' black-text';
+          $activetool = $lmsless_classes[$service['distro']]['color'] . ' active-system white-text ';
+          $iconcolor = $lmsless_classes[$service['distro']]['color'] . ' white-text ';
         }
     ?>
-      <li><a data-prefetch-hover="true" href="<?php print $service['url']; ?>" class="waves-effect waves-<?php print $lmsless_classes[$service['distro']]['color'];?> waves-light <?php print $activetool . $service['icon']; ?>-icon"  data-jwerty-key="ctrl+<?php print drupal_strtolower(substr($service['title'], 0, 1)); ?>" data-voicecommand="<?php print t('go to ') . drupal_strtolower($service['title']); ?>" data-elmsln-hover="<?php print $lmsless_classes[$service['distro']]['color'] . ' ' . $lmsless_classes[$service['distro']]['light'];?>" data-elmsln-icon-hover="<?php print $lmsless_classes[$service['distro']]['color'] . ' hover-black-text';?>">
+      <li><a data-prefetch-hover="true" href="<?php print $service['url']; ?>" class="waves-effect waves-<?php print $lmsless_classes[$service['distro']]['color'];?> waves-light <?php print $activetool . $service['icon']; ?>-icon"  data-jwerty-key="ctrl+<?php print drupal_strtolower(substr($service['title'], 0, 1)); ?>" data-voicecommand="<?php print t('go to ') . drupal_strtolower($service['title']); ?>" data-elmsln-hover="<?php print $lmsless_classes[$service['distro']]['color'];?> white-text" data-elmsln-icon-hover="hover-white-text">
       <?php if (isset($service['icon_library']) && $service['icon_library'] == 'material'): ?>
         <div class="material-icon elmsln-network-icon left elmsln-icon <?php print $iconcolor;?>"><i class="material-icons"><?php print $service['icon']; ?></i></div>
       <?php else: ?>
