@@ -1018,17 +1018,6 @@ function foundation_access_menu_link(&$variables) {
     if ($element['#below']) {
       $element['#localized_options']['attributes']['class'][] = 'has-children';
     }
-    // see if we have a localized override
-    if (isset($element['#localized_options']['fa_icon'])) {
-      $icon = $element['#localized_options']['fa_icon'];
-    }
-    // prefix node based titles with an icon
-    if (isset($icon) && !empty($icon)) {
-      $title = '<div class="elmsln-icon icon-' . $icon . ' outline-nav-icon"></div>' . $title;
-    }
-    else {
-      $title = '<div class="outline-nav-icon"></div>' . $title;
-    }
   }
   // support for add menu to get floating classes
   if ($element['#original_link']['menu_name'] == 'menu-elmsln-add') {
@@ -1119,7 +1108,7 @@ function _foundation_access_single_menu_link($element) {
   if (isset($options['fa_icon'])) {
     $icon = $options['fa_icon'];
   }
-  return '<li>' . l('<div class="elmsln-icon icon-' . $icon . ' outline-nav-icon"></div>' . $title, $element['#href'], $options) . '</li>';
+  return '<li>' . l($title, $element['#href'], $options) . '</li>';
 }
 
 /**
@@ -1186,7 +1175,7 @@ function _foundation_access_menu_outline($variables, $word = FALSE, $number = FA
       $counter++;
     }
     else {
-      $return ='<li class="has-submenu level-' . $depth . '-top ' . implode(' ', $element['#attributes']['class']) . '"><a href="#elmsln-menu-sub-level-' . hash('md5', 'emsl' . $title) . '"><div class="elmsln-icon icon-content outline-nav-icon"></div><span class="outline-nav-text">' . $title . '</span></a>' . "\n" .
+      $return ='<li class="has-submenu level-' . $depth . '-top ' . implode(' ', $element['#attributes']['class']) . '"><a href="#elmsln-menu-sub-level-' . hash('md5', 'emsl' . $title) . '"><span class="outline-nav-text">' . $title . '</span></a>' . "\n" .
       '<ul class="left-submenu level-' . $depth . '-sub">'  . "\n" .
       '<div>'  . "\n";
       $labeltmp = _foundation_access_auto_label_build($word, $number, $counter);
