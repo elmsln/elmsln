@@ -44,7 +44,7 @@ export function reducer(state: AssignmentState = initialState, action: Action) {
     case ActionTypes.LOAD_ASSIGNMENTS_SUCCESS: {
       return {
         loading: false,
-        assignments: action.payload
+        assignments: action.payload ? action.payload : []
       }
     }
 
