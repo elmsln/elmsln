@@ -39,7 +39,7 @@ export class ProjectItemComponent implements OnInit, OnDestroy {
           }
         }
         return false;
-      }));
+      }))
   }
 
   ngOnInit() {
