@@ -8,6 +8,13 @@ export const ActionTypes = {
   LOAD_ASSIGNMENTS_SUCCESS: 'LOAD_ASSIGNMENTS_SUCCESS'
 }
 
+export function createAssignment(assignment): Action {
+  return {
+    type: ActionTypes.CREATE_ASSIGNMENT,
+    payload: assignment
+  }
+}
+
 export function loadAssignments(): Action {
   return {
     type: ActionTypes.LOAD_ASSIGNMENTS,

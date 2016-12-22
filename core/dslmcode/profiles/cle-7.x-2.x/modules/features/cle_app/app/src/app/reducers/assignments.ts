@@ -14,6 +14,13 @@ const initialState: AssignmentState = {
 
 export function reducer(state: AssignmentState = initialState, action: Action) {
   switch (action.type) {
+    case ActionTypes.CREATE_ASSIGNMENT: {
+      return {
+        loading: state.loading,
+        assignments: [...state.assignments, action.payload]
+      }
+    }
+
     case ActionTypes.LOAD_ASSIGNMENTS: {
       return {
         loading: true,

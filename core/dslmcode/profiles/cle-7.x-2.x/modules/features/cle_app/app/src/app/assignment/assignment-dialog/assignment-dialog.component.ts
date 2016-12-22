@@ -4,6 +4,8 @@ import { Assignment } from '../../assignment'
 import { AssignmentService } from '../../assignment.service';
 import { AssignmentFormComponent } from '../assignment-form/assignment-form.component';
 import { Observable } from 'rxjs';
+import { Store } from '@ngrx/store';
+import { createAssignment } from '../../app.actions';
 declare const jQuery:any;
 
 @Component({
@@ -20,7 +22,8 @@ export class AssignmentDialogComponent implements OnInit, OnDestroy {
     private route:ActivatedRoute,
     private router:Router,
     private assignmentService:AssignmentService,
-    private el:ElementRef
+    private el:ElementRef,
+    private store:Store<{}>
   ) { }
 
   ngOnInit() {
@@ -50,6 +53,11 @@ export class AssignmentDialogComponent implements OnInit, OnDestroy {
   }
 
   onAssignmentSave($event) {
+    if ($event.id) {
+    }
+    else {
+      this.store.dispatch(createAssignment($event));
+    }
     this.router.navigate([{outlets: {dialog: null}}]);
   }
 

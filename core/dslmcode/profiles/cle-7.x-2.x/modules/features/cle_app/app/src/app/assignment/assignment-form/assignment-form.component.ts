@@ -43,18 +43,7 @@ export class AssignmentFormComponent implements OnInit, OnChanges {
 
   save() {
     let model = this.form.value;
-    if (model.id) {
-      this.assignmentService.updateAssignment(model)
-        .subscribe(data => {
-            Materialize.toast('Assignment Updated', 1000);
-            this.assignmentSave.emit();
-            this.form.reset();
-        })
-    }
-    else {
-      this.assignmentService.createAssignment(model);
-      this.assignmentSave.emit();
-      this.form.reset();
-    }
+    this.assignmentSave.emit(model);
+    this.form.reset();
   }
 }

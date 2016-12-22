@@ -59,11 +59,6 @@ export class AssignmentService {
     
     return this.elmsln.post(AppSettings.BASE_PATH + 'node', newAssignment)
       .map(data => data.json())
-      .map(data => ({ type: 'ADD_ASSIGNMENT', payload: Object.assign({}, assignment, {id: parseInt(data.id)})}))
-      .subscribe(action => {
-        this.store.dispatch(action);
-        Materialize.toast('Assignment created', 1000);
-      });
   }
 
   updateAssignment(assignment:Assignment) {

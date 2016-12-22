@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import { Action } from '@ngrx/store'
 import { Effect, Actions } from '@ngrx/effects';
-import { ActionTypes, loadAssignmentsSuccess } from './app.actions';
+import { ActionTypes, loadAssignmentsSuccess, createAssignment } from './app.actions';
 import { AssignmentService } from './assignment.service';
 
 @Injectable()
@@ -12,6 +12,10 @@ export class AppEffects {
     private actions$: Actions,
     private assignmentService:AssignmentService
   ) { }
+
+  @Effect({dispatch:false}) createAssignment$ = this.actions$
+    .ofType(ActionTypes.CREATE_ASSIGNMENT)
+    .mergeMap(action => this.assignmentService.createAssignment(action.payload))
 
   @Effect() loadAssignments$ = this.actions$
     .ofType(ActionTypes.LOAD_ASSIGNMENTS)
