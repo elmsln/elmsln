@@ -56,14 +56,12 @@ export class AssignmentService {
 
   createAssignment(assignment:Assignment) {
     let newAssignment = this.prepareForDrupal(assignment);
-    
     return this.elmsln.post(AppSettings.BASE_PATH + 'node', newAssignment)
       .map(data => data.json())
   }
 
   updateAssignment(assignment:Assignment) {
     let newAssignment = this.prepareForDrupal(assignment);
-
     return this.elmsln.put(AppSettings.BASE_PATH + 'node/' + assignment.id, newAssignment)
       .map(data => data.json())
   }

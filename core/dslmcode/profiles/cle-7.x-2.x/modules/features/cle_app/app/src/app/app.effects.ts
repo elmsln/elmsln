@@ -17,6 +17,10 @@ export class AppEffects {
     .ofType(ActionTypes.CREATE_ASSIGNMENT)
     .mergeMap(action => this.assignmentService.createAssignment(action.payload))
     .map(assignmentInfo => createAssignmentSuccess(assignmentInfo.id));
+  
+  @Effect({dispatch: false}) updateAssignment$ = this.actions$
+    .ofType(ActionTypes.UPDATE_ASSIGNMENT)
+    .mergeMap(action => this.assignmentService.updateAssignment(action.payload))
 
   @Effect() loadAssignments$ = this.actions$
     .ofType(ActionTypes.LOAD_ASSIGNMENTS)

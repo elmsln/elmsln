@@ -23,6 +23,13 @@ export function createAssignmentSuccess(assignmentId): Action {
   }
 }
 
+export function updateAssignment(assignment): Action {
+  return {
+    type: ActionTypes.UPDATE_ASSIGNMENT,
+    payload: assignment
+  }
+}
+
 export function loadAssignments(): Action {
   return {
     type: ActionTypes.LOAD_ASSIGNMENTS,

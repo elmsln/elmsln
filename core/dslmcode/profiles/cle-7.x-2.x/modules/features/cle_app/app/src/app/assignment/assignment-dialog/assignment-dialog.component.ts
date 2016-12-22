@@ -5,7 +5,7 @@ import { AssignmentService } from '../../assignment.service';
 import { AssignmentFormComponent } from '../assignment-form/assignment-form.component';
 import { Observable } from 'rxjs';
 import { Store } from '@ngrx/store';
-import { createAssignment } from '../../app.actions';
+import { createAssignment, updateAssignment } from '../../app.actions';
 declare const jQuery:any;
 
 @Component({
@@ -54,6 +54,7 @@ export class AssignmentDialogComponent implements OnInit, OnDestroy {
 
   onAssignmentSave($event) {
     if ($event.id) {
+      this.store.dispatch(updateAssignment($event));
     }
     else {
       this.store.dispatch(createAssignment($event));

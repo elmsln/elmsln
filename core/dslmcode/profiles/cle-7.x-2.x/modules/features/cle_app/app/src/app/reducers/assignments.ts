@@ -34,6 +34,19 @@ export function reducer(state: AssignmentState = initialState, action: Action) {
       }
     }
 
+    case ActionTypes.UPDATE_ASSIGNMENT: {
+      return {
+        loading: state.loading,
+        assignments: state.assignments.map((assignment:Assignment) => {
+          // check if the updated assignment has the same id as the current assignemnt
+          if (assignment.id === action.payload.id) {
+            return Object.assign({}, assignment, action.payload)
+          }
+          return assignment;
+        })
+      }
+    }
+
     case ActionTypes.LOAD_ASSIGNMENTS: {
       return {
         loading: true,
