@@ -21,6 +21,19 @@ export function reducer(state: AssignmentState = initialState, action: Action) {
       }
     }
 
+    case ActionTypes.CREATE_ASSIGNMENT_SUCCESS: {
+      const assignmentId = action.payload.id ? Number(action.payload.id) : null;
+      return {
+        loading: state.loading,
+        assignments: state.assignments.map((assignment:Assignment) => {
+          if (!assignment.id && assignmentId) {
+            return Object.assign({}, assignment, { id: assignmentId })
+          }
+          return assignment;
+        })
+      }
+    }
+
     case ActionTypes.LOAD_ASSIGNMENTS: {
       return {
         loading: true,
