@@ -20,6 +20,7 @@ declare var $:any;
 
 export class WysiwygjsComponent implements OnInit, ControlValueAccessor {
   @Input() content:string;
+  @Output() onContentUpdate: EventEmitter<any> = new EventEmitter();
 
   constructor(
     private el: ElementRef
@@ -335,6 +336,7 @@ export class WysiwygjsComponent implements OnInit, ControlValueAccessor {
       // emit the change
       newThis.content = (<any>$(newThis.el.nativeElement).find('.wysiwyg-editor').html());
       newThis.propagateChange(newThis.content);
+      newThis.onContentUpdate.emit();
     })
   }
 
