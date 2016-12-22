@@ -16,6 +16,13 @@ export function createAssignment(assignment): Action {
   }
 }
 
+export function createAssignmentSuccess(assignmentId): Action {
+  return {
+    type: ActionTypes.CREATE_ASSIGNMENT_SUCCESS,
+    payload: { id: assignmentId }
+  }
+}
+
 export function loadAssignments(): Action {
   return {
     type: ActionTypes.LOAD_ASSIGNMENTS,
