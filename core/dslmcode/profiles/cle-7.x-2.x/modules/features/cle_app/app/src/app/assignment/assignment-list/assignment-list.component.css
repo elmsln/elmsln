@@ -38,8 +38,13 @@ nav li a {
   color: #2196F3;
 }
 
-.assignment__header {
+.assignment {
   position: relative;
+}
+
+.assignment--loading {
+  cursor: wait;
+  background: #efefef;
 }
 
 .assignment__header:hover .assignment__edit-buttons {

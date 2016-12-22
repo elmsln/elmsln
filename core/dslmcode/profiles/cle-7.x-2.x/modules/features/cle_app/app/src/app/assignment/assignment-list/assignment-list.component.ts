@@ -23,7 +23,9 @@ export class AssignmentListComponent {
   ) { }
 
 viewAssignment(assignmentId) {
-  this.router.navigate(['/assignments/' + assignmentId]);
+  if (assignmentId) {
+    this.router.navigate(['/assignments/' + assignmentId]);
+  }
 }
 
 createAssignment() {
