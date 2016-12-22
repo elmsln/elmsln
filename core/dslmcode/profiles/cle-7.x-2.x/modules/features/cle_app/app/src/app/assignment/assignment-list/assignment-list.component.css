@@ -43,11 +43,10 @@ nav li a {
 }
 
 .assignment--loading {
-  cursor: wait;
   background: #efefef;
 }
 
-.assignment__header:hover .assignment__edit-buttons {
+.assignment:hover .assignment__edit-buttons {
   opacity: 1;
 }
 
@@ -55,7 +54,6 @@ nav li a {
   position: absolute;
   right: 0;
   top: 0;
-  height: 100%;
   background: linear-gradient(to right, transparent, white 30%);
   display: flex;
   align-items: center;
