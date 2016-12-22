@@ -213,6 +213,10 @@ function cis_service_connection_ux_form($form, $form_state) {
     $form['theme'] = $tmp['zurb_foundation']['foundation_access'];
     $form['theme']['#title'] = t('Theme / Style settings');
     $form['theme']['#collapsed'] = '1';
+    $form['var'] = array(
+      '#type' => 'hidden',
+    	'#value' => 'theme_' . variable_get('theme_default', 'foundation_access') . '_settings',
+    );
     // unset some of the standard theme settings
     foreach ($form['theme'] as &$value) {
       if (is_array($value) && isset($value['#value'])) {
@@ -220,6 +224,7 @@ function cis_service_connection_ux_form($form, $form_state) {
       }
     }
     // submit handlers
+    $form['#submit'][] = 'system_theme_settings_submit';
     $form['#submit'][] = 'cis_service_connection_ux_form_submit';
   }
   return system_settings_form($form);
