@@ -623,9 +623,11 @@ function cis_helper_entity_presave($entity, $type) {
     if (!isset($entity->field_services['und']) || $entity->field_services['und'][0]['target_id'] == 0) {
       $entity->field_services['und'] = array();
       $service_instances = _cis_helper_derive_service_instances(NULL, $entity->HostEntity()->HostEntity());
-      foreach ($service_instances as $instance) {
-        $service = node_load($instance->field_services[LANGUAGE_NONE][0]['target_id']);
-        $entity->field_services[LANGUAGE_NONE][] = array('target_id' => $service->nid);
+      if (is_array($service_instances) && !empty($service_instances)) {
+        foreach ($service_instances as $instance) {
+          $service = node_load($instance->field_services[LANGUAGE_NONE][0]['target_id']);
+          $entity->field_services[LANGUAGE_NONE][] = array('target_id' => $service->nid);
+        }
       }
     }
   }
