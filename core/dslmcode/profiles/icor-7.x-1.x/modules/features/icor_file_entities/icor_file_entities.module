@@ -1,7 +1,0 @@
-<?php
-/**
- * @file
- * Code for the ICOR file entities feature.
- */
-
-include_once 'icor_file_entities.features.inc';
