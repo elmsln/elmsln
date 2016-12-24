@@ -8,6 +8,8 @@ import { Cookie } from 'ng2-cookies/ng2-cookies';
 @Injectable()
 export class UserService {
   private loggedIn = false;
+  permissions:any[] = [];
+  
 
   constructor(
     private elmslnService: ElmslnService,
@@ -16,6 +18,10 @@ export class UserService {
   login(username:string, password:string) {
     Cookie.set('basicAuthCredentials',  btoa(username + ":" + password));
     this.elmslnService.login();
+    this.elmslnService.getUserProfile()
+      .subscribe(data => {
+        this.permissions.push()
+      })
   }
 
   logout() {

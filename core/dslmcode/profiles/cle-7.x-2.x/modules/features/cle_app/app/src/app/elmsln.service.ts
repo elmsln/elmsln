@@ -96,4 +96,9 @@ export class ElmslnService {
       headers: headers
     })
   }
+
+  getUserProfile() {
+    return this.get(AppSettings.BASE_PATH + 'api/v1/elmsln/user')
+      .map(data => data.json())
+  }
 }
