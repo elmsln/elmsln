@@ -1,6 +1,0 @@
-; $Id: icor_smart_builder.info
-name = "ICOR Smart Builder"
-description = "Support for Smart Builder"
-core = 7.x
-package = ICOR
-dependencies[] = 'file_entity'

@@ -99,3 +99,16 @@ function icor_update_7007(&$sandbox) {
   features_revert_module('icor_interactive_player');
 }
 
+/**
+ * Drop old module from registry.
+ */
+function icor_update_7008(&$sandbox) {
+  $modules = array(
+    'icor_smart_builder',
+    'icor_file_entities',
+  );
+  db_delete('system')
+    ->condition('name', $modules, 'IN')
+    ->condition('type', 'module')
+    ->execute();
+}
