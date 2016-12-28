@@ -59,6 +59,35 @@ function elmsln_api_menu() {
     'access callback' => 'user_is_logged_in',
     'type' => MENU_CALLBACK,
   );
+  // elmsln core file API endpoints
+  $items[ELMSLN_API_BASE_PATH . '/v1/elmsln/files'] = array(
+    'page callback' => '_elmsln_api_v1_page_callback',
+    'page arguments' => array('file', NULL, NULL),
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_CALLBACK,
+  );
+  $items[ELMSLN_API_BASE_PATH . '/v1/elmsln/files/%'] = array(
+    'page callback' => '_elmsln_api_v1_page_callback',
+    'page arguments' => array('file', 4, 'query'),
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_CALLBACK,
+  );
+  // file entity required for these endpoints
+  if (module_exists('file_entity')) {
+    $items[ELMSLN_API_BASE_PATH . '/v1/elmsln/files/create'] = array(
+      'page callback' => '_elmsln_api_v1_page_callback',
+      'page arguments' => array('file', NULL, 4),
+      'access callback' => 'user_is_logged_in',
+      'type' => MENU_CALLBACK,
+    );
+    $items[ELMSLN_API_BASE_PATH . '/v1/elmsln/files/%/delete'] = array(
+      'page callback' => '_elmsln_api_v1_page_callback',
+      'page arguments' => array('file', 4, 'delete'),
+      'access callback' => 'user_is_logged_in',
+      'type' => MENU_CALLBACK,
+    );
+  }
+  // bridge for triggering back-end callbacks
   $items[ELMSLN_API_BASE_PATH . '/v1/elmsln/bridge'] = array(
     'title' => 'ELMSLN API Bridge',
     'page callback' => '_elmsln_api_bridge',
@@ -67,11 +96,94 @@ function elmsln_api_menu() {
     'access arguments' => array(array('administrator', 'instructor', 'staff')),
     'type' => MENU_CALLBACK,
   );
+  // user object for front-faving calls
   $items[ELMSLN_API_BASE_PATH . '/v1/elmsln/user'] = array(
     'page callback' => '_elmsln_api_user_request',
     'access callback' => 'user_is_logged_in',
     'type' => MENU_CALLBACK,
   );
+  return $items;
+}
+
+/**
+ * Implements hook_elmsln_jsapi_info().
+ */
+function elmsln_api_elmsln_jsapi_info() {
+  // assignment api router
+  $items['file'] = array(
+    'type'   => 'file',
+    'bundle' => 'file',
+    'modify' => '_elmsln_api_v1_file_modify',
+    'list'   => '_elmsln_api_v1_get_files',
+    'output' => '_elmsln_api_v1_file_output',
+  );
+  return $items;
+}
+
+/**
+ * Callback to modify the file entity.
+ * @param  object $file  loaded or newly prepared file object
+ * @param  array $params list of properties / fields to set
+ * @return array         response from API end-point
+ */
+function _elmsln_api_v1_file_modify($file, $params = NULL) {
+  $status = '403';
+  $detail = t('File failed to create');
+  // remove base64 prefix metadata, if exists
+  $result = preg_split('/^data\:image\/(.*)\;base64\,/', $params['data'], -1, PREG_SPLIT_NO_EMPTY);
+  if (count($result) > 0) {
+    // replace any spaces with base64-compliant '+' signs and convert to binary image
+    $data = base64_decode(str_replace(' ', '+', $result[0]));
+    // base64 string may not have included a metadata prefix so create instance to determine mime type
+    $finfo = finfo_open();
+    $mime_type = finfo_buffer($finfo, $data, FILEINFO_MIME_TYPE);
+    finfo_close($finfo);
+    // get and validate image extension from mime type
+    $ext = str_replace('image/', '', $mime_type);
+    if (in_array($ext, array('png', 'gif', 'jpg', 'jpeg'))) {
+      // save binary image in Drupal site's public file directory
+      if ($file = file_save_data($data, 'public://' . $params['name']. '.' . $ext)) {
+        file_save($file);
+      }
+    }
+  }
+  // make sure we were able to create the file to generate a fid
+  if (!empty($file->fid)) {
+    $status = '200';
+    $detail = t('File created');
+  }
+  // output the newly created file
+  $vars = array(
+    'status' => $status,
+    'detail' => $detail,
+    'file' => (array) $file,
+    'fid' => $file->fid,
+  );
+  return $vars;
+}
+
+/**
+ * Helper function that prepares a file for api output.
+ */
+function _elmsln_api_v1_file_output($file) {
+  // return file object with a link directly to it
+  $file->url = file_create_url($file->uri);
+  $file->created = Date('c', $file->timestamp);
+  return (array) $file;
+}
+
+/**
+ * Helper function to return a list of all files.
+ */
+function _elmsln_api_v1_get_files($filter = array()) {
+  $items = array();
+  $field_conditions = array();
+  $property_conditions = array();
+  if (isset($filter['file'])) {
+    $property_conditions['fid'] = array($filter['file'], '=');
+  }
+  $orderby = array();
+  $items = _cis_connector_assemble_entity_list('file', '', 'fid', '_entity', $field_conditions, $property_conditions, $orderby);
   return $items;
 }
 
@@ -1156,85 +1268,103 @@ function _elmsln_api_v1_page_callback($type, $etid = NULL, $op = NULL) {
       }
     }
     else {
+      $info = entity_get_info($jsapis[$type]['type']);
       switch ($op) {
         case 'create':
-          $node = _elmsln_api_stub_node($jsapis[$type]['type']);
-          if (node_access('create', $node)) {
+          // nodes we populate a lot more fields for defaults
+          if ($jsapis[$type]['type'] == 'node') {
+            $entity = _elmsln_api_stub_node($jsapis[$type]['bundle']);
+          }
+          else {
+            $entity = entity_create($jsapis[$type]['type'], array($info['entity keys']['bundle'] => $jsapis[$type]['bundle']));
+          }
+          // verify they can create this
+          if (entity_access('create', $jsapis[$type]['type'], $entity)) {
             // pass down the $_POST to the create callback
             $params = filter_var_array($_POST, FILTER_SANITIZE_STRING);
-            $vars = call_user_func($jsapis[$type]['modify'], $node, $params);
+            $vars = call_user_func($jsapis[$type]['modify'], $entity, $params);
           }
           else {
             $vars = array(
               'status' => '403',
-              'detail' => 'Access denied to create ' . $jsapis[$type]['type'],
+              'detail' => 'Access denied to create ' . $jsapis[$type]['bundle'],
             );
           }
         break;
         case 'update':
-          $node = node_load($etid);
+          $entity = entity_load_single($jsapis[$type]['type'], $etid);
           // ensure this type and id load correctly
-          if ($node->nid == $etid && $node->type == $jsapis[$type]['type'] && node_access('update', $node)) {
+          if ($entity->{$info['entity keys']['id']} == $etid && $entity->{$info['entity keys']['bundle']} == $jsapis[$type]['bundle'] && entity_access('update', $jsapis[$type]['type'], $entity)) {
             // pass down the $_POST to the create callback
             $params = filter_var_array($_POST, FILTER_SANITIZE_STRING);
-            $vars = call_user_func($jsapis[$type]['modify'], $node, $params);
+            $vars = call_user_func($jsapis[$type]['modify'], $entity, $params);
           }
           else {
             $vars = array(
               'status' => '403',
-              'detail' => 'Access denied to update nid ' . $etid,
+              'detail' => 'Access denied to update etid ' . $etid,
             );
           }
         break;
         case 'delete':
-          $node = node_load($etid);
-          // ensure this is being used to delete the exact node and end point
+          $entity = entity_load_single($jsapis[$type]['type'], $etid);
+          $vars = $info;
+          // ensure this is being used to delete the exact id and end point
           // type to ensure we don't have our calls incorrect
-          if ($node->nid == $etid && $node->type == $jsapis[$type]['type'] && node_access('delete', $node)) {
-            node_delete($etid);
+          if ($entity->{$info['entity keys']['id']} == $etid && entity_access('delete', $jsapis[$type]['type'], $entity)) {
+            entity_delete($jsapis[$type]['type'], $etid);
             $vars = array(
               'status' => '200',
-              'detail' => 'nid ' . $etid . ' deleted',
-              'node' => serialize($node),
+              'detail' => 'etid ' . $etid . ' deleted',
+              'entity' => serialize($entity),
             );
           }
           else {
             $vars = array(
               'status' => '403',
-              'detail' => 'Access denied to delete nid ' . $etid,
+              'detail' => 'Access denied to delete etid ' . $etid,
             );
           }
         break;
         case 'fields':
-          module_load_include('inc', 'node', 'node.pages');
-          if (is_null($etid)) {
-            $node = _elmsln_api_stub_node($jsapis[$type]['type']);
-          }
-          else {
-            $node = node_load($etid);
-            if ($node->nid == $etid && $node->type == $jsapis[$type]['type'] && node_access('update', $node)) {
-              $node = node_load($etid);
+          // only makes sense for nodes
+          if ($jsapis[$type]['type'] == 'node') {
+            module_load_include('inc', 'node', 'node.pages');
+            if (is_null($etid)) {
+              $entity = _elmsln_api_stub_node($jsapis[$type]['bundle']);
             }
             else {
-              unset($node);
+              $entity = entity_load_single($jsapis[$type]['type'], $etid);
+              if ($entity->{$info['entity keys']['id']} == $etid && $entity->{$info['entity keys']['bundle']} == $jsapis[$type]['bundle'] && entity_access('update', $jsapis[$type]['type'], $entity)) {
+                $entity = entity_load_single($jsapis[$type]['type'], $etid);
+              }
+              else {
+                unset($entity);
+                $vars = array(
+                  'status' => '403',
+                  'detail' => 'Access denied to view fields against etid ' . $etid,
+                );
+              }
+            }
+            if (isset($entity)) {
+              $form_output = drupal_get_form($jsapis[$type]['bundle'] . '_' . $jsapis[$type]['type'] . '_form', $entity);
+              foreach($form_output as $key => $field) {
+                // strip out stuff that's for design / hierarchy purposes
+                if (strpos($key, '#') === 0 || in_array($key, array('comment_settings', 'path', 'revision_information', 'author', 'options'))) {
+                  unset($form_output[$key]);
+                }
+              }
               $vars = array(
-                'status' => '403',
-                'detail' => 'Access denied to view fields against nid ' . $etid,
+                'status' => '200',
+                'detail' => $jsapis[$type]['bundle'] . ' fields',
+                'fields' => serialize($form_output),
               );
             }
           }
-          if (isset($node)) {
-            $form_output = drupal_get_form($jsapis[$type]['type'] . '_node_form', $node);
-            foreach($form_output as $key => $field) {
-              // strip out stuff that's for design / hierarchy purposes
-              if (strpos($key, '#') === 0 || in_array($key, array('comment_settings', 'path', 'revision_information', 'author', 'options'))) {
-                unset($form_output[$key]);
-              }
-            }
+          else {
             $vars = array(
-              'status' => '200',
-              'detail' => $jsapis[$type]['type'] . ' fields',
-              'fields' => serialize($form_output),
+              'status' => '403',
+              'detail' => 'Access denied to view fields against non-node bundles',
             );
           }
         break;
@@ -1263,6 +1393,33 @@ function _elmsln_api_stub_node($type) {
   $node->revision = 1;
   $node->title = 'new ' . $type;
   return $node;
+}
+
+/**
+ * Helper function to convert a drupal date field into formatted
+ * start and end dates
+ *
+ * @param date_field
+ *
+ * @return array($start,$end)
+ */
+function _elmsln_api_format_date_field($date_field) {
+  $start = null;
+  $end = null;
+
+  if (isset($date_field['value'])) {
+    if (isset($date_field['value2'])) {
+      //start and end date
+      $start = Date('c', $date_field['value']);
+      $end = Date('c', $date_field['value2']);
+    }
+    else {
+      // end date only
+      $end = Date('c', $date_field['value']);
+    }
+  }
+
+  return array($start, $end);
 }
 
 /**
