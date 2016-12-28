@@ -1446,7 +1446,7 @@ function _cis_connector_assemble_entity_list($entity_type, $bundle, $id_field, $
   $query = new EntityFieldQuery;
   $query->entityCondition('entity_type', $entity_type);
   // EFQs of user entities fail since it has no bundle
-  if ($entity_type != 'user') {
+  if ($entity_type != 'user' && $entity_type != 'file') {
     $query->entityCondition('bundle', $bundle);
   }
   else {
