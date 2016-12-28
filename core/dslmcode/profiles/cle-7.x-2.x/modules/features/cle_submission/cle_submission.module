@@ -69,9 +69,10 @@ function cle_submission_menu() {
 function cle_submission_elmsln_jsapi_info() {
   // submissions api router
   $items['submission'] = array(
-    'type' =>   'cle_submission',
+    'type'   => 'node',
+    'bundle' => 'cle_submission',
     'modify' => '_cle_submission_v1_submission_modify',
-    'list' =>   '_cle_submission_v1_get_submissions',
+    'list'   => '_cle_submission_v1_get_submissions',
     'output' => '_cle_submission_v1_submission_output',
   );
   return $items;

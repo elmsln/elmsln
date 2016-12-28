@@ -64,9 +64,10 @@ function cle_assignment_menu() {
 function cle_assignment_elmsln_jsapi_info() {
   // assignment api router
   $items['assignment'] = array(
-    'type' =>   'cle_assignment',
+    'type'   => 'node',
+    'bundle' => 'cle_assignment',
     'modify' => '_cle_assignment_v1_assignment_modify',
-    'list' =>   '_cle_assignment_v1_get_assignments',
+    'list'   => '_cle_assignment_v1_get_assignments',
     'output' => '_cle_assignment_v1_assignment_output',
   );
   return $items;
@@ -143,7 +144,7 @@ function _cle_assignment_v1_assignment_modify($node, $params = NULL) {
  */
 function _cle_assignment_v1_assignment_output($node) {
   // get an array of formatted dates
-  $dates = _cle_api_format_date_field($node->field_assignment_due_date[LANGUAGE_NONE][0]);
+  $dates = _elmsln_api_format_date_field($node->field_assignment_due_date[LANGUAGE_NONE][0]);
 
   global $base_url;
   // this will be our json formatted output

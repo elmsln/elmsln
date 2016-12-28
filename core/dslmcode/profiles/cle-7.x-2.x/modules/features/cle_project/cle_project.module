@@ -62,9 +62,10 @@ function cle_project_menu() {
 function cle_project_elmsln_jsapi_info() {
   // assignment api router
   $items['project'] = array(
-    'type' =>   'cle_project',
+    'type'   => 'node',
+    'bundle' => 'cle_project',
     'modify' => '_cle_project_v1_project_modify',
-    'list' =>   '_cle_project_v1_get_projects',
+    'list'   => '_cle_project_v1_get_projects',
     'output' => '_cle_project_v1_project_output',
   );
   return $items;
