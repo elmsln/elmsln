@@ -1,6 +1,6 @@
-<form [formGroup]="form" class="assignment-form" (ngSubmit)="save(form.value)">
+<form [formGroup]="form" class="assignment-form">
   <input formControlName="title" placeholder="Title">
-  <wysiwygjs (onChange)="bodyChanged($event)"></wysiwygjs>
+  <wysiwygjs formControlName="description"></wysiwygjs>
 
   <div class="privacy">
     <label>Privacy Setting:</label>
@@ -34,8 +34,4 @@
       <app-datetime-input formControlName="endDate"></app-datetime-input>
     </div>
   </div>
-
-  <button type="submit" class="waves-effect waves-light btn">Save</button>
 </form>
-
-{{ form.value | json }}

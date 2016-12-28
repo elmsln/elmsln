@@ -1,4 +1,4 @@
-<button (click)="backToAssignments()" md-raised-button color="primary"><md-icon class="icon">arrow_back</md-icon>view submissions</button>
+<button (click)="backToAssignments()" md-raised-button color="primary"><i class="material-icons left">arrow_back</i>view submissions</button>
 
 <div class="submission" *ngIf="submission">
 
@@ -27,29 +27,18 @@
     </div>
     <div class="col s12 m6">
 
-      <md-tab-group [selectedIndex]="activeTabIndex" (selectChange)="tabChange($event)">
-        <md-tab>
-          <template md-tab-label> All Feedback </template>
-          <template md-tab-content>
-            <cle-critique-list [submission]="submission"></cle-critique-list>
-          </template>
-        </md-tab>
-        <md-tab>
-          <template md-tab-label> Give Feedback </template>
-          <template md-tab-content>
-            <h4><i class="material-icons">info_outline</i>Directions</h4>
-              <ol>
-                <li>Step 1. Describe</li>
-                <li>Step 2. Analyze</li>
-                <li>Step 3. Interpret</li>
-                <li>Step 4. Judge</li>
-              </ol>
-            <h4><i class="material-icons">comment</i>Feedback</h4>
-            <cle-critique-form (critiqueCreated)="critiqueCreated($event)" [submission]="submission"></cle-critique-form>
-          </template>
-        </md-tab>
-      </md-tab-group>
-
+      <h3> All Feedback </h3>
+      <cle-critique-list [submission]="submission"></cle-critique-list>
+      <h3> Give Feedback </h3>
+        <h4><i class="material-icons">info_outline</i>Directions</h4>
+          <ol>
+            <li>Step 1. Describe</li>
+            <li>Step 2. Analyze</li>
+            <li>Step 3. Interpret</li>
+            <li>Step 4. Judge</li>
+          </ol>
+        <h4><i class="material-icons">comment</i>Feedback</h4>
+        <cle-critique-form (critiqueCreated)="critiqueCreated($event)" [submission]="submission"></cle-critique-form>
 
     </div>
   </div>

@@ -37,3 +37,28 @@ nav, nav .btn {
 nav li a {
   color: #2196F3;
 }
+
+.assignment {
+  position: relative;
+}
+
+.assignment--loading {
+  background: #efefef;
+}
+
+.assignment:hover .assignment__edit-buttons {
+  opacity: 1;
+}
+
+.assignment__edit-buttons {
+  position: absolute;
+  right: 0;
+  top: 0;
+  background: linear-gradient(to right, transparent, white 30%);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-left: 2em;
+  opacity: 0;
+  transition: opacity .3s ease-in-out;
+}

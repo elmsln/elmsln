@@ -1,10 +1,12 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, OnChanges } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Assignment } from '../../assignment';
 import { AssignmentService } from '../../assignment.service';
 import { Project } from '../../project';
+import { Observable } from 'rxjs';
 declare const jQuery:any;
+declare const Materialize:any;
 
 @Component({
   selector: 'app-assignment-form',
@@ -12,13 +14,10 @@ declare const jQuery:any;
   styleUrls: ['./assignment-form.component.css'],
   providers: [Assignment, AssignmentService]
 })
-export class AssignmentFormComponent implements OnInit {
-  // assignments will always have a project attached to it
-  @Input() project: Project;
-  // this is the newly created assignment
-  @Output() assignment: Assignment;
+export class AssignmentFormComponent implements OnInit, OnChanges {
+  @Input() assignment:Assignment;
   // assignment creation event
-  @Output() assignmentCreated: EventEmitter<any> = new EventEmitter();
+  @Output() assignmentSave: EventEmitter<any> = new EventEmitter();
   // The assignment form that we will attach all of the fields to
   form: FormGroup;
   assignmentTypes:any[];
@@ -28,41 +27,47 @@ export class AssignmentFormComponent implements OnInit {
     private assignmentService: AssignmentService,
     private router: Router
   ) { 
-    this.form = this.formBuilder.group({
-      title: <string>'',
-      body: <string>'',
-      endDate: <string>null,
-      startDate: <string>null,
-      type: <string>null,
-    });
-
-    this.assignmentTypes = this.assignmentService.getAssignmentTypes();
   } 
 
   ngOnInit() {
+    // create the form from the assignment object that we recieved
+    this.form = this.formBuilder.group(this.assignment);
+    // get a list of assignment 'types' that we have available so we can display
+    // those in the select field
+    this.assignmentTypes = this.assignmentService.getAssignmentTypes()
   }
 
-  // Update the body from the WYSIWYG changed event.
-  bodyChanged($event) {
-    this.form.patchValue({
-      body: $event
-    })
+  ngOnChanges() {
+    this.form = this.formBuilder.group(this.assignment);
+    this.form.valueChanges
+      .debounceTime(1000)
+      .subscribe(() => this.autoSaveForm());
   }
 
-  save(model:Assignment) {
-    // if the project was specified then that means we need to manually set the
-    // project id
-    if (this.project) {
-      model.project = this.project.id;
-    }
-    console.log('Submit Assignment initiated', model);
-    this.assignmentService.createAssignment(model)
-      .subscribe(data => {
-        console.log('Assignment creation response: ', data);
-        if (data.id) {
-          this.assignmentCreated.emit();
-          this.form.reset();
+  private autoSaveForm() {
+    const saved:Assignment[] = localStorage.getItem('assignments_autosave') ? JSON.parse(localStorage.getItem('assignments_autosave')) : [];
+    const currentForm:Assignment = this.form.value;
+    let newSaved:Assignment[];
+
+    if (currentForm.id) {
+      saved.map(assignment => {
+        if (assignment.id === currentForm.id) {
+          return currentForm;
         }
-      })
+        return assignment;
+      });
+    }
+    else {
+      newSaved['new_assignment'] = currentForm;
+    }
+
+    localStorage.setItem('assignments_autosave', JSON.stringify(newSaved));
+  }
+
+
+  save() {
+    let model = this.form.value;
+    this.assignmentSave.emit(model);
+    this.form.reset();
   }
 }

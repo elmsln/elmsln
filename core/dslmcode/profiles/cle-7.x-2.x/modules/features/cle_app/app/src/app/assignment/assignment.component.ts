@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ElementRef, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { Assignment } from '../assignment';
 import { AssignmentService } from '../assignment.service';
 import { Observable } from 'rxjs';
+declare const jQuery:any;
 
 @Component({
   selector: 'cle-assignment',
@@ -12,15 +13,17 @@ import { Observable } from 'rxjs';
   providers: [AssignmentService]
 })
 export class AssignmentComponent implements OnInit {
-  assignmentId: number;
-  assignment: Assignment;
-  date: number;
+  assignmentId:number;
+  assignment:Assignment;
+  date:number;
+  editing:boolean = false;
 
   constructor(
     private router: Router,
     private route: ActivatedRoute,
     private location: Location,
-    private assignmentService: AssignmentService
+    private assignmentService: AssignmentService,
+    private el:ElementRef
   ) { }
 
   ngOnInit() {
@@ -40,16 +43,27 @@ export class AssignmentComponent implements OnInit {
         // assign the result to the local assignment
       // @todo this should be handled better
         .subscribe(data => {
-          this.assignment = data.data;
+          this.assignment = data;
         });
     }
+
   }
 
-  backButton() {
-    this.location.back();
+  onEditAssignment(assignment:Assignment) {
+    const url = 'assignment-edit/' + assignment.id;
+    this.router.navigate([{outlets: {dialog: url}}])
   }
 
-  gotToProjects() {
-    this.router.navigate(['/projects']);
+
+  editAssignment() {
+    this.editing = true;
+  }
+
+  stopEditing() {
+    this.editing = false;
+  }
+
+  onAssignmentSave($event) {
+    this.editing = false;
   }
 }
