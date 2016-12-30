@@ -260,7 +260,12 @@ function feeds_permission() {
  *
  * Declare form callbacks for all known classes derived from FeedsConfigurable.
  */
-function feeds_forms() {
+function feeds_forms($form_id, $args) {
+  // Check if the requested form is a Feeds form.
+  if (!stripos($form_id, '_feeds_form')) {
+    return;
+  }
+
   $forms = array();
   $forms['FeedsImporter_feeds_form']['callback'] = 'feeds_form';
   $plugins = FeedsPlugin::all();
