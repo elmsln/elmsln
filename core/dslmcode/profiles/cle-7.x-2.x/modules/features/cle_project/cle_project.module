@@ -94,19 +94,9 @@ function _cle_project_v1_get_projects($filter = array()) {
 function _cle_project_v1_project_output($node) {
   global $base_url;
   // check for section specific projects
-  $sections = array();
-  if (isset($node->og_group_ref[LANGUAGE_NONE])) {
-    foreach ($node->og_group_ref[LANGUAGE_NONE] as $order => $section) {
-      $sections[$order] = (int)$section['target_id'];
-    }
-  }
+  $sections = _elmsln_api_multifield_clean($node, 'og_group_ref', 'target_id', TRUE);
   // check for steps
-  $steps = array();
-  if (isset($node->field_project_steps[LANGUAGE_NONE])) {
-    foreach ($node->field_project_steps[LANGUAGE_NONE] as $order => $step) {
-      $steps[$order] = (int)$step['target_id'];
-    }
-  }
+  $steps = _elmsln_api_multifield_clean($node, 'field_project_steps', 'target_id', TRUE);
   // set color
   $color = '#ffffff';
   if (isset($node->field_project_color[LANGUAGE_NONE][0]['jquery_colorpicker'])) {
@@ -121,7 +111,7 @@ function _cle_project_v1_project_output($node) {
     'body' => $node->field_project_description[LANGUAGE_NONE][0]['safe_value'],
     'dueDate' => _elmsln_api_format_date_field($node->field_project_due_date[LANGUAGE_NONE][0]),
     'color' => $color,
-    'image' => $node->field_project_image[LANGUAGE_NONE][0],
+    'image' => _elmsln_api_v1_file_output($node->field_project_image[LANGUAGE_NONE][0]),
     'stepsToComplete' => $steps,
     'parentProject' => (int)$node->field_project_parent[LANGUAGE_NONE][0]['target_id'],
     'allowLateSubmissions' => (int)$node->field_assignment_late_submission[LANGUAGE_NONE][0]['value'],

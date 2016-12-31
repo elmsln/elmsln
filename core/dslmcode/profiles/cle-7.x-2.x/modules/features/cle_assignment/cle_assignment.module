@@ -145,7 +145,11 @@ function _cle_assignment_v1_assignment_modify($node, $params = NULL) {
 function _cle_assignment_v1_assignment_output($node) {
   // get an array of formatted dates
   $dates = _elmsln_api_format_date_field($node->field_assignment_due_date[LANGUAGE_NONE][0]);
-
+  // set color
+  $color = '#ffffff';
+  if (isset($node->field_assignment_color[LANGUAGE_NONE][0]['jquery_colorpicker'])) {
+    $color = '#' . $node->field_assignment_color[LANGUAGE_NONE][0]['jquery_colorpicker'];
+  }
   global $base_url;
   // this will be our json formatted output
   $return = array(
@@ -153,25 +157,32 @@ function _cle_assignment_v1_assignment_output($node) {
     'title' => $node->title,
     'status' => (int)$node->status,
     'created' => (int)$node->created,
-    'body' => $node->field_assignment_description[LANGUAGE_NONE][0]['safe_value'],
-    'links' => array(
-      'self' => $base_url . '/api/v1/cle/assignments/' . $node->nid,
-    ),
+    'description' => $node->field_assignment_description[LANGUAGE_NONE][0]['safe_value'],
+    'color' => $color,
+    'image' => _elmsln_api_v1_file_output($node->field_assignment_image[LANGUAGE_NONE][0]),
+    'allowLateSubmissions' => (int)$node->field_assignment_late_submission[LANGUAGE_NONE][0]['value'],
     'type' => ($node->field_assignment_privacy_setting ? $node->field_assignment_privacy_setting[LANGUAGE_NONE][0]['value'] : 'open'),
     'startDate' => $dates[0],
     'endDate' => $dates[1],
-    // @todo
-    // Need to replace static values below
-    'dependency' => _cle_api_random(array('none', 'previous', 'parent')),// default: none
-    'assets' => _cle_api_random(array('text', 'links', 'video', 'images', 'files'), 2), // unlimited
-    'critique' => array(
-      'method' => _cle_api_random(array('random', 'partner', 'open')),// default: random
-      'style' => _cle_api_random(array('double_blind', 'blind', 'open')),// default: double blind
-      'outline' => _cle_api_random(array('', 'Outline A')), //optional @todo: not sure what this is for
-      'public' => _cle_api_random(array('public', 'private')), // default: public
+    'commentStyle' => $node->field_assignment_feedback[LANGUAGE_NONE][0]['value'],
+    'hierarchy' => array(
+      'dependencies' => _elmsln_api_multifield_clean($node, 'field_assignment_dependencies', 'target_id', TRUE),
+      'project' => (int)$node->field_assignment_project[LANGUAGE_NONE][0]['target_id'],
     ),
-    'complete' => _cle_api_random(array(0,1)), // determines whether the assignment is complete.
-    'project' => (int)$node->field_assignment_project[LANGUAGE_NONE][0]['target_id'],
+    'evidence' => array(
+      'competencies' => $node->field_elmsln_competencies[LANGUAGE_NONE],
+      'assets' => $node->field_assignment_evidence[LANGUAGE_NONE][0]['value'],
+      'artifacts' => _elmsln_api_multifield_clean($node, 'field_assignment_artifacts', 'value'),
+      'critique' => array(
+        'method' => $node->field_critique_method[LANGUAGE_NONE][0]['value'],
+        'outline' => $node->field_critique_outline[LANGUAGE_NONE][0]['value'],
+        'public' => (int)$node->field_critique_privacy[LANGUAGE_NONE][0]['value'],
+      ),
+    ),
+    'complete' => _cle_submission_submission_status($node->nid),
+    'links' => array(
+      'self' => $base_url . '/api/v1/cle/assignments/' . $node->nid,
+    ),
   );
 
   return $return;

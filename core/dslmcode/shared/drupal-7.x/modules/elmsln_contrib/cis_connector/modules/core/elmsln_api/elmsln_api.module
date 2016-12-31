@@ -106,6 +106,31 @@ function elmsln_api_menu() {
 }
 
 /**
+ * Helper function to clean up an multivalue array
+ * @param  object $entity entity
+ * @param  string $field  field name to check against
+ * @param  string $key    key storing the value we want
+ * @param  string $typecast   if this needs typecast, as what value
+ * @return array         cleaned up array of multiple values
+ */
+function _elmsln_api_multifield_clean($entity, $field, $key, $typecast = FALSE) {
+  $values = array();
+  // check for set
+  if (isset($entity->{$field}[LANGUAGE_NONE])) {
+    foreach ($entity->{$field}[LANGUAGE_NONE] as $order => $value) {
+      // check for typecasting
+      if ($typecast) {
+        $values[$order] = (int)$value[$key];
+      }
+      else {
+        $values[$order] = $value[$key];
+      }
+    }
+  }
+  return $values;
+}
+
+/**
  * Implements hook_elmsln_jsapi_info().
  */
 function elmsln_api_elmsln_jsapi_info() {
@@ -166,10 +191,16 @@ function _elmsln_api_v1_file_modify($file, $params = NULL) {
  * Helper function that prepares a file for api output.
  */
 function _elmsln_api_v1_file_output($file) {
+  settype($file, 'array');
   // return file object with a link directly to it
-  $file->url = file_create_url($file->uri);
-  $file->created = Date('c', $file->timestamp);
-  return (array) $file;
+  $file['url'] = file_create_url($file['uri']);
+  settype($file['fid'], 'int');
+  settype($file['uid'], 'int');
+  settype($file['filesize'], 'int');
+  settype($file['timestamp'], 'int');
+  settype($file['status'], 'int');
+  $file['created'] = Date('c', $file['timestamp']);
+  return $file;
 }
 
 /**
