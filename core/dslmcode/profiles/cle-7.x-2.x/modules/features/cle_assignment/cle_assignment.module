@@ -171,6 +171,7 @@ function _cle_assignment_v1_assignment_output($node) {
       'public' => _cle_api_random(array('public', 'private')), // default: public
     ),
     'complete' => _cle_api_random(array(0,1)), // determines whether the assignment is complete.
+    'project' => (int)$node->field_assignment_project[LANGUAGE_NONE][0]['target_id'],
   );
 
   return $return;
