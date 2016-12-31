@@ -111,6 +111,6 @@ export class ElmslnService {
       data: image
     }
     return this.post(AppSettings.BASE_PATH + 'api/v1/elmsln/files/create', body)
-      .map(data => data.json())
+      .map(data => data.json().file)
   }
 }

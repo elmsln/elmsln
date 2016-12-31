@@ -319,9 +319,9 @@ export class WysiwygjsComponent implements OnInit, ControlValueAccessor {
   }
 
   uploadImage(base64):Observable<string> {
-      /**
-       * @todo: need to actually upload this to the server
-       */
+    /**
+     * @todo: need to actually upload this to the server
+     */
     return this.elmslnService.createImage(base64)
         .map(data => data.url)
   }
