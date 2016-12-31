@@ -156,7 +156,7 @@ function _elmsln_api_v1_file_modify($file, $params = NULL) {
   $vars = array(
     'status' => $status,
     'detail' => $detail,
-    'file' => (array) $file,
+    'file' => _elmsln_api_v1_file_output($file),
     'fid' => $file->fid,
   );
   return $vars;
@@ -1283,7 +1283,10 @@ function _elmsln_api_v1_page_callback($type, $etid = NULL, $op = NULL) {
             // pass down the $_POST to the create callback
             $payload = file_get_contents('php://input');
             $payload = drupal_json_decode($payload);
-            $params = filter_var_array($payload, FILTER_SANITIZE_STRING);
+            $params = array();
+            if (is_array($payload)) {
+              $params = filter_var_array($payload, FILTER_SANITIZE_STRING);
+            }
             $vars = call_user_func($jsapis[$type]['modify'], $entity, $params);
           }
           else {
@@ -1300,7 +1303,10 @@ function _elmsln_api_v1_page_callback($type, $etid = NULL, $op = NULL) {
             // pass down the $_POST to the create callback
             $payload = file_get_contents('php://input');
             $payload = drupal_json_decode($payload);
-            $params = filter_var_array($payload, FILTER_SANITIZE_STRING);
+            $params = array();
+            if (is_array($payload)) {
+              $params = filter_var_array($payload, FILTER_SANITIZE_STRING);
+            }
             $vars = call_user_func($jsapis[$type]['modify'], $entity, $params);
           }
           else {
