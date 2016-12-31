@@ -16,7 +16,7 @@ Vagrant is the fastest way to get up and running quickly. See the [Vagrant insta
 
 Issues
 ==============
-If you notice an issue or have a question please file it in our [issue queue]((https://github.com/elmsln/elmsln/issues).
+If you notice an issue or have a question please file it in our [issue queue](https://github.com/elmsln/elmsln/issues).
 
 Documentation
 ==============

@@ -52,19 +52,19 @@ function foundation_access_preprocess_html(&$variables) {
   // google font / icons from google
   drupal_add_css('//fonts.googleapis.com/css?family=Material+Icons%7CDroid+Serif:400,700,400italic,700italic%7COpen+Sans:300,600,700', array('type' => 'external', 'group' => CSS_THEME, 'weight' => 1000));
   $libraries = libraries_get_libraries();
-  if (isset($libraries['jquery.vibrate.js'])) {
-    drupal_add_js($libraries['jquery.vibrate.js'] .'/jquery.vibrate.min.js');
-    drupal_add_js(drupal_get_path('theme', 'foundation_access') . '/legacy/js/vibrate-enable.js');
+  if (!_entity_iframe_mode_enabled()) {
+    if (isset($libraries['jquery.vibrate.js'])) {
+      drupal_add_js($libraries['jquery.vibrate.js'] .'/jquery.vibrate.min.js');
+      drupal_add_js(drupal_get_path('theme', 'foundation_access') . '/legacy/js/vibrate-enable.js');
+    }
+    // gifs need to be done as a player for accessibility reasons
+    if (isset($libraries['jquery.vibrate.js'])) {
+      drupal_add_js($libraries['freezeframe.js'] .'/src/js/vendor/imagesloaded.pkgd.js');
+      drupal_add_js($libraries['freezeframe.js'] .'/build/js/freezeframe.js');
+      drupal_add_css($libraries['freezeframe.js'] .'/build/css/freezeframe_styles.min.css');
+      drupal_add_js(drupal_get_path('theme', 'foundation_access') . '/legacy/js/freezeframe-enable.js');
+    }
   }
-  // gifs need to be done as a player for accessibility reasons
-  if (isset($libraries['jquery.vibrate.js'])) {
-    drupal_add_js($libraries['freezeframe.js'] .'/src/js/vendor/imagesloaded.pkgd.js');
-    drupal_add_js($libraries['freezeframe.js'] .'/build/js/freezeframe.js');
-    drupal_add_css($libraries['freezeframe.js'] .'/build/css/freezeframe_styles.min.css');
-    drupal_add_js(drupal_get_path('theme', 'foundation_access') . '/legacy/js/freezeframe-enable.js');
-  }
-  // bring in materialize
-  $libraries = libraries_get_libraries();
   // see if we have it locally before serviing CDN
   // This allows EASY CDN module to switch to CDN later if that's the intention
   if (isset($libraries['materialize'])) {
@@ -1018,17 +1018,6 @@ function foundation_access_menu_link(&$variables) {
     if ($element['#below']) {
       $element['#localized_options']['attributes']['class'][] = 'has-children';
     }
-    // see if we have a localized override
-    if (isset($element['#localized_options']['fa_icon'])) {
-      $icon = $element['#localized_options']['fa_icon'];
-    }
-    // prefix node based titles with an icon
-    if (isset($icon) && !empty($icon)) {
-      $title = '<div class="elmsln-icon icon-' . $icon . ' outline-nav-icon"></div>' . $title;
-    }
-    else {
-      $title = '<div class="outline-nav-icon"></div>' . $title;
-    }
   }
   // support for add menu to get floating classes
   if ($element['#original_link']['menu_name'] == 'menu-elmsln-add') {
@@ -1119,7 +1108,7 @@ function _foundation_access_single_menu_link($element) {
   if (isset($options['fa_icon'])) {
     $icon = $options['fa_icon'];
   }
-  return '<li>' . l('<div class="elmsln-icon icon-' . $icon . ' outline-nav-icon"></div>' . $title, $element['#href'], $options) . '</li>';
+  return '<li>' . l($title, $element['#href'], $options) . '</li>';
 }
 
 /**
@@ -1186,7 +1175,7 @@ function _foundation_access_menu_outline($variables, $word = FALSE, $number = FA
       $counter++;
     }
     else {
-      $return ='<li class="has-submenu level-' . $depth . '-top ' . implode(' ', $element['#attributes']['class']) . '"><a href="#elmsln-menu-sub-level-' . hash('md5', 'emsl' . $title) . '"><div class="elmsln-icon icon-content outline-nav-icon"></div><span class="outline-nav-text">' . $title . '</span></a>' . "\n" .
+      $return ='<li class="has-submenu level-' . $depth . '-top ' . implode(' ', $element['#attributes']['class']) . '"><a href="#elmsln-menu-sub-level-' . hash('md5', 'emsl' . $title) . '"><span class="outline-nav-text">' . $title . '</span></a>' . "\n" .
       '<ul class="left-submenu level-' . $depth . '-sub">'  . "\n" .
       '<div>'  . "\n";
       $labeltmp = _foundation_access_auto_label_build($word, $number, $counter);

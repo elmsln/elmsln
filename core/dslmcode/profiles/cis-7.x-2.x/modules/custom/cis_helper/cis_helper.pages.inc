@@ -687,7 +687,7 @@ function cis_helper_quick_setup_page_submit($form, $form_state) {
         }
         // see if this found anything
         // check for existing references to this offering / campus combo
-        if (isset($tmpoff->field_sections)) {
+        if (isset($tmpoff->field_sections[LANGUAGE_NONE])) {
           foreach ($tmpoff->field_sections[LANGUAGE_NONE] as $tmpref) {
             $tmprefs[] = $tmpref['value'];
           }

@@ -25,10 +25,10 @@ function _elmsln_core_error_page($code) {
   $output .= '<div class="s12 col elmsln-error-page error-' . $code . ' ' . $lmsless_classes['text'] . '">✻ ✻ ✻ ✻ ✻ ✻ ✻ ✻ ✻ ✻ ✻ ✻ ✻ ✻ ✻ ✻ ✻ ✻ ✻ ✻<br/>';
   switch ($code) {
     case '403':
-      $output .= t('The Network firewalled your requested (you don\'t have access to this page).');
+      $output .= t('Access denied, please log into your account.');
     break;
     case '404':
-      $output .= t('The Network could not find that page.');
+      $output .= t('Sorry, page not found.');
     break;
   }
   $output .= '<br/>✻ ✻ ✻ ✻ ✻ ✻ ✻ ✻ ✻ ✻ ✻ ✻ ✻ ✻ ✻ ✻ ✻ ✻ ✻ ✻</div></div>';

@@ -1,0 +1,18 @@
+diff --git a/feeds.module b/feeds.module
+index 7cded50..689df81 100644
+--- a/feeds.module
++++ b/feeds.module
+@@ -261,7 +261,12 @@ function feeds_permission() {
+  *
+  * Declare form callbacks for all known classes derived from FeedsConfigurable.
+  */
+-function feeds_forms() {
++function feeds_forms($form_id, $args) {
++  // Check if the requested form is a Feeds form.
++  if (!stripos($form_id, '_feeds_form')) {
++    return;
++  }
++
+   $forms = array();
+   $forms['FeedsImporter_feeds_form']['callback'] = 'feeds_form';
+   $plugins = FeedsPlugin::all();

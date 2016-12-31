@@ -24,8 +24,7 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-[class^="icon-"]:before,
-[class*=" icon-"]:before {
+.elmsln-icon:before {
   font-family: "elmsln" !important;
   font-style: normal !important;
   font-weight: normal !important;
