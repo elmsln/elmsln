@@ -1,15 +1,14 @@
 export class Assignment {
-  id: number;
-  title: string;
-  type: string;
-  status: boolean;
-  created: number;
-  body: string;
-  links: Array<string>;
-  startDate: string;
-  endDate: string;
-  dependency: string;
-  assets: Array<string>;
-  critique: string;
-  project: number;
+  id:number = null;
+  title:string = null;
+  type:string = null;
+  status:boolean = null;
+  created:number = null;
+  startDate:string = null;
+  endDate:string = null;
+  project:number = null;
+  description:string = null;
+  critiqueMethod:string = null;
+  critiquePrivacy:boolean = null;
+  critiqueStyle:string = null;
 }

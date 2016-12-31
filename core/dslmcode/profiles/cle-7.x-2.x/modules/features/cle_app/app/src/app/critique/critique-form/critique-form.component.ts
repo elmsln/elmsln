@@ -2,7 +2,6 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { Critique } from '../../critique';
 import { CritiqueService } from '../../critique.service';
-import { Submission } from '../../submission';
 import { Subject, Observable } from 'rxjs/Rx';
 
 @Component({

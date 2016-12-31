@@ -1,66 +1,17 @@
 import { Component, OnInit } from '@angular/core';
-import { Router, ActivatedRoute, Params } from '@angular/router';
-import { Location } from '@angular/common';
-import { SubmissionService } from '../submission.service';
-import { CritiqueFormComponent } from '../critique/critique-form/critique-form.component';
-import { CritiqueListComponent } from '../critique/critique-list/critique-list.component';
-
-import { MdTabGroup, MdTab } from '@angular/material';
+import { ActivatedRoute, Params, Router } from '@angular/router';
+import { Store } from '@ngrx/store';
+import { Observable } from 'rxjs';
 
 @Component({
-  selector: 'cle-submission',
+  selector: 'app-submission',
   templateUrl: './submission.component.html',
-  styleUrls: ['./submission.component.css'],
-  providers: [SubmissionService, CritiqueListComponent],
+  styleUrls: ['./submission.component.css']
 })
 export class SubmissionComponent implements OnInit {
-  /**
-   * Variables
-   */
-  submissionId: number;
-  submission: any;
-  author: any;
-  activeTabIndex: number = 1;
-
-  constructor(
-    private router: Router,
-    private route: ActivatedRoute,
-    private location: Location,
-    private submissionService: SubmissionService
-  ) { }
+   constructor(
+   ) { }
 
   ngOnInit() {
-    // get the submission id from the route parameters
-    this.route.params.forEach((params: Params) => {
-      let id = +params['id'];
-      this.submissionId = id;
-    });
-
-    // load the submission
-    if (this.submissionId) {
-      this.submissionService.getSubmission(this.submissionId)
-        .subscribe(data => {
-          this.submission = data;
-        });
-    }
-  }
-
-  /**
-   * Events
-   */
-  // when a critique is submitted, we are going to
-  // switch the tab back to All Feedback
-  critiqueCreated(critique) {
-    this.activeTabIndex = 0;
-  }
-
-  // when the user clicks a tab, update the tab index
-  // that we are keeping track of.
-  tabChange(event) {
-    this.activeTabIndex = event.index;
-  }
-
-  backToAssignments() {
-    this.router.navigate(['/submissions']);
   }
 }

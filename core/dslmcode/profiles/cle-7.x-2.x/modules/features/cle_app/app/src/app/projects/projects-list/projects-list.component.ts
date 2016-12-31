@@ -3,7 +3,9 @@ import { Project } from '../../project';
 import { ProjectService } from '../../project.service';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
-declare const $:JQueryStatic;
+import { Store } from '@ngrx/store';
+import { loadAssignments, loadPermissions } from '../../app.actions';
+declare const $:any;
 declare const Materialize:any;
 
 @Component({
@@ -18,9 +20,11 @@ export class ProjectsListComponent implements OnInit {
 
   constructor(
     private projectService:ProjectService,
-    private router:Router
+    private router: Router,
+    private store: Store<{}>
   ) {
-    this.loading = true;
+    store.dispatch(loadPermissions());
+    store.dispatch(loadAssignments());
   }
 
   ngOnInit() {

@@ -1,9 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ElementRef, OnDestroy, OnChanges } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { Assignment } from '../assignment';
 import { AssignmentService } from '../assignment.service';
 import { Observable } from 'rxjs';
+import { Store } from '@ngrx/store';
+import { loadAssignments } from '../app.actions';
+declare const jQuery:any;
 
 @Component({
   selector: 'cle-assignment',
@@ -12,16 +15,21 @@ import { Observable } from 'rxjs';
   providers: [AssignmentService]
 })
 export class AssignmentComponent implements OnInit {
-  assignmentId: number;
-  assignment: Assignment;
-  date: number;
+  assignmentId:number;
+  date:number;
+  userCanEdit$:Observable<boolean>;
+  assignments$:Observable<Assignment[]>;
 
   constructor(
     private router: Router,
     private route: ActivatedRoute,
     private location: Location,
-    private assignmentService: AssignmentService
-  ) { }
+    private assignmentService: AssignmentService,
+    private el:ElementRef,
+    private store: Store<{}>
+  ) { 
+    this.store.dispatch(loadAssignments());
+  }
 
   ngOnInit() {
     this.route.params.forEach((params: Params) => {
@@ -29,27 +37,33 @@ export class AssignmentComponent implements OnInit {
       this.assignmentId = id;
     });
 
+    // check the permissions store to see if the user has edit
+    this.userCanEdit$ = this.store.select('user')
+      .map((state:any) => {
+        if (state.permissions.includes('edit any cle_assignment content')) {
+          return true;
+        }
+        return false;
+      })
+
     if (this.assignmentId) {
-      this.assignmentService.getAssignment(this.assignmentId)
-        // turn it into a flatMap so we can analize each object
-        // .flatMap((array, index) => array)
-        // find out if the objects id matches the assignment_id
-        // of the current page
-        // .filter(data => data.nid !== 'undefined')
-        // .filter(data => data.nid === String(this.assignmentId))
-        // assign the result to the local assignment
-      // @todo this should be handled better
-        .subscribe(data => {
-          this.assignment = data.data;
+      this.assignments$ = this.store.select('assignments')
+        .map((state:any) => state.assignments.find(assignment => {
+          return assignment.id === this.assignmentId;
+        }))
+        .map((state:any) => {
+          return [state];
         });
     }
   }
 
-  backButton() {
-    this.location.back();
+  onEditAssignment(assignment:Assignment) {
+    const url = 'assignment-edit/' + assignment.id;
+    this.router.navigate([{outlets: {dialog: url}}])
   }
 
-  gotToProjects() {
-    this.router.navigate(['/projects']);
+  onCreateSubmission(assignment:Assignment) {
+    const url = 'submissions/create/' + assignment.id;
+    this.router.navigate([url]);
   }
 }
