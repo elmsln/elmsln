@@ -106,7 +106,20 @@ function _cle_submission_v1_submission_output($node) {
     'title' => $node->title,
     'status' => (int)$node->status,
     'created' => (int)$node->created,
-    'body' => $node->body[LANGUAGE_NONE][0]['safe_value'],
+    'assignment' => (int)$node->field_assignment[LANGUAGE_NONE][0]['target_id'],
+    'evidence' => array(
+      'text' => $node->field_submission_text[LANGUAGE_NONE][0]['safe_value'],
+      'images' => $node->field_images[LANGUAGE_NONE],
+      'videos' => $node->field_video[LANGUAGE_NONE],
+      'files' => $node->field_files[LANGUAGE_NONE],
+      'links' => $node->field_links[LANGUAGE_NONE],
+    ),
+    'energy' => array(
+      'timestamp' => Date('c', $node->field_energy[LANGUAGE_NONE][0]['radioactivity_timestamp']),
+      'value' => $node->field_energy[LANGUAGE_NONE][0]['radioactivity_energy'],
+    ),
+    'state' => $node->field_submission_state[LANGUAGE_NONE][0]['value'],
+    'section' => (int)$node->og_group_ref[LANGUAGE_NONE][0]['target_id'],
     'links' => array(
       'self' => $base_url . '/api/v1/cle/submissions/' . $node->nid,
     ),
