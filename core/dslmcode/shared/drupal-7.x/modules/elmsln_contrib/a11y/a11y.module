@@ -157,6 +157,17 @@ function a11y_a11y_block($render = TRUE) {
       '#description' => t('This allows for more natural speech with working with the system.'),
       '#weight' => -5,
     );
+    // speechSynth seting
+    if (variable_get('a11y_speechsynth', 1)) {
+      $alters['a11y_speechsynth'] = array(
+        '#type' => 'checkbox',
+        '#id' => 'a11y_speechsynth_checkbox',
+        '#title' => t('Read to me'),
+        '#default_value' => 0,
+        '#description' => t('This will read the page\'s content in a robot voice.'),
+        '#weight' => -4,
+      );
+    }
   }
   if ($render) {
     // render any aleration array items we have
@@ -334,6 +345,21 @@ function a11y_admin_settings($form, &$form_state) {
     '#description' => t('This loads a css file that allows the user to forcibly override the font used by your site to be Open dyslexic, a font developed for those with dyslexia. You can find out more at http://opendyslexic.org/'),
     '#required' => FALSE,
   );
+  // a11y_speechsynth default state
+  $form['config']['a11y_speechsynth'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Allow reading body of text to the user'),
+    '#default_value' => variable_get('a11y_speechsynth', 1),
+    '#description' => t('This will use a browser based computer voice in order to read the text of the page to the user.'),
+    '#required' => FALSE,
+  );
+  $form['config']['a11y_speechsynthSelector'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('jQuery Selector for what to read when selected.'),
+    '#default_value' => variable_get('a11y_speechsynthSelector', 'article'),
+    '#description' => t('This targets the field, converts it to just text() and then will read it to the end user.'),
+    '#required' => FALSE,
+  );
   // contrast default state
   $form['config']['a11y_contrast'] = array(
     '#type' => 'checkbox',
@@ -394,6 +420,11 @@ function a11y_apply_a11y() {
   if (user_access('use voice commander')) {
     $js_variables['a11y']['voicecommander'] = 1;
     drupal_add_js($plugin_path . 'voicecommander/voicecommander.js', $plugin_js_opts);
+    if (variable_get('a11y_speechsynth', 1)) {
+      $js_variables['a11y']['speechsynth'] = 1;
+      $js_variables['a11y']['speechSynthSelector'] = variable_get('a11y_speechsynthSelector', 'article');
+      drupal_add_js($plugin_path . 'speechsynth/speechsynth.js', $plugin_js_opts);
+    }
   }
   if (variable_get('a11y_textsize', 1)) {
     $js_variables['a11y']['textsize'] = 1;
