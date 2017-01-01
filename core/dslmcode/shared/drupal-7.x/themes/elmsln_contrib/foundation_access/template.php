@@ -179,7 +179,7 @@ function foundation_access_fieldset($variables) {
         // form the fieldset as a collapse element
         $output = '
         <li class="collapsible-li">
-          <a id="collapse-item-id-' . $anchor . '" href="#collapse-item-' . $anchor . '" class="collapsible-header waves-effect cis-lmsless-waves' . $collapse . '">' .
+          <a id="collapse-item-id-' . $anchor . '" href="#collapse-item-' . $anchor . '" class="collapsible-header waves-effect cis-lmsless-waves' . $collapse . '"' . drupal_attributes($element['#attributes']) .'>' .
             $icon . $element['#title'] .
           '
           </a>

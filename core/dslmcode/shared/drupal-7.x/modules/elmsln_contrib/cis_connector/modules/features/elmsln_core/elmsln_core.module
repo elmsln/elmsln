@@ -1099,6 +1099,7 @@ function elmsln_core_fa_a11y() {
           'form-wrapper',
           'collapsed',
         ),
+        'data-voicecommand' => 'keyboard shortcuts',
       ),
       '#materialize' => array(
         'type' => 'collapsible',

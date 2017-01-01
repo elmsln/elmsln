@@ -34,6 +34,7 @@ function elmsln_voice_fa_a11y_alter(&$a11y) {
           'form-wrapper',
           'collapsed',
         ),
+        'data-voicecommand' => 'voice commands',
       ),
       '#materialize' => array(
         'type' => 'collapsible',
