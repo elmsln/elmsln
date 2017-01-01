@@ -1,0 +1,2685 @@
+<?php
+
+/**
+ * @file
+ * The Flag module.
+ */
+
+define('FLAG_API_VERSION', 3);
+
+define('FLAG_ADMIN_PATH', 'admin/structure/flags');
+define('FLAG_ADMIN_PATH_START', 3);
+
+/**
+ * Implements hook_entity_info().
+ */
+function flag_entity_info() {
+  $return = array(
+    'flagging' => array(
+      'label' => t('Flagging'),
+      'controller class' => 'FlaggingController',
+      'base table' => 'flagging',
+      'fieldable' => TRUE,
+      'entity keys' => array(
+        'id' => 'flagging_id',
+        'bundle' => 'flag_name',
+      ),
+      // The following tells Field UI how to extract the bundle name from a
+      // $flag object when we're visiting ?q=admin/.../manage/%flag/fields.
+      'bundle keys' => array(
+        'bundle' => 'name',
+      ),
+      'bundles' => array(),
+      // The following tells EntityAPI how to save flaggings, thus allowing use
+      // of Entity metadata wrappers (if present).
+      'save callback' => 'flagging_save',
+      'creation callback' => 'flagging_create',
+    ),
+  );
+
+  // Check for our table before we query it. This is a workaround for a core
+  // bug: https://www.drupal.org/node/1311820
+  // TODO: Remove this when that bug is fixed.
+  if (db_table_exists('flag')) {
+    // Add bundle info but bypass flag_get_flags() as we cannot use it here, as
+    // it calls entity_get_info().
+    $result = db_query("SELECT name, title FROM {flag}");
+    $flag_names = $result->fetchAllKeyed();
+    foreach ($flag_names as $flag_name => $flag_title) {
+      $return['flagging']['bundles'][$flag_name] = array(
+        'label' => $flag_title,
+        'admin' => array(
+          'path' => FLAG_ADMIN_PATH . '/manage/%flag',
+          'real path' => FLAG_ADMIN_PATH . '/manage/' . $flag_name,
+          'bundle argument' => FLAG_ADMIN_PATH_START + 1,
+          'access arguments' => array('administer flags'),
+        ),
+      );
+    }
+  }
+
+  return $return;
+}
+
+/**
+ * Loads a flagging entity.
+ *
+ * @param int $flagging_id
+ *   The 'flagging_id' database serial column.
+ * @param bool $reset
+ *   Whether to reset the DrupalDefaultEntityController cache.
+ *
+ * @return stdClass
+ *   The entity object, or FALSE if it can't be found.
+ */
+function flagging_load($flagging_id, $reset = FALSE) {
+  // The flag machine name is loaded in by FlaggingController::buildQuery().
+  $result = entity_load('flagging', array($flagging_id), array(), $reset);
+  return reset($result);
+}
+
+/**
+ * Entity API creation callback.
+ *
+ * Creates an unsaved flagging object for use with $flag->flag().
+ *
+ * @param array $values
+ *   An array of values as described by the entity's property info. Only
+ *   'flag_name' or 'fid' must be specified, since $flag->flag() does the rest.
+ *
+ * @return
+ *   An unsaved flagging object containing the property values.
+ */
+function flagging_create($values = array()) {
+  $flagging = (object) array();
+
+  if (!isset($values['flag_name'])) {
+    if (isset($values['fid'])) {
+      // Add flag_name, determined from fid.
+      $flag = flag_get_flag(NULL, $values['fid']);
+      $values['flag_name'] = $flag->name;
+    }
+  }
+
+  // Apply the given values.
+  foreach ($values as $key => $value) {
+    $flagging->$key = $value;
+  }
+
+  return $flagging;
+}
+
+/**
+ * Saves a flagging entity.
+ *
+ * For a new flagging, throws an exception is the flag action is not allowed for
+ * the given combination of flag, entity, and user.
+ *
+ * @param $flagging
+ *   The flagging entity. This may have either flag_name or the flag fid set,
+ *   and may also omit the uid property to use the current user.
+ *
+ * @throws Exception
+ */
+function flagging_save($flagging) {
+  // Get the flag, either way.
+  if (isset($flagging->flag_name)) {
+    $flag = flag_get_flag($flagging->flag_name);
+  }
+  else {
+    $flag = flag_get_flag(NULL, $flagging->fid);
+  }
+
+  if (!$flag) {
+    throw new Exception('Flag not found for flagging entity.');
+  }
+
+  // Fill in properties that may be omitted.
+  $flagging->fid = $flag->fid;
+  $flagging->flag_name = $flag->name;
+
+  if (!empty($flagging->uid)) {
+    $account = user_load($flagging->uid);
+  }
+  else {
+    $account = NULL;
+  }
+
+  $result = $flag->flag('flag', $flagging->entity_id, $account, FALSE, $flagging);
+
+  if (!$result) {
+    throw new Exception('Flag action not allowed for given flagging entity properties.');
+  }
+}
+
+// @todo: Implement flagging_view(). Not extremely useful. I already have it.
+
+// @tood: Discuss: Should flag deleting call flag_reset_flag()? No.
+
+// @todo: flag_reset_flag():
+// - it should delete the flaggings.
+// - (it has other issues; see http://drupal.org/node/894992.)
+// - (is problematic: it might not be possible to delete all data in a single
+//   page request.)
+
+// @todo: Discuss: Note that almost all functions/identifiers dealing with
+// flaggings *aren't* prefixed by "flag_". For example:
+// - The menu argument is %flagging, not %flag_flagging.
+// - The entity type is "flagging", not "flag_flagging".
+// On the one hand this succinct version is readable and nice. On the other
+// hand, it isn't very "correct".
+
+/**
+ * Implements hook_entity_query_alter().
+ *
+ * Replaces bundle condition in EntityFieldQuery on flagging entities
+ * with query condition on [name] field in [flag] table.
+ *
+ * @see flag_query_flagging_flag_names_alter()
+ */
+function flag_entity_query_alter(EntityFieldQuery $query) {
+  $conditions = &$query->entityConditions;
+
+  // Alter only flagging queries with bundle conditions.
+  if (isset($conditions['entity_type']) && $conditions['entity_type']['value'] == 'flagging' && isset($conditions['bundle'])) {
+    // Add tag to alter query.
+    $query->addTag('flagging_flag_names');
+    // Make value and operator of the bundle condition accessible
+    // in hook_query_TAG_alter.
+    $query->addMetaData('flag_name_value', $conditions['bundle']['value']);
+    $query->addMetaData('flag_name_operator', $conditions['bundle']['operator']);
+    unset($conditions['bundle']);
+  }
+}
+
+/**
+ * Implements hook_query_TAG_alter() for flagging_flag_names tag.
+ *
+ * @see flag_entity_query_alter()
+ */
+function flag_query_flagging_flag_names_alter(QueryAlterableInterface $query) {
+  // Queries with this tag need to have the {flag} table joined on so they can
+  // have a condition on the flag name.
+  // However, we need to ensure the {flagging} table is there to join from. Not
+  // all instances of EntityFieldQuery will add it; for example, with only a
+  // field condition the entity base table is not added to the SelectQuery.
+  $tables =& $query->getTables();
+  if (!isset($tables['flagging'])) {
+    // All tables that are in the query will be field tables and are equivalent,
+    // so just join on the first one.
+    $field_table = reset($tables);
+    $field_table_alias = $field_table['alias'];
+
+    $query->join('flagging', 'flagging', "$field_table_alias.entity_id = flagging.fid");
+  }
+
+  // Get value and operator for bundle condition from meta data.
+  $value = $query->getMetaData('flag_name_value');
+  $operator = $query->getMetaData('flag_name_operator');
+  // Join [flag] and [flagging] tables by [fid] and
+  // apply bundle condition on [flag].[name] field.
+  $query->join('flag', 'f', 'flagging.fid = f.fid');
+  $query->condition('f.name', $value, $operator);
+}
+
+/**
+ * Implements hook_menu().
+ */
+function flag_menu() {
+  $items[FLAG_ADMIN_PATH] = array(
+    'title' => 'Flags',
+    'page callback' => 'flag_admin_page',
+    'access callback' => 'user_access',
+    'access arguments' => array('administer flags'),
+    'description' => 'Configure flags for marking content with arbitrary information (such as <em>offensive</em> or <em>bookmarked</em>).',
+    'file' => 'includes/flag.admin.inc',
+  );
+  $items[FLAG_ADMIN_PATH . '/list'] = array(
+    'title' => 'List',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => -10,
+  );
+  $items[FLAG_ADMIN_PATH . '/add'] = array(
+    'title' => 'Add flag',
+    'page callback' => 'flag_add_page',
+    'access callback' => 'user_access',
+    'access arguments' => array('administer flags'),
+    'file' => 'includes/flag.admin.inc',
+    'type' => MENU_LOCAL_ACTION,
+    'weight' => 1,
+  );
+  $items[FLAG_ADMIN_PATH . '/import'] = array(
+    'title' => 'Import',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('flag_import_form'),
+    'access arguments' => array('use flag import'),
+    'file' => 'includes/flag.export.inc',
+    'type' => MENU_LOCAL_ACTION,
+    'weight' => 2,
+  );
+  $items[FLAG_ADMIN_PATH . '/export'] = array(
+    'title' => 'Export',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('flag_export_form'),
+    'access arguments' => array('administer flags'),
+    'file' => 'includes/flag.export.inc',
+    'type' => MENU_LOCAL_ACTION,
+    'weight' => 3,
+  );
+
+  $items[FLAG_ADMIN_PATH . '/manage/%flag'] = array(
+    // Allow for disabled flags.
+    'load arguments' => array(TRUE),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('flag_form', FLAG_ADMIN_PATH_START + 1),
+    'access callback' => 'user_access',
+    'access arguments' => array('administer flags'),
+    'file' => 'includes/flag.admin.inc',
+    // Make the flag title the default title for descendant menu items.
+    'title callback' => '_flag_menu_title',
+    'title arguments' => array(FLAG_ADMIN_PATH_START + 1),
+  );
+  $items[FLAG_ADMIN_PATH . '/manage/%flag/edit'] = array(
+    // Allow for disabled flags.
+    'load arguments' => array(TRUE),
+    'title' => 'Edit flag',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => -10,
+  );
+  $items[FLAG_ADMIN_PATH . '/manage/%flag/export'] = array(
+    'title' => 'Export',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('flag_export_form', FLAG_ADMIN_PATH_START + 1),
+    'access arguments' => array('administer flags'),
+    'file' => 'includes/flag.export.inc',
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 20,
+  );
+  $items[FLAG_ADMIN_PATH . '/manage/%flag/delete'] = array(
+    'title' => 'Delete flag',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('flag_delete_confirm', FLAG_ADMIN_PATH_START + 1),
+    'access callback' => 'user_access',
+    'access arguments' => array('administer flags'),
+    'file' => 'includes/flag.admin.inc',
+    'type' => MENU_CALLBACK,
+  );
+  $items[FLAG_ADMIN_PATH . '/manage/%flag/update'] = array(
+    // Allow for disabled flags.
+    'load arguments' => array(TRUE),
+    'title' => 'Update',
+    'page callback' => 'flag_update_page',
+    'page arguments' => array(FLAG_ADMIN_PATH_START + 1),
+    'access arguments' => array('administer flags'),
+    'file' => 'includes/flag.export.inc',
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['flag/%/%flag/%'] = array(
+    'title' => 'Flag',
+    'page callback' => 'flag_page',
+    'page arguments' => array(1, 2, 3),
+    'access callback' => 'flag_page_access',
+    'access arguments' => array(1, 2, 3),
+    'file' => 'includes/flag.pages.inc',
+    'type' => MENU_CALLBACK,
+  );
+  $items['flag/confirm/%/%flag/%'] = array(
+    'title' => 'Flag confirm',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('flag_confirm', 2, 3, 4),
+    'access callback' => 'flag_page_access',
+    'access arguments' => array(2, 3, 4),
+    'file' => 'includes/flag.pages.inc',
+    'type' => MENU_CALLBACK,
+  );
+
+  return $items;
+}
+
+/**
+ * Menu access callback for flagging pages.
+ *
+ * Same parameters as flag_page().
+ *
+ * @see flag_page()
+ * @see flag_confirm()
+ */
+function flag_page_access($action, $flag, $entity_id) {
+  $access = $flag->access($entity_id, $action);
+  return $access;
+}
+
+/**
+ * Implements hook_admin_menu_map().
+ */
+function flag_admin_menu_map() {
+  if (!user_access('administer flags')) {
+    return;
+  }
+
+  $map = array();
+  $map[FLAG_ADMIN_PATH . '/manage/%flag'] = array(
+    'parent' => FLAG_ADMIN_PATH,
+    'arguments' => array(
+      array(
+        '%flag' => array_keys(flag_get_flags()),
+      ),
+    ),
+  );
+
+  return $map;
+}
+
+/**
+ * Menu loader for '%flag' arguments.
+ *
+ * @param string $flag_name
+ *   The machine name of the flag.
+ * @param bool $include_disabled
+ *   (optional) Whether to return a disabled flag too. Normally only enabled
+ *   flags are returned. Some menu items operate on disabled flags and in this
+ *   case you need to turn on this switch by doing:
+ *   @code
+ *   'load arguments' => array(TRUE)
+ *   @endcode
+ *   in your hook_menu().
+ *
+ * @return
+ *   Either the flag object, or FALSE if none was found.
+ */
+function flag_load($flag_name, $include_disabled = FALSE) {
+  if (($flag = flag_get_flag($flag_name))) {
+    return $flag;
+  }
+  else {
+    // No enabled flag was found. Search among the disabled ones.
+    if ($include_disabled) {
+      $default_flags = flag_get_default_flags(TRUE);
+      if (isset($default_flags[$flag_name])) {
+        return $default_flags[$flag_name];
+      }
+    }
+  }
+  // A menu loader has to return FALSE (not NULL) when no object is found.
+  return FALSE;
+}
+
+/**
+ * Menu title callback.
+ */
+function _flag_menu_title($flag) {
+  // The following conditional it to handle a D7 bug (@todo: link).
+  return $flag ? $flag->get_title() : '';
+}
+
+/**
+ * Implements hook_help().
+ */
+function flag_help($path, $arg) {
+  switch ($path) {
+    case FLAG_ADMIN_PATH:
+      $output = '<p>' . t('This page lists all the <em>flags</em> that are currently defined on this system.') . '</p>';
+      return $output;
+
+    case FLAG_ADMIN_PATH . '/add':
+      $output = '<p>' . t('Select the type of flag to create. An individual flag can only affect one type of object. This cannot be changed once the flag is created.') . '</p>';
+      return $output;
+
+    case FLAG_ADMIN_PATH . '/manage/%/fields':
+      // Get the existing link types that provide a flagging form.
+      $link_types = flag_get_link_types();
+      $form_link_types = array();
+      foreach (flag_get_link_types() as $link_type) {
+        if ($link_type['provides form']) {
+          $form_link_types[] = '<em>' . $link_type['title'] . '</em>';
+        }
+      }
+
+      // Get the flag for which we're managing fields.
+      $flag = menu_get_object('flag', FLAG_ADMIN_PATH_START + 1);
+
+      // Common text.
+      $output  = '<p>' . t('Flags can have fields added to them. For example, a "Spam" flag could have a <em>Reason</em> field where a user could type in why he believes the item flagged is spam. A "Bookmarks" flag could have a <em>Folder</em> field into which a user could arrange her bookmarks.') . '</p>';
+      $output .= '<p>' . t('On this page you can add fields to flags, delete them, and otherwise manage them.') . '</p>';
+
+      // Three cases:
+      if ($flag->link_type == 'form') {
+        // Case 1: the current link type is the flagging form. Don't tell the
+        // user anything extra, all is fine.
+      }
+      elseif ($link_types[$flag->link_type]['provides form']) {
+        // Case 2: the current link type shows the form for creation of the
+        // flagging, but it not the flagging form. Tell the user they can't edit
+        // existing flagging fields.
+        $output .= t("Field values may be edited when flaggings are created because this flag's link type shows a form for the flagging. However, to edit field values on existing flaggings, you will need to set your flag to use the <em>Flagging form</em> link type. This is provided by the <em><a href='!flagging-form-url'>Flagging Form</a></em> module.", array(
+          '!flagging-form-url' => 'http://drupal.org/project/flagging_form',
+        ));
+        if (!module_exists('flagging_form')) {
+          $output .= ' <span class="warning">'
+            . t("You do not currently have this module enabled.")
+            . '</span>';
+        }
+        $output .= '</p>';
+      }
+      else {
+        // Case 3: the current link type does not allow access to the flagging
+        // form. Tell the user they should change it.
+        $output .= '<p class="warning">' . t("To allow users to enter values for fields you will need to <a href='!form-link-type-url'>set your flag</a> to use one of the following link types which allow users to access the flagging form: !link-types-list. (In case a form isn't used, the fields are assigned their default values.)", array(
+          '!form-link-type-url' => url('admin/structure/flags/manage/' . $flag->name, array('fragment' => 'edit-link-type')),
+          // The list of labels from link types. These are all defined in code
+          // in hook_flag_link_type_info() and therefore safe to output raw.
+          '!link-types-list' => implode(', ', $form_link_types),
+        )) . '</p>';
+        $output .= '<p>' . t("Additionally, to edit field values on existing flaggings, you will need to set your flag to use the Flagging form link type. This is provided by the <em><a href='!flagging-form-url'>Flagging Form</a></em> module.", array(
+          '!flagging-form-url' => 'http://drupal.org/project/flagging_form',
+        ));
+        if (!module_exists('flagging_form')) {
+          $output .= ' <span class="warning">'
+            . t("You do not currently have this module enabled.")
+            . '</span>';
+        }
+        $output .= '</p>';
+      }
+
+      return $output;
+  }
+}
+
+/**
+ * Implements hook_init().
+ */
+function flag_init() {
+  module_load_include('inc', 'flag', 'includes/flag.actions');
+}
+
+/**
+ * Implements hook_hook_info().
+ */
+function flag_hook_info() {
+  $hooks['flag_type_info'] = array(
+    'group' => 'flag',
+  );
+  $hooks['flag_type_info_alter'] = array(
+    'group' => 'flag',
+  );
+  $hooks['flag_link_type_info'] = array(
+    'group' => 'flag',
+  );
+  $hooks['flag_link_type_info_alter'] = array(
+    'group' => 'flag',
+  );
+  return $hooks;
+}
+
+/**
+ * Get a flag type definition.
+ *
+ * @param string $entity_type
+ *   (optional) The entity type to get the definition for, or NULL to return
+ *   all flag types.
+ *
+ * @return
+ *   The flag type definition array.
+ *
+ * @see hook_flag_type_info()
+ */
+function flag_fetch_definition($entity_type = NULL) {
+  $definitions = &drupal_static(__FUNCTION__);
+  if (!isset($definitions)) {
+    if ($cache = cache_get('flag_type_info')) {
+      $definitions = $cache->data;
+    }
+    else {
+      $definitions = module_invoke_all('flag_type_info');
+      drupal_alter('flag_type_info', $definitions);
+
+      cache_set('flag_type_info', $definitions);
+    }
+  }
+
+  if (isset($entity_type)) {
+    if (isset($definitions[$entity_type])) {
+      return $definitions[$entity_type];
+    }
+  }
+  else {
+    return $definitions;
+  }
+}
+
+/**
+ * Returns all flag types defined on the system.
+ *
+ * @return
+ *   An array of flag type names.
+ */
+function flag_get_types() {
+  $types = &drupal_static(__FUNCTION__);
+  if (!isset($types)) {
+    $types = array_keys(flag_fetch_definition());
+  }
+  return $types;
+}
+
+/**
+ * Instantiates a new flag handler.
+ *
+ * A flag handler is more commonly know as "a flag". A factory method usually
+ * populates this empty flag with settings loaded from the database.
+ *
+ * @param $entity_type
+ *  The entity type to create a flag handler for. This may be FALSE if the
+ *  entity type property could not be found in the flag configuration data.
+ *
+ * @return
+ *  A flag handler object. This may be the special class flag_broken is there is
+ *  a problem with the flag.
+ */
+function flag_create_handler($entity_type) {
+  $definition = flag_fetch_definition($entity_type);
+  if (isset($definition) && class_exists($definition['handler'])) {
+    $handler = new $definition['handler']();
+  }
+  else {
+    $handler = new flag_broken();
+  }
+  $handler->entity_type = $entity_type;
+  $handler->construct();
+  return $handler;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function flag_permission() {
+  $permissions = array(
+    'administer flags' => array(
+      'title' => t('Administer flags'),
+      'description' => t('Create and edit site-wide flags.'),
+    ),
+    'use flag import' => array(
+      'title' => t('Use flag importer'),
+      'description' => t('Access the flag import functionality.'),
+      'restrict access' => TRUE,
+    ),
+  );
+
+  // Reset static cache to ensure all flag permissions are available.
+  drupal_static_reset('flag_get_flags');
+  $flags = flag_get_flags();
+  // Provide flag and unflag permissions for each flag.
+  foreach ($flags as $flag_name => $flag) {
+    $permissions += $flag->get_permissions();
+  }
+
+  return $permissions;
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter(): user_admin_permissions.
+ *
+ * Disable permission on the permissions form that don't make sense for
+ * anonymous users when Session API module is not enabled.
+ */
+function flag_form_user_admin_permissions_alter(&$form, &$form_state, $form_id) {
+  if (!module_exists('session_api')) {
+    $flags = flag_get_flags();
+    // Disable flag and unflag permission checkboxes for anonymous users.
+    foreach ($flags as $flag_name => $flag) {
+      $form['checkboxes'][DRUPAL_ANONYMOUS_RID]["flag $flag_name"]['#disabled'] = TRUE;
+      $form['checkboxes'][DRUPAL_ANONYMOUS_RID]["unflag $flag_name"]['#disabled'] = TRUE;
+    }
+  }
+}
+
+/**
+ * Implements hook_flag_link().
+ */
+function flag_flag_link($flag, $action, $entity_id) {
+  $token = flag_get_token($entity_id);
+  return array(
+    'href' => 'flag/' . ($flag->link_type == 'confirm' ? 'confirm/' : '') . "$action/$flag->name/$entity_id",
+    'query' => drupal_get_destination() + ($flag->link_type == 'confirm' ? array() : array('token' => $token)),
+  );
+}
+
+/**
+ * Implements hook_field_extra_fields().
+ */
+function flag_field_extra_fields() {
+  $extra = array();
+
+  $flags = flag_get_flags();
+  foreach ($flags as $name => $flag) {
+    // Skip flags that aren't on entities.
+    if (!($flag instanceof flag_entity)) {
+      continue;
+    }
+
+    $applicable_bundles = $flag->types;
+    // If the list of bundles is empty, it indicates all bundles apply.
+    if (empty($applicable_bundles)) {
+      $entity_info = entity_get_info($flag->entity_type);
+      $applicable_bundles = array_keys($entity_info['bundles']);
+    }
+
+    foreach ($applicable_bundles as $bundle_name) {
+      if ($flag->show_on_form) {
+        $extra[$flag->entity_type][$bundle_name]['form']['flag'] = array(
+          'label' => t('Flags'),
+          'description' => t('Checkboxes for toggling flags'),
+          'weight' => 10,
+        );
+      }
+
+      if ($flag->show_as_field) {
+        $extra[$flag->entity_type][$bundle_name]['display']['flag_' . $name] = array(
+          // It would be nicer to use % as the placeholder, but the label is
+          // run through check_plain() by field_ui_display_overview_form()
+          // (arguably incorrectly; see http://drupal.org/node/1991292).
+          'label' => t('Flag: @title', array(
+            '@title' => $flag->title,
+          )),
+          'description' => t('Individual flag link'),
+          'weight' => 10,
+        );
+      }
+    }
+  }
+
+  return $extra;
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter(): node_type_form.
+ */
+function flag_form_node_type_form_alter(&$form, &$form_state, $form_id) {
+  global $user;
+  $flags = flag_get_flags('node', $form['#node_type']->type, $user);
+  foreach ($flags as $flag) {
+    if ($flag->show_on_form) {
+      // To be able to process node tokens in flag labels, we create a fake
+      // node and store it in the flag's cache for replace_tokens() to find,
+      // with a fake ID.
+      $flag->remember_entity('fake', (object) array(
+        'nid' => NULL,
+        'type' => $form['#node_type']->type,
+        'title' => '',
+      ));
+      $var = 'flag_' . $flag->name . '_default';
+      $form['workflow']['flag'][$var] = array(
+        '#type' => 'checkbox',
+        '#title' => $flag->get_label('flag_short', 'fake'),
+        '#default_value' => variable_get($var . '_' . $form['#node_type']->type, 0),
+        '#return_value' => 1,
+      );
+    }
+  }
+
+  if (isset($form['workflow']['flag'])) {
+    $form['workflow']['flag'] += array(
+      '#type' => 'item',
+      '#title' => t('Default flags'),
+      '#description' => t('Above are the <a href="@flag-url">flags</a> you elected to show on the node editing form. You may specify their initial state here.', array('@flag-url' => url(FLAG_ADMIN_PATH))),
+      // Make the spacing a bit more compact:
+      '#prefix' => '<div class="form-checkboxes">',
+      '#suffix' => '</div>',
+    );
+  }
+}
+
+/**
+ * Implements hook_field_attach_form().
+ *
+ * Handles the 'show_on_form' flag option.
+ *
+ * Warning: will not work on entity types that are not fieldable, as this relies
+ * on a field module hook.
+ *
+ * @see flag_field_attach_submit()
+ */
+function flag_field_attach_form($entity_type, $entity, &$form, &$form_state, $langcode) {
+  list($id) = entity_extract_ids($entity_type, $entity);
+  // Some modules are being stupid here. Commerce!
+  if (empty($id)) {
+    $id = NULL;
+  }
+
+  // Keep track of whether the entity is new or not, as we're about to fiddle
+  // with the entity id for the flag's entity cache.
+  $is_existing_entity = !empty($id);
+
+  // Get all possible flags for this entity type.
+  $flags = flag_get_flags($entity_type);
+
+  // Filter out flags which need to be included on the node form.
+  $flags_in_form = 0;
+  $flags_visible = 0;
+  foreach ($flags as $flag) {
+    if (!$flag->show_on_form) {
+      continue;
+    }
+
+    // Get the flag status.
+    if ($is_existing_entity) {
+      $flag_status = $flag->is_flagged($id);
+    }
+    else {
+      // We don't have per-bundle defaults on general entities yet: default
+      // status is just unflagged.
+      $flag_status = FALSE;
+      // Apply the per-bundle defaults for nodes.
+      if ($entity_type == 'node') {
+        $node_type = $entity->type;
+        $flag_status = variable_get('flag_' . $flag->name . '_default_' . $node_type, 0);
+      }
+
+      // For a new, unsaved entity, make a dummy entity ID so that the flag
+      // handler can remember the entity. This allows access to the flag to be
+      // correctly handled in node and comment preview.
+      $id = 'new';
+      $flag->remember_entity($id, $entity);
+    }
+
+    // If the flag is not global and the user doesn't have access, skip it.
+    // Global flags have their value set even if the user doesn't have access
+    // to it, similar to the way "published" and "promote" keep the default
+    // values even if the user doesn't have "administer nodes" permission.
+    // Furthermore, a global flag is set to its default value on new nodes
+    // even if the user creating the node doesn't have access to the flag.
+    global $user;
+    $access = $flag->access($id, $flag_status ? 'unflag' : 'flag');
+    if (!$access && !$flag->global) {
+      continue;
+    }
+
+    $form['flag'][$flag->name] = array(
+      '#type' => 'checkbox',
+      '#title' => $flag->get_label('flag_short', $id),
+      '#description' => $flag->get_label('flag_long', $id),
+      '#default_value' => $flag_status,
+      '#return_value' => 1,
+      // Used by our drupalSetSummary() on vertical tabs.
+      '#attributes' => array('title' => $flag->get_title()),
+    );
+
+    // If the user does not have access to the flag, set as a value.
+    if (!$access) {
+      $form['flag'][$flag->name]['#type'] = 'value';
+      $form['flag'][$flag->name]['#value'] = $flag_status;
+    }
+    else {
+      $flags_visible++;
+    }
+    $flags_in_form++;
+  }
+
+  if ($flags_in_form) {
+    $form['flag'] += array(
+      '#weight' => 1,
+      '#tree' => TRUE,
+    );
+  }
+  if ($flags_visible) {
+    $form['flag'] += array(
+      '#type' => 'fieldset',
+      '#title' => t('Flags'),
+      '#collapsible' => TRUE,
+    );
+
+    if ($entity_type == 'node') {
+      // Turn the fieldset into a vertical tab.
+      $form['flag'] += array(
+        '#group' => 'additional_settings',
+        '#attributes' => array('class' => array('flag-fieldset')),
+        '#attached' => array(
+          'js' => array(
+            'vertical-tabs' => drupal_get_path('module', 'flag') . '/theme/flag-admin.js',
+          ),
+        ),
+      );
+    }
+  }
+}
+
+/**
+ * Implements hook_field_attach_submit().
+ *
+ * @see flag_field_attach_form()
+ */
+function flag_field_attach_submit($entity_type, $entity, $form, &$form_state) {
+  // This is invoked for each flag_field_attach_form(), but possibly more than
+  // once for a particular form in the case that a form is showing multiple
+  // entities (field collection, inline entity form). Hence we can't simply
+  // assume our submitted form values are in $form_state['values']['flag'].
+  if (isset($form['flag'])) {
+    $parents = $form['flag']['#parents'];
+    $flag_values = drupal_array_get_nested_value($form_state['values'], $parents);
+
+    // Put the form values in the entity so flag_field_attach_save() can find
+    // them. We can't call flag() here as new entities have no id yet.
+    $entity->flag = $flag_values;
+  }
+}
+
+/**
+ * Implements hook_field_attach_insert().
+ */
+function flag_field_attach_insert($entity_type, $entity) {
+  if (isset($entity->flag)) {
+    flag_field_attach_save($entity_type, $entity);
+  }
+}
+
+/**
+ * Implements hook_field_attach_update().
+ */
+function flag_field_attach_update($entity_type, $entity) {
+  if (isset($entity->flag)) {
+    flag_field_attach_save($entity_type, $entity);
+  }
+}
+
+/**
+ * Shared saving routine between flag_field_attach_insert/update().
+ *
+ * @see flag_field_attach_form()
+ */
+function flag_field_attach_save($entity_type, $entity) {
+  list($id) = entity_extract_ids($entity_type, $entity);
+  // Get the flag values we stashed in the entity in flag_field_attach_submit().
+  foreach ($entity->flag as $flag_name => $state) {
+    flag($state ? 'flag' : 'unflag', $flag_name, $id);
+  }
+}
+
+/*
+ * Implements hook_contextual_links_view_alter().
+ */
+function flag_contextual_links_view_alter(&$element, $items) {
+  if (isset($element['#element']['#entity_type'])) {
+    $entity_type = $element['#element']['#entity_type'];
+
+    // Get the entity out of the element. This requires a bit of legwork.
+    if (isset($element['#element']['#entity'])) {
+      // EntityAPI entities will all have the entity in the same place.
+      $entity = $element['#element']['#entity'];
+    }
+    elseif (isset($element['#element']['#' . $entity_type])) {
+      // Node module at least puts it here.
+      $entity = $element['#element']['#' . $entity_type];
+    }
+    else {
+      // Give up.
+      return;
+    }
+
+    // Get all possible flags for this entity type.
+    $flags = flag_get_flags($entity_type);
+
+    foreach ($flags as $name => $flag) {
+      if (!$flag->show_contextual_link) {
+        continue;
+      }
+
+      list($entity_id) = entity_extract_ids($entity_type, $entity);
+      if (!$flag->access($entity_id) && (!$flag->is_flagged($entity_id) || !$flag->access($entity_id, 'flag'))) {
+        // User has no permission to use this flag or flag does not apply to
+        // this object. The link is not skipped if the user has "flag" access
+        // but not "unflag" access (this way the unflag denied message is
+        // shown).
+        continue;
+      }
+
+      $element['#links']['flag-' . $name] = array(
+        'title' => $flag->theme($flag->is_flagged($entity_id) ? 'unflag' : 'flag', $entity_id),
+        'html' => TRUE,
+      );
+    }
+  }
+}
+
+/**
+ * Implements hook_entity_view().
+ *
+ * Handles the 'show_in_links' and 'show_as_field' flag options.
+ *
+ * Note this is broken for taxonomy terms for version of Drupal core < 7.17.
+ */
+function flag_entity_view($entity, $type, $view_mode, $langcode) {
+  // Get all possible flags for this entity type.
+  $flags = flag_get_flags($type);
+  foreach ($flags as $flag) {
+    // Check if the flag outputs on entity view.
+    if (!($flag->show_as_field || $flag->shows_in_entity_links($view_mode))) {
+      // Flag is not configured to output on entity view, so skip it to save on
+      // calls to access checks.
+      continue;
+    }
+
+    $entity_id = $flag->get_entity_id($entity);
+    // For a new, unsaved entity, make a dummy entity ID so that the flag
+    // handler can remember the entity. This allows access to the flag to be
+    // correctly handled in node and comment preview.
+    if (is_null($entity_id)) {
+      $entity_id = 'new';
+    }
+    $flag->remember_entity($entity_id, $entity);
+
+    if (!$flag->access($entity_id) && (!$flag->is_flagged($entity_id) || !$flag->access($entity_id, 'flag'))) {
+      // User has no permission to use this flag or flag does not apply to this
+      // entity. The link is not skipped if the user has "flag" access but
+      // not "unflag" access (this way the unflag denied message is shown).
+      continue;
+    }
+
+    // We're good to go. Output the flag in the appropriate manner(s).
+
+    // The old-style entity links output.
+    if ($flag->shows_in_entity_links($view_mode)) {
+      // The flag links are actually fully rendered theme functions.
+      // The HTML attribute is set to TRUE to allow whatever the themer desires.
+      $links['flag-' . $flag->name] = array(
+        'title' => $flag->theme($flag->is_flagged($entity_id) ? 'unflag' : 'flag', $entity_id),
+        'html' => TRUE,
+      );
+    }
+
+    // The pseudofield output.
+    if ($flag->show_as_field) {
+      $entity->content['flag_' . $flag->name] = array(
+        '#markup' => $flag->theme($flag->is_flagged($entity_id) ? 'unflag' : 'flag', $entity_id, array('needs_wrapping_element' => TRUE)),
+      );
+    }
+  }
+
+  // If any links were made, add them to the entity's links array.
+  if (isset($links)) {
+    $entity->content['links']['flag'] = array(
+      '#theme' => 'links',
+      '#links' => $links,
+      '#attributes' => array('class' => array('links', 'inline')),
+    );
+  }
+}
+
+/**
+ * Implements hook_node_insert().
+ */
+function flag_node_insert($node) {
+  flag_node_save($node);
+}
+
+/**
+ * Implements hook_node_update().
+ */
+function flag_node_update($node) {
+  flag_node_save($node);
+}
+
+/**
+ * Shared saving routine between flag_node_insert() and flag_node_update().
+ */
+function flag_node_save($node) {
+  // Response to the flag checkboxes added to the form in flag_form_alter().
+  $remembered = FALSE;
+  if (isset($node->flag)) {
+    foreach ($node->flag as $name => $state) {
+      $flag = flag_get_flag($name);
+      // Flagging may trigger actions. We want actions to get the current
+      // node, not a stale database-loaded one:
+      if (!$remembered) {
+        $flag->remember_entity($node->nid, $node);
+        // Actions may modify a node, and we don't want to overwrite this
+        // modification:
+        $remembered = TRUE;
+      }
+
+      $action = $state ? 'flag' : 'unflag';
+      // Pass TRUE for $skip_permission_check so that flags that have been
+      // passed through as hidden form values are saved.
+      $flag->flag($action, $node->nid, NULL, TRUE);
+    }
+  }
+}
+
+/**
+ * Implements hook_entity_delete().
+ */
+function flag_entity_delete($entity, $type) {
+  // Node and user flags handle things through the entity type delete hooks.
+  // @todo: make this configurable in the flag type definition?
+  if ($type == 'node' || $type == 'user') {
+    return;
+  }
+
+  list($id) = entity_extract_ids($type, $entity);
+  _flag_entity_delete($type, $id);
+}
+
+/**
+ * Implements hook_node_delete().
+ */
+function flag_node_delete($node) {
+  foreach (flag_get_flags('node') as $flag) {
+    // If the flag is being tracked by translation set and the node is part
+    // of a translation set, don't delete the flagging record.
+    // Instead, data will be updated in hook_node_translation_change(), below.
+    if (!$flag->i18n || empty($node->tnid)) {
+      _flag_entity_delete('node', $node->nid, $flag->fid);
+    }
+  }
+}
+
+/**
+ * Implements hook_node_translation_change().
+ *
+ * (Hook provided by translation_helpers module.)
+ */
+function flag_node_translation_change($node) {
+  if (isset($node->translation_change)) {
+    // If there is only one node remaining, track by nid rather than tnid.
+    // Otherwise, use the new tnid.
+    $entity_id = $node->translation_change['new_tnid'] == 0 ? $node->translation_change['remaining_nid'] : $node->translation_change['new_tnid'];
+    foreach (flag_get_flags('node') as $flag) {
+      if ($flag->i18n) {
+        db_update('flagging')->fields(array('entity_id' => $entity_id))
+          ->condition('fid', $flag->fid)
+          ->condition('entity_id', $node->translation_change['old_tnid'])
+          ->execute();
+        db_update('flag_counts')->fields(array('entity_id' => $entity_id))
+          ->condition('fid', $flag->fid)
+          ->condition('entity_id', $node->translation_change['old_tnid'])
+          ->execute();
+      }
+    }
+  }
+}
+
+/**
+ * Deletes flagging records for the entity.
+ *
+ * @param $entity_type
+ *   The type of the entity being deleted; e.g. 'node' or 'comment'.
+ * @param $entity_id
+ *   The ID of the entity being deleted.
+ * @param $fid
+ *   The flag id
+ */
+function _flag_entity_delete($entity_type, $entity_id, $fid = NULL) {
+  $query_content = db_delete('flagging')
+    ->condition('entity_type', $entity_type)
+    ->condition('entity_id', $entity_id);
+  $query_counts = db_delete('flag_counts')
+    ->condition('entity_type', $entity_type)
+    ->condition('entity_id', $entity_id);
+  if (isset($fid)) {
+    $query_content->condition('fid', $fid);
+    $query_counts->condition('fid', $fid);
+  }
+  $query_content->execute();
+  $query_counts->execute();
+}
+
+/**
+ * Implements hook_user_login().
+ */
+function flag_user_login(&$edit, &$account) {
+  // Migrate anonymous flags to this user's account.
+  if (module_exists('session_api') && ($sid = flag_get_sid(0))) {
+    // Get a list of flagging IDs that will be moved over.
+    $duplicate_flaggings = array();
+    $flaggings = db_select('flagging', 'fc')
+      ->fields('fc', array('flagging_id', 'fid', 'entity_id'))
+      ->condition('uid', 0)
+      ->condition('sid', $sid)
+      ->execute()
+      ->fetchAllAssoc('flagging_id', PDO::FETCH_ASSOC);
+
+    // Convert anonymous flaggings to their authenticated account.
+    foreach ($flaggings as $flagging_id => $flagging) {
+      // Each update is wrapped in a try block to prevent unique key errors.
+      // Any duplicate object that was flagged as anonoymous is deleted in the
+      // subsequent db_delete() call.
+      try {
+        db_update('flagging')
+          ->fields(array(
+            'uid' => $account->uid,
+            'sid' => 0,
+          ))
+          ->condition('flagging_id', $flagging_id)
+          ->execute();
+      }
+      catch (Exception $e) {
+        $duplicate_flaggings[$flagging_id] = $flagging;
+      }
+    }
+
+    // Delete any remaining flags this user had as an anonymous user. We use the
+    // proper unflag action here to make sure the count gets decremented again
+    // and so that other modules can clean up their tables if needed.
+    $anonymous_user = drupal_anonymous_user();
+    foreach ($duplicate_flaggings as $flagging_id => $flagging) {
+      $flag = flag_get_flag(NULL, $flagging['fid']);
+      $flag->flag('unflag', $flagging['entity_id'], $anonymous_user, TRUE);
+    }
+
+    // Clean up anonymous cookies.
+    FlagCookieStorage::drop();
+  }
+}
+
+/**
+ * Implements hook_user_cancel().
+ */
+function flag_user_cancel($edit, $account, $method) {
+  flag_user_account_removal($account);
+}
+
+/**
+ * Implements hook_user_delete().
+ */
+function flag_user_delete($account) {
+  flag_user_account_removal($account);
+}
+
+/**
+ * Shared helper for user account cancellation or deletion.
+ */
+function flag_user_account_removal($account) {
+  // Remove flags by this user.
+  $query = db_select('flagging', 'fc');
+  $query->leftJoin('flag_counts', 'c', 'fc.entity_id = c.entity_id AND fc.entity_type = c.entity_type AND fc.fid = c.fid');
+  $result = $query
+    ->fields('fc', array('fid', 'entity_id'))
+    ->fields('c', array('count'))
+    ->condition('fc.uid', $account->uid)
+    ->execute();
+
+  foreach ($result as $flag_data) {
+    // Only decrement the flag count table if it's greater than 1.
+    if ($flag_data->count > 0) {
+      $flag_data->count--;
+      db_update('flag_counts')
+        ->fields(array(
+          'count' => $flag_data->count,
+        ))
+        ->condition('fid', $flag_data->fid)
+        ->condition('entity_id', $flag_data->entity_id)
+        ->execute();
+    }
+    elseif ($flag_data->count == 0) {
+      db_delete('flag_counts')
+        ->condition('fid', $flag_data->fid)
+        ->condition('entity_id', $flag_data->entity_id)
+        ->execute();
+    }
+  }
+  db_delete('flagging')
+    ->condition('uid', $account->uid)
+    ->execute();
+
+  // Remove flags that have been done to this user.
+  _flag_entity_delete('user', $account->uid);
+}
+
+/**
+ * Implements hook_user_view().
+ */
+function flag_user_view($account, $view_mode) {
+  $flags = flag_get_flags('user');
+  $flag_items = array();
+  foreach ($flags as $flag) {
+    if (!$flag->access($account->uid)) {
+      // User has no permission to use this flag.
+      continue;
+    }
+    if (!$flag->show_on_profile) {
+      // Flag not set to appear on profile.
+      continue;
+    }
+    $flag_items[$flag->name] = array(
+      '#type' => 'user_profile_item',
+      '#title' => $flag->get_title($account->uid),
+      '#markup' => $flag->theme($flag->is_flagged($account->uid) ? 'unflag' : 'flag', $account->uid),
+      '#attributes' => array('class' => array('flag-profile-' . $flag->name)),
+    );
+  }
+  if (!empty($flag_items)) {
+    $account->content['flags'] = $flag_items;
+    $account->content['flags'] += array(
+      '#type' => 'user_profile_category',
+      '#title' => t('Actions'),
+      '#attributes' => array('class' => array('flag-profile')),
+    );
+  }
+}
+
+/**
+ * Implements hook_session_api_cleanup().
+ *
+ * Clear out anonymous user flaggings during Session API cleanup.
+ */
+function flag_session_api_cleanup($arg = 'run') {
+  // Session API 1.1 version:
+  if ($arg == 'run') {
+    $query = db_select('flagging', 'fc');
+    $query->leftJoin('session_api', 's', 'fc.sid = s.sid');
+    $result = $query
+      ->fields('fc', array('sid'))
+      ->condition('fc.sid', 0, '<>')
+      ->isNull('s.sid')
+      ->execute();
+    foreach ($result as $row) {
+      db_delete('flagging')
+        ->condition('sid', $row->sid)
+        ->execute();
+    }
+  }
+  // Session API 1.2+ version.
+  elseif (is_array($arg)) {
+    $outdated_sids = $arg;
+    db_delete('flagging')->condition('sid', $outdated_sids, 'IN')->execute();
+  }
+}
+
+/**
+ * Implements hook_field_attach_delete_bundle().
+ *
+ * Delete any flags' applicability to the deleted bundle.
+ */
+function flag_field_attach_delete_bundle($entity_type, $bundle, $instances) {
+  // This query can't use db_delete() because that doesn't support a
+  // subquery: see http://drupal.org/node/1267508.
+  db_query("DELETE FROM {flag_types} WHERE type = :bundle AND fid IN (SELECT fid FROM {flag} WHERE entity_type = :entity_type)", array(
+    ':bundle' => $bundle,
+    ':entity_type' => $entity_type,
+  ));
+}
+
+/**
+ * Flags or unflags an item.
+ *
+ * @param $action
+ *   Either 'flag' or 'unflag'.
+ * @param $flag_name
+ *   The name of the flag to use.
+ * @param $entity_id
+ *   The ID of the item to flag or unflag.
+ * @param $account
+ *   (optional) The user on whose behalf to flag. Omit for the current user.
+ * @param permissions_check
+ *   (optional) A boolean indicating whether to skip permissions.
+ *
+ * @return
+ *   FALSE if some error occured (e.g., user has no permission, flag isn't
+ *   applicable to the item, etc.), TRUE otherwise.
+ */
+function flag($action, $flag_name, $entity_id, $account = NULL, $permissions_check = FALSE) {
+  if (!($flag = flag_get_flag($flag_name))) {
+    // Flag does not exist.
+    return FALSE;
+  }
+  return $flag->flag($action, $entity_id, $account, $permissions_check);
+}
+
+/**
+ * Implements hook_flag_flag().
+ */
+function flag_flag_flag($flag, $entity_id, $account, $flagging) {
+  if (module_exists('trigger')) {
+    flag_flag_trigger('flag', $flag, $entity_id, $account, $flagging);
+  }
+}
+
+/**
+ * Implements hook_flag_unflag().
+ */
+function flag_flag_unflag($flag, $entity_id, $account, $flagging) {
+  if (module_exists('trigger')) {
+    flag_flag_trigger('unflag', $flag, $entity_id, $account, $flagging);
+  }
+}
+
+/**
+ * Trigger actions if any are available. Helper for hook_flag_(un)flag().
+ *
+ * @param $op
+ *  The operation being performed: one of 'flag' or 'unflag'.
+ * @param $flag
+ *  The flag object.
+ * @param $entity_id
+ *  The id of the entity the flag is on.
+ * @param $account
+ *  The user account performing the action.
+ * @param $flagging_id
+ *  The flagging entity.
+ */
+function flag_flag_trigger($action, $flag, $entity_id, $account, $flagging) {
+  $context['hook'] = 'flag';
+  $context['account'] = $account;
+  $context['flag'] = $flag;
+  $context['op'] = $action;
+  // We add to the $context all the objects we know about:
+  $context = array_merge($flag->get_relevant_action_objects($entity_id), $context);
+  // The primary object the actions work on.
+  $object = $flag->fetch_entity($entity_id);
+
+  // Generic "all flags" actions.
+  foreach (trigger_get_assigned_actions('flag_' . $action) as $aid => $action_info) {
+    // The 'if ($aid)' is a safeguard against
+    // http://drupal.org/node/271460#comment-886564
+    if ($aid) {
+      actions_do($aid, $object, $context);
+    }
+  }
+  // Actions specifically for this flag.
+  foreach (trigger_get_assigned_actions('flag_' . $action . '_' . $flag->name) as $aid => $action_info) {
+    if ($aid) {
+      actions_do($aid, $object, $context);
+    }
+  }
+}
+
+/**
+ * Implements hook_flag_access().
+ */
+function flag_flag_access($flag, $entity_id, $action, $account) {
+  // Do nothing if there is no restriction by authorship.
+  if (empty($flag->access_author)) {
+    return;
+  }
+
+  // Restrict access by authorship. It's important that TRUE is never returned
+  // here, otherwise we'd grant permission even if other modules denied access.
+  if ($flag->entity_type == 'node') {
+    // For non-existent nodes (such as on the node add form), assume that the
+    // current user is creating the content.
+    if (empty($entity_id) || !($node = $flag->fetch_entity($entity_id))) {
+      return $flag->access_author == 'others' ? FALSE : NULL;
+    }
+
+    if ($flag->access_author == 'own' && $node->uid != $account->uid) {
+      return FALSE;
+    }
+    elseif ($flag->access_author == 'others' && $node->uid == $account->uid) {
+      return FALSE;
+    }
+  }
+
+  // Restrict access by comment authorship.
+  if ($flag->entity_type == 'comment') {
+    // For non-existent comments (such as on the comment add form), assume that
+    // the current user is creating the content.
+    if (empty($entity_id) || !($comment = $flag->fetch_entity($entity_id)) || $entity_id == 'new') {
+      return $flag->access_author == 'comment_others' ? FALSE : NULL;
+    }
+
+    $node = node_load($comment->nid);
+    if ($flag->access_author == 'node_own' && $node->uid != $account->uid) {
+      return FALSE;
+    }
+    elseif ($flag->access_author == 'node_others' && $node->uid == $account->uid) {
+      return FALSE;
+    }
+    elseif ($flag->access_author == 'comment_own' && $comment->uid != $account->uid) {
+      return FALSE;
+    }
+    elseif ($flag->access_author == 'comment_others' && $comment->uid == $account->uid) {
+      return FALSE;
+    }
+  }
+}
+
+/**
+ * Implements hook_flag_access_multiple().
+ */
+function flag_flag_access_multiple($flag, $entity_ids, $account) {
+  $access = array();
+
+  // Do nothing if there is no restriction by authorship.
+  if (empty($flag->access_author)) {
+    return $access;
+  }
+
+  if ($flag->entity_type == 'node') {
+    // Restrict access by authorship. This is similar to flag_flag_access()
+    // above, but returns an array of 'nid' => $access values. Similarly, we
+    // should never return TRUE in any of these access values, only FALSE if we
+    // want to deny access, or use the current access value provided by Flag.
+    $result = db_select('node', 'n')
+      ->fields('n', array('nid', 'uid'))
+      ->condition('nid', array_keys($entity_ids), 'IN')
+      ->condition('type', $flag->types, 'IN')
+      ->execute();
+    foreach ($result as $row) {
+      if ($flag->access_author == 'own') {
+        $access[$row->nid] = $row->uid != $account->uid ? FALSE : NULL;
+      }
+      elseif ($flag->access_author == 'others') {
+        $access[$row->nid] = $row->uid == $account->uid ? FALSE : NULL;
+      }
+    }
+  }
+
+  if ($flag->entity_type == 'comment') {
+    // Restrict access by comment ownership.
+    $query = db_select('comment', 'c');
+    $query->leftJoin('node', 'n', 'c.nid = n.nid');
+    $query
+      ->fields('c', array('cid', 'nid', 'uid'))
+      ->condition('c.cid', $entity_ids, 'IN');
+    $query->addField('c', 'uid', 'comment_uid');
+    $result = $query->execute();
+
+    foreach ($result as $row) {
+      if ($flag->access_author == 'node_own') {
+        $access[$row->cid] = $row->node_uid != $account->uid ? FALSE : NULL;
+      }
+      elseif ($flag->access_author == 'node_others') {
+        $access[$row->cid] = $row->node_uid == $account->uid ? FALSE : NULL;
+      }
+      elseif ($flag->access_author == 'comment_own') {
+        $access[$row->cid] = $row->comment_uid != $account->uid ? FALSE : NULL;
+      }
+      elseif ($flag->access_author == 'comment_others') {
+        $access[$row->cid] = $row->comment_uid == $account->uid ? FALSE : NULL;
+      }
+    }
+  }
+
+  // Always return an array (even if empty) of accesses.
+  return $access;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function flag_theme() {
+  $path = drupal_get_path('module', 'flag') . '/theme';
+
+  return array(
+    'flag' => array(
+      'variables' => array(
+        'flag' => NULL,
+        'action' => NULL,
+        'entity_id' => NULL,
+        'after_flagging' => FALSE,
+        'needs_wrapping_element' => FALSE,
+        'errors' => array(),
+      ),
+      'template' => 'flag',
+      'pattern' => 'flag__',
+      'path' => $path,
+    ),
+    'flag_tokens_browser' => array(
+      'variables' => array(
+        'types' => array('all'),
+        'global_types' => TRUE,
+      ),
+      'file' => 'flag.tokens.inc',
+    ),
+    'flag_admin_listing' => array(
+      'render element' => 'form',
+      'file' => 'includes/flag.admin.inc',
+    ),
+    'flag_admin_listing_disabled' => array(
+      'variables' => array(
+        'flags' => NULL,
+        'default_flags' => NULL,
+      ),
+      'file' => 'includes/flag.admin.inc',
+    ),
+    'flag_admin_page' => array(
+      'variables' => array(
+        'flags' => NULL,
+        'default_flags' => NULL,
+        'flag_admin_listing' => NULL,
+      ),
+      'file' => 'includes/flag.admin.inc',
+    ),
+    'flag_form_roles' => array(
+      'render element' => 'element',
+      'file' => 'includes/flag.admin.inc',
+    ),
+  );
+}
+
+/**
+ * A preprocess function for our theme('flag'). It generates the
+ * variables needed there.
+ *
+ * The $variables array initially contains the following arguments:
+ * - $flag
+ * - $action
+ * - $entity_id
+ * - $after_flagging
+ * - $errors
+ * - $needs_wrapping_element
+ *
+ * See 'flag.tpl.php' for their documentation.
+ */
+function template_preprocess_flag(&$variables) {
+  global $user;
+  $initialized = &drupal_static(__FUNCTION__, array());
+
+  // Some typing shotcuts:
+  $flag =& $variables['flag'];
+  $action = $variables['action'];
+  $entity_id = $variables['entity_id'];
+  $errors = implode('<br />', $variables['errors']);
+  $flag_name_css = str_replace('_', '-', $flag->name);
+
+  // Generate the link URL.
+  $link_type = $flag->get_link_type();
+  $link = module_invoke($link_type['module'], 'flag_link', $flag, $action, $entity_id);
+  if (isset($link['title']) && empty($link['html'])) {
+    $link['title'] = check_plain($link['title']);
+  }
+
+  // Replace the link with the access denied text if unable to flag.
+  if ($action == 'unflag' && !$flag->access($entity_id, 'unflag')) {
+    $link['title'] = $flag->get_label('unflag_denied_text', $entity_id);
+    unset($link['href']);
+  }
+
+  // Anonymous users always need the JavaScript to maintain their flag state.
+  if ($user->uid == 0) {
+    $link_type['uses standard js'] = TRUE;
+  }
+
+  // Load the JavaScript/CSS, if the link type requires it.
+  if (!isset($initialized[$link_type['name']])) {
+    if ($link_type['uses standard css']) {
+      drupal_add_css(drupal_get_path('module', 'flag') . '/theme/flag.css');
+    }
+    if ($link_type['uses standard js']) {
+      drupal_add_js(drupal_get_path('module', 'flag') . '/theme/flag.js');
+    }
+    $initialized[$link_type['name']] = TRUE;
+  }
+
+  $variables['link'] = $link;
+  $variables['link_href'] = isset($link['href']) ? check_url(url($link['href'], $link)) : FALSE;
+  $variables['link_text'] = isset($link['title']) ? $link['title'] : $flag->get_label($action . '_short', $entity_id);
+  $variables['link_title'] = isset($link['attributes']['title']) ? check_plain($link['attributes']['title']) : check_plain(strip_tags($flag->get_label($action . '_long', $entity_id)));
+  $variables['status'] = ($action == 'flag' ? 'unflagged' : 'flagged');
+  $variables['flag_name_css'] = $flag_name_css;
+
+  $variables['flag_wrapper_classes_array'] = array();
+  $variables['flag_wrapper_classes_array'][] = 'flag-wrapper';
+  $variables['flag_wrapper_classes_array'][] = 'flag-' . $flag_name_css;
+  $variables['flag_wrapper_classes_array'][] = 'flag-' . $flag_name_css . '-' . $entity_id;
+
+  $variables['flag_classes_array'] = array();
+  $variables['flag_classes_array'][] = 'flag';
+  if (isset($link['href'])) {
+    $variables['flag_classes_array'][] = $variables['action'] . '-action';
+    $variables['flag_classes_array'][] = 'flag-link-' . $flag->link_type;
+  }
+  else {
+    $variables['flag_classes_array'][] = $variables['action'] . '-disabled';
+  }
+  if (isset($link['attributes']['class'])) {
+    $link['attributes']['class'] = is_string($link['attributes']['class']) ? array_filter(explode(' ', $link['attributes']['class'])) : $link['attributes']['class'];
+    $variables['flag_classes_array'] = array_merge($variables['flag_classes_array'], $link['attributes']['class']);
+  }
+  $variables['message_classes_array'] = array();
+  if ($variables['after_flagging']) {
+    $variables['message_classes_array'][] = 'flag-message';
+    if ($errors) {
+      $variables['message_classes_array'][] = 'flag-failure-message';
+      $variables['message_text'] = $errors;
+    }
+    else {
+      $inverse_action = ($action == 'flag' ? 'unflag' : 'flag');
+      $variables['message_classes_array'][] = 'flag-success-message';
+      $variables['message_classes_array'][] = 'flag-' . $variables['status'] . '-message';
+      $variables['message_text'] = $flag->get_label($inverse_action . '_message', $entity_id);
+      $variables['flag_classes_array'][] = $variables['status'];
+      // By default we make our JS code remove, after a few seconds, only
+      // success messages.
+      $variables['message_classes_array'][] = 'flag-auto-remove';
+    }
+  }
+  else {
+    $variables['message_text'] = '';
+  }
+}
+
+/**
+ * Theme processor for flag.tpl.php.
+ *
+ * @param array &$variables
+ *  An array of variables for the template. See 'flag.tpl.php' for their
+ *  documentation.
+ */
+function template_process_flag(&$variables) {
+  // Convert class arrays to strings.
+  $variables['flag_wrapper_classes'] = implode(' ', $variables['flag_wrapper_classes_array']);
+  $variables['flag_classes'] = implode(' ', $variables['flag_classes_array']);
+  $variables['message_classes'] = implode(' ', $variables['message_classes_array']);
+}
+
+/**
+ * Return an array of flag names keyed by fid.
+ */
+function _flag_get_flag_names() {
+  $flags = flag_get_flags();
+  $flag_names = array();
+  foreach ($flags as $flag) {
+    $flag_names[$flag->fid] = $flag->name;
+  }
+  return $flag_names;
+}
+
+/**
+ * Return an array of flag link types suitable for a select list or radios.
+ */
+function _flag_link_type_options() {
+  $options = array();
+  $types = flag_get_link_types();
+  foreach ($types as $type_name => $type) {
+    $options[$type_name] = $type['title'];
+  }
+  return $options;
+}
+
+/**
+ * Return an array of flag link type descriptions.
+ */
+function _flag_link_type_descriptions() {
+  $options = array();
+  $types = flag_get_link_types();
+  foreach ($types as $type_name => $type) {
+    $options[$type_name] = $type['description'];
+  }
+  return $options;
+}
+
+// ---------------------------------------------------------------------------
+// Non-Views public API
+
+/**
+ * Gets the count of flaggings for the given flag.
+ *
+ * For example, if you have an 'endorse' flag, this method will tell you how
+ * many endorsements have been made, rather than how many things have been
+ * endorsed.
+ *
+ * When called during a flagging or unflagging (such as from a hook
+ * implementation or from Rules), the flagging or unflagging that is in the
+ * process of being performed:
+ *  - will be included during a flagging operation
+ *  - will STILL be included during an unflagging operation. That is, the count
+ *    will not yet have been decreased.
+ * This is because this queries the {flagging} table, which only has its record
+ * deleted at the very end of the unflagging process.
+ *
+ * @param $flag
+ *   The flag.
+ * @param $entity_type
+ *   The entity type. For example, 'node'.
+ *
+ * @return int
+ *   The number of flaggings for the flag.
+ */
+function flag_get_entity_flag_counts($flag, $entity_type) {
+  $counts = &drupal_static(__FUNCTION__);
+
+  // We check to see if the flag count is already in the cache,
+  // if it's not, run the query.
+  if (!isset($counts[$flag->name][$entity_type])) {
+    $counts[$flag->name][$entity_type] = array();
+    $result = db_select('flagging', 'f')
+      ->fields('f', array('fid'))
+      ->condition('fid', $flag->fid)
+      ->condition('entity_type', $entity_type)
+      ->countQuery()
+      ->execute()
+      ->fetchField();
+    $counts[$flag->name][$entity_type] = $result;
+  }
+
+  return $counts[$flag->name][$entity_type];
+}
+
+/**
+ * Gets the count of the flaggings made by a user with a flag.
+ *
+ * For example, with a 'bookmarks' flag, this returns the number of bookmarks
+ * a user has created.
+ *
+ * When called during a flagging or unflagging (such as from a hook
+ * implementation or from Rules), the flagging or unflagging that is in the
+ * process of being performed:
+ *  - will be included during a flagging operation
+ *  - will STILL be included during an unflagging operation. That is, the count
+ *    will not yet have been decreased.
+ * This is because this queries the {flagging} table, which only has its record
+ * deleted at the very end of the unflagging process.
+ *
+ * However, it should be noted that this method does not serves global flags.
+ *
+ * @param $flag
+ *   The flag.
+ * @param $user
+ *   The user object.
+ *
+ * @return int
+ *   The number of flaggings for the given flag and user.
+ */
+function flag_get_user_flag_counts($flag, $user) {
+  $counts = &drupal_static(__FUNCTION__);
+
+  // We check to see if the flag count is already in the cache,
+  // if it's not, run the query.
+  if (!isset($counts[$flag->name][$user->uid])) {
+    $counts[$flag->name][$user->uid] = array();
+    $result = db_select('flagging', 'f')
+      ->fields('f', array('fid'))
+      ->condition('fid', $flag->fid)
+      ->condition('uid', $user->uid)
+      ->countQuery()
+      ->execute()
+      ->fetchField();
+    $counts[$flag->name][$user->uid] = $result;
+  }
+
+  return $counts[$flag->name][$user->uid];
+}
+
+/**
+ * Gets flag counts for all flags on an entity.
+ *
+ * Provides a count of all the flaggings for a single entity. Instead
+ * of a single response, this method returns an array of counts keyed by
+ * the flag ID:
+ *
+ * @code
+ * array(
+ *   my_flag => 42
+ *   another_flag => 57
+ * );
+ * @endcode
+ *
+ * When called during a flagging or unflagging (such as from a hook
+ * implementation or from Rules), the count this returns takes into account the
+ * the flagging or unflagging that is in the process of being performed.
+ *
+ * @param $entity_type
+ *   The entity type (usually 'node').
+ * @param $entity_id
+ *   The entity ID (usually the node ID).
+ *
+ * @return array
+ *   An array giving the counts of all flaggings on the entity. The flag IDs
+ *   are the keys and the counts for each flag the values. Note that flags
+ *   that have no flaggings are not included in the array.
+ */
+function flag_get_counts($entity_type, $entity_id) {
+  $counts = &drupal_static(__FUNCTION__);
+
+  if (!isset($counts[$entity_type][$entity_id])) {
+    $counts[$entity_type][$entity_id] = array();
+    $query = db_select('flag', 'f');
+    $query->leftJoin('flag_counts', 'fc', 'f.fid = fc.fid');
+    $result = $query
+      ->fields('f', array('name'))
+      ->fields('fc', array('count'))
+      ->condition('fc.entity_type', $entity_type)
+      ->condition('fc.entity_id', $entity_id)
+      ->execute();
+    foreach ($result as $row) {
+      $counts[$entity_type][$entity_id][$row->name] = $row->count;
+    }
+  }
+
+  return $counts[$entity_type][$entity_id];
+}
+
+/**
+ * Gets the count of entities flagged by the given flag.
+ *
+ * For example, with a 'report abuse' flag, this returns the number of
+ * entities that have been reported, not the total number of reports. In other
+ * words, an entity that has been reported multiple times will only be counted
+ * once.
+ *
+ * When called during a flagging or unflagging (such as from a hook
+ * implementation or from Rules), the count this returns takes into account the
+ * the flagging or unflagging that is in the process of being performed.
+ *
+ * @param $flag_name
+ *   The flag name for which to retrieve a flag count.
+ * @param $reset
+ *   (optional) Reset the internal cache and execute the SQL query another time.
+ *
+ * @return int
+ *   The number of entities that are flagged with the flag.
+ */
+function flag_get_flag_counts($flag_name, $reset = FALSE) {
+  $counts = &drupal_static(__FUNCTION__);
+
+  if ($reset) {
+    $counts = array();
+  }
+  if (!isset($counts[$flag_name])) {
+    $flag = flag_get_flag($flag_name);
+    $counts[$flag_name] = db_select('flag_counts', 'fc')
+      ->fields('fc', array('fid'))
+      ->condition('fid', $flag->fid)
+      ->countQuery()
+      ->execute()
+      ->fetchField();
+  }
+
+  return $counts[$flag_name];
+}
+
+/**
+ * Load a single flag either by name or by flag ID.
+ *
+ * @param $name
+ *  (optional) The flag name.
+ * @param $fid
+ *  (optional) The the flag id.
+ *
+ * @return
+ *  The flag object, or FALSE if no matching flag was found.
+ */
+function flag_get_flag($name = NULL, $fid = NULL) {
+  $flags = flag_get_flags();
+  if (isset($name)) {
+    if (isset($flags[$name])) {
+      return $flags[$name];
+    }
+  }
+  elseif (isset($fid)) {
+    foreach ($flags as $flag) {
+      if ($flag->fid == $fid) {
+        return $flag;
+      }
+    }
+  }
+  return FALSE;
+}
+
+/**
+ * List all flags available.
+ *
+ * If all the parameters are omitted, a list of all flags will be returned.
+ *
+ * @param $entity_type
+ *   (optional) The type of entity for which to load the flags. Usually 'node'.
+ * @param $content_subtype
+ *   (optional) The node type for which to load the flags.
+ * @param $account
+ *   (optional) The user accont to filter available flags. If not set, all
+ *   flags for will this node will be returned.
+ *
+ * @return
+ *   An array of flag objects, keyed by the flag names.
+ */
+function flag_get_flags($entity_type = NULL, $content_subtype = NULL, $account = NULL) {
+  $flags = &drupal_static(__FUNCTION__);
+
+  // Retrieve a list of all flags, regardless of the parameters.
+  if (!isset($flags)) {
+    $flags = array();
+
+    // Database flags.
+    $query = db_select('flag', 'f');
+    $query->leftJoin('flag_types', 'fn', 'fn.fid = f.fid');
+    $result = $query
+      ->fields('f', array(
+        'fid',
+        'entity_type',
+        'name',
+        'title',
+        'global',
+        'options',
+      ))
+      ->fields('fn', array('type'))
+      ->execute();
+    foreach ($result as $row) {
+      if (!isset($flags[$row->name])) {
+        $flags[$row->name] = flag_flag::factory_by_row($row);
+      }
+      else {
+        $flags[$row->name]->types[] = $row->type;
+      }
+    }
+
+    // Add code-based flags provided by modules.
+    $default_flags = flag_get_default_flags();
+    foreach ($default_flags as $name => $default_flag) {
+      // Insert new enabled flags into the database to give them an FID.
+      if ($default_flag->status && !isset($flags[$name])) {
+        $default_flag->save();
+        $flags[$name] = $default_flag;
+      }
+
+      if (isset($flags[$name])) {
+        // Ensure overridden flags are associated with their parent module.
+        $flags[$name]->module = $default_flag->module;
+
+        // Update the flag with any properties that are "locked" by the code
+        // version.
+        if (isset($default_flag->locked)) {
+          $flags[$name]->locked = $default_flag->locked;
+          foreach ($default_flag->locked as $property) {
+            $flags[$name]->$property = $default_flag->$property;
+          }
+        }
+      }
+    }
+
+    // Sort the list of flags by weight.
+    uasort($flags, '_flag_compare_weight');
+
+    foreach ($flags as $flag) {
+      // Allow modules implementing hook_flag_alter(&$flag) to modify each flag.
+      drupal_alter('flag', $flag);
+    }
+  }
+
+  // Make a variable copy to filter types and account.
+  $filtered_flags = $flags;
+
+  // Filter out flags based on type and subtype.
+  if (isset($entity_type) || isset($content_subtype)) {
+    foreach ($filtered_flags as $name => $flag) {
+      if (!$flag->access_entity_enabled($entity_type, $content_subtype)) {
+        unset($filtered_flags[$name]);
+      }
+    }
+  }
+
+  // Filter out flags based on account permissions.
+  if (isset($account) && $account->uid != 1) {
+    foreach ($filtered_flags as $name => $flag) {
+      // We test against the 'flag' action, which is the minimum permission to
+      // use a flag.
+      if (!$flag->user_access('flag', $account)) {
+        unset($filtered_flags[$name]);
+      }
+    }
+  }
+
+  return $filtered_flags;
+}
+
+/**
+ * Comparison function for uasort().
+ */
+function _flag_compare_weight($flag1, $flag2) {
+  if ($flag1->weight == $flag2->weight) {
+    return 0;
+  }
+  return $flag1->weight < $flag2->weight ? -1 : 1;
+}
+
+/**
+ * Retrieve a list of flags defined by modules.
+ *
+ * @param $include_disabled
+ *   (optional) Unless specified, only enabled flags will be returned.
+ *
+ * @return
+ *   An array of flag prototypes, not usable for flagging. Use flag_get_flags()
+ *   if needing to perform a flagging with any enabled flag.
+ */
+function flag_get_default_flags($include_disabled = FALSE) {
+  $default_flags = array();
+  $flag_status = variable_get('flag_default_flag_status', array());
+
+  $default_flags_info = array();
+  foreach (module_implements('flag_default_flags') as $module) {
+    $function = $module . '_flag_default_flags';
+    foreach ($function() as $flag_name => $flag_info) {
+      // Backward compatibility: old exported default flags have their names
+      // in $flag_info instead, so we use the + operator to not overwrite it.
+      $default_flags_info[$flag_name] = $flag_info + array(
+        'name' => $flag_name,
+        'module' => $module,
+      );
+    }
+  }
+
+  // Allow modules to alter definitions using hook_flag_default_flags_alter().
+  drupal_alter('flag_default_flags', $default_flags_info);
+
+  foreach ($default_flags_info as $flag_info) {
+    $flag = flag_flag::factory_by_array($flag_info);
+
+    // Disable flags that are not at the current API version.
+    if (!$flag->is_compatible()) {
+      $flag->status = FALSE;
+    }
+
+    // Add flags that have been enabled.
+    if ((!isset($flag_status[$flag->name]) && (!isset($flag->status) || $flag->status)) || !empty($flag_status[$flag->name])) {
+      $flag->status = TRUE;
+      $default_flags[$flag->name] = $flag;
+    }
+    // Add flags that have been disabled.
+    elseif ($include_disabled) {
+      $flag->status = FALSE;
+      $default_flags[$flag->name] = $flag;
+    }
+  }
+
+  return $default_flags;
+}
+
+/**
+ * Get all flagged entities in a flag.
+ *
+ * @param $flag_name
+ *   The flag name for which to retrieve flagged entites.
+ *
+ * @return
+ *   An array of flagging data, keyed by the flagging ID.
+ */
+function flag_get_flag_flagging_data($flag_name) {
+  $flag = flag_get_flag($flag_name);
+  $result = db_select('flagging', 'fc')
+    ->fields('fc')
+    ->condition('fid', $flag->fid)
+    ->execute();
+  return $result->fetchAllAssoc('flagging_id');
+}
+
+/**
+ * Find what a user has flagged, either a single entity or on the entire site.
+ *
+ * When called during a flagging or unflagging (such as from a hook
+ * implementation or from Rules), the flagging or unflagging that is in the
+ * process of being performed:
+ *  - will be included during a flagging operation
+ *  - will STILL be included during an unflagging operation. That is, the count
+ *    will not yet have been decreased.
+ * This is because this queries the {flagging} table, which only has its record
+ * deleted at the very end of the unflagging process.
+ *
+ * @param $entity_type
+ *   The type of entity that will be retrieved. Usually 'node'.
+ * @param $entity_id
+ *   (optional) The entity ID to check for flagging. If none given, all
+ *   entities flagged by this user will be returned.
+ * @param $uid
+ *   (optional) The user ID whose flags we're checking. If none given, the
+ *   current user will be used.
+ * @param $sid
+ *   (optional) The user SID (provided by Session API) whose flags we're
+ *   checking. If none given, the current user will be used. The SID is 0 for
+ *   logged in users.
+ *
+ * @return
+ *   If returning a single item's flags (that is, when $entity_id isn't NULL),
+ *   an array of the structure
+ *   [flag_name] => (
+ *     flagging_id => [flagging_id],
+ *     uid => [uid],
+ *     entity_id => [entity_id],
+ *     timestamp => [timestamp],
+ *     ...)
+ *
+ *   If returning all items' flags, an array of arrays for each flag:
+ *   [flag_name] => [entity_id] => Object from above.
+ */
+function flag_get_user_flags($entity_type, $entity_id = NULL, $uid = NULL, $sid = NULL) {
+  $flagged_content = &drupal_static(__FUNCTION__);
+
+  $uid = !isset($uid) ? $GLOBALS['user']->uid : $uid;
+  $sid = !isset($sid) ? flag_get_sid($uid) : $sid;
+
+  if (isset($entity_id)) {
+    if (!isset($flagged_content[$uid][$sid][$entity_type][$entity_id])) {
+      $flag_names = _flag_get_flag_names();
+      $flagged_content[$uid][$sid][$entity_type][$entity_id] = array();
+      $result = db_select('flagging', 'fc')
+        ->fields('fc')
+        ->condition('entity_type', $entity_type)
+        ->condition('entity_id', $entity_id)
+        ->condition(db_or()
+          ->condition('uid', $uid)
+          ->condition('uid', 0)
+        )
+        ->condition('sid', $sid)
+        ->execute();
+
+      foreach ($result as $flagging_data) {
+        $flagged_content[$uid][$sid][$entity_type][$entity_id][$flag_names[$flagging_data->fid]] = $flagging_data;
+      }
+    }
+    return $flagged_content[$uid][$sid][$entity_type][$entity_id];
+  }
+
+  else {
+    if (!isset($flagged_content[$uid][$sid][$entity_type]['all'])) {
+      $flag_names = _flag_get_flag_names();
+      $flagged_content[$uid][$sid][$entity_type]['all'] = array();
+      $result = db_select('flagging', 'fc')
+        ->fields('fc')
+        ->condition('entity_type', $entity_type)
+        ->condition(db_or()
+          ->condition('uid', $uid)
+          ->condition('uid', 0)
+        )
+        ->condition('sid', $sid)
+        ->execute();
+      foreach ($result as $flagging_data) {
+        $flagged_content[$uid][$sid][$entity_type]['all'][$flag_names[$flagging_data->fid]][$flagging_data->entity_id] = $flagging_data;
+      }
+    }
+    return $flagged_content[$uid][$sid][$entity_type]['all'];
+  }
+
+}
+
+/**
+ * Return a list of users who have flagged an entity.
+ *
+ * When called during a flagging or unflagging (such as from a hook
+ * implementation or from Rules), the flagging or unflagging that is in the
+ * process of being performed:
+ *  - will be included during a flagging operation
+ *  - will STILL be included during an unflagging operation. That is, the count
+ *    will not yet have been decreased.
+ * This is because this queries the {flagging} table, which only has its record
+ * deleted at the very end of the unflagging process.
+ *
+ * @param $entity_type
+ *   The type of entity that will be retrieved. Usually 'node'.
+ * @param $entity_id
+ *   The entity ID to check for flagging.
+ * @param $flag_name
+ *   (optional) The name of a flag if wanting a list specific to a single flag.
+ *
+ * @return
+ *   A nested array of flagging records (i.e. rows from the {flagging} table,
+ *   rather than complete Flagging entities). The structure depends on the
+ *   presence of the $flag_name parameter:
+ *    - if $flag_name is omitted, the array is keyed first by the user ID of
+ *      the users that flagged the entity, then by flag name. Each value is
+ *      then the flagging record.
+ *    - if $flag_name is given, the array is keyed only by user ID. Each value
+ *      is the flagging record.
+ *   If no flags were found an empty array is returned.
+ */
+function flag_get_entity_flags($entity_type, $entity_id, $flag_name = NULL) {
+  $entity_flags = &drupal_static(__FUNCTION__, array());
+
+  if (!isset($entity_flags[$entity_type][$entity_id])) {
+    $flag_names = _flag_get_flag_names();
+    $result = db_select('flagging', 'fc')
+      ->fields('fc')
+      ->condition('entity_type', $entity_type)
+      ->condition('entity_id', $entity_id)
+      ->orderBy('timestamp', 'DESC')
+      ->execute();
+    $entity_flags[$entity_type][$entity_id] = array();
+    foreach ($result as $flagging_data) {
+      // Build a list of flaggings for all flags by user.
+      $entity_flags[$entity_type][$entity_id]['users'][$flagging_data->uid][$flag_names[$flagging_data->fid]] = $flagging_data;
+      // Build a list of flaggings for each individual flag.
+      $entity_flags[$entity_type][$entity_id]['flags'][$flag_names[$flagging_data->fid]][$flagging_data->uid] = $flagging_data;
+    }
+  }
+  if (empty($entity_flags[$entity_type][$entity_id])) {
+    return array();
+  }
+  if (isset($flag_name)) {
+    if (isset($entity_flags[$entity_type][$entity_id]['flags'][$flag_name])) {
+      return $entity_flags[$entity_type][$entity_id]['flags'][$flag_name];
+    }
+    return array();
+  }
+  return $entity_flags[$entity_type][$entity_id]['users'];
+}
+
+/**
+ * A utility function for outputting a flag link.
+ *
+ * You should call this function from your template when you want to put the
+ * link on the page yourself. For example, you could call this function from
+ * your theme preprocessor for node.tpl.php:
+ * @code
+ * $variables['my_flag_link'] = flag_create_link('bookmarks', $node->nid);
+ * @endcode
+ *
+ * @param $flag_name
+ *   The "machine readable" name of the flag; e.g. 'bookmarks'.
+ * @param $entity_id
+ *   The entity ID to check for flagging, for example a node ID.
+ * @param $variables
+ *  An array of further variables to pass to theme('flag'). For the full list
+ *  of parameters, see flag.tpl.php. Of particular interest:
+ *  - after_flagging: Set to TRUE if this flag link is being displayed as the
+ *    result of a flagging action.
+ *  - errors: An array of error messages.
+ *
+ * @return
+ *   The HTML for the themed flag link.
+ */
+function flag_create_link($flag_name, $entity_id, $variables = array()) {
+  $flag = flag_get_flag($flag_name);
+  if (!$flag) {
+    // Flag does not exist.
+    return;
+  }
+  if (!$flag->access($entity_id) && (!$flag->is_flagged($entity_id) || !$flag->access($entity_id, 'flag'))) {
+    // User has no permission to use this flag.
+    return;
+  }
+  return $flag->theme($flag->is_flagged($entity_id) ? 'unflag' : 'flag', $entity_id, $variables);
+}
+
+/**
+ * Trim a flag to a certain size.
+ *
+ * @param $fid
+ *   The flag object.
+ * @param $account
+ *   The user object on behalf the trimming will occur.
+ * @param $cutoff_size
+ *   The number of flaggings allowed. Any flaggings beyond that will be trimmed.
+ * @param $trim_newest
+ *   An optional boolean indicating whether to trim the newest flags.
+ * @param $permissions_check
+ *   (optional) A boolean indicating whether to skip permissions.
+ *   This will trim the flag if $permissions_check is TRUE even if the user
+ *   doesn't have the permission to flag/unflag.
+ */
+function flag_trim_flag($flag, $account, $cutoff_size, $trim_newest, $permissions_check = FALSE) {
+  $query = db_select('flagging', 'fc')
+    ->fields('fc')
+    ->condition('fid', $flag->fid)
+    ->condition(db_or()->condition('uid', $account->uid)->condition('uid', 0))
+    // Account for session ID (in the case of anonymous users).
+    ->condition('sid', flag_get_sid($account->uid));
+  // If $trim_newest is TRUE, then, we should order by 'ASC' as we should trim
+  // the newest flags.
+  if ($trim_newest) {
+    $query->orderBy('timestamp', 'ASC');
+  }
+  else {
+    $query->orderBy('timestamp', 'DESC');
+  }
+
+  // Execute the query.
+  $result = $query->execute();
+
+  $i = 1;
+  foreach ($result as $row) {
+    if ($i++ > $cutoff_size) {
+      flag('unflag', $flag->name, $row->entity_id, $account, $permissions_check);
+    }
+  }
+}
+
+/**
+ * Remove all flagged entities from a flag.
+ *
+ * @param $flag
+ *   The flag object.
+ * @param $entity_id
+ *   (optional) The entity ID on which all flaggings will be removed. If left
+ *   empty, this will remove all of this flag's entities.
+ */
+function flag_reset_flag($flag, $entity_id = NULL) {
+  $query = db_select('flagging', 'fc')
+    ->fields('fc')
+    ->condition('fid', $flag->fid);
+
+  if ($entity_id) {
+    $query->condition('entity_id', $entity_id);
+  }
+
+  $result = $query->execute()->fetchAllAssoc('flagging_id', PDO::FETCH_ASSOC);
+  $rows = array();
+  foreach ($result as $row) {
+    $rows[] = $row;
+  }
+  module_invoke_all('flag_reset', $flag, $entity_id, $rows);
+
+  $query = db_delete('flagging')->condition('fid', $flag->fid);
+  // Update the flag_counts table.
+  $count_query = db_delete('flag_counts')->condition('fid', $flag->fid);
+  if ($entity_id) {
+    $query->condition('entity_id', $entity_id);
+    $count_query->condition('entity_id', $entity_id);
+  }
+  $count_query->execute();
+  return $query->execute();
+}
+
+/**
+ * Return an array of link types provided by modules.
+ *
+ * @return
+ *  An array of link types as defined by hook_flag_link_type_info(). These are
+ *  keyed by the type name, and each value is an array of properties. In
+ *  addition to those defined in hook_flag_link_type_info(), the following
+ *  properties are set:
+ *  - 'module': The providing module.
+ *  - 'name': The machine name of the type.
+ *
+ * @see hook_flag_link_type_info()
+ * @see hook_flag_link_type_info_alter()
+ */
+function flag_get_link_types() {
+  $link_types = &drupal_static(__FUNCTION__);
+
+  if (!isset($link_types)) {
+    if ($cache = cache_get('flag_link_type_info')) {
+      $link_types = $cache->data;
+    }
+    // In some rare edge cases cache_get() can return an empty result. If it
+    // does, we make sure to fetch the link types again.
+    if (empty($link_types)) {
+      $link_types = array();
+      foreach (module_implements('flag_link_type_info') as $module) {
+        $module_types = module_invoke($module, 'flag_link_type_info');
+        foreach ($module_types as $type_name => $info) {
+          $link_types[$type_name] = $info + array(
+            'module' => $module,
+            'name' => $type_name,
+            'title' => '',
+            'description' => '',
+            'options' => array(),
+            'uses standard js' => TRUE,
+            'uses standard css' => TRUE,
+            'provides form' => FALSE,
+          );
+        }
+      }
+      drupal_alter('flag_link_type_info', $link_types);
+
+      cache_set('flag_link_type_info', $link_types);
+    }
+  }
+
+  return $link_types;
+}
+
+/**
+ * Get a private token used to protect links from spoofing - CSRF.
+ */
+function flag_get_token($entity_id) {
+  // Anonymous users get a less secure token, since it must be the same for all
+  // anonymous users on the entire site to work with page caching.
+  return ($GLOBALS['user']->uid) ? drupal_get_token($entity_id) : md5(drupal_get_private_key() . $entity_id);
+}
+
+/**
+ * Check to see if a token value matches the specified node.
+ */
+function flag_check_token($token, $entity_id) {
+  return flag_get_token($entity_id) == $token;
+}
+
+/**
+ * Set the Session ID for a user. Utilizes the Session API module.
+ *
+ * Creates a Session ID for an anonymous user and returns it. It will always
+ * return 0 for registered users.
+ *
+ * @param int $uid
+ *   (optional) The user ID to create a session ID for. Defaults to the
+ *   current user.
+ * @param bool $create
+ *   (optional) Determines whether a session should be created if it doesn't
+ *   exist yet. Defaults to TRUE.
+ *
+ * @return
+ *   The session ID, if a session was created. If not, the return value is 0.
+ *
+ * @see flag_get_sid()
+ */
+function flag_set_sid($uid = NULL, $create = TRUE) {
+  $sids = &drupal_static(__FUNCTION__, array());
+
+  if (!isset($uid)) {
+    $uid = $GLOBALS['user']->uid;
+  }
+
+  // Set the sid if none has been set yet. If the caller specified to create an
+  // sid and we have an invalid one (-1), create it.
+  if (!isset($sids[$uid]) || ($sids[$uid] == -1 && $create)) {
+    if (module_exists('session_api') && session_api_available() && $uid == 0) {
+      // This returns one of the following:
+      // - -1. This indicates that no session exists and none was created.
+      // - A positive integer with the Session ID when it does exist.
+      $sids[$uid] = session_api_get_sid($create);
+    }
+    else {
+      $sids[$uid] = 0;
+    }
+  }
+
+  // Keep the -1 case internal and let the outside world only distinguish two
+  // cases: (1) there is an SID; (2) there is no SID (-> 0).
+  return $sids[$uid] == -1 ? 0 : $sids[$uid];
+}
+
+/**
+ * Get the Session ID for a user. Utilizes the Session API module.
+ *
+ * Gets the Session ID for an anonymous user. It will always return 0 for
+ * registered users.
+ *
+ * @param int $uid
+ *   (optional) The user ID to return the session ID for. Defaults to the
+ *   current user.
+ * @param bool $create
+ *   (optional) Determines whether a session should be created if it doesn't
+ *   exist yet. Defaults to FALSE.
+ *
+ * @return
+ *   The session ID, if the session exists. If not, the return value is 0.
+ *
+ * @see flag_set_sid()
+ */
+function flag_get_sid($uid = NULL, $create = FALSE) {
+  return flag_set_sid($uid, $create);
+}
+
+// ---------------------------------------------------------------------------
+// Drupal Core operations
+
+/**
+ * Implements hook_node_operations().
+ *
+ * Add additional options on the admin/build/node page.
+ */
+function flag_node_operations() {
+  global $user;
+
+  $flags = flag_get_flags('node', NULL, $user);
+  $operations = array();
+
+  foreach ($flags as $flag) {
+    $operations['flag_' . $flag->name] = array(
+      'label' => $flag->get_label('flag_short'),
+      'callback' => 'flag_nodes',
+      'callback arguments' => array('flag', $flag->name),
+      'behavior' => array(),
+    );
+    $operations['unflag_' . $flag->name] = array(
+      'label' => $flag->get_label('unflag_short'),
+      'callback' => 'flag_nodes',
+      'callback arguments' => array('unflag', $flag->name),
+      'behavior' => array(),
+    );
+  }
+  return $operations;
+}
+
+/**
+ * Callback function for hook_node_operations().
+ */
+function flag_nodes($nodes, $action, $flag_name) {
+  $performed = FALSE;
+  foreach ($nodes as $nid) {
+    $performed |= flag($action, $flag_name, $nid);
+  }
+  if ($performed) {
+    drupal_set_message(t('The update has been performed.'));
+  }
+}
+
+/**
+ * Implements hook_user_operations().
+ */
+function flag_user_operations() {
+  global $user;
+
+  $flags = flag_get_flags('user', NULL, $user);
+  $operations = array();
+
+  foreach ($flags as $flag) {
+    $operations['flag_' . $flag->name] = array(
+      'label' => $flag->get_label('flag_short'),
+      'callback' => 'flag_users',
+      'callback arguments' => array('flag', $flag->name),
+    );
+    $operations['unflag_' . $flag->name] = array(
+      'label' => $flag->get_label('unflag_short'),
+      'callback' => 'flag_users',
+      'callback arguments' => array('unflag', $flag->name),
+    );
+  }
+  return $operations;
+}
+/**
+ * Callback function for hook_user_operations().
+ */
+function flag_users($users, $action, $flag_name) {
+  foreach ($users as $uid) {
+    flag($action, $flag_name, $uid);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Contrib integration hooks
+
+/**
+ * Implements hook_views_api().
+ */
+function flag_views_api() {
+  return array(
+    'api' => 3.0,
+    'path' => drupal_get_path('module', 'flag') . '/includes/views',
+  );
+}
+
+/**
+ * Implements hook_features_api().
+ */
+function flag_features_api() {
+  return array(
+    'flag' => array(
+      'name' => t('Flag'),
+      'feature_source' => TRUE,
+      'default_hook' => 'flag_default_flags',
+      'file' => drupal_get_path('module', 'flag') . '/includes/flag.features.inc',
+    ),
+  );
+}
+
+/**
+ * Implements hook_ctools_plugin_directory().
+ */
+function flag_ctools_plugin_directory($module, $plugin) {
+  if ($module == 'ctools' && !empty($plugin)) {
+    return "plugins/$plugin";
+  }
+}
+
+/**
+ * Implements hook_field_attach_rename_bundle().
+ */
+function flag_field_attach_rename_bundle($entity_type, $bundle_old, $bundle_new) {
+  $flags = flag_get_flags($entity_type);
+  foreach ($flags as $flag) {
+    foreach ($flag->types as $key => $type) {
+      if ($type == $bundle_old) {
+        $flag->types[$key] = $bundle_new;
+      }
+    }
+    $flag->save();
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Entity Metadata callbacks
+
+/**
+ * Getter callback that returns whether the given entity is flagged.
+ */
+function flag_properties_get_flagging_boolean($entity, array $options, $name, $entity_type, $property_info) {
+  list($entity_id,) = entity_extract_ids($entity_type, $entity);
+
+  $flagging_data = flag_get_user_flags($entity_type, $entity_id);
+  return isset($flagging_data[$property_info['flag_name']]);
+}
+
+/**
+ * Getter callback that returns entities the given user flagged.
+ */
+function flag_properties_get_flagged_entities($entity, array $options, $name, $entity_type, $property_info) {
+  // Need the entity type the flag applies to.
+  $flag_entity_type = $property_info['flag_entity_type'];
+
+  $flagging_data = flag_get_user_flags($flag_entity_type, NULL, $entity->uid);
+
+  $flag_name = $property_info['flag_name'];
+  if (isset($flagging_data[$flag_name])) {
+    return array_keys($flagging_data[$flag_name]);
+  }
+  return array();
+}
+
+/**
+ * Getter callback that returns users who flagged the given entity.
+ */
+function flag_properties_get_flagging_users($entity, array $options, $name, $entity_type, $property_info) {
+  list($entity_id,) = entity_extract_ids($entity_type, $entity);
+
+  $flagging_data = flag_get_entity_flags($entity_type, $entity_id, $property_info['flag_name']);
+
+  return array_keys($flagging_data);
+}
+
+/**
+ * Getter callback that returns the SID of the user that is being retrieved.
+ *
+ * Callback for hook_entity_property_info_alter().
+ *
+ * @param stdobj $entity
+ *  The entity object representing a user for which we are getting inforamtion for.
+ *
+ * @param array $options
+ *  Options reguarding the nature of the entity. Language, etc.
+ *
+ * @param string $name
+ *  The name of the property we are running this callback for.
+ *
+ * @param string $entity_type
+ *  The type that the stdobj $entity is supposed to be.
+ *
+ * @param $property_info
+ *  The ifnromatin that represents the property we are providing a result for.
+ *
+ * @return an integer representing the user's sid field from the session_api table
+ *
+ * @ingroup callbacks
+ */
+function flag_properties_get_user_sid($entity, array $options, $name, $entity_type, $property_info) {
+  $sid = flag_get_sid($entity->uid, FALSE);
+  return $sid;
+}

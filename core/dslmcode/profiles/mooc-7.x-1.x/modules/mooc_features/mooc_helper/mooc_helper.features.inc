@@ -1,32 +1,20 @@
 <?php
 /**
  * @file
- * mooc_cis_ux.features.inc
+ * mooc_helper.features.inc
  */
-
-/**
- * Implements hook_ctools_plugin_api().
- */
-function mooc_cis_ux_ctools_plugin_api($module = NULL, $api = NULL) {
-  if ($module == "context" && $api == "context") {
-    return array("version" => "3");
-  }
-  if ($module == "strongarm" && $api == "strongarm") {
-    return array("version" => "1");
-  }
-}
 
 /**
  * Implements hook_views_api().
  */
-function mooc_cis_ux_views_api($module = NULL, $api = NULL) {
+function mooc_helper_views_api($module = NULL, $api = NULL) {
   return array("api" => "3.0");
 }
 
 /**
  * Implements hook_flag_default_flags().
  */
-function mooc_cis_ux_flag_default_flags() {
+function mooc_helper_flag_default_flags() {
   $flags = array();
   // Exported flag: "Bookmarks".
   $flags['bookmarks'] = array(
@@ -62,7 +50,7 @@ function mooc_cis_ux_flag_default_flags() {
     'show_contextual_link' => 0,
     'i18n' => 0,
     'api_version' => 3,
-    'module' => 'mooc_cis_ux',
+    'module' => 'mooc_helper',
     'locked' => array(
       0 => 'name',
     ),
