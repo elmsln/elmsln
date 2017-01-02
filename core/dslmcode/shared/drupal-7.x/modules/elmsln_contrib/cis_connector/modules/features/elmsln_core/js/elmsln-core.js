@@ -1,6 +1,12 @@
 (function ($) {
   // apply jwerty keys to listen for
   $(document).ready(function(){
+    // say where they are contextually
+    Drupal.voicecommanderWhereAmI = function(phrase) {
+      var context = Drupal.settings.elmslnCore;
+      var spokenContext = 'You are logged in as ' + context.uname + ' which is a ' + context.role + ' role, experiencing ' +  context.course + ', ' + context.section + ' section. You are working with the ' + context.name + ', viewing a page called ' + context.title + '.';
+      Drupal.voicecommander.say(spokenContext);
+    };
     Drupal.voicecommanderGoToELMSLN = function(phrase) {
       window.location.href = Drupal.settings.voiceCommander.commands[phrase].data;
     };

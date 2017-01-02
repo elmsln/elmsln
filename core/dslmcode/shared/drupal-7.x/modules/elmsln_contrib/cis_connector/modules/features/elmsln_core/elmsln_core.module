@@ -804,6 +804,7 @@ function elmsln_core_page_build(&$page) {
   // the client side. This clears up MULTIPLE issues at once and is
   // awesome!
   $cfg = _elmsln_core_get_cfg();
+  $settings = _cis_connector_build_registry(elmsln_core_get_profile_key());
   // see if this is an active learner or not, only thing we care about currently
   // @todo probably faster way of getting this info
   if (_cis_connector_role_grouping('active learner')) {
@@ -828,11 +829,14 @@ function elmsln_core_page_build(&$page) {
   $js_variables = array(
     'elmslnCore' => array(
       'domain' => '.' . $cfg['address'],
+      'name' => $settings['default_title'],
+      'distro' => elmsln_core_get_profile_key(),
       'course' => _cis_connector_course_context(),
       'section' => _cis_connector_section_context(),
       'title' => drupal_get_title(),
       'url' => url(current_path(), array('absolute' => TRUE)),
       'role' => $role,
+      'uname' => filter_xss($GLOBALS['user']->name),
       'xapisession' => drupal_get_token($uuid),
     )
   );
@@ -1140,6 +1144,9 @@ function elmsln_core_voice_command() {
   );
   $commands["%phrase pause (video)"] =  array(
     'callback' => 'Drupal.voicecommanderControlVideo',
+  );
+  $commands["%phrase where am i"] =  array(
+    'callback' => 'Drupal.voicecommanderWhereAmI',
   );
   if (arg(1) == 'error') {
     $commands["open the pod bay doors"] =  array(
