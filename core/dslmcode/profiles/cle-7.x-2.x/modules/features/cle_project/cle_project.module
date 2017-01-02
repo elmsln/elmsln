@@ -112,8 +112,10 @@ function _cle_project_v1_project_output($node) {
     'dueDate' => _elmsln_api_format_date_field($node->field_project_due_date[LANGUAGE_NONE][0]),
     'color' => $color,
     'image' => _elmsln_api_v1_file_output($node->field_project_image[LANGUAGE_NONE][0]),
-    'stepsToComplete' => $steps,
-    'parentProject' => (int)$node->field_project_parent[LANGUAGE_NONE][0]['target_id'],
+    'hierarchy' => array(
+      'stepsToComplete' => $steps,
+      'parentProject' => (int)$node->field_project_parent[LANGUAGE_NONE][0]['target_id'],
+    ),
     'allowLateSubmissions' => (int)$node->field_assignment_late_submission[LANGUAGE_NONE][0]['value'],
     'sections' => $sections,
     'links' => array(
