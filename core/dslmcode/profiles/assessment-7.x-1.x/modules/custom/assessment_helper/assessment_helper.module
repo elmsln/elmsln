@@ -94,7 +94,7 @@ function _assessment_helper_make_file($node) {
   fputcsv($df, array(
     t('USERNAME'),
     t('EMAIL'),
-    t('SCORE'),
+    check_plain(drupal_strtolower($node->title)),
     t('EVALUATED'),
     t('STARTED'),
     t('FINISHED'),
