@@ -224,6 +224,7 @@ function _elmsln_api_v1_get_files($filter = array()) {
  */
 function _elmsln_api_tree($search = ELMSLN_API_BASE_PATH, $deliver = TRUE) {
   $tmp = explode('/', $search);
+  $apipaths = array();
   $searchkey = array_pop($tmp);
   $vars = array('links' => array());
   // discover other parts of the API
