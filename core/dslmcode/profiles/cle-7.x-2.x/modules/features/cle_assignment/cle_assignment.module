@@ -157,7 +157,7 @@ function _cle_assignment_v1_assignment_output($node) {
     'title' => $node->title,
     'status' => (int)$node->status,
     'created' => (int)$node->created,
-    'description' => $node->field_assignment_description[LANGUAGE_NONE][0]['safe_value'],
+    'description' => ($node->field_assignment_description[LANGUAGE_NONE][0]['safe_value'] ? $node->field_assignment_description[LANGUAGE_NONE][0]['safe_value'] : $node->field_assignment_description[LANGUAGE_NONE][0]['value']),
     'color' => $color,
     'image' => _elmsln_api_v1_file_output($node->field_assignment_image[LANGUAGE_NONE][0]),
     'allowLateSubmissions' => (int)$node->field_assignment_late_submission[LANGUAGE_NONE][0]['value'],
