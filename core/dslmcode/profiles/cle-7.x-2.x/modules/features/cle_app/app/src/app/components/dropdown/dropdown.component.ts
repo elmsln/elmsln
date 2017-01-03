@@ -1,5 +1,5 @@
 import { Component, OnInit, ContentChildren, QueryList, ElementRef, Input, Output } from '@angular/core';
-declare const $:JQueryStatic;
+declare const $:any;
 
 @Component({
   selector: 'app-dropdown',

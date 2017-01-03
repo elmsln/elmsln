@@ -1,13 +1,41 @@
-<form [formGroup]="form" class="assignment-form" (ngSubmit)="save(form.value)">
+<form [formGroup]="form" class="assignment-form">
   <input formControlName="title" placeholder="Title">
-  <wysiwygjs (onChange)="bodyChanged($event)"></wysiwygjs>
+  <wysiwygjs formControlName="description"></wysiwygjs>
 
   <div class="privacy">
     <label>Privacy Setting:</label>
     <select formControlName="type">
       <option value="" disabled selected>Choose your option</option>
-      <option *ngFor="let type of assignmentTypes" [value]="type.value">{{ type.display }}</option>
+      <option *ngFor="let option of assignmentOptions.type" [value]="option.value">{{ option.display }}</option>
     </select>
+  </div>
+
+  <div class="critique">
+    <label>Critique settings</label>
+
+    <div class="critique-method">
+      <label>Method</label>
+      <select formControlName="critiqueMethod">
+        <option *ngFor="let option of assignmentOptions.critiqueMethod" [value]="option.value">{{ option.display }}</option>
+      </select>
+    </div>
+
+    <div class="critique-style">
+      <label>Critique style</label>
+      <select formControlName="critiqueStyle">
+        <option *ngFor="let option of assignmentOptions.critiqueStyle" [value]="option.value">{{ option.display }}</option>
+      </select>
+    </div>
+
+    <div class="critique-privacy switch">
+      <label>
+        Private
+        <input type="checkbox" formControlName="critiquePrivacy">
+        <span class="lever"></span>
+        Public
+      </label>
+    </div>
+
   </div>
 
   <div class="due-date">
@@ -34,8 +62,4 @@
       <app-datetime-input formControlName="endDate"></app-datetime-input>
     </div>
   </div>
-
-  <button type="submit" class="waves-effect waves-light btn">Save</button>
 </form>
-
-{{ form.value | json }}

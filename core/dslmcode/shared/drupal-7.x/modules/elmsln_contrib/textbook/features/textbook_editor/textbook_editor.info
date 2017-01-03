@@ -26,3 +26,6 @@ features[variable][] = ckeditor_link_autocomplete_vocabularies
 features[variable][] = ckeditor_link_type_name
 features[variable][] = ckeditor_link_type_selected
 features[wysiwyg][] = textbook_editor
+features_exclude[dependencies][cis_filter] = cis_filter
+features_exclude[dependencies][footnotes] = footnotes
+features_exclude[dependencies][token_filter] = token_filter

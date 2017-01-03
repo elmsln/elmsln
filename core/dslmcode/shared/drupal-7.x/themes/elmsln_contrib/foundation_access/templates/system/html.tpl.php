@@ -51,6 +51,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!--cross platform favicons and tweaks-->
   <link rel="shortcut icon" href="<?php print $favicon_path;?>">
+<?php if ($theme_path . '/legacy/icons/elmsicons/elmsln.ico' == $favicon_path) : ?>
   <link rel="icon" sizes="16x16 32x32 64x64" href="<?php print $theme_path . '/legacy/icons/elmsicons';?>/elmsln.ico">
 <?php foreach ($iconsizes as $iconsize) : ?>
   <link rel="icon" type="image/png" sizes="<?php print $iconsize; ?>x<?php print $iconsize; ?>" href="<?php print $theme_path . '/legacy/icons/elmsicons';?>/elmsln-<?php print $iconsize; ?>.png">
@@ -67,6 +68,7 @@
   <!-- Windows Phone -->
   <meta name="msapplication-TileImage" content="<?php print $theme_path . '/legacy/icons/elmsicons';?>/elmsln-144.png">
   <meta name="msapplication-config" content="<?php print $theme_path . '/legacy/icons/elmsicons';?>/browserconfig.xml">
+<?php endif; ?>
   <meta name="msapplication-tap-highlight" content="no">
   <!-- Chrome, Firefox OS and Opera -->
   <meta name="msapplication-navbutton-color" content="#eeeeee">

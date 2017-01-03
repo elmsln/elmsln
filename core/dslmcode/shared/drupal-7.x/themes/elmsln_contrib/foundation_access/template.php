@@ -179,7 +179,7 @@ function foundation_access_fieldset($variables) {
         // form the fieldset as a collapse element
         $output = '
         <li class="collapsible-li">
-          <a id="collapse-item-id-' . $anchor . '" href="#collapse-item-' . $anchor . '" class="collapsible-header waves-effect cis-lmsless-waves' . $collapse . '">' .
+          <a id="collapse-item-id-' . $anchor . '" href="#collapse-item-' . $anchor . '" class="collapsible-header waves-effect cis-lmsless-waves' . $collapse . '"' . drupal_attributes($element['#attributes']) .'>' .
             $icon . $element['#title'] .
           '
           </a>
@@ -1875,16 +1875,22 @@ function foundation_access_wysiwyg_editor_settings_alter(&$settings, $context) {
   else {
     $settings['bodyClass'] = ' html logged-in';
   }
+  // Specify the custom config file that defines our font styles
+  $settings['customConfig'] = base_path() . drupal_get_path('theme', 'foundation_access') . '/ckeditor_custom_config.js';
   // @todo figure out how to make ckeditor wrap this in w/ content editiable to be more accurate CSS application
-  /* cke_editable cke_editable_themed cke_contents_ltr cke_show_borders"><div class="etb-tool-nav" class="off-canvas-wrap">
-  <div class="inner-wrap">
-      <main class="main-section etb-book">
-      <div class="row content-element-region-wrapper">
-            <div class="content-element-region">
-            <div contenteditable="true" class="cke_editable_themed';
+  /* cke_editable cke_editable_themed cke_contents_ltr cke_show_borders">
+    <main id="etb-tool-nav" data-offcanvas>
+      <div class="inner-wrap">
+        <section class="main-section etb-book">
+          <div class="row">
+            <div class="s12 m12 push-l1 l10 col" role="main">
+              <div contenteditable="true" class="cke_editable_themed';
   */
 }
 
+/**
+ * Return the tabbed items to shift items into the ... menu.
+ */
 function _foundation_access_move_tabs() {
   $tabs = array(
     'node/%/display',

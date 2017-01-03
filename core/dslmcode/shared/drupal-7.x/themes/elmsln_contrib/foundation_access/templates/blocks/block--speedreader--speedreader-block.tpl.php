@@ -12,11 +12,11 @@
     </div>
     <div class="controls settings-controls">
       <span class="speed">
-        <a id="spritz_slower" href="#spritz-slower" title="<?php print t('Slow Down');?>" data-jwerty-key="ctrl+s" data-voicecommand="speed read slower">
+        <a id="spritz_slower" href="#spritz-slower" title="<?php print t('Slow Down');?>" data-jwerty-key="ctrl+s" data-voicecommand="speed reader slow down">
         <i class="material-icons cis-lmsless-text">fast_rewind</i>
         <span class="element-invisible"><?php print t('Read slower'); ?></span></a>
-        <a id="spritz_pause" href="#spritz-play" title="<?php print t('Pause/Play');?>" class="pause entypo-pause cis-lmsless-text" data-jwerty-key="ctrl+d" data-voicecommand="speed read (play)(pause)"><span class="element-invisible"><?php print t('Play / pause'); ?></span></a>
-        <a id="spritz_faster" href="#spritz-faster" title="<?php print t('Speed Up');?>" data-jwerty-key="ctrl+f" data-voicecommand="speed read faster">
+        <a id="spritz_pause" href="#spritz-play" title="<?php print t('Pause/Play');?>" class="pause entypo-pause cis-lmsless-text" data-jwerty-key="ctrl+d" data-voicecommand="speed reader play"><span class="element-invisible"><?php print t('Play / pause'); ?></span></a>
+        <a id="spritz_faster" href="#spritz-faster" title="<?php print t('Speed Up');?>" data-jwerty-key="ctrl+f" data-voicecommand="speed reader speed up">
           <i class="material-icons cis-lmsless-text">fast_forward</i>
           <span class="element-invisible"><?php print t('Read faster'); ?></span>
         </a>

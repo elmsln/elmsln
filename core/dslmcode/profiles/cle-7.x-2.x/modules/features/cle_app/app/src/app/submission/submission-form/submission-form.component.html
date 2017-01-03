@@ -1,0 +1,9 @@
+<form *ngIf="form" [formGroup]="form" class="submission-form">
+  <input formControlName="title" placeholder="title">
+  <wysiwygjs formControlName="body"></wysiwygjs>
+
+  <div class="actions">
+    <button type="submit" class="btn" (click)="submit()">Save</button>
+    <button type="submit" class="btn" (click)="cancel()">Cancel</button>
+  </div>
+</form>

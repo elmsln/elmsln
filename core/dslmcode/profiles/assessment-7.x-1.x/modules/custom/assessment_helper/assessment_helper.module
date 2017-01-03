@@ -72,21 +72,8 @@ function assessment_helper_form_quiz_results_manage_results_form_alter(&$form, &
  * Get records from the database and generate csv file.
  */
 function _assessment_helper_make_file($node) {
-  module_load_include('inc', 'quiz', 'quiz.admin');
-
-  $browser = array(
-    array('data' => t('Username'), 'field' => 'u.uid'),
-    array('data' => t('Started'), 'field' => 'started'),
-    array('data' => t('Finished'), 'field' => 'finished'),
-    array('data' => t('Score'), 'field' => 'score'),
-    array('data' => t('Evaluated'), 'field' => 'evaluated'),
-  );
-  $res = array();
-  // Get records from the DB.
-  // @todo need to convert from 4 to 5
-  //$res = _quiz_results_mr_data_provider($browser, $node);
-
-  $filename = "report-" . date("F-j-Y-g-i-a") . ".csv";
+  // build the file and headers to send it off
+  $filename = check_plain(drupal_strtolower($node->title)) . "-report-" . date("F-j-Y-g-i-a") . ".csv";
   $now = gmdate("D, d M Y H:i:s");
   drupal_add_http_header("Expires", "Tue, 03 Jul 2001 06:00:00 GMT");
   drupal_add_http_header("Cache-Control", "max-age=0, no-cache, must-revalidate, proxy-revalidate");
@@ -104,45 +91,62 @@ function _assessment_helper_make_file($node) {
   ob_start();
   $df = fopen("php://output", "w");
   // Put the headers for the csv.
-  fputcsv($df, array(t("UID"),
-              t("USERNAME"),
-              t("SCORE"),
-              t("EVALUATED"),
-              t("STARTED"),
-              t("FINISHED"),
-              t("DURATION"),
-              ));
-
-  // Iterating and adding records to csv.
-  foreach ($res as $record) {
-    if (empty($record->name)) {
-      if ($record->uid == '0') {
-        $username = variable_get('anonymous', 'Anonymous');
+  fputcsv($df, array(
+    t('USERNAME'),
+    t('EMAIL'),
+    check_plain(drupal_strtolower($node->title)),
+    t('EVALUATED'),
+    t('STARTED'),
+    t('FINISHED'),
+    t('DURATION'),
+    )
+  );
+  // Get records from the DB.
+  $query = db_select('quiz_node_results', 'qnr');
+  $query->innerJoin('users', 'u', 'u.uid = qnr.uid');
+  // user uid
+  $query->addField('u', 'uid', 'uid');
+  // user name
+  $query->addField('u', 'name', 'name');
+  // user mail
+  $query->addField('u', 'mail', 'mail');
+  // start time
+  $query->addField('qnr', 'time_start', 'start');
+  // end time
+  $query->addField('qnr', 'time_end', 'end');
+  // score
+  $query->addField('qnr', 'score', 'score');
+  // evaluation status
+  $query->addField('qnr', 'is_evaluated', 'evaluated');
+  // ensure user status
+  $query->condition('u.status', 1);
+  $result = $query->execute();
+  // Build up the array of data to return
+  foreach ($result->fetchAll() as $row) {
+    $row->duration = ($row->end == 0 ? t('in progress') : round((($row->end - $row->start)/60), 2, PHP_ROUND_HALF_UP) . ' ' . t('minutes'));
+    $row->score = ($row->end == 0 ? t('in progress') : check_plain($row->score));
+    $row->end = ($row->end == 0 ? t('unfinished') : date("D, M d Y H:i:s", $row->end));
+    $row->start = date("D, M d Y H:i:s", $row->start);
+    $row->evaluated = ($row->evaluated == 0) ? t('No') : t('Yes');
+    // account for edge case names that are missing
+    if (empty($row->name)) {
+      if ($row->uid == '0') {
+        $row->name = variable_get('anonymous', 'Anonymous');
       }
       else {
-        $username = "ORPHAN " . $record->uid;
+        $row->name = "ORPHAN " . $row->uid;
       }
     }
-    else {
-      $username = $record->name;
-    }
-
-    // Formating data before writing it into the csv file.
-    $started = format_date($record->started, 'short');
-    $finished = ($record->finished == 0) ? t('In progress') : format_date($record->finished, 'short');
-    $duration = ($record->finished == 0) ? t('In progress') : _quiz_format_duration($record->duration);
-    $score = ($record->finished) == 0 ? t('In progress') : check_plain($record->score);
-    $evaluated = ($record->evaluated == 0) ? 'No' : 'Yes';
-
-    // Writing data to csv.
-    fputcsv($df, array($record->uid,
-                $username,
-                $score,
-                $evaluated,
-                $started,
-                $finished,
-                $duration,
-                ));
+    fputcsv($df, array(
+      $row->name,
+      $row->mail,
+      $row->score,
+      $row->evaluated,
+      $row->start,
+      $row->end,
+      $row->duration,
+      )
+    );
   }
   fclose($df);
   echo ob_get_clean();

@@ -1,0 +1,61 @@
+<?php
+/**
+ * @file
+ * Code for the ICOR Zip feature.
+ */
+
+include_once 'icor_zip.features.inc';
+
+/**
+ * Implements hook_node_insert().
+ */
+function icor_zip_node_insert($node) {
+  $fid = $node->field_archive[$node->language][0]['fid'];
+  $file = file_load($fid);
+  // move the uploaded file to the unpacking directory
+  if ($file = file_move($file, str_replace('public://', 'public://icor_unpacked/', $file->uri), $file->uri, FILE_EXISTS_RENAME)) {
+    // generate the realpath to the file for opening the original
+    $realpath = drupal_realpath($file->uri);
+    // get just the filename
+    $tmp = str_replace('.', '-', drupal_basename($file->uri));
+    // make new path
+    $newpath = drupal_realpath('public://icor_unpacked/' . $tmp);
+    // create zipArchive object for processing
+    $zip = new ZipArchive();
+    // open original
+    $zip->open($realpath);
+    // dump files to new path
+    $result = @$zip->extractTo($newpath);
+    // make sure we got  agood result
+    if ($result === TRUE) {
+      drupal_set_message(t('All media have been extracted to %path', array('%path' => drupal_realpath($uri))));
+    }
+    else {
+      drupal_set_message(t('There is some problem related to extraction of the file. Please upload and try again.'), 'error', FALSE);
+    }
+    $zip->close();
+  }
+}
+
+/**
+ * Implements hook_page_build().
+ */
+function icor_zip_page_build(&$page) {
+  // see if the current page being built is a node
+  if ($node = menu_get_object('node', 1)) {
+    // check for our zip type
+    if ($node->type == 'zip') {
+      // load the file from archive
+      $file = $node->field_archive[$node->language][0];
+      // convert it to a directory
+      $dir = str_replace('.', '-', drupal_basename($file['uri']));
+      // convert directory into a url
+      $url = file_create_url('public://icor_unpacked/' . $dir) . '/';
+      // append this as a frame to the content body
+      $page['content']['zipframe'] = array(
+        '#markup' => '<iframe src="' . $url . '" width="100%"></iframe>',
+        '#weight' => -10,
+      );
+    }
+  }
+}

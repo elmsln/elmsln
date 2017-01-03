@@ -82,19 +82,19 @@ function a11y_a11y_block($render = TRUE) {
         <div class="a11y-textsize-controls-label">' . t('Interface Size') . '</div>
         <div class="a11y-textsize-controls-body row">
           <div class="col s4">
-            <a href="#" onclick="Drupal.a11y.textsize(-1);" class="a11y-operation-icons a11y-decrease">
+            <a data-voicecommand="smaller text" href="#textsizesmaller" onclick="Drupal.a11y.textsize(-1);" class="a11y-operation-icons a11y-decrease">
               <span>Smaller</span>
               <img alt="' . t('Decrease text size') . '" title="' . t('Decrease') . '" src="' . $icon_path . 'text-decrease.png" width="24" height="24" />
             </a>
           </div>
           <div class="col s4">
-            <a href="#" onclick="Drupal.a11y.textsize(1);" class="a11y-operation-icons a11y-increase">
+            <a data-voicecommand="larger text" href="#textsizelarger" onclick="Drupal.a11y.textsize(1);" class="a11y-operation-icons a11y-increase">
               <span>Larger</span>
               <img alt="' . t('Increase text size') . '" title="' . t('Increase') . '" src="' . $icon_path . 'text-increase.png" width="24" height="24" />
             </a>
           </div>
           <div class="col s4">
-            <a href="#" onclick="Drupal.a11y.textsize(0);" class="a11y-operation-icons a11y-reset">
+            <a data-voicecommand="normal text" href="#textsizereset" onclick="Drupal.a11y.textsize(0);" class="a11y-operation-icons a11y-reset">
               <span>Reset</span>
               <img alt="' . t('Reset text size') . '" title="' . t('Reset') . '" src="' . $icon_path . 'text-reset.png" width="24" height="24" />
             </a>
@@ -113,6 +113,9 @@ function a11y_a11y_block($render = TRUE) {
       '#default_value' => 0,
       '#description' => t('This renders the document in high contrast mode.'),
       '#weight' => -9,
+      '#attributes' => array(
+        'data-voicecommand' => 'high contrast mode (on)(off)',
+      ),
     );
     $alters['invert'] = array(
       '#type' => 'checkbox',
@@ -121,6 +124,9 @@ function a11y_a11y_block($render = TRUE) {
       '#default_value' => 0,
       '#description' => t('This renders the document as white on black'),
       '#weight' => -8,
+      '#attributes' => array(
+        'data-voicecommand' => 'invert colors (again)',
+      ),
     );
   }
   // support animation disabling
@@ -133,6 +139,9 @@ function a11y_a11y_block($render = TRUE) {
       '#default_value' => 0,
       '#description' => t('This can help those with trouble processing rapid screen movements.'),
       '#weight' => -7,
+      '#attributes' => array(
+        'data-voicecommand' => 'toggle interface animations',
+      ),
     );
   }
   // open dyslexic font
@@ -144,6 +153,9 @@ function a11y_a11y_block($render = TRUE) {
       '#default_value' => 0,
       '#description' => t('This loads a font easier to read for people with dyslexia.'),
       '#weight' => -6,
+      '#attributes' => array(
+        'data-voicecommand' => 'toggle dyslexic (font)',
+      ),
     );
   }
   // support voicecommander disabling
@@ -156,7 +168,24 @@ function a11y_a11y_block($render = TRUE) {
       '#default_value' => 0,
       '#description' => t('This allows for more natural speech with working with the system.'),
       '#weight' => -5,
+      '#attributes' => array(
+        'data-voicecommand' => 'toggle always listening',
+      ),
     );
+    // speechSynth seting
+    if (variable_get('a11y_speechsynth', 1)) {
+      $alters['a11y_speechsynth'] = array(
+        '#type' => 'checkbox',
+        '#id' => 'a11y_speechsynth_checkbox',
+        '#title' => t('Read to me'),
+        '#default_value' => 0,
+        '#description' => t('This will speak the page\'s content to you.'),
+        '#weight' => -4,
+        '#attributes' => array(
+          'data-voicecommand' => 'read to me',
+        ),
+      );
+    }
   }
   if ($render) {
     // render any aleration array items we have
@@ -334,6 +363,21 @@ function a11y_admin_settings($form, &$form_state) {
     '#description' => t('This loads a css file that allows the user to forcibly override the font used by your site to be Open dyslexic, a font developed for those with dyslexia. You can find out more at http://opendyslexic.org/'),
     '#required' => FALSE,
   );
+  // a11y_speechsynth default state
+  $form['config']['a11y_speechsynth'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Allow reading body of text to the user'),
+    '#default_value' => variable_get('a11y_speechsynth', 1),
+    '#description' => t('This will use a browser based computer voice in order to read the text of the page to the user.'),
+    '#required' => FALSE,
+  );
+  $form['config']['a11y_speechsynthSelector'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('jQuery Selector for what to read when selected.'),
+    '#default_value' => variable_get('a11y_speechsynthSelector', 'article'),
+    '#description' => t('This targets the field, converts it to just text() and then will read it to the end user.'),
+    '#required' => FALSE,
+  );
   // contrast default state
   $form['config']['a11y_contrast'] = array(
     '#type' => 'checkbox',
@@ -394,6 +438,11 @@ function a11y_apply_a11y() {
   if (user_access('use voice commander')) {
     $js_variables['a11y']['voicecommander'] = 1;
     drupal_add_js($plugin_path . 'voicecommander/voicecommander.js', $plugin_js_opts);
+    if (variable_get('a11y_speechsynth', 1)) {
+      $js_variables['a11y']['speechsynth'] = 1;
+      $js_variables['a11y']['speechSynthSelector'] = variable_get('a11y_speechsynthSelector', 'article');
+      drupal_add_js($plugin_path . 'speechsynth/speechsynth.js', $plugin_js_opts);
+    }
   }
   if (variable_get('a11y_textsize', 1)) {
     $js_variables['a11y']['textsize'] = 1;

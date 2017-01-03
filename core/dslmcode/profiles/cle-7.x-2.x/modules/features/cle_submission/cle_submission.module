@@ -100,13 +100,40 @@ function _cle_submission_v1_get_submissions($filter = array()) {
  */
 function _cle_submission_v1_submission_output($node) {
   global $base_url;
+  $images = array();
+  if (!empty($node->field_images[LANGUAGE_NONE])) {
+    $images = $node->field_images[LANGUAGE_NONE];
+    foreach ($images as &$image) {
+      $image = _elmsln_api_v1_file_output($image);
+    }
+  }
+  $files = array();
+  if (!empty($node->field_files[LANGUAGE_NONE])) {
+    $files = $node->field_files[LANGUAGE_NONE];
+    foreach ($files as &$file) {
+      $file = _elmsln_api_v1_file_output($file);
+    }
+  }
   // this will be our json formatted output
   $return = array(
     'id' => (int)$node->nid,
     'title' => $node->title,
     'status' => (int)$node->status,
     'created' => (int)$node->created,
-    'body' => $node->body[LANGUAGE_NONE][0]['safe_value'],
+    'assignment' => (int)$node->field_assignment[LANGUAGE_NONE][0]['target_id'],
+    'evidence' => array(
+      'text' => $node->field_submission_text[LANGUAGE_NONE][0]['safe_value'],
+      'images' => $images,
+      'videos' => $node->field_video[LANGUAGE_NONE],
+      'files' => $files,
+      'links' => $node->field_links[LANGUAGE_NONE],
+    ),
+    'energy' => array(
+      'timestamp' => Date('c', $node->field_energy[LANGUAGE_NONE][0]['radioactivity_timestamp']),
+      'value' => $node->field_energy[LANGUAGE_NONE][0]['radioactivity_energy'],
+    ),
+    'state' => $node->field_submission_state[LANGUAGE_NONE][0]['value'],
+    'section' => (int)$node->og_group_ref[LANGUAGE_NONE][0]['target_id'],
     'links' => array(
       'self' => $base_url . '/api/v1/cle/submissions/' . $node->nid,
     ),
@@ -241,4 +268,38 @@ function cle_submission_node_access($node, $op, $account) {
     }
   }
   return NODE_ACCESS_IGNORE;
+}
+
+/**
+ * Return if a user has completed an assignment / has anything submitted for it.
+ */
+function _cle_submission_submission_status($assignment_id, $account = NULL) {
+  // load active account if not specified
+  if (is_null($account)) {
+    $account = $GLOBALS['user'];
+  }
+  $field_conditions = array();
+  // group ID
+  if ($gid = _cis_section_load_section_by_id(_cis_connector_section_context())) {
+      $field_conditions = array('og_group_ref' => array('target_id', array($gid), 'IN'));
+  }
+  $field_conditions['field_assignment'] = array('target_id', array($assignment_id), 'IN');
+  // load results
+  $results = _cis_connector_assemble_entity_list('node', 'cle_submission', 'nid', '_entity', $field_conditions, array('uid' => $account->uid));
+  $submissions= array();
+  foreach ($results as $nid => $node) {
+    $submissions[$nid] = _cle_submission_v1_submission_output($node);
+  }
+  // submit w/ evidence if complete
+  if (!empty($submissions)) {
+    return array(
+      // @todo might need a more sophisticated look up for this info
+      'status' => 1,
+      'submissions' => $submissions,
+    );
+  }
+  return array(
+    'status' => 0,
+    'submissions' => array(),
+  );
 }

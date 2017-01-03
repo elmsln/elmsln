@@ -1,10 +1,11 @@
 .projects-container {
   display: flex;
-  width: 100%;
+  width: auto;
   align-items: center;
   justify-content: flex-start;
   align-items: flex-start;
   overflow-x: scroll;
+  margin: 0 calc(-50vw + 50%);
 }
 
 .projects-container >>> app-project-item {

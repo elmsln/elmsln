@@ -211,3 +211,11 @@ function elmsmedia_update_7015(&$sandbox) {
 function elmsmedia_update_7016(&$sandbox) {
   features_revert_module('elmsmedia_feature');
 }
+
+/**
+ * Fix permissions issue for staff members.
+ */
+function elmsmedia_update_7017(&$sandbox) {
+  features_revert_module('elmsmedia_perms');
+  features_revert_module('elmsmedia_section_perms');
+}

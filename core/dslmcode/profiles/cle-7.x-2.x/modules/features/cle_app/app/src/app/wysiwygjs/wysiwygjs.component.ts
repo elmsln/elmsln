@@ -1,30 +1,51 @@
-import { Component, OnInit, ElementRef, AfterViewInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, ElementRef, AfterViewInit, Input, Output, EventEmitter, OnDestroy, forwardRef } from '@angular/core';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms'
 import { Observable, Subject } from 'rxjs/Rx';
+import { ElmslnService } from '../elmsln.service';
+import { AppSettings } from '../app-settings';
 
 // non-typescript definitions
-declare var $:JQueryStatic;
+declare var $:any;
+declare var jQuery:any;
 
 @Component({
   selector: 'wysiwygjs',
   templateUrl: './wysiwygjs.component.html',
-  styleUrls: ['./wysiwygjs.component.css']
+  styleUrls: ['./wysiwygjs.component.css'],
+  providers:[
+    {
+      provide:NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => WysiwygjsComponent),
+      multi: true
+    }
+  ]
 })
-export class WysiwygjsComponent implements OnInit {
-  @Output() onChange: EventEmitter<any> = new EventEmitter();
-  @Output() onFocus: EventEmitter<any> = new EventEmitter();
-  @Output() onBlur: EventEmitter<any> = new EventEmitter();
 
-  content$: Observable<any> = new Observable();
-  
+export class WysiwygjsComponent implements OnInit, ControlValueAccessor {
+  @Input() content:string;
+  @Output() onContentUpdate: EventEmitter<any> = new EventEmitter();
+
   constructor(
-    private el: ElementRef
+    private el: ElementRef,
+    private elmslnService: ElmslnService
   ) { }
+
+  //ControlValueAccessor
+  writeValue(value:any) {
+    this.content = value;
+    this.updateContent();
+  }
+  propagateChange = (_: any) => {};
+  registerOnChange(fn) {
+    this.propagateChange = fn;
+  }
+  registerOnTouched() { 
+  }
 
   ngOnInit() {
       let newThis = this;
-
       $(this.el.nativeElement.firstElementChild).each(function (index, element) {
-          (<any>$(element)).wysiwyg({
+        let wysiwygEditor = (<any>$(element)).wysiwyg({
               // 'selection'|'top'|'top-selection'|'bottom'|'bottom-selection'
               toolbar: 'top',
               buttons: {
@@ -45,74 +66,74 @@ export class WysiwygjsComponent implements OnInit {
                       image: '\uf08e' // <img src="path/to/image.png" width="16" height="16" alt="" />
                   },
                   // Fontname plugin
-                  fontname: {
-                      title: 'Font',
-                      image: '\uf031', // <img src="path/to/image.png" width="16" height="16" alt="" />
-                      popup: function ($popup, $button) {
-                          var list_fontnames = {
-                              // Name : Font
-                              'Arial, Helvetica': 'Arial,Helvetica',
-                              'Verdana': 'Verdana,Geneva',
-                              'Georgia': 'Georgia',
-                              'Courier New': 'Courier New,Courier',
-                              'Times New Roman': 'Times New Roman,Times'
-                          };
-                          var $list = $('<div/>').addClass('wysiwyg-plugin-list')
-                              .attr('unselectable', 'on');
-                          $.each(list_fontnames, function (name, font) {
-                              var $link = $('<a/>').attr('href', '#')
-                                  .css('font-family', font)
-                                  .html(name)
-                                  .click(function (event) {
-                                      (<any>$(element)).wysiwyg('shell').fontName(font).closePopup();
-                                      // prevent link-href-#
-                                      event.stopPropagation();
-                                      event.preventDefault();
-                                      return false;
-                                  });
-                              $list.append($link);
-                          });
-                          $popup.append($list);
-                      },
-                      //showstatic: true,    // wanted on the toolbar
-                      showselection: index == 0 ? true : false    // wanted on selection
-                  },
-                  // Fontsize plugin
-                  fontsize: {
-                      title: 'Size',
-                      image: '\uf034', // <img src="path/to/image.png" width="16" height="16" alt="" />
-                      popup: function ($popup, $button) {
-                          // Hack: http://stackoverflow.com/questions/5868295/document-execcommand-fontsize-in-pixels/5870603#5870603
-                          var list_fontsizes = [];
-                          for (var i = 8; i <= 11; ++i)
-                              list_fontsizes.push(i + 'px');
-                          for (var i = 12; i <= 28; i += 2)
-                              list_fontsizes.push(i + 'px');
-                          list_fontsizes.push('36px');
-                          list_fontsizes.push('48px');
-                          list_fontsizes.push('72px');
-                          var $list = $('<div/>').addClass('wysiwyg-plugin-list')
-                              .attr('unselectable', 'on');
-                          $.each(list_fontsizes, function (index, size) {
-                              var $link = $('<a/>').attr('href', '#')
-                                  .html(size)
-                                  .click(function (event) {
-                                      (<any>$(element)).wysiwyg('shell').fontSize(7).closePopup();
-                                      (<any>$(element)).wysiwyg('container')
-                                          .find('font[size=7]')
-                                          .removeAttr("size")
-                                          .css("font-size", size);
-                                      // prevent link-href-#
-                                      event.stopPropagation();
-                                      event.preventDefault();
-                                      return false;
-                                  });
-                              $list.append($link);
-                          });
-                          $popup.append($list);
-                      },
-                      showselection: true    // wanted on selection
-                  },
+                //   fontname: {
+                //       title: 'Font',
+                //       image: '\uf031', // <img src="path/to/image.png" width="16" height="16" alt="" />
+                //       popup: function ($popup, $button) {
+                //           var list_fontnames = {
+                //               // Name : Font
+                //               'Arial, Helvetica': 'Arial,Helvetica',
+                //               'Verdana': 'Verdana,Geneva',
+                //               'Georgia': 'Georgia',
+                //               'Courier New': 'Courier New,Courier',
+                //               'Times New Roman': 'Times New Roman,Times'
+                //           };
+                //           var $list = $('<div/>').addClass('wysiwyg-plugin-list')
+                //               .attr('unselectable', 'on');
+                //           $.each(list_fontnames, function (name, font) {
+                //               var $link = $('<a/>').attr('href', '#')
+                //                   .css('font-family', font)
+                //                   .html(name)
+                //                   .click(function (event) {
+                //                       (<any>$(element)).wysiwyg('shell').fontName(font).closePopup();
+                //                       // prevent link-href-#
+                //                       event.stopPropagation();
+                //                       event.preventDefault();
+                //                       return false;
+                //                   });
+                //               $list.append($link);
+                //           });
+                //           $popup.append($list);
+                //       },
+                //       //showstatic: true,    // wanted on the toolbar
+                //       showselection: index == 0 ? true : false    // wanted on selection
+                //   },
+                //   // Fontsize plugin
+                //   fontsize: {
+                //       title: 'Size',
+                //       image: '\uf034', // <img src="path/to/image.png" width="16" height="16" alt="" />
+                //       popup: function ($popup, $button) {
+                //           // Hack: http://stackoverflow.com/questions/5868295/document-execcommand-fontsize-in-pixels/5870603#5870603
+                //           var list_fontsizes = [];
+                //           for (var i = 8; i <= 11; ++i)
+                //               list_fontsizes.push(i + 'px');
+                //           for (var i = 12; i <= 28; i += 2)
+                //               list_fontsizes.push(i + 'px');
+                //           list_fontsizes.push('36px');
+                //           list_fontsizes.push('48px');
+                //           list_fontsizes.push('72px');
+                //           var $list = $('<div/>').addClass('wysiwyg-plugin-list')
+                //               .attr('unselectable', 'on');
+                //           $.each(list_fontsizes, function (index, size) {
+                //               var $link = $('<a/>').attr('href', '#')
+                //                   .html(size)
+                //                   .click(function (event) {
+                //                       (<any>$(element)).wysiwyg('shell').fontSize(7).closePopup();
+                //                       (<any>$(element)).wysiwyg('container')
+                //                           .find('font[size=7]')
+                //                           .removeAttr("size")
+                //                           .css("font-size", size);
+                //                       // prevent link-href-#
+                //                       event.stopPropagation();
+                //                       event.preventDefault();
+                //                       return false;
+                //                   });
+                //               $list.append($link);
+                //           });
+                //           $popup.append($list);
+                //       },
+                //       showselection: true    // wanted on selection
+                //   },
                   // Header plugin
                   header: {
                       title: 'Header',
@@ -168,62 +189,62 @@ export class WysiwygjsComponent implements OnInit {
                       image: '\uf0cc', // <img src="path/to/image.png" width="16" height="16" alt="" />
                       hotkey: 's'
                   },
-                  forecolor: {
-                      title: 'Text color',
-                      image: '\uf1fc' // <img src="path/to/image.png" width="16" height="16" alt="" />
-                  },
-                  highlight: {
-                      title: 'Background color',
-                      image: '\uf043' // <img src="path/to/image.png" width="16" height="16" alt="" />
-                  },
-                  alignleft: index != 0 ? false : {
-                      title: 'Left',
-                      image: '\uf036', // <img src="path/to/image.png" width="16" height="16" alt="" />
-                      //showstatic: true,    // wanted on the toolbar
-                      showselection: false    // wanted on selection
-                  },
-                  aligncenter: index != 0 ? false : {
-                      title: 'Center',
-                      image: '\uf037', // <img src="path/to/image.png" width="16" height="16" alt="" />
-                      //showstatic: true,    // wanted on the toolbar
-                      showselection: false    // wanted on selection
-                  },
-                  alignright: index != 0 ? false : {
-                      title: 'Right',
-                      image: '\uf038', // <img src="path/to/image.png" width="16" height="16" alt="" />
-                      //showstatic: true,    // wanted on the toolbar
-                      showselection: false    // wanted on selection
-                  },
-                  alignjustify: index != 0 ? false : {
-                      title: 'Justify',
-                      image: '\uf039', // <img src="path/to/image.png" width="16" height="16" alt="" />
-                      //showstatic: true,    // wanted on the toolbar
-                      showselection: false    // wanted on selection
-                  },
-                  subscript: index == 1 ? false : {
-                      title: 'Subscript',
-                      image: '\uf12c', // <img src="path/to/image.png" width="16" height="16" alt="" />
-                      //showstatic: true,    // wanted on the toolbar
-                      showselection: true    // wanted on selection
-                  },
-                  superscript: index == 1 ? false : {
-                      title: 'Superscript',
-                      image: '\uf12b', // <img src="path/to/image.png" width="16" height="16" alt="" />
-                      //showstatic: true,    // wanted on the toolbar
-                      showselection: true    // wanted on selection
-                  },
-                  indent: index != 0 ? false : {
-                      title: 'Indent',
-                      image: '\uf03c', // <img src="path/to/image.png" width="16" height="16" alt="" />
-                      //showstatic: true,    // wanted on the toolbar
-                      showselection: false    // wanted on selection
-                  },
-                  outdent: index != 0 ? false : {
-                      title: 'Outdent',
-                      image: '\uf03b', // <img src="path/to/image.png" width="16" height="16" alt="" />
-                      //showstatic: true,    // wanted on the toolbar
-                      showselection: false    // wanted on selection
-                  },
+                //   forecolor: {
+                //       title: 'Text color',
+                //       image: '\uf1fc' // <img src="path/to/image.png" width="16" height="16" alt="" />
+                //   },
+                //   highlight: {
+                //       title: 'Background color',
+                //       image: '\uf043' // <img src="path/to/image.png" width="16" height="16" alt="" />
+                //   },
+                //   alignleft: index != 0 ? false : {
+                //       title: 'Left',
+                //       image: '\uf036', // <img src="path/to/image.png" width="16" height="16" alt="" />
+                //       //showstatic: true,    // wanted on the toolbar
+                //       showselection: false    // wanted on selection
+                //   },
+                //   aligncenter: index != 0 ? false : {
+                //       title: 'Center',
+                //       image: '\uf037', // <img src="path/to/image.png" width="16" height="16" alt="" />
+                //       //showstatic: true,    // wanted on the toolbar
+                //       showselection: false    // wanted on selection
+                //   },
+                //   alignright: index != 0 ? false : {
+                //       title: 'Right',
+                //       image: '\uf038', // <img src="path/to/image.png" width="16" height="16" alt="" />
+                //       //showstatic: true,    // wanted on the toolbar
+                //       showselection: false    // wanted on selection
+                //   },
+                //   alignjustify: index != 0 ? false : {
+                //       title: 'Justify',
+                //       image: '\uf039', // <img src="path/to/image.png" width="16" height="16" alt="" />
+                //       //showstatic: true,    // wanted on the toolbar
+                //       showselection: false    // wanted on selection
+                //   },
+                //   subscript: index == 1 ? false : {
+                //       title: 'Subscript',
+                //       image: '\uf12c', // <img src="path/to/image.png" width="16" height="16" alt="" />
+                //       //showstatic: true,    // wanted on the toolbar
+                //       showselection: true    // wanted on selection
+                //   },
+                //   superscript: index == 1 ? false : {
+                //       title: 'Superscript',
+                //       image: '\uf12b', // <img src="path/to/image.png" width="16" height="16" alt="" />
+                //       //showstatic: true,    // wanted on the toolbar
+                //       showselection: true    // wanted on selection
+                //   },
+                //   indent: index != 0 ? false : {
+                //       title: 'Indent',
+                //       image: '\uf03c', // <img src="path/to/image.png" width="16" height="16" alt="" />
+                //       //showstatic: true,    // wanted on the toolbar
+                //       showselection: false    // wanted on selection
+                //   },
+                //   outdent: index != 0 ? false : {
+                //       title: 'Outdent',
+                //       image: '\uf03b', // <img src="path/to/image.png" width="16" height="16" alt="" />
+                //       //showstatic: true,    // wanted on the toolbar
+                //       showselection: false    // wanted on selection
+                //   },
                   orderedList: index != 0 ? false : {
                       title: 'Ordered list',
                       image: '\uf0cb', // <img src="path/to/image.png" width="16" height="16" alt="" />
@@ -242,52 +263,11 @@ export class WysiwygjsComponent implements OnInit {
                   }
               },
               // Other properties
-              selectImage: 'Click or drop image',
+              selectImage: 'Click to upload image',
               placeholderUrl: 'www.example.com',
               placeholderEmbed: '<embed/>',
               maxImageSize: [600, 200],
               onImageUpload: function (insert_image) {
-                  // A bit tricky, because we can't easily upload a file via
-                  // '$.ajax()' on a legacy browser without XMLHttpRequest2.
-                  // You have to submit the form into an '<iframe/>' element.
-                  // Call 'insert_image(url)' as soon as the file is online
-                  // and the URL is available.
-                  // Example server script (written in PHP):
-                  /*
-                  <?php
-                  $upload = $_FILES['upload-filename'];
-                  // Crucial: Forbid code files
-                  $file_extension = pathinfo( $upload['name'], PATHINFO_EXTENSION );
-                  if( $file_extension != 'jpeg' && $file_extension != 'jpg' && $file_extension != 'png' && $file_extension != 'gif' )
-                      die("Wrong file extension.");
-                  $filename = 'image-'.md5(microtime(true)).'.'.$file_extension;
-                  $filepath = '/path/to/'.$filename;
-                  $serverpath = 'http://domain.com/path/to/'.$filename;
-                  move_uploaded_file( $upload['tmp_name'], $filepath );
-                  echo $serverpath;
-                  */
-                  // Example client script (without upload-progressbar):
-                  var iframe_name = 'legacy-uploader-' + Math.random().toString(36).substring(2);
-                  $('<iframe>').attr('name', iframe_name)
-                      .load(function () {
-                          // <iframe> is ready - we will find the URL in the iframe-body
-                          var iframe = this;
-                          var iframedoc = iframe.contentDocument ? iframe.contentDocument :
-                              (iframe.contentWindow ? iframe.contentWindow.document : iframe.document);
-                          var iframebody = iframedoc.getElementsByTagName('body')[0];
-                          var image_url = iframebody.innerHTML;
-                          insert_image(image_url);
-                          $(iframe).remove();
-                      })
-                      .appendTo(document.body);
-                  var $input = $(this);
-                  $input.attr('name', 'upload-filename')
-                      .parents('form')
-                      .attr('action', '/script.php') // accessing cross domain <iframes> could be difficult
-                      .attr('method', 'POST')
-                      .attr('enctype', 'multipart/form-data')
-                      .attr('target', iframe_name)
-                      .submit();
               },
               forceImageUpload: false,    // upload images even if File-API is present
               videoFromUrl: function (url) {
@@ -310,19 +290,39 @@ export class WysiwygjsComponent implements OnInit {
 
                   // undefined -> create '<video/>' tag
               }
-          })
+          });
       })
-        .change(function () {
-            // Assign the wysiwyg get contents to the content Observable
-            // emit the change
-            newThis.onChange.emit((<any>$(newThis.el.nativeElement).find('.wysiwyg-editor').html()));
-        })
-        .focus(function () {
-            newThis.onFocus.emit();
-        })
-        .blur(function () {
-            newThis.onBlur.emit();
-        });
+    
+
+    .change(function () {
+      // Assign the wysiwyg get contents to the content Observable
+      // emit the change
+      const target = jQuery(newThis.el.nativeElement).find('.wysiwyg-editor');
+      target.find('img:not(.processed)').each(function(index,value) {
+          const base64 = jQuery(this).attr('src');
+          newThis.uploadImage(base64)
+            .subscribe(url => {
+                jQuery(this).attr('src', url).addClass('processed');
+                console.log('processed');
+                return;
+            })
+      });
+      // Update content
+      newThis.content = target.html();
+      newThis.propagateChange(newThis.content);
+      newThis.onContentUpdate.emit();
+    })
   }
 
+  updateContent() {
+    (<any>$(this.el.nativeElement)).find('.wysiwyg-editor').html(this.content);
+  }
+
+  uploadImage(base64):Observable<string> {
+      /**
+       * @todo: need to actually upload this to the server
+       */
+    return this.elmslnService.createImage(base64)
+        .map(data => data.url)
+  }
 }
