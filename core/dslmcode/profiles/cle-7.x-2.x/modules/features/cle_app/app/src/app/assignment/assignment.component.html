@@ -24,4 +24,6 @@
   <pre> <code> {{ assignment | json }} </code> </pre>
 
   <a *ngIf="assignment" (click)="onCreateSubmission(assignment)" class="btn">Submit assignment</a>
+
+  <app-submission-list title="My Submission" [submissions]="submissions$ | async"></app-submission-list>
 </div>

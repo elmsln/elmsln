@@ -1,0 +1,4 @@
+<ul class="submission-list collection with-header">
+  <li class="collection-header" *ngIf="title"><h4>{{title}}</h4></li>
+  <li *ngFor="let submission of submissions" class="collection-item" (click)="onSubmissionClick(submission)">{{ submission.title }}</li>
+</ul>

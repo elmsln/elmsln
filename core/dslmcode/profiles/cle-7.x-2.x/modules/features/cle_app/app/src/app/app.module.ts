@@ -44,6 +44,7 @@ import { DatetimeInputComponent } from './datetime-input/datetime-input.componen
 import { AssignmentDialogComponent } from './assignment/assignment-dialog/assignment-dialog.component';
 import { SubmissionCreateComponent } from './submission/submission-create/submission-create.component';
 import { SubmissionFormComponent } from './submission/submission-form/submission-form.component';
+import { SubmissionListComponent } from './submission/submission-list/submission-list.component';
 
 @NgModule({
   declarations: [
@@ -68,7 +69,8 @@ import { SubmissionFormComponent } from './submission/submission-form/submission
     DatetimeInputComponent,
     AssignmentDialogComponent,
     SubmissionCreateComponent,
-    SubmissionFormComponent
+    SubmissionFormComponent,
+    SubmissionListComponent
   ],
   imports: [
     BrowserModule,

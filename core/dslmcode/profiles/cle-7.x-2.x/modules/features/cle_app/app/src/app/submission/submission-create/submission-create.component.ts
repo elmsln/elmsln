@@ -44,8 +44,14 @@ export class SubmissionCreateComponent implements OnInit {
   }
 
   onSubmissionSave($event) {
+    const assignmentId = this.assignmentId;
     this.store.dispatch(createSubmission($event));
-    this.router.navigate(['/assignments/', this.assignmentId.toString()]);
+    this.router.navigate(['/assignments/' + assignmentId]);
     this.submissionFormComponent.form.reset();
+  }
+
+  onSubmissionCancel($event) {
+    const assignmentId = this.assignmentId;
+    this.router.navigate(['/assignments/' + assignmentId]);
   }
 }

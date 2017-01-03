@@ -53,17 +53,19 @@ export class SubmissionService {
   }
 
   createSubmission(submission:Submission) {
-    return this.elmsln.get(AppSettings.BASE_PATH + 'api/v1/cle/submissions/' + submission.id + '/create')
+    const newSub = this.prepareForDrupal(submission);
+    return this.elmsln.post(AppSettings.BASE_PATH + 'node', newSub)
       .map(data => data.json())
   }
 
   updateSubmission(submission:Submission) {
-    return this.elmsln.get(AppSettings.BASE_PATH + 'api/v1/cle/submissions/' + submission.id + '/update')
+    const newSub = this.prepareForDrupal(submission);
+    return this.elmsln.put(AppSettings.BASE_PATH + 'node/' + submission.id, newSub)
       .map(data => data.json())
   }
 
   deleteSubmission(submission:Submission) {
-    return this.elmsln.get(AppSettings.BASE_PATH + 'api/v1/cle/submissions/' + submission.id + '/delete')
+    return this.elmsln.delete(AppSettings.BASE_PATH + 'node/' + submission.id)
       .map(data => data.json())
   }
 
@@ -100,6 +102,21 @@ export class SubmissionService {
   }
 
   private prepareForDrupal(submission:Submission) {
-    return submission;
+    const newSub:any = {};
+
+    newSub.type = 'cle_submission';
+    if (submission.title) {
+      newSub.title = submission.title;
+    }
+    if (submission.body) {
+      newSub.field_submission_text = {
+        value: submission.body
+      }
+    }
+    if (submission.assignment) {
+      newSub.field_assignment = submission.assignment;
+    }
+
+    return newSub;
   }
 }
