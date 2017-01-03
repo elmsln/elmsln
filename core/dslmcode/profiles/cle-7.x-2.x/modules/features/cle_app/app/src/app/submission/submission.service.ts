@@ -98,6 +98,10 @@ export class SubmissionService {
       }
     }
 
+    if (typeof data.evidence.body !== 'undefined') {
+      converted.body = data.evidence.body;
+    }
+
     return converted;
   }
 
@@ -110,7 +114,8 @@ export class SubmissionService {
     }
     if (submission.body) {
       newSub.field_submission_text = {
-        value: submission.body
+        value: submission.body,
+        format:'student_format'
       }
     }
     if (submission.assignment) {

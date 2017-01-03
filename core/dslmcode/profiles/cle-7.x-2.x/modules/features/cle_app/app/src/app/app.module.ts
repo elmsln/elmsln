@@ -45,6 +45,8 @@ import { AssignmentDialogComponent } from './assignment/assignment-dialog/assign
 import { SubmissionCreateComponent } from './submission/submission-create/submission-create.component';
 import { SubmissionFormComponent } from './submission/submission-form/submission-form.component';
 import { SubmissionListComponent } from './submission/submission-list/submission-list.component';
+import { SubmissionDetailComponent } from './submission/submission-detail/submission-detail.component';
+import { SubmissionComponent } from './submission/submission.component';
 
 @NgModule({
   declarations: [
@@ -68,9 +70,11 @@ import { SubmissionListComponent } from './submission/submission-list/submission
     EditableFieldComponent,
     DatetimeInputComponent,
     AssignmentDialogComponent,
+    SubmissionComponent,
     SubmissionCreateComponent,
     SubmissionFormComponent,
-    SubmissionListComponent
+    SubmissionListComponent,
+    SubmissionDetailComponent
   ],
   imports: [
     BrowserModule,

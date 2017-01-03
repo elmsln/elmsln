@@ -1,3 +1,11 @@
-<p>
-  submission works!
-</p>
+<nav>
+  <div class="nav-wrapper">
+    <ul id="nav-mobile" class="left">
+      <li><a (click)="onClickBack()"><i class="material-icons left">&#xE5C4;</i> back</a></li>
+    </ul>
+  </div>
+</nav>
+
+<div *ngIf="submissionId">
+  <app-submission-detail [submission]="submission$ | async"></app-submission-detail>
+</div>
