@@ -181,7 +181,9 @@ function _cle_submission_v1_submission_modify($node, $params = NULL) {
             case 'video':
             case 'files':
             case 'links':
-              $node->{'field_' . $key2}[LANGUAGE_NONE] = $value2;
+              foreach ($value2 as $item) {
+                $node->{'field_' . $key2}[LANGUAGE_NONE][] = array('target_id' => $item);
+              }
             break;
           }
         }
