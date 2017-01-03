@@ -59,7 +59,7 @@ export class ProjectService {
   private formatProject(project: any) {
     let newProject: Project = {
       title: project.title ? project.title : null,
-      id: project.nid ? project.nid : null
+      id: project.nid ? Number(project.nid) : null
       // author: project.author.id ? project.author.id : null,
       // startDate: project.field_project_due_date.value ? project.field_project_due_date.value : null,
       // endDate: project.field_project_due_date.value2 ? project.field_project_due_date.value2 : null,

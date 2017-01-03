@@ -45,13 +45,13 @@ export class AssignmentService {
           data.forEach(item => d.push(this.convertToAssignment(item)));
           return d;
         }
-      })
+     })
   }
 
   getAssignment(assignmentId) {
     return this.elmsln.get(AppSettings.BASE_PATH + 'api/v1/cle/assignments/' + assignmentId)
-      .map(data => data.json().data)
-      .map(data => this.convertToAssignment(data));
+      .map(data => data.json().data[0])
+      .map(data => this.convertToAssignment(data))
   }
 
   createAssignment(assignment:Assignment) {
@@ -100,6 +100,12 @@ export class AssignmentService {
       }
     }
 
+    if (data['hierarchy']) {
+      if (data['hierarchy']['project']) {
+        converted['project'] = Number(data['hierarchy']['project']);
+      }
+    }
+
     return converted;
   }
 
@@ -112,11 +118,6 @@ export class AssignmentService {
     if (assignment.title) {
       newAssignment.title = assignment.title
     }
-    if (assignment.description) {
-      newAssignment.body = {
-        value: assignment.description
-      }
-    }
     if (assignment.project) {
       newAssignment.field_assignment_project = assignment.project
     }
@@ -125,7 +126,8 @@ export class AssignmentService {
     }
     if (assignment.description) {
       newAssignment.field_assignment_description = {
-        value: assignment.description
+        value: assignment.description,
+        format: 'textbook'
       }
     }
     if (assignment.critiqueMethod) {
