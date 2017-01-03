@@ -1304,6 +1304,7 @@ function _elmsln_api_v1_page_callback($type, $etid = NULL, $op = NULL) {
         $path = str_replace('/' . $etid, '', $path);
       }
       $vars = _elmsln_api_tree($path, FALSE);
+      $params = filter_var_array($params, FILTER_SANITIZE_STRING);
       $items = call_user_func($jsapis[$type]['list'], $params);
       // get the assignment ready for sending and place them as an array of items
       // under the 'data' property
