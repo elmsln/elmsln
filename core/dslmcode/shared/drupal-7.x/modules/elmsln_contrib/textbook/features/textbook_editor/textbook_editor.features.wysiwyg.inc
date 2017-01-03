@@ -28,6 +28,7 @@ function textbook_editor_wysiwyg_default_profiles() {
           'Link' => 1,
           'Unlink' => 1,
           'Image' => 1,
+          'TextColor' => 1,
           'BGColor' => 1,
           'Source' => 1,
           'HorizontalRule' => 1,

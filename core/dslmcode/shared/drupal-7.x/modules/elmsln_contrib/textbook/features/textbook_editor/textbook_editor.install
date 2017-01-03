@@ -1,0 +1,8 @@
+<?php
+
+/**
+ * Revert as the editor now has an additional text color buttons applied.
+ */
+function textbook_editor_update_7001(&$sandbox) {
+  features_revert_module('textbook_editor');
+}
