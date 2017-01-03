@@ -125,7 +125,94 @@ function _cle_assignment_v1_assignment_modify($node, $params = NULL) {
     switch ($key) {
       case 'uid':
       case 'title':
+      case 'status':
+      case 'created':
         $node->{$key} = $value;
+      break;
+      case 'body':
+        $node->field_project_description[LANGUAGE_NONE][0] = $value;
+      break;
+      case 'allowLateSubmissions':
+        $node->field_assignment_late_submission[LANGUAGE_NONE][0]['value'] = $value;
+      break;
+      case 'color':
+        $node->field_assignment_color[LANGUAGE_NONE][0]['jquery_colorpicker'] = $value;
+      break;
+      case 'image':
+        $node->field_assignment_image[LANGUAGE_NONE][0]['target_id'] = $value;
+      break;
+      case 'type':
+        $node->field_assignment_privacy_setting[LANGUAGE_NONE][0]['value'] = $value;
+      break;
+      case 'startDate':
+        $node->field_assignment_due_date[LANGUAGE_NONE][0]['value1'] = $value;
+      break;
+      case 'endDate':
+        $node->field_assignment_due_date[LANGUAGE_NONE][0]['value1'] = $value;
+      break;
+      case 'commentStyle':
+        $node->field_assignment_feedback[LANGUAGE_NONE][0]['value'] = $value;
+      break;
+      case 'hierarchy':
+        foreach ($value as $key2 => $value2) {
+          switch ($key2) {
+            case 'dependencies':
+              foreach ($key2 as $item) {
+                $node->field_assignment_dependencies[LANGUAGE_NONE][] = array('target_id' => $item);
+              }
+            break;
+            case 'project':
+              $node->field_assignment_project[LANGUAGE_NONE][0]['target_id'] = $value2;
+            break;
+          }
+        }
+      break;
+      case 'evidence':
+        foreach ($value as $key2 => $value2) {
+          switch ($key2) {
+            case 'competencies':
+              foreach ($value2 as $item) {
+                $node->field_elmsln_competencies[LANGUAGE_NONE][] = array('value' => $item);
+              }
+            break;
+            // critique or artifact based evidence method
+            case 'assets':
+              $node->$node->field_assignment_evidence[LANGUAGE_NONE][0]['value'] = $value2;
+            break;
+            // ridiculous looking but allows normalized UI based definition of requirements
+            // to complete an assignment
+            case 'artifacts':
+              foreach ($key2 as $item) {
+                switch ($item) {
+                  case 'body':
+                    $node->field_assignment_artifacts[LANGUAGE_NONE][] = array('value' => 'field_submission_text');
+                  break;
+                  case 'images':
+                  case 'video':
+                  case 'files':
+                  case 'links':
+                    $node->field_assignment_artifacts[LANGUAGE_NONE][] = array('value' => 'field_' . $item);
+                  break;
+                }
+              }
+            break;
+            case 'critique':
+              foreach ($value2 as $key3 => $value3) {
+                switch ($key3) {
+                  case 'method':
+                    $node->field_critique_method[LANGUAGE_NONE][0]['value'] = $value3;
+                  break;
+                  case 'outline':
+                    $node->field_critique_outline[LANGUAGE_NONE][0]['value'] = $value3;
+                  break;
+                  case 'public':
+                    $node->field_critique_privacy[LANGUAGE_NONE][0]['value'] = $value3;
+                  break;
+                }
+              }
+            break;
+          }
+        }
       break;
     }
   }
@@ -158,10 +245,10 @@ function _cle_assignment_v1_assignment_output($node) {
     'title' => $node->title,
     'status' => (int)$node->status,
     'created' => (int)$node->created,
-    'description' => ($node->field_assignment_description[LANGUAGE_NONE][0]['safe_value'] ? $node->field_assignment_description[LANGUAGE_NONE][0]['safe_value'] : $node->field_assignment_description[LANGUAGE_NONE][0]['value']),
+    'body' => ($node->field_assignment_description[LANGUAGE_NONE][0]['safe_value'] ? $node->field_assignment_description[LANGUAGE_NONE][0]['safe_value'] : $node->field_assignment_description[LANGUAGE_NONE][0]['value']),
+    'allowLateSubmissions' => (int)$node->field_assignment_late_submission[LANGUAGE_NONE][0]['value'],
     'color' => $color,
     'image' => _elmsln_api_v1_file_output($node->field_assignment_image[LANGUAGE_NONE][0]),
-    'allowLateSubmissions' => (int)$node->field_assignment_late_submission[LANGUAGE_NONE][0]['value'],
     'type' => ($node->field_assignment_privacy_setting ? $node->field_assignment_privacy_setting[LANGUAGE_NONE][0]['value'] : 'open'),
     'startDate' => $dates[0],
     'endDate' => $dates[1],
