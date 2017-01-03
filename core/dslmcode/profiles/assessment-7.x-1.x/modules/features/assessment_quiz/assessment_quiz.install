@@ -10,3 +10,10 @@
 function assessment_quiz_update_7001(&$sandbox) {
   features_revert_module('assessment_quiz');
 }
+
+/**
+ * Make more form options available.
+ */
+function assessment_quiz_update_7002(&$sandbox) {
+  variable_get('quiz_matching_form_size', 12);
+}
