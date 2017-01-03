@@ -265,8 +265,21 @@ function _elmsln_api_tree($search = ELMSLN_API_BASE_PATH, $deliver = TRUE) {
  * Return json output to the screen in correct format.
  */
 function _elmsln_api_deliver_output($vars) {
+  // nothing set so make it 200 even though it already is
+  if (empty($vars['status'])) {
+    $vars['status'] = '200';
+  }
+  // ensure there's some form of detail even if empty
+  if (empty($vars['detail'])) {
+    $vars['detail'] = '';
+  }
+  // define return type
   drupal_add_http_header('Content-Type', 'application/json');
+  // define status
+  drupal_add_http_header('Status', $vars['status']);
+  // output the response as json
   print drupal_json_output($vars);
+  // official drupal exit routines
   drupal_exit();
 }
 
