@@ -122,7 +122,7 @@ function _cle_submission_v1_submission_output($node) {
     'created' => (int)$node->created,
     'assignment' => (int)$node->field_assignment[LANGUAGE_NONE][0]['target_id'],
     'evidence' => array(
-      'text' => $node->field_submission_text[LANGUAGE_NONE][0]['safe_value'],
+      'body' => $node->field_submission_text[LANGUAGE_NONE][0]['safe_value'],
       'images' => $images,
       'videos' => $node->field_video[LANGUAGE_NONE],
       'files' => $files,
