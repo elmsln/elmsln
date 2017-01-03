@@ -124,7 +124,7 @@ function _cle_submission_v1_submission_output($node) {
     'evidence' => array(
       'body' => $node->field_submission_text[LANGUAGE_NONE][0]['safe_value'],
       'images' => $images,
-      'videos' => $node->field_video[LANGUAGE_NONE],
+      'video' => $node->field_video[LANGUAGE_NONE],
       'files' => $files,
       'links' => $node->field_links[LANGUAGE_NONE],
     ),
@@ -158,7 +158,33 @@ function _cle_submission_v1_submission_modify($node, $params = NULL) {
     switch ($key) {
       case 'uid':
       case 'title':
+      case 'status':
+      case 'created':
         $node->{$key} = $value;
+      break;
+      case 'section':
+        $node->og_group_ref[LANGUAGE_NONE][0]['target_id'] = $value;
+      break;
+      case 'state':
+        $node->field_submission_state[LANGUAGE_NONE][0]['value'] = $value;
+      break;
+      case 'assignment':
+        $node->field_assignment[LANGUAGE_NONE][0]['target_id'] = $value;
+      break;
+      case 'evidence':
+        foreach ($value as $key2 => $value2) {
+          switch ($key2) {
+            case 'body':
+              $node->field_submission_text[LANGUAGE_NONE][0] = $value2;
+            break;
+            case 'images':
+            case 'video':
+            case 'files':
+            case 'links':
+              $node->{'field_' . $key2}[LANGUAGE_NONE] = $value2;
+            break;
+          }
+        }
       break;
     }
   }
