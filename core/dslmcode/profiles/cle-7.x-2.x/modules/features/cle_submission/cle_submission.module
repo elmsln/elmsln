@@ -117,6 +117,7 @@ function _cle_submission_v1_submission_output($node) {
   // this will be our json formatted output
   $return = array(
     'id' => (int)$node->nid,
+    'uid' => (int)$node->uid,
     'title' => $node->title,
     'status' => (int)$node->status,
     'created' => (int)$node->created,
