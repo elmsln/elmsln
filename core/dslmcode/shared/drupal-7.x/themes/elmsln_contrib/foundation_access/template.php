@@ -1888,6 +1888,9 @@ function foundation_access_wysiwyg_editor_settings_alter(&$settings, $context) {
   */
 }
 
+/**
+ * Return the tabbed items to shift items into the ... menu.
+ */
 function _foundation_access_move_tabs() {
   $tabs = array(
     'node/%/display',
