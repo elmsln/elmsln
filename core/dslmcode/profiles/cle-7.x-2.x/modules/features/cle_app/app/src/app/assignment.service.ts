@@ -126,8 +126,7 @@ export class AssignmentService {
     }
     if (assignment.description) {
       newAssignment.field_assignment_description = {
-        value: assignment.description,
-        format: 'textbook'
+        value: assignment.description
       }
     }
     if (assignment.critiqueMethod) {
