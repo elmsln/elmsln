@@ -304,6 +304,7 @@ function _elmsln_api_user_request() {
     ),
     'user' => array(
       'uid' => $GLOBALS['user']->uid,
+      'uuid' => $GLOBALS['user']->uuid,
       'name' => $GLOBALS['user']->name,
       'csrf-token' => drupal_get_token('restws'),
       'roles' => $GLOBALS['user']->roles,
