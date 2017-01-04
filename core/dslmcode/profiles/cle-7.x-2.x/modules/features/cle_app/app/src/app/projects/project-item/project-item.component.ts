@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ElementRef, ContentChildren, AfterContentInit, EventEmitter, Output, ViewChild, OnDestroy } from '@angular/core';
+import { Component, OnInit, Input, ElementRef, ContentChildren, AfterContentInit, EventEmitter, Output, ViewChild, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { Project } from '../../project';
 import { ProjectService } from '../../project.service';
@@ -18,7 +18,8 @@ declare const jQuery:any;
   selector: 'app-project-item',
   templateUrl: './project-item.component.html',
   styleUrls: ['./project-item.component.css'],
-  providers: [AssignmentService]
+  providers: [AssignmentService],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ProjectItemComponent implements OnInit, OnDestroy {
   @Input() project: Project;
@@ -33,14 +34,7 @@ export class ProjectItemComponent implements OnInit, OnDestroy {
     private store:Store<{}>
   ) {
     this.assignments = store.select('assignments')
-      .map((state:any) => state.assignments.filter(assignment => {
-        if (assignment.project) {
-          if (assignment.project === this.project.id) {
-            return true;
-          }
-        }
-        return false;
-      }))
+      .map((state:any) => state.assignments.filter(assignment => assignment.project === this.project.id));
   }
 
   ngOnInit() {

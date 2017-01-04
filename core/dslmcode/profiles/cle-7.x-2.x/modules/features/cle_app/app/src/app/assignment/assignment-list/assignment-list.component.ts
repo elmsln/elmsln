@@ -1,4 +1,4 @@
-import { Component, OnInit, ElementRef, Input, OnChanges } from '@angular/core';
+import { Component, OnInit, ElementRef, Input, OnChanges, ChangeDetectionStrategy } from '@angular/core';
 import { AssignmentService } from '../../assignment.service';
 import { Assignment } from '../../assignment';
 import { Router } from '@angular/router';
@@ -11,7 +11,8 @@ declare const $:any;
   selector: 'cle-assignment-list',
   templateUrl: './assignment-list.component.html',
   styleUrls: ['./assignment-list.component.css'],
-  providers: [AssignmentService]
+  providers: [AssignmentService],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AssignmentListComponent implements OnChanges, OnInit {
   // takes in optional project id parameter which will filter assignments

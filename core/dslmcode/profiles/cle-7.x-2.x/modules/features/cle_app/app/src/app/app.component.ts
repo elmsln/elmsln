@@ -4,6 +4,7 @@ import { Router, ActivatedRoute, Params } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { loadPermissions, loadAssignments } from './app.actions';
 import { loadSubmissions } from './submission/submission.actions'
+import { loadProjects } from './projects/project.actions';
 
 @Component({
   selector: 'app-root',
@@ -29,5 +30,6 @@ export class AppComponent implements OnInit {
     this.store.dispatch(loadAssignments());
     this.store.dispatch(loadPermissions());
     this.store.dispatch(loadSubmissions());
+    this.store.dispatch(loadProjects());
   }
 }
