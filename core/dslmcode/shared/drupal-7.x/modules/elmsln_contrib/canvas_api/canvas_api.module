@@ -1,9 +1,39 @@
 <?php
 
 /**
- * Implements hook_page_build().
+ * Implements hook_menu().
  */
-function canvas_api_page_build(&$page) {
-  // add the js function so we can resize page requests of the parent
-  drupal_add_js(drupal_get_path('module', 'canvas_api') . '/js/window_resize.js');
+function canvas_api_menu() {
+
+	$items['admin/config/services/canvas_api'] = array(
+		'title' => 'Canvas Integration',
+		'description' => 'Connection details for using Instructure\'s Canvas API.',
+		'page callback' => 'drupal_get_form',
+		'page arguments' => array('canvas_api_form'),
+		'file' => 'forms/canvas_api.form',
+		'access arguments' => array('administer site configuration'),
+	);
+  
+  return $items;
+}
+
+/**
+ * A wrapper function to process Canvas API requests.
+ *
+ * The Canvas API is broken into a number of different "resources": Sections,
+ * Courses, Enrollments, etc. Passing the desired resource into this function
+ * will prepare a helper object for interfacing with the Canvas API. See 
+ * documentation on the child classes for examples.
+ *
+ * @param string $resource
+ * 
+ * @return object
+ * 
+ */
+function canvas_api($resource){
+	module_load_include('inc','canvas_api','includes/canvas_api');
+	if(module_load_include('inc','canvas_api','includes/canvas_api.' . $resource)){
+		$class = 'Canvas' . ucfirst($resource);
+		return new $class;
+	} 
 }
