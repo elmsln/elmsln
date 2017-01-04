@@ -7,6 +7,7 @@ import { AssignmentListComponent } from '../../assignment/assignment-list/assign
 import { Assignment } from '../../assignment';
 import { Store } from '@ngrx/store';
 import { ActionTypes, loadAssignments } from '../../app.actions';
+import { deleteProject, updateProject } from '../project.actions';
 import { AppState } from '../../state';
 import { Observable } from 'rxjs';
 
@@ -67,11 +68,7 @@ export class ProjectItemComponent implements OnInit, OnDestroy {
   confirmDelete(confirm:boolean) {
     if (confirm) {
       let project = this.project;
-      this.projectService.deleteProject(project)
-        .subscribe(data => {
-          this.delete.emit();
-          Materialize.toast('Project deleted', 1000);
-        });
+      this.store.dispatch(deleteProject(project));
     }
     else {
       jQuery(this.el.nativeElement.getElementsByClassName('delete-project-form')).modal('close');
@@ -82,24 +79,14 @@ export class ProjectItemComponent implements OnInit, OnDestroy {
     // remember the old title in case the update fails
     let oldTitle = this.project.title;
     // update the project title on the page
-    this.project.title = $event;
-
-    // the project object that we are going to save
-    let newProject:Project = {
-      id: this.project.id,
-      title: this.project.title
+    if (oldTitle !== $event) {
+      this.project.title = $event;
+      // the project object that we are going to save
+      let newProject:Project = {
+        id: this.project.id,
+        title: this.project.title
+      }
+      this.store.dispatch(updateProject(newProject));
     }
-    // update the project in Drupal
-    this.projectService.updateProject(newProject)
-      .subscribe(
-        data => {
-          console.log(data);
-        },
-        error => {
-          // change the title back to the original
-          this.project.title = oldTitle;
-          Materialize.toast('Could not update title', 5000);
-        }
-      );
   }
 }

@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { loadAssignments, loadPermissions } from '../../app.actions';
+import { loadProjects, createProject } from '../project.actions';
 declare const $:any;
 declare const Materialize:any;
 
@@ -15,8 +16,9 @@ declare const Materialize:any;
   providers: [ProjectService]
 })
 export class ProjectsListComponent implements OnInit {
-  loading: boolean;
   projects: Project[] = [];
+  projectCount: number;
+  projects$: Observable<Project[]>;
 
   constructor(
     private projectService:ProjectService,
@@ -25,31 +27,22 @@ export class ProjectsListComponent implements OnInit {
   ) {
     store.dispatch(loadPermissions());
     store.dispatch(loadAssignments());
+    store.dispatch(loadProjects());
   }
 
   ngOnInit() {
-    this.projectService.getProjects()
-      .subscribe((data) => {
-        this.projects = data;
-        this.loading = false;
-      });
+    this.projects$ = this.store.select('projects')
+      .map((state:any) => state.projects);
+    
+    this.store.select('projects')
+      .map((state:any) => state.projects)
+      .subscribe((projects:any[]) => this.projectCount = projects.length);
   }
 
   createNewProject(title) {
-    console.log('Create Project');
-    this.projectService.createProject({
-        title: title ? title : "New Project",
-      })
-      .subscribe(data => {
-        // we will receive the newley created projects id
-        // we will use that id to request the full project and add it to the
-        // array of projects
-        this.projectService.getProject(data.id)
-          .subscribe((project:Project) => {
-            Materialize.toast('Project created!', 1000);
-            this.projects.push(project);
-          })
-      })
+    const newProj = new Project();
+    newProj.title = "New Project";
+    this.store.dispatch(createProject(newProj));
   }
 
   projectDeleted(deletedProject) {
