@@ -9,9 +9,9 @@ This part is much easier as all the modules to do so are already enabled sitting
 
 ```
 // change these to match your system / setup
-$config['tincanapi_auth_user'] = “CLIENTUSER”;
-$config['tincanapi_auth_password'] = “CLIENTPASSWORD”;
-$config['tincanapi_endpoint'] = "http://YOURLRSADDRESS/data/xAPI"
+$config['tincanapi_auth_user'] = "CLIENTUSER";
+$config['tincanapi_auth_password'] = "CLIENTPASSWORD";
+$config['tincanapi_endpoint'] = "http://YOURLRSADDRESS/data/xAPI";
 // additional settings, most likely you don't want to touch these
 $config['tincanapi_statement_actor'] = '[current-user:name]';
 $config['tincanapi_anonymous'] = FALSE;
