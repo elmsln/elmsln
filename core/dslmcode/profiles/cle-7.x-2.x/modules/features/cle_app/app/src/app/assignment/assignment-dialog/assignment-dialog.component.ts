@@ -31,7 +31,7 @@ export class AssignmentDialogComponent implements OnInit, OnDestroy {
     this.route.params
       .subscribe(params => {
         if (typeof params['assignmentId'] !== 'undefined') {
-          this.action = 'create';
+          this.action = 'update';
           this.assignmentService.getAssignment(params['assignmentId'])
             .subscribe(data => {
               this.assignment = data;
@@ -39,8 +39,8 @@ export class AssignmentDialogComponent implements OnInit, OnDestroy {
         }
         else if (typeof params['projectId'] !== 'undefined') {
           let a:Assignment = new Assignment();
-          this.action = 'update';
-          a.project = params['projectId'];
+          this.action = 'create';
+          a.project = Number(params['projectId']);
           this.assignment = a;
         }
         else if (typeof params['deleteAssignmentId'] !== 'undefined') {

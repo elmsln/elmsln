@@ -47,6 +47,11 @@
       "from": "@ngrx/core@latest",
       "resolved": "https://registry.npmjs.org/@ngrx/core/-/core-1.2.0.tgz"
     },
+    "@ngrx/effects": {
+      "version": "2.0.0",
+      "from": "@ngrx/effects@latest",
+      "resolved": "https://registry.npmjs.org/@ngrx/effects/-/effects-2.0.0.tgz"
+    },
     "@ngrx/store": {
       "version": "2.2.1",
       "from": "@ngrx/store@>=2.2.1 <3.0.0",

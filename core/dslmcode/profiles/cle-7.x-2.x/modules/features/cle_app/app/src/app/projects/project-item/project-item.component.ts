@@ -11,7 +11,7 @@ import { AppState } from '../../state';
 import { Observable } from 'rxjs';
 
 declare const Materialize:any;
-declare const $:any;
+declare const jQuery:any;
 
 @Component({
   selector: 'app-project-item',
@@ -43,15 +43,15 @@ export class ProjectItemComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    (<any>$(this.el.nativeElement.getElementsByClassName('delete-project-form'))).modal();
-    (<any>$(this.el.nativeElement.getElementsByClassName('tooltipped'))).tooltip({delay:40});
+    jQuery(this.el.nativeElement.getElementsByClassName('delete-project-form')).modal();
+    jQuery(this.el.nativeElement.getElementsByClassName('tooltipped')).tooltip({delay:40});
 
     // this.assignments = this.assignmentService.assignments
     //   }));
   }
 
   ngOnDestroy() {
-    (<any>$(this.el.nativeElement.getElementsByClassName('tooltipped'))).tooltip('remove');
+    jQuery(this.el.nativeElement.getElementsByClassName('tooltipped')).tooltip('remove');
   }
 
 
@@ -61,7 +61,7 @@ export class ProjectItemComponent implements OnInit, OnDestroy {
   }
 
   onDeleteProject() {
-    (<any>$(this.el.nativeElement.getElementsByClassName('delete-project-form'))).modal('open');
+    jQuery(this.el.nativeElement.getElementsByClassName('delete-project-form')).modal('open');
   }
 
   confirmDelete(confirm:boolean) {
@@ -74,7 +74,7 @@ export class ProjectItemComponent implements OnInit, OnDestroy {
         });
     }
     else {
-      (<any>$(this.el.nativeElement.getElementsByClassName('delete-project-form'))).modal('close');
+      jQuery(this.el.nativeElement.getElementsByClassName('delete-project-form')).modal('close');
     }
   }
 

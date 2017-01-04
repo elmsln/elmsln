@@ -19,6 +19,7 @@ export class SubmissionCreateComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
+    private router: Router,
     private store: Store<{}>
   ) { }
 
@@ -35,7 +36,7 @@ export class SubmissionCreateComponent implements OnInit {
         if (typeof params['assignmentId'] !== 'undefined') {
           this.submission = Object.assign({}, new Submission(), {assignment:this.assignmentId})
         }
-      })
+      });
 
     // check the permissions store to see if the user has edit
     this.userCanEdit$ = this.store.select('user')
@@ -43,7 +44,14 @@ export class SubmissionCreateComponent implements OnInit {
   }
 
   onSubmissionSave($event) {
+    const assignmentId = this.assignmentId;
     this.store.dispatch(createSubmission($event));
+    this.router.navigate(['/assignments/' + assignmentId]);
     this.submissionFormComponent.form.reset();
+  }
+
+  onSubmissionCancel($event) {
+    const assignmentId = this.assignmentId;
+    this.router.navigate(['/assignments/' + assignmentId]);
   }
 }

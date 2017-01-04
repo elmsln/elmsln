@@ -13,6 +13,7 @@ import { ProjectsListComponent } from './projects/projects-list/projects-list.co
 import { AssignmentDialogComponent } from './assignment/assignment-dialog/assignment-dialog.component';
 import { SubmissionComponent } from './submission/submission.component';
 import { SubmissionCreateComponent } from './submission/submission-create/submission-create.component';
+import { SubmissionDetailComponent } from './submission/submission-detail/submission-detail.component';
 
 const appRoutes: Routes = [
   {
@@ -56,6 +57,10 @@ const appRoutes: Routes = [
       {
         path: 'create/:assignmentId',
         component: SubmissionCreateComponent
+      },
+      {
+        path: ':submissionId',
+        component: SubmissionComponent
       }
     ]
   }

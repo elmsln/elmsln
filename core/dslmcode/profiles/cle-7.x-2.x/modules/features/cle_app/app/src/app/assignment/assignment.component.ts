@@ -19,6 +19,7 @@ export class AssignmentComponent implements OnInit {
   date:number;
   userCanEdit$:Observable<boolean>;
   assignments$:Observable<Assignment[]>;
+  submissions$:Observable<any[]>;
 
   constructor(
     private router: Router,
@@ -33,8 +34,10 @@ export class AssignmentComponent implements OnInit {
 
   ngOnInit() {
     this.route.params.forEach((params: Params) => {
-      let id = +params['id'];
-      this.assignmentId = id;
+      if (params['id']) {
+        let id = +params['id'];
+        this.assignmentId = Number(id);
+      }
     });
 
     // check the permissions store to see if the user has edit
@@ -44,6 +47,12 @@ export class AssignmentComponent implements OnInit {
           return true;
         }
         return false;
+      });
+    
+    // get the submissions
+    this.submissions$ = this.store.select('submissions')
+      .map((state:any) => {
+        return state.submissions.filter(sub => sub.assignment === this.assignmentId);
       })
 
     if (this.assignmentId) {
