@@ -11,14 +11,17 @@ import { EffectsModule } from '@ngrx/effects';
 import { reducer as assignmentReducer } from './reducers/assignments';
 import { reducer as userReducer } from './reducers/users';
 import { submissionReducer } from './submission/submission.reducer';
+import { projectReducer } from './projects/project.reducer';
 // effects
 import { AppEffects } from './app.effects';
 import { SubmissionEffects } from './submission/submission.effects';
+import { ProjectEffects } from './projects/project.effects';
 // services
 import { ElmslnService } from './elmsln.service';
 import { CritiqueService } from './critique.service';
 import { AssignmentService } from './assignment.service';
 import { SubmissionService } from './submission/submission.service';
+import { ProjectService } from './project.service';
 // Moment.js
 import { MomentModule } from 'angular2-moment';
 // components
@@ -86,17 +89,20 @@ import { SubmissionComponent } from './submission/submission.component';
     StoreModule.provideStore({
       assignments: assignmentReducer,
       user: userReducer,
-      submissions: submissionReducer
+      submissions: submissionReducer,
+      projects: projectReducer
     }),
     EffectsModule.run(AppEffects),
     EffectsModule.run(SubmissionEffects),
+    EffectsModule.run(ProjectEffects),
     StoreDevtoolsModule.instrumentOnlyWithExtension()
   ],
   providers: [
     ElmslnService,
     CritiqueService,
     AssignmentService,
-    SubmissionService
+    SubmissionService,
+    ProjectService
   ],
   bootstrap: [AppComponent]
 })
