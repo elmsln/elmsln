@@ -181,6 +181,7 @@ function _elmsln_api_v1_file_modify($file, $params = NULL) {
   $vars = array(
     'status' => $status,
     'detail' => $detail,
+    'mime' => $mime_type,
     'file' => _elmsln_api_v1_file_output($file),
     'fid' => $file->fid,
   );
