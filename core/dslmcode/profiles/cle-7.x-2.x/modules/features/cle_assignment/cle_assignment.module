@@ -216,6 +216,10 @@ function _cle_assignment_v1_assignment_modify($node, $params = NULL) {
       break;
     }
   }
+  // ensure we don't have anonymous creation since it's not possible
+  if (!isset($node->uid) || $node->uid == 0) {
+    $node->uid = $GLOBALS['user']->uid;
+  }
   node_save($node);
   // output the newly created node
   $vars = array(
@@ -267,7 +271,7 @@ function _cle_assignment_v1_assignment_output($node) {
         'public' => (int)$node->field_critique_privacy[LANGUAGE_NONE][0]['value'],
       ),
     ),
-    'complete' => _cle_submission_submission_status($node->nid),
+    'metadata' => _cle_submission_submission_status($node->nid),
     'links' => array(
       'self' => $base_url . '/api/v1/cle/assignments/' . $node->nid,
     ),

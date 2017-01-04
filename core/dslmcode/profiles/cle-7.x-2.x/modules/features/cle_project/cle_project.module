@@ -184,6 +184,10 @@ function _cle_project_v1_project_modify($node, $params = NULL) {
       break;
     }
   }
+  // ensure we don't have anonymous creation since it's not possible
+  if (!isset($node->uid) || $node->uid == 0) {
+    $node->uid = $GLOBALS['user']->uid;
+  }
   node_save($node);
   // output the newly created node
   $vars = array(
