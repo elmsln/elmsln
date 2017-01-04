@@ -105,6 +105,7 @@ function _cle_project_v1_project_output($node) {
   // this will be our json formatted output
   $return = array(
     'id' => (int)$node->nid,
+    'uuid' => $node->uuid,
     'uid' => (int)$node->uid,
     'title' => $node->title,
     'status' => (int)$node->status,
@@ -142,6 +143,7 @@ function _cle_project_v1_project_modify($node, $params = NULL) {
     // fields we support in a POST
     switch ($key) {
       case 'uid':
+      case 'uuid':
       case 'title':
       case 'status':
       case 'created':
