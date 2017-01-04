@@ -5,7 +5,6 @@ import { ElmslnService } from '../elmsln.service';
 import { AppSettings } from '../app-settings';
 
 // non-typescript definitions
-declare var $:any;
 declare var jQuery:any;
 
 @Component({
@@ -44,8 +43,8 @@ export class WysiwygjsComponent implements OnInit, ControlValueAccessor {
 
   ngOnInit() {
       let newThis = this;
-      $(this.el.nativeElement.firstElementChild).each(function (index, element) {
-        let wysiwygEditor = (<any>$(element)).wysiwyg({
+      jQuery(this.el.nativeElement.firstElementChild).each(function (index, element) {
+        let wysiwygEditor = jQuery(element).wysiwyg({
               // 'selection'|'top'|'top-selection'|'bottom'|'bottom-selection'
               toolbar: 'top',
               buttons: {
@@ -149,14 +148,14 @@ export class WysiwygjsComponent implements OnInit, ControlValueAccessor {
                               'Header 6': '<h6>',
                               'Code': '<pre>'
                           };
-                          var $list = $('<div/>').addClass('wysiwyg-plugin-list')
+                          var $list = jQuery('<div/>').addClass('wysiwyg-plugin-list')
                               .attr('unselectable', 'on');
-                          $.each(list_headers, function (name, format) {
-                              var $link = $('<a/>').attr('href', '#')
+                          jQuery.each(list_headers, function (name, format) {
+                              var $link = jQuery('<a/>').attr('href', '#')
                                   .css('font-family', format)
                                   .html(name)
                                   .click(function (event) {
-                                      (<any>$(element)).wysiwyg('shell').format(format).closePopup();
+                                      jQuery(element).wysiwyg('shell').format(format).closePopup();
                                       // prevent link-href-#
                                       event.stopPropagation();
                                       event.preventDefault();
@@ -315,7 +314,7 @@ export class WysiwygjsComponent implements OnInit, ControlValueAccessor {
   }
 
   updateContent() {
-    (<any>$(this.el.nativeElement)).find('.wysiwyg-editor').html(this.content);
+    jQuery(this.el.nativeElement).find('.wysiwyg-editor').html(this.content);
   }
 
   uploadImage(base64):Observable<string> {
