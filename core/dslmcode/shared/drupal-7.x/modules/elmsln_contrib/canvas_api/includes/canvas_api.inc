@@ -8,36 +8,36 @@
  * method and parameters for the call.
  */
 class Canvas {
-  
+
   public $params;
   public $path;
   protected $base;
   protected $headers;
   protected $method;
-  
+
   function __construct(){
   	$this->_setHeaders();
   	$this->_setUrl();
 
   }
-  
+
   private function _setHeaders(){
     $token = variable_get('canvas_api_token');
     $this->headers = array(
 			'Authorization' => 'Bearer ' . $token,
 			'Content-Type' => 'application/x-www-form-urlencoded',
-		);  
+		);
   }
-  
+
   private function _setURL(){
-    $institution = variable_get('canvas_api_institution');
-  	$environment = variable_get('canvas_api_environment');
+    $institution = variable_get('canvas_api_institution', '');
+  	$environment = variable_get('canvas_api_environment', 'test');
   	$url = "https://$institution";
   	if($environment != 'production'){
   		$url .= '.' . $environment;
   	}
   	$url .= '.instructure.com/';
-    $this->url = $url;  
+    $this->url = $url;
   }
 
   /**
@@ -52,8 +52,6 @@ class Canvas {
   protected function _getResponse($method){
 
     $path = 'api/v1/' . $this->path;
-
-
 
 		$query = $this->_buildQuery($this->params);
 
@@ -73,34 +71,35 @@ class Canvas {
 		// we need to get the "next" page, which is passed in the Link: attribute
 		// in the response header.
 		if($method == 'get'){
-			$data = json_decode($response->data,TRUE);
-			$next = $this->_getNextURL($response);
+			$data = json_decode($response->data, TRUE);
+			list($next, $max) = $this->_getNextURL($response);
 			// We use a counter as a failsafe to this becoming an infinite loop.
 			$i = 0;
-			while($next){
-				$response = $this->client->get($next);
-				$data = array_merge($data,json_decode($response->data,TRUE));
-				$next = $this->_getNextURL($response);
+      // ensure we have something to walk and we don't go above max results
+			while($next && ($i < $max)) {
+				$response = drupal_http_request($next, $options);
+				$data = array_merge($data, json_decode($response->data, TRUE));
+        list($next, $max) = $this->_getNextURL($response);
 				$i++;
-				if($i>20){
-					// THIS IS JUST A FAILSAFE;
-					die('Over 20 iterations');
+				if ($i>30) {
+					// THIS IS JUST A FAILSAFE FOR HUGE RESULTSETS;
+					die('Over 30 iterations');
 				}
 			}
 			return $data;
 		}
 
-    return json_decode($response->data,TRUE);    
+    return json_decode($response->data,TRUE);
   }
 
   public function put(){
     return $this->_getResponse('put');
   }
-  
+
   public function post(){
     return $this->_getResponse('post');
   }
-  
+
   public function get(){
     $this->params['per_page'] = 100;
     return $this->_getResponse('get');
@@ -109,10 +108,10 @@ class Canvas {
   public function delete(){
     return $this->_getResponse('delete');
   }
-  
+
   /**
    * Extracts the "next" url from the response header.
-   * 
+   *
    * @param object $response
    * Http response
    *
@@ -121,16 +120,38 @@ class Canvas {
    */
   private function _getNextURL($response){
   	if(isset($response->headers['link'])){
+      $next = FALSE;
+      $last = FALSE;
 			$linkHeader = $response->headers['link'];
-			$link = reset($linkHeader);
-			$matches = [];
+      // simplify preg later
+      $links = explode(',', $response->headers['link']);
+      $link = $linkHeader;
+      if (is_array($linkHeader)) {
+        $link = reset($linkHeader);
+      }
+			$matches = array();
 			$pattern = '/,<(.+)>; rel="next"/';
 			preg_match($pattern, $link, $matches);
+      // discover next element to request
 			if(isset($matches[1])){
-				return $matches[1];
+        $next = $matches[1];
 			}
+      $matches = array();
+      $pattern = '/<(.+)>; rel="last"/';
+      preg_match($pattern, $links[3], $matches);
+      if(isset($matches[1])){
+        $last = $matches[1];
+      }
+      if ($last) {
+        $tmp = explode('page=', $last);
+        $tmp = explode('&', $tmp[1]);
+        if (is_numeric($tmp[0])) {
+          $last = $tmp[0];
+        }
+      }
+      return array($next, $last);
 		}
-		return FALSE;
+		return array(FALSE, FALSE);
   }
 
   /**

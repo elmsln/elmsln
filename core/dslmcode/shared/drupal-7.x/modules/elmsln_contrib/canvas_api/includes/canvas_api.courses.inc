@@ -42,7 +42,7 @@ class CanvasCourses extends Canvas {
     $this->path = "accounts/$rootAccountID/courses";
     return $this->post();
   }
-  
+
   /**
    * Get a Canvas course
    *
@@ -132,7 +132,7 @@ class CanvasCourses extends Canvas {
    * List users in a Canvas course
    *
    * See @link https://canvas.instructure.com/doc/api/courses.html#method.courses.users @endlink
-   * 
+   *
    * Example:
    *    $canvas_api = canvas_api('courses');
    *    $courseID = 3472;
