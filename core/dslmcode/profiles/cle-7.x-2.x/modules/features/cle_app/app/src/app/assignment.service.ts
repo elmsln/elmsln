@@ -124,9 +124,9 @@ export class AssignmentService {
     if (assignment.type) {
       newAssignment.field_assignment_privacy_setting = assignment.type;
     }
-    if (assignment.description) {
+    if (assignment.body) {
       newAssignment.field_assignment_description = {
-        value: assignment.description
+        value: assignment.body
       }
     }
     if (assignment.critiqueMethod) {

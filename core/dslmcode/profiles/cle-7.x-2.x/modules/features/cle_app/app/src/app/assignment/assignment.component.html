@@ -18,10 +18,8 @@
           {{ assignment.endDate | amDateFormat:'LL hh:mmA' }}
         </div>
       </div>
-      <div class="assignment__description" [innerHTML]="assignment.description"> </div>
+      <div class="assignment__description" [innerHTML]="assignment.body"> </div>
     </div>
-    
-  <pre> <code> {{ assignment | json }} </code> </pre>
 
   <a *ngIf="assignment" (click)="onCreateSubmission(assignment)" class="btn">Submit assignment</a>
 

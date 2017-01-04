@@ -7,7 +7,7 @@ export class Assignment {
   startDate:string = null;
   endDate:string = null;
   project:number = null;
-  description:string = null;
+  body:string = null;
   critiqueMethod:string = null;
   critiquePrivacy:boolean = null;
   critiqueStyle:string = null;

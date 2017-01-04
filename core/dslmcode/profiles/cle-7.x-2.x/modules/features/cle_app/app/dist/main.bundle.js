@@ -33,7 +33,7 @@ var AppSettings = (function () {
     Object.defineProperty(AppSettings, "BASE_PATH", {
         get: function () {
             if (typeof Drupal !== 'undefined') {
-                return Drupal.settings;
+                return Drupal.settings.basePath;
             }
             else {
                 return 'http://studio.elmsln.local/studio2/';
@@ -226,7 +226,7 @@ var Assignment = (function () {
         this.startDate = null;
         this.endDate = null;
         this.project = null;
-        this.description = null;
+        this.body = null;
         this.critiqueMethod = null;
         this.critiquePrivacy = null;
         this.critiqueStyle = null;
@@ -2352,20 +2352,20 @@ var ProjectItemComponent = (function () {
         }); });
     }
     ProjectItemComponent.prototype.ngOnInit = function () {
-        $(this.el.nativeElement.getElementsByClassName('delete-project-form')).modal();
-        $(this.el.nativeElement.getElementsByClassName('tooltipped')).tooltip({ delay: 40 });
+        jQuery(this.el.nativeElement.getElementsByClassName('delete-project-form')).modal();
+        jQuery(this.el.nativeElement.getElementsByClassName('tooltipped')).tooltip({ delay: 40 });
         // this.assignments = this.assignmentService.assignments
         //   }));
     };
     ProjectItemComponent.prototype.ngOnDestroy = function () {
-        $(this.el.nativeElement.getElementsByClassName('tooltipped')).tooltip('remove');
+        jQuery(this.el.nativeElement.getElementsByClassName('tooltipped')).tooltip('remove');
     };
     ProjectItemComponent.prototype.onCreateAssignment = function () {
         var url = 'assignment-create/' + this.project.id;
         this.router.navigate([{ outlets: { dialog: url } }]);
     };
     ProjectItemComponent.prototype.onDeleteProject = function () {
-        $(this.el.nativeElement.getElementsByClassName('delete-project-form')).modal('open');
+        jQuery(this.el.nativeElement.getElementsByClassName('delete-project-form')).modal('open');
     };
     ProjectItemComponent.prototype.confirmDelete = function (confirm) {
         var _this = this;
@@ -2378,7 +2378,7 @@ var ProjectItemComponent = (function () {
             });
         }
         else {
-            $(this.el.nativeElement.getElementsByClassName('delete-project-form')).modal('close');
+            jQuery(this.el.nativeElement.getElementsByClassName('delete-project-form')).modal('close');
         }
     };
     ProjectItemComponent.prototype.updateTitle = function ($event) {
@@ -3490,9 +3490,9 @@ var AssignmentService = (function () {
         if (assignment.type) {
             newAssignment.field_assignment_privacy_setting = assignment.type;
         }
-        if (assignment.description) {
+        if (assignment.body) {
             newAssignment.field_assignment_description = {
-                value: assignment.description
+                value: assignment.body
             };
         }
         if (assignment.critiqueMethod) {
@@ -3854,7 +3854,7 @@ module.exports = "<!-- Modal Structure -->\n<div id=\"modal-assignment-dialog\" 
 /***/ 803:
 /***/ function(module, exports) {
 
-module.exports = "<form [formGroup]=\"form\" class=\"assignment-form\">\n  <input formControlName=\"title\" placeholder=\"Title\">\n  <wysiwygjs formControlName=\"description\"></wysiwygjs>\n\n  <div class=\"privacy\">\n    <label>Privacy Setting:</label>\n    <select formControlName=\"type\">\n      <option value=\"\" disabled selected>Choose your option</option>\n      <option *ngFor=\"let option of assignmentOptions.type\" [value]=\"option.value\">{{ option.display }}</option>\n    </select>\n  </div>\n\n  <div class=\"critique\">\n    <label>Critique settings</label>\n\n    <div class=\"critique-method\">\n      <label>Method</label>\n      <select formControlName=\"critiqueMethod\">\n        <option *ngFor=\"let option of assignmentOptions.critiqueMethod\" [value]=\"option.value\">{{ option.display }}</option>\n      </select>\n    </div>\n\n    <div class=\"critique-style\">\n      <label>Critique style</label>\n      <select formControlName=\"critiqueStyle\">\n        <option *ngFor=\"let option of assignmentOptions.critiqueStyle\" [value]=\"option.value\">{{ option.display }}</option>\n      </select>\n    </div>\n\n    <div class=\"critique-privacy switch\">\n      <label>\n        Private\n        <input type=\"checkbox\" formControlName=\"critiquePrivacy\">\n        <span class=\"lever\"></span>\n        Public\n      </label>\n    </div>\n\n  </div>\n\n  <div class=\"due-date\">\n    <div class=\"display\" *ngIf=\"form.value.endDate !==null\">\n      Due date:\n      <span *ngIf=\"form.value.startDate !== null\" class=\"start-date\">\n        {{ form.value.startDate | amDateFormat:'LL hh:mma' }} \n        <span class=\"separator\">\n          to\n        </span>\n      </span>\n      <span class=\"end-date\">\n        {{ form.value.endDate | amDateFormat:'LL hh:mma' }}\n      </span>\n    </div>\n    \n    <div *ngIf=\"form.value.endDate !== null\" class=\"start-date\">\n      <label>Start Date</label>\n      <app-datetime-input formControlName=\"startDate\"></app-datetime-input>\n    </div>\n\n    <div class=\"due-date\">\n      <label>Due Date</label>\n      <app-datetime-input formControlName=\"endDate\"></app-datetime-input>\n    </div>\n  </div>\n</form>"
+module.exports = "<form [formGroup]=\"form\" class=\"assignment-form\">\n  <input formControlName=\"title\" placeholder=\"Title\">\n  <wysiwygjs formControlName=\"body\"></wysiwygjs>\n\n  <div class=\"privacy\">\n    <label>Privacy Setting:</label>\n    <select formControlName=\"type\">\n      <option value=\"\" disabled selected>Choose your option</option>\n      <option *ngFor=\"let option of assignmentOptions.type\" [value]=\"option.value\">{{ option.display }}</option>\n    </select>\n  </div>\n\n  <div class=\"critique\">\n    <label>Critique settings</label>\n\n    <div class=\"critique-method\">\n      <label>Method</label>\n      <select formControlName=\"critiqueMethod\">\n        <option *ngFor=\"let option of assignmentOptions.critiqueMethod\" [value]=\"option.value\">{{ option.display }}</option>\n      </select>\n    </div>\n\n    <div class=\"critique-style\">\n      <label>Critique style</label>\n      <select formControlName=\"critiqueStyle\">\n        <option *ngFor=\"let option of assignmentOptions.critiqueStyle\" [value]=\"option.value\">{{ option.display }}</option>\n      </select>\n    </div>\n\n    <div class=\"critique-privacy switch\">\n      <label>\n        Private\n        <input type=\"checkbox\" formControlName=\"critiquePrivacy\">\n        <span class=\"lever\"></span>\n        Public\n      </label>\n    </div>\n\n  </div>\n\n  <div class=\"due-date\">\n    <div class=\"display\" *ngIf=\"form.value.endDate !==null\">\n      Due date:\n      <span *ngIf=\"form.value.startDate !== null\" class=\"start-date\">\n        {{ form.value.startDate | amDateFormat:'LL hh:mma' }} \n        <span class=\"separator\">\n          to\n        </span>\n      </span>\n      <span class=\"end-date\">\n        {{ form.value.endDate | amDateFormat:'LL hh:mma' }}\n      </span>\n    </div>\n    \n    <div *ngIf=\"form.value.endDate !== null\" class=\"start-date\">\n      <label>Start Date</label>\n      <app-datetime-input formControlName=\"startDate\"></app-datetime-input>\n    </div>\n\n    <div class=\"due-date\">\n      <label>Due Date</label>\n      <app-datetime-input formControlName=\"endDate\"></app-datetime-input>\n    </div>\n  </div>\n</form>"
 
 /***/ },
 
@@ -3868,7 +3868,7 @@ module.exports = "<div class=\"row\">\n  <ul class=\"collapsible\">\n    <li *ng
 /***/ 805:
 /***/ function(module, exports) {
 
-module.exports = "<div *ngFor=\"let assignment of (assignments$| async)\">\n    <nav>\n      <div class=\"nav-wrapper\">\n        <ul id=\"nav-mobile\" class=\"left\">\n          <li><a routerLink=\"/projects\"><i class=\"material-icons left\">&#xE5C4;</i> back</a></li>\n        </ul>\n        <ul id=\"nav-mobile\" class=\"right\">\n          <li *ngIf=\"(userCanEdit$ | async)\"><a (click)=\"onEditAssignment(assignment)\" title=\"Edit this assignment\"><i class=\"material-icons left\">edit</i></a></li>\n        </ul>\n      </div>\n    </nav>\n\n    <div class=\"assignment\" *ngIf=\"assignment\">\n      <h1 class=\"assignment__title\">{{ assignment.title }}</h1>\n      <div class=\"assignment__meta\">\n        <div class=\"assignment__dates\">\n          <span *ngIf=\"assignment.startDate\">{{ assignment.startDate | amDateFormat:'LL hh:mmA' }} - </span>\n          {{ assignment.endDate | amDateFormat:'LL hh:mmA' }}\n        </div>\n      </div>\n      <div class=\"assignment__description\" [innerHTML]=\"assignment.description\"> </div>\n    </div>\n    \n  <pre> <code> {{ assignment | json }} </code> </pre>\n\n  <a *ngIf=\"assignment\" (click)=\"onCreateSubmission(assignment)\" class=\"btn\">Submit assignment</a>\n\n  <app-submission-list title=\"My Submission\" [submissions]=\"submissions$ | async\"></app-submission-list>\n</div>"
+module.exports = "<div *ngFor=\"let assignment of (assignments$| async)\">\n    <nav>\n      <div class=\"nav-wrapper\">\n        <ul id=\"nav-mobile\" class=\"left\">\n          <li><a routerLink=\"/projects\"><i class=\"material-icons left\">&#xE5C4;</i> back</a></li>\n        </ul>\n        <ul id=\"nav-mobile\" class=\"right\">\n          <li *ngIf=\"(userCanEdit$ | async)\"><a (click)=\"onEditAssignment(assignment)\" title=\"Edit this assignment\"><i class=\"material-icons left\">edit</i></a></li>\n        </ul>\n      </div>\n    </nav>\n\n    <div class=\"assignment\" *ngIf=\"assignment\">\n      <h1 class=\"assignment__title\">{{ assignment.title }}</h1>\n      <div class=\"assignment__meta\">\n        <div class=\"assignment__dates\">\n          <span *ngIf=\"assignment.startDate\">{{ assignment.startDate | amDateFormat:'LL hh:mmA' }} - </span>\n          {{ assignment.endDate | amDateFormat:'LL hh:mmA' }}\n        </div>\n      </div>\n      <div class=\"assignment__description\" [innerHTML]=\"assignment.body\"> </div>\n    </div>\n\n  <a *ngIf=\"assignment\" (click)=\"onCreateSubmission(assignment)\" class=\"btn\">Submit assignment</a>\n\n  <app-submission-list title=\"My Submission\" [submissions]=\"submissions$ | async\"></app-submission-list>\n</div>"
 
 /***/ },
 
