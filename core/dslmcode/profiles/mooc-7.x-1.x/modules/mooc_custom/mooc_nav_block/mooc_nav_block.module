@@ -127,12 +127,17 @@ function _mooc_nav_block_get_nav($node) {
     'label' => (isset($node->field_mooc_nav_label[LANGUAGE_NONE][0]['value']) ? $node->field_mooc_nav_label[LANGUAGE_NONE][0]['value'] : t('Contents')),
     'custom_text' => (isset($node->field_mooc_nav_custom_text[LANGUAGE_NONE][0]['value']) ? $node->field_mooc_nav_custom_text[LANGUAGE_NONE][0]['value'] : ''),
   );
-  if (!$node->book['has_children']) {
-    if ($nav['label'] == t('Contents')) {
+  if ($nav['label'] == t('Contents')) {
+    if (!$node->book['has_children']) {
       // load the parent of the current item
       $cache = _book_cache_get_associations($node->book);
       $nav['label'] = $cache['parent']['link_title'];
     }
+    else {
+      $nav['label'] = $node->book['link_title'];
+    }
+  }
+  if (!$node->book['has_children']) {
     $nav['type'] = 'content-outline-active-current';
     $nav['display'] = 'here';
     $nav['parent'] = $node->book['plid'];
