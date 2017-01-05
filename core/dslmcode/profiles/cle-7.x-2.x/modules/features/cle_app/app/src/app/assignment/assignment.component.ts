@@ -29,7 +29,6 @@ export class AssignmentComponent implements OnInit {
     private el:ElementRef,
     private store: Store<{}>
   ) { 
-    this.store.dispatch(loadAssignments());
   }
 
   ngOnInit() {

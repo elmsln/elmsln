@@ -1,4 +1,4 @@
-<div *ngIf="loading == true" class="preloader-wrapper big active">
+<div *ngIf="loading === true" class="preloader-wrapper big active">
   <div class="spinner-layer spinner-blue-only">
     <div class="circle-clipper left">
       <div class="circle"></div>
@@ -10,15 +10,11 @@
   </div>
 </div>
 
-<div *ngIf="projects.length == 0 && loading == false"> 
-  <i class="material-icons face">tag_faces</i>
-  <a (click)="createNewProject('My first project')" class="create-project waves-effect waves-light btn-large"><i class="material-icons right">add</i>Create your first project</a>
-</div>
-
-<div *ngIf="projects.length > 0 && loading == false"> 
+<div> 
   <a (click)="createNewProject('Add project')" class="create-project waves-effect waves-light btn-large"><i class="material-icons right">add</i>New project</a>
 </div>
 
 <div class="projects-container">
-  <app-project-item *ngFor="let project of projects" [project]="project" (delete)="projectDeleted(project)"></app-project-item>
+  <app-project-item *ngFor="let project of (projects$ | async)" [project]="project" (delete)="projectDeleted(project)"></app-project-item>
 </div>
+
