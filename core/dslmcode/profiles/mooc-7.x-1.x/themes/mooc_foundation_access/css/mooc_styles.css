@@ -53,6 +53,26 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  color: #000000;
+  font-size: 1rem;
+}
+#block-mooc-nav-block-mooc-nav-nav.block-mooc-nav-block-mooc-nav ul li.elmsln-book-item.has-children a {
+  padding: 0 0 0 .375rem;
+}
+#block-mooc-nav-block-mooc-nav-nav.block-mooc-nav-block-mooc-nav ul li.elmsln-book-item.has-children a:before {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  content: "";
+  vertical-align: middle;
+  border: .25rem solid;
+  margin: -.25rem .125rem 0 0;
+  border-top-color: transparent;
+  border-right-color: transparent;
+  border-bottom-color: transparent;
+}
+#block-mooc-nav-block-mooc-nav-nav.block-mooc-nav-block-mooc-nav ul li a.active {
+  font-weight: bold;
 }
 #block-mooc-nav-block-mooc-nav-nav.block-mooc-nav-block-mooc-nav ul li.active-trail {
   background-color: #ffffff;
@@ -61,8 +81,7 @@
   margin: 0 -1px;
 }
 #block-mooc-nav-block-mooc-nav-nav.block-mooc-nav-block-mooc-nav .block-mooc-nav-block-mooc-title {
-  border-bottom: .1rem solid #cccccc;
-  text-align: center;
+  border-bottom: .1rem solid #000000;
   text-transform: uppercase;
   margin: 0;
   line-height: 2.5rem;
@@ -72,10 +91,12 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  padding: 0 0 0 1rem;
 }
 
 #block-mooc-nav-block-mooc-nav-nav.block-mooc-nav-block-mooc-nav {
-  border: .1rem solid #cccccc;
+  border: .1rem solid #000000;
+  border-top: none;
 }
 
 #block-mooc-nav-block-mooc-nav-nav ul{
@@ -458,25 +479,25 @@ a.book-sibling-parent-pagination {
     background: transparent;
   }
   .book-sibling-parent-1 .book-sibling-parent-text {
-    max-width:10rem;
+    max-width:12rem;
   }
   .book-sibling-parent-2 .book-sibling-parent-text {
-    max-width:8rem;
+    max-width:10rem;
   }
   .book-sibling-parent-3 .book-sibling-parent-text {
-    max-width:6rem;
+    max-width:8rem;
   }
   .book-sibling-parent-4 .book-sibling-parent-text {
+    max-width:6rem;
+  }
+  .book-sibling-parent-5 .book-sibling-parent-text {
     max-width:4rem;
   }
   .book-sibling-parent-5 .book-sibling-parent-text {
     max-width:2rem;
   }
-  .book-sibling-parent-5 .book-sibling-parent-text {
-    max-width:1.5rem;
-  }
   .book-sibling-parent-6 .book-sibling-parent-text {
-    max-width:1.5rem;
+    max-width:2rem;
   }
   .book-sibling-parent-7 .book-sibling-parent-text {
     max-width:1rem;

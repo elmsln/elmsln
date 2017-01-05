@@ -1046,14 +1046,27 @@ function foundation_access_menu_link(&$variables) {
       $element['#localized_options']['attributes']['class'][] = $lmsless_classes['light'];
     }
   }
-  if ($element['#original_link']['menu_name'] == 'menu-elmsln-navigation') {
+  elseif ($element['#original_link']['menu_name'] == 'menu-elmsln-navigation') {
     $lmsless_classes = _cis_lmsless_get_distro_classes(elmsln_core_get_profile_key());
     $element['#attributes']['class'][] = 'tab';
     $element['#localized_options']['attributes']['class'][] = $lmsless_classes['text'];
     $element['#localized_options']['attributes']['target'] = '_self';
   }
+  elseif (strpos($element['#original_link']['menu_name'], 'book-toc-') === 0) {
+    $element['#attributes']['class'][] = 'elmsln-book-item';
+    if ($element['#original_link']['has_children'] == 1) {
+      $element['#attributes']['class'][] = 'has-children';
+    }
+  }
   $output = l($title, $element['#href'], $element['#localized_options']);
   return '<li' . drupal_attributes($element['#attributes']) . '>' . $output . $sub_menu . "</li>\n";
+}
+
+/**
+ * Implements menu_tree__menu_elmsln_settings.
+ */
+function foundation_access_menu_tree($variables) {
+  return '<ul class="menu">' . $variables['tree'] . '</ul>';
 }
 
 /**

@@ -115,7 +115,7 @@
     // apply border to things that want our background
     $('.cis-lmsless-border, .tabs li.tab a').addClass(Drupal.settings.cis_lmsless[Drupal.settings.distro]['color'] + '-border');
     // color chips
-    $('.chip, .book-menu-item-active-link').not('.book-parent-tree').addClass(Drupal.settings.cis_lmsless[Drupal.settings.distro]['color'] + ' ' + Drupal.settings.cis_lmsless[Drupal.settings.distro]['light']);
+    $('.book-menu-item-active-link').not('.book-parent-tree').addClass(Drupal.settings.cis_lmsless[Drupal.settings.distro]['color'] + ' ' + Drupal.settings.cis_lmsless[Drupal.settings.distro]['light']);
     // meta property names so mobile reflects system color
     $('meta[name="theme-color"],meta[name="msapplication-TileColor"],meta[name="msapplication-navbutton-color"]').attr('content', $('.cis-lmsless-color').css('backgroundColor'));
     // hover state for tables to match styling

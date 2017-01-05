@@ -3,48 +3,48 @@
 */
 
 /* Required list template */
-div.textbook_box {
+.textbook_box {
   display: block;
-  margin: 1em 0px 2em 0px;
+  margin: 1rem 0px 2rem 0px;
   padding: .5em;
 }
-div.textbook_box h3 {
+.textbook_box h3 {
   font-size: 1.5em;
   font-weight: bold;
   display: block;
   float: right;
-  margin-top: -10px !important;
-  margin-right: -10px;
-  margin-bottom: 8px;
-  margin-left: 0px;
-  padding: 0px 0px 8px 8px;
-  background-color: #fafafa;
-  border-bottom: 2px solid;
-  border-left: 2px solid;
+  margin-top: -.7rem !important;
+  margin-right: -.7rem;
+  margin-bottom: .5rem;
+  margin-left: 0;
+  padding: 0 0 .5rem .5rem;
+  background-color: #ffffff;
+  border-bottom: .1rem solid;
+  border-left: .1rem solid;
   letter-spacing: .06em;
   line-height: 1;
 }
-div.textbook_box_required {
-  border:#b10000 2px solid;
+.textbook_box_required {
+  border:#ff5252 .1rem solid;
 }
-div.textbook_box_required h3{
-  color:#b10000;
+.textbook_box_required h3{
+  color:#ff5252;
 }
-div.textbook_box_required li:before{
-  background: #b10000;
+.textbook_box_required li:before{
+  background: #ff5252;
 }
 /* Optional list color shift */
-div.textbook_box_optional {
+.textbook_box_optional {
   border:#1b526d 2px solid;
 }
-div.textbook_box_optional h3{
+.textbook_box_optional h3{
   color: #1b526d;
 }
-div.textbook_box_optional li:before{
+.textbook_box_optional li:before{
   background: #1b526d;
 }
 
-div.textbook_box ol, div.textbook_box ul{
+.textbook_box ol, .textbook_box ul{
   counter-reset: li; /* Initiate a counter */
   list-style: none; /* Remove default numbering */
   *list-style: decimal; /* Keep using default numbering for IE6/7 */
@@ -53,11 +53,11 @@ div.textbook_box ol, div.textbook_box ul{
   text-shadow: 0 1px 0 rgba(255,255,255,.5);
 }
 
-div.textbook_box li{
+.textbook_box li{
   position: relative;
   display: block;
-  padding: .4em .4em .4em 2em;
-  margin: .7em 0 !important;
+  padding: .4rem .4rem .4rem 2rem;
+  margin: .7rem 0 !important;
   background: #eee;
   color: #444;
   text-decoration: none;
@@ -65,11 +65,11 @@ div.textbook_box li{
   overflow-wrap: break-word;
 }
 
-div.textbook_box li:hover{
+.textbook_box li:hover{
   background: #e0e0e0;
 }
 
-div.textbook_box li:before{
+.textbook_box li:before{
   content: counter(li);
   counter-increment: li;
   position: absolute;
@@ -91,7 +91,7 @@ div.textbook_box li:before{
 
 /* Responsive */
 @media screen and (max-width: 80rem) {
-  div.textbook_box h3 {
+  .textbook_box h3 {
     float: none;
     margin: 0;
     padding: 1rem 1rem 0;
