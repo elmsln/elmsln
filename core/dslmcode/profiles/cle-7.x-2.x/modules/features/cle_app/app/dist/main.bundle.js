@@ -350,7 +350,7 @@ var Submission = (function () {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__user_service__ = __webpack_require__(251);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_router__ = __webpack_require__(27);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__ngrx_store__ = __webpack_require__(18);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__app_actions__ = __webpack_require__(79);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__app_actions__ = __webpack_require__(92);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__submission_submission_actions__ = __webpack_require__(167);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__projects_project_actions__ = __webpack_require__(118);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return AppComponent; });
@@ -424,6 +424,7 @@ var Assignment = (function () {
         this.critiqueMethod = null;
         this.critiquePrivacy = null;
         this.critiqueStyle = null;
+        this.canCreate = null;
     }
     return Assignment;
 }());
@@ -511,7 +512,7 @@ var CritiqueService = (function () {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__elmsln_service__ = __webpack_require__(65);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ng2_cookies_ng2_cookies__ = __webpack_require__(440);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ng2_cookies_ng2_cookies___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_ng2_cookies_ng2_cookies__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__app_actions__ = __webpack_require__(79);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__app_actions__ = __webpack_require__(92);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__ngrx_store__ = __webpack_require__(18);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return UserService; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
@@ -563,7 +564,7 @@ var UserService = (function () {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__assignment_service__ = __webpack_require__(64);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__assignment_form_assignment_form_component__ = __webpack_require__(387);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__ngrx_store__ = __webpack_require__(18);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__app_actions__ = __webpack_require__(79);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__app_actions__ = __webpack_require__(92);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return AssignmentDialogComponent; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -977,8 +978,7 @@ var Project = (function () {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__project_service__ = __webpack_require__(166);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__angular_router__ = __webpack_require__(27);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__ngrx_store__ = __webpack_require__(18);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__app_actions__ = __webpack_require__(79);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__project_actions__ = __webpack_require__(118);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__project_actions__ = __webpack_require__(118);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return ProjectsListComponent; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -995,14 +995,12 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 
 
 
-
 var ProjectsListComponent = (function () {
     function ProjectsListComponent(projectService, router, store) {
         this.projectService = projectService;
         this.router = router;
         this.store = store;
         this.projects = [];
-        store.dispatch(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_5__app_actions__["b" /* loadAssignments */])());
     }
     ProjectsListComponent.prototype.ngOnInit = function () {
         var _this = this;
@@ -1015,7 +1013,7 @@ var ProjectsListComponent = (function () {
     ProjectsListComponent.prototype.createNewProject = function (title) {
         var newProj = new __WEBPACK_IMPORTED_MODULE_1__project__["a" /* Project */]();
         newProj.title = "New Project";
-        this.store.dispatch(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_6__project_actions__["b" /* createProject */])(newProj));
+        this.store.dispatch(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_5__project_actions__["b" /* createProject */])(newProj));
     };
     ProjectsListComponent.prototype.projectDeleted = function (deletedProject) {
         var _this = this;
@@ -1428,7 +1426,7 @@ __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__angular_platform_browser_dyna
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_mergeMap___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_mergeMap__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_core__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__ngrx_effects__ = __webpack_require__(165);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__app_actions__ = __webpack_require__(79);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__app_actions__ = __webpack_require__(92);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__assignment_service__ = __webpack_require__(64);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__elmsln_service__ = __webpack_require__(65);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return AppEffects; });
@@ -1463,6 +1461,10 @@ var AppEffects = (function () {
         // Update the assignment on the server
         this.updateAssignment$ = this.actions$
             .ofType(__WEBPACK_IMPORTED_MODULE_3__app_actions__["f" /* ActionTypes */].UPDATE_ASSIGNMENT)
+            .map(function (state) {
+            Materialize.toast('Assignment updating...', 1500);
+            return state;
+        })
             .mergeMap(function (action) {
             return _this.assignmentService.updateAssignment(action.payload)
                 .mergeMap(function (data) { return _this.assignmentService.getAssignment(action.payload.id); });
@@ -2695,7 +2697,7 @@ var ProjectsComponent = (function () {
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__app_actions__ = __webpack_require__(79);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__app_actions__ = __webpack_require__(92);
 /* harmony export (immutable) */ exports["a"] = reducer;
 
 var initialState = {
@@ -2779,7 +2781,7 @@ function reducer(state, action) {
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__app_actions__ = __webpack_require__(79);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__app_actions__ = __webpack_require__(92);
 /* harmony export (immutable) */ exports["a"] = reducer;
 
 var initialState = {
@@ -3387,10 +3389,17 @@ var WysiwygjsComponent = (function () {
                 var base64 = jQuery(this).attr('src');
                 newThis.uploadImage(base64)
                     .subscribe(function (url) {
-                    jQuery(_this).attr('src', url).addClass('processed');
-                    console.log('processed');
-                    return;
+                    jQuery(_this).attr('src', url);
+                    jQuery(_this).addClass('processed');
+                }, function (error) {
+                    jQuery(_this).remove();
+                    Materialize.toast('Image too big. Please resize and try again.', 1500);
                 });
+                // .subscribe(url => {
+                //     jQuery(this).attr('src', url).addClass('processed');
+                //     console.log(url);
+                //     return;
+                // })
             });
             // Update content
             newThis.content = target.html();
@@ -3400,6 +3409,18 @@ var WysiwygjsComponent = (function () {
     };
     WysiwygjsComponent.prototype.updateContent = function () {
         jQuery(this.el.nativeElement).find('.wysiwyg-editor').html(this.content);
+    };
+    /**
+     * @todo: not ready yet
+     */
+    WysiwygjsComponent.prototype.resizeImage = function (data) {
+        var image = new Image();
+        image.src = data;
+        var resize_canvas = document.createElement('canvas');
+        resize_canvas.width = 800;
+        resize_canvas.height = 800;
+        resize_canvas.getContext('2d').drawImage(image, 0, 0, 800, 800);
+        return resize_canvas.toDataURL("image/jpg");
     };
     WysiwygjsComponent.prototype.uploadImage = function (base64) {
         /**
@@ -3619,6 +3640,11 @@ var AssignmentService = (function () {
         if (data['hierarchy']) {
             if (data['hierarchy']['project']) {
                 converted['project'] = Number(data['hierarchy']['project']);
+            }
+        }
+        if (data['metadata']) {
+            if (data['metadata']['canCreate']) {
+                converted['canCreate'] = data['metadata']['canCreate'];
             }
         }
         return converted;
@@ -3900,89 +3926,6 @@ module.exports = ""
 
 /***/ },
 
-/***/ 79:
-/***/ function(module, exports, __webpack_require__) {
-
-"use strict";
-/* harmony export (binding) */ __webpack_require__.d(exports, "f", function() { return ActionTypes; });
-/* harmony export (immutable) */ exports["d"] = createAssignment;
-/* harmony export (immutable) */ exports["g"] = createAssignmentSuccess;
-/* harmony export (immutable) */ exports["c"] = updateAssignment;
-/* harmony export (immutable) */ exports["h"] = updateAssignmentSuccess;
-/* harmony export (immutable) */ exports["e"] = deleteAssignment;
-/* harmony export (immutable) */ exports["b"] = loadAssignments;
-/* harmony export (immutable) */ exports["i"] = loadAssignmentsSuccess;
-/* harmony export (immutable) */ exports["a"] = loadPermissions;
-/* harmony export (immutable) */ exports["j"] = loadPermissionsSuccess;
-var ActionTypes = {
-    CREATE_ASSIGNMENT: 'CREATE_ASSIGNMENT',
-    CREATE_ASSIGNMENT_SUCCESS: 'CREATE_ASSIGNMENT_SUCCESS',
-    UPDATE_ASSIGNMENT: 'UPDATE_ASSIGNMENT',
-    UPDATE_ASSIGNMENT_SUCCESS: 'UPDATE_ASSIGNMENT_SUCCESS',
-    DELETE_ASSIGNMENT: 'DELETE_ASSIGNMENT',
-    LOAD_ASSIGNMENTS: 'LOAD_ASSIGNMENTS',
-    LOAD_ASSIGNMENTS_SUCCESS: 'LOAD_ASSIGNMENTS_SUCCESS',
-    LOAD_PERMISSIONS: 'LOAD_PERMISSIONS',
-    LOAD_PERMISSIONS_SUCCESS: 'LOAD_PERMISSIONS_SUCCESS'
-};
-function createAssignment(assignment) {
-    return {
-        type: ActionTypes.CREATE_ASSIGNMENT,
-        payload: assignment
-    };
-}
-function createAssignmentSuccess(assignmentId) {
-    return {
-        type: ActionTypes.CREATE_ASSIGNMENT_SUCCESS,
-        payload: { id: assignmentId }
-    };
-}
-function updateAssignment(assignment) {
-    return {
-        type: ActionTypes.UPDATE_ASSIGNMENT,
-        payload: assignment
-    };
-}
-function updateAssignmentSuccess(assignment) {
-    return {
-        type: ActionTypes.UPDATE_ASSIGNMENT_SUCCESS,
-        payload: assignment
-    };
-}
-function deleteAssignment(assignment) {
-    return {
-        type: ActionTypes.DELETE_ASSIGNMENT,
-        payload: assignment
-    };
-}
-function loadAssignments() {
-    return {
-        type: ActionTypes.LOAD_ASSIGNMENTS,
-        payload: {}
-    };
-}
-function loadAssignmentsSuccess(assignments) {
-    return {
-        type: ActionTypes.LOAD_ASSIGNMENTS_SUCCESS,
-        payload: assignments
-    };
-}
-function loadPermissions() {
-    return {
-        type: ActionTypes.LOAD_PERMISSIONS,
-        payload: {}
-    };
-}
-function loadPermissionsSuccess(permissions) {
-    return {
-        type: ActionTypes.LOAD_PERMISSIONS_SUCCESS,
-        payload: permissions
-    };
-}
-//# sourceMappingURL=/Users/scienceonlineed/Documents/websites/elmsln/core/dslmcode/profiles/cle-7.x-2.x/modules/features/cle_app/app/src/app.actions.js.map
-
-/***/ },
-
 /***/ 790:
 /***/ function(module, exports) {
 
@@ -4098,7 +4041,7 @@ module.exports = "<div class=\"row\">\n  <ul class=\"collapsible\">\n    <li *ng
 /***/ 808:
 /***/ function(module, exports) {
 
-module.exports = "<div *ngFor=\"let assignment of (assignments$| async)\">\n    <nav>\n      <div class=\"nav-wrapper\">\n        <ul id=\"nav-mobile\" class=\"left\">\n          <li><a routerLink=\"/projects\"><i class=\"material-icons left\">&#xE5C4;</i> back</a></li>\n        </ul>\n        <ul id=\"nav-mobile\" class=\"right\">\n          <li *ngIf=\"(userCanEdit$ | async)\"><a (click)=\"onEditAssignment(assignment)\" title=\"Edit this assignment\"><i class=\"material-icons left\">edit</i></a></li>\n        </ul>\n      </div>\n    </nav>\n\n    <div class=\"assignment\" *ngIf=\"assignment\">\n      <h1 class=\"assignment__title\">{{ assignment.title }}</h1>\n      <div class=\"assignment__meta\">\n        <div class=\"assignment__dates\">\n          <span *ngIf=\"assignment.startDate\">{{ assignment.startDate | amDateFormat:'LL hh:mmA' }} - </span>\n          {{ assignment.endDate | amDateFormat:'LL hh:mmA' }}\n        </div>\n      </div>\n      <div class=\"assignment__description\" [innerHTML]=\"assignment.body\"> </div>\n    </div>\n\n  <a *ngIf=\"assignment\" (click)=\"onCreateSubmission(assignment)\" class=\"btn\">Submit assignment</a>\n\n  <app-submission-list title=\"My Submission\" [submissions]=\"submissions$ | async\"></app-submission-list>\n</div>"
+module.exports = "<div *ngFor=\"let assignment of (assignments$| async)\">\n    <nav>\n      <div class=\"nav-wrapper\">\n        <ul id=\"nav-mobile\" class=\"left\">\n          <li><a routerLink=\"/projects\"><i class=\"material-icons left\">&#xE5C4;</i> back</a></li>\n        </ul>\n        <ul id=\"nav-mobile\" class=\"right\">\n          <li *ngIf=\"(userCanEdit$ | async)\"><a (click)=\"onEditAssignment(assignment)\" title=\"Edit this assignment\"><i class=\"material-icons left\">edit</i></a></li>\n        </ul>\n      </div>\n    </nav>\n\n    <div class=\"assignment\" *ngIf=\"assignment\">\n      <h1 class=\"assignment__title\">{{ assignment.title }}</h1>\n      <div class=\"assignment__meta\">\n        <div class=\"assignment__dates\">\n          <span *ngIf=\"assignment.startDate\">{{ assignment.startDate | amDateFormat:'LL hh:mmA' }} - </span>\n          {{ assignment.endDate | amDateFormat:'LL hh:mmA' }}\n        </div>\n      </div>\n      <div class=\"assignment__description\" [innerHTML]=\"assignment.body\"> </div>\n    </div>\n\n\n  <app-submission-list title=\"My Submission\" [submissions]=\"submissions$ | async\"></app-submission-list>\n\n  <a *ngIf=\"assignment && assignment.canCreate\" (click)=\"onCreateSubmission(assignment)\" class=\"btn-large\">Submit assignment</a>\n  <a *ngIf=\"assignment && !assignment.canCreate\" class=\"btn-large disabled\">Submit assignment</a>\n</div>"
 
 /***/ },
 
@@ -4182,7 +4125,7 @@ module.exports = "<div class=\"project\">\n  <div class=\"project__header\">\n  
 /***/ 820:
 /***/ function(module, exports) {
 
-module.exports = "<div *ngIf=\"loading === true\" class=\"preloader-wrapper big active\">\n  <div class=\"spinner-layer spinner-blue-only\">\n    <div class=\"circle-clipper left\">\n      <div class=\"circle\"></div>\n    </div><div class=\"gap-patch\">\n      <div class=\"circle\"></div>\n    </div><div class=\"circle-clipper right\">\n      <div class=\"circle\"></div>\n    </div>\n  </div>\n</div>\n\n<div *ngIf=\"projectCount > 0\"> \n  <a (click)=\"createNewProject('Add project')\" class=\"create-project waves-effect waves-light btn-large\"><i class=\"material-icons right\">add</i>New project</a>\n</div>\n\n<div class=\"projects-container\">\n  <app-project-item *ngFor=\"let project of (projects$ | async)\" [project]=\"project\" (delete)=\"projectDeleted(project)\"></app-project-item>\n</div>\n\n"
+module.exports = "<div *ngIf=\"loading === true\" class=\"preloader-wrapper big active\">\n  <div class=\"spinner-layer spinner-blue-only\">\n    <div class=\"circle-clipper left\">\n      <div class=\"circle\"></div>\n    </div><div class=\"gap-patch\">\n      <div class=\"circle\"></div>\n    </div><div class=\"circle-clipper right\">\n      <div class=\"circle\"></div>\n    </div>\n  </div>\n</div>\n\n<div> \n  <a (click)=\"createNewProject('Add project')\" class=\"create-project waves-effect waves-light btn-large\"><i class=\"material-icons right\">add</i>New project</a>\n</div>\n\n<div class=\"projects-container\">\n  <app-project-item *ngFor=\"let project of (projects$ | async)\" [project]=\"project\" (delete)=\"projectDeleted(project)\"></app-project-item>\n</div>\n\n"
 
 /***/ },
 
@@ -4239,6 +4182,89 @@ module.exports = "<p>\n  user works!\n</p>\n"
 /***/ function(module, exports) {
 
 module.exports = "<textarea>{{ content }}</textarea>"
+
+/***/ },
+
+/***/ 92:
+/***/ function(module, exports, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(exports, "f", function() { return ActionTypes; });
+/* harmony export (immutable) */ exports["d"] = createAssignment;
+/* harmony export (immutable) */ exports["g"] = createAssignmentSuccess;
+/* harmony export (immutable) */ exports["c"] = updateAssignment;
+/* harmony export (immutable) */ exports["h"] = updateAssignmentSuccess;
+/* harmony export (immutable) */ exports["e"] = deleteAssignment;
+/* harmony export (immutable) */ exports["b"] = loadAssignments;
+/* harmony export (immutable) */ exports["i"] = loadAssignmentsSuccess;
+/* harmony export (immutable) */ exports["a"] = loadPermissions;
+/* harmony export (immutable) */ exports["j"] = loadPermissionsSuccess;
+var ActionTypes = {
+    CREATE_ASSIGNMENT: 'CREATE_ASSIGNMENT',
+    CREATE_ASSIGNMENT_SUCCESS: 'CREATE_ASSIGNMENT_SUCCESS',
+    UPDATE_ASSIGNMENT: 'UPDATE_ASSIGNMENT',
+    UPDATE_ASSIGNMENT_SUCCESS: 'UPDATE_ASSIGNMENT_SUCCESS',
+    DELETE_ASSIGNMENT: 'DELETE_ASSIGNMENT',
+    LOAD_ASSIGNMENTS: 'LOAD_ASSIGNMENTS',
+    LOAD_ASSIGNMENTS_SUCCESS: 'LOAD_ASSIGNMENTS_SUCCESS',
+    LOAD_PERMISSIONS: 'LOAD_PERMISSIONS',
+    LOAD_PERMISSIONS_SUCCESS: 'LOAD_PERMISSIONS_SUCCESS'
+};
+function createAssignment(assignment) {
+    return {
+        type: ActionTypes.CREATE_ASSIGNMENT,
+        payload: assignment
+    };
+}
+function createAssignmentSuccess(assignmentId) {
+    return {
+        type: ActionTypes.CREATE_ASSIGNMENT_SUCCESS,
+        payload: { id: assignmentId }
+    };
+}
+function updateAssignment(assignment) {
+    return {
+        type: ActionTypes.UPDATE_ASSIGNMENT,
+        payload: assignment
+    };
+}
+function updateAssignmentSuccess(assignment) {
+    return {
+        type: ActionTypes.UPDATE_ASSIGNMENT_SUCCESS,
+        payload: assignment
+    };
+}
+function deleteAssignment(assignment) {
+    return {
+        type: ActionTypes.DELETE_ASSIGNMENT,
+        payload: assignment
+    };
+}
+function loadAssignments() {
+    return {
+        type: ActionTypes.LOAD_ASSIGNMENTS,
+        payload: {}
+    };
+}
+function loadAssignmentsSuccess(assignments) {
+    return {
+        type: ActionTypes.LOAD_ASSIGNMENTS_SUCCESS,
+        payload: assignments
+    };
+}
+function loadPermissions() {
+    return {
+        type: ActionTypes.LOAD_PERMISSIONS,
+        payload: {}
+    };
+}
+function loadPermissionsSuccess(permissions) {
+    return {
+        type: ActionTypes.LOAD_PERMISSIONS_SUCCESS,
+        payload: permissions
+    };
+}
+//# sourceMappingURL=/Users/scienceonlineed/Documents/websites/elmsln/core/dslmcode/profiles/cle-7.x-2.x/modules/features/cle_app/app/src/app.actions.js.map
 
 /***/ }
 
