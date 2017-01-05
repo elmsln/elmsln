@@ -617,6 +617,9 @@ var AssignmentDialogComponent = (function () {
         });
         jQuery(this.el.nativeElement.getElementsByClassName('modal')).modal({
             dismissible: false,
+            ready: function (modal, trigger) {
+                console.log(modal);
+            },
         });
         jQuery(this.el.nativeElement.getElementsByClassName('modal')).modal('open');
     };
@@ -3358,7 +3361,7 @@ var WysiwygjsComponent = (function () {
                 selectImage: 'Click to upload image',
                 placeholderUrl: 'www.example.com',
                 placeholderEmbed: '<embed/>',
-                maxImageSize: [600, 200],
+                maxImageSize: [1024, 640],
                 onImageUpload: function (insert_image) {
                 },
                 forceImageUpload: false,
@@ -3388,12 +3391,15 @@ var WysiwygjsComponent = (function () {
                 var _this = this;
                 var base64 = jQuery(this).attr('src');
                 newThis.uploadImage(base64)
-                    .subscribe(function (url) {
-                    jQuery(_this).attr('src', url);
+                    .subscribe(function (image) {
+                    console.log(image);
+                    jQuery(_this).attr('src', image.url);
+                    jQuery(_this).attr('width', image.metadata.width);
+                    jQuery(_this).attr('height', image.metadata.height);
                     jQuery(_this).addClass('processed');
                 }, function (error) {
                     jQuery(_this).remove();
-                    Materialize.toast('Image too big. Please resize and try again.', 1500);
+                    Materialize.toast('Image must be smaller than 1024 x 640 pixels.', 2500);
                 });
                 // .subscribe(url => {
                 //     jQuery(this).attr('src', url).addClass('processed');
@@ -3427,7 +3433,7 @@ var WysiwygjsComponent = (function () {
          * @todo: need to actually upload this to the server
          */
         return this.elmslnService.createImage(base64)
-            .map(function (data) { return data.url; });
+            .map(function (data) { return data; });
     };
     __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Input"])(), 
@@ -3845,7 +3851,7 @@ module.exports = ".cle-critique {\n  margin: 0 calc(-50vw + 50%);\n}"
 /***/ 778:
 /***/ function(module, exports) {
 
-module.exports = ""
+module.exports = ".assignment-dialog {\n  top: 5% !important;\n  bottom: 5% !important;\n  max-height: none !important;\n  height: 90%;\n}"
 
 /***/ },
 
@@ -4006,7 +4012,7 @@ module.exports = ""
 /***/ 801:
 /***/ function(module, exports) {
 
-module.exports = "/* CSS for the font-name + font-size plugin */\n.wysiwyg-plugin-list {\n    max-height: 16em;\n    overflow: auto;\n    overflow-x: hidden;\n    overflow-y: scroll;\n}\n.wysiwyg-plugin-list a,\n.wysiwyg-plugin-list a:link,\n.wysiwyg-plugin-list a:visited {\n    display: block;\n    color: black;\n    padding: 5px 10px;\n    text-decoration: none;\n    cursor: pointer;\n}\n.wysiwyg-plugin-list a:hover {\n    color: HighlightText;\n    background-color: Highlight;\n}\n/* CSS for the smiley plugin */\n.wysiwyg-plugin-smilies {\n    padding: 10px;\n    text-align: center;\n    white-space: normal;\n}\n.wysiwyg-plugin-smilies img {\n    display: -moz-inline-stack; /* inline-block: http://blog.mozilla.org/webdev/2009/02/20/cross-browser-inline-block/ */\n    display: inline-block;\n    *display: inline;\n}\n\n.wysiwyg-browse {\n  height: 50%;\n}\n"
+module.exports = "/* CSS for the font-name + font-size plugin */\n.wysiwyg-plugin-list {\n    max-height: 16em;\n    overflow: auto;\n    overflow-x: hidden;\n    overflow-y: scroll;\n}\n.wysiwyg-plugin-list a,\n.wysiwyg-plugin-list a:link,\n.wysiwyg-plugin-list a:visited {\n    display: block;\n    color: black;\n    padding: 5px 10px;\n    text-decoration: none;\n    cursor: pointer;\n}\n.wysiwyg-plugin-list a:hover {\n    color: HighlightText;\n    background-color: Highlight;\n}\n/* CSS for the smiley plugin */\n.wysiwyg-plugin-smilies {\n    padding: 10px;\n    text-align: center;\n    white-space: normal;\n}\n.wysiwyg-plugin-smilies img {\n    display: -moz-inline-stack; /* inline-block: http://blog.mozilla.org/webdev/2009/02/20/cross-browser-inline-block/ */\n    display: inline-block;\n    *display: inline;\n}\n\n.wysiwyg-browse {\n  height: 50%;\n}\n\n.wysiwyg-editor img {\n    height:auto;\n    max-width: 100%;\n}"
 
 /***/ },
 
