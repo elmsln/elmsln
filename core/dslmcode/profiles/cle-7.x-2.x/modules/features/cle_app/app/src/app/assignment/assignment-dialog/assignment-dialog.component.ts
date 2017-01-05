@@ -54,7 +54,10 @@ export class AssignmentDialogComponent implements OnInit, OnDestroy {
     jQuery(this.el.nativeElement.getElementsByClassName('modal')).modal({
       dismissible: false,
       ready: function(modal, trigger) { // Callback for Modal open. Modal and trigger parameters available.
-        console.log(modal);
+        /**
+         * @todo: Hack to solve z-index issues when embeded in the Drupal site.
+         */
+        jQuery('.modal-overlay').appendTo('app-root');
       },
     });
     jQuery(this.el.nativeElement.getElementsByClassName('modal')).modal('open');

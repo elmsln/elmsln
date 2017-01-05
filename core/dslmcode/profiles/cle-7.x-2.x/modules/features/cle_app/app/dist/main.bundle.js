@@ -618,7 +618,10 @@ var AssignmentDialogComponent = (function () {
         jQuery(this.el.nativeElement.getElementsByClassName('modal')).modal({
             dismissible: false,
             ready: function (modal, trigger) {
-                console.log(modal);
+                /**
+                 * @todo: Hack to solve z-index issues when embeded in the Drupal site.
+                 */
+                jQuery('.modal-overlay').appendTo('app-root');
             },
         });
         jQuery(this.el.nativeElement.getElementsByClassName('modal')).modal('open');
@@ -2436,7 +2439,14 @@ var ProjectItemComponent = (function () {
             .map(function (state) { return state.assignments.filter(function (assignment) { return assignment.project === _this.project.id; }); });
     }
     ProjectItemComponent.prototype.ngOnInit = function () {
-        jQuery(this.el.nativeElement.getElementsByClassName('delete-project-form')).modal();
+        jQuery(this.el.nativeElement.getElementsByClassName('delete-project-form')).modal({
+            ready: function (modal, trigger) {
+                /**
+                 * @todo: Hack to solve z-index issues when embeded in the Drupal site.
+                 */
+                jQuery('.modal-overlay').appendTo('app-root');
+            },
+        });
         jQuery(this.el.nativeElement.getElementsByClassName('tooltipped')).tooltip({ delay: 40 });
         // this.assignments = this.assignmentService.assignments
         //   }));
