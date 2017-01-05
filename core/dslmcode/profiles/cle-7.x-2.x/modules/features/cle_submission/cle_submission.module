@@ -117,14 +117,16 @@ function _cle_submission_v1_submission_output($node) {
   // this will be our json formatted output
   $return = array(
     'id' => (int)$node->nid,
+    'uid' => (int)$node->uid,
+    'uuid' => $node->uuid,
     'title' => $node->title,
     'status' => (int)$node->status,
     'created' => (int)$node->created,
     'assignment' => (int)$node->field_assignment[LANGUAGE_NONE][0]['target_id'],
     'evidence' => array(
-      'text' => $node->field_submission_text[LANGUAGE_NONE][0]['safe_value'],
+      'body' => $node->field_submission_text[LANGUAGE_NONE][0]['safe_value'],
       'images' => $images,
-      'videos' => $node->field_video[LANGUAGE_NONE],
+      'video' => $node->field_video[LANGUAGE_NONE],
       'files' => $files,
       'links' => $node->field_links[LANGUAGE_NONE],
     ),
@@ -157,10 +159,43 @@ function _cle_submission_v1_submission_modify($node, $params = NULL) {
     // fields we support in a POST
     switch ($key) {
       case 'uid':
+      case 'uuid':
       case 'title':
+      case 'status':
+      case 'created':
         $node->{$key} = $value;
       break;
+      case 'section':
+        $node->og_group_ref[LANGUAGE_NONE][0]['target_id'] = $value;
+      break;
+      case 'state':
+        $node->field_submission_state[LANGUAGE_NONE][0]['value'] = $value;
+      break;
+      case 'assignment':
+        $node->field_assignment[LANGUAGE_NONE][0]['target_id'] = $value;
+      break;
+      case 'evidence':
+        foreach ($value as $key2 => $value2) {
+          switch ($key2) {
+            case 'body':
+              $node->field_submission_text[LANGUAGE_NONE][0] = $value2;
+            break;
+            case 'images':
+            case 'video':
+            case 'files':
+            case 'links':
+              foreach ($value2 as $item) {
+                $node->{'field_' . $key2}[LANGUAGE_NONE][] = array('target_id' => $item);
+              }
+            break;
+          }
+        }
+      break;
     }
+  }
+  // ensure we don't have anonymous creation since it's not possible
+  if (!isset($node->uid) || $node->uid == 0) {
+    $node->uid = $GLOBALS['user']->uid;
   }
   node_save($node);
   // output the newly created node
@@ -293,13 +328,31 @@ function _cle_submission_submission_status($assignment_id, $account = NULL) {
   // submit w/ evidence if complete
   if (!empty($submissions)) {
     return array(
+      // @todo may want to see if we allow multiple submissions for this
+      'canCreate' => 1,
+      'complete' => array(
       // @todo might need a more sophisticated look up for this info
-      'status' => 1,
-      'submissions' => $submissions,
+        'status' => 1,
+        'submissions' => $submissions,
+      )
     );
   }
-  return array(
-    'status' => 0,
-    'submissions' => array(),
-  );
+  else {
+    // create a stub node to see if they can access this object
+    $node = _elmsln_api_stub_node('cle_submission');
+    // see if they CAN submit anything at this point
+    if (entity_access('create', 'node', $node, $account)) {
+      $canCreate = 1;
+    }
+    else {
+      $canCreate = 0;
+    }
+    return array(
+      'canCreate' => $canCreate,
+      'complete' => array(
+        'status' => 0,
+        'submissions' => array(),
+      )
+    );
+  }
 }

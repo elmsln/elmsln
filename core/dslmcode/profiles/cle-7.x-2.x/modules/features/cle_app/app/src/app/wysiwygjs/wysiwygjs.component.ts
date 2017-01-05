@@ -5,8 +5,8 @@ import { ElmslnService } from '../elmsln.service';
 import { AppSettings } from '../app-settings';
 
 // non-typescript definitions
-declare var $:any;
 declare var jQuery:any;
+declare var Materialize:any;
 
 @Component({
   selector: 'wysiwygjs',
@@ -44,8 +44,8 @@ export class WysiwygjsComponent implements OnInit, ControlValueAccessor {
 
   ngOnInit() {
       let newThis = this;
-      $(this.el.nativeElement.firstElementChild).each(function (index, element) {
-        let wysiwygEditor = (<any>$(element)).wysiwyg({
+      jQuery(this.el.nativeElement.firstElementChild).each(function (index, element) {
+        let wysiwygEditor = jQuery(element).wysiwyg({
               // 'selection'|'top'|'top-selection'|'bottom'|'bottom-selection'
               toolbar: 'top',
               buttons: {
@@ -149,14 +149,14 @@ export class WysiwygjsComponent implements OnInit, ControlValueAccessor {
                               'Header 6': '<h6>',
                               'Code': '<pre>'
                           };
-                          var $list = $('<div/>').addClass('wysiwyg-plugin-list')
+                          var $list = jQuery('<div/>').addClass('wysiwyg-plugin-list')
                               .attr('unselectable', 'on');
-                          $.each(list_headers, function (name, format) {
-                              var $link = $('<a/>').attr('href', '#')
+                          jQuery.each(list_headers, function (name, format) {
+                              var $link = jQuery('<a/>').attr('href', '#')
                                   .css('font-family', format)
                                   .html(name)
                                   .click(function (event) {
-                                      (<any>$(element)).wysiwyg('shell').format(format).closePopup();
+                                      jQuery(element).wysiwyg('shell').format(format).closePopup();
                                       // prevent link-href-#
                                       event.stopPropagation();
                                       event.preventDefault();
@@ -299,13 +299,23 @@ export class WysiwygjsComponent implements OnInit, ControlValueAccessor {
       // emit the change
       const target = jQuery(newThis.el.nativeElement).find('.wysiwyg-editor');
       target.find('img:not(.processed)').each(function(index,value) {
-          const base64 = jQuery(this).attr('src');
+          let base64 = jQuery(this).attr('src');
           newThis.uploadImage(base64)
-            .subscribe(url => {
-                jQuery(this).attr('src', url).addClass('processed');
-                console.log('processed');
-                return;
-            })
+            .subscribe(
+                url => {
+                    jQuery(this).attr('src', url);
+                    jQuery(this).addClass('processed');
+                },
+                error => {
+                    jQuery(this).remove();
+                    Materialize.toast('Image too big. Please resize and try again.', 1500);
+                }
+            )
+            // .subscribe(url => {
+            //     jQuery(this).attr('src', url).addClass('processed');
+            //     console.log(url);
+            //     return;
+            // })
       });
       // Update content
       newThis.content = target.html();
@@ -315,13 +325,27 @@ export class WysiwygjsComponent implements OnInit, ControlValueAccessor {
   }
 
   updateContent() {
-    (<any>$(this.el.nativeElement)).find('.wysiwyg-editor').html(this.content);
+    jQuery(this.el.nativeElement).find('.wysiwyg-editor').html(this.content);
+  }
+
+
+  /**
+   * @todo: not ready yet
+   */
+  resizeImage(data) {
+    let image = new Image();
+    image.src = data;
+    let resize_canvas = document.createElement('canvas');
+    resize_canvas.width = 800;
+    resize_canvas.height = 800;
+    resize_canvas.getContext('2d').drawImage(image, 0, 0, 800, 800);   
+    return resize_canvas.toDataURL("image/jpg");
   }
 
   uploadImage(base64):Observable<string> {
-      /**
-       * @todo: need to actually upload this to the server
-       */
+    /**
+     * @todo: need to actually upload this to the server
+     */
     return this.elmslnService.createImage(base64)
         .map(data => data.url)
   }

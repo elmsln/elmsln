@@ -1,0 +1,29 @@
+<?php
+/**
+ * Form callback for admin settings.
+ */
+function canvas_api_form($form,$form_state){
+  $form['canvas_api_institution'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Institution'),
+    '#description' => t('Enter your institution\'s name as it appears in your Canvas URL. <br>i.e. https://<strong>your-institutions-name</strong>.instructure.com'),
+    '#default_value' => variable_get('canvas_api_institution', ''),
+  );
+  $form['canvas_api_environment'] = array(
+    '#type' => 'radios',
+    '#title' => t('Environment'),
+    '#options' => array(
+      'test' => t('Test'),
+      'beta' => t('Beta'),
+      'production' => t('Production'),
+    ),
+    '#default_value' => variable_get('canvas_api_environment', 'test'),
+  );
+  $form['canvas_api_token'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Token'),
+    '#description' => t('Enter your Canvas access token. This token can be generated on your profile page: https://<strong>your-institutions-name</strong>.instructure.com/profile. This account will need to have the appropriate access permissions for your API calls.'),
+    '#default_value' => variable_get('canvas_api_token', ''),
+  );
+  return system_settings_form($form);
+}

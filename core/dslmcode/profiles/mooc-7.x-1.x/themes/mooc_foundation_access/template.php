@@ -133,7 +133,7 @@ function mooc_foundation_access_read_time($variables) {
         switch ($key) {
           case 'words':
             $label = t('Reading');
-            $icon = '<i class="tiny material-icons ' . $lmsless_classes['text'] . '">library_books</i>';
+            $icon = '<i class="tiny material-icons white-text">library_books</i>';
             $class_key = 'read-time-words';
           break;
           case 'audio':
@@ -162,13 +162,13 @@ function mooc_foundation_access_read_time($variables) {
                 $value .= ', ' . t('@duration hours', array('@duration' => round(($duration / 3600), 1)));
               }
             }
-            $icon = '<i class="tiny material-icons ' . $lmsless_classes['text'] . '">library_music</i>';
+            $icon = '<i class="tiny material-icons white-text">library_music</i>';
             $class_key = 'read-time-audio';
           break;
           case 'svg':
             $label = t('Multimedia');
             $value = $value . ' ' . $label;
-            $icon = '<i class="tiny material-icons ' . $lmsless_classes['text'] . '">assessment</i>';
+            $icon = '<i class="tiny material-icons white-text">assessment</i>';
             $class_key = 'read-time-svg';
           break;
           case 'video':
@@ -197,7 +197,7 @@ function mooc_foundation_access_read_time($variables) {
                 $value .= ', ' . t('@duration hours', array('@duration' => round(($duration / 3600), 1)));
               }
             }
-            $icon = '<i class="tiny material-icons ' . $lmsless_classes['text'] . '">video_library</i>';
+            $icon = '<i class="tiny material-icons white-text">video_library</i>';
             $class_key = 'read-time-video';
           break;
           default:
@@ -207,7 +207,7 @@ function mooc_foundation_access_read_time($variables) {
         }
         // make sure there's something to render
         if (!empty($value)) {
-          $output .= '<div class="chip ' . $lmsless_classes['color'] . ' ' . $lmsless_classes['light'] . ' ' . $class_key . '">' . $icon . check_plain((empty($label) ? $value . ' ' . ucwords($key) : $value)) . '</div>';
+          $output .= '<div class="chip black white-text ' . $class_key . '">' . $icon . check_plain((empty($label) ? $value . ' ' . ucwords($key) : $value)) . '</div>';
         }
       }
     }

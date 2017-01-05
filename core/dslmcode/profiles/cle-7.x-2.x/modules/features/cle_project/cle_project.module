@@ -105,19 +105,21 @@ function _cle_project_v1_project_output($node) {
   // this will be our json formatted output
   $return = array(
     'id' => (int)$node->nid,
+    'uuid' => $node->uuid,
+    'uid' => (int)$node->uid,
     'title' => $node->title,
     'status' => (int)$node->status,
     'created' => (int)$node->created,
+    'sections' => $sections,
     'body' => $node->field_project_description[LANGUAGE_NONE][0]['safe_value'],
     'dueDate' => _elmsln_api_format_date_field($node->field_project_due_date[LANGUAGE_NONE][0]),
+    'allowLateSubmissions' => (int)$node->field_assignment_late_submission[LANGUAGE_NONE][0]['value'],
     'color' => $color,
     'image' => _elmsln_api_v1_file_output($node->field_project_image[LANGUAGE_NONE][0]),
     'hierarchy' => array(
       'stepsToComplete' => $steps,
       'parentProject' => (int)$node->field_project_parent[LANGUAGE_NONE][0]['target_id'],
     ),
-    'allowLateSubmissions' => (int)$node->field_assignment_late_submission[LANGUAGE_NONE][0]['value'],
-    'sections' => $sections,
     'links' => array(
       'self' => $base_url . '/api/v1/cle/projects/' . $node->nid,
     ),
@@ -141,10 +143,52 @@ function _cle_project_v1_project_modify($node, $params = NULL) {
     // fields we support in a POST
     switch ($key) {
       case 'uid':
+      case 'uuid':
       case 'title':
+      case 'status':
+      case 'created':
         $node->{$key} = $value;
       break;
+      // we support multiple sections for projects
+      case 'sections':
+        foreach ($value as $section) {
+          $node->og_group_ref[LANGUAGE_NONE][] = array('target_id' => $section);
+        }
+      break;
+      case 'body':
+        $node->field_project_description[LANGUAGE_NONE][0] = $value;
+      break;
+      case 'dueDate':
+        $node->field_project_due_date[LANGUAGE_NONE][0]['value1'] = $value;
+      break;
+      case 'allowLateSubmissions':
+        $node->field_assignment_late_submission[LANGUAGE_NONE][0]['value'] = $value;
+      break;
+      case 'color':
+        $node->field_project_color[LANGUAGE_NONE][0]['jquery_colorpicker'] = $value;
+      break;
+      case 'image':
+        $node->field_project_image[LANGUAGE_NONE][0]['target_id'] = $value;
+      break;
+      case 'hierarchy':
+        foreach ($value as $key2 => $value2) {
+          switch ($key2) {
+            case 'stepsToComplete':
+              foreach ($value2 as $item) {
+                $node->field_project_steps[LANGUAGE_NONE][] = array('target_id' => $item);
+              }
+            break;
+            case 'parentProject':
+              $node->field_project_parent[LANGUAGE_NONE][0]['target_id'] = $value2;
+            break;
+          }
+        }
+      break;
     }
+  }
+  // ensure we don't have anonymous creation since it's not possible
+  if (!isset($node->uid) || $node->uid == 0) {
+    $node->uid = $GLOBALS['user']->uid;
   }
   node_save($node);
   // output the newly created node

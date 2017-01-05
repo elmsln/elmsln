@@ -10,9 +10,14 @@
  * Implements hook_page_build().
  */
 function cle_app_page_build(&$page) {
-  drupal_add_js(drupal_get_path('module', 'cle_app') . '/app/dist/inline.js', array('scope' => 'footer'));
-  drupal_add_js(drupal_get_path('module', 'cle_app') . '/app/dist/styles.bundle.js', array('scope' => 'footer'));
-  drupal_add_js(drupal_get_path('module', 'cle_app') . '/app/dist/main.bundle.js', array('scope' => 'footer'));
+  // ensure this is at least in scope of the app
+  if (arg(0) == 'cle' && arg(1) == 'app') {
+    drupal_add_css(drupal_get_path('module', 'cle_app') . '/app/dist/styles.bundle.css');
+    drupal_add_js(drupal_get_path('module', 'cle_app') . '/app/dist/inline.bundle.js', array('scope' => 'footer'));
+    drupal_add_js(drupal_get_path('module', 'cle_app') . '/app/dist/scripts.bundle.js', array('scope' => 'footer'));
+    drupal_add_js(drupal_get_path('module', 'cle_app') . '/app/dist/vendor.bundle.js', array('scope' => 'footer'));
+    drupal_add_js(drupal_get_path('module', 'cle_app') . '/app/dist/main.bundle.js', array('scope' => 'footer'));
+  }
 }
 
 /*

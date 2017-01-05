@@ -36,6 +36,10 @@ export class AppEffects {
   // Update the assignment on the server
   @Effect() updateAssignment$ = this.actions$
     .ofType(ActionTypes.UPDATE_ASSIGNMENT)
+    .map((state) => {
+      Materialize.toast('Assignment updating...', 1500)
+      return state;
+    })
     .mergeMap(action => {
       return this.assignmentService.updateAssignment(action.payload)
         .mergeMap((data) => this.assignmentService.getAssignment(action.payload.id));

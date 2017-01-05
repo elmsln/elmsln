@@ -155,17 +155,26 @@ function _elmsln_api_v1_file_modify($file, $params = NULL) {
   $status = '403';
   $detail = t('File failed to create');
   // remove base64 prefix metadata, if exists
-  $result = preg_split('/^data\:image\/(.*)\;base64\,/', $params['data'], -1, PREG_SPLIT_NO_EMPTY);
-  if (count($result) > 0) {
+  preg_match_all('/data\:image\/(.*)\;base64,(.*)/', $params['data'], $result);
+  if (count($result) == 3) {
     // replace any spaces with base64-compliant '+' signs and convert to binary image
-    $data = base64_decode(str_replace(' ', '+', $result[0]));
-    // base64 string may not have included a metadata prefix so create instance to determine mime type
-    $finfo = finfo_open();
-    $mime_type = finfo_buffer($finfo, $data, FILEINFO_MIME_TYPE);
-    finfo_close($finfo);
-    // get and validate image extension from mime type
-    $ext = str_replace('image/', '', $mime_type);
-    if (in_array($ext, array('png', 'gif', 'jpg', 'jpeg'))) {
+    $data = base64_decode(str_replace(' ', '+', $result[2][0]));
+    $ext = $result[1][0];
+    $fail = FALSE;
+    // image can be made
+    $img = imagecreatefromstring($data);
+    if (!$img) {
+      $fail = TRUE;
+    }
+    // size can be attained
+    $size = getimagesizefromstring($data);
+    // make sure jpg is jpeg for standardization purposes
+    $ext = str_replace('jpg', 'jpeg', $ext);
+    if (!$size || 'image/' . $ext != $size['mime']) {
+      $fail = TRUE;
+    }
+    // if it is a valid image file and we like it, create it
+    if (!$fail && in_array($ext, array('png', 'gif', 'jpg', 'jpeg'))) {
       // save binary image in Drupal site's public file directory
       if ($file = file_save_data($data, 'public://' . $params['name']. '.' . $ext)) {
         file_save($file);
@@ -181,6 +190,7 @@ function _elmsln_api_v1_file_modify($file, $params = NULL) {
   $vars = array(
     'status' => $status,
     'detail' => $detail,
+    'mime' => $ext,
     'file' => _elmsln_api_v1_file_output($file),
     'fid' => $file->fid,
   );
@@ -294,6 +304,7 @@ function _elmsln_api_user_request() {
     ),
     'user' => array(
       'uid' => $GLOBALS['user']->uid,
+      'uuid' => $GLOBALS['user']->uuid,
       'name' => $GLOBALS['user']->name,
       'csrf-token' => drupal_get_token('restws'),
       'roles' => $GLOBALS['user']->roles,
@@ -1304,6 +1315,7 @@ function _elmsln_api_v1_page_callback($type, $etid = NULL, $op = NULL) {
         $path = str_replace('/' . $etid, '', $path);
       }
       $vars = _elmsln_api_tree($path, FALSE);
+      $params = filter_var_array($params, FILTER_SANITIZE_STRING);
       $items = call_user_func($jsapis[$type]['list'], $params);
       // get the assignment ready for sending and place them as an array of items
       // under the 'data' property

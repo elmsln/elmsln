@@ -189,14 +189,15 @@
 }
 
 /* support shifting highlighted block region off to left column on big displays */
-@media screen and (min-width: 84rem) {
+@media screen and (min-width: 80rem) {
   .highlighted-block-area {
     position: absolute;
-    right: 100%;
-    width: calc(50vw - 52%);
-    max-width: 20rem;
+    right: 92%;
+    width: calc(54vw - 49%);
+    max-width: 25rem;
     min-width: 10rem;
-    top:0; }
+    top: 0;
+  }
 }
 /* shift exposed filters over on REALLY big displays */
 @media screen and (min-width: 100rem) {
@@ -318,13 +319,13 @@ input.cis_shortcodes_embed,
   width: 100%;
 }
 .user-profile--banner {
-    width: 100%;
-    margin: 0;
-    position: relative;
-    overflow: hidden;
-    height: 10rem;
-    max-height: 12rem;
-    z-index: 1;
+  width: 100%;
+  margin: 0;
+  position: relative;
+  overflow: hidden;
+  height: 10rem;
+  max-height: 12rem;
+  z-index: 1;
 }
 .user-profile--banner img {
   display: block;
@@ -356,8 +357,10 @@ input.cis_shortcodes_embed,
 }
 
 /* Font normalization */
-h1,h2,h3,h4,h5,h6,p, #etb-course-nav span.course-title, .alert-box, #etb-tool-nav .tab-bar span, ul.off-canvas-list li a, .etb-book ul, .etb-book ol, .etb-book dl, .etb-nav-modal ul li a, a.etb-nav_item_service_btn span, a.etb-modal-icon span, a.modal-img-link span, .etb-nav-modal h2, #admin-menu .dropdown li li a, .admin-status-bar span.course-section-label, .admin-status-bar span.user-role-label, .admin-status-bar span.current-user-id-label, h2, a, p.txtbk-intro, p.txtbk-intro a, .section-id, .accordion .accordion-navigation > a, .accordion dd > a, .sub-tier-1 h2, .sub-tier-1 h3, footer p, .admin-status-bar span.course-section, .admin-status-bar span.user-role, .admin-status-bar span.current-user-id, h1, .image-media h3, h4.testimonial-name, #etb-course-nav span.course-abrv, .etb-nav-modal h1 {
+body, p a, p p a, h1,h2,h3,h4,h5,h6,p,p strong,strong,p b, b, #etb-course-nav span.course-title, .alert-box, #etb-tool-nav .tab-bar span, ul.off-canvas-list li a, .etb-book ul, .etb-book ol, .etb-book dl, .etb-nav-modal ul li a, a.etb-nav_item_service_btn span, a.etb-modal-icon span, a.modal-img-link span, .etb-nav-modal h2, #admin-menu .dropdown li li a, .admin-status-bar span.course-section-label, .admin-status-bar span.user-role-label, .admin-status-bar span.current-user-id-label, h2, a, p.txtbk-intro, p.txtbk-intro a, .section-id, .accordion .accordion-navigation > a, .accordion dd > a, .sub-tier-1 h2, .sub-tier-1 h3, footer p, .admin-status-bar span.course-section, .admin-status-bar span.user-role, .admin-status-bar span.current-user-id, h1, .image-media h3, h4.testimonial-name, #etb-course-nav span.course-abrv, .etb-nav-modal h1 {
   font-family: "Roboto", sans-serif;
+}
+h1,h2,h3,h4,h5,h6,p, #etb-course-nav span.course-title, .alert-box, #etb-tool-nav .tab-bar span, ul.off-canvas-list li a, .etb-book ul, .etb-book ol, .etb-book dl, .etb-nav-modal ul li a, a.etb-nav_item_service_btn span, a.etb-modal-icon span, a.modal-img-link span, .etb-nav-modal h2, #admin-menu .dropdown li li a, .admin-status-bar span.course-section-label, .admin-status-bar span.user-role-label, .admin-status-bar span.current-user-id-label, h2, a, p.txtbk-intro, p.txtbk-intro a, .section-id, .accordion .accordion-navigation > a, .accordion dd > a, .sub-tier-1 h2, .sub-tier-1 h3, footer p, .admin-status-bar span.course-section, .admin-status-bar span.user-role, .admin-status-bar span.current-user-id, h1, .image-media h3, h4.testimonial-name, #etb-course-nav span.course-abrv, .etb-nav-modal h1 {
   font-weight: normal;
 }
 /* CKEditor template page */
@@ -1196,8 +1199,8 @@ ul.pagination li a {
 #scrollspy-nav .scrollspy-link.active {
   border-left: unset;
   border-left-style: solid;
-  border-left-width: .2rem;
-  padding: 0;
+  border-left-width: .1rem;
+  padding: 0 0 0 .1rem;
 }
 .table-of-contents li {
   padding: 0;
@@ -1206,7 +1209,7 @@ ul.pagination li a {
   line-height: 2rem;
   height: 2rem;
   outline: none;
-  padding: 0;
+  padding: 0 0 0 .1rem;
   width: 100%;
   font-size: .8rem;
   white-space: nowrap;
@@ -1247,8 +1250,8 @@ ul.pagination li a {
     position: absolute !important;
     left: 100%;
     width: calc(52vw - 52%);
-    max-width: 30em;
-    min-width: 10rem;
+    max-width: 14em;
+    min-width: 8rem;
     display: block;
     max-height: 65vh;
     overflow-y: scroll;
@@ -1582,6 +1585,20 @@ article h5,
 article h6 {
   font-size: 1.2rem;
 }
+article p:not([class]),
+article p.elmsln-core-in-context {
+  max-width: 75%;
+}
+article div div div p,
+article div div div p.elmsln-core-in-context {
+  max-width: 100%;
+}
+@media (max-width: 50rem) {
+  article p:not([class]),
+  article p.elmsln-core-in-context {
+    max-width: 100%;
+  }
+}
 /* ELMSLN bullets */
 article.node div.body ul li {
   list-style-type: initial;
@@ -1677,7 +1694,7 @@ a.add-menu-drop {
   border-bottom: none;
   border-top-width: .2rem;
   border-top-style: solid;
-  z-index: 3;
+  z-index: 1;
 }
 
 #etb-course-nav span.course-title,
@@ -1830,12 +1847,12 @@ ul.header-menu-options li.active-trail {
 #page-title {
   color: #222222;
   font-size: 2.25rem;
-  line-height: 2.5rem;
+  line-height: 2.25rem;
   padding: 0;
-  margin-bottom:1rem;
+  margin: 0 0 0.5rem 0;
   text-align: left;
   text-transform: none;
-  overflow: hidden;
+  padding-left: 0;
   text-overflow: ellipsis;
   max-width: 80%;
 }

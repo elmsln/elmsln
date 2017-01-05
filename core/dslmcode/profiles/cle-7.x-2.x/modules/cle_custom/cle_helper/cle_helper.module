@@ -104,6 +104,17 @@ function cle_helper_node_presave($node) {
       }
     }
   }
+  // special stuff for these field types to ensure some things aren't null
+  elseif(in_array($node->type, array('cle_submission', 'cle_project', 'cle_assignment'))) {
+    // ensure we don't have anonymous creation since it's not possible
+    if (!isset($node->uid) || $node->uid == 0) {
+      $node->uid = $GLOBALS['user']->uid;
+    }
+    // ensure there's a group set for cle_submission
+    if ($node->type == 'cle_submission' && !isset($node->og_group_ref[LANGUAGE_NONE][0]['target_id'])) {
+      $node->og_group_ref[LANGUAGE_NONE][0]['target_id'] = _cis_section_load_section_by_id(_cis_connector_section_context());
+    }
+  }
 }
 
 /**

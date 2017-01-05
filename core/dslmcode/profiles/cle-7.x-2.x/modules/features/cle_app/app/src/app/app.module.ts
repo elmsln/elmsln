@@ -11,14 +11,17 @@ import { EffectsModule } from '@ngrx/effects';
 import { reducer as assignmentReducer } from './reducers/assignments';
 import { reducer as userReducer } from './reducers/users';
 import { submissionReducer } from './submission/submission.reducer';
+import { projectReducer } from './projects/project.reducer';
 // effects
 import { AppEffects } from './app.effects';
 import { SubmissionEffects } from './submission/submission.effects';
+import { ProjectEffects } from './projects/project.effects';
 // services
 import { ElmslnService } from './elmsln.service';
 import { CritiqueService } from './critique.service';
 import { AssignmentService } from './assignment.service';
 import { SubmissionService } from './submission/submission.service';
+import { ProjectService } from './project.service';
 // Moment.js
 import { MomentModule } from 'angular2-moment';
 // components
@@ -44,6 +47,9 @@ import { DatetimeInputComponent } from './datetime-input/datetime-input.componen
 import { AssignmentDialogComponent } from './assignment/assignment-dialog/assignment-dialog.component';
 import { SubmissionCreateComponent } from './submission/submission-create/submission-create.component';
 import { SubmissionFormComponent } from './submission/submission-form/submission-form.component';
+import { SubmissionListComponent } from './submission/submission-list/submission-list.component';
+import { SubmissionDetailComponent } from './submission/submission-detail/submission-detail.component';
+import { SubmissionComponent } from './submission/submission.component';
 
 @NgModule({
   declarations: [
@@ -67,8 +73,11 @@ import { SubmissionFormComponent } from './submission/submission-form/submission
     EditableFieldComponent,
     DatetimeInputComponent,
     AssignmentDialogComponent,
+    SubmissionComponent,
     SubmissionCreateComponent,
-    SubmissionFormComponent
+    SubmissionFormComponent,
+    SubmissionListComponent,
+    SubmissionDetailComponent
   ],
   imports: [
     BrowserModule,
@@ -80,17 +89,20 @@ import { SubmissionFormComponent } from './submission/submission-form/submission
     StoreModule.provideStore({
       assignments: assignmentReducer,
       user: userReducer,
-      submissions: submissionReducer
+      submissions: submissionReducer,
+      projects: projectReducer
     }),
     EffectsModule.run(AppEffects),
     EffectsModule.run(SubmissionEffects),
+    EffectsModule.run(ProjectEffects),
     StoreDevtoolsModule.instrumentOnlyWithExtension()
   ],
   providers: [
     ElmslnService,
     CritiqueService,
     AssignmentService,
-    SubmissionService
+    SubmissionService,
+    ProjectService
   ],
   bootstrap: [AppComponent]
 })
