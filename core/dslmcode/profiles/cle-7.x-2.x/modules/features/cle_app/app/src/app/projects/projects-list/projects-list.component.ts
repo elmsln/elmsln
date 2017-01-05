@@ -25,7 +25,6 @@ export class ProjectsListComponent implements OnInit {
     private router: Router,
     private store: Store<{}>
   ) {
-    store.dispatch(loadAssignments());
   }
 
   ngOnInit() {
