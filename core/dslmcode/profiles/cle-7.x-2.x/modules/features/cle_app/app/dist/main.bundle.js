@@ -1332,15 +1332,23 @@ var SubmissionComponent = (function () {
             if (params['submissionId']) {
                 _this.submissionId = Number(params['submissionId']);
                 _this.submission$ = _this.store.select('submissions')
-                    .map(function (state) { return state.submissions.find(function (sub) { return sub.id === _this.submissionId; }); });
+                    .map(function (state) { return state.submissions.find(function (sub) {
+                    if (sub.id === _this.submissionId) {
+                        _this.assignmentId = sub.assignment;
+                        return true;
+                    }
+                    else {
+                        return false;
+                    }
+                }); });
             }
         });
     };
     SubmissionComponent.prototype.onClickBack = function () {
-        this.location.back();
+        this.router.navigate(['/assignments/' + this.assignmentId]);
     };
     SubmissionComponent.prototype.editSubmission = function () {
-        this.router.navigate(['submissions/' + this.submissionId + '/edit']);
+        this.router.navigate(['/submissions/' + this.submissionId + '/edit']);
     };
     SubmissionComponent = __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
@@ -4183,7 +4191,7 @@ module.exports = "<div class=\"row\">\n  <ul class=\"collapsible\">\n    <li *ng
 /***/ 810:
 /***/ function(module, exports) {
 
-module.exports = "<div *ngFor=\"let assignment of (assignments$| async)\">\n    <nav>\n      <div class=\"nav-wrapper\">\n        <ul id=\"nav-mobile\" class=\"left\">\n          <li><a routerLink=\"/projects\"><i class=\"material-icons left\">&#xE5C4;</i> back</a></li>\n        </ul>\n        <ul id=\"nav-mobile\" class=\"right\">\n          <li *ngIf=\"(userCanEdit$ | async)\"><a (click)=\"onEditAssignment(assignment)\" title=\"Edit this assignment\"><i class=\"material-icons left\">edit</i></a></li>\n        </ul>\n      </div>\n    </nav>\n\n    <div class=\"assignment\" *ngIf=\"assignment\">\n      <h1 class=\"assignment__title\">{{ assignment.title }}</h1>\n      <div class=\"assignment__meta\">\n        <div class=\"assignment__dates\">\n          <span *ngIf=\"assignment.startDate\">{{ assignment.startDate | amDateFormat:'LL hh:mmA' }} - </span>\n          {{ assignment.endDate | amDateFormat:'LL hh:mmA' }}\n        </div>\n      </div>\n      <div class=\"assignment__description\" [innerHTML]=\"assignment.body\"> </div>\n    </div>\n\n\n  <app-submission-list *ngIf=\"(submissions$ | async).length > 0\" title=\"My Submission\" [submissions]=\"submissions$ | async\"></app-submission-list>\n\n  <a *ngIf=\"assignment && assignment.metadata.canCreate && !assignment.metadata.complete.status\" (click)=\"onCreateSubmission(assignment)\" class=\"btn-large\">Submit assignment</a>\n  <a *ngIf=\"assignment && !assignment.metadata.canCreate\" class=\"btn-large disabled\">Submit assignment</a>\n</div>"
+module.exports = "<div *ngFor=\"let assignment of (assignments$| async)\">\n    <nav>\n      <div class=\"nav-wrapper\">\n        <ul id=\"nav-mobile\" class=\"left\">\n          <li><a routerLink=\"/projects\"><i class=\"material-icons left\">&#xE5C4;</i> projects</a></li>\n        </ul>\n        <ul id=\"nav-mobile\" class=\"right\">\n          <li *ngIf=\"(userCanEdit$ | async)\"><a (click)=\"onEditAssignment(assignment)\" title=\"Edit this assignment\"><i class=\"material-icons left\">edit</i></a></li>\n        </ul>\n      </div>\n    </nav>\n\n    <div class=\"assignment\" *ngIf=\"assignment\">\n      <h1 class=\"assignment__title\">{{ assignment.title }}</h1>\n      <div class=\"assignment__meta\">\n        <div class=\"assignment__dates\">\n          <span *ngIf=\"assignment.startDate\">{{ assignment.startDate | amDateFormat:'LL hh:mmA' }} - </span>\n          {{ assignment.endDate | amDateFormat:'LL hh:mmA' }}\n        </div>\n      </div>\n      <div class=\"assignment__description\" [innerHTML]=\"assignment.body\"> </div>\n    </div>\n\n\n  <app-submission-list *ngIf=\"(submissions$ | async).length > 0\" title=\"My Submission\" [submissions]=\"submissions$ | async\"></app-submission-list>\n\n  <a *ngIf=\"assignment && assignment.metadata.canCreate && !assignment.metadata.complete.status\" (click)=\"onCreateSubmission(assignment)\" class=\"btn-large\">Submit assignment</a>\n  <a *ngIf=\"assignment && !assignment.metadata.canCreate\" class=\"btn-large disabled\">Submit assignment</a>\n</div>"
 
 /***/ },
 
@@ -4316,7 +4324,7 @@ module.exports = "<ul class=\"submission-list collection with-header\">\n  <li c
 /***/ 829:
 /***/ function(module, exports) {
 
-module.exports = "<nav>\n  <div class=\"nav-wrapper\">\n    <ul id=\"nav-mobile\" class=\"left\">\n      <li><a (click)=\"onClickBack()\"><i class=\"material-icons left\">&#xE5C4;</i> back</a></li>\n    </ul>\n    <ul id=\"nav-mobile-right\" class=\"right\">\n      <li><a (click)=\"editSubmission()\"><i class=\"material-icons left\">edit</i></a></li>\n    </ul>\n  </div>\n</nav>\n\n<div *ngIf=\"submissionId\">\n  <app-submission-detail [submission]=\"submission$ | async\"></app-submission-detail>\n</div>"
+module.exports = "<nav>\n  <div class=\"nav-wrapper\">\n    <ul id=\"nav-mobile\" class=\"left\">\n      <li><a (click)=\"onClickBack()\"><i class=\"material-icons left\">&#xE5C4;</i> assignment</a></li>\n    </ul>\n    <ul id=\"nav-mobile-right\" class=\"right\">\n      <li><a (click)=\"editSubmission()\"><i class=\"material-icons left\">edit</i></a></li>\n    </ul>\n  </div>\n</nav>\n\n<div *ngIf=\"submissionId\">\n  <app-submission-detail [submission]=\"submission$ | async\"></app-submission-detail>\n</div>"
 
 /***/ },
 
