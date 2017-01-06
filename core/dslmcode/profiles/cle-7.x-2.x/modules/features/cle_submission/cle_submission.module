@@ -100,6 +100,7 @@ function _cle_submission_v1_get_submissions($filter = array()) {
  */
 function _cle_submission_v1_submission_output($node) {
   global $base_url;
+  $account = $GLOBALS['user'];
   $images = array();
   if (!empty($node->field_images[LANGUAGE_NONE])) {
     $images = $node->field_images[LANGUAGE_NONE];
@@ -113,6 +114,24 @@ function _cle_submission_v1_submission_output($node) {
     foreach ($files as &$file) {
       $file = _elmsln_api_v1_file_output($file);
     }
+  }
+  // form metadata for our app to act on
+  $metadata = array(
+    'canUpdate' => 0,
+    'canDelete' => 0,
+    'canCritique' => 0,
+  );
+  // see the operations they can perform here
+  if (entity_access('update', 'node', $node, $account)) {
+    $metadata['canUpdate'] = 1;
+  }
+  if (entity_access('delete', 'node', $node, $account)) {
+    $metadata['canDelete'] = 1;
+  }
+  // @todo need more advanced check then just this based on
+  // assignment methodology for critique
+  if (entity_access('view', 'node', $node, $account) && $node->uid != $account->uid) {
+    $metadata['canCritique'] = 1;
   }
   // this will be our json formatted output
   $return = array(
@@ -139,6 +158,7 @@ function _cle_submission_v1_submission_output($node) {
     'links' => array(
       'self' => $base_url . '/api/v1/cle/submissions/' . $node->nid,
     ),
+    'metadata' => $metadata,
   );
   return $return;
 }
