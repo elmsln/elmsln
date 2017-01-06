@@ -1,9 +1,12 @@
 <div class="project">
   <div class="project__header">
     <div class="project__title-container">
-      <app-editable-field [type]="text" [content]="project.title" (contentUpdated)="updateTitle($event)">
+
+      <app-editable-field *ngIf="(userCanEdit$ | async)" [type]="text" [content]="project.title" (contentUpdated)="updateTitle($event)">
         <h1 class="project__title">{{ project.title }}</h1>
       </app-editable-field>
+      <h1 *ngIf="!(userCanEdit$ | async)" class="project__title">{{ project.title }}</h1>
+
       <div class="project__description" [innerHTML]="project.description"></div>
     </div>
     <div class="project__options">
