@@ -62,3 +62,17 @@ nav li a {
   opacity: 0;
   transition: opacity .3s ease-in-out;
 }
+
+.assignment__icons {
+  position: absolute;
+  right: 0;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-left: 2em;
+}
+
+.assignment__icon--complete {
+  color: green;
+}

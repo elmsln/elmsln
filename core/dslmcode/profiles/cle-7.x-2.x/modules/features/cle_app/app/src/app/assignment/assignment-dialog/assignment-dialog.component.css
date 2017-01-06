@@ -1,0 +1,6 @@
+.assignment-dialog {
+  top: 5% !important;
+  bottom: 5% !important;
+  max-height: none !important;
+  height: 90%;
+}

@@ -22,8 +22,8 @@
     </div>
 
 
-  <app-submission-list title="My Submission" [submissions]="submissions$ | async"></app-submission-list>
+  <app-submission-list *ngIf="(submissions$ | async).length > 0" title="My Submission" [submissions]="submissions$ | async"></app-submission-list>
 
-  <a *ngIf="assignment && assignment.canCreate" (click)="onCreateSubmission(assignment)" class="btn-large">Submit assignment</a>
-  <a *ngIf="assignment && !assignment.canCreate" class="btn-large disabled">Submit assignment</a>
+  <a *ngIf="assignment && assignment.metadata.canCreate && !assignment.metadata.complete.status" (click)="onCreateSubmission(assignment)" class="btn-large">Submit assignment</a>
+  <a *ngIf="assignment && !assignment.metadata.canCreate" class="btn-large disabled">Submit assignment</a>
 </div>

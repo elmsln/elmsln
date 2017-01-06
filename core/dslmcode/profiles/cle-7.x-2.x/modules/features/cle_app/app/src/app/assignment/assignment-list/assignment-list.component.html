@@ -11,6 +11,9 @@
             {{ assignment.endDate | amDateFormat:'MM/DD/YY' }}
           </div>
         </div>
+        <div class="assignment__icons">
+          <span *ngIf="assignment && assignment.metadata.complete.status" class="assignment__icon--complete"><i class="material-icons">check</i></span>
+        </div>
         <div class="assignment__edit-buttons" *ngIf="assignment.id && (userCanEdit$ | async)">
           <a (click)="onEditAssignment(assignment)"><i class="material-icons" aria-label="Edit assignment">edit</i></a>
           <a (click)="onDeleteAssignment(assignment)"><i class="material-icons" aria-label="Edit assignment">delete</i></a>

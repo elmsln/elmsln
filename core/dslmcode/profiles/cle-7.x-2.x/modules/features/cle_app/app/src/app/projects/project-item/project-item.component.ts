@@ -38,7 +38,14 @@ export class ProjectItemComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    jQuery(this.el.nativeElement.getElementsByClassName('delete-project-form')).modal();
+    jQuery(this.el.nativeElement.getElementsByClassName('delete-project-form')).modal({
+      ready: function(modal, trigger) { // Callback for Modal open. Modal and trigger parameters available.
+        /**
+         * @todo: Hack to solve z-index issues when embeded in the Drupal site.
+         */
+        jQuery('.modal-overlay').appendTo('app-root');
+      },
+    });
     jQuery(this.el.nativeElement.getElementsByClassName('tooltipped')).tooltip({delay:40});
 
     // this.assignments = this.assignmentService.assignments
