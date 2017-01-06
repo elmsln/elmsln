@@ -235,6 +235,8 @@ function _cle_assignment_v1_assignment_modify($node, $params = NULL) {
  * Helper function that prepares an assignment for api output.
  */
 function _cle_assignment_v1_assignment_output($node) {
+  global $base_url;
+  $account = $GLOBALS['user'];
   // get an array of formatted dates
   $dates = _elmsln_api_format_date_field($node->field_assignment_due_date[LANGUAGE_NONE][0]);
   // set color
@@ -242,7 +244,20 @@ function _cle_assignment_v1_assignment_output($node) {
   if (isset($node->field_assignment_color[LANGUAGE_NONE][0]['jquery_colorpicker'])) {
     $color = '#' . $node->field_assignment_color[LANGUAGE_NONE][0]['jquery_colorpicker'];
   }
-  global $base_url;
+  // calculate metadata to act on this
+  $metadata = array(
+    'relatedSubmissions' => _cle_submission_submission_status($node->nid),
+    'canUpdate' => 0,
+    'canDelete' => 0,
+  );
+  // see the operations they can perform here
+  if (entity_access('update', 'node', $node, $account)) {
+    $metadata['canUpdate'] = 1;
+  }
+  if (entity_access('delete', 'node', $node, $account)) {
+    $metadata['canDelete'] = 1;
+  }
+
   // this will be our json formatted output
   $return = array(
     'id' => (int)$node->nid,
@@ -273,7 +288,7 @@ function _cle_assignment_v1_assignment_output($node) {
         'public' => (int)$node->field_critique_privacy[LANGUAGE_NONE][0]['value'],
       ),
     ),
-    'metadata' => _cle_submission_submission_status($node->nid),
+    'metadata' => $metadata,
     'links' => array(
       'self' => $base_url . '/api/v1/cle/assignments/' . $node->nid,
     ),

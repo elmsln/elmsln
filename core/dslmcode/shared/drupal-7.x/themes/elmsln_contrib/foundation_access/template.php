@@ -1005,6 +1005,7 @@ function foundation_access_menu_local_tasks(&$variables) {
  * Implements template_menu_link.
  */
 function foundation_access_menu_link(&$variables) {
+  static $book_active;
   $element = $variables['element'];
   $sub_menu = '';
   $title = check_plain($element['#title']);
@@ -1058,8 +1059,23 @@ function foundation_access_menu_link(&$variables) {
       $element['#attributes']['class'][] = 'has-children';
     }
     elseif (isset($element['#original_link']['options']['fa_icon']) && !empty($element['#original_link']['options']['fa_icon'])) {
-      $element['#attributes']['class'][] = 'icon-' . $element['#original_link']['options']['fa_icon'];
-      $element['#attributes']['class'][] = 'elmsln-icon';
+      // overview page renders differently for full screen mode
+      if (current_path() == 'mooc/book-toc') {
+        $element['#localized_options']['attributes']['class'][] = 'icon-' . $element['#original_link']['options']['fa_icon'];
+        $element['#localized_options']['attributes']['class'][] = 'elmsln-icon';
+      }
+      else {
+        $element['#attributes']['class'][] = 'icon-' . $element['#original_link']['options']['fa_icon'];
+        $element['#attributes']['class'][] = 'elmsln-icon';
+      }
+    }
+    // look for active trail being hit in a book
+    if (array_search('active-trail', $element['#attributes']['class'])) {
+      $book_active = TRUE;
+    }
+    // if we haven't set an active page yet then keep claiming we past it
+    if (!isset($book_active)) {
+      $element['#attributes']['class'][] = 'past-page';
     }
   }
   $output = l($title, $element['#href'], $element['#localized_options']);

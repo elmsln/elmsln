@@ -25,9 +25,7 @@
         <section class="main-section etb-book">
           <div class="r-header row">
             <div class="r-header__left">
-              <div class="col s12">
-                <?php print render($page['header']); ?>
-              </div>
+              <?php print render($page['header']); ?>
             </div>
             <div class="r-header__right">
               <h2 class="element-invisible"><?php print t('Primary tabs');?></h2>

@@ -93,6 +93,7 @@ function _cle_project_v1_get_projects($filter = array()) {
  */
 function _cle_project_v1_project_output($node) {
   global $base_url;
+  $account = $GLOBALS['user'];
   // check for section specific projects
   $sections = _elmsln_api_multifield_clean($node, 'og_group_ref', 'target_id', TRUE);
   // check for steps
@@ -101,6 +102,18 @@ function _cle_project_v1_project_output($node) {
   $color = '#ffffff';
   if (isset($node->field_project_color[LANGUAGE_NONE][0]['jquery_colorpicker'])) {
     $color = '#' . $node->field_project_color[LANGUAGE_NONE][0]['jquery_colorpicker'];
+  }
+  // calculate metadata to act on this
+  $metadata = array(
+    'canUpdate' => 0,
+    'canDelete' => 0,
+  );
+  // see the operations they can perform here
+  if (entity_access('update', 'node', $node, $account)) {
+    $metadata['canUpdate'] = 1;
+  }
+  if (entity_access('delete', 'node', $node, $account)) {
+    $metadata['canDelete'] = 1;
   }
   // this will be our json formatted output
   $return = array(
@@ -123,6 +136,7 @@ function _cle_project_v1_project_output($node) {
     'links' => array(
       'self' => $base_url . '/api/v1/cle/projects/' . $node->nid,
     ),
+    'metadata' => $metadata,
   );
   return $return;
 }
