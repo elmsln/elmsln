@@ -33,3 +33,8 @@
 .wysiwyg-browse {
   height: 50%;
 }
+
+.wysiwyg-editor img {
+    height:auto;
+    max-width: 100%;
+}

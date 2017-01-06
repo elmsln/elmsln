@@ -48,6 +48,9 @@
       belowOrigin: true,
       alignment: 'left'
     });
+    $('body:not(.page-cle-app) .elmsln-dropdown-button').click(function(){
+      $('#etb-course-nav').css('z-index', '2');
+    });
     // side triggers
     $('.elmsln-right-side-nav-trigger').bind('click', function() {
         $('#' + $(this).attr('data-activates')).removeClass('elmsln-modal-hidden').focus();

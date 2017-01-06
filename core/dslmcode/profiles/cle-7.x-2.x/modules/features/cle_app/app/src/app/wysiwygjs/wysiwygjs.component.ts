@@ -23,6 +23,7 @@ declare var Materialize:any;
 
 export class WysiwygjsComponent implements OnInit, ControlValueAccessor {
   @Input() content:string;
+  @Output() onWysiwygInit: EventEmitter<any> = new EventEmitter();
   @Output() onContentUpdate: EventEmitter<any> = new EventEmitter();
 
   constructor(
@@ -266,7 +267,7 @@ export class WysiwygjsComponent implements OnInit, ControlValueAccessor {
               selectImage: 'Click to upload image',
               placeholderUrl: 'www.example.com',
               placeholderEmbed: '<embed/>',
-              maxImageSize: [600, 200],
+              maxImageSize: [1024, 640],
               onImageUpload: function (insert_image) {
               },
               forceImageUpload: false,    // upload images even if File-API is present
@@ -302,13 +303,16 @@ export class WysiwygjsComponent implements OnInit, ControlValueAccessor {
           let base64 = jQuery(this).attr('src');
           newThis.uploadImage(base64)
             .subscribe(
-                url => {
-                    jQuery(this).attr('src', url);
+                (image:any) => {
+                    console.log(image);
+                    jQuery(this).attr('src', image.url);
+                    jQuery(this).attr('width', image.metadata.width);
+                    jQuery(this).attr('height', image.metadata.height);
                     jQuery(this).addClass('processed');
                 },
                 error => {
                     jQuery(this).remove();
-                    Materialize.toast('Image too big. Please resize and try again.', 1500);
+                    Materialize.toast('Image must be smaller than 1024 x 640 pixels.', 2500);
                 }
             )
             // .subscribe(url => {
@@ -322,6 +326,8 @@ export class WysiwygjsComponent implements OnInit, ControlValueAccessor {
       newThis.propagateChange(newThis.content);
       newThis.onContentUpdate.emit();
     })
+
+    this.onWysiwygInit.emit();
   }
 
   updateContent() {
@@ -347,6 +353,6 @@ export class WysiwygjsComponent implements OnInit, ControlValueAccessor {
      * @todo: need to actually upload this to the server
      */
     return this.elmslnService.createImage(base64)
-        .map(data => data.url)
+        .map(data => data)
   }
 }

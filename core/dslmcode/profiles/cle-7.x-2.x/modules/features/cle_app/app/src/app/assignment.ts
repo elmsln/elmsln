@@ -11,5 +11,5 @@ export class Assignment {
   critiqueMethod:string = null;
   critiquePrivacy:boolean = null;
   critiqueStyle:string = null;
-  canCreate:boolean = null;
+  metadata:any = {};
 }

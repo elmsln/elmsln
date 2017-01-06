@@ -51,10 +51,11 @@ function cle_app_preprocess_html(&$vars) {
  */
 function cle_app_menu() {
   $items['cle/app'] = array(
-    'title' => 'Studio',
+    'title' => 'Assignments',
     'page callback' => '_cle_app_page_critique_app',
     'access arguments' => array('access content'),
     'type' => MENU_NORMAL_ITEM,
+    'menu_name' => 'menu-elmsln-navigation',
   );
   return $items;
 }

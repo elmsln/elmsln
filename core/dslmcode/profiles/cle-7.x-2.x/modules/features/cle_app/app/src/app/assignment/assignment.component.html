@@ -2,7 +2,7 @@
     <nav>
       <div class="nav-wrapper">
         <ul id="nav-mobile" class="left">
-          <li><a routerLink="/projects"><i class="material-icons left">&#xE5C4;</i> back</a></li>
+          <li><a routerLink="/projects"><i class="material-icons left">&#xE5C4;</i> projects</a></li>
         </ul>
         <ul id="nav-mobile" class="right">
           <li *ngIf="(userCanEdit$ | async)"><a (click)="onEditAssignment(assignment)" title="Edit this assignment"><i class="material-icons left">edit</i></a></li>
@@ -22,8 +22,8 @@
     </div>
 
 
-  <app-submission-list title="My Submission" [submissions]="submissions$ | async"></app-submission-list>
+  <app-submission-list *ngIf="(submissions$ | async).length > 0" title="My Submission" [submissions]="submissions$ | async"></app-submission-list>
 
-  <a *ngIf="assignment && assignment.canCreate" (click)="onCreateSubmission(assignment)" class="btn-large">Submit assignment</a>
-  <a *ngIf="assignment && !assignment.canCreate" class="btn-large disabled">Submit assignment</a>
+  <a *ngIf="assignment && assignment.metadata.canCreate && !assignment.metadata.complete.status" (click)="onCreateSubmission(assignment)" class="btn-large">Submit assignment</a>
+  <a *ngIf="assignment && !assignment.metadata.canCreate" class="btn-large disabled">Submit assignment</a>
 </div>
