@@ -9,7 +9,7 @@
 
       <div class="project__description" [innerHTML]="project.description"></div>
     </div>
-    <div class="project__options" *ngIf="(userCanEdit$ | async)">
+    <div *ngIf="(userCanEdit$ | async)" class="project__options"> 
       <a (click)="onCreateAssignment()" class="waves-effect btn-flat tooltipped" data-tooltip="create assignment"><i class="material-icons">add</i></a>
       <a (click)="onDeleteProject()" class="waves-effect btn-flat tooltipped" data-tooltip="delete assignment"><i class="material-icons">delete</i></a>
     </div>
