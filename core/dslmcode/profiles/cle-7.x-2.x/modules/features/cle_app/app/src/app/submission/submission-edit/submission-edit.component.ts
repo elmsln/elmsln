@@ -46,11 +46,19 @@ export class SubmissionEditComponent implements OnInit {
   }
 
   onSubmissionCancel() {
-    this.router.navigate(['/submissions/' + this.submissionId ]);
-    this.submissionFormComponent.form.reset();
+    if (this.submissionFormDirty) {
+      if (confirm('You have unsaved changes. Are you sure you want to navigate away from this page?')) {
+        this.router.navigate(['/submissions/' + this.submissionId ]);
+        this.submissionFormComponent.form.reset();
+      }
+    }
+    else {
+      this.router.navigate(['/submissions/' + this.submissionId ]);
+      this.submissionFormComponent.form.reset();
+    }
   }
 
   onFormChanges($event) {
-    console.log($event);
+    this.submissionFormDirty = $event;
   }
 }
