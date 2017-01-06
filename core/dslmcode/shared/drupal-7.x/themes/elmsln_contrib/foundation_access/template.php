@@ -1057,6 +1057,10 @@ function foundation_access_menu_link(&$variables) {
     if ($element['#original_link']['has_children'] == 1) {
       $element['#attributes']['class'][] = 'has-children';
     }
+    elseif (isset($element['#original_link']['options']['fa_icon']) && !empty($element['#original_link']['options']['fa_icon'])) {
+      $element['#attributes']['class'][] = 'icon-' . $element['#original_link']['options']['fa_icon'];
+      $element['#attributes']['class'][] = 'elmsln-icon';
+    }
   }
   $output = l($title, $element['#href'], $element['#localized_options']);
   return '<li' . drupal_attributes($element['#attributes']) . '>' . $output . $sub_menu . "</li>\n";

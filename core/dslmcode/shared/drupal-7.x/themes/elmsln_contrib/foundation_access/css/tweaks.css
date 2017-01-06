@@ -1,9 +1,22 @@
+.r-header {
+  padding: 0;
+  margin: .5rem 0 0 0;
+}
+
+.etb-book .is-sticky > .r-header {
+  padding: 0;
+  margin:0;
+}
+
+.elmsln-content-wrap {
+  margin-top: 2rem;
+}
+
 /* ensure print view is better then defaults */
 @page {
   size:8.5in 11in;
   margin: .1in;
 }
-
 
 #elmsln-tools-menu li .nolink {
   font-weight: bold;

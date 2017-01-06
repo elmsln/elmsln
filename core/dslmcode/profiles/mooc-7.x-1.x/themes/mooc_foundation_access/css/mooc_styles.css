@@ -44,11 +44,10 @@
   border-width: 1px;
   margin: -1px;
 }
-
 #block-mooc-nav-block-mooc-nav-nav.block-mooc-nav-block-mooc-nav ul li a {
   display: block;
   width: 100%;
-  padding: 0 0 0 1rem;
+  padding: 0 0 0 1.75rem;
   line-height: 2.5rem;
   white-space: nowrap;
   overflow: hidden;
@@ -57,7 +56,7 @@
   font-size: 1rem;
 }
 #block-mooc-nav-block-mooc-nav-nav.block-mooc-nav-block-mooc-nav ul li.elmsln-book-item.has-children a {
-  padding: 0 0 0 .375rem;
+  padding: 0 0 0 .5rem;
 }
 #block-mooc-nav-block-mooc-nav-nav.block-mooc-nav-block-mooc-nav ul li.elmsln-book-item.has-children a:before {
   display: inline-block;
@@ -65,11 +64,21 @@
   height: 0;
   content: "";
   vertical-align: middle;
-  border: .25rem solid;
-  margin: -.25rem .125rem 0 0;
+  border: .4rem solid;
+  margin: -.2rem .25rem 0 0;
   border-top-color: transparent;
   border-right-color: transparent;
   border-bottom-color: transparent;
+}
+.elmsln-book-item.elmsln-icon:before {
+  position: absolute;
+  font-size: 1.3rem;
+  line-height: 2.4rem;
+  margin: 0;
+  padding: 0 0 0 0.1rem;
+  height: 2.4rem;
+  width: 1rem;
+  vertical-align: middle;
 }
 #block-mooc-nav-block-mooc-nav-nav.block-mooc-nav-block-mooc-nav ul li a.active {
   font-weight: bold;
@@ -91,7 +100,7 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  padding: 0 0 0 1rem;
+  padding: 0 0 0 1.25rem;
 }
 
 #block-mooc-nav-block-mooc-nav-nav.block-mooc-nav-block-mooc-nav {
@@ -311,7 +320,7 @@ a.book-sibling-parent-pagination {
   border: .1rem solid #eceff1;
   font-size: 1rem;
   color: #222222;
-  padding: 0 .5rem;
+  padding: 0 0 0 1.75rem;
   line-height: 2.5rem;
   height: 2.5rem;
   display: -webkit-box;

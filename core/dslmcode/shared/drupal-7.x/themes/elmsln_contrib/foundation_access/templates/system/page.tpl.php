@@ -94,10 +94,10 @@
             </div>
           </div>
           <?php if ($contentwrappers): ?>
-          <div class="row">
+          <div class="elmsln-content-wrap row">
             <div class="s12 m12 push-l1 l10 col" role="main">
           <?php else : ?>
-          <div>
+          <div class="elmsln-content-wrap">
             <div role="main">
           <?php endif; ?>
               <?php if (!empty($page['highlighted'])): ?>
