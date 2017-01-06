@@ -1,0 +1,5 @@
+<div class="submission-edit">
+  <app-submission-form *ngIf="submission$ | async" [submission]="submission$ | async" (onSubmissionSave)="onSubmissionSave($event)" (onSubmissionCancel)="onSubmissionCancel($event)" (onFormChanges)="onFormChanges($event)"></app-submission-form>
+</div>
+
+{{ submission$ | async | json }}

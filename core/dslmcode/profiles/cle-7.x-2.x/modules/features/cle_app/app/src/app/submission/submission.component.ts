@@ -35,4 +35,8 @@ export class SubmissionComponent implements OnInit {
   onClickBack() {
     this.location.back();
   }
+
+  editSubmission() {
+    this.router.navigate(['submissions/' + this.submissionId + '/edit']);
+  }
 }

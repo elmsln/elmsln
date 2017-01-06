@@ -14,6 +14,7 @@ import { AssignmentDialogComponent } from './assignment/assignment-dialog/assign
 import { SubmissionComponent } from './submission/submission.component';
 import { SubmissionCreateComponent } from './submission/submission-create/submission-create.component';
 import { SubmissionDetailComponent } from './submission/submission-detail/submission-detail.component';
+import { SubmissionEditComponent } from './submission/submission-edit/submission-edit.component';
 
 const appRoutes: Routes = [
   {
@@ -61,6 +62,10 @@ const appRoutes: Routes = [
       {
         path: ':submissionId',
         component: SubmissionComponent
+      },
+      {
+        path: ':submissionId/edit',
+        component: SubmissionEditComponent
       }
     ]
   }

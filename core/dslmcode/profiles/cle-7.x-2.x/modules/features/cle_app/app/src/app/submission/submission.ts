@@ -5,4 +5,6 @@ export class Submission {
   created:number = null;
   body:string = null;
   assignment:number = null;
+  metadata:any = {};
+  state:string = null;
 }

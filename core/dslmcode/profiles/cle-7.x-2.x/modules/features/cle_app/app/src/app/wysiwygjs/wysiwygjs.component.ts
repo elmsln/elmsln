@@ -23,6 +23,7 @@ declare var Materialize:any;
 
 export class WysiwygjsComponent implements OnInit, ControlValueAccessor {
   @Input() content:string;
+  @Output() onWysiwygInit: EventEmitter<any> = new EventEmitter();
   @Output() onContentUpdate: EventEmitter<any> = new EventEmitter();
 
   constructor(
@@ -325,6 +326,8 @@ export class WysiwygjsComponent implements OnInit, ControlValueAccessor {
       newThis.propagateChange(newThis.content);
       newThis.onContentUpdate.emit();
     })
+
+    this.onWysiwygInit.emit();
   }
 
   updateContent() {
