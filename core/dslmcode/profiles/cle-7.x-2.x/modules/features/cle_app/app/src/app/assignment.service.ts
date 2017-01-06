@@ -106,12 +106,6 @@ export class AssignmentService {
       }
     }
 
-    if (data['metadata']) {
-      if (data['metadata']['canCreate']) {
-        converted['canCreate'] = data['metadata']['canCreate'];
-      }
-    }
-
     return converted;
   }
 
