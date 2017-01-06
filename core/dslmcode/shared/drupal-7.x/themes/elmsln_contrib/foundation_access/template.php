@@ -1058,8 +1058,15 @@ function foundation_access_menu_link(&$variables) {
       $element['#attributes']['class'][] = 'has-children';
     }
     elseif (isset($element['#original_link']['options']['fa_icon']) && !empty($element['#original_link']['options']['fa_icon'])) {
-      $element['#attributes']['class'][] = 'icon-' . $element['#original_link']['options']['fa_icon'];
-      $element['#attributes']['class'][] = 'elmsln-icon';
+      // overview page renders differently for full screen mode
+      if (current_path() == 'mooc/book-toc') {
+        $element['#localized_options']['attributes']['class'][] = 'icon-' . $element['#original_link']['options']['fa_icon'];
+        $element['#localized_options']['attributes']['class'][] = 'elmsln-icon';
+      }
+      else {
+        $element['#attributes']['class'][] = 'icon-' . $element['#original_link']['options']['fa_icon'];
+        $element['#attributes']['class'][] = 'elmsln-icon';
+      }
     }
   }
   $output = l($title, $element['#href'], $element['#localized_options']);
