@@ -222,17 +222,19 @@ ul.book-navigation-wrapper {
 .book-pagination-button-text {
   display: inline-block;
 }
-.book-navigation-footer {
-  margin: 3rem 0;
+.row .row.book-navigation-footer {
+  margin: 2rem 0;
   clear:both;
 }
 
 .book-navigation-footer .book-sibling-parent-pagination-previous {
   float: left;
+  font-size: 1rem;
 }
 
 .book-navigation-footer .book-sibling-parent-pagination-next {
   float: right;
+  font-size: 1rem;
 }
 
 .book-sibling-children a {

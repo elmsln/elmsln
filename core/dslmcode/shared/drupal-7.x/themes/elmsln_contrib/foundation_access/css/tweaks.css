@@ -1,6 +1,6 @@
 .r-header {
   padding: 0;
-  margin: .5rem 0 0 0;
+  margin: 1.5rem 0 0 0;
 }
 
 .etb-book .is-sticky > .r-header {
@@ -9,7 +9,7 @@
 }
 
 .elmsln-content-wrap {
-  margin-top: 2rem;
+  margin-top: 1.5rem;
 }
 
 /* ensure print view is better then defaults */
@@ -206,7 +206,7 @@
   .highlighted-block-area {
     position: absolute;
     right: 92%;
-    width: calc(54vw - 49%);
+    width: calc(55vw - 50%);
     max-width: 25rem;
     min-width: 10rem;
     top: 0;
@@ -1224,7 +1224,8 @@ ul.pagination li a {
   outline: none;
   padding: 0 0 0 .1rem;
   width: 100%;
-  font-size: .8rem;
+  font-size: 1rem;
+  font-weight: normal;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1252,9 +1253,9 @@ ul.pagination li a {
   margin: 0;
   max-height: 65vh;
   min-width: 10rem;
+  max-width: 16rem;
   overflow-y: scroll;
   width: 100%;
-  max-width: 30em;
   border-bottom-width: .1rem;
   border-bottom-style: solid;
 }
@@ -1596,11 +1597,11 @@ article h3,
 article h4,
 article h5,
 article h6 {
-  font-size: 1.2rem;
+  font-size: 1.3rem;
 }
 article p:not([class]),
 article p.elmsln-core-in-context {
-  max-width: 75%;
+  max-width: 85%;
 }
 article div div div p,
 article div div div p.elmsln-core-in-context {
