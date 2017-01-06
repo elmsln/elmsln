@@ -1949,16 +1949,9 @@ var AssignmentListComponent = (function () {
         this.assignmentService = assignmentService;
         this.router = router;
         this.store = store;
+        this.userCanEdit$ = this.assignmentService.userCanEdit;
     }
     AssignmentListComponent.prototype.ngOnInit = function () {
-        // check the permissions store to see if the user has edit
-        this.userCanEdit$ = this.store.select('user')
-            .map(function (state) {
-            if (state.permissions.includes('edit any cle_assignment content')) {
-                return true;
-            }
-            return false;
-        });
     };
     AssignmentListComponent.prototype.viewAssignment = function (assignmentId) {
         if (assignmentId) {
@@ -3852,6 +3845,15 @@ var AssignmentService = (function () {
         }
         return newAssignment;
     };
+    Object.defineProperty(AssignmentService.prototype, "userCanEdit", {
+        // Return if the user should be able to edit a project
+        get: function () {
+            return this.store.select('user')
+                .map(function (state) { return state.permissions.includes('edit own cle_assignment content'); });
+        },
+        enumerable: true,
+        configurable: true
+    });
     AssignmentService = __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Injectable"])(), 
         __metadata('design:paramtypes', [(typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_2__elmsln_service__["a" /* ElmslnService */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_2__elmsln_service__["a" /* ElmslnService */]) === 'function' && _a) || Object, (typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_1__ngrx_store__["a" /* Store */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1__ngrx_store__["a" /* Store */]) === 'function' && _b) || Object])
@@ -4276,7 +4278,7 @@ module.exports = "<p>\n  project-card works!\n</p>\n"
 /***/ 821:
 /***/ function(module, exports) {
 
-module.exports = "<div class=\"project\">\n  <div class=\"project__header\">\n    <div class=\"project__title-container\">\n\n      <app-editable-field *ngIf=\"(userCanEdit$ | async)\" [type]=\"text\" [content]=\"project.title\" (contentUpdated)=\"updateTitle($event)\">\n        <h1 class=\"project__title\">{{ project.title }}</h1>\n      </app-editable-field>\n      <h1 *ngIf=\"!(userCanEdit$ | async)\" class=\"project__title\">{{ project.title }}</h1>\n\n      <div class=\"project__description\" [innerHTML]=\"project.description\"></div>\n    </div>\n    <div class=\"project__options\" *ngIf=\"(userCanEdit$ | async)\">\n      <a (click)=\"onCreateAssignment()\" class=\"waves-effect btn-flat tooltipped\" data-tooltip=\"create assignment\"><i class=\"material-icons\">add</i></a>\n      <a (click)=\"onDeleteProject()\" class=\"waves-effect btn-flat tooltipped\" data-tooltip=\"delete assignment\"><i class=\"material-icons\">delete</i></a>\n    </div>\n  </div>\n  <div class=\"project__board\">\n    <cle-assignment-list [assignments]=\"assignments | async\"></cle-assignment-list>\n  </div>\n</div>\n\n<div id=\"modal-{{project.id}}\" class=\"modal delete-project-form\">\n  <div class=\"modal-content\">\n    <h4>Delete project confirmation</h4>\n    <p>Are you sure you want to delete the project titled \"{{ project.title }}\"?</p>\n  </div>\n  <div class=\"modal-footer\">\n    <a (click)=\"confirmDelete(false)\" class=\"modal-action modal-close waves-effect waves-green btn-flat\">Cancel</a>\n    <a (click)=\"confirmDelete(true)\" class=\" modal-action modal-close waves-effect waves-red btn-flat\">Delete</a>\n  </div>\n</div>"
+module.exports = "<div class=\"project\">\n  <div class=\"project__header\">\n    <div class=\"project__title-container\">\n\n      <app-editable-field *ngIf=\"(userCanEdit$ | async)\" [type]=\"text\" [content]=\"project.title\" (contentUpdated)=\"updateTitle($event)\">\n        <h1 class=\"project__title\">{{ project.title }}</h1>\n      </app-editable-field>\n      <h1 *ngIf=\"!(userCanEdit$ | async)\" class=\"project__title\">{{ project.title }}</h1>\n\n      <div class=\"project__description\" [innerHTML]=\"project.description\"></div>\n    </div>\n    <div *ngIf=\"(userCanEdit$ | async)\" class=\"project__options\"> \n      <a (click)=\"onCreateAssignment()\" class=\"waves-effect btn-flat tooltipped\" data-tooltip=\"create assignment\"><i class=\"material-icons\">add</i></a>\n      <a (click)=\"onDeleteProject()\" class=\"waves-effect btn-flat tooltipped\" data-tooltip=\"delete assignment\"><i class=\"material-icons\">delete</i></a>\n    </div>\n  </div>\n  <div class=\"project__board\">\n    <cle-assignment-list [assignments]=\"assignments | async\"></cle-assignment-list>\n  </div>\n</div>\n\n<div id=\"modal-{{project.id}}\" class=\"modal delete-project-form\">\n  <div class=\"modal-content\">\n    <h4>Delete project confirmation</h4>\n    <p>Are you sure you want to delete the project titled \"{{ project.title }}\"?</p>\n  </div>\n  <div class=\"modal-footer\">\n    <a (click)=\"confirmDelete(false)\" class=\"modal-action modal-close waves-effect waves-green btn-flat\">Cancel</a>\n    <a (click)=\"confirmDelete(true)\" class=\" modal-action modal-close waves-effect waves-red btn-flat\">Delete</a>\n  </div>\n</div>"
 
 /***/ },
 
