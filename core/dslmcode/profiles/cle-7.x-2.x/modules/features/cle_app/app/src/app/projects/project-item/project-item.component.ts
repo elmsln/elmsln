@@ -26,7 +26,7 @@ export class ProjectItemComponent implements OnInit, OnDestroy {
   @Output() delete: EventEmitter<any> = new EventEmitter();
   assignments:Observable<any>;
   permissions$:Observable<any>
-  userCanEdit$:Observable<any>;
+  userCanEdit$:Observable<any> = this.projectService.userCanEdit;
   
   constructor(
     private projectService:ProjectService,
@@ -49,9 +49,6 @@ export class ProjectItemComponent implements OnInit, OnDestroy {
       },
     });
     jQuery(this.el.nativeElement.getElementsByClassName('tooltipped')).tooltip({delay:40});
-
-    this.userCanEdit$ = this.store.select('user')
-      .map((state:any) => state.permissions.includes('edit own cle_project content'))
   }
 
   ngOnDestroy() {
