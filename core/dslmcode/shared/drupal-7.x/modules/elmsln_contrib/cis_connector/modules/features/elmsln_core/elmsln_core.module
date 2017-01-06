@@ -1118,16 +1118,6 @@ function elmsln_core_fa_a11y() {
             <div class="keyboard-short__key">Alt</div>
             <div class="keyboard-short__key">Shift</div>
           </div>
-          <div class="keyboard-short__group">
-            <span>' . t('Scroll down') . '</span>
-            <div class="keyboard-short__key">↓</div>
-            <div class="keyboard-short__key">↓</div>
-          </div>
-          <div class="keyboard-short__group">
-            <span>' . t('Scroll back to top') . '</span>
-            <div class="keyboard-short__key">↑</div>
-            <div class="keyboard-short__key">↑</div>
-          </div>
         </div>'
       ),
     )

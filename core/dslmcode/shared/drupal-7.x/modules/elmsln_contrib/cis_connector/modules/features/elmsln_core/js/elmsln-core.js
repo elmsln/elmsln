@@ -36,23 +36,5 @@
         Drupal.voicecommander.say('I\'m sorry Dave. I\'m afraid I can\'t do that.', 0.1, .6);
       }
     };
-    jwerty.key('↓,↓', function () {
-      if (!$(document.activeElement).is(":focus")) {
-        var height = $(window).height();
-        $('html, body').animate({
-            scrollTop: $(window).scrollTop()+(height*0.75)
-        }, 1000);
-      }
-      return false;
-    });
-    jwerty.key('↑,↑', function () {
-      if (!$(document.activeElement).is(":focus")) {
-        var height = $(window).height();
-        $('html, body').animate({
-          scrollTop: $(window).scrollTop()-(height*0.75)
-        }, 1000);
-        return false;
-      }
-    });
   });
 })(jQuery);
