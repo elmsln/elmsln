@@ -12,7 +12,9 @@ import { Submission } from './submission';
 })
 export class SubmissionComponent implements OnInit {
   submissionId:number;
+  assignmentId:number;
   submission$:Observable<Submission>;
+
   constructor(
     private route:ActivatedRoute,
     private store:Store<{}>,
@@ -27,12 +29,24 @@ export class SubmissionComponent implements OnInit {
           this.submissionId = Number(params['submissionId']);
 
           this.submission$ = this.store.select('submissions')
-            .map((state:any) => state.submissions.find(sub => sub.id === this.submissionId));
+            .map((state:any) => state.submissions.find((sub:Submission) => {
+              if (sub.id === this.submissionId) {
+                this.assignmentId = sub.assignment;
+                return true;
+              }
+              else {
+                return false;
+              }
+            }))
         }
       })
   }
 
   onClickBack() {
-    this.location.back();
+    this.router.navigate(['/assignments/' + this.assignmentId]);
+  }
+
+  editSubmission() {
+    this.router.navigate(['/submissions/' + this.submissionId + '/edit']);
   }
 }

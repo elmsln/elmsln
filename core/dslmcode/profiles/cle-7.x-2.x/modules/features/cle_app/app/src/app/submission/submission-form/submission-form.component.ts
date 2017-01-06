@@ -11,7 +11,9 @@ export class SubmissionFormComponent implements OnInit, OnChanges {
   @Input() submission:Submission;
   @Output() onSubmissionSave: EventEmitter<any> = new EventEmitter(); 
   @Output() onSubmissionCancel: EventEmitter<any> = new EventEmitter(); 
+  @Output() onFormChanges: EventEmitter<any> = new EventEmitter();
   form:FormGroup;
+  formValueChanges:number = 0;
 
   constructor(
     private formBuilder: FormBuilder
@@ -19,10 +21,25 @@ export class SubmissionFormComponent implements OnInit, OnChanges {
 
   ngOnInit() {
     this.form = this.formBuilder.group(this.submission);
+    this.form.valueChanges
+      .subscribe(() => {
+        /**
+         * @todo: hack to make form dirty work. WYSIWYG is
+         * fireing a change event on init
+         */
+        if (this.formValueChanges > 1) {
+          this.onFormChanges.emit(this.form.dirty);
+        }
+        this.formValueChanges++;
+      });
   }
 
   ngOnChanges() {
     this.form = this.formBuilder.group(this.submission);
+  }
+
+  onWysiwygInit() {
+    this.form.markAsPristine();
   }
 
   submit() {
