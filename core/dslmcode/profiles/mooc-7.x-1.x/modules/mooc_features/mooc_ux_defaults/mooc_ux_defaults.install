@@ -2,32 +2,3 @@
 /**
  * @file MOOC UX defaults
  */
-
-/**
- * MOOC uses Simplify instead of jammer
- */
-function mooc_ux_defaults_7000(&$sandbox) {
-  module_disable(array('jammer', 'nodeformcols'));
-  module_enable(array('simplify'));
-}
-
-/**
- * We dropped Magelin so revert the UX.
- */
-function mooc_ux_defaults_7001(&$sandbox) {
-  features_revert('mooc_ux_defaults');
-}
-
-/**
- * Read time and nav blocks now deliver through here.
- */
-function mooc_ux_defaults_7002(&$sandbox) {
-  features_revert_module('mooc_ux_defaults');
-}
-
-/**
- * Block placement for non-node pages as well now so outline is pervasive.
- */
-function mooc_ux_defaults_7003(&$sandbox) {
-  features_revert_module('mooc_ux_defaults');
-}

@@ -165,3 +165,10 @@ function mooc_update_7010(&$sandbox) {
 function mooc_update_7011(&$sandbox) {
   features_revert_module('mooc_ux_defaults');
 }
+
+/**
+ * Block placement for non-node pages as well now so outline is pervasive.
+ */
+function mooc_update_7012(&$sandbox) {
+  features_revert_module('mooc_ux_defaults');
+}
