@@ -207,7 +207,7 @@
     position: absolute;
     right: 92%;
     width: calc(55vw - 50%);
-    max-width: 25rem;
+    max-width: 20rem;
     min-width: 10rem;
     top: 0;
   }
