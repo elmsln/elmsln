@@ -17,13 +17,9 @@ function mooc_ux_defaults_context_default_contexts() {
   $context->description = 'Content block placement';
   $context->tag = 'Content';
   $context->conditions = array(
-    'node' => array(
+    'sitewide' => array(
       'values' => array(
-        'mooc_container' => 'mooc_container',
-        'page' => 'page',
-      ),
-      'options' => array(
-        'node_form' => '1',
+        1 => 1,
       ),
     ),
   );
