@@ -141,6 +141,7 @@
   color: #222222;
   border: .1rem solid #eeeeee;
   font-weight: normal;
+  font-size: 1rem;
 }
 
 .page-mooc-book-toc ul.menu a.has-children {
@@ -318,6 +319,7 @@ a.book-sibling-parent-pagination {
   padding: 2rem 2rem 0;
   overflow: scroll;
 }
+.page-mooc-book-toc article ul li a,
 #block-mooc-helper-mooc-helper-toc-nav-modal .mooc-outline-modal-content a {
   border: .1rem solid #eceff1;
   font-size: 1rem;
@@ -330,7 +332,7 @@ a.book-sibling-parent-pagination {
   display: -ms-flexbox;
   display: flex;
 }
-
+.page-mooc-book-toc article ul li a:hover,
 #block-mooc-helper-mooc-helper-toc-nav-modal .mooc-outline-modal-content a:hover {
   border: 1px solid #cfd8dc;
   background-color: #eceff1;
@@ -342,12 +344,15 @@ a.book-sibling-parent-pagination {
 #block-mooc-helper-mooc-helper-toc-nav-modal .mooc-outline-modal-content a.active-trail.active {
   background-color: #cccccc;
 }
+.page-mooc-book-toc article ul li a.has-children,
 #block-mooc-helper-mooc-helper-toc-nav-modal .mooc-outline-modal-content a.has-children {
   font-weight: bold;
 }
+.page-mooc-book-toc article ul,
 #block-mooc-helper-mooc-helper-toc-nav-modal .mooc-outline-modal-content ul {
   margin-left: 0;
 }
+.page-mooc-book-toc article ul li ul,
 #block-mooc-helper-mooc-helper-toc-nav-modal .mooc-outline-modal-content ul li ul {
   margin-left: 2rem;
 }
