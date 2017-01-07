@@ -1616,10 +1616,10 @@ var AppEffects = (function () {
             .mergeMap(function () { return _this.elmslnService.getUserProfile(); })
             .map(function (profile) {
             if (typeof profile.user.permissions !== 'undefined') {
-                return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__app_actions__["j" /* loadPermissionsSuccess */])(profile.user.permissions);
+                return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__app_actions__["j" /* loadPermissionsSuccess */])(profile.user.permissions, profile.user['csrf-token']);
             }
             else {
-                return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__app_actions__["j" /* loadPermissionsSuccess */])([]);
+                return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__app_actions__["j" /* loadPermissionsSuccess */])([], null);
             }
         });
         this.deleteAssignment$ = this.actions$
@@ -2926,7 +2926,8 @@ function reducer(state, action) {
 /* harmony export (immutable) */ exports["a"] = reducer;
 
 var initialState = {
-    permissions: []
+    permissions: [],
+    token: null
 };
 function reducer(state, action) {
     if (state === void 0) { state = initialState; }
@@ -2936,7 +2937,8 @@ function reducer(state, action) {
         }
         case __WEBPACK_IMPORTED_MODULE_0__app_actions__["f" /* ActionTypes */].LOAD_PERMISSIONS_SUCCESS: {
             return {
-                permissions: action.payload ? action.payload : []
+                permissions: action.payload.permissions ? action.payload.permissions : [],
+                token: action.payload.token ? action.payload.token : null
             };
         }
         default: {
@@ -3875,6 +3877,7 @@ var AssignmentService = (function () {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__app_settings__ = __webpack_require__(117);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_ng2_cookies_ng2_cookies__ = __webpack_require__(441);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_ng2_cookies_ng2_cookies___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_ng2_cookies_ng2_cookies__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__ngrx_store__ = __webpack_require__(13);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return ElmslnService; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -3889,9 +3892,11 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 
 
 
+
 var ElmslnService = (function () {
-    function ElmslnService(http) {
+    function ElmslnService(http, store) {
         this.http = http;
+        this.store = store;
     }
     ElmslnService.prototype.createAuthorizationHeader = function (headers) {
         var basicAuthCredentials = __WEBPACK_IMPORTED_MODULE_3_ng2_cookies_ng2_cookies__["Cookie"].get('basicAuthCredentials');
@@ -3900,25 +3905,12 @@ var ElmslnService = (function () {
         }
     };
     ElmslnService.prototype.createCSRFTokenHeader = function (headers) {
-        var csrfToken = localStorage.getItem('x-csrf-token');
-        // const csrfToken = null;
-        if (!csrfToken) {
-            this.http
-                .get(__WEBPACK_IMPORTED_MODULE_2__app_settings__["a" /* AppSettings */].BASE_PATH + 'restws/session/token', { headers: headers })
-                .subscribe(function (data) {
-                // Get the CSRF Token and set it to local storage
-                var token = data['_body'];
-                // new token
-                console.log('new token', token);
-                localStorage.setItem('x-csrf-token', token);
-                headers.append('x-csrf-token', token);
-                return headers;
-            });
-        }
-        else {
-            headers.append('x-csrf-token', csrfToken);
+        this.store.select('user')
+            .map(function (state) { return state.token; })
+            .subscribe(function (token) {
+            headers.append('x-csrf-token', token);
             return headers;
-        }
+        });
     };
     ElmslnService.prototype.login = function () {
         var headers = new __WEBPACK_IMPORTED_MODULE_1__angular_http__["a" /* Headers */]();
@@ -3934,7 +3926,7 @@ var ElmslnService = (function () {
     ElmslnService.prototype.get = function (url) {
         var headers = new __WEBPACK_IMPORTED_MODULE_1__angular_http__["a" /* Headers */]();
         this.createAuthorizationHeader(headers);
-        this.createCSRFTokenHeader(headers);
+        // this.createCSRFTokenHeader(headers);
         return this.http.get(url, {
             headers: headers
         });
@@ -3983,10 +3975,10 @@ var ElmslnService = (function () {
     };
     ElmslnService = __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Injectable"])(), 
-        __metadata('design:paramtypes', [(typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_1__angular_http__["b" /* Http */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1__angular_http__["b" /* Http */]) === 'function' && _a) || Object])
+        __metadata('design:paramtypes', [(typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_1__angular_http__["b" /* Http */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1__angular_http__["b" /* Http */]) === 'function' && _a) || Object, (typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_4__ngrx_store__["a" /* Store */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_4__ngrx_store__["a" /* Store */]) === 'function' && _b) || Object])
     ], ElmslnService);
     return ElmslnService;
-    var _a;
+    var _a, _b;
 }());
 //# sourceMappingURL=/Users/scienceonlineed/Documents/websites/elmsln/core/dslmcode/profiles/cle-7.x-2.x/modules/features/cle_app/app/src/elmsln.service.js.map
 
@@ -4429,10 +4421,10 @@ function loadPermissions() {
         payload: {}
     };
 }
-function loadPermissionsSuccess(permissions) {
+function loadPermissionsSuccess(permissions, token) {
     return {
         type: ActionTypes.LOAD_PERMISSIONS_SUCCESS,
-        payload: permissions
+        payload: { permissions: permissions, token: token }
     };
 }
 //# sourceMappingURL=/Users/scienceonlineed/Documents/websites/elmsln/core/dslmcode/profiles/cle-7.x-2.x/modules/features/cle_app/app/src/app.actions.js.map

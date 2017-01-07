@@ -2,11 +2,13 @@ import { Action } from '@ngrx/store';
 import { ActionTypes } from '../app.actions';
 
 export interface UserState {
-  permissions: string[]
+  permissions: string[],
+  token: string
 }
 
 const initialState: UserState = {
-  permissions: []
+  permissions: [],
+  token: null
 }
 
 export function reducer(state: UserState = initialState, action: Action) {
@@ -17,7 +19,8 @@ export function reducer(state: UserState = initialState, action: Action) {
 
     case ActionTypes.LOAD_PERMISSIONS_SUCCESS: {
       return {
-        permissions: action.payload ? action.payload : []
+        permissions: action.payload.permissions ? action.payload.permissions : [],
+        token: action.payload.token ? action.payload.token : null
       }
     }
 

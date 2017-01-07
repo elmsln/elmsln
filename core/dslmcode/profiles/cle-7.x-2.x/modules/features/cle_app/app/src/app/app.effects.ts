@@ -61,10 +61,10 @@ export class AppEffects {
     .mergeMap(() => this.elmslnService.getUserProfile())
     .map(profile => {
       if (typeof profile.user.permissions !== 'undefined') {
-        return loadPermissionsSuccess(profile.user.permissions);
+        return loadPermissionsSuccess(profile.user.permissions, profile.user['csrf-token']);
       }
       else {
-        return loadPermissionsSuccess([]);
+        return loadPermissionsSuccess([], null);
       }
     })
 
