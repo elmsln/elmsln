@@ -24,16 +24,11 @@ export class SubmissionCreateComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.route.params.forEach((params: Params) => {
-      if (params['assignmentId']) {
-        let id = +params['assignmentId'];
-        this.assignmentId = Number(id);
-      }
-    });
-
     this.route.params
       .subscribe(params => {
         if (typeof params['assignmentId'] !== 'undefined') {
+          let id = params['assignmentId'];
+          this.assignmentId = Number(id);
           this.submission = Object.assign({}, new Submission(), {assignment:this.assignmentId})
         }
       });

@@ -25,6 +25,8 @@ export class ProjectItemComponent implements OnInit, OnDestroy {
   @Input() project: Project;
   @Output() delete: EventEmitter<any> = new EventEmitter();
   assignments:Observable<any>;
+  permissions$:Observable<any>
+  userCanEdit$:Observable<any> = this.projectService.userCanEdit;
   
   constructor(
     private projectService:ProjectService,
@@ -47,9 +49,6 @@ export class ProjectItemComponent implements OnInit, OnDestroy {
       },
     });
     jQuery(this.el.nativeElement.getElementsByClassName('tooltipped')).tooltip({delay:40});
-
-    // this.assignments = this.assignmentService.assignments
-    //   }));
   }
 
   ngOnDestroy() {

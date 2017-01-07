@@ -4,12 +4,13 @@ import { Observable } from 'rxjs';
 import { ElmslnService } from './elmsln.service';
 import { AppSettings } from './app-settings';
 import { Project } from './project';
+import { Store } from '@ngrx/store';
 
 @Injectable()
 export class ProjectService {
-
   constructor(
-    private elmsln: ElmslnService
+    private elmsln: ElmslnService,
+    private store: Store<{}>
   ) { }
 
   getProjects() {
@@ -101,5 +102,11 @@ export class ProjectService {
     }
 
     return ufProject;
+  }
+
+  // Return if the user should be able to edit a project
+  get userCanEdit():Observable<boolean> {
+    return this.store.select('user')
+      .map((state:any) => state.permissions.includes('edit own cle_project content'));
   }
 }

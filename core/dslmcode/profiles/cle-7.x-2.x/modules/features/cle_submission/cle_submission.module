@@ -160,6 +160,7 @@ function _cle_submission_v1_submission_output($node) {
     ),
     'metadata' => $metadata,
   );
+
   return $return;
 }
 

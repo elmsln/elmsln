@@ -18,7 +18,7 @@ export class AssignmentListComponent implements OnChanges, OnInit {
   // takes in optional project id parameter which will filter assignments
   // by the project
   @Input() assignments:Assignment[];
-  userCanEdit$:Observable<boolean>;
+  userCanEdit$:Observable<boolean> = this.assignmentService.userCanEdit;
 
   constructor(
     private assignmentService: AssignmentService,
@@ -28,14 +28,6 @@ export class AssignmentListComponent implements OnChanges, OnInit {
   }
 
   ngOnInit() {
-    // check the permissions store to see if the user has edit
-    this.userCanEdit$ = this.store.select('user')
-      .map((state:any) => {
-        if (state.permissions.includes('edit any cle_assignment content')) {
-          return true;
-        }
-        return false;
-      })
   }
 
 viewAssignment(assignmentId) {

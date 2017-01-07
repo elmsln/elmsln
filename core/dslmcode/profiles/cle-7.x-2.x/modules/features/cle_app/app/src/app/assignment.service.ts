@@ -164,4 +164,10 @@ export class AssignmentService {
 
     return newAssignment;
   }
+
+  // Return if the user should be able to edit a project
+  get userCanEdit():Observable<boolean> {
+    return this.store.select('user')
+      .map((state:any) => state.permissions.includes('edit own cle_assignment content'));
+  }
 }

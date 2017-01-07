@@ -20,23 +20,27 @@ export class ElmslnService {
   }
 
   createCSRFTokenHeader(headers:Headers) {
-    let csrftoken = Cookie.get('x-csrf-token');
-    if (!csrftoken) {
+    const csrfToken = localStorage.getItem('x-csrf-token');
+    // const csrfToken = null;
+    if (!csrfToken) {
       this.http
         .get(AppSettings.BASE_PATH + 'restws/session/token', {headers})
         .subscribe(data => {
           // Get the CSRF Token and set it to local storage
           let token = data['_body'];
-          Cookie.set('x-csrf-token', token);
+          // new token
+          console.log('new token', token);
+          localStorage.setItem('x-csrf-token', token);
           headers.append('x-csrf-token', token);
           return headers;
         });
     }
     else {
-      headers.append('x-csrf-token', csrftoken);
+      headers.append('x-csrf-token', csrfToken);
       return headers;
     }
   }
+
 
   login() {
     let headers = new Headers();
@@ -47,8 +51,8 @@ export class ElmslnService {
   }
 
   logout() {
-    Cookie.delete('x-csrf-token');
     Cookie.delete('basicAuthCredentials');
+    // localStorage.clear();
 
     return true;
   }
