@@ -989,6 +989,7 @@ var LoginComponent = (function () {
         // the basic auth login
         if (typeof Drupal !== 'undefined') {
             console.log('Drupal detected...');
+            this.userService.logout();
             this.router.navigate(['/projects']);
         }
     };
@@ -3899,20 +3900,23 @@ var ElmslnService = (function () {
         }
     };
     ElmslnService.prototype.createCSRFTokenHeader = function (headers) {
-        var csrftoken = __WEBPACK_IMPORTED_MODULE_3_ng2_cookies_ng2_cookies__["Cookie"].get('x-csrf-token');
-        if (!csrftoken) {
+        var csrfToken = localStorage.getItem('x-csrf-token');
+        // const csrfToken = null;
+        if (!csrfToken) {
             this.http
                 .get(__WEBPACK_IMPORTED_MODULE_2__app_settings__["a" /* AppSettings */].BASE_PATH + 'restws/session/token', { headers: headers })
                 .subscribe(function (data) {
                 // Get the CSRF Token and set it to local storage
                 var token = data['_body'];
-                __WEBPACK_IMPORTED_MODULE_3_ng2_cookies_ng2_cookies__["Cookie"].set('x-csrf-token', token);
+                // new token
+                console.log('new token', token);
+                localStorage.setItem('x-csrf-token', token);
                 headers.append('x-csrf-token', token);
                 return headers;
             });
         }
         else {
-            headers.append('x-csrf-token', csrftoken);
+            headers.append('x-csrf-token', csrfToken);
             return headers;
         }
     };
@@ -3923,8 +3927,8 @@ var ElmslnService = (function () {
         return true;
     };
     ElmslnService.prototype.logout = function () {
-        __WEBPACK_IMPORTED_MODULE_3_ng2_cookies_ng2_cookies__["Cookie"].delete('x-csrf-token');
         __WEBPACK_IMPORTED_MODULE_3_ng2_cookies_ng2_cookies__["Cookie"].delete('basicAuthCredentials');
+        // localStorage.clear();
         return true;
     };
     ElmslnService.prototype.get = function (url) {
