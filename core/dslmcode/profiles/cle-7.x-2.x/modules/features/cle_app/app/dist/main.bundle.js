@@ -221,7 +221,8 @@ function loadPermissionsSuccess(permissions) {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__elmsln_service__ = __webpack_require__(65);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__app_settings__ = __webpack_require__(117);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__ngrx_store__ = __webpack_require__(13);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__project__ = __webpack_require__(392);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__ngrx_store__ = __webpack_require__(13);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return ProjectService; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -236,6 +237,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 
 
 
+
 var ProjectService = (function () {
     function ProjectService(elmsln, store) {
         this.elmsln = elmsln;
@@ -243,55 +245,57 @@ var ProjectService = (function () {
     }
     ProjectService.prototype.getProjects = function () {
         var _this = this;
-        return this.elmsln.get(__WEBPACK_IMPORTED_MODULE_2__app_settings__["a" /* AppSettings */].BASE_PATH + 'node.json?type=cle_project')
-            .map(function (data) { return data.json().list; })
-            .map(function (data) { return _this.formatProjects(data); });
+        return this.elmsln.get(__WEBPACK_IMPORTED_MODULE_2__app_settings__["a" /* AppSettings */].BASE_PATH + 'api/v1/cle/projects')
+            .map(function (data) { return data.json().data; })
+            .map(function (projects) { return projects.map(function (p) { return _this.convertToProject(p); }); });
     };
     ProjectService.prototype.getProject = function (projectId) {
         var _this = this;
-        return this.elmsln.get(__WEBPACK_IMPORTED_MODULE_2__app_settings__["a" /* AppSettings */].BASE_PATH + 'node/' + projectId + '.json')
-            .map(function (data) { return data.json(); })
-            .map(function (data) { return _this.formatProject(data); });
+        return this.elmsln.get(__WEBPACK_IMPORTED_MODULE_2__app_settings__["a" /* AppSettings */].BASE_PATH + 'api/v1/cle/projects/' + projectId)
+            .map(function (data) { return data.json().data; })
+            .map(function (project) { return _this.convertToProject(project); });
     };
     ProjectService.prototype.createProject = function (project) {
+        var _this = this;
         // first we need to prepare the object for Drupal
-        var body = this.prepareForDrupal(project);
-        return this.elmsln.post(__WEBPACK_IMPORTED_MODULE_2__app_settings__["a" /* AppSettings */].BASE_PATH + 'node', body)
-            .map(function (data) { return data.json(); });
+        return this.elmsln.post(__WEBPACK_IMPORTED_MODULE_2__app_settings__["a" /* AppSettings */].BASE_PATH + 'api/v1/cle/projects/create', project)
+            .map(function (data) { return data.json().node; })
+            .map(function (node) { return _this.convertToProject(node); });
     };
     ProjectService.prototype.updateProject = function (project) {
-        console.log('updateProject', project);
-        // first we need to prepare the object for Drupal
-        var body = this.prepareForDrupal(project);
-        console.log('updateProject: Ready to send', body);
-        return this.elmsln.put(__WEBPACK_IMPORTED_MODULE_2__app_settings__["a" /* AppSettings */].BASE_PATH + 'node/' + project.id, body)
-            .map(function (data) { return data.json(); });
+        var _this = this;
+        return this.elmsln.put(__WEBPACK_IMPORTED_MODULE_2__app_settings__["a" /* AppSettings */].BASE_PATH + 'api/v1/cle/projects/' + project.id + '/update', project)
+            .map(function (data) { return data.json().node; })
+            .map(function (node) { return _this.convertToProject(node); });
     };
     ProjectService.prototype.deleteProject = function (project) {
-        return this.elmsln.delete(__WEBPACK_IMPORTED_MODULE_2__app_settings__["a" /* AppSettings */].BASE_PATH + 'node/' + project.id)
+        return this.elmsln.delete(__WEBPACK_IMPORTED_MODULE_2__app_settings__["a" /* AppSettings */].BASE_PATH + 'api/v1/cle/projects/' + project.id + '/delete')
             .map(function (data) { return data.json(); });
     };
     ProjectService.prototype.formatProjects = function (projects) {
         var _this = this;
         var newProjects = [];
         projects.forEach(function (project) {
-            newProjects.push(_this.formatProject(project));
+            newProjects.push(_this.convertToProject(project));
         });
         return newProjects;
     };
-    ProjectService.prototype.formatProject = function (project) {
-        var newProject = {
-            title: project.title ? project.title : null,
-            id: project.nid ? Number(project.nid) : null
-        };
+    ProjectService.prototype.convertToProject = function (data) {
+        var converted = new __WEBPACK_IMPORTED_MODULE_3__project__["a" /* Project */]();
+        if (data.id) {
+            converted.id = data.id;
+        }
+        if (data.title) {
+            converted.title = data.title;
+        }
         // Convert date fields
         var dateFields = ['startDate', 'endDate'];
         dateFields.forEach(function (field) {
-            if (newProject[field]) {
-                newProject[field] = new Date(newProject[field] * 1000);
+            if (converted[field]) {
+                converted[field] = new Date(converted[field] * 1000);
             }
         });
-        return newProject;
+        return converted;
     };
     ProjectService.prototype.prepareForDrupal = function (project) {
         var ufProject = {};
@@ -325,7 +329,7 @@ var ProjectService = (function () {
     });
     ProjectService = __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Injectable"])(), 
-        __metadata('design:paramtypes', [(typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_1__elmsln_service__["a" /* ElmslnService */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1__elmsln_service__["a" /* ElmslnService */]) === 'function' && _a) || Object, (typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_3__ngrx_store__["a" /* Store */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_3__ngrx_store__["a" /* Store */]) === 'function' && _b) || Object])
+        __metadata('design:paramtypes', [(typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_1__elmsln_service__["a" /* ElmslnService */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1__elmsln_service__["a" /* ElmslnService */]) === 'function' && _a) || Object, (typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_4__ngrx_store__["a" /* Store */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_4__ngrx_store__["a" /* Store */]) === 'function' && _b) || Object])
     ], ProjectService);
     return ProjectService;
     var _a, _b;
@@ -343,7 +347,7 @@ var Submission = (function () {
     function Submission() {
         this.id = null;
         this.title = null;
-        this.status = null;
+        this.status = true;
         this.created = null;
         this.body = null;
         this.assignment = null;
@@ -429,7 +433,7 @@ var Assignment = (function () {
         this.id = null;
         this.title = null;
         this.type = null;
-        this.status = null;
+        this.status = true;
         this.created = null;
         this.startDate = null;
         this.endDate = null;
@@ -1441,9 +1445,10 @@ var SubmissionService = (function () {
             .map(function (data) { return _this.convertToSubmission(data); });
     };
     SubmissionService.prototype.createSubmission = function (submission) {
-        var newSub = this.prepareForDrupal(submission);
-        return this.elmsln.post(__WEBPACK_IMPORTED_MODULE_3__app_settings__["a" /* AppSettings */].BASE_PATH + 'node', newSub)
-            .map(function (data) { return data.json(); });
+        var _this = this;
+        return this.elmsln.post(__WEBPACK_IMPORTED_MODULE_3__app_settings__["a" /* AppSettings */].BASE_PATH + 'api/v1/cle/submissions/create', submission)
+            .map(function (data) { return data.json().node; })
+            .map(function (node) { return _this.convertToSubmission(node); });
     };
     SubmissionService.prototype.updateSubmission = function (submission) {
         var newSub = this.prepareForDrupal(submission);
@@ -1587,9 +1592,9 @@ var AppEffects = (function () {
         this.createAssignment$ = this.actions$
             .ofType(__WEBPACK_IMPORTED_MODULE_3__app_actions__["f" /* ActionTypes */].CREATE_ASSIGNMENT)
             .mergeMap(function (action) { return _this.assignmentService.createAssignment(action.payload); })
-            .map(function (assignmentInfo) {
+            .map(function (assignmentId) {
             Materialize.toast('Assignment created', 1500);
-            return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__app_actions__["g" /* createAssignmentSuccess */])(assignmentInfo.id);
+            return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__app_actions__["g" /* createAssignmentSuccess */])(assignmentId);
         });
         // Update the assignment on the server
         this.updateAssignment$ = this.actions$
@@ -1616,10 +1621,10 @@ var AppEffects = (function () {
             .mergeMap(function () { return _this.elmslnService.getUserProfile(); })
             .map(function (profile) {
             if (typeof profile.user.permissions !== 'undefined') {
-                return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__app_actions__["j" /* loadPermissionsSuccess */])(profile.user.permissions);
+                return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__app_actions__["j" /* loadPermissionsSuccess */])(profile.user.permissions, profile.user['csrf-token']);
             }
             else {
-                return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__app_actions__["j" /* loadPermissionsSuccess */])([]);
+                return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__app_actions__["j" /* loadPermissionsSuccess */])([], null);
             }
         });
         this.deleteAssignment$ = this.actions$
@@ -2670,9 +2675,9 @@ var ProjectEffects = (function () {
         this.createProject$ = this.actions$
             .ofType(__WEBPACK_IMPORTED_MODULE_3__project_actions__["c" /* ActionTypes */].CREATE_PROJECT)
             .mergeMap(function (action) { return _this.projectService.createProject(action.payload); })
-            .map(function (projectInfo) {
+            .map(function (project) {
             Materialize.toast('Project created', 1500);
-            return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__project_actions__["d" /* createProjectSuccess */])(projectInfo.id);
+            return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__project_actions__["d" /* createProjectSuccess */])(project.id);
         });
         // Update the project on the server
         this.updateProject$ = this.actions$
@@ -2693,7 +2698,9 @@ var ProjectEffects = (function () {
             .ofType(__WEBPACK_IMPORTED_MODULE_3__project_actions__["c" /* ActionTypes */].DELETE_PROJECT)
             .mergeMap(function (action) { return _this.projectService.deleteProject(action.payload); })
             .map(function (info) {
-            Materialize.toast('Project deleted', 1000);
+            if (info.status === '200') {
+                Materialize.toast('Project deleted', 1000);
+            }
         });
     }
     __decorate([
@@ -2926,7 +2933,8 @@ function reducer(state, action) {
 /* harmony export (immutable) */ exports["a"] = reducer;
 
 var initialState = {
-    permissions: []
+    permissions: [],
+    token: null
 };
 function reducer(state, action) {
     if (state === void 0) { state = initialState; }
@@ -2936,7 +2944,8 @@ function reducer(state, action) {
         }
         case __WEBPACK_IMPORTED_MODULE_0__app_actions__["f" /* ActionTypes */].LOAD_PERMISSIONS_SUCCESS: {
             return {
-                permissions: action.payload ? action.payload : []
+                permissions: action.payload.permissions ? action.payload.permissions : [],
+                token: action.payload.token ? action.payload.token : null
             };
         }
         default: {
@@ -3747,17 +3756,18 @@ var AssignmentService = (function () {
             .map(function (data) { return _this.convertToAssignment(data); });
     };
     AssignmentService.prototype.createAssignment = function (assignment) {
-        var newAssignment = this.prepareForDrupal(assignment);
-        return this.elmsln.post(__WEBPACK_IMPORTED_MODULE_3__app_settings__["a" /* AppSettings */].BASE_PATH + 'node', newAssignment)
-            .map(function (data) { return data.json(); });
+        return this.elmsln.post(__WEBPACK_IMPORTED_MODULE_3__app_settings__["a" /* AppSettings */].BASE_PATH + 'api/v1/cle/assignments/create', assignment)
+            .map(function (data) { return data.json().node; })
+            .map(function (node) { return Number(node.nid); });
     };
     AssignmentService.prototype.updateAssignment = function (assignment) {
-        var newAssignment = this.prepareForDrupal(assignment);
-        return this.elmsln.put(__WEBPACK_IMPORTED_MODULE_3__app_settings__["a" /* AppSettings */].BASE_PATH + 'node/' + assignment.id, newAssignment)
-            .map(function (data) { return data.json(); });
+        var _this = this;
+        return this.elmsln.put(__WEBPACK_IMPORTED_MODULE_3__app_settings__["a" /* AppSettings */].BASE_PATH + 'api/v1/cle/assignments/' + assignment.id + '/update', assignment)
+            .map(function (data) { return data.json().node; })
+            .map(function (node) { return _this.convertToAssignment(node); });
     };
     AssignmentService.prototype.deleteAssignment = function (assignment) {
-        return this.elmsln.delete(__WEBPACK_IMPORTED_MODULE_3__app_settings__["a" /* AppSettings */].BASE_PATH + 'node/' + assignment.id)
+        return this.elmsln.delete(__WEBPACK_IMPORTED_MODULE_3__app_settings__["a" /* AppSettings */].BASE_PATH + 'api/v1/cle/assignments/' + assignment.id + '/delete')
             .map(function (data) { return data.json(); });
     };
     /**
@@ -3875,6 +3885,7 @@ var AssignmentService = (function () {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__app_settings__ = __webpack_require__(117);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_ng2_cookies_ng2_cookies__ = __webpack_require__(441);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_ng2_cookies_ng2_cookies___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_ng2_cookies_ng2_cookies__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__ngrx_store__ = __webpack_require__(13);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return ElmslnService; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -3889,9 +3900,11 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 
 
 
+
 var ElmslnService = (function () {
-    function ElmslnService(http) {
+    function ElmslnService(http, store) {
         this.http = http;
+        this.store = store;
     }
     ElmslnService.prototype.createAuthorizationHeader = function (headers) {
         var basicAuthCredentials = __WEBPACK_IMPORTED_MODULE_3_ng2_cookies_ng2_cookies__["Cookie"].get('basicAuthCredentials');
@@ -3900,25 +3913,12 @@ var ElmslnService = (function () {
         }
     };
     ElmslnService.prototype.createCSRFTokenHeader = function (headers) {
-        var csrfToken = localStorage.getItem('x-csrf-token');
-        // const csrfToken = null;
-        if (!csrfToken) {
-            this.http
-                .get(__WEBPACK_IMPORTED_MODULE_2__app_settings__["a" /* AppSettings */].BASE_PATH + 'restws/session/token', { headers: headers })
-                .subscribe(function (data) {
-                // Get the CSRF Token and set it to local storage
-                var token = data['_body'];
-                // new token
-                console.log('new token', token);
-                localStorage.setItem('x-csrf-token', token);
-                headers.append('x-csrf-token', token);
-                return headers;
-            });
-        }
-        else {
-            headers.append('x-csrf-token', csrfToken);
+        this.store.select('user')
+            .map(function (state) { return state.token; })
+            .subscribe(function (token) {
+            headers.append('x-csrf-token', token);
             return headers;
-        }
+        });
     };
     ElmslnService.prototype.login = function () {
         var headers = new __WEBPACK_IMPORTED_MODULE_1__angular_http__["a" /* Headers */]();
@@ -3934,7 +3934,7 @@ var ElmslnService = (function () {
     ElmslnService.prototype.get = function (url) {
         var headers = new __WEBPACK_IMPORTED_MODULE_1__angular_http__["a" /* Headers */]();
         this.createAuthorizationHeader(headers);
-        this.createCSRFTokenHeader(headers);
+        // this.createCSRFTokenHeader(headers);
         return this.http.get(url, {
             headers: headers
         });
@@ -3983,10 +3983,10 @@ var ElmslnService = (function () {
     };
     ElmslnService = __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Injectable"])(), 
-        __metadata('design:paramtypes', [(typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_1__angular_http__["b" /* Http */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1__angular_http__["b" /* Http */]) === 'function' && _a) || Object])
+        __metadata('design:paramtypes', [(typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_1__angular_http__["b" /* Http */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1__angular_http__["b" /* Http */]) === 'function' && _a) || Object, (typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_4__ngrx_store__["a" /* Store */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_4__ngrx_store__["a" /* Store */]) === 'function' && _b) || Object])
     ], ElmslnService);
     return ElmslnService;
-    var _a;
+    var _a, _b;
 }());
 //# sourceMappingURL=/Users/scienceonlineed/Documents/websites/elmsln/core/dslmcode/profiles/cle-7.x-2.x/modules/features/cle_app/app/src/elmsln.service.js.map
 
@@ -4205,7 +4205,7 @@ module.exports = "<div class=\"row\">\n  <ul class=\"collapsible\">\n    <li *ng
 /***/ 810:
 /***/ function(module, exports) {
 
-module.exports = "<div *ngFor=\"let assignment of (assignments$| async)\">\n    <nav>\n      <div class=\"nav-wrapper\">\n        <ul id=\"nav-mobile\" class=\"left\">\n          <li><a routerLink=\"/projects\"><i class=\"material-icons left\">&#xE5C4;</i> projects</a></li>\n        </ul>\n        <ul id=\"nav-mobile\" class=\"right\">\n          <li *ngIf=\"(userCanEdit$ | async)\"><a (click)=\"onEditAssignment(assignment)\" title=\"Edit this assignment\"><i class=\"material-icons left\">edit</i></a></li>\n        </ul>\n      </div>\n    </nav>\n\n    <div class=\"assignment\" *ngIf=\"assignment\">\n      <h1 class=\"assignment__title\">{{ assignment.title }}</h1>\n      <div class=\"assignment__meta\">\n        <div class=\"assignment__dates\">\n          <span *ngIf=\"assignment.startDate\">{{ assignment.startDate | amDateFormat:'LL hh:mmA' }} - </span>\n          {{ assignment.endDate | amDateFormat:'LL hh:mmA' }}\n        </div>\n      </div>\n      <div class=\"assignment__description\" [innerHTML]=\"assignment.body\"> </div>\n    </div>\n\n\n  <app-submission-list *ngIf=\"(submissions$ | async).length > 0\" title=\"My Submission\" [submissions]=\"submissions$ | async\"></app-submission-list>\n\n  <a *ngIf=\"assignment && assignment.metadata.canCreate && !assignment.metadata.complete.status\" (click)=\"onCreateSubmission(assignment)\" class=\"btn-large\">Submit assignment</a>\n  <a *ngIf=\"assignment && !assignment.metadata.canCreate\" class=\"btn-large disabled\">Submit assignment</a>\n</div>"
+module.exports = "<div *ngFor=\"let assignment of (assignments$| async)\">\n    <nav>\n      <div class=\"nav-wrapper\">\n        <ul id=\"nav-mobile\" class=\"left\">\n          <li><a routerLink=\"/projects\"><i class=\"material-icons left\">&#xE5C4;</i> projects</a></li>\n        </ul>\n        <ul id=\"nav-mobile\" class=\"right\">\n          <li *ngIf=\"(userCanEdit$ | async)\"><a (click)=\"onEditAssignment(assignment)\" title=\"Edit this assignment\"><i class=\"material-icons left\">edit</i></a></li>\n        </ul>\n      </div>\n    </nav>\n\n    <div class=\"assignment\" *ngIf=\"assignment\">\n      <h1 class=\"assignment__title\">{{ assignment.title }}</h1>\n      <div class=\"assignment__meta\">\n        <div class=\"assignment__dates\">\n          <span *ngIf=\"assignment.startDate\">{{ assignment.startDate | amDateFormat:'LL hh:mmA' }} - </span>\n          {{ assignment.endDate | amDateFormat:'LL hh:mmA' }}\n        </div>\n      </div>\n      <div class=\"assignment__description\" [innerHTML]=\"assignment.body\"> </div>\n    </div>\n\n\n  <app-submission-list *ngIf=\"(submissions$ | async).length > 0\" title=\"My Submission\" [submissions]=\"submissions$ | async\"></app-submission-list>\n\n  <a (click)=\"onCreateSubmission(assignment)\" class=\"btn-large\">Submit assignment</a>\n</div>"
 
 /***/ },
 
@@ -4429,10 +4429,10 @@ function loadPermissions() {
         payload: {}
     };
 }
-function loadPermissionsSuccess(permissions) {
+function loadPermissionsSuccess(permissions, token) {
     return {
         type: ActionTypes.LOAD_PERMISSIONS_SUCCESS,
-        payload: permissions
+        payload: { permissions: permissions, token: token }
     };
 }
 //# sourceMappingURL=/Users/scienceonlineed/Documents/websites/elmsln/core/dslmcode/profiles/cle-7.x-2.x/modules/features/cle_app/app/src/app.actions.js.map

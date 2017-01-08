@@ -154,6 +154,9 @@ function _cle_assignment_v1_assignment_modify($node, $params = NULL) {
       case 'commentStyle':
         $node->field_assignment_feedback[LANGUAGE_NONE][0]['value'] = $value;
       break;
+      case 'project':
+        $node->field_assignment_project[LANGUAGE_NONE][0]['target_id'] = $value;
+      break;
       case 'hierarchy':
         foreach ($value as $key2 => $value2) {
           switch ($key2) {

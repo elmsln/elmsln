@@ -17,6 +17,7 @@ declare const jQuery:any;
 export class AssignmentComponent implements OnInit {
   assignmentId:number;
   date:number;
+  userCanSubmit$:Observable<boolean>;
   userCanEdit$:Observable<boolean>;
   assignments$:Observable<Assignment[]>;
   submissions$:Observable<any[]>;
@@ -61,7 +62,7 @@ export class AssignmentComponent implements OnInit {
         }))
         .map((state:any) => {
           return [state];
-        });
+        })
     }
   }
 

@@ -237,26 +237,31 @@ function _elmsln_api_tree($search = ELMSLN_API_BASE_PATH, $deliver = TRUE) {
   $apipaths = array();
   $searchkey = array_pop($tmp);
   $vars = array('links' => array());
-  // discover other parts of the API
-  $router = array_keys(menu_get_router());
-  // search the router for matches against our API base
-  foreach ($router as $item) {
-    if (strpos($item, $search) === 0) {
-      $apipaths[] = $item;
-    }
-  }
-  sort($apipaths);
-  foreach ($apipaths as $item) {
-    $item = str_replace($search, '', $item);
-    $pathary = explode('/', $item);
-    $prev = &$vars['links'];
-    foreach ($pathary as $tmp) {
-      if (!isset($prev[$tmp])) {
-        $prev[$tmp] = array('self' => $GLOBALS['base_url'] . '/' . $search . $item);
-      }
-      $prev = &$prev[$tmp];
-    }
-  }
+
+  /**
+   * @todo this errors when being called by a normal user
+   */
+  // // discover other parts of the API
+  // $router = array_keys(menu_get_router());
+  // // search the router for matches against our API base
+  // foreach ($router as $item) {
+  //   if (strpos($item, $search) === 0) {
+  //     $apipaths[] = $item;
+  //   }
+  // }
+  // sort($apipaths);
+  // foreach ($apipaths as $item) {
+  //   $item = str_replace($search, '', $item);
+  //   $pathary = explode('/', $item);
+  //   $prev = &$vars['links'];
+  //   foreach ($pathary as $tmp) {
+  //     if (!isset($prev[$tmp])) {
+  //       $prev[$tmp] = array('self' => $GLOBALS['base_url'] . '/' . $search . $item);
+  //     }
+  //     $prev = &$prev[$tmp];
+  //   }
+  // }
+
   // account for empty set correction, weird but needed
   if (isset($vars['links'][''])) {
     $vars['links'][$search] = $vars['links'][''];
@@ -1560,4 +1565,3 @@ function elmsln_api_elmsln_api_info() {
 
   return $callbacks;
 }
-
