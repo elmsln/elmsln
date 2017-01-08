@@ -221,7 +221,8 @@ function loadPermissionsSuccess(permissions) {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__elmsln_service__ = __webpack_require__(65);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__app_settings__ = __webpack_require__(117);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__ngrx_store__ = __webpack_require__(13);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__project__ = __webpack_require__(392);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__ngrx_store__ = __webpack_require__(13);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return ProjectService; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -236,6 +237,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 
 
 
+
 var ProjectService = (function () {
     function ProjectService(elmsln, store) {
         this.elmsln = elmsln;
@@ -243,28 +245,28 @@ var ProjectService = (function () {
     }
     ProjectService.prototype.getProjects = function () {
         var _this = this;
-        return this.elmsln.get(__WEBPACK_IMPORTED_MODULE_2__app_settings__["a" /* AppSettings */].BASE_PATH + 'node.json?type=cle_project')
-            .map(function (data) { return data.json().list; })
-            .map(function (data) { return _this.formatProjects(data); });
+        return this.elmsln.get(__WEBPACK_IMPORTED_MODULE_2__app_settings__["a" /* AppSettings */].BASE_PATH + 'api/v1/cle/projects')
+            .map(function (data) { return data.json().data; })
+            .map(function (projects) { return projects.map(function (p) { return _this.convertToProject(p); }); });
     };
     ProjectService.prototype.getProject = function (projectId) {
         var _this = this;
-        return this.elmsln.get(__WEBPACK_IMPORTED_MODULE_2__app_settings__["a" /* AppSettings */].BASE_PATH + 'node/' + projectId + '.json')
-            .map(function (data) { return data.json(); })
-            .map(function (data) { return _this.formatProject(data); });
+        return this.elmsln.get(__WEBPACK_IMPORTED_MODULE_2__app_settings__["a" /* AppSettings */].BASE_PATH + 'api/v1/cle/projects/' + projectId)
+            .map(function (data) { return data.json().data; })
+            .map(function (project) { return _this.convertToProject(project); });
     };
     ProjectService.prototype.createProject = function (project) {
         var _this = this;
         // first we need to prepare the object for Drupal
         return this.elmsln.post(__WEBPACK_IMPORTED_MODULE_2__app_settings__["a" /* AppSettings */].BASE_PATH + 'api/v1/cle/projects/create', project)
             .map(function (data) { return data.json().node; })
-            .map(function (node) { return _this.formatProject(node); });
+            .map(function (node) { return _this.convertToProject(node); });
     };
     ProjectService.prototype.updateProject = function (project) {
         var _this = this;
         return this.elmsln.put(__WEBPACK_IMPORTED_MODULE_2__app_settings__["a" /* AppSettings */].BASE_PATH + 'api/v1/cle/projects/' + project.id + '/update', project)
             .map(function (data) { return data.json().node; })
-            .map(function (node) { return _this.formatProject(node); });
+            .map(function (node) { return _this.convertToProject(node); });
     };
     ProjectService.prototype.deleteProject = function (project) {
         return this.elmsln.delete(__WEBPACK_IMPORTED_MODULE_2__app_settings__["a" /* AppSettings */].BASE_PATH + 'api/v1/cle/projects/' + project.id + '/delete')
@@ -274,23 +276,26 @@ var ProjectService = (function () {
         var _this = this;
         var newProjects = [];
         projects.forEach(function (project) {
-            newProjects.push(_this.formatProject(project));
+            newProjects.push(_this.convertToProject(project));
         });
         return newProjects;
     };
-    ProjectService.prototype.formatProject = function (project) {
-        var newProject = {
-            title: project.title ? project.title : null,
-            id: project.nid ? Number(project.nid) : null
-        };
+    ProjectService.prototype.convertToProject = function (data) {
+        var converted = new __WEBPACK_IMPORTED_MODULE_3__project__["a" /* Project */]();
+        if (data.id) {
+            converted.id = data.id;
+        }
+        if (data.title) {
+            converted.title = data.title;
+        }
         // Convert date fields
         var dateFields = ['startDate', 'endDate'];
         dateFields.forEach(function (field) {
-            if (newProject[field]) {
-                newProject[field] = new Date(newProject[field] * 1000);
+            if (converted[field]) {
+                converted[field] = new Date(converted[field] * 1000);
             }
         });
-        return newProject;
+        return converted;
     };
     ProjectService.prototype.prepareForDrupal = function (project) {
         var ufProject = {};
@@ -324,7 +329,7 @@ var ProjectService = (function () {
     });
     ProjectService = __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Injectable"])(), 
-        __metadata('design:paramtypes', [(typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_1__elmsln_service__["a" /* ElmslnService */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1__elmsln_service__["a" /* ElmslnService */]) === 'function' && _a) || Object, (typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_3__ngrx_store__["a" /* Store */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_3__ngrx_store__["a" /* Store */]) === 'function' && _b) || Object])
+        __metadata('design:paramtypes', [(typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_1__elmsln_service__["a" /* ElmslnService */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1__elmsln_service__["a" /* ElmslnService */]) === 'function' && _a) || Object, (typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_4__ngrx_store__["a" /* Store */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_4__ngrx_store__["a" /* Store */]) === 'function' && _b) || Object])
     ], ProjectService);
     return ProjectService;
     var _a, _b;
