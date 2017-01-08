@@ -27,22 +27,19 @@ export class ProjectService {
 
   createProject(project:any) {
     // first we need to prepare the object for Drupal
-    let body = this.prepareForDrupal(project);
-    return this.elmsln.post(AppSettings.BASE_PATH + 'node', body)
-      .map(data => data.json())
+    return this.elmsln.post(AppSettings.BASE_PATH + 'api/v1/cle/projects/create', project)
+      .map(data => data.json().node)
+      .map(node => this.formatProject(node))
   }
 
   updateProject(project:Project) {
-    console.log('updateProject', project);
-    // first we need to prepare the object for Drupal
-    let body = this.prepareForDrupal(project);
-    console.log('updateProject: Ready to send', body);
-    return this.elmsln.put(AppSettings.BASE_PATH + 'node/'+ project.id, body)
-      .map(data => data.json())
+    return this.elmsln.put(AppSettings.BASE_PATH + 'api/v1/cle/projects/' + project.id + '/update', project)
+      .map(data => data.json().node)
+      .map(node => this.formatProject(node))
   }
 
   deleteProject(project:Project) {
-    return this.elmsln.delete(AppSettings.BASE_PATH + 'node/' + project.id)
+    return this.elmsln.delete(AppSettings.BASE_PATH + 'api/v1/cle/projects/' + project.id + '/delete')
       .map(data => data.json())
   }
 

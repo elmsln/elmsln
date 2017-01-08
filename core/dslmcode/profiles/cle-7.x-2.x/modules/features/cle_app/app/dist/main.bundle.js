@@ -254,21 +254,20 @@ var ProjectService = (function () {
             .map(function (data) { return _this.formatProject(data); });
     };
     ProjectService.prototype.createProject = function (project) {
+        var _this = this;
         // first we need to prepare the object for Drupal
-        var body = this.prepareForDrupal(project);
-        return this.elmsln.post(__WEBPACK_IMPORTED_MODULE_2__app_settings__["a" /* AppSettings */].BASE_PATH + 'node', body)
-            .map(function (data) { return data.json(); });
+        return this.elmsln.post(__WEBPACK_IMPORTED_MODULE_2__app_settings__["a" /* AppSettings */].BASE_PATH + 'api/v1/cle/projects/create', project)
+            .map(function (data) { return data.json().node; })
+            .map(function (node) { return _this.formatProject(node); });
     };
     ProjectService.prototype.updateProject = function (project) {
-        console.log('updateProject', project);
-        // first we need to prepare the object for Drupal
-        var body = this.prepareForDrupal(project);
-        console.log('updateProject: Ready to send', body);
-        return this.elmsln.put(__WEBPACK_IMPORTED_MODULE_2__app_settings__["a" /* AppSettings */].BASE_PATH + 'node/' + project.id, body)
-            .map(function (data) { return data.json(); });
+        var _this = this;
+        return this.elmsln.put(__WEBPACK_IMPORTED_MODULE_2__app_settings__["a" /* AppSettings */].BASE_PATH + 'api/v1/cle/projects/' + project.id + '/update', project)
+            .map(function (data) { return data.json().node; })
+            .map(function (node) { return _this.formatProject(node); });
     };
     ProjectService.prototype.deleteProject = function (project) {
-        return this.elmsln.delete(__WEBPACK_IMPORTED_MODULE_2__app_settings__["a" /* AppSettings */].BASE_PATH + 'node/' + project.id)
+        return this.elmsln.delete(__WEBPACK_IMPORTED_MODULE_2__app_settings__["a" /* AppSettings */].BASE_PATH + 'api/v1/cle/projects/' + project.id + '/delete')
             .map(function (data) { return data.json(); });
     };
     ProjectService.prototype.formatProjects = function (projects) {
@@ -2671,9 +2670,9 @@ var ProjectEffects = (function () {
         this.createProject$ = this.actions$
             .ofType(__WEBPACK_IMPORTED_MODULE_3__project_actions__["c" /* ActionTypes */].CREATE_PROJECT)
             .mergeMap(function (action) { return _this.projectService.createProject(action.payload); })
-            .map(function (projectInfo) {
+            .map(function (project) {
             Materialize.toast('Project created', 1500);
-            return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__project_actions__["d" /* createProjectSuccess */])(projectInfo.id);
+            return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__project_actions__["d" /* createProjectSuccess */])(project.id);
         });
         // Update the project on the server
         this.updateProject$ = this.actions$
@@ -2694,7 +2693,9 @@ var ProjectEffects = (function () {
             .ofType(__WEBPACK_IMPORTED_MODULE_3__project_actions__["c" /* ActionTypes */].DELETE_PROJECT)
             .mergeMap(function (action) { return _this.projectService.deleteProject(action.payload); })
             .map(function (info) {
-            Materialize.toast('Project deleted', 1000);
+            if (info.status === '200') {
+                Materialize.toast('Project deleted', 1000);
+            }
         });
     }
     __decorate([
