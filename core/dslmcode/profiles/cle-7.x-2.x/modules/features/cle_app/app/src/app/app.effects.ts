@@ -28,9 +28,9 @@ export class AppEffects {
   @Effect() createAssignment$ = this.actions$
     .ofType(ActionTypes.CREATE_ASSIGNMENT)
     .mergeMap(action => this.assignmentService.createAssignment(action.payload))
-    .map(assignmentInfo => {
+    .map(assignmentId => {
       Materialize.toast('Assignment created', 1500);
-      return createAssignmentSuccess(assignmentInfo.id)
+      return createAssignmentSuccess(assignmentId)
     });
 
   // Update the assignment on the server

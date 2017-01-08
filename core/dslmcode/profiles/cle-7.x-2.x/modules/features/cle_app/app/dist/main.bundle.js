@@ -429,7 +429,7 @@ var Assignment = (function () {
         this.id = null;
         this.title = null;
         this.type = null;
-        this.status = null;
+        this.status = true;
         this.created = null;
         this.startDate = null;
         this.endDate = null;
@@ -1587,9 +1587,9 @@ var AppEffects = (function () {
         this.createAssignment$ = this.actions$
             .ofType(__WEBPACK_IMPORTED_MODULE_3__app_actions__["f" /* ActionTypes */].CREATE_ASSIGNMENT)
             .mergeMap(function (action) { return _this.assignmentService.createAssignment(action.payload); })
-            .map(function (assignmentInfo) {
+            .map(function (assignmentId) {
             Materialize.toast('Assignment created', 1500);
-            return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__app_actions__["g" /* createAssignmentSuccess */])(assignmentInfo.id);
+            return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__app_actions__["g" /* createAssignmentSuccess */])(assignmentId);
         });
         // Update the assignment on the server
         this.updateAssignment$ = this.actions$
@@ -3749,17 +3749,18 @@ var AssignmentService = (function () {
             .map(function (data) { return _this.convertToAssignment(data); });
     };
     AssignmentService.prototype.createAssignment = function (assignment) {
-        var newAssignment = this.prepareForDrupal(assignment);
-        return this.elmsln.post(__WEBPACK_IMPORTED_MODULE_3__app_settings__["a" /* AppSettings */].BASE_PATH + 'node', newAssignment)
-            .map(function (data) { return data.json(); });
+        return this.elmsln.post(__WEBPACK_IMPORTED_MODULE_3__app_settings__["a" /* AppSettings */].BASE_PATH + 'api/v1/cle/assignments/create', assignment)
+            .map(function (data) { return data.json().node; })
+            .map(function (node) { return Number(node.nid); });
     };
     AssignmentService.prototype.updateAssignment = function (assignment) {
-        var newAssignment = this.prepareForDrupal(assignment);
-        return this.elmsln.put(__WEBPACK_IMPORTED_MODULE_3__app_settings__["a" /* AppSettings */].BASE_PATH + 'node/' + assignment.id, newAssignment)
-            .map(function (data) { return data.json(); });
+        var _this = this;
+        return this.elmsln.put(__WEBPACK_IMPORTED_MODULE_3__app_settings__["a" /* AppSettings */].BASE_PATH + 'api/v1/cle/assignments/' + assignment.id + '/update', assignment)
+            .map(function (data) { return data.json().node; })
+            .map(function (node) { return _this.convertToAssignment(node); });
     };
     AssignmentService.prototype.deleteAssignment = function (assignment) {
-        return this.elmsln.delete(__WEBPACK_IMPORTED_MODULE_3__app_settings__["a" /* AppSettings */].BASE_PATH + 'node/' + assignment.id)
+        return this.elmsln.delete(__WEBPACK_IMPORTED_MODULE_3__app_settings__["a" /* AppSettings */].BASE_PATH + 'api/v1/cle/assignments/' + assignment.id + '/delete')
             .map(function (data) { return data.json(); });
     };
     /**

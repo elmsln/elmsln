@@ -2,7 +2,7 @@ export class Assignment {
   id:number = null;
   title:string = null;
   type:string = null;
-  status:boolean = null;
+  status:boolean = true;
   created:number = null;
   startDate:string = null;
   endDate:string = null;
