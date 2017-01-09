@@ -117,6 +117,17 @@ function assessment_perms_user_default_permissions() {
     'module' => 'node',
   );
 
+  // Exported permission: 'export quiz results'.
+  $permissions['export quiz results'] = array(
+    'name' => 'export quiz results',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'instructor' => 'instructor',
+      'staff' => 'staff',
+    ),
+    'module' => 'assessment_helper',
+  );
+
   // Exported permission: 'show format selection for assessment_item'.
   $permissions['show format selection for assessment_item'] = array(
     'name' => 'show format selection for assessment_item',

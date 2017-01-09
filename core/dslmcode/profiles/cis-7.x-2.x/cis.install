@@ -133,3 +133,11 @@ function cis_update_7010(&$sandbox) {
 function cis_update_7011(&$sandbox) {
   features_revert_module('cis_types');
 }
+
+/**
+ * Link locations
+ */
+function cis_update_7012(&$sandbox) {
+  features_revert_module('cis_ux');
+  features_revert_module('cis_displays');
+}

@@ -229,7 +229,7 @@ function assessment_quiz_views_default_views() {
   );
   $handler->display->display_options['path'] = 'assessment-quiz-list';
   $handler->display->display_options['menu']['type'] = 'normal';
-  $handler->display->display_options['menu']['title'] = 'Quizes';
+  $handler->display->display_options['menu']['title'] = 'Quizzes';
   $handler->display->display_options['menu']['description'] = 'listing of all available quizzes';
   $handler->display->display_options['menu']['weight'] = '0';
   $handler->display->display_options['menu']['name'] = 'menu-elmsln-navigation';

@@ -212,13 +212,16 @@
     top: 0;
   }
 }
-/* shift exposed filters over on REALLY big displays */
-@media screen and (min-width: 100rem) {
+/* shift exposed filters over when there's enough to display */
+@media screen and (min-width: 80rem) {
   .r-local-subheader .views-exposed-form {
     position: absolute;
-    right: 100%;
-    width: calc(50vw - 52%);
-    top:0; }
+    right: 92%;
+    width: calc(55vw - 50%);
+    max-width: 20rem;
+    min-width: 10rem;
+    top: 0;
+  }
 }
 
 
