@@ -26,9 +26,7 @@ export class SubmissionEffects {
   @Effect() createSubmission$ = this.actions$
     .ofType(ActionTypes.CREATE_SUBMISSION)
     .mergeMap(action => this.submissionService.createSubmission(action.payload))
-    .map((submissionInfo:any) => {
-      return createSubmissionSuccess(submissionInfo.id)
-    });
+    .map((sub:any) => createSubmissionSuccess(sub.id));
 
   // Update the submission on the server
   @Effect() updateSubmission$ = this.actions$

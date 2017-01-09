@@ -100,11 +100,17 @@ export class SubmissionService {
       }
     }
 
+    if (data['nid']) {
+      converted.id = Number(data['nid']);
+    }
+
     if (data.evidence) {
       if (data.evidence.body) {
         converted.body = data.evidence.body;
       }
     }
+
+    console.log(data,converted);
 
     return converted;
   }

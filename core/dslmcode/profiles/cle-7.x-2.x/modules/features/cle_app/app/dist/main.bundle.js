@@ -1186,6 +1186,7 @@ var SubmissionCreateComponent = (function () {
         this.route = route;
         this.router = router;
         this.store = store;
+        this.isSaving = false;
     }
     SubmissionCreateComponent.prototype.ngOnInit = function () {
         var _this = this;
@@ -1200,6 +1201,20 @@ var SubmissionCreateComponent = (function () {
         // check the permissions store to see if the user has edit
         this.userCanEdit$ = this.store.select('user')
             .map(function (state) { return state.permissions.includes('edit own cle_submission content'); });
+        this.store.select('submissions')
+            .map(function (state) { return state.saving; })
+            .subscribe(function (saving) {
+            // saving is happening
+            if (saving && !_this.isSaving) {
+                _this.isSaving = true;
+                Materialize.toast('Creating submission...', 30000, 'toast-submission-create');
+            }
+            else if (!saving && _this.isSaving) {
+                jQuery('.toast-submission-create').remove();
+                Materialize.toast('Submission created', 1500);
+                _this.router.navigate(['/assignments/' + _this.assignmentId]);
+            }
+        });
     };
     SubmissionCreateComponent.prototype.onSubmissionSave = function ($event) {
         this.store.dispatch(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__submission_actions__["b" /* createSubmission */])($event));
@@ -1505,11 +1520,15 @@ var SubmissionService = (function () {
                 converted[propertyName] = data[propertyName];
             }
         }
+        if (data['nid']) {
+            converted.id = Number(data['nid']);
+        }
         if (data.evidence) {
             if (data.evidence.body) {
                 converted.body = data.evidence.body;
             }
         }
+        console.log(data, converted);
         return converted;
     };
     SubmissionService.prototype.prepareForDrupal = function (submission) {
@@ -3099,9 +3118,7 @@ var SubmissionEffects = (function () {
         this.createSubmission$ = this.actions$
             .ofType(__WEBPACK_IMPORTED_MODULE_3__submission_actions__["d" /* ActionTypes */].CREATE_SUBMISSION)
             .mergeMap(function (action) { return _this.submissionService.createSubmission(action.payload); })
-            .map(function (submissionInfo) {
-            return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__submission_actions__["e" /* createSubmissionSuccess */])(submissionInfo.id);
-        });
+            .map(function (sub) { return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__submission_actions__["e" /* createSubmissionSuccess */])(sub.id); });
         // Update the submission on the server
         this.updateSubmission$ = this.actions$
             .ofType(__WEBPACK_IMPORTED_MODULE_3__submission_actions__["d" /* ActionTypes */].UPDATE_SUBMISSION)
