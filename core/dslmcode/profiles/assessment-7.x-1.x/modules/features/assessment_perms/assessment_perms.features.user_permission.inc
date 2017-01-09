@@ -10,6 +10,16 @@
 function assessment_perms_user_default_permissions() {
   $permissions = array();
 
+  // Exported permission: 'access content'.
+  $permissions['access content'] = array(
+    'name' => 'access content',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'authenticated user' => 'authenticated user',
+    ),
+    'module' => 'node',
+  );
+
   // Exported permission: 'administer Assessment Item'.
   $permissions['administer Assessment Item'] = array(
     'name' => 'administer Assessment Item',
