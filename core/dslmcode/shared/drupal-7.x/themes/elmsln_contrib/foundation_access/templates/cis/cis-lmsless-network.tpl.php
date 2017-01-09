@@ -13,6 +13,9 @@
     </li>
     <?php
       foreach ($items as $service) :
+        if (!isset($service['icon'])) {
+          $service['icon'] = $service['machine_name'];
+        }
         // apply default system color if we get misses
         if (!isset($service['distro'])) {
           $service['distro'] = '_default_';
