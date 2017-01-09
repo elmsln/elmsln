@@ -402,6 +402,11 @@ function _cis_section_create_accounts($roster) {
       }
       // convert role name to object bc of stupid storage convention for account creation
       $role = user_role_load_by_name($role_name);
+      // ensure we got something, otherwise just make it auth
+      if (!isset($role->rid) || empty($role->rid) || $role->rid == 0) {
+        $role->rid = 2;
+        $role->name = 'authenticated user';
+      }
       // try and load the account first
       // @ignore druplart_conditional_assignment
       if (!$account = user_load_by_name($name)) {

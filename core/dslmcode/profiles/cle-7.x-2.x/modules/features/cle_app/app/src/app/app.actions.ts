@@ -68,9 +68,9 @@ export function loadPermissions(): Action {
   }
 }
 
-export function loadPermissionsSuccess(permissions): Action {
+export function loadPermissionsSuccess(permissions, token): Action {
   return {
     type: ActionTypes.LOAD_PERMISSIONS_SUCCESS,
-    payload: permissions
+    payload: {permissions: permissions, token: token}
   }
 }

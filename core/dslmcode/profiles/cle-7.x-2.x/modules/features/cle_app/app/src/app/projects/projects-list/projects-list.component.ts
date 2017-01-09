@@ -19,6 +19,7 @@ export class ProjectsListComponent implements OnInit {
   projects: Project[] = [];
   projectCount: number;
   projects$: Observable<Project[]>;
+  userCanEdit$: Observable<boolean> = this.projectService.userCanEdit;
 
   constructor(
     private projectService:ProjectService,

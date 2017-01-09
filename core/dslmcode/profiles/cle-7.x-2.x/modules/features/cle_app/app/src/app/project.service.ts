@@ -4,44 +4,42 @@ import { Observable } from 'rxjs';
 import { ElmslnService } from './elmsln.service';
 import { AppSettings } from './app-settings';
 import { Project } from './project';
+import { Store } from '@ngrx/store';
 
 @Injectable()
 export class ProjectService {
-
   constructor(
-    private elmsln: ElmslnService
+    private elmsln: ElmslnService,
+    private store: Store<{}>
   ) { }
 
   getProjects() {
-    return this.elmsln.get(AppSettings.BASE_PATH + 'node.json?type=cle_project')
-      .map(data => data.json().list)
-      .map(data => this.formatProjects(data))
+    return this.elmsln.get(AppSettings.BASE_PATH + 'api/v1/cle/projects')
+      .map(data => data.json().data)
+      .map((projects:any[]) => projects.map(p => this.convertToProject(p)));
   }
 
   getProject(projectId:number) {
-    return this.elmsln.get(AppSettings.BASE_PATH + 'node/' + projectId + '.json')
-      .map(data => data.json())
-      .map(data => this.formatProject(data))
+    return this.elmsln.get(AppSettings.BASE_PATH + 'api/v1/cle/projects/' + projectId)
+      .map(data => data.json().data)
+      .map(project => this.convertToProject(project))
   }
 
   createProject(project:any) {
     // first we need to prepare the object for Drupal
-    let body = this.prepareForDrupal(project);
-    return this.elmsln.post(AppSettings.BASE_PATH + 'node', body)
-      .map(data => data.json())
+    return this.elmsln.post(AppSettings.BASE_PATH + 'api/v1/cle/projects/create', project)
+      .map(data => data.json().node)
+      .map(node => this.convertToProject(node))
   }
 
   updateProject(project:Project) {
-    console.log('updateProject', project);
-    // first we need to prepare the object for Drupal
-    let body = this.prepareForDrupal(project);
-    console.log('updateProject: Ready to send', body);
-    return this.elmsln.put(AppSettings.BASE_PATH + 'node/'+ project.id, body)
-      .map(data => data.json())
+    return this.elmsln.put(AppSettings.BASE_PATH + 'api/v1/cle/projects/' + project.id + '/update', project)
+      .map(data => data.json().node)
+      .map(node => this.convertToProject(node))
   }
 
   deleteProject(project:Project) {
-    return this.elmsln.delete(AppSettings.BASE_PATH + 'node/' + project.id)
+    return this.elmsln.delete(AppSettings.BASE_PATH + 'api/v1/cle/projects/' + project.id + '/delete')
       .map(data => data.json())
   }
 
@@ -50,32 +48,30 @@ export class ProjectService {
     let _this = this;
     let newProjects: any[] = [];
     projects.forEach(function(project) {
-      newProjects.push(_this.formatProject(project));
+      newProjects.push(_this.convertToProject(project));
     });
 
     return newProjects;
   }
 
-  private formatProject(project: any) {
-    let newProject: Project = {
-      title: project.title ? project.title : null,
-      id: project.nid ? Number(project.nid) : null
-      // author: project.author.id ? project.author.id : null,
-      // startDate: project.field_project_due_date.value ? project.field_project_due_date.value : null,
-      // endDate: project.field_project_due_date.value2 ? project.field_project_due_date.value2 : null,
-      // description: project.field_project_description.value ? project.field_project_description.value : null
-    };
-
+  private convertToProject(data:any) {
+    let converted:Project = new Project();
+    if (data.id) {
+      converted.id = data.id;
+    }
+    if (data.title) {
+      converted.title = data.title;
+    }
+    
     // Convert date fields
     let dateFields = ['startDate', 'endDate'];
     dateFields.forEach(function(field) {
-      if (newProject[field]) {
-        newProject[field] = new Date(newProject[field] * 1000);
+      if (converted[field]) {
+        converted[field] = new Date(converted[field] * 1000);
       }
     });
 
-
-    return newProject;
+    return converted;
   }
 
   private prepareForDrupal(project:Project) {
@@ -101,5 +97,11 @@ export class ProjectService {
     }
 
     return ufProject;
+  }
+
+  // Return if the user should be able to edit a project
+  get userCanEdit():Observable<boolean> {
+    return this.store.select('user')
+      .map((state:any) => state.permissions.includes('edit own cle_project content'));
   }
 }

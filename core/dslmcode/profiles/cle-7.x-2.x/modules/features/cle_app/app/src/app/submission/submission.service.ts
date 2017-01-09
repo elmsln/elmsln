@@ -53,9 +53,9 @@ export class SubmissionService {
   }
 
   createSubmission(submission:Submission) {
-    const newSub = this.prepareForDrupal(submission);
-    return this.elmsln.post(AppSettings.BASE_PATH + 'node', newSub)
-      .map(data => data.json())
+    return this.elmsln.post(AppSettings.BASE_PATH + 'api/v1/cle/submissions/create', submission)
+      .map(data => data.json().node)
+      .map(node => this.convertToSubmission(node))
   }
 
   updateSubmission(submission:Submission) {

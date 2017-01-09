@@ -14,6 +14,7 @@ import {
   loadPermissionsSuccess,
 } from './project.actions';
 import { ProjectService } from '../project.service';
+import { Project } from '../project';
 declare const Materialize:any;
 
 @Injectable()
@@ -26,9 +27,9 @@ export class ProjectEffects {
   @Effect() createProject$ = this.actions$
     .ofType(ActionTypes.CREATE_PROJECT)
     .mergeMap(action => this.projectService.createProject(action.payload))
-    .map((projectInfo:any) => {
+    .map((project:Project) => {
       Materialize.toast('Project created', 1500);
-      return createProjectSuccess(projectInfo.id)
+      return createProjectSuccess(project.id)
     });
 
   // Update the project on the server
@@ -53,6 +54,8 @@ export class ProjectEffects {
     .ofType(ActionTypes.DELETE_PROJECT)
     .mergeMap(action => this.projectService.deleteProject(action.payload))
     .map(info => {
-      Materialize.toast('Project deleted', 1000);
+      if (info.status === '200') {
+        Materialize.toast('Project deleted', 1000);
+      }
     })
 }

@@ -32,6 +32,7 @@ export class LoginComponent implements OnInit {
     // the basic auth login
     if (typeof Drupal !== 'undefined') {
       console.log('Drupal detected...');
+      this.userService.logout();
       this.router.navigate(['/projects']);
     }
   }
