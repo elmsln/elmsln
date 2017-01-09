@@ -3826,15 +3826,12 @@ var AssignmentService = (function () {
         // in Drupal
         if (assignment.endDate !== null) {
             if (assignment.startDate !== null) {
-                newAssignment.field_assignment_due_date = {
-                    value: assignment.startDate,
-                    value2: assignment.endDate
-                };
+                newAssignment.startDate = assignment.startDate,
+                    newAssignment.endDate = assignment.endDate;
             }
             else {
-                newAssignment.field_assignment_due_date = {
-                    value: assignment.endDate
-                };
+                newAssignment.startDate = assignment.endDate;
+                newAssignment.endDate = null;
             }
         }
         return newAssignment;
