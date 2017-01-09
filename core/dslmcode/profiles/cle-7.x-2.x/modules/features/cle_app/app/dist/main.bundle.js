@@ -1250,10 +1250,12 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 
 
 var SubmissionEditComponent = (function () {
-    function SubmissionEditComponent(route, router, store) {
+    function SubmissionEditComponent(route, router, store, el) {
         this.route = route;
         this.router = router;
         this.store = store;
+        this.el = el;
+        this.isSaving = false;
     }
     SubmissionEditComponent.prototype.ngOnInit = function () {
         var _this = this;
@@ -1266,8 +1268,25 @@ var SubmissionEditComponent = (function () {
         });
         if (this.submissionId) {
             this.submission$ = this.store.select('submissions')
-                .map(function (state) { return state.submissions.find(function (sub) { return sub.id === _this.submissionId; }); });
+                .map(function (state) { return state.submissions.find(function (sub) {
+                _this.assignmentId = sub.assignment;
+                return sub.id === _this.submissionId;
+            }); });
         }
+        this.store.select('submissions')
+            .map(function (state) { return state.saving; })
+            .subscribe(function (saving) {
+            // saving is happening
+            if (saving && !_this.isSaving) {
+                _this.isSaving = true;
+                Materialize.toast('Updating submission...', 30000, 'toast-submission-update');
+            }
+            else if (!saving && _this.isSaving) {
+                jQuery('.toast-submission-update').remove();
+                Materialize.toast('Submission updated', 1500);
+                _this.router.navigate(['/assignments/' + _this.assignmentId]);
+            }
+        });
     };
     SubmissionEditComponent.prototype.onSubmissionSave = function ($event) {
         this.store.dispatch(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__submission_actions__["c" /* updateSubmission */])($event));
@@ -1298,10 +1317,10 @@ var SubmissionEditComponent = (function () {
             template: __webpack_require__(826),
             styles: [__webpack_require__(798)]
         }), 
-        __metadata('design:paramtypes', [(typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_1__angular_router__["b" /* ActivatedRoute */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1__angular_router__["b" /* ActivatedRoute */]) === 'function' && _b) || Object, (typeof (_c = typeof __WEBPACK_IMPORTED_MODULE_1__angular_router__["a" /* Router */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1__angular_router__["a" /* Router */]) === 'function' && _c) || Object, (typeof (_d = typeof __WEBPACK_IMPORTED_MODULE_2__ngrx_store__["a" /* Store */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_2__ngrx_store__["a" /* Store */]) === 'function' && _d) || Object])
+        __metadata('design:paramtypes', [(typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_1__angular_router__["b" /* ActivatedRoute */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1__angular_router__["b" /* ActivatedRoute */]) === 'function' && _b) || Object, (typeof (_c = typeof __WEBPACK_IMPORTED_MODULE_1__angular_router__["a" /* Router */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1__angular_router__["a" /* Router */]) === 'function' && _c) || Object, (typeof (_d = typeof __WEBPACK_IMPORTED_MODULE_2__ngrx_store__["a" /* Store */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_2__ngrx_store__["a" /* Store */]) === 'function' && _d) || Object, (typeof (_e = typeof __WEBPACK_IMPORTED_MODULE_0__angular_core__["ElementRef"] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_0__angular_core__["ElementRef"]) === 'function' && _e) || Object])
     ], SubmissionEditComponent);
     return SubmissionEditComponent;
-    var _a, _b, _c, _d;
+    var _a, _b, _c, _d, _e;
 }());
 //# sourceMappingURL=/Users/scienceonlineed/Documents/websites/elmsln/core/dslmcode/profiles/cle-7.x-2.x/modules/features/cle_app/app/src/submission-edit.component.js.map
 
@@ -3081,7 +3100,6 @@ var SubmissionEffects = (function () {
             .ofType(__WEBPACK_IMPORTED_MODULE_3__submission_actions__["d" /* ActionTypes */].CREATE_SUBMISSION)
             .mergeMap(function (action) { return _this.submissionService.createSubmission(action.payload); })
             .map(function (submissionInfo) {
-            Materialize.toast('Submission created', 1500);
             return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__submission_actions__["e" /* createSubmissionSuccess */])(submissionInfo.id);
         });
         // Update the submission on the server
@@ -3092,7 +3110,6 @@ var SubmissionEffects = (function () {
                 .mergeMap(function (data) { return _this.submissionService.getSubmission(action.payload.id); });
         })
             .map(function (submission) {
-            Materialize.toast('Submission updated', 1500);
             return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__submission_actions__["f" /* updateSubmissionSuccess */])(submission);
         });
         this.loadSubmissions$ = this.actions$

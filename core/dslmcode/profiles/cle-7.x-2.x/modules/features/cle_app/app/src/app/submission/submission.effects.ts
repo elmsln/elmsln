@@ -27,7 +27,6 @@ export class SubmissionEffects {
     .ofType(ActionTypes.CREATE_SUBMISSION)
     .mergeMap(action => this.submissionService.createSubmission(action.payload))
     .map((submissionInfo:any) => {
-      Materialize.toast('Submission created', 1500);
       return createSubmissionSuccess(submissionInfo.id)
     });
 
@@ -39,7 +38,6 @@ export class SubmissionEffects {
         .mergeMap((data) => this.submissionService.getSubmission(action.payload.id));
     })
     .map((submission) => {
-      Materialize.toast('Submission updated', 1500);
       return updateSubmissionSuccess(submission)
     });
 
