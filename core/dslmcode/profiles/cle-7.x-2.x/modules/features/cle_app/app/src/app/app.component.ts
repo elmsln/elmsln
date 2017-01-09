@@ -5,6 +5,7 @@ import { Store } from '@ngrx/store';
 import { loadPermissions, loadAssignments } from './app.actions';
 import { loadSubmissions } from './submission/submission.actions'
 import { loadProjects } from './projects/project.actions';
+import { AppSettings } from './app-settings';
 
 @Component({
   selector: 'app-root',
@@ -13,12 +14,16 @@ import { loadProjects } from './projects/project.actions';
   providers: [UserService]
 })
 export class AppComponent implements OnInit {
+  basePath:string;
+
   constructor(
     private router: Router,
     private store: Store<{}>
   ) {
   }
   ngOnInit() {
+    this.basePath = AppSettings.BASE_PATH;
+
     // Find out if the user is already logged In
     let auth = localStorage.getItem('basicAuthCredentials');
     if (auth) {
