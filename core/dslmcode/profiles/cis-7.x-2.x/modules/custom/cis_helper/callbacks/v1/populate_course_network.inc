@@ -20,6 +20,12 @@ function cis_helper_elmsln_api_callback_populate_course_network() {
     $queue->deleteItem($item);
   }
   if (isset($nid)) {
+    // we MUST be fully bootstrapped for this to work
+    drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);
+    // we MUST blow away the static cache on the registry otherwise it's possible that custom
+    // callbacks that hook systems into scope won't be known about.
+    // This took 2 hours to realize at the wrong time of year! :)
+    drupal_static_reset('_cis_connector_build_registry');
     // load up the course node
     $course = node_load($nid);
     $course_data = array(
