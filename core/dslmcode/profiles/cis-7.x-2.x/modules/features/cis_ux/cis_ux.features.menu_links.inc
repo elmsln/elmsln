@@ -10,7 +10,7 @@
 function cis_ux_menu_default_menu_links() {
   $menu_links = array();
 
-  // Exported menu link: menu-elmsln-add_academic-area:node/add/academic-unit
+  // Exported menu link: menu-elmsln-add_academic-area:node/add/academic-unit.
   $menu_links['menu-elmsln-add_academic-area:node/add/academic-unit'] = array(
     'menu_name' => 'menu-elmsln-add',
     'link_path' => 'node/add/academic-unit',
@@ -28,7 +28,7 @@ function cis_ux_menu_default_menu_links() {
     'weight' => -47,
     'customized' => 1,
   );
-  // Exported menu link: menu-elmsln-add_global-resource:node/add/resource
+  // Exported menu link: menu-elmsln-add_global-resource:node/add/resource.
   $menu_links['menu-elmsln-add_global-resource:node/add/resource'] = array(
     'menu_name' => 'menu-elmsln-add',
     'link_path' => 'node/add/resource',
@@ -46,7 +46,7 @@ function cis_ux_menu_default_menu_links() {
     'weight' => -48,
     'customized' => 1,
   );
-  // Exported menu link: menu-elmsln-add_program:node/add/program
+  // Exported menu link: menu-elmsln-add_program:node/add/program.
   $menu_links['menu-elmsln-add_program:node/add/program'] = array(
     'menu_name' => 'menu-elmsln-add',
     'link_path' => 'node/add/program',
@@ -64,53 +64,12 @@ function cis_ux_menu_default_menu_links() {
     'weight' => -46,
     'customized' => 1,
   );
-  // Exported menu link: menu-elmsln-navigation_courses:courses/list
-  $menu_links['menu-elmsln-navigation_courses:courses/list'] = array(
-    'menu_name' => 'menu-elmsln-navigation',
-    'link_path' => 'courses/list',
-    'router_path' => 'courses',
-    'link_title' => 'Courses',
-    'options' => array(
-      'attributes' => array(),
-      'identifier' => 'menu-elmsln-navigation_courses:courses/list',
-    ),
-    'module' => 'menu',
-    'hidden' => 0,
-    'external' => 0,
-    'has_children' => 0,
-    'expanded' => 0,
-    'weight' => -50,
-    'customized' => 1,
-  );
-  // Exported menu link: menu-elmsln-navigation_setup-course-access:cis-quick-setup-access-id
-  $menu_links['menu-elmsln-navigation_setup-course-access:cis-quick-setup-access-id'] = array(
-    'menu_name' => 'menu-elmsln-navigation',
-    'link_path' => 'cis-quick-setup-access-id',
-    'router_path' => 'cis-quick-setup-access-id',
-    'link_title' => 'Setup course access',
-    'options' => array(
-      'attributes' => array(
-        'title' => 'Setup access to a space based on having the unique string.',
-      ),
-      'identifier' => 'menu-elmsln-navigation_setup-course-access:cis-quick-setup-access-id',
-    ),
-    'module' => 'system',
-    'hidden' => 1,
-    'external' => 0,
-    'has_children' => 0,
-    'expanded' => 0,
-    'weight' => 0,
-    'customized' => 1,
-  );
 
   // Translatables
   // Included for use with string extractors like potx.
   t('Academic area');
-  t('Courses');
   t('Global Resource');
   t('Program');
-  t('Resources');
-  t('Setup course access');
 
   return $menu_links;
 }
