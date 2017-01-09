@@ -726,6 +726,9 @@ function cis_helper_entity_update($entity, $type) {
   }
   // spider associated services when section is updated
   if ($type == 'field_collection_item' && $entity->field_name == 'field_sections' && !empty($entity->HostEntity())) {
+    // get basePath from the hostEntity course
+    $course = $entity->HostEntity()->HostEntity();
+    $path = '/' . $course->field_machine_name[LANGUAGE_NONE][0]['value'] . '/';
     $requests = array(
         array(
         'elmsln_module' => 'elmsln_api',
@@ -735,7 +738,7 @@ function cis_helper_entity_update($entity, $type) {
       ),
     );
     // ship these requests across the network
-    _elmsln_api_network_request($requests, 1, TRUE);
+    _elmsln_api_network_request($requests, 1, TRUE, $path);
   }
 }
 
