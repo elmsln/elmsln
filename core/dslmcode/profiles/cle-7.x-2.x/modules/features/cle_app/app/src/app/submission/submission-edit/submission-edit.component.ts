@@ -42,7 +42,6 @@ export class SubmissionEditComponent implements OnInit {
   onSubmissionSave($event) {
     this.store.dispatch(updateSubmission($event));
     this.submissionFormComponent.form.reset();
-    this.router.navigate(['/submissions/' + this.submissionId ]);
   }
 
   onSubmissionCancel() {

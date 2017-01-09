@@ -371,6 +371,7 @@ var Submission = (function () {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__app_actions__ = __webpack_require__(92);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__submission_submission_actions__ = __webpack_require__(119);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__projects_project_actions__ = __webpack_require__(118);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__app_settings__ = __webpack_require__(117);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return AppComponent; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -388,12 +389,14 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 
 
 
+
 var AppComponent = (function () {
     function AppComponent(router, store) {
         this.router = router;
         this.store = store;
     }
     AppComponent.prototype.ngOnInit = function () {
+        this.basePath = __WEBPACK_IMPORTED_MODULE_7__app_settings__["a" /* AppSettings */].BASE_PATH;
         // Find out if the user is already logged In
         var auth = localStorage.getItem('basicAuthCredentials');
         if (auth) {
@@ -1199,14 +1202,9 @@ var SubmissionCreateComponent = (function () {
             .map(function (state) { return state.permissions.includes('edit own cle_submission content'); });
     };
     SubmissionCreateComponent.prototype.onSubmissionSave = function ($event) {
-        var assignmentId = this.assignmentId;
         this.store.dispatch(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__submission_actions__["b" /* createSubmission */])($event));
-        this.router.navigate(['/assignments/' + assignmentId]);
-        this.submissionFormComponent.form.reset();
     };
     SubmissionCreateComponent.prototype.onSubmissionCancel = function ($event) {
-        var assignmentId = this.assignmentId;
-        this.router.navigate(['/assignments/' + assignmentId]);
     };
     __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["ViewChild"])(__WEBPACK_IMPORTED_MODULE_5__submission_form_submission_form_component__["a" /* SubmissionFormComponent */]), 
@@ -1274,7 +1272,6 @@ var SubmissionEditComponent = (function () {
     SubmissionEditComponent.prototype.onSubmissionSave = function ($event) {
         this.store.dispatch(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__submission_actions__["c" /* updateSubmission */])($event));
         this.submissionFormComponent.form.reset();
-        this.router.navigate(['/submissions/' + this.submissionId]);
     };
     SubmissionEditComponent.prototype.onSubmissionCancel = function () {
         if (this.submissionFormDirty) {
@@ -1446,17 +1443,20 @@ var SubmissionService = (function () {
     };
     SubmissionService.prototype.createSubmission = function (submission) {
         var _this = this;
-        return this.elmsln.post(__WEBPACK_IMPORTED_MODULE_3__app_settings__["a" /* AppSettings */].BASE_PATH + 'api/v1/cle/submissions/create', submission)
+        var newSub = this.prepareForDrupal(submission);
+        return this.elmsln.post(__WEBPACK_IMPORTED_MODULE_3__app_settings__["a" /* AppSettings */].BASE_PATH + 'api/v1/cle/submissions/create', newSub)
             .map(function (data) { return data.json().node; })
             .map(function (node) { return _this.convertToSubmission(node); });
     };
     SubmissionService.prototype.updateSubmission = function (submission) {
+        var _this = this;
         var newSub = this.prepareForDrupal(submission);
-        return this.elmsln.put(__WEBPACK_IMPORTED_MODULE_3__app_settings__["a" /* AppSettings */].BASE_PATH + 'node/' + submission.id, newSub)
-            .map(function (data) { return data.json(); });
+        return this.elmsln.put(__WEBPACK_IMPORTED_MODULE_3__app_settings__["a" /* AppSettings */].BASE_PATH + 'api/v1/cle/submissions/' + submission.id + '/update', newSub)
+            .map(function (data) { return data.json(); })
+            .map(function (node) { return _this.convertToSubmission(node); });
     };
     SubmissionService.prototype.deleteSubmission = function (submission) {
-        return this.elmsln.delete(__WEBPACK_IMPORTED_MODULE_3__app_settings__["a" /* AppSettings */].BASE_PATH + 'node/' + submission.id)
+        return this.elmsln.delete(__WEBPACK_IMPORTED_MODULE_3__app_settings__["a" /* AppSettings */].BASE_PATH + 'api/v1/cle/submissions/' + submission.id + '/delete')
             .map(function (data) { return data.json(); });
     };
     /**
@@ -1486,25 +1486,22 @@ var SubmissionService = (function () {
                 converted[propertyName] = data[propertyName];
             }
         }
-        if (typeof data.evidence.body !== 'undefined') {
-            converted.body = data.evidence.body;
+        if (data.evidence) {
+            if (data.evidence.body) {
+                converted.body = data.evidence.body;
+            }
         }
         return converted;
     };
     SubmissionService.prototype.prepareForDrupal = function (submission) {
-        var newSub = {};
-        newSub.type = 'cle_submission';
-        if (submission.title) {
-            newSub.title = submission.title;
-        }
+        var newSub = Object.assign({}, submission);
         if (submission.body) {
-            newSub.field_submission_text = {
-                value: submission.body,
-                format: 'student_format'
+            newSub.evidence = {
+                body: {
+                    value: submission.body,
+                    format: 'textbook_editor'
+                }
             };
-        }
-        if (submission.assignment) {
-            newSub.field_assignment = submission.assignment;
         }
         return newSub;
     };
@@ -3144,6 +3141,7 @@ var SubmissionEffects = (function () {
 /* harmony export (immutable) */ exports["a"] = submissionReducer;
 
 var initialState = {
+    saving: false,
     submissions: []
 };
 function submissionReducer(state, action) {
@@ -3151,12 +3149,14 @@ function submissionReducer(state, action) {
     switch (action.type) {
         case __WEBPACK_IMPORTED_MODULE_0__submission_actions__["d" /* ActionTypes */].CREATE_SUBMISSION: {
             return {
+                saving: true,
                 submissions: state.submissions.concat([action.payload])
             };
         }
         case __WEBPACK_IMPORTED_MODULE_0__submission_actions__["d" /* ActionTypes */].CREATE_SUBMISSION_SUCCESS: {
             var submissionId_1 = action.payload.id ? Number(action.payload.id) : null;
             return {
+                saving: false,
                 submissions: state.submissions.map(function (submission) {
                     if (!submission.id && submissionId_1) {
                         return Object.assign({}, submission, { id: submissionId_1 });
@@ -3167,6 +3167,7 @@ function submissionReducer(state, action) {
         }
         case __WEBPACK_IMPORTED_MODULE_0__submission_actions__["d" /* ActionTypes */].UPDATE_SUBMISSION: {
             return {
+                saving: true,
                 submissions: state.submissions.map(function (submission) {
                     // check if the updated submission has the same id as the current assignemnt
                     if (submission.id === action.payload.id) {
@@ -3179,6 +3180,7 @@ function submissionReducer(state, action) {
         // just return the same submissions for now since we already updated the store
         case __WEBPACK_IMPORTED_MODULE_0__submission_actions__["d" /* ActionTypes */].UPDATE_SUBMISSION_SUCCESS: {
             return {
+                saving: false,
                 submissions: state.submissions.map(function (submission) {
                     if (submission.id === action.payload.id) {
                         return Object.assign({}, submission, action.payload);
@@ -3190,16 +3192,19 @@ function submissionReducer(state, action) {
         case __WEBPACK_IMPORTED_MODULE_0__submission_actions__["d" /* ActionTypes */].DELETE_SUBMISSION: {
             console.log(state.submissions, action.payload);
             return {
+                saving: state.saving,
                 submissions: state.submissions.filter(function (submission) { return submission.id !== action.payload.id; })
             };
         }
         case __WEBPACK_IMPORTED_MODULE_0__submission_actions__["d" /* ActionTypes */].LOAD_SUBMISSIONS: {
             return {
+                saving: state.saving,
                 submissions: []
             };
         }
         case __WEBPACK_IMPORTED_MODULE_0__submission_actions__["d" /* ActionTypes */].LOAD_SUBMISSIONS_SUCCESS: {
             return {
+                saving: state.saving,
                 submissions: action.payload ? action.payload : []
             };
         }
@@ -3975,7 +3980,7 @@ var ElmslnService = (function () {
 /***/ 778:
 /***/ function(module, exports) {
 
-module.exports = ".cle-critique {\n  margin: 0 calc(-50vw + 50%);\n}"
+module.exports = ".cle-critique {\n  margin: 0 calc(-50vw + 50%);\n}\n\n.nav-wrapper {\n  background: #484848;\n  height: 50px;\n}\n.nav-wrapper * {\n  font-size: 14px;\n  height: 50px;\n  line-height: 50px;\n  color: white;\n}"
 
 /***/ },
 
@@ -4157,7 +4162,7 @@ module.exports = "/* CSS for the font-name + font-size plugin */\n.wysiwyg-plugi
 /***/ 806:
 /***/ function(module, exports) {
 
-module.exports = "<div class=\"cle-critique\">\n  <div class=\"container\">\n    <router-outlet></router-outlet>\n    <router-outlet name=\"dialog\"></router-outlet>\n  </div>\n</div>"
+module.exports = "<div class=\"cle-critique\">\n  <nav>\n    <div class=\"nav-wrapper\">\n      <ul id=\"app-component-toolbar\" class=\"nav left\">\n        <li><a href=\"{{basePath}}\"><i class=\"material-icons left\">home</i>Home</a></li>\n      </ul>\n    </div>\n  </nav>\n\n  <div class=\"container\">\n    <router-outlet></router-outlet>\n    <router-outlet name=\"dialog\"></router-outlet>\n  </div>\n</div>"
 
 /***/ },
 
