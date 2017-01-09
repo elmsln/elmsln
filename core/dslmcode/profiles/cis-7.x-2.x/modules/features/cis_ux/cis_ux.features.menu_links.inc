@@ -82,26 +82,6 @@ function cis_ux_menu_default_menu_links() {
     'weight' => -50,
     'customized' => 1,
   );
-  // Exported menu link: menu-elmsln-navigation_resources:cis/resources
-  $menu_links['menu-elmsln-navigation_resources:cis/resources'] = array(
-    'menu_name' => 'menu-elmsln-navigation',
-    'link_path' => 'cis/resources',
-    'router_path' => 'cis/resources',
-    'link_title' => 'Resources',
-    'options' => array(
-      'attributes' => array(
-        'title' => 'List of all resources in the system',
-      ),
-      'identifier' => 'menu-elmsln-navigation_resources:cis/resources',
-    ),
-    'module' => 'system',
-    'hidden' => 0,
-    'external' => 0,
-    'has_children' => 0,
-    'expanded' => 0,
-    'weight' => -49,
-    'customized' => 1,
-  );
   // Exported menu link: menu-elmsln-navigation_setup-course-access:cis-quick-setup-access-id
   $menu_links['menu-elmsln-navigation_setup-course-access:cis-quick-setup-access-id'] = array(
     'menu_name' => 'menu-elmsln-navigation',
