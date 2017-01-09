@@ -220,7 +220,13 @@
     width: calc(55vw - 50%);
     max-width: 20rem;
     min-width: 10rem;
-    top: 0;
+    top: 4rem;
+    background-color: #EEEEEE;
+    padding: .5rem;
+    border: .1rem solid;
+  }
+  .r-local-subheader .views-exposed-form ul {
+    margin: 0;
   }
 }
 

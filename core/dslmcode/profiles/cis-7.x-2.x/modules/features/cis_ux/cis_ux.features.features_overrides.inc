@@ -21,7 +21,6 @@ function cis_ux_features_override_default_overrides() {
   $overrides["menu_links.menu-elmsln-navigation_field-collection-admin:cis/admin/field-collections.menu-elmsln-navigation_field-collection-admin:cis/admin/field-collections"]["DELETED"] = TRUE;
   $overrides["menu_links.menu-elmsln-navigation_offerings:cis/offerings.menu-elmsln-navigation_offerings:cis/offerings"]["DELETED"] = TRUE;
   $overrides["menu_links.menu-elmsln-navigation_people:cis/admin/people.menu-elmsln-navigation_people:cis/admin/people"]["DELETED"] = TRUE;
-  $overrides["menu_links.menu-elmsln-navigation_resources:cis/resources.menu-elmsln-navigation_resources:cis/resources"]["DELETED"] = TRUE;
   $overrides["menu_links.menu-elmsln-navigation_section-map:cis/offerings/section-map.menu-elmsln-navigation_section-map:cis/offerings/section-map"]["DELETED"] = TRUE;
   $overrides["menu_links.menu-elmsln-navigation_semester-map:cis/offerings/semester-map.menu-elmsln-navigation_semester-map:cis/offerings/semester-map"]["DELETED"] = TRUE;
   $overrides["menu_links.menu-elmsln-navigation_service-instances:cis/services/instances.menu-elmsln-navigation_service-instances:cis/services/instances"]["DELETED"] = TRUE;
