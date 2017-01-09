@@ -65,3 +65,10 @@ function assessment_update_7005(&$sandbox) {
   module_disable(array('tincanapi_quiz'));
 }
 
+/**
+ * Permissions for seeing exported values.
+ */
+function assessment_update_7006(&$sandbox) {
+  features_revert_module('assessment_perms');
+}
+
