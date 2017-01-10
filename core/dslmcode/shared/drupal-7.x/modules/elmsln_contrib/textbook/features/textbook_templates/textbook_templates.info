@@ -14,6 +14,7 @@ features[wysiwyg_template][] = case_study
 features[wysiwyg_template][] = clean_table
 features[wysiwyg_template][] = flex_video
 features[wysiwyg_template][] = grid_of_video
+features[wysiwyg_template][] = heading_solid_bar
 features[wysiwyg_template][] = icon_header
 features[wysiwyg_template][] = line_header
 features[wysiwyg_template][] = lorem_ipsum

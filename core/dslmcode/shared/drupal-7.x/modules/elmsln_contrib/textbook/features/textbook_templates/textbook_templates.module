@@ -15,6 +15,7 @@ function textbook_templates_wysiwyg_templates_load_alter(&$templates) {
     'paperstack',
     'line_header',
     'icon_header',
+    'heading_solid_bar',
     'grid_of_video',
     'buttons',
     'case_study',
