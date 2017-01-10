@@ -1347,7 +1347,7 @@ function _elmsln_api_v1_page_callback($type, $etid = NULL, $op = NULL) {
             $payload = drupal_json_decode($payload);
             $params = array();
             if (is_array($payload)) {
-              $params = filter_var_array($payload, FILTER_SANITIZE_STRING);
+              $params = $payload;
             }
             $vars = call_user_func($jsapis[$type]['modify'], $entity, $params);
           }
@@ -1367,7 +1367,7 @@ function _elmsln_api_v1_page_callback($type, $etid = NULL, $op = NULL) {
             $payload = drupal_json_decode($payload);
             $params = array();
             if (is_array($payload)) {
-              $params = filter_var_array($payload, FILTER_SANITIZE_STRING);
+              $params = $payload;
             }
             $vars = call_user_func($jsapis[$type]['modify'], $entity, $params);
           }

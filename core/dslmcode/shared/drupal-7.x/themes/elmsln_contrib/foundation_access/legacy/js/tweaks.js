@@ -21,6 +21,13 @@
   };
   // loop through each list and then jump from one color through the bottom
   $(document).ready(function(){
+    // ensure height of the body is cool w/ this floating column if it exists
+    $('.views-exposed-form').each(function(){
+      $('section.main-section').css('min-height', $('.views-exposed-form').outerHeight()+128);
+    });
+    $('.highlighted-block-area').each(function(){
+      $('section.main-section').css('min-height', $('.highlighted-block-area').outerHeight()+48);
+    });
     // hide accessibility button
     if ($('.cis_accessibility_check a').length == 0) {
       $('.accessibility-content-toggle a').appendTo('.cis_accessibility_check');

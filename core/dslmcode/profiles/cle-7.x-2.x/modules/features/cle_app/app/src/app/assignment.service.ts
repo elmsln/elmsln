@@ -55,13 +55,15 @@ export class AssignmentService {
   }
 
   createAssignment(assignment:Assignment) {
-    return this.elmsln.post(AppSettings.BASE_PATH + 'api/v1/cle/assignments/create', assignment )
+    const newAssignment = this.prepareForDrupal(assignment);
+    return this.elmsln.post(AppSettings.BASE_PATH + 'api/v1/cle/assignments/create', newAssignment)
       .map(data => data.json().node)
       .map(node => Number(node.nid))
   }
 
   updateAssignment(assignment:Assignment) {
-    return this.elmsln.put(AppSettings.BASE_PATH + 'api/v1/cle/assignments/' + assignment.id + '/update', assignment )
+    const newAssignment = this.prepareForDrupal(assignment);
+    return this.elmsln.put(AppSettings.BASE_PATH + 'api/v1/cle/assignments/' + assignment.id + '/update', newAssignment )
       .map(data => data.json().node)
       .map(node => this.convertToAssignment(node))
   }
@@ -99,7 +101,6 @@ export class AssignmentService {
         converted[propertyName] = data[propertyName];
       }
     }
-
     if (data['hierarchy']) {
       if (data['hierarchy']['project']) {
         converted['project'] = Number(data['hierarchy']['project']);
@@ -111,32 +112,13 @@ export class AssignmentService {
 
   private prepareForDrupal(assignment:Assignment) {
     // Convert date fields
-    let newAssignment: any = {};
+    let newAssignment: any = Object.assign({}, assignment);
 
-    // We have to construct a new assignment object to send to RESTws
-    newAssignment.type = 'cle_assignment';
-    if (assignment.title) {
-      newAssignment.title = assignment.title
-    }
-    if (assignment.project) {
-      newAssignment.field_assignment_project = assignment.project
-    }
-    if (assignment.type) {
-      newAssignment.field_assignment_privacy_setting = assignment.type;
-    }
     if (assignment.body) {
-      newAssignment.field_assignment_description = {
-        value: assignment.body
+      newAssignment.body = {
+        value: assignment.body,
+        format: 'textbook_format'
       }
-    }
-    if (assignment.critiqueMethod) {
-      newAssignment.field_critique_method = assignment.critiqueMethod;
-    }
-    if (assignment.critiquePrivacy) {
-      newAssignment.field_critique_privacy = assignment.critiquePrivacy;
-    }
-    if (assignment.critiqueStyle) {
-      newAssignment.field_critique_style = assignment.critiqueStyle;
     }
     
     let dateFields = ['startDate', 'endDate'];
@@ -150,15 +132,12 @@ export class AssignmentService {
     // in Drupal
     if (assignment.endDate !== null) {
       if (assignment.startDate !== null) {
-        newAssignment.field_assignment_due_date = {
-          value: assignment.startDate,
-          value2: assignment.endDate
-        }
+        newAssignment.startDate =  assignment.startDate,
+        newAssignment.endDate= assignment.endDate
       }
       else {
-        newAssignment.field_assignment_due_date = {
-          value: assignment.endDate
-        }
+        newAssignment.startDate = assignment.endDate;
+        newAssignment.endDate = null;
       }
     }
 

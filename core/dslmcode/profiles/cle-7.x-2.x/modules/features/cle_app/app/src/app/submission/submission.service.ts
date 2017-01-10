@@ -53,19 +53,21 @@ export class SubmissionService {
   }
 
   createSubmission(submission:Submission) {
-    return this.elmsln.post(AppSettings.BASE_PATH + 'api/v1/cle/submissions/create', submission)
+    const newSub = this.prepareForDrupal(submission);
+    return this.elmsln.post(AppSettings.BASE_PATH + 'api/v1/cle/submissions/create', newSub)
       .map(data => data.json().node)
       .map(node => this.convertToSubmission(node))
   }
 
   updateSubmission(submission:Submission) {
     const newSub = this.prepareForDrupal(submission);
-    return this.elmsln.put(AppSettings.BASE_PATH + 'node/' + submission.id, newSub)
+    return this.elmsln.put(AppSettings.BASE_PATH + 'api/v1/cle/submissions/' + submission.id + '/update', newSub)
       .map(data => data.json())
+      .map(node => this.convertToSubmission(node))
   }
 
   deleteSubmission(submission:Submission) {
-    return this.elmsln.delete(AppSettings.BASE_PATH + 'node/' + submission.id)
+    return this.elmsln.delete(AppSettings.BASE_PATH + 'api/v1/cle/submissions/' + submission.id + '/delete')
       .map(data => data.json())
   }
 
@@ -98,28 +100,29 @@ export class SubmissionService {
       }
     }
 
-    if (typeof data.evidence.body !== 'undefined') {
-      converted.body = data.evidence.body;
+    if (data['nid']) {
+      converted.id = Number(data['nid']);
+    }
+
+    if (data.evidence) {
+      if (data.evidence.body) {
+        converted.body = data.evidence.body;
+      }
     }
 
     return converted;
   }
 
   private prepareForDrupal(submission:Submission) {
-    const newSub:any = {};
+    const newSub:any = Object.assign({}, submission);
 
-    newSub.type = 'cle_submission';
-    if (submission.title) {
-      newSub.title = submission.title;
-    }
     if (submission.body) {
-      newSub.field_submission_text = {
-        value: submission.body,
-        format:'student_format'
+      newSub.evidence = {
+        body: {
+          value: submission.body,
+          format: 'textbook_editor'
+        }
       }
-    }
-    if (submission.assignment) {
-      newSub.field_assignment = submission.assignment;
     }
 
     return newSub;

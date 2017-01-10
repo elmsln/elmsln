@@ -83,6 +83,17 @@ function textbook_templates_wysiwyg_template_default_templates() {
     'name' => 'grid_of_video',
     'content_types' => array(),
   );
+  $templates['heading_solid_bar'] = array(
+    'title' => 'Heading solid bar',
+    'description' => 'A simple heading on a solid bar.',
+    'weight' => 5,
+    'fid' => 0,
+    'body' => '<h3 class="solid-bar-heading grey lighten-3 black-text">Heading 3
+</h3>',
+    'format' => 'textbook_editor',
+    'name' => 'heading_solid_bar',
+    'content_types' => array(),
+  );
   $templates['icon_header'] = array(
     'title' => 'Icon header',
     'description' => 'Head name with an icon leading it',

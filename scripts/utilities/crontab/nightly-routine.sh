@@ -25,7 +25,7 @@ timestamp(){
 # run crons
 drush @elmsln cron --y
 # seed field collections as these have the sections in them
-drush @online hss field_collection_item --xmlrpcuid=1 --y
+drush @online ecl --y
 # ping node resource on all systems just to seed some base-line caches
 drush @elmsln hsr node --xmlrpcuid=1 --y
 # @todo ping welcome_page on everything which will seed CIS calls

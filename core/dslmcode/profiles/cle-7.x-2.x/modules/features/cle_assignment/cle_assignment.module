@@ -131,7 +131,7 @@ function _cle_assignment_v1_assignment_modify($node, $params = NULL) {
         $node->{$key} = $value;
       break;
       case 'body':
-        $node->field_project_description[LANGUAGE_NONE][0] = $value;
+        $node->field_assignment_description[LANGUAGE_NONE][0] = $value;
       break;
       case 'allowLateSubmissions':
         $node->field_assignment_late_submission[LANGUAGE_NONE][0]['value'] = $value;
@@ -146,10 +146,10 @@ function _cle_assignment_v1_assignment_modify($node, $params = NULL) {
         $node->field_assignment_privacy_setting[LANGUAGE_NONE][0]['value'] = $value;
       break;
       case 'startDate':
-        $node->field_assignment_due_date[LANGUAGE_NONE][0]['value1'] = $value;
+        $node->field_assignment_due_date[LANGUAGE_NONE][0]['value'] = $value;
       break;
       case 'endDate':
-        $node->field_assignment_due_date[LANGUAGE_NONE][0]['value1'] = $value;
+        $node->field_assignment_due_date[LANGUAGE_NONE][0]['value2'] = $value;
       break;
       case 'commentStyle':
         $node->field_assignment_feedback[LANGUAGE_NONE][0]['value'] = $value;

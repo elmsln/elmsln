@@ -16,7 +16,6 @@ export class SubmissionListComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    console.log(this.submissions);
   }
 
   onSubmissionClick(submission:Submission) {
