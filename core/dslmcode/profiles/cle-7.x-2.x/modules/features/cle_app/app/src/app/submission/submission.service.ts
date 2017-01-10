@@ -110,8 +110,6 @@ export class SubmissionService {
       }
     }
 
-    console.log(data,converted);
-
     return converted;
   }
 

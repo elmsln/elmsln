@@ -1528,7 +1528,6 @@ var SubmissionService = (function () {
                 converted.body = data.evidence.body;
             }
         }
-        console.log(data, converted);
         return converted;
     };
     SubmissionService.prototype.prepareForDrupal = function (submission) {
@@ -2933,7 +2932,6 @@ function reducer(state, action) {
             };
         }
         case __WEBPACK_IMPORTED_MODULE_0__app_actions__["f" /* ActionTypes */].DELETE_ASSIGNMENT: {
-            console.log(state.assignments, action.payload);
             return {
                 loading: false,
                 assignments: state.assignments.filter(function (assignment) { return assignment.id !== action.payload.id; })
@@ -3057,7 +3055,6 @@ var SubmissionListComponent = (function () {
         this.router = router;
     }
     SubmissionListComponent.prototype.ngOnInit = function () {
-        console.log(this.submissions);
     };
     SubmissionListComponent.prototype.onSubmissionClick = function (submission) {
         this.router.navigate(['/submissions/' + submission.id]);
@@ -3224,7 +3221,6 @@ function submissionReducer(state, action) {
             };
         }
         case __WEBPACK_IMPORTED_MODULE_0__submission_actions__["d" /* ActionTypes */].DELETE_SUBMISSION: {
-            console.log(state.submissions, action.payload);
             return {
                 saving: state.saving,
                 submissions: state.submissions.filter(function (submission) { return submission.id !== action.payload.id; })

@@ -61,7 +61,6 @@ export function submissionReducer(state: SubmissionState = initialState, action:
     }
 
     case ActionTypes.DELETE_SUBMISSION: {
-      console.log(state.submissions, action.payload);
       return {
         saving: state.saving,
         submissions: state.submissions.filter(submission => submission.id !== action.payload.id)
