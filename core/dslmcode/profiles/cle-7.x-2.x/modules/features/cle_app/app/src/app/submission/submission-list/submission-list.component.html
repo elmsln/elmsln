@@ -1,4 +1,16 @@
-<ul class="submission-list collection with-header">
-  <li class="collection-header" *ngIf="title"><h4>{{title}}</h4></li>
-  <li *ngFor="let submission of submissions" class="collection-item" (click)="onSubmissionClick(submission)">{{ submission.title }}</li>
-</ul>
+<h4 *ngIf="title">{{title}}</h4>
+
+<div class="row">
+  <div *ngFor="let submission of submissions" (click)="onSubmissionClick(submission)" class="col s12 m6">
+    <div class="card horizontal">
+      <div class="card-stacked">
+        <div class="card-content">
+          <h3 >{{ submission.title }}</h3>
+          <p>I am a very simple card. I am good at containing small bits of information.</p>
+        </div>
+        <div class="card-action">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
