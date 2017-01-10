@@ -19,10 +19,10 @@ export function createProject(project): Action {
   }
 }
 
-export function createProjectSuccess(projectId): Action {
+export function createProjectSuccess(project): Action {
   return {
     type: ActionTypes.CREATE_PROJECT_SUCCESS,
-    payload: { id: projectId }
+    payload: project
   }
 }
 

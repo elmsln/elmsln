@@ -79,10 +79,10 @@ function createProject(project) {
         payload: project
     };
 }
-function createProjectSuccess(projectId) {
+function createProjectSuccess(project) {
     return {
         type: ActionTypes.CREATE_PROJECT_SUCCESS,
-        payload: { id: projectId }
+        payload: project
     };
 }
 function updateProject(project) {
@@ -252,7 +252,7 @@ var ProjectService = (function () {
     ProjectService.prototype.getProject = function (projectId) {
         var _this = this;
         return this.elmsln.get(__WEBPACK_IMPORTED_MODULE_2__app_settings__["a" /* AppSettings */].BASE_PATH + 'api/v1/cle/projects/' + projectId)
-            .map(function (data) { return data.json().data; })
+            .map(function (data) { return data.json().data[0]; })
             .map(function (project) { return _this.convertToProject(project); });
     };
     ProjectService.prototype.createProject = function (project) {
@@ -282,8 +282,16 @@ var ProjectService = (function () {
     };
     ProjectService.prototype.convertToProject = function (data) {
         var converted = new __WEBPACK_IMPORTED_MODULE_3__project__["a" /* Project */]();
+        for (var propertyName in converted) {
+            if (data[propertyName]) {
+                converted[propertyName] = data[propertyName];
+            }
+        }
         if (data.id) {
-            converted.id = data.id;
+            converted.id = Number(data.id);
+        }
+        if (data.nid) {
+            converted.id = Number(data.nid);
         }
         if (data.title) {
             converted.title = data.title;
@@ -2701,10 +2709,8 @@ var ProjectEffects = (function () {
         this.createProject$ = this.actions$
             .ofType(__WEBPACK_IMPORTED_MODULE_3__project_actions__["c" /* ActionTypes */].CREATE_PROJECT)
             .mergeMap(function (action) { return _this.projectService.createProject(action.payload); })
-            .map(function (project) {
-            Materialize.toast('Project created', 1500);
-            return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__project_actions__["d" /* createProjectSuccess */])(project.id);
-        });
+            .mergeMap(function (project) { return _this.projectService.getProject(project.id); })
+            .map(function (project) { return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__project_actions__["d" /* createProjectSuccess */])(project); });
         // Update the project on the server
         this.updateProject$ = this.actions$
             .ofType(__WEBPACK_IMPORTED_MODULE_3__project_actions__["c" /* ActionTypes */].UPDATE_PROJECT)
@@ -2775,11 +2781,10 @@ function projectReducer(state, action) {
             };
         }
         case __WEBPACK_IMPORTED_MODULE_0__project_actions__["c" /* ActionTypes */].CREATE_PROJECT_SUCCESS: {
-            var projectId_1 = action.payload.id ? Number(action.payload.id) : null;
             return {
                 projects: state.projects.map(function (project) {
-                    if (!project.id && projectId_1) {
-                        return Object.assign({}, project, { id: projectId_1 });
+                    if (!project.id && action.payload.id) {
+                        return Object.assign({}, project, action.payload);
                     }
                     return project;
                 })

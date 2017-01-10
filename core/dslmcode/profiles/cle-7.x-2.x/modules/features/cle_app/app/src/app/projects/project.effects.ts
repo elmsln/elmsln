@@ -27,10 +27,8 @@ export class ProjectEffects {
   @Effect() createProject$ = this.actions$
     .ofType(ActionTypes.CREATE_PROJECT)
     .mergeMap(action => this.projectService.createProject(action.payload))
-    .map((project:Project) => {
-      Materialize.toast('Project created', 1500);
-      return createProjectSuccess(project.id)
-    });
+    .mergeMap((project:Project) => this.projectService.getProject(project.id))
+    .map((project:Project) => createProjectSuccess(project));
 
   // Update the project on the server
   @Effect() updateProject$ = this.actions$
