@@ -4356,7 +4356,7 @@ module.exports = "<form *ngIf=\"form\" [formGroup]=\"form\" class=\"submission-f
 /***/ 828:
 /***/ function(module, exports) {
 
-module.exports = "<h4 *ngIf=\"title\">{{title}}</h4>\n\n<div class=\"row\">\n  <div *ngFor=\"let submission of submissions\" (click)=\"onSubmissionClick(submission)\" class=\"col s12 m6\">\n    <div class=\"card horizontal\">\n      <div class=\"card-stacked\">\n        <div class=\"card-content\">\n          <h3 >{{ submission.title }}</h3>\n          <p>I am a very simple card. I am good at containing small bits of information.</p>\n        </div>\n        <div class=\"card-action\">\n        </div>\n      </div>\n    </div>\n  </div>\n</div>"
+module.exports = "<h4 *ngIf=\"title\">{{title}}</h4>\n\n<div class=\"row\">\n  <div *ngFor=\"let submission of submissions\" (click)=\"onSubmissionClick(submission)\" class=\"col s12 m6\">\n    <div class=\"card horizontal\">\n      <div class=\"card-stacked\">\n        <div class=\"card-content\">\n          <h3 >{{ submission.title }}</h3>\n        </div>\n        <div class=\"card-action\">\n        </div>\n      </div>\n    </div>\n  </div>\n</div>"
 
 /***/ },
 
