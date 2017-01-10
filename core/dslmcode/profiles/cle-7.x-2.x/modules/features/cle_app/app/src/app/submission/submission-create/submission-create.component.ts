@@ -5,6 +5,8 @@ import { Observable } from 'rxjs';
 import { Submission } from '../submission';
 import { createSubmission } from '../submission.actions';
 import { SubmissionFormComponent } from '../submission-form/submission-form.component';
+declare const Materialize:any;
+declare const jQuery:any
 
 @Component({
   selector: 'app-submission-create',
@@ -16,6 +18,7 @@ export class SubmissionCreateComponent implements OnInit {
   submission:Submission;
   assignmentId:number;
   userCanEdit$:Observable<boolean>;
+  isSaving:boolean = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -36,17 +39,27 @@ export class SubmissionCreateComponent implements OnInit {
     // check the permissions store to see if the user has edit
     this.userCanEdit$ = this.store.select('user')
       .map((state:any) => state.permissions.includes('edit own cle_submission content'));
+    
+    this.store.select('submissions')
+      .map((state:any) => state.saving)
+      .subscribe(saving => {
+        // saving is happening
+        if (saving && !this.isSaving) {
+          this.isSaving = true;
+          Materialize.toast('Creating submission...', 30000, 'toast-submission-create');
+        }
+        else if (!saving && this.isSaving) {
+          jQuery('.toast-submission-create').remove();
+          Materialize.toast('Submission created', 1500);
+          this.router.navigate(['/assignments/' + this.assignmentId]);
+        }
+      })
   }
 
   onSubmissionSave($event) {
-    const assignmentId = this.assignmentId;
     this.store.dispatch(createSubmission($event));
-    this.router.navigate(['/assignments/' + assignmentId]);
-    this.submissionFormComponent.form.reset();
   }
 
   onSubmissionCancel($event) {
-    const assignmentId = this.assignmentId;
-    this.router.navigate(['/assignments/' + assignmentId]);
   }
 }

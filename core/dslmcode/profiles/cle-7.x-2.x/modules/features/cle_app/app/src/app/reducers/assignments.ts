@@ -61,7 +61,6 @@ export function reducer(state: AssignmentState = initialState, action: Action) {
     }
 
     case ActionTypes.DELETE_ASSIGNMENT: {
-      console.log(state.assignments, action.payload);
       return {
         loading: false,
         assignments: state.assignments.filter(assignment => assignment.id !== action.payload.id)

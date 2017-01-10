@@ -26,10 +26,7 @@ export class SubmissionEffects {
   @Effect() createSubmission$ = this.actions$
     .ofType(ActionTypes.CREATE_SUBMISSION)
     .mergeMap(action => this.submissionService.createSubmission(action.payload))
-    .map((submissionInfo:any) => {
-      Materialize.toast('Submission created', 1500);
-      return createSubmissionSuccess(submissionInfo.id)
-    });
+    .map((sub:any) => createSubmissionSuccess(sub.id));
 
   // Update the submission on the server
   @Effect() updateSubmission$ = this.actions$
@@ -39,7 +36,6 @@ export class SubmissionEffects {
         .mergeMap((data) => this.submissionService.getSubmission(action.payload.id));
     })
     .map((submission) => {
-      Materialize.toast('Submission updated', 1500);
       return updateSubmissionSuccess(submission)
     });
 

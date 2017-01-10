@@ -1,3 +1,14 @@
 .cle-critique {
   margin: 0 calc(-50vw + 50%);
 }
+
+.nav-wrapper {
+  background: #484848;
+  height: 50px;
+}
+.nav-wrapper * {
+  font-size: 14px;
+  height: 50px;
+  line-height: 50px;
+  color: white;
+}
