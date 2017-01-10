@@ -28,26 +28,16 @@ export class AppEffects {
   @Effect() createAssignment$ = this.actions$
     .ofType(ActionTypes.CREATE_ASSIGNMENT)
     .mergeMap(action => this.assignmentService.createAssignment(action.payload))
-    .map(assignmentId => {
-      Materialize.toast('Assignment created', 1500);
-      return createAssignmentSuccess(assignmentId)
-    });
+    .map(assignmentId => createAssignmentSuccess(assignmentId));
 
   // Update the assignment on the server
   @Effect() updateAssignment$ = this.actions$
     .ofType(ActionTypes.UPDATE_ASSIGNMENT)
-    .map((state) => {
-      Materialize.toast('Assignment updating...', 1500)
-      return state;
-    })
     .mergeMap(action => {
       return this.assignmentService.updateAssignment(action.payload)
         .mergeMap((data) => this.assignmentService.getAssignment(action.payload.id));
     })
-    .map((assignment) => {
-      Materialize.toast('Assignment updated', 1500);
-      return updateAssignmentSuccess(assignment)
-    });
+    .map((assignment) => updateAssignmentSuccess(assignment));
 
   @Effect() loadAssignments$ = this.actions$
     .ofType(ActionTypes.LOAD_ASSIGNMENTS)
