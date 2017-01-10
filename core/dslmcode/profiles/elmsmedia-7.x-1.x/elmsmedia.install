@@ -219,3 +219,10 @@ function elmsmedia_update_7017(&$sandbox) {
   features_revert_module('elmsmedia_perms');
   features_revert_module('elmsmedia_section_perms');
 }
+
+/**
+ * Exposed view blocks for better UX.
+ */
+function elmsmedia_update_7018(&$sandbox) {
+  features_revert_module('elmsmedia_feature');
+}
