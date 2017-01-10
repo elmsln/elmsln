@@ -61,5 +61,7 @@ export class SubmissionCreateComponent implements OnInit {
   }
 
   onSubmissionCancel($event) {
+    this.router.navigate(['/assignments/' + this.assignmentId]);
+    this.submissionFormComponent.form.reset();
   }
 }

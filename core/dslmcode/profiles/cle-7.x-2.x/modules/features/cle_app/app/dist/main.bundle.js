@@ -1220,6 +1220,8 @@ var SubmissionCreateComponent = (function () {
         this.store.dispatch(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__submission_actions__["b" /* createSubmission */])($event));
     };
     SubmissionCreateComponent.prototype.onSubmissionCancel = function ($event) {
+        this.router.navigate(['/assignments/' + this.assignmentId]);
+        this.submissionFormComponent.form.reset();
     };
     __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["ViewChild"])(__WEBPACK_IMPORTED_MODULE_5__submission_form_submission_form_component__["a" /* SubmissionFormComponent */]), 
