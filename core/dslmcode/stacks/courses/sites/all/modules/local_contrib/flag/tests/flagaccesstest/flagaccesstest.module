@@ -1,0 +1,26 @@
+<?php
+/**
+ * @file
+ * Module for testing hook_flag_access.
+ */
+
+/**
+ * Implements hook_flag_access.
+ */
+function flagaccesstest_flag_access($flag, $entity_id, $action, $account) {
+  $mode = variable_get('FlagHookFlagAccessTestCaseMode', 'ignore');
+
+  switch ($mode) {
+    case 'ignore':
+      drupal_set_message('hook_flag_access: ignore');
+      return NULL;
+
+    case 'allow':
+      drupal_set_message('hook_flag_access: allow');
+      return TRUE;
+
+    case 'deny':
+      drupal_set_message('hook_flag_access: deny');
+      return FALSE;
+  }
+}
