@@ -21,7 +21,7 @@ export class ProjectService {
 
   getProject(projectId:number) {
     return this.elmsln.get(AppSettings.BASE_PATH + 'api/v1/cle/projects/' + projectId)
-      .map(data => data.json().data)
+      .map(data => data.json().data[0])
       .map(project => this.convertToProject(project))
   }
 
@@ -56,8 +56,16 @@ export class ProjectService {
 
   private convertToProject(data:any) {
     let converted:Project = new Project();
+    for(var propertyName in converted) {
+      if (data[propertyName]) {
+        converted[propertyName] = data[propertyName];
+      }
+    }
     if (data.id) {
-      converted.id = data.id;
+      converted.id = Number(data.id);
+    }
+    if (data.nid) {
+      converted.id = Number(data.nid);
     }
     if (data.title) {
       converted.title = data.title;

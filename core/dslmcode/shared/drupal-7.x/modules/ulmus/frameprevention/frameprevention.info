@@ -1,0 +1,13 @@
+name = Frameprevention
+description = "Prevents your site from being framed by another one."
+core = 7.x
+files[] = frameprevention.install
+files[] = frameprevention.module
+configure = admin/config/system/frameprevention
+
+; Information added by Drupal.org packaging script on 2014-08-12
+version = "7.x-2.1"
+core = "7.x"
+project = "frameprevention"
+datestamp = "1407815028"
+

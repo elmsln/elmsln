@@ -15,9 +15,64 @@ define('CIS_HELPER_DEFAULT_AUTHENTICATION', 'lms');
 define('CIS_HELPER_DEFAULT_CONTENT_OUTLINE', 'lesson-based.xml');
 
 /**
+ * Implements hook_module_implements_alter().
+ */
+function cis_helper_module_implements_alter(&$implementations, $hook) {
+  switch ($hook) {
+    case 'cron':
+      // shift this cron call to the last thing to process since it kicks
+      // off a non-blocking job in the background. This also allows other
+      // systems to sync up with CIS via other cron routines before firing
+      // off our network wide snake sync
+      $group = $implementations['cis_helper'];
+      unset($implementations['cis_helper']);
+      $implementations['cis_helper'] = $group;
+    break;
+  }
+}
+
+/**
  * Implements hook_cron().
  */
 function cis_helper_cron() {
+  // section list that's active to see if we need to process anything
+  $query = new EntityFieldQuery;
+  $result = $query
+    // pull all field collections
+    ->entityCondition('entity_type', 'field_collection_item')
+    // that are sections
+    ->entityCondition('bundle', 'field_sections')
+    // that aren't archived
+    ->propertyCondition('archived', 0)
+    // that have something in the cis_ops field
+    ->fieldCondition('field_cis_ops', 'value', 'NULL', '!=')
+    // run as user 1 to avoid issues of ability to load as cron is anon
+    ->addMetaData('account', user_load(1))
+    ->execute();
+  // load the instances
+  if (isset($result['field_collection_item'])) {
+    $sections = entity_load('field_collection_item', array_keys($result['field_collection_item']));
+    if (drupal_is_cli()) {
+      // debug message if this gets backed up
+      drush_print(dt('Sections to process.. @count', array('@count' => count($sections))));
+    }
+    foreach ($sections as $section) {
+      // handle the logic of the operation to perform
+      // make sure we have an offering and course
+      if (is_object($section->HostEntity()) && is_object($section->HostEntity()->HostEntity())) {
+        _cis_helper_run_operation($section);
+      }
+    }
+  }
+  // sync up the network
+  _cis_helper_sync_network();
+}
+
+/**
+ * Callback to sync the entire network and make it happy with
+ * courses, sections and user accounts going.... EVERYWHERE.
+ */
+function _cis_helper_sync_network() {
   // make a list of courses as a queue
   $query = new EntityFieldQuery;
   $result = $query
@@ -61,35 +116,6 @@ function cis_helper_cron() {
         ),
       );
       _elmsln_api_nonblocking_requests(array($nonblock));
-    }
-  }
-  // section list that's active to see if we need to process anything
-  $query = new EntityFieldQuery;
-  $result = $query
-    // pull all field collections
-    ->entityCondition('entity_type', 'field_collection_item')
-    // that are sections
-    ->entityCondition('bundle', 'field_sections')
-    // that aren't archived
-    ->propertyCondition('archived', 0)
-    // that have something in the cis_ops field
-    ->fieldCondition('field_cis_ops', 'value', 'NULL', '!=')
-    // run as user 1 to avoid issues of ability to load as cron is anon
-    ->addMetaData('account', user_load(1))
-    ->execute();
-  // load the instances
-  if (isset($result['field_collection_item'])) {
-    $sections = entity_load('field_collection_item', array_keys($result['field_collection_item']));
-    if (drupal_is_cli()) {
-      // debug message if this gets backed up
-      drush_print(dt('Sections to process.. @count', array('@count' => count($sections))));
-    }
-    foreach ($sections as $section) {
-      // handle the logic of the operation to perform
-      // make sure we have an offering and course
-      if (is_object($section->HostEntity()) && is_object($section->HostEntity()->HostEntity())) {
-        _cis_helper_run_operation($section);
-      }
     }
   }
 }

@@ -318,7 +318,7 @@ function cle_submission_node_access($node, $op, $account) {
     // see if this assignment is private
     $assignment = node_load($node->field_assignment['und'][0]['target_id']);
     // boolean for visibility
-    if (!$assignment->field_visibility['und'][0]['value']) {
+    if (!$assignment->field_assignment_privacy_setting['und'][0]['value']) {
       // if it's a hidden assignment, the last check is admin member
       return NODE_ACCESS_DENY;
     }

@@ -1,0 +1,128 @@
+<?php
+
+/**
+ * @file
+ * Prevent your Drupal site from being framed.
+ *
+ * @author Ralf Dorfner
+ * @author David Norman
+ * @link https://deekayen.net
+ */
+
+/**
+ * Implements hook_permission().
+ *
+ * Valid permissions for the frameprevention module.
+ *
+ * @return array
+ */
+function frameprevention_permission() {
+  return array(
+    'administer frameprevention' => array(
+      'title' => t('Administer frameprevention'),
+      'description' => t('Enable/disable frame prevention and set location exceptions for breaking out of frames.'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_init().
+ */
+function frameprevention_init() {
+  if (!frameprevention_check()) {
+    $x_frame = variable_get('frameprevention_x_frame_options', 'SAMEORIGIN');
+    if ($x_frame == 'SAMEORIGIN' || $x_frame == 'DENY') {
+      drupal_add_http_header('X-Frame-Options', $x_frame);
+    }
+
+    if (variable_get('frameprevention_enabled', 0)) {
+      $inline_script = <<<EOL
+<style id="antiClickjack">body{display:none !important;}</style>
+<script type="text/javascript">
+   if (self === top) {
+       var antiClickjack = document.getElementById("antiClickjack");
+       antiClickjack.parentNode.removeChild(antiClickjack);
+   } else {
+       top.location = self.location;
+   }
+</script>
+
+EOL;
+
+      $element = array(
+        '#type' => 'markup',
+        '#markup' => $inline_script,
+      );
+
+      drupal_add_html_head($element, 'frameprevention');
+    }
+  }
+}
+
+/**
+ * Implements hook_menu().
+ *
+ * @return array
+ */
+function frameprevention_menu() {
+  $items = array();
+
+  $items['admin/config/system/frameprevention'] = array(
+    'title' => 'Frameprevention',
+    'description' => 'Prevent your site from being framed.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('frameprevention_admin_settings'),
+    'access callback' => 'user_access',
+    'access arguments' => array('administer frameprevention'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  return $items;
+}
+
+/**
+ * Form builder for the frameprevention configuration form.
+ */
+function frameprevention_admin_settings() {
+  $form = array();
+
+  $form['frameprevention_enabled'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Enable CSS and Javascript-based frame-breaker'),
+    '#default_value' => variable_get('frameprevention_enabled', 0),
+    '#description' => t('Based on recommended frame-breaking code from the !link. Having Javascript enabled on client web browsers will become a requirement when this is enabled, otherwise no content will display.', array('!link' => l(t('OWASP Clickjacking Defense Cheat Sheet'), 'https://www.owasp.org/index.php/Clickjacking_Defense_Cheat_Sheet'))),
+  );
+  $form['frameprevention_x_frame_options'] = array(
+    '#title' => t('X-Frame-Options HTTP response header'),
+    '#type' => 'select',
+    '#options' => array(
+      '' => t('disabled'),
+      'DENY' => 'DENY',
+      'SAMEORIGIN' => 'SAMEORIGIN',
+    ),
+    '#description' => t('DENY prevents any domain from framing the content. SAMEORIGIN allows the current site to frame the content.'),
+    '#default_value' => variable_get('frameprevention_x_frame_options', 'SAMEORIGIN'),
+  );
+  $form['frameprevention_pages'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Pages to ignore'),
+    '#default_value' => variable_get('frameprevention_pages', "img_assist/*\nfile/ajax/*"),
+    '#cols' => 30,
+    '#rows' => 5,
+    '#description' => t('List of pages where the module is <b>disabled</b>. Use the <em>*</em> character for wildcard, each entry in a new line.'),
+  );
+
+  return system_settings_form($form);
+}
+
+/**
+ * Checks to see if the requested page should be ignored.
+ *
+ * @return integer
+ */
+function frameprevention_check() {
+  $pages = variable_get('frameprevention_pages', "img_assist/*\nfile/ajax/*");
+  $path = drupal_get_path_alias($_GET['q']);
+  $regexp = '/^(' . preg_replace(array('/(\r\n?|\n)/', '/\\\\\*/', '/(^|\|)\\\\<front\\\\>($|\|)/'), array('|', '.*', '\1' . variable_get('site_frontpage', 'node') . '\2'), preg_quote($pages, '/')) . ')$/';
+  return preg_match($regexp, $path);
+}

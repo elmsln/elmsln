@@ -22,12 +22,11 @@ export function submissionReducer(state: SubmissionState = initialState, action:
     }
 
     case ActionTypes.CREATE_SUBMISSION_SUCCESS: {
-      const submissionId = action.payload.id ? Number(action.payload.id) : null;
       return {
         saving: false,
         submissions: state.submissions.map((submission:Submission) => {
-          if (!submission.id && submissionId) {
-            return Object.assign({}, submission, { id: submissionId })
+          if (!submission.id && action.payload.id) {
+            return Object.assign({}, submission, { id: action.payload.id })
           }
           return submission;
         })
@@ -61,6 +60,7 @@ export function submissionReducer(state: SubmissionState = initialState, action:
     }
 
     case ActionTypes.DELETE_SUBMISSION: {
+      console.log(state.submissions, action.payload);
       return {
         saving: state.saving,
         submissions: state.submissions.filter(submission => submission.id !== action.payload.id)

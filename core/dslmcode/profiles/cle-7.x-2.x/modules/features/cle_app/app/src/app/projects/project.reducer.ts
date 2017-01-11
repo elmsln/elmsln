@@ -19,11 +19,10 @@ export function projectReducer(state: ProjectState = initialState, action: Actio
     }
 
     case ActionTypes.CREATE_PROJECT_SUCCESS: {
-      const projectId = action.payload.id ? Number(action.payload.id) : null;
       return {
         projects: state.projects.map((project:Project) => {
-          if (!project.id && projectId) {
-            return Object.assign({}, project, { id: projectId })
+          if (!project.id && action.payload.id) {
+            return Object.assign({}, project, action.payload)
           }
           return project;
         })

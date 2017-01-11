@@ -5,4 +5,5 @@ export class Project {
   startDate?: string;
   endDate?: string;
   author?: number;
+  metadata?: {};
 }

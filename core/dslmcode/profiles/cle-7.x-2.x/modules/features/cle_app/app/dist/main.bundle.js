@@ -79,10 +79,10 @@ function createProject(project) {
         payload: project
     };
 }
-function createProjectSuccess(projectId) {
+function createProjectSuccess(project) {
     return {
         type: ActionTypes.CREATE_PROJECT_SUCCESS,
-        payload: { id: projectId }
+        payload: project
     };
 }
 function updateProject(project) {
@@ -162,10 +162,10 @@ function createSubmission(submission) {
         payload: submission
     };
 }
-function createSubmissionSuccess(submissionId) {
+function createSubmissionSuccess(submission) {
     return {
         type: ActionTypes.CREATE_SUBMISSION_SUCCESS,
-        payload: { id: submissionId }
+        payload: submission
     };
 }
 function updateSubmission(submission) {
@@ -252,7 +252,7 @@ var ProjectService = (function () {
     ProjectService.prototype.getProject = function (projectId) {
         var _this = this;
         return this.elmsln.get(__WEBPACK_IMPORTED_MODULE_2__app_settings__["a" /* AppSettings */].BASE_PATH + 'api/v1/cle/projects/' + projectId)
-            .map(function (data) { return data.json().data; })
+            .map(function (data) { return data.json().data[0]; })
             .map(function (project) { return _this.convertToProject(project); });
     };
     ProjectService.prototype.createProject = function (project) {
@@ -282,8 +282,16 @@ var ProjectService = (function () {
     };
     ProjectService.prototype.convertToProject = function (data) {
         var converted = new __WEBPACK_IMPORTED_MODULE_3__project__["a" /* Project */]();
+        for (var propertyName in converted) {
+            if (data[propertyName]) {
+                converted[propertyName] = data[propertyName];
+            }
+        }
         if (data.id) {
-            converted.id = data.id;
+            converted.id = Number(data.id);
+        }
+        if (data.nid) {
+            converted.id = Number(data.nid);
         }
         if (data.title) {
             converted.title = data.title;
@@ -346,6 +354,7 @@ var ProjectService = (function () {
 var Submission = (function () {
     function Submission() {
         this.id = null;
+        this.uid = null;
         this.title = null;
         this.status = true;
         this.created = null;
@@ -931,11 +940,20 @@ var AssignmentComponent = (function () {
             }
             return false;
         });
-        // get the submissions
+        // get my submissions
         this.submissions$ = this.store.select('submissions')
-            .map(function (state) {
-            return state.submissions.filter(function (sub) { return sub.assignment === _this.assignmentId; });
-        });
+            .map(function (state) { return state.submissions.filter(function (sub) { return sub.assignment === _this.assignmentId; }); });
+        /**
+         * @example: this is an example of how we could use another Observable to filter submissions
+         */
+        // this.submissions$ = Observable.zip(
+        //   this.store.select('submissions').map((state:any) => state.submissions.filter(sub => sub.assignment === this.assignmentId)),
+        //   this.store.select('user').map((state:any) => state.uid),
+        //   (submissions, uid) => {
+        //     // make sure that the submission author has my uid
+        //     return submissions.filter(sub => sub.uid === uid);
+        //   }
+        // )
         if (this.assignmentId) {
             this.assignments$ = this.store.select('assignments')
                 .map(function (state) { return state.assignments.find(function (assignment) {
@@ -1220,6 +1238,8 @@ var SubmissionCreateComponent = (function () {
         this.store.dispatch(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__submission_actions__["b" /* createSubmission */])($event));
     };
     SubmissionCreateComponent.prototype.onSubmissionCancel = function ($event) {
+        this.router.navigate(['/assignments/' + this.assignmentId]);
+        this.submissionFormComponent.form.reset();
     };
     __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["ViewChild"])(__WEBPACK_IMPORTED_MODULE_5__submission_form_submission_form_component__["a" /* SubmissionFormComponent */]), 
@@ -1472,7 +1492,7 @@ var SubmissionService = (function () {
     SubmissionService.prototype.getSubmission = function (submissionId) {
         var _this = this;
         return this.elmsln.get(__WEBPACK_IMPORTED_MODULE_3__app_settings__["a" /* AppSettings */].BASE_PATH + 'api/v1/cle/submissions/' + submissionId)
-            .map(function (data) { return data.json().data; })
+            .map(function (data) { return data.json().data[0]; })
             .map(function (data) { return _this.convertToSubmission(data); });
     };
     SubmissionService.prototype.createSubmission = function (submission) {
@@ -1626,25 +1646,15 @@ var AppEffects = (function () {
         this.createAssignment$ = this.actions$
             .ofType(__WEBPACK_IMPORTED_MODULE_3__app_actions__["f" /* ActionTypes */].CREATE_ASSIGNMENT)
             .mergeMap(function (action) { return _this.assignmentService.createAssignment(action.payload); })
-            .map(function (assignmentId) {
-            Materialize.toast('Assignment created', 1500);
-            return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__app_actions__["g" /* createAssignmentSuccess */])(assignmentId);
-        });
+            .map(function (assignmentId) { return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__app_actions__["g" /* createAssignmentSuccess */])(assignmentId); });
         // Update the assignment on the server
         this.updateAssignment$ = this.actions$
             .ofType(__WEBPACK_IMPORTED_MODULE_3__app_actions__["f" /* ActionTypes */].UPDATE_ASSIGNMENT)
-            .map(function (state) {
-            Materialize.toast('Assignment updating...', 1500);
-            return state;
-        })
             .mergeMap(function (action) {
             return _this.assignmentService.updateAssignment(action.payload)
                 .mergeMap(function (data) { return _this.assignmentService.getAssignment(action.payload.id); });
         })
-            .map(function (assignment) {
-            Materialize.toast('Assignment updated', 1500);
-            return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__app_actions__["h" /* updateAssignmentSuccess */])(assignment);
-        });
+            .map(function (assignment) { return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__app_actions__["h" /* updateAssignmentSuccess */])(assignment); });
         this.loadAssignments$ = this.actions$
             .ofType(__WEBPACK_IMPORTED_MODULE_3__app_actions__["f" /* ActionTypes */].LOAD_ASSIGNMENTS)
             .mergeMap(function () { return _this.assignmentService.loadAssignments(); })
@@ -1655,10 +1665,10 @@ var AppEffects = (function () {
             .mergeMap(function () { return _this.elmslnService.getUserProfile(); })
             .map(function (profile) {
             if (typeof profile.user.permissions !== 'undefined') {
-                return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__app_actions__["j" /* loadPermissionsSuccess */])(profile.user.permissions, profile.user['csrf-token']);
+                return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__app_actions__["j" /* loadPermissionsSuccess */])(profile.user.permissions, profile.user['csrf-token'], Number(profile.user['uid']));
             }
             else {
-                return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__app_actions__["j" /* loadPermissionsSuccess */])([], null);
+                return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__app_actions__["j" /* loadPermissionsSuccess */])([], null, null);
             }
         });
         this.deleteAssignment$ = this.actions$
@@ -2709,10 +2719,8 @@ var ProjectEffects = (function () {
         this.createProject$ = this.actions$
             .ofType(__WEBPACK_IMPORTED_MODULE_3__project_actions__["c" /* ActionTypes */].CREATE_PROJECT)
             .mergeMap(function (action) { return _this.projectService.createProject(action.payload); })
-            .map(function (project) {
-            Materialize.toast('Project created', 1500);
-            return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__project_actions__["d" /* createProjectSuccess */])(project.id);
-        });
+            .mergeMap(function (project) { return _this.projectService.getProject(project.id); })
+            .map(function (project) { return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__project_actions__["d" /* createProjectSuccess */])(project); });
         // Update the project on the server
         this.updateProject$ = this.actions$
             .ofType(__WEBPACK_IMPORTED_MODULE_3__project_actions__["c" /* ActionTypes */].UPDATE_PROJECT)
@@ -2783,11 +2791,10 @@ function projectReducer(state, action) {
             };
         }
         case __WEBPACK_IMPORTED_MODULE_0__project_actions__["c" /* ActionTypes */].CREATE_PROJECT_SUCCESS: {
-            var projectId_1 = action.payload.id ? Number(action.payload.id) : null;
             return {
                 projects: state.projects.map(function (project) {
-                    if (!project.id && projectId_1) {
-                        return Object.assign({}, project, { id: projectId_1 });
+                    if (!project.id && action.payload.id) {
+                        return Object.assign({}, project, action.payload);
                     }
                     return project;
                 })
@@ -2967,7 +2974,8 @@ function reducer(state, action) {
 
 var initialState = {
     permissions: [],
-    token: null
+    token: null,
+    uid: null
 };
 function reducer(state, action) {
     if (state === void 0) { state = initialState; }
@@ -2978,7 +2986,8 @@ function reducer(state, action) {
         case __WEBPACK_IMPORTED_MODULE_0__app_actions__["f" /* ActionTypes */].LOAD_PERMISSIONS_SUCCESS: {
             return {
                 permissions: action.payload.permissions ? action.payload.permissions : [],
-                token: action.payload.token ? action.payload.token : null
+                token: action.payload.token ? action.payload.token : null,
+                uid: action.payload.uid ? action.payload.uid : null
             };
         }
         default: {
@@ -3091,7 +3100,8 @@ var SubmissionListComponent = (function () {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_core__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__ngrx_effects__ = __webpack_require__(166);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__submission_actions__ = __webpack_require__(119);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__submission_service__ = __webpack_require__(397);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__app_actions__ = __webpack_require__(92);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__submission_service__ = __webpack_require__(397);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return SubmissionEffects; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -3107,6 +3117,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 
 
 
+
 var SubmissionEffects = (function () {
     function SubmissionEffects(actions$, submissionService) {
         var _this = this;
@@ -3115,13 +3126,17 @@ var SubmissionEffects = (function () {
         this.createSubmission$ = this.actions$
             .ofType(__WEBPACK_IMPORTED_MODULE_3__submission_actions__["d" /* ActionTypes */].CREATE_SUBMISSION)
             .mergeMap(function (action) { return _this.submissionService.createSubmission(action.payload); })
-            .map(function (sub) { return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__submission_actions__["e" /* createSubmissionSuccess */])(sub.id); });
+            .mergeMap(function (sub) { return _this.submissionService.getSubmission(sub.id); })
+            .map(function (sub) { return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__submission_actions__["e" /* createSubmissionSuccess */])(sub); });
         // Update the submission on the server
         this.updateSubmission$ = this.actions$
             .ofType(__WEBPACK_IMPORTED_MODULE_3__submission_actions__["d" /* ActionTypes */].UPDATE_SUBMISSION)
             .mergeMap(function (action) {
+            console.log(action);
             return _this.submissionService.updateSubmission(action.payload)
-                .mergeMap(function (data) { return _this.submissionService.getSubmission(action.payload.id); });
+                .mergeMap(function (data) {
+                return _this.submissionService.getSubmission(action.payload.id);
+            });
         })
             .map(function (submission) {
             return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__submission_actions__["f" /* updateSubmissionSuccess */])(submission);
@@ -3136,6 +3151,9 @@ var SubmissionEffects = (function () {
             .map(function (info) {
             Materialize.toast('Submission deleted', 1000);
         });
+        this.notifyAssignmentOnChange$ = this.actions$
+            .ofType(__WEBPACK_IMPORTED_MODULE_3__submission_actions__["d" /* ActionTypes */].CREATE_SUBMISSION_SUCCESS, __WEBPACK_IMPORTED_MODULE_3__submission_actions__["d" /* ActionTypes */].UPDATE_SUBMISSION_SUCCESS)
+            .map(function (action) { return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__app_actions__["b" /* loadAssignments */])(); });
     }
     __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__ngrx_effects__["a" /* Effect */])(), 
@@ -3153,9 +3171,13 @@ var SubmissionEffects = (function () {
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__ngrx_effects__["a" /* Effect */])({ dispatch: false }), 
         __metadata('design:type', Object)
     ], SubmissionEffects.prototype, "deleteSubmission$", void 0);
+    __decorate([
+        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__ngrx_effects__["a" /* Effect */])(), 
+        __metadata('design:type', Object)
+    ], SubmissionEffects.prototype, "notifyAssignmentOnChange$", void 0);
     SubmissionEffects = __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__angular_core__["Injectable"])(), 
-        __metadata('design:paramtypes', [(typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_2__ngrx_effects__["b" /* Actions */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_2__ngrx_effects__["b" /* Actions */]) === 'function' && _a) || Object, (typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_4__submission_service__["a" /* SubmissionService */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_4__submission_service__["a" /* SubmissionService */]) === 'function' && _b) || Object])
+        __metadata('design:paramtypes', [(typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_2__ngrx_effects__["b" /* Actions */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_2__ngrx_effects__["b" /* Actions */]) === 'function' && _a) || Object, (typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_5__submission_service__["a" /* SubmissionService */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_5__submission_service__["a" /* SubmissionService */]) === 'function' && _b) || Object])
     ], SubmissionEffects);
     return SubmissionEffects;
     var _a, _b;
@@ -3185,12 +3207,11 @@ function submissionReducer(state, action) {
             };
         }
         case __WEBPACK_IMPORTED_MODULE_0__submission_actions__["d" /* ActionTypes */].CREATE_SUBMISSION_SUCCESS: {
-            var submissionId_1 = action.payload.id ? Number(action.payload.id) : null;
             return {
                 saving: false,
                 submissions: state.submissions.map(function (submission) {
-                    if (!submission.id && submissionId_1) {
-                        return Object.assign({}, submission, { id: submissionId_1 });
+                    if (!submission.id && action.payload.id) {
+                        return Object.assign({}, submission, { id: action.payload.id });
                     }
                     return submission;
                 })
@@ -3221,6 +3242,7 @@ function submissionReducer(state, action) {
             };
         }
         case __WEBPACK_IMPORTED_MODULE_0__submission_actions__["d" /* ActionTypes */].DELETE_SUBMISSION: {
+            console.log(state.submissions, action.payload);
             return {
                 saving: state.saving,
                 submissions: state.submissions.filter(function (submission) { return submission.id !== action.payload.id; })
@@ -4164,7 +4186,7 @@ module.exports = ":host >>> .wysiwyg-editor {\n  min-height: 10em;\n}\n\n.action
 /***/ 800:
 /***/ function(module, exports) {
 
-module.exports = ".collection-item {\n  cursor: pointer;\n}"
+module.exports = ".card {\n  cursor: pointer;\n}"
 
 /***/ },
 
@@ -4339,14 +4361,14 @@ module.exports = "<div class=\"submission-edit\">\n  <app-submission-form *ngIf=
 /***/ 827:
 /***/ function(module, exports) {
 
-module.exports = "<form *ngIf=\"form\" [formGroup]=\"form\" class=\"submission-form\">\n  <input formControlName=\"title\" placeholder=\"title\">\n  <wysiwygjs formControlName=\"body\" (onWysiwygInit)=\"onWysiwygInit()\"></wysiwygjs>\n\n  <div class=\"actions\">\n    <button type=\"submit\" class=\"btn\" (click)=\"submit()\">Save</button>\n    <button type=\"submit\" class=\"btn\" (click)=\"cancel()\">Cancel</button>\n  </div>\n</form>\n"
+module.exports = "<form *ngIf=\"form\" [formGroup]=\"form\" class=\"submission-form\">\n  <input formControlName=\"title\" placeholder=\"title\">\n  <wysiwygjs formControlName=\"body\" (onWysiwygInit)=\"onWysiwygInit()\"></wysiwygjs>\n\n  <div class=\"actions\">\n    <button type=\"submit\" class=\"btn\" (click)=\"submit()\">Save</button>\n    <button type=\"button\" class=\"btn\" (click)=\"cancel()\">Cancel</button>\n  </div>\n</form>\n"
 
 /***/ },
 
 /***/ 828:
 /***/ function(module, exports) {
 
-module.exports = "<ul class=\"submission-list collection with-header\">\n  <li class=\"collection-header\" *ngIf=\"title\"><h4>{{title}}</h4></li>\n  <li *ngFor=\"let submission of submissions\" class=\"collection-item\" (click)=\"onSubmissionClick(submission)\">{{ submission.title }}</li>\n</ul>"
+module.exports = "<h4 *ngIf=\"title\">{{title}}</h4>\n\n<div class=\"row\">\n  <div *ngFor=\"let submission of submissions\" (click)=\"onSubmissionClick(submission)\" class=\"col s12 m6\">\n    <div class=\"card horizontal\">\n      <div class=\"card-stacked\">\n        <div class=\"card-content\">\n          <h3 >{{ submission.title }}</h3>\n        </div>\n        <div class=\"card-action\">\n        </div>\n      </div>\n    </div>\n  </div>\n</div>"
 
 /***/ },
 
@@ -4444,10 +4466,10 @@ function loadPermissions() {
         payload: {}
     };
 }
-function loadPermissionsSuccess(permissions, token) {
+function loadPermissionsSuccess(permissions, token, uid) {
     return {
         type: ActionTypes.LOAD_PERMISSIONS_SUCCESS,
-        payload: { permissions: permissions, token: token }
+        payload: { permissions: permissions, token: token, uid: uid }
     };
 }
 //# sourceMappingURL=/Users/scienceonlineed/Documents/websites/elmsln/core/dslmcode/profiles/cle-7.x-2.x/modules/features/cle_app/app/src/app.actions.js.map

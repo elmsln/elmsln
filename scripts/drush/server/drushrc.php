@@ -348,3 +348,6 @@ $options['shell-aliases']['whereis'] = 'dd';
 
 # ELMSLN Base for dslm
 $options['dslm_base'] = '/var/www/elmsln/core/dslmcode';
+
+# ensure this file is included when drush runs always so we have scope of this deploy
+include_once '/var/www/elmsln/core/dslmcode/elmsln_environment/elmsln_environment.php';

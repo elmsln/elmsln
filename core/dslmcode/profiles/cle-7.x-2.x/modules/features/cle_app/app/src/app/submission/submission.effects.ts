@@ -13,6 +13,7 @@ import {
   loadPermissions,
   loadPermissionsSuccess,
 } from './submission.actions';
+import { loadAssignments } from '../app.actions';
 import { SubmissionService } from './submission.service';
 declare const Materialize:any;
 
@@ -26,14 +27,18 @@ export class SubmissionEffects {
   @Effect() createSubmission$ = this.actions$
     .ofType(ActionTypes.CREATE_SUBMISSION)
     .mergeMap(action => this.submissionService.createSubmission(action.payload))
-    .map((sub:any) => createSubmissionSuccess(sub.id));
+    .mergeMap(sub => this.submissionService.getSubmission(sub.id))
+    .map((sub:any) => createSubmissionSuccess(sub));
 
   // Update the submission on the server
   @Effect() updateSubmission$ = this.actions$
     .ofType(ActionTypes.UPDATE_SUBMISSION)
     .mergeMap(action => {
+      console.log(action);
       return this.submissionService.updateSubmission(action.payload)
-        .mergeMap((data) => this.submissionService.getSubmission(action.payload.id));
+        .mergeMap((data) => {
+          return this.submissionService.getSubmission(action.payload.id)
+        });
     })
     .map((submission) => {
       return updateSubmissionSuccess(submission)
@@ -51,4 +56,8 @@ export class SubmissionEffects {
     .map(info => {
       Materialize.toast('Submission deleted', 1000);
     })
+    
+  @Effect() notifyAssignmentOnChange$ = this.actions$
+    .ofType(ActionTypes.CREATE_SUBMISSION_SUCCESS, ActionTypes.UPDATE_SUBMISSION_SUCCESS)
+    .map(action => loadAssignments());
 }
