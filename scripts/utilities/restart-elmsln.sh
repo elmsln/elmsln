@@ -27,12 +27,16 @@ fi
 # if we have service command run everything that way
 if [[ $(which service) ]]; then
     service httpd restart
+    service apache2 restart
     service mysqld restart
+    service mysql restart
     service php-fpm restart
     service php5-fpm restart
   else
     sudo /etc/init.d/httpd restart
+    sudo /etc/init.d/apache2 restart
     sudo /etc/init.d/mysqld restart
     sudo /etc/init.d/mysql restart
     sudo /etc/init.d/php-fpm restart
+    sudo /etc/init.d/php5-fpm restart
 fi
