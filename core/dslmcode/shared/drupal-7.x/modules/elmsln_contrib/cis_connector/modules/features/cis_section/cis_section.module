@@ -6,6 +6,7 @@
 
 define('CIS_SECTION_STUDENT', 'student');
 define('CIS_SECTION_PAST_STUDENT', 'past student');
+define('CIS_SECTION_STRICT_ACCESS', TRUE);
 
 include_once 'cis_section.features.inc';
 
@@ -346,19 +347,23 @@ function cis_section_cis_section_deactivate() {
  * Callback for hook_cis_section_deactivate().
  */
 function _cis_section_deactivate_section($node) {
-  // standard conversion of student to past student roles
-  $student = user_role_load_by_name(CIS_SECTION_STUDENT);
-  $past = user_role_load_by_name(CIS_SECTION_PAST_STUDENT);
-  $current = _cis_section_load_users_by_gid($node->nid, $student->rid);
-  // find users that no longer came across
-  $diff = array_diff($current, array());
-  foreach ($diff as $uid) {
-    $account = user_load($uid);
-    // drop student role
-    unset($account->roles[$student->rid]);
-    // gain past student role
-    $account->roles[$past->rid] = $past->name;
-    user_save($account);
+  // see if developer variable exists to prevent drop of access
+  // if we no longer see the account come across
+  if (variable_get('cis_section_strict_access', CIS_SECTION_STRICT_ACCESS)) {
+    // standard conversion of student to past student roles
+    $student = user_role_load_by_name(CIS_SECTION_STUDENT);
+    $past = user_role_load_by_name(CIS_SECTION_PAST_STUDENT);
+    $current = _cis_section_load_users_by_gid($node->nid, $student->rid);
+    // find users that no longer came across
+    $diff = array_diff($current, array());
+    foreach ($diff as $uid) {
+      $account = user_load($uid);
+      // drop student role
+      unset($account->roles[$student->rid]);
+      // gain past student role
+      $account->roles[$past->rid] = $past->name;
+      user_save($account);
+    }
   }
 }
 
@@ -470,26 +475,30 @@ function _cis_section_create_accounts($roster) {
       // rip membership names to uid array for comparison
       $actual[] = $account->uid;
     }
-    // compare members that just came across to members currently (that are students)
-    // anyone currently that didn't just come across, gets role dropped
-    // they gain past student
-    $student = user_role_load_by_name(CIS_SECTION_STUDENT);
-    $past = user_role_load_by_name(CIS_SECTION_PAST_STUDENT);
-    if (isset($gid)) {
-      $current = _cis_section_load_users_by_gid($gid, $student->rid);
-    }
-    else {
-      $current = array();
-    }
-    // find users that no longer came across
-    $diff = array_diff($current, $actual);
-    foreach ($diff as $uid) {
-      $account = user_load($uid);
-      // drop student role
-      unset($account->roles[$student->rid]);
-      // gain past student role
-      $account->roles[$past->rid] = $past->name;
-      user_save($account);
+    // see if developer variable exists to prevent drop of access
+    // if we no longer see the account come across
+    if (variable_get('cis_section_strict_access', CIS_SECTION_STRICT_ACCESS)) {
+      // compare members that just came across to members currently (that are students)
+      // anyone currently that didn't just come across, gets role dropped
+      // they gain past student
+      $student = user_role_load_by_name(CIS_SECTION_STUDENT);
+      $past = user_role_load_by_name(CIS_SECTION_PAST_STUDENT);
+      if (isset($gid)) {
+        $current = _cis_section_load_users_by_gid($gid, $student->rid);
+      }
+      else {
+        $current = array();
+      }
+      // find users that no longer came across
+      $diff = array_diff($current, $actual);
+      foreach ($diff as $uid) {
+        $account = user_load($uid);
+        // drop student role
+        unset($account->roles[$student->rid]);
+        // gain past student role
+        $account->roles[$past->rid] = $past->name;
+        user_save($account);
+      }
     }
   }
 }
