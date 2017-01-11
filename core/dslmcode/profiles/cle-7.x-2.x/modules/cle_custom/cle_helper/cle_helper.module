@@ -46,7 +46,7 @@ function cle_helper_form_views_exposed_form_alter(&$form, &$form_state, $form_id
       $disabled = FALSE;
       $name = $assignment->title;
       // see if it is a private submission
-      if ($assignment->field_visibility['und'][0]['value'] == 0) {
+      if ($assignment->field_assignment_privacy_setting['und'][0]['value'] == 'closed') {
         $name .= '(' . t('Private') . ')';
         $disabled = TRUE;
       }

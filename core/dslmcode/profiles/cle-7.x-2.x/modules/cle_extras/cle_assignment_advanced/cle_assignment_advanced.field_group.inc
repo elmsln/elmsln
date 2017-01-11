@@ -51,7 +51,7 @@ function cle_assignment_advanced_field_group_info() {
     'label' => 'Advanced submission settings',
     'weight' => '7',
     'children' => array(
-      0 => 'field_visibility',
+      0 => 'field_assignment_privacy_setting',
       1 => 'og_group_ref',
       2 => 'field_cle_assign_depend',
       3 => 'field_cle_require_submission',
@@ -111,7 +111,7 @@ function cle_assignment_advanced_field_group_info() {
     'weight' => '18',
     'children' => array(
       0 => 'field_cle_require_submission',
-      1 => 'field_visibility',
+      1 => 'field_assignment_privacy_setting',
     ),
     'format_type' => 'tab',
     'format_settings' => array(
