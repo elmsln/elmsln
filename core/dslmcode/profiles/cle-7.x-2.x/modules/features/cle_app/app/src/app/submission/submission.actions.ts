@@ -19,10 +19,10 @@ export function createSubmission(submission): Action {
   }
 }
 
-export function createSubmissionSuccess(submissionId): Action {
+export function createSubmissionSuccess(submission): Action {
   return {
     type: ActionTypes.CREATE_SUBMISSION_SUCCESS,
-    payload: { id: submissionId }
+    payload: submission
   }
 }
 

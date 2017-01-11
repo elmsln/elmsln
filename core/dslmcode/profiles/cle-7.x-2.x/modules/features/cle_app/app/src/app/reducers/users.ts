@@ -4,11 +4,13 @@ import { ActionTypes } from '../app.actions';
 export interface UserState {
   permissions: string[],
   token: string
+  uid: number
 }
 
 const initialState: UserState = {
   permissions: [],
-  token: null
+  token: null,
+  uid: null
 }
 
 export function reducer(state: UserState = initialState, action: Action) {
@@ -20,7 +22,8 @@ export function reducer(state: UserState = initialState, action: Action) {
     case ActionTypes.LOAD_PERMISSIONS_SUCCESS: {
       return {
         permissions: action.payload.permissions ? action.payload.permissions : [],
-        token: action.payload.token ? action.payload.token : null
+        token: action.payload.token ? action.payload.token : null,
+        uid: action.payload.uid ? action.payload.uid : null
       }
     }
 

@@ -49,11 +49,15 @@ export class AssignmentComponent implements OnInit {
         return false;
       });
     
-    // get the submissions
-    this.submissions$ = this.store.select('submissions')
-      .map((state:any) => {
-        return state.submissions.filter(sub => sub.assignment === this.assignmentId);
-      })
+    // get my submissions
+    this.submissions$ = Observable.zip(
+      this.store.select('submissions').map((state:any) => state.submissions.filter(sub => sub.assignment === this.assignmentId)),
+      this.store.select('user').map((state:any) => state.uid),
+      (submissions, uid) => {
+        // make sure that the submission author has my uid
+        return submissions.filter(sub => sub.uid === uid);
+      }
+    )
 
     if (this.assignmentId) {
       this.assignments$ = this.store.select('assignments')

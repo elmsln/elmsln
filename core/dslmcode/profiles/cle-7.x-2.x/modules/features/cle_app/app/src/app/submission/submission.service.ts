@@ -48,7 +48,7 @@ export class SubmissionService {
 
   getSubmission(submissionId) {
     return this.elmsln.get(AppSettings.BASE_PATH + 'api/v1/cle/submissions/' + submissionId)
-      .map(data => data.json().data)
+      .map(data => data.json().data[0])
       .map(data => this.convertToSubmission(data));
   }
 
