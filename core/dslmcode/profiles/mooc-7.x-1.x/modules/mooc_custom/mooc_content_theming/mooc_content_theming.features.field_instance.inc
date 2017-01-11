@@ -156,7 +156,7 @@ function mooc_content_theming_field_default_field_instances() {
         'apply_chosen' => '',
       ),
       'type' => 'options_select',
-      'weight' => 137,
+      'weight' => 139,
     ),
   );
 
