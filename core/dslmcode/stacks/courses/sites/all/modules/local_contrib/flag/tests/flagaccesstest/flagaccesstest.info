@@ -1,0 +1,13 @@
+name = Flag hook_flag_access test
+description = Tests for hook_flag_access
+core = 7.x
+dependencies[] = flag
+package = Flags
+hidden = TRUE
+
+; Information added by Drupal.org packaging script on 2016-09-23
+version = "7.x-3.9"
+core = "7.x"
+project = "flag"
+datestamp = "1474619065"
+
