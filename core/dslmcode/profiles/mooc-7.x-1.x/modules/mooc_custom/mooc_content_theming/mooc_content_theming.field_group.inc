@@ -53,15 +53,17 @@ function mooc_content_theming_field_group_info() {
     'label' => 'Strategies',
     'weight' => '140',
     'children' => array(
-      0 => 'field_instructional_significance',
+      0 => 'field_elmsln_competency',
+      1 => 'field_instructional_significance',
     ),
-    'format_type' => 'htab',
+    'format_type' => 'fieldset',
     'format_settings' => array(
       'label' => 'Strategies',
       'instance_settings' => array(
         'required_fields' => 0,
         'classes' => 'group-inst-strat field-group-htab',
         'description' => 'Settings to apply instructional strategies to this material. Things like xAPI feedback, course significance, research and more.',
+        'id' => '',
       ),
       'formatter' => 'closed',
     ),
@@ -85,13 +87,14 @@ function mooc_content_theming_field_group_info() {
       1 => 'group_topic_banner',
       2 => 'group_navigation_block',
     ),
-    'format_type' => 'htab',
+    'format_type' => 'fieldset',
     'format_settings' => array(
       'label' => 'Interface',
       'instance_settings' => array(
         'required_fields' => 0,
         'classes' => 'group-interface field-group-htab',
         'description' => 'Change interface elements such as navigation, colors and content banners.',
+        'id' => '',
       ),
       'formatter' => 'closed',
     ),

@@ -178,4 +178,5 @@ function mooc_update_7012(&$sandbox) {
  */
 function mooc_update_7013(&$sandbox) {
   features_revert_module('mooc_page');
+  features_revert_module('mooc_content_theming');
 }

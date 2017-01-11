@@ -20,20 +20,27 @@ function mooc_page_field_group_info() {
   $field_group->mode = 'form';
   $field_group->parent_name = 'group_advanced';
   $field_group->data = array(
-    'label' => 'Advanced tabs',
+    'label' => '',
     'weight' => '125',
     'children' => array(
       0 => 'group_author',
       1 => 'group_outline',
       2 => 'group_tag',
     ),
-    'format_type' => 'htabs',
+    'format_type' => 'div',
     'format_settings' => array(
-      'formatter' => '',
+      'label' => '',
       'instance_settings' => array(
-        'classes' => 'group-advanced-tabs field-group-htabs',
+        'required_fields' => 1,
         'id' => '',
+        'classes' => 'group-advanced-tabs field-group-htabs',
+        'description' => '',
+        'show_label' => '1',
+        'label_element' => 'h3',
+        'effect' => 'none',
+        'speed' => 'fast',
       ),
+      'formatter' => 'open',
     ),
   );
   $field_groups['group_advanced_tabs|node|page|form'] = $field_group;
@@ -82,15 +89,16 @@ function mooc_page_field_group_info() {
       0 => 'author',
       1 => 'revision_information',
     ),
-    'format_type' => 'htab',
+    'format_type' => 'fieldset',
     'format_settings' => array(
       'label' => 'Author',
       'instance_settings' => array(
         'required_fields' => 0,
+        'id' => '',
         'classes' => 'group-author field-group-htab',
         'description' => 'Modify authoring information of this content. This should only need modified if an author is no longer working on the course.',
       ),
-      'formatter' => 'closed',
+      'formatter' => 'collapsed',
     ),
   );
   $field_groups['group_author|node|page|form'] = $field_group;
@@ -110,15 +118,16 @@ function mooc_page_field_group_info() {
     'children' => array(
       0 => 'book',
     ),
-    'format_type' => 'htab',
+    'format_type' => 'fieldset',
     'format_settings' => array(
       'label' => 'Outline',
       'instance_settings' => array(
         'required_fields' => 0,
+        'id' => '',
         'classes' => 'group-outline field-group-htab',
         'description' => 'Use this to move content within the current outline or to break it out of its current outline over to another course outline. The weight has to do with the depth in the outline though the Outline Designer will adjust this automatically when dragging content around.',
       ),
-      'formatter' => 'closed',
+      'formatter' => 'collapsed',
     ),
   );
   $field_groups['group_outline|node|page|form'] = $field_group;
@@ -168,15 +177,16 @@ function mooc_page_field_group_info() {
       0 => 'field_cis_tag',
       1 => 'path',
     ),
-    'format_type' => 'htab',
+    'format_type' => 'fieldset',
     'format_settings' => array(
       'label' => 'Tag',
       'instance_settings' => array(
         'required_fields' => 0,
+        'id' => '',
         'classes' => 'group-tag field-group-htab',
         'description' => 'Tag this resource if you plan on having multiple versions of it across sections. This allows for additional forms of short-codes which can figure out the correct "tagged" resource to use based on the section of the user viewing the tag. Only use this if you know why you are doing so as it is atypical.',
       ),
-      'formatter' => 'closed',
+      'formatter' => 'collapsed',
     ),
   );
   $field_groups['group_tag|node|page|form'] = $field_group;
@@ -213,7 +223,6 @@ function mooc_page_field_group_info() {
   // Translatables
   // Included for use with string extractors like potx.
   t('Advanced');
-  t('Advanced tabs');
   t('Author');
   t('Outline');
   t('Settings');
