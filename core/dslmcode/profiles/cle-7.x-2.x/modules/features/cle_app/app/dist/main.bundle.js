@@ -899,9 +899,7 @@ var AssignmentFormComponent = (function () {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_router__ = __webpack_require__(24);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_common__ = __webpack_require__(72);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__assignment_service__ = __webpack_require__(64);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_rxjs__ = __webpack_require__(834);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_rxjs___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_4_rxjs__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__ngrx_store__ = __webpack_require__(13);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__ngrx_store__ = __webpack_require__(13);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return AssignmentComponent; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -912,7 +910,6 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-
 
 
 
@@ -944,10 +941,19 @@ var AssignmentComponent = (function () {
             return false;
         });
         // get my submissions
-        this.submissions$ = __WEBPACK_IMPORTED_MODULE_4_rxjs__["Observable"].zip(this.store.select('submissions').map(function (state) { return state.submissions.filter(function (sub) { return sub.assignment === _this.assignmentId; }); }), this.store.select('user').map(function (state) { return state.uid; }), function (submissions, uid) {
-            // make sure that the submission author has my uid
-            return submissions.filter(function (sub) { return sub.uid === uid; });
-        });
+        this.submissions$ = this.store.select('submissions')
+            .map(function (state) { return state.submissions.filter(function (sub) { return sub.assignment === _this.assignmentId; }); });
+        /**
+         * @example: this is an example of how we could use another Observable to filter submissions
+         */
+        // this.submissions$ = Observable.zip(
+        //   this.store.select('submissions').map((state:any) => state.submissions.filter(sub => sub.assignment === this.assignmentId)),
+        //   this.store.select('user').map((state:any) => state.uid),
+        //   (submissions, uid) => {
+        //     // make sure that the submission author has my uid
+        //     return submissions.filter(sub => sub.uid === uid);
+        //   }
+        // )
         if (this.assignmentId) {
             this.assignments$ = this.store.select('assignments')
                 .map(function (state) { return state.assignments.find(function (assignment) {
@@ -973,7 +979,7 @@ var AssignmentComponent = (function () {
             styles: [__webpack_require__(782)],
             providers: [__WEBPACK_IMPORTED_MODULE_3__assignment_service__["a" /* AssignmentService */]]
         }), 
-        __metadata('design:paramtypes', [(typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_1__angular_router__["a" /* Router */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1__angular_router__["a" /* Router */]) === 'function' && _a) || Object, (typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_1__angular_router__["b" /* ActivatedRoute */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1__angular_router__["b" /* ActivatedRoute */]) === 'function' && _b) || Object, (typeof (_c = typeof __WEBPACK_IMPORTED_MODULE_2__angular_common__["f" /* Location */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_2__angular_common__["f" /* Location */]) === 'function' && _c) || Object, (typeof (_d = typeof __WEBPACK_IMPORTED_MODULE_3__assignment_service__["a" /* AssignmentService */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_3__assignment_service__["a" /* AssignmentService */]) === 'function' && _d) || Object, (typeof (_e = typeof __WEBPACK_IMPORTED_MODULE_0__angular_core__["ElementRef"] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_0__angular_core__["ElementRef"]) === 'function' && _e) || Object, (typeof (_f = typeof __WEBPACK_IMPORTED_MODULE_5__ngrx_store__["a" /* Store */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_5__ngrx_store__["a" /* Store */]) === 'function' && _f) || Object])
+        __metadata('design:paramtypes', [(typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_1__angular_router__["a" /* Router */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1__angular_router__["a" /* Router */]) === 'function' && _a) || Object, (typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_1__angular_router__["b" /* ActivatedRoute */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1__angular_router__["b" /* ActivatedRoute */]) === 'function' && _b) || Object, (typeof (_c = typeof __WEBPACK_IMPORTED_MODULE_2__angular_common__["f" /* Location */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_2__angular_common__["f" /* Location */]) === 'function' && _c) || Object, (typeof (_d = typeof __WEBPACK_IMPORTED_MODULE_3__assignment_service__["a" /* AssignmentService */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_3__assignment_service__["a" /* AssignmentService */]) === 'function' && _d) || Object, (typeof (_e = typeof __WEBPACK_IMPORTED_MODULE_0__angular_core__["ElementRef"] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_0__angular_core__["ElementRef"]) === 'function' && _e) || Object, (typeof (_f = typeof __WEBPACK_IMPORTED_MODULE_4__ngrx_store__["a" /* Store */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_4__ngrx_store__["a" /* Store */]) === 'function' && _f) || Object])
     ], AssignmentComponent);
     return AssignmentComponent;
     var _a, _b, _c, _d, _e, _f;
