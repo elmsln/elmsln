@@ -1396,6 +1396,7 @@ var SubmissionComponent = (function () {
             .subscribe(function (params) {
             if (params['submissionId']) {
                 _this.submissionId = Number(params['submissionId']);
+                // get the submission
                 _this.submission$ = _this.store.select('submissions')
                     .map(function (state) { return state.submissions.find(function (sub) {
                     if (sub.id === _this.submissionId) {
@@ -1406,6 +1407,18 @@ var SubmissionComponent = (function () {
                         return false;
                     }
                 }); });
+                // check if the user can edit the submission
+                _this.userCanEdit$ = _this.submission$
+                    .map(function (state) {
+                    if (state) {
+                        if (typeof state.metadata !== 'undefined') {
+                            if (typeof state.metadata.canUpdate !== 'undefined') {
+                                return state.metadata.canUpdate;
+                            }
+                        }
+                    }
+                    return false;
+                });
             }
         });
     };
@@ -4375,7 +4388,7 @@ module.exports = "<h4 *ngIf=\"title\">{{title}}</h4>\n\n<div class=\"row\">\n  <
 /***/ 829:
 /***/ function(module, exports) {
 
-module.exports = "<nav>\n  <div class=\"nav-wrapper\">\n    <ul id=\"nav-mobile\" class=\"left\">\n      <li><a (click)=\"onClickBack()\"><i class=\"material-icons left\">&#xE5C4;</i> assignment</a></li>\n    </ul>\n    <ul id=\"nav-mobile-right\" class=\"right\">\n      <li><a (click)=\"editSubmission()\"><i class=\"material-icons left\">edit</i></a></li>\n    </ul>\n  </div>\n</nav>\n\n<div *ngIf=\"submissionId\">\n  <app-submission-detail [submission]=\"submission$ | async\"></app-submission-detail>\n</div>"
+module.exports = "<nav>\n  <div class=\"nav-wrapper\">\n    <ul id=\"nav-mobile\" class=\"left\">\n      <li><a (click)=\"onClickBack()\"><i class=\"material-icons left\">&#xE5C4;</i> assignment</a></li>\n    </ul>\n    <ul id=\"nav-mobile-right\" class=\"right\">\n      <li *ngIf=\"userCanEdit$ | async\"><a (click)=\"editSubmission()\"><i class=\"material-icons left\">edit</i></a></li>\n    </ul>\n  </div>\n</nav>\n\n<div *ngIf=\"submissionId\">\n  <app-submission-detail [submission]=\"submission$ | async\"></app-submission-detail>\n</div>"
 
 /***/ },
 
