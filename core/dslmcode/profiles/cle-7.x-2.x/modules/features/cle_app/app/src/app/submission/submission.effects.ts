@@ -13,7 +13,7 @@ import {
   loadPermissions,
   loadPermissionsSuccess,
 } from './submission.actions';
-import { updateAssignment } from '../app.actions';
+import { loadAssignments } from '../app.actions';
 import { SubmissionService } from './submission.service';
 declare const Materialize:any;
 
@@ -59,5 +59,5 @@ export class SubmissionEffects {
     
   @Effect() notifyAssignmentOnChange$ = this.actions$
     .ofType(ActionTypes.CREATE_SUBMISSION_SUCCESS, ActionTypes.UPDATE_SUBMISSION_SUCCESS)
-    .map(action => updateAssignment({id: action.payload.assignment}));
+    .map(action => loadAssignments());
 }
