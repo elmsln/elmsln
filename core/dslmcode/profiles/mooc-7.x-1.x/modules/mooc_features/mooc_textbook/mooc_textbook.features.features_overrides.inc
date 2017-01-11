@@ -17,7 +17,6 @@ function mooc_textbook_features_override_default_overrides() {
     'status' => 1,
     'weight' => -49,
   );
-  $overrides["filter.textbook_editor.filters|ckeditor_link_filter|weight"] = -44;
   $overrides["filter.textbook_editor.filters|filter_footnotes"] = array(
     'settings' => array(
       'footnotes_collapse' => 0,
