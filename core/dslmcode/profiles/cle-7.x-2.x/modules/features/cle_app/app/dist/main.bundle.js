@@ -3147,7 +3147,7 @@ var SubmissionEffects = (function () {
         });
         this.notifyAssignmentOnChange$ = this.actions$
             .ofType(__WEBPACK_IMPORTED_MODULE_3__submission_actions__["d" /* ActionTypes */].CREATE_SUBMISSION_SUCCESS, __WEBPACK_IMPORTED_MODULE_3__submission_actions__["d" /* ActionTypes */].UPDATE_SUBMISSION_SUCCESS)
-            .map(function (action) { return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__app_actions__["c" /* updateAssignment */])({ id: action.payload.assignment }); });
+            .map(function (action) { return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4__app_actions__["b" /* loadAssignments */])(); });
     }
     __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2__ngrx_effects__["a" /* Effect */])(), 
