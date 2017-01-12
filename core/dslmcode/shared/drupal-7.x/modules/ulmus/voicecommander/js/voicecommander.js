@@ -64,8 +64,6 @@
     Drupal.voicecommander.say(addressme[Math.floor(Math.random()*addressme.length)]);
     /*
     var jarvis = {};
-    jarvis['count words'] = 'Drupal.voicecommander.wordCount';
-    jarvis['(how) many words (are in this page)'] = 'Drupal.voicecommander.wordCount';
     jarvis['(i\'m) done'] = 'Drupal.voicecommander.reactivate';
     jarvis['(cool) thanks'] = 'Drupal.voicecommander.reactivate';
     jarvis['thank you'] = 'Drupal.voicecommander.reactivate';
@@ -75,11 +73,6 @@
       autoRestart: true,
       continuous: true
     });*/
-  };
-  // word count
-  Drupal.voicecommander.wordCount = function(phrase) {
-    total_words=$('.node-view-mode-full').text.split(/[\s\.\?]+/).length;
-    Drupal.voicecommander.say('There are ' + total_words + ' total words in this document.');
   };
   Drupal.voicecommander.showOptions = function(phrase) {
     // ignore if we say the show command while open already

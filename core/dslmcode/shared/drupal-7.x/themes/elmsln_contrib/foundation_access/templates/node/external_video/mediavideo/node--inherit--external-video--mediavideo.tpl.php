@@ -22,5 +22,9 @@
     <a class="mediavideo__open icon-play-black" href="#play-video" title="Click to view video."></a>
   </aside>
   <?php endif; ?>
-
+  <?php if (isset($duration)): ?>
+    <div class="mediavideo__duration">
+      <?php print $duration; ?>
+    </div>
+  <?php endif; ?>
 </figure>

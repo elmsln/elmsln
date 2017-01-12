@@ -20,6 +20,17 @@ function elmsmedia_external_video_node_presave($node) {
         $id = array_pop($tmp);
         $node->field_external_media['und'][0]['video_url'] = 'https://www.youtube.com/watch?v=' . $id;
       }
+      // load the video and get the duration from the URL
+      $request = _cis_connector_request($node->field_external_media['und'][0]['video_url'], array('max_redirects' => 5), 'none', TRUE);
+      $data = $request->data;
+      $preg = '/"length_seconds"\:(.*?),/s';
+      // preg match the length that's hidden in the JS
+      preg_match_all($preg, $data, $results);
+      // clean it up if we have results
+      if (isset($results[1][0])) {
+        $video_data['duration'] = str_replace('"', '', str_replace("'", '', $results[1][0]));
+        $node->field_external_media['und'][0]['video_data'] = serialize($video_data);
+      }
     }
   }
 }

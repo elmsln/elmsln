@@ -1138,11 +1138,17 @@ function elmsln_core_voice_command() {
   $commands["%phrase where am i"] =  array(
     'callback' => 'Drupal.voicecommanderWhereAmI',
   );
+  $commands["%phrase word count"] =  array(
+    'callback' => 'Drupal.voicecommanderWordCount',
+  );
+  $commands["make coffee"] =  array(
+    'callback' => 'Drupal.voicecommanderMakeCoffee',
+  );
+  $commands["all your base"] =  array(
+    'callback' => 'Drupal.voicecommanderAllYourBase',
+  );
   if (arg(1) == 'error') {
     $commands["open the pod bay doors"] =  array(
-      'callback' => 'Drupal.voicecommanderHal9000',
-    );
-    $commands["new grounds"] =  array(
       'callback' => 'Drupal.voicecommanderHal9000',
     );
   }

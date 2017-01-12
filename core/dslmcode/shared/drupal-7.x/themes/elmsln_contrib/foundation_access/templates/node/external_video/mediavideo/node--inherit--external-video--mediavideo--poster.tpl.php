@@ -26,4 +26,9 @@
     </aside>
     <?php endif; ?>
   </div>
+  <?php if (isset($duration)): ?>
+    <div class="mediavideo__duration">
+      <?php print $duration; ?>
+    </div>
+  <?php endif; ?>
 </figure>
