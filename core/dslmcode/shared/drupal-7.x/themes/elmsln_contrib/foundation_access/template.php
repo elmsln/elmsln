@@ -707,7 +707,7 @@ function foundation_access_preprocess_node__inherit__external_video(&$variables)
       else {
         $duration = $minute_format;
       }
-      $variables['duration'] = t('(video runtime @duration)', array('@duration' => $duration));
+      $variables['duration'] = '<i class="material-icons text-black">access_time</i><em>' . $duration . '</em>';
     }
   }
 }

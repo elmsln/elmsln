@@ -2,6 +2,11 @@
   font-size: .8rem;
   text-align: right;
 }
+.mediavideo__duration em,
+.mediavideo__duration i {
+  line-height: 2rem;
+  vertical-align: middle;
+}
 
 /* lock CKeditor on scroll if there's focus on the item */
 body.page-node-edit.node-type-page .cke_focus .cke_top{
