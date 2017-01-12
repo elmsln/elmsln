@@ -10,6 +10,11 @@
     Drupal.voicecommanderGoToELMSLN = function(phrase) {
       window.location.href = Drupal.settings.voiceCommander.commands[phrase].data;
     };
+    // word count
+    Drupal.voicecommanderWordCount = function(phrase) {
+      total_words=$('article').text().split(/[\s\.\?]+/).length;
+      Drupal.voicecommander.say('There are ' + total_words + ' total words in this document.');
+    };
     // voice based video controls... within reason
     Drupal.voicecommanderControlVideo = function(phrase) {
       if (phrase.indexOf('play') !== -1) {
@@ -27,14 +32,17 @@
         });*/
       }
     };
-    // voice based video controls... within reason
+    // easter eggs
+    Drupal.voicecommanderMakeCoffee = function(phrase) {
+      Drupal.voicecommander.say('Why don\'t you get me a coffee! I do all the hard work anyway. I\'ll have a venti americano with six shots of expresso. It was a rough night last night processing all those rosters.');
+      window.location.href = 'https://starbucks.com';
+    };
+    Drupal.voicecommanderAllYourBase = function(phrase) {
+      Drupal.voicecommander.say('are belong to us');
+    };
+    // creeper voice
     Drupal.voicecommanderHal9000 = function(phrase) {
-      if (phrase == 'new grounds') {
-        Drupal.voicecommander.say('All your base, base, base, all your base, are belong to us.', 0.1, .6);
-      }
-      else {
-        Drupal.voicecommander.say('I\'m sorry Dave. I\'m afraid I can\'t do that.', 0.1, .6);
-      }
+      Drupal.voicecommander.say('I\'m sorry Dave. I\'m afraid I can\'t do that.', 0.1, .6);
     };
   });
 })(jQuery);
