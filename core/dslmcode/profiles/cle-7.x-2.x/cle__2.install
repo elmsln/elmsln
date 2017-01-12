@@ -23,3 +23,12 @@ function cle__2_install() {
   features_revert_module('cle_critique');
   features_revert_module('cle_submission');
 }
+
+/**
+ * Implements hook_update_N().
+ */
+function cle__2_update_7000(&$sandbox) {
+  features_revert_module('cle_assignment');
+  features_revert_module('cle_submission');
+  features_revert_module('cle_project');
+}
