@@ -683,6 +683,36 @@ function foundation_access_field__field_cis_course_ref($variables) {
 }
 
 /**
+ * Calculate and display duration for external videos when we can.
+ */
+function foundation_access_preprocess_node__inherit__external_video(&$variables) {
+  $elements = &$variables['elements'];
+  // see if we have a usable duration value
+  if (isset($elements['#node']->field_external_media['und'][0]['video_data'])) {
+    // load it up and search
+    $video_data = unserialize($elements['#node']->field_external_media['und'][0]['video_data']);
+    // not everything has an actual duration so double-check
+    if (isset($video_data['duration'])) {
+      $time = ($video_data['duration'] / 60);
+      // convert into hours / minutes
+      $hours = floor($time / 60);
+      $minutes = ceil(fmod($time, 60));
+      $hour_suffix = t('hour');
+      $min_suffix = t('minute');
+      $minute_format = format_plural($minutes, '1 ' . $min_suffix, '@count ' . $min_suffix . 's');
+      if (!empty($hours)) {
+        $hour_format = format_plural($hours, '1 ' . $hour_suffix, '@count ' . $hour_suffix . 's');
+        $duration = format_string('@h, @m', array('@h' => $hour_format, '@m' => $minute_format));
+      }
+      else {
+        $duration = $minute_format;
+      }
+      $variables['duration'] = t('(video runtime @duration)', array('@duration' => $duration));
+    }
+  }
+}
+
+/**
  * Display Inherit External Video
  */
 function foundation_access_preprocess_node__inherit__external_video__mediavideo(&$variables) {

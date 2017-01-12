@@ -1,3 +1,8 @@
+.mediavideo__duration {
+  font-size: .8rem;
+  text-align: right;
+}
+
 /* lock CKeditor on scroll if there's focus on the item */
 body.page-node-edit.node-type-page .cke_focus .cke_top{
   top: 2.8rem;
@@ -188,7 +193,7 @@ body.page-node-edit.node-type-page .cke_focus .cke_top{
   left: 100%;
   margin-left: .5em;
 }
-@media (max-width: 80rem) {
+@media (max-width: 80frem) {
   .headinglines span:before {
     visibility: hidden;
   }
@@ -2316,9 +2321,9 @@ div.horizontal-tabs ul li.horizontal-tab-button strong {
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  .figurelabel__title {
-    white-space: nowrap;
-  }
+}
+.figurelabel__title {
+  white-space: nowrap;
 }
 
 .page-user .field-name-field-photo {
