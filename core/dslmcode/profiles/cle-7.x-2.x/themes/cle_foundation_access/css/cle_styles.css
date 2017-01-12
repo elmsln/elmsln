@@ -10,4 +10,22 @@ article app-root ul li {
 article app-root ul li a {
   height: 4rem;
   line-height: 4rem;
+  padding: 0;
+}
+
+app-projects-list ul {
+  margin: 0 !important;
+}
+
+app-projects-list .project__title {
+  margin: 0;
+  padding: .25rem;
+}
+
+cle-assignment .assignment__title {
+  margin: 0;
+  padding: .5rem;
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #000000;
 }

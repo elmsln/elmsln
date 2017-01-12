@@ -278,12 +278,6 @@ function cle_assignment_views_default_views() {
   );
   $handler->display->display_options['style_options']['sticky'] = TRUE;
   $handler->display->display_options['style_options']['caption'] = 'Listing of studio assignments';
-  /* Relationship: Broken/missing handler */
-  $handler->display->display_options['relationships']['field_cle_assignments_target_id']['id'] = 'field_cle_assignments_target_id';
-  $handler->display->display_options['relationships']['field_cle_assignments_target_id']['table'] = 'field_data_field_cle_assignments';
-  $handler->display->display_options['relationships']['field_cle_assignments_target_id']['field'] = 'field_cle_assignments_target_id';
-  $handler->display->display_options['relationships']['field_cle_assignments_target_id']['label'] = 'Assignment';
-  $handler->display->display_options['relationships']['field_cle_assignments_target_id']['required'] = TRUE;
   /* Field: Content: Nid */
   $handler->display->display_options['fields']['nid']['id'] = 'nid';
   $handler->display->display_options['fields']['nid']['table'] = 'node';
@@ -337,7 +331,6 @@ function cle_assignment_views_default_views() {
   $handler->display->display_options['defaults']['group_by'] = FALSE;
   $handler->display->display_options['group_by'] = TRUE;
   $handler->display->display_options['path'] = 'cle/assignments';
-  $handler->display->display_options['menu']['type'] = 'normal';
   $handler->display->display_options['menu']['title'] = 'Assignments';
   $handler->display->display_options['menu']['description'] = 'Listing of assignments for this section';
   $handler->display->display_options['menu']['weight'] = '-9';
