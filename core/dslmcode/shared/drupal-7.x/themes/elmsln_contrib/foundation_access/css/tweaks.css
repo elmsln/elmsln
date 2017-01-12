@@ -478,7 +478,7 @@ pre {
 .elmsln-core-lrs-data-display .collection .collapsible li {
   margin-left: 0;
 }
-.collection .collection-item .badge {
+article .collection .collection-item .badge {
   width: 2rem;
 }
 /* link support in collapsible headers */
