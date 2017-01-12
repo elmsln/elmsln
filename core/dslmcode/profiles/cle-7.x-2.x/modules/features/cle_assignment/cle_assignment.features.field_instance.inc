@@ -663,6 +663,56 @@ function cle_assignment_field_default_field_instances() {
     ),
   );
 
+  // Exported field_instance: 'node-cle_assignment-field_cle_archived'.
+  $field_instances['node-cle_assignment-field_cle_archived'] = array(
+    'bundle' => 'cle_assignment',
+    'default_value' => array(
+      0 => array(
+        'value' => 0,
+      ),
+    ),
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'list',
+        'settings' => array(),
+        'type' => 'list_default',
+        'weight' => 33,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_cle_archived',
+    'label' => 'Archived',
+    'required' => 0,
+    'settings' => array(
+      'authcache' => array(
+        'clients' => array(
+          'authcache_ajax' => array(
+            'status' => 1,
+            'weight' => 0,
+          ),
+        ),
+        'fallback' => 'cancel',
+        'lifespan' => 3600,
+        'perpage' => 0,
+        'peruser' => 1,
+        'status' => 0,
+      ),
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'options',
+      'settings' => array(
+        'display_label' => 1,
+      ),
+      'type' => 'options_onoff',
+      'weight' => 25,
+    ),
+  );
+
   // Exported field_instance: 'node-cle_assignment-field_critique_method'.
   $field_instances['node-cle_assignment-field_critique_method'] = array(
     'bundle' => 'cle_assignment',
@@ -904,6 +954,7 @@ function cle_assignment_field_default_field_instances() {
   // Translatables
   // Included for use with string extractors like potx.
   t('Allow late submissions');
+  t('Archived');
   t('Artifacts');
   t('Assignment Due Date');
   t('Assignment dependencies');
