@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the mooc_flag feature.
+ */
+
+include_once 'mooc_flag.features.inc';
