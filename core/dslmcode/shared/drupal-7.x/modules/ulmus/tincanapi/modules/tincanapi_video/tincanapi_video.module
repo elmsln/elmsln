@@ -26,7 +26,14 @@ function tincanapi_video_preprocess_page(&$variables) {
     // add vimeo in if it has a selector
     if (variable_get('tincanapi_selector_vimeo', "iframe[data-mediavideo-src^='https://player.vimeo.com/video'],iframe[src^='https://player.vimeo.com/video']")) {
       // add in player api v2
-      drupal_add_js('https://player.vimeo.com/api/player.js', array('type' => 'external'));
+      $libraries = libraries_get_libraries();
+      // support for local version if they have it in a library
+      if (isset($libraries['vimeo'])) {
+        drupal_add_js($libraries['vimeo'] . '/player.js');
+      }
+      else {
+        drupal_add_js('https://player.vimeo.com/api/player.js', array('type' => 'external', 'defer' => TRUE));
+      }
       drupal_add_js(
         array(
           'tincanapi' => array(
