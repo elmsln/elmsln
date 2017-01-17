@@ -12,6 +12,11 @@ article app-root ul li a {
   line-height: 4rem;
   padding: 0;
 }
+article app-root ul li .assignment a {
+  height: 2.5rem;
+  line-height: 2.5rem;
+  padding: 0;
+}
 
 app-projects-list ul {
   margin: 0 !important;
