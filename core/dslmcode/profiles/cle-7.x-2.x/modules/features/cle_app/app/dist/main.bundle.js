@@ -22,32 +22,6 @@ module.exports = __webpack_require__(473);
 
 /***/ },
 
-/***/ 117:
-/***/ function(module, exports, __webpack_require__) {
-
-"use strict";
-/* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return AppSettings; });
-var AppSettings = (function () {
-    function AppSettings() {
-    }
-    Object.defineProperty(AppSettings, "BASE_PATH", {
-        get: function () {
-            if (typeof Drupal !== 'undefined') {
-                return Drupal.settings.basePath;
-            }
-            else {
-                return 'http://studio.elmsln.local/studio2/';
-            }
-        },
-        enumerable: true,
-        configurable: true
-    });
-    return AppSettings;
-}());
-//# sourceMappingURL=/Users/scienceonlineed/Documents/websites/elmsln/core/dslmcode/profiles/cle-7.x-2.x/modules/features/cle_app/app/src/app-settings.js.map
-
-/***/ },
-
 /***/ 118:
 /***/ function(module, exports, __webpack_require__) {
 
@@ -220,7 +194,7 @@ function loadPermissionsSuccess(permissions) {
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__elmsln_service__ = __webpack_require__(65);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__app_settings__ = __webpack_require__(117);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__app_settings__ = __webpack_require__(93);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__project__ = __webpack_require__(251);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__ngrx_store__ = __webpack_require__(13);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return ProjectService; });
@@ -246,7 +220,8 @@ var ProjectService = (function () {
     ProjectService.prototype.getProjects = function () {
         var _this = this;
         return this.elmsln.get(__WEBPACK_IMPORTED_MODULE_2__app_settings__["a" /* AppSettings */].BASE_PATH + 'api/v1/cle/projects')
-            .map(function (data) { return data.json().data; })
+            .map(function (data) { return data.json(); })
+            .map(function (data) { return typeof data.data !== 'undefined' ? data.data : []; })
             .map(function (projects) { return projects.map(function (p) { return _this.convertToProject(p); }); });
     };
     ProjectService.prototype.getProject = function (projectId) {
@@ -377,10 +352,10 @@ var Submission = (function () {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__user_service__ = __webpack_require__(253);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_router__ = __webpack_require__(24);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__ngrx_store__ = __webpack_require__(13);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__app_actions__ = __webpack_require__(92);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__app_actions__ = __webpack_require__(79);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__submission_submission_actions__ = __webpack_require__(119);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__projects_project_actions__ = __webpack_require__(118);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__app_settings__ = __webpack_require__(117);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__app_settings__ = __webpack_require__(93);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return AppComponent; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -468,7 +443,7 @@ var Assignment = (function () {
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_http__ = __webpack_require__(233);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__app_settings__ = __webpack_require__(117);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__app_settings__ = __webpack_require__(93);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__elmsln_service__ = __webpack_require__(65);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return CritiqueService; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
@@ -643,7 +618,7 @@ var SubmissionFormComponent = (function () {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__elmsln_service__ = __webpack_require__(65);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ng2_cookies_ng2_cookies__ = __webpack_require__(441);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ng2_cookies_ng2_cookies___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_ng2_cookies_ng2_cookies__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__app_actions__ = __webpack_require__(92);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__app_actions__ = __webpack_require__(79);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__ngrx_store__ = __webpack_require__(13);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return UserService; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
@@ -695,7 +670,7 @@ var UserService = (function () {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__assignment_service__ = __webpack_require__(64);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__assignment_form_assignment_form_component__ = __webpack_require__(389);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__ngrx_store__ = __webpack_require__(13);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__app_actions__ = __webpack_require__(92);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__app_actions__ = __webpack_require__(79);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return AssignmentDialogComponent; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -1450,7 +1425,7 @@ var SubmissionComponent = (function () {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__ngrx_store__ = __webpack_require__(13);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__elmsln_service__ = __webpack_require__(65);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__app_settings__ = __webpack_require__(117);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__app_settings__ = __webpack_require__(93);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__submission__ = __webpack_require__(168);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return SubmissionService; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
@@ -1477,7 +1452,8 @@ var SubmissionService = (function () {
         var _this = this;
         var query = assignmentId ? '?assignment=' + assignmentId : '';
         this.elmsln.get(__WEBPACK_IMPORTED_MODULE_3__app_settings__["a" /* AppSettings */].BASE_PATH + 'api/v1/cle/submissions' + query)
-            .map(function (data) { return data.json().data; })
+            .map(function (data) { return data.json(); })
+            .map(function (data) { return typeof data.data !== 'undefined' ? data.data : []; })
             .map(function (data) {
             if (data) {
                 // convert list of data into list of Submissions
@@ -1631,7 +1607,7 @@ __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__angular_platform_browser_dyna
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_mergeMap___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_mergeMap__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_core__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__ngrx_effects__ = __webpack_require__(166);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__app_actions__ = __webpack_require__(92);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__app_actions__ = __webpack_require__(79);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__assignment_service__ = __webpack_require__(64);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__elmsln_service__ = __webpack_require__(65);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return AppEffects; });
@@ -2899,7 +2875,7 @@ var ProjectsComponent = (function () {
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__app_actions__ = __webpack_require__(92);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__app_actions__ = __webpack_require__(79);
 /* harmony export (immutable) */ exports["a"] = reducer;
 
 var initialState = {
@@ -2982,7 +2958,7 @@ function reducer(state, action) {
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__app_actions__ = __webpack_require__(92);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__app_actions__ = __webpack_require__(79);
 /* harmony export (immutable) */ exports["a"] = reducer;
 
 var initialState = {
@@ -3113,7 +3089,7 @@ var SubmissionListComponent = (function () {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_core__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__ngrx_effects__ = __webpack_require__(166);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__submission_actions__ = __webpack_require__(119);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__app_actions__ = __webpack_require__(92);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__app_actions__ = __webpack_require__(79);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__submission_service__ = __webpack_require__(397);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return SubmissionEffects; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
@@ -3767,7 +3743,7 @@ var environment = {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__ngrx_store__ = __webpack_require__(13);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__elmsln_service__ = __webpack_require__(65);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__app_settings__ = __webpack_require__(117);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__app_settings__ = __webpack_require__(93);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__assignment__ = __webpack_require__(249);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return AssignmentService; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
@@ -3794,7 +3770,8 @@ var AssignmentService = (function () {
         var _this = this;
         var query = projectId ? '?project=' + projectId : '';
         this.elmsln.get(__WEBPACK_IMPORTED_MODULE_3__app_settings__["a" /* AppSettings */].BASE_PATH + 'api/v1/cle/assignments' + query)
-            .map(function (data) { return data.json().data; })
+            .map(function (data) { return data.json(); })
+            .map(function (data) { return typeof data.data !== 'undefined' ? data.data : []; })
             .map(function (data) {
             if (data) {
                 // convert list of data into list of Assignments
@@ -3932,7 +3909,7 @@ var AssignmentService = (function () {
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_http__ = __webpack_require__(233);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__app_settings__ = __webpack_require__(117);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__app_settings__ = __webpack_require__(93);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_ng2_cookies_ng2_cookies__ = __webpack_require__(441);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_ng2_cookies_ng2_cookies___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_ng2_cookies_ng2_cookies__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__ngrx_store__ = __webpack_require__(13);
@@ -4126,6 +4103,89 @@ module.exports = ""
 
 /***/ },
 
+/***/ 79:
+/***/ function(module, exports, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(exports, "f", function() { return ActionTypes; });
+/* harmony export (immutable) */ exports["d"] = createAssignment;
+/* harmony export (immutable) */ exports["g"] = createAssignmentSuccess;
+/* harmony export (immutable) */ exports["c"] = updateAssignment;
+/* harmony export (immutable) */ exports["h"] = updateAssignmentSuccess;
+/* harmony export (immutable) */ exports["e"] = deleteAssignment;
+/* harmony export (immutable) */ exports["b"] = loadAssignments;
+/* harmony export (immutable) */ exports["i"] = loadAssignmentsSuccess;
+/* harmony export (immutable) */ exports["a"] = loadPermissions;
+/* harmony export (immutable) */ exports["j"] = loadPermissionsSuccess;
+var ActionTypes = {
+    CREATE_ASSIGNMENT: 'CREATE_ASSIGNMENT',
+    CREATE_ASSIGNMENT_SUCCESS: 'CREATE_ASSIGNMENT_SUCCESS',
+    UPDATE_ASSIGNMENT: 'UPDATE_ASSIGNMENT',
+    UPDATE_ASSIGNMENT_SUCCESS: 'UPDATE_ASSIGNMENT_SUCCESS',
+    DELETE_ASSIGNMENT: 'DELETE_ASSIGNMENT',
+    LOAD_ASSIGNMENTS: 'LOAD_ASSIGNMENTS',
+    LOAD_ASSIGNMENTS_SUCCESS: 'LOAD_ASSIGNMENTS_SUCCESS',
+    LOAD_PERMISSIONS: 'LOAD_PERMISSIONS',
+    LOAD_PERMISSIONS_SUCCESS: 'LOAD_PERMISSIONS_SUCCESS'
+};
+function createAssignment(assignment) {
+    return {
+        type: ActionTypes.CREATE_ASSIGNMENT,
+        payload: assignment
+    };
+}
+function createAssignmentSuccess(assignmentId) {
+    return {
+        type: ActionTypes.CREATE_ASSIGNMENT_SUCCESS,
+        payload: { id: assignmentId }
+    };
+}
+function updateAssignment(assignment) {
+    return {
+        type: ActionTypes.UPDATE_ASSIGNMENT,
+        payload: assignment
+    };
+}
+function updateAssignmentSuccess(assignment) {
+    return {
+        type: ActionTypes.UPDATE_ASSIGNMENT_SUCCESS,
+        payload: assignment
+    };
+}
+function deleteAssignment(assignment) {
+    return {
+        type: ActionTypes.DELETE_ASSIGNMENT,
+        payload: assignment
+    };
+}
+function loadAssignments() {
+    return {
+        type: ActionTypes.LOAD_ASSIGNMENTS,
+        payload: {}
+    };
+}
+function loadAssignmentsSuccess(assignments) {
+    return {
+        type: ActionTypes.LOAD_ASSIGNMENTS_SUCCESS,
+        payload: assignments
+    };
+}
+function loadPermissions() {
+    return {
+        type: ActionTypes.LOAD_PERMISSIONS,
+        payload: {}
+    };
+}
+function loadPermissionsSuccess(permissions, token, uid) {
+    return {
+        type: ActionTypes.LOAD_PERMISSIONS_SUCCESS,
+        payload: { permissions: permissions, token: token, uid: uid }
+    };
+}
+//# sourceMappingURL=/Users/scienceonlineed/Documents/websites/elmsln/core/dslmcode/profiles/cle-7.x-2.x/modules/features/cle_app/app/src/app.actions.js.map
+
+/***/ },
+
 /***/ 790:
 /***/ function(module, exports) {
 
@@ -4241,7 +4301,7 @@ module.exports = "<!-- Modal Structure -->\n<div id=\"modal-assignment-dialog\" 
 /***/ 808:
 /***/ function(module, exports) {
 
-module.exports = "<form [formGroup]=\"form\" class=\"assignment-form\">\n  <input formControlName=\"title\" placeholder=\"Title\">\n  <wysiwygjs formControlName=\"body\"></wysiwygjs>\n\n  <div class=\"privacy\">\n    <label>Privacy Setting:</label>\n    <select formControlName=\"type\">\n      <option value=\"\" disabled selected>Choose your option</option>\n      <option *ngFor=\"let option of assignmentOptions.type\" [value]=\"option.value\">{{ option.display }}</option>\n    </select>\n  </div>\n\n  <div class=\"critique\">\n    <label>Critique settings</label>\n\n    <div class=\"critique-method\">\n      <label>Method</label>\n      <select formControlName=\"critiqueMethod\">\n        <option *ngFor=\"let option of assignmentOptions.critiqueMethod\" [value]=\"option.value\">{{ option.display }}</option>\n      </select>\n    </div>\n\n    <div class=\"critique-style\">\n      <label>Critique style</label>\n      <select formControlName=\"critiqueStyle\">\n        <option *ngFor=\"let option of assignmentOptions.critiqueStyle\" [value]=\"option.value\">{{ option.display }}</option>\n      </select>\n    </div>\n\n    <div class=\"critique-privacy switch\">\n      <label>\n        Private\n        <input type=\"checkbox\" formControlName=\"critiquePrivacy\">\n        <span class=\"lever\"></span>\n        Public\n      </label>\n    </div>\n\n  </div>\n\n  <div class=\"due-date\">\n    <div class=\"display\" *ngIf=\"form.value.endDate !==null\">\n      Due date:\n      <span *ngIf=\"form.value.startDate !== null\" class=\"start-date\">\n        {{ form.value.startDate | amDateFormat:'LL hh:mma' }} \n        <span class=\"separator\">\n          to\n        </span>\n      </span>\n      <span class=\"end-date\">\n        {{ form.value.endDate | amDateFormat:'LL hh:mma' }}\n      </span>\n    </div>\n    \n    <div *ngIf=\"form.value.endDate !== null\" class=\"start-date\">\n      <label>Start Date</label>\n      <app-datetime-input formControlName=\"startDate\"></app-datetime-input>\n    </div>\n\n    <div class=\"due-date\">\n      <label>Due Date</label>\n      <app-datetime-input formControlName=\"endDate\"></app-datetime-input>\n    </div>\n  </div>\n</form>"
+module.exports = "<form [formGroup]=\"form\" class=\"assignment-form\">\n  <input formControlName=\"title\" placeholder=\"Title\">\n  <wysiwygjs formControlName=\"body\"></wysiwygjs>\n\n  <div class=\"privacy\">\n    <label>Privacy Setting:</label>\n    <select formControlName=\"type\">\n      <option value=\"\" disabled selected>Choose your option</option>\n      <option value=\"open\">Open</option>\n      <option value=\"closed\">Closed</option>\n    </select>\n  </div>\n\n  <div class=\"critique\">\n    <label>Critique settings</label>\n\n    <div class=\"critique-method\">\n      <label>Method</label>\n      <select formControlName=\"critiqueMethod\">\n        <option *ngFor=\"let option of assignmentOptions.critiqueMethod\" [value]=\"option.value\">{{ option.display }}</option>\n      </select>\n    </div>\n\n    <div class=\"critique-style\">\n      <label>Critique style</label>\n      <select formControlName=\"critiqueStyle\">\n        <option *ngFor=\"let option of assignmentOptions.critiqueStyle\" [value]=\"option.value\">{{ option.display }}</option>\n      </select>\n    </div>\n\n    <div class=\"critique-privacy switch\">\n      <label>\n        Private\n        <input type=\"checkbox\" formControlName=\"critiquePrivacy\">\n        <span class=\"lever\"></span>\n        Public\n      </label>\n    </div>\n\n  </div>\n\n  <div class=\"due-date\">\n    <div class=\"display\" *ngIf=\"form.value.endDate !==null\">\n      Due date:\n      <span *ngIf=\"form.value.startDate !== null\" class=\"start-date\">\n        {{ form.value.startDate | amDateFormat:'LL hh:mma' }} \n        <span class=\"separator\">\n          to\n        </span>\n      </span>\n      <span class=\"end-date\">\n        {{ form.value.endDate | amDateFormat:'LL hh:mma' }}\n      </span>\n    </div>\n    \n    <div *ngIf=\"form.value.endDate !== null\" class=\"start-date\">\n      <label>Start Date</label>\n      <app-datetime-input formControlName=\"startDate\"></app-datetime-input>\n    </div>\n\n    <div class=\"due-date\">\n      <label>Due Date</label>\n      <app-datetime-input formControlName=\"endDate\"></app-datetime-input>\n    </div>\n  </div>\n</form>"
 
 /***/ },
 
@@ -4406,86 +4466,29 @@ module.exports = "<textarea>{{ content }}</textarea>"
 
 /***/ },
 
-/***/ 92:
+/***/ 93:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
-/* harmony export (binding) */ __webpack_require__.d(exports, "f", function() { return ActionTypes; });
-/* harmony export (immutable) */ exports["d"] = createAssignment;
-/* harmony export (immutable) */ exports["g"] = createAssignmentSuccess;
-/* harmony export (immutable) */ exports["c"] = updateAssignment;
-/* harmony export (immutable) */ exports["h"] = updateAssignmentSuccess;
-/* harmony export (immutable) */ exports["e"] = deleteAssignment;
-/* harmony export (immutable) */ exports["b"] = loadAssignments;
-/* harmony export (immutable) */ exports["i"] = loadAssignmentsSuccess;
-/* harmony export (immutable) */ exports["a"] = loadPermissions;
-/* harmony export (immutable) */ exports["j"] = loadPermissionsSuccess;
-var ActionTypes = {
-    CREATE_ASSIGNMENT: 'CREATE_ASSIGNMENT',
-    CREATE_ASSIGNMENT_SUCCESS: 'CREATE_ASSIGNMENT_SUCCESS',
-    UPDATE_ASSIGNMENT: 'UPDATE_ASSIGNMENT',
-    UPDATE_ASSIGNMENT_SUCCESS: 'UPDATE_ASSIGNMENT_SUCCESS',
-    DELETE_ASSIGNMENT: 'DELETE_ASSIGNMENT',
-    LOAD_ASSIGNMENTS: 'LOAD_ASSIGNMENTS',
-    LOAD_ASSIGNMENTS_SUCCESS: 'LOAD_ASSIGNMENTS_SUCCESS',
-    LOAD_PERMISSIONS: 'LOAD_PERMISSIONS',
-    LOAD_PERMISSIONS_SUCCESS: 'LOAD_PERMISSIONS_SUCCESS'
-};
-function createAssignment(assignment) {
-    return {
-        type: ActionTypes.CREATE_ASSIGNMENT,
-        payload: assignment
-    };
-}
-function createAssignmentSuccess(assignmentId) {
-    return {
-        type: ActionTypes.CREATE_ASSIGNMENT_SUCCESS,
-        payload: { id: assignmentId }
-    };
-}
-function updateAssignment(assignment) {
-    return {
-        type: ActionTypes.UPDATE_ASSIGNMENT,
-        payload: assignment
-    };
-}
-function updateAssignmentSuccess(assignment) {
-    return {
-        type: ActionTypes.UPDATE_ASSIGNMENT_SUCCESS,
-        payload: assignment
-    };
-}
-function deleteAssignment(assignment) {
-    return {
-        type: ActionTypes.DELETE_ASSIGNMENT,
-        payload: assignment
-    };
-}
-function loadAssignments() {
-    return {
-        type: ActionTypes.LOAD_ASSIGNMENTS,
-        payload: {}
-    };
-}
-function loadAssignmentsSuccess(assignments) {
-    return {
-        type: ActionTypes.LOAD_ASSIGNMENTS_SUCCESS,
-        payload: assignments
-    };
-}
-function loadPermissions() {
-    return {
-        type: ActionTypes.LOAD_PERMISSIONS,
-        payload: {}
-    };
-}
-function loadPermissionsSuccess(permissions, token, uid) {
-    return {
-        type: ActionTypes.LOAD_PERMISSIONS_SUCCESS,
-        payload: { permissions: permissions, token: token, uid: uid }
-    };
-}
-//# sourceMappingURL=/Users/scienceonlineed/Documents/websites/elmsln/core/dslmcode/profiles/cle-7.x-2.x/modules/features/cle_app/app/src/app.actions.js.map
+/* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return AppSettings; });
+var AppSettings = (function () {
+    function AppSettings() {
+    }
+    Object.defineProperty(AppSettings, "BASE_PATH", {
+        get: function () {
+            if (typeof Drupal !== 'undefined') {
+                return Drupal.settings.basePath;
+            }
+            else {
+                return 'http://studio.elmsln.local/studio2/';
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    return AppSettings;
+}());
+//# sourceMappingURL=/Users/scienceonlineed/Documents/websites/elmsln/core/dslmcode/profiles/cle-7.x-2.x/modules/features/cle_app/app/src/app-settings.js.map
 
 /***/ }
 
