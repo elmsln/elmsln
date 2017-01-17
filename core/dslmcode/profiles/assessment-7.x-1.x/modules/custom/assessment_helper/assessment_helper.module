@@ -138,12 +138,15 @@ function _assessment_helper_make_file($node) {
   $query->addField('qnr', 'time_end', 'end');
   // score
   $query->addField('qnr', 'score', 'score');
+  // nid
+  $query->addField('qnr', 'nid', 'nid');
   // evaluation status
   $query->addField('qnr', 'is_evaluated', 'evaluated');
   // ensure user status
   $query->condition('u.status', 1);
   $query->condition('qnr.nid', $nids, 'IN');
   $result = $query->execute();
+  $rows = array();
   // Build up the array of data to return
   // @todo need to group this based on the user so we can do multiple in a row correctly
   foreach ($result->fetchAll() as $row) {
@@ -161,8 +164,7 @@ function _assessment_helper_make_file($node) {
         $row->name = "ORPHAN " . $row->uid;
       }
     }
-    // @todo this needs to happen after we get all the data on a row by row basis
-    fputcsv($df, array(
+    $rows[] = array(
       $row->name,
       $row->mail,
       $row->score,
@@ -171,9 +173,14 @@ function _assessment_helper_make_file($node) {
       $row->start,
       $row->end,
       $row->duration,
-      )
+      $row->nid,
     );
   }
+  // loop through rows and merge users together
+  foreach ($rows as $row) {
+    fputcsv($df, $row);
+  }
+
   fclose($df);
   echo ob_get_clean();
   drupal_exit();
