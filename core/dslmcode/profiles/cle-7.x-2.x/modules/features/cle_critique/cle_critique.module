@@ -9,16 +9,17 @@
  */
 function cle_critique_menu() {
   $items['cle/critique/critique-peer'] = array(
-    'title' => 'Give Feedback',
+    'title' => 'Critique',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('_cle_critique_page_random_form'),
     'access callback' => 'node_access',
     'access arguments' => array('create', 'cle_critique'),
     'type' => MENU_NORMAL_ITEM,
+    'menu_name' => 'menu-elmsln-navigation',
     'weight' => -8,
   );
   $items['cle/critique/critique-peer/%node'] = array(
-    'title' => 'Peer critique',
+    'title' => 'Critiquing',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('_cle_critique_page_random_form'),
     'access callback' => 'node_access',
@@ -71,7 +72,7 @@ function _cle_critique_page_random_form($arg, &$form_state) {
   $arg = arg(3);
   if (empty($arg)) {
     // pull in the list of assignments
-    $assignments = _cis_connector_assemble_entity_list('node', 'cle_assignment', 'nid', 'title', array('field_cle_crit_type' => array('value', 'none', '<>')), array(), array('field_cle_order' => 'value'));
+    $assignments = _cis_connector_assemble_entity_list('node', 'cle_assignment', 'nid', 'title', array('field_critique_method' => array('value', 'none', '<>')), array(), array('field_cle_order' => 'value'));
     $form = array();
     // @todo list the critiques they've already done
     $form['assignment'] = array(
@@ -118,7 +119,7 @@ function _cle_critique_page_random_form($arg, &$form_state) {
         'field_cle_crit_sub_ref' => array('und' => array(0 => array('target_id' => $submission->nid))),
       );
       // set a title based on which type of critique
-      switch ($assignmentnode->field_cle_crit_type['und'][0]['value']) {
+      switch ($assignmentnode->field_critique_method['und'][0]['value']) {
         case 'blind':
         case 'open':
           $critnode->title = t('Critique by @name', array('@name' => $GLOBALS['user']->name));
@@ -278,7 +279,7 @@ function cle_critique_node_view($node, $view_mode, $langcode) {
     $submission = node_load($node->field_cle_crit_sub_ref['und'][0]['target_id']);
     $assignment = node_load($submission->field_assignment['und'][0]['target_id']);
     // support for doubleblind
-    if ($assignment->field_cle_crit_type['und'][0]['value'] == 'doubleblind') {
+    if ($assignment->field_critique_method['und'][0]['value'] == 'doubleblind') {
       drupal_set_title('Critique by classmate');
     }
   }
