@@ -951,6 +951,68 @@ function cle_assignment_field_default_field_instances() {
     ),
   );
 
+  // Exported field_instance: 'node-cle_assignment-og_group_ref'.
+  $field_instances['node-cle_assignment-og_group_ref'] = array(
+    'bundle' => 'cle_assignment',
+    'default_value' => NULL,
+    'default_value_function' => '',
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'entityreference',
+        'settings' => array(
+          'link' => FALSE,
+        ),
+        'type' => 'entityreference_label',
+        'weight' => 34,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'og_group_ref',
+    'label' => 'Section',
+    'required' => 1,
+    'settings' => array(
+      'authcache' => array(
+        'clients' => array(
+          'authcache_ajax' => array(
+            'status' => 1,
+            'weight' => 0,
+          ),
+        ),
+        'fallback' => 'cancel',
+        'lifespan' => 3600,
+        'perpage' => 0,
+        'peruser' => 1,
+        'status' => 0,
+      ),
+      'behaviors' => array(
+        'og_widget' => array(
+          'access_override' => 0,
+          'admin' => array(
+            'widget_type' => 'entityreference_autocomplete',
+          ),
+          'default' => array(
+            'widget_type' => 'options_select',
+          ),
+          'status' => TRUE,
+        ),
+        'prepopulate' => array(
+          'status' => 0,
+        ),
+      ),
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 0,
+      'module' => 'og',
+      'settings' => array(),
+      'type' => 'og_complex',
+      'weight' => 5,
+    ),
+  );
+
   // Translatables
   // Included for use with string extractors like potx.
   t('Allow late submissions');
@@ -971,6 +1033,7 @@ function cle_assignment_field_default_field_instances() {
   t('Privacy setting');
   t('Project');
   t('Public critique');
+  t('Section');
   t('Student Feedback');
   t('Will the student\'s critique be visible to other students?');
 

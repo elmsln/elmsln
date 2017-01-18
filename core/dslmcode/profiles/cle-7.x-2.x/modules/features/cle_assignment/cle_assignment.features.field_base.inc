@@ -386,6 +386,7 @@ function cle_assignment_field_default_field_bases() {
     'module' => 'list',
     'settings' => array(
       'allowed_values' => array(
+        'none' => 'None',
         'random' => 'Random',
         'partner' => 'Partner off',
         'open' => 'Open to anyone',

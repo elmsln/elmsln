@@ -8,4 +8,3 @@ dependencies[] = features
 dependencies[] = masquerade
 dependencies[] = menu
 features[features_api][] = api:2
-features[menu_links][] = menu-elmsln-add_assignment:node/add/cle-assignment
