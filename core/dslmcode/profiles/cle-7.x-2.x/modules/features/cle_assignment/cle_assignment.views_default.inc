@@ -325,19 +325,6 @@ function cle_assignment_views_default_views() {
     'cle_assignment' => 'cle_assignment',
   );
 
-  /* Display: Listing all */
-  $handler = $view->new_display('page', 'Listing all', 'page_1');
-  $handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
-  $handler->display->display_options['defaults']['group_by'] = FALSE;
-  $handler->display->display_options['group_by'] = TRUE;
-  $handler->display->display_options['path'] = 'cle/assignments';
-  $handler->display->display_options['menu']['title'] = 'Assignments';
-  $handler->display->display_options['menu']['description'] = 'Listing of assignments for this section';
-  $handler->display->display_options['menu']['weight'] = '-9';
-  $handler->display->display_options['menu']['name'] = 'menu-elmsln-navigation';
-  $handler->display->display_options['menu']['context'] = 0;
-  $handler->display->display_options['menu']['context_only_inline'] = 0;
-
   /* Display: EVA Field */
   $handler = $view->new_display('entity_view', 'EVA Field', 'entity_view_1');
   $handler->display->display_options['defaults']['style_plugin'] = FALSE;

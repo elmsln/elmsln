@@ -32,3 +32,11 @@ function cle__2_update_7000(&$sandbox) {
   features_revert_module('cle_submission');
   features_revert_module('cle_project');
 }
+
+/**
+ * Get assignment and assignment link placement better
+ */
+function cle__2_update_7001(&$sandbox) {
+  features_revert_module('cle_assignment');
+  features_revert_module('cle_cis_ux');
+}
