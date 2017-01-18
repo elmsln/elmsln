@@ -56,6 +56,7 @@ function cle_app_menu() {
     'access arguments' => array('access content'),
     'type' => MENU_NORMAL_ITEM,
     'menu_name' => 'menu-elmsln-navigation',
+    'weight' => -10,
   );
   return $items;
 }

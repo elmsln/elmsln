@@ -4,6 +4,59 @@
   padding:1.5rem;
   margin: 0 auto;
 }
+
+.page-cle-app #page-title {
+  display: none;
+}
+
+article app-root nav {
+  display: none;
+}
+article app-root cle-assignment nav,
+article app-root app-submission nav {
+  display: block;
+}
+
+article app-root #nav-mobile li {
+  display: inline-block;
+  text-align: center;
+  line-height: 3rem;
+  height: 3rem;
+  padding: 0;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+article app-root #nav-mobile li a,
+article app-root #nav-mobile-right li a {
+  line-height: 3rem;
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0 .5rem;
+  font-size: 1rem;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  transition: color .28s ease;
+  border-color: #ffc107;
+  color:#833900;
+}
+article app-root #nav-mobile li a i,
+article app-root #nav-mobile-right li a i {
+  line-height: 3rem;
+}
+
+article app-root #nav-mobile.left li a:hover {
+  background-color: #ffecb3;
+  color: #000000;
+  border-bottom-style: solid;
+  border-bottom-width: .2rem;
+}
+
+.etb-book article app-root app-submission h1 {
+  font-size: 2rem;
+}
+
 article app-root ul li {
   list-style-type: none !important;
 }

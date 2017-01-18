@@ -1796,7 +1796,8 @@ function elmsln_core_wrapped_paths() {
     '*' => TRUE,
     'user/*' => FALSE,
     'user/*/*' => FALSE,
-    'cle/*' => FALSE,
+    'cle/app' => FALSE,
+    'cle/app/*' => FALSE,
   );
   return $paths;
 }
