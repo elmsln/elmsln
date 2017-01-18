@@ -3852,15 +3852,17 @@ var AssignmentService = (function () {
             if (data['hierarchy']['project']) {
                 converted['project'] = Number(data['hierarchy']['project']);
             }
-            if (data['hierarchy']['critique']) {
-                if (data['hierarchy']['critique']['method']) {
-                    converted.critiqueMethod = data['hierarchy']['critique']['method'];
+        }
+        if (data['evidence']) {
+            if (data['evidence']['critique']) {
+                if (data['evidence']['critique']['method']) {
+                    converted.critiqueMethod = data['evidence']['critique']['method'];
                 }
-                if (data['hierarchy']['critique']['style']) {
-                    converted.critiqueStyle = data['hierarchy']['critique']['style'];
+                if (data['evidence']['critique']['style']) {
+                    converted.critiqueStyle = data['evidence']['critique']['style'];
                 }
-                if (data['hierarchy']['critique']['privacy']) {
-                    converted.critiquePrivacy = data['hierarchy']['critique']['privacy'];
+                if (data['evidence']['critique']['privacy']) {
+                    converted.critiquePrivacy = data['evidence']['critique']['privacy'];
                 }
             }
         }
@@ -3876,7 +3878,10 @@ var AssignmentService = (function () {
             };
         }
         if (assignment.critiqueMethod) {
-            Object.assign(newAssignment, { hierarchy: { critique: { method: assignment.critiqueMethod } } });
+            Object.assign(newAssignment, { evidence: { critique: { method: assignment.critiqueMethod } } });
+        }
+        if (assignment.critiquePrivacy) {
+            Object.assign(newAssignment, { evidence: { critique: { privacy: assignment.critiquePrivacy } } });
         }
         if (assignment.critiqueStyle) {
             Object.assign(newAssignment, { hierarchy: { critique: { style: assignment.critiqueStyle } } });
@@ -4320,7 +4325,7 @@ module.exports = "<!-- Modal Structure -->\n<div id=\"modal-assignment-dialog\" 
 /***/ 808:
 /***/ function(module, exports) {
 
-module.exports = "<form [formGroup]=\"form\" class=\"assignment-form\">\n  <input formControlName=\"title\" placeholder=\"Title\">\n  <wysiwygjs formControlName=\"body\"></wysiwygjs>\n\n  <div class=\"submissions-settings fieldset\">\n    <label>Submission settings</label>\n    <div class=\"privacy switch\">\n      <label class=\"label\">Privacy Settings</label>\n      <label>\n        Public\n        <input type=\"checkbox\" formControlName=\"type\">\n        <span class=\"lever\"></span>\n        Private\n      </label>\n      <div class=\"detail\" *ngIf=\"form.value.type\">\n        Only instructors will be able to see student submissions.\n      </div>\n      <div class=\"detail\" *ngIf=\"!form.value.type\">\n        Students will be able to see each other's posts.\n      </div>\n    </div>\n  </div>\n\n  <div class=\"critique-settings fieldset\">\n    <label>Critique settings</label>\n    <div class=\"critique-method\">\n      <label>Method</label>\n      <select formControlName=\"critiqueMethod\">\n        <option *ngFor=\"let option of assignmentOptions.critiqueMethod\" [value]=\"option.value\">{{ option.display }}</option>\n      </select>\n    </div>\n\n    <div class=\"critique-subsettings\" *ngIf=\"form.value.critiqueMethod !== 'none'\">\n      <div class=\"critique-style\">\n        <label>Critique style</label>\n        <select formControlName=\"critiqueStyle\">\n          <option *ngFor=\"let option of assignmentOptions.critiqueStyle\" [value]=\"option.value\">{{ option.display }}</option>\n        </select>\n        <div class=\"detail\" *ngIf=\"form.value.critiqueStyle == 'blind'\">After work is submitted, it is open for feedback by a person or group. There is no dialogue, this is a one-way conversation.</div>\n      </div>\n\n      <div class=\"critique-privacy switch\">\n        <label>\n          Private\n          <input type=\"checkbox\" formControlName=\"critiquePrivacy\">\n          <span class=\"lever\"></span>\n          Public\n        </label>\n      </div>\n    </div>\n  </div>\n\n  <div class=\"due-date\">\n    <div class=\"display\" *ngIf=\"form.value.endDate !==null\">\n      Due date:\n      <span *ngIf=\"form.value.startDate !== null\" class=\"start-date\">\n        {{ form.value.startDate | amDateFormat:'LL hh:mma' }} \n        <span class=\"separator\">\n          to\n        </span>\n      </span>\n      <span class=\"end-date\">\n        {{ form.value.endDate | amDateFormat:'LL hh:mma' }}\n      </span>\n    </div>\n    \n    <div *ngIf=\"form.value.endDate !== null\" class=\"start-date\">\n      <label>Start Date</label>\n      <app-datetime-input formControlName=\"startDate\"></app-datetime-input>\n    </div>\n\n    <div class=\"due-date\">\n      <label>Due Date</label>\n      <app-datetime-input formControlName=\"endDate\"></app-datetime-input>\n    </div>\n  </div>\n</form>"
+module.exports = "<form [formGroup]=\"form\" class=\"assignment-form\">\n  <input formControlName=\"title\" placeholder=\"Title\">\n  <wysiwygjs formControlName=\"body\"></wysiwygjs>\n\n  <div class=\"submissions-settings fieldset\">\n    <label>Submission settings</label>\n    <div class=\"privacy switch\">\n      <label>\n        Public\n        <input type=\"checkbox\" formControlName=\"type\">\n        <span class=\"lever\"></span>\n        Private\n      </label>\n      <div class=\"detail\" *ngIf=\"form.value.type\">\n        Only instructors will be able to see student submissions.\n      </div>\n      <div class=\"detail\" *ngIf=\"!form.value.type\">\n        Students will be able to see each other's posts.\n      </div>\n    </div>\n  </div>\n\n  <div class=\"critique-settings fieldset\">\n    <label>Critique settings</label>\n    <div class=\"critique-method\">\n      <label>Method</label>\n      <select formControlName=\"critiqueMethod\">\n        <option *ngFor=\"let option of assignmentOptions.critiqueMethod\" [value]=\"option.value\">{{ option.display }}</option>\n      </select>\n    </div>\n\n    <div class=\"critique-subsettings\" *ngIf=\"form.value.critiqueMethod !== 'none'\">\n      <div class=\"critique-style\">\n        <label>Critique style</label>\n        <select formControlName=\"critiqueStyle\">\n          <option *ngFor=\"let option of assignmentOptions.critiqueStyle\" [value]=\"option.value\">{{ option.display }}</option>\n        </select>\n        <div class=\"detail\" *ngIf=\"form.value.critiqueStyle == 'blind'\">After work is submitted, it is open for feedback by a person or group. There is no dialogue, this is a one-way conversation.</div>\n      </div>\n\n      <div class=\"critique-privacy switch\">\n        <label>\n          Private\n          <input type=\"checkbox\" formControlName=\"critiquePrivacy\">\n          <span class=\"lever\"></span>\n          Public\n        </label>\n      </div>\n    </div>\n  </div>\n\n  <div class=\"due-date\">\n    <div class=\"display\" *ngIf=\"form.value.endDate !==null\">\n      Due date:\n      <span *ngIf=\"form.value.startDate !== null\" class=\"start-date\">\n        {{ form.value.startDate | amDateFormat:'LL hh:mma' }} \n        <span class=\"separator\">\n          to\n        </span>\n      </span>\n      <span class=\"end-date\">\n        {{ form.value.endDate | amDateFormat:'LL hh:mma' }}\n      </span>\n    </div>\n    \n    <div *ngIf=\"form.value.endDate !== null\" class=\"start-date\">\n      <label>Start Date</label>\n      <app-datetime-input formControlName=\"startDate\"></app-datetime-input>\n    </div>\n\n    <div class=\"due-date\">\n      <label>Due Date</label>\n      <app-datetime-input formControlName=\"endDate\"></app-datetime-input>\n    </div>\n  </div>\n</form>"
 
 /***/ },
 
