@@ -3848,6 +3848,17 @@ var AssignmentService = (function () {
                 converted[propertyName] = data[propertyName];
             }
         }
+        /**
+         * @todo: temporary hack. the drupal's datamodel is a string value
+         */
+        if (data['type']) {
+            if (data['type'] === 'open') {
+                converted.type = false;
+            }
+            else if (data['type'] === 'closed') {
+                converted.type = true;
+            }
+        }
         if (data['hierarchy']) {
             if (data['hierarchy']['project']) {
                 converted['project'] = Number(data['hierarchy']['project']);
@@ -3877,6 +3888,7 @@ var AssignmentService = (function () {
                 format: 'textbook_editor'
             };
         }
+        newAssignment.type = assignment.type ? 'closed' : 'open';
         if (assignment.critiqueMethod) {
             Object.assign(newAssignment, { evidence: { critique: { method: assignment.critiqueMethod } } });
         }
