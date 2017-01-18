@@ -140,7 +140,7 @@ function _cle_submission_v1_submission_output($node) {
     'uuid' => $node->uuid,
     'title' => $node->title,
     'status' => (int)$node->status,
-    'created' => (int)$node->created,
+    'created' => Date('c', $node->created),
     'assignment' => (int)$node->field_assignment[LANGUAGE_NONE][0]['target_id'],
     'evidence' => array(
       'body' => $node->field_submission_text[LANGUAGE_NONE][0]['safe_value'],

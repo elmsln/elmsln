@@ -656,6 +656,13 @@ function cis_helper_entity_presave($entity, $type) {
         }
       }
     }
+    // trim white space from input of strings
+    if (isset($entity->field_access_string[LANGUAGE_NONE])) {
+      // loop through access strings
+      foreach ($entity->field_access_string[LANGUAGE_NONE] as $access_key => $access_string) {
+        $entity->field_access_string[LANGUAGE_NONE][$access_key]['value'] = trim($entity->field_access_string[LANGUAGE_NONE][$access_key]['value']);
+      }
+    }
   }
   // account for anything with a machine name field as these are textfields
   if (isset($entity->field_machine_name)) {

@@ -22,7 +22,8 @@ export class AssignmentService {
   getAssignments(projectId?:number) {
     let query = projectId ? '?project=' + projectId : '';
     this.elmsln.get(AppSettings.BASE_PATH + 'api/v1/cle/assignments' + query)
-      .map(data => data.json().data)
+      .map(data => data.json())
+      .map(data => typeof data.data !== 'undefined' ? data.data : [])
       .map((data:any[]) => {
         if (data) {
           // convert list of data into list of Assignments

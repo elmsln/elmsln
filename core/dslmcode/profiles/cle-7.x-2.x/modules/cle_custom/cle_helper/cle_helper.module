@@ -111,7 +111,7 @@ function cle_helper_node_presave($node) {
       $node->uid = $GLOBALS['user']->uid;
     }
     // ensure there's a group set for cle_submission
-    if ($node->type == 'cle_submission' && !isset($node->og_group_ref[LANGUAGE_NONE][0]['target_id'])) {
+    if (!isset($node->og_group_ref[LANGUAGE_NONE][0]['target_id'])) {
       $node->og_group_ref[LANGUAGE_NONE][0]['target_id'] = _cis_section_load_section_by_id(_cis_connector_section_context());
     }
   }

@@ -15,7 +15,8 @@ export class ProjectService {
 
   getProjects() {
     return this.elmsln.get(AppSettings.BASE_PATH + 'api/v1/cle/projects')
-      .map(data => data.json().data)
+      .map(data => data.json())
+      .map(data => typeof data.data !== 'undefined' ? data.data : [])
       .map((projects:any[]) => projects.map(p => this.convertToProject(p)));
   }
 
@@ -28,7 +29,7 @@ export class ProjectService {
   createProject(project:any) {
     // first we need to prepare the object for Drupal
     return this.elmsln.post(AppSettings.BASE_PATH + 'api/v1/cle/projects/create', project)
-      .map(data => data.json().node)
+      .map(data => data.json().node) 
       .map(node => this.convertToProject(node))
   }
 

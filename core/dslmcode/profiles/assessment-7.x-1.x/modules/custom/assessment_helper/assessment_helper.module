@@ -53,7 +53,7 @@ function assessment_helper_menu() {
  */
 function _assessment_helper_access_callback($node) {
   // only display for quiz if they have access
-  if (user_access('export quiz results') && $node->type == 'quiz') {
+  if (user_access('export quiz results') && in_array($node->type, array('quiz', 'cis_course', 'section'))) {
     return TRUE;
   }
   return FALSE;
@@ -72,6 +72,21 @@ function assessment_helper_form_quiz_results_manage_results_form_alter(&$form, &
  * Get records from the database and generate csv file.
  */
 function _assessment_helper_make_file($node) {
+  // quiz means its single, section/course we have to query
+  if ($node->type == 'quiz') {
+    $nodes = array($node);
+  }
+  elseif ($node->type == 'section') {
+    $nodes = _cis_connector_assemble_entity_list('node', 'quiz', 'nid', '_entity', array('og_group_ref' => array('target_id', $node->nid)), array('status' => 1),array('title'));
+  }
+  elseif ($node->type == 'cis_course') {
+    $nodes = _cis_connector_assemble_entity_list('node', 'quiz', 'nid', '_entity', array('field_cis_course_ref' => array('target_id', $node->nid)), array('status' => 1),array('title'));
+  }
+  // if we got nothing then ensure we fail safely
+  if (empty($nodes)) {
+    drupal_set_message(t('There are no results for this yet.'), 'status');
+    drupal_goto(arg(0) . '/' . arg(1));
+  }
   // build the file and headers to send it off
   $filename = check_plain(drupal_strtolower($node->title)) . "-report-" . date("F-j-Y-g-i-a") . ".csv";
   $now = gmdate("D, d M Y H:i:s");
@@ -90,17 +105,24 @@ function _assessment_helper_make_file($node) {
 
   ob_start();
   $df = fopen("php://output", "w");
-  // Put the headers for the csv.
-  fputcsv($df, array(
+  $headers = array(
     t('USERNAME'),
-    t('EMAIL'),
-    check_plain(drupal_strtolower($node->title)),
-    t('EVALUATED'),
-    t('STARTED'),
-    t('FINISHED'),
-    t('DURATION'),
-    )
+    t('EMAIL')
   );
+  $nids = array();
+  // per node make header records
+  foreach ($nodes as $node) {
+    $nids[] = $node->nid;
+    $title = check_plain(drupal_strtolower($node->title));
+    $headers[] = $title;
+    $headers[] = t('@title PERFECT', array('@title' => $title));
+    $headers[] = t('@title EVALUATED', array('@title' => $title));
+    $headers[] = t('@title STARTED', array('@title' => $title));
+    $headers[] = t('@title FINISHED', array('@title' => $title));
+    $headers[] = t('@title DURATION', array('@title' => $title));
+  }
+  // Put the headers for the csv.
+  fputcsv($df, $headers);
   // Get records from the DB.
   $query = db_select('quiz_node_results', 'qnr');
   $query->innerJoin('users', 'u', 'u.uid = qnr.uid');
@@ -116,12 +138,17 @@ function _assessment_helper_make_file($node) {
   $query->addField('qnr', 'time_end', 'end');
   // score
   $query->addField('qnr', 'score', 'score');
+  // nid
+  $query->addField('qnr', 'nid', 'nid');
   // evaluation status
   $query->addField('qnr', 'is_evaluated', 'evaluated');
   // ensure user status
   $query->condition('u.status', 1);
+  $query->condition('qnr.nid', $nids, 'IN');
   $result = $query->execute();
+  $rows = array();
   // Build up the array of data to return
+  // @todo need to group this based on the user so we can do multiple in a row correctly
   foreach ($result->fetchAll() as $row) {
     $row->duration = ($row->end == 0 ? t('in progress') : round((($row->end - $row->start)/60), 2, PHP_ROUND_HALF_UP) . ' ' . t('minutes'));
     $row->score = ($row->end == 0 ? t('in progress') : check_plain($row->score));
@@ -137,17 +164,23 @@ function _assessment_helper_make_file($node) {
         $row->name = "ORPHAN " . $row->uid;
       }
     }
-    fputcsv($df, array(
+    $rows[] = array(
       $row->name,
       $row->mail,
       $row->score,
+      ($row->score == 100 ? 1 : 0),
       $row->evaluated,
       $row->start,
       $row->end,
       $row->duration,
-      )
+      $row->nid,
     );
   }
+  // loop through rows and merge users together
+  foreach ($rows as $row) {
+    fputcsv($df, $row);
+  }
+
   fclose($df);
   echo ob_get_clean();
   drupal_exit();

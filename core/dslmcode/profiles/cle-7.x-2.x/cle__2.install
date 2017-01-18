@@ -18,7 +18,7 @@ function cle__2_install() {
   _elmsln_installer_post_install_cleanup();
 
   // set homepage
-  variable_set('site_frontpage', 'cle/open-studio');
+  variable_set('site_frontpage', 'cle/app');
   // last ditch revert
   features_revert_module('cle_critique');
   features_revert_module('cle_submission');
@@ -31,4 +31,14 @@ function cle__2_update_7000(&$sandbox) {
   features_revert_module('cle_assignment');
   features_revert_module('cle_submission');
   features_revert_module('cle_project');
+}
+
+/**
+ * Get assignment and assignment link placement better
+ */
+function cle__2_update_7001(&$sandbox) {
+  features_revert_module('cle_assignment');
+  features_revert_module('cle_submission');
+  features_revert_module('cle_cis_ux');
+  variable_set('site_frontpage', 'cle/app');
 }

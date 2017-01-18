@@ -14,6 +14,7 @@ export class SubmissionComponent implements OnInit {
   submissionId:number;
   assignmentId:number;
   submission$:Observable<Submission>;
+  userCanEdit$:Observable<boolean>;
 
   constructor(
     private route:ActivatedRoute,
@@ -28,6 +29,7 @@ export class SubmissionComponent implements OnInit {
         if (params['submissionId']) {
           this.submissionId = Number(params['submissionId']);
 
+          // get the submission
           this.submission$ = this.store.select('submissions')
             .map((state:any) => state.submissions.find((sub:Submission) => {
               if (sub.id === this.submissionId) {
@@ -38,8 +40,20 @@ export class SubmissionComponent implements OnInit {
                 return false;
               }
             }))
-        }
-      })
+          
+          // check if the user can edit the submission
+          this.userCanEdit$ = this.submission$
+            .map((state:any) => {
+              if (state) {
+                if (typeof state.metadata !== 'undefined') {
+                  if (typeof state.metadata.canUpdate !== 'undefined') {
+                    return state.metadata.canUpdate;
+                  }
+                }
+              }
+              return false;
+            })
+      }})
   }
 
   onClickBack() {

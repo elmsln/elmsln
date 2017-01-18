@@ -96,7 +96,7 @@ function elmsln_api_menu() {
     'access arguments' => array(array('administrator', 'instructor', 'staff')),
     'type' => MENU_CALLBACK,
   );
-  // user object for front-faving calls
+  // user object for front-facing calls
   $items[ELMSLN_API_BASE_PATH . '/v1/elmsln/user'] = array(
     'page callback' => '_elmsln_api_user_request',
     'access callback' => 'user_is_logged_in',
@@ -192,7 +192,7 @@ function _elmsln_api_v1_file_modify($file, $params = NULL) {
     'detail' => $detail,
     'mime' => $ext,
     'file' => _elmsln_api_v1_file_output($file),
-    'fid' => $file->fid,
+    'fid' => (int)$file->fid,
   );
   return $vars;
 }

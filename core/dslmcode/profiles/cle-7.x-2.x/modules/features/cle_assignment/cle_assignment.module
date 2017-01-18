@@ -136,6 +136,9 @@ function _cle_assignment_v1_assignment_modify($node, $params = NULL) {
       case 'archived':
         $node->field_cle_archived['und'][0]['value'] = $value;
       break;
+      case 'section':
+        $node->og_group_ref[LANGUAGE_NONE][0]['target_id'] = $value;
+      break;
       case 'allowLateSubmissions':
         $node->field_assignment_late_submission[LANGUAGE_NONE][0]['value'] = $value;
       break;
@@ -271,11 +274,11 @@ function _cle_assignment_v1_assignment_output($node) {
     'uuid' => $node->uuid,
     'title' => $node->title,
     'status' => (int)$node->status,
-    'created' => (int)$node->created,
+    'created' => Date('c', $node->created),
     'body' => ($node->field_assignment_description[LANGUAGE_NONE][0]['safe_value'] ? $node->field_assignment_description[LANGUAGE_NONE][0]['safe_value'] : $node->field_assignment_description[LANGUAGE_NONE][0]['value']),
     'allowLateSubmissions' => (int)$node->field_assignment_late_submission[LANGUAGE_NONE][0]['value'],
     'color' => $color,
-    'image' => _elmsln_api_v1_file_output($node->field_assignment_image[LANGUAGE_NONE][0]),
+    'image' => (isset($node->field_assignment_image[LANGUAGE_NONE][0]) ? _elmsln_api_v1_file_output($node->field_assignment_image[LANGUAGE_NONE][0]) : array()),
     'type' => ($node->field_assignment_privacy_setting ? $node->field_assignment_privacy_setting[LANGUAGE_NONE][0]['value'] : 'open'),
     'startDate' => $dates[0],
     'endDate' => $dates[1],

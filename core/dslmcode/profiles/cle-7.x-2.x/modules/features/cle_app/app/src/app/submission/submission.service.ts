@@ -20,7 +20,8 @@ export class SubmissionService {
   getSubmissions(assignmentId?:number) {
     let query = assignmentId ? '?assignment=' + assignmentId : '';
     this.elmsln.get(AppSettings.BASE_PATH + 'api/v1/cle/submissions' + query)
-      .map(data => data.json().data)
+      .map(data => data.json())
+      .map(data => typeof data.data !== 'undefined' ? data.data : [])
       .map((data:any[]) => {
         if (data) {
           // convert list of data into list of Submissions

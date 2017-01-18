@@ -91,6 +91,7 @@ function cle_assignment_field_group_info() {
     'children' => array(
       0 => 'field_assignment_dependencies',
       1 => 'field_assignment_project',
+      2 => 'og_group_ref',
     ),
     'format_type' => 'fieldset',
     'format_settings' => array(
