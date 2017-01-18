@@ -136,6 +136,9 @@ function _cle_assignment_v1_assignment_modify($node, $params = NULL) {
       case 'archived':
         $node->field_cle_archived['und'][0]['value'] = $value;
       break;
+      case 'section':
+        $node->og_group_ref[LANGUAGE_NONE][0]['target_id'] = $value;
+      break;
       case 'allowLateSubmissions':
         $node->field_assignment_late_submission[LANGUAGE_NONE][0]['value'] = $value;
       break;
