@@ -192,7 +192,7 @@ function _elmsln_api_v1_file_modify($file, $params = NULL) {
     'detail' => $detail,
     'mime' => $ext,
     'file' => _elmsln_api_v1_file_output($file),
-    'fid' => $file->fid,
+    'fid' => (int)$file->fid,
   );
   return $vars;
 }
