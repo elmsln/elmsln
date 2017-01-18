@@ -1322,8 +1322,11 @@ function _elmsln_api_v1_page_callback($type, $etid = NULL, $op = NULL) {
       // get the assignment ready for sending and place them as an array of items
       // under the 'data' property
       foreach ($items as $item) {
-        $_item = call_user_func($jsapis[$type]['output'], $item);
-        $vars['data'][] = $_item;
+        // ensure the user is allowed to see these things we queried
+        if (entity_access('view', $jsapis[$type]['type'], $item)) {
+          $_item = call_user_func($jsapis[$type]['output'], $item);
+          $vars['data'][] = $_item;
+        }
       }
     }
     else {
