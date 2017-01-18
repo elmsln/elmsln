@@ -129,7 +129,6 @@ dependencies[] = cis_course_service
 ; CLE Dependencies
 ; ----------
 ; CLE
-dependencies[] = cle_require_profile
 dependencies[] = cle_helper
 dependencies[] = cle_achievements
 ; Fields

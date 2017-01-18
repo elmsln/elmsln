@@ -9,6 +9,32 @@
   display: none;
 }
 
+app-root .progress {
+  background-color: #833900;
+}
+app-root .indeterminate {
+  background-color: #ffc107;
+}
+app-root .btn-large {
+  background-color: #ffc107;
+  color: #833900;
+}
+
+app-root .btn-large:hover {
+  color: #ffc107;
+  background-color: #833900;
+}
+
+app-root .btn[type=submit] {
+  background-color: #ffc107;
+  color: #833900;
+}
+
+app-root .btn[type=submit]:hover {
+  color: #ffc107;
+  background-color: #833900;
+}
+
 article app-root nav {
   display: none;
 }
@@ -53,11 +79,60 @@ article app-root #nav-mobile.left li a:hover {
   border-bottom-width: .2rem;
 }
 
+article app-root div {
+  font-size: 1rem;
+}
+
+article app-root .container .row {
+  margin: 0;
+}
+
+.project__board {
+  padding: 1rem 0 0 0 !important;
+}
+
+/* Scroll bar for breadcrumb nav that's really really long */
+app-root .projects-container {
+  overflow-x: scroll;
+}
+
+app-root .projects-container {
+  scrollbar-face-color: #833900;
+  scrollbar-shadow-color: #ffc107;
+  scrollbar-highlight-color:#ffc107;
+  scrollbar-3dlight-color: #ffc107;
+  scrollbar-darkshadow-color: #ffc107;
+  scrollbar-track-color: #ffc107;
+  scrollbar-arrow-color: #ffc107;
+}
+app-root .projects-container::-webkit-scrollbar-track {
+  background-color: #833900;
+} /* the new scrollbar will have a flat appearance with the set background color */
+
+app-root .projects-container::-webkit-scrollbar-thumb {
+  background-color: #ffc107;
+} /* this will style the thumb, ignoring the track */
+
+app-root .projects-container::-webkit-scrollbar-button {
+  background-color: #833900;
+} /* optionally, you can style the top and the bottom buttons (left and right for horizontal bars) */
+
+app-root .projects-container::-webkit-scrollbar-corner {
+  background-color: #833900;
+} /* if both the vertical and the horizontal bars appear, then perhaps the right bottom corner*/
+
+app-root .projects-container::-webkit-scrollbar {
+  width: 1rem;
+  height: 1rem;
+} /* this targets the default scrollbar (compulsory) */
+
+/* end scroll bar styling */
+
 .etb-book article app-root app-submission h1 {
   font-size: 2rem;
 }
 
-article app-root ul li {
+article app-root cle-assignment-list ul li {
   list-style-type: none !important;
 }
 article app-root ul li a {
@@ -69,6 +144,7 @@ article app-root ul li .assignment a {
   height: 2.5rem;
   line-height: 2.5rem;
   padding: 0;
+  color:#833900;
 }
 
 app-projects-list ul {
@@ -78,6 +154,9 @@ app-projects-list ul {
 app-projects-list .project__title {
   margin: 0;
   padding: .25rem;
+  font-size: 1.2rem !important;
+  text-align: left;
+  color:#833900;
 }
 
 cle-assignment .assignment__title {

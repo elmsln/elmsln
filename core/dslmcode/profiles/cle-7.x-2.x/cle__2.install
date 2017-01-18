@@ -40,5 +40,8 @@ function cle__2_update_7001(&$sandbox) {
   features_revert_module('cle_assignment');
   features_revert_module('cle_submission');
   features_revert_module('cle_cis_ux');
+  // new homepage as app is stable!
   variable_set('site_frontpage', 'cle/app');
+  // shouldn't have been enabled in 2.x version
+  module_disable(array('cle_require_profile'));
 }

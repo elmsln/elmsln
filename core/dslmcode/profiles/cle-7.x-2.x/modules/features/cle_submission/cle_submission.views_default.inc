@@ -23,7 +23,6 @@ function cle_submission_views_default_views() {
   /* Display: Master */
   $handler = $view->new_display('default', 'Master', 'default');
   $handler->display->display_options['title'] = 'My Gallery';
-  $handler->display->display_options['css_class'] = 's12 col';
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['access']['type'] = 'perm';
   $handler->display->display_options['cache']['type'] = 'time';
@@ -264,7 +263,7 @@ function cle_submission_views_default_views() {
   );
   $handler->display->display_options['fields']['field_images']['group_rows'] = FALSE;
   $handler->display->display_options['fields']['field_images']['delta_offset'] = '0';
-  $handler->display->display_options['path'] = 'cle/my-studio/submissions/images';
+  $handler->display->display_options['path'] = 'cle/my-studio/images';
   $handler->display->display_options['menu']['type'] = 'normal';
   $handler->display->display_options['menu']['title'] = 'Images';
   $handler->display->display_options['menu']['description'] = 'All my submissions as a gallery';
@@ -312,7 +311,7 @@ function cle_submission_views_default_views() {
   );
   $handler->display->display_options['fields']['field_video']['group_rows'] = FALSE;
   $handler->display->display_options['fields']['field_video']['delta_offset'] = '0';
-  $handler->display->display_options['path'] = 'cle/my-studio/submissions/video';
+  $handler->display->display_options['path'] = 'cle/my-studio/video';
   $handler->display->display_options['menu']['type'] = 'normal';
   $handler->display->display_options['menu']['title'] = 'Video';
   $handler->display->display_options['menu']['description'] = 'All my videos as a gallery';
@@ -356,7 +355,7 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['fields']['field_files']['click_sort_column'] = 'fid';
   $handler->display->display_options['fields']['field_files']['group_rows'] = FALSE;
   $handler->display->display_options['fields']['field_files']['delta_offset'] = '0';
-  $handler->display->display_options['path'] = 'cle/my-studio/submissions/files';
+  $handler->display->display_options['path'] = 'cle/my-studio/files';
   $handler->display->display_options['menu']['type'] = 'normal';
   $handler->display->display_options['menu']['title'] = 'Files';
   $handler->display->display_options['menu']['description'] = 'All my files as a gallery';
@@ -400,7 +399,7 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['fields']['field_links']['click_sort_column'] = 'url';
   $handler->display->display_options['fields']['field_links']['group_rows'] = FALSE;
   $handler->display->display_options['fields']['field_links']['delta_offset'] = '0';
-  $handler->display->display_options['path'] = 'cle/my-studio/submissions/links';
+  $handler->display->display_options['path'] = 'cle/my-studio/links';
   $handler->display->display_options['menu']['type'] = 'normal';
   $handler->display->display_options['menu']['title'] = 'Links';
   $handler->display->display_options['menu']['description'] = 'All my links as a gallery';
