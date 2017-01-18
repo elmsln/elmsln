@@ -18,6 +18,26 @@ function cis_section_page_build(&$page) {
 }
 
 /**
+ * Implements hook_menu().
+ */
+function cis_section_menu() {
+  $items['api/v1/elmsln/sections'] = array(
+    'page callback' => '_elmsln_api_v1_page_callback',
+    'page arguments' => array('section', NULL, NULL),
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_CALLBACK,
+  );
+  $items['api/v1/elmsln/sections/%'] = array(
+    'page callback' => '_elmsln_api_v1_page_callback',
+    'page arguments' => array('section', 4, 'query'),
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_CALLBACK,
+  );
+
+  return $items;
+}
+
+/**
  * Implements hook_og_context_negotiation_info().
  * Add context negotiation info.
  *
@@ -40,6 +60,90 @@ function cis_section_og_context_negotiation_info() {
   );
 
   return $providers;
+}
+
+/**
+ * Implements hook_elmsln_jsapi_info().
+ */
+function cis_section_elmsln_jsapi_info() {
+  // section api router
+  $items['section'] = array(
+    'type'   => 'node',
+    'bundle' => 'section',
+    'modify' => '_cle_section_v1_section_modify',
+    'list'   => '_cis_section_v1_get_sections',
+    'output' => '_cis_section_v1_section_output',
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_elmsln_jsapi_user_request_alter().
+ */
+function cis_section_elmsln_jsapi_user_request_alter(&$vars) {
+  // add on sections this user is apart of
+  $field_conditions = array('field_cis_active' => array('value', 1, '='));
+  $property_conditions = array('status' => array(NODE_PUBLISHED, '='));
+  $orderby = array('field_cis_active' => array('value', 'DESC'));
+  $sections = _cis_connector_assemble_entity_list('node', 'section', 'nid', '_entity', $field_conditions, $property_conditions, $orderby);
+  foreach ($sections as $nid => $section) {
+    $vars['sections'][$nid] = _cis_section_v1_section_output($section);
+  }
+}
+
+/**
+ * Callback for outputting a section via ELMSLN JS API
+ * @param  object $node node object that is a section
+ * @return array       structured response of how to render a section
+ */
+function _cis_section_v1_section_output($node) {
+  // we can never update or delete via this method based on data model
+  $metadata = array(
+    'canUpdate' => 0,
+    'canDelete' => 0,
+  );
+
+  // this will be our json formatted output
+  $return = array(
+    'id' => (int)$node->nid,
+    'uid' => (int)$node->uid,
+    'uuid' => $node->uuid,
+    'title' => $node->title,
+    'status' => (int)$node->status,
+    'created' => Date('c', $node->created),
+    'section_id' => $node->field_section_id['und'][0]['safe_value'],
+    'active' => (int)$node->field_cis_active['und'][0]['value'],
+    'metadata' => $metadata,
+    'links' => array(
+      'self' => $base_url . '/api/v1/elmsln/section/' . $node->nid,
+    ),
+  );
+
+  return $return;
+}
+
+/**
+ * Callback to return a list of sections.
+ * @return array listing of sections the user has access to
+ */
+function _cis_section_v1_get_sections($filter = array()) {
+  $items = array();
+  $field_conditions = array();
+  $property_conditions = array('status' => array(NODE_PUBLISHED, '='));
+  if (isset($filter['section'])) {
+    $property_conditions['nid'] = array($filter['section'], '=');
+  }
+  $orderby = array('field_cis_active' => array('value', 'DESC'));
+  $items = _cis_connector_assemble_entity_list('node', 'section', 'nid', '_entity', $field_conditions, $property_conditions, $orderby);
+  return $items;
+}
+
+/**
+ * This isn't allowed since section is globally managed by CIS.
+ * @return bool        value is always FALSE for data model purposes
+ */
+function _cle_section_v1_section_modify($node, $params = NULL) {
+  return FALSE;
 }
 
 /**
