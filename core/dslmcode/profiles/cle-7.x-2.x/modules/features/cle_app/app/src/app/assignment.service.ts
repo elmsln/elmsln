@@ -118,7 +118,7 @@ export class AssignmentService {
     if (assignment.body) {
       newAssignment.body = {
         value: assignment.body,
-        format: 'textbook_format'
+        format: 'textbook_editor'
       }
     }
     
