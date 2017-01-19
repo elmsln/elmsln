@@ -35,15 +35,15 @@
           <?php if ($bar_elements['help']) : ?>
           <li>
             <a href="<?php print $help_link;?>" class="elmsln-help-button middle-align-wrap black-text waves-effect waves-<?php print $lmsless_classes[$distro]['color'];?> waves-light" data-jwerty-key="h" data-voicecommand="help">
-              <i class="material-icons left">help</i>
+              <i class="material-icons">help</i>
               <span class="hide-on-med-and-down"><?php print t('Help'); ?></span>
             </a>
           </li>
           <?php endif; ?>
           <?php if (isset($bar_elements['resources']) && $bar_elements['resources']) : ?>
-            <li>
+          <li>
             <a href="<?php print $resources_link;?>" class="elmsln-resource-button middle-align-wrap black-text waves-effect waves-<?php print $lmsless_classes[$distro]['color'];?> waves-light" data-jwerty-key="r" data-voicecommand="resources">
-              <i class="material-icons left">local_library</i>
+              <i class="material-icons">local_library</i>
               <span class="hide-on-med-and-down"><?php print t('Resources'); ?></span>
             </a>
           </li>
@@ -51,7 +51,7 @@
           <?php if ($bar_elements['syllabus']) : ?>
             <li>
             <a href="<?php print $syllabus_link;?>" class="elmsln-syllabus-button middle-align-wrap black-text waves-effect waves-<?php print $lmsless_classes[$distro]['color'];?> waves-light" data-jwerty-key="y" data-voicecommand="syllabus">
-              <i class="material-icons left">info_outline</i>
+              <i class="material-icons">info_outline</i>
               <span class="hide-on-med-and-down"><?php print t('Syllabus'); ?></span>
             </a>
           </li>
