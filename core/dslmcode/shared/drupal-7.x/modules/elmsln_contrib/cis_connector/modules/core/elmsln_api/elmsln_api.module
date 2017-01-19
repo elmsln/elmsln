@@ -285,6 +285,12 @@ function _elmsln_api_deliver_output($vars) {
   if (empty($vars['detail'])) {
     $vars['detail'] = '';
   }
+  // ensure there's some form of detail even if empty
+  if (empty($vars['environment'])) {
+    $vars['environment'] = array();
+  }
+  // allow output delivery to be modified contextually
+  drupal_alter('elmsln_api_deliver_output', $vars);
   // define return type
   drupal_add_http_header('Content-Type', 'application/json');
   // define status
