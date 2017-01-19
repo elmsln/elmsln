@@ -8,9 +8,11 @@ import { AppSettings } from './app-settings';
 import { Assignment } from './assignment';
 declare const Materialize:any;
 
+
 @Injectable()
 export class AssignmentService {
   assignments: Observable<Array<Assignment>>;
+
 
   constructor(
     private elmsln: ElmslnService,
@@ -84,6 +86,7 @@ export class AssignmentService {
         { value: 'closed', display: 'Closed' }
       ],
       critiqueMethod: [
+        { value: 'none', display: 'None'},
         { value: 'open', display: 'Open'},
         { value: 'random', display: 'Random'}
       ],
@@ -102,9 +105,35 @@ export class AssignmentService {
         converted[propertyName] = data[propertyName];
       }
     }
+
+    /**
+     * @todo: temporary hack. the drupal's datamodel is a string value
+     */
+    if (data['type']) {
+      if (data['type'] === 'open') {
+        converted.type = false;
+      }
+      else if (data['type'] === 'closed') {
+        converted.type = true;
+      }
+    }
+
     if (data['hierarchy']) {
       if (data['hierarchy']['project']) {
         converted['project'] = Number(data['hierarchy']['project']);
+      }
+    }
+    if (data['evidence']) {
+      if (data['evidence']['critique']) {
+        if (data['evidence']['critique']['method']) {
+          converted.critiqueMethod = data['evidence']['critique']['method'];
+        }
+        if (data['evidence']['critique']['style']) {
+          converted.critiqueStyle = data['evidence']['critique']['style'];
+        }
+        if (data['evidence']['critique']['privacy']) {
+          converted.critiquePrivacy = data['evidence']['critique']['privacy'];
+        }
       }
     }
 
@@ -118,8 +147,20 @@ export class AssignmentService {
     if (assignment.body) {
       newAssignment.body = {
         value: assignment.body,
-        format: 'textbook_format'
+        format: 'textbook_editor'
       }
+    }
+
+    newAssignment.type = assignment.type ? 'closed' : 'open';
+
+    if (assignment.critiqueMethod) {
+      Object.assign(newAssignment, {evidence: {critique: { method: assignment.critiqueMethod}}});
+    }
+    if (assignment.critiquePrivacy) {
+      Object.assign(newAssignment, {evidence: {critique: { privacy: assignment.critiquePrivacy}}})
+    }
+    if (assignment.critiqueStyle) {
+      Object.assign(newAssignment, {hierarchy:{critique: { style: assignment.critiqueStyle}}});
     }
     
     let dateFields = ['startDate', 'endDate'];
@@ -129,6 +170,7 @@ export class AssignmentService {
         assignment[field] = assignment[field].toString();
       }
     });
+
     // the due date works weird so we need to do some custom logic to find out what field to populate
     // in Drupal
     if (assignment.endDate !== null) {

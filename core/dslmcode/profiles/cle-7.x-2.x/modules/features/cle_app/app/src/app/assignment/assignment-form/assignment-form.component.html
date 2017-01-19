@@ -2,17 +2,26 @@
   <input formControlName="title" placeholder="Title">
   <wysiwygjs formControlName="body"></wysiwygjs>
 
-  <div class="privacy">
-    <label>Privacy Setting:</label>
-    <select formControlName="type">
-      <option value="" disabled selected>Choose your option</option>
-      <option *ngFor="let option of assignmentOptions.type" [value]="option.value">{{ option.display }}</option>
-    </select>
+  <div class="submissions-settings fieldset">
+    <label>Submission settings</label>
+    <div class="privacy switch">
+      <label>
+        Public
+        <input type="checkbox" formControlName="type">
+        <span class="lever"></span>
+        Private
+      </label>
+      <div class="detail" *ngIf="form.value.type">
+        Only instructors will be able to see student submissions.
+      </div>
+      <div class="detail" *ngIf="!form.value.type">
+        Students will be able to see each other's posts.
+      </div>
+    </div>
   </div>
 
-  <div class="critique">
+  <div class="critique-settings fieldset">
     <label>Critique settings</label>
-
     <div class="critique-method">
       <label>Method</label>
       <select formControlName="critiqueMethod">
@@ -20,22 +29,24 @@
       </select>
     </div>
 
-    <div class="critique-style">
-      <label>Critique style</label>
-      <select formControlName="critiqueStyle">
-        <option *ngFor="let option of assignmentOptions.critiqueStyle" [value]="option.value">{{ option.display }}</option>
-      </select>
-    </div>
+    <div class="critique-subsettings" *ngIf="form.value.critiqueMethod !== 'none'">
+      <div class="critique-style">
+        <label>Critique style</label>
+        <select formControlName="critiqueStyle">
+          <option *ngFor="let option of assignmentOptions.critiqueStyle" [value]="option.value">{{ option.display }}</option>
+        </select>
+        <div class="detail" *ngIf="form.value.critiqueStyle == 'blind'">After work is submitted, it is open for feedback by a person or group. There is no dialogue, this is a one-way conversation.</div>
+      </div>
 
-    <div class="critique-privacy switch">
-      <label>
-        Private
-        <input type="checkbox" formControlName="critiquePrivacy">
-        <span class="lever"></span>
-        Public
-      </label>
+      <div class="critique-privacy switch">
+        <label>
+          Private
+          <input type="checkbox" formControlName="critiquePrivacy">
+          <span class="lever"></span>
+          Public
+        </label>
+      </div>
     </div>
-
   </div>
 
   <div class="due-date">

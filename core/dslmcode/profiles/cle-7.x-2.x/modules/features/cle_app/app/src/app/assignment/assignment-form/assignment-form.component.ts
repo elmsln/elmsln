@@ -26,8 +26,7 @@ export class AssignmentFormComponent implements OnInit, OnChanges {
     private formBuilder: FormBuilder,
     private assignmentService: AssignmentService,
     private router: Router
-  ) { 
-  } 
+  ) { } 
 
   ngOnInit() {
     // create the form from the assignment object that we recieved
