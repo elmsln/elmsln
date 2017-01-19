@@ -298,7 +298,7 @@ function _elmsln_jsapi_deliver_output($vars) {
   // output the response as json
   print drupal_json_output($vars);
   // official drupal exit routines
-  drupal_exit();
+  exit;
 }
 
 /**
