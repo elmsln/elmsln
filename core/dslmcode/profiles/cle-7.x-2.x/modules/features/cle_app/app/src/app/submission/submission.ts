@@ -8,4 +8,5 @@ export class Submission {
   assignment:number = null;
   metadata:any = {};
   state:string = null;
+  environment:any = {};
 }

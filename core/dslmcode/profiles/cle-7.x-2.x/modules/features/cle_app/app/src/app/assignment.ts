@@ -1,4 +1,3 @@
-
 export class Assignment {
   id:number = null;
   title:string = null;
