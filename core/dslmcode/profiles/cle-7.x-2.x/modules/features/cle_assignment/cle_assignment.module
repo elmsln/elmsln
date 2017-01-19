@@ -258,6 +258,7 @@ function _cle_assignment_v1_assignment_output($node) {
     'relatedSubmissions' => _cle_submission_submission_status($node->nid),
     'canUpdate' => 0,
     'canDelete' => 0,
+    'afterDueDate' => 0,
   );
   // see the operations they can perform here
   if (entity_access('update', 'node', $node, $account)) {
@@ -265,6 +266,20 @@ function _cle_assignment_v1_assignment_output($node) {
   }
   if (entity_access('delete', 'node', $node, $account)) {
     $metadata['canDelete'] = 1;
+  }
+  // see if this has a due date and if it is after as a result
+  if (isset($node->field_assignment_due_date['und'][0]['value'])) {
+    // check for due date 2
+    if (isset($node->field_assignment_due_date['und'][0]['value2'])) {
+      if (time() > $node->field_assignment_due_date['und'][0]['value2']) {
+        $metadata['afterDueDate'] = 1;
+      }
+    }
+    else {
+      if (time() > $node->field_assignment_due_date['und'][0]['value']) {
+        $metadata['afterDueDate'] = 1;
+      }
+    }
   }
 
   // this will be our json formatted output
