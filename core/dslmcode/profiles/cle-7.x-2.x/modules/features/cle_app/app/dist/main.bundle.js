@@ -4027,7 +4027,7 @@ var AssignmentService = (function () {
                 if (data['evidence']['critique']['method']) {
                     converted.critiqueMethod = data['evidence']['critique']['method'];
                 }
-                if (data['evidence']['critique']['privacy']) {
+                if (data['evidence']['critique']['public']) {
                     converted.critiquePrivacy = data['evidence']['critique']['public'];
                 }
             }
