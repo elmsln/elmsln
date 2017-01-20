@@ -957,29 +957,31 @@ var AssignmentFormComponent = (function () {
         this.assignmentOptions = this.assignmentService.getAssignmentOptions();
     };
     AssignmentFormComponent.prototype.ngOnChanges = function () {
-        var _this = this;
         this.form = this.formBuilder.group(this.assignment);
-        this.form.valueChanges
-            .debounceTime(1000)
-            .subscribe(function () { return _this.autoSaveForm(); });
+        /**
+         * @todo: first attempt at autoSaveForm
+         */
+        // this.form.valueChanges
+        //   .debounceTime(1000)
+        //   .subscribe(() => this.autoSaveForm());
     };
-    AssignmentFormComponent.prototype.autoSaveForm = function () {
-        var saved = localStorage.getItem('assignments_autosave') ? JSON.parse(localStorage.getItem('assignments_autosave')) : [];
-        var currentForm = this.form.value;
-        var newSaved;
-        if (currentForm.id) {
-            saved.map(function (assignment) {
-                if (assignment.id === currentForm.id) {
-                    return currentForm;
-                }
-                return assignment;
-            });
-        }
-        else {
-            newSaved['new_assignment'] = currentForm;
-        }
-        localStorage.setItem('assignments_autosave', JSON.stringify(newSaved));
-    };
+    // private autoSaveForm() {
+    //   const saved:Assignment[] = localStorage.getItem('assignments_autosave') ? JSON.parse(localStorage.getItem('assignments_autosave')) : [];
+    //   const currentForm:Assignment = this.form.value;
+    //   let newSaved:Assignment[];
+    //   if (currentForm.id) {
+    //     saved.map(assignment => {
+    //       if (assignment.id === currentForm.id) {
+    //         return currentForm;
+    //       }
+    //       return assignment;
+    //     });
+    //   }
+    //   else {
+    //     newSaved['new_assignment'] = currentForm;
+    //   }
+    //   localStorage.setItem('assignments_autosave', JSON.stringify(newSaved));
+    // }
     AssignmentFormComponent.prototype.save = function () {
         var model = this.form.value;
         this.assignmentSave.emit(model);
