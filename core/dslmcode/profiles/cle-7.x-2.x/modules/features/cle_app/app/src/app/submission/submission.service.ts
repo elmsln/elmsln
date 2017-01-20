@@ -126,6 +126,12 @@ export class SubmissionService {
       }
     }
 
+    if (submission.evidence) {
+      if (submission.evidence.images) {
+        newSub.evidence['images'] = submission.evidence.images; 
+      }
+    }
+
     return newSub;
   }
 }

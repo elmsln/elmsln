@@ -1,6 +1,6 @@
 <form *ngIf="form" [formGroup]="form" class="submission-form">
   <input formControlName="title" placeholder="title">
-  <wysiwygjs formControlName="body" (onWysiwygInit)="onWysiwygInit()"></wysiwygjs>
+  <wysiwygjs formControlName="body" (onWysiwygInit)="onWysiwygInit()" (onImageAdded)="onWysiwygImageAdded($event)"></wysiwygjs>
 
   <div class="actions">
     <button type="submit" class="btn" (click)="submit()">Save</button>
