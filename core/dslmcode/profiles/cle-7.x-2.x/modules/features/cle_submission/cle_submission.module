@@ -198,15 +198,27 @@ function _cle_submission_v1_submission_modify($node, $params = NULL) {
       case 'evidence':
         foreach ($value as $key2 => $value2) {
           switch ($key2) {
+            // html text area
             case 'body':
               $node->field_submission_text[LANGUAGE_NONE][0] = $value2;
             break;
+            // file entity ids as the target_id entity reference handles the rest
             case 'images':
-            case 'video':
             case 'files':
-            case 'links':
               foreach ($value2 as $item) {
                 $node->{'field_' . $key2}[LANGUAGE_NONE][] = array('target_id' => $item);
+              }
+            break;
+            // youtube / vimeo / external video provider links
+            case 'video':
+              foreach ($value2 as $item) {
+                $node->{'field_' . $key2}[LANGUAGE_NONE][] = array('video_url' => $item);
+              }
+            break;
+            // item must have keys array('url' => '', 'title' =>'')
+            case 'links':
+              foreach ($value2 as $item) {
+                $node->{'field_' . $key2}[LANGUAGE_NONE][] = $item;
               }
             break;
           }
@@ -329,7 +341,7 @@ function cle_submission_node_access($node, $op, $account) {
 /**
  * Return if a user has completed an assignment / has anything submitted for it.
  */
-function _cle_submission_submission_status($assignment_id, $account = NULL) {
+function _cle_submission_submission_status($assignment, $account = NULL) {
   // load active account if not specified
   if (is_null($account)) {
     $account = $GLOBALS['user'];
@@ -339,41 +351,27 @@ function _cle_submission_submission_status($assignment_id, $account = NULL) {
   if ($gid = _cis_section_load_section_by_id(_cis_connector_section_context())) {
       $field_conditions = array('og_group_ref' => array('target_id', array($gid), 'IN'));
   }
-  $field_conditions['field_assignment'] = array('target_id', array($assignment_id), 'IN');
+  $field_conditions['field_assignment'] = array('target_id', array($assignment->nid), 'IN');
   // load results
   $results = _cis_connector_assemble_entity_list('node', 'cle_submission', 'nid', '_entity', $field_conditions, array('uid' => $account->uid));
-  $submissions= array();
+  $submissions = array();
   foreach ($results as $nid => $node) {
     $submissions[$nid] = _cle_submission_v1_submission_output($node);
   }
-  // submit w/ evidence if complete
-  if (!empty($submissions)) {
-    return array(
-      // @todo may want to see if we allow multiple submissions for this
-      'canCreate' => 1,
-      'complete' => array(
-      // @todo might need a more sophisticated look up for this info
-        'status' => 1,
-        'submissions' => $submissions,
-      )
-    );
+  // create a stub node to see if they can access this object
+  $node = _elmsln_api_stub_node('cle_submission');
+  // see if they CAN submit anything at this point
+  if (entity_access('create', 'node', $node, $account)) {
+    $canCreate = 1;
   }
   else {
-    // create a stub node to see if they can access this object
-    $node = _elmsln_api_stub_node('cle_submission');
-    // see if they CAN submit anything at this point
-    if (entity_access('create', 'node', $node, $account)) {
-      $canCreate = 1;
-    }
-    else {
-      $canCreate = 0;
-    }
-    return array(
-      'canCreate' => $canCreate,
-      'complete' => array(
-        'status' => 0,
-        'submissions' => array(),
-      )
-    );
+    $canCreate = 0;
   }
+  return array(
+    'canCreate' => $canCreate,
+    'complete' => array(
+      'status' => (!empty($submissions) ? 1 : 0),
+      'submissions' => $submissions,
+    )
+  );
 }
