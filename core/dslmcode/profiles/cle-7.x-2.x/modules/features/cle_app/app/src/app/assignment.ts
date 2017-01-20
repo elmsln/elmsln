@@ -1,7 +1,7 @@
 export class Assignment {
   id:number = null;
   title:string = null;
-  type:boolean = null;
+  type:string = 'open';
   status:boolean = true;
   created:number = null;
   startDate:string = null;
@@ -10,7 +10,6 @@ export class Assignment {
   project:number = null;
   body: string = null;
   critiqueMethod:string = 'none';
-  critiquePrivacy:boolean = null;
-  critiqueStyle:string = null;
+  critiquePrivacy:boolean = false;
   metadata:any = {};
 }

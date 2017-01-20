@@ -4,19 +4,14 @@
 
   <div class="submissions-settings fieldset">
     <label>Submission settings</label>
-    <div class="privacy switch">
-      <label>
-        Public
-        <input type="checkbox" formControlName="type">
-        <span class="lever"></span>
-        Private
-      </label>
-      <div class="detail" *ngIf="form.value.type">
-        Only instructors will be able to see student submissions.
-      </div>
-      <div class="detail" *ngIf="!form.value.type">
-        Students will be able to see each other's posts.
-      </div>
+    <div class="type">
+      <label>Type</label>
+      <select formControlName="type">
+        <option *ngFor="let type of assignmentOptions.type" [value]="type.value">{{ type.display }}</option>
+      </select>
+      <div class="detail" *ngIf="form.value.type === 'open'">Students will be able to see all submissions.</div>
+      <div class="detail" *ngIf="form.value.type === 'open_after_submission'">Students will be able to see all submissions AFTER they have made a submission to this assignment.</div>
+      <div class="detail" *ngIf="form.value.type === 'closed'">Students will NOT be able to see each other's submissions.</div>
     </div>
 
     <div class="late-submissions switch">
@@ -39,21 +34,15 @@
     </div>
 
     <div class="critique-subsettings" *ngIf="form.value.critiqueMethod !== 'none'">
-      <div class="critique-style">
-        <label>Critique style</label>
-        <select formControlName="critiqueStyle">
-          <option *ngFor="let option of assignmentOptions.critiqueStyle" [value]="option.value">{{ option.display }}</option>
-        </select>
-        <div class="detail" *ngIf="form.value.critiqueStyle == 'blind'">After work is submitted, it is open for feedback by a person or group. There is no dialogue, this is a one-way conversation.</div>
-      </div>
-
       <div class="critique-privacy switch">
         <label>
-          Private
+          Double-blind
           <input type="checkbox" formControlName="critiquePrivacy">
           <span class="lever"></span>
-          Public
+          Open
         </label>
+        <div class="detail" *ngIf="!form.value.critiquePrivacy">Submissions will NOT see the author information on submissions or critiques.</div>
+        <div class="detail" *ngIf="form.value.critiquePrivacy">Submissions will see the author information on submissions and critiques.</div>
       </div>
     </div>
   </div>
