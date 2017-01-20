@@ -347,7 +347,7 @@ function _cle_assignment_v1_assignment_output($node) {
     'allowLateSubmissions' => (int)$node->field_assignment_late_submission[LANGUAGE_NONE][0]['value'],
     'color' => $color,
     'image' => (isset($node->field_assignment_image[LANGUAGE_NONE][0]) ? _elmsln_api_v1_file_output($node->field_assignment_image[LANGUAGE_NONE][0]) : array()),
-    'type' => ($node->field_assignment_privacy_setting ? $node->field_assignment_privacy_setting[LANGUAGE_NONE][0]['value'] : 'open'),
+    'type' => $node->field_assignment_privacy_setting[LANGUAGE_NONE][0]['value'],
     'startDate' => $dates[0],
     'endDate' => $dates[1],
     'commentStyle' => $node->field_assignment_feedback[LANGUAGE_NONE][0]['value'],
