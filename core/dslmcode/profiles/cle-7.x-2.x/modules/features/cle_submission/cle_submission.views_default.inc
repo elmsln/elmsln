@@ -877,10 +877,6 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['menu']['name'] = 'menu-elmsln-navigation';
   $handler->display->display_options['menu']['context'] = 0;
   $handler->display->display_options['menu']['context_only_inline'] = 0;
-
-  /* Display: Page */
-  $handler = $view->new_display('page', 'Page', 'page_1');
-  $handler->display->display_options['path'] = 'cle';
   $export['cle_submissions'] = $view;
 
   $view = new view();

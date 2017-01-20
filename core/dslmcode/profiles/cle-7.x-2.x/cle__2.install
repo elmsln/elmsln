@@ -18,7 +18,7 @@ function cle__2_install() {
   _elmsln_installer_post_install_cleanup();
 
   // set homepage
-  variable_set('site_frontpage', 'cle/app');
+  variable_set('site_frontpage', 'cle');
   // last ditch revert
   features_revert_module('cle_critique');
   features_revert_module('cle_submission');
@@ -41,7 +41,16 @@ function cle__2_update_7001(&$sandbox) {
   features_revert_module('cle_submission');
   features_revert_module('cle_cis_ux');
   // new homepage as app is stable!
-  variable_set('site_frontpage', 'cle/app');
+  variable_set('site_frontpage', 'cle');
   // shouldn't have been enabled in 2.x version
   module_disable(array('cle_require_profile'));
+}
+
+/**
+ * Get appropriate settings in field options for cle_assignment.
+ */
+function cle__2_update_7002(&$sandbox) {
+  features_revert_module('cle_assignment');
+  features_revert_module('cle_submission');
+  variable_set('site_frontpage', 'cle');
 }
