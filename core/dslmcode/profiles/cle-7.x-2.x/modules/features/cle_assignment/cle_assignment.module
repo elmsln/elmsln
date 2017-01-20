@@ -363,7 +363,7 @@ function _cle_assignment_v1_assignment_output($node) {
       'critique' => array(
         'method' => $node->field_critique_method[LANGUAGE_NONE][0]['value'],
         'outline' => $node->field_critique_outline[LANGUAGE_NONE][0]['value'],
-        'public' => (int)$node->field_critique_privacy[LANGUAGE_NONE][0]['value'],
+        'public' => (bool)$node->field_critique_privacy[LANGUAGE_NONE][0]['value'],
       ),
     ),
     'metadata' => $metadata,
