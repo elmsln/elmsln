@@ -296,6 +296,7 @@ function cle_assignment_field_default_field_bases() {
     'settings' => array(
       'allowed_values' => array(
         'open' => 'Open to the class',
+        'open_after_submission' => 'Open to the class, after they have submitted',
         'closed' => 'Instructor and student only',
       ),
       'allowed_values_function' => '',
