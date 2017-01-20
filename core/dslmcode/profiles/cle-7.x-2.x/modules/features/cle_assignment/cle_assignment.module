@@ -226,6 +226,10 @@ function _cle_assignment_v1_assignment_modify($node, $params = NULL) {
       break;
     }
   }
+  // account for due date not having an end date
+  if (!is_null($node->field_assignment_due_date[LANGUAGE_NONE][0]['value']) && is_null($node->field_assignment_due_date[LANGUAGE_NONE][0]['value2'])) {
+    $node->field_assignment_due_date[LANGUAGE_NONE][0]['value2'] = $node->field_assignment_due_date[LANGUAGE_NONE][0]['value'];
+  }
   // ensure we don't have anonymous creation since it's not possible
   if (!isset($node->uid) || $node->uid == 0) {
     $node->uid = $GLOBALS['user']->uid;
@@ -250,12 +254,61 @@ function _cle_assignment_v1_assignment_output($node) {
   $dates = _elmsln_api_format_date_field($node->field_assignment_due_date[LANGUAGE_NONE][0]);
   // set color
   $color = '#ffffff';
+  // account for color field so it's a color on output if set
   if (isset($node->field_assignment_color[LANGUAGE_NONE][0]['jquery_colorpicker'])) {
     $color = '#' . $node->field_assignment_color[LANGUAGE_NONE][0]['jquery_colorpicker'];
   }
+  // see if this allows late submissions
+  $allowLate = (bool)$node->field_assignment_late_submission['und'][0]['value'];
+  // calculate if this is on time / can be active for submissions
+  // as well as providing a rationale behind this response
+  // this helps in both debugging and messages to the end user
+  // so logic all stays server side
+  $time = REQUEST_TIME;
+  // see if this has a due date and if it is after as a result
+  if (isset($node->field_assignment_due_date['und'][0]['value'])) {
+    // time is greater than the due date, meaning its late
+    // see if it's allowed to be late though
+    if ($time > $node->field_assignment_due_date['und'][0]['value2'] && $allowLate) {
+      $submissionActive = 1;
+      $rationale = t('The assignment was due @date, but late submissions are accepted.', array('@date' => date('M d, Y - h:iA', $node->field_assignment_due_date['und'][0]['value2'])));
+    }
+    // time is greater than the due date and they can't submit
+    else if ($time > $node->field_assignment_due_date['und'][0]['value2'] && !$allowLate) {
+      $submissionActive = 0;
+      $rationale = t('The assignment was due @date and submissions are now closed.', array('@date' => date('M d, Y - h:iA', $node->field_assignment_due_date['und'][0]['value2'])));
+    }
+    // time greater than 1st date (within it starting) and less than 2nd (due date)
+    else if ($time > $node->field_assignment_due_date['und'][0]['value'] && $time < $node->field_assignment_due_date['und'][0]['value2']) {
+      $submissionActive = 1;
+      $rationale = t('Assignment submissions opened @date1 and are due by @date2.', array('@date1' => date('M d, Y - h:iA', $node->field_assignment_due_date['und'][0]['value']), '@date2' => date('M d, Y - h:iA', $node->field_assignment_due_date['und'][0]['value2'])));
+    }
+    // time is less than the start of the date range meaning it hasn't opened yet
+    else if ($time < $node->field_assignment_due_date['und'][0]['value'] && $node->field_assignment_due_date['und'][0]['value'] != $node->field_assignment_due_date['und'][0]['value2'] && !is_null($node->field_assignment_due_date['und'][0]['value2'])) {
+      $submissionActive = 0;
+      $rationale = t('Assignment submissions are currently closed. This assignment will open @date1 and is due by @date2.', array('@date1' => date('M d, Y - h:iA', $node->field_assignment_due_date['und'][0]['value']), '@date2' => date('M d, Y - h:iA', $node->field_assignment_due_date['und'][0]['value2'])));
+    }
+    // time is before the due date, we're good.
+    else if ($time < $node->field_assignment_due_date['und'][0]['value']) {
+      $submissionActive = 0;
+      $rationale = t('The assignment is accepting submissions and is due @date.', array('@date' => date('M d, Y - h:iA', $node->field_assignment_due_date['und'][0]['value'])));
+    }
+  }
+  else {
+    $submissionActive = 1;
+    $rationale = t('The assignment is open for submission, there is no due date.');
+  }
+  // account for admin / staff / teacher roles which can submit things
+  // regardless of due date stuff
+  if (_cis_connector_role_groupings(array('staff', 'teacher')) && $submissionActive == 0) {
+    $submissionActive = 1;
+    $rationale .= t(' <em>Your privledges allow you to submit this regardless.</em>');
+  }
   // calculate metadata to act on this
   $metadata = array(
-    'relatedSubmissions' => _cle_submission_submission_status($node->nid),
+    'rationale' => $rationale,
+    'submissionActive' => $submissionActive,
+    'relatedSubmissions' => _cle_submission_submission_status($node),
     'canUpdate' => 0,
     'canDelete' => 0,
     'afterDueDate' => 0,
@@ -316,8 +369,14 @@ function _cle_assignment_v1_assignment_output($node) {
     'metadata' => $metadata,
     'links' => array(
       'self' => $base_url . '/api/v1/cle/assignments/' . $node->nid,
+      'url' => $base_url . '/cle/app/assignments/' . $node->nid,
+      'direct' => $base_url . '/node/' . $node->nid,
     ),
   );
+  // developer support
+  if (module_exists('devel') && user_access('access devel information')) {
+    $return['links']['devel'] = $base_url . '/node/' . $node->nid .'/devel';
+  }
 
   return $return;
 }
