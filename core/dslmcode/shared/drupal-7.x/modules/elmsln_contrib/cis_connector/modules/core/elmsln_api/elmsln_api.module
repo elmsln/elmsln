@@ -162,7 +162,7 @@ function _elmsln_api_v1_file_modify($file, $params = NULL) {
     $ext = $result[1][0];
     $fail = FALSE;
     // image can be made
-    $img = imagecreatefromstring($data);
+    $img = @imagecreatefromstring($data);
     if (!$img) {
       $fail = TRUE;
     }
