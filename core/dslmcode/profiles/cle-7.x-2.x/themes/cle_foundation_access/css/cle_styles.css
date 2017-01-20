@@ -132,6 +132,10 @@ app-root .projects-container::-webkit-scrollbar {
   font-size: 2rem;
 }
 
+article app-root ul li {
+  list-style-type: disc !important;
+}
+
 article app-root cle-assignment-list ul li {
   list-style-type: none !important;
 }

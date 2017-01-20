@@ -1,4 +1,4 @@
-import { Component, OnInit, ElementRef, OnDestroy, OnChanges } from '@angular/core';
+import { Component, OnInit, ElementRef, OnDestroy, OnChanges, AfterViewChecked } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { Assignment } from '../assignment';
@@ -6,6 +6,7 @@ import { AssignmentService } from '../assignment.service';
 import { Observable } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { loadAssignments } from '../app.actions';
+import { ElmslnService } from '../elmsln.service';
 declare const jQuery:any;
 
 @Component({
@@ -14,7 +15,7 @@ declare const jQuery:any;
   styleUrls: ['./assignment.component.css'],
   providers: [AssignmentService]
 })
-export class AssignmentComponent implements OnInit {
+export class AssignmentComponent implements OnInit, AfterViewChecked {
   assignmentId:number;
   date:number;
   userCanSubmit$:Observable<boolean>;
@@ -28,7 +29,8 @@ export class AssignmentComponent implements OnInit {
     private location: Location,
     private assignmentService: AssignmentService,
     private el:ElementRef,
-    private store: Store<{}>
+    private store: Store<{}>,
+    private elmslnService:ElmslnService
   ) { 
   }
 
@@ -73,6 +75,9 @@ export class AssignmentComponent implements OnInit {
           return [state];
         })
     }
+  }
+
+  ngAfterViewChecked() {
   }
 
   onEditAssignment(assignment:Assignment) {

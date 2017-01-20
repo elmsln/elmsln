@@ -7,6 +7,14 @@
   margin-top: 2em;
 }
 
+.privacy .label {
+  display: block;
+}
+
+.privacy .detail {
+  padding-top: .5em;
+}
+
 .due-date .display {
   font-size: 1.2em;
   text-align: center;
@@ -26,16 +34,16 @@ select {
   display: block;
 }
 
-.critique {
+.fieldset {
   padding: 1em;
   padding-top: 2em;
   background: rgba(0,0,0, 0.07);
   position: relative;
 }
-.critique > * {
+.fieldset > * {
   padding-bottom: 1em;
 }
-.critique > label:first-of-type {
+.fieldset > label:first-of-type {
   position: absolute;
   top: .5em;
   left: .5em;

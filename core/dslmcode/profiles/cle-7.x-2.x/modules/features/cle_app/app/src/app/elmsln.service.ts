@@ -108,4 +108,17 @@ export class ElmslnService {
     return this.post(AppSettings.BASE_PATH + 'api/v1/elmsln/files/create', body)
       .map(data => data.json().file)
   }
+
+  // helper to execute callbacks that are located in an objects like nodes and user
+  evalCallbacks(object:any):void {
+    try {
+      if (object.environment.callbacks) {
+        let callbacks:string[] = object.environment.callbacks;
+        callbacks
+          .map(callback => {
+            eval(callback);
+          })
+      }
+    }catch(e){}
+  }
 }

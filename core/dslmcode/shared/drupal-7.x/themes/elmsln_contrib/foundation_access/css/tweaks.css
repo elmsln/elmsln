@@ -310,6 +310,10 @@ article ul:not(.collapsible):not(.browser-default):not(.dropdown-content):not(.h
   background-color: #eeeeee;
 }
 
+#etb-course-nav .top-bar {
+  height: 3.2rem;
+}
+
 .etb-book dl {
   margin: 0;
 }
@@ -579,17 +583,17 @@ body.devel-show .devel-querylog {
 }
 .left-nav-section li {
   display: inline-block;
-  margin: .1rem 0 0;
+  margin: .2rem 0 0 0;
   padding: 0;
-  height: 4.8rem;
-  line-height: 4.8rem;
-  min-width: 4.8rem;
+  height: 3.4rem;
+  line-height: 3.4rem;
+  min-width: 3.4rem;
 }
 nav ul.left-nav-section a {
   padding: 0 .5rem;
-  height: 4.8rem;
-  line-height: 4.8rem;
-  min-width: 4.8rem;
+  height: 3.2rem;
+  line-height: 3.2rem;
+  min-width: 3.2rem;
 }
 nav ul.left-nav-section a span {
   margin: 0 .5rem;
@@ -597,7 +601,13 @@ nav ul.left-nav-section a span {
 nav ul.left-nav-section a i,
 nav ul.left-nav-section a div,
 nav ul.left-nav-section a img {
-  margin: auto;
+  font-size: 1.4rem;
+  height: 3.2rem;
+  line-height: 3.2rem
+}
+
+#etb-course-nav .icon--dropdown {
+  margin: -.3rem 0 0 0.2rem;
 }
 
 /* Avoid .progress conflict with materialize */
@@ -1068,11 +1078,11 @@ input[type=file]:focus,
 
 /* top bar profile divider */
 .left-nav-section li.divider-right {
-  border-right-width: 0.2rem;
+  border-right-width: 0.15rem;
   border-right-style:solid;
   padding: 0;
   min-width: 0;
-  margin: 0.2rem 0;
+  margin: 0.6rem 0;
   width: 0.2rem;
   height: auto;
 }

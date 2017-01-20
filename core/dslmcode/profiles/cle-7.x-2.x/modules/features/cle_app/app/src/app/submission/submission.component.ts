@@ -4,6 +4,7 @@ import { Location } from '@angular/common';
 import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
 import { Submission } from './submission';
+import { ElmslnService } from '../elmsln.service';
 
 @Component({
   selector: 'app-submission',
@@ -20,7 +21,8 @@ export class SubmissionComponent implements OnInit {
     private route:ActivatedRoute,
     private store:Store<{}>,
     private router:Router,
-    private location:Location
+    private location:Location,
+    private elmslnService:ElmslnService
   ) { }
 
   ngOnInit() {

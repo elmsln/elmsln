@@ -162,7 +162,7 @@ function _elmsln_api_v1_file_modify($file, $params = NULL) {
     $ext = $result[1][0];
     $fail = FALSE;
     // image can be made
-    $img = imagecreatefromstring($data);
+    $img = @imagecreatefromstring($data);
     if (!$img) {
       $fail = TRUE;
     }
@@ -266,7 +266,7 @@ function _elmsln_api_tree($search = ELMSLN_API_BASE_PATH, $deliver = TRUE) {
   }
   // deliver to the screen or return array
   if ($deliver) {
-    _elmsln_api_deliver_output($vars);
+    _elmsln_jsapi_deliver_output($vars);
   }
   else {
     return $vars;
@@ -276,7 +276,7 @@ function _elmsln_api_tree($search = ELMSLN_API_BASE_PATH, $deliver = TRUE) {
 /**
  * Return json output to the screen in correct format.
  */
-function _elmsln_api_deliver_output($vars) {
+function _elmsln_jsapi_deliver_output($vars) {
   // nothing set so make it 200 even though it already is
   if (empty($vars['status'])) {
     $vars['status'] = '200';
@@ -285,6 +285,12 @@ function _elmsln_api_deliver_output($vars) {
   if (empty($vars['detail'])) {
     $vars['detail'] = '';
   }
+  // ensure there's some form of detail even if empty
+  if (empty($vars['environment'])) {
+    $vars['environment'] = array();
+  }
+  // allow output delivery to be modified contextually
+  drupal_alter('elmsln_jsapi_deliver_output', $vars);
   // define return type
   drupal_add_http_header('Content-Type', 'application/json');
   // define status
@@ -292,7 +298,7 @@ function _elmsln_api_deliver_output($vars) {
   // output the response as json
   print drupal_json_output($vars);
   // official drupal exit routines
-  drupal_exit();
+  exit;
 }
 
 /**
@@ -315,7 +321,7 @@ function _elmsln_api_user_request() {
   );
   // allow others to jump in and modify the user object
   drupal_alter('elmsln_jsapi_user_request', $vars);
-  _elmsln_api_deliver_output($vars);
+  _elmsln_jsapi_deliver_output($vars);
 }
 
 /**
@@ -391,7 +397,7 @@ function _elmsln_api_bridge($token, $api, $bucket) {
     $response = _elmsln_api_request($request);
     // decode and output the response as json; even if it failed which should
     // give us FALSE encoded as a bool appropriately
-    _elmsln_api_deliver_output($response);
+    _elmsln_jsapi_deliver_output($response);
   }
 }
 /**
@@ -1322,8 +1328,11 @@ function _elmsln_api_v1_page_callback($type, $etid = NULL, $op = NULL) {
       // get the assignment ready for sending and place them as an array of items
       // under the 'data' property
       foreach ($items as $item) {
-        $_item = call_user_func($jsapis[$type]['output'], $item);
-        $vars['data'][] = $_item;
+        // ensure the user is allowed to see these things we queried
+        if (entity_access('view', $jsapis[$type]['type'], $item)) {
+          $_item = call_user_func($jsapis[$type]['output'], $item);
+          $vars['data'][] = $_item;
+        }
       }
     }
     else {
@@ -1441,7 +1450,7 @@ function _elmsln_api_v1_page_callback($type, $etid = NULL, $op = NULL) {
     }
   }
   // send back the message to the screen, most likely a webservice
-  _elmsln_api_deliver_output($vars);
+  _elmsln_jsapi_deliver_output($vars);
 }
 
 /**

@@ -74,13 +74,13 @@ function assessment_helper_form_quiz_results_manage_results_form_alter(&$form, &
 function _assessment_helper_make_file($node) {
   // quiz means its single, section/course we have to query
   if ($node->type == 'quiz') {
-    $nodes = array($node);
+    $nodes = array($node->nid => $node);
   }
   elseif ($node->type == 'section') {
-    $nodes = _cis_connector_assemble_entity_list('node', 'quiz', 'nid', '_entity', array('og_group_ref' => array('target_id', $node->nid)), array('status' => 1),array('title'));
+    $nodes = _cis_connector_assemble_entity_list('node', 'quiz', 'nid', '_entity', array('og_group_ref' => array('target_id', $node->nid)), array('status' => 1), array('created'));
   }
   elseif ($node->type == 'cis_course') {
-    $nodes = _cis_connector_assemble_entity_list('node', 'quiz', 'nid', '_entity', array('field_cis_course_ref' => array('target_id', $node->nid)), array('status' => 1),array('title'));
+    $nodes = _cis_connector_assemble_entity_list('node', 'quiz', 'nid', '_entity', array('field_cis_course_ref' => array('target_id', $node->nid)), array('status' => 1), array('created'));
   }
   // if we got nothing then ensure we fail safely
   if (empty($nodes)) {

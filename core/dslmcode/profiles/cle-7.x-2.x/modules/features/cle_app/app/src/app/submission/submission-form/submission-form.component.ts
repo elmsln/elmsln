@@ -42,6 +42,19 @@ export class SubmissionFormComponent implements OnInit, OnChanges {
     this.form.markAsPristine();
   }
 
+  onWysiwygImageAdded($event) {
+    // get the existing images
+    var images:any[] = typeof this.form.value.evidence.images  === 'array' ? this.form.value.evidence.images : [];
+    // add this new image fid onto the array
+    images.push($event.fid);
+    // update the images array in the submission form.
+    this.form.patchValue({
+      evidence: {
+        images: images
+      }
+    });
+  }
+
   submit() {
     const model = this.form.value;
     this.onSubmissionSave.emit(model);

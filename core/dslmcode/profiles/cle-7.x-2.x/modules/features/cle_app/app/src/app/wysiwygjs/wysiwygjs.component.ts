@@ -25,6 +25,7 @@ export class WysiwygjsComponent implements OnInit, ControlValueAccessor {
   @Input() content:string;
   @Output() onWysiwygInit: EventEmitter<any> = new EventEmitter();
   @Output() onContentUpdate: EventEmitter<any> = new EventEmitter();
+  @Output() onImageAdded: EventEmitter<any> = new EventEmitter();
 
   constructor(
     private el: ElementRef,
@@ -304,11 +305,11 @@ export class WysiwygjsComponent implements OnInit, ControlValueAccessor {
           newThis.uploadImage(base64)
             .subscribe(
                 (image:any) => {
-                    console.log(image);
                     jQuery(this).attr('src', image.url);
                     jQuery(this).attr('width', image.metadata.width);
                     jQuery(this).attr('height', image.metadata.height);
                     jQuery(this).addClass('processed');
+                    newThis.onImageAdded.emit(image);
                 },
                 error => {
                     jQuery(this).remove();

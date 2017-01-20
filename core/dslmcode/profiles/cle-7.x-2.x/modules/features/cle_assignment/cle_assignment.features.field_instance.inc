@@ -841,7 +841,7 @@ function cle_assignment_field_default_field_instances() {
       ),
     ),
     'deleted' => 0,
-    'description' => 'Will the student\'s critique be visible to other students?',
+    'description' => 'Will students be able to know who is critiquing who or is it a true double-blind process?',
     'display' => array(
       'default' => array(
         'label' => 'above',
@@ -1035,7 +1035,7 @@ function cle_assignment_field_default_field_instances() {
   t('Public critique');
   t('Section');
   t('Student Feedback');
-  t('Will the student\'s critique be visible to other students?');
+  t('Will students be able to know who is critiquing who or is it a true double-blind process?');
 
   return $field_instances;
 }
