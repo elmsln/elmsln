@@ -3758,7 +3758,7 @@ var WysiwygjsComponent = (function () {
                     newThis.onImageAdded.emit(image);
                 }, function (error) {
                     jQuery(_this).remove();
-                    Materialize.toast('Image must be smaller than 1024 x 640 pixels.', 2500);
+                    Materialize.toast('Image must be smaller than .5MB', 2500);
                 });
                 // .subscribe(url => {
                 //     jQuery(this).attr('src', url).addClass('processed');
