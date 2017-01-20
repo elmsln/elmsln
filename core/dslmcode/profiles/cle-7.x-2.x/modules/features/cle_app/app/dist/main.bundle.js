@@ -426,7 +426,7 @@ var Assignment = (function () {
         this.created = null;
         this.startDate = null;
         this.endDate = null;
-        this.allowLateSubmissions = false;
+        this.allowLateSubmissions = true;
         this.project = null;
         this.body = null;
         this.critiqueMethod = 'none';
@@ -4037,6 +4037,8 @@ var AssignmentService = (function () {
     AssignmentService.prototype.prepareForDrupal = function (assignment) {
         // Convert date fields
         var newAssignment = Object.assign({}, assignment);
+        // remove created
+        delete newAssignment.created;
         if (assignment.body) {
             newAssignment.body = {
                 value: assignment.body,
@@ -4046,10 +4048,10 @@ var AssignmentService = (function () {
         if (assignment.type) {
             Object.assign(newAssignment, assignment.type);
         }
-        if (assignment.critiqueMethod) {
-            Object.assign(newAssignment, { evidence: { critique: { method: assignment.critiqueMethod } } });
-        }
-        Object.assign(newAssignment, { evidence: { critique: { public: assignment.critiquePrivacy ? 1 : 0 } } });
+        Object.assign(newAssignment, { evidence: { critique: {
+                    method: assignment.critiqueMethod,
+                    public: assignment.critiquePrivacy ? 1 : 0
+                } } });
         var dateFields = ['startDate', 'endDate'];
         dateFields.forEach(function (field) {
             if (assignment[field]) {

@@ -128,7 +128,8 @@ export class AssignmentService {
   private prepareForDrupal(assignment:Assignment) {
     // Convert date fields
     let newAssignment: any = Object.assign({}, assignment);
-
+    // remove created
+    delete newAssignment.created;
     if (assignment.body) {
       newAssignment.body = {
         value: assignment.body,
@@ -138,10 +139,10 @@ export class AssignmentService {
     if (assignment.type) {
       Object.assign(newAssignment, assignment.type);
     }
-    if (assignment.critiqueMethod) {
-      Object.assign(newAssignment, {evidence: {critique: { method: assignment.critiqueMethod}}});
-    }
-    Object.assign(newAssignment, {evidence: {critique: { public: assignment.critiquePrivacy ? 1 : 0}}})
+    Object.assign(newAssignment, {evidence: {critique: { 
+      method: assignment.critiqueMethod,
+      public: assignment.critiquePrivacy ? 1 : 0
+    }}});
     
     let dateFields = ['startDate', 'endDate'];
     dateFields.forEach(function(field) {

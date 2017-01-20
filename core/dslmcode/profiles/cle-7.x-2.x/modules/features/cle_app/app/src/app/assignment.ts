@@ -6,7 +6,7 @@ export class Assignment {
   created:number = null;
   startDate:string = null;
   endDate:string = null;
-  allowLateSubmissions: boolean = false;
+  allowLateSubmissions: boolean = true;
   project:number = null;
   body: string = null;
   critiqueMethod:string = 'none';
