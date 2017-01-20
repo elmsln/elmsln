@@ -83,6 +83,7 @@ export class AssignmentService {
     return {
       type: [
         { value: 'open', display: 'Open' },
+        { value: 'open_after_submission', display: 'Open After Submission' },
         { value: 'closed', display: 'Closed' }
       ],
       critiqueMethod: [
@@ -105,19 +106,6 @@ export class AssignmentService {
         converted[propertyName] = data[propertyName];
       }
     }
-
-    /**
-     * @todo: temporary hack. the drupal's datamodel is a string value
-     */
-    if (data['type']) {
-      if (data['type'] === 'open') {
-        converted.type = false;
-      }
-      else if (data['type'] === 'closed') {
-        converted.type = true;
-      }
-    }
-
     if (data['hierarchy']) {
       if (data['hierarchy']['project']) {
         converted['project'] = Number(data['hierarchy']['project']);
@@ -128,11 +116,8 @@ export class AssignmentService {
         if (data['evidence']['critique']['method']) {
           converted.critiqueMethod = data['evidence']['critique']['method'];
         }
-        if (data['evidence']['critique']['style']) {
-          converted.critiqueStyle = data['evidence']['critique']['style'];
-        }
-        if (data['evidence']['critique']['privacy']) {
-          converted.critiquePrivacy = data['evidence']['critique']['privacy'];
+        if (data['evidence']['critique']['public']) {
+          converted.critiquePrivacy = data['evidence']['critique']['public'];
         }
       }
     }
@@ -150,18 +135,13 @@ export class AssignmentService {
         format: 'textbook_editor'
       }
     }
-
-    newAssignment.type = assignment.type ? 'closed' : 'open';
-
+    if (assignment.type) {
+      Object.assign(newAssignment, assignment.type);
+    }
     if (assignment.critiqueMethod) {
       Object.assign(newAssignment, {evidence: {critique: { method: assignment.critiqueMethod}}});
     }
-    if (assignment.critiquePrivacy) {
-      Object.assign(newAssignment, {evidence: {critique: { privacy: assignment.critiquePrivacy}}})
-    }
-    if (assignment.critiqueStyle) {
-      Object.assign(newAssignment, {hierarchy:{critique: { style: assignment.critiqueStyle}}});
-    }
+    Object.assign(newAssignment, {evidence: {critique: { public: assignment.critiquePrivacy ? 1 : 0}}})
     
     let dateFields = ['startDate', 'endDate'];
     dateFields.forEach(function(field) {

@@ -38,30 +38,33 @@ export class AssignmentFormComponent implements OnInit, OnChanges {
 
   ngOnChanges() {
     this.form = this.formBuilder.group(this.assignment);
-    this.form.valueChanges
-      .debounceTime(1000)
-      .subscribe(() => this.autoSaveForm());
+    /**
+     * @todo: first attempt at autoSaveForm
+     */
+    // this.form.valueChanges
+    //   .debounceTime(1000)
+    //   .subscribe(() => this.autoSaveForm());
   }
 
-  private autoSaveForm() {
-    const saved:Assignment[] = localStorage.getItem('assignments_autosave') ? JSON.parse(localStorage.getItem('assignments_autosave')) : [];
-    const currentForm:Assignment = this.form.value;
-    let newSaved:Assignment[];
+  // private autoSaveForm() {
+  //   const saved:Assignment[] = localStorage.getItem('assignments_autosave') ? JSON.parse(localStorage.getItem('assignments_autosave')) : [];
+  //   const currentForm:Assignment = this.form.value;
+  //   let newSaved:Assignment[];
 
-    if (currentForm.id) {
-      saved.map(assignment => {
-        if (assignment.id === currentForm.id) {
-          return currentForm;
-        }
-        return assignment;
-      });
-    }
-    else {
-      newSaved['new_assignment'] = currentForm;
-    }
+  //   if (currentForm.id) {
+  //     saved.map(assignment => {
+  //       if (assignment.id === currentForm.id) {
+  //         return currentForm;
+  //       }
+  //       return assignment;
+  //     });
+  //   }
+  //   else {
+  //     newSaved['new_assignment'] = currentForm;
+  //   }
 
-    localStorage.setItem('assignments_autosave', JSON.stringify(newSaved));
-  }
+  //   localStorage.setItem('assignments_autosave', JSON.stringify(newSaved));
+  // }
 
 
   save() {

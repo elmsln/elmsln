@@ -421,7 +421,7 @@ var Assignment = (function () {
     function Assignment() {
         this.id = null;
         this.title = null;
-        this.type = null;
+        this.type = 'open';
         this.status = true;
         this.created = null;
         this.startDate = null;
@@ -430,8 +430,7 @@ var Assignment = (function () {
         this.project = null;
         this.body = null;
         this.critiqueMethod = 'none';
-        this.critiquePrivacy = null;
-        this.critiqueStyle = null;
+        this.critiquePrivacy = false;
         this.metadata = {};
     }
     return Assignment;
@@ -958,29 +957,31 @@ var AssignmentFormComponent = (function () {
         this.assignmentOptions = this.assignmentService.getAssignmentOptions();
     };
     AssignmentFormComponent.prototype.ngOnChanges = function () {
-        var _this = this;
         this.form = this.formBuilder.group(this.assignment);
-        this.form.valueChanges
-            .debounceTime(1000)
-            .subscribe(function () { return _this.autoSaveForm(); });
+        /**
+         * @todo: first attempt at autoSaveForm
+         */
+        // this.form.valueChanges
+        //   .debounceTime(1000)
+        //   .subscribe(() => this.autoSaveForm());
     };
-    AssignmentFormComponent.prototype.autoSaveForm = function () {
-        var saved = localStorage.getItem('assignments_autosave') ? JSON.parse(localStorage.getItem('assignments_autosave')) : [];
-        var currentForm = this.form.value;
-        var newSaved;
-        if (currentForm.id) {
-            saved.map(function (assignment) {
-                if (assignment.id === currentForm.id) {
-                    return currentForm;
-                }
-                return assignment;
-            });
-        }
-        else {
-            newSaved['new_assignment'] = currentForm;
-        }
-        localStorage.setItem('assignments_autosave', JSON.stringify(newSaved));
-    };
+    // private autoSaveForm() {
+    //   const saved:Assignment[] = localStorage.getItem('assignments_autosave') ? JSON.parse(localStorage.getItem('assignments_autosave')) : [];
+    //   const currentForm:Assignment = this.form.value;
+    //   let newSaved:Assignment[];
+    //   if (currentForm.id) {
+    //     saved.map(assignment => {
+    //       if (assignment.id === currentForm.id) {
+    //         return currentForm;
+    //       }
+    //       return assignment;
+    //     });
+    //   }
+    //   else {
+    //     newSaved['new_assignment'] = currentForm;
+    //   }
+    //   localStorage.setItem('assignments_autosave', JSON.stringify(newSaved));
+    // }
     AssignmentFormComponent.prototype.save = function () {
         var model = this.form.value;
         this.assignmentSave.emit(model);
@@ -3994,6 +3995,7 @@ var AssignmentService = (function () {
         return {
             type: [
                 { value: 'open', display: 'Open' },
+                { value: 'open_after_submission', display: 'Open After Submission' },
                 { value: 'closed', display: 'Closed' }
             ],
             critiqueMethod: [
@@ -4015,17 +4017,6 @@ var AssignmentService = (function () {
                 converted[propertyName] = data[propertyName];
             }
         }
-        /**
-         * @todo: temporary hack. the drupal's datamodel is a string value
-         */
-        if (data['type']) {
-            if (data['type'] === 'open') {
-                converted.type = false;
-            }
-            else if (data['type'] === 'closed') {
-                converted.type = true;
-            }
-        }
         if (data['hierarchy']) {
             if (data['hierarchy']['project']) {
                 converted['project'] = Number(data['hierarchy']['project']);
@@ -4036,11 +4027,8 @@ var AssignmentService = (function () {
                 if (data['evidence']['critique']['method']) {
                     converted.critiqueMethod = data['evidence']['critique']['method'];
                 }
-                if (data['evidence']['critique']['style']) {
-                    converted.critiqueStyle = data['evidence']['critique']['style'];
-                }
-                if (data['evidence']['critique']['privacy']) {
-                    converted.critiquePrivacy = data['evidence']['critique']['privacy'];
+                if (data['evidence']['critique']['public']) {
+                    converted.critiquePrivacy = data['evidence']['critique']['public'];
                 }
             }
         }
@@ -4055,16 +4043,13 @@ var AssignmentService = (function () {
                 format: 'textbook_editor'
             };
         }
-        newAssignment.type = assignment.type ? 'closed' : 'open';
+        if (assignment.type) {
+            Object.assign(newAssignment, assignment.type);
+        }
         if (assignment.critiqueMethod) {
             Object.assign(newAssignment, { evidence: { critique: { method: assignment.critiqueMethod } } });
         }
-        if (assignment.critiquePrivacy) {
-            Object.assign(newAssignment, { evidence: { critique: { privacy: assignment.critiquePrivacy } } });
-        }
-        if (assignment.critiqueStyle) {
-            Object.assign(newAssignment, { hierarchy: { critique: { style: assignment.critiqueStyle } } });
-        }
+        Object.assign(newAssignment, { evidence: { critique: { public: assignment.critiquePrivacy ? 1 : 0 } } });
         var dateFields = ['startDate', 'endDate'];
         dateFields.forEach(function (field) {
             if (assignment[field]) {
@@ -4388,7 +4373,7 @@ module.exports = "<!-- Modal Structure -->\n<div id=\"modal-assignment-dialog\" 
 /***/ 808:
 /***/ function(module, exports) {
 
-module.exports = "<form [formGroup]=\"form\" class=\"assignment-form\">\n  <input formControlName=\"title\" placeholder=\"Title\">\n  <wysiwygjs formControlName=\"body\"></wysiwygjs>\n\n  <div class=\"submissions-settings fieldset\">\n    <label>Submission settings</label>\n    <div class=\"privacy switch\">\n      <label>\n        Public\n        <input type=\"checkbox\" formControlName=\"type\">\n        <span class=\"lever\"></span>\n        Private\n      </label>\n      <div class=\"detail\" *ngIf=\"form.value.type\">\n        Only instructors will be able to see student submissions.\n      </div>\n      <div class=\"detail\" *ngIf=\"!form.value.type\">\n        Students will be able to see each other's posts.\n      </div>\n    </div>\n\n    <div class=\"late-submissions switch\">\n      <label>\n        No late Submissions\n        <input type=\"checkbox\" formControlName=\"allowLateSubmissions\">\n        <span class=\"lever\"></span>\n        Allow Late Submissions\n      </label>\n    </div>\n  </div>\n\n  <div class=\"critique-settings fieldset\">\n    <label>Critique settings</label>\n    <div class=\"critique-method\">\n      <label>Method</label>\n      <select formControlName=\"critiqueMethod\">\n        <option *ngFor=\"let option of assignmentOptions.critiqueMethod\" [value]=\"option.value\">{{ option.display }}</option>\n      </select>\n    </div>\n\n    <div class=\"critique-subsettings\" *ngIf=\"form.value.critiqueMethod !== 'none'\">\n      <div class=\"critique-style\">\n        <label>Critique style</label>\n        <select formControlName=\"critiqueStyle\">\n          <option *ngFor=\"let option of assignmentOptions.critiqueStyle\" [value]=\"option.value\">{{ option.display }}</option>\n        </select>\n        <div class=\"detail\" *ngIf=\"form.value.critiqueStyle == 'blind'\">After work is submitted, it is open for feedback by a person or group. There is no dialogue, this is a one-way conversation.</div>\n      </div>\n\n      <div class=\"critique-privacy switch\">\n        <label>\n          Private\n          <input type=\"checkbox\" formControlName=\"critiquePrivacy\">\n          <span class=\"lever\"></span>\n          Public\n        </label>\n      </div>\n    </div>\n  </div>\n\n  <div class=\"due-date\">\n    <div class=\"display\" *ngIf=\"form.value.endDate !==null\">\n      Due date:\n      <span *ngIf=\"form.value.startDate !== null\" class=\"start-date\">\n        {{ form.value.startDate | amDateFormat:'LL hh:mma' }} \n        <span class=\"separator\">\n          to\n        </span>\n      </span>\n      <span class=\"end-date\">\n        {{ form.value.endDate | amDateFormat:'LL hh:mma' }}\n      </span>\n    </div>\n    \n    <div *ngIf=\"form.value.endDate !== null\" class=\"start-date\">\n      <label>Start Date</label>\n      <app-datetime-input formControlName=\"startDate\"></app-datetime-input>\n    </div>\n\n    <div class=\"due-date\">\n      <label>Due Date</label>\n      <app-datetime-input formControlName=\"endDate\"></app-datetime-input>\n    </div>\n  </div>\n</form>"
+module.exports = "<form [formGroup]=\"form\" class=\"assignment-form\">\n  <input formControlName=\"title\" placeholder=\"Title\">\n  <wysiwygjs formControlName=\"body\"></wysiwygjs>\n\n  <div class=\"submissions-settings fieldset\">\n    <label>Submission settings</label>\n    <div class=\"type\">\n      <label>Type</label>\n      <select formControlName=\"type\">\n        <option *ngFor=\"let type of assignmentOptions.type\" [value]=\"type.value\">{{ type.display }}</option>\n      </select>\n      <div class=\"detail\" *ngIf=\"form.value.type === 'open'\">Students will be able to see all submissions.</div>\n      <div class=\"detail\" *ngIf=\"form.value.type === 'open_after_submission'\">Students will be able to see all submissions AFTER they have made a submission to this assignment.</div>\n      <div class=\"detail\" *ngIf=\"form.value.type === 'closed'\">Students will NOT be able to see each other's submissions.</div>\n    </div>\n\n    <div class=\"late-submissions switch\">\n      <label>\n        No late Submissions\n        <input type=\"checkbox\" formControlName=\"allowLateSubmissions\">\n        <span class=\"lever\"></span>\n        Allow Late Submissions\n      </label>\n    </div>\n  </div>\n\n  <div class=\"critique-settings fieldset\">\n    <label>Critique settings</label>\n    <div class=\"critique-method\">\n      <label>Method</label>\n      <select formControlName=\"critiqueMethod\">\n        <option *ngFor=\"let option of assignmentOptions.critiqueMethod\" [value]=\"option.value\">{{ option.display }}</option>\n      </select>\n    </div>\n\n    <div class=\"critique-subsettings\" *ngIf=\"form.value.critiqueMethod !== 'none'\">\n      <div class=\"critique-privacy switch\">\n        <label>\n          Double-blind\n          <input type=\"checkbox\" formControlName=\"critiquePrivacy\">\n          <span class=\"lever\"></span>\n          Open\n        </label>\n        <div class=\"detail\" *ngIf=\"!form.value.critiquePrivacy\">Submissions will NOT see the author information on submissions or critiques.</div>\n        <div class=\"detail\" *ngIf=\"form.value.critiquePrivacy\">Submissions will see the author information on submissions and critiques.</div>\n      </div>\n    </div>\n  </div>\n\n  <div class=\"due-date\">\n    <div class=\"display\" *ngIf=\"form.value.endDate !==null\">\n      Due date:\n      <span *ngIf=\"form.value.startDate !== null\" class=\"start-date\">\n        {{ form.value.startDate | amDateFormat:'LL hh:mma' }} \n        <span class=\"separator\">\n          to\n        </span>\n      </span>\n      <span class=\"end-date\">\n        {{ form.value.endDate | amDateFormat:'LL hh:mma' }}\n      </span>\n    </div>\n    \n    <div *ngIf=\"form.value.endDate !== null\" class=\"start-date\">\n      <label>Start Date</label>\n      <app-datetime-input formControlName=\"startDate\"></app-datetime-input>\n    </div>\n\n    <div class=\"due-date\">\n      <label>Due Date</label>\n      <app-datetime-input formControlName=\"endDate\"></app-datetime-input>\n    </div>\n  </div>\n</form>"
 
 /***/ },
 
