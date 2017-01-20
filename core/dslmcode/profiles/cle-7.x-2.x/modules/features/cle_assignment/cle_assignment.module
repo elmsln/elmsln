@@ -127,7 +127,6 @@ function _cle_assignment_v1_assignment_modify($node, $params = NULL) {
       case 'uuid':
       case 'title':
       case 'status':
-      case 'created':
         $node->{$key} = $value;
       break;
       case 'body':
@@ -140,7 +139,7 @@ function _cle_assignment_v1_assignment_modify($node, $params = NULL) {
         $node->og_group_ref[LANGUAGE_NONE][0]['target_id'] = $value;
       break;
       case 'allowLateSubmissions':
-        $node->field_assignment_late_submission[LANGUAGE_NONE][0]['value'] = $value;
+        $node->field_assignment_late_submission[LANGUAGE_NONE][0]['value'] = (int)$value;
       break;
       case 'color':
         $node->field_assignment_color[LANGUAGE_NONE][0]['jquery_colorpicker'] = $value;
@@ -152,10 +151,14 @@ function _cle_assignment_v1_assignment_modify($node, $params = NULL) {
         $node->field_assignment_privacy_setting[LANGUAGE_NONE][0]['value'] = $value;
       break;
       case 'startDate':
-        $node->field_assignment_due_date[LANGUAGE_NONE][0]['value'] = $value;
+        if (!is_null($value)) {
+          $node->field_assignment_due_date[LANGUAGE_NONE][0]['value'] = $value;
+        }
       break;
       case 'endDate':
-        $node->field_assignment_due_date[LANGUAGE_NONE][0]['value2'] = $value;
+        if (!is_null($value)) {
+          $node->field_assignment_due_date[LANGUAGE_NONE][0]['value2'] = $value;
+        }
       break;
       case 'commentStyle':
         $node->field_assignment_feedback[LANGUAGE_NONE][0]['value'] = $value;

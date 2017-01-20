@@ -183,7 +183,6 @@ function _cle_submission_v1_submission_modify($node, $params = NULL) {
       case 'uuid':
       case 'title':
       case 'status':
-      case 'created':
         $node->{$key} = $value;
       break;
       case 'section':
