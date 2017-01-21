@@ -150,6 +150,18 @@ article app-root ul li .assignment a {
   padding: 0;
   color:#833900;
 }
+article app-root ul li .assignment .assignment__body {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  height: 3rem;
+  word-break: break-all;
+  padding-right: 2rem;
+}
+
+article app-root ul li .assignment .assignment__body i {
+  display: inline;
+  margin-right: .5rem;
+}
 
 app-projects-list ul {
   margin: 0 !important;
