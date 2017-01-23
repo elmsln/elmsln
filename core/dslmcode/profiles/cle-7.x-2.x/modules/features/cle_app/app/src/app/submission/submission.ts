@@ -6,7 +6,7 @@ export class Submission {
   created:number = null;
   body:string = null;
   assignment:number = null;
-  state:string = null;
+  state:string = 'submission_in_progress';
   metadata:any = {};
   environment:any = {};
   evidence:any = {};

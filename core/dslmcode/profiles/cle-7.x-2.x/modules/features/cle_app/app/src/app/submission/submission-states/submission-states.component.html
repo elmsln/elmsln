@@ -1,0 +1,14 @@
+<div class="submission-states">
+  <ul *ngIf="states">
+    <li 
+      *ngFor="let item of states"
+      [ngClass]="{active: item.active}"
+      [ngStyle]="item.styles"
+      >
+        <div class="submission-item__container">
+          <i class="material-icons left">{{item.icon}}</i>
+          {{item.display}}
+          </div>
+      </li>
+  </ul>
+</div>

@@ -1,6 +1,6 @@
 webpackJsonp([0,4],{
 
-/***/ 1096:
+/***/ 1099:
 /***/ function(module, exports) {
 
 function webpackEmptyContext(req) {
@@ -9,12 +9,12 @@ function webpackEmptyContext(req) {
 webpackEmptyContext.keys = function() { return []; };
 webpackEmptyContext.resolve = webpackEmptyContext;
 module.exports = webpackEmptyContext;
-webpackEmptyContext.id = 1096;
+webpackEmptyContext.id = 1099;
 
 
 /***/ },
 
-/***/ 1097:
+/***/ 1100:
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__(473);
@@ -188,7 +188,32 @@ function loadPermissionsSuccess(permissions) {
 
 /***/ },
 
-/***/ 167:
+/***/ 120:
+/***/ function(module, exports, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return Submission; });
+var Submission = (function () {
+    function Submission() {
+        this.id = null;
+        this.uid = null;
+        this.title = null;
+        this.status = true;
+        this.created = null;
+        this.body = null;
+        this.assignment = null;
+        this.state = 'submission_in_progress';
+        this.metadata = {};
+        this.environment = {};
+        this.evidence = {};
+    }
+    return Submission;
+}());
+//# sourceMappingURL=/Users/scienceonlineed/Documents/websites/elmsln/core/dslmcode/profiles/cle-7.x-2.x/modules/features/cle_app/app/src/submission.js.map
+
+/***/ },
+
+/***/ 168:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -321,37 +346,12 @@ var ProjectService = (function () {
 
 /***/ },
 
-/***/ 168:
-/***/ function(module, exports, __webpack_require__) {
-
-"use strict";
-/* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return Submission; });
-var Submission = (function () {
-    function Submission() {
-        this.id = null;
-        this.uid = null;
-        this.title = null;
-        this.status = true;
-        this.created = null;
-        this.body = null;
-        this.assignment = null;
-        this.state = null;
-        this.metadata = {};
-        this.environment = {};
-        this.evidence = {};
-    }
-    return Submission;
-}());
-//# sourceMappingURL=/Users/scienceonlineed/Documents/websites/elmsln/core/dslmcode/profiles/cle-7.x-2.x/modules/features/cle_app/app/src/submission.js.map
-
-/***/ },
-
 /***/ 248:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__user_service__ = __webpack_require__(253);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__user_service__ = __webpack_require__(254);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_router__ = __webpack_require__(24);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__ngrx_store__ = __webpack_require__(13);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__app_actions__ = __webpack_require__(79);
@@ -399,8 +399,8 @@ var AppComponent = (function () {
     AppComponent = __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
             selector: 'app-root',
-            template: __webpack_require__(806),
-            styles: [__webpack_require__(778)],
+            template: __webpack_require__(808),
+            styles: [__webpack_require__(780)],
             providers: [__WEBPACK_IMPORTED_MODULE_1__user_service__["a" /* UserService */]]
         }), 
         __metadata('design:paramtypes', [(typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_2__angular_router__["a" /* Router */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_2__angular_router__["a" /* Router */]) === 'function' && _a) || Object, (typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_3__ngrx_store__["a" /* Store */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_3__ngrx_store__["a" /* Store */]) === 'function' && _b) || Object])
@@ -531,7 +531,7 @@ var Project = (function () {
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_forms__ = __webpack_require__(76);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__submission__ = __webpack_require__(168);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__submission__ = __webpack_require__(120);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return SubmissionFormComponent; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -612,8 +612,8 @@ var SubmissionFormComponent = (function () {
     SubmissionFormComponent = __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
             selector: 'app-submission-form',
-            template: __webpack_require__(827),
-            styles: [__webpack_require__(799)]
+            template: __webpack_require__(829),
+            styles: [__webpack_require__(801)]
         }), 
         __metadata('design:paramtypes', [(typeof (_e = typeof __WEBPACK_IMPORTED_MODULE_1__angular_forms__["a" /* FormBuilder */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1__angular_forms__["a" /* FormBuilder */]) === 'function' && _e) || Object])
     ], SubmissionFormComponent);
@@ -625,6 +625,159 @@ var SubmissionFormComponent = (function () {
 /***/ },
 
 /***/ 253:
+/***/ function(module, exports, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__ngrx_store__ = __webpack_require__(13);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__elmsln_service__ = __webpack_require__(38);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__app_settings__ = __webpack_require__(93);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__submission__ = __webpack_require__(120);
+/* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return SubmissionService; });
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+
+
+
+
+
+var SubmissionService = (function () {
+    function SubmissionService(elmsln, store) {
+        this.elmsln = elmsln;
+        this.store = store;
+        this.submissions = this.store.select(function (state) { return state.submissions; });
+    }
+    SubmissionService.prototype.getSubmissions = function (assignmentId) {
+        var _this = this;
+        var query = assignmentId ? '?assignment=' + assignmentId : '';
+        this.elmsln.get(__WEBPACK_IMPORTED_MODULE_3__app_settings__["a" /* AppSettings */].BASE_PATH + 'api/v1/cle/submissions' + query)
+            .map(function (data) { return data.json(); })
+            .map(function (data) { return typeof data.data !== 'undefined' ? data.data : []; })
+            .map(function (data) {
+            if (data) {
+                // convert list of data into list of Submissions
+                var d_1 = [];
+                data.forEach(function (item) { return d_1.push(_this.convertToSubmission(item)); });
+                return d_1;
+            }
+        })
+            .map(function (payload) { return ({ type: 'ADD_SUBMISSIONS', payload: payload }); })
+            .subscribe(function (action) { return _this.store.dispatch(action); });
+    };
+    SubmissionService.prototype.loadSubmissions = function () {
+        var _this = this;
+        return this.elmsln.get(__WEBPACK_IMPORTED_MODULE_3__app_settings__["a" /* AppSettings */].BASE_PATH + 'api/v1/cle/submissions')
+            .map(function (data) { return data.json().data; })
+            .map(function (data) {
+            if (data) {
+                // convert list of data into list of Submissions
+                var d_2 = [];
+                data.forEach(function (item) { return d_2.push(_this.convertToSubmission(item)); });
+                return d_2;
+            }
+        });
+    };
+    SubmissionService.prototype.getSubmission = function (submissionId) {
+        var _this = this;
+        return this.elmsln.get(__WEBPACK_IMPORTED_MODULE_3__app_settings__["a" /* AppSettings */].BASE_PATH + 'api/v1/cle/submissions/' + submissionId)
+            .map(function (data) { return data.json().data[0]; })
+            .map(function (data) { return _this.convertToSubmission(data); });
+    };
+    SubmissionService.prototype.createSubmission = function (submission) {
+        var _this = this;
+        var newSub = this.prepareForDrupal(submission);
+        return this.elmsln.post(__WEBPACK_IMPORTED_MODULE_3__app_settings__["a" /* AppSettings */].BASE_PATH + 'api/v1/cle/submissions/create', newSub)
+            .map(function (data) { return data.json().node; })
+            .map(function (node) { return _this.convertToSubmission(node); });
+    };
+    SubmissionService.prototype.updateSubmission = function (submission) {
+        var _this = this;
+        var newSub = this.prepareForDrupal(submission);
+        return this.elmsln.put(__WEBPACK_IMPORTED_MODULE_3__app_settings__["a" /* AppSettings */].BASE_PATH + 'api/v1/cle/submissions/' + submission.id + '/update', newSub)
+            .map(function (data) { return data.json(); })
+            .map(function (node) { return _this.convertToSubmission(node); });
+    };
+    SubmissionService.prototype.deleteSubmission = function (submission) {
+        return this.elmsln.delete(__WEBPACK_IMPORTED_MODULE_3__app_settings__["a" /* AppSettings */].BASE_PATH + 'api/v1/cle/submissions/' + submission.id + '/delete')
+            .map(function (data) { return data.json(); });
+    };
+    /**
+     * @todo: this should eventually be more dynamic
+     */
+    SubmissionService.prototype.getSubmissionOptions = function () {
+        return {
+            type: [
+                { value: 'open', display: 'Open' },
+                { value: 'closed', display: 'Closed' }
+            ],
+            critiqueMethod: [
+                { value: 'open', display: 'Open' },
+                { value: 'random', display: 'Random' }
+            ],
+            critiqueStyle: [
+                { value: 'open', display: 'Open' },
+                { value: 'blind', display: 'Blind' },
+                { value: 'double_blind', display: 'Double blind' }
+            ],
+            state: [
+                { value: 'submission_in_progress', display: 'Submission in progress', icon: 'autorenew', color: 'lightgoldenrodyellow' },
+                { value: 'submission_ready', display: 'Submission Ready', icon: 'done', color: 'lightgreen' }
+            ]
+        };
+    };
+    SubmissionService.prototype.convertToSubmission = function (data) {
+        var converted = new __WEBPACK_IMPORTED_MODULE_4__submission__["a" /* Submission */]();
+        for (var propertyName in converted) {
+            if (data[propertyName]) {
+                converted[propertyName] = data[propertyName];
+            }
+        }
+        if (data['nid']) {
+            converted.id = Number(data['nid']);
+        }
+        if (data.evidence) {
+            if (data.evidence.body) {
+                converted.body = data.evidence.body;
+            }
+        }
+        return converted;
+    };
+    SubmissionService.prototype.prepareForDrupal = function (submission) {
+        var newSub = Object.assign({}, submission);
+        if (submission.body) {
+            newSub.evidence = {
+                body: {
+                    value: submission.body,
+                    format: 'textbook_editor'
+                }
+            };
+        }
+        if (submission.evidence) {
+            if (submission.evidence.images) {
+                newSub.evidence['images'] = submission.evidence.images;
+            }
+        }
+        return newSub;
+    };
+    SubmissionService = __decorate([
+        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Injectable"])(), 
+        __metadata('design:paramtypes', [(typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_2__elmsln_service__["a" /* ElmslnService */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_2__elmsln_service__["a" /* ElmslnService */]) === 'function' && _a) || Object, (typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_1__ngrx_store__["a" /* Store */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1__ngrx_store__["a" /* Store */]) === 'function' && _b) || Object])
+    ], SubmissionService);
+    return SubmissionService;
+    var _a, _b;
+}());
+//# sourceMappingURL=/Users/scienceonlineed/Documents/websites/elmsln/core/dslmcode/profiles/cle-7.x-2.x/modules/features/cle_app/app/src/submission.service.js.map
+
+/***/ },
+
+/***/ 254:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -803,7 +956,7 @@ var ElmslnService = (function () {
 
 /***/ },
 
-/***/ 388:
+/***/ 389:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -811,7 +964,7 @@ var ElmslnService = (function () {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_router__ = __webpack_require__(24);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__assignment__ = __webpack_require__(249);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__assignment_service__ = __webpack_require__(65);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__assignment_form_assignment_form_component__ = __webpack_require__(389);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__assignment_form_assignment_form_component__ = __webpack_require__(390);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__ngrx_store__ = __webpack_require__(13);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__app_actions__ = __webpack_require__(79);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return AssignmentDialogComponent; });
@@ -904,8 +1057,8 @@ var AssignmentDialogComponent = (function () {
     AssignmentDialogComponent = __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
             selector: 'app-assignment-dialog',
-            template: __webpack_require__(807),
-            styles: [__webpack_require__(779)],
+            template: __webpack_require__(809),
+            styles: [__webpack_require__(781)],
             providers: [__WEBPACK_IMPORTED_MODULE_3__assignment_service__["a" /* AssignmentService */]]
         }), 
         __metadata('design:paramtypes', [(typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_1__angular_router__["b" /* ActivatedRoute */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1__angular_router__["b" /* ActivatedRoute */]) === 'function' && _b) || Object, (typeof (_c = typeof __WEBPACK_IMPORTED_MODULE_1__angular_router__["a" /* Router */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1__angular_router__["a" /* Router */]) === 'function' && _c) || Object, (typeof (_d = typeof __WEBPACK_IMPORTED_MODULE_3__assignment_service__["a" /* AssignmentService */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_3__assignment_service__["a" /* AssignmentService */]) === 'function' && _d) || Object, (typeof (_e = typeof __WEBPACK_IMPORTED_MODULE_0__angular_core__["ElementRef"] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_0__angular_core__["ElementRef"]) === 'function' && _e) || Object, (typeof (_f = typeof __WEBPACK_IMPORTED_MODULE_5__ngrx_store__["a" /* Store */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_5__ngrx_store__["a" /* Store */]) === 'function' && _f) || Object])
@@ -917,7 +1070,7 @@ var AssignmentDialogComponent = (function () {
 
 /***/ },
 
-/***/ 389:
+/***/ 390:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -998,8 +1151,8 @@ var AssignmentFormComponent = (function () {
     AssignmentFormComponent = __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
             selector: 'app-assignment-form',
-            template: __webpack_require__(808),
-            styles: [__webpack_require__(780)],
+            template: __webpack_require__(810),
+            styles: [__webpack_require__(782)],
             providers: [__WEBPACK_IMPORTED_MODULE_3__assignment__["a" /* Assignment */], __WEBPACK_IMPORTED_MODULE_4__assignment_service__["a" /* AssignmentService */]]
         }), 
         __metadata('design:paramtypes', [(typeof (_c = typeof __WEBPACK_IMPORTED_MODULE_1__angular_forms__["a" /* FormBuilder */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1__angular_forms__["a" /* FormBuilder */]) === 'function' && _c) || Object, (typeof (_d = typeof __WEBPACK_IMPORTED_MODULE_4__assignment_service__["a" /* AssignmentService */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_4__assignment_service__["a" /* AssignmentService */]) === 'function' && _d) || Object, (typeof (_e = typeof __WEBPACK_IMPORTED_MODULE_2__angular_router__["a" /* Router */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_2__angular_router__["a" /* Router */]) === 'function' && _e) || Object])
@@ -1011,7 +1164,7 @@ var AssignmentFormComponent = (function () {
 
 /***/ },
 
-/***/ 390:
+/***/ 391:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1100,8 +1253,8 @@ var AssignmentComponent = (function () {
     AssignmentComponent = __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
             selector: 'cle-assignment',
-            template: __webpack_require__(810),
-            styles: [__webpack_require__(782)],
+            template: __webpack_require__(812),
+            styles: [__webpack_require__(784)],
             providers: [__WEBPACK_IMPORTED_MODULE_3__assignment_service__["a" /* AssignmentService */]]
         }), 
         __metadata('design:paramtypes', [(typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_1__angular_router__["a" /* Router */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1__angular_router__["a" /* Router */]) === 'function' && _a) || Object, (typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_1__angular_router__["b" /* ActivatedRoute */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1__angular_router__["b" /* ActivatedRoute */]) === 'function' && _b) || Object, (typeof (_c = typeof __WEBPACK_IMPORTED_MODULE_2__angular_common__["f" /* Location */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_2__angular_common__["f" /* Location */]) === 'function' && _c) || Object, (typeof (_d = typeof __WEBPACK_IMPORTED_MODULE_3__assignment_service__["a" /* AssignmentService */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_3__assignment_service__["a" /* AssignmentService */]) === 'function' && _d) || Object, (typeof (_e = typeof __WEBPACK_IMPORTED_MODULE_0__angular_core__["ElementRef"] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_0__angular_core__["ElementRef"]) === 'function' && _e) || Object, (typeof (_f = typeof __WEBPACK_IMPORTED_MODULE_4__ngrx_store__["a" /* Store */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_4__ngrx_store__["a" /* Store */]) === 'function' && _f) || Object, (typeof (_g = typeof __WEBPACK_IMPORTED_MODULE_5__elmsln_service__["a" /* ElmslnService */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_5__elmsln_service__["a" /* ElmslnService */]) === 'function' && _g) || Object])
@@ -1113,13 +1266,13 @@ var AssignmentComponent = (function () {
 
 /***/ },
 
-/***/ 391:
+/***/ 392:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_forms__ = __webpack_require__(76);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__user_service__ = __webpack_require__(253);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__user_service__ = __webpack_require__(254);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__angular_router__ = __webpack_require__(24);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__ngrx_store__ = __webpack_require__(13);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return LoginComponent; });
@@ -1167,8 +1320,8 @@ var LoginComponent = (function () {
     LoginComponent = __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
             selector: 'app-login',
-            template: __webpack_require__(818),
-            styles: [__webpack_require__(790)],
+            template: __webpack_require__(820),
+            styles: [__webpack_require__(792)],
             providers: [__WEBPACK_IMPORTED_MODULE_2__user_service__["a" /* UserService */]]
         }), 
         __metadata('design:paramtypes', [(typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_1__angular_forms__["a" /* FormBuilder */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1__angular_forms__["a" /* FormBuilder */]) === 'function' && _a) || Object, (typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_2__user_service__["a" /* UserService */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_2__user_service__["a" /* UserService */]) === 'function' && _b) || Object, (typeof (_c = typeof __WEBPACK_IMPORTED_MODULE_3__angular_router__["a" /* Router */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_3__angular_router__["a" /* Router */]) === 'function' && _c) || Object, (typeof (_d = typeof __WEBPACK_IMPORTED_MODULE_4__ngrx_store__["a" /* Store */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_4__ngrx_store__["a" /* Store */]) === 'function' && _d) || Object])
@@ -1180,12 +1333,12 @@ var LoginComponent = (function () {
 
 /***/ },
 
-/***/ 392:
+/***/ 393:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__user_service__ = __webpack_require__(253);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__user_service__ = __webpack_require__(254);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_router__ = __webpack_require__(24);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return LogoutComponent; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
@@ -1214,8 +1367,8 @@ var LogoutComponent = (function () {
     LogoutComponent = __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
             selector: 'app-logout',
-            template: __webpack_require__(819),
-            styles: [__webpack_require__(791)],
+            template: __webpack_require__(821),
+            styles: [__webpack_require__(793)],
             providers: [__WEBPACK_IMPORTED_MODULE_1__user_service__["a" /* UserService */]]
         }), 
         __metadata('design:paramtypes', [(typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_1__user_service__["a" /* UserService */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1__user_service__["a" /* UserService */]) === 'function' && _a) || Object, (typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_2__angular_router__["a" /* Router */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_2__angular_router__["a" /* Router */]) === 'function' && _b) || Object])
@@ -1227,13 +1380,13 @@ var LogoutComponent = (function () {
 
 /***/ },
 
-/***/ 393:
+/***/ 394:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__project__ = __webpack_require__(251);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__project_service__ = __webpack_require__(167);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__project_service__ = __webpack_require__(168);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__angular_router__ = __webpack_require__(24);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__ngrx_store__ = __webpack_require__(13);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__project_actions__ = __webpack_require__(118);
@@ -1285,8 +1438,8 @@ var ProjectsListComponent = (function () {
     ProjectsListComponent = __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
             selector: 'app-projects-list',
-            template: __webpack_require__(822),
-            styles: [__webpack_require__(794)],
+            template: __webpack_require__(824),
+            styles: [__webpack_require__(796)],
             providers: [__WEBPACK_IMPORTED_MODULE_2__project_service__["a" /* ProjectService */]]
         }), 
         __metadata('design:paramtypes', [(typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_2__project_service__["a" /* ProjectService */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_2__project_service__["a" /* ProjectService */]) === 'function' && _a) || Object, (typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_3__angular_router__["a" /* Router */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_3__angular_router__["a" /* Router */]) === 'function' && _b) || Object, (typeof (_c = typeof __WEBPACK_IMPORTED_MODULE_4__ngrx_store__["a" /* Store */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_4__ngrx_store__["a" /* Store */]) === 'function' && _c) || Object])
@@ -1298,14 +1451,14 @@ var ProjectsListComponent = (function () {
 
 /***/ },
 
-/***/ 394:
+/***/ 395:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_router__ = __webpack_require__(24);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__ngrx_store__ = __webpack_require__(13);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__submission__ = __webpack_require__(168);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__submission__ = __webpack_require__(120);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__submission_actions__ = __webpack_require__(119);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__submission_form_submission_form_component__ = __webpack_require__(252);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return SubmissionCreateComponent; });
@@ -1373,8 +1526,8 @@ var SubmissionCreateComponent = (function () {
     SubmissionCreateComponent = __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
             selector: 'app-submission-create',
-            template: __webpack_require__(824),
-            styles: [__webpack_require__(796)]
+            template: __webpack_require__(826),
+            styles: [__webpack_require__(798)]
         }), 
         __metadata('design:paramtypes', [(typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_1__angular_router__["b" /* ActivatedRoute */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1__angular_router__["b" /* ActivatedRoute */]) === 'function' && _b) || Object, (typeof (_c = typeof __WEBPACK_IMPORTED_MODULE_1__angular_router__["a" /* Router */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1__angular_router__["a" /* Router */]) === 'function' && _c) || Object, (typeof (_d = typeof __WEBPACK_IMPORTED_MODULE_2__ngrx_store__["a" /* Store */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_2__ngrx_store__["a" /* Store */]) === 'function' && _d) || Object])
     ], SubmissionCreateComponent);
@@ -1385,7 +1538,7 @@ var SubmissionCreateComponent = (function () {
 
 /***/ },
 
-/***/ 395:
+/***/ 396:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1474,8 +1627,8 @@ var SubmissionEditComponent = (function () {
     SubmissionEditComponent = __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
             selector: 'app-submission-edit',
-            template: __webpack_require__(826),
-            styles: [__webpack_require__(798)]
+            template: __webpack_require__(828),
+            styles: [__webpack_require__(800)]
         }), 
         __metadata('design:paramtypes', [(typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_1__angular_router__["b" /* ActivatedRoute */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1__angular_router__["b" /* ActivatedRoute */]) === 'function' && _b) || Object, (typeof (_c = typeof __WEBPACK_IMPORTED_MODULE_1__angular_router__["a" /* Router */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1__angular_router__["a" /* Router */]) === 'function' && _c) || Object, (typeof (_d = typeof __WEBPACK_IMPORTED_MODULE_2__ngrx_store__["a" /* Store */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_2__ngrx_store__["a" /* Store */]) === 'function' && _d) || Object, (typeof (_e = typeof __WEBPACK_IMPORTED_MODULE_0__angular_core__["ElementRef"] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_0__angular_core__["ElementRef"]) === 'function' && _e) || Object])
     ], SubmissionEditComponent);
@@ -1486,7 +1639,7 @@ var SubmissionEditComponent = (function () {
 
 /***/ },
 
-/***/ 396:
+/***/ 397:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1559,8 +1712,8 @@ var SubmissionComponent = (function () {
     SubmissionComponent = __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
             selector: 'app-submission',
-            template: __webpack_require__(829),
-            styles: [__webpack_require__(801)]
+            template: __webpack_require__(832),
+            styles: [__webpack_require__(803)]
         }), 
         __metadata('design:paramtypes', [(typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_1__angular_router__["b" /* ActivatedRoute */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1__angular_router__["b" /* ActivatedRoute */]) === 'function' && _a) || Object, (typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_3__ngrx_store__["a" /* Store */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_3__ngrx_store__["a" /* Store */]) === 'function' && _b) || Object, (typeof (_c = typeof __WEBPACK_IMPORTED_MODULE_1__angular_router__["a" /* Router */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1__angular_router__["a" /* Router */]) === 'function' && _c) || Object, (typeof (_d = typeof __WEBPACK_IMPORTED_MODULE_2__angular_common__["f" /* Location */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_2__angular_common__["f" /* Location */]) === 'function' && _d) || Object, (typeof (_e = typeof __WEBPACK_IMPORTED_MODULE_4__elmsln_service__["a" /* ElmslnService */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_4__elmsln_service__["a" /* ElmslnService */]) === 'function' && _e) || Object])
     ], SubmissionComponent);
@@ -1568,155 +1721,6 @@ var SubmissionComponent = (function () {
     var _a, _b, _c, _d, _e;
 }());
 //# sourceMappingURL=/Users/scienceonlineed/Documents/websites/elmsln/core/dslmcode/profiles/cle-7.x-2.x/modules/features/cle_app/app/src/submission.component.js.map
-
-/***/ },
-
-/***/ 397:
-/***/ function(module, exports, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__ngrx_store__ = __webpack_require__(13);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__elmsln_service__ = __webpack_require__(38);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__app_settings__ = __webpack_require__(93);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__submission__ = __webpack_require__(168);
-/* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return SubmissionService; });
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-
-
-
-
-
-var SubmissionService = (function () {
-    function SubmissionService(elmsln, store) {
-        this.elmsln = elmsln;
-        this.store = store;
-        this.submissions = this.store.select(function (state) { return state.submissions; });
-    }
-    SubmissionService.prototype.getSubmissions = function (assignmentId) {
-        var _this = this;
-        var query = assignmentId ? '?assignment=' + assignmentId : '';
-        this.elmsln.get(__WEBPACK_IMPORTED_MODULE_3__app_settings__["a" /* AppSettings */].BASE_PATH + 'api/v1/cle/submissions' + query)
-            .map(function (data) { return data.json(); })
-            .map(function (data) { return typeof data.data !== 'undefined' ? data.data : []; })
-            .map(function (data) {
-            if (data) {
-                // convert list of data into list of Submissions
-                var d_1 = [];
-                data.forEach(function (item) { return d_1.push(_this.convertToSubmission(item)); });
-                return d_1;
-            }
-        })
-            .map(function (payload) { return ({ type: 'ADD_SUBMISSIONS', payload: payload }); })
-            .subscribe(function (action) { return _this.store.dispatch(action); });
-    };
-    SubmissionService.prototype.loadSubmissions = function () {
-        var _this = this;
-        return this.elmsln.get(__WEBPACK_IMPORTED_MODULE_3__app_settings__["a" /* AppSettings */].BASE_PATH + 'api/v1/cle/submissions')
-            .map(function (data) { return data.json().data; })
-            .map(function (data) {
-            if (data) {
-                // convert list of data into list of Submissions
-                var d_2 = [];
-                data.forEach(function (item) { return d_2.push(_this.convertToSubmission(item)); });
-                return d_2;
-            }
-        });
-    };
-    SubmissionService.prototype.getSubmission = function (submissionId) {
-        var _this = this;
-        return this.elmsln.get(__WEBPACK_IMPORTED_MODULE_3__app_settings__["a" /* AppSettings */].BASE_PATH + 'api/v1/cle/submissions/' + submissionId)
-            .map(function (data) { return data.json().data[0]; })
-            .map(function (data) { return _this.convertToSubmission(data); });
-    };
-    SubmissionService.prototype.createSubmission = function (submission) {
-        var _this = this;
-        var newSub = this.prepareForDrupal(submission);
-        return this.elmsln.post(__WEBPACK_IMPORTED_MODULE_3__app_settings__["a" /* AppSettings */].BASE_PATH + 'api/v1/cle/submissions/create', newSub)
-            .map(function (data) { return data.json().node; })
-            .map(function (node) { return _this.convertToSubmission(node); });
-    };
-    SubmissionService.prototype.updateSubmission = function (submission) {
-        var _this = this;
-        var newSub = this.prepareForDrupal(submission);
-        return this.elmsln.put(__WEBPACK_IMPORTED_MODULE_3__app_settings__["a" /* AppSettings */].BASE_PATH + 'api/v1/cle/submissions/' + submission.id + '/update', newSub)
-            .map(function (data) { return data.json(); })
-            .map(function (node) { return _this.convertToSubmission(node); });
-    };
-    SubmissionService.prototype.deleteSubmission = function (submission) {
-        return this.elmsln.delete(__WEBPACK_IMPORTED_MODULE_3__app_settings__["a" /* AppSettings */].BASE_PATH + 'api/v1/cle/submissions/' + submission.id + '/delete')
-            .map(function (data) { return data.json(); });
-    };
-    /**
-     * @todo: this should eventually be more dynamic
-     */
-    SubmissionService.prototype.getSubmissionOptions = function () {
-        return {
-            type: [
-                { value: 'open', display: 'Open' },
-                { value: 'closed', display: 'Closed' }
-            ],
-            critiqueMethod: [
-                { value: 'open', display: 'Open' },
-                { value: 'random', display: 'Random' }
-            ],
-            critiqueStyle: [
-                { value: 'open', display: 'Open' },
-                { value: 'blind', display: 'Blind' },
-                { value: 'double_blind', display: 'Double blind' }
-            ]
-        };
-    };
-    SubmissionService.prototype.convertToSubmission = function (data) {
-        var converted = new __WEBPACK_IMPORTED_MODULE_4__submission__["a" /* Submission */]();
-        for (var propertyName in converted) {
-            if (data[propertyName]) {
-                converted[propertyName] = data[propertyName];
-            }
-        }
-        if (data['nid']) {
-            converted.id = Number(data['nid']);
-        }
-        if (data.evidence) {
-            if (data.evidence.body) {
-                converted.body = data.evidence.body;
-            }
-        }
-        return converted;
-    };
-    SubmissionService.prototype.prepareForDrupal = function (submission) {
-        var newSub = Object.assign({}, submission);
-        if (submission.body) {
-            newSub.evidence = {
-                body: {
-                    value: submission.body,
-                    format: 'textbook_editor'
-                }
-            };
-        }
-        if (submission.evidence) {
-            if (submission.evidence.images) {
-                newSub.evidence['images'] = submission.evidence.images;
-            }
-        }
-        return newSub;
-    };
-    SubmissionService = __decorate([
-        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Injectable"])(), 
-        __metadata('design:paramtypes', [(typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_2__elmsln_service__["a" /* ElmslnService */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_2__elmsln_service__["a" /* ElmslnService */]) === 'function' && _a) || Object, (typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_1__ngrx_store__["a" /* Store */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1__ngrx_store__["a" /* Store */]) === 'function' && _b) || Object])
-    ], SubmissionService);
-    return SubmissionService;
-    var _a, _b;
-}());
-//# sourceMappingURL=/Users/scienceonlineed/Documents/websites/elmsln/core/dslmcode/profiles/cle-7.x-2.x/modules/features/cle_app/app/src/submission.service.js.map
 
 /***/ },
 
@@ -1738,11 +1742,11 @@ webpackEmptyContext.id = 472;
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__polyfills_ts__ = __webpack_require__(620);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__polyfills_ts__ = __webpack_require__(621);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__polyfills_ts___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__polyfills_ts__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_platform_browser_dynamic__ = __webpack_require__(555);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_core__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__environments_environment__ = __webpack_require__(619);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__environments_environment__ = __webpack_require__(620);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__app___ = __webpack_require__(605);
 
 
@@ -1764,7 +1768,7 @@ __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__angular_platform_browser_dyna
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_mergeMap__ = __webpack_require__(179);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_mergeMap___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_mergeMap__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_core__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__ngrx_effects__ = __webpack_require__(166);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__ngrx_effects__ = __webpack_require__(167);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__app_actions__ = __webpack_require__(79);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__assignment_service__ = __webpack_require__(65);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__elmsln_service__ = __webpack_require__(38);
@@ -1860,54 +1864,55 @@ var AppEffects = (function () {
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_platform_browser__ = __webpack_require__(163);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_platform_browser__ = __webpack_require__(164);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_core__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_forms__ = __webpack_require__(76);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__angular_http__ = __webpack_require__(233);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__app_routing__ = __webpack_require__(595);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__ngrx_store__ = __webpack_require__(13);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__ngrx_store_devtools__ = __webpack_require__(589);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__ngrx_effects__ = __webpack_require__(166);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__ngrx_effects__ = __webpack_require__(167);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__reducers_assignments__ = __webpack_require__(611);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__reducers_users__ = __webpack_require__(612);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__submission_submission_reducer__ = __webpack_require__(616);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__submission_submission_reducer__ = __webpack_require__(617);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__projects_project_reducer__ = __webpack_require__(609);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__app_effects__ = __webpack_require__(593);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_13__submission_submission_effects__ = __webpack_require__(615);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_13__submission_submission_effects__ = __webpack_require__(616);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_14__projects_project_effects__ = __webpack_require__(608);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_15__elmsln_service__ = __webpack_require__(38);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_16__critique_service__ = __webpack_require__(250);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_17__assignment_service__ = __webpack_require__(65);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_18__submission_submission_service__ = __webpack_require__(397);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_19__project_service__ = __webpack_require__(167);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_20_angular2_moment__ = __webpack_require__(621);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_18__submission_submission_service__ = __webpack_require__(253);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_19__project_service__ = __webpack_require__(168);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_20_angular2_moment__ = __webpack_require__(622);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_20_angular2_moment___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_20_angular2_moment__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_21__app_component__ = __webpack_require__(248);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_22__assignment_assignment_component__ = __webpack_require__(390);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_22__assignment_assignment_component__ = __webpack_require__(391);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_23__assignment_assignment_list_assignment_list_component__ = __webpack_require__(596);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_24__dashboard_dashboard_component__ = __webpack_require__(602);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_25__user_user_component__ = __webpack_require__(617);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_25__user_user_component__ = __webpack_require__(618);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_26__critique_critique_component__ = __webpack_require__(601);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_27__critique_critique_form_critique_form_component__ = __webpack_require__(599);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_28__login_login_component__ = __webpack_require__(391);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_29__logout_logout_component__ = __webpack_require__(392);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_28__login_login_component__ = __webpack_require__(392);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_29__logout_logout_component__ = __webpack_require__(393);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_30__critique_critique_list_critique_list_component__ = __webpack_require__(600);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_31__wysiwygjs_wysiwygjs_component__ = __webpack_require__(618);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_32__assignment_assignment_form_assignment_form_component__ = __webpack_require__(389);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_31__wysiwygjs_wysiwygjs_component__ = __webpack_require__(619);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_32__assignment_assignment_form_assignment_form_component__ = __webpack_require__(390);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_33__projects_projects_component__ = __webpack_require__(610);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_34__projects_projects_list_projects_list_component__ = __webpack_require__(393);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_34__projects_projects_list_projects_list_component__ = __webpack_require__(394);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_35__components_dropdown_dropdown_component__ = __webpack_require__(597);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_36__projects_project_card_project_card_component__ = __webpack_require__(606);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_37__projects_project_item_project_item_component__ = __webpack_require__(607);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_38__editable_field_editable_field_component__ = __webpack_require__(604);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_39__datetime_input_datetime_input_component__ = __webpack_require__(603);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_40__assignment_assignment_dialog_assignment_dialog_component__ = __webpack_require__(388);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_41__submission_submission_create_submission_create_component__ = __webpack_require__(394);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_40__assignment_assignment_dialog_assignment_dialog_component__ = __webpack_require__(389);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_41__submission_submission_create_submission_create_component__ = __webpack_require__(395);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_42__submission_submission_form_submission_form_component__ = __webpack_require__(252);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_43__submission_submission_list_submission_list_component__ = __webpack_require__(614);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_44__submission_submission_detail_submission_detail_component__ = __webpack_require__(613);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_45__submission_submission_component__ = __webpack_require__(396);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_46__submission_submission_edit_submission_edit_component__ = __webpack_require__(395);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_45__submission_submission_component__ = __webpack_require__(397);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_46__submission_submission_edit_submission_edit_component__ = __webpack_require__(396);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_47__submission_submission_states_submission_states_component__ = __webpack_require__(615);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return AppModule; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -1918,6 +1923,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+
 
 
 
@@ -1996,7 +2002,8 @@ var AppModule = (function () {
                 __WEBPACK_IMPORTED_MODULE_42__submission_submission_form_submission_form_component__["a" /* SubmissionFormComponent */],
                 __WEBPACK_IMPORTED_MODULE_43__submission_submission_list_submission_list_component__["a" /* SubmissionListComponent */],
                 __WEBPACK_IMPORTED_MODULE_44__submission_submission_detail_submission_detail_component__["a" /* SubmissionDetailComponent */],
-                __WEBPACK_IMPORTED_MODULE_46__submission_submission_edit_submission_edit_component__["a" /* SubmissionEditComponent */]
+                __WEBPACK_IMPORTED_MODULE_46__submission_submission_edit_submission_edit_component__["a" /* SubmissionEditComponent */],
+                __WEBPACK_IMPORTED_MODULE_47__submission_submission_states_submission_states_component__["a" /* SubmissionStatesComponent */]
             ],
             imports: [
                 __WEBPACK_IMPORTED_MODULE_0__angular_platform_browser__["b" /* BrowserModule */],
@@ -2039,14 +2046,14 @@ var AppModule = (function () {
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_router__ = __webpack_require__(24);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__app_component__ = __webpack_require__(248);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__assignment_assignment_component__ = __webpack_require__(390);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__login_login_component__ = __webpack_require__(391);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__logout_logout_component__ = __webpack_require__(392);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__projects_projects_list_projects_list_component__ = __webpack_require__(393);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__assignment_assignment_dialog_assignment_dialog_component__ = __webpack_require__(388);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__submission_submission_component__ = __webpack_require__(396);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__submission_submission_create_submission_create_component__ = __webpack_require__(394);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__submission_submission_edit_submission_edit_component__ = __webpack_require__(395);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__assignment_assignment_component__ = __webpack_require__(391);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__login_login_component__ = __webpack_require__(392);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__logout_logout_component__ = __webpack_require__(393);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__projects_projects_list_projects_list_component__ = __webpack_require__(394);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__assignment_assignment_dialog_assignment_dialog_component__ = __webpack_require__(389);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__submission_submission_component__ = __webpack_require__(397);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__submission_submission_create_submission_create_component__ = __webpack_require__(395);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__submission_submission_edit_submission_edit_component__ = __webpack_require__(396);
 /* unused harmony export appRoutingProviders */
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return routing; });
 
@@ -2208,8 +2215,8 @@ var AssignmentListComponent = (function () {
     AssignmentListComponent = __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
             selector: 'cle-assignment-list',
-            template: __webpack_require__(809),
-            styles: [__webpack_require__(781)],
+            template: __webpack_require__(811),
+            styles: [__webpack_require__(783)],
             providers: [__WEBPACK_IMPORTED_MODULE_1__assignment_service__["a" /* AssignmentService */]],
             changeDetection: __WEBPACK_IMPORTED_MODULE_0__angular_core__["ChangeDetectionStrategy"].OnPush
         }), 
@@ -2256,8 +2263,8 @@ var DropdownComponent = (function () {
     DropdownComponent = __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
             selector: 'app-dropdown',
-            template: __webpack_require__(811),
-            styles: [__webpack_require__(783)]
+            template: __webpack_require__(813),
+            styles: [__webpack_require__(785)]
         }), 
         __metadata('design:paramtypes', [(typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_0__angular_core__["ElementRef"] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_0__angular_core__["ElementRef"]) === 'function' && _a) || Object])
     ], DropdownComponent);
@@ -2290,7 +2297,7 @@ var Critique = (function () {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__critique__ = __webpack_require__(598);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__critique_service__ = __webpack_require__(250);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_rxjs_Rx__ = __webpack_require__(834);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_rxjs_Rx__ = __webpack_require__(837);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_rxjs_Rx___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_rxjs_Rx__);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return CritiqueFormComponent; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
@@ -2352,8 +2359,8 @@ var CritiqueFormComponent = (function () {
     CritiqueFormComponent = __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
             selector: 'cle-critique-form',
-            template: __webpack_require__(812),
-            styles: [__webpack_require__(784)],
+            template: __webpack_require__(814),
+            styles: [__webpack_require__(786)],
             providers: [__WEBPACK_IMPORTED_MODULE_2__critique_service__["a" /* CritiqueService */]]
         }), 
         __metadata('design:paramtypes', [(typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_2__critique_service__["a" /* CritiqueService */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_2__critique_service__["a" /* CritiqueService */]) === 'function' && _b) || Object])
@@ -2412,8 +2419,8 @@ var CritiqueListComponent = (function () {
     CritiqueListComponent = __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
             selector: 'cle-critique-list',
-            template: __webpack_require__(813),
-            styles: [__webpack_require__(785)]
+            template: __webpack_require__(815),
+            styles: [__webpack_require__(787)]
         }), 
         __metadata('design:paramtypes', [(typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_1__critique_service__["a" /* CritiqueService */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1__critique_service__["a" /* CritiqueService */]) === 'function' && _a) || Object])
     ], CritiqueListComponent);
@@ -2459,8 +2466,8 @@ var CritiqueComponent = (function () {
     CritiqueComponent = __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
             selector: 'cle-critique',
-            template: __webpack_require__(814),
-            styles: [__webpack_require__(786)]
+            template: __webpack_require__(816),
+            styles: [__webpack_require__(788)]
         }), 
         __metadata('design:paramtypes', [(typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_1__angular_router__["b" /* ActivatedRoute */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1__angular_router__["b" /* ActivatedRoute */]) === 'function' && _a) || Object, (typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_2__angular_common__["f" /* Location */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_2__angular_common__["f" /* Location */]) === 'function' && _b) || Object])
     ], CritiqueComponent);
@@ -2498,8 +2505,8 @@ var DashboardComponent = (function () {
     DashboardComponent = __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
             selector: 'cle-dashboard',
-            template: __webpack_require__(815),
-            styles: [__webpack_require__(787)],
+            template: __webpack_require__(817),
+            styles: [__webpack_require__(789)],
             providers: [__WEBPACK_IMPORTED_MODULE_1__assignment_service__["a" /* AssignmentService */]]
         }), 
         __metadata('design:paramtypes', [(typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_1__assignment_service__["a" /* AssignmentService */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1__assignment_service__["a" /* AssignmentService */]) === 'function' && _a) || Object])
@@ -2584,8 +2591,8 @@ var DatetimeInputComponent = (function () {
     DatetimeInputComponent = __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
             selector: 'app-datetime-input',
-            template: __webpack_require__(816),
-            styles: [__webpack_require__(788)],
+            template: __webpack_require__(818),
+            styles: [__webpack_require__(790)],
             providers: [
                 {
                     provide: __WEBPACK_IMPORTED_MODULE_1__angular_forms__["b" /* NG_VALUE_ACCESSOR */],
@@ -2662,8 +2669,8 @@ var EditableFieldComponent = (function () {
     EditableFieldComponent = __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
             selector: 'app-editable-field',
-            template: __webpack_require__(817),
-            styles: [__webpack_require__(789)]
+            template: __webpack_require__(819),
+            styles: [__webpack_require__(791)]
         }), 
         __metadata('design:paramtypes', [(typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_0__angular_core__["ElementRef"] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_0__angular_core__["ElementRef"]) === 'function' && _b) || Object, (typeof (_c = typeof __WEBPACK_IMPORTED_MODULE_1__angular_forms__["a" /* FormBuilder */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1__angular_forms__["a" /* FormBuilder */]) === 'function' && _c) || Object])
     ], EditableFieldComponent);
@@ -2712,8 +2719,8 @@ var ProjectCardComponent = (function () {
     ProjectCardComponent = __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
             selector: 'app-project-card',
-            template: __webpack_require__(820),
-            styles: [__webpack_require__(792)]
+            template: __webpack_require__(822),
+            styles: [__webpack_require__(794)]
         }), 
         __metadata('design:paramtypes', [])
     ], ProjectCardComponent);
@@ -2730,7 +2737,7 @@ var ProjectCardComponent = (function () {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_router__ = __webpack_require__(24);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__project__ = __webpack_require__(251);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__project_service__ = __webpack_require__(167);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__project_service__ = __webpack_require__(168);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__assignment_service__ = __webpack_require__(65);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__ngrx_store__ = __webpack_require__(13);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__project_actions__ = __webpack_require__(118);
@@ -2819,8 +2826,8 @@ var ProjectItemComponent = (function () {
     ProjectItemComponent = __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
             selector: 'app-project-item',
-            template: __webpack_require__(821),
-            styles: [__webpack_require__(793)],
+            template: __webpack_require__(823),
+            styles: [__webpack_require__(795)],
             providers: [__WEBPACK_IMPORTED_MODULE_4__assignment_service__["a" /* AssignmentService */]],
             changeDetection: __WEBPACK_IMPORTED_MODULE_0__angular_core__["ChangeDetectionStrategy"].OnPush
         }), 
@@ -2840,9 +2847,9 @@ var ProjectItemComponent = (function () {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_mergeMap__ = __webpack_require__(179);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_mergeMap___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_mergeMap__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_core__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__ngrx_effects__ = __webpack_require__(166);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__ngrx_effects__ = __webpack_require__(167);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__project_actions__ = __webpack_require__(118);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__project_service__ = __webpack_require__(167);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__project_service__ = __webpack_require__(168);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return ProjectEffects; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -3018,8 +3025,8 @@ var ProjectsComponent = (function () {
     ProjectsComponent = __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
             selector: 'app-projects',
-            template: __webpack_require__(823),
-            styles: [__webpack_require__(795)]
+            template: __webpack_require__(825),
+            styles: [__webpack_require__(797)]
         }), 
         __metadata('design:paramtypes', [])
     ], ProjectsComponent);
@@ -3151,7 +3158,7 @@ function reducer(state, action) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__submission__ = __webpack_require__(168);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__submission__ = __webpack_require__(120);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__elmsln_service__ = __webpack_require__(38);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return SubmissionDetailComponent; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
@@ -3182,8 +3189,8 @@ var SubmissionDetailComponent = (function () {
     SubmissionDetailComponent = __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
             selector: 'app-submission-detail',
-            template: __webpack_require__(825),
-            styles: [__webpack_require__(797)]
+            template: __webpack_require__(827),
+            styles: [__webpack_require__(799)]
         }), 
         __metadata('design:paramtypes', [(typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_2__elmsln_service__["a" /* ElmslnService */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_2__elmsln_service__["a" /* ElmslnService */]) === 'function' && _b) || Object])
     ], SubmissionDetailComponent);
@@ -3232,8 +3239,8 @@ var SubmissionListComponent = (function () {
     SubmissionListComponent = __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
             selector: 'app-submission-list',
-            template: __webpack_require__(828),
-            styles: [__webpack_require__(800)]
+            template: __webpack_require__(830),
+            styles: [__webpack_require__(802)]
         }), 
         __metadata('design:paramtypes', [(typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_1__angular_router__["a" /* Router */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1__angular_router__["a" /* Router */]) === 'function' && _a) || Object])
     ], SubmissionListComponent);
@@ -3248,13 +3255,78 @@ var SubmissionListComponent = (function () {
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__submission__ = __webpack_require__(120);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__submission_service__ = __webpack_require__(253);
+/* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return SubmissionStatesComponent; });
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+
+
+
+var SubmissionStatesComponent = (function () {
+    function SubmissionStatesComponent(submissionService) {
+        this.submissionService = submissionService;
+    }
+    SubmissionStatesComponent.prototype.ngOnInit = function () {
+        var _this = this;
+        // get the list of states this submission could be
+        var options = this.submissionService.getSubmissionOptions();
+        options.state
+            .map(function (state) {
+            // check if this state is the active state of the submission
+            // add an active property to the active state
+            state['active'] = state.value === _this.submission.state;
+            // add custom inline styles if the item is active
+            var styles = {};
+            if (state.active) {
+                styles = {
+                    'color': state.color,
+                    'background': state.color
+                };
+            }
+            state['styles'] = styles;
+            return state;
+        });
+        this.states = options.state;
+    };
+    __decorate([
+        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Input"])(), 
+        __metadata('design:type', (typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_1__submission__["a" /* Submission */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1__submission__["a" /* Submission */]) === 'function' && _a) || Object)
+    ], SubmissionStatesComponent.prototype, "submission", void 0);
+    SubmissionStatesComponent = __decorate([
+        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
+            selector: 'app-submission-states',
+            template: __webpack_require__(831),
+            styles: [__webpack_require__(779)]
+        }), 
+        __metadata('design:paramtypes', [(typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_2__submission_service__["a" /* SubmissionService */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_2__submission_service__["a" /* SubmissionService */]) === 'function' && _b) || Object])
+    ], SubmissionStatesComponent);
+    return SubmissionStatesComponent;
+    var _a, _b;
+}());
+//# sourceMappingURL=/Users/scienceonlineed/Documents/websites/elmsln/core/dslmcode/profiles/cle-7.x-2.x/modules/features/cle_app/app/src/submission-states.component.js.map
+
+/***/ },
+
+/***/ 616:
+/***/ function(module, exports, __webpack_require__) {
+
+"use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_mergeMap__ = __webpack_require__(179);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_mergeMap___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_mergeMap__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_core__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__ngrx_effects__ = __webpack_require__(166);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__ngrx_effects__ = __webpack_require__(167);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__submission_actions__ = __webpack_require__(119);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__app_actions__ = __webpack_require__(79);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__submission_service__ = __webpack_require__(397);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__submission_service__ = __webpack_require__(253);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return SubmissionEffects; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -3339,7 +3411,7 @@ var SubmissionEffects = (function () {
 
 /***/ },
 
-/***/ 616:
+/***/ 617:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3422,7 +3494,7 @@ function submissionReducer(state, action) {
 
 /***/ },
 
-/***/ 617:
+/***/ 618:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3448,8 +3520,8 @@ var UserComponent = (function () {
     UserComponent = __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
             selector: 'cle-user',
-            template: __webpack_require__(830),
-            styles: [__webpack_require__(802)]
+            template: __webpack_require__(833),
+            styles: [__webpack_require__(804)]
         }), 
         __metadata('design:paramtypes', [])
     ], UserComponent);
@@ -3459,7 +3531,7 @@ var UserComponent = (function () {
 
 /***/ },
 
-/***/ 618:
+/***/ 619:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3814,8 +3886,8 @@ var WysiwygjsComponent = (function () {
     WysiwygjsComponent = __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
             selector: 'wysiwygjs',
-            template: __webpack_require__(831),
-            styles: [__webpack_require__(803)],
+            template: __webpack_require__(834),
+            styles: [__webpack_require__(805)],
             providers: [
                 {
                     provide: __WEBPACK_IMPORTED_MODULE_1__angular_forms__["b" /* NG_VALUE_ACCESSOR */],
@@ -3833,7 +3905,7 @@ var WysiwygjsComponent = (function () {
 
 /***/ },
 
-/***/ 619:
+/***/ 620:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3849,41 +3921,41 @@ var environment = {
 
 /***/ },
 
-/***/ 620:
+/***/ 621:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_core_js_es6_symbol__ = __webpack_require__(636);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_core_js_es6_symbol__ = __webpack_require__(637);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_core_js_es6_symbol___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_core_js_es6_symbol__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_core_js_es6_object__ = __webpack_require__(629);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_core_js_es6_object__ = __webpack_require__(630);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_core_js_es6_object___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_core_js_es6_object__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_core_js_es6_function__ = __webpack_require__(625);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_core_js_es6_function__ = __webpack_require__(626);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_core_js_es6_function___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_core_js_es6_function__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_core_js_es6_parse_int__ = __webpack_require__(631);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_core_js_es6_parse_int__ = __webpack_require__(632);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_core_js_es6_parse_int___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_core_js_es6_parse_int__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_core_js_es6_parse_float__ = __webpack_require__(630);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_core_js_es6_parse_float__ = __webpack_require__(631);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_core_js_es6_parse_float___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_4_core_js_es6_parse_float__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_core_js_es6_number__ = __webpack_require__(628);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_core_js_es6_number__ = __webpack_require__(629);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_core_js_es6_number___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_5_core_js_es6_number__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_core_js_es6_math__ = __webpack_require__(627);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_core_js_es6_math__ = __webpack_require__(628);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_core_js_es6_math___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_6_core_js_es6_math__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_core_js_es6_string__ = __webpack_require__(635);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_core_js_es6_string__ = __webpack_require__(636);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_core_js_es6_string___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_7_core_js_es6_string__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8_core_js_es6_date__ = __webpack_require__(624);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8_core_js_es6_date__ = __webpack_require__(625);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8_core_js_es6_date___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_8_core_js_es6_date__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9_core_js_es6_array__ = __webpack_require__(623);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9_core_js_es6_array__ = __webpack_require__(624);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_9_core_js_es6_array___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_9_core_js_es6_array__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10_core_js_es6_regexp__ = __webpack_require__(633);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10_core_js_es6_regexp__ = __webpack_require__(634);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_10_core_js_es6_regexp___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_10_core_js_es6_regexp__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11_core_js_es6_map__ = __webpack_require__(626);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11_core_js_es6_map__ = __webpack_require__(627);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_11_core_js_es6_map___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_11_core_js_es6_map__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12_core_js_es6_set__ = __webpack_require__(634);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12_core_js_es6_set__ = __webpack_require__(635);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_12_core_js_es6_set___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_12_core_js_es6_set__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_13_core_js_es6_reflect__ = __webpack_require__(632);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_13_core_js_es6_reflect__ = __webpack_require__(633);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_13_core_js_es6_reflect___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_13_core_js_es6_reflect__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_14_core_js_es7_reflect__ = __webpack_require__(637);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_14_core_js_es7_reflect__ = __webpack_require__(638);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_14_core_js_es7_reflect___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_14_core_js_es7_reflect__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_15_zone_js_dist_zone__ = __webpack_require__(1095);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_15_zone_js_dist_zone__ = __webpack_require__(1098);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_15_zone_js_dist_zone___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_15_zone_js_dist_zone__);
 
 
@@ -4093,73 +4165,66 @@ var AssignmentService = (function () {
 
 /***/ },
 
-/***/ 778:
-/***/ function(module, exports) {
-
-module.exports = ".cle-critique {\n  margin: 0 calc(-50vw + 50%);\n}\n\n.nav-wrapper {\n  background: #484848;\n  height: 50px;\n}\n.nav-wrapper * {\n  font-size: 14px;\n  height: 50px;\n  line-height: 50px;\n  color: white;\n}"
-
-/***/ },
-
 /***/ 779:
 /***/ function(module, exports) {
 
-module.exports = ".assignment-dialog {\n  top: 5% !important;\n  bottom: 5% !important;\n  max-height: none !important;\n  height: 90%;\n}"
+module.exports = ".submission-states ul {\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex;\n  margin: 0;\n  padding: 0;\n  width: 100%;\n  -webkit-box-pack: center;\n      -ms-flex-pack: center;\n          justify-content: center;\n  -webkit-box-align: center;\n      -ms-flex-align: center;\n          align-items: center; }\n\n.submission-states li {\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex;\n  width: 100%;\n  -webkit-box-align: center;\n      -ms-flex-align: center;\n          align-items: center;\n  -webkit-box-pack: center;\n      -ms-flex-pack: center;\n          justify-content: center;\n  max-width: 20em;\n  position: relative;\n  color: #d0d0d0;\n  background: #d0d0d0;\n  height: 3em; }\n  .submission-states li * > {\n    color: black; }\n  .submission-states li:before {\n    position: absolute;\n    content: \"\";\n    top: 0;\n    width: 0;\n    height: 0;\n    z-index: 2;\n    right: -1.48604em;\n    border-top: 1.532em solid transparent;\n    border-bottom: 1.532em solid transparent;\n    border-left: 1.532em solid currentColor; }\n\n.submission-states li:nth-child(2) {\n  background: #c3c3c3; }\n  .submission-states li:nth-child(2):before {\n    border-left-color: #c3c3c3; }\n\n.submission-states li:nth-child(3) {\n  background: #b7b7b7; }\n  .submission-states li:nth-child(3):before {\n    border-left-color: #b7b7b7; }\n\n.submission-states li:nth-child(4) {\n  background: #aaaaaa; }\n  .submission-states li:nth-child(4):before {\n    border-left-color: #aaaaaa; }\n\n.submission-item__container {\n  color: black; }\n"
 
 /***/ },
 
 /***/ 780:
 /***/ function(module, exports) {
 
-module.exports = ".assignment-form {\n  max-width: 55em;\n  margin: auto;\n}\n\n.assignment-form > * {\n  margin-top: 2em;\n}\n\n.privacy .label {\n  display: block;\n}\n\n.privacy .detail {\n  padding-top: .5em;\n}\n\n.due-date .display {\n  font-size: 1.2em;\n  text-align: center;\n  margin: 1em;\n  color: gray;\n}\n\n.due-date .separator {\n  margin: 0 .5em;\n}\n\n:host >>> .wysiwyg-editor {\n  min-height: 10em;\n}\n\nselect {\n  display: block;\n}\n\n.fieldset {\n  padding: 1em;\n  padding-top: 2em;\n  background: rgba(0,0,0, 0.07);\n  position: relative;\n}\n.fieldset > * {\n  padding-bottom: 1em;\n}\n.fieldset > label:first-of-type {\n  position: absolute;\n  top: .5em;\n  left: .5em;\n}"
+module.exports = ".cle-critique {\n  margin: 0 calc(-50vw + 50%);\n}\n\n.nav-wrapper {\n  background: #484848;\n  height: 50px;\n}\n.nav-wrapper * {\n  font-size: 14px;\n  height: 50px;\n  line-height: 50px;\n  color: white;\n}"
 
 /***/ },
 
 /***/ 781:
 /***/ function(module, exports) {
 
-module.exports = ".icon {\n  float: left;\n  margin-right: 1em;\n}\n\n.assignment:hover {\n  cursor: pointer;\n}\n\n.status {\n  float: right;\n  size: .9em;\n}\n@media (min-width: 500px) {\n  .status {\n    position: absolute;\n    top: 50%;\n    -webkit-transform: translateY(-50%);\n            transform: translateY(-50%);\n    right: 1em;\n  }\n}\n\n.status.complete {\n  color: green;\n}\n\n.add-button {\n  position: fixed;\n  top: 3.5em;\n  right: 3em;\n}\n\nnav, nav .btn {\n  background: transparent;\n  box-shadow: none;\n}\nnav li a {\n  color: #2196F3;\n}\n\n.assignment {\n  position: relative;\n}\n\n.assignment--loading {\n  background: #efefef;\n}\n\n.assignment:hover .assignment__edit-buttons {\n  opacity: 1;\n}\n\n.assignment__edit-buttons {\n  position: absolute;\n  right: 0;\n  top: 0;\n  background: -webkit-linear-gradient(left, transparent, white 30%);\n  background: linear-gradient(to right, transparent, white 30%);\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-align: center;\n      -ms-flex-align: center;\n          align-items: center;\n  -webkit-box-pack: end;\n      -ms-flex-pack: end;\n          justify-content: flex-end;\n  padding-left: 2em;\n  opacity: 0;\n  -webkit-transition: opacity .3s ease-in-out;\n  transition: opacity .3s ease-in-out;\n}\n\n.assignment__icons {\n  position: absolute;\n  right: 0;\n  top: 0;\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-align: center;\n      -ms-flex-align: center;\n          align-items: center;\n  -webkit-box-pack: end;\n      -ms-flex-pack: end;\n          justify-content: flex-end;\n  padding-left: 2em;\n}\n\n.assignment__icon--complete {\n  color: green;\n}"
+module.exports = ".assignment-dialog {\n  top: 5% !important;\n  bottom: 5% !important;\n  max-height: none !important;\n  height: 90%;\n}"
 
 /***/ },
 
 /***/ 782:
 /***/ function(module, exports) {
 
-module.exports = ""
+module.exports = ".assignment-form {\n  max-width: 55em;\n  margin: auto;\n}\n\n.assignment-form > * {\n  margin-top: 2em;\n}\n\n.privacy .label {\n  display: block;\n}\n\n.privacy .detail {\n  padding-top: .5em;\n}\n\n.due-date .display {\n  font-size: 1.2em;\n  text-align: center;\n  margin: 1em;\n  color: gray;\n}\n\n.due-date .separator {\n  margin: 0 .5em;\n}\n\n:host >>> .wysiwyg-editor {\n  min-height: 10em;\n}\n\nselect {\n  display: block;\n}\n\n.fieldset {\n  padding: 1em;\n  padding-top: 2em;\n  background: rgba(0,0,0, 0.07);\n  position: relative;\n}\n.fieldset > * {\n  padding-bottom: 1em;\n}\n.fieldset > label:first-of-type {\n  position: absolute;\n  top: .5em;\n  left: .5em;\n}"
 
 /***/ },
 
 /***/ 783:
 /***/ function(module, exports) {
 
-module.exports = ""
+module.exports = ".icon {\n  float: left;\n  margin-right: 1em;\n}\n\n.assignment:hover {\n  cursor: pointer;\n}\n\n.status {\n  float: right;\n  size: .9em;\n}\n@media (min-width: 500px) {\n  .status {\n    position: absolute;\n    top: 50%;\n    -webkit-transform: translateY(-50%);\n            transform: translateY(-50%);\n    right: 1em;\n  }\n}\n\n.status.complete {\n  color: green;\n}\n\n.add-button {\n  position: fixed;\n  top: 3.5em;\n  right: 3em;\n}\n\nnav, nav .btn {\n  background: transparent;\n  box-shadow: none;\n}\nnav li a {\n  color: #2196F3;\n}\n\n.assignment {\n  position: relative;\n}\n\n.assignment--loading {\n  background: #efefef;\n}\n\n.assignment:hover .assignment__edit-buttons {\n  opacity: 1;\n}\n\n.assignment__edit-buttons {\n  position: absolute;\n  right: 0;\n  top: 0;\n  background: -webkit-linear-gradient(left, transparent, white 30%);\n  background: linear-gradient(to right, transparent, white 30%);\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-align: center;\n      -ms-flex-align: center;\n          align-items: center;\n  -webkit-box-pack: end;\n      -ms-flex-pack: end;\n          justify-content: flex-end;\n  padding-left: 2em;\n  opacity: 0;\n  -webkit-transition: opacity .3s ease-in-out;\n  transition: opacity .3s ease-in-out;\n}\n\n.assignment__icons {\n  position: absolute;\n  right: 0;\n  top: 0;\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-align: center;\n      -ms-flex-align: center;\n          align-items: center;\n  -webkit-box-pack: end;\n      -ms-flex-pack: end;\n          justify-content: flex-end;\n  padding-left: 2em;\n}\n\n.assignment__icon--complete {\n  color: green;\n}"
 
 /***/ },
 
 /***/ 784:
 /***/ function(module, exports) {
 
-module.exports = ":host >>> .wysiwyg-editor {\n  min-height: 200px;\n}\n\n:host >>> .wysiwyg-container {\n  max-width: 900px;\n  margin: 1em;\n}"
+module.exports = ""
 
 /***/ },
 
 /***/ 785:
 /***/ function(module, exports) {
 
-module.exports = ".created {\n  font-size: .9em;\n  opacity: .8;\n}\n\n.critique {\n  display: block;\n  overflow: hidden;\n}"
+module.exports = ""
 
 /***/ },
 
 /***/ 786:
 /***/ function(module, exports) {
 
-module.exports = ""
+module.exports = ":host >>> .wysiwyg-editor {\n  min-height: 200px;\n}\n\n:host >>> .wysiwyg-container {\n  max-width: 900px;\n  margin: 1em;\n}"
 
 /***/ },
 
 /***/ 787:
 /***/ function(module, exports) {
 
-module.exports = ""
+module.exports = ".created {\n  font-size: .9em;\n  opacity: .8;\n}\n\n.critique {\n  display: block;\n  overflow: hidden;\n}"
 
 /***/ },
 
@@ -4284,28 +4349,28 @@ module.exports = ""
 /***/ 793:
 /***/ function(module, exports) {
 
-module.exports = ".project {\n  margin: 1em;\n  padding: 1em;\n  background: lightgray;\n  width: auto;\n  position: relative;\n}\n\n.project__header {\n  position: relative;\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex;\n}\n\n.project__options {\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex;\n}\n.project__options > a {\n}\n\n.project__title-container {\n  width: 100%;\n}\n\n.project__title {\n  margin-top: 0;\n  font-size: 1.4em;\n}\n\n.project__board {\n  padding: 1em;\n  min-height: 200px;\n  width: 100%;\n}\n\n.assignment {\n  background: white;\n  padding: 1em;\n  width: 100%;\n}\n\n.assignment__title {\n  margin-top: 0;\n  font-size: 1.4em;\n}"
+module.exports = ""
 
 /***/ },
 
 /***/ 794:
 /***/ function(module, exports) {
 
-module.exports = ".projects-container {\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex;\n  width: auto;\n  -webkit-box-align: center;\n      -ms-flex-align: center;\n          align-items: center;\n  -webkit-box-pack: start;\n      -ms-flex-pack: start;\n          justify-content: flex-start;\n  -webkit-box-align: start;\n      -ms-flex-align: start;\n          align-items: flex-start;\n  overflow-x: scroll;\n  margin: 0 calc(-50vw + 50%);\n}\n\n.projects-container >>> app-project-item {\n  width: 100%;\n  min-width: 400px;\n  max-width: 500px;\n}\n\n.create-project {\n  margin: 3em auto;\n  max-width: 300px;\n  display: block;\n  cursor: pointer;\n}\n\n.face {\n  text-align: center;\n  margin: auto;\n  display: block;\n  font-size: 5em;\n  margin-bottom: 2rem;\n  margin-top: 2rem;\n  color: #ababab;\n}\n\n.preloader-wrapper {\n  position: absolute;\n  top: 50%;\n  left: 50%;\n}"
+module.exports = ""
 
 /***/ },
 
 /***/ 795:
 /***/ function(module, exports) {
 
-module.exports = ""
+module.exports = ".project {\n  margin: 1em;\n  padding: 1em;\n  background: lightgray;\n  width: auto;\n  position: relative;\n}\n\n.project__header {\n  position: relative;\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex;\n}\n\n.project__options {\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex;\n}\n.project__options > a {\n}\n\n.project__title-container {\n  width: 100%;\n}\n\n.project__title {\n  margin-top: 0;\n  font-size: 1.4em;\n}\n\n.project__board {\n  padding: 1em;\n  min-height: 200px;\n  width: 100%;\n}\n\n.assignment {\n  background: white;\n  padding: 1em;\n  width: 100%;\n}\n\n.assignment__title {\n  margin-top: 0;\n  font-size: 1.4em;\n}"
 
 /***/ },
 
 /***/ 796:
 /***/ function(module, exports) {
 
-module.exports = ""
+module.exports = ".projects-container {\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex;\n  width: auto;\n  -webkit-box-align: center;\n      -ms-flex-align: center;\n          align-items: center;\n  -webkit-box-pack: start;\n      -ms-flex-pack: start;\n          justify-content: flex-start;\n  -webkit-box-align: start;\n      -ms-flex-align: start;\n          align-items: flex-start;\n  overflow-x: scroll;\n  margin: 0 calc(-50vw + 50%);\n}\n\n.projects-container >>> app-project-item {\n  width: 100%;\n  min-width: 400px;\n  max-width: 500px;\n}\n\n.create-project {\n  margin: 3em auto;\n  max-width: 300px;\n  display: block;\n  cursor: pointer;\n}\n\n.face {\n  text-align: center;\n  margin: auto;\n  display: block;\n  font-size: 5em;\n  margin-bottom: 2rem;\n  margin-top: 2rem;\n  color: #ababab;\n}\n\n.preloader-wrapper {\n  position: absolute;\n  top: 50%;\n  left: 50%;\n}"
 
 /***/ },
 
@@ -4326,214 +4391,235 @@ module.exports = ""
 /***/ 799:
 /***/ function(module, exports) {
 
-module.exports = ":host >>> .wysiwyg-editor {\n  min-height: 10em;\n}\n\n.actions {\n  padding-top: 2em;\n}"
+module.exports = ""
 
 /***/ },
 
 /***/ 800:
 /***/ function(module, exports) {
 
-module.exports = ".card {\n  cursor: pointer;\n}"
+module.exports = ""
 
 /***/ },
 
 /***/ 801:
 /***/ function(module, exports) {
 
-module.exports = ""
+module.exports = ":host >>> .wysiwyg-editor {\n  min-height: 10em;\n}\n\n.actions {\n  padding-top: 2em;\n}"
 
 /***/ },
 
 /***/ 802:
 /***/ function(module, exports) {
 
-module.exports = ""
+module.exports = ".card {\n  cursor: pointer;\n}"
 
 /***/ },
 
 /***/ 803:
 /***/ function(module, exports) {
 
+module.exports = ""
+
+/***/ },
+
+/***/ 804:
+/***/ function(module, exports) {
+
+module.exports = ""
+
+/***/ },
+
+/***/ 805:
+/***/ function(module, exports) {
+
 module.exports = "/* CSS for the font-name + font-size plugin */\n.wysiwyg-plugin-list {\n    max-height: 16em;\n    overflow: auto;\n    overflow-x: hidden;\n    overflow-y: scroll;\n}\n.wysiwyg-plugin-list a,\n.wysiwyg-plugin-list a:link,\n.wysiwyg-plugin-list a:visited {\n    display: block;\n    color: black;\n    padding: 5px 10px;\n    text-decoration: none;\n    cursor: pointer;\n}\n.wysiwyg-plugin-list a:hover {\n    color: HighlightText;\n    background-color: Highlight;\n}\n/* CSS for the smiley plugin */\n.wysiwyg-plugin-smilies {\n    padding: 10px;\n    text-align: center;\n    white-space: normal;\n}\n.wysiwyg-plugin-smilies img {\n    display: -moz-inline-stack; /* inline-block: http://blog.mozilla.org/webdev/2009/02/20/cross-browser-inline-block/ */\n    display: inline-block;\n    *display: inline;\n}\n\n.wysiwyg-browse {\n  height: 50%;\n}\n\n.wysiwyg-editor img {\n    height:auto;\n    max-width: 100%;\n}"
-
-/***/ },
-
-/***/ 806:
-/***/ function(module, exports) {
-
-module.exports = "<div class=\"cle-critique\">\n  <nav>\n    <div class=\"nav-wrapper\">\n      <ul id=\"app-component-toolbar\" class=\"nav left\">\n        <li><a href=\"{{basePath}}\"><i class=\"material-icons left\">home</i>Home</a></li>\n      </ul>\n    </div>\n  </nav>\n\n  <div class=\"container\">\n    <router-outlet></router-outlet>\n    <router-outlet name=\"dialog\"></router-outlet>\n  </div>\n</div>"
-
-/***/ },
-
-/***/ 807:
-/***/ function(module, exports) {
-
-module.exports = "<!-- Modal Structure -->\n<div id=\"modal-assignment-dialog\" class=\"modal modal-fixed-footer assignment-dialog\">\n\n  <!--Create or Update Assignment-->\n  <div *ngIf=\"action === 'create' || action === 'update'\">\n    <div class=\"modal-content\">\n      <h2 *ngIf=\"assignment.id\">Edit Assignment</h2>\n      <h2 *ngIf=\"!assignment.id\">Create Assignment</h2>\n      <app-assignment-form [assignment]=\"assignment\" (assignmentSave)=\"onAssignmentSave($event)\"></app-assignment-form>\n    </div>\n    <div class=\"modal-footer\">\n      <a (click)=\"onSave()\" class=\"modal-action modal-close waves-effect waves-green btn-flat\">Save</a>\n      <a (click)=\"onCancel()\" class=\" modal-action modal-close waves-effect waves-green btn-flat\">Cancel</a>\n    </div>\n  </div>\n\n  <!--DELETE Assignment-->\n  <div *ngIf=\"action === 'delete'\">\n    <div class=\"modal-content\">\n      <h2>Are you sure you want to delete this assignment?</h2>\n      <p>The following assignment will be deleted: {{ assignment.title }}</p>\n      <p>Are you sure you want to proceed?</p>\n    </div>\n    <div class=\"modal-footer\">\n      <a (click)=\"onDelete()\" class=\"modal-action modal-close waves-effect waves-red btn-flat\">Delete</a>\n      <a (click)=\"onCancel()\" class=\" modal-action modal-close waves-effect waves-green btn-flat\">Cancel</a>\n    </div>\n  </div>\n</div>\n"
 
 /***/ },
 
 /***/ 808:
 /***/ function(module, exports) {
 
-module.exports = "<form [formGroup]=\"form\" class=\"assignment-form\">\n  <input formControlName=\"title\" placeholder=\"Title\">\n  <wysiwygjs formControlName=\"body\"></wysiwygjs>\n\n  <div class=\"submissions-settings fieldset\">\n    <label>Submission settings</label>\n    <div class=\"type\">\n      <label>Type</label>\n      <select formControlName=\"type\">\n        <option *ngFor=\"let type of assignmentOptions.type\" [value]=\"type.value\">{{ type.display }}</option>\n      </select>\n      <div class=\"detail\" *ngIf=\"form.value.type === 'open'\">Students will be able to see all submissions.</div>\n      <div class=\"detail\" *ngIf=\"form.value.type === 'open_after_submission'\">Students will be able to see all submissions AFTER they have made a submission to this assignment.</div>\n      <div class=\"detail\" *ngIf=\"form.value.type === 'closed'\">Students will NOT be able to see each other's submissions.</div>\n    </div>\n\n    <div class=\"late-submissions switch\">\n      <label>\n        No late Submissions\n        <input type=\"checkbox\" formControlName=\"allowLateSubmissions\">\n        <span class=\"lever\"></span>\n        Allow Late Submissions\n      </label>\n    </div>\n  </div>\n\n  <div class=\"critique-settings fieldset\">\n    <label>Critique settings</label>\n    <div class=\"critique-method\">\n      <label>Method</label>\n      <select formControlName=\"critiqueMethod\">\n        <option *ngFor=\"let option of assignmentOptions.critiqueMethod\" [value]=\"option.value\">{{ option.display }}</option>\n      </select>\n    </div>\n\n    <div class=\"critique-subsettings\" *ngIf=\"form.value.critiqueMethod !== 'none'\">\n      <div class=\"critique-privacy switch\">\n        <label>\n          Double-blind\n          <input type=\"checkbox\" formControlName=\"critiquePrivacy\">\n          <span class=\"lever\"></span>\n          Open\n        </label>\n        <div class=\"detail\" *ngIf=\"!form.value.critiquePrivacy\">Submissions will NOT see the author information on submissions or critiques.</div>\n        <div class=\"detail\" *ngIf=\"form.value.critiquePrivacy\">Submissions will see the author information on submissions and critiques.</div>\n      </div>\n    </div>\n  </div>\n\n  <div class=\"due-date\">\n    <div class=\"display\" *ngIf=\"form.value.endDate !==null\">\n      Due date:\n      <span *ngIf=\"form.value.startDate !== null\" class=\"start-date\">\n        {{ form.value.startDate | amDateFormat:'LL hh:mma' }} \n        <span class=\"separator\">\n          to\n        </span>\n      </span>\n      <span class=\"end-date\">\n        {{ form.value.endDate | amDateFormat:'LL hh:mma' }}\n      </span>\n    </div>\n    \n    <div *ngIf=\"form.value.endDate !== null\" class=\"start-date\">\n      <label>Start Date</label>\n      <app-datetime-input formControlName=\"startDate\"></app-datetime-input>\n    </div>\n\n    <div class=\"due-date\">\n      <label>Due Date</label>\n      <app-datetime-input formControlName=\"endDate\"></app-datetime-input>\n    </div>\n  </div>\n</form>"
+module.exports = "<div class=\"cle-critique\">\n  <nav>\n    <div class=\"nav-wrapper\">\n      <ul id=\"app-component-toolbar\" class=\"nav left\">\n        <li><a href=\"{{basePath}}\"><i class=\"material-icons left\">home</i>Home</a></li>\n      </ul>\n    </div>\n  </nav>\n\n  <div class=\"container\">\n    <router-outlet></router-outlet>\n    <router-outlet name=\"dialog\"></router-outlet>\n  </div>\n</div>"
 
 /***/ },
 
 /***/ 809:
 /***/ function(module, exports) {
 
-module.exports = "<div class=\"row\">\n  <ul class=\"collapsible\">\n    <li *ngFor=\"let assignment of assignments\">\n      <div class=\"collapsible-header assignment\" [ngClass]=\"{'assignment--loading': !assignment.id}\">\n        <div class=\"assignment__body\" (click)=\"viewAssignment(assignment.id)\">\n          <i class=\"material-icons\">assignment</i>{{ assignment.title }}\n          <span *ngIf=\"assignment.complete == 1\" class=\"badge green-text\">Complete</span>\n          <span *ngIf=\"assignment.complete == 0\" class=\"badge red-text\">Incomplete</span>\n          <div class=\"due-dates\">\n            <span *ngIf=\"assignment.startDate\">{{ assignment.startDate | amDateFormat:'MM/DD/YY' }} - </span>\n            {{ assignment.endDate | amDateFormat:'MM/DD/YY' }}\n          </div>\n        </div>\n        <div class=\"assignment__icons\">\n          <span *ngIf=\"assignment && assignment.metadata.relatedSubmissions && assignment.metadata.relatedSubmissions.complete.status\" class=\"assignment__icon--complete\"><i class=\"material-icons\">check</i></span>\n        </div>\n        <div class=\"assignment__edit-buttons\" *ngIf=\"assignment.id && (userCanEdit$ | async)\">\n          <a (click)=\"onEditAssignment(assignment)\"><i class=\"material-icons\" aria-label=\"Edit assignment\">edit</i></a>\n          <a (click)=\"onDeleteAssignment(assignment)\"><i class=\"material-icons\" aria-label=\"Edit assignment\">delete</i></a>\n        </div>\n        <div class=\"assignment__loading\" *ngIf=\"!assignment.id\">\n          <div class=\"progress\">\n            <div class=\"indeterminate\"></div>\n          </div>\n        </div>\n      </div>\n    </li>\n  </ul>\n</div>"
+module.exports = "<!-- Modal Structure -->\n<div id=\"modal-assignment-dialog\" class=\"modal modal-fixed-footer assignment-dialog\">\n\n  <!--Create or Update Assignment-->\n  <div *ngIf=\"action === 'create' || action === 'update'\">\n    <div class=\"modal-content\">\n      <h2 *ngIf=\"assignment.id\">Edit Assignment</h2>\n      <h2 *ngIf=\"!assignment.id\">Create Assignment</h2>\n      <app-assignment-form [assignment]=\"assignment\" (assignmentSave)=\"onAssignmentSave($event)\"></app-assignment-form>\n    </div>\n    <div class=\"modal-footer\">\n      <a (click)=\"onSave()\" class=\"modal-action modal-close waves-effect waves-green btn-flat\">Save</a>\n      <a (click)=\"onCancel()\" class=\" modal-action modal-close waves-effect waves-green btn-flat\">Cancel</a>\n    </div>\n  </div>\n\n  <!--DELETE Assignment-->\n  <div *ngIf=\"action === 'delete'\">\n    <div class=\"modal-content\">\n      <h2>Are you sure you want to delete this assignment?</h2>\n      <p>The following assignment will be deleted: {{ assignment.title }}</p>\n      <p>Are you sure you want to proceed?</p>\n    </div>\n    <div class=\"modal-footer\">\n      <a (click)=\"onDelete()\" class=\"modal-action modal-close waves-effect waves-red btn-flat\">Delete</a>\n      <a (click)=\"onCancel()\" class=\" modal-action modal-close waves-effect waves-green btn-flat\">Cancel</a>\n    </div>\n  </div>\n</div>\n"
 
 /***/ },
 
 /***/ 810:
 /***/ function(module, exports) {
 
-module.exports = "<div *ngFor=\"let assignment of (assignments$| async)\">\n    <nav>\n      <div class=\"nav-wrapper\">\n        <ul id=\"nav-mobile\" class=\"left\">\n          <li><a routerLink=\"/projects\"><i class=\"material-icons left\">&#xE5C4;</i> projects</a></li>\n        </ul>\n        <ul id=\"nav-mobile\" class=\"right\">\n          <li *ngIf=\"(userCanEdit$ | async)\"><a (click)=\"onEditAssignment(assignment)\" title=\"Edit this assignment\"><i class=\"material-icons left\">edit</i></a></li>\n        </ul>\n      </div>\n    </nav>\n\n    <div class=\"assignment\" *ngIf=\"assignment\">\n      <h1 class=\"assignment__title\">{{ assignment.title }}</h1>\n      <div class=\"assignment__meta\">\n        <div class=\"assignment__dates\">\n          <span *ngIf=\"assignment.startDate\">{{ assignment.startDate | amDateFormat:'LL hh:mmA' }} - </span>\n          {{ assignment.endDate | amDateFormat:'LL hh:mmA' }}\n        </div>\n      </div>\n      <div class=\"assignment__description\" [innerHTML]=\"assignment.body\"> </div>\n    </div>\n\n\n  <app-submission-list *ngIf=\"(submissions$ | async).length > 0\" title=\"My Submission\" [submissions]=\"submissions$ | async\"></app-submission-list>\n\n  <a (click)=\"onCreateSubmission(assignment)\" class=\"btn-large\">Submit assignment</a>\n</div>"
+module.exports = "<form [formGroup]=\"form\" class=\"assignment-form\">\n  <input formControlName=\"title\" placeholder=\"Title\">\n  <wysiwygjs formControlName=\"body\"></wysiwygjs>\n\n  <div class=\"submissions-settings fieldset\">\n    <label>Submission settings</label>\n    <div class=\"type\">\n      <label>Type</label>\n      <select formControlName=\"type\">\n        <option *ngFor=\"let type of assignmentOptions.type\" [value]=\"type.value\">{{ type.display }}</option>\n      </select>\n      <div class=\"detail\" *ngIf=\"form.value.type === 'open'\">Students will be able to see all submissions.</div>\n      <div class=\"detail\" *ngIf=\"form.value.type === 'open_after_submission'\">Students will be able to see all submissions AFTER they have made a submission to this assignment.</div>\n      <div class=\"detail\" *ngIf=\"form.value.type === 'closed'\">Students will NOT be able to see each other's submissions.</div>\n    </div>\n\n    <div class=\"late-submissions switch\">\n      <label>\n        No late Submissions\n        <input type=\"checkbox\" formControlName=\"allowLateSubmissions\">\n        <span class=\"lever\"></span>\n        Allow Late Submissions\n      </label>\n    </div>\n  </div>\n\n  <div class=\"critique-settings fieldset\">\n    <label>Critique settings</label>\n    <div class=\"critique-method\">\n      <label>Method</label>\n      <select formControlName=\"critiqueMethod\">\n        <option *ngFor=\"let option of assignmentOptions.critiqueMethod\" [value]=\"option.value\">{{ option.display }}</option>\n      </select>\n    </div>\n\n    <div class=\"critique-subsettings\" *ngIf=\"form.value.critiqueMethod !== 'none'\">\n      <div class=\"critique-privacy switch\">\n        <label>\n          Double-blind\n          <input type=\"checkbox\" formControlName=\"critiquePrivacy\">\n          <span class=\"lever\"></span>\n          Open\n        </label>\n        <div class=\"detail\" *ngIf=\"!form.value.critiquePrivacy\">Submissions will NOT see the author information on submissions or critiques.</div>\n        <div class=\"detail\" *ngIf=\"form.value.critiquePrivacy\">Submissions will see the author information on submissions and critiques.</div>\n      </div>\n    </div>\n  </div>\n\n  <div class=\"due-date\">\n    <div class=\"display\" *ngIf=\"form.value.endDate !==null\">\n      Due date:\n      <span *ngIf=\"form.value.startDate !== null\" class=\"start-date\">\n        {{ form.value.startDate | amDateFormat:'LL hh:mma' }} \n        <span class=\"separator\">\n          to\n        </span>\n      </span>\n      <span class=\"end-date\">\n        {{ form.value.endDate | amDateFormat:'LL hh:mma' }}\n      </span>\n    </div>\n    \n    <div *ngIf=\"form.value.endDate !== null\" class=\"start-date\">\n      <label>Start Date</label>\n      <app-datetime-input formControlName=\"startDate\"></app-datetime-input>\n    </div>\n\n    <div class=\"due-date\">\n      <label>Due Date</label>\n      <app-datetime-input formControlName=\"endDate\"></app-datetime-input>\n    </div>\n  </div>\n</form>"
 
 /***/ },
 
 /***/ 811:
 /***/ function(module, exports) {
 
-module.exports = "<!-- Dropdown Trigger -->\n<a class='dropdown-button' href='#' data-activates='dropdown1'><i class=\"material-icons text-black\">more_vert</i></a>\n<!-- Dropdown Structure -->\n<ul id='dropdown1' class='dropdown-content'>\n  <li><a href=\"#!\">one</a></li>\n  <li><a href=\"#!\">two</a></li>\n  <li class=\"divider\"></li>\n  <li><a href=\"#!\">three</a></li>\n</ul>"
+module.exports = "<div class=\"row\">\n  <ul class=\"collapsible\">\n    <li *ngFor=\"let assignment of assignments\">\n      <div class=\"collapsible-header assignment\" [ngClass]=\"{'assignment--loading': !assignment.id}\">\n        <div class=\"assignment__body\" (click)=\"viewAssignment(assignment.id)\">\n          <i class=\"material-icons\">assignment</i>{{ assignment.title }}\n          <span *ngIf=\"assignment.complete == 1\" class=\"badge green-text\">Complete</span>\n          <span *ngIf=\"assignment.complete == 0\" class=\"badge red-text\">Incomplete</span>\n          <div class=\"due-dates\">\n            <span *ngIf=\"assignment.startDate\">{{ assignment.startDate | amDateFormat:'MM/DD/YY' }} - </span>\n            {{ assignment.endDate | amDateFormat:'MM/DD/YY' }}\n          </div>\n        </div>\n        <div class=\"assignment__icons\">\n          <span *ngIf=\"assignment && assignment.metadata.relatedSubmissions && assignment.metadata.relatedSubmissions.complete.status\" class=\"assignment__icon--complete\"><i class=\"material-icons\">check</i></span>\n        </div>\n        <div class=\"assignment__edit-buttons\" *ngIf=\"assignment.id && (userCanEdit$ | async)\">\n          <a (click)=\"onEditAssignment(assignment)\"><i class=\"material-icons\" aria-label=\"Edit assignment\">edit</i></a>\n          <a (click)=\"onDeleteAssignment(assignment)\"><i class=\"material-icons\" aria-label=\"Edit assignment\">delete</i></a>\n        </div>\n        <div class=\"assignment__loading\" *ngIf=\"!assignment.id\">\n          <div class=\"progress\">\n            <div class=\"indeterminate\"></div>\n          </div>\n        </div>\n      </div>\n    </li>\n  </ul>\n</div>"
 
 /***/ },
 
 /***/ 812:
 /***/ function(module, exports) {
 
-module.exports = "<wysiwygjs (onFocus)=\"onFocus($event)\" (onChange)=\"onChange($event)\" (onBlur)=\"onBlur($event)\"></wysiwygjs>\n\n\n<button md-raised-button (click)=\"submitForm()\" color=\"primary\">Submit Critique</button>"
+module.exports = "<div *ngFor=\"let assignment of (assignments$| async)\">\n    <nav>\n      <div class=\"nav-wrapper\">\n        <ul id=\"nav-mobile\" class=\"left\">\n          <li><a routerLink=\"/projects\"><i class=\"material-icons left\">&#xE5C4;</i> projects</a></li>\n        </ul>\n        <ul id=\"nav-mobile\" class=\"right\">\n          <li *ngIf=\"(userCanEdit$ | async)\"><a (click)=\"onEditAssignment(assignment)\" title=\"Edit this assignment\"><i class=\"material-icons left\">edit</i></a></li>\n        </ul>\n      </div>\n    </nav>\n\n    <div class=\"assignment\" *ngIf=\"assignment\">\n      <h1 class=\"assignment__title\">{{ assignment.title }}</h1>\n      <div class=\"assignment__meta\">\n        <div class=\"assignment__dates\">\n          <span *ngIf=\"assignment.startDate\">{{ assignment.startDate | amDateFormat:'LL hh:mmA' }} - </span>\n          {{ assignment.endDate | amDateFormat:'LL hh:mmA' }}\n        </div>\n      </div>\n      <div class=\"assignment__description\" [innerHTML]=\"assignment.body\"> </div>\n    </div>\n\n\n  <app-submission-list *ngIf=\"(submissions$ | async).length > 0\" title=\"My Submission\" [submissions]=\"submissions$ | async\"></app-submission-list>\n\n  <a (click)=\"onCreateSubmission(assignment)\" class=\"btn-large\">Submit assignment</a>\n</div>"
 
 /***/ },
 
 /***/ 813:
 /***/ function(module, exports) {
 
-module.exports = "critiques list works!"
+module.exports = "<!-- Dropdown Trigger -->\n<a class='dropdown-button' href='#' data-activates='dropdown1'><i class=\"material-icons text-black\">more_vert</i></a>\n<!-- Dropdown Structure -->\n<ul id='dropdown1' class='dropdown-content'>\n  <li><a href=\"#!\">one</a></li>\n  <li><a href=\"#!\">two</a></li>\n  <li class=\"divider\"></li>\n  <li><a href=\"#!\">three</a></li>\n</ul>"
 
 /***/ },
 
 /***/ 814:
 /***/ function(module, exports) {
 
-module.exports = "critique.component"
+module.exports = "<wysiwygjs (onFocus)=\"onFocus($event)\" (onChange)=\"onChange($event)\" (onBlur)=\"onBlur($event)\"></wysiwygjs>\n\n\n<button md-raised-button (click)=\"submitForm()\" color=\"primary\">Submit Critique</button>"
 
 /***/ },
 
 /***/ 815:
 /***/ function(module, exports) {
 
-module.exports = "<p>\n  dashboard works!\n</p>\n"
+module.exports = "critiques list works!"
 
 /***/ },
 
 /***/ 816:
 /***/ function(module, exports) {
 
-module.exports = "<div>\n  <input [(ngModel)]=\"day\" (ngModelChange)=\"updateDatetime($event)\" type=\"date\" class=\"datepicker\">\n  <input [(ngModel)]=\"time\" (ngModelChange)=\"updateDatetime($event)\" type=\"time\">\n</div>"
+module.exports = "critique.component"
 
 /***/ },
 
 /***/ 817:
 /***/ function(module, exports) {
 
-module.exports = "<div *ngIf=\"editing\">\n  <form [formGroup]=\"form\">\n    <input formControlName=\"content\" (keyup.enter)=\"endEditing()\" type=\"text\" class=\"text-input\"> \n  </form>\n</div>\n<div *ngIf=\"editing == false\" (click)=\"beginEditing()\">\n  <ng-content></ng-content>\n</div>\n"
+module.exports = "<p>\n  dashboard works!\n</p>\n"
 
 /***/ },
 
 /***/ 818:
 /***/ function(module, exports) {
 
-module.exports = "<form [formGroup]=\"form\" id=\"login-form\" class=\"input-field col s12\">\n  <input formControlName=\"username\" id=\"critique-form-username\" name=\"critique-form-username\" placeholder=\"username\"/>\n  <input formControlName=\"password\" id=\"critique-form-password\" name=\"critique-form-password\" placeholder=\"password\"/>\n</form>\n<button (click)=\"submitForm()\" class=\"btn\" color=\"primary\">Login</button>"
+module.exports = "<div>\n  <input [(ngModel)]=\"day\" (ngModelChange)=\"updateDatetime($event)\" type=\"date\" class=\"datepicker\">\n  <input [(ngModel)]=\"time\" (ngModelChange)=\"updateDatetime($event)\" type=\"time\">\n</div>"
 
 /***/ },
 
 /***/ 819:
 /***/ function(module, exports) {
 
-module.exports = "<p>\n  logout works!\n</p>\n"
+module.exports = "<div *ngIf=\"editing\">\n  <form [formGroup]=\"form\">\n    <input formControlName=\"content\" (keyup.enter)=\"endEditing()\" type=\"text\" class=\"text-input\"> \n  </form>\n</div>\n<div *ngIf=\"editing == false\" (click)=\"beginEditing()\">\n  <ng-content></ng-content>\n</div>\n"
 
 /***/ },
 
 /***/ 820:
 /***/ function(module, exports) {
 
-module.exports = "<p>\n  project-card works!\n</p>\n"
+module.exports = "<form [formGroup]=\"form\" id=\"login-form\" class=\"input-field col s12\">\n  <input formControlName=\"username\" id=\"critique-form-username\" name=\"critique-form-username\" placeholder=\"username\"/>\n  <input formControlName=\"password\" id=\"critique-form-password\" name=\"critique-form-password\" placeholder=\"password\"/>\n</form>\n<button (click)=\"submitForm()\" class=\"btn\" color=\"primary\">Login</button>"
 
 /***/ },
 
 /***/ 821:
 /***/ function(module, exports) {
 
-module.exports = "<div class=\"project\">\n  <div class=\"project__header\">\n    <div class=\"project__title-container\">\n\n      <app-editable-field *ngIf=\"(userCanEdit$ | async)\" [type]=\"text\" [content]=\"project.title\" (contentUpdated)=\"updateTitle($event)\">\n        <h1 class=\"project__title\">{{ project.title }}</h1>\n      </app-editable-field>\n      <h1 *ngIf=\"!(userCanEdit$ | async)\" class=\"project__title\">{{ project.title }}</h1>\n\n      <div class=\"project__description\" [innerHTML]=\"project.description\"></div>\n    </div>\n    <div *ngIf=\"(userCanEdit$ | async)\" class=\"project__options\"> \n      <a (click)=\"onCreateAssignment()\" class=\"waves-effect btn-flat tooltipped\" data-tooltip=\"create assignment\"><i class=\"material-icons\">add</i></a>\n      <a (click)=\"onDeleteProject()\" class=\"waves-effect btn-flat tooltipped\" data-tooltip=\"delete assignment\"><i class=\"material-icons\">delete</i></a>\n    </div>\n  </div>\n  <div class=\"project__board\">\n    <cle-assignment-list [assignments]=\"assignments | async\"></cle-assignment-list>\n  </div>\n</div>\n\n<div id=\"modal-{{project.id}}\" class=\"modal delete-project-form\">\n  <div class=\"modal-content\">\n    <h4>Delete project confirmation</h4>\n    <p>Are you sure you want to delete the project titled \"{{ project.title }}\"?</p>\n  </div>\n  <div class=\"modal-footer\">\n    <a (click)=\"confirmDelete(false)\" class=\"modal-action modal-close waves-effect waves-green btn-flat\">Cancel</a>\n    <a (click)=\"confirmDelete(true)\" class=\" modal-action modal-close waves-effect waves-red btn-flat\">Delete</a>\n  </div>\n</div>"
+module.exports = "<p>\n  logout works!\n</p>\n"
 
 /***/ },
 
 /***/ 822:
 /***/ function(module, exports) {
 
-module.exports = "<div *ngIf=\"loading === true\" class=\"preloader-wrapper big active\">\n  <div class=\"spinner-layer spinner-blue-only\">\n    <div class=\"circle-clipper left\">\n      <div class=\"circle\"></div>\n    </div><div class=\"gap-patch\">\n      <div class=\"circle\"></div>\n    </div><div class=\"circle-clipper right\">\n      <div class=\"circle\"></div>\n    </div>\n  </div>\n</div>\n\n<div *ngIf=\"(userCanEdit$ | async)\"> \n  <a (click)=\"createNewProject('Add project')\" class=\"create-project waves-effect waves-light btn-large\"><i class=\"material-icons right\">add</i>New project</a>\n</div>\n\n<div class=\"projects-container\">\n  <app-project-item *ngFor=\"let project of (projects$ | async)\" [project]=\"project\" (delete)=\"projectDeleted(project)\"></app-project-item>\n</div>\n\n"
+module.exports = "<p>\n  project-card works!\n</p>\n"
 
 /***/ },
 
 /***/ 823:
 /***/ function(module, exports) {
 
-module.exports = "<p>\n  projects works!\n</p>\n"
+module.exports = "<div class=\"project\">\n  <div class=\"project__header\">\n    <div class=\"project__title-container\">\n\n      <app-editable-field *ngIf=\"(userCanEdit$ | async)\" [type]=\"text\" [content]=\"project.title\" (contentUpdated)=\"updateTitle($event)\">\n        <h1 class=\"project__title\">{{ project.title }}</h1>\n      </app-editable-field>\n      <h1 *ngIf=\"!(userCanEdit$ | async)\" class=\"project__title\">{{ project.title }}</h1>\n\n      <div class=\"project__description\" [innerHTML]=\"project.description\"></div>\n    </div>\n    <div *ngIf=\"(userCanEdit$ | async)\" class=\"project__options\"> \n      <a (click)=\"onCreateAssignment()\" class=\"waves-effect btn-flat tooltipped\" data-tooltip=\"create assignment\"><i class=\"material-icons\">add</i></a>\n      <a (click)=\"onDeleteProject()\" class=\"waves-effect btn-flat tooltipped\" data-tooltip=\"delete assignment\"><i class=\"material-icons\">delete</i></a>\n    </div>\n  </div>\n  <div class=\"project__board\">\n    <cle-assignment-list [assignments]=\"assignments | async\"></cle-assignment-list>\n  </div>\n</div>\n\n<div id=\"modal-{{project.id}}\" class=\"modal delete-project-form\">\n  <div class=\"modal-content\">\n    <h4>Delete project confirmation</h4>\n    <p>Are you sure you want to delete the project titled \"{{ project.title }}\"?</p>\n  </div>\n  <div class=\"modal-footer\">\n    <a (click)=\"confirmDelete(false)\" class=\"modal-action modal-close waves-effect waves-green btn-flat\">Cancel</a>\n    <a (click)=\"confirmDelete(true)\" class=\" modal-action modal-close waves-effect waves-red btn-flat\">Delete</a>\n  </div>\n</div>"
 
 /***/ },
 
 /***/ 824:
 /***/ function(module, exports) {
 
-module.exports = "<div class=\"submission-create\">\n  <app-submission-form [submission]=\"submission\" (onSubmissionSave)=\"onSubmissionSave($event)\" (onSubmissionCancel)=\"onSubmissionCancel($event)\"></app-submission-form>\n</div>"
+module.exports = "<div *ngIf=\"loading === true\" class=\"preloader-wrapper big active\">\n  <div class=\"spinner-layer spinner-blue-only\">\n    <div class=\"circle-clipper left\">\n      <div class=\"circle\"></div>\n    </div><div class=\"gap-patch\">\n      <div class=\"circle\"></div>\n    </div><div class=\"circle-clipper right\">\n      <div class=\"circle\"></div>\n    </div>\n  </div>\n</div>\n\n<div *ngIf=\"(userCanEdit$ | async)\"> \n  <a (click)=\"createNewProject('Add project')\" class=\"create-project waves-effect waves-light btn-large\"><i class=\"material-icons right\">add</i>New project</a>\n</div>\n\n<div class=\"projects-container\">\n  <app-project-item *ngFor=\"let project of (projects$ | async)\" [project]=\"project\" (delete)=\"projectDeleted(project)\"></app-project-item>\n</div>\n\n"
 
 /***/ },
 
 /***/ 825:
 /***/ function(module, exports) {
 
-module.exports = "<div class=\"submission-detail\" *ngIf=\"submission\">\n  <h1>{{ submission.title }}</h1>\n  <div class=\"body\" [innerHTML]=\"submission.body\"></div>\n</div>"
+module.exports = "<p>\n  projects works!\n</p>\n"
 
 /***/ },
 
 /***/ 826:
 /***/ function(module, exports) {
 
-module.exports = "<div class=\"submission-edit\">\n  <app-submission-form *ngIf=\"submission$ | async\" [submission]=\"submission$ | async\" (onSubmissionSave)=\"onSubmissionSave($event)\" (onSubmissionCancel)=\"onSubmissionCancel($event)\" (onFormChanges)=\"onFormChanges($event)\"></app-submission-form>\n</div>"
+module.exports = "<div class=\"submission-create\">\n  <app-submission-form [submission]=\"submission\" (onSubmissionSave)=\"onSubmissionSave($event)\" (onSubmissionCancel)=\"onSubmissionCancel($event)\"></app-submission-form>\n</div>"
 
 /***/ },
 
 /***/ 827:
 /***/ function(module, exports) {
 
-module.exports = "<form *ngIf=\"form\" [formGroup]=\"form\" class=\"submission-form\">\n  <input formControlName=\"title\" placeholder=\"title\">\n  <wysiwygjs formControlName=\"body\" (onWysiwygInit)=\"onWysiwygInit()\" (onImageAdded)=\"onWysiwygImageAdded($event)\"></wysiwygjs>\n\n  <div class=\"actions\">\n    <button type=\"submit\" class=\"btn\" (click)=\"submit()\">Save</button>\n    <button type=\"button\" class=\"btn\" (click)=\"cancel()\">Cancel</button>\n  </div>\n</form>\n"
+module.exports = "<div class=\"submission-detail\" *ngIf=\"submission\">\n  <app-submission-states [submission]=\"submission\"></app-submission-states>\n  <h1>{{ submission.title }}</h1>\n  <div class=\"body\" [innerHTML]=\"submission.body\"></div>\n</div>\n\n<pre>\n{{ submission | json }}\n</pre>"
 
 /***/ },
 
 /***/ 828:
 /***/ function(module, exports) {
 
-module.exports = "<h4 *ngIf=\"title\">{{title}}</h4>\n\n<div class=\"row\">\n  <div *ngFor=\"let submission of submissions\" (click)=\"onSubmissionClick(submission)\" class=\"col s12 m6\">\n    <div class=\"card horizontal\">\n      <div class=\"card-stacked\">\n        <div class=\"card-content\">\n          <h3 >{{ submission.title }}</h3>\n        </div>\n        <div class=\"card-action\">\n        </div>\n      </div>\n    </div>\n  </div>\n</div>"
+module.exports = "<div class=\"submission-edit\">\n  <app-submission-form *ngIf=\"submission$ | async\" [submission]=\"submission$ | async\" (onSubmissionSave)=\"onSubmissionSave($event)\" (onSubmissionCancel)=\"onSubmissionCancel($event)\" (onFormChanges)=\"onFormChanges($event)\"></app-submission-form>\n</div>"
 
 /***/ },
 
 /***/ 829:
 /***/ function(module, exports) {
 
-module.exports = "<nav>\n  <div class=\"nav-wrapper\">\n    <ul id=\"nav-mobile\" class=\"left\">\n      <li><a (click)=\"onClickBack()\"><i class=\"material-icons left\">&#xE5C4;</i> assignment</a></li>\n    </ul>\n    <ul id=\"nav-mobile-right\" class=\"right\">\n      <li *ngIf=\"userCanEdit$ | async\"><a (click)=\"editSubmission()\"><i class=\"material-icons left\">edit</i></a></li>\n    </ul>\n  </div>\n</nav>\n\n<div *ngIf=\"submissionId\">\n  <app-submission-detail [submission]=\"submission$ | async\"></app-submission-detail>\n</div>"
+module.exports = "<form *ngIf=\"form\" [formGroup]=\"form\" class=\"submission-form\">\n  <input formControlName=\"title\" placeholder=\"title\">\n  <wysiwygjs formControlName=\"body\" (onWysiwygInit)=\"onWysiwygInit()\" (onImageAdded)=\"onWysiwygImageAdded($event)\"></wysiwygjs>\n\n  <div class=\"actions\">\n    <button type=\"submit\" class=\"btn\" (click)=\"submit()\">Save</button>\n    <button type=\"button\" class=\"btn\" (click)=\"cancel()\">Cancel</button>\n  </div>\n</form>\n"
 
 /***/ },
 
 /***/ 830:
 /***/ function(module, exports) {
 
-module.exports = "<p>\n  user works!\n</p>\n"
+module.exports = "<h4 *ngIf=\"title\">{{title}}</h4>\n\n<div class=\"row\">\n  <div *ngFor=\"let submission of submissions\" (click)=\"onSubmissionClick(submission)\" class=\"col s12 m6\">\n    <div class=\"card horizontal\">\n      <div class=\"card-stacked\">\n        <div class=\"card-content\">\n          <h3 >{{ submission.title }}</h3>\n        </div>\n        <div class=\"card-action\">\n        </div>\n      </div>\n    </div>\n  </div>\n</div>"
 
 /***/ },
 
 /***/ 831:
+/***/ function(module, exports) {
+
+module.exports = "<div class=\"submission-states\">\n  <ul *ngIf=\"states\">\n    <li \n      *ngFor=\"let item of states\"\n      [ngClass]=\"{active: item.active}\"\n      [ngStyle]=\"item.styles\"\n      >\n        <div class=\"submission-item__container\">\n          <i class=\"material-icons left\">{{item.icon}}</i>\n          {{item.display}}\n          </div>\n      </li>\n  </ul>\n</div>"
+
+/***/ },
+
+/***/ 832:
+/***/ function(module, exports) {
+
+module.exports = "<nav>\n  <div class=\"nav-wrapper\">\n    <ul id=\"nav-mobile\" class=\"left\">\n      <li><a (click)=\"onClickBack()\"><i class=\"material-icons left\">&#xE5C4;</i> assignment</a></li>\n    </ul>\n    <ul id=\"nav-mobile-right\" class=\"right\">\n      <li *ngIf=\"userCanEdit$ | async\"><a (click)=\"editSubmission()\"><i class=\"material-icons left\">edit</i></a></li>\n    </ul>\n  </div>\n</nav>\n\n<div *ngIf=\"submissionId\">\n  <app-submission-detail [submission]=\"submission$ | async\"></app-submission-detail>\n</div>"
+
+/***/ },
+
+/***/ 833:
+/***/ function(module, exports) {
+
+module.exports = "<p>\n  user works!\n</p>\n"
+
+/***/ },
+
+/***/ 834:
 /***/ function(module, exports) {
 
 module.exports = "<textarea>{{ content }}</textarea>"
@@ -4566,5 +4652,5 @@ var AppSettings = (function () {
 
 /***/ }
 
-},[1097]);
+},[1100]);
 //# sourceMappingURL=main.bundle.map

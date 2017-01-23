@@ -75,7 +75,7 @@ export class SubmissionService {
   /**
    * @todo: this should eventually be more dynamic
    */
-  getSubmissionOptions() {
+  getSubmissionOptions():any {
     return {
       type: [
         { value: 'open', display: 'Open' },
@@ -89,6 +89,10 @@ export class SubmissionService {
         { value: 'open', display: 'Open'},
         { value: 'blind', display: 'Blind'},
         { value: 'double_blind', display: 'Double blind'}
+      ],
+      state: [
+        { value: 'submission_in_progress', display: 'Submission in progress', icon: 'autorenew', color: 'lightgoldenrodyellow'},
+        { value: 'submission_ready', display: 'Submission Ready', icon: 'done', color: 'lightgreen'}
       ]
     }
   }
