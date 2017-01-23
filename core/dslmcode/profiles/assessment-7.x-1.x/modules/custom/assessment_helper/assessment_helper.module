@@ -37,7 +37,7 @@ function assessment_helper_menu() {
     'title' => 'Export results',
     'description' => 'Export quiz results',
     'page callback' => '_assessment_helper_make_file',
-    'page arguments' => array(1),
+    'page arguments' => array(1, 3),
     'access callback' =>'_assessment_helper_access_callback',
     'access arguments' => array(1),
     'type' => MENU_LOCAL_TASK,
@@ -71,16 +71,25 @@ function assessment_helper_form_quiz_results_manage_results_form_alter(&$form, &
 /**
  * Get records from the database and generate csv file.
  */
-function _assessment_helper_make_file($node) {
+function _assessment_helper_make_file($node, $format = NULL) {
   // quiz means its single, section/course we have to query
   if ($node->type == 'quiz') {
     $nodes = array($node->nid => $node);
+    if (empty($format)) {
+      $format = 'single';
+    }
   }
   elseif ($node->type == 'section') {
     $nodes = _cis_connector_assemble_entity_list('node', 'quiz', 'nid', '_entity', array('og_group_ref' => array('target_id', $node->nid)), array('status' => 1), array('created'));
+    if (empty($format)) {
+      $format = 'overview';
+    }
   }
   elseif ($node->type == 'cis_course') {
     $nodes = _cis_connector_assemble_entity_list('node', 'quiz', 'nid', '_entity', array('field_cis_course_ref' => array('target_id', $node->nid)), array('status' => 1), array('created'));
+    if (empty($format)) {
+      $format = 'overview';
+    }
   }
   // if we got nothing then ensure we fail safely
   if (empty($nodes)) {
@@ -113,13 +122,12 @@ function _assessment_helper_make_file($node) {
   // per node make header records
   foreach ($nodes as $node) {
     $nids[] = $node->nid;
-    $title = check_plain(drupal_strtolower($node->title));
-    $headers[] = $title;
-    $headers[] = t('@title PERFECT', array('@title' => $title));
-    $headers[] = t('@title EVALUATED', array('@title' => $title));
-    $headers[] = t('@title STARTED', array('@title' => $title));
-    $headers[] = t('@title FINISHED', array('@title' => $title));
-    $headers[] = t('@title DURATION', array('@title' => $title));
+    $headers[] = check_plain(drupal_strtoupper($node->title));
+    $headers[] = t('perfect?');
+    $headers[] = t('is evaluated?');
+    $headers[] = t('started');
+    $headers[] = t('finished');
+    $headers[] = t('duration');
   }
   // Put the headers for the csv.
   fputcsv($df, $headers);
@@ -145,6 +153,10 @@ function _assessment_helper_make_file($node) {
   // ensure user status
   $query->condition('u.status', 1);
   $query->condition('qnr.nid', $nids, 'IN');
+  // sort by qnr to try and get these in the right order
+  $query->orderBy('qnr.nid', 'DESC');
+  $query->orderBy('u.uid', 'DESC');
+
   $result = $query->execute();
   $rows = array();
   // Build up the array of data to return
@@ -165,20 +177,77 @@ function _assessment_helper_make_file($node) {
       }
     }
     $rows[] = array(
-      $row->name,
-      $row->mail,
-      $row->score,
-      ($row->score == 100 ? 1 : 0),
-      $row->evaluated,
-      $row->start,
-      $row->end,
-      $row->duration,
-      $row->nid,
+      'name' => $row->name,
+      'mail' => $row->mail,
+      'score' => $row->score,
+      'perfect' => ($row->score == 100 ? 1 : 0),
+      'evaluated' => $row->evaluated,
+      'start' => $row->start,
+      'end' => $row->end,
+      'duration' => $row->duration,
+      'nid' => $row->nid,
     );
   }
-  // loop through rows and merge users together
-  foreach ($rows as $row) {
-    fputcsv($df, $row);
+  // account for the different modes of output
+  switch ($format) {
+    case 'single':
+      // hand this off based on what output we've wanted to make
+      // loop through rows and merge users together
+      foreach ($rows as $row) {
+        unset($row['nid']);
+        fputcsv($df, $row);
+      }
+    break;
+    case 'overview':
+      $csv = array();
+      // hand this off based on what output we've wanted to make
+      // loop through rows and merge users together
+      foreach ($rows as $row) {
+        // establish name container
+        if (!isset($csv[$row['name']])) {
+          $csv[$row['name']] = array(
+            'user' => array($row['name'], $row['mail']),
+          );
+        }
+        // see if there's already been a record for this user
+        // if so, we accept the higher value only
+        if (isset($csv[$row['name']][$row['nid']])) {
+          if ((int)$csv[$row['name']][$row['nid']]['score'] < (int)$row['score']) {
+            $csv[$row['name']][$row['nid']] = $row;
+          }
+          // see which is higher if we already have this
+        }
+        else {
+          $csv[$row['name']][$row['nid']] = $row;
+        }
+      }
+      // output new format for CSV file
+      foreach ($csv as $name => $row) {
+        $outrow = $row['user'];
+        // loop through the assembled quizzes
+        foreach ($nodes as $nid => $node) {
+          // they didn't do this quiz, set it empty
+          if (!isset($row[$nid])) {
+            $outrow[] = 0;
+            $outrow[] = 0;
+            $outrow[] = t('no');
+            $outrow[] = t('no data');
+            $outrow[] = t('no data');
+            $outrow[] = t('no data');
+          }
+          else {
+            // append answers, should be in the correct order because of NID matching
+            $outrow[] = $row[$nid]['score'];
+            $outrow[] = $row[$nid]['perfect'];
+            $outrow[] = $row[$nid]['evaluated'];
+            $outrow[] = $row[$nid]['start'];
+            $outrow[] = $row[$nid]['end'];
+            $outrow[] = $row[$nid]['duration'];
+          }
+        }
+        fputcsv($df, $outrow);
+      }
+    break;
   }
 
   fclose($df);
