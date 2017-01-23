@@ -1210,6 +1210,26 @@ function _elmsln_core_icon_map() {
         'color' => 'red',
         'icon' => 'school',
       ),
+      'program' => array(
+        'color' => 'pink',
+        'icon' => 'code',
+      ),
+      'academic_area' => array(
+        'color' => 'green',
+        'icon' => 'account_balance',
+      ),
+      'global_resource' => array(
+        'color' => 'indigo',
+        'icon' => 'cloud',
+      ),
+      'course_access' => array(
+        'color' => 'blue',
+        'icon' => 'school',
+      ),
+      'system_access' => array(
+        'color' => 'indigo',
+        'icon' => 'cloud',
+      ),
       'calendar_event' => array(
         'color' => 'green',
         'icon' => 'event',
