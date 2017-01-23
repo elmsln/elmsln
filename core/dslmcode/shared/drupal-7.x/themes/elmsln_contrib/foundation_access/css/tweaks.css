@@ -1466,7 +1466,8 @@ body {
   flex-direction: column;
   -webkit-flex-direction: column;
   -ms-flex-direction: column;
-  width: 100% !important;
+  max-width: 100% !important;
+  overflow-x: hidden;
 }
 /* ensure iframes still resize correctly */
 body.entity-iframe-theme {
