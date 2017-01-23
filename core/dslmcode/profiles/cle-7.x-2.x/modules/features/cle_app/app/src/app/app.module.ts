@@ -54,6 +54,7 @@ import { SubmissionEditComponent } from './submission/submission-edit/submission
 import { SubmissionStatesComponent } from './submission/submission-states/submission-states.component';
 import { DialogComponent } from './dialog/dialog.component';
 import { SubmissionEditStatesComponent } from './submission/submission-edit-states/submission-edit-states.component';
+import { SubmissionDialogComponent } from './submission/submission-dialog/submission-dialog.component';
 
 @NgModule({
   declarations: [
@@ -85,7 +86,8 @@ import { SubmissionEditStatesComponent } from './submission/submission-edit-stat
     SubmissionEditComponent,
     SubmissionStatesComponent,
     DialogComponent,
-    SubmissionEditStatesComponent
+    SubmissionEditStatesComponent,
+    SubmissionDialogComponent
   ],
   imports: [
     BrowserModule,

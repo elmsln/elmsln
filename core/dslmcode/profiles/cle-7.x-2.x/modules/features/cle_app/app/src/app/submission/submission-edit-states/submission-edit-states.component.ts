@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input, Output } from '@angular/core';
+import { Submission } from '../submission';
 
 @Component({
   selector: 'app-submission-edit-states',
@@ -6,10 +7,10 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./submission-edit-states.component.css']
 })
 export class SubmissionEditStatesComponent implements OnInit {
-
-  constructor() { }
+  @Input() submission:Submission;
+  constructor(
+  ) { }
 
   ngOnInit() {
   }
-
 }

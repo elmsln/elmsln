@@ -58,6 +58,16 @@
       border-left-color: darken($color, 15%);
     }
   }
+
+  li.active {
+    &:before {
+      border-left-color: inherit;
+    }
+  }
+
+  li.canEdit {
+    cursor: pointer;
+  }
 }
 
 .submission-item__container {

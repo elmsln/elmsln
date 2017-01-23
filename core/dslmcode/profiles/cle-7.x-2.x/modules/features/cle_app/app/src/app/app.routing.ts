@@ -15,8 +15,9 @@ import { SubmissionComponent } from './submission/submission.component';
 import { SubmissionCreateComponent } from './submission/submission-create/submission-create.component';
 import { SubmissionDetailComponent } from './submission/submission-detail/submission-detail.component';
 import { SubmissionEditComponent } from './submission/submission-edit/submission-edit.component';
+import { SubmissionDialogComponent } from './submission/submission-dialog/submission-dialog.component';
+import { SubmissionStatesComponent } from './submission/submission-states/submission-states.component';
 import { DialogComponent } from './dialog/dialog.component';
-import { SubmissionEditStatesComponent } from './submission/submission-edit-states/submission-edit-states.component';
 
 const appRoutes: Routes = [
   {
@@ -68,19 +69,17 @@ const appRoutes: Routes = [
       {
         path: ':submissionId/edit',
         component: SubmissionEditComponent
+      },
+      {
+        path: 'submission-states',
+        component: SubmissionStatesComponent
       }
     ]
   },
   {
-    path: 'dialog',
+    path: 'submissions/:submissionId/edit-state',
     outlet: 'dialog',
-    component: DialogComponent,
-    children: [
-      {
-        path: 'submission-edit-status/:submissionId',
-        component: SubmissionEditStatesComponent
-      }
-    ]
+    component: SubmissionDialogComponent
   }
 ];
 

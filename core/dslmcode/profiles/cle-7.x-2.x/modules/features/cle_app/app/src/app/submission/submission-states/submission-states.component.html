@@ -2,8 +2,9 @@
   <ul *ngIf="states">
     <li 
       *ngFor="let item of states"
-      [ngClass]="{active: item.active}"
+      [ngClass]="{active: item.active, canEdit: submission.metadata.canUpdate}"
       [ngStyle]="item.styles"
+      (click)="onStateClick(item)"
       >
         <div class="submission-item__container">
           <i class="material-icons left">{{item.icon}}</i>
@@ -12,3 +13,5 @@
       </li>
   </ul>
 </div>
+
+<!--{{ submission | json }}-->

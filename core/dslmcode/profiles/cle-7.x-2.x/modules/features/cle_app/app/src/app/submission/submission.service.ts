@@ -138,4 +138,27 @@ export class SubmissionService {
 
     return newSub;
   }
+
+  // get the submission from the store using the submissionID and 
+  // return an observable
+  getSubmissionFromStore(submissionId:Number):Observable<Submission> {
+    return this.store.select('submissions')
+      .map((state:any) => state.submissions.find((sub:Submission) => sub.id === submissionId))
+  }
+
+  // find out if the current user can edit the submission
+  userCanEditSubmission(submissionId:Number):Observable<boolean> {
+    return this.store.select('submissions')
+      .map((state:any) => state.submissions.find((sub:Submission) => sub.id === submissionId))
+      .map((state:any) => {
+        if (state) {
+          if (typeof state.metadata !== 'undefined') {
+            if (typeof state.metadata.canUpdate !== 'undefined') {
+              return state.metadata.canUpdate;
+            }
+          }
+        }
+        return false;
+      })
+  }
 }
