@@ -15,7 +15,7 @@ function ecd_ux_menu_default_menu_links() {
     'menu_name' => 'menu-elmsln-add',
     'link_path' => 'eform/submit/course-access-request',
     'router_path' => 'eform/submit/%',
-    'link_title' => 'Course access request',
+    'link_title' => 'Course access',
     'options' => array(
       'attributes' => array(),
       'item_attributes' => array(
@@ -38,7 +38,7 @@ function ecd_ux_menu_default_menu_links() {
     'menu_name' => 'menu-elmsln-add',
     'link_path' => 'eform/submit/system-access-request',
     'router_path' => 'eform/submit/%',
-    'link_title' => 'System access request',
+    'link_title' => 'System access',
     'options' => array(
       'attributes' => array(),
       'item_attributes' => array(
@@ -85,7 +85,7 @@ function ecd_ux_menu_default_menu_links() {
     'menu_name' => 'menu-elmsln-navigation',
     'link_path' => 'courses/bulk-update',
     'router_path' => 'courses/bulk-update',
-    'link_title' => 'Bulk Update',
+    'link_title' => 'Bulk update',
     'options' => array(
       'attributes' => array(),
       'item_attributes' => array(
@@ -155,11 +155,11 @@ function ecd_ux_menu_default_menu_links() {
   // Translatables
   // Included for use with string extractors like potx.
   t('Access requests');
-  t('Bulk Update');
+  t('Bulk update');
   t('Compliance');
-  t('Course access request');
+  t('Course access');
   t('Courses');
-  t('System access request');
+  t('System access');
 
   return $menu_links;
 }

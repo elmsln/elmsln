@@ -14,10 +14,29 @@ function foundation_access_preprocess_html(&$variables) {
   $variables['iconsizes'] = array('16', '32', '64', '96', '160', '192', '310');
   $variables['appleiconsizes'] = array('60', '72', '76', '114', '120', '144', '152', '180');
   $variables['system_icon'] = $settings['icon'];
+  $variables['lmsless_classes'] = _cis_lmsless_get_distro_classes(elmsln_core_get_profile_key());
   $variables['system_title'] = (isset($settings['default_title']) ? $settings['default_title'] : $variables['distro']);
   // loop through our system specific colors
   $colors = array('primary', 'secondary', 'required', 'optional');
-  $css = '';
+  $css = '
+  .pagination li.active,
+  ul.pagination li:hover a, ul.pagination li a:focus, ul.pagination li:hover button, ul.pagination li button:focus {
+    color: ' . $variables['lmsless_classes']['code_text'] . ';
+    background-color: ' . $variables['lmsless_classes']['code'] . '
+  }
+  .btn,
+  .btn-large {
+    background-color: ' . $variables['lmsless_classes']['code_text'] . ';
+  }
+  .dropdown-content li > a, .dropdown-content li > span,
+  form.node-form div.field-group-htabs-wrapper .horizontal-tabs a.fieldset-title,
+  a {
+    color: ' . $variables['lmsless_classes']['code_text'] . ';
+  }
+  [type="checkbox"]:checked + label:before {
+    border-right: 2px solid ' . $variables['lmsless_classes']['code_text'] . ';
+    border-bottom: 2px solid ' . $variables['lmsless_classes']['code_text'] . ';
+  }';
   foreach ($colors as $current) {
     $color = theme_get_setting('foundation_access_' . $current . '_color');
     // allow other projects to override the FA colors
@@ -89,8 +108,6 @@ function foundation_access_preprocess_html(&$variables) {
   if (isset($_GET['modal'])) {
     $variables['classes_array'][] = 'modal-rendered';
   }
-  // pull in the lmsless classes / colors
-  $variables['lmsless_classes'] = _cis_lmsless_get_distro_classes(elmsln_core_get_profile_key());
   // add page level variables into scope for the html tpl file
   $variables['site_name'] = check_plain(variable_get('site_name', 'ELMSLN'));
   $variables['logo'] = theme_get_setting('logo');
@@ -1066,6 +1083,7 @@ function foundation_access_menu_link(&$variables) {
         $element['#localized_options']['attributes']['class'][] = 'elmsln-core-external-context-apply';
       }
       $element['#localized_options']['attributes']['class'][] = $icon_map[$icon]['color'];
+      $element['#localized_options']['attributes']['class'][] = 'darken-3';
       $title = '<i class="material-icons white-text left">' . $icon_map[$icon]['icon'] . '</i>' . $title;
       $element['#localized_options']['html'] = TRUE;
     }

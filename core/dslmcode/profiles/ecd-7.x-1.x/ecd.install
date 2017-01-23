@@ -40,3 +40,11 @@ function ecd_update_7002(&$sandbox) {
   features_revert('ecd_displays');
   module_enable(array('ecd_entityforms', 'ecd_ux', 'ecd_perms'));
 }
+
+/**
+ * Menu labels better.
+ */
+function ecd_update_7003(&$sandbox) {
+  features_revert_module('ecd_ux');
+}
+

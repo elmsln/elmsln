@@ -237,12 +237,16 @@ ul.book-navigation-wrapper {
 
 .book-navigation-footer .book-sibling-parent-pagination-previous {
   float: left;
-  font-size: 1rem;
+  font-size: .8rem;
+  padding: 0;
+  word-wrap: break-word;
 }
 
 .book-navigation-footer .book-sibling-parent-pagination-next {
   float: right;
-  font-size: 1rem;
+  font-size: .8rem;
+  padding: 0;
+  word-wrap: break-word;
 }
 
 .book-sibling-children a {

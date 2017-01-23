@@ -75,7 +75,7 @@ export class SubmissionService {
   /**
    * @todo: this should eventually be more dynamic
    */
-  getSubmissionOptions() {
+  getSubmissionOptions():any {
     return {
       type: [
         { value: 'open', display: 'Open' },
@@ -89,6 +89,10 @@ export class SubmissionService {
         { value: 'open', display: 'Open'},
         { value: 'blind', display: 'Blind'},
         { value: 'double_blind', display: 'Double blind'}
+      ],
+      state: [
+        { value: 'submission_in_progress', display: 'Submission in progress', icon: 'autorenew', color: 'lightgoldenrodyellow'},
+        { value: 'submission_ready', display: 'Submission Ready', icon: 'done', color: 'lightgreen'}
       ]
     }
   }
@@ -133,5 +137,28 @@ export class SubmissionService {
     }
 
     return newSub;
+  }
+
+  // get the submission from the store using the submissionID and 
+  // return an observable
+  getSubmissionFromStore(submissionId:Number):Observable<Submission> {
+    return this.store.select('submissions')
+      .map((state:any) => state.submissions.find((sub:Submission) => sub.id === submissionId))
+  }
+
+  // find out if the current user can edit the submission
+  userCanEditSubmission(submissionId:Number):Observable<boolean> {
+    return this.store.select('submissions')
+      .map((state:any) => state.submissions.find((sub:Submission) => sub.id === submissionId))
+      .map((state:any) => {
+        if (state) {
+          if (typeof state.metadata !== 'undefined') {
+            if (typeof state.metadata.canUpdate !== 'undefined') {
+              return state.metadata.canUpdate;
+            }
+          }
+        }
+        return false;
+      })
   }
 }

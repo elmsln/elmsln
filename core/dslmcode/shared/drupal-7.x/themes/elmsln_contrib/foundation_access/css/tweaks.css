@@ -233,10 +233,10 @@ body.page-node-edit.node-type-page .cke_focus .cke_top{
     min-width: 10rem;
     top: 0;
   }
-  .r-local-subheader .views-exposed-form {
+  .views-exposed-form {
     position: absolute;
-    right: 92%;
-    width: calc(55vw - 50%);
+    right: 100%;
+    width: calc(54vw - 60%);
     max-width: 20rem;
     min-width: 10rem;
     top: 4rem;
@@ -244,10 +244,14 @@ body.page-node-edit.node-type-page .cke_focus .cke_top{
     padding: .5rem;
     border: .1rem solid;
   }
-  .r-local-subheader .views-exposed-form .views-exposed-widget {
+  .r-local-subheader .views-exposed-form {
+    right: 92%;
+    width: calc(55vw - 50%);
+  }
+  .views-exposed-form .views-exposed-widget {
     float: unset;
   }
-  .r-local-subheader .views-exposed-form ul {
+  .views-exposed-form ul {
     margin: 0;
   }
 }
@@ -289,7 +293,7 @@ body.page-node-edit.node-type-page .cke_focus .cke_top{
 .colorpicker {
   z-index: 10000;
 }
-article ul:not(.collapsible):not(.browser-default):not(.dropdown-content):not(.h5p-answers):not(.table-of-contents):not(.menu) li {
+article ul:not(.contextual-links):not(.collapsible):not(.browser-default):not(.dropdown-content):not(.h5p-answers):not(.table-of-contents):not(.menu) li {
   list-style-type: disc;
   list-style-position: outside;
 }
@@ -871,11 +875,17 @@ input[type=file]:focus,
   outline-width: .3rem;
 }
 /* Materialize Outline classes */
+.indigo-outline {
+  outline-color: #3f51b5 !important;
+}
 .blue-outline {
   outline-color: #2962ff !important;
 }
 .amber-outline {
   outline-color: #ffab00 !important;
+}
+.green-border {
+  outline-color: #4caf50 !important;
 }
 .teal-outline {
   outline-color: #00bfa5 !important;
@@ -918,11 +928,17 @@ input[type=file]:focus,
 }
 
 /* Materialize Border classes */
+.indigo-border {
+  border-color: #3f51b5;
+}
 .blue-border {
   border-color: #2196F3;
 }
 .amber-border {
   border-color: #ffc107;
+}
+.green-border {
+  border-color: #4caf50;
 }
 .teal-border {
   border-color: #009688;
@@ -964,6 +980,18 @@ input[type=file]:focus,
   border-color: #ffffff;
 }
 /* Materialize accessible text variants */
+.accessible-indigo-text {
+  color: #1a237e !important;
+}
+.accessible-green-text {
+  color: #1b5e20 !important;
+}
+.accessible-purple-text {
+  color: #581663 !important;
+}
+.accessible-cyan-text {
+  color: #006064 !important;
+}
 .accessible-blue-text {
   color: #085390 !important;
 }
@@ -996,6 +1024,9 @@ input[type=file]:focus,
 }
 .accessible-pink-text {
   color: #9d0f3f !important;
+}
+.accessible-grey-text {
+  color: #212121 !important;
 }
 /* Special class to highjack accessible varients on hover */
 .hover-white-text,
@@ -1172,6 +1203,12 @@ ul.pagination li {
 ul.pagination li a {
   height: 2rem;
   width: 2rem;
+  line-height: 2rem;
+  padding: 0;
+}
+table.sticky-header {
+  z-index: 1;
+  top: 3rem !important;
 }
 
 /* Admin menu tweaks to get things at the right height in the document */
@@ -1429,7 +1466,8 @@ body {
   flex-direction: column;
   -webkit-flex-direction: column;
   -ms-flex-direction: column;
-  width: 100% !important;
+  max-width: 100% !important;
+  overflow-x: hidden;
 }
 /* ensure iframes still resize correctly */
 body.entity-iframe-theme {
@@ -1456,13 +1494,21 @@ main li a {
 
 footer.page-footer{
   background-color: #f5f5f5;
-  padding-top: 2rem;
-  margin-top:2rem;
+  padding: 1rem;
+  margin-top:1rem;
   margin-bottom: -1rem;
+  border-top-width: .25rem;
+  border-top-style: solid;
   text-align: center;}
   footer.page-footer p {
-    color: #222222;
-    font-size: 0.8rem; }
+    font-size: 1rem;
+    margin: 0;
+    line-height: 2rem;}
+  footer.page-footer a {
+    font-weight: bold;
+    text-decoration: underline;
+    font-size: 1rem;
+    color:#000000;}
 
 /* undo core error message conflict */
 div.error {
@@ -1618,9 +1664,6 @@ form.node-form div.field-group-htabs-wrapper .horizontal-tabs ul.horizontal-tabs
   color:#000000;
   background-color: #F5F5F5;
 }
-form.node-form div.field-group-htabs-wrapper .horizontal-tabs a.fieldset-title {
-  color:#000000;
-}
 form.node-form div.field-group-htabs-wrapper fieldset.field-group-htab {
   padding: 0;
   margin: 0;
@@ -1766,7 +1809,7 @@ input:not([type])[disabled], input:not([type])[readonly], fieldset[disabled] inp
 }
 
 .alert-box.success {
-  background-color:#65c689;
+  background-color:#96d5b0;
   color:#222222;
   border-color: #00843b;
 }
@@ -2044,10 +2087,6 @@ a {
   -moz-transition:.3s;
   -webkit-transition:.3s;
   transition:.3s;
-}
-
-footer p {
-  color: #eeeeee;
 }
 
 table th.active {

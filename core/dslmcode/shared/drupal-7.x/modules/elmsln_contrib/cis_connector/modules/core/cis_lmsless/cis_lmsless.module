@@ -615,6 +615,8 @@ function _cis_lmsless_get_distro_classes($distro = NULL) {
     'color' => 'blue',
     'text' => 'accessible-blue-text',
     'outline' => 'blue-outline',
+    'code' => '#2196f3',
+    'code_text' => '#085390',
   );
   // statically cache future calls
   $map = &drupal_static(__FUNCTION__);

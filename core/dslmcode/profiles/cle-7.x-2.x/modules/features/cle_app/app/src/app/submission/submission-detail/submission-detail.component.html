@@ -1,4 +1,5 @@
 <div class="submission-detail" *ngIf="submission">
+  <app-submission-states [submission]="submission"></app-submission-states>
   <h1>{{ submission.title }}</h1>
   <div class="body" [innerHTML]="submission.body"></div>
 </div>
