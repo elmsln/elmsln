@@ -1,0 +1,75 @@
+.submission-states {
+  $triangle-width: 1.532em;
+  $color: #d0d0d0;
+
+  ul {
+    display: flex;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+  }
+  li {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+    max-width: 20em;
+    position: relative;
+    color: $color;
+    background: $color;
+    height: 3em;
+
+    * > {
+      color: black;
+    }
+
+
+    &:before {
+      position: absolute;
+      content: "";
+      top: 0;
+      width: 0;
+      height: 0;
+      z-index: 2;
+      right: -($triangle-width * 0.97);
+      border-top: $triangle-width solid transparent;
+      border-bottom: $triangle-width solid transparent;
+      border-left: $triangle-width solid currentColor;
+    }
+  }
+
+  li:nth-child(2) {
+    background: darken($color, 5%);
+    &:before{
+      border-left-color: darken($color, 5%);
+    }
+  }
+  li:nth-child(3) {
+    background: darken($color, 10%);
+    &:before{
+      border-left-color: darken($color, 10%);
+    }
+  }
+  li:nth-child(4) {
+    background: darken($color, 15%);
+    &:before{
+      border-left-color: darken($color, 15%);
+    }
+  }
+
+  li.active {
+    &:before {
+      border-left-color: inherit;
+    }
+  }
+
+  li.canEdit {
+    cursor: pointer;
+  }
+}
+
+.submission-item__container {
+  color: black;
+}
