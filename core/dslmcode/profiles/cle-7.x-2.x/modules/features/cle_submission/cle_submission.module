@@ -204,8 +204,25 @@ function _cle_submission_v1_submission_modify($node, $params = NULL) {
             // file entity ids as the target_id entity reference handles the rest
             case 'images':
             case 'files':
+              // the app will send the full object each time in the event we would remove stuff
+              // so we'll need to do basically rebuild this in the event they would have
+              // added or removed stuff from the UI
+              $node->{'field_' . $key2}[LANGUAGE_NONE] = array();
+              // loop through the values that came across
               foreach ($value2 as $item) {
-                $node->{'field_' . $key2}[LANGUAGE_NONE][] = array('fid' => $item);
+                $fid = NULL;
+                // see if this is just an int, means it came across previously
+                if (is_int($item)) {
+                  $fid = $item;
+                }
+                // if it was an array object, set it
+                elseif (isset($item['fid'])) {
+                  $fid = $item['fid'];
+                }
+                // ensure we got something by the end here
+                if (!is_null($fid)) {
+                  $node->{'field_' . $key2}[LANGUAGE_NONE][] = array('fid' => $fid);
+                }
               }
             break;
             // youtube / vimeo / external video provider links

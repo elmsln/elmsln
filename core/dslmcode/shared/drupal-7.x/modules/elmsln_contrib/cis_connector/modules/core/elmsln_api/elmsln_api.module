@@ -1355,8 +1355,25 @@ function _elmsln_api_v1_page_callback($type, $etid = NULL, $op = NULL) {
           else {
             $entity = entity_create($jsapis[$type]['type'], array($info['entity keys']['bundle'] => $jsapis[$type]['bundle']));
           }
+          $failed = FALSE;
           // verify they can create this
-          if (entity_access('create', $jsapis[$type]['type'], $entity)) {
+          if ($jsapis[$type]['type'] == 'file') {
+            // pass down the $_POST to the create callback
+            $payload = file_get_contents('php://input');
+            $payload = drupal_json_decode($payload);
+            $params = array();
+            if (is_array($payload)) {
+              $params = $payload;
+            }
+            // ensure we have a type before checking against it
+            if (isset($params['type']) && entity_access('create', 'file', $params['type'])) {
+              $vars = call_user_func($jsapis[$type]['modify'], $entity, $params);
+            }
+            else {
+              $failed = TRUE;
+            }
+          }
+          else if (entity_access('create', $jsapis[$type]['type'], $entity)) {
             // pass down the $_POST to the create callback
             $payload = file_get_contents('php://input');
             $payload = drupal_json_decode($payload);
@@ -1367,9 +1384,14 @@ function _elmsln_api_v1_page_callback($type, $etid = NULL, $op = NULL) {
             $vars = call_user_func($jsapis[$type]['modify'], $entity, $params);
           }
           else {
+            $failed = TRUE;
+          }
+          // return dead case if it failed prechecks
+          if ($failed) {
             $vars = array(
               'status' => '403',
               'detail' => t('Precondition failed: Entity access denied to create @bundle.', array('@bundle' => $jsapis[$type]['bundle'])),
+              'debug' => $entity,
             );
           }
         break;
