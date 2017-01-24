@@ -229,6 +229,17 @@ function _cle_assignment_v1_assignment_modify($node, $params = NULL) {
       break;
     }
   }
+  // account for artifacts not being set
+  // @todo this may come from the UI at some point
+  if (!isset($node->field_assignment_artifacts) || empty($node->field_assignment_artifacts)) {
+    $node->field_assignment_artifacts[LANGUAGE_NONE] = array(
+    	array('value' => 'field_submission_text'),
+    	array('value' => 'field_images'),
+    	array('value' => 'field_video'),
+    	array('value' => 'field_files'),
+    	array('value' => 'field_links'),
+    );
+  }
   // account for due date not having an end date
   if (!is_null($node->field_assignment_due_date[LANGUAGE_NONE][0]['value']) && is_null($node->field_assignment_due_date[LANGUAGE_NONE][0]['value2'])) {
     $node->field_assignment_due_date[LANGUAGE_NONE][0]['value2'] = $node->field_assignment_due_date[LANGUAGE_NONE][0]['value'];

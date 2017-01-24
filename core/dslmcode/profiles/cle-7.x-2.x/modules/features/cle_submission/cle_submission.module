@@ -247,7 +247,7 @@ function _cle_submission_v1_submission_modify($node, $params = NULL) {
 function cle_submission_form_cle_submission_node_form_alter(&$form, &$form_state, $form_id) {
   // ensure this isn't loaded in an ajax callback
   if (arg(0) != 'system') {
-    unset($form['body']['und'][0]['summary']);
+    unset($form['field_submission_text']['und'][0]['summary']);
     // make sure that its not set to the needs work state
     // if it is then we need to allow anyone to see it so they could change it
     // back to ready for review but not the "in progress" since this is just
@@ -272,7 +272,7 @@ function cle_submission_form_cle_submission_node_form_alter(&$form, &$form_state
       $path = drupal_get_path('module', 'cle_submission') . '/';
       drupal_add_css($path . 'css/submission_form.css');
       // fields that we allow to be optionally hidden
-      $hidden = array('field_images', 'field_video', 'body', 'field_links', 'field_files');
+      $hidden = array('field_images', 'field_video', 'field_submission_text', 'field_links', 'field_files');
       // remove things we should allow to display
       foreach ($assignment->field_assignment_artifacts['und'] as $field) {
         unset($hidden[array_search($field['value'], $hidden)]);
