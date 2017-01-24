@@ -54,6 +54,15 @@ function cle_assignment_field_default_field_instances() {
       1 => array(
         'value' => 'field_images',
       ),
+      2 => array(
+        'value' => 'field_files',
+      ),
+      3 => array(
+        'value' => 'field_links',
+      ),
+      4 => array(
+        'value' => 'field_video',
+      ),
     ),
     'deleted' => 0,
     'description' => '',
