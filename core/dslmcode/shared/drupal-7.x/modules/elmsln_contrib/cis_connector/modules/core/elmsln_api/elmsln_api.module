@@ -177,7 +177,7 @@ function _elmsln_api_v1_file_modify($file, $params = NULL) {
       $extention = 'jpg';
     }
     // save binary image in Drupal site's public file directory
-    if ($file = file_save_data($image, 'public://user-image-' . $GLOBALS['uid'] . '-' . uuid_generate() . '.' . $extention)) {
+    if ($file = file_save_data($image, 'public://user-image-' . $GLOBALS['user']->uid . '-' . uuid_generate() . '.' . $extention)) {
       file_save($file);
     }
   }
