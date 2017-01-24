@@ -42,6 +42,46 @@ function cle_perms_user_default_permissions() {
     'module' => 'file_entity',
   );
 
+  // Exported permission: 'create cle_assignment content'.
+  $permissions['create cle_assignment content'] = array(
+    'name' => 'create cle_assignment content',
+    'roles' => array(
+      'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
+      'administrator' => 'administrator',
+      'instructor' => 'instructor',
+      'staff' => 'staff',
+      'teaching assistant' => 'teaching assistant',
+    ),
+    'module' => 'node',
+  );
+
+  // Exported permission: 'create cle_project content'.
+  $permissions['create cle_project content'] = array(
+    'name' => 'create cle_project content',
+    'roles' => array(
+      'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
+      'administrator' => 'administrator',
+      'instructor' => 'instructor',
+      'staff' => 'staff',
+      'teaching assistant' => 'teaching assistant',
+    ),
+    'module' => 'node',
+  );
+
+  // Exported permission: 'create cle_submission content'.
+  $permissions['create cle_submission content'] = array(
+    'name' => 'create cle_submission content',
+    'roles' => array(
+      'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
+      'administrator' => 'administrator',
+      'instructor' => 'instructor',
+      'staff' => 'staff',
+      'student' => 'student',
+      'teaching assistant' => 'teaching assistant',
+    ),
+    'module' => 'node',
+  );
+
   // Exported permission: 'create files'.
   $permissions['create files'] = array(
     'name' => 'create files',
@@ -68,6 +108,40 @@ function cle_perms_user_default_permissions() {
       'staff' => 'staff',
     ),
     'module' => 'file_entity',
+  );
+
+  // Exported permission: 'delete any cle_assignment content'.
+  $permissions['delete any cle_assignment content'] = array(
+    'name' => 'delete any cle_assignment content',
+    'roles' => array(
+      'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
+      'administrator' => 'administrator',
+      'staff' => 'staff',
+    ),
+    'module' => 'node',
+  );
+
+  // Exported permission: 'delete any cle_project content'.
+  $permissions['delete any cle_project content'] = array(
+    'name' => 'delete any cle_project content',
+    'roles' => array(
+      'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
+      'administrator' => 'administrator',
+      'staff' => 'staff',
+    ),
+    'module' => 'node',
+  );
+
+  // Exported permission: 'delete any cle_submission content'.
+  $permissions['delete any cle_submission content'] = array(
+    'name' => 'delete any cle_submission content',
+    'roles' => array(
+      'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
+      'administrator' => 'administrator',
+      'instructor' => 'instructor',
+      'staff' => 'staff',
+    ),
+    'module' => 'node',
   );
 
   // Exported permission: 'delete any document files'.
@@ -119,6 +193,42 @@ function cle_perms_user_default_permissions() {
       'teaching assistant' => 'teaching assistant',
     ),
     'module' => 'file_entity',
+  );
+
+  // Exported permission: 'delete own cle_assignment content'.
+  $permissions['delete own cle_assignment content'] = array(
+    'name' => 'delete own cle_assignment content',
+    'roles' => array(
+      'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
+      'administrator' => 'administrator',
+      'staff' => 'staff',
+    ),
+    'module' => 'node',
+  );
+
+  // Exported permission: 'delete own cle_project content'.
+  $permissions['delete own cle_project content'] = array(
+    'name' => 'delete own cle_project content',
+    'roles' => array(
+      'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
+      'administrator' => 'administrator',
+      'staff' => 'staff',
+    ),
+    'module' => 'node',
+  );
+
+  // Exported permission: 'delete own cle_submission content'.
+  $permissions['delete own cle_submission content'] = array(
+    'name' => 'delete own cle_submission content',
+    'roles' => array(
+      'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
+      'administrator' => 'administrator',
+      'instructor' => 'instructor',
+      'staff' => 'staff',
+      'student' => 'student',
+      'teaching assistant' => 'teaching assistant',
+    ),
+    'module' => 'node',
   );
 
   // Exported permission: 'delete own document files'.
@@ -297,6 +407,45 @@ function cle_perms_user_default_permissions() {
     'module' => 'file_entity',
   );
 
+  // Exported permission: 'edit any cle_assignment content'.
+  $permissions['edit any cle_assignment content'] = array(
+    'name' => 'edit any cle_assignment content',
+    'roles' => array(
+      'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
+      'administrator' => 'administrator',
+      'instructor' => 'instructor',
+      'staff' => 'staff',
+      'teaching assistant' => 'teaching assistant',
+    ),
+    'module' => 'node',
+  );
+
+  // Exported permission: 'edit any cle_project content'.
+  $permissions['edit any cle_project content'] = array(
+    'name' => 'edit any cle_project content',
+    'roles' => array(
+      'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
+      'administrator' => 'administrator',
+      'instructor' => 'instructor',
+      'staff' => 'staff',
+      'teaching assistant' => 'teaching assistant',
+    ),
+    'module' => 'node',
+  );
+
+  // Exported permission: 'edit any cle_submission content'.
+  $permissions['edit any cle_submission content'] = array(
+    'name' => 'edit any cle_submission content',
+    'roles' => array(
+      'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
+      'administrator' => 'administrator',
+      'instructor' => 'instructor',
+      'staff' => 'staff',
+      'teaching assistant' => 'teaching assistant',
+    ),
+    'module' => 'node',
+  );
+
   // Exported permission: 'edit any document files'.
   $permissions['edit any document files'] = array(
     'name' => 'edit any document files',
@@ -347,6 +496,46 @@ function cle_perms_user_default_permissions() {
       'teaching assistant' => 'teaching assistant',
     ),
     'module' => 'file_entity',
+  );
+
+  // Exported permission: 'edit own cle_assignment content'.
+  $permissions['edit own cle_assignment content'] = array(
+    'name' => 'edit own cle_assignment content',
+    'roles' => array(
+      'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
+      'administrator' => 'administrator',
+      'instructor' => 'instructor',
+      'staff' => 'staff',
+      'teaching assistant' => 'teaching assistant',
+    ),
+    'module' => 'node',
+  );
+
+  // Exported permission: 'edit own cle_project content'.
+  $permissions['edit own cle_project content'] = array(
+    'name' => 'edit own cle_project content',
+    'roles' => array(
+      'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
+      'administrator' => 'administrator',
+      'instructor' => 'instructor',
+      'staff' => 'staff',
+      'teaching assistant' => 'teaching assistant',
+    ),
+    'module' => 'node',
+  );
+
+  // Exported permission: 'edit own cle_submission content'.
+  $permissions['edit own cle_submission content'] = array(
+    'name' => 'edit own cle_submission content',
+    'roles' => array(
+      'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
+      'administrator' => 'administrator',
+      'instructor' => 'instructor',
+      'staff' => 'staff',
+      'student' => 'student',
+      'teaching assistant' => 'teaching assistant',
+    ),
+    'module' => 'node',
   );
 
   // Exported permission: 'edit own document files'.
