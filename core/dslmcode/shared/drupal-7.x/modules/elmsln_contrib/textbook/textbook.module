@@ -532,6 +532,34 @@ function _textbook_styles() {
       ),
     ),
     array(
+      'name' => t('Text, largest'),
+      'element' => 'p',
+      'attributes' => array(
+        'class' => 'text-largest'
+      ),
+    ),
+    array(
+      'name' => t('Text, larger'),
+      'element' => 'p',
+      'attributes' => array(
+        'class' => 'text-larger'
+      ),
+    ),
+    array(
+      'name' => t('Text, smaller'),
+      'element' => 'p',
+      'attributes' => array(
+        'class' => 'text-smaller'
+      ),
+    ),
+    array(
+      'name' => t('Text, smallest'),
+      'element' => 'p',
+      'attributes' => array(
+        'class' => 'text-smallest'
+      ),
+    ),
+    array(
       'name' => t('Emphasis (italic)'),
       'element' => 'em',
     ),
@@ -546,48 +574,6 @@ function _textbook_styles() {
     array(
       'name' => t('Subscript'),
       'element' => 'sub',
-    ),
-    array(
-      'name' => t('Color 1'),
-      'element' => 'span',
-      'attributes' => array(
-        'class' => 'textbook_color1',
-      )
-    ),
-    array(
-      'name' => t('Color 2'),
-      'element' => 'span',
-      'attributes' => array(
-        'class' => 'textbook_color2',
-      )
-    ),
-    array(
-      'name' => t('Color 3'),
-      'element' => 'span',
-      'attributes' => array(
-        'class' => 'textbook_color3',
-      )
-    ),
-    array(
-      'name' => t('Color 4'),
-      'element' => 'span',
-      'attributes' => array(
-        'class' => 'textbook_color4',
-      )
-    ),
-    array(
-      'name' => t('Color 5'),
-      'element' => 'span',
-      'attributes' => array(
-        'class' => 'textbook_color5',
-      )
-    ),
-    array(
-      'name' => t('Color 6'),
-      'element' => 'span',
-      'attributes' => array(
-        'class' => 'textbook_color6',
-      )
     ),
   );
   return $styles;

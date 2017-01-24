@@ -16,52 +16,8 @@ function foundation_access_preprocess_html(&$variables) {
   $variables['system_icon'] = $settings['icon'];
   $variables['lmsless_classes'] = _cis_lmsless_get_distro_classes(elmsln_core_get_profile_key());
   $variables['system_title'] = (isset($settings['default_title']) ? $settings['default_title'] : $variables['distro']);
-  // loop through our system specific colors
-  $colors = array('primary', 'secondary', 'required', 'optional');
-  $css = '
-  .pagination li.active,
-  ul.pagination li:hover a, ul.pagination li a:focus, ul.pagination li:hover button, ul.pagination li button:focus {
-    color: ' . $variables['lmsless_classes']['code_text'] . ';
-    background-color: ' . $variables['lmsless_classes']['code'] . '
-  }
-  .btn,
-  .btn-large {
-    background-color: ' . $variables['lmsless_classes']['code_text'] . ';
-  }
-  .dropdown-content li > a, .dropdown-content li > span,
-  form.node-form div.field-group-htabs-wrapper .horizontal-tabs a.fieldset-title,
-  a {
-    color: ' . $variables['lmsless_classes']['code_text'] . ';
-  }
-  [type="checkbox"]:checked + label:before {
-    border-right: 2px solid ' . $variables['lmsless_classes']['code_text'] . ';
-    border-bottom: 2px solid ' . $variables['lmsless_classes']['code_text'] . ';
-  }';
-  foreach ($colors as $current) {
-    $color = theme_get_setting('foundation_access_' . $current . '_color');
-    // allow other projects to override the FA colors
-    drupal_alter('foundation_access_colors', $color, $current);
-    // see if we have something that could be valid hex
-    if (strlen($color) == 6 || strlen($color) == 3) {
-      $color = '#' . $color;
-      $css .= '.foundation_access-' . $current . "_color{color:$color;}";
-      // specialized additions for each wheel value
-      switch ($current) {
-        case 'primary':
-          $css .= ".etb-book h1,.etb-book h2 {color: $color;}";
-        break;
-        case 'secondary':
-          $css .= ".etb-book h3,.etb-book h4,.etb-book h5 {color: $color;}";
-        break;
-        case 'required':
-          $css .= "div.textbook_box_required li:hover:before{border-color: $color;} div.textbook_box_required li:before {background: $color;} div.textbook_box_required { border: 2px solid $color;} .textbook_box_required h3 {color: $color;}";
-        break;
-        case 'optional':
-          $css .= "div.textbook_box_optional li:hover:before{border-color: $color;} div.textbook_box_optional li:before {background: $color;} div.textbook_box_optional { border: 2px solid $color;} .textbook_box_optional h3 {color: $color;}";
-        break;
-      }
-    }
-  }
+  $css = _foundation_access_contextual_colors($variables['lmsless_classes']);
+
   $variables['theme_path'] = base_path() . drupal_get_path('theme', 'foundation_access');
 
   drupal_add_css($css, array('type' => 'inline', 'group' => CSS_THEME, 'weight' => 999));
@@ -101,7 +57,7 @@ function foundation_access_preprocess_html(&$variables) {
     drupal_add_js(drupal_get_path('theme', 'foundation_access') . '/legacy_zurb/js/enable-foundation.js', array('scope' => 'footer', 'weight' => 2000));
   }
   // theme path shorthand should be handled here
-  foreach($variables['user']->roles as $role){
+  foreach ($variables['user']->roles as $role){
     $variables['classes_array'][] = 'role-' . drupal_html_class($role);
   }
   // support for class to render in a modal
@@ -1828,11 +1784,15 @@ function foundation_access_wysiwyg_editor_settings_alter(&$settings, $context) {
   else {
     $settings['contentsCss'][] = '//cdnjs.cloudflare.com/ajax/libs/materialize/' . FOUNDATION_ACCESS_MATERIALIZE_VERSION . '/css/materialize.min.css';
   }
-  if (isset($settings['bodyClass'])) {
-    $settings['bodyClass'] .= ' html logged-in';
+  $lmsless_classes = _cis_lmsless_get_distro_classes(elmsln_core_get_profile_key());
+  $css = _foundation_access_contextual_colors($lmsless_classes);
+  $settings['contentsCss'][] = $css;
+  if (!isset($settings['bodyClass'])) {
+    $settings['bodyClass'] = '';
   }
-  else {
-    $settings['bodyClass'] = ' html logged-in';
+  $settings['bodyClass'] .= ' inner-wrap main-section etb-book elmsln-content-wrap node node node-page node-view-mode-full full html not-front logged-in no-sidebars page-node node-type-page ckeditor-edit-body';
+  foreach ($GLOBALS['user']->roles as $role) {
+    $settings['bodyClass'] .= ' role-' . drupal_html_class($role);
   }
   // Specify the custom config file that defines our font styles
   $settings['customConfig'] = base_path() . drupal_get_path('theme', 'foundation_access') . '/ckeditor_custom_config.js';
@@ -1845,6 +1805,59 @@ function foundation_access_wysiwyg_editor_settings_alter(&$settings, $context) {
             <div class="s12 m12 push-l1 l10 col" role="main">
               <div contenteditable="true" class="cke_editable_themed';
   */
+}
+
+/**
+ * Generate CSS specific to this environment's colorset.
+ */
+function _foundation_access_contextual_colors($lmsless_classes) {
+  // loop through our system specific colors
+  $colors = array('primary', 'secondary', 'required', 'optional');
+  $css = '
+  .pagination li.active,
+  ul.pagination li:hover a, ul.pagination li a:focus, ul.pagination li:hover button, ul.pagination li button:focus {
+    color: ' . $lmsless_classes['code_text'] . ';
+    background-color: ' . $lmsless_classes['code'] . '
+  }
+  .btn,
+  .btn-large {
+    background-color: ' . $lmsless_classes['code_text'] . ';
+  }
+  .dropdown-content li > a, .dropdown-content li > span,
+  form.node-form div.field-group-htabs-wrapper .horizontal-tabs a.fieldset-title,
+  a {
+    color: ' . $lmsless_classes['code_text'] . ';
+  }
+  [type="checkbox"]:checked + label:before {
+    border-right: 2px solid ' . $lmsless_classes['code_text'] . ';
+    border-bottom: 2px solid ' . $lmsless_classes['code_text'] . ';
+  }';
+  foreach ($colors as $current) {
+    $color = theme_get_setting('foundation_access_' . $current . '_color');
+    // allow other projects to override the FA colors
+    drupal_alter('foundation_access_colors', $color, $current);
+    // see if we have something that could be valid hex
+    if (strlen($color) == 6 || strlen($color) == 3) {
+      $color = '#' . $color;
+      $css .= '.foundation_access-' . $current . "_color{color:$color;}";
+      // specialized additions for each wheel value
+      switch ($current) {
+        case 'primary':
+          $css .= ".etb-book h1,.etb-book h2 {color: $color;}";
+        break;
+        case 'secondary':
+          $css .= ".etb-book h3,.etb-book h4,.etb-book h5 {color: $color;}";
+        break;
+        case 'required':
+          $css .= "div.textbook_box_required li:hover:before{border-color: $color;} div.textbook_box_required li:before {background: $color;} div.textbook_box_required { border: 2px solid $color;} .textbook_box_required h3 {color: $color;}";
+        break;
+        case 'optional':
+          $css .= "div.textbook_box_optional li:hover:before{border-color: $color;} div.textbook_box_optional li:before {background: $color;} div.textbook_box_optional { border: 2px solid $color;} .textbook_box_optional h3 {color: $color;}";
+        break;
+      }
+    }
+  }
+  return $css;
 }
 
 /**
