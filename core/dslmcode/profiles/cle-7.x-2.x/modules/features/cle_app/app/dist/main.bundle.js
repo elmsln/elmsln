@@ -839,7 +839,8 @@ var ElmslnService = (function () {
      */
     ElmslnService.prototype.createImage = function (image) {
         var body = {
-            name: 'testing',
+            name: 'default-image-name',
+            type: 'image',
             data: image
         };
         return this.post(__WEBPACK_IMPORTED_MODULE_2__app_settings__["a" /* AppSettings */].BASE_PATH + 'api/v1/elmsln/files/create', body)

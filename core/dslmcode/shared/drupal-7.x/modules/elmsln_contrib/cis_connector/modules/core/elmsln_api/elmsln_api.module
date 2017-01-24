@@ -153,10 +153,10 @@ function elmsln_api_elmsln_jsapi_info() {
  */
 function _elmsln_api_v1_file_modify($file, $params = NULL) {
   $status = '403';
-  $detail = t('File failed to create');
   $data = explode(';base64,', $params['data']);
   $ext = explode('/', $data[0]);
   $extention = $ext[1];
+  // remove spaces, possible with iOS uploads
   $image = base64_decode(str_replace(' ', '+', $data[1]));
   // make sure jpg is jpeg for standardization purposes
   $extention = str_replace('jpg', 'jpeg', $extention);
@@ -165,11 +165,13 @@ function _elmsln_api_v1_file_modify($file, $params = NULL) {
   $img = @imagecreatefromstring($image);
   if (!$img) {
     $fail = TRUE;
+    $detail = t('Not a valid image resource.');
   }
   // size can be attained
   $size = getimagesizefromstring($image);
   if (!$size || 'image/' . $extention != $size['mime']) {
     $fail = TRUE;
+    $detail = t('No valid image size details after upload, may be a corrupt image type.');
   }
   // if it is a valid image file and we like it, create it
   if (!$fail && in_array($extention, array('png', 'gif', 'jpeg', 'jpg'))) {
@@ -181,10 +183,17 @@ function _elmsln_api_v1_file_modify($file, $params = NULL) {
       file_save($file);
     }
   }
+  else {
+    $detail = t('We only accept jpg, jpeg, png, and gif. @ext is not valid', array('@ext' => $extention));
+  }
   // make sure we were able to create the file to generate a fid
   if (!empty($file->fid)) {
     $status = '200';
     $detail = t('File created');
+  }
+  // ensure we have details
+  if (!isset($detail)) {
+    $detail = t('File failed to be created.');
   }
   // output the newly created file
   $vars = array(
@@ -1346,8 +1355,25 @@ function _elmsln_api_v1_page_callback($type, $etid = NULL, $op = NULL) {
           else {
             $entity = entity_create($jsapis[$type]['type'], array($info['entity keys']['bundle'] => $jsapis[$type]['bundle']));
           }
+          $failed = FALSE;
           // verify they can create this
-          if (entity_access('create', $jsapis[$type]['type'], $entity)) {
+          if ($jsapis[$type]['type'] == 'file') {
+            // pass down the $_POST to the create callback
+            $payload = file_get_contents('php://input');
+            $payload = drupal_json_decode($payload);
+            $params = array();
+            if (is_array($payload)) {
+              $params = $payload;
+            }
+            // ensure we have a type before checking against it
+            if (isset($params['type']) && entity_access('create', 'file', $params['type'])) {
+              $vars = call_user_func($jsapis[$type]['modify'], $entity, $params);
+            }
+            else {
+              $failed = TRUE;
+            }
+          }
+          else if (entity_access('create', $jsapis[$type]['type'], $entity)) {
             // pass down the $_POST to the create callback
             $payload = file_get_contents('php://input');
             $payload = drupal_json_decode($payload);
@@ -1358,9 +1384,14 @@ function _elmsln_api_v1_page_callback($type, $etid = NULL, $op = NULL) {
             $vars = call_user_func($jsapis[$type]['modify'], $entity, $params);
           }
           else {
+            $failed = TRUE;
+          }
+          // return dead case if it failed prechecks
+          if ($failed) {
             $vars = array(
               'status' => '403',
-              'detail' => 'Access denied to create ' . $jsapis[$type]['bundle'],
+              'detail' => t('Precondition failed: Entity access denied to create @bundle.', array('@bundle' => $jsapis[$type]['bundle'])),
+              'debug' => $entity,
             );
           }
         break;

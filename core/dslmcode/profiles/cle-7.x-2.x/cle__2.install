@@ -63,3 +63,17 @@ function cle__2_update_7003(&$sandbox) {
   features_revert_module('cle_submission');
   features_revert_module('cle_project');
 }
+
+/**
+ * Major permissions refactor to ensure everyone can do what they
+ * need to do.
+ */
+function cle__2_update_7004(&$sandbox) {
+  features_revert_module('cle_assignment');
+  features_revert_module('cle_submission');
+  features_revert_module('cle_project');
+  features_revert_module('cle_perms');
+  features_revert_module('cle_section');
+  // rebuild permissions because many change at this point
+  node_access_rebuild();
+}

@@ -1358,7 +1358,9 @@ function lti_tool_provider_memberships_drop_member($member_id, $delete_content) 
  *   An array of data for the member including changed roles and groups.
  */
 function lti_tool_provider_memberships_alter_member($member) {
-  dpm($member, 'member to alter');
+  if (module_exists('devel')) {
+    dpm($member, 'member to alter');
+  }
   // Find membership.
   $query = new EntityFieldQuery();
   $result = $query
