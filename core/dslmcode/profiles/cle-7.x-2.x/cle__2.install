@@ -54,3 +54,12 @@ function cle__2_update_7002(&$sandbox) {
   features_revert_module('cle_submission');
   variable_set('site_frontpage', 'cle');
 }
+
+/**
+ * Minor settings standardization for available artifacts
+ */
+function cle__2_update_7003(&$sandbox) {
+  features_revert_module('cle_assignment');
+  features_revert_module('cle_submission');
+  features_revert_module('cle_project');
+}
