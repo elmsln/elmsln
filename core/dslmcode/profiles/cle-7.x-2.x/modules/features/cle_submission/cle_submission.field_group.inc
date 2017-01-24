@@ -93,7 +93,7 @@ function cle_submission_field_group_info() {
   $field_group->parent_name = 'group_media';
   $field_group->data = array(
     'label' => 'Files',
-    'weight' => '3',
+    'weight' => '17',
     'children' => array(
       0 => 'field_files',
     ),
@@ -147,7 +147,7 @@ function cle_submission_field_group_info() {
   $field_group->parent_name = 'group_media';
   $field_group->data = array(
     'label' => 'Images',
-    'weight' => '1',
+    'weight' => '15',
     'children' => array(
       0 => 'field_images',
     ),
@@ -199,7 +199,7 @@ function cle_submission_field_group_info() {
   $field_group->parent_name = 'group_media';
   $field_group->data = array(
     'label' => 'Links',
-    'weight' => '4',
+    'weight' => '18',
     'children' => array(
       0 => 'field_links',
     ),
@@ -313,7 +313,7 @@ function cle_submission_field_group_info() {
   $field_group->parent_name = 'group_media';
   $field_group->data = array(
     'label' => 'Video',
-    'weight' => '2',
+    'weight' => '16',
     'children' => array(
       0 => 'field_video',
     ),
