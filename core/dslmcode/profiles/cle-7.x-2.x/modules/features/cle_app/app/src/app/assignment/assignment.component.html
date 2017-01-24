@@ -22,7 +22,7 @@
     </div>
 
 
-  <app-submission-list *ngIf="(submissions$ | async).length > 0" title="My Submission" [submissions]="submissions$ | async"></app-submission-list>
+  <app-submission-list *ngIf="(submissions$ | async).length > 0" title="Submissions" [submissions]="submissions$ | async"></app-submission-list>
 
   <a (click)="onCreateSubmission(assignment)" class="btn-large">Submit assignment</a>
 </div>
