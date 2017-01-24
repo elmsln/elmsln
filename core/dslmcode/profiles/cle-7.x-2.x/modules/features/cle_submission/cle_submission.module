@@ -205,10 +205,7 @@ function _cle_submission_v1_submission_modify($node, $params = NULL) {
             case 'images':
             case 'files':
               foreach ($value2 as $item) {
-                // attempt to load the ID as a file
-                if ($file = file_load($item)) {
-                  $node->{'field_' . $key2}[LANGUAGE_NONE][] = $file;
-                }
+                $node->{'field_' . $key2}[LANGUAGE_NONE][] = array('fid' => $item);
               }
             break;
             // youtube / vimeo / external video provider links
