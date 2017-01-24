@@ -1,4 +1,4 @@
-import { Component, OnInit, ElementRef } from '@angular/core';
+import { Component, OnInit, ElementRef, Input, Output, EventEmitter } from '@angular/core';
 declare const jQuery:any;
 
 @Component({
@@ -7,6 +7,9 @@ declare const jQuery:any;
   styleUrls: ['./dialog.component.css']
 })
 export class DialogComponent implements OnInit {
+  @Input() content;
+  @Input() footer;
+  @Output() action:EventEmitter<any> = new EventEmitter();
 
   constructor(
     private el:ElementRef
@@ -22,10 +25,25 @@ export class DialogComponent implements OnInit {
         jQuery('.modal-overlay').appendTo('app-root');
       },
     });
-    jQuery(this.el.nativeElement.getElementsByClassName('modal')).modal('open');
   }
 
   ngOnDestroy() {
+    this.close();
+  }
+
+  open() {
+    jQuery(this.el.nativeElement.getElementsByClassName('modal')).modal('open');
+  }
+
+  close() {
     jQuery(this.el.nativeElement.getElementsByClassName('modal')).modal('close')
+  }
+
+  onSave() {
+    this.action.emit('save');
+  }
+
+  onCancel() {
+    this.action.emit('cancel');
   }
 }
