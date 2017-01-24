@@ -162,7 +162,7 @@ function cle_submission_field_default_field_instances() {
         'label' => 'hidden',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 13,
+        'weight' => 5,
       ),
       'full' => array(
         'label' => 'hidden',
@@ -491,7 +491,7 @@ function cle_submission_field_default_field_instances() {
         'label' => 'hidden',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 12,
+        'weight' => 4,
       ),
       'full' => array(
         'label' => 'hidden',
@@ -533,11 +533,11 @@ function cle_submission_field_default_field_instances() {
     'description' => '',
     'display' => array(
       'default' => array(
-        'label' => 'above',
+        'label' => 'hidden',
         'module' => 'text',
         'settings' => array(),
         'type' => 'text_default',
-        'weight' => 14,
+        'weight' => 0,
       ),
       'full' => array(
         'label' => 'above',
@@ -570,7 +570,7 @@ function cle_submission_field_default_field_instances() {
           'student_format' => 0,
           'textbook_editor' => 0,
         ),
-        'allowed_formats_toggle' => 1,
+        'allowed_formats_toggle' => 0,
         'default_order_toggle' => 1,
         'default_order_wrapper' => array(
           'formats' => array(
@@ -694,7 +694,7 @@ function cle_submission_field_default_field_instances() {
         'label' => 'inline',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 11,
+        'weight' => 3,
       ),
       'full' => array(
         'label' => 'inline',
