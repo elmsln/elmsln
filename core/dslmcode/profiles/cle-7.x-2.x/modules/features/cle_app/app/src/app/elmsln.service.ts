@@ -102,7 +102,8 @@ export class ElmslnService {
    */
   createImage(image) {
     const body = {
-      name: 'testing',
+      name: 'default-image-name',
+      type: 'image',
       data: image
     }
     return this.post(AppSettings.BASE_PATH + 'api/v1/elmsln/files/create', body)
