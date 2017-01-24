@@ -3524,7 +3524,6 @@ var SubmissionEffects = (function () {
         this.updateSubmission$ = this.actions$
             .ofType(__WEBPACK_IMPORTED_MODULE_3__submission_actions__["d" /* ActionTypes */].UPDATE_SUBMISSION)
             .mergeMap(function (action) {
-            console.log(action);
             return _this.submissionService.updateSubmission(action.payload)
                 .mergeMap(function (data) {
                 return _this.submissionService.getSubmission(action.payload.id);
@@ -3603,7 +3602,7 @@ function submissionReducer(state, action) {
                 saving: false,
                 submissions: state.submissions.map(function (submission) {
                     if (!submission.id && action.payload.id) {
-                        return Object.assign({}, submission, { id: action.payload.id });
+                        return Object.assign({}, submission, action.payload);
                     }
                     return submission;
                 })

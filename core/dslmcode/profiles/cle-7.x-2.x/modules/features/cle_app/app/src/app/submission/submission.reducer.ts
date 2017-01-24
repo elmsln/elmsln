@@ -26,7 +26,7 @@ export function submissionReducer(state: SubmissionState = initialState, action:
         saving: false,
         submissions: state.submissions.map((submission:Submission) => {
           if (!submission.id && action.payload.id) {
-            return Object.assign({}, submission, { id: action.payload.id })
+            return Object.assign({}, submission, action.payload)
           }
           return submission;
         })
