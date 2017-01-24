@@ -294,7 +294,8 @@ body.page-node-edit.node-type-page .cke_focus .cke_top{
 .colorpicker {
   z-index: 10000;
 }
-article ul:not(.contextual-links):not(.collapsible):not(.browser-default):not(.dropdown-content):not(.h5p-answers):not(.table-of-contents):not(.menu) li {
+article ul:not(.contextual-links):not(.collapsible):not(.browser-default):not(.dropdown-content):not(.h5p-answers):not(.table-of-contents):not(.menu) li,
+.ckeditor-edit-body ul:not(.contextual-links):not(.collapsible):not(.browser-default):not(.dropdown-content):not(.h5p-answers):not(.table-of-contents):not(.menu) li {
   list-style-type: disc;
   list-style-position: outside;
 }
@@ -495,7 +496,8 @@ pre {
 .elmsln-core-lrs-data-display .collection .collapsible li {
   margin-left: 0;
 }
-article .collection .collection-item .badge {
+article .collection .collection-item .badge,
+.ckeditor-edit-body .collection .collection-item .badge {
   width: 2rem;
 }
 /* link support in collapsible headers */
@@ -1770,21 +1772,28 @@ article h6,
 }
 
 article p:not([class]),
-article p.elmsln-core-in-context {
+article p.elmsln-core-in-context,
+.ckeditor-edit-body p:not([class]),
+.ckeditor-edit-body p.elmsln-core-in-context {
   max-width: 85%;
 }
 article div div div p,
-article div div div p.elmsln-core-in-context {
+article div div div p.elmsln-core-in-context,
+.ckeditor-edit-body div p,
+.ckeditor-edit-body div p.elmsln-core-in-context{
   max-width: 100%;
 }
 @media (max-width: 50rem) {
   article p:not([class]),
-  article p.elmsln-core-in-context {
+  article p.elmsln-core-in-context,
+  .ckeditor-edit-body p:not([class]),
+  .ckeditor-edit-body p.elmsln-core-in-context {
     max-width: 100%;
   }
 }
 /* ELMSLN bullets */
-article.node div.body ul li {
+article.node div.body ul li,
+.ckeditor-edit-body.node div.body ul li {
   list-style-type: initial;
 }
 .custom-contextual-links ul.contextual-links li {
