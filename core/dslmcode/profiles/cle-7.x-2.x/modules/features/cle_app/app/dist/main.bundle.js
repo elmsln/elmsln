@@ -845,6 +845,11 @@ var ElmslnService = (function () {
         var body = {
             name: 'default-image-name',
             type: 'image',
+            /**
+             * @todo need to add logic to to specify whether the user uploaded images
+             *       file path's are public or private.
+             */
+            file_wrapper: 'public',
             data: image
         };
         return this.post(__WEBPACK_IMPORTED_MODULE_2__app_settings__["a" /* AppSettings */].BASE_PATH + 'api/v1/elmsln/files/create', body)
