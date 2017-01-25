@@ -2,15 +2,15 @@
 
 <div class="row">
   <div *ngFor="let submission of submissions" (click)="onSubmissionClick(submission)" class="col s12 m6">
-    <div class="card horizontal">
-      <div class="card-stacked">
-        <div class="card-content">
-          <span *ngIf="submission.uid === currentUserId" class="new badge" data-badge-caption="my submission"></span>
-          <h3 >{{ submission.title }}</h3>
-        </div>
-        <div class="card-action">
-        </div>
-      </div>
+   <div class="card">
+    <div class="card-image">
+      <img *ngIf="submission.evidence && submission.evidence.images[0] && submission.evidence.images[0].url" [src]="submission.evidence.images[0].url">
+    </div>
+    <div class="card-content">
+      <span *ngIf="submission.uid === currentUserId" class="new badge" data-badge-caption="my submission"></span>
+      <h3>{{ submission.title }}</h3>
+    </div>
+    <div class="card-action">
     </div>
   </div>
 </div>
