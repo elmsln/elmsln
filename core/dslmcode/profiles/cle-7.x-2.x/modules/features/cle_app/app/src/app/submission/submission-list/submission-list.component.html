@@ -7,10 +7,12 @@
       <img *ngIf="submission.evidence && submission.evidence.images[0] && submission.evidence.images[0].url" [src]="submission.evidence.images[0].url">
     </div>
     <div class="card-content">
-      <span *ngIf="submission.uid === currentUserId" class="new badge" data-badge-caption="my submission"></span>
       <h3>{{ submission.title }}</h3>
     </div>
     <div class="card-action">
+      <div *ngIf="submission.uid === currentUserId" class="chip"> <span class="material-icons left">person</span> my submission</div>
+      <div *ngIf="submission.state === 'submission_in_progress'" class="chip submission-in-progress"> <span class="material-icons left">autorenew</span> in progress </div>
+      <div *ngIf="submission.state === 'submission_ready'" class="chip submission-ready"> <span class="material-icons left">done</span> complete </div>
     </div>
   </div>
 </div>

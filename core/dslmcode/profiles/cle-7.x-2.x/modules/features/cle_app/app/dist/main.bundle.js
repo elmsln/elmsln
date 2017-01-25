@@ -4611,7 +4611,7 @@ module.exports = ":host >>> .wysiwyg-editor {\n  min-height: 10em;\n}\n\n.action
 /***/ 808:
 /***/ function(module, exports) {
 
-module.exports = ".card {\n  cursor: pointer;\n}"
+module.exports = ".card {\n  cursor: pointer;\n}\n\n.card-content .chip {\n  font-size: 10px;\n}\n\n.card-content .material-icons {\n  font-size: 1.4em;\n  margin-top: .65em;\n  margin-right: .3em;\n}"
 
 /***/ },
 
@@ -4814,7 +4814,7 @@ module.exports = "<form *ngIf=\"form\" [formGroup]=\"form\" class=\"submission-f
 /***/ 839:
 /***/ function(module, exports) {
 
-module.exports = "<h4 *ngIf=\"title\">{{title}}</h4>\n\n<div class=\"row\">\n  <div *ngFor=\"let submission of submissions\" (click)=\"onSubmissionClick(submission)\" class=\"col s12 m6\">\n   <div class=\"card\">\n    <div class=\"card-image\">\n      <img *ngIf=\"submission.evidence && submission.evidence.images[0] && submission.evidence.images[0].url\" [src]=\"submission.evidence.images[0].url\">\n    </div>\n    <div class=\"card-content\">\n      <span *ngIf=\"submission.uid === currentUserId\" class=\"new badge\" data-badge-caption=\"my submission\"></span>\n      <h3>{{ submission.title }}</h3>\n    </div>\n    <div class=\"card-action\">\n    </div>\n  </div>\n</div>"
+module.exports = "<h4 *ngIf=\"title\">{{title}}</h4>\n\n<div class=\"row\">\n  <div *ngFor=\"let submission of submissions\" (click)=\"onSubmissionClick(submission)\" class=\"col s12 m6\">\n   <div class=\"card\">\n    <div class=\"card-image\">\n      <img *ngIf=\"submission.evidence && submission.evidence.images[0] && submission.evidence.images[0].url\" [src]=\"submission.evidence.images[0].url\">\n    </div>\n    <div class=\"card-content\">\n      <h3>{{ submission.title }}</h3>\n    </div>\n    <div class=\"card-action\">\n      <div *ngIf=\"submission.uid === currentUserId\" class=\"chip\"> <span class=\"material-icons left\">person</span> my submission</div>\n      <div *ngIf=\"submission.state === 'submission_in_progress'\" class=\"chip submission-in-progress\"> <span class=\"material-icons left\">autorenew</span> in progress </div>\n      <div *ngIf=\"submission.state === 'submission_ready'\" class=\"chip submission-ready\"> <span class=\"material-icons left\">done</span> complete </div>\n    </div>\n  </div>\n</div>"
 
 /***/ },
 

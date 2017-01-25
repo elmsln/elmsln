@@ -1,3 +1,13 @@
 .card {
   cursor: pointer;
 }
+
+.card-content .chip {
+  font-size: 10px;
+}
+
+.card-content .material-icons {
+  font-size: 1.4em;
+  margin-top: .65em;
+  margin-right: .3em;
+}
