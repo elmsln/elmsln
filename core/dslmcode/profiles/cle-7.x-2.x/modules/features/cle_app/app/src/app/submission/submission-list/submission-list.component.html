@@ -5,6 +5,7 @@
     <div class="card horizontal">
       <div class="card-stacked">
         <div class="card-content">
+          <span *ngIf="submission.uid === currentUserId" class="new badge" data-badge-caption="my submission"></span>
           <h3 >{{ submission.title }}</h3>
         </div>
         <div class="card-action">

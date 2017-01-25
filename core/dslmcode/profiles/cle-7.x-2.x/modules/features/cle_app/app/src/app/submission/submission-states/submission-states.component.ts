@@ -1,10 +1,11 @@
-import { Component, OnInit, OnChanges, Input } from '@angular/core';
+import { Component, OnInit, OnChanges, Input, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import {Observable} from 'rxjs/Observable';
 import { Store } from '@ngrx/store';
 import { Submission } from '../submission';
 import { SubmissionService } from '../submission.service';
 import { updateSubmission } from '../submission.actions';
+import { DialogComponent } from '../../dialog/dialog.component';
 declare const Materialize:any;
 
 @Component({
@@ -14,7 +15,12 @@ declare const Materialize:any;
 })
 export class SubmissionStatesComponent implements OnInit, OnChanges {
   @Input() submission:Submission;
+  @ViewChild(DialogComponent) dialogComponent:DialogComponent;
   originalSubmission:Submission;
+  selectedState:string;
+  dialogContent:string = `
+    Are you sure you want to change the state of this submission?
+  `
   states:any[];
 
   constructor(
@@ -63,9 +69,22 @@ export class SubmissionStatesComponent implements OnInit, OnChanges {
   onStateClick(item) {
     if (typeof this.submission.metadata.canUpdate !== 'undefined') {
       if (this.submission.metadata.canUpdate) {
-        let newSub = Object.assign({}, this.submission, {state: item.value});
-        this.store.dispatch(updateSubmission(newSub));
+        this.selectedState = item.value;
+        this.dialogComponent.open();
       }
     }
+  }
+
+  onDialogAction($event) {
+    if ($event === 'cancel') {
+      this.dialogComponent.close();
+    }
+    if ($event === 'save') {
+      let newSub = Object.assign({}, this.submission, {state: this.selectedState});
+      this.dialogComponent.close();
+      this.store.dispatch(updateSubmission(newSub));
+    }
+    // reset the selected state
+    this.selectedState = '';
   }
 }

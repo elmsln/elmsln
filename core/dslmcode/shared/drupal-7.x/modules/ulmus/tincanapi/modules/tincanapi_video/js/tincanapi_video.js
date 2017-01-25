@@ -36,7 +36,7 @@
   var HTML5VideoTracker = function(element) {
     var globals = this;
     this.element = element;
-    this.title = Drupal.settings.h5pTincanBridge.title;
+    this.title = Drupal.settings.tincanapi.title;
     this.url = Drupal.settings.tincanapi.currentPage;
     this.time = null;
     this.HTML5Video = element;

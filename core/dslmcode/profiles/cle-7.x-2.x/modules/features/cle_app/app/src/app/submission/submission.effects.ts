@@ -34,7 +34,6 @@ export class SubmissionEffects {
   @Effect() updateSubmission$ = this.actions$
     .ofType(ActionTypes.UPDATE_SUBMISSION)
     .mergeMap(action => {
-      console.log(action);
       return this.submissionService.updateSubmission(action.payload)
         .mergeMap((data) => {
           return this.submissionService.getSubmission(action.payload.id)

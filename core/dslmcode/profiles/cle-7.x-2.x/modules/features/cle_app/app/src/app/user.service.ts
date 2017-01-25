@@ -26,4 +26,8 @@ export class UserService {
     this.elmslnService.logout();
   }
 
+  getCurrentUserId():Observable<number> {
+    return this.store.select('user')
+      .map((state:any) => state.uid);
+  }
 }
