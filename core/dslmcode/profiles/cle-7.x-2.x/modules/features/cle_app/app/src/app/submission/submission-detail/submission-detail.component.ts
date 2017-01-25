@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, AfterViewChecked } from '@angular/core';
+import { Component, OnInit, Input, AfterViewInit } from '@angular/core';
 import { ActivatedRoute, Router, Params } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { loadSubmissions } from '../submission.actions';
@@ -10,7 +10,7 @@ import { ElmslnService } from '../../elmsln.service';
   templateUrl: './submission-detail.component.html',
   styleUrls: ['./submission-detail.component.css']
 })
-export class SubmissionDetailComponent implements OnInit, AfterViewChecked {
+export class SubmissionDetailComponent implements OnInit, AfterViewInit {
   @Input() submission:Submission;
 
   constructor(
@@ -21,7 +21,7 @@ export class SubmissionDetailComponent implements OnInit, AfterViewChecked {
   ngOnInit() {
   }
 
-  ngAfterViewChecked() {
-    this.elmslnService.evalCallbacks(this.submission);
+  ngAfterViewInit() {
+    this.elmslnService.exportLifecycleHook('submissionDetailComponentInit');
   }
 }
