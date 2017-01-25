@@ -15,16 +15,8 @@ function cle_cis_ux_strongarm() {
   $strongarm->api_version = 1;
   $strongarm->name = 'imageinfo_cache_field_assignment_image';
   $strongarm->value = array(
-    'cle_micro' => 'cle_micro',
-    'cle_square' => 'cle_square',
-    'cle_submission' => 'cle_submission',
     'elmsln_gray' => 'elmsln_gray',
-    'elmsln_large' => 'elmsln_large',
-    'elmsln_medium' => 'elmsln_medium',
-    'elmsln_micro' => 'elmsln_micro',
     'elmsln_normalize' => 'elmsln_normalize',
-    'elmsln_small' => 'elmsln_small',
-    'elmsln_thumb' => 'elmsln_thumb',
   );
   $export['imageinfo_cache_field_assignment_image'] = $strongarm;
 
@@ -33,15 +25,8 @@ function cle_cis_ux_strongarm() {
   $strongarm->api_version = 1;
   $strongarm->name = 'imageinfo_cache_field_images';
   $strongarm->value = array(
-    'cle_micro' => 'cle_micro',
-    'cle_submission' => 'cle_submission',
     'elmsln_gray' => 'elmsln_gray',
-    'elmsln_large' => 'elmsln_large',
-    'elmsln_medium' => 'elmsln_medium',
-    'elmsln_micro' => 'elmsln_micro',
     'elmsln_normalize' => 'elmsln_normalize',
-    'elmsln_small' => 'elmsln_small',
-    'elmsln_thumb' => 'elmsln_thumb',
   );
   $export['imageinfo_cache_field_images'] = $strongarm;
 
@@ -50,16 +35,8 @@ function cle_cis_ux_strongarm() {
   $strongarm->api_version = 1;
   $strongarm->name = 'imageinfo_cache_field_project_image';
   $strongarm->value = array(
-    'cle_micro' => 'cle_micro',
-    'cle_square' => 'cle_square',
-    'cle_submission' => 'cle_submission',
     'elmsln_gray' => 'elmsln_gray',
-    'elmsln_large' => 'elmsln_large',
-    'elmsln_medium' => 'elmsln_medium',
-    'elmsln_micro' => 'elmsln_micro',
     'elmsln_normalize' => 'elmsln_normalize',
-    'elmsln_small' => 'elmsln_small',
-    'elmsln_thumb' => 'elmsln_thumb',
   );
   $export['imageinfo_cache_field_project_image'] = $strongarm;
 
