@@ -1,0 +1,112 @@
+Imagecache Actions roadmap
+--------------------------
+
+This is a non-contractual roadmap for the D7 branch of the imagecache actions
+module. Actual release dates and completed features will largely depend on
+available time. So support is always welcome. Furthermore, critical bugs may
+make us release more often, but that should only change the release number in
+which certain features are planned, not the timeline.
+
+
+Imagecache Actions 7.x-1.0
+--------------------------
+Targeted release date: may 2012
+
+- (DONE) Clean up D7 issue queue
+- (DONE) Commit posted patches from the issue queue
+- (DONE) Solve easy to solve bug reports
+- Do some basic testing
+- (DONE) Reintroduce the text action, currently living in a sandbox project at
+  https://drupal.org/node/1090312
+- (DONE) Update README.txt
+- (DONE) Introduce CHANGELOG.txt
+- (DONE) Add this ROADMAP.txt
+
+
+Imagecache Actions 7.x-1.1
+--------------------------
+Targeted release date: end 2012
+
+Mainly a bug fix release
+- (DONE) Solve remaining outstanding bug reports
+- (ALMOST DONE) Keep D7 issue queue clean
+
+
+Imagecache Actions 7.x-1.2
+--------------------------
+Targeted release date: spring 2013
+
+- Check help and documentation. a.o: hook_help, effect descriptions.
+- (DONE) Continue to keep the D7 issue queue clean.
+- Improve Imagemagick support and/or document what effects are not working for
+  which toolkit (version).
+- (ALMOST DONE) Check that all effects implement all of the effects API (especially the
+  dimensions callback).
+- Add testing. The idea is to create a set of image styles that cover all
+  effects and can be used to visually check for regressions.
+
+  Automated testing would be nice, but I am not sure that we can guarantee that
+  jpeg or png files are binary identical on each run across different computers.
+  But if the number of false positives is small, it would certainly be a useful
+  addition.
+
+
+Imagecache Actions 7.x-1.3
+--------------------------
+Targeted release date: ...
+
+- Continue to keep the D7 issue queue clean.
+- Check help and documentation. a.o: hook_help, effect descriptions.
+- Improve Imagemagick support and/or document what effects are not working for
+  which toolkit (version).
+- Add testing. The idea is to create a set of image styles that cover all
+  effects and can be used to visually check for regressions.
+
+  Automated testing would be nice, but I am not sure that we can guarantee that
+  jpeg or png files are binary identical on each run across different computers.
+  But if the number of false positives is small, it would certainly be a useful
+  addition.
+- Refactor code:
+  - Extract common form fields.
+  - Extract common error handling.
+  - (STARTED) Clean up comments, todo's, etc.
+  - (STARTED) Doxygen code documentation according to latest standards
+  - Increase the amount of lazy loaded code.
+
+
+Imagecache Actions 7.x-1.5
+--------------------------
+Targeted release date: ...
+
+- Look at outstanding feature requests
+- Continue to keep the D7 issue queue clean.
+- Keep improving Imagemagick support, a.o:
+  - Try to get insight into what version of imagemagick is required by what
+    effect.
+  - Document which effects might produce different results.
+- Continue refactoring code:
+  - Extract common form fields.
+  - Extract common error handling.
+  - (STARTED) Clean up comments, todo's, etc.
+  - (STARTED) Doxygen code documentation according to latest standards.
+  - Increase the amount of lazy loaded code.
+
+
+Imagecache Actions 8.x-2.x
+--------------------------
+Targeted release date: ...
+
+- Convert image effects into plugins (as [#1821854] does for core).
+- This will make adding new effects much simpler, so we can easier add them.
+- Should we rename the module to image_effects?
+- We should strive to merge with other modules that provide image effects:
+  - FiltersIE module (https://drupal.org/project/filtersie)
+  - Imagecache Effects: https://drupal.org/project/imagecache_effects (D6 only,
+    but are their effects more advanced then our counterparts or do they add new
+    effects?)
+  - Image watermark: https://drupal.org/project/watermark (D5 only, but is their
+    watermark effect more advanced?)
+  - ImageCache Scale-9 Actions: https://drupal.org/project/imagecache_scale9actions
+  - ImageEffects: https://drupal.org/project/imageeffects (pixelate and flip).
+  - Imagick: https://www.drupal.org/project/imagick
+  - etc.

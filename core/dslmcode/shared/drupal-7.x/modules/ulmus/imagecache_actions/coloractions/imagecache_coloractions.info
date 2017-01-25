@@ -1,0 +1,18 @@
+name = Imagecache Color Actions
+description = Provides image effects color-shifting, invert colors, brightness, posterize and alpha transparency effects. Also provides a change image format effect.
+package = Media
+core = 7.x
+
+dependencies[] = imagecache_actions
+dependencies[] = image
+
+files[] = imagecache_coloractions.module
+files[] = transparency.inc
+files[] = tests/green.imagecache_preset.inc
+
+; Information added by Drupal.org packaging script on 2016-02-19
+version = "7.x-1.7"
+core = "7.x"
+project = "imagecache_actions"
+datestamp = "1455872655"
+

@@ -1,0 +1,290 @@
+<?php
+
+/**
+ * @file Allows advanced users to code their own PHP image manipulation routines
+ * as part of image style processing.
+ *
+ * @author Originally contributed by crea https://drupal.org/node/325103#comment-
+ * 1076011
+ *
+ * @author merged into imagecache_actions by dman http://coders.co.nz
+ *
+ * custom action effect:
+ * @todo: add description field that editors can use to define their own summary?
+ * @todo: add form field asking if dimensions stay the same (or if the new dimensions are known).
+ * subroutine effect:
+ * @todo: use isid to allow for image style renaming, but also use name to allow export and import (features)
+ */
+
+
+/**
+ * Implements hook_image_effect_info().
+ *
+ * Defines information about the supported effects.
+ */
+function imagecache_customactions_image_effect_info() {
+  $effects = array();
+
+  $effects['imagecache_customactions'] = array(
+    'label' => t('Custom action'),
+    'help' => t('Runs custom PHP code.'),
+    'effect callback' => 'imagecache_customactions_effect',
+    'dimensions callback' => 'imagecache_customactions_dimensions',
+    'form callback' => 'imagecache_customactions_form',
+    'summary theme' => 'imagecache_customactions_summary',
+  );
+
+  $effects['imagecache_subroutine'] = array(
+    'label' => t('Subroutine'),
+    'help' => t('Runs another defined preset on the image.'),
+    'effect callback' => 'imagecache_subroutine_effect',
+    'dimensions callback' => 'imagecache_subroutine_dimensions',
+    'form callback' => 'imagecache_subroutine_form',
+    'summary theme' => 'imagecache_subroutine_summary',
+  );
+
+  return $effects;
+}
+
+/**
+ * Implements hook_theme().
+ *
+ * Registers theme functions for the effect summaries.
+ */
+function imagecache_customactions_theme() {
+  return array(
+    'imagecache_customactions_summary' => array(
+      'variables' => array('data' => NULL),
+    ),
+    'imagecache_subroutine_summary' => array(
+      'variables' => array('data' => NULL),
+    ),
+  );
+}
+
+/**
+ * Implements hook_image_style_flush().
+ *
+ * This hook checks if the image style that is being flushed is used in a
+ * subroutine effect. If so, the style that contains the subroutine effect
+ * should be flushed as well.
+ *
+ * This may lead to recursive calls to image_style_flush() and thus to this
+ * hook. Without loops in styles that call each other as subroutine, this
+ * recursion will always end.
+ *
+ * @param array $flushed_style
+ *   The image style that is being flushed.
+ */
+function imagecache_customactions_image_style_flush(/*array*/ $flushed_style) {
+  $styles = image_styles();
+  foreach ($styles as $style) {
+    if ($style['name'] !== $flushed_style['name']) {
+      foreach ($style['effects'] as $effect) {
+        if ($effect['name'] === 'imagecache_subroutine') {
+          if (isset($effect['data']['subroutine_presetname']) && $effect['data']['subroutine_presetname'] === $flushed_style['name']) {
+            image_style_flush($style);
+          }
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Image effect form callback for the custom action effect.
+ *
+ * Note that this is not a complete form, it only contains the portion of the
+ * form for configuring the effect options. Therefore it does not not need to
+ * include metadata about the effect, nor a submit button.
+ *
+ * @param array $data
+ *   The current configuration for this image effect.
+ *
+ * @return array
+ *   The form definition for this effect.
+ */
+function imagecache_customactions_form(array $data) {
+  // Add defaults.
+  $data += array('php' => 'return TRUE;');
+
+  // Note: we also need to check for the existence of the module: admin has
+  //   all rights, so user_acccess(...) returns TRUE even if the module is not
+  //   enabled and the permission does not exist.
+  $allow_php = module_exists('php') && user_access('use PHP for settings');
+
+  $form = array(
+    'php' => array(
+      '#type' => 'textarea',
+      '#rows' => 12,
+      '#title' => t('PHP code'),
+      '#default_value' => $data['php'],
+      '#disabled' => !$allow_php,
+      '#description' => t("<p>A piece of PHP code that modifies the image.
+It should return a boolean indicating success or failure.
+You will need the '%use_php' permission, defined by the 'PHP filter' module.
+See the help for an extensive explanation of the possibilities.</p>",
+        array('%use_php' => t('Use PHP for settings'))),
+      '#wysiwyg' => FALSE,
+    ),
+  );
+  return $form;
+}
+
+/**
+ * Implements theme_hook() for the custom action effect summary.
+ *
+ * param array $variables
+ *   An associative array containing:
+ *   - data: The current configuration for this image effect.
+ *
+ * @return string
+ *   The HTML for the summary of this image effect.
+ * @ingroup themeable
+ */
+function theme_imagecache_customactions_summary(/*array $variables*/) {
+  return 'Custom PHP code';
+}
+
+/**
+ * Image effect callback for the custom action effect.
+ *
+ * @param stdClass $image
+ * @param array $data
+ *
+ * @return boolean
+ *   true on success, false otherwise.
+ */
+function imagecache_customactions_effect(stdClass $image, array $data) {
+  // Check that the PHP filter module is enabled.
+  $result = module_exists('php');
+  if ($result) {
+    // Get context about the image.
+    module_load_include('inc', 'imagecache_actions', 'utility');
+    $GLOBALS['image_context'] = imagecache_actions_get_image_context($image, $data);
+    $GLOBALS['image'] = $image;
+
+    $result = php_eval('<' . '?php global $image, $image_context; ' . $data['php'] . ' ?' . '>');
+    // php_eval returns '1' if the snippet returns true.
+    $result = $result === '1';
+
+    unset($GLOBALS['image']);
+    unset($GLOBALS['image_context']);
+  }
+
+  if ($result && $image->toolkit == 'GD') {
+    $image->info['width'] = imagesx($image->resource);
+    $image->info['height'] = imagesy($image->resource);
+  }
+
+  return $result;
+}
+
+/**
+ * Image dimensions callback for the custom action effect.
+ *
+ * @param array $dimensions
+ *   Dimensions to be modified - an associative array containing the items
+ *   'width' and 'height' (in pixels).
+ * param array $data
+ *   An associative array containing the effect data.
+ */
+function imagecache_customactions_dimensions(array &$dimensions/*, array $data*/) {
+  $dimensions['width'] = NULL;
+  $dimensions['height'] = NULL;
+}
+
+/**
+ * Subroutine - an imagecache action that just calls another one.
+ *
+ * Contributed by Alan D
+ * https://drupal.org/node/618784
+ *
+ * Reworked into customactions by dman 2010-07
+ */
+
+/**
+ * Image effect form callback for the subroutine effect.
+ *
+ * @param array $data
+ *   The current configuration for this image effect.
+ *
+ * @return array
+ *   The form definition for this effect.
+ */
+function imagecache_subroutine_form(array $data) {
+  // Add defaults.
+  $data += array('subroutine_presetname' => '');
+
+  // List available image styles.
+  // The PASS_THROUGH parameter is new as of D7.23, and is added here to prevent
+  // image_style_options() from double-encoding the human-readable image style
+  // name, since the form API will already sanitize options in a select list.
+  $styles = image_style_options(TRUE, PASS_THROUGH);
+  //@todo: unset the current style to prevent obvious recursion.
+
+  $form = array();
+
+  $form['subroutine_presetname'] = array(
+    '#type' => 'select',
+    '#title' => t('Image style to call'),
+    '#default_value' => $data['subroutine_presetname'],
+    '#options' => $styles,
+    '#required' => TRUE,
+  );
+
+  return $form;
+}
+
+/**
+ * Implements theme_hook() for the subroutine effect summary.
+ *
+ * @param array $variables
+ *   An associative array containing:
+ *   - data: The current configuration for this image effect.
+ *
+ * @return string
+ *   The HTML for the summary of this image effect.
+ * @ingroup themeable
+ */
+function theme_imagecache_subroutine_summary(array $variables) {
+  $data = $variables['data'];
+
+  module_load_include('inc', 'imagecache_actions', 'utility');
+  $label = imagecache_actions_get_style_label($data['subroutine_presetname']);
+  return t('Apply image style %label', array('%label' => $label));
+}
+
+/**
+ * Image effect callback for the subroutine effect.
+ *
+ * @param stdClass $image
+ * @param array $data
+ *
+ * @return boolean
+ *   true on success, false otherwise.
+ */
+function imagecache_subroutine_effect(stdClass $image, array $data) {
+  $result = FALSE;
+  if ($style = image_style_load($data['subroutine_presetname'])) {
+    $result = TRUE;
+    foreach ($style['effects'] as $effect) {
+      $result = $result && image_effect_apply($image, $effect);
+    }
+  }
+  return $result;
+}
+
+/**
+ * Image dimensions callback for the subroutine effect.
+ *
+ * @param array $dimensions
+ *   Dimensions to be modified - an array with components width and height, in
+ *   pixels.
+ * @param array $data
+ *   An array with the effect options.
+ */
+function imagecache_subroutine_dimensions(array &$dimensions, array $data) {
+  // Let the subroutine transform the dimensions.
+  image_style_transform_dimensions($data['subroutine_presetname'], $dimensions);
+}

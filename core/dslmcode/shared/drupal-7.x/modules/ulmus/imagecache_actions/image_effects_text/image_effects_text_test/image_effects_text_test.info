@@ -1,0 +1,16 @@
+name = Image Effects Text test
+description = Defines image styles that test the text effect.
+core = 7.x
+package = Media
+
+dependencies[] = image
+dependencies[] = image_effects_text
+dependencies[] = imagecache_canvasactions
+dependencies[] = system_stream_wrapper
+
+; Information added by Drupal.org packaging script on 2016-02-19
+version = "7.x-1.7"
+core = "7.x"
+project = "imagecache_actions"
+datestamp = "1455872655"
+

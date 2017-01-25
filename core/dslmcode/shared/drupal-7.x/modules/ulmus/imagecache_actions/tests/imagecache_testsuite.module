@@ -1,0 +1,565 @@
+<?php
+
+/**
+ * @file An admin-only utility to test image styles and effects.
+ *
+ * It provides a page Test Suite in Administration > Configuration > Media >
+ * Image Styles (admin/config/media/image-styles/testsuite) that displays
+ * results for all existing image styles for all toolkits as well as for a set
+ * of test image styles defined in the various modules.
+ */
+
+include_once('imagecache_testsuite.features.inc');
+
+/**
+ * Implementation of hook_menu().
+ */
+function imagecache_testsuite_menu() {
+  $items = array();
+  $items['admin/config/media/image-styles/testsuite'] = array(
+    'title' => 'Test Suite',
+    'page callback' => 'imagecache_testsuite_page',
+    'access arguments' => array('administer image styles'),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 10,
+  );
+  $items['admin/config/media/image-styles/testsuite/%/%'] = array(
+    'title' => 'Test Suite Image',
+    'page callback' => 'imagecache_testsuite_generate',
+    'page arguments' => array(5, 6),
+    'access arguments' => array('administer image styles'),
+    'type' => MENU_CALLBACK,
+  );
+  $items['admin/config/media/image-styles/testsuite/positioning_test'] = array(
+    'title' => 'Positioning Test',
+    'page callback' => 'imagecache_testsuite_positioning',
+    'access arguments' => array('administer image styles'),
+    'type' => MENU_LOCAL_TASK,
+  );
+  return $items;
+}
+
+/**
+ * Implementation  of hook_help()
+ */
+function imagecache_testsuite_help($path /*, $arg*/) {
+  switch ($path) {
+    // @todo: this path does not exist anymore.
+    case 'admin/build/imagecache/test' :
+      $output = file_get_contents(drupal_get_path('module', 'imagecache_testsuite') . "/README.txt");
+      return _filter_autop($output);
+      break;
+    case 'admin/config/media/image-styles/testsuite' :
+      return t("<p>
+        This page displays a number of examples of image effects.
+        Illustrated are both the expected result and the actual result.
+        </p><p>
+        This page is just for debugging to confirm that this behavior doesn't
+        change as the code gets updated.
+        If the two illustrations do not match, there is probably something
+        that needs fixing.
+        </p><p>
+        More actions are provided by each of the imagecache actions submodules
+        and will be shown as you enable them.
+        </p>");
+      break;
+    case 'admin/config/media/image-styles' :
+      return t('
+        A number of styles here are provided by the Imagecache
+        Testsuite module as examples.
+        Disable this module to make them go away.
+      ');
+      break;
+  }
+  return '';
+}
+
+/**
+ * Returns the test suite page.
+ *
+ * The test suite page contians img links to all image derivatives to create as
+ * part of the test suite.
+ *
+ * Samples to test are scanned from:
+ * - The existing image styles.
+ * - The file features.inc attached to this module. (@todo: no longer eisting?)
+ * - Individual *.imagecache_preset.inc files found near any known modules.
+ * Images illustrating the named preset are looked for also.
+ *
+ * Flushes the entire test cache every time anything is done.
+ *
+ * @return string
+ *   The html for the page.
+ */
+function imagecache_testsuite_page() {
+  module_load_include('inc', 'image', 'image.admin');
+  module_load_include('inc', 'image', 'image.effects');
+
+  $tests = array_merge(image_styles(), imagecache_testsuite_get_tests());
+  $toolkits = image_get_available_toolkits();
+
+  // Present the all-in-one overview page.
+  $sample_folders = imagecache_testsuite_get_folders();
+
+  // Draw the admin table.
+  $test_table = array();
+  foreach ($tests as $style_name => $style) {
+    // Firstly, remove any previous images for the current style
+    image_style_flush($style);
+
+    $row = array();
+    $row_class = 'test';
+    $details_list = array();
+
+    // Render the details.
+    foreach ($style['effects'] as $effect) {
+      if (!isset($effect['name'])) {
+        // badness
+        watchdog('imagecache_testsuite', 'invalid testcase within %style_name. No effect name', array('%style_name' => $style_name), WATCHDOG_ERROR);
+        $details_list[] = '<div>Unidentified effect</div>';
+        $row_class = 'error';
+        continue;
+      }
+      $effect_definition = image_effect_definition_load($effect['name']);
+      if (function_exists($effect_definition['effect callback'])) {
+        $description = "<strong>{$effect_definition['label']}</strong> ";
+        $description .= isset($effect_definition['summary theme']) ? theme($effect_definition['summary theme'], array('data' => $effect['data'])) : '';
+        $details_list[] = "<div>$description</div>";
+      }
+      else {
+        // Probably an action that requires a module that is not installed.
+        $strings = array(
+          '%action' => $effect['name'],
+          '%module' => $effect['module'],
+        );
+        $details_list[$effect['name']] = t("<div><b>%action unavailable</b>. Please enable %module module.</div>", $strings);
+        $row_class = 'error';
+      }
+    }
+    $row['details'] = "<h3>{$style['name']}</h3><p>" . implode($details_list) . "</p>";
+
+    // Look for a sample image. May also be defined by the definition itself,
+    // but normally assume a file named after the image style, in (one of the)
+    // directories with test styles.
+    foreach ($sample_folders as $sample_folder) {
+      if (file_exists("{$sample_folder}/{$style_name}.png")) {
+        $style['sample'] = "{$sample_folder}/{$style_name}.png";
+      }
+      elseif (file_exists("{$sample_folder}/{$style_name}.jpg")) {
+        $style['sample'] = "{$sample_folder}/{$style_name}.jpg";
+      }
+    }
+
+    if (isset($style['sample']) && file_exists($style['sample'])) {
+      $sample_img = theme('image', array('path' => $style['sample']));
+      // I was having trouble with permissions on an OSX dev machine.
+      if (!is_readable($style['sample'])) {
+        $sample_img = "FILE UNREADABLE: {$style['sample']}";
+      }
+    }
+    else {
+      $sample_img = "[no sample]";
+    }
+    $row['sample'] = $sample_img;
+
+    // Generate a result for each available toolkit.
+    foreach ($toolkits as $toolkit => $toolkit_info) {
+      $test_url = "admin/config/media/image-styles/testsuite/$style_name/$toolkit";
+      $test_img = theme('image', array(
+        'path' => $test_url,
+        'alt' => "$style_name/$toolkit"
+      ));
+      $row[$toolkit] = l($test_img, $test_url, array('html' => TRUE));
+    }
+    $test_table[$style_name] = array(
+      'data' => $row,
+      'class' => array($row_class)
+    );
+  }
+
+  $header = array_merge(array('test', 'sample'), array_keys($toolkits));
+  $output = theme('table', array(
+    'header' => $header,
+    'rows' => $test_table,
+    'id' => 'imagecache-testsuite'
+  ));
+
+  // @todo: zebra striping can be disabled in D7.
+  // Default system zebra-striping fails to show my transparency on white.
+  drupal_add_html_head('<style  type="text/css" >#imagecache-testsuite tr.even{background-color:#EEEEEE !important;} #imagecache-testsuite td{vertical-align:top;}  #imagecache-testsuite tr.error{background-color:#FFCCCC !important;}</style>');
+
+  return $output;
+}
+
+/**
+ * Returns the requested image derivative.
+ *
+ * If the image derivative generation is successful, the function does not
+ * return but exits processing using drupal_exit().
+ *
+ * Flushes the entire test cache every time anything is done.
+ *
+ * @param string $test_id
+ *   The id of the test to generate the derivative for.
+ * @param string $toolkit
+ *   The toolkit to use, or empty for the default toolkit
+ *
+ * @return string|bool
+ *   - The html for the page ($test_id is empty)
+ *   - False when the image derivative could not be created.
+ */
+function imagecache_testsuite_generate($test_id = '', $toolkit = '') {
+  module_load_include('inc', 'image', 'image.admin');
+  module_load_include('inc', 'image', 'image.effects');
+
+  if (empty($toolkit)) {
+    $toolkit = image_get_toolkit();
+  }
+  else {
+    // Set the toolkit for this invocation only, so do not use variable_set.
+    global $conf;
+    $conf['image_toolkit'] = $toolkit;
+    if ($toolkit === 'gd') {
+      // This seems not to be done automatically elsewhere.
+      include_once DRUPAL_ROOT . '/' . drupal_get_path('module', 'system') . '/' . 'image.gd.inc';
+    }
+  }
+
+  $target = 'module://imagecache_testsuite/sample.jpg';
+  $tests = array_merge(image_styles(), imagecache_testsuite_get_tests());
+
+  // Run the process and return the image, @see image_style_create_derivative().
+  $style = $tests[$test_id];
+  if (!$style) {
+    trigger_error("Unknown test style preset '$test_id' ", E_USER_ERROR);
+    return FALSE;
+  }
+
+  // @todo: should we let the image style system do its work and just interfere on hook_init with setting the toolkit?
+  // @todo: this would make the page generator easier as well and keep it working with secure image derivatives.
+  // Start emulating image_style_create_derivative()
+  // The main difference being I determine the toolkit I want to use.
+  // SOME of this code is probably redundant, was a lot of copy&paste without true understanding of the new image.module
+  if (!$image = image_load($target, $toolkit)) {
+    trigger_error("Failed to open original image $target with toolkit $toolkit", E_USER_ERROR);
+    return FALSE;
+  }
+
+  // Need to save the result before returning it - to stay compatible with imagemagick
+  $filename = "$test_id-$toolkit.{$image->info['extension']}";
+  $derivative_uri = image_style_path($style['name'], $filename);
+  $directory = dirname($derivative_uri);
+  file_prepare_directory($directory, FILE_CREATE_DIRECTORY);
+  watchdog('imagecache_testsuite', 'Checking a save dir %dir', array('%dir' => dirname($derivative_uri)), WATCHDOG_DEBUG);
+
+  // Imagemagick is not quite right? place a file where the file is supposed to go
+  // before I put the real path there? else drupal_realpath() says nuh.
+  #file_save_data('touch this for imagemagick', $derivative_uri, FILE_EXISTS_REPLACE);
+
+  foreach ($style['effects'] as $effect) {
+    // Need to load the full effect definitions, our test ones don't know all the callback info
+    $effect_definition = image_effect_definition_load($effect['name']);
+    if (empty($effect_definition)) {
+      watchdog('imagecache_testsuite', 'I have no idea what %name is', array('%name' => $effect['name']), WATCHDOG_ERROR);
+      continue;
+    }
+    $full_effect = array_merge($effect_definition, array('data' => $effect['data']));
+
+    // @todo: effects that involve other images (overlay, underlay) will load that image with the default toolkit which may differ from the toolkit tested here.
+    if (!image_effect_apply($image, $full_effect)) {
+      watchdog('imagecache_testsuite', 'action: %action (%callback) failed for %src', array(
+        '%action' => $full_effect['label'],
+        '%src' => $target,
+        '%callback' => $full_effect['effect callback']
+      ), WATCHDOG_ERROR);
+    }
+  }
+
+  if (!image_save($image, $derivative_uri)) {
+    watchdog('imagecache_testsuite', 'saving image %label failed for %derivative_uri', array(
+      '%derivative_uri' => $derivative_uri,
+      '%label' => isset($style['label']) ? $style['label'] : $style['name']
+    ), WATCHDOG_ERROR);
+    return FALSE;
+  }
+
+  if ($result_image = image_load($derivative_uri)) {
+    file_transfer($result_image->source, array(
+      'Content-Type' => $result_image->info['mime_type'],
+      'Content-Length' => $result_image->info['file_size']
+    ));
+    drupal_exit();
+  }
+  return "Failed to load the expected result from $derivative_uri";
+}
+
+/**
+ * Implements hook_image_default_styles().
+ *
+ * Lists all our individual test cases and makes them available
+ * as enabled styles
+ */
+function imagecache_testsuite_image_default_styles() {
+  $styles = imagecache_testsuite_get_tests();
+
+  // Need to filter out the invalid test cases
+  // (ones that use unavailable actions)
+  // or the core complains with notices.
+//  foreach ($styles as $id => $style) {
+//    foreach ($style['effects'] as $delta => $action) {
+//      if (!empty($action['module']) && ($action['module'] != 'imagecache') && !module_exists($action['module'])) {
+//        unset($styles[$id]);
+//        break;
+//      }
+//    }
+//  }
+  return $styles;
+}
+
+/**
+ * Retrieve the list of presets, each of which contain actions and action
+ * definitions.
+ *
+ * Scans all the module folders for files named *.imagecache_preset.inc
+ *
+ * It seems that the required shape in D7 is
+ * $style=>array(
+ *   'effects' => array(
+ *     0 => array('name' => 'something', 'data' => array())
+ *   )
+ * )
+ */
+function imagecache_testsuite_get_tests() {
+  $presets = array();
+  $folders = imagecache_testsuite_get_folders();
+  foreach ($folders as $folder) {
+    $preset_files = file_scan_directory($folder, "/.*.imagecache_preset.inc/");
+    // Setting filepath in this scope allows the tests to know where they are.
+    // The inc files may use it to create their rules.
+    $filepath = $folder;
+    foreach ($preset_files as $preset_file) {
+      include_once($preset_file->uri);
+    }
+  }
+  uasort($presets, 'element_sort');
+  return $presets;
+}
+
+/**
+ * Places to scan for test presets and sample images.
+ *
+ * @return array
+ *   an array of folder names of everything that implements imagecache_actions.
+ */
+function imagecache_testsuite_get_folders() {
+  $folders = array(drupal_get_path('module', 'imagecache_testsuite'));
+  foreach (module_implements('image_effect_info') as $module_name) {
+    $folders[] = drupal_get_path('module', $module_name) . '/tests';
+  }
+  return $folders;
+}
+
+/**
+ * Display a page demonstrating a number of positioning tests
+ *
+ * Tests both styles of positioning - the x=, y= original, used in most places,
+ * pls the css-like left=, top= version also.
+ */
+function imagecache_testsuite_positioning() {
+  module_load_include('inc', 'imagecache_actions', 'utility');
+  drupal_set_title("Testing the positioning algorithm");
+  $tests = imagecache_testsuite_positioning_get_tests();
+  $table = array();
+  // $dst_image represents tha field or canvas.
+  // $src_image is the item being placed on it.
+  // Both these represent an imageapi-type image resource handle, but contain just dimensions
+  $src_image = new stdClass();
+  $src_image->info = array('width' => 75, 'height' => 100);
+  $dst_image = new stdClass();
+  $dst_image->info = array('width' => 200, 'height' => 150);
+
+  foreach ($tests as $testname => $test) {
+    // calc it, using either old or new method
+    if (isset($test['parameters']['x']) || isset($test['parameters']['y'])) {
+      $result['x'] = imagecache_actions_keyword_filter($test['parameters']['x'], $dst_image->info['width'], $src_image->info['width']);
+      $result['y'] = imagecache_actions_keyword_filter($test['parameters']['y'], $dst_image->info['height'], $src_image->info['height']);
+    }
+    else {
+      // use css style
+      $result = imagecache_actions_calculate_relative_position($dst_image, $src_image, $test['parameters']);
+    }
+    $expected_illustration = theme_positioning_test($test['expected']['x'], $test['expected']['y']);
+    $result_illustration = theme_positioning_test($result['x'], $result['y']);
+    $row = array();
+    $row['name'] = array('data' => '<h3>' . $testname . '</h3>' . $test['description']);
+    $row['parameters'] = theme_positioning_parameters($test['parameters']);
+    $row['expected'] = theme_positioning_parameters($test['expected']);
+    $row['expected_image'] = $expected_illustration;
+    $row['result'] = theme_positioning_parameters($result);
+    $row['result_image'] = $result_illustration;
+    $table[] = $row;
+  }
+  return 'Result of test:' . theme('table', array(
+    'test',
+    'parameters',
+    'expected',
+    'image',
+    'result',
+    'actual image',
+    'status'
+  ), $table);
+
+}
+
+function theme_positioning_test($x, $y) {
+  $inner = "<div style='background-color:red; width:75px; height:100px; position:absolute; left:{$x}px; top:{$y}px'>";
+  $outer = "<div style='background-color:blue; width:200px; height:150px; position:absolute; left:25px; top:25px'><div style='position:relative'>$inner</div></div>";
+  $wrapper = "<div style='background-color:#CCCCCC; width:250px; height:200px; position:relative'>$outer</div>";
+  return $wrapper;
+}
+
+function theme_positioning_parameters($parameters) {
+  $outputs = array();
+  foreach ($parameters as $key => $value) {
+    $outputs[] = "[$key] => $value";
+  }
+  return '<pre>' . join("\n", $outputs) . '</pre>';
+}
+
+function imagecache_testsuite_positioning_get_tests() {
+  return array(
+    'base' => array(
+      'parameters' => array(
+        'x' => '0',
+        'y' => '0',
+      ),
+      'description' => '0 is top left.',
+      'expected' => array(
+        'x' => '0',
+        'y' => '0',
+      ),
+    ),
+    'numbers' => array(
+      'parameters' => array(
+        'x' => '50',
+        'y' => '-50',
+      ),
+      'description' => 'Basic numbers indicate distance and direction from top left.',
+      'expected' => array(
+        'x' => '50',
+        'y' => '-50',
+      ),
+    ),
+    'keywords' => array(
+      'parameters' => array(
+        'x' => 'center',
+        'y' => 'bottom',
+      ),
+      'description' => "Plain keywords will align against the region",
+      'expected' => array(
+        'x' => '62.5',
+        'y' => '50',
+      ),
+    ),
+    'keyword with offsets' => array(
+      'parameters' => array(
+        'x' => 'right+10',
+        'y' => 'bottom+10',
+      ),
+      'description' => "Keywords can be used with offsets. Positive numbers are in from the named side",
+      'expected' => array(
+        'x' => '115',
+        'y' => '40',
+      ),
+    ),
+    'keyword with negative offsets' => array(
+      'parameters' => array(
+        'x' => 'right-10',
+        'y' => 'bottom-10',
+      ),
+      'description' => "Negative numbers place the item outside the boundry",
+      'expected' => array(
+        'x' => '135',
+        'y' => '60',
+      ),
+    ),
+    'percent' => array(
+      'parameters' => array(
+        'x' => '50%',
+        'y' => '50%',
+      ),
+      'description' => "Percentages on their own will CENTER on both the source and destination items",
+      'expected' => array(
+        'x' => '62.5',
+        'y' => '25',
+      ),
+    ),
+    'keyword with percent' => array(
+      'parameters' => array(
+        'x' => 'right+10%',
+        'y' => 'bottom+10%',
+      ),
+      'description' => "Percentages can be used with keywords, though the placed image will be centered on the calculated position.",
+      'expected' => array(
+        'x' => '142.5',
+        'y' => '85',
+      ),
+    ),
+    'css styles' => array(
+      'parameters' => array(
+        'left' => '10px',
+        'bottom' => '10px',
+      ),
+      'description' => "A different method uses css-like parameters.",
+      'expected' => array(
+        'x' => '10',
+        'y' => '40',
+      ),
+    ),
+    'css negatives' => array(
+      'parameters' => array(
+        'left' => '-10px',
+        'bottom' => '-10px',
+      ),
+      'description' => "Negative numbers from sides always move outside of the boundries.",
+      'expected' => array(
+        'x' => '-10',
+        'y' => '60',
+      ),
+    ),
+    'css with percents' => array(
+      'parameters' => array(
+        'right' => '+10%',
+        'bottom' => '+10%',
+      ),
+      'description' => "Using percents with sides calculates the percent location on the base, then centers the source item on that point.",
+      'expected' => array(
+        'x' => '142.5',
+        'y' => '85',
+      ),
+    ),
+    'css centering' => array(
+      'parameters' => array(
+        'right' => '50%',
+        'top' => '50%',
+      ),
+      'description' => "The auto-centering that happens when percents are used means you can easily center things at 50%.",
+      'expected' => array(
+        'x' => '62.5',
+        'y' => '25',
+      ),
+    ),
+    'css positioning' => array(
+      'parameters' => array(
+        'right' => 'left+20',
+        'top' => 'bottom-20',
+      ),
+      'description' => "It's also possible to use keywords there, though it's not smart to do so",
+      'expected' => array(
+        'x' => '-55',
+        'y' => '130',
+      ),
+    ),
+
+  );
+}
