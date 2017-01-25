@@ -1026,8 +1026,11 @@ var AssignmentFormComponent = (function () {
         this.assignmentSave = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["EventEmitter"]();
     }
     AssignmentFormComponent.prototype.ngOnInit = function () {
+        var form = this.assignment;
+        // Add validation to the title
+        form.title = ['', __WEBPACK_IMPORTED_MODULE_1__angular_forms__["b" /* Validators */].required];
         // create the form from the assignment object that we recieved
-        this.form = this.formBuilder.group(this.assignment);
+        this.form = this.formBuilder.group(form);
         // get a list of assignment 'types' that we have available so we can display
         // those in the select field
         this.assignmentOptions = this.assignmentService.getAssignmentOptions();
@@ -1059,9 +1062,19 @@ var AssignmentFormComponent = (function () {
     //   localStorage.setItem('assignments_autosave', JSON.stringify(newSaved));
     // }
     AssignmentFormComponent.prototype.save = function () {
-        var model = this.form.value;
-        this.assignmentSave.emit(model);
-        this.form.reset();
+        // first check to make sure the form is valid
+        if (this.form.status === 'VALID') {
+            // emit the assignmentSave and send up the new form
+            this.assignmentSave.emit(this.form.value);
+            // reset the form 
+            this.form.reset();
+        }
+        else {
+            this.saveAttempted = true;
+            if (this.form.get('title').status) {
+                alert('The title field is required.');
+            }
+        }
     };
     __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Input"])(), 
@@ -2195,8 +2208,8 @@ var AppModule = (function () {
                 __WEBPACK_IMPORTED_MODULE_0__angular_platform_browser__["b" /* BrowserModule */],
                 __WEBPACK_IMPORTED_MODULE_3__angular_http__["c" /* HttpModule */],
                 __WEBPACK_IMPORTED_MODULE_4__app_routing__["a" /* routing */],
-                __WEBPACK_IMPORTED_MODULE_2__angular_forms__["c" /* FormsModule */],
-                __WEBPACK_IMPORTED_MODULE_2__angular_forms__["d" /* ReactiveFormsModule */],
+                __WEBPACK_IMPORTED_MODULE_2__angular_forms__["d" /* FormsModule */],
+                __WEBPACK_IMPORTED_MODULE_2__angular_forms__["e" /* ReactiveFormsModule */],
                 __WEBPACK_IMPORTED_MODULE_20_angular2_moment__["MomentModule"],
                 __WEBPACK_IMPORTED_MODULE_5__ngrx_store__["g" /* StoreModule */].provideStore({
                     assignments: __WEBPACK_IMPORTED_MODULE_8__reducers_assignments__["a" /* reducer */],
@@ -2794,7 +2807,7 @@ var DatetimeInputComponent = (function () {
             styles: [__webpack_require__(793)],
             providers: [
                 {
-                    provide: __WEBPACK_IMPORTED_MODULE_1__angular_forms__["b" /* NG_VALUE_ACCESSOR */],
+                    provide: __WEBPACK_IMPORTED_MODULE_1__angular_forms__["c" /* NG_VALUE_ACCESSOR */],
                     useExisting: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["forwardRef"])(function () { return DatetimeInputComponent; }),
                     multi: true
                 }]
@@ -4073,7 +4086,7 @@ var WysiwygjsComponent = (function () {
             styles: [__webpack_require__(811)],
             providers: [
                 {
-                    provide: __WEBPACK_IMPORTED_MODULE_1__angular_forms__["b" /* NG_VALUE_ACCESSOR */],
+                    provide: __WEBPACK_IMPORTED_MODULE_1__angular_forms__["c" /* NG_VALUE_ACCESSOR */],
                     useExisting: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["forwardRef"])(function () { return WysiwygjsComponent; }),
                     multi: true
                 }
@@ -4658,7 +4671,7 @@ module.exports = "<!-- Modal Structure -->\n<div id=\"modal-assignment-dialog\" 
 /***/ 816:
 /***/ function(module, exports) {
 
-module.exports = "<form [formGroup]=\"form\" class=\"assignment-form\">\n  <input formControlName=\"title\" placeholder=\"Title\">\n  <wysiwygjs formControlName=\"body\"></wysiwygjs>\n\n  <div class=\"submissions-settings fieldset\">\n    <label>Submission settings</label>\n    <div class=\"type\">\n      <label>Type</label>\n      <select formControlName=\"type\">\n        <option *ngFor=\"let type of assignmentOptions.type\" [value]=\"type.value\">{{ type.display }}</option>\n      </select>\n      <div class=\"detail\" *ngIf=\"form.value.type === 'open'\">Students will be able to see all submissions.</div>\n      <div class=\"detail\" *ngIf=\"form.value.type === 'open_after_submission'\">Students will be able to see all submissions AFTER they have made a submission to this assignment.</div>\n      <div class=\"detail\" *ngIf=\"form.value.type === 'closed'\">Students will NOT be able to see each other's submissions.</div>\n    </div>\n\n    <div class=\"late-submissions switch\">\n      <label>\n        No late Submissions\n        <input type=\"checkbox\" formControlName=\"allowLateSubmissions\">\n        <span class=\"lever\"></span>\n        Allow Late Submissions\n      </label>\n    </div>\n  </div>\n\n  <div class=\"critique-settings fieldset\">\n    <label>Critique settings</label>\n    <div class=\"critique-method\">\n      <label>Method</label>\n      <select formControlName=\"critiqueMethod\">\n        <option *ngFor=\"let option of assignmentOptions.critiqueMethod\" [value]=\"option.value\">{{ option.display }}</option>\n      </select>\n    </div>\n\n    <div class=\"critique-subsettings\" *ngIf=\"form.value.critiqueMethod !== 'none'\">\n      <div class=\"critique-privacy switch\">\n        <label>\n          Double-blind\n          <input type=\"checkbox\" formControlName=\"critiquePrivacy\">\n          <span class=\"lever\"></span>\n          Open\n        </label>\n        <div class=\"detail\" *ngIf=\"!form.value.critiquePrivacy\">Submissions will NOT see the author information on submissions or critiques.</div>\n        <div class=\"detail\" *ngIf=\"form.value.critiquePrivacy\">Submissions will see the author information on submissions and critiques.</div>\n      </div>\n    </div>\n  </div>\n\n  <div class=\"due-date\">\n    <div class=\"display\" *ngIf=\"form.value.endDate !==null\">\n      Due date:\n      <span *ngIf=\"form.value.startDate !== null\" class=\"start-date\">\n        {{ form.value.startDate | amDateFormat:'LL hh:mma' }} \n        <span class=\"separator\">\n          to\n        </span>\n      </span>\n      <span class=\"end-date\">\n        {{ form.value.endDate | amDateFormat:'LL hh:mma' }}\n      </span>\n    </div>\n    \n    <div *ngIf=\"form.value.endDate !== null\" class=\"start-date\">\n      <label>Start Date</label>\n      <app-datetime-input formControlName=\"startDate\"></app-datetime-input>\n    </div>\n\n    <div class=\"due-date\">\n      <label>Due Date</label>\n      <app-datetime-input formControlName=\"endDate\"></app-datetime-input>\n    </div>\n  </div>\n</form>"
+module.exports = "<form [formGroup]=\"form\" class=\"assignment-form\">\n  <input formControlName=\"title\" placeholder=\"Title\" [ngClass]=\"{'invalid': form.controls['title'].status === 'INVALID' && saveAttempted}\">\n  <wysiwygjs formControlName=\"body\"></wysiwygjs>\n\n  <div class=\"submissions-settings fieldset\">\n    <label>Submission settings</label>\n    <div class=\"type\">\n      <label>Type</label>\n      <select formControlName=\"type\">\n        <option *ngFor=\"let type of assignmentOptions.type\" [value]=\"type.value\">{{ type.display }}</option>\n      </select>\n      <div class=\"detail\" *ngIf=\"form.value.type === 'open'\">Students will be able to see all submissions.</div>\n      <div class=\"detail\" *ngIf=\"form.value.type === 'open_after_submission'\">Students will be able to see all submissions AFTER they have made a submission to this assignment.</div>\n      <div class=\"detail\" *ngIf=\"form.value.type === 'closed'\">Students will NOT be able to see each other's submissions.</div>\n    </div>\n\n    <div class=\"late-submissions switch\">\n      <label>\n        No late Submissions\n        <input type=\"checkbox\" formControlName=\"allowLateSubmissions\">\n        <span class=\"lever\"></span>\n        Allow Late Submissions\n      </label>\n    </div>\n  </div>\n\n  <div class=\"critique-settings fieldset\">\n    <label>Critique settings</label>\n    <div class=\"critique-method\">\n      <label>Method</label>\n      <select formControlName=\"critiqueMethod\">\n        <option *ngFor=\"let option of assignmentOptions.critiqueMethod\" [value]=\"option.value\">{{ option.display }}</option>\n      </select>\n    </div>\n\n    <div class=\"critique-subsettings\" *ngIf=\"form.value.critiqueMethod !== 'none'\">\n      <div class=\"critique-privacy switch\">\n        <label>\n          Double-blind\n          <input type=\"checkbox\" formControlName=\"critiquePrivacy\">\n          <span class=\"lever\"></span>\n          Open\n        </label>\n        <div class=\"detail\" *ngIf=\"!form.value.critiquePrivacy\">Submissions will NOT see the author information on submissions or critiques.</div>\n        <div class=\"detail\" *ngIf=\"form.value.critiquePrivacy\">Submissions will see the author information on submissions and critiques.</div>\n      </div>\n    </div>\n  </div>\n\n  <div class=\"due-date\">\n    <div class=\"display\" *ngIf=\"form.value.endDate !==null\">\n      Due date:\n      <span *ngIf=\"form.value.startDate !== null\" class=\"start-date\">\n        {{ form.value.startDate | amDateFormat:'LL hh:mma' }} \n        <span class=\"separator\">\n          to\n        </span>\n      </span>\n      <span class=\"end-date\">\n        {{ form.value.endDate | amDateFormat:'LL hh:mma' }}\n      </span>\n    </div>\n    \n    <div *ngIf=\"form.value.endDate !== null\" class=\"start-date\">\n      <label>Start Date</label>\n      <app-datetime-input formControlName=\"startDate\"></app-datetime-input>\n    </div>\n\n    <div class=\"due-date\">\n      <label>Due Date</label>\n      <app-datetime-input formControlName=\"endDate\"></app-datetime-input>\n    </div>\n  </div>\n</form>"
 
 /***/ },
 
