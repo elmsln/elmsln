@@ -1,0 +1,26 @@
+diff --git a/node_revision_delete.module b/node_revision_delete.module
+index d2005e3..4947738 100755
+--- a/node_revision_delete.module
++++ b/node_revision_delete.module
+@@ -136,6 +136,13 @@ function node_revision_delete_cron() {
+         $execute_revision_delete = 1;
+       }
+       break;
++
++    case 'every_2_years':
++      if($time_diffserence > 63072000){
++        variable_set('node_revision_delete_last_execute', $current_time);
++        $execute_revision_delete = 1;
++      }
++      break;
+   }
+ 
+   if ($execute_revision_delete) {
+@@ -305,6 +312,7 @@ function node_revision_delete_form($form, &$form_state) {
+     'every_3_months' => 'Every 3 Months',
+     'every_6_months' => 'Every 6 Months',
+     'every_year' => 'Every Year',
++    'every_2_years' => 'Every 2 Years',
+   );
+   $form['node_revision_delete_time'] = array(
+     '#type' => 'select',

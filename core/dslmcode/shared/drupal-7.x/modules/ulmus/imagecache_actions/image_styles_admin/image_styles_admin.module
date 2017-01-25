@@ -1,0 +1,156 @@
+<?php
+/**
+ * @file Hook and callback implementations that must be available at all times.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function image_styles_admin_menu() {
+  $items = array();
+  $items['admin/config/media/image-styles/duplicate/%image_style'] = array(
+    'title' => 'Duplicate style',
+    'description' => 'Make a copy of an image style.',
+    'page callback' => 'image_styles_admin_duplicate_page_callback',
+    'page arguments' => array(5),
+    'access arguments' => array('administer image styles'),
+    'file' => 'image_styles_admin.inc',
+  );
+  $items['admin/config/media/image-styles/export/%image_style'] = array(
+    'title' => 'Export style',
+    'description' => 'Export an image style.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('image_styles_admin_export_form', 5),
+    'access arguments' => array('administer image styles'),
+    'file' => 'image_styles_admin.inc',
+  );
+  $items['admin/config/media/image-styles/import'] = array(
+    'title' => 'Import style',
+    'description' => 'Import an image style.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('image_styles_admin_import_form'),
+    'access arguments' => array('administer image styles'),
+    'type' => MENU_LOCAL_ACTION,
+    'weight' => 3,
+    'file' => 'image_styles_admin.inc',
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_preprocess_HOOK for theme image_style_list.
+ */
+function image_styles_admin_preprocess_image_style_list(&$variables) {
+  // Tell imagecache_actions_preprocess_table to preprocess the next call to
+  // theme_table()
+  $image_styles = array_values($variables['styles']);
+  image_styles_admin_preprocess_table($image_styles);
+
+  // Add CSS and JS files.
+  drupal_add_css(drupal_get_path('module', 'image_styles_admin') . '/image_styles_admin.css');
+  if (base_path() !== '/') {
+    $base_path = base_path();
+    drupal_add_css("
+        #image-styles .expand.inner { background-image: url($base_path/misc/menu-collapsed.png) }
+        #image-styles .expanded.expand.inner { background-image: url($base_path/misc/menu-expanded.png) }",
+      array('type' => 'inline'));
+  }
+  drupal_add_js(drupal_get_path('module', 'image_styles_admin') . '/image_styles_admin.js');
+
+}
+
+/**
+ * Implements hook_preprocess_HOOK for theme table.
+ */
+function image_styles_admin_preprocess_table(&$variables) {
+  static $image_styles = NULL;
+
+  // If called from image_styles_admin_preprocess_image_style_list(), the
+  // parameter will be a sequential array.
+  if (key($variables) === 0) {
+    $image_styles = $variables;
+  }
+  else if (!empty($image_styles)) {
+    // Normal preprocess hook call: we only process if theme('table', ...) has
+    // been called via theme_image_style_list() and we have a non empty list of
+    // styles;
+
+    // Set an ID on the table so it can be targeted by our CSS.
+    $variables['attributes']['id'] = 'image-styles';
+
+    // Add a class to the Style name and Settings columns for styling.
+    foreach ($variables['header'] as &$cell) {
+      $temp_cell = is_string($cell) ? array('data' => $cell) : $cell;
+      $class_names = array(
+        'style-name' => t('Style name'),
+        'settings' => t('Settings'),
+      );
+      foreach ($class_names as $class => $name) {
+        if ($temp_cell['data'] == $name) {
+          $temp_cell['class'][] = $class;
+          $cell = $temp_cell;
+        }
+      }
+    }
+
+    // Add the effects column header.
+    array_splice($variables['header'], 1, 0, array(array(
+      'data' => t('Effects') . ' <span class="description expand" role="button">(' . t('expand all') . ')</span>',
+      'class' => array('effects expand-all')
+    )));
+
+    // Add a column with a summary of all effects to each row.
+    foreach ($variables['rows'] as $i => &$row) {
+      $style = $image_styles[$i];
+      $effects_list = array();
+      foreach ($style['effects'] as $key => $effect) {
+        $definition = image_effect_definition_load($effect['name']);
+        $effect = array_merge($definition, $effect);
+        $style['effects'][$key] = $effect;
+        $effect_details = isset($effect['summary theme']) ? theme($effect['summary theme'], array('data' => $effect['data'])) : '';
+        $effects_list[] = '<span class="details">' . $effect['label'] . ' ' . $effect_details . '</span>';
+      }
+      // Add the effects summary column to the row.
+      $effects_summary = array(
+        'data' => '<div class="inner expand" role="button">' . implode('<span class="separator">, </span>', $effects_list) . '</div>',
+        'class' => 'description'
+      );
+      array_splice($row, 1, 0, array($effects_summary));
+    }
+
+    // Find the column with the edit link in it.
+    $i = 0;
+    $first_row = reset($variables['rows']);
+    foreach ($first_row as $i => &$cell) {
+      $cell_data = is_array($cell) ? $cell['data'] : $cell;
+      if (strpos($cell_data, '>' . t('edit') . '<') !== FALSE) {
+        break;
+      }
+    }
+
+    // Increase the colspan for the column with the edit link to include the
+    // duplicate and export links as well. This *should* be 2, but Drupal core
+    // specifies 1 more than should be there.
+    $variables['header'][$i]['colspan'] += 1;
+
+    // Add the 2 links to each row by duplicating the edit link and then
+    // changing the text and the link.
+    $edit_column = $i;
+    foreach ($variables['rows'] as &$row) {
+      $i = $edit_column;
+      // Duplicate the edit link twice.
+      array_splice($row, $i + 1, 0, array($row[$i], $row[$i]));
+      // Replace edit with duplicate in text and href
+      $i++;
+      $row[$i] = str_replace('>' . t('edit') . '<', '>' . t('duplicate') . '<', $row[$i]);
+      $row[$i] = preg_replace('#/admin/config/media/image-styles/edit/#', '/admin/config/media/image-styles/duplicate/', $row[$i]);
+      // Replace edit with export in text and href
+      $i++;
+      $row[$i] = str_replace('>' . t('edit') . '<', '>' . t('export') . '<', $row[$i]);
+      $row[$i] = preg_replace('#/admin/config/media/image-styles/edit/#', '/admin/config/media/image-styles/export/', $row[$i]);
+    }
+
+    // Don't preprocess subsequent calls to theme_table().
+    $image_styles = NULL;
+  }
+}

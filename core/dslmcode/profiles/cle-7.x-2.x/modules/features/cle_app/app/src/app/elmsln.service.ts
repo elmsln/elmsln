@@ -104,6 +104,11 @@ export class ElmslnService {
     const body = {
       name: 'default-image-name',
       type: 'image',
+      /**
+       * @todo need to add logic to to specify whether the user uploaded images
+       *       file path's are public or private.
+       */
+      file_wrapper: 'public',
       data: image
     }
     return this.post(AppSettings.BASE_PATH + 'api/v1/elmsln/files/create', body)

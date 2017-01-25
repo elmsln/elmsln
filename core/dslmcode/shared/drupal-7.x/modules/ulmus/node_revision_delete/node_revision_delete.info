@@ -1,0 +1,19 @@
+name = Node Revision Delete
+description = Track and prune node revisions.
+package = Content
+core = 7.x
+configure = admin/config/content/node_revision_delete
+
+; Information added by Drupal.org packaging script on 2014-05-14
+version = "7.x-2.4"
+core = "7.x"
+project = "node_revision_delete"
+datestamp = "1400084030"
+
+
+; Information added by Drupal.org packaging script on 2014-09-01
+version = "7.x-2.6"
+core = "7.x"
+project = "node_revision_delete"
+datestamp = "1409588933"
+

@@ -1,0 +1,146 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>
+    Aspect Switcher
+    </title>
+  </head>
+  <body>
+    <h3>
+      Using aspect switcher to create a 'square' setting.
+    </h3>
+    <p>
+      This is done through "chaining" two switches - "is it quite
+      wide or not?", then "is it quite tall or not?" which leaves
+      us with "must be square then."
+    </p>
+    <p>
+      First we create the three sizes we will be using,
+      small-landscape, small-square, small-portrait. I'll just set
+      those up with scale_and_crop.
+    </p>
+    <p>
+      We want wide images up to a ratio of 1:0.75 to be rendered
+      wide. We want squarish images, with an aspect between 1:0.75
+      and 1:1.25 to be rendered square, and anything taller to be
+      rendered tall.
+    </p>
+    <p>
+      To do this, we chain 2 rules. We need to build them
+      backwards, the smaller sub-rule first, but to understand, I'l
+      list them top down.
+    </p>
+    <p>
+      Rule 1. is the master rule, <strong>3-aspects</strong>
+    </p>
+    <p>
+      if ratio is less than 1:.75, use small-landscape. If greater,
+      <strong>proceed to rule 2</strong>.
+    </p>
+    <p>
+    </p>
+    <p>
+      Rule 2. <strong>square-or-portrait</strong>
+    </p>
+    <p>
+      if ratio is less than 1:1.25, use small-square. If greater,
+      use small-portrait.
+    </p>
+    <p>
+      To do this, we use the aspect switcher to link to the two
+      sizes, and the <em>ratio adjustment</em> to move
+      the switching point a little. Set the ratio adjustment to
+      1.25
+    </p>
+    <p>
+      With these (5!) rules in place, you can get the desired
+      effect. This is a little trickier than just making a 'square'
+      setting, but it allows for the required fudge factor to
+      handle almost-square images.
+    </p>
+    <p>
+      You can nudge the adjustment factor to be looser or tighter.
+      You can create even more chained rules, and define a
+      'super-wide' size.
+    </p>
+    <table border="1" cellpadding="1" cellspacing="1">
+      <tbody>
+        <tr>
+          <td rowspan="1" colspan="1">
+            small-landscape  
+          </td>
+          <td rowspan="1" colspan="1">
+            [Scale And Crop]&nbsp;width: 200, height: 100
+          </td>
+        </tr>
+        <tr>
+          <td rowspan="1" colspan="1">
+            small-portrait
+          </td>
+          <td rowspan="1" colspan="1">
+            [Scale And Crop]&nbsp;width: 100, height: 200
+          </td>
+        </tr>
+        <tr>
+          <td rowspan="1" colspan="1">
+            small-square
+          </td>
+          <td rowspan="1" colspan="1">
+            [Scale And Crop]&nbsp;width: 140, height: 140
+          </td>
+        </tr>
+        <tr>
+          <td rowspan="1" colspan="1">
+            small-square-or-portrait
+          </td>
+          <td rowspan="1" colspan="1">
+            [Aspect Switcher] Portrait
+            size:&nbsp;<strong>small-portrait</strong>. Landscape
+            size:&nbsp;<strong>small-square</strong>&nbsp;(switch
+            at 1:1.25)
+          </td>
+        </tr>
+        <tr>
+          <td rowspan="1" colspan="1">
+            small-3-aspects
+          </td>
+          <td rowspan="1" colspan="1">
+            [Aspect Switcher]&nbsp;Portrait
+            size:&nbsp;<strong>small-square-or-portrait</strong>.
+            Landscape
+            size:&nbsp;<strong>small-landscape</strong>&nbsp;(switch
+            at 1:.75)
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <p>
+      &nbsp;The illustration shows the result of this set-up on a
+      collection of images. The listed dimensions are those of the
+      source images. You'll see that the mostly-square ones are
+      rendered square.
+    </p>
+    <img src="../docs/aspect-chaining.png" alt="Illustration of several different sized images passing through the above ruleset."/>
+    <p>
+      The rule being applied is: 1 Is it wide?
+    </p>
+    <p>
+      For image 250x300, the aspect is ( 250/300 = 0.83 ) Normally
+      that number (less than 1) would be classified as 'portrait',
+      and with the adjustment (*0.75) that is still true, so the
+      processing passes through to the portrait preset.
+    </p>
+    <p>
+      rule #2 it it tall?
+    </p>
+    <p>
+      This preset however does a different set of maths, and
+      multiplies the aspect by 1.25, producing a result that causes
+      it to trigger to 'landscape' choice. 'landscape' at this
+      point is set to be the 'square' preset. And we get what we
+      wanted.
+    </p>
+  </body>
+</html>
+

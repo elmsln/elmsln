@@ -1,0 +1,12 @@
+<?php
+
+/**
+ * Create an .htaccess file in image style directories that have a change format
+ * image effect to enforce the correct Content-Type header for the derivative
+ * images.
+ */
+function imagecache_coloractions_update_7101(&$sandbox) {
+  module_load_include('module', 'image');
+  include_once dirname(__FILE__) . '/imagecache_coloractions.htaccess_creator.inc';
+  imagecache_coloractions_create_htaccess_all_styles();
+}

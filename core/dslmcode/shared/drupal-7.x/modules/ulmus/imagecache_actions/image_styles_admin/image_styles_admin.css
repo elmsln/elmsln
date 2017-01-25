@@ -1,0 +1,52 @@
+table#image-styles {
+  table-layout: fixed;
+}
+
+#image-styles th.style-name {
+  width: 20%;
+}
+
+#image-styles th.effects {
+  width: 30%;
+}
+
+#image-styles th.settings {
+  width: 15%;
+}
+
+#image-styles td {
+  vertical-align: top;
+}
+
+#image-styles .expand.inner {
+  background: transparent url(/misc/menu-collapsed.png) left 0.6em no-repeat;
+  margin-left: -12px;
+  padding-left: 12px;
+}
+
+#image-styles .expanded.expand.inner {
+  background: transparent url(/misc/menu-expanded.png) left 0.6em no-repeat;
+}
+
+#image-styles .description {
+  cursor: pointer;
+}
+
+#image-styles .description .inner {
+  overflow: hidden; /* truncates descriptions if too long */
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#image-styles .description .expanded.inner {
+  overflow: visible;
+  white-space: normal;
+}
+
+#image-styles .description .expanded .details {
+  display: block;
+}
+
+#image-styles .description .expanded .separator {
+  display: none;
+}

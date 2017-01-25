@@ -1,0 +1,25 @@
+<?php
+/**
+ * Implements hook_requirements().
+ */
+function imagecache_autorotate_requirements($phase) {
+  $result = array();
+  $t = get_t();
+  if (!extension_loaded('exif')) {
+    $result['imagecache_autorotate_exif_extension'] = array(
+      'title'=> 'EXIF extension',
+      'value'=> $phase === 'runtime' ? $t('Disabled') : '',
+      'description'=> $t('The autorotate image effect requires the exif extension to be enabled.'),
+      'severity' => REQUIREMENT_ERROR,
+    );
+  }
+  else {
+    $result['imagecache_autorotate_exif_extension'] = array(
+      'title'=> 'EXIF extension',
+      'value'=> $t('Enabled'),
+      'severity' => REQUIREMENT_OK,
+    );
+
+  }
+  return $result;
+}

@@ -1,0 +1,17 @@
+<?php
+
+/**
+ * @file Home for the most basic imagecache_action routines.
+ */
+
+/**
+ * Implements hook_theme().
+ */
+function imagecache_actions_theme() {
+  return array(
+    'imagecacheactions_rgb' => array(
+      'file' => 'utility-color.inc',
+      'variables' => array('rgb' => NULL),
+    ),
+  );
+}

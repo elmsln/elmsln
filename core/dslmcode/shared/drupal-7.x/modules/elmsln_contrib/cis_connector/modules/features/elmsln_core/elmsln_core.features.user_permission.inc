@@ -80,7 +80,6 @@ function elmsln_core_user_default_permissions() {
     'name' => 'access user profiles',
     'roles' => array(
       'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
-      'activation code holder' => 'activation code holder',
       'administrator' => 'administrator',
       'guest' => 'guest',
       'instructor' => 'instructor',

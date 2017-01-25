@@ -1,0 +1,16 @@
+<?php
+/**
+ * Warn about the soft dependency on system stream wrapper module.
+ */
+function imagecache_actions_update_7001(&$sandbox) {
+  drupal_set_message(t("Imagecache Actions: If you use the module:// notation anywhere in an image effect, you must now install the !module module.",
+    array('!module' => l('System Stream Wrapper', 'https://drupal.org/project/system_stream_wrapper', array('external' => TRUE)))), 'warning');
+}
+
+/**
+ * Clear image styles cache.
+ */
+function imagecache_actions_update_7002(&$sandbox) {
+  // We need to clear this cache as many effect callbacks have been renamed.
+  cache_clear_all('image_styles', 'cache');
+}

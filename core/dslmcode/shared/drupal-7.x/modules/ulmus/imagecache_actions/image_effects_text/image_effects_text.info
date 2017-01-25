@@ -1,0 +1,14 @@
+name = Image Effects Text
+description = Provides an image effect to overlay text captions on images.
+package = Media
+core = 7.x
+
+dependencies[] = image
+dependencies[] = imagecache_actions
+
+; Information added by Drupal.org packaging script on 2016-02-19
+version = "7.x-1.7"
+core = "7.x"
+project = "imagecache_actions"
+datestamp = "1455872655"
+

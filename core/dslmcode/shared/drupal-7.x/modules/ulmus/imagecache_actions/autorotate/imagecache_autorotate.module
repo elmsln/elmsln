@@ -1,0 +1,235 @@
+<?php
+/**
+ * @file Autorotate image based on EXIF Orientation tag.
+ *
+ * EXIF: https://en.wikipedia.org/wiki/Exchangeable_image_file_format
+ * EXIF orientation tag: http://sylvana.net/jpegcrop/exif_orientation.html
+ *
+ * Originally contributed by jonathan_hunt https://drupal.org/user/28976,
+ * September 1, 2009
+ */
+
+/**
+ * Implements hook_image_effect_info().
+ *
+ * Defines information about the supported effects.
+ */
+function imagecache_autorotate_image_effect_info() {
+  $effects = array();
+
+  $effects['imagecache_autorotate'] = array(
+    'label' => t('Autorotate'),
+    'help' => t('Autorotate image based on EXIF orientation and reset that tag.'),
+    'effect callback' => 'imagecache_autorotate_effect',
+    'dimensions callback' => 'imagecache_autorotate_dimensions',
+    'form callback' => 'imagecache_autorotate_form',
+    'summary theme' => 'imagecache_autorotate_summary',
+  );
+
+  return $effects;
+}
+
+/**
+ * Implements hook_theme().
+ *
+ * Registers theme functions for the effect summaries.
+ */
+function imagecache_autorotate_theme() {
+  return array(
+    'imagecache_autorotate_summary' => array(
+      'variables' => array('data' => NULL),
+    ),
+  );
+}
+
+/**
+ * Builds the auto-rotate form.
+ *
+ * This effect has no options, only some help text, so the form is displayed
+ * anyway.
+ */
+function imagecache_autorotate_form() {
+  $form = array();
+  $form['help'] = array(
+    '#markup' => "<p><strong>There are no user-configurable options for this process.</strong></p>
+      <p>Certain cameras can embed <em>orientation</em> information into image
+      files when they save them. This information is embedded in an EXIF tag
+      and can be used to rotate images to their correct position for display.
+      <em>Not all cameras or images contain this information.</em>
+      This process is only useful for images that contain this information,
+      whereas for other images it is harmless.
+      </p>
+      <p>Although most modern browsers do support the orientation tag, the
+      information may get lost or become incorrect by other operations.
+      So, to support all browsers and prevent rotation errors, it is better to
+      start each image style with this effect.
+      </p>
+      <p>The expected/supported values are:<br/>
+      <strong>Tag</strong>: <code>0x0112  Orientation</code>
+      </p>
+      <ul>
+      <li>1 = Horizontal (normal)</li>
+      <li>3 = Rotate 180</li>
+      <li>6 = Rotate 90 CW</li>
+      <li>8 = Rotate 270 CW</li>
+      </ul>
+      <p>Wikipedia: <a href='https://en.wikipedia.org/wiki/Exchangeable_image_file_format'>Exchangeable image file format</a></p>
+    ",
+  );
+  return $form;
+}
+
+/**
+ * Implements theme_hook() for the autorotate effect summary.
+ *
+ * param array $variables
+ *   An associative array containing:
+ *   - data: The current configuration for this image effect.
+ *
+ * @return string
+ *   The HTML for the summary of this image effect.
+ * @ingroup themeable
+ */
+function theme_imagecache_autorotate_summary(/*array $variables*/) {
+  return 'image based on its EXIF data.';
+}
+
+/**
+ * Autorotate image based on EXIF Orientation tag.
+ */
+function imagecache_autorotate_effect(stdClass $image /*, $data*/) {
+  // Test to see if EXIF is supported by the current image type.
+  if (in_array($image->info['mime_type'], array('image/jpeg', 'image/tiff'))) {
+    // Hand over to toolkit.
+    return image_toolkit_invoke('imagecache_autorotate', $image);
+  }
+  else if ($image->source === 'modules/image/sample.png' && user_access('administer image styles')) {
+    if (!extension_loaded('exif')) {
+      // Issue a warning if we are in the admin screen and the exif extension is
+      // not enabled.
+      drupal_set_message(t('The autorotate image effect requires the exif extension to be enabled.'), 'warning');
+      if ($image->toolkit === 'imagemagick') {
+        drupal_set_message(t('Though imagemagick will work without the exif extension, subsequent effects may fail as the image dimensions cannot be updated.'), 'warning');
+      }
+    }
+  }
+  return TRUE;
+}
+
+/**
+ * GD toolkit specific implementation of this image effect.
+ *
+ * @param stdClass $image
+ *
+ * @return bool
+ *   true on success, false otherwise.
+ */
+function image_gd_imagecache_autorotate(stdClass $image) {
+  if (!function_exists('exif_read_data')) {
+    watchdog('imagecache_actions', 'Image %file could not be auto-rotated: !message', array('%file' => $image->source, '!message' => t('The exif_read_data() function is not available in this PHP installation. You probably have to enable the exif extension.')));
+    return FALSE;
+  }
+  $exif = exif_read_data(drupal_realpath($image->source));
+  if (isset($exif['Orientation'])) {
+    // http://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/EXIF.html:
+    // 1 = Horizontal (normal)
+    // 2 = Mirror horizontal
+    // 3 = Rotate 180
+    // 4 = Mirror vertical
+    // 5 = Mirror horizontal and rotate 270 CW
+    // 6 = Rotate 90 CW
+    // 7 = Mirror horizontal and rotate 90 CW
+    // 8 = Rotate 270 CW
+    // @todo: Add horizontal and vertical flips etc.
+    // imagecopy seems to be able to mirror, see conmments on
+    // http://php.net/manual/en/function.imagecopy.php
+    // @todo: Create sample set for tests.
+    switch ($exif['Orientation']) {
+      case 3:
+        $degrees = 180;
+        break;
+      case 6:
+        $degrees = 90;
+        break;
+      case 8:
+        $degrees = 270;
+        break;
+      default:
+        $degrees = 0;
+    }
+    if ($degrees != 0) {
+      return image_rotate($image, $degrees);
+    }
+  }
+  return TRUE;
+}
+
+/**
+ * Imagemagick toolkit specific implementation of this image effect.
+ *
+ * @param stdClass $image
+ *   An image object.
+ *
+ * @return bool
+ *   true on success, false otherwise.
+ *
+ * @see http://www.imagemagick.org/script/command-line-options.php#auto-orient
+ */
+function image_imagemagick_imagecache_autorotate(stdClass $image) {
+  // Use the exif extension, if enabled, to figure out the new dimensions.
+  // Moreover (see [#2366163]): to prevent a bug in IM to incorrectly rotate the
+  // image when it should not, we only pass the auto-orient argument when the
+  // exif extension could detect the 'Orientation' tag.
+  if (function_exists('exif_read_data')) {
+    $exif = exif_read_data(drupal_realpath($image->source));
+    if (isset($exif['Orientation'])) {
+      switch ($exif['Orientation']) {
+        case 1:
+          // Normal orientation: no need to rotate or to change the dimensions.
+          break;
+        case 5:
+        case 6:
+        case 7:
+        case 8:
+          // 90 or 270 degrees rotation (+ optional mirror): swap dimensions.
+          $image->ops[] = '-auto-orient';
+          $tmp = $image->info['width'];
+          $image->info['width'] = $image->info['height'];
+          $image->info['height'] = $tmp;
+          break;
+        default:
+          // All other orientations: pass the arguments, but the dimensions
+          // remain the same.
+          $image->ops[] = '-auto-orient';
+          break;
+      }
+    }
+  }
+  else {
+    // We do add the auto-orient argument to IM. IM will determine itself
+    // whether to rotate or not.
+    $image->ops[] = '-auto-orient';
+    // However we cannot keep track of the dimensions anymore.
+    $image->info['width'] = $image->info['height'] = NULL;
+  }
+  return TRUE;
+}
+
+/**
+ * Image dimensions callback for this image effect.
+ *
+ * @param array $dimensions
+ *   An array with the dimensions (in pixels) to be modified.
+ * param array $data
+ *   An associative array containing the effect data.
+ */
+function imagecache_autorotate_dimensions(array &$dimensions/*, array $data*/) {
+  // We can only know the resulting dimensions if both dimensions are equal.
+  // Otherwise we need to inspect the image itself, which is not passed in here.
+  // (this callback was introduced to enhance performance by NOT accessing the
+  // image file when rendering the width and height attributes of the html img
+  // tag).
+  if ($dimensions['width'] !== $dimensions['height']) {
+    $dimensions['width'] = $dimensions['height'] = NULL;
+  }
+}

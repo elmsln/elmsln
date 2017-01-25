@@ -1,5 +1,5 @@
 <form [formGroup]="form" class="assignment-form">
-  <input formControlName="title" placeholder="Title">
+  <input formControlName="title" placeholder="Title" [ngClass]="{'invalid': form.controls['title'].status === 'INVALID' && saveAttempted}">
   <wysiwygjs formControlName="body"></wysiwygjs>
 
   <div class="submissions-settings fieldset">

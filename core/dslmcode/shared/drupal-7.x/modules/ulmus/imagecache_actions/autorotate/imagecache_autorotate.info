@@ -1,0 +1,13 @@
+name = Imagecache Autorotate
+description = Provides an image effect to autorotate an image based on EXIF data.
+package = Media
+core = 7.x
+
+dependencies[] = image
+
+; Information added by Drupal.org packaging script on 2016-02-19
+version = "7.x-1.7"
+core = "7.x"
+project = "imagecache_actions"
+datestamp = "1455872655"
+

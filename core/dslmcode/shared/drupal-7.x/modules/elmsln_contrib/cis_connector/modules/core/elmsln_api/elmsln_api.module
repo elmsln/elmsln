@@ -178,8 +178,15 @@ function _elmsln_api_v1_file_modify($file, $params = NULL) {
     if ($extention == 'jpeg') {
       $extention = 'jpg';
     }
-    // save binary image in Drupal site's public file directory
-    if ($file = file_save_data($image, 'public://user-image-' . $GLOBALS['user']->uid . '-' . uuid_generate() . '.' . $extention)) {
+    // see if we had a file_wrapper defined, otherwise this is public
+    if (isset($params['file_wrapper'])) {
+      $file_wrapper = $params['file_wrapper'];
+    }
+    else {
+      $file_wrapper = 'public';
+    }
+    // save binary image in Drupal site's file wrapper directory
+    if ($file = file_save_data($image, $file_wrapper . '://user-image-' . $GLOBALS['user']->uid . '-' . uuid_generate() . '.' . $extention)) {
       file_save($file);
     }
   }
@@ -190,6 +197,34 @@ function _elmsln_api_v1_file_modify($file, $params = NULL) {
   if (!empty($file->fid)) {
     $status = '200';
     $detail = t('File created');
+    // kick off non-blocking image style generation
+    if (module_exists('imageinfo_cache')) {
+      $styles = image_styles();
+      // only process our core elmsln ones we care about
+      foreach ($styles as $style => $style_settings) {
+        // only pull in our elmsln core styles that are derivatives
+        // otherwise everything downstream will fail
+        if (!in_array($style, array('elmsln_gray', 'elmsln_normalize'))) {
+          unset($styles[$style]);
+        }
+      }
+      // generate background callback to build the image styles
+      $callback_options = array(
+        array(
+          'function' => '_elmsln_api_create_image_styles_call',
+          'blocking' => FALSE,
+        ),
+        array(
+          $file->uri,
+          image_style_path('elmsln_normalize', $file->uri),
+        ),
+        $styles,
+      );
+      // Queue up the request.
+      httprl_queue_background_callback($callback_options);
+      // Execute request.
+      $return = httprl_send_request();
+    }
   }
   // ensure we have details
   if (!isset($detail)) {
@@ -219,7 +254,49 @@ function _elmsln_api_v1_file_output($file) {
   settype($file['timestamp'], 'int');
   settype($file['status'], 'int');
   $file['created'] = Date('c', $file['timestamp']);
+  // special support for images
+  if (isset($file['type']) && $file['type'] == 'image') {
+    $styles = image_styles();
+    $derivatives = array('elmsln_gray');
+    $furi = image_style_path('elmsln_normalize', $file['uri']);
+    $file['image_styles'] = array(
+      'elmsln_normalize' => image_style_url('elmsln_normalize', $file['uri']),
+    );
+    foreach ($styles as $style => $style_settings) {
+      // only pull in our elmsln core styles, not normalizer though
+      if (strpos($style, 'elmsln_') === 0 && $style != 'elmsln_normalize') {
+        // normalize the item
+        $file['image_styles'][$style] = image_style_url($style, $furi);
+        foreach ($derivatives as $derivative) {
+          // ensure that style isn't the same as a the derivative
+          if ($style != $derivative) {
+            $file['image_styles'][$style . str_replace('elmsln', '_', $derivative)] = image_style_url($style, image_style_path($derivative, $furi));
+          }
+        }
+      }
+    }
+  }
   return $file;
+}
+
+/**
+ * Generates all given presets given a file uri.
+ *
+ * @param array $fids
+ *   Array of file ids.
+ * @param array $styles
+ *   (optional) Styles to use from image_styles().
+ * @return array
+ *   An array of what was done.
+ */
+function _elmsln_api_create_image_styles_call(array $uris, array $styles = array()) {
+  // Generate image styles.
+  $return = array();
+  if (!empty($uris)) {
+    module_load_include('inc', 'imageinfo_cache', 'imageinfo_cache');
+    $return = imageinfo_cache_create_image_styles($uris, array(), $styles, FALSE);
+  }
+  return $return;
 }
 
 /**
