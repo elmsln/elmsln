@@ -229,11 +229,17 @@ function _elmsln_api_v1_file_output($file) {
   // special support for images
   if (isset($file['type']) && $file['type'] == 'image') {
     $styles = image_styles();
+    $derivatives = array('elmsln_gray');
     $file['image_styles'] = array();
-    foreach ($styles as $style => $ssettings) {
+    foreach ($styles as $style => $style_settings) {
       // only pull in our elmsln core styles
-      if (strpos($style, 'elmsln_') === 0) {
-        $file['image_styles'][$style] = image_style_url($style, $file['uri']);
+      if (strpos($style, 'elmsln_') === 0 && $style != 'elmsln_normalize') {
+        // normalize the item
+        $furi = image_style_path('elmsln_normalize', $file['uri']);
+        $file['image_styles'][$style] = image_style_url($style, $furi);
+        foreach ($derivatives as $derivative) {
+          $file['image_styles'][$style . str_replace('elmsln', '_', $derivative)] = image_style_url($style, image_style_path($derivative, $furi));
+        }
       }
     }
   }

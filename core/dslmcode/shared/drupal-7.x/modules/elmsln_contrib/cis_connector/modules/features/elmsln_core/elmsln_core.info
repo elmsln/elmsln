@@ -46,6 +46,7 @@ features[image][] = elmsln_gray
 features[image][] = elmsln_large
 features[image][] = elmsln_medium
 features[image][] = elmsln_micro
+features[image][] = elmsln_normalize
 features[image][] = elmsln_small
 features[image][] = elmsln_thumb
 features[user_permission][] = access admin theme

@@ -45,7 +45,7 @@ function elmsln_core_image_default_styles() {
           'upscale' => 1,
           '#imageinfo_cache_effect_callback' => 'image_scale_effect',
         ),
-        'weight' => 1,
+        'weight' => -9,
       ),
     ),
   );
@@ -80,6 +80,29 @@ function elmsln_core_image_default_styles() {
           '#imageinfo_cache_effect_callback' => 'smartcrop_scale_effect',
         ),
         'weight' => 1,
+      ),
+    ),
+  );
+
+  // Exported image style: elmsln_normalize.
+  $styles['elmsln_normalize'] = array(
+    'label' => 'ELMSLN normalize',
+    'effects' => array(
+      11 => array(
+        'name' => 'imagecache_autorotate',
+        'data' => array(
+          '#imageinfo_cache_effect_callback' => 'imagecache_autorotate_effect',
+        ),
+        'weight' => -10,
+      ),
+      10 => array(
+        'name' => 'coloractions_convert',
+        'data' => array(
+          'format' => 'image/jpeg',
+          'quality' => 75,
+          '#imageinfo_cache_effect_callback' => 'coloractions_convert_effect',
+        ),
+        'weight' => -9,
       ),
     ),
   );
