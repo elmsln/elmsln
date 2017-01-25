@@ -178,12 +178,12 @@ function _elmsln_api_v1_file_modify($file, $params = NULL) {
     if ($extention == 'jpeg') {
       $extention = 'jpg';
     }
-    // see if we had a file_wrapper defined, otherwise this is private
+    // see if we had a file_wrapper defined, otherwise this is public
     if (isset($params['file_wrapper'])) {
       $file_wrapper = $params['file_wrapper'];
     }
     else {
-      $file_wrapper = 'private';
+      $file_wrapper = 'public';
     }
     // save binary image in Drupal site's file wrapper directory
     if ($file = file_save_data($image, $file_wrapper . '://user-image-' . $GLOBALS['user']->uid . '-' . uuid_generate() . '.' . $extention)) {
