@@ -226,6 +226,17 @@ function _elmsln_api_v1_file_output($file) {
   settype($file['timestamp'], 'int');
   settype($file['status'], 'int');
   $file['created'] = Date('c', $file['timestamp']);
+  // special support for images
+  if (isset($file['type']) && $file['type'] == 'image') {
+    $styles = image_styles();
+    $file['image_styles'] = array();
+    foreach ($styles as $style => $ssettings) {
+      // only pull in our elmsln core styles
+      if (strpos($style, 'elmsln_') === 0) {
+        $file['image_styles'][$style] = image_style_url($style, $file['uri']);
+      }
+    }
+  }
   return $file;
 }
 
