@@ -608,9 +608,14 @@ nav ul.left-nav-section a span {
 nav ul.left-nav-section a i,
 nav ul.left-nav-section a div,
 nav ul.left-nav-section a img {
-  font-size: 1.4rem;
+  font-size: 1.6rem;
   height: 3.2rem;
   line-height: 3.2rem
+}
+
+nav ul.left-nav-section .elmsln-user-profile-menu-item img {
+  height: 1.6rem;
+  width: 1.6rem;
 }
 
 #etb-course-nav .icon--dropdown {
