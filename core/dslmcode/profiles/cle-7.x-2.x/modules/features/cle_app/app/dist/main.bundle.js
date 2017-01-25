@@ -868,6 +868,16 @@ var ElmslnService = (function () {
         }
         catch (e) { }
     };
+    ElmslnService.prototype.exportLifecycleHook = function (componentName) {
+        if (typeof Drupal !== 'undefined') {
+            Drupal.settings.cleApp = Drupal.settings.cleApp || {};
+            Drupal.settings.cleApp.callbacks = Drupal.settings.cleApp.callbacks || {};
+            if (typeof Drupal.settings.cleApp.callbacks[componentName] === 'function') {
+                var callback = Drupal.settings.cleApp.callbacks[componentName];
+                callback();
+            }
+        }
+    };
     ElmslnService = __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Injectable"])(), 
         __metadata('design:paramtypes', [(typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_1__angular_http__["b" /* Http */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1__angular_http__["b" /* Http */]) === 'function' && _a) || Object, (typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_4__ngrx_store__["a" /* Store */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_4__ngrx_store__["a" /* Store */]) === 'function' && _b) || Object])
@@ -3391,8 +3401,8 @@ var SubmissionDetailComponent = (function () {
     }
     SubmissionDetailComponent.prototype.ngOnInit = function () {
     };
-    SubmissionDetailComponent.prototype.ngAfterViewChecked = function () {
-        this.elmslnService.evalCallbacks(this.submission);
+    SubmissionDetailComponent.prototype.ngAfterViewInit = function () {
+        this.elmslnService.exportLifecycleHook('submissionDetailComponentInit');
     };
     __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Input"])(), 
