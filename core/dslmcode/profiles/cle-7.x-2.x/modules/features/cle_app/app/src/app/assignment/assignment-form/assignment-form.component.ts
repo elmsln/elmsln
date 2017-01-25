@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter, OnChanges } from '@angular/core';
-import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormControl, AbstractControl } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Assignment } from '../../assignment';
 import { AssignmentService } from '../../assignment.service';
@@ -21,6 +21,7 @@ export class AssignmentFormComponent implements OnInit, OnChanges {
   // The assignment form that we will attach all of the fields to
   form: FormGroup;
   assignmentOptions:any;
+  saveAttempted:boolean;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -29,8 +30,11 @@ export class AssignmentFormComponent implements OnInit, OnChanges {
   ) { } 
 
   ngOnInit() {
+    let form:any = this.assignment;
+    // Add validation to the title
+    form.title = ['', Validators.required];
     // create the form from the assignment object that we recieved
-    this.form = this.formBuilder.group(this.assignment);
+    this.form = this.formBuilder.group(form);
     // get a list of assignment 'types' that we have available so we can display
     // those in the select field
     this.assignmentOptions = this.assignmentService.getAssignmentOptions();
@@ -66,10 +70,22 @@ export class AssignmentFormComponent implements OnInit, OnChanges {
   //   localStorage.setItem('assignments_autosave', JSON.stringify(newSaved));
   // }
 
-
   save() {
-    let model = this.form.value;
-    this.assignmentSave.emit(model);
-    this.form.reset();
+    // first check to make sure the form is valid
+    if (this.form.status === 'VALID') {
+      // emit the assignmentSave and send up the new form
+      this.assignmentSave.emit(this.form.value);
+      // reset the form 
+      this.form.reset();
+    }
+    // if the form isn't valid then we will give
+    // the user some indication of what they need
+    // to fill out.
+    else {
+      this.saveAttempted = true;
+      if (this.form.get('title').status) {
+        alert('The title field is required.');
+      }
+    }
   }
 }
