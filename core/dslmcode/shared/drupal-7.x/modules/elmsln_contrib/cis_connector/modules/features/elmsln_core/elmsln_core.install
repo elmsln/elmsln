@@ -216,3 +216,11 @@ function elmsln_core_update_7020(&$sandbox) {
     }
   }
 }
+
+/**
+ * Standardized image styles in core.
+ */
+function elmsln_core_update_7021(&$sandbox) {
+  module_enable(array('imagecache_actions', 'imagecache_coloractions', 'imagecache_autorotate'));
+  features_revert_module('elmsln_core');
+}

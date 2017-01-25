@@ -77,3 +77,10 @@ function cle__2_update_7004(&$sandbox) {
   // rebuild permissions because many change at this point
   node_access_rebuild();
 }
+
+/**
+ * Build styles dynamically on image field usage.
+ */
+function cle__2_update_7005(&$sandbox) {
+  features_revert_module('cle_cis_ux');
+}
