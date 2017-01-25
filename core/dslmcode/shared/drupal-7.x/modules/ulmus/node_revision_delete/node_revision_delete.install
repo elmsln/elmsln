@@ -1,0 +1,57 @@
+<?php
+/**
+ * @file
+ * Install, update and uninstall functions for the Node Revision module.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function node_revision_delete_install() {
+  variable_set('node_revision_delete_time', 0);
+  variable_set('node_revision_delete_last_execute', 0);
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function node_revision_delete_uninstall() {
+  variable_del('node_revision_delete_time');
+  variable_del('node_revision_delete_last_execute');
+  foreach (array_keys(node_type_get_names()) as $type) {
+    variable_del('node_revision_delete_track_' . $type);
+    variable_del('node_revision_delete_number_' . $type);
+  }
+}
+
+/**
+ * Sets max amount of revisions per content type.
+ */
+function node_revision_delete_update_7200() {
+  // If content types were selected, set the global max to each of them.
+  $content_types = variable_get('node_revision_delete_content_type', '');
+  if (!empty($content_types)) {
+    $content_types = explode(',', $content_types);
+    $max = variable_get('node_revision_delete_number');
+    if ($max) {
+      foreach ($content_types as $type) {
+        variable_set('node_revision_delete_track_' . $type, 1);
+        variable_set('node_revision_delete_number_' . $type, $max);
+      }
+    }
+  }
+
+  variable_del('node_revision_delete_number');
+  variable_del('node_revision_delete_content_type');
+}
+
+/**
+ * Removes node_revision_delete_time if its values is 0.
+ *
+ * It was matching a wrong condition in a switch at hook_cron.
+ */
+function node_revision_delete_update_7201() {
+  if (variable_get('node_revision_delete_time') == 0) {
+    variable_del('node_revision_delete_time');
+  }
+}
