@@ -76,3 +76,10 @@ function cis_section_update_7005(&$sandbox) {
 function cis_section_update_7006(&$sandbox) {
   features_revert(array('cis_section' => array('views')));
 }
+
+/**
+ * Get OG roles in place.
+ */
+function cis_section_update_7007(&$sandbox) {
+  features_revert_module('cis_section');
+}

@@ -10,20 +10,20 @@
 function cis_section_og_features_default_roles() {
   $roles = array();
 
-  // Exported OG Role: 'node:section:faculty'.
-  $roles['node:section:faculty'] = array(
+  // Exported OG Role: 'node:section:instructor'.
+  $roles['node:section:instructor'] = array(
     'gid' => 0,
     'group_type' => 'node',
     'group_bundle' => 'section',
-    'name' => 'faculty',
+    'name' => 'instructor',
   );
 
-  // Exported OG Role: 'node:section:lead faculty'.
-  $roles['node:section:lead faculty'] = array(
+  // Exported OG Role: 'node:section:lead instructor'.
+  $roles['node:section:lead instructor'] = array(
     'gid' => 0,
     'group_type' => 'node',
     'group_bundle' => 'section',
-    'name' => 'lead faculty',
+    'name' => 'lead instructor',
   );
 
   // Exported OG Role: 'node:section:past student'.

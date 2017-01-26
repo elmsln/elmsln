@@ -263,7 +263,7 @@ function cis_service_connection_block_section_context_changer_form() {
   if (module_exists('cis_section')) {
     // @todo add FALSE, TRUE in the flags here in the future so that we can
     // ONLY show things they have access to. Only do this after we've got a
-    // mechanism for people to allow fellow faculty to access their stuff
+    // mechanism for people to allow fellow instructors to access their stuff
     // as an alternate role.
     $sections = cis_section_all_sections();
     $form['section'] = array(
