@@ -84,3 +84,10 @@ function cle__2_update_7004(&$sandbox) {
 function cle__2_update_7005(&$sandbox) {
   features_revert_module('cle_cis_ux');
 }
+
+/**
+ * Get section permissions in alignment
+ */
+function cle__2_update_7006(&$sandbox) {
+  features_revert_module('cle_section');
+}
