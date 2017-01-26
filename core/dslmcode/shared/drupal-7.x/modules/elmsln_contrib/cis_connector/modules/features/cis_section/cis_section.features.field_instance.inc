@@ -10,7 +10,7 @@
 function cis_section_field_default_field_instances() {
   $field_instances = array();
 
-  // Exported field_instance: 'node-section-field_cis_active'
+  // Exported field_instance: 'node-section-field_cis_active'.
   $field_instances['node-section-field_cis_active'] = array(
     'bundle' => 'section',
     'default_value' => array(
@@ -49,11 +49,11 @@ function cis_section_field_default_field_instances() {
         'display_label' => 0,
       ),
       'type' => 'options_onoff',
-      'weight' => 3,
+      'weight' => 4,
     ),
   );
 
-  // Exported field_instance: 'node-section-field_section_id'
+  // Exported field_instance: 'node-section-field_section_id'.
   $field_instances['node-section-field_section_id'] = array(
     'bundle' => 'section',
     'default_value' => NULL,
@@ -95,11 +95,11 @@ function cis_section_field_default_field_instances() {
         'size' => 60,
       ),
       'type' => 'text_textfield',
-      'weight' => 1,
+      'weight' => 2,
     ),
   );
 
-  // Exported field_instance: 'node-section-group_access'
+  // Exported field_instance: 'node-section-group_access'.
   $field_instances['node-section-group_access'] = array(
     'bundle' => 'section',
     'default_value' => array(
@@ -151,12 +151,12 @@ function cis_section_field_default_field_instances() {
       'module' => 'options',
       'settings' => array(),
       'type' => 'options_buttons',
-      'weight' => 2,
+      'weight' => 3,
     ),
     'widget_type' => 'options_select',
   );
 
-  // Exported field_instance: 'node-section-group_group'
+  // Exported field_instance: 'node-section-group_group'.
   $field_instances['node-section-group_group'] = array(
     'bundle' => 'section',
     'default_value' => array(
@@ -214,7 +214,7 @@ function cis_section_field_default_field_instances() {
         'og_hide' => 1,
       ),
       'type' => 'options_onoff',
-      'weight' => 0,
+      'weight' => 1,
     ),
   );
 
