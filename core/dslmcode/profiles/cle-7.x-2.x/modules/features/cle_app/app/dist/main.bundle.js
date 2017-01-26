@@ -17,7 +17,7 @@ webpackEmptyContext.id = 1108;
 /***/ 1109:
 /***/ function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(476);
+module.exports = __webpack_require__(478);
 
 
 /***/ },
@@ -111,7 +111,7 @@ function loadPermissionsSuccess(permissions) {
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__elmsln_service__ = __webpack_require__(38);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__app_settings__ = __webpack_require__(93);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__app_settings__ = __webpack_require__(94);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__project__ = __webpack_require__(253);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__ngrx_store__ = __webpack_require__(12);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return ProjectService; });
@@ -245,8 +245,8 @@ var ProjectService = (function () {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__ngrx_store__ = __webpack_require__(12);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__elmsln_service__ = __webpack_require__(38);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__app_settings__ = __webpack_require__(93);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__submission__ = __webpack_require__(95);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__app_settings__ = __webpack_require__(94);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__submission__ = __webpack_require__(96);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return SubmissionService; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -418,7 +418,7 @@ var SubmissionService = (function () {
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__elmsln_service__ = __webpack_require__(38);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ng2_cookies_ng2_cookies__ = __webpack_require__(444);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ng2_cookies_ng2_cookies__ = __webpack_require__(446);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ng2_cookies_ng2_cookies___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_ng2_cookies_ng2_cookies__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__app_actions__ = __webpack_require__(79);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__ngrx_store__ = __webpack_require__(12);
@@ -475,9 +475,9 @@ var UserService = (function () {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_router__ = __webpack_require__(20);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__ngrx_store__ = __webpack_require__(12);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__app_actions__ = __webpack_require__(79);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__submission_submission_actions__ = __webpack_require__(94);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__submission_submission_actions__ = __webpack_require__(95);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__projects_project_actions__ = __webpack_require__(120);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__app_settings__ = __webpack_require__(93);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__app_settings__ = __webpack_require__(94);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return AppComponent; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -565,7 +565,7 @@ var Assignment = (function () {
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_http__ = __webpack_require__(235);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__app_settings__ = __webpack_require__(93);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__app_settings__ = __webpack_require__(94);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__elmsln_service__ = __webpack_require__(38);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return CritiqueService; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
@@ -651,7 +651,7 @@ var Project = (function () {
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_forms__ = __webpack_require__(76);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__submission__ = __webpack_require__(95);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__submission__ = __webpack_require__(96);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return SubmissionFormComponent; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -750,8 +750,8 @@ var SubmissionFormComponent = (function () {
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_http__ = __webpack_require__(235);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__app_settings__ = __webpack_require__(93);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_ng2_cookies_ng2_cookies__ = __webpack_require__(444);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__app_settings__ = __webpack_require__(94);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_ng2_cookies_ng2_cookies__ = __webpack_require__(446);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_ng2_cookies_ng2_cookies___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_ng2_cookies_ng2_cookies__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__ngrx_store__ = __webpack_require__(12);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return ElmslnService; });
@@ -889,7 +889,7 @@ var ElmslnService = (function () {
 
 /***/ },
 
-/***/ 389:
+/***/ 391:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -897,7 +897,7 @@ var ElmslnService = (function () {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_router__ = __webpack_require__(20);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__assignment__ = __webpack_require__(251);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__assignment_service__ = __webpack_require__(65);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__assignment_form_assignment_form_component__ = __webpack_require__(390);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__assignment_form_assignment_form_component__ = __webpack_require__(392);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__ngrx_store__ = __webpack_require__(12);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__app_actions__ = __webpack_require__(79);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return AssignmentDialogComponent; });
@@ -1003,7 +1003,7 @@ var AssignmentDialogComponent = (function () {
 
 /***/ },
 
-/***/ 390:
+/***/ 392:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1110,7 +1110,7 @@ var AssignmentFormComponent = (function () {
 
 /***/ },
 
-/***/ 391:
+/***/ 393:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1212,7 +1212,7 @@ var AssignmentComponent = (function () {
 
 /***/ },
 
-/***/ 392:
+/***/ 394:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1286,7 +1286,7 @@ var DialogComponent = (function () {
 
 /***/ },
 
-/***/ 393:
+/***/ 395:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1353,7 +1353,7 @@ var LoginComponent = (function () {
 
 /***/ },
 
-/***/ 394:
+/***/ 396:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1400,7 +1400,7 @@ var LogoutComponent = (function () {
 
 /***/ },
 
-/***/ 395:
+/***/ 397:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1471,15 +1471,15 @@ var ProjectsListComponent = (function () {
 
 /***/ },
 
-/***/ 396:
+/***/ 398:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_router__ = __webpack_require__(20);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__ngrx_store__ = __webpack_require__(12);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__submission__ = __webpack_require__(95);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__submission_actions__ = __webpack_require__(94);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__submission__ = __webpack_require__(96);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__submission_actions__ = __webpack_require__(95);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__submission_form_submission_form_component__ = __webpack_require__(254);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return SubmissionCreateComponent; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
@@ -1558,7 +1558,7 @@ var SubmissionCreateComponent = (function () {
 
 /***/ },
 
-/***/ 397:
+/***/ 399:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1627,14 +1627,14 @@ var SubmissionDialogComponent = (function () {
 
 /***/ },
 
-/***/ 398:
+/***/ 400:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_router__ = __webpack_require__(20);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__ngrx_store__ = __webpack_require__(12);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__submission_actions__ = __webpack_require__(94);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__submission_actions__ = __webpack_require__(95);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__submission_form_submission_form_component__ = __webpack_require__(254);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return SubmissionEditComponent; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
@@ -1728,17 +1728,17 @@ var SubmissionEditComponent = (function () {
 
 /***/ },
 
-/***/ 399:
+/***/ 401:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_router__ = __webpack_require__(20);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__ngrx_store__ = __webpack_require__(12);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__submission__ = __webpack_require__(95);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__submission__ = __webpack_require__(96);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__submission_service__ = __webpack_require__(169);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__submission_actions__ = __webpack_require__(94);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__dialog_dialog_component__ = __webpack_require__(392);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__submission_actions__ = __webpack_require__(95);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__dialog_dialog_component__ = __webpack_require__(394);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return SubmissionStatesComponent; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -1839,7 +1839,7 @@ var SubmissionStatesComponent = (function () {
 
 /***/ },
 
-/***/ 400:
+/***/ 402:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1924,7 +1924,7 @@ var SubmissionComponent = (function () {
 
 /***/ },
 
-/***/ 475:
+/***/ 477:
 /***/ function(module, exports) {
 
 function webpackEmptyContext(req) {
@@ -1933,12 +1933,12 @@ function webpackEmptyContext(req) {
 webpackEmptyContext.keys = function() { return []; };
 webpackEmptyContext.resolve = webpackEmptyContext;
 module.exports = webpackEmptyContext;
-webpackEmptyContext.id = 475;
+webpackEmptyContext.id = 477;
 
 
 /***/ },
 
-/***/ 476:
+/***/ 478:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2087,35 +2087,35 @@ var AppEffects = (function () {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_20_angular2_moment__ = __webpack_require__(625);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_20_angular2_moment___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_20_angular2_moment__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_21__app_component__ = __webpack_require__(250);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_22__assignment_assignment_component__ = __webpack_require__(391);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_22__assignment_assignment_component__ = __webpack_require__(393);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_23__assignment_assignment_list_assignment_list_component__ = __webpack_require__(599);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_24__dashboard_dashboard_component__ = __webpack_require__(605);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_25__user_user_component__ = __webpack_require__(621);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_26__critique_critique_component__ = __webpack_require__(604);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_27__critique_critique_form_critique_form_component__ = __webpack_require__(602);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_28__login_login_component__ = __webpack_require__(393);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_29__logout_logout_component__ = __webpack_require__(394);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_28__login_login_component__ = __webpack_require__(395);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_29__logout_logout_component__ = __webpack_require__(396);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_30__critique_critique_list_critique_list_component__ = __webpack_require__(603);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_31__wysiwygjs_wysiwygjs_component__ = __webpack_require__(622);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_32__assignment_assignment_form_assignment_form_component__ = __webpack_require__(390);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_32__assignment_assignment_form_assignment_form_component__ = __webpack_require__(392);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_33__projects_projects_component__ = __webpack_require__(613);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_34__projects_projects_list_projects_list_component__ = __webpack_require__(395);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_34__projects_projects_list_projects_list_component__ = __webpack_require__(397);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_35__components_dropdown_dropdown_component__ = __webpack_require__(600);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_36__projects_project_card_project_card_component__ = __webpack_require__(609);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_37__projects_project_item_project_item_component__ = __webpack_require__(610);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_38__editable_field_editable_field_component__ = __webpack_require__(607);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_39__datetime_input_datetime_input_component__ = __webpack_require__(606);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_40__assignment_assignment_dialog_assignment_dialog_component__ = __webpack_require__(389);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_41__submission_submission_create_submission_create_component__ = __webpack_require__(396);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_40__assignment_assignment_dialog_assignment_dialog_component__ = __webpack_require__(391);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_41__submission_submission_create_submission_create_component__ = __webpack_require__(398);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_42__submission_submission_form_submission_form_component__ = __webpack_require__(254);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_43__submission_submission_list_submission_list_component__ = __webpack_require__(618);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_44__submission_submission_detail_submission_detail_component__ = __webpack_require__(616);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_45__submission_submission_component__ = __webpack_require__(400);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_46__submission_submission_edit_submission_edit_component__ = __webpack_require__(398);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_47__submission_submission_states_submission_states_component__ = __webpack_require__(399);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_48__dialog_dialog_component__ = __webpack_require__(392);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_45__submission_submission_component__ = __webpack_require__(402);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_46__submission_submission_edit_submission_edit_component__ = __webpack_require__(400);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_47__submission_submission_states_submission_states_component__ = __webpack_require__(401);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_48__dialog_dialog_component__ = __webpack_require__(394);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_49__submission_submission_edit_states_submission_edit_states_component__ = __webpack_require__(617);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_50__submission_submission_dialog_submission_dialog_component__ = __webpack_require__(397);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_50__submission_submission_dialog_submission_dialog_component__ = __webpack_require__(399);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return AppModule; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -2255,16 +2255,16 @@ var AppModule = (function () {
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_router__ = __webpack_require__(20);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__app_component__ = __webpack_require__(250);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__assignment_assignment_component__ = __webpack_require__(391);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__login_login_component__ = __webpack_require__(393);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__logout_logout_component__ = __webpack_require__(394);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__projects_projects_list_projects_list_component__ = __webpack_require__(395);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__assignment_assignment_dialog_assignment_dialog_component__ = __webpack_require__(389);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__submission_submission_component__ = __webpack_require__(400);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__submission_submission_create_submission_create_component__ = __webpack_require__(396);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__submission_submission_edit_submission_edit_component__ = __webpack_require__(398);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__submission_submission_dialog_submission_dialog_component__ = __webpack_require__(397);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__submission_submission_states_submission_states_component__ = __webpack_require__(399);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__assignment_assignment_component__ = __webpack_require__(393);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__login_login_component__ = __webpack_require__(395);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__logout_logout_component__ = __webpack_require__(396);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__projects_projects_list_projects_list_component__ = __webpack_require__(397);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__assignment_assignment_dialog_assignment_dialog_component__ = __webpack_require__(391);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__submission_submission_component__ = __webpack_require__(402);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__submission_submission_create_submission_create_component__ = __webpack_require__(398);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__submission_submission_edit_submission_edit_component__ = __webpack_require__(400);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__submission_submission_dialog_submission_dialog_component__ = __webpack_require__(399);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__submission_submission_states_submission_states_component__ = __webpack_require__(401);
 /* unused harmony export appRoutingProviders */
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return routing; });
 
@@ -3380,7 +3380,7 @@ function reducer(state, action) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__submission__ = __webpack_require__(95);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__submission__ = __webpack_require__(96);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__elmsln_service__ = __webpack_require__(38);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return SubmissionDetailComponent; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
@@ -3428,7 +3428,7 @@ var SubmissionDetailComponent = (function () {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__submission__ = __webpack_require__(95);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__submission__ = __webpack_require__(96);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return SubmissionEditStatesComponent; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -3531,7 +3531,7 @@ var SubmissionListComponent = (function () {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_mergeMap___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_mergeMap__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_core__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__ngrx_effects__ = __webpack_require__(167);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__submission_actions__ = __webpack_require__(94);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__submission_actions__ = __webpack_require__(95);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__app_actions__ = __webpack_require__(79);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__submission_service__ = __webpack_require__(169);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return SubmissionEffects; });
@@ -3621,7 +3621,7 @@ var SubmissionEffects = (function () {
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__submission_actions__ = __webpack_require__(94);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__submission_actions__ = __webpack_require__(95);
 /* harmony export (immutable) */ exports["a"] = submissionReducer;
 
 var initialState = {
@@ -4190,7 +4190,7 @@ var environment = {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__ngrx_store__ = __webpack_require__(12);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__elmsln_service__ = __webpack_require__(38);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__app_settings__ = __webpack_require__(93);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__app_settings__ = __webpack_require__(94);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__assignment__ = __webpack_require__(251);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return AssignmentService; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
@@ -4874,7 +4874,7 @@ module.exports = "<textarea>{{ content }}</textarea>"
 
 /***/ },
 
-/***/ 93:
+/***/ 94:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4900,7 +4900,7 @@ var AppSettings = (function () {
 
 /***/ },
 
-/***/ 94:
+/***/ 95:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4983,7 +4983,7 @@ function loadPermissionsSuccess(permissions) {
 
 /***/ },
 
-/***/ 95:
+/***/ 96:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
