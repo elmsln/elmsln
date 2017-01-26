@@ -672,10 +672,13 @@ var SubmissionFormComponent = (function () {
         this.onSubmissionCancel = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["EventEmitter"]();
         this.onFormChanges = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["EventEmitter"]();
         this.formValueChanges = 0;
+        this.saveAttempted = false;
     }
     SubmissionFormComponent.prototype.ngOnInit = function () {
         var _this = this;
-        this.form = this.formBuilder.group(this.submission);
+        var form = this.submission;
+        this.form = this.formBuilder.group(form);
+        this.form.setControl('title', new __WEBPACK_IMPORTED_MODULE_1__angular_forms__["b" /* FormControl */](this.submission.title, __WEBPACK_IMPORTED_MODULE_1__angular_forms__["c" /* Validators */].required));
         this.form.valueChanges
             .subscribe(function () {
             /**
@@ -689,7 +692,6 @@ var SubmissionFormComponent = (function () {
         });
     };
     SubmissionFormComponent.prototype.ngOnChanges = function () {
-        this.form = this.formBuilder.group(this.submission);
     };
     SubmissionFormComponent.prototype.onWysiwygInit = function () {
         this.form.markAsPristine();
@@ -707,11 +709,19 @@ var SubmissionFormComponent = (function () {
         });
     };
     SubmissionFormComponent.prototype.submit = function () {
-        var model = this.form.value;
-        this.onSubmissionSave.emit(model);
+        if (this.form.status === 'VALID') {
+            this.onSubmissionSave.emit(this.form.value);
+        }
+        else {
+            this.saveAttempted = true;
+            if (this.form.get('title').status) {
+                alert('The title field is required.');
+            }
+        }
     };
     SubmissionFormComponent.prototype.cancel = function () {
         this.onSubmissionCancel.emit();
+        this.form.reset();
     };
     __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Input"])(), 
@@ -1036,17 +1046,16 @@ var AssignmentFormComponent = (function () {
         this.assignmentSave = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["EventEmitter"]();
     }
     AssignmentFormComponent.prototype.ngOnInit = function () {
-        var form = this.assignment;
-        // Add validation to the title
-        form.title = ['', __WEBPACK_IMPORTED_MODULE_1__angular_forms__["b" /* Validators */].required];
-        // create the form from the assignment object that we recieved
-        this.form = this.formBuilder.group(form);
         // get a list of assignment 'types' that we have available so we can display
         // those in the select field
         this.assignmentOptions = this.assignmentService.getAssignmentOptions();
     };
     AssignmentFormComponent.prototype.ngOnChanges = function () {
-        this.form = this.formBuilder.group(this.assignment);
+        var form = this.assignment;
+        // Add validation to the title
+        // create the form from the assignment object that we recieved
+        this.form = this.formBuilder.group(form);
+        this.form.setControl('title', new __WEBPACK_IMPORTED_MODULE_1__angular_forms__["b" /* FormControl */](this.assignment.title, __WEBPACK_IMPORTED_MODULE_1__angular_forms__["c" /* Validators */].required));
         /**
          * @todo: first attempt at autoSaveForm
          */
@@ -2218,8 +2227,8 @@ var AppModule = (function () {
                 __WEBPACK_IMPORTED_MODULE_0__angular_platform_browser__["b" /* BrowserModule */],
                 __WEBPACK_IMPORTED_MODULE_3__angular_http__["c" /* HttpModule */],
                 __WEBPACK_IMPORTED_MODULE_4__app_routing__["a" /* routing */],
-                __WEBPACK_IMPORTED_MODULE_2__angular_forms__["d" /* FormsModule */],
-                __WEBPACK_IMPORTED_MODULE_2__angular_forms__["e" /* ReactiveFormsModule */],
+                __WEBPACK_IMPORTED_MODULE_2__angular_forms__["e" /* FormsModule */],
+                __WEBPACK_IMPORTED_MODULE_2__angular_forms__["f" /* ReactiveFormsModule */],
                 __WEBPACK_IMPORTED_MODULE_20_angular2_moment__["MomentModule"],
                 __WEBPACK_IMPORTED_MODULE_5__ngrx_store__["g" /* StoreModule */].provideStore({
                     assignments: __WEBPACK_IMPORTED_MODULE_8__reducers_assignments__["a" /* reducer */],
@@ -2817,7 +2826,7 @@ var DatetimeInputComponent = (function () {
             styles: [__webpack_require__(793)],
             providers: [
                 {
-                    provide: __WEBPACK_IMPORTED_MODULE_1__angular_forms__["c" /* NG_VALUE_ACCESSOR */],
+                    provide: __WEBPACK_IMPORTED_MODULE_1__angular_forms__["d" /* NG_VALUE_ACCESSOR */],
                     useExisting: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["forwardRef"])(function () { return DatetimeInputComponent; }),
                     multi: true
                 }]
@@ -4096,7 +4105,7 @@ var WysiwygjsComponent = (function () {
             styles: [__webpack_require__(811)],
             providers: [
                 {
-                    provide: __WEBPACK_IMPORTED_MODULE_1__angular_forms__["c" /* NG_VALUE_ACCESSOR */],
+                    provide: __WEBPACK_IMPORTED_MODULE_1__angular_forms__["d" /* NG_VALUE_ACCESSOR */],
                     useExisting: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["forwardRef"])(function () { return WysiwygjsComponent; }),
                     multi: true
                 }
@@ -4835,7 +4844,7 @@ module.exports = "<div class=\"submission-edit\">\n  <app-submission-form *ngIf=
 /***/ 838:
 /***/ function(module, exports) {
 
-module.exports = "<form *ngIf=\"form\" [formGroup]=\"form\" class=\"submission-form\">\n  <input formControlName=\"title\" placeholder=\"title\">\n  <wysiwygjs formControlName=\"body\" (onWysiwygInit)=\"onWysiwygInit()\" (onImageAdded)=\"onWysiwygImageAdded($event)\"></wysiwygjs>\n\n  <div class=\"actions\">\n    <button type=\"submit\" class=\"btn\" (click)=\"submit()\">Save</button>\n    <button type=\"button\" class=\"btn\" (click)=\"cancel()\">Cancel</button>\n  </div>\n</form>\n"
+module.exports = "<form *ngIf=\"form\" [formGroup]=\"form\" class=\"submission-form\">\n  <input formControlName=\"title\" placeholder=\"title\" [ngClass]=\"{'invalid': form.controls['title'].status === 'INVALID' && saveAttempted}\">\n  <wysiwygjs formControlName=\"body\" (onWysiwygInit)=\"onWysiwygInit()\" (onImageAdded)=\"onWysiwygImageAdded($event)\"></wysiwygjs>\n\n  <div class=\"actions\">\n    <button type=\"submit\" class=\"btn\" (click)=\"submit()\">Save</button>\n    <button type=\"button\" class=\"btn\" (click)=\"cancel()\">Cancel</button>\n  </div>\n</form>\n"
 
 /***/ },
 

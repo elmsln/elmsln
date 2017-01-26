@@ -1,5 +1,5 @@
 <form *ngIf="form" [formGroup]="form" class="submission-form">
-  <input formControlName="title" placeholder="title">
+  <input formControlName="title" placeholder="title" [ngClass]="{'invalid': form.controls['title'].status === 'INVALID' && saveAttempted}">
   <wysiwygjs formControlName="body" (onWysiwygInit)="onWysiwygInit()" (onImageAdded)="onWysiwygImageAdded($event)"></wysiwygjs>
 
   <div class="actions">
