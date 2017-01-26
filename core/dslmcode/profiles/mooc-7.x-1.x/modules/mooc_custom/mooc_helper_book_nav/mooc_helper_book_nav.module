@@ -83,77 +83,142 @@ function mooc_helper_book_nav_block_info() {
  */
 function mooc_helper_book_nav_block_view($delta = '') {
   $block = array();
-  switch ($delta) {
-    // build out the top navigational element with all the drop downs
-    case 'book_sibling_nav':
-      $block['subject'] = '';
-      $block['content'] = '<a href="#block-mooc-helper-mooc-helper-toc-nav-modal" class="mooc-helper-toc elmsln-outline-button elmsln-modal-trigger black-text waves-effect cis-lmsless-waves" aria-controls="block-mooc-helper-mooc-helper-toc-nav-modal" aria-expanded="false" title="Table of Contents" data-jwerty-key="o" data-voicecommand="open outline">
-          <i class="material-icons">explore</i>' . t('Outline') .'</a>';
-      $next_title = t('>');
-      $prev_title = t('<');
-      // load the node in scope globally at the moment and ensure we have one
-      $globalnode = menu_get_object();
-      // ensure we are in the active outline before bothering to render anything
-      if ($globalnode && !empty($globalnode->book) && $globalnode->book['plid'] != 0) {
-        $breadcrumbs = array();
-        $count = 0;
-        $nav_count = 0;
-        // loop through and generate a per level listing of all items
-        $children = array();
-        $parents = array();
-        // get the parent of the current page
-        $tmp = $globalnode->book;
-        // lob off the authenticated role and mash user roles into string
-        $tmproles = $GLOBALS['user']->roles;
-        $rolecid = '';
-        unset($tmproles[2]);
-        if (!empty($tmproles)) {
-          $rolecid = ':' . implode('-', array_keys($tmproles));
-        }
-        // edge case; user 1 doesn't have admin role
-        // just to be safe let's account for this
-        elseif ($GLOBALS['user']->uid == 1) {
-          $rolecid = ':30037204';
-        }
-        if ($tmp['has_children'] && $globalnode->type != 'mooc_container') {
-          // form cache bin id as these have to be per mlid and then per role combo
-          // to make sure we account for publish / unpublish, hidden nodes, etc
-          $cid = 'nav:' . $globalnode->book['bid'] . ':' . $globalnode->book['mlid'] . ':top-level' . $rolecid;
-          // if this has children, load 1 so we have that data for below
-          $data = &drupal_static(__FUNCTION__ . $cid);
-          // check static cache
-          if ($data) {
-            $tmp2 = $data['tmp2'];
-            $parents = $data['parents'];
-            $children = $data['children'];
+  // check if user has access to content. if not, do not insert outline nav
+  if (user_access('access content')) {
+      switch ($delta) {
+      // build out the top navigational element with all the drop downs
+      case 'book_sibling_nav':
+        $block['subject'] = '';
+        $block['content'] = '<a href="#block-mooc-helper-mooc-helper-toc-nav-modal" class="mooc-helper-toc elmsln-outline-button elmsln-modal-trigger black-text waves-effect cis-lmsless-waves" aria-controls="block-mooc-helper-mooc-helper-toc-nav-modal" aria-expanded="false" title="Table of Contents" data-jwerty-key="o" data-voicecommand="open outline">
+            <i class="material-icons">explore</i>' . t('Outline') .'</a>';
+        $next_title = t('>');
+        $prev_title = t('<');
+        // load the node in scope globally at the moment and ensure we have one
+        $globalnode = menu_get_object();
+        // ensure we are in the active outline before bothering to render anything
+        if ($globalnode && !empty($globalnode->book) && $globalnode->book['plid'] != 0) {
+          $breadcrumbs = array();
+          $count = 0;
+          $nav_count = 0;
+          // loop through and generate a per level listing of all items
+          $children = array();
+          $parents = array();
+          // get the parent of the current page
+          $tmp = $globalnode->book;
+          // lob off the authenticated role and mash user roles into string
+          $tmproles = $GLOBALS['user']->roles;
+          $rolecid = '';
+          unset($tmproles[2]);
+          if (!empty($tmproles)) {
+            $rolecid = ':' . implode('-', array_keys($tmproles));
           }
-          // @ignore druplart_conditional_assignment
-          elseif (!$data && $cache = cache_get($cid, 'cache_mooc_helper_book_nav')) {
-            $data = $cache->data;
-            $tmp2 = $data['tmp2'];
-            $parents = $data['parents'];
-            $children = $data['children'];
+          // edge case; user 1 doesn't have admin role
+          // just to be safe let's account for this
+          elseif ($GLOBALS['user']->uid == 1) {
+            $rolecid = ':30037204';
           }
-          else {
-            $tmp2 = array();
-            // load all items that share the same parent as the current item
-            $results = db_select('menu_links', 'ml')
-              ->fields('ml')
-              ->condition('plid', $tmp['mlid'], '=')
-              ->orderBy('weight', 'ASC')
-              ->execute()
-              ->fetchAll();
-            // associate the items that are siblings of the same parent
-            $nids = array();
-            $tmpary = array();
-            foreach ($results as $item) {
-              $tmpary[$item->mlid] = (array)$item;
-              $nids[str_replace('node/', '', $item->link_path)] = $item->mlid;
+          if ($tmp['has_children'] && $globalnode->type != 'mooc_container') {
+            // form cache bin id as these have to be per mlid and then per role combo
+            // to make sure we account for publish / unpublish, hidden nodes, etc
+            $cid = 'nav:' . $globalnode->book['bid'] . ':' . $globalnode->book['mlid'] . ':top-level' . $rolecid;
+            // if this has children, load 1 so we have that data for below
+            $data = &drupal_static(__FUNCTION__ . $cid);
+            // check static cache
+            if ($data) {
+              $tmp2 = $data['tmp2'];
+              $parents = $data['parents'];
+              $children = $data['children'];
             }
-            // ensure we have nids, there is a possibility of corruption in
-            // the menu_links table where an item that once had children no longer does
-            // but that isn't reflected in the items as updated. It's rare but possible
-            if (!empty($nids)) {
+            // @ignore druplart_conditional_assignment
+            elseif (!$data && $cache = cache_get($cid, 'cache_mooc_helper_book_nav')) {
+              $data = $cache->data;
+              $tmp2 = $data['tmp2'];
+              $parents = $data['parents'];
+              $children = $data['children'];
+            }
+            else {
+              $tmp2 = array();
+              // load all items that share the same parent as the current item
+              $results = db_select('menu_links', 'ml')
+                ->fields('ml')
+                ->condition('plid', $tmp['mlid'], '=')
+                ->orderBy('weight', 'ASC')
+                ->execute()
+                ->fetchAll();
+              // associate the items that are siblings of the same parent
+              $nids = array();
+              $tmpary = array();
+              foreach ($results as $item) {
+                $tmpary[$item->mlid] = (array)$item;
+                $nids[str_replace('node/', '', $item->link_path)] = $item->mlid;
+              }
+              // ensure we have nids, there is a possibility of corruption in
+              // the menu_links table where an item that once had children no longer does
+              // but that isn't reflected in the items as updated. It's rare but possible
+              if (!empty($nids)) {
+                // node access check
+                $select = db_select('node', 'n');
+                $select->addField('n', 'nid');
+                $select->condition('n.status', 1);
+                $select->condition('n.nid', array_keys($nids), 'IN');
+                $select->addTag('node_access');
+                $nidslist = $select->execute()->fetchCol();
+                // compare against what we are ALLOWED to show so order is maintained
+                foreach ($nids as $nid => $mid) {
+                  // this suggests an item was removed bc of access rights
+                  // the pulled list doesn't have an item from the original
+                  if (!in_array($nid, $nidslist)) {
+                    unset($tmpary[$nids[$nid]]);
+                  }
+                }
+                $children[-1] = $tmpary;
+                foreach ($nidslist as $nid) {
+                  $children[-1][$nids[$nid]] = $tmpary[$nids[$nid]];
+                }
+                $tmp2 = $tmp;
+                $bid = explode('-', $tmp2['menu_name']);
+                $tmp2['bid'] = $bid[2];
+                $tmp2['mlid'] = -1;
+                $tmp2['link_path'] = '';
+                $tmp2['link_title'] = t('...');
+                $tmp2['_class'] = 'book-parent-tree';
+                $parents[-1] = $tmp2;
+              }
+              // store these so we can get here faster in the future
+              $data = array(
+                'tmp2' => $tmp2,
+                'parents' => $parents,
+                'children' => $children,
+              );
+              cache_set($cid, $data, 'cache_mooc_helper_book_nav');
+            }
+          }
+          // keep tapping parents up the tree til we hit the end
+          while ($tmp['plid'] != 0) {
+            // check cached result at each level
+            $cid = 'nav:' . $tmp['bid'] . ':' . $tmp['mlid'] . $rolecid;
+            $cache = cache_get($cid, 'cache_mooc_helper_book_nav');
+            if ($cache) {
+              $data = $cache->data;
+              $nids = $data['nids'];
+              $nidslist = $data['nidslist'];
+              $tmpary = $data['tmpary'];
+            }
+            else {
+              // load all items that share the same parent as the current item
+              $results = db_select('menu_links', 'ml')
+                ->fields('ml')
+                ->condition('plid', $tmp['plid'], '=')
+                ->orderBy('weight', 'ASC')
+                ->execute()
+                ->fetchAll();
+              // associate the items that are siblings of the same parent
+              $nids = array();
+              $tmpary = array();
+              foreach ($results as $item) {
+                $tmpary[$item->mlid] = (array)$item;
+                $nids[str_replace('node/', '', $item->link_path)] = $item->mlid;
+              }
               // node access check
               $select = db_select('node', 'n');
               $select->addField('n', 'nid');
@@ -169,174 +234,112 @@ function mooc_helper_book_nav_block_view($delta = '') {
                   unset($tmpary[$nids[$nid]]);
                 }
               }
-              $children[-1] = $tmpary;
-              foreach ($nidslist as $nid) {
-                $children[-1][$nids[$nid]] = $tmpary[$nids[$nid]];
-              }
-              $tmp2 = $tmp;
-              $bid = explode('-', $tmp2['menu_name']);
-              $tmp2['bid'] = $bid[2];
-              $tmp2['mlid'] = -1;
-              $tmp2['link_path'] = '';
-              $tmp2['link_title'] = t('...');
-              $tmp2['_class'] = 'book-parent-tree';
-              $parents[-1] = $tmp2;
+              $data = array(
+                'nids' => $nids,
+                'nidslist' => $nidslist,
+                'tmpary' => $tmpary,
+              );
+              cache_set($cid, $data, 'cache_mooc_helper_book_nav');
             }
-            // store these so we can get here faster in the future
-            $data = array(
-              'tmp2' => $tmp2,
-              'parents' => $parents,
-              'children' => $children,
-            );
-            cache_set($cid, $data, 'cache_mooc_helper_book_nav');
-          }
-        }
-        // keep tapping parents up the tree til we hit the end
-        while ($tmp['plid'] != 0) {
-          // check cached result at each level
-          $cid = 'nav:' . $tmp['bid'] . ':' . $tmp['mlid'] . $rolecid;
-          $cache = cache_get($cid, 'cache_mooc_helper_book_nav');
-          if ($cache) {
-            $data = $cache->data;
-            $nids = $data['nids'];
-            $nidslist = $data['nidslist'];
-            $tmpary = $data['tmpary'];
-          }
-          else {
-            // load all items that share the same parent as the current item
-            $results = db_select('menu_links', 'ml')
-              ->fields('ml')
-              ->condition('plid', $tmp['plid'], '=')
-              ->orderBy('weight', 'ASC')
-              ->execute()
-              ->fetchAll();
-            // associate the items that are siblings of the same parent
-            $nids = array();
-            $tmpary = array();
-            foreach ($results as $item) {
-              $tmpary[$item->mlid] = (array)$item;
-              $nids[str_replace('node/', '', $item->link_path)] = $item->mlid;
+            $children[$tmp['plid']]  = $tmpary;
+            foreach ($nidslist as $nid) {
+              $children[$tmp['plid']][$nids[$nid]] = $tmpary[$nids[$nid]];
             }
-            // node access check
-            $select = db_select('node', 'n');
-            $select->addField('n', 'nid');
-            $select->condition('n.status', 1);
-            $select->condition('n.nid', array_keys($nids), 'IN');
-            $select->addTag('node_access');
-            $nidslist = $select->execute()->fetchCol();
-            // compare against what we are ALLOWED to show so order is maintained
-            foreach ($nids as $nid => $mid) {
-              // this suggests an item was removed bc of access rights
-              // the pulled list doesn't have an item from the original
-              if (!in_array($nid, $nidslist)) {
-                unset($tmpary[$nids[$nid]]);
-              }
+            // load the parent of the current item
+            $cache = _book_cache_get_associations($tmp);
+            // set next / prev relative to the globalnode
+            if (!isset($next_url)) {
+              $next_url = url($cache['next']['link_path']);
+              $prev_url = url($cache['prev']['link_path']);
             }
-            $data = array(
-              'nids' => $nids,
-              'nidslist' => $nidslist,
-              'tmpary' => $tmpary,
-            );
-            cache_set($cid, $data, 'cache_mooc_helper_book_nav');
+            $parents[$tmp['plid']] = $tmp;
+            $tmp = $cache['parent'];
           }
-          $children[$tmp['plid']]  = $tmpary;
-          foreach ($nidslist as $nid) {
-            $children[$tmp['plid']][$nids[$nid]] = $tmpary[$nids[$nid]];
-          }
-          // load the parent of the current item
-          $cache = _book_cache_get_associations($tmp);
-          // set next / prev relative to the globalnode
-          if (!isset($next_url)) {
-            $next_url = url($cache['next']['link_path']);
-            $prev_url = url($cache['prev']['link_path']);
-          }
-          $parents[$tmp['plid']] = $tmp;
-          $tmp = $cache['parent'];
-        }
-        // ensure we have results to style
-        if (!empty($children)) {
-          $firstlevel = TRUE;
-          $icons = TRUE;
-          // loop through the menu items associated to each menu parent
-          foreach($children as $mlid => $menu_items) {
-            $items = array();
-            // loop through each menu item and build the menu item out
-            foreach ($menu_items as $menu_item) {
-              // default is a page icon
-              $icon = NULL;
-              // allow for modification of the book item icon to match mooc / FA
-              $ml = $menu_item;
-              // support for token replacement
-              if (module_exists('token')) {
-                $ml['link_path'] = token_replace($ml['link_path']);
-              }
-              // only perform icon look up for lowest level
-              if ($firstlevel && $ml['has_children']) {
-                $icons = FALSE;
-              }
-              // see if current item is the parent item, set to same compiled result if it is
-              if (isset($parents[$menu_item['plid']]) && $parents[$menu_item['plid']]['mlid'] == $menu_item['mlid']) {
-                $parents[$menu_item['plid']] = $ml;
-                $parents[$menu_item['plid']]['_class'] = 'book-parent-tree';
-                // see if the active global is this parent item
-                if ($menu_item['mlid'] == $globalnode->book['mlid']) {
-                  $parents[$menu_item['plid']]['_class'] .= ' active-trail';
+          // ensure we have results to style
+          if (!empty($children)) {
+            $firstlevel = TRUE;
+            $icons = TRUE;
+            // loop through the menu items associated to each menu parent
+            foreach($children as $mlid => $menu_items) {
+              $items = array();
+              // loop through each menu item and build the menu item out
+              foreach ($menu_items as $menu_item) {
+                // default is a page icon
+                $icon = NULL;
+                // allow for modification of the book item icon to match mooc / FA
+                $ml = $menu_item;
+                // support for token replacement
+                if (module_exists('token')) {
+                  $ml['link_path'] = token_replace($ml['link_path']);
                 }
-              }
-              // send compiled menu link off to theme engine for rendering
-              $items[] = $ml;
-            }
-            // need to dump icons because something had children at this level
-            if ($firstlevel && $icons) {
-              foreach ($items as &$item) {
-                $icon = 'page';
-                // support for foundation access icon
-                if (isset($item['options'])) {
-                  $tmp = unserialize($item['options']);
-                  if (isset($tmp['fa_icon'])) {
-                    $icon = $tmp['fa_icon'];
-                  }
+                // only perform icon look up for lowest level
+                if ($firstlevel && $ml['has_children']) {
+                  $icons = FALSE;
                 }
-                $count++;
-                $item['_count'] = $count;
-                $item['_icon'] = $icon;
-                if (isset($parents[$item['plid']]) && $parents[$item['plid']]['mlid'] == $item['mlid']) {
-                  $parents[$item['plid']] = $item;
-                  $parents[$item['plid']]['_class'] = 'book-parent-tree';
+                // see if current item is the parent item, set to same compiled result if it is
+                if (isset($parents[$menu_item['plid']]) && $parents[$menu_item['plid']]['mlid'] == $menu_item['mlid']) {
+                  $parents[$menu_item['plid']] = $ml;
+                  $parents[$menu_item['plid']]['_class'] = 'book-parent-tree';
                   // see if the active global is this parent item
-                  if ($item['mlid'] == $globalnode->book['mlid']) {
-                    $parents[$item['plid']]['_class'] .= ' active-trail';
+                  if ($menu_item['mlid'] == $globalnode->book['mlid']) {
+                    $parents[$menu_item['plid']]['_class'] .= ' active-trail';
+                  }
+                }
+                // send compiled menu link off to theme engine for rendering
+                $items[] = $ml;
+              }
+              // need to dump icons because something had children at this level
+              if ($firstlevel && $icons) {
+                foreach ($items as &$item) {
+                  $icon = 'page';
+                  // support for foundation access icon
+                  if (isset($item['options'])) {
+                    $tmp = unserialize($item['options']);
+                    if (isset($tmp['fa_icon'])) {
+                      $icon = $tmp['fa_icon'];
+                    }
+                  }
+                  $count++;
+                  $item['_count'] = $count;
+                  $item['_icon'] = $icon;
+                  if (isset($parents[$item['plid']]) && $parents[$item['plid']]['mlid'] == $item['mlid']) {
+                    $parents[$item['plid']] = $item;
+                    $parents[$item['plid']]['_class'] = 'book-parent-tree';
+                    // see if the active global is this parent item
+                    if ($item['mlid'] == $globalnode->book['mlid']) {
+                      $parents[$item['plid']]['_class'] .= ' active-trail';
+                    }
                   }
                 }
               }
+              $nav_count++;
+              $firstlevel = FALSE;
+              $breadcrumbs[] = theme('book_sibling_nav', array('parent' => $parents[$mlid] ,'items' => $items, 'count' => $nav_count));
             }
-            $nav_count++;
-            $firstlevel = FALSE;
-            $breadcrumbs[] = theme('book_sibling_nav', array('parent' => $parents[$mlid] ,'items' => $items, 'count' => $nav_count));
-          }
-          $breadcrumbs = array_reverse($breadcrumbs);
-          // support for mooc_containers
-          if ($globalnode->type == 'mooc_container' && isset($globalnode->field_mooc_container_type['und'][0]['value'])) {
-            if ($globalnode->field_mooc_container_type['und'][0]['value'] == 'index') {
-              $next_title = '';
-              $next_url = '';
-              $prev_title = '';
-              $prev_url = '';
+            $breadcrumbs = array_reverse($breadcrumbs);
+            // support for mooc_containers
+            if ($globalnode->type == 'mooc_container' && isset($globalnode->field_mooc_container_type['und'][0]['value'])) {
+              if ($globalnode->field_mooc_container_type['und'][0]['value'] == 'index') {
+                $next_title = '';
+                $next_url = '';
+                $prev_title = '';
+                $prev_url = '';
+              }
             }
+            $vars = array(
+              'breadcrumbs' => $breadcrumbs,
+              'next_url' => $next_url,
+              'next_title' => $next_title,
+              'prev_url' => $prev_url,
+              'prev_title' => $prev_title,
+              'count' => $nav_count,
+            );
+            // output contents by passing through the wrapper theme function
+            $block['content'] = theme('book_sibling_nav_wrapper', $vars);
           }
-          $vars = array(
-            'breadcrumbs' => $breadcrumbs,
-            'next_url' => $next_url,
-            'next_title' => $next_title,
-            'prev_url' => $prev_url,
-            'prev_title' => $prev_title,
-            'count' => $nav_count,
-          );
-          // output contents by passing through the wrapper theme function
-          $block['content'] = theme('book_sibling_nav_wrapper', $vars);
         }
-      }
-    break;
+      break;
+    }
   }
   return $block;
 }
