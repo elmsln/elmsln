@@ -226,3 +226,10 @@ function elmsmedia_update_7017(&$sandbox) {
 function elmsmedia_update_7018(&$sandbox) {
   features_revert_module('elmsmedia_feature');
 }
+
+/**
+ * Section level role permissions established
+ */
+function elmsmedia_update_7019(&$sandbox) {
+  features_revert_module('elmsmedia_section_perms');
+}
