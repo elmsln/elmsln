@@ -42,5 +42,3 @@ features[og_features_permission][] = node:section:update own figurelabel content
 features[og_features_permission][] = node:section:update own svg content
 features[og_features_permission][] = node:section:update own video content
 features[user_permission][] = administer group
-features_exclude[og_features_role][node:section:Faculty] = node:section:Faculty
-features_exclude[og_features_role][node:section:Lead Faculty] = node:section:Lead Faculty
