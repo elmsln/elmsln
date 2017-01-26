@@ -11,3 +11,8 @@
   margin-top: .35em;
   margin-right: .3em;
 }
+
+.card-image {
+  max-height: 15em;
+  overflow: hidden;
+}

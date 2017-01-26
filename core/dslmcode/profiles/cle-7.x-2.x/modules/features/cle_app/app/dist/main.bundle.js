@@ -4639,7 +4639,7 @@ module.exports = ":host >>> .wysiwyg-editor {\n  min-height: 10em;\n}\n\n.action
 /***/ 808:
 /***/ function(module, exports) {
 
-module.exports = ".card {\n  cursor: pointer;\n}\n\n.card-content .chip {\n  font-size: 10px;\n}\n\n.card-action .material-icons {\n  font-size: 1.4em;\n  margin-top: .35em;\n  margin-right: .3em;\n}"
+module.exports = ".card {\n  cursor: pointer;\n}\n\n.card-content .chip {\n  font-size: 10px;\n}\n\n.card-action .material-icons {\n  font-size: 1.4em;\n  margin-top: .35em;\n  margin-right: .3em;\n}\n\n.card-image {\n  max-height: 15em;\n  overflow: hidden;\n}"
 
 /***/ },
 
