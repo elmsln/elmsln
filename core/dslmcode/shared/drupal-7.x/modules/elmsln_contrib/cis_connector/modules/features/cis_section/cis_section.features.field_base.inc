@@ -10,7 +10,7 @@
 function cis_section_field_default_field_bases() {
   $field_bases = array();
 
-  // Exported field_base: 'field_cis_active'
+  // Exported field_base: 'field_cis_active'.
   $field_bases['field_cis_active'] = array(
     'active' => 1,
     'cardinality' => 1,
@@ -38,7 +38,7 @@ function cis_section_field_default_field_bases() {
     'type' => 'list_boolean',
   );
 
-  // Exported field_base: 'field_section_id'
+  // Exported field_base: 'field_section_id'.
   $field_bases['field_section_id'] = array(
     'active' => 1,
     'cardinality' => 1,
@@ -62,7 +62,7 @@ function cis_section_field_default_field_bases() {
     'type' => 'text',
   );
 
-  // Exported field_base: 'group_access'
+  // Exported field_base: 'group_access'.
   $field_bases['group_access'] = array(
     'active' => 1,
     'cardinality' => 1,
@@ -91,7 +91,7 @@ function cis_section_field_default_field_bases() {
     'type' => 'list_boolean',
   );
 
-  // Exported field_base: 'group_group'
+  // Exported field_base: 'group_group'.
   $field_bases['group_group'] = array(
     'active' => 1,
     'cardinality' => 1,
@@ -119,7 +119,7 @@ function cis_section_field_default_field_bases() {
     'type' => 'list_boolean',
   );
 
-  // Exported field_base: 'og_group_ref'
+  // Exported field_base: 'og_group_ref'.
   $field_bases['og_group_ref'] = array(
     'active' => 1,
     'cardinality' => -1,
@@ -134,6 +134,7 @@ function cis_section_field_default_field_bases() {
     'locked' => 0,
     'module' => 'entityreference',
     'settings' => array(
+      'behaviors' => array(),
       'cis_connector_access' => FALSE,
       'cis_connector_disable' => FALSE,
       'handler' => 'og',
@@ -161,7 +162,7 @@ function cis_section_field_default_field_bases() {
     'type' => 'entityreference',
   );
 
-  // Exported field_base: 'og_user_node'
+  // Exported field_base: 'og_user_node'.
   $field_bases['og_user_node'] = array(
     'active' => 1,
     'cardinality' => -1,

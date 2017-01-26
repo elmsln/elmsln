@@ -6,6 +6,7 @@
   "scripts": {
     "ng": "./node_modules/.bin/ng",
     "start": "./node_modules/.bin/ng serve",
+    "build": "./node_modules/.bin/ng build --dev --watch",
     "sync-pull": "vagrant scp :/home/vagrant/elmsln/core/dslmcode/profiles/cle-7.x-2.x/modules/features/cle_app/app/src ./",
     "sync-push": "vagrant scp ./src:/home/vagrant/elmsln/core/dslmcode/profiles/cle-7.x-2.x/modules/features/cle_app/app",
     "sync-dist": "vagrant scp ./dist :/home/vagrant/elmsln/core/dslmcode/profiles/cle-7.x-2.x/modules/features/cle_app/app",

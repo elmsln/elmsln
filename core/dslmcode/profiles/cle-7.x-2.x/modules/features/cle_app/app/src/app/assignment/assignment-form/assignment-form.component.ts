@@ -30,18 +30,18 @@ export class AssignmentFormComponent implements OnInit, OnChanges {
   ) { } 
 
   ngOnInit() {
-    let form:any = this.assignment;
-    // Add validation to the title
-    form.title = ['', Validators.required];
-    // create the form from the assignment object that we recieved
-    this.form = this.formBuilder.group(form);
     // get a list of assignment 'types' that we have available so we can display
     // those in the select field
     this.assignmentOptions = this.assignmentService.getAssignmentOptions();
   }
 
   ngOnChanges() {
-    this.form = this.formBuilder.group(this.assignment);
+    let form:any = this.assignment;
+    // Add validation to the title
+    // create the form from the assignment object that we recieved
+    this.form = this.formBuilder.group(form);
+    this.form.setControl('title', new FormControl(this.assignment.title, Validators.required))
+
     /**
      * @todo: first attempt at autoSaveForm
      */

@@ -6,8 +6,13 @@
   font-size: 10px;
 }
 
-.card-content .material-icons {
+.card-action .material-icons {
   font-size: 1.4em;
-  margin-top: .65em;
+  margin-top: .35em;
   margin-right: .3em;
+}
+
+.card-image {
+  max-height: 15em;
+  overflow: hidden;
 }

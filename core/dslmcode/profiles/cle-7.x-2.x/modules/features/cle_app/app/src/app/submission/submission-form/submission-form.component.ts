@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, OnChanges, Output, EventEmitter } from '@angular/core';
-import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
 import { Submission } from '../submission';
 
 @Component({
@@ -14,13 +14,16 @@ export class SubmissionFormComponent implements OnInit, OnChanges {
   @Output() onFormChanges: EventEmitter<any> = new EventEmitter();
   form:FormGroup;
   formValueChanges:number = 0;
+  saveAttempted:boolean = false;
 
   constructor(
     private formBuilder: FormBuilder
   ) { }
 
   ngOnInit() {
-    this.form = this.formBuilder.group(this.submission);
+    let form:any = this.submission;
+    this.form = this.formBuilder.group(form);
+    this.form.setControl('title', new FormControl(this.submission.title, Validators.required))
     this.form.valueChanges
       .subscribe(() => {
         /**
@@ -35,7 +38,6 @@ export class SubmissionFormComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges() {
-    this.form = this.formBuilder.group(this.submission);
   }
 
   onWysiwygInit() {
@@ -56,11 +58,19 @@ export class SubmissionFormComponent implements OnInit, OnChanges {
   }
 
   submit() {
-    const model = this.form.value;
-    this.onSubmissionSave.emit(model);
+    if (this.form.status === 'VALID') {
+      this.onSubmissionSave.emit(this.form.value);
+    }
+    else {
+      this.saveAttempted = true;
+      if (this.form.get('title').status) {
+        alert('The title field is required.');
+      }
+    }
   }
 
   cancel() {
     this.onSubmissionCancel.emit();
+    this.form.reset();
   }
 }

@@ -14,6 +14,7 @@ function cis_section_user_default_permissions() {
   $permissions['create section content'] = array(
     'name' => 'create section content',
     'roles' => array(
+      'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
       'administrator' => 'administrator',
     ),
     'module' => 'node',
@@ -23,6 +24,7 @@ function cis_section_user_default_permissions() {
   $permissions['edit any section content'] = array(
     'name' => 'edit any section content',
     'roles' => array(
+      'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
       'administrator' => 'administrator',
       'staff' => 'staff',
     ),
@@ -33,6 +35,7 @@ function cis_section_user_default_permissions() {
   $permissions['edit own section content'] = array(
     'name' => 'edit own section content',
     'roles' => array(
+      'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
       'administrator' => 'administrator',
       'instructor' => 'instructor',
       'staff' => 'staff',

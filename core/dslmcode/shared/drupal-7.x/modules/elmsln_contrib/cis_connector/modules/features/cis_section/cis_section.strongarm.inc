@@ -81,7 +81,25 @@ function cis_section_strongarm() {
     'extra_fields' => array(
       'form' => array(
         'title' => array(
-          'weight' => '-5',
+          'weight' => '0',
+        ),
+        'path' => array(
+          'weight' => '6',
+        ),
+        'hidden_nodes' => array(
+          'weight' => '7',
+        ),
+        'book' => array(
+          'weight' => '8',
+        ),
+        'options' => array(
+          'weight' => '9',
+        ),
+        'author' => array(
+          'weight' => '10',
+        ),
+        'revision_information' => array(
+          'weight' => '11',
         ),
       ),
       'display' => array(),

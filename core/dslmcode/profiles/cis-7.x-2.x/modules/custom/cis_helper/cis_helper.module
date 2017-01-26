@@ -681,6 +681,21 @@ function cis_helper_entity_presave($entity, $type) {
 function cis_helper_entity_insert($entity, $type) {
   // act on nodes
   if ($type == 'node' && $entity->type == 'course') {
+     // ship these requests across the network
+    _elmsln_api_network_request($requests, 1, TRUE);
+    // sync the service but do it non-blocking
+    $request = array(
+      'method' => 'POST',
+      'api' => '1',
+      'bucket' => 'cis',
+      'path' => '/',
+      'data' => array(
+        'elmsln_module' => 'cis_helper',
+        'elmsln_callback' => 'populate_course_network',
+        'course' => $course->field_machine_name[LANGUAGE_NONE][0]['value'],
+      ),
+    );
+    _elmsln_api_request($request, TRUE);
     // ensure that course name is changed globally if updated anywhere
     $properties = array(
       'title' => $entity->title,

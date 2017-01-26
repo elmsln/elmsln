@@ -376,13 +376,19 @@ function cis_section_node_insert($node) {
     $uids = _cis_connector_load_users_by_role($roles);
     // load all user entities in the list
     $users = entity_load('user', $uids);
+    // load group role by name
+    $ogrole = _cis_section_og_role_load_by_name('staff');
     foreach ($users as $member) {
       $values = array(
         'entity_type' => 'user',
         'entity' => $member,
       );
-      // add user to the group
-      og_group('node',$node->nid, $values);
+      // add user to the group as a member
+      og_group('node', $node->nid, $values);
+      // give them the special staff role if it exists
+      if ($ogrole) {
+        _cis_section_og_role_grant('node', $node->nid, $member->uid, $ogrole->rid);
+      }
     }
     // account for newly created sections being activated
     // so we can react immediately
@@ -515,6 +521,11 @@ function _cis_section_create_accounts($roster) {
       if (!isset($role->rid) || empty($role->rid) || $role->rid == 0) {
         $role->rid = 2;
         $role->name = 'authenticated user';
+        $ogrole = FALSE;
+      }
+      else {
+        // try and load the group role that matches
+        $ogrole = _cis_section_og_role_load_by_name($role_name);
       }
       // try and load the account first
       // @ignore druplart_conditional_assignment
@@ -576,6 +587,10 @@ function _cis_section_create_accounts($roster) {
         'entity' => $account,
       );
       og_group('node', $gid, $values);
+      // give them the special staff role if it exists
+      if ($ogrole) {
+        _cis_section_og_role_grant('node', $gid, $account->uid, $ogrole->rid);
+      }
       // rip membership names to uid array for comparison
       $actual[] = $account->uid;
     }
@@ -711,10 +726,8 @@ function cis_section_user_insert(&$edit, $account, $category) {
     $query->entityCondition('entity_type', 'node')
     // that are sections
     ->entityCondition('bundle', 'section')
-    // where it looks like master
-    // @todo we need to account for inserts of users again authority systems
-    // while still putting them in the roster correctly
-    ->fieldCondition('field_section_id', 'value', CIS_SECTION_MASTER)
+    // where it looks like master or master_ for authorities
+    ->fieldCondition('field_section_id', 'value', CIS_SECTION_MASTER, 'STARTS_WITH')
     // load all possible results in system, should only be 1 though
     ->addMetaData('account', user_load(1));
     // store result
@@ -723,13 +736,21 @@ function cis_section_user_insert(&$edit, $account, $category) {
     if (isset($result['node'])) {
       $nids = array_keys($result['node']);
       $sections = entity_load('node', $nids);
-      $section = array_pop($sections);
-      $values = array(
-        'entity_type' => 'user',
-        'entity' => $account,
-      );
-      // add user to the group
-      og_group('node', $section, $values);
+      // loop through sections adding user to master / roles in each
+      foreach ($sections as $section) {
+        $values = array(
+          'entity_type' => 'user',
+          'entity' => $account,
+        );
+        // add user to the group
+        og_group('node', $section->nid, $values);
+        // run through the account granting roles to this to match
+        foreach ($account->roles as $key => $name) {
+          if ($ogrole = _cis_section_og_role_load_by_name($name)) {
+            _cis_section_og_role_grant('node', $section->nid, $account->uid, $ogrole->rid);
+          }
+        }
+      }
     }
   }
 }
@@ -767,4 +788,62 @@ function cis_section_elmsln_api_info() {
   );
 
   return $callbacks;
+}
+
+/**
+ * Grant a group role to a user.
+ * @see  og_role_grant this is a fork of that because that function
+ *                     isn't allowed to add things to users while
+ *                     being saved the first time.
+ *
+ * @param $group_type
+ *   The entity type of the group.
+ * @param $gid
+ *   The group ID.
+ * @param $uid
+ *   The user ID.
+ * @param $rid
+ *   The role ID.
+ */
+function _cis_section_og_role_grant($group_type, $gid, $uid, $rid) {
+  // Make sure the role is valid.
+  $group = entity_load_single($group_type, $gid);
+  list(,, $bundle) = entity_extract_ids($group_type, $group);
+  $og_roles = og_roles($group_type, $bundle, $gid, FALSE, FALSE);
+  if (empty($og_roles[$rid])) {
+    // Role isn't valid.
+    return;
+  }
+
+  $role = new stdClass();
+  $role->uid = $uid;
+  $role->rid = $rid;
+  $role->group_type = $group_type;
+  $role->gid = $gid;
+
+  drupal_write_record('og_users_roles', $role);
+  og_invalidate_cache();
+  module_invoke_all('og_role_grant', $group_type, $gid, $uid, $rid);
+
+  if (module_exists('rules'))  {
+    rules_invoke_event('og_role_grant', og_get_membership($group_type, $gid, 'user', $uid), entity_metadata_wrapper('user', $uid), $rid);
+  }
+}
+
+/**
+ * Fetch a user role from database by name.
+ *
+ * @param $name
+ *   A string with the role name.
+ *
+ * @return
+ *   A fully-loaded role object if a role name the given name exists,
+ *   FALSE otherwise.
+ */
+function _cis_section_og_role_load_by_name($name) {
+  return db_select('og_role', 'r')
+    ->fields('r')
+    ->condition('name', $name)
+    ->execute()
+    ->fetchObject();
 }

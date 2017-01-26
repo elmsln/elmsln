@@ -127,4 +127,15 @@ export class ElmslnService {
       }
     }catch(e){}
   }
+
+  exportLifecycleHook(componentName:string):void {
+    if (typeof Drupal !== 'undefined') {
+      Drupal.settings.cleApp = Drupal.settings.cleApp || {};
+      Drupal.settings.cleApp.callbacks = Drupal.settings.cleApp.callbacks || {};
+      if (typeof Drupal.settings.cleApp.callbacks[componentName] === 'function') {
+        let callback:any = Drupal.settings.cleApp.callbacks[componentName];
+        callback();
+      }
+    }
+  }
 }
