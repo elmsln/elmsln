@@ -78,8 +78,15 @@ function cis_section_update_7006(&$sandbox) {
 }
 
 /**
- * Get OG roles in place.
+ * Get OG roles in place with the correct ones, then get rid of
+ * the faculty / lead faculty roles.
  */
 function cis_section_update_7007(&$sandbox) {
+  if ($role = _cis_section_og_role_load_by_name('Faculty')) {
+    og_role_delete($role->rid);
+  }
+  if ($role = _cis_section_og_role_load_by_name('Lead Faculty')) {
+    og_role_delete($role->rid);
+  }
   features_revert_module('cis_section');
 }
