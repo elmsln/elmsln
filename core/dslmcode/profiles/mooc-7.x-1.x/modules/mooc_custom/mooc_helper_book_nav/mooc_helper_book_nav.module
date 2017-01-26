@@ -84,7 +84,7 @@ function mooc_helper_book_nav_block_info() {
 function mooc_helper_book_nav_block_view($delta = '') {
   $block = array();
   // check if user has access to content. if not, do not insert outline nav
-  if(user_access('access content')){
+  if (user_access('access content')) {
       switch ($delta) {
       // build out the top navigational element with all the drop downs
       case 'book_sibling_nav':
