@@ -22,7 +22,9 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="<?php print $language->language; ?>" xml:lang="<?php print $language->language; ?>" dir="<?php print $dir; ?>">
   <head>
     <title><?php print $title; ?></title>
+    <?php print drupal_get_css(); ?>
     <?php print $head; ?>
+    <?php print drupal_get_js(); ?>
     <base href="<?php print $base_url; ?>" />
     <link type="text/css" rel="stylesheet" href="<?php print base_path(); ?>misc/print.css" />
     <?php if ($language_rtl): ?>
