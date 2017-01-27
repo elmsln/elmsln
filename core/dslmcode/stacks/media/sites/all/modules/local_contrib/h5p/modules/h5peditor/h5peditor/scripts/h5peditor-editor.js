@@ -85,7 +85,7 @@ ns.Editor = function (library, defaultParams, replace) {
       ns.wrap('<link rel="stylesheet" href="', ns.assets.css, '">') +
       ns.wrap('<script src="', ns.assets.js, '"></script>') +
     '</head><body>' +
-      '<div class="h5p-editor">' + ns.t('core', 'loading', {':type': 'libraries'}) + '</div>' +
+      '<div class="h5p-editor">' + ns.t('core', 'loading') + '</div>' +
     '</body></html>');
   iframe.contentDocument.close();
   iframe.contentDocument.documentElement.style.overflow = 'hidden';

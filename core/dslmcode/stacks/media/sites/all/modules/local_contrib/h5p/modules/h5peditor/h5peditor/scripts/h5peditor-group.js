@@ -49,7 +49,7 @@ ns.Group = function (parent, field, params, setValue) {
   }
 
   if (this.field.optional === true) {
-    // If this field is optional, make sure child fields are aswell
+    // If this field is optional, make sure child fields are as well
     for (var j = 0; j < this.field.fields.length; j++) {
       this.field.fields[j].optional = true;
     }
@@ -77,7 +77,7 @@ ns.Group.prototype.appendTo = function ($wrapper) {
 
   // Add fieldset wrapper for group
   this.$group = ns.$('<fieldset/>', {
-    'class': 'field group',
+    'class': 'field group ' + H5PEditor.createImportance(this.field.importance) + ' field-name-' + this.field.name,
     appendTo: $wrapper
   });
 
@@ -94,6 +94,7 @@ ns.Group.prototype.appendTo = function ($wrapper) {
       keypress: function (event) {
         if ((event.charCode || event.keyCode) === 32) {
           that.toggle();
+          event.preventDefault();
         }
       }
     },
@@ -106,7 +107,7 @@ ns.Group.prototype.appendTo = function ($wrapper) {
     appendTo: this.$group
   });
 
-  if (this.field.fields.length === 1) {
+  if (this.hasSingleChild() && !this.isSubContent()) {
     $content.addClass('h5peditor-single');
     this.children = [];
     var field = this.field.fields[0];
@@ -121,6 +122,9 @@ ns.Group.prototype.appendTo = function ($wrapper) {
       this.params = {};
       this.setValue(this.field, this.params);
     }
+
+    this.params = this.initSubContent(this.params);
+
     ns.processSemanticsChunk(this.field.fields, this.params, $content, this);
   }
 
@@ -135,9 +139,51 @@ ns.Group.prototype.appendTo = function ($wrapper) {
 };
 
 /**
+ * Return whether this group is Sub Content
+ *
+ * @private
+ * @return {boolean}
+ */
+ns.Group.prototype.hasSingleChild = function () {
+  return this.field.fields.length === 1;
+};
+
+/**
+ * Add generated 'subContentId' attribute, if group is "sub content (library-like embedded structure)"
+ *
+ * @param {object} params
+ *
+ * @private
+ * @return {object}
+ */
+ns.Group.prototype.initSubContent = function (params) {
+  // If group contains library-like sub content that needs UUIDs
+  if(this.isSubContent()){
+    params['subContentId'] = params['subContentId'] || H5P.createUUID();
+  }
+
+  return params;
+};
+
+/**
+ * Return whether this group is Sub Content
+ *
+ * @private
+ * @return {boolean}
+ */
+ns.Group.prototype.isSubContent = function () {
+  return this.field.isSubContent === true;
+};
+
+/**
  * Toggle expand/collapse for the given group.
  */
 ns.Group.prototype.toggle = function () {
+  if (this.preventToggle) {
+    this.preventToggle = false;
+    return;
+  }
+
   if (this.$group.hasClass('expanded')) {
     this.collapse();
   }
@@ -182,16 +228,16 @@ ns.Group.prototype.findSummary = function () {
     if (child.field === undefined) {
       continue;
     }
-    var params = this.field.fields.length === 1 ? this.params : this.params[child.field.name];
+    var params = (that.hasSingleChild() && !that.isSubContent()) ? this.params : this.params[child.field.name];
     var widget = ns.getWidgetName(child.field);
 
-    if (widget === 'text') {
+    if (widget === 'text' || widget === 'html') {
       if (params !== undefined && params !== '') {
         summary = params.replace(/(<([^>]+)>)/ig, "");
       }
 
       child.$input.change(function () {
-        var params = that.field.fields.length === 1 ? that.params : that.params[child.field.name];
+        var params = (that.hasSingleChild() && !that.isSubContent()) ? that.params : that.params[child.field.name];
         if (params !== undefined && params !== '') {
           that.setSummary(params.replace(/(<([^>]+)>)/ig, ""));
         }
@@ -227,6 +273,9 @@ ns.Group.prototype.setSummary = function (summary) {
     summaryText = summaryTextNode[0].nodeValue;
   }
 
+  // Make it possible for parent to monitor summary changes
+  this.trigger('summary', summaryText);
+
   if (summaryText !== undefined) {
     summaryText = this.field.label + ': ' + (summaryText.length > 48 ? summaryText.substr(0, 45) + '...' : summaryText);
   }
@@ -234,7 +283,7 @@ ns.Group.prototype.setSummary = function (summary) {
     summaryText = this.field.label;
   }
 
-  this.$group.children('.title').html(summaryText);
+  this.$group.children('.title').text(summaryText);
 };
 
 /**

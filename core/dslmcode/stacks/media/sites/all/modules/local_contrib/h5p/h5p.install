@@ -70,7 +70,7 @@ function h5p_uninstall() {
   variable_del('h5p_export');
   variable_del('h5p_embed');
   variable_del('h5p_copyright');
-  variable_del('h5p_icon_in_action_bar');
+  variable_del('h5p_icon');
   variable_del('h5p_revisioning');
   variable_del('h5p_content_dev_mode');
   variable_del('h5p_default_path');
@@ -1225,4 +1225,13 @@ function h5p_update_7112() {
     $new_whitelist = substr_replace($whitelist, ' woff2', $woff_pos + 4, 0);
     variable_set('h5p_whitelist', $new_whitelist);
   }
+}
+
+/**
+ * Renaming variable h5p_icon_in_action_bar to h5p_icon
+ */
+function h5p_update_7113() {
+  variable_set('h5p_icon', variable_get('h5p_icon_in_action_bar', TRUE));
+  variable_del('h5p_icon_in_action_bar');
+  drupal_set_message('<span style="font-weight: bold;">Upgrade your H5P content types!</span> Old content types will still work, but the authoring tool will look and feel much better if you <a href="https://h5p.org/update-all-content-types">upgrade the content types</a>.', 'warning');
 }

@@ -5,15 +5,19 @@
 @import "compass/css3/transition";
 @import "compass/css3/transform";
 
+@import "variables";
+@import "mixins";
+@import "form-field";
+@import "form-groups";
 @import "h5peditor-image-edit";
 @import "h5peditor-image-edit-popup";
-
-$i: 'H5P';
+@import "deprecated";
 
 html, body {
   margin: 0;
   padding: 0;
-  font-family: 'Open Sans', sans-serif;
+  color: $text-color;
+  font-family: $font-family;
   max-width: 960px;
   position: relative;
 }
@@ -28,36 +32,6 @@ a {
     font-size: 0.875em;
     margin-top: 0.4em;
   }
-
-  .tree > .field:first-child {
-    margin-top: 0;
-  }
-
-  .field {
-    margin: 8px 0;
-    font-size: 16px;
-    padding: 0;
-    min-width: inherit;
-    &:last-child {
-      margin-bottom: 0;
-    }
-
-    .h5peditor-widget-wrapper button {
-      margin-top: 4px;
-    }
-
-    &.boolean .h5peditor-label {
-      display: inline;
-    }
-    &.video, &.image, &.file, &.audio {
-      position: relative;
-    }
-
-    .library {
-      border: 1px solid #ccc;
-      padding: 8px;
-    }
-  }
   .h5peditor-single > .field.library {
     border: 0;
     padding: 0;
@@ -65,44 +39,59 @@ a {
 
   .errors p,
   .h5p-errors {
-    margin: 0 0 4px 0;
     color: #da0001;
   }
   textarea {
     resize: vertical;
   }
-  textarea, .h5peditor-text, .ckeditor {
-    padding: 4px 8px;
-    font-size: 16px;
-    border: 1px solid #a0a0a0;
-    background: #f9f9f9;
+  textarea,
+  .h5peditor-text,
+  .ckeditor {
+    @include box-shadow($form-input-box-shadow);
+    box-sizing: border-box;
+    margin: 0;
+    padding: $min-padding;
+    min-height: 40px;
+    border: 1px solid $form-border-color;
+    background: $form-input-color;
     outline: none;
-    min-height: 20px;
-    @include border-radius(3px);
+    font-size: 16px;
     word-wrap: break-word;
   }
   .h5peditor-text, textarea {
     width: 100%;
     box-sizing: border-box;
   }
-  /* Placeholders - need to be on separate lines. If not, the browsers will invlaidate them */
+  /* Placeholders - need to be on separate lines. If not,
+     the browsers will invalidate them */
   ::-webkit-input-placeholder {
-    color: #bbb;
+    color: $form-input-placeholder-color;
   }
   :-moz-placeholder {
-    color: #bbb;
+    color: $form-input-placeholder-color;
   }
   ::-moz-placeholder {
-    color: #bbb;
+    color: $form-input-placeholder-color;
   }
   :-ms-input-placeholder {
-    color: #bbb;
+    color: $form-input-placeholder-color;
   }
   .h5peditor-ckeditor-placeholder {
-    color: #bbb;
+    color: $form-input-placeholder-color;
   }
   select {
-    padding: 2px;
+    padding: 10px 30px 10px 8px;
+    font-family: "Open Sans", sans-serif;
+    font-size: 16px;
+    border: 1px solid $form-border-color;;
+    background: $form-input-color inline-image('down.png') no-repeat;
+    background-position: calc(100% - 10px);
+    @include box-shadow($form-input-box-shadow);
+    -moz-appearance: none;
+    -webkit-appearance: none;
+  }
+  select::-ms-expand {
+    display: none;
   }
   a:focus {
     outline: none;
@@ -110,76 +99,8 @@ a {
   textarea:focus,
   .h5peditor-text:focus {
     outline: none;
-    background-color: #fff;
+    background-color: $white;
     border-color: #53a0ff;
-  }
-  .list-item-title-bar {
-    height: 2.3125em;
-    background: #f5f5f5;
-    border-bottom: 1px solid #ccc;
-    overflow: hidden;
-
-    .remove, .order {
-      cursor: pointer;
-      width: 1.25em;
-      line-height: 1.125em;
-      float: right;
-      font-size: 1.75em;
-      overflow: hidden;
-
-      &:hover {
-        opacity: 1;
-        text-decoration: none;
-      }
-    }
-
-    .remove:after {
-      font-family: $i;
-      content: "\e890";
-      color: #666;
-      display: inline-block;
-      line-height: 1.375em;
-    }
-
-    .remove:hover:after {
-      color: #c33f62;
-    }
-
-    .order {
-      float: left;
-      width: 0.6875em;
-      text-indent: -0.0625em;
-      cursor: move;
-      cursor: grab;
-      cursor: -moz-grab;
-      cursor: -webkit-grab;
-
-      &:after {
-        font-family: $i;
-        content: "\e600";
-        color: #ccc;
-        display: inline-block;
-        line-height: 1.375em;
-      }
-
-      &:hover:after {
-        color: #027AC6;
-      }
-    }
-
-    & > .h5peditor-label {
-      padding: 0.0625em 0 0;
-      margin: 0 1.5em;
-      white-space: nowrap;
-      line-height: 2.25em;
-      font-weight: normal;
-      text-overflow: ellipsis;
-    }
-  }
-  .moving .order {
-    cursor: grabbing;
-    cursor: -moz-grabbing;
-    cursor: -webkit-grabbing;
   }
   .h5p-ul {
     padding: 0;
@@ -187,123 +108,27 @@ a {
     list-style: none;
 
     .h5p-li {
+      @include field-margin($min-padding);
       padding: 0;
-      margin: 0;
       list-style: none;
-      background: #fff;
-      border: 1px solid #ccc;
-      border-top: 0;
+
+      &.placeholder {
+        box-sizing: border-box;
+        background: #e8f2fa;
+        border: dashed 2px #2782d1;
+      }
 
       &:hover {
         text-decoration: none;
       }
-      &:first-child,
-      &.moving {
-        border-top: 1px solid #ccc;
-      }
-      &.collapsed .list-item-title-bar {
-        border-bottom: 0;
+
+      &:nth-child(2).moving {
+        margin-top: 0;
       }
 
-      & > .group {
-        border: 0;
-        margin: 0;
-        background-color: transparent;
-        box-shadow: none;
+      &:nth-last-child(2).placeholder {
+        margin-bottom: 0;
       }
-    }
-  }
-  /*.listgroup > .group {
-    .field {
-      margin-right: 8px;
-      &.list {
-        margin-right: 0;
-      }
-    }
-    .h5p-li {
-      border-right: 0;
-    }
-  }*/
-  .listgroup > .list-item-title-bar > .h5peditor-label {
-    cursor: pointer;
-  }
-  .listgroup > .list-item-title-bar > .h5peditor-label:before,
-  .group > .title:before  {
-    content: "";
-    display: inline-block;
-    vertical-align: middle;
-    width: 13px;
-    height: 13px;
-    margin: 0 6px 2px 2px;
-    background: inline-image("expand.png") no-repeat;
-    opacity: 0.8;
-  }
-  .listgroup.expanded > .list-item-title-bar > .h5peditor-label:before,
-  .expanded > .title:before {
-    background-image: inline-image("collapse.png");
-  }
-  .listgroup > .list-item-title-bar > .h5peditor-label:hover:before,
-  .listgroup > .list-item-title-bar > .h5peditor-label:focus:before,
-  .group > .title:hover:before,
-  .group > .title:focus:before {
-    opacity: 1;
-  }
-  .listgroup > .list-item-title-bar > .h5peditor-label:active:before,
-  .group > .title:active:before {
-    opacity: 0.5;
-  }
-  .content {
-    background: #fff;
-    margin: 0;
-    padding: 8px;
-    .field:first-child {
-      margin-top: 0;
-    }
-    .field:last-child {
-      margin-bottom: 0;
-    }
-  }
-  .group {
-    margin: -1px 0 0;
-    border: 1px solid #ccc;
-
-    & > .title {
-      cursor: pointer;
-      padding: 6px 8px 5px;
-      overflow: hidden;
-      background: #f4f4f4;
-      outline: none;
-
-      &:first-letter {
-        text-transform: uppercase;
-      }
-    }
-    & > .content {
-      display: none;
-    }
-  }
-  .expanded {
-    & > .title {
-      border-bottom: 1px solid #ccc;
-    }
-    & > .content {
-      display: block;
-    }
-  }
-  input[type="button"], button {
-    width: auto;
-    margin: 0;
-    padding: 4px 8px;
-    background: linear-gradient(to bottom,#fff 0,#f2f2f2 100%);
-    border: 1px solid #ccc;
-    border-radius: 0.25em;
-    font-size: 0.875em;
-    color: #333;
-    cursor: pointer;
-
-    &:hover {
-      text-decoration: none;
-      border-color: #999;
     }
   }
   .dimensions input, .coordinates input, .number input {
@@ -382,12 +207,12 @@ a {
       color: #b83c3c;
       background: transparent;
       border: 0;
-      outline: 0;
       cursor: pointer;
     }
     .h5p-cancel:focus,
     .h5p-cancel:hover {
       color: #e20d0d;
+      background: transparent;
     }
   }
   .h5p-or {
@@ -436,7 +261,7 @@ a {
       @include opacity(1);
     }
     .h5p-remove:after {
-      font-family: $i;
+      font-family: $icon-font-family;
       font-size: 1.4em;
       color: #fff;
       content: "\e890";
@@ -459,6 +284,9 @@ a {
     position: relative;
     float: left;
 
+    &.field {
+      float: none;
+    }
     .thumbnail {
       display: inline-block;
       margin: 10px 10px 10px 0;
@@ -467,11 +295,29 @@ a {
       cursor: pointer;
     }
     .add {
-      display: block;
+      display: inline-block;
       cursor: pointer;
-      width: 44px;
-      height: 44px;
-      background: inline-image("add.png");
+      padding: 0.5em 1.5em 0.5em 1.2em;
+      background: linear-gradient(to bottom, #fbfbfb 0, #f2f2f2 100%);
+      border: 1px solid #d0d0d1;
+      border-radius: 0.25em;
+      color: #222222;
+      font-weight: bold;
+
+      &:hover {
+        background: #ededed;
+      }
+
+      &:focus {
+        box-shadow: 0 0 16px 0 rgba(133,188,255,0.84);
+      }
+
+      .h5peditor-field-file-upload-text:before {
+        font-family: $icon-font-family;
+        content: "\e902";
+        color: #39c943;
+        margin-right: 1em;
+      }
     }
     .remove {
       display: block;
@@ -481,7 +327,7 @@ a {
       cursor: pointer;
     }
     .remove:before {
-      font-family: $i;
+      font-family: $icon-font-family;
       font-size: 1.4em;
       color: #fff;
       content: "\e890";
@@ -531,71 +377,27 @@ a {
     }
   }
   .libwrap {
-    margin-top: 16px;
+    margin-top: $padding;
+
+    &:empty {
+      margin-top: 0;
+    }
   }
   input[type="checkbox"] {
     margin: 4px 4px 4px 0;
     vertical-align: bottom;
-  }
-  .common {
-    margin-top: 8px;
-    border: 1px solid #ccc;
-
-    & > .h5peditor-label {
-      font-size: 1em;
-      font-weight: normal;
-      padding: 6px 8px 5px;
-      background: #ddd;
-      cursor: pointer;
-      border-bottom: 1px solid #ccc;
-
-      & > .icon {
-        display: inline-block;
-        background: inline-image("collapse.png") no-repeat left center;
-        opacity: 0.8;
-        vertical-align: middle;
-        width: 13px;
-        height: 13px;
-        margin: 0 6px 2px 2px;
-      }
-      &:hover > .icon {
-        opacity: 1;
-      }
-    }
-    & > .fields {
-      margin: 0.3125em 0.5em 0.5em;
-      padding-bottom: 0.25em;
-      min-height: 2em;
-
-      & > .desc {
-        margin: 0;
-        font-size: 0.875em;
-        color: #666;
-      }
-    }
-
-    &.collapsed {
-      & > .h5peditor-label {
-        border-bottom: 0;
-
-        & > .icon {
-          background-image: inline-image("expand.png");
-        }
-      }
-      & > .fields {
-        display: none;
-      }
-    }
-
-    &.hidden {
-      display: none;
-    }
   }
   .moving {
     position: absolute;
     z-index: 1;
     @include opacity(0.8);
     -webkit-transform: translateZ(0);
+
+    .h5peditor-label {
+      cursor: grabbing;
+      cursor: -moz-grabbing;
+      cursor: -webkit-grabbing;
+    }
   }
 
   .h5peditor-uploading, .h5peditor-loading {
@@ -608,53 +410,52 @@ a {
     font-style: italic;
   }
 
-  a.h5p-copyright-button {
-    background: linear-gradient(to bottom,#fff 0,#f2f2f2 100%);
-    border: 1px solid #ccc;
-    border-radius: 0.25em;
-    font-size: 0.875em;
-    color: #333;
-    cursor: pointer;
-    line-height: 2em;
-
-    &:before {
-      padding-left: 0.25em;
-    }
-  }
-
   .h5p-copyright-button {
-    float: left;
-    display: block;
+    @include border-radius(0.25em);
+    height: 30px;
+    background: linear-gradient(to bottom, #fff 0, #f2f2f2 100%);
+    border: 1px solid $form-border-color;
+    color: $black;
+    font-size: $font-size-small;
+    line-height: $form-item-height-small;
+    padding-right: $padding;
+    padding-left: 0;
     clear: both;
-    padding-right: 1em;
-    line-height: 1.5;
-    margin-bottom: 0.5em;
+    font-weight: normal;
 
     &:before {
-      font-family: $i;
+      font-family: $icon-font-family;
       content: "\e88f";
       color: #666;
-      padding-right: 0.25em;
+      padding: 0 0.25em 0 0.25em;
       vertical-align: middle;
       font-size: 1.5em;
       line-height: 0.9;
     }
-    &:hover {
+
+    &:hover:not([disabled]) {
+      background: linear-gradient(to bottom, #fff 0, #d0d0d1 100%);
       text-decoration: none;
       border-color: #999;
     }
   }
 
+  /* Copyright button for video & audio */
+  .field.file > .h5p-copyright-button,
+  .field.video > .h5p-copyright-button,
+  .field.audio > .h5p-copyright-button {
+    float: left;
+  }
+
   .h5p-editor-dialog {
     position: absolute;
     z-index: 1;
-    background: #fff;
-    padding: 10px 10px 0;
     margin: 5.5em 0 1em;
     visibility: hidden;
     opacity: 0;
     height: 0;
     overflow: hidden;
+    background: #fff;
     @include box-shadow(0 0 8px #666);
     @include transition(visibility 0s 0.2s, height 0s 0.2s, opacity 0.2s, margin-top 0.2s);
 
@@ -667,9 +468,19 @@ a {
     }
 
     & > .field {
-      margin: 0 0 10px;
+      margin: 0;
       border: 0;
       box-shadow: none;
+    }
+
+    .content {
+      border: none;
+      background: $white;
+
+      .h5peditor-label {
+        font-size: $font-size-large;
+        font-weight: 600;
+      }
     }
 
     .h5p-close {
@@ -680,7 +491,7 @@ a {
         right: -0.125em;
         top: 0;
         position: absolute;
-        font-family: "H5P";
+        font-family: $icon-font-family;
         content: "\e894";
         line-height: 1em;
         @include transition(scale 0.2s);
@@ -692,81 +503,107 @@ a {
     }
   }
 
-  .h5p-editing-image-button {
-    line-height: 1.5;
-    margin-right: 0.5em;
-    margin-bottom: 0.5em;
-    padding-right: 1em;
-  }
-
-  .h5p-editing-image-button:before {
-    font-family: "H5P";
-    content: "\e900";
-    color: #666;
-    padding-right: 0.25em;
-    vertical-align: middle;
-    font-size: 1.5em;
-    line-height: 0.9;
-  }
-
-  .ui-dialog .h5p-editing-image-button,
-  .ui-dialog .h5p-copyright-button {
-    padding-left: 0.5em;
-  }
-
-  .h5p-editing-image-button.loading:before {
-    content: "\e901";
-  }
-
-  .h5p-editing-image-button.hidden {
-    display: none;
-  }
-
-  .field.image .file {
-    display: inline-block;
-    float: none;
-  }
-
-  .h5p-editor-image-buttons {
-    .h5p-editor-image-buttons {
-      display: block;
-    }
-
-    .h5p-copyright-button {
-      float: none;
-      display: inline-block;
-    }
-  }
-
   .h5p-li > .content > .library {
     border: 0;
     padding: 0;
   }
 }
+/* Placed this outside of .h5peditor context above. Don't want it to be more
+   specific than neccessary (because of overriding) */
+.h5peditor-button-textual {
+  @include border-radius(0.25em);
+  @include button-background(
+    $form-item-importance-medium-background,
+    $form-item-importance-medium-background-highlight);
+  display: inline-block;
+  width: auto;
+  margin: $min-padding 0 0 0;
+  padding: 0 $padding;
+  box-sizing: border-box;
+  height: $form-item-height-normal;
+  border: 1px solid $form-border-color;
+  font-size: $font-size-normal;
+  font-family: $font-family;
+  line-height: $form-item-height-normal;
+  color: $white;
+  cursor: pointer;
+  font-weight: 600;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 
+  &:before,
+  &:after {
+    color: $white;
+  }
+
+  &:hover {
+    @include button-background(
+      $form-item-importance-medium-background-hover,
+      $form-item-importance-medium-background-hover-highlight);
+    text-decoration: none;
+  }
+
+  &.importance-high {
+    @include button-background(
+      $form-item-importance-high-background,
+      $form-item-importance-high-background-highlight);
+    border-color: $form-item-importance-high-border-color;
+    text-transform: uppercase;
+    height: $form-item-height-large;
+    line-height: $form-item-height-large;
+
+    &:hover:not([disabled]) {
+      @include button-background(
+        $form-item-importance-high-background-hover,
+        $form-item-importance-high-background-hover-highlight);
+      border-color: $form-item-importance-high-background-hover;
+    }
+  }
+
+  &.importance-low {
+    @include button-background(
+      $form-item-importance-low-background,
+      $form-item-importance-low-background-highlight);
+    border-color: $form-item-importance-low-border-color;
+    color: $black;
+
+    &:before,
+    &:after {
+      color: $black;
+    }
+
+    &:hover:not([disabled]) {
+      @include button-background(
+        $form-item-importance-low-background-hover,
+        $form-item-importance-low-background-hover-highlight);
+      border-color: $form-item-importance-low-background-hover;
+    }
+  }
+}
 .h5peditor-field-description,
 .h5p-help-text {
   font-size: 12px;
-  margin-bottom: 6px;
+  margin-top: 4px;
+  margin-bottom: 8px;
   font-weight: 500;
-  color: #666;
+  color: #434446;
   line-height: 15px;
-  letter-spacing: 0.2px;
+  letter-spacing: 0.5px;
 }
 
 .h5peditor-form {
   position: relative;
-  margin: 0.5em 0 0;
-  background: #fff;
-  padding: 8px;
-  border: 1px solid #ccc;
+  padding: 20px;
+  background: $form-background;
+  border: 1px solid $form-border-color;
 }
 
 .h5peditor-label {
   display: block;
-  font-weight: bold;
-  font-size: 16px;
-  padding-top: 4px;
+  margin-bottom: 6px;
+  font-weight: 600;
+  font-size: $font-size-normal;
+  color: $form-label;
 }
 
 #h5peditor-uploader {
@@ -783,7 +620,7 @@ a {
 }
 
 .h5p-tutorial-url:before {
-  font-family: $i;
+  font-family: $icon-font-family;
   content: "\e889";
   font-size: 1.5em;
   position: relative;
@@ -802,10 +639,10 @@ a {
   border: 1px solid #ccc;
   border-bottom: 0;
   margin-left: 0.5em;
-  padding: 0.25em 0.5em;
-  color: #555;
+  padding: 0.6em 1em;
+  color: #0E1A25;
   font-size: 0.875em;
-  background: #f4f4f4;
+  background: #f5f5f5;
   line-height: 1.285714286em;
   cursor: pointer;
   outline: none;
@@ -820,15 +657,14 @@ a {
   background: #fff;
   line-height: 1.357142857em;
 }
-
 .h5peditor-widgets > .h5peditor-widget-wrapper {
   border: 1px solid #ccc;
-  background: #fff;
   margin: 0 0 0.25em;
   padding: 0.5em;
 }
 .h5peditor-widgets > .h5peditor-label {
   float: left;
+  margin-top: 5px;
 }
 .h5p-editor-iframe {
   margin-bottom: 1em;
@@ -839,152 +675,17 @@ a {
   margin-left: 0.25em;
 }
 
-body.h5p-editor-image-popup {
-  position: relative;
+/* Help CKEditor blend into the H5PEditor */
+.h5peditor .cke_bottom,
+.h5peditor .cke_top {
+  background: #d0d0d1;
 }
-
-.h5p-editing-image-popup-background {
-  position: absolute;
-  top: 0;
-  left: 0;
-
-  width: 100%;
-  height: 100%;
-
-  background: rgba(0,0,0,0.8);
-  padding: 3em 1em;
-  box-sizing: border-box;
-  z-index: 101;
+.h5peditor .cke_chrome {
+  border: 1px solid #f5f5f5;
+  background: #d0d0d1;
 }
-
-#darkroom-icons {
-  top:0;
-  left:0;
-}
-
-.h5p-editing-image-popup-background.hidden {
-  display: none;
-}
-
-.h5p-editing-image-popup {
-  display: inline-block;
-  position: relative;
-  top: 0;
-  left: 50%;
-  height: auto;
-  width: 100%;
-  max-height: 100%;
-  -webkit-transform: translateX(-50%);
-  -ms-transform: translateX(-50%);
-  transform: translateX(-50%);
-  background: #fff;
-  -webkit-box-sizing: border-box;
-  -moz-box-sizing: border-box;
-  box-sizing: border-box;
-}
-
-.h5p-editing-image-header {
-  padding: 1em 0.75em;
-}
-
-.h5p-editing-image {
-  max-height:100%;
-  max-width:100%;
-}
-
-.h5p-editing-image.hidden {
-  display: none;
-}
-
-.h5p-editing-image-popup {
-  .darkroom-toolbar {
-    position: relative;
-    -webkit-border-radius:0;
-    -moz-border-radius:0;
-    border-radius:0;
-    top:0;
-  }
-
-  .darkroom-toolbar:before {
-    content: initial;
-  }
-
-  .darkroom-image-container {
-    padding: 32px 2em;
-  }
-
-  .darkroom-image-container .canvas-container {
-    box-shadow: 0 0 8px 3px rgba(0, 0, 0, 0.6);
-    margin: auto;
-  }
-}
-
-.h5p-editing-image-header-title {
-  display: inline-block;
-  font-size: 1.25em;
-}
-
-.h5p-editing-image-header-buttons {
-  display: inline-block;
-  float: right;
-}
-.h5p-editing-image-loading {
-  padding: 1em;
-}
-
-.h5p-editing-image-loading.hidden {
-  display: none;
-}
-
-.h5p-editing-image-editing-container {
-  background: #666;
-}
-
-.h5p-editing-image-header-buttons {
-  button {
-    padding: 0.5em 1.75em;
-    margin: 0 0 0 1em;
-
-    border: 1px solid #ccc;
-    border-radius: 0.25em;
-    color: #333;
-    cursor: pointer;
-
-    background: #f2f2f2;
-    background: -webkit-linear-gradient(top,#fff 0,#f2f2f2 100%);
-    background: -ms-linear-gradient(top,#fff 0,#f2f2f2 100%);
-  }
-
-  button:hover {
-    background: #ededed;
-  }
-
-  .h5p-done {
-    color: #fff;
-    border-color: #20588F;
-
-    background: #3673B5;
-    background: -webkit-linear-gradient(top,#5A94D3 0,#3673B5 100%);
-    background: -ms-linear-gradient(top,#5A94D3 0,#3673B5 100%);
-  }
-
-  .h5p-done:hover {
-    background: #3275bc;
-    background: -webkit-linear-gradient(top,#3275bc 0,#285585 100%);
-    background: -ms-linear-gradient(top,#3275bc 0,#285585 100%);
-  }
-
-  .h5p-remove {
-    background: none;
-    border: none;
-    color: #a00;
-    padding-right: 0;
-    padding-left: 0;
-    border-radius: 0;
-  }
-
-  .h5p-remove:hover {
-    background: none;
-    color: #e40000;
-  }
+.h5peditor .cke_contents,
+.h5peditor .cke_toolgroup,
+.h5peditor .cke_combo_button {
+  border: 1px solid #f5f5f5;
 }

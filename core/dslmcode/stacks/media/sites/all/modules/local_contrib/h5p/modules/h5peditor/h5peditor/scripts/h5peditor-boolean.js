@@ -27,19 +27,10 @@ ns.Boolean = function (parent, field, params, setValue) {
  * Create HTML for the boolean field.
  */
 ns.Boolean.prototype.createHtml = function () {
-  var input = '<input type="checkbox"';
-  if (this.value !== undefined && this.value) {
-    input += ' checked="checked"';
-  }
-  input += '/>';
+  var checked = (this.value !== undefined && this.value) ? ' checked' : '';
+  var content = '<input type="checkbox"' + checked + ' />';
 
-  var html = '<label class="h5peditor-label">' + input;
-  if (this.field.label !== 0) {
-    html += this.field.label === undefined ? this.field.name : this.field.label;
-  }
-  html += '</label>';
-
-  return ns.createItem(this.field.type, html, this.field.description);
+  return ns.createBooleanFieldMarkup(this.field, content);
 };
 
 /**
@@ -64,7 +55,7 @@ ns.Boolean.prototype.appendTo = function ($wrapper) {
 
   this.$input.change(function () {
     // Validate
-    that.value = that.$input.is(':checked') ? true : false;
+    that.value = that.$input.is(':checked');
     that.setValue(that.field, that.value);
   });
 };

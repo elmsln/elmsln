@@ -8,8 +8,11 @@ H5PEditor.language.core = {
   requiredProperty: ':property gerekli ve bir değeri olmalı.',
   onlyNumbers: ':property değeri yalnızca sayı içerebilir.',
   exceedsMax: ':property değeri :max değerini aşıyor.',
+  listExceedsMax: 'The list exceeds the maximum of :max items.',
   belowMin: ':property değeri :min değerinin altında.',
+  listBelowMin: 'The list needs at least :min items for the content to function properly.',
   outOfStep: ':property değeri yalnızca :step aşamalarıyla değiştirilebilir.',
+  add: 'Add',
   addFile: 'Dosya ekle',
   removeFile: 'Dosya kaldır',
   confirmRemoval: ':type kaldırılacak, emin misiniz?',
@@ -53,5 +56,8 @@ H5PEditor.language.core = {
   height: 'height',
   width: 'width',
   textField: 'text field',
-  numberField: 'number field'
+  numberField: 'number field',
+  orderItemUp: 'Order item up',
+  orderItemDown: 'Order item down',
+  removeItem: 'Remove item'
 };

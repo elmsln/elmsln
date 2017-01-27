@@ -55,10 +55,7 @@ ns.Textarea.prototype.createHtml = function () {
   }
   input += '</textarea>';
 
-  var label = ns.createLabel(this.field);
-  var description = ns.createDescription(this.field.description);
-
-  return ns.createItem(this.field.type, label + description + input);
+  return ns.createFieldMarkup(this.field, input);
 };
 
 /**

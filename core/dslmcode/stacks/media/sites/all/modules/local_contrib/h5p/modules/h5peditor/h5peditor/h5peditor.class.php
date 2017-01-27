@@ -243,7 +243,9 @@ class H5peditor {
 
       case 'group':
         if (isset($params)) {
-          if (count($field->fields) == 1) {
+          $isSubContent = isset($field->isSubContent) && $field->isSubContent == TRUE;
+
+          if (count($field->fields) == 1 && !$isSubContent) {
             $params = (object) array($field->fields[0]->name => $params);
           }
           $this->processSemantics($files, $field->fields, $params);

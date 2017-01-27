@@ -135,7 +135,7 @@ ns.LibrarySelector.prototype.loadSemantics = function (library) {
   this.$parent.attr('class', 'h5peditor ' + library.split(' ')[0].toLowerCase().replace('.', '-') + '-editor');
 
   // Display loading message
-  var $loading = ns.$('<div class="h5peditor-loading h5p-throbber">' + ns.t('core', 'loading', {':type': 'semantics'}) + '</div>').appendTo(this.$parent);
+  var $loading = ns.$('<div class="h5peditor-loading h5p-throbber">' + ns.t('core', 'loading') + '</div>').appendTo(this.$parent);
 
   this.$selector.attr('disabled', true);
 

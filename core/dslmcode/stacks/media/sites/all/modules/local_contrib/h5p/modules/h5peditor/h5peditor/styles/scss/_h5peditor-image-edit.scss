@@ -1,24 +1,32 @@
+@import 'variables';
+
 .h5peditor {
   .h5p-editing-image-button {
-    line-height: 1.5;
+    background: linear-gradient(to bottom, #fff 0, #f2f2f2 100%);
+    font-size: $font-size-small;
+    color: $black;
+    line-height: $form-item-height-small;
+    padding-right: $padding;
     margin-right: 0.5em;
-    margin-bottom: 0.5em;
-    padding-right: 1em;
+    height: 30px;
+    padding-left: 0;
+    font-weight: normal;
+
+    &:hover:not([disabled]) {
+      background: linear-gradient(to bottom, #fff 0, #d0d0d1 100%);
+      border-color: #999;
+    }
   }
 
   .h5p-editing-image-button:before {
-    font-family: "H5P";
+    font-family: $icon-font-family;
     content: "\e900";
     color: #666;
-    padding-right: 0.25em;
+    padding-right: 0.3em;
+    padding-left: 0.45em;
     vertical-align: middle;
     font-size: 1.5em;
     line-height: 0.9;
-  }
-
-  .ui-dialog .h5p-editing-image-button,
-  .ui-dialog .h5p-copyright-button {
-    padding-left: 0.5em;
   }
 
   .h5p-editing-image-button.loading:before {
@@ -30,19 +38,8 @@
     display: none !important;
   }
 
-  .field.image .file {
-    display: inline-block;
-    float: none;
-  }
-
-  .h5p-editor-image-buttons {
-    .h5p-editor-image-buttons {
-      display: block;
-    }
-
-    .h5p-copyright-button {
-      float: none;
-      display: inline-block;
-    }
+  .ui-dialog .h5p-editing-image-button,
+  .ui-dialog .h5p-copyright-button {
+    padding-left: 0.5em;
   }
 }

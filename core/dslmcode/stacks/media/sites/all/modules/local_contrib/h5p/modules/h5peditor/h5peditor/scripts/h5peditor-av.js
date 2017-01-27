@@ -98,9 +98,6 @@ H5PEditor.widgets.video = H5PEditor.widgets.audio = H5PEditor.AV = (function ($)
   C.prototype.appendTo = function ($wrapper) {
     var self = this;
 
-    var label = H5PEditor.createLabel(this.field);
-    var description = H5PEditor.createDescription(this.field.description);
-
     var imageHtml =
       '<div class="file">' + C.createAdd(self.field.type) + '</div>' +
       '<a class="h5p-copyright-button" href="#">' + H5PEditor.t('core', 'editCopyright') + '</a>' +
@@ -108,8 +105,7 @@ H5PEditor.widgets.video = H5PEditor.widgets.audio = H5PEditor.AV = (function ($)
         '<a href="#" class="h5p-close" title="' + H5PEditor.t('core', 'close') + '"></a>' +
       '</div>';
 
-    var html = H5PEditor.createItem(this.field.type,
-      label + description + imageHtml);
+    var html = H5PEditor.createFieldMarkup(this.field, imageHtml);
 
     var $container = $(html).appendTo($wrapper);
     var $file = $container.children('.file');
@@ -308,7 +304,7 @@ H5PEditor.widgets.video = H5PEditor.widgets.audio = H5PEditor.AV = (function ($)
     return '<div role="button" tabindex="1" class="h5p-add-file" title="' + H5PEditor.t('core', 'addFile') + '"></div>' +
         '<div class="h5p-add-dialog">' +
           '<div class="h5p-dialog-box">' +
-            '<button class="h5p-file-upload">' + H5PEditor.t('core', 'selectFiletoUpload') + '</button>' +
+            '<button class="h5peditor-button-textual h5p-file-upload">' + H5PEditor.t('core', 'selectFiletoUpload') + '</button>' +
           '</div>' +
           '<div class="h5p-or"><span>' + H5PEditor.t('core', 'or') + '</span></div>' +
           '<div class="h5p-dialog-box">' +
@@ -316,8 +312,8 @@ H5PEditor.widgets.video = H5PEditor.widgets.audio = H5PEditor.AV = (function ($)
             description +
           '</div>' +
           '<div class="h5p-buttons">' +
-            '<button class="h5p-insert">' + H5PEditor.t('core', 'insert') + '</button>' +
-            '<button class="h5p-cancel">' + H5PEditor.t('core', 'cancel') + '</button>' +
+            '<button class="h5peditor-button-textual h5p-insert">' + H5PEditor.t('core', 'insert') + '</button>' +
+            '<button class="h5peditor-button-textual h5p-cancel">' + H5PEditor.t('core', 'cancel') + '</button>' +
           '</div>' +
         '</div>';
   };

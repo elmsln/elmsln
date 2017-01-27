@@ -3,6 +3,9 @@
  * Menu callback - Form builder function for settings.
  */
 function h5p_admin_settings($form, &$form_state) {
+  // make sure core is loaded
+  _h5p_get_instance('core');
+
   $form['h5p_allow_communication_with_h5p_org'] = array(
     '#type' => 'checkbox',
     '#title' => t('I wish to aid in the development of H5P by contributing anonymous usage data'),
@@ -14,34 +17,38 @@ function h5p_admin_settings($form, &$form_state) {
   $form['h5p_display_options'] = array(
     '#type' => 'fieldset',
     '#title' => t('Display Options'),
-    '#attributes' => array(
-      'class' => array('h5p-action-bar-settings')
-    ),
     '#attached' => array(
       'js' => array(
         $path . '/library/js/jquery.js',
-        $path . '/library/js/disable.js'
+        $path . '/library/js/h5p-display-options.js'
       )
     )
   );
 
-  $labels = _h5p_get_disable_labels();
-  foreach (H5PCore::$disable as $bit => $name) {
-    $name = ($bit & H5PCore::DISABLE_DOWNLOAD ? 'export' : $name);
-    $form['h5p_display_options']['h5p_' . $name] = array(
-      '#type' => 'checkbox',
-      '#title' => $labels[$bit],
-      '#default_value' => variable_get('h5p_' . $name, TRUE)
-    );
-  }
-  // TODO: Should we remove existing H5P files when export gets disabled?
-
-  // Disable/enable the H5P icon below each H5P
-  $form['h5p_display_options']['h5p_icon_in_action_bar'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('About H5P button'),
-    '#default_value' => variable_get('h5p_icon_in_action_bar', TRUE)
+  $button_behaviours = array(
+    H5PDisplayOptionBehaviour::NEVER_SHOW => t('Never show'),
+    H5PDisplayOptionBehaviour::ALWAYS_SHOW => t('Always show'),
+    H5PDisplayOptionBehaviour::CONTROLLED_BY_PERMISSIONS => t('Show only if permitted through permissions'),
+    H5PDisplayOptionBehaviour::CONTROLLED_BY_AUTHOR_DEFAULT_ON => t('Controlled by author, default is on'),
+    H5PDisplayOptionBehaviour::CONTROLLED_BY_AUTHOR_DEFAULT_OFF => t('Controlled by author, default is off'),
   );
+
+  _h5p_add_display_option($form['h5p_display_options'], 'h5p_frame', t('Display buttons (download, embed and copyright)'), variable_get('h5p_frame', TRUE), '.form-item-h5p-export, .form-item-h5p-embed, .form-item-h5p-copyright, .form-item-h5p-icon');
+  $form['h5p_display_options']['h5p_export'] = array(
+    '#title' => t('Download button'),
+    '#options' => $button_behaviours,
+    '#default_value' => variable_get('h5p_export', H5PDisplayOptionBehaviour::ALWAYS_SHOW),
+    '#type' => 'select',
+  );
+  $form['h5p_display_options']['h5p_embed'] = array(
+    '#title' => t('Embed button'),
+    '#options' => $button_behaviours,
+    '#default_value' => variable_get('h5p_embed', H5PDisplayOptionBehaviour::ALWAYS_SHOW),
+    '#type' => 'select',
+  );
+  _h5p_add_display_option($form['h5p_display_options'], 'h5p_copyright', t('Copyright button'), variable_get('h5p_copyright', TRUE));
+  _h5p_add_display_option($form['h5p_display_options'], 'h5p_icon', t('About H5P button'), variable_get('h5p_icon', TRUE));
+  // TODO: Should we remove existing H5P files when export gets disabled?
 
   $form['h5p_default_path'] = array(
     '#type' => 'textfield',
@@ -60,8 +67,7 @@ function h5p_admin_settings($form, &$form_state) {
     '#disabled' => $h5p_nodes_exists,
   );
 
-  // make sure core is loaded
-  _h5p_get_instance('core');
+
   $form['h5p_whitelist'] = array(
     '#type' => 'textfield',
     '#maxlength' => 8192,
