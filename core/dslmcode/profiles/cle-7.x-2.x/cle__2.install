@@ -84,3 +84,11 @@ function cle__2_update_7004(&$sandbox) {
 function cle__2_update_7005(&$sandbox) {
   features_revert_module('cle_cis_ux');
 }
+
+/**
+ * Add comment permissions and submission field for future sidecomment.js support
+ */
+function cle__2_update_7006(&$sandbox) {
+  features_revert_module('cle_perms');
+  features_revert_module('cle_submission');
+}

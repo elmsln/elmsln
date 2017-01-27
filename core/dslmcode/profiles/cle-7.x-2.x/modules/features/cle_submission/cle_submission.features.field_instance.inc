@@ -470,6 +470,56 @@ function cle_submission_field_default_field_instances() {
     ),
   );
 
+  // Exported field_instance: 'node-cle_submission-field_metadata'.
+  $field_instances['node-cle_submission-field_metadata'] = array(
+    'bundle' => 'cle_submission',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'blob',
+        'settings' => array(),
+        'type' => 'blob_default',
+        'weight' => 14,
+      ),
+      'full' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_metadata',
+    'label' => 'Metadata',
+    'required' => 0,
+    'settings' => array(
+      'authcache' => array(
+        'clients' => array(
+          'authcache_ajax' => array(
+            'status' => 1,
+            'weight' => 0,
+          ),
+        ),
+        'fallback' => 'cancel',
+        'lifespan' => 3600,
+        'perpage' => 0,
+        'peruser' => 1,
+        'status' => 0,
+      ),
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 0,
+      'module' => 'blob',
+      'settings' => array(),
+      'type' => 'blob_widget_none',
+      'weight' => 19,
+    ),
+  );
+
   // Exported field_instance: 'node-cle_submission-field_submission_state'.
   $field_instances['node-cle_submission-field_submission_state'] = array(
     'bundle' => 'cle_submission',
@@ -774,6 +824,7 @@ function cle_submission_field_default_field_instances() {
   t('Files');
   t('Images');
   t('Links');
+  t('Metadata');
   t('Section');
   t('State');
   t('Text');
