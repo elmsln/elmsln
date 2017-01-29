@@ -13,10 +13,11 @@ files[] = library/h5p-file-storage.interface.php
 files[] = library/h5p-default-storage.class.php
 files[] = h5p.event.inc
 files[] = h5p.classes.inc
+files[] = h5p.admin.inc
 
-; Information added by Drupal.org packaging script on 2016-11-08
-version = "7.x-1.21"
+; Information added by Drupal.org packaging script on 2017-01-26
+version = "7.x-1.24"
 core = "7.x"
 project = "h5p"
-datestamp = "1478594665"
+datestamp = "1485423495"
 

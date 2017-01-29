@@ -149,6 +149,24 @@ function cle_submission_field_default_field_bases() {
     'type' => 'link_field',
   );
 
+  // Exported field_base: 'field_metadata'.
+  $field_bases['field_metadata'] = array(
+    'active' => 1,
+    'cardinality' => 1,
+    'deleted' => 0,
+    'entity_types' => array(),
+    'field_name' => 'field_metadata',
+    'indexes' => array(),
+    'locked' => 0,
+    'module' => 'blob',
+    'settings' => array(
+      'cis_connector_access' => FALSE,
+      'cis_connector_disable' => FALSE,
+    ),
+    'translatable' => 0,
+    'type' => 'blob_long',
+  );
+
   // Exported field_base: 'field_submission_state'.
   $field_bases['field_submission_state'] = array(
     'active' => 1,

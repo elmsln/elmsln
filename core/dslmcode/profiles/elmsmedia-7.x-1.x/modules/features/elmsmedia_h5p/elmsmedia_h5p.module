@@ -48,3 +48,13 @@ function elmsmedia_h5p_embedded_h5p_alter(&$node) {
     print '<script>document.domain = "' . $domain . '"</script>';
   }
 }
+
+/**
+ * Implements hook_replicate_ui_access_check_alter().
+ */
+function elmsmedia_h5p_replicate_ui_access_check_alter(&$access, $type, $entity) {
+  // H5p can't be replicated as its too complex to do via this manner
+  if ($type == 'node' && $entity->type == 'h5p_content') {
+    $access = FALSE;
+  }
+}

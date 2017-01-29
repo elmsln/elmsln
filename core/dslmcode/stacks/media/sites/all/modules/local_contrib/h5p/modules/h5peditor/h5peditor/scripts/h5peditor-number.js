@@ -79,10 +79,7 @@ ns.Number.prototype.createHtml = function () {
   }
    */
 
-  var label = ns.createLabel(this.field);
-  var description = ns.createDescription(this.field.description);
-
-  return ns.createItem(this.field.type, label + description + input);
+  return ns.createFieldMarkup(this.field, input);
 };
 
 /**
@@ -104,10 +101,10 @@ ns.Number.prototype.validate = function () {
     this.$errors.append(ns.createError(ns.t('core', 'requiredProperty', {':property': ns.t('core', 'numberField')})));
   }
   else if (decimals && !value.match(new RegExp('^-?[0-9]+(.|,)[0-9]{1,}$'))) {
-    this.$errors.append(ns.createError(ns.t('core', 'onlyNumbers', {':property': 'number field'})));
+    this.$errors.append(ns.createError(ns.t('core', 'onlyNumbers', {':property': that.field.label})));
   }
   else if (!decimals && !value.match(new RegExp('^-?[0-9]+$'))) {
-    this.$errors.append(ns.createError(ns.t('core', 'onlyNumbers', {':property': 'number field'})));
+    this.$errors.append(ns.createError(ns.t('core', 'onlyNumbers', {':property': that.field.label})));
   }
   else {
     if (decimals) {
@@ -118,13 +115,13 @@ ns.Number.prototype.validate = function () {
     }
 
     if (this.field.max !== undefined && value > this.field.max) {
-      this.$errors.append(ns.createError(ns.t('core', 'exceedsMax', {':property': 'number field', ':max': this.field.max})));
+      this.$errors.append(ns.createError(ns.t('core', 'exceedsMax', {':property': that.field.label, ':max': this.field.max})));
     }
     else if (this.field.min !== undefined && value < this.field.min) {
-      this.$errors.append(ns.createError(ns.t('core', 'belowMin', {':property': 'number field', ':min': this.field.min})));
+      this.$errors.append(ns.createError(ns.t('core', 'belowMin', {':property': that.field.label, ':min': this.field.min})));
     }
     else if (this.field.step !== undefined && value % this.field.step)  {
-      this.$errors.append(ns.createError(ns.t('core', 'outOfStep', {':property': 'number field', ':step': this.field.step})));
+      this.$errors.append(ns.createError(ns.t('core', 'outOfStep', {':property': that.field.label, ':step': this.field.step})));
     }
   }
 

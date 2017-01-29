@@ -101,12 +101,6 @@ ns.File.prototype.constructor = ns.File;
 ns.File.prototype.appendTo = function ($wrapper) {
   var self = this;
 
-  var label = '';
-  if (this.field.label !== 0) {
-    label = '<span class="h5peditor-label' + (this.field.optional ? '' : ' h5peditor-required') + '">' + (this.field.label === undefined ? this.field.name : this.field.label) + '</span>';
-  }
-
-  var description = ns.createDescription(this.field.description);
   var fileHtml =
     '<div class="file"></div>' +
     '<a class="h5p-copyright-button" href="#">' + ns.t('core', 'editCopyright') + '</a>' +
@@ -114,9 +108,10 @@ ns.File.prototype.appendTo = function ($wrapper) {
       '<a href="#" class="h5p-close" title="' + ns.t('core', 'close') + '"></a>' +
     '</div>';
 
-  var html = ns.createItem(this.field.type, label + description + fileHtml);
+  var html = ns.createFieldMarkup(this.field, fileHtml);
 
   var $container = ns.$(html).appendTo($wrapper);
+  this.$copyrightButton = $container.find('.h5p-copyright-button');
   this.$file = $container.find('.file');
   this.$errors = $container.find('.h5p-errors');
   this.addFile();
@@ -159,10 +154,15 @@ ns.File.prototype.addFile = function () {
   var that = this;
 
   if (this.params === undefined) {
-    this.$file.html('<a href="#" class="add" title="' + ns.t('core', 'addFile') + '"></a>').children('.add').click(function () {
+    this.$file.html(
+      '<a href="#" class="add" title="' + ns.t('core', 'addFile') + '">' +
+        '<div class="h5peditor-field-file-upload-text">' + ns.t('core', 'add') + '</div>' +
+      '</a>'
+    ).children('.add').click(function () {
       that.openFileSelector();
       return false;
     });
+    this.$copyrightButton.addClass('hidden');
     return;
   }
 
@@ -186,6 +186,7 @@ ns.File.prototype.addFile = function () {
     that.confirmRemovalDialog.show(H5P.jQuery(this).offset().top);
     return false;
   });
+  that.$copyrightButton.removeClass('hidden');
 };
 
 /**

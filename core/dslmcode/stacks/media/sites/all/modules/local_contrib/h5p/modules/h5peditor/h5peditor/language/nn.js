@@ -1,6 +1,6 @@
 H5PEditor.language.core = {
   missingTranslation: '[Manglar oversettelse :key]',
-  loading: 'Lastar :type, ver venleg og vent...',
+  loading: 'Lastar, ver venleg og vent...',
   selectLibrary: 'Vel biblioteket du ønskjer å bruke for innhaldet ditt.',
   unknownFieldPath: 'Kan ikkje finne ":path".',
   notImageField: '":path" er ikkje eit bilete.',
@@ -8,8 +8,11 @@ H5PEditor.language.core = {
   requiredProperty: '":property" er påkravd og må ha ein verdi.',
   onlyNumbers: '":property" kan berre innhalde tal.',
   exceedsMax: '":property" overstig maksverdien på :max.',
+  listExceedsMax: 'Antallet elementer i listen overstiger maksantallet på :max elementer.',
   belowMin: '":property" er mindre enn minimumsverdien på :min.',
+  listBelowMin: 'Listen trenger minst :min elementer for at innholdet skal virke.',
   outOfStep: '":property" kan berre endrast i steg på :step.',
+  add: 'Legg til',
   addFile: 'Legg til fil',
   removeFile: 'Fjern fil',
   confirmRemoval: 'Er du sikker på at du ønskjer å fjerne denne :type?',
@@ -36,6 +39,7 @@ H5PEditor.language.core = {
   listLabel: 'Liste',
   uploadError: 'Filopplasting feilet',
   fileToLarge: 'Filen du prøver å laste opp kan være for stor.',
+  unknownFileUploadError: 'Ukjent filopplastingsfeil',
   noSemantics: 'Feil, kunne ikke laste skjemaet for innholdstypen.',
   editImage: 'Rediger bilete',
   saveLabel: 'Lagre',
@@ -52,5 +56,8 @@ H5PEditor.language.core = {
   height: 'Høyde',
   width: 'Bredde',
   textField: 'Tekstfelt',
-  numberField: 'Nummerfelt'
+  numberField: 'Nummerfelt',
+  orderItemUp: 'Flytt element opp',
+  orderItemDown: 'Flytt element ned',
+  removeItem: 'Fjern element'
 };

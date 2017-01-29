@@ -876,4 +876,38 @@ class H5PDrupal implements H5PFrameworkInterface {
    */
   public function afterExportCreated() {
   }
+
+  /**
+   * Helper function to determine access
+   *
+   * @param int $nid
+   * @return boolean
+   */
+  private static function mayCurrentUserUpdateNode($nid) {
+    return node_access('update', node_load($nid));
+  }
+
+  /**
+   * Implements hasPermission
+   *
+   * @param H5PPermission $permission
+   * @param int $content_id
+   * @return bool
+   */
+  public function hasPermission($permission, $content_id = NULL) {
+    switch ($permission) {
+      case H5PPermission::DOWNLOAD_H5P:
+        return $content_id !== NULL && (
+          user_access('download all h5ps') ||
+          (self::mayCurrentUserUpdateNode($content_id) && user_access('download own h5ps'))
+        );
+
+      case H5PPermission::EMBED_H5P:
+        return $content_id !== NULL && (
+          user_access('embed all h5ps') ||
+          (self::mayCurrentUserUpdateNode($content_id) && user_access('embed own h5ps'))
+        );
+    }
+    return FALSE;
+  }
 }

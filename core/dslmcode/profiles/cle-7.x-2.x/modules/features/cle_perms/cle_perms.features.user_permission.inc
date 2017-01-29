@@ -10,6 +10,32 @@
 function cle_perms_user_default_permissions() {
   $permissions = array();
 
+  // Exported permission: 'access comments'.
+  $permissions['access comments'] = array(
+    'name' => 'access comments',
+    'roles' => array(
+      'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
+      'administrator' => 'administrator',
+      'instructor' => 'instructor',
+      'staff' => 'staff',
+      'student' => 'student',
+      'teaching assistant' => 'teaching assistant',
+    ),
+    'module' => 'comment',
+  );
+
+  // Exported permission: 'administer comments'.
+  $permissions['administer comments'] = array(
+    'name' => 'administer comments',
+    'roles' => array(
+      'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
+      'administrator' => 'administrator',
+      'instructor' => 'instructor',
+      'staff' => 'staff',
+    ),
+    'module' => 'comment',
+  );
+
   // Exported permission: 'administer file types'.
   $permissions['administer file types'] = array(
     'name' => 'administer file types',
@@ -538,6 +564,20 @@ function cle_perms_user_default_permissions() {
     'module' => 'node',
   );
 
+  // Exported permission: 'edit own comments'.
+  $permissions['edit own comments'] = array(
+    'name' => 'edit own comments',
+    'roles' => array(
+      'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
+      'administrator' => 'administrator',
+      'instructor' => 'instructor',
+      'staff' => 'staff',
+      'student' => 'student',
+      'teaching assistant' => 'teaching assistant',
+    ),
+    'module' => 'comment',
+  );
+
   // Exported permission: 'edit own document files'.
   $permissions['edit own document files'] = array(
     'name' => 'edit own document files',
@@ -578,6 +618,34 @@ function cle_perms_user_default_permissions() {
       'teaching assistant' => 'teaching assistant',
     ),
     'module' => 'file_entity',
+  );
+
+  // Exported permission: 'post comments'.
+  $permissions['post comments'] = array(
+    'name' => 'post comments',
+    'roles' => array(
+      'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
+      'administrator' => 'administrator',
+      'instructor' => 'instructor',
+      'staff' => 'staff',
+      'student' => 'student',
+      'teaching assistant' => 'teaching assistant',
+    ),
+    'module' => 'comment',
+  );
+
+  // Exported permission: 'skip comment approval'.
+  $permissions['skip comment approval'] = array(
+    'name' => 'skip comment approval',
+    'roles' => array(
+      'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
+      'administrator' => 'administrator',
+      'instructor' => 'instructor',
+      'staff' => 'staff',
+      'student' => 'student',
+      'teaching assistant' => 'teaching assistant',
+    ),
+    'module' => 'comment',
   );
 
   // Exported permission: 'view files'.

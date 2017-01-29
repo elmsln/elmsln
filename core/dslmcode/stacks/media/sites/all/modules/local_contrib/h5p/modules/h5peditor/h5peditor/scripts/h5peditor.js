@@ -268,6 +268,23 @@ ns.findLibraryAncestor = function (parent) {
 };
 
 /**
+ * getParentZebra
+ *
+ * Alternate the background color of fields
+ *
+ * @param parent
+ * @returns {string} to determine background color of callee
+ */
+ns.getParentZebra = function (parent) {
+  if (parent.zebra) {
+    return parent.zebra;
+  }
+  else {
+    return ns.getParentZebra(parent.parent);
+  }
+};
+
+/**
  * Find the nearest ancestor which handles commonFields.
  *
  * @param {type} parent
@@ -293,9 +310,14 @@ ns.removeChildren = function (children) {
 
   for (var i = 0; i < children.length; i++) {
     // Common fields will be removed by library.
-    if (children[i].field === undefined ||
-        children[i].field.common === undefined ||
-        !children[i].field.common) {
+    var isCommonField = (children[i].field === undefined ||
+                         children[i].field.common === undefined ||
+                         !children[i].field.common);
+
+    var hasRemove = (children[i].remove instanceof Function ||
+                     typeof children[i].remove === 'function');
+
+    if (isCommonField && hasRemove) {
       children[i].remove();
     }
   }
@@ -394,19 +416,114 @@ ns.createError = function (message) {
 };
 
 /**
- * Create HTML wrapper for field items.
+ * Turn a numbered importance into a string.
  *
- * @param {String} type
- * @param {String} content
- * @param {String} [description]
+ * @param {string} importance
  * @returns {String}
  */
-ns.createItem = function (type, content, description) {
-  var html = '<div class="field ' + type + '">' + content + '<div class="h5p-errors"></div>';
-  if (description !== undefined) {
-    html += '<div class="h5peditor-field-description">' + description + '</div>';
-  }
-  return html + '</div>';
+ns.createImportance = function (importance) {
+  return importance ? 'importance-' + importance : '';
+};
+
+/**
+ * Create HTML wrapper for field items.
+ * Makes sure the different elements are placed in an consistent order.
+ *
+ * @param {string} type
+ * @param {string} [label]
+ * @param {string} [description]
+ * @param {string} [content]
+ * @deprecated since version 1.12 (Jan. 2017, will be removed Jan. 2018). Use createFieldMarkup instead.
+ * @see createFieldMarkup
+ * @returns {string} HTML
+ */
+ns.createItem = function (type, label, description, content) {
+  return '<div class="field ' + type + '">' +
+           (label ? label : '') +
+           (description ? '<div class="h5peditor-field-description">' + description + '</div>' : '') +
+           (content ? content : '') +
+           '<div class="h5p-errors"></div>' +
+         '</div>';
+};
+
+/**
+ * An object describing the semantics of a field
+ * @typedef {Object} SemanticField
+ * @property {string} name
+ * @property {string} type
+ * @property {string} label
+ * @property {string} [importance]
+ * @property {string} [description]
+ * @property {string} [widget]
+ * @property {boolean} [optional]
+ */
+
+/**
+ * Create HTML wrapper for a field item.
+ * Replacement for createItem()
+ *
+ * @since 1.12
+ * @param  {SemanticField} field
+ * @param  {string} content
+ *
+ * @return {string}
+ */
+ns.createFieldMarkup = function (field, content) {
+  content = content || '';
+  var markup = this.createLabel(field) + this.createDescription(field.description) + content;
+
+  return this.wrapFieldMarkup(field, markup);
+};
+
+/**
+ * Create HTML wrapper for a boolean field item.
+ *
+ * @param  {SemanticField} field
+ * @param  {string} content
+ *
+ * @return {string}
+ */
+ns.createBooleanFieldMarkup = function (field, content) {
+  var markup =
+    '<label class="h5peditor-label">' + content + (field.label || field.name || '') + '</label>' +
+    this.createDescription(field.description);
+
+  return this.wrapFieldMarkup(field, markup);
+};
+
+/**
+ * Wraps a field with some metadata classes, and adds error field
+ *
+ * @param {SemanticField} field
+ * @param {string} markup
+ *
+ * @private
+ * @return {string}
+ */
+ns.wrapFieldMarkup = function (field, markup) {
+  // removes undefined and joins
+  var wrapperClasses = this.joinNonEmptyStrings(['field', 'field-name-' + field.name, field.type, ns.createImportance(field.importance), field.widget]);
+
+  // wrap and return
+  return '<div class="' + wrapperClasses + '">' +
+    markup +
+    '<div class="h5p-errors"></div>' +
+    '</div>';
+};
+
+/**
+ * Joins an array of strings if they are defined and non empty
+ *
+ * @param {string[]} arr
+ * @param {string} [separator] Default is space
+ * @return {string}
+ */
+ns.joinNonEmptyStrings = function (arr, separator) {
+  separator = separator || ' ';
+
+  return arr.filter(function (str) {
+    return str !== undefined && str.length > 0;
+  }).join(separator);
 };
 
 /**
@@ -424,9 +541,10 @@ ns.createOption = function (value, text, selected) {
 /**
  * Create HTML for text input.
  *
- * @param {String} description
  * @param {String} value
- * @param {Integer} maxLength
+ * @param {number} maxLength
+ * @param {String} placeholder
+ *
  * @returns {String}
  */
 ns.createText = function (value, maxLength, placeholder) {
@@ -448,8 +566,8 @@ ns.createText = function (value, maxLength, placeholder) {
 /**
  * Create a label to wrap content in.
  *
- * @param {Object} field
- * @param {String} content
+ * @param {SemanticField} field
+ * @param {String} [content]
  * @returns {String}
  */
 ns.createLabel = function (field, content) {
@@ -548,4 +666,40 @@ ns.getWidgetName = function (field) {
  */
 ns.htmlspecialchars = function(string) {
   return string.toString().replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/'/g, '&#039;').replace(/"/g, '&quot;');
+};
+
+/**
+ * Makes it easier to add consistent buttons across the editor widget.
+ *
+ * @param {string} id Typical CSS class format
+ * @param {string} title Human readable format
+ * @param {function} handler Action handler when triggered
+ * @param {boolean} [displayTitle=false] Show button with text
+ * @return {H5P.jQuery}
+ */
+ns.createButton = function (id, title, handler, displayTitle) {
+  var options = {
+    class: 'h5peditor-button ' + (displayTitle ? 'h5peditor-button-textual ' : '') + id,
+    role: 'button',
+    tabIndex: 0,
+    'aria-disabled': 'false',
+    on: {
+      click: function (event) {
+        handler.call(this);
+      },
+      keydown: function (event) {
+        switch (event.which) {
+          case 13: // Enter
+          case 32: // Space
+            handler.call(this);
+            event.preventDefault();
+        }
+      }
+    }
+  };
+
+  // Determine if we're a icon only button or have a textual label
+  options[displayTitle ? 'html' : 'aria-label'] = title;
+
+  return ns.$('<div/>', options);
 };

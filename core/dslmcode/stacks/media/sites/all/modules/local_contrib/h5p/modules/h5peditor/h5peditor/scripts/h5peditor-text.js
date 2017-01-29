@@ -71,10 +71,7 @@ ns.Text.prototype.change = function (callback) {
  */
 ns.Text.prototype.createHtml = function () {
   var input = ns.createText(this.value, this.field.maxLength, this.field.placeholder);
-  var label = ns.createLabel(this.field);
-  var description = ns.createDescription(this.field.description);
-
-  return ns.createItem(this.field.type, label + description + input);
+  return ns.createFieldMarkup(this.field, input);
 };
 
 /**

@@ -161,7 +161,7 @@ ns.Library.prototype.loadLibrary = function (libraryName, preserveParams) {
     return;
   }
 
-  this.$libraryWrapper.html(ns.t('core', 'loading', {':type': 'semantics'})).attr('class', 'libwrap ' + libraryName.split(' ')[0].toLowerCase().replace('.', '-') + '-editor');
+  this.$libraryWrapper.html(ns.t('core', 'loading')).attr('class', 'libwrap ' + libraryName.split(' ')[0].toLowerCase().replace('.', '-') + '-editor');
 
   ns.loadLibrary(libraryName, function (semantics) {
     that.currentLibrary = libraryName;
@@ -221,10 +221,6 @@ ns.Library.prototype.change = function (callback) {
  * @returns {boolean}
  */
 ns.Library.prototype.validate = function () {
-  if (this.params.library === undefined || (this.libraries && this.libraries.length === 1)) {
-    return (this.field.optional === true);
-  }
-
   var valid = true;
 
   if (this.children) {
@@ -234,8 +230,11 @@ ns.Library.prototype.validate = function () {
       }
     }
   }
+  else if (this.libraries && this.libraries.length) {
+    valid = false;
+  }
 
-  return valid;
+  return (this.field.optional ? true : valid);
 };
 
 /**

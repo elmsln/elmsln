@@ -387,7 +387,7 @@ function cis_section_node_insert($node) {
       og_group('node', $node->nid, $values);
       // give them the special staff role if it exists
       if ($ogrole) {
-        _cis_section_og_role_grant('node', $node->nid, $member->uid, $ogrole->rid);
+        _cis_section_og_role_grant('node', $node->nid, $member->uid, $ogrole->rid, 'update');
       }
     }
     // account for newly created sections being activated
@@ -589,7 +589,7 @@ function _cis_section_create_accounts($roster) {
       og_group('node', $gid, $values);
       // give them the special staff role if it exists
       if ($ogrole) {
-        _cis_section_og_role_grant('node', $gid, $account->uid, $ogrole->rid);
+        _cis_section_og_role_grant('node', $gid, $account->uid, $ogrole->rid, 'update');
       }
       // rip membership names to uid array for comparison
       $actual[] = $account->uid;
@@ -747,7 +747,7 @@ function cis_section_user_insert(&$edit, $account, $category) {
         // run through the account granting roles to this to match
         foreach ($account->roles as $key => $name) {
           if ($ogrole = _cis_section_og_role_load_by_name($name)) {
-            _cis_section_og_role_grant('node', $section->nid, $account->uid, $ogrole->rid);
+            _cis_section_og_role_grant('node', $section->nid, $account->uid, $ogrole->rid, 'insert');
           }
         }
       }
@@ -805,7 +805,7 @@ function cis_section_elmsln_api_info() {
  * @param $rid
  *   The role ID.
  */
-function _cis_section_og_role_grant($group_type, $gid, $uid, $rid) {
+function _cis_section_og_role_grant($group_type, $gid, $uid, $rid, $mode = 'update') {
   // Make sure the role is valid.
   $group = entity_load_single($group_type, $gid);
   list(,, $bundle) = entity_extract_ids($group_type, $group);
@@ -814,19 +814,34 @@ function _cis_section_og_role_grant($group_type, $gid, $uid, $rid) {
     // Role isn't valid.
     return;
   }
+  $add = FALSE;
+  // Get the existing user roles.
+  if ($mode == 'update') {
+    // ensure they don't already have this role
+    $user_roles = og_get_user_roles($group_type, $gid, $uid);
+    // if they don't, then just ignore everything here
+    if (empty($user_roles[$rid])) {
+      $add = TRUE;
+    }
+  }
+  elseif ($mode == 'insert') {
+    $add = TRUE;
+  }
+  // only add the role if we've been told to do so
+  if ($add) {
+    $role = new stdClass();
+    $role->uid = $uid;
+    $role->rid = $rid;
+    $role->group_type = $group_type;
+    $role->gid = $gid;
 
-  $role = new stdClass();
-  $role->uid = $uid;
-  $role->rid = $rid;
-  $role->group_type = $group_type;
-  $role->gid = $gid;
+    drupal_write_record('og_users_roles', $role);
+    og_invalidate_cache();
+    module_invoke_all('og_role_grant', $group_type, $gid, $uid, $rid);
 
-  drupal_write_record('og_users_roles', $role);
-  og_invalidate_cache();
-  module_invoke_all('og_role_grant', $group_type, $gid, $uid, $rid);
-
-  if (module_exists('rules'))  {
-    rules_invoke_event('og_role_grant', og_get_membership($group_type, $gid, 'user', $uid), entity_metadata_wrapper('user', $uid), $rid);
+    if (module_exists('rules'))  {
+      rules_invoke_event('og_role_grant', og_get_membership($group_type, $gid, 'user', $uid), entity_metadata_wrapper('user', $uid), $rid);
+    }
   }
 }
 

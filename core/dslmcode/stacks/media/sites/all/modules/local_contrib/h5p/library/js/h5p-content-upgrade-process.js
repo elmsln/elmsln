@@ -182,7 +182,7 @@ H5P.ContentUpgradeProcess = (function (Version) {
         break;
 
       case 'group':
-        if (field.fields.length === 1) {
+        if (field.fields.length === 1 && field.isSubContent !== true) {
           // Single field to process, wrapper will be skipped
           self.processField(field.fields[0], params, function (err, upgradedParams) {
             if (upgradedParams) {

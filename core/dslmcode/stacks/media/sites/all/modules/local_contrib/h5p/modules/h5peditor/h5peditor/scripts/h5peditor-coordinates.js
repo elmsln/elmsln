@@ -137,10 +137,7 @@ ns.Coordinates.prototype.appendTo = function ($wrapper) {
  */
 ns.Coordinates.prototype.createHtml = function () {
   var input = ns.createText(this.params !== undefined ? this.params.x : undefined, 15, 'X') + ' , ' + ns.createText(this.params !== undefined ? this.params.y : undefined, 15, 'Y');
-  var label = ns.createLabel(this.field);
-  var description = ns.createDescription(this.field.description);
-
-  return ns.createItem(this.field.widget, label + description + input);
+  return ns.createFieldMarkup(this.field, input);
 };
 
 /**
