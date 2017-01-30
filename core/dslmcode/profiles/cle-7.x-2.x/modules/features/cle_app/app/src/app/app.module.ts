@@ -12,6 +12,7 @@ import { reducer as assignmentReducer } from './reducers/assignments';
 import { reducer as userReducer } from './reducers/users';
 import { submissionReducer } from './submission/submission.reducer';
 import { projectReducer } from './projects/project.reducer';
+import { imageReducer } from './image/image.reducer';
 // effects
 import { AppEffects } from './app.effects';
 import { SubmissionEffects } from './submission/submission.effects';
@@ -55,6 +56,7 @@ import { SubmissionStatesComponent } from './submission/submission-states/submis
 import { DialogComponent } from './dialog/dialog.component';
 import { SubmissionEditStatesComponent } from './submission/submission-edit-states/submission-edit-states.component';
 import { SubmissionDialogComponent } from './submission/submission-dialog/submission-dialog.component';
+import { ImageComponent } from './image/image.component';
 
 @NgModule({
   declarations: [
@@ -87,7 +89,8 @@ import { SubmissionDialogComponent } from './submission/submission-dialog/submis
     SubmissionStatesComponent,
     DialogComponent,
     SubmissionEditStatesComponent,
-    SubmissionDialogComponent
+    SubmissionDialogComponent,
+    ImageComponent
   ],
   imports: [
     BrowserModule,
@@ -100,7 +103,8 @@ import { SubmissionDialogComponent } from './submission/submission-dialog/submis
       assignments: assignmentReducer,
       user: userReducer,
       submissions: submissionReducer,
-      projects: projectReducer
+      projects: projectReducer,
+      images: imageReducer
     }),
     EffectsModule.run(AppEffects),
     EffectsModule.run(SubmissionEffects),

@@ -34,7 +34,6 @@ export class SubmissionEditComponent implements OnInit {
       if (typeof params['submissionId'] !== 'undefined') {
         let id = params['submissionId'];
         this.submissionId = Number(id);
-        console.log(this.submissionId);
       }
     });
 
@@ -64,14 +63,14 @@ export class SubmissionEditComponent implements OnInit {
 
   onSubmissionSave($event) {
     this.store.dispatch(updateSubmission($event));
-    this.submissionFormComponent.form.reset();
+    // this.submissionFormComponent.form.reset();
   }
 
   onSubmissionCancel() {
     if (this.submissionFormDirty) {
       if (confirm('You have unsaved changes. Are you sure you want to navigate away from this page?')) {
         this.router.navigate(['/submissions/' + this.submissionId ]);
-        this.submissionFormComponent.form.reset();
+        // this.submissionFormComponent.form.reset();
       }
     }
     else {

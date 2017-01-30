@@ -54,7 +54,6 @@ export function projectReducer(state: ProjectState = initialState, action: Actio
     }
 
     case ActionTypes.DELETE_PROJECT: {
-      console.log(state.projects, action.payload);
       return {
         projects: state.projects.filter(project => project.id !== action.payload.id)
       }
@@ -69,6 +68,15 @@ export function projectReducer(state: ProjectState = initialState, action: Actio
     case ActionTypes.LOAD_PROJECTS_SUCCESS: {
       return {
         projects: action.payload ? action.payload : []
+      }
+    }
+
+    case ActionTypes.MOVE_PROJECT_ASSIGNMENT: {
+      return {
+        projects: state.projects.map((project:Project) => {
+          if (project.id === action.payload.newProjectId) {
+          }
+        })
       }
     }
 
