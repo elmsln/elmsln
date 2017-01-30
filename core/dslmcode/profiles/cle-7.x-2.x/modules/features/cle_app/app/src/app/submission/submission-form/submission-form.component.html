@@ -1,9 +1,14 @@
 <form *ngIf="form" [formGroup]="form" class="submission-form">
   <input formControlName="title" placeholder="title" [ngClass]="{'invalid': form.controls['title'].status === 'INVALID' && saveAttempted}">
-  <wysiwygjs formControlName="body" (onWysiwygInit)="onWysiwygInit()" (onImageAdded)="onWysiwygImageAdded($event)"></wysiwygjs>
+  <wysiwygjs 
+    formControlName="body"
+    (onWysiwygInit)="onWysiwygInit()"
+    (onImageAdded)="onWysiwygImageAdded($event)"
+    (onImageSave)="onImageSave($event)">
+  </wysiwygjs>
 
   <div class="actions">
-    <button type="submit" class="btn" (click)="submit()">Save</button>
-    <button type="button" class="btn" (click)="cancel()">Cancel</button>
+    <button type="submit" class="btn" (click)="submit()" [ngClass]="{'disabled': (savingImage$ | async)}">Save</button>
+    <a class="btn" (click)="cancel()" [ngClass]="{'disabled': (savingImage$ | async)}">Cancel</a>
   </div>
 </form>

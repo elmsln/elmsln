@@ -4,11 +4,13 @@ import { Submission } from './submission';
 
 export interface SubmissionState {
   saving: boolean;
+  savingImage: boolean;
   submissions: Submission[]
 }
 
 const initialState: SubmissionState = {
   saving: false,
+  savingImage: false,
   submissions: []
 }
 
@@ -17,6 +19,7 @@ export function submissionReducer(state: SubmissionState = initialState, action:
     case ActionTypes.CREATE_SUBMISSION: {
       return {
         saving: true,
+        savingImage: state.savingImage,
         submissions: [...state.submissions, action.payload]
       }
     }
@@ -24,6 +27,7 @@ export function submissionReducer(state: SubmissionState = initialState, action:
     case ActionTypes.CREATE_SUBMISSION_SUCCESS: {
       return {
         saving: false,
+        savingImage: state.savingImage,
         submissions: state.submissions.map((submission:Submission) => {
           if (!submission.id && action.payload.id) {
             return Object.assign({}, submission, action.payload)
@@ -36,6 +40,7 @@ export function submissionReducer(state: SubmissionState = initialState, action:
     case ActionTypes.UPDATE_SUBMISSION: {
       return {
         saving: true,
+        savingImage: state.savingImage,
         submissions: state.submissions.map((submission:Submission) => {
           // check if the updated submission has the same id as the current assignemnt
           if (submission.id === action.payload.id) {
@@ -50,6 +55,7 @@ export function submissionReducer(state: SubmissionState = initialState, action:
     case ActionTypes.UPDATE_SUBMISSION_SUCCESS: {
       return {
         saving: false,
+        savingImage: state.savingImage,
         submissions: state.submissions.map((submission:Submission) => {
           if (submission.id === action.payload.id) {
             return Object.assign({}, submission, action.payload);
@@ -63,6 +69,7 @@ export function submissionReducer(state: SubmissionState = initialState, action:
       console.log(state.submissions, action.payload);
       return {
         saving: state.saving,
+        savingImage: state.savingImage,
         submissions: state.submissions.filter(submission => submission.id !== action.payload.id)
       }
     }
@@ -70,6 +77,7 @@ export function submissionReducer(state: SubmissionState = initialState, action:
     case ActionTypes.LOAD_SUBMISSIONS: {
       return {
         saving: state.saving,
+        savingImage: state.savingImage,
         submissions: []
       }
     }
@@ -77,10 +85,35 @@ export function submissionReducer(state: SubmissionState = initialState, action:
     case ActionTypes.LOAD_SUBMISSIONS_SUCCESS: {
       return {
         saving: state.saving,
+        savingImage: state.savingImage,
         submissions: action.payload ? action.payload : []
       }
     }
 
+    case ActionTypes.CREATE_SUBMISSION_IMAGE: {
+      return {
+        saving: state.saving,
+        savingImage: true,
+        submissions: state.submissions
+      }
+    }
+
+    case ActionTypes.CREATE_SUBMISSION_IMAGE_SUCCESS: {
+      return {
+        saving: state.saving,
+        savingImage: false,
+        submissions: state.submissions
+      }
+    }
+
+    case ActionTypes.CREATE_SUBMISSION_IMAGE_FAILURE: {
+      return {
+        saving: state.saving,
+        savingImage: false,
+        submissions: state.submissions
+      }
+    }
+    
     default:  {
       return state;
     }

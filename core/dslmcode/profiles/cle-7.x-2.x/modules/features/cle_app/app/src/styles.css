@@ -47,3 +47,8 @@ app-root .switch label {
 app-root .switch label:after {
   content: none;
 }
+
+.toast .preloader-wrapper {
+  margin-left: 1em;
+  font-size: .8em;
+}

@@ -7,7 +7,6 @@ import { AppSettings } from '../app-settings';
 // non-typescript definitions
 declare var jQuery:any;
 declare var Materialize:any;
-
 @Component({
   selector: 'wysiwygjs',
   templateUrl: './wysiwygjs.component.html',
@@ -20,12 +19,11 @@ declare var Materialize:any;
     }
   ]
 })
-
 export class WysiwygjsComponent implements OnInit, ControlValueAccessor {
   @Input() content:string;
   @Output() onWysiwygInit: EventEmitter<any> = new EventEmitter();
   @Output() onContentUpdate: EventEmitter<any> = new EventEmitter();
-  @Output() onImageAdded: EventEmitter<any> = new EventEmitter();
+  @Output() onImageSave: EventEmitter<any> = new EventEmitter();
 
   constructor(
     private el: ElementRef,
@@ -302,6 +300,7 @@ export class WysiwygjsComponent implements OnInit, ControlValueAccessor {
       const target = jQuery(newThis.el.nativeElement).find('.wysiwyg-editor');
       target.find('img:not(.processed)').each(function(index,value) {
           let base64 = jQuery(this).attr('src');
+          newThis.onImageSave.emit({type: 'saving'});
           newThis.uploadImage(base64)
             .subscribe(
                 (image:any) => {
@@ -309,11 +308,16 @@ export class WysiwygjsComponent implements OnInit, ControlValueAccessor {
                     jQuery(this).attr('width', image.metadata.width);
                     jQuery(this).attr('height', image.metadata.height);
                     jQuery(this).addClass('processed');
-                    newThis.onImageAdded.emit(image);
+                    newThis.onImageSave.emit({
+                        type: 'success',
+                        image: image
+                    });
                 },
                 error => {
                     jQuery(this).remove();
-                    Materialize.toast('Image must be smaller than .5MB', 2500);
+                    newThis.onImageSave.emit({
+                        type: 'error'
+                    })
                 }
             )
             // .subscribe(url => {
