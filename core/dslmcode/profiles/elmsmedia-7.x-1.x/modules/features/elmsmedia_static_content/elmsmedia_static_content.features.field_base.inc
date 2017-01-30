@@ -25,6 +25,7 @@ function elmsmedia_static_content_field_default_field_bases() {
     'locked' => 0,
     'module' => 'entityreference',
     'settings' => array(
+      'behaviors' => array(),
       'cis_connector_access' => FALSE,
       'cis_connector_disable' => FALSE,
       'handler' => 'base',
@@ -38,7 +39,13 @@ function elmsmedia_static_content_field_default_field_bases() {
           'type' => 'none',
         ),
         'target_bundles' => array(
+          'audio' => 'audio',
+          'document' => 'document',
+          'elmsmedia_image' => 'elmsmedia_image',
+          'external_video' => 'external_video',
           'static_content' => 'static_content',
+          'svg' => 'svg',
+          'video' => 'video',
         ),
       ),
       'target_type' => 'node',
