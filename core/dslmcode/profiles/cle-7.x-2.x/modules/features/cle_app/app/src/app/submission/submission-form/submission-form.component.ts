@@ -1,8 +1,9 @@
 import { Component, OnInit, Input, OnChanges, Output, EventEmitter } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
-import { Submission } from '../submission';
-import { createSubmissionImage, createSubmissionImageSuccess, createSubmissionImageFailure } from '../submission.actions';
 import { Store } from '@ngrx/store';
+import { createImage, createImageSuccess, createImageFailure } from '../../image/image.actions';
+import { ImageState } from '../../image/image.reducer';
+import { Submission } from '../submission';
 import { Observable } from 'rxjs/Observable';
 
 declare const Materialize:any;
@@ -45,8 +46,9 @@ export class SubmissionFormComponent implements OnInit, OnChanges {
         this.formValueChanges++;
       });
 
-    this.savingImage$ = this.store.select('submissions')
-      .map((s:any) => s.savingImage);
+    this.savingImage$ = this.store.select('images')
+      .map((s:ImageState) => s.status)
+      .map(s => s.type === 'saving')
 
     /**
      * Saving Image notifications
@@ -67,17 +69,21 @@ export class SubmissionFormComponent implements OnInit, OnChanges {
     `;
     // when savingImage changes in the reducer
     // change the notifications
-    this.savingImage$
+    this.store.select('images')
+      .map((s:ImageState) => s.status)
       .skip(1)
       .debounceTime(200)
       .distinctUntilChanged((x,y) => x === y)
-      .subscribe((s:any) => {
-        if (s === true) {
+      .subscribe(s => {
+        jQuery('.submission-form-image-saving').remove();
+        if (s.type === 'saving') {
           Materialize.toast(savingImageMessage, null, 'submission-form-image-saving');
         }
-        if (s === false) {
-          jQuery('.submission-form-image-saving').remove();
+        if (s.type === 'saved') {
           Materialize.toast('Image uploaded', 1500);
+        }
+        if (s.type === 'error') {
+          Materialize.toast(s.message, 1500);
         }
       })
 
@@ -107,15 +113,15 @@ export class SubmissionFormComponent implements OnInit, OnChanges {
   onImageSave($event) {
     switch ($event.type) {
       case 'saving':
-        this.store.dispatch(createSubmissionImage());
+        this.store.dispatch(createImage());
         break;
 
       case 'success':
-        this.store.dispatch(createSubmissionImageSuccess());
+        this.store.dispatch(createImageSuccess());
         break;
 
       case 'error':
-        this.store.dispatch(createSubmissionImageFailure());
+        this.store.dispatch(createImageFailure());
         break;
     
       default:

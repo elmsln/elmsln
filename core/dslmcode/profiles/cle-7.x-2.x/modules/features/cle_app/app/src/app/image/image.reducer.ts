@@ -32,10 +32,8 @@ export function imageReducer(state: ImageState = initialState, action: Action) {
     case ActionTypes.CREATE_IMAGE_SUCCESS: {
       return {
         status: {
-          status: {
-            type: 'created',
-            message: 'Image created'
-          }
+          type: 'saved',
+          message: 'Image created'
         }
       }
     }
@@ -43,10 +41,8 @@ export function imageReducer(state: ImageState = initialState, action: Action) {
     case ActionTypes.CREATE_IMAGE_FAILURE: {
       return {
         status: {
-          status: {
-            type: 'error',
-            message: 'There was an error creating the image.'
-          }
+          type: 'error',
+          message: 'There was an error creating the image.'
         }
       }
     }
