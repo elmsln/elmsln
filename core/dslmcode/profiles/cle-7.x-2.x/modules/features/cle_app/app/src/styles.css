@@ -49,6 +49,6 @@ app-root .switch label:after {
 }
 
 .toast .preloader-wrapper {
-  margin-left: 10em;
+  margin-left: 1em;
   font-size: .8em;
 }
