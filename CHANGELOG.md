@@ -1,3 +1,8 @@
+ELMSLN 0.7.0, 2017-01-30 - Redux
+This release fixes over 100 issues since the last release (200ish since 0.6.0). Major improvements in stability to Studio which has graduated as the 1st angular2 based system in the network, as well as lots of UX improvements in all levels of the system. Media, Online, and Courses see major improvements in usability as well. All other systems are a lot easier to access and system context is being maintained between systems much better. Multiple demonstrations of this release are starting to make believers of the approach.
+
+To read about the changes in this release see: https://github.com/elmsln/elmsln/milestone/13?closed=1
+
 ELMSLN 0.6.3, 2016-12-18 - Evergreen
 This release now adds support for CAS, cleans up multiple minor installation issues with Ubuntu 16, fixes some minor UX issues and enhances the internal ELMSLNJS API for building Angular apps against ELMSLN.
 
