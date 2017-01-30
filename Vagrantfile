@@ -44,7 +44,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   end
   # run script as root
   config.vm.provision "shell",
-    args: "https://github.com/elmsln/elmsln.git 0.7.x https://github.com/elmsln/elmsln-config-vagrant.git",
+    args: "https://github.com/elmsln/elmsln.git 0.8.x https://github.com/elmsln/elmsln-config-vagrant.git",
     path: "scripts/vagrant/handsfree-vagrant.sh"
 
   # run as the vagrant user
