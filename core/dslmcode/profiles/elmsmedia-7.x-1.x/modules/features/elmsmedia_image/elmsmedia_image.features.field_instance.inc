@@ -261,6 +261,7 @@ function elmsmedia_image_field_default_field_instances() {
       ),
     ),
     'entity_type' => 'node',
+    'fences_wrapper' => 'div',
     'field_name' => 'field_citation',
     'label' => 'Citation',
     'required' => 0,
@@ -280,15 +281,19 @@ function elmsmedia_image_field_default_field_instances() {
       ),
       'better_formats' => array(
         'allowed_formats' => array(
-          'plain_text' => 'plain_text',
-          'textbook_editor' => 'textbook_editor',
+          'plain_text' => 0,
+          'simple_text' => 'simple_text',
+          'textbook_editor' => 0,
         ),
-        'allowed_formats_toggle' => 0,
+        'allowed_formats_toggle' => 1,
         'default_order_toggle' => 0,
         'default_order_wrapper' => array(
           'formats' => array(
             'plain_text' => array(
               'weight' => 10,
+            ),
+            'simple_text' => array(
+              'weight' => 0,
             ),
             'textbook_editor' => array(
               'weight' => -10,
@@ -296,7 +301,7 @@ function elmsmedia_image_field_default_field_instances() {
           ),
         ),
       ),
-      'text_processing' => 0,
+      'text_processing' => 1,
       'user_register_form' => FALSE,
     ),
     'widget' => array(
@@ -785,6 +790,7 @@ function elmsmedia_image_field_default_field_instances() {
       ),
     ),
     'entity_type' => 'node',
+    'fences_wrapper' => 'div',
     'field_name' => 'field_image_caption',
     'label' => 'Caption',
     'required' => 0,
@@ -820,7 +826,7 @@ function elmsmedia_image_field_default_field_instances() {
           ),
         ),
       ),
-      'text_processing' => 0,
+      'text_processing' => 1,
       'user_register_form' => FALSE,
     ),
     'widget' => array(
