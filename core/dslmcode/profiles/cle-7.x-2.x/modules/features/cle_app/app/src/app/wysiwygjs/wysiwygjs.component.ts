@@ -309,7 +309,8 @@ export class WysiwygjsComponent implements OnInit, ControlValueAccessor {
                     jQuery(this).attr('height', image.metadata.height);
                     jQuery(this).addClass('processed');
                     newThis.onImageSave.emit({
-                        type: 'success'
+                        type: 'success',
+                        image: image
                     });
                 },
                 error => {

@@ -729,16 +729,7 @@ var SubmissionFormComponent = (function () {
         this.form.markAsPristine();
     };
     SubmissionFormComponent.prototype.onWysiwygImageAdded = function ($event) {
-        // get the existing images
-        var images = typeof this.form.value.evidence.images === 'array' ? this.form.value.evidence.images : [];
-        // add this new image fid onto the array
-        images.push($event.fid);
-        // update the images array in the submission form.
-        this.form.patchValue({
-            evidence: {
-                images: images
-            }
-        });
+        ;
     };
     SubmissionFormComponent.prototype.onImageSave = function ($event) {
         switch ($event.type) {
@@ -747,6 +738,7 @@ var SubmissionFormComponent = (function () {
                 break;
             case 'success':
                 this.store.dispatch(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__image_image_actions__["b" /* createImageSuccess */])());
+                this.addImageAsEvidence($event.image);
                 break;
             case 'error':
                 this.store.dispatch(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__image_image_actions__["c" /* createImageFailure */])());
@@ -768,6 +760,18 @@ var SubmissionFormComponent = (function () {
     };
     SubmissionFormComponent.prototype.cancel = function () {
         this.onSubmissionCancel.emit();
+    };
+    SubmissionFormComponent.prototype.addImageAsEvidence = function (image) {
+        // get the existing images
+        var images = typeof this.form.value.evidence.images === 'array' ? this.form.value.evidence.images : [];
+        // add this new image fid onto the array
+        images.push(image.fid);
+        // update the images array in the submission form.
+        this.form.patchValue({
+            evidence: {
+                images: images
+            }
+        });
     };
     __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Input"])(), 
@@ -4249,7 +4253,8 @@ var WysiwygjsComponent = (function () {
                     jQuery(_this).attr('height', image.metadata.height);
                     jQuery(_this).addClass('processed');
                     newThis.onImageSave.emit({
-                        type: 'success'
+                        type: 'success',
+                        image: image
                     });
                 }, function (error) {
                     jQuery(_this).remove();

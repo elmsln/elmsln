@@ -96,16 +96,7 @@ export class SubmissionFormComponent implements OnInit, OnChanges {
   }
 
   onWysiwygImageAdded($event) {
-    // get the existing images
-    var images:any[] = typeof this.form.value.evidence.images  === 'array' ? this.form.value.evidence.images : [];
-    // add this new image fid onto the array
-    images.push($event.fid);
-    // update the images array in the submission form.
-    this.form.patchValue({
-      evidence: {
-        images: images
-      }
-    });
+;
   }
 
   onImageSave($event) {
@@ -116,6 +107,7 @@ export class SubmissionFormComponent implements OnInit, OnChanges {
 
       case 'success':
         this.store.dispatch(createImageSuccess());
+        this.addImageAsEvidence($event.image);
         break;
 
       case 'error':
@@ -141,5 +133,18 @@ export class SubmissionFormComponent implements OnInit, OnChanges {
 
   cancel() {
     this.onSubmissionCancel.emit();
+  }
+
+  private addImageAsEvidence(image) {
+    // get the existing images
+    var images:any[] = typeof this.form.value.evidence.images  === 'array' ? this.form.value.evidence.images : [];
+    // add this new image fid onto the array
+    images.push(image.fid);
+    // update the images array in the submission form.
+    this.form.patchValue({
+      evidence: {
+        images: images
+      }
+    });
   }
 }
