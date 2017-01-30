@@ -86,8 +86,6 @@ export class SubmissionFormComponent implements OnInit, OnChanges {
           Materialize.toast(s.message, 1500);
         }
       })
-
-    // this.store.dispatch(createSubmissionImage());
   }
 
   ngOnChanges() {
@@ -143,6 +141,5 @@ export class SubmissionFormComponent implements OnInit, OnChanges {
 
   cancel() {
     this.onSubmissionCancel.emit();
-    this.form.reset();
   }
 }
