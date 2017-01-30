@@ -9,7 +9,10 @@ export const ActionTypes = {
   LOAD_SUBMISSIONS: 'LOAD_SUBMISSIONS',
   LOAD_SUBMISSIONS_SUCCESS: 'LOAD_SUBMISSIONS_SUCCESS',
   LOAD_PERMISSIONS: 'LOAD_PERMISSIONS',
-  LOAD_PERMISSIONS_SUCCESS: 'LOAD_PERMISSIONS_SUCCESS'
+  LOAD_PERMISSIONS_SUCCESS: 'LOAD_PERMISSIONS_SUCCESS',
+  CREATE_SUBMISSION_IMAGE: 'CREATE_SUBMISSION_IMAGE',
+  CREATE_SUBMISSION_IMAGE_SUCCESS: 'CREATE_SUBMISSION_IMAGE_SUCCESS',
+  CREATE_SUBMISSION_IMAGE_FAILURE: 'CREATE_SUBMISSION_IMAGE_FAILURE'
 }
 
 export function createSubmission(submission): Action {
@@ -72,5 +75,26 @@ export function loadPermissionsSuccess(permissions): Action {
   return {
     type: ActionTypes.LOAD_PERMISSIONS_SUCCESS,
     payload: permissions
+  }
+}
+
+export function createSubmissionImage(): Action {
+  return {
+    type: ActionTypes.CREATE_SUBMISSION_IMAGE,
+    payload: {}
+  }
+}
+
+export function createSubmissionImageSuccess(): Action {
+  return {
+    type: ActionTypes.CREATE_SUBMISSION_IMAGE_SUCCESS,
+    payload: {}
+  }
+}
+
+export function createSubmissionImageFailure(): Action {
+  return {
+    type: ActionTypes.CREATE_SUBMISSION_IMAGE_FAILURE,
+    payload: {}
   }
 }

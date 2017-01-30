@@ -1,6 +1,12 @@
 import { Component, OnInit, Input, OnChanges, Output, EventEmitter } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
 import { Submission } from '../submission';
+import { createSubmissionImage, createSubmissionImageSuccess, createSubmissionImageFailure } from '../submission.actions';
+import { Store } from '@ngrx/store';
+import { Observable } from 'rxjs/Observable';
+
+declare const Materialize:any;
+declare const jQuery:any;
 
 @Component({
   selector: 'app-submission-form',
@@ -15,9 +21,12 @@ export class SubmissionFormComponent implements OnInit, OnChanges {
   form:FormGroup;
   formValueChanges:number = 0;
   saveAttempted:boolean = false;
+  savingImage$:Observable<boolean>
+  savingImageToast:any;
 
   constructor(
-    private formBuilder: FormBuilder
+    private formBuilder: FormBuilder,
+    private store: Store<{}>
   ) { }
 
   ngOnInit() {
@@ -35,6 +44,44 @@ export class SubmissionFormComponent implements OnInit, OnChanges {
         }
         this.formValueChanges++;
       });
+
+    this.savingImage$ = this.store.select('submissions')
+      .map((s:any) => s.savingImage);
+
+    /**
+     * Saving Image notifications
+     */
+    let savingImageMessage = `
+      Saving image 
+      <div class="preloader-wrapper small active">
+        <div class="spinner-layer spinner-green-only">
+          <div class="circle-clipper left">
+            <div class="circle"></div>
+          </div><div class="gap-patch">
+            <div class="circle"></div>
+          </div><div class="circle-clipper right">
+            <div class="circle"></div>
+          </div>
+        </div>
+      </div>
+    `;
+    // when savingImage changes in the reducer
+    // change the notifications
+    this.savingImage$
+      .skip(1)
+      .debounceTime(200)
+      .distinctUntilChanged((x,y) => x === y)
+      .subscribe((s:any) => {
+        if (s === true) {
+          Materialize.toast(savingImageMessage, null, 'submission-form-image-saving');
+        }
+        if (s === false) {
+          jQuery('.submission-form-image-saving').remove();
+          Materialize.toast('Image uploaded', 1500);
+        }
+      })
+
+    // this.store.dispatch(createSubmissionImage());
   }
 
   ngOnChanges() {
@@ -55,6 +102,25 @@ export class SubmissionFormComponent implements OnInit, OnChanges {
         images: images
       }
     });
+  }
+
+  onImageSave($event) {
+    switch ($event.type) {
+      case 'saving':
+        this.store.dispatch(createSubmissionImage());
+        break;
+
+      case 'success':
+        this.store.dispatch(createSubmissionImageSuccess());
+        break;
+
+      case 'error':
+        this.store.dispatch(createSubmissionImageFailure());
+        break;
+    
+      default:
+        break;
+    }
   }
 
   submit() {
