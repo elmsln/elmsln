@@ -150,6 +150,7 @@ dependencies[] = modernizr
 dependencies[] = ableplayer
 dependencies[] = clipboardjs
 dependencies[] = getid3
+dependencies[] = elmsln_simple_filter
 ; Views
 dependencies[] = views_fluid_grid
 ; Features

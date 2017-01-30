@@ -1,0 +1,9 @@
+name = ELMSLN simple filter
+description = A simple input filter that still shows html
+core = 7.x
+package = ELMSLN Core
+dependencies[] = features
+dependencies[] = filter
+dependencies[] = transliteration
+features[features_api][] = api:2
+features[filter][] = simple_text

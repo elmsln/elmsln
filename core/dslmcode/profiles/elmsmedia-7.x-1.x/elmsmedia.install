@@ -233,3 +233,11 @@ function elmsmedia_update_7018(&$sandbox) {
 function elmsmedia_update_7019(&$sandbox) {
   features_revert_module('elmsmedia_section_perms');
 }
+
+/**
+ * Esablish text format that's simple and enabled for image citation.
+ */
+function elmsmedia_update_7020(&$sandbox) {
+  module_enable(array('elmsln_simple_filter'));
+  features_revert_module('elmsmedia_image');
+}
