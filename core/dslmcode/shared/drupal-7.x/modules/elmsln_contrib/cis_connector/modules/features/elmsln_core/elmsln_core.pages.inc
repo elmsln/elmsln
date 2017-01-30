@@ -78,6 +78,10 @@ function elmsln_core_data_form() {
 
     $query['pipeline'][0]['$match']['statement.verb.display.en-US'] = $filtered_verb;
   }
+  else {
+    // ignore pause, it's worthless by itself
+    $query['pipeline'][0]['$match']['statement.verb.display.en-US'] = array('$ne' => 'paused');
+  }
   // only show role results requested if filtered
   if ($etype != 'user' && isset($_GET['role'])) {
     if (isset($roles[$_GET['role']]) && $_GET['role'] != 'all') {
