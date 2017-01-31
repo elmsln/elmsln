@@ -400,7 +400,7 @@ function _cle_assignment_v1_assignment_output($node) {
  * Get all of the assignments for the current user
  * - Make sure that they are seeing assignments for their current section
  */
-function _cle_assignment_v1_get_assignments($type, $filter = array()) {
+function _cle_assignment_v1_get_assignments($filter = array()) {
   $items = array();
   $field_conditions = array();
   $property_conditions = array('status' => array(NODE_PUBLISHED, '='));
