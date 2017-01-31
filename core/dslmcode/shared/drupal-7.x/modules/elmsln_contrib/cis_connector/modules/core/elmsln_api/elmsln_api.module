@@ -59,6 +59,87 @@ function elmsln_api_menu() {
     'access callback' => 'user_is_logged_in',
     'type' => MENU_CALLBACK,
   );
+  $items[ELMSLN_API_BASE_PATH . '/v1/elmsln/menus'] = array(
+    'page callback' => '_elmsln_api_v1_list_menus',
+    'page arguments' => array(),
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_CALLBACK,
+  );
+  $items[ELMSLN_API_BASE_PATH . '/v1/elmsln/menus/%'] = array(
+    'page callback' => '_elmsln_api_v1_get_menu',
+    'page arguments' => array(4),
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_CALLBACK,
+  );
+  // load all bundle info for nodes
+  $info = entity_get_info('node');
+  foreach ($info['bundles'] as $key => $bundle) {
+    // ignore protected data model elements
+    if (!in_array($key, array('cis_course', 'section'))) {
+      // elmsln core file API endpoints
+      $items[ELMSLN_API_BASE_PATH . '/v1/elmsln/nodes/' . $key . 's'] = array(
+        'page callback' => '_elmsln_api_v1_page_callback',
+        'page arguments' => array($key, NULL, NULL),
+        'access callback' => 'user_is_logged_in',
+        'type' => MENU_CALLBACK,
+      );
+      $items[ELMSLN_API_BASE_PATH . '/v1/elmsln/nodes/' . $key . 's/%'] = array(
+        'page callback' => '_elmsln_api_v1_page_callback',
+        'page arguments' => array($key, 5, 'query'),
+        'access callback' => 'user_is_logged_in',
+        'type' => MENU_CALLBACK,
+      );
+      $items[ELMSLN_API_BASE_PATH . '/v1/elmsln/nodes/' . $key . 's/create'] = array(
+        'page callback' => '_elmsln_api_v1_page_callback',
+        'page arguments' => array($key, NULL, 5),
+        'access callback' => 'user_is_logged_in',
+        'type' => MENU_CALLBACK,
+      );
+      $items[ELMSLN_API_BASE_PATH . '/v1/elmsln/nodes/' . $key . 's/%/update'] = array(
+        'page callback' => '_elmsln_api_v1_page_callback',
+        'page arguments' => array($key, 5, 6),
+        'access callback' => 'user_is_logged_in',
+        'type' => MENU_CALLBACK,
+      );
+      $items[ELMSLN_API_BASE_PATH . '/v1/elmsln/nodes/' . $key . 's/%/delete'] = array(
+        'page callback' => '_elmsln_api_v1_page_callback',
+        'page arguments' => array('file', 5, 'delete'),
+        'access callback' => 'user_is_logged_in',
+        'type' => MENU_CALLBACK,
+      );
+    }
+  }
+  // elmsln core file API endpoints
+  $items[ELMSLN_API_BASE_PATH . '/v1/elmsln/comments'] = array(
+    'page callback' => '_elmsln_api_v1_page_callback',
+    'page arguments' => array('comment', NULL, NULL),
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_CALLBACK,
+  );
+  $items[ELMSLN_API_BASE_PATH . '/v1/elmsln/comments/%'] = array(
+    'page callback' => '_elmsln_api_v1_page_callback',
+    'page arguments' => array('comment', 4, 'query'),
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_CALLBACK,
+  );
+  $items[ELMSLN_API_BASE_PATH . '/v1/elmsln/comments/create'] = array(
+    'page callback' => '_elmsln_api_v1_page_callback',
+    'page arguments' => array('comment', NULL, 'create'),
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_CALLBACK,
+  );
+  $items[ELMSLN_API_BASE_PATH . '/v1/elmsln/comments/%/update'] = array(
+    'page callback' => '_elmsln_api_v1_page_callback',
+    'page arguments' => array('comment', 4, 'update'),
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_CALLBACK,
+  );
+  $items[ELMSLN_API_BASE_PATH . '/v1/elmsln/comments/%/delete'] = array(
+    'page callback' => '_elmsln_api_v1_page_callback',
+    'page arguments' => array('comment', 5, 'delete'),
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_CALLBACK,
+  );
   // elmsln core file API endpoints
   $items[ELMSLN_API_BASE_PATH . '/v1/elmsln/files'] = array(
     'page callback' => '_elmsln_api_v1_page_callback',
@@ -134,7 +215,7 @@ function _elmsln_api_multifield_clean($entity, $field, $key, $typecast = FALSE) 
  * Implements hook_elmsln_jsapi_info().
  */
 function elmsln_api_elmsln_jsapi_info() {
-  // assignment api router
+  // file api router
   $items['file'] = array(
     'type'   => 'file',
     'bundle' => 'file',
@@ -142,7 +223,334 @@ function elmsln_api_elmsln_jsapi_info() {
     'list'   => '_elmsln_api_v1_get_files',
     'output' => '_elmsln_api_v1_file_output',
   );
+  // support for comment entity
+  if (module_exists('comment')) {
+    $items['comment'] = array(
+      'type'   => 'comment',
+      'bundle' => 'comment',
+      'modify' => '_elmsln_api_v1_comment_modify',
+      'list'   => '_elmsln_api_v1_get_comments',
+      'output' => '_elmsln_api_v1_comment_output',
+    );
+  }
+  // fallback support for al built in node bundles
+  // this is for doing things generically though
+  // things like cle's specific endpoints will always
+  // be more flexible / accurate in data modeling
+  $info = entity_get_info('node');
+  foreach ($info['bundles'] as $key => $bundle) {
+    $items[$key] = array(
+      'type'   => 'node',
+      'bundle' => $key,
+      'modify' => '_elmsln_api_v1_node_modify',
+      'list'   => '_elmsln_api_v1_get_nodes',
+      'output' => '_elmsln_api_v1_node_output',
+    );
+  }
   return $items;
+}
+
+/**
+ * Get all of the comments.
+ */
+function _elmsln_api_v1_get_comments($type, $filter = array()) {
+  $items = array();
+  $field_conditions = array();
+  $property_conditions = array('status' => array(NODE_PUBLISHED, '='));
+  if (isset($filter['comment'])) {
+    $property_conditions['cid'] = array($filter['comment'], '=');
+  }
+  $orderby = array();
+  $items = _cis_connector_assemble_entity_list('comment', 'comment', 'cid', '_entity', $field_conditions, $property_conditions, $orderby);
+  return $items;
+}
+
+/**
+ * ELMSLN JSapi callback for creating a comment.
+ */
+function _elmsln_api_v1_comment_modify($comment, $params = NULL) {
+  if (!isset($comment->cid)) {
+    $detail = t('Comment created');
+  }
+  else {
+    $detail = t('Comment updated');
+  }
+  // loop through supported parameters and set them for create or update
+  foreach ($params as $key => $value) {
+    // fields we support in a POST
+    switch ($key) {
+      case 'uid':
+      case 'nid':
+      case 'uuid':
+      case 'thread':
+      case 'status':
+        $comment->{$key} = $value;
+      break;
+      case 'title':
+        $comment->subject = $value;
+      break;
+      case 'body':
+        $comment->comment_body[LANGUAGE_NONE][0] = $value;
+      break;
+    }
+  }
+  // ensure we don't have anonymous creation since it's not possible
+  if (!isset($comment->uid) || $comment->uid == 0) {
+    $comment->uid = $GLOBALS['user']->uid;
+  }
+  comment_save($comment);
+  // output the newly created comment
+  $vars = array(
+    'status' => '200',
+    'detail' => $detail,
+    'comment' => (array) $comment,
+  );
+  return $vars;
+}
+
+/**
+ * Helper function that prepares a comment for api output.
+ */
+function _elmsln_api_v1_comment_output($comment) {
+  global $base_url;
+  // this will be our json formatted output
+  $return = array(
+    'id' => (int)$comment->cid,
+    'uid' => (int)$comment->uid,
+    'nid' => (int)$comment->nid,
+    'title' => $comment->subject,
+    'uuid' => $comment->uuid,
+    'thread' => $comment->thread,
+    'status' => (int)$comment->status,
+    'new' => (int)$comment->new,
+    'created' => Date('c', $comment->created),
+    'body' => ($comment->comment_body[LANGUAGE_NONE][0]['safe_value'] ? $comment->comment_body[LANGUAGE_NONE][0]['safe_value'] : $comment->comment_body[LANGUAGE_NONE][0]['value']),
+    'links' => array(
+      'self' => $base_url . '/api/v1/elmsln/comments/' . $comment->cid,
+      'node' => $base_url . '/node/' . $comment->nid,
+      'direct' => $base_url . '/comment/' . $comment->cid,
+    ),
+  );
+  // run through and build out all other properties assuming they arne't set
+  foreach ($comment as $key => $value) {
+    if( strpos($key, 'field_') === 0) {
+      $field = str_replace('field_', '', $key);
+      $field = explode('_', $field);
+      $name = '';
+      foreach ($field as $label) {
+        $name .= ucfirst($label);
+      }
+      $name = lcfirst($name);
+      if (!isset($return[$name])) {
+        $return[$name] = $value;
+      }
+    }
+  }
+
+  // developer support
+  if (module_exists('devel') && user_access('access devel information')) {
+    $return['links']['devel'] = $base_url . '/comment/' . $comment->cid .'/devel';
+  }
+
+  return $return;
+}
+
+/**
+ * Get all of the nodes of this bundle.
+ */
+function _elmsln_api_v1_get_nodes($type, $filter = array()) {
+  $items = array();
+  $field_conditions = array();
+  $property_conditions = array('status' => array(NODE_PUBLISHED, '='));
+  if (isset($filter[$type])) {
+    $property_conditions['nid'] = array($filter[$type], '=');
+  }
+  $orderby = array();
+  $items = _cis_connector_assemble_entity_list('node', $type, 'nid', '_entity', $field_conditions, $property_conditions, $orderby);
+  return $items;
+}
+
+/**
+ * ELMSLN JSapi callback for creating an assignment.
+ */
+function _elmsln_api_v1_node_modify($node, $params = NULL) {
+  // @todo support same generic smashed data model from output, tricky tho
+  if (!isset($node->nid)) {
+    $detail = t('Node created');
+  }
+  else {
+    $detail = t('Node updated');
+  }
+  // loop through supported parameters and set them for create or update
+  foreach ($params as $key => $value) {
+    // fields we support in a POST
+    switch ($key) {
+      case 'uid':
+      case 'nid':
+      case 'uuid':
+      case 'title':
+      case 'status':
+        $node->{$key} = $value;
+      break;
+      case 'body':
+        $node->body[LANGUAGE_NONE][0] = $value;
+      break;
+      default:
+        $node->{$key} = $value;
+        break;
+    }
+  }
+  // ensure we don't have anonymous creation since it's not possible
+  if (!isset($node->uid) || $node->uid == 0) {
+    $node->uid = $GLOBALS['user']->uid;
+  }
+  node_save($node);
+  // output the newly created node
+  $vars = array(
+    'status' => '200',
+    'detail' => $detail,
+    'node' => (array) $node,
+  );
+  return $vars;
+}
+
+/**
+ * Helper function that prepares an assignment for api output.
+ */
+function _elmsln_api_v1_node_output($node) {
+  global $base_url;
+  // this will be our json formatted output
+  $return = array(
+    'id' => (int)$node->nid,
+    'uid' => (int)$node->uid,
+    'uuid' => $node->uuid,
+    'title' => $node->title,
+    'type' => $node->type,
+    'status' => (int)$node->status,
+    'created' => Date('c', $node->created),
+  );
+  // run through and build out all other properties assuming they arne't set
+  foreach ($node as $key => $value) {
+    $field = str_replace('field_', '', $key);
+    $field = explode('_', $field);
+    $name = '';
+    foreach ($field as $label) {
+      $name .= ucfirst($label);
+    }
+    $name = lcfirst($name);
+    if (!isset($return[$name])) {
+      // we have something to send back, now clean up the return value
+      if (isset($value[LANGUAGE_NONE])) {
+        $value = $value[LANGUAGE_NONE];
+      }
+      if (is_array($value)) {
+        foreach ($value as $key => &$val) {
+          // leave it alone though this isn't common
+          if (!is_array($val)) {
+            // try to unserialize for funzies
+            $data = @unserialize($val);
+            if ($data !== false) {
+              $val = $data;
+            }
+            elseif (is_int($val)) {
+              $val = (int)$val;
+            }
+            elseif ($val == "b:0;") {
+              $val = 0;
+            }
+            elseif ($val == "b:1;") {
+              $val = 1;
+            }
+            elseif (is_numeric($val)) {
+              $val = (int)$val;
+            }
+            else {
+              // do nothing, it's exploded enough
+            }
+          }
+          elseif (isset($val['safe_value'])) {
+            $val = $val['safe_value'];
+          }
+          elseif (isset($val['value'])) {
+            $val = $val['value'];
+          }
+          elseif (isset($val['target_id'])) {
+            $val = $val['target_id'];
+          }
+          elseif (isset($val['jquery_colorpicker'])) {
+            $val = $val['jquery_colorpicker'];
+          }
+          elseif (isset($val['fid'])) {
+            $val = _elmsln_api_v1_file_output($val);
+          }
+        }
+      }
+      elseif (is_numeric($value)) {
+        $value = (int)$value;
+      }
+      else {
+        // try to unserialize for funzies
+        $data = @unserialize($value);
+        if ($data !== FALSE) {
+          $value = $data;
+        }
+        elseif ($value == "b:0;") {
+          $value = 0;
+        }
+        elseif ($value == "b:1;") {
+          $value = 1;
+        }
+      }
+      // last minute clean up to normalize a single array element
+      // that has no keys
+      if (is_array($value) && count($value) == 1) {
+        $value = array_pop($value);
+      }
+      $return[$name] = $value;
+    }
+  }
+
+  // mix in display modes
+  // links section
+  $return['links'] = array(
+    'self' => $base_url . '/api/v1/elmsln/nodes/' . $node->type . 's/' . $node->nid,
+    'direct' => $base_url . '/node/' . $node->nid,
+  );
+  // developer support
+  if (module_exists('devel') && user_access('access devel information')) {
+    $return['links']['devel'] = $base_url . '/node/' . $node->nid .'/devel';
+  }
+  // assemble view mode posibilities for these
+  $view_modes = array();
+  $entity_info = entity_get_info('node');
+  if (!empty($entity_info['view modes'])) {
+    $view_modes = array_keys($entity_info['view modes']);
+  }
+  // account for view mode tabs which isolates types
+  if (module_exists('view_mode_tab')) {
+    $view_mode_tab_settings = variable_get('view_mode_tab_settings__' . $node->type, array());
+    $enable_viewmode_default = variable_get('view_mode_enable_by_default', TRUE);
+    foreach ($view_modes as $key => $view_mode) {
+      $show = isset($view_mode_tab_settings[$view_mode]) ? $view_mode_tab_settings[$view_mode] : $enable_viewmode_default;
+      // remove if tabs say not to display this mode
+      if (!$show) {
+        unset($view_modes[$key]);
+      }
+    }
+  }
+  $returnmodes = array();
+  foreach ($view_modes as $mode) {
+    $returnmodes[$mode] = $base_url . '/api/v1/elmsln/nodes/' . $node->type . 's/' . $node->nid . '?display_mode=' . $mode;
+  }
+  $return['display_modes'] = $returnmodes;
+  // possibility of rendering w/ mode in the output
+  // allow for rendering based on a display_mode
+  if (isset($_GET['display_mode'])) {
+    $display_mode = check_plain($_GET['display_mode']);
+    $render_array = entity_view('node', array($node), $display_mode);
+    $return['rendered'] = drupal_render($render_array);
+  }
+  return $return;
 }
 
 /**
@@ -302,7 +710,7 @@ function _elmsln_api_create_image_styles_call(array $uris, array $styles = array
 /**
  * Helper function to return a list of all files.
  */
-function _elmsln_api_v1_get_files($filter = array()) {
+function _elmsln_api_v1_get_files($type, $filter = array()) {
   $items = array();
   $field_conditions = array();
   $property_conditions = array();
@@ -312,6 +720,51 @@ function _elmsln_api_v1_get_files($filter = array()) {
   $orderby = array();
   $items = _cis_connector_assemble_entity_list('file', '', 'fid', '_entity', $field_conditions, $property_conditions, $orderby);
   return $items;
+}
+
+/**
+ * Returns the menus available
+ */
+function _elmsln_api_v1_list_menus() {
+  $menus = menu_load_all();
+  $vars = array();
+  foreach ($menus as $menu_name => $menu) {
+    if (strpos($menu_name, 'menu-elmsln-') === 0) {
+      $vars[$menu_name] = $menu;
+      $vars[$menu_name]['links'] = array('self' =>
+        $GLOBALS['base_url'] . '/api/v1/elmsln/menus/' . $menu_name,
+      );
+    }
+  }
+  _elmsln_jsapi_deliver_output($vars);
+}
+
+/**
+ * Returns the menu links that this user can access from the given menu name.
+ */
+function _elmsln_api_v1_get_menu($menu_name) {
+  $vars = menu_load($menu_name);
+  $vars['tree'] = array();
+  $links = menu_load_links($menu_name);
+  foreach ($links as &$item) {
+    $item = menu_link_load($item['mlid']);
+    // ensure user can access this after loading
+    // otherwise don't include it in the tree
+    if ($item['access']) {
+      $link = $GLOBALS['base_url'] . '/' . $item['link_path'];
+      // account for pure container links
+      if ($item['link_path'] == '<nolink>') {
+        $link = NULL;
+      }
+      $vars['tree'][$item['mlid']] = array(
+        'title' => $item['link_title'],
+        'link' => $link,
+        'weight' => (int)$item['weight'],
+        'parent' => (int)$item['plid'],
+      );
+    }
+  }
+  _elmsln_jsapi_deliver_output($vars);
 }
 
 /**
@@ -1410,7 +1863,7 @@ function _elmsln_api_v1_page_callback($type, $etid = NULL, $op = NULL) {
       }
       $vars = _elmsln_api_tree($path, FALSE);
       $params = filter_var_array($params, FILTER_SANITIZE_STRING);
-      $items = call_user_func($jsapis[$type]['list'], $params);
+      $items = call_user_func($jsapis[$type]['list'], $type, $params);
       // get the assignment ready for sending and place them as an array of items
       // under the 'data' property
       foreach ($items as $item) {

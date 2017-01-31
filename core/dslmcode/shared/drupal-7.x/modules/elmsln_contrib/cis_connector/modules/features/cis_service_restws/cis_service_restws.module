@@ -62,7 +62,7 @@ function cis_service_restws_restws_response_alter(&$response, $function, $format
       if ($function == 'viewResource') {
         $entity_type = arg(0);
         $entity = menu_get_object($entity_type);
-        $render_array = entity_view($entity_type, array($entity), $_GET['display_mode']);
+        $render_array = entity_view($entity_type, array($entity), check_plain($_GET['display_mode']));
         $response['rendered'] = drupal_render($render_array);
       }
       elseif (isset($response['list'])) {
@@ -72,7 +72,7 @@ function cis_service_restws_restws_response_alter(&$response, $function, $format
         foreach ($response['list'] as &$object) {
           if (!empty($object[$info['entity keys']['id']])) {
             $entity = entity_load_single($entity_type, $object[$info['entity keys']['id']]);
-            $render_array = entity_view($entity_type, array($entity), $_GET['display_mode']);
+            $render_array = entity_view($entity_type, array($entity), check_plain($_GET['display_mode']));
             $object['rendered'] = drupal_render($render_array);
           }
           else {
