@@ -1,17 +1,14 @@
 ![ELMSLN](https://raw.githubusercontent.com/elmsln/elmsln/master/docs/assets/snowflake-with-text.png "ELMS Learning Network")
 
-[![OpenCollective](https://opencollective.com/elmsln/backers/badge.svg)](#backers) 
-[![OpenCollective](https://opencollective.com/elmsln/sponsors/badge.svg)](#sponsors)
-
 ELMSLN
 ==============
 ELMS Learning Network (ELMSLN) is an open source educational technology platform for building and sustaining innovation in course technologies. It accomplishes this by taking a Suite of Tools approach to learning design, allowing several systems to make up the different aspects of a course learning environment.  Each course effectively forms a network of technologies (hence the name) which can then be better tailored to each individual course's needs.
 
 Learn more about ELMSLN @ [elmsln.org](https://www.elmsln.org/)
 
-Version | PHP | Includes | Code Status
+Version | PHP | Includes | Status
 ------------- | ------  | --- | -------------------------- | -----------
-[0.7.0](https://github.com/elmsln/elmsln/archive/0.7.0.zip)  | 5.4+ & 7 | Drupal 7.x | [![Build Status](https://travis-ci.org/elmsln/elmsln.svg?branch=master)](https://travis-ci.org/elmsln/elmsln) [![Stories in Ready](https://badge.waffle.io/elmsln/elmsln.png?label=ready&title=Ready)](http://waffle.io/elmsln/elmsln)
+[0.7.0](https://github.com/elmsln/elmsln/archive/0.7.0.zip)  | 5.4+ & 7 | Drupal 7.x | [![Build Status](https://travis-ci.org/elmsln/elmsln.svg?branch=master)](https://travis-ci.org/elmsln/elmsln) [![OpenCollective](https://opencollective.com/elmsln/backers/badge.svg)](#backers) [![OpenCollective](https://opencollective.com/elmsln/sponsors/badge.svg)](#sponsors)
 
 Play quickly
 ==============
