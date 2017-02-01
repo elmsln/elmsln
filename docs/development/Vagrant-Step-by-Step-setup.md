@@ -78,7 +78,7 @@ It has been optimized and heavily tested for use with ELMS:LN and it is what we 
 **Note: If you are experiencing an APDQC Error (https://github.com/elmsln/elmsln/issues/1843) when running `sh developer` after the first time please run the following commands to fix:
 
 - `vagrant ssh (within the elmsln folder where you usually do sh developer)`
-- `sudo -i`
-- `service mysql restart`
+- `sudo service mysql restart`
+- `logout`
 
 This should fix your install and allow you to continue developing smoothly :)
