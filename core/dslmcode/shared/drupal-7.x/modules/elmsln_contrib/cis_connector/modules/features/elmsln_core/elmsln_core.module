@@ -1357,6 +1357,10 @@ function elmsln_core_cis_service_registry_alter(&$keychain) {
               'mail' => strtoupper('SERVICE_' . $distro . '_' . $cfg['host']) . '@' . $cfg['emailending'],
               'pass' => drupal_substr(hash('sha512', $distro . $cfg['salt']), 0, 30),
             );
+            // support for alternate data- protocol for backend
+            if (isset($cfg['dataprotocol'])) {
+              $keychain[$distro]['dataprotocol'] = $cfg['dataprotocol'];
+            }
             $file = file_get_contents($directory . $item . '/' . $distro . '.topology');
             $lines = explode("\n", $file);
             // read each line of the cfg file
