@@ -23,12 +23,12 @@ timestamp(){
 }
 start="$(timestamp)"
 
+export DEBIAN_FRONTEND=noninteractive
 # make sure we're up to date with 5.6 repos
 apt-get update -y
 
 # Needed to make sure that we have mcrypt which apparently is ok again.
 apt-get upgrade -y
-export DEBIAN_FRONTEND=noninteractive
 
 #Install Mariadb
 apt-get install software-properties-common -y
