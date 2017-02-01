@@ -83,7 +83,7 @@ function cle_submission_elmsln_jsapi_info() {
  * Get all of the submissions for the current user
  * - Make sure that they are seeing submissions for their current section
  */
-function _cle_submission_v1_get_submissions($filter = array()) {
+function _cle_submission_v1_get_submissions($type, $filter = array()) {
   $items = array();
   $field_conditions = array();
   $property_conditions = array('status' => array(NODE_PUBLISHED, '='));

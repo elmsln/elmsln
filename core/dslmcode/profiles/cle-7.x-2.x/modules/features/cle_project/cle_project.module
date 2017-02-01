@@ -76,7 +76,7 @@ function cle_project_elmsln_jsapi_info() {
  * Get all of the projects for the current user
  * - Make sure that they are seeing projects for their current section
  */
-function _cle_project_v1_get_projects($filter = array()) {
+function _cle_project_v1_get_projects($type, $filter = array()) {
   $items = array();
   $field_conditions = array();
   $property_conditions = array('status' => array(NODE_PUBLISHED, '='));

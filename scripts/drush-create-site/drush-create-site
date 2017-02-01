@@ -63,8 +63,6 @@ do
   subdir=$service/$college
   dbpw=`</dev/urandom tr -dc A-Za-z0-9 | head -c14`
   drupalpw=`</dev/urandom tr -dc A-Za-z0-9 | head -c14`
-  #drupal user is first bit of admin e-mail
-  drupaluid=`echo $admin | cut -d@ -f1`
   collegelen=${#college}
   coursefilelen=${#coursefile}
   #coursedb="courses_"$college"_"$course
@@ -197,7 +195,7 @@ do
 
   cd $drupalroot
   #Install site with drush
-  drush -y -q --root=$drupalroot site-install $insprofile --db-url=mysql://$dbprefix$college$subcourse:$dbpw@localhost/$coursedb --sites-subdir=$course --db-su=$dbsu --db-su-pw=$dbsupw --site-name="$sitename" --account-name=$drupaluid --account-pass=$drupalpw --account-mail=$admin --site-mail=$site_email
+  drush -y -q --root=$drupalroot site-install $insprofile --db-url=mysql://$dbprefix$college$subcourse:$dbpw@localhost/$coursedb --sites-subdir=$course --db-su=$dbsu --db-su-pw=$dbsupw --site-name="$sitename" --account-name=$requesterid --account-pass=$drupalpw --account-mail=$admin --site-mail=$site_email
 
   echo "3" > $fileloc/$course.$service.progress
 
