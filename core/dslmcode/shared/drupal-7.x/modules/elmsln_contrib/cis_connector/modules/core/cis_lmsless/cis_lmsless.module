@@ -558,7 +558,7 @@ function cis_lmsless_theme() {
         'username' => t('Account'),
         'userlink' => '',
         'userpicturebig' => '<div class="ferpa-protect elmsln-icon icon-user"></div>',
-        'userbackground' => '<img class="background" src="http://materializecss.com/images/office.jpg" alt="">',
+        'userbackground' => '<img class="background" src="' . $GLOBALS['base_url'] . '/sites/all/libraries/materialize/images/office.jpg" alt="">',
         'masquerade' => '',
         'ferpa_flter' => '',
         'user_roles' => '',

@@ -33,7 +33,7 @@ function cpr_foundation_access_preprocess_user_profile(&$vars) {
     $vars['banner'] = $vars['user_profile']['field_user_banner'][0];
   }
   else {
-    $vars['banner'] = '<img class="background" src="http://materializecss.com/images/office.jpg" alt="">';
+    $vars['banner'] = '<img class="background" src="' . $GLOBALS['base_url'] . '/sites/all/libraries/materialize/images/office.jpg" alt="">';
   }
   // load up related user data
   $blockObject = block_load('elmsln_core', 'elmsln_core_user_xapi_data');
