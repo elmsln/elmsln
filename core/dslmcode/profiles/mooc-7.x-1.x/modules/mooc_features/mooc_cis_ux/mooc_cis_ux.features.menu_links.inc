@@ -107,12 +107,64 @@ function mooc_cis_ux_menu_default_menu_links() {
     'weight' => -49,
     'customized' => 1,
   );
+  // Exported menu link: menu-elmsln-settings_import-content-outline:import/feeds_node_helper_book_import.   
+  $menu_links['menu-elmsln-settings_import-content-outline:import/feeds_node_helper_book_import'] = array(    
+    'menu_name' => 'menu-elmsln-settings',    
+    'link_path' => 'import/feeds_node_helper_book_import',    
+    'router_path' => 'import/%',    
+    'link_title' => 'Import course outline',    
+    'options' => array(   
+      'attributes' => array(),    
+      'item_attributes' => array(   
+        'id' => '',   
+        'class' => '',    
+        'style' => '',    
+      ),    
+      'identifier' => 'menu-elmsln-settings_import-content-outline:import/feeds_node_helper_book_import',   
+      'fa_icon' => 'page',    
+    ),    
+    'module' => 'menu',   
+    'hidden' => 0,    
+    'external' => 0,    
+    'has_children' => 0,    
+    'expanded' => 0,    
+    'weight' => -48,    
+    'customized' => 1,    
+    'parent_identifier' => 'menu-elmsln-settings_content-tools:<nolink>',   
+  );    
+  // Exported menu link: menu-elmsln-settings_outline-designer:admin/content/book.    
+  $menu_links['menu-elmsln-settings_outline-designer:admin/content/book'] = array(    
+    'menu_name' => 'menu-elmsln-settings',    
+    'link_path' => 'admin/content/book',    
+    'router_path' => 'admin/content/book',    
+    'link_title' => 'Course outline designer',    
+    'options' => array(   
+      'attributes' => array(),    
+      'item_attributes' => array(   
+        'id' => '',   
+        'class' => '',    
+        'style' => '',    
+      ),    
+      'identifier' => 'menu-elmsln-settings_outline-designer:admin/content/book',   
+      'fa_icon' => 'page',    
+    ),    
+    'module' => 'menu',   
+    'hidden' => 0,    
+    'external' => 0,    
+    'has_children' => 0,    
+    'expanded' => 0,    
+    'weight' => -50,    
+    'customized' => 1,    
+    'parent_identifier' => 'menu-elmsln-settings_content-tools:<nolink>',   
+  );
 
   // Translatables
   // Included for use with string extractors like potx.
   t('Child page');
   t('Content Tools');
   t('Duplicate outline');
+  t('Import course outline');    
+  t('Course outline designer');
 
   return $menu_links;
 }
