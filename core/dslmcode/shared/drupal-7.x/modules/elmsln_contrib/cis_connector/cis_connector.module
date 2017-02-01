@@ -324,6 +324,10 @@ function _cis_connector_format_address($settings, $instance = '', $method = 'ser
     $address = $settings['protocol'] . '://';
     // allow for front end link or data connection
     if ($method == 'service') {
+      // allow for alternate service protocol potentially
+      if (isset($settings['dataprotocol'])) {
+        $address = $settings['dataprotocol'] . '://';
+      }
       // optional HTTP authenticated request, required in any *real* environment
       if (isset($settings['user'])) {
         $address .= $settings['user'] . ':' . $settings['pass'] . '@';
