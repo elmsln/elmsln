@@ -50,7 +50,7 @@ This is a Vagrant profile for installing a fully functioning [ELMS Learning Netw
 10.0.18.55      data-lq.elmsln.local
 ```
 
-###Spin up the vagrant instance
+###Spin up the vagrant instance**
 ```
 cd elmsln
 sh developer
@@ -74,3 +74,11 @@ To connect to the console of your instance: `vagrant ssh`
 
 ###Why use this
 It has been optimized and heavily tested for use with ELMS:LN and it is what we use in daily testing and development and is the easiest way to get up and running. The alternative is to deploy the system on a live server environment and hook up real IPs to DNS entries. This is great / realistic but a lot of times people just want to play with things before jumping in fully. Vagrant provides this and does so with minimal barriers to entry.
+
+**Note: If you are experiencing an APDQC Error (https://github.com/elmsln/elmsln/issues/1843) when running `sh developer` after the first time please run the following commands to fix:
+
+- `vagrant ssh (within the elmsln folder where you usually do sh developer)`
+- `sudo service mysql restart`
+- `logout`
+
+This should fix your install and allow you to continue developing smoothly :)
