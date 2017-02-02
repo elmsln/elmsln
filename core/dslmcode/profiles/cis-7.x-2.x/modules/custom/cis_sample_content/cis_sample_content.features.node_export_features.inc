@@ -170,8 +170,8 @@ function cis_sample_content_node_export_features_default() {
       \'field_program_site\' => array(
         \'und\' => array(
           array(
-            \'url\' => \'http://elms.psu.edu\',
-            \'title\' => \'ELMS Program home\',
+            \'url\' => \'https://www.elmsln.org\',
+            \'title\' => \'ELMS:LN project\',
             \'attributes\' => array(),
           ),
         ),
@@ -179,7 +179,7 @@ function cis_sample_content_node_export_features_default() {
       \'field_twitter\' => array(
         \'und\' => array(
           array(
-            \'url\' => \'https://twitter.com/PSU_ELMS\',
+            \'url\' => \'https://twitter.com/elmsln\',
             \'title\' => \'Follow us on Twitter\',
             \'attributes\' => array(),
           ),
