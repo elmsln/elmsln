@@ -16,7 +16,7 @@ function elmsln_core_data_form() {
     $entity = entity_load_single($etype, $etid);
   }
   $filtered_verb = (isset($_GET['verb']) ? filter_xss(check_plain($_GET['verb'])) : '');
-  $chart_style = (isset($_GET['chart_style']) ? filter_xss(check_plain($_GET['chart_style'])) : 'pie');
+  $visualization = (isset($_GET['visualization']) ? filter_xss(check_plain($_GET['visualization'])) : 'pie');
   $display = arg(3);
   $debug = (isset($_GET['debug']) ? true : false);
   $roles = array(
@@ -80,7 +80,7 @@ function elmsln_core_data_form() {
   }
   else {
     // ignore pause, it's worthless by itself
-    $query['pipeline'][0]['$match']['statement.verb.display.en-US'] = array('$ne' => 'paused');
+    $query['pipeline'][0]['$match']['statement.verb.display.en-US'] = array('$nin' => array('paused', 'progressed'));
   }
   // only show role results requested if filtered
   if ($etype != 'user' && isset($_GET['role'])) {
@@ -132,6 +132,10 @@ function elmsln_core_data_form() {
   uasort($aggregates['counts'], '_elmsln_uasortcmp');
   // load in the icon associations
   $icons = _elmsln_core_icon_map();
+  $descriptions = array();
+  if (module_exists('elmsln_lrs')) {
+    $descriptions = _elmsln_lrs_verb_descriptions();
+  }
   foreach ($aggregates['verbs'] as $verb) {
     if (isset($icons[$verb])) {
       $aggregates['colors'][$verb] = $icons[$verb]['color'];
@@ -140,6 +144,15 @@ function elmsln_core_data_form() {
     else {
       $aggregates['colors'][$verb] = ELMSLN_XAPI_DEFAULT_COLOR;
       $aggregates['icons'][$verb] = ELMSLN_XAPI_DEFAULT_ICON;
+    }
+    if (isset($descriptions[$verb])) {
+      $aggregates['descriptions'][$verb] = $descriptions[$verb];
+    }
+    else {
+      $aggregates['descriptions'][$verb] = array(
+        'title' => ucfirst($verb),
+        'description' => '',
+      );
     }
     $aggregates['verb_data_links'][$verb] = $uri['path'] . '/data';
     $aggregates['percent_used'][$verb] = 100 * round(count($aggregates['users'][$verb]) / count($aggregates['user_list']), 2);
@@ -251,7 +264,7 @@ function elmsln_core_data_form() {
           'labels' => $labels,
         ),
         'style' => array(
-          'type' => $chart_style,
+          'type' => $visualization,
           'borderWidth' => 1,
           'label' => t('xAPI statements'),
           'colors' => $colors,
@@ -288,13 +301,16 @@ function elmsln_core_data_form() {
       '#options' => $roles,
     );
   }
-  $filters['filter_data']['chart_style'] = array(
+  $filters['filter_data']['visualization'] = array(
     '#type' => 'select',
-    '#title' => t('Chart style'),
-    '#default_value' => $chart_style,
+    '#title' => t('Visualization'),
+    '#default_value' => $visualization,
     '#options' => array(
-      'pie' => t('Pie'),
-      'bar' => t('Bar'),
+      'pie' => t('Pie chart'),
+      'bar' => t('Bar chart'),
+      'session' => t('Session centric'),
+      'h5p' => t('H5P response data'),
+      'video' => t('Video data'),
     ),
   );
   $filters['filter_data']['verb'] = array(
@@ -349,8 +365,8 @@ function elmsln_core_data_form_submit($form, &$form_state) {
     if (isset($form_state['values']['role'])) {
       $filters['role'] = $form_state['values']['role'];
     }
-    if (isset($form_state['values']['chart_style'])) {
-      $filters['chart_style'] = $form_state['values']['chart_style'];
+    if (isset($form_state['values']['visualization'])) {
+      $filters['visualization'] = $form_state['values']['visualization'];
     }
     drupal_goto(current_path(), array('query' => $filters));
   }

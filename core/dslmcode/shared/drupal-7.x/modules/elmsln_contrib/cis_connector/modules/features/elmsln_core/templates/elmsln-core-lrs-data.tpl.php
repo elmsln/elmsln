@@ -6,7 +6,17 @@
  <li class="collection-item avatar">
     <p>
       <i class="material-icons circle <?php print $aggregates['colors'][$verb];?>">
-      <?php print $aggregates['icons'][$verb];?></i><?php print l($verb, $aggregates['verb_data_links'][$verb], array('query' => array('verb' => $verb)));?>
+      <?php print $aggregates['icons'][$verb];?></i><?php print l($aggregates['descriptions'][$verb]['title'], $aggregates['verb_data_links'][$verb],
+      array(
+        'query' => array('verb' => $verb),
+        'attributes' => array(
+          'class' => array('tooltipped'),
+          'data-position' => 'top',
+          'data-delay' => '50',
+          'data-tooltip' => $aggregates['descriptions'][$verb]['description']
+        )
+      )
+    );?>
       <div class="progress <?php print $aggregates['colors'][$verb];?> lighten-4">
         <div class="determinate <?php print $aggregates['colors'][$verb];?> darken-2 white-text" style="width: <?php print $aggregates['percent_used'][$verb]; ?>%">
           <?php print t('@amount of @total users', array('@amount' => count($aggregates['users'][$verb]), '@total' => count($aggregates['user_list'])));?>

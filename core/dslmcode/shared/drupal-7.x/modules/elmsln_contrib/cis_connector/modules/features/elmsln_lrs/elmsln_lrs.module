@@ -5,3 +5,53 @@
  */
 
 include_once 'elmsln_lrs.features.inc';
+
+
+function _elmsln_lrs_verb_descriptions() {
+  return array(
+    'viewed' => array(
+      'title' => t('Page - Viewed'),
+      'description' => t('Someone accesses the webpage and it loads. This is generated when they first get to content.'),
+    ),
+    'visited' => array(
+      'title' => t('Link - Visited'),
+      'description' => t('The user clicked a link taking them external to the website.'),
+    ),
+    'watched' => array(
+      'title' => t('Video - Watched'),
+      'description' => t('The user has watched a segment of video, either start to finish . This is a combination of start and stop or hitting play and then either pausing or reaching the end of the video.'),
+    ),
+    'skipped' => array(
+      'title' => t('Video - Skipped'),
+      'description' => t('The user has either skipped ahead or back to review a segment of video.'),
+    ),
+    'downloaded' => array(
+      'title' => t('File - downloaded'),
+      'description' => t('User clicked to download a file on the site.'),
+    ),
+    'attempted' => array(
+      'title' => t('Activity - Attempted'),
+      'description' => t('User attempted a question in an activity.'),
+    ),
+    'complete' => array(
+      'title' => t('Video - complete'),
+      'description' => t('Video was watched all the way to the end.'),
+    ),
+    'play' => array(
+      'title' => t('Video - Play'),
+      'description' => t('User clicked to play a video.'),
+    ),
+    'completed' => array(
+      'title' => t('Activity - completed'),
+      'description' => t('User completed an activity of some kind.'),
+    ),
+    'answered' => array(
+      'title' => t('Activity - answered'),
+      'description' => t('User anwered a question with the result.'),
+    ),
+    'interacted' => array(
+      'title' => t('Activity - interacted'),
+      'description' => t('User interacted with an activity and generated a response.'),
+    ),
+  );
+}
