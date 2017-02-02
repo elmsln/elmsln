@@ -17,6 +17,7 @@ function elmsln_core_data_form() {
   }
   $filtered_verb = (isset($_GET['verb']) ? filter_xss(check_plain($_GET['verb'])) : '');
   $visualization = (isset($_GET['visualization']) ? filter_xss(check_plain($_GET['visualization'])) : 'pie');
+  $pivot = (isset($_GET['pivot']) ? filter_xss(check_plain($_GET['pivot'])) : 'verb');
   $display = arg(3);
   $debug = (isset($_GET['debug']) ? true : false);
   $roles = array(
@@ -301,6 +302,17 @@ function elmsln_core_data_form() {
       '#options' => $roles,
     );
   }
+  $filters['filter_data']['pivot'] = array(
+    '#type' => 'select',
+    '#title' => t('Visualization'),
+    '#default_value' => $visualization,
+    '#options' => array(
+      'verb' => t('Verb centric'),
+      'h5p' => t('H5P response data'),
+      'session' => t('Session centric'),
+      'video' => t('Video based data'),
+    ),
+  );
   $filters['filter_data']['visualization'] = array(
     '#type' => 'select',
     '#title' => t('Visualization'),
@@ -364,6 +376,9 @@ function elmsln_core_data_form_submit($form, &$form_state) {
     }
     if (isset($form_state['values']['visualization'])) {
       $filters['visualization'] = $form_state['values']['visualization'];
+    }
+    if (isset($form_state['values']['pivot'])) {
+      $filters['pivot'] = $form_state['values']['pivot'];
     }
     drupal_goto(current_path(), array('query' => $filters));
   }
