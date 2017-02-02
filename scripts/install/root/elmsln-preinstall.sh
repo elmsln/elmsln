@@ -249,8 +249,10 @@ echo "serviceprefix='${serviceprefix}'" >> $config
 
 elmslnecho "protocol for web traffic? (think long and hard before you type anything other then 'https'. there's a lot of crazy stuff out there so its better to encrypt everything.. EVERYTHING!)"
 read protocol
+echo "#protocol to use for front-facing calls" >> $config
 echo "protocol='${protocol}'" >> $config
-
+echo "#protocol to use for backend calls" >> $config
+echo "dataprotocol='${protocol}'" >> $config
 echo "#email that the site uses to send mail" >> $config
 elmslnecho "site email address to use? (ex siteaddress@you.edu)"
 read site_email
