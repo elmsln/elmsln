@@ -1620,8 +1620,13 @@ select.chosen {
   background-color:#bdbdbd;
 }
 
-.image__cite, .image--lightboxed__cite {
+cite, .image__cite, .image--lightboxed__cite {
   color:#4c4c4c;
+}
+
+cite p, .image__cite p, .image--lightboxed__cite p {
+  font-size: .8rem;
+  max-width: unset;
 }
 
 div.read-time-wrapper div.chip i {
