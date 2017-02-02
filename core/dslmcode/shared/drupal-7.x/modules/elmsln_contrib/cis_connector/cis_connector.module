@@ -711,6 +711,16 @@ function _cis_connector_transaction($request, $format = 'default', $query = arra
           drupal_set_message(t('This page is blank because you are currently viewing the Master section. To update these values per course section please access the <a href="@url" class="accessible-red-text">Course information system</a>.', array('@url' => $cisaddress)), 'status', FALSE);
         }
       }
+      // if someone setting up the space, offer them ability to switch quickly to section
+      if (_cis_connector_role_groupings(array('staff', 'teacher'))) {
+        drupal_set_message(t('Try setting a section to view in order to see how students from that section will see it.'));
+        $form = drupal_get_form('cis_service_connection_block_section_context_changer_form');
+        $output = drupal_render($form);
+        return array(
+          'value' => $output,
+          'format' => 'textbook_editor',
+        );
+      }
       return array();
     }
   }
