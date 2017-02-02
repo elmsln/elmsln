@@ -6,7 +6,11 @@
 
 include_once 'elmsln_lrs.features.inc';
 
-
+/**
+ * Build verb descriptions for at least some kind of
+ * standard message explaining what the verb means.
+ * @return array array of definitions
+ */
 function _elmsln_lrs_verb_descriptions() {
   return array(
     'viewed' => array(
