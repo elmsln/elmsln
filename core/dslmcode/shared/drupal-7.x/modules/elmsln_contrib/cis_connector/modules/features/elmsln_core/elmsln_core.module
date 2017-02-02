@@ -1506,6 +1506,25 @@ function elmsln_core_theme($existing, $type, $theme, $path) {
  */
 function elmsln_core_tincanapi_ajax_data_alter($module_name, &$data, $context) {
   $settings = array();
+  // account for our own statements to pass through
+  if ($module_name == 'elmsln_core') {
+    $data['verb'] = array(
+      'id' => 'http://adlnet.gov/expapi/verbs/' . $context['verb'],
+      'display' => array(
+        'en-US' => $context['verb']
+      )
+    );
+    $data['object'] = array(
+      "objectType" => "Activity",
+      "id" => $context['id'],
+      "definition" => array(
+        "name" => array(
+          "en-US" => "Page: " . $context['title'],
+        ),
+        "type" => "http://orw.iminds.be/tincan/content/type/page"
+      )
+    );
+  }
   // regardless of module see if our contextual settings are here
   // and this way we can ship down elmslnCore's scope variables
   // which will make our data-sets more meaningful for searching in LRSs later

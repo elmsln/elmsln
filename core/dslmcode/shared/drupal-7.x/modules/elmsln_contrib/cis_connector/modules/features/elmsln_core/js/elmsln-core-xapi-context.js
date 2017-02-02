@@ -35,7 +35,7 @@
   });
   // links internally
   // @todo get this working
-  /*$(window).on('beforeunload', function(e) {
+  $(window).on('beforeunload', function(e) {
     Drupal.settings.tincanapi.elmslnCore.duration = Drupal.calcViewTime();
     var data = {
       module: 'elmsln_core',
@@ -44,7 +44,7 @@
       title: Drupal.settings.tincanapi.elmslnCore.title
     };
     Drupal.tincanapi.track(data);
-  });*/
+  });
   // calculate the time on the page
   Drupal.calcViewTime = function() {
     var end = new Date().getTime();
