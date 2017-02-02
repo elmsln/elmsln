@@ -308,9 +308,6 @@ function elmsln_core_data_form() {
     '#options' => array(
       'pie' => t('Pie chart'),
       'bar' => t('Bar chart'),
-      'session' => t('Session centric'),
-      'h5p' => t('H5P response data'),
-      'video' => t('Video data'),
     ),
   );
   $filters['filter_data']['verb'] = array(
