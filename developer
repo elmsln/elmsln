@@ -1,3 +1,6 @@
+# make pre-commit hook symlink to improve code quality
+ln -s ../../scripts/git/pre-commit.sh .git/hooks/pre-commit
+
 # open chrome if we can, this only works on OSX
 vagrant plugin install vagrant-vbguest
 vagrant plugin install vagrant-cachier
