@@ -92,3 +92,10 @@ function cle__2_update_7006(&$sandbox) {
   features_revert_module('cle_perms');
   features_revert_module('cle_submission');
 }
+
+/**
+ * xAPI tracking for view / duration stuff at least
+ */
+function cle__2_update_7007(&$sandbox) {
+  module_enable(array('elmsln_lrs'));
+}

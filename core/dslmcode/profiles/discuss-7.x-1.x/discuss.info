@@ -155,6 +155,7 @@ dependencies[] = atjs
 dependencies[] = entity_quote
 dependencies[] = exif_orientation
 dependencies[] = taxonomy_display
+dependencies[] = elmsln_lrs
 ; Search
 dependencies[] = search_api
 ; Views

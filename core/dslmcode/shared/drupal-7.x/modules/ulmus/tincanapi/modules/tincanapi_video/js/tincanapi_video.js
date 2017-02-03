@@ -62,16 +62,18 @@
         referrer: Drupal.settings.tincanapi.currentPage
       };
 
-      if(start !== null) {
+      if (start !== null) {
         data["start_time"] = start;
       }
 
-      if(end !== null) {
+      if (end !== null) {
         data["end_time"] = end;
       }
-      Drupal.tincanapi.track(data);
-
-      if(verb == "paused" && globals.time !== null) {
+      // don't send paused event
+      if (verb != "paused") {
+        Drupal.tincanapi.track(data);
+      }
+      if (verb == "paused" && globals.time !== null) {
         globals.trackEvent("watched", globals.time, start);
       }
       globals.time = start;
@@ -161,21 +163,23 @@
         referrer: Drupal.settings.tincanapi.currentPage
       };
 
-      if(start !== null) {
+      if (start !== null) {
         data["start_time"] = start;
       }
 
       if(end !== null) {
         data["end_time"] = end;
       }
-      Drupal.tincanapi.track(data);
-
+      // we need to see paused events but they are meaningless to actually track
+      if (verb != "paused") {
+        Drupal.tincanapi.track(data);
+      }
       // Create Watched event
-      if(verb == "play") {
+      if (verb == "play") {
         globals.time = start;
       }
 
-      if(verb == "paused" && globals.time !== null) {
+      if (verb == "paused" && globals.time !== null) {
         globals.trackEvent("onWatched", globals.time, end);
         globals.time = null;
       }
@@ -328,8 +332,10 @@
       if(end !== null) {
         data["end_time"] = end;
       }
-      Drupal.tincanapi.track(data);
-
+      // don't track paused
+      if (verb != "paused") {
+        Drupal.tincanapi.track(data);
+      }
       // Create Watched event
       if(verb == "play") {
         globals.time = start;

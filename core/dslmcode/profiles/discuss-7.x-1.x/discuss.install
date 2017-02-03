@@ -56,3 +56,10 @@ function discuss_update_7003(&$sandbox) {
 function discuss_update_7004(&$sandbox) {
   features_revert_module('discuss_ux');
 }
+
+/**
+ * xAPI tracking for view / duration stuff at least
+ */
+function discuss_update_7005(&$sandbox) {
+  module_enable(array('elmsln_lrs'));
+}

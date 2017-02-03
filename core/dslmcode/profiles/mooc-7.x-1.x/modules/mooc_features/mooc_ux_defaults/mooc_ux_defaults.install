@@ -2,3 +2,12 @@
 /**
  * @file MOOC UX defaults
  */
+
+/**
+ * Update Tincan settings so we don't generate view
+ * statements when we now generate view statements internally
+ * from the elmsln_core window unload event.
+ */
+function mooc_ux_defaults_update_7000(&$sandbox) {
+  features_revert_module('mooc_ux_defaults');
+}

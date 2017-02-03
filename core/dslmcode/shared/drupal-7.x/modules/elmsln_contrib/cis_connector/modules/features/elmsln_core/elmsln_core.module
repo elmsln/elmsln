@@ -794,6 +794,14 @@ function elmsln_core_page_build(&$page) {
   // xapi context iframe sniffer
   if (module_exists('tincanapi') && !path_is_admin(current_path())) {
     drupal_add_js(drupal_get_path('module', 'elmsln_core') . '/js/elmsln-core-xapi-context.js', array('weight' => 1000));
+    // @todo we need to only track people told to be tracked with vagrant based
+    // fallback for testing everything
+    // @todo we need a better path management solution as to when to track
+    // right now we just ignore entity iframe, admin, and 'data' paths
+    // would be good to ignore other paths without missing views / special pages in the process
+    if (!_entity_iframe_mode_enabled() && arg(2) != 'data' && _cis_connector_system_type() != 'authority') {
+      drupal_add_js(drupal_get_path('module', 'elmsln_core') . '/js/elmsln-core-xapi-viewed.js', array('weight' => 1001));
+    }
   }
   // devel usability improvement
   if (module_exists('devel') &&  !path_is_admin(current_path()) && user_access('access devel information')) {
@@ -806,7 +814,6 @@ function elmsln_core_page_build(&$page) {
   $cfg = _elmsln_core_get_cfg();
   $settings = _cis_connector_build_registry(elmsln_core_get_profile_key());
   // see if this is an active learner or not, only thing we care about currently
-  // @todo probably faster way of getting this info
   if (_cis_connector_role_grouping('active learner')) {
     $role = 'student';
   }
