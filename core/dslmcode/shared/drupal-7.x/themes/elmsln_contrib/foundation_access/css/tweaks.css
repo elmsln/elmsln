@@ -8,6 +8,10 @@
   vertical-align: middle;
 }
 
+#elmsln-tools-trigger {
+  border: none;
+}
+
 /* lock CKeditor on scroll if there's focus on the item */
 body.page-node-edit.node-type-page .cke_focus .cke_top{
   top: 2.8rem;
@@ -596,6 +600,7 @@ body.devel-show .devel-querylog {
   line-height: 3.4rem;
   min-width: 3.4rem;
 }
+
 nav ul.left-nav-section a {
   padding: 0 .5rem;
   height: 3.2rem;
@@ -604,6 +609,9 @@ nav ul.left-nav-section a {
 }
 nav ul.left-nav-section a span {
   margin: 0 .5rem;
+}
+nav ul.left-nav-section a:hover {
+  background-color: rgba(0, 0, 0, 0.4);
 }
 nav ul.left-nav-section a i,
 nav ul.left-nav-section a div,
@@ -1117,11 +1125,11 @@ input[type=file]:focus,
 
 /* top bar profile divider */
 .left-nav-section li.divider-right {
-  border-right-width: 0.15rem;
+  border-right-width: 0.2rem;
   border-right-style:solid;
   padding: 0;
   min-width: 0;
-  margin: 0.6rem 0;
+  margin: 0.2rem 0;
   width: 0.2rem;
   height: auto;
 }
@@ -1927,11 +1935,8 @@ a.add-menu-drop {
   padding: .5rem !important;
 }
 
-.r-header__icon i {
-  opacity: 0.5;
-}
 .r-header__icon i:hover {
-  opacity: 0.8;
+  color: black !important;
 }
 .r-header__icon-secondary {
   opacity: 0.2;
@@ -2176,6 +2181,10 @@ table.tableheader-processed {
 tr.even,
 tr.odd {
     background: #FFF;
+}
+
+.region-messeges {
+  margin-top:-4px;
 }
 
 .region-messeges ul {
