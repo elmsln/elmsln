@@ -1,0 +1,67 @@
+<?php
+
+/**
+ * Implements hook_schema().
+ */
+function webcomponents_schema() {
+
+  $schema = array();
+
+  $schema['webcomponents'] = array(
+    'description' => 'The base table for the Webcomponents entity',
+    'fields' => array(
+      'wid' => array(
+        'description' => 'Webcomponent internal id',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'machine_name' => array(
+        'description' => 'Webcomponent machine name.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+      'type' => array(
+        'description' => 'Webcomponent type, for example polymer.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+      'file' => array(
+        'description' => 'Webcomponent file location.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+      ),
+      'title' => array(
+        'description' => 'Webcomponent title.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+      'description' => array(
+        'description' => 'Webcomponent description.',
+        'type' => 'text',
+        'size' => 'big',
+        'not null' => FALSE,
+        'default' => NULL,
+      ),
+      'properties' => array(
+        'description' => 'Webcomponent serialized properties.',
+        'type' => 'blob',
+        'not null' => FALSE,
+      ),
+    ),
+    'primary key' => array('wid'),
+  );
+
+  return $schema;
+}
+
+/**
+ * Implements hook_install().
+ */
+function webcomponents_install() {
+ _webcomponents_rebuild();
+}
