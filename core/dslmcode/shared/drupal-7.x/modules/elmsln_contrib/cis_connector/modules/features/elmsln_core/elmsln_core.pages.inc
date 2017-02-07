@@ -131,8 +131,10 @@ function elmsln_core_data_form() {
         break;
         case 'h5p':
           // look for an answered H5P statement
-          if ($verb == 'answered') {
+          if ($verb == 'answered' && isset($record['statement']['context']['contextActivities']['category']['id'])) {
+            $itemtype = $record['statement']['context']['contextActivities']['category']['id'];
             $item = $record['statement']['object']['definition']['description']['en-US'];
+            // support for multiple choice / known quantity items
             if (isset($record['statement']['object']['definition']['choices'])) {
               // make sure we started recording these answers
               if (!isset($aggregates['counts'][$item])) {
@@ -155,8 +157,21 @@ function elmsln_core_data_form() {
               if (isset($record['statement']['result']['response']) && is_numeric($record['statement']['result']['response'])) {
                 $aggregates['counts'][$item][$record['statement']['result']['response']]['value']++;
               }
-              else {
-                // @todo this means we don't know how to process the data from the pivot
+            }
+            elseif (strpos($itemtype, 'H5P.Blanks')) {
+              if (isset($record['statement']['result']['response'])) {
+                if (!isset($aggregates['counts'][$item][$record['statement']['result']['response']])) {
+                  $response = $record['statement']['result']['response'];
+                  if ($record['statement']['result']['score']['scaled'] == 1) {
+                    $response .= '[correct]';
+                  }
+                  $aggregates['counts'][$item][$record['statement']['result']['response']] = array(
+                    'title' => $response,
+                    'value' => 0,
+                    'verb' => $verb,
+                  );
+                }
+                $aggregates['counts'][$item][$record['statement']['result']['response']]['value']++;
               }
             }
           }
