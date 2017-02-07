@@ -131,8 +131,8 @@ function elmsln_core_data_form() {
         break;
         case 'h5p':
           // look for an answered H5P statement
-          if ($verb == 'answered' && isset($record['statement']['context']['contextActivities']['category']['id'])) {
-            $itemtype = $record['statement']['context']['contextActivities']['category']['id'];
+          if ($verb == 'answered' && isset($record['statement']['context']['contextActivities']['category'][0]['id'])) {
+            $itemtype = $record['statement']['context']['contextActivities']['category'][0]['id'];
             $item = $record['statement']['object']['definition']['description']['en-US'];
             // support for multiple choice / known quantity items
             if (isset($record['statement']['object']['definition']['choices'])) {
@@ -158,7 +158,25 @@ function elmsln_core_data_form() {
                 $aggregates['counts'][$item][$record['statement']['result']['response']]['value']++;
               }
             }
+            // support for H5P Fill in the blank
             elseif (strpos($itemtype, 'H5P.Blanks')) {
+              if (isset($record['statement']['result']['response'])) {
+                if (!isset($aggregates['counts'][$item][$record['statement']['result']['response']])) {
+                  $response = $record['statement']['result']['response'];
+                  if ($record['statement']['result']['score']['scaled'] == 1) {
+                    $response .= '[correct]';
+                  }
+                  $aggregates['counts'][$item][$record['statement']['result']['response']] = array(
+                    'title' => $response,
+                    'value' => 0,
+                    'verb' => $verb,
+                  );
+                }
+                $aggregates['counts'][$item][$record['statement']['result']['response']]['value']++;
+              }
+            }
+            // support for H5P TrueFalse in the blank
+            elseif (strpos($itemtype, 'H5P.TrueFalse')) {
               if (isset($record['statement']['result']['response'])) {
                 if (!isset($aggregates['counts'][$item][$record['statement']['result']['response']])) {
                   $response = $record['statement']['result']['response'];
