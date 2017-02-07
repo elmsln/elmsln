@@ -117,11 +117,51 @@ function elmsln_core_data_form() {
       }
       $record['_item_link'] = $item_link;
       $aggregates['statements'][$verb][] = $record;
-      // count verbs
-      if (!isset($aggregates['counts'][$verb])) {
-        $aggregates['counts'][$verb] = 0;
+        // count based on pivot
+      switch ($pivot) {
+        case 'verb':
+          if (!isset($aggregates['counts'][0][$verb])) {
+            $aggregates['counts'][0][$verb] = array(
+              'title' => $verb,
+              'value' => 0,
+              'verb' => $verb,
+            );
+          }
+          $aggregates['counts'][0][$verb]['value']++;
+        break;
+        case 'h5p':
+          // look for an answered H5P statement
+          if ($verb == 'answered') {
+            $item = $record['statement']['object']['definition']['description']['en-US'];
+            if (isset($record['statement']['object']['definition']['choices'])) {
+              // make sure we started recording these answers
+              if (!isset($aggregates['counts'][$item])) {
+                // loop through possible choices
+                foreach ($record['statement']['object']['definition']['choices'] as $choice) {
+                  // extract each possible option
+                  $option = trim($choice['description']['en-US']);
+                  // see if the current option is part of the 'correct' response
+                  if (in_array($choice['id'], $record['statement']['object']['definition']['correctResponsesPattern'])) {
+                    $option = $option . ' ' . t('[correct]');
+                  }
+                  // set option as empty so we at least have a bucket for it existing
+                  $aggregates['counts'][$item][$choice['id']] = array(
+                    'title' => $option,
+                    'value' => 0,
+                    'verb' => $verb,
+                  );
+                }
+              }
+              if (isset($record['statement']['result']['response']) && is_numeric($record['statement']['result']['response'])) {
+                $aggregates['counts'][$item][$record['statement']['result']['response']]['value']++;
+              }
+              else {
+                // @todo this means we don't know how to process the data from the pivot
+              }
+            }
+          }
+        break;
       }
-      $aggregates['counts'][$verb]++;
       if (!isset($aggregates['users'][$verb][$record['statement']['actor']['name']])) {
         $aggregates['users'][$verb][$record['statement']['actor']['name']] = 0;
       }
@@ -130,7 +170,7 @@ function elmsln_core_data_form() {
     }
   }
   // order from biggest to smallest xAPI counts
-  uasort($aggregates['counts'], '_elmsln_uasortcmp');
+  //uasort($aggregates['counts'], '_elmsln_uasortcmp');
   // load in the icon associations
   $icons = _elmsln_core_icon_map();
   $descriptions = array();
@@ -173,8 +213,6 @@ function elmsln_core_data_form() {
   }
   // send off for theming
   $vars = array(
-    'datatitle' => $datatitle,
-    'filtertitle' => $filtertitle,
     'data' => $data,
     'aggregates' => $aggregates,
   );
@@ -191,7 +229,7 @@ function elmsln_core_data_form() {
       '#title' => t('Read time stats'),
       '#collapsed' => TRUE,
       '#collapsible' => TRUE,
-      '#weight' => -15,
+      '#weight' => -10,
       '#attributes' => array(
         'class' => array(
           'collapsible',
@@ -206,31 +244,7 @@ function elmsln_core_data_form() {
       '#markup' => theme('read_time', array('node' => $entity)),
     );
   }
-
-  $filters['visualizations'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('Visualizations'),
-    '#collapsed' => TRUE,
-    '#collapsible' => TRUE,
-    '#weight' => -10,
-    '#attributes' => array(
-      'class' => array(
-        'collapsible',
-        'form-wrapper',
-        'collapsed',
-      ),
-    ),
-    '#materialize' => array(
-      'type' => 'collapsible',
-      'icon' => 'show_chart',
-    ),
-    'datacontainer' => array(
-      '#type' => 'markup',
-      '#markup' => '<div class="elmsln-data-container"><canvas id="lrs-data-chart" width="400" height="400"></canvas></div>',
-    ),
-  );
-  // build simple visuals
-  $values = $labels = $colors = array();
+  // colorlist of just a bunch of options that will look ok
   $colorlist = array(
     '#f44336',
     '#e91e63',
@@ -251,28 +265,61 @@ function elmsln_core_data_form() {
     '#795548',
     '#607d8b',
   );
-  shuffle($colorlist);
-  foreach ($aggregates['counts'] as $label => $count) {
-    $values[] = $count;
-    $labels[] = $label;
-    $colors[] = array_pop($colorlist);
-  }
-  $datajs = array(
-    'elmslnCore' => array(
-      'chart' => array(
-        'data' => array(
-          'values' => $values,
-          'labels' => $labels,
-        ),
-        'style' => array(
-          'type' => $visualization,
-          'borderWidth' => 1,
-          'label' => t('xAPI statements'),
-          'colors' => $colors,
-        ),
+  $visualizations = array(
+    '#type' => 'fieldset',
+    '#title' => t('Visualizations'),
+    '#collapsed' => FALSE,
+    '#collapsible' => TRUE,
+    '#weight' => -14,
+    '#attributes' => array(
+      'class' => array(
+        'collapsible',
+        'form-wrapper',
+        'collapsed',
       ),
     ),
+    '#materialize' => array(
+      'type' => 'collapsible',
+      'icon' => 'show_chart',
+    ),
+    'datacontainer' => array(
+      '#type' => 'markup',
+      '#markup' => '<div class="elmsln-data-container">',
+    ),
   );
+  // container for the chart data
+  $datajs = array(
+    'elmslnCore' => array(
+      'charts' => array()
+    ),
+  );
+  // build simple visuals
+  $values = $labels = $colors = array();
+  foreach ($aggregates['counts'] as $charttitle => $item) {
+    $colorlisttmp = $colorlist;
+    shuffle($colorlisttmp);
+    $visualizations['datacontainer']['#markup'] .= '<canvas class="lrs-data-chart" width="300" height="300"></canvas>';
+    foreach ($item as $data) {
+      $values[$charttitle][] = $data['value'];
+      $labels[$charttitle][] = $data['title'];
+      $colors[$charttitle][] = array_pop($colorlisttmp);
+    }
+    $datajs['elmslnCore']['charts'][] = array(
+      'data' => array(
+        'values' => $values[$charttitle],
+        'labels' => $labels[$charttitle],
+      ),
+      'style' => array(
+        'type' => $visualization,
+        'borderWidth' => 1,
+        'label' => $charttitle,
+        'colors' => $colors[$charttitle],
+      ),
+    );
+  }
+  // end cap
+  $visualizations['datacontainer']['#markup'] .= '</div>';
+  // apply the chart settings to the document
   drupal_add_js($datajs, array('type' => 'setting'));
 
   $filters['filter_data'] = array(
@@ -304,13 +351,13 @@ function elmsln_core_data_form() {
   }
   $filters['filter_data']['pivot'] = array(
     '#type' => 'select',
-    '#title' => t('Visualization'),
-    '#default_value' => $visualization,
+    '#title' => t('Pivot'),
+    '#default_value' => $pivot,
     '#options' => array(
       'verb' => t('Verb centric'),
       'h5p' => t('H5P response data'),
-      'session' => t('Session centric'),
-      'video' => t('Video based data'),
+      //'session' => t('Session centric'),
+      //'video' => t('Video based data'),
     ),
   );
   $filters['filter_data']['visualization'] = array(
@@ -340,13 +387,29 @@ function elmsln_core_data_form() {
     '#id' => 'reset_filters',
   );
   $form = array(
+    'header' => array(
+      '#type' => 'markup',
+      '#markup' => '<h2>' . $datatitle . '</h2>
+      <div>' . $filtertitle .'</div>',
+    ),
+    'visualization_fieldset' => array(
+      '#type' => 'fieldset',
+      '#materialize' => array(
+        'type' => 'collapsible_wrapper'
+      ),
+      '#attributes' => array(
+        'class' => array('collapsible', 'lrs-data-visualizations', 'col', 's6'),
+        'data-collapsible' => 'accordion',
+      ),
+      'visualizations' => $visualizations,
+    ),
     'filter_fieldset' => array(
       '#type' => 'fieldset',
       '#materialize' => array(
         'type' => 'collapsible_wrapper'
       ),
       '#attributes' => array(
-        'class' => array('collapsible', 'lrs-data-filters'),
+        'class' => array('collapsible', 'lrs-data-filters', 'col', 's6'),
         'data-collapsible' => 'accordion',
       ),
       'filters' => $filters,

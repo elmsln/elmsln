@@ -28,29 +28,32 @@
         $(this).siblings('.collapsible-body').children('pre').html(Drupal.prettyJson.prettyPrint(json));
       }
     });
+    var counter = 0;
     // tee up the chart data
-    var ctx = document.getElementById("lrs-data-chart");
-    var myChart = new Chart(ctx, {
-      type: Drupal.settings.elmslnCore.chart.style.type,
-      data: {
-        labels: Drupal.settings.elmslnCore.chart.data.labels,
-        datasets: [{
-          label: Drupal.settings.elmslnCore.chart.style.label,
-          data: Drupal.settings.elmslnCore.chart.data.values,
-          borderWidth: Drupal.settings.elmslnCore.chart.style.borderWidth,
-          borderColor: Drupal.settings.elmslnCore.chart.style.colors,
-          backgroundColor: Drupal.settings.elmslnCore.chart.style.colors
-        }]
-      },
-      options: {
-        scales: {
-          yAxes: [{
-            ticks: {
-              beginAtZero:true
-            }
+    $('.lrs-data-chart').each(function(){
+      var myChart = new Chart(this, {
+        type: Drupal.settings.elmslnCore.charts[counter].style.type,
+        data: {
+          labels: Drupal.settings.elmslnCore.charts[counter].data.labels,
+          datasets: [{
+            label: Drupal.settings.elmslnCore.charts[counter].style.label,
+            data: Drupal.settings.elmslnCore.charts[counter].data.values,
+            borderWidth: Drupal.settings.elmslnCore.charts[counter].style.borderWidth,
+            borderColor: Drupal.settings.elmslnCore.charts[counter].style.colors,
+            backgroundColor: Drupal.settings.elmslnCore.charts[counter].style.colors
           }]
+        },
+        options: {
+          scales: {
+            yAxes: [{
+              ticks: {
+                beginAtZero:true
+              }
+            }]
+          }
         }
-      }
+      });
+      counter++;
     });
   });
 })(jQuery);
