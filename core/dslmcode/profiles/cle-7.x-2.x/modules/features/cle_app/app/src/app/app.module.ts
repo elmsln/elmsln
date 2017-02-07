@@ -1,3 +1,4 @@
+import { ModuleImport } from 'angular-cli/utilities/get-dependent-files';
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -6,6 +7,7 @@ import { routing } from './app.routing';
 import { StoreModule } from '@ngrx/store';
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 import { EffectsModule } from '@ngrx/effects';
+import { routerReducer, RouterStoreModule } from '@ngrx/router-store';
 
 // reducers
 import { reducer as assignmentReducer } from './reducers/assignments';
@@ -100,12 +102,14 @@ import { ImageComponent } from './image/image.component';
     ReactiveFormsModule,
     MomentModule,
     StoreModule.provideStore({
+      router: routerReducer,
       assignments: assignmentReducer,
       user: userReducer,
       submissions: submissionReducer,
       projects: projectReducer,
       images: imageReducer
     }),
+    RouterStoreModule.connectRouter(),
     EffectsModule.run(AppEffects),
     EffectsModule.run(SubmissionEffects),
     EffectsModule.run(ProjectEffects),

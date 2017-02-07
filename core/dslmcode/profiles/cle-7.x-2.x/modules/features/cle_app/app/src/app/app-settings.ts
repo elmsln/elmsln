@@ -6,7 +6,7 @@ export class AppSettings {
       return Drupal.settings.basePath;
     }
     else {
-      return 'http://studio.elmsln.local/studio2/';
+      return 'http://studio.elmsln.local/heymp/';
     }
   }
 }
