@@ -338,6 +338,7 @@ function elmsln_core_data_form() {
       $colors[$charttitle][] = array_pop($colorlisttmp);
     }
     $datajs['elmslnCore']['charts'][] = array(
+      'title' => $charttitle,
       'data' => array(
         'values' => $values[$charttitle],
         'labels' => $labels[$charttitle],

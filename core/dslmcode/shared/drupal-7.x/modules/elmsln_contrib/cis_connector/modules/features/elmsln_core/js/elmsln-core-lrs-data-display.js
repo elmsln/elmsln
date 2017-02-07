@@ -44,6 +44,10 @@
           }]
         },
         options: {
+          title: {
+            display: true,
+            text: Drupal.settings.elmslnCore.charts[counter].title
+          },
           scales: {
             yAxes: [{
               ticks: {

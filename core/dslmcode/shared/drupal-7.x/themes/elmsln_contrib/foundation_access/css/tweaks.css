@@ -1,3 +1,9 @@
+.lrs-data-chart {
+  border: .25rem solid black;
+  margin: 1rem 0;
+  padding: .5rem;
+}
+
 .mediavideo__duration {
   font-size: .8rem;
   text-align: right;
