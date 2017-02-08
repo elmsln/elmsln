@@ -52,11 +52,33 @@ function webcomponents_polymer_webcomponents() {
       if (file_exists($dir . '/' . WEBCOMPONENTS_POLYMER_INDEX)) {
         $files = array();
         // step into the polymer directory and find all html templates
-        $di = new DirectoryIterator($dir . '/.');
+        $di = new DirectoryIterator($dir);
         foreach ($di as $fileinfo) {
-          // only include html file
-          if (strpos($fileinfo->getFilename(), '.html')) {
+          $fname = $fileinfo->getFilename();
+          // only include html file, not index
+          if (strpos($fname, '.html') && $fname != 'index.html') {
             $files[] = $dir . $fileinfo->getFilename();
+          }
+          // @todo we need to be careful here so that we don't timeout here
+          elseif (is_dir($dir . $fname) && $fname != '.' && $fname != '..') {
+            $di2 = new DirectoryIterator($dir . $fname);
+            foreach ($di2 as $fileinfo2) {
+              $fname2 = $fileinfo2->getFilename();
+              // only include html file, not index
+              if (strpos($fname2, '.html') && $fname2 != 'index.html') {
+                $files[] = $dir . $fname . '/' . $fname2;
+              }
+              elseif (is_dir($dir . $fname . '/' . $fname2) && $fname2 != '.' && $fname2 != '..') {
+                $di3 = new DirectoryIterator($dir . $fname . '/' . $fname2);
+                foreach ($di3 as $fileinfo3) {
+                  $fname3 = $fileinfo3->getFilename();
+                  // only include html file, not index
+                  if (strpos($fname3, '.html') && $fname3 != 'index.html') {
+                    $files[] = $dir . $fname . '/' . $fname2 . '/' . $fname3;
+                  }
+                }
+              }
+            }
           }
         }
       }

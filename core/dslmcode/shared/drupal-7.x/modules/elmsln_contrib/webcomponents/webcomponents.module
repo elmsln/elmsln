@@ -77,7 +77,8 @@ function webcomponents_theme() {
         'properties' => array(),
       ),
       'render element' => 'element',
-      'template' => 'templates/webcomponent',
+      'template' => 'webcomponent',
+      'path' => drupal_get_path('module', 'webcomponents') . '/templates',
     ),
   );
 }
