@@ -140,8 +140,7 @@ function _webcomponents_rebuild() {
           if (!empty($processed[$file]) && is_object($processed[$file])) {
             $component = $processed[$file];
             // try and load webcomponent by machine name
-            if ($entity = entity_load('webcomponent', FALSE, array('machine_name' => $component->machine_name))) {
-              $entity = array_pop($entity);
+            if ($entity = webcomponent_load_by_name($component->machine_name)) {
               foreach ($component as $key => $value) {
                 if (isset($entity->{$key}) && $entity->{$key} != $value) {
                   drupal_set_message(t('Web components have changed! Make sure that your attributes are correctly reflected in your site. @key changed on @machine from @old to @new', array('@key' => $key, '@old' => $entity->{$key}, '@new' => $value, '@machine' => $component->machine_name)), 'warning', TRUE);
@@ -200,4 +199,15 @@ function webcomponents_load_webcomponents_files() {
   $componentfiles = module_invoke_all('webcomponents');
   drupal_alter('webcomponents', $components);
   return $componentfiles;
+}
+
+/**
+ * Load webcomponent by name
+ * @param  string $name machine name of a webcomponent
+ * @return object       fully loaded entity
+ */
+function webcomponent_load_by_name($name) {
+  $entity = entity_load('webcomponent', FALSE, array('machine_name' => $name));
+  $entity = array_pop($entity);
+  return $entity;
 }
