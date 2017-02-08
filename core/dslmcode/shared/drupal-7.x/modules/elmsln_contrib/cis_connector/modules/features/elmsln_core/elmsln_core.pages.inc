@@ -432,7 +432,7 @@ function elmsln_core_data_form() {
         'type' => 'collapsible_wrapper'
       ),
       '#attributes' => array(
-        'class' => array('collapsible', 'lrs-data-visualizations', 'col', 's6'),
+        'class' => array('collapsible', 'lrs-data-visualizations', 'col', 's12', 'm8', 'l8'),
         'data-collapsible' => 'accordion',
       ),
       'visualizations' => $visualizations,
@@ -443,7 +443,7 @@ function elmsln_core_data_form() {
         'type' => 'collapsible_wrapper'
       ),
       '#attributes' => array(
-        'class' => array('collapsible', 'lrs-data-filters', 'col', 's6'),
+        'class' => array('collapsible', 'lrs-data-filters', 'col', 's12', 'm4', 'l4'),
         'data-collapsible' => 'accordion',
       ),
       'filters' => $filters,
