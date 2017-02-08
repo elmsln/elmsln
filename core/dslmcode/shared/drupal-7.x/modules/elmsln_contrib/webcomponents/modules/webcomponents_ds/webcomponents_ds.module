@@ -67,7 +67,7 @@ function webcomponents_ds_entity_variables(&$variables) {
  */
 function webcomponents_ds_module_implements_alter(&$implementations, $hook) {
   // shift us to the end so we can react appropriately
-  if ($hook == 'theme_registry_alter' || $hook == 'form_alter') {
+  if ($hook == 'theme_registry_alter' || $hook == 'form_field_ui_display_overview_form_alter') {
     $group = $implementations['webcomponents_ds'];
     unset($implementations['webcomponents_ds']);
     $implementations['webcomponents_ds'] = $group;
@@ -87,11 +87,11 @@ function webcomponents_ds_theme_registry_alter(&$theme_registry) {
  */
 function webcomponents_ds_form_field_ui_display_overview_form_alter(&$form, &$form_state) {
   // ensure the value coming across ajax load is a webcomponent
-  if (strpos($form_state['triggering_element']['#value'], 'webcomponent--') === 0) {
-    $tmp = str_replace('webcomponent--', '', $form_state['triggering_element']['#value']);
+  //if (strpos($form_state['triggering_element']['#value'], 'webcomponent--') === 0) {
+    //$tmp = str_replace('webcomponent--', '', $form_state['triggering_element']['#value']);
     // show element example straight from docs
-    $component = webcomponent_load_by_name($tmp);
+    //$component = webcomponent_load_by_name($tmp);
     // @todo not currently updating w/ the real template for some reason
-    $form_state['complete form']['additional_settings']['ds_layouts']['preview']['image']['#markup'] = '<div class="ds-webcomponent-preview" style="width:50%;height:auto">' . _webcomponents_render_component($component) . '</div>';
-  }
+    //$form_state['complete form']['additional_settings']['ds_layouts']['preview']['image']['#markup'] = '<div class="ds-webcomponent-preview" style="width:50%;height:auto">' . _webcomponents_render_component($component) . '</div>';
+  //}
 }
