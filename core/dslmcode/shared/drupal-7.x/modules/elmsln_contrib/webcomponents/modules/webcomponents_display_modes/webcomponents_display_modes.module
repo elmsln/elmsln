@@ -96,11 +96,11 @@ function webcomponents_display_modes_field_formatter_settings_summary_alter(&$su
  */
 function webcomponents_display_modes_preprocess_node(&$variables) {
   // add support for webcomponent as possible node hits
-  $variables['theme_hook_suggestions'][] = 'node--webcomponent';
-  $variables['theme_hook_suggestions'][] = 'webcomponent';
   $view_mode = $variables['view_mode'];
   // load up the fields associated to it based on view mode IF it is a component
   if ($component = webcomponent_load_by_name($view_mode)) {
+    $variables['theme_hook_suggestions'][] = 'node--webcomponent';
+    $variables['theme_hook_suggestions'][] = 'webcomponent';
     $variables['tag'] = $view_mode;
     // ensure we've got properties but might have them ahead of time
     if (!isset($variables['properties'])) {
