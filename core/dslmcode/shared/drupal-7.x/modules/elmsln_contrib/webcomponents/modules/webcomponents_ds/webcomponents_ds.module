@@ -1,0 +1,30 @@
+<?php
+/**
+ * @file Web components Display Suite integration
+ */
+
+/**
+ * Define layouts from code.
+ *
+ * @return $layouts
+ *   A collection of layouts.
+ */
+function webcomponents_ds_ds_layout_info() {
+  $layouts = array();
+  $path = drupal_get_path('module', 'webcomponents');
+  $components = webcomponents_load_all();
+  foreach ($components as $component) {
+    $regions = $component->properties;
+    foreach ($regions as $key => $val) {
+      $regions[$key] = $key;
+    }
+    $layouts[$component->machine_name] = array(
+      'label' => $component->title,
+      // @todo this needs to load the generic webcomponents template
+      'path' => $path . '/templates',
+      'regions' => $regions,
+      'css' => TRUE,
+    );
+  }
+  return $layouts;
+}
