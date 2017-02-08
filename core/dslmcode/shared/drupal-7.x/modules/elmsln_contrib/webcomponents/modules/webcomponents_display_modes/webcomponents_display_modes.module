@@ -1,0 +1,104 @@
+<?php
+/**
+ * @file Web components display modes.
+ */
+
+/**
+ * Implements hook_entity_info_alter().
+ */
+function webcomponents_display_modes_entity_info_alter(&$entity_info) {
+  // load all our components
+  $components = webcomponents_load_all();
+  foreach ($entity_info as $type => &$info) {
+    // ensure it has view modes
+    if (isset($info['view modes'])) {
+      foreach ($components as $component) {
+        $info['view modes'][$component->machine_name] = array(
+          'label' => $component->title,
+          'custom settings' => TRUE,
+        );
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_field_formatter_info().
+ */
+function webcomponents_display_modes_field_formatter_info() {
+  $formats = array();
+  $components = webcomponents_load_all();
+  foreach ($components as $component) {
+    $formats[$component->machine_name] = array(
+      'label' => $component->title,
+      'field types' => array(
+        'text',
+        'number_decimal',
+        'number_integer',
+        'number_unformatted',
+        'file_default',
+        'image',
+      ),
+      'description' => $component->description,
+      'settings' => array($component->machine_name => ''),
+    );
+  }
+  return $formats;
+}
+
+/**
+ * Implements hook_field_formatter_info_alter().
+ */
+function webcomponents_display_modes_field_formatter_info_alter(&$info) {
+  $components = webcomponents_load_all();
+  foreach ($info as &$item) {
+    foreach ($components as $component) {
+      $item['field types'][] = $component->machine_name;
+    }
+  }
+}
+
+/**
+ * Implements hook_field_formatter_settings_summary().
+ */
+function webcomponents_display_modes_field_formatter_settings_summary($field, $instance, $view_mode) {
+  $display = $instance['display'][$view_mode];
+  // load the matching webcomponent
+  if ($display['type'] == $view_mode && $entity = webcomponent_load_by_name($view_mode)) {
+    $settings = $display['settings'];
+    $summary = t('Map value to the property.');
+    if (!empty($settings[$view_mode])) {
+      $summary = t('Field maps to webcomponent property: @value', array('@value' => $settings[$view_mode]));
+    }
+  }
+  return $summary;
+}
+
+/**
+ * Implements hook_field_formatter_settings_form().
+ */
+function webcomponents_display_modes_field_formatter_settings_form($field, $instance, $view_mode, $form, &$form_state) {
+  if ($entity = webcomponent_load_by_name($view_mode)) {
+    $display = $instance['display'][$view_mode];
+    $settings = $display['settings'];
+    $tmp = $entity->properties;
+    foreach ($tmp as $key => $val) {
+      $tmp[$key] = $key;
+    }
+    $element[$view_mode] = array(
+      '#title' => t('Property'),
+      '#type' => 'select',
+      '#options' => $tmp,
+      '#default_value' => $settings[$view_mode],
+      '#description' => t('Select a field to map to this @type webcomponent property.', array('@type' => $entity->type))
+    );
+    return $element;
+  }
+}
+
+/**
+ * Implements hook_preprocess_page().
+ */
+function webcomponents_display_modes_preprocess_node(&$variables) {
+  $variables['theme_hook_suggestions'][] = 'webcomponent';
+}
