@@ -799,7 +799,7 @@ function elmsln_core_page_build(&$page) {
     // @todo we need a better path management solution as to when to track
     // right now we just ignore entity iframe, admin, and 'data' paths
     // would be good to ignore other paths without missing views / special pages in the process
-    if (!_entity_iframe_mode_enabled() && arg(2) != 'data' && _cis_connector_system_type() != 'authority') {
+    if (!_entity_iframe_mode_enabled() && arg(1) != 'course-data' && !in_array(arg(2), array('data', 'edit', 'devel', 'revisions', 'outline')) && _cis_connector_system_type() != 'authority') {
       drupal_add_js(drupal_get_path('module', 'elmsln_core') . '/js/elmsln-core-xapi-viewed.js', array('weight' => 1001));
     }
   }
