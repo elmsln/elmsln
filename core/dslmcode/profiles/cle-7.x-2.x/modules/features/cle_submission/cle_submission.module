@@ -169,7 +169,7 @@ function _cle_submission_v1_submission_output($node) {
  * ELMSLN JSapi callback for creating an assignment.
  * @todo  make this use the full POST data sanitized and in params.
  */
-function _cle_submission_v1_submission_modify(&$node, $params = NULL) {
+function _cle_submission_v1_submission_modify($node, $params = NULL) {
   if (!isset($node->nid)) {
     $detail = t('Submission created');
   }

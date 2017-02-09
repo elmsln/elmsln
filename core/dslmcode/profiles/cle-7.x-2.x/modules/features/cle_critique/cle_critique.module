@@ -25,10 +25,13 @@ function _cle_critique_assignment($anid) {
   // look to see if they've submitted a critique against this assignment
   // this would imply a submission node that references the assignment
   // and the only assignments utilizing this endpoint will be in mode critique
-  $ary = array(
+  $field_conditions = array(
     'field_assignment' => array('target_id', $anid, '='),
   );
-  $mycritique = _cis_connector_assemble_entity_list('node', 'cle_submission', 'nid', '_entity', $ary);
+  $property_conditions = array(
+    'uid' => $GLOBALS['user']->uid,
+  );
+  $mycritique = _cis_connector_assemble_entity_list('node', 'cle_submission', 'nid', '_entity', $field_conditions, $property_conditions);
   // this not being empty implies they've already started working on critiquing someone
   // in this event we should return the thing they've started working on
   if (!empty($mycritique)) {
@@ -51,14 +54,17 @@ function _cle_critique_assignment($anid) {
       // if there isn't this implies that no one has done this submission yet
       // other then this person submitting
       if ($submission_to_critique) {
+        $assignment = node_load($anid);
         // relate an assignment to submission
         $params = array(
           'relatedSubmission' => $submission_to_critique->nid,
           'assignment' => $anid,
+          'title' => t('Critique of assignment @title', array('@title' => $assignment->title))
         );
         // generate the item via normal modify hooks based on params
         $vars = _cle_submission_v1_submission_modify($entity, $params);
-        $vars['node'] = _cle_submission_v1_submission_output($entity);
+        $node = node_load($vars['node']['nid']);
+        $vars['node'] = _cle_submission_v1_submission_output($node);
       }
       else {
         $vars = array(
@@ -114,7 +120,7 @@ function _cle_critique_random($anid) {
       // if this wasn't set then we know we can return this submission
       // for rendering on the critique viewer
       if (!isset($critiques[$nid])) {
-        $submission = $critiques[$nid];
+        $submission = node_load($nid);
         return $submission;
       }
     }
