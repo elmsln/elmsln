@@ -99,3 +99,10 @@ function cle__2_update_7006(&$sandbox) {
 function cle__2_update_7007(&$sandbox) {
   module_enable(array('elmsln_lrs'));
 }
+
+/**
+ * CLE Submission data model has an additional field for critique
+ */
+function cle__2_update_7008(&$sandbox) {
+  features_revert_module('cle_submission');
+}

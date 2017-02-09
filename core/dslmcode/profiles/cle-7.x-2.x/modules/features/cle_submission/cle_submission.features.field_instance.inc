@@ -91,7 +91,7 @@ function cle_submission_field_default_field_instances() {
           'link' => FALSE,
         ),
         'type' => 'entityreference_label',
-        'weight' => 2,
+        'weight' => 0,
       ),
       'full' => array(
         'label' => 'inline',
@@ -100,7 +100,7 @@ function cle_submission_field_default_field_instances() {
           'link' => FALSE,
         ),
         'type' => 'entityreference_label',
-        'weight' => 1,
+        'weight' => 0,
       ),
       'gradebook_viewer' => array(
         'label' => 'inline',
@@ -162,13 +162,13 @@ function cle_submission_field_default_field_instances() {
         'label' => 'hidden',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 5,
+        'weight' => 18,
       ),
       'full' => array(
         'label' => 'hidden',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 15,
+        'weight' => 18,
       ),
       'gradebook_viewer' => array(
         'label' => 'hidden',
@@ -218,7 +218,7 @@ function cle_submission_field_default_field_instances() {
           'text' => 'Download [file:name]',
         ),
         'type' => 'file_download_link',
-        'weight' => 12,
+        'weight' => 3,
       ),
       'full' => array(
         'label' => 'hidden',
@@ -227,7 +227,7 @@ function cle_submission_field_default_field_instances() {
           'text' => 'Download [file:name]',
         ),
         'type' => 'file_download_link',
-        'weight' => 5,
+        'weight' => 4,
       ),
       'gradebook_viewer' => array(
         'label' => 'hidden',
@@ -311,22 +311,15 @@ function cle_submission_field_default_field_instances() {
           'colorbox_node_style_first' => 'cle_submission',
         ),
         'type' => 'colorbox',
-        'weight' => 11,
+        'weight' => 1,
       ),
       'full' => array(
         'label' => 'hidden',
-        'module' => 'colorbox',
+        'module' => 'file_entity',
         'settings' => array(
-          'colorbox_caption' => 'auto',
-          'colorbox_caption_custom' => '',
-          'colorbox_gallery' => 'field_page',
-          'colorbox_gallery_custom' => '',
-          'colorbox_image_style' => '',
-          'colorbox_multivalue_index' => NULL,
-          'colorbox_node_style' => 'cle_submission',
-          'colorbox_node_style_first' => 'cle_submission',
+          'text' => 'Download [file:name]',
         ),
-        'type' => 'colorbox',
+        'type' => 'file_download_link',
         'weight' => 3,
       ),
       'gradebook_viewer' => array(
@@ -418,14 +411,14 @@ function cle_submission_field_default_field_instances() {
         'module' => 'link',
         'settings' => array(),
         'type' => 'link_default',
-        'weight' => 9,
+        'weight' => 5,
       ),
       'full' => array(
         'label' => 'hidden',
         'module' => 'link',
         'settings' => array(),
         'type' => 'link_default',
-        'weight' => 2,
+        'weight' => 5,
       ),
       'gradebook_viewer' => array(
         'label' => 'hidden',
@@ -479,16 +472,15 @@ function cle_submission_field_default_field_instances() {
     'display' => array(
       'default' => array(
         'label' => 'above',
-        'module' => 'blob',
         'settings' => array(),
-        'type' => 'blob_default',
-        'weight' => 14,
+        'type' => 'hidden',
+        'weight' => 6,
       ),
       'full' => array(
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 0,
+        'weight' => 14,
       ),
     ),
     'entity_type' => 'node',
@@ -516,6 +508,66 @@ function cle_submission_field_default_field_instances() {
       'module' => 'blob',
       'settings' => array(),
       'type' => 'blob_widget_none',
+      'weight' => 20,
+    ),
+  );
+
+  // Exported field_instance: 'node-cle_submission-field_related_submission'.
+  $field_instances['node-cle_submission-field_related_submission'] = array(
+    'bundle' => 'cle_submission',
+    'default_value' => NULL,
+    'default_value_function' => '',
+    'deleted' => 0,
+    'description' => 'This relates submissions together, usually because of it being a critique.',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'entityreference',
+        'settings' => array(
+          'link' => FALSE,
+        ),
+        'type' => 'entityreference_label',
+        'weight' => 19,
+      ),
+      'full' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_related_submission',
+    'label' => 'Related submission',
+    'required' => 0,
+    'settings' => array(
+      'authcache' => array(
+        'clients' => array(
+          'authcache_ajax' => array(
+            'status' => 1,
+            'weight' => 0,
+          ),
+        ),
+        'fallback' => 'cancel',
+        'lifespan' => 3600,
+        'perpage' => 0,
+        'peruser' => 1,
+        'status' => 0,
+      ),
+      'behaviors' => array(
+        'prepopulate' => array(
+          'status' => 0,
+        ),
+      ),
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'options',
+      'settings' => array(
+        'apply_chosen' => '',
+      ),
+      'type' => 'options_select',
       'weight' => 19,
     ),
   );
@@ -541,13 +593,13 @@ function cle_submission_field_default_field_instances() {
         'label' => 'hidden',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 4,
+        'weight' => 17,
       ),
       'full' => array(
         'label' => 'hidden',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 14,
+        'weight' => 17,
       ),
       'gradebook_viewer' => array(
         'label' => 'hidden',
@@ -587,13 +639,14 @@ function cle_submission_field_default_field_instances() {
         'module' => 'text',
         'settings' => array(),
         'type' => 'text_default',
-        'weight' => 0,
+        'weight' => 2,
       ),
       'full' => array(
-        'label' => 'above',
+        'label' => 'hidden',
+        'module' => 'text',
         'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
+        'type' => 'text_default',
+        'weight' => 1,
       ),
     ),
     'entity_type' => 'node',
@@ -677,7 +730,7 @@ function cle_submission_field_default_field_instances() {
           'video_style' => 'cle_default',
         ),
         'type' => 'video_embed_field',
-        'weight' => 13,
+        'weight' => 4,
       ),
       'full' => array(
         'label' => 'hidden',
@@ -688,7 +741,7 @@ function cle_submission_field_default_field_instances() {
           'video_style' => 'cle_default',
         ),
         'type' => 'video_embed_field',
-        'weight' => 4,
+        'weight' => 2,
       ),
       'gradebook_viewer' => array(
         'label' => 'hidden',
@@ -744,13 +797,13 @@ function cle_submission_field_default_field_instances() {
         'label' => 'inline',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 3,
+        'weight' => 15,
       ),
       'full' => array(
         'label' => 'inline',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 13,
+        'weight' => 16,
       ),
       'gradebook_viewer' => array(
         'label' => 'inline',
@@ -825,9 +878,11 @@ function cle_submission_field_default_field_instances() {
   t('Images');
   t('Links');
   t('Metadata');
+  t('Related submission');
   t('Section');
   t('State');
   t('Text');
+  t('This relates submissions together, usually because of it being a critique.');
   t('Video');
 
   return $field_instances;
