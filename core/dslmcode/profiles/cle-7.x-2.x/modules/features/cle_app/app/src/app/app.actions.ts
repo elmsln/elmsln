@@ -1,8 +1,12 @@
+import { Critique } from './critique';
 import { Action } from '@ngrx/store';
+import { Assignment } from './assignment';
 
 export const ActionTypes = {
   CREATE_ASSIGNMENT: 'CREATE_ASSIGNMENT',
   CREATE_ASSIGNMENT_SUCCESS: 'CREATE_ASSIGNMENT_SUCCESS',
+  CREATE_CRITIQUE_ASSIGNMENT: 'CREATE_CRITIQUE_ASSIGNMENT',
+  CREATE_CRITIQUE_ASSIGNMENT_SUCCESS: 'CREATE_CRITIQUE_ASSIGNMENT_SUCCESS',
   UPDATE_ASSIGNMENT: 'UPDATE_ASSIGNMENT',
   UPDATE_ASSIGNMENT_SUCCESS: 'UPDATE_ASSIGNMENT_SUCCESS',
   DELETE_ASSIGNMENT: 'DELETE_ASSIGNMENT',
@@ -23,6 +27,30 @@ export function createAssignmentSuccess(assignmentId): Action {
   return {
     type: ActionTypes.CREATE_ASSIGNMENT_SUCCESS,
     payload: { id: assignmentId }
+  }
+}
+
+export function createCritiqueAssignment(assignment): Action {
+  let newAssignment = Object.assign(new Assignment, {
+    title: assignment.title + ' critique',
+    hierarchy: {
+      dependencies: [assignment.id],
+      project: assignment.project
+    },
+    critiqueMethod: 'random',
+    startDate: assignment.startDate,
+    endDate: assignment.endDate
+  });
+  return {
+    type: ActionTypes.CREATE_CRITIQUE_ASSIGNMENT,
+    payload: newAssignment
+  }
+}
+
+export function createCritiqueAssignmentSuccess(assignment): Action {
+  return {
+    type: ActionTypes.CREATE_CRITIQUE_ASSIGNMENT_SUCCESS,
+    payload: assignment
   }
 }
 

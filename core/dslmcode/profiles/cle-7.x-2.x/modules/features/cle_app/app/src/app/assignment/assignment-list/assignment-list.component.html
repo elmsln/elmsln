@@ -15,6 +15,7 @@
           <span *ngIf="assignment && assignment.metadata.relatedSubmissions && assignment.metadata.relatedSubmissions.complete.status" class="assignment__icon--complete"><i class="material-icons">check</i></span>
         </div>
         <div class="assignment__edit-buttons" *ngIf="assignment.id && (userCanEdit$ | async)">
+          <a (click)="addCritique(assignment)"><i class="material-icons" aria-label="Edit assignment">add</i></a>
           <a (click)="onEditAssignment(assignment)"><i class="material-icons" aria-label="Edit assignment">edit</i></a>
           <a (click)="onDeleteAssignment(assignment)"><i class="material-icons" aria-label="Edit assignment">delete</i></a>
         </div>

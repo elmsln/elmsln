@@ -8,6 +8,8 @@ import {
   loadAssignmentsSuccess,
   createAssignment,
   createAssignmentSuccess,
+  createCritiqueAssignment,
+  createCritiqueAssignmentSuccess,
   updateAssignmentSuccess,
   deleteAssignment,
   loadPermissions,
@@ -29,6 +31,14 @@ export class AppEffects {
     .ofType(ActionTypes.CREATE_ASSIGNMENT)
     .mergeMap(action => this.assignmentService.createAssignment(action.payload))
     .map(assignmentId => createAssignmentSuccess(assignmentId));
+  
+  @Effect() createCritiqueAssignment$ = this.actions$
+    .ofType(ActionTypes.CREATE_CRITIQUE_ASSIGNMENT)
+    .mergeMap(action => {
+      return this.assignmentService.createAssignment(action.payload)
+        .mergeMap(assignmentId => this.assignmentService.getAssignment(assignmentId));
+    })
+    .map(assignment => createCritiqueAssignmentSuccess(assignment));
 
   // Update the assignment on the server
   @Effect() updateAssignment$ = this.actions$
