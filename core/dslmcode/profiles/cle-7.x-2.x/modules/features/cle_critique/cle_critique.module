@@ -38,42 +38,43 @@ function _cle_critique_assignment($anid) {
       'node' => _cle_submission_v1_submission_output($item),
       'detail' => t('Previously started critique delivered.')
     );
-    return $vars;
   }
-  // if we passed that check, it means we haven't started a critique yet
-  // now let's make a stub
-  $entity = _elmsln_api_stub_node('cle_submission');
-  // ensure they can create a submission
-  if (entity_access('create', 'cle_submission', $entity)) {
-    // find someone to critique
-    $submission_to_critique = _cle_critique_random($anid);
-    // ensure there is a result to critique
-    // if there isn't this implies that no one has done this submission yet
-    // other then this person submitting
-    if ($submission_to_critique) {
-      // relate an assignment to submission
-      $params = array(
-        'relatedSubmission' => $submission_to_critique->nid,
-        'assignment' => $anid,
-      );
-      // generate the item via normal modify hooks based on params
-      $vars = _cle_submission_v1_submission_modify($entity, $params);
-      $vars['node'] = _cle_submission_v1_submission_output($entity);
+  else {
+    // if we passed that check, it means we haven't started a critique yet
+    // now let's make a stub
+    $entity = _elmsln_api_stub_node('cle_submission');
+    // ensure they can create a submission
+    if (entity_access('create', 'cle_submission', $entity)) {
+      // find someone to critique
+      $submission_to_critique = _cle_critique_random($anid);
+      // ensure there is a result to critique
+      // if there isn't this implies that no one has done this submission yet
+      // other then this person submitting
+      if ($submission_to_critique) {
+        // relate an assignment to submission
+        $params = array(
+          'relatedSubmission' => $submission_to_critique->nid,
+          'assignment' => $anid,
+        );
+        // generate the item via normal modify hooks based on params
+        $vars = _cle_submission_v1_submission_modify($entity, $params);
+        $vars['node'] = _cle_submission_v1_submission_output($entity);
+      }
+      else {
+        $vars = array(
+          'status' => '403',
+          'node' => FALSE,
+          'detail' => t('No one to critique'),
+        );
+      }
     }
     else {
       $vars = array(
         'status' => '403',
         'node' => FALSE,
-        'detail' => t('No one to critique'),
+        'detail' => t('Unable to create submissions.'),
       );
     }
-  }
-  else {
-    $vars = array(
-      'status' => '403',
-      'node' => FALSE,
-      'detail' => t('Unable to create submissions.'),
-    );
   }
   _elmsln_jsapi_deliver_output($vars);
 }
