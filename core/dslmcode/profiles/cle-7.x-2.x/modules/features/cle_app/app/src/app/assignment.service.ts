@@ -173,4 +173,19 @@ export class AssignmentService {
     return this.store.select('user')
       .map((state:any) => state.permissions.includes('edit own cle_assignment content'));
   }
+
+  /**
+   * Find out if an assignment is a Critique assignment
+   */
+  public assignmentIsCritique(assignment:Assignment):boolean {
+    console.log(assignment);
+    if (assignment.hierarchy) {
+      if (assignment.hierarchy.dependencies) {
+        if (assignment.hierarchy.dependencies.length > 0) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
 }

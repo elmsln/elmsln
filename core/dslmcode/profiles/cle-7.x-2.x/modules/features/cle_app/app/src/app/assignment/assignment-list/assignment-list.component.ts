@@ -29,7 +29,6 @@ export class AssignmentListComponent implements OnChanges, OnInit {
   }
 
   ngOnInit() {
-
   }
 
 viewAssignment(assignmentId) {
