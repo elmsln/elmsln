@@ -170,7 +170,7 @@ function _cle_assignment_v1_assignment_modify($node, $params = NULL) {
         foreach ($value as $key2 => $value2) {
           switch ($key2) {
             case 'dependencies':
-              foreach ($key2 as $item) {
+              foreach ($value2 as $item) {
                 $node->field_assignment_dependencies[LANGUAGE_NONE][] = array('target_id' => $item);
               }
             break;
