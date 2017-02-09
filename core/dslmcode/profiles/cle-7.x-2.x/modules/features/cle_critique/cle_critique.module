@@ -127,7 +127,8 @@ function _cle_critique_random($anid) {
     // if we got here, it means all our random items were already selected
     // so we better assign them someone to critique even though it already has a critique
     // (implies random number of students)
-    $submission = array_pop($critiques);
+    $nid = array_pop($nids);
+    $submission = node_load($nid);
     return $submission;
   }
   // there aren't any that exists
