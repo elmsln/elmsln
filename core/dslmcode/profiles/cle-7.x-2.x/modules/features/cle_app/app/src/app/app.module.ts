@@ -59,6 +59,7 @@ import { DialogComponent } from './dialog/dialog.component';
 import { SubmissionEditStatesComponent } from './submission/submission-edit-states/submission-edit-states.component';
 import { SubmissionDialogComponent } from './submission/submission-dialog/submission-dialog.component';
 import { ImageComponent } from './image/image.component';
+import { AssignmentDetailComponent } from './assignment/assignment-detail/assignment-detail.component';
 
 @NgModule({
   declarations: [
@@ -92,7 +93,8 @@ import { ImageComponent } from './image/image.component';
     DialogComponent,
     SubmissionEditStatesComponent,
     SubmissionDialogComponent,
-    ImageComponent
+    ImageComponent,
+    AssignmentDetailComponent
   ],
   imports: [
     BrowserModule,
