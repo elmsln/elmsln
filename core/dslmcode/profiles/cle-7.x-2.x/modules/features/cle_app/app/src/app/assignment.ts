@@ -12,4 +12,5 @@ export class Assignment {
   critiqueMethod:string = 'none';
   critiquePrivacy:boolean = false;
   metadata:any = {};
+  hierarchy:any = {};
 }

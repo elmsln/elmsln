@@ -24,7 +24,9 @@
     </div>
   </div>
 
-  <div class="critique-settings fieldset">
+  {{ assignment | json }}
+
+  <div class="critique-settings fieldset" *ngIf="assignment.hierarchy && assignment.hierarchy.dependencies && assignment.hierarchy.dependencies.length > 0">
     <label>Critique settings</label>
     <div class="critique-method">
       <label>Method</label>
