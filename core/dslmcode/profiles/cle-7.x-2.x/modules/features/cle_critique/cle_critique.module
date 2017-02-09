@@ -44,7 +44,7 @@ function _cle_critique_assignment($anid) {
     // now let's make a stub
     $entity = _elmsln_api_stub_node('cle_submission');
     // ensure they can create a submission
-    if (entity_access('create', 'cle_submission', $entity)) {
+    if (entity_access('create', 'node', $entity)) {
       // find someone to critique
       $submission_to_critique = _cle_critique_random($anid);
       // ensure there is a result to critique
