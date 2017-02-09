@@ -185,6 +185,7 @@ function _cle_assignment_v1_assignment_modify($node, $params = NULL) {
         foreach ($value as $key2 => $value2) {
           switch ($key2) {
             case 'competencies':
+              $node->field_elmsln_competencies[LANGUAGE_NONE] = array();
               foreach ($value2 as $item) {
                 $node->field_elmsln_competencies[LANGUAGE_NONE][] = array('value' => $item);
               }
@@ -196,6 +197,7 @@ function _cle_assignment_v1_assignment_modify($node, $params = NULL) {
             // ridiculous looking but allows normalized UI based definition of requirements
             // to complete an assignment
             case 'artifacts':
+              $node->field_assignment_artifacts[LANGUAGE_NONE] = array();
               foreach ($key2 as $item) {
                 switch ($item) {
                   case 'body':
