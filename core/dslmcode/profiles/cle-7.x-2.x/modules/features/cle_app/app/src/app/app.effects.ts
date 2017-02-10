@@ -83,7 +83,7 @@ export class AppEffects {
     .ofType(ActionTypes.START_CRITQUE)
     .map(action => this.assignmentService.startCritique(action.payload)
       .subscribe(
-        critique => startCritqueSuccess(action.payload),
+        submission => startCritqueSuccess(this.assignmentService.convertToAssignment(submission.data[0])),
         error => {
           startCritqueFailure(action.payload);
           Materialize.toast('There are no submissions to critique at this time.', 2500)

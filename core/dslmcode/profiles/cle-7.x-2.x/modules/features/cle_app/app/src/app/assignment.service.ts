@@ -104,7 +104,7 @@ export class AssignmentService {
     }
   }
 
-  private convertToAssignment(data:any) {
+  convertToAssignment(data:any) {
     let converted:Assignment = new Assignment();
     for(var propertyName in converted) {
       if (data[propertyName]) {
