@@ -141,3 +141,11 @@ function cis_update_7012(&$sandbox) {
   features_revert_module('cis_ux');
   features_revert_module('cis_displays');
 }
+
+/**
+ * Better permissions for displays and public listing
+ */
+function cis_update_7013(&$sandbox) {
+  features_revert_module('cis_competencies');
+  features_revert_module('cis_displays');
+}
