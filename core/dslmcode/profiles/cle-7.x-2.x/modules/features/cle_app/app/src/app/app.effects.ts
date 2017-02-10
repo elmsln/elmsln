@@ -1,4 +1,5 @@
 import 'rxjs/add/operator/mergeMap';
+import 'rxjs/add/operator/catch';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import { Action } from '@ngrx/store'
@@ -14,7 +15,9 @@ import {
   deleteAssignment,
   loadPermissions,
   loadPermissionsSuccess,
-  startCritque
+  startCritque,
+  startCritqueSuccess,
+  startCritqueFailure
 } from './app.actions';
 import { AssignmentService } from './assignment.service';
 import { ElmslnService } from './elmsln.service';
@@ -76,7 +79,15 @@ export class AppEffects {
       Materialize.toast('Assignment deleted', 1000);
     })
 
-  @Effect({dispatch:false}) startCritique$ = this.actions$
+  @Effect({dispatch: false}) startCritique$ = this.actions$
     .ofType(ActionTypes.START_CRITQUE)
-    .do(action => console.log(action))
+    .map(action => this.assignmentService.startCritique(action.payload)
+      .subscribe(
+        critique => startCritqueSuccess(action.payload),
+        error => {
+          startCritqueFailure(action.payload);
+          Materialize.toast('There are no submissions to critique at this time.', 2500)
+        }
+      )
+    )
 }
