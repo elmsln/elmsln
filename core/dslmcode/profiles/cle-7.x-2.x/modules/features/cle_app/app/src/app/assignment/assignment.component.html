@@ -30,7 +30,7 @@
       <a *ngIf="assignmentService.assignmentIsCritique(assignment)" (click)="onStartCritique(assignment)" class="btn-large">Start Critique</a>
     </div>
     <div *ngIf="!assignment.metadata.submissionActive" class="assignment__rationale">
-      <p [innerHTML]="assignment.metadata.rationale"></p>
+      <p [innerHTML]="assignment.metadata.rationale.text"></p>
     </div>
   </div>
 
