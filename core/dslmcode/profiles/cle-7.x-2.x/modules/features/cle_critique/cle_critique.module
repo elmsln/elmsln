@@ -49,7 +49,9 @@ function _cle_critique_assignment($anid) {
     // ensure they can create a submission
     if (entity_access('create', 'node', $entity)) {
       // find someone to critique
-      $submission_to_critique = _cle_critique_random($anid);
+      $critique_assignment = node_load($anid);
+      $critanid = $critique_assignment->field_assignment_dependencies['und'][0]['target_id'];
+      $submission_to_critique = _cle_critique_random($critanid);
       // ensure there is a result to critique
       // if there isn't this implies that no one has done this submission yet
       // other then this person submitting
@@ -103,7 +105,7 @@ function _cle_critique_random($anid) {
   // that are NOT by the currently logged in user
   ->propertyCondition('uid', $GLOBALS['user']->uid, '<>')
   // only allow for pulling the submissions the could have access to
-  ->fieldCondition('field_assignment', 'target_id', $anid)
+  ->fieldCondition('field_assignment', 'target_id', $anid, '=')
   // add a random query tag so we can randomize the response
   ->addTag('random')
   // only return 200 items in case this is a MOOC or something
