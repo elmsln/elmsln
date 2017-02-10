@@ -1,2 +1,6 @@
-<h3 class="assignment__title">{{ assignment.title }}</h3>
-<div class="assignment__body" [innerHTML]="assignment.body"></div>
+<div *ngIf="assignment" class="assignment">
+  <i class="material-icons assignment__icon">assignment</i>
+  <h3 class="assignment__label">Assignment Detail</h3>
+  <h4 class="assignment__title">{{ assignment.title }}</h4>
+  <div class="assignment__body">{{ assignment.body }}</div>
+</div>

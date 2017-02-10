@@ -94,6 +94,7 @@ import { AssignmentDetailComponent } from './assignment/assignment-detail/assign
     SubmissionEditStatesComponent,
     SubmissionDialogComponent,
     ImageComponent,
+    AssignmentDetailComponent,
     AssignmentDetailComponent
   ],
   imports: [

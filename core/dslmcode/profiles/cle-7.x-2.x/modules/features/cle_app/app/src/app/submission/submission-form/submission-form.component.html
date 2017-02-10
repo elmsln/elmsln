@@ -8,7 +8,7 @@
   </wysiwygjs>
 
   <div class="actions">
-    <button type="submit" class="btn" (click)="submit()" [ngClass]="{'disabled': (savingImage$ | async)}">Save</button>
+    <button type="submit" class="btn" (click)="submit()" [ngClass]="{'disabled': (savingImage$ | async)}">Save Submission</button>
     <a class="btn" (click)="cancel()" [ngClass]="{'disabled': (savingImage$ | async)}">Cancel</a>
   </div>
 </form>
