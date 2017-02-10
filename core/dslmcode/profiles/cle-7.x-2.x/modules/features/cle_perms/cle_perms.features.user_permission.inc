@@ -24,6 +24,22 @@ function cle_perms_user_default_permissions() {
     'module' => 'comment',
   );
 
+  // Exported permission: 'access content'.
+  $permissions['access content'] = array(
+    'name' => 'access content',
+    'roles' => array(
+      'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
+      'administrator' => 'administrator',
+      'guest' => 'guest',
+      'instructor' => 'instructor',
+      'past student' => 'past student',
+      'staff' => 'staff',
+      'student' => 'student',
+      'teaching assistant' => 'teaching assistant',
+    ),
+    'module' => 'node',
+  );
+
   // Exported permission: 'administer comments'.
   $permissions['administer comments'] = array(
     'name' => 'administer comments',
@@ -696,6 +712,16 @@ function cle_perms_user_default_permissions() {
       'teaching assistant' => 'teaching assistant',
     ),
     'module' => 'file_entity',
+  );
+
+  // Exported permission: 'view own unpublished content'.
+  $permissions['view own unpublished content'] = array(
+    'name' => 'view own unpublished content',
+    'roles' => array(
+      'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
+      'administrator' => 'administrator',
+    ),
+    'module' => 'node',
   );
 
   // Exported permission: 'view private files'.

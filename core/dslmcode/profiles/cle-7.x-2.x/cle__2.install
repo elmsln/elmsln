@@ -106,3 +106,10 @@ function cle__2_update_7007(&$sandbox) {
 function cle__2_update_7008(&$sandbox) {
   features_revert_module('cle_submission');
 }
+
+/**
+ * CLE permissions default to let authed users see stuff... duh.
+ */
+function cle__2_update_7009(&$sandbox) {
+  features_revert_module('cle_perms');
+}
