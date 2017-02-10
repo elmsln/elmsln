@@ -9,7 +9,8 @@
         "url": Drupal.settings.elmslnCore.url,
         "title": Drupal.settings.elmslnCore.title,
         "role": Drupal.settings.elmslnCore.role,
-        "session": Drupal.settings.elmslnCore.xapisession
+        "session": Drupal.settings.elmslnCore.xapisession,
+        "beacon": Drupal.settings.elmslnCore.xapibeacon
       };
       // check for hypothesis data attribute
       if ($(this).attr('data-xapi-hypothesis')) {

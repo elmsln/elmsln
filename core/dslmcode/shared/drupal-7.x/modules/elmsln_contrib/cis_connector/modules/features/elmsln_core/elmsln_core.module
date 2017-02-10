@@ -832,6 +832,10 @@ function elmsln_core_page_build(&$page) {
   else {
     $uuid = $GLOBALS['user']->uid;
   }
+  $beacon = '';
+  if (isset($_GET['xapibeacon'])) {
+    $beacon = filter_xss($_GET['xapibeacon']);
+  }
   // pass variables to js
   $js_variables = array(
     'elmslnCore' => array(
@@ -845,6 +849,7 @@ function elmsln_core_page_build(&$page) {
       'role' => $role,
       'uname' => filter_xss($GLOBALS['user']->name),
       'xapisession' => drupal_get_token($uuid),
+      'xapibeacon' => $beacon,
     )
   );
   $js_variables['tincanapi'] = $js_variables;
@@ -1607,6 +1612,16 @@ function elmsln_core_tincanapi_ajax_data_alter($module_name, &$data, $context) {
   if (isset($settings['hypothesis'])) {
     $data['context']['extensions']['https://www.elmsln.org/x-api/elmsln-research-hypothesis'] = filter_xss($settings['hypothesis']);
   }
+  // beacon if its set
+  if (isset($settings['beacon']) && !empty($settings['beacon'])) {
+    $data['context']['extensions']['https://www.elmsln.org/x-api/elmsln-beacon'] = filter_xss($settings['beacon']);
+  }
+  elseif (isset($settings['xapibeacon']) && !empty($settings['xapibeacon'])) {
+    $data['context']['extensions']['https://www.elmsln.org/x-api/elmsln-beacon'] = filter_xss($settings['xapibeacon']);
+  }
+  elseif (isset($_GET['xapibeacon']) && !empty($_GET['xapibeacon'])) {
+    $data['context']['extensions']['https://www.elmsln.org/x-api/elmsln-beacon'] = filter_xss($_GET['xapibeacon']);
+  }
 
   // competency if its set
   if (isset($settings['competency'])) {
@@ -1661,6 +1676,10 @@ function elmsln_core_tincanapi_data_alter($module_name, &$data) {
       'https://www.elmsln.org/x-api/elmsln-role' => $role,
       'https://www.elmsln.org/x-api/elmsln-session' => $session,
     );
+    // beacon if its set
+    if (isset($_GET['xapibeacon']) && !empty($_GET['xapibeacon'])) {
+      $data['context']['extensions']['https://www.elmsln.org/x-api/elmsln-beacon'] = filter_xss($_GET['xapibeacon']);
+    }
     // see if we can find a field related to competencies
     if ($node = menu_get_object()) {
       if (isset($node->field_elmsln_competency) && !empty($node->field_elmsln_competency)) {
