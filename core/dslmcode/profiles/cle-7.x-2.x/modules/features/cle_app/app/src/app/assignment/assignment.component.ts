@@ -5,7 +5,7 @@ import { Assignment } from '../assignment';
 import { AssignmentService } from '../assignment.service';
 import { Observable } from 'rxjs';
 import { Store } from '@ngrx/store';
-import { loadAssignments } from '../app.actions';
+import { loadAssignments, startCritque } from '../app.actions';
 import { ElmslnService } from '../elmsln.service';
 declare const jQuery:any;
 
@@ -88,5 +88,9 @@ export class AssignmentComponent implements OnInit, AfterViewChecked {
   onCreateSubmission(assignment:Assignment) {
     const url = 'submissions/create/' + assignment.id;
     this.router.navigate([url]);
+  }
+
+  onStartCritique(assignment:Assignment) {
+    this.store.dispatch(startCritque(assignment));
   }
 }

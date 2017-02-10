@@ -13,7 +13,10 @@ export const ActionTypes = {
   LOAD_ASSIGNMENTS: 'LOAD_ASSIGNMENTS',
   LOAD_ASSIGNMENTS_SUCCESS: 'LOAD_ASSIGNMENTS_SUCCESS',
   LOAD_PERMISSIONS: 'LOAD_PERMISSIONS',
-  LOAD_PERMISSIONS_SUCCESS: 'LOAD_PERMISSIONS_SUCCESS'
+  LOAD_PERMISSIONS_SUCCESS: 'LOAD_PERMISSIONS_SUCCESS',
+  START_CRITQUE: 'START_CRITQUE',
+  START_CRITQUE_SUCCESS: 'START_CRITQUE_SUCCESS',
+  START_CRITQUE_FAILURE: 'START_CRITQUE_FAILURE',
 }
 
 export function createAssignment(assignment): Action {
@@ -100,5 +103,26 @@ export function loadPermissionsSuccess(permissions, token, uid): Action {
   return {
     type: ActionTypes.LOAD_PERMISSIONS_SUCCESS,
     payload: {permissions: permissions, token: token, uid: uid}
+  }
+}
+
+export function startCritque(assignment:Assignment): Action {
+  return {
+    type: ActionTypes.START_CRITQUE,
+    payload: assignment
+  }
+}
+
+export function startCritqueSuccess(assignment:Assignment): Action {
+  return {
+    type: ActionTypes.START_CRITQUE_SUCCESS,
+    payload: assignment
+  }
+}
+
+export function startCritqueFailure(assignment:Assignment): Action {
+  return {
+    type: ActionTypes.START_CRITQUE_FAILURE,
+    payload: assignment
   }
 }

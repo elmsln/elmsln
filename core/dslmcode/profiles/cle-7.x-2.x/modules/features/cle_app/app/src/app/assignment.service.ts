@@ -76,6 +76,11 @@ export class AssignmentService {
       .map(data => data.json())
   }
 
+  startCritique(assignment:Assignment) {
+    return this.elmsln.get(AppSettings.BASE_PATH + 'api/v1/cle/assignments/' + assignment.id + '/critique')
+      .map(data => data.json())
+  }
+
   /**
    * @todo: this should eventually be more dynamic
    */
@@ -99,7 +104,7 @@ export class AssignmentService {
     }
   }
 
-  private convertToAssignment(data:any) {
+  convertToAssignment(data:any) {
     let converted:Assignment = new Assignment();
     for(var propertyName in converted) {
       if (data[propertyName]) {

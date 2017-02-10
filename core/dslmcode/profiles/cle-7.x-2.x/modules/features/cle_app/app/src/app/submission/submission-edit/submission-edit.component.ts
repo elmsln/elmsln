@@ -1,3 +1,4 @@
+import { Assignment } from '../../assignment';
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
@@ -18,6 +19,7 @@ export class SubmissionEditComponent implements OnInit {
   submission$: Observable<Submission>;
   submissionId:number;
   assignmentId:number;
+  assignment$:Observable<Assignment>;
   submissionFormDirty:boolean;
   isSaving:boolean = false;
 
@@ -58,6 +60,22 @@ export class SubmissionEditComponent implements OnInit {
           Materialize.toast('Submission updated', 1500);
           this.router.navigate(['/assignments/' + this.assignmentId]);
         }
+      })
+
+    // get the current assignemnt
+    this.assignment$ = this.submission$
+      // make sure this submission has an assignment
+      .filter((s:Submission) => {
+        if (s) {
+          if (s.assignment) {
+            return true;
+          }
+        }
+        return false
+      })
+      .mergeMap((s:Submission) => {
+        return this.store.select('assignments')
+            .map((state:any) => state.assignments.find((a:Assignment) => a.id === s.assignment))
       })
   }
 

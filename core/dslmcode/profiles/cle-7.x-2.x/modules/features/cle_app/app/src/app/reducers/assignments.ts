@@ -92,6 +92,10 @@ export function reducer(state: AssignmentState = initialState, action: Action) {
       }
     }
 
+    case ActionTypes.START_CRITQUE: {
+      return state;
+    }
+
     default:  {
       return state;
     }
