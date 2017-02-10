@@ -78,7 +78,12 @@ function cle_project_elmsln_jsapi_info() {
  */
 function _cle_project_v1_get_projects($type, $filter = array()) {
   $items = array();
-  $field_conditions = array();
+  $orderby = array();
+  $section_id = _cis_connector_section_context();
+  $section = _cis_section_load_section_by_id($section_id);
+  $field_conditions = array(
+    'og_group_ref' => array('target_id', $section, '='),
+  );
   $property_conditions = array('status' => array(NODE_PUBLISHED, '='));
   if (isset($filter['project'])) {
     $property_conditions['nid'] = array($filter['project'], '=');

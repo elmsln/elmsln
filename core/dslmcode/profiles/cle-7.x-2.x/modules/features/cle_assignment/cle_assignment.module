@@ -432,7 +432,11 @@ function _cle_assignment_v1_assignment_output($node) {
  */
 function _cle_assignment_v1_get_assignments($type, $filter = array()) {
   $items = array();
-  $field_conditions = array();
+  $section_id = _cis_connector_section_context();
+  $section = _cis_section_load_section_by_id($section_id);
+  $field_conditions = array(
+    'og_group_ref' => array('target_id', $section, '='),
+  );
   $property_conditions = array('status' => array(NODE_PUBLISHED, '='));
   if (isset($filter['assignment'])) {
     $property_conditions['nid'] = array($filter['assignment'], '=');

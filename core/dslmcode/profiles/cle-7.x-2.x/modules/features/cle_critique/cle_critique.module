@@ -22,11 +22,14 @@ function cle_critique_menu() {
  * to connect to the site. This assumes a user session already exists.
  */
 function _cle_critique_assignment($anid) {
+  $section_id = _cis_connector_section_context();
+  $section = _cis_section_load_section_by_id($section_id);
   // look to see if they've submitted a critique against this assignment
   // this would imply a submission node that references the assignment
   // and the only assignments utilizing this endpoint will be in mode critique
   $field_conditions = array(
     'field_assignment' => array('target_id', $anid, '='),
+    'og_group_ref' => array('target_id', $section, '='),
   );
   $property_conditions = array(
     'uid' => $GLOBALS['user']->uid,
@@ -93,6 +96,8 @@ function _cle_critique_assignment($anid) {
  * @return object             student's submission node for critique
  */
 function _cle_critique_random($anid) {
+  $section_id = _cis_connector_section_context();
+  $section = _cis_section_load_section_by_id($section_id);
   // find all the critiques on current submissions they have access to
   // make sure these submissions are filtered out below select submissions
   $query = new EntityFieldQuery();
@@ -106,6 +111,8 @@ function _cle_critique_random($anid) {
   ->propertyCondition('uid', $GLOBALS['user']->uid, '<>')
   // only allow for pulling the submissions the could have access to
   ->fieldCondition('field_assignment', 'target_id', $anid, '=')
+  // only to this section
+  ->fieldCondition('og_group_ref', 'target_id', $section, '=')
   // add a random query tag so we can randomize the response
   ->addTag('random')
   // only return 200 items in case this is a MOOC or something
