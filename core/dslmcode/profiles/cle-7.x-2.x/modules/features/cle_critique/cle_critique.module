@@ -68,7 +68,7 @@ function _cle_critique_assignment($anid) {
       }
       else {
         $vars = array(
-          'status' => '403',
+          'status' => '409',
           'node' => FALSE,
           'detail' => t('No one to critique'),
         );
