@@ -14,6 +14,7 @@ import {
   deleteAssignment,
   loadPermissions,
   loadPermissionsSuccess,
+  startCritque
 } from './app.actions';
 import { AssignmentService } from './assignment.service';
 import { ElmslnService } from './elmsln.service';
@@ -74,4 +75,8 @@ export class AppEffects {
     .map(info => {
       Materialize.toast('Assignment deleted', 1000);
     })
+
+  @Effect({dispatch:false}) startCritique$ = this.actions$
+    .ofType(ActionTypes.START_CRITQUE)
+    .do(action => console.log(action))
 }
