@@ -25,6 +25,10 @@ const appRoutes: Routes = [
     component: AppComponent
   },
   {
+    path: '**',
+    redirectTo: 'projects'
+  },
+  {
     path: 'login',
     component: LoginComponent
   },
