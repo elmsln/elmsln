@@ -82,8 +82,10 @@ export class SubmissionEditComponent implements OnInit {
 
     this.assignment$
       .subscribe((assignment:Assignment) => {
-        if (assignment.critiqueMethod !== 'none') {
-          this.isCritique = true;
+        if (assignment) {
+          if (assignment.critiqueMethod !== 'none') {
+            this.isCritique = true;
+          }
         }
       })
   }
