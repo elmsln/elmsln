@@ -1,6 +1,7 @@
 import { Critique } from './critique';
 import { Action } from '@ngrx/store';
 import { Assignment } from './assignment';
+import { Response } from '@angular/http';
 
 export const ActionTypes = {
   CREATE_ASSIGNMENT: 'CREATE_ASSIGNMENT',
@@ -120,9 +121,9 @@ export function startCritqueSuccess(assignment:Assignment): Action {
   }
 }
 
-export function startCritqueFailure(assignment:Assignment): Action {
+export function startCritqueFailure(res:Response): Action {
   return {
     type: ActionTypes.START_CRITQUE_FAILURE,
-    payload: assignment
+    payload: res
   }
 }

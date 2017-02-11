@@ -22,6 +22,8 @@ export class SubmissionEditComponent implements OnInit {
   assignment$:Observable<Assignment>;
   submissionFormDirty:boolean;
   isSaving:boolean = false;
+  isCritique:boolean = false;
+  critiqueSubmission:Submission;
 
   constructor(
     private route: ActivatedRoute,
@@ -76,6 +78,13 @@ export class SubmissionEditComponent implements OnInit {
       .mergeMap((s:Submission) => {
         return this.store.select('assignments')
             .map((state:any) => state.assignments.find((a:Assignment) => a.id === s.assignment))
+      })
+
+    this.assignment$
+      .subscribe((assignment:Assignment) => {
+        if (assignment.critiqueMethod !== 'none') {
+          this.isCritique = true;
+        }
       })
   }
 
