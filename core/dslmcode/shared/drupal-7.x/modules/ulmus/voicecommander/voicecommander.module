@@ -176,6 +176,7 @@ function _voicecommander_apply() {
         'continuous'                => (variable_get('voicecommander_continuous', FALSE) && user_access('access voice commander settings')),
         'userName'                  => $GLOBALS['user']->name,
         'robotName'                 => variable_get('voicecommander_robot', VOICECOMMANDER_ROBOT_NAME),
+        'basePath'                  => base_path(),
       )
     ),
     'setting');
