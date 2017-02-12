@@ -3,6 +3,17 @@
  * @file
  * cle_submission.install
  */
+
+/**
+ * Revert views.
+ */
 function cle_submission_update_7000(&$sandbox) {
   features_revert(array('cle_submission' => array('views')));
+}
+
+/**
+ * Revert content type so default is correct
+ */
+function cle_submission_update_7001(&$sandbox) {
+  features_revert_module('cle_submission');
 }
