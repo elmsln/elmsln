@@ -14,14 +14,12 @@ function voicecommander_whatis_voice_command() {
   $ops['whatis'] = array(
     'file' => drupal_get_path('module', 'voicecommander_whatis') . '/js/vc-whatis.js',
     'commands' => array(
-      // what iswhatis
-      '%phrase what is *value' => array(
+      // what is
+      '%phrase what is *what' => array(
         'callback' => 'Drupal.voicecommander.whatIs',
-        'data' => '',
       ),
-      '%phrase what are *value' => array(
+      '%phrase what are *what' => array(
         'callback' => 'Drupal.voicecommander.whatIs',
-        'data' => '',
       ),
     ),
   );

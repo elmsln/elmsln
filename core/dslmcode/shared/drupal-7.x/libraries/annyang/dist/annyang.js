@@ -175,10 +175,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
       recognition = new SpeechRecognition();
 
       // Set the max number of alternative transcripts to try and match with a command
-      recognition.maxAlternatives = 3;
-
-      //Use interimResults to imporve performance
-      recognition.interimResults = true;
+      recognition.maxAlternatives = 5;
 
       // In HTTPS, turn off continuous mode for faster results.
       // In HTTP,  turn on  continuous mode for much slower results, but no repeating security notices

@@ -5,11 +5,11 @@
  */
 
 (function ($) {
-  Drupal.voicecommander.whatIs = function(phrase) {
+  Drupal.voicecommander.whatIs = function(what) {
     // make ajax call for what to say in response
     $.ajax({
       type: "POST",
-      url: Drupal.settings.voiceCommander.basePath + 'voicecommander/whatis/' + Drupal.settings.voiceCommander.secureToken + '/' + phrase,
+      url: Drupal.settings.voiceCommander.basePath + 'voicecommander/whatis/' + Drupal.settings.voiceCommander.secureToken + '/' + what,
       success: function(msg){
         // loop through message response if valid
         if (msg.status == '200') {

@@ -324,6 +324,9 @@ function voicecommander_voice_command() {
         '%phrase scroll (down)' => array(
           'callback' => 'Drupal.voicecommander.scroll',
         ),
+        '%phrase stop' => array(
+          'callback' => 'Drupal.voicecommander.stop',
+        ),
       ),
     ),
     'core_cacheclear' => array(

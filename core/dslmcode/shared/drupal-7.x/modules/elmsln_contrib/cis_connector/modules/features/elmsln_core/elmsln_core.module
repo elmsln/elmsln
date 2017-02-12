@@ -1159,6 +1159,12 @@ function elmsln_core_voice_command() {
   $commands["all your base"] =  array(
     'callback' => 'Drupal.voicecommanderAllYourBase',
   );
+  $commands["close"] =  array(
+    'callback' => 'Drupal.voicecommanderCloseMenus',
+  );
+  $commands["thank you"] =  array(
+    'callback' => 'Drupal.voicecommanderThankYou',
+  );
   if (arg(1) == 'error') {
     $commands["open the pod bay doors"] =  array(
       'callback' => 'Drupal.voicecommanderHal9000',

@@ -1,6 +1,6 @@
 
 
-<!-- Start annyang.js -->
+<!-- Start src/annyang.js -->
 
 # Quick Tutorial, Intro and Demos
 
@@ -42,8 +42,9 @@ It's a good idea to call this after adding some commands first, but not mandator
 
 Receives an optional options object which supports the following options:
 
-- `autoRestart` (boolean, default: true) Should annyang restart itself if it is closed indirectly, because of silence or window conflicts?
-- `continuous`  (boolean, default: undefined) Allow forcing continuous mode on or off. Annyang is pretty smart about this, so only set this if you know what you're doing.
+- `autoRestart`  (boolean, default: true) Should annyang restart itself if it is closed indirectly, because of silence or window conflicts?
+- `continuous`   (boolean) Allow forcing continuous mode on or off. Annyang is pretty smart about this, so only set this if you know what you're doing.
+- `paused`       (boolean, default: true) Start annyang in paused mode.
 
 #### Examples:
 ````javascript
@@ -90,7 +91,7 @@ Turn on output of debug messages to the console. Ugly, but super-handy!
 
 Set the language the user will speak in. If this method is not called, defaults to 'en-US'.
 
-See: [Languages](#languages)
+See: [Languages](https://github.com/TalAter/annyang/blob/master/docs/FAQ.md#what-languages-are-supported)
 
 ### Params:
 
@@ -146,20 +147,26 @@ annyang.removeCommands(['howdy', 'hi']);
 Add a callback function to be called in case one of the following events happens:
 
 * `start` - Fired as soon as the browser's Speech Recognition engine starts listening
+* `soundstart` - Fired as soon as any sound (possibly speech) has been detected.
+    This will fire once per Speech Recognition starting. See https://is.gd/annyang_sound_start
 * `error` - Fired when the browser's Speech Recogntion engine returns an error, this generic error callback will be followed by more accurate error callbacks (both will fire if both are defined)
+    Callback function will be called with the error event as the first argument
 * `errorNetwork` - Fired when Speech Recognition fails because of a network error
+    Callback function will be called with the error event as the first argument
 * `errorPermissionBlocked` - Fired when the browser blocks the permission request to use Speech Recognition.
+    Callback function will be called with the error event as the first argument
 * `errorPermissionDenied` - Fired when the user blocks the permission request to use Speech Recognition.
+    Callback function will be called with the error event as the first argument
 * `end` - Fired when the browser's Speech Recognition engine stops
 * `result` - Fired as soon as some speech was identified. This generic callback will be followed by either the `resultMatch` or `resultNoMatch` callbacks.
-    Callback functions registered to this event will include an array of possible phrases the user said as the first argument
+    Callback functions for to this event will be called with an array of possible phrases the user said as the first argument
 * `resultMatch` - Fired when annyang was able to match between what the user said and a registered command
-    Callback functions registered to this event will include three arguments in the following order:
+    Callback functions for this event will be called with three arguments in the following order:
       * The phrase the user said that matched a command
       * The command that was matched
-      * An array of possible alternative phrases the user might've said
+      * An array of possible alternative phrases the user might have said
 * `resultNoMatch` - Fired when what the user said didn't match any of the registered commands.
-    Callback functions registered to this event will include an array of possible phrases the user might've said as the first argument
+    Callback functions for this event will be called with an array of possible phrases the user might've said as the first argument
 
 #### Examples:
 ````javascript
@@ -325,109 +332,5 @@ var commands = {
 }
  ````
 
-## Languages
-
-While there isn't an official list of supported languages (cultures? locales?), here is a list based on [anecdotal evidence](http://stackoverflow.com/a/14302134/338039).
-
-* Afrikaans `af`
-* Basque `eu`
-* Bulgarian `bg`
-* Catalan `ca`
-* Arabic (Egypt) `ar-EG`
-* Arabic (Jordan) `ar-JO`
-* Arabic (Kuwait) `ar-KW`
-* Arabic (Lebanon) `ar-LB`
-* Arabic (Qatar) `ar-QA`
-* Arabic (UAE) `ar-AE`
-* Arabic (Morocco) `ar-MA`
-* Arabic (Iraq) `ar-IQ`
-* Arabic (Algeria) `ar-DZ`
-* Arabic (Bahrain) `ar-BH`
-* Arabic (Lybia) `ar-LY`
-* Arabic (Oman) `ar-OM`
-* Arabic (Saudi Arabia) `ar-SA`
-* Arabic (Tunisia) `ar-TN`
-* Arabic (Yemen) `ar-YE`
-* Czech `cs`
-* Dutch `nl-NL`
-* English (Australia) `en-AU`
-* English (Canada) `en-CA`
-* English (India) `en-IN`
-* English (New Zealand) `en-NZ`
-* English (South Africa) `en-ZA`
-* English(UK) `en-GB`
-* English(US) `en-US`
-* Finnish `fi`
-* French `fr-FR`
-* Galician `gl`
-* German `de-DE`
-* Hebrew `he`
-* Hungarian `hu`
-* Icelandic `is`
-* Italian `it-IT`
-* Indonesian `id`
-* Japanese `ja`
-* Korean `ko`
-* Latin `la`
-* Mandarin Chinese `zh-CN`
-* Traditional Taiwan `zh-TW`
-* Simplified China zh-CN `?`
-* Simplified Hong Kong `zh-HK`
-* Yue Chinese (Traditional Hong Kong) `zh-yue`
-* Malaysian `ms-MY`
-* Norwegian `no-NO`
-* Polish `pl`
-* Pig Latin `xx-piglatin`
-* Portuguese `pt-PT`
-* Portuguese (Brasil) `pt-BR`
-* Romanian `ro-RO`
-* Russian `ru`
-* Serbian `sr-SP`
-* Slovak `sk`
-* Spanish (Argentina) `es-AR`
-* Spanish (Bolivia) `es-BO`
-* Spanish (Chile) `es-CL`
-* Spanish (Colombia) `es-CO`
-* Spanish (Costa Rica) `es-CR`
-* Spanish (Dominican Republic) `es-DO`
-* Spanish (Ecuador) `es-EC`
-* Spanish (El Salvador) `es-SV`
-* Spanish (Guatemala) `es-GT`
-* Spanish (Honduras) `es-HN`
-* Spanish (Mexico) `es-MX`
-* Spanish (Nicaragua) `es-NI`
-* Spanish (Panama) `es-PA`
-* Spanish (Paraguay) `es-PY`
-* Spanish (Peru) `es-PE`
-* Spanish (Puerto Rico) `es-PR`
-* Spanish (Spain) `es-ES`
-* Spanish (US) `es-US`
-* Spanish (Uruguay) `es-UY`
-* Spanish (Venezuela) `es-VE`
-* Swedish `sv-SE`
-* Turkish `tr`
-* Zulu `zu`
-
-## Developing
-
-Prerequisities: node.js
-
-First, install dependencies in your local annyang copy:
-
-    npm install
-
-Make sure to run the default grunt task after each change to annyang.js. This can also be done automatically by running:
-
-    grunt watch
-
-You can also run a local server for testing your work with:
-
-    grunt dev
-
-Point your browser to `https://localhost:8443/demo/` to see the demo page.
-Since it's using self-signed certificate, you might need to click *"Proceed Anyway"*.
-
-For more info, check out the [CONTRIBUTING](https://github.com/TalAter/annyang/blob/master/CONTRIBUTING.md) file
-
-<!-- End annyang.js -->
+<!-- End src/annyang.js -->
 

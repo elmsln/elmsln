@@ -40,9 +40,17 @@
     Drupal.voicecommanderAllYourBase = function(phrase) {
       Drupal.voicecommander.say('are belong to us');
     };
-    // creeper voice
+    // creepy voice
     Drupal.voicecommanderHal9000 = function(phrase) {
       Drupal.voicecommander.say('I\'m sorry Dave. I\'m afraid I can\'t do that.', 0.1, .6);
+    };
+    // creepy voice
+    Drupal.voicecommanderThankYou = function(phrase) {
+      Drupal.voicecommander.say('No, thank you for asking.');
+    };
+    // triggerclose
+    Drupal.voicecommanderCloseMenus = function(phrase) {
+      $('[data-voicecommand="close (menu)"],[data-voicecommand="close"]').click();
     };
   });
 })(jQuery);
