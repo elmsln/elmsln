@@ -4,6 +4,7 @@ import { Store } from '@ngrx/store';
 import { ElmslnService } from '../elmsln.service';
 import { AppSettings } from '../app-settings';
 import { Submission } from './submission';
+import { Assignment } from '../assignment';
 declare const Materialize:any;
 
 @Injectable()
@@ -160,5 +161,36 @@ export class SubmissionService {
         }
         return false;
       })
+  }
+
+  /**
+   * Return the submission type
+   * 
+   * This will check the parent assignment that the submission
+   * is attached to and figure out what the critique method is.
+   * If there is a critqiue method other than 'none' then it will
+   * return that as the submission type. If there is no critique method
+   * then it will just return 'submission' which is the default type
+   */
+  getSubmissionType(submission:Submission):string {
+    let type:string = 'submission';
+    if (submission) {
+      if (submission.assignment) {
+        this.store.select('assignments')
+          .map((state:any) => state.assignments.find((a:Assignment) => a.id === submission.assignment))
+          .subscribe((a:Assignment) => {
+            if (a) {
+              if (typeof a.critiqueMethod === 'string') {
+                if (a.critiqueMethod !== 'none') {
+                  // if the crtique method was set then we can
+                  // use that as the submission type
+                  type = 'critique';
+                }
+              }
+            }
+          })
+      }
+    }
+    return type;
   }
 }
