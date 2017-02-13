@@ -140,7 +140,7 @@ function loadPermissionsSuccess(permissions) {
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__elmsln_service__ = __webpack_require__(38);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__app_settings__ = __webpack_require__(96);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__app_settings__ = __webpack_require__(97);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__project__ = __webpack_require__(255);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__ngrx_store__ = __webpack_require__(11);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return ProjectService; });
@@ -332,7 +332,7 @@ var UserService = (function () {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__app_actions__ = __webpack_require__(54);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__submission_submission_actions__ = __webpack_require__(80);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__projects_project_actions__ = __webpack_require__(123);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__app_settings__ = __webpack_require__(96);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__app_settings__ = __webpack_require__(97);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return AppComponent; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -393,7 +393,7 @@ var AppComponent = (function () {
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_http__ = __webpack_require__(237);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__app_settings__ = __webpack_require__(96);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__app_settings__ = __webpack_require__(97);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__elmsln_service__ = __webpack_require__(38);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return CritiqueService; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
@@ -481,7 +481,7 @@ var Project = (function () {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_forms__ = __webpack_require__(77);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__ngrx_store__ = __webpack_require__(11);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__image_image_actions__ = __webpack_require__(397);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__submission__ = __webpack_require__(81);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__submission__ = __webpack_require__(82);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return SubmissionFormComponent; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -637,7 +637,7 @@ var SubmissionFormComponent = (function () {
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_http__ = __webpack_require__(237);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__app_settings__ = __webpack_require__(96);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__app_settings__ = __webpack_require__(97);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_ng2_cookies_ng2_cookies__ = __webpack_require__(450);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_ng2_cookies_ng2_cookies___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_ng2_cookies_ng2_cookies__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__ngrx_store__ = __webpack_require__(11);
@@ -1403,7 +1403,7 @@ var ProjectsListComponent = (function () {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_router__ = __webpack_require__(16);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__ngrx_store__ = __webpack_require__(11);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__submission__ = __webpack_require__(81);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__submission__ = __webpack_require__(82);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__submission_actions__ = __webpack_require__(80);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__submission_form_submission_form_component__ = __webpack_require__(256);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return SubmissionCreateComponent; });
@@ -1488,7 +1488,8 @@ var SubmissionCreateComponent = (function () {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__submission__ = __webpack_require__(81);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__submission__ = __webpack_require__(82);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__submission_service__ = __webpack_require__(81);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return SubmissionCritiqueComponent; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -1501,10 +1502,18 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 
 
+
 var SubmissionCritiqueComponent = (function () {
-    function SubmissionCritiqueComponent() {
+    function SubmissionCritiqueComponent(submissionService) {
+        this.submissionService = submissionService;
     }
     SubmissionCritiqueComponent.prototype.ngOnInit = function () {
+    };
+    SubmissionCritiqueComponent.prototype.ngOnChanges = function () {
+        var _this = this;
+        // get the submission critique
+        this.submissionService.getSubmission(this.submission.relatedSubmission)
+            .subscribe(function (submission) { return _this.critique = submission; });
     };
     __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Input"])(), 
@@ -1516,10 +1525,10 @@ var SubmissionCritiqueComponent = (function () {
             template: __webpack_require__(857),
             styles: [__webpack_require__(796)]
         }), 
-        __metadata('design:paramtypes', [])
+        __metadata('design:paramtypes', [(typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_2__submission_service__["a" /* SubmissionService */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_2__submission_service__["a" /* SubmissionService */]) === 'function' && _b) || Object])
     ], SubmissionCritiqueComponent);
     return SubmissionCritiqueComponent;
-    var _a;
+    var _a, _b;
 }());
 //# sourceMappingURL=/Users/scienceonlineed/Documents/websites/elmsln/core/dslmcode/profiles/cle-7.x-2.x/modules/features/cle_app/app/src/submission-critique.component.js.map
 
@@ -1531,7 +1540,7 @@ var SubmissionCritiqueComponent = (function () {
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_router__ = __webpack_require__(16);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__submission_service__ = __webpack_require__(97);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__submission_service__ = __webpack_require__(81);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return SubmissionDialogComponent; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -1723,8 +1732,8 @@ var SubmissionEditComponent = (function () {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_router__ = __webpack_require__(16);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__ngrx_store__ = __webpack_require__(11);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__submission__ = __webpack_require__(81);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__submission_service__ = __webpack_require__(97);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__submission__ = __webpack_require__(82);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__submission_service__ = __webpack_require__(81);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__submission_actions__ = __webpack_require__(80);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__dialog_dialog_component__ = __webpack_require__(396);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return SubmissionStatesComponent; });
@@ -1836,7 +1845,7 @@ var SubmissionStatesComponent = (function () {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_common__ = __webpack_require__(61);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__ngrx_store__ = __webpack_require__(11);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__elmsln_service__ = __webpack_require__(38);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__submission_service__ = __webpack_require__(97);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__submission_service__ = __webpack_require__(81);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return SubmissionComponent; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -2260,7 +2269,7 @@ var AppEffects = (function () {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_17__elmsln_service__ = __webpack_require__(38);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_18__critique_service__ = __webpack_require__(254);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_19__assignment_service__ = __webpack_require__(67);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_20__submission_submission_service__ = __webpack_require__(97);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_20__submission_submission_service__ = __webpack_require__(81);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_21__project_service__ = __webpack_require__(170);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_22_angular2_moment__ = __webpack_require__(639);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_22_angular2_moment___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_22_angular2_moment__);
@@ -3802,7 +3811,7 @@ var SubmissionCritiqueFormComponent = (function () {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__submission__ = __webpack_require__(81);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__submission__ = __webpack_require__(82);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__elmsln_service__ = __webpack_require__(38);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return SubmissionDetailComponent; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
@@ -3850,7 +3859,7 @@ var SubmissionDetailComponent = (function () {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__submission__ = __webpack_require__(81);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__submission__ = __webpack_require__(82);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return SubmissionEditStatesComponent; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -3894,7 +3903,7 @@ var SubmissionEditStatesComponent = (function () {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_router__ = __webpack_require__(16);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__user_service__ = __webpack_require__(171);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__submission_submission_service__ = __webpack_require__(97);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__submission_submission_service__ = __webpack_require__(81);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return SubmissionListComponent; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -3958,7 +3967,7 @@ var SubmissionListComponent = (function () {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__ngrx_effects__ = __webpack_require__(169);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__submission_actions__ = __webpack_require__(80);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__app_actions__ = __webpack_require__(54);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__submission_service__ = __webpack_require__(97);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__submission_service__ = __webpack_require__(81);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return SubmissionEffects; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -4650,7 +4659,7 @@ var environment = {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__ngrx_store__ = __webpack_require__(11);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__elmsln_service__ = __webpack_require__(38);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__app_settings__ = __webpack_require__(96);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__app_settings__ = __webpack_require__(97);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__assignment__ = __webpack_require__(122);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return AssignmentService; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
@@ -5057,24 +5066,198 @@ module.exports = ""
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
-/* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return Submission; });
-var Submission = (function () {
-    function Submission() {
-        this.id = null;
-        this.uid = null;
-        this.title = null;
-        this.status = true;
-        this.created = null;
-        this.body = null;
-        this.assignment = null;
-        this.state = 'submission_in_progress';
-        this.metadata = {};
-        this.environment = {};
-        this.evidence = {};
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_rxjs__ = __webpack_require__(452);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_rxjs___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_rxjs__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__ngrx_store__ = __webpack_require__(11);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__elmsln_service__ = __webpack_require__(38);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__app_settings__ = __webpack_require__(97);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__submission__ = __webpack_require__(82);
+/* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return SubmissionService; });
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+
+
+
+
+
+
+var SubmissionService = (function () {
+    function SubmissionService(elmsln, store) {
+        this.elmsln = elmsln;
+        this.store = store;
+        this.submissions = this.store.select(function (state) { return state.submissions; });
     }
-    return Submission;
+    SubmissionService.prototype.getSubmissions = function (assignmentId) {
+        var _this = this;
+        var query = assignmentId ? '?assignment=' + assignmentId : '';
+        this.elmsln.get(__WEBPACK_IMPORTED_MODULE_4__app_settings__["a" /* AppSettings */].BASE_PATH + 'api/v1/cle/submissions' + query)
+            .map(function (data) { return data.json(); })
+            .map(function (data) { return typeof data.data !== 'undefined' ? data.data : []; })
+            .map(function (data) {
+            if (data) {
+                // convert list of data into list of Submissions
+                var d_1 = [];
+                data.forEach(function (item) { return d_1.push(_this.convertToSubmission(item)); });
+                return d_1;
+            }
+        })
+            .map(function (payload) { return ({ type: 'ADD_SUBMISSIONS', payload: payload }); })
+            .subscribe(function (action) { return _this.store.dispatch(action); });
+    };
+    SubmissionService.prototype.loadSubmissions = function () {
+        var _this = this;
+        return this.elmsln.get(__WEBPACK_IMPORTED_MODULE_4__app_settings__["a" /* AppSettings */].BASE_PATH + 'api/v1/cle/submissions')
+            .map(function (data) { return data.json().data; })
+            .map(function (data) {
+            if (data) {
+                // convert list of data into list of Submissions
+                var d_2 = [];
+                data.forEach(function (item) { return d_2.push(_this.convertToSubmission(item)); });
+                return d_2;
+            }
+        });
+    };
+    SubmissionService.prototype.getSubmission = function (submissionId) {
+        var _this = this;
+        return this.elmsln.get(__WEBPACK_IMPORTED_MODULE_4__app_settings__["a" /* AppSettings */].BASE_PATH + 'api/v1/cle/submissions/' + submissionId)
+            .map(function (data) { return data.json().data[0]; })
+            .map(function (data) { return _this.convertToSubmission(data); });
+    };
+    SubmissionService.prototype.createSubmission = function (submission) {
+        var _this = this;
+        var newSub = this.prepareForDrupal(submission);
+        return this.elmsln.post(__WEBPACK_IMPORTED_MODULE_4__app_settings__["a" /* AppSettings */].BASE_PATH + 'api/v1/cle/submissions/create', newSub)
+            .map(function (data) { return data.json().node; })
+            .map(function (node) { return _this.convertToSubmission(node); });
+    };
+    SubmissionService.prototype.updateSubmission = function (submission) {
+        var _this = this;
+        var newSub = this.prepareForDrupal(submission);
+        return this.elmsln.put(__WEBPACK_IMPORTED_MODULE_4__app_settings__["a" /* AppSettings */].BASE_PATH + 'api/v1/cle/submissions/' + submission.id + '/update', newSub)
+            .map(function (data) { return data.json(); })
+            .map(function (node) { return _this.convertToSubmission(node); });
+    };
+    SubmissionService.prototype.deleteSubmission = function (submission) {
+        return this.elmsln.delete(__WEBPACK_IMPORTED_MODULE_4__app_settings__["a" /* AppSettings */].BASE_PATH + 'api/v1/cle/submissions/' + submission.id + '/delete')
+            .map(function (data) { return data.json(); });
+    };
+    /**
+     * @todo: this should eventually be more dynamic
+     */
+    SubmissionService.prototype.getSubmissionOptions = function () {
+        return {
+            type: [
+                { value: 'open', display: 'Open' },
+                { value: 'closed', display: 'Closed' }
+            ],
+            critiqueMethod: [
+                { value: 'open', display: 'Open' },
+                { value: 'random', display: 'Random' }
+            ],
+            critiqueStyle: [
+                { value: 'open', display: 'Open' },
+                { value: 'blind', display: 'Blind' },
+                { value: 'double_blind', display: 'Double blind' }
+            ],
+            state: [
+                { value: 'submission_in_progress', display: 'Submission in progress', icon: 'autorenew', color: 'lightgoldenrodyellow' },
+                { value: 'submission_ready', display: 'Submission Ready', icon: 'done', color: 'lightgreen' }
+            ]
+        };
+    };
+    SubmissionService.prototype.convertToSubmission = function (data) {
+        var converted = new __WEBPACK_IMPORTED_MODULE_5__submission__["a" /* Submission */]();
+        for (var propertyName in converted) {
+            if (data[propertyName]) {
+                converted[propertyName] = data[propertyName];
+            }
+        }
+        if (data['nid']) {
+            converted.id = Number(data['nid']);
+        }
+        if (data.evidence) {
+            if (data.evidence.body) {
+                converted.body = data.evidence.body;
+            }
+        }
+        return converted;
+    };
+    SubmissionService.prototype.prepareForDrupal = function (submission) {
+        var newSub = Object.assign({}, submission);
+        if (submission.body) {
+            newSub.evidence = {
+                body: {
+                    value: submission.body,
+                    format: 'textbook_editor'
+                }
+            };
+        }
+        if (submission.evidence) {
+            if (submission.evidence.images) {
+                newSub.evidence['images'] = submission.evidence.images;
+            }
+        }
+        return newSub;
+    };
+    // get the submission from the store using the submissionID and 
+    // return an observable
+    SubmissionService.prototype.getSubmissionFromStore = function (submissionId) {
+        return this.store.select('submissions')
+            .map(function (state) { return state.submissions.find(function (sub) { return sub.id === submissionId; }); });
+    };
+    // find out if the current user can edit the submission
+    SubmissionService.prototype.userCanEditSubmission = function (submissionId) {
+        return this.store.select('submissions')
+            .map(function (state) { return state.submissions.find(function (sub) { return sub.id === submissionId; }); })
+            .map(function (state) {
+            if (state) {
+                if (typeof state.metadata !== 'undefined') {
+                    if (typeof state.metadata.canUpdate !== 'undefined') {
+                        return state.metadata.canUpdate;
+                    }
+                }
+            }
+            return false;
+        });
+    };
+    /**
+     * Return the submission type
+     * This will check the parent assignment that the submission
+     * is attached to and figure out what the critique method is.
+     * If there is a critqiue method other than 'none' then it will
+     * return that as the submission type. If there is no critique method
+     * then it will just return 'submission' which is the default type
+     */
+    SubmissionService.prototype.getSubmissionType = function (submission$) {
+        // combine the submission and assignments streams
+        return __WEBPACK_IMPORTED_MODULE_1_rxjs__["Observable"].combineLatest(submission$, this.store.select('assignments').map(function (state) { return state.assignments; }))
+            .map(function (streams) {
+            var submission = streams[0];
+            var assignment = streams[1].find(function (a) { return a.id === submission.assignment; });
+            if (assignment) {
+                if (typeof assignment.critiqueMethod === 'string' && assignment.critiqueMethod !== 'none') {
+                    return 'critique';
+                }
+            }
+            return 'submission';
+        });
+    };
+    SubmissionService = __decorate([
+        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Injectable"])(), 
+        __metadata('design:paramtypes', [(typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_3__elmsln_service__["a" /* ElmslnService */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_3__elmsln_service__["a" /* ElmslnService */]) === 'function' && _a) || Object, (typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_2__ngrx_store__["a" /* Store */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_2__ngrx_store__["a" /* Store */]) === 'function' && _b) || Object])
+    ], SubmissionService);
+    return SubmissionService;
+    var _a, _b;
 }());
-//# sourceMappingURL=/Users/scienceonlineed/Documents/websites/elmsln/core/dslmcode/profiles/cle-7.x-2.x/modules/features/cle_app/app/src/submission.js.map
+//# sourceMappingURL=/Users/scienceonlineed/Documents/websites/elmsln/core/dslmcode/profiles/cle-7.x-2.x/modules/features/cle_app/app/src/submission.service.js.map
 
 /***/ },
 
@@ -5145,6 +5328,32 @@ module.exports = ".projects-container {\n  display: -webkit-box;\n  display: -ms
 /***/ function(module, exports) {
 
 module.exports = ""
+
+/***/ },
+
+/***/ 82:
+/***/ function(module, exports, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return Submission; });
+var Submission = (function () {
+    function Submission() {
+        this.id = null;
+        this.uid = null;
+        this.title = null;
+        this.status = true;
+        this.created = null;
+        this.body = null;
+        this.assignment = null;
+        this.state = 'submission_in_progress';
+        this.metadata = {};
+        this.environment = {};
+        this.evidence = {};
+        this.relatedSubmission = null;
+    }
+    return Submission;
+}());
+//# sourceMappingURL=/Users/scienceonlineed/Documents/websites/elmsln/core/dslmcode/profiles/cle-7.x-2.x/modules/features/cle_app/app/src/submission.js.map
 
 /***/ },
 
@@ -5396,7 +5605,7 @@ module.exports = "<p>\n  submission-critique-form works!\n</p>\n"
 /***/ 857:
 /***/ function(module, exports) {
 
-module.exports = "<app-submission-edit-states [submission]=\"submission\"></app-submission-edit-states>\n<h1>{{ submission.title }}</h1>\n\n<div class=\"critique__wrapper\">\n  <div class=\"critique__window\" >\n    <h3>Subject</h3>\n    <div [innerHTML]=\"submission.body\"></div>\n  </div>\n  <div class=\"critique__submission\">\n    <h3>Feeback</h3>\n    <div [innerHTML]=\"submission.body\"></div>\n  </div>\n</div>\n\n<pre>\n  {{ submission | json }}\n</pre>"
+module.exports = "<app-submission-edit-states [submission]=\"submission\"></app-submission-edit-states>\n<h1>{{ submission.title }}</h1>\n\n<div class=\"critique__wrapper\">\n  <div class=\"critique__window\">\n    <h3>Subject</h3>\n    <div *ngIf=\"critique\" [innerHTML]=\"critique.body\"></div>\n  </div>\n  <div *ngIf=\"submission\" class=\"critique__submission\">\n    <h3>Feeback</h3>\n    <div [innerHTML]=\"submission.body\"></div>\n  </div>\n</div>"
 
 /***/ },
 
@@ -5470,7 +5679,7 @@ module.exports = "<textarea>{{ content }}</textarea>"
 
 /***/ },
 
-/***/ 96:
+/***/ 97:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5493,206 +5702,6 @@ var AppSettings = (function () {
     return AppSettings;
 }());
 //# sourceMappingURL=/Users/scienceonlineed/Documents/websites/elmsln/core/dslmcode/profiles/cle-7.x-2.x/modules/features/cle_app/app/src/app-settings.js.map
-
-/***/ },
-
-/***/ 97:
-/***/ function(module, exports, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_rxjs__ = __webpack_require__(452);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_rxjs___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_rxjs__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__ngrx_store__ = __webpack_require__(11);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__elmsln_service__ = __webpack_require__(38);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__app_settings__ = __webpack_require__(96);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__submission__ = __webpack_require__(81);
-/* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return SubmissionService; });
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-
-
-
-
-
-
-var SubmissionService = (function () {
-    function SubmissionService(elmsln, store) {
-        this.elmsln = elmsln;
-        this.store = store;
-        this.submissions = this.store.select(function (state) { return state.submissions; });
-    }
-    SubmissionService.prototype.getSubmissions = function (assignmentId) {
-        var _this = this;
-        var query = assignmentId ? '?assignment=' + assignmentId : '';
-        this.elmsln.get(__WEBPACK_IMPORTED_MODULE_4__app_settings__["a" /* AppSettings */].BASE_PATH + 'api/v1/cle/submissions' + query)
-            .map(function (data) { return data.json(); })
-            .map(function (data) { return typeof data.data !== 'undefined' ? data.data : []; })
-            .map(function (data) {
-            if (data) {
-                // convert list of data into list of Submissions
-                var d_1 = [];
-                data.forEach(function (item) { return d_1.push(_this.convertToSubmission(item)); });
-                return d_1;
-            }
-        })
-            .map(function (payload) { return ({ type: 'ADD_SUBMISSIONS', payload: payload }); })
-            .subscribe(function (action) { return _this.store.dispatch(action); });
-    };
-    SubmissionService.prototype.loadSubmissions = function () {
-        var _this = this;
-        return this.elmsln.get(__WEBPACK_IMPORTED_MODULE_4__app_settings__["a" /* AppSettings */].BASE_PATH + 'api/v1/cle/submissions')
-            .map(function (data) { return data.json().data; })
-            .map(function (data) {
-            if (data) {
-                // convert list of data into list of Submissions
-                var d_2 = [];
-                data.forEach(function (item) { return d_2.push(_this.convertToSubmission(item)); });
-                return d_2;
-            }
-        });
-    };
-    SubmissionService.prototype.getSubmission = function (submissionId) {
-        var _this = this;
-        return this.elmsln.get(__WEBPACK_IMPORTED_MODULE_4__app_settings__["a" /* AppSettings */].BASE_PATH + 'api/v1/cle/submissions/' + submissionId)
-            .map(function (data) { return data.json().data[0]; })
-            .map(function (data) { return _this.convertToSubmission(data); });
-    };
-    SubmissionService.prototype.createSubmission = function (submission) {
-        var _this = this;
-        var newSub = this.prepareForDrupal(submission);
-        return this.elmsln.post(__WEBPACK_IMPORTED_MODULE_4__app_settings__["a" /* AppSettings */].BASE_PATH + 'api/v1/cle/submissions/create', newSub)
-            .map(function (data) { return data.json().node; })
-            .map(function (node) { return _this.convertToSubmission(node); });
-    };
-    SubmissionService.prototype.updateSubmission = function (submission) {
-        var _this = this;
-        var newSub = this.prepareForDrupal(submission);
-        return this.elmsln.put(__WEBPACK_IMPORTED_MODULE_4__app_settings__["a" /* AppSettings */].BASE_PATH + 'api/v1/cle/submissions/' + submission.id + '/update', newSub)
-            .map(function (data) { return data.json(); })
-            .map(function (node) { return _this.convertToSubmission(node); });
-    };
-    SubmissionService.prototype.deleteSubmission = function (submission) {
-        return this.elmsln.delete(__WEBPACK_IMPORTED_MODULE_4__app_settings__["a" /* AppSettings */].BASE_PATH + 'api/v1/cle/submissions/' + submission.id + '/delete')
-            .map(function (data) { return data.json(); });
-    };
-    /**
-     * @todo: this should eventually be more dynamic
-     */
-    SubmissionService.prototype.getSubmissionOptions = function () {
-        return {
-            type: [
-                { value: 'open', display: 'Open' },
-                { value: 'closed', display: 'Closed' }
-            ],
-            critiqueMethod: [
-                { value: 'open', display: 'Open' },
-                { value: 'random', display: 'Random' }
-            ],
-            critiqueStyle: [
-                { value: 'open', display: 'Open' },
-                { value: 'blind', display: 'Blind' },
-                { value: 'double_blind', display: 'Double blind' }
-            ],
-            state: [
-                { value: 'submission_in_progress', display: 'Submission in progress', icon: 'autorenew', color: 'lightgoldenrodyellow' },
-                { value: 'submission_ready', display: 'Submission Ready', icon: 'done', color: 'lightgreen' }
-            ]
-        };
-    };
-    SubmissionService.prototype.convertToSubmission = function (data) {
-        var converted = new __WEBPACK_IMPORTED_MODULE_5__submission__["a" /* Submission */]();
-        for (var propertyName in converted) {
-            if (data[propertyName]) {
-                converted[propertyName] = data[propertyName];
-            }
-        }
-        if (data['nid']) {
-            converted.id = Number(data['nid']);
-        }
-        if (data.evidence) {
-            if (data.evidence.body) {
-                converted.body = data.evidence.body;
-            }
-        }
-        return converted;
-    };
-    SubmissionService.prototype.prepareForDrupal = function (submission) {
-        var newSub = Object.assign({}, submission);
-        if (submission.body) {
-            newSub.evidence = {
-                body: {
-                    value: submission.body,
-                    format: 'textbook_editor'
-                }
-            };
-        }
-        if (submission.evidence) {
-            if (submission.evidence.images) {
-                newSub.evidence['images'] = submission.evidence.images;
-            }
-        }
-        return newSub;
-    };
-    // get the submission from the store using the submissionID and 
-    // return an observable
-    SubmissionService.prototype.getSubmissionFromStore = function (submissionId) {
-        return this.store.select('submissions')
-            .map(function (state) { return state.submissions.find(function (sub) { return sub.id === submissionId; }); });
-    };
-    // find out if the current user can edit the submission
-    SubmissionService.prototype.userCanEditSubmission = function (submissionId) {
-        return this.store.select('submissions')
-            .map(function (state) { return state.submissions.find(function (sub) { return sub.id === submissionId; }); })
-            .map(function (state) {
-            if (state) {
-                if (typeof state.metadata !== 'undefined') {
-                    if (typeof state.metadata.canUpdate !== 'undefined') {
-                        return state.metadata.canUpdate;
-                    }
-                }
-            }
-            return false;
-        });
-    };
-    /**
-     * Return the submission type
-     *
-     * This will check the parent assignment that the submission
-     * is attached to and figure out what the critique method is.
-     * If there is a critqiue method other than 'none' then it will
-     * return that as the submission type. If there is no critique method
-     * then it will just return 'submission' which is the default type
-     */
-    SubmissionService.prototype.getSubmissionType = function (submission$) {
-        // combine the submission and assignments streams
-        return __WEBPACK_IMPORTED_MODULE_1_rxjs__["Observable"].combineLatest(submission$, this.store.select('assignments').map(function (state) { return state.assignments; }))
-            .map(function (streams) {
-            var submission = streams[0];
-            var assignment = streams[1].find(function (a) { return a.id === submission.assignment; });
-            if (assignment) {
-                if (typeof assignment.critiqueMethod === 'string' && assignment.critiqueMethod !== 'none') {
-                    return 'critique';
-                }
-            }
-            return 'submission';
-        });
-    };
-    SubmissionService = __decorate([
-        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Injectable"])(), 
-        __metadata('design:paramtypes', [(typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_3__elmsln_service__["a" /* ElmslnService */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_3__elmsln_service__["a" /* ElmslnService */]) === 'function' && _a) || Object, (typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_2__ngrx_store__["a" /* Store */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_2__ngrx_store__["a" /* Store */]) === 'function' && _b) || Object])
-    ], SubmissionService);
-    return SubmissionService;
-    var _a, _b;
-}());
-//# sourceMappingURL=/Users/scienceonlineed/Documents/websites/elmsln/core/dslmcode/profiles/cle-7.x-2.x/modules/features/cle_app/app/src/submission.service.js.map
 
 /***/ }
 

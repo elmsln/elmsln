@@ -166,7 +166,6 @@ export class SubmissionService {
 
   /**
    * Return the submission type
-   * 
    * This will check the parent assignment that the submission
    * is attached to and figure out what the critique method is.
    * If there is a critqiue method other than 'none' then it will
