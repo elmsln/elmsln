@@ -5,6 +5,7 @@ import { ElmslnService } from '../elmsln.service';
 import { AppSettings } from '../app-settings';
 import { Submission } from './submission';
 import { Assignment } from '../assignment';
+import { loadAssignments } from '../app.actions';
 declare const Materialize:any;
 
 @Injectable()
@@ -172,25 +173,18 @@ export class SubmissionService {
    * return that as the submission type. If there is no critique method
    * then it will just return 'submission' which is the default type
    */
-  getSubmissionType(submission:Submission):string {
-    let type:string = 'submission';
-    if (submission) {
-      if (submission.assignment) {
-        this.store.select('assignments')
-          .map((state:any) => state.assignments.find((a:Assignment) => a.id === submission.assignment))
-          .subscribe((a:Assignment) => {
-            if (a) {
-              if (typeof a.critiqueMethod === 'string') {
-                if (a.critiqueMethod !== 'none') {
-                  // if the crtique method was set then we can
-                  // use that as the submission type
-                  type = 'critique';
-                }
-              }
-            }
-          })
-      }
-    }
-    return type;
+  getSubmissionType(submission$:Observable<Submission>):Observable<string> {
+    // combine the submission and assignments streams
+    return Observable.combineLatest(submission$, this.store.select('assignments').map((state:any) => state.assignments))
+      .map((streams:any) => {
+        const submission:Submission = streams[0];
+        const assignment:Assignment = streams[1].find((a:Assignment) => a.id === submission.assignment);
+        if (assignment) {
+          if (typeof assignment.critiqueMethod === 'string' && assignment.critiqueMethod !== 'none') {
+            return 'critique';
+          }
+        }
+        return 'submission';
+      });
   }
 }
