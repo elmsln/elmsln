@@ -1,16 +1,55 @@
 ELMSLN Vagrant Instructions
 ==============
 [Watch how to use this!](https://www.youtube.com/watch?v=ZeuDKzs6sj0&list=PLJQupiji7J5fygec37Wd-gAbpMj8c5A_C)
-###What is this
+### What is this
 This is a Vagrant profile for installing a fully functioning [ELMS Learning Network](https://github.com/elmsln/elmsln) in a single command!  This instance is for development purposes but you can follow the [installation instructions](https://elmsln.readthedocs.io/en/latest/INSTALL) to install this on any real server!
 
-###How to use this to bring up ELMSLN
+### How to use this to bring up ELMSLN
 1. Install [VirtualBox](https://www.virtualbox.org/wiki/Downloads) (5.1.10)
 2. Install [Vagrant](http://www.vagrantup.com/downloads.html) (1.9.1+)
 3. Install [git](http://git-scm.com/downloads)
-4. Navigate to the folder you want elmsln in, and clone the repository using the command (`git clone https://github.com/elmsln/elmsln.git`)
+4. Open Terminal(OSX/Linux) or PowerShell (Windows) and navigate to the folder you want elmsln in. Now clone the repository using the command (`git clone https://github.com/elmsln/elmsln.git`)
 ![clone elmsln](https://cloud.githubusercontent.com/assets/16597608/13260179/60875b1e-da28-11e5-865f-89e6586f370a.PNG)
-5. Add this code to your /etc/hosts (or [windows equivalent](http://www.howtogeek.com/howto/27350/beginner-geek-how-to-edit-your-hosts-file/)) so you can access it "over the web":
+
+### Spin up the development instance (OSX / Linux)
+```
+cd elmsln
+sh developer
+```
+
+### Spin up the development instance (Windows)
+```
+cd elmsln
+vagrant plugin install vagrant-hostsupdater
+vagrant up
+```
+
+This will take a long time the first time you do it as it has to download a server image. After the first build, future builds from scratch should take about 10-12 minutes.
+
+### After installation completes
+Now you'll be able to jump into any of the domains that ELMSLN starts to establish for use! Go to http://online.elmsln.local/ after installation completes.  If it all worked you should see a new Drupal site running the Course Information System (CIS) distribution.
+*If this address doesn't resolve, you may need to do this extra step at the bottom in Legacy - host file management*
+
+You can log into this with `user: admin | password: admin`
+
+![log in](https://cloud.githubusercontent.com/assets/329735/22887464/ca97877e-f1c7-11e6-98df-2207a421204d.png)
+
+To connect to the console of your instance: `vagrant ssh`
+Here you'll have access to command line elms called `leafy`. Type `leafy` to see developer options for selection. This also comes installed with a fully primed copy of `drush` so you can type `drush sa` to see a list of possible drupal sites to run commands against. `drush @elmsln` is a target that will run the command against every site it finds in the elmsln instance.
+
+### Create a new course
+1. Click Add, then select New Course
+2. Create the name of the course. Ex: Art100
+3. Choose which services to access under course network
+4. Finish by clicking Create course
+5. Wait while the services are installed
+6. Once it says service is available, you can click Access service
+
+### Why use this
+It has been optimized and heavily tested for use with ELMS:LN and it is what we use in daily testing and development and is the easiest way to get up and running. The alternative is to deploy the system on a live server environment and hook up real IPs to DNS entries. This is great / realistic but a lot of times people just want to play with things before jumping in fully. Vagrant provides this and does so with minimal barriers to entry.
+
+### Legacy - host file management
+This step is now only required if you don't follow the above directions about how to get our development environment up and running. Add this code to your /etc/hosts (or [windows equivalent](http://www.howtogeek.com/howto/27350/beginner-geek-how-to-edit-your-hosts-file/)) so you can access it "over the web".
 ```
 ###ELMSLN development
 # front facing addresses
@@ -49,28 +88,3 @@ This is a Vagrant profile for installing a fully functioning [ELMS Learning Netw
 10.0.18.55      data-hub.elmsln.local
 10.0.18.55      data-lq.elmsln.local
 ```
-
-###Spin up the vagrant instance
-```
-cd elmsln
-sh developer
-```
-
-Now you'll be able to jump into any of the domains that ELMSLN starts to establish for use!  Go to http://online.elmsln.local/ after installation completes (grab a coffee, it takes awhile the first time to finish).  If it all worked you should see a new Drupal site running the Course Information System (CIS) distribution.
-
-You can log into this with `user: admin | password: admin`
-
-![log in](https://cloud.githubusercontent.com/assets/16597608/13260446/767d8ae6-da29-11e5-8346-393a09c54cf6.PNG)
-
-To connect to the console of your instance: `vagrant ssh`
-
-###Create a new course
-1. Click Add, then select New Course
-2. Create the name of the course. Ex: Art100
-3. Choose which services to access under course network
-4. Finish by clicking Create course
-5. Wait while the services are installed
-6. Once it says service is available, you can click Access service
-
-###Why use this
-It has been optimized and heavily tested for use with ELMS:LN and it is what we use in daily testing and development and is the easiest way to get up and running. The alternative is to deploy the system on a live server environment and hook up real IPs to DNS entries. This is great / realistic but a lot of times people just want to play with things before jumping in fully. Vagrant provides this and does so with minimal barriers to entry.
