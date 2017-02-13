@@ -186,4 +186,9 @@ export class SubmissionService {
         return 'submission';
       });
   }
+
+  getSubmissionAssignment(submission:Submission):Observable<Assignment> {
+    return this.store.select('assignments')
+      .map((state:any) => state.assignments.find((assignment:Assignment) => assignment.id === submission.assignment))
+  }
 }

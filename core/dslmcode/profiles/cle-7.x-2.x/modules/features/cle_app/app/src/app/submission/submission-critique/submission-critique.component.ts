@@ -10,6 +10,7 @@ import { SubmissionService } from '../submission.service';
 export class SubmissionCritiqueComponent implements OnInit, OnChanges {
   @Input() submission: Submission;
   critique: Submission;
+  assignment;
 
   constructor(
     private submissionService: SubmissionService
@@ -23,5 +24,8 @@ export class SubmissionCritiqueComponent implements OnInit, OnChanges {
     // get the submission critique
     this.submissionService.getSubmission(this.submission.relatedSubmission)
       .subscribe((submission:Submission) => this.critique = submission);
+    
+    this.submissionService.getSubmissionAssignment(this.submission)
+      .subscribe(assignment => this.assignment = assignment)
   }
 }
