@@ -9,6 +9,7 @@ import { SubmissionService } from '../submission.service';
 })
 export class SubmissionCritiqueComponent implements OnInit, OnChanges {
   @Input() submission: Submission;
+  @Input() editMode: boolean;
   critique: Submission;
   assignment;
 

@@ -8,6 +8,7 @@
   <app-submission-form 
     *ngIf="submission$ | async"
     [submission]="submission$ | async"
+    [submissionType]="submissionType$ | async"
     (onSubmissionSave)="onSubmissionSave($event)"
     (onSubmissionCancel)="onSubmissionCancel($event)"
     (onFormChanges)="onFormChanges($event)">

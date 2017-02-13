@@ -6,6 +6,7 @@ import { Observable } from 'rxjs';
 import { Submission } from '../submission';
 import { updateSubmission } from '../submission.actions';
 import { SubmissionFormComponent } from '../submission-form/submission-form.component';
+import { SubmissionService } from '../submission.service';
 declare const Materialize:any;
 declare const jQuery:any;
 
@@ -24,11 +25,13 @@ export class SubmissionEditComponent implements OnInit {
   isSaving:boolean = false;
   isCritique:boolean = false;
   critiqueSubmission:Submission;
+  submissionType$:Observable<string>;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private store: Store<{}>,
+    private submissionService: SubmissionService,
     private el: ElementRef
   ) {
   }
@@ -88,6 +91,8 @@ export class SubmissionEditComponent implements OnInit {
           }
         }
       })
+    
+    this.submissionType$ = this.submissionService.getSubmissionType(this.submission$);
   }
 
   onSubmissionSave($event) {

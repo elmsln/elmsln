@@ -275,7 +275,7 @@ var ProjectService = (function () {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__elmsln_service__ = __webpack_require__(38);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ng2_cookies_ng2_cookies__ = __webpack_require__(450);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_ng2_cookies_ng2_cookies___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_ng2_cookies_ng2_cookies__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__app_actions__ = __webpack_require__(54);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__app_actions__ = __webpack_require__(55);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__ngrx_store__ = __webpack_require__(11);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return UserService; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
@@ -329,8 +329,8 @@ var UserService = (function () {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__user_service__ = __webpack_require__(171);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_router__ = __webpack_require__(16);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__ngrx_store__ = __webpack_require__(11);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__app_actions__ = __webpack_require__(54);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__submission_submission_actions__ = __webpack_require__(80);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__app_actions__ = __webpack_require__(55);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__submission_submission_actions__ = __webpack_require__(81);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__projects_project_actions__ = __webpack_require__(123);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__app_settings__ = __webpack_require__(97);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return AppComponent; });
@@ -478,10 +478,11 @@ var Project = (function () {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_forms__ = __webpack_require__(77);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_forms__ = __webpack_require__(78);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__ngrx_store__ = __webpack_require__(11);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__image_image_actions__ = __webpack_require__(397);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__submission__ = __webpack_require__(82);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__submission_service__ = __webpack_require__(49);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return SubmissionFormComponent; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -497,10 +498,13 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 
 
 
+
 var SubmissionFormComponent = (function () {
-    function SubmissionFormComponent(formBuilder, store) {
+    function SubmissionFormComponent(formBuilder, store, submissionService) {
         this.formBuilder = formBuilder;
         this.store = store;
+        this.submissionService = submissionService;
+        this.submissionType = 'submission';
         this.onSubmissionSave = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["EventEmitter"]();
         this.onSubmissionCancel = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["EventEmitter"]();
         this.onFormChanges = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["EventEmitter"]();
@@ -605,6 +609,10 @@ var SubmissionFormComponent = (function () {
         __metadata('design:type', (typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_4__submission__["a" /* Submission */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_4__submission__["a" /* Submission */]) === 'function' && _a) || Object)
     ], SubmissionFormComponent.prototype, "submission", void 0);
     __decorate([
+        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Input"])(), 
+        __metadata('design:type', String)
+    ], SubmissionFormComponent.prototype, "submissionType", void 0);
+    __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Output"])(), 
         __metadata('design:type', (typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_0__angular_core__["EventEmitter"] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_0__angular_core__["EventEmitter"]) === 'function' && _b) || Object)
     ], SubmissionFormComponent.prototype, "onSubmissionSave", void 0);
@@ -622,10 +630,10 @@ var SubmissionFormComponent = (function () {
             template: __webpack_require__(862),
             styles: [__webpack_require__(826)]
         }), 
-        __metadata('design:paramtypes', [(typeof (_e = typeof __WEBPACK_IMPORTED_MODULE_1__angular_forms__["a" /* FormBuilder */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1__angular_forms__["a" /* FormBuilder */]) === 'function' && _e) || Object, (typeof (_f = typeof __WEBPACK_IMPORTED_MODULE_2__ngrx_store__["a" /* Store */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_2__ngrx_store__["a" /* Store */]) === 'function' && _f) || Object])
+        __metadata('design:paramtypes', [(typeof (_e = typeof __WEBPACK_IMPORTED_MODULE_1__angular_forms__["a" /* FormBuilder */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1__angular_forms__["a" /* FormBuilder */]) === 'function' && _e) || Object, (typeof (_f = typeof __WEBPACK_IMPORTED_MODULE_2__ngrx_store__["a" /* Store */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_2__ngrx_store__["a" /* Store */]) === 'function' && _f) || Object, (typeof (_g = typeof __WEBPACK_IMPORTED_MODULE_5__submission_service__["a" /* SubmissionService */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_5__submission_service__["a" /* SubmissionService */]) === 'function' && _g) || Object])
     ], SubmissionFormComponent);
     return SubmissionFormComponent;
-    var _a, _b, _c, _d, _e, _f;
+    var _a, _b, _c, _d, _e, _f, _g;
 }());
 //# sourceMappingURL=/Users/scienceonlineed/Documents/websites/elmsln/core/dslmcode/profiles/cle-7.x-2.x/modules/features/cle_app/app/src/submission-form.component.js.map
 
@@ -783,10 +791,10 @@ var ElmslnService = (function () {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_router__ = __webpack_require__(16);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__assignment__ = __webpack_require__(122);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__assignment_service__ = __webpack_require__(67);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__assignment_service__ = __webpack_require__(68);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__assignment_form_assignment_form_component__ = __webpack_require__(394);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__ngrx_store__ = __webpack_require__(11);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__app_actions__ = __webpack_require__(54);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__app_actions__ = __webpack_require__(55);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return AssignmentDialogComponent; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -893,10 +901,10 @@ var AssignmentDialogComponent = (function () {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_forms__ = __webpack_require__(77);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_forms__ = __webpack_require__(78);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_router__ = __webpack_require__(16);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__assignment__ = __webpack_require__(122);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__assignment_service__ = __webpack_require__(67);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__assignment_service__ = __webpack_require__(68);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return AssignmentFormComponent; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -1001,10 +1009,10 @@ var AssignmentFormComponent = (function () {
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_router__ = __webpack_require__(16);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_common__ = __webpack_require__(61);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__assignment_service__ = __webpack_require__(67);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_common__ = __webpack_require__(62);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__assignment_service__ = __webpack_require__(68);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__ngrx_store__ = __webpack_require__(11);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__app_actions__ = __webpack_require__(54);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__app_actions__ = __webpack_require__(55);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__elmsln_service__ = __webpack_require__(38);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return AssignmentComponent; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
@@ -1216,7 +1224,7 @@ function createImageFailure() {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_forms__ = __webpack_require__(77);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_forms__ = __webpack_require__(78);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__user_service__ = __webpack_require__(171);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__angular_router__ = __webpack_require__(16);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__ngrx_store__ = __webpack_require__(11);
@@ -1404,7 +1412,7 @@ var ProjectsListComponent = (function () {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_router__ = __webpack_require__(16);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__ngrx_store__ = __webpack_require__(11);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__submission__ = __webpack_require__(82);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__submission_actions__ = __webpack_require__(80);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__submission_actions__ = __webpack_require__(81);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__submission_form_submission_form_component__ = __webpack_require__(256);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return SubmissionCreateComponent; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
@@ -1489,7 +1497,7 @@ var SubmissionCreateComponent = (function () {
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__submission__ = __webpack_require__(82);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__submission_service__ = __webpack_require__(81);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__submission_service__ = __webpack_require__(49);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return SubmissionCritiqueComponent; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -1514,11 +1522,17 @@ var SubmissionCritiqueComponent = (function () {
         // get the submission critique
         this.submissionService.getSubmission(this.submission.relatedSubmission)
             .subscribe(function (submission) { return _this.critique = submission; });
+        this.submissionService.getSubmissionAssignment(this.submission)
+            .subscribe(function (assignment) { return _this.assignment = assignment; });
     };
     __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Input"])(), 
         __metadata('design:type', (typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_1__submission__["a" /* Submission */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1__submission__["a" /* Submission */]) === 'function' && _a) || Object)
     ], SubmissionCritiqueComponent.prototype, "submission", void 0);
+    __decorate([
+        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Input"])(), 
+        __metadata('design:type', Boolean)
+    ], SubmissionCritiqueComponent.prototype, "editMode", void 0);
     SubmissionCritiqueComponent = __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
             selector: 'app-submission-critique',
@@ -1540,7 +1554,7 @@ var SubmissionCritiqueComponent = (function () {
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_router__ = __webpack_require__(16);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__submission_service__ = __webpack_require__(81);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__submission_service__ = __webpack_require__(49);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return SubmissionDialogComponent; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -1610,8 +1624,9 @@ var SubmissionDialogComponent = (function () {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_router__ = __webpack_require__(16);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__ngrx_store__ = __webpack_require__(11);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__submission_actions__ = __webpack_require__(80);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__submission_actions__ = __webpack_require__(81);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__submission_form_submission_form_component__ = __webpack_require__(256);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__submission_service__ = __webpack_require__(49);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return SubmissionEditComponent; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -1627,11 +1642,13 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 
 
 
+
 var SubmissionEditComponent = (function () {
-    function SubmissionEditComponent(route, router, store, el) {
+    function SubmissionEditComponent(route, router, store, submissionService, el) {
         this.route = route;
         this.router = router;
         this.store = store;
+        this.submissionService = submissionService;
         this.el = el;
         this.isSaving = false;
         this.isCritique = false;
@@ -1687,6 +1704,7 @@ var SubmissionEditComponent = (function () {
                 }
             }
         });
+        this.submissionType$ = this.submissionService.getSubmissionType(this.submission$);
     };
     SubmissionEditComponent.prototype.onSubmissionSave = function ($event) {
         this.store.dispatch(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_3__submission_actions__["c" /* updateSubmission */])($event));
@@ -1716,10 +1734,10 @@ var SubmissionEditComponent = (function () {
             template: __webpack_require__(861),
             styles: [__webpack_require__(825)]
         }), 
-        __metadata('design:paramtypes', [(typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_1__angular_router__["b" /* ActivatedRoute */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1__angular_router__["b" /* ActivatedRoute */]) === 'function' && _b) || Object, (typeof (_c = typeof __WEBPACK_IMPORTED_MODULE_1__angular_router__["a" /* Router */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1__angular_router__["a" /* Router */]) === 'function' && _c) || Object, (typeof (_d = typeof __WEBPACK_IMPORTED_MODULE_2__ngrx_store__["a" /* Store */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_2__ngrx_store__["a" /* Store */]) === 'function' && _d) || Object, (typeof (_e = typeof __WEBPACK_IMPORTED_MODULE_0__angular_core__["ElementRef"] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_0__angular_core__["ElementRef"]) === 'function' && _e) || Object])
+        __metadata('design:paramtypes', [(typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_1__angular_router__["b" /* ActivatedRoute */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1__angular_router__["b" /* ActivatedRoute */]) === 'function' && _b) || Object, (typeof (_c = typeof __WEBPACK_IMPORTED_MODULE_1__angular_router__["a" /* Router */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1__angular_router__["a" /* Router */]) === 'function' && _c) || Object, (typeof (_d = typeof __WEBPACK_IMPORTED_MODULE_2__ngrx_store__["a" /* Store */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_2__ngrx_store__["a" /* Store */]) === 'function' && _d) || Object, (typeof (_e = typeof __WEBPACK_IMPORTED_MODULE_5__submission_service__["a" /* SubmissionService */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_5__submission_service__["a" /* SubmissionService */]) === 'function' && _e) || Object, (typeof (_f = typeof __WEBPACK_IMPORTED_MODULE_0__angular_core__["ElementRef"] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_0__angular_core__["ElementRef"]) === 'function' && _f) || Object])
     ], SubmissionEditComponent);
     return SubmissionEditComponent;
-    var _a, _b, _c, _d, _e;
+    var _a, _b, _c, _d, _e, _f;
 }());
 //# sourceMappingURL=/Users/scienceonlineed/Documents/websites/elmsln/core/dslmcode/profiles/cle-7.x-2.x/modules/features/cle_app/app/src/submission-edit.component.js.map
 
@@ -1733,8 +1751,8 @@ var SubmissionEditComponent = (function () {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_router__ = __webpack_require__(16);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__ngrx_store__ = __webpack_require__(11);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__submission__ = __webpack_require__(82);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__submission_service__ = __webpack_require__(81);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__submission_actions__ = __webpack_require__(80);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__submission_service__ = __webpack_require__(49);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__submission_actions__ = __webpack_require__(81);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__dialog_dialog_component__ = __webpack_require__(396);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return SubmissionStatesComponent; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
@@ -1842,10 +1860,10 @@ var SubmissionStatesComponent = (function () {
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_router__ = __webpack_require__(16);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_common__ = __webpack_require__(61);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_common__ = __webpack_require__(62);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__ngrx_store__ = __webpack_require__(11);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__elmsln_service__ = __webpack_require__(38);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__submission_service__ = __webpack_require__(81);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__submission_service__ = __webpack_require__(49);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return SubmissionComponent; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -1963,7 +1981,210 @@ __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__angular_platform_browser_dyna
 
 /***/ },
 
-/***/ 54:
+/***/ 49:
+/***/ function(module, exports, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_rxjs__ = __webpack_require__(452);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_rxjs___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_rxjs__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__ngrx_store__ = __webpack_require__(11);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__elmsln_service__ = __webpack_require__(38);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__app_settings__ = __webpack_require__(97);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__submission__ = __webpack_require__(82);
+/* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return SubmissionService; });
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+
+
+
+
+
+
+var SubmissionService = (function () {
+    function SubmissionService(elmsln, store) {
+        this.elmsln = elmsln;
+        this.store = store;
+        this.submissions = this.store.select(function (state) { return state.submissions; });
+    }
+    SubmissionService.prototype.getSubmissions = function (assignmentId) {
+        var _this = this;
+        var query = assignmentId ? '?assignment=' + assignmentId : '';
+        this.elmsln.get(__WEBPACK_IMPORTED_MODULE_4__app_settings__["a" /* AppSettings */].BASE_PATH + 'api/v1/cle/submissions' + query)
+            .map(function (data) { return data.json(); })
+            .map(function (data) { return typeof data.data !== 'undefined' ? data.data : []; })
+            .map(function (data) {
+            if (data) {
+                // convert list of data into list of Submissions
+                var d_1 = [];
+                data.forEach(function (item) { return d_1.push(_this.convertToSubmission(item)); });
+                return d_1;
+            }
+        })
+            .map(function (payload) { return ({ type: 'ADD_SUBMISSIONS', payload: payload }); })
+            .subscribe(function (action) { return _this.store.dispatch(action); });
+    };
+    SubmissionService.prototype.loadSubmissions = function () {
+        var _this = this;
+        return this.elmsln.get(__WEBPACK_IMPORTED_MODULE_4__app_settings__["a" /* AppSettings */].BASE_PATH + 'api/v1/cle/submissions')
+            .map(function (data) { return data.json().data; })
+            .map(function (data) {
+            if (data) {
+                // convert list of data into list of Submissions
+                var d_2 = [];
+                data.forEach(function (item) { return d_2.push(_this.convertToSubmission(item)); });
+                return d_2;
+            }
+        });
+    };
+    SubmissionService.prototype.getSubmission = function (submissionId) {
+        var _this = this;
+        return this.elmsln.get(__WEBPACK_IMPORTED_MODULE_4__app_settings__["a" /* AppSettings */].BASE_PATH + 'api/v1/cle/submissions/' + submissionId)
+            .map(function (data) { return data.json().data[0]; })
+            .map(function (data) { return _this.convertToSubmission(data); });
+    };
+    SubmissionService.prototype.createSubmission = function (submission) {
+        var _this = this;
+        var newSub = this.prepareForDrupal(submission);
+        return this.elmsln.post(__WEBPACK_IMPORTED_MODULE_4__app_settings__["a" /* AppSettings */].BASE_PATH + 'api/v1/cle/submissions/create', newSub)
+            .map(function (data) { return data.json().node; })
+            .map(function (node) { return _this.convertToSubmission(node); });
+    };
+    SubmissionService.prototype.updateSubmission = function (submission) {
+        var _this = this;
+        var newSub = this.prepareForDrupal(submission);
+        return this.elmsln.put(__WEBPACK_IMPORTED_MODULE_4__app_settings__["a" /* AppSettings */].BASE_PATH + 'api/v1/cle/submissions/' + submission.id + '/update', newSub)
+            .map(function (data) { return data.json(); })
+            .map(function (node) { return _this.convertToSubmission(node); });
+    };
+    SubmissionService.prototype.deleteSubmission = function (submission) {
+        return this.elmsln.delete(__WEBPACK_IMPORTED_MODULE_4__app_settings__["a" /* AppSettings */].BASE_PATH + 'api/v1/cle/submissions/' + submission.id + '/delete')
+            .map(function (data) { return data.json(); });
+    };
+    /**
+     * @todo: this should eventually be more dynamic
+     */
+    SubmissionService.prototype.getSubmissionOptions = function () {
+        return {
+            type: [
+                { value: 'open', display: 'Open' },
+                { value: 'closed', display: 'Closed' }
+            ],
+            critiqueMethod: [
+                { value: 'open', display: 'Open' },
+                { value: 'random', display: 'Random' }
+            ],
+            critiqueStyle: [
+                { value: 'open', display: 'Open' },
+                { value: 'blind', display: 'Blind' },
+                { value: 'double_blind', display: 'Double blind' }
+            ],
+            state: [
+                { value: 'submission_in_progress', display: 'Submission in progress', icon: 'autorenew', color: 'lightgoldenrodyellow' },
+                { value: 'submission_ready', display: 'Submission Ready', icon: 'done', color: 'lightgreen' }
+            ]
+        };
+    };
+    SubmissionService.prototype.convertToSubmission = function (data) {
+        var converted = new __WEBPACK_IMPORTED_MODULE_5__submission__["a" /* Submission */]();
+        for (var propertyName in converted) {
+            if (data[propertyName]) {
+                converted[propertyName] = data[propertyName];
+            }
+        }
+        if (data['nid']) {
+            converted.id = Number(data['nid']);
+        }
+        if (data.evidence) {
+            if (data.evidence.body) {
+                converted.body = data.evidence.body;
+            }
+        }
+        return converted;
+    };
+    SubmissionService.prototype.prepareForDrupal = function (submission) {
+        var newSub = Object.assign({}, submission);
+        if (submission.body) {
+            newSub.evidence = {
+                body: {
+                    value: submission.body,
+                    format: 'textbook_editor'
+                }
+            };
+        }
+        if (submission.evidence) {
+            if (submission.evidence.images) {
+                newSub.evidence['images'] = submission.evidence.images;
+            }
+        }
+        return newSub;
+    };
+    // get the submission from the store using the submissionID and 
+    // return an observable
+    SubmissionService.prototype.getSubmissionFromStore = function (submissionId) {
+        return this.store.select('submissions')
+            .map(function (state) { return state.submissions.find(function (sub) { return sub.id === submissionId; }); });
+    };
+    // find out if the current user can edit the submission
+    SubmissionService.prototype.userCanEditSubmission = function (submissionId) {
+        return this.store.select('submissions')
+            .map(function (state) { return state.submissions.find(function (sub) { return sub.id === submissionId; }); })
+            .map(function (state) {
+            if (state) {
+                if (typeof state.metadata !== 'undefined') {
+                    if (typeof state.metadata.canUpdate !== 'undefined') {
+                        return state.metadata.canUpdate;
+                    }
+                }
+            }
+            return false;
+        });
+    };
+    /**
+     * Return the submission type
+     * This will check the parent assignment that the submission
+     * is attached to and figure out what the critique method is.
+     * If there is a critqiue method other than 'none' then it will
+     * return that as the submission type. If there is no critique method
+     * then it will just return 'submission' which is the default type
+     */
+    SubmissionService.prototype.getSubmissionType = function (submission$) {
+        // combine the submission and assignments streams
+        return __WEBPACK_IMPORTED_MODULE_1_rxjs__["Observable"].combineLatest(submission$, this.store.select('assignments').map(function (state) { return state.assignments; }))
+            .map(function (streams) {
+            var submission = streams[0];
+            var assignment = streams[1].find(function (a) { return a.id === submission.assignment; });
+            if (assignment) {
+                if (typeof assignment.critiqueMethod === 'string' && assignment.critiqueMethod !== 'none') {
+                    return 'critique';
+                }
+            }
+            return 'submission';
+        });
+    };
+    SubmissionService.prototype.getSubmissionAssignment = function (submission) {
+        return this.store.select('assignments')
+            .map(function (state) { return state.assignments.find(function (assignment) { return assignment.id === submission.assignment; }); });
+    };
+    SubmissionService = __decorate([
+        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Injectable"])(), 
+        __metadata('design:paramtypes', [(typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_3__elmsln_service__["a" /* ElmslnService */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_3__elmsln_service__["a" /* ElmslnService */]) === 'function' && _a) || Object, (typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_2__ngrx_store__["a" /* Store */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_2__ngrx_store__["a" /* Store */]) === 'function' && _b) || Object])
+    ], SubmissionService);
+    return SubmissionService;
+    var _a, _b;
+}());
+//# sourceMappingURL=/Users/scienceonlineed/Documents/websites/elmsln/core/dslmcode/profiles/cle-7.x-2.x/modules/features/cle_app/app/src/submission.service.js.map
+
+/***/ },
+
+/***/ 55:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2110,9 +2331,9 @@ function startCritqueFailure(res) {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_rxjs_Observable__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_rxjs_Observable___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_rxjs_Observable__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__ngrx_effects__ = __webpack_require__(169);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__app_actions__ = __webpack_require__(54);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__submission_submission_actions__ = __webpack_require__(80);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__assignment_service__ = __webpack_require__(67);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__app_actions__ = __webpack_require__(55);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__submission_submission_actions__ = __webpack_require__(81);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__assignment_service__ = __webpack_require__(68);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__elmsln_service__ = __webpack_require__(38);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return AppEffects; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
@@ -2251,7 +2472,7 @@ var AppEffects = (function () {
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_platform_browser__ = __webpack_require__(166);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_core__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_forms__ = __webpack_require__(77);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_forms__ = __webpack_require__(78);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__angular_http__ = __webpack_require__(237);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__app_routing__ = __webpack_require__(607);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__ngrx_store__ = __webpack_require__(11);
@@ -2268,8 +2489,8 @@ var AppEffects = (function () {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_16__projects_project_effects__ = __webpack_require__(624);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_17__elmsln_service__ = __webpack_require__(38);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_18__critique_service__ = __webpack_require__(254);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_19__assignment_service__ = __webpack_require__(67);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_20__submission_submission_service__ = __webpack_require__(81);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_19__assignment_service__ = __webpack_require__(68);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_20__submission_submission_service__ = __webpack_require__(49);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_21__project_service__ = __webpack_require__(170);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_22_angular2_moment__ = __webpack_require__(639);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_22_angular2_moment___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_22_angular2_moment__);
@@ -2609,10 +2830,10 @@ var AssignmentDetailComponent = (function () {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__assignment_service__ = __webpack_require__(67);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__assignment_service__ = __webpack_require__(68);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_router__ = __webpack_require__(16);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__ngrx_store__ = __webpack_require__(11);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__app_actions__ = __webpack_require__(54);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__app_actions__ = __webpack_require__(55);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return AssignmentListComponent; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -2920,7 +3141,7 @@ var CritiqueListComponent = (function () {
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_router__ = __webpack_require__(16);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_common__ = __webpack_require__(61);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_common__ = __webpack_require__(62);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return CritiqueComponent; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -2966,7 +3187,7 @@ var CritiqueComponent = (function () {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__assignment_service__ = __webpack_require__(67);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__assignment_service__ = __webpack_require__(68);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return DashboardComponent; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -3006,7 +3227,7 @@ var DashboardComponent = (function () {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_forms__ = __webpack_require__(77);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_forms__ = __webpack_require__(78);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return DatetimeInputComponent; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -3096,7 +3317,7 @@ var DatetimeInputComponent = (function () {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_forms__ = __webpack_require__(77);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_forms__ = __webpack_require__(78);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return EditableFieldComponent; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -3340,7 +3561,7 @@ var ProjectCardComponent = (function () {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_router__ = __webpack_require__(16);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__project__ = __webpack_require__(255);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__project_service__ = __webpack_require__(170);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__assignment_service__ = __webpack_require__(67);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__assignment_service__ = __webpack_require__(68);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__ngrx_store__ = __webpack_require__(11);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__project_actions__ = __webpack_require__(123);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return ProjectItemComponent; });
@@ -3649,7 +3870,7 @@ var ProjectsComponent = (function () {
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__app_actions__ = __webpack_require__(54);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__app_actions__ = __webpack_require__(55);
 /* harmony export (immutable) */ exports["a"] = reducer;
 
 var initialState = {
@@ -3741,7 +3962,7 @@ function reducer(state, action) {
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__app_actions__ = __webpack_require__(54);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__app_actions__ = __webpack_require__(55);
 /* harmony export (immutable) */ exports["a"] = reducer;
 
 var initialState = {
@@ -3813,6 +4034,9 @@ var SubmissionCritiqueFormComponent = (function () {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__submission__ = __webpack_require__(82);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__elmsln_service__ = __webpack_require__(38);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_rxjs_Observable__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_rxjs_Observable___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_rxjs_Observable__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__submission_service__ = __webpack_require__(49);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return SubmissionDetailComponent; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -3826,14 +4050,20 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 
 
 
+
+
 var SubmissionDetailComponent = (function () {
-    function SubmissionDetailComponent(elmslnService) {
+    function SubmissionDetailComponent(elmslnService, submissionService) {
         this.elmslnService = elmslnService;
+        this.submissionService = submissionService;
     }
     SubmissionDetailComponent.prototype.ngOnInit = function () {
     };
     SubmissionDetailComponent.prototype.ngAfterViewInit = function () {
         this.elmslnService.exportLifecycleHook('submissionDetailComponentInit');
+    };
+    SubmissionDetailComponent.prototype.ngOnChanges = function () {
+        this.submissionType$ = this.submissionService.getSubmissionType(__WEBPACK_IMPORTED_MODULE_3_rxjs_Observable__["Observable"].of(this.submission));
     };
     __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Input"])(), 
@@ -3845,10 +4075,10 @@ var SubmissionDetailComponent = (function () {
             template: __webpack_require__(858),
             styles: [__webpack_require__(822)]
         }), 
-        __metadata('design:paramtypes', [(typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_2__elmsln_service__["a" /* ElmslnService */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_2__elmsln_service__["a" /* ElmslnService */]) === 'function' && _b) || Object])
+        __metadata('design:paramtypes', [(typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_2__elmsln_service__["a" /* ElmslnService */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_2__elmsln_service__["a" /* ElmslnService */]) === 'function' && _b) || Object, (typeof (_c = typeof __WEBPACK_IMPORTED_MODULE_4__submission_service__["a" /* SubmissionService */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_4__submission_service__["a" /* SubmissionService */]) === 'function' && _c) || Object])
     ], SubmissionDetailComponent);
     return SubmissionDetailComponent;
-    var _a, _b;
+    var _a, _b, _c;
 }());
 //# sourceMappingURL=/Users/scienceonlineed/Documents/websites/elmsln/core/dslmcode/profiles/cle-7.x-2.x/modules/features/cle_app/app/src/submission-detail.component.js.map
 
@@ -3903,7 +4133,7 @@ var SubmissionEditStatesComponent = (function () {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_router__ = __webpack_require__(16);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__user_service__ = __webpack_require__(171);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__submission_submission_service__ = __webpack_require__(81);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__submission_submission_service__ = __webpack_require__(49);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return SubmissionListComponent; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -3965,9 +4195,9 @@ var SubmissionListComponent = (function () {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_mergeMap___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_rxjs_add_operator_mergeMap__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_core__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__ngrx_effects__ = __webpack_require__(169);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__submission_actions__ = __webpack_require__(80);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__app_actions__ = __webpack_require__(54);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__submission_service__ = __webpack_require__(81);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__submission_actions__ = __webpack_require__(81);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__app_actions__ = __webpack_require__(55);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__submission_service__ = __webpack_require__(49);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return SubmissionEffects; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -4055,7 +4285,7 @@ var SubmissionEffects = (function () {
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__submission_actions__ = __webpack_require__(80);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__submission_actions__ = __webpack_require__(81);
 /* harmony export (immutable) */ exports["a"] = submissionReducer;
 
 var initialState = {
@@ -4205,7 +4435,7 @@ var UserComponent = (function () {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_forms__ = __webpack_require__(77);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_forms__ = __webpack_require__(78);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__elmsln_service__ = __webpack_require__(38);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return WysiwygjsComponent; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
@@ -4652,7 +4882,7 @@ var environment = {
 
 /***/ },
 
-/***/ 67:
+/***/ 68:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4885,7 +5115,77 @@ module.exports = ".assignment {\n  position: relative;\n  background: #e6e6e6;\n
 
 /***/ },
 
-/***/ 80:
+/***/ 800:
+/***/ function(module, exports) {
+
+module.exports = ".assignment-dialog {\n  top: 5% !important;\n  bottom: 5% !important;\n  max-height: none !important;\n  height: 90%;\n}"
+
+/***/ },
+
+/***/ 801:
+/***/ function(module, exports) {
+
+module.exports = ".assignment-form {\n  max-width: 55em;\n  margin: auto;\n}\n\n.assignment-form > * {\n  margin-top: 2em;\n}\n\n.privacy .label {\n  display: block;\n}\n\n.privacy .detail {\n  padding-top: .5em;\n}\n\n.due-date .display {\n  font-size: 1.2em;\n  text-align: center;\n  margin: 1em;\n  color: gray;\n}\n\n.due-date .separator {\n  margin: 0 .5em;\n}\n\n:host >>> .wysiwyg-editor {\n  min-height: 10em;\n}\n\nselect {\n  display: block;\n}\n\n.fieldset {\n  padding: 1em;\n  padding-top: 2em;\n  background: rgba(0,0,0, 0.07);\n  position: relative;\n}\n.fieldset > * {\n  padding-bottom: 1em;\n}\n.fieldset > label:first-of-type {\n  position: absolute;\n  top: .5em;\n  left: .5em;\n}"
+
+/***/ },
+
+/***/ 802:
+/***/ function(module, exports) {
+
+module.exports = ".icon {\n  float: left;\n  margin-right: 1em;\n}\n\n.assignment:hover {\n  cursor: pointer;\n}\n\n.status {\n  float: right;\n  size: .9em;\n}\n@media (min-width: 500px) {\n  .status {\n    position: absolute;\n    top: 50%;\n    -webkit-transform: translateY(-50%);\n            transform: translateY(-50%);\n    right: 1em;\n  }\n}\n\n.status.complete {\n  color: green;\n}\n\n.add-button {\n  position: fixed;\n  top: 3.5em;\n  right: 3em;\n}\n\nnav, nav .btn {\n  background: transparent;\n  box-shadow: none;\n}\nnav li a {\n  color: #2196F3;\n}\n\n.assignment {\n  position: relative;\n}\n\n.assignment--loading {\n  background: #efefef;\n}\n\n.assignment:hover .assignment__edit-buttons {\n  opacity: 1;\n}\n\n.assignment__edit-buttons {\n  position: absolute;\n  right: 0;\n  top: 0;\n  background: -webkit-linear-gradient(left, transparent, white 30%);\n  background: linear-gradient(to right, transparent, white 30%);\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-align: center;\n      -ms-flex-align: center;\n          align-items: center;\n  -webkit-box-pack: end;\n      -ms-flex-pack: end;\n          justify-content: flex-end;\n  padding-left: 2em;\n  opacity: 0;\n  -webkit-transition: opacity .3s ease-in-out;\n  transition: opacity .3s ease-in-out;\n}\n\n.assignment__icons {\n  position: absolute;\n  right: 0;\n  top: 0;\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-align: center;\n      -ms-flex-align: center;\n          align-items: center;\n  -webkit-box-pack: end;\n      -ms-flex-pack: end;\n          justify-content: flex-end;\n  padding-left: 2em;\n}\n\n.assignment__icon--complete {\n  color: green;\n}"
+
+/***/ },
+
+/***/ 803:
+/***/ function(module, exports) {
+
+module.exports = ".assignment__rationale {\n  padding: .1em .5em;\n  background-color: lightgray;\n  font-size: .9em;\n}\n\n.assignment__actions {\n  margin-top: 3em;\n}"
+
+/***/ },
+
+/***/ 804:
+/***/ function(module, exports) {
+
+module.exports = ""
+
+/***/ },
+
+/***/ 805:
+/***/ function(module, exports) {
+
+module.exports = ":host >>> .wysiwyg-editor {\n  min-height: 200px;\n}\n\n:host >>> .wysiwyg-container {\n  max-width: 900px;\n  margin: 1em;\n}"
+
+/***/ },
+
+/***/ 806:
+/***/ function(module, exports) {
+
+module.exports = ".created {\n  font-size: .9em;\n  opacity: .8;\n}\n\n.critique {\n  display: block;\n  overflow: hidden;\n}"
+
+/***/ },
+
+/***/ 807:
+/***/ function(module, exports) {
+
+module.exports = ""
+
+/***/ },
+
+/***/ 808:
+/***/ function(module, exports) {
+
+module.exports = ""
+
+/***/ },
+
+/***/ 809:
+/***/ function(module, exports) {
+
+module.exports = ""
+
+/***/ },
+
+/***/ 81:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4989,275 +5289,6 @@ function createSubmissionImageFailure() {
     };
 }
 //# sourceMappingURL=/Users/scienceonlineed/Documents/websites/elmsln/core/dslmcode/profiles/cle-7.x-2.x/modules/features/cle_app/app/src/submission.actions.js.map
-
-/***/ },
-
-/***/ 800:
-/***/ function(module, exports) {
-
-module.exports = ".assignment-dialog {\n  top: 5% !important;\n  bottom: 5% !important;\n  max-height: none !important;\n  height: 90%;\n}"
-
-/***/ },
-
-/***/ 801:
-/***/ function(module, exports) {
-
-module.exports = ".assignment-form {\n  max-width: 55em;\n  margin: auto;\n}\n\n.assignment-form > * {\n  margin-top: 2em;\n}\n\n.privacy .label {\n  display: block;\n}\n\n.privacy .detail {\n  padding-top: .5em;\n}\n\n.due-date .display {\n  font-size: 1.2em;\n  text-align: center;\n  margin: 1em;\n  color: gray;\n}\n\n.due-date .separator {\n  margin: 0 .5em;\n}\n\n:host >>> .wysiwyg-editor {\n  min-height: 10em;\n}\n\nselect {\n  display: block;\n}\n\n.fieldset {\n  padding: 1em;\n  padding-top: 2em;\n  background: rgba(0,0,0, 0.07);\n  position: relative;\n}\n.fieldset > * {\n  padding-bottom: 1em;\n}\n.fieldset > label:first-of-type {\n  position: absolute;\n  top: .5em;\n  left: .5em;\n}"
-
-/***/ },
-
-/***/ 802:
-/***/ function(module, exports) {
-
-module.exports = ".icon {\n  float: left;\n  margin-right: 1em;\n}\n\n.assignment:hover {\n  cursor: pointer;\n}\n\n.status {\n  float: right;\n  size: .9em;\n}\n@media (min-width: 500px) {\n  .status {\n    position: absolute;\n    top: 50%;\n    -webkit-transform: translateY(-50%);\n            transform: translateY(-50%);\n    right: 1em;\n  }\n}\n\n.status.complete {\n  color: green;\n}\n\n.add-button {\n  position: fixed;\n  top: 3.5em;\n  right: 3em;\n}\n\nnav, nav .btn {\n  background: transparent;\n  box-shadow: none;\n}\nnav li a {\n  color: #2196F3;\n}\n\n.assignment {\n  position: relative;\n}\n\n.assignment--loading {\n  background: #efefef;\n}\n\n.assignment:hover .assignment__edit-buttons {\n  opacity: 1;\n}\n\n.assignment__edit-buttons {\n  position: absolute;\n  right: 0;\n  top: 0;\n  background: -webkit-linear-gradient(left, transparent, white 30%);\n  background: linear-gradient(to right, transparent, white 30%);\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-align: center;\n      -ms-flex-align: center;\n          align-items: center;\n  -webkit-box-pack: end;\n      -ms-flex-pack: end;\n          justify-content: flex-end;\n  padding-left: 2em;\n  opacity: 0;\n  -webkit-transition: opacity .3s ease-in-out;\n  transition: opacity .3s ease-in-out;\n}\n\n.assignment__icons {\n  position: absolute;\n  right: 0;\n  top: 0;\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-align: center;\n      -ms-flex-align: center;\n          align-items: center;\n  -webkit-box-pack: end;\n      -ms-flex-pack: end;\n          justify-content: flex-end;\n  padding-left: 2em;\n}\n\n.assignment__icon--complete {\n  color: green;\n}"
-
-/***/ },
-
-/***/ 803:
-/***/ function(module, exports) {
-
-module.exports = ".assignment__rationale {\n  padding: .1em .5em;\n  background-color: lightgray;\n  font-size: .9em;\n}\n\n.assignment__actions {\n  margin-top: 3em;\n}"
-
-/***/ },
-
-/***/ 804:
-/***/ function(module, exports) {
-
-module.exports = ""
-
-/***/ },
-
-/***/ 805:
-/***/ function(module, exports) {
-
-module.exports = ":host >>> .wysiwyg-editor {\n  min-height: 200px;\n}\n\n:host >>> .wysiwyg-container {\n  max-width: 900px;\n  margin: 1em;\n}"
-
-/***/ },
-
-/***/ 806:
-/***/ function(module, exports) {
-
-module.exports = ".created {\n  font-size: .9em;\n  opacity: .8;\n}\n\n.critique {\n  display: block;\n  overflow: hidden;\n}"
-
-/***/ },
-
-/***/ 807:
-/***/ function(module, exports) {
-
-module.exports = ""
-
-/***/ },
-
-/***/ 808:
-/***/ function(module, exports) {
-
-module.exports = ""
-
-/***/ },
-
-/***/ 809:
-/***/ function(module, exports) {
-
-module.exports = ""
-
-/***/ },
-
-/***/ 81:
-/***/ function(module, exports, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_rxjs__ = __webpack_require__(452);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_rxjs___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_rxjs__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__ngrx_store__ = __webpack_require__(11);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__elmsln_service__ = __webpack_require__(38);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__app_settings__ = __webpack_require__(97);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__submission__ = __webpack_require__(82);
-/* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return SubmissionService; });
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-
-
-
-
-
-
-var SubmissionService = (function () {
-    function SubmissionService(elmsln, store) {
-        this.elmsln = elmsln;
-        this.store = store;
-        this.submissions = this.store.select(function (state) { return state.submissions; });
-    }
-    SubmissionService.prototype.getSubmissions = function (assignmentId) {
-        var _this = this;
-        var query = assignmentId ? '?assignment=' + assignmentId : '';
-        this.elmsln.get(__WEBPACK_IMPORTED_MODULE_4__app_settings__["a" /* AppSettings */].BASE_PATH + 'api/v1/cle/submissions' + query)
-            .map(function (data) { return data.json(); })
-            .map(function (data) { return typeof data.data !== 'undefined' ? data.data : []; })
-            .map(function (data) {
-            if (data) {
-                // convert list of data into list of Submissions
-                var d_1 = [];
-                data.forEach(function (item) { return d_1.push(_this.convertToSubmission(item)); });
-                return d_1;
-            }
-        })
-            .map(function (payload) { return ({ type: 'ADD_SUBMISSIONS', payload: payload }); })
-            .subscribe(function (action) { return _this.store.dispatch(action); });
-    };
-    SubmissionService.prototype.loadSubmissions = function () {
-        var _this = this;
-        return this.elmsln.get(__WEBPACK_IMPORTED_MODULE_4__app_settings__["a" /* AppSettings */].BASE_PATH + 'api/v1/cle/submissions')
-            .map(function (data) { return data.json().data; })
-            .map(function (data) {
-            if (data) {
-                // convert list of data into list of Submissions
-                var d_2 = [];
-                data.forEach(function (item) { return d_2.push(_this.convertToSubmission(item)); });
-                return d_2;
-            }
-        });
-    };
-    SubmissionService.prototype.getSubmission = function (submissionId) {
-        var _this = this;
-        return this.elmsln.get(__WEBPACK_IMPORTED_MODULE_4__app_settings__["a" /* AppSettings */].BASE_PATH + 'api/v1/cle/submissions/' + submissionId)
-            .map(function (data) { return data.json().data[0]; })
-            .map(function (data) { return _this.convertToSubmission(data); });
-    };
-    SubmissionService.prototype.createSubmission = function (submission) {
-        var _this = this;
-        var newSub = this.prepareForDrupal(submission);
-        return this.elmsln.post(__WEBPACK_IMPORTED_MODULE_4__app_settings__["a" /* AppSettings */].BASE_PATH + 'api/v1/cle/submissions/create', newSub)
-            .map(function (data) { return data.json().node; })
-            .map(function (node) { return _this.convertToSubmission(node); });
-    };
-    SubmissionService.prototype.updateSubmission = function (submission) {
-        var _this = this;
-        var newSub = this.prepareForDrupal(submission);
-        return this.elmsln.put(__WEBPACK_IMPORTED_MODULE_4__app_settings__["a" /* AppSettings */].BASE_PATH + 'api/v1/cle/submissions/' + submission.id + '/update', newSub)
-            .map(function (data) { return data.json(); })
-            .map(function (node) { return _this.convertToSubmission(node); });
-    };
-    SubmissionService.prototype.deleteSubmission = function (submission) {
-        return this.elmsln.delete(__WEBPACK_IMPORTED_MODULE_4__app_settings__["a" /* AppSettings */].BASE_PATH + 'api/v1/cle/submissions/' + submission.id + '/delete')
-            .map(function (data) { return data.json(); });
-    };
-    /**
-     * @todo: this should eventually be more dynamic
-     */
-    SubmissionService.prototype.getSubmissionOptions = function () {
-        return {
-            type: [
-                { value: 'open', display: 'Open' },
-                { value: 'closed', display: 'Closed' }
-            ],
-            critiqueMethod: [
-                { value: 'open', display: 'Open' },
-                { value: 'random', display: 'Random' }
-            ],
-            critiqueStyle: [
-                { value: 'open', display: 'Open' },
-                { value: 'blind', display: 'Blind' },
-                { value: 'double_blind', display: 'Double blind' }
-            ],
-            state: [
-                { value: 'submission_in_progress', display: 'Submission in progress', icon: 'autorenew', color: 'lightgoldenrodyellow' },
-                { value: 'submission_ready', display: 'Submission Ready', icon: 'done', color: 'lightgreen' }
-            ]
-        };
-    };
-    SubmissionService.prototype.convertToSubmission = function (data) {
-        var converted = new __WEBPACK_IMPORTED_MODULE_5__submission__["a" /* Submission */]();
-        for (var propertyName in converted) {
-            if (data[propertyName]) {
-                converted[propertyName] = data[propertyName];
-            }
-        }
-        if (data['nid']) {
-            converted.id = Number(data['nid']);
-        }
-        if (data.evidence) {
-            if (data.evidence.body) {
-                converted.body = data.evidence.body;
-            }
-        }
-        return converted;
-    };
-    SubmissionService.prototype.prepareForDrupal = function (submission) {
-        var newSub = Object.assign({}, submission);
-        if (submission.body) {
-            newSub.evidence = {
-                body: {
-                    value: submission.body,
-                    format: 'textbook_editor'
-                }
-            };
-        }
-        if (submission.evidence) {
-            if (submission.evidence.images) {
-                newSub.evidence['images'] = submission.evidence.images;
-            }
-        }
-        return newSub;
-    };
-    // get the submission from the store using the submissionID and 
-    // return an observable
-    SubmissionService.prototype.getSubmissionFromStore = function (submissionId) {
-        return this.store.select('submissions')
-            .map(function (state) { return state.submissions.find(function (sub) { return sub.id === submissionId; }); });
-    };
-    // find out if the current user can edit the submission
-    SubmissionService.prototype.userCanEditSubmission = function (submissionId) {
-        return this.store.select('submissions')
-            .map(function (state) { return state.submissions.find(function (sub) { return sub.id === submissionId; }); })
-            .map(function (state) {
-            if (state) {
-                if (typeof state.metadata !== 'undefined') {
-                    if (typeof state.metadata.canUpdate !== 'undefined') {
-                        return state.metadata.canUpdate;
-                    }
-                }
-            }
-            return false;
-        });
-    };
-    /**
-     * Return the submission type
-     * This will check the parent assignment that the submission
-     * is attached to and figure out what the critique method is.
-     * If there is a critqiue method other than 'none' then it will
-     * return that as the submission type. If there is no critique method
-     * then it will just return 'submission' which is the default type
-     */
-    SubmissionService.prototype.getSubmissionType = function (submission$) {
-        // combine the submission and assignments streams
-        return __WEBPACK_IMPORTED_MODULE_1_rxjs__["Observable"].combineLatest(submission$, this.store.select('assignments').map(function (state) { return state.assignments; }))
-            .map(function (streams) {
-            var submission = streams[0];
-            var assignment = streams[1].find(function (a) { return a.id === submission.assignment; });
-            if (assignment) {
-                if (typeof assignment.critiqueMethod === 'string' && assignment.critiqueMethod !== 'none') {
-                    return 'critique';
-                }
-            }
-            return 'submission';
-        });
-    };
-    SubmissionService = __decorate([
-        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Injectable"])(), 
-        __metadata('design:paramtypes', [(typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_3__elmsln_service__["a" /* ElmslnService */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_3__elmsln_service__["a" /* ElmslnService */]) === 'function' && _a) || Object, (typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_2__ngrx_store__["a" /* Store */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_2__ngrx_store__["a" /* Store */]) === 'function' && _b) || Object])
-    ], SubmissionService);
-    return SubmissionService;
-    var _a, _b;
-}());
-//# sourceMappingURL=/Users/scienceonlineed/Documents/websites/elmsln/core/dslmcode/profiles/cle-7.x-2.x/modules/features/cle_app/app/src/submission.service.js.map
 
 /***/ },
 
@@ -5605,14 +5636,14 @@ module.exports = "<p>\n  submission-critique-form works!\n</p>\n"
 /***/ 857:
 /***/ function(module, exports) {
 
-module.exports = "<app-submission-edit-states [submission]=\"submission\"></app-submission-edit-states>\n<h1>{{ submission.title }}</h1>\n\n<div class=\"critique__wrapper\">\n  <div class=\"critique__window\">\n    <h3>Subject</h3>\n    <div *ngIf=\"critique\" [innerHTML]=\"critique.body\"></div>\n  </div>\n  <div *ngIf=\"submission\" class=\"critique__submission\">\n    <h3>Feeback</h3>\n    <div [innerHTML]=\"submission.body\"></div>\n  </div>\n</div>"
+module.exports = "<div class=\"critique__wrapper\">\n  <div class=\"critique__window\">\n    <h3>Subject</h3>\n    <div *ngIf=\"critique\" [innerHTML]=\"critique.body\"></div>\n  </div>\n  <div *ngIf=\"submission\" class=\"critique__submission\">\n    <h3>Feeback</h3>\n    <div *ngIf=\"!editMode\"[innerHTML]=\"submission.body\"></div>\n    <ng-content select=\".submission-content\"></ng-content>\n  </div>\n</div>"
 
 /***/ },
 
 /***/ 858:
 /***/ function(module, exports) {
 
-module.exports = "<div class=\"submission-detail\" *ngIf=\"submission\">\n  <app-submission-states [submission]=\"submission\"></app-submission-states>\n  <h1>{{ submission.title }}</h1>\n  <div class=\"body\" [innerHTML]=\"submission.body\"></div>\n</div>"
+module.exports = "<div class=\"submission-detail\" *ngIf=\"submission\">\n  <app-submission-states [submission]=\"submission\"></app-submission-states>\n  <h1>{{ submission.title }}</h1>\n  <div *ngIf=\"(submissionType$ | async) !== 'critique'\"class=\"body\" [innerHTML]=\"submission.body\"></div>\n  <app-submission-critique *ngIf=\"(submissionType$ | async) === 'critique'\"[submission]=\"submission\"></app-submission-critique>\n</div>"
 
 /***/ },
 
@@ -5633,14 +5664,14 @@ module.exports = "<app-submission-states [submission]=\"submission\"></app-submi
 /***/ 861:
 /***/ function(module, exports) {
 
-module.exports = "<h1>Edit Submission</h1>\n\n<app-assignment-detail \n  [assignment]=\"assignment$ | async\">\n</app-assignment-detail>\n\n<div class=\"submission-edit\">\n  <app-submission-form \n    *ngIf=\"submission$ | async\"\n    [submission]=\"submission$ | async\"\n    (onSubmissionSave)=\"onSubmissionSave($event)\"\n    (onSubmissionCancel)=\"onSubmissionCancel($event)\"\n    (onFormChanges)=\"onFormChanges($event)\">\n  </app-submission-form>\n</div>"
+module.exports = "<h1>Edit Submission</h1>\n\n<app-assignment-detail \n  [assignment]=\"assignment$ | async\">\n</app-assignment-detail>\n\n<div class=\"submission-edit\">\n  <app-submission-form \n    *ngIf=\"submission$ | async\"\n    [submission]=\"submission$ | async\"\n    [submissionType]=\"submissionType$ | async\"\n    (onSubmissionSave)=\"onSubmissionSave($event)\"\n    (onSubmissionCancel)=\"onSubmissionCancel($event)\"\n    (onFormChanges)=\"onFormChanges($event)\">\n  </app-submission-form>\n</div>"
 
 /***/ },
 
 /***/ 862:
 /***/ function(module, exports) {
 
-module.exports = "<form *ngIf=\"form\" [formGroup]=\"form\" class=\"submission-form\">\n  <input formControlName=\"title\" placeholder=\"title\" [ngClass]=\"{'invalid': form.controls['title'].status === 'INVALID' && saveAttempted}\">\n  <wysiwygjs \n    formControlName=\"body\"\n    (onWysiwygInit)=\"onWysiwygInit()\"\n    (onImageAdded)=\"onWysiwygImageAdded($event)\"\n    (onImageSave)=\"onImageSave($event)\">\n  </wysiwygjs>\n\n  <div class=\"actions\">\n    <button type=\"submit\" class=\"btn\" (click)=\"submit()\" [ngClass]=\"{'disabled': (savingImage$ | async)}\">Save</button>\n    <a class=\"btn\" (click)=\"cancel()\" [ngClass]=\"{'disabled': (savingImage$ | async)}\">Cancel</a>\n  </div>\n</form>"
+module.exports = "<form *ngIf=\"form\" [formGroup]=\"form\" class=\"submission-form\">\n  <input formControlName=\"title\" placeholder=\"title\" [ngClass]=\"{'invalid': form.controls['title'].status === 'INVALID' && saveAttempted}\">\n  <wysiwygjs \n    *ngIf=\"submissionType === 'submission'\"\n    formControlName=\"body\"\n    (onWysiwygInit)=\"onWysiwygInit()\"\n    (onImageAdded)=\"onWysiwygImageAdded($event)\"\n    (onImageSave)=\"onImageSave($event)\">\n  </wysiwygjs>\n\n  <app-submission-critique \n    *ngIf=\"submissionType === 'critique'\"\n    [submission]=\"submission\" editMode=\"true\">\n      <wysiwygjs class=\"submission-content\"\n        formControlName=\"body\"\n        (onWysiwygInit)=\"onWysiwygInit()\"\n        (onImageAdded)=\"onWysiwygImageAdded($event)\"\n        (onImageSave)=\"onImageSave($event)\">\n      </wysiwygjs>\n  </app-submission-critique>\n\n  <div class=\"actions\">\n    <button type=\"submit\" class=\"btn\" (click)=\"submit()\" [ngClass]=\"{'disabled': (savingImage$ | async)}\">Save</button>\n    <a class=\"btn\" (click)=\"cancel()\" [ngClass]=\"{'disabled': (savingImage$ | async)}\">Cancel</a>\n  </div>\n</form>"
 
 /***/ },
 
@@ -5661,7 +5692,7 @@ module.exports = "<div class=\"submission-states\">\n  <ul *ngIf=\"states\">\n  
 /***/ 865:
 /***/ function(module, exports) {
 
-module.exports = "<nav>\n  <div class=\"nav-wrapper\">\n    <ul id=\"nav-mobile\" class=\"left\">\n      <li><a (click)=\"onClickBack()\"><i class=\"material-icons left\">&#xE5C4;</i> assignment</a></li>\n    </ul>\n    <ul id=\"nav-mobile-right\" class=\"right\">\n      <li *ngIf=\"userCanEdit$ | async\"><a (click)=\"editSubmission()\"><i class=\"material-icons left\">edit</i></a></li>\n    </ul>\n  </div>\n</nav>\n\n<div *ngIf=\"submissionId && (submissionType$ | async) === 'submission'\">\n  <app-submission-detail [submission]=\"submission$ | async\"></app-submission-detail>\n</div>\n\n<div *ngIf=\"submissionId && (submissionType$ | async) === 'critique'\">\n  <app-submission-critique [submission]=\"submission$ | async\"></app-submission-critique>\n</div>"
+module.exports = "<nav>\n  <div class=\"nav-wrapper\">\n    <ul id=\"nav-mobile\" class=\"left\">\n      <li><a (click)=\"onClickBack()\"><i class=\"material-icons left\">&#xE5C4;</i> assignment</a></li>\n    </ul>\n    <ul id=\"nav-mobile-right\" class=\"right\">\n      <li *ngIf=\"userCanEdit$ | async\"><a (click)=\"editSubmission()\"><i class=\"material-icons left\">edit</i></a></li>\n    </ul>\n  </div>\n</nav>\n\n<div>\n  <app-submission-detail [submission]=\"submission$ | async\"></app-submission-detail>\n</div>"
 
 /***/ },
 
