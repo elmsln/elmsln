@@ -71,9 +71,22 @@ function elmsmedia_video_field_default_field_instances() {
     'label' => 'Caption',
     'required' => 0,
     'settings' => array(
+      'authcache' => array(
+        'clients' => array(
+          'authcache_ajax' => array(
+            'status' => 1,
+            'weight' => 0,
+          ),
+        ),
+        'fallback' => 'cancel',
+        'lifespan' => 3600,
+        'perpage' => 0,
+        'peruser' => 1,
+        'status' => 0,
+      ),
       'description_field' => 0,
       'file_directory' => 'captions',
-      'file_extensions' => 'txt str xml vtt',
+      'file_extensions' => 'txt srt xml vtt',
       'max_filesize' => '',
       'user_register_form' => FALSE,
     ),
