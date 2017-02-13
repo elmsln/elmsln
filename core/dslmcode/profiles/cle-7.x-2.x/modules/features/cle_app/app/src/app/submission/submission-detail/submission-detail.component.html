@@ -1,6 +1,7 @@
 <div class="submission-detail" *ngIf="submission">
-  <app-submission-states [submission]="submission"></app-submission-states>
+  <app-submission-states class="submission-states" [submission]="submission"></app-submission-states>
   <h1>{{ submission.title }}</h1>
+  <app-assignment-detail class="submission-detail" [assignment]="assignment$ | async"></app-assignment-detail>
   <div *ngIf="(submissionType$ | async) !== 'critique'"class="body" [innerHTML]="submission.body"></div>
   <app-submission-critique *ngIf="(submissionType$ | async) === 'critique'"[submission]="submission"></app-submission-critique>
 </div>

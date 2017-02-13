@@ -4064,6 +4064,7 @@ var SubmissionDetailComponent = (function () {
     };
     SubmissionDetailComponent.prototype.ngOnChanges = function () {
         this.submissionType$ = this.submissionService.getSubmissionType(__WEBPACK_IMPORTED_MODULE_3_rxjs_Observable__["Observable"].of(this.submission));
+        this.assignment$ = this.submissionService.getSubmissionAssignment(this.submission);
     };
     __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Input"])(), 
@@ -5405,7 +5406,7 @@ module.exports = ""
 /***/ 822:
 /***/ function(module, exports) {
 
-module.exports = ""
+module.exports = ".assignment-detail {\n  margin: 1em;\n}"
 
 /***/ },
 
@@ -5643,7 +5644,7 @@ module.exports = "<div class=\"critique__wrapper\">\n  <div class=\"critique__wi
 /***/ 858:
 /***/ function(module, exports) {
 
-module.exports = "<div class=\"submission-detail\" *ngIf=\"submission\">\n  <app-submission-states [submission]=\"submission\"></app-submission-states>\n  <h1>{{ submission.title }}</h1>\n  <div *ngIf=\"(submissionType$ | async) !== 'critique'\"class=\"body\" [innerHTML]=\"submission.body\"></div>\n  <app-submission-critique *ngIf=\"(submissionType$ | async) === 'critique'\"[submission]=\"submission\"></app-submission-critique>\n</div>"
+module.exports = "<div class=\"submission-detail\" *ngIf=\"submission\">\n  <app-submission-states class=\"submission-states\" [submission]=\"submission\"></app-submission-states>\n  <h1>{{ submission.title }}</h1>\n  <app-assignment-detail class=\"submission-detail\" [assignment]=\"assignment$ | async\"></app-assignment-detail>\n  <div *ngIf=\"(submissionType$ | async) !== 'critique'\"class=\"body\" [innerHTML]=\"submission.body\"></div>\n  <app-submission-critique *ngIf=\"(submissionType$ | async) === 'critique'\"[submission]=\"submission\"></app-submission-critique>\n</div>"
 
 /***/ },
 

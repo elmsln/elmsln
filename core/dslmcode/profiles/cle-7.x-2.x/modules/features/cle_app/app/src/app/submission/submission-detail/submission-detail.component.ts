@@ -6,6 +6,7 @@ import { Submission } from '../submission';
 import { ElmslnService } from '../../elmsln.service';
 import { Observable } from 'rxjs/Observable';
 import { SubmissionService } from '../submission.service';
+import { Assignment } from '../../assignment';
 
 @Component({
   selector: 'app-submission-detail',
@@ -15,6 +16,7 @@ import { SubmissionService } from '../submission.service';
 export class SubmissionDetailComponent implements OnInit, AfterViewInit, OnChanges {
   @Input() submission:Submission;
   submissionType$:Observable<string>;
+  assignment$:Observable<Assignment>;
 
   constructor(
     private elmslnService:ElmslnService,
@@ -31,5 +33,6 @@ export class SubmissionDetailComponent implements OnInit, AfterViewInit, OnChang
 
   ngOnChanges() {
     this.submissionType$ = this.submissionService.getSubmissionType(Observable.of(this.submission));
+    this.assignment$ = this.submissionService.getSubmissionAssignment(this.submission);
   }
 }
