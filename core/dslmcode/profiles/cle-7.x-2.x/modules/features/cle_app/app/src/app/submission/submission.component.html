@@ -9,6 +9,10 @@
   </div>
 </nav>
 
-<div *ngIf="submissionId">
+<div *ngIf="submissionId && (submissionType$ | async) === 'submission'">
   <app-submission-detail [submission]="submission$ | async"></app-submission-detail>
+</div>
+
+<div *ngIf="submissionId && (submissionType$ | async) === 'critique'">
+  <app-submission-critique [submission]="submission$ | async"></app-submission-critique>
 </div>

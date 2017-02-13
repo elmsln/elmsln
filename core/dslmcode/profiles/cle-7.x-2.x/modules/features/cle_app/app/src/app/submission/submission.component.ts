@@ -5,6 +5,8 @@ import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
 import { Submission } from './submission';
 import { ElmslnService } from '../elmsln.service';
+import { SubmissionService } from './submission.service';
+import { Assignment } from '../assignment';
 
 @Component({
   selector: 'app-submission',
@@ -16,13 +18,16 @@ export class SubmissionComponent implements OnInit {
   assignmentId:number;
   submission$:Observable<Submission>;
   userCanEdit$:Observable<boolean>;
+  submissionType$:Observable<string>;
+  assignment$:Observable<Assignment>;
 
   constructor(
     private route:ActivatedRoute,
     private store:Store<{}>,
     private router:Router,
     private location:Location,
-    private elmslnService:ElmslnService
+    private elmslnService:ElmslnService,
+    private submissionService:SubmissionService
   ) { }
 
   ngOnInit() {
@@ -56,6 +61,9 @@ export class SubmissionComponent implements OnInit {
               return false;
             })
       }})
+
+    // get the submission type
+    this.submissionType$ = this.submissionService.getSubmissionType(this.submission$);
   }
 
   onClickBack() {

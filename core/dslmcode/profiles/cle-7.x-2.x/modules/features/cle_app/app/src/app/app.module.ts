@@ -62,6 +62,7 @@ import { ImageComponent } from './image/image.component';
 import { AssignmentDetailComponent } from './assignment/assignment-detail/assignment-detail.component';
 import { ElmslnWysiwygComponent } from './elmsln-wysiwyg/elmsln-wysiwyg.component';
 import { SubmissionCritiqueFormComponent } from './submission/submission-critique-form/submission-critique-form.component';
+import { SubmissionCritiqueComponent } from './submission/submission-critique/submission-critique.component';
 
 @NgModule({
   declarations: [
@@ -99,7 +100,8 @@ import { SubmissionCritiqueFormComponent } from './submission/submission-critiqu
     AssignmentDetailComponent,
     AssignmentDetailComponent,
     ElmslnWysiwygComponent,
-    SubmissionCritiqueFormComponent
+    SubmissionCritiqueFormComponent,
+    SubmissionCritiqueComponent
   ],
   imports: [
     BrowserModule,

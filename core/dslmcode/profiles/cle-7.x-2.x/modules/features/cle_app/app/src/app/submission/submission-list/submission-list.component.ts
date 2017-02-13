@@ -2,7 +2,7 @@ import { Component, OnInit, Input, OnChanges } from '@angular/core';
 import { Router } from '@angular/router';
 import { Submission } from '../submission';
 import { UserService } from '../../user.service';
-
+import { SubmissionService } from '../../submission/submission.service';
 
 @Component({
   selector: 'app-submission-list',
@@ -16,7 +16,8 @@ export class SubmissionListComponent implements OnInit, OnChanges {
 
   constructor(
     private router:Router,
-    private userService:UserService
+    private userService:UserService,
+    private submissionService:SubmissionService
   ) { }
 
   ngOnInit() {
@@ -30,5 +31,4 @@ export class SubmissionListComponent implements OnInit, OnChanges {
   onSubmissionClick(submission:Submission) {
     this.router.navigate(['/submissions/' + submission.id]);
   }
-
 }
