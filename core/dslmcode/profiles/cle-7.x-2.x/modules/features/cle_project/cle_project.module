@@ -170,8 +170,11 @@ function _cle_project_v1_project_modify($node, $params = NULL) {
       break;
       // we support multiple sections for projects
       case 'sections':
+        $node->og_group_ref[LANGUAGE_NONE] = array();
         foreach ($value as $section) {
-          $node->og_group_ref[LANGUAGE_NONE][] = array('target_id' => $section);
+          if (!is_null($section)) {
+            $node->og_group_ref[LANGUAGE_NONE][] = array('target_id' => $section);
+          }
         }
       break;
       case 'archived':
@@ -190,18 +193,25 @@ function _cle_project_v1_project_modify($node, $params = NULL) {
         $node->field_project_color[LANGUAGE_NONE][0]['jquery_colorpicker'] = $value;
       break;
       case 'image':
-        $node->field_project_image[LANGUAGE_NONE][0]['target_id'] = $value;
+        if (!is_null($value)) {
+          $node->field_project_image[LANGUAGE_NONE][0]['target_id'] = $value;
+        }
       break;
       case 'hierarchy':
         foreach ($value as $key2 => $value2) {
           switch ($key2) {
             case 'stepsToComplete':
+              $node->field_project_steps[LANGUAGE_NONE] = array();
               foreach ($value2 as $item) {
-                $node->field_project_steps[LANGUAGE_NONE][] = array('target_id' => $item);
+                if (!is_null($item)) {
+                  $node->field_project_steps[LANGUAGE_NONE][] = array('target_id' => $item);
+                }
               }
             break;
             case 'parentProject':
-              $node->field_project_parent[LANGUAGE_NONE][0]['target_id'] = $value2;
+              if (!is_null($value2)) {
+                $node->field_project_parent[LANGUAGE_NONE][0]['target_id'] = $value2;
+              }
             break;
           }
         }

@@ -191,16 +191,22 @@ function _cle_submission_v1_submission_modify($node, $params = NULL) {
         $node->{$key} = $value;
       break;
       case 'section':
-        $node->og_group_ref[LANGUAGE_NONE][0]['target_id'] = $value;
+        if (!is_null($value)) {
+          $node->og_group_ref[LANGUAGE_NONE][0]['target_id'] = $value;
+        }
       break;
       case 'state':
         $node->field_submission_state[LANGUAGE_NONE][0]['value'] = $value;
       break;
       case 'relatedSubmission':
-        $node->field_related_submission[LANGUAGE_NONE][0]['target_id'] = $value;
+        if (!is_null($value)) {
+          $node->field_related_submission[LANGUAGE_NONE][0]['target_id'] = $value;
+        }
       break;
       case 'assignment':
-        $node->field_assignment[LANGUAGE_NONE][0]['target_id'] = $value;
+        if (!is_null($value)) {
+          $node->field_assignment[LANGUAGE_NONE][0]['target_id'] = $value;
+        }
       break;
       case 'evidence':
         foreach ($value as $key2 => $value2) {

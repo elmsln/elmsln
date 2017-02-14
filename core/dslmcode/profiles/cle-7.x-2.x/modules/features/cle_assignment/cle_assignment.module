@@ -136,7 +136,9 @@ function _cle_assignment_v1_assignment_modify($node, $params = NULL) {
         $node->field_cle_archived['und'][0]['value'] = $value;
       break;
       case 'section':
-        $node->og_group_ref[LANGUAGE_NONE][0]['target_id'] = $value;
+        if (!is_null($value)) {
+          $node->og_group_ref[LANGUAGE_NONE][0]['target_id'] = $value;
+        }
       break;
       case 'allowLateSubmissions':
         $node->field_assignment_late_submission[LANGUAGE_NONE][0]['value'] = (int)$value;
@@ -145,7 +147,9 @@ function _cle_assignment_v1_assignment_modify($node, $params = NULL) {
         $node->field_assignment_color[LANGUAGE_NONE][0]['jquery_colorpicker'] = $value;
       break;
       case 'image':
-        $node->field_assignment_image[LANGUAGE_NONE][0]['target_id'] = $value;
+        if (!is_null($value)) {
+          $node->field_assignment_image[LANGUAGE_NONE][0]['target_id'] = $value;
+        }
       break;
       case 'type':
         $node->field_assignment_privacy_setting[LANGUAGE_NONE][0]['value'] = $value;
@@ -164,7 +168,9 @@ function _cle_assignment_v1_assignment_modify($node, $params = NULL) {
         $node->field_assignment_feedback[LANGUAGE_NONE][0]['value'] = $value;
       break;
       case 'project':
-        $node->field_assignment_project[LANGUAGE_NONE][0]['target_id'] = $value;
+        if (!is_null($value)) {
+          $node->field_assignment_project[LANGUAGE_NONE][0]['target_id'] = $value;
+        }
       break;
       case 'hierarchy':
         foreach ($value as $key2 => $value2) {
@@ -172,11 +178,15 @@ function _cle_assignment_v1_assignment_modify($node, $params = NULL) {
             case 'dependencies':
               $node->field_assignment_dependencies[LANGUAGE_NONE] = array();
               foreach ($value2 as $item) {
-                $node->field_assignment_dependencies[LANGUAGE_NONE][] = array('target_id' => $item);
+                if (!is_null($item)) {
+                  $node->field_assignment_dependencies[LANGUAGE_NONE][] = array('target_id' => $item);
+                }
               }
             break;
             case 'project':
-              $node->field_assignment_project[LANGUAGE_NONE][0]['target_id'] = $value2;
+              if (!is_null($value2)) {
+                $node->field_assignment_project[LANGUAGE_NONE][0]['target_id'] = $value2;
+              }
             break;
           }
         }
