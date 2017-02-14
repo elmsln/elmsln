@@ -81,6 +81,48 @@ function cle_assignment_form_cle_assignment_node_form_alter(&$form, &$form_state
 }
 
 /**
+ * Implements hook_node_insert().
+ */
+function cle_assignment_node_insert($node) {
+  // make sure there's an outline associated to this
+  // but only if we have at least 1 to do so with
+  if ($node->type == 'cle_assignment') {
+    // when we save a new assignment make sure there's a reverse entity reference to match
+    if (isset($node->field_assignment_project['und'][0]['target_id'])) {
+      $found = FALSE;
+      $project = node_load($node->field_assignment_project['und'][0]['target_id']);
+      // see if this currently has any steps in it
+      if (isset($project->field_project_steps['und'])) {
+        // check for this assignment currently being in here
+        foreach ($project->field_project_steps['und'] as $step) {
+          // edge case but if we find we've already referenced this then don't double save
+          if ($step['target_id'] == $node->nid) {
+            $found = TRUE;
+          }
+        }
+        // build cause we didn't find it
+        if (!$found) {
+          $project->field_project_steps['und'][] = array('target_id' => $node->nid);
+          $found = TRUE;
+        }
+      }
+      else {
+        $found = TRUE;
+        $project->field_project_steps = array(
+          'und' => array(
+            0 => array('target_id' => $node->nid),
+          )
+        );
+      }
+      // only save project if we changed something
+      if ($found) {
+        node_save($project);
+      }
+    }
+  }
+}
+
+/**
  * Implements hook_page_build().
  */
 function cle_assignment_page_build(&$page) {
@@ -246,11 +288,11 @@ function _cle_assignment_v1_assignment_modify($node, $params = NULL) {
   // @todo this may come from the UI at some point
   if (!isset($node->field_assignment_artifacts) || empty($node->field_assignment_artifacts)) {
     $node->field_assignment_artifacts[LANGUAGE_NONE] = array(
-    	array('value' => 'field_submission_text'),
-    	array('value' => 'field_images'),
-    	array('value' => 'field_video'),
-    	array('value' => 'field_files'),
-    	array('value' => 'field_links'),
+        array('value' => 'field_submission_text'),
+        array('value' => 'field_images'),
+        array('value' => 'field_video'),
+        array('value' => 'field_files'),
+        array('value' => 'field_links'),
     );
   }
   // account for due date not having an end date
