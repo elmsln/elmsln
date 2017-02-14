@@ -60,39 +60,68 @@
       </section>
     </nav>
   </div>
-    <div class="etb-title s12 m5 col">
-      <nav class="top-bar etb-nav flex-vertical-right center-align-wrap" data-options="is_hover: false" data-topbar>
-       <section class="top-bar-section title-link">
-       <h2 class="element-invisible"><?php print t('Course identifier and settings');?></h2>
-        <ul class="menu right clearfix">
-          <li class="first expanded">
+  <div class="etb-title s12 m5 col">
+    <nav class="top-bar etb-nav flex-vertical-right center-align-wrap" data-options="is_hover: false" data-topbar>
+     <section class="top-bar-section title-link">
+     <h2 class="element-invisible"><?php print t('Course identifier and settings');?></h2>
+      <ul class="menu right clearfix">
+        <li class="first expanded">
+        <?php
+          // account for roles that don't have access to this
+          if (!empty($elmsln_main_menu)) {?>
+          <a id="elmsln-tools-trigger" class="course-title elmsln-course-title elmsln-dropdown-button" href="#elmsln-settings-menu" title="" data-activates="elmsln-tools-menu" aria-controls="elmsln-tools-menu" aria-expanded="false" data-jwerty-key="t" data-voicecommand="open settings (menu)">
+            <span class="course-title-group">
+              <span class="white-text course-title"><?php print $slogan; ?></span>
+              <span class="white-text course-abrv"><?php print $site_name; ?> <?php if (isset($section_title)) : print $section_title; endif; ?></span>
+            </span>
+            <span class="course-title-icon icon--dropdown white-text"></span>
+          </a>
+          <ul id="elmsln-tools-menu" class="dropdown-content" aria-hidden="true">
+            <li><?php print $elmsln_main_menu; ?></li>
+          </ul>
           <?php
-            // account for roles that don't have access to this
-            if (!empty($elmsln_main_menu)) {?>
-            <a id="elmsln-tools-trigger" class="course-title elmsln-course-title elmsln-dropdown-button" href="#elmsln-settings-menu" title="" data-activates="elmsln-tools-menu" aria-controls="elmsln-tools-menu" aria-expanded="false" data-jwerty-key="t" data-voicecommand="open settings (menu)">
-              <span class="course-title-group">
-                <span class="white-text course-title"><?php print $slogan; ?></span>
-                <span class="white-text course-abrv"><?php print $site_name; ?> <?php if (isset($section_title)) : print $section_title; endif; ?></span>
-              </span>
-              <span class="course-title-icon icon--dropdown white-text"></span>
-            </a>
-            <ul id="elmsln-tools-menu" class="dropdown-content" aria-hidden="true">
-              <li><?php print $elmsln_main_menu; ?></li>
-            </ul>
-            <?php
-            }
-            else { ?>
-            <a id="elmsln-tools-trigger" class="course-title elmsln-course-title" href="<?php print base_path(); ?>" title="<?php print t('Home'); ?>">
-              <span class="course-title-group">
-                <span class="course-title"><?php print $slogan; ?></span>
-                <span class="course-abrv"><?php print $site_name; ?> <?php if (isset($section_title)) : print $section_title; endif; ?></span>
-              </span>
-            </a>
-            <?php } ?>
-          </li>
-        </ul>
-      </section>
-      </nav>
-    </div>
+          }
+          else { ?>
+          <a id="elmsln-tools-trigger" class="course-title elmsln-course-title" href="<?php print base_path(); ?>" title="<?php print t('Home'); ?>">
+            <span class="course-title-group">
+              <span class="course-title"><?php print $slogan; ?></span>
+              <span class="course-abrv"><?php print $site_name; ?> <?php if (isset($section_title)) : print $section_title; endif; ?></span>
+            </span>
+          </a>
+          <?php } ?>
+        </li>
+      </ul>
+    </section>
+    </nav>
   </div>
-
+</div>
+<div id="etb-network-nav" class="row full collapse white">
+  <ul class="elmsln-service-list">
+  <?php
+  foreach ($network['services']['Network'] as $service) :
+    if (!isset($service['icon'])) {
+      $service['icon'] = $service['machine_name'];
+    }
+    // apply default system color if we get misses
+    if (!isset($service['distro'])) {
+      $service['distro'] = '_default_';
+    }
+    $activetool = '';
+    $iconcolor = 'black-text';
+    if ($service['machine_name'] == $network['active']['machine_name']) {
+      $activetool = $lmsless_classes[$service['distro']]['color'] . ' active-system white-text ';
+      $iconcolor = $lmsless_classes[$service['distro']]['color'] . ' white-text ';
+    }
+    $stitle = token_replace($service['title']);
+    ?>
+    <li><a data-prefetch-hover="true" href="<?php print token_replace($service['url']); ?>" class="black-text waves-effect waves-<?php print $lmsless_classes[$service['distro']]['color'];?> waves-light <?php print $activetool . $service['icon']; ?>-icon"  data-jwerty-key="ctrl+<?php print drupal_strtolower(substr($stitle, 0, 1)); ?>" data-voicecommand="<?php print t('go to ') . drupal_strtolower($stitle); ?>" data-elmsln-hover="<?php print $lmsless_classes[$service['distro']]['color'];?> <?php print $lmsless_classes[$service['distro']]['dark'];?> white-text" data-elmsln-icon-hover="hover-white-text">
+    <?php if (isset($service['icon_library']) && $service['icon_library'] == 'material'): ?>
+      <div class="material-icon elmsln-network-icon left elmsln-icon"><i class="material-icons"><?php print $service['icon']; ?></i></div>
+    <?php else: ?>
+      <div class="elmsln-network-icon left elmsln-icon icon-<?php print $service['icon'] . ' ' . $iconcolor;?>"></div>
+    <?php endif; ?>
+      <span class="elmsln-network-label"><?php print $stitle; ?></span>
+    </a></li>
+  <?php endforeach ?>
+  </ul>
+</div>

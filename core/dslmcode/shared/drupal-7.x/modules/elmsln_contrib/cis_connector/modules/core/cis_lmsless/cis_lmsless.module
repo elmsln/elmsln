@@ -51,6 +51,7 @@ function cis_lmsless_block_view($delta = '') {
     break;
     case 'cis_lmsless_network':
       $vars = _cis_lmsless_assemble_network();
+      unset($vars['services']['Network']);
       $block['subject'] = t('Network');
       $block['content'] = theme('cis_lmsless_network', $vars);
     break;
@@ -539,6 +540,8 @@ function _cis_lmsless_theme_vars() {
       $course_tools = menu_tree('menu-elmsln-settings');
       $vars['elmsln_main_menu'] = render($course_tools);
     }
+    // pull in services too
+    $vars['network'] = _cis_lmsless_assemble_network();
     // allow other projects to alter these values
     drupal_alter('cis_lmsless_theme_vars', $vars);
   }
