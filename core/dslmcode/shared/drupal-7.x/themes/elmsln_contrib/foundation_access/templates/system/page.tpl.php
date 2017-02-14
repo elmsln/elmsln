@@ -176,9 +176,9 @@
     <!-- Accessibility side nav -->
     <?php if (!empty($a11y)) : ?>
     <section id="page-accessibility-menu" class="elmsln-modal elmsln-modal-hidden side-nav disable-scroll" aria-label="<?php print t('Preferences'); ?>" aria-hidden="true" role="dialog" tabindex="-1">
-        <div class="center-align valign-wrapper elmsln-modal-title-wrapper <?php print $cis_lmsless['lmsless_classes'][$distro]['color'] . ' ' . $cis_lmsless['lmsless_classes'][$distro]['light'];?> <?php print $cis_lmsless['lmsless_classes'][$distro]['color'];?>-border">
-        <h2 class="flow-text valign elmsln-modal-title"><?php print t('Preferences'); ?></h2>
-          <a href="#close-dialog" aria-label="<?php print t('Close'); ?>" class="close-reveal-side-nav" data-voicecommand="close (menu)" data-jwerty-key="Esc" >&#215;</a>
+        <div class="center-align valign-wrapper elmsln-modal-title-wrapper <?php print $cis_lmsless['lmsless_classes'][$distro]['color'] . ' ' . $cis_lmsless['lmsless_classes'][$distro]['dark'];?> <?php print $cis_lmsless['lmsless_classes'][$distro]['color'];?>-border">
+        <h2 class="flow-text valign elmsln-modal-title white-text"><?php print t('Preferences'); ?></h2>
+          <a href="#close-dialog" aria-label="<?php print t('Close'); ?>" class="close-reveal-side-nav white-text" data-voicecommand="close (menu)" data-jwerty-key="Esc" >&#215;</a>
         </div>
         <div class="elmsln-modal-content">
           <?php print $a11y; ?>
