@@ -1,7 +1,16 @@
 <h1>Edit Submission</h1>
 
-<app-assignment-detail [assignment]="assignment$ | async"></app-assignment-detail>
+<app-assignment-detail 
+  [assignment]="assignment$ | async">
+</app-assignment-detail>
 
 <div class="submission-edit">
-  <app-submission-form *ngIf="submission$ | async" [submission]="submission$ | async" (onSubmissionSave)="onSubmissionSave($event)" (onSubmissionCancel)="onSubmissionCancel($event)" (onFormChanges)="onFormChanges($event)"></app-submission-form>
+  <app-submission-form 
+    *ngIf="submission$ | async"
+    [submission]="submission$ | async"
+    [submissionType]="submissionType$ | async"
+    (onSubmissionSave)="onSubmissionSave($event)"
+    (onSubmissionCancel)="onSubmissionCancel($event)"
+    (onFormChanges)="onFormChanges($event)">
+  </app-submission-form>
 </div>

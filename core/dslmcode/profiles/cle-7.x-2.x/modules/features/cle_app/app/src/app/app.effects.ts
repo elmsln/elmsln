@@ -1,5 +1,6 @@
 import 'rxjs/add/operator/mergeMap';
 import 'rxjs/add/operator/catch';
+import { Response } from '@angular/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import { Action } from '@ngrx/store'
@@ -19,6 +20,7 @@ import {
   startCritqueSuccess,
   startCritqueFailure
 } from './app.actions';
+import { loadSubmissions } from './submission/submission.actions';
 import { AssignmentService } from './assignment.service';
 import { ElmslnService } from './elmsln.service';
 declare const Materialize:any;
@@ -79,15 +81,23 @@ export class AppEffects {
       Materialize.toast('Assignment deleted', 1000);
     })
 
-  @Effect({dispatch: false}) startCritique$ = this.actions$
+  @Effect() startCritique$ = this.actions$
     .ofType(ActionTypes.START_CRITQUE)
-    .map(action => this.assignmentService.startCritique(action.payload)
-      .subscribe(
-        submission => startCritqueSuccess(this.assignmentService.convertToAssignment(submission.data[0])),
-        error => {
-          startCritqueFailure(action.payload);
-          Materialize.toast('There are no submissions to critique at this time.', 2500)
-        }
-      )
-    )
+    .switchMap(action => this.assignmentService.startCritique(action.payload)
+      .map(res => startCritqueSuccess(res.node))
+      .catch(res => Observable.of(startCritqueFailure(res))))
+  
+  @Effect() startCritqueSuccess$ = this.actions$
+    .ofType(ActionTypes.START_CRITQUE_SUCCESS)
+    .map(action => loadSubmissions());
+  
+  @Effect({dispatch: false}) startCritiqueFailure$ = this.actions$
+    .ofType(ActionTypes.START_CRITQUE_FAILURE)
+    .map((state:any) => state.payload)
+    .map((res:Response) => {
+      // get the reason from the Response & convert to json
+      let text = JSON.parse(res.text());
+      let reason = text.detail ? text.detail : '';
+      Materialize.toast('Could not start critique. ' + reason, 2500);
+    })
 }

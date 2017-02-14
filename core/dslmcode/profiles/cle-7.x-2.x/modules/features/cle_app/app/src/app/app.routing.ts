@@ -17,6 +17,7 @@ import { SubmissionDetailComponent } from './submission/submission-detail/submis
 import { SubmissionEditComponent } from './submission/submission-edit/submission-edit.component';
 import { SubmissionDialogComponent } from './submission/submission-dialog/submission-dialog.component';
 import { SubmissionStatesComponent } from './submission/submission-states/submission-states.component';
+import { SubmissionCritiqueComponent } from './submission/submission-critique/submission-critique.component';
 import { DialogComponent } from './dialog/dialog.component';
 
 const appRoutes: Routes = [
@@ -73,6 +74,10 @@ const appRoutes: Routes = [
       {
         path: 'submission-states',
         component: SubmissionStatesComponent
+      },
+      {
+        path: ':critiqueId',
+        component: SubmissionCritiqueComponent
       }
     ]
   },
@@ -80,7 +85,7 @@ const appRoutes: Routes = [
     path: 'submissions/:submissionId/edit-state',
     outlet: 'dialog',
     component: SubmissionDialogComponent
-  }
+  },
 ];
 
 export const appRoutingProviders: any[] = [

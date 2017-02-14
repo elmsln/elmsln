@@ -60,6 +60,9 @@ import { SubmissionEditStatesComponent } from './submission/submission-edit-stat
 import { SubmissionDialogComponent } from './submission/submission-dialog/submission-dialog.component';
 import { ImageComponent } from './image/image.component';
 import { AssignmentDetailComponent } from './assignment/assignment-detail/assignment-detail.component';
+import { ElmslnWysiwygComponent } from './elmsln-wysiwyg/elmsln-wysiwyg.component';
+import { SubmissionCritiqueFormComponent } from './submission/submission-critique-form/submission-critique-form.component';
+import { SubmissionCritiqueComponent } from './submission/submission-critique/submission-critique.component';
 
 @NgModule({
   declarations: [
@@ -95,7 +98,10 @@ import { AssignmentDetailComponent } from './assignment/assignment-detail/assign
     SubmissionDialogComponent,
     ImageComponent,
     AssignmentDetailComponent,
-    AssignmentDetailComponent
+    AssignmentDetailComponent,
+    ElmslnWysiwygComponent,
+    SubmissionCritiqueFormComponent,
+    SubmissionCritiqueComponent
   ],
   imports: [
     BrowserModule,

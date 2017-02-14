@@ -10,4 +10,5 @@ export class Submission {
   metadata:any = {};
   environment:any = {};
   evidence:any = {};
+  relatedSubmission:number = null;
 }

@@ -356,7 +356,9 @@ function cle_submission_node_access($node, $op, $account) {
     // boolean for visibility
     if ($assignment->field_assignment_privacy_setting['und'][0]['value'] == 'closed') {
       // if it's a hidden assignment, the last check is admin member
-      return NODE_ACCESS_DENY;
+      if (!_cle_submission_submission_being_critiqued($node, $account)) {
+        return NODE_ACCESS_DENY;
+      }
     }
   }
   return NODE_ACCESS_IGNORE;
@@ -413,4 +415,27 @@ function _cle_submission_submission_status($assignment, $account = NULL) {
       'submissions' => $submissions,
     )
   );
+}
+
+/**
+ * Helper function to figure out if the submission is being critiqued.
+ * @return array of submissions or false
+ */
+function _cle_submission_submission_being_critiqued($submission, $user = NULL) {
+  $query = new EntityFieldQuery();
+  $query->entityCondition('entity_type', 'node')
+    ->entityCondition('bundle', 'cle_submission')
+    ->fieldCondition('field_related_submission', 'target_id', $submission->nid, '=');
+  if ($user) {
+    $query->propertyCondition('uid', $user->uid);
+  }
+
+  $result = $query->execute();
+  if (isset($result['node'])) {
+    $submission_nids = array_keys($result['node']);
+    $submissions = entity_load('node', $submission_nids);
+    return $submissions;
+  } 
+
+  return false;
 }
