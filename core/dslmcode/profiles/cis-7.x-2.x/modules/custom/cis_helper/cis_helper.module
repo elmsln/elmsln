@@ -681,8 +681,6 @@ function cis_helper_entity_presave($entity, $type) {
 function cis_helper_entity_insert($entity, $type) {
   // act on nodes
   if ($type == 'node' && $entity->type == 'course') {
-     // ship these requests across the network
-    _elmsln_api_network_request($requests, 1, TRUE);
     // sync the service but do it non-blocking
     $request = array(
       'method' => 'POST',
