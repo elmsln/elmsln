@@ -335,7 +335,7 @@ article ul:not(.contextual-links):not(.collapsible):not(.footnotes):not(.browser
   padding: 0;
   margin: 0;
   border-bottom: solid .2rem #000000;
-  z-index: 2;
+  z-index: 1;
 }
 .elmsln-service-list {
   margin: 0;
@@ -657,7 +657,16 @@ nav ul.left-nav-section a img {
   line-height: 3.2rem
 }
 
-nav ul.left-nav-section .elmsln-user-profile-menu-item img {
+nav ul .elmsln-user-profile-menu-item {
+  height: 3.2rem;
+  line-height: 3.2rem;
+}
+
+#block-cis-lmsless-cis-lmsless-user-nav-modal .background {
+  width: 100%;
+}
+
+nav ul .elmsln-user-profile-menu-item img {
   height: 1.6rem;
   width: 1.6rem;
 }
@@ -810,6 +819,9 @@ ul.dropdown-content.book-sibling-children {
 ul.dropdown-content .button-group > li {
   display: block;
   margin: 0;
+}
+.top-bar-section ul li {
+  height: 3rem;
 }
 .top-bar-section ul li > a {
   font-size: 1rem;
