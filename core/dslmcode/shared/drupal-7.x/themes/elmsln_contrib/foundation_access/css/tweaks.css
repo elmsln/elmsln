@@ -330,6 +330,10 @@ article ul:not(.contextual-links):not(.collapsible):not(.footnotes):not(.browser
   height: 3.2rem;
 }
 
+#etb-course-nav .top-bar li a {
+  border: 0;
+}
+
 #etb-network-nav {
   height: 3.2rem;
   padding: 0;
@@ -823,6 +827,7 @@ ul.dropdown-content .button-group > li {
 .top-bar-section ul li {
   height: 3rem;
 }
+
 .top-bar-section ul li > a {
   font-size: 1rem;
   font-weight: normal;
