@@ -24,7 +24,7 @@ function foundation_access_preprocess_html(&$variables) {
   // elmsln icons
   drupal_add_css(drupal_get_path('theme', 'foundation_access') . '/fonts/elmsln/elmsln-font-styles.css', array('group' => CSS_THEME, 'weight' => -1000));
   // google font / icons from google
-  drupal_add_css('//fonts.googleapis.com/css?family=Material+Icons%7CDroid+Serif:400,700,400italic,700italic%7COpen+Sans:300,600,700', array('type' => 'external', 'group' => CSS_THEME, 'weight' => 1000));
+  //drupal_add_css('//fonts.googleapis.com/css?family=Material+Icons%7CDroid+Serif:400,700,400italic,700italic%7COpen+Sans:300,600,700', array('type' => 'external', 'group' => CSS_THEME, 'weight' => 1000));
   $libraries = libraries_get_libraries();
   if (!_entity_iframe_mode_enabled()) {
     if (isset($libraries['jquery.vibrate.js'])) {
