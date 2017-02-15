@@ -17,7 +17,7 @@
         <ul class="left-nav-section">
           <?php if ($bar_elements['network']) : ?>
           <li class="elmsln-network-menu-item">
-            <a href="#network-menu-button" class="middle-align-wrap elmsln-network-button elmsln-left-side-nav-trigger  white-text waves-effect waves-<?php print $lmsless_classes[$distro]['color'];?> waves-light" data-activates="block-cis-lmsless-cis-lmsless-network-nav-modal" data-jwerty-key="n" data-voicecommand="open network">
+            <a href="#network-menu-button" class="middle-align-wrap elmsln-network-button elmsln-left-side-nav-trigger white-text waves-effect waves-<?php print $lmsless_classes[$distro]['color'];?> waves-light" data-activates="block-cis-lmsless-cis-lmsless-network-nav-modal" data-jwerty-key="n" data-voicecommand="open network">
               <div class="cis-lmsless-network elmsln-icon icon-network"></div>
               <span class="hide-on-med-and-down truncate"><?php print t('Network'); ?></span>
             </a>
@@ -97,8 +97,7 @@
 </div>
 <div id="etb-network-nav" class="row full collapse white">
   <ul class="elmsln-service-list">
-  <?php
-  foreach ($network['services']['Network'] as $service) :
+  <?php foreach ($network['services']['Network'] as $service) :
     if (!isset($service['icon'])) {
       $service['icon'] = $service['machine_name'];
     }
