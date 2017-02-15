@@ -103,7 +103,7 @@
     if (!isset($service['distro'])) {
       $service['distro'] = '_default_';
     }
-    $activetool = '';
+    $activetool = 'tooltipped ';
     $label = '';
     $iconcolor = 'black-text';
     $stitle = token_replace($service['title']);
@@ -113,7 +113,7 @@
       $label = '<span class="elmsln-network-label hide-on-med-and-down truncate">' . $stitle . '</span>';
     }
     ?>
-    <li><a data-tooltip="<?php print $stitle; ?>" data-prefetch-hover="true" href="<?php print token_replace($service['url']); ?>" class="tooltipped black-text waves-effect waves-<?php print $lmsless_classes[$service['distro']]['color'];?> waves-light <?php print $activetool . $service['icon']; ?>-icon"  data-jwerty-key="ctrl+<?php print drupal_strtolower(substr($stitle, 0, 1)); ?>" data-voicecommand="<?php print t('go to ') . drupal_strtolower($stitle); ?>" data-elmsln-hover="<?php print $lmsless_classes[$service['distro']]['color'];?> <?php print $lmsless_classes[$service['distro']]['dark'];?> white-text" data-elmsln-icon-hover="hover-white-text">
+    <li><a data-delay="75" data-tooltip="<?php print $stitle; ?>" data-prefetch-hover="true" href="<?php print token_replace($service['url']); ?>" class="black-text waves-effect waves-<?php print $lmsless_classes[$service['distro']]['color'];?> waves-light <?php print $activetool . $service['icon']; ?>-icon"  data-jwerty-key="ctrl+<?php print drupal_strtolower(substr($stitle, 0, 1)); ?>" data-voicecommand="<?php print t('go to ') . drupal_strtolower($stitle); ?>" data-elmsln-hover="<?php print $lmsless_classes[$service['distro']]['color'];?> <?php print $lmsless_classes[$service['distro']]['dark'];?> white-text" data-elmsln-icon-hover="hover-white-text">
     <?php if (isset($service['icon_library']) && $service['icon_library'] == 'material'): ?>
       <div class="material-icon elmsln-network-icon left elmsln-icon"><i class="material-icons"><?php print $service['icon']; ?></i></div>
     <?php else: ?>
