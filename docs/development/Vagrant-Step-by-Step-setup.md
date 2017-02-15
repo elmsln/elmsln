@@ -7,7 +7,7 @@ This is a Vagrant profile for installing a fully functioning [ELMS Learning Netw
 ###How to use this to bring up ELMSLN
 1. Install [VirtualBox](https://www.virtualbox.org/wiki/Downloads) (5.1.10)
 2. Install [Vagrant](http://www.vagrantup.com/downloads.html) (1.9.1+)
-3. Install [git](http://git-scm.com/downloads)
+3. Install [git](http://git-scm.com/downloads) (note: Windows users can use this download as a command prompt to run unix commands)
 4. Navigate to the folder you want elmsln in, and clone the repository using the command (`git clone https://github.com/elmsln/elmsln.git`)
 ![clone elmsln](https://cloud.githubusercontent.com/assets/16597608/13260179/60875b1e-da28-11e5-865f-89e6586f370a.PNG)
 5. Add this code to your /etc/hosts (or [windows equivalent](http://www.howtogeek.com/howto/27350/beginner-geek-how-to-edit-your-hosts-file/)) so you can access it "over the web":
