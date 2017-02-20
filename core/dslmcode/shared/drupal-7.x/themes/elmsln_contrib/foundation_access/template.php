@@ -1,6 +1,122 @@
 <?php
 // global cdn materialize version
 define('FOUNDATION_ACCESS_MATERIALIZE_VERSION', '0.97.8');
+
+/**
+ * Implements template_preprocess_user_profile.
+ */
+function foundation_access_preprocess_user_profile(&$vars) {
+  $elmsln_global_profile = variable_get('elmsln_global_profile', 'cpr');
+  // make sure this isn't the global profile providing distro, no reason to remote load in this case
+  if (elmsln_core_get_profile_key() != $elmsln_global_profile) {
+    $response = _cis_connector_request('user.json?deep-load-refs=file&name=' . $GLOBALS['user']->name, array(), $elmsln_global_profile, TRUE);
+    // ensure we have response data
+    if (isset($response->data)) {
+      $data = drupal_json_decode($response->data);
+      // ensure their name exists there though it would be weird not to
+      if (isset($data['list'][0])) {
+        $user_data_name = $data['list'][0];
+        // run through and if the key we found IS NOT in local, add to local
+        foreach ($user_data_name as $key => $value) {
+          if (!isset($vars[$key])) {
+            $vars[$key] = $value;
+          }
+        }
+      }
+    }
+  }
+  // make a display name
+  $vars['displayname'] = '';
+  // add in first name
+  if (isset($vars['field_first_name'][0]['safe_value'])) {
+    $vars['displayname'] .= $vars['field_first_name'][0]['safe_value'] . ' ';
+  }
+  elseif (isset($vars['field_first_name']) && is_string($vars['field_first_name'])) {
+    $vars['displayname'] .= $vars['field_first_name'] . ' ';
+  }
+  // add in last name
+  if (isset($vars['field_last_name'][0]['safe_value'])) {
+    $vars['displayname'] .= $vars['field_last_name'][0]['safe_value'];
+  }
+  elseif (isset($vars['field_last_name']) && is_string($vars['field_last_name'])) {
+    $vars['displayname'] .= $vars['field_last_name'] . ' ';
+  }
+  // add in display name the user wants to be called
+  if (isset($vars['field_display_name'][0]['safe_value'])) {
+    $vars['displayname'] .= ' | ' . $vars['field_display_name'][0]['safe_value'];
+  }
+  elseif (isset($vars['field_display_name']) && is_string($vars['field_display_name'])) {
+    $vars['displayname'] .= ' | ' . $vars['field_display_name'];
+  }
+  // if nothing default to screen name
+  if (empty($vars['displayname'])) {
+    if (isset($vars['user_name'])) {
+      $vars['displayname'] = $vars['user_name'];
+    }
+    else {
+      $vars['displayname'] = $vars['name'];
+    }
+  }
+  // add in user profile photo if there is one
+  if (isset($vars['field_user_photo'][0]) && !empty($vars['field_user_photo'])) {
+    $vars['field_user_photo'][0]['attributes'] = array(
+      'class' => array('circle', 'ferpa-protect'),
+    );
+    $vars['field_user_photo'][0]['alt'] = t('Picture of @name', array('@name' => $vars['displayname']));
+    $vars['field_user_photo'][0]['path'] = $vars['field_user_photo'][0]['uri'];
+    $vars['photo'] = theme('image', $vars['field_user_photo'][0]);
+  }
+  elseif (isset($vars['field_user_photo']['file'])) {
+    $vars['field_user_photo']['file']['attributes'] = array(
+      'class' => array('circle', 'ferpa-protect'),
+    );
+    $vars['field_user_photo']['file']['alt'] = t('Picture of @name', array('@name' => $vars['displayname']));
+    $vars['field_user_photo']['file']['path'] = str_replace('public://', 'elmslnauthority://cpr/', $vars['field_user_photo']['file']['uri']);
+    $vars['photo'] = theme('image', $vars['field_user_photo']['file']);
+  }
+  else {
+    // fallback on user profile fallback image
+    $photolink = url(drupal_get_path('theme', 'foundation_access') . '/img/user.png', array('absolute' => TRUE));
+    $vars['photo'] = '<img src="' . $photolink . '" class="ferpa-protect circle" />';
+  }
+  // set a banner if we have it
+  if (isset($vars['field_user_banner'][0]) && !empty($vars['field_user_banner'])) {
+    $vars['banner'] = $vars['user_profile']['field_user_banner'][0];
+  }
+  elseif (isset($vars['field_user_banner']['file'])) {
+    $vars['banner'] = '<img class="background" src="' . $vars['field_user_banner']['file']['url'] . '" alt="" />';
+  }
+  else {
+    // default fallback of design office image
+    $vars['banner'] = '<img class="background" src="' . $GLOBALS['base_url'] . '/sites/all/libraries/materialize/images/office.jpg" alt="" />';
+  }
+ // load up related user data
+  $blockObject = block_load('elmsln_core', 'elmsln_core_user_xapi_data');
+  $vars['user_data'] = _block_get_renderable_array(_block_render_blocks(array($blockObject)));
+  // load bio info into "about" tab
+  $bio = '';
+  if (isset($vars['user_profile']['field_bio'])) {
+    $bio = $vars['user_profile']['field_bio'];
+  }
+  elseif (isset($vars['field_bio'])) {
+    $bio = check_markup($vars['field_bio']['value'], $vars['field_bio']['format']);
+    // fallback in case this input filter doesn't exist
+    if (empty($bio)) {
+      $bio = check_markup($vars['field_bio']['value'], 'textbook_editor');
+    }
+  }
+  // list tabs for rendering
+  $vars['tabs'] = array(
+    'bio' => t('About'),
+    'xapidata' => t('Activity data'),
+  );
+  // list content for those tabs to match on key names
+  $vars['tabs_content'] = array(
+    'bio' => $bio,
+    'xapidata' => $vars['user_data'],
+  );
+}
+
 /**
  * Adds CSS classes based on user roles
  * Implements template_preprocess_html().

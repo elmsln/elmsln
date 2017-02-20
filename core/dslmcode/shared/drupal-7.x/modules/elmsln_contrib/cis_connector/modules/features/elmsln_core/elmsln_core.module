@@ -322,49 +322,6 @@ function _elmsln_people_user_edit_page($form, &$form_state, $account, $category 
 }
 
 /**
- * The user's account information is being displayed.
- *
- * The module should format its custom additions for display and add them to the
- * $account->content array.
- *
- * @param $account
- *   The user object on which the operation is being performed.
- * @param $view_mode
- *   View mode, e.g. 'full'.
- * @param $langcode
- *   The language code used for rendering.
- *
- * @see hook_user_view_alter()
- * @see hook_entity_view()
- */
-function elmsln_core_user_view($account, $view_mode, $langcode) {
-  // If we are not already on the central person repository.
-  $elmsln_global_profile = variable_get('elmsln_global_profile', 'cpr');
-  if (elmsln_core_get_profile_key() != $elmsln_global_profile) {
-    // Grab the user data from the central person repository.
-    $user_data_name = _cis_connector_request('user.json?name=' . $account->name, array(), $elmsln_global_profile, TRUE);
-    if (!empty($user_data_name)) {
-      $user_data_name = json_decode($user_data_name->data);
-      if (!empty($user_data_name->list)) {
-        $user_data_uid = _cis_connector_request('user/' . $user_data_name->list[0]->uid . '.json?display_mode=full', array(), $elmsln_global_profile, TRUE);
-        // Decode the data that comes in from the user object.
-        $user_data = json_decode($user_data_uid->data);
-        // ensure we got good data
-        if (isset($user_data->rendered)) {
-          $rendered = str_replace('/services/', '/', $user_data->rendered);
-          // Add a new section to the User profile page.
-          $account->content['summary']['profile'] = array(
-            '#type' => 'user_profile_item',
-            '#title' => '',
-            '#markup' => $rendered,
-          );
-        }
-      }
-    }
-  }
-}
-
-/**
  * Implements hook_user_view_alter().
  */
 function elmsln_core_user_view_alter(&$build) {
