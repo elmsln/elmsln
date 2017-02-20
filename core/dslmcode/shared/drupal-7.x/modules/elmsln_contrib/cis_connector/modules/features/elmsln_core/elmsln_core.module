@@ -1246,6 +1246,10 @@ function _elmsln_core_icon_map() {
         'color' => 'teal',
         'icon' => 'collections',
       ),
+      'media_list' => array(
+        'color' => 'pink',
+        'icon' => 'collections',
+      ),
       'static_content' => array(
         'color' => 'blue',
         'icon' => 'insert_drive_file',

@@ -162,6 +162,7 @@ dependencies[] = elmsmedia_external_video
 dependencies[] = elmsmedia_feature
 dependencies[] = elmsmedia_h5p
 dependencies[] = elmsmedia_image
+dependencies[] = elmsmedia_list
 dependencies[] = elmsmedia_image_gallery
 dependencies[] = elmsmedia_static_content
 dependencies[] = elmsmedia_svg
