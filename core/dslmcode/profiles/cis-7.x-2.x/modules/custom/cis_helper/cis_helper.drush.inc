@@ -78,14 +78,7 @@ function drush_cis_helper_cis_sync_registry() {
   $registry = _cis_connector_build_registry();
   foreach ($registry as $distribution => $reg) {
     // if it is set in CIS, load the node then update it
-    if (isset($services[$distribution])) {
-      // load this service node and update it if fields are set
-      $service = node_load($services[$distribution]);
-      $service->field_location['und'][0]['url'] = $reg['protocol'] . '://' . $reg['address'];
-      $service->field_data_location['und'][0]['url'] = $reg['protocol'] . '://' . $reg['service_address'];
-      node_save($service);
-    }
-    else {
+    if (!isset($services[$distribution])) {
       // make sure we aren't told to ignore this service
       if (!isset($reg['ignore']) || !$reg['ignore']) {
         // produce a new service instance

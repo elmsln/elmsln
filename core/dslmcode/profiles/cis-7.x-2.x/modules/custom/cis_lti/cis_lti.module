@@ -30,10 +30,10 @@ function cis_lti_lti_tool_provider_launch_alter(&$launch_info, $account) {
     // spider each instance and perform an LTI launch to seed user in all systems
     foreach ($service_instances as $instance) {
       $service = node_load($instance->field_services[LANGUAGE_NONE][0]['target_id']);
-      // start to build the location for the launch
-      $location = $service->field_location[LANGUAGE_NONE][0]['url'];
-      // append the machine name of the course
-      $location .= '/' . $course->field_machine_name[LANGUAGE_NONE][0]['value'];
+      // build the distro settings
+      $distro_settings = _cis_connector_build_registry($service->field_distribution[LANGUAGE_NONE][0]['value']);
+      // build the location for the launch
+      $location = _cis_connector_format_address($distro_settings, '/' . $course->field_machine_name[LANGUAGE_NONE][0]['value'], 'front');
       // grab object from the current site's address
       if ($consumer = _cis_lti_consumer_from_address($base_url)) {
         // perform lti launch against another service
@@ -44,10 +44,10 @@ function cis_lti_lti_tool_provider_launch_alter(&$launch_info, $account) {
     foreach ($service_instances as $instance) {
       // load of the service node in question
       $service = node_load($instance->field_services[LANGUAGE_NONE][0]['target_id']);
-      // start to build the location for the launch
-      $location = $service->field_location[LANGUAGE_NONE][0]['url'];
-      // append the machine name of the course
-      $location .= '/' . $course->field_machine_name[LANGUAGE_NONE][0]['value'];
+      // build the distro settings
+      $distro_settings = _cis_connector_build_registry($service->field_distribution[LANGUAGE_NONE][0]['value']);
+      // build the location for the launch
+      $location = _cis_connector_format_address($distro_settings, '/' . $course->field_machine_name[LANGUAGE_NONE][0]['value'], 'front');
       // account for different types of services
       switch ($service->field_machine_name[LANGUAGE_NONE][0]['value']) {
         // @todo work through launch location details in LMS

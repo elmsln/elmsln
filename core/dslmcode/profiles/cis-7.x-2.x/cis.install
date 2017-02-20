@@ -149,3 +149,12 @@ function cis_update_7013(&$sandbox) {
   features_revert_module('cis_competencies');
   features_revert_module('cis_displays');
 }
+
+/**
+ * Dropped hard coded paths from inside CIS service definition
+ * plus now we can utilize our internal redirect methodology
+ */
+function cis_update_7014(&$sandbox) {
+  features_revert_module('cis_displays');
+  features_revert_module('cis_types');
+}

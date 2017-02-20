@@ -267,11 +267,6 @@ function cis_types_ds_layout_settings_info() {
         3 => 'field_distribution',
         5 => 'field_machine_name',
       ),
-      'right' => array(
-        2 => 'group_urls',
-        6 => 'field_location',
-        7 => 'field_data_location',
-      ),
       'footer' => array(
         4 => 'body',
         8 => 'path',
@@ -283,12 +278,9 @@ function cis_types_ds_layout_settings_info() {
     'fields' => array(
       'group_details' => 'left',
       'title' => 'left',
-      'group_urls' => 'right',
       'field_distribution' => 'left',
       'body' => 'footer',
       'field_machine_name' => 'left',
-      'field_location' => 'right',
-      'field_data_location' => 'right',
       'path' => 'footer',
       '_add_existing_field' => 'hidden',
     ),
