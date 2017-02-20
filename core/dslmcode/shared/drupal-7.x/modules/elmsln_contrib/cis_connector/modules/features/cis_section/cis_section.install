@@ -70,6 +70,7 @@ function cis_section_update_7004(&$sandbox) {
 function cis_section_update_7005(&$sandbox) {
   features_revert(array('cis_section' => array('views')));
 }
+
 /**
  * Revert views component of cis_section updated caching to content-based
  */
@@ -90,3 +91,12 @@ function cis_section_update_7007(&$sandbox) {
   }
   features_revert_module('cis_section');
 }
+
+/**
+ * Support OG Context now that we've got it mapped correctly.
+ */
+function cis_section_update_7008(&$sandbox) {
+  module_enable(array('og_context'));
+  features_revert_module('cis_section');
+}
+
