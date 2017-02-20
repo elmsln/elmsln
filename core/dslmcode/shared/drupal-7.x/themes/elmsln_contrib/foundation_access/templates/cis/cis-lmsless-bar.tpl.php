@@ -40,14 +40,6 @@
           </a>
           <?php } ?>
         </li>
-        <?php if ($bar_elements['network']) : ?>
-          <li class="elmsln-network-menu-item">
-            <a href="#network-menu-button" class="middle-align-wrap elmsln-network-button elmsln-left-side-nav-trigger white-text waves-effect waves-<?php print $lmsless_classes[$distro]['color'];?> waves-light" data-activates="block-cis-lmsless-cis-lmsless-network-nav-modal" data-jwerty-key="n" data-voicecommand="open network">
-              <div class="cis-lmsless-network elmsln-icon icon-network"></div>
-              <span class="hide-on-med-and-down truncate"><?php print t('Network'); ?></span>
-            </a>
-          </li>
-        <?php endif; ?>
         </ul>
       </section>
     </nav>
@@ -122,5 +114,13 @@
       <?php print $label; ?>
     </a></li>
   <?php endforeach ?>
+  <?php if ($bar_elements['network']) : ?>
+    <li class="elmsln-network-menu-item right">
+      <a href="#network-menu-button" class="middle-align-wrap elmsln-network-button elmsln-right-side-nav-trigger black-text waves-effect waves-<?php print $lmsless_classes[$distro]['color'];?> waves-light" data-activates="block-cis-lmsless-cis-lmsless-network-nav-modal" data-jwerty-key="n" data-voicecommand="open network">
+        <div class="cis-lmsless-network elmsln-icon icon-network"></div>
+        <span class="hide-on-med-and-down truncate"><?php print t('More tools'); ?></span>
+      </a>
+    </li>
+  <?php endif; ?>
   </ul>
 </div>
