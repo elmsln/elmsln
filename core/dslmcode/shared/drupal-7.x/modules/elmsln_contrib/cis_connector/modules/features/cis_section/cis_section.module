@@ -53,10 +53,8 @@ function cis_section_og_context_negotiation_info() {
 
   $providers['cis_section'] = array(
     'name' => t('CIS Section Context'),
-    'description' => t("Determine context by checking for section context"),
+    'description' => t('Determine context by checking for section context'),
     'callback' => '_cis_section_og_context_handler',
-    // Invoke the context handler on the following paths.
-    'menu path' => array('%', 'node/%', 'node/add/%'),
   );
 
   return $providers;
@@ -157,8 +155,10 @@ function _cle_section_v1_section_modify($node, $params = NULL) {
  */
 function _cis_section_og_context_handler() {
   $contexts = array();
-  // check for global session override
-  if (isset($_SESSION['cis_section_context']) && $id =_cis_section_load_section_by_id($_SESSION['cis_section_context'])) {
+  // check for section context
+  $section = _cis_connector_section_context(NULL, TRUE);
+  // try and load by id since og_context wants a node id not our primary key
+  if ($section && $id = _cis_section_load_section_by_id($section)) {
     $contexts['node'][] = $id;
   }
   // default is to pull in the active user account

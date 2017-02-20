@@ -565,7 +565,7 @@ function _cis_connector_course_context() {
  *
  * @see og_context()
  */
-function _cis_connector_section_context($account = NULL) {
+function _cis_connector_section_context($account = NULL, $skip_og_context = FALSE) {
   // statically cache future calls
   $section = &drupal_static(__FUNCTION__);
   if (!isset($section)) {
@@ -590,8 +590,12 @@ function _cis_connector_section_context($account = NULL) {
       $account = $GLOBALS['user'];
     }
     $group = array();
-    // attempt to grab og context if enabled
-    if (module_exists('og_context')) {
+    // attempt to grab og context if enabled and we haven't been told
+    // to explicitly ignore this handler. This is only ignored when the
+    // call for og_context is self originating, thus helping avoid an
+    // infinite loop where context fallback asks for context and context
+    // asks for fallback
+    if (!$skip_og_context && module_exists('og_context')) {
       $group = og_context();
     }
     // if set, load from there though ts unlikely
