@@ -1,0 +1,61 @@
+Changes March 4th 2011
+-----------------------------
+Removed function name from form links and results list
+Added separate watchdog message with specified result
+Expanded on-screen help text with link to cron setup
+Changed log variable names for clarity and to avoid namespace conflicts
+Changed text, formatting and severity level of messages if the run failed:
+  error for the fail message, neutral for the information about the log
+Edited a couple of docblocks for more clarity and correct formatting
+
+
+
+Changes March 3rd 2011
+-----------------------------
+Added | MENU_NORMAL_ITEM, to menu system to get help link
+Removed all $id tags as recommended http://groups.drupal.org/node/100999
+Changed menu text from Debug to Debug cron for clarity
+Edited and sanitized hook help
+Moved module to be a tab on the page admin/config/system/cron
+Removed hook cron completely (was there for test purposes only)
+Changed cron_debug_run() slightly for better messages on fail
+Added configure line to .info file
+Moved hook uninstall to .install file
+Edited README.txt to reflect new menu placement
+
+
+
+Changes March 2nd 2011
+-----------------------------
+Changed form to use tableselect for neater form layout
+Removed Cancel link
+
+
+
+Changes March 1st 2011
+-----------------------------
+Added function url() in hook_help to ensure correct url's
+Changed Cancel link to follow the pattern of confirm_form()
+Implemented the reset link as a form element
+Rephrased the term "in full view" to be "individually", which is more adequate
+  since the form can also run cron hooks "in full view"
+Changed form element weights for more clarity and better form construction
+Changed the word "semaphore" to "flag" to avoid confusion with the Drupal
+  semaphore system, which is mainly used to lock processes as described here
+  http://api.drupal.org/api/drupal/includes--lock.inc/group/lock/7
+
+
+
+
+Changes February 28th 2011
+-----------------------------
+Added an option to run individual cron functions in full view enabling you to finde programming and syntax errors in the single function.
+Added t() in hook_help
+Changed "Implementation of..." to "Implements..."
+Removed surplus argument $void from page_arguments
+Using function system_rebuild_module_data() rather than direct db access to get module info
+Sanitized some code comments
+Fixed some formatting issues
+Removed some HTML from code and added it to a user editable string through t() at the same time making the module list and results more user controlled
+Edited and formatted a few messages as well as help text to be more useful
+Updated README.txt

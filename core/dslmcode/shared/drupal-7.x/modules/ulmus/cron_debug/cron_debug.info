@@ -1,0 +1,12 @@
+name = Cron Debug
+description = Debug and time cron hooks
+core = 7.x
+version = "7.x-1.2"
+configure = admin/config/system/cron/debug
+
+; Information added by drupal.org packaging script on 2011-03-13
+version = "7.x-1.2"
+core = "7.x"
+project = "cron_debug"
+datestamp = "1300020367"
+

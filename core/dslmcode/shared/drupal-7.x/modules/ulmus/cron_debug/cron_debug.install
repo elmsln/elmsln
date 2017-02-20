@@ -1,0 +1,13 @@
+<?php
+
+/**
+ * @file
+ * Uninstall function for the cron_debug module.
+ */
+
+/**
+ * Implements hook_uninstall().
+ */
+function cron_debug_uninstall() {
+  variable_del('cron_debug_flag');
+}

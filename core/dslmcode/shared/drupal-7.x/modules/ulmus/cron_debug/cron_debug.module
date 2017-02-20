@@ -1,0 +1,324 @@
+<?php
+
+/**
+ * @file
+ * Cron debugging for administrators.
+ *
+ * The cron_debug module allows administators to individually run cron
+ * implemented by different modules for debugging purposes. This allows
+ * administrators to detect cron tasks which are very slow or do not
+ * successfully complete.
+ */
+
+define ('CRON_DEBUG_RUNNING', 1);
+
+/**
+ * Implements hook_perm().
+ */
+function cron_debug_permission() {
+  return array('run cron debug' => array(
+      'title' => t('Run Cron Debug'),
+      'description' => t('Allow user to execute Cron Debug.'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_help().
+ */
+function cron_debug_help($path, $arg) {
+  switch ($path) {
+    case 'admin/help#cron_debug' :
+      $output = '';
+      $output .= '<p>' . t('Cron Debug will help you find cron processes which:') . '</p>';
+      $output .= '<ul>';
+      $output .= '<li>' . t('fail due to programming or runtime errors') . '</li>';
+      $output .= '<li>' . t('time out (PHP, server, database)') . '</li>';
+      $output .= '<li>' . t('are very slow') . '</li>';
+      $output .= '</ul>';
+      $output .= '<p>' . t('Cron Debug will also allow you to test run specific cron functions while not running others. This can be nice for developing cron functions where you do not want to run a full cron.php with all maintenece, alerts and other tasks everytime you test your own function.') . '</p>';
+      $output .= '<p>' . t('Cron Debug can run cron hooks while registering success and time elapsed for each. You can see which hooks will be run in which sequence, select which hooks to run and see their duration in the results as well as in the log.') . '</p>';
+      $output .= '<p>' . t('If a cron process times out, hangs or fails, you can see which ones finished succesfully and which single one did not finish properly by looking in the log when returning to Drupal\'s reports. All Cron Debug log entries are registered as "cron debug" and can be filtered separately. If the cron run failed, the usurper will be the top/last entry in the list of Cron Debug entries in the log.') . '</p>';
+      $output .= '<p>' . t('A flag is set when the Cron Debug run is started and removed when it finishes succesfully and reports its results. If some part of the cron run fails, hangs or times out, this flag will most likely still be set upon returning to Drupal, and if you go into Cron Debug again, you will get a message telling you so, urging you to look in the log to diagnose the problem. Cron Debug will also try to display details on the failed process when it has halted with an error.') . '</p>';
+      $output .= '<p>' . t('Cron jobs can also be run "individually", meaning that they are not called as a part of a joint cron run, but called individually as single functions with immediate return to Cron Debug. This enables you to quickly and easily track down syntax and runtime errors in a single function and possibly analyze the output that it might generate; legitimate or erroneous, which can be helpful in debugging. This way of executing the function will also time it, and give you the option to analyze the single function\'s influence on database, variables, files and other system elements. The start and the end of the run is marked in the log, and errors logged between these two marks come from that particular function or functions that it calls.') . '</p>';
+      $output .= '<p>' . t('Notice that your regular cron jobs will run as usual if you have set them up. You might want to disable cron on the server while debugging with Cron Debug. This module runs the cron jobs for each module separately from the usual cron run found in common.inc and invoked by running example.com/cron.php. Running cron.php will not register any debug code. You will have to run the Cron Debug routine to get this registration.') . '</p>';
+      $output .= '<p>' . t('Also notice that:');
+      $output .= '<ul>';
+      $output .= '<li>' . t('some modules have local settings, which enable and disable or configure cron runs for that module. In such cases it might appear in Cron Debug\'s runs as if the hook ran smoothly even though the function in the module might return without having done anything. In order to debug cron jobs in such modules, you will have to tamper with the module\'s own settings and enable the relevant cron routines.') . '</li>';
+      $output .= '<li>' . t('some custom modules may call external functions and not return properly to Drupal in which case they may run as planned, but not register as finished in the log. Disable those jobs in order to have a smooth cron run, and (hopefully) a successful return to Drupal.') . '</li>';
+      $output .= '</ul>';
+      $output .= '</p>';
+      return $output;
+      break;
+
+    case 'admin/config/system/cron/debug' :
+      return '<p>' . t('Set up and run Cron Debug. Select or deselect the cron hooks you want to execute or not and press the button Run. After they have run, the results will be displayed in the form. If the run fails, click the back button in your browser and reload this page (do not reload the form submission!), or look <a href="@url">in the log</a> for more details.', array('@url' => url('admin/reports/dblog'))) . '</p>';
+  }
+}
+
+
+/**
+ * Implements hook_menu().
+ */
+function cron_debug_menu() {
+  $items = array();
+
+  // Provide a default menu item, since core does not.
+  $items['admin/config/system/cron/settings'] = array(
+    'title' => 'Cron',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => -10,
+  );
+
+  $items['admin/config/system/cron/debug'] = array(
+    'title' => 'Debug cron',
+    'description' => 'Run and time selected cron hooks.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('cron_debug_form'),
+    'type' => MENU_LOCAL_TASK | MENU_NORMAL_ITEM,
+    'access arguments' => array('run cron debug'),
+  );
+
+  $items['admin/config/system/cron/debug/run/%'] = array(
+    'title' => 'Cron Debug run of individual hooks',
+    'description' => 'Run specific cron hook individually.',
+    'page callback' => 'cron_debug_run',
+    'page arguments' => array(6),
+    'type' => MENU_CALLBACK,
+    'access arguments' => array('run cron debug'),
+  );
+
+  return $items;
+}
+
+/**
+ * Create the main form.
+ *
+ * This form serves both as the launch form for the debug run
+ * and as the result display when it has run.
+ */
+function cron_debug_form($form, &$form_state) {
+
+  // Start the form
+  $form = array();
+  $num = 0;
+  $reset = '';
+
+  // Fetch note base on flag
+  $module = cron_debug_check_flag();
+  // Set a message to the user
+  if ($module) {
+    // An error of some kind occured.
+    if ($module == CRON_DEBUG_RUNNING) {
+      // Failed in cron_debug_run(), somehow.
+      drupal_set_message(t('Cron debug may be running or halted before it was finished.'));
+    }
+    else {
+      // Failed in $module_cron().
+      drupal_set_message(t('Cron presumably failed while running the cron hook <em>@module_cron()</em> in the module @module.', array('@module' => $module)), 'error');
+    }
+    drupal_set_message(t('You can see details about the progress of cron functions <a href="@url">in the log</a>. Filter for <em>cron debug</em> messages and look at the most recent entries at the top of the list.', array('@url' => url('admin/reports/dblog'))));
+  }
+
+  // Get info about modules
+  $modules_data = system_rebuild_module_data();
+
+  // Data for cron hooks table
+  $header = array(
+    'module' => t('Module'),
+    'description' => t('Description'),
+    'status' => t('Status'),
+    'operations' => t('Operations'),
+  );
+
+  $rows = array();
+  foreach (module_implements('cron') as $module) {
+    $rows[$module] = array(
+      'module' => '<strong>' . check_plain($modules_data[$module]->info['name']) . '</strong>',
+      'description' => filter_xss($modules_data[$module]->info['description']),
+      'status' => empty($form_state['storage']) ? ' ' : (!empty($form_state['storage']['results'][$module]) ? $form_state['storage']['results'][$module] : t('Not run')),
+      'operations' => l(t('Run individually.'), 'admin/config/system/cron/debug/run/' . $module, array('attributes' => array('title' => t('Run the function @function', array('@function' => $module . '_cron()'))))),
+    );
+    $values[$module] = (!empty($form_state['storage']['results'][$module]) || empty($form_state['storage'])) ? $module : FALSE;
+  }
+
+  // Buttons
+  $form['actions']=array(
+    '#type' => 'actions',
+    '#weight' => 30,
+  );
+
+  // Set form stage storage
+  if (!isset($form_state['storage'])) {
+    $form_state['storage'] = array('results' => array('done' => ''));
+  }
+  else {
+    // Add reset link
+    $form['actions']['reset']=array(
+      '#type' => 'link',
+      '#title' => t('Reset'),
+      '#href' => 'admin/config/system/cron/debug',
+      '#attributes' => array('title' => t('Clear results and reset the form')),
+      '#weight' => 20,
+    );
+  }
+
+  // Create checkboxes and display results if any
+  $form['cron'] = array(
+    '#type' => 'tableselect',
+    '#title' => t('Cron hooks'),
+    '#header' => $header,
+    '#options' => $rows,
+    '#default_value' => $values,
+    '#suffix' => '<p>' . $form_state['storage']['results']['done'] . t('The cron hooks wil be run in the sequence listed above. Uncheck the cron hooks you do not want to run. Please notice that your regular cron jobs will run if you have set up cron on the web server or <a href="@url">enabled cron in the setup</a>. You might want to disable cron <a href="@url">here</a> or on the server while debugging with Cron Debug.', array('@url' => url('admin/config/system/cron'))) . '</p>',
+    '#weight' => 20,
+  );
+
+  $form['actions']['run']=array(
+    '#type' => 'submit',
+    '#value' => t('Run'),
+    '#weight' => 10,
+  );
+
+  return $form;
+}
+
+/**
+ * Handle submission of the form.
+ * 
+ * Will start each cron hook in sequence, log the results
+ * and return to the main form.
+ */
+function cron_debug_form_submit($form, &$form_state) {
+
+  // Register start in watchdog
+  watchdog('cron debug', 'Starting Cron Debug.');
+
+  // Hoist a flag that we're running.
+  variable_set('cron_debug_flag', CRON_DEBUG_RUNNING);
+
+  // Start main timer
+  timer_start('cron');
+
+  // Run through each hook as selected in form
+  foreach ($form_state['values']['cron'] as $key => $module) {
+
+    if ($module) {
+      // The module was selected
+
+      // Change the flag to the current module name
+      variable_set('cron_debug_flag', $module);
+
+      // Register start of each module. Enables us to see stuck hooks in the log
+      watchdog('cron debug', 'Starting cron for @module module.', array('@module' => $module));
+
+      // Make the name of the hook, start timer and call the cron hook
+      $function = $module . '_cron';
+      timer_start($function);
+      $function();
+
+      // Stop the individual timer, get the time for this module in seconds
+      $timer = timer_stop($function);
+      $total = round($timer['time']/1000, 3);
+
+      // Create messages, add one to results and log one
+      $cron_debug_log_message = t('Finished successfully in @secs seconds.', array('@secs' => $total));
+      $cron_debug_log[$module] = $cron_debug_log_message;
+      watchdog('cron debug', 'cron_@module() finished successfully in @secs seconds.', array('@module' => $module, '@secs' => $total));
+    }
+    else {
+      // Add FALSE as return message
+      $cron_debug_log[$key] = FALSE;
+    }
+  }
+  // Stop overall timer and get time
+  $cron_timer = timer_stop('cron');
+  $total = round($cron_timer['time']/1000, 3);
+
+  // Create message, add and log it
+  $cron_debug_log_message = t('Total time was @secs seconds.', array('@secs' => $total));
+  $cron_debug_log['done'] = '<p>' . $cron_debug_log_message . '<p />';
+  watchdog('cron debug', $cron_debug_log_message);
+
+  // Save results in $form_state and set rebuild
+  $form_state['storage']['results'] = $cron_debug_log;
+  $form_state['rebuild'] = TRUE;
+
+  // Get rid of the flag
+  variable_del('cron_debug_flag');
+
+  // Set messages
+  watchdog('cron debug', 'Ended Cron Debug run succesfully. Returning to Drupal');
+  drupal_set_message(t('Ended Cron Debug run succesfully. See the results below.'));
+
+  // Function will return to the form, which will rebuild
+
+}
+
+/**
+ * Returns the result of the most recent Cron Debug run.
+ *
+ * Reads the 'cron_debug_flag' variable which is either:
+ * - unset if the previous cron debug run was successful.
+ * - the name of the module cron was last running, if the cron run was
+ *   unsuccessful.
+ *
+ * The 'cron_debug_flag' is then reset.
+ *
+ * @return
+ *   The name of the module if cron stopped running for that module,
+ *   CRON_DEBUG_RUNNING if cron debug failed generically in cron_debug_run(),
+ *   and FALSE if no errors occurred.
+ */
+function cron_debug_check_flag() {
+  $result = variable_get('cron_debug_flag', FALSE);
+  variable_del('cron_debug_flag');
+  return $result;
+}
+
+
+/**
+ * Run a single cron function.
+ * Will call the cron hook for a module, log the progress
+ * and go to the Cron Debug form.
+ *
+ * @param string $module
+ *   name of the module
+ */
+function cron_debug_run($module) {
+  $function = $module . '_cron';
+
+  // Verify that the module exists.
+  if (!module_exists($module)) {
+    drupal_set_message(t('Module %module is not enabled.', array('%module' => $module)));
+  }
+  elseif (!function_exists($function)) {
+    drupal_set_message(t('Module %module does not implement cron.', array('%module' => $module)));
+  }
+  else {
+
+    // Change the flag to the current module name
+    variable_set('cron_debug_flag', $module);
+
+    // Register start of this module. Enables us to see errors for the hook in the log
+    watchdog('cron debug', 'Starting cron for @module module.', array('@module' => $module));
+
+    // Start timer and run function
+    timer_start($function);
+    $function();
+
+    // Stop the timer, get the time for this module in seconds
+    $timer = timer_stop($function);
+    $total = round($timer['time']/1000, 3);
+
+    drupal_set_message(t('%function successfully completed in @secs seconds.', array('%function' => $function . '()', '@secs' => $total)));
+
+    // Get rid of the flag
+    variable_del('cron_debug_flag');
+    // Register end of this module. Errors after this are not related
+    watchdog('cron debug', 'Ended cron for @module module.', array('@module' => $module));
+
+  }
+
+  drupal_goto('admin/config/system/cron/debug');
+}
