@@ -49,7 +49,7 @@ function elmsln_core_data_form() {
   $filtertitle = '';
   if (isset($entity)) {
     $uri = entity_uri($etype, $entity);
-    $url = url($uri['path'], array('absolute' => TRUE));
+    $url = url($uri['path'], array('absolute' => TRUE, 'alias' => TRUE));
     // show query data specific to the entity type in question
     switch ($etype) {
       case 'user':
