@@ -18,7 +18,11 @@ function elmsln_core_data_form() {
   $filtered_verb = (isset($_GET['verb']) ? filter_xss(check_plain($_GET['verb'])) : '');
   $visualization = (isset($_GET['visualization']) ? filter_xss(check_plain($_GET['visualization'])) : 'pie');
   $pivot = (isset($_GET['pivot']) ? filter_xss(check_plain($_GET['pivot'])) : 'verb');
+  // apply active section context if one exists
+  $section = (isset($_GET['section']) ? filter_xss(check_plain($_GET['section'])) : _cis_connector_section_context());
+  // which display method to use
   $display = arg(3);
+  // allow for debugging mode
   $debug = (isset($_GET['debug']) ? true : false);
   $roles = array(
     'all' => t('All roles'),
@@ -90,6 +94,11 @@ function elmsln_core_data_form() {
       $filtertitle .= '<span class="chip">' . t('role: @role', array('@role' => $role)) . '</span>';
       $query['pipeline'][0]['$match']['statement.context.extensions.https://www%2646;elmsln%2646;org/x-api/elmsln-role'] = $role;
     }
+  }
+  // only show active section data if selected
+  if ($section != '-all-') {
+    $query['pipeline'][0]['$match']['statement.context.extensions.https://www%2646;elmsln%2646;org/x-api/elmsln-section'] = $section;
+    $filtertitle .= '<span class="chip">' . t('section: @section', array('@section' => $section)) . '</span>';
   }
   $query['pipeline'] = json_encode($query['pipeline']);
   $result = _elmsln_core_lrs_query($query, FALSE);
@@ -382,6 +391,15 @@ function elmsln_core_data_form() {
       '#default_value' => $role,
       '#options' => $roles,
     );
+    // assemble all active sections of the current user
+    $sections = array('-all-' => t('All data')) + cis_section_all_sections(FALSE, TRUE);
+
+    $filters['filter_data']['section'] = array(
+      '#type' => 'select',
+      '#title' => t('Section'),
+      '#default_value' => $section,
+      '#options' => $sections,
+    );
   }
   $filters['filter_data']['pivot'] = array(
     '#type' => 'select',
@@ -470,6 +488,9 @@ function elmsln_core_data_form_submit($form, &$form_state) {
     );
     if (isset($form_state['values']['role'])) {
       $filters['role'] = $form_state['values']['role'];
+    }
+    if (isset($form_state['values']['section'])) {
+      $filters['section'] = $form_state['values']['section'];
     }
     if (isset($form_state['values']['visualization'])) {
       $filters['visualization'] = $form_state['values']['visualization'];
