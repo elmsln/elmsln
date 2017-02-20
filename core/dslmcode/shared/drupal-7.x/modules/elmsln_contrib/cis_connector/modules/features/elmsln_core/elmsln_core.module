@@ -653,6 +653,15 @@ function _elmsln_core_remote_redirect($tool, $type, $etid, $op) {
       );
       $response = _elmsln_api_request($request);
     }
+    $args = arg();
+    // support more then our 6 arguments so we can support
+    // complex deep link redirects while still being triggered
+    // by the minimum required to get there (elmsln/redirect/%/%)
+    if (count($args) > 6) {
+      for ($i = 6; $i < count($args); $i++) {
+        $address .= '/' . $args[$i];
+      }
+    }
     // redirect over to this location
     header('Location: ' . $address, TRUE, 302);
     // drupal_goto has this, says its important incase numeric code not understood
