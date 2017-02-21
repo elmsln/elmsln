@@ -6,6 +6,22 @@
  */
 
 /**
+ * Implements hook_entity_property_info_alter().
+ */
+function harmony_search_entity_property_info_alter(&$info) {
+  /**
+   * Add in thread ID as a string so that SOLR 3.x can use that field for
+   * grouping.
+   */
+  $info['harmony_thread']['properties']['thread_id_string'] = array(
+    'label' => t('Thread ID String'),
+    'type' => 'text',
+    'description' => t('The unique thread ID as a string.'),
+    'schema field' => 'thread_id',
+  );
+}
+
+/**
  * Implements hook_harmony_thread_update().
  */
 function harmony_search_harmony_thread_update($thread) {

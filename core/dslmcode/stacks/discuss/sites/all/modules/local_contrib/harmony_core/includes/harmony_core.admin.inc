@@ -163,7 +163,7 @@ function harmony_core_admin_disable_new_content() {
     '#type' => 'textarea',
     '#title' => t('Warning message text'),
     '#description' => t('The text to display in the drupal set message warning to users without access to this page.'),
-    '#default_value' => variable_get('harmony_core_disable_new_content_warning_message', 'The creation of new threads and posts has been temporarily disabled.'),
+    '#default_value' => filter_xss(variable_get('harmony_core_disable_new_content_warning_message', 'The creation of new threads and posts has been temporarily disabled.')),
     '#states' => array(
       'visible' => array(
         ':input[id="edit-harmony-core-disable-new-content-warning-enabled"]' => array('checked' => TRUE),

@@ -521,6 +521,30 @@ function harmony_core_install() {
 
   // Set the thread pathauto pattern.
   variable_set('pathauto_harmony_core_pattern', 'thread/[harmony_thread:thread-id]/[harmony_thread:title]');
+
+  // Set defaults for the harmony_user_post_profile view mode.
+  $settings = field_bundle_settings('user', 'user');
+  $settings['extra_fields']['display']['summary']['harmony_user_post_profile'] = array(
+    'weight' => '2',
+    'visible' => FALSE,
+  );
+  $settings['extra_fields']['display']['name']['harmony_user_post_profile'] = array(
+    'weight' => '11',
+    'visible' => TRUE,
+  );
+  $settings['extra_fields']['display']['user_picture']['harmony_user_post_profile'] = array(
+    'weight' => '10',
+    'visible' => TRUE,
+  );
+  $settings['extra_fields']['display']['username']['harmony_user_post_profile'] = array(
+    'weight' => '11',
+    'visible' => TRUE,
+  );
+  $settings['extra_fields']['display']['harmony_core_user_name']['harmony_user_post_profile'] = array(
+    'weight' => '11',
+    'visible' => TRUE,
+  );
+  field_bundle_settings('user', 'user', $settings);
 }
 
 /**

@@ -42,8 +42,8 @@ class HarmonyPostInlineEntityFormController extends EntityInlineEntityFormContro
       'title' => '',
       'uid' => $user->uid,
       'language' => LANGUAGE_NONE,
-      'created' => REQUEST_TIME,
-      'updated' => REQUEST_TIME,
+      'created' => 0,
+      'updated' => 0,
     );
 
     $post = (object) array_merge($post_defaults, (array) $form['#entity']);
@@ -201,6 +201,13 @@ class HarmonyPostInlineEntityFormController extends EntityInlineEntityFormContro
     $wrapper->locked->set($form_state['values']['locked']);
     $wrapper->log->set($post->revisions['log']);
     $wrapper->log_show->set($post->revisions['log_show']);
+
+    if ($wrapper->created->value() == 0) {
+      $wrapper->created->set(REQUEST_TIME);
+    }
+    if ($wrapper->updated->value() == 0) {
+      $wrapper->updated->set(REQUEST_TIME);
+    }
 
     field_attach_submit('harmony_post', $post, $form, $form_state);
   }
