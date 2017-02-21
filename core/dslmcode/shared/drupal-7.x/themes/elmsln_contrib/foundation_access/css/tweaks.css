@@ -633,14 +633,6 @@ body.devel-show .devel-querylog {
   display: flex;
   margin-left: -.6rem;
 }
-.left-nav-section li {
-  display: inline-block;
-  margin: .2rem 0 0 0;
-  padding: 0;
-  height: 3.4rem;
-  line-height: 3.4rem;
-  min-width: 3.4rem;
-}
 
 nav ul.left-nav-section a {
   padding: 0 .5rem;
@@ -648,9 +640,7 @@ nav ul.left-nav-section a {
   line-height: 3.2rem;
   min-width: 3.2rem;
 }
-nav ul.left-nav-section a span {
-  margin: 0 .5rem;
-}
+
 nav ul.left-nav-section a:hover {
   background-color: rgba(0, 0, 0, 0.4);
 }
@@ -824,9 +814,6 @@ ul.dropdown-content.book-sibling-children {
 ul.dropdown-content .button-group > li {
   display: block;
   margin: 0;
-}
-.top-bar-section ul li {
-  height: 3rem;
 }
 
 .top-bar-section ul li > a {
@@ -1967,8 +1954,7 @@ a.add-menu-drop {
 
 #etb-course-nav span.course-title,
 #etb-course-nav span.course-abrv {
-  justify-content: flex-end;
-  color:#424242;
+  justify-content: flex-start;
 }
 
 .ferpa-privacy-blur {

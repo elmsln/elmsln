@@ -19,21 +19,18 @@
           <?php
           // account for roles that don't have access to this
           if (!empty($elmsln_main_menu)) {?>
-          <a href="#" id="elmsln-tools-trigger" class="course-title elmsln-course-title elmsln-left-side-nav-trigger" title="" data-activates="elmsln-tools-menu" aria-controls="elmsln-tools-menu" aria-expanded="false" data-jwerty-key="t" data-voicecommand="open settings (menu)">
+          <a href="#" id="elmsln-tools-trigger" class="course-title elmsln-course-title elmsln-left-side-nav-trigger middle-align-wrap elmsln-user-button white-text waves-effect waves-<?php print $lmsless_classes[$distro]['color'];?> waves-light" title="" data-activates="elmsln-tools-menu" aria-controls="elmsln-tools-menu" aria-expanded="false" data-jwerty-key="t" data-voicecommand="open settings (menu)" data-elmsln-hover="<?php print $lmsless_classes[$service['distro']]['color'];?>">
             <span class="course-title-group">
               <span class="white-text course-title"><?php print $slogan; ?></span>
               <span class="white-text course-abrv"><?php print $site_name; ?> <?php if (isset($section_title)) : print $section_title; endif; ?></span>
             </span>
-            <span class="course-title-icon icon--dropdown white-text"></span>
           </a>
           <?php
           }
           else { ?>
           <a id="elmsln-tools-trigger" class="course-title elmsln-course-title" href="<?php print base_path(); ?>" title="<?php print t('Home'); ?>" >
-            <span class="course-title-group">
               <span class="course-title"><?php print $slogan; ?></span>
               <span class="course-abrv"><?php print $site_name; ?> <?php if (isset($section_title)) : print $section_title; endif; ?></span>
-            </span>
           </a>
           <?php } ?>
         </li>
@@ -121,8 +118,12 @@
   <?php endif; ?>
   </ul>
 </div>
+<!-- modal fly out for settings -->
 <section id="elmsln-tools-menu" class="elmsln-modal side-nav disable-scroll left-aligned" aria-hidden="true" tabindex="-1" role="dialog">
-<ul>
-  <li><?php print $elmsln_main_menu; ?></li>
-</ul>
+  <div class="center-align valign-wrapper elmsln-modal-title-wrapper <?php print $lmsless_classes[$distro]['color'];?> <?php print $lmsless_classes[$distro]['dark'];?> <?php print $lmsless_classes[$distro]['color'];?>-border"><h2 class="flow-text valign elmsln-modal-title white-text"><?php print t('Settings');?></h2><a href="#close-dialog" aria-label="Close" class="close-reveal-side-nav white-text vibrate" data-voicecommand="close (menu)" data-jwerty-key="Esc">×</a></div>
+  <div class="elmsln-modal-content">
+    <ul>
+      <li><?php print $elmsln_main_menu; ?></li>
+    </ul>
+  </div>
 </section>
