@@ -9,17 +9,17 @@
  * Root directory of Drupal installation.
  */
 define('DRUPAL_ROOT', getcwd());
-// support environmental level overrides
+// support ELMSLN config loading globally
 require_once DRUPAL_ROOT . '/../../elmsln_environment/elmsln_environment.php';
-
 /**
  * Required core files needed to run any request.
  */
 require_once DRUPAL_ROOT . '/includes/bootstrap.inc';
 require_once DRUPAL_ROOT . '/includes/common.inc';
+require_once DRUPAL_ROOT . '/' . variable_get('path_inc', 'includes/path.inc');
 require_once DRUPAL_ROOT . '/includes/module.inc';
-require_once DRUPAL_ROOT . '/includes/unicode.inc';
 require_once DRUPAL_ROOT . '/includes/file.inc';
+require_once DRUPAL_ROOT . '/includes/unicode.inc';
 
 // Bootstrap Drupal to at least the database level so it can be accessed.
 drupal_bootstrap(DRUPAL_BOOTSTRAP_DATABASE);
