@@ -19,20 +19,17 @@
           <?php
           // account for roles that don't have access to this
           if (!empty($elmsln_main_menu)) {?>
-          <a id="elmsln-tools-trigger" class="course-title elmsln-course-title elmsln-dropdown-button" href="#elmsln-settings-menu" title="" data-activates="elmsln-tools-menu" aria-controls="elmsln-tools-menu" aria-expanded="false" data-jwerty-key="t" data-voicecommand="open settings (menu)">
+          <a href="#" id="elmsln-tools-trigger" class="course-title elmsln-course-title elmsln-left-side-nav-trigger" title="" data-activates="elmsln-tools-menu" aria-controls="elmsln-tools-menu" aria-expanded="false" data-jwerty-key="t" data-voicecommand="open settings (menu)">
             <span class="course-title-group">
               <span class="white-text course-title"><?php print $slogan; ?></span>
               <span class="white-text course-abrv"><?php print $site_name; ?> <?php if (isset($section_title)) : print $section_title; endif; ?></span>
             </span>
             <span class="course-title-icon icon--dropdown white-text"></span>
           </a>
-          <ul id="elmsln-tools-menu" class="dropdown-content" aria-hidden="true">
-            <li><?php print $elmsln_main_menu; ?></li>
-          </ul>
           <?php
           }
           else { ?>
-          <a id="elmsln-tools-trigger" class="course-title elmsln-course-title" href="<?php print base_path(); ?>" title="<?php print t('Home'); ?>">
+          <a id="elmsln-tools-trigger" class="course-title elmsln-course-title" href="<?php print base_path(); ?>" title="<?php print t('Home'); ?>" >
             <span class="course-title-group">
               <span class="course-title"><?php print $slogan; ?></span>
               <span class="course-abrv"><?php print $site_name; ?> <?php if (isset($section_title)) : print $section_title; endif; ?></span>
@@ -124,3 +121,8 @@
   <?php endif; ?>
   </ul>
 </div>
+<section id="elmsln-tools-menu" class="elmsln-modal side-nav disable-scroll left-aligned" aria-hidden="true" tabindex="-1" role="dialog">
+<ul>
+  <li><?php print $elmsln_main_menu; ?></li>
+</ul>
+</section>
