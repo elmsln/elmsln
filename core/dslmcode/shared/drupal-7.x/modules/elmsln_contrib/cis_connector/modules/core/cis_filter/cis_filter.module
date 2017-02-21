@@ -663,6 +663,9 @@ function cis_filter_preprocess_cis_filter_render__modal(&$vars) {
      $vars['class'] .=' entity_iframe_' . $code['entity_type'] . ' entity_iframe_tool_' . $code['tool'] . ' ' . $code['tool'] . '_' . $vars['response']['type'];
      $vars['link'] .= 'entity_iframe/' . $code['entity_type'] . '/' . $code['item'];
   }
+  elseif ($code['item_type'] == 'direct_link') {
+    $vars['link'] = $code['url'];
+  }
   else {
     $vars['link'] .= $link . 'cis-find-tag/' . $code['entity_type'] . '/' . $code['item'];
   }
@@ -723,6 +726,9 @@ function cis_filter_preprocess_cis_filter_render__side_nav(&$vars) {
      // form a class that has a lot of info about this item encoded in it
      $vars['class'] .=' entity_iframe_' . $code['entity_type'] . ' entity_iframe_tool_' . $code['tool'] . ' ' . $code['tool'] . '_' . $vars['response']['type'];
      $vars['link'] .= 'entity_iframe/' . $code['entity_type'] . '/' . $code['item'];
+  }
+  elseif ($code['item_type'] == 'direct_link') {
+    $vars['link'] = $code['url'];
   }
   else {
     $vars['link'] .= $link . 'cis-find-tag/' . $code['entity_type'] . '/' . $code['item'];
