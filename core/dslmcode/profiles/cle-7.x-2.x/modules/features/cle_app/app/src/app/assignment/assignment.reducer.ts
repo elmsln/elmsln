@@ -1,6 +1,6 @@
 import { Action } from '@ngrx/store';
-import { ActionTypes } from '../app.actions';
-import { Assignment } from '../assignment'
+import { ActionTypes } from './assignment.actions';
+import { Assignment } from './assignment';
 
 export interface AssignmentState {
   loading: boolean,

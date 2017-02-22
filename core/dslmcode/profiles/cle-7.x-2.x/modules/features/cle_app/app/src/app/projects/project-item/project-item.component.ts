@@ -2,11 +2,11 @@ import { Component, OnInit, Input, ElementRef, ContentChildren, AfterContentInit
 import { Router } from '@angular/router';
 import { Project } from '../../project';
 import { ProjectService } from '../../project.service';
-import { AssignmentService } from '../../assignment.service';
+import { AssignmentService } from '../../assignment/assignment.service';
 import { AssignmentListComponent } from '../../assignment/assignment-list/assignment-list.component';
-import { Assignment } from '../../assignment';
+import { Assignment } from '../../assignment/assignment';
 import { Store } from '@ngrx/store';
-import { ActionTypes, loadAssignments } from '../../app.actions';
+import { ActionTypes, loadAssignments } from '../../assignment/assignment.actions';
 import { deleteProject, updateProject } from '../project.actions';
 import { AppState } from '../../state';
 import { Observable } from 'rxjs';

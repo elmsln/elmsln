@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { UserService } from './user.service';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { loadPermissions, loadAssignments } from './app.actions';
+import { loadPermissions, loadAssignments } from './assignment/assignment.actions';
 import { loadSubmissions } from './submission/submission.actions'
 import { loadProjects } from './projects/project.actions';
 import { AppSettings } from './app-settings';

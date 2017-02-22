@@ -1,11 +1,11 @@
 import { Component, OnInit, OnDestroy, ElementRef, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Assignment } from '../../assignment'
-import { AssignmentService } from '../../assignment.service';
+import { Assignment } from '../assignment'
+import { AssignmentService } from '../assignment.service';
 import { AssignmentFormComponent } from '../assignment-form/assignment-form.component';
 import { Observable } from 'rxjs';
 import { Store } from '@ngrx/store';
-import { createAssignment, updateAssignment, deleteAssignment } from '../../app.actions';
+import { createAssignment, updateAssignment, deleteAssignment } from '../assignment.actions';
 declare const jQuery:any;
 
 @Component({

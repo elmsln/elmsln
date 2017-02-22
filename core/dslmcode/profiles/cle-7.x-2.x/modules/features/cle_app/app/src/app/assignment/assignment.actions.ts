@@ -1,4 +1,4 @@
-import { Critique } from './critique';
+import { Critique } from '../critique';
 import { Action } from '@ngrx/store';
 import { Assignment } from './assignment';
 import { Response } from '@angular/http';

@@ -13,7 +13,7 @@ import {
   loadPermissions,
   loadPermissionsSuccess,
 } from './submission.actions';
-import { loadAssignments } from '../app.actions';
+import { loadAssignments } from '../assignment/assignment.actions';
 import { SubmissionService } from './submission.service';
 declare const Materialize:any;
 

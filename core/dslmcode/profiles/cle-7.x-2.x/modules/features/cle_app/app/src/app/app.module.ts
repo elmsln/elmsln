@@ -10,19 +10,19 @@ import { EffectsModule } from '@ngrx/effects';
 import { routerReducer, RouterStoreModule } from '@ngrx/router-store';
 
 // reducers
-import { reducer as assignmentReducer } from './reducers/assignments';
+import { reducer as assignmentReducer } from './assignment/assignment.reducer';
 import { reducer as userReducer } from './reducers/users';
 import { submissionReducer } from './submission/submission.reducer';
 import { projectReducer } from './projects/project.reducer';
 import { imageReducer } from './image/image.reducer';
 // effects
-import { AppEffects } from './app.effects';
+import { AssignmentEffects } from './assignment/assignment.effects';
 import { SubmissionEffects } from './submission/submission.effects';
 import { ProjectEffects } from './projects/project.effects';
 // services
 import { ElmslnService } from './elmsln.service';
 import { CritiqueService } from './critique.service';
-import { AssignmentService } from './assignment.service';
+import { AssignmentService } from './assignment/assignment.service';
 import { SubmissionService } from './submission/submission.service';
 import { ProjectService } from './project.service';
 // Moment.js
@@ -119,7 +119,7 @@ import { SubmissionCritiqueComponent } from './submission/submission-critique/su
       images: imageReducer
     }),
     RouterStoreModule.connectRouter(),
-    EffectsModule.run(AppEffects),
+    EffectsModule.run(AssignmentEffects),
     EffectsModule.run(SubmissionEffects),
     EffectsModule.run(ProjectEffects),
     StoreDevtoolsModule.instrumentOnlyWithExtension()

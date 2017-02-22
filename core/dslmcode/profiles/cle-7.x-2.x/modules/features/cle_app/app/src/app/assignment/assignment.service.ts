@@ -2,9 +2,9 @@ import { Injectable, Inject } from '@angular/core';
 import { Http, Response } from '@angular/http';
 import { Observable, Subscription } from 'rxjs';
 import { Store } from '@ngrx/store';
-import { AppState } from './state';
-import { ElmslnService } from './elmsln.service';
-import { AppSettings } from './app-settings';
+import { AppState } from '../state';
+import { ElmslnService } from '../elmsln.service';
+import { AppSettings } from '../app-settings';
 import { Assignment } from './assignment';
 declare const Materialize:any;
 

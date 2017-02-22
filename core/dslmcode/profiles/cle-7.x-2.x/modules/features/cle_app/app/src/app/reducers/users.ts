@@ -1,5 +1,5 @@
 import { Action } from '@ngrx/store';
-import { ActionTypes } from '../app.actions';
+import { ActionTypes } from '../assignment/assignment.actions';
 
 export interface UserState {
   permissions: string[],

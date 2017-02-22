@@ -1,8 +1,8 @@
 import { Component, OnInit, Input, Output, EventEmitter, OnChanges } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormControl, AbstractControl } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Assignment } from '../../assignment';
-import { AssignmentService } from '../../assignment.service';
+import { Assignment } from '../assignment';
+import { AssignmentService } from '../assignment.service';
 import { Project } from '../../project';
 import { Observable } from 'rxjs';
 declare const jQuery:any;

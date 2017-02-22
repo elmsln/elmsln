@@ -19,14 +19,14 @@ import {
   startCritque,
   startCritqueSuccess,
   startCritqueFailure
-} from './app.actions';
-import { loadSubmissions } from './submission/submission.actions';
+} from './assignment.actions';
+import { loadSubmissions } from '../submission/submission.actions';
 import { AssignmentService } from './assignment.service';
-import { ElmslnService } from './elmsln.service';
+import { ElmslnService } from '../elmsln.service';
 declare const Materialize:any;
 
 @Injectable()
-export class AppEffects {
+export class AssignmentEffects {
   constructor(
     private actions$: Actions,
     private assignmentService:AssignmentService,

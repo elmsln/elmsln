@@ -1,11 +1,11 @@
 import { Component, OnInit, ElementRef, OnDestroy, OnChanges, AfterViewChecked } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Location } from '@angular/common';
-import { Assignment } from '../assignment';
-import { AssignmentService } from '../assignment.service';
+import { Assignment } from './assignment';
+import { AssignmentService } from './assignment.service';
 import { Observable } from 'rxjs';
 import { Store } from '@ngrx/store';
-import { loadAssignments, startCritque } from '../app.actions';
+import { loadAssignments, startCritque } from './assignment.actions';
 import { ElmslnService } from '../elmsln.service';
 declare const jQuery:any;
 
