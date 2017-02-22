@@ -1567,17 +1567,28 @@ function _cis_connector_assemble_entity_list($entity_type, $bundle, $id_field, $
       }
     }
     // load entities and build array of id -> title
-    foreach ($elist as $entity) {
-      // allow for field value as key
-      if (is_array($id_field)) {
+    foreach ($elist as $itemkey => $entity) {
+      // avoid epic fail, skip this item if it doesn't exist
+      if (!isset($entity->{$id_field})) {
+        $key = $itemkey;
+      }
+      // fallback, if this item is empty we need to bail
+      elseif (empty($entity->{$id_field})) {
+        $key = $itemkey;
+      }
+      // see if this value is an array
+      elseif (is_array($id_field)) {
         $key = $entity->{$id_field[0]}[LANGUAGE_NONE][0][$id_field[1]];
       }
+      // see if it's a "field", if so then fallback to "value"
       elseif (strpos($id_field, 'field_') !== FALSE && isset($entity->{$id_field}[LANGUAGE_NONE])) {
         $key = $entity->{$id_field}[LANGUAGE_NONE][0]['value'];
       }
+      // it's direct value like 'title'
       else {
         $key = $entity->{$id_field};
       }
+
       // special case for title field being the full on entity
       if ($title_field == '_entity') {
         $options[$key] = $entity;
