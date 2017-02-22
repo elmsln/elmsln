@@ -76,7 +76,7 @@ function revision_deletion_permission() {
 function revision_deletion_help($path, $arg) {
   switch ($path) {
     case 'admin/help#revision_deletion':
-      return t('This module will greatly speed up the task of deleting old revisions of nodes. The database clutter and space can be quickly reclaimed as this module, on cron runs, will delete aged revisions (never the current revision) of nodes older than a set period of time. Options include frequency of the cron deletion job, and the age of revisions before being deleted. Cron.php must be run to execute.');
+      return t('Hello!This module will greatly speed up the task of deleting old revisions of nodes. The database clutter and space can be quickly reclaimed as this module, on cron runs, will delete aged revisions (never the current revision) of nodes older than a set period of time. Options include frequency of the cron deletion job, and the age of revisions before being deleted. Cron.php must be run to execute.');
 
     case 'admin/modules#description':
       return t('Delete old revisions of nodes quickly.');
@@ -105,7 +105,7 @@ function revision_deletion_cron() {
     $revisions = _revision_deletion_get_list();
     foreach ($revisions as $revision) {
       if ($revision->select) {
-        _revision_deletion_delete_revision($revision);
+        _revision_deletion_delete_revision($revision->vid);
       }
     }
 
@@ -512,7 +512,7 @@ function revision_deletion_node_overview($form, &$form_state, $node) {
 
   $form['help'] = array(
     '#type' => 'item',
-    '#markup' => '<p>'. t('MY NAME IS PATRICKKKKUsing revisions is a good way to improve the integrity of your node content; however, it may result in a significant increase in your database size. This page lists the nodes that currently have revisions meeting the deletion criteria and allows you to delete them.') .'</p>'.
+    '#markup' => '<p>'. t('Using revisions is a good way to improve the integrity of your node content; however, it may result in a significant increase in your database size. This page lists the nodes that currently have revisions meeting the deletion criteria and allows you to delete them.') .'</p>'.
                  '<p>'. t('Click the title to view the current content; click the revision ID to view the revision. Clicking on the <strong>Delete selected revisions</strong> button will delete all of the selected revisions, even if they are shown on other pages.') .'</p>',
   );
 

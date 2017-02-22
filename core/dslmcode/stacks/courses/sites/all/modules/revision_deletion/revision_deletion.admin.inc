@@ -50,7 +50,7 @@ function revision_deletion_settings_form() {
     );
 
   // Set revision age for deletion.
-  $age = drupal_map_assoc(array(15 * $minute, 30 * $minute, 1 * $hour, 2 * $hour, 1 * $day, 4 * $day, 1 * $week, 2 * $week, 30 * $day, 60 * $day, 120 * $day, 180 * $day, 365 * $day), 'format_interval');
+  $age = drupal_map_assoc(array(15 * $minute, 30 * $minute, 1 * $hour, 2 * $hour, 1 * $day, 4 * $day, 1 * $week, 2 * $week, 30 * $day, 60 * $day, 120 * $day, 180 * $day, 365 * $day, 730 * $day), 'format_interval');
   $form['rev_del']['revision_delete_age'] = array(
     '#type' => 'select',
     '#title' => t('Minimum age of revision to delete'),
