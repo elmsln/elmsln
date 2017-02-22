@@ -68,7 +68,7 @@ function elmsln_core_menu() {
   $items['elmsln/course-data'] = array(
     'title' => 'Course data',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('elmsln_core_data_form'),
+    'page arguments' => array('_elmsln_core_data_form'),
     'access arguments' => array('view elmsln lrs data'),
     'weight' => 10,
     'type' => MENU_NORMAL_ITEM,
