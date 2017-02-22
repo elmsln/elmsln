@@ -1673,6 +1673,7 @@ function foundation_access_status_messages($variables) {
     'error' => t('Error message'),
     'status' => t('Status message'),
     'warning' => t('Warning message'),
+    'notification' => t('Notification message'),
   );
 
   $status_mapping = array(
@@ -1682,31 +1683,54 @@ function foundation_access_status_messages($variables) {
   );
 
   foreach (drupal_get_messages($display) as $type => $messages) {
-    if (isset($status_mapping[$type])) {
-      $output .= "<div role=\"alert\" aria-live=\"assertive\" data-alert class=\"alert-box $status_mapping[$type]\">\n";
-    }
-    else {
-      $output .= "<div role=\"alert\" aria-live=\"assertive\" data-alert class=\"alert-box\">\n";
-    }
-
-    if (!empty($status_heading[$type])) {
-      $output .= '<h2 class="element-invisible">' . $status_heading[$type] . "</h2>\n";
-    }
-    if (count($messages) > 1) {
-      $output .= " <ul class=\"no-bullet\">\n";
-      foreach ($messages as $message) {
-        $output .= '  <li>' . $message . "</li>\n";
+    if ($type == 'notification') {
+      foreach($messages as $message) {
+        _foundation_access_make_toast($message);
       }
-      $output .= " </ul>\n";
     }
     else {
-      $output .= $messages[0];
-    }
-    $output .= '<a href="#close-dialog" class="close" aria-label="' . t('Hide messages') . '" data-voicecommand="hide messages" data-jwerty-key="Esc">&#215;</a>';
-    $output .= "</div>\n";
-  }
+      if (isset($status_mapping[$type])) {
+        $output .= "<div role=\"alert\" aria-live=\"assertive\" data-alert class=\"alert-box $status_mapping[$type]\">\n";
+      }
+      else {
+        $output .= "<div role=\"alert\" aria-live=\"assertive\" data-alert class=\"alert-box\">\n";
+      }
 
+      if (!empty($status_heading[$type])) {
+        $output .= '<h2 class="element-invisible">' . $status_heading[$type] . "</h2>\n";
+      }
+      if (count($messages) > 1) {
+        $output .= " <ul class=\"no-bullet\">\n";
+        foreach ($messages as $message) {
+          $output .= '  <li>' . $message . "</li>\n";
+        }
+        $output .= " </ul>\n";
+      }
+      else {
+        $output .= $messages[0];
+      }
+      $output .= '<a href="#close-dialog" class="close" aria-label="' . t('Hide messages') . '" data-voicecommand="hide messages" data-jwerty-key="Esc">&#215;</a>';
+      $output .= "</div>\n";
+    }
+  }
   return $output;
+}
+
+/**
+ * Helper function to create a materialize toast notification.
+ *
+ * From the materialize docs:
+ *   Materialize.toast(message, displayLength, className, completeCallback);
+ */
+function _foundation_access_make_toast($message, $display_length = 4000, $class_name = NULL, $callback = NULL) {
+  if ($message) {
+    drupal_add_js(
+      'jQuery(document).ready(function () { Materialize.toast("'. htmlspecialchars($message) .'", "'. $display_length .'", "'. $class_name.'", "'. $callback .'") });',
+      array(
+        'type' => 'inline',
+      )
+    );
+  }
 }
 
 /**
