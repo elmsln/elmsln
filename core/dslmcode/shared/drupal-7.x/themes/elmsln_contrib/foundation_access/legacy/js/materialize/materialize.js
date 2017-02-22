@@ -114,6 +114,8 @@
     // apply background to things that want our background
     $('.cis-lmsless-background').addClass(Drupal.settings.cis_lmsless[Drupal.settings.distro]['color'] + ' ' + Drupal.settings.cis_lmsless[Drupal.settings.distro]['light']);
 
+    $('.cis-lmsless-dark').addClass(Drupal.settings.cis_lmsless[Drupal.settings.distro]['color'] + ' ' + Drupal.settings.cis_lmsless[Drupal.settings.distro]['dark']);
+
     $('.cis-lmsless-color').addClass(Drupal.settings.cis_lmsless[Drupal.settings.distro]['color']);
     // apply border to things that want our background
     $('.cis-lmsless-border, .tabs li.tab a').addClass(Drupal.settings.cis_lmsless[Drupal.settings.distro]['color'] + '-border');

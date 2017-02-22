@@ -129,6 +129,7 @@ dependencies[] = cis_course_service
 ; ----------
 ; Editorial Dependencies
 ; ----------
+dependencies[] = elmsln_lrs
 dependencies[] = elmsln_student_filter
 dependencies[] = editorial_helper
 dependencies[] = editorial_ux

@@ -9,6 +9,9 @@ $conf['x_frame_options'] = '';
 $conf['image_allow_insecure_derivatives'] = TRUE;
 // prevent bakery from giving weird messges
 $conf['bakery_status_messages'] = FALSE;
+// set a standard bakery token age if that project is in use
+$conf['bakery_freshness'] = 86400;
+// redirect default error pages to some standard ones
 $conf['site_403'] = 'elmsln/error/403';
 $conf['site_404'] = 'elmsln/error/404';
 

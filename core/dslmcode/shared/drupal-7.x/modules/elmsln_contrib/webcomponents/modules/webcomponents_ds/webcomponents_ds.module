@@ -1,0 +1,97 @@
+<?php
+/**
+ * @file Web components Display Suite integration
+ */
+
+/**
+ * Define layouts from code.
+ *
+ * @return $layouts
+ *   A collection of layouts.
+ */
+function webcomponents_ds_ds_layout_info() {
+  $layouts = array();
+  $path = drupal_get_path('module', 'webcomponents_ds');
+  $components = webcomponents_load_all();
+  // build a DS layout type per component we have
+  foreach ($components as $component) {
+    $regions = $component->properties;
+    if (!empty($regions)) {
+      foreach ($regions as $key => $val) {
+        $regions[$key] = t('Webcomponent property: @key', array('@key' => drupal_ucfirst($key)));
+      }
+      // load the webcomponent
+      $layouts['webcomponent--' . $component->machine_name] = array(
+        'label' => $component->title,
+        // @todo this needs to load the generic webcomponents template
+        'path' => $path . '/templates',
+        'regions' => $regions,
+        'css' => TRUE,
+      );
+    }
+  }
+  return $layouts;
+}
+
+/**
+ * Add in entity variables for webcomponents.
+ */
+function webcomponents_ds_entity_variables(&$variables) {
+  // Only alter entities that have been rendered by Display Suite.
+  if (isset($variables['rendered_by_ds'])) {
+    // If Display Suite rendered this, it's safe to assume we have the arguments
+    // necessary to grab the layout.
+    $layout = ds_get_layout($variables['elements']['#entity_type'], $variables['elements']['#bundle'], $variables['elements']['#view_mode']);
+    // set classes for our template to handle
+    $variables['webcomponent_classes'] = ' webcomponent ' . $layout['layout'];
+    $variables['webcomponent_layout'] = $layout;
+    // skim off the webcomponent tag
+    $variables['tag'] = str_replace('webcomponent--', '', $layout['layout']);
+    if (!isset($variables['properties'])) {
+      $variables['properties'] = array();
+    }
+    // ensure all fields are loaded to pull values from
+    $fields = field_attach_view($variables['elements']['#entity_type'], $variables[$variables['elements']['#entity_type']], $variables['elements']['#view_mode']);
+    // rip these into the properties to match
+    foreach ($layout['settings']['fields'] as $field => $property) {
+      $value = strip_tags(render($fields[$field]));
+      if (!empty($value)) {
+        $variables['properties'][$property] = $value;
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_module_implements_alter().
+ */
+function webcomponents_ds_module_implements_alter(&$implementations, $hook) {
+  // shift us to the end so we can react appropriately
+  if ($hook == 'theme_registry_alter' || $hook == 'form_field_ui_display_overview_form_alter') {
+    $group = $implementations['webcomponents_ds'];
+    unset($implementations['webcomponents_ds']);
+    $implementations['webcomponents_ds'] = $group;
+  }
+}
+
+/**
+ * Implements hook_theme_registry_alter().
+ */
+function webcomponents_ds_theme_registry_alter(&$theme_registry) {
+  $theme_registry['node']['preprocess functions'][] = 'webcomponents_ds_entity_variables';
+  $theme_registry['entity']['preprocess functions'][] = 'webcomponents_ds_entity_variables';
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function webcomponents_ds_form_field_ui_display_overview_form_alter(&$form, &$form_state) {
+  // ensure the value coming across ajax load is a webcomponent
+  //if (strpos($form_state['triggering_element']['#value'], 'webcomponent--') === 0) {
+    //$tmp = str_replace('webcomponent--', '', $form_state['triggering_element']['#value']);
+    // show element example straight from docs
+    //$component = webcomponent_load_by_name($tmp);
+    // @todo not currently updating w/ the real template for some reason
+    //$form_state['complete form']['additional_settings']['ds_layouts']['preview']['image']['#markup'] = '<div class="ds-webcomponent-preview" style="width:50%;height:auto">' . _webcomponents_render_component($component) . '</div>';
+  //}
+}

@@ -1,6 +1,7 @@
 import { Action } from '@ngrx/store';
 import { ActionTypes } from './submission.actions';
 import { Submission } from './submission';
+import { ActionTypes as AppActionTypes } from '../app.actions';
 
 export interface SubmissionState {
   saving: boolean;

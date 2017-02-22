@@ -845,6 +845,7 @@ function _elmsln_jsapi_deliver_output($vars) {
  * to connect to the site. This assumes a user session already exists.
  */
 function _elmsln_api_user_request() {
+  $name = check_plain($GLOBALS['user']->name);
   $vars = array(
     'site' => array(
       'base-url' => $GLOBALS['base_url'],
@@ -852,7 +853,8 @@ function _elmsln_api_user_request() {
     'user' => array(
       'uid' => $GLOBALS['user']->uid,
       'uuid' => $GLOBALS['user']->uuid,
-      'name' => $GLOBALS['user']->name,
+      'name' => $name,
+      'displayName' => $name,
       'csrf-token' => drupal_get_token('restws'),
       'roles' => $GLOBALS['user']->roles,
       'permissions' => _elmsln_api_all_permissions(),

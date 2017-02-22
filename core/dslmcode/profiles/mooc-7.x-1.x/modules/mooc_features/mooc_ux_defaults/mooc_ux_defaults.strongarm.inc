@@ -615,8 +615,8 @@ function mooc_ux_defaults_strongarm() {
   $strongarm->api_version = 1;
   $strongarm->name = 'tincanapi_content_types';
   $strongarm->value = array(
-    'mooc_container' => 'mooc_container',
-    'page' => 'page',
+    'mooc_container' => 0,
+    'page' => 0,
     'section' => 0,
   );
   $export['tincanapi_content_types'] = $strongarm;

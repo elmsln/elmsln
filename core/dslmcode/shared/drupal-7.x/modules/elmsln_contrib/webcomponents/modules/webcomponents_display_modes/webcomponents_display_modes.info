@@ -1,0 +1,5 @@
+name = Webcomponents: Display modes
+description = Provides display modes based on webcomponent entities.
+core = 7.x
+dependencies[] = webcomponents
+dependencies[] = field_formatter_settings

@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Textbook Mathjax feature.
+ */
+
+include_once 'textbook_mathjax.features.inc';

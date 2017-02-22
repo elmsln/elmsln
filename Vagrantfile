@@ -7,7 +7,7 @@ VAGRANTFILE_API_VERSION = "2"
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # centos 7.2 - 64 bit
   #config.vm.box = "bradallenfisher/centos7"
-  # primed centos 7.2 - 64 bit
+  # primed ubuntu 16.04 - 64 bit
   config.vm.box = "elmsln/ubuntu16"
   if Vagrant.has_plugin?("vagrant-cachier")
     config.cache.scope = :box
@@ -17,7 +17,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # forward the vm ports for database and apache to local ones
   config.vm.network "forwarded_port", guest: 80, host: 80
   config.vm.network "forwarded_port", guest: 3306, host: 3306
-
+  config.vm.hostname = "elmsln.local"
+  config.hostsupdater.aliases = ["courses.elmsln.local", "media.elmsln.local", "online.elmsln.local", "analytics.elmsln.local", "studio.elmsln.local", "interact.elmsln.local", "blog.elmsln.local", "comply.elmsln.local", "discuss.elmsln.local", "inbox.elmsln.local", "people.elmsln.local", "innovate.elmsln.local", "grades.elmsln.local", "hub.elmsln.local", "lq.elmsln.local", "cdn1.elmsln.local", "cdn2.elmsln.local", "cdn3.elmsln.local", "data-courses.elmsln.local", "data-media.elmsln.local", "data-online.elmsln.local", "data-studio.elmsln.local", "data-interact.elmsln.local", "data-blog.elmsln.local", "data-comply.elmsln.local", "data-discuss.elmsln.local", "data-inbox.elmsln.local", "data-people.elmsln.local", "data-innovate.elmsln.local", "data-grades.elmsln.local", "data-hub.elmsln.local", "data-lq.elmsln.local"]
+  config.vm.boot_timeout = 600
   # automatically carve out 1/4 of RAM for this VM
   config.vm.provider "virtualbox" do |v|
     host = RbConfig::CONFIG['host_os']

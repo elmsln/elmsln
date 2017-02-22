@@ -120,6 +120,7 @@ function harmony_core_devel_generate_form_submit($form, &$form_state) {
 function harmony_core_devel_generate_batch_pre_add($vars, &$context) {
   $context['results'] = $vars;
   $context['results']['num_threads'] = 0;
+  $context['results']['num_posts'] = 0;
   $context['results']['last_thread'] = NULL;
   $context['results']['thread_ids'] = array();
   harmony_core_devel_generate_pre_add($context['results']);
@@ -128,11 +129,10 @@ function harmony_core_devel_generate_batch_pre_add($vars, &$context) {
 function harmony_core_devel_generate_pre_add(&$results) {
   // Get users.
   $users = array();
-  $result = db_query_range('SELECT uid FROM {users} WHERE uid > 0 AND status = 1', 0, 50);
+  $result = db_query_range('SELECT uid FROM {users} WHERE uid > 1 AND status = 1', 0, 50);
   foreach ($result as $record) {
     $users[] = $record->uid;
   }
-
   $results['users'] = $users;
 }
 
@@ -143,13 +143,15 @@ function harmony_core_devel_generate_batch_thread_add(&$context) {
   // Filter out the unselected thread types.
   $thread_types = array_filter($context['results']['types']);
 
+  $created_updated = REQUEST_TIME - (14 * 24 * 60 * 60) + ($context['results']['last_thread']->thread_id * 120);
+
   $thread = (object) array(
     'type' => array_rand($thread_types),
     'uid' => $users[array_rand($users)],
     'language' => LANGUAGE_NONE,
     'status' => HARMONY_PUBLISHED,
-    'created' => REQUEST_TIME,
-    'updated' => REQUEST_TIME,
+    'created' => $created_updated,
+    'updated' => $created_updated,
     'pinned' => HARMONY_NOT_PINNED,
     'locked' => HARMONY_NOT_LOCKED,
     'hidden' => HARMONY_NOT_HIDDEN,
@@ -172,8 +174,8 @@ function harmony_core_devel_generate_batch_thread_add(&$context) {
     'uid' => $thread->uid,
     'language' => LANGUAGE_NONE,
     'status' => HARMONY_PUBLISHED,
-    'created' => REQUEST_TIME,
-    'updated' => REQUEST_TIME,
+    'created' => $created_updated,
+    'updated' => $created_updated,
     'locked' => HARMONY_NOT_LOCKED,
     'hidden' => HARMONY_NOT_HIDDEN,
     'is_new' => TRUE,
@@ -205,13 +207,19 @@ function harmony_core_devel_generate_batch_post_add(&$context) {
   $thread = $context['results']['last_thread'];
   $users = $context['results']['users'];
 
+  /**
+   * Created & updated time will be 2 weeks ago + number of minutes that the
+   * thread ID is.
+   */
+  $created_updated = (REQUEST_TIME - (14 * 24 * 60 * 60)) + ($context['results']['num_posts'] * 120);
+
   $post = (object) array(
     'title' => $thread->title,
     'uid' => $users[array_rand($users)],
     'language' => LANGUAGE_NONE,
     'status' => HARMONY_PUBLISHED,
-    'created' => REQUEST_TIME,
-    'updated' => REQUEST_TIME,
+    'created' => $created_updated,
+    'updated' => $created_updated,
     'locked' => HARMONY_NOT_LOCKED,
     'hidden' => HARMONY_NOT_HIDDEN,
     'is_new' => TRUE,
@@ -232,6 +240,7 @@ function harmony_core_devel_generate_batch_post_add(&$context) {
   $post = harmony_post_save($post);
 
   $context['results']['last_thread']->post_ids[] = $post->post_id;
+  $context['results']['num_posts']++;
 }
 
 function harmony_core_devel_generate_batch_finished($success, $results, $operations) {

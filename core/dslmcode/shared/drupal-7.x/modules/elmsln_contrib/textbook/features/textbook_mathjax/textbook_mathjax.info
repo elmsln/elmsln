@@ -1,0 +1,14 @@
+name = Textbook Mathjax
+description = Adds mathjax support for textbook module
+core = 7.x
+package = Textbook
+dependencies[] = ctools
+dependencies[] = mathjax
+dependencies[] = strongarm
+dependencies[] = textbook_editor
+features[ctools][] = strongarm:strongarm:1
+features[features_api][] = api:2
+features[features_overrides][] = filter.textbook_editor.filters|filter_mathjax
+features[features_overrides][] = wysiwyg.textbook_editor.settings|buttons|mathjax
+features[variable][] = mathjax_config_string
+features[variable][] = mathjax_config_type

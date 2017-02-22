@@ -81,6 +81,48 @@ function cle_assignment_form_cle_assignment_node_form_alter(&$form, &$form_state
 }
 
 /**
+ * Implements hook_node_insert().
+ */
+function cle_assignment_node_insert($node) {
+  // make sure there's an outline associated to this
+  // but only if we have at least 1 to do so with
+  if ($node->type == 'cle_assignment') {
+    // when we save a new assignment make sure there's a reverse entity reference to match
+    if (isset($node->field_assignment_project['und'][0]['target_id'])) {
+      $found = FALSE;
+      $project = node_load($node->field_assignment_project['und'][0]['target_id']);
+      // see if this currently has any steps in it
+      if (isset($project->field_project_steps['und'])) {
+        // check for this assignment currently being in here
+        foreach ($project->field_project_steps['und'] as $step) {
+          // edge case but if we find we've already referenced this then don't double save
+          if ($step['target_id'] == $node->nid) {
+            $found = TRUE;
+          }
+        }
+        // build cause we didn't find it
+        if (!$found) {
+          $project->field_project_steps['und'][] = array('target_id' => $node->nid);
+          $found = TRUE;
+        }
+      }
+      else {
+        $found = TRUE;
+        $project->field_project_steps = array(
+          'und' => array(
+            0 => array('target_id' => $node->nid),
+          )
+        );
+      }
+      // only save project if we changed something
+      if ($found) {
+        node_save($project);
+      }
+    }
+  }
+}
+
+/**
  * Implements hook_page_build().
  */
 function cle_assignment_page_build(&$page) {
@@ -136,7 +178,9 @@ function _cle_assignment_v1_assignment_modify($node, $params = NULL) {
         $node->field_cle_archived['und'][0]['value'] = $value;
       break;
       case 'section':
-        $node->og_group_ref[LANGUAGE_NONE][0]['target_id'] = $value;
+        if (!is_null($value)) {
+          $node->og_group_ref[LANGUAGE_NONE][0]['target_id'] = $value;
+        }
       break;
       case 'allowLateSubmissions':
         $node->field_assignment_late_submission[LANGUAGE_NONE][0]['value'] = (int)$value;
@@ -145,7 +189,9 @@ function _cle_assignment_v1_assignment_modify($node, $params = NULL) {
         $node->field_assignment_color[LANGUAGE_NONE][0]['jquery_colorpicker'] = $value;
       break;
       case 'image':
-        $node->field_assignment_image[LANGUAGE_NONE][0]['target_id'] = $value;
+        if (!is_null($value)) {
+          $node->field_assignment_image[LANGUAGE_NONE][0]['target_id'] = $value;
+        }
       break;
       case 'type':
         $node->field_assignment_privacy_setting[LANGUAGE_NONE][0]['value'] = $value;
@@ -164,18 +210,25 @@ function _cle_assignment_v1_assignment_modify($node, $params = NULL) {
         $node->field_assignment_feedback[LANGUAGE_NONE][0]['value'] = $value;
       break;
       case 'project':
-        $node->field_assignment_project[LANGUAGE_NONE][0]['target_id'] = $value;
+        if (!is_null($value)) {
+          $node->field_assignment_project[LANGUAGE_NONE][0]['target_id'] = $value;
+        }
       break;
       case 'hierarchy':
         foreach ($value as $key2 => $value2) {
           switch ($key2) {
             case 'dependencies':
-              foreach ($key2 as $item) {
-                $node->field_assignment_dependencies[LANGUAGE_NONE][] = array('target_id' => $item);
+              $node->field_assignment_dependencies[LANGUAGE_NONE] = array();
+              foreach ($value2 as $item) {
+                if (!is_null($item)) {
+                  $node->field_assignment_dependencies[LANGUAGE_NONE][] = array('target_id' => $item);
+                }
               }
             break;
             case 'project':
-              $node->field_assignment_project[LANGUAGE_NONE][0]['target_id'] = $value2;
+              if (!is_null($value2)) {
+                $node->field_assignment_project[LANGUAGE_NONE][0]['target_id'] = $value2;
+              }
             break;
           }
         }
@@ -184,6 +237,7 @@ function _cle_assignment_v1_assignment_modify($node, $params = NULL) {
         foreach ($value as $key2 => $value2) {
           switch ($key2) {
             case 'competencies':
+              $node->field_elmsln_competencies[LANGUAGE_NONE] = array();
               foreach ($value2 as $item) {
                 $node->field_elmsln_competencies[LANGUAGE_NONE][] = array('value' => $item);
               }
@@ -195,6 +249,7 @@ function _cle_assignment_v1_assignment_modify($node, $params = NULL) {
             // ridiculous looking but allows normalized UI based definition of requirements
             // to complete an assignment
             case 'artifacts':
+              $node->field_assignment_artifacts[LANGUAGE_NONE] = array();
               foreach ($key2 as $item) {
                 switch ($item) {
                   case 'body':
@@ -233,11 +288,11 @@ function _cle_assignment_v1_assignment_modify($node, $params = NULL) {
   // @todo this may come from the UI at some point
   if (!isset($node->field_assignment_artifacts) || empty($node->field_assignment_artifacts)) {
     $node->field_assignment_artifacts[LANGUAGE_NONE] = array(
-    	array('value' => 'field_submission_text'),
-    	array('value' => 'field_images'),
-    	array('value' => 'field_video'),
-    	array('value' => 'field_files'),
-    	array('value' => 'field_links'),
+        array('value' => 'field_submission_text'),
+        array('value' => 'field_images'),
+        array('value' => 'field_video'),
+        array('value' => 'field_files'),
+        array('value' => 'field_links'),
     );
   }
   // account for due date not having an end date
@@ -273,50 +328,77 @@ function _cle_assignment_v1_assignment_output($node) {
     $color = '#' . $node->field_assignment_color[LANGUAGE_NONE][0]['jquery_colorpicker'];
   }
   // see if this allows late submissions
-  $allowLate = (bool)$node->field_assignment_late_submission['und'][0]['value'];
+  $allowLate = (bool)$node->field_assignment_late_submission[LANGUAGE_NONE][0]['value'];
   // calculate if this is on time / can be active for submissions
   // as well as providing a rationale behind this response
   // this helps in both debugging and messages to the end user
   // so logic all stays server side
   $time = REQUEST_TIME;
+  $rationale = array();
   // see if this has a due date and if it is after as a result
-  if (isset($node->field_assignment_due_date['und'][0]['value'])) {
+  if (isset($node->field_assignment_due_date[LANGUAGE_NONE][0]['value'])) {
     // time is greater than the due date, meaning its late
     // see if it's allowed to be late though
     if ($time > $node->field_assignment_due_date['und'][0]['value2'] && $allowLate) {
       $submissionActive = 1;
-      $rationale = t('The assignment was due @date, but late submissions are accepted.', array('@date' => date('M d, Y - h:iA', $node->field_assignment_due_date['und'][0]['value2'])));
+      $rationale['text'] = t('The assignment was due @date, but late submissions are accepted.', array('@date' => date('M d, Y - h:iA', $node->field_assignment_due_date['und'][0]['value2'])));
+      $rationale['code'] = 'date-late';
+      $rationale['data'] = array($node->field_assignment_due_date['und'][0]['value2']);
     }
     // time is greater than the due date and they can't submit
     else if ($time > $node->field_assignment_due_date['und'][0]['value2'] && !$allowLate) {
       $submissionActive = 0;
-      $rationale = t('The assignment was due @date and submissions are now closed.', array('@date' => date('M d, Y - h:iA', $node->field_assignment_due_date['und'][0]['value2'])));
+      $rationale['text'] = t('The assignment was due @date and submissions are now closed.', array('@date' => date('M d, Y - h:iA', $node->field_assignment_due_date['und'][0]['value2'])));
+      $rationale['code'] = 'date-closed';
+      $rationale['data'] = array($node->field_assignment_due_date['und'][0]['value2']);
     }
     // time greater than 1st date (within it starting) and less than 2nd (due date)
     else if ($time > $node->field_assignment_due_date['und'][0]['value'] && $time < $node->field_assignment_due_date['und'][0]['value2']) {
       $submissionActive = 1;
-      $rationale = t('Assignment submissions opened @date1 and are due by @date2.', array('@date1' => date('M d, Y - h:iA', $node->field_assignment_due_date['und'][0]['value']), '@date2' => date('M d, Y - h:iA', $node->field_assignment_due_date['und'][0]['value2'])));
+      $rationale['text'] = t('Assignment submissions opened @date1 and are due by @date2.', array('@date1' => date('M d, Y - h:iA', $node->field_assignment_due_date['und'][0]['value']), '@date2' => date('M d, Y - h:iA', $node->field_assignment_due_date['und'][0]['value2'])));
+      $rationale['code'] = 'date-open';
+      $rationale['data'] = array($node->field_assignment_due_date['und'][0]['value'], $node->field_assignment_due_date['und'][0]['value2']);
+
     }
     // time is less than the start of the date range meaning it hasn't opened yet
     else if ($time < $node->field_assignment_due_date['und'][0]['value'] && $node->field_assignment_due_date['und'][0]['value'] != $node->field_assignment_due_date['und'][0]['value2'] && !is_null($node->field_assignment_due_date['und'][0]['value2'])) {
       $submissionActive = 0;
-      $rationale = t('Assignment submissions are currently closed. This assignment will open @date1 and is due by @date2.', array('@date1' => date('M d, Y - h:iA', $node->field_assignment_due_date['und'][0]['value']), '@date2' => date('M d, Y - h:iA', $node->field_assignment_due_date['und'][0]['value2'])));
+      $rationale['text'] = t('Assignment submissions are currently closed. This assignment will open @date1 and is due by @date2.', array('@date1' => date('M d, Y - h:iA', $node->field_assignment_due_date['und'][0]['value']), '@date2' => date('M d, Y - h:iA', $node->field_assignment_due_date['und'][0]['value2'])));
+      $rationale['code'] = 'date-closed';
+      $rationale['data'] = array($node->field_assignment_due_date['und'][0]['value'], $node->field_assignment_due_date['und'][0]['value2']);
     }
     // time is before the due date, we're good.
     else if ($time < $node->field_assignment_due_date['und'][0]['value']) {
-      $submissionActive = 0;
-      $rationale = t('The assignment is accepting submissions and is due @date.', array('@date' => date('M d, Y - h:iA', $node->field_assignment_due_date['und'][0]['value'])));
+      $submissionActive = 1;
+      $rationale['text'] = t('The assignment is accepting submissions and is due @date.', array('@date' => date('M d, Y - h:iA', $node->field_assignment_due_date['und'][0]['value'])));
+      $rationale['code'] = 'date-open';
+      $rationale['data'] = array($node->field_assignment_due_date['und'][0]['value']);
     }
   }
   else {
     $submissionActive = 1;
-    $rationale = t('The assignment is open for submission, there is no due date.');
+    $rationale['text'] = t('The assignment is open for submission, there is no due date.');
+    $rationale['code'] = 'date-none';
+  }
+  // support for assignment dependencies
+  if (isset($node->field_assignment_dependencies[LANGUAGE_NONE][0])) {
+    // loop through dependencies and check if they have been met
+    foreach ($node->field_assignment_dependencies[LANGUAGE_NONE] as $item) {
+      $assignment = node_load($item['target_id']);
+      $tmp = _cle_submission_submission_status($assignment);
+      if (empty($tmp['complete']['submissions'])) {
+        $submissionActive = 0;
+        $rationale['text'] = t('This assignment won\'t open until dependencies have been met.');
+        $rationale['code'] = 'dependencies-unmet';
+        $rationale['data'][] = $assignment->nid;
+      }
+    }
   }
   // account for admin / staff / teacher roles which can submit things
   // regardless of due date stuff
   if (_cis_connector_role_groupings(array('staff', 'teacher')) && $submissionActive == 0) {
     $submissionActive = 1;
-    $rationale .= t(' <em>Your privledges allow you to submit this regardless.</em>');
+    $rationale['text'] .= ' ' . t('<em>Your privledges allow you to submit this regardless.</em>');
   }
   // calculate metadata to act on this
   $metadata = array(
@@ -402,7 +484,11 @@ function _cle_assignment_v1_assignment_output($node) {
  */
 function _cle_assignment_v1_get_assignments($type, $filter = array()) {
   $items = array();
-  $field_conditions = array();
+  $section_id = _cis_connector_section_context();
+  $section = _cis_section_load_section_by_id($section_id);
+  $field_conditions = array(
+    'og_group_ref' => array('target_id', $section, '='),
+  );
   $property_conditions = array('status' => array(NODE_PUBLISHED, '='));
   if (isset($filter['assignment'])) {
     $property_conditions['nid'] = array($filter['assignment'], '=');

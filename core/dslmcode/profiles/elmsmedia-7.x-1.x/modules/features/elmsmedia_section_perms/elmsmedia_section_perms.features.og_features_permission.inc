@@ -34,6 +34,14 @@ function elmsmedia_section_perms_og_features_default_permissions() {
     ),
   );
 
+  // Exported og permission: 'node:section:create elmsmedia_list content'
+  $permissions['node:section:create elmsmedia_list content'] = array(
+    'roles' => array(
+      'instructor' => 'instructor',
+      'lead instructor' => 'lead instructor',
+    ),
+  );
+
   // Exported og permission: 'node:section:create external_video content'
   $permissions['node:section:create external_video content'] = array(
     'roles' => array(
@@ -44,6 +52,30 @@ function elmsmedia_section_perms_og_features_default_permissions() {
 
   // Exported og permission: 'node:section:create figurelabel content'
   $permissions['node:section:create figurelabel content'] = array(
+    'roles' => array(
+      'instructor' => 'instructor',
+      'lead instructor' => 'lead instructor',
+    ),
+  );
+
+  // Exported og permission: 'node:section:create h5p_content content'
+  $permissions['node:section:create h5p_content content'] = array(
+    'roles' => array(
+      'instructor' => 'instructor',
+      'lead instructor' => 'lead instructor',
+    ),
+  );
+
+  // Exported og permission: 'node:section:create image_gallery content'
+  $permissions['node:section:create image_gallery content'] = array(
+    'roles' => array(
+      'instructor' => 'instructor',
+      'lead instructor' => 'lead instructor',
+    ),
+  );
+
+  // Exported og permission: 'node:section:create static_content content'
+  $permissions['node:section:create static_content content'] = array(
     'roles' => array(
       'instructor' => 'instructor',
       'lead instructor' => 'lead instructor',
@@ -87,6 +119,13 @@ function elmsmedia_section_perms_og_features_default_permissions() {
     ),
   );
 
+  // Exported og permission: 'node:section:delete any elmsmedia_list content'
+  $permissions['node:section:delete any elmsmedia_list content'] = array(
+    'roles' => array(
+      'lead instructor' => 'lead instructor',
+    ),
+  );
+
   // Exported og permission: 'node:section:delete any external_video content'
   $permissions['node:section:delete any external_video content'] = array(
     'roles' => array(
@@ -96,6 +135,27 @@ function elmsmedia_section_perms_og_features_default_permissions() {
 
   // Exported og permission: 'node:section:delete any figurelabel content'
   $permissions['node:section:delete any figurelabel content'] = array(
+    'roles' => array(
+      'lead instructor' => 'lead instructor',
+    ),
+  );
+
+  // Exported og permission: 'node:section:delete any h5p_content content'
+  $permissions['node:section:delete any h5p_content content'] = array(
+    'roles' => array(
+      'lead instructor' => 'lead instructor',
+    ),
+  );
+
+  // Exported og permission: 'node:section:delete any image_gallery content'
+  $permissions['node:section:delete any image_gallery content'] = array(
+    'roles' => array(
+      'lead instructor' => 'lead instructor',
+    ),
+  );
+
+  // Exported og permission: 'node:section:delete any static_content content'
+  $permissions['node:section:delete any static_content content'] = array(
     'roles' => array(
       'lead instructor' => 'lead instructor',
     ),
@@ -139,6 +199,14 @@ function elmsmedia_section_perms_og_features_default_permissions() {
     ),
   );
 
+  // Exported og permission: 'node:section:delete own elmsmedia_list content'
+  $permissions['node:section:delete own elmsmedia_list content'] = array(
+    'roles' => array(
+      'instructor' => 'instructor',
+      'lead instructor' => 'lead instructor',
+    ),
+  );
+
   // Exported og permission: 'node:section:delete own external_video content'
   $permissions['node:section:delete own external_video content'] = array(
     'roles' => array(
@@ -149,6 +217,30 @@ function elmsmedia_section_perms_og_features_default_permissions() {
 
   // Exported og permission: 'node:section:delete own figurelabel content'
   $permissions['node:section:delete own figurelabel content'] = array(
+    'roles' => array(
+      'instructor' => 'instructor',
+      'lead instructor' => 'lead instructor',
+    ),
+  );
+
+  // Exported og permission: 'node:section:delete own h5p_content content'
+  $permissions['node:section:delete own h5p_content content'] = array(
+    'roles' => array(
+      'instructor' => 'instructor',
+      'lead instructor' => 'lead instructor',
+    ),
+  );
+
+  // Exported og permission: 'node:section:delete own image_gallery content'
+  $permissions['node:section:delete own image_gallery content'] = array(
+    'roles' => array(
+      'instructor' => 'instructor',
+      'lead instructor' => 'lead instructor',
+    ),
+  );
+
+  // Exported og permission: 'node:section:delete own static_content content'
+  $permissions['node:section:delete own static_content content'] = array(
     'roles' => array(
       'instructor' => 'instructor',
       'lead instructor' => 'lead instructor',
@@ -192,6 +284,13 @@ function elmsmedia_section_perms_og_features_default_permissions() {
     ),
   );
 
+  // Exported og permission: 'node:section:update any elmsmedia_list content'
+  $permissions['node:section:update any elmsmedia_list content'] = array(
+    'roles' => array(
+      'lead instructor' => 'lead instructor',
+    ),
+  );
+
   // Exported og permission: 'node:section:update any external_video content'
   $permissions['node:section:update any external_video content'] = array(
     'roles' => array(
@@ -201,6 +300,27 @@ function elmsmedia_section_perms_og_features_default_permissions() {
 
   // Exported og permission: 'node:section:update any figurelabel content'
   $permissions['node:section:update any figurelabel content'] = array(
+    'roles' => array(
+      'lead instructor' => 'lead instructor',
+    ),
+  );
+
+  // Exported og permission: 'node:section:update any h5p_content content'
+  $permissions['node:section:update any h5p_content content'] = array(
+    'roles' => array(
+      'lead instructor' => 'lead instructor',
+    ),
+  );
+
+  // Exported og permission: 'node:section:update any image_gallery content'
+  $permissions['node:section:update any image_gallery content'] = array(
+    'roles' => array(
+      'lead instructor' => 'lead instructor',
+    ),
+  );
+
+  // Exported og permission: 'node:section:update any static_content content'
+  $permissions['node:section:update any static_content content'] = array(
     'roles' => array(
       'lead instructor' => 'lead instructor',
     ),
@@ -244,6 +364,14 @@ function elmsmedia_section_perms_og_features_default_permissions() {
     ),
   );
 
+  // Exported og permission: 'node:section:update own elmsmedia_list content'
+  $permissions['node:section:update own elmsmedia_list content'] = array(
+    'roles' => array(
+      'instructor' => 'instructor',
+      'lead instructor' => 'lead instructor',
+    ),
+  );
+
   // Exported og permission: 'node:section:update own external_video content'
   $permissions['node:section:update own external_video content'] = array(
     'roles' => array(
@@ -254,6 +382,30 @@ function elmsmedia_section_perms_og_features_default_permissions() {
 
   // Exported og permission: 'node:section:update own figurelabel content'
   $permissions['node:section:update own figurelabel content'] = array(
+    'roles' => array(
+      'instructor' => 'instructor',
+      'lead instructor' => 'lead instructor',
+    ),
+  );
+
+  // Exported og permission: 'node:section:update own h5p_content content'
+  $permissions['node:section:update own h5p_content content'] = array(
+    'roles' => array(
+      'instructor' => 'instructor',
+      'lead instructor' => 'lead instructor',
+    ),
+  );
+
+  // Exported og permission: 'node:section:update own image_gallery content'
+  $permissions['node:section:update own image_gallery content'] = array(
+    'roles' => array(
+      'instructor' => 'instructor',
+      'lead instructor' => 'lead instructor',
+    ),
+  );
+
+  // Exported og permission: 'node:section:update own static_content content'
+  $permissions['node:section:update own static_content content'] = array(
     'roles' => array(
       'instructor' => 'instructor',
       'lead instructor' => 'lead instructor',

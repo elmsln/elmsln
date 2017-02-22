@@ -85,7 +85,11 @@ function cle_submission_elmsln_jsapi_info() {
  */
 function _cle_submission_v1_get_submissions($type, $filter = array()) {
   $items = array();
-  $field_conditions = array();
+  $section_id = _cis_connector_section_context();
+  $section = _cis_section_load_section_by_id($section_id);
+  $field_conditions = array(
+    'og_group_ref' => array('target_id', $section, '='),
+  );
   $property_conditions = array('status' => array(NODE_PUBLISHED, '='));
   if (isset($filter['submission'])) {
     $property_conditions['nid'] = array($filter['submission'], '=');
@@ -141,6 +145,7 @@ function _cle_submission_v1_submission_output($node) {
     'title' => $node->title,
     'status' => (int)$node->status,
     'created' => Date('c', $node->created),
+    'relatedSubmission' => (int)$node->field_related_submission[LANGUAGE_NONE][0]['target_id'],
     'assignment' => (int)$node->field_assignment[LANGUAGE_NONE][0]['target_id'],
     'evidence' => array(
       'body' => $node->field_submission_text[LANGUAGE_NONE][0]['safe_value'],
@@ -186,13 +191,22 @@ function _cle_submission_v1_submission_modify($node, $params = NULL) {
         $node->{$key} = $value;
       break;
       case 'section':
-        $node->og_group_ref[LANGUAGE_NONE][0]['target_id'] = $value;
+        if (!is_null($value)) {
+          $node->og_group_ref[LANGUAGE_NONE][0]['target_id'] = $value;
+        }
       break;
       case 'state':
         $node->field_submission_state[LANGUAGE_NONE][0]['value'] = $value;
       break;
+      case 'relatedSubmission':
+        if (!is_null($value)) {
+          $node->field_related_submission[LANGUAGE_NONE][0]['target_id'] = $value;
+        }
+      break;
       case 'assignment':
-        $node->field_assignment[LANGUAGE_NONE][0]['target_id'] = $value;
+        if (!is_null($value)) {
+          $node->field_assignment[LANGUAGE_NONE][0]['target_id'] = $value;
+        }
       break;
       case 'evidence':
         foreach ($value as $key2 => $value2) {
@@ -348,7 +362,9 @@ function cle_submission_node_access($node, $op, $account) {
     // boolean for visibility
     if ($assignment->field_assignment_privacy_setting['und'][0]['value'] == 'closed') {
       // if it's a hidden assignment, the last check is admin member
-      return NODE_ACCESS_DENY;
+      if (!_cle_submission_submission_being_critiqued($node, $account)) {
+        return NODE_ACCESS_DENY;
+      }
     }
   }
   return NODE_ACCESS_IGNORE;
@@ -372,18 +388,21 @@ function _cle_submission_submission_status($assignment, $account = NULL) {
   $results = _cis_connector_assemble_entity_list('node', 'cle_submission', 'nid', '_entity', $field_conditions, array('uid' => $account->uid));
   $submissions = array();
   $status = 0;
-  $rationale = t('You have not submitted anything for this assignment yet.');
+  $rationale['text'] = t('You have not submitted anything for this assignment yet.');
+  $rationale['code'] = 'submission-nosubmission';
   foreach ($results as $nid => $node) {
     $submissions[$nid] = _cle_submission_v1_submission_output($node);
     // check for a valid submission state
     if (isset($node->field_submission_state[LANGUAGE_NONE][0]['value']) && $node->field_submission_state[LANGUAGE_NONE][0]['value'] == 'submission_ready') {
       $status = 1;
-      $rationale = t('Submission is in and marked ready for review.');
+      $rationale['text'] = t('Submission is in and marked ready for review.');
+      $rationale['code'] = 'submission-ready';
     }
   }
   // if this still isn't valid but they have results, we need to say way
   if ($status == 0 && !empty($results)) {
-    $rationale = t('You have made submissions but they have not been marked "Submission ready".');
+    $rationale['text'] = t('You have made submissions but they have not been marked "Submission ready".');
+    $rationale['code'] = 'submission-notready';
   }
   // create a stub node to see if they can access this object
   $node = _elmsln_api_stub_node('cle_submission');
@@ -402,4 +421,27 @@ function _cle_submission_submission_status($assignment, $account = NULL) {
       'submissions' => $submissions,
     )
   );
+}
+
+/**
+ * Helper function to figure out if the submission is being critiqued.
+ * @return array of submissions or false
+ */
+function _cle_submission_submission_being_critiqued($submission, $user = NULL) {
+  $query = new EntityFieldQuery();
+  $query->entityCondition('entity_type', 'node')
+    ->entityCondition('bundle', 'cle_submission')
+    ->fieldCondition('field_related_submission', 'target_id', $submission->nid, '=');
+  if ($user) {
+    $query->propertyCondition('uid', $user->uid);
+  }
+
+  $result = $query->execute();
+  if (isset($result['node'])) {
+    $submission_nids = array_keys($result['node']);
+    $submissions = entity_load('node', $submission_nids);
+    return $submissions;
+  } 
+
+  return false;
 }

@@ -1,0 +1,132 @@
+<?php
+/**
+ * @file
+ * Ability to hook speech up to knowledge bases like wikipedia to pull an answer to what
+ * something is. Useful for internal vocab definition systems as well as wikipedia and
+ * other queriable knowledge sources with semantic API responses.
+ */
+
+/**
+ * Implements hook_voice_command().
+ */
+function voicecommander_whatis_voice_command() {
+  $ops = array();
+  $ops['whatis'] = array(
+    'file' => drupal_get_path('module', 'voicecommander_whatis') . '/js/vc-whatis.js',
+    'commands' => array(
+      // what is
+      '%phrase what is *what' => array(
+        'callback' => 'Drupal.voicecommander.whatIs',
+      ),
+      '%phrase what are *what' => array(
+        'callback' => 'Drupal.voicecommander.whatIs',
+      ),
+    ),
+  );
+  return $ops;
+}
+
+/**
+ * Implements hook_menu().
+ */
+function voicecommander_whatis_menu() {
+  $items['voicecommander/whatis/%/%'] = array(
+    'title' => 'What is..',
+    'page callback' => 'voicecommander_process_whatis',
+    'page arguments' => array(2, 3),
+    'access arguments' => array('use voice commander'),
+    'type' => MENU_CALLBACK,
+  );
+
+  return $items;
+}
+
+/**
+ * Menu callback for voicecommander/whatis/%token/%what.
+ */
+function voicecommander_process_whatis($token, $what) {
+  // validate token before doing anything
+  if (drupal_valid_token($token)) {
+    // load possible sources
+    $sources = _voicecommander_get_sources();
+    // status code always 200 for now
+    $vars = array(
+      'status' => '200',
+      'response' => array(),
+    );
+    if (is_array($sources)) {
+      foreach ($sources as $source => $method) {
+        $tmp = call_user_func($method, $what);
+        if (!empty($tmp)) {
+          $vars['response'][] = $tmp;
+        }
+      }
+    }
+    // check for not getting any valid matches
+    if (empty($vars['response'])) {
+      $vars['response'][] = t('I\'m sorry, I don\'t know anything about @topic yet.', array('@topic' => filter_xss($what)));
+    }
+  }
+  else {
+    $vars = array(
+      'status' => '403',
+      'response' => array(),
+    );
+  }
+  // define return type
+  drupal_add_http_header('Content-Type', 'application/json');
+  // define status
+  drupal_add_http_header('Status', $vars['status']);
+  // output the response as json
+  print drupal_json_output($vars);
+  // official drupal exit routines
+  exit;
+}
+
+/**
+ * Assemble possible sources for whatis info.
+ * @return array array of source machine names w/ callbacks
+ */
+function _voicecommander_get_sources() {
+  $sources = module_invoke_all('vc_whatis_source');
+  drupal_alter('vc_whatis_source', $sources);
+  return $sources;
+}
+
+/**
+ * Support for Puzzler if module is enabled this will work.
+ */
+function puzzler_vc_whatis_source() {
+  return array(
+    'puzzler' => '_puzzler_vc_query_title',
+  );
+}
+
+/**
+ * Voice commander Puzzler integration callback
+ */
+function _puzzler_vc_query_title($what) {
+  $value = '';
+  $language = check_plain(variable_get('puzzler_fallback_language', PUZZLER_FALLBACK_LANGUAGE));
+  $puzzler_options = array(
+    'wppage' => $what,
+    'wpprop' => 'extracts',
+    'wpexintro' => 1,
+    'wpexplaintext' => 1, // Not using because it also removed paragraphs.
+    'wplang' => $language,
+    'todo' => 'wikipedia-matching-intro',
+  );
+  $value = t('From Wikipedia:' ) . puzzler_wikipedia($puzzler_options);
+  // possible it didn't have an intro, try and return article as a whole
+  if (empty($value)) {
+    $puzzler_options = array(
+      'api_endpoint' => 'http://@wplang.wikipedia.org/w/index.php',
+      'wptitle' => $what,
+      'wpaction' => 'render',
+      'wplang' => $language,
+      'todo' => 'wikipedia-matching-html',
+    );
+    $value = t('From Wikipedia:' ) . puzzler_wikipedia($puzzler_options);
+  }
+  return $value;
+}

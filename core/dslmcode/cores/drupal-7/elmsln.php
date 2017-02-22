@@ -16,9 +16,10 @@ include_once DRUPAL_ROOT . '/../../elmsln_environment/elmsln_environment.php';
  */
 require_once DRUPAL_ROOT . '/includes/bootstrap.inc';
 require_once DRUPAL_ROOT . '/includes/common.inc';
+require_once DRUPAL_ROOT . '/' . variable_get('path_inc', 'includes/path.inc');
 require_once DRUPAL_ROOT . '/includes/module.inc';
-require_once DRUPAL_ROOT . '/includes/unicode.inc';
 require_once DRUPAL_ROOT . '/includes/file.inc';
+require_once DRUPAL_ROOT . '/includes/unicode.inc';
 
 // Bootstrap Drupal to at least the database level so it can be accessed.
 drupal_bootstrap(DRUPAL_BOOTSTRAP_DATABASE);

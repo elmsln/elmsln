@@ -681,8 +681,6 @@ function cis_helper_entity_presave($entity, $type) {
 function cis_helper_entity_insert($entity, $type) {
   // act on nodes
   if ($type == 'node' && $entity->type == 'course') {
-     // ship these requests across the network
-    _elmsln_api_network_request($requests, 1, TRUE);
     // sync the service but do it non-blocking
     $request = array(
       'method' => 'POST',
@@ -853,10 +851,12 @@ function _cis_helper_add_service_instance($course, $service, $service_instance, 
   $content = $space_name . "\n";
   // college requesting for dbo / db name
   $content .= $college . "\n";
+  // get registry for address / service address
+  $distro_settings = _cis_connector_build_registry($service->field_distribution[LANGUAGE_NONE][0]['value']);
   // domain this is written to
-  $content .= str_replace('http://', '', str_replace('https://', '', $service->field_location[LANGUAGE_NONE][0]['url'])) . "\n";
+  $content .= $distro_settings['address'] . "\n";
   // domain data can be accessed on
-  $content .= str_replace('http://', '', str_replace('https://', '', $service->field_data_location[LANGUAGE_NONE][0]['url'])) . "\n";
+  $content .= $distro_settings['service_address'] . "\n";
   // title to set for the site name value
   $content .= $site_title . "\n";
   // slogan value for the course, make sure one is set
@@ -931,7 +931,7 @@ function _cis_helper_add_service_instance($course, $service, $service_instance, 
 
   // as well as altering the process entirely so that it can be hijacked by
   // cloud based implementations...
-  $distro_settings = _cis_connector_build_registry($service->field_machine_name[LANGUAGE_NONE][0]['value']);
+  $distro_settings = _cis_connector_build_registry($service->field_distribution[LANGUAGE_NONE][0]['value']);
   if (isset($distro_settings['ssh'])) {
     $ssh = $distro_settings['ssh'];
     // build connection string
@@ -1426,16 +1426,6 @@ function _cis_helper_generate_service_node($title, $machine_name, $distribution,
   $node->title = $title;
   $node->field_machine_name['und'][0]['value'] = $machine_name;
   $node->field_distribution['und'][0]['value'] = $distribution;
-  $node->field_location['und'][0] = array(
-    'url'        => $address,
-    'title'      => null,
-    'attributes' => array(),
-  );
-  $node->field_data_location['und'][0] = array(
-    'url'        => $data_address,
-    'title'      => null,
-    'attributes' => array(),
-  );
   // build out via submit then save
   if($node = node_submit($node)) {
     node_save($node);

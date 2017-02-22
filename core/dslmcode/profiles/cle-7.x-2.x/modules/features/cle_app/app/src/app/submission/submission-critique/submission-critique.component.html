@@ -1,0 +1,11 @@
+<div class="critique__wrapper">
+  <div class="critique__window">
+    <h3>Subject</h3>
+    <div *ngIf="critique" [innerHTML]="critique.body"></div>
+  </div>
+  <div *ngIf="submission" class="critique__submission">
+    <h3>Feeback</h3>
+    <div *ngIf="!editMode"[innerHTML]="submission.body"></div>
+    <ng-content select=".submission-content"></ng-content>
+  </div>
+</div>

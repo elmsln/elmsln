@@ -1,0 +1,35 @@
+<?php
+/**
+ * @file Web components ingestion helpers
+ */
+
+/**
+ * Implements hook_entity_insert().
+ */
+function webcomponents_templates_entity_insert($entity, $type) {
+  if ($type == 'webcomponent') {
+    $templates = wysiwyg_template_load_all();
+    $component = $entity;
+    $found = FALSE;
+    $name = 'webcomponents_' . str_replace('-', '_', $component->machine_name);
+    foreach ($templates as $template) {
+      if ($template['name'] == $name) {
+        $found = TRUE;
+      }
+    }
+    // create the template to match because it doesn't exist
+    if (!$found) {
+      $template = array(
+        'title' => $component->title,
+        'description' => $component->description,
+        'weight' => 50,
+        'fid' => 0,
+        'body' => _webcomponents_render_component($component),
+        'format' => variable_get('webcomponents_templates', filter_fallback_format()),
+        'name' => $name,
+        'content_types' => array(),
+      );
+      wysiwyg_template_save_template($template);
+    }
+  }
+}

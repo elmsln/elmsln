@@ -46,11 +46,13 @@
   Drupal.voicecommander.clickLink = function(phrase) {
     Drupal.settings.voiceCommander.commands[phrase].object.click();
     Drupal.settings.voiceCommander.commands[phrase].object.focus();
-    Drupal.voicecommander.reactivate();
   };
   // go to a link, this is most common
   Drupal.voicecommander.goTo = function(phrase) {
     window.location.href = Drupal.settings.basePath + Drupal.settings.voiceCommander.commands[phrase].data;
+  };
+  Drupal.voicecommander.stop = function(phrase) {
+    Drupal.settings.voiceCommander.synth.cancel();
   };
   // go backward in history
   Drupal.voicecommander.back = function(phrase) {
@@ -96,7 +98,6 @@
       $('[data-voicecommand]').removeClass('voicecommander-outline');
       $('#voicecommander-drawer').removeClass('voicecommander-drawer-display');
     }
-    Drupal.voicecommander.reactivate();
   }
   // go forward in history
   Drupal.voicecommander.forward = function(phrase) {
@@ -194,13 +195,15 @@
         // now convert to a method that they'd be able to fire correctly when
         // called instead of the assembled calls
         $.each(commands, function (phrase, value) {
-          if (phrase.indexOf(':') == -1 && phrase.indexOf(':') == -1) {
+          if (phrase.indexOf('*') == -1 && phrase.indexOf(':') == -1) {
             commandsWithCallbacks[phrase] = function () {
               eval(commands[phrase].callback +"('" + phrase.toLowerCase() + "')");
             };
           }
           else {
-            commandsWithCallbacks[phrase] = commands[phrase].callback;
+            commandsWithCallbacks[phrase] = function (variable) {
+              eval(commands[phrase].callback +"('" + variable + "')");
+            };
           }
         });
         // Create the function
@@ -209,8 +212,9 @@
         var voiceCommanderStr = $('body').append('<div id="voice-commander-rec"></div><div class="voice-commander-rec-window"><div class="icon"></div><p></p></div>');
         var out;
         annyang.addCallback('resultMatch', function(userSaid, commandText, phrases) {
-            $('.jarvis-conversation').append('<div><span class="human">' + Drupal.settings.voiceCommander.userName + ': ' + userSaid + '</span></div>');
-          });
+          Drupal.voicecommander.reactivate();
+          $('.jarvis-conversation').append('<div><span class="human">' + Drupal.settings.voiceCommander.userName + ': ' + userSaid + '</span></div>');
+        });
         // well now, the future is getting pretty bright; continuous mode overrides all other capabilities
         if (Drupal.settings.voiceCommander.continuous == true) {
           annyang.start({

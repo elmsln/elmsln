@@ -18,14 +18,9 @@ function cle_submission_ds_field_settings_info() {
   $ds_fieldsetting->view_mode = 'default';
   $ds_fieldsetting->settings = array(
     'comments' => array(
-      'weight' => '4',
+      'weight' => '7',
       'label' => 'hidden',
       'format' => 'default',
-    ),
-    'submitted_by' => array(
-      'weight' => '3',
-      'label' => 'hidden',
-      'format' => 'ds_post_date_medium',
     ),
   );
   $export['node|cle_submission|default'] = $ds_fieldsetting;
@@ -45,57 +40,45 @@ function cle_submission_ds_layout_settings_info() {
   $ds_layout->entity_type = 'node';
   $ds_layout->bundle = 'cle_submission';
   $ds_layout->view_mode = 'default';
-  $ds_layout->layout = 'zf_2col_bricks';
+  $ds_layout->layout = 'ds_2col_stacked';
   $ds_layout->settings = array(
     'regions' => array(
-      'above_left' => array(
-        0 => 'body',
-        1 => 'group_images',
-        2 => 'group_media',
-        3 => 'group_video',
-        6 => 'group_files',
-        8 => 'group_links',
-        9 => 'field_links',
-        10 => 'field_images',
-        11 => 'field_files',
-        12 => 'field_video',
+      'header' => array(
+        0 => 'field_assignment',
       ),
-      'above_right' => array(
-        4 => 'field_assignment',
-        5 => 'submitted_by',
-        7 => 'comments',
+      'left' => array(
+        1 => 'field_images',
+        2 => 'field_submission_text',
+        3 => 'field_files',
+        4 => 'field_video',
+        5 => 'field_links',
+      ),
+      'right' => array(
+        6 => 'comments',
       ),
     ),
     'fields' => array(
-      'body' => 'above_left',
-      'group_images' => 'above_left',
-      'group_media' => 'above_left',
-      'group_video' => 'above_left',
-      'field_assignment' => 'above_right',
-      'submitted_by' => 'above_right',
-      'group_files' => 'above_left',
-      'comments' => 'above_right',
-      'group_links' => 'above_left',
-      'field_links' => 'above_left',
-      'field_images' => 'above_left',
-      'field_files' => 'above_left',
-      'field_video' => 'above_left',
+      'field_assignment' => 'header',
+      'field_images' => 'left',
+      'field_submission_text' => 'left',
+      'field_files' => 'left',
+      'field_video' => 'left',
+      'field_links' => 'left',
+      'comments' => 'right',
     ),
     'classes' => array(),
     'wrappers' => array(
-      'top' => 'div',
-      'above_left' => 'div',
-      'above_right' => 'div',
-      'middle' => 'div',
-      'below_left' => 'div',
-      'below_right' => 'div',
-      'bottom' => 'div',
+      'header' => 'div',
+      'left' => 'div',
+      'right' => 'div',
+      'footer' => 'div',
     ),
     'layout_wrapper' => 'div',
     'layout_attributes' => '',
     'layout_attributes_merge' => 1,
     'layout_link_attribute' => '',
     'layout_link_custom' => '',
+    'layout_disable_css' => 0,
   );
   $export['node|cle_submission|default'] = $ds_layout;
 

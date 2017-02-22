@@ -51,7 +51,7 @@
     </div>
   <?php endif; ?>
   <?php if ($rows): ?>
-    <div class="s12 m9 l9 col view-content">
+    <div class="s12 m12 l12 col view-content">
       <?php print $rows; ?>
     </div>
 

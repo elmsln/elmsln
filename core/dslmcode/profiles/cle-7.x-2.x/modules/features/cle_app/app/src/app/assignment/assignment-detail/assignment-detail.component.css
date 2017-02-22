@@ -1,0 +1,29 @@
+.assignment {
+  position: relative;
+  background: #e6e6e6;
+  display: block;
+  padding: 1em;
+  font-size: .9em;
+  margin-bottom: 2em;
+  width: 80vw;
+  max-width: 38em;
+  padding-left: 3em;
+  box-shadow: 1px 1px 5px rgba(0, 0, 0, .6);
+ }
+.assignment__label {
+  opacity: .5;
+  font-size: 1.3em;
+  margin-top: 0;
+}
+
+.assignment__icon {
+  position: absolute;
+  top: .5em;
+  left: .3em;
+}
+
+.assignment__title {
+  font-size: 1.2em;
+}
+.assignment__body {
+}

@@ -1,0 +1,137 @@
+<?php
+/**
+ * @file Web components ingestion helpers
+ */
+
+
+define('WEBCOMPONENTS_POLYMER_NAME', 'polymer1');
+define('WEBCOMPONENTS_POLYMER_LOCATION', 'polymer');
+define('WEBCOMPONENTS_POLYMER_INDEX', 'index.html');
+/**
+ * Impements hook_register_component_format().
+ */
+function webcomponents_polymer_register_component_format() {
+  return array(
+    'polymer1' => array(
+      'process' => '_webcomponents_polymer_process_component',
+    ),
+  );
+}
+
+/**
+ * Implements hook_page_build().
+ */
+function webcomponents_polymer_page_build(&$page) {
+  drupal_add_js(drupal_get_path('theme', $GLOBALS['theme_key']) . '/polymer/bower_components/webcomponentsjs/webcomponents-lite.min.js');
+}
+
+/**
+ * Implements hook_webcomponents().
+ */
+function webcomponents_polymer_webcomponents() {
+  // look through all themes for polymer components
+  $themes = list_themes();
+  $active = $GLOBALS['theme_key'];
+  $lookup = array();
+  // hit active theme
+  if (isset($themes[$active])) {
+    $lookup[] = $active;
+    // look for base themes
+    while (isset($themes[$active]->base_theme)) {
+      $active = $themes[$active]->base_theme;
+      $lookup[] = $active;
+    }
+  }
+  // ensure we have a theme...
+  if (!empty($lookup)) {
+    // skip through each theme to find polymer components
+    foreach ($lookup as $theme) {
+      // look for polymer webcomponents in the active theme
+      $dir = drupal_get_path('theme', $theme) . '/' . WEBCOMPONENTS_POLYMER_LOCATION . '/';
+      // see if we have default file
+      if (file_exists($dir . '/' . WEBCOMPONENTS_POLYMER_INDEX)) {
+        $files = array();
+        // step into the polymer directory and find all html templates
+        $di = new DirectoryIterator($dir);
+        foreach ($di as $fileinfo) {
+          $fname = $fileinfo->getFilename();
+          // only include html file, not index
+          if (strpos($fname, '.html') && $fname != 'index.html') {
+            $files[] = $dir . $fileinfo->getFilename();
+          }
+          // @todo we need to be careful here so that we don't timeout here
+          elseif (is_dir($dir . $fname) && $fname != '.' && $fname != '..') {
+            $di2 = new DirectoryIterator($dir . $fname);
+            foreach ($di2 as $fileinfo2) {
+              $fname2 = $fileinfo2->getFilename();
+              // only include html file, not index
+              if (strpos($fname2, '.html') && $fname2 != 'index.html') {
+                $files[] = $dir . $fname . '/' . $fname2;
+              }
+              elseif (is_dir($dir . $fname . '/' . $fname2) && $fname2 != '.' && $fname2 != '..') {
+                $di3 = new DirectoryIterator($dir . $fname . '/' . $fname2);
+                foreach ($di3 as $fileinfo3) {
+                  $fname3 = $fileinfo3->getFilename();
+                  // only include html file, not index
+                  if (strpos($fname3, '.html') && $fname3 != 'index.html') {
+                    $files[] = $dir . $fname . '/' . $fname2 . '/' . $fname3;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  // group these all as files found to match polymer format
+  return array(WEBCOMPONENTS_POLYMER_NAME => $files);
+}
+
+/**
+ * Callback to do the processing for polymer components
+ * @param  string $file reference to a file on the file system
+ * @return array       a webcomponent engineered from the file
+ */
+function _webcomponents_polymer_process_component($file) {
+  $html = file_get_contents($file);
+  // Create a DOM object.
+  $html_obj = new simple_html_dom();
+  // Load HTML from a string.
+  $html_obj->load($html);
+  // find dom-module, it's the machine_name
+  foreach ($html_obj->find('dom-module') as $rawmatch ) {
+    $machine_name = $rawmatch->{'id'};
+  }
+  // Remove all plain text fragments.
+  foreach ($html_obj->find('template') as $rawmatch ) {
+    // abstract machine name for the new component
+    $title = drupal_ucfirst(str_replace('-', ' ', $machine_name));
+    $tag = $rawmatch->tag;
+    // estblish the component we found
+    $component = new stdClass();
+    $component->machine_name = $machine_name;
+    $component->tag = $tag;
+    $component->title = $title;
+    $component->file = $file;
+    $component->type = 'polymer';
+    $component->properties = array();
+    // match {{}} and [[]] based properties
+    preg_match_all('/({{.*?}}|\[\[.*?\]\])/', $rawmatch->innertext, $matches);
+    // find matches for custom properties so we know how to tokenize this
+    if (isset($matches[0])) {
+      // loop through properties
+      foreach ($matches[0] as $match) {
+        // strip off the edges
+        $value = str_replace('{{', '', str_replace('}}', '', $match));
+        $value = str_replace('[[', '', str_replace(']]', '', $value));
+        // @todo read value type from polymer directly
+        $component->properties[$value] = 'String';
+      }
+    }
+  }
+  // Release resources to avoid memory leak in some versions.
+  $html_obj->clear();
+  unset($html_obj);
+  return $component;
+}

@@ -11,7 +11,6 @@ dependencies[] = date_api
 dependencies[] = date_popup
 dependencies[] = date_views
 dependencies[] = diff
-dependencies[] = elements
 dependencies[] = entity
 dependencies[] = entity_quote
 dependencies[] = entity_token
@@ -87,7 +86,6 @@ features[image][] = harmony-32-32
 features[taxonomy][] = harmony_category
 features[taxonomy_display][] = harmony_category
 features[variable][] = field_bundle_settings_taxonomy_term__harmony_category
-features[variable][] = field_bundle_settings_user__user
 features[variable][] = pathauto_harmony_core_pattern
 features[variable][] = pathauto_taxonomy_term_harmony_category_pattern
 features[views_view][] = harmony_administration_posts
@@ -134,11 +132,15 @@ files[] = views/handlers/harmony_core_views_plugin_argument_default_taxonomy_tid
 files[] = views/handlers/harmony_core_views_handler_argument_default_taxonomy_tid_depth.inc
 files[] = views/handlers/harmony_core_views_plugin_argument_default_thread.inc
 files[] = views/handlers/harmony_core_views_plugin_row_post_view.inc
+files[] = views/handlers/HarmonyCoreViewsHandlerFieldPostPublic.php
+files[] = views/handlers/HarmonyCoreViewsHandlerFieldPublic.php
+files[] = views/handlers/HarmonyCoreViewsHandlerFilterPostPublic.php
+files[] = views/handlers/HarmonyCoreViewsHandlerFilterPublic.php
 files[] = views/plugins/harmony_core_views_plugin_style_harmony_table.inc
 
-; Information added by Drupal.org packaging script on 2015-10-31
-version = "7.x-1.0-alpha7"
+; Information added by Drupal.org packaging script on 2016-09-08
+version = "7.x-1.0-alpha10+3-dev"
 core = "7.x"
 project = "harmony_core"
-datestamp = "1446332361"
+datestamp = "1473338942"
 

@@ -16,8 +16,13 @@ function elmsln_core_data_form() {
     $entity = entity_load_single($etype, $etid);
   }
   $filtered_verb = (isset($_GET['verb']) ? filter_xss(check_plain($_GET['verb'])) : '');
-  $chart_style = (isset($_GET['chart_style']) ? filter_xss(check_plain($_GET['chart_style'])) : 'pie');
+  $visualization = (isset($_GET['visualization']) ? filter_xss(check_plain($_GET['visualization'])) : 'pie');
+  $pivot = (isset($_GET['pivot']) ? filter_xss(check_plain($_GET['pivot'])) : 'verb');
+  // apply active section context if one exists
+  $section = (isset($_GET['section']) ? filter_xss(check_plain($_GET['section'])) : _cis_connector_section_context());
+  // which display method to use
   $display = arg(3);
+  // allow for debugging mode
   $debug = (isset($_GET['debug']) ? true : false);
   $roles = array(
     'all' => t('All roles'),
@@ -48,7 +53,7 @@ function elmsln_core_data_form() {
   $filtertitle = '';
   if (isset($entity)) {
     $uri = entity_uri($etype, $entity);
-    $url = url($uri['path'], array('absolute' => TRUE));
+    $url = url($uri['path'], array('absolute' => TRUE, 'alias' => TRUE));
     // show query data specific to the entity type in question
     switch ($etype) {
       case 'user':
@@ -80,7 +85,7 @@ function elmsln_core_data_form() {
   }
   else {
     // ignore pause, it's worthless by itself
-    $query['pipeline'][0]['$match']['statement.verb.display.en-US'] = array('$ne' => 'paused');
+    $query['pipeline'][0]['$match']['statement.verb.display.en-US'] = array('$nin' => array('paused', 'progressed'));
   }
   // only show role results requested if filtered
   if ($etype != 'user' && isset($_GET['role'])) {
@@ -89,6 +94,11 @@ function elmsln_core_data_form() {
       $filtertitle .= '<span class="chip">' . t('role: @role', array('@role' => $role)) . '</span>';
       $query['pipeline'][0]['$match']['statement.context.extensions.https://www%2646;elmsln%2646;org/x-api/elmsln-role'] = $role;
     }
+  }
+  // only show active section data if selected
+  if ($section != '-all-') {
+    $query['pipeline'][0]['$match']['statement.context.extensions.https://www%2646;elmsln%2646;org/x-api/elmsln-section'] = $section;
+    $filtertitle .= '<span class="chip">' . t('section: @section', array('@section' => $section)) . '</span>';
   }
   $query['pipeline'] = json_encode($query['pipeline']);
   $result = _elmsln_core_lrs_query($query, FALSE);
@@ -116,11 +126,84 @@ function elmsln_core_data_form() {
       }
       $record['_item_link'] = $item_link;
       $aggregates['statements'][$verb][] = $record;
-      // count verbs
-      if (!isset($aggregates['counts'][$verb])) {
-        $aggregates['counts'][$verb] = 0;
+        // count based on pivot
+      switch ($pivot) {
+        case 'verb':
+          if (!isset($aggregates['counts'][0][$verb])) {
+            $aggregates['counts'][0][$verb] = array(
+              'title' => $verb,
+              'value' => 0,
+              'verb' => $verb,
+            );
+          }
+          $aggregates['counts'][0][$verb]['value']++;
+        break;
+        case 'h5p':
+          // look for an answered H5P statement
+          if ($verb == 'answered' && isset($record['statement']['context']['contextActivities']['category'][0]['id'])) {
+            $itemtype = $record['statement']['context']['contextActivities']['category'][0]['id'];
+            $item = $record['statement']['object']['definition']['description']['en-US'];
+            // support for multiple choice / known quantity items
+            if (isset($record['statement']['object']['definition']['choices'])) {
+              // make sure we started recording these answers
+              if (!isset($aggregates['counts'][$item])) {
+                // loop through possible choices
+                foreach ($record['statement']['object']['definition']['choices'] as $choice) {
+                  // extract each possible option
+                  $option = trim($choice['description']['en-US']);
+                  // see if the current option is part of the 'correct' response
+                  if (in_array($choice['id'], $record['statement']['object']['definition']['correctResponsesPattern'])) {
+                    $option = $option . ' ' . t('[correct]');
+                  }
+                  // set option as empty so we at least have a bucket for it existing
+                  $aggregates['counts'][$item][$choice['id']] = array(
+                    'title' => $option,
+                    'value' => 0,
+                    'verb' => $verb,
+                  );
+                }
+              }
+              if (isset($record['statement']['result']['response']) && is_numeric($record['statement']['result']['response'])) {
+                $aggregates['counts'][$item][$record['statement']['result']['response']]['value']++;
+              }
+            }
+            // support for H5P Fill in the blank
+            elseif (strpos($itemtype, 'H5P.Blanks')) {
+              if (isset($record['statement']['result']['response'])) {
+                if (!isset($aggregates['counts'][$item][$record['statement']['result']['response']])) {
+                  $response = $record['statement']['result']['response'];
+                  if ($record['statement']['result']['score']['scaled'] == 1) {
+                    $response .= '[correct]';
+                  }
+                  $aggregates['counts'][$item][$record['statement']['result']['response']] = array(
+                    'title' => $response,
+                    'value' => 0,
+                    'verb' => $verb,
+                  );
+                }
+                $aggregates['counts'][$item][$record['statement']['result']['response']]['value']++;
+              }
+            }
+            // support for H5P TrueFalse in the blank
+            elseif (strpos($itemtype, 'H5P.TrueFalse')) {
+              if (isset($record['statement']['result']['response'])) {
+                if (!isset($aggregates['counts'][$item][$record['statement']['result']['response']])) {
+                  $response = $record['statement']['result']['response'];
+                  if ($record['statement']['result']['score']['scaled'] == 1) {
+                    $response .= '[correct]';
+                  }
+                  $aggregates['counts'][$item][$record['statement']['result']['response']] = array(
+                    'title' => $response,
+                    'value' => 0,
+                    'verb' => $verb,
+                  );
+                }
+                $aggregates['counts'][$item][$record['statement']['result']['response']]['value']++;
+              }
+            }
+          }
+        break;
       }
-      $aggregates['counts'][$verb]++;
       if (!isset($aggregates['users'][$verb][$record['statement']['actor']['name']])) {
         $aggregates['users'][$verb][$record['statement']['actor']['name']] = 0;
       }
@@ -129,9 +212,13 @@ function elmsln_core_data_form() {
     }
   }
   // order from biggest to smallest xAPI counts
-  uasort($aggregates['counts'], '_elmsln_uasortcmp');
+  //uasort($aggregates['counts'], '_elmsln_uasortcmp');
   // load in the icon associations
   $icons = _elmsln_core_icon_map();
+  $descriptions = array();
+  if (module_exists('elmsln_lrs')) {
+    $descriptions = _elmsln_lrs_verb_descriptions();
+  }
   foreach ($aggregates['verbs'] as $verb) {
     if (isset($icons[$verb])) {
       $aggregates['colors'][$verb] = $icons[$verb]['color'];
@@ -140,6 +227,15 @@ function elmsln_core_data_form() {
     else {
       $aggregates['colors'][$verb] = ELMSLN_XAPI_DEFAULT_COLOR;
       $aggregates['icons'][$verb] = ELMSLN_XAPI_DEFAULT_ICON;
+    }
+    if (isset($descriptions[$verb])) {
+      $aggregates['descriptions'][$verb] = $descriptions[$verb];
+    }
+    else {
+      $aggregates['descriptions'][$verb] = array(
+        'title' => ucfirst($verb),
+        'description' => '',
+      );
     }
     $aggregates['verb_data_links'][$verb] = $uri['path'] . '/data';
     $aggregates['percent_used'][$verb] = 100 * round(count($aggregates['users'][$verb]) / count($aggregates['user_list']), 2);
@@ -159,8 +255,6 @@ function elmsln_core_data_form() {
   }
   // send off for theming
   $vars = array(
-    'datatitle' => $datatitle,
-    'filtertitle' => $filtertitle,
     'data' => $data,
     'aggregates' => $aggregates,
   );
@@ -177,7 +271,7 @@ function elmsln_core_data_form() {
       '#title' => t('Read time stats'),
       '#collapsed' => TRUE,
       '#collapsible' => TRUE,
-      '#weight' => -15,
+      '#weight' => -10,
       '#attributes' => array(
         'class' => array(
           'collapsible',
@@ -192,31 +286,7 @@ function elmsln_core_data_form() {
       '#markup' => theme('read_time', array('node' => $entity)),
     );
   }
-
-  $filters['visualizations'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('Visualizations'),
-    '#collapsed' => TRUE,
-    '#collapsible' => TRUE,
-    '#weight' => -10,
-    '#attributes' => array(
-      'class' => array(
-        'collapsible',
-        'form-wrapper',
-        'collapsed',
-      ),
-    ),
-    '#materialize' => array(
-      'type' => 'collapsible',
-      'icon' => 'show_chart',
-    ),
-    'datacontainer' => array(
-      '#type' => 'markup',
-      '#markup' => '<div class="elmsln-data-container"><canvas id="lrs-data-chart" width="400" height="400"></canvas></div>',
-    ),
-  );
-  // build simple visuals
-  $values = $labels = $colors = array();
+  // colorlist of just a bunch of options that will look ok
   $colorlist = array(
     '#f44336',
     '#e91e63',
@@ -237,28 +307,62 @@ function elmsln_core_data_form() {
     '#795548',
     '#607d8b',
   );
-  shuffle($colorlist);
-  foreach ($aggregates['counts'] as $label => $count) {
-    $values[] = $count;
-    $labels[] = $label;
-    $colors[] = array_pop($colorlist);
-  }
-  $datajs = array(
-    'elmslnCore' => array(
-      'chart' => array(
-        'data' => array(
-          'values' => $values,
-          'labels' => $labels,
-        ),
-        'style' => array(
-          'type' => $chart_style,
-          'borderWidth' => 1,
-          'label' => t('xAPI statements'),
-          'colors' => $colors,
-        ),
+  $visualizations = array(
+    '#type' => 'fieldset',
+    '#title' => t('Visualizations'),
+    '#collapsed' => FALSE,
+    '#collapsible' => TRUE,
+    '#weight' => -14,
+    '#attributes' => array(
+      'class' => array(
+        'collapsible',
+        'form-wrapper',
+        'collapsed',
       ),
     ),
+    '#materialize' => array(
+      'type' => 'collapsible',
+      'icon' => 'show_chart',
+    ),
+    'datacontainer' => array(
+      '#type' => 'markup',
+      '#markup' => '<div class="elmsln-data-container">',
+    ),
   );
+  // container for the chart data
+  $datajs = array(
+    'elmslnCore' => array(
+      'charts' => array()
+    ),
+  );
+  // build simple visuals
+  $values = $labels = $colors = array();
+  foreach ($aggregates['counts'] as $charttitle => $item) {
+    $colorlisttmp = $colorlist;
+    shuffle($colorlisttmp);
+    $visualizations['datacontainer']['#markup'] .= '<canvas class="lrs-data-chart" width="300" height="300"></canvas>';
+    foreach ($item as $data) {
+      $values[$charttitle][] = $data['value'];
+      $labels[$charttitle][] = $data['title'];
+      $colors[$charttitle][] = array_pop($colorlisttmp);
+    }
+    $datajs['elmslnCore']['charts'][] = array(
+      'title' => $charttitle,
+      'data' => array(
+        'values' => $values[$charttitle],
+        'labels' => $labels[$charttitle],
+      ),
+      'style' => array(
+        'type' => $visualization,
+        'borderWidth' => 1,
+        'label' => $charttitle,
+        'colors' => $colors[$charttitle],
+      ),
+    );
+  }
+  // end cap
+  $visualizations['datacontainer']['#markup'] .= '</div>';
+  // apply the chart settings to the document
   drupal_add_js($datajs, array('type' => 'setting'));
 
   $filters['filter_data'] = array(
@@ -287,14 +391,34 @@ function elmsln_core_data_form() {
       '#default_value' => $role,
       '#options' => $roles,
     );
+    // assemble all active sections of the current user
+    $sections = array('-all-' => t('All data')) + cis_section_all_sections(FALSE, TRUE);
+
+    $filters['filter_data']['section'] = array(
+      '#type' => 'select',
+      '#title' => t('Section'),
+      '#default_value' => $section,
+      '#options' => $sections,
+    );
   }
-  $filters['filter_data']['chart_style'] = array(
+  $filters['filter_data']['pivot'] = array(
     '#type' => 'select',
-    '#title' => t('Chart style'),
-    '#default_value' => $chart_style,
+    '#title' => t('Pivot'),
+    '#default_value' => $pivot,
     '#options' => array(
-      'pie' => t('Pie'),
-      'bar' => t('Bar'),
+      'verb' => t('Verb centric'),
+      'h5p' => t('H5P response data'),
+      //'session' => t('Session centric'),
+      //'video' => t('Video based data'),
+    ),
+  );
+  $filters['filter_data']['visualization'] = array(
+    '#type' => 'select',
+    '#title' => t('Visualization'),
+    '#default_value' => $visualization,
+    '#options' => array(
+      'pie' => t('Pie chart'),
+      'bar' => t('Bar chart'),
     ),
   );
   $filters['filter_data']['verb'] = array(
@@ -315,13 +439,29 @@ function elmsln_core_data_form() {
     '#id' => 'reset_filters',
   );
   $form = array(
+    'header' => array(
+      '#type' => 'markup',
+      '#markup' => '<h2>' . $datatitle . '</h2>
+      <div>' . $filtertitle .'</div>',
+    ),
+    'visualization_fieldset' => array(
+      '#type' => 'fieldset',
+      '#materialize' => array(
+        'type' => 'collapsible_wrapper'
+      ),
+      '#attributes' => array(
+        'class' => array('collapsible', 'lrs-data-visualizations', 'col', 's12', 'm8', 'l8'),
+        'data-collapsible' => 'accordion',
+      ),
+      'visualizations' => $visualizations,
+    ),
     'filter_fieldset' => array(
       '#type' => 'fieldset',
       '#materialize' => array(
         'type' => 'collapsible_wrapper'
       ),
       '#attributes' => array(
-        'class' => array('collapsible', 'lrs-data-filters'),
+        'class' => array('collapsible', 'lrs-data-filters', 'col', 's12', 'm4', 'l4'),
         'data-collapsible' => 'accordion',
       ),
       'filters' => $filters,
@@ -349,8 +489,14 @@ function elmsln_core_data_form_submit($form, &$form_state) {
     if (isset($form_state['values']['role'])) {
       $filters['role'] = $form_state['values']['role'];
     }
-    if (isset($form_state['values']['chart_style'])) {
-      $filters['chart_style'] = $form_state['values']['chart_style'];
+    if (isset($form_state['values']['section'])) {
+      $filters['section'] = $form_state['values']['section'];
+    }
+    if (isset($form_state['values']['visualization'])) {
+      $filters['visualization'] = $form_state['values']['visualization'];
+    }
+    if (isset($form_state['values']['pivot'])) {
+      $filters['pivot'] = $form_state['values']['pivot'];
     }
     drupal_goto(current_path(), array('query' => $filters));
   }

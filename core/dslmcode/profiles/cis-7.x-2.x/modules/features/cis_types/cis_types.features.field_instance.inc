@@ -3590,61 +3590,6 @@ Global will be available to all resources to reference',
     ),
   );
 
-  // Exported field_instance: 'node-service-field_data_location'.
-  $field_instances['node-service-field_data_location'] = array(
-    'bundle' => 'service',
-    'default_value' => NULL,
-    'deleted' => 0,
-    'description' => 'The URL that data and backend calls can be made against.  This can be the same as the Location but is recommended that an additional domain be used so that these web service connections can operate on a different IP and be fire-walled independently for added security.',
-    'display' => array(
-      'default' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 3,
-      ),
-      'teaser' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'field_data_location',
-    'label' => 'Data location',
-    'required' => 1,
-    'settings' => array(
-      'absolute_url' => 1,
-      'attributes' => array(
-        'class' => '',
-        'configurable_title' => 0,
-        'rel' => '',
-        'target' => 'default',
-        'title' => '',
-      ),
-      'display' => array(
-        'url_cutoff' => 80,
-      ),
-      'enable_tokens' => 0,
-      'rel_remove' => 'default',
-      'title' => 'none',
-      'title_label_use_field_label' => FALSE,
-      'title_maxlength' => 128,
-      'title_value' => '',
-      'url' => 0,
-      'user_register_form' => FALSE,
-      'validate_url' => 0,
-    ),
-    'widget' => array(
-      'active' => 0,
-      'module' => 'link',
-      'settings' => array(),
-      'type' => 'link_field',
-      'weight' => 3,
-    ),
-  );
-
   // Exported field_instance: 'node-service-field_distribution'.
   $field_instances['node-service-field_distribution'] = array(
     'bundle' => 'service',
@@ -3681,62 +3626,6 @@ Global will be available to all resources to reference',
       ),
       'type' => 'text_textfield',
       'weight' => 1,
-    ),
-  );
-
-  // Exported field_instance: 'node-service-field_location'.
-  $field_instances['node-service-field_location'] = array(
-    'bundle' => 'service',
-    'default_value' => NULL,
-    'deleted' => 0,
-    'description' => 'Web address associated with this service.  This is the domain where requests to build this type of system will be stored.',
-    'display' => array(
-      'default' => array(
-        'label' => 'inline',
-        'module' => 'link',
-        'settings' => array(),
-        'type' => 'link_default',
-        'weight' => 0,
-      ),
-      'teaser' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'field_location',
-    'label' => 'Location',
-    'required' => 1,
-    'settings' => array(
-      'absolute_url' => 1,
-      'attributes' => array(
-        'class' => '',
-        'configurable_title' => 0,
-        'rel' => '',
-        'target' => 'default',
-        'title' => '',
-      ),
-      'display' => array(
-        'url_cutoff' => 80,
-      ),
-      'enable_tokens' => 0,
-      'rel_remove' => 'default',
-      'title' => 'none',
-      'title_label_use_field_label' => FALSE,
-      'title_maxlength' => 128,
-      'title_value' => '',
-      'url' => 0,
-      'user_register_form' => FALSE,
-      'validate_url' => 0,
-    ),
-    'widget' => array(
-      'active' => 0,
-      'module' => 'link',
-      'settings' => array(),
-      'type' => 'link_field',
-      'weight' => 2,
     ),
   );
 
@@ -4048,7 +3937,6 @@ Global will be available to all resources to reference',
   t('Course title');
   t('Credit hours');
   t('Cron key');
-  t('Data location');
   t('Delivery Guide');
   t('Description');
   t('Design doc');
@@ -4064,7 +3952,6 @@ Global will be available to all resources to reference',
   t('Instructor of record');
   t('Lead Instructor');
   t('Link to the course in the university bulletin');
-  t('Location');
   t('Long description');
   t('Machine name');
   t('Method of access');
@@ -4092,7 +3979,6 @@ Global will be available to all resources to reference',
   t('Syllabus');
   t('TAs that have been allocated to this section');
   t('Teaching assistants');
-  t('The URL that data and backend calls can be made against.  This can be the same as the Location but is recommended that an additional domain be used so that these web service connections can operate on a different IP and be fire-walled independently for added security.');
   t('The address for the course: example Title - Art 010, machine art010');
   t('The dates that this section will have access to the material listed in the Access section');
   t('The instructional design assigned to manage this course');
@@ -4104,7 +3990,6 @@ Global will be available to all resources to reference',
   t('Unit Head');
   t('University Bulletin');
   t('Use this to introduce the instructor to the course.  This should be a personalized message, most often accompanied by video.');
-  t('Web address associated with this service.  This is the domain where requests to build this type of system will be stored.');
   t('Welcome Letter');
   t('Welcome Page');
   t('What is this resource for?  Most of the time you\'ll want to choose global so it is the default.

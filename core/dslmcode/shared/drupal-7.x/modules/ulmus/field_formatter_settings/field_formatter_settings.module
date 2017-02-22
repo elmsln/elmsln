@@ -1,0 +1,200 @@
+<?php
+
+/**
+ * Implements hook_hook_info().
+ */
+function field_formatter_settings_hook_info() {
+  $hooks = array(
+    'field_formatter_settings_form_alter',
+    'field_formatter_settings_summary_alter',
+  );
+
+  return array_fill_keys($hooks, array('group' => 'field'));
+}
+
+/**
+ * Get the formatter settings for a field instance and view mode.
+ *
+ * @param string $field_name
+ * @param string $display
+ * @param string $bundle
+ * @param string $view_mode
+ *
+ * @return array
+ */
+function field_formatter_settings_get_instance_display_settings($entity_type, $field_name, $bundle, $view_mode) {
+  // There is no bundle for this entity type so the bundle name in the
+  // entity_type name.
+  if (empty($bundle)) {
+    $bundle = $entity_type;
+  }
+
+  // Fetch the instance settings and default display settings.
+  $info = field_info_instance($entity_type, $field_name, $bundle);
+  $defaults = $info['display']['default']['settings'];
+
+  if (isset($info['display'][$view_mode]['settings'])) {
+    return $info['display'][$view_mode]['settings'] + $defaults;
+  }
+  else {
+    return $defaults;
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function field_formatter_settings_form_field_ui_display_overview_form_alter(&$form, &$form_state) {
+  $entity_type = $form['#entity_type'];
+  $bundle = $form['#bundle'];
+  $view_mode = $form['#view_mode'];
+
+  // Gather type information.
+  $instances = field_info_instances($entity_type, $bundle);
+  $field_types = field_info_field_types();
+  $extra_fields = field_info_extra_fields($entity_type, $bundle, 'display');
+
+  $table = &$form['fields'];
+
+  // Field rows.
+  foreach ($instances as $name => $instance) {
+    $field = field_info_field($instance['field_name']);
+    $display = $instance['display'][$view_mode];
+
+    // Check the currently selected formatter, and merge persisted values for
+    // formatter settings.
+    if (isset($form_state['values']['fields'][$name]['type'])) {
+      $formatter_type = $form_state['values']['fields'][$name]['type'];
+    }
+    else {
+      $formatter_type = $display['type'];
+    }
+    if (isset($form_state['formatter_settings'][$name])) {
+      $settings = $form_state['formatter_settings'][$name];
+    }
+    else {
+      $settings = $display['settings'];
+    }
+    $settings += field_info_formatter_settings($formatter_type);
+
+    $instance['display'][$view_mode]['type'] = $formatter_type;
+    $formatter = field_info_formatter_types($formatter_type);
+    $instance['display'][$view_mode]['module'] = $formatter['module'];
+    $instance['display'][$view_mode]['settings'] = $settings;
+
+    // Base button element for the various formatter settings actions.
+    $base_button = array(
+      '#submit' => array('field_ui_display_overview_multistep_submit'),
+      '#ajax' => array(
+        'callback' => 'field_ui_display_overview_multistep_js',
+        'wrapper' => 'field-display-overview-wrapper',
+        'effect' => 'fade',
+      ),
+      '#field_name' => $name,
+    );
+
+    if ($form_state['formatter_settings_edit'] == $name) {
+      $settings_form = isset($table[$name]['format']['settings_edit_form']['settings']) ? $table[$name]['format']['settings_edit_form']['settings'] : array();
+
+      // Allow other modules to alter the formater settings form.
+      $context = array(
+        'module' => $formatter['module'],
+        'formatter' => $formatter,
+        'field' => $field,
+        'instance' => $instance,
+        'view_mode' => $view_mode,
+        'form' => $form,
+        'form_state' => $form_state,
+      );
+      drupal_alter('field_formatter_settings_form', $settings_form, $context);
+
+      if ($settings_form) {
+        $table[$name]['format']['#cell_attributes'] = array('colspan' => 3);
+        $table[$name]['format']['settings_edit_form'] = array(
+          '#type' => 'container',
+          '#attributes' => array('class' => array('field-formatter-settings-edit-form')),
+          '#parents' => array('fields', $name, 'settings_edit_form'),
+          'label' => array(
+            '#markup' => t('Format settings:') . ' <span class="formatter-name">' . $formatter['label'] . '</span>',
+          ),
+          'settings' => $settings_form,
+          'actions' => array(
+            '#type' => 'actions',
+            'save_settings' => $base_button + array(
+              '#type' => 'submit',
+              '#name' => $name . '_formatter_settings_update',
+              '#value' => t('Update'),
+              '#op' => 'update',
+            ),
+            'cancel_settings' => $base_button + array(
+              '#type' => 'submit',
+              '#name' => $name . '_formatter_settings_cancel',
+              '#value' => t('Cancel'),
+              '#op' => 'cancel',
+              // Do not check errors for the 'Cancel' button, but make sure we
+              // get the value of the 'formatter type' select.
+              '#limit_validation_errors' => array(array('fields', $name, 'type')),
+            ),
+          ),
+        );
+        $table[$name]['#attributes']['class'][] = 'field-formatter-settings-editing';
+      }
+    }
+    else {
+      // Display a summary of the current formatter settings.
+      $summary = module_invoke($formatter['module'], 'field_formatter_settings_summary', $field, $instance, $view_mode);
+
+      // Allow other modules to alter the formatter summary.
+      $context = array(
+        'field' => $field,
+        'instance' => $instance,
+        'view_mode' => $view_mode,
+      );
+      drupal_alter('field_formatter_settings_summary', $summary, $context);
+
+      $table[$name]['settings_summary'] = array();
+      $table[$name]['settings_edit'] = array();
+      if ($summary) {
+        $table[$name]['settings_summary'] = array(
+          '#markup' => '<div class="field-formatter-summary">' . $summary . '</div>',
+          '#cell_attributes' => array('class' => array('field-formatter-summary-cell')),
+        );
+        $table[$name]['settings_edit'] = $base_button + array(
+          '#type' => 'image_button',
+          '#name' => $name . '_formatter_settings_edit',
+          '#src' => 'misc/configure.png',
+          '#attributes' => array('class' => array('field-formatter-settings-edit'), 'alt' => t('Edit')),
+          '#op' => 'edit',
+          // Do not check errors for the 'Edit' button, but make sure we get
+          // the value of the 'formatter type' select.
+          '#limit_validation_errors' => array(array('fields', $name, 'type')),
+          '#prefix' => '<div class="field-formatter-settings-edit-wrapper">',
+          '#suffix' => '</div>',
+        );
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * Support altering formatter settings for field handlers in Views. Unlike the
+ * Field UI page, this does not require the settings summary hook to be
+ * invoked to work.
+ */
+function field_formatter_settings_form_views_ui_config_item_form_alter(&$form, &$form_state) {
+  $handler = $form_state['handler'];
+  if ($handler instanceof views_handler_field_field) {
+    $context = array(
+      'module' => $handler->field_info['module'],
+      'formatter' => $handler->field_info['type'],
+      'field' => field_info_field($handler->options['field']),
+      'instance' => $handler->instance,
+      'view_mode' => '_custom', // Same view mode as field_view_field().
+      'form' => $form,
+      'form_state' => $form_state,
+    );
+    drupal_alter('field_formatter_settings_form', $form['options']['settings'], $context);
+  }
+}

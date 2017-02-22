@@ -92,3 +92,24 @@ function cle__2_update_7006(&$sandbox) {
   features_revert_module('cle_perms');
   features_revert_module('cle_submission');
 }
+
+/**
+ * xAPI tracking for view / duration stuff at least
+ */
+function cle__2_update_7007(&$sandbox) {
+  module_enable(array('elmsln_lrs'));
+}
+
+/**
+ * CLE Submission data model has an additional field for critique
+ */
+function cle__2_update_7008(&$sandbox) {
+  features_revert_module('cle_submission');
+}
+
+/**
+ * CLE permissions default to let authed users see stuff... duh.
+ */
+function cle__2_update_7009(&$sandbox) {
+  features_revert_module('cle_perms');
+}

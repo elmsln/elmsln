@@ -5,6 +5,7 @@ import { createImage, createImageSuccess, createImageFailure } from '../../image
 import { ImageState } from '../../image/image.reducer';
 import { Submission } from '../submission';
 import { Observable } from 'rxjs/Observable';
+import { SubmissionService } from '../submission.service';
 
 declare const Materialize:any;
 declare const jQuery:any;
@@ -16,6 +17,7 @@ declare const jQuery:any;
 })
 export class SubmissionFormComponent implements OnInit, OnChanges {
   @Input() submission:Submission;
+  @Input() submissionType:string = 'submission';
   @Output() onSubmissionSave: EventEmitter<any> = new EventEmitter(); 
   @Output() onSubmissionCancel: EventEmitter<any> = new EventEmitter(); 
   @Output() onFormChanges: EventEmitter<any> = new EventEmitter();
@@ -27,7 +29,8 @@ export class SubmissionFormComponent implements OnInit, OnChanges {
 
   constructor(
     private formBuilder: FormBuilder,
-    private store: Store<{}>
+    private store: Store<{}>,
+    private submissionService: SubmissionService
   ) { }
 
   ngOnInit() {

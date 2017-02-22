@@ -1,0 +1,214 @@
+<?php
+/**
+ * @file Web components integration
+ */
+
+/**
+ * Implements hook_page_build().
+ */
+function webcomponents_page_build(&$page) {
+  $components = webcomponents_load_all();
+  foreach ($components as $component) {
+    _webcomponents_add_to_head($component);
+  }
+}
+
+/**
+ * Implements hook_entity_info().
+ */
+function webcomponents_entity_info() {
+  $info = array();
+  $info['webcomponent'] = array(
+    'label' => t('Web component'),
+    'base table' => 'webcomponents',
+    'entity keys' => array(
+      'id' => 'wid',
+      'label' => 'title',
+      'bundle' => 'type',
+    ),
+    'module' => 'webcomponents',
+    'entity class' => 'Entity',
+    'controller class' => 'EntityAPIController',
+    'fieldable' => FALSE,
+    'bundle keys' => array(
+      'bundle' => 'type',
+    ),
+  );
+  return $info;
+}
+
+/**
+ * Return output for rendering a component
+ * @param  array $component fully loaded webcomponent entity.
+ * @return string            rendered representation of the component
+ */
+function _webcomponents_render_component($component) {
+  if (isset($component->properties)) {
+    if (!is_array($component->properties)) {
+      $component->properties = unserialize($component->properties);
+    }
+    _webcomponents_add_to_head($component);
+    // support token replacement of properties passed in
+    foreach ($component->properties as &$property) {
+      $property = token_replace($property);
+    }
+    $vars = array(
+      'tag' => $component->machine_name,
+      'properties' => $component->properties,
+    );
+    $output = theme('webcomponent', $vars);
+    return $output;
+  }
+  return FALSE;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function webcomponents_theme() {
+  // test all components on the file system against what's
+  // in the database to ensure the data models haven't changed
+  _webcomponents_rebuild();
+  // hilariously minor template
+  return array(
+    'webcomponent' => array(
+      'variables' => array(
+        'tag' => '',
+        'properties' => array(),
+      ),
+      'render element' => 'element',
+      'template' => 'webcomponent',
+      'path' => drupal_get_path('module', 'webcomponents') . '/templates',
+    ),
+  );
+}
+
+/**
+ * Implements hook_entity_load().
+ */
+function webcomponents_entity_load($entities, $type) {
+  if ($type == 'webcomponent') {
+    // unpack properties
+    foreach ($entities as $entity) {
+      $entity->properties = unserialize($entity->properties);
+    }
+  }
+}
+
+/**
+ * Load all webcomponents in the database.
+ * @return array array of entities or empty.
+ */
+function webcomponents_load_all() {
+  $entities = &drupal_static(__FUNCTION__);
+  // @ignore druplart_conditional_assignment
+  if (!$entities) {
+    $query = new EntityFieldQuery();
+    $query->entityCondition('entity_type', 'webcomponent');
+    $query->execute();
+    $result = $query->execute();
+    // flip the results if it found them
+    if (isset($result['webcomponent'])) {
+      $keys = array_keys($result['webcomponent']);
+      $entities = entity_load('webcomponent', $keys);
+    }
+    else {
+      $entities = array();
+    }
+  }
+  return $entities;
+}
+
+/**
+ * Rebuild webcomponents from the file system.
+ */
+function _webcomponents_rebuild() {
+  // force rebuild of components from static
+  $processed = array();
+  // load all possible web components
+  $componentfiles = webcomponents_load_webcomponents_files();
+  // build the registry of possible component types
+  $registry = _webcomponents_build_registry();
+  // loop through results found, tagged by format they are in
+  foreach ($componentfiles as $format => $files) {
+    // process each file based on user defined callback for
+    // how we've been told to handle processing of this component type
+    if (!empty($files)) {
+      foreach ($files as $file) {
+        if (isset($registry[$format])) {
+          $processed[$file] = call_user_func($registry[$format]['process'], $file);
+          // ensure there was actually a match in there
+          if (!empty($processed[$file]) && is_object($processed[$file])) {
+            $component = $processed[$file];
+            // try and load webcomponent by machine name
+            if ($entity = webcomponent_load_by_name($component->machine_name)) {
+              foreach ($component as $key => $value) {
+                if (isset($entity->{$key}) && $entity->{$key} != $value) {
+                  drupal_set_message(t('Web components have changed! Make sure that your attributes are correctly reflected in your site. @key changed on @machine from @old to @new', array('@key' => $key, '@old' => $entity->{$key}, '@new' => $value, '@machine' => $component->machine_name)), 'warning', TRUE);
+                  $entity->{$key} = $value;
+                }
+              }
+              if (is_array($entity->properties)) {
+                $entity->properties = serialize($entity->properties);
+              }
+              entity_save('webcomponent', $entity);
+            }
+            else {
+              // try and create the entity instead
+              $component->properties = serialize($component->properties);
+              $entity = entity_create('webcomponent', (array)$component);
+              entity_save('webcomponent', $entity);
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Add webcomponent to the header of the site so it can work.
+ */
+function _webcomponents_add_to_head($component) {
+  $element = array(
+    '#tag' => 'link', // The #tag is the html tag
+    '#attributes' => array( // Set up an array of attributes inside the tag
+      'href' => base_path() . $component->file,
+      'rel' => 'import',
+    ),
+  );
+  drupal_add_html_head($element, 'webcomponent-' . $component->machine_name);
+}
+
+/**
+ * Return all available web component types registered.
+ * Basically just that they have a callback so we know how
+ * to process and convert them from static into database driven.
+ * @return array array of possible formats and callbacks
+ */
+function _webcomponents_build_registry() {
+  $formats = module_invoke_all('register_component_format');
+  drupal_alter('register_component_format', $formats);
+  return $formats;
+}
+
+/**
+ * Assembles components available to Drupal.
+ * @return array files where components live
+ */
+function webcomponents_load_webcomponents_files() {
+  $componentfiles = module_invoke_all('webcomponents');
+  drupal_alter('webcomponents', $components);
+  return $componentfiles;
+}
+
+/**
+ * Load webcomponent by name
+ * @param  string $name machine name of a webcomponent
+ * @return object       fully loaded entity
+ */
+function webcomponent_load_by_name($name) {
+  $entity = entity_load('webcomponent', FALSE, array('machine_name' => $name));
+  $entity = array_pop($entity);
+  return $entity;
+}

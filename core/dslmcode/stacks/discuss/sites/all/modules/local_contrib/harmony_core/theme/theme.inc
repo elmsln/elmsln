@@ -37,10 +37,10 @@ function theme_harmony_post_revision_display_log($variables) {
   $output = NULL;
 
   if (trim($post->log) != '' && $post->log_show) {
-    $user = user_load($post->revision_uid);
+    $_user = user_load($post->revision_uid);
     $text = t('Edited on @date by !editor, @reason', array(
       '@date' => format_date($post->updated, variable_get('harmony_core_date_type', 'medium'), variable_get('harmony_core_date_format', '')),
-      '!editor' => theme('username', array('account' => $user)),
+      '!editor' => theme('username', array('account' => $_user)),
       '@reason' => $post->log,
     ));
     $output = '<div class="post-revision-log text-small">' . $text . '</div>';
@@ -144,7 +144,7 @@ function template_preprocess_harmony_post(&$variables) {
   if ($wrapper->field_harmony_post_is_reply_to->value()) {
     $replying_to_post_id = $wrapper->field_harmony_post_is_reply_to->post_id->value();
     $user_is_obj = is_object($wrapper->field_harmony_post_is_reply_to->uid->value());
-    $replying_to_name = $user_is_obj ? $wrapper->field_harmony_post_is_reply_to->uid->name->value() : variable_get('anonymous', t('Anonymous'));
+    $replying_to_name = $user_is_obj ? $wrapper->field_harmony_post_is_reply_to->uid->label() : variable_get('anonymous', t('Anonymous'));
     $replying_to_post_url = harmony_core_post_thread_url($thread_id, $replying_to_post_id);
 
     $variables['direct_reply'] = '<a href="' . $replying_to_post_url . '">' . t('In reply to @name', array('@name' => $replying_to_name)) . '</a>';
@@ -582,4 +582,29 @@ function theme_harmony_core_thread_meta_item($variables) {
  */
 function theme_harmony_anonymous_user_post_profile() {
   return '<span class="grey">' . t('Deleted user') . '</span>';
+}
+
+/**
+ * Output a themed representation of a thread or posts visibility state,
+ * whether or not it's public.
+ *
+ * If you want to alter the text values that are displayed in this function see
+ * harmony_core_determine_public.
+ *
+ * @see harmony_core_determine_public
+ * @see hook_harmony_public_text_alter
+ */
+function theme_harmony_public_state($variables) {
+  $status = $variables['status'];
+  $hidden = $variables['hidden'];
+
+  $state = harmony_core_determine_public($status, $hidden);
+
+  $output = '<span class="harmony-public-state" data-state="' . ($state['value'] ? 'true' : 'false') . '">' . check_plain($state['text']);
+  if ($state['description'] != '') {
+    $output .= ' <span class="h-icon h-icon--question-mark" data-toggle="tooltip" title="' . check_plain($state['description']) . '"><u>?</u></span>';
+  }
+  $output .= '</span>';
+
+  return $output;
 }

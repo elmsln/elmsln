@@ -27,12 +27,13 @@ function cle_submission_field_group_info() {
       1 => 'field_submission_state',
       2 => 'og_group_ref',
       3 => 'field_metadata',
-      4 => 'path',
-      5 => 'hidden_nodes',
-      6 => 'book',
-      7 => 'options',
-      8 => 'author',
-      9 => 'revision_information',
+      4 => 'field_related_submission',
+      5 => 'path',
+      6 => 'hidden_nodes',
+      7 => 'book',
+      8 => 'options',
+      9 => 'author',
+      10 => 'revision_information',
     ),
     'format_type' => 'tab',
     'format_settings' => array(
@@ -58,14 +59,8 @@ function cle_submission_field_group_info() {
   $field_group->parent_name = '';
   $field_group->data = array(
     'label' => 'Ferpa elements',
-    'weight' => '0',
-    'children' => array(
-      0 => 'body',
-      1 => 'field_files',
-      2 => 'field_images',
-      3 => 'field_links',
-      4 => 'field_video',
-    ),
+    'weight' => '15',
+    'children' => array(),
     'format_type' => 'div',
     'format_settings' => array(
       'label' => 'Ferpa elements',
@@ -95,9 +90,7 @@ function cle_submission_field_group_info() {
   $field_group->data = array(
     'label' => 'Files',
     'weight' => '17',
-    'children' => array(
-      0 => 'field_files',
-    ),
+    'children' => array(),
     'format_type' => 'accordion-item',
     'format_settings' => array(
       'label' => 'Files',
@@ -149,9 +142,7 @@ function cle_submission_field_group_info() {
   $field_group->data = array(
     'label' => 'Images',
     'weight' => '15',
-    'children' => array(
-      0 => 'field_images',
-    ),
+    'children' => array(),
     'format_type' => 'accordion-item',
     'format_settings' => array(
       'label' => 'Images',
@@ -201,9 +192,7 @@ function cle_submission_field_group_info() {
   $field_group->data = array(
     'label' => 'Links',
     'weight' => '18',
-    'children' => array(
-      0 => 'field_links',
-    ),
+    'children' => array(),
     'format_type' => 'accordion-item',
     'format_settings' => array(
       'label' => 'Links',
@@ -254,7 +243,7 @@ function cle_submission_field_group_info() {
   $field_group->parent_name = '';
   $field_group->data = array(
     'label' => 'Media',
-    'weight' => '1',
+    'weight' => '14',
     'children' => array(
       0 => 'group_files',
       1 => 'group_images',
@@ -315,9 +304,7 @@ function cle_submission_field_group_info() {
   $field_group->data = array(
     'label' => 'Video',
     'weight' => '16',
-    'children' => array(
-      0 => 'field_video',
-    ),
+    'children' => array(),
     'format_type' => 'accordion-item',
     'format_settings' => array(
       'label' => 'Video',
