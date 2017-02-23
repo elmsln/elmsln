@@ -10,11 +10,13 @@ import { EffectsModule } from '@ngrx/effects';
 import { routerReducer, RouterStoreModule } from '@ngrx/router-store';
 
 // reducers
-import { reducer as assignmentReducer } from './assignment/assignment.reducer';
-import { reducer as userReducer } from './reducers/users';
-import { submissionReducer } from './submission/submission.reducer';
-import { projectReducer } from './projects/project.reducer';
-import { imageReducer } from './image/image.reducer';
+// import { reducer as assignmentReducer } from './assignment/assignment.reducer';
+// import { reducer as userReducer } from './reducers/users';
+// import { submissionReducer } from './submission/submission.reducer';
+// import { projectReducer } from './projects/project.reducer';
+// import { imageReducer } from './image/image.reducer';
+import { reducer } from './app.reducer';
+
 // effects
 import { AssignmentEffects } from './assignment/assignment.effects';
 import { SubmissionEffects } from './submission/submission.effects';
@@ -24,7 +26,7 @@ import { ElmslnService } from './elmsln.service';
 import { CritiqueService } from './critique.service';
 import { AssignmentService } from './assignment/assignment.service';
 import { SubmissionService } from './submission/submission.service';
-import { ProjectService } from './project.service';
+import { ProjectService } from './projects/project.service';
 // Moment.js
 import { MomentModule } from 'angular2-moment';
 // components
@@ -110,14 +112,7 @@ import { SubmissionCritiqueComponent } from './submission/submission-critique/su
     FormsModule,
     ReactiveFormsModule,
     MomentModule,
-    StoreModule.provideStore({
-      router: routerReducer,
-      assignments: assignmentReducer,
-      user: userReducer,
-      submissions: submissionReducer,
-      projects: projectReducer,
-      images: imageReducer
-    }),
+    StoreModule.provideStore(reducer),
     RouterStoreModule.connectRouter(),
     EffectsModule.run(AssignmentEffects),
     EffectsModule.run(SubmissionEffects),

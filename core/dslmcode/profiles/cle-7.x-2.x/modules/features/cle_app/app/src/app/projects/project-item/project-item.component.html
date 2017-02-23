@@ -1,4 +1,4 @@
-<div class="project">
+<div class="project" *ngIf="project">
   <div class="project__header">
     <div class="project__title-container">
 
@@ -15,7 +15,7 @@
     </div>
   </div>
   <div class="project__board">
-    <cle-assignment-list [assignments]="assignments | async"></cle-assignment-list>
+    <cle-assignment-list [assignments]="assignments | async"> </cle-assignment-list>
   </div>
 </div>
 

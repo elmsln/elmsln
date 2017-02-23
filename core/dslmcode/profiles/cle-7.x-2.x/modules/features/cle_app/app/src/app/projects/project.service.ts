@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Http, Response } from '@angular/http';
 import { Observable } from 'rxjs';
-import { ElmslnService } from './elmsln.service';
-import { AppSettings } from './app-settings';
+import { ElmslnService } from '../elmsln.service';
+import { AppSettings } from '../app-settings';
 import { Project } from './project';
 import { Store } from '@ngrx/store';
 

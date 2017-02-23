@@ -1,4 +1,4 @@
-import { Assignment } from '../../assignment';
+import { Assignment } from '../../assignment/assignment';
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Store } from '@ngrx/store';

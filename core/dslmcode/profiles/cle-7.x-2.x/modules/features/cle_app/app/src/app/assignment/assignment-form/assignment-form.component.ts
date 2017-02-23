@@ -3,7 +3,7 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormControl, A
 import { Router } from '@angular/router';
 import { Assignment } from '../assignment';
 import { AssignmentService } from '../assignment.service';
-import { Project } from '../../project';
+import { Project } from '../../projects/project';
 import { Observable } from 'rxjs';
 declare const jQuery:any;
 declare const Materialize:any;

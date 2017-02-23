@@ -1,11 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { Project } from '../../project';
-import { ProjectService } from '../../project.service';
+import { Project } from '../project';
+import { ProjectService } from '../project.service';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { Store } from '@ngrx/store';
-import { loadAssignments, loadPermissions } from '../../app.actions';
+import { loadAssignments, loadPermissions } from '../../assignment/assignment.actions';
 import { loadProjects, createProject } from '../project.actions';
+import * as fromRoot from '../../app.reducer';
 declare const $:any;
 declare const Materialize:any;
 
@@ -17,7 +18,6 @@ declare const Materialize:any;
 })
 export class ProjectsListComponent implements OnInit {
   projects: Project[] = [];
-  projectCount: number;
   projects$: Observable<Project[]>;
   userCanEdit$: Observable<boolean> = this.projectService.userCanEdit;
 
@@ -29,12 +29,7 @@ export class ProjectsListComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.projects$ = this.store.select('projects')
-      .map((state:any) => state.projects);
-    
-    this.store.select('projects')
-      .map((state:any) => state.projects)
-      .subscribe((projects:any[]) => this.projectCount = projects.length);
+    this.projects$ = this.store.select(fromRoot.getProjects);
   }
 
   createNewProject(title) {

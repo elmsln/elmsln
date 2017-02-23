@@ -1,6 +1,6 @@
 import { Action } from '@ngrx/store';
 import { ActionTypes } from './project.actions';
-import { Project } from '../project';
+import { Project } from './project';
 
 export interface ProjectState {
   projects: Project[]
@@ -85,3 +85,6 @@ export function projectReducer(state: ProjectState = initialState, action: Actio
     }
   }
 }
+
+export const getAll = (state:ProjectState) => state.projects;
+export const getCount = (state:ProjectState) => state.projects.length;

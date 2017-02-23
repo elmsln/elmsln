@@ -3,7 +3,7 @@ import { AssignmentService } from '../assignment.service';
 import { Assignment } from '../assignment';
 import { Router } from '@angular/router';
 import { Observable, Subject } from 'rxjs';
-import { Project } from '../../project';
+import { Project } from '../../projects/project';
 import { Store } from '@ngrx/store';
 import { createCritiqueAssignment } from '../assignment.actions';
 declare const $:any;

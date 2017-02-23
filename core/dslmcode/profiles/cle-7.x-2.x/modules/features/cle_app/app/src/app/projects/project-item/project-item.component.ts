@@ -1,7 +1,7 @@
 import { Component, OnInit, Input, ElementRef, ContentChildren, AfterContentInit, EventEmitter, Output, ViewChild, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
-import { Project } from '../../project';
-import { ProjectService } from '../../project.service';
+import { Project } from '../project';
+import { ProjectService } from '../project.service';
 import { AssignmentService } from '../../assignment/assignment.service';
 import { AssignmentListComponent } from '../../assignment/assignment-list/assignment-list.component';
 import { Assignment } from '../../assignment/assignment';
@@ -35,8 +35,8 @@ export class ProjectItemComponent implements OnInit, OnDestroy {
     private router:Router,
     private store:Store<{}>
   ) {
-    this.assignments = store.select('assignments')
-      .map((state:any) => state.assignments.filter(assignment => assignment.project === this.project.id));
+    // this.assignments = store.select('assignments')
+    //   .map((state:any) => state.assignments.filter(assignment => assignment.project === this.project.id));
   }
 
   ngOnInit() {
