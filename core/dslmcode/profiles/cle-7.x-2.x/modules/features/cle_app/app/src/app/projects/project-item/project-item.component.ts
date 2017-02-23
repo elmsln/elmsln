@@ -1,14 +1,14 @@
 import { Component, OnInit, Input, ElementRef, ContentChildren, AfterContentInit, EventEmitter, Output, ViewChild, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
-import { Project } from '../../project';
-import { ProjectService } from '../../project.service';
-import { AssignmentService } from '../../assignment.service';
+import { Project } from '../project';
+import { ProjectService } from '../project.service';
+import { AssignmentService } from '../../assignment/assignment.service';
 import { AssignmentListComponent } from '../../assignment/assignment-list/assignment-list.component';
-import { Assignment } from '../../assignment';
+import { Assignment } from '../../assignment/assignment';
 import { Store } from '@ngrx/store';
-import { ActionTypes, loadAssignments } from '../../app.actions';
+import { ActionTypes, loadAssignments } from '../../assignment/assignment.actions';
 import { deleteProject, updateProject } from '../project.actions';
-import { AppState } from '../../state';
+import * as fromRoot from '../../app.reducer';
 import { Observable } from 'rxjs';
 
 declare const Materialize:any;
@@ -33,10 +33,10 @@ export class ProjectItemComponent implements OnInit, OnDestroy {
     private assignmentService: AssignmentService,
     private el:ElementRef,
     private router:Router,
-    private store:Store<{}>
+    private store:Store<fromRoot.State>
   ) {
-    this.assignments = store.select('assignments')
-      .map((state:any) => state.assignments.filter(assignment => assignment.project === this.project.id));
+    this.assignments = store.select(fromRoot.getAssignments)
+      .map((state:any) => state.filter(assignment => assignment.project === this.project.id));
   }
 
   ngOnInit() {

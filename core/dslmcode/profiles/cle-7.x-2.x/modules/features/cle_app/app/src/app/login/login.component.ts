@@ -3,7 +3,7 @@ import { FormGroup, FormBuilder } from '@angular/forms';
 import { UserService } from '../user.service';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { ActionTypes, loadPermissions } from '../app.actions';
+import { ActionTypes, loadPermissions } from '../assignment/assignment.actions';
 declare const Drupal:any;
 
 @Component({

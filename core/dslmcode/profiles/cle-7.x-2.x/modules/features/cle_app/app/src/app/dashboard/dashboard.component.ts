@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { AssignmentService } from '../assignment.service';
+import { AssignmentService } from '../assignment/assignment.service';
 
 @Component({
   selector: 'cle-dashboard',
