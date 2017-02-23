@@ -52,3 +52,5 @@ export function imageReducer(state: ImageState = initialState, action: Action) {
     }
   }
 }
+
+export const getStatus = (state:ImageState) => state.status;

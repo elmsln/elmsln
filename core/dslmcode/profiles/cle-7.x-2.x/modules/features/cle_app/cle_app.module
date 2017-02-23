@@ -12,11 +12,35 @@
 function cle_app_page_build(&$page) {
   // ensure this is at least in scope of the app
   if (arg(0) == 'cle' && arg(1) == 'app') {
-    drupal_add_css(drupal_get_path('module', 'cle_app') . '/app/dist/styles.bundle.css');
-    drupal_add_js(drupal_get_path('module', 'cle_app') . '/app/dist/inline.bundle.js', array('scope' => 'footer'));
-    drupal_add_js(drupal_get_path('module', 'cle_app') . '/app/dist/scripts.bundle.js', array('scope' => 'footer'));
-    drupal_add_js(drupal_get_path('module', 'cle_app') . '/app/dist/vendor.bundle.js', array('scope' => 'footer'));
-    drupal_add_js(drupal_get_path('module', 'cle_app') . '/app/dist/main.bundle.js', array('scope' => 'footer'));
+    // a little silly looking probably but this allows us to ensure our Angular app can be
+    // compiled either into production or development mode and still work correctly either way
+    $dh = opendir(DRUPAL_ROOT . '/' . drupal_get_path('module', 'cle_app') . '/app/dist');
+    $items = array();
+    // open directory and walk through the filenames
+    while ($file = readdir($dh)) {
+      // skip directory iterators
+      if ($file != "." && $file != "..") {
+        // preg match for files patterned as styles/inline/scripts/vendor/main.hashvalue/or/not.bundle.css/js
+        if (preg_match('#^(styles|inline|scripts|vendor|main)\.*\.[^\s]+(\.(js|css))#', $file)) {
+          // figure out the file so we can order them afterwards
+          $tmp = explode('.', $file);
+          $key = array_shift($tmp);
+          // add to our file to the match array because these MUST be in the right order
+          $items[$key] = drupal_get_path('module', 'cle_app') . '/app/dist/' . $file;
+        }
+      }
+    }
+    $keys = array('styles', 'inline','scripts','vendor','main');
+    foreach ($keys as $id => $key){
+      if (isset($items[$key])) {
+        if ($key == 'styles') {
+          drupal_add_css($items[$key]);
+        }
+        else {
+          drupal_add_js($items[$key], array('scope' => 'footer', 'weight' => 1000 + $id));
+        }
+      }
+    }
   }
 }
 

@@ -1,7 +1,7 @@
 import { Action } from '@ngrx/store';
 import { ActionTypes } from './submission.actions';
 import { Submission } from './submission';
-import { ActionTypes as AppActionTypes } from '../app.actions';
+import { ActionTypes as AppActionTypes } from '../assignment/assignment.actions';
 
 export interface SubmissionState {
   saving: boolean;
@@ -120,3 +120,7 @@ export function submissionReducer(state: SubmissionState = initialState, action:
     }
   }
 }
+
+export const getAll = (state:SubmissionState) => state.submissions;
+export const getIsSaving = (state:SubmissionState) => state.saving;
+export const getImageIsSaving = (state:SubmissionState) => state.savingImage;

@@ -9,4 +9,12 @@ export class AppSettings {
       return 'http://studio.elmsln.local/heymp/';
     }
   }
+
+  public static get USERNAME(): string {
+    return 'mgp140';
+  }
+
+  public static get PASSWORD(): string {
+    return 'mgp140';
+  }
 }

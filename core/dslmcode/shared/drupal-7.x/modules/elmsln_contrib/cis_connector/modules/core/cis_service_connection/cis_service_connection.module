@@ -238,7 +238,8 @@ function _cis_service_connection_page($request) {
     $output .= check_markup($body['value'], $body['format']);
   }
   else if (is_string($body)) {
-    $output = filter_xss($body);
+    // strings returned from CIS transaction have already been sanitized
+    $output = $body;
   }
   return $output;
 }

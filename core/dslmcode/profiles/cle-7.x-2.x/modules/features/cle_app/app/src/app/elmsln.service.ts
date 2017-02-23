@@ -15,10 +15,7 @@ export class ElmslnService {
   ) { }
 
   createAuthorizationHeader(headers:Headers) {
-    let basicAuthCredentials =  Cookie.get('basicAuthCredentials');
-    if (basicAuthCredentials) {
-      headers.append('Authorization', 'Basic ' + basicAuthCredentials);
-    }
+    headers.append('Authorization', 'Basic ' + btoa(AppSettings.USERNAME + ":" + AppSettings.USERNAME));
   }
 
   createCSRFTokenHeader(headers:Headers) {

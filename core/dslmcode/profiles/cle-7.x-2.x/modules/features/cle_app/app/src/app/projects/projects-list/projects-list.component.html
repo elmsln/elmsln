@@ -15,6 +15,9 @@
 </div>
 
 <div class="projects-container">
-  <app-project-item *ngFor="let project of (projects$ | async)" [project]="project" (delete)="projectDeleted(project)"></app-project-item>
+  <app-project-item 
+    *ngFor="let project of (projects$ | async)"
+    [project]="project"
+    (delete)="projectDeleted(project)">
+  </app-project-item>
 </div>
-

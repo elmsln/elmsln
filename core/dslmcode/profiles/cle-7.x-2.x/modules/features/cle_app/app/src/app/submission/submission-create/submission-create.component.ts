@@ -5,6 +5,7 @@ import { Observable } from 'rxjs';
 import { Submission } from '../submission';
 import { createSubmission } from '../submission.actions';
 import { SubmissionFormComponent } from '../submission-form/submission-form.component';
+import * as fromRoot from '../../app.reducer';
 declare const Materialize:any;
 declare const jQuery:any
 
@@ -23,7 +24,7 @@ export class SubmissionCreateComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private store: Store<{}>
+    private store: Store<fromRoot.State>
   ) { }
 
   ngOnInit() {
@@ -37,11 +38,10 @@ export class SubmissionCreateComponent implements OnInit {
       });
 
     // check the permissions store to see if the user has edit
-    this.userCanEdit$ = this.store.select('user')
-      .map((state:any) => state.permissions.includes('edit own cle_submission content'));
+    this.userCanEdit$ = this.store.select(fromRoot.getUserPermissions)
+      .map((state:any) => state.includes('edit own cle_submission content'));
     
-    this.store.select('submissions')
-      .map((state:any) => state.saving)
+    this.store.select(fromRoot.getSubmissionIsSaving)
       .subscribe(saving => {
         // saving is happening
         if (saving && !this.isSaving) {

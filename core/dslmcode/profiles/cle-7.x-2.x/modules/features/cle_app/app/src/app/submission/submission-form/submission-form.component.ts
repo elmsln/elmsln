@@ -6,7 +6,7 @@ import { ImageState } from '../../image/image.reducer';
 import { Submission } from '../submission';
 import { Observable } from 'rxjs/Observable';
 import { SubmissionService } from '../submission.service';
-
+import * as fromRoot from '../../app.reducer';
 declare const Materialize:any;
 declare const jQuery:any;
 
@@ -49,8 +49,7 @@ export class SubmissionFormComponent implements OnInit, OnChanges {
         this.formValueChanges++;
       });
 
-    this.savingImage$ = this.store.select('images')
-      .map((s:ImageState) => s.status)
+    this.savingImage$ = this.store.select(fromRoot.getImageStatus)
       .map(s => s.type === 'saving')
 
     /**
@@ -72,8 +71,7 @@ export class SubmissionFormComponent implements OnInit, OnChanges {
     `;
     // when savingImage changes in the reducer
     // change the notifications
-    this.store.select('images')
-      .map((s:ImageState) => s.status)
+    this.store.select(fromRoot.getImageStatus)
       .skip(1)
       .debounceTime(200)
       .distinctUntilChanged((x,y) => x === y)
