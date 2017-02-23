@@ -120,3 +120,7 @@ export function submissionReducer(state: SubmissionState = initialState, action:
     }
   }
 }
+
+export const getAll = (state:SubmissionState) => state.submissions;
+export const getIsSaving = (state:SubmissionState) => state.saving;
+export const getImageIsSaving = (state:SubmissionState) => state.savingImage;

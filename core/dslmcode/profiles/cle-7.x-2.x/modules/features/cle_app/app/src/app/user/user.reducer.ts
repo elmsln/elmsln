@@ -32,3 +32,7 @@ export function reducer(state: UserState = initialState, action: Action) {
     }
   }
 }
+
+export const getPermissions = (state:UserState) => state.permissions;
+export const getToken = (state:UserState) => state.token;
+export const getUid = (state:UserState) => state.uid;

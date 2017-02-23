@@ -43,11 +43,16 @@ import * as fromProject from './projects/project.reducer';
 import * as fromImage from './image/image.reducer';
 
 /**
+ * Import types
+ */
+import { Submission } from './submission/submission';
+
+/**
  * As mentioned, we treat each reducer like a table in a database. This means
  * our top level state interface is just a map of keys to inner state types.
  */
 export interface State {
-  assignment: fromAssignment.AssignmentState;
+  assignments: fromAssignment.AssignmentState;
   submission: fromSubmission.SubmissionState;
   user: fromUser.UserState;
   projects: fromProject.ProjectState;
@@ -63,7 +68,7 @@ export interface State {
  * the result from right to left.
  */
 const reducers = {
-  assignment: fromAssignment.reducer,
+  assignments: fromAssignment.reducer,
   submission: fromSubmission.submissionReducer,
   user: fromUser.reducer,
   projects: fromProject.projectReducer,
@@ -99,8 +104,6 @@ export function reducer(state: any, action: any) {
  * ```
  */
 export const getProjectState = (state:State) => state.projects;
-
-
 /**
  * Every reducer module exports selector functions, however child reducers
  * have no knowledge of the overall state tree. To make them useable, we
@@ -111,5 +114,42 @@ export const getProjectState = (state:State) => state.projects;
  * The created selectors can also be composed together to select different
  * pieces of state.
  */
- export const getProjects = createSelector(getProjectState, fromProject.getAll);
- export const getProjectsCount = createSelector(getProjectState, fromProject.getCount);
+export const getProjects = createSelector(getProjectState, fromProject.getAll);
+export const getProjectsCount = createSelector(getProjectState, fromProject.getCount);
+
+/**
+ * Assignments
+ */
+export const getAssignmentState = (state:State) => state.assignments;
+export const getAssignments = createSelector(getAssignmentState, fromAssignment.getAll);
+export const getAssignmentsLoading = createSelector(getAssignmentState, fromAssignment.getIsLoading);
+
+/**
+ * Users
+ */
+export const getUserState = (state:State) => state.user;
+export const getUserPermissions = createSelector(getUserState, fromUser.getPermissions)
+export const getUserToken = createSelector(getUserState, fromUser.getToken)
+export const getMyUserUid = createSelector(getUserState, fromUser.getUid)
+
+/**
+ * Submissons
+ */
+export const getSubmissionState = (state:State) => state.submission;
+export const getAllSubmissions = createSelector(getSubmissionState, fromSubmission.getAll);
+export const getSubmissionIsSaving = createSelector(getSubmissionState, fromSubmission.getIsSaving);
+export const getSubmissionImageIsSaving = createSelector(getSubmissionState, fromSubmission.getImageIsSaving);
+export const getMySubmissions = createSelector(getAllSubmissions, getMyUserUid, (submissions:Submission[], uid:number) => {
+  return submissions.filter(s => s.uid === uid);
+});
+
+/**
+ * Image
+ */
+export const getImageState = (state:State) => state.image;
+export const getImageStatus = createSelector(getImageState, fromImage.getStatus);
+
+/**
+ * Router
+ */
+export const getRouterState = (state:State) => state.router;

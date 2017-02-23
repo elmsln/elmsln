@@ -8,7 +8,7 @@ import { Assignment } from '../../assignment/assignment';
 import { Store } from '@ngrx/store';
 import { ActionTypes, loadAssignments } from '../../assignment/assignment.actions';
 import { deleteProject, updateProject } from '../project.actions';
-import { AppState } from '../../state';
+import * as fromRoot from '../../app.reducer';
 import { Observable } from 'rxjs';
 
 declare const Materialize:any;
@@ -33,10 +33,10 @@ export class ProjectItemComponent implements OnInit, OnDestroy {
     private assignmentService: AssignmentService,
     private el:ElementRef,
     private router:Router,
-    private store:Store<{}>
+    private store:Store<fromRoot.State>
   ) {
-    // this.assignments = store.select('assignments')
-    //   .map((state:any) => state.assignments.filter(assignment => assignment.project === this.project.id));
+    this.assignments = store.select(fromRoot.getAssignments)
+      .map((state:any) => state.filter(assignment => assignment.project === this.project.id));
   }
 
   ngOnInit() {

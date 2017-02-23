@@ -7,6 +7,7 @@ import { Observable } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { loadAssignments, startCritque } from './assignment.actions';
 import { ElmslnService } from '../elmsln.service';
+import * as fromRoot from '../app.reducer';
 declare const jQuery:any;
 
 @Component({
@@ -29,7 +30,7 @@ export class AssignmentComponent implements OnInit, AfterViewChecked {
     private location: Location,
     private assignmentService: AssignmentService,
     private el:ElementRef,
-    private store: Store<{}>,
+    private store: Store<fromRoot.State>,
     private elmslnService:ElmslnService
   ) { 
   }
@@ -43,32 +44,16 @@ export class AssignmentComponent implements OnInit, AfterViewChecked {
     });
 
     // check the permissions store to see if the user has edit
-    this.userCanEdit$ = this.store.select('user')
-      .map((state:any) => {
-        if (state.permissions.includes('edit any cle_assignment content')) {
-          return true;
-        }
-        return false;
-      });
+    this.userCanEdit$ = this.store.select(fromRoot.getUserPermissions)
+      .map((state:any) => state.includes('edit any cle_assignment content'));
     
     // get my submissions
-    this.submissions$ = this.store.select('submissions')
-      .map((state:any) => state.submissions.filter(sub => sub.assignment === this.assignmentId));
-    /**
-     * @example: this is an example of how we could use another Observable to filter submissions
-     */
-    // this.submissions$ = Observable.zip(
-    //   this.store.select('submissions').map((state:any) => state.submissions.filter(sub => sub.assignment === this.assignmentId)),
-    //   this.store.select('user').map((state:any) => state.uid),
-    //   (submissions, uid) => {
-    //     // make sure that the submission author has my uid
-    //     return submissions.filter(sub => sub.uid === uid);
-    //   }
-    // )
+    this.submissions$ = this.store.select(fromRoot.getAllSubmissions)
+      .map((state:any) => state.filter(s => s.assignment === this.assignmentId));
 
     if (this.assignmentId) {
-      this.assignments$ = this.store.select('assignments')
-        .map((state:any) => state.assignments.find(assignment => {
+      this.assignments$ = this.store.select(fromRoot.getAssignments)
+        .map((state:any) => state.find(assignment => {
           return assignment.id === this.assignmentId;
         }))
         .map((state:any) => {

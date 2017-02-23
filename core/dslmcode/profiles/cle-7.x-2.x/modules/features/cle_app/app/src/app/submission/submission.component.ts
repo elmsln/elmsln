@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { Store } from '@ngrx/store';
@@ -7,6 +7,7 @@ import { Submission } from './submission';
 import { ElmslnService } from '../elmsln.service';
 import { SubmissionService } from './submission.service';
 import { Assignment } from '../assignment/assignment';
+import * as fromRoot from '../app.reducer';
 
 @Component({
   selector: 'app-submission',
@@ -15,20 +16,20 @@ import { Assignment } from '../assignment/assignment';
 })
 export class SubmissionComponent implements OnInit {
   submissionId:number;
-  assignmentId:number;
   submission$:Observable<Submission>;
+  assignmentId: number;
   userCanEdit$:Observable<boolean>;
   submissionType$:Observable<string>;
-  assignment$:Observable<Assignment>;
 
   constructor(
     private route:ActivatedRoute,
-    private store:Store<{}>,
+    private store:Store<fromRoot.State>,
     private router:Router,
     private location:Location,
     private elmslnService:ElmslnService,
     private submissionService:SubmissionService
-  ) { }
+  ) { 
+  }
 
   ngOnInit() {
     this.route.params
@@ -36,32 +37,27 @@ export class SubmissionComponent implements OnInit {
         if (params['submissionId']) {
           this.submissionId = Number(params['submissionId']);
 
-          // get the submission
-          this.submission$ = this.store.select('submissions')
-            .map((state:any) => state.submissions.find((sub:Submission) => {
-              if (sub.id === this.submissionId) {
-                this.assignmentId = sub.assignment;
-                return true;
-              }
-              else {
-                return false;
-              }
-            }))
-          
-          // check if the user can edit the submission
-          this.userCanEdit$ = this.submission$
-            .map((state:any) => {
-              if (state) {
-                if (typeof state.metadata !== 'undefined') {
-                  if (typeof state.metadata.canUpdate !== 'undefined') {
-                    return state.metadata.canUpdate;
-                  }
-                }
-              }
-              return false;
-            })
       }})
 
+    // get the submission
+    this.submission$ = this.store.select(fromRoot.getAllSubmissions)
+      .map(s => s.find((i) => i.id === this.submissionId))
+    // get the assignmentId
+    this.submission$
+      .filter(s => typeof s !== 'undefined')
+      .subscribe(s => this.assignmentId = s.assignment);
+    // check if the user can edit the submission
+    this.userCanEdit$ = this.submission$
+      .map((state:any) => {
+        if (state) {
+          if (typeof state.metadata !== 'undefined') {
+            if (typeof state.metadata.canUpdate !== 'undefined') {
+              return state.metadata.canUpdate;
+            }
+          }
+        }
+        return false;
+      })
     // get the submission type
     this.submissionType$ = this.submissionService.getSubmissionType(this.submission$);
   }

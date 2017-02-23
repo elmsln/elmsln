@@ -7,6 +7,7 @@ import { Submission } from '../submission';
 import { updateSubmission } from '../submission.actions';
 import { SubmissionFormComponent } from '../submission-form/submission-form.component';
 import { SubmissionService } from '../submission.service';
+import * as fromRoot from '../../app.reducer';
 declare const Materialize:any;
 declare const jQuery:any;
 
@@ -45,15 +46,14 @@ export class SubmissionEditComponent implements OnInit {
     });
 
     if (this.submissionId) {
-      this.submission$ = this.store.select('submissions')
-        .map((state:any) => state.submissions.find((sub:Submission) => {
+      this.submission$ = this.store.select(fromRoot.getAllSubmissions)
+        .map((state:any) => state.find((sub:Submission) => {
           this.assignmentId = sub.assignment;
           return sub.id === this.submissionId;
         }))
     }
 
-    this.store.select('submissions')
-      .map((state:any) => state.saving)
+    this.store.select(fromRoot.getSubmissionIsSaving)
       .subscribe(saving => {
         // saving is happening
         if (saving && !this.isSaving) {
@@ -79,8 +79,8 @@ export class SubmissionEditComponent implements OnInit {
         return false
       })
       .mergeMap((s:Submission) => {
-        return this.store.select('assignments')
-            .map((state:any) => state.assignments.find((a:Assignment) => a.id === s.assignment))
+        return this.store.select(fromRoot.getAssignments)
+            .map((state:any) => state.find((a:Assignment) => a.id === s.assignment))
       })
 
     this.assignment$

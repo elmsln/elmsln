@@ -97,3 +97,6 @@ export function reducer(state: AssignmentState = initialState, action: Action) {
     }
   }
 }
+
+export const getAll = (state:AssignmentState) => state.assignments;
+export const getIsLoading = (state:AssignmentState) => state.loading;
