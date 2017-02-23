@@ -16,6 +16,7 @@ features[variable][] = view_mode_enable_by_default
 features[variable][] = view_mode_tab_settings__audio
 features[variable][] = view_mode_tab_settings__document
 features[variable][] = view_mode_tab_settings__elmsmedia_image
+features[variable][] = view_mode_tab_settings__elmsmedia_list
 features[variable][] = view_mode_tab_settings__external_video
 features[variable][] = view_mode_tab_settings__figurelabel
 features[variable][] = view_mode_tab_settings__h5p_content

@@ -68,7 +68,7 @@ function elmsln_core_menu() {
   $items['elmsln/course-data'] = array(
     'title' => 'Course data',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('elmsln_core_data_form'),
+    'page arguments' => array('_elmsln_core_data_form'),
     'access arguments' => array('view elmsln lrs data'),
     'weight' => 10,
     'type' => MENU_NORMAL_ITEM,
@@ -318,49 +318,6 @@ function _elmsln_people_user_edit_page($form, &$form_state, $account, $category 
   else {
     module_load_include('inc', 'user', 'user.pages');
     return user_profile_form($form, $form_state, $account, $category);
-  }
-}
-
-/**
- * The user's account information is being displayed.
- *
- * The module should format its custom additions for display and add them to the
- * $account->content array.
- *
- * @param $account
- *   The user object on which the operation is being performed.
- * @param $view_mode
- *   View mode, e.g. 'full'.
- * @param $langcode
- *   The language code used for rendering.
- *
- * @see hook_user_view_alter()
- * @see hook_entity_view()
- */
-function elmsln_core_user_view($account, $view_mode, $langcode) {
-  // If we are not already on the central person repository.
-  $elmsln_global_profile = variable_get('elmsln_global_profile', 'cpr');
-  if (elmsln_core_get_profile_key() != $elmsln_global_profile) {
-    // Grab the user data from the central person repository.
-    $user_data_name = _cis_connector_request('user.json?name=' . $account->name, array(), $elmsln_global_profile, TRUE);
-    if (!empty($user_data_name)) {
-      $user_data_name = json_decode($user_data_name->data);
-      if (!empty($user_data_name->list)) {
-        $user_data_uid = _cis_connector_request('user/' . $user_data_name->list[0]->uid . '.json?display_mode=full', array(), $elmsln_global_profile, TRUE);
-        // Decode the data that comes in from the user object.
-        $user_data = json_decode($user_data_uid->data);
-        // ensure we got good data
-        if (isset($user_data->rendered)) {
-          $rendered = str_replace('/services/', '/', $user_data->rendered);
-          // Add a new section to the User profile page.
-          $account->content['summary']['profile'] = array(
-            '#type' => 'user_profile_item',
-            '#title' => '',
-            '#markup' => $rendered,
-          );
-        }
-      }
-    }
   }
 }
 
@@ -694,6 +651,15 @@ function _elmsln_core_remote_redirect($tool, $type, $etid, $op) {
       );
       $response = _elmsln_api_request($request);
     }
+    $args = arg();
+    // support more then our 6 arguments so we can support
+    // complex deep link redirects while still being triggered
+    // by the minimum required to get there (elmsln/redirect/%/%)
+    if (count($args) > 6) {
+      for ($i = 6; $i < count($args); $i++) {
+        $address .= '/' . $args[$i];
+      }
+    }
     // redirect over to this location
     header('Location: ' . $address, TRUE, 302);
     // drupal_goto has this, says its important incase numeric code not understood
@@ -977,6 +943,13 @@ function elmsln_core_form_a11y_admin_settings_alter(&$form, &$form_state) {
 function elmsln_core_url_inbound_alter(&$path, $original_path, $path_language) {
   $query_params = drupal_get_query_parameters();
   $changed = FALSE;
+  // course
+  if (isset($query_params['elmsln_active_course']) && $course = $query_params['elmsln_active_course']) {
+    $_SESSION['cis_course_context'] = $course;
+    // Remove the active section query parameter and proceed to the url
+    //unset($query_params['elmsln_active_course']);
+    //$changed = TRUE;
+  }
   if (isset($query_params['elmsln_active_section']) && $section_id = $query_params['elmsln_active_section']) {
     // get a list of allowed sections for this user
     $sections = array();
@@ -1014,13 +987,6 @@ function elmsln_core_url_inbound_alter(&$path, $original_path, $path_language) {
     // Remove the active section query parameter and proceed to the url
     unset($query_params['elmsln_active_section']);
     $changed = TRUE;
-  }
-  // course
-  if (isset($query_params['elmsln_active_course']) && $course = $query_params['elmsln_active_course']) {
-    $_SESSION['cis_course_context'] = $course;
-    // Remove the active section query parameter and proceed to the url
-    //unset($query_params['elmsln_active_course']);
-    //$changed = TRUE;
   }
   // look or cross-network masquerade
   if (isset($query_params['elmsln_masquerade']) && $masquerad = $query_params['elmsln_masquerade']) {
@@ -1277,6 +1243,10 @@ function _elmsln_core_icon_map() {
       ),
       'image_gallery' => array(
         'color' => 'teal',
+        'icon' => 'collections',
+      ),
+      'media_list' => array(
+        'color' => 'pink',
         'icon' => 'collections',
       ),
       'static_content' => array(

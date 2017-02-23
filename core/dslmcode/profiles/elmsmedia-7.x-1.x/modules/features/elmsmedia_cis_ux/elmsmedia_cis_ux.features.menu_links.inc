@@ -175,6 +175,29 @@ function elmsmedia_cis_ux_menu_default_menu_links() {
     'weight' => -45,
     'customized' => 1,
   );
+  // Exported menu link: menu-elmsln-add_media-list:node/add/elmsmedia-list.
+  $menu_links['menu-elmsln-add_media-list:node/add/elmsmedia-list'] = array(
+    'menu_name' => 'menu-elmsln-add',
+    'link_path' => 'node/add/elmsmedia-list',
+    'router_path' => 'node/add/elmsmedia-list',
+    'link_title' => 'Media list',
+    'options' => array(
+      'attributes' => array(),
+      'item_attributes' => array(
+        'id' => '',
+        'class' => '',
+        'style' => '',
+      ),
+      'identifier' => 'menu-elmsln-add_media-list:node/add/elmsmedia-list',
+    ),
+    'module' => 'menu',
+    'hidden' => 0,
+    'external' => 0,
+    'has_children' => 0,
+    'expanded' => 0,
+    'weight' => -43,
+    'customized' => 1,
+  );
   // Exported menu link: menu-elmsln-add_static-content:node/add/static-content.
   $menu_links['menu-elmsln-add_static-content:node/add/static-content'] = array(
     'menu_name' => 'menu-elmsln-add',
@@ -195,7 +218,7 @@ function elmsmedia_cis_ux_menu_default_menu_links() {
     'external' => 0,
     'has_children' => 0,
     'expanded' => 0,
-    'weight' => -43,
+    'weight' => -42,
     'customized' => 1,
   );
   // Exported menu link: menu-elmsln-add_svg:node/add/svg.
@@ -218,7 +241,7 @@ function elmsmedia_cis_ux_menu_default_menu_links() {
     'external' => 0,
     'has_children' => 0,
     'expanded' => 0,
-    'weight' => -42,
+    'weight' => -41,
     'customized' => 1,
   );
   // Exported menu link: menu-elmsln-add_video:node/add/video.
@@ -242,7 +265,7 @@ function elmsmedia_cis_ux_menu_default_menu_links() {
     'external' => 0,
     'has_children' => 0,
     'expanded' => 0,
-    'weight' => -41,
+    'weight' => -40,
     'customized' => 1,
   );
 
@@ -255,6 +278,7 @@ function elmsmedia_cis_ux_menu_default_menu_links() {
   t('H5P');
   t('Image');
   t('Image gallery');
+  t('Media list');
   t('SVG');
   t('Static content');
   t('Video');

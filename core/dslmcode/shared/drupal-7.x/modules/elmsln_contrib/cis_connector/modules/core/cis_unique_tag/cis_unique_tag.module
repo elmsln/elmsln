@@ -27,6 +27,7 @@ function cis_unique_tag_menu() {
  *   Tag / word to search for within this entity type.
  */
 function _cis_unique_tag_lookup($type, $tag) {
+  $path = '<front>';
   // need this to support multiple entity types
   $type_info = entity_get_info($type);
   $query = new EntityFieldQuery();
@@ -45,13 +46,45 @@ function _cis_unique_tag_lookup($type, $tag) {
       $path = $uri['path'];
     }
     else {
-      // @todo cross reference with current user context
-      // need to test for entity having reference or another method
-      // only other non-referenced method is in a book owned as in mooc
+      // load everything
+      $entities = entity_load($type, $ids);
+      // check for section being there though it should be
+      if (module_exists('cis_section')) {
+        // mooc is specialized here cause nodes aren't part of the group
+        if (elmsln_core_get_profile_key() == 'mooc') {
+          // load the active outline
+          $outline = _mooc_helper_active_outline();
+          // see which tagged item is in an active outline
+          foreach ($entities as $entity) {
+            if ($outline->nid == $entity->book['bid']) {
+              $uri = entity_uri($type, $entity);
+              $path = $uri['path'];
+            }
+          }
+        }
+        else {
+          $section = _cis_connector_section_context();
+          $gid = _cis_section_load_section_by_id($section);
+          // see if this is in the active group
+          foreach ($entities as $entity) {
+            if (isset($entity->og_group_ref) && !empty($entity->og_group_ref)) {
+              foreach ($entity->og_group_ref as $item) {
+                if ($item['target_id'] == $gid) {
+                  $uri = entity_uri($type, $entity);
+                  $path = $uri['path'];
+                }
+              }
+            }
+          }
+        }
+      }
+      else {
+        // multiple items, we don't know what to do, just serve first
+        $entity = entity_load_single($type, $ids[0]);
+        $uri = entity_uri($type, $entity);
+        $path = $uri['path'];
+      }
     }
-  }
-  else {
-    $path = '<front>';
   }
   drupal_goto($path);
 }

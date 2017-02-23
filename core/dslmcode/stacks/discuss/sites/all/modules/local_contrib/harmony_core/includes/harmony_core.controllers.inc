@@ -469,8 +469,8 @@ class HarmonyThreadController extends HarmonyController {
    * Update a threads first or last properties based off of a post passed in.
    */
   function updateThreadFirstOrLastProperties($thread, $post, $force_extreme = NULL) {
-    // Grab the thread not from cache.
-    if (ctype_digit((string) $thread)) {
+    // If somehow a thread ID has been passed in then reload not from cache.
+    if (!is_object($thread) && ctype_digit((string) $thread)) {
       $thread = harmony_thread_load($thread, TRUE);
     }
 

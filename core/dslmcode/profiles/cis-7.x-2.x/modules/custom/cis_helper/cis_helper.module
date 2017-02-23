@@ -645,10 +645,30 @@ function cis_helper_entity_presave($entity, $type) {
   }
   elseif ($type == 'field_collection_item' && $entity->field_name == 'field_sections' && !empty($entity->HostEntity())) {
     $course = $entity->HostEntity()->HostEntity();
+    // wierd crap where course isn't somehow the HostEntity of the host here
+    // this seems like a caching race condition of some kind, possibly caused by APDQC
+    // saving the relationship in a background thread. Doesn't happen all the time and
+    // doesn't seem to have any reason behind when it does happen
+    if (empty($course)) {
+      $query = new EntityFieldQuery;
+      $result = $query
+      // pull all nodes
+      ->entityCondition('entity_type', 'node')
+      // that are service instances
+      ->entityCondition('bundle', 'course')
+      // where there is an offering that is the parent of this one
+      ->fieldCondition('field_offerings', 'value', $entity->HostEntity()->item_id, '=')
+      ->execute();
+      // load the instances
+      if (isset($result['node'])) {
+        $node = array_pop($result['node']);
+        $course = node_load($node->nid);
+      }
+    }
     // account for sections that don't have targets yet should, let's just set them to all
-    if (!isset($entity->field_services['und']) || $entity->field_services['und'][0]['target_id'] == 0) {
+    if (!empty($course) && !isset($entity->field_services['und']) || $entity->field_services['und'][0]['target_id'] == 0) {
       $entity->field_services['und'] = array();
-      $service_instances = _cis_helper_derive_service_instances(NULL, $entity->HostEntity()->HostEntity());
+      $service_instances = _cis_helper_derive_service_instances(NULL, $course);
       if (is_array($service_instances) && !empty($service_instances)) {
         foreach ($service_instances as $instance) {
           $service = node_load($instance->field_services[LANGUAGE_NONE][0]['target_id']);
@@ -747,7 +767,7 @@ function cis_helper_entity_insert($entity, $type) {
       ),
     );
     _elmsln_api_request($request, TRUE);
-    drupal_set_message(t('The course network for `@course` has been syncronized to reflect your changes.', array('@course' => $course->title)), 'status');
+    drupal_set_message(t('The course network for `@course` has been syncronized to reflect your changes.', array('@course' => $course->title)), 'notification');
   }
 }
 
@@ -851,10 +871,12 @@ function _cis_helper_add_service_instance($course, $service, $service_instance, 
   $content = $space_name . "\n";
   // college requesting for dbo / db name
   $content .= $college . "\n";
+  // get registry for address / service address
+  $distro_settings = _cis_connector_build_registry($service->field_distribution[LANGUAGE_NONE][0]['value']);
   // domain this is written to
-  $content .= str_replace('http://', '', str_replace('https://', '', $service->field_location[LANGUAGE_NONE][0]['url'])) . "\n";
+  $content .= $distro_settings['address'] . "\n";
   // domain data can be accessed on
-  $content .= str_replace('http://', '', str_replace('https://', '', $service->field_data_location[LANGUAGE_NONE][0]['url'])) . "\n";
+  $content .= $distro_settings['service_address'] . "\n";
   // title to set for the site name value
   $content .= $site_title . "\n";
   // slogan value for the course, make sure one is set
@@ -929,7 +951,7 @@ function _cis_helper_add_service_instance($course, $service, $service_instance, 
 
   // as well as altering the process entirely so that it can be hijacked by
   // cloud based implementations...
-  $distro_settings = _cis_connector_build_registry($service->field_machine_name[LANGUAGE_NONE][0]['value']);
+  $distro_settings = _cis_connector_build_registry($service->field_distribution[LANGUAGE_NONE][0]['value']);
   if (isset($distro_settings['ssh'])) {
     $ssh = $distro_settings['ssh'];
     // build connection string
@@ -942,7 +964,7 @@ function _cis_helper_add_service_instance($course, $service, $service_instance, 
     unlink(variable_get('cis_job_path', CIS_HELPER_JOB_PATH) . '/' . $filename);
   }
   // tell user about the service
-  drupal_set_message(t('The "@service" service will be asked to create @space momentarily. You will be emailed when the job is complete.', array('@service' => $service->title, '@space' => $space_name)), 'status');
+  drupal_set_message(t('The "@service" service will be asked to create @space momentarily. You will be emailed when the job is complete.', array('@service' => $service->title, '@space' => $space_name)), 'notification');
   // log service creation
   watchdog('cis_service', 'Service ' . $service->title . ' was told to be built for ' . $space_name);
 }
@@ -1077,7 +1099,7 @@ function cis_helper_cis_instructional_outlines_alter(&$outlines) {
  */
 function _cis_helper_derive_service_instances($item_id, $course = NULL, $type = 'section') {
   // load course correctly
-  if (is_null($course)) {
+  if (is_null($course) && !is_null($item_id)) {
     switch ($type) {
       case 'section':
       case 'offering':
@@ -1424,16 +1446,6 @@ function _cis_helper_generate_service_node($title, $machine_name, $distribution,
   $node->title = $title;
   $node->field_machine_name['und'][0]['value'] = $machine_name;
   $node->field_distribution['und'][0]['value'] = $distribution;
-  $node->field_location['und'][0] = array(
-    'url'        => $address,
-    'title'      => null,
-    'attributes' => array(),
-  );
-  $node->field_data_location['und'][0] = array(
-    'url'        => $data_address,
-    'title'      => null,
-    'attributes' => array(),
-  );
   // build out via submit then save
   if($node = node_submit($node)) {
     node_save($node);

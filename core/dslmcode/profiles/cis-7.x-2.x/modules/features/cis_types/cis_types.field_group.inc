@@ -822,35 +822,6 @@ function cis_types_field_group_info() {
   $field_group = new stdClass();
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
   $field_group->api_version = 1;
-  $field_group->identifier = 'group_urls|node|service|form';
-  $field_group->group_name = 'group_urls';
-  $field_group->entity_type = 'node';
-  $field_group->bundle = 'service';
-  $field_group->mode = 'form';
-  $field_group->parent_name = '';
-  $field_group->data = array(
-    'label' => 'URLs',
-    'weight' => '1',
-    'children' => array(
-      0 => 'field_data_location',
-      1 => 'field_location',
-    ),
-    'format_type' => 'fieldset',
-    'format_settings' => array(
-      'formatter' => 'collapsible',
-      'instance_settings' => array(
-        'description' => '',
-        'classes' => 'group-urls field-group-fieldset',
-        'required_fields' => 1,
-        'id' => '',
-      ),
-    ),
-  );
-  $field_groups['group_urls|node|service|form'] = $field_group;
-
-  $field_group = new stdClass();
-  $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
-  $field_group->api_version = 1;
   $field_group->identifier = 'group_wholething|field_collection_item|field_sections|full';
   $field_group->group_name = 'group_wholething';
   $field_group->entity_type = 'field_collection_item';
@@ -894,7 +865,6 @@ function cis_types_field_group_info() {
   t('Teachers');
   t('Teaching Assistants');
   t('Text areas');
-  t('URLs');
   t('Visuals');
   t('Whole thing');
 
