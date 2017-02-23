@@ -25,7 +25,7 @@ function cle_app_page_build(&$page) {
           // figure out the file so we can order them afterwards
           $tmp = explode('.', $file);
           $key = array_shift($tmp);
-          // add to our file to the match array becasue these MUST be in the right order
+          // add to our file to the match array because these MUST be in the right order
           $items[$key] = drupal_get_path('module', 'cle_app') . '/app/dist/' . $file;
         }
       }
