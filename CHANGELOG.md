@@ -1,3 +1,10 @@
+ELMSLN 0.7.1, 2017-02-22 - MileHigh
+This release fixes 46 issues since the last release. Major improvements in stability to Studio which is starting to gain critique capabilities. We're also seeing improved ability to maintain and establish course / section context when jumping domains. We're starting to improve data visualization on dashboards for xAPI data which now can be visible everywhere.
+
+Minor and Medium bug fixes in edge cases in CIS, Assessment, Discuss, and Media systems which would cause Course nodes not to save correctly. We've got some minor CSS tweaks to the lmsless bar and a better default banner to make the system more visually appealing out of the box and setting us up for our UX improvement thread. There is also experimental support for Polymer elements (which will change everything in the coming year) and Bookmarking in MOOC.
+
+To read about the changes in this release see: https://github.com/elmsln/elmsln/milestone/17?closed=1
+
 ELMSLN 0.7.0, 2017-01-30 - Redux
 This release fixes over 100 issues since the last release (200ish since 0.6.0). Major improvements in stability to Studio which has graduated as the 1st angular2 based system in the network, as well as lots of UX improvements in all levels of the system. Media, Online, and Courses see major improvements in usability as well. All other systems are a lot easier to access and system context is being maintained between systems much better. Multiple demonstrations of this release are starting to make believers of the approach.
 
