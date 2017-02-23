@@ -88,3 +88,36 @@ This step is now only required if you don't follow the above directions about ho
 10.0.18.55      data-hub.elmsln.local
 10.0.18.55      data-lq.elmsln.local
 ```
+
+### Spin up the vagrant instance**
+```
+cd elmsln
+sh developer
+```
+
+Now you'll be able to jump into any of the domains that ELMSLN starts to establish for use!  Go to http://online.elmsln.local/ after installation completes (grab a coffee, it takes awhile the first time to finish).  If it all worked you should see a new Drupal site running the Course Information System (CIS) distribution.
+
+You can log into this with `user: admin | password: admin`
+
+![log in](https://cloud.githubusercontent.com/assets/16597608/13260446/767d8ae6-da29-11e5-8346-393a09c54cf6.PNG)
+
+To connect to the console of your instance: `vagrant ssh`
+
+### Create a new course
+1. Click Add, then select New Course
+2. Create the name of the course. Ex: Art100
+3. Choose which services to access under course network
+4. Finish by clicking Create course
+5. Wait while the services are installed
+6. Once it says service is available, you can click Access service
+
+### Why use this
+It has been optimized and heavily tested for use with ELMS:LN and it is what we use in daily testing and development and is the easiest way to get up and running. The alternative is to deploy the system on a live server environment and hook up real IPs to DNS entries. This is great / realistic but a lot of times people just want to play with things before jumping in fully. Vagrant provides this and does so with minimal barriers to entry.
+
+**Note: If you are experiencing an APDQC Error (https://github.com/elmsln/elmsln/issues/1843) when running `sh developer` after the first time please run the following commands to fix:
+
+- `vagrant ssh (within the elmsln folder where you usually do sh developer)`
+- `sudo service mysql restart`
+- `logout`
+
+This should fix your install and allow you to continue developing smoothly :)
