@@ -4,7 +4,7 @@
  * Callback to return all data about the current entity from
  * our xAPI / LRS data we can drum up that's meaningful.
  */
-function _elmsln_core_data_form($form, $form_state) {
+function elmsln_core_data_form($form, $form_state) {
   if ($_GET['op'] == t('Reset filters')) {
     drupal_goto(current_path());
   }
