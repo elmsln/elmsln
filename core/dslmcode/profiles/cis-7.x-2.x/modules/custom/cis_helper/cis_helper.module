@@ -645,10 +645,30 @@ function cis_helper_entity_presave($entity, $type) {
   }
   elseif ($type == 'field_collection_item' && $entity->field_name == 'field_sections' && !empty($entity->HostEntity())) {
     $course = $entity->HostEntity()->HostEntity();
+    // wierd crap where course isn't somehow the HostEntity of the host here
+    // this seems like a caching race condition of some kind, possibly caused by APDQC
+    // saving the relationship in a background thread. Doesn't happen all the time and
+    // doesn't seem to have any reason behind when it does happen
+    if (empty($course)) {
+      $query = new EntityFieldQuery;
+      $result = $query
+      // pull all nodes
+      ->entityCondition('entity_type', 'node')
+      // that are service instances
+      ->entityCondition('bundle', 'course')
+      // where there is an offering that is the parent of this one
+      ->fieldCondition('field_offerings', 'value', $entity->HostEntity()->item_id, '=')
+      ->execute();
+      // load the instances
+      if (isset($result['node'])) {
+        $node = array_pop($result['node']);
+        $course = node_load($node->nid);
+      }
+    }
     // account for sections that don't have targets yet should, let's just set them to all
-    if (!isset($entity->field_services['und']) || $entity->field_services['und'][0]['target_id'] == 0) {
+    if (!empty($course) && !isset($entity->field_services['und']) || $entity->field_services['und'][0]['target_id'] == 0) {
       $entity->field_services['und'] = array();
-      $service_instances = _cis_helper_derive_service_instances(NULL, $entity->HostEntity()->HostEntity());
+      $service_instances = _cis_helper_derive_service_instances(NULL, $course);
       if (is_array($service_instances) && !empty($service_instances)) {
         foreach ($service_instances as $instance) {
           $service = node_load($instance->field_services[LANGUAGE_NONE][0]['target_id']);
@@ -1079,7 +1099,7 @@ function cis_helper_cis_instructional_outlines_alter(&$outlines) {
  */
 function _cis_helper_derive_service_instances($item_id, $course = NULL, $type = 'section') {
   // load course correctly
-  if (is_null($course)) {
+  if (is_null($course) && !is_null($item_id)) {
     switch ($type) {
       case 'section':
       case 'offering':
