@@ -1,0 +1,7 @@
+name = Voice Commander: What is..
+description = Add support for voice controlled Question / response
+core = 7.x
+package = Voice Commander
+configure = admin/config/user-interface/voice-commander
+
+dependencies[] = voicecommander

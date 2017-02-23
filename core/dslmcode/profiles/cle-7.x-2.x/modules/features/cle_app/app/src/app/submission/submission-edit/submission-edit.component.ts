@@ -1,3 +1,4 @@
+import { Assignment } from '../../assignment';
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
@@ -5,6 +6,7 @@ import { Observable } from 'rxjs';
 import { Submission } from '../submission';
 import { updateSubmission } from '../submission.actions';
 import { SubmissionFormComponent } from '../submission-form/submission-form.component';
+import { SubmissionService } from '../submission.service';
 declare const Materialize:any;
 declare const jQuery:any;
 
@@ -18,13 +20,18 @@ export class SubmissionEditComponent implements OnInit {
   submission$: Observable<Submission>;
   submissionId:number;
   assignmentId:number;
+  assignment$:Observable<Assignment>;
   submissionFormDirty:boolean;
   isSaving:boolean = false;
+  isCritique:boolean = false;
+  critiqueSubmission:Submission;
+  submissionType$:Observable<string>;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private store: Store<{}>,
+    private submissionService: SubmissionService,
     private el: ElementRef
   ) {
   }
@@ -59,6 +66,33 @@ export class SubmissionEditComponent implements OnInit {
           this.router.navigate(['/assignments/' + this.assignmentId]);
         }
       })
+
+    // get the current assignemnt
+    this.assignment$ = this.submission$
+      // make sure this submission has an assignment
+      .filter((s:Submission) => {
+        if (s) {
+          if (s.assignment) {
+            return true;
+          }
+        }
+        return false
+      })
+      .mergeMap((s:Submission) => {
+        return this.store.select('assignments')
+            .map((state:any) => state.assignments.find((a:Assignment) => a.id === s.assignment))
+      })
+
+    this.assignment$
+      .subscribe((assignment:Assignment) => {
+        if (assignment) {
+          if (assignment.critiqueMethod !== 'none') {
+            this.isCritique = true;
+          }
+        }
+      })
+    
+    this.submissionType$ = this.submissionService.getSubmissionType(this.submission$);
   }
 
   onSubmissionSave($event) {

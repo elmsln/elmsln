@@ -49,3 +49,9 @@ function editorial_update_7003(&$sandbox) {
   module_enable(array('cis_course_service'));
 }
 
+/**
+ * xAPI tracking for view / duration stuff at least
+ */
+function editorial_update_7004(&$sandbox) {
+  module_enable(array('elmsln_lrs'));
+}

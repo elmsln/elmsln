@@ -34,6 +34,17 @@ export function reducer(state: AssignmentState = initialState, action: Action) {
       }
     }
 
+    case ActionTypes.CREATE_CRITIQUE_ASSIGNMENT: {
+      return state;
+    }
+
+    case ActionTypes.CREATE_CRITIQUE_ASSIGNMENT_SUCCESS: {
+      return {
+        loading: state.loading,
+        assignments: [...state.assignments, action.payload]
+      };
+    }
+
     case ActionTypes.UPDATE_ASSIGNMENT: {
       return {
         loading: state.loading,

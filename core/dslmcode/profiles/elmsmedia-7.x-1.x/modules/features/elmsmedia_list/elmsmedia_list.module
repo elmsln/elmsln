@@ -1,0 +1,25 @@
+<?php
+/**
+ * @file
+ * Code for the ELMSMedia List feature.
+ */
+
+include_once 'elmsmedia_list.features.inc';
+
+/**
+ * Implements hook_node_view().
+ */
+function elmsmedia_list_node_view($node, $view_mode, $langcode) {
+  // see if we have a list to display and it's told to be random output
+  if ($node->type == 'elmsmedia_list' && $node->field_elmsmedia_list_type['und'][0]['value'] == 'random') {
+    // make a random number
+    $rand = rand(1, count($node->content['field_elmsmedia_items']['#items']));
+    // look through items we have checking keys
+    foreach ($node->content['field_elmsmedia_items']['#items'] as $key => $item) {
+      // unset everything except our lucky random winner
+      if ($rand != ($key+1)) {
+        unset($node->content['field_elmsmedia_items'][$key]);
+      }
+    }
+  }
+}

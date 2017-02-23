@@ -24,7 +24,6 @@ function elmsmedia_feature_filter_default_formats_alter(&$data) {
     ); /* WAS: '' */
     $data['textbook_editor']['filters']['ckeditor_link_filter']['weight'] = -46; /* WAS: -44 */
     $data['textbook_editor']['filters']['filter_htmlcorrector']['weight'] = -47; /* WAS: -45 */
-    $data['textbook_editor']['filters']['transliteration']['weight'] = -48; /* WAS: -46 */
     $data['textbook_editor']['filters']['video_filter']['weight'] = -50; /* WAS: -48 */
   }
 }

@@ -21,7 +21,7 @@ function cis_service_connection_menu() {
   // section specific language, or generic based on context
   $items['welcome_page'] = array(
     'title' => 'Welcome',
-    'page callback' => '_cis_connector_transaction',
+    'page callback' => '_cis_service_connection_page',
     'page arguments' => array(0),
     'menu_name' => 'main-menu',
     'weight' => -1,
@@ -30,7 +30,7 @@ function cis_service_connection_menu() {
   // standard language from cis
   $items['syllabus'] = array(
     'title' => 'Syllabus',
-    'page callback' => '_cis_connector_transaction',
+    'page callback' => '_cis_service_connection_page',
     'page arguments' => array(0),
     'menu_name' => 'main-menu',
     'weight' => 0,
@@ -236,6 +236,9 @@ function _cis_service_connection_page($request) {
     }
     // check the markup of the format
     $output .= check_markup($body['value'], $body['format']);
+  }
+  else if (is_string($body)) {
+    $output = filter_xss($body);
   }
   return $output;
 }

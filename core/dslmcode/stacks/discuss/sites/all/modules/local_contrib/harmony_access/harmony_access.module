@@ -180,8 +180,6 @@ function harmony_access_modules_enabled($modules) {
  *   hook_taxonomy, etc...) might consider using the non-batch mode.
  */
 function harmony_access_rebuild($batch_mode = FALSE) {
-  db_delete('harmony_access_records')->execute();
-
   if (count(module_implements('harmony_access_grants'))) {
     if ($batch_mode) {
       $batch = array(
@@ -202,12 +200,14 @@ function harmony_access_rebuild($batch_mode = FALSE) {
         $thread = harmony_thread_load($thread_id, NULL, TRUE);
 
         if (!empty($thread)) {
-          harmony_access_acquire_records($thread, 'harmony_thread');
+          harmony_access_acquire_records($thread, 'harmony_thread', TRUE);
         }
       }
     }
   }
   else {
+    db_delete('harmony_access_records')->execute();
+
     // Not using any harmony_access modules. Add the default grant.
     db_insert('harmony_access_records')
       ->fields(array(
@@ -227,8 +227,7 @@ function harmony_access_rebuild($batch_mode = FALSE) {
     drupal_set_message(t('Harmony access records have been rebuilt.'));
     harmony_access_needs_rebuild(FALSE);
 
-    // Clear user caches.
-    cache_clear_all('*', 'cache_harmony_access_grants', TRUE);
+    // Clear all caches.
     cache_clear_all();
   }
 
@@ -260,7 +259,7 @@ function _harmony_access_rebuild_batch_operation(&$context) {
   $threads = harmony_thread_load_multiple($thread_ids, array(), TRUE);
   foreach ($threads as $thread_id => $thread) {
     if (!empty($thread)) {
-      harmony_access_acquire_records($thread, 'harmony_thread');
+      harmony_access_acquire_records($thread, 'harmony_thread', TRUE);
     }
 
     $context['sandbox']['progress']++;
@@ -291,8 +290,8 @@ function _harmony_access_rebuild_batch_finished($success, $results, $operations)
   else {
     drupal_set_message(t('The harmony access records have not been properly rebuilt.'), 'error');
   }
-  // Clear user caches.
-  cache_clear_all('*', 'cache_harmony_access_grants', TRUE);
+
+  // Clear all caches.
   cache_clear_all();
 }
 
@@ -344,6 +343,16 @@ function harmony_access_grants($op, $account = NULL, $reset = FALSE) {
   // Fetch harmony access grants from other modules.
   $grants = module_invoke_all('harmony_access_grants', $account, $op);
 
+  /**
+   * Add in the unpublished realm.
+   */
+  if (user_access('view unpublished harmony_threads', $account)) {
+    $grants['harmony_thread_unpub'] = array(0);
+  }
+  if (user_access('view unpublished harmony_posts', $account)) {
+    $grants['harmony_post_unpub'] = array(0);
+  }
+
   // Allow modules to alter the assigned grants.
   drupal_alter('harmony_access_grants', $grants, $account, $op);
 
@@ -394,19 +403,36 @@ function harmony_access_acquire_records($entity, $entity_type, $delete = TRUE) {
   drupal_alter('harmony_access_records', $grants, $entity, $entity_type);
 
   // If no grants are set and the thread is published, then use the default grant.
-  if (empty($grants) && !empty($entity->status)) {
-    $grants[] = array(
-      'module' => 'harmony_access',
-      'realm' => 'all',
-      'gid' => 0,
-      'grant_view' => 1,
-      'grant_update' => 0,
-      'grant_delete' => 0,
-      'grant_create' => 0,
-      'created' => REQUEST_TIME,
-    );
+  if (empty($grants)) {
+    if (!empty($entity->status)) {
+      $grants[] = array(
+        'module' => 'harmony_access',
+        'realm' => 'all',
+        'gid' => 0,
+        'grant_view' => 1,
+        'grant_update' => 0,
+        'grant_delete' => 0,
+        'grant_create' => 0,
+        'created' => REQUEST_TIME,
+      );
+    }
+    elseif (isset($entity->status) && $entity->status == 0) {
+      $grants[] = array(
+        'module' => 'harmony_access',
+        'realm' => "{$entity_type}_unpub",
+        'gid' => 0,
+        'grant_view' => 1,
+        'grant_update' => 0,
+        'grant_delete' => 0,
+        'grant_create' => 0,
+        'created' => REQUEST_TIME,
+      );
+    }
   }
   else {
+    /**
+     * Account for no grants and unpublished content.
+     */
     $merged_grants = array();
     // Merge the grants together whilst retaining module/source.
     foreach ($grants as $module => $module_grants) {
@@ -500,11 +526,9 @@ function harmony_access_write_records($entity, $entity_type, $grants, $realm = N
       }
     }
 
+    // Insert the regular access records.
     $query->execute();
   }
-
-  // Clear user caches.
-  cache_clear_all('*', 'cache_harmony_access_grants', TRUE);
 }
 
 /**
@@ -577,38 +601,22 @@ function harmony_access_view_all($entity_type, $account = NULL) {
  * Implements hook_harmony_thread_delete().
  */
 function harmony_access_harmony_thread_delete($thread) {
-  db_delete('harmony_access_records')
-    ->condition('entity_type', 'harmony_thread')
-    ->condition('entity_id', $thread->thread_id)
-    ->execute();
-}
-
-/**
- * Implements hook_user_update().
- */
-function harmony_access_user_update(&$edit, $account, $category) {
-  cache_clear_all($account->uid, 'cache_harmony_access_grants', TRUE);
-}
-
-/**
- * Implements hook_user_delete().
- */
-function harmony_access_user_delete($account) {
-  cache_clear_all($account->uid, 'cache_harmony_access_grants', TRUE);
+  // Delete access and fast read records.
+  harmony_access_write_records($thread, 'harmony_thread', array(), NULL, TRUE);
 }
 
 /**
  * Implements hook_og_role_grant().
  */
 function harmony_access_og_role_grant($entity_type, $gid, $uid, $rid) {
-  cache_clear_all($uid, 'cache_harmony_access_grants', TRUE);
+  //cache_clear_all($uid, 'cache_harmony_access_grants', TRUE);
 }
 
 /**
  * Implements hook_og_role_revoke().
  */
 function harmony_access_og_role_revoke($entity_type, $gid, $uid, $rid) {
-  cache_clear_all($uid, 'cache_harmony_access_grants', TRUE);
+  //cache_clear_all($uid, 'cache_harmony_access_grants', TRUE);
 }
 
 /**
@@ -668,10 +676,19 @@ function harmony_access_query_harmony_access_alter(QueryAlterableInterface $quer
  * @param $type
  *   The type of entity being queried for.
  */
-function _harmony_access_query_access_alter($query, $type) {
+function _harmony_access_query_access_alter(QueryAlterableInterface $query, $type) {
   global $user;
 
-  // Read meta-data from query, if provided.
+  /**
+   * Check for the bypass access check tag on the query. If present stop now.
+   */
+  if ($query->hasTag('harmony_access_bypass')) {
+    return;
+  }
+
+  /**
+   * Grab the user account from the query if it's there. Operation too.
+   */
   if (!$account = $query->getMetaData('account')) {
     $account = $user;
   }
@@ -679,27 +696,44 @@ function _harmony_access_query_access_alter($query, $type) {
     $op = 'view';
   }
 
-  // If $account can bypass access, or there are no harmony access modules,
-  // or the operation is 'view' and the $account has a global view grant
-  // (such as a view grant for thread ID 0), we don't need to alter the query.
+  /**
+   * If $account can bypass access, or there are no harmony access modules,
+   * or the operation is 'view' and the $account has a global view grant
+   * (such as a view grant for thread ID 0), we don't need to alter the query.
+   */
   if (user_access('bypass harmony forum access control', $account)) {
     return;
   }
+  /**
+   * If nothing is implementing grants then there's no point.
+   */
   if (!count(module_implements('harmony_access_grants'))) {
     return;
   }
-  if ($op === 'view' && harmony_access_view_all($type, $account)) {
+  /**
+   * Historically this would let us check that a user can access all, this has
+   * an inherant perf hit greater than the more efficient query method. If you
+   * expect something like this to work you should be using the bypass access
+   * checks permission.
+   */
+  /*if ($op === 'view' && harmony_access_view_all($type, $account)) {
     return;
-  }
-  // Check for the bypass access check tag.
-  if ($query->hasTag('harmony_access_bypass')) {
-    return;
-  }
+  }*/
 
   $tables = $query->getTables();
   $base_table = $query->getMetaData('base_table');
+  $entity_type = 'harmony_thread';
 
-  // If no base table is specified explicitly, search for one.
+  /**
+   * Check for the presence of a base table for the entity we're checking
+   * (should be harmony_thread but could expand to harmony_post too).
+   *
+   * We need to check for the base table so that we don't get caught up in a
+   * position where we're trying to join to access records without knowing
+   * the entity ID which would result in a failure. An example of where the
+   * base table might be missing is where a pager query wraps a harmony_thread
+   * query in a count expression.
+   */
   if (!$base_table) {
     $fallback = '';
     foreach ($tables as $alias => $table_info) {
@@ -727,8 +761,11 @@ function _harmony_access_query_access_alter($query, $type) {
               }
             }
             else {
-              // At least it's a nid. A table with a field called nid is very
-              // very likely to be a harmony_thread.thread_id in a harmony access query.
+              /**
+               * At least it's an entity ID. A table with a field called
+               * thread_id is very very likely to be a harmony_thread.thread_id
+               * in a harmony access query.
+               */
               $fallback = $table;
             }
           }
@@ -747,40 +784,73 @@ function _harmony_access_query_access_alter($query, $type) {
     }
   }
 
-  // Find all instances of the base table being joined -- could appear
-  // more than once in the query, and could be aliased. Join each one to
-  // the harmony_access_records table.
-
+  /**
+   * Loop through the found tables which we can join to and join to the
+   * harmony access records. If we're viewing then use the fast read table.
+   */
   $grants = harmony_access_grants($op, $account);
 
   foreach ($tables as $halias => $tableinfo) {
     $table = $tableinfo['table'];
     if (!($table instanceof SelectQueryInterface) && $table == $base_table) {
-      // Set the subquery.
-      $subquery = db_select('harmony_access_records', 'har')
-       ->fields('har', array('entity_id'));
+      /**
+       * Depending on the operation, if it's view then go the quicker join and
+       * condition way. If not then go the oldschool
+       * subquery way.
+       */
+      if ($op === 'view') {
+        $query->join('harmony_access_records', 'har', "$halias.thread_id = har.entity_id");
+        $query->fields('har', array('entity_id'));
+        $query->condition('har.entity_type', $entity_type);
+        $query->condition('har.grant_view', 1, '>=');
+        $query->groupBy('har.entity_id');
 
-      $grant_conditions = db_or();
-      // If any grant exists for the specified user, then user has access
-      // to the thread for the specified operation.
-      foreach ($grants as $realm => $gids) {
-        foreach ($gids as $gid) {
-          $grant_conditions->condition(db_and()
-            ->condition('har.gid', $gid)
-            ->condition('har.realm', $realm)
-          );
+        $har_where = db_or();
+        foreach ($grants as $realm => $gids) {
+          foreach ($gids as $gid) {
+            $har_where->condition(db_and()
+              ->condition('har.gid', $gid)
+              ->condition('har.realm', $realm)
+            );
+          }
         }
+        $query->condition($har_where);
       }
+      /**
+       * Non view operation, create, update and delete.
+       */
+      else {
+        // Set the subquery.
+        $subquery = db_select('harmony_access_records', 'har')
+         ->fields('har', array('entity_id'));
 
-      // Attach conditions to the subquery for threads.
-      if (count($grant_conditions->conditions())) {
-        $subquery->condition($grant_conditions);
+        $grant_conditions = db_or();
+        /**
+         * Setup as many OR AND groupings as there are grant and realms
+         * available to the current user.
+         */
+        foreach ($grants as $realm => $gids) {
+          foreach ($gids as $gid) {
+            $grant_conditions->condition(db_and()
+              ->condition('har.gid', $gid)
+              ->condition('har.realm', $realm)
+            );
+          }
+        }
+
+        /**
+         * Attach conditions to the subquery.
+         */
+        if (count($grant_conditions->conditions())) {
+          $subquery->condition($grant_conditions);
+        }
+        $subquery->condition('har.grant_' . $op, 1, '>=');
+        $subquery->condition('har.entity_type', $entity_type);
+        $field = 'thread_id';
+        $subquery->where("$halias.$field = har.entity_id");
+
+        $query->exists($subquery);
       }
-      $subquery->condition('har.grant_' . $op, 1, '>=');
-      $field = 'thread_id';
-      $subquery->where("$halias.$field = har.entity_id");
-
-      $query->exists($subquery);
     }
   }
 }

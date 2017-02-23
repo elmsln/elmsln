@@ -22,10 +22,14 @@ function harmony_atjs_atjs_ajax_results_alter(&$results, $context) {
       $filepath = NULL;
 
       if (!empty($entity->picture)) {
-        if (ctype_digit((string) $entity->picture)) {
+        if (!is_object($entity->picture) && ctype_digit((string) $entity->picture)) {
           $entity->picture = file_load($entity->picture);
+
+          if (!empty($entity->picture->uri)) {
+            $filepath = $entity->picture->uri;
+          }
         }
-        if (!empty($entity->picture->uri)) {
+        else if (is_object($entity->picture) && !empty($entity->picture->uri)) {
           $filepath = $entity->picture->uri;
         }
       }

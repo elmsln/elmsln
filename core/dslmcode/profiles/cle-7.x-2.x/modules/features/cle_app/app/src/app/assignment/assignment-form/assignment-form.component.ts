@@ -22,6 +22,7 @@ export class AssignmentFormComponent implements OnInit, OnChanges {
   form: FormGroup;
   assignmentOptions:any;
   saveAttempted:boolean;
+  assignmentIsCritique:boolean;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -42,6 +43,8 @@ export class AssignmentFormComponent implements OnInit, OnChanges {
     this.form = this.formBuilder.group(form);
     this.form.setControl('title', new FormControl(this.assignment.title, Validators.required))
 
+
+    this.assignmentIsCritique = this.assignmentService.assignmentIsCritique(this.assignment);
     /**
      * @todo: first attempt at autoSaveForm
      */

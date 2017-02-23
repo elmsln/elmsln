@@ -1,0 +1,5 @@
+name = Webcomponents: Display Suite
+description = Provides Display Suite support to webcomponents.
+core = 7.x
+dependencies[] = webcomponents
+dependencies[] = ds

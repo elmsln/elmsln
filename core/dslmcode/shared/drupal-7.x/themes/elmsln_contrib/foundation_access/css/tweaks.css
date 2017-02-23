@@ -1,3 +1,9 @@
+.lrs-data-chart {
+  border: .25rem solid black;
+  margin: 1rem 0;
+  padding: .5rem;
+}
+
 .mediavideo__duration {
   font-size: .8rem;
   text-align: right;
@@ -6,6 +12,10 @@
 .mediavideo__duration i {
   line-height: 2rem;
   vertical-align: middle;
+}
+
+#elmsln-tools-trigger {
+  border: none;
 }
 
 /* lock CKeditor on scroll if there's focus on the item */
@@ -294,7 +304,7 @@ body.page-node-edit.node-type-page .cke_focus .cke_top{
 .colorpicker {
   z-index: 10000;
 }
-article ul:not(.contextual-links):not(.collapsible):not(.browser-default):not(.dropdown-content):not(.h5p-answers):not(.table-of-contents):not(.menu) li,
+article ul:not(.contextual-links):not(.collapsible):not(.footnotes):not(.browser-default):not(.dropdown-content):not(.h5p-answers):not(.table-of-contents):not(.menu) li,
 .ckeditor-edit-body ul:not(.contextual-links):not(.collapsible):not(.browser-default):not(.dropdown-content):not(.h5p-answers):not(.table-of-contents):not(.menu) li {
   list-style-type: disc;
   list-style-position: outside;
@@ -596,6 +606,7 @@ body.devel-show .devel-querylog {
   line-height: 3.4rem;
   min-width: 3.4rem;
 }
+
 nav ul.left-nav-section a {
   padding: 0 .5rem;
   height: 3.2rem;
@@ -604,6 +615,9 @@ nav ul.left-nav-section a {
 }
 nav ul.left-nav-section a span {
   margin: 0 .5rem;
+}
+nav ul.left-nav-section a:hover {
+  background-color: rgba(0, 0, 0, 0.4);
 }
 nav ul.left-nav-section a i,
 nav ul.left-nav-section a div,
@@ -1117,11 +1131,11 @@ input[type=file]:focus,
 
 /* top bar profile divider */
 .left-nav-section li.divider-right {
-  border-right-width: 0.15rem;
+  border-right-width: 0.2rem;
   border-right-style:solid;
   padding: 0;
   min-width: 0;
-  margin: 0.6rem 0;
+  margin: 0.2rem 0;
   width: 0.2rem;
   height: auto;
 }
@@ -1620,8 +1634,15 @@ select.chosen {
   background-color:#bdbdbd;
 }
 
-.image__cite, .image--lightboxed__cite {
+cite, .image__cite, .image--lightboxed__cite {
   color:#4c4c4c;
+  font-size: .8rem;
+  max-width: 100%;
+}
+
+cite p, .image__cite p, .image--lightboxed__cite p {
+  font-size: .8rem;
+  max-width: 100%;
 }
 
 div.read-time-wrapper div.chip i {
@@ -1783,6 +1804,7 @@ article p.elmsln-core-in-context,
   max-width: 85%;
 }
 article div div div p,
+cite p,
 article div div div p.elmsln-core-in-context,
 .ckeditor-edit-body div p,
 .ckeditor-edit-body div p.elmsln-core-in-context{
@@ -1919,11 +1941,8 @@ a.add-menu-drop {
   padding: .5rem !important;
 }
 
-.r-header__icon i {
-  opacity: 0.5;
-}
 .r-header__icon i:hover {
-  opacity: 0.8;
+  color: black !important;
 }
 .r-header__icon-secondary {
   opacity: 0.2;
@@ -2168,6 +2187,10 @@ table.tableheader-processed {
 tr.even,
 tr.odd {
     background: #FFF;
+}
+
+.region-messeges {
+  margin-top:-4px;
 }
 
 .region-messeges ul {

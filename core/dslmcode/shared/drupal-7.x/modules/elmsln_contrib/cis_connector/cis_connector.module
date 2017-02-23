@@ -324,6 +324,10 @@ function _cis_connector_format_address($settings, $instance = '', $method = 'ser
     $address = $settings['protocol'] . '://';
     // allow for front end link or data connection
     if ($method == 'service') {
+      // allow for alternate service protocol potentially
+      if (isset($settings['dataprotocol'])) {
+        $address = $settings['dataprotocol'] . '://';
+      }
       // optional HTTP authenticated request, required in any *real* environment
       if (isset($settings['user'])) {
         $address .= $settings['user'] . ':' . $settings['pass'] . '@';
@@ -561,7 +565,7 @@ function _cis_connector_course_context() {
  *
  * @see og_context()
  */
-function _cis_connector_section_context($account = NULL) {
+function _cis_connector_section_context($account = NULL, $skip_og_context = FALSE) {
   // statically cache future calls
   $section = &drupal_static(__FUNCTION__);
   if (!isset($section)) {
@@ -586,8 +590,12 @@ function _cis_connector_section_context($account = NULL) {
       $account = $GLOBALS['user'];
     }
     $group = array();
-    // attempt to grab og context if enabled
-    if (module_exists('og_context')) {
+    // attempt to grab og context if enabled and we haven't been told
+    // to explicitly ignore this handler. This is only ignored when the
+    // call for og_context is self originating, thus helping avoid an
+    // infinite loop where context fallback asks for context and context
+    // asks for fallback
+    if (!$skip_og_context && module_exists('og_context')) {
       $group = og_context();
     }
     // if set, load from there though ts unlikely
@@ -707,6 +715,16 @@ function _cis_connector_transaction($request, $format = 'default', $query = arra
           drupal_set_message(t('This page is blank because you are currently viewing the Master section. To update these values per course section please access the <a href="@url" class="accessible-red-text">Course information system</a>.', array('@url' => $cisaddress)), 'status', FALSE);
         }
       }
+      // if someone setting up the space, offer them ability to switch quickly to section
+      if (_cis_connector_role_groupings(array('staff', 'teacher'))) {
+        drupal_set_message(t('Try setting a section to view in order to see how students from that section will see it.'));
+        $form = drupal_get_form('cis_service_connection_block_section_context_changer_form');
+        $output = drupal_render($form);
+        return array(
+          'value' => $output,
+          'format' => 'textbook_editor',
+        );
+      }
       return array();
     }
   }
@@ -761,7 +779,6 @@ function _cis_connector_transaction($request, $format = 'default', $query = arra
                   $output[$tmp['field_machine_name']['und'][0]['value']] = array(
                     'field_machine_name' => $tmp['field_machine_name']['und'][0]['value'],
                     'title' => $tmp['title'],
-                    'field_location' => array('url' => $tmp['field_location']['und'][0]['url']),
                     'field_distribution' => $tmp['field_distribution']['und'][0]['value'],
                   );
                 }
@@ -785,7 +802,6 @@ function _cis_connector_transaction($request, $format = 'default', $query = arra
                 $output[$tmp['field_machine_name']['und'][0]['value']] = array(
                   'field_machine_name' => $tmp['field_machine_name']['und'][0]['value'],
                   'title' => $tmp['title'],
-                  'field_location' => array('url' => $tmp['field_location']['und'][0]['url']),
                   'field_distribution' => $tmp['field_distribution']['und'][0]['value'],
                 );
               }
@@ -1551,17 +1567,28 @@ function _cis_connector_assemble_entity_list($entity_type, $bundle, $id_field, $
       }
     }
     // load entities and build array of id -> title
-    foreach ($elist as $entity) {
-      // allow for field value as key
-      if (is_array($id_field)) {
+    foreach ($elist as $itemkey => $entity) {
+      // avoid epic fail, skip this item if it doesn't exist
+      if (!isset($entity->{$id_field})) {
+        $key = $itemkey;
+      }
+      // fallback, if this item is empty we need to bail
+      elseif (empty($entity->{$id_field})) {
+        $key = $itemkey;
+      }
+      // see if this value is an array
+      elseif (is_array($id_field)) {
         $key = $entity->{$id_field[0]}[LANGUAGE_NONE][0][$id_field[1]];
       }
+      // see if it's a "field", if so then fallback to "value"
       elseif (strpos($id_field, 'field_') !== FALSE && isset($entity->{$id_field}[LANGUAGE_NONE])) {
         $key = $entity->{$id_field}[LANGUAGE_NONE][0]['value'];
       }
+      // it's direct value like 'title'
       else {
         $key = $entity->{$id_field};
       }
+
       // special case for title field being the full on entity
       if ($title_field == '_entity') {
         $options[$key] = $entity;

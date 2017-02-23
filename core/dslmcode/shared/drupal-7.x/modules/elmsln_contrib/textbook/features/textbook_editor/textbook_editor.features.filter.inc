@@ -29,13 +29,6 @@ function textbook_editor_filter_default_formats() {
           'video_filter_html5' => 1,
         ),
       ),
-      'transliteration' => array(
-        'weight' => -46,
-        'status' => 1,
-        'settings' => array(
-          'no_known_transliteration' => '?',
-        ),
-      ),
       'filter_htmlcorrector' => array(
         'weight' => -45,
         'status' => 1,

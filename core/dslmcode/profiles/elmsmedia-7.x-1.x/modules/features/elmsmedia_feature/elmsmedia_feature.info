@@ -34,7 +34,6 @@ features[features_overrides][] = filter.textbook_editor.cache
 features[features_overrides][] = filter.textbook_editor.filters|cis_filter
 features[features_overrides][] = filter.textbook_editor.filters|ckeditor_link_filter|weight
 features[features_overrides][] = filter.textbook_editor.filters|filter_htmlcorrector|weight
-features[features_overrides][] = filter.textbook_editor.filters|transliteration|weight
 features[features_overrides][] = filter.textbook_editor.filters|video_filter|weight
 features[field_base][] = body
 features[field_base][] = field_cis_course_ref

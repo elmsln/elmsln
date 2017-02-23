@@ -124,7 +124,6 @@ dependencies[] = og_ui
 dependencies[] = cis_section
 dependencies[] = cis_course_service
 
-
 ; ----------
 ; CLE Dependencies
 ; ----------
@@ -151,6 +150,7 @@ dependencies[] = jquery_colorpicker
 dependencies[] = quickpost_bookmarklet
 dependencies[] = unique_field
 dependencies[] = achievements
+dependencies[] = elmsln_lrs
 ; Radioactivity
 dependencies[] = radioactivity
 dependencies[] = radioactivitydefaults

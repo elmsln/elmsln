@@ -1,0 +1,67 @@
+diff --git a/frameprevention.module b/frameprevention.module
+index 74e185b..f655ce8 100644
+--- a/frameprevention.module
++++ b/frameprevention.module
+@@ -1,5 +1,4 @@
+ <?php
+-
+ /**
+  * @file
+  * Prevent your Drupal site from being framed.
+@@ -29,31 +28,31 @@ function frameprevention_permission() {
+  * Implements hook_init().
+  */
+ function frameprevention_init() {
+-  if (!frameprevention_check()) {
++  // make sure we want to check
++  if (!_frameprevention_check()) {
++    // add the header options for same origin if that setting is in place
+     $x_frame = variable_get('frameprevention_x_frame_options', 'SAMEORIGIN');
+     if ($x_frame == 'SAMEORIGIN' || $x_frame == 'DENY') {
+       drupal_add_http_header('X-Frame-Options', $x_frame);
+     }
+-
++    // if enabled, block the frame from showing
+     if (variable_get('frameprevention_enabled', 0)) {
+-      $inline_script = <<<EOL
+-<style id="antiClickjack">body{display:none !important;}</style>
+-<script type="text/javascript">
+-   if (self === top) {
+-       var antiClickjack = document.getElementById("antiClickjack");
+-       antiClickjack.parentNode.removeChild(antiClickjack);
+-   } else {
+-       top.location = self.location;
+-   }
+-</script>
+-
+-EOL;
+-
++      $inline_script = '<style id="antiClickjack">body{display:none !important;}</style>
++      <script type="text/javascript">
++      if (self === top) {
++        var antiClickjack = document.getElementById("antiClickjack");
++        antiClickjack.parentNode.removeChild(antiClickjack);
++      }
++      else {
++        top.location = self.location;
++      }
++      </script>';
++      // inject our css with an id so we can eliminate it on page build
+       $element = array(
+         '#type' => 'markup',
+         '#markup' => $inline_script,
++        '#weight' => -100,
+       );
+-
+       drupal_add_html_head($element, 'frameprevention');
+     }
+   }
+@@ -120,7 +119,7 @@ function frameprevention_admin_settings() {
+  *
+  * @return integer
+  */
+-function frameprevention_check() {
++function _frameprevention_check() {
+   $pages = variable_get('frameprevention_pages', "img_assist/*\nfile/ajax/*");
+   $path = drupal_get_path_alias($_GET['q']);
+   $regexp = '/^(' . preg_replace(array('/(\r\n?|\n)/', '/\\\\\*/', '/(^|\|)\\\\<front\\\\>($|\|)/'), array('|', '.*', '\1' . variable_get('site_frontpage', 'node') . '\2'), preg_quote($pages, '/')) . ')$/';

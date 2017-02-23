@@ -14,7 +14,7 @@
     <main id="etb-tool-nav" data-offcanvas>
       <div class="inner-wrap">
         <!-- progress bar -->
-        <div class="page-scroll progress <?php print $cis_lmsless['lmsless_classes'][$distro]['color'] . ' ' . $cis_lmsless['lmsless_classes'][$distro]['light']; ?>">
+        <div class="page-scroll progress white">
           <span class="meter <?php print $cis_lmsless['lmsless_classes'][$distro]['color'] . ' ' .$cis_lmsless['lmsless_classes'][$distro]['dark'];?>" style="width: 0%"></span>
         </div>
         <?php if (!empty($messages)): ?>
@@ -34,12 +34,12 @@
                 <?php if (isset($edit_path)): ?>
                 <li class="r-header__edit-icons__list-item">
                   <?php if (arg(2) == 'edit'): ?>
-                  <a href="#save-content" onclick="document.getElementById('edit-submit').click();" title="<?php print t('Save')?>" class="r-header__icon elmsln-edit-button">
+                  <a onclick="document.getElementById('edit-submit').click();" data-tooltip="<?php print t('Save')?>" title="<?php print t('Save')?>" class="tooltipped r-header__icon elmsln-edit-button">
                     <i class="material-icons green-text text-darken-4">save</i>
                     <span class="element-invisible"><?php print t('Save content'); ?></span>
                   </a>
                 <?php else: ?>
-                  <a href="<?php print $edit_path; ?>" title="<?php print t('Edit content')?>" class="r-header__icon  elmsln-edit-button" data-jwerty-key="e" data-voicecommand="edit">
+                  <a href="<?php print $edit_path; ?>" title="<?php print t('Edit content')?>" class="tooltipped r-header__icon elmsln-edit-button" data-tooltip="<?php print t('Edit content')?>" data-jwerty-key="e" data-voicecommand="edit">
                     <i class="material-icons black-text <?php print $cis_lmsless['lmsless_classes'][$distro]['text'] . ' text-' . $cis_lmsless['lmsless_classes'][$distro]['dark'];?>">mode_edit</i>
                     <span class="element-invisible"><?php print t('Edit content'); ?></span>
                   </a>
@@ -47,23 +47,23 @@
                 </li>
                 <?php endif; ?>
                 <?php if (!empty($cis_shortcodes)) : ?>
-                  <li class="r-header__edit-icons__list-item"><a id="elmsln-shortcodes-button" href="#elmsln-shortcodes" title="<?php print t('Share')?>" class="r-header__icon elmsln-share-button elmsln-right-side-nav-trigger" data-activates="block-cis-shortcodes-cis-shortcodes-block-nav-modal" aria-controls="block-cis-shortcodes-cis-shortcodes-block-nav-modal" aria-expanded="false" data-jwerty-key="s" data-voicecommand="open share (menu)">
+                  <li class="r-header__edit-icons__list-item"><a id="elmsln-shortcodes-button" title="<?php print t('Embed this item')?>" class="tooltipped r-header__icon elmsln-share-button elmsln-right-side-nav-trigger" data-tooltip="<?php print t('Embed this item')?>" data-activates="block-cis-shortcodes-cis-shortcodes-block-nav-modal" aria-controls="block-cis-shortcodes-cis-shortcodes-block-nav-modal" aria-expanded="false" data-jwerty-key="s" data-voicecommand="open share (menu)">
                     <i class="material-icons black-text <?php print $cis_lmsless['lmsless_classes'][$distro]['text'] . ' text-' . $cis_lmsless['lmsless_classes'][$distro]['dark'];?>">share</i>
-                    <span class="element-invisible"><?php print t('Short code menu'); ?></span>
+                    <span class="element-invisible"><?php print t('Embed this item menu'); ?></span>
                   </a></li>
                 <?php endif; ?>
                 <?php if (!empty($a11y)) : ?>
-                  <li class="r-header__edit-icons__list-item"><a id="elmsln-preferences-button"  href="#elmsln-preferences" title="<?php print t('Preferences')?>" class="r-header__icon elmsln-accessibility-button elmsln-right-side-nav-trigger" data-activates="page-accessibility-menu" aria-controls="page-accessibility-menu" aria-expanded="false" data-jwerty-key="a" data-voicecommand="open preferences (menu)">
+                  <li class="r-header__edit-icons__list-item"><a id="elmsln-preferences-button" title="<?php print t('Your preferences')?>" data-tooltip="<?php print t('Your preferences')?>" class="tooltipped r-header__icon elmsln-accessibility-button elmsln-right-side-nav-trigger" data-activates="page-accessibility-menu" aria-controls="page-accessibility-menu" aria-expanded="false" data-jwerty-key="a" data-voicecommand="open preferences (menu)">
                     <i class="material-icons black-text <?php print $cis_lmsless['lmsless_classes'][$distro]['text'] . ' text-' . $cis_lmsless['lmsless_classes'][$distro]['dark'];?>">accessibility</i>
-                    <span class="element-invisible"><?php print t('Preferences menu'); ?></span>
+                    <span class="element-invisible"><?php print t('Your preferences menu'); ?></span>
                   </a></li>
                 <?php endif; ?>
                 <!-- end Edit Icon -->
                 <li class="r-header__edit-icons__list-item">
                 <?php if (!empty($tabs['#primary']) || !empty($tabs['#secondary']) || !empty($tabs_extras)): ?>
-                    <a href="#elmsln-more" title="<?php print t('More')?>" class="r-header__icon elmsln-more-button elmsln-dropdown-button" data-activates="elmsln-more-menu" aria-controls="elmsln-more-menu" aria-expanded="false" data-jwerty-key="m" data-voicecommand="open more (menu)">
+                    <a title="<?php print t('Less common options')?>" class="r-header__icon elmsln-more-button elmsln-dropdown-button" data-activates="elmsln-more-menu" aria-controls="elmsln-more-menu" aria-expanded="false" data-jwerty-key="m" data-voicecommand="open more (menu)">
                       <i class="material-icons black-text <?php print $cis_lmsless['lmsless_classes'][$distro]['text'] . ' text-' . $cis_lmsless['lmsless_classes'][$distro]['dark'];?>">more_vert</i>
-                      <span class="element-invisible"><?php print t('More options'); ?></span>
+                      <span class="element-invisible"><?php print t('Less common options'); ?></span>
                     </a>
                     <ul id="elmsln-more-menu" class="dropdown-content" aria-hidden="true" tabindex="-1">
                     <?php if (!empty($tabs)): ?>
@@ -143,7 +143,7 @@
       <a class="exit-off-canvas"></a>
       </div>
     </main>
-    <footer class="page-footer <?php print $cis_lmsless['lmsless_classes'][$distro]['color'] . ' ' . $cis_lmsless['lmsless_classes'][$distro]['light'] . ' ' . $cis_lmsless['lmsless_classes'][$distro]['color'];?>-border <?php print $cis_lmsless['lmsless_classes'][$distro]['text'];?>">
+    <footer class="page-footer <?php print $cis_lmsless['lmsless_classes'][$distro]['color'] . ' ' . $cis_lmsless['lmsless_classes'][$distro]['dark'] . ' ' . $cis_lmsless['lmsless_classes'][$distro]['color'];?>-border white-text">
       <div class="container">
         <div class="row">
           <div class="s12 push-m1 m-10 col">
@@ -176,9 +176,9 @@
     <!-- Accessibility side nav -->
     <?php if (!empty($a11y)) : ?>
     <section id="page-accessibility-menu" class="elmsln-modal elmsln-modal-hidden side-nav disable-scroll" aria-label="<?php print t('Preferences'); ?>" aria-hidden="true" role="dialog" tabindex="-1">
-        <div class="center-align valign-wrapper elmsln-modal-title-wrapper <?php print $cis_lmsless['lmsless_classes'][$distro]['color'] . ' ' . $cis_lmsless['lmsless_classes'][$distro]['light'];?> <?php print $cis_lmsless['lmsless_classes'][$distro]['color'];?>-border">
-        <h2 class="flow-text valign elmsln-modal-title"><?php print t('Preferences'); ?></h2>
-          <a href="#close-dialog" aria-label="<?php print t('Close'); ?>" class="close-reveal-side-nav" data-voicecommand="close (menu)" data-jwerty-key="Esc" >&#215;</a>
+        <div class="center-align valign-wrapper elmsln-modal-title-wrapper <?php print $cis_lmsless['lmsless_classes'][$distro]['color'] . ' ' . $cis_lmsless['lmsless_classes'][$distro]['dark'];?> <?php print $cis_lmsless['lmsless_classes'][$distro]['color'];?>-border">
+        <h2 class="flow-text valign elmsln-modal-title white-text"><?php print t('Preferences'); ?></h2>
+          <a href="#close-dialog" aria-label="<?php print t('Close'); ?>" class="close-reveal-side-nav white-text" data-voicecommand="close (menu)" data-jwerty-key="Esc" >&#215;</a>
         </div>
         <div class="elmsln-modal-content">
           <?php print $a11y; ?>

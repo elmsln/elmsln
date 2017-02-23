@@ -1,0 +1,4 @@
+name = Web components
+description = Provides support for webcomponents to ingest static templates into reusable layout systems.
+core = 7.x
+dependencies[] = entity

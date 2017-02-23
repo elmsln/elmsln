@@ -33,9 +33,7 @@ export class AssignmentDialogComponent implements OnInit, OnDestroy {
         if (typeof params['assignmentId'] !== 'undefined') {
           this.action = 'update';
           this.assignmentService.getAssignment(params['assignmentId'])
-            .subscribe(data => {
-              this.assignment = data;
-            });
+            .subscribe(assignment => this.assignment = assignment);
         }
         else if (typeof params['projectId'] !== 'undefined') {
           let a:Assignment = new Assignment();

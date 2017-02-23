@@ -1,3 +1,4 @@
+import { ModuleImport } from 'angular-cli/utilities/get-dependent-files';
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -6,6 +7,7 @@ import { routing } from './app.routing';
 import { StoreModule } from '@ngrx/store';
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 import { EffectsModule } from '@ngrx/effects';
+import { routerReducer, RouterStoreModule } from '@ngrx/router-store';
 
 // reducers
 import { reducer as assignmentReducer } from './reducers/assignments';
@@ -57,6 +59,10 @@ import { DialogComponent } from './dialog/dialog.component';
 import { SubmissionEditStatesComponent } from './submission/submission-edit-states/submission-edit-states.component';
 import { SubmissionDialogComponent } from './submission/submission-dialog/submission-dialog.component';
 import { ImageComponent } from './image/image.component';
+import { AssignmentDetailComponent } from './assignment/assignment-detail/assignment-detail.component';
+import { ElmslnWysiwygComponent } from './elmsln-wysiwyg/elmsln-wysiwyg.component';
+import { SubmissionCritiqueFormComponent } from './submission/submission-critique-form/submission-critique-form.component';
+import { SubmissionCritiqueComponent } from './submission/submission-critique/submission-critique.component';
 
 @NgModule({
   declarations: [
@@ -90,7 +96,12 @@ import { ImageComponent } from './image/image.component';
     DialogComponent,
     SubmissionEditStatesComponent,
     SubmissionDialogComponent,
-    ImageComponent
+    ImageComponent,
+    AssignmentDetailComponent,
+    AssignmentDetailComponent,
+    ElmslnWysiwygComponent,
+    SubmissionCritiqueFormComponent,
+    SubmissionCritiqueComponent
   ],
   imports: [
     BrowserModule,
@@ -100,12 +111,14 @@ import { ImageComponent } from './image/image.component';
     ReactiveFormsModule,
     MomentModule,
     StoreModule.provideStore({
+      router: routerReducer,
       assignments: assignmentReducer,
       user: userReducer,
       submissions: submissionReducer,
       projects: projectReducer,
       images: imageReducer
     }),
+    RouterStoreModule.connectRouter(),
     EffectsModule.run(AppEffects),
     EffectsModule.run(SubmissionEffects),
     EffectsModule.run(ProjectEffects),

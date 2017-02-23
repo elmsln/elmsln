@@ -52,13 +52,21 @@ function cle_app_preprocess_html(&$vars) {
 function cle_app_menu() {
   $items['cle'] = array(
     'title' => 'Assignments',
-    'page callback' => 'drupal_goto',
-    'page arguments' => array('cle/app'),
+    'page callback' => '_cle_app_redirect',
+    'page arguments' => array(),
     'access arguments' => array('access content'),
     'type' => MENU_CALLBACK,
     'weight' => -10,
   );
   $items['cle/app'] = array(
+    'title' => 'Assignments',
+    'page callback' => '_cle_app_redirect',
+    'page arguments' => array(),
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+    'weight' => -10,
+  );
+  $items['cle/app/projects'] = array(
     'title' => 'Assignments',
     'page callback' => '_cle_app_page_critique_app',
     'access arguments' => array('access content'),
@@ -66,7 +74,21 @@ function cle_app_menu() {
     'menu_name' => 'menu-elmsln-navigation',
     'weight' => -10,
   );
+  $items['cle/app/%'] = array(
+    'title' => 'Assignments',
+    'page callback' => '_cle_app_page_critique_app',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+    'weight' => -10,
+  );
   return $items;
+}
+
+/**
+ * Simple callback to avoid argument issues w/ drupal_goto in menu router
+ */
+function _cle_app_redirect() {
+  drupal_goto('cle/app/projects');
 }
 
 /**

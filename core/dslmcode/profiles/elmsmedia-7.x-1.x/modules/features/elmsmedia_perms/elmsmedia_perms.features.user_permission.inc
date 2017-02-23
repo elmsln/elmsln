@@ -46,6 +46,18 @@ function elmsmedia_perms_user_default_permissions() {
     'module' => 'node',
   );
 
+  // Exported permission: 'create elmsmedia_list content'.
+  $permissions['create elmsmedia_list content'] = array(
+    'name' => 'create elmsmedia_list content',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'instructor' => 'instructor',
+      'staff' => 'staff',
+      'teaching assistant' => 'teaching assistant',
+    ),
+    'module' => 'node',
+  );
+
   // Exported permission: 'create external_video content'.
   $permissions['create external_video content'] = array(
     'name' => 'create external_video content',
@@ -160,6 +172,16 @@ function elmsmedia_perms_user_default_permissions() {
     'module' => 'node',
   );
 
+  // Exported permission: 'delete any elmsmedia_list content'.
+  $permissions['delete any elmsmedia_list content'] = array(
+    'name' => 'delete any elmsmedia_list content',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'staff' => 'staff',
+    ),
+    'module' => 'node',
+  );
+
   // Exported permission: 'delete any external_video content'.
   $permissions['delete any external_video content'] = array(
     'name' => 'delete any external_video content',
@@ -257,6 +279,18 @@ function elmsmedia_perms_user_default_permissions() {
   // Exported permission: 'delete own elmsmedia_image content'.
   $permissions['delete own elmsmedia_image content'] = array(
     'name' => 'delete own elmsmedia_image content',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'instructor' => 'instructor',
+      'staff' => 'staff',
+      'teaching assistant' => 'teaching assistant',
+    ),
+    'module' => 'node',
+  );
+
+  // Exported permission: 'delete own elmsmedia_list content'.
+  $permissions['delete own elmsmedia_list content'] = array(
+    'name' => 'delete own elmsmedia_list content',
     'roles' => array(
       'administrator' => 'administrator',
       'instructor' => 'instructor',
@@ -383,6 +417,16 @@ function elmsmedia_perms_user_default_permissions() {
     'module' => 'node',
   );
 
+  // Exported permission: 'edit any elmsmedia_list content'.
+  $permissions['edit any elmsmedia_list content'] = array(
+    'name' => 'edit any elmsmedia_list content',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'staff' => 'staff',
+    ),
+    'module' => 'node',
+  );
+
   // Exported permission: 'edit any external_video content'.
   $permissions['edit any external_video content'] = array(
     'name' => 'edit any external_video content',
@@ -486,6 +530,18 @@ function elmsmedia_perms_user_default_permissions() {
   // Exported permission: 'edit own elmsmedia_image content'.
   $permissions['edit own elmsmedia_image content'] = array(
     'name' => 'edit own elmsmedia_image content',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'instructor' => 'instructor',
+      'staff' => 'staff',
+      'teaching assistant' => 'teaching assistant',
+    ),
+    'module' => 'node',
+  );
+
+  // Exported permission: 'edit own elmsmedia_list content'.
+  $permissions['edit own elmsmedia_list content'] = array(
+    'name' => 'edit own elmsmedia_list content',
     'roles' => array(
       'administrator' => 'administrator',
       'instructor' => 'instructor',

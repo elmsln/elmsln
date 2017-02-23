@@ -20,7 +20,6 @@ function elmsmedia_feature_features_override_default_overrides() {
   );
   $overrides["filter.textbook_editor.filters|ckeditor_link_filter|weight"] = -46;
   $overrides["filter.textbook_editor.filters|filter_htmlcorrector|weight"] = -47;
-  $overrides["filter.textbook_editor.filters|transliteration|weight"] = -48;
   $overrides["filter.textbook_editor.filters|video_filter|weight"] = -50;
 
  return $overrides;

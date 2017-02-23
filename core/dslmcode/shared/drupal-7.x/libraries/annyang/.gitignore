@@ -1,4 +1,6 @@
 node_modules
+npm-debug.log
 .idea
 .grunt
+.DS_Store
 test/coverage/

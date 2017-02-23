@@ -1,9 +1,11 @@
 <div class="row">
   <ul class="collapsible">
     <li *ngFor="let assignment of assignments">
-      <div class="collapsible-header assignment" [ngClass]="{'assignment--loading': !assignment.id}">
+      <div class="collapsible-header assignment" [ngClass]="{'assignment--loading': !assignment.id, 'assignment--critique': assignmentService.assignmentIsCritique(assignment)}">
         <div class="assignment__body" (click)="viewAssignment(assignment.id)">
-          <i class="material-icons">assignment</i>{{ assignment.title }}
+          <i *ngIf="!assignmentService.assignmentIsCritique(assignment)" class="material-icons">assignment</i>
+          <i *ngIf="assignmentService.assignmentIsCritique(assignment)" class="material-icons">arrow_right</i>
+          {{ assignment.title }}
           <span *ngIf="assignment.complete == 1" class="badge green-text">Complete</span>
           <span *ngIf="assignment.complete == 0" class="badge red-text">Incomplete</span>
           <div class="due-dates">
@@ -15,6 +17,7 @@
           <span *ngIf="assignment && assignment.metadata.relatedSubmissions && assignment.metadata.relatedSubmissions.complete.status" class="assignment__icon--complete"><i class="material-icons">check</i></span>
         </div>
         <div class="assignment__edit-buttons" *ngIf="assignment.id && (userCanEdit$ | async)">
+          <a *ngIf="!assignmentService.assignmentIsCritique(assignment)" (click)="addCritique(assignment)"><i class="material-icons" aria-label="Edit assignment">add</i></a>
           <a (click)="onEditAssignment(assignment)"><i class="material-icons" aria-label="Edit assignment">edit</i></a>
           <a (click)="onDeleteAssignment(assignment)"><i class="material-icons" aria-label="Edit assignment">delete</i></a>
         </div>

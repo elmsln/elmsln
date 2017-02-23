@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { Observable, Subject } from 'rxjs';
 import { Project } from '../../project';
 import { Store } from '@ngrx/store';
+import { createCritiqueAssignment } from '../../app.actions';
 declare const $:any;
 
 @Component({
@@ -48,6 +49,10 @@ onEditAssignment(assignment:Assignment) {
 onDeleteAssignment(assignment:Assignment) {
   const url = 'assignment-delete/' + assignment.id;
   this.router.navigate([{outlets: {dialog: url}}])
+}
+
+addCritique(assignment:Assignment) {
+  this.store.dispatch(createCritiqueAssignment(assignment));
 }
 
 // when we get new assignments, make sure we sort them

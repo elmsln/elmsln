@@ -1,0 +1,139 @@
+<?php
+/**
+ * @file Web components display modes.
+ */
+
+/**
+ * Implements hook_entity_info_alter().
+ */
+function webcomponents_display_modes_entity_info_alter(&$entity_info) {
+  // load all our components
+  $components = webcomponents_load_all();
+  foreach ($entity_info as $type => &$info) {
+    // ensure it has view modes
+    if (isset($info['view modes'])) {
+      foreach ($components as $component) {
+        // make sure we have properties
+        if (!empty($component->properties)) {
+          $info['view modes'][$component->machine_name] = array(
+            'label' => $component->title,
+            'custom settings' => TRUE,
+          );
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_field_formatter_info_alter().
+ */
+function webcomponents_display_modes_field_formatter_info_alter(&$info) {
+  $components = webcomponents_load_all();
+  foreach ($info as &$item) {
+    foreach ($components as $component) {
+      $item['field types'][] = $component->machine_name;
+      $item['settings'][$component->machine_name] = '';
+    }
+  }
+}
+
+/**
+ * Alter the form elements for a formatter's settings.
+ */
+function webcomponents_display_modes_field_formatter_settings_form_alter(array &$settings_form, array $context) {
+  $instance = $context['instance'];
+  $view_mode = $context['view_mode'];
+  // load view_mode to match
+  if ($entity = webcomponent_load_by_name($view_mode)) {
+    $display = $instance['display'][$view_mode];
+    $settings = $display['settings'];
+    // make properties into different key array
+    $tmp = $entity->properties;
+    foreach ($tmp as $key => $val) {
+      $tmp[$key] = $key;
+    }
+    // property value
+    $settings_form[$view_mode] = array(
+      '#title' => t('Property'),
+      '#type' => 'select',
+      '#options' => $tmp,
+      '#default_value' => $settings[$view_mode],
+      '#description' => t('Select a field to map to this @type webcomponent property.', array('@type' => $entity->type))
+    );
+  }
+}
+
+/**
+ * Alter the short summary for the current formatter settings of an instance.
+ */
+function webcomponents_display_modes_field_formatter_settings_summary_alter(&$summary, array $context) {
+  $instance = $context['instance'];
+  $view_mode = $context['view_mode'];
+  $display = $instance['display'][$view_mode];
+  // load the matching webcomponent
+  if ($display['type'] != 'hidden' && $entity = webcomponent_load_by_name($view_mode)) {
+    $settings = $display['settings'];
+    // see if we have a setting for this view mode already
+    if (!empty($settings[$view_mode])) {
+      if (!empty($summary)) {
+        $summary .= "<br/>\n";
+      }
+      $summary .= t('Field maps to webcomponent property: @value', array('@value' => $settings[$view_mode]));
+    }
+    else {
+      // allow anything to utilize these settings!
+      if (!empty($summary)) {
+        $summary .= "<br/>\n";
+      }
+      $summary .= t('Map value to the property.');
+    }
+  }
+}
+
+/**
+ * Implements hook_preprocess_node().
+ */
+function webcomponents_display_modes_preprocess_node(&$variables) {
+  // add support for webcomponent as possible node hits
+  $view_mode = $variables['view_mode'];
+  // load up the fields associated to it based on view mode IF it is a component
+  if ($component = webcomponent_load_by_name($view_mode)) {
+    $variables['theme_hook_suggestions'][] = 'node--webcomponent';
+    $variables['theme_hook_suggestions'][] = 'webcomponent';
+    $variables['tag'] = $view_mode;
+    // ensure we've got properties but might have them ahead of time
+    if (!isset($variables['properties'])) {
+      $variables['properties'] = array();
+    }
+    // load an instance of the fields, it's already happened but closer here
+    $info = field_info_instances('node', $variables['type']);
+    // load all the fields for "view" in a view mode
+    $fields = field_attach_view($variables['elements']['#entity_type'], $variables[$variables['elements']['#entity_type']], $variables['elements']['#view_mode']);
+    // loop through and see if we should pass this along to the webcomponent template
+    foreach ($info as $field => $data) {
+      // only if something isn't hidden and it has been told via instance settings to map
+      // to a property coming from the webcomponent
+      if ($data['display'][$view_mode]['type'] != 'hidden' && isset($data['display'][$view_mode]['settings'][$view_mode]) && !empty($data['display'][$view_mode]['settings'][$view_mode]) && isset($component->properties[$data['display'][$view_mode]['settings'][$view_mode]])) {
+        // trip the tags out and force it into the property
+        $variables['properties'][$data['display'][$view_mode]['settings'][$view_mode]] = strip_tags(render($fields[$field]));
+      }
+    }
+    // fallback support for title property since this is pretty common
+    // and display modes often times don't have title on the field UI
+    if (isset($component->properties['title']) && !isset($variables['properties']['title'])) {
+      $variables['properties']['title'] = $variables[$variables['elements']['#entity_type']]->title;
+    }
+  }
+}
+
+/**
+ * Implements hook_theme_registry_alter().
+ */
+function webcomponents_display_modes_theme_registry_alter(&$theme_registry) {
+  // load components so we can force the template to what we want
+  $components = webcomponents_load_all();
+  foreach ($components as $component) {
+    $theme_registry['webcomponent--' . $component->machine_name]['template'] = 'webcomponent';
+  }
+}

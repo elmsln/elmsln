@@ -68,7 +68,7 @@ function elmsln_core_menu() {
   $items['elmsln/course-data'] = array(
     'title' => 'Course data',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('elmsln_core_data_form'),
+    'page arguments' => array('_elmsln_core_data_form'),
     'access arguments' => array('view elmsln lrs data'),
     'weight' => 10,
     'type' => MENU_NORMAL_ITEM,
@@ -318,49 +318,6 @@ function _elmsln_people_user_edit_page($form, &$form_state, $account, $category 
   else {
     module_load_include('inc', 'user', 'user.pages');
     return user_profile_form($form, $form_state, $account, $category);
-  }
-}
-
-/**
- * The user's account information is being displayed.
- *
- * The module should format its custom additions for display and add them to the
- * $account->content array.
- *
- * @param $account
- *   The user object on which the operation is being performed.
- * @param $view_mode
- *   View mode, e.g. 'full'.
- * @param $langcode
- *   The language code used for rendering.
- *
- * @see hook_user_view_alter()
- * @see hook_entity_view()
- */
-function elmsln_core_user_view($account, $view_mode, $langcode) {
-  // If we are not already on the central person repository.
-  $elmsln_global_profile = variable_get('elmsln_global_profile', 'cpr');
-  if (elmsln_core_get_profile_key() != $elmsln_global_profile) {
-    // Grab the user data from the central person repository.
-    $user_data_name = _cis_connector_request('user.json?name=' . $account->name, array(), $elmsln_global_profile, TRUE);
-    if (!empty($user_data_name)) {
-      $user_data_name = json_decode($user_data_name->data);
-      if (!empty($user_data_name->list)) {
-        $user_data_uid = _cis_connector_request('user/' . $user_data_name->list[0]->uid . '.json?display_mode=full', array(), $elmsln_global_profile, TRUE);
-        // Decode the data that comes in from the user object.
-        $user_data = json_decode($user_data_uid->data);
-        // ensure we got good data
-        if (isset($user_data->rendered)) {
-          $rendered = str_replace('/services/', '/', $user_data->rendered);
-          // Add a new section to the User profile page.
-          $account->content['summary']['profile'] = array(
-            '#type' => 'user_profile_item',
-            '#title' => '',
-            '#markup' => $rendered,
-          );
-        }
-      }
-    }
   }
 }
 
@@ -696,6 +653,15 @@ function _elmsln_core_remote_redirect($tool, $type, $etid, $op) {
       );
       $response = _elmsln_api_request($request);
     }
+    $args = arg();
+    // support more then our 6 arguments so we can support
+    // complex deep link redirects while still being triggered
+    // by the minimum required to get there (elmsln/redirect/%/%)
+    if (count($args) > 6) {
+      for ($i = 6; $i < count($args); $i++) {
+        $address .= '/' . $args[$i];
+      }
+    }
     // redirect over to this location
     header('Location: ' . $address, TRUE, 302);
     // drupal_goto has this, says its important incase numeric code not understood
@@ -794,6 +760,14 @@ function elmsln_core_page_build(&$page) {
   // xapi context iframe sniffer
   if (module_exists('tincanapi') && !path_is_admin(current_path())) {
     drupal_add_js(drupal_get_path('module', 'elmsln_core') . '/js/elmsln-core-xapi-context.js', array('weight' => 1000));
+    // @todo we need to only track people told to be tracked with vagrant based
+    // fallback for testing everything
+    // @todo we need a better path management solution as to when to track
+    // right now we just ignore entity iframe, admin, and 'data' paths
+    // would be good to ignore other paths without missing views / special pages in the process
+    if (!_entity_iframe_mode_enabled() && arg(1) != 'course-data' && !in_array(arg(2), array('data', 'edit', 'devel', 'revisions', 'outline')) && _cis_connector_system_type() != 'authority') {
+      drupal_add_js(drupal_get_path('module', 'elmsln_core') . '/js/elmsln-core-xapi-viewed.js', array('weight' => 1001));
+    }
   }
   // devel usability improvement
   if (module_exists('devel') &&  !path_is_admin(current_path()) && user_access('access devel information')) {
@@ -806,7 +780,6 @@ function elmsln_core_page_build(&$page) {
   $cfg = _elmsln_core_get_cfg();
   $settings = _cis_connector_build_registry(elmsln_core_get_profile_key());
   // see if this is an active learner or not, only thing we care about currently
-  // @todo probably faster way of getting this info
   if (_cis_connector_role_grouping('active learner')) {
     $role = 'student';
   }
@@ -825,6 +798,10 @@ function elmsln_core_page_build(&$page) {
   else {
     $uuid = $GLOBALS['user']->uid;
   }
+  $beacon = '';
+  if (isset($_GET['xapibeacon'])) {
+    $beacon = filter_xss($_GET['xapibeacon']);
+  }
   // pass variables to js
   $js_variables = array(
     'elmslnCore' => array(
@@ -838,6 +815,7 @@ function elmsln_core_page_build(&$page) {
       'role' => $role,
       'uname' => filter_xss($GLOBALS['user']->name),
       'xapisession' => drupal_get_token($uuid),
+      'xapibeacon' => $beacon,
     )
   );
   $js_variables['tincanapi'] = $js_variables;
@@ -966,6 +944,13 @@ function elmsln_core_form_a11y_admin_settings_alter(&$form, &$form_state) {
 function elmsln_core_url_inbound_alter(&$path, $original_path, $path_language) {
   $query_params = drupal_get_query_parameters();
   $changed = FALSE;
+  // course
+  if (isset($query_params['elmsln_active_course']) && $course = $query_params['elmsln_active_course']) {
+    $_SESSION['cis_course_context'] = $course;
+    // Remove the active section query parameter and proceed to the url
+    //unset($query_params['elmsln_active_course']);
+    //$changed = TRUE;
+  }
   if (isset($query_params['elmsln_active_section']) && $section_id = $query_params['elmsln_active_section']) {
     // get a list of allowed sections for this user
     $sections = array();
@@ -1003,13 +988,6 @@ function elmsln_core_url_inbound_alter(&$path, $original_path, $path_language) {
     // Remove the active section query parameter and proceed to the url
     unset($query_params['elmsln_active_section']);
     $changed = TRUE;
-  }
-  // course
-  if (isset($query_params['elmsln_active_course']) && $course = $query_params['elmsln_active_course']) {
-    $_SESSION['cis_course_context'] = $course;
-    // Remove the active section query parameter and proceed to the url
-    //unset($query_params['elmsln_active_course']);
-    //$changed = TRUE;
   }
   // look or cross-network masquerade
   if (isset($query_params['elmsln_masquerade']) && $masquerad = $query_params['elmsln_masquerade']) {
@@ -1147,6 +1125,12 @@ function elmsln_core_voice_command() {
   $commands["all your base"] =  array(
     'callback' => 'Drupal.voicecommanderAllYourBase',
   );
+  $commands["close"] =  array(
+    'callback' => 'Drupal.voicecommanderCloseMenus',
+  );
+  $commands["thank you"] =  array(
+    'callback' => 'Drupal.voicecommanderThankYou',
+  );
   if (arg(1) == 'error') {
     $commands["open the pod bay doors"] =  array(
       'callback' => 'Drupal.voicecommanderHal9000',
@@ -1262,6 +1246,10 @@ function _elmsln_core_icon_map() {
         'color' => 'teal',
         'icon' => 'collections',
       ),
+      'media_list' => array(
+        'color' => 'pink',
+        'icon' => 'collections',
+      ),
       'static_content' => array(
         'color' => 'blue',
         'icon' => 'insert_drive_file',
@@ -1357,6 +1345,10 @@ function elmsln_core_cis_service_registry_alter(&$keychain) {
               'mail' => strtoupper('SERVICE_' . $distro . '_' . $cfg['host']) . '@' . $cfg['emailending'],
               'pass' => drupal_substr(hash('sha512', $distro . $cfg['salt']), 0, 30),
             );
+            // support for alternate data- protocol for backend
+            if (isset($cfg['dataprotocol'])) {
+              $keychain[$distro]['dataprotocol'] = $cfg['dataprotocol'];
+            }
             $file = file_get_contents($directory . $item . '/' . $distro . '.topology');
             $lines = explode("\n", $file);
             // read each line of the cfg file
@@ -1502,6 +1494,25 @@ function elmsln_core_theme($existing, $type, $theme, $path) {
  */
 function elmsln_core_tincanapi_ajax_data_alter($module_name, &$data, $context) {
   $settings = array();
+  // account for our own statements to pass through
+  if ($module_name == 'elmsln_core') {
+    $data['verb'] = array(
+      'id' => 'http://adlnet.gov/expapi/verbs/' . $context['verb'],
+      'display' => array(
+        'en-US' => $context['verb']
+      )
+    );
+    $data['object'] = array(
+      "objectType" => "Activity",
+      "id" => $context['id'],
+      "definition" => array(
+        "name" => array(
+          "en-US" => "Page: " . $context['title'],
+        ),
+        "type" => "http://orw.iminds.be/tincan/content/type/page"
+      )
+    );
+  }
   // regardless of module see if our contextual settings are here
   // and this way we can ship down elmslnCore's scope variables
   // which will make our data-sets more meaningful for searching in LRSs later
@@ -1577,6 +1588,16 @@ function elmsln_core_tincanapi_ajax_data_alter($module_name, &$data, $context) {
   if (isset($settings['hypothesis'])) {
     $data['context']['extensions']['https://www.elmsln.org/x-api/elmsln-research-hypothesis'] = filter_xss($settings['hypothesis']);
   }
+  // beacon if its set
+  if (isset($settings['beacon']) && !empty($settings['beacon'])) {
+    $data['context']['extensions']['https://www.elmsln.org/x-api/elmsln-beacon'] = filter_xss($settings['beacon']);
+  }
+  elseif (isset($settings['xapibeacon']) && !empty($settings['xapibeacon'])) {
+    $data['context']['extensions']['https://www.elmsln.org/x-api/elmsln-beacon'] = filter_xss($settings['xapibeacon']);
+  }
+  elseif (isset($_GET['xapibeacon']) && !empty($_GET['xapibeacon'])) {
+    $data['context']['extensions']['https://www.elmsln.org/x-api/elmsln-beacon'] = filter_xss($_GET['xapibeacon']);
+  }
 
   // competency if its set
   if (isset($settings['competency'])) {
@@ -1631,6 +1652,10 @@ function elmsln_core_tincanapi_data_alter($module_name, &$data) {
       'https://www.elmsln.org/x-api/elmsln-role' => $role,
       'https://www.elmsln.org/x-api/elmsln-session' => $session,
     );
+    // beacon if its set
+    if (isset($_GET['xapibeacon']) && !empty($_GET['xapibeacon'])) {
+      $data['context']['extensions']['https://www.elmsln.org/x-api/elmsln-beacon'] = filter_xss($_GET['xapibeacon']);
+    }
     // see if we can find a field related to competencies
     if ($node = menu_get_object()) {
       if (isset($node->field_elmsln_competency) && !empty($node->field_elmsln_competency)) {

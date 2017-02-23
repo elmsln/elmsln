@@ -20,7 +20,7 @@ function harmony_atjs_default_atjs_listener() {
   $listener->record_usage = TRUE;
   $listener->at = '@';
   $listener->tpl = '<li data-value="${atwho-at}${name}">${avatar}${name}</li>';
-  $listener->insert_tpl = '<span>${atwho-data-value}</span>';
+  $listener->insert_tpl = '<span>${atwho-at}${name}</span>';
   $listener->search_key = 'property:name';
   $listener->data_to_supply = array(
     'name' => 'name',

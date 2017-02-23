@@ -745,7 +745,7 @@ function cis_helper_quick_setup_page_submit($form, $form_state) {
     $file_check = array('syllabus', 'welcome_letter');
     foreach ($file_check as $file_name) {
       // make sure the file came across
-      if ($form_state['values'][$file_name] != '' && $form_state['values'][$file_name]['fid'] != 0) {
+      if ($form_state['values'][$file_name] != '') {
         // load the file into an object
         $file = file_load($form_state['values'][$file_name]);
         // Change status to permanent so it isn't killed on cron clean up

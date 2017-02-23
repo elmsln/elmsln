@@ -1,0 +1,20 @@
+{
+    "remotePath": "/home/vagrant/elmsln",
+    "host": "0.0.0.0",
+    "username": "vagrant",
+    "password": "vagrant",
+    "port": 2222,
+    "secure": true,
+    "protocol": "sftp",
+    "uploadOnSave": true,
+    "passive": false,
+    "debug": false,
+    "privateKeyPath": null,
+    "passphrase": null,
+    "ignore": [
+        "\\.vscode",
+        "\\.git",
+        "\\.DS_Store",
+        "\\node_modules"
+    ]
+}

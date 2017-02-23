@@ -15,7 +15,7 @@ function elmsln_lrs_strongarm() {
   $strongarm->api_version = 1;
   $strongarm->name = 'tincanapi_content_types_view_modes';
   $strongarm->value = array(
-    'full' => 'full',
+    'full' => 0,
     'teaser' => 0,
     'rss' => 0,
     'print' => 0,
