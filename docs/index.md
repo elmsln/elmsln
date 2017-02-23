@@ -8,7 +8,7 @@ Learn more about ELMSLN @ [elmsln.org](http://elmsln.org/)
 
 Version | PHP | Includes | Code Status
 ------------- | ------  | --- | -------------------------- | -----------
-[0.7.0](https://github.com/elmsln/elmsln/archive/0.7.0.zip)  | 5.4+ & 7 | Drupal 7.x | [![Build Status](https://travis-ci.org/elmsln/elmsln.svg?branch=master)](https://travis-ci.org/elmsln/elmsln)
+[0.7.1](https://github.com/elmsln/elmsln/archive/0.7.1.zip)  | 5.4+ & 7 | Drupal 7.x | [![Build Status](https://travis-ci.org/elmsln/elmsln.svg?branch=master)](https://travis-ci.org/elmsln/elmsln)
 
 Issues
 ==============

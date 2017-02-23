@@ -11,7 +11,6 @@ The Core maintainers are:
 
 - Bryan Ollendyke `@btopro` https://www.elmsln.org/team/bryan-ollendyke-ms
 - Michael Potter `@hey__mp` https://www.elmsln.org/team/michael-potter
-- Brad Fisher `@bradallenfisher` https://www.elmsln.org/team/brad-fisher
 - Michael Collins `@_mike_collins` https://www.elmsln.org/team/michael-collins-mfa
 
 Contributors
