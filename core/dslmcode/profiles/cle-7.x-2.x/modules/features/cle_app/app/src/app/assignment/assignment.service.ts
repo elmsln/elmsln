@@ -61,7 +61,7 @@ export class AssignmentService {
     const newAssignment = this.prepareForDrupal(assignment);
     return this.elmsln.post(AppSettings.BASE_PATH + 'api/v1/cle/assignments/create', newAssignment)
       .map(data => data.json().node)
-      .map(node => Number(node.nid))
+      .switchMap(node => this.getAssignment(node.nid))
   }
 
   updateAssignment(assignment:Assignment) {

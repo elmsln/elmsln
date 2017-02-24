@@ -36,7 +36,7 @@ export class AssignmentEffects {
   @Effect() createAssignment$ = this.actions$
     .ofType(ActionTypes.CREATE_ASSIGNMENT)
     .mergeMap(action => this.assignmentService.createAssignment(action.payload))
-    .map(assignmentId => createAssignmentSuccess(assignmentId));
+    .map(assignment => createAssignmentSuccess(assignment));
   
   @Effect() createCritiqueAssignment$ = this.actions$
     .ofType(ActionTypes.CREATE_CRITIQUE_ASSIGNMENT)
