@@ -6,6 +6,7 @@ import { AppSettings } from '../app-settings';
 import { Submission } from './submission';
 import { Assignment } from '../assignment/assignment';
 import { loadAssignments } from '../assignment/assignment.actions';
+import { normalize, schema, Schema } from 'normalizr';
 declare const Materialize:any;
 
 @Injectable()

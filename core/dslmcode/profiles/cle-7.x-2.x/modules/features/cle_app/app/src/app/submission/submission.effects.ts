@@ -1,13 +1,16 @@
 import 'rxjs/add/operator/mergeMap';
 import { Injectable } from '@angular/core';
+import { Response } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
 import { Action } from '@ngrx/store'
+import { Submission } from './submission';
 import { Effect, Actions } from '@ngrx/effects';
 import {
   ActionTypes,
   loadSubmissionsSuccess,
   createSubmission,
   createSubmissionSuccess,
+  createSubmissionFailure,
   updateSubmissionSuccess,
   deleteSubmission,
   loadPermissions,
@@ -26,9 +29,11 @@ export class SubmissionEffects {
 
   @Effect() createSubmission$ = this.actions$
     .ofType(ActionTypes.CREATE_SUBMISSION)
-    .mergeMap(action => this.submissionService.createSubmission(action.payload))
-    .mergeMap(sub => this.submissionService.getSubmission(sub.id))
-    .map((sub:any) => createSubmissionSuccess(sub));
+    .switchMap(action => this.submissionService.createSubmission(action.payload)
+      .switchMap((sub:Submission) => this.submissionService.getSubmission(sub.id)
+        .map((sub:Submission) => createSubmissionSuccess(sub)))
+      .catch((res:Response) => Observable.of(createSubmissionFailure(res)))
+    )
 
   // Update the submission on the server
   @Effect() updateSubmission$ = this.actions$
