@@ -131,6 +131,9 @@ export class AssignmentService {
   }
 
   private prepareForDrupal(assignment:Assignment) {
+    if (!assignment) {
+      return assignment;
+    }
     // Convert date fields
     let newAssignment: any = Object.assign({}, assignment);
     // remove created

@@ -23,6 +23,7 @@ import {
 import { loadSubmissions } from '../submission/submission.actions';
 import { AssignmentService } from './assignment.service';
 import { ElmslnService } from '../elmsln.service';
+import { Assignment } from './assignment';
 declare const Materialize:any;
 
 @Injectable()
@@ -42,7 +43,7 @@ export class AssignmentEffects {
     .ofType(ActionTypes.CREATE_CRITIQUE_ASSIGNMENT)
     .mergeMap(action => {
       return this.assignmentService.createAssignment(action.payload)
-        .mergeMap(assignmentId => this.assignmentService.getAssignment(assignmentId));
+        .mergeMap((assignment:Assignment) => this.assignmentService.getAssignment(assignment.id));
     })
     .map(assignment => createCritiqueAssignmentSuccess(assignment));
 
