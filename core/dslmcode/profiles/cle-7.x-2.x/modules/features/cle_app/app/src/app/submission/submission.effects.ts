@@ -34,6 +34,14 @@ export class SubmissionEffects {
         .map((sub:Submission) => createSubmissionSuccess(sub)))
       .catch((res:Response) => Observable.of(createSubmissionFailure(res)))
     )
+  
+  @Effect() createSubmissionFailure$ = this.actions$
+    .ofType(ActionTypes.CREATE_SUBMISSION_FAILURE)
+    // get the response from the action payload
+    .map((action:Action) => action.payload)
+    .map((res:Response) => {
+      Materialize.toast('Something went wrong saving your submission! Please copy your work and contact an administrator.', 10000, 'create-submission-failure')
+    })
 
   // Update the submission on the server
   @Effect() updateSubmission$ = this.actions$

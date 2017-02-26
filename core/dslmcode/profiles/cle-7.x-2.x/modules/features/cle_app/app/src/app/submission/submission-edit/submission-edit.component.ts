@@ -8,6 +8,7 @@ import { updateSubmission } from '../submission.actions';
 import { SubmissionFormComponent } from '../submission-form/submission-form.component';
 import { SubmissionService } from '../submission.service';
 import * as fromRoot from '../../app.reducer';
+import { SubmissionStates } from '../submission.reducer';
 declare const Materialize:any;
 declare const jQuery:any;
 
@@ -53,14 +54,14 @@ export class SubmissionEditComponent implements OnInit {
         }))
     }
 
-    this.store.select(fromRoot.getSubmissionIsSaving)
-      .subscribe(saving => {
+    this.store.select(fromRoot.getSubmissionCurrentState)
+      .subscribe((state:SubmissionStates) => {
         // saving is happening
-        if (saving && !this.isSaving) {
+        if (state === SubmissionStates.saving && !this.isSaving) {
           this.isSaving = true;
           Materialize.toast('Updating submission...', 30000, 'toast-submission-update');
         }
-        else if (!saving && this.isSaving) {
+        else if (state === SubmissionStates.default && this.isSaving) {
           jQuery('.toast-submission-update').remove();
           Materialize.toast('Submission updated', 1500);
           this.router.navigate(['/assignments/' + this.assignmentId]);
