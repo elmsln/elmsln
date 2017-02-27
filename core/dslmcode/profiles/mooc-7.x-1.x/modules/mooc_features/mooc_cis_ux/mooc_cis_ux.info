@@ -14,7 +14,6 @@ dependencies[] = menu
 dependencies[] = menu_attributes
 dependencies[] = menu_token
 dependencies[] = mooc_helper
-dependencies[] = node_revision_delete
 dependencies[] = options
 dependencies[] = read_time
 dependencies[] = read_time_book
