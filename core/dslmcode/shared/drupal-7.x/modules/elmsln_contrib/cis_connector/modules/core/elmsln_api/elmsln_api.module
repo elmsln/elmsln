@@ -1338,6 +1338,7 @@ function _elmsln_api_nonblocking_requests($requests, $recursion = FALSE) {
 function _elmsln_api_course_sync($properties, $api = '1', $nonblocking = TRUE) {
   // need to kill any session level context for course
   unset($_SESSION['cis_course_context']);
+  drupal_static_reset('_cis_connector_course_context');
   global $_elmsln_api_processing;
   if ($_elmsln_api_processing) {
     return FALSE;
