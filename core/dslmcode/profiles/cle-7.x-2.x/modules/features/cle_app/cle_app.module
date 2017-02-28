@@ -22,22 +22,36 @@ function cle_app_page_build(&$page) {
       if ($file != "." && $file != "..") {
         // preg match for files patterned as styles/inline/scripts/vendor/main.hashvalue/or/not.bundle.css/js
         if (preg_match('#^(styles|inline|scripts|vendor|main)\.*\.[^\s]+(\.(js|css))#', $file)) {
-          // figure out the file so we can order them afterwards
+          // figure out the file info so we can order them afterwards
           $tmp = explode('.', $file);
-          $key = array_shift($tmp);
-          // add to our file to the match array because these MUST be in the right order
-          $items[$key] = drupal_get_path('module', 'cle_app') . '/app/dist/' . $file;
+          $tmp_name = array_shift($tmp);
+          $tmp_cache_string = array_shift($tmp);
+          $tmp_bundle = array_shift($tmp);
+          $tmp_file_type = array_shift($tmp);
+          // compression optional so will either be 'gz' or NULL
+          $tmp_compression = array_shift($tmp);
+          // we just want the files that are not compressed so drupal can handle the compression
+          // we are going to categorize them by file type and name
+          if (is_null($tmp_compression)) {
+            $items[$tmp_file_type][$tmp_name] = drupal_get_path('module', 'cle_app') . '/app/dist/' . $file;
+          }
         }
       }
     }
+
+    // specify the loading order of the file names
     $keys = array('styles', 'inline','scripts','vendor','main');
-    foreach ($keys as $id => $key){
-      if (isset($items[$key])) {
-        if ($key == 'styles') {
-          drupal_add_css($items[$key]);
-        }
-        else {
-          drupal_add_js($items[$key], array('scope' => 'footer', 'weight' => 1000 + $id));
+    foreach ($items as $file_type => $files) {
+      foreach ($keys as $id => $key){
+        if (isset($files[$key])) {
+          if ($file_type == 'css') {
+            krumo('adding ' . $key);
+            drupal_add_css($files[$key]);
+          }
+          elseif ($file_type == 'js') {
+            krumo('adding ' . $key);
+            drupal_add_js($files[$key], array('scope' => 'footer', 'weight' => 1000 + $id));
+          }
         }
       }
     }
