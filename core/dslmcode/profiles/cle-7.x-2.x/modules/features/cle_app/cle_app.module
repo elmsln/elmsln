@@ -45,11 +45,9 @@ function cle_app_page_build(&$page) {
       foreach ($keys as $id => $key){
         if (isset($files[$key])) {
           if ($file_type == 'css') {
-            krumo('adding ' . $key);
             drupal_add_css($files[$key]);
           }
           elseif ($file_type == 'js') {
-            krumo('adding ' . $key);
             drupal_add_js($files[$key], array('scope' => 'footer', 'weight' => 1000 + $id));
           }
         }
