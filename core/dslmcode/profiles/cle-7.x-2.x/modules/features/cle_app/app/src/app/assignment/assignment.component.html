@@ -32,6 +32,6 @@
   </div>
 
 
-  <app-submission-list *ngIf="(submissions$ | async).length > 0" title="Submissions" [submissions]="submissions$ | async"></app-submission-list>
+  <app-submission-list class="assignment__submission" *ngIf="(submissions$ | async).length > 0" title="Submissions" [submissions]="submissions$ | async"></app-submission-list>
 
 </div>
