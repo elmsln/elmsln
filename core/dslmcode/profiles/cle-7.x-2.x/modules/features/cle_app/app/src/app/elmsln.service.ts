@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Http, Headers, Response, RequestOptions } from '@angular/http';
-import { AppSettings } from './app-settings';
+import { AppSettings } from './app.settings';
 import { Cookie } from 'ng2-cookies/ng2-cookies';
 import {Observable} from "rxjs";
 import { Store } from '@ngrx/store';

@@ -5,7 +5,7 @@ import { Store } from '@ngrx/store';
 import { loadPermissions, loadAssignments } from './assignment/assignment.actions';
 import { loadSubmissions } from './submission/submission.actions'
 import { loadProjects } from './projects/project.actions';
-import { AppSettings } from './app-settings';
+import { AppSettings } from './app.settings';
 
 @Component({
   selector: 'app-root',
