@@ -104,6 +104,7 @@ export function reducer(state: any, action: any) {
  * ```
  */
 export const getProjectState = (state:State) => state.projects;
+
 /**
  * Every reducer module exports selector functions, however child reducers
  * have no knowledge of the overall state tree. To make them useable, we
@@ -150,8 +151,6 @@ export const getMySubmissions = createSelector(getAllSubmissions, getMyUserUid, 
 export const getSubmissionSavable = createSelector(getSubmissionCurrentState, getImageCurrentState, (s:fromSubmission.SubmissionStates, i:fromImage.ImageStates) => {
   return (s === fromSubmission.SubmissionStates.default && i === fromImage.ImageStates.default);
 });
-
-
 
 /**
  * Router

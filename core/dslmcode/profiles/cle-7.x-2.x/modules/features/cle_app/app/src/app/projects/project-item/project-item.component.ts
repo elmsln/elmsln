@@ -35,8 +35,6 @@ export class ProjectItemComponent implements OnInit, OnDestroy {
     private router:Router,
     private store:Store<fromRoot.State>
   ) {
-    this.assignments = store.select(fromRoot.getAssignments)
-      .map((state:any) => state.filter(assignment => assignment.project === this.project.id));
   }
 
   ngOnInit() {
@@ -49,6 +47,9 @@ export class ProjectItemComponent implements OnInit, OnDestroy {
       },
     });
     jQuery(this.el.nativeElement.getElementsByClassName('tooltipped')).tooltip({delay:40});
+
+    // get the assignments
+    this.assignments = this.assignmentService.pluckAssignmentsByProject(this.project.id);
   }
 
   ngOnDestroy() {
