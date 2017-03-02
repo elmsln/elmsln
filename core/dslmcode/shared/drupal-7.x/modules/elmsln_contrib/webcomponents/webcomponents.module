@@ -26,6 +26,7 @@ function webcomponents_entity_info() {
       'label' => 'title',
       'bundle' => 'type',
     ),
+    'uri callback' => 'webcomponent_uri',
     'module' => 'webcomponents',
     'entity class' => 'Entity',
     'controller class' => 'EntityAPIController',
@@ -35,6 +36,15 @@ function webcomponents_entity_info() {
     ),
   );
   return $info;
+}
+
+/**
+ * URI callback for entity
+ */
+function webcomponent_uri($webcomponent) {
+  return array(
+    'path' => 'webcomponent/' . $webcomponent->machine_name,
+  );
 }
 
 /**
