@@ -75,7 +75,7 @@
  * @see template_process()
  */
 ?>
-<article typeof="oer:SupportingMaterial" id="node-<?php print $node->nid; ?>" class="node s12 col <?php print $classes; ?>"<?php print $attributes; ?>>
+<article typeof="oer:SupportingMaterial" resource="node-<?php print $node->nid; ?>" id="node-<?php print $node->nid; ?>" class="node s12 col <?php print $classes; ?>"<?php print $attributes; ?>>
   <?php print render($title_prefix); ?>
   <?php if (!$page): ?>
     <?php if (!$page): ?>

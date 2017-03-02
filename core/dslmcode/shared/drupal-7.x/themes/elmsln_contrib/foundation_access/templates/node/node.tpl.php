@@ -75,7 +75,7 @@
  * @see template_process()
  */
 ?>
-<article typeof="oer:SupportingMaterial" id="node-<?php print $node->nid; ?>" class="node s12 col <?php print $classes; ?>"<?php print $attributes; ?>>
+<article typeof="oer:SupportingMaterial" resource="node-<?php print $node->nid; ?>" id="node-<?php print $node->nid; ?>" class="node s12 col <?php print $classes; ?>"<?php print $attributes; ?>>
   <a id="main-content"></a>
   <?php if ($title && arg(2) != 'edit' && arg(0) != 'users' && arg(0) != 'user'): ?>
     <?php print render($title_prefix); ?>
