@@ -22,7 +22,17 @@ function webcomponents_polymer_register_component_format() {
  * Implements hook_page_build().
  */
 function webcomponents_polymer_page_build(&$page) {
-  drupal_add_js(drupal_get_path('theme', $GLOBALS['theme_key']) . '/polymer/bower_components/webcomponentsjs/webcomponents-lite.min.js');
+  $themes = list_themes();
+  $active = $GLOBALS['theme_key'];
+  // hit active theme
+  if (isset($themes[$active])) {
+    drupal_add_js(drupal_get_path('theme', $active) . '/polymer/bower_components/webcomponentsjs/webcomponents-lite.min.js');
+    // look for base themes
+    while (isset($themes[$active]->base_theme)) {
+      $active = $themes[$active]->base_theme;
+      drupal_add_js(drupal_get_path('theme', $active) . '/polymer/bower_components/webcomponentsjs/webcomponents-lite.min.js');
+    }
+  }
 }
 
 /**
