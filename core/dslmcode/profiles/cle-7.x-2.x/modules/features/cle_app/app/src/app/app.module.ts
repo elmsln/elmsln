@@ -117,7 +117,7 @@ import { SubmissionCritiqueComponent } from './submission/submission-critique/su
     EffectsModule.run(AssignmentEffects),
     EffectsModule.run(SubmissionEffects),
     EffectsModule.run(ProjectEffects),
-    StoreDevtoolsModule.instrumentOnlyWithExtension()
+    StoreDevtoolsModule.instrumentOnlyWithExtension({maxAge: 50})
   ],
   providers: [
     ElmslnService,

@@ -1,8 +1,10 @@
 import { Action } from '@ngrx/store';
+import { Response } from '@angular/http';
 
 export const ActionTypes = {
   CREATE_SUBMISSION: 'CREATE_SUBMISSION',
   CREATE_SUBMISSION_SUCCESS: 'CREATE_SUBMISSION_SUCCESS',
+  CREATE_SUBMISSION_FAILURE: 'CREATE_SUBMISSION_FAILURE',
   UPDATE_SUBMISSION: 'UPDATE_SUBMISSION',
   UPDATE_SUBMISSION_SUCCESS: 'UPDATE_SUBMISSION_SUCCESS',
   DELETE_SUBMISSION: 'DELETE_SUBMISSION',
@@ -26,6 +28,13 @@ export function createSubmissionSuccess(submission): Action {
   return {
     type: ActionTypes.CREATE_SUBMISSION_SUCCESS,
     payload: submission
+  }
+}
+
+export function createSubmissionFailure(res:Response): Action {
+  return {
+    type: ActionTypes.CREATE_SUBMISSION_FAILURE,
+    payload: res
   }
 }
 

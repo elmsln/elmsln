@@ -133,21 +133,25 @@ export const getUserToken = createSelector(getUserState, fromUser.getToken)
 export const getMyUserUid = createSelector(getUserState, fromUser.getUid)
 
 /**
+ * Image
+ */
+export const getImageState = (state:State) => state.image;
+export const getImageCurrentState = createSelector(getImageState, fromImage.getCurrentState);
+
+/**
  * Submissons
  */
 export const getSubmissionState = (state:State) => state.submission;
 export const getAllSubmissions = createSelector(getSubmissionState, fromSubmission.getAll);
-export const getSubmissionIsSaving = createSelector(getSubmissionState, fromSubmission.getIsSaving);
-export const getSubmissionImageIsSaving = createSelector(getSubmissionState, fromSubmission.getImageIsSaving);
+export const getSubmissionCurrentState = createSelector(getSubmissionState, fromSubmission.getCurrentState);
 export const getMySubmissions = createSelector(getAllSubmissions, getMyUserUid, (submissions:Submission[], uid:number) => {
   return submissions.filter(s => s.uid === uid);
 });
+export const getSubmissionSavable = createSelector(getSubmissionCurrentState, getImageCurrentState, (s:fromSubmission.SubmissionStates, i:fromImage.ImageStates) => {
+  return (s === fromSubmission.SubmissionStates.default && i === fromImage.ImageStates.default);
+});
 
-/**
- * Image
- */
-export const getImageState = (state:State) => state.image;
-export const getImageStatus = createSelector(getImageState, fromImage.getStatus);
+
 
 /**
  * Router

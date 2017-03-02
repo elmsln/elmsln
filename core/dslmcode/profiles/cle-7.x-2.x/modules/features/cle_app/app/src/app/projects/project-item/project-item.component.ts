@@ -76,17 +76,7 @@ export class ProjectItemComponent implements OnInit, OnDestroy {
   }
 
   updateTitle($event) {
-    // remember the old title in case the update fails
-    let oldTitle = this.project.title;
-    // update the project title on the page
-    if (oldTitle !== $event) {
-      this.project.title = $event;
-      // the project object that we are going to save
-      let newProject:Project = {
-        id: this.project.id,
-        title: this.project.title
-      }
-      this.store.dispatch(updateProject(newProject));
-    }
+    let newProject = Object.assign({}, this.project, { title: $event });
+    this.store.dispatch(updateProject(newProject));
   }
 }
