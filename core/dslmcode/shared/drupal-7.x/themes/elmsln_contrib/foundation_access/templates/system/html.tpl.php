@@ -78,7 +78,7 @@
   <?php print preg_replace('~>\s+<~', '><', $styles); ?>
   <?php print preg_replace('~>\s+<~', '><', $scripts); ?>
 </head>
-<body class="<?php print $classes; ?> <?php print $lmsless_classes['color'];?>-selection" <?php print $attributes;?>>
+<body class="<?php print $classes; ?> <?php print $lmsless_classes['color'];?>-selection" <?php print $attributes;?> prefix="oer:http://oerschema.org/ schema:http://schema.org/">
 <h1 class="element-invisible"><?php print $head_title;?></h1>
 <?php ob_flush(); flush(); ?>
   <span class="cis-lmsless-color"></span>
