@@ -41,6 +41,7 @@ import * as fromSubmission from './submission/submission.reducer';
 import * as fromUser from './user/user.reducer';
 import * as fromProject from './projects/project.reducer';
 import * as fromImage from './image/image.reducer';
+import * as fromActivityFeed from './activity-feed/activity-feed.reducer';
 
 /**
  * Import types
@@ -58,6 +59,7 @@ export interface State {
   projects: fromProject.ProjectState;
   image: fromImage.ImageState;
   router: fromRouter.RouterState;
+  activityFeed: fromActivityFeed.ActivityFeedState;
 }
 
 /**
@@ -74,6 +76,7 @@ const reducers = {
   projects: fromProject.projectReducer,
   image: fromImage.imageReducer,
   router: fromRouter.routerReducer,
+  activityFeed: fromActivityFeed.activityFeedReducer
 };
 
 const developmentReducer: ActionReducer<State> = compose(storeFreeze, combineReducers)(reducers);
@@ -156,3 +159,9 @@ export const getSubmissionSavable = createSelector(getSubmissionCurrentState, ge
  * Router
  */
 export const getRouterState = (state:State) => state.router;
+
+/**
+ * Activity Feed
+ */
+export const getActivityFeedState = (state:State)  => state.activityFeed;
+export const getActivityFeedCurrentState = createSelector(getActivityFeedState, fromActivityFeed.getCurrentState);

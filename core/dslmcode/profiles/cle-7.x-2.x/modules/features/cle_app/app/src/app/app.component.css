@@ -3,12 +3,21 @@
 }
 
 .nav-wrapper {
-  background: #484848;
-  height: 50px;
+  background: transparent;
+  /*height: 50px;*/
 }
 .nav-wrapper * {
-  font-size: 14px;
-  height: 50px;
-  line-height: 50px;
-  color: white;
+  /*font-size: 14px;
+  /*height: 50px;*/
+  /*line-height: 50px;
+  color: white;*/
+}
+
+md-sidenav {
+  width: 80%;
+  max-width: 300px;
+}
+
+.spacer {
+  flex: 1 1 auto;
 }

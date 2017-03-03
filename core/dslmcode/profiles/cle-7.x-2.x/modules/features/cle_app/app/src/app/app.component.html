@@ -1,6 +1,16 @@
-<div class="cle-critique">
-  <div class="container">
-    <router-outlet></router-outlet>
-    <router-outlet name="dialog"></router-outlet>
+<md-sidenav-container>
+  <div class="cle-critique">
+    <md-toolbar color="primary">
+      <span class="spacer"></span>
+      <a md-button mdTooltip="Notifications" (click)="selectedNotifications()" aria-label="Notifications" tabindex="-1"><md-icon class="example-icon">notifications</md-icon></a>
+    </md-toolbar>
+    <div class="container">
+      <router-outlet></router-outlet>
+      <router-outlet name="dialog"></router-outlet>
+    </div>
   </div>
-</div>
+
+  <md-sidenav [opened]="activityFeedOpen$ | async" (close)="onActivityFeedClose()" align="end" mode="push">
+    <app-activity-feed></app-activity-feed>
+  </md-sidenav>-->
+</md-sidenav-container>
