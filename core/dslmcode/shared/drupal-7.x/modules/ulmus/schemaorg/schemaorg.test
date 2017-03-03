@@ -1,0 +1,228 @@
+<?php
+
+/**
+ * @file
+ * Tests for schemaorg.module.
+ */
+
+/**
+ * Tests for schema.org namespaces declaration.
+ */
+class SchemaorgNamespaceTestCase extends DrupalWebTestCase {
+  public static function getInfo() {
+    return array(
+      'name' => 'Schema.org namespace',
+      'description' => 'Test the presence of the schema.org namespace in the page markup and in rdf_get_namespaces().',
+      'group' => 'Schema.org',
+    );
+  }
+
+  function setUp() {
+    parent::setUp('schemaorg');
+  }
+
+  /**
+   * Test getting RDF namesapces.
+   */
+  function testSchemaorgNamespace() {
+    // Get all RDF namespaces.
+    $ns = rdf_get_namespaces();
+    $this->assertEqual($ns['schema'], 'http://schema.org/', t('Schema.org namespace is returned by rdf_get_namespaces().'));
+
+    // Fetches the front page and extracts XML namespaces.
+    $this->drupalGet('');
+    $xml = new SimpleXMLElement($this->content);
+    $ns = $xml->getDocNamespaces();
+    $this->assertEqual($ns['schema'], 'http://schema.org/', t('Schema.org namespace is present in the HTML document.'));
+  }
+}
+
+/**
+ * Schema.org Field UI tests.
+ */
+class SchemaorgFieldUIManageFieldsTestCase extends FieldUITestCase {
+  public static function getInfo() {
+    return array(
+      'name' => 'Field UI schema.org form elements',
+      'description' => 'Test the schema.org form element in the Field UI.',
+      'group' => 'Schema.org',
+    );
+  }
+
+  function setUp() {
+    parent::setUp('schemaorg', 'schemaorg_ui');
+
+    // Create random field name.
+    $this->field_label = $this->randomName(8);
+    $this->field_name_input =  strtolower($this->randomName(8));
+    $this->field_name = 'field_'. $this->field_name_input;
+  }
+
+  /**
+   * Tests that schema.org terms are saved on the content type edit form.
+   */
+  function testNodeTypeEditing() {
+    $admin_path = 'admin/structure/types/manage/page';
+    $type_element_id = 'edit-schemaorg-ui-type';
+    $type_element_name = 'schemaorg_ui_type';
+
+    $this->drupalGet($admin_path);
+    $this->assertFieldById($type_element_id, '', t('The schema.org type was empty.'));
+
+    // Check that the schema.org terms are saved.
+    $edit = array();
+    $edit[$type_element_name] = 'WebPage';
+    $this->drupalPost($admin_path, $edit, t('Save content type'));
+    $this->assertText("The content type Basic page has been updated.", t('The form was successfully submitted.'));
+    entity_info_cache_clear();
+    $rdf_mapping = rdf_mapping_load('node', 'page');
+    $rdf_mapping_type_expected = array(
+      'schema:WebPage',
+      'foaf:Document',
+    );
+    $this->assertEqual($rdf_mapping['rdftype'], $rdf_mapping_type_expected, t('The schema.org type was correctly saved.'));
+
+    // Check that the schema.org terms shows up in the form
+    $this->drupalGet($admin_path);
+    $this->assertFieldById($type_element_id, 'WebPage', t('The schema.org type form element was displayed with the correct value.'));
+
+    // Check that the schema.org type can be emptied.
+    $edit = array();
+    $edit[$type_element_name] = '';
+    $this->drupalPost($admin_path, $edit, t('Save content type'));
+    $this->assertText("The content type Basic page has been updated.", t('The form was successfully submitted.'));
+    entity_info_cache_clear();
+    $rdf_mapping = rdf_mapping_load('node', 'page');
+    $rdf_mapping_type_expected = array(
+      1 => 'foaf:Document',
+    );
+    $this->assertEqual($rdf_mapping['rdftype'], $rdf_mapping_type_expected, t('The schema.org type mapping was correctly saved.'));
+  }
+
+  /**
+   * Tests that schema.org property is correctly saved.
+   */
+  function testFieldUIManageFields() {
+    // Create a test field and instance.
+    $field_name = 'test';
+    $field = array(
+      'field_name' => $field_name,
+      'type' => 'test_field'
+    );
+    field_create_field($field);
+    $instance = array(
+      'field_name' => $field_name,
+      'entity_type' => 'node',
+      'bundle' => $this->type,
+    );
+    field_create_instance($instance);
+
+    $langcode = LANGUAGE_NONE;
+    $admin_path = 'admin/structure/types/manage/' . $this->hyphen_type . '/fields/' . $field_name;
+    $element_id = 'edit-schemaorg-ui-field-property';
+    $element_name = 'schemaorg_ui_field_property';
+    $this->drupalGet($admin_path);
+    $this->assertFieldById($element_id, '', t('The schema.org property was empty.'));
+
+    // Check that the schema.org property is saved.
+    $edit = array($element_name => 'telephone');
+    $this->drupalPost($admin_path, $edit, t('Save settings'));
+    $this->assertText("Saved $field_name configuration", t('The form was successfully submitted.'));
+    $rdf_mapping = rdf_mapping_load('node', $this->type);
+    $rdf_mapping_title_expected = array(
+      'predicates' => array(
+        'schema:name',
+      ),
+    );
+    $rdf_mapping_url_expected = array(
+      'predicates' => array(
+        'schema:url',
+      ),
+      'type' => 'rel',
+    );
+    $rdf_mapping_field_expected = array(
+      'predicates' => array(
+        'schema:telephone',
+      ),
+    );
+    $this->assertEqual($rdf_mapping['title'], $rdf_mapping_title_expected, t('The schema.org title property was correctly saved.'));
+    $this->assertEqual($rdf_mapping['url'], $rdf_mapping_url_expected, t('The schema.org url property was correctly saved.'));
+    $this->assertEqual($rdf_mapping[$field_name], $rdf_mapping_field_expected, t('The schema.org property was correctly saved.'));
+
+    // Check that the schema.org property shows up in the form
+    $this->drupalGet($admin_path);
+    $this->assertFieldById($element_id, 'telephone', t('The schema.org property form element was displayed with the correct value.'));
+
+    // Check that the schema.org property can be emptied.
+    $edit = array($element_name => '');
+    $this->drupalPost($admin_path, $edit, t('Save settings'));
+    $this->assertText("Saved $field_name configuration", t('The form was successfully submitted.'));
+    entity_info_cache_clear();
+    $rdf_mapping = rdf_mapping_load('node', $this->type);
+    $rdf_mapping_title_expected = array(
+      'predicates' => array(),
+    );
+    $rdf_mapping_field_expected = array(
+      'predicates' => array(),
+    );
+    $this->assertEqual($rdf_mapping['title'], $rdf_mapping_title_expected, t('The schema.org title mapping was correctly saved.'));
+    $this->assertTrue(!isset($rdf_mapping['url']), t('The schema.org url mapping was correctly removed.'));
+    $this->assertEqual($rdf_mapping[$field_name], $rdf_mapping_field_expected, t('The schema.org property was correctly saved.'));
+  }
+
+  /**
+   * Tests that schema.org property is correctly saved for advanced fields
+   * where the object is a resource (image, file, reference).
+   */
+  function testFieldUIManageFieldsReference() {
+    // Create a test field and instance.
+    $field_name = 'test';
+    $field = array(
+      'field_name' => $field_name,
+      'type' => 'taxonomy_term_reference'
+    );
+    field_create_field($field);
+    $instance = array(
+      'field_name' => $field_name,
+      'entity_type' => 'node',
+      'bundle' => $this->type,
+    );
+    field_create_instance($instance);
+
+    $langcode = LANGUAGE_NONE;
+    $admin_path = 'admin/structure/types/manage/' . $this->hyphen_type . '/fields/' . $field_name;
+    $element_id = 'edit-schemaorg-ui-field-property';
+    $element_name = 'schemaorg_ui_field_property';
+    $this->drupalGet($admin_path);
+    $this->assertFieldById($element_id, '', t('The schema.org property was empty.'));
+
+    // Check that the schema.org property is saved.
+    $edit = array($element_name => 'telephone');
+    $this->drupalPost($admin_path, $edit, t('Save settings'));
+    $this->assertText("Saved $field_name configuration", t('The form was successfully submitted.'));
+    $rdf_mapping = rdf_mapping_load('node', $this->type);
+    $rdf_mapping_field_expected = array(
+      'predicates' => array(
+        'schema:telephone',
+      ),
+      'type' => 'rel',
+    );
+    $this->assertEqual($rdf_mapping[$field_name], $rdf_mapping_field_expected, t('The schema.org property was correctly saved.'));
+
+    // Check that the schema.org property shows up in the form
+    $this->drupalGet($admin_path);
+    $this->assertFieldById($element_id, 'telephone', t('The schema.org property form element was displayed with the correct value.'));
+
+    // Check that the schema.org property can be emptied.
+    $edit = array($element_name => '');
+    $this->drupalPost($admin_path, $edit, t('Save settings'));
+    $this->assertText("Saved $field_name configuration", t('The form was successfully submitted.'));
+    entity_info_cache_clear();
+    $rdf_mapping = rdf_mapping_load('node', $this->type);
+    $rdf_mapping_field_expected = array(
+      'predicates' => array(),
+      'type' => 'rel',
+    );
+    $this->assertEqual($rdf_mapping[$field_name], $rdf_mapping_field_expected, t('The schema.org property was correctly saved.'));
+  }
+}

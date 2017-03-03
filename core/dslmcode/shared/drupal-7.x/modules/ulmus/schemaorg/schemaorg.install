@@ -1,0 +1,14 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the node module.
+ */
+
+/**
+ * Enable the schemaorg_ui module for sites which are running an older version
+ * of schema.org which had the UI integrated in the main module.
+ */
+function schemaorg_update_7000() {
+  module_enable(array('schemaorg_ui'));
+}
