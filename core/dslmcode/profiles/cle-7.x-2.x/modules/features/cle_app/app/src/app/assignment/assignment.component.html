@@ -21,20 +21,17 @@
       <div class="assignment__description" [innerHTML]="assignment.body"> </div>
     </div>
 
-
-  <app-submission-list *ngIf="(submissions$ | async).length > 0" title="Submissions" [submissions]="submissions$ | async"></app-submission-list>
-
   <div *ngIf="assignment" class="assignment__actions">
     <div *ngIf="assignment.metadata.submissionActive">
       <a *ngIf="!assignmentService.assignmentIsCritique(assignment)" (click)="onCreateSubmission(assignment)" class="btn-large">Submit assignment</a>
       <a *ngIf="assignmentService.assignmentIsCritique(assignment)" (click)="onStartCritique(assignment)" class="btn-large">Start Critique</a>
     </div>
     <div *ngIf="!assignment.metadata.submissionActive" class="assignment__rationale">
-      <p [innerHTML]="assignment.metadata.rationale.text"></p>
+      <p *ngIf="assignment.metadata.rationale && assignment.metadata.rationale.text" [innerHTML]="assignment.metadata.rationale.text"></p>
     </div>
   </div>
 
-  <!--<pre>
-    {{ assignment | json }}
-  </pre>-->
+
+  <app-submission-list class="assignment__submission" *ngIf="(submissions$ | async).length > 0" title="Submissions" [submissions]="submissions$ | async"></app-submission-list>
+
 </div>

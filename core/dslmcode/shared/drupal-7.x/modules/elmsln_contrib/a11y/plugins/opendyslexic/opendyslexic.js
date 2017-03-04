@@ -5,7 +5,8 @@
     });
     // test for cookie being set
     if ($.cookie('a11y_opendyslexic') == 'true') {
-      $('#a11y_opendyslexic_checkbox').click();
+      $('#a11y_opendyslexic_checkbox').attr('checked', true);
+	  Drupal.a11y.opendyslexic(true);
     }
   });
   // opendyslexic functionality

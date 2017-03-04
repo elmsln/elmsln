@@ -4,7 +4,7 @@ import { Observable, Subscription } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { AppState } from '../state';
 import { ElmslnService } from '../elmsln.service';
-import { AppSettings } from '../app-settings';
+import { AppSettings } from '../app.settings';
 import { Assignment } from './assignment';
 declare const Materialize:any;
 
@@ -61,7 +61,7 @@ export class AssignmentService {
     const newAssignment = this.prepareForDrupal(assignment);
     return this.elmsln.post(AppSettings.BASE_PATH + 'api/v1/cle/assignments/create', newAssignment)
       .map(data => data.json().node)
-      .map(node => Number(node.nid))
+      .switchMap(node => this.getAssignment(node.nid))
   }
 
   updateAssignment(assignment:Assignment) {
@@ -131,6 +131,9 @@ export class AssignmentService {
   }
 
   private prepareForDrupal(assignment:Assignment) {
+    if (!assignment) {
+      return assignment;
+    }
     // Convert date fields
     let newAssignment: any = Object.assign({}, assignment);
     // remove created

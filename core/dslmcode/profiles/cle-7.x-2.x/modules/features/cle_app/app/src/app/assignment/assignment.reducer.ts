@@ -22,12 +22,11 @@ export function reducer(state: AssignmentState = initialState, action: Action) {
     }
 
     case ActionTypes.CREATE_ASSIGNMENT_SUCCESS: {
-      const assignmentId = action.payload.id ? Number(action.payload.id) : null;
       return {
         loading: state.loading,
         assignments: state.assignments.map((assignment:Assignment) => {
-          if (!assignment.id && assignmentId) {
-            return Object.assign({}, assignment, { id: assignmentId })
+          if (!assignment.id && action.payload.id) {
+            return Object.assign({}, assignment, action.payload)
           }
           return assignment;
         })
