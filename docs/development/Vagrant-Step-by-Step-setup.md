@@ -23,7 +23,7 @@ cd elmsln
 vagrant plugin install vagrant-hostsupdater
 vagrant up
 ```
-
+If you have issues downloading the bo try running `vagrant box add --insecure -c elmsln/ubuntu16` ahead of time
 This will take a long time the first time you do it as it has to download a server image. After the first build, future builds from scratch should take about 10-12 minutes.
 
 ### After installation completes
