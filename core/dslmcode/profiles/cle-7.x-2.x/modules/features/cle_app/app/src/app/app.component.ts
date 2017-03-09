@@ -9,6 +9,7 @@ import { loadProjects } from './projects/project.actions';
 import { toggleActivityFeed, closeActivityFeed } from './activity-feed/activity-feed.actions';
 import { ActivityFeedStates } from './activity-feed/activity-feed.reducer';
 import { AppSettings } from './app.settings';
+import { ActivityFeedService } from './activity-feed/activity-feed.service';
 import * as fromRoot from './app.reducer';
 
 @Component({
@@ -19,10 +20,12 @@ import * as fromRoot from './app.reducer';
 })
 export class AppComponent implements OnInit {
   basePath:string;
-  activityFeedOpen$:Observable<boolean>;
+  activityFeed$: Observable<any>;
+
 
   constructor(
     private router: Router,
+    private activityFeedService: ActivityFeedService,
     private store: Store<fromRoot.State>
   ) {
   }
@@ -33,15 +36,6 @@ export class AppComponent implements OnInit {
     this.store.dispatch(loadSubmissions());
     this.store.dispatch(loadProjects());
 
-    this.activityFeedOpen$ = this.store.select(fromRoot.getActivityFeedCurrentState)
-      .map((state) => state === ActivityFeedStates.open)
-  }
-
-  selectedNotifications() {
-    this.store.dispatch(toggleActivityFeed());
-  }
-
-  onActivityFeedClose() {
-    this.store.dispatch(closeActivityFeed());
+    this.activityFeed$ = this.activityFeedService.pluckCritiquesForUser();
   }
 }

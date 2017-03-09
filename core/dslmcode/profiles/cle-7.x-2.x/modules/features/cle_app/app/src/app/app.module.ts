@@ -9,6 +9,8 @@ import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 import { EffectsModule } from '@ngrx/effects';
 import { routerReducer, RouterStoreModule } from '@ngrx/router-store';
 import { MaterialModule } from '@angular/material';
+import { TruncateModule } from 'ng2-truncate';
+
 // reducers
 import { reducer } from './app.reducer';
 // effects
@@ -21,6 +23,7 @@ import { CritiqueService } from './critique.service';
 import { AssignmentService } from './assignment/assignment.service';
 import { SubmissionService } from './submission/submission.service';
 import { ProjectService } from './projects/project.service';
+import { ActivityFeedService } from './activity-feed/activity-feed.service';
 // Moment.js
 import { MomentModule } from 'angular2-moment';
 // components
@@ -60,6 +63,7 @@ import { ElmslnWysiwygComponent } from './elmsln-wysiwyg/elmsln-wysiwyg.componen
 import { SubmissionCritiqueFormComponent } from './submission/submission-critique-form/submission-critique-form.component';
 import { SubmissionCritiqueComponent } from './submission/submission-critique/submission-critique.component';
 import { ActivityFeedComponent } from './activity-feed/activity-feed.component';
+import { ActivityFeedItemComponent } from './activity-feed/activity-feed-item/activity-feed-item.component';
 
 @NgModule({
   declarations: [
@@ -99,7 +103,8 @@ import { ActivityFeedComponent } from './activity-feed/activity-feed.component';
     ElmslnWysiwygComponent,
     SubmissionCritiqueFormComponent,
     SubmissionCritiqueComponent,
-    ActivityFeedComponent
+    ActivityFeedComponent,
+    ActivityFeedItemComponent
   ],
   imports: [
     BrowserModule,
@@ -114,14 +119,16 @@ import { ActivityFeedComponent } from './activity-feed/activity-feed.component';
     EffectsModule.run(SubmissionEffects),
     EffectsModule.run(ProjectEffects),
     StoreDevtoolsModule.instrumentOnlyWithExtension({maxAge: 50}),
-    MaterialModule
+    MaterialModule,
+    TruncateModule
   ],
   providers: [
     ElmslnService,
     CritiqueService,
     AssignmentService,
     SubmissionService,
-    ProjectService
+    ProjectService,
+    ActivityFeedService
   ],
   bootstrap: [AppComponent]
 })

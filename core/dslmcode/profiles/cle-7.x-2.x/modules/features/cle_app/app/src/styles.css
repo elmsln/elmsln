@@ -11,6 +11,10 @@ nav ul a {
 .nav-wrapper {
 }
 
+.cle-critique {
+  background-color: #f9f9f9;
+}
+
 article app-root ul li {
   list-style-type: none !important;
 }
