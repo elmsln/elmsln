@@ -631,8 +631,8 @@ to attach them to the start of each source file to most effectively
 state the exclusion of warranty; and each file should have at least
 the "copyright" line and a pointer to where the full notice is found.
 
-    ELMS: Learning Network - a network based approach to course design
-    Copyright (C) 2008 - 2015 The Pennsylvania State University
+    ELMS: Learning Network - a Next Generation Distributed Learning Ecosystem (NGDLE)
+    Copyright (C) 2008 - 2017 The Pennsylvania State University
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
