@@ -59,6 +59,12 @@ function elmsln_api_menu() {
     'access callback' => 'user_is_logged_in',
     'type' => MENU_CALLBACK,
   );
+  $items[ELMSLN_API_BASE_PATH . '/v1/elmsln/lmsless'] = array(
+    'page callback' => '_elmsln_api_v1_get_lmsless',
+    'page arguments' => array(),
+    'access callback' => 'user_is_logged_in',
+    'type' => MENU_CALLBACK,
+  );
   $items[ELMSLN_API_BASE_PATH . '/v1/elmsln/menus'] = array(
     'page callback' => '_elmsln_api_v1_list_menus',
     'page arguments' => array(),
@@ -736,6 +742,14 @@ function _elmsln_api_v1_list_menus() {
       );
     }
   }
+  _elmsln_jsapi_deliver_output($vars);
+}
+
+/**
+ * Returns the lmsless vars as js values
+ */
+function _elmsln_api_v1_get_lmsless() {
+  $vars = _cis_lmsless_theme_vars();
   _elmsln_jsapi_deliver_output($vars);
 }
 
