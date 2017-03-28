@@ -564,7 +564,6 @@ function cle_submission_views_default_views() {
   /* Display: Master */
   $handler = $view->new_display('default', 'Master', 'default');
   $handler->display->display_options['css_class'] = 'row';
-  $handler->display->display_options['use_ajax'] = TRUE;
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['access']['type'] = 'perm';
   $handler->display->display_options['cache']['type'] = 'views_content_cache';
@@ -597,6 +596,7 @@ function cle_submission_views_default_views() {
     ),
   );
   $handler->display->display_options['query']['type'] = 'views_query';
+  $handler->display->display_options['query']['options']['distinct'] = TRUE;
   $handler->display->display_options['exposed_form']['type'] = 'better_exposed_filters';
   $handler->display->display_options['exposed_form']['options']['reset_button'] = TRUE;
   $handler->display->display_options['exposed_form']['options']['bef'] = array(
@@ -842,10 +842,12 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['filters']['type']['value'] = array(
     'cle_submission' => 'cle_submission',
   );
+  $handler->display->display_options['filters']['type']['group'] = 1;
   /* Filter criterion: Content: Assignment (field_assignment) */
   $handler->display->display_options['filters']['field_assignment_target_id']['id'] = 'field_assignment_target_id';
   $handler->display->display_options['filters']['field_assignment_target_id']['table'] = 'field_data_field_assignment';
   $handler->display->display_options['filters']['field_assignment_target_id']['field'] = 'field_assignment_target_id';
+  $handler->display->display_options['filters']['field_assignment_target_id']['group'] = 1;
   $handler->display->display_options['filters']['field_assignment_target_id']['exposed'] = TRUE;
   $handler->display->display_options['filters']['field_assignment_target_id']['expose']['operator_id'] = 'field_assignment_target_id_op';
   $handler->display->display_options['filters']['field_assignment_target_id']['expose']['label'] = 'Assignment';
@@ -853,6 +855,30 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['filters']['field_assignment_target_id']['expose']['identifier'] = 'field_assignment_target_id';
   $handler->display->display_options['filters']['field_assignment_target_id']['expose']['remember'] = TRUE;
   $handler->display->display_options['filters']['field_assignment_target_id']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    6065076 => 0,
+    135574917 => 0,
+    66784200 => 0,
+    67296478 => 0,
+    75987638 => 0,
+    166149871 => 0,
+    30037204 => 0,
+    76550217 => 0,
+  );
+  /* Filter criterion: User: Name */
+  $handler->display->display_options['filters']['uid']['id'] = 'uid';
+  $handler->display->display_options['filters']['uid']['table'] = 'users';
+  $handler->display->display_options['filters']['uid']['field'] = 'uid';
+  $handler->display->display_options['filters']['uid']['relationship'] = 'uid';
+  $handler->display->display_options['filters']['uid']['value'] = '';
+  $handler->display->display_options['filters']['uid']['group'] = 1;
+  $handler->display->display_options['filters']['uid']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['uid']['expose']['operator_id'] = 'uid_op';
+  $handler->display->display_options['filters']['uid']['expose']['label'] = 'Student';
+  $handler->display->display_options['filters']['uid']['expose']['operator'] = 'uid_op';
+  $handler->display->display_options['filters']['uid']['expose']['identifier'] = 'uid';
+  $handler->display->display_options['filters']['uid']['expose']['remember_roles'] = array(
     2 => '2',
     1 => 0,
     6065076 => 0,
