@@ -11,6 +11,11 @@ function webcomponents_page_build(&$page) {
   foreach ($components as $component) {
     _webcomponents_add_to_head($component);
   }
+  // load webcomponentsjs polyfill library if it exists
+  $libraries = libraries_get_libraries();
+  if (isset($libraries['webcomponentsjs'])) {
+    drupal_add_js(base_path() . $libraries['webcomponentsjs'] . '/webcomponents-lite.min.js');
+  }
 }
 
 /**
