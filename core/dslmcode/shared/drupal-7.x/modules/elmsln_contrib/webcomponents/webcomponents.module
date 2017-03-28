@@ -14,7 +14,7 @@ function webcomponents_page_build(&$page) {
   // load webcomponentsjs polyfill library if it exists
   $libraries = libraries_get_libraries();
   if (isset($libraries['webcomponentsjs'])) {
-    drupal_add_js(base_path() . $libraries['webcomponentsjs'] . '/webcomponents-lite.min.js');
+    drupal_add_js(base_path() . $libraries['webcomponentsjs'] . '/webcomponents-lite.min.js', array('weight' => -100000, 'group' => JS_LIBRARY));
   }
 }
 
