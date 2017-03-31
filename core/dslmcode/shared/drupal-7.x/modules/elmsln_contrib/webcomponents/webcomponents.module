@@ -8,13 +8,22 @@
  */
 function webcomponents_page_build(&$page) {
   $components = webcomponents_load_all();
+  $files = array();
+  // ensure files w/ multiple elements are only
+  // imported once
   foreach ($components as $component) {
+    // if it matches multiple to same file
+    // it doesn't matter since it'll still be available
+    $files[$component->file] = $component;
+  }
+  // write the component file reference to the screen
+  foreach ($files as $component) {
     _webcomponents_add_to_head($component);
   }
   // load webcomponentsjs polyfill library if it exists
   $libraries = libraries_get_libraries();
-  if (isset($libraries['webcomponents']) && is_dir($libraries['webcomponentsjs'] . '/webcomponentsjs')) {
-    drupal_add_js(base_path() . $libraries['webcomponentsjs'] . '/webcomponents-lite.min.js', array('weight' => -100000, 'group' => JS_LIBRARY));
+  if (isset($libraries['webcomponents']) && is_dir(DRUPAL_ROOT . '/' . $libraries['webcomponents'] . '/webcomponentsjs')) {
+    drupal_add_js(base_path() . $libraries['webcomponents'] . '/webcomponentsjs/webcomponents-lite.min.js', array('weight' => -100000, 'group' => JS_LIBRARY));
   }
 }
 
@@ -152,27 +161,29 @@ function _webcomponents_rebuild() {
       foreach ($files as $file) {
         if (isset($registry[$format])) {
           $processed[$file] = call_user_func($registry[$format]['process'], $file);
-          // ensure there was actually a match in there
-          if (!empty($processed[$file]) && is_object($processed[$file])) {
-            $component = $processed[$file];
-            // try and load webcomponent by machine name
-            if ($entity = webcomponent_load_by_name($component->machine_name)) {
-              foreach ($component as $key => $value) {
-                if (isset($entity->{$key}) && $entity->{$key} != $value) {
-                  drupal_set_message(t('Web components have changed! Make sure that your attributes are correctly reflected in your site. @key changed on @machine from @old to @new', array('@key' => $key, '@old' => $entity->{$key}, '@new' => $value, '@machine' => $component->machine_name)), 'warning', TRUE);
-                  $entity->{$key} = $value;
+          // ensure there was actually a match of some kind in there
+          // with support for multiple element definitions per file
+          if (!empty($processed[$file]) && is_array($processed[$file])) {
+            foreach ($processed[$file] as $component) {
+              // try and load webcomponent by machine name
+              if ($entity = webcomponent_load_by_name($component->machine_name)) {
+                foreach ($component as $key => $value) {
+                  if (isset($entity->{$key}) && $entity->{$key} != $value) {
+                    drupal_set_message(t('Web components have changed! Make sure that your attributes are correctly reflected in your site. @key changed on @machine from @old to @new', array('@key' => $key, '@old' => $entity->{$key}, '@new' => $value, '@machine' => $component->machine_name)), 'warning', TRUE);
+                    $entity->{$key} = $value;
+                  }
                 }
+                if (is_array($entity->properties)) {
+                  $entity->properties = serialize($entity->properties);
+                }
+                entity_save('webcomponent', $entity);
               }
-              if (is_array($entity->properties)) {
-                $entity->properties = serialize($entity->properties);
+              else {
+                // try and create the entity instead
+                $component->properties = serialize($component->properties);
+                $entity = entity_create('webcomponent', (array)$component);
+                entity_save('webcomponent', $entity);
               }
-              entity_save('webcomponent', $entity);
-            }
-            else {
-              // try and create the entity instead
-              $component->properties = serialize($component->properties);
-              $entity = entity_create('webcomponent', (array)$component);
-              entity_save('webcomponent', $entity);
             }
           }
         }

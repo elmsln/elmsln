@@ -18,11 +18,31 @@ the webcomponentsjs directory is where we'll store the polyfills. You can typica
 
 Currently for performance and simplicity, only the webcomponents-lite.min.js file is required if you are going to use this (which is recommended for browser support).
 
-## Usage (with Polymer)
-Start installing all new polymer elements into sites/all/libraries/webcomponents/polymer. Blow away your theme cache and places that display modes come into play (node / entity field ui's and views) will start to show up as options where you can map associations between drupal values and webcomponent properties.
+## Usage / Workflow (with Polymer)
+These are your dependencies to get this development workflow going. Install node & npm then run the following:
+```
+sudo npm install -g bower
+sudo npm install -g vulcanize
+sudo npm install -g polymer-cli@next
 
-You'll also start to be able to use them in tpl files to start hollowing them out significantly.
+```
+@next flag on polymer-cli gets you 2.0 cli (at time of this writing). It allows you to do 1.0 and 2.0 development so don't worry if you are concerned about the version.
+
+Next steps:
+- Find some webcomponents you like (in this example we'll use LRNWebcomponents/lrn-icons)
+- make a working directory for this drupal project outside drupal:
+- `cd ~/git/myproject` then `polymer init`
+follow the prompts to get a baseline item created.
+- Now do `bower install --save LRNWebcomponents/lrn-icons` (and other you want)
+- edit `index.html` and add the component into the requirements
+- `<link rel="import" href="../lrn-icons/lrn-icons.html">` (and others you want)
+- remove the reference to `webomponents-lite.min.js` and save the file
+- now perform a `polymer build`
+- `cd build/default` then do `vulcanize index.html > build.html` (build can be whatever you want)
+- copy `build.html` to `sites/all/libraries/webcomponents/polymer/`
+- Wipe your theme cache in your drupal site
+- You are good to go in your quest for TPL-less development!
 
 ## A note on Performance
-This currently is a rough and dirty "get all the elements to load into scope" methodology. Typically when running polymer in a production environment to reduce the number of assets to load you would vulcanize them (which mashes them into 1 file). Currently this module is focused on getting webcomponents to be entity definitions in Drupal. Future flexibility will allow for importing the definitions without nessecarily importing the elements into every page (though this is typically a 1 time download since they are reused on every page and static html so they can be heavily cached).
+You can add elements directly though it is highly recommended to follow the above workflow because of how many gains in performance there are by removing needless files from version control as well as combining potentially dozens or 100+ html files (1 per element typically) into a single file. This will drastically speed up initial download of your site by doing this. The webcomponent module can discover in multiple nested files if you want to use the raw items as part of your setup.
 
