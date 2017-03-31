@@ -4,4 +4,4 @@
  */
 ?>
 <!-- Ecosystem Top Nav -->
-<elmsln-lmsless basepath="<?php print base_path(); ?>"></elmsln-lmsless>
+<elmsln-lmsless source-path="<?php print base_path(); ?>api/v1/elmsln/lmsless"></elmsln-lmsless>
