@@ -52,6 +52,18 @@ function cis_helper_drush_command() {
         'Add service nodes to match their registry counterparts. If there is a match on machine_name then update associated fields in CIS to match registry.',
     ),
   );
+  $items['cis-sync-roster'] = array(
+    'description' => dt('Sync course rosters'),
+    'aliases' => array('sync-roster'),
+    'arguments' => array(
+      'machine_name' => dt("Course machine name to sync to do just 1 course"),
+    ),
+    'options' => array(),
+    'examples' => array(
+      'drush sync-roster' =>
+        'Sync\'s the roster for all courses.',
+    ),
+  );
   return $items;
 }
 
@@ -66,6 +78,34 @@ function cis_helper_drush_help($section) {
       return dt('Produce a "kraken" that will hit and force the production of every course into all instances, good for initial population and testing.');
     case 'drush:cis-sync-registry':
       return dt('Create and update Service nodes in CIS to match what is available in the cis registry of connections.');
+    case 'drush:sync-roster':
+      return dt('Sync all or an individual course roster.');
+  }
+}
+
+/**
+ * Drush command callback for cis-sync-registry.
+ */
+function drush_cis_helper_cis_sync_roster($machine_name = NULL) {
+  // simple case, fire all the things!
+  if (is_null($machine_name)) {
+    _cis_helper_sync_network();
+  }
+  else {
+    // sync a single course based on its machine name
+    $request = array(
+      'method' => 'POST',
+      'api' => '1',
+      'bucket' => 'cis',
+      'path' => '/',
+      'data' => array(
+        'elmsln_module' => 'cis_helper',
+        'elmsln_callback' => 'populate_course_network',
+        'course' => $machine_name,
+        'staff' => _cis_helper_get_staff(),
+      ),
+    );
+    _elmsln_api_request($request, TRUE);
   }
 }
 
