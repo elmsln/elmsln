@@ -449,6 +449,17 @@ function cis_helper_menu() {
     'file' => 'cis_helper.admin.inc',
     'file path' => $path,
   );
+  // sync all rosters
+  $items['admin/config/system/cis/sync-roster'] = array(
+    'title' => 'Sync Roster',
+    'description' => 'Sync the roster for this course',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('cis_helper_sync_rosters_confirm'),
+    'access arguments' => array('administer site configuration'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'cis_helper.pages.inc',
+    'file path' => $path,
+  );
   // admin settings for CIS
   $items['admin/config/system/integrations'] = array(
     'title' => 'Global integrations',
@@ -459,7 +470,6 @@ function cis_helper_menu() {
     'type' => MENU_NORMAL_ITEM,
     'file' => 'cis_helper.admin.inc',
     'file path' => $path,
-    'menu_name' => 'menu-elmsln-settings',
     'weight' => 10,
   );
   // quick setup form

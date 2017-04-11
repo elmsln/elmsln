@@ -7,6 +7,25 @@
 /**
  * Menu callback: confirm rebuilding of read time.
  */
+function cis_helper_sync_rosters_confirm() {
+  return confirm_form(array(), t('Synchronize all rosters?'),
+                  '' , t('It will takea while but will happen in the background so you can keep working.'), t('Sync roster'), t('Cancel'));
+}
+
+/**
+ * Handler for wipe confirmation
+ *
+ * @see node_configure_rebuild_confirm()
+ */
+function cis_helper_sync_rosters_confirm_submit($form, &$form_state) {
+  _cis_helper_sync_network();
+  drupal_set_message(t('All rosters will be synchronized shortly!'), 'notification');
+  drupal_goto('<front>');
+}
+
+/**
+ * Menu callback: confirm rebuilding of read time.
+ */
 function cis_helper_sync_network_roster_confirm() {
   $node = menu_get_object();
   return confirm_form(array(), t('Synchronize rosters for @course?', array('@course' => $node->title)),
@@ -31,10 +50,11 @@ function cis_helper_sync_network_roster_confirm_submit($form, &$form_state) {
       'elmsln_module' => 'cis_helper',
       'elmsln_callback' => 'populate_course_network',
       'course' => $node->field_machine_name[LANGUAGE_NONE][0]['value'],
+      'staff' => _cis_helper_get_staff(),
     ),
   );
   _elmsln_api_nonblocking_requests(array($nonblock));
-  drupal_set_message(t('@course rosters will be synchronized shortly!', array('@course' => $node->title)), 'info');
+  drupal_set_message(t('@course rosters will be synchronized shortly!', array('@course' => $node->title)), 'notification');
   drupal_goto(arg(0) . '/' . arg(1));
 }
 
@@ -165,7 +185,7 @@ function cis_helper_add_offering_page_submit($form, $form_state) {
       '@year' => $form_state['values']['year'],
       '@campus' => $form_state['values']['campus'],
       );
-    drupal_set_message(t('Successfully created @course @semester @year @campus offering with access ID @string!', $vars), 'info');
+    drupal_set_message(t('Successfully created @course @semester @year @campus offering with access ID @string!', $vars), 'notification');
   }
 }
 
