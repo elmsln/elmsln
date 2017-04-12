@@ -26,7 +26,7 @@ vagrant plugin install vagrant-hostsupdater
 vagrant plugin install vagrant-cachier
 vagrant up
 ```
-If you have issues downloading the box try running `vagrant box add --insecure -c elmsln/ubuntu16` ahead of time which will download just the box in question.
+If you have issues downloading the box try running `vagrant box add --insecure -c elmsln/ubuntu16 --force` ahead of time which will download just the box in question.
 This will take a long time the first time you do it as it has to download a server image. After the first build, future builds from scratch should take about 10-12 minutes.
 
 ### After installation completes
