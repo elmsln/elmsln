@@ -1,5 +1,7 @@
 ![ELMSLN](https://raw.githubusercontent.com/elmsln/elmsln/master/docs/assets/snowflake-with-text.png "ELMS Learning Network")
 
+[I changed this on my local machine] local change, githubchange
+
 ELMSLN
 ==============
 ELMS Learning Network (ELMSLN) is an open source educational technology platform for building and sustaining innovation in course technologies. It accomplishes this by taking a Suite of Tools approach to learning design, allowing several systems to make up the different aspects of a course learning environment.  Each course effectively forms a network of technologies (hence the name) which can then be better tailored to each individual course's needs.
