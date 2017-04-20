@@ -5,9 +5,9 @@ dependencies[] = filefield_paths
 core = 7.x
 hidden = TRUE
 
-; Information added by Drupal.org packaging script on 2015-10-28
-version = "7.x-1.0-rc2"
+; Information added by Drupal.org packaging script on 2015-11-17
+version = "7.x-1.0"
 core = "7.x"
 project = "filefield_paths"
-datestamp = "1446011088"
+datestamp = "1447729442"
 

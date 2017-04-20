@@ -17,7 +17,6 @@ function filefield_paths_filefield_paths_field_settings($field, $instance) {
   return array(
     'file_path' => array(
       'title' => 'File path',
-      'sql'   => 'filepath',
       'form'  => array(
         'value' => array(
           '#type'             => 'textfield',
@@ -31,7 +30,6 @@ function filefield_paths_filefield_paths_field_settings($field, $instance) {
     ),
     'file_name' => array(
       'title' => 'File name',
-      'sql'   => 'filename',
       'form'  => array(
         'value' => array(
           '#type'          => 'textfield',
@@ -63,8 +61,9 @@ function filefield_paths_filefield_paths_process_file($type, $entity, $field, $i
     $wrappers = file_get_stream_wrappers(STREAM_WRAPPERS_WRITE);
     foreach ($items as &$file) {
       $source_scheme = file_uri_scheme($file['uri']);
+      $temporary_scheme = file_uri_scheme(variable_get('filefield_paths_temp_location', 'public://filefield_paths'));
       $destination_scheme = $field['settings']['uri_scheme'];
-      if (in_array($source_scheme, array('temporary', $destination_scheme))  && !empty($wrappers[$destination_scheme])) {
+      if (in_array($source_scheme, array($temporary_scheme, $destination_scheme)) && !empty($wrappers[$destination_scheme])) {
         // Process file if this is a new entity, 'Active updating' is set or
         // file wasn't previously attached to the entity.
         if (isset($entity->original) && empty($settings['active_updating']) && !empty($entity->original->{$field['field_name']}[$langcode])) {
@@ -120,6 +119,12 @@ function filefield_paths_filefield_paths_process_file($type, $entity, $field, $i
               }
               break;
             }
+          }
+          else {
+            watchdog('filefield_paths', 'The file %old could not be moved to the destination of %new. Ensure your permissions are set correctly.', array(
+              '%old' => $old_file['uri'],
+              '%new' => $file['uri'],
+            ));
           }
         }
       }
