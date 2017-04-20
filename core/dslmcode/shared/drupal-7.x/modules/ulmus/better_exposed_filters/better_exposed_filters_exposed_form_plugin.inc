@@ -13,6 +13,7 @@ class better_exposed_filters_exposed_form_plugin extends views_plugin_exposed_fo
     $this->localization_keys = $this->unpack_translatable_keys();
 
     $this->unpack_options($this->options, $options);
+    //$this->unpack_options($this->options, $options, NULL, FALSE);
   }
 
   function summary_title() {
@@ -29,11 +30,6 @@ class better_exposed_filters_exposed_form_plugin extends views_plugin_exposed_fo
       'unpack_translatable' => 'unpack_translatable_options',
     );
 
-    // Options for the input required setting.
-    $options['input_required'] = array('default' => FALSE);
-    $options['text_input_required'] = array('default' => t('Select any filter and click on Apply to see results'), 'translatable' => TRUE);
-    $options['text_input_required_format'] = array('default' => NULL);
-
     return $options;
   }
 
@@ -48,6 +44,35 @@ class better_exposed_filters_exposed_form_plugin extends views_plugin_exposed_fo
     /*
      * Add general options for exposed form items.
      */
+    $bef_options['general']['input_required'] = array(
+      '#type' => 'checkbox',
+      '#default_value' => $existing['general']['input_required'],
+      '#title' => t('Require input before results are shown'),
+      '#description' => t("Emulates the built in <em>Input Required</em> exposed filter handler")
+    );
+
+    $bef_options['general']['text_input_required'] = array(
+      '#type' => 'container',
+      // Indent dependent options.
+      '#prefix' => '<div class="dependent-options">',
+      '#suffix' => '</div>',
+      '#states' => array(
+        // Hide this field when the input_required checkbox is disabled.
+        'invisible' => array(
+          ':input[name="exposed_form_options[bef][general][input_required]"]' => array('checked' => FALSE),
+        ),
+      ),
+    );
+
+    $bef_options['general']['text_input_required']['text_input_required'] = array(
+      '#type' => 'text_format',
+      '#title' => t('Text on demand'),
+      '#description' => t('Text to display instead of results until the user selects and applies an exposed filter.'),
+      '#default_value' => $existing['general']['text_input_required']['text_input_required']['value'],
+      '#format' => $existing['general']['text_input_required']['text_input_required']['format'],
+      '#wysiwyg' => FALSE,
+    );
+
     $bef_options['general']['allow_secondary'] = array(
       '#type' => 'checkbox',
       '#title' => t('Enable secondary exposed form options'),
@@ -61,14 +86,38 @@ class better_exposed_filters_exposed_form_plugin extends views_plugin_exposed_fo
       '#description' => t(
         'The name of the fieldset to hold secondary options. This cannot be left blank or there will be no way to show/hide these options.'
       ),
+      // Indent dependent options.
+      '#prefix' => '<div class="dependent-options">',
+      '#suffix' => '</div>',
       '#states' => array(
         'required' => array(
-          ':input[name="allow_secondary"]' => array('checked' => TRUE),
+          ':input[name="exposed_form_options[bef][general][allow_secondary]"]' => array('checked' => TRUE),
+        ),
+        'visible' => array(
+          ':input[name="exposed_form_options[bef][general][allow_secondary]"]' => array('checked' => TRUE),
         ),
       ),
-      // Use CTool's #dependency as it adds some margin-left which looks nice.
-      // Also, you can't change the required state via #dependency...
-      '#dependency' => array('edit-exposed-form-options-bef-general-allow-secondary' => array(1)),
+    );
+    $bef_options['general']['secondary_collapse_override'] = array(
+      '#type' => 'select',
+      '#title' => t('Override secondary options fieldset'),
+      '#default_value' => $existing['general']['secondary_collapse_override'],
+      '#description' => t(
+        'This setting overrides the secondary options fieldset collapsed value. By default the fieldset renders opened if a value within is selected and closed otherwise.'
+        ),
+      '#options' => array(
+        0 => t('Default'),
+        1 => t('Always open'),
+        2 => t('Always closed'),
+      ),
+      // Indent dependent options.
+      '#prefix' => '<div class="dependent-options">',
+      '#suffix' => '</div>',
+      '#states' => array(
+        'visible' => array(
+          ':input[name="exposed_form_options[bef][general][allow_secondary]"]' => array('checked' => TRUE),
+        ),
+      ),
     );
 
     /*
@@ -113,13 +162,25 @@ class better_exposed_filters_exposed_form_plugin extends views_plugin_exposed_fo
         '#title' => t('Collapsible fieldset title'),
         '#default_value' => empty($existing['sort']['advanced']['collapsible_label']) ? t('Sort options') : $existing['sort']['advanced']['collapsible_label'],
         '#description' => t('This cannot be left blank or there will be no way to show/hide sort options.'),
-        '#dependency' => array('edit-exposed-form-options-bef-sort-advanced-collapsible' => array(1)),
+        // Indent dependent options.
+        '#prefix' => '<div class="dependent-options">',
+        '#suffix' => '</div>',
+        '#states' => array(
+          'visible' => array(
+            'input[name="exposed_form_options[bef][sort][advanced][collapsible]"]' => array('checked' => TRUE)
+          ),
+        ),
       );
       $bef_options['sort']['advanced']['combine'] = array(
         '#type' => 'checkbox',
         '#title' => t('Combine sort order with sort by'),
         '#default_value' => $existing['sort']['advanced']['combine'],
-        '#description' => t('Combines the sort by options and order (ascending or decending) into a single list.  Use this to display "Option1 Desc", "Option1 Asc", "Option2 Desc", "Option2 Asc" in a single form element.'),
+        '#description' => t('Combines the sort by options and order (ascending or decending) into a single list.  Use this to display "Option1 Desc", "Option1 Asc", "Option2 Desc", "Option2 Asc" in a single form element. "Expose sort order" must be checked to enable this option.'),
+        '#states' => array(
+          'disabled' => array(
+            'input[name="exposed_form_options[expose_sort_order]"]' => array('checked' => FALSE)
+          ),
+        ),
       );
       $bef_options['sort']['advanced']['combine_param'] = array(
         '#type' => 'textfield',
@@ -128,42 +189,79 @@ class better_exposed_filters_exposed_form_plugin extends views_plugin_exposed_fo
         '#description' => t('This will be the $_GET parameter used in query strings. Useful for preventing collisions between exposed filters when there are multiple instances of BEF on the page. Use only UTF-8 letters, numbers, and the dash (-), underscore (_), asterisk (*), and period(.) characters.'),
         '#default_value' => empty($existing['sort']['advanced']['combine_param']) ? 'sort_bef_combine' : $existing['sort']['advanced']['combine_param'],
         '#required' => TRUE,
-        '#dependency' => array('edit-exposed-form-options-bef-sort-advanced-combine' => array(1)),
+        // Indent dependent options -- closing </div> is in combine_rewrite.
+        '#prefix' => '<div class="dependent-options">',
+        '#states' => array(
+          'visible' => array(
+            'input[name="exposed_form_options[bef][sort][advanced][combine]"]' => array('checked' => TRUE),
+            'input[name="exposed_form_options[expose_sort_order]"]' => array('checked' => TRUE),
+          ),
+        ),
       );
       $bef_options['sort']['advanced']['combine_rewrite'] = array(
         '#type' => 'textarea',
         '#title' => t('Rewrite the text displayed'),
         '#default_value' => $existing['sort']['advanced']['combine_rewrite'],
-        '#description' => t('Use this field to rewrite the text displayed for combined sort options and sort order. Use the format of current_value|replacement_value, one replacement per line. For example: <pre>
+        '#description' => t('Use this field to rewrite the text displayed for combined sort options and sort order. Use the format of current_text|replacement_text, one replacement per line. For example: <pre>
 Post date Asc|Oldest first
 Post date Desc|Newest first
 Title Asc|A -> Z
-Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option altogether.'),
-        '#dependency' => array('edit-exposed-form-options-bef-sort-advanced-combine' => array(1)),
+Title Desc|Z -> A</pre> Leave the replacement text blank to remove an option altogether.'),
+        '#suffix' => '</div>',
+        '#states' => array(
+          'visible' => array(
+            'input[name="exposed_form_options[bef][sort][advanced][combine]"]' => array('checked' => TRUE),
+            'input[name="exposed_form_options[expose_sort_order]"]' => array('checked' => TRUE),
+          ),
+        ),
       );
+
       $bef_options['sort']['advanced']['reset'] = array(
         '#type' => 'checkbox',
         '#title' => t('Include a "Reset sort" option'),
         '#default_value' => $existing['sort']['advanced']['reset'],
-        '#description' => t('Adds a "Reset sort" link; Views will use the default sort order.'),
+        '#description' => t('Adds a "Reset sort" option which will use Views\' default sort order.'),
       );
       $bef_options['sort']['advanced']['reset_label'] = array(
         '#type' => 'textfield',
         '#title' => t('"Reset sort" label'),
         '#default_value' => $existing['sort']['advanced']['reset_label'],
         '#description' => t('This cannot be left blank if the above option is checked'),
-        '#dependency' => array('edit-exposed-form-options-bef-sort-advanced-reset' => array(1)),
+        // Indent dependent options.
+        '#prefix' => '<div class="dependent-options">',
+        '#suffix' => '</div>',
+        '#states' => array(
+          'required' => array(
+              'input[name="exposed_form_options[bef][sort][advanced][reset]"]' => array('checked' => TRUE),
+          ),
+          'visible' => array(
+            'input[name="exposed_form_options[bef][sort][advanced][reset]"]' => array('checked' => TRUE),
+          ),
+        ),
       );
+
       $bef_options['sort']['advanced']['is_secondary'] = array(
         '#type' => 'checkbox',
         '#title' => t('This is a secondary option'),
         '#default_value' => $existing['sort']['advanced']['is_secondary'],
         '#states' => array(
           'visible' => array(
-            ':input[name="allow_secondary"]' => array('checked' => TRUE),
+            ':input[name="exposed_form_options[bef][general][allow_secondary]"]' => array('checked' => TRUE),
           ),
         ),
         '#description' => t('Places this element in the secondary options portion of the exposed form.'),
+      );
+
+      $bef_options['sort']['advanced']['autosubmit'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Autosubmit'),
+        '#default_value' => $existing['sort']['advanced']['autosubmit'],
+        '#states' => array(
+          'disabled' => array(
+            ':input[name="exposed_form_options[autosubmit]"]' => array('checked' => TRUE),
+          ),
+        ),
+        '#description' => t('Automatically submit the form once a sort element is changed. This option is not available if you enabled autosubmit option for the whole form.'),
       );
     }
 
@@ -197,7 +295,7 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
         '#default_value' => $existing['pager']['is_secondary'],
         '#states' => array(
           'visible' => array(
-            ':input[name="allow_secondary"]' => array('checked' => TRUE),
+            ':input[name="exposed_form_options[bef][general][allow_secondary]"]' => array('checked' => TRUE),
           ),
         ),
         '#description' => t('Places this element in the secondary options portion of the exposed form.'),
@@ -207,33 +305,6 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
     // Only add the description text once -- it was getting a little long to be
     // added to each filter.
     $bef_filter_intro = FALSE;
-
-    $form['input_required'] = array(
-      '#type' => 'checkbox',
-      '#default_value' => $existing['general']['input_required'],
-      '#title' => t('Require input before results are shown'),
-      '#description' => t("Emulates the built in <em>Input Required</em> exposed filter handler")
-    );
-
-    $form['text_input_required'] = array(
-      '#type' => 'container',
-      '#tree' => FALSE,
-      '#states' => array(
-        // Hide this field when the input_required checkbox is disabled.
-        'invisible' => array(
-         ':input[name="exposed_form_options[input_required]"]' => array('checked' => FALSE),
-        ),
-      ),
-    );
-
-    $form['text_input_required']['text_input_required'] = array(
-      '#type' => 'text_format',
-      '#title' => t('Text on demand'),
-      '#description' => t('Text to display instead of results until the user selects and applies an exposed filter.'),
-      '#default_value' => $this->options['text_input_required'],
-      '#format' => isset($this->options['text_input_required_format']) ? $this->options['text_input_required_format'] : filter_default_format(),
-      '#wysiwyg' => FALSE,
-    );
 
     // Go through each filter and add BEF options.
     foreach ($this->display->handler->get_handlers('filter') as $label => $filter) {
@@ -256,16 +327,27 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
         $bef_filter_intro = TRUE;
       }
 
-      // These filter operators get our standard options: select, radio or
-      // checkboxes, links, etc.
+      // These filter operators get our standard options: radio or checkboxes.
       $bef_standard = FALSE;
+
+      // Allows a filter to be rendered as a hidden <input> element. Useful when
+      // building multi-step filter "wizards," for example.
+      $bef_hidden = FALSE;
+
+      // Renders the filter as a link.
+      // @TODO: expand to include toggle links for all bef_links filters, not
+      // just exposed sorts.
+      $bef_links = FALSE;
 
       // These filters get a single on/off checkbox option for boolean
       // operators.
       $bef_single = FALSE;
 
-      // Used for taxonomy filters with heirarchy.
+      // Used for taxonomy filters with hierarchy.
       $bef_nested = FALSE;
+
+      // Allows the term description to be added to rendered output.
+      $bef_term_description = FALSE;
 
       // Used for date-based filters.
       $bef_datepicker = FALSE;
@@ -275,11 +357,15 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
 
       // Check various filter types and determine what options are available.
       if ($filter instanceof views_handler_filter_string || $filter instanceof views_handler_filter_in_operator) {
-        if (in_array($filter->operator, array('in', 'or', 'and'))) {
+        if (in_array($filter->operator, array('in', 'or', 'and', 'not'))) {
           $bef_standard = TRUE;
+          $bef_links = TRUE;
+          $bef_hidden = TRUE;
         }
         if (in_array($filter->operator, array('empty', 'not empty'))) {
           $bef_standard = TRUE;
+          $bef_links = TRUE;
+          $bef_hidden = TRUE;
           if (!$filter->options['expose']['multiple']) {
             $bef_single = TRUE;
           }
@@ -288,6 +374,8 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
 
       if ($filter instanceof views_handler_filter_boolean_operator) {
         $bef_standard = TRUE;
+        $bef_links = TRUE;
+        $bef_hidden = TRUE;
         if (!$filter->options['expose']['multiple']) {
           $bef_single = TRUE;
         }
@@ -297,6 +385,8 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
       // so we can offer basic BEF options.
       if ($filter->options['is_grouped']) {
         $bef_standard = TRUE;
+        $bef_links = TRUE;
+        $bef_hidden = TRUE;
       }
 
       if ($filter instanceof views_handler_filter_term_node_tid) {
@@ -305,20 +395,25 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
         // the autocomplete widget.
         if ('textfield' == $filter->options['type']) {
           $bef_standard = FALSE;
+          $bef_links = FALSE;
+          $bef_hidden = FALSE;
         }
         elseif (!empty($filter->options['hierarchy'])) {
           $bef_nested = TRUE;
+          $bef_term_description = TRUE;
         }
       }
 
       if ($filter instanceof views_handler_filter_date || !empty($filter->date_handler)) {
         $bef_datepicker = TRUE;
+        $bef_hidden = TRUE;
       }
 
       // The date filter handler extends the numeric filter handler so we have
       // to exclude it specifically.
       if ($filter instanceof views_handler_filter_numeric && !($filter instanceof views_handler_filter_date)) {
         $bef_slider = TRUE;
+        $bef_hidden = TRUE;
       }
 
       // Search API extends the more general views_handler_filter rather than
@@ -326,11 +421,15 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
       // Handle those options here.
       if ($filter instanceof SearchApiViewsHandlerFilterOptions) {
         $bef_standard = TRUE;
+        $bef_links = TRUE;
+        $bef_hidden = TRUE;
       }
       elseif ($filter instanceof SearchApiViewsHandlerFilterDate) {
         $bef_datepicker = TRUE;
         if ($filter->options['is_grouped']) {
           $bef_standard = TRUE;
+          $bef_links = TRUE;
+          $bef_hidden = TRUE;
         }
       }
       // Search API numeric filters support
@@ -365,11 +464,16 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
         $display_options['bef_slider'] = t('jQuery UI slider');
       }
 
-      if ($bef_standard) {
-        // Less used BEF options, so put them last.
+      if ($bef_links) {
         $display_options['bef_links'] = t('Links');
+      }
+
+      if ($bef_hidden) {
         $display_options['bef_hidden'] = t('Hidden');
       }
+
+      // Alter the list of available display options for this filter.
+      drupal_alter('better_exposed_filters_display_options', $display_options, $filter);
 
       $filter_key = $filter->options['is_grouped'] ? 'group_info' : 'expose';
       $identifier = '"' . $filter->options[$filter_key]['identifier'] . '"';
@@ -500,6 +604,23 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
           );
         }
 
+        if ($bef_term_description) {
+          $bef_options[$label]['more_options']['bef_term_description'] = array(
+            '#type' => 'checkbox',
+            '#title' => t('Include the term description'),
+            '#default_value' => $existing[$label]['more_options']['bef_term_description'],
+            '#description' => t('For taxonomy term filters, includes the term description for each filter option.'),
+            '#states' => array(
+              'visible' => array(
+                ':input[name="exposed_form_options[bef][' . $label . '][bef_format]"]' => array(
+                  array('value' => 'bef'),
+                  array('value' => 'bef_ul'),
+                ),
+              ),
+            ),
+          );
+        }
+
         // Put filter in collapsible fieldset option.
         // TODO: expand to all exposed filters.
         $bef_options[$label]['more_options']['bef_collapsible'] = array(
@@ -512,6 +633,19 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
         );
       }
 
+      // Individual element autosubmit option.
+      $bef_options[$label]['more_options']['autosubmit'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Autosubmit'),
+        '#default_value' => $existing[$label]['more_options']['autosubmit'],
+        '#states' => array(
+          'disabled' => array(
+            ':input[name="exposed_form_options[autosubmit]"]' => array('checked' => TRUE),
+          ),
+        ),
+        '#description' => t('Automatically submit the form once a filter element is changed. This option is not available if you enabled autosubmit option for the whole form.'),
+      );
+
       // Allow any filter to be moved into the secondary options fieldset.
       $bef_options[$label]['more_options']['is_secondary'] = array(
         '#type' => 'checkbox',
@@ -519,7 +653,7 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
         '#default_value' => $existing[$label]['more_options']['is_secondary'],
         '#states' => array(
           'visible' => array(
-            ':input[name="allow_secondary"]' => array('checked' => TRUE),
+            ':input[name="exposed_form_options[bef][general][allow_secondary]"]' => array('checked' => TRUE),
           ),
         ),
         '#description' => t('Places this element in the secondary options portion of the exposed form.'),
@@ -530,7 +664,7 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
         '#type' => 'textfield',
         '#title' => t('Override "Any" option label'),
         '#default_value' => $existing[$label]['more_options']['any_label'],
-        '#description' => t('Leave blank to use views default value. <em>Note: overriding this label will break translations and localizations. Leave this field blank if preserving internationalization is important to your site.</em>'),
+        '#description' => t('Leave blank to use Views\' default value.'),
       );
 
       // Build a description option form element -- available to all exposed
@@ -600,14 +734,32 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
         '#default_value' => $existing[$label]['more_options']['rewrite']['filter_rewrite_values'],
         '#description' => t('
           Use this field to rewrite the filter options displayed. Use the format
-          of current_value|replacement_value, one replacement per line. For
+          of current_text|replacement_text, one replacement per line. For
           example: <pre>
-0|Zero
-1|One
-2|Two
-</pre> Leave the replacement value blank to remove an option altogether. If using hierarchical taxonomy filters, do not including leading hyphens in the current value.
+Current|Replacement
+On|Yes
+Off|No
+</pre> Leave the replacement text blank to remove an option altogether. If using hierarchical taxonomy filters, do not including leading hyphens in the current value.
         '),
       );
+
+      // Add an option to override defaults for the jQuery UI Datepicker.
+      if ($bef_datepicker) {
+        $bef_options[$label]['more_options']['datepicker_options'] = array(
+          '#type' => 'textarea',
+          '#title' => t('jQuery UI Datepicker option'),
+          '#default_value' => $existing[$label]['more_options']['datepicker_options'],
+          '#description' => t('Use this field to override the default options for the Datepicker widget. Options should be in the form of <code>option_name: option_value</code>, one setting per line. For example, to set the days of the week and date format to French: <pre>
+dayNamesMin: [ "Di", "Lu", "Ma", "Me", "Je", "Ve", "Sa" ]
+dateFormat: "dd-mm-yy"
+</pre>More information about datepicker options can be found on the <a href="!link">jQuery UI website</a>. This field is translatable so you can specify different options for different languages. See the <a href="!docs_link">BEF localization documentation</a> for more details.',
+            array(
+              '!link' => 'http://api.jqueryui.com/datepicker/',
+              '!docs_link' => 'https://www.drupal.org/node/2460797',
+            )
+          ),
+        );
+      }
     }
     /* Ends: foreach ($filters as $filter) { */
 
@@ -653,6 +805,7 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
       'datepicker' => FALSE,
       'slider' => FALSE,
       'settings' => array(),
+      'autosubmit' => FALSE,
     );
 
     // Some widgets will require additional CSS.
@@ -667,23 +820,33 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
     $context['display'] = $this->display;
     drupal_alter('better_exposed_filters_settings', $settings, $context);
 
+    // Adds view's arguments (if any) to the path to be used use for #bef_path.
+    $view_path = $this->view->args ? implode('/', array_merge(array($this->view->get_path()), $this->view->args)) : $this->view->get_path();
+
     // Some elements may be placed in a secondary fieldset (eg: "Advanced
     // search options"). Place this after the exposed filters and before the
     // rest of the items in the exposed form.
     if ($allow_secondary = $settings['general']['allow_secondary']) {
-      // If one of the secondary widgets has exposed input, do not collapse
-      // the secondary fieldset.
+      // If one of the secondary widgets has exposed input, do not collapse the
+      // secondary fieldset. Or is the "always open" or "always closed" option
+      // is selected, use that instead.
       $secondary_collapse = TRUE;
-      $exposed_input = $this->view->get_exposed_input();
-      foreach ($this->display->handler->get_handlers('filter') as $label => $filter) {
-        if (!$filter->options['exposed']) {
-          continue;
-        }
-        if (!empty($exposed_input[$filter->options['expose']['identifier']]) && $settings[$label]['more_options']['is_secondary']) {
-          $secondary_collapse = FALSE;
-          break;
+      if ($settings['general']['secondary_collapse_override']) {
+        $secondary_collapse = $settings['general']['secondary_collapse_override'] == 2;
+      }
+      else {
+        $exposed_input = $this->view->get_exposed_input();
+        foreach ($this->display->handler->get_handlers('filter') as $label => $filter) {
+          if (!$filter->options['exposed']) {
+            continue;
+          }
+          if (!empty($exposed_input[$filter->options['expose']['identifier']]) && $settings[$label]['more_options']['is_secondary']) {
+            $secondary_collapse = FALSE;
+            break;
+          }
         }
       }
+
       $secondary = array(
         '#type' => 'fieldset',
         '#title' => $settings['general']['secondary_label'],
@@ -810,7 +973,7 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
             // select_as_links options as they will use the wrong path. We
             // provide a hint for theme functions to correct this.
             if (!empty($this->display->display_options['exposed_block'])) {
-              $form[$settings['sort']['advanced']['combine_param']]['#bef_path'] = $this->view->get_path();
+              $form[$settings['sort']['advanced']['combine_param']]['#bef_path'] = $view_path;
             }
             break;
 
@@ -864,7 +1027,7 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
           // select_as_links options as they will use the wrong path. We provide
           // a hint for theme functions to correct this.
           if (!empty($this->display->display_options['exposed_block'])) {
-            $form['sort_by']['#bef_path'] = $form['sort_order']['#bef_path'] = $this->view->get_path();
+            $form['sort_by']['#bef_path'] = $form['sort_order']['#bef_path'] = $view_path;
           }
         }
 
@@ -913,7 +1076,17 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
         // select_as_links options as they will use the wrong path. We
         // provide a hint for theme functions to correct this.
         if (!empty($this->display->display_options['exposed_block'])) {
-          $form['sort_by']['#bef_path'] = $this->display->display_options['path'];
+          $form['sort_by']['#bef_path'] = $view_path;
+        }
+      }
+    }
+
+    // Apply autosubmit sort values.
+    if (empty($this->options['autosubmit']) && !empty($settings['sort']['advanced']['autosubmit'])) {
+      $bef_js['autosubmit'] = TRUE;
+      foreach (array($settings['sort']['advanced']['combine_param'], 'sort_by', 'sort_order') as $elem) {
+        if (!empty($form[$elem])) {
+          $form[$elem] = array_merge_recursive($form[$elem], array('#attributes' => array('class' => array('ctools-auto-submit'))));
         }
       }
     }
@@ -923,10 +1096,9 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
      * Handle exposed pager elements.
      */
     if (isset($settings['pager'])) {
-      $show_apply = TRUE;
-
       switch ($settings['pager']['bef_format']) {
         case 'bef':
+          $show_apply = TRUE;
           $form['items_per_page']['#type'] = 'radios';
           if (empty($form['items_per_page']['#process'])) {
             $form['items_per_page']['#process'] = array();
@@ -947,7 +1119,7 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
             // select_as_links options as they will use the wrong path. We
             // provide a hint for theme functions to correct this.
             if (!empty($this->display->display_options['exposed_block'])) {
-              $form['items_per_page']['#bef_path'] = $this->view->get_path();
+              $form['items_per_page']['#bef_path'] = $view_path;
             }
           }
           break;
@@ -969,7 +1141,6 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
 
     // Go through each saved option looking for Better Exposed Filter settings.
     foreach ($settings as $label => $options) {
-
       // Sanity check: Ensure this filter is an exposed filter.
       if (empty($filters[$label]) || !$filters[$label]->options['exposed']) {
         continue;
@@ -977,7 +1148,7 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
 
       // Form element is designated by the element ID which is user-
       // configurable.
-      $filter_key = 'filter-' . ($filters[$label]->options['is_grouped'] ? $filters[$label]->options['group_info']['identifier'] : $label);
+      $filter_key = 'filter-' . (!empty($filters[$label]->options['is_grouped']) ? $filters[$label]->options['group_info']['identifier'] : $label);
       $filter_id = $form['#info'][$filter_key]['value'];
 
       // Token replacement on BEF Description fields.
@@ -985,9 +1156,8 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
         // Collect replacement data.
         $data = array();
         $available = $options['more_options']['tokens']['available'];
-        if (in_array('vocabulary', $available)) {
-          $vocabs = taxonomy_get_vocabularies();
-          $data['vocabulary'] = $vocabs[$filters[$label]->options['vid']];
+        if (in_array('vocabulary', $available) && isset($filters[$label]->definition['vocabulary'])) {
+          $data['vocabulary'] = taxonomy_vocabulary_machine_name_load($filters[$label]->definition['vocabulary']);
         }
         /* Others? */
 
@@ -1049,12 +1219,12 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
       }
 
       // These BEF options require a set of given options to work (namely,
-      // $form[$filter_id]['#options'] needs to set). But it is possilbe to
+      // $form[$filter_id]['#options'] needs to set). But it is possible to
       // adjust settings elsewhere in the view that removes these options from
       // the form (eg: changing a taxonomy term filter from dropdown to
       // autocomplete). Check for that here and revert to Views' default filter
       // in those cases.
-      $requires_options = array('bef', 'bef_ul', 'bef_links', 'bef_hidden');
+      $requires_options = array('bef', 'bef_ul', 'bef_links');
       if (in_array($options['bef_format'], $requires_options) && !array_key_exists('#options', $form[$filter_id])) {
         $options['bef_format'] = 'default';
       }
@@ -1178,17 +1348,29 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
             if (isset($form[$filter_id]['value'])) {
               $format = $form[$filter_id]['value']['#date_format'];
               $form[$filter_id]['value']['#attributes']['class'][] = 'bef-datepicker';
+
+              // This element renders via Drupal's FormAPI so we can use
+              // #description instead of passing the description along to BEF's
+              // theme functions.
+              if (!empty($form[$filter_id]['#bef_description'])) {
+                $form[$filter_id]['#description'] = $form[$filter_id]['#bef_description'];
+              }
             }
             else {
               // Both min and max share the same format.
               $format = $form[$filter_id]['min']['#date_format'];
               $form[$filter_id]['min']['#attributes']['class'][] = 'bef-datepicker';
               $form[$filter_id]['max']['#attributes']['class'][] = 'bef-datepicker';
+
+              // Description goes with the second field for in-between filters.
+              if (!empty($form[$filter_id]['#bef_description'])) {
+                $form[$filter_id]['max']['#description'] = $form[$filter_id]['#bef_description'];
+              }
             }
-            $bef_js['datepicker_options']['dateformat'] = str_replace(array_keys($convert), array_values($convert), $format);
+            $bef_js['datepicker_options']['dateFormat'] = json_encode(str_replace(array_keys($convert), array_values($convert), $format));
           }
           else {
-            $bef_js['datepicker_options']['dateformat'] = '';
+            $bef_js['datepicker_options']['dateFormat'] = '';
             /*
              * Standard Drupal date field.  Depending on the settings, the field
              * can be at $form[$filter_id] (single field) or
@@ -1197,14 +1379,39 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
              */
             $fields = array('min', 'max', 'value');
             if (count(array_intersect($fields, array_keys($form[$filter_id])))) {
+              $final = '';
               foreach ($fields as $field) {
                 if (isset($form[$filter_id][$field])) {
                   $form[$filter_id][$field]['#attributes']['class'][] = 'bef-datepicker';
+                  $final = $field;
                 }
+              }
+              // Description goes with the second field for in-between filters.
+              if (!empty($form[$filter_id]['#bef_description'])) {
+                $form[$filter_id][$final]['#description'] = $form[$filter_id]['#bef_description'];
               }
             }
             else {
               $form[$filter_id]['#attributes']['class'][] = 'bef-datepicker';
+
+              // This element renders via Drupal's FormAPI so we can use
+              // #description instead of passing the description along to BEF's
+              // theme functions.
+              if (!empty($form[$filter_id]['#bef_description'])) {
+                $form[$filter_id]['#description'] = $form[$filter_id]['#bef_description'];
+              }
+            }
+          }
+
+          if (!empty($options['more_options']['datepicker_options'])) {
+            foreach (explode("\n", $options['more_options']['datepicker_options']) as $setting) {
+              list ($key, $val) = explode(':', trim($setting), 2);
+              // No need to json_encode() this value like we do other datepicker
+              // options as it should already be entered in JSON format in the
+              // UI. While having an admin enter JSON in a text field is not
+              // ideal, it is how the jQueryUI widget documentation shows it in
+              // their examples.
+              $bef_js['datepicker_options'][$key] = $val;
             }
           }
           break;
@@ -1225,10 +1432,32 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
             'id' => drupal_html_id($filter_id),
             'viewId' => $form['#id'],
           );
+
+          // We need a wrapping element that covers all elements in the
+          // slider -- not just the text fields, but descriptions as well. When
+          // placed in the secondary fieldset, we lose what we usually get from
+          // the FormAPI.
+          if ($options['more_options']['is_secondary']) {
+            $form[$filter_id]['#prefix'] = '<div class="bef-slider-wrapper">';
+            $form[$filter_id]['#suffix'] = '</div>';
+          }
+
+          // This element renders via Drupal's FormAPI so we can use
+          // #description instead of passing the description along to BEF's
+          // theme functions.
+          if (!empty($form[$filter_id]['#bef_description'])) {
+            $children = element_children($form[$filter_id]);
+            if (count($children) > 1) {
+              // Put the description on the last child or this element.
+              $form[$filter_id][end($children)]['#description'] = $form[$filter_id]['#bef_description'];
+            }
+            else {
+              $form[$filter_id]['#description'] = $form[$filter_id]['#bef_description'];
+            }
+          }
           break;
 
         case 'bef_links':
-          $show_apply = TRUE;
           $bef_add_js = TRUE;
           $form[$filter_id]['#theme'] = 'select_as_links';
 
@@ -1237,7 +1466,7 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
           // select_as_links options as they will use the wrong path. We provide
           // a hint for theme functions to correct this.
           if (!empty($this->display->display_options['exposed_block'])) {
-            $form[$filter_id]['#bef_path'] = $this->view->get_path();
+            $form[$filter_id]['#bef_path'] = $view_path;
           }
           break;
 
@@ -1249,7 +1478,27 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
           $form[$filter_id]['#description'] = $options['more_options']['bef_filter_description'];
           $form[$filter_id]['#return_value'] = 1;
           $form[$filter_id]['#type'] = 'checkbox';
+          // Views populates missing values in $form_state['input'] with the
+          // defaults and a checkbox does not appear in $_GET (or $_POST) so it
+          // will appear to be missing when a user submits a form. Because of
+          // this, instead of unchecking the checkbox value will revert to the
+          // default. More, the default value for select values is reused which
+          // results in the checkbox always checked. So we need to add a form
+          // element to see whether the form is submitted or not and then we
+          // need to look at $_GET directly to see whether the checkbox is
+          // there. For security reasons, we must not copy the $_GET value.
 
+          // First, let's figure out a short name for the signal element and
+          // then add it.
+          if (empty($signal)) {
+            for ($signal = 'a'; isset($form[$signal]); $signal++);
+            // This is all the signal element needs.
+            $form[$signal]['#type'] = 'hidden';
+          }
+          $checked = isset($form_state['input'][$signal]) ? isset($_GET[$filter_id]) : $form[$filter_id]['#default_value'];
+          // Now we know whether the checkbox is checked or not, set #value
+          // accordingly.
+          $form[$filter_id]['#value'] = $checked ? $form[$filter_id]['#return_value'] : 0;
           // Handoff to the theme layer.
           $form[$filter_id]['#theme'] = 'checkbox';
           break;
@@ -1408,9 +1657,25 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
                 $form[$filter_id]['#bef_select_all_none_nested'] = TRUE;
               }
             }
-
           }
           /* Ends: if (empty($form[$filter_id]['#multiple'])) { ... } else { */
+
+          // Add term descriptions, if appropriate. Pass along to theme
+          // functions for rendering.
+          if ($options['more_options']['bef_term_description'] && $filters[$filter_id] instanceof views_handler_filter_term_node_tid) {
+            $tids = array();
+            foreach ($form[$filter_id]['#options'] as $tid => $option) {
+              if (is_object($option)) {
+                reset($option->option);
+                list ($tid, ) = each($option->option);
+              }
+              $tids[] = $tid;
+            }
+            $terms = taxonomy_term_load_multiple($tids);
+            foreach ($terms as $tid => $term) {
+              $form[$filter_id]['#bef_term_descriptions'][$tid] = check_markup($term->description, $term->format, '', TRUE);
+            }
+          }
           break;
 
         case 'bef_hidden':
@@ -1425,17 +1690,38 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
           break;
 
         default:
-          // Handle functionality for exposed filters that are not limited to
-          // BEF only filters.
+          // Handles functionality for exposed filters that are not rendered
+          // using BEF.
           $show_apply = TRUE;
 
           // Add a description to the exposed filter.
           if (!empty($options['more_options']['bef_filter_description'])) {
-            $form[$filter_id]['#description'] = t($options['more_options']['bef_filter_description']);
+            $children = element_children($form[$filter_id]);
+            if (count($children) > 1) {
+              // A filter may have multiple children if it's a in-between
+              // filter. In this case, put the description on the last item.
+              $form[$filter_id][end($children)]['#description'] = t($options['more_options']['bef_filter_description']);
+            }
+            else {
+              $form[$filter_id]['#description'] = t($options['more_options']['bef_filter_description']);
+            }
           }
           break;
       }
       /* Ends switch ($options['bef_format']) */
+
+      // Apply autosubmit filter values.
+      if (empty($this->options['autosubmit']) && !empty($options['more_options']['autosubmit'])) {
+        $bef_js['autosubmit'] = TRUE;
+
+        // Check type form element.
+        if (isset($form[$filter_id]['value'])) {
+          $form[$filter_id]['value'] = array_merge_recursive($form[$filter_id]['value'], array('#attributes' => array('class' => array('ctools-auto-submit'))));
+        }
+        else {
+          $form[$filter_id] = array_merge_recursive($form[$filter_id], array('#attributes' => array('class' => array('ctools-auto-submit'))));
+        }
+      }
 
       // Override "Any" label, if applicable.
       if (!empty($options['more_options']['any_label']) && !empty($form[$filter_id]['#options']['All'])) {
@@ -1446,23 +1732,56 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
       if ($allow_secondary && $settings[$label]['more_options']['is_secondary']) {
         $identifier = $form['#info'][$filter_key]['value'];
         if (!empty($form[$identifier])) {
+          // Move from the main form to the secondary options fieldset.
+          $children = element_children($form[$identifier]);
+          $secondary[$identifier] = $form[$identifier];
+          unset($form[$identifier]);
+
+          if (1 < count($children)) {
+            // Some elements can have multiple children, for example min/max
+            // fields on an in-between filter. In those cases Add the label
+            // to the first element.
+            $secondary[$identifier][$children[0]]['#title'] = isset($form['#info'][$filter_key]['label']) ? $form['#info'][$filter_key]['label'] : '';
+            unset($form['#info'][$filter_key]);
+          }
+          else {
+            $secondary[$identifier]['#title'] = isset($form['#info'][$filter_key]['label']) ? $form['#info'][$filter_key]['label'] : '';
+            unset($form['#info'][$filter_key]);
+          }
+
+          // Ensure secondary options respect ordering of filters. Pass this
+          // along to the theme function for rendering. Multiply existing
+          // position by 2 so that we have room to stick the exposed operator
+          // before the filter.
+          if (isset($filters[$identifier]->position)) {
+            $secondary[$identifier]['#bef_position'] = $filters[$identifier]->position * 2;
+          }
+
           // Move exposed operators with exposed filters
           if (!empty($filters[$label]->options['expose']['use_operator'])) {
             $op_id = $filters[$label]->options['expose']['operator_id'];
             $secondary[$op_id] = $form[$op_id];
             unset($form[$op_id]);
+
+            // Make sure operators appear just before the filter they are
+            // associated with.
+            if (isset($filters[$identifier]->position)) {
+              $secondary[$op_id]['#bef_position'] = ($filters[$identifier]->position * 2) - 1;
+            }
           }
-          $secondary[$identifier] = $form[$identifier];
-          unset($form[$identifier]);
-          $secondary[$identifier]['#title'] = $form['#info'][$filter_key]['label'];
-          unset($form['#info'][$filter_key]);
-         }
+        }
       }
     }
 
     // If our form has no visible filters, hide the submit button.
-    $form['submit']['#access'] = $show_apply;
-    $form['reset']['#access'] = $show_apply;
+    if (!$show_apply) {
+      if (isset($form['submit'])) {
+        $form['submit']['#attributes']['class'][] = 'element-hidden';
+      }
+      if (isset($form['reset'])) {
+        $form['reset']['#attributes']['class'][] = 'element-hidden';
+      }
+    }
 
     // Add Javascript as needed.
     if ($bef_add_js) {
@@ -1472,6 +1791,11 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
       }
       if ($bef_js['slider']) {
         drupal_add_library('system', 'ui.slider');
+      }
+      if ($bef_js['autosubmit']) {
+        $form['submit']['#attributes']['class'][] = 'ctools-use-ajax';
+        $form['submit']['#attributes']['class'][] = 'ctools-auto-submit-click';
+        $form['#attached']['js'][] = drupal_get_path('module', 'ctools') . '/js/auto-submit.js';
       }
 
       drupal_add_js(array('better_exposed_filters' => $bef_js), 'setting');
@@ -1571,6 +1895,18 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
       unset($settings['sort']['reset_label']);
     }
 
+    // Input required was originally stored in Views' options, not in BEF's
+    // settings.
+    if (isset($this->options['input_required'])) {
+      $settings['general']['input_required'] = $this->options['input_required'];
+    }
+    if (isset($this->options['input_required']['text_input_required'])) {
+      $settings['general']['input_required']['text_input_required']['text_input_required'] = $this->options['text_input_required'];
+    }
+    if (isset($this->options['input_required']['text_input_required_format'])) {
+      $settings['general']['input_required']['text_input_required']['text_input_required_format'] = $this->options['text_input_required_format'];
+    }
+
     return $settings;
   }
 
@@ -1593,8 +1929,15 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
     $defaults = array(
       'general' => array(
         'input_required' => FALSE,
+        'text_input_required' => array(
+          'text_input_required' => array(
+            'value' => t('Select any filter and click on Apply to see results'),
+            'format' => filter_default_format(),
+          ),
+        ),
         'allow_secondary' => FALSE,
         'secondary_label' => t('Advanced options'),
+        'secondary_collapse_override' => 0,
       ),
       'sort' => array(
         'bef_format' => 'default',
@@ -1607,6 +1950,7 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
           'reset' => FALSE,
           'reset_label' => '',
           'is_secondary' => FALSE,
+          'autosubmit' => FALSE,
         ),
       ),
       'pager' => array(
@@ -1633,6 +1977,8 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
         'is_secondary' => FALSE,
         'bef_filter_description' => '',
         'any_label' => '',
+        'bef_term_description' => FALSE,
+        'autosubmit' => FALSE,
         'tokens' => array(
           'list' => array(),
           'available' => array(),
@@ -1640,6 +1986,7 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
         'rewrite' => array(
           'filter_rewrite_values' => '',
         ),
+        'datepicker_options' => '',
       ),
       'slider_options' => array(
         'bef_slider_min' => 0,
@@ -1657,19 +2004,14 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
       }
 
       // Get existing values or use defaults.
-      if (!isset($this->options['bef'][$label])) {
-        // First time opening the settings form with a new filter.
-        $settings[$label] = $filter_defaults;
-      }
-      else {
-        $settings[$label] = $this->_bef_set_defaults($filter_defaults, $this->options['bef'][$label]);
-      }
+      $filter_current = isset($this->options['bef'][$label]) ? $this->options['bef'][$label] : array();
+      $settings[$label] = $this->_bef_set_defaults($filter_defaults, $filter_current);
     }
     return $settings;
   }
 
   /**
-   * Util function to determine if any filters have been applied.
+   * Utility function to determine if any filters have been applied.
    * Borrowed from views_plugin_exposed_form_input_required
    */
   function exposed_filter_applied() {
@@ -1700,7 +2042,8 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
    * options is enabled.
    */
   function pre_render($values) {
-    if (!$this->exposed_filter_applied() && !empty($this->options['input_required'])) {
+    $bef_settings = $this->_bef_get_settings();
+    if (!$this->exposed_filter_applied() && !empty($bef_settings['general']['input_required'])) {
       $options = array(
         'id' => 'area',
         'table' => 'views',
@@ -1708,8 +2051,8 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
         'label' => '',
         'relationship' => 'none',
         'group_type' => 'group',
-        'content' => $this->options['text_input_required'],
-        'format' => $this->options['text_input_required_format'],
+        'content' => $bef_settings['general']['text_input_required']['text_input_required']['value'],
+        'format' => $bef_settings['general']['text_input_required']['text_input_required']['format'],
         'empty' => TRUE,
       );
       $handler = views_get_handler('views', 'area', 'area');
@@ -1725,7 +2068,8 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
    * Query callback, intervenes if no filters are applied and input is required.
    */
   function query() {
-    if (!$this->exposed_filter_applied() && !empty($this->options['input_required'])) {
+    $bef_settings = $this->_bef_get_settings();
+    if (!$this->exposed_filter_applied() && !empty($bef_settings['general']['input_required'])) {
       // We return with no query; this will force the empty text.
       $this->view->built = TRUE;
       $this->view->executed = TRUE;
@@ -1734,17 +2078,6 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
     else {
       parent::query();
     }
-  }
-
-  /**
-   * Submit handler for the options to unpack the format/text from the
-   * text_format field.
-   */
-  function options_submit(&$form, &$form_state) {
-    $form_state['values']['exposed_form_options']['text_input_required_format'] = $form_state['values']['text_input_required']['format'];
-    $form_state['values']['exposed_form_options']['text_input_required'] = $form_state['values']['text_input_required']['value'];
-
-    parent::options_submit($form, $form_state);
   }
 
   function unpack_translatable_options(&$translatable, $storage, $option, $definition, $parents) {
@@ -1763,6 +2096,10 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
   function unpack_translatable_keys() {
     // Default options.
     $keys = array(
+      // @TODO: Do we need to give this a better key so it makes more sense in
+      // the localization UI?
+      'value' => array('bef', 'general', 'text_input_required', 'text_input_required', 'value'),
+
       'general_secondary_label' => array('bef', 'general', 'secondary_label'),
       'sort_collapsible_label' => array('bef', 'sort', 'advanced', 'collapsible_label'),
       'sort_combine_rewrite' => array('bef', 'sort', 'advanced', 'combine_rewrite'),
@@ -1777,6 +2114,7 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
       $keys[$label . '_filter_description'] = array('bef', $label, 'more_options', 'bef_filter_description');
       $keys[$label . '_any_label'] = array('bef', $label, 'more_options', 'any_label');
       $keys[$label . '_rewrite_values'] = array('bef', $label, 'more_options', 'rewrite', 'filter_rewrite_values');
+      $keys[$label . '_datepicker_options'] = array('bef', $label, 'more_options', 'datepicker_options');
     }
 
     return $keys;
@@ -1810,7 +2148,7 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
           $storage[$parent] = t($value);
         }
       }
-      else if ($all || !empty($value)) {
+      else if (!empty($value)) {
         $storage[$parent] = $value;
       }
     }

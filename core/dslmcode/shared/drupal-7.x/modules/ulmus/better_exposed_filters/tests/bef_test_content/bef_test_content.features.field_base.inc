@@ -10,35 +10,6 @@
 function bef_test_content_field_default_field_bases() {
   $field_bases = array();
 
-  // Exported field_base: 'body'
-  $field_bases['body'] = array(
-    'active' => 1,
-    'cardinality' => 1,
-    'deleted' => 0,
-    'entity_types' => array(
-      0 => 'node',
-    ),
-    'field_name' => 'body',
-    'foreign keys' => array(
-      'format' => array(
-        'columns' => array(
-          'format' => 'format',
-        ),
-        'table' => 'filter_format',
-      ),
-    ),
-    'indexes' => array(
-      'format' => array(
-        0 => 'format',
-      ),
-    ),
-    'locked' => 0,
-    'module' => 'text',
-    'settings' => array(),
-    'translatable' => 0,
-    'type' => 'text_with_summary',
-  );
-
   // Exported field_base: 'field_bef_test_body'
   $field_bases['field_bef_test_body'] = array(
     'active' => 1,
@@ -46,14 +17,6 @@ function bef_test_content_field_default_field_bases() {
     'deleted' => 0,
     'entity_types' => array(),
     'field_name' => 'field_bef_test_body',
-    'foreign keys' => array(
-      'format' => array(
-        'columns' => array(
-          'format' => 'format',
-        ),
-        'table' => 'filter_format',
-      ),
-    ),
     'indexes' => array(
       'format' => array(
         0 => 'format',
@@ -73,7 +36,6 @@ function bef_test_content_field_default_field_bases() {
     'deleted' => 0,
     'entity_types' => array(),
     'field_name' => 'field_bef_test_date',
-    'foreign keys' => array(),
     'indexes' => array(),
     'locked' => 0,
     'module' => 'date',
@@ -103,7 +65,6 @@ function bef_test_content_field_default_field_bases() {
     'deleted' => 0,
     'entity_types' => array(),
     'field_name' => 'field_bef_test_integer',
-    'foreign keys' => array(),
     'indexes' => array(),
     'locked' => 0,
     'module' => 'number',
@@ -119,7 +80,6 @@ function bef_test_content_field_default_field_bases() {
     'deleted' => 0,
     'entity_types' => array(),
     'field_name' => 'field_bef_test_letters',
-    'foreign keys' => array(),
     'indexes' => array(
       'value' => array(
         0 => 'value',
@@ -151,14 +111,6 @@ function bef_test_content_field_default_field_bases() {
     'deleted' => 0,
     'entity_types' => array(),
     'field_name' => 'field_bef_test_location',
-    'foreign keys' => array(
-      'tid' => array(
-        'columns' => array(
-          'tid' => 'tid',
-        ),
-        'table' => 'taxonomy_term_data',
-      ),
-    ),
     'indexes' => array(
       'tid' => array(
         0 => 'tid',
@@ -169,7 +121,7 @@ function bef_test_content_field_default_field_bases() {
     'settings' => array(
       'allowed_values' => array(
         0 => array(
-          'vocabulary' => 'location',
+          'vocabulary' => 'taxonomy-bef_test-location',
           'parent' => 0,
         ),
       ),
@@ -185,7 +137,6 @@ function bef_test_content_field_default_field_bases() {
     'deleted' => 0,
     'entity_types' => array(),
     'field_name' => 'field_bef_test_numbers',
-    'foreign keys' => array(),
     'indexes' => array(
       'value' => array(
         0 => 'value',
@@ -203,7 +154,7 @@ function bef_test_content_field_default_field_bases() {
         6 => 'Six',
         7 => 'Seven',
         8 => 'Eight',
-        9 => 'NIne',
+        9 => 'Nine',
         10 => 'Ten',
       ),
       'allowed_values_function' => '',
@@ -219,7 +170,6 @@ function bef_test_content_field_default_field_bases() {
     'deleted' => 0,
     'entity_types' => array(),
     'field_name' => 'field_bef_test_price',
-    'foreign keys' => array(),
     'indexes' => array(),
     'locked' => 0,
     'module' => 'number',

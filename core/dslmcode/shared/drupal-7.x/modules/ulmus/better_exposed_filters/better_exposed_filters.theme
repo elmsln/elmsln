@@ -124,7 +124,7 @@ function theme_select_as_checkboxes($vars) {
     }
 
     foreach ($element_set as $key => $value) {
-      $output .= bef_checkbox($element, $key, $value, array_search($key, $selected_options) !== FALSE);
+      $output .= theme('bef_checkbox', array('element' => $element, 'value' => $key, 'label' => $value, 'selected' => array_search($key, $selected_options) !== FALSE));
     }
 
     if ($is_optgroup) {
@@ -293,6 +293,9 @@ function theme_select_as_radios($vars) {
 
   $output = '';
   foreach (element_children($element) as $key) {
+    if (isset($element['#bef_term_descriptions'][$key])) {
+      $element[$key]['#description'] = $element['#bef_term_descriptions'][$key];
+    }
     $element[$key]['#default_value'] = NULL;
     $element[$key]['#children'] = theme('radio', array('element' => $element[$key]));
     $output .= theme('form_element', array('element' => $element[$key]));
@@ -322,7 +325,7 @@ function theme_select_as_tree($vars) {
   // Build a bunch of nested unordered lists to represent the hierarchy based
   // on the '-' prefix added by Views or optgroup structure.
   $output = '<ul class="bef-tree">';
-  $curr_depth = -1;
+  $curr_depth = 0;
   foreach ($element['#options'] as $option_value => $option_label) {
 
     // Check for Taxonomy-based filters.
@@ -338,7 +341,7 @@ function theme_select_as_tree($vars) {
     else {
       // Build hierarchy based on prefixed '-' on the element label.
       if (t('- Any -') == $option_label) {
-        $depth = -1;
+        $depth = 0;
       }
       else {
         preg_match('/^(-*).*$/', $option_label, $matches);
@@ -349,14 +352,20 @@ function theme_select_as_tree($vars) {
       // Build either checkboxes or radio buttons, depending on Views' settings.
       $html = '';
       if (!empty($element['#multiple'])) {
-        $html = bef_checkbox(
-          $element,
-          $option_value,
-          $option_label,
-          (array_search($option_value, $selected_options) !== FALSE)
-        );
+        if (isset($element['#bef_term_descriptions'][$option_value])) {
+          $element[$option_value]['#description'] = $element['#bef_term_descriptions'][$option_value];
+        }
+        $html = theme('bef_checkbox', array(
+          'element' => $element,
+          'value' => $option_value,
+          'label' => $option_label,
+          'selected' => (array_search($option_value, $selected_options) !== FALSE),
+        ));
       }
       else {
+        if (isset($element['#bef_term_descriptions'][$option_value])) {
+          $element[$option_value]['#description'] = $element['#bef_term_descriptions'][$option_value];
+        }
         $element[$option_value]['#title'] = $option_label;
         $element[$option_value]['#children'] = theme('radio', array('element' => $element[$option_value]));
         $html .= theme('form_element', array('element' => $element[$option_value]));
@@ -458,13 +467,13 @@ function theme_select_as_links($vars) {
 
   // Collect selected values so we can properly style the links later.
   $selected_options = array();
-  if (empty($element['#value'])) {
-    if (!empty($element['#default_value'])) {
-      $selected_options[] = $element['#default_value'];
-    }
+  if (isset($element['#value'])) {
+    $selected_options[] = $element['#value'];
   }
   else {
-    $selected_options[] = $element['#value'];
+    if (isset($element['#default_value'])) {
+      $selected_options[] = $element['#default_value'];
+    }
   }
 
   // Add to the selected options specified by Views whatever options are in the
@@ -472,7 +481,7 @@ function theme_select_as_links($vars) {
   $urllist = parse_url(request_uri());
   if (isset($urllist['query'])) {
     $query = array();
-    parse_str(urldecode($urllist['query']), $query);
+    parse_str($urllist['query'], $query);
     foreach ($query as $key => $value) {
       if ($key != $name) {
         continue;
@@ -546,7 +555,7 @@ function theme_select_as_links($vars) {
       $link_options = array();
       // Add "active" class to the currently active filter link.
       if (in_array((string) $key, $selected_options)) {
-        $link_options['attributes'] = array('class' => 'active');
+        $link_options['attributes'] = array('class' => array('active'));
       }
       $url = bef_replace_query_string_arg($name, $key, $multiple, FALSE, $path);
       $elem['#children'] = l($value, $url, $link_options);
@@ -605,9 +614,25 @@ function theme_select_as_links($vars) {
 function theme_secondary_exposed_elements($vars) {
   $element = $vars['element'];
 
-  $output = '<div class="bef-secondary-options">';
+  // Render child elements in the order they would appear as exposed filters.
+  // First collect the elements that have a specified position and order them
+  // based on that position. Then render those without a position.
+  $children = array();
+  $unordered = array();
   foreach (element_children($element) as $id) {
-    $output .= drupal_render($element[$id]);
+    if (isset($element[$id]['#bef_position'])) {
+      $children[$element[$id]['#bef_position']] = $element[$id];
+    }
+    else {
+      $unordered[] = $element[$id];
+    }
+  }
+  ksort($children, SORT_NUMERIC);
+  $children = array_merge($children, $unordered);
+
+  $output = '<div class="bef-secondary-options">';
+  foreach ($children as $child) {
+    $output .= drupal_render($child);
   }
   $output .= '</div>';
 
@@ -637,9 +662,11 @@ function theme_secondary_exposed_elements($vars) {
  * @return [type]
  *   HTML to render a checkbox.
  */
-function bef_checkbox($element, $value, $label, $selected) {
-  $value = check_plain($value);
-  $label = filter_xss_admin($label);
+function theme_bef_checkbox($variables) {
+  $element = $variables['element'];
+  $value = check_plain($variables['value']);
+  $label = filter_xss_admin($variables['label']);
+  $selected = $variables['selected'];
   $id = drupal_html_id($element['#id'] . '-' . $value);
   // Custom ID for each checkbox based on the <select>'s original ID.
   $properties = array(
@@ -647,6 +674,8 @@ function bef_checkbox($element, $value, $label, $selected) {
     '#id' => $id,
     '#type' => 'bef-checkbox',
     '#name' => $id,
+    '#description' => isset($element['#bef_term_descriptions'][$value]) ? $element['#bef_term_descriptions'][$value] :
+      '',
   );
 
   // Prevent the select-all-none class from cascading to all checkboxes.
@@ -704,7 +733,7 @@ function bef_replace_query_string_arg($key, $value, $multiple = FALSE, $remove =
   $urllist = array_merge($urllist, parse_url(request_uri()));
   $fragment = urldecode($urllist['fragment']);
   $query = array();
-  parse_str(urldecode($urllist['query']), $query);
+  parse_str($urllist['query'], $query);
   if (isset($query[$key]) && is_array($query[$key])) {
     // Multiple values allowed for this existing key.
     if ($remove && ($key_remove = array_search($value, $query[$key])) !== FALSE) {
@@ -723,9 +752,10 @@ function bef_replace_query_string_arg($key, $value, $multiple = FALSE, $remove =
       $query[$key] = $value;
     }
   }
-  // Unset page arg so we don't land on an empty page off the end of the newly filtered listing
+  // Unset page arg so we don't land on an empty page off the end of the newly
+  // filtered listing.
   unset($query['page']);
-  return url($path, array(
+  return url(ltrim($path, '/'), array(
     'query' => $query,
     'fragment' => $fragment,
     'absolute' => TRUE,

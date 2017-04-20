@@ -89,7 +89,12 @@
       // Check for and initialize datepickers
       var befSettings = Drupal.settings.better_exposed_filters;
       if (befSettings && befSettings.datepicker && befSettings.datepicker_options && $.fn.datepicker) {
-        var opt = befSettings.datepicker_options.dateformat ? {dateFormat: befSettings.datepicker_options.dateformat} : {};
+        var opt = [];
+        $.each(befSettings.datepicker_options, function(key, val) {
+          if (key && val) {
+            opt[key] = JSON.parse(val);
+          }
+        });
         $('.bef-datepicker').datepicker(opt);
       }
 
@@ -103,7 +108,15 @@
           // To respect term depth, check/uncheck child term checkboxes.
           .find('input.form-checkboxes:first')
           .click(function() {
-            $(this).parents('li:first').find('ul input.form-checkboxes').attr('checked', $(this).attr('checked'));
+            var checkedParent = $(this).attr('checked');
+            if (!checkedParent) {
+              // Uncheck all children if parent is unchecked.
+              $(this).parents('li:first').find('ul input.form-checkboxes').removeAttr('checked');
+            }
+            else {
+              // Check all children if parent is checked.
+              $(this).parents('li:first').find('ul input.form-checkboxes').attr('checked', $(this).attr('checked'));
+            }
           })
           .end()
           // When a child term is checked or unchecked, set the parent term's
@@ -111,25 +124,43 @@
           .find('ul input.form-checkboxes')
           .click(function() {
             var checked = $(this).attr('checked');
+
             // Determine the number of unchecked sibling checkboxes.
             var ct = $(this).parents('ul:first').find('input.form-checkboxes:not(:checked)').size();
+
             // If the child term is unchecked, uncheck the parent.
+            if (!checked) {
+              // Uncheck parent if any of the childres is unchecked.
+              $(this).parents('li:first').parents('li:first').find('input.form-checkboxes:first').removeAttr('checked');
+            }
+
             // If all sibling terms are checked, check the parent.
-            if (!checked || !ct) {
+            if (!ct) {
+              // Check the parent if all the children are checked.
               $(this).parents('li:first').parents('li:first').find('input.form-checkboxes:first').attr('checked', checked);
             }
           });
       });
     }
-  }
+  };
 
   Drupal.behaviors.better_exposed_filters_slider = {
     attach: function(context, settings) {
       var befSettings = settings.better_exposed_filters;
       if (befSettings && befSettings.slider && befSettings.slider_options) {
         $.each(befSettings.slider_options, function(i, sliderOptions) {
+          var containing_parent = "#" + sliderOptions.viewId + " #edit-" + sliderOptions.id + "-wrapper .views-widget";
+          var $filter = $(containing_parent);
+
+          // If the filter is placed in a secondary fieldset, we may not have
+          // the usual wrapper element.
+          if (!$filter.length) {
+            containing_parent = "#" + sliderOptions.viewId + " .bef-slider-wrapper";
+            $filter = $(containing_parent);
+          }
+
           // Only make one slider per filter.
-          $("#" + sliderOptions.viewId + " #edit-" + sliderOptions.id + "-wrapper").once('slider-filter', function() {
+          $filter.once('slider-filter', function() {
             var $input = $(this).find('input[type=text]');
 
             // This is a "between" or "not between" filter with two values.
@@ -151,7 +182,7 @@
               $min.val(default_min);
               $max.val(default_max);
 
-              $min.parents('div.views-widget').after(
+              $min.parents(containing_parent).after(
                 $('<div class="bef-slider"></div>').slider({
                   range: true,
                   min: parseFloat(sliderOptions.min, 10),
@@ -202,7 +233,7 @@
               // Set the element value in case we are using the slider min.
               $input.val(default_value);
 
-              $input.parents('div.views-widget').after(
+              $input.parents(containing_parent).after(
                 $('<div class="bef-slider"></div>').slider({
                   min: parseFloat(sliderOptions.min, 10),
                   max: parseFloat(sliderOptions.max, 10),
@@ -329,13 +360,16 @@
           var $form_id = $element.parents('form').attr('id');
           if ($form_id == $id) {
             $uses_ajax = true;
-            return;
+            return false;
           }
         });
 
-        var $filter_name = $('input', this).attr('name').slice(0, -2);
-        if (Drupal.settings.better_exposed_filters.views[$view_name].displays[$view_display_id].filters[$filter_name].required && $('input:checked', this).length == 0) {
-          $('input', this).prop('checked', true);
+        //Check if we have any filters at all because of Views Selective Filter
+        if($('input', this).length > 0) {
+          var $filter_name = $('input', this).attr('name').slice(0, -2);
+          if (Drupal.settings.better_exposed_filters.views[$view_name].displays[$view_display_id].filters[$filter_name].required && $('input:checked', this).length == 0) {
+            $('input', this).prop('checked', true);
+          }
         }
       });
     }

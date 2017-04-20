@@ -50,6 +50,11 @@ function better_exposed_filters_theme($existing, $type, $theme, $path) {
       'render element' => 'element',
       'file' => 'better_exposed_filters.theme',
     ),
+    'bef_checkbox' => array(
+      'function' => 'theme_bef_checkbox',
+      'render element' => 'element',
+      'file' => 'better_exposed_filters.theme',
+    ),
   );
 }
 
@@ -75,7 +80,8 @@ function better_exposed_filters_views_api() {
  * Unpacks sort_by and sort_order from the sort_bef_combine element.
  */
 function bef_sort_combine_submit($form, &$form_state) {
-  $combine_param = $form_state['#combine_param'];
+  // Same default as better_exposed_filters_exposed_form_plugin::options_form.
+  $combine_param = empty($form_state['#combine_param']) ? $form_state['complete form']['#info']['sort-sort_bef_combine']['value'] : $form_state['#combine_param'];
   if (empty($form_state['values'][$combine_param])) {
     $form_state['values']['sort_by'] = $form_state['values']['sort_order'] = '';
   }
@@ -188,7 +194,7 @@ function better_exposed_filters_preprocess_views_view(&$variables) {
   $filters = array();
   foreach ($variables['view']->filter as $filter) {
     if ($filter->options['exposed']) {
-      $identifier = $filter->options['is_grouped'] ? $filter->options['group_info']['identifier'] : $filter->options['expose']['identifier'];
+      $identifier = !empty($filter->options['is_grouped']) ? $filter->options['group_info']['identifier'] : $filter->options['expose']['identifier'];
       $filters[$identifier] = array(
         'required' => $filter->options['expose']['required'] ? TRUE : FALSE,
       );
