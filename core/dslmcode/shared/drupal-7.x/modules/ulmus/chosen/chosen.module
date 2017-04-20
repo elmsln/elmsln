@@ -8,12 +8,26 @@
  */
 
 /**
- * Define chosen library url
+ * Define chosen library url.
  */
 define('CHOSEN_WEBSITE_URL', 'http://harvesthq.github.io/chosen');
 define('CHOSEN_INCLUDE_ADMIN', 0);
 define('CHOSEN_INCLUDE_NO_ADMIN', 1);
 define('CHOSEN_INCLUDE_EVERYWHERE', 2);
+
+/**
+ * Implements hook_help().
+ */
+function chosen_help($path, $arg) {
+  switch ($path) {
+    case 'admin/help#chosen':
+      $output = '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Chosen uses the Chosen jQuery plugin to make your < select > elements more user-friendly.') . '</p>';
+      $output .= '<h3>' . t('Usage') . '</h3>';
+      $output .= '<p>' . t('Configure at: <a target="_blank" href="@structure_types">admin/config/user-interface/chosen</a>', array('@structure_types' => base_path() . 'admin/config/user-interface/chosen')) . '</p>';
+      return $output;
+  }
+}
 
 /**
  * Implements hook_menu().
@@ -107,9 +121,13 @@ function chosen_library() {
 
   $css_disabled_themes = variable_get('chosen_disabled_themes', array());
 
-  // Only add the Chosen CSS if it is not disabled for the active theme
+  // Only add the Chosen CSS if it is not disabled for the active theme.
   if (!in_array($theme, $css_disabled_themes, TRUE)) {
-    $info['chosen']['css'] = array($library_path . '/chosen.css' => array());
+    $css = $library_path . '/chosen.css';
+    if (!file_exists($css)) {
+      $css = $library_path . '/chosen.min.css';
+    }
+    $info['chosen']['css'] = array($css => array());
   }
 
   // All the settings that are actually passed through into the chosen()
@@ -226,7 +244,7 @@ function chosen_pre_render_select($element) {
   }
 
   // Right to Left Support.
-  if($language->direction == 1) {
+  if ($language->direction == 1) {
     $element['#attributes']['class'][] = 'chosen-rtl';
   }
 
@@ -279,7 +297,7 @@ function chosen_element_apply_property_recursive(array &$element, $chosen_value 
 /**
  * Get the location of the chosen library.
  *
- * @return
+ * @return mixed
  *   The location of the library, or FALSE if the library isn't installed.
  */
 function chosen_get_chosen_path() {

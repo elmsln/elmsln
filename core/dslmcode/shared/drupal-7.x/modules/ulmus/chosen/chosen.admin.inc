@@ -13,7 +13,10 @@ function chosen_admin_settings($form, &$form_state) {
   $chosen_path = chosen_get_chosen_path();
   if (!$chosen_path) {
     drupal_set_message(t('The library could not be detected. You need to download the !chosen and extract the entire contents of the archive into the %path directory on your server.',
-    array('!chosen' => l(t('Chosen JavaScript file'), CHOSEN_WEBSITE_URL), '%path' => 'sites/all/libraries')
+      array(
+        '!chosen' => l(t('Chosen JavaScript file'), CHOSEN_WEBSITE_URL),
+        '%path' => 'sites/all/libraries',
+      )
     ), 'error');
     return;
   }
@@ -134,7 +137,7 @@ function chosen_admin_settings($form, &$form_state) {
 }
 
 /**
- * Helper function to get options for enabled themes
+ * Helper function to get options for enabled themes.
  */
 function _chosen_enabled_themes_options() {
   $options = array();
@@ -143,7 +146,7 @@ function _chosen_enabled_themes_options() {
   $themes = list_themes();
 
   foreach ($themes as $theme) {
-    // Only create options for enabled themes
+    // Only create options for enabled themes.
     if ($theme->status) {
       $options[$theme->name] = $theme->info['name'];
     }

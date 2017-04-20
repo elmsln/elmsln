@@ -12,13 +12,15 @@ function chosen_requirements($phase) {
   module_load_include('module', 'chosen');
   $t = get_t();
   $chosen_path = chosen_get_chosen_path();
-  switch($phase) {
+  switch ($phase) {
     case 'runtime':
       if (!$chosen_path) {
         $requirements['chosen_js'] = array(
           'title' => $t('Chosen JavaScript file'),
           'severity' => REQUIREMENT_ERROR,
-          'description' => $t('You need to download the !chosen and extract the entire contents of the archive into the %path directory on your server.', array('!chosen' => l($t('Chosen JavaScript file'), CHOSEN_WEBSITE_URL), '%path' => 'sites/all/libraries')),
+          'description' => $t('You need to download the !chosen and extract the entire contents of the archive into the %path directory on your server.', array(
+            '!chosen' => l($t('Chosen JavaScript file'), CHOSEN_WEBSITE_URL),
+            '%path' => 'sites/all/libraries')),
           'value' => $t('Not Installed'),
         );
       }
@@ -29,8 +31,8 @@ function chosen_requirements($phase) {
           'value' => $t('Installed'),
         );
       }
-    break;
-   }
+      break;
+  }
   return $requirements;
 }
 
@@ -55,6 +57,8 @@ function chosen_uninstall() {
 }
 
 /**
+ * Implements hook_update_N().
+ *
  * Transfer the old chosen minimum value to the new chosen minimum single and
  * chosen minimum multiple variables.
  */
@@ -83,7 +87,10 @@ function chosen_update_7202() {
 }
 
 /**
- * Update any option_select widgets with an empty Chosen setting to the 'No preference' Chosen setting.
+ * Implements hook_update_N().
+ *
+ * Update any option_select widgets with an empty Chosen setting
+ * to the 'No preference' Chosen setting.
  */
 function chosen_update_7203() {
   $field_names = db_query("SELECT field_name FROM {field_config_instance} WHERE data LIKE :widget", array(':widget' => '%' . db_like('options_select') . '%' . db_like('apply_chosen') . '%'))->fetchCol();
@@ -101,19 +108,24 @@ function chosen_update_7203() {
 }
 
 /**
- * Set the 'Disable the default Chosen theme' Chosen setting to the opposite of the current general 'Use the default chosen theme' Chosen setting for all enabled themes
+ * Implements hook_update_N().
+ *
+ * Set the 'Disable the default Chosen theme' Chosen setting to the opposite
+ * of the current general'Use the default chosen theme'
+ * Chosen setting for all enabled themes.
  */
 function chosen_update_7204() {
   module_load_include('inc', 'chosen', 'chosen.admin');
 
   $chosen_use_theme_setting = variable_get('chosen_use_theme', TRUE);
 
-  // We now chose to disable the default Chosen CSS instead of deselecting the 'Use the default chosen theme' option box
+  // We now chose to disable the default Chosen CSS instead of deselecting
+  // the 'Use the default chosen theme' option box.
   if (!$chosen_use_theme_setting) {
     $themes = system_list('theme');
 
     foreach ($themes as $theme) {
-      // Only create options for enabled themes
+      // Only create options for enabled themes.
       if ($theme->status) {
         $options[$theme->name] = $theme->info['name'];
       }
@@ -122,6 +134,6 @@ function chosen_update_7204() {
     variable_set('chosen_disabled_themes', array_keys($options));
   }
 
-  // Delete the old variable
+  // Delete the old variable.
   variable_del('chosen_use_theme');
 }
