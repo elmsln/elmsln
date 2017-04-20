@@ -13,7 +13,6 @@ Drupal.behaviors.adminimal_material_wave_effect = {
     $( "#admin-menu a" ).addClass("waves-effect waves-button waves-light waves-classic");
     $( ".theme-info .operations a" ).addClass("waves-effect waves-button waves-classic");
     $( "table tbody td a" ).addClass("waves-effect waves-button waves-classic");
-    $( "#homebox-buttons a" ).addClass("waves-effect waves-button waves-classic");
   }
 };
 

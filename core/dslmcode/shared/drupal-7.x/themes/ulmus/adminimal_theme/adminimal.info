@@ -9,6 +9,7 @@ settings[display_icons_config] = 1
 settings[rounded_buttons] = 1
 settings[sticky_actions] = 0
 settings[avoid_custom_font] = 0
+settings[adminimal_ckeditor] = 1
 settings[custom_css] = 0
 settings[use_custom_media_queries] = 0
 settings[media_query_mobile] = only screen and (max-width: 480px)
@@ -23,9 +24,9 @@ regions[help] = Help
 regions[page_top] = Page top
 regions[page_bottom] = Page bottom
 
-; Information added by Drupal.org packaging script on 2015-10-18
-version = "7.x-1.23"
+; Information added by Drupal.org packaging script on 2016-02-23
+version = "7.x-1.24"
 core = "7.x"
 project = "adminimal_theme"
-datestamp = "1445193540"
+datestamp = "1456190957"
 

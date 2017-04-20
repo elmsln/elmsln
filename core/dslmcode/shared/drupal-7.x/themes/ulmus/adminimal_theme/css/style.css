@@ -677,7 +677,8 @@ table.system-status-report tr.warning {
 /* Fieldsets */
 fieldset {
   border: solid 1px #ddd;
-  border-top: 3px solid #0074BD;
+  border-top: none;
+  box-shadow: 0px -3px 0 #0074BD;
   padding: 12px;
   margin: 0 0 20px;
 }
@@ -763,6 +764,7 @@ input.empty {
 /* Filter */
 .filter-wrapper {
   border-top: 0;
+  box-shadow: none;
   padding: 10px 2px;
 }
 
@@ -992,7 +994,7 @@ ul.action-links li {
 
 ul.action-links a {
   padding-left: 15px;/* LTR */
-  font: "Open Sans", "Segoe UI", "Helvetica", sans-serif;
+  font-family: "Open Sans", "Segoe UI", "Helvetica", sans-serif;
   font-size: 23px;
   font-weight: 300;
   background: transparent url(../images/add.png) no-repeat 0 center;
@@ -2130,228 +2132,6 @@ body.adminimal-theme div.dev-query strong {
   color: #FFE414;
 }
 
-
-/* Ckeditor Styling */
-
-body.adminimal-theme .cke_reset_all,body.adminimal-theme  .cke_reset_all * {
-  border-radius: 0;
-  font-family: "Open Sans", "Segoe UI", "Helvetica", sans-serif;
-  text-shadow: none;
-}
-
-body.adminimal-theme .ckeditor_links {
-  border-left: 1px solid #DDDDDD;
-  border-right: 1px solid #DDDDDD;
-  display: block;
-  padding: 10px;
-  width: auto;
-}
-
-body.adminimal-theme .ckeditor_links:hover {
-  background: #eee;
-  text-decoration: none;
-}
-
-body.adminimal-theme .cke_chrome {
-  box-shadow: none;
-}
-
-body.adminimal-theme .cke_top {
-  background: #eee;
-}
-
-body.adminimal-theme .cke_toolgroup {
-  background: #fff;
-  border: 1px solid #ccc;
-}
-
-
-body.adminimal-theme .cke_combo_button {
-  background: #fff;
-  border: 1px solid #ccc;
-}
-
-body.adminimal-theme .cke_combo_off a.cke_combo_button:hover {
-  background: #fff;
-  border: 1px solid #0074BD;
-}
-
-body.adminimal-theme .cke_button_on {
-  background: #fff;
-  box-shadow: 0px 3px 0px #0074BD;
-  -moz-border-radius: 0;
-  -webkit-border-radius: 0;
-  border-radius: 0;
-}
-
-body.adminimal-theme .cke_button_on:hover {
-  box-shadow: 0px 3px 0px #0074BD;
-}
-
-body.adminimal-theme .cke_bottom {
-  background: #eee;
-}
-
-body.adminimal-theme .cke_combo_off a.cke_combo_button:active,body.adminimal-theme  .cke_combo_on a.cke_combo_button {
-  border: 1px solid #0074BD;
-  border-bottom-width: 3px;
-  background: #fff;
-  box-shadow: none;
-}
-
-body.adminimal-theme a.cke_button_on:hover,
-body.adminimal-theme a.cke_button_on:focus,
-body.adminimal-theme a.cke_button_on:active,
-body.adminimal-theme .cke_button:first-child,
-body.adminimal-theme .cke_button:last-child {
-  -moz-border-radius: 0;
-  -webkit-border-radius: 0;
-  border-radius: 0;
-}
-
-body.adminimal-theme a.cke_button_off:hover,
-body.adminimal-theme a.cke_button_off:focus, a.cke_button_off:active,
-body.adminimal-theme a.cke_button_disabled:hover,
-body.adminimal-theme a.cke_button_disabled:focus,
-body.adminimal-theme a.cke_button_disabled:active {
-  background: #eee;
-  box-shadow: none;
-  border-color: #0074BD;
-  -moz-border-radius: 0;
-  -webkit-border-radius: 0;
-  border-radius: 0;
-}
-
-body.adminimal-theme .cke_reset_all label {
-  display: inline-block;
-  margin-top: 5px;
-  padding-bottom: 2px;
-  position: relative;
-}
-
-body.adminimal-theme .cke_dialog_body label.cke_required {
-  font-weight: normal;
-}
-
-body.adminimal-theme .cke_reset_all .cke_dialog_body {
-  font-family: "Open Sans", "Segoe UI", "Helvetica", sans-serif;
-  border: 1px solid #CCCCCC;
-}
-
-body.adminimal-theme .cke_reset_all fieldset {
-  border: 1px solid #DDDDDD;
-  border-top: 3px solid #0074BD;
-  padding: 10px;
-}
-
-body.adminimal-theme .cke_reset_all legend {
-  font-family: "Open Sans", "Segoe UI", "Helvetica", sans-serif;
-  font-size: 18px;
-  font-weight: 100;
-  padding: 0 0.5em;
-}
-
-body.adminimal-theme .cke_combopanel {
-  height: 170px;
-  width: 170px;
-  border: 1px solid #DDDDDD;
-  margin-top: 3px;
-}
-
-body.adminimal-theme .cke_dialog_footer {
-  background: #eee;
-}
-
-body.adminimal-theme a.cke_dialog_tab:hover {
-  text-decoration: none;
-  background: #fff;
-  color: #0074BD;
-}
-
-body.adminimal-theme select.cke_dialog_ui_input_select {
-  box-shadow: none;
-}
-
-body.adminimal-theme input.cke_dialog_ui_input_text,
-body.adminimal-theme input.cke_dialog_ui_input_password,
-body.adminimal-theme textarea.cke_dialog_ui_input_textarea {
-  box-shadow: none;
-  border-color: #CCCCCC;
-}
-
-body.adminimal-theme .cke_dialog_title {
-  background: #333333;
-  border-bottom: none;
-  border-radius: 0;
-  box-shadow: none;
-  color: #FFFFFF;
-  font-size: 18px;
-  text-shadow: none;
-}
-
-body.adminimal-theme .cke_dialog_ui_vbox_child label {
-  top: -2px;
-}
-
-body.adminimal-theme input.cke_dialog_ui_input_text:focus,
-body.adminimal-theme input.cke_dialog_ui_input_password:focus,
-body.adminimal-theme textarea.cke_dialog_ui_input_textarea:focus,
-body.adminimal-theme select.cke_dialog_ui_input_select:focus {
-  border-color: #0074BD;
-}
-
-body.adminimal-theme a.cke_dialog_ui_button:focus,
-body.adminimal-theme a.cke_dialog_ui_button:hover,
-body.adminimal-theme a.cke_dialog_ui_button:active {
-  border-color: #0074BD;
-  box-shadow: none;
-  text-decoration: none;
-  color: #fff;
-  background: #0074BD;
-}
-
-body.adminimal-theme a.cke_dialog_ui_button {
-  background: #eee;
-  padding: 4px 0;
-}
-
-body.adminimal-theme a.cke_dialog_ui_button:focus span,
-body.adminimal-theme a.cke_dialog_ui_button:hover span,
-body.adminimal-theme a.cke_dialog_ui_button:active span {
-  color: #fff;
-}
-
-body.adminimal-theme .cke_ltr .cke_dialog_close_button {
-  background: url("images/x-white.png") scroll no-repeat 50% 2px #B73939;
-  right: 10px;
-  top: 1px;
-  width: 45px;
-}
-
-body.adminimal-theme .cke_ltr .cke_dialog_close_button:hover {
-  background-color: #e55454;
-}
-
-body.adminimal-theme a.cke_dialog_ui_button_ok {
-  background: #4D8F46;
-  border-color: #4D8F46;
-  box-shadow: none;
-}
-
-body.adminimal-theme a.cke_dialog_ui_button_ok:hover {
-  background: #0A6700;
-  border-color: #0A6700;
-}
-
-body.adminimal-theme a.cke_path_item:hover, body.adminimal-theme a.cke_path_item:focus, body.adminimal-theme a.cke_path_item:active {
-  border-radius: 0;
-  -moz-border-radius: 0;
-  -webkit-border-radius: 0;
-  box-shadow: none;
-  text-decoration:none;
-  text-shadow: none;
-}
-
 .messages.theme-disabled {
   background: transparent;
   border: none;
@@ -3265,4 +3045,13 @@ body.adminimal-skin-alternative.adminimal-theme.page-admin-structure-features #e
 
 .page-admin-structure-features-create form div.buttons {
   text-align: left;
+}
+
+
+/**
+ * Hide dummy checkbox in Fast Permissions Administration (FPA) see #2653436.
+ * by @rcodina.
+ */
+.fpa-container .dummy-checkbox {
+  display: none !important;
 }
