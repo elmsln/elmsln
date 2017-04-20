@@ -3,9 +3,9 @@ description = Saves node edits in the background in case browser dies while edit
 core = 7.x
 configure = admin/config/content/autosave
 
-; Information added by Drupal.org packaging script on 2015-03-06
-version = "7.x-2.2+16-dev"
+; Information added by Drupal.org packaging script on 2016-01-19
+version = "7.x-2.2+17-dev"
 core = "7.x"
 project = "autosave"
-datestamp = "1425622985"
+datestamp = "1453235643"
 
