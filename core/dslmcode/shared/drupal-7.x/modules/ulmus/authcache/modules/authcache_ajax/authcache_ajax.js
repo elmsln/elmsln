@@ -3,8 +3,13 @@
 
   var cache = {};
   var pending = {};
+  var bustval = null;
 
   function authcacheGet(url, callback, type) {
+    if (bustval !== $.cookie('aucp13n')) {
+      cache = {};
+      bustval = $.cookie('aucp13n');
+    }
     if (cache.hasOwnProperty(url)) {
       callback(cache[url]);
     }
@@ -16,7 +21,7 @@
 
       $.ajax({
         url: url,
-        data: {v: $.cookie('aucp13n')},
+        data: {v: bustval},
         dataType: type,
         // Custom header to help prevent cross-site forgery requests.
         beforeSend: function(xhr) {
@@ -43,8 +48,7 @@
       if (settings.authcacheP13nAjaxFragments) {
         $.each(settings.authcacheP13nAjaxFragments, function(frag) {
           var params = this;
-          $.each(params, function(url) {
-            var param = this;
+          $.each(params, function(url, param) {
             var $targets = $('.authcache-ajax-frag', context).filter(function () {
               // Use attr() instead of data() in order to prevent jQuery from
               // converting numeric strings to integers.

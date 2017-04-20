@@ -617,11 +617,11 @@ class AuthcachePolicyTestCase extends AuthcacheWebTestCase {
 
     $this->resetTestVariables();
     $this->authcacheGet('authcache-test-form-value-cache', drupal_anonymous_user());
-    $this->assertAuthcacheCanceled(t('Value element contained in the cacheable form %form_id. Please enable a suitable Authcache integration module for that form or file a support request.', array('%form_id' => 'authcache_test_form_value')));
+    $this->assertAuthcacheCanceled(t('Value element %name contained in the cacheable form %form_id. Please enable a suitable Authcache integration module for that form or file a support request.', array('%name' => 'authcache_test_form_value', '%form_id' => 'authcache_test_form_value')));
 
     $this->resetTestVariables();
     $this->authcacheGet('authcache-test-form-value-cache', $this->plainUser);
-    $this->assertAuthcacheCanceled(t('Value element contained in the cacheable form %form_id. Please enable a suitable Authcache integration module for that form or file a support request.', array('%form_id' => 'authcache_test_form_value')));
+    $this->assertAuthcacheCanceled(t('Value element %name contained in the cacheable form %form_id. Please enable a suitable Authcache integration module for that form or file a support request.', array('%name' => 'authcache_test_form_value', '%form_id' => 'authcache_test_form_value')));
 
     // Pages with tabs.
     $this->setupConfig(array('authcache_roles' => drupal_map_assoc(array_keys(user_roles()))));
@@ -2086,7 +2086,7 @@ class AuthcacheCookiesTestCase extends AuthcacheWebTestCase {
    */
   public function testCookieOnSubsequentRequests() {
     // With lifetime.
-    $cookie_name = $this->randomName(8);
+    $cookie_name = 'Drupal.authcache_test.' . $this->randomName(8);
     $cookie_value = $this->randomName(16);
     url('', array('prefix' => &$prefix));
     $cookie_path = (empty($prefix) ? '' : $prefix) . '/';

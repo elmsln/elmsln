@@ -284,17 +284,19 @@ class HookStub {
    *   A list of expected arguments
    * @param int $invoc
    *   The invocation (starting from 0 for the first).
+   * @param bool $strict
+   *   Whether or not to use identity instead of equality operator.
    */
-  public static function args($args, $invoc = 0) {
+  public static function args($args, $invoc = 0, $strict = TRUE) {
     // Necessary until #1272900 lands
     // @ignore style_function_spacing
-    return function($invocations, &$message) use ($args, $invoc) {
+    return function($invocations, &$message) use ($args, $invoc, $strict) {
       $message = t('On invocation number @invoc, expected @this and got @that.', array(
         '@invoc' => $invoc,
         '@this' => var_export($args, TRUE),
         '@that' => var_export($invocations[$invoc], TRUE),
       ));
-      return $invocations[$invoc] === $args;
+      return $strict ? $invocations[$invoc] === $args : $invocations[$invoc] == $args;
     };
   }
 }

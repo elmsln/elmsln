@@ -11,7 +11,6 @@ node/add/*
 node/*/edit
 node/*/track
 tracker*
-comment/edit*
 civicrm*
 cart*
 checkout*
@@ -320,14 +319,25 @@ function authcache_form_system_performance_settings_alter(&$form, &$form_state) 
 /**
  * Recursively find elements of type value and flag them as suspicous.
  */
-function authcache_form_value_suspect(&$element, $form_id) {
+function authcache_form_value_suspect(&$element, $form_id, $parents = array()) {
   if (isset($element['#type']) && $element['#type'] === 'value') {
+    $name = '';
+    $num_parents = count($parents);
+    if (isset($element['#name'])) {
+      $name = $element['#name'];
+    }
+    elseif ($num_parents > 0) {
+      $name = $parents[0];
+      if ($num_parents > 1) {
+        $name .= '[' . implode('][', array_slice($parents, 1)) . ']';
+      }
+    }
     authcache_element_suspect($element,
-      t('Value element contained in the cacheable form %form_id. Please enable a suitable Authcache integration module for that form or file a support request.', array('%form_id' => $form_id)));
+      t('Value element %name contained in the cacheable form %form_id. Please enable a suitable Authcache integration module for that form or file a support request.', array('%name' => $name, '%form_id' => $form_id)));
   }
 
   foreach (element_children($element, FALSE) as $key) {
-    authcache_form_value_suspect($element[$key], $form_id);
+    authcache_form_value_suspect($element[$key], $form_id, array_merge($parents, array($key)));
   }
 }
 
@@ -703,16 +713,18 @@ function authcache_fix_cookies($account = NULL) {
 
   foreach ($cookies as $name => $params) {
     $params += $default_params;
+    // PHP converts dots to underscores
+    $cookiename = str_replace('.', '_', $name);
 
     if ($params['present']) {
       // Fix cookie if it is not present in the users browser or the value does
       // not match our expectations.
-      if (!isset($_COOKIE[$name]) || $_COOKIE[$name] != $params['value']) {
+      if (!isset($_COOKIE[$cookiename]) || $_COOKIE[$cookiename] != $params['value']) {
         $expires = $params['lifetime'] ? REQUEST_TIME + $params['lifetime'] : 0;
         setcookie($name, $params['value'], $expires, $params['path'], $params['domain'], $params['secure'], $params['httponly']);
       }
     }
-    elseif (!$params['present'] && isset($_COOKIE[$name])) {
+    elseif (!$params['present'] && isset($_COOKIE[$cookiename])) {
       // Remove spare cookie.
       setcookie($name, "", REQUEST_TIME - 86400, $params['path'], $params['domain'], $params['secure'], $params['httponly']);
     }

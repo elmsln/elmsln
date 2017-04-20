@@ -38,11 +38,11 @@ function authcache_debug_menu() {
  * Implements hook_user_login().
  */
 function authcache_debug_user_login(&$edit, $account) {
-  $cookies['cache_render']['present'] = FALSE;
-  $cookies['aucdbg']['present'] = authcache_debug_access();
-  if ($cookies['aucdbg']['present']) {
-    $cookies['aucdbg']['value'] = isset($_COOKIE['aucdbg']) ? $_COOKIE['aucdbg'] : hexdec(mt_rand(0, 0xFFFF));
-    $cookies['aucdbg']['secure'] = FALSE;
+  $cookies['Drupal.authcache.cache_render']['present'] = FALSE;
+  $cookies['Drupal.authcache.aucdbg']['present'] = authcache_debug_access();
+  if ($cookies['Drupal.authcache.aucdbg']['present']) {
+    $cookies['Drupal.authcache.aucdbg']['value'] = isset($_COOKIE['Drupal_authcache_aucdbg']) ? $_COOKIE['Drupal_authcache_aucdbg'] : hexdec(mt_rand(0, 0xFFFF));
+    $cookies['Drupal.authcache.aucdbg']['secure'] = FALSE;
   }
   authcache_add_cookie($cookies);
 }
@@ -51,11 +51,11 @@ function authcache_debug_user_login(&$edit, $account) {
  * Implements hook_user_logout().
  */
 function authcache_debug_user_logout($account) {
-  $cookies['cache_render']['present'] = FALSE;
-  $cookies['aucdbg']['present'] = variable_get('authcache_debug_all', FALSE);
-  if ($cookies['aucdbg']['present']) {
-    $cookies['aucdbg']['value'] = isset($_COOKIE['aucdbg']) ? $_COOKIE['aucdbg'] : hexdec(mt_rand(0, 0xFFFF));
-    $cookies['aucdbg']['secure'] = FALSE;
+  $cookies['Drupal.authcache.cache_render']['present'] = FALSE;
+  $cookies['Drupal.authcache.aucdbg']['present'] = variable_get('authcache_debug_all', FALSE);
+  if ($cookies['Drupal.authcache.aucdbg']['present']) {
+    $cookies['Drupal.authcache.aucdbg']['value'] = isset($_COOKIE['Drupal_authcache_aucdbg']) ? $_COOKIE['Drupal_authcache_aucdbg'] : hexdec(mt_rand(0, 0xFFFF));
+    $cookies['Drupal.authcache.aucdbg']['secure'] = FALSE;
   }
   authcache_add_cookie($cookies);
 }
@@ -144,7 +144,7 @@ function authcache_debug_authcache_debug_info() {
   $info = array(
     'cacheTime' => REQUEST_TIME,
     'cacheStatus' => _authcache_debug_status(),
-    'cacheReqId' => empty($_COOKIE['aucdbg']) ? '' : $_COOKIE['aucdbg'],
+    'cacheReqId' => empty($_COOKIE['Drupal_authcache_aucdbg']) ? '' : $_COOKIE['Drupal_authcache_aucdbg'],
     'pageRender' => timer_read('page'),
     'Debug Users' => variable_get('authcache_debug_users', array()),
     'Cache User' => $user->uid,
@@ -344,7 +344,7 @@ function authcache_debug_info_ajax_get($data) {
     }
   }
   if (empty($data['cacheStatus'])) {
-    $req_id = empty($_COOKIE['aucdbg']) ? '' : $_COOKIE['aucdbg'];
+    $req_id = empty($_COOKIE['Drupal_authcache_aucdbg']) ? '' : $_COOKIE['Drupal_authcache_aucdbg'];
     $cache_req_id = $data['cacheReqId'];
     $data['cacheStatus'] = ($req_id === $cache_req_id) ? 'MISS' : 'HIT';
   }

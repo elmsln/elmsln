@@ -1,5 +1,5 @@
 name = Authcache Personalization API
-description = Render personalized fragments independantly of the normal page build process
+description = Render personalized fragments independently of the normal page build process
 package = Performance and scalability
 core = 7.x
 dependencies[] = authcache
@@ -54,9 +54,9 @@ files[] = tests/authcache_p13n.request-handler.test
 files[] = tests/authcache_p13n.session.test
 files[] = tests/authcache_p13n.stub.inc
 
-; Information added by Drupal.org packaging script on 2015-07-29
-version = "7.x-2.0-beta7"
+; Information added by Drupal.org packaging script on 2016-10-12
+version = "7.x-2.0"
 core = "7.x"
 project = "authcache"
-datestamp = "1438156442"
+datestamp = "1476257642"
 

@@ -604,30 +604,32 @@ class AuthcacheP13nTestFragmentAssemblyBuilder extends DrupalUnitTestCase {
         'renderer' => new AuthcacheP13nTestEchoPartial(),
         'access' => new AuthcacheP13nTestEchoFragmentAccess(),
       ),
+      'inaccessible_param' => array(
+        'renderer' => new AuthcacheP13nTestEchoPartial(),
+        'access' => new AuthcacheP13nTestEchoFragmentAccess(),
+      ),
     );
     $builder = new AuthcacheP13nFragmentAssemblyBuilder($partials);
 
+    $expected = array(
+      'param_1' => array(
+        'account' => array('key' => 'account', 'subject' => $fake_user),
+      ),
+    );
+
     $user = $fake_user;
-    $input = array('a' => array('param_1' => array('account' => $fake_user)));
-    try {
-      $builder->build($input, array());
-      $this->pass('AuthcacheP13nFragmentAssemblyBuilder should not throw an AuthcacheP13nRequestAccessDenied when access check succeeds');
-    }
-    catch (AuthcacheP13nRequestAccessDenied $e) {
-      unset($e);
-      $this->fail('AuthcacheP13nFragmentAssemblyBuilder should not throw an AuthcacheP13nRequestAccessDenied when access check succeeds');
-    }
+    $input = array('a' => array(
+      'param_1' => array('account' => $fake_user),
+      'inaccessible_param' => array('account' => NULL)
+    ));
+    $result = $builder->build($input, array());
+    $this->assertEqual($result, $expected);
     $user = $orig_user;
 
     $user = $fake_user;
     $input = array('a' => array('param_1' => array('account' => FALSE)));
-    try {
-      $builder->build($input, array());
-      $this->fail('AuthcacheP13nFragmentAssemblyBuilder should throw an AuthcacheP13nRequestAccessDenied when access check fails');
-    }
-    catch (AuthcacheP13nRequestAccessDenied $e) {
-      $this->pass('AuthcacheP13nFragmentAssemblyBuilder should throw an AuthcacheP13nRequestAccessDenied when access check fails');
-    }
+    $result = $builder->build($input, array());
+    $this->assertFalse($result);
     $user = $orig_user;
   }
 
@@ -650,14 +652,8 @@ class AuthcacheP13nTestFragmentAssemblyBuilder extends DrupalUnitTestCase {
     $this->assertEqual($expect, $output);
 
     $input = array('a' => array('param_1' => array('load missing' => 'load missing')));
-    try {
-      $builder->build($input, array());
-      $this->fail('AuthcacheP13nFragmentAssemblyBuilder should throw an AuthcacheP13nRequestNotFound when loading fails');
-    }
-    catch (AuthcacheP13nRequestNotFound $e) {
-      unset($e);
-      $this->pass('AuthcacheP13nFragmentAssemblyBuilder should throw an AuthcacheP13nRequestNotFound when loading fails');
-    }
+    $result = $builder->build($input, array());
+    $this->assertFalse($result);
   }
 }
 

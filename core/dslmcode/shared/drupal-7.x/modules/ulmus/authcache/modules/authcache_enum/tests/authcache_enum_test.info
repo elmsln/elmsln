@@ -1,5 +1,5 @@
-name = Authcache ESI Test Stub
-description = Authcache ESI Test Stub
+name = Authcache Enum Test Stub
+description = Authcache Enum Test Stub
 core = 7.x
 hidden = TRUE
 dependencies[] = authcache_test_hookstub

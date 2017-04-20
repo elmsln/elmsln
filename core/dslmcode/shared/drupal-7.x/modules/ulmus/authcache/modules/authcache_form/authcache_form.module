@@ -45,8 +45,15 @@ function authcache_form_authcache_p13n_fragment() {
 function authcache_form_cacheobject_load($objects, $cids, $bin) {
   if ($bin === 'cache_form') {
     foreach ($objects as $object) {
-      // Check the authcache key and restore the per-user cache_token.
-      if (isset($object->data['#cache_token_authcache_key'])) {
+      // Restore the token if this entry has been cloned from an immutable form
+      // cache entry (see authcache_form_form_alter).
+      if (!empty($object->data['#authcache_immutable'])) {
+        unset($object->data['#authcache_immutable']);
+        $object->data['#cache_token'] = drupal_get_token();
+      }
+      elseif (isset($object->data['#cache_token_authcache_key'])) {
+        // Compatibility layer for cache entries created with previous authcache
+        // versions.
         if ($object->data['#cache_token_authcache_key'] === authcache_key()) {
           $object->data['#cache_token'] = drupal_get_token();
         }
@@ -59,20 +66,7 @@ function authcache_form_cacheobject_load($objects, $cids, $bin) {
  * Implements hook_cacheobject_presave().
  */
 function authcache_form_cacheobject_presave($object, $cid, $bin) {
-  if ($bin === 'cache_form' && authcache_page_is_cacheable()) {
-    // Remove the per-user #cache_token and replace it with the authcache key.
-    // When the form is subsequently retrieved from the cache, the recorded key
-    // is compared to the one of the logged in user. If they match the cache
-    // token is restored, such that the token validation code in form_get_cache
-    // passes.
-    if (!empty($object->data['#cache_token'])) {
-      $object->data['#cache_token_authcache_key'] = authcache_key();
-      unset($object->data['#cache_token']);
-    }
-    else {
-      unset($object->data['#cache_token_authcache_key']);
-    }
-
+  if ($bin === 'cache_form' && !empty($object->data['#authcache_immutable'])) {
     // Extend the expiry period for cached forms.
     $object->expire = REQUEST_TIME + authcache_form_cache_lifespan();
   }
@@ -82,6 +76,37 @@ function authcache_form_cacheobject_presave($object, $cid, $bin) {
  * Implements hook_form_alter().
  */
 function authcache_form_form_alter(&$form, &$form_state, $form_id) {
+  $page_is_cacheable = authcache_page_is_cacheable();
+
+  if ($page_is_cacheable) {
+    // When a form is rendered on a cached page, set the 'immutable' flag in the
+    // form state. Drupal makes sure that the form build_id is regenerated and
+    // the 'immutable' flag cleared when a form and its associated form state
+    // are subsequently loaded and reused by (different) anonymous users. As a
+    // result, forms and their assaciated form state having that flag set are
+    // never modified. Instead a mutable copy is used whenever users begin to
+    // interact with a form on a cached page. This mechanism has been introduced
+    // in Drupal 7.27 in order to prevent form state leaking between users
+    // interacting with the same form at the same time on a cached page.
+    //
+    // For authenticated users, there is an additional measure in place. A
+    // per-user token is stored along with the form structure in the form cache.
+    // When the form is loaded from the cache, this token is validated in order
+    // to prevent reuse of the form structure by multiple users. Regrettably
+    // this validation is also enforced for forms with the 'immutable' flag set
+    // even though this wouldn't be necessary at all.
+    //
+    // Therefore we also mark the form structure (not only the form state) with
+    // an authcache-specific immutable flag such that we can regenarete the
+    // #cache_token cacheobject_load hook in order to sidestep the token
+    // validation for immutable forms.
+    //
+    // @see
+    // https://www.drupal.org/SA-CORE-2014-002
+    $form_state['build_info']['immutable'] = TRUE;
+    $form['#authcache_immutable'] = TRUE;
+  }
+
   if (_authcache_form_allow_notoken($form_id)) {
     // Removal of form token is allowed on this form. When removing form tokens
     // we need to do that on both cacheable as well as uncacheable versions of
@@ -90,13 +115,8 @@ function authcache_form_form_alter(&$form, &$form_state, $form_id) {
     unset($form['#token']);
     unset($form['form_token']);
   }
-  elseif (authcache_page_is_cacheable()) {
-    // Set the immutable flag on the form.
-    $form_state['build_info']['immutable'] = TRUE;
-
-    if (_authcache_form_allow_p13n($form_id)) {
-      $form['#after_build'][] = '_authcache_form_after_build';
-    }
+  elseif ($page_is_cacheable && _authcache_form_allow_p13n($form_id)) {
+    $form['#after_build'][] = '_authcache_form_after_build';
   }
 
   // Use the base_form_id as the CSRF token value. This helps with reducing

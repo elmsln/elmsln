@@ -491,7 +491,7 @@ class AuthcacheFlagTest extends DrupalWebTestCase {
     $this->assertTrue($url);
 
     $result = $this->drupalGetAJAX($GLOBALS['base_root'] . $url['path'], $url['options'], array('X-Authcache: 1'));
-    $this->assertResponse(403);
+    $this->assertResponse(200);
     $this->assertFalse($result);
   }
 }

@@ -147,8 +147,8 @@ function authcache_builtin_cacheinc_retrieve_cache_page() {
   }
   else {
     // Render cache benchmark.
-    if (isset($_COOKIE['cache_render'])) {
-      setcookie('cache_render', timer_read('page'), 0, ini_get('session.cookie_path'), ini_get('session.cookie_domain'), ini_get('session.cookie_secure') == '1');
+    if (isset($_COOKIE['Drupal_authcache_cache_render'])) {
+      setcookie('Drupal.authcache.cache_render', timer_read('page'), 0, ini_get('session.cookie_path'), ini_get('session.cookie_domain'), ini_get('session.cookie_secure') == '1');
     }
 
     header('X-Drupal-Cache: HIT');
