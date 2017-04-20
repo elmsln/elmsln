@@ -1343,6 +1343,74 @@ class EntityMetadataNodeRevisionAccessTestCase extends DrupalWebTestCase {
 }
 
 /**
+ * Tests basic entity_access() functionality for taxonomy terms.
+ */
+class EntityMetadataTaxonomyAccessTestCase extends EntityWebTestCase {
+  public static function getInfo() {
+    return array(
+      'name' => 'Entity Metadata Taxonomy Access',
+      'description' => 'Test entity_access() for taxonomy terms',
+      'group' => 'Entity API',
+    );
+  }
+
+  /**
+   * Asserts entity_access() correctly grants or denies access.
+   */
+  function assertTaxonomyMetadataAccess($ops, $term, $account) {
+    foreach ($ops as $op => $result) {
+      $msg = t("entity_access() returns @result with operation '@op'.", array('@result' => $result ? 'TRUE' : 'FALSE', '@op' => $op));
+      $access = entity_access($op, 'taxonomy_term', $term, $account);
+      $this->assertEqual($result, $access, $msg);
+    }
+  }
+
+  /**
+   * @inheritdoc
+   */
+  function setUp() {
+    parent::setUp('entity', 'taxonomy');
+    // Clear permissions for authenticated users.
+    db_delete('role_permission')
+      ->condition('rid', DRUPAL_AUTHENTICATED_RID)
+      ->execute();
+  }
+
+  /**
+   * Runs basic tests for entity_access() function.
+   */
+  function testTaxonomyMetadataAccess() {
+    $vocab = $this->createVocabulary();
+    $term = entity_property_values_create_entity('taxonomy_term', array(
+      'name' => $this->randomName(),
+      'vocabulary' => $vocab,
+    ))->save()->value();
+    // Clear permissions static cache to get new taxonomy permissions.
+    drupal_static_reset('checkPermissions');
+
+    // Check assignment of view permissions.
+    $user1 = $this->drupalCreateUser(array('access content'));
+    $this->assertTaxonomyMetadataAccess(array('create' => FALSE, 'view' => TRUE, 'update' => FALSE, 'delete' => FALSE), $term, $user1);
+
+    // Check assignment of edit permissions.
+    $user2 = $this->drupalCreateUser(array('edit terms in ' . $vocab->vid));
+    $this->assertTaxonomyMetadataAccess(array('create' => FALSE, 'view' => FALSE, 'update' => TRUE, 'delete' => FALSE), $term, $user2);
+
+    // Check assignment of delete permissions.
+    $user3 = $this->drupalCreateUser(array('delete terms in ' . $vocab->vid));
+    $this->assertTaxonomyMetadataAccess(array('create' => FALSE, 'view' => FALSE, 'update' => FALSE, 'delete' => TRUE), $term, $user3);
+
+    // Check assignment of view, edit, delete permissions.
+    $user4 = $this->drupalCreateUser(array('access content', 'edit terms in ' . $vocab->vid, 'delete terms in ' . $vocab->vid));
+    $this->assertTaxonomyMetadataAccess(array('create' => FALSE, 'view' => TRUE, 'update' => TRUE, 'delete' => TRUE), $term, $user4);
+
+    // Check assignment of administration permissions.
+    $user5 = $this->drupalCreateUser(array('administer taxonomy'));
+    $this->assertTaxonomyMetadataAccess(array('create' => TRUE, 'view' => TRUE, 'update' => TRUE, 'delete' => TRUE), $term, $user5);
+  }
+}
+
+/**
  * Tests provided entity property info of the core modules.
  */
 class EntityTokenTestCase extends EntityWebTestCase {
@@ -1466,6 +1534,7 @@ class EntityMetadataIntegrationTestCase extends EntityWebTestCase {
     $book = array('bid' => $node->nid, 'plid' => $node->book['mlid']);
     $node2 = $this->drupalCreateNode(array('type' => 'book', 'book' => $book));
     $node3 = $this->drupalCreateNode(array('type' => 'page'));
+    $node4 = $this->drupalCreateNode(array('type' => 'book', 'book' => array('bid' => 0, 'plid' => -1)));
 
     // Test whether the properties work.
     $wrapper = entity_metadata_wrapper('node', $node2);
@@ -1476,6 +1545,10 @@ class EntityMetadataIntegrationTestCase extends EntityWebTestCase {
     // Try using book properties for no book nodes.
     $wrapper = entity_metadata_wrapper('node', $node3);
     $this->assertEmpty($wrapper, 'book');
+    $this->assertEmptyArray($wrapper, 'book_ancestors');
+
+    // Test a book node which is not contained in a hierarchy.
+    $wrapper = entity_metadata_wrapper('node', $node4);
     $this->assertEmptyArray($wrapper, 'book_ancestors');
   }
 

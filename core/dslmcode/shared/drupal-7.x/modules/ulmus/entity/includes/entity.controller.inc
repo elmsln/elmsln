@@ -107,7 +107,7 @@ interface EntityAPIControllerInterface extends DrupalEntityControllerInterface {
    *   content language of the current request.
    * @param $page
    *   (optional) If set will control if the entity is rendered: if TRUE
-   *   the entity will be rendered without its title, so that it can be embeded
+   *   the entity will be rendered without its title, so that it can be embedded
    *   in another context. If FALSE the entity will be displayed with its title
    *   in a mode suitable for lists.
    *   If unset, the page mode will be enabled if the current path is the URI
