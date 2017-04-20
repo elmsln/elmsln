@@ -201,7 +201,7 @@ class backup_migrate_destination_files extends backup_migrate_destination {
   function check_dir($directory) {
     if (!file_prepare_directory($directory, FILE_CREATE_DIRECTORY)) {
       // Unable to create destination directory.
-      _backup_migrate_message("Unable to create or write to the save directory '%directory'. Please check the file permissions that directory and try again.", array('%directory' => $directory), "error");
+      _backup_migrate_message("Unable to create or write to the save directory '%directory'. Please check the file permissions of that directory and try again.", array('%directory' => $directory), "error");
       return FALSE;
     }
 

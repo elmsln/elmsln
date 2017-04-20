@@ -17,7 +17,7 @@
                       return val == inval;
                     }
                     else if (dependency.attr('type') == 'checkbox') {
-                      return dependency.attr('checked') && inval == dependency.val();
+                      return dependency.is(':checked') && inval == dependency.val();
                     }
                     else {
                       return dependency.val() == inval;
