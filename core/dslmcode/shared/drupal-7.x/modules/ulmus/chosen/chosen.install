@@ -47,9 +47,11 @@ function chosen_uninstall() {
   variable_del('chosen_placeholder_text_multiple');
   variable_del('chosen_placeholder_text_single');
   variable_del('chosen_no_results_text');
-  variable_del('chosen_use_theme');
+  variable_del('chosen_disabled_themes');
   variable_del('chosen_disable_search');
   variable_del('chosen_disable_search_threshold');
+  variable_del('chosen_allow_single_deselect');
+  variable_del('chosen_include');
 }
 
 /**
@@ -96,4 +98,30 @@ function chosen_update_7203() {
       field_update_instance($instance);
     }
   }
+}
+
+/**
+ * Set the 'Disable the default Chosen theme' Chosen setting to the opposite of the current general 'Use the default chosen theme' Chosen setting for all enabled themes
+ */
+function chosen_update_7204() {
+  module_load_include('inc', 'chosen', 'chosen.admin');
+
+  $chosen_use_theme_setting = variable_get('chosen_use_theme', TRUE);
+
+  // We now chose to disable the default Chosen CSS instead of deselecting the 'Use the default chosen theme' option box
+  if (!$chosen_use_theme_setting) {
+    $themes = system_list('theme');
+
+    foreach ($themes as $theme) {
+      // Only create options for enabled themes
+      if ($theme->status) {
+        $options[$theme->name] = $theme->info['name'];
+      }
+    }
+
+    variable_set('chosen_disabled_themes', array_keys($options));
+  }
+
+  // Delete the old variable
+  variable_del('chosen_use_theme');
 }
