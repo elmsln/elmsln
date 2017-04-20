@@ -21,7 +21,7 @@ function clipboardjs_drush_command() {
 
 /**
  * Drush command callback.
- * @see media_recorder_drush_command()
+ * @see clipboardjs_drush_command()
  */
 function drush_clipboardjs_download_libraries() {
   if (!module_exists('libraries')) {
