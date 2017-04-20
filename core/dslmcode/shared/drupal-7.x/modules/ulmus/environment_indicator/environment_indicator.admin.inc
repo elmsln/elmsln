@@ -33,6 +33,12 @@ function environment_indicator_settings() {
     '#description' => t('If this is checked, the GIT branch name will be displayed along with the environment indicator name.'),
     '#default_value' => variable_get('environment_indicator_git_support', TRUE),
   );
+  $form['environment_indicator_favicon_overlay'] = array(
+    '#type' => 'checkbox',
+    '#title' => t("Change the site's favicon for users who can see the environment indicator"),
+    '#description' => t('Puts a colored overlay in the bottom-right corner of the favicon, with the first letter of the environment name.'),
+    '#default_value' => variable_get('environment_indicator_favicon_overlay', TRUE),
+  );
   $form['#submit'][] = 'environment_indicator_settings_submit';
   return system_settings_form($form);
 }
