@@ -11,9 +11,9 @@ files[] = menu_position.node_type.inc
 
 configure = admin/structure/menu-position
 
-; Information added by drupal.org packaging script on 2012-02-22
-version = "7.x-1.1"
+; Information added by Drupal.org packaging script on 2015-11-29
+version = "7.x-1.2"
 core = "7.x"
 project = "menu_position"
-datestamp = "1329911144"
+datestamp = "1448814840"
 
