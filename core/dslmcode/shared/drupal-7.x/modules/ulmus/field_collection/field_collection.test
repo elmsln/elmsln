@@ -19,7 +19,7 @@ class FieldCollectionBasicTestCase extends DrupalWebTestCase {
   }
 
   function setUp() {
-    parent::setUp('field_collection');
+    parent::setUp('field_collection', 'entity_crud_hook_test');
 
     // Create a field_collection field to use for the tests.
     $this->field_name = 'field_test_collection';
@@ -42,6 +42,65 @@ class FieldCollectionBasicTestCase extends DrupalWebTestCase {
       ),
     );
     $this->instance = field_create_instance($this->instance);
+  }
+
+  /**
+   * Pass if the message $text was set by one of the CRUD hooks in
+   * entity_crud_hook_test.module, i.e., if the $text is an element of
+   * $_SESSION['entity_crud_hook_test'].
+   *
+   * @see EntityCrudHookTestCase::assertHookMessage()
+   * @see FieldCollectionBasicTestCase::assertNoHookMessage()
+   * @see FieldCollectionBasicTestCase::clearHookMessages()
+   *
+   * @param $text
+   *   Plain text to look for.
+   * @param $message
+   *   Message to display.
+   * @param $group
+   *   The group this message belongs to, defaults to 'Other'.
+   * @return
+   *   TRUE on pass, FALSE on fail.
+   */
+  protected function assertHookMessage($text, $message = NULL, $group = 'Other') {
+    if (!isset($message)) {
+      $message = $text;
+    }
+    return $this->assertTrue(array_search($text, $_SESSION['entity_crud_hook_test']) !== FALSE, $message, $group);
+  }
+
+  /**
+   * Fail if the message $text was set by one of the CRUD hooks in
+   * entity_crud_hook_test.module, i.e., if the $text is an element of
+   * $_SESSION['entity_crud_hook_test'].
+   *
+   * @see FieldCollectionBasicTestCase::assertHookMessage()
+   * @see FieldCollectionBasicTestCase::clearHookMessages()
+   *
+   * @param $text
+   *   Plain text to look for.
+   * @param $message
+   *   Message to display.
+   * @param $group
+   *   The group this message belongs to, defaults to 'Other'.
+   * @return
+   *   TRUE on pass, FALSE on fail.
+   */
+  protected function assertNoHookMessage($text, $message = NULL, $group = 'Other') {
+    if (!isset($message)) {
+      $message = $text;
+    }
+    return $this->assertFalse(array_search($text, $_SESSION['entity_crud_hook_test']) !== FALSE, $message, $group);
+  }
+
+  /**
+   * Clear hook messages recorded by entity_crud_hook_test.
+   *
+   * @see FieldCollectionBasicTestCase::assertHookMessage()
+   * @see FieldCollectionBasicTestCase::assertNoHookMessage()
+   */
+  protected function clearHookMessages() {
+    $_SESSION['entity_crud_hook_test'] = array();
   }
 
   /**
@@ -79,12 +138,16 @@ class FieldCollectionBasicTestCase extends DrupalWebTestCase {
     $this->assertEqual($entity2->revision_id, $node->{$this->field_name}[LANGUAGE_NONE][1]['revision_id'], 'New field_collection has been properly referenced (revision)');
 
     // Make sure deleting the field_collection removes the reference.
+    $this->clearHookMessages();
     $entity2->delete();
+    $this->assertHookMessage('entity_crud_hook_test_entity_presave called for type node');
     $node = node_load($node->nid, NULL, TRUE);
     $this->assertTrue(!isset($node->{$this->field_name}[LANGUAGE_NONE][1]), 'Reference correctly deleted.');
 
     // Make sure field_collections are removed during deletion of the host.
+    $this->clearHookMessages();
     node_delete($node->nid);
+    $this->assertNoHookMessage('entity_crud_hook_test_entity_presave called for type node');
     $this->assertTrue(entity_load('field_collection_item', FALSE) === array(), 'Field collections are deleted when the host is deleted.');
 
     // Try deleting nodes with collections without any values.
@@ -113,12 +176,19 @@ class FieldCollectionBasicTestCase extends DrupalWebTestCase {
 
     // Test Revisions.
     list ($node, $item) = $this->createNodeWithFieldCollection();
+    $entity2 = entity_create('field_collection_item', array('field_name' => $this->field_name));
+    $node->{$this->field_name}[LANGUAGE_NONE][] = array('entity' => $entity2);
+    node_save($node);
+    $this->assertEqual($entity2->archived, FALSE, 'New field collection item with new content revision is not archived.');
 
     // Test saving a new revision of a node.
     $node->revision = TRUE;
     node_save($node);
     $item_updated = field_collection_item_load($node->{$this->field_name}[LANGUAGE_NONE][0]['value']);
     $this->assertNotEqual($item->revision_id, $item_updated->revision_id, 'Creating a new host entity revision creates a new field collection revision.');
+
+    // Test saving a new revision with a new field collection item.
+    $node->revision = TRUE;
 
     // Test saving the node without creating a new revision.
     $item = $item_updated;
@@ -210,6 +280,20 @@ class FieldCollectionBasicTestCase extends DrupalWebTestCase {
     $item = field_collection_item_load($item->item_id);
     $this->assertTrue($item, 'Removed field collection item still exists.');
     $this->assertTrue($item->archived, 'Removed field collection item is archived.');
+
+    // Test removing an old node revision. Make sure that the field collection
+    // is not removed
+    list ($node, $item) = $this->createNodeWithFieldCollection();
+    $node_vid = $node->vid;
+    $node->revision = TRUE;
+    node_save($node);
+    $node_vid2 = $node->vid;
+    $item_vid2 = $node->{$this->field_name}[LANGUAGE_NONE][0]['revision_id'];
+    node_revision_delete($node_vid);
+    $item2 = field_collection_item_revision_load($item_vid2);
+    $item_id2 = isset($item2->item_id) ? $item2->item_id : -1;
+    $this->assertEqual($item_id2, $item->item_id, 'Removing an old node revision does not delete newer field collection revisions');
+
   }
 
   /**
@@ -299,6 +383,42 @@ class FieldCollectionBasicTestCase extends DrupalWebTestCase {
 
     $this->drupalGet("node/$node->nid/revisions");
   }
+
+  /**
+   * Make sure that field_collection-entities are copied when host-entities do.
+   */
+  public function testCopyingEntities() {
+    list($node, $entity) = $this->createNodeWithFieldCollection();
+
+    // Create a copy of that node.
+    $node->nid = NULL;
+    $node->vid = NULL;
+    $node->is_new = TRUE;
+
+    node_save($node);
+    $item = $node->{$this->field_name}[LANGUAGE_NONE][0];
+    $this->assertNotEqual($entity->item_id, $item['value']);
+
+    // Do a php clone to the $node object and save it.
+    $node2 = clone $node;
+    $node2->nid = NULL;
+    $node2->is_new = TRUE;
+    $node2->vid = NULL;
+    node_save($node2);
+
+    $item2 = $node2->{$this->field_name}[LANGUAGE_NONE][0];
+    $this->assertNotEqual($item2['value'], $item['value']);
+
+    // Create another copy this time (needlessly) forcing a new revision.
+    $node->nid = NULL;
+    $node->vid = NULL;
+    $node->is_new = TRUE;
+    $node->revision = TRUE;
+    node_save($node);
+    $item3 = $node->{$this->field_name}[LANGUAGE_NONE][0];
+    $this->assertNotEqual($item['value'], $item3['value']);
+  }
+
 }
 
 
@@ -419,4 +539,733 @@ class FieldCollectionRulesIntegrationTestCase extends DrupalWebTestCase {
     $this->assertTrue(!empty($entity->item_id) && !empty($entity->revision_id), 'Field collection item has been saved by Rules and the host entity.');
     RulesLog::logger()->checkLog();
   }
+}
+
+/**
+ * Test using field collection with content that gets translated.
+ */
+class FieldCollectionContentTranslationTestCase extends DrupalWebTestCase {
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Field collection content translation',
+      'description' => 'Tests using content under translation.',
+      'group' => 'Field types',
+      'dependencies' => array('translation'),
+    );
+  }
+
+  public function setUp() {
+    parent::setUp(array('field_collection', 'translation'));
+    // Create a field_collection field to use for the tests.
+    $this->field_name = 'field_test_collection';
+    $this->field = array('field_name' => $this->field_name, 'type' => 'field_collection', 'cardinality' => 4);
+    $this->field = field_create_field($this->field);
+    $this->field_id = $this->field['id'];
+
+    $this->instance = array(
+      'field_name' => $this->field_name,
+      'entity_type' => 'node',
+      'bundle' => 'article',
+      'label' => $this->randomName() . '_label',
+      'description' => $this->randomName() . '_description',
+      'weight' => mt_rand(0, 127),
+      'settings' => array(),
+      'widget' => array(
+        'type' => 'field_collection_embed',
+        'label' => 'Test',
+        'settings' => array(),
+      ),
+    );
+    $this->instance = field_create_instance($this->instance);
+
+    // Add a field to the collection.
+    $field = array(
+      'field_name' => 'field_text',
+      'type' => 'text',
+      'cardinality' => 1,
+      'translatable' => FALSE,
+    );
+    field_create_field($field);
+    $instance = array(
+      'entity_type' => 'field_collection_item',
+      'field_name' => 'field_text',
+      'bundle' => $this->field_name,
+      'label' => 'Test text field',
+      'widget' => array(
+        'type' => 'text_textfield',
+      ),
+    );
+    field_create_instance($instance);
+
+    $admin_user = $this->drupalCreateUser(array('administer languages', 'administer content types', 'access administration pages', 'create article content', 'edit any article content', 'translate content'));
+
+    $this->drupalLogin($admin_user);
+    // Add German language.
+    locale_add_language('de');
+
+    // Set "Article" content type to use multilingual support.
+    variable_set('language_content_type_article', TRANSLATION_ENABLED);
+  }
+
+  /**
+   * Ensure field collections are cloned to new entities on content translation.
+   */
+  public function testContentTranslation() {
+    // Create "Article" content.
+    $edit['title'] = $this->randomName();
+    $edit['body[' . LANGUAGE_NONE . '][0][value]'] = $this->randomName();
+    $edit['language'] = 'en';
+    $field_collection_name = 'field_test_collection[' . LANGUAGE_NONE . '][0][field_text][' . LANGUAGE_NONE . '][0][value]';
+    $edit[$field_collection_name] = $this->randomName();
+
+    $this->drupalPost('node/add/article', $edit, t('Save'));
+    $this->assertRaw(t('Article %title has been created.', array('%title' => $edit['title'])), 'Article created.');
+    $node1 = $this->drupalGetNodeByTitle($edit['title']);
+
+    $this->drupalGet('node/' . $node1->nid . '/edit');
+    $this->drupalGet('node/' . $node1->nid . '/translate');
+    $this->drupalGet('node/add/article', array('query' => array('translation' => $node1->nid, 'target' => 'de')));
+
+    // Suffix translations with the langcode.
+    unset($edit['language']);
+    $edit['title'] .= 'DE';
+    $edit[$field_collection_name] .= 'DE';
+    $this->drupalPost('node/add/article', $edit, t('Save'), array('query' => array('translation' => $node1->nid, 'target' => 'de')));
+    $node2 = $this->drupalGetNodeByTitle($edit['title']);
+
+    // Ensure that our new node is the translation of the first one.
+    $this->assertEqual($node1->nid, $node2->tnid, 'Succesfully created translation.');
+    // And check to see that their field collections are different.
+    $this->assertNotEqual($node1->field_test_collection, $node2->field_test_collection, 'Field collections between translation source and translation differ.');
+  }
+
+}
+
+/**
+ * Test using field collection with content that gets translated with Entity Translation.
+ */
+class FieldCollectionEntityTranslationTestCase extends DrupalWebTestCase {
+  const TRANS_FIELD_EN = 'Translatable EN';
+  const TRANS_FIELD_DE = 'Translatable DE';
+  const TRANS_FIELD_DE_MOD = 'Translatable DE Mod';
+  const UNTRANS_FIELD_EN = 'Untranslatable EN';
+  const UNTRANS_FIELD_DE = 'Untranslatable DE';
+  const UNTRANS_FIELD_DE_MOD = 'Untranslatable DE Mod';
+  const NUM_VALUES = 4;
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Field collection entity translation',
+      'description' => 'Tests using content under translation with Entity Translation.',
+      'group' => 'Field types',
+      'dependencies' => array('entity_translation'),
+    );
+  }
+
+  /**
+   * Login the given user only if she has not changed.
+   */
+  function login($user) {
+    if (!isset($this->current_user) || $this->current_user->uid != $user->uid) {
+      $this->current_user = $user;
+      $this->drupalLogin($user);
+    }
+  }
+
+  /**
+   * Returns a user with administration rights.
+   *
+   * @param $permissions
+   *   Additional permissions for administrative user.
+   */
+  function getAdminUser(array $permissions = array()) {
+    if (!isset($this->admin_user)) {
+      $this->admin_user = $this->drupalCreateUser(array_merge(array(
+        'bypass node access',
+        'administer nodes',
+        'administer languages',
+        'administer content types',
+        'administer blocks',
+        'access administration pages',
+        'administer site configuration',
+        'administer entity translation',
+      ), $permissions));
+    }
+    return $this->admin_user;
+  }
+
+  /**
+   * Returns a user with minimal translation rights.
+   *
+   * @param $permissions
+   *   Additional permissions for administrative user.
+   */
+  function getTranslatorUser(array $permissions = array()) {
+    if (!isset($this->translator_user)) {
+      $this->translator_user = $this->drupalCreateUser(array_merge(array(
+        'create page content',
+        'edit own page content',
+        'delete own page content',
+        'translate any entity',
+      ), $permissions));
+    }
+    return $this->translator_user;
+  }
+
+  /**
+   * Install a specified language if it has not been already, otherwise make sure that the language is enabled.
+   *
+   * @param $langcode
+   *   The language code to check.
+   */
+  function addLanguage($langcode) {
+    // Check to make sure that language has not already been installed.
+    $this->drupalGet('admin/config/regional/language');
+
+    if (strpos($this->drupalGetContent(), 'enabled[' . $langcode . ']') === FALSE) {
+      // Doesn't have language installed so add it.
+      $edit = array();
+      $edit['langcode'] = $langcode;
+      $this->drupalPost('admin/config/regional/language/add', $edit, t('Add language'));
+
+      // Make sure we are not using a stale list.
+      drupal_static_reset('language_list');
+      $languages = language_list('language');
+      $this->assertTrue(array_key_exists($langcode, $languages), t('Language was installed successfully.'));
+
+      if (array_key_exists($langcode, $languages)) {
+        $this->assertRaw(t('The language %language has been created and can now be used. More information is available on the <a href="@locale-help">help screen</a>.', array('%language' => $languages[$langcode]->name, '@locale-help' => url('admin/help/locale'))), t('Language has been created.'));
+      }
+    }
+    elseif ($this->xpath('//input[@type="checkbox" and @name=:name and @checked="checked"]', array(':name' => 'enabled[' . $langcode . ']'))) {
+      // It is installed and enabled. No need to do anything.
+      $this->assertTrue(TRUE, 'Language [' . $langcode . '] already installed and enabled.');
+    }
+    else {
+      // It is installed but not enabled. Enable it.
+      $this->assertTrue(TRUE, 'Language [' . $langcode . '] already installed.');
+      $this->drupalPost(NULL, array('enabled[' . $langcode . ']' => TRUE), t('Save configuration'));
+      $this->assertRaw(t('Configuration saved.'), t('Language successfully enabled.'));
+    }
+  }
+
+  public function setUp() {
+    parent::setUp(array('field_collection', 'entity_translation'));
+    $language_none = LANGUAGE_NONE;
+    // Login with an admin user.
+    $this->login($this->getAdminUser());
+    // Add English and German languages.
+    $this->addLanguage('en');
+    $this->addLanguage('de');
+
+    // Set "Article" content type to use multilingual support with translation.
+    $edit = array();
+    $edit['language_content_type'] = ENTITY_TRANSLATION_ENABLED;
+    $this->drupalPost('admin/structure/types/manage/page', $edit, t('Save content type'));
+    $this->assertRaw(t('The content type %type has been updated.', array('%type' => 'Basic page')), t('Basic page content type has been updated.'));
+
+    // Create a field collection field to use for the tests.
+    $this->field_name = 'field_test_collection';
+    $this->field_base = "{$this->field_name}[$language_none]";
+    $this->field = array(
+      'field_name' => $this->field_name,
+      'type' => 'field_collection',
+      'cardinality' => -1,
+      'translatable' => TRUE,
+    );
+    $this->field = field_create_field($this->field);
+    $this->field_id = $this->field['id'];
+
+    $this->instance = array(
+      'field_name' => $this->field_name,
+      'entity_type' => 'node',
+      'bundle' => 'page',
+      'label' => $this->randomName() . '_label',
+      'description' => $this->randomName() . '_description',
+      'weight' => mt_rand(0, 127),
+      'settings' => array(),
+      'widget' => array(
+        'type' => 'field_collection_embed',
+        'label' => 'Test',
+        'settings' => array(),
+      ),
+    );
+    $this->instance = field_create_instance($this->instance);
+
+    // Enable entity translation of field collections.
+    $this->drupalGet('admin/config/regional/entity_translation');
+    $this->drupalPost('admin/config/regional/entity_translation', array('entity_translation_entity_types[field_collection_item]' => TRUE), t('Save configuration'));
+    $this->assertRaw(t('The configuration options have been saved.'), t('Entity translation of field collections enabled.'));
+
+    // Add an untraslatable field to the collection.
+    $this->field_untrans_name = 'field_text_untrans';
+    $this->field_untrans_base = "[{$this->field_untrans_name}][$language_none][0][value]";
+    $field = array(
+      'field_name' => $this->field_untrans_name,
+      'type' => 'text',
+      'cardinality' => 1,
+      'translatable' => FALSE,
+    );
+    field_create_field($field);
+    $instance = array(
+      'entity_type' => 'field_collection_item',
+      'field_name' => $this->field_untrans_name,
+      'bundle' => $this->field_name,
+      'label' => 'Test untranslatable text field',
+      'widget' => array(
+        'type' => 'text_textfield',
+      ),
+    );
+    field_create_instance($instance);
+
+    // Add a translatable field to the collection.
+    $this->field_trans_name = 'field_text_trans';
+    $this->field_trans_base = "[{$this->field_trans_name}][$language_none][0][value]";
+    $this->field_trans_dest = "[{$this->field_trans_name}][de][0][value]";
+    $field = array(
+      'field_name' => $this->field_trans_name,
+      'type' => 'text',
+      'cardinality' => 1,
+      'translatable' => TRUE,
+    );
+    field_create_field($field);
+    $instance = array(
+      'entity_type' => 'field_collection_item',
+      'field_name' => $this->field_trans_name,
+      'bundle' => $this->field_name,
+      'label' => 'Test translatable text field',
+      'widget' => array(
+        'type' => 'text_textfield',
+      ),
+    );
+    field_create_instance($instance);
+
+    $this->login($this->getTranslatorUser());
+  }
+
+  /**
+   * Creates a basic page with a value in the field collection.
+   *
+   *  @param integer $num_values
+   *    The number of values to include in the field collection.
+   *  @param string $langcode
+   *    Language for the node.
+   */
+  protected function createPage($num_values, $langcode = 'en') {
+    // Check if num_values is greater than the field cardinality.
+    if ($num_values > self::NUM_VALUES) {
+      $num_values = self::NUM_VALUES;
+    }
+
+    $title = $this->randomName();
+
+    $this->drupalGet('node/add/page');
+
+    $edit = array();
+    $edit['title'] = $title;
+    for ($i = 0; $i < $num_values; $i++) {
+      if ($i != 0) {
+        $this->drupalPost(NULL, array(), t('Add another item'));
+      }
+      $edit[$this->field_base . '[' . $i . ']' . $this->field_untrans_base] = self::UNTRANS_FIELD_EN . '_' . $i;
+      $edit[$this->field_base . '[' . $i . ']' . $this->field_trans_base] = self::TRANS_FIELD_EN . '_' . $i;
+    }
+
+    $edit['language'] = $langcode;
+    $this->drupalPost(NULL, $edit, t('Save'));
+    $this->assertRaw(t('Basic page %title has been created.', array('%title' => $title)), t('Basic page created.'));
+
+    // Check to make sure the node was created.
+    $node = $this->drupalGetNodeByTitle($title);
+    $this->assertTrue($node, t('Node found in database.'));
+
+    return $node;
+
+  }
+
+  /**
+   * Create a translation using the Entity Translation Form.
+   *
+   * @param $node
+   *   Node of the basic page to create translation for.
+   * @param $langcode
+   *   The language code of the translation.
+   * @param $source_langcode
+   *   The original language code.
+   */
+  protected function createTranslationForm($node, $langcode, $source_langcode = 'en') {
+    $language_none = LANGUAGE_NONE;
+    $edit = array();
+
+    $this->drupalGet('node/' . $node->nid . '/edit/add/' . $source_langcode . '/' .$langcode);
+
+    // Get the field collection in the original language.
+    $fc_values = $node->{$this->field_name}[$source_langcode];
+
+    // Check if all the fields were populated and fill it with the new value.
+    foreach ($fc_values as $delta => $fc_value) {
+      // Load the field collection item.
+      $fc_item_array = entity_load('field_collection_item', array($fc_value['value']));
+      $fc_item = reset($fc_item_array);
+      $fc_untrans_key = "{$this->field_name}[$langcode][$delta]{$this->field_untrans_base}";
+      $fc_trans_key = "{$this->field_name}[$langcode][$delta]{$this->field_trans_dest}";
+      $this->assertFieldByXPath(
+          "//input[@name='$fc_untrans_key']",
+          $fc_item->{$this->field_untrans_name}[LANGUAGE_NONE][0]['value'],
+          'Original value of untranslatable field correctly populated'
+              );
+      $this->assertFieldByXPath(
+          "//input[@name='$fc_trans_key']",
+          $fc_item->{$this->field_trans_name}['en'][0]['value'],
+          'Original value of translatable field correctly populated'
+              );
+
+      $edit[$fc_untrans_key] = self::UNTRANS_FIELD_DE . '_' . $delta;
+      $edit[$fc_trans_key] = self::TRANS_FIELD_DE . '_' . $delta;
+    }
+
+    // Save the translation.
+    $this->drupalPost(NULL, $edit, t('Save'));
+    $this->drupalGet('node/' . $node->nid . '/translate');
+    $this->assertLinkByHref('node/' . $node->nid . '/edit/' . $langcode, 0, t('Translation edit link found. Translation created.'));
+
+    // Reload the node.
+    $node = node_load($node->nid, NULL, TRUE);
+
+    // Check the values of the translated field.
+    $this->checkFieldCollectionContent($node, $langcode);
+
+    // Check the values of the field in the original language.
+    $this->checkFieldCollectionContent($node, $source_langcode);
+
+    return $node;
+  }
+
+  /**
+   * Removes a translation using the entity translation form.
+   *
+   * @param mixed $node
+   *   The node to remove the translation from.
+   * @param unknown $langcode
+   *   The language of the translation to remove.
+   * @param unknown $source_langcode
+   *   The source language of the node.
+   */
+  protected function removeTranslationForm($node, $langcode, $source_langcode) {
+    // Number of field collection items in the source language.
+    $num_original_fc_items = count($node->{$this->field_name}[$source_langcode]);
+
+    // Fetch the translation edit form.
+    $this->drupalGet('node/' . $node->nid . '/edit/' . $langcode);
+
+    // Remove the translation.
+    $this->drupalPost(NULL, array(), t('Delete translation'));
+    // Confirm deletion.
+    $this->drupalPost(NULL, array(), t('Delete'));
+
+    // Reload the node.
+    $node = node_load($node->nid, NULL, TRUE);
+
+    // Check that the translation is removed.
+    $this->drupalGet('node/' . $node->nid . '/translate');
+    $this->assertLinkByHref('node/' . $node->nid . '/edit/add/' . $source_langcode . '/' . $langcode, 0, 'The add translation link appears');
+    $this->assert(empty($node->{$this->field_name}[$langcode]));
+
+    // Check that the field collection in the original language has not changed.
+    $num_fc_items = count($node->{$this->field_name}[$source_langcode]);
+    $this->assertEqual($num_original_fc_items, $num_fc_items, 'The number of field collection items in the original language has not changed.');
+    $this->checkFieldCollectionContent($node, $source_langcode);
+  }
+
+  /**
+   * Creates a translation programmatically using Entity Translation.
+   *
+   * @param $node
+   *   Node of the basic page to create translation for.
+   * @param $langcode
+   *   The language code of the translation.
+   * @param $source_langcode
+   *   The source language code.
+   */
+  protected function createTranslation($node, $langcode) {
+    $source_langcode = $node->language;
+
+    // Get the Entity Translation Handler.
+    $handler = entity_translation_get_handler('node', $node, TRUE);
+    // Variable to hold the fields values.
+    $values = array();
+    // Translation settings.
+    $translation = array(
+      'translate' => 0,
+      'status' => 1,
+      'language' => $langcode,
+      'source' => $source_langcode,
+      'uid' => $node->uid,
+    );
+    // Copy field values.
+    foreach (field_info_instances('node', $node->type) as $instance) {
+      $field_name = $instance['field_name'];
+      $field = field_info_field($field_name);
+      $field_value = array();
+      // Copy the value of the translated field if it's translatable.
+      if ($field['translatable']) {
+        if (isset($node->{$field_name}[$node->language])) {
+          $field_value = $node->{$field_name}[$source_langcode];
+          $values[$field_name][$langcode] = $field_value;
+          $node->{$field_name}[$langcode] = $field_value;
+        }
+      }
+    }
+
+    $handler->setTranslation($translation, $values);
+    $handler->saveTranslations();
+    field_attach_update('node', $node);
+
+    // Reload an return the node.
+    $node = node_load($node->nid, null, TRUE);
+    return $node;
+  }
+
+  /**
+   * Removes a translation programmatically using the entity translation api.
+   *
+   * @param mixed $node
+   *   The node to remove the translation from.
+   * @param unknown $langcode
+   *   The language of the translation to remove.
+   */
+  protected function removeTranslation($node, $langcode) {
+    // Get a translation entity handler.
+    $handler = entity_translation_get_handler('node', $node, TRUE);
+
+    // Remove the translation.
+    $handler->removeTranslation($langcode);
+    node_save($node);
+
+    // Reload and return the node.
+    $node = node_load($node->nid, null, TRUE);
+
+    return $node;
+  }
+
+  /**
+   * Creates a new revision of the node and checks the result.
+   *
+   * @param $node
+   * @param $langcode
+   * @param $source_langcode
+   * @return
+   *   The new revision of the node.
+   */
+  protected function createRevision($node, $langcode, $source_langcode) {
+    $node_original_revision = $node->vid;
+    // The original entries of the translated field.
+    $original_fc_item_ids = $node->{$this->field_name}[$langcode];
+
+    // Create the revision.
+    $node->revision = TRUE;
+    node_save($node);
+
+    // The new entries of the translated field.
+    $new_fc_item_ids = $node->{$this->field_name}[$langcode];
+
+    // Check that the field collection items are the same and a new revision of
+    // each one has been created.
+    foreach ($original_fc_item_ids as $delta => $value) {
+      $this->assertEqual($value['value'], $new_fc_item_ids[$delta]['value'], t('We have the same field collection item'));
+      $this->assertNotEqual($value['revision_id'], $new_fc_item_ids[$delta]['revision_id'], t('We have a new revision of the field collection item'));
+    }
+
+    return $node;
+  }
+
+  /**
+   * Check the content of the field collection for a specified language.
+   *
+   * @param mixed $node
+   *   The node to check.
+   * @param string $langcode
+   *   The language to check.
+   */
+  protected function checkFieldCollectionContent($node, $langcode) {
+    switch($langcode) {
+      case 'en':
+        $untrans_field = self::UNTRANS_FIELD_EN;
+        $trans_field = self::TRANS_FIELD_EN;
+        break;
+      case 'de':
+        $untrans_field = self::UNTRANS_FIELD_DE;
+        $trans_field = self::TRANS_FIELD_DE;
+        break;
+    }
+    // Get the field collection in the specified language.
+    $fc_values = $node->{$this->field_name}[$langcode];
+
+    foreach ($fc_values as $delta => $fc_value) {
+      // Load the field collection item.
+      $fc_item_array = entity_load('field_collection_item', array($fc_value['value']));
+      $fc_item = reset($fc_item_array);
+      $fc_untrans_key = "{$this->field_name}[$langcode][$delta]{$this->field_untrans_base}";
+      $fc_trans_key = "{$this->field_name}[$langcode][$delta]{$this->field_trans_base}";
+
+      $this->assertEqual($untrans_field . '_' . $delta, $fc_item->{$this->field_untrans_name}[LANGUAGE_NONE][0]['value']);
+      $this->assertEqual($trans_field . '_' . $delta, $fc_item->{$this->field_trans_name}[$langcode][0]['value']);
+    }
+  }
+
+  /**
+   * Returns the text field values of an specified node, language and delta.
+   *
+   * @param mixed $node
+   * @param string $langcode
+   * @param integer $delta
+   * @return array
+   */
+  protected function getFieldValues($node, $langcode, $delta) {
+    $return = array();
+
+    if (isset($node->{$this->field_name}[$langcode][$delta]['value'])) {
+      $fc_item_id = $node->{$this->field_name}[$langcode][$delta]['value'];
+      // Load the field collection.
+      $fc_item_array = entity_load('field_collection_item', array($fc_item_id));
+      $fc_item = reset($fc_item_array);
+
+      $return = array(
+        'field_untrans' => $fc_item->{$this->field_untrans_name}[LANGUAGE_NONE][0]['value'],
+        'field_trans' => $fc_item->{$this->field_trans_name}[$langcode][0]['value'],
+      );
+    }
+
+    return $return;
+  }
+
+  /**
+   * Ensures the right behaviour in all Entity Translation use cases.
+   */
+  public function testEntityTranslation() {
+    $source_langcode = 'en';
+    $translation_langcode = 'de';
+
+    /*
+     * Test with a page with only one value in the field collection
+     */
+    // Create an article in the original language with only one field collection
+    // value.
+    $node = $this->createPage(1, $source_langcode);
+
+    // Create a traslation of the page through the entity translation form.
+    $node = $this->createTranslationForm($node, $translation_langcode, $source_langcode);
+
+    /*
+     * Test with a page with multiple values in the field collection.
+     */
+    $num_values = 4;
+    // Create a page in the original language with multiple field collection
+    // values.
+    $node = $this->createPage($num_values, $source_langcode);
+
+    // Create a traslation of the page through the entity translation form.
+    $node = $this->createTranslationForm($node, $translation_langcode, $source_langcode);
+
+    // Assign a new field collection item to an existing node.
+    $values = array();
+    $values['field_name'] = $this->field_name;
+    $fc_entity = entity_create('field_collection_item', $values);
+    $fc_entity->setHostEntity('node', $node, $translation_langcode);
+
+    $fc_entity->{$this->field_untrans_name}[LANGUAGE_NONE][0]['value'] = self::UNTRANS_FIELD_DE_MOD;
+    $fc_entity->{$this->field_trans_name}['de'][0]['value'] = self::TRANS_FIELD_DE_MOD;
+    $fc_entity->save(TRUE);
+
+    node_save($node);
+
+    // Reload the node to check it.
+    $node = node_load($node->nid, NULL, TRUE);
+    // Check that there is a new element in the translation.
+    $this->assertEqual($num_values + 1, count($node->{$this->field_name}[$translation_langcode]), t('We have one item more in translation.'));
+    // Check that the new element is correctly saved.
+    $fc_item_values = $this->getFieldValues($node, $translation_langcode, $num_values);
+    $this->assertEqual($fc_item_values['field_untrans'], self::UNTRANS_FIELD_DE_MOD);
+    $this->assertEqual($fc_item_values['field_trans'], self::TRANS_FIELD_DE_MOD);
+    // Check that we have the same items in the original language.
+    $this->assertEqual($num_values, count($node->{$this->field_name}[$source_langcode]), t('We have same items in the original language.'));
+
+    // Remove a field collection item from the translation.
+    $fc_item_id = $node->{$this->field_name}[$translation_langcode][0]['value'];
+    unset($node->{$this->field_name}[$translation_langcode][0]);
+    node_save($node);
+    // Reload the node.
+    $node = node_load($node->nid, NULL, TRUE);
+    // Check that we have one item less in the translation.
+    // We should take into account that we added a field one step before.
+    $this->assertEqual($num_values, count($node->{$this->field_name}[$translation_langcode]), t('We have one item less in translation.'));
+    // Check that we have the same items in the original language.
+    $this->assertEqual($num_values, count($node->{$this->field_name}[$source_langcode]), t('We have same items in the original language.'));
+    // Check that the field collection is removed from the database.
+    $fc_items = entity_load('field_collection_item', array($fc_item_id));
+    $this->assert(empty($fc_items), t('The field collection item has been removed from the database.'));
+
+    // Delete the translation.
+    $this->removeTranslationForm($node, $translation_langcode, $source_langcode);
+
+    /*
+     * Check the revisioning of an entity with translations.
+     */
+    $num_values = 4;
+    // Create a page in the original language with multiple field collection
+    // values.
+    $node_rev = $this->createPage($num_values, $source_langcode);
+
+    // Create a traslation of the page.
+    $node_rev = $this->createTranslationForm($node_rev, $translation_langcode, $source_langcode);
+
+    $original_revision = $node_rev->vid;
+
+    // Create a new revision of the node.
+    $node_rev = $this->createRevision($node_rev, $translation_langcode, $source_langcode);
+
+    /*
+     * Test creating programmatically.
+     */
+    $num_values = 4;
+    // Create a page in the original language.
+    $node_prog = $this->createPage($num_values, $source_langcode);
+
+    // Create programmatically a translation of the page.
+    $node_prog = $this->createTranslation($node_prog, $translation_langcode);
+
+    $orig_fc_items = $node_prog->{$this->field_name}[$source_langcode];
+    $trans_fc_items = $node_prog->{$this->field_name}[$translation_langcode];
+
+    $orig_fc_item_ids = array();
+    $trans_fc_item_ids = array();
+
+    // Check each item.
+    foreach ($orig_fc_items as $delta => $value) {
+      $orig_fc_item_ids[] = $value['value'];
+      $trans_fc_item_ids[] = $trans_fc_items[$delta]['value'];
+
+      // Check if we have new items for the translation.
+      $this->assertNotEqual($value['value'], $trans_fc_items[$delta]['value'], t('New item generated for translation.'));
+    }
+
+    // Check that the original item still exists in the database.
+    $fc_items = entity_load('field_collection_item', $orig_fc_item_ids);
+    $this->assert(!empty($fc_items), t('Field Collections in the source language still exist.'));
+    // Check that the translated item exists in the database.
+    $fc_items = entity_load('field_collection_item', $trans_fc_item_ids);
+    $this->assert(!empty($fc_items), t('Translations for the Field Collection exist.'));
+
+    // Remove the translation and check that the original field collection items
+    // are still there.
+    $node_prog = $this->removeTranslation($node, $translation_langcode);
+
+    // Check the content in the source language.
+    $this->checkFieldCollectionContent($node_prog, $source_langcode);
+
+    // Check that the field translated content has been removed.
+    $this->assert(empty($node->{$this->field_name}[$translation_langcode]), t('Translated content removed.'));
+  }
+
 }
