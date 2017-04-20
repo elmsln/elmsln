@@ -105,6 +105,23 @@ class dsNodeTests extends dsBaseTest {
     $node = $this->entitiesTestSetup();
     $node_author = user_load($node->uid);
 
+    // Test theme_hook_suggestions in ds_entity_variables().
+    $this->drupalGet('node/' . $node->nid, array('query' => array('store' => 1)));
+    $cache = cache_get('ds_test');
+    $this->assertTrue(!empty($cache));
+    $hook_suggestions = $cache->data['theme_hook_suggestions'];
+    $expected_hook_suggestions = array(
+      'node__article',
+      'node__1',
+      'ds_2col_stacked',
+      'ds_2col_stacked__node',
+      'ds_2col_stacked__node_full',
+      'ds_2col_stacked__node_article',
+      'ds_2col_stacked__node_article_full',
+      'ds_2col_stacked__node__1'
+    );
+    $this->assertEqual($hook_suggestions, $expected_hook_suggestions);
+
     // Look at node and verify token and block field.
     $this->drupalGet('node/' . $node->nid);
     $this->assertRaw('view-mode-full', 'Template file found (in full view mode)');
