@@ -385,6 +385,10 @@ Included components
     Enables the admin to specify a stopwords file, the words contained in which
     will be filtered out of the text data indexed. This can be used to exclude
     too common words from indexing, for servers not supporting this natively.
+  * Stem words
+    Uses the PorterStemmer method to reduce words to stems. A search for
+    "garden" will return results for "gardening" and "garden," as will a search
+    for "gardening."
 
 - Additional modules
 

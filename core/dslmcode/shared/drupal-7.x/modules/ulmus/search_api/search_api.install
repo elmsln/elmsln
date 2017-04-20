@@ -362,7 +362,7 @@ function search_api_install() {
     ),
   );
   search_api_index_insert($values);
-  drupal_set_message('The Search API module was installed. A new default node index was created.');
+  drupal_set_message(t('The Search API module was installed. A new default node index was created.'));
 }
 
 /**

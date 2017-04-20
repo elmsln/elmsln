@@ -22,12 +22,14 @@ function search_api_facetapi_install() {
  */
 function search_api_facetapi_uninstall() {
   variable_del('search_api_facets_search_ids');
-  variable_del('date_format_search_api_facetapi_' . FACETAPI_DATE_YEAR);
-  variable_del('date_format_search_api_facetapi_' . FACETAPI_DATE_MONTH);
-  variable_del('date_format_search_api_facetapi_' . FACETAPI_DATE_DAY);
-  variable_del('date_format_search_api_facetapi_' . FACETAPI_DATE_HOUR);
-  variable_del('date_format_search_api_facetapi_' . FACETAPI_DATE_MINUTE);
-  variable_del('date_format_search_api_facetapi_' . FACETAPI_DATE_SECOND);
+  // We have to use the literal values here, as the Facet API module could have
+  // already been disabled at this point.
+  variable_del('date_format_search_api_facetapi_YEAR');
+  variable_del('date_format_search_api_facetapi_MONTH');
+  variable_del('date_format_search_api_facetapi_DAY');
+  variable_del('date_format_search_api_facetapi_HOUR');
+  variable_del('date_format_search_api_facetapi_MINUTE');
+  variable_del('date_format_search_api_facetapi_SECOND');
 }
 
 /**

@@ -182,4 +182,19 @@ abstract class SearchApiAbstractAlterCallback implements SearchApiAlterCallbackI
     return array();
   }
 
+  /**
+   * Determines whether the given index contains multiple types of entities.
+   *
+   * @param SearchApiIndex|null $index
+   *   (optional) The index to examine. Defaults to the index set for this
+   *   plugin.
+   *
+   * @return bool
+   *   TRUE if the index is a multi-entity index, FALSE otherwise.
+   */
+  protected function isMultiEntityIndex(SearchApiIndex $index = NULL) {
+    $index = $index ? $index : $this->index;
+    return $index->datasource() instanceof SearchApiCombinedEntityDataSourceController;
+  }
+
 }

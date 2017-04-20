@@ -784,7 +784,7 @@ function search_api_features_export_alter(&$export) {
  * @see hook_search_api_item_type_info()
  */
 function search_api_system_info_alter(&$info, $file, $type) {
-  if ($type != 'module' || $file->name == 'search_api') {
+  if ($type != 'module' || $file->name == 'search_api' || !module_exists($file->name)) {
     return;
   }
   // Check for defined item types.
@@ -1152,11 +1152,17 @@ function search_api_search_api_processor_info() {
     'class' => 'SearchApiStopWords',
     'weight' => 30,
   );
+  $processors['search_api_porter_stemmer'] = array(
+    'name' => t('Stem words'),
+    'description' => t('This processor reduces words to a stem (e.g., "talking" to "talk"). For best results, it should only be executed after tokenizing.'),
+    'class' => 'SearchApiPorterStemmer',
+    'weight' => 35,
+  );
   $processors['search_api_highlighting'] = array(
     'name' => t('Highlighting'),
     'description' => t('Adds highlighting for search results.'),
     'class' => 'SearchApiHighlight',
-    'weight' => 35,
+    'weight' => 40,
   );
 
   return $processors;
