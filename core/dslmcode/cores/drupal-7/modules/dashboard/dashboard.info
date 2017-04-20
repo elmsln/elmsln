@@ -7,8 +7,8 @@ files[] = dashboard.test
 dependencies[] = block
 configure = admin/dashboard/customize
 
-; Information added by Drupal.org packaging script on 2016-11-16
-version = "7.52"
+; Information added by Drupal.org packaging script on 2017-02-01
+version = "7.54"
 project = "drupal"
-datestamp = "1479322922"
+datestamp = "1485986921"
 
