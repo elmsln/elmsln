@@ -6,8 +6,7 @@
  */
 
 /**
- * Plugins are described by creating a $plugin array which will be used
- * by the system that includes this file.
+ * CTools UUID entity context plugin definition.
  */
 $plugin = array(
   'title' => t("Entity: UUID"),
@@ -18,7 +17,12 @@ $plugin = array(
 );
 
 /**
- * @todo document me properly
+ * Fetches the "child" information for a given parent entity.
+ *
+ * @todo document me properly.
+ *
+ * @return array
+ *   The children.
  */
 function uuid_entity_uuid_get_child($plugin, $parent, $child) {
   $plugins = uuid_entity_uuid_get_children($plugin, $parent);
@@ -26,7 +30,12 @@ function uuid_entity_uuid_get_child($plugin, $parent, $child) {
 }
 
 /**
- * @todo document me properly
+ * Fetches all children types for a given parent entity.
+ *
+ * @todo document me properly.
+ *
+ * @return array
+ *   All the children.
  */
 function uuid_entity_uuid_get_children($original_plugin, $parent) {
   $entities = entity_get_info();

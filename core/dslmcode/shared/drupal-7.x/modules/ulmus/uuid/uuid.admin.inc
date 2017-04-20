@@ -42,7 +42,9 @@ function uuid_devel_load_by_uuid($entity_type, $entity) {
     // Get the keys for local ID and UUID.
     $uuid_key = $info['entity keys']['uuid'];
     $uuid_entities = entity_uuid_load($entity_type, array($entity->{$uuid_key}));
+    // @codingStandardsIgnoreStart
     return kdevel_print_object(reset($uuid_entities), '$' . $entity_type . '->');
+    // @codingStandardsIgnoreEnd
   }
   else {
     return t("This entity doesn't support UUID.");
