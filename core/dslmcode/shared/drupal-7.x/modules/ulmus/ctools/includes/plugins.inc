@@ -200,18 +200,18 @@ function ctools_plugin_api_get_hook($owner, $api) {
 /**
  * Fetch a group of plugins by name.
  *
- * @param $module
- *   The name of the module that utilizes this plugin system. It will be
- *   used to call hook_ctools_plugin_$plugin() to get more data about the plugin.
- * @param $type
+ * @param string $module
+ *   The name of the module that utilizes this plugin system. It will be used to
+ *   get more data about the plugin as defined on hook_ctools_plugin_type().
+ * @param string $type
  *   The type identifier of the plugin.
- * @param $id
+ * @param string $id
  *   If specified, return only information about plugin with this identifier.
  *   The system will do its utmost to load only plugins with this id.
  *
- * @return
- *   An array of information arrays about the plugins received. The contents
- *   of the array are specific to the plugin.
+ * @return array
+ *   An array of information arrays about the plugins received. The contents of
+ *   the array are specific to the plugin.
  */
 function ctools_get_plugins($module, $type, $id = NULL) {
   // Store local caches of plugins and plugin info so we don't have to do full
@@ -224,10 +224,14 @@ function ctools_get_plugins($module, $type, $id = NULL) {
 
   $info = ctools_plugin_get_plugin_type_info();
 
-  // Bail out noisily if an invalid module/type combination is requested.
   if (!isset($info[$module][$type])) {
-    watchdog('ctools', 'Invalid plugin module/type combination requested: module @module and type @type', array('@module' => $module, '@type' => $type), WATCHDOG_ERROR);
-    return array();
+    // If we don't find the plugin we attempt a cache rebuild before bailing out
+    $info = ctools_plugin_get_plugin_type_info(TRUE);
+    // Bail out noisily if an invalid module/type combination is requested.
+    if (!isset($info[$module][$type])) {
+      watchdog('ctools', 'Invalid plugin module/type combination requested: module @module and type @type', array('@module' => $module, '@type' => $type), WATCHDOG_ERROR);
+      return array();
+    }
   }
 
   // Make sure our plugins array is populated.
@@ -235,8 +239,8 @@ function ctools_get_plugins($module, $type, $id = NULL) {
     $plugins[$module][$type] = array();
   }
 
-  // Attempt to shortcut this whole piece of code if we already have
-  // the requested plugin:
+  // Attempt to shortcut this whole piece of code if we already have the
+  // requested plugin:
   if ($id && array_key_exists($id, $plugins[$module][$type])) {
     return $plugins[$module][$type][$id];
   }
@@ -271,8 +275,8 @@ function ctools_get_plugins($module, $type, $id = NULL) {
     $plugins[$module][$type] = ctools_plugin_load_hooks($info[$module][$type]);
   }
 
-  // Then see if we should load all files. We only do this if we
-  // want a list of all plugins or there was a cache miss.
+  // Then see if we should load all files. We only do this if we want a list of
+  // all plugins or there was a cache miss.
   if (empty($setup[$module][$type]) && ($build_cache || !$id)) {
     $setup[$module][$type] = TRUE;
     $plugins[$module][$type] = array_merge($plugins[$module][$type], ctools_plugin_load_includes($info[$module][$type]));
@@ -296,8 +300,8 @@ function ctools_get_plugins($module, $type, $id = NULL) {
   }
 
 
-  // If we were told earlier that this is cacheable and the cache was
-  // empty, give something back.
+  // If we were told earlier that this is cacheable and the cache was empty,
+  // give something back.
   if ($build_cache) {
     cache_set("plugins:$module:$type", $plugins[$module][$type], $info[$module][$type]['cache table']);
   }

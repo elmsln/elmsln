@@ -1688,6 +1688,12 @@ function page_manager_handler_clone_submit(&$form, &$form_state) {
 
   page_manager_handler_add_to_page($form_state['page'], $handler, $form_state['values']['title']);
 
+  // Variant is cloned and added to the Page. Ensure the uuids are re-generated.
+  panels_panel_context_get_display($handler);
+  if (isset($handler->conf['display']) && method_exists($handler->conf['display'], 'clone_display')) {
+    $handler->conf['display'] = $handler->conf['display']->clone_display();
+  }
+
   $plugin = page_manager_get_task_handler($handler->handler);
   // It has no forms at all. Add the variant and go to its first operation.
   $keys = array_keys($plugin['operations']);

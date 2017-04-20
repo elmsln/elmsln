@@ -9,7 +9,9 @@
 /**
  * Pattern for detecting a valid UUID.
  */
-define('UUID_PATTERN', '[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}');
+if (!defined('UUID_PATTERN')) {
+  define('UUID_PATTERN', '[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}');
+}
 
 /**
  * Generates a UUID using the Windows internal GUID generator.
