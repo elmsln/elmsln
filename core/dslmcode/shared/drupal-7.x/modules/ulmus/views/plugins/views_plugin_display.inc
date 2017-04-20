@@ -1061,6 +1061,11 @@ class views_plugin_display extends views_plugin {
       $title = $text;
     }
 
+    // Truncate the path as it is displayed as a link.
+    if ($section == 'path') {
+      $text = views_ui_truncate($text, 24);
+    }
+
     return l($text, 'admin/structure/views/nojs/display/' . $this->view->name . '/' . $this->display->id . '/' . $section, array('attributes' => array('class' => 'views-ajax-link ' . $class, 'title' => $title, 'id' => drupal_html_id('views-' . $this->display->id . '-' . $section)), 'html' => TRUE));
   }
 
@@ -1468,7 +1473,7 @@ class views_plugin_display extends views_plugin {
         $form['#title'] .= t('The title of this view');
         $form['title'] = array(
           '#type' => 'textfield',
-          '#description' => t('This title will be displayed with the view, wherever titles are normally displayed; i.e, as the page title, block title, etc.'),
+          '#description' => t('This title will be displayed with the view, wherever titles are normally displayed; i.e, as the page title, block title, etc. Use &lt;none&gt; to not assign a title; this can allow other modules to control the page title.'),
           '#default_value' => $this->get_option('title'),
         );
         break;
@@ -2798,7 +2803,7 @@ class views_plugin_display extends views_plugin {
             }
           }
           else {
-            if ($id != $key && $identifier == $handler->options['expose']['identifier']) {
+            if ($id != $key && isset($handler->options['expose']['identifier']) && $identifier == $handler->options['expose']['identifier']) {
               return FALSE;
             }
           }

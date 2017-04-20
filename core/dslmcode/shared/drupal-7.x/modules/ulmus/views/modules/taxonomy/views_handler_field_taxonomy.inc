@@ -74,6 +74,10 @@ class views_handler_field_taxonomy extends views_handler_field {
         $this->options['alter'] = array_merge($this->options['alter'], $uri['options']);
       }
       $this->options['alter']['path'] = $uri['path'];
+      // If entity_uri() returned an options array, use it.
+      if (isset($uri['options'])) {
+        $this->options['alter'] = $uri['options'] + $this->options['alter'];
+      }
     }
 
     if (!empty($this->options['convert_spaces'])) {

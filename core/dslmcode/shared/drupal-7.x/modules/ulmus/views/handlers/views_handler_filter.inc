@@ -589,8 +589,11 @@ class views_handler_filter extends views_handler {
       form_error($form['expose']['identifier'], t('The identifier is required if the filter is exposed.'));
     }
 
-    if (!empty($form_state['values']['options']['expose']['identifier']) && $form_state['values']['options']['expose']['identifier'] == 'value') {
-      form_error($form['expose']['identifier'], t('This identifier is not allowed.'));
+    if (!empty($form_state['values']['options']['expose']['identifier'])) {
+      $illegal_identifiers = array('value', 'q');
+      if (in_array($form_state['values']['options']['expose']['identifier'], $illegal_identifiers)) {
+        form_error($form['expose']['identifier'], t('This identifier is not allowed.'));
+      }
     }
 
     if (!$this->view->display_handler->is_identifier_unique($form_state['id'], $form_state['values']['options']['expose']['identifier'])) {
@@ -607,8 +610,11 @@ class views_handler_filter extends views_handler {
         form_error($form['group_info']['identifier'], t('The identifier is required if the filter is exposed.'));
       }
 
-      if (!empty($form_state['values']['options']['group_info']['identifier']) && $form_state['values']['options']['group_info']['identifier'] == 'value') {
-        form_error($form['group_info']['identifier'], t('This identifier is not allowed.'));
+      if (!empty($form_state['values']['options']['group_info']['identifier'])) {
+        $illegal_identifiers = array('value', 'q');
+        if (in_array($form_state['values']['options']['group_info']['identifier'], $illegal_identifiers)) {
+          form_error($form['group_info']['identifier'], t('This identifier is not allowed.'));
+        }
       }
 
       if (!$this->view->display_handler->is_identifier_unique($form_state['id'], $form_state['values']['options']['group_info']['identifier'])) {

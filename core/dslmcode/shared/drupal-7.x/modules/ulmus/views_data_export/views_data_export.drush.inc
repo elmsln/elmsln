@@ -169,7 +169,9 @@ function drush_views_data_export($view_name, $display_id, $output_file) {
   }
 
   $arguments = drush_get_option('arguments', '');
-  $arguments = explode(',', $arguments);
+  if(!empty($arguments) && is_array($arguments)) {
+    $arguments = explode(',', $arguments);
+  }
 
   if ($view->display_handler->is_batched()) {
     // This is a batched export, and needs to be handled as such.

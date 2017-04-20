@@ -235,7 +235,13 @@ class views_plugin_display_page extends views_plugin_display {
 
     // First execute the view so it's possible to get tokens for the title.
     // And the title, which is much easier.
-    drupal_set_title(filter_xss_admin($this->view->get_title()), PASS_THROUGH);
+    $title = $this->view->get_title();
+    // Support the core method of using '<none>' to indicate nothing should be
+    // assigned to the title, so only process the title value if it is not that
+    // value.
+    if ($title != '<none>') {
+      drupal_set_title(filter_xss_admin($title), PASS_THROUGH);
+    }
     return $render;
   }
 
@@ -267,7 +273,7 @@ class views_plugin_display_page extends views_plugin_display {
     $options['path'] = array(
       'category' => 'page',
       'title' => t('Path'),
-      'value' => views_ui_truncate($path, 24),
+      'value' => $path,
     );
 
     $menu = $this->get_option('menu');

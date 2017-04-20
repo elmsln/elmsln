@@ -84,7 +84,8 @@ abstract class views_plugin_style_mapping extends views_plugin_style {
       // Optionally filter the available fields.
       if (isset($mapping[$key]['#filter'])) {
         $this->view->init_handlers();
-        $this::$mapping[$key]['#filter']($field_options);
+        $filter = $mapping[$key]['#filter'];
+        $this::$filter($field_options);
         unset($mapping[$key]['#filter']);
       }
 

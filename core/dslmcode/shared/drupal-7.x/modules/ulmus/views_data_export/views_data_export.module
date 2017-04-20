@@ -114,7 +114,7 @@ function views_data_export_cron() {
 function views_data_export_garbage_collect($expires = NULL, $chunk = NULL) {
   if (lock_acquire('views_data_export_gc')) {
     if (!isset($expires)) {
-      $expires = variable_get('views_data_export_gc_expires', 604800); // one week
+      $expires = variable_get('views_data_export_gc_expires', DRUPAL_MAXIMUM_TEMP_FILE_AGE);
     }
     if (!isset($chunk)) {
       $chunk = variable_get('views_data_export_gc_chunk', 30);

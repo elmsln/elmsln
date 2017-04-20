@@ -46,9 +46,12 @@ function views_ajax() {
         $_GET['q'] = $path;
       }
 
-      // Add all $_POST data, because AJAX is always a post and many things,
+      // If page parameter is in the $_POST exclude it from $_GET,
+      // otherwise support views_ajax requests using $_GET.
+      $exclude = isset($_POST['page']) ? array('page') : array();
+      // Add all $_POST data to $_GET as many things,
       // such as tablesorts, exposed filters and paging assume $_GET.
-      $_GET = $_POST + drupal_get_query_parameters($_GET, array('page'));
+      $_GET = $_POST + drupal_get_query_parameters($_GET, $exclude);
 
       // Overwrite the destination.
       // @see drupal_get_destination()
@@ -343,7 +346,7 @@ function views_ajax_autocomplete_taxonomy($vid, $tags_typed = '') {
 
     $query = db_select('taxonomy_term_data', 't');
     $query->addTag('translatable');
-    $query->addTag('term_access');
+    $query->addTag('taxonomy_term_access');
 
     // Do not select already entered terms.
     if (!empty($tags_typed)) {
