@@ -14,6 +14,10 @@ possibilities.
 This module built by Robots: http://www.lullabot.com
 Author: Nathan Haug (quicksketch)
 
+Requirements
+------------
+1) Drupal 7.36 or greater is required beginning in FileField Sources 7.x-1.10.
+
 Installation
 ------------
 1) Place this module directory in your modules folder (this will usually be

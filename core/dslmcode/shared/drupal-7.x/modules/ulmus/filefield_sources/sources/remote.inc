@@ -22,7 +22,7 @@ function filefield_source_remote_info() {
     'description' => t('Download a file from a remote server.'),
     'process' => 'filefield_source_remote_process',
     'value' => 'filefield_source_remote_value',
-    'file' => 'includes/remote.inc',
+    'file' => 'sources/remote.inc',
   );
   return $source;
 }
@@ -94,7 +94,7 @@ function filefield_source_remote_process($element, &$form_state, $form) {
     '#limit_validation_errors' => array($element['#parents']),
     '#ajax' => array(
       'path' => 'file/ajax/' . implode('/', $element['#array_parents']) . '/' . $form['form_build_id']['#value'],
-      'wrapper' => $element['#id'] . '-ajax-wrapper',
+      'wrapper' => $element['upload_button']['#ajax']['wrapper'],
       'effect' => 'fade',
       'progress' => array(
         'type' => 'bar',
