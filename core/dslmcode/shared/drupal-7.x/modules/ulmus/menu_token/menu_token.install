@@ -34,6 +34,17 @@ function menu_token_schema() {
 }
 
 /**
+ * Implements hook_install().
+ */
+function menu_token_install() {
+  db_update('system')
+    ->fields(array('weight' => 10))
+    ->condition('type', 'module', '=')
+    ->condition('name', 'menu_token', '=')
+    ->execute();
+}
+
+/**
  * Implements hook_update_N().
  */
 function menu_token_update_7000(&$sandbox) {
@@ -182,6 +193,18 @@ function menu_token_update_7004() {
     }
   }
 } 
+
+ /**
+ * Implements hook_update_N().
+ * Update Weight to 10
+ */
+function menu_token_update_7005() {
+  db_update('system')
+    ->fields(array('weight' => 10))
+    ->condition('type', 'module', '=')
+    ->condition('name', 'menu_token', '=')
+    ->execute();
+}
 
 /**
  * Implements hook_uninstall().
