@@ -16,6 +16,10 @@
   margin-right: .25em;
 }
 
+body.panels-ipe #themer-toggle{
+  bottom: 4em;
+}
+
 .devel-themer-wrapper {
   display: inline;
   margin: 0;
