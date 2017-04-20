@@ -24,6 +24,7 @@ function video_embed_brightcove_video_embed_handler_info() {
     'defaults' => array(
       'width' => 640,
       'height' => 360,
+      'class' => '',
     ),
   );
 
@@ -57,6 +58,13 @@ function video_embed_brightcove_form($defaults) {
     '#default_value' => $defaults['height'],
   );
 
+  $form['class'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Player CSS class'),
+    '#description' => t('CSS class to add to the player'),
+    '#default_value' => $defaults['class'],
+  );
+
   return $form;
 }
 
@@ -83,7 +91,7 @@ function video_embed_brightcove_handle_video($url, $settings) {
 
   if (isset($parameters['id']) && isset($parameters['key'])) {
     // Embed code.
-    $embed = '<object id="myExperience" class="BrightcoveExperience">
+    $embed = '<object class="@class" id="myExperience" class="BrightcoveExperience">
       <param name="bgcolor" value="#FFFFFF" />
       <param name="width" value="@width" />
       <param name="height" value="@height" />
@@ -100,6 +108,7 @@ function video_embed_brightcove_handle_video($url, $settings) {
       '!key' => $parameters['key'],
       '@width' => $settings['width'],
       '@height' => $settings['height'],
+      '@class' => $settings['class'],
       '!videoplayer' => $parameters['player'],
     ));
 
@@ -152,7 +161,7 @@ function _video_embed_brightcove_get_video_properties($url) {
     $string = "/(.*){$component['start']}(.*){$component['finish']}/";
     preg_match($string, $url, $matches);
     if ($matches && !empty($matches[2])) {
-      $return[$key] = $matches[2];
+      $return[$key] = check_plain($matches[2]);
     }
   }
   return $return;
