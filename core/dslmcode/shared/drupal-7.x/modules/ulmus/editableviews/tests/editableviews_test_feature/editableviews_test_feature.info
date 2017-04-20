@@ -2,6 +2,7 @@ name = Editable Views Test Feature
 description = Components required for tests for Editable Views.
 core = 7.x
 package = Features
+hidden = TRUE
 dependencies[] = ctools
 dependencies[] = editableviews
 dependencies[] = entityreference
@@ -28,9 +29,9 @@ features[views_view][] = test_editable_views_node_referenced_backwards_title
 features[views_view][] = test_editable_views_node_referenced_forwards_title
 features[views_view][] = test_editable_views_node_title
 
-; Information added by Drupal.org packaging script on 2014-04-18
-version = "7.x-1.0-beta8"
+; Information added by Drupal.org packaging script on 2015-07-28
+version = "7.x-1.0-beta10"
 core = "7.x"
 project = "editableviews"
-datestamp = "1397838560"
+datestamp = "1438114140"
 
