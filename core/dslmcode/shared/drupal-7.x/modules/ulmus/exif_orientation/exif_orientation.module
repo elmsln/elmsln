@@ -6,6 +6,54 @@
  */
 
 /**
+ * Implements hook_form_alter().
+ * Replace the user_validate_picture validator with our own.
+ */
+function exif_orientation_form_user_profile_form_alter(&$form, &$form_state, $form_id) {
+  $key = array_search('user_validate_picture', $form['#validate']);
+  $form['#validate'][$key] = '_exif_orientation_validate_user_picture';
+}
+
+/**
+ * Validates an image uploaded by a user.
+ * This is an exact copy of user_validate_picture() except our validator which is added
+ * before file_validate_image_resolution(). file_validate_image_resolution resizes the image
+ * if it's too large loosing the exif data in the process. The standard validators of
+ * hook_file_validate() are run after user_validate_picture() so it cannot be used because
+ * the image does not contain the exif data anymore. The only solution is to completely replace
+ * the validator from core.
+ *
+ * @see user_validate_picture()
+ */
+function _exif_orientation_validate_user_picture(&$form, &$form_state) {
+  // If required, validate the uploaded picture.
+  $validators = array(
+    'file_validate_is_image' => array(),
+    '_exif_orientation_validate_image_callback' => array(),
+    'file_validate_image_resolution' => array(variable_get('user_picture_dimensions', '85x85')),
+    'file_validate_size' => array(variable_get('user_picture_file_size', '30') * 1024),
+  );
+
+  // Save the file as a temporary file.
+  $file = file_save_upload('picture_upload', $validators);
+  if ($file === FALSE) {
+    form_set_error('picture_upload', t("Failed to upload the picture image; the %directory directory doesn't exist or is not writable.", array('%directory' => variable_get('user_picture_path', 'pictures'))));
+  }
+  elseif ($file !== NULL) {
+    $form_state['values']['picture_upload'] = $file;
+  }
+}
+
+/**
+ * Image validator which rotates the image.
+ */
+function _exif_orientation_validate_image_callback(stdClass $file) {
+  _exif_orientation_rotate($file);
+  // This validator did not produce any errors.
+  return array();
+}
+
+/**
  * Implements hook_file_presave().
  */
 function exif_orientation_file_presave($file) {
@@ -23,10 +71,10 @@ function exif_orientation_file_presave($file) {
  */
 function _exif_orientation_rotate($file) {
   if (function_exists('exif_read_data') && $file->filemime == 'image/jpeg') {
-    $file_exif = exif_read_data(drupal_realpath($file->uri));
+    $file_exif = @exif_read_data(drupal_realpath($file->uri));
 
     // Ensure that the Orientation key|value exists, otherwise leave.
-    if (!isset($file_exif['Orientation'])) {
+    if (!is_array($file_exif) || !isset($file_exif['Orientation'])) {
       return;
     }
     // Orientation numbers and corresponding degrees.
@@ -49,7 +97,7 @@ function _exif_orientation_rotate($file) {
       // Load the image object for manipulation
       $file_image = image_load(drupal_realpath($file->uri));
 
-      if (image_rotate($file_image, $degrees)) {
+      if (image_rotate($file_image, $degrees, 'FFFFFF')) {
         image_save($file_image);
       }
     }
