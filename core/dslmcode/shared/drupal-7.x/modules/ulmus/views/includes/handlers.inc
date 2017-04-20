@@ -1588,7 +1588,7 @@ class views_join {
             $extras[] = $extra;
           }
           // Otherwise - and if we have a value - use it for a field-to-value condition.
-          elseif (!empty($info['value'])) {
+          elseif (isset($info['value'])) {
             // Convert a single-valued array of values to the single-value case,
             // and transform from IN() notation to = notation
             if (is_array($info['value']) && count($info['value']) == 1) {

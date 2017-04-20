@@ -289,7 +289,14 @@ class views_plugin_cache extends views_plugin {
 
   function get_results_key() {
     if (!isset($this->_results_key)) {
-      $this->_results_key = $this->view->name . ':' . $this->display->id . ':results:' . $this->get_cache_key();
+      $key_data = array();
+      foreach (array('exposed_info', 'page', 'sort', 'order', 'items_per_page', 'offset') as $key) {
+        if (isset($_GET[$key])) {
+          $key_data[$key] = $_GET[$key];
+        }
+      }
+
+      $this->_results_key = $this->view->name . ':' . $this->display->id . ':results:' . $this->get_cache_key($key_data);
     }
 
     return $this->_results_key;
@@ -298,6 +305,7 @@ class views_plugin_cache extends views_plugin {
   function get_output_key() {
     if (!isset($this->_output_key)) {
       $key_data = array(
+        'result' => $this->view->result,
         'theme' => $GLOBALS['theme'],
       );
       $this->_output_key = $this->view->name . ':' . $this->display->id . ':output:' . $this->get_cache_key($key_data);
