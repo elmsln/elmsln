@@ -48,13 +48,13 @@ Filters that should be run after Markdown filter includes:
 The "Limit allowed HTML tags" filter is a special case:
 
 For best security, ensure that it is run after the Markdown filter and
-that only markup you would like to allow in via HTML and/or Markdown is
-configured to be allowed via the it.
+that only markup you would like to allow via HTML and/or Markdown is
+configured to be allowed.
 
 If you on the other hand want to make sure that all converted Markdown
-text is perserved, run it after the Markdown filter. Note that
-blockquoting with Markdown doesn't work when run after "Limit allowed
-HTML tags". It converts the ">" in to "&gt;".
+text is perserved, run it before the Markdown filter. Note that blockquoting
+with Markdown doesn't work in this case since "Limit allowed HTML tags" filter
+converts the ">" in to "&gt;".
 
 
 Smartypants support:
