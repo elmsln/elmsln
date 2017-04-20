@@ -1,0 +1,11 @@
+name = Paranoia Sanitize
+description = Cleans up db dumps in a decidedly paranoid manner by munging or deleting sensitive data.
+core = 7.x
+files[] = paranoiasanitize.test
+
+; Information added by Drupal.org packaging script on 2017-02-09
+version = "7.x-1.7"
+core = "7.x"
+project = "paranoia"
+datestamp = "1486673886"
+
