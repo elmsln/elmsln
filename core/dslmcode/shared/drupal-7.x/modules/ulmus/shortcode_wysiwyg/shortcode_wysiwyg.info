@@ -1,12 +1,13 @@
-name = Shortcode wysiwyg EXPERIMENTAL
+name = Shortcode wysiwyg
 description = "Shortcode Wysiwyg integration"
 core = 7.x
 package = Shortcode
 dependencies[] = shortcode
+dependencies[] = wysiwyg
 
-; Information added by Drupal.org packaging script on 2014-04-14
-version = "7.x-2.x-dev"
+; Information added by Drupal.org packaging script on 2015-08-15
+version = "7.x-2.0"
 core = "7.x"
 project = "shortcode_wysiwyg"
-datestamp = "1397470457"
+datestamp = "1439598521"
 
