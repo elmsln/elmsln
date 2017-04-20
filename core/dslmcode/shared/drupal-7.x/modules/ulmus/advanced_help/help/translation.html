@@ -1,9 +1,44 @@
-<p>To translate advanced help, first create a <b>translations/help/$language</b> directory
-in the module directory. Then, copy the .ini file and all .html files from
-the help directory.</p>
+<p>To translate a help-file indexed by <strong>Advanced help</strong>,
+first create a directory
+<code>translations/help/<em>language</em></code> in the project's 
+root directory. The <em>language</em>  is the language code that
+appears on the <em>Languages</em> page in the administrative UI.</p>
 
-<p>The .ini file only needs to keep the titles, and if there is a 'name' or 'index name' setting in the 'advanced help settings' portion, that should be retained. Any retained settings should be translated. The rest of the data in the .ini file may be discarded or ignored.</p>
+<p>Then, copy the <code>.ini</code> file and all
+the <code>.html</code> files from the help directory into this.  If
+you need to alter an image to use it in a translation, you may also
+put the altered image there.</p>
 
-<p>Each file should then be translated in place.</p>
+<p>In the topics section, the <code>.ini</code> file only needs to
+keep the topic names (unaltered) and titles (translated). If there is
+a <code>name</code> or <code>index name</code> setting in the
+'advanced help settings' portion, that should be retained. Any
+retained settings should be translated. The rest of the data in the
+<code>.ini</code> file may be discarded or ignored.</p>
 
-<p>When translating a .html file, you will find that the <b>path</b> keyword will lead to the original directory. If you must translate items that are linked, such as images, use <b>trans_path</b> instead, which will lead to the translated directory. This will allow you to pick and choose which linked items, if any, will be translated.</p>
+<p>Each <code>.html</code> file should then be translated in place.</p>
+
+<p>When translating a <code>.html</code> file, you will find that
+the <code>&amp;path&amp;</code> keyword (used for images and links)
+will lead to the original directory. If you must translate items that
+are linked, such as images containing text,
+use <code>&amp;trans_path&amp;</code> instead, which will lead to the
+translated directory. This will allow you to pick and choose which
+linked items, if any, will be translated.</p>
+
+<p>If a topic is not tranlated, the default (untranslated) version
+will be shown instead.</p>
+
+<h2>Translating Advanced help's help files</h2>
+
+<p>If you want to help with the translation of
+<strong>Advanced help</strong> help texts for a particular language, look for an issue named named “Translation to XXX” (where
+“XXX” is the language you want to translate the help texts to) in the <a href="https://www.drupal.org/project/issues/advanced_help">issue queue for Advanced help</a>.
+If such an issue does not exist, please can create it.
+Choose <em>Category</em>   “Task”,
+<em>Status</em> “Needs review” and
+<em>Component</em>  “Documentation”.
+Upload translated files as an attachment (change the file type from <code>.html</code> to <code>.txt</code> to be allowed to upload). </p>
+
+<p>Uploaded translations will be included in the next version if
+reviewed and approved by other users (i.e. gets to status “RTBC”).</p>

@@ -1,0 +1,107 @@
+<h2 id="project-description">Synopsis</h2>
+
+<p>The <strong>Advanced help</strong> module provides a framework that allows
+module and theme developers integrate help texts in a Drupal site.</p>
+
+<p>These help texts are stored in ordinary <code>.html</code>-files
+that lives in the file system (as opposed to the database).  These
+files are distributed from the project Drupal.org repo in the same
+package as the module or theme, and placed in a subdirectory named
+<code>help</code> in the project or theme directory.  This means that
+the help texts can be easiely kept in sync with the project they
+provide help texts for, but also that read access to these files
+are not managed by any content access restrictions imposed by Drupal.</p>
+  
+<p>The help texts can be marked up with standard HTML. They will be
+rendered using your site's theme.</p>
+
+<p>If the module or theme author does not make use of the
+<em>Advanced help</em> HTML-framework, but if there is a
+<code>README.md</code> or <code>README.txt</code> in the package,
+the content of that file will be shown instead.</p>
+  
+<p>The help texts may appear in a popup or not as the project prefers.
+By taking away access to view the popups, a site can hide popups from
+users.</p>
+
+<p>The help texts can be placed in a hierarchy, allowing for top down
+navigation of help.</p>
+
+<p>The help texts may be made searchable. If advanced help search is
+enabled, all help texts are fully indexed. This means that the entire
+contents of the advanced help set of pages can be searched for
+keywords.</p>
+
+<h2 id="use">Using the module</h2>
+
+<p>When you enable the module, a new tab with the legend “Advanced
+help” will show up under “Help”:
+
+<div class="ta-center">
+<img class="help-img-center" alt="ahelp_tab.png" src="&path&ahelp_tab.png" width="661" height="225" border="1" />
+</div>
+
+<p>By itself, this module doesn't do much.  The <strong>Advanced
+help</strong> assists other modules and themes in showing help texts.
+Nothing will show up until you enable at least one other module that
+makes use of the advanced help framework or comes with a file
+named <code>README.md</code> or <code>README.txt</code>.  However, it
+comes with a small companion demo module named
+<strong>Advanced help example</strong> to demonstrate how it works.
+For more extensive example of use of the advanced help features, see
+the <strong>Views</strong> project.</p>
+
+<!--
+<h2 id="project-recommended">Recommended modules</h2>
+
+<ul>
+<li><a href="https://www.drupal.org/project/markdown">Markdown filter</a>:<br>
+When this module is enabled, display of any <code>README.md</code> the
+module shows will be rendered with markdown.</li>
+<li><a href="https://www.drupal.org/project/attributions">Attributions</a>:<br>
+When this module is enabled, attributions of third party content used
+by the project (i.e. some text from Wikipedia) will be available in an
+attribution block and on an atribution page.</li>
+</ul>
+-->
+
+<h2 id="support-status">Support status</h2>
+
+<p>Reported bugs for the Drupal 7 branch will be fixed in a timely
+manner.  Bugs in the issue queue for the Drupal 6 branch will only be
+fixed if accompanied with a patch, after the patch has been reviewed
+and tested by the community.  No Drupal 8 version is currently under
+development.  Post a message in
+the <a href="https://www.drupal.org/node/1928218">issue queue</a> if
+you're interested in managing a port of the project to to Drupal
+8. Older versions are no longer supported.</p>
+
+<p>Community support in the form of patches are very welcome for both
+Drupal 6 and Drupal 7 versions, and will be given priority. For QA,
+the project needs community support in the form of reviews of patches,
+development versions and releases.</p>
+
+<p>The primary goal of the module is to remain <strong>light-weight
+and simple</strong>.  This means that not all feature requests will be
+implemented, even if they are a good idea.  Feature requests
+accompanied by patches are more likely to make it into a release.</p>
+
+<p>The maintainer hopes that the community is willing to help out by
+answering &amp; closing support requests.</p>
+
+<!--
+<h2 id="project-problems">Known problems</h2>
+-->
+
+
+
+<h2 id="project-maintainers">Credits</h2>
+
+<ul>
+<li><a href="https://www.drupal.org/u/merlinofchaos"">merlinofchaos</a> (52 commits, original creator)</li>
+<li><a href="https://www.drupal.org/u/redndahead">redndahead</a> (8 commits)</li>
+<li><a href="https://www.drupal.org/u/dmitrig01">dmitrig01</a> (3 commits)</li>
+<li><a href="https://www.drupal.org/u/amitgoyal">amitgoyal </a> (5 commits)</li>
+<li><a href="https://www.drupal.org/u/gisle">gisle</a> (current maintainer, D7)</li>
+<li><a href="https://www.drupal.org/u/gnuget">gnuget</a> (current maintainer, D8)</li>
+</ul>
