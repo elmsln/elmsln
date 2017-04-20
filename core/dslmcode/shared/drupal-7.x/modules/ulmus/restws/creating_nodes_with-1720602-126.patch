@@ -1,5 +1,5 @@
 diff --git a/restws.entity.inc b/restws.entity.inc
-index b012e98..c2e3a0c 100644
+index 1d49cc8..8cec137 100644
 --- a/restws.entity.inc
 +++ b/restws.entity.inc
 @@ -74,8 +74,8 @@ interface RestWSResourceControllerInterface {
@@ -62,7 +62,7 @@ index b012e98..c2e3a0c 100644
    public function access($op, $id) {
 +    // The "create" operation requires an existing entity to check access.
 +    // See https://www.drupal.org/node/1780646
-+    if ($op == 'create' && empty($id)) {
++    if ($op == 'create' && (empty($id) || empty($this->wrapper($id)->value()))) {
 +      return TRUE;
 +    }
      return entity_access($op, $this->entityType, isset($id) ? $this->wrapper($id)->value() : NULL);
