@@ -1,23 +1,19 @@
+/**
+ * @file
+ * Video Filter plugin for TinyMCE 4.x
+ */
 var video_filter_dialog = {};
 
 (function ($) {
 video_filter_dialog = {
   insert : function() {
-    var ed = tinyMCEPopup.editor, e;
-
-    tinyMCEPopup.restoreSelection();
-
-    tinyMCEPopup.execCommand("mceBeginUndoLevel");
-
+    var ed = top.tinymce.activeEditor, e;
+    
     var file_url = $('#edit-file-url').val();
-
-    // @Todo: validate width and hight is INTs?
 
     if (file_url == "") {
       // File url is empty, we have nothing to insert, close the window
-      ed.execCommand('mceRepaint');
-      tinyMCEPopup.execCommand("mceEndUndoLevel");
-      tinyMCEPopup.close();
+      top.tinymce.activeEditor.windowManager.close();
     }
     else {
       var str = '[video:' + file_url;
@@ -34,16 +30,11 @@ video_filter_dialog = {
       if ($('#edit-autoplay').is(':checked')) {
         str += ' autoplay:' + $('#edit-autoplay').val();
       }
-      else {
-        str += ' autoplay:' + '0';
-      }
       str += ']';
 
       ed.execCommand('mceInsertContent', false, str);
+      top.tinymce.activeEditor.windowManager.close();
     }
-
-    tinyMCEPopup.execCommand("mceEndUndoLevel");
-    tinyMCEPopup.close();
   }
 };
 
@@ -54,7 +45,7 @@ Drupal.behaviors.video_filter_tinymce =  {
     });
 
     $('#edit-cancel').click(function() {
-      tinyMCEPopup.close();
+      top.tinymce.activeEditor.windowManager.close();
     });
   }
 }
