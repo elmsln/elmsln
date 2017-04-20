@@ -184,13 +184,39 @@ function field_collection_fieldset_field_widget_info() {
     'field_collection_fieldset' => array(
       'label' => t('Fieldset'),
       'field types' => array('field_collection'),
-      'settings' => array('collapsed' => FALSE, 'last_item_collapsed' => FALSE),
+      'settings' => array(
+        'field_as_label' => array(),
+        'replace_label' => FALSE,
+        'collapsed' => FALSE,
+        'last_item_collapsed' => FALSE,
+        'new_item_open' => FALSE,
+      ),
       'behaviors' => array(
         'multiple values' => FIELD_BEHAVIOR_DEFAULT,
         'default value' => FIELD_BEHAVIOR_NONE,
       ),
     ),
   );
+}
+
+/**
+ * Implements hook_field_collection_fieldset_field_as_label_info().
+ */
+function field_collection_fieldset_field_collection_fieldset_field_as_label_info($field) {
+  $field_types = _field_collection_fieldset_field_as_label_callbacks();
+
+  $field_as_label_info = array();
+
+  $entity_label = t('Field Collection field:');
+  $fields_info = field_info_instances('field_collection_item', $field['field_name']);
+  foreach ($fields_info as $field_info) {
+    $info = field_info_field($field_info['field_name']);
+    if (isset($field_types[$info['type']])) {
+      $field_as_label_info[$field_info['field_name']] = $field_types[$info['type']];
+      $field_as_label_info[$field_info['field_name']]['label'] = $entity_label . ' ' . $field_info['label'];
+    }
+  }
+  return $field_as_label_info;
 }
 
 /**
@@ -202,12 +228,37 @@ function field_collection_fieldset_field_widget_settings_form($field, $instance)
   $form = array();
 
   if ($widget['type'] == 'field_collection_fieldset') {
+    $form['field_as_label'] = array(
+      '#title' => t('Field as label'),
+      '#description' => t('Set a field to display as a label'),
+      '#type' => 'select',
+      '#default_value' => isset($settings['field_as_label']) ? $settings['field_as_label'] : array(),
+      '#empty_option' => t('None'),
+      '#options' => _field_collection_fieldset_get_fields($field),
+      '#weight' => 5,
+    );
+
+    $form['replace_label'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Replace a label on "@label @delta" pattern.'),
+      '#default_value' => $settings['replace_label'],
+      '#description' => t('If checked, the label of fieldset will be overwritten on "@label @delta" pattern.'),
+      '#weight' => 6,
+      '#states' => array(
+        'enabled' => array(
+          ':input[name="instance[widget][settings][field_as_label]"]' => array(
+            'value' => '',
+          ),
+        ),
+      ),
+    );
+
     $form['collapsed'] = array(
       '#type' => 'checkbox',
       '#title' => t('Collapsed'),
       '#default_value' => $settings['collapsed'],
       '#description' => t('If checked, items are collapsed by default.'),
-      '#weight' => 5,
+      '#weight' => 7,
     );
 
     $form['last_item_collapsed'] = array(
@@ -215,10 +266,28 @@ function field_collection_fieldset_field_widget_settings_form($field, $instance)
       '#title' => t('Last item collapsed'),
       '#default_value' => $settings['last_item_collapsed'],
       '#description' => t('If checked, last item is collapsed by default.'),
-      '#weight' => 6,
+      '#weight' => 8,
       '#states' => array(
         'enabled' => array(
           ':input[name="instance[widget][settings][collapsed]"]' => array(
+            'checked' => TRUE,
+          ),
+        ),
+      ),
+    );
+
+    $form['new_item_open'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('New item force open'),
+      '#default_value' => $settings['new_item_open'],
+      '#description' => t('If checked, new item added will be open.'),
+      '#weight' => 9,
+      '#states' => array(
+        'enabled' => array(
+          ':input[name="instance[widget][settings][collapsed]"]' => array(
+            'checked' => TRUE,
+          ),
+          ':input[name="instance[widget][settings][last_item_collapsed]"]' => array(
             'checked' => TRUE,
           ),
         ),
@@ -250,7 +319,11 @@ function field_collection_fieldset_field_widget_form(&$form, &$form_state, $fiel
       // Nest the field collection item entity form in a dedicated parent space,
       // by appending [field_name, langcode, delta] to the current parent space.
       // That way the form values of the field collection item are separated.
-      $parents = array_merge($field_parents, array($field_name, $language, $delta));
+      $parents = array_merge($field_parents, array(
+        $field_name,
+        $language,
+        $delta,
+      ));
 
       $element += array(
         '#element_validate' => array('field_collection_field_widget_embed_validate'),
@@ -261,10 +334,19 @@ function field_collection_fieldset_field_widget_form(&$form, &$form_state, $fiel
       $element['#collapsible'] = TRUE;
       $element['#collapsed'] = $instance['widget']['settings']['collapsed'];
 
-      $element['#title'] = t($instance['label'] . ' @delta', array('@delta' => $delta + 1));
-      if (function_exists('i18n_string_object_translate')) {
-        $translated = i18n_string_object_translate('field_instance', $instance);
-        $element['#title'] = format_string('@label @delta', array('@label' => $translated['label'], '@delta' => $delta + 1));
+      if ($instance['widget']['settings']['replace_label']) {
+        $element['#title'] = t('@label @delta', array('@label' => $instance['label'], '@delta' => $delta + 1));
+        if (function_exists('i18n_string_object_translate')) {
+          $translated = i18n_string_object_translate('field_instance', $instance);
+          $element['#title'] = format_string('@label @delta', array('@label' => $translated['label'], '@delta' => $delta + 1));
+        }
+      }
+      else {
+        $element['#title'] = $instance['label'];
+        if (function_exists('i18n_string_object_translate')) {
+          $translated = i18n_string_object_translate('field_instance', $instance);
+          $element['#title'] = $translated['label'];
+        }
       }
 
       $field_state = field_form_get_state($field_parents, $field_name, $language, $form_state);
@@ -273,7 +355,8 @@ function field_collection_fieldset_field_widget_form(&$form, &$form_state, $fiel
         && $field['cardinality'] == FIELD_CARDINALITY_UNLIMITED) {
 
         // Do not add a blank item. Also see
-        // field_collection_fieldset_field_attach_form() for correcting #max_delta.
+        // field_collection_fieldset_field_attach_form() for correcting
+        // #max_delta.
         $recursion--;
         return FALSE;
       }
@@ -290,14 +373,37 @@ function field_collection_fieldset_field_widget_form(&$form, &$form_state, $fiel
         if (isset($items[$delta])) {
           $field_collection_item = field_collection_field_get_entity($items[$delta], $field_name);
         }
+
         // Show an empty collection if we have no existing one or it does not
         // load.
         if (empty($field_collection_item)) {
+          if ($instance['widget']['settings']['collapsed'] && $instance['widget']['settings']['last_item_collapsed']
+            && $instance['widget']['settings']['new_item_open']) {
+
+            $element['#collapsed'] = FALSE;
+          }
           $field_collection_item = entity_create('field_collection_item', array('field_name' => $field_name));
         }
 
         // Put our entity in the form state, so FAPI callbacks can access it.
         $field_state['entity'][$delta] = $field_collection_item;
+      }
+
+      if (!empty($instance['widget']['settings']['field_as_label'])) {
+        $field_as_label = $instance['widget']['settings']['field_as_label'];
+        $field_collection_item_wrapper = entity_metadata_wrapper('field_collection_item', $field_collection_item);
+
+        $field_as_label_context = array(
+          'field_as_label' => $field_as_label,
+          'field_collection_item_wrapper' => $field_collection_item_wrapper,
+        );
+
+        $field_as_label_info = module_invoke_all('field_collection_fieldset_field_as_label_info', $field);
+        $func = $field_as_label_info[$field_as_label]['callback'];
+        if (function_exists($func) && $title = call_user_func($func, $field_as_label_context)) {
+          $element['#title'] = $title;
+        }
+        drupal_alter('field_collection_fieldset_field_as_label', $element['#title'], $field_as_label_context);
       }
 
       field_form_set_state($field_parents, $field_name, $language, $form_state, $field_state);
@@ -307,7 +413,7 @@ function field_collection_fieldset_field_widget_form(&$form, &$form_state, $fiel
         $element['#after_build'][] = 'field_collection_field_widget_embed_delay_required_validation';
       }
 
-      if ($field['cardinality'] == FIELD_CARDINALITY_UNLIMITED) {
+      if ($field['cardinality'] == FIELD_CARDINALITY_UNLIMITED && empty($form_state['programmed'])) {
         $element['remove_button'] = array(
           '#delta' => $delta,
           '#name' => implode('_', $parents) . '_remove_button',
@@ -317,7 +423,7 @@ function field_collection_fieldset_field_widget_form(&$form, &$form_state, $fiel
           '#submit' => array('field_collection_remove_submit'),
           '#limit_validation_errors' => array(),
           '#ajax' => array(
-            'path' => 'field_collection/ajax',
+            'callback' => 'field_collection_remove_js',
             'effect' => 'fade',
           ),
           '#weight' => 1000,
@@ -342,7 +448,9 @@ function field_collection_fieldset_field_attach_form($entity_type, $entity, &$fo
     $field = field_info_field($field_name);
 
     if ($field['type'] == 'field_collection' && $field['settings']['hide_blank_items']
-      && field_access('edit', $field, $entity_type) && $instance['widget']['type'] == 'field_collection_fieldset') {
+      && field_access('edit', $field, $entity_type) && $instance['widget']['type'] == 'field_collection_fieldset'
+      && $field['cardinality'] == FIELD_CARDINALITY_UNLIMITED
+      && empty($form_state['programmed'])) {
 
       $element_langcode = $form[$field_name]['#language'];
       if ($form[$field_name][$element_langcode]['#max_delta'] > 0) {
@@ -354,6 +462,137 @@ function field_collection_fieldset_field_attach_form($entity_type, $entity, &$fo
         $max_delta = $form[$field_name][$element_langcode]['#max_delta'];
         $form[$field_name][$element_langcode][$max_delta]['#collapsed'] = FALSE;
       }
+
+      $element_langcode = $form[$field_name]['#language'];
+      $element_wrapper = $form[$field_name][$element_langcode]['add_more']['#ajax']['wrapper'];
+      for ($i = 0; $i <= $form[$field_name][$element_langcode]['#max_delta']; $i++) {
+        if (isset($form[$field_name][$element_langcode][$i]['remove_button'])) {
+          $form[$field_name][$element_langcode][$i]['remove_button']['#ajax']['wrapper'] = $element_wrapper;
+        }
+      }
+
     }
   }
+}
+
+/**
+ * Process a field collection label for widget form.
+ *
+ * @param array $context
+ *   An array with contextual information used to build the title:
+ *     - field_as_label the name of the field used as label.
+ *     - field_collection_item_wrapper the field collection for which
+ *     a label is created.
+ *
+ * @return string
+ *   Title for the field collection.
+ */
+function field_collection_fieldset_field_as_label_callback($context) {
+  $title = '';
+  if ($field_value = $context['field_collection_item_wrapper']->{$context['field_as_label']}->value()) {
+    $info = field_info_field($context['field_as_label']);
+    switch ($info['type']) {
+      case 'file':
+      case 'image':
+        if (!empty($field_value['alt'])) {
+          $title = $field_value['alt'];
+        }
+        elseif (!empty($field_value['title'])) {
+          $title = $field_value['title'];
+        }
+        elseif (!empty($field_value['description'])) {
+          $title = $field_value['description'];
+        }
+        else {
+          $title = $field_value['filename'];
+        }
+        break;
+
+      case 'text':
+      case 'text_long':
+        $title = is_array($field_value) ? strip_tags($field_value['value']) : strip_tags($field_value);
+        break;
+
+      case 'list_text':
+        $title = $field_value;
+        break;
+
+      case 'link_field':
+        $title = !empty($field_value['title']) ? $field_value['title'] : $field_value['url'];
+        break;
+
+      case 'taxonomy_term_reference':
+        $title = $field_value->name;
+        break;
+
+      case 'entityreference':
+        $target_type = $info['settings']['target_type'];
+        $title = entity_access('view', $target_type, $field_value) ? entity_label($target_type, $field_value) : t('- Restricted access -');;
+        break;
+    }
+  }
+  return $title;
+}
+
+/**
+ * Get fields from field collection field.
+ *
+ * @param array $field
+ *   The field structure being configured.
+ *
+ * @return array
+ *   An array of fields keyed by the field_name.
+ */
+function _field_collection_fieldset_get_fields($field) {
+  $field_as_label_info = module_invoke_all('field_collection_fieldset_field_as_label_info', $field);
+  $options = array_map('_field_collection_fieldset_field_get_label', $field_as_label_info);
+  return $options;
+}
+
+/**
+ * Helper function that return field's label.
+ *
+ * @param array $field_as_label_option
+ *   An array contains callback and label for field.
+ *
+ * @return string
+ *   A field name.
+ */
+function _field_collection_fieldset_field_get_label($field_as_label_option) {
+  return $field_as_label_option['label'];
+}
+
+/**
+ * Helper function that returns the field as label callbacks.
+ *
+ * @return array
+ *   An array contains callbacks for fields.
+ */
+function _field_collection_fieldset_field_as_label_callbacks() {
+  return array(
+    'text' => array(
+      'callback' => 'field_collection_fieldset_field_as_label_callback',
+    ),
+    'text_long' => array(
+      'callback' => 'field_collection_fieldset_field_as_label_callback',
+    ),
+    'image' => array(
+      'callback' => 'field_collection_fieldset_field_as_label_callback',
+    ),
+    'file' => array(
+      'callback' => 'field_collection_fieldset_field_as_label_callback',
+    ),
+    'link_field' => array(
+      'callback' => 'field_collection_fieldset_field_as_label_callback',
+    ),
+    'list_text' => array(
+      'callback' => 'field_collection_fieldset_field_as_label_callback',
+    ),
+    'taxonomy_term_reference' => array(
+      'callback' => 'field_collection_fieldset_field_as_label_callback',
+    ),
+    'entityreference' => array(
+      'callback' => 'field_collection_fieldset_field_as_label_callback',
+    ),
+  );
 }
