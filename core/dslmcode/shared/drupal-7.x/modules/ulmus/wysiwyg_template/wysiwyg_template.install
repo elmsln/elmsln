@@ -10,6 +10,7 @@ function wysiwyg_template_schema() {
         'description' => 'The machine name for the template.',
         'type' => 'varchar',
         'length' => 128,
+        'not null' => TRUE
       ),
       'title' => array(
         'description' => 'The title of the Wysiwyg template',
@@ -58,6 +59,7 @@ function wysiwyg_template_schema() {
         'description' => 'The machine name for the template.',
         'type' => 'varchar',
         'length' => 128,
+        'not null' => TRUE
       ),
       'type' => array(
         'description' => 'The {node_type}.type of this node.',
@@ -79,6 +81,7 @@ function wysiwyg_template_schema() {
         'description' => 'The machine name for the template.',
         'type' => 'varchar',
         'length' => 128,
+        'not null' => TRUE
       ),
       'type' => array(
         'description' => 'The {node_type}.type of this node.',
@@ -123,6 +126,7 @@ function wysiwyg_template_update_7200() {
     'description' => 'The machine name for the template.',
     'type' => 'varchar',
     'length' => 128,
+    'not null' => TRUE
   ));
 
   foreach ($templates as $tid => $title) {
