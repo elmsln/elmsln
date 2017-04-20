@@ -1,0 +1,14 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the Media Bulk Upload module.
+ */
+
+/**
+ * Implements hook_uninstall().
+ */
+function media_bulk_upload_uninstall() {
+  // Remove variables.
+  variable_del('media_bulk_upload_import_batch_size');
+}

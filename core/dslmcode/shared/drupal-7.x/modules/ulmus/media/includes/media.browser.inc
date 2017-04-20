@@ -12,7 +12,17 @@ function media_browser($selected = NULL) {
   $output = array();
   $output['#attached']['library'][] = array('media', 'media_browser_page');
 
-  $params = media_set_browser_params();
+  $params = media_get_browser_params();
+
+  // If we just did a multiple upload, do the multiform file edit. The flag that
+  // tells us that we need to do this is $params['render_multi_edit_form'].
+  if (variable_get('media_bulk_upload_edit', TRUE) && isset($params['render_multi_edit_form']) && isset($params['fid']) && module_exists('media_bulk_upload')) {
+    module_load_include('inc', 'media_bulk_upload', 'includes/media_bulk_upload.pages');
+    $files = file_load_multiple($params['fid']);
+    $multi_edit_form = media_bulk_upload_file_page_edit_multiple($files);
+    $multi_edit_form['buttons']['cancel']['#access'] = FALSE;
+    return $multi_edit_form;
+  }
 
   // If one or more files have been selected, the browser interaction is now
   // complete. Return empty page content to the dialog which now needs to close,
@@ -24,7 +34,8 @@ function media_browser($selected = NULL) {
     }
     $files = file_load_multiple($fids);
     foreach ($files as $file) {
-      media_browser_build_media_item($file);
+      $view_mode = isset($params['view_mode']) ? $params['view_mode'] : 'preview';
+      media_browser_build_media_item($file, $view_mode);
     }
     $setting = array('media' => array('selectedMedia' => array_values($files)));
     drupal_add_js($setting, 'setting');
@@ -77,8 +88,8 @@ function media_browser($selected = NULL) {
       continue;
     }
 
-    // We need to get a submit and cancel button on each tab. If the plugin
-    // is not returning a form element we need to add a submit button.
+    // We need to ensure that a submit button is available on each tab. If the
+    // plugin is not returning a form element we need to add a submit button.
     // This is a fairly broad assumption.
     if (empty($plugin_output[$key]['#form']) && !empty($plugin_output[$key]['#markup'])) {
       $fake_buttons = '<div class="form-actions form-wrapper">';
@@ -87,33 +98,8 @@ function media_browser($selected = NULL) {
           'class' => array('button', 'button-yes', 'fake-submit', $key),
         ),
       ));
-      $fake_buttons .= l(t('Cancel'), '', array(
-        'attributes' => array(
-          'class' => array('button', 'button-no', 'fake-cancel', $key),
-        ),
-      ));
       $fake_buttons .= '</div>';
       $plugin_output[$key]['#markup'] .= $fake_buttons;
-    }
-
-    // I'm not sure if it is ever the case that a plugin form will ever have
-    // the correct cancel button so we add it here. Put it inline with the
-    // current submit button. This is a fairly broad assumption.
-    if (!empty($plugin_output[$key]['form']['actions']) && !isset($plugin_output[$key]['form']['actions']['cancel'])) {
-      $plugin_output[$key]['form']['actions']['cancel'] = array(
-        '#type' => 'link',
-        '#title' => t('Cancel'),
-        '#href' => '',
-        '#attributes' => array(
-          'class' => array(
-            'button',
-            'button-no',
-            'fake-cancel',
-            $key,
-          ),
-        ),
-        '#weight' => 100,
-      );
     }
   }
 
@@ -162,10 +148,6 @@ function media_browser($selected = NULL) {
 
   drupal_add_js($settings, 'setting');
 
-  $output['title'] = array(
-    '#markup' => t('Select a file')
-  );
-
   $output['tabset']['tabs'] = array(
     '#theme' => 'menu_local_tasks',
     '#attributes' => array('class' => array('tabs', 'primary')),
@@ -178,107 +160,11 @@ function media_browser($selected = NULL) {
 }
 
 /**
- * Provides a singleton of the params passed to the media browser.
- *
- * This is useful in situations like form alters because callers can pass
- * id="wysiywg_form" or whatever they want, and a form alter could pick this up.
- * We may want to change the hook_media_browser_plugin_view() implementations to
- * use this function instead of being passed params for consistency.
- *
- * It also offers a chance for some meddler to meddle with them.
- *
- * @see media_browser()
- */
-function media_set_browser_params() {
-  $params = &drupal_static(__FUNCTION__, array());
-
-  if (empty($params)) {
-    // Build out browser settings. Permissions- and security-related behaviors
-    // should not rely on these parameters, since they come from the HTTP query.
-    // @TODO make sure we treat parameters as user input.
-    $params = drupal_get_query_parameters() + array(
-      'types' => array(),
-      'multiselect' => FALSE,
-    );
-
-    // Transform text 'true' and 'false' to actual booleans.
-    foreach ($params as $k => $v) {
-      if ($v === 'true') {
-        $params[$k] = TRUE;
-      }
-      elseif ($v === 'false') {
-        $params[$k] = FALSE;
-      }
-    }
-
-    array_walk_recursive($params, 'media_recursive_check_plain');
-
-    // Allow modules to alter the parameters.
-    drupal_alter('media_browser_params', $params);
-  }
-
-  return $params;
-}
-
-
-/**
- * For sanity in grammar.
- *
- * @see media_set_browser_params()
- */
-function media_get_browser_params() {
-  return media_set_browser_params();
-}
-
-/**
- * Attaches media browser javascript to an element.
- *
- * @param array $element
- *   The element array to attach to.
- */
-function media_attach_browser_js(&$element) {
-  $javascript = media_browser_js();
-  foreach ($javascript as $key => $definitions) {
-    foreach ($definitions as $definition) {
-      $element['#attached'][$key][] = $definition;
-    }
-  }
-}
-
-/**
- * Helper function to define browser javascript.
- */
-function media_browser_js() {
-  $settings = array(
-    'browserUrl' => url('media/browser', array(
-        'query' => array('render' => 'media-popup'),
-      )
-    ),
-    'styleSelectorUrl' => url('media/-media_id-/format-form', array(
-        'query' => array('render' => 'media-popup'),
-      )
-    ),
-  );
-
-  $js = array(
-    'library' => array(
-      array('media', 'media_browser'),
-    ),
-    'js' => array(
-      array(
-        'data' => array('media' => $settings),
-        'type' => 'setting',
-      ),
-    ),
-  );
-  return $js;
-}
-
-/**
  * Menu callback for testing the media browser.
  */
 function media_browser_testbed($form) {
-  media_attach_browser_js($form);
+  $form['#attached']['library'][] = array('media', 'media_browser');
+  $form['#attached']['library'][] = array('media', 'media_browser_settings');
 
   $form['test_element'] = array(
     '#type' => 'media',
@@ -356,12 +242,13 @@ EOF;
 }
 
 /**
- * Adds properties to the file.
+ * Adds additional properties to a file which are needed by the browser JS code.
  *
- * Additional properties on this file are needed by the media browser JS code.
+ * @param object $file
+ *   A Drupal file object.
  */
-function media_browser_build_media_item($file) {
-  $preview = media_get_thumbnail_preview($file);
+function media_browser_build_media_item($file, $view_mode = 'preview') {
+  $preview = media_get_thumbnail_preview($file, NULL, $view_mode);
   $file->preview = drupal_render($preview);
   $file->url = file_create_url($file->uri);
 }

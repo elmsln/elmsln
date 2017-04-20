@@ -1,0 +1,257 @@
+<?php
+
+/**
+ * @file
+ * Primarily Drupal hooks.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function media_bulk_upload_menu() {
+  $items['admin/content/file/import'] = array(
+    'title' => 'Import files',
+    'description' => 'Import files into your media library.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('media_bulk_upload_import'),
+    'access arguments' => array('import media'),
+    'type' => MENU_LOCAL_ACTION,
+    'file' => 'includes/media_bulk_upload.admin.inc',
+    'weight' => 10,
+  );
+  $items['admin/content/file/thumbnails/import'] = $items['admin/content/file/import'];
+
+  // @todo Investigate passing file IDs in query string rather than a menu
+  // argument and then deprecate media_multi_load().
+  $items['admin/content/file/edit-multiple/%media_bulk_upload_multi'] = array(
+    'title' => 'Edit multiple files',
+    'page callback' => 'media_bulk_upload_file_page_edit_multiple',
+    'page arguments' => array(4),
+    'access callback' =>  '_media_bulk_upload_file_entity_access_recursive',
+    'access arguments' => array(4, 'update'),
+    'file' => 'includes/media_bulk_upload.pages.inc',
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function media_bulk_upload_permission() {
+  return array(
+    'import media' => array(
+      'title' => t('Import media files from the local filesystem'),
+      'description' => t('Simple file importer'),
+      'restrict access' => TRUE,
+    ),
+  );
+}
+
+/**
+ * Implements hook_media_browser_plugin_info_alter().
+ */
+function media_bulk_upload_media_browser_plugin_info_alter(&$info) {
+  $info['upload']['class'] = 'MediaBrowserBulkUpload';
+}
+
+/**
+ * Implements hook_file_operations().
+ */
+function media_bulk_upload_file_operations() {
+  return array(
+    'edit_multiple' => array(
+      'label' => t('Edit selected files'),
+      'callback' => 'media_bulk_upload_file_operation_edit_multiple',
+    ),
+  );
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function media_bulk_upload_form_alter(&$form, &$form_state, $form_id) {
+  // If we're in the media browser, set the #media_browser key to true
+  // so that if an ajax request gets sent to a different path, the form
+  // still uses the media_browser_form_submit callback.
+  if (current_path() == 'media/browser' && $form_id != 'views_exposed_form') {
+    $form_state['#media_browser'] = TRUE;
+  }
+
+  // If the #media_browser key isset and is true we are using the browser
+  // popup, so add the media_browser submit handler.
+  if (!empty($form_state['#media_browser'])) {
+    $form['#submit'][] = 'media_bulk_upload_browser_form_submit';
+  }
+}
+
+/**
+ * Submit handler; direction form submissions in the media browser.
+ */
+function media_bulk_upload_browser_form_submit($form, &$form_state) {
+  $url = NULL;
+  $parameters = array();
+
+  // Multi upload.
+  if (!empty($form_state['files'])) {
+    $files = $form_state['files'];
+    $url = 'media/browser';
+    $parameters = array('query' => array('render' => 'media-popup', 'fid' => array_keys($files)));
+    // Pass in "render_multi_edit_form" as a parameter to signal to the
+    // media_browser() function that we need to edit multiple files.
+    $parameters['query']['render_multi_edit_form'] = TRUE;
+  }
+
+  // If $url is set, we had some sort of upload, so redirect the form.
+  if (!empty($url)) {
+    $form_state['redirect'] = array($url, $parameters);
+  }
+}
+
+/**
+ * Implements hook_multiform_get_form_alter().
+ *
+ * Alter the multiform that is used after uploading multiple files.
+ */
+function media_bulk_upload_multiform_get_form_alter($form_state_save, &$redirect, $all_args) {
+
+  // Was this form submitted while in the Media browser?
+  if (isset($redirect['#media_browser']) && !empty($form_state_save['input'])) {
+
+    // The $all_args should be an array of arrays, with the second element of
+    // the inner array being the file. For details on this structure, see
+    // the media_bulk_upload_file_page_edit_multiple() function.
+    $fids = array();
+    foreach ($all_args as $arg) {
+      if (count($arg) == 2) {
+        $file = $arg[1];
+        $fids[] = $file->fid;
+      }
+    }
+
+    // If we found something, instruct the Media browser to close and attach
+    // the files to whatever they need to be attached to.
+    if (!empty($fids)) {
+      $url = 'media/browser';
+      $parameters = array('query' => array('render' => 'media-popup', 'fid' => $fids));
+      $redirect['redirect'] = array($url, $parameters);
+    }
+  }
+}
+
+/**
+ * Return a URL for editing an files.
+ *
+ * Works with an array of fids or a single fid.
+ *
+ * @param mixed $fids
+ *   An array of file IDs or a single file ID.
+ */
+function media_bulk_upload_file_edit_url($fids) {
+  if (!is_array($fids)) {
+    $fids = array($fids);
+  }
+
+  if (count($fids) > 1) {
+    return 'admin/content/file/edit-multiple/' . implode(' ', $fids);
+  }
+  else {
+    return 'file/' . reset($fids) . '/edit';
+  }
+}
+
+/**
+ * Callback for the edit operation.
+ *
+ * Redirects the user to the edit multiple files page.
+ *
+ * @param array $fids
+ *   An array of file IDs.
+ *
+ * @see media_file_page_edit_multiple()
+ */
+function media_bulk_upload_file_operation_edit_multiple($fids) {
+  // The thumbnail browser returns TRUE/FALSE for each item, so use array keys.
+  $fids = array_keys(array_filter($fids));
+  drupal_goto(media_bulk_upload_file_edit_url($fids), array('query' => drupal_get_destination()));
+}
+
+/**
+ * Implements hook_forms().
+ */
+function media_bulk_upload_forms($form_id, $args) {
+  $forms = array();
+  // To support the multiedit form, each form has to have a unique ID.
+  // So we name all the forms media_edit_N where the first requested form is
+  // media_edit_0, 2nd is media_edit_1, etc.
+  module_load_include('inc', 'file_entity', 'file_entity.pages');
+  if ($form_id != 'media_edit' && (strpos($form_id, 'media_edit') === 0)) {
+    $forms[$form_id] = array(
+      'callback' => 'file_entity_edit',
+      'wrapper_callback' => 'media_bulk_upload_prepare_edit_form',
+    );
+  }
+  return $forms;
+}
+
+function media_bulk_upload_prepare_edit_form($form, &$form_state) {
+  form_load_include($form_state, 'inc', 'file_entity', 'file_entity.pages');
+}
+
+/**
+ * Access callback for the media-multi form.
+ *
+ * @param $files
+ *   An array of files being editing on the multiform.
+ * @param $op
+ *   A string containing the operation requested, such as 'update'.
+ * @return
+ *   TRUE if the current user has access to edit all of the files, otherwise FALSE.
+ */
+function _media_bulk_upload_file_entity_access_recursive($files, $op) {
+  // Check that the current user can access each file.
+  if (!empty($files)) {
+    foreach ($files as $file) {
+      if (!file_entity_access($op, $file)) {
+        return FALSE;
+      }
+    }
+    return TRUE;
+  }
+  return FALSE;
+}
+
+/**
+ * Load callback for %media_multi placeholder in menu paths.
+ *
+ * @param string $fids
+ *   Separated by space (e.g., "3 6 12 99"). This often appears as "+" within
+ *   URLs (e.g., "3+6+12+99"), but Drupal automatically decodes paths when
+ *   intializing $_GET['q'].
+ *
+ * @return array
+ *   An array of corresponding file entities.
+ */
+function media_bulk_upload_multi_load($fids) {
+  return file_load_multiple(explode(' ', $fids));
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function media_bulk_upload_form_media_admin_config_browser_alter(&$form, &$form_state) {
+
+  $form['bulk_upload'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Bulk Upload'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+
+  $form['bulk_upload']['media_bulk_upload_edit'] = array(
+    '#type' => 'checkbox',
+    '#title' => t("Bulk upload edit"),
+    '#description' => t("After bulk uploads on entity edit pages, show edit form for all uploaded files in a single popup."),
+    '#default_value' => variable_get('media_bulk_upload_edit', TRUE),
+  );
+}

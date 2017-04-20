@@ -1,0 +1,237 @@
+<?php
+
+/**
+ * @file
+ * Tests for the file usage in entity fields with the Media filter markup.
+ */
+
+class MediaWYSIWYGFileUsageTest extends MediaWYSIWYGTestHelper {
+
+  /**
+   * Provide test information.
+   */
+  public static function getInfo() {
+    return array(
+      'name' => t('File usage tracking'),
+      'description' => t('Tests tracking of usage for files in text fields.'),
+      'group' => t('Media WYSIWYG'),
+    );
+  }
+
+  /**
+   * Enable media and file entity modules for testing.
+   */
+  public function setUp() {
+    parent::setUp();
+
+    // Create and log in a user.
+    $account = $this->drupalCreateUser(array('administer nodes', 'create article content'));
+    $this->drupalLogin($account);
+  }
+
+  /**
+   * Tests the tracking of file usages for files submitted via the WYSIWYG editor.
+   */
+  public function testFileUsageIncrementing() {
+    // Create a file.
+    $files = $this->drupalGetTestFiles('image');
+    $file = file_save($files[0]);
+    $fid = $file->fid;
+
+    // There should be zero usages of this file prior to node creation,
+    $file_uses = file_usage_list($file);
+    $this->assertEqual(empty($file_uses), TRUE, t('Created a new file with zero uses.'));
+
+    // Create a node to test with.
+    $nid = $this->createNode($fid);
+
+    // Get the new file usage count.
+    $file_uses = file_usage_list($file);
+
+    $this->assertEqual($file_uses['media']['node'][$nid], 1, t('File usage increases when added to a new node.'));
+
+    // Create a new revision that has the file on it. File usage will be 2.
+    $node = node_load($nid);
+    $node->revision = TRUE;
+    node_save($node);
+
+    $node = node_load($nid);
+    $file_uses = file_usage_list($file);
+    $revisions = count(node_revision_list($node));
+    // Keep track of this VID to test deletion later on.
+    $delete_one = $node->vid;
+
+    $this->assertEqual($revisions, 2, t('Node save created a second revision'));
+    $this->assertEqual($file_uses['media']['node'][$nid], 2, t('File usage incremented with a new node revision.'));
+
+    // Create a new revision that has two instances of the file. File usage will
+    // be 4.
+    $node = node_load($nid);
+    $node->body[LANGUAGE_NONE][0]['value'] = $this->generateJsonTokenMarkup($fid, 2);
+    $node->revision = TRUE;
+    node_save($node);
+
+    $node = node_load($nid);
+    $file_uses = file_usage_list($file);
+    $revisions = count(node_revision_list($node));
+    // Keep track of this VID to test deletion later on.
+    $delete_two = $node->vid;
+
+    $this->assertEqual($revisions, 3, t('Node save created a third revision.'));
+    $this->assertEqual($file_uses['media']['node'][$nid], 4, t('File usage incremented with multiple files and a new node revision.'));
+
+    // Create a new revision that has no file on it. File usage will be 4.
+    $node = node_load($nid);
+    $node->body[LANGUAGE_NONE][0]['value'] = '';
+    $node->revision = TRUE;
+    node_save($node);
+
+    $node = node_load($nid);
+    $file_uses = file_usage_list($file);
+    $revisions = count(node_revision_list($node));
+    // Keep track of this VID to test deletion later on.
+    $delete_zero = $node->vid;
+
+    $this->assertEqual($revisions, 4, t('Node save created a fourth revision.'));
+    $this->assertEqual($file_uses['media']['node'][$nid], 4, t('File usage does not change with a new revision of the node without the file'));
+
+    // Create a new revision that has the file on it. File usage will be 5.
+    $node = node_load($nid);
+    $node->body[LANGUAGE_NONE][0]['value'] = $this->generateJsonTokenMarkup($fid, 1);
+    $node->revision = TRUE;
+    node_save($node);
+
+    $node = node_load($nid);
+    $file_uses = file_usage_list($file);
+    $revisions = count(node_revision_list($node));
+
+    $this->assertEqual($revisions, 5, t('Node save created a new revision.'));
+    $this->assertEqual($file_uses['media']['node'][$nid], 5, t('File usage incremented with a single file on a new node revision.'));
+
+    // Delete a revision that has the file on it once. File usage will be 4.
+    node_revision_delete($delete_one);
+    $node = node_load($nid);
+    $file_uses = file_usage_list($file);
+    $this->assertEqual($file_uses['media']['node'][$nid], 4, t('Deleting revision with file decreases file usage'));
+
+    // Delete a revision that has no file on it. File usage will be 4.
+    node_revision_delete($delete_zero);
+    $node = node_load($nid);
+    $file_uses = file_usage_list($file);
+    $this->assertEqual($file_uses['media']['node'][$nid], 4, t('Deleting revision without a file does not change file usage.'));
+
+    // Delete a revision that has the file on it twice. File usage will be 2.
+    node_revision_delete($delete_two);
+    $node = node_load($nid);
+    $file_uses = file_usage_list($file);
+    $this->assertEqual($file_uses['media']['node'][$nid], 2, t('Deleting revision with file decreases file usage'));
+
+    // Create a new revision with the file on it twice. File usage will be 4.
+    $node = node_load($nid);
+    $node->body[LANGUAGE_NONE][0]['value'] = $this->generateJsonTokenMarkup($fid, 2);
+    $node->revision = TRUE;
+    node_save($node);
+
+    $node = node_load($nid);
+    $file_uses = file_usage_list($file);
+
+    $this->assertEqual($file_uses['media']['node'][$nid], 4,  t('File usage incremented with files on a new node revision.'));
+
+    // Re-save current revision with file on it once instead of twice. File
+    // usage will be 3.
+    $node = node_load($nid);
+    $node->body[LANGUAGE_NONE][0]['value'] = $this->generateJsonTokenMarkup($fid, 1);
+    $saved_vid = $node->vid;
+    node_save($node);
+
+    $node = node_load($nid);
+    $file_uses = file_usage_list($file);
+
+    $this->assertEqual($node->vid, $saved_vid, t('Resaved node revision does not create new revision.'));
+    $this->assertEqual($file_uses['media']['node'][$nid], 3, t('Resaved node revision with fewer files reduces file usage.'));
+
+    // Delete the node. File usage will be 0.
+    $node = node_load($nid);
+    node_delete($nid);
+
+    $node = node_load($nid);
+    $file_uses = file_usage_list($file);
+
+    $this->assertEqual(empty($node), TRUE, t('Node has been deleted.'));
+    $this->assertEqual(empty($file_uses), TRUE, t('Deleting the node removes all file uses.'));
+  }
+
+  /**
+   * Tests the behavior of node and file deletion.
+   */
+  public function testFileUsageIncrementingDelete() {
+    // Create a node with file markup in the body field with a new file.
+    $files = $this->drupalGetTestFiles('image');
+    $file = file_save($files[1]);
+    $fid = $file->fid;
+    $file_uses = file_usage_list($file);
+
+    $this->assertEqual(empty($file_uses), TRUE, t('Created a new file with zero uses.'));
+
+    // Create a new node with file markup.
+    $nid = $this->createNode($fid);
+    $file_uses = file_usage_list($file);
+
+    $this->assertEqual($file_uses['media']['node'][$nid], 1, t('Incremented file usage on node save.'));
+
+    // Try to delete the file. file_delete() should return file_usage().
+    $deleted = file_delete($file);
+    $this->assertTrue(is_array($deleted), t('File cannot be deleted while in use by a node.'));
+
+    // Delete the node.
+    node_delete($nid);
+    $node = node_load($nid);
+    $file_uses = file_usage_list($file);
+
+    $this->assertEqual(empty($node), TRUE, t('Node has been deleted.'));
+    $this->assertEqual(empty($file_uses), TRUE, t('File has zero usage after node is deleted.'));
+
+    $deleted = file_delete($file);
+    $this->assertTrue($deleted, t('File can be deleted with no usage.'));
+
+    $file = file_load($fid);
+    $this->assertTrue(empty($file), t('File no longer exists after delete.'));
+  }
+
+
+  /**
+   * Tests if node still remains updatable if file was deleted.
+   */
+  public function testFileUsageForcedDelete() {
+    // Create a node with file markup in the body field with a new file.
+    $files = $this->drupalGetTestFiles('image');
+    $file = file_save($files[1]);
+    $fid = $file->fid;
+    $file_uses = file_usage_list($file);
+
+    $this->assertEqual(empty($file_uses), TRUE, t('Created a new file with zero uses.'));
+
+    // Create a new node with file markup.
+    $nid = $this->createNode($fid);
+    $file_uses = file_usage_list($file);
+
+    $this->assertEqual($file_uses['media']['node'][$nid], 1, t('Incremented file usage on node save.'));
+
+    // Force the file to delete.
+    $deleted = file_delete($file, TRUE);
+    $this->assertTrue($deleted, t('File was deleted although in use sice we forced it.'));
+
+    // Try to update the node that uses broken file.
+    $account = $this->drupalCreateUser(array('edit any article content'));
+    $node = node_load($nid);
+    $this->drupalLogin($account);
+    $this->drupalGet('node/' . $nid . '/edit');
+    $this->assertRaw(check_plain($node->body['und'][0]['value']), t('Reference to deleted file found in node body.'));
+    $edit = array(
+      'body[und][0][value]' => '',
+    );
+    $this->drupalPost(NULL, $edit, t('Save'));
+    $type = node_type_load($node->type);
+    $this->assertRaw(t('@type %title has been updated.', array('@type' => $type->name, '%title' => $node->title)), t('Node without reference to deleted file saved successfully.'));
+  }
+}

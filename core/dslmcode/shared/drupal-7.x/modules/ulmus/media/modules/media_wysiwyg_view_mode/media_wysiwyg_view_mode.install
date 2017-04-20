@@ -9,7 +9,7 @@
  * Implements hook_uninstall().
  */
 function media_wysiwyg_view_mode_uninstall() {
-  db_delete('variable')
-    ->condition('name', "media_wysiwyg_view_mode_%", "LIKE")
-    ->execute();
+ db_delete('variable')
+ ->condition('name', "media_wysiwyg_view_mode_%", "LIKE")
+ ->execute();
 }

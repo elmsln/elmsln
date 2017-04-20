@@ -35,15 +35,17 @@ function mathjax_menu() {
 /**
  * Default values for MathJax configuration. May be overridden in the config.
  *
- * @param $parameter
+ * @param string $parameter
  *   Decides which default config to fetch. Either 'cdn url' or 'config string'.
- * @return
+ *
+ * @return string
  *   The default configuration.
  */
 function mathjax_default($parameter) {
   switch ($parameter) {
     case 'cdn url':
-      return 'https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML';
+      return 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML';
+
     case 'config string':
       return "
 MathJax.Hub.Config({
@@ -59,7 +61,8 @@ MathJax.Hub.Config({
   messageStyle: 'none'
 });
 ";
-    default :
+
+    default:
       return;
   }
 }
@@ -79,10 +82,12 @@ function mathjax_help($path, $arg) {
 }
 
 /**
- * Implements hook_init().
+ * Implements hook_page_alter().
  */
-function mathjax_init() {
-  if(variable_get('mathjax_config_type', 0) == 0) {
+function mathjax_page_alter(&$page) {
+  $module_path = drupal_get_path('module', 'mathjax');
+
+  if (variable_get('mathjax_config_type', 0) == 0) {
     $config_string = mathjax_default('config string');
   }
   else {
@@ -93,15 +98,24 @@ function mathjax_init() {
     '#type' => 'markup',
     '#markup' => '<script type="text/x-mathjax-config">' . $config_string . '</script>',
   );
-  drupal_add_html_head($config, 'mathjax-config');
-  drupal_add_js(drupal_get_path('module', 'mathjax') . '/mathjax.js');
+  $page['content']['#attached']['drupal_add_html_head'] = array(
+    array($config, 'mathjax-config'),
+  );
+  $page['content']['#attached']['js'][$module_path . '/mathjax.js'] = array(
+    'every_page' => TRUE,
+  );
   if (variable_get('mathjax_use_cdn', TRUE)) {
     $cdn_url = variable_get('mathjax_cdn_url', mathjax_default('cdn url'));
-    drupal_add_js($cdn_url, 'external');
+    $page['content']['#attached']['js'][$cdn_url] = array(
+      'type' => 'external',
+    );
   }
   else {
     if (function_exists('libraries_get_path')) {
-      drupal_add_js(libraries_get_path('mathjax', TRUE) . '/MathJax.js?config=TeX-AMS-MML_HTMLorMML', 'external');
+      $library_path = libraries_get_path('mathjax', TRUE) . '/MathJax.js?config=TeX-AMS-MML_HTMLorMML';
+      $page['content']['#attached']['js'][$library_path] = array(
+        'type' => 'external',
+      );
     }
   }
 }
@@ -156,19 +170,24 @@ function mathjax_global_settings() {
     '#type' => 'checkbox',
     '#title' => t('Use MathJax Content Delivery Network (CDN)'),
     '#default_value' => variable_get('mathjax_use_cdn', TRUE),
-    '#description' => t('Check this box to load MathJax source from MathJax servers (recommended) or from the link you can provide below.'),
+    '#description' => t('Check this box to load MathJax source from MathJax servers (recommended) or from the link you can provide below. If you do not check this box, see the README about configuring a local MathJax source with the libraries module.'),
   );
   $form['mathjax']['mathjax_cdn_url'] = array(
     '#type' => 'textfield',
     '#title' => t('MathJax CDN URL'),
     '#default_value' => variable_get('mathjax_cdn_url', mathjax_default('cdn url')),
     '#description' => t("Enter the Mathjax CDN url here or leave it unchanged to use the one provided by <a target='_blank' href='@mathjax-homepage'>www.mathjax.org</a>.", array('@mathjax-homepage' => url('http://www.mathjax.org'))),
+    '#states' => array(
+      'invisible' => array(
+        ':input[name="mathjax_use_cdn"]' => array('checked' => FALSE),
+      ),
+    ),
   );
   $form['mathjax']['mathjax_config_type'] = array(
     '#type' => 'radios',
     '#title' => t('Configuration Type'),
     '#options' => array(
-      0 => t('Text Format (Recommended&mdash;Add the MathJax filter to a <a href="@textformats">text format</a>.)', 
+      0 => t('Text Format (Recommended&mdash;Add the MathJax filter to a <a href="@textformats">text format</a>.)',
           array('@textformats' => url('admin/config/content/formats'))),
       1 => t('Custom'),
     ),

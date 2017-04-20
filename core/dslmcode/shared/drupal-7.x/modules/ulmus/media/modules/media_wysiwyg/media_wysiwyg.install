@@ -1,0 +1,244 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the Media WYSIWYG module.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function media_wysiwyg_schema() {
+  $schema['media_restrict_wysiwyg'] = array(
+    'description' => 'Stores media displays restricted in wysiwyg.',
+    'fields' => array(
+      'type' => array(
+        'description' => 'The machine name of the file type.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'display' => array(
+        'description' => 'The restricted display.',
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+        'default' => '',
+      ),
+    ),
+  );
+  $schema['media_view_mode_wysiwyg'] = array(
+    'description' => 'Maps WYSIWYG view modes to file types.',
+    'fields' => array(
+      'type' => array(
+        'description' => 'The machine name of the file type.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'view_mode' => array(
+        'description' => 'WYSIWYG view mode mapped to this file type.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+
+    ),
+  );
+  return $schema;
+}
+
+/**
+ * Implements hook_install().
+ */
+function media_wysiwyg_install() {
+  media_wysiwyg_update_7204();
+
+  // Start off with the alignment feature enabled.
+  variable_set('media_wysiwyg_alignment', TRUE);
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function media_wysiwyg_uninstall() {
+  // Remove variables.
+  variable_del('media_wysiwyg_wysiwyg_title');
+  variable_del('media_wysiwyg_wysiwyg_icon_title');
+  variable_del('media_wysiwyg_wysiwyg_default_view_mode');
+  variable_del('media_wysiwyg_wysiwyg_upload_directory');
+  variable_del('media_wysiwyg_wysiwyg_allowed_types');
+  variable_del('media_wysiwyg_wysiwyg_allowed_attributes');
+  variable_del('media_wysiwyg_wysiwyg_browser_plugins');
+  variable_del('media_wysiwyg_wysiwyg_override_field_types');
+  variable_del('media_wysiwyg_use_link_text_for_filename');
+  variable_del('media_wysiwyg_alignment');
+}
+
+/**
+ * Implements hook_update_dependencies().
+ */
+function media_wysiwyg_update_dependencies() {
+  // Ensure the "access media browser" permission is granted to users before
+  // using it to grant the "use media wysiwyg" permission.
+  $dependencies['media_wysiwyg'][7201] = array(
+    'media' => 7226,
+  );
+}
+
+/**
+ * Grant existing user access to new media wysiwyg permission.
+ */
+function media_wysiwyg_update_7201() {
+  $roles = user_roles(TRUE, 'access media browser');
+  foreach ($roles as $rid => $role) {
+    user_role_grant_permissions($rid, array('use media wysiwyg'));
+  }
+
+  return t('Use Media WYSIWYG permission was granted to: @roles.', array(
+    '@roles' => check_plain(implode(', ', $roles)),
+  ));
+}
+
+/**
+ * Use the legacy file entity rendering method for existing sites.
+ *
+ * Existing sites can change this setting at admin/config/media/browser.
+ */
+function media_wysiwyg_update_7202() {
+  variable_set('media_wysiwyg_default_render', 'field_attach');
+}
+
+/**
+ * Move integration with the stand-alone CKEditor module into the Media CKEditor module.
+ */
+function media_wysiwyg_update_7203() {
+  $output = '';
+
+  if (module_exists('ckeditor')) {
+    $output .= t('CKEditor integration has been moved to the Media CKEditor module.');
+    $output .= t('If you are using the stand-alone CKEditor module in combination with the CKEditor plugin provided by Media WYSIWYG then you must download and enable the <a href="@url">Media CKEditor</a> module.', array('@url' => 'https://www.drupal.org/project/media_ckeditor'));
+  }
+
+  return $output;
+}
+
+/**
+ * Whitelists certain fields for WYSIWYG overriding.
+ */
+function media_wysiwyg_update_7204() {
+  $instances = field_read_instances(array('entity_type' => 'file'));
+  $updated = array();
+  $set_to_default = array();
+  foreach ($instances as $instance) {
+    $field_info = field_info_field($instance['field_name']);
+    $allowed_field_types = variable_get('media_wysiwyg_wysiwyg_override_field_types', array('text', 'text_long'));
+    if (in_array($field_info['type'], $allowed_field_types)) {
+      if (!isset($instance['settings']['wysiwyg_override'])) {
+        $instance['settings']['wysiwyg_override'] = 1;
+        field_update_instance($instance);
+        $set_to_default[] = $instance['field_name'];
+      }
+    }
+    elseif (isset($instance['settings']['wysiwyg_override'])) {
+      unset($instance['settings']['wysiwyg_override']);
+      field_update_instance($instance);
+      $updated[] = $instance['field_name'];
+    }
+  }
+  if (count($updated) || count($set_to_default)) {
+    $updated_string = implode(', ', $updated);
+    $default_string = implode(', ', $set_to_default);
+    return t("Updated the following field instances: @updated_string so they can't be overridden when the file is inserted in the WYSIWYG. Updated the following fields @default_string so that they continue to show up when a file is inserted.", array(
+      '@updated_string' => $updated_string,
+      '@default_string' => $default_string,
+    ));
+  }
+}
+
+/**
+ * Install {media_restrict_wysiwyg} and {media_view_mode_wysiwyg}.
+ *
+ * Remove variables media_wysiwyg_view_mode_%.
+ *
+ * Uninstall media_wysiwyg_view_mode module.
+ */
+function media_wysiwyg_update_7205() {
+  $schema = media_wysiwyg_schema();
+
+  // Create the new configuration tables.
+  if (!db_table_exists('media_restrict_wysiwyg')) {
+    db_create_table('media_restrict_wysiwyg', $schema['media_restrict_wysiwyg']);
+    db_create_table('media_view_mode_wysiwyg', $schema['media_view_mode_wysiwyg']);
+  }
+
+  // Migrate the configuration from the old variables into the new DB tables.
+  $types = file_type_load_all(TRUE);
+  foreach ($types as $type) {
+    $enabled = variable_get("media_wysiwyg_view_mode_" . $type->type . "_file_wysiwyg_restricted_view_modes_status", FALSE);
+    if ($enabled) {
+      $wysiwyg_restricted_view_modes = variable_get("media_wysiwyg_view_mode_" . $type->type . "_file_wysiwyg_restricted_view_modes", array());
+      foreach ($wysiwyg_restricted_view_modes as $wysiwyg_restricted_view_mode) {
+        db_insert('media_restrict_wysiwyg')
+          ->fields(array(
+            'type' => $type->type,
+            'display' => $wysiwyg_restricted_view_mode,
+          ))
+          ->execute();
+      }
+    }
+
+    $enabled = variable_get("media_wysiwyg_view_mode_" . $type->type . "_wysiwyg_view_mode_status", FALSE);
+    if ($enabled) {
+      $file_wysiwyg_view_mode = variable_get("media_wysiwyg_view_mode_" . $type->type . "_file_wysiwyg_view_mode", 'wysiwyg');
+      db_insert('media_view_mode_wysiwyg')
+        ->fields(array(
+          'type' => $type->type,
+          'view_mode' => $file_wysiwyg_view_mode,
+        ))
+        ->execute();
+    }
+  }
+
+  // Remove old configuration variables.
+  db_delete('variable')->condition('name', "media_wysiwyg_view_mode_%", "LIKE")->execute();
+
+  // Disable and uninstall View Mode module.Since the view mode module is
+  // deleted, this copies from  module_disable() and drupal_uninstall_modules().
+  // Disable first.
+  $module = 'media_wysiwyg_view_mode';
+  db_update('system')
+    ->fields(array('status' => 0))
+    ->condition('type', 'module')
+    ->condition('name', $module)
+    ->execute();
+  system_list_reset();
+  module_list(TRUE);
+  module_implements('', FALSE, TRUE);
+  entity_info_cache_clear();
+  // Invoke hook_modules_disabled before disabling modules,
+  // so we can still call module hooks to get information.
+  module_invoke_all('modules_disabled', array($module));
+  // Update the registry to remove the newly-disabled module.
+  registry_update();
+  _system_update_bootstrap_status();
+  // Update the theme registry to remove the newly-disabled module.
+  drupal_theme_rebuild();
+
+  // Now uninstall.
+  drupal_uninstall_schema($module);
+  drupal_set_installed_schema_version($module, SCHEMA_UNINSTALLED);
+
+  module_invoke_all('modules_uninstalled', array($module));
+}
+
+/**
+ * Notify upgraders that there's optional media alignment functionality that needs to be enabled.
+ */
+function media_wysiwyg_update_7206() {
+  $message = t('If you would like to be able to align your embedded media (left, right, or center), go to /admin/config/media/browser and check "Provide alignment option when embedding media", and save the settings.');
+  drupal_set_message($message, 'warning', TRUE);
+}

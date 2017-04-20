@@ -1,0 +1,23 @@
+name = Media WYSIWYG
+description = Adds support for embedding media using client-side WYSIWYG editors.
+package = Media
+core = 7.x
+
+dependencies[] = media
+
+test_dependencies[] = ckeditor
+test_dependencies[] = token
+test_dependencies[] = wysiwyg
+
+files[] = media_wysiwyg.test
+files[] = tests/media_wysiwyg.file_usage.test
+files[] = tests/media_wysiwyg.macro.test
+
+configure = admin/config/media/browser
+
+; Information added by Drupal.org packaging script on 2017-04-06
+version = "7.x-2.0"
+core = "7.x"
+project = "media"
+datestamp = "1491500288"
+
