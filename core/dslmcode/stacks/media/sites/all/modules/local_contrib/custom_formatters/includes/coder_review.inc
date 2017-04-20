@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * Coder Review module integration.
@@ -9,33 +10,40 @@
  * coder_review.module.
  */
 function coder_review_custom_formatters_form_alter_alter(&$form, &$form_state, $form_id) {
-  if (in_array($form_id, array('ctools_export_ui_edit_item_form', 'ctools_export_ui_edit_item_wizard_form')) && isset($form['#formatters']) && 'php' == $form['info']['mode']['#default_value']) {
+  if (in_array($form_id, array(
+      'ctools_export_ui_edit_item_form',
+      'ctools_export_ui_edit_item_wizard_form'
+    )) && isset($form['#formatters']) && 'php' == $form['info']['mode']['#default_value']
+  ) {
     drupal_add_css(drupal_get_path('module', 'coder_review') . '/coder_review.css');
 
     $form['engine']['coder_review'] = array(
-      '#type' => 'fieldset',
-      '#title' => t('Coder Review'),
+      '#type'        => 'fieldset',
+      '#title'       => t('Coder Review'),
       '#collapsible' => TRUE,
-      '#collapsed' => TRUE,
+      '#collapsed'   => TRUE,
     );
 
-    $reviews = _coder_review_settings_form(_coder_review_get_default_settings('files'), $system = array(), $files = array());
+    module_load_include('common.inc', 'coder_review');
+    $system  = $files = array();
+    $reviews = _coder_review_settings_form(_coder_review_get_default_settings('files'), $system, $files);
+
     $form['engine']['coder_review']['reviews'] = array_merge($reviews['coder_reviews_group'], array(
       '#collapsed' => TRUE,
     ));
 
     $form['engine']['coder_review']['review'] = array(
-      '#type' => 'container',
+      '#type'   => 'container',
       '#prefix' => '<div id="coder-review-wrapper">',
       '#suffix' => '</div>',
     );
 
     $form['engine']['coder_review']['button'] = array(
-      '#type' => 'button',
+      '#type'  => 'button',
       '#value' => t('Review'),
-      '#ajax' => array(
+      '#ajax'  => array(
         'callback' => 'custom_formatters_coder_review',
-        'wrapper' => 'coder-review-wrapper',
+        'wrapper'  => 'coder-review-wrapper',
       ),
     );
   }
@@ -43,6 +51,11 @@ function coder_review_custom_formatters_form_alter_alter(&$form, &$form_state, $
 
 /**
  * Ajax callback for Custom Formatters Coder Review integration.
+ *
+ * @param $form
+ * @param $form_state
+ *
+ * @return mixed
  */
 function custom_formatters_coder_review(&$form, $form_state) {
   $directory = 'public://custom_formatters/coder_review';
@@ -55,12 +68,13 @@ function custom_formatters_coder_review(&$form, $form_state) {
 
     $form_state = array(
       'storage' => array(
-        'coder_reviews' => $form_state['values']['coder_reviews'],
-        'coder_severity' => $form_state['values']['coder_severity'],
+        'coder_reviews'   => $form_state['values']['coder_reviews'],
+        'coder_severity'  => $form_state['values']['coder_severity'],
         'coder_file_list' => $file,
-        'coder_files' => 1,
+        'coder_files'     => 1,
       )
     );
+
     $review = coder_review_page_form(array(), $form_state, 'files');
 
     $form['engine']['coder_review']['review'][$file] = $review[$file]['output'];
@@ -74,5 +88,6 @@ function custom_formatters_coder_review(&$form, $form_state) {
   }
 
   drupal_get_messages(NULL, TRUE);
+
   return $form['engine']['coder_review']['review'];
 }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * Install, update and uninstall functions for the Custom Formatters module.
@@ -9,53 +10,53 @@
  */
 function custom_formatters_schema() {
   $schema['formatters'] = array(
-    'export' => array(
-      'key' => 'name',
-      'key name' => 'Name',
-      'primary key' => 'name',
-      'identifier' => 'formatter',
+    'export'      => array(
+      'key'          => 'name',
+      'key name'     => 'Name',
+      'primary key'  => 'name',
+      'identifier'   => 'formatter',
       'default hook' => 'custom_formatters_defaults',
-      'api' => array(
-        'owner' => 'custom_formatters',
-        'api' => 'custom_formatters',
+      'api'          => array(
+        'owner'           => 'custom_formatters',
+        'api'             => 'custom_formatters',
         'minimum_version' => 2,
         'current_version' => 2,
       ),
     ),
-    'fields' => array(
-      'name' => array(
-        'type' => 'varchar',
-        'length' => 64,
+    'fields'      => array(
+      'name'        => array(
+        'type'     => 'varchar',
+        'length'   => 64,
         'not null' => TRUE,
-        'default' => '',
+        'default'  => '',
       ),
-      'label' => array(
-        'type' => 'varchar',
-        'length' => 64,
+      'label'       => array(
+        'type'     => 'varchar',
+        'length'   => 64,
         'not null' => TRUE,
-        'default' => '',
+        'default'  => '',
       ),
       'description' => array(
-        'type' => 'varchar',
-        'length' => 255,
+        'type'     => 'varchar',
+        'length'   => 255,
         'not null' => FALSE,
-        'default' => ''
+        'default'  => ''
       ),
-      'mode' => array(
-        'type' => 'varchar',
-        'length' => 32,
+      'mode'        => array(
+        'type'     => 'varchar',
+        'length'   => 32,
         'not null' => TRUE,
-        'default' => '',
+        'default'  => '',
       ),
       'field_types' => array(
-        'type' => 'text',
-        'size' => 'medium',
+        'type'     => 'text',
+        'size'     => 'medium',
         'not null' => TRUE,
       ),
-      'code' => array(
+      'code'        => array(
         'type' => 'blob'
       ),
-      'fapi' => array(
+      'fapi'        => array(
         'type' => 'blob'
       ),
     ),
@@ -77,5 +78,6 @@ function custom_formatters_uninstall() {
  */
 function custom_formatters_update_7200() {
   db_add_field('formatters', 'fapi', array('type' => 'blob'));
+
   return t('New FAPI column added to Formatters table.');
 }
