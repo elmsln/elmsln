@@ -4,10 +4,9 @@
  * Test cases for the Authcache Commerce module.
  */
 
+// Nothing to test if CommerceCartTestCase does not exist.
 if (!class_exists('CommerceCartTestCase')) {
-  class CommerceCartTestCase extends DrupalWebTestCase {
-    protected $_commerce_missing = TRUE;
-  }
+  return;
 }
 
 /**
@@ -33,12 +32,6 @@ class AuthcacheCommerceTest extends CommerceCartTestCase {
    * {@inheritdoc}
    */
   public function setUp() {
-    if (isset($this->_commerce_missing)) {
-      parent::setUp();
-      $this->fail(t('Failed to run test. Commerce module not installed.'));
-      return;
-    }
-
     $this->setUpHelper('all', array(
       'authcache_commerce',
       'authcache_form',
@@ -145,10 +138,6 @@ class AuthcacheCommerceTest extends CommerceCartTestCase {
    * Bug: https://www.drupal.org/node/2475503
    */
   public function testCommerceAddToCartWithFormCache() {
-    if (isset($this->_commerce_missing)) {
-      return;
-    }
-
     $this->stubmod->hook('authcache_p13n_client', array(
       'authcache_p13n_test' => array(
         'title' => t('Test Client'),

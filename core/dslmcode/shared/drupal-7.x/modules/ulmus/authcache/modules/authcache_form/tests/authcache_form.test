@@ -799,3 +799,171 @@ class AuthcacheFormTestViewsExposedFilter extends DrupalWebTestCase {
     $this->assertStub($canceled_stub, HookStub::never());
   }
 }
+
+/**
+ * Test form extended lifespan.
+ */
+class AuthcacheFormTestCacheLifespan extends DrupalWebTestCase {
+  protected $profile = 'testing';
+  protected $stubmod;
+
+  /**
+   * Return information about the test class.
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Form cache lifespan',
+      'description' => 'Extend the lifespan of form cache entries',
+      'group' => 'Authcache Form',
+    );
+  }
+
+  /**
+   * Setup test class.
+   */
+  public function setUp() {
+    parent::setUp('authcache_form', 'authcache_p13n', 'authcache_form_test');
+
+    // HookStub.
+    $this->stubmod = new ModuleStub('authcache_form_test');
+  }
+
+  /**
+   * Test whether the given stub passes the invocation verifier.
+   */
+  protected function assertStub(HookStubProxy $stub, $verifier, $message = NULL) {
+    $result = $stub->verify($verifier, $error);
+
+    if (!$message) {
+      $message = t('Verify invocation of hook @hook.', array('@hook' => $stub->hookname()));
+    }
+    if (!$result && is_string($error)) {
+      $message .= ' ' . $error;
+    }
+
+    $this->assertTrue($result, $message);
+  }
+
+  /**
+   * Asserts that the expire date of a cached form is correct.
+   */
+  protected function assertCachedFormLifespan($build_id, $lifespan, $message = NULL) {
+    $min = REQUEST_TIME + $lifespan;
+    $max = time() + $lifespan;
+
+    $cached_form = cache_get('form_' . $build_id, 'cache_form');
+    $this->assert($cached_form->expire >= $min && $cached_form->expire <= $max, format_string('Lifespan of the cached form structure is @lifespan', array('@lifespan' => $lifespan)));
+    $cached_form_state = cache_get('form_state_' . $build_id, 'cache_form');
+    $this->assert($cached_form_state->expire >= $min && $cached_form_state->expire <= $max, format_string('Lifespan of the form state is @lifespan', array('@lifespan' => $lifespan)));
+  }
+
+  /**
+   * Test functionality for form-build-id.
+   */
+  public function testCachedFormBuildID() {
+    $user = $this->drupalCreateUser();
+    // Work around #1873606
+    user_save($user, array('roles' => array(DRUPAL_AUTHENTICATED_RID => DRUPAL_AUTHENTICATED_RID)));
+
+    $build_id = 'simpletest-' . $this->randomName(16);
+
+    $form = array(
+      'submit' => array(
+        '#type' => 'submit',
+        '#value' => t('Test'),
+      ),
+      '#build_id' => $build_id,
+    );
+    $this->stubmod->hook('cached_form', $form);
+
+    // Setup authcache roles.
+    variable_set('authcache_roles', $user->roles + array(DRUPAL_ANONYMOUS_RID => DRUPAL_ANONYMOUS_RID));
+
+    // Setup markup substitution.
+    variable_set('authcache_form_roles', $user->roles + array(DRUPAL_ANONYMOUS_RID => DRUPAL_ANONYMOUS_RID));
+    $clients = array(
+      'authcache_form_test' => array(
+        'title' => 'Authcache form test stub',
+        'enabled' => TRUE,
+      ),
+    );
+    $this->stubmod->hook('authcache_p13n_client', $clients);
+    $class = $this->randomName(8);
+    $markup = '<span ' . drupal_attributes(array('class' => array($class))) . '></span>';
+    HookStub::on('theme_authcache_p13n_fragment__authcache_form_test', $markup);
+
+    // Default lifespan without cache object API.
+    $lifespan = authcache_form_cache_lifespan();
+    $this->assertEqual(21600, $lifespan);
+
+    // Setup cache object API.
+    module_enable(array('cacheobject'));
+    variable_set('cache_class_cache_form', 'CacheObjectAPIWrapper');
+    variable_set('cacheobject_class_cache_form', 'DrupalDatabaseCache');
+    $this->resetAll();
+
+    // Default lifespan with cache object API.
+    $lifespan = authcache_form_cache_lifespan();
+    $this->assertEqual(604800, $lifespan);
+
+    // Customized form cache lifespan.
+    variable_set('authcache_form_cache_lifespan', 123456);
+    $lifespan = authcache_form_cache_lifespan();
+    $this->assertEqual(123456, $lifespan);
+
+    // Test with Cache Object API.
+    $excluded_stub = $this->stubmod->hook('authcache_excluded');
+    $canceled_stub = $this->stubmod->hook('authcache_canceled');
+    $this->drupalGet('authcache-form-test-cached-form');
+    $this->assertField('form_build_id', $build_id);
+    $this->assertCachedFormLifespan($build_id, $lifespan);
+    $this->assertStub($excluded_stub, HookStub::never());
+    $this->assertStub($canceled_stub, HookStub::never());
+
+    $this->drupalLogin($user);
+    $excluded_stub = $this->stubmod->hook('authcache_excluded');
+    $canceled_stub = $this->stubmod->hook('authcache_canceled');
+    $this->drupalGet('authcache-form-test-cached-form');
+    $this->assertField('form_build_id', $build_id);
+    $this->assertCachedFormLifespan($build_id, $lifespan);
+    $this->assertStub($excluded_stub, HookStub::never());
+    $this->assertStub($canceled_stub, HookStub::never());
+    $this->drupalLogout();
+
+    // Test with authcache turned off for all users.
+    $build_id = 'simpletest-' . $this->randomName(16);
+
+    $form = array(
+      'submit' => array(
+        '#type' => 'submit',
+        '#value' => t('Test'),
+      ),
+      '#build_id' => $build_id,
+    );
+
+    $this->stubmod->hook('cached_form', $form);
+
+    variable_set('authcache_roles', array());
+
+    $default_lifespan = 21600;
+
+    $excluded_stub = $this->stubmod->hook('authcache_excluded');
+    $canceled_stub = $this->stubmod->hook('authcache_canceled');
+    $this->drupalGet('authcache-form-test-cached-form');
+    $this->assertField('form_build_id', $build_id);
+    $this->assertCachedFormLifespan($build_id, $default_lifespan);
+    $this->assertStub($excluded_stub, HookStub::once());
+    $this->assertStub($canceled_stub, HookStub::never());
+
+    $this->drupalLogin($user);
+    $excluded_stub = $this->stubmod->hook('authcache_excluded');
+    $canceled_stub = $this->stubmod->hook('authcache_canceled');
+    $this->drupalGet('authcache-form-test-cached-form');
+    $this->assertField('form_build_id', $build_id);
+    $this->assertCachedFormLifespan($build_id, $default_lifespan);
+    $this->assertStub($excluded_stub, HookStub::once());
+    $this->assertStub($canceled_stub, HookStub::never());
+    $this->drupalLogout();
+  }
+
+}
