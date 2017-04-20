@@ -125,7 +125,7 @@ function field_hidden_field_info() {
       'default_widget' => 'field_hidden',
       'default_formatter' => 'hidden', // alternative: field_hidden_integer
       'default_token_formatter' => 'field_hidden_numeric_unformatted', // Tokens integration.
-      'property_type' => 'text', // Entity API integration, required for Rules and more
+      'property_type' => 'integer', // Entity API integration, required for Rules and more
     ),
     //  decimal
     'field_hidden_decimal' => array(
@@ -141,7 +141,7 @@ function field_hidden_field_info() {
       'default_widget' => 'field_hidden',
       'default_formatter' => 'hidden', // alternative: field_hidden_decimal
       'default_token_formatter' => 'field_hidden_numeric_unformatted', // Tokens integration.
-      'property_type' => 'text', // Entity API integration, required for Rules and more
+      'property_type' => 'decimal', // Entity API integration, required for Rules and more
     ),
     //  float
     'field_hidden_float' => array(
@@ -156,7 +156,7 @@ function field_hidden_field_info() {
       'default_widget' => 'field_hidden',
       'default_formatter' => 'hidden', // alternative: field_hidden_decimal (float uses same formatter as decimal)
       'default_token_formatter' => 'field_hidden_numeric_unformatted', // Tokens integration.
-      'property_type' => 'text', // Entity API integration, required for Rules and more
+      'property_type' => 'float', // Entity API integration, required for Rules and more
     ),
   );
 }
