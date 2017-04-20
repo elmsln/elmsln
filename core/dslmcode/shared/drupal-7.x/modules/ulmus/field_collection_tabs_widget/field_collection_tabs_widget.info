@@ -5,9 +5,9 @@ dependencies[] = field_collection
 dependencies[] = libraries
 dependencies[] = jquery_update
 
-; Information added by Drupal.org packaging script on 2014-01-15
-version = "7.x-1.2"
+; Information added by Drupal.org packaging script on 2016-01-19
+version = "7.x-1.4"
 core = "7.x"
 project = "field_collection_tabs_widget"
-datestamp = "1389782008"
+datestamp = "1453190040"
 
