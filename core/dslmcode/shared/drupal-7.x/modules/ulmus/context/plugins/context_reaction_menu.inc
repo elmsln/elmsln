@@ -22,19 +22,21 @@ class context_reaction_menu extends context_reaction {
           $link = menu_link_load($mlid);
           $identifier = $link['link_path'];
           $root_menu = $menu_names[$menu_name];
-          while (isset($options[$root_menu][$identifier])) {
+          while (isset($options[$root_menu][$menu_name . ':' . $identifier])) {
             $identifier .= "'";
           }
           $options[$root_menu][$menu_name . ':' . $identifier] = $title;
         }
       }
     }
+    $menu_count = count($options, COUNT_RECURSIVE);
     return array(
       '#title' => $this->title,
       '#description' => $this->description,
       '#options' => $options,
       '#type' => 'select',
       '#multiple' => TRUE,
+      '#size' => $menu_count > 20 ? 20 : $menu_count,
       '#default_value' => $this->fetch_from_context($context),
     );
   }
