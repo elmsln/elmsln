@@ -6,9 +6,9 @@ dependencies[] = features
 
 
 
-; Information added by Drupal.org packaging script on 2015-02-04
-version = "7.x-1.0-alpha10+2-dev"
+; Information added by Drupal.org packaging script on 2015-10-01
+version = "7.x-1.0-alpha11"
 core = "7.x"
 project = "defaultconfig"
-datestamp = "1423046106"
+datestamp = "1443688148"
 
