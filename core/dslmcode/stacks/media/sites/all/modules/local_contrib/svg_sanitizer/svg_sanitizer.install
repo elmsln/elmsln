@@ -33,7 +33,7 @@ function svg_sanitizer_requirements($phase) {
         'phpexcel' => array(
           'title' => $t('SVG Sanitizer'),
           'value' => $t('Not Installed'),
-          'description' => $t('Please install the example library %url.', array('%url' => SVG_SANITIZER_URL)),
+          'description' => $t('Please install the library %url. And place it in the libraries directory under svg_sanitizer.', array('%url' => SVG_SANITIZER_URL)),
           'severity' => REQUIREMENT_ERROR,
         ),
       );
