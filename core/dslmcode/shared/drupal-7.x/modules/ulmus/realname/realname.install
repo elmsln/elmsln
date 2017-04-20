@@ -1,6 +1,11 @@
 <?php
 
 /**
+ * @file
+ * Installation file for Realname module.
+ */
+
+/**
  * Implements hook_schema().
  */
 function realname_schema() {
@@ -31,7 +36,7 @@ function realname_schema() {
     ),
     'primary key' => array('uid'),
     'indexes' => array(
-      'realname' => array('realname')
+      'realname' => array('realname'),
     ),
     'foreign keys' => array(
       'users' => array(
@@ -45,10 +50,55 @@ function realname_schema() {
 }
 
 /**
+ * Implements hook_requirements().
+ */
+function realname_requirements($phase) {
+  $requirements = array();
+  $t = get_t();
+
+  if ($phase == 'runtime') {
+    if (!variable_get('realname_suppress_user_name_mail_validation', FALSE) && strpos(variable_get('user_mail_register_admin_created_body', FALSE), '[user:name-raw]') === FALSE) {
+      $requirements['user_mail_register_admin_created_body'] = array(
+        'title' => $t('E-mail: "Welcome (new user created by administrator)" template'),
+        'value' => $t('Not configured'),
+        'severity' => REQUIREMENT_WARNING,
+        'description' => $t('Replace the token <code>[user:name]</code> with <code>[user:name-raw]</code> in <a href="@people">e-mail</a> template, if using username for login.', array('@people' => url('admin/config/people/accounts', array('fragment' => 'edit-email-admin-created')))),
+      );
+    }
+    if (!variable_get('realname_suppress_user_name_mail_validation', FALSE) && strpos(variable_get('user_mail_register_no_approval_required_body', FALSE), '[user:name-raw]') === FALSE) {
+      $requirements['user_mail_register_no_approval_required_body'] = array(
+        'title' => $t('E-mail: "Welcome (no approval required)" template'),
+        'value' => $t('Not configured'),
+        'severity' => REQUIREMENT_WARNING,
+        'description' => $t('Replace the token <code>[user:name]</code> with <code>[user:name-raw]</code> in <a href="@people">e-mail</a> template, if using username for login.', array('@people' => url('admin/config/people/accounts', array('fragment' => 'edit-email-no-approval-required')))),
+      );
+    }
+    if (!variable_get('realname_suppress_user_name_mail_validation', FALSE) && strpos(variable_get('user_mail_status_activated_body', FALSE), '[user:name-raw]') === FALSE) {
+      $requirements['user_mail_status_activated_body'] = array(
+        'title' => $t('E-mail: "Account activation" template'),
+        'value' => $t('Not configured'),
+        'severity' => REQUIREMENT_WARNING,
+        'description' => $t('Replace the token <code>[user:name]</code> with <code>[user:name-raw]</code> in <a href="@people">e-mail</a> template, if using username for login.', array('@people' => url('admin/config/people/accounts', array('fragment' => 'edit-email-activated')))),
+      );
+    }
+  }
+
+  return $requirements;
+}
+
+/**
+ * Implements hook_disable().
+ */
+function realname_disable() {
+  drupal_set_message(t('You need to replace the token <code>[user:name-raw]</code> with <code>[user:name]</code> in e-mail templates.'), 'warning');
+}
+
+/**
  * Implements hook_uninstall().
  */
 function realname_uninstall() {
   variable_del('realname_pattern');
+  variable_del('realname_suppress_user_name_mail_validation');
 }
 
 /**
@@ -75,4 +125,25 @@ function realname_update_7000() {
     'default' => '',
   );
   db_change_field('realname', 'realname', 'realname', $fields['realname']);
+}
+
+/**
+ * Remove variables from D6 that are no longer needed.
+ */
+function realname_update_7001() {
+  variable_del('realname_fields');
+  variable_del('realname_homepage');
+  variable_del('realname_max_username');
+  variable_del('realname_myacct');
+  variable_del('realname_nodeapi');
+  variable_del('realname_nofollow');
+  variable_del('realname_notver');
+  variable_del('realname_profile_module');
+  variable_del('realname_recalculate');
+  variable_del('realname_search_enable');
+  variable_del('realname_search_login');
+  variable_del('realname_theme');
+  variable_del('realname_user_disable');
+  variable_del('realname_use_title');
+  variable_del('realname_view');
 }

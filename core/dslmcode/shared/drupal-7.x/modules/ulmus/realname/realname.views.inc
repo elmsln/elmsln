@@ -33,7 +33,7 @@ function realname_views_data() {
     'filter' => array(
       'handler' => 'views_handler_filter_string',
       'title' => t('Name'),
-      'help' => t("The user's real name. This filter does not check if the user exists and allows partial matching. Does not utilize autocomplete.")
+      'help' => t("The user's real name. This filter does not check if the user exists and allows partial matching. Does not utilize autocomplete."),
     ),
   );
 
