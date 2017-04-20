@@ -5,7 +5,6 @@
  * Search and Replace Scanner install - creates necessary tables.
  */
 
-
 /**
  * Implements hook_schema().
  */
@@ -58,28 +57,3 @@ function scanner_schema() {
 
   return $schema;
 }
-
-/**
- * Implements hook_install().
- */
-function scanner_install() {
-  // Create tables.
-  // TODO The drupal_(un)install_schema functions are called automatically in D7.
-  // drupal_install_schema('scanner')
-}
-
-/**
- * Implements hook_uninstall().
- */
-function scanner_uninstall() {
-  // Remove tables.
-  // TODO The drupal_(un)install_schema functions are called automatically in D7.
-  // drupal_uninstall_schema('scanner')
-
-  // TODO Please review the conversion of this statement to the D7 database API syntax.
-  /* db_query("DELETE FROM {variable} WHERE name LIKE 'scanner_%'") */
-  //db_delete('variable')
-  //->condition('name', 'scanner_%', 'LIKE')
-  //->execute();
-}
-
