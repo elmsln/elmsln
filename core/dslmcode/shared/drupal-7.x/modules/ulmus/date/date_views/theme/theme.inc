@@ -77,7 +77,7 @@ function template_preprocess_date_views_pager(&$vars) {
       switch ($granularity) {
         case 'week':
           $prev_week = date_week(date_format($prev_date, 'Y-m-d'));
-          $prev_arg = date_format($prev_date, 'Y-\W') . date_pad($prev_week);
+          $prev_arg = date_format($prev_date, 'o-\W') . date_pad($prev_week);
           break;
         default:
           $prev_arg = date_format($prev_date, $format[$granularity]);
@@ -90,7 +90,7 @@ function template_preprocess_date_views_pager(&$vars) {
       switch ($granularity) {
         case 'week':
           $next_week = date_week(date_format($next_date, 'Y-m-d'));
-          $next_arg = date_format($next_date, 'Y-\W') . date_pad($next_week);
+          $next_arg = date_format($next_date, 'o-\W') . date_pad($next_week);
           break;
         default:
           $next_arg = date_format($next_date, $format[$granularity]);

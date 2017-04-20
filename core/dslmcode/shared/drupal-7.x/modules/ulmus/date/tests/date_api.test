@@ -393,7 +393,7 @@ class DateAPITestCase extends DrupalWebTestCase {
     $input = '23 abc 2012';
     $timezone = NULL;
     $format = 'd M Y';
-    $date = new dateObject($input, $timezone, $format);
+    $date = @new dateObject($input, $timezone, $format);
     $this->assertNotEqual(count($date->errors), 0, '23 abc 2012 should be an invalid date');
 
     // Test Granularity.

@@ -14,6 +14,14 @@
           $(this).click(function(){
             $(this).focus();
           });
+          if (datePopup.settings.syncEndDate) {
+            $('.start-date-wrapper').each(function(){
+              var start_date_wrapper = this;
+              $(this).find('input:eq(0)').change(function(){
+                $(start_date_wrapper).next('.end-date-wrapper').find('input:eq(0)').val($(this).val());
+              });
+            });
+          }
           break;
 
         case 'timeEntry':

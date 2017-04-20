@@ -16,6 +16,16 @@ class DateTimezoneTestCase extends DateFieldBasic {
     );
   }
 
+  public function setUp() {
+    parent::setUp();
+    // Set the timezone explicitly. Otherwise the site's default timezone is
+    // used, which defaults to the server timezone when installing Drupal. This
+    // depends on the environment and is therefore uncertain.
+    // The Australia/Sydney timezone is chosen so all tests are run using an
+    // edge case scenario (UTC+10 and DST).
+    variable_set('date_default_timezone', 'Australia/Sydney');
+  }
+
   /**
    * @todo.
    */
@@ -23,7 +33,7 @@ class DateTimezoneTestCase extends DateFieldBasic {
     // Create a date fields with combinations of various timezone handling and
     // granularity.
     foreach (array('date', 'datestamp', 'datetime') as $field_type) {
-      foreach (array('site', 'none', 'date', 'user', 'utc') as $tz_handling) {
+      foreach (array('site', 'none', 'date', 'user', 'utc', 'Europe/Dublin') as $tz_handling) {
         foreach (array('year', 'month', 'day', 'hour', 'minute', 'second') as $max_granularity) {
           // Skip invalid combinations.
           if (in_array($max_granularity, array('year', 'month', 'day')) && $tz_handling != 'none') {
@@ -182,17 +192,32 @@ class DateTimezoneTestCase extends DateFieldBasic {
       case 'hour':
         $edit[$field_name . '[und][0][value][date]'] = '10/07/2010 - 10';
         $edit[$field_name . '[und][0][value2][date]'] = '10/07/2010 - 11';
-        $should_be = 'Thu, 10/07/2010 - 10 to Thu, 10/07/2010 - 11';
+        if ($tz_handling == 'utc') {
+          $should_be = 'Thu, 10/07/2010 - 21 to Thu, 10/07/2010 - 22';
+        }
+        else {
+          $should_be = 'Thu, 10/07/2010 - 10 to Thu, 10/07/2010 - 11';
+        }
         break;
       case 'minute':
         $edit[$field_name . '[und][0][value][date]'] = '10/07/2010 - 10:30';
         $edit[$field_name . '[und][0][value2][date]'] = '10/07/2010 - 11:30';
-        $should_be = 'Thu, 10/07/2010 - 10:30 to 11:30';
+        if ($tz_handling == 'utc') {
+          $should_be = 'Thu, 10/07/2010 - 21:30 to 22:30';
+        }
+        else {
+          $should_be = 'Thu, 10/07/2010 - 10:30 to 11:30';
+        }
         break;
       case 'second':
         $edit[$field_name . '[und][0][value][date]'] = '10/07/2010 - 10:30:30';
         $edit[$field_name . '[und][0][value2][date]'] = '10/07/2010 - 11:30:30';
-        $should_be = 'Thu, 10/07/2010 - 10:30:30 to 11:30:30';
+        if ($tz_handling == 'utc') {
+          $should_be = 'Thu, 10/07/2010 - 21:30:30 to 22:30:30';
+        }
+        else {
+          $should_be = 'Thu, 10/07/2010 - 10:30:30 to 11:30:30';
+        }
         break;
     }
     $this->drupalPost('node/add/story', $edit, t('Save'));

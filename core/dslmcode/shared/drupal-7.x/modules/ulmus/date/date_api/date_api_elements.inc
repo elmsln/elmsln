@@ -111,7 +111,7 @@ function date_default_date($element) {
   $format = DATE_FORMAT_DATETIME;
 
   // The text and popup widgets might return less than a full datetime string.
-  if (strlen($element['#default_value']) < 19) {
+  if (is_string($element['#default_value']) && strlen($element['#default_value']) < 19) {
     switch (strlen($element['#default_value'])) {
       case 16:
         $format = 'Y-m-d H:i';
@@ -319,7 +319,7 @@ function date_text_element_process($element, &$form_state, $form) {
 
   $element['#tree'] = TRUE;
   $element['#theme_wrappers'] = array('date_text');
-  $element['date']['#value'] = $element['#value']['date'];
+  $element['date']['#value'] = isset($element['#value']['date']) ? $element['#value']['date'] : '';
   $element['date']['#type'] = 'textfield';
   $element['date']['#weight'] = !empty($element['date']['#weight']) ? $element['date']['#weight'] : $element['#weight'];
   $element['date']['#attributes'] = array('class' => isset($element['#attributes']['class']) ? $element['#attributes']['class'] += array('date-date') : array('date-date'));

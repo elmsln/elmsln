@@ -5,9 +5,9 @@ dependencies[] = date
 package = Date/Time
 core = 7.x
 
-; Information added by Drupal.org packaging script on 2015-09-08
-version = "7.x-2.9"
+; Information added by Drupal.org packaging script on 2017-04-07
+version = "7.x-2.10"
 core = "7.x"
 project = "date"
-datestamp = "1441727353"
+datestamp = "1491562090"
 

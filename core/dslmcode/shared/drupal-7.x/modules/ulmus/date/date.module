@@ -443,7 +443,12 @@ function date_formatter_format($formatter, $settings, $granularity = array(), $l
       return 'date_plain';
 
     default:
-      $format = date_format_type_format($format_type, $langcode);
+      if ($format_type == 'custom') {
+        $format = $settings['custom_date_format'];
+      }
+      else {
+        $format = date_format_type_format($format_type, $langcode);
+      }
       break;
   }
 

@@ -204,3 +204,11 @@ function date_update_7004() {
   field_cache_clear();
   drupal_set_message(t('Date text widgets have been updated to use an increment of 1.'));
 }
+
+/**
+ * Revisited: Date text widgets should always use an increment of 1.
+ */
+function date_update_7005() {
+  // @see https://www.drupal.org/node/1355256
+  date_update_7004();
+}

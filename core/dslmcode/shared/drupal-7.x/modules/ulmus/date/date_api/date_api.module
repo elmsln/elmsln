@@ -1833,9 +1833,10 @@ function date_format_interval($date, $granularity = 2, $display_ago = TRUE) {
 /**
  * A date object for the current time.
  *
- * @param object $timezone
- *   (optional) Optionally force time to a specific timezone, defaults to user
- *   timezone, if set, otherwise site timezone. Defaults to NULL.
+ * @param object|string|null $timezone
+ *   (optional) PHP DateTimeZone object, string or NULL allowed. Optionally
+ *   force time to a specific timezone, defaults to user timezone, if set,
+ *   otherwise site timezone. Defaults to NULL.
  *
  * @param bool $reset
  *   (optional) Static cache reset.
@@ -1844,11 +1845,16 @@ function date_format_interval($date, $granularity = 2, $display_ago = TRUE) {
  *   The current time as a date object.
  */
 function date_now($timezone = NULL, $reset = FALSE) {
-  if ($reset) {
-    drupal_static_reset(__FUNCTION__ . $timezone);
+  $static_var = __FUNCTION__ . $timezone;
+  if ($timezone instanceof DateTimeZone) {
+    $static_var = __FUNCTION__ . $timezone->getName();
   }
 
-  $now = &drupal_static(__FUNCTION__ . $timezone);
+  if ($reset) {
+    drupal_static_reset($static_var);
+  }
+
+  $now = &drupal_static($static_var);
 
   if (!isset($now)) {
     $now = new DateObject('now', $timezone);
@@ -1920,7 +1926,12 @@ function date_days_in_month($year, $month) {
   // Pick a day in the middle of the month to avoid timezone shifts.
   $datetime = date_pad($year, 4) . '-' . date_pad($month) . '-15 00:00:00';
   $date = new DateObject($datetime);
-  return $date->format('t');
+  if ($date->errors) {
+    return FALSE;
+  }
+  else {
+    return $date->format('t');
+  }
 }
 
 /**
@@ -2075,6 +2086,9 @@ function date_iso_week_range($week, $year) {
   date_timezone_set($min_date, date_default_timezone_object());
 
   // Find the first day of the first ISO week in the year.
+  // If it's already a Monday, date_modify won't add a Monday,
+  // it will remain the same day. So add a Sunday first, then a Monday.
+  date_modify($min_date, '+1 Sunday');
   date_modify($min_date, '+1 Monday');
 
   // Jump ahead to the desired week for the beginning of the week range.

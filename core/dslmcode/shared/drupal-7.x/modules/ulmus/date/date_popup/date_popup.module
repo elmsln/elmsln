@@ -394,6 +394,10 @@ function date_popup_process_date_part(&$element) {
     'fromTo' => isset($fromto),
   );
 
+  if (!empty($element['#instance'])) {
+    $settings['syncEndDate'] = $element['#instance']['settings']['default_value2'] == 'sync';
+  }
+
   // Create a unique id for each set of custom settings.
   $id = date_popup_js_settings_id($element['#id'], 'datepicker', $settings);
 
@@ -474,10 +478,11 @@ function date_popup_process_time_part(&$element) {
       $grans = array('hour', 'minute', 'second');
       $time_granularity = array_intersect($granularity, $grans);
       $format = date_popup_format_to_popup_time(date_limit_format($element['#date_format'], $time_granularity), 'wvega');
+      $default_value = isset($element['#default_value']) ? $element['#default_value'] : '';
       // The first value in the dropdown list should be the same as the element
       // default_value, but it needs to be in JS format (i.e. milliseconds since
       // the epoch).
-      $start_time = new DateObject($element['#default_value'], $element['#date_timezone'], DATE_FORMAT_DATETIME);
+      $start_time = new DateObject($default_value, $element['#date_timezone'], DATE_FORMAT_DATETIME);
       date_increment_round($start_time, $element['#date_increment']);
       $start_time = $start_time->format(DATE_FORMAT_UNIX) * 1000;
       $settings = array(
@@ -580,7 +585,7 @@ function date_popup_validate($element, &$form_state) {
   // If something was input but there is no date, the date is invalid.
   // If the field is empty and required, set error message and return.
   $error_field = implode('][', $element['#parents']);
-  if (empty($date) || !empty($date->errors)) {
+  if ((empty($element['#value']['date']) && empty($element['#value']['time']))  || !empty($date->errors)) {
     if (is_object($date) && !empty($date->errors)) {
       $message = t('The value input for field %field is invalid:', array('%field' => $label));
       $message .= '<br />' . implode('<br />', $date->errors);
@@ -613,7 +618,9 @@ function date_popup_validate($element, &$form_state) {
  */
 function date_popup_input_date($element, $input, $auto_complete = FALSE) {
   if (empty($input) || !is_array($input) || !array_key_exists('date', $input) || empty($input['date'])) {
-    return NULL;
+    //check if there is no time associated in the input variable. This is the exception scenario where the user has entered only time and not date.
+    if(empty($input['time']))
+      return NULL;
   }
   date_popup_add();
   $granularity = date_format_order($element['#date_format']);
@@ -622,9 +629,14 @@ function date_popup_input_date($element, $input, $auto_complete = FALSE) {
 
   $format = date_popup_date_format($element);
   $format .= $has_time ? ' ' . date_popup_time_format($element) : '';
-  $datetime = trim($input['date']);
+  //check if date is empty, if yes, then leave it blank.
+  $datetime = !empty($input['date']) ? trim($input['date']) : '';
   $datetime .= $has_time ? ' ' . trim($input['time']) : '';
   $date = new DateObject($datetime, $element['#date_timezone'], $format);
+  //if the variable is time only then set TimeOnly to TRUE
+  if(empty($input['date']) && !empty($input['time']) ){
+    $date->timeOnly = 'TRUE';
+  }
   if (is_object($date)) {
     $date->limitGranularity($granularity);
     if ($date->validGranularity($granularity, $flexible)) {
@@ -798,6 +810,14 @@ function theme_date_popup($vars) {
     $element['#children'] = '<div id="' . $element['#id'] . '" ' . drupal_attributes($wrapper_attributes) . '>' . $element['#children'] . '</div>';
   }
   return '<div ' . drupal_attributes($attributes) . '>' . theme('form_element', $element) . '</div>';
+}
+
+/**
+ * Implements hook_date_field_instance_settings_form_alter().
+ */
+function date_popup_date_field_instance_settings_form_alter(&$form, $context) {
+  // Add an extra option to sync the end date with the start date.
+  $form['default_value2']['#options']['sync'] = t('Sync with start date');
 }
 
 /**

@@ -42,6 +42,32 @@ class date_views_filter_handler extends date_views_filter_handler_simple {
     $this->date_combine_conditions('op_contains');
   }
 
+  function op_empty($field) {
+    $this->get_query_fields();
+    if (empty($this->query_fields)) {
+      return;
+    }
+
+    // Add each condition to the custom filter group.
+    foreach ((array) $this->query_fields as $query_field) {
+      $field = $query_field['field'];
+      $this->date_handler = $query_field['date_handler'];
+
+      // Respect relationships when determining the table alias.
+      if ($field['table_name'] != $this->table || !empty($this->relationship)) {
+        $this->related_table_alias = $this->query->ensure_table($field['table_name'], $this->relationship);
+      }
+      else {
+        $this->related_table_alias = NULL;
+      }
+
+      $table_alias = !empty($this->related_table_alias) ? $this->related_table_alias : $field['table_name'];
+      $field_name = $table_alias . '.' . $field['field_name'];
+
+      parent::op_empty($field_name);
+    }
+  }
+
   /**
    * Combines multiple date WHERE expressions into a single WHERE expression.
    *
@@ -67,7 +93,7 @@ class date_views_filter_handler extends date_views_filter_handler_simple {
         $this->related_table_alias = $this->query->ensure_table($field['table_name'], $this->relationship);
       }
       else {
-        $this->related_table_alias = null;
+        $this->related_table_alias = NULL;
       }
       $table_alias = !empty($this->related_table_alias) ? $this->related_table_alias : $field['table_name'];
       $field_name = $table_alias . '.' . $field['field_name'];

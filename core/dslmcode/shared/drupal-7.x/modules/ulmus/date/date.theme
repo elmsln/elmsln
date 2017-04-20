@@ -349,10 +349,10 @@ function theme_date_display_range($variables) {
   }
 
   // Wrap the result with the attributes.
-  $output = '<div class="date-display-range">' . t('!start-date to !end-date', array(
+  $output = '<span class="date-display-range">' . t('!start-date to !end-date', array(
     '!start-date' => $start_date,
     '!end-date' => $end_date,
-  )) . '</div>';
+  )) . '</span>';
 
   // Add remaining message and return.
   return $output . $show_remaining_days;
@@ -378,6 +378,8 @@ function theme_date_display_interval($variables) {
     'end_date' => $dates['value2']['local']['object'],
     'interval' => $options['interval'],
     'interval_display' => $options['interval_display'],
+    'use_end_date' => !empty($options['use_end_date']) ?
+      $options['use_end_date'] : FALSE,
   );
 
   if ($return = theme('date_time_ago', $time_ago_vars)) {
@@ -398,9 +400,9 @@ function theme_date_combo($variables) {
 
   // Group start/end items together in fieldset.
   $fieldset = array(
-    '#title' => field_filter_xss(t($element['#title'])) . ' ' . ($element['#delta'] > 0 ? intval($element['#delta'] + 1) : ''),
+    '#title' => field_filter_xss(t($element['#title'])) . ($element['#delta'] > 0 ? ' ' . intval($element['#delta'] + 1) : ''),
     '#value' => '',
-    '#description' => !empty($element['#fieldset_description']) ? $element['#fieldset_description'] : '',
+    '#description' => !empty($element['#description']) ? $element['#description'] : '',
     '#attributes' => array('class' => array('date-combo')),
     '#children' => $element['#children'],
   );
