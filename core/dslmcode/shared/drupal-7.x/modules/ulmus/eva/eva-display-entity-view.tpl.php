@@ -39,6 +39,12 @@
     </div>
   <?php endif; ?>
 
+  <?php if ($exposed && !$exposed_form_as_field): ?>
+    <div class="view-filters">
+      <?php print $exposed; ?>
+    </div>
+  <?php endif; ?>
+
   <?php if ($attachment_before): ?>
     <div class="attachment attachment-before">
       <?php print $attachment_before; ?>
