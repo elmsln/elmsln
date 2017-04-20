@@ -28,3 +28,10 @@ features[wysiwyg][] = textbook_editor
 features_exclude[dependencies][cis_filter] = cis_filter
 features_exclude[dependencies][footnotes] = footnotes
 features_exclude[dependencies][token_filter] = token_filter
+
+; Information added by Drupal.org packaging script on 2017-04-20
+version = "7.x-4.3+2-dev"
+core = "7.x"
+project = "textbook"
+datestamp = "1492703352"
+
