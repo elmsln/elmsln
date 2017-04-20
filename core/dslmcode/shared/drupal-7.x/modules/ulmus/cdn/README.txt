@@ -22,8 +22,7 @@ Amazon S3, Rackspace CloudFiles). File Conveyor is flexible enough to be used
 with *any* CDN, thus it enables you to avoid vendor lock-in.
 
 If you're not sure which mode to use, use "Origin Pull". It's easier and more
-reliable. The only common CDN today (2011–2012) that doesn't support it is
-Rackspace Cloud Files.
+reliable. Every single common CDN today (2015) supports Origin Pull.
 
 _Note:_ It is essential that you understand the key properties of a CDN, most
 importantly the differences between an Origin Pull CDN and a Push CDN. A good
@@ -116,6 +115,14 @@ Installation
    your site with your root/admin (user id 1) account. The statistics will
    show which files are served from the CDN!
 
+9) If your site is behind a reverse proxy such as Varnish, so that your stack
+   looks like: CDN <-> reverse proxy <-> web server, then you need to take extra
+   measures if you want to prevent duplicate content showing up on the CDN. See
+   https://www.drupal.org/node/2678374#comment-11278951 for details. It's
+   possible in this situation to end up with redirect loops; for that reason
+   the CDN module adds a debugging header to the 301 redirects it emits in order
+   to facilitate troubleshooting.
+
 
 File Conveyor mode
 ------------------
@@ -190,21 +197,24 @@ A: Nothing. It only serves as a sample for using File Conveyor. It's used for
 Q: How to use different CDNs based on the domain name of an i18n site?
 A: See http://drupal.org/node/1483962#comment-5744830.
 
+Q: Why are old CDN Far Future URLs not working?
+A: Your Drupal site's private key or hash salt have changed. See
+   https://www.drupal.org/node/1844786#comment-6832244 for details.
 
 No cookies should be sent to the CDN
 ------------------------------------
-Please note though that you should ensure no cookies are sent to the CDN: this 
+Please note though that you should ensure no cookies are sent to the CDN: this
 would slow down HTTP requests to the CDN (since the requests become larger:
 they piggyback the cookie data).
 You can achieve this in two ways:
   1) When you are using cookies that are bound to your www subdomain only
      (i.e. not an example.com, but on www.example.com), you can safely use
      another subdomain for your CDN.
-  2) When you are using cookies on your main domain (example.com), you'll have 
-     to use a completely different domain for the CDN if you don't want 
+  2) When you are using cookies on your main domain (example.com), you'll have
+     to use a completely different domain for the CDN if you don't want
      cookies to be sent.
-     So then you should use the CDN's URL (e.g. myaccount.cdn.com). But now 
-     you should be careful to avoid JavaScript issues: you may run into "same 
+     So then you should use the CDN's URL (e.g. myaccount.cdn.com). But now
+     you should be careful to avoid JavaScript issues: you may run into "same
      origin policy" problems. See admin/config/development/cdn/other for
      details.
 
@@ -212,6 +222,107 @@ Drupal 7 no longer sets cookies for anonymous users.
 
 If you just use the CDN's URL (e.g. myaccount.cdn.com), all cookie issues are
 avoided automatically.
+
+
+Origin Pull mode's "Far Future expiration" setting
+--------------------------------------------------
+For small sites, or sites with relatively few assets, the Far Future
+expiration functionality should work just fine out of the box. The CDN module
+serves all files through PHP with all headers configured perfectly. Since the
+CDN only occasionally comes back to check on files, the far-from-great
+performance of serving files through PHP is irrelevant.
+However, if your site has a *lot* of images, for example, this can be
+problematic, because even the occasional check by the CDN may amount to a near
+constant load on your server, of files being served through PHP. In that case,
+you may want to let your web server take care of that for you.
+
+Apache users: add the following rules to <IfModule mod_rewrite.c> section of
+your .htaccess file:
+
+  ### CDN START ###
+  # See http://drupal.org/node/1413156
+  <IfModule mod_headers.c>
+    # Transform /cdn/farfuture/[security token]/[ufi method]:[ufi]/sites/default/files
+    # to /files and set environment variable for later Header rules.
+    RewriteCond %{REQUEST_URI} ^/cdn/farfuture/[^/]+/[^/]+/(.+)$
+    RewriteRule .* %1 [L,E=FARFUTURE_CDN:1]
+
+    # Apache will change FARFUTURE_CDN to REDIRECT_FARFUTURE_CDN on internal
+    # redirects, restore original environment variable.
+    # See http://stackoverflow.com/q/3050444
+    RewriteCond %{ENV:REDIRECT_FARFUTURE_CDN} =1
+    RewriteRule .* - [E=FARFUTURE_CDN:1]
+
+
+    ###
+    ### Always reply "304 Not Modified" to "If-Modified-Since" header.
+    ###
+
+    # The redirect works only if URL was actually modified by rewrite rule
+    # (probably, to prevent infinite loops). So, we rewrite the URL with
+    # website root and this causes the webserver to return 304 status.
+    RewriteCond %{ENV:FARFUTURE_CDN} =1
+    RewriteCond %{HTTP:If-Modified-Since} !=""
+    RewriteRule .* / [R=304,L]
+
+
+    ###
+    ### Generic headers that apply to all /cdn/farfuture/* requests.
+    ###
+
+    # Instead of being powered by Apache, tell the world this resource was
+    # powered by the CDN module's .htaccess!
+    Header set X-Powered-By "Drupal CDN module (.htaccess)" env=FARFUTURE_CDN
+
+    # Instruct intermediate HTTP caches to store both a compressed (gzipped) and
+    # uncompressed version of the resource.
+    Header set Vary "Accept-Encoding" env=FARFUTURE_CDN
+
+    # Support partial content requests.
+    Header set Accept-Ranges "bytes" env=FARFUTURE_CDN
+
+    # Do not use ETags for cache validation.
+    Header unset ETag env=FARFUTURE_CDN
+
+    # Browsers that implement the W3C Access Control specification might refuse
+    # to use certain resources such as fonts if those resources violate the
+    # same-origin policy. Send a header to explicitly allow cross-domain use of
+    # those resources. (This is called Cross-Origin Resource Sharing, or CORS.)
+    Header set Access-Control-Allow-Origin "*" env=FARFUTURE_CDN
+
+
+    ###
+    ### Default caching rules: no caching/immediate expiration.
+    ###
+
+    Header set Cache-Control "private, must-revalidate, proxy-revalidate" env=FARFUTURE_CDN
+    Header set Expires "Wed, 20 Jan 1988 04:20:42 GMT" env=FARFUTURE_CDN
+
+
+    ###
+    ### Far future caching rules: only files with certain extensions.
+    ###
+
+    <FilesMatch "(\.css|\.css\.gz|\.js|\.js\.gz|\.svg|\.ico|\.gif|\.jpg|\.jpeg|\.png|\.otf|\.ttf|\.eot|\.woff|\.flv|\.swf)$">
+      # Set a far future Cache-Control header (480 weeks), which prevents
+      # intermediate caches from transforming the data and allows any
+      # intermediate cache to cache it, since it's marked as a public resource.
+      Header set Cache-Control "max-age=290304000, no-transform, public" env=FARFUTURE_CDN
+
+      # Set a far future Expires header. The maximum UNIX timestamp is somewhere
+      # in 2038. Set it to a date in 2037, just to be safe.
+      Header set Expires "Tue, 20 Jan 2037 04:20:42 GMT" env=FARFUTURE_CDN
+
+      # Pretend the file was last modified a long time ago in the past, this will
+      # prevent browsers that don't support Cache-Control nor Expires headers to
+      # still request a new version too soon (these browsers calculate a
+      # heuristic to determine when to request a new version, based on the last
+      # time the resource has been modified).
+      # Also see http://code.google.com/speed/page-speed/docs/caching.html.
+      Header set Last-Modified "Wed, 20 Jan 1988 04:20:42 GMT" env=FARFUTURE_CDN
+    </FilesMatch>
+  </IfModule>
+  ### CDN END ###
 
 
 When using multiple servers/CDNs: picking one based on advanced criteria
@@ -258,22 +369,6 @@ picking the CDN based purely on filetype, one could write:
     $unique_file_id = hexdec(substr(md5($filename), 0, 5));
     return $servers_for_file[$unique_file_id % count($servers_for_file)];
   }
-
-Note: if you don't want to create a small module for this function, or if you
-      would just like to experiment with this function, you can also enter the
-      body of this function at admin/settings/cdn/other — it will work exactly
-      the same!
-      If you don't know what the "body" of a function is, it's the part
-      between the curly brackets:
-        function doSomething() {
-          BODY
-        }
-      So, in the case of the cdn_pick_server() function, this is the body that
-      you would enter:
-        $filename = basename($servers_for_file[0]['url']);
-        $unique_file_id = hexdec(substr(md5($filename), 0, 5));
-        return $servers_for_file[$unique_file_id % count($servers_for_file)];
-
 
 Sponsors
 --------

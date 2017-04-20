@@ -5,7 +5,7 @@
  * Test CDN.
  */
 
-class CDNTestCase extends DrupalUnitTestCase {
+class CDNUnitTestCase extends DrupalUnitTestCase {
   function setUp() {
     parent::setUp();
 
@@ -14,15 +14,19 @@ class CDNTestCase extends DrupalUnitTestCase {
       'HTTP_ACCEPT_ENCODING',
       'HTTPS' => 'off',
       'HTTP_X_FORWARDED_PROTO' => 'http',
+      'HTTP_USER_AGENT' => $this->randomName(),
     );
     $alt_server = array_merge($alt_server, $_SERVER);
     $_SERVER = $alt_server;
     $this->setRequestProtocol('http');
 
+    // Enable the private:// stream wrapper.
+    $this->variableSet('file_private_path', conf_path() . '/files/private');
+
     // Pretend the CDN module is enabled; this ensures invocations of its own
     // hook implementations will work as expected.
     $cdn_module_file = drupal_get_path('module', 'cdn') . '/cdn.module';
-    $module_list = module_list();
+    $module_list['system']['filename'] = 'modules/system/system.module';
     $module_list['cdn']['filename'] = $cdn_module_file;
     module_list(TRUE, FALSE, FALSE, $module_list);
     $implementations = &drupal_static('module_implements');
@@ -72,6 +76,7 @@ class CDNTestCase extends DrupalUnitTestCase {
       CDN_BASIC_MAPPING_VARIABLE => '',
       CDN_BASIC_MAPPING_HTTPS_VARIABLE => '',
       CDN_BASIC_FARFUTURE_VARIABLE => FALSE,
+      CDN_SEO_REDIRECT_VARIABLE => TRUE,
     );
     $conf = array_merge($conf, $this->defaultConfig);
   }
@@ -91,6 +96,16 @@ class CDNTestCase extends DrupalUnitTestCase {
       $_SERVER['HTTPS'] = 'on';
       $_SERVER['HTTP_X_FORWARDED_PROTO'] = 'https';
     }
+  }
+
+  /**
+   * Set the User-Agent of the current "request".
+   *
+   * @param $ua
+   *   A User-Agent, which can be almost any string.
+   */
+  function setUserAgent($ua) {
+    $_SERVER['HTTP_USER_AGENT'] = $ua;
   }
 
   /**
@@ -134,7 +149,18 @@ class CDNTestCase extends DrupalUnitTestCase {
   }
 }
 
-class CDNGeneralTestCase extends CDNTestCase {
+class CDNWebTestCase extends DrupalWebTestCase {
+  function setUp() {
+    parent::setUp('cdn');
+  }
+
+  function loadFile($file) {
+    $cdn_path = DRUPAL_ROOT . '/' . drupal_get_path('module', 'cdn');
+    require_once "$cdn_path/$file";
+  }
+}
+
+class CDNGeneralTestCase extends CDNUnitTestCase {
   public static function getInfo() {
     return array(
       'name' => 'General',
@@ -181,7 +207,7 @@ class CDNGeneralTestCase extends CDNTestCase {
   }
 }
 
-class CDNOriginPullTestCase extends CDNTestCase {
+class CDNOriginPullTestCase extends CDNUnitTestCase {
   public static function getInfo() {
     return array(
       'name' => 'Origin Pull mode',
@@ -304,10 +330,16 @@ class CDNOriginPullTestCase extends CDNTestCase {
     cdn_file_url_alter($uri);
     $expected = 'http://cdn-a.com' . base_path() . variable_get('file_public_path', conf_path() . '/files') . '/' . drupal_encode_path($filename);
     $this->assertIdentical($uri, $expected, 'cdn_file_url_alter() works correctly.');
+
+    // Test that private:// file URLs are not altered.
+    $uri = "private://$filename";
+    $expected = $uri;
+    cdn_file_url_alter($uri);
+    $this->assertIdentical($uri, $expected, 'cdn_file_url_alter() excludes private:// files.');
   }
 }
 
-class CDNOriginPullFarFutureTestCase extends CDNTestCase {
+class CDNOriginPullFarFutureTestCase extends CDNUnitTestCase {
   public static function getInfo() {
     return array(
       'name' => 'Origin Pull mode — Far Future expiration',
@@ -468,11 +500,11 @@ class CDNOriginPullFarFutureTestCase extends CDNTestCase {
   }
 }
 
-class CDNImageTestCase extends CDNTestCase {
+class CDNImageTestCase extends CDNUnitTestCase {
   public static function getInfo() {
     return array(
-      'name' => 'Image HTML altering',
-      'description' => 'Verify that image URLs inside HTML are rewritten correctly.',
+      'name' => 'Image and Download Link HTML altering',
+      'description' => 'Verify that image and anchor link URLs inside HTML are rewritten correctly.',
       'group' => 'CDN',
     );
   }
@@ -489,7 +521,7 @@ class CDNImageTestCase extends CDNTestCase {
 
     // Image altering type 1: "just image", i.e. "<img />".
     $template = function($url) {
-      return '<img src="' . $url . '" />';
+      return '<img alt="Foo!" src="' . $url . '" title="Bar!"/>';
     };
     // Simplest case possible.
     $img_url = base_path() . 'foo/bar/image.png';
@@ -514,7 +546,7 @@ class CDNImageTestCase extends CDNTestCase {
 
     // Image altering type 2: "linked image", i.e. "<a><img /></a>"..
     $template = function($a_url, $img_url) {
-      return '<a href="' . $a_url . '"><img src="' . $img_url . '" /></a>';
+      return '<a rel="gallery" href="' . $a_url . '" class="gallery-image"><img alt="Foo!" src="' . $img_url . '" title="Bar!" /></a>';
     };
     // Simplest case possible: a linked image linking to the same image.
     $img_base_url = base_path() . 'foo/bar/image';
@@ -538,12 +570,157 @@ class CDNImageTestCase extends CDNTestCase {
     // image) don't get their anchors modified
     $a_url = base_path() . 'node';
     $html = $template($a_url, $img_url);
-    cdn_html_alter_image_urls($html);
+    $html = cdn_post_render_html_alter($html);
     $this->assertIdentical($template($a_url, $cdn . $img_url), $html, 'Linked image HTML correctly altered (anchor unmodified).');
     // Same, but now for a link with a query string.
     $a_url = base_path() . 'node?foobar';
     $html = $template($a_url, $img_url);
-    cdn_html_alter_image_urls($html);
+    $html = cdn_post_render_html_alter($html);
     $this->assertIdentical($template($a_url, $cdn . $img_url), $html, 'Linked image HTML correctly altered (anchor unmodified, even with query strings).');
+  }
+
+  function testOtherContentLink() {
+    $cdn = 'http://cdn-a.com';
+    $this->variableSet(CDN_BASIC_MAPPING_VARIABLE, "$cdn|.png .pdf");
+    $this->variableSet(CDN_MODE_VARIABLE, CDN_MODE_BASIC);
+
+    // Image altering type 1: "just image", i.e. "<img />".
+    $template = function($url) {
+      return '<a href="' . $url . '">Download this!</a>';
+    };
+
+    // Simplest case possible.
+    $a_url = base_path() . 'foo/bar/image.png';
+    $html = $template($a_url);
+    $html = cdn_post_render_html_alter($html);
+    $this->assertIdentical($template($cdn . $a_url), $html, 'Other content link correctly altered.');
+    // Query strings should not be stripped.
+    $a_url = base_path() . 'foo/bar/image.pdf?foobar';
+    $html = $template($a_url);
+    $html = cdn_post_render_html_alter($html);
+    $this->assertIdentical($template($cdn . $a_url), $html, 'Other content link correctly altered (query string not stripped).');
+    // Edge case: a script generating an image is not (yet) supported.
+    $a_url = base_path() . 'foo/bar/image.gif';
+    $html = $template($a_url);
+    $html = cdn_post_render_html_alter($html);
+    $this->assertIdentical($template($a_url), $html, 'Other content link correctly NOT altered (extension does not map).');
+    // Edge case: a script generating an image is not (yet) supported.
+    $a_url = base_path() . 'foo/bar/showimage?formula=12345.png';
+    $html = $template($a_url);
+    $html = cdn_post_render_html_alter($html);
+    $this->assertIdentical($template($a_url), $html, 'Other content link correctly NOT altered (extension not pulled from query string).');
+  }
+
+  function testOtherContentLinkWrappingImage() {
+    $cdn = 'http://cdn-a.com';
+    $this->variableSet(CDN_BASIC_MAPPING_VARIABLE, "$cdn|.png .jpeg");
+    $this->variableSet(CDN_MODE_VARIABLE, CDN_MODE_BASIC);
+
+    // Image altering type 2: "linked image", i.e. "<a><img /></a>"..
+    $template = function($a_url, $img_url) {
+      return '<a href="' . $a_url . '"><img src="' . $img_url . '" /></a>';
+    };
+
+    // Test that images linking to a URL with an extension that matches a
+    // mapped extension, even if the extension is different than the image,
+    // are modified.
+    $a_url = base_path() . 'node.jpeg';
+    $img_url = base_path() . 'foo/bar/image.png';
+    $html = $template($a_url, $img_url);
+    $html = cdn_post_render_html_alter($html);
+    $this->assertIdentical($template($cdn . $a_url, $cdn . $img_url), $html, 'Other content link wrapping image correctly altered.');
+
+    $a_url = base_path() . 'node.gif';
+    $html = $template($a_url, $img_url);
+    $html = cdn_post_render_html_alter($html);
+    $this->assertIdentical($template($a_url, $cdn . $img_url), $html, 'Other content link wrapping correctly NOT altered (extension does not map).');
+  }
+}
+
+class CDNCssUrlTestCase extends CDNWebTestCase {
+  public static function getInfo() {
+    return array(
+      'name' => 'CSS URLs',
+      'description' => 'Verify URLs in CSS files are rewritten properly.',
+      'group' => 'CDN',
+    );
+  }
+
+  function setUp() {
+    parent::setUp();
+    $this->loadFile('cdn.basic.css.inc');
+    variable_set(CDN_MODE_VARIABLE, CDN_MODE_BASIC);
+    variable_set(CDN_BASIC_FARFUTURE_VARIABLE, TRUE);
+  }
+
+  // Makes sure the URL components are preserved.
+  function testCssUrl() {
+    global $base_url;
+    $css_info = array(
+      array(
+        'type' => 'file',
+        'data' => drupal_get_path('module', 'cdn') . '/tests/css/orig/url.css',
+      ),
+    );
+    try {
+      // Make sure the URL in the supplied CSS file matches what we expect.
+      // trim() is needed to avoid issues with differences in newlines.
+      $this->assertEqual(trim(file_get_contents(_cdn_build_css_cache($css_info))), '.home{background:url('. $base_url . '/' . drupal_get_path('module', 'cdn') . '/tests/css/orig/geo-md-webfont.eot?#iefix);}');
+    } catch (Exception $exc) {
+      $this->fail($exc);
+    }
+  }
+}
+
+class CDNSEOTestCase extends CDNUnitTestCase {
+  public static function getInfo() {
+    return array(
+      'name' => 'SEO',
+      'description' => 'Verify SEO duplicate content prevention.',
+      'group' => 'CDN',
+    );
+  }
+
+  function testSEO() {
+    // Test with and without SEO duplicate content prevention. Each case is tested
+    // with three sorts of paths:
+    // - page path (without any extension and with all of the three default
+    //   "allowed" extensions, meaning that they c)
+    // - file path
+    // - generated file path
+
+    // SEO duplicate content prevention disabled.
+    $this->variableSet(CDN_SEO_REDIRECT_VARIABLE, FALSE);
+    $this->setUserAgent('Amazon CloudFront');
+    $this->assertIdentical(_cdn_seo_should_redirect('node/1'), FALSE, 'Disabled SEO duplicate content prevention is respected for page paths.');
+    $this->assertIdentical(_cdn_seo_should_redirect('node/1.htm.'), FALSE, 'Disabled SEO duplicate content prevention is respected for page paths.');
+    $this->assertIdentical(_cdn_seo_should_redirect('node/1.htm'), FALSE, 'Disabled SEO duplicate content prevention is respected for page paths.');
+    $this->assertIdentical(_cdn_seo_should_redirect('node/1.php'), FALSE, 'Disabled SEO duplicate content prevention is respected for page paths.');
+    $this->assertIdentical(_cdn_seo_should_redirect('misc/jquery.js'), FALSE, 'Disabled SEO duplicate content prevention is respected for file paths.');
+    $this->assertIdentical(_cdn_seo_should_redirect('sites/default/files/styles/thumbnail/foobar.png'), FALSE, 'Disabled SEO duplicate content prevention is respected for generated file paths.');
+    $this->setUserAgent($this->randomName());
+    $this->assertIdentical(_cdn_seo_should_redirect('node/1'), FALSE, 'Disabled SEO duplicate content prevention is respected for page paths.');
+    $this->assertIdentical(_cdn_seo_should_redirect('node/1.html'), FALSE, 'Disabled SEO duplicate content prevention is respected for page paths.');
+    $this->assertIdentical(_cdn_seo_should_redirect('node/1.htm'), FALSE, 'Disabled SEO duplicate content prevention is respected for page paths.');
+    $this->assertIdentical(_cdn_seo_should_redirect('node/1.php'), FALSE, 'Disabled SEO duplicate content prevention is respected for page paths.');
+    $this->assertIdentical(_cdn_seo_should_redirect('misc/jquery.js'), FALSE, 'Disabled SEO duplicate content prevention is respected for file paths.');
+    $this->assertIdentical(_cdn_seo_should_redirect('sites/default/files/styles/thumbnail/foobar.png'), FALSE, 'Disabled SEO duplicate content prevention is respected for generated file paths.');
+
+    // SEO page request duplicate content prevention enabled.
+    $this->variableSet(CDN_SEO_REDIRECT_VARIABLE, TRUE);
+    $this->setUserAgent('The Amazon CloudFront User Agent!'); // Note that this is a superstring of the provided CDN user agent "Amazon CloudFront"!
+    $this->assertIdentical(_cdn_seo_should_redirect('node/1'), url('node/1', array('absolute' => TRUE)), 'Enabled SEO duplicate content prevention works correctly when a CDN UA requests a page path: the response is a redirect.');
+    $this->assertIdentical(_cdn_seo_should_redirect('node/1.html'), url('node/1.html', array('absolute' => TRUE)), 'Enabled SEO duplicate content prevention works correctly when a CDN UA requests a page path: the response is a redirect.');
+    $this->assertIdentical(_cdn_seo_should_redirect('node/1.htm'), url('node/1.htm', array('absolute' => TRUE)), 'Enabled SEO duplicate content prevention works correctly when a CDN UA requests a page path: the response is a redirect.');
+    $this->assertIdentical(_cdn_seo_should_redirect('node/1.php'), url('node/1.php', array('absolute' => TRUE)), 'Enabled SEO duplicate content prevention works correctly when a CDN UA requests a page path: the response is a redirect.');
+    $this->assertIdentical(_cdn_seo_should_redirect('misc/jquery.js'), FALSE, 'Enabled SEO duplicate content prevention works correctly when a CDN UA requests a file path: the response is not a redirect.');
+    $this->assertIdentical(_cdn_seo_should_redirect('sites/default/files/styles/thumbnail/foobar.png'), FALSE, 'Enabled SEO duplicate content prevention works correctly when a CDN UA requests a generated file path: the response is not a redirect.');
+    $this->setUserAgent($this->randomName());
+    $this->assertIdentical(_cdn_seo_should_redirect('node/1'), FALSE, 'Enabled SEO duplicate content prevention works correctly when a non-CDN UA requests a page path: the response is a redirect.');
+    $this->assertIdentical(_cdn_seo_should_redirect('node/1.htm'), FALSE, 'Enabled SEO duplicate content prevention works correctly when a non-CDN UA requests a page path: the response is a redirect.');
+    $this->assertIdentical(_cdn_seo_should_redirect('node/1.html'), FALSE, 'Enabled SEO duplicate content prevention works correctly when a non-CDN UA requests a page path: the response is a redirect.');
+    $this->assertIdentical(_cdn_seo_should_redirect('node/1.php'), FALSE, 'Enabled SEO duplicate content prevention works correctly when a non-CDN UA requests a page path: the response is a redirect.');
+    $this->assertIdentical(_cdn_seo_should_redirect('misc/jquery.js'), FALSE, 'Enabled SEO duplicate content prevention works correctly when a non-CDN UA requests a file path: the response is not a redirect.');
+    $this->assertIdentical(_cdn_seo_should_redirect('sites/default/files/styles/thumbnail/foobar.png'), FALSE, 'Enabled SEO duplicate content prevention works correctly when a non-CDN UA requests a generated file path: the response is not a redirect.');
   }
 }
