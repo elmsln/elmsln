@@ -297,7 +297,7 @@ function imce_upload_submit($form, &$form_state) {
 
     //core bug #54223.
     if ($replace == FILE_EXISTS_RENAME) {
-      $name = basename($file->uri);
+      $name = drupal_basename($file->uri);
       if ($name != $file->filename) {
         $file->filename = $name;
         drupal_set_message(t('The file has been renamed to %filename.', array('%filename' => $file->filename)));
@@ -494,7 +494,7 @@ function imce_resize_image($filename, &$imce, $width, $height, $copy = TRUE, $de
   if (!$destname || $destname == $filename) {
     $file->uri = $copy ? file_create_filename($filename, $destdir) : $imguri;
   }
-  $file->filename = basename($file->uri);
+  $file->filename = drupal_basename($file->uri);
 
   //check if a file having the same properties exists already.
   if (isset($imce['files'][$file->filename])) {
@@ -807,7 +807,7 @@ function imce_process_directories(&$imce, $user) {
 }
 
 /**
- * Return an avaliable directory for the profile.
+ * Return an available directory for the profile.
  */
 function imce_working_directory(&$imce) {
   //Do not use session if there is only one directory assigned.
@@ -923,7 +923,10 @@ function imce_subdirectories_accessible(&$imce) {
       return TRUE;
     }
     //checking only the first one is sufficient.
-    $dirname = ($imce['dir'] == '.' ? '' : $imce['dir'] . '/') . $imce['subdirectories'][0];
+    $dirname = reset($imce['subdirectories']);
+    if ($imce['dir'] !== '.') {
+      $dirname = $imce['dir'] . '/' . $dirname;
+    }
 
     //check if any setting is applicable for this subdirectory through any directory in the list.
     foreach ($imce['directories'] as $name => $info) {
@@ -1082,7 +1085,15 @@ function imce_dir_uri($imce, $dir = NULL) {
   if (!isset($dir)) {
     $dir = $imce['dir'];
   }
-  return $imce['scheme'] . '://' . ($dir == '.' ? '' : $dir . '/');
+  $target = $dir === '.' ? '' : $dir;
+  $uri = $imce['scheme'] . '://' . $target;
+  // Uri is already normalized. Call alterers.
+  drupal_alter('file_stream_wrapper_uri_normalize', $uri, $imce['scheme'], $target);
+  // Add the slash
+  if (substr($uri, -1) !== '/') {
+    $uri .= '/';
+  }
+  return $uri;
 }
 
 /**
