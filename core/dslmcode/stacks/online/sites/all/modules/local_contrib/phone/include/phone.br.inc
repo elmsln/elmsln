@@ -5,11 +5,11 @@
  * CCK Field for Brazilian phone numbers.
  * (based on CCK Field for French phone numbers.)
  */
-define('PHONE_BR_REGEX', "/^(\+|0{2}|)?(55|0|)[ -.]?((\(0?[1-9][0-9]\))|(0?[1-9][0-9]))[ -.]?([1-9][0-9]{2,3})[ -.]?([0-9]{4})$/");
+define('PHONE_BR_REGEX', "/^(\+|0{2}|)?(55|0|)[\s.-]?((\(0?[1-9][0-9]\))|(0?[1-9][0-9]))[\s.-]?([1-9][0-9]{2,4})[\s.-]?([0-9]{4})$/");
 
 function phone_br_metadata() {
   return array(
-    'error' => '"%value" is not a valid Brazilian phone number<br>Brazilian phone numbers should contain only numbers and spaces and - and be like 099 9999-9999 or 99 9999-9999 with an optional prefix of "+55".',
+    'error' => '"%value" is not a valid Brazilian phone number<br>Brazilian phone numbers should contain only numbers and spaces and - and be like 099 9999-9999, 99 9999-9999 or 99 99999-9999 with an optional prefix of "+55".',
   );
 }
 
