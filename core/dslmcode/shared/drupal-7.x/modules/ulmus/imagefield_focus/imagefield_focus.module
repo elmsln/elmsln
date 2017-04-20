@@ -136,9 +136,9 @@ function imagefield_focus_widget_image_image_process($element, &$form_state, $fo
   static $added;
 
   $item = $element['#value'];
-  $field_name = $element['#field_name'];
   $instance = field_widget_instance($element, $form_state);
   $settings = $instance['settings'];
+  $key = implode('-', array($instance['entity_type'], $instance['bundle'], $instance['field_name']));
 
   // Add JS and CSS.
   $path = drupal_get_path('module', 'imagefield_focus');
@@ -148,18 +148,18 @@ function imagefield_focus_widget_image_image_process($element, &$form_state, $fo
   drupal_add_css($path .'/imagefield_focus.css');
 
   // Add settings.
-  if (!isset($added[$field_name])) {
+  if (!isset($added[$key])) {
     list($w, $h) = explode('x', $settings['focus_min_size']) + array('', '');
     drupal_add_js(array(
       'imagefield_focus' => array(
-        $field_name => array(
+        $key => array(
           'min_width' => intval($w),
           'min_height' => intval($h),
           'lock_ratio' => !empty($settings['focus_lock_ratio']),
         ),
       ),
     ), 'setting');
-    $added[$field_name] = TRUE;
+    $added[$key] = TRUE;
   }
 
   // Add focus fields.
@@ -168,7 +168,10 @@ function imagefield_focus_widget_image_image_process($element, &$form_state, $fo
     '#title' => t('Focus rectangle'),
     '#default_value' => isset($item['focus_rect']) ? $item['focus_rect'] : '',
     '#description' => t('The important portion of the image to set focus to and that should <strong>never</strong> be cut. It is recommended to keep it as small as possible for best results.'),
-    '#attributes' => array('class' => array('imagefield-focus', 'focus-rect')),
+    '#attributes' => array(
+      'class' => array('imagefield-focus', 'focus-rect'),
+      'data-settings-key' => $key,
+    ),
     '#access' => (bool) $item['fid'],
   );
   $element['crop_rect'] = array(
@@ -176,7 +179,10 @@ function imagefield_focus_widget_image_image_process($element, &$form_state, $fo
     '#title' => t('Crop rectangle'),
     '#default_value' => isset($item['crop_rect']) ? $item['crop_rect'] : '',
     '#description' => t('When set, the portions of the image outside this area will <strong>always</strong> be cut out.'),
-    '#attributes' => array('class' => array('imagefield-focus', 'crop-rect')),
+    '#attributes' => array(
+      'class' => array('imagefield-focus', 'crop-rect'),
+      'data-settings-key' => $key,
+    ),
     '#access' => (bool) $item['fid'],
   );
 
@@ -302,6 +308,7 @@ function _imagefield_focus_file_save($file) {
 
   if ($affected) {
     image_path_flush($file->uri);
+    entity_get_controller('file')->resetCache(array($file->fid));
   }
 }
 
