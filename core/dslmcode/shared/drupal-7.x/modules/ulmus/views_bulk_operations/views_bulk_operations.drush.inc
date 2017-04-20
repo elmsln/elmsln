@@ -154,7 +154,7 @@ function views_bulk_operations_drush_execute($vid = NULL, $operation_id = NULL) 
   $current = 1;
   foreach ($view->result as $row_index => $result) {
     $rows[$row_index] = array(
-      'entity_id' => $vbo->get_value($result),
+      'entity_id' => $result->{$vbo->real_field},
       'views_row' => array(),
       'position' => array(
         'current' => $current++,

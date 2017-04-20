@@ -6,7 +6,7 @@
 * Implements the Views Form API.
 */
 
-class views_bulk_operations_handler_field_operations extends views_handler_field {
+class views_bulk_operations_handler_field_operations extends views_handler_field_entity {
   var $revision = FALSE;
 
   function init(&$view, &$options) {
@@ -45,6 +45,12 @@ class views_bulk_operations_handler_field_operations extends views_handler_field
         $operation_options['postpone_processing'] = $operation_options['use_queue'];
         unset($operation_options['use_queue']);
       }
+    }
+
+    // Check whether this is a revision.
+    $table_data = views_fetch_data($this->table);
+    if (!empty($table_data['table']['revision'])) {
+      $this->revision = TRUE;
     }
   }
 
@@ -186,6 +192,14 @@ class views_bulk_operations_handler_field_operations extends views_handler_field
           $dom_id . '-selected' => array(1),
         ),
       );
+      $form['vbo_operations'][$operation_id]['skip_permission_check'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Skip permission step'),
+        '#default_value' => !empty($operation_options['skip_permission_check']),
+        '#dependency' => array(
+          $dom_id . '-selected' => array(1),
+        ),
+      );
 
       $form['vbo_operations'][$operation_id] += $operation->adminOptionsForm($dom_id, $this);
     }
@@ -263,19 +277,20 @@ class views_bulk_operations_handler_field_operations extends views_handler_field
     // At this point, the query has already been run, so we can access the results
     // in order to get the base key value (for example, nid for nodes).
     foreach ($this->view->result as $row_index => $row) {
-      $entity_id = $this->get_value($row);
+      $this->view->row_index = $row_index;
+      $id = $this->get_value($row, $this->real_field);
 
       if ($this->options['vbo_settings']['force_single']) {
         $form[$this->options['id']][$row_index] = array(
           '#type' => 'radio',
           '#parents' => array($this->options['id']),
-          '#return_value' => $entity_id,
+          '#return_value' => $id,
         );
       }
       else {
         $form[$this->options['id']][$row_index] = array(
           '#type' => 'checkbox',
-          '#return_value' => $entity_id,
+          '#return_value' => $id,
           '#default_value' => FALSE,
           '#attributes' => array('class' => array('vbo-select')),
         );
@@ -293,9 +308,12 @@ class views_bulk_operations_handler_field_operations extends views_handler_field
         if (empty($options['selected'])) {
           continue;
         }
-
         $operation = views_bulk_operations_get_operation($operation_id, $entity_type, $options);
-        if (!$operation || !$operation->access($user)) {
+        if (!$operation) {
+          continue;
+        }
+        $skip_permission_check = $operation->getAdminOption('skip_permission_check', FALSE);
+        if (!$operation->access($user) && !$skip_permission_check) {
           continue;
         }
         $selected[$operation_id] = $operation;
@@ -318,29 +336,7 @@ class views_bulk_operations_handler_field_operations extends views_handler_field
    * the entity type that VBO is operating on.
    */
   public function get_entity_type() {
-    $base_table = $this->view->base_table;
-
-    // If the current field is under a relationship you can't be sure that the
-    // base table of the view is the base table of the current field.
-    // For example a field from a node author on a node view does have users as base table.
-    if (!empty($this->options['relationship']) && $this->options['relationship'] != 'none') {
-      $relationships = $this->view->display_handler->get_option('relationships');
-      $options = $relationships[$this->options['relationship']];
-      $data = views_fetch_data($options['table']);
-      $base_table = $data[$options['field']]['relationship']['base'];
-    }
-    // The base table is now known, use it to determine the entity type.
-    foreach (entity_get_info() as $entity_type => $info) {
-      if (isset($info['base table']) && $info['base table'] == $base_table) {
-        return $entity_type;
-      }
-      elseif (isset($info['revision table']) && $info['revision table'] == $base_table) {
-        $this->revision = TRUE;
-        return $entity_type;
-      }
-    }
-    // This should never happen.
-    _views_bulk_operations_report_error("Could not determine the entity type for VBO field on views base table %table", array('%table' => $base_table));
-    return FALSE;
+    return $this->entity_type;
   }
+
 }
