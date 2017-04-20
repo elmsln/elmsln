@@ -23,6 +23,7 @@ function wysiwyg_epiceditor_editor() {
         'files' => array('js/epiceditor.js'),
       ),
     ),
+    'verified version range' => array('0.1.1', '0.2.2'),
     'version callback' => 'wysiwyg_epiceditor_version',
     'themes callback' => 'wysiwyg_epiceditor_themes',
     'settings form callback' => 'wysiwyg_epiceditor_settings_form',

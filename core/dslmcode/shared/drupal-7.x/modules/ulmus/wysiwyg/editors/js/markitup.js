@@ -21,12 +21,7 @@ Drupal.wysiwyg.editor.detach.markitup = function (context, params, trigger) {
   if (trigger == 'serialize') {
     return;
   }
-  if (typeof params != 'undefined') {
-    $('#' + params.field, context).markItUpRemove();
-  }
-  else {
-    $('.markItUpEditor', context).markItUpRemove();
-  }
+  $('#' + params.field, context).markItUpRemove();
 };
 
 Drupal.wysiwyg.editor.instance.markitup = {
