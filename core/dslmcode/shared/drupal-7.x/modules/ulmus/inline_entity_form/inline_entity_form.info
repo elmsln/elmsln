@@ -3,6 +3,8 @@ description = "Provides a widget for inline management (creation, modification, 
 package = Fields
 dependencies[] = entity
 dependencies[] = system (>7.14)
+test_dependencies[] = ctools
+test_dependencies[] = entityreference
 core = 7.x
 
 files[] = includes/entity.inline_entity_form.inc
@@ -10,10 +12,12 @@ files[] = includes/node.inline_entity_form.inc
 files[] = includes/taxonomy_term.inline_entity_form.inc
 files[] = includes/commerce_product.inline_entity_form.inc
 files[] = includes/commerce_line_item.inline_entity_form.inc
+files[] = tests/inline_entity_form_test_base.test
+files[] = tests/multiple_values_widget.test
 
-; Information added by Drupal.org packaging script on 2015-06-17
-version = "7.x-1.6"
+; Information added by Drupal.org packaging script on 2016-04-16
+version = "7.x-1.8"
 core = "7.x"
 project = "inline_entity_form"
-datestamp = "1434553381"
+datestamp = "1460849408"
 
