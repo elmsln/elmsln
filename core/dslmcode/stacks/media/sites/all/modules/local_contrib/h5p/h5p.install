@@ -87,11 +87,27 @@ function h5p_uninstall() {
   variable_del('h5p_update_available_path');
   variable_del('h5p_site_type');
   variable_del('h5p_enable_lrs_content_types');
+  variable_del('h5p_hub_is_enabled');
+  variable_del('h5p_content_type_cache_updated_at');
+  variable_del('h5p_allow_communication_with_h5p_org');
+  variable_del('h5p_send_usage_statistics');
 
   // Intentionally not deleting variable h5p_site_uuid. If h5p module is uninstalled/installed,
   // the uuid should be the same
   // variable_del('h5p_site_uuid');
-  // variable_del('h5p_allow_communication_with_h5p_org');
+}
+
+/**
+ * Implements hook_install()
+
+ * @link https://api.drupal.org/api/drupal/modules%21system%21system.api.php/function/hook_install/7.x
+ */
+function h5p_install() {
+
+  // Notify of communication channels
+  drupal_set_message(
+    t('H5P fetches content types directly from the H5P Hub. In order to do this the H5P plugin will communicate with the Hub once a day to fetch information about new and updated content types. It will send in anonymous data to the Hub about H5P usage. Read more at <a href="https://h5p.org/tracking-the-usage-of-h5p">the plugin communication page at H5P.org</a>.')
+  );
 }
 
 /**
@@ -133,13 +149,13 @@ function h5p_enable() {
     views_invalidate_cache();
   }
 
-  _h5p_inform_h5p_org_communication();
-}
+  $core = _h5p_get_instance('core');
 
-function _h5p_inform_h5p_org_communication() {
-  if (variable_get('h5p_allow_communication_with_h5p_org', TRUE)) {
-    drupal_set_message(t('By default, H5P is set up to automatically fetch information regarding Content Type updates from H5P.org. When doing so, H5P will also contribute anonymous usage data to aid the development of H5P. This behaviour can be altered through the <a href="@url">Settings</a> page.', array('@url' => url('admin/config/system/h5p'))));
-  }
+  // Check requirements
+  $core->checkSetupForRequirements();
+
+  // Update content type cache
+  $core->updateContentTypeCache();
 }
 
 /**
@@ -185,6 +201,9 @@ function h5p_schema() {
       ),
     ),
     'primary key' => array('content_id', 'library_id', 'dependency_type'),
+    'indexes' => array(
+      'weight' => array('weight')
+    )
   );
 
   $schema['h5p_libraries'] = array(
@@ -281,8 +300,159 @@ function h5p_schema() {
         'type' => 'varchar',
         'length' => 1000
       ),
+      'has_icon' => array(
+        'description' => 'Whether or not this library contains an icon.svg',
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
     ),
     'primary key' => array('library_id'),
+    'indexes' => array(
+      'library' => array('machine_name', 'major_version', 'minor_version'),
+      'title' => array('title')
+    )
+  );
+
+  $schema['h5p_libraries_hub_cache'] = array(
+    'description' => 'Stores information about what h5p uses what libraries.',
+    'fields' => array(
+      'id' => array(
+        'description' => 'Primary Key: The id of the library.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'machine_name' => array(
+        'description' => 'The library machine name',
+        'type' => 'varchar',
+        'length' => 127,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'major_version' => array(
+        'description' => 'The version of this library',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'minor_version' => array(
+        'description' => 'The minor version of this library',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'patch_version' => array(
+        'description' => 'The patch version of this library',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'h5p_major_version' => array(
+        'description' => 'The major version required of H5P core.',
+        'type' => 'int',
+        'unsigned' => TRUE
+      ),
+      'h5p_minor_version' => array(
+        'description' => 'The minor version required of H5P core.',
+        'type' => 'int',
+        'unsigned' => TRUE
+      ),
+      'title' => array(
+        'description' => 'The human readable name of this library',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'summary' => array(
+        'description' => 'Short description of library.',
+        'type' => 'text',
+        'size' => 'small',
+        'not null' => TRUE,
+      ),
+      'description' => array(
+        'description' => 'Long description of library.',
+        'type' => 'text',
+        'size' => 'medium',
+        'not null' => TRUE,
+      ),
+      'icon' => array(
+        'description' => 'URL to icon.',
+        'type' => 'varchar',
+        'length' => 511,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'created_at' => array(
+        'description' => 'Time that the library was uploaded.',
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+      'updated_at' => array(
+        'description' => 'Time that the library had its latest update.',
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+      'is_recommended' => array(
+        'description' => 'Whether the library is recommended by the HUB moderators.',
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 1,
+      ),
+      'popularity' => array(
+        'description' => 'How many times the library has been downloaded.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'screenshots' => array(
+        'description' => 'Screenshot URLs json encoded',
+        'type' => 'text',
+        'size' => 'medium'
+      ),
+      'license' => array(
+        'description' => 'Library license(s) json encoded',
+        'type' => 'text',
+        'size' => 'medium'
+      ),
+      'example' => array(
+        'description' => 'URL to example content for this library.',
+        'type' => 'varchar',
+        'length' => 511,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'tutorial' => array(
+        'description' => 'Tutorial URL',
+        'type' => 'varchar',
+        'length' => 511
+      ),
+      'keywords' => array(
+        'description' => 'Keywords for library json encoded',
+        'type' => 'text',
+        'size' => 'medium'
+      ),
+      'categories' => array(
+        'description' => 'Categories for library json encoded',
+        'type' => 'text',
+        'size' => 'medium'
+      ),
+      'owner' => array(
+        'description' => 'Owner of the library',
+        'type' => 'varchar',
+        'length' => 511
+      )
+    ),
+    'primary key' => array('id'),
+    'indexes' => array(
+      'machine_name' => array('machine_name')
+    )
   );
 
   $schema['h5p_libraries_libraries'] = array(
@@ -411,6 +581,11 @@ function h5p_schema() {
       )
     ),
     'primary key' => array('content_id'),
+    'indexes' => array(
+      'nid' => array('nid'),
+      'library' => array('main_library_id'),
+      'slug' => array('slug'),
+    )
   );
 
   $schema['h5p_points'] = array(
@@ -571,7 +746,10 @@ function h5p_schema() {
         'not null' => TRUE
       )
     ),
-    'primary key' => array('id')
+    'primary key' => array('id'),
+    'indexes' => array(
+      'created_at' => array('created_at')
+    )
   );
 
   $schema['h5p_counters'] = array(
@@ -1143,8 +1321,6 @@ function h5p_update_7110() {
     ),
     'primary key' => array('type', 'library_name', 'library_version')
   ));
-
-  _h5p_inform_h5p_org_communication();
 }
 
 /**
@@ -1234,4 +1410,197 @@ function h5p_update_7113() {
   variable_set('h5p_icon', variable_get('h5p_icon_in_action_bar', TRUE));
   variable_del('h5p_icon_in_action_bar');
   drupal_set_message('<span style="font-weight: bold;">Upgrade your H5P content types!</span> Old content types will still work, but the authoring tool will look and feel much better if you <a href="https://h5p.org/update-all-content-types">upgrade the content types</a>.', 'warning');
+}
+
+/**
+ * Add indexes to enhance database performance.
+ */
+function h5p_update_7114() {
+  if (!db_index_exists('h5p_nodes_libraries', 'weight')) {
+    db_add_index('h5p_nodes_libraries', 'weight', array('weight'));
+  }
+  if (!db_index_exists('h5p_libraries', 'library')) {
+    db_add_index('h5p_libraries', 'library', array('machine_name', 'major_version', 'minor_version'));
+  }
+  if (!db_index_exists('h5p_libraries', 'title')) {
+    db_add_index('h5p_libraries', 'title', array('title'));
+  }
+  if (!db_index_exists('h5p_nodes', 'nid')) {
+    db_add_index('h5p_nodes', 'nid', array('nid'));
+  }
+  if (!db_index_exists('h5p_nodes', 'library')) {
+    db_add_index('h5p_nodes', 'library', array('main_library_id'));
+  }
+  if (!db_index_exists('h5p_nodes', 'slug')) {
+    db_add_index('h5p_nodes', 'slug', array('slug'));
+  }
+  if (!db_index_exists('h5p_events', 'created_at')) {
+    db_add_index('h5p_events', 'created_at', array('created_at'));
+  }
+}
+
+/**
+ * Add content type cache table.
+ * Add icon flag to libraries table.
+ * Enable H5P Hub.
+ */
+function h5p_update_7115() {
+
+  db_create_table('h5p_libraries_hub_cache', array(
+    'description' => 'Stores information about what h5p uses what libraries.',
+    'fields' => array(
+      'id' => array(
+        'description' => 'Primary Key: The id of the library.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'machine_name' => array(
+        'description' => 'The library machine name',
+        'type' => 'varchar',
+        'length' => 127,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'major_version' => array(
+        'description' => 'The version of this library',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'minor_version' => array(
+        'description' => 'The minor version of this library',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'patch_version' => array(
+        'description' => 'The patch version of this library',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'h5p_major_version' => array(
+        'description' => 'The major version required of H5P core.',
+        'type' => 'int',
+        'unsigned' => TRUE
+      ),
+      'h5p_minor_version' => array(
+        'description' => 'The minor version required of H5P core.',
+        'type' => 'int',
+        'unsigned' => TRUE
+      ),
+      'title' => array(
+        'description' => 'The human readable name of this library',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'summary' => array(
+        'description' => 'Short description of library.',
+        'type' => 'text',
+        'size' => 'small',
+        'not null' => TRUE,
+      ),
+      'description' => array(
+        'description' => 'Long description of library.',
+        'type' => 'text',
+        'size' => 'medium',
+        'not null' => TRUE,
+      ),
+      'icon' => array(
+        'description' => 'URL to icon.',
+        'type' => 'varchar',
+        'length' => 511,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'created_at' => array(
+        'description' => 'Time that the library was uploaded.',
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+      'updated_at' => array(
+        'description' => 'Time that the library had its latest update.',
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+      'is_recommended' => array(
+        'description' => 'Whether the library is recommended by the HUB moderators.',
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 1,
+      ),
+      'popularity' => array(
+        'description' => 'How many times the library has been downloaded.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'screenshots' => array(
+        'description' => 'Screenshot URLs json encoded',
+        'type' => 'text',
+        'size' => 'medium'
+      ),
+      'license' => array(
+        'description' => 'Library license(s) json encoded',
+        'type' => 'text',
+        'size' => 'medium'
+      ),
+      'example' => array(
+        'description' => 'URL to example content for this library.',
+        'type' => 'varchar',
+        'length' => 511,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'tutorial' => array(
+        'description' => 'Tutorial URL',
+        'type' => 'varchar',
+        'length' => 511
+      ),
+      'keywords' => array(
+        'description' => 'Keywords for library json encoded',
+        'type' => 'text',
+        'size' => 'medium'
+      ),
+      'categories' => array(
+        'description' => 'Categories for library json encoded',
+        'type' => 'text',
+        'size' => 'medium'
+      ),
+      'owner' => array(
+        'description' => 'Owner of the library',
+        'type' => 'varchar',
+        'length' => 511
+      )
+    ),
+    'primary key' => array('id'),
+  ));
+
+  if (!db_field_exists('h5p_libraries', 'has_icon')) {
+    db_add_field('h5p_libraries', 'has_icon', array(
+        'description' => 'Whether or not this library contains an icon.svg',
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+    ));
+  }
+
+  // Display hub communication info
+  if (!variable_get('h5p_allow_communication_with_h5p_org', TRUE)) {
+    drupal_set_message(
+      t('H5P now fetches content types directly from the H5P Hub. In order to do this, the H5P plugin will communicate with H5P.org once per day to fetch information about new and updated content types. It will send in anonymous data to the hub about H5P usage. You may disable the data contribution and/or the H5P Hub in the H5P settings.')
+    );
+  }
+
+  // Enable hub and delete old communication variabe
+  variable_set('h5p_hub_is_enabled', TRUE);
+  variable_del('h5p_allow_communication_with_h5p_org');
 }

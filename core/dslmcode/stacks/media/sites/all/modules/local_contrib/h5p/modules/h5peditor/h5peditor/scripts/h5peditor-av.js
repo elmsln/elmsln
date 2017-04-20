@@ -112,6 +112,7 @@ H5PEditor.widgets.video = H5PEditor.widgets.audio = H5PEditor.AV = (function ($)
     this.$add = $file.children('.h5p-add-file').click(function () {
       self.$addDialog.addClass('h5p-open');
     });
+
     this.$addDialog = this.$add.next();
     var $url = this.$addDialog.find('.h5p-file-url');
     this.$addDialog.find('.h5p-cancel').click(function () {
@@ -119,9 +120,27 @@ H5PEditor.widgets.video = H5PEditor.widgets.audio = H5PEditor.AV = (function ($)
       $url.val('');
       self.$addDialog.removeClass('h5p-open');
     });
-    this.$addDialog.find('.h5p-file-upload').click(function () {
-      self.openFileSelector();
-    });
+
+    this.$addDialog.find('.h5p-file-drop-upload')
+      .addClass('has-advanced-upload')
+      .on('drag dragstart dragend dragover dragenter dragleave drop', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+      })
+      .on('dragover dragenter', function(e) {
+        $(this).addClass('over');
+        e.originalEvent.dataTransfer.dropEffect = 'copy';
+      })
+      .on('dragleave', function(e) {
+        $(this).removeClass('over');
+      })
+      .on('drop', function(e) {
+        self.uploadFiles(e.originalEvent.dataTransfer.files);
+      })
+      .click(function () {
+        self.openFileSelector();
+      });
+
     this.$addDialog.find('.h5p-insert').click(function () {
       self.useUrl($url.val().trim());
       self.$addDialog.removeClass('h5p-open');
@@ -166,7 +185,7 @@ H5PEditor.widgets.video = H5PEditor.widgets.audio = H5PEditor.AV = (function ($)
       return;
     }
 
-    var $file = $('<div class="h5p-thumbnail"><div class="h5p-type" title="' + file.mime + '">' + file.mime.split('/')[1] + '</div><div role="button" tabindex="1" class="h5p-remove" title="' + H5PEditor.t('core', 'removeFile') + '"></div></div>')
+    var $file = $('<div class="h5p-thumbnail"><div class="h5p-type" title="' + file.mime + '">' + file.mime.split('/')[1] + '</div><div role="button" tabindex="0" class="h5p-remove" title="' + H5PEditor.t('core', 'removeFile') + '"></div></div>')
       .insertBefore(this.$add)
       .click(function () {
         if (!that.$add.is(':visible')) {
@@ -299,23 +318,38 @@ H5PEditor.widgets.video = H5PEditor.widgets.audio = H5PEditor.AV = (function ($)
    */
   C.createAdd = function (type) {
     var inputPlaceholder = H5PEditor.t('core', type === 'audio' ? 'enterAudioUrl' : 'enterVideoUrl');
+    var inputTitle = H5PEditor.t('core', type === 'audio' ? 'enterAudioTitle' : 'enterVideoTitle');
+    var uploadTitle = H5PEditor.t('core', type === 'audio' ? 'uploadAudioTitle' : 'uploadVideoTitle')
     var description = (type === 'audio' ? '' : '<div class="h5p-errors"></div><div class="h5peditor-field-description">' + H5PEditor.t('core', 'addVideoDescription') + '</div>');
 
-    return '<div role="button" tabindex="1" class="h5p-add-file" title="' + H5PEditor.t('core', 'addFile') + '"></div>' +
-        '<div class="h5p-add-dialog">' +
+    return '<div role="button" tabindex="0" class="h5p-add-file" title="' + H5PEditor.t('core', 'addFile') + '"></div>' +
+      '<div class="h5p-add-dialog">' +
+        '<div class="h5p-add-dialog-table">' +
           '<div class="h5p-dialog-box">' +
-            '<button class="h5peditor-button-textual h5p-file-upload">' + H5PEditor.t('core', 'selectFiletoUpload') + '</button>' +
+            '<h3>' + uploadTitle + '</h3>' +
+            '<div class="h5p-file-drop-upload">' +
+              '<div class="h5p-file-drop-upload-inner"/>' +
+            '</div>' +
           '</div>' +
-          '<div class="h5p-or"><span>' + H5PEditor.t('core', 'or') + '</span></div>' +
+          '<div class="h5p-or-vertical">' +
+            '<div class="h5p-or-vertical-line"></div>' +
+            '<div class="h5p-or-vertical-word-wrapper">' +
+              '<div class="h5p-or-vertical-word">' + H5PEditor.t('core', 'or') + '</div>' +
+            '</div>' +
+          '</div>' +
           '<div class="h5p-dialog-box">' +
-            '<input type="text" placeholder="' + inputPlaceholder + '" class="h5p-file-url h5peditor-text"/>' +
+            '<h3>' + inputTitle + '</h3>' +
+            '<div class="h5p-file-url-wrapper">' +
+              '<input type="text" placeholder="' + inputPlaceholder + '" class="h5p-file-url h5peditor-text"/>' +
+            '</div>' +
             description +
           '</div>' +
-          '<div class="h5p-buttons">' +
-            '<button class="h5peditor-button-textual h5p-insert">' + H5PEditor.t('core', 'insert') + '</button>' +
-            '<button class="h5peditor-button-textual h5p-cancel">' + H5PEditor.t('core', 'cancel') + '</button>' +
-          '</div>' +
-        '</div>';
+        '</div>' +
+        '<div class="h5p-buttons">' +
+          '<button class="h5peditor-button-textual h5p-insert">' + H5PEditor.t('core', 'insert') + '</button>' +
+          '<button class="h5peditor-button-textual h5p-cancel">' + H5PEditor.t('core', 'cancel') + '</button>' +
+        '</div>' +
+      '</div>';
   };
 
   /**
@@ -324,7 +358,7 @@ H5PEditor.widgets.video = H5PEditor.widgets.audio = H5PEditor.AV = (function ($)
    */
   C.providers = [{
     name: 'YouTube',
-    regexp: /^https?:\/\/(youtu.be|(www.)?youtube.com)\//i
+    regexp: /^https?:\/\/((youtu.|y2u.)?be|(www.|m.)?youtube.com)\//i
   }];
 
   return C;

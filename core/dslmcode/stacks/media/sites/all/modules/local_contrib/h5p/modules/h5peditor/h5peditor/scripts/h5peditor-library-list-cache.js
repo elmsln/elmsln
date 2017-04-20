@@ -3,7 +3,7 @@ var H5PEditor = H5PEditor || {};
 
 /**
  * The library list cache
- * 
+ *
  * @type Object
  */
 var llc = H5PEditor.LibraryListCache = {
@@ -15,7 +15,7 @@ var llc = H5PEditor.LibraryListCache = {
 
 /**
  * Get data for a list of libraries
- * 
+ *
  * @param {Array} libraries - list of libraries to load info for (uber names)
  * @param {Function} handler - Callback when list of libraries is loaded
  * @param {Function} thisArg - Context for the callback function
@@ -56,7 +56,9 @@ llc.getLibraries = function(libraries, handler, thisArg) {
         handler.call(thisArg, data);
         llc.runQue();
       },
-      data: {'libraries': libraries},
+      data: {
+        'libraries': libraries
+      },
       dataType: "json"
     };
     H5PEditor.$.ajax(ajaxParams);
@@ -77,7 +79,7 @@ llc.runQue = function() {
 
 /**
  * We've got new libraries from the server, save them
- * 
+ *
  * @param {Array} libraries - Libraries with info from server
  * @param {Array} requestedLibraries - List of what libraries we requested
  */

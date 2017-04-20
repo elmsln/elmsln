@@ -82,7 +82,7 @@ ns.Group.prototype.appendTo = function ($wrapper) {
   });
 
   // Add title expand/collapse button
-  ns.$('<div/>', {
+  this.$title = ns.$('<div/>', {
     'class': 'title',
     title: ns.t('core', 'expandCollapse'),
     role: 'button',
@@ -283,7 +283,7 @@ ns.Group.prototype.setSummary = function (summary) {
     summaryText = this.field.label;
   }
 
-  this.$group.children('.title').text(summaryText);
+  this.$title.text(summaryText);
 };
 
 /**
