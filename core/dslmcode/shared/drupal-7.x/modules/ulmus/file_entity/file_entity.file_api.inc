@@ -14,7 +14,7 @@ define('FILE_TYPE_NONE', 'undefined');
  * Returns information about file formatters from hook_file_formatter_info().
  *
  * @param string $formatter_type
- *   (optional) A file formatter type name. If ommitted, all file formatter
+ *   (optional) A file formatter type name. If omitted, all file formatter
  *   will be returned.
  *
  * @return string|array
@@ -75,19 +75,25 @@ function file_info_cache_clear() {
  *   An array in the format expected by drupal_render().
  */
 function file_view_multiple($files, $view_mode = 'full', $weight = 0, $langcode = NULL) {
-  if (empty($files)) {
-    return array();
+  $build = array();
+
+  $entities_by_view_mode = entity_view_mode_prepare('file', $files, $view_mode, $langcode);
+  foreach ($entities_by_view_mode as $entity_view_mode => $entities) {
+    field_attach_prepare_view('file', $entities, $entity_view_mode, $langcode);
+    entity_prepare_view('file', $entities, $langcode);
+
+    foreach ($entities as $entity) {
+      $build['files'][$entity->fid] = file_view($entity, $entity_view_mode, $langcode);
+    }
   }
 
-  field_attach_prepare_view('file', $files, $view_mode, $langcode);
-  entity_prepare_view('file', $files, $langcode);
-
-  $build = array();
   foreach ($files as $file) {
-    $build['files'][$file->fid] = file_view($file, $view_mode, $langcode);
     $build['files'][$file->fid]['#weight'] = $weight;
     $weight++;
   }
+  // Sort here, to preserve the input order of the entities that were passed to
+  // this function.
+  uasort($build['files'], 'element_sort');
   $build['files']['#sorted'] = TRUE;
 
   return $build;
@@ -160,6 +166,14 @@ function file_build_content($file, $view_mode = 'full', $langcode = NULL) {
   // Remove previously built content, if exists.
   $file->content = array();
 
+  // In case of a multiple view, file_view_multiple() already ran the
+  // 'prepare_view' step. An internal flag prevents the operation from running
+  // twice.
+  // Allow modules to change the view mode.
+  $view_mode = key(entity_view_mode_prepare('file', array($file->fid => $file), $view_mode, $langcode));
+  field_attach_prepare_view('file', array($file->fid => $file), $view_mode, $langcode);
+  entity_prepare_view('file', array($file->fid => $file), $langcode);
+
   // Build the actual file display.
   // @todo Figure out how to clean this crap up.
   $file->content['file'] = file_view_file($file, $view_mode, $langcode);
@@ -175,11 +189,6 @@ function file_build_content($file, $view_mode = 'full', $langcode = NULL) {
   }
 
   // Build fields content.
-  // In case of a multiple view, file_view_multiple() already ran the
-  // 'prepare_view' step. An internal flag prevents the operation from running
-  // twice.
-  field_attach_prepare_view('file', array($file->fid => $file), $view_mode, $langcode);
-  entity_prepare_view('file', array($file->fid => $file), $langcode);
   $file->content += field_attach_view('file', $file, $view_mode, $langcode);
 
   $links = array();
@@ -222,7 +231,8 @@ function file_view_file($file, $displays = 'full', $langcode = NULL) {
 
   // Prepare incoming display specifications.
   if (is_string($displays)) {
-    $view_mode = $displays;
+    // Allow modules to change the view mode.
+    $view_mode = key(entity_view_mode_prepare('file', array($file->fid => $file), $displays, $langcode));
     $displays = file_displays($file->type, $view_mode);
   }
   else {
@@ -482,6 +492,31 @@ function file_type_is_enabled($type) {
  */
 function file_type_is_disabled($type) {
   return !empty($type->disabled);
+}
+
+/**
+ * Returns an array of valid file extensions.
+ */
+function file_type_get_valid_extensions($type) {
+  include_once DRUPAL_ROOT . '/includes/file.mimetypes.inc';
+  $mapping = file_mimetype_mapping();
+
+  $type_extensions = array();
+  $type_ext_keys = array();
+  if (!empty($type->mimetypes)) {
+    foreach ($mapping['mimetypes'] as $ext_key => $mimetype) {
+      if (file_entity_match_mimetypes($mimetype, $type->mimetypes)) {
+        $type_ext_keys[] = $ext_key;
+      }
+    }
+
+    if ($type_ext_keys) {
+      $type_extensions = array_intersect($mapping['extensions'], $type_ext_keys);
+      $type_extensions = array_keys($type_extensions);
+    }
+  }
+
+  return $type_extensions;
 }
 
 /**

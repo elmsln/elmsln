@@ -38,7 +38,7 @@ function file_entity_download_page($file) {
 
   $headers = array(
     'Content-Type' => mime_header_encode($file->filemime),
-    'Content-Disposition' => 'attachment; filename="' . $file->filename . '"',
+    'Content-Disposition' => 'attachment; filename="' . mime_header_encode(drupal_basename($file->uri)) . '"',
     'Content-Length' => $file->filesize,
     'Content-Transfer-Encoding' => 'binary',
     'Pragma' => 'no-cache',
@@ -52,7 +52,19 @@ function file_entity_download_page($file) {
   // Let other modules know the file is being downloaded.
   module_invoke_all('file_transfer', $file->uri, $headers);
 
-  file_transfer($file->uri, $headers);
+  if (file_entity_file_is_local($file)) {
+    // For local files, transfer the file and do not reveal the actual URL.
+    file_transfer($file->uri, $headers);
+  }
+  else {
+    // For remote files, just redirect the user to that file's actual URL.
+    $headers['Location'] = file_create_url($file->uri);
+    foreach ($headers as $name => $value) {
+      drupal_add_http_header($name, $value);
+    }
+    drupal_send_headers();
+    drupal_exit();
+  }
 }
 
 /**
@@ -68,6 +80,7 @@ function file_entity_download_page($file) {
 function file_entity_add_upload($form, &$form_state, array $options = array()) {
   $step = (isset($form_state['step']) && in_array($form_state['step'], array(1, 2, 3, 4))) ? $form_state['step'] : 1;
   $form['#step'] = $step;
+  $form['#options'] = $options;
   switch ($step) {
     case 1:
       return file_entity_add_upload_step_upload($form, $form_state, $options);
@@ -145,16 +158,32 @@ function file_entity_add_upload_step_filetype($form, &$form_state, array $option
 function file_entity_add_upload_step_scheme($form, &$form_state, array $options = array()) {
   $file = file_load($form_state['storage']['upload']);
 
-  $options = array();
+  $schemes = array();
   foreach (file_get_stream_wrappers(STREAM_WRAPPERS_WRITE_VISIBLE) as $scheme => $info) {
-    $options[$scheme] = check_plain($info['description']);
+    $schemes[$scheme] = check_plain($info['description']);
+  }
+
+  // Remove any schemes not found in the instance settings.
+  if (!empty($options['schemes'])) {
+    $schemes = array_intersect_key($schemes, array_flip($options['schemes']));
+  }
+
+  // Determine which scheme to use as the default value.
+  if (isset($form_state['storage']['scheme'])) {
+    $fallback_scheme = $form_state['storage']['scheme'];
+  }
+  elseif (!empty($options['uri_scheme'])) {
+    $fallback_scheme = $options['uri_scheme'];
+  }
+  else {
+    $fallback_scheme = file_default_scheme();
   }
 
   $form['scheme'] = array(
     '#type' => 'radios',
     '#title' => t('Destination'),
-    '#options' => $options,
-    '#default_value' => isset($form_state['storage']['scheme']) ? $form_state['storage']['scheme'] : file_default_scheme(),
+    '#options' => $schemes,
+    '#default_value' => $fallback_scheme,
     '#required' => TRUE,
   );
 
@@ -216,58 +245,54 @@ function file_entity_usage_page($file) {
   $rows = array();
   $occured_entities = array();
 
-  foreach (file_usage_list($file) as $module => $usage) {
-    $info = system_get_info('module', $module);
-
-    // There are cases, where actual entitiy doesen't exist.
-    // We have to handle this.
-    foreach ($usage as $entity_type => $entity_ids) {
+  // Determine all of the locations where a file is used, then loop through the
+  // occurrences and filter out any duplicates.
+  foreach (file_usage_list($file) as $module => $type) {
+    foreach ($type as $entity_type => $entity_ids) {
+      // There are cases where the actual entity doesn't exist.
+      // We have to handle this.
       $entity_info = entity_get_info($entity_type);
       $entities = empty($entity_info) ? NULL : entity_load($entity_type, array_keys($entity_ids));
 
       foreach ($entity_ids as $entity_id => $count) {
-        // If some other module already added this entity just sum all counts.
+        // If this entity has already been listed in the table, just add any
+        // additional usage to the total count column in the table row and
+        // continue on to the next iteration of the loop.
         if (isset($occured_entities[$entity_type][$entity_id])) {
           $rows[$occured_entities[$entity_type][$entity_id]][2] += $count;
           continue;
         }
 
+        // Retrieve the label and the URI of the entity.
         $label = empty($entities[$entity_id]) ? $module : entity_label($entity_type, $entities[$entity_id]);
         $entity_uri = empty($entities[$entity_id]) ? NULL : entity_uri($entity_type, $entities[$entity_id]);
 
-        // Some entities do not have URL.
-        if (empty($entity_uri)) {
-          $rows[] = array(check_plain($label), $entity_type, $module, $count);
+        // Link the label to the URI when possible.
+        if (!empty($entity_uri['path'])) {
+          $entity_label = l($label, $entity_uri['path']);
         }
         else {
-          $uri = $entity_uri['path'];
-          $rows[] = array(l($label, $uri), $entity_type, $module, $count);
+          $entity_label = check_plain($label);
         }
 
+        $rows[] = array($entity_label, $entity_type, $count);
+
+        // Record the occurrence of the entity to ensure that it isn't listed in
+        // the table again.
         $occured_entities[$entity_type][$entity_id] = count($rows) - 1;
       }
     }
   }
-  $header[] = array(
-    'data' => t('Entity'),
-  );
-  $header[] = array(
-    'data' => t('Entity type'),
-  );
-  $header[] = array(
-    'data' => t('Registering module'),
-  );
-  $header[] = array(
-    'data' => t('Use count'),
-  );
+
+  $header = array(t('Entity'), t('Entity type'), t('Use count'));
   $build['usage_table'] = array(
     '#theme' => 'table',
     '#header' => $header,
     '#rows' => $rows,
-    '#caption' => t('This table lists all of the places where @filename is used.',
-    array('@filename' => $file->filename)),
+    '#caption' => t('This table lists all of the places where @filename is used.', array('@filename' => $file->filename)),
     '#empty' => t('This file is not currently used.'),
   );
+
   return $build;
 }
 
@@ -327,7 +352,7 @@ function file_entity_add_upload_submit($form, &$form_state) {
           $form['#step'] += ($trigger == 'edit-previous') ? -1 : 1;
           $form_state['storage']['type'] = reset($candidates_keys);
         }
-        elseif (variable_get('file_entity_file_upload_wizard_skip_file_type', FALSE)) {
+        elseif (!$candidates || variable_get('file_entity_file_upload_wizard_skip_file_type', FALSE)) {
           // Do not assign the file a file type.
           $form['#step'] += ($trigger == 'edit-previous') ? -1 : 1;
           $form_state['storage']['type'] = FILE_TYPE_NONE;
@@ -335,17 +360,36 @@ function file_entity_add_upload_submit($form, &$form_state) {
       }
       else {
         // Check if we can skip step 3.
+        $options = $form['#options'];
         $schemes = file_get_stream_wrappers(STREAM_WRAPPERS_WRITE_VISIBLE);
-        if (count($schemes) == 1) {
+
+        // Remove any schemes not found in the instance settings.
+        if (!empty($options['schemes'])) {
+          $schemes = array_intersect_key($schemes, $options['schemes']);
+        }
+
+        if (!file_entity_file_is_writeable($file)) {
+          // The file is read-only (remote) and must use its provided scheme.
+          $form['#step'] += ($trigger == 'edit-previous') ? -1 : 1;
+          $form_state['storage']['scheme'] = file_uri_scheme($file->uri);
+        }
+        elseif (count($schemes) == 1) {
           // There is only one possible stream wrapper for this file.
           // Skip the third page.
           $form['#step'] += ($trigger == 'edit-previous') ? -1 : 1;
           $form_state['storage']['scheme'] = key($schemes);
         }
         elseif (variable_get('file_entity_file_upload_wizard_skip_scheme', FALSE)) {
-          // Assign the file the default scheme.
           $form['#step'] += ($trigger == 'edit-previous') ? -1 : 1;
-          $form_state['storage']['scheme'] = file_default_scheme();
+
+          // Fallback to the URI scheme specified in the field settings
+          // otherwise use the default file scheme.
+          if (!empty($options['uri_scheme'])) {
+            $form_state['storage']['scheme'] = $options['uri_scheme'];
+          }
+          else {
+            $form_state['storage']['scheme'] = file_default_scheme();
+          }
         }
       }
     }
@@ -380,7 +424,9 @@ function file_entity_add_upload_submit($form, &$form_state) {
     $file = file_load($form_state['storage']['upload']);
     if ($file) {
       if (file_uri_scheme($file->uri) != $form_state['storage']['scheme']) {
-        if ($moved_file = file_move($file, $form_state['storage']['scheme'] . '://' . file_uri_target($file->uri), FILE_EXISTS_RENAME)) {
+        $file_destination = $form_state['storage']['scheme'] . '://' . file_uri_target($file->uri);
+        $file_destination = file_stream_wrapper_uri_normalize($file_destination);
+        if ($moved_file = file_move($file, $file_destination, FILE_EXISTS_RENAME)) {
           // Only re-assign the file object if file_move() did not fail.
           $file = $moved_file;
         }
@@ -407,17 +453,13 @@ function file_entity_add_upload_submit($form, &$form_state) {
     }
 
     // Figure out destination.
-    if (isset($_GET['destination'])) {
-      $destination = drupal_get_destination();
-      unset($_GET['destination']);
-    }
-    elseif (user_access('administer files')) {
-      $destination = array('destination' => 'admin/content/file');
+    if (user_access('administer files')) {
+      $path = 'admin/content/file';
     }
     else {
-      $destination = array('destination' => 'file/' . $file->fid);
+      $path = 'file/' . $file->fid;
     }
-    $form_state['redirect'] = $destination['destination'];
+    $form_state['redirect'] = $path;
   }
   else {
     $form_state['rebuild'] = TRUE;
@@ -468,7 +510,7 @@ function file_entity_add_upload_multiple($form, &$form_state, $params = array())
 
   // Ensure that we call the plupload_element_pre_render function.
   // If it isn't called, it doesn't set the JS settings that transfers the
-  // list of allowed file extentions to the PLUpload widget.
+  // list of allowed file extensions to the PLUpload widget.
   // We override the 'file_entity_upload_validators_pre_render' setting if it
   // exists, because both pre-render hooks adds the upload-help with list of
   // allowed file extensions.
@@ -510,7 +552,6 @@ function file_entity_add_upload_multiple_submit($form, &$form_state) {
       $file->status = FILE_STATUS_PERMANENT;
       file_save($file);
 
-      $saved_files[] = $file;
       $form_state['files'][$file->fid] = $file;
     }
     else {
@@ -520,7 +561,7 @@ function file_entity_add_upload_multiple_submit($form, &$form_state) {
   }
 
   // Redirect to the file edit page.
-  if (file_entity_access('update', $file) && module_exists('multiform') && module_exists('media')) {
+  if (file_entity_access('update', $file) && module_exists('media_bulk_upload')) {
     $destination = array();
     if (isset($_GET['destination'])) {
       $destination = drupal_get_destination();
@@ -583,8 +624,23 @@ function file_entity_edit($form, &$form_state, $file) {
   if (file_entity_file_is_writeable($file)) {
     // Set up replacement file validation.
     $replacement_options = array();
-    // The replacement file must have the same extension as the original file.
-    $replacement_options['file_extensions'] = pathinfo($file->uri, PATHINFO_EXTENSION);
+
+    // The replacement file must have an extension valid for the original type.
+    $file_extensions = array();
+    $file_type_name = isset($file->type) ? $file->type : file_get_type($file);
+    if ($file_type_name && ($file_type = file_type_load($file_type_name))) {
+      $file_extensions = file_type_get_valid_extensions($file_type);
+    }
+
+    // Set allowed file extensions.
+    if (!empty($file_extensions)) {
+      // Set to type based file extensions.
+      $replacement_options['file_extensions'] = implode(' ', $file_extensions);
+    }
+    else {
+      // Fallback to the extension of the current file.
+      $replacement_options['file_extensions'] = pathinfo($file->uri, PATHINFO_EXTENSION);
+    }
 
     $form['replace_upload'] = array(
       '#type' => 'file',
@@ -671,6 +727,7 @@ function file_entity_edit($form, &$form_state, $file) {
     '#value' => t('Save'),
     '#weight' => 5,
     '#submit' => array('file_entity_edit_submit'),
+    '#validate' => array('file_entity_edit_validate'),
   );
   $form['actions']['delete'] = array(
     '#type' => 'submit',
@@ -737,12 +794,29 @@ function file_entity_edit_validate($form, &$form_state) {
  */
 function file_entity_edit_submit($form, &$form_state) {
   $file = $form_state['file'];
+  $orphaned_uri = '';
 
   // Check if a replacement file has been uploaded.
   if (!empty($form_state['values']['replace_upload'])) {
     $replacement = $form_state['values']['replace_upload'];
     // Move file from temp to permanent home.
-    file_unmanaged_copy($replacement->uri, $file->uri, FILE_EXISTS_REPLACE);
+    $destination_uri = rtrim($file->uri, drupal_basename($file->uri)) . drupal_basename($replacement->uri);
+    $replace_mode = $destination_uri == $file->uri ? FILE_EXISTS_REPLACE : FILE_EXISTS_RENAME;
+    if ($new_file_uri = file_unmanaged_copy($replacement->uri, $destination_uri, $replace_mode)) {
+      // @todo Add watchdog() about replaced file here?
+
+      // Remove temporary file.
+      file_delete($replacement);
+
+      // Update if the uri target has changed.
+      if ($new_file_uri != $file->uri) {
+       // Store the original file uri to delete if save is successful.
+       $orphaned_uri = $file->uri;
+
+        // Update file entity uri.
+        $file->uri = $new_file_uri;
+      }
+    }
   }
 
   // Run entity form submit handling and save the file.
@@ -767,7 +841,9 @@ function file_entity_edit_submit($form, &$form_state) {
   }
 
   if (file_uri_scheme($file->uri) != $form_state['values']['scheme']) {
-    if ($moved_file = file_move($file, $form_state['values']['scheme'] . '://' . file_uri_target($file->uri), FILE_EXISTS_RENAME)) {
+    $file_destination = $form_state['values']['scheme'] . '://' . file_uri_target($file->uri);
+    $file_destination = file_stream_wrapper_uri_normalize($file_destination);
+    if ($moved_file = file_move($file, $file_destination, FILE_EXISTS_RENAME)) {
       // Only re-assign the file object if file_move() did not fail.
       $file = $moved_file;
     }
@@ -781,6 +857,15 @@ function file_entity_edit_submit($form, &$form_state) {
   );
   watchdog('file', '@type: updated %title.', $args);
   drupal_set_message(t('@type %title has been updated.', $args));
+
+  // Clean up orphaned file.
+  if (!empty($orphaned_uri)) {
+    file_unmanaged_delete($orphaned_uri);
+
+    $args['@orphaned'] = file_uri_target($orphaned_uri);
+    watchdog('file', '@type: deleted orphaned file @orphaned for %title.', $args);
+    drupal_set_message(t('The replaced @type @orphaned has been deleted.', $args));
+  }
 
   $form_state['redirect'] = 'file/' . $file->fid;
 
