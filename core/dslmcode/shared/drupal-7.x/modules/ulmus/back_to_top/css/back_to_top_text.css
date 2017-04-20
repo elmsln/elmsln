@@ -20,14 +20,3 @@
 #backtotop:hover {
   background: #EEEEEE;
 }
-
-<!--[if lte IE 6]>
-html {
-  overflow-x: auto;
-  overflow-y: hidden;
-}
-
-* html #backtotop {
-  position:absolute;
-}
-<![endif]-->
