@@ -16,7 +16,7 @@ function menu_attributes_permission() {
   return array(
     'administer menu attributes' => array(
       'title' => t('Administer menu attributes'),
-      'description' => t('Administer menu attributes.'),
+      'description' => t('Administer menu attributes configuration.'),
     ),
   );
 }
@@ -177,7 +177,7 @@ function _menu_attributes_form_alter(array &$form, array $item = array(), array 
     '#type' => 'fieldset',
     '#title' => t('Menu link attributes'),
     '#collapsible' => TRUE,
-    '#collapsed' => FALSE,
+    '#collapsed' => TRUE,
     '#tree' => TRUE,
   );
 
@@ -255,6 +255,9 @@ function _menu_attributes_form_alter(array &$form, array $item = array(), array 
   $has_visible_children = (bool) element_get_visible_children($form['options']['attributes']);
   $user_has_access = user_access('administer menu attributes');
   $form['options']['attributes']['#access'] = ($has_visible_children && $user_has_access);
+
+  $has_visible_children = (bool) element_get_visible_children($form['options']['item_attributes']);
+  $form['options']['item_attributes']['#access'] = ($has_visible_children && $user_has_access);
 }
 
 /**
@@ -337,7 +340,7 @@ function menu_attributes_preprocess_menu_link(&$variables) {
         // Class get's special treatment, as it's an array and it should not
         // replace existing values.
         if ($attribute == 'class') {
-          $value = explode(' ', $value);
+          $value = !is_array($value) ? explode(' ', $value) : $value;
           if (isset($attributes[$attribute])) {
             $value = array_merge($attributes[$attribute], $value);
           }
