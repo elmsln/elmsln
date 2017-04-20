@@ -10,6 +10,9 @@
  */
 function httprl_uninstall() {
   variable_del('httprl_server_addr');
+  variable_del('httprl_server_hostname');
+  variable_del('httprl_server_port');
+  variable_del('httprl_server_schema');
   variable_del('httprl_background_callback');
   variable_del('httprl_dns_timeout');
   variable_del('httprl_connect_timeout');
@@ -17,6 +20,7 @@ function httprl_uninstall() {
   variable_del('httprl_timeout');
   variable_del('httprl_global_timeout');
   variable_del('httprl_url_inbound_alter');
+  variable_del('httprl_non_blocking_fclose_delay');
 }
 
 /**
@@ -182,20 +186,7 @@ function httprl_install_http_test($mode, $blocking = FALSE, $depth = 0) {
   }
   $msg = '';
 
-  if (!empty($_SERVER['HTTP_HOST'])) {
-    $hostname = $_SERVER['HTTP_HOST'];
-    // If HTTP_HOST contains the port, use SERVER_NAME.
-    if (strpos($_SERVER['HTTP_HOST'], ':') !== FALSE) {
-      $hostname = $_SERVER['SERVER_NAME'];
-    }
-  }
-  elseif (!empty($_SERVER['SERVER_NAME'])) {
-    $hostname = $_SERVER['SERVER_NAME'];
-  }
-  else {
-    $hostname = '';
-  }
-
+  $hostname = httprl_get_hostname();
   // Set the headers to point to this hostname.
   $headers = array(
     'Host' => $hostname,
@@ -322,21 +313,10 @@ function httprl_install_http_test($mode, $blocking = FALSE, $depth = 0) {
     }
   }
   else {
-    if (!empty($_SERVER['HTTP_HOST'])) {
-      $hostname = $_SERVER['HTTP_HOST'];
-      // If HTTP_HOST contains the port, use SERVER_NAME.
-      if (strpos($_SERVER['HTTP_HOST'], ':') !== FALSE) {
-        $hostname = $_SERVER['SERVER_NAME'];
-      }
-    }
-    elseif (!empty($_SERVER['SERVER_NAME'])) {
-      $hostname = $_SERVER['SERVER_NAME'];
-    }
-    else {
-      $hostname = '';
-    }
+    $hostname = httprl_get_hostname();
 
-    // Set httprl_server_hostname to the HTTP_HOST or SERVER_NAME.
+    // Check if the httprl_server_hostname needs to be set to HTTP_HOST or
+    // SERVER_NAME.
     if (   !empty($hostname)
         && $hostname !== 'default'
         && ip2long($hostname) === FALSE

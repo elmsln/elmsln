@@ -12,10 +12,10 @@ Request http://drupal.org/.
 // Queue up the request.
 httprl_request('http://drupal.org/');
 // Execute request.
-$request = httprl_send_request();
+$response = httprl_send_request();
 
 // Echo out the results.
-echo httprl_pr($request);
+echo httprl_pr($response);
 ?>
 
 
@@ -25,11 +25,11 @@ Request http://drupal.org/robots.txt and save it to tmp folder.
 // Queue up the request.
 httprl_request('http://drupal.org/robots.txt');
 // Execute request.
-$request = httprl_send_request();
+$response = httprl_send_request();
 
 // Save file if we got a 200 back.
-if ($request['http://drupal.org/robots.txt']->code == 200) {
-  file_put_contents('/tmp/robots.txt', $request['http://drupal.org/robots.txt']->data);
+if ($response['http://drupal.org/robots.txt']->code == 200) {
+  file_put_contents('/tmp/robots.txt', $response['http://drupal.org/robots.txt']->data);
 }
 ?>
 
@@ -51,17 +51,17 @@ $url_node = httprl_build_url_self('node');
 httprl_request($url_front, $options);
 httprl_request($url_node, $options);
 // Execute requests.
-$request = httprl_send_request();
+$response = httprl_send_request();
 
 // Echo out the results.
-echo httprl_pr($request);
+echo httprl_pr($response);
 ?>
 
 
 **Non Blocking HTTP Operations**
 
 Request 10 URLs in a non blocking manner on this server. Checkout watchdog as
-this should generate 10 404s and the $request object won't contain much info.
+this should generate 10 404s and the $response object won't contain much info.
 
 <?php
 // Set the blocking mode.
@@ -80,10 +80,10 @@ for ($i=1; $i <= $max; $i++) {
   httprl_request($url, $options);
 }
 // Execute requests.
-$request = httprl_send_request();
+$response = httprl_send_request();
 
 // Echo out the results.
-echo httprl_pr($request);
+echo httprl_pr($response);
 ?>
 
 
@@ -110,10 +110,10 @@ for ($i=1; $i <= $max; $i++) {
 // Queue up the requests.
 httprl_request($urls, $options);
 // Execute requests.
-$request = httprl_send_request();
+$response = httprl_send_request();
 
 // Echo out the results.
-echo httprl_pr($request);
+echo httprl_pr($response);
 ?>
 
 
@@ -143,10 +143,10 @@ for ($i=1; $i <= $max; $i++) {
 // Queue up the requests.
 httprl_request($urls, $options);
 // Execute requests.
-$request = httprl_send_request();
+$response = httprl_send_request();
 
 // Echo out the results.
-echo httprl_pr($request);
+echo httprl_pr($response);
 ?>
 
 
@@ -180,10 +180,10 @@ for ($i=1; $i <= $max; $i++) {
 // Queue up the requests.
 httprl_request($urls, $options);
 // Execute requests.
-$request = httprl_send_request();
+$response = httprl_send_request();
 
 // Echo out the results.
-echo httprl_pr($request);
+echo httprl_pr($response);
 ?>
 
 
@@ -214,7 +214,7 @@ $url_front = httprl_build_url_self();
 // Queue up the request.
 httprl_request($url_front, $options);
 // Execute request.
-$request = httprl_send_request();
+$response = httprl_send_request();
 
 // Echo returned value from function callback.
 echo $x;
@@ -247,7 +247,7 @@ $url_front = httprl_build_url_self();
 // Queue up the request.
 httprl_request($url_front, $options);
 // Execute request.
-$request = httprl_send_request();
+$response = httprl_send_request();
 
 // Echo returned value from function callback.
 echo $x;
@@ -285,7 +285,7 @@ $url_front = httprl_build_url_self();
 // Queue up the request.
 httprl_request($url_front, $options);
 // Execute request.
-$request = httprl_send_request();
+$response = httprl_send_request();
 
 // Echo what was returned and printed from function callback.
 echo $x . "<br />\n";
@@ -318,10 +318,10 @@ $options = array(
 httprl_request($urls, $options);
 
 // Execute requests.
-$requests = httprl_send_request();
+$response = httprl_send_request();
 
 // Print what was done.
-echo httprl_pr($requests);
+echo httprl_pr($response);
 
 function need_two_good_results($id, &$responses) {
   static $counter = 0;
@@ -380,9 +380,9 @@ $url_front = httprl_build_url_self();
 // Queue up the request.
 httprl_request($url_front, $options);
 // Execute request.
-$request = httprl_send_request();
+$response = httprl_send_request();
 // Echo what was returned.
-echo httprl_pr($request);
+echo httprl_pr($response);
 ?>
 
 
@@ -425,17 +425,17 @@ $options = array(
 httprl_request($urls, $options);
 // Execute request.
 echo round(timer_read('page')/1000, 3) . " - Time taken to get requests ready.<br> \n";
-$request = httprl_send_request();
-echo strtoupper(var_export($request, TRUE)) . " - Output from first httprl_send_request() call<br> \n";
+$response = httprl_send_request();
+echo strtoupper(var_export($response, TRUE)) . " - Output from first httprl_send_request() call<br> \n";
 
 echo round(timer_read('page')/1000, 3) . " - Time taken to send out all fwrites().<br> \n";
 sleep(2);
 echo round(timer_read('page')/1000, 3) . " - Time taken for sleep(2).<br> \n";
 
-$request = httprl_send_request();
+$response = httprl_send_request();
 echo round(timer_read('page')/1000, 3) . " - Time taken for all freads().<br> \n";
 echo "Output from second httprl_send_request() below:<br> \n<br> \n";
-echo httprl_pr($request);
+echo httprl_pr($response);
 ?>
 
 
