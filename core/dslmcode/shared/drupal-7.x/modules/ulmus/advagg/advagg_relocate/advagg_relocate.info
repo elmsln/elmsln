@@ -1,10 +1,9 @@
-name = AdvAgg Subresource Integrity
-description = Provide the integrity attribute for CSS and JS files.
+name = AdvAgg Relocate
+description = Inline css import rules; also make any external file local.
 core = 7.x
 dependencies[] = advagg
 package = Advanced CSS/JS Aggregation
-
-configure = admin/config/development/performance/advagg/sri
+configure = admin/config/development/performance/advagg/relocate
 
 ; Information added by Drupal.org packaging script on 2017-03-18
 version = "7.x-2.21"

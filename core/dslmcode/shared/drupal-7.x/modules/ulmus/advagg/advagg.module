@@ -241,7 +241,7 @@ define('ADVAGG_SHOW_FILE_CHANGED_MESSAGE', TRUE);
 /**
  * How long to wait until an aggregate with a missing file is written to disk.
  */
-define('ADVAGG_FILE_READ_FAILURE_TIMEOUT', 3600);
+define('ADVAGG_FILE_READ_FAILURE_TIMEOUT', 1800);
 
 /**
  * See if the mtime != if TRUE < if FALSE.
@@ -262,6 +262,47 @@ define('ADVAGG_NO_ZOPFLI', FALSE);
  * If true do test for 304 files on the status report page.
  */
 define('ADVAGG_SKIP_304_CHECK', FALSE);
+
+/**
+ * If false do not set the immutable header.
+ */
+define('ADVAGG_RESOURCE_HINTS_USE_IMMUTABLE', TRUE);
+
+/**
+ * If true chrome=1 will be added to the X-UA-Compatible header.
+ */
+define('ADVAGG_CHROME_HEADER_ENABLED', FALSE);
+
+/**
+ * If true advagg htaccess Options uses SymLinksIfOwnerMatch vs FollowSymLinks.
+ */
+define('ADVAGG_HTACCESS_SYMLINKSIFOWNERMATCH', FALSE);
+
+/**
+ * How far down a JS file to look for use strict.
+ */
+define('ADVAGG_JS_HEADER_LENGTH', 8192);
+
+/**
+ * If not empty advagg htaccess will include the given rewritebase.
+ */
+define('ADVAGG_HTACCESS_REWRITEBASE', '');
+
+/**
+ * Preload CSS/JS header limit 3kb.
+ */
+define('ADVAGG_RESOURCE_HINTS_PRELOAD_MAX_SIZE', 3072);
+
+/**
+ * If TRUE advagg will search for and remove empty CSS files from aggregates.
+ */
+define('ADVAGG_CSS_REMOVE_EMPTY_FILES', FALSE);
+
+/**
+ * If TRUE advagg will search for and remove empty JS files from aggregates.
+ */
+define('ADVAGG_JS_REMOVE_EMPTY_FILES', FALSE);
+
 
 // Core hook implementations.
 /**
@@ -360,6 +401,7 @@ function advagg_hook_info() {
     'advagg_get_info_on_files_alter',
     'advagg_context_alter',
     'advagg_missing_root_file',
+    'advagg_update_github_versions_alter',
   );
   $hooks = array();
   foreach ($advagg_hooks as $hook) {
@@ -722,6 +764,9 @@ function advagg_cron($bypass_time_check = FALSE) {
   }
   variable_set('advagg_cron_timestamp', REQUEST_TIME);
 
+  // Update 3rd party version information.
+  advagg_update_github_versions();
+
   // Flush the cache_advagg_info cache bin.
   cache_clear_all(NULL, 'cache_advagg_info');
 
@@ -729,6 +774,9 @@ function advagg_cron($bypass_time_check = FALSE) {
   // Clear out all stale advagg aggregated files.
   module_load_include('inc', 'advagg', 'advagg.cache');
   $return[] = advagg_delete_stale_aggregates();
+
+  // Delete all empty aggregated files.
+  $return[] = advagg_delete_empty_aggregates();
 
   // Delete orphaned aggregates.
   $return[] = advagg_delete_orphaned_aggregates();
@@ -1090,6 +1138,41 @@ function advagg_js_alter(&$js) {
     }
     unset($value);
   }
+
+  // Remove empty JS files from the js array before it is aggregated.
+  if (variable_get('advagg_js_remove_empty_files', ADVAGG_JS_REMOVE_EMPTY_FILES)) {
+    if (variable_get('advagg_fast_filesystem', ADVAGG_FAST_FILESYSTEM)) {
+      foreach ($js as $key => $value) {
+        if ($value['type'] !== 'file') {
+          continue;
+        }
+        // Check locally.
+        if (!is_readable($value['data']) || filesize($value['data']) == 0) {
+          unset($js[$key]);
+        }
+      }
+    }
+    else {
+      module_load_include('inc', 'advagg', 'advagg');
+      $files = array();
+      foreach ($js as $key => $value) {
+        if ($value['type'] !== 'file') {
+          continue;
+        }
+        $files[$key] = $value['data'];
+      }
+      // Check cache/db.
+      $info = advagg_get_info_on_files($files);
+      foreach ($info as $key => $values) {
+        if (empty($values['filesize'])) {
+          $key = array_search($values['data'], $files);
+          if (isset($js[$key])) {
+            unset($js[$key]);
+          }
+        }
+      }
+    }
+  }
 }
 
 /**
@@ -1145,6 +1228,41 @@ function advagg_css_alter(&$css) {
     }
     unset($value);
   }
+
+  // Remove empty CSS files from the css array before it is aggregated.
+  if (variable_get('advagg_css_remove_empty_files', ADVAGG_CSS_REMOVE_EMPTY_FILES)) {
+    if (variable_get('advagg_fast_filesystem', ADVAGG_FAST_FILESYSTEM)) {
+      foreach ($css as $key => $value) {
+        if ($value['type'] !== 'file') {
+          continue;
+        }
+        // Check locally.
+        if (!is_readable($value['data']) || filesize($value['data']) == 0) {
+          unset($css[$key]);
+        }
+      }
+    }
+    else {
+      module_load_include('inc', 'advagg', 'advagg');
+      $files = array();
+      foreach ($css as $key => $value) {
+        if ($value['type'] !== 'file') {
+          continue;
+        }
+        $files[$key] = $value['data'];
+      }
+      // Check cache/db.
+      $info = advagg_get_info_on_files($files);
+      foreach ($info as $key => $values) {
+        if (empty($values['filesize'])) {
+          $key = array_search($values['data'], $files);
+          if (isset($css[$key])) {
+            unset($css[$key]);
+          }
+        }
+      }
+    }
+  }
 }
 
 /**
@@ -1177,7 +1295,11 @@ function advagg_preprocess_html() {
   }
 
   // Send IE meta tag to force IE rendering mode header.
-  drupal_add_http_header('X-UA-Compatible', 'IE=edge,chrome=1');
+  $x_ua_compatible = 'IE=edge';
+  if (variable_get('advagg_chrome_header_enabled', ADVAGG_CHROME_HEADER_ENABLED)) {
+    $x_ua_compatible .= ',chrome=1';
+  }
+  drupal_add_http_header('X-UA-Compatible', $x_ua_compatible);
 }
 
 /**
@@ -1228,6 +1350,21 @@ function advagg_anonymous_login_paths_alter(&$paths) {
   $paths['exclude'][] = $js_path[1] . '/*';
 }
 
+/**
+ * Implements hook_pre_flush_all_caches().
+ */
+function advagg_pre_flush_all_caches() {
+  static $run_once;
+
+  if (!isset($run_once)) {
+    $run_once = TRUE;
+    // Only invoked by registry_rebuild.
+    module_load_include('admin.inc', 'advagg');
+    // Truncate the advagg_files table.
+    advagg_admin_truncate_advagg_files();
+  }
+}
+
 // Core CSS/JS override functions.
 /**
  * Only the alter part of locale_js_alter(), not the parsing part.
@@ -1238,7 +1375,7 @@ function advagg_anonymous_login_paths_alter(&$paths) {
  * @param string $dir
  *   String pointing to the public locale_js_directory.
  */
-function advagg_locale_js_add_translations(&$javascript, $dir) {
+function advagg_locale_js_add_translations(array &$javascript, $dir) {
   // Add the translation JavaScript file to the page.
   if (!empty($GLOBALS['language']->javascript)) {
     // Add the translation JavaScript file to the page.
@@ -1524,9 +1661,11 @@ function _advagg_build_css_arrays_for_rendering($skip_alter = FALSE) {
   // Process and Sort css.
   $full_css = advagg_get_css($raw_css, $skip_alter);
   // Add attached js to drupal_add_js() function.
-  drupal_process_attached($full_css);
-  // Remove #attached since it's been added to the javascript array now.
-  unset($full_css['#attached']);
+  if (!empty($full_css['#attached'])) {
+    drupal_process_attached($full_css);
+    // Remove #attached since it's been added to the javascript array now.
+    unset($full_css['#attached']);
+  }
   return array($raw_css, $full_css);
 }
 
@@ -2231,6 +2370,7 @@ function advagg_add_preload_header($url = '', $as = '') {
   // Get defaults and setup statics.
   $list = &drupal_static(__FUNCTION__ . ':list', array());
   $output = &drupal_static(__FUNCTION__ . ':output');
+  $header_strlen = &drupal_static(__FUNCTION__ . ':strlen', 0);
   static $resource_hints_preload_order;
   if (!isset($resource_hints_preload_order)) {
     $resource_hints_preload_order = advagg_get_resource_hints_preload_settings();
@@ -2242,8 +2382,30 @@ function advagg_add_preload_header($url = '', $as = '') {
 
   // Output headers.
   if (empty($url)) {
+    // Build header string.
+    $header_value = '';
     foreach ($output as $value) {
-      drupal_add_http_header('Link', implode(',', $value), TRUE);
+      if (!empty($value)) {
+        // Remove empty values.
+        $value = array_filter($value);
+        foreach ($value as $string) {
+          $header_strlen += strlen($string) + 2;
+          // Don't add if over the limit.
+          if ($header_strlen >= variable_get('advagg_resource_hints_preload_max_size', ADVAGG_RESOURCE_HINTS_PRELOAD_MAX_SIZE)) {
+            continue;
+          }
+          // Add to $header_value string.
+          if (empty($header_value)) {
+            $header_value = $string;
+          }
+          else {
+            $header_value .= ', ' . $string;
+          }
+        }
+      }
+    }
+    if (!empty($header_value)) {
+      drupal_add_http_header('Link', $header_value, TRUE);
     }
     return FALSE;
   }
@@ -2347,7 +2509,7 @@ function advagg_add_preload_header($url = '', $as = '') {
   if (!empty($additional_info)) {
     $payload .= "; {$additional_info}";
   }
-  if (!$settings['push'] || !empty($parse['host'])) {
+  if (!$settings['push']) {
     $payload .= "; nopush";
   }
   $list[$url] = TRUE;
@@ -2374,7 +2536,7 @@ function advagg_add_dns_prefetch($url) {
   // Add DNS information for more domains.
   if (strpos($parse['host'], 'fonts.googleapis.com') !== FALSE) {
     // Add fonts.gstatic.com when fonts.googleapis.com is added.
-    advagg_add_dns_prefetch('https://fonts.gstatic.com');
+    advagg_add_dns_prefetch('https://fonts.gstatic.com/#crossorigin');
   }
 
   // Build render array.
@@ -2401,6 +2563,9 @@ function advagg_add_dns_prefetch($url) {
       ),
       '#weight' => $advagg_resource_hints_location == 3 ? -1001 : -999.9,
     );
+    if (!empty($parse['fragment']) && $parse['fragment'] === 'crossorigin') {
+      $element['#attributes']['crossorigin'] = '';
+    }
     // Add markup for dns-prefetch to html_head.
     drupal_add_html_head($element, 'advagg_resource_hints_preconnect:' . $parse['host']);
   }
@@ -3210,7 +3375,7 @@ function advagg_get_current_hooks_hash() {
  * @return MergeQuery
  *   value from db_merge
  */
-function advagg_set_hash_settings($hash, $settings) {
+function advagg_set_hash_settings($hash, array $settings = array()) {
   return db_merge('advagg_aggregates_hashes')
     ->key(array('hash' => $hash))
     ->fields(array(
@@ -3403,7 +3568,7 @@ function advagg_build_aggregates(array $filenames, $type) {
   }
   if (empty($type)) {
     $filename = reset($filenames);
-    $type = pathinfo($filename, PATHINFO_EXTENSION);
+    $type = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
   }
 
   // Call the file generation function directly.
@@ -5128,4 +5293,85 @@ function advagg_get_resource_hints_preload_settings($return_defaults = FALSE) {
   // Sort the rows.
   uasort($advagg_resource_hints_preload_settings, 'element_sort');
   return $advagg_resource_hints_preload_settings;
+}
+
+/**
+ * See if the .htaccess file uses the RewriteBase directive.
+ *
+ * @param string $location
+ *   The location of the .htaccess file.
+ *
+ * @return string
+ *   The last active RewriteBase entry in htaccess.
+ */
+function advagg_htaccess_rewritebase($location = DRUPAL_ROOT) {
+  if (is_readable($location . '/.htaccess')) {
+    $htaccess = file_get_contents($location . '/.htaccess');
+    $matches = array();
+    $found = preg_match_all('/\\n\s*RewriteBase\s.*/i', $htaccess, $matches);
+    if ($found && !empty($matches[0])) {
+      $matches[0] = array_map('trim', $matches[0]);
+      return array_pop($matches[0]);
+    }
+  }
+  return '';
+}
+
+/**
+ * See if the .htaccess file uses the RewriteBase directive.
+ *
+ * @param string $url
+ *   The location of package.json file.
+ *
+ * @return string
+ *   The latest version number as a string or 0 on failure.
+ */
+function advagg_get_github_version($url) {
+  $package = drupal_http_request($url, array('timeout' => 7));
+  if (!empty($package->data)) {
+    $package = json_decode($package->data);
+    return (string) $package->version;
+  }
+  else {
+    return 0;
+  }
+}
+
+/**
+ * Update github version numbers to the latest.
+ *
+ * @param string $target
+ *   Set to the one library to be updated.
+ *
+ * @return mixed
+ *   Key Value pair of the project name and remote version number. If $target is
+ *   set then that version number is returned.
+ */
+function advagg_update_github_versions($target = '') {
+  // Call hook_advagg_update_github_versions_alter().
+  $projects = array();
+  drupal_alter('advagg_update_github_versions', $projects);
+
+  $return = array();
+  foreach ($projects as $key => $values) {
+    // Skip if callback is not callable.
+    if (!is_callable($values['callback'])) {
+      continue;
+    }
+    // Skip if target is set and target and key do not match.
+    if (!empty($target) && $target !== $key) {
+      continue;
+    }
+    $remote_version = call_user_func_array($values['callback'], array($values['url']));
+    $current_version = variable_get($values['variable_name'], constant(strtoupper($values['variable_name'])));
+    $return[$key] = $current_version;
+    if (!empty($remote_version) && $current_version !== $remote_version) {
+      variable_set($values['variable_name'], $remote_version);
+      $return[$key] = $remote_version;
+    }
+  }
+  if (!empty($target) && isset($return[$target])) {
+    return $return[$target];
+  }
+  return $return;
 }

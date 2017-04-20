@@ -153,7 +153,7 @@ function advagg_validator_test_css_files($files, $options = array()) {
  * @return array
  *   Info from the w3c server.
  */
-function advagg_validator_test_css_file_w3c($filename, &$validator_options = array()) {
+function advagg_validator_test_css_file_w3c($filename, array &$validator_options = array()) {
   // Get CSS files contents.
   $validator_options['text'] = (string) @file_get_contents($filename);
 
@@ -298,7 +298,7 @@ function advagg_validator_dom_extractor($dom) {
  *   An associative array (keyed on the chosen key) of objects with 'uri',
  *   'filename', and 'name' members corresponding to the matching files.
  */
-function advagg_validator_file_scan_directory($dir, $mask, $options = array(), $depth = 0) {
+function advagg_validator_file_scan_directory($dir, $mask, array $options = array(), $depth = 0) {
   // Merge in defaults.
   $options += array(
     'nomask' => '/(\.\.?|CVS)$/',

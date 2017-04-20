@@ -6,6 +6,13 @@
  */
 
 /**
+ * @defgroup advagg_tests Advanced Aggregates Tests
+ *
+ * @{
+ * Advanced Aggregates testing functionality.
+ */
+
+/**
  * Resets static variables related to adding CSS to a page.
  */
 function advagg_test_reset_statics() {
@@ -1534,3 +1541,7 @@ class AdvAggThemeTestCase extends AJAXTestCase {
   }
 
 }
+
+/**
+ * @} End of "defgroup advagg_tests".
+ */

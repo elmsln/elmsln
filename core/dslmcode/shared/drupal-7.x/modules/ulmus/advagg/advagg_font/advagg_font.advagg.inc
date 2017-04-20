@@ -52,3 +52,16 @@ function advagg_font_advagg_get_info_on_files_alter(&$return, $cached_data, $byp
     unset($info);
   }
 }
+
+/**
+ * Implements hook_advagg_update_github_versions_alter().
+ */
+function advagg_font_advagg_update_github_versions_alter(&$projects) {
+  $projects = array(
+    'fontfaceobserver' => array(
+      'callback' => 'advagg_get_github_version',
+      'url' => 'https://rawgit.com/bramstein/fontfaceobserver/master/package.json',
+      'variable_name' => 'advagg_font_github_version_fontfaceobserver',
+    ),
+  );
+}

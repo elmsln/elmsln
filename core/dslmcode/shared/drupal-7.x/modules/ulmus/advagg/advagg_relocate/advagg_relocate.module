@@ -1,0 +1,105 @@
+<?php
+
+/**
+ * @file
+ * Advanced aggregation relocate module.
+ */
+
+/**
+ * Default value to see if css inlining import is enabled.
+ */
+define('ADVAGG_RELOCATE_CSS_INLINE_IMPORT', TRUE);
+
+/**
+ * Default value to see if css inlining external css is enabled.
+ */
+define('ADVAGG_RELOCATE_CSS_INLINE_EXTERNAL', TRUE);
+
+/**
+ * Default value for supported domains.
+ */
+define('ADVAGG_RELOCATE_CSS_FILE_DOMAINS', 'fonts.googleapis.com');
+
+// Core hook implementations.
+/**
+ * Implements hook_menu().
+ */
+function advagg_relocate_menu() {
+  $file_path = drupal_get_path('module', 'advagg_relocate');
+  $config_path = advagg_admin_config_root_path();
+
+  $items[$config_path . '/advagg/relocate'] = array(
+    'title' => 'Relocate',
+    'description' => 'Move external items to be local.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('advagg_relocate_admin_settings_form'),
+    'type' => MENU_LOCAL_TASK,
+    'access arguments' => array('administer site configuration'),
+    'file path' => $file_path,
+    'file' => 'advagg_relocate.admin.inc',
+    'weight' => 10,
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_css_alter().
+ */
+function advagg_relocate_css_alter(&$css) {
+  // Check external css setting.
+  if (!variable_get('advagg_relocate_css_inline_external', ADVAGG_RELOCATE_CSS_INLINE_EXTERNAL)) {
+    return;
+  }
+  $aggregate_settings = advagg_current_hooks_hash_array();
+  foreach ($css as $key => &$values) {
+    if ($values['type'] !== 'external') {
+      continue;
+    }
+    module_load_include('advagg.inc', 'advagg_relocate');
+    if (!advagg_relocate_check_domain_of_url($key, $aggregate_settings)) {
+      continue;
+    }
+    $font_faces = advagg_relocate_get_remote_data($key, $aggregate_settings);
+    $new_css = advagg_relocate_font_face_parser($font_faces);
+    $values['data'] = $new_css;
+    $values['type'] = 'inline';
+
+    // Add DNS information for font domains.
+    $parse = @parse_url($key);
+    if (strpos($parse['host'], 'fonts.googleapis.com') !== FALSE) {
+      // Add fonts.gstatic.com when fonts.googleapis.com is added.
+      $values['dns_prefetch'] = 'https://fonts.gstatic.com/#crossorigin';
+      $values['preload'] = 'https://fonts.gstatic.com/#crossorigin';
+    }
+    // Move this css to the top.
+    if (module_exists('advagg_mod') && variable_get('advagg_mod_css_adjust_sort_external', ADVAGG_MOD_CSS_ADJUST_SORT_EXTERNAL)) {
+      $values['group'] = CSS_SYSTEM - 1;
+      $values['weight'] = -50000;
+      $values['movable'] = FALSE;
+    }
+    // Do not move this css to the bottom.
+    if (module_exists('advagg_mod') && variable_get('advagg_mod_css_adjust_sort_inline', ADVAGG_MOD_CSS_ADJUST_SORT_INLINE)) {
+      $values['movable'] = FALSE;
+    }
+  }
+}
+
+// Contrib hook implementations.
+/**
+ * Implements hook_advagg_current_hooks_hash_array_alter().
+ */
+function advagg_relocate_advagg_current_hooks_hash_array_alter(&$aggregate_settings) {
+  $aggregate_settings['variables']['advagg_relocate_css_inline_import'] = variable_get('advagg_relocate_css_inline_import', ADVAGG_RELOCATE_CSS_INLINE_IMPORT);
+
+  $defaults = array(
+    'woff2' => 'woff2',
+    'woff' => 'woff',
+    'ttf' => 'ttf',
+  );
+  $aggregate_settings['variables']['advagg_relocate_css_inline_import_browsers'] = variable_get('advagg_relocate_css_inline_import_browsers', $defaults);
+
+  $aggregate_settings['variables']['advagg_relocate_css_file_settings'] = variable_get('advagg_relocate_css_file_settings', array());
+
+  $aggregate_settings['variables']['advagg_relocate_css_file_domains'] = variable_get('advagg_relocate_css_file_domains', ADVAGG_RELOCATE_CSS_FILE_DOMAINS);
+}

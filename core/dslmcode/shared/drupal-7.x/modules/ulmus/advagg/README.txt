@@ -334,6 +334,9 @@ current defaults are shown.
     // Control how many bytes can be inlined.
     $conf['advagg_mod_css_defer_inline_size_limit'] = 12288;
 
+    // Control how many bytes the preload header can use.
+    $conf['advagg_resource_hints_preload_max_size'] = 3072;
+
 
 ADDITIONAL OPTIONS FOR DRUPAL_ADD_CSS/JS FUNCTIONS
 --------------------------------------------------
