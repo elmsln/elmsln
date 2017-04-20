@@ -22,7 +22,7 @@ class i18n_path_breadcrumbs_object extends i18n_string_object_wrapper {
    *   Constant showing translate mode.
    */
   public function get_translate_mode() {
-    if ($this->object->translatable) {
+    if (!empty($this->object->translatable)) {
       return I18N_MODE_TRANSLATE;
     }
     return I18N_MODE_NONE;

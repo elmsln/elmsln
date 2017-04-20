@@ -299,6 +299,13 @@ function path_breadcrumbs_ui_settings($form, $form_state) {
     '#default_value' => variable_get('path_breadcrumbs_decode_entities', TRUE),
   );
 
+  $form['path_breadcrumbs_settings']['path_breadcrumbs_enable_on_error_pages'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Enable Path Breadcrumbs on error pages'),
+    '#description' => t('Enables Path Breadcrumbs on error pages (403, 404). <strong>Only for advanced users. May require additional access checks.</strong>'),
+    '#default_value' => variable_get('path_breadcrumbs_enable_on_error_pages', FALSE),
+  );
+
   $form['#submit'][] = 'path_breadcrumbs_ui_settings_submit';
 
   return system_settings_form($form);
@@ -345,7 +352,7 @@ function path_breadcrumbs_clone_breadcrumb($path_breadcrumb) {
  */
 function path_breadcrumbs_export_form($form, $form_state, $path_breadcrumbs) {
 
-  drupal_set_title(t('Export path breadcrumb "!name"', array('!name' => $path_breadcrumbs->name)));
+  drupal_set_title(t('Export path breadcrumb "@name"', array('@name' => $path_breadcrumbs->name)));
 
   ctools_include('export');
 
@@ -408,10 +415,10 @@ function path_breadcrumbs_import_form_submit($form, &$form_state) {
   }
   if (path_breadcrumbs_save($path_breadcrumbs)) {
     if (!empty($path_breadcrumbs_original)) {
-      drupal_set_message(filter_xss(t('Path breadcrumb "!name" was successfully updated.', array('!name' => $path_breadcrumbs->name))));
+      drupal_set_message(t('Path breadcrumb "@name" was successfully updated.', array('@name' => $path_breadcrumbs->name)));
     }
     else {
-      drupal_set_message(filter_xss(t('Path breadcrumb "!name" was successfully imported.', array('!name' => $path_breadcrumbs->name))));
+      drupal_set_message(t('Path breadcrumb "@name" was successfully imported.', array('@name' => $path_breadcrumbs->name)));
     }
   }
   else {
