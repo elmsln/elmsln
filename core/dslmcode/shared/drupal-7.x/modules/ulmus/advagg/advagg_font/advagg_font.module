@@ -21,6 +21,11 @@ define('ADVAGG_FONT_COOKIE', 1);
  */
 define('ADVAGG_FONT_NO_FOUT', 0);
 
+/**
+ * Default version of fontfaceobserver to use.
+ */
+define('ADVAGG_FONT_GITHUB_VERSION_FONTFACEOBSERVER', '2.0.9');
+
 // Core hook implementations.
 /**
  * Implements hook_module_implements_alter().
@@ -94,7 +99,8 @@ function advagg_font_page_alter(&$page) {
     }
   }
   if ($advagg_font_ffo == 6) {
-    $page['content']['#attached']['js']['https://cdn.rawgit.com/bramstein/fontfaceobserver/master/fontfaceobserver.js'] = array(
+    $current_version = variable_get('advagg_font_github_version_fontfaceobserver', ADVAGG_FONT_GITHUB_VERSION_FONTFACEOBSERVER);
+    $page['content']['#attached']['js']["https://cdn.rawgit.com/bramstein/fontfaceobserver/$current_version/fontfaceobserver.js"] = array(
       'type' => 'external',
       'async' => TRUE,
       'defer' => TRUE,

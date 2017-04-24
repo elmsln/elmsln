@@ -46,6 +46,10 @@ function cdn_file_url_alter(&$original_uri) {
       if (!in_array($scheme, $local_schemes)) {
         return;
       }
+      // Explicitly exclude the local private:// stream wrapper.
+      elseif ($scheme === 'private') {
+        return;
+      }
 
       // Attempt to get an external URL using the appropriate wrapper.
       if ($wrapper = file_stream_wrapper_get_instance_by_uri($original_uri)) {
@@ -84,7 +88,7 @@ function cdn_file_url_alter(&$original_uri) {
       // file, to generate it. (E.g. when ImageCache is used, this will
       // generate the derivative file.) When that fails, don't serve it from
       // the CDN.
-      if (!file_exists($uri) && !_cdn_basic_farfuture_generate_file($uri)) {
+      if (!file_exists($uri) && !_cdn_basic_farfuture_generate_file($uri, $original_uri)) {
         $path = drupal_encode_path($uri);
         return;
       }
@@ -124,19 +128,10 @@ function cdn_file_url_alter(&$original_uri) {
       $cdn_url = $picked_server['url'];
       $server  = $picked_server['server'];
     }
-    // Allow this special function to be defined as a Drupal variable; this
-    // Drupal variable then contains the body of this function. This is handy
-    // for experimentation and novice Drupal users.
-    elseif (count($servers) > 1 && variable_get(CDN_PICK_SERVER_PHP_CODE_VARIABLE, '') !== '') {
-      $php_code = variable_get(CDN_PICK_SERVER_PHP_CODE_VARIABLE, '');
-      $picked_server = _cdn_eval_pick_server($php_code, $servers);
-      $cdn_url = $picked_server['url'];
-      $server  = $picked_server['server'];
-    }
     // The file is available from multiple servers; pick a server randomly
     // (yet consistently: this uses consistent hashing!), so that each server
     // will serve approximately the same number of files.
-    elseif (count($servers > 1)) {
+    elseif (count($servers) > 1) {
       $filename = basename($servers[0]['url']);
       $unique_file_id = hexdec(substr(md5($filename), 0, 5));
       $choice = $unique_file_id % count($servers);
@@ -252,6 +247,70 @@ function cdn_element_info_alter(&$type) {
 }
 
 /**
+ * Implements hook_css_alter().
+ *
+ * Ensure that CDN-blacklisted CSS files are not aggregated, so that the CSS
+ * aggregates can still be served from the CDN.
+ */
+function cdn_css_alter(&$css) {
+  if (!cdn_status_is_enabled()) {
+    return;
+  }
+
+  // If all CSS files are blacklisted, return early, otherwise we'd end up
+  // disabling preprocessing (aggregation) for every CSS file, hence disabling
+  // aggregation altogether.
+  if (!cdn_check_file('*.css')) {
+    return;
+  }
+
+  foreach (array_keys($css) as $key) {
+    // Skip $type = 'inline'.
+    if (is_numeric($key)) {
+      continue;
+    }
+    // Handle $type = 'file' and 'external'.
+    elseif (!cdn_check_file($key)) {
+      $css[$key]['preprocess'] = FALSE;
+    }
+  }
+}
+
+/**
+ * Implements hook_js_alter().
+ *
+ * Ensure that CDN-blacklisted JS files are not aggregated, so that the JS
+ * aggregates can still be served from the CDN.
+ */
+function cdn_js_alter(&$javascript) {
+  if (!cdn_status_is_enabled()) {
+    return;
+  }
+
+  // If all JS files are blacklisted, return early, otherwise we'd end up
+  // disabling preprocessing (aggregation) for every JS file, hence disabling
+  // aggregation altogether.
+  if (!cdn_check_file('*.js')) {
+    return;
+  }
+
+  foreach (array_keys($javascript) as $key) {
+    // Skip $type = 'inline'.
+    if (is_numeric($key)) {
+      continue;
+    }
+    // Skip $type = 'setttings'.
+    elseif ($key === 'settings') {
+      continue;
+    }
+    // Handle $type = 'file' and 'external'.
+    elseif (!cdn_check_file($key)) {
+      $javascript[$key]['preprocess'] = FALSE;
+    }
+  }
+}
+
+/**
  * Implements hook_menu().
  */
 function cdn_menu() {
@@ -357,6 +416,10 @@ function cdn_permission() {
  * Implements hook_node_view_alter().
  */
 function cdn_node_view_alter(&$build) {
+  if (!cdn_status_is_enabled()) {
+    return;
+  }
+
   $build['#post_render'][] = 'cdn_post_render_html_alter';
 }
 
@@ -364,15 +427,33 @@ function cdn_node_view_alter(&$build) {
  * Implements hook_block_view_alter().
  */
 function cdn_block_view_alter(&$data, $block) {
+  if (!cdn_status_is_enabled()) {
+    return;
+  }
+
   if (isset($data['content'])) {
     // Blocks with render arrays.
-    if (is_array($data['content'])) {
+    if (is_array($data['content']) && $data['content']) {
       $data['content']['#post_render'][] = 'cdn_post_render_html_alter';
     }
     // Blocks without render arrays (typically custom blocks).
     elseif (is_string($data['content'])) {
       $data['content'] = cdn_post_render_html_alter($data['content']);
     }
+  }
+}
+
+/**
+ * Implements hook_ctools_render_alter().
+ */
+function cdn_ctools_render_alter(&$info, $page, $context) {
+  if (!cdn_status_is_enabled()) {
+    return;
+  }
+
+  // Nodes in Panel panes.
+  if ($context['task']['name'] === 'node_view' && !empty($info['content']) && is_string($info['content'])) {
+    $info['content'] = cdn_post_render_html_alter($info['content']);
   }
 }
 
@@ -406,14 +487,105 @@ function cdn_theme() {
 }
 
 /**
+ * Implements hook_html_head_alter().
+ *
+ * Adding dns-prefetch <link> elements via hook instead of drupal_add_html_head
+ * to place them as early in the head as possible so that the browser acts upon
+ * them ASAP.
+ *
+ * @see https://github.com/h5bp/html5-boilerplate/blob/master/doc/extend.md
+ */
+function cdn_html_head_alter(&$head_elements) {
+  if (!cdn_status_is_enabled()) {
+    return;
+  }
+
+  $domains = cdn_get_domains();
+  // Two sets of markups: because IE9 interprets rel="prefetch" as "dns-prefetch".
+  // IE10 intreprets both dns-prefetch and prefetch as DNS pre-resolve.
+  $markup = null;
+  $ie_markup = null;
+
+  if (count($domains)) {
+    // Enable prefetching.
+    $head_elements['cdn_dns_prefetch_meta'] = array(
+      '#type' => 'html_tag',
+      '#tag' => 'meta',
+      '#attributes' => array(
+        'http-equiv' => 'x-dns-prefetch-control',
+        'content'    => 'on',
+      ),
+      // System meta for content-type is at weight -1000. We'll insert the DNS tags
+      // shortly after that.
+      '#weight' => -900.9999,
+    );
+    // The domain names to prefetch. Use protocol-relative URLs.
+    foreach ($domains as $domain) {
+      $element = array(
+        '#tag' => 'link',
+        '#attributes' => array(
+          'rel' => 'dns-prefetch',
+          'href'    => '//' . $domain,
+        )
+      );
+
+      $link_el = theme('html_tag', array('element' => $element));
+      $markup .= $link_el;
+      $ie_markup .= preg_replace('/rel="dns-prefetch"/', 'rel="prefetch"', $link_el);
+    }
+    $markup .= '<!--[if IE 9]>' . PHP_EOL;
+    $markup .= $ie_markup;
+    $markup .= '<![endif]-->' . PHP_EOL;
+
+    $head_elements['cdn_dns_prefetch_block'] = array(
+      '#type' => 'markup',
+      '#markup' => $markup,
+      '#weight' => -900,
+    );
+  }
+}
+
+/**
+ * Implements hook_boot().
+ */
+function cdn_boot() {
+  // Bail if the status is "disabled" (i.e. don't when "enabled" or "testing").
+  if (variable_get(CDN_STATUS_VARIABLE, CDN_DISABLED) === CDN_DISABLED) {
+    return;
+  }
+
+  // Inspired by common.inc/_drupal_bootstrap_full().
+  require_once DRUPAL_ROOT . '/includes/common.inc';
+  require_once DRUPAL_ROOT . '/' . variable_get('path_inc', 'includes/path.inc');
+  require_once DRUPAL_ROOT . '/includes/unicode.inc';
+
+  // Prevent the CDN from returning content pages. We only want the CDN to
+  // return static files like images, CSS files, JavaScript files, etc. By
+  // default it will return anything. Since those static files aren't served by
+  // Drupal.
+  $redirect_url = _cdn_seo_should_redirect(current_path());
+  if ($redirect_url !== FALSE) {
+    // A 301 is SEO friendly, as it tells the search engine what the canonical
+    // URL is for this content.
+    header('HTTP/1.0 301 Moved Permanently');
+    // @see http://googlewebmastercentral.blogspot.com/2011/06/supporting-relcanonical-http-headers.html
+    header('Link: <' . $redirect_url . '>; rel="canonical"');
+    header('Location: ' . $redirect_url);
+    // Informative header to simplify debugging.
+    header('Drupal-CDN-Redirect: duplicate content prevention');
+
+    // To ensure this redirect occurs immediately we don't use drupal_exit().
+    exit();
+  }
+}
+
+/**
  * Implements hook_init().
  */
 function cdn_init() {
   if (!cdn_status_is_enabled()) {
     return;
   }
-
-  _cdn_prefetch_dns();
 
   // When per-page statistics are enabled, add the CSS that will be used to
   // make these statistics more usable.
@@ -498,7 +670,7 @@ function cdn_cdn_blacklist() {
   }
 
   // Blacklist Image CAPTCHA' dynamically generated CAPTCHA images.
-  $blacklist[] = '*image_captcha/*';
+  $blacklist[] = 'image_captcha*';
 
   // Blacklist SimpleTest paths
   $blacklist[] = "*simpletest/verbose/*";
@@ -557,7 +729,7 @@ function cdn_get_domains() {
   $domains = array();
 
   // Origin Pull mode domains.
-  if (variable_get(CDN_MODE_VARIABLE, FALSE) == CDN_MODE_BASIC) {
+  if (variable_get(CDN_MODE_VARIABLE, CDN_MODE_BASIC) == CDN_MODE_BASIC) {
     cdn_load_include('basic');
     $mapping = cdn_basic_get_mapping();
     $lines = preg_split("/[\n\r]+/", $mapping, -1, PREG_SPLIT_NO_EMPTY);
@@ -585,7 +757,7 @@ function cdn_get_domains() {
     }
   }
   // File Conveyor mode domains.
-  elseif (variable_get(CDN_MODE_VARIABLE, FALSE) == CDN_MODE_ADVANCED) {
+  elseif (variable_get(CDN_MODE_VARIABLE, CDN_MODE_BASIC) == CDN_MODE_ADVANCED) {
     cdn_load_include('advanced');
     $db = _cdn_advanced_get_db_connection();
 
@@ -776,6 +948,7 @@ function cdn_load_include($basename) {
 function cdn_post_render_html_alter($html, $elements = array()) {
   cdn_load_include('fallback');
   cdn_html_alter_image_urls($html);
+  cdn_html_alter_anchor_urls($html);
   return $html;
 }
 
@@ -794,45 +967,43 @@ function _cdn_ufi_deployment_id($path) {
 }
 
 /**
- * Helper function to evaluate CDN_PICK_SERVER_PHP_CODE_VARIABLE, when that is
- * being used instead of an actual cdn_pick_server() function.
+ * Determines whether a redirect should be performed for the given path for SEO
+ * considerations (prevent duplicate HTML content on the CDN), and if so, the
+ * URL to which the requesting User Agent should be redirected.
  *
- * @param $php_code
- *   The PHP code to be evaluated.
- * @param $servers_for_file
- *   The $servers_for_file parameter, as it will be available to the eval()'d
- *   $php_code. This variable is not passed by reference, hence it will not be
- *   changed outside the scope of this function.
+ * @param $path
+ *   The path for which to determine the redirect URL.
+ * @return
+ *   FALSE if no redirect should occur, or the URL to redirect to.
  */
-function _cdn_eval_pick_server($php_code, $servers_for_file) {
-  ob_start();
-  $result = @eval($php_code);
-  ob_end_clean();
-  return $result;
-}
+function _cdn_seo_should_redirect($path) {
+  if (variable_get(CDN_SEO_REDIRECT_VARIABLE, CDN_SEO_REDIRECT_DEFAULT)) {
+    // If the path ends in an extension that is not in the list of forbidden
+    // extensions, then return FALSE to indicate that no redirect should occur.
+    // The rationale is: menu_get_item() doesn't allow us to detect whether a
+    // page callback will generate a file; hence we (ab)use this heuristic.
+    // An added benefit is that we don't need the menu system to be loaded,
+    // meaning that we can do all of this during hook_boot(), meaning we can use
+    // this same code for cached pages, which we need to support anyway.
+    // @todo: improve Drupal core so that contrib modules can know whether
+    // certain menu callbacks generate files or not.
+    $forbidden_extensions = variable_get(CDN_SEO_FORBIDDEN_EXTENSIONS_VARIABLE, CDN_SEO_FORBIDDEN_EXTENSIONS_DEFAULT);
+    $extension = drupal_strtolower(pathinfo($path, PATHINFO_EXTENSION));
+    if (!empty($extension) && !in_array($extension, explode("\n", $forbidden_extensions))) {
+      return FALSE;
+    }
 
-/**
- * Helper function to add DNS prefetching to the page.
- *
- * @see http://drupal.org/node/1247078.
- */
-function _cdn_prefetch_dns() {
-  $domains = cdn_get_domains();
-  if (count($domains)) {
-    // Enable prefetching.
-    drupal_add_html_head(array(
-      '#tag' => 'meta',
-      '#attributes' => array(
-        'http-equiv' => 'x-dns-prefetch-control',
-        'content'    => 'on',
-      ),
-    ), 'cdn_dns_prefetch_meta');
-    // The domain names to prefetch. Use protocol-relative URLs.
-    foreach ($domains as $domain) {
-      drupal_add_html_head_link(array(
-        'rel'  => 'dns-prefetch',
-        'href' => "//$domain",
-      ));
+    // Use case-insensitive substring matching to match the current User-Agent
+    // to the list of CDN user agents.
+    if (isset($_SERVER['HTTP_USER_AGENT'])) {
+      $ua = drupal_strtolower($_SERVER['HTTP_USER_AGENT']);
+      $cdn_user_agents = explode("\n", drupal_strtolower(variable_get(CDN_SEO_USER_AGENTS_VARIABLE, CDN_SEO_USER_AGENTS_DEFAULT)));
+      foreach ($cdn_user_agents as $cdn_ua) {
+        if (strstr($ua, trim($cdn_ua))) {
+          return url($path, array('absolute' => TRUE));
+        }
+      }
     }
   }
+  return FALSE;
 }

@@ -45,7 +45,7 @@ class views_handler_filter_search extends views_handler_filter {
     $form['remove_score'] = array(
       '#type' => 'checkbox',
       '#title' => t('Remove search score'),
-      '#description' => t('Check this box to remove the search score from the query. This can help reduce help reduce duplicate search results when using this filter.'),
+      '#description' => t('Check this box to remove the search score from the query. This can help reduce duplicate search results when using this filter.'),
       '#default_value' => $this->options['remove_score'],
     );
   }

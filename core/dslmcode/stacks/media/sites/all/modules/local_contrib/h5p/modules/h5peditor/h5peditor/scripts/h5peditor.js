@@ -594,6 +594,122 @@ ns.createDescription = function (description) {
 };
 
 /**
+ * Create an important description
+ * @param {Object} importantDescription
+ * @returns {String}
+ */
+ns.createImportantDescription = function (importantDescription) {
+  var html = '';
+
+  if (importantDescription !== undefined) {
+    html += '<div class="h5peditor-field-important-description">' +
+              '<div class="important-description-tail">' +
+              '</div>' +
+              '<div class="important-description-close" role="button" tabindex="0" aria-label="' + ns.t('core', 'hideImportantInstructions') + '">' +
+                '<span>' +
+                   ns.t('core', 'hide') +
+                '</span>' +
+              '</div>' +
+              '<span class="h5p-info-icon">' +
+              '</span>' +
+              '<span class="important-description-title">' +
+                 ns.t('core', 'importantInstructions') +
+              '</span>';
+
+    if (importantDescription.description !== undefined) {
+      html += '<div class="important-description-content">' +
+                 importantDescription.description +
+              '</div>';
+    }
+
+    if (importantDescription.example !== undefined) {
+      html += '<div class="important-description-example">' +
+                '<div class="important-description-example-title">' +
+                  '<span>' +
+                     ns.t('core', 'example') +
+                  ':</span>' +
+                '</div>' +
+                '<div class="important-description-example-text">' +
+                  '<span>' +
+                     importantDescription.example +
+                  '</span>' +
+                '</div>' +
+              '</div>';
+    }
+
+    html += '</div>' +
+            '<span class="icon-important-desc" role="button" aria-label="' + ns.t('core', 'importantInstructions') + '" tabindex="0">' +
+              '<span class="path1"></span>' +
+              '<span class="path2"></span>' +
+            '</span>';
+  }
+
+  return html;
+};
+
+/**
+ * Bind events to important description
+ * @param {Object} widget
+ * @param {String} fieldName
+ * @param {Object} parent
+ */
+ns.bindImportantDescriptionEvents = function (widget, fieldName, parent) {
+  var that = this;
+  var context;
+
+  if (!widget.field.important) {
+    return;
+  }
+
+  // Generate a context string for using as referance in ex. localStorage.
+  var librarySelector = ns.findLibraryAncestor(parent);
+  if (librarySelector.currentLibrary !== undefined) {
+    var lib = librarySelector.currentLibrary.split(' ')[0];
+    context = (lib + '-' + fieldName).replace(/\.|_/g,'-');
+  }
+
+  var $importantField = widget.$item.find('.h5peditor-field-important-description');
+
+  // Set first occurance to visible
+  ns.storage.get(context + '-seen', function (value) {
+    if (value !== true) {
+      $importantField.addClass('show');
+    }
+  });
+
+  widget.$item.addClass('has-important-description');
+
+  // Bind events to toggle button and update aria-pressed
+  widget.$item.find('.icon-important-desc')
+    .click(function() {
+      $importantField.toggleClass('show');
+      ns.$(this).attr('aria-pressed', $importantField.hasClass('show'));
+    })
+    .keydown(function() {
+      if (event.which == 13 || event.which == 32) {
+        ns.$(this).trigger('click');
+        event.preventDefault();
+      }
+    })
+    .attr('aria-pressed', $importantField.hasClass('show') ? 'true' : 'false' );
+
+  // Bind events to close button and update aria-pressed of toggle button
+  widget.$item.find('.important-description-close')
+    .click(function() {
+      ns.$(this).parent()
+        .removeClass('show')
+        .siblings('.icon-important-desc').attr('aria-pressed', false);
+      ns.storage.set(context + '-seen', true);
+    })
+    .keydown(function() {
+      if (event.which == 13 || event.which == 32) {
+        ns.$(this).trigger('click');
+        event.preventDefault();
+      }
+    });
+};
+
+/**
  * Check if any errors has been set.
  *
  * @param {jQuery} $errors
@@ -608,6 +724,7 @@ ns.checkErrors = function ($errors, $input, value) {
         return;
       }
       $errors.html('');
+      $input.removeClass('error');
       $input.unbind('keyup');
     });
 
@@ -703,3 +820,44 @@ ns.createButton = function (id, title, handler, displayTitle) {
 
   return ns.$('<div/>', options);
 };
+
+// Factory for creating storage instance
+ns.storage = (function () {
+  var instance = {
+    get: function (key, next) {
+      var value;
+
+      // Get value from browser storage
+      if (window.localStorage !== undefined) {
+        value = !!window.localStorage.getItem(key);
+      }
+
+      // Try to get a better value from user data storage
+      try {
+        H5P.getUserData(0, key, function (err, result) {
+          if (!err) {
+            value = result;
+          }
+          next(value);
+        });
+      }
+      catch (err) {
+        next(value);
+      }
+    },
+    set: function (key, value) {
+
+      // Store in browser
+      if (window.localStorage !== undefined) {
+        window.localStorage.setItem(key, value);
+      }
+
+      // Try to store in user data storage
+      try {
+        H5P.setUserData(0, key, value);
+      }
+      catch (err) {}
+    },
+  };
+  return instance;
+})();

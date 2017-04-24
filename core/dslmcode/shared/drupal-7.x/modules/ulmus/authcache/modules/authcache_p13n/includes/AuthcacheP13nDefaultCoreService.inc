@@ -12,7 +12,7 @@ class AuthcacheP13nDefaultCoreService implements AuthcacheP13nCoreServiceInterfa
    * {@inheritdoc}
    */
   public function drupalAddHttpHeader($name, $value, $append = FALSE) {
-    drupal_add_http_header($name, $value, $append = FALSE);
+    drupal_add_http_header($name, $value, $append);
   }
 
   /**

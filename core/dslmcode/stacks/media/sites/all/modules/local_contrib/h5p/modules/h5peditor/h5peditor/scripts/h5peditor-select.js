@@ -14,6 +14,15 @@ H5PEditor.widgets.select = H5PEditor.Select = (function (E) {
     this.field = field;
     this.value = params;
     this.setValue = setValue;
+
+    // Setup event dispatching on change
+    this.changes = [];
+    this.triggerListeners = function (value) {
+      // Run callbacks
+      for (var i = 0; i < this.changes.length; i++) {
+        this.changes[i](value);
+      }
+    }
   }
 
   /**
@@ -34,6 +43,7 @@ H5PEditor.widgets.select = H5PEditor.Select = (function (E) {
       if (val !== false) {
         that.value = val;
         that.setValue(that.field, val);
+        that.triggerListeners(val);
       }
     });
   };

@@ -3,13 +3,14 @@
 Drupal.extlink = Drupal.extlink || {};
 
 Drupal.extlink.attach = function (context, settings) {
+  if (!settings.hasOwnProperty('extlink')) {
+    return;
+  }
+
   // Strip the host name down, removing ports, subdomains, or www.
   var pattern = /^(([^\/:]+?\.)*)([^\.:]{4,})((\.[a-z]{1,4})*)(:[0-9]{1,5})?$/;
   var host = window.location.host.replace(pattern, '$3$4');
   var subdomain = window.location.host.replace(pattern, '$1');
-
-  // AJAX requests may not have External Link settings in the response.
-  settings = (settings && settings.extlink) ? settings : Drupal.settings;
 
   // Determine what subdomains are considered internal.
   var subdomains;
@@ -126,7 +127,8 @@ Drupal.extlink.applyClassAndSpan = function (links, class_name) {
     $links_to_process = $(links);
   }
   else {
-    $links_to_process = $(links).not('[img]');
+    var links_with_images = $(links).find('img').parents('a');
+    $links_to_process = $(links).not(links_with_images);
   }
   $links_to_process.addClass(class_name);
   var i;

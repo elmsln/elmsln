@@ -20,7 +20,7 @@ class H5PDrupal implements H5PFrameworkInterface {
   /**
    * Implements fetchExternalData
    */
-  public function fetchExternalData($url, $data = NULL) {
+  public function fetchExternalData($url, $data = NULL, $blocking = TRUE, $stream = NULL) {
     $options = array();
     if (!empty($data)) {
       $options['method'] = 'POST';
@@ -29,8 +29,18 @@ class H5PDrupal implements H5PFrameworkInterface {
       );
       $options['data'] = drupal_http_build_query($data);
     }
+    if ($stream) {
+      @set_time_limit(0);
+    }
 
     $response = drupal_http_request($url, $options);
+
+    if ($stream && empty($response->error)) {
+      // Create file from data
+      H5peditorDrupalStorage::saveFileTemporarily($response->data);
+      return TRUE;
+    }
+
     return isset($response->error) ? NULL : $response->data;
   }
 
@@ -79,8 +89,15 @@ class H5PDrupal implements H5PFrameworkInterface {
   /**
    * Implements getH5PPath
    */
-  private function getH5pPath() {
-    return _h5p_get_h5p_path();
+  private function getH5pPath($external = FALSE) {
+    return ($external ? base_path() : '') . _h5p_get_h5p_path();
+  }
+
+  /**
+   * Implements getLibraryFileUrl
+   */
+  public function getLibraryFileUrl($libraryFolderName, $fileName) {
+    return $this->getH5pPath(TRUE) . '/libraries/' . $libraryFolderName . '/' . $fileName;
   }
 
   /**
@@ -94,7 +111,7 @@ class H5PDrupal implements H5PFrameworkInterface {
    * Implements getUploadedH5PPath
    */
   public function getUploadedH5pPath() {
-    return $_SESSION['h5p_upload'];
+    return empty($_SESSION['h5p_upload']) ? NULL : $_SESSION['h5p_upload'];
   }
 
   /**
@@ -286,6 +303,9 @@ class H5PDrupal implements H5PFrameworkInterface {
     if (!isset($libraryData['fullscreen'])) {
       $libraryData['fullscreen'] = 0;
     }
+    if (!isset($libraryData['hasIcon'])) {
+      $libraryData['hasIcon'] = 0;
+    }
     if ($new) {
       $libraryId = db_insert('h5p_libraries')
       ->fields(array(
@@ -301,6 +321,7 @@ class H5PDrupal implements H5PFrameworkInterface {
         'preloaded_css' => $preloadedCss,
         'drop_library_css' => $dropLibraryCss,
         'semantics' => $libraryData['semantics'],
+        'has_icon' => $libraryData['hasIcon'] ? 1 : 0,
       ))
       ->execute();
       $libraryData['libraryId'] = $libraryId;
@@ -321,7 +342,8 @@ class H5PDrupal implements H5PFrameworkInterface {
         'preloaded_js' => $preloadedJs,
         'preloaded_css' => $preloadedCss,
         'drop_library_css' => $dropLibraryCss,
-        'semantics' => $libraryData['semantics']
+        'semantics' => $libraryData['semantics'],
+        'has_icon' => $libraryData['hasIcon'] ? 1 : 0,
       ))
       ->condition('library_id', $libraryData['libraryId'])
       ->execute();
@@ -334,6 +356,12 @@ class H5PDrupal implements H5PFrameworkInterface {
       $libraryData['machineName'],
       $libraryData['majorVersion'] . '.' . $libraryData['minorVersion']
     );
+
+    // Invoke h5p_library_installed hook for each library that has
+    // been installed
+    if (sizeof(module_implements('h5p_library_installed')) > 0) {
+      module_invoke_all('h5p_library_installed', $libraryData, $new);
+    }
 
     db_delete('h5p_libraries_languages')
     ->condition('library_id', $libraryData['libraryId'])
@@ -616,7 +644,8 @@ class H5PDrupal implements H5PFrameworkInterface {
                 fullscreen,
                 runnable,
                 semantics,
-                tutorial_url
+                tutorial_url,
+                has_icon
           FROM {h5p_libraries}
           WHERE machine_name = :machine_name
           AND major_version = :major_version
@@ -907,7 +936,57 @@ class H5PDrupal implements H5PFrameworkInterface {
           user_access('embed all h5ps') ||
           (self::mayCurrentUserUpdateNode($content_id) && user_access('embed own h5ps'))
         );
+
+      case H5PPermission::CREATE_RESTRICTED:
+        return user_access('create restricted h5p content types');
+
+      case H5PPermission::UPDATE_LIBRARIES:
+        return user_access('update h5p libraries');
+
+      case H5PPermission::INSTALL_RECOMMENDED:
+        return user_access('install recommended h5p libraries');
     }
     return FALSE;
+  }
+
+  /**
+   * Replaces existing content type cache with the one passed in
+   *
+   * @param object $contentTypeCache Json with an array called 'libraries'
+   *  containing the new content type cache that should replace the old one.
+   */
+  public function replaceContentTypeCache($contentTypeCache) {
+    // Replace existing cache
+    db_delete('h5p_libraries_hub_cache')
+      ->execute();
+    foreach ($contentTypeCache->contentTypes as $ct) {
+      $created_at = new DateTime($ct->createdAt);
+      $updated_at = new DateTime($ct->updatedAt);
+      db_insert('h5p_libraries_hub_cache')
+        ->fields(array(
+          'machine_name' => $ct->id,
+          'major_version' => $ct->version->major,
+          'minor_version' => $ct->version->minor,
+          'patch_version' => $ct->version->patch,
+          'h5p_major_version' => $ct->coreApiVersionNeeded->major,
+          'h5p_minor_version' => $ct->coreApiVersionNeeded->minor,
+          'title' => $ct->title,
+          'summary' => $ct->summary,
+          'description' => $ct->description,
+          'icon' => $ct->icon,
+          'created_at' => $created_at->getTimestamp(),
+          'updated_at' => $updated_at->getTimestamp(),
+          'is_recommended' => $ct->isRecommended === TRUE ? 1 : 0,
+          'popularity' => $ct->popularity,
+          'screenshots' => json_encode($ct->screenshots),
+          'license' => json_encode(isset($ct->license) ? $ct->license : array()),
+          'example' => $ct->example,
+          'tutorial' => isset($ct->tutorial) ? $ct->tutorial : '',
+          'keywords' => json_encode(isset($ct->keywords) ? $ct->keywords : array()),
+          'categories' => json_encode(isset($ct->categories) ? $ct->categories : array()),
+          'owner' => $ct->owner
+        ))
+        ->execute();
+    }
   }
 }

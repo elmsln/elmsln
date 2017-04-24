@@ -25,6 +25,48 @@ function ds_test_install() {
 }
 
 /**
+ * Implements hook_theme_registry_alter().
+ */
+function ds_test_theme_registry_alter(&$theme_registry) {
+
+  // Inject ds_entity_variables in all entity theming functions.
+  $entity_info = entity_get_info();
+  foreach ($entity_info as $entity => $info) {
+    if (isset($entity_info[$entity]['fieldable']) && $entity_info[$entity]['fieldable']) {
+
+      // User uses user_profile for theming.
+      if ($entity == 'user') $entity = 'user_profile';
+
+      // Only add preprocess functions if entity exposes theme function.
+      if (isset($theme_registry[$entity])) {
+        $theme_registry[$entity]['preprocess functions'][] = 'ds_test_entity_variables';
+      }
+    }
+  }
+
+  // Support for File Entity.
+  if (isset($theme_registry['file_entity'])) {
+    $theme_registry['file_entity']['preprocess functions'][] = 'ds_test_entity_variables';
+  }
+
+  // Support for Entity API.
+  if (isset($theme_registry['entity'])) {
+    $theme_registry['entity']['preprocess functions'][] = 'ds_test_entity_variables';
+  }
+}
+
+/**
+ * Theming function, added after ds_entity_variables().
+ *
+ * @param $variables
+ */
+function ds_test_entity_variables(&$variables) {
+  if (isset($_GET['store'])) {
+    cache_set('ds_test', $variables);
+  }
+}
+
+/**
  * Implements hook_views_api().
  */
 function ds_test_views_api($module, $api) {

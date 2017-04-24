@@ -62,9 +62,7 @@ function _cdn_aggregate_css(&$css_groups) {
 function _cdn_build_css_cache($css, $suffix = '') {
   // Create different CSS aggregation maps for HTTP and HTTPS.
   $https_mapping = variable_get(CDN_BASIC_MAPPING_HTTPS_VARIABLE, '');
-  $css_cache_var = (!empty($https_mapping) && cdn_serve_from_https())
-    ? 'cdn_css_cache_files_https'
-    : 'cdn_css_cache_files_http';
+  $css_cache_var = (cdn_request_is_https()) ? 'cdn_css_cache_files_https' : 'cdn_css_cache_files_http';
 
   $data = '';
   $uri = '';
@@ -133,7 +131,7 @@ function _cdn_build_css_cache($css, $suffix = '') {
 }
 
 /**
- * Near-identical to @see drupal_build_css_path().
+ * Near-identical to @see _drupal_build_css_path().
  *
  * Changes: apply file_create_url() to every file!
  */
@@ -145,12 +143,34 @@ function _cdn_build_css_path($matches, $base = NULL) {
   }
 
   // Prefix with base and remove '../' segments where possible.
-  $path = $_base . $matches[1];
+  $url = $_base . $matches[1];
   $last = '';
-  while ($path != $last) {
-    $last = $path;
-    $path = preg_replace('`(^|/)(?!\.\./)([^/]+)/\.\./`', '$1', $path);
+  while ($url != $last) {
+    $last = $url;
+    $url = preg_replace('`(^|/)(?!\.\./)([^/]+)/\.\./`', '$1', $url);
   }
 
-  return 'url(' . file_create_url($path) . ')';
+  $parsed_url = parse_url($url);
+  $base_url  = isset($parsed_url['scheme']) ? $parsed_url['scheme'] . '://' : '';
+  $base_url .= isset($parsed_url['user']) ? $parsed_url['user'] : '';
+  $base_url .= isset($parsed_url['pass']) ? ':' . $parsed_url['pass']  : '';
+  if (isset($parsed_url['user']) || isset($parsed_url['pass'])) {
+    $base_url .= '@';
+  }
+  $base_url .= isset($parsed_url['host']) ? $parsed_url['host'] : '';
+  $base_url .= isset($parsed_url['port']) ? ':' . $parsed_url['port'] : '';
+  $base_url .= isset($parsed_url['path']) ? $parsed_url['path'] : '';
+
+  $query = isset($parsed_url['query']) ? $parsed_url['query'] : '';
+  // In the case of certain URLs, we may have simply a '?' character without
+  // further parameters. parse_url() misses this and leaves 'query' blank, so
+  // need to this back in.
+  // See http://www.fontspring.com/blog/the-new-bulletproof-font-face-syntax
+  // for more information.
+  if ($query != '' || strpos($url, $base_url . '?') === 0) {
+    $query = '?' . $query;
+  }
+  $fragment = isset($parsed_url['fragment']) ? '#' . $parsed_url['fragment'] : '';
+
+  return 'url(' . file_create_url($base_url) . $query . $fragment . ')';
 }

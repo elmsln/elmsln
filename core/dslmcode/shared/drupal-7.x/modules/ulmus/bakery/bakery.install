@@ -1,6 +1,11 @@
 <?php
 
 /**
+ * @file
+ * Install file for Bakery.
+ */
+
+/**
  * Implements hook_schema().
  */
 function bakery_schema() {

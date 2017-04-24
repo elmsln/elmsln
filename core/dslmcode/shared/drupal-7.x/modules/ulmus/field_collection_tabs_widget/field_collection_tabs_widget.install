@@ -1,0 +1,14 @@
+<?php
+
+/**
+ * @file
+ * Update functions for field_collection_tabs_widget.module.
+ */
+
+
+/**
+ * Clear the cache to enable the tab hover field setting.
+ */
+function field_collection_tabs_widget_update_7000() {
+  drupal_flush_all_caches();
+}

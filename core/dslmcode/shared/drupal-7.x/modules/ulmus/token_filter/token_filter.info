@@ -3,9 +3,9 @@ description = Allows token values to be used as filters
 core = 7.x
 dependencies[] = token
 
-; Information added by drupal.org packaging script on 2013-10-19
-version = "7.x-1.1+1-dev"
+; Information added by Drupal.org packaging script on 2015-10-12
+version = "7.x-1.1+2-dev"
 core = "7.x"
 project = "token_filter"
-datestamp = "1382147423"
+datestamp = "1444669740"
 

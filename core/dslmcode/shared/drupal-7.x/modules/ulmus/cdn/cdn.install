@@ -160,7 +160,7 @@ function cdn_requirements($phase) {
 
             $items[] = ($synced_files_db_exists) ? t('The synced files database exists.') : t("The synced files database doesn't exist.");
             $items[] = ($synced_files_db_readable) ? t('The synced files database is readable.') : t("The synced files database isn't readable.");
-            if ($synced_files_db_readable) {
+            if ($synced_files_db_readable && !empty($synced_file_stats)) {
               foreach ($synced_file_stats as $row) {
                 $items[] = t('!synced-file-count files have been synced to the %server server.', array('!synced-file-count' => $row['count'], '%server' => $row['server']));
               }

@@ -49,7 +49,7 @@ class SearchApiExternalDataSourceController extends SearchApiAbstractDataSourceC
    * loadable, specify a function here.
    *
    * @param array $ids
-   *   The IDs of the items to laod.
+   *   The IDs of the items to load.
    *
    * @return array
    *   The loaded items, keyed by ID.

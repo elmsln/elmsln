@@ -65,15 +65,18 @@ class AuthcacheP13nFragmentAssemblyBuilder implements AuthcacheP13nContentBuilde
 
       // Run loader.
       if (!empty($partial['loader'])) {
-        $params = $partial['loader']->load($params, $context);
+        try {
+          $params = $partial['loader']->load($params, $context);
+        }
+        catch (AuthcacheP13nRequestNotFound $e) {
+          unset($e);
+          continue;
+        }
       }
 
       foreach ($params as $key => $subject) {
         // Run access check.
-        if (!empty($partial['access']) && !$partial['access']->check($user, $key, $subject, $context)) {
-          throw new AuthcacheP13nRequestAccessDenied();
-        }
-        else {
+        if (empty($partial['access']) || $partial['access']->check($user, $key, $subject, $context)) {
           $result[$paramname][$key] = $partial['renderer']->render($key, $subject, $context);
         }
       }

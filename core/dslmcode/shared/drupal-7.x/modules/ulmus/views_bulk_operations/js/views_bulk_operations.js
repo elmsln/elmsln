@@ -1,9 +1,17 @@
 (function ($) {
+  // Polyfill for jQuery less than 1.6.
+  if (typeof $.fn.prop != 'function') {
+    jQuery.fn.extend({
+      prop: jQuery.fn.attr
+    });
+  }
+
   Drupal.behaviors.vbo = {
     attach: function(context) {
       $('.vbo-views-form', context).each(function() {
         Drupal.vbo.initTableBehaviors(this);
         Drupal.vbo.initGenericBehaviors(this);
+        Drupal.vbo.toggleButtonsState(this);
       });
     }
   }
@@ -32,7 +40,8 @@
     // This is the "select all" checkbox in (each) table header.
     $('.vbo-table-select-all', form).click(function() {
       var table = $(this).closest('table')[0];
-      $('input[id^="edit-views-bulk-operations"]:not(:disabled)', table).attr('checked', this.checked);
+      $('input[id^="edit-views-bulk-operations"]:not(:disabled)', table).prop('checked', this.checked);
+      Drupal.vbo.toggleButtonsState(form);
 
       // Toggle the visibility of the "select all" row (if any).
       if (this.checked) {
@@ -83,35 +92,43 @@
     $('.vbo-select-all-markup', form).show();
 
     $('.vbo-select-this-page', form).click(function() {
-      $('input[id^="edit-views-bulk-operations"]', form).attr('checked', this.checked);
-      $('.vbo-select-all-pages', form).attr('checked', false);
+      $('input[id^="edit-views-bulk-operations"]', form).prop('checked', this.checked);
+      Drupal.vbo.toggleButtonsState(form);
+      $('.vbo-select-all-pages', form).prop('checked', false);
 
       // Toggle the "select all" checkbox in grouped tables (if any).
-      $('.vbo-table-select-all', form).attr('checked', this.checked);
+      $('.vbo-table-select-all', form).prop('checked', this.checked);
     });
     $('.vbo-select-all-pages', form).click(function() {
-      $('input[id^="edit-views-bulk-operations"]', form).attr('checked', this.checked);
-      $('.vbo-select-this-page', form).attr('checked', false);
+      $('input[id^="edit-views-bulk-operations"]', form).prop('checked', this.checked);
+      Drupal.vbo.toggleButtonsState(form);
+      $('.vbo-select-this-page', form).prop('checked', false);
 
       // Toggle the "select all" checkbox in grouped tables (if any).
-      $('.vbo-table-select-all', form).attr('checked', this.checked);
+      $('.vbo-table-select-all', form).prop('checked', this.checked);
 
       // Modify the value of the hidden form field.
       $('.select-all-rows', form).val(this.checked);
     });
 
+    // Toggle submit buttons' "disabled" states with the state of the operation
+    // selectbox.
+    $('select[name="operation"]', form).change(function () {
+      Drupal.vbo.toggleButtonsState(form);
+    });
+
     $('.vbo-select', form).click(function() {
       // If a checkbox was deselected, uncheck any "select all" checkboxes.
       if (!this.checked) {
-        $('.vbo-select-this-page', form).attr('checked', false);
-        $('.vbo-select-all-pages', form).attr('checked', false);
+        $('.vbo-select-this-page', form).prop('checked', false);
+        $('.vbo-select-all-pages', form).prop('checked', false);
         // Modify the value of the hidden form field.
         $('.select-all-rows', form).val('0')
 
         var table = $(this).closest('table')[0];
         if (table) {
           // Uncheck the "select all" checkbox in the table header.
-          $('.vbo-table-select-all', table).attr('checked', false);
+          $('.vbo-table-select-all', table).prop('checked', false);
 
           // If there's a "select all" row, hide it.
           if ($('.vbo-table-select-this-page', table).length) {
@@ -121,7 +138,24 @@
           }
         }
       }
+
+      Drupal.vbo.toggleButtonsState(form);
     });
   }
+
+  Drupal.vbo.toggleButtonsState = function(form) {
+    // If no rows are checked, disable any form submit actions.
+    var selectbox = $('select[name="operation"]', form);
+    var checkedCheckboxes = $('.vbo-select:checked', form);
+    var buttons = $('[id^="edit-select"] input[type="submit"]', form);
+
+    if (selectbox.length) {
+      var has_selection = checkedCheckboxes.length && selectbox.val() !== '0';
+      buttons.prop('disabled', !has_selection);
+    }
+    else {
+      buttons.prop('disabled', !checkedCheckboxes.length);
+    }
+  };
 
 })(jQuery);

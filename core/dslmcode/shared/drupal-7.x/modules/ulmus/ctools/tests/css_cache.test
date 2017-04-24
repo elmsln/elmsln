@@ -16,7 +16,7 @@ class CtoolsObjectCache extends DrupalWebTestCase {
     return array(
       'name' => 'Ctools CSS cache',
       'description' => 'Tests the custom CSS cache handler.',
-      'group' => 'Chaos Tools Suite',
+      'group' => 'ctools',
     );
   }
 

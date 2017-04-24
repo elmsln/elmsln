@@ -11,6 +11,7 @@ var ns = H5PEditor;
  * @returns {undefined}
  */
 ns.Html = function (parent, field, params, setValue) {
+  this.parent = parent;
   this.field = field;
   this.value = params;
   this.setValue = setValue;
@@ -288,10 +289,11 @@ ns.Html.prototype.createToolbar = function () {
 ns.Html.prototype.appendTo = function ($wrapper) {
   var that = this;
 
-  this.$item = ns.$(ns.createFieldMarkup(this.field, this.createHtml())).appendTo($wrapper);
-
+  this.$item = ns.$(this.createHtml()).appendTo($wrapper);
   this.$input = this.$item.children('.ckeditor');
   this.$errors = this.$item.children('.h5p-errors');
+
+  ns.bindImportantDescriptionEvents(this, this.field.name, this.parent);
 
   var ckConfig = {
     extraPlugins: "",
@@ -417,18 +419,16 @@ ns.Html.prototype.appendTo = function ($wrapper) {
  * Create HTML for the HTML field.
  */
 ns.Html.prototype.createHtml = function () {
-  var html = '<div class="ckeditor" tabindex="0" contenteditable="true">';
-
+  var input = '<div class="ckeditor" tabindex="0" contenteditable="true">';
   if (this.value !== undefined) {
-    html += this.value;
+    input += this.value;
   }
   else if (this.field.placeholder !== undefined) {
-    html += '<span class="h5peditor-ckeditor-placeholder">' + this.field.placeholder + '</span>';
+    input += '<span class="h5peditor-ckeditor-placeholder">' + this.field.placeholder + '</span>';
   }
+  input += '</div>';
 
-  html += '</div>';
-
-  return html;
+  return ns.createFieldMarkup(this.field, ns.createImportantDescription(this.field.important) + input);
 };
 
 /**
@@ -436,8 +436,10 @@ ns.Html.prototype.createHtml = function () {
  */
 ns.Html.prototype.validate = function () {
   var that = this;
+
   if (that.$errors.children().length) {
     that.$errors.empty();
+    this.$input.addClass('error');
   }
 
   // Get contents from editor
@@ -470,6 +472,8 @@ ns.Html.prototype.validate = function () {
   // Display errors and bail if set.
   if (that.$errors.children().length) {
     return false;
+  } else {
+    this.$input.removeClass('error');
   }
 
   this.value = value;

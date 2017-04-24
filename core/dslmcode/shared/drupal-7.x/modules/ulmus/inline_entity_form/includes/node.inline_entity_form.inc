@@ -85,4 +85,18 @@ class NodeInlineEntityFormController extends EntityInlineEntityFormController {
       $function($entity_form['#entity'], $entity_form, $child_form_state);
     }
   }
+
+  /**
+   * Overrides EntityInlineEntityFormController::createClone().
+   */
+  public function createClone($entity) {
+    global $user;
+
+    $cloned_entity = parent::createClone($entity);
+    $cloned_entity->tnid = NULL;
+    $cloned_entity->name = isset($user->name) ? $user->name : NULL;
+    $cloned_entity->path = NULL;
+
+    return $cloned_entity;
+  }
 }

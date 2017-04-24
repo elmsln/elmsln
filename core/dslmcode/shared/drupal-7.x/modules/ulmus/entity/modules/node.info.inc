@@ -163,4 +163,10 @@ function entity_metadata_node_entity_property_info_alter(&$info) {
     'auto creation' => 'entity_property_create_array',
     'field' => TRUE,
   );
+
+  // Make it a list if cardinality is not 1.
+  $field_body = field_info_field('body');
+  if (isset($field_body) && $field_body['cardinality'] != 1) {
+    $info['node']['properties']['body']['type'] = 'list<text_formatted>';
+  }
 }

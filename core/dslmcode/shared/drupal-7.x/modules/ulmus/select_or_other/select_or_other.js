@@ -13,15 +13,19 @@
       speed = 200;
       ele = jQuery(ele).parents(".select-or-other")[0];
     }
+    var $other_element = jQuery(ele).find(".select-or-other-other").parents("div.form-item").first();
+    var $other_input = $other_element.find('input');
     if (jQuery(ele).find(".select-or-other-select option:selected[value=select_or_other], .select-or-other-select:checked[value=select_or_other]").length) {
-      jQuery(ele).find(".select-or-other-other").parents("div.form-item").first().show(speed, function() {
+      $.fn.prop ? $other_input.prop('required', true) : $other_input.attr('required', true)
+      $other_element.show(speed, function() {
         if(!page_init) {
           $(this).find(".select-or-other-other").focus();
         }
       });
     }
     else {
-      jQuery(ele).find(".select-or-other-other").parents("div.form-item").first().hide(speed);      
+      $other_element.hide(speed);
+      $.fn.prop ? $other_input.prop('required', false) : $other_input.removeAttr('required');
       if (page_init)
       {
         // Special case, when the page is loaded, also apply 'display: none' in case it is

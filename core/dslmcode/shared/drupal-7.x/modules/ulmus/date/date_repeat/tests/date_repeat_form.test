@@ -25,7 +25,7 @@ class DateRepeatFormTestCase extends DrupalWebTestCase {
 
     // Create and log in our privileged user.
     $this->privileged_user = $this->drupalCreateUser(array(
-      'administer content types', 'administer nodes', 'bypass node access', 'view date repeats'
+      'administer content types', 'administer nodes', 'bypass node access', 'view date repeats', 'administer fields'
     ));
     $this->drupalLogin($this->privileged_user);
 

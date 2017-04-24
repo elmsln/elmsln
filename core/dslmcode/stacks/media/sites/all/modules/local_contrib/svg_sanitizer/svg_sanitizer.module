@@ -87,25 +87,26 @@ function svg_sanitizer_field_formatter_info() {
  */
 function svg_sanitizer_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
   $element = array();
-  $settings = $display['settings'];
-  switch ($display['type']) {
-    case 'svg_sanitizer':
-      // Load the svg_sanitizer library
-      libraries_load('svg_sanitizer');
-      foreach ($items as $delta => $item) {
-        // create the file path
-        $svg_path = file_create_url($item['uri']);
-        // get the contents of the svg
-        $svg = file_get_contents($svg_path);
-        // remove all of the bad stuff from the svg
-        $svg_clean = _svg_sanitizer_sanitize($svg);
+  if (isset($display['type'])) {
+    switch ($display['type']) {
+      case 'svg_sanitizer':
+        // Load the svg_sanitizer library
+        libraries_load('svg_sanitizer');
+        foreach ($items as $delta => $item) {
+          // create the file path
+          $svg_path = file_create_url($item['uri']);
+          // get the contents of the svg
+          $svg = file_get_contents($svg_path);
+          // remove all of the bad stuff from the svg
+          $svg_clean = _svg_sanitizer_sanitize($svg);
 
-        $element[$delta] = array(
-          '#type' => 'markup',
-          '#markup' => $svg_clean,
-        );
-      }
-      break;
+          $element[$delta] = array(
+            '#type' => 'markup',
+            '#markup' => $svg_clean,
+          );
+        }
+        break;
+    }
   }
 
   return $element;

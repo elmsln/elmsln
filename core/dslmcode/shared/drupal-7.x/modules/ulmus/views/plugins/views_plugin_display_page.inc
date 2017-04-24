@@ -118,6 +118,8 @@ class views_plugin_display_page extends views_plugin_display {
         'access arguments' => $access_arguments,
         // Identify URL embedded arguments and correlate them to a handler
         'load arguments'  => array($this->view->name, $this->display->id, '%index'),
+        // Make sure the menu router knows where views_page is.
+        'module' => 'views',
       );
       $menu = $this->get_option('menu');
       if (empty($menu)) {
@@ -182,6 +184,8 @@ class views_plugin_display_page extends views_plugin_display {
               'title' => $tab_options['title'],
               'description' => $tab_options['description'],
               'menu_name' => $tab_options['name'],
+              // Make sure the menu router knows where views_page is.
+              'module' => 'views',
             );
             switch ($tab_options['type']) {
               default:
@@ -231,7 +235,13 @@ class views_plugin_display_page extends views_plugin_display {
 
     // First execute the view so it's possible to get tokens for the title.
     // And the title, which is much easier.
-    drupal_set_title(filter_xss_admin($this->view->get_title()), PASS_THROUGH);
+    $title = $this->view->get_title();
+    // Support the core method of using '<none>' to indicate nothing should be
+    // assigned to the title, so only process the title value if it is not that
+    // value.
+    if ($title != '<none>') {
+      drupal_set_title(filter_xss_admin($title), PASS_THROUGH);
+    }
     return $render;
   }
 
@@ -263,7 +273,7 @@ class views_plugin_display_page extends views_plugin_display {
     $options['path'] = array(
       'category' => 'page',
       'title' => t('Path'),
-      'value' => views_ui_truncate($path, 24),
+      'value' => $path,
     );
 
     $menu = $this->get_option('menu');

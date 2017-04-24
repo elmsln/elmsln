@@ -34,9 +34,9 @@ files[] = tests/phone.uk.test
 files[] = tests/phone.za.test
 core = 7.x
 
-; Information added by drupal.org packaging script on 2013-05-25
-version = "7.x-1.x-dev"
+; Information added by Drupal.org packaging script on 2014-01-14
+version = "7.x-1.0-beta1"
 core = "7.x"
 project = "phone"
-datestamp = "1369449996"
+datestamp = "1389732224"
 

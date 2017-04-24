@@ -1,6 +1,24 @@
 Path Breadcrumbs 7.x-3.x, xxxx-xx-xx
 
 
+Path Breadcrumbs 7.x-3.3, 2015-07-15
+by Spleshka: Added new token current-page:path-menu-trail:pb-join:* which generates breadcrumbs from menu items based on path bits.
+by Spleshka: Improved performance with static caching of heavy path_breadcrumbs_load_variant() function.
+#2473109 by Fant0m, kalabro, petu: Fixed destination parameter is present but doesn't work during editing breadcrumb.
+
+
+Path Breadcrumbs 7.x-3.2, 2015-02-04
+by kalabro: Added new option to enable Path Breadcrumbs on 403/404 pages.
+
+
+Path Breadcrumbs 7.x-3.1, 2015-01-01
+by Spleshka: Removed static caching from path_breadcrumbs_load_all(), because it is already implemented in ctools_export_load_object().
+#2354497 by perusio, Spleshka: Checking if translatable property of object exists.
+#1893878 by OnkelTem: Use $language_url just like l() does.
+by kalabro: Show error message if user inputs path alias.
+#2394337 by ekes: Restrict some percent-encoded sequences in path tokens.
+
+
 Path Breadcrumbs 7.x-3.0, 2014-06-24
 by kalabro: Fixed PHP Warning implode(): Invalid arguments passed in _path_breadcrumbs_menu_token_generate().
 #2246181 by maximpodorov, kalabro: Cache empty results to prevent heavy variant lookup process. hook_path_breadcrumbs_view_alter() now works for cached items too.

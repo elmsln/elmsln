@@ -24,6 +24,8 @@ function video_filter_filter_info() {
       'video_filter_autoplay' => 1,
       'video_filter_related' => 1,
       'video_filter_html5' => 1,
+      'video_filter_codecs' => _video_filter_map_codecs_name(video_filter_get_codec_info()),
+      'video_filter_multiple_sources' => TRUE,
     ),
     'tips callback' => '_video_filter_tips',
     // See http://drupal.org/node/1061244.
@@ -33,7 +35,6 @@ function video_filter_filter_info() {
 }
 
 function _video_filter_settings($form, &$form_state, $filter, $format, $defaults, $filters) {
-
   $settings['video_filter_width'] = array(
     '#type' => 'textfield',
     '#title' => t('Default width setting'),
@@ -78,12 +79,40 @@ function _video_filter_settings($form, &$form_state, $filter, $format, $defaults
     ),
   );
 
+  $settings['video_filter_multiple_sources'] = array(
+    '#type' => 'radios',
+    '#title' => t('Allow multiple sources'),
+    '#description' => t('Allow the use of multiple sources (used source is selected at random).'),
+    '#default_value' => isset($filter->settings['video_filter_multiple_sources']) ? $filter->settings['video_filter_multiple_sources'] : $defaults['video_filter_multiple_sources'],
+    '#options' => array(
+      0 => t('No'),
+      1 => t('Yes'),
+    ),
+  );
+
+  $settings['video_filter_codecs'] = array(
+    '#type' => 'checkboxes',
+    '#title' => t('Codecs'),
+    '#description' => t('Choose which codecs will be available.'),
+    '#default_value' => isset($filter->settings['video_filter_codecs']) ? $filter->settings['video_filter_codecs'] : $defaults['video_filter_codecs'],
+    '#options' => _video_filter_map_codecs_name(video_filter_get_codec_info()),
+  );
+
   return $settings;
+}
+
+function _video_filter_map_codecs_name($codecs) {
+  $codecs_map = array();
+  foreach ($codecs as $codec_cod => $codec) {
+    $codecs_map[$codec_cod] = $codec['name'];
+  }
+
+  return $codecs_map;
 }
 
 function _video_filter_tips($filter, $format, $long = FALSE) {
   if ($long) {
-    $codecs = video_filter_get_codec_info();
+    $codecs = video_filter_get_codec_enabled($filter->settings['video_filter_codecs']);
     $supported = array();
     $instructions = array();
     foreach ($codecs as $codec) {
@@ -126,14 +155,14 @@ function _video_filter_process($text, $filter, $format, $langcode, $cache, $cach
       );
 
       // Pick random out of multiple sources separated by comma (,).
-      if (strstr($video['source'], ',')) {
+      if ($filter->settings['video_filter_multiple_sources'] && strstr($video['source'], ',')) {
         $sources          = explode(',', $video['source']);
         $random           = array_rand($sources, 1);
         $video['source']  = $sources[$random];
       }
 
       // Load all codecs.
-      $codecs = video_filter_get_codec_info();
+      $codecs = video_filter_get_codec_enabled($filter->settings['video_filter_codecs']);
 
       // Find codec.
       foreach ($codecs as $codec_name => $codec) {
@@ -171,17 +200,32 @@ function _video_filter_process($text, $filter, $format, $langcode, $cache, $cach
           $ratio = $tratio[1] / $tratio[2];
         }
         elseif (isset($video['codec']['ratio'])) {
-          $ratio = $video['codec']['ratio'];
+          if (is_float($video['codec']['ratio']) || is_int($video['codec']['ratio'])) {
+            $ratio = $video['codec']['ratio'];
+          }
+          elseif (preg_match('/(\d+)\s*\/\s*(\d+)/', $video['codec']['ratio'], $cratio)) {
+            $ratio = $cratio[1] / $cratio[2];
+          }
         }
 
         // Sets video width & height after any user input has been parsed.
         // First, check if user has set a width.
         if (isset($video['width']) && !isset($video['height'])) {
-          $video['height'] = $filter->settings['video_filter_height'];
+          if ($ratio) {
+            $video['height'] = ceil($video['width'] / $ratio);
+          }
+          else {
+            $video['height'] = $filter->settings['video_filter_height'];
+          }
         }
         // Else, if user has set height.
         elseif (isset($video['height']) && !isset($video['width'])) {
-          $video['width'] = $video['height'] * $ratio;
+          if ($ratio) {
+            $video['width'] = ceil($video['height'] * $ratio);
+          }
+          else {
+            $video['width'] = $filter->settings['video_filter_height'];
+          }
         }
         // Maybe both?
         elseif (isset($video['height']) && isset($video['width'])) {
@@ -204,16 +248,7 @@ function _video_filter_process($text, $filter, $format, $langcode, $cache, $cach
           // Respect setting provided by codec otherwise.
           $control_bar_height = $video['codec']['control_bar_height'];
         }
-
-        // Resize to fit within width and height repecting aspect ratio.
-        if ($ratio) {
-          $scale_factor = min(array(
-            ($video['height'] - $control_bar_height),
-            $video['width'] / $ratio,
-          ));
-          $video['height'] = round($scale_factor + $control_bar_height);
-          $video['width'] = round($scale_factor * $ratio);
-        }
+        $video['height'] += $control_bar_height;
 
         $video['autoplay'] = (bool) $video['autoplay'];
         $video['align'] = (isset($video['align']) && in_array($video['align'], array(
@@ -262,12 +297,44 @@ function video_filter_iframe($video) {
   return theme('video_filter_iframe', array('video' => $video));
 }
 
+/**
+ * Get a list of all available video codecs.
+ */
 function video_filter_get_codec_info() {
   static $codecs;
   if (!isset($codecs)) {
     $codecs = module_invoke_all('codec_info');
     drupal_alter('video_filter_codec_info', $codecs);
   }
+  return $codecs;
+}
+
+/**
+ *
+ */
+function _video_filter_merge_format_codecs($filters_codecs) {
+  $codecs = array_pop($filters_codecs);
+
+  foreach ($filters_codecs as $format_name => $format_codecs) {
+    foreach ($format_codecs as $codec_name => $codec_value) {
+      if (!empty($codec_value) && empty($codecs[$codec_name])) {
+        $codecs[$codec_name] = $codec_value;
+      }
+    }
+  }
+
+  return $codecs;
+}
+
+/**
+ * Get a list of enabled video codecs.
+ */
+function video_filter_get_codec_enabled($video_filter_codecs) {
+  $codecs = array_intersect_key(
+    video_filter_get_codec_info(),
+    array_filter($video_filter_codecs)
+  );
+
   return $codecs;
 }
 
@@ -284,9 +351,14 @@ function theme_video_filter_flash($variables) {
 
   $classes = video_filter_get_classes($video);
 
-  $output .= '<object class="' . implode(' ', $classes) . '" type="application/x-shockwave-flash" ';
+  $attributes = '';
+  if (!empty($video['attributes'])) {
+    $attributes = drupal_attributes($video['attributes']);
+  }
 
-  $output .= 'width="' . $video['width'] . '" height="' . $video['height'] . '" data="' . $video['source'] . '">' . "\n";
+  $output .= '<div class="video-filter"><object class="' . implode(' ', $classes) . '" type="application/x-shockwave-flash" ';
+
+  $output .= 'width="' . $video['width'] . '" height="' . $video['height'] . '" data="' . $video['source'] . '" ' . $attributes . '>' . "\n";
 
   $defaults = array(
     'movie' => $video['source'],
@@ -300,7 +372,7 @@ function theme_video_filter_flash($variables) {
     $output .= '  <param name="' . $name . '" value="' . $value . '" />' . "\n";
   }
 
-  $output .= '</object>' . "\n";
+  $output .= '</object></div>' . "\n";
 
   return $output;
 }
@@ -312,10 +384,13 @@ function theme_video_filter_flash($variables) {
  */
 function theme_video_filter_iframe($variables) {
   $video = $variables['video'];
-
   $classes = video_filter_get_classes($video);
+  $attributes = '';
+  if (!empty($video['attributes'])) {
+    $attributes = drupal_attributes($video['attributes']);
+  }
 
-  $output = '<iframe src="' . $video['source'] . '" width="' . $video['width'] . '" height="' . $video['height'] . '" class="' . implode(' ', $classes) . '" frameborder="0"></iframe>';
+  $output = '<div class="video-filter"><iframe src="' . $video['source'] . '" width="' . $video['width'] . '" height="' . $video['height'] . '" class="' . implode(' ', $classes) . '" frameborder="0" allowfullscreen="true"' . $attributes . '></iframe></div>';
 
   return $output;
 }
@@ -378,6 +453,15 @@ function video_filter_menu() {
     'theme callback' => '_video_filter_dashboard_theme',
   );
 
+  $items['video_filter/instructions'] = array(
+    'title' => 'Videofilter instructions',
+    'description' => 'instructions',
+    'page callback' => 'video_filter_instructions_page',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+    'theme callback' => '_video_filter_dashboard_theme',
+  );
+
   return $items;
 }
 
@@ -414,9 +498,26 @@ function video_filter_dashboard_page($editor) {
 
   switch ($editor) {
     case 'wysiwyg_tinymce':
-      // Add JavaScript.
-      drupal_add_js(wysiwyg_get_path('tinymce') . '/jscripts/tiny_mce/tiny_mce_popup.js');
-      drupal_add_js(drupal_get_path('module', 'video_filter') . '/editors/tinymce/video_filter.js');
+      // Add JavaScript.  First, we'll need to determine what version we're on.
+      $has_added_js = FALSE;
+      // Solves bug that causes tinymce.inc to not be loaded.
+      wysiwyg_load_includes('editors', 'editor', 'tinymce');
+
+      // Check for TinyMCE 4.x first.
+      if (function_exists('wysiwyg_tinymce_editor')) {
+        $loaded_editor = wysiwyg_tinymce_editor();
+        $version = wysiwyg_tinymce_version($loaded_editor['tinymce']);
+        if (version_compare($version, '4', '>=')) {
+          drupal_add_js(drupal_get_path('module', 'video_filter') . '/editors/tinymce/video_filter-4.js');
+          $has_added_js = TRUE;
+        }
+      }
+
+      // Add JS for <= TinyMCE 3.x.
+      if (!$has_added_js) {
+        drupal_add_js(wysiwyg_get_path('tinymce') . '/jscripts/tiny_mce/tiny_mce_popup.js');
+        drupal_add_js(drupal_get_path('module', 'video_filter') . '/editors/tinymce/video_filter.js');
+      }
       break;
 
     case 'ckeditor':
@@ -432,7 +533,19 @@ function video_filter_dashboard_page($editor) {
       break;
   }
 
-  print theme('video_filter_dashboard', array('form' => render(drupal_get_form('_video_filter_form'))));
+  $form = drupal_get_form('_video_filter_form');
+  print theme('video_filter_dashboard', array('form' => render($form)));
+  exit();
+}
+
+/**
+ * Creates the instructions page.
+ */
+function video_filter_instructions_page() {
+  module_invoke('admin_menu', 'suppress');
+
+  $form = drupal_get_form('_video_filter_instructions_form');
+  print theme('video_filter_dashboard', array('form' => render($form)));
   exit();
 }
 
@@ -492,22 +605,7 @@ function _video_filter_form() {
     '#weight' => 5,
   );
 
-  $form['instructions'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('Instructions'),
-    '#collapsible' => TRUE,
-    '#collapsed' => TRUE,
-    '#attributes' => array('class' => array('clearfix')),
-    '#weight' => 97,
-  );
-
-  $text = '<p>' . t('Insert a 3rd party video from one of the following providers.') . '</p>';
-  $text .= _video_filter_instructions();
-
-  $form['instructions']['text'] = array(
-    '#type' => 'item',
-    '#markup' => $text,
-  );
+  $form += _video_filter_instructions_form();
 
   $form['cancel'] = array(
     '#type' => 'button',
@@ -522,6 +620,47 @@ function _video_filter_form() {
   );
 
   return $form;
+}
+
+function _video_filter_instructions_form() {
+
+  $form['instructions'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Instructions'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+    '#attributes' => array('class' => array('clearfix')),
+    '#weight' => 97,
+  );
+
+  $text = '<p>' . t('Insert a 3rd party video from one of the following providers; this list may vary depending on the text format being used.') . '</p>';
+  $text .= _video_filter_instructions();
+
+  $form['instructions']['text'] = array(
+    '#type' => 'item',
+    '#markup' => $text,
+  );
+
+  return $form;
+}
+
+/**
+ * Implements hook_ckeditor_plugin().
+ */
+function video_filter_ckeditor_plugin() {
+  $plugins = array();
+  $plugins['video_filter'] = array(
+    'name' => 'video_filter',
+    'desc' => t('Plugin to directly embed videos with the video filter module.'),
+    'path' => drupal_get_path('module', 'video_filter') . '/editors/ckeditor/',
+    'buttons' => array(
+      'video_filter' => array(
+        'label' => t('Video filter'),
+        'icon' => 'video_filter.png',
+      ),
+    ),
+  );
+  return $plugins;
 }
 
 function video_filter_wysiwyg_plugin($editor, $version) {
@@ -582,7 +721,10 @@ function _video_filter_add_settings($editor) {
 
     // Add popup url.
     $settings = array(
-      'video_filter' => array('url' => array($editor => url('video_filter/dashboard/' . $editor))),
+      'video_filter' => array(
+        'url' => array($editor => url('video_filter/dashboard/' . $editor)),
+        'instructions_url' => url('video_filter/instructions'),
+      ),
     );
     drupal_add_js($settings, 'setting');
   }
@@ -604,10 +746,23 @@ function _video_filter_add_settings($editor) {
  * Parses Codec into instructions for WYSIWYG popup.
  */
 function _video_filter_instructions() {
-  $codecs = video_filter_get_codec_info();
+  // Get all codecs the user has permission to use in at least one text format.
+  global $user;
+  $formats = filter_formats($user);
+  $filters_codecs = array();
+  foreach ($formats as $format) {
+    $format_filters =  filter_list_format($format->format);
+    if (isset($format_filters['video_filter'])) {
+      $filters_codecs[$format->name] = $format_filters['video_filter']->settings['video_filter_codecs'];
+    }
+  }
+  $video_filter_codecs = _video_filter_merge_format_codecs($filters_codecs);
+
+  $codecs = video_filter_get_codec_enabled($video_filter_codecs);
+
   $output = '<ul>';
   foreach ($codecs as $codec) {
-    $output .= '<li><strong>' . $codec['name'] . '</strong><br />' . $codec['sample_url'] . '</li>';
+    $output .= '<li><strong>' . $codec['name'] . '</strong><br />' . t('e.g.') . ' ' . $codec['sample_url'] . '</li>';
   }
   $output .= '</ul>';
   return $output;

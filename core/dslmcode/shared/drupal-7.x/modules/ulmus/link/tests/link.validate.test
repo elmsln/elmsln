@@ -22,25 +22,24 @@ class LinkValidateTestCase extends LinkBaseTestClass {
 
     $field_name = $this->createLinkField();
 
-    $permission = 'create page content';
-    $this->checkPermissions(array($permission), TRUE);
-
-    $this->drupalGet('node/add/page');
-
     $label = $this->randomName();
-    $edit = array(
+    $settings = array(
       'title' => $label,
-      $field_name . '[und][0][title]' => $label,
-      $field_name . '[und][0][url]' => $url,
+      $field_name => array(
+        LANGUAGE_NONE=> array(
+          array(
+            'title' => $label,
+            'url' => $url,
+          )
+        ),
+      ),
     );
-    $this->drupalPost(NULL, $edit, t('Save'));
-    $this->assertRaw(' has been created.', 'Node created');
 
-    $nid = 1; //$matches[1];
+    $node = $this->drupalCreateNode($settings);
 
-    $node = node_load($nid);
+    $this->assertNotNull($node, ' has been created.', 'Node created');
 
-    $this->assertEqual($url, $node->{$field_name}['und'][0]['url']);
+    $this->assertEqual($url, $node->{$field_name}[LANGUAGE_NONE][0]['url']);
   }
 }
 
@@ -269,7 +268,13 @@ class LinkValidateTest extends LinkValidateTestCase {
 
   // Validate that an internal url would be accepted.
   function test_link_internal_url() {
-    $this->link_test_validate_url('node/32');
+    // Create the content first.
+    $node = $this->drupalCreateNode();
+
+    $link = 'node/' . $node->nid;
+    $this->link_test_validate_url($link);
+    $type = link_url_type($link);
+    $this->assertEqual(LINK_INTERNAL, $type, 'Test ' . $link . ' is an internal link.');
   }
 
   // Validate a simple mailto.
@@ -340,7 +345,7 @@ class LinkValidateSpecificURL extends LinkValidateTestCase {
   /**
    * Here, we're testing that a very long url is stored properly in the db.
    *
-   * Basicly, trying to test http://drupal.org/node/376818
+   * Basically, trying to test http://drupal.org/node/376818
    */
   function testLinkURLFieldIsBig() {
     $long_url = 'http://th.wikipedia.org/wiki/%E0%B9%82%E0%B8%A3%E0%B8%87%E0%B9%80%E0%B8%A3%E0%B8%B5%E0%B8%A2%E0%B8%99%E0%B9%80%E0%B8%9A%E0%B8%8D%E0%B8%88%E0%B8%A1%E0%B8%A3%E0%B8%B2%E0%B8%8A%E0%B8%B9%E0%B8%97%E0%B8%B4%E0%B8%A8_%E0%B8%99%E0%B8%84%E0%B8%A3%E0%B8%A8%E0%B8%A3%E0%B8%B5%E0%B8%98%E0%B8%A3%E0%B8%A3%E0%B8%A1%E0%B8%A3%E0%B8%B2%E0%B8%8A';
@@ -362,6 +367,10 @@ class LinkValidateUrlLight extends DrupalWebTestCase {
       'description' => 'Tests the link_validate_url() function by itself, without invoking the full drupal/cck lifecycle.',
       'group' => 'Link',
     );
+  }
+  
+  function setUp() {
+    parent::setUp('link');
   }
 
   /**
@@ -386,10 +395,10 @@ class LinkValidateUrlLight extends DrupalWebTestCase {
     }
   }
 
-  // Make sure that a link labelled <front> works.
+  // Make sure that a link labeled <front> works.
   function testValidateFrontLink() {
     $valid = link_validate_url('<front>');
-    $this->assertEqual(LINK_FRONT, $valid, 'Make sure that front link is verfied and identified');
+    $this->assertEqual(LINK_FRONT, $valid, 'Make sure that front link is verified and identified');
   }
 
   function testValidateEmailLink() {
@@ -409,7 +418,7 @@ class LinkValidateUrlLight extends DrupalWebTestCase {
 
   function testValidateNewsArticleLink() {
     $valid = link_validate_url('news:hj0db8$vrm$1@news.eternal-september.org');
-    $this->assertEqual(LINK_NEWS, $valid, 'Make sure link to specific article valiates as news.');
+    $this->assertEqual(LINK_NEWS, $valid, 'Make sure link to specific article validates as news.');
   }
 
   function testValidateBadNewsgroupLink() {
@@ -418,16 +427,18 @@ class LinkValidateUrlLight extends DrupalWebTestCase {
   }
 
   function testValidateInternalLinks() {
+    $tempfile = drupal_tempnam('public://files', 'test');
     $links = array(
-      'node/5',
       'rss.xml',
-      'files/test.jpg',
-      '/var/www/test',
+      file_uri_target($tempfile),
+      drupal_realpath($tempfile),
     );
     
     foreach ($links as $link) {
+      $type = link_url_type($link);
+      $this->assertEqual(LINK_INTERNAL, $type, 'Test ' . $link . ' is an internal link.');
       $valid = link_validate_url($link);
-      $this->assertEqual(LINK_INTERNAL, $valid, 'Test ' . $link . ' internal link.');
+      $this->assertTrue($valid, 'Test ' . $link . ' is valid internal link.');
     }
   }
 
@@ -446,7 +457,6 @@ class LinkValidateUrlLight extends DrupalWebTestCase {
       'http://255.255.255.255:4823/',
       'www.test-site.com',
       'http://example.com/index.php?q=node/123',
-      'http://example.com/index.php?page=this\that',
       'http://example.com/?first_name=Joe Bob&last_name=Smith',
       // Anchors
       'http://www.example.com/index.php#test',
@@ -464,8 +474,10 @@ class LinkValidateUrlLight extends DrupalWebTestCase {
       }
     }
     foreach ($links as $link) {
+      $type = link_url_type($link);
+      $this->assertEqual(LINK_EXTERNAL, $type, 'Testing that ' . $link . ' is an external link.');
       $valid = link_validate_url($link);
-      $this->assertEqual(LINK_EXTERNAL, $valid, 'Testing that ' . $link . ' is a valid external link.');
+      $this->assertTrue($valid, 'Test ' . $link . ' is valid external link.');
       // The following two lines are commented out and only used for comparisons.
       //$valid2 = valid_url($link, TRUE);
       //$this->assertEqual(TRUE, $valid2, "Using valid_url() on $link.");
@@ -485,6 +497,8 @@ class LinkValidateUrlLight extends DrupalWebTestCase {
       'http://www.testß.com/', // ß not allowed in domain names!
       'http://www.example.frog/', // Bad TLD
       //'http://www.-fudge.com/', // domains can't have sections starting with a dash.
+      'http://example.com/index.php?page=this\that',
+      'example@example.com',
     );
     foreach ($links as $link) {
       $valid = link_validate_url($link);

@@ -140,7 +140,7 @@ class views_handler_filter_term_node_tid extends views_handler_filter_many_to_on
         $query->orderby('tv.name');
         $query->orderby('td.weight');
         $query->orderby('td.name');
-        $query->addTag('term_access');
+        $query->addTag('taxonomy_term_access');
         if ($this->options['limit']) {
           $query->condition('tv.machine_name', $vocabulary->machine_name);
         }
@@ -328,7 +328,7 @@ class views_handler_filter_term_node_tid extends views_handler_filter_many_to_on
     $query->fields('td');
     $query->condition('td.name', $names);
     $query->condition('tv.machine_name', $this->options['vocabulary']);
-    $query->addTag('term_access');
+    $query->addTag('taxonomy_term_access');
     $result = $query->execute();
     foreach ($result as $term) {
       unset($missing[strtolower($term->name)]);

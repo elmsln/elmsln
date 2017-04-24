@@ -109,7 +109,7 @@ function views_views_data() {
 
   $data['views']['combine'] = array(
    'title' => t('Combine fields filter'),
-    'help' => t('Combine two fields together and search by them.'),
+    'help' => t('Combine multiple fields together and search by them.'),
     'filter' => array(
       'handler' => 'views_handler_filter_combine',
     ),

@@ -31,13 +31,6 @@ function editableviews_test_feature_views_default_views() {
   $handler->display->display_options['pager']['type'] = 'some';
   $handler->display->display_options['pager']['options']['items_per_page'] = '10';
   $handler->display->display_options['style_plugin'] = 'editableviews_table';
-  /* Field: Content: Test editable options (editable) */
-  $handler->display->display_options['fields']['field_test_editable_options_editable']['id'] = 'field_test_editable_options_editable';
-  $handler->display->display_options['fields']['field_test_editable_options_editable']['table'] = 'field_data_field_test_editable_options';
-  $handler->display->display_options['fields']['field_test_editable_options_editable']['field'] = 'field_test_editable_options_editable';
-  $handler->display->display_options['fields']['field_test_editable_options_editable']['widget_type'] = '0';
-  $handler->display->display_options['fields']['field_test_editable_options_editable']['suppress_label'] = 0;
-  $handler->display->display_options['fields']['field_test_editable_options_editable']['suppress_description'] = 0;
   /* Field: Content: Test editable text (editable) */
   $handler->display->display_options['fields']['field_test_editable_text_editable']['id'] = 'field_test_editable_text_editable';
   $handler->display->display_options['fields']['field_test_editable_text_editable']['table'] = 'field_data_field_test_editable_text';
@@ -45,6 +38,13 @@ function editableviews_test_feature_views_default_views() {
   $handler->display->display_options['fields']['field_test_editable_text_editable']['widget_type'] = '0';
   $handler->display->display_options['fields']['field_test_editable_text_editable']['suppress_label'] = 0;
   $handler->display->display_options['fields']['field_test_editable_text_editable']['suppress_description'] = 0;
+  /* Field: Content: Test editable options (editable) */
+  $handler->display->display_options['fields']['field_test_editable_options_editable']['id'] = 'field_test_editable_options_editable';
+  $handler->display->display_options['fields']['field_test_editable_options_editable']['table'] = 'field_data_field_test_editable_options';
+  $handler->display->display_options['fields']['field_test_editable_options_editable']['field'] = 'field_test_editable_options_editable';
+  $handler->display->display_options['fields']['field_test_editable_options_editable']['widget_type'] = '0';
+  $handler->display->display_options['fields']['field_test_editable_options_editable']['suppress_label'] = 0;
+  $handler->display->display_options['fields']['field_test_editable_options_editable']['suppress_description'] = 0;
   /* Sort criterion: Content: Post date */
   $handler->display->display_options['sorts']['created']['id'] = 'created';
   $handler->display->display_options['sorts']['created']['table'] = 'node';

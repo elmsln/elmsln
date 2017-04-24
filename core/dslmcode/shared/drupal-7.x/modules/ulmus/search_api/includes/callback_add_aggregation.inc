@@ -209,6 +209,8 @@ class SearchApiAlterAddAggregation extends SearchApiAbstractAlterCallback {
           return $a;
         }
         return drupal_substr($b, 0, 1);
+      case 'last':
+        return isset($b) ? $b : $a;
       case 'list':
         if (!isset($a)) {
           $a = array();
@@ -288,6 +290,7 @@ class SearchApiAlterAddAggregation extends SearchApiAbstractAlterCallback {
           'min' => t('Minimum'),
           'first' => t('First'),
           'first_char' => t('First letter'),
+          'last' => t('Last'),
           'list' => t('List'),
         );
       case 'type':
@@ -299,6 +302,7 @@ class SearchApiAlterAddAggregation extends SearchApiAbstractAlterCallback {
           'min' => 'integer',
           'first' => 'string',
           'first_char' => 'string',
+          'last' => 'string',
           'list' => 'list<string>',
         );
       case 'description':
@@ -310,6 +314,7 @@ class SearchApiAlterAddAggregation extends SearchApiAbstractAlterCallback {
           'min' => t('The Minimum aggregation computes the numerically smallest contained field value.'),
           'first' => t('The First aggregation will simply keep the first encountered field value. This is helpful foremost when you know that a list field will only have a single value.'),
           'first_char' => t('The "First letter" aggregation uses just the first letter of the first encountered field value as the aggregated value. This can, for example, be used to build a Glossary view.'),
+          'last' => t('The Last aggregation will simply keep the last encountered field value.'),
           'list' => t('The List aggregation collects all field values into a multi-valued field containing all values.'),
         );
     }

@@ -1,0 +1,95 @@
+<?php
+
+/**
+ * @file
+ * Tests for ensuring media macros render properly.
+ */
+
+/**
+ * Defines media macro test cases.
+ */
+class MediaWYSIWYGWYSIWYGOverridesTest extends MediaWYSIWYGTestHelper {
+
+  /**
+   * Provide test information.
+   */
+  public static function getInfo() {
+    return array(
+      'name' => t('Media WYSIWYG WYSIWYG overrides'),
+      'description' => t('Tests that overridden attributes display correct.'),
+      'group' => t('Media WYSIWYG'),
+      'dependencies' => array('token'),
+    );
+  }
+
+  public function setUp() {
+    parent::setUp('token');
+
+    // Create and log in a user.
+    $account = $this->drupalCreateUser(array('create article content', 'administer filters', 'use text format filtered_html'));
+    $this->drupalLogin($account);
+
+    // Enable the media filter for full html.
+    $edit = array(
+      'filters[media_filter][status]' => TRUE,
+      'filters[filter_html][status]' => FALSE,
+    );
+    $this->drupalPost('admin/config/content/formats/filtered_html', $edit, t('Save configuration'));
+  }
+
+  /**
+   * Test image media overrides.
+   */
+  public function testAttributeOverrides() {
+    $files = $this->drupalGetTestFiles('image');
+    $file = file_save($files[0]);
+
+    // Create a node to test with.
+    $nid = $this->createNode($file->fid);
+
+    $this->drupalGet('node/' . $nid);
+    $this->assertRaw('width="100"', t('Image displays with default width attribute.'));
+    $this->assertRaw('height="100"', t('Image displays with default height attribute.'));
+
+    // Create a node with a style attribute.
+    $attributes = array(
+      'style' => 'float: left; width: 50px;',
+    );
+    $nid = $this->createNode($file->fid, $attributes);
+    $this->drupalGet('node/' . $nid);
+    $this->assertRaw(drupal_attributes($attributes), t('Image displays with overriden attributes.'));
+
+    // Create a node with overriden alt/title attributes.
+    $attributes = array(
+      'alt' => $this->randomName(),
+      'title' => $this->randomName(),
+    );
+    $nid = $this->createNode($file->fid, $attributes);
+    $this->drupalGet('node/' . $nid);
+    $this->assertRaw(drupal_attributes($attributes), t('Image displays with alt/title set as attributes.'));
+
+    // Create a node with overriden alt/title fields.
+    $fields = $attributes = array();
+    $attributes['alt'] = $fields['field_file_image_alt_text[und][0][value]'] = $this->randomName();
+    $attributes['title'] = $fields['field_file_image_title_text[und][0][value]'] = $this->randomName();
+
+    $nid = $this->createNode($file->fid, array(), $fields);
+    $this->drupalGet('node/' . $nid);
+    // Ensure that the alt/title from attributes display.
+    $this->assertRaw(drupal_attributes($attributes), t('Image displays with alt/title set as fields.'));
+
+    // Create a node with overriden alt/title fields as well as attributes.
+    $attributes = array(
+      'alt' => $this->randomName(),
+      'title' => $this->randomName(),
+    );
+    $fields = array(
+      'field_file_image_alt_text[und][0][value]' => $this->randomName(),
+      'field_file_image_title_text[und][0][value]' => $this->randomName(),
+    );
+    $nid = $this->createNode($file->fid, $attributes, $fields);
+    $this->drupalGet('node/' . $nid);
+    // Ensure that the alt/title from attributes display rather the field ones.
+    $this->assertRaw(drupal_attributes($attributes), t('Image displays with alt/title set as attributes overriding field values.'));
+  }
+}

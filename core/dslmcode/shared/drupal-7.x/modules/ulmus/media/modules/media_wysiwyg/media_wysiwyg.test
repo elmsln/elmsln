@@ -1,0 +1,187 @@
+<?php
+
+/**
+ * @file
+ * Tests for media.module.
+ */
+
+/**
+ * Defines base class for media test cases.
+ */
+abstract class MediaWYSIWYGTestHelper extends DrupalWebTestCase {
+
+  /**
+   * Enable media and file entity modules for testing.
+   */
+  public function setUp() {
+    $modules = func_get_args();
+    if (isset($modules[0]) && is_array($modules[0])) {
+      $modules = $modules[0];
+    }
+    $modules[] = 'media_wysiwyg';
+    parent::setUp($modules);
+  }
+
+  /**
+    * Generates markup to be inserted for a file.
+    *
+    * This is a PHP version of InsertMedia.insert() from js/wysiwyg-media.js.
+    *
+    * @param int $fid
+    *   Drupal file id
+    * @param int $count
+    *   Quantity of markup to insert
+    * @param array $attributes
+    *   Extra attributes to insert.
+    * @param array $fields
+    *   Extra field values to insert.
+    *
+    * @return string
+    *   Filter markup.
+    */
+  protected function generateJsonTokenMarkup($fid, $count = 1, array $attributes = array(), array $fields = array()) {
+    $markup = '';
+    // Merge default atttributes.
+    $attributes += array(
+      'height' => 100,
+      'width' => 100,
+      'classes' => 'media-element file_preview',
+    );
+
+    // Build the data that is used in a media tag.
+    $data = array(
+      'fid' => $fid,
+      'type' => 'media',
+      'view_mode' => 'preview',
+      'attributes' => $attributes,
+      'fields' => $fields,
+    );
+
+    // Create the file usage markup.
+    for ($i = 1; $i <= $count; $i++) {
+      $markup .= '<p>[[' . drupal_json_encode($data) . ']]</p>';
+    }
+
+    return $markup;
+  }
+
+  /**
+   * Utility function to create a test node.
+   *
+   * @param int $fid
+   *   Create the node with media markup in the body field
+    * @param array $attributes
+    *   Extra attributes to insert to the file.
+    * @param array $fields
+    *   Extra field values to insert.
+   *
+   * @return int
+   *   Returns the node id
+   */
+  protected function createNode($fid = FALSE, array $attributes = array(), array $fields = array()) {
+    $markup = '';
+    if (! empty($fid)) {
+      $markup = $this->generateJsonTokenMarkup($fid, 1, $attributes, $fields);
+    }
+
+    // Create an article node with file markup in the body field.
+    $edit = array(
+      'title' => $this->randomName(8),
+      'body[und][0][value]' => $markup,
+    );
+    // Save the article node. First argument is the URL, then the value array
+    // and the third is the label the button that should be "clicked".
+    $this->drupalPost('node/add/article', $edit, t('Save'));
+
+    // Get the article node that was saved by the unique title.
+    $node = $this->drupalGetNodeByTitle($edit['title']);
+    return $node->nid;
+  }
+
+}
+
+/**
+ * Defines base class for media_wysiwyg_view_mode test cases.
+ */
+class MediaWYSIWYGViewModeTestHelper extends MediaWYSIWYGTestHelper {
+  function setUp() {
+    parent::setUp();
+
+    $web_user = $this->drupalCreateUser(array('access administration pages', 'administer file types', 'view files', 'use media wysiwyg'));
+    $this->drupalLogin($web_user);
+  }
+}
+
+/**
+ * Test configuring view modes available on the format form.
+ */
+class FormatFormViewModesTest extends MediaWYSIWYGViewModeTestHelper {
+  public static function getInfo() {
+    return array(
+      'name' => 'Format Form WYSIWYG View Modes',
+      'description' => 'Test configuring view modes available on the format form.',
+      'group' => 'Media WYSIWYG',
+    );
+  }
+
+  function setUp() {
+    parent::setUp();
+  }
+
+  /**
+   * Configure format form view mode restrictions and ensure that they are followed.
+   */
+  function testAllowedFormatFormViewModes() {
+    // Create an image file to test with.
+    $files = $this->drupalGetTestFiles('image');
+    $files[0]->status = FILE_STATUS_PERMANENT;
+    $file = file_save($files[0]);
+    $fid = $file->fid;
+
+    // Teaser view mode should be selectable.
+    $this->drupalGet('media/' . $fid . '/format-form');
+    $this->assertResponse(200);
+    $this->assertOption('edit-format', 'teaser');
+
+    // Restrict the use of the default view mode.
+    $this->drupalGet('admin/structure/file-types/manage/image/file-display/teaser');
+    $this->assertResponse(200);
+    $edit = array(
+      'restrict_wysiwyg' => 1,
+    );
+    $this->drupalPost(NULL, $edit, t('Save configuration'));
+    $this->assertResponse(200);
+
+    // Teaser view mode should be restricted.
+    $this->drupalGet('media/' . $fid . '/format-form');
+    $this->assertResponse(200);
+    $this->assertNoOption('edit-format', 'teaser');
+  }
+
+  /**
+   * Assert that a select option in the current page exists.
+   *
+   * @param $id
+   *   id of select field to assert.
+   * @param $option
+   *   Option to assert.
+   */
+  function assertOption($id, $option, $message = '', $group = 'Browser') {
+    $options = $this->xpath('//select[@id=:id]/option[@value=:option]', array(':id' => $id, ':option' => $option));
+    return $this->assertTrue(isset($options[0]), $message ? $message : t('Option @option for field @id exists.', array('@option' => $option, '@id' => $id)));
+  }
+
+  /**
+   * Assert that a select option in the current page does not exist.
+   *
+   * @param $id
+   *   id of select field to assert.
+   * @param $option
+   *   Option to assert.
+   */
+  function assertNoOption($id, $option, $message = '', $group = 'Browser') {
+    $options = $this->xpath('//select[@id=:id]/option[@value=:option]', array(':id' => $id, ':option' => $option));
+    return $this->assertFalse(isset($options[0]), $message ? $message : t('Option @option for field @id does not exist.', array('@option' => $option, '@id' => $id)));
+  }
+
+}

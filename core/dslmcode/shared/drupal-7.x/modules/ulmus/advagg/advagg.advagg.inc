@@ -295,7 +295,19 @@ function advagg_advagg_get_info_on_files_alter(&$return, $cached_data, $bypass_c
           $url = $match . $matches[2][$key];
           $parse = @parse_url($url);
           if (!empty($parse['host'])) {
-            $hosts[$parse['host']] = $match . $parse['host'] . '/';
+            $extra = '';
+            $ext = strtolower(pathinfo($url, PATHINFO_EXTENSION));
+            $supported = array(
+              'eot',
+              'woff2',
+              'woff',
+              'ttf',
+              'otf',
+            );
+            if (in_array($ext, $supported)) {
+              $extra .= '#crossorigin';
+            }
+            $hosts[$parse['host'] . $extra] = $match . $parse['host'] . '/' . $extra;
             $urls[$url] = $url;
           }
         }
@@ -355,8 +367,8 @@ function advagg_advagg_changed_files(array $files, array $types) {
 
   foreach ($files as $filename => $meta_data) {
     // Only care about css files.
-    $ext = pathinfo($filename, PATHINFO_EXTENSION);
-    if ($ext != 'css') {
+    $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+    if ($ext !== 'css') {
       continue;
     }
     advagg_advagg_scan_for_changes($filename, TRUE);
@@ -495,8 +507,8 @@ function locale_advagg_changed_files(array $files, array $types) {
   $javascript = array();
   foreach ($files as $filename => $meta_data) {
     // Only care about js files.
-    $ext = pathinfo($filename, PATHINFO_EXTENSION);
-    if ($ext != 'js') {
+    $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+    if ($ext !== 'js') {
       continue;
     }
     $javascript[] = array(
@@ -526,7 +538,7 @@ function locale_advagg_changed_files(array $files, array $types) {
  */
 function advagg_advagg_scan_for_changes($filename, $save_changes = FALSE) {
   // Skip if this file is not a css file.
-  $ext = pathinfo($filename, PATHINFO_EXTENSION);
+  $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
   if ($ext !== 'css') {
     return FALSE;
   }

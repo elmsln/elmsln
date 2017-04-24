@@ -12,7 +12,7 @@ class CtoolsObjectCache extends DrupalWebTestCase {
     return array(
       'name' => 'Ctools object cache storage',
       'description' => 'Verify that objects are written, readable and lockable.',
-      'group' => 'Chaos Tools Suite',
+      'group' => 'ctools',
     );
   }
 

@@ -626,8 +626,7 @@ abstract class SearchApiAbstractDataSourceController implements SearchApiDataSou
       return NULL;
     }
 
-    $ret = array();
-
+    $indexes_by_id = array();
     foreach ($indexes as $index) {
       $this->checkIndex($index);
       $update = db_update($this->table)
@@ -639,12 +638,26 @@ abstract class SearchApiAbstractDataSourceController implements SearchApiDataSou
       if ($item_ids !== FALSE) {
         $update->condition($this->itemIdColumn, $item_ids, 'IN');
       }
-      if ($update->execute()) {
-        $ret[] = $index;
-      }
+      $update->execute();
+      $indexes_by_id[$index->id] = $index;
     }
 
-    return $ret;
+    // Determine and return the indexes with any changed items. If $item_ids is
+    // FALSE, all items are marked as changed and, thus, all indexes will be
+    // affected (unless they don't have any items, but no real point in treating
+    // that special case).
+    if ($item_ids !== FALSE) {
+      $indexes_with_items = db_select($this->table, 't')
+        ->fields('t', array($this->indexIdColumn))
+        ->distinct()
+        ->condition($this->indexIdColumn, array_keys($indexes_by_id), 'IN')
+        ->condition($this->itemIdColumn, $item_ids, 'IN')
+        ->execute()
+        ->fetchCol();
+      return array_intersect_key($indexes_by_id, array_flip($indexes_with_items));
+    }
+
+    return NULL;
   }
 
   /**
@@ -715,7 +728,7 @@ abstract class SearchApiAbstractDataSourceController implements SearchApiDataSou
     }
     $this->checkIndex($index);
     $select = db_select($this->table, 't');
-    $select->addField('t', 'item_id');
+    $select->addField('t', $this->itemIdColumn);
     $select->condition($this->indexIdColumn, $index->id);
     $select->condition($this->changedColumn, 0, '>');
     $select->orderBy($this->changedColumn, 'ASC');

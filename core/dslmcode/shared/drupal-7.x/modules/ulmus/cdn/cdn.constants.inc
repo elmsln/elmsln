@@ -24,7 +24,6 @@ define('CDN_STATUS_VARIABLE', 'cdn_status');
 define('CDN_STATS_VARIABLE', 'cdn_stats');
 define('CDN_DRUPAL_ROOT_VARIABLE', 'cdn_drupal_root');
 define('CDN_HTTPS_SUPPORT_VARIABLE', 'cdn_https_support');
-define('CDN_PICK_SERVER_PHP_CODE_VARIABLE', 'CDN_PICK_SERVER_PHP_CODE_VARIABLE');
 
 // Variables for exceptions.
 define('CDN_EXCEPTION_FILE_PATH_BLACKLIST_VARIABLE', 'cdn_exception_file_path_blacklist');
@@ -32,9 +31,17 @@ define('CDN_EXCEPTION_FILE_PATH_BLACKLIST_DEFAULT',  "");
 define('CDN_EXCEPTION_FILE_PATH_WHITELIST_VARIABLE', 'cdn_exception_file_path_whitelist');
 define('CDN_EXCEPTION_FILE_PATH_WHITELIST_DEFAULT',  "misc/*.js\nmodules/*.js");
 define('CDN_EXCEPTION_DRUPAL_PATH_BLACKLIST_VARIABLE', 'cdn_exception_drupal_path_blacklist');
-define('CDN_EXCEPTION_DRUPAL_PATH_BLACKLIST_DEFAULT',  '');
+define('CDN_EXCEPTION_DRUPAL_PATH_BLACKLIST_DEFAULT',  'file/ajax/*');
 define('CDN_EXCEPTION_AUTH_USERS_BLACKLIST_VARIABLE', 'cdn_exception_auth_users_blacklist');
 define('CDN_EXCEPTION_AUTH_USERS_BLACKLIST_DEFAULT', 'admin*');
+
+// Variables for SEO duplicate content prevention.
+define('CDN_SEO_REDIRECT_VARIABLE', 'cdn_seo_redirect');
+define('CDN_SEO_REDIRECT_DEFAULT', TRUE);
+define('CDN_SEO_USER_AGENTS_VARIABLE', 'cdn_seo_user_agents');
+define('CDN_SEO_USER_AGENTS_DEFAULT', "Amazon Cloudfront\nAkamai");
+define('CDN_SEO_FORBIDDEN_EXTENSIONS_VARIABLE', "cdn_seo_forbidden_extensions");
+define('CDN_SEO_FORBIDDEN_EXTENSIONS_DEFAULT', "html\nhtm\nphp");
 
 // Variables for basic mode.
 define('CDN_BASIC_MAPPING_VARIABLE', 'cdn_basic_mapping');

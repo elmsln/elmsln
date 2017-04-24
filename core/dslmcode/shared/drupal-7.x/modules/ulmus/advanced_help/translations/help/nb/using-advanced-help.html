@@ -1,0 +1,165 @@
+<p>Modulen <strong>Avansert hjelp</strong> tilbyr et rammeverk som gjør
+det mulig for modul- og theme-utviklere å integrere hjelpetekster i et
+Drupal-nettsted.  Selv om <strong>Avansert hjelp</strong> ikke selv
+inneholder generell hjelp tilbyr den et kraftig og enkelt rammeverk som
+prosjekter kan benytte for å tilby egen hjelp.</p>
+
+<p>Prosjekter som benytter <strong>Avansert hjelp</strong> må
+ha en underkatalog med navnet <code>help</code> i sin rotkatalog
+I denne katalogen opprettes filen
+<em>MODULNAVN</em>.help.ini (evt. <em>THEMENAVN</em>.help.ini).
+Formatet på denne fila framgår av følgende eksempel:</p>
+
+<pre>
+[about-php]
+title = About PHP
+file = about-php
+weight = -10
+
+[history]
+title = History of PHP
+parent = about-php
+
+[usage]
+title = Usage of PHP
+weight = 1
+
+[security] 
+title = Security of PHP
+weight = 2
+
+[syntax]
+title = PHP syntax
+parent = usage
+</pre>
+
+<p>Lag alltid den engelske versjonen av disse temaene først.  Ønsker
+du å ha temaene oversatt til et annet språk følger du anvisningene i
+<a href="&topic:advanced_help/translation&">Oversettelse av
+Avansert hjelp</a>.</p>
+
+<p>Denne fila definerer fem hjelpe-emner (i firkant-parenteser), og
+noen innstillinger for dem.
+Se: <a href="&topic:advanced_help/ini-file&">Avansert hjelp .ini-filformat</a> for
+en liste over definerte innstillinger.</p>
+
+<p>Alle emner er beskrevet av det prosjektet som tilbyr
+emnet, og av emne-id.  For å produsere en themet lenke til et
+sprettopp-vindu om et emne, bruk et format etter mønster fra følgende
+eksempel:</p>
+
+<!-- D6
+<pre>
+$output = theme('advanced_help_topic', 'help_example', 'about-php');
+$output .= '&nbsp;' . t('Click the help icon!');
+</pre>
+-->
+
+<!-- D7 -->
+<pre>
+$output = theme('advanced_help_topic', array(
+  'module' => 'help_example',
+  'topic' => 'about-php',
+));
+$output .= '&nbsp;' . t('Click the help icon.');
+</pre>
+
+<p>Ikke oversett strengen inne i <code>t()</code>. Bruk alltid engelsk, og benytt Drupals lokaliserings-modul til å oversette.</p>
+
+<p>Forutsatt at strengene er korrekt oversatt (ved hjelp av Drupals lokaliserings-modul) genererer dette følgende markeringer:</p>
+
+<pre>
+&lt;a class="advanced-help-link" title="Om PHP"
+  onclick="var w=window.open(this.href, 'advanced_help_window',
+  'width=500,height=500,scrollbars,resizable');
+  w.focus(); return false;"
+  href="/help/help_example/about-php?popup=1"&gt;
+&lt;span&gt;Hjelp&lt;/span&gt;
+&lt;/a&gt;
+ Klikk på hjelpe-ikonet.
+&lt;/div&gt;
+</pre>
+
+<p>Dette produserer et klikkbart hjelpe-ikon lik det som vises under:</p>
+
+<div class="ta-center">
+<img class="help-img-center" alt="klikkbart ikon" src="&trans_path&click_icon.png" width="180" height="90" border="0" />
+</div>
+
+<p>Inne i en hjelpe-fil kan du lenke til andre hjelpe-emner ved å
+bruke dette formatet:</p>
+<pre>
+&lt;a href="&amp;topic:module/topic&amp;"&gt;topic&lt;/a&gt;
+</pre>
+<p>Ved å bruke dette formatet i stedet for standard-lenker vil sprettopp-status være konsistent når man trykker på lenker.</p>
+
+<p>For å referere til andre elementer som befinner seg i
+hjelpe-katalogen, som bilder som du ønsker å bake inn i teksten,
+bruk:</p>
+<pre>
+&lt;img src="&amp;path&amp;example.png"/&gt;
+&lt;img src="&amp;trans_path&amp;example.png"/&gt;
+</pre>
+
+<p>Nøkkelordet <code>trans_path</code> vil peke på en oversatt versjon
+av bildet i oversettelse-katalogen og kan benyttes dersom du ønsker å
+vise et bilde med oversatt tekst i stedet for originalen.</p>
+
+<p>For å peke på en normal sti på nettstedet, bruk:</p>
+<pre>
+&lt;a href="&amp;base_url&amp;admin/settings/site-configuration"&gt;anchor text&lt;/a&gt;
+</pre>
+
+<p><strong>NB: </strong> I tidligere versjoner av <strong>Advanced
+help</strong> var det ikke nødvendig å benytte &amp;-tegn rundt
+<code>topic:</code>, <code>path</code>, og <code>base_url</code>.
+Dette fungerer fortsatt, men kan bli fjernet i en senere versjon.
+Ved å bruke &amp;-tegn for å markere disse nøkkelordene kan de
+brukes overalt, og ikke bare som parametere til 
+<code>href=""</code> og <code>src=""</code>.</p>
+
+<h2 id="access-control">Adgangskontroll</h2>
+
+<p>Når denne modulen er installert vil brukere med tillatelsen
+<code>view advanced help index</code>
+se indeks-siden for <strong>Avansert hjelp</strong> ved å gå til
+<em>Administrasjon &rarr; Advanced Help</em>
+(sti: <code>admin/advanced_help</code>). Øvrige tillatelser
+<code>view advanced help topic</code>  og
+<code>view advanced help popup</code>
+gir brukere adgang til de aktuelle hjelpe-sidene og sprettopp-vinduer.</p>
+
+<p>Hjelpeteksten er lagret som vanlige <code>.html</code>-filer og
+kan, med mindre de beskyttes, bli sett av alle som kjenner deres URL.
+Dersom du ønsker å beskytte dem kan du beskytte dem mot innsyn ved å
+plassere følgende fire linjer i en fil med navn
+<code>.htaccess</code> i katalogen <code>help</code> i prosjektkatalogen:</p>
+
+<pre>
+&lt;Files *\.html&gt;
+Order Allow,Deny
+Deny from all
+&lt;/Files&gt;
+</pre>
+
+<p>Det er nettstedsansvarlig som har ansvaret for at denne typen
+beskyttelse er på plass dersom nettstedet har hjelpe-filer som må
+beskyttes fra direkte innsyn.</p>
+
+<p>Se også denne tråden i prosjektets sporings-kø:
+<a href="https://www.drupal.org/node/1980936">#1980936 Typing complete path to .html help files in module bypasses user permissions</a>.</p>
+
+<h2 id="search">Søk</h2>
+
+<p>For å skru på søk for <strong>Avansert hjelp</strong>, naviger til
+<em>Administrasjon → Oppsett → Søk og metadata → Søkeinnstillinger</em>.
+Rull ned til feltet <em>Aktive søkemoduler</em> og kryss av feltet til venstre for
+“Advanced help”.  Søkefeltet vil deretter dukke opp på toppen av indekssidene for
+<strong>Avansert hjelp</strong>.</p>
+
+<p>Dersom modulen <strong>Search</strong> i core er skrudd på, vil alt
+innhold på hjelpesidene bli indeksert av cron.  Dersom du installerer
+og skrur på nye prosjekter og ønsker å indeksere deres
+hjelpetekster umiddelbart kan du navigere til <em>Administrasjon →
+Rapporter → Status</em> og klikke på lenken for å “kjøre cron
+manuelt.”.</p>

@@ -1,11 +1,11 @@
 <?php
 /**
  * @file
- * Provides shortcodes filter framework and API (like WP shortcodes)
+ * Provides ShortCodes filter framework and API (like WP Shortcodes)
  */
 
 /**
- * Build a list of all shortcodes (for filter).
+ * Builds a list of all Shortcodes (for filter).
  *
  * Calls the Shortcode_info hook with the list parameter on all module. Returns
  * the all defined and altered Shortcode definitions.
@@ -16,7 +16,7 @@ function shortcode_list_all($reset = FALSE) {
   if (!isset($shortcodes) || $reset) {
     $shortcodes = module_invoke_all('shortcode_info');
 
-    // Allow alteration of the shortcodes.
+    // Allow alteration of the ShortCodes.
     drupal_alter('shortcode_info', $shortcodes);
   }
 
@@ -47,7 +47,7 @@ function shortcode_list_all_enabled($format, $reset = FALSE) {
 
   // Run through all Shortcodes defined.
   foreach ($filters['shortcode']->settings as $name => $enabled) {
-    if ($enabled) {
+    if ($enabled && !empty($shortcodes[$name])) {
       $shortcodes_enabled[$format->format][$name] = $shortcodes[$name];
     }
   }
@@ -172,10 +172,10 @@ function _shortcode_process($text, $filter) {
     return $text;
   }
 
-  // Save the Shortcodes in the local cache.
+  // Save the ShortCodes in the local cache.
   _shortcode_tags($shortcodes_enabled);
 
-  // Processing recursively, now embeding tags within other tags is supported!
+  // Processing recursively, now embedding tags within other tags is supported!
   $chunks = preg_split('!(\[{1,2}.*?\]{1,2})!', $text, -1, PREG_SPLIT_DELIM_CAPTURE);
 
   $heap = array();

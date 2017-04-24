@@ -994,7 +994,7 @@ function views_ui_edit_form($form, &$form_state, $view, $display_id = NULL) {
   // @todo When more functionality is added to this form, cloning here may be
   //   too soon. But some of what we do with $view later in this function
   //   results in making it unserializable due to PDO limitations.
-  $form_state['view'] = clone($view);
+  $form_state['view'] = clone $view;
 
   $form['#attached']['library'][] = array('system', 'ui.tabs');
   $form['#attached']['library'][] = array('system', 'ui.dialog');

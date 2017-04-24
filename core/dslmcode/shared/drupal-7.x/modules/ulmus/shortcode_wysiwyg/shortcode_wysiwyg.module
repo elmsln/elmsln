@@ -20,7 +20,7 @@ function shortcode_wysiwyg_wysiwyg_include_directory($type) {
  */
 function shortcode_wysiwyg_form_alter(&$form, $form_state, $form_id) {
   // todo: Attach form id to all textarea.
-  if (strpos($form_id, 'node_form') !== FALSE || strpos($form_id, 'comment') !== FALSE || strpos($form_id, 'block') !== FALSE) {
+  if (strpos($form_id, 'node_form') !== FALSE || strpos($form_id, 'comment') !== FALSE || strpos($form_id, 'block') !== FALSE || strpos($form_id, 'entity_edit_form') !== FALSE || strpos($form_id, 'ctools_custom_content_type_edit_form') !== FALSE || strpos($form_id, 'ctools_export_ui_edit_item_form') !== FALSE || strpos($form_id, 'bean_form') !== FALSE) {
     drupal_add_library('system', 'ui.dialog');
     drupal_add_library('system', 'ui.draggable');
     drupal_add_js(array('shortcode_wysiwyg' => array('current_form' => $form['form_build_id']['#value'])), 'setting');
@@ -40,6 +40,13 @@ function shortcode_wysiwyg_menu() {
   );
 
   return $items;
+}
+
+ /**
+ * Implements hook_admin_paths().
+ */
+function shortcode_wysiwyg_admin_paths() {
+  return array('shortcode_wysiwyg*' => TRUE);
 }
 
 /**

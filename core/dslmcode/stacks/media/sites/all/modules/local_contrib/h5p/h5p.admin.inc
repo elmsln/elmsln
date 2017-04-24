@@ -4,23 +4,37 @@
  */
 function h5p_admin_settings($form, &$form_state) {
   // make sure core is loaded
-  _h5p_get_instance('core');
-
-  $form['h5p_allow_communication_with_h5p_org'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('I wish to aid in the development of H5P by contributing anonymous usage data'),
-    '#default_value' => variable_get('h5p_allow_communication_with_h5p_org', '1'),
-    '#description' => t('Disabling this option will prevent your site from fetching the newest H5P updates. Read more about <a href="@url">which data is collected</a> on h5p.org.', array('@url' => 'https://h5p.org/tracking-the-usage-of-h5p')),
-  );
-
+  $core = _h5p_get_instance('core');
   $path = drupal_get_path('module', 'h5p');
+
+  // Get server setup error messages
+  $server_setup_errors = $core->checkSetupErrorMessage()->errors;
+  $disable_hub_data = array(
+    'errors' => $server_setup_errors,
+    'header' => $core->h5pF->t('Confirmation action'),
+    'confirmationDialogMsg' => $core->h5pF->t('Do you still want to enable the hub ?'),
+    'cancelLabel' => $core->h5pF->t('Cancel'),
+    'confirmLabel' => $core->h5pF->t('Confirm')
+  );
   $form['h5p_display_options'] = array(
     '#type' => 'fieldset',
     '#title' => t('Display Options'),
     '#attached' => array(
       'js' => array(
+        array(
+          'data' => 'H5PDisableHubData = ' . json_encode($disable_hub_data) . ';',
+          'type' => 'inline'
+        ),
         $path . '/library/js/jquery.js',
-        $path . '/library/js/h5p-display-options.js'
+        $path . '/library/js/h5p-event-dispatcher.js',
+        $path . '/library/js/h5p-confirmation-dialog.js',
+        $path . '/library/js/settings/h5p-disable-hub.js',
+        $path . '/library/js/h5p-display-options.js',
+      ),
+      'css' => array(
+        $path . '/library/styles/h5p-confirmation-dialog.css',
+        $path . '/library/styles/h5p.css',
+        $path . '/library/styles/h5p-core-button.css'
       )
     )
   );
@@ -128,6 +142,38 @@ function h5p_admin_settings($form, &$form_state) {
     '#description' => t('Makes it possible to use content types that rely upon a Learning Record Store to function properly, like the Questionnaire content type.'),
   );
 
+  $form['h5p_hub_is_enabled'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Use H5P Hub'),
+    '#default_value' => variable_get('h5p_hub_is_enabled', TRUE),
+    '#attributes' => array('class' => array('h5p-settings-disable-hub-checkbox')),
+    '#description' => t("It's strongly encouraged to keep this option <strong>enabled</strong>. The H5P Hub provides an easy interface for getting new content types and keeping existing content types up to date. In the future, it will also make it easier to share and reuse content. If this option is disabled you'll have to install and update content types through file upload forms."),
+  );
+
+  // TODO: Be able to change site key
+//  $site_key = variable_get('h5p_site_key', variable_get('h5p_site_uuid', ''));
+//  $form['h5p_site_key'] = array(
+//    '#type' => 'textfield',
+//    '#title' => t('Site Key'),
+//    '#default_value' => '',
+//    '#attributes' => array(
+//      'data-value' => $site_key,
+//      'placeholder' => ($site_key ? '********-****-****-****-************' : t('Empty'))
+//    ),
+//    '#field_suffix' => '<button type="button" class="h5p-reveal-value" data-control="edit-h5p-site-key" data-hide="' . t('Hide') . '">' . t('Reveal') . '</button>',
+//    '#description' => t("The site key is a secret that uniquely identifies this site with the Hub."),
+//  );
+
+  $form['h5p_send_usage_statistics'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Automatically contribute usage statistics'),
+    '#default_value' => variable_get('h5p_send_usage_statistics', TRUE),
+    '#description' => t('Usage statistics numbers will automatically be reported to help the developers better understand how H5P is used and to determine potential areas of improvement.'),
+  );
+
+  // Set h5p settings class on form container
+  $form['#attributes'] = array('class' => array('h5p-settings-container'));
+
   // Make changes to the settings before passing them off to
   // system_settings_form_submit().
   $form['#submit'][] = 'h5p_admin_settings_submit';
@@ -165,9 +211,11 @@ function h5p_admin_settings_submit($form, &$form_state) {
   // Ensure that the h5p white list is always stored in lower case.
   $form_state['values']['h5p_whitelist'] = mb_strtolower($form_state['values']['h5p_whitelist']);
 
-  if($form_state['values']['h5p_allow_communication_with_h5p_org'] == 0) {
-    h5p_fetch_libraries_metadata(TRUE);
-  }
+  // TODO: Be able to change site key
+//  if (!preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i', $form_state['values']['h5p_site_key'])) {
+//    // Invalid key, use the old one
+//    $form_state['values']['h5p_site_key'] = variable_get('h5p_site_key', variable_get('h5p_site_uuid', ''));
+//  }
 }
 
 /**
@@ -239,8 +287,28 @@ function h5p_library_list() {
   // Create the container which all admin content
   // will appends it's data to. This id is used by h5pintegration
   // to find where to put the admin content.
+
+  // Prepare output
+  $html = '';
+
+  // Content type cache update form
+  $hubOn = variable_get('h5p_hub_is_enabled', TRUE);
+  if ($hubOn) {
+    $ct_cache_update_form = drupal_get_form('h5p_content_type_cache_update_form');
+    $html .= '<h3 class="h5p-admin-header">' . t('Content type cache') . '</h3>' .
+             drupal_render($ct_cache_update_form);
+  }
+
+  // Add libraries form
   $upload_form = drupal_get_form('h5p_library_upload_form');
-  return '<h3 class="h5p-admin-header">' . t('Add libraries') . '</h3>' . drupal_render($upload_form) . '<h3 class="h5p-admin-header">' . t('Installed libraries') . '</h3><div id="h5p-admin-container"></div>';
+  $html .= '<h3 class="h5p-admin-header">' . t('Add libraries') . '</h3>' .
+           drupal_render($upload_form);
+
+  // Installed libraries list
+  $html .= '<h3 class="h5p-admin-header">' . t('Installed libraries') . '</h3>' .
+           '<div id="h5p-admin-container"></div>';
+
+  return $html;
 }
 
 /**
@@ -391,10 +459,51 @@ function _h5p_admin_add_generic_css_and_js($module_path, $settings = NULL) {
   drupal_add_js('H5PAdminIntegration = ' . json_encode($settings) . ';', 'inline');
   drupal_add_css($module_path . '/library/styles/h5p.css');
   drupal_add_css($module_path . '/library/styles/h5p-admin.css');
+  drupal_add_css($module_path . '/library/styles/h5p-hub-client.css');
 
   drupal_add_js(array(
     'h5p' => h5p_get_core_settings()
   ), 'setting');
+}
+
+/**
+ * Content type cache update form
+ *
+ * @param $form_state Drupal form state
+ *
+ * @return mixed Form
+ */
+function h5p_content_type_cache_update_form($form_state) {
+
+  $form['#attributes'] = array(
+    'class' => 'h5p-admin-upload-libraries-form'
+  );
+
+  $last_updated = variable_get('h5p_content_type_cache_updated_at', false);
+  $date_formatted = $last_updated ? format_date($last_updated) : t('Never');
+
+  $form['h5p_content_type_cache_last_updated'] = array(
+    '#type' => 'item',
+    '#title' => t('Last update'),
+    '#markup' => $date_formatted,
+    '#description' => t('Here you can update the content type cache from the H5P hub. This is used to show the available libraries in the H5P authoring tool. Making sure the content type cache is up to date will ensure that you can view and download the latest libraries.')
+  );
+
+  $form['submit'] = array(
+    '#value' => t('Update'),
+    '#type' => 'submit'
+  );
+
+  return $form;
+}
+
+/**
+ * Content type cache update form submit handler
+ */
+function h5p_content_type_cache_update_form_submit($form, &$form_state) {
+  // Update content type cache
+  $core = _h5p_get_instance('core');
+  $core->updateContentTypeCache();
 }
 
 /**

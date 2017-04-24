@@ -87,7 +87,7 @@
  *       $this->value_title = t('Node type');
  *       $types = node_get_types();
  *       foreach ($types as $type => $info) {
- *         $options[$type] = $info-&gt;name;
+ *         $options[$type] = $info->name;
  *       }
  *       $this->value_options = $options;
  *     }

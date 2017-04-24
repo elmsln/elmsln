@@ -8,6 +8,7 @@ class context_reaction_breadcrumb extends context_reaction_menu {
    * Overrides set_active_trail_from_link to set the breadcrumb instead of the menu path.
    */
   function set_active_trail_from_link($item) {
+    $breadcrumb = array(l(t('Home'), '<front>'));
     $result = db_select('menu_links')
       ->fields('menu_links', array('p1', 'p2', 'p3', 'p4', 'p5', 'p6', 'p7', 'p8'))
       ->condition('hidden', 0)

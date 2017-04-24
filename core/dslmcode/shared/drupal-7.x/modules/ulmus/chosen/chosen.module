@@ -8,9 +8,26 @@
  */
 
 /**
- * Define chosen library url
+ * Define chosen library url.
  */
 define('CHOSEN_WEBSITE_URL', 'http://harvesthq.github.io/chosen');
+define('CHOSEN_INCLUDE_ADMIN', 0);
+define('CHOSEN_INCLUDE_NO_ADMIN', 1);
+define('CHOSEN_INCLUDE_EVERYWHERE', 2);
+
+/**
+ * Implements hook_help().
+ */
+function chosen_help($path, $arg) {
+  switch ($path) {
+    case 'admin/help#chosen':
+      $output = '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Chosen uses the Chosen jQuery plugin to make your < select > elements more user-friendly.') . '</p>';
+      $output .= '<h3>' . t('Usage') . '</h3>';
+      $output .= '<p>' . t('Configure at: <a target="_blank" href="@structure_types">admin/config/user-interface/chosen</a>', array('@structure_types' => base_path() . 'admin/config/user-interface/chosen')) . '</p>';
+      return $output;
+  }
+}
 
 /**
  * Implements hook_menu().
@@ -89,6 +106,8 @@ function chosen_field_widget_form_alter(&$element, &$form_state, $context) {
  * Implements hook_library().
  */
 function chosen_library() {
+  global $theme;
+
   $library_path = chosen_get_chosen_path();
 
   $info['chosen'] = array(
@@ -96,16 +115,25 @@ function chosen_library() {
     'website' => CHOSEN_WEBSITE_URL,
     'version' => '1.1.0',
     'js' => array(
-      $library_path . '/chosen.jquery.min.js' => array('group' => 'JS_LIBRARY'),
+      $library_path . '/chosen.jquery.min.js' => array(),
     ),
   );
-  if (variable_get('chosen_use_theme', TRUE)) {
-    $info['chosen']['css'] = array($library_path . '/chosen.css' => array());
+
+  $css_disabled_themes = variable_get('chosen_disabled_themes', array());
+
+  // Only add the Chosen CSS if it is not disabled for the active theme.
+  if (!in_array($theme, $css_disabled_themes, TRUE)) {
+    $css = $library_path . '/chosen.css';
+    if (!file_exists($css)) {
+      $css = $library_path . '/chosen.min.css';
+    }
+    $info['chosen']['css'] = array($css => array());
   }
 
   // All the settings that are actually passed through into the chosen()
   // function are contained in this array.
   $options = array(
+    'allow_single_deselect' => (bool) variable_get('chosen_allow_single_deselect', FALSE),
     'disable_search' => (bool) variable_get('chosen_disable_search', FALSE),
     'disable_search_threshold' => (int) variable_get('chosen_disable_search_threshold', 0),
     'search_contains' => (bool) variable_get('chosen_search_contains', FALSE),
@@ -131,7 +159,7 @@ function chosen_library() {
             'selector' => variable_get('chosen_jquery_selector', 'select:visible'),
             'minimum_single' => (int) variable_get('chosen_minimum_single', 20),
             'minimum_multiple' => (int) variable_get('chosen_minimum_multiple', 20),
-            'minimum_width' => (int) variable_get('chosen_minimum_width', 200),
+            'minimum_width' => (int) variable_get('chosen_minimum_width', ''),
             'options' => $options,
           ),
         ),
@@ -169,6 +197,15 @@ function chosen_element_info_alter(&$info) {
  * Render API callback: Apply Chosen to a select element.
  */
 function chosen_pre_render_select($element) {
+  // Exclude chosen from theme other than admin.
+  global $theme, $language;
+
+  $is_admin = path_is_admin(current_path()) || current_path() == 'system/ajax' || $theme == variable_get('admin_theme');
+  $chosen_include = variable_get('chosen_include', CHOSEN_INCLUDE_EVERYWHERE);
+  if ($chosen_include != CHOSEN_INCLUDE_EVERYWHERE && $is_admin == $chosen_include) {
+    return $element;
+  }
+
   // If the #chosen FAPI property is set, then add the appropriate class.
   if (isset($element['#chosen'])) {
     if (!empty($element['#chosen'])) {
@@ -197,10 +234,18 @@ function chosen_pre_render_select($element) {
   }
 
   if (isset($element['#field_name']) && !empty($element['#multiple'])) {
+    // Remove '_none' from multi-select options.
+    unset($element['#options']['_none']);
+
     $field = field_info_field($element['#field_name']);
     if ($field['cardinality'] != FIELD_CARDINALITY_UNLIMITED && $field['cardinality'] > 1) {
       $element['#attributes']['data-cardinality'] = $field['cardinality'];
     }
+  }
+
+  // Right to Left Support.
+  if ($language->direction == 1) {
+    $element['#attributes']['class'][] = 'chosen-rtl';
   }
 
   $element['#attached']['library'][] = array('chosen', 'drupal.chosen');
@@ -252,7 +297,7 @@ function chosen_element_apply_property_recursive(array &$element, $chosen_value 
 /**
  * Get the location of the chosen library.
  *
- * @return
+ * @return mixed
  *   The location of the library, or FALSE if the library isn't installed.
  */
 function chosen_get_chosen_path() {

@@ -57,6 +57,7 @@ function scheduler_uninstall() {
     'scheduler_extra_info',
     'scheduler_date_popup_minute_increment',
     'scheduler_field_type',
+    'scheduler_lightweight_access_key',
     'scheduler_lightweight_log',
     'scheduler_time_only_format',
   );
@@ -148,15 +149,41 @@ function scheduler_update_7101() {
 }
 
 /**
+ * Function scheduler_update_7102() removed and replaced by 7103.
+ * @see http://www.drupal.org/node/2706119
+ */
+
+/**
  * Update role_permission table with clean machine name.
  */
-function scheduler_update_7102() {
+function scheduler_update_7103() {
   // Change all values of 'schedule (un)publishing of nodes' to the cleaner
   // 'schedule publishing of nodes'
   // @see http://www.drupal.org/node/2538002
+
+  // Updates done in two stages to avoid integrity constraint violation. First
+  // select all role ids which already have the new permission value.
+  $query = db_select('role_permission', 'rp')
+    ->fields('rp', array('rid', 'permission'))
+    ->condition('permission', 'schedule publishing of nodes');
+
+  // Delete the rows for these roles which also have the old permission value,
+  // as these are no longer needed and should not be updated to the new value.
+  $rows_deleted = 0;
+  if ($rows_to_delete = $query->execute()->fetchCol()) {
+    $rows_deleted = db_delete('role_permission')
+      ->condition('rid', $rows_to_delete, 'IN')
+      ->condition('permission', 'schedule (un)publishing of nodes', '=')
+      ->execute();
+  }
+
+  // Now update any other rows which still have the old permission value.
   $rows_updated = db_update('role_permission')
     ->fields(array('permission' => 'schedule publishing of nodes'))
-    ->condition('permission', 'schedule (un)publishing of nodes', '=') ->execute();
+    ->condition('permission', 'schedule (un)publishing of nodes', '=')
+    ->execute();
 
-  return format_plural($rows_updated, '1 row updated in role_permission table.', '@count rows updated in role_permission table.');
+  return format_plural($rows_updated, '1 row updated', '@count rows updated')
+    . ', ' . format_plural($rows_deleted, '1 row deleted', '@count rows deleted')
+    . ' ' . t('in role_permission table');
 }

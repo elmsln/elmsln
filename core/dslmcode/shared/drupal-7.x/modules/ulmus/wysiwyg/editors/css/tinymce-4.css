@@ -1,0 +1,4 @@
+.mce-container.mce-toolbar > .mce-container-body > .mce-btn-group > div {
+  /* Hack to make buttons wrap. */
+  white-space: normal !important;
+}

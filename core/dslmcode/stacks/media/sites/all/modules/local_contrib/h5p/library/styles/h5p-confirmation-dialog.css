@@ -113,4 +113,6 @@ button.h5p-confirmation-dialog-exit:hover {
 
 .h5p-core-button.h5p-confirmation-dialog-confirm-button:before {
   content: "\e601";
+  margin-top: -6px;
+  display: inline-block;
 }

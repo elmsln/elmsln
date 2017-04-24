@@ -24,6 +24,8 @@ class editableviews_plugin_style_row_edit_table extends views_plugin_style_table
     // pattern is anything to go by!
     $options['relationship_creation_bundle'] = array('default' => array());
     $options['save_messages'] = array('default' => 'individual');
+    $options['batch'] = array('default' => FALSE, 'bool' => TRUE);
+    $options['batch_size'] = array('default' => 10);
 
     return $options;
   }
@@ -451,6 +453,25 @@ class editableviews_style_helper {
         'individual' => t('Show a message for each saved entity'),
       ),
       '#default_value' => $this->plugin->options['save_messages'],
+    );
+
+    $form['batch'] = array(
+      '#type' => 'checkbox',
+      '#title' => t("Enable batch support"),
+      '#description' => t('Use Batch API to save huge data.'),
+      '#default_value' => $this->plugin->options['batch'],
+    );
+
+    $form['batch_size'] = array(
+      '#type' => 'textfield',
+      '#title' => t("Batch size"),
+      '#description' => t('Number of entities to process in each batch step.'),
+      '#default_value' => $this->plugin->options['batch_size'],
+      '#states'=> array(
+        'visible' => array(
+          ':input[name="style_options[batch]"]' => array('checked' => TRUE),
+        ),
+      ),
     );
   }
 

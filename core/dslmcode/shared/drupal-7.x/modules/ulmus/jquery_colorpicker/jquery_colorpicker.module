@@ -18,18 +18,40 @@ function jquery_colorpicker_permission() {
 }
 
 /**
- * Implements hook_menu().
+ * API function to validate colors. This function is used anywhere the
+ * value of a jquery_colorpicker element is used, to ensure consistency
+ * in checking and in language.
+ *
+ * @param string $color
+ *   The color to be validated.
+ *
+ * @return array
+ *   The return value will be an array with one or two keys:
+ *   - color (always returned): contains the validated color. This is returned
+ *     as color values prefixed with the # symbol are allowed, but the symbol
+ *     will be removed to ensure consistency in saving.
+ *   - error (only returned if there is an error): Contains the error for the color.
  */
-function jquery_colorpicker_menu() {
-  // This creates the URL for the settings page.
-  $menu['admin/config/development/jquery_colorpicker'] = array(
-    'title' => 'Jquery Colorpicker',
-    'description' => 'Settings page for jquery colorpicker',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('jquery_colorpicker_settings'),
-    'access arguments' => array('administer jquery colorpicker'),
-  );
-  return $menu;
+function jquery_colorpicker_validate_color($color) {
+  $results = array('color' => $color);
+  if (strlen($color)) {
+    if (preg_match('/^#/', $color)) {
+      $color = substr($color, 1);
+    }
+
+    $results['color'] = $color;
+
+    // All values must be 6 characters in length (will probably add support for 3 character definitions and predifined colors in version 2
+    if (strlen($color) != 6) {
+      $results['error'] = t('Color values must be exactly six characters in length');
+    }
+    // All values must be hexadecimal values.
+    elseif (!preg_match('/^[0-9a-f]{6}$/i', $color)) {
+      $results['error'] = t("You entered an invalid value for the color. Colors must be hexadecimal, and can only contain the characters '0' to '9' and 'a' to 'f'.");
+    }
+  }
+
+  return $results;
 }
 
 /**
@@ -42,9 +64,51 @@ function jquery_colorpicker_element_info() {
       '#input' => TRUE,
       '#element_validate' => array('jquery_colorpicker_validate'),
       '#jquery_colorpicker_background' => 'select.png',
+      '#process' => array('ajax_process_form', 'jquery_colorpicker_process_element'),
       '#theme' => 'jquery_colorpicker',
+      '#theme_wrappers' => array('form_element'),
     ),
   );
+}
+
+/**
+ * Callback function to process jquery_colorpicker elements
+ *
+ * @see jquery_colorpicker_element_info()
+ */
+function jquery_colorpicker_process_element($element, &$form_state) {
+  $element['#id'] = drupal_html_id('edit-' . implode('-', $element['#parents']));
+  $library_path = libraries_get_path('colorpicker');
+
+  // Decide what background to use to render the element. In order to ensure the background exists, we create an array of
+  // the two possibilities, that we will use to compare the value submitted in the Form API definition.
+  $backgrounds = array('select.png', 'select2.png');
+  // Now we check to see if the value in the Form API definition is valid. If it is, we use it, if it's not, we use a default value.
+  $background = (in_array($element['#jquery_colorpicker_background'], $backgrounds)) ? $element['#jquery_colorpicker_background'] : 'select.png';
+  // Since we know the background, we can then get the URL of it to pass to the javascript function.
+  $background_url = file_create_url($library_path . '/images/' . $background);
+
+  // Attach the 3rd party CSS and JS files, and attach the module's JS files.
+  $element['#attached'] = array(
+    'css' => array(
+      // Add the 3rd party CSS files required for the form elmeent.
+      $library_path . '/css/colorpicker.css',
+    ),
+    'js' => array(
+      // Add the 3rd party JS files required for the form element.
+      $library_path . '/js/colorpicker.js',
+      // Add the module js files.
+      drupal_get_path('module', 'jquery_colorpicker') . '/js/jquery_colorpicker.js',
+    ),
+  );
+
+  // And we pass the settings in a namespace to the Javascript.
+  $element['#attached']['js'][] = array(
+    'data' => array('jqueryColorpicker' => array($element['#id'] => $background_url)),
+    'type' => 'setting',
+  );
+
+  return $element;
 }
 
 /**
@@ -75,155 +139,60 @@ function jquery_colorpicker_theme() {
 function theme_jquery_colorpicker($variables) {
   $element = $variables['element'];
 
-  if (!isset($element['#id'])) {
-    $element['#id'] = drupal_html_id('edit-' . implode('-', $element['#parents']));
-  }
-
   $class = array('form-colorpicker');
   $output = '';
   unset($element['#prefix']);
   unset($element['#suffix']);
 
-  $path = libraries_get_path('colorpicker');
-
-  // Decide what background to use to render the element. In order to ensure the background exists, we create an array of
-  // the two possibilities, that we will use to compare the value submitted in the Form API definition.
-  $backgrounds = array('select.png', 'select2.png');
-  // Now we check to see if the value in the Form API definition is valid. If it is, we use it, if it's not, we use a default value.
-  $background = (in_array($element['#jquery_colorpicker_background'], $backgrounds)) ? $element['#jquery_colorpicker_background'] : 'select.png';
-  // Since we know the background, we can then get the URL of it to pass to the javascript function.
-  $background_url = base_path() . $path . '/images/' . $background;
-  // Next we determine what the default value for the form element is. This will also be passed to the javascript function.
+  // Determine the default color for the form element
+  $default_color = "#ffffff";
   if (isset($element['#value']) && strlen($element['#value'])) {
     $default_color = '#' . $element['#value'];
   }
   elseif (isset($element['#default_value']) && strlen($element['#default_value']) == 6 && preg_match('/^[0-9a-f]{6}$/i', $element['#default_value'])) {
     $default_color = '#' . strtolower($element['#default_value']);
   }
-  else {
-    $default_color = "#ffffff";
-  }
-  // Build an array of all the settings to be used by the javascript function.
-  $settings = array(
-    'ids' => array($element['#id']),
-    'backgrounds' => array($background_url),
-    'backgroundColors' => array($default_color),
-    $element['#id'] . '-defaultColor' => $default_color,
-  );
 
-  // Attach the 3rd party CSS and JS files, and attach the module's JS files.
-  $element['#attached'] = array(
-    'css' => array(
-      // Add the 3rd party CSS files required for the form elmeent.
-      $path . '/css/colorpicker.css',
-    ),
-    'js' => array(
-      // Add the 3rd party JS files required for the form element.
-      $path . '/js/colorpicker.js',
-      // Add the module js files.
-      drupal_get_path('module', 'jquery_colorpicker') . '/js/jquery_colorpicker.js',
-    ),
-  );
-  // If IE6 support is enabled, attach the inline CSS and JS that will reside in conditional comments.
-  if (variable_get('jquery_colorpicker_ie6_support', 0)) {
-    $ie6_path = base_path() . drupal_get_path('module', 'jquery_colorpicker') . '/twin_helix/';
-    $path_to_pngfix = $ie6_path . 'iepngfix.htc';
-    $path_to_tilebg = $ie6_path . 'iepngfix_tilebg.js';
-    $css = '<!--[if lt IE 7]>' .
-      '.inner_wrapper, .color_picker, .colorpicker_color div, .colorpicker_color div div  { behavior: url("' . $path_to_pngfix . '") } ' .
-      '<![endif]-->';
-    $element['#attached']['css'][] = array(
-      'data' => $css,
-      'type' => 'inline',
-    );
-    $js = 'var script = document.createElement("script"); script.type = "text/javascript";';
-    $js .= 'script.src = "' . $path_to_tilebg . '";';
-    $js .= 'document.getElementsByTagName("head")[0].appendChild(script);';
-    $element['#attached']['js'][] = array(
-      'data' => $js,
-      'type' => 'inline',
-    );
-  }
-
-  // And we pass the settings in a namespace to the Javascript.
-  $element['#attached']['js'][] = array(
-    'data' => array('jqueryColorpicker' => $settings),
-    'type' => 'setting',
-  );
   // Over the next few lines we build the output of the element in HTML and to send to the browser.
   _form_set_class($element, $class);
+
+  $name = isset($element['#name']) ? $element['#name'] : $element['#id'];
+  $value = isset($element['#value']) ? check_plain($element['#value']) : '';
+  if (preg_match('/^#/', $value)) {
+    $value = substr($value, 1);
+  }
 
   $output .= '<div class="jquery_colorpicker">';
   $output .= '<div id="' . $element['#id'] . '-inner_wrapper" class="inner_wrapper">';
   $output .= '<div class="color_picker" style="background-color:' . $default_color . '">';
   $output .= '<span class="hash">#</span>';
-  $name = isset($element['#name']) ? $element['#name'] : $element['#id'];
-  $value = isset($element['#value']) ? check_plain($element['#value']) : '';
-  $output .= '<input type="text"' . ' maxlength="6"' . ' name="' . $name . '" id="' . $element['#id'] . '"' . ' size="7"' . ' value="' . $value . '"' . drupal_attributes($element['#attributes']) . ' />';
+  $output .= '<input type="text"' . ' maxlength="7"' . ' name="' . $name . '" id="' . $element['#id'] . '"' . ' size="7"' . ' value="' . $value . '"' . drupal_attributes($element['#attributes']) . ' />';
   $output .= '<div class="description">' . t('Enter a hexidecimal color value. Enabling javascript will replace this input with a graphical color selector.') . '</div>';
   $output .= '</div>';
   $output .= '</div>';
   if (isset($element['#cardinality'])) {
     if ($element['#cardinality'] == FIELD_CARDINALITY_UNLIMITED) {
-      $output .= '<div>' . l(t('Remove'), '#', array('html' => TRUE, 'attributes' => array('onclick' => 'jQuery(\'#' . $element['#id'] . '\').val(\'\'); jQuery(\'#' . $element['#id'] . '\').parents(\'tr\').hide(); return false;'))) . '</div>';
+      $output .= '<div>' . l(t('Remove'), '#', array('attributes' => array('class' => array('jquery_colorpicker_field_remove_link')))) . '</div>';
     }
     else {
-      $output .= '<div>' . l(t('Clear'), '#', array('html' => TRUE, 'attributes' => array('onclick' => 'jQuery(\'#' . $element['#id'] . '\').val(\'\'); jQuery(\'#' . $element['#id'] . '\').parents(\'.color_picker\').css("backgroundColor", "#FFF"); return false'))) . '</div>';
+      $output .= '<div>' . l(t('Clear'), '#', array('attributes' => array('class' => array('jquery_colorpicker_field_clear_link')))) . '</div>';
     }
   }
   $output .= '</div>';
 
-  $element['#children'] = $output;
-  $element['#theme'] = 'form_element';
-  return drupal_render($element);
+  return $output;
 }
 
 /**
- * Validation function for the new form element
+ * Validation function for the form element
  */
 function jquery_colorpicker_validate($element, &$form_state) {
-  // All values must be 6 characters in length (will probably add support for 3 character definitions and predifined colors in version 2
-  if ($element['#value'] != '' && strlen($element['#value']) != 6) {
-    form_error($element, t('Color values must be exactly six characters in length'));
-  }
-  // All values must not include the hash symbol.
-  elseif ($element['#value'] != '' && preg_match('/^#/', $element['#value'])) {
-    form_error($element, t('Do not include the hash symbol (#) when entering colors'));
-  }
-  // All values must be hexadecimal values.
-  elseif ($element['#value'] != '' && !preg_match('/^[0-9a-f]{6}$/i', $element['#value'])) {
-    form_error($element, t("You entered an invalid value for the color. Colors must be hexadecimal, and can only contain the characters '0' to '9' and 'a' to 'f'."));
-  }
-}
+  $results = jquery_colorpicker_validate_color($element['#value']);
+  form_set_value($element, $results['color'], $form_state);
 
-/**
- * Callback function for the URL admin/settings/jquery_colorpicker
- * This function creates the settings page for the module
- */
-function jquery_colorpicker_settings() {
-  // First we create a fieldset to make it all look nice. If ever other settings are enabled, this will keep the page looking nice.
-  $form['ie6'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('Internet Explorer 6'),
-  );
-  // Next we add a description of the necessary steps to enable IE6 support.
-  $form['ie6']['description'] = array(
-    '#value' => '<p>' . t('Internet Explorer 6 does not support transparencies in .png files. They are rendered with a non-transparent blue glow anywhere where there should be transparency. Since jquery colorpicker relies on transparent .png files to work, this means that out of the box, the jquery colorpicker will not work with IE6. You can solve this using the following steps:') .
-    '</p><ol><li>' . t('Inside the jquery colorpicker module folder (generally located at sites/all/modules), create a new folder named "twin_helix". If the jquery colorpicker module is in the standard location, this means you will have the folder sites/all/modules/jquery_colorpicker/twin_helix') .
-    '</li><li>' . t('Download the iepngfix.zip from !twin_helix', array(
-      '!twin_helix' => l(t('Twin Helix'),
-      'http://www.twinhelix.com/css/iepngfix/',
-      array('absolute' => TRUE)))) .
-    '</li><li>' . t('Unpack the zip file, and place the following three files into the twin_helix folder you created in step 1:') . '<ul><li>iepngfix.htc</li><li>blank.gif</li><li>iepngfix_tilebg.js</li></ul></li><li>' . t('Check the box below, and save this page') .
-    '</li></ol>',
-  );
-  // And finally we add a checkbox so the user can indicate that IE6 should be supported.
-  $form['ie6']['jquery_colorpicker_ie6_support'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Support IE6'),
-    '#default_value' => variable_get('jquery_colorpicker_ie6_support', 0),
-  );
-  return system_settings_form($form);
+  if(isset($results['error'])) {
+    form_error($element, $results['error']);
+  }
 }
 
 /**
@@ -239,37 +208,6 @@ function jquery_colorpicker_field_info() {
       'property_type' => 'text',
     ),
   );
-}
-
-/**
- * Implements hook_field_validate().
- */
-function jquery_colorpicker_field_validate($entity_type, $entity, $field, $instance, $langcode, $items, &$errors) {
-  foreach ($items as $delta => $item) {
-    if (!empty($item['jquery_colorpicker'])) {
-      // All values must be 6 characters in length (will probably add support for 3 character definitions and predifined colors in version 2.
-      if (strlen($item['jquery_colorpicker']) != 6) {
-        $errors[$field['field_name']][$langcode][$delta][] = array(
-          'error' => 'jquery_colorpicker_color_not_long_enough',
-          'message' => t('Color values must be exactly six characters in length'),
-        );
-      }
-      // All values must not include the hash symbol.
-      elseif (preg_match('/^#/', $item['jquery_colorpicker'])) {
-        $errors[$field['field_name']][$langcode][$delta][] = array(
-          'error' => 'jquery_colorpicker_starts_with_hash',
-          'message' => t('Do not include the hash symbol (#) when entering colors'),
-        );
-      }
-      // All values must be hexadecimal values.
-      elseif (!preg_match('/^[0-9a-fA-F]{6}$/i', $item['jquery_colorpicker'])) {
-        $errors[$field['field_name']][$langcode][$delta][] = array(
-          'error' => 'jquery_colorpicker_not_jquery_colorpicker',
-          'message' => t("You entered an invalid value for the color. Colors must be hexadecimal, and can only contain the characters '0-9', 'a-f' and/or 'A-F'."),
-        );
-      }
-    }
-  }
 }
 
 /**
@@ -319,15 +257,15 @@ function jquery_colorpicker_field_formatter_view($entity_type, $entity, $field, 
           '#instance_id' => $instance['id'],
           '#entity_delta' => $delta,
           '#item' => $item['jquery_colorpicker'],
+          '#attached' => array(
+            'css' => array(
+              array(
+                'type' => 'inline',
+                'data' => '.jquery_colorpicker_color_display_' . $instance['id'] . '_' . $delta . '_' . $item['jquery_colorpicker'] . '{background-color:#' . $item['jquery_colorpicker'] . ';}',
+              )
+            )
+          )
         );
-        $css_attachment = array(
-          'type' => 'inline',
-          'data' => '.jquery_colorpicker_color_display_' . $instance['id'] . '_' . $delta . '_' . $item['jquery_colorpicker'] . '{background-color:#' . $item['jquery_colorpicker'] . ';}',
-        );
-        if (!in_array($css_attachment, $css_attachment_cache)) {
-          $css_attachment_cache[] = $css_attachment;
-          $element[$delta]['#attached']['css'] = $css_attachment_cache;
-        }
         break;
 
       case 'jquery_colorpicker_text_display':

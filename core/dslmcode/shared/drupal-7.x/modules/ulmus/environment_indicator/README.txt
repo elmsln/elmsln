@@ -49,6 +49,10 @@ settings.php, but the most common three are:
       A boolean value indicating whether the Environment Indicator should be
       fixed at the top/bottom of the screen. e.g:
       $conf['environment_indicator_overwritten_fixed'] = FALSE
+  - environment_indicator_favicon_overlay
+      A boolean value indicating whether the Environment Indicator should
+      overlay the favicon with the current environment's information. e.g.:
+      $conf['environment_indicator_favicon_overlay'] = TRUE
 
 -- ACQUIA CLOUD INTEGRATION --
 

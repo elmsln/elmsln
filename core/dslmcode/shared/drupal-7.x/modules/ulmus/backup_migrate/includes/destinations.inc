@@ -659,7 +659,7 @@ function _backup_migrate_get_destination_pulldown($op, $destination_id = NULL, $
     //'#process' => array('_backup_migrate_process_destination_pulldown'),
   );
   if (user_access('administer backup and migrate')) {
-    $form['destination_id']['#description'] = l(t("Create new destination"), BACKUP_MIGRATE_MENU_PATH . "/destination/add");
+    $form['destination_id']['#description'] = l(t('Create new destination'), BACKUP_MIGRATE_MENU_PATH . '/settings/destination/add');
   }
   $form['copy'] = array(
     '#type' => 'checkbox',

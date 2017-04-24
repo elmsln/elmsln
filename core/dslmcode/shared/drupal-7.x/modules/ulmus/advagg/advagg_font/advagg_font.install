@@ -19,15 +19,8 @@ function advagg_font_requirements($phase) {
   }
 
   // Get local and external fontfaceobserver version numbers.
-  $package = drupal_http_request('https://cdn.rawgit.com/bramstein/fontfaceobserver/master/package.json', array('timeout' => 7));
-  if (!empty($package->data)) {
-    $package = json_decode($package->data);
-  }
-  else {
-    unset($package);
-    $package = new stdClass();
-    $package->version = 0;
-  }
+  module_load_include('advagg.inc', 'advagg_font');
+  $version = advagg_update_github_versions('fontfaceobserver');
 
   $lib_info = array();
   if (function_exists('libraries_info')) {
@@ -72,8 +65,8 @@ function advagg_font_requirements($phase) {
 
   // Check version.
   if (isset($lib_info['version'])
-    && !empty($package->version)
-    && version_compare($package->version, $lib_info['version']) >= 1
+    && !empty($version)
+    && version_compare($version, $lib_info['version']) >= 1
   ) {
     $requirements['advagg_font_old_library'] = array(
       'title' => $t('AdvAgg Font - Version is out of date'),
@@ -81,7 +74,7 @@ function advagg_font_requirements($phase) {
       'value' => $t('Local version of font face observer is old'),
       'description' => $t('Please upgrade your current version (@local-ver) of <a href="@url">font face observer</a> to the latest (@remote-ver). The local copy of font face observer is located in the %dir directory', array(
         '@local-ver' => $lib_info['version'],
-        '@remote-ver' => $package->version,
+        '@remote-ver' => $version,
         '%dir' => $lib_info['library path'],
         '@url' => 'https://github.com/bramstein/fontfaceobserver',
       )),
@@ -93,7 +86,7 @@ function advagg_font_requirements($phase) {
       'title' => $t('AdvAgg Font'),
       'severity' => REQUIREMENT_OK,
       'value' => $t('OK'),
-      'description' => empty($package->version) ? $t('The font face observer JavaScript should be working.') : $t('The font face observer JavaScript library is up to date (%version).', array('%version' => isset($lib_info['version']) ? $lib_info['version'] : $package->version)),
+      'description' => empty($version) ? $t('The font face observer JavaScript should be working.') : $t('The font face observer JavaScript library is up to date (%version).', array('%version' => isset($lib_info['version']) ? $lib_info['version'] : $$version)),
     );
   }
 

@@ -150,7 +150,51 @@ function linkchecker_admin_paths() {
 }
 
 /**
+ * Conditionally logs a system message.
+ *
+ * @param $type
+ *   The category to which this message belongs. Can be any string, but the
+ *   general practice is to use the name of the module calling watchdog().
+ * @param $message
+ *   The message to store in the log. Keep $message translatable
+ *   by not concatenating dynamic values into it! Variables in the
+ *   message should be added by using placeholder strings alongside
+ *   the variables argument to declare the value of the placeholders.
+ *   See t() for documentation on how $message and $variables interact.
+ * @param $variables
+ *   Array of variables to replace in the message on display or
+ *   NULL if message is already translated or not possible to
+ *   translate.
+ * @param $severity
+ *   The severity of the message; one of the following values as defined in
+ *   @link http://www.faqs.org/rfcs/rfc3164.html RFC 3164: @endlink
+ *   - WATCHDOG_EMERGENCY: Emergency, system is unusable.
+ *   - WATCHDOG_ALERT: Alert, action must be taken immediately.
+ *   - WATCHDOG_CRITICAL: Critical conditions.
+ *   - WATCHDOG_ERROR: Error conditions.
+ *   - WATCHDOG_WARNING: Warning conditions.
+ *   - WATCHDOG_NOTICE: (default) Normal but significant conditions.
+ *   - WATCHDOG_INFO: Informational messages.
+ *   - WATCHDOG_DEBUG: Debug-level messages.
+ * @param $link
+ *   A link to associate with the message.
+ *
+ * @see watchdog_severity_levels()
+ * @see watchdog()
+ */
+function linkchecker_watchdog_log($type, $message, $variables = array(), $severity = WATCHDOG_NOTICE, $link = NULL) {
+  if ($severity <= variable_get('linkchecker_log_level', WATCHDOG_INFO)) {
+    watchdog($type, $message, $variables, $severity, $link);
+  }
+}
+
+/**
  * Access callback for user/%user/linkchecker.
+ *
+ * @param object $account
+ *   The user account.
+ *
+ * @return int|bool
  */
 function _linkchecker_user_access_account_broken_links_report($account) {
   global $user;
@@ -163,6 +207,12 @@ function _linkchecker_user_access_account_broken_links_report($account) {
 
 /**
  * Access callback for linkchecker/%linkchecker_link/edit.
+ *
+ * @param object $link
+ *   An object representing the link to check.
+ *
+ * @return bool
+ *   TRUE if the current user has the requested permission.
  */
 function _linkchecker_user_access_edit_link_settings($link) {
   return user_access('edit link settings') && _linkchecker_link_access($link);
@@ -175,6 +225,11 @@ function _linkchecker_user_access_edit_link_settings($link) {
  * passwords). So this module should only display links to a user if the link
  * already appears in at least one place on the site where the user would
  * otherwise have access to see it.
+ *
+ * @param object $link
+ *   An object representing the link to check.
+ *
+ * @return array
  */
 function _linkchecker_link_access($link) {
   $link = (object) $link;
@@ -210,7 +265,7 @@ function _linkchecker_link_node_ids($link, $node_author_account = NULL) {
 
   // Exit if all node types are disabled or if the user cannot access content,
   // there is no need to check further.
-  $linkchecker_scan_nodetypes = array_filter(variable_get('linkchecker_scan_nodetypes', array()));
+  $linkchecker_scan_nodetypes = linkchecker_scan_node_types();
   if (empty($linkchecker_scan_nodetypes) || !user_access('access content')) {
     return array();
   }
@@ -314,7 +369,8 @@ function _linkchecker_link_node_ids($link, $node_author_account = NULL) {
 function _linkchecker_link_comment_ids($link, $comment_author_account = NULL) {
   // Exit if comments are disabled or if the user cannot access comments, there
   // is no need to check further.
-  if (!variable_get('linkchecker_scan_comments', 0) || !user_access('access comments')) {
+  $comment_types = linkchecker_scan_comment_types();
+  if (empty($comment_types) || !user_access('access comments')) {
     return array();
   }
 
@@ -426,7 +482,7 @@ function _linkchecker_check_links() {
 
   // Make sure this is the only process trying to run this function.
   if (!lock_acquire(__FUNCTION__, $max_execution_time)) {
-    watchdog('linkchecker', 'Attempted to re-run link checks while they are already running.', array(), WATCHDOG_WARNING);
+    linkchecker_watchdog_log('linkchecker', 'Attempted to re-run link checks while they are already running.', array(), WATCHDOG_WARNING);
     return FALSE;
   }
 
@@ -436,14 +492,14 @@ function _linkchecker_check_links() {
   // run and guess that 2 links can be checked per second with 1 thread, what is
   // nevertheless uncommon. The max_execution_time can be used to calculate
   // a useful value that is higher, but not totally out of scope and limits the
-  // query resultset to a resonable size.
+  // query result set to a reasonable size.
   $linkchecker_check_connections_max = variable_get('linkchecker_check_connections_max', 8);
   $check_links_max_per_cron_run = ($has_httprl) ? ($linkchecker_check_connections_max * $max_execution_time) : $max_execution_time;
 
   $linkchecker_check_links_interval = variable_get('linkchecker_check_links_interval', 2419200);
   $linkchecker_check_useragent = variable_get('linkchecker_check_useragent', 'Drupal (+http://drupal.org/)');
 
-  // Connection limit can be overriden via settings.php. Two connections is the
+  // Connection limit can be overridden via settings.php. Two connections is the
   // limit defined in RFC http://www.ietf.org/rfc/rfc2616.txt. Modern browsers
   // are typically using 6-8 connections and no more. Never use more and keep
   // in mind that you can overload other people servers.
@@ -528,8 +584,8 @@ function _linkchecker_check_links() {
 
   // Release the lock.
   lock_release(__FUNCTION__);
-  watchdog('linkchecker', 'Link checks completed.', array(), WATCHDOG_INFO);
-  watchdog('linkchecker', 'Memory usage: @memory_get_usage, Peak memory usage: @memory_get_peak_usage.', array('@memory_get_peak_usage' => format_size(memory_get_peak_usage()), '@memory_get_usage' => format_size(memory_get_usage())), WATCHDOG_DEBUG);
+  linkchecker_watchdog_log('linkchecker', 'Link checks completed.', array(), WATCHDOG_INFO);
+  linkchecker_watchdog_log('linkchecker', 'Memory usage: @memory_get_usage, Peak memory usage: @memory_get_peak_usage.', array('@memory_get_peak_usage' => format_size(memory_get_peak_usage()), '@memory_get_usage' => format_size(memory_get_usage())), WATCHDOG_DEBUG);
   return TRUE;
 }
 
@@ -559,14 +615,21 @@ function _linkchecker_status_handling(&$response, $link) {
   $response->error = trim(drupal_convert_to_utf8($response->error, 'ISO-8859-1'));
   $response->status_message = trim(drupal_convert_to_utf8($response->status_message, 'ISO-8859-1'));
 
-  // Destination anchors in HTML documents may be specified either by the A
-  // element (naming it with the name attribute), or by any other element
-  // (naming with the id attribute).
+  // Destination anchors in HTML documents may be specified either by:
+  // - the A element (naming it with the name attribute)
+  // - or by any other element (naming with the id attribute)
+  // - and must not contain a key/value pair as these type of hash fragments are
+  //   typically used by AJAX applications to prevent additionally HTTP requests
+  //   e.g. http://www.example.com/ajax.html#key1=value1&key2=value2
+  // - and must not contain '/' or ',' as this are not normal anchors.
+  // - and '#top' is a reserved fragment that must not exist in a page.
   // See http://www.w3.org/TR/html401/struct/links.html
   if ($response->code == 200
     && !empty($response->data)
     && !empty($response->headers['content-type'])
     && !empty($response->uri['fragment'])
+    && preg_match('/=|\/|,/', $response->uri['fragment']) == FALSE
+    && !in_array($response->uri['fragment'], array('#top'))
     && in_array($response->headers['content-type'], array('text/html', 'application/xhtml+xml', 'application/xml'))
     && !preg_match('/(\s[^>]*(name|id)(\s+)?=(\s+)?["\'])(' . preg_quote($response->uri['fragment'], '/') . ')(["\'][^>]*>)/i', $response->data)
     ) {
@@ -630,14 +693,14 @@ function _linkchecker_status_handling(&$response, $link) {
 
               // Save changed node and update the node link list.
               node_save($node);
-              watchdog('linkchecker', 'Changed permanently moved link in %node from %src to %dst.', array('%node' => url('node/' . $node->nid), '%src' => $link->url, '%dst' => $response->redirect_url), WATCHDOG_INFO);
+              linkchecker_watchdog_log('linkchecker', 'Changed permanently moved link in %node from %src to %dst.', array('%node' => url('node/' . $node->nid), '%src' => $link->url, '%dst' => $response->redirect_url), WATCHDOG_INFO);
             }
             else {
-              watchdog('linkchecker', 'Link update in node failed. Permanently moved link %src not found in node %node. Manual fix required.', array('%node' => url('node/' . $row->nid), '%src' => $link->url), WATCHDOG_WARNING);
+              linkchecker_watchdog_log('linkchecker', 'Link update in node failed. Permanently moved link %src not found in node %node. Manual fix required.', array('%node' => url('node/' . $row->nid), '%src' => $link->url), WATCHDOG_WARNING);
             }
           }
           else {
-            watchdog('linkchecker', 'Loading node %node for update failed. Manual fix required.', array('%node' => $row->nid), WATCHDOG_ERROR);
+            linkchecker_watchdog_log('linkchecker', 'Loading node %node for update failed. Manual fix required.', array('%node' => $row->nid), WATCHDOG_ERROR);
           }
         }
 
@@ -663,14 +726,14 @@ function _linkchecker_status_handling(&$response, $link) {
             // Save changed comment and update the comment link list.
             if ($comment_original != $comment) {
               comment_save($comment);
-              watchdog('linkchecker', 'Changed permanently moved link in comment %comment from %src to %dst.', array('%comment' => $comment->cid, '%src' => $link->url, '%dst' => $response->redirect_url), WATCHDOG_INFO);
+              linkchecker_watchdog_log('linkchecker', 'Changed permanently moved link in comment %comment from %src to %dst.', array('%comment' => $comment->cid, '%src' => $link->url, '%dst' => $response->redirect_url), WATCHDOG_INFO);
             }
             else {
-              watchdog('linkchecker', 'Link update in comment failed. Permanently moved link %src not found in comment %comment. Manual fix required.', array('%comment' => $comment->cid, '%src' => $link->url), WATCHDOG_WARNING);
+              linkchecker_watchdog_log('linkchecker', 'Link update in comment failed. Permanently moved link %src not found in comment %comment. Manual fix required.', array('%comment' => $comment->cid, '%src' => $link->url), WATCHDOG_WARNING);
             }
           }
           else {
-            watchdog('linkchecker', 'Loading comment %comment for update failed. Manual fix required.', array('%comment' => $comment->cid), WATCHDOG_ERROR);
+            linkchecker_watchdog_log('linkchecker', 'Loading comment %comment for update failed. Manual fix required.', array('%comment' => $comment->cid), WATCHDOG_ERROR);
           }
         }
 
@@ -695,14 +758,14 @@ function _linkchecker_status_handling(&$response, $link) {
               // There is no hook that fires on block_custom_block_save(),
               // therefore do link extraction programmatically.
               _linkchecker_add_block_custom_links($block_custom, $block_custom->delta);
-              watchdog('linkchecker', 'Changed permanently moved link in custom block %bid from %src to %dst.', array('%bid' => $block_custom->delta, '%src' => $link->url, '%dst' => $response->redirect_url), WATCHDOG_INFO);
+              linkchecker_watchdog_log('linkchecker', 'Changed permanently moved link in custom block %bid from %src to %dst.', array('%bid' => $block_custom->delta, '%src' => $link->url, '%dst' => $response->redirect_url), WATCHDOG_INFO);
             }
             else {
-              watchdog('linkchecker', 'Link update in block failed. Permanently moved link %src not found in block %bid. Manual fix required.', array('%bid' => $block_custom->delta, '%src' => $link->url), WATCHDOG_WARNING);
+              linkchecker_watchdog_log('linkchecker', 'Link update in block failed. Permanently moved link %src not found in block %bid. Manual fix required.', array('%bid' => $block_custom->delta, '%src' => $link->url), WATCHDOG_WARNING);
             }
           }
           else {
-            watchdog('linkchecker', 'Loading block %bid for update failed. Manual fix required.', array('%bid' => $block_custom->delta), WATCHDOG_ERROR);
+            linkchecker_watchdog_log('linkchecker', 'Loading block %bid for update failed. Manual fix required.', array('%bid' => $block_custom->delta), WATCHDOG_ERROR);
           }
         }
 
@@ -710,7 +773,7 @@ function _linkchecker_status_handling(&$response, $link) {
         linkchecker_revert_user();
       }
       else {
-        watchdog('linkchecker', 'Link %link has changed and needs to be updated.', array('%link' => $link->url), WATCHDOG_NOTICE, l(t('Broken links'), 'admin/reports/linkchecker'));
+        linkchecker_watchdog_log('linkchecker', 'Link %link has changed and needs to be updated.', array('%link' => $link->url), WATCHDOG_NOTICE, l(t('Broken links'), 'admin/reports/linkchecker'));
       }
       break;
 
@@ -725,7 +788,7 @@ function _linkchecker_status_handling(&$response, $link) {
         ))
         ->expression('fail_count', 'fail_count + 1')
         ->execute();
-      watchdog('linkchecker', 'Broken link %link has been found.', array('%link' => $link->url), WATCHDOG_NOTICE, l(t('Broken links'), 'admin/reports/linkchecker'));
+      linkchecker_watchdog_log('linkchecker', 'Broken link %link has been found.', array('%link' => $link->url), WATCHDOG_NOTICE, l(t('Broken links'), 'admin/reports/linkchecker'));
 
       // If unpublishing limit is reached, unpublish all nodes having this link.
       $linkchecker_action_status_code_404 = variable_get('linkchecker_action_status_code_404', 0);
@@ -752,7 +815,7 @@ function _linkchecker_status_handling(&$response, $link) {
         ->expression('fail_count', 'fail_count + 1')
         ->execute();
 
-      watchdog('linkchecker', 'Method HEAD is not allowed for link %link. Method has been changed to GET.', array('%link' => $link->url), WATCHDOG_INFO, l(t('Broken links'), 'admin/reports/linkchecker'));
+      linkchecker_watchdog_log('linkchecker', 'Method HEAD is not allowed for link %link. Method has been changed to GET.', array('%link' => $link->url), WATCHDOG_INFO, l(t('Broken links'), 'admin/reports/linkchecker'));
       break;
 
     case 500:
@@ -770,7 +833,7 @@ function _linkchecker_status_handling(&$response, $link) {
         ->expression('fail_count', 'fail_count + 1')
         ->execute();
 
-        watchdog('linkchecker', 'Broken link %link has been found.', array('%link' => $link->url), WATCHDOG_NOTICE, l(t('Broken links'), 'admin/reports/linkchecker'));
+        linkchecker_watchdog_log('linkchecker', 'Broken link %link has been found.', array('%link' => $link->url), WATCHDOG_NOTICE, l(t('Broken links'), 'admin/reports/linkchecker'));
       }
       else {
         db_update('linkchecker_link')
@@ -785,7 +848,7 @@ function _linkchecker_status_handling(&$response, $link) {
         ->expression('fail_count', 'fail_count + 1')
         ->execute();
 
-        watchdog('linkchecker', 'Internal server error for link %link. Method has been changed to GET.', array('%link' => $link->url), WATCHDOG_INFO, l(t('Broken links'), 'admin/reports/linkchecker'));
+        linkchecker_watchdog_log('linkchecker', 'Internal server error for link %link. Method has been changed to GET.', array('%link' => $link->url), WATCHDOG_INFO, l(t('Broken links'), 'admin/reports/linkchecker'));
       }
       break;
 
@@ -801,7 +864,7 @@ function _linkchecker_status_handling(&$response, $link) {
             'last_checked' => time(),
           ))
           ->execute();
-        // watchdog('linkchecker', 'Unhandled link error %link has been found.', array('%link' => $link->url), WATCHDOG_ERROR, l(t('Broken links'), 'admin/reports/linkchecker'));
+        // linkchecker_watchdog_log('linkchecker', 'Unhandled link error %link has been found.', array('%link' => $link->url), WATCHDOG_ERROR, l(t('Broken links'), 'admin/reports/linkchecker'));
       }
       else {
         db_update('linkchecker_link')
@@ -814,12 +877,20 @@ function _linkchecker_status_handling(&$response, $link) {
           ))
           ->expression('fail_count', 'fail_count + 1')
           ->execute();
-        // watchdog('linkchecker', 'Unhandled link error %link has been found.', array('%link' => $link->url), WATCHDOG_ERROR, l(t('Broken links'), 'admin/reports/linkchecker'));
+        // linkchecker_watchdog_log('linkchecker', 'Unhandled link error %link has been found.', array('%link' => $link->url), WATCHDOG_ERROR, l(t('Broken links'), 'admin/reports/linkchecker'));
       }
   }
 
   // Free Memory.
   $response = new stdClass();
+}
+
+/**
+ * Implements hook_node_type_delete().
+ */
+function linkchecker_node_type_delete($info) {
+  variable_del('linkchecker_scan_node_' . $info->type);
+  variable_del('linkchecker_scan_comment_' . $info->type);
 }
 
 /**
@@ -858,7 +929,7 @@ function linkchecker_node_insert($node) {
   }
 
   // The node is going to be published.
-  if (_linkchecker_scan_nodetype($node->type) && $node->status == NODE_PUBLISHED) {
+  if (variable_get('linkchecker_scan_node_' . $node->type, FALSE) && $node->status == NODE_PUBLISHED) {
     _linkchecker_add_node_links($node);
   }
 }
@@ -875,7 +946,7 @@ function linkchecker_node_update($node) {
   }
 
   // The node is going to be published.
-  if (_linkchecker_scan_nodetype($node->type) && $node->status == NODE_PUBLISHED) {
+  if (variable_get('linkchecker_scan_node_' . $node->type, FALSE) && $node->status == NODE_PUBLISHED) {
     _linkchecker_add_node_links($node);
   }
   else {
@@ -897,7 +968,7 @@ function linkchecker_comment_delete($comment) {
 function linkchecker_comment_insert($comment) {
   // The comment is going to be published.
   $node_type = db_query('SELECT type FROM {node} WHERE nid = :nid', array(':nid' => $comment->nid))->fetchField();
-  if (_linkchecker_scan_nodetype($node_type) && variable_get('linkchecker_scan_comments', 0) && $comment->status == COMMENT_PUBLISHED) {
+  if (variable_get('linkchecker_scan_comment_' . $node_type, FALSE) && $comment->status == COMMENT_PUBLISHED) {
     _linkchecker_add_comment_links($comment);
   }
 }
@@ -908,7 +979,7 @@ function linkchecker_comment_insert($comment) {
 function linkchecker_comment_update($comment) {
   // The node is going to be published.
   $node_type = db_query('SELECT type FROM {node} WHERE nid = :nid', array(':nid' => $comment->nid))->fetchField();
-  if (_linkchecker_scan_nodetype($node_type) && variable_get('linkchecker_scan_comments', 0) && $comment->status == COMMENT_PUBLISHED) {
+  if (variable_get('linkchecker_scan_comment_' . $node_type, FALSE) && $comment->status == COMMENT_PUBLISHED) {
     _linkchecker_add_comment_links($comment);
   }
   else {
@@ -950,6 +1021,69 @@ function linkchecker_form_alter(&$form, &$form_state, $form_id) {
       // Add custom submit handler to custom block delete form.
       $form['#submit'][] = 'linkchecker_block_custom_delete_form_submit';
       break;
+  }
+}
+
+/**
+ * Implements hook_form_BASE_FORM_ID_alter().
+ */
+function linkchecker_form_node_type_form_alter(&$form, $form_state) {
+  if (isset($form['type'])) {
+    $form['#submit'][] = 'linkchecker_node_type_form_submit';
+    $form['linkchecker'] = array(
+      '#title' => t('Link checker'),
+      '#type' => 'fieldset',
+      '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
+      '#group' => 'additional_settings',
+      '#attached' => array(
+        'js' => array(drupal_get_path('module', 'linkchecker') . '/linkchecker-node-form.js'),
+      ),
+    );
+    $form['linkchecker']['linkchecker_scan_node'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Scan content'),
+      '#description' => t('Enables link checking for this content type.'),
+      '#default_value' => variable_get('linkchecker_scan_node_' . $form['#node_type']->type, FALSE),
+    );
+    if (module_exists('comment')) {
+      $form['linkchecker']['linkchecker_scan_comment'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Scan comments'),
+        '#description' => t('Enables link checking for comments.'),
+        '#default_value' => variable_get('linkchecker_scan_comment_' . $form['#node_type']->type, FALSE),
+      );
+    }
+  }
+}
+
+/**
+ * Submit handler for linkchecker_form_node_type_form_alter().
+ */
+function linkchecker_node_type_form_submit($form, $form_state) {
+  $original_linkchecker_state = $form['linkchecker']['linkchecker_scan_node']['#default_value'];
+  // Default to TRUE if comment module isn't enabled, we don't care.
+  $original_linkchecker_comment_state = TRUE;
+  if (module_exists('comment')) {
+    $original_linkchecker_comment_state = $form['linkchecker']['linkchecker_scan_comment']['#default_value'];
+  }
+  $values = $form_state['values'];
+  $loaded = FALSE;
+  $node_type = $form['#node_type']->type;
+  if (!$original_linkchecker_state && $values['linkchecker_scan_node']) {
+    // We need to scan this node-type now.
+    module_load_include('inc', 'linkchecker', 'linkchecker.batch');
+    batch_set(_linkchecker_batch_import_nodes(array($node_type)));
+    $loaded = TRUE;
+  }
+  // Use !empty here for when comment module isn't enabled and there is no
+  // field.
+  if (!$original_linkchecker_comment_state && !empty($values['linkchecker_scan_comment'])) {
+    // We need to scan comments for this node-type now.
+    if (!$loaded) {
+      module_load_include('inc', 'linkchecker', 'linkchecker.batch');
+    }
+    batch_set(_linkchecker_batch_import_comments(array($node_type)));
   }
 }
 
@@ -1380,6 +1514,9 @@ function _linkchecker_add_block_custom_links($block_custom, $bid, $skip_missing_
 
 /**
  * Remove all node references to links in the linkchecker_node table.
+ *
+ * @param int $nid
+ *   The node ID.
  */
 function _linkchecker_delete_node_links($nid) {
   db_delete('linkchecker_node')
@@ -1389,6 +1526,9 @@ function _linkchecker_delete_node_links($nid) {
 
 /**
  * Remove all comment references to links in the linkchecker_comment table.
+ *
+ * @param int $cid
+ *   The comment ID.
  */
 function _linkchecker_delete_comment_links($cid) {
   db_delete('linkchecker_comment')
@@ -1398,6 +1538,10 @@ function _linkchecker_delete_comment_links($cid) {
 
 /**
  * Remove all block references to links in the linkchecker_block_custom table.
+ *
+ * @param int $bid
+ *   The block ID.
+ *
  */
 function _linkchecker_delete_block_custom_links($bid) {
   db_delete('linkchecker_block_custom')
@@ -1407,6 +1551,10 @@ function _linkchecker_delete_block_custom_links($bid) {
 
 /**
  * Cleanup no longer used node references to links in the linkchecker_node table.
+ *
+ * @param int $nid
+ *   The node ID.
+ * @param array $links
  */
 function _linkchecker_cleanup_node_references($nid = 0, $links = array()) {
   if (empty($links)) {
@@ -1432,6 +1580,10 @@ function _linkchecker_cleanup_node_references($nid = 0, $links = array()) {
 
 /**
  * Cleanup no longer used comment references to links in the linkchecker_comment table.
+ *
+ * @param int $cid
+ *   The comment ID.
+ * @param array $links
  */
 function _linkchecker_cleanup_comment_references($cid = 0, $links = array()) {
   if (empty($links)) {
@@ -1457,6 +1609,10 @@ function _linkchecker_cleanup_comment_references($cid = 0, $links = array()) {
 
 /**
  * Cleanup no longer used custom block references to links in the linkchecker_block_custom table.
+ *
+ * @param int $bid
+ *   The block ID.
+ * @param array $links
  */
 function _linkchecker_cleanup_block_custom_references($bid = 0, $links = array()) {
   if (empty($links)) {
@@ -1482,6 +1638,14 @@ function _linkchecker_cleanup_block_custom_references($bid = 0, $links = array()
 
 /**
  * Returns an array of node references missing in the linkchecker_node table.
+ *
+ * @param int $nid
+ *   The node ID.
+ * @param array $links
+ *   An array of links.
+ *
+ * @return array
+ *   An array of node references missing in the linkchecker_node table.
  */
 function _linkchecker_node_links_missing($nid, $links) {
   $result = db_query('SELECT ll.url FROM {linkchecker_link} ll INNER JOIN {linkchecker_node} ln ON ln.lid = ll.lid WHERE ln.nid = :nid AND ll.urlhash IN (:urlhashes)', array(':nid' => $nid, ':urlhashes' => array_map('drupal_hash_base64', $links)));
@@ -1494,6 +1658,14 @@ function _linkchecker_node_links_missing($nid, $links) {
 
 /**
  * Returns an array of comment references missing in the linkchecker_comment table.
+ *
+ * @param int $cid
+ *   The comment ID.
+ * @param array $links
+ *   An array of links.
+ *
+ * @return array
+ *   An array of comment references missing in the linkchecker_comment table.
  */
 function _linkchecker_comment_links_missing($cid, $links) {
   $result = db_query('SELECT ll.url FROM {linkchecker_link} ll INNER JOIN {linkchecker_comment} lc ON lc.lid = ll.lid WHERE lc.cid = :cid AND ll.urlhash IN (:urlhashes)', array(':cid' => $cid, ':urlhashes' => array_map('drupal_hash_base64', $links)));
@@ -1506,6 +1678,15 @@ function _linkchecker_comment_links_missing($cid, $links) {
 
 /**
  * Returns an array of custom block references missing in the linkchecker_block_custom table.
+ *
+ * @param int $bid
+ *   The block ID.
+ * @param array $links
+ *   An array of links.
+ *
+ * @return array
+ *   An array of custom block references missing in the linkchecker_block_custom
+ *   table.
  */
 function _linkchecker_block_custom_links_missing($bid, $links) {
   $result = db_query('SELECT ll.url FROM {linkchecker_link} ll INNER JOIN {linkchecker_block_custom} lb ON lb.lid = ll.lid WHERE lb.bid = :bid AND ll.urlhash IN (:urlhashes)', array(':bid' => $bid, ':urlhashes' => array_map('drupal_hash_base64', $links)));
@@ -1548,7 +1729,7 @@ function _linkchecker_parse_fields($entity_type, $bundle_name, $entity, $return_
   foreach (field_info_instances($entity_type, $bundle_name) as $field_name => $instance) {
     $field = field_info_field($field_name);
     // #1923328: field_name array may be missing in $entity.
-    $entity_field = isset($entity->$field['field_name']) ? $entity->$field['field_name'] : array();
+    $entity_field = isset($entity->{$field['field_name']}) ? $entity->{$field['field_name']} : array();
 
     switch ($field['type']) {
       // Core fields.
@@ -1558,6 +1739,7 @@ function _linkchecker_parse_fields($entity_type, $bundle_name, $entity, $return_
             $item += array(
               'format' => NULL,
               'summary' => '',
+              'value' => '',
             );
             $text_items[] = $text_items_by_field[$field['field_name']][] = _linkchecker_check_markup($item['value'], $item['format'], linkchecker_entity_language($entity_type, $entity), TRUE);
             $text_items[] = $text_items_by_field[$field['field_name']][] = _linkchecker_check_markup($item['summary'], $item['format'], linkchecker_entity_language($entity_type, $entity), TRUE);
@@ -1572,6 +1754,7 @@ function _linkchecker_parse_fields($entity_type, $bundle_name, $entity, $return_
           foreach ($language as $item) {
             $item += array(
               'format' => NULL,
+              'value' => '',
             );
             $text_items[] = $text_items_by_field[$field['field_name']][] = _linkchecker_check_markup($item['value'], $item['format'], linkchecker_entity_language($entity_type, $entity), TRUE);
           }
@@ -1610,12 +1793,14 @@ function _linkchecker_parse_fields($entity_type, $bundle_name, $entity, $return_
  *   The previous url.
  * @param string $new_url
  *   The new url to replace the old.
+ *
+ * @return object
  */
 function _linkchecker_replace_fields($entity_type, $bundle_name, $entity, $old_url, $new_url) {
   // Collect the fields from this entity_type and bundle.
   foreach (field_info_instances($entity_type, $bundle_name) as $field_name => $instance) {
     $field = field_info_field($field_name);
-    $entity_field =& $entity->$field['field_name'];
+    $entity_field =& $entity->{$field['field_name']};
 
     switch ($field['type']) {
       // Core fields.
@@ -1661,7 +1846,7 @@ function _linkchecker_replace_fields($entity_type, $bundle_name, $entity, $old_u
  */
 function _linkchecker_cleanup_links() {
   // Remove disabled node types no longer in use.
-  $node_types = array_keys(array_filter(variable_get('linkchecker_scan_nodetypes', array())));
+  $node_types = linkchecker_scan_node_types();
   if (!empty($node_types)) {
     $subquery1 = db_select('node', 'n')
       ->fields('n', array('nid'))
@@ -1682,7 +1867,8 @@ function _linkchecker_cleanup_links() {
 
   // Remove comment link references if comment scanning is disabled.
   // @todo Remove comments of unpublished nodes.
-  if (variable_get('linkchecker_scan_comments', 0) == 0) {
+  $comment_types = linkchecker_scan_comment_types();
+  if (empty($comment_types)) {
     db_truncate('linkchecker_comment')->execute();
   }
 
@@ -1844,7 +2030,7 @@ function _linkchecker_extract_links($text = '', $content_path = NULL) {
   // Remove duplicate urls.
   $urls = array_unique($urls);
 
-  // What type of links schould be checked?
+  // What type of links should be checked?
   $linkchecker_check_links_types = variable_get('linkchecker_check_links_types', 1);
 
   $links = array();
@@ -2148,7 +2334,7 @@ function _linkchecker_check_markup($text, $format_id = NULL, $langcode = '', $ca
   }
   // If the requested text format does not exist, the text cannot be filtered.
   if (!$format = filter_format_load($format_id)) {
-    watchdog('filter', 'Missing text format: %format.', array('%format' => $format_id), WATCHDOG_ALERT);
+    linkchecker_watchdog_log('filter', 'Missing text format: %format.', array('%format' => $format_id), WATCHDOG_ALERT);
     return '';
   }
 
@@ -2327,25 +2513,35 @@ function _linkchecker_isvalid_response_code($code) {
 }
 
 /**
- * Should the defined node type scanned for links?
+ * Return all content type enable with link checking.
  *
- * @param string $node_type
- *   Verifies if the node type is enabled for link checks and should be scanned.
- *
- * @return bool
- *   TRUE if node type should be scanned, otherwise FALSE.
+ * @return array
+ *   An array of node type names, keyed by the type.
  */
-function _linkchecker_scan_nodetype($node_type = NULL) {
-
-  $enabled = FALSE;
-  $node_types = array_keys(array_filter(variable_get('linkchecker_scan_nodetypes', array())));
-
-  // Scan specific node types only.
-  if (in_array($node_type, $node_types)) {
-    $enabled = TRUE;
+function linkchecker_scan_node_types() {
+  $types = array();
+  foreach (node_type_get_names() as $type => $name) {
+    if (variable_get('linkchecker_scan_node_' . $type, FALSE)) {
+      $types[$type] = $type;
+    }
   }
+  return $types;
+}
 
-  return $enabled;
+/**
+ * Return all content type enable with comment link checking.
+ *
+ * @return array
+ *   An array of node type names, keyed by the type.
+ */
+function linkchecker_scan_comment_types() {
+  $types = array();
+  foreach (node_type_get_names() as $type => $name) {
+    if (variable_get('linkchecker_scan_comment_' . $type, FALSE)) {
+      $types[$type] = $type;
+    }
+  }
+  return $types;
 }
 
 /**
@@ -2364,12 +2560,17 @@ function _linkchecker_unpublish_nodes($lid) {
     $node = node_load($row->nid);
     $node->status = NODE_NOT_PUBLISHED;
     node_save($node);
-    watchdog('linkchecker', 'Set @type %title to unpublished.', array('@type' => $node->type, '%title' => $node->title));
+    linkchecker_watchdog_log('linkchecker', 'Set @type %title to unpublished.', array('@type' => $node->type, '%title' => $node->title));
   }
 }
 
 /**
  * Load link as object.
+ *
+ * @param int $lid
+ *  The link id.
+ *
+ * @return object
  */
 function linkchecker_link_load($lid) {
   return db_query('SELECT * FROM {linkchecker_link} WHERE lid = :lid', array(':lid' => $lid))->fetchObject();

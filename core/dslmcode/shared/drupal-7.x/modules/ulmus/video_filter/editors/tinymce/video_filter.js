@@ -34,6 +34,9 @@ video_filter_dialog = {
       if ($('#edit-autoplay').is(':checked')) {
         str += ' autoplay:' + $('#edit-autoplay').val();
       }
+      else {
+        str += ' autoplay:' + '0';
+      }
       str += ']';
 
       ed.execCommand('mceInsertContent', false, str);

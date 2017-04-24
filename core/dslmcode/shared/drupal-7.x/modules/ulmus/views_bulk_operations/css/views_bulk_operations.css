@@ -1,4 +1,5 @@
-.vbo-select-all-markup, .vbo-table-select-all-markup {
+.vbo-select-all-markup,
+.vbo-table-select-all-markup {
   display: none;
 }
 
@@ -15,9 +16,10 @@
 .views-table-row-select-all td {
   text-align: center;
 }
-.vbo-table-select-all-pages, .vbo-table-select-this-page {
-  margin: 0 !important;
-  padding: 2px 5px !important;
+.vbo-views-form .vbo-table-select-all-pages,
+.vbo-views-form .vbo-table-select-this-page {
+  margin: 0;
+  padding: 2px 5px;
 }
 
 /* Generic "select all" */
@@ -30,6 +32,6 @@
   margin-bottom: 0;
 }
 .vbo-fieldset-select-all div {
-  padding: 0 !important;
-  margin: 0 !important;
+  padding: 0;
+  margin: 0;
 }

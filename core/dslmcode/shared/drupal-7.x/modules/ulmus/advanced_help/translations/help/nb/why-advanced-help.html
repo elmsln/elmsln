@@ -1,0 +1,44 @@
+The <strong>Advanced help</strong> framework was designed to replace the original Drupal help system, which has several flaws that make it hard to create new help, hard to maintain existing help, and particularly hard to access help.
+
+The primary goal, then, is to increase the accessibility of help, meaning the ability of both the user and the help text author to access the needed tools to use, create, maintain and translate the help.
+
+This system is completely separate from Drupal's <code>hook_help()</code>. In Drupal 6 and 7, it actually co-exists with it; in the future, it is hoped that it will completely replace it allowing <code>hook_help()</code> to be deprecated and removed.
+
+Messages added to the top of a page are not really “help”. Often these messages are an introduction to a form or a short blurb telling a user what to do with a particular page. The problem is, these messages are always there, they are easily ignored, and they come before the actual page. In general, when users are learning, they want to see the page first, then ask questions. The reverse order is much less conducive to actually teaching a user how to use something. By allowing help to be available on request, the system conforms more naturally to how most people work.
+
+<h2>Advanced help er organisert etter emner</h2>
+With the <code>hook_help()</code> method, help text is organized by URL path. This is fine if you have help text describing how to use a particular page or what a particular page does, but ultimately is limiting because manuals and documentation are usually grouped by topic, and those topics are determined by the material itself.
+
+<strong>Advanced help</strong> allows the documentation author to organize topics as he or she sees fit; the only restriction, really, is that each individual chunk of text needs to stand on its own as a discrete topic.
+
+What's more, modules and themes can insert their topics into another's hierarchy. This would allow the Drupal core to create a task based help navigation system which allows modules and themes to insert topics into that navigation fluidly. This allows modules and themes to continue to keep their systems separate, yet integrate into the main system.
+
+<h2>Advanced help-emner er behandlet som HTML i egne filer</h2>
+This separation makes it easy to find and modify. Currently, everything is lumped together in <code>hook_help()</code> in PHP strings that are run through <code>t()</code>, and there is a fair amount of PHP code necessary in this system that actually gets in the way of writing good, explanatory text.
+
+In fact, requiring a documentation author to understand PHP at all is a detriment. The idea that documentation writers need to have PHP development as a skill seriously reduces the number of available contributors. HTML, on the other hand, is a much more common skill, is relatively easy to learn, and the amount of HTML needed to write documentation is only a little bit more than the HTML used in forum posts.
+
+Another benefit to not using PHP is that the files themselves are safe. They are filtered to escape malicious script code that could take over the server or do worse things. This means that these files can be used relatively easily on Drupal.org itself. It also means that descriptions of the project pulled from the project's help pages or README.txt or README.md can be made on the project's Drupal.org without the need to download the module or theme to look at the contents of these files.  This also simplifies maintenance, as the files can be corrected easily by patches, which are updated by tyhe maintainer and pushed to git.
+
+By moving all docymentation into help files, we could, if we wanted, package the Drupal.org handbooks, or a subset of them, directly into a Drupal distribution, or a Drupal add-on, so that Drupal administrators can have Drupal help without needing to visit Drupal.org. This can be valuable in locked down corporate environments and on planes. But more importantly, the handbooks can be made version aware much more easily than the current method on Drupal.org.
+
+The downside to this method is that these books can't easily be made dynamic. Though the use of alter hooks could allow a module or theme to make modifications to the help as needed, doing this could make the help files less useful when you take them out of context.
+
+<h2>Advanced help-filer oversettes som en fullstendig fil</h2>
+It is actually not easy to translate documents as strings, particularly when the language being used is very much unlike English. In fact, when translating a document, the organization of the sentences may change drastically. It is also a burden on the CPU to do this, as you are indexing on very long strings.
+
+Translators have a much better time translating a document as a unit, because of the presence of the entire context.
+
+<h2>Advanced help har sitt eget navigasjons-system</h2>
+By making use of a navigation system specified in a .ini file (which is not PHP code and therefore safe to use), the help can be structured like a book, which is typical of online manuals. This is familiar to users, can be organized (and re-organized) and allows a module or theme to include significantly richer text without burdening the PHP code with having its help loaded unnecessarily.
+
+This book can be navigated hierarchically as well, making it easy to keep related topics together.
+<h2>Advanced help indekseres av nettstedets søkemotor</h2>
+An important goal of this system was to add searchability to the help. By being able to enter keywords into the search box and find relevant topics, we come up with a system that resembles the kind of help that comes with many operating systems. This is very valuable when searching through manuals trying to find out how to do a particular thing.
+
+This search is specific to the help, meaning that the help will not be mixed in with the global node search. This can be considered both an advantage and a disadvantage. For the most part, this help system is meant to provide help to site administrators, and content searches should not find it. The disadvantage, of course, is when you want to use it for end user help, you will not be able to.
+
+<h2>Hjelp for en bestemt side kan hentes inn via sprettopp-vinduer</h2>
+In addition to the manual-like hierarchical navigation, <strong>Advanced help</strong> can also provide context-sensitive additional help through a popup. While popups are controversial, the argument for using them is that when getting help while on a form, <i>a popup will not throw away a user's data.</i> Browsers are not very friendly to input forms if they are not submitted, and navigating away from the form can be dangerous. There are various other solutions to this problem, but each one has a drawback. The drawbacks to popups are well known, but mostly it is the irritation of having new windows. When getting help, though, a popup is usually invited. Help should not interfere with what the operation the user is trying to complete. It differs greatly from the uninvited popup, which are usually ads or popups meant to prevent users from navigating away from a site.
+
+Popups can be added to a page with plain text links or themed icon links.

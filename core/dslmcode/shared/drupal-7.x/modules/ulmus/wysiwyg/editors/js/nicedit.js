@@ -26,40 +26,19 @@ Drupal.wysiwyg.editor.attach.nicedit = function(context, params, settings) {
 };
 
 /**
- * Detach a single or all editors.
- *
- * See Drupal.wysiwyg.editor.detach.none() for a full description of this hook.
+ * Detach a single editor instance.
  */
 Drupal.wysiwyg.editor.detach.nicedit = function (context, params, trigger) {
-  if (typeof params != 'undefined') {
-    var instance = nicEditors.findEditor(params.field);
-    if (instance) {
-      if (trigger == 'serialize') {
-        instance.saveContent();
-      }
-      else {
-        instance.ne.removeInstance(params.field);
-        instance.ne.removePanel();
-      }
-    }
+  var instance = nicEditors.findEditor(params.field);
+  if (!instance) {
+    return;
+  }
+  if (trigger === 'serialize') {
+    instance.saveContent();
   }
   else {
-    for (var e in nicEditors.editors) {
-      // Save contents of all editors back into textareas.
-      var instances = nicEditors.editors[e].nicInstances;
-      for (var i = 0; i < instances.length; i++) {
-        if (trigger == 'serialize') {
-          instances[i].saveContent();
-        }
-        else {
-          instances[i].remove();
-        }
-      }
-      // Remove all editor instances.
-      if (trigger != 'serialize') {
-        nicEditors.editors[e].nicInstances = [];
-      }
-    }
+    instance.ne.removeInstance(params.field);
+    instance.ne.removePanel();
   }
 };
 

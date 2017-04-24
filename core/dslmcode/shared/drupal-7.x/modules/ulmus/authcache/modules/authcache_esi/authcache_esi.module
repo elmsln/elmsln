@@ -5,9 +5,9 @@
  */
 
 /**
- * Implements hook_authcache_enum_key_properties().
+ * Implements hook_authcache_enum_key_property_info().
  */
-function authcache_esi_authcache_enum_key_properties() {
+function authcache_esi_authcache_enum_key_property_info() {
   return array(
     'esi' => array(
       'name' => t('Request issued by ESI enabled reverse proxy'),

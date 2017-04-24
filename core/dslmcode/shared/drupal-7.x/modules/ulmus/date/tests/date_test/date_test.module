@@ -1,0 +1,40 @@
+<?php
+
+/**
+ * @file
+ * Contains date test implementations.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function date_test_menu() {
+  $items['date-test/form'] = array(
+    'title' => 'Test form with date element',
+    'description' => "Form with date element to make form related tests",
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('date_test_sample_form'),
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+  return $items;
+}
+
+/**
+ * Form callback. Generates a test form with date elements.
+ */
+function date_test_sample_form($form, &$form_state) {
+  $form['date_test_select'] = array(
+    '#type' => 'date_select',
+    '#title' => t('Sample from'),
+    '#date_format' => 'H:i:s a',
+    '#default_value' => array(
+      'hour' => 7,
+      'minute' => 0,
+      'second' => 0,
+      'ampm' => 'am'
+    ),
+  );
+
+  return $form;
+}

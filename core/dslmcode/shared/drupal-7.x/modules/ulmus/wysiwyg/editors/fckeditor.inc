@@ -19,19 +19,21 @@ function wysiwyg_fckeditor_editor() {
         'files' => array('fckeditor.js'),
       ),
     ),
+    'verified version range' => array('2.6.0', '2.6.11'),
     'version callback' => 'wysiwyg_fckeditor_version',
     'themes callback' => 'wysiwyg_fckeditor_themes',
     'settings form callback' => 'wysiwyg_fckeditor_settings_form',
     'settings callback' => 'wysiwyg_fckeditor_settings',
-    'plugin callback' => 'wysiwyg_fckeditor_plugins',
-    'plugin settings callback' => 'wysiwyg_fckeditor_plugin_settings',
+    'plugin callback' => '_wysiwyg_fckeditor_plugins',
+    'plugin meta callback' => '_wysiwyg_fckeditor_plugin_meta',
+    'plugin settings callback' => '_wysiwyg_fckeditor_plugin_settings',
     'proxy plugin' => array(
       'drupal' => array(
         'load' => TRUE,
         'proxy' => TRUE,
       ),
     ),
-    'proxy plugin settings callback' => 'wysiwyg_fckeditor_proxy_plugin_settings',
+    'proxy plugin settings callback' => '_wysiwyg_fckeditor_proxy_plugin_settings',
     'versions' => array(
       '2.6' => array(
         'js files' => array('fckeditor-2.6.js'),
@@ -120,6 +122,7 @@ function wysiwyg_fckeditor_settings_form(&$form, &$form_state) {
     '#maxlength' => 250,
     '#description' => t('Semicolon separated list of HTML block formats. Possible values: <code>@format-list</code>.', array('@format-list' => 'p;h1;h2;h3;h4;h5;h6;div;address;pre')) . ' ' . t('Uses the <a href="@url">@setting</a> setting internally.', array('@setting' => 'FontFormats', '@url' => url('http://docs.cksource.com/FCKeditor_2.x/Developers_Guide/Configuration/Configuration_Options/FontFormats'))),
   );
+
   $form['paste'] = array(
     '#type' => 'fieldset',
     '#title' => t('Paste plugin'),
@@ -181,25 +184,28 @@ function wysiwyg_fckeditor_settings($editor, $config, $theme) {
   if (isset($config['FontFormats'])) {
     $settings['FontFormats'] = preg_replace('@\s+@', '', $config['FontFormats']);
   }
-  if (isset($config['FormatOutput'])) {
-    $settings['FormatOutput'] = $config['FormatOutput'];
-  }
-  if (isset($config['FormatSource'])) {
-    $settings['FormatSource'] = $config['FormatSource'];
-  }
-  if (isset($config['ForcePasteAsPlainText'])) {
-    $settings['ForcePasteAsPlainText'] = $config['ForcePasteAsPlainText'];
-  }
-  if (isset($config['AutoDetectPasteFromWord'])) {
-    $settings['AutoDetectPasteFromWord'] = $config['AutoDetectPasteFromWord'];
+  $check_if_set = array(
+    'AutoDetectPasteFromWord',
+    'ForcePasteAsPlainText',
+    'FormatOutput',
+    'FormatSource',
+  );
+  foreach ($check_if_set as $setting_name) {
+    if (isset($config[$setting_name])) {
+      $settings[$setting_name] = $config[$setting_name];
+    }
   }
 
   if (isset($config['css_setting'])) {
     if ($config['css_setting'] == 'theme') {
-      $settings['EditorAreaCSS'] = implode(',', wysiwyg_get_css());
+      $settings['EditorAreaCSS'] = implode(',', wysiwyg_get_css(isset($config['css_theme']) ? $config['css_theme'] : ''));
     }
     elseif ($config['css_setting'] == 'self' && isset($config['css_path'])) {
-      $settings['EditorAreaCSS'] = strtr($config['css_path'], array('%b' => base_path(), '%t' => drupal_get_path('theme', variable_get('theme_default', NULL))));
+      $settings['EditorAreaCSS'] = strtr($config['css_path'], array(
+        '%b' => base_path(),
+        '%t' => drupal_get_path('theme', variable_get('theme_default', NULL)),
+        '%q' => variable_get('css_js_query_string', ''),
+      ));
     }
   }
 
@@ -236,22 +242,30 @@ function wysiwyg_fckeditor_settings($editor, $config, $theme) {
 }
 
 /**
- * Build a JS settings array of native external plugins that need to be loaded separately.
+ * Build a JS settings array with global metadata for native external plugins.
  */
-function wysiwyg_fckeditor_plugin_settings($editor, $profile, $plugins) {
+function _wysiwyg_fckeditor_plugin_meta($editor, $plugin) {
+  $meta = array();
+  // Add path for native external plugins; internal ones do not need a path.
+  if (empty($plugin['internal']) && isset($plugin['path'])) {
+    // All native FCKeditor plugins use the filename fckplugin.js.
+    $meta['path'] = base_path() . $plugin['path'] . '/';
+  }
+  if (!empty($plugin['languages'])) {
+    $meta['languages'] = $plugin['languages'];
+  }
+  return $meta;
+}
+
+/**
+ * Build a JS settings array for native external plugins.
+ */
+function _wysiwyg_fckeditor_plugin_settings($editor, $profile, $plugins) {
   $settings = array();
   foreach ($plugins as $name => $plugin) {
-    // Register all plugins that need to be loaded.
     if (!empty($plugin['load'])) {
-      $settings[$name] = array();
-      // Add path for native external plugins; internal ones do not need a path.
-      if (empty($plugin['internal']) && isset($plugin['path'])) {
-        // All native FCKeditor plugins use the filename fckplugin.js.
-        $settings[$name]['path'] = base_path() . $plugin['path'] . '/';
-      }
-      if (!empty($plugin['languages'])) {
-        $settings[$name]['languages'] = $plugin['languages'];
-      }
+      // Just need a list of all enabled plugins for each instance.
+      $settings[$name] = TRUE;
     }
   }
   return $settings;
@@ -260,25 +274,20 @@ function wysiwyg_fckeditor_plugin_settings($editor, $profile, $plugins) {
 /**
  * Build a JS settings array for Drupal plugins loaded via the proxy plugin.
  */
-function wysiwyg_fckeditor_proxy_plugin_settings($editor, $profile, $plugins) {
+function _wysiwyg_fckeditor_proxy_plugin_settings($editor, $profile, $plugins) {
   $settings = array();
   foreach ($plugins as $name => $plugin) {
-    // Populate required plugin settings.
-    $settings[$name] = $plugin['dialog settings'] + array(
-      'title' => $plugin['title'],
-      'icon' => base_path() . $plugin['icon path'] . '/' . $plugin['icon file'],
-      'iconTitle' => $plugin['icon title'],
-      // @todo These should only be set if the plugin defined them.
-      'css' => base_path() . $plugin['css path'] . '/' . $plugin['css file'],
-    );
+    // Just need a list of all enabled plugins for each instance.
+    $settings[$name] = TRUE;
   }
   return $settings;
 }
 
+
 /**
  * Return internal plugins for this editor; semi-implementation of hook_wysiwyg_plugin().
  */
-function wysiwyg_fckeditor_plugins($editor) {
+function _wysiwyg_fckeditor_plugins($editor) {
   $plugins = array(
     'default' => array(
       'buttons' => array(

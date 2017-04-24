@@ -45,7 +45,10 @@ function search_api_views_search_api_index_update(SearchApiIndex $index) {
  * Implements hook_search_api_index_delete().
  */
 function search_api_views_search_api_index_delete(SearchApiIndex $index) {
-  _search_api_views_index_unavailable($index);
+  // Only do this if this is a "real" deletion, no revert.
+  if (!$index->hasStatus(ENTITY_IN_CODE)) {
+    _search_api_views_index_unavailable($index);
+  }
 }
 
 /**

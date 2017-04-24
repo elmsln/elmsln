@@ -8,7 +8,7 @@ class context_condition_bookroot extends context_condition_node {
     if ($this->condition_used() && !empty($node->book['bid'])) {
       $type = db_select('node')
         ->fields('node', array('type'))
-        ->condition('nid', $node->book['nid'])
+        ->condition('nid', $node->book['bid'])
         ->execute()
         ->fetchField();
       $book = new stdClass();

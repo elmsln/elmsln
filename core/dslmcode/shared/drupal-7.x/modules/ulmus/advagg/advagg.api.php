@@ -6,8 +6,14 @@
  */
 
 /**
- * @addtogroup hooks
+ * @defgroup advagg_hooks Advanced Aggregates Hooks
+ *
  * @{
+ * Hooks for modules to implement to extend or modify Advanced Aggregates.
+ *
+ * For more examples of use see most of the Advanced Agregrates sub modules.
+ *
+ * @see https://api.drupal.org/api/drupal/includes%21module.inc/group/hooks/7.x
  */
 
 /**
@@ -86,7 +92,7 @@ function hook_advagg_changed_files(array $files, array $types) {
   $return = array();
   foreach ($files as $filename => $meta_data) {
     // Only care about js files.
-    $ext = pathinfo($filename, PATHINFO_EXTENSION);
+    $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
     if ($ext !== 'js') {
       continue;
     }
@@ -692,5 +698,5 @@ function hook_advagg_bundler_analysis_alter(array &$analysis) {
 }
 
 /**
- * @} End of "addtogroup hooks".
+ * @} End of "defgroup advagg_hooks".
  */

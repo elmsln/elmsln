@@ -7,6 +7,9 @@
 
 /**
  * Menu callback for general reporting.
+ *
+ * @return string
+ *   Themed report page.
  */
 function linkchecker_admin_report_page() {
 
@@ -42,6 +45,12 @@ function linkchecker_admin_report_page() {
 
 /**
  * Menu callback for author specific reporting.
+ *
+ * @param object $account
+ *   The user account.
+ *
+ * @return string
+ *   Themed report page.
  */
 function linkchecker_user_report_page($account) {
   drupal_set_title($account->name);
@@ -63,7 +72,8 @@ function linkchecker_user_report_page($account) {
   $subquery2->distinct();
   $subquery2->fields('ll', array('lid'));
 
-  if (variable_get('linkchecker_scan_comments', 0)) {
+  $comment_types = linkchecker_scan_comment_types();
+  if (!empty($comment_types)) {
     // Build query for broken links in nodes and comments of the current user.
     $subquery3 = db_select('comment', 'c');
     $subquery3->innerJoin('linkchecker_comment', 'lc', 'lc.cid = c.cid');
@@ -163,7 +173,8 @@ function _linkchecker_report_page($query, $account = NULL) {
     }
 
     // Show link to comments having this broken link.
-    if (module_exists('comment') && variable_get('linkchecker_scan_comments', 0)) {
+    $comment_types = linkchecker_scan_comment_types();
+    if (module_exists('comment') && !empty($comment_types)) {
       foreach ($cids as $cid) {
         $links[] = l(t('Edit comment @comment', array('@comment' => $cid)), 'comment/' . $cid . '/edit', array('query' => drupal_get_destination()));
       }

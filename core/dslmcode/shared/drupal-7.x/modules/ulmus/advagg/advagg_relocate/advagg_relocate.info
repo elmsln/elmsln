@@ -1,0 +1,13 @@
+name = AdvAgg Relocate
+description = Inline css import rules; also make any external file local.
+core = 7.x
+dependencies[] = advagg
+package = Advanced CSS/JS Aggregation
+configure = admin/config/development/performance/advagg/relocate
+
+; Information added by Drupal.org packaging script on 2017-03-18
+version = "7.x-2.21"
+core = "7.x"
+project = "advagg"
+datestamp = "1489797486"
+

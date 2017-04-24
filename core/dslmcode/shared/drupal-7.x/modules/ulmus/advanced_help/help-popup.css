@@ -1,27 +1,33 @@
 
 body {
+  background: #edf5fa;
+  color: #494949;
+  font: 12px/170% Verdana, sans-serif;
   margin: 0;
   padding: 0;
-  background: #edf5fa;
-  font: 12px/170% Verdana, sans-serif;
-  color: #494949;
 }
 
 input {
+  color: #494949;
   font: 12px/100% Verdana, sans-serif;
-  color: #494949;
 }
 
-textarea, select {
+textarea,
+select {
+  color: #494949;
   font: 12px/160% Verdana, sans-serif;
-  color: #494949;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: Helvetica, Arial, sans-serif;
+  font-weight: normal;
   margin: 0;
   padding: 0;
-  font-weight: normal;
-  font-family: Helvetica, Arial, sans-serif;
 }
 
 h1 {
@@ -49,7 +55,10 @@ h6 {
   font-size: 110%;
 }
 
-ul, quote, code, fieldset {
+ul,
+quote,
+code,
+fieldset {
   margin: .5em 0;
 }
 
@@ -58,32 +67,34 @@ p {
   padding: 0;
 }
 
-a:link, a:visited {
-  color: #027AC6;
+a:link,
+a:visited {
+  color: #027ac6;
   text-decoration: none;
 }
 
 a:hover {
-  color: #0062A0;
+  color: #0062a0;
   text-decoration: underline;
 }
 
-a:active, a.active {
+a:active,
+a.active {
   color: #5895be;
 }
 
 hr {
-  margin: 0;
-  padding: 0;
+  background: #5294c1;
   border: none;
   height: 1px;
-  background: #5294c1;
+  margin: 0;
+  padding: 0;
 }
 
-ol li, ul li {
+ol li,
+ul li {
   margin: 0.4em 0 0.4em .5em; /* LTR */
 }
-
 
 #content {
   margin: .5em 1em 1em 1em;
@@ -94,21 +105,21 @@ ol li, ul li {
 }
 
 div#breadcrumb {
-  padding-left: 1em;
   background-color: white;
   border-bottom: 1px solid #ccc;
   height: 2em;
+  padding-left: 1em;
 }
 
 div#breadcrumb .breadcrumb {
-  padding: 0;
   margin: 0;
+  padding: 0;
 }
 
-code, pre {
-  border: 1px solid #444;
+pre {
   background: #f1f1f1;
+  border: 1px solid #ccc;
+  display: block;
   margin: 1em;
   padding: .2em;
-  display: block;
 }

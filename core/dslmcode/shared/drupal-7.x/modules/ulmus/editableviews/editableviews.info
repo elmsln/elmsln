@@ -10,15 +10,16 @@ files[] = editableviews_plugin_style_row_edit_table.inc
 files[] = handlers/editableviews_handler_field_field_edit.inc
 files[] = handlers/editableviews_handler_field_node_title_edit.inc
 files[] = handlers/editableviews_handler_field_entity_metadata_property.inc
+files[] = handlers/editableviews_handler_field_save_button_jump_link.inc
 
 files[] = tests/editableviews.test
 
 test_dependencies[] = entityreference
 test_dependencies[] = features
 
-; Information added by Drupal.org packaging script on 2014-04-18
-version = "7.x-1.0-beta8"
+; Information added by Drupal.org packaging script on 2015-07-28
+version = "7.x-1.0-beta10"
 core = "7.x"
 project = "editableviews"
-datestamp = "1397838560"
+datestamp = "1438114140"
 

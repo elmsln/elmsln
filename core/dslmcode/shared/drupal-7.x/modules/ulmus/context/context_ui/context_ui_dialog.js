@@ -9,11 +9,11 @@
         selector.detach();
         $('#page').prepend(selector);
 
-        var labelOpen = Drupal.t('Select Context');
+        var labelOpen = Drupal.t('Select context');
         var labelClose = Drupal.t('Hide');
 
         // Create a tab to show/hide our edit area
-        var tab = $('<a href="javascript:" class="context-ui-dialog-open" title="Show Context Selector">'+labelClose+'</a>');
+        var tab = $('<a href="javascript:" class="context-ui-dialog-open" title="' + Drupal.t('Show context selector') + '">'+labelClose+'</a>');
         selector.append(tab);
 
         selector.toggled = false;

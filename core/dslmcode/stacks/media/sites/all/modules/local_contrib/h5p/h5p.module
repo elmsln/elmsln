@@ -140,8 +140,7 @@ function remove_old_log_events() {
 function h5p_fetch_libraries_metadata($fetchingDisabled = FALSE) {
   // If fetching of libraries from h5p.org is enabled and
   // It has not been run the last 24 hours, let's do it
-  // Intentionally not doing === TRUE on h5p_allow_communication_with_h5p_org test
-  if ($fetchingDisabled || (variable_get('h5p_allow_communication_with_h5p_org', TRUE) &&
+  if ($fetchingDisabled || ((variable_get('h5p_hub_is_enabled', TRUE) || variable_get('h5p_send_usage_statistics', TRUE)) &&
      (intval(variable_get('h5p_fetched_library_metadata_on', 0)) < (time() - 86400)))) {
     // Fetch the library-metadata:
     $core = _h5p_get_instance('core');
@@ -203,7 +202,7 @@ function h5p_node_info() {
     'h5p_content' => array(
       'name' => t('Interactive content'),
       'base' => 'h5p',
-      'description' => 'Upload HTML5 packages(.h5p) to create interactive content.',
+      'description' => t('Create interactive H5P content'),
     ),
   );
 }
@@ -759,7 +758,7 @@ function h5p_set_started($content_id) {
 function h5p_set_finished() {
   global $user;
 
-  if (!H5PCore::validToken('result', filter_input(INPUT_POST, 'token'))) {
+  if (!H5PCore::validToken('result', filter_input(INPUT_GET, 'token'))) {
     return H5PCore::ajaxError(t('Invalid security token.'));
   }
 
@@ -819,14 +818,9 @@ function h5p_get_core_settings() {
     'baseUrl' => $base_url,
     'url' => base_path() . _h5p_get_h5p_path(),
     'postUserStatistics' =>  $user->uid > 0,
-    'ajaxPath' => url('h5p-ajax') . '/',
     'ajax' => array(
-      'setFinished' => url('h5p-ajax/set-finished.json'),
-      'contentUserData' => str_replace('%3A', ':', url('h5p-ajax/content-user-data/:contentId/:dataType/:subContentId'))
-    ),
-    'tokens' => array(
-      'result' => H5PCore::createToken('result'),
-      'contentUserData' => H5PCore::createToken('contentuserdata')
+      'setFinished' => url('h5p-ajax/set-finished.json', array('query' => array('token' => \H5PCore::createToken('result')))),
+      'contentUserData' => str_replace('%3A', ':', url('h5p-ajax/content-user-data/:contentId/:dataType/:subContentId', array('query' => array('token' => \H5PCore::createToken('contentuserdata')))))
     ),
     'saveFreq' => variable_get('h5p_save_content_state', 0) ? variable_get('h5p_save_content_frequency', 30) : FALSE,
     'l10n' => array(
@@ -864,7 +858,8 @@ function h5p_get_core_settings() {
         'cancelLabel' => t('Cancel'),
         'confirmLabel' => t('Confirm')
       )
-    )
+    ),
+    'hubIsEnabled' => variable_get('h5p_hub_is_enabled', TRUE) ? TRUE : FALSE
   );
 
   if ($user->uid) {
@@ -1154,7 +1149,7 @@ function _h5p_maintain_session_variables() {
  *  Core functions and storage in the h5p library
  * @param string $type
  *  Specifies the instance to be returned; validator, storage, interface or core
- * @return object
+ * @return H5PDrupal|H5PValidator|H5PStorage|H5PContentValidator|H5PExport|H5PCore
  *  The instance og h5p specified by type
  */
 function _h5p_get_instance($type) {
@@ -1163,29 +1158,29 @@ function _h5p_get_instance($type) {
 
   if (!isset($interface)) {
     $interface = new H5PDrupal();
+    $fs = new \H5PDefaultStorage(_h5p_get_h5p_path(), file_stream_wrapper_get_instance_by_uri('public://')->getDirectoryPath() . DIRECTORY_SEPARATOR . 'h5peditor');
+    $core = new H5PCore($interface, $fs, base_path(), $language->language, (variable_get('h5p_export', '1') ? TRUE : FALSE));
 
-    $development_mode = H5PDevelopment::MODE_NONE;
+    // Override regex for converting copied files paths
+    $core->relativePathRegExp = '/^((\.\.\/){1,3})(.*content\/)?(\d+|h5peditor)\/(.+)$/';
+
 //    if (variable_get('h5p_content_dev_mode', '0') === 1) {
-//      $development_mode |= H5PDevelopment::MODE_CONTENT;
+//      $core->development_mode |= H5PDevelopment::MODE_CONTENT;
 //      drupal_set_message(t('H5P content development mode is enabled. Change <a href="@settings-page">settings</a>.', array('@settings-page' => url('admin/config/system/h5p'))), 'warning', FALSE);
 //    }
     if (variable_get('h5p_library_development', 0) === 1) {
-      $development_mode |= H5PDevelopment::MODE_LIBRARY;
-      $preprocess_css_or_js = variable_get('preprocess_css', 0) === '1' || variable_get('preprocess_js', 0) === '1';
+      $core->development_mode |= H5PDevelopment::MODE_LIBRARY;
+      $core->h5pD = new H5PDevelopment($interface, _h5p_get_h5p_path() . '/', $language->language);
 
       $message = t('H5P library development directory is enabled. Change <a href="@settings-page">settings</a>.', array('@settings-page' => url('admin/config/system/h5p')));
 
+      $preprocess_css_or_js = variable_get('preprocess_css', 0) === '1' || variable_get('preprocess_js', 0) === '1';
       if ($preprocess_css_or_js) {
         $message .= '<br/>' . t('Preprocessing of css and/or js files is enabled. This is not supported when using the development directory option. Please disable preprocessing, and clear the cache');
       }
 
       drupal_set_message($message, 'warning', FALSE);
     }
-
-    $core = new H5PCore($interface, _h5p_get_h5p_path(), base_path(), $language->language, (variable_get('h5p_export', '1') ? TRUE : FALSE), $development_mode);
-
-    // Override regex for converting copied files paths
-    $core->relativePathRegExp = '/^((\.\.\/){1,3})(.*content\/)?(\d+|h5peditor)\/(.+)$/';
   }
 
   switch ($type) {
@@ -1329,7 +1324,6 @@ function h5p_access_user_points($account = NULL) {
 
 /**
  * Handles insert, updating and deleteing content user data through AJAX.
- * TODO: Use token to prevent false deletion of data?
  *
  * @param string $content_id
  * @param string $data_id
@@ -1354,7 +1348,7 @@ function h5p_content_user_data($content_id, $data_id, $sub_content_id) {
   $preload = filter_input(INPUT_POST, 'preload');
   $invalidate = filter_input(INPUT_POST, 'invalidate');
   if ($data !== NULL && $preload !== NULL && $invalidate !== NULL) {
-    if (!H5PCore::validToken('contentuserdata', filter_input(INPUT_POST, 'token'))) {
+    if (!H5PCore::validToken('contentuserdata', filter_input(INPUT_GET, 'token'))) {
       return H5PCore::ajaxError(t('Invalid security token.'));
     }
 

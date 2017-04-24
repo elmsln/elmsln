@@ -1,12 +1,11 @@
 name = Field Collection Table
 description = Provides a field-collection table formatter.
 core = 7.x
-configure = admin/config/user-interface/field_collection_table
 dependencies[] = field_collection
 
-; Information added by drupal.org packaging script on 2012-06-12
-version = "7.x-1.0-beta1+2-dev"
+; Information added by Drupal.org packaging script on 2017-02-21
+version = "7.x-1.0-beta5"
 core = "7.x"
 project = "field_collection_table"
-datestamp = "1339460023"
+datestamp = "1487676487"
 

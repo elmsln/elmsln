@@ -13,7 +13,7 @@ class CtoolsMathExpressionStackTestCase extends DrupalWebTestCase {
     return array(
       'name' => 'CTools math expression stack tests',
       'description' => 'Test the stack class of the math expression library.',
-      'group' => 'Chaos Tools Suite',
+      'group' => 'ctools',
     );
   }
 

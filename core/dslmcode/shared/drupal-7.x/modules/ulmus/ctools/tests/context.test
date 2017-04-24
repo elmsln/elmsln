@@ -5,7 +5,7 @@ class CtoolsContextKeywordsSubstitutionTestCase extends DrupalWebTestCase {
     return array(
       'name' => 'Keywords substitution',
       'description' => 'Verify that keywords are properly replaced with data.',
-      'group' => 'Chaos Tools Suite',
+      'group' => 'ctools',
     );
   }
 
@@ -50,6 +50,30 @@ class CtoolsContextKeywordsSubstitutionTestCase extends DrupalWebTestCase {
       '%%%node:title' => array(
         "%{$node->title}",
         t('Keyword after escaped and unescaped percent sign has been replaced.'),
+      ),
+      '%%foo:bar' => array(
+        "%foo:bar",
+        t('Non-existant context ignored.'),
+      ),
+      'There was about 20%-30% difference in price.' => array(
+        'There was about 20%-30% difference in price.',
+        t('Non-keyword percent sign left untouched.'),
+      ),
+      'href="my%20file%2dname.pdf"' => array(
+        'href="my%20file%2dname.pdf"',
+        t('HTTP URL escape left untouched.'),
+      ),
+      'href="my%a0file%fdname.pdf"' => array(
+        'href="my%a0file%fdname.pdf"',
+        t('HTTP URL escape (high-chars) left untouched.'),
+      ),
+      '<a href="http://www.example.com/here%20is%20a%20pdf.pdf">Click here!</a>' => array(
+        '<a href="http://www.example.com/here%20is%20a%20pdf.pdf">Click here!</a>',
+        t('HTTP URL escape percent sign left untouched in HTML.'),
+      ),
+      'SELECT * FROM {table} WHERE field = "%s"' => array(
+        'SELECT * FROM {table} WHERE field = "%s"',
+        t('SQL percent sign left untouched.'),
       ),
     );
     foreach ($checks as $string => $expectations) {

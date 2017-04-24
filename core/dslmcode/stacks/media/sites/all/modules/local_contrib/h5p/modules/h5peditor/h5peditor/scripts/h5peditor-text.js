@@ -82,6 +82,13 @@ ns.Text.prototype.validate = function () {
 
   var value = H5P.trim(this.$input.val());
 
+  if (this.$errors.html().length > 0) {
+    this.$input.addClass('error');
+  }
+
+  // Clear errors before showing new ones
+  this.$errors.html('');
+
   if ((that.field.optional === undefined || !that.field.optional) && !value.length) {
     this.$errors.append(ns.createError(ns.t('core', 'requiredProperty', {':property': ns.t('core', 'textField')})));
   }

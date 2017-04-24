@@ -14,7 +14,7 @@ class context_reaction_template_suggestions extends context_reaction {
     return array(
       '#title' => t('Template suggestions'),
       '#type' => 'textarea',
-      '#description' => t('Enter template suggestions such as "page__front", one per line, in order of preference (using underscores instead of hyphens).  For more information, please visit ') . l(t('Drupal 7 Template (Theme Hook) Suggestions'), 'http://drupal.org/node/1089656', array(array('target' => '_blank'), 'html' => TRUE,)) . '.',
+      '#description' => t('Enter template suggestions such as "page__front", one per line, in order of preference (using underscores instead of hyphens). For more information, please visit <a href="@template-suggestions">Drupal 7 Template (Theme Hook) Suggestions</a>.', array('@template-suggestions' => 'http://drupal.org/node/1089656')),
       '#default_value' => is_string($default_value) ? $default_value : '',
     );
   }

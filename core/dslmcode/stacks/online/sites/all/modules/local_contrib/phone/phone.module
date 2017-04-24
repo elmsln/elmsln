@@ -39,6 +39,7 @@ function phone_countries($code = NULL) {
       'mo' => 'Macao',
       'ph' => 'The Philippines',
       'sg' => 'Singapore',
+      'sn' => 'Senegal',
       'jo' => 'Jordan',
       'eg' => 'Egypt',
       'pk' => 'Pakistan',

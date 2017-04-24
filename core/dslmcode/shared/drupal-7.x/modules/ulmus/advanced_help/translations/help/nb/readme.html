@@ -1,0 +1,116 @@
+<h2>Om denne oversettelsen</h2>
+
+<p>Dette er en (delvis) oversettelse til <em>norsk</em> (bokmål) av
+hjelpeteksene for <strong>Avansert hjelp</strong>.  Den er i første
+rekke laget for å vise hvordan en oversettelse av hjelpetekstene ser
+ut.</p>
+
+<h2 id="project-description">Synopsis</h2>
+
+<p>Modulen <strong>Avansert hjelp</strong> tilbyr et rammeverk som gjør
+det mulig for modul- og theme-utviklere å integrere hjelpetekster i et
+Drupal-nettsted.</p>
+
+<p>Disse hjelpetekstene lagres som vanlige <code>.html</code>-filer
+som lever i filsystemet (ikke i databasen).  Disse filene distribueres
+fra prosjektes repo på Drupal.org i den samme pakken som prosjektets
+øvrige filer, og plasseres i en en underkatalog med navnet
+<code>help</code> i prosjektets katalog.  Det innebærer at
+hjelpetekstene på en enkel måte kan holdes synkronisert med det
+prosjektet hjelpen er knyttet til, men også at tilgangen til disse
+filene ikke er underlagt de tilgangsbegrensningene som Drupal
+administrerer.</p>
+
+<p>Hjelpetekstene kan bruke standard HTML-markeringer De vil bli vist
+med ditt nettsteds theme.</p>
+
+<p>Dersom prosjektets forfatter ikke bruker HTML-rammeverket for
+<em>Avansert hjelp</em>, men det finnes en 
+<code>README.md</code> eller <code>README.txt</code> i pakken,
+så vil innholdet av den filen vises i stedet.</p>
+  
+<p>Hjelpetekstene kan vises i et sprettopp-vindu eller ikke, ut fra
+prosjektets preferanser.  Ved å fjerne tilgangen til å se
+sprettopp-vinduer kan nedstedet skjule sprettopp-vinduer fra
+brukere.</p>
+
+<p>Hjelpetekstene kan organiseres hierarkisk, noe som gjør det mulig
+og navigere fra toppen av og nedover for hjelp.</p>
+
+<p>Hjelpetekstene kan gjøres søkbare.  Dersom søk av avansert hjelp er
+slått på, vil all hjelpetekst indekseres. Dette innebærer at alt
+innhold på sidene med avansert hjelp er søkbart med nøkkelord.</p>
+
+<h2 id="use">Bruk av modulen</h2>
+
+<p>When you enable the module, a new tab with the legend “Advanced
+help” will show up under “Help”:
+
+<div class="ta-center">
+<img class="help-img-center" alt="ahelp_tab.png" src="&path&ahelp_tab.png" width="661" height="225" border="1" />
+</div>
+
+<p>By itself, this module doesn't do much.  The <strong>Avansert
+hjelp</strong> assists other modules and themes in showing help texts.
+Nothing will show up until you enable at least one other module that
+makes use of the advanced help framework or comes with a file
+named <code>README.md</code> or <code>README.txt</code>.  However, it
+comes with a small companion demo module named
+<strong>Eksempel på hjelp</strong> to demonstrate how it works.
+For more extensive example of use of the advanced help features, see
+the <strong>Views</strong> project.</p>
+
+<!--
+<h2 id="project-recommended">Anbefalte moduler</h2>
+
+<ul>
+<li><a href="https://www.drupal.org/project/markdown">Markdown filter</a>:<br>
+When this module is enabled, display of any <code>README.md</code> the
+module shows will be rendered with markdown.</li>
+<li><a href="https://www.drupal.org/project/attributions">Attributions</a>:<br>
+When this module is enabled, attributions of third party content used
+by the project (i.e. some text from Wikipedia) will be available in an
+attribution block and on an atribution page.</li>
+</ul>
+-->
+
+<h2 id="support-status">Status for oppfølging</h2>
+
+<p>Reported bugs for the Drupal 7 branch will be fixed in a timely
+manner.  Bugs in the issue queue for the Drupal 6 branch will only be
+fixed if accompanied with a patch, after the patch has been reviewed
+and tested by the community.  No Drupal 8 version is currently under
+development.  Post a message in
+the <a href="https://www.drupal.org/node/1928218">issue queue</a> if
+you're interested in managing a port of the project to to Drupal
+8. Older versions are no longer supported.</p>
+
+<p>Community support in the form of patches are very welcome for both
+Drupal 6 and Drupal 7 versions, and will be given priority. For QA,
+the project needs community support in the form of reviews of patches,
+development versions and releases.</p>
+
+<p>The primary goal of the module is to remain <strong>light-weight
+and simple</strong>.  This means that not all feature requests will be
+implemented, even if they are a good idea.  Feature requests
+accompanied by patches are more likely to make it into a release.</p>
+
+<p>The maintainer hopes that the community is willing to help out by
+answering &amp; closing support requests.</p>
+
+<!--
+<h2 id="project-problems">Kjente problemer</h2>
+-->
+
+
+
+<h2 id="project-maintainers">Kreditering</h2>
+
+<ul>
+<li><a href="https://www.drupal.org/u/merlinofchaos"">merlinofchaos</a> (52 commits, opprinnelig forfatter)</li>
+<li><a href="https://www.drupal.org/u/redndahead">redndahead</a> (8 commits)</li>
+<li><a href="https://www.drupal.org/u/dmitrig01">dmitrig01</a> (3 commits)</li>
+<li><a href="https://www.drupal.org/u/amitgoyal">amitgoyal </a> (5 commits)</li>
+<li><a href="https://www.drupal.org/u/gisle">gisle</a> (nåværende administrator, D7)</li>
+<li><a href="https://www.drupal.org/u/gnuget">gnuget</a> (nåværende administrator, D8)</li>
+</ul>

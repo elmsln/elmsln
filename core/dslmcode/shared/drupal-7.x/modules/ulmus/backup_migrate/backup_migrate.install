@@ -584,7 +584,7 @@ function backup_migrate_update_7300() {
  * Switch the cron switch to text.
  */
 function backup_migrate_update_7301() {
-  db_change_field('backup_migrate_schedules', 'cron', 'cron', array('type' => 'varchar', 'length' => 32, 'not null' => TRUE));
+  db_change_field('backup_migrate_schedules', 'cron', 'cron', array('type' => 'varchar', 'length' => 32, 'not null' => TRUE, 'default' => 'builtin'));
   db_add_field('backup_migrate_schedules', 'cron_schedule', array('description' => 'The cron schedule to run on.', 'type' => 'varchar', 'length' => 255, 'default' => '0 4 * * *', 'not null' => TRUE));
 }
 
@@ -608,8 +608,18 @@ function backup_migrate_update_7302() {
  */
 function backup_migrate_update_7303() {
   foreach (array('backup_migrate_sources' => 'source_id', 'backup_migrate_destinations' => 'destination_id', 'backup_migrate_schedules' => 'schedule_id', 'backup_migrate_profiles' => 'profile_id') as $table => $id) {
+    // Take the primary key status from the machine name so it can be renamed
+    // A serial field must be defined as a key, so make a temporary index.
+    // See: https://www.drupal.org/node/190027
+    db_add_index($table, 'temp', array($id));
     db_drop_primary_key($table);
+    // Drop our temporary index.
+    db_drop_index($table, 'temp');
+
+    // Switch the name of the id to 'machine_name' to be more ctools standard
     db_change_field($table, $id, 'machine_name', array('type' => 'varchar', 'length' => 32, 'not null' => TRUE));
+
+    // Add a serial ID
     db_add_field($table, $id, 
       array(
           'type' => 'serial',
@@ -626,3 +636,9 @@ function backup_migrate_update_7303() {
   }
 }
 
+/**
+ * Update all schedules to use the built in cron if none is specified.
+ */
+function backup_migrate_update_7304() {
+  db_query("UPDATE {backup_migrate_schedules} SET cron = 'builtin' WHERE cron = '0'");
+}

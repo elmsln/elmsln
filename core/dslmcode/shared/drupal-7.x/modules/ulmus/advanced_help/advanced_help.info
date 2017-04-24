@@ -1,12 +1,18 @@
 name = Advanced help
-description = Allow advanced help and documentation.
+description = Provide extended help and documentation.
 core = 7.x
-files[] = advanced_help.module
-files[] = advanced_help.install
 
-; Information added by drupal.org packaging script on 2011-11-11
-version = "7.x-1.0"
+attributions[click_icon][type] = 'asset'
+attributions[click_icon][exception] = '#2460769'
+attributions[click_icon][author] = 'Gisle Hannemyr'
+attributions[click_icon][hide] = TRUE
+attributions[click_icon][title] = 'click_icon.png'
+attributions[click_icon][license] = 'Creative Commons 0'
+attributions[click_icon][license_url] = 'https://creativecommons.org/publicdomain/zero/1.0/'
+
+; Information added by Drupal.org packaging script on 2015-05-25
+version = "7.x-1.3"
 core = "7.x"
 project = "advanced_help"
-datestamp = "1321022730"
+datestamp = "1432557782"
 

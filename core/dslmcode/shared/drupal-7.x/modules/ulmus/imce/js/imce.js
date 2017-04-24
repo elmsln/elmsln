@@ -161,19 +161,26 @@ fileRemove: function(fid) {
 
 //return a file object containing all properties.
 fileGet: function (fid) {
+  var file = imce.fileProps(fid);
+  if (file) {
+    file.name = imce.decode(fid);
+    file.url = imce.getURL(fid);
+    file.relpath = imce.getRelpath(fid);
+    file.id = imce.urlId[file.url] || 0; //file id for newly uploaded files
+  }
+  return file;
+},
+
+//return file properties embedded in html.
+fileProps: function (fid) {
   var row = imce.fids[fid];
-  var url = imce.getURL(fid);
   return row ? {
-    name: imce.decode(fid),
-    url: url,
     size: row.cells[1].innerHTML,
     bytes: row.cells[1].id * 1,
     width: row.cells[2].innerHTML * 1,
     height: row.cells[3].innerHTML * 1,
     date: row.cells[4].innerHTML,
-    time: row.cells[4].id * 1,
-    id: imce.urlId[url] || 0, //file id for newly uploaded files
-    relpath: (imce.conf.dir == '.' ? '' : imce.conf.dir +'/') + fid //rawurlencoded path relative to file directory path.
+    time: row.cells[4].id * 1
   } : null;
 },
 
@@ -514,7 +521,8 @@ fopSettings: function (fop) {
 fopLoading: function(fop, state) {
   var el = imce.el('edit-'+ fop), func = state ? 'addClass' : 'removeClass';
   if (el) {
-    $(el)[func]('loading').attr('disabled', state);
+    $(el)[func]('loading');
+    el.disabled = state;
   }
   else {
     $(imce.ops[fop].li)[func]('loading');
@@ -626,7 +634,7 @@ resMsgs: function (msgs) {
 
 //return img markup
 imgHtml: function (fid, width, height) {
-  return '<img src="'+ imce.getURL(fid) +'" width="'+ width +'" height="'+ height +'" alt="'+ imce.decodePlain(fid) +'">';
+  return '<img src="'+ imce.getURL(fid, true) +'" width="'+ width +'" height="'+ height +'" alt="'+ imce.decodePlain(fid) +'">';
 },
 
 //check if the file is an image
@@ -675,9 +683,23 @@ serialNames: function () {
 },
 
 //get file url. re-encode & and # for mod rewrite
-getURL: function (fid) {
-  var path = (imce.conf.dir == '.' ? '' : imce.conf.dir +'/') + fid;
-  return imce.conf.furl + (imce.conf.modfix ? path.replace(/%(23|26)/g, '%25$1') : path);
+getURL: function (fid, uncached) {
+  var url = imce.getRelpath(fid);
+  if (imce.conf.modfix) {
+    url = url.replace(/%(23|26)/g, '%25$1');
+  }
+  url = imce.conf.furl + url;
+  if (uncached) {
+    var file = imce.fileProps(fid);
+    url += (url.indexOf('?') === -1 ? '?' : '&') + 's' + file.bytes + 'd' + file.time;
+  }
+  return url;
+},
+
+//get encoded file path relative to root. 
+getRelpath: function (fid) {
+  var dir = imce.conf.dir;
+  return (dir === '.' ? '' : dir + '/') + fid;
 },
 
 //el. by id

@@ -74,99 +74,90 @@ function jquery_update_library() {
 
 /**
  * Implements hook_library_alter().
+ *
+ * {@inheritdoc}
  */
-function jquery_update_library_alter(&$javascript, $module) {
+function jquery_update_library_alter(&$libraries, $module) {
+  // Immediately return if not modifying the system libraries.
+  if ($module !== 'system') {
+    return;
+  }
+
   $path = drupal_get_path('module', 'jquery_update');
   $min = variable_get('jquery_update_compression_type', 'min') == 'none' ? '' : '.min';
-  $version = variable_get('jquery_update_jquery_version', '1.10');
+  $jquery_version = variable_get('jquery_update_jquery_version', '1.10');
+
+  // Make sure we inject either the minified or uncompressed version as desired.
+  $cdn = variable_get('jquery_update_jquery_cdn', 'none');
 
   // Replace jQuery with the alternative version.
-  $admin_version = variable_get('jquery_update_jquery_admin_version', '');
-
-  if (!empty($admin_version) && path_is_admin(current_path())) {
-    if (version_compare($version, $admin_version, '!=')) {
-      $version = $admin_version;
-    }
+  $theme_version = theme_get_setting('jquery_update_jquery_version');
+  if ($theme_version && version_compare($jquery_version, $theme_version, '!=')) {
+    $jquery_version = $theme_version;
   }
+
   // If the ajax version is set then that one always win.
   if (!empty($_POST['ajax_page_state']['jquery_version'])) {
     $ajax_version = $_POST['ajax_page_state']['jquery_version'];
-    if (in_array($ajax_version, array('default', '1.5', '1.6', '1.7', '1.8', '1.9', '1.10'))) {
-      $version = $ajax_version;
+    if (in_array($ajax_version, array('default') + jquery_update_get_versions())) {
+      $jquery_version = $ajax_version;
     }
   }
 
-  // Modified System Library.
-  if ($module === 'system') {
+  // Always add a new jquery_version array to ajaxPageState.
+  // This is what we used to determine which version to use
+  // for any ajax callback.
+  $libraries['drupal.ajax']['js'][] = array(
+    'data' => array('ajaxPageState' => array('jquery_version' => $jquery_version)),
+    'type' => 'setting',
+  );
+  $libraries['drupal.ajax']['dependencies'][] = array('jquery_update', 'jquery_update.ajax.fix');
 
-    // Make sure we inject either the minified or uncompressed version as desired.
-    $cdn = variable_get('jquery_update_jquery_cdn', 'none');
+  // Don't replace anything if Drupal provided jQuery should be used
+  if ('default' == $jquery_version) {
+    return;
+  }
 
-    // Replace jQuery with the alternative version.
-    $theme_version = theme_get_setting('jquery_update_jquery_version');
-    if ($theme_version && version_compare($version, $theme_version, '!=')) {
-      $version = $theme_version;
-    }
-    // If the ajax version is set then that one always win.
-    if (!empty($_POST['ajax_page_state']['jquery_version'])) {
-      $ajax_version = $_POST['ajax_page_state']['jquery_version'];
-      if ($ajax_version == 'default' || in_array($ajax_version, jquery_update_get_versions())) {
-        $version = $ajax_version;
-      }
-    }
+  jquery_update_jquery_replace($libraries, $cdn, $path, $min, $jquery_version);
 
-    // Always add a new jquery_version array to ajaxPageState.
-    // This is what we used to determine which version to use
-    // for any ajax callback.
-    $javascript['drupal.ajax']['js'][] = array(
-      'data' => array('ajaxPageState' => array('jquery_version' => $version)),
-      'type' => 'setting',
-    );
-    $javascript['drupal.ajax']['dependencies'][] = array('jquery_update', 'jquery_update.ajax.fix');
+  // Replace jQuery UI with CDN or local files. If from a CDN include all of
+  // jQuery UI.
+  if (version_compare($jquery_version, '1.6', '>=')) {
+    jquery_update_jqueryui_replace($libraries, $cdn, $path, $min);
+  }
 
-    // Don't replace anything if Drupal provided jQuery should be used
-    if ('default' == $version) {
-      return;
-    }
+  // Replace the jQuery Cookie plugin.
+  $libraries['cookie']['js']['misc/jquery.cookie.js']['data'] = $path . '/replace/ui/external/jquery.cookie.js';
+  // Noting the version based on git commit as no version number is available.
+  $libraries['cookie']['version'] = '67fb34f6a866c40d0570';
 
-    jquery_update_jquery_replace($javascript, $cdn, $path, $min, $version);
+  // Replace jQuery Form.
+  $libraries['jquery.form']['website'] = 'https://github.com/jquery-form/form';
+  $jquery_form_versions = array(
+    // jQuery Form 4, prior to version 4.2.1, had a serious regression that
+    // broke Drupal's AJAX system because it didn't deserialize "+" back into
+    // spaces which would cause triggering button values to not match in PHP.
+    // @see https://www.drupal.org/node/2860158
+    '4.2.1' => '1.7',
 
-    // Replace jQuery UI with CDN or local files. If from a CDN include all of
-    // jQuery UI.
-    if (version_compare($version, '1.6', '>=')) {
-      jquery_update_jqueryui_replace($javascript, $cdn, $path, $min);
-    }
+    // jQuery Form 3 indicates that it's compatible with jQuery >= 1.5. However,
+    // it has parsing issues when used with Drupal and jQuery 1.5.
+    // @see https://www.drupal.org/node/2604976
+    '3.51.0' => '1.6',
 
-    // Load and configure the jQuery Migrate plugin.
-    if (variable_get('jquery_update_jquery_migrate_enable', FALSE) && version_compare($version, '1.9', '>=')) {
-      $javascript['jquery']['dependencies'][] = array('jquery_update', 'jquery.migrate');
-    }
-
-    // Replace the jQuery Cookie plugin.
-    $javascript['cookie']['js']['misc/jquery.cookie.js']['data'] = $path . '/replace/ui/external/jquery.cookie.js';
-    // Noting the version based on git commit as no version number is available.
-    $javascript['cookie']['version'] = '67fb34f6a866c40d0570';
-
-    // Replace jQuery Form plugin.
-    $javascript['jquery.form']['js']['misc/jquery.form.js']['data'] = $path . '/replace/misc/jquery.form' . $min . '.js';
-    $javascript['jquery.form']['version'] = '2.69';
-
-    // Replace files for Jquery 1.9 and up
-    // @todo Figure out if this is needed if jQuery Migrate is enabled.
-    if (version_compare($version, '1.9', '>=')) {
-      $javascript['jquery.bbq']['js']['misc/jquery.ba-bbq.js']['data'] = $path . '/replace/misc/1.9/jquery.ba-bbq' . $min . '.js';
+    // Older versions.
+    '2.69' => '1.4',
+  );
+  foreach ($jquery_form_versions as $jquery_form_version => $compatibility) {
+    if (version_compare($jquery_version, $compatibility, '>=')) {
+      $libraries['jquery.form']['js']['misc/jquery.form.js']['data'] = $path . '/replace/jquery.form/4/jquery.form' . $min . '.js';
+      $libraries['jquery.form']['version'] = $jquery_form_version;
+      break;
     }
   }
 
-  if (version_compare($version, '1.9', '>=')) {
-    if ($module === 'jquery_update') {
-      jquery_update_jquery_migrate_replace($javascript, $path, $min);
-    }
-    // @todo Figure out if this is needed if jQuery Migrate is enabled.
-    if ($module == 'overlay') {
-      $javascript['parent']['js']['modules/overlay/overlay-parent.js']['data'] = $path . '/replace/misc/1.9/overlay-parent.js';
-    }
-  }
+  // Add jQuery.migrate plugin, if needed.
+  jquery_update_jquery_migrate_replace($libraries, $path, $min, $jquery_version);
 }
 
 /**
@@ -197,6 +188,7 @@ function jquery_update_form_system_theme_settings_alter(&$form, $form_state) {
     '#type' => 'fieldset',
     '#title' => t('jQuery Update'),
     '#description' => t('You can optionally select a different version of jQuery to use for pages that are rendered using this theme. This is useful for administrative based themes.'),
+    '#access' => user_access('administer site configuration') && user_access('access administration pages'),
   );
   $form['jquery_update']['jquery_update_jquery_version'] = array(
     '#type' => 'select',
@@ -218,7 +210,14 @@ function jquery_update_get_versions() {
   static $drupal_static_fast;
   if (!isset($drupal_static_fast)) {
     $drupal_static_fast['versions'] = &drupal_static(__FUNCTION__, drupal_map_assoc(array(
-      '1.5', '1.7', '1.8', '1.9', '1.10', '1.11', '2.1'
+      // 1.x.
+      '1.5', '1.6', '1.7', '1.8', '1.9', '1.10', '1.11', '1.12',
+
+      // 2.x.
+      '2.1', '2.2',
+
+      // 3.x.
+      '3.1',
     )));
   }
   return $drupal_static_fast['versions'];
@@ -263,7 +262,7 @@ function jquery_update_get_version_options($empty = TRUE) {
  *   The '.min' to include in the file name if we are requesting a minified
  *   version.
  * @param string $version
- *   The version of jQuery to use.
+ *   The jQuery version to be used.
  */
 function jquery_update_jquery_replace(&$javascript, $cdn, $path, $min, $version) {
 
@@ -272,6 +271,10 @@ function jquery_update_jquery_replace(&$javascript, $cdn, $path, $min, $version)
   switch ($version) {
     case '1.5':
       $trueversion = '1.5.2';
+      break;
+
+    case '1.6':
+      $trueversion = '1.6.4';
       break;
 
     case '1.7':
@@ -294,8 +297,20 @@ function jquery_update_jquery_replace(&$javascript, $cdn, $path, $min, $version)
       $trueversion = '1.11.2';
       break;
 
+    case '1.12':
+      $trueversion = '1.12.4';
+      break;
+
     case '2.1':
       $trueversion = '2.1.4';
+      break;
+
+    case '2.2':
+      $trueversion = '2.2.4';
+      break;
+
+    case '3.1':
+      $trueversion = '3.1.1';
       break;
   }
   $javascript['jquery']['version'] = $trueversion;
@@ -338,7 +353,7 @@ function jquery_update_jquery_replace(&$javascript, $cdn, $path, $min, $version)
  *   The '.min' to include in the file name if we are requesting a minified
  *   version.
  * @param string $version
- *   The verison of jQuery to use.
+ *   The jQuery version to be used.
  */
 function jquery_update_jquery_backup(&$javascript, $path, $min, $version) {
   $javascript['jquery']['js'][] = array(
@@ -352,26 +367,43 @@ function jquery_update_jquery_backup(&$javascript, $path, $min, $version) {
 /**
  * Enable and configure the jQuery Migrate Plugin
  *
- * @param array $javascript
+ * @param array $libraries
  *   The library definition array as seen in hook_library_alter().
  * @param string $path
  *   The path to the module where replacements can be found.
  * @param string $min
  *   The '.min' to include in the file name if we are requesting a minified
  *   version.
+ * @param string $version
+ *   The jQuery version to be used.
  */
-function jquery_update_jquery_migrate_replace(&$javascript, $path, $min) {
-  // Use a static version
-  $version = '1.2.1';
+function jquery_update_jquery_migrate_replace(&$libraries, $path, $min, $version) {
+  // Immediately return if jQuery Migrate isn't enabled or jQuery version
+  // isn't at least 1.9 or higher.
+  if (!variable_get('jquery_update_jquery_migrate_enable', FALSE) || !version_compare($version, '1.9', '>=')) {
+    return;
+  }
 
-  $jquery_migrate = $path . '/replace/jquery-migrate/' . $version . '/jquery-migrate' . $min . '.js';
-  $javascript['jquery.migrate'] = array(
+  if (version_compare($version, '3.0', '>=')) {
+    $migrate_version = '3';
+  }
+  else {
+    $migrate_version = '1';
+  }
+
+
+  $file = $path . '/replace/jquery-migrate/' . $migrate_version . '/jquery-migrate' . $min . '.js';
+
+  // Note: this adds jQuery Migrate to the "system" module's library definition.
+  $libraries['jquery.migrate'] = array(
     'title' => 'jQuery Migrate',
     'website' => 'http://plugins.jquery.com/migrate',
-    'version' => $version,
+    'version' => $migrate_version,
     'js' => array(
-      $jquery_migrate => array(
+      $file => array(
         'group' => JS_LIBRARY,
+
+        // Ensure weight is higher than jQuery.
         'weight' => -19.8,
       ),
     ),
@@ -382,19 +414,25 @@ function jquery_update_jquery_migrate_replace(&$javascript, $path, $min) {
   // migrate plugin has loaded.
   $data = 'jQuery.migrateMute=' . (variable_get('jquery_update_jquery_migrate_warnings', FALSE) ? 'false' : 'true') . ';';
   $data .= 'jQuery.migrateTrace=' . (variable_get('jquery_update_jquery_migrate_trace', FALSE) ? 'true' : 'false') . ';';
-  $javascript['jquery.migrate']['js'][] = array(
+  $libraries['jquery.migrate']['js'][] = array(
     'data' => $data,
     'type' => 'inline',
     'group' => JS_LIBRARY,
+
+    // Ensure weight is lower than jQuery Migrate.
     'weight' => -19.899999999,
   );
 
   // Check for CDN support.
   if (variable_get('jquery_update_jquery_migrate_cdn', 'none') === 'jquery') {
-    $javascript['jquery.migrate']['js'][$jquery_migrate]['data'] = '//code.jquery.com/jquery-migrate-' . $version . $min . '.js';
-    $javascript['jquery.migrate']['js'][$jquery_migrate]['type'] = 'external';
-    jquery_update_jquery_migrate_backup($javascript, $path, $min, $version);
+    $libraries['jquery.migrate']['js'][$file]['data'] = '//code.jquery.com/jquery-migrate-' . ($migrate_version === '3' ? '3.0.0' : '1.4.1') . $min . '.js';
+    $libraries['jquery.migrate']['js'][$file]['type'] = 'external';
+    jquery_update_jquery_migrate_backup($libraries, $path, $min, $migrate_version);
   }
+
+  // Add jQuery Migrate as a dependency to jQuery.
+  // Note: this is fine as the weight set above ensures it loads after jQuery.
+  $libraries['jquery']['dependencies'][] = array('system', 'jquery.migrate');
 }
 
 /**
@@ -407,12 +445,12 @@ function jquery_update_jquery_migrate_replace(&$javascript, $path, $min) {
  * @param string $min
  *   The '.min' to include in the file name if we are requesting a minified
  *   version.
- * @param string $version
- *   The version of the jQuery Migrate Plugin to use.
+ * @param string $migrate_version
+ *   The jQuery Migrate version to be used.
  */
-function jquery_update_jquery_migrate_backup(&$javascript, $path, $min, $version) {
+function jquery_update_jquery_migrate_backup(&$javascript, $path, $min, $migrate_version) {
   $javascript['jquery.migrate']['js'][] = array(
-    'data' => 'window.jQuery && window.jQuery.migrateWarnings || document.write("<script src=\'' . base_path() . $path . '/replace/jquery-migrate/' . $version . '/jquery-migrate' . $min . '.js\'>\x3C/script>")',
+    'data' => 'window.jQuery && window.jQuery.migrateWarnings || document.write("<script src=\'' . base_path() . $path . '/replace/jquery-migrate/' . $migrate_version . '/jquery-migrate' . $min . '.js\'>\x3C/script>")',
     'type' => 'inline',
     'group' => JS_LIBRARY,
     'weight' => -19.7999999999,

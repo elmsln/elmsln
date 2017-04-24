@@ -57,3 +57,27 @@ function fastclick_page_build() {
     }
   }
 }
+
+/**
+ * Implements hook_element_info_alter().
+ */
+function fastclick_element_info_alter(&$type) {
+  // Add process callback to elements which receive default ajax event handlers
+  // in ajax_pre_render_element().
+  $type['submit']['#process'][] = 'fastclick_form_process';
+  $type['button']['#process'][] = 'fastclick_form_process';
+  $type['image_button']['#process'][] = 'fastclick_form_process';
+}
+
+/**
+ * Form element process callback.
+ */
+function fastclick_form_process($element, &$form_state, &$form) {
+  // If element has ajax handler which prevents the 'click' event, then ignore
+  // FastClick on this element. See ajax_pre_render_element().
+  if (isset($element['#ajax']['prevent']) && strpos($element['#ajax']['prevent'], 'click') !== FALSE) {
+    $element['#attributes']['class'][] = 'needsclick';
+  }
+
+  return $element;
+}

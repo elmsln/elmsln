@@ -498,6 +498,7 @@ function simplify_get_fields($type) {
     case 'users':
       // Drupal core
       $fields['format'] = t('Text format selection');
+      $fields['status'] = t('Status (blocked/active)');
       if (module_exists('contact')) {
         $fields['contact'] = t('Contact settings');
       }
@@ -643,6 +644,11 @@ function simplify_hide_field($field, &$form) {
       $form['revision_information']['#access'] = FALSE;
     break;
 
+    // Status
+    case 'status':
+      $form['account']['status']['#access'] = FALSE;
+    break;
+
     // XML sitemap
     case 'xmlsitemap':
       $form['xmlsitemap']['#access'] = FALSE;
@@ -663,8 +669,13 @@ function simplify_hide_text_format_elements(&$form) {
       simplify_hide_text_format_elements($form[$key]);
     }
     else {
-      if ($form[$key]['#type'] == 'container' && isset($form[$key]['#language'])) {
-        simplify_hide_text_format_elements($form[$key][$form[$key]['#language']]);
+      if (in_array($form[$key]['#type'], array('container', 'fieldset'))) {
+        if (isset($form[$key]['#language']) && !empty($form[$key][$form[$key]['#language']])) {
+          simplify_hide_text_format_elements($form[$key][$form[$key]['#language']]);
+        }
+        else {
+          simplify_hide_text_format_elements($form[$key]);
+        }
       }
       elseif ($form[$key]['#type'] == 'text_format') {
         $form[$key]['#after_build'][] = 'simplify_hide_text_format_element';
@@ -677,7 +688,9 @@ function simplify_hide_text_format_elements(&$form) {
  * Hide a given text_format element.
  */
 function simplify_hide_text_format_element($element) {
-  $element['format']['#access'] = FALSE;
+  if (!empty($element['format'])) {
+    $element['format']['#attributes']['class'][] = 'element-invisible';
+  }
 
   return $element;
 }

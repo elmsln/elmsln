@@ -6,7 +6,7 @@
  */
 
 /**
- * Implementation of hook_drush_help().
+ * Implements hook_drush_help().
  */
 function bakery_drush_help($section) {
   switch ($section) {
@@ -16,7 +16,7 @@ function bakery_drush_help($section) {
 }
 
 /**
- * Implementation of hook_drush_command().
+ * Implements hook_drush_command().
  */
 function bakery_drush_command() {
   $items['bakery-add-slave'] = array(
@@ -28,6 +28,9 @@ function bakery_drush_command() {
   return $items;
 }
 
+/**
+ * Drush command for adding new slave.
+ */
 function drush_bakery_add_slave($slave) {
   $slaves = variable_get('bakery_slaves', array());
   $slaves[] = $slave;

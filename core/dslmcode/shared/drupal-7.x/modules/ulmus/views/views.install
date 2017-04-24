@@ -44,13 +44,12 @@ function views_schema($caller_function = FALSE) {
   // Generate a sorted list of available schema update functions.
   if ($get_current || empty($schemas)) {
     $get_current = FALSE;
-    $functions = get_defined_functions();
-    foreach ($functions['user'] as $function) {
-      if (strpos($function, 'views_schema_') === 0) {
-        $version = substr($function, strlen('views_schema_'));
-        if (is_numeric($version)) {
-          $schemas[] = $version;
-        }
+    // Provide a worst-case scenario range.
+    $start_schema = 6000;
+    $end_schema = 7999;
+    for ($i = $start_schema; $i <= $end_schema; $i++) {
+      if (function_exists('views_schema_' . $i)) {
+        $schemas[] = $i;
       }
     }
     if ($schemas) {

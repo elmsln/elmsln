@@ -329,8 +329,6 @@ function advagg_schema() {
 
 /**
  * Upgrade AdvAgg previous versions (6.x-1.x and 7.x-1.x) to 7.x-2.x.
- *
- * Implements hook_update_N().
  */
 function advagg_update_7200(&$sandbox) {
   // Check and see if new tables exist.
@@ -372,38 +370,27 @@ function advagg_update_7200(&$sandbox) {
 }
 
 /**
- * Implements hook_update_N().
- *
- * Update the .htaccess file in the advagg directories by removing the
- * Last-Modified Header so far future 304's work correctly.
+ * Remove Last-Modified Header from .htaccess to fix far future 304's.
  */
 function advagg_update_7201(&$sandbox) {
   return advagg_install_update_htaccess('Header set Last-Modified');
 }
 
 /**
- * Implements hook_update_N().
- *
- * Update the .htaccess file in the advagg directories by removing the 480 week
- * Far-Future code as it does not follow RFC 2616 14.21.
+ * Remove the 480 week Far-Future code from .htaccess (violates RFC 2616 14.21).
  */
 function advagg_update_7202(&$sandbox) {
   return advagg_install_update_htaccess('290304000');
 }
 
 /**
- * Implements hook_update_N().
- *
- * Update the .htaccess file in the advagg directories by forcing .js files to
- * be application/javascript so to follow RFC 4329 7.1
+ * Add forcing of .js files to be application/javascript to follow RFC 4329 7.1.
  */
 function advagg_update_7203(&$sandbox) {
   return advagg_install_update_htaccess('', 'ForceType');
 }
 
 /**
- * Implements hook_update_N().
- *
  * Remove empty temporary files left behind by AdvAgg.
  */
 function advagg_update_7204(&$sandbox) {
@@ -442,10 +429,7 @@ function advagg_update_7204(&$sandbox) {
 }
 
 /**
- * Implements hook_update_N().
- *
- * Update the .htaccess file in the advagg directories in order to fix incorrect
- * usage of ForceType from update 7203.
+ * Fix incorrect usage of ForceType in .htaccess from update 7203.
  */
 function advagg_update_7205(&$sandbox) {
   return t('First pattern results: !first Second pattern results: !second', array(
@@ -455,8 +439,6 @@ function advagg_update_7205(&$sandbox) {
 }
 
 /**
- * Implements hook_update_N().
- *
  * Update the schema making the varchar columns utf8_bin in MySQL.
  */
 function advagg_update_7206(&$sandbox) {
@@ -486,8 +468,6 @@ function advagg_update_7206(&$sandbox) {
 }
 
 /**
- * Implements hook_update_N().
- *
  * Update schema making the varchar columns char. Change utf8_bin to ascii_bin.
  */
 function advagg_update_7207(&$sandbox) {
@@ -519,10 +499,7 @@ function advagg_update_7207(&$sandbox) {
 }
 
 /**
- * Implements hook_update_N().
- *
- * Update schema adding an index to the filename_hash column inside the
- * advagg_aggregates table.
+ * Add an index to the filename_hash column in the advagg_aggregates table.
  */
 function advagg_update_7208(&$sandbox) {
   if (!db_index_exists('advagg_aggregates', 'filename_hash')) {
@@ -533,8 +510,6 @@ function advagg_update_7208(&$sandbox) {
 }
 
 /**
- * Implements hook_update_N().
- *
  * Update schema making it match the definition.
  */
 function advagg_update_7209(&$sandbox) {
@@ -566,8 +541,6 @@ function advagg_update_7209(&$sandbox) {
 }
 
 /**
- * Implements hook_update_N().
- *
  * Add filesize_processed field to advagg_files table.
  */
 function advagg_update_7210() {
@@ -584,8 +557,6 @@ function advagg_update_7210() {
 }
 
 /**
- * Implements hook_update_N().
- *
  * Populate the filesize_processed field in the advagg_files table.
  */
 function advagg_update_7211(&$sandbox) {
@@ -640,8 +611,6 @@ function advagg_update_7211(&$sandbox) {
 }
 
 /**
- * Implements hook_update_N().
- *
  * Add use_strict field to advagg_files table.
  */
 function advagg_update_7212() {
@@ -661,8 +630,6 @@ function advagg_update_7212() {
 }
 
 /**
- * Implements hook_update_N().
- *
  * Populate the use_strict field in the advagg_files table.
  */
 function advagg_update_7213(&$sandbox) {
@@ -713,30 +680,21 @@ function advagg_update_7213(&$sandbox) {
 }
 
 /**
- * Implements hook_update_N().
- *
- * Update the .htaccess file in the advagg directories in order to support
- * brotli compression (br).
+ * Update .htaccess to support brotli compression (br).
  */
 function advagg_update_7214(&$sandbox) {
   return advagg_install_update_htaccess('', 'brotli');
 }
 
 /**
- * Implements hook_update_N().
- *
- * Update the .htaccess file in the advagg directories in order to support
- * brotli compression (br).
+ * Update .htaccess to support brotli compression (br).
  */
 function advagg_update_7215(&$sandbox) {
   return advagg_install_update_htaccess('', '%{HTTP:Accept-encoding} gzip');
 }
 
 /**
- * Implements hook_update_N().
- *
- * Update the .htaccess file in the advagg directories in order to support
- * brotli compression (br).
+ * Update .htaccess to support brotli compression (br).
  */
 function advagg_update_7216(&$sandbox) {
   if ($GLOBALS['base_path'] !== '/') {
@@ -745,8 +703,6 @@ function advagg_update_7216(&$sandbox) {
 }
 
 /**
- * Implements hook_update_N().
- *
  * Update migrate the advagg_browser_dns_prefetch variable.
  */
 function advagg_update_7217(&$sandbox) {
@@ -775,6 +731,20 @@ function advagg_update_7217(&$sandbox) {
     return t('Nothing happened.');
   }
   return t('Old DNS Prefetch variable transferred to the new variable. Other options are under Resource Hints on the <a href="@url">configuration page</a>', array('@url' => url($config_path . '/advagg', array('fragment' => 'edit-resource-hints'))));
+}
+
+/**
+ * Update the advagg .htaccess file fixing edge cases with the new rules.
+ */
+function advagg_update_7218(&$sandbox) {
+  return advagg_install_update_htaccess('', 'Options +FollowSymLinks');
+}
+
+/**
+ * Update the .htaccess file in the advagg directories adding immutable header.
+ */
+function advagg_update_7219(&$sandbox) {
+  return advagg_install_update_htaccess('', 'immutable');
 }
 
 /**
@@ -1569,7 +1539,10 @@ location ~* files/advagg_(?:css|js)/ {
             'title' => $t('Adv CSS/JS Agg - HTTP Request'),
             'severity' => REQUIREMENT_ERROR,
             'value' => $t('HTTP requests to advagg for ' . $type . ' files are not getting through.'),
-            'description' => $t('AdvAgg will issue a request for a file that does not exist inside of the AdvAgg directory. If AdvAgg sends a 404, everything is ok; if something else sends a 404 then that means that AdvAgg will not be able to generate an aggregate if it is missing as something else is handling the 404 before AdvAgg has a chance to do it. If you are reading this, it means that something else is handling the 404 before AdvAgg can. Raw request info: <pre>@request</pre>', array('@request' => var_export($request, TRUE))),
+            'description' => $t('AdvAgg will issue a request for a file that does not exist inside of the AdvAgg directory. If AdvAgg sends a 404, everything is ok; if something else sends a 404 then that means that AdvAgg will not be able to generate an aggregate if it is missing as something else is handling the 404 before AdvAgg has a chance to do it. If you are reading this, it means that something else is handling the 404 before AdvAgg can. In some cases this can sometimes be a false report; go here: <a href="@url">@url</a> and check if the source has an html comment that says "advagg_missing_fast404"; if it does, this is a false report, add this <code>$conf[\'advagg_skip_404_check\'] = TRUE;</code> to your settings.php file. Raw request info: <pre>@request</pre>', array(
+              '@request' => var_export($request, TRUE),
+              '@url' => $url,
+            )),
           );
         }
       }
@@ -1703,6 +1676,9 @@ function advagg_install_chk_urls(array &$requirements, array $urls, array $optio
   // Ensure translations don't break at install time.
   $t = get_t();
 
+  list($css_path, $js_path) = advagg_get_root_files_dir();
+  $config_path = advagg_admin_config_root_path();
+
   $is_apache = FALSE;
   if (stripos($_SERVER['SERVER_SOFTWARE'], 'apache') !== FALSE || function_exists('apache_get_modules')) {
     $is_apache = TRUE;
@@ -1712,7 +1688,7 @@ function advagg_install_chk_urls(array &$requirements, array $urls, array $optio
   }
 
   foreach ($urls as $url) {
-    $key = pathinfo($url, PATHINFO_EXTENSION);
+    $key = strtolower(pathinfo($url, PATHINFO_EXTENSION));
     // Make sure the URL contains a schema.
     if (strpos($url, 'http') !== 0) {
       if ($GLOBALS['is_https']) {
@@ -1743,7 +1719,6 @@ function advagg_install_chk_urls(array &$requirements, array $urls, array $optio
           && $request->headers['content-encoding'] !== 'br'
         )
       ) {
-        $config_path = advagg_admin_config_root_path();
         // Gzip failed.
         if (!variable_get('advagg_gzip', ADVAGG_GZIP)
           && $encoding_type === 'gzip'
@@ -1829,19 +1804,47 @@ function advagg_install_chk_urls(array &$requirements, array $urls, array $optio
               );
             }
             elseif ($request->code != 200) {
-              $requirements['advagg_' . $type . $encoding_type . $key . $options['version']] = array(
-                'title' => $t('Adv CSS/JS Agg - @encoding', array('@encoding' => $encoding_type)),
-                'severity' => REQUIREMENT_WARNING,
-                'value' => $t('@encoding is failing for %type files.', array(
-                  '%type' => $type,
-                  '@encoding' => $encoding_type,
-                )),
-                'description' => $t('The web server is not returning a 200, instead a @code is being returned. @encoding can not be tested. Raw request info: <pre>@request</pre>', array(
-                  '@code' => $request->code,
-                  '@encoding' => $encoding_type,
-                  '@request' => print_r($request, TRUE),
-                )),
-              );
+              $rewritebase = advagg_htaccess_rewritebase();
+              if (!empty($rewritebase)) {
+                if ($type === 'css') {
+                  $rewritebase_advagg = advagg_htaccess_rewritebase($css_path[1]);
+                }
+                if ($type === 'js') {
+                  $rewritebase_advagg = advagg_htaccess_rewritebase($js_path[1]);
+                }
+              }
+              $advagg_htaccess_rewritebase = variable_get('advagg_htaccess_rewritebase', ADVAGG_HTACCESS_REWRITEBASE);
+              if ($request->code == 307 && !empty($rewritebase) && empty($rewritebase_advagg) && empty($advagg_htaccess_rewritebase)) {
+                $requirements['advagg_' . $type . $encoding_type . $key . $options['version']] = array(
+                  'title' => $t('Adv CSS/JS Agg - @encoding', array('@encoding' => $encoding_type)),
+                  'severity' => REQUIREMENT_WARNING,
+                  'value' => $t('@encoding is failing for %type files.', array(
+                    '%type' => $type,
+                    '@encoding' => $encoding_type,
+                  )),
+                  'description' => $t('The web server is not returning a 200, instead a @code is being returned. The RewriteBase option should be set on the <a href="@url">configuration page</a> under "Obscure Options" look for "AdvAgg RewriteBase Directive in .htaccess files". Raw request info: <pre>@request</pre>', array(
+                    '@code' => $request->code,
+                    '@encoding' => $encoding_type,
+                    '@request' => print_r($request, TRUE),
+                    '@url' => url($config_path . '/advagg', array('fragment' => 'edit-advagg-htaccess-rewritebase')),
+                  )),
+                );
+              }
+              else {
+                $requirements['advagg_' . $type . $encoding_type . $key . $options['version']] = array(
+                  'title' => $t('Adv CSS/JS Agg - @encoding', array('@encoding' => $encoding_type)),
+                  'severity' => REQUIREMENT_WARNING,
+                  'value' => $t('@encoding is failing for %type files.', array(
+                    '%type' => $type,
+                    '@encoding' => $encoding_type,
+                  )),
+                  'description' => $t('The web server is not returning a 200, instead a @code is being returned. @encoding can not be tested. Raw request info: <pre>@request</pre>', array(
+                    '@code' => $request->code,
+                    '@encoding' => $encoding_type,
+                    '@request' => print_r($request, TRUE),
+                  )),
+                );
+              }
             }
             else {
               // Recommend servers configuration be adjusted.

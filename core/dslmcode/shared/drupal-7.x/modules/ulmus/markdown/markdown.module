@@ -24,7 +24,7 @@ function markdown_filter_info() {
     'description' => t('Allows content to be submitted using Markdown, a simple plain-text syntax that is filtered into valid XHTML.'),
     'process callback' => '_filter_markdown',
     'settings callback' => '_filter_markdown_settings',
-    'tips callback'  => '_filter_markdown_tips',
+    'tips callback' => '_filter_markdown_tips',
   );
 
   return $filters;
@@ -87,7 +87,7 @@ function _markdown_help_block() {
 ##### Header 5 #####
 (Hashes on right are optional)
 
-Link [Drupal](http://drupal.org)
+Link [Drupal](https://www.drupal.org/)
 
 Inline markup like _italics_,
  **bold**, and `code()`.
@@ -113,8 +113,8 @@ And now some code:
  */
 function _filter_markdown($text, $format) {
   if (!empty($text)) {
-    module_load_include('php', 'markdown', 'markdown');
-    $text = Markdown($text);
+    module_load_include('inc.php', 'markdown', 'includes/MarkdownExtra');
+    $text = \Michelf\MarkdownExtra::defaultTransform($text);
   }
 
   return $text;
@@ -124,15 +124,14 @@ function _filter_markdown($text, $format) {
  * Filter settings callback. Just provides a version overview.
  */
 function _filter_markdown_settings($form, &$form_state, $filter, $format, $defaults) {
-  module_load_include('php', 'markdown', 'markdown');
+  module_load_include('inc.php', 'markdown', 'includes/MarkdownExtra');
 
   $settings['markdown_wrapper'] = array(
     '#type' => 'fieldset',
     '#title' => t('Markdown'),
   );
   $links = array(
-    'Markdown PHP Version: <a href="http://michelf.com/projects/php-markdown/">' . MARKDOWN_VERSION . '</a>',
-    'Markdown Extra Version: <a href="http://michelf.com/projects/php-markdown/">' . MARKDOWNEXTRA_VERSION . '</a>',
+    'PHP Markdown Lib Version: <a href="http://michelf.com/projects/php-markdown/">' . \Michelf\MarkdownExtra::MARKDOWNLIB_VERSION . '</a>',
   );
   $settings['markdown_wrapper']['markdown_status'] = array(
     '#title' => t('Versions'),

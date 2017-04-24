@@ -114,7 +114,7 @@ function taxonomy_views_data() {
     'field' => 'tid',
     'title' => t('Term'),
     'help' => t('Taxonomy terms are attached to nodes.'),
-    'access query tag' => 'term_access',
+    'access query tag' => 'taxonomy_term_access',
   );
   $data['taxonomy_term_data']['table']['entity type'] = 'taxonomy_term';
 

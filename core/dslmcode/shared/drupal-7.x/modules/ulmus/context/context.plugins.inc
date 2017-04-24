@@ -37,7 +37,7 @@ function _context_context_registry() {
       'plugin' => 'context_condition_path',
     ),
     'query_string' => array(
-      'title' => t('Query String'),
+      'title' => t('Query string'),
       'description' => t('Set this context when any of the query strings above match the page query string. Put each query string on a separate line. You can use the "*" character as a wildcard and <code>~</code> to exclude one or more query strings.'),
       'plugin' => 'context_condition_query_string',
     ),
@@ -119,7 +119,7 @@ function _context_context_registry() {
       'plugin' => 'context_reaction_template_suggestions',
     ),
     'theme' => array(
-      'title' => t('Theme Page'),
+      'title' => t('Theme page'),
       'description' => t('Control page theme variables using context.'),
       'plugin' => 'context_reaction_theme',
     ),

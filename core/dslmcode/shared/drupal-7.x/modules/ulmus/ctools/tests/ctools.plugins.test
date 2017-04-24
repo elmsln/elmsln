@@ -12,7 +12,7 @@ class CtoolsPluginsGetInfoTestCase extends DrupalWebTestCase {
     return array(
       'name' => 'Get plugin info',
       'description' => 'Verify that plugin type definitions can properly set and overide values.',
-      'group' => 'Chaos Tools Suite',
+      'group' => 'ctools',
     );
   }
 

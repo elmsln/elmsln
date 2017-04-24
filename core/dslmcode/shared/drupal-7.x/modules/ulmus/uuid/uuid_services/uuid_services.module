@@ -1,16 +1,21 @@
 <?php
 
 /**
- * Implementation of hook_menu().
+ * @file
+ * UUID Services module functions.
+ */
+
+/**
+ * Implements hook_menu().
  */
 function uuid_services_menu() {
   $items['admin/config/services/uuid-services'] = array(
     'title' => 'UUID Services',
-    'description' => 'Configure settings for Module Filter.',
+    'description' => 'Configure settings for UUID Services.',
     'access arguments' => array('administer services'),
     'page callback' => 'drupal_get_form',
     'page arguments' => array('uuid_services_settings'),
-    'file' => 'uuid_services.admin.inc'
+    'file' => 'uuid_services.admin.inc',
   );
   return $items;
 }
@@ -178,14 +183,14 @@ function _uuid_services_entity_delete($entity_type, $uuid) {
 /**
  * Access callback.
  *
- * @param $op
+ * @param string $op
  *   The operation we are trying to do on the entity. Can only be:
  *   - "view"
  *   - "update"
  *   - "delete"
  *   See 'uuid_services_services_resources_alter()' for an explanation why
  *   'create' is missing.
- * @param $args
+ * @param array $args
  *   The arguments passed to the method. The keys are holding the following:
  *   0. <entity_type>
  *   1. <uuid>

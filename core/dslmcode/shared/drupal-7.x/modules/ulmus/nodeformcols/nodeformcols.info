@@ -3,9 +3,9 @@ description = Separates the node forms into two columns and a footer.
 core = 7.x
 package = Node form columns
 
-; Information added by Drupal.org packaging script on 2014-04-09
-version = "7.x-1.0+6-dev"
+; Information added by Drupal.org packaging script on 2016-09-16
+version = "7.x-1.1"
 core = "7.x"
 project = "nodeformcols"
-datestamp = "1397085554"
+datestamp = "1474036440"
 

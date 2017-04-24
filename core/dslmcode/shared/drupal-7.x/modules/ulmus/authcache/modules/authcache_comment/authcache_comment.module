@@ -153,6 +153,17 @@ function authcache_comment_form_comment_form_alter(&$form, &$form_state) {
       authcache_element_set_cacheable($form['author']['name']);
     }
   }
+
+  // The comment form uses value form elements to store "internal" comment
+  // properties which are not editable by any user. Luckily none of them depends
+  // on the currently logged in user, therefore it is safe to flag them as
+  // cacheable without taking additional measures.
+  $cacheable_value_elements = array( 'is_anonymous', 'cid', 'pid', 'nid', 'language', 'uid', 'node_type');
+  foreach ($cacheable_value_elements as $key) {
+    if (isset($form[$key]['#type']) && $form[$key]['#type'] === 'value' && !authcache_element_is_cacheable($form[$key])) {
+      authcache_element_set_cacheable($form[$key]);
+    }
+  }
 }
 
 /**

@@ -1,3 +1,50 @@
+Search API 1.21 (2017-02-23):
+-----------------------------
+- #2780341 by Berdir: Fixed passing of custom ranges to date facets.
+- #2765317 by JorgenSandstrom, NWOM, drunken monkey: Added a "Last" aggregation
+  type.
+- #2842856 by drunken monkey: Fixed language filters for "Multiple types"
+  indexes.
+- #2844990 by drunken monkey: Made the "Role filter" data alteration available
+  for multi-type indexes.
+- #2837745 by drunken monkey, klausi: Fixed NULL tags on old serialized queries.
+- #2833482 by drunken monkey: Fixed undefined constant when uninstalling facets
+  module.
+- #2840261 by alan-ps: Fixed usage of outdated hash functions.
+- #1670420 by kyletaylored, dorficus, drunken monkey: Fixed potential fatal
+  error in facet adapter's getSearchKeys() method.
+- #2838075 by dsnopek: Fixed possible race condition in
+  hook_system_info_alter().
+- #2836687 by sarthak drupal: Fixed one doc comment typo.
+- #2632880 by drunken monkey, donquixote: Added possibility to change indexed
+  bundles on disabled indexes.
+- #2828380 by jansete: Fixed taxonomy term access tag in Views filter.
+- #2827717 by Fabien.Godineau, drunken monkey: Fixed disabling of search views
+  when reverting an index.
+- #2822836 by prince_zyxware: Fixed some Drupal coding standards violations.
+- #2822145 by drunken monkey: Fixed problem with phrase search in Views
+  fulltext filter.
+- #2778261 by drunken monkey, BAHbKA: Fixed "Index items immediately"
+  functionality for unindexed items.
+- #2358065 by Jelle_S, graper, drunken monkey: Added the option for
+  highlighting of partial matches to the processor.
+- #2779159 by mark_fullmer, drunken monkey: Added a Stemmer processor.
+- #2649412 by relaxnow, GoZ: Added support for minimum granularity to date
+  facets.
+- #2769021 by Plazik, drunken monkey: Added the generated Search API query to
+  the Views preview.
+- #2769877 by mfernea: Fixed database exception when filtering for anonymous
+  user.
+
+Search API 1.20 (2016-07-21):
+-----------------------------
+- #2731103 by drunken monkey: Fixed the default value for the taxonomy term
+  filter "multiple" setting.
+- #1818572 by morningtime, drunken monkey, lodey, guillaumev: Added pretty
+  paths support to the Views facets block.
+- #2753441 by Johnny vd Laar: Fixed translated field names in
+  language-independent cache.
+
 Search API 1.19 (2016-07-05):
 -----------------------------
 - #2724687 by StefanPr, drunken monkey: Fixed failed sanitization of NULL field

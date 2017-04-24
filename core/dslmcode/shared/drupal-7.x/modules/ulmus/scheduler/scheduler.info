@@ -10,9 +10,9 @@ files[] = scheduler_handler_field_scheduler_countdown.inc
 files[] = tests/scheduler_api.test
 test_dependencies[] = date
 
-; Information added by Drupal.org packaging script on 2016-03-12
-version = "7.x-1.4"
+; Information added by Drupal.org packaging script on 2016-07-24
+version = "7.x-1.5"
 core = "7.x"
 project = "scheduler"
-datestamp = "1457802848"
+datestamp = "1469372941"
 

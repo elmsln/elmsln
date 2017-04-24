@@ -8,7 +8,7 @@
 function phone_za_metadata() {
   // These strings are translated using t() on output.
   return array(
-    'error' => '"%value" is not a valid South African phone number!<br>South African phone numbers should ...',
+    'error' => '"%value" is not a valid South African phone number!<br>South African phone numbers should only contain numbers with an optional prefix of "+27".',
   );
 }
 
@@ -58,7 +58,7 @@ function format_za_phone_number($phonenumber, $field) {
     	$phonenumber = '+27' . ' ' . $matches[3] .'-'. $matches[5] .'-'. $matches[7];
   }
   else {
-  	$phonenumber = $matches[3] .'-'. $matches[5] .'-'. $matches[7];
+  	$phonenumber = '0' . $matches[3] .'-'. $matches[5] .'-'. $matches[7];
   }
 
   return $phonenumber;

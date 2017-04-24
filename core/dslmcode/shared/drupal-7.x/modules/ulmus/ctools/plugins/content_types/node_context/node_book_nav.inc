@@ -7,9 +7,9 @@ if (module_exists('book')) {
    */
   $plugin = array(
     'single' => TRUE,
-    'title' => t('Book navigation'),
-    'icon' => 'icon_node.png',
-    'description' => t('The navigation menu the book the node belongs to.'),
+    'title' => t('Book navigation pager'),
+    'icon' => '../block/icon_core_booknavigation.png',
+    'description' => t('The navigational pager and sub pages of the current book node.'),
     'required context' => new ctools_context_required(t('Node'), 'node'),
     'category' => t('Node'),
   );
@@ -20,13 +20,13 @@ function ctools_node_book_nav_content_type_render($subtype, $conf, $panel_args, 
   $block = new stdClass();
   $block->module = 'book_nav';
 
-  $block->title = t('Book navigation');
+  $block->title = t('Book navigation pager');
   if ($node) {
     $block->content = isset($node->book) ? theme('book_navigation', array('book_link' => $node->book)) : '';
     $block->delta = $node->nid;
   }
   else {
-    $block->content = t('Book navigation goes here.');
+    $block->content = t('Book navigation pager goes here.');
     $block->delta = 'unknown';
   }
 
@@ -34,7 +34,7 @@ function ctools_node_book_nav_content_type_render($subtype, $conf, $panel_args, 
 }
 
 function ctools_node_book_nav_content_type_admin_title($subtype, $conf, $context) {
-  return t('"@s" book navigation', array('@s' => $context->identifier));
+  return t('"@s" book navigation pager', array('@s' => $context->identifier));
 }
 
 function ctools_node_book_nav_content_type_edit_form($form, &$form_state) {

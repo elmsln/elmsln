@@ -22,6 +22,7 @@ class views_handler_field_taxonomy extends views_handler_field {
     parent::construct();
     $this->additional_fields['vid'] = 'vid';
     $this->additional_fields['tid'] = 'tid';
+    $this->additional_fields['name'] = 'name';
     $this->additional_fields['vocabulary_machine_name'] = array(
       'table' => 'taxonomy_vocabulary',
       'field' => 'machine_name',
@@ -65,10 +66,18 @@ class views_handler_field_taxonomy extends views_handler_field {
       $term = new stdClass();
       $term->tid = $tid;
       $term->vid = $this->get_value($values, 'vid');
+      $term->name = $this->get_value($values, 'name');
       $term->vocabulary_machine_name = $values->{$this->aliases['vocabulary_machine_name']};
       $this->options['alter']['make_link'] = TRUE;
       $uri = entity_uri('taxonomy_term', $term);
+      if (isset($uri['options'])) {
+        $this->options['alter'] = array_merge($this->options['alter'], $uri['options']);
+      }
       $this->options['alter']['path'] = $uri['path'];
+      // If entity_uri() returned an options array, use it.
+      if (isset($uri['options'])) {
+        $this->options['alter'] = $uri['options'] + $this->options['alter'];
+      }
     }
 
     if (!empty($this->options['convert_spaces'])) {

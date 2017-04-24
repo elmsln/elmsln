@@ -69,7 +69,7 @@ function entity_property_info_defaults() {
  *   (optiona) The entity type to return properties for.
  *
  * @return
- *   An array of info about properties. If the type is ommitted, all known
+ *   An array of info about properties. If the type is omitted, all known
  *   properties are returned.
  */
 function entity_get_all_property_info($entity_type = NULL) {

@@ -9,6 +9,9 @@
  *
  *     $conf['authcache_p13n_frontcontroller_path'] = 'authcache.php';
  *
+ * Since the frontcontroller location is stored on routes, you might have to
+ * rebuild existing routes for the change to take effect.
+ *
  * Note: when authcache is not installed into sites/all/modules, the definition
  * of AUTHCACHE_P13N_ROOT below needs to be adapted also.
  */

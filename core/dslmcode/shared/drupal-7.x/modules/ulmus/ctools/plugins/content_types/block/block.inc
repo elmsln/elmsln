@@ -372,9 +372,9 @@ function profile_ctools_block_info($module, $delta, &$info) {
 }
 
 function book_ctools_block_info($module, $delta, &$info) {
-  // Hide the book navigation block which isn't as rich as what we can
-  // do with context.
-  $info = NULL;
+  $info['title'] = t('Book navigation menu');
+  $info['icon'] = 'icon_core_block_menu.png';
+  $info['category'] = t('Node');
 }
 
 function blog_ctools_block_info($module, $delta, &$info) {

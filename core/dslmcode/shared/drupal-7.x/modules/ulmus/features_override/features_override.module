@@ -63,51 +63,13 @@ function features_override_menu_alter(&$items) {
     'description' => 'Compare default and current feature.',
     'page callback' => 'features_override_feature_diff',
     'page arguments' => array(3, 5),
-    'load arguments' => array(3, TRUE),
+    'load arguments' => array(TRUE),
     'access callback' => 'features_access_override_actions',
     'access arguments' => array(3),
     'type' => MENU_LOCAL_TASK,
     'file' => 'features_override.admin.inc',
     'module' => 'features_override',
   );
-}
-
-/**
- * Implements hook_features_override_ignore().
- */
-function features_override_features_override_ignore($component) {
-  // Determine which keys need to be ignored for override diff for various components.
-  // value is shows how many levels deep the key is
-  $ignores = array();
-  switch ($component) {
-    case 'views_view':
-      $ignores['current_display'] = 0;
-      $ignores['display_handler'] = 0;
-      $ignores['handler'] = 2;
-      $ignores['query'] = 0;
-      $ignores['localization_plugin'] = 0;
-      // Views automatically adds these two on export to set values.
-      $ignores['api_version'] = 0;
-      $ignores['disabled'] = 0;
-      break;
-    case 'image':
-      $ignores['module'] = 0;
-      $ignores['name'] = 0;
-      $ignores['storage'] = 0;
-      // Various properities are loaded into the effect in image_styles.
-      $ignores['summary theme'] = 2;
-      $ignores['module'] = 2;
-      $ignores['label'] = 2;
-      $ignores['help'] = 2;
-      $ignores['form callback'] = 2;
-      $ignores['effect callback'] = 2;
-      $ignores['dimensions callback'] = 2;
-      break;
-    case 'field':
-      $ignores['locked'] = 1;
-      break;
-  }
-  return $ignores;
 }
 
 /**

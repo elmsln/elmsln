@@ -39,6 +39,12 @@ function linkchecker_uninstall() {
   variable_del('linkchecker_scan_blocks');
   variable_del('linkchecker_scan_comments');
   variable_del('linkchecker_scan_nodetypes');
+  variable_del('linkchecker_log_level');
+
+  foreach (node_type_get_names() as $type => $name) {
+    variable_del('linkchecker_scan_node_' . $type);
+    variable_del('linkchecker_scan_comment_' . $type);
+  }
 }
 
 /**
@@ -194,7 +200,9 @@ function linkchecker_modules_disabled($modules) {
 
   // Disable link checks for comments.
   if (in_array('comment', $modules)) {
-    variable_set('linkchecker_scan_comments', 0);
+    foreach (node_type_get_names() as $type => $name) {
+      variable_del('linkchecker_scan_comment_' . $type);
+    }
     drupal_set_message(t('Link checks for comments have been disabled.'));
   }
 }
@@ -454,6 +462,46 @@ function linkchecker_update_7011() {
   }
 }
 
+/**
+ * Upgrade outdated HTTP user agents.
+ */
+function linkchecker_update_7012() {
+
+  $linkchecker_check_useragent = variable_get('linkchecker_check_useragent', 'Drupal (+http://drupal.org/)');
+
+  $useragent_upgrade = array(
+    'Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; WOW64; Trident/5.0)' => 'Mozilla/5.0 (Windows NT 6.3; WOW64; Trident/7.0; Touch; rv:11.0) like Gecko',
+    'Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; WOW64; Trident/6.0)' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2486.0 Safari/537.36 Edge/13.10586',
+    'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:17.0) Gecko/20100101 Firefox/17.0' => 'Mozilla/5.0 (Windows NT 6.3; WOW64; rv:47.0) Gecko/20100101 Firefox/47.0',
+    'Mozilla/5.0 (Windows NT 6.2; WOW64; rv:17.0) Gecko/20100101 Firefox/17.0' => 'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:47.0) Gecko/20100101 Firefox/47.0',
+  );
+
+  if (isset($useragent_upgrade[$linkchecker_check_useragent])) {
+    variable_set('linkchecker_check_useragent', $useragent_upgrade[$linkchecker_check_useragent]);
+    return t('Upgraded outdated HTTP user agent from "@user_agent_old" to "@user_agent_new".', array('@user_agent_old' => $linkchecker_check_useragent, '@user_agent_new' => $useragent_upgrade[$linkchecker_check_useragent]));
+  }
+  else {
+    return t('User agent already up to date.');
+  }
+}
+
+/**
+ * Migrate node type and comment settings to content types settings.
+ */
+function linkchecker_update_7013() {
+  $types = array_keys(array_filter(variable_get('linkchecker_scan_nodetypes', array())));
+  foreach ($types as $type) {
+    variable_set('linkchecker_scan_node_' . $type, TRUE);
+    if (variable_get('linkchecker_scan_comments', 0)) {
+      variable_set('linkchecker_scan_comment_' . $type, TRUE);
+    }
+  }
+
+  variable_del('linkchecker_scan_nodetypes');
+  variable_del('linkchecker_scan_comments');
+
+  return t('Upgraded node type and comment settings.');
+}
 
 if (!function_exists('array_replace')) {
   /**

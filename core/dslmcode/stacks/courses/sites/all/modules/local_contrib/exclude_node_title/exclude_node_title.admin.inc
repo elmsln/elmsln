@@ -1,11 +1,7 @@
 <?php
-// $Id$
 /**
  * @file
  * Exclude Node Title Administrative Interface
- *
- * @author Gabriel Ungureanu
- * gabriel.ungreanu@ag-prime.com
  */
 
 /**
@@ -35,13 +31,16 @@ function exclude_node_title_admin_settings() {
     '#collapsible' => TRUE,
     '#collapsed' => FALSE,
   );
-  $node_types = _node_types_build()->names;
-  foreach ($node_types as $node_type => $node_type_label) {
+
+  foreach (node_type_get_names() as $node_type => $node_type_label) {
+    drupal_add_js(array('exclude_node_title' => array('content_types' => array($node_type => $node_type_label))), 'setting');
+
     $form['exclude_node_title_content_type']['exclude_node_title_content_type_value_' . $node_type] = array(
       '#type' => 'select',
       '#title' => $node_type_label,
       '#default_value' => variable_get('exclude_node_title_content_type_value_' . $node_type, 'none'),
       '#options' => array('none' => t('None'), 'all' => t('All nodes'), 'user' => t('User defined nodes')),
+      '#options' => array('none' => t('None'), 'all' => t('All nodes...'), 'user' => t('User defined nodes...')),
     );
 
     $entity_info = entity_get_info('node');
@@ -52,9 +51,22 @@ function exclude_node_title_admin_settings() {
     }
     $modes += array('nodeform' => t('Node form'));
 
+    switch ($form['exclude_node_title_content_type']['exclude_node_title_content_type_value_' . $node_type]['#default_value']) {
+        case 'all':
+            $title = 'Exclude title from all nodes in the following view modes:';
+            break;
+
+        case 'user defined':
+            $title = 'Exclude title from user defined nodes in the following view modes:';
+            break;
+
+        default:
+            $title = 'Exclude from:';
+    }
+
     $form['exclude_node_title_content_type']['exclude_node_title_content_type_modes_' . $node_type] = array(
       '#type' => 'checkboxes',
-      '#title' => t('Exclude from:'),
+      '#title' => t($title),
       '#default_value' => variable_get('exclude_node_title_content_type_modes_' . $node_type, array()),
       '#options' => $modes,
       '#states' => array(
@@ -65,6 +77,8 @@ function exclude_node_title_admin_settings() {
       ),
     );
   }
+
+  drupal_add_js(drupal_get_path('module', 'exclude_node_title') . '/exclude_node_title.js');
 
   return system_settings_form($form);
 }

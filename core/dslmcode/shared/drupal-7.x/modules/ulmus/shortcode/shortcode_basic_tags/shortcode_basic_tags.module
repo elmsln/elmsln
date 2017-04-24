@@ -1,7 +1,12 @@
 <?php
+/**
+ * @file
+ * Provides basic Shortcodes (as examples).
+ */
 
 /**
- * Implementation of hook_shortcode_info().
+ * Implements hook_shortcode_info().
+ *
  * Using the same formatting as hook_filter_info()
  */
 function shortcode_basic_tags_shortcode_info() {
@@ -9,7 +14,8 @@ function shortcode_basic_tags_shortcode_info() {
     'title' => t('Quote'),
     'description' => t('Replace the given text formatted like as a quote.'),
     'process callback' => 'shortcode_basic_tags_shortcode_quote',
-    //'settings callback' => '_shortcode_settings_form', TODO
+    // todo: implements this.
+    // 'settings callback' => '_shortcode_settings_form',
     'attributes callback' => 'shortcode_basic_tags_quote_attributes',
     'tips callback' => 'shortcode_basic_tags_shortcode_quote_tip',
   );
@@ -17,56 +23,74 @@ function shortcode_basic_tags_shortcode_info() {
     'title' => t('Image'),
     'description' => t('Show an image.'),
     'process callback' => 'shortcode_basic_tags_shortcode_img',
-    //'settings callback' => '_shortcode_settings_form', TODO
+    // todo: implements this.
+    // 'settings callback' => '_shortcode_settings_form',
+    'attributes callback' => 'shortcode_basic_tags_img_attributes',
     'tips callback' => 'shortcode_basic_tags_shortcode_img_tip',
   );
   $shortcodes['highlight'] = array(
     'title' => t('Highlight'),
     'description' => t('Insert a span with highlight css class around the text.'),
     'process callback' => 'shortcode_basic_tags_shortcode_highlight',
-    //'settings callback' => '_shortcode_settings_form', TODO
+    // todo: implements this.
+    // settings callback' => '_shortcode_settings_form',
+    'attributes callback' => 'shortcode_basic_tags_highlight_attributes',
     'tips callback' => 'shortcode_basic_tags_shortcode_highlight_tip',
   );
   $shortcodes['button'] = array(
     'title' => t('Button'),
-    'description' => t('Insert a link formatted like as a button.'),
+    'description' => t('Insert a link formatted as a button.'),
     'process callback' => 'shortcode_basic_tags_shortcode_button',
-    //'settings callback' => '_shortcode_settings_form', TODO
+    // todo: implements this.
+    // 'settings callback' => '_shortcode_settings_form',
+    'attributes callback' => 'shortcode_basic_tags_button_attributes',
     'tips callback' => 'shortcode_basic_tags_shortcode_button_tip',
   );
   $shortcodes['dropcap'] = array(
     'title' => t('Dropcap'),
     'description' => t('Replace the given text formatted like as a dropcap.'),
     'process callback' => 'shortcode_basic_tags_shortcode_dropcap',
-    //'settings callback' => '_shortcode_settings_form', TODO
+    // todo: implements this.
+    // 'settings callback' => '_shortcode_settings_form',
+    'attributes callback' => 'shortcode_basic_tags_dropcap_attributes',
     'tips callback' => 'shortcode_basic_tags_shortcode_dropcap_tip',
   );
   $shortcodes['item'] = array(
     'title' => t('Item'),
     'description' => t('Insert div or span around the text with some css classes.'),
     'process callback' => 'shortcode_basic_tags_shortcode_item',
-    //'settings callback' => '_shortcode_settings_form', TODO
+    // todo: implements this.
+    // 'settings callback' => '_shortcode_settings_form',
+    'attributes callback' => 'shortcode_basic_tags_item_attributes',
     'tips callback' => 'shortcode_basic_tags_shortcode_item_tip',
   );
   $shortcodes['clear'] = array(
     'title' => t('Clear'),
     'description' => t('Insert a float-clearing div for a proper layout.'),
     'process callback' => 'shortcode_basic_tags_shortcode_clear',
-    //'settings callback' => '_shortcode_settings_form', TODO
+    // todo: implements this.
+    // 'settings callback' => '_shortcode_settings_form',
+    'attributes callback' => 'shortcode_basic_tags_clear_attributes',
     'tips callback' => 'shortcode_basic_tags_shortcode_clear_tip',
   );
+
   $shortcodes['link'] = array(
     'title' => t('Link'),
     'description' => t('Makes an aliased link to the given path.'),
     'process callback' => 'shortcode_basic_tags_shortcode_link',
-    //'settings callback' => '_shortcode_settings_form', TODO
+    // todo: implements this.
+    // 'settings callback' => '_shortcode_settings_form',
+    'attributes callback' => 'shortcode_basic_tags_link_attributes',
     'tips callback' => 'shortcode_basic_tags_shortcode_link_tip',
   );
+
   $shortcodes['random'] = array(
     'title' => t('Random text'),
     'description' => t('Generating random text.'),
     'process callback' => 'shortcode_basic_tags_shortcode_random',
-    //'settings callback' => '_shortcode_settings_form', TODO
+    // todo: implements this.
+    // 'settings callback' => '_shortcode_settings_form',
+    'attributes callback' => 'shortcode_basic_tags_random_attributes',
     'tips callback' => 'shortcode_basic_tags_shortcode_random_tip',
   );
 
@@ -74,7 +98,7 @@ function shortcode_basic_tags_shortcode_info() {
 }
 
 /**
- * Implementation of hook_theme().
+ * Implements hook_theme().
  */
 function shortcode_basic_tags_theme() {
   return array(
@@ -91,23 +115,51 @@ function shortcode_basic_tags_theme() {
       'variables' => array('text' => '', 'class' => 'dropcap'),
     ),
     'shortcode_item' => array(
-      'variables' => array('text' => '', 'id' => '', 'class' => '', 'type' => 'div'),
+      'variables' => array(
+        'text' => '',
+        'id' => '',
+        'class' => '',
+        'type' => 'div',
+      ),
     ),
     'shortcode_clear' => array(
-      'variables' => array('text' => '', 'id' => '', 'class' => '', 'type' => 'div'),
+      'variables' => array(
+        'text' => '',
+        'id' => '',
+        'class' => '',
+        'type' => 'div',
+      ),
     ),
   );
 }
 
 /**
- * Inserts a span with highlight css class around the text
+ * Attributes form element for highlight shortcode.
+ *
+ * Used by shortcode_wysiwyg module to add form elements for attributes.
+ */
+function shortcode_basic_tags_highlight_attributes($form, &$form_state) {
+  $form['highlight-class'] = array(
+    '#title' => t('Class'),
+    '#type' => 'textfield',
+    '#states' => array(
+      'visible' => array(
+        ':input[name="shortcode"]' => array('value' => 'highlight'),
+      ),
+    ),
+  );
+
+  return $form;
+}
+
+/**
+ * Inserts a span with highlight css class around the text.
  *
  * Calling
  * [highlight]text[/highlight]
  *
  *
  * If the length is empty or invalid, between 1-99, the length will be 8
- *
  */
 function shortcode_basic_tags_shortcode_highlight($attrs, $text) {
   $attrs = shortcode_attrs(array(
@@ -120,6 +172,9 @@ function shortcode_basic_tags_shortcode_highlight($attrs, $text) {
   return '<span class="' . $class . '">' . $text . '</span>';
 }
 
+/**
+ * Provides tip callback for highlight Shortcode.
+ */
 function shortcode_basic_tags_shortcode_highlight_tip($format, $long) {
   $output = array();
   $output[] = '<p><strong>' . t('[highlight (class="additional class")]text[/highlight]') . '</strong> ';
@@ -143,6 +198,46 @@ function shortcode_basic_tags_shortcode_highlight_tip($format, $long) {
   return implode(' ', $output);
 }
 
+/**
+ * Attributes form element for button Shortcode.
+ *
+ * Used by shortcode_wysiwyg module to add form elements for attributes.
+ */
+function shortcode_basic_tags_button_attributes($form, &$form_state) {
+  $form['button-title'] = array(
+    '#title' => t('Title'),
+    '#type' => 'textfield',
+    '#states' => array(
+      'visible' => array(
+        ':input[name="shortcode"]' => array('value' => 'button'),
+      ),
+    ),
+  );
+  $form['button-path'] = array(
+    '#title' => t('Path'),
+    '#type' => 'textfield',
+    '#states' => array(
+      'visible' => array(
+        ':input[name="shortcode"]' => array('value' => 'button'),
+      ),
+    ),
+  );
+  $form['button-class'] = array(
+    '#title' => t('Class'),
+    '#type' => 'textfield',
+    '#states' => array(
+      'visible' => array(
+        ':input[name="shortcode"]' => array('value' => 'button'),
+      ),
+    ),
+  );
+
+  return $form;
+}
+
+/**
+ * Provides process callback for Shortcode button.
+ */
 function shortcode_basic_tags_shortcode_button($attrs, $text) {
   $attrs = shortcode_attrs(array(
       'title' => 'title default',
@@ -158,9 +253,17 @@ function shortcode_basic_tags_shortcode_button($attrs, $text) {
     $attrs['path'] = $attrs['url'];
   }
   $path = url($attrs['path']);
-  return theme('shortcode_button', array('path' => $path, 'text' => $text, 'class' => $class));
+  return theme('shortcode_button', array(
+    'path' => $path,
+    'text' => $text,
+    'class' => $class,
+    )
+  );
 }
 
+/**
+ * Provides tip callback for button Shortcode.
+ */
 function shortcode_basic_tags_shortcode_button_tip($format, $long) {
   $output = array();
   $output[] = '<p><strong>' . t('[button path="path" (class="additional class")]text[/button]') . '</strong> ';
@@ -176,11 +279,35 @@ function shortcode_basic_tags_shortcode_button_tip($format, $long) {
   return implode(' ', $output);
 }
 
+/**
+ * Implements theme for button Shortcode.
+ */
 function theme_shortcode_button($vars) {
   return '<a href="' . $vars['path'] . '" class="' . $vars['class'] . '"><span>' . $vars['text'] . '</span></a>';
 }
 
+/**
+ * Attributes form element for dropcap shortcode.
+ *
+ * Used by shortcode_wysiwyg module to add form elements for attributes.
+ */
+function shortcode_basic_tags_dropcap_attributes($form, &$form_state) {
+  $form['dropcap-class'] = array(
+    '#title' => t('Class'),
+    '#type' => 'textfield',
+    '#states' => array(
+      'visible' => array(
+        ':input[name="shortcode"]' => array('value' => 'dropcap'),
+      ),
+    ),
+  );
 
+  return $form;
+}
+
+/**
+ * Provides process callback for dropcap Shortcode.
+ */
 function shortcode_basic_tags_shortcode_dropcap($attrs, $text) {
   $attrs = shortcode_attrs(array(
       'class' => 'dropcap',
@@ -193,15 +320,15 @@ function shortcode_basic_tags_shortcode_dropcap($attrs, $text) {
 }
 
 /**
- * Theme hook for dropcap
- *
- * @param $text
- * @param $class
+ * Provides theme for dropcap Shortcode.
  */
 function theme_shortcode_dropcap($vars) {
   return '<span class="' . $vars['class'] . '">' . $vars['text'] . '</span>';
 }
 
+/**
+ * Provides tip callback for dropcap Shortcode.
+ */
 function shortcode_basic_tags_shortcode_dropcap_tip($format, $long) {
   $output = array();
   $output[] = '<p><strong>' . t('[dropcap (class="additional class")]text[/dropcap]') . '</strong> ';
@@ -227,25 +354,36 @@ function shortcode_basic_tags_shortcode_dropcap_tip($format, $long) {
   return implode(' ', $output);
 }
 
-// FIXME: what for these funcs?
-//function shortcode_basic_tags_quote_attributes($form, &$form_state) {
-//  $form['class'] = array(
-//    '#title' => t('class'),
-//    '#type' => 'textfield',
-//  );
-//
-//  return $form;
-//}
-//
-//function shortcode_basic_tags_quote_options_submit($form, &$form_state) {
-//}
+/**
+ * Attributes form element for quote shortcode.
+ *
+ * Used by shortcode_wysiwyg module to add form elements for attributes.
+ */
+function shortcode_basic_tags_quote_attributes($form, &$form_state) {
+  $form['quote-author'] = array(
+    '#title' => t('Author'),
+    '#type' => 'textfield',
+    '#states' => array(
+      'visible' => array(
+        ':input[name="shortcode"]' => array('value' => 'quote'),
+      ),
+    ),
+  );
+  $form['quote-class'] = array(
+    '#title' => t('Class'),
+    '#type' => 'textfield',
+    '#states' => array(
+      'visible' => array(
+        ':input[name="shortcode"]' => array('value' => 'quote'),
+      ),
+    ),
+  );
+
+  return $form;
+}
 
 /**
- *
- * Replace a given text formatted like a quote.
- *
- * @param $attrs
- * @param $text
+ * Provides process callback for quote Shortcode.
  */
 function shortcode_basic_tags_shortcode_quote($attrs, $text) {
   $attrs = shortcode_attrs(array(
@@ -256,21 +394,31 @@ function shortcode_basic_tags_shortcode_quote($attrs, $text) {
   );
 
   $class = shortcode_add_class($attrs['class'], 'quote');
-  return theme('shortcode_quote', array('text' => $text, 'author' => $attrs['author'], 'class' => $class));
+  return theme('shortcode_quote', array(
+    'text' => $text,
+    'author' => $attrs['author'],
+    'class' => $class)
+  );
 }
 
+/**
+ * Provides theme for blockquote.
+ */
 function theme_shortcode_quote($vars) {
   $output = '';
 
   if (!empty($vars['author'])) {
-    // Add author
+    // Adding author.
     $output = '<span class="quote-author">' . t('%name wrote:', array('%name' => $vars['author'])) . '</span>';
   }
   $output .= $vars['text'];
 
-  return '<span class="' . $vars['class'] . '">' . $output . '</span>';
+  return '<blockquote class="' . $vars['class'] . '">' . $output . '</blockquote>';
 }
 
+/**
+ * Provides tip callback for quote Shortcode.
+ */
 function shortcode_basic_tags_shortcode_quote_tip($format, $long) {
   $output = array();
   $output[] = '<p><strong>' . t('[quote (class="additional class" | author="author name")]text[/quote]') . '</strong> ';
@@ -307,39 +455,139 @@ function shortcode_basic_tags_shortcode_quote_tip($format, $long) {
   return implode(' ', $output);
 }
 
+/**
+ * Attributes form element for quote shortcode.
+ *
+ * Used by shortcode_wysiwyg module to add form elements for attributes.
+ */
+function shortcode_basic_tags_img_attributes($form, &$form_state) {
+  $form['img-src'] = array(
+    '#title' => t('Source URL'),
+    '#type' => 'textfield',
+    '#states' => array(
+      'visible' => array(
+        ':input[name="shortcode"]' => array('value' => 'img'),
+      ),
+    ),
+  );
+  $form['img-alt'] = array(
+    '#title' => t('Alt text'),
+    '#type' => 'textfield',
+    '#states' => array(
+      'visible' => array(
+        ':input[name="shortcode"]' => array('value' => 'img'),
+      ),
+    ),
+  );
+  $form['img-class'] = array(
+    '#title' => t('Class'),
+    '#type' => 'textfield',
+    '#states' => array(
+      'visible' => array(
+        ':input[name="shortcode"]' => array('value' => 'img'),
+      ),
+    ),
+  );
+
+  return $form;
+}
+
+/**
+ * Provides process callback for img Shortcode.
+ */
 function shortcode_basic_tags_shortcode_img($attrs, $text) {
   $attrs = shortcode_attrs(array(
       'class' => 'img',
       'alt' => '',
-      'src' => 'themes/bartik/logo.png', // default logo from bartik
+      // Add default logo from bartik theme.
+      'src' => 'themes/bartik/logo.png',
     ),
     $attrs
   );
 
   $class = shortcode_add_class($attrs['class'], 'img');
 
-  return theme('shortcode_img', array('src' => $attrs['src'], 'alt' => $attrs['alt'], 'class' => $class));
+  return theme('shortcode_img', array(
+    'src' => $attrs['src'],
+    'alt' => $attrs['alt'],
+    'class' => $class)
+  );
 }
 
+/**
+ * Provides theme for img Shortcode.
+ */
 function theme_shortcode_img($vars) {
   return '<img src="' . url($vars['src']) . '" class="' . $vars['class'] . '" alt="' . $vars['alt'] . '"/>';
 }
 
+/**
+ * Provides tip callback for img Shortcode.
+ */
 function shortcode_basic_tags_shortcode_img_tip($format, $long) {
   $output = array();
-  $output[] = '<p><strong>' . t('[img scr="image.jpg" (class="additional class"|alt="alt text")/]') . '</strong> ';
+  $output[] = '<p><strong>' . t('[img src="image.jpg" (class="additional class"|alt="alt text")/]') . '</strong> ';
   $output[] = t('Inserts an image based on the given image url.') . '</p>';
 
   return implode(' ', $output);
 }
 
+/**
+ * Attributes form element for item Shortcode.
+ *
+ * Used by shortcode_wysiwyg module to add form elements for attributes.
+ */
+function shortcode_basic_tags_item_attributes($form, &$form_state) {
+  $form['item-class'] = array(
+    '#title' => t('Class'),
+    '#type' => 'textfield',
+    '#states' => array(
+      'visible' => array(
+        ':input[name="shortcode"]' => array('value' => 'item'),
+      ),
+    ),
+  );
+  $form['item-style'] = array(
+    '#title' => t('Style'),
+    '#type' => 'textfield',
+    '#states' => array(
+      'visible' => array(
+        ':input[name="shortcode"]' => array('value' => 'item'),
+      ),
+    ),
+  );
+  $form['item-id'] = array(
+    '#title' => t('ID'),
+    '#type' => 'textfield',
+    '#states' => array(
+      'visible' => array(
+        ':input[name="shortcode"]' => array('value' => 'item'),
+      ),
+    ),
+  );
+  $form['item-type'] = array(
+    '#title' => t('type'),
+    '#type' => 'select',
+    '#options' => array('d' => 'div', 's' => 'span'),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="shortcode"]' => array('value' => 'item'),
+      ),
+    ),
+  );
+
+  return $form;
+}
+
+/**
+ * Provides process callback for item Shortcode.
+ */
 function shortcode_basic_tags_shortcode_item($attrs, $text) {
   $attrs = shortcode_attrs(array(
       'class' => '',
       'style' => '',
       'id' => '',
       'type' => 'div',
-      // ...etc
     ),
     $attrs
   );
@@ -356,9 +604,18 @@ function shortcode_basic_tags_shortcode_item($attrs, $text) {
       break;
   }
 
-  return theme('shortcode_item', array('text' => $text, 'id' => $attrs['id'], 'class' => $attrs['class'], 'type' => $type, 'style' => $attrs['style']));
+  return theme('shortcode_item', array(
+    'text' => $text,
+    'id' => $attrs['id'],
+    'class' => $attrs['class'],
+    'type' => $type,
+    'style' => $attrs['style'])
+  );
 }
 
+/**
+ * Provides tip callback for item Shortcode.
+ */
 function shortcode_basic_tags_shortcode_item_tip($format, $long) {
   $output = array();
   $output[] = '<p><strong>' . t('[item (class="additional class"|id=item id|type=div,d,span,s)]text[/item]') . '</strong> ';
@@ -374,6 +631,9 @@ function shortcode_basic_tags_shortcode_item_tip($format, $long) {
   return implode(' ', $output);
 }
 
+/**
+ * Implements theme for item Shortcode.
+ */
 function theme_shortcode_item($vars) {
   $id = empty($vars['id']) ? '' : ' id="' . $vars['id'] . '"';
   $class = empty($vars['class']) ? '' : ' class="' . $vars['class'] . '"';
@@ -382,13 +642,62 @@ function theme_shortcode_item($vars) {
   return '<' . $vars['type'] . $id . $class . $style . '>' . $vars['text'] . '</' . $vars['type'] . '>';
 }
 
+/**
+ * Attributes form element for clear shortcode.
+ *
+ * Used by shortcode_wysiwyg module to add form elements for attributes.
+ */
+function shortcode_basic_tags_clear_attributes($form, &$form_state) {
+  $form['clear-class'] = array(
+    '#title' => t('Class'),
+    '#type' => 'textfield',
+    '#states' => array(
+      'visible' => array(
+        ':input[name="shortcode"]' => array('value' => 'clear'),
+      ),
+    ),
+  );
+  $form['clear-style'] = array(
+    '#title' => t('Style'),
+    '#type' => 'textfield',
+    '#states' => array(
+      'visible' => array(
+        ':input[name="shortcode"]' => array('value' => 'clear'),
+      ),
+    ),
+  );
+  $form['clear-id'] = array(
+    '#title' => t('ID'),
+    '#type' => 'textfield',
+    '#states' => array(
+      'visible' => array(
+        ':input[name="shortcode"]' => array('value' => 'clear'),
+      ),
+    ),
+  );
+  $form['clear-type'] = array(
+    '#title' => t('type'),
+    '#type' => 'select',
+    '#options' => array('d' => 'div', 's' => 'span'),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="shortcode"]' => array('value' => 'clear'),
+      ),
+    ),
+  );
+
+  return $form;
+}
+
+/**
+ * Provides process callback for clear Shortcode.
+ */
 function shortcode_basic_tags_shortcode_clear($attrs, $text) {
   $attrs = shortcode_attrs(array(
       'class' => '',
       'style' => '',
       'id' => '',
       'type' => 'div',
-      // ...etc
     ),
     $attrs
   );
@@ -407,9 +716,18 @@ function shortcode_basic_tags_shortcode_clear($attrs, $text) {
       break;
   }
 
-  return theme('shortcode_clear', array('text' => $text, 'id' => $attrs['id'], 'class' => $class, 'type' => $type, 'style' => $attrs['style']));
+  return theme('shortcode_clear', array(
+    'text' => $text,
+    'id' => $attrs['id'],
+    'class' => $class,
+    'type' => $type,
+    'style' => $attrs['style'])
+  );
 }
 
+/**
+ * Provides tip callback for clear Shortcode.
+ */
 function shortcode_basic_tags_shortcode_clear_tip($format, $long) {
   $output = array();
   $output[] = '<p><strong>' . t('[clear (class="additional class"|id=item id|type=div,d,span,s)]text[/clear]') . '</strong>';
@@ -425,6 +743,9 @@ function shortcode_basic_tags_shortcode_clear_tip($format, $long) {
   return implode(' ', $output);
 }
 
+/**
+ * Provides theme for clear Shortcode.
+ */
 function theme_shortcode_clear($vars) {
   $id = empty($vars['id']) ? '' : ' id="' . $vars['id'] . '"';
   $class = empty($vars['class']) ? '' : ' class="' . $vars['class'] . '"';
@@ -433,69 +754,190 @@ function theme_shortcode_clear($vars) {
   return '<' . $vars['type'] . $id . $class . $style . '>' . $vars['text'] . '</' . $vars['type'] . '>';
 }
 
-/*
- * Create aliased link
+/**
+ * Attributes form element for link shortcode.
  *
- * param $text = the linked text
- * attr[path] = the path we need aliaded
- *
+ * Used by shortcode_wysiwyg module to add form elements for attributes.
  */
-function shortcode_basic_tags_shortcode_link($attrs, $text) {
-  $attrs = shortcode_attrs(array(
-      'path' => '<front>',
-      'title' => '',
-      // ...etc
-    ), $attrs
+function shortcode_basic_tags_link_attributes($form, &$form_state) {
+  $form['link-title'] = array(
+    '#title' => t('Title'),
+    '#type' => 'textfield',
+    '#states' => array(
+      'visible' => array(
+        ':input[name="shortcode"]' => array('value' => 'link'),
+      ),
+    ),
+  );
+  $form['link-path'] = array(
+    '#title' => t('Path'),
+    '#type' => 'textfield',
+    '#states' => array(
+      'visible' => array(
+        ':input[name="shortcode"]' => array('value' => 'link'),
+      ),
+    ),
+  );
+  $form['link-class'] = array(
+    '#title' => t('Class'),
+    '#type' => 'textfield',
+    '#states' => array(
+      'visible' => array(
+        ':input[name="shortcode"]' => array('value' => 'link'),
+      ),
+    ),
   );
 
-  $path = url($attrs['path']);
+  return $form;
+}
+
+/**
+ * Provides process callback for link Shortcode.
+ *
+ * @param array $attributes
+ *   (optional)
+ *
+ *   - title = the title of the link. Can be disabled by <none>. If empty the
+ *             text will be used.
+ *   - class = CSS classes separated by spaces
+ *   - style = CSS styles
+ *   - id – DOM id of the link.
+ *  URL parameters:
+ *   - path = the path of the link. Will be formatted by the url(). Default is
+ *     the <front> link.
+ *   - html – Enable HTML of the link text.
+ *   - absolute — The link can be absolute or relative (default).
+ *   - fragment - The url fragment.
+ *   - alias — Flag for aliased URL (TRUE).
+ *
+ * @param string $text
+ *   (optional) The linked text.
+ */
+function shortcode_basic_tags_shortcode_link($attributes, $text) {
+  // Used attributes by this macro.
+  $attributes = shortcode_attrs(array(
+      'path' => '<front>',
+      'title' => '',
+      'class' => '',
+      'style' => '',
+      'id' => '',
+      'html' => FALSE,
+      'absolute' => FALSE,
+      'fragment' => '',
+      'alias' => TRUE,
+    ), $attributes
+  );
+
+  $options = array(
+    'attributes' => array(),
+  );
+
+  $options['html'] = shortcode_bool($attributes['html']);
+  $options['absolute'] = shortcode_bool($attributes['absolute']);
+  $options['alias'] = shortcode_bool($attributes['alias']);
+
+  if ($attributes['fragment']) {
+    $options['fragment'] = check_plain($attributes['fragment']);
+  }
+
   if ($text) {
-    $class = empty($class) ? '' : ' class="' . $class . '"';
-    $style = empty($style) ? '' : ' style="' . $style . '"';
-    $id = empty($id) ? '' : ' id="' . $id . '"';
-    if ($attrs['title'] == '<none>') {
-      $title = '';
+    if ($attributes['class']) {
+      $options['attributes']['class'] = check_plain($attributes['class']);
+    }
+
+    if ($attributes['style']) {
+      $options['attributes']['style'] = check_plain($attributes['style']);
+    }
+
+    if ($attributes['id']) {
+      $options['attributes']['id'] = check_plain($attributes['id']);
+    }
+
+    if ($attributes['title'] == '<none>') {
+      unset($options['attributes']['title']);
     }
     else {
-      $title = empty($attrs['title']) ? check_plain($text) : check_plain($attrs['title']);
-      $title = ' title="' . $title . '"';
+      $title = empty($attributes['title']) ? $text : $attributes['title'];
+      $options['attributes']['title'] = $title;
     }
-    return '<a href="' . $path . '"' . $id . $class . $style . $title . '>' . $text . '</a>';
+
+    return l($text, $attributes['path'], $options);
   }
+
+  // Return only the URL.
+  $path = check_plain(url($attributes['path'], $options));
   return $path;
 }
 
+/**
+ * Provides tip callback for link Shortcode.
+ */
 function shortcode_basic_tags_shortcode_link_tip($format, $long) {
   $output = array();
-  $output[] = '<p><strong>' . t('[link path="the drupal path" (title="link title"|class="additional class"|id=item id|style=css style rules)]text[/link]') . '</strong>';
+  $output[] = '<p><strong>' . t('[link path="the Drupal path"]link text[/link]') . '</strong>';
+  $output[] = t('Inserts aliased Drupal path around the link text.');
   if ($long) {
-    $output[] = t('Inserts an aliased drupal path around the text. You can omit the text and the closing [/link], you get back the url only.') . '</p>';
-    $output[] = '<p>' . t('Additional class names can be added by the <em>class</em> parameter. The id parameter gives the html an unique css id. In the <em>style</em> parameter you can use your own css definition.') . '</p>';
+    $output[] = '<p>';
+    $output[] = t('If you omit the text and the closing [/link] tag, you get back the URL only.') . '</p>';
+    $output[] = t('Additional parameters for the link:
+     <ul>
+       <li><em>title</em> for link title. Default value is the link text. Use &lt;none&gt; to disable.</li>
+       <li><em>class</em> for CSS classes.</li>
+       <li><em>style</em> for additional CSS rules.</li>
+       <li><em>id</em> for unique HTML id. (No need to use # sign.)</li>
+     </ul>
+     Parameters for the URL:
+     <ul>
+       <li><em>html</em> If true, enables HTML in the text. Default is false.</li>
+       <li><em>absolute</em> Provides absolute URL if true. Default is false.</li>
+       <li><em>fragment</em> The fragment of the URL.</li>
+       <li><em>alias</em> If false, it disables aliased URL. Default is true.</li>
+     </ul>
+
+    Samples:
+    <ul>
+      <li>Simple link with title: [link path="node/5" title="My little title"]link text[/link]</li>
+      <li>Link with class, style, no title: [link path="node/5" title="&lt;none&gt;" class="button my-button" style="text-transform: uppercase;" id="my-button"]button text[/link]</li>
+      <li>Absolute path with fragment: [link path="node/6" absolute="true" fragment="jump-to-content" /]</li>
+    </ul>
+    ');
+    $output[] = '</p>';
     $output[] = '<p>&nbsp</p>';
-  }
-  else {
-    $output[] = t('Inserts an aliased drupal path around the text. You can omit the text and the closing [/link], you get back the url only.') . '</p>';
   }
 
   return implode(' ', $output);
 }
 
+/**
+ * Attributes form element for random Shortcode.
+ *
+ * Used by shortcode_wysiwyg module to add form elements for attributes.
+ */
+function shortcode_basic_tags_random_attributes($form, &$form_state) {
+  $form['random-length'] = array(
+    '#title' => t('Length'),
+    '#type' => 'textfield',
+    '#states' => array(
+      'visible' => array(
+        ':input[name="shortcode"]' => array('value' => 'random'),
+      ),
+    ),
+  );
+
+  return $form;
+}
 
 /**
- * Generates a random code
+ * Generates a random code.
  *
  * Calling
  * [random length=X /]
  *
  * Where X is the length of the random text.
- * If the length empty or invalid, between 1-99, the length will be 8
- *
+ * If the length empty or invalid, between 1-99, the length will be 8.
  */
 function shortcode_basic_tags_shortcode_random($attrs, $text) {
   $attrs = shortcode_attrs(array(
-      'class' => '',
-      'style' => '',
-      'id' => '',
       'length' => 8,
     ),
     $attrs
@@ -514,6 +956,9 @@ function shortcode_basic_tags_shortcode_random($attrs, $text) {
   return $text;
 }
 
+/**
+ * Provides tip callback for random Shortcode.
+ */
 function shortcode_basic_tags_shortcode_random_tip($format, $long) {
   $output = array();
   $output[] = '<p><strong>[random (length="8") /]</strong>';

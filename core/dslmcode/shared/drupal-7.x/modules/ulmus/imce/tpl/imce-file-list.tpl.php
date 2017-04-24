@@ -2,7 +2,7 @@
 $imce =& $imce_ref['imce'];//keep this line.
 
 /*
- * Although the file list table here is avaliable for theming,
+ * Although the file list table here is available for theming,
  * it is not recommended to change the table structure, because
  * it is read and manipulated by javascript assuming this is the deafult structure.
  * You can always change the data created by format functions

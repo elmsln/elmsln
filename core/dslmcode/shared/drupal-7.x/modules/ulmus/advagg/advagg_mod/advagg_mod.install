@@ -7,8 +7,6 @@
 
 /**
  * Merge advagg_mod_css_defer_rel_preload into advagg_mod_css_defer.
- *
- * Implements hook_update_N().
  */
 function advagg_mod_update_7201(&$sandbox) {
   // Merge advagg_mod_css_defer_rel_preload into advagg_mod_css_defer.
@@ -26,8 +24,6 @@ function advagg_mod_update_7201(&$sandbox) {
 
 /**
  * Move advagg_mod_js_get_external_dns to advagg_mod_js_inline_resource_hints.
- *
- * Implements hook_update_N().
  */
 function advagg_mod_update_7202(&$sandbox) {
   $advagg_mod_js_inline_resource_hints = variable_get('advagg_mod_js_inline_resource_hints', NULL);
