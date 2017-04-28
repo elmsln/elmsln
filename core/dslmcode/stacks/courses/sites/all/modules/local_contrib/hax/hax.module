@@ -141,7 +141,13 @@ function _hax_sanitize($properties) {
  * Make sure we wrap on the haxable property and ajax submitter
  */
 function hax_webcomponent_render_alter(&$vars, $webcomponent) {
+  if (user_access('use hax')) {
+    $hide = '';
+  }
+  else {
+    $hide = 'hide-hax';
+  }
   // apply tag wrapper so that this element knows it CAN use ajax to submit... most likely
-  $vars['wrap_tag'] = '<hax-ajax can-hax url="' . base_path() . '/hax-endpoint/update/node/123-123-4342-11cd/' . drupal_get_token('hax') . '">';
+  $vars['wrap_tag'] = '<hax-ajax ' . $hide . ' url="' . base_path() . '/hax-endpoint/update/node/123-123-4342-11cd/' . drupal_get_token('hax') . '">';
   $vars['wrap_tag_close'] = '</hax-ajax>';
 }
