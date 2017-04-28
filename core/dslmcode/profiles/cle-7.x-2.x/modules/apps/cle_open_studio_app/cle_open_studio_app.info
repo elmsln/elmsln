@@ -1,0 +1,7 @@
+name = CLE Open studio app
+description = Single page app for the open studio.
+core = 7.x
+package = CLE
+dependencies[] = cle_submission
+dependencies[] = elmsln_api
+dependencies[] = cis_connector

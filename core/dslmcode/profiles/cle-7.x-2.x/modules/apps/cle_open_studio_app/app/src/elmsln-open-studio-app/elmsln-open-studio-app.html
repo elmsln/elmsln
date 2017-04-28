@@ -1,0 +1,114 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../../bower_components/lrndesign-drawer/lrndesign-drawer.html">
+<link rel="import" href="../../bower_components/iron-collapse/iron-collapse.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../bower_components/iron-list/iron-list.html">
+<link rel="import" href="../../bower_components/iron-icons/hardware-icons.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="../../bower_components/paper-styles/color.html">
+<link rel="import" href="../../bower_components/paper-styles/typography.html">
+<link rel="import" href="../../bower_components/materializecss-styles/materializecss-styles.html">
+
+<dom-module id="elmsln-open-studio-app">
+  <template>
+    <style include="materializecss-styles"></style>
+    <style>
+      :host {
+        display: block;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+      iron-list {
+        flex: 1 1 auto;
+      }
+      paper-button {
+        height: 2em;
+      }
+    </style>
+    <lrndesign-drawer alt="Filter" icon="settings">
+      <paper-input always-float-label label="Title" value="{{titleFilter}}"></paper-input>
+    </lrndesign-drawer>
+    <iron-ajax auto
+      url="[[source-path]]"
+      params=''
+      handle-as="json"
+      on-response="responseCleanup"
+      last-response="{{submissionsResponse}}"></iron-ajax>
+    <iron-list grid items="{{submissions}}" as="submission">
+      <template>
+      <paper-card heading="{{submission.data.title}}" image="" alt="{{submission.data.title}}" class="white">
+        <div class="card-content">1,000 miles of wonder</div>
+        <div class="card-actions">
+          <a href="{{submission.data.url}}">
+            <paper-button raised class="red white-text">
+              <lrn-icon icon="view"></lrn-icon>view
+            </paper-button>
+          </a>
+          <a href="{{submission.data.edit_url}}">
+            <paper-button raised class="blue white-text">
+              <lrn-icon icon="edit"></lrn-icon>edit
+            </paper-button>
+          </a>
+          <paper-icon-button icon="hardware:keyboard-arrow-up" title="more info" onclick="_toggle()" style="float:right;">
+          </paper-icon-button>
+          <iron-collapse id="more-info">
+            {{}}
+          </iron-collapse>
+          <script>
+            function _toggle() {
+              var moreInfo = document.getElementById('more-info');
+              var iconButton = Polymer.dom(event).localTarget;
+              iconButton.icon = moreInfo.opened ? 'hardware:keyboard-arrow-up'
+                                                : 'hardware:keyboard-arrow-down';
+              moreInfo.toggle();
+            }
+          </script>
+        </div>
+      </paper-card>
+      </template>
+    </iron-list>
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'elmsln-open-studio-app',
+
+      properties: {
+        submissions: {
+          type: Array
+        },
+        submissionsResponse: {
+          type: Object
+        },
+        titleFilter: {
+          type: String,
+          value: '',
+          reflectToAttribute: true,
+          notify: true,
+        }
+      },
+      responseCleanup: function(e) {
+        var arrayIt = this._toArray(this.submissionsResponse.data);
+        this.submissions = arrayIt;
+        console.log(this.submissions);
+      },
+
+      _toArray: function(obj) {
+        return Object.keys(obj).map(function(key) {
+          return {
+              key: key,
+              data: obj[key]
+          };
+        });
+      },
+    });
+  </script>
+</dom-module>

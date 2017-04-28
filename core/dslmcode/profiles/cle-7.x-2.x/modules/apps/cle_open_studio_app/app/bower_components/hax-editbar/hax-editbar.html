@@ -1,0 +1,87 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../paper-toolbar/paper-toolbar.html">
+<link rel="import" href="../iron-icons/iron-icons.html">
+<link rel="import" href="../lrn-icons/lrn-icons.html">
+
+<!--
+`hax-editable`
+
+@demo demo/index.html
+-->
+
+<dom-module id="hax-editbar">
+  <template>
+    <style>
+      :host {
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 0;
+        min-width: 100%;
+        opacity: 0;
+        transition: opacity .3s ease-in-out;
+        z-index: 12;
+        color: #FFFFFF;
+        --paper-font-common-base: #FFFFFF;
+      }
+      :host:hover, :host:focus {
+        opacity: 1;
+      }
+      :host[edit] {
+        opacity: 1
+      }
+      paper-toolbar {
+        --paper-toolbar-background: rgba(0,0,0, 0.8);
+        text-align: right;
+        justify-content: flex-end;
+      }
+    </style>
+      <template is="dom-if" if="{{showEdit}}">
+        <paper-toolbar>
+          <paper-icon-button icon="lrn-icons:edit" on-tap="_editClicked"></paper-icon-button>
+        </paper-toolbar>
+      </template>
+
+      <template is="dom-if" if="{{showSave}}">
+        <paper-toolbar>
+          <paper-icon-button icon="lrn-icons:save" on-tap="_saveClicked"></paper-icon-button>
+          <paper-icon-button icon="lrn-icons:cancel" on-tap="_cancelClicked"></paper-icon-button>
+          <content></content>
+        </paper-toolbar>
+      </template>
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'hax-editbar',
+
+      properties: {
+        edit: {
+          type: Boolean,
+          observer: '_editChanged'
+        },
+        origContent: {
+          type: String
+        },
+        showEdit: Boolean,
+        showSave: Boolean
+      },
+      _editChanged: function(edit) {
+        let state = edit;
+        this.showEdit = state ? false : true;
+        this.showSave = state ? true : false;
+      },
+      _editClicked: function() {
+        this.fire('action', {action: 'edit'});
+      },
+      _saveClicked: function() {
+        this.fire('action', {action: 'save'});
+      },
+      _cancelClicked: function() {
+        this.fire('action', {action: 'cancel'});
+      }
+    });
+  </script>
+</dom-module>
