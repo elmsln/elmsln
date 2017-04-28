@@ -101,7 +101,7 @@
     }
     $activetool = 'tooltipped ';
     $label = '';
-    $iconcolor = 'black-text white';
+    $iconcolor = 'black-text';
     $stitle = token_replace($service['title']);
     if ($service['machine_name'] == $network['active']['machine_name']) {
       $activetool = ' black active-system white-text ';
