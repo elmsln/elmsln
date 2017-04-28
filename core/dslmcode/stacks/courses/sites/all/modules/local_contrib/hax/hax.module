@@ -61,9 +61,9 @@ function _hax_endpoint_access($op, $etype, $uuid, $token) {
 function _hax_endpoint($op, $etype, $uuid, $token) {
   $vars = array('status' => 100);
   $entity = new stdClass();
-  $entity = array_pop($entities);
+  $info = entity_get_info($etype);
   // silly check, ensure this has a concept of keys
-  if (isset($info['bundle keys']['bundle'])) {
+  if (isset($info['entity keys']['id'])) {
     switch ($op) {
       // update the only real one for now
       case 'update':
@@ -78,16 +78,30 @@ function _hax_endpoint($op, $etype, $uuid, $token) {
           $entities = entity_uuid_load($etype, array($uuid));
           // pop one off if we got anything, otherwise let this fail
           if (is_array($entities) && !empty($entities)) {
-            $info = entity_get_info($etype);
-            field_attach_prepare_view($etype, array($entity->nid => $entity), $webcomponent->machine_name);
-            entity_prepare_view($etype, array($entity->nid => $entity));
-            $field_map += field_attach_view($etype, $entity, $webcomponent->machine_name);
-          }
-          // now we run through the properties and do our map back
-          foreach ($properties as $key => $value) {
-            if (isset($webcomponent->properties[$key])) {
-
+            $entity = array_pop($entities);
+            if (isset($entity->{$info['entity keys']['id']})) {
+              // hook in the fields relative to this webcomponent being the display mode
+              field_attach_prepare_view($etype, array($entity->{$info['entity keys']['id']} => $entity), $webcomponent->machine_name);
+              entity_prepare_view($etype, array($entity->{$info['entity keys']['id']} => $entity));
+              $field_map += field_attach_view($etype, $entity, $webcomponent->machine_name);
             }
+          }
+          $changed = FALSE;
+          // now we run through the properties and do our map back
+          foreach ($field_map as $key => $value) {
+            // so our field map illustrates that there's soemthing rendered in a matching
+            // location for this, now we can dig into the array structure a bit
+            if (isset($properties[$key])) {
+              //@todo do the match of what came across with what's been mapped in the DB
+              //and then save it back to the entity
+              $changed = TRUE;
+              //this is completely fake code but soemthign like this
+              //$entity->{$value['#field_name']} = $properties['value'];
+            }
+          }
+          // only save if we actually got a match to save in the first place
+          if ($changed) {
+            entity_save($etype, $entity);
           }
         }
       break;
@@ -126,7 +140,8 @@ function _hax_sanitize($properties) {
  * Implements hook_hax_webcomponent_render_alter().
  * Make sure we wrap on the haxable property and ajax submitter
  */
-function hax_webcomponent_render_alter($vars, $webcomponent) {
-  $vars['wrap_tag'] = '<hax-ajax can-hax >'
-  $vars['wrap_tag_close'] = '</hax-ajax>'
+function hax_webcomponent_render_alter(&$vars, $webcomponent) {
+  // apply tag wrapper so that this element knows it CAN use ajax to submit... most likely
+  $vars['wrap_tag'] = '<hax-ajax can-hax url="' . base_path() . '/hax-endpoint/update/node/123-123-4342-11cd/' . drupal_get_token('hax') . '">';
+  $vars['wrap_tag_close'] = '</hax-ajax>';
 }

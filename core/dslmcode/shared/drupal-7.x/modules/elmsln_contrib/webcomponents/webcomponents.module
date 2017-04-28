@@ -80,6 +80,9 @@ function _webcomponents_render_component($component) {
       'tag' => $component->machine_name,
       'properties' => $component->properties,
     );
+    // allow other projects to add onto and modify the webcomponent before it renders
+    // useful for tag wrapping for systems like HAX
+    drupal_alter('webcomponent_render', $vars, $component);
     $output = theme('webcomponent', $vars);
     return $output;
   }
@@ -99,6 +102,8 @@ function webcomponents_theme() {
       'variables' => array(
         'tag' => '',
         'properties' => array(),
+        'wrap_tag' => '',
+        'wrap_tag_close' => '',
       ),
       'render element' => 'element',
       'template' => 'webcomponent',
