@@ -26,7 +26,7 @@ function hax_menu() {
     'title' => 'HAX API callback',
     'description' => 'HAX API endpoint',
     'page callback' => '_hax_endpoint',
-    'page arguments' => array(1, 2, 3, 4),
+    'page arguments' => array(1, 2, 3),
     'type' => MENU_CALLBACK,
     'access callback' => '_hax_endpoint_access',
     'access arguments' => array(1, 2, 3, 4),
@@ -58,8 +58,9 @@ function _hax_endpoint_access($op, $etype, $uuid, $token) {
  * Callback to perform the operation on the entity as per update
  * @return [type] [description]
  */
-function _hax_endpoint($op, $etype, $uuid, $token) {
+function _hax_endpoint($op, $etype, $uuid) {
   $vars = array('status' => 100);
+  $field_map = array();
   $entity = new stdClass();
   $info = entity_get_info($etype);
   // silly check, ensure this has a concept of keys
@@ -67,7 +68,8 @@ function _hax_endpoint($op, $etype, $uuid, $token) {
     switch ($op) {
       // update the only real one for now
       case 'update':
-        $properties = _hax_sanitize($_GET['properties']);
+        $properties = _hax_sanitize($_GET);
+        unset($properties['q']);
         // ensure we know about this display mode
         if ($webcomponent = webcomponent_load_by_name($properties['tagName'])) {
           // dump this now that it's a full object
@@ -150,4 +152,47 @@ function hax_webcomponent_render_alter(&$vars, $webcomponent) {
   // apply tag wrapper so that this element knows it CAN use ajax to submit... most likely
   $vars['wrap_tag'] = '<hax-ajax ' . $hide . ' url="' . base_path() . '/hax-endpoint/update/node/123-123-4342-11cd/' . drupal_get_token('hax') . '">';
   $vars['wrap_tag_close'] = '</hax-ajax>';
+}
+
+/**
+ * Implements hook_preprocess_node().
+ */
+function hax_preprocess_node(&$vars) {
+  // make sure they can update
+  if (user_access('use hax') && entity_access('update', 'node', $vars['node'])) {
+    $hide = '';
+  }
+  else {
+    $hide = 'hide-hax';
+  }
+  // apply tag wrapper so that this element knows it CAN use ajax to submit... most likely
+  $vars['wrap_tag'] = '<hax-ajax ' . $hide . ' url="' . base_path() . 'hax-endpoint/update/node/'. $vars['node']->uuid .'/' . drupal_get_token('hax') . '">';
+  $vars['wrap_tag_close'] = '</hax-ajax>';
+}
+
+/**
+ * variables callbacks
+ */
+function hax_entity_variables(&$vars) {
+  // Only alter entities that have been rendered by Display Suite.
+  if (isset($vars['rendered_by_ds'])) {
+    // make sure they can update
+    if (user_access('use hax') && entity_access('update', 'node', $vars['node'])) {
+      $hide = '';
+    }
+    else {
+      $hide = 'hide-hax';
+    }
+    // apply tag wrapper so that this element knows it CAN use ajax to submit... most likely
+    $vars['wrap_tag'] = '<hax-ajax ' . $hide . ' url="' . base_path() . 'hax-endpoint/update/node/'. $vars['node']->uuid .'/' . drupal_get_token('hax') . '">';
+    $vars['wrap_tag_close'] = '</hax-ajax>';
+  }
+}
+
+/**
+ * Implements hook_theme_registry_alter().
+ */
+function hax_theme_registry_alter(&$theme_registry) {
+  $theme_registry['node']['preprocess functions'][] = 'hax_entity_variables';
+  $theme_registry['entity']['preprocess functions'][] = 'hax_entity_variables';
 }
