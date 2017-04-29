@@ -56,7 +56,13 @@ function webcomponents_ds_entity_variables(&$variables) {
     foreach ($layout['settings']['fields'] as $field => $property) {
       $value = strip_tags(render($fields[$field]));
       if (!empty($value)) {
-        $variables['properties'][$property] = $value;
+        // special case for innerHTML since that populates the interior
+        if ($property == 'innerHTML') {
+          $variables[$property] = $value;
+        }
+        else {
+          $variables['properties'][$property] = $value;
+        }
       }
     }
   }

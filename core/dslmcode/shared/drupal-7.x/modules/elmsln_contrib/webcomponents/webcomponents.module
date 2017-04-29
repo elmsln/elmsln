@@ -102,6 +102,7 @@ function webcomponents_theme() {
       'variables' => array(
         'tag' => '',
         'properties' => array(),
+        'innerHTML' => '',
         'wrap_tag' => '',
         'wrap_tag_close' => '',
       ),

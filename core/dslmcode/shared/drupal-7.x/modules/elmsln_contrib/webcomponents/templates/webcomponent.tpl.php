@@ -14,5 +14,7 @@ if (empty($properties)) {
 }
 ?>
 <?php print $wrap_tag;?>
-<<?php print $tag;?><?php print drupal_attributes($properties);?>></<?php print $tag; ?>>
+  <<?php print $tag;?><?php print drupal_attributes($properties);?>>
+    <?php print $innerHTML;?>
+  </<?php print $tag; ?>>
 <?php print $wrap_tag_close;?>

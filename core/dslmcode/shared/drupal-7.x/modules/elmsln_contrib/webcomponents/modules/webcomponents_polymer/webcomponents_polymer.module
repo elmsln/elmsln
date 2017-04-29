@@ -93,7 +93,7 @@ function _webcomponents_polymer_process_components($file) {
       $component->title = $title;
       $component->file = $file;
       $component->type = 'polymer';
-      $component->properties = array();
+      $component->properties = array('innerHTML' => 'String');
       // match {{}} and [[]] based properties
       preg_match_all('/({{.*?}}|\[\[.*?\]\])/', $rawmatch->innertext, $matches);
       // find matches for custom properties so we know how to tokenize this
