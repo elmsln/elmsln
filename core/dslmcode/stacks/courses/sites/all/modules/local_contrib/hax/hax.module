@@ -60,7 +60,7 @@ function _hax_endpoint_access($op, $etype, $uuid, $token) {
  */
 function _hax_endpoint($op, $etype, $uuid) {
   $vars = array('status' => 100);
-  $field_map = array();
+  $map = array();
   $entity = new stdClass();
   $info = entity_get_info($etype);
   // silly check, ensure this has a concept of keys
@@ -74,6 +74,7 @@ function _hax_endpoint($op, $etype, $uuid) {
         if ($webcomponent = webcomponent_load_by_name($properties['tagName'])) {
           // dump this now that it's a full object
           unset($properties['tagName']);
+          $view_mode = $webcomponent->machine_name;
           // starting to look like we might be able to do soemthing with all this..
           $vars['status'] = 200;
           // try and load the entity by uuid, simplifies implementations
@@ -81,29 +82,42 @@ function _hax_endpoint($op, $etype, $uuid) {
           // pop one off if we got anything, otherwise let this fail
           if (is_array($entities) && !empty($entities)) {
             $entity = array_pop($entities);
-            if (isset($entity->{$info['entity keys']['id']})) {
-              // hook in the fields relative to this webcomponent being the display mode
-              field_attach_prepare_view($etype, array($entity->{$info['entity keys']['id']} => $entity), $webcomponent->machine_name);
-              entity_prepare_view($etype, array($entity->{$info['entity keys']['id']} => $entity));
-              $field_map += field_attach_view($etype, $entity, $webcomponent->machine_name);
+            // load an instance of the fields, it's already happened but closer here
+            $fieldinfo = field_info_instances($etype, $entity->{$info['bundle keys']['bundle']});
+            // loop through and see if we should pass this along to the webcomponent template
+            foreach ($fieldinfo as $field => $data) {
+              // only map to component if it has been told to via UIs
+              if ($data['display'][$view_mode]['type'] != 'hidden' && isset($data['display'][$view_mode]['settings'][$view_mode]) && !empty($data['display'][$view_mode]['settings'][$view_mode]) && isset($webcomponent->properties[$data['display'][$view_mode]['settings'][$view_mode]])) {
+                // strip the tags out and force it into the property
+                $map[$data['display'][$view_mode]['settings'][$view_mode]] = $field;
+              }
+            }
+            // fallback support for title property since this is pretty common
+            // and display modes often times don't have title on the field UI
+            if (isset($webcomponent->properties['title']) && isset($properties['title']) && !isset($map['title']) && isset($entity->title)) {
+              $map['title'] = 'title';
             }
           }
           $changed = FALSE;
           // now we run through the properties and do our map back
-          foreach ($field_map as $key => $value) {
+          foreach ($map as $property => $field_name) {
             // so our field map illustrates that there's soemthing rendered in a matching
             // location for this, now we can dig into the array structure a bit
-            if (isset($properties[$key])) {
-              //@todo do the match of what came across with what's been mapped in the DB
-              //and then save it back to the entity
+            if (isset($properties[$property]) && isset($entity->{$field_name})) {
+              // @todo need to figure out the field's key name
+              if ($field_name == 'title') {
+                $entity->{$field_name} = $properties[$property];
+              }
+              else {
+                $entity->{$field_name}[LANGUAGE_NONE][0]['value'] = $properties[$property];
+              }
               $changed = TRUE;
-              //this is completely fake code but soemthign like this
-              //$entity->{$value['#field_name']} = $properties['value'];
             }
           }
           // only save if we actually got a match to save in the first place
           if ($changed) {
             entity_save($etype, $entity);
+            $vars['entity'] = $entity;
           }
         }
       break;
@@ -129,29 +143,19 @@ function _hax_sanitize($properties) {
   foreach ($properties as $key => $value) {
     // ensure this pass back is as simple as possible
     if (!is_array($value)) {
-      $properties[filter_xss($key)] = filter_xss($value);
+      unset($properties[$key]);
+      if ($key == 'innerHTML') {
+        $properties[filter_xss($key)] = $value;
+      }
+      else {
+        $properties[filter_xss($key)] = filter_xss($value);
+      }
     }
     else {
       unset($properties[$value]);
     }
   }
   return $properties;
-}
-
-/**
- * Implements hook_hax_webcomponent_render_alter().
- * Make sure we wrap on the haxable property and ajax submitter
- */
-function hax_webcomponent_render_alter(&$vars, $webcomponent) {
-  if (user_access('use hax')) {
-    $hide = '';
-  }
-  else {
-    $hide = 'hide-hax';
-  }
-  // apply tag wrapper so that this element knows it CAN use ajax to submit... most likely
-  $vars['wrap_tag'] = '<hax-ajax ' . $hide . ' url="' . base_path() . '/hax-endpoint/update/node/123-123-4342-11cd/' . drupal_get_token('hax') . '">';
-  $vars['wrap_tag_close'] = '</hax-ajax>';
 }
 
 /**
