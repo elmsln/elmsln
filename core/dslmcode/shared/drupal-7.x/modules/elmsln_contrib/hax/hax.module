@@ -106,13 +106,23 @@ function _hax_endpoint($op, $etype, $uuid) {
             if (isset($properties[$property]) && isset($entity->{$field_name})) {
               // @todo need to figure out the field's key name
               if ($field_name == 'title') {
-                $entity->{$field_name} = $properties[$property];
+                $entity->title = $properties[$property];
               }
               else {
                 $entity->{$field_name}[LANGUAGE_NONE][0]['value'] = $properties[$property];
               }
+              // unset this from what came across since it's been stored in
+              // the entity.
+              unset($properties[$property]);
               $changed = TRUE;
             }
+          }
+          // store left overs if there were design things not mapped anywhere
+          // if anything is left over it automatically will force an update
+          // since we need to ensure that properties blob gets stored
+          if (!empty($properties)) {
+          	$entity->webcomponents_additional[$view_mode] = $properties;
+          	$changed = TRUE;
           }
           // only save if we actually got a match to save in the first place
           if ($changed) {
