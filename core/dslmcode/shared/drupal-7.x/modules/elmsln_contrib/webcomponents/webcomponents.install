@@ -6,7 +6,7 @@
 function webcomponents_schema() {
 
   $schema = array();
-
+  // main webcomponents entity definitions
   $schema['webcomponents'] = array(
     'description' => 'The base table for the Webcomponents entity',
     'fields' => array(
@@ -55,8 +55,92 @@ function webcomponents_schema() {
     ),
     'primary key' => array('wid'),
   );
+  // a table for mapping over to other entities
+  $schema['webcomponents_content'] = array(
+    'description' => 'Bridge to other entities implementing webcomponents as content so they can store design settings.',
+    'fields' => array(
+      'wcid' => array(
+        'description' => 'Webcomponent content internal id',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'etid' => array(
+        'description' => 'Entity id implementing the webcomponent',
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+      'etvid' => array(
+        'description' => 'Entity revision id',
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+      'etype' => array(
+        'description' => 'The entity type.',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'additional_properties' => array(
+        'description' => 'Additional Webcomponent property settings serialized.',
+        'type' => 'blob',
+        'not null' => FALSE,
+      ),
+    ),
+    'indexes' => array(
+      'etid' => array('etid'),
+    ),
+    'primary key' => array('wcid'),
+  );
 
   return $schema;
+}
+
+/**
+ * Add table for webcomponents_content capabilities.
+ */
+function webcomponents_update_7000(&$sandbox) {
+  $schema = array();
+  // a table for mapping over to other entities
+  $schema['webcomponents_content'] = array(
+    'description' => 'Bridge to other entities implementing webcomponents as content so they can store design settings.',
+    'fields' => array(
+      'wcid' => array(
+        'description' => 'Webcomponent content internal id',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'etid' => array(
+        'description' => 'Entity id implementing the webcomponent',
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+      'etvid' => array(
+        'description' => 'Entity revision id',
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+      'etype' => array(
+        'description' => 'The entity type.',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'additional_properties' => array(
+        'description' => 'Additional Webcomponent property settings serialized.',
+        'type' => 'blob',
+        'not null' => FALSE,
+      ),
+    ),
+    'indexes' => array(
+      'etid' => array('etid'),
+    ),
+    'primary key' => array('wcid'),
+  );
+  db_create_table('webcomponents_content', $schema['webcomponents_content']);
 }
 
 /**

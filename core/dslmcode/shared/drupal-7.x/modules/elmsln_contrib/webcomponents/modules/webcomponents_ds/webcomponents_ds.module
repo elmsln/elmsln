@@ -50,6 +50,12 @@ function webcomponents_ds_entity_variables(&$variables) {
     if (!isset($variables['properties'])) {
       $variables['properties'] = array();
     }
+    // check for saved additional settings to extend the entity based on component theme properties
+    if (isset($variables['elements']['#' . $variables['elements']['#entity_type']]->webcomponents_additional) && isset($variables['elements']['#' . $variables['elements']['#entity_type']]->webcomponents_additional[$view_mode])) {
+      foreach ($variables['elements']['#' . $variables['elements']['#entity_type']]->webcomponents_additional[$view_mode] as $property => $value) {
+        $variables['properties'][$property] = $value;
+      }
+    }
     // ensure all fields are loaded to pull values from
     $fields = field_attach_view($variables['elements']['#entity_type'], $variables[$variables['elements']['#entity_type']], $variables['elements']['#view_mode']);
     // rip these into the properties to match

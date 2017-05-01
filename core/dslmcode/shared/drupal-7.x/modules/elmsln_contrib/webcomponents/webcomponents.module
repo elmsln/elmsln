@@ -114,6 +114,27 @@ function webcomponents_theme() {
 }
 
 /**
+ * Implements hook_entity_update().
+ */
+function webcomponents_entity_update($entity, $type) {
+  // perform check for everything that IS NOT a webcomponent since that's circular
+  if ($type != 'webcomponent' && isset($entity->webcomponents_additional) && !empty($entity->webcomponents_additional)) {
+    // load entity info so we can grab the generic id and revision keys
+    $info = entity_get_info($type);
+    // insert into this table based on the revision and all known webcomponent
+    // additional field data that we've stored
+    db_insert('webcomponents_content')
+    ->fields(array(
+      'etid' => $entity->{$info['entity keys']['id']},
+      'etvid' => $entity->{$info['entity keys']['revision']},
+      'etype' => $type,
+      'additional_properties' => serialize($entity->webcomponents_additional),
+    ))
+    ->execute();
+  }
+}
+
+/**
  * Implements hook_entity_load().
  */
 function webcomponents_entity_load($entities, $type) {
@@ -121,6 +142,32 @@ function webcomponents_entity_load($entities, $type) {
     // unpack properties
     foreach ($entities as $entity) {
       $entity->properties = unserialize($entity->properties);
+    }
+  }
+  // allow any other entity to utilize the built in webcomponent_content map
+  else {
+    // ensure table exists, goofy issue where this can happen during install
+    if (db_table_exists('webcomponents_content')) {
+      $info = entity_get_info($type);
+      foreach ($entities as $entity) {
+        $query = db_select('webcomponents_content', 'wc');
+        // match entity type
+        $query->condition('wc.etype', $type, '=');
+        // snag this entity id
+        $query->condition('wc.etid', $entity->{$info['entity keys']['id']}, '=');
+        // snag this revision if it exists
+        if ($info['entity keys']['revision']) {
+          $query->condition('wc.etvid', $entity->{$info['entity keys']['revision']}, '=');
+        }
+        // return additional properties since this will have the mapping
+        $query->fields('wc', array('additional_properties'));
+        // execute
+        $result = $query->execute();
+        // Build up the array of data to add to the entity
+        foreach ($result->fetchAll() as $row) {
+          $entity->webcomponents_additional = unserialize($row->additional_properties);
+        }
+      }
     }
   }
 }
