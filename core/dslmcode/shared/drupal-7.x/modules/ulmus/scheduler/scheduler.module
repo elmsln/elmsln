@@ -481,6 +481,21 @@ function scheduler_node_view($node, $view_mode = 'full', $langcode) {
  * Implements hook_node_validate().
  */
 function scheduler_node_validate($node, $form, &$form_state) {
+  // Skip all validation when deleting the node. To check if the delete button
+  // was clicked search for 'node_form_delete_submit' in the triggering_element
+  // #submit array. This is better than checking for the text 'Delete'.
+  // Use !== FALSE because the key returned will be 0.
+  // @see https://www.drupal.org/node/2723929
+  if (!empty($form_state['triggering_element']['#submit']) && array_search('node_form_delete_submit', $form_state['triggering_element']['#submit']) !== FALSE) {
+    if ($errors = form_get_errors()) {
+      // If there are already errors (from date_popup) remove them to allow
+      // deletion to proceed.
+      form_clear_error();
+      unset($_SESSION['messages']['error']);
+    };
+    return;
+  }
+
   // Adjust the entered times for timezone consideration. Note, we must check
   // to see if the value is numeric. If it is, assume we have already done the
   // strtotime conversion. This prevents us running strtotime on a value we have
@@ -516,10 +531,17 @@ function scheduler_node_validate($node, $form, &$form_state) {
     form_set_error('unpublish_on', t("The 'unpublish on' date must be later than the 'publish on' date."));
   }
 
-  // The unpublish-on 'required' form attribute may not be set in some cases,
-  // but a value must be entered if also setting a publish-on date.
-  if (variable_get('scheduler_unpublish_required_' . $node->type) && !empty($node->publish_on) && empty($node->unpublish_on)) {
-    form_set_error('unpublish_on', t("If you set a 'publish-on' date then you must also set an 'unpublish-on' date."));
+  // The unpublish-on 'required' form attribute may not be set, but in some
+  // cases a value must still be entered.
+  if (variable_get('scheduler_unpublish_required_' . $node->type) && empty($node->unpublish_on)) {
+    // ... when also setting a publish-on date.
+    if (!empty($node->publish_on)) {
+      form_set_error('unpublish_on', t("If you set a 'publish-on' date then you must also set an 'unpublish-on' date."));
+    }
+    // ... or when publishing by directly ticking the published checkbox.
+    if ($form_state['values']['status']) {
+      form_set_error('unpublish_on', t("To publish this node you must also set an 'unpublish-on' date."));
+    }
   }
 }
 
@@ -913,7 +935,7 @@ function scheduler_field_attach_prepare_translation_alter($entity, $context) {
  */
 function scheduler_date_popup_pre_validate_alter($element, $form_state, &$input) {
   // Provide a default time if this is enabled and the time field is empty.
-  if (variable_get('scheduler_allow_date_only', FALSE) && $element['#array_parents'][0] == 'scheduler_settings' && $input['date'] != '' && $input['time'] == '') {
+  if (variable_get('scheduler_allow_date_only', FALSE) && $element['#array_parents'][0] == 'scheduler_settings' && !empty($input['date']) && empty($input['time'])) {
     // Get the default time as a timestamp number.
     $default_time = strtotime(variable_get('scheduler_default_time', SCHEDULER_DEFAULT_TIME));
     // Set the time in the required format just as if the user had typed it.

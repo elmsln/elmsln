@@ -1,8 +1,8 @@
 
 -- SUMMARY --
 
-Wysiwyg API allows to users of your site to use WYSIWYG/rich-text, and other
-client-side editors for editing contents.  This module depends on third-party
+Wysiwyg API allows users of your site to use WYSIWYG/rich-text, and other
+client-side editors for editing contents. This module depends on third-party
 editor libraries, most often based on JavaScript.
 
 For a full description of the module, visit the project page:

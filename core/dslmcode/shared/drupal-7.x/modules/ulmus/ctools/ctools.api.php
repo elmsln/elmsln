@@ -199,7 +199,10 @@ function hook_ctools_render_alter(&$info, &$page, &$context) {
  * or categories or to rename content on specific sites.
  */
 function hook_ctools_content_subtype_alter($subtype, $plugin) {
-  $subtype['render last'] = TRUE;
+  // Force a particular subtype of a particular plugin to render last.
+  if ($plugin['module'] == 'some_plugin_module' && $plugin['name'] == 'some_plugin_name' && $subtype['subtype_id'] == 'my_subtype_id') {
+    $subtype['render last'] = TRUE;
+  }
 }
 
 /**

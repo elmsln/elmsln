@@ -6,11 +6,19 @@ files[] = includes/context.inc
 files[] = includes/css-cache.inc
 files[] = includes/math-expr.inc
 files[] = includes/stylizer.inc
-files[] = tests/css_cache.test
 
-; Information added by Drupal.org packaging script on 2016-10-16
-version = "7.x-1.11"
+; Tests.
+files[] = tests/context.test
+files[] = tests/css.test
+files[] = tests/css_cache.test
+files[] = tests/ctools.plugins.test
+files[] = tests/math_expression.test
+files[] = tests/math_expression_stack.test
+files[] = tests/object_cache.test
+
+; Information added by Drupal.org packaging script on 2016-11-22
+version = "7.x-1.12"
 core = "7.x"
 project = "ctools"
-datestamp = "1476581654"
+datestamp = "1479787162"
 

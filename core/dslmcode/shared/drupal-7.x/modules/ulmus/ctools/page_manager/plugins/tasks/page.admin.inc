@@ -1462,6 +1462,15 @@ function page_manager_page_form_clone_submit(&$form, &$form_state) {
   $original->path = $form_state['values']['path'];
 
   $handlers = !empty($form_state['values']['handlers']) ? $form_state['page']->handlers : FALSE;
+  // Ensure the handler uuids are re-generated.
+  if ($handlers) {
+    foreach ($handlers as &$handler) {
+      if (isset($handler->conf['display']) && method_exists($handler->conf['display'], 'clone_display')) {
+        $handler->conf['display'] = $handler->conf['display']->clone_display();
+      }
+    }
+  }
+
   // Export the handler, which is a fantastic way to clean database IDs out of it.
   $export = page_manager_page_export($original, $handlers);
   ob_start();

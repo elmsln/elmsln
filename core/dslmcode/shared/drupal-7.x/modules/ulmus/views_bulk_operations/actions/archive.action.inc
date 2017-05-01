@@ -3,10 +3,14 @@
 /**
  * @file
  * Provides an action for creating a zip archive of selected files.
+ *
  * An entry in the {file_managed} table is created for the newly created archive,
  * and it is marked as permanent or temporary based on the operation settings.
  */
 
+/**
+ * Implements hook_action_info().
+ */
 function views_bulk_operations_archive_action_info() {
   $actions = array();
   if (function_exists('zip_open')) {
@@ -71,6 +75,10 @@ function views_bulk_operations_archive_action($file, $context) {
     $archive_file->filemime = file_get_mimetype($destination);
     $archive_file->uid      = $user->uid;
     $archive_file->status   = $context['settings']['temporary'] ? FALSE : FILE_STATUS_PERMANENT;
+    // Clear filesize() cache to avoid private file system differences in
+    // filesize.
+    // @see https://www.drupal.org/node/2743999
+    clearstatcache();
     file_save($archive_file);
 
     $url = file_create_url($archive_file->uri);
@@ -100,8 +108,11 @@ function views_bulk_operations_archive_action_form($context) {
 }
 
 /**
- * Assembles a sanitized and unique URI for the archive, and returns it for
- * usage by the action callback (views_bulk_operations_archive_action).
+ * Assembles a sanitized and unique URI for the archive.
+ *
+ * @returns array
+ *   A URI array used by the action callback
+ *   (views_bulk_operations_archive_action).
  */
 function views_bulk_operations_archive_action_submit($form, $form_state) {
   // Validate the scheme, fallback to public if it's somehow invalid.
@@ -156,10 +167,12 @@ function views_bulk_operations_archive_action_views_bulk_operations_form($option
 /**
  * Create a sanitized and unique version of the provided filename.
  *
- * @param $filename
- *   String filename
+ * @param string $filename
+ *   The filename to create.
+ * @param array $archive_list
+ *   The list of files already in the archive.
  *
- * @return
+ * @return string
  *   The new filename.
  */
 function _views_bulk_operations_archive_action_create_filename($filename, $archive_list) {
@@ -167,7 +180,7 @@ function _views_bulk_operations_archive_action_create_filename($filename, $archi
   // some filesystems, not many applications handle them well.
   $filename = preg_replace('/[\x00-\x1F]/u', '_', $filename);
   if (substr(PHP_OS, 0, 3) == 'WIN') {
-    // These characters are not allowed in Windows filenames
+    // These characters are not allowed in Windows filenames.
     $filename = str_replace(array(':', '*', '?', '"', '<', '>', '|'), '_', $filename);
   }
 

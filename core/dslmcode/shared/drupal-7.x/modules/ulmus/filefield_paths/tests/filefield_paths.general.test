@@ -69,26 +69,37 @@ class FileFieldPathsGeneralTestCase extends FileFieldPathsTestCase {
     $instance_settings['filefield_paths']['file_name']['value'] = '[node:nid].[file:ffp-extension-original]';
     $this->createFileField($field_name, $this->content_type, array(), $instance_settings);
 
-    // Upload a file to a node.
-    $test_file = $this->getTestFile('text');
-    $this->drupalGet("node/add/{$this->content_type}");
-    $edit['title']                              = $this->randomName();
-    $edit["files[{$field_name}_{$langcode}_0]"] = $test_file->uri;
-    $this->drupalPost(NULL, $edit, t('Upload'));
+    $schemes = array('public', 'private');
+    foreach ($schemes as $scheme) {
+      // Set the field URI scheme.
+      $this->drupalPost("admin/structure/types/manage/{$this->content_type}/fields/{$field_name}", array('field[settings][uri_scheme]' => $scheme), t('Save settings'));
 
-    // Ensure that the file was put into the Temporary file system.
-    $this->assertRaw(file_create_url("temporary://filefield_paths/{$test_file->filename}"), t('File has been uploaded to the temporary file system.'));
+      // Upload a file to a node.
+      $test_file = $this->getTestFile('text');
+      $this->drupalGet("node/add/{$this->content_type}");
+      $edit['title'] = $this->randomName();
+      $edit["files[{$field_name}_{$langcode}_0]"] = $test_file->uri;
+      $this->drupalPost(NULL, $edit, t('Upload'));
 
-    // Save the node.
-    $this->drupalPost(NULL, array(), t('Save'));
+      // Ensure that the file was put into the Temporary file location.
+      $temp_location = variable_get('filefield_paths_temp_location', 'public://filefield_paths');
+      $this->assertRaw(file_create_url("{$temp_location}/{$test_file->filename}"), t('File has been uploaded to the temporary file location.'));
 
-    // Get created Node ID.
-    $matches = array();
-    preg_match('/node\/([0-9]+)/', $this->getUrl(), $matches);
-    $nid = $matches[1];
+      // Save the node.
+      $this->drupalPost(NULL, array(), t('Save'));
 
-    // Ensure that the File path has been processed correctly.
-    $this->assertRaw("{$this->public_files_directory}/node/{$nid}/{$nid}.txt", t('The File path has been processed correctly.'));
+      // Get created Node ID.
+      $matches = array();
+      preg_match('/node\/([0-9]+)/', $this->getUrl(), $matches);
+      $nid = $matches[1];
+
+      // Ensure that the File path has been processed correctly.
+      $uri = file_create_url("{$scheme}://node/{$nid}/{$nid}.txt");
+      $this->assertRaw($uri, t('The File path has been processed correctly.'));
+
+      // Delete the node so we can change the URI scheme.
+      node_delete($nid);
+    }
   }
 
   /**

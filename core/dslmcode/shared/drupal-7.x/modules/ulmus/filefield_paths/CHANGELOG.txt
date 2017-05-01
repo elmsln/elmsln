@@ -1,3 +1,19 @@
+File (Field) Paths 7.x-1.0, 2015-11-17
+--------------------------------------------------------------------------------
+
+- #2615704 by morenstrat: Fixed issue with temporary path and schemes.
+- Added variable module integration.
+
+
+
+File (Field) Paths 7.x-1.0-rc3, 2015-11-11
+--------------------------------------------------------------------------------
+
+- #2612396: Added watchdog message for unmoved files.
+- #2607302: Added configurable temporary file location.
+
+
+
 File (Field) Paths 7.x-1.0-rc2, 2015-10-28
 --------------------------------------------------------------------------------
 

@@ -1,6 +1,8 @@
 File (Field) Paths
 ==================
 
+[![Build Status](https://travis-ci.org/Decipher/filefield_paths.svg)](https://travis-ci.org/Decipher/filefield_paths)
+
 The File (Field) Paths module extends the default functionality of Drupal's core
 File module, Image module and many other File upload modules, by adding the
 ability to use entity based tokens in destination paths and file names.
@@ -28,8 +30,8 @@ Features
 * Automatically updates unprocessed file paths in any Text fields on the entity.
 * Retroactive updates - rename and/or move previously uploaded files.
 * Active updating - actively rename and/or move previously uploaded files.
-* Automatically create an redirect when moving uploaded files using the Redirect
-  module.
+* Create redirect - automatically create a redirect when moving uploaded files,
+  using the Redirect module.
 
 
 
@@ -72,9 +74,9 @@ Q. Why aren't my files in the correct folder?
 
 A. When you are creating or updating an entity the full values for the tokens
    may not yet be known by Drupal, so the File (Field) Paths module will upload
-   your files to the Fields old file path temporarily and then once you save the
-   entity and Drupal is provided with the tokens values the file will be moved
-   to the appropriate location.
+   your files to a temporary location and then once you save the entity and
+   Drupal is provided with the tokens values the file will be moved to the
+   appropriate location.
 
 
 Q. Why is there a warning on the 'Retroactive updates' feature?

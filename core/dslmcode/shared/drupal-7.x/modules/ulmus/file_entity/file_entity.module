@@ -38,8 +38,7 @@ require_once dirname(__FILE__) . '/file_entity.field.inc';
  */
 function file_entity_hook_info() {
   $hooks = array(
-    'file_operation_info',
-    'file_operation_info_alter',
+    'file_operations',
     'file_type_info',
     'file_type_info_alter',
     'file_formatter_info',
@@ -80,8 +79,22 @@ function file_entity_hook_info_alter(&$info) {
     // Miscellaneous hooks
     'file_mimetype_mapping_alter',
     'file_url_alter',
+    // Stream wrappers
+    'stream_wrappers',
+    'stream_wrappers_alter',
   );
   $info += array_fill_keys($hooks, array('group' => 'file'));
+}
+
+/**
+ * Implements hook_module_implements_alter().
+ */
+function file_entity_module_implements_alter(&$implementations, $hook) {
+  // nginx_accel_redirect_file_transfer() is an accidental hook implementation.
+  // @see https://www.drupal.org/node/2278625
+  if ($hook == 'file_transfer') {
+    unset($implementations['nginx_accel_redirect']);
+  }
 }
 
 /**
@@ -373,6 +386,24 @@ function file_entity_menu() {
         'weight' => 5,
       );
     }
+  }
+
+  // Devel generate integration.
+  if (module_exists('devel_generate')) {
+    $items['admin/config/development/generate/file'] = array(
+      'title' => 'Generate files',
+      'description' => 'Generate a given number of files. Optionally delete current files.',
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('file_entity_generate_file_form'),
+      'access arguments' => array('administer files'),
+      'file' => 'file_entity.devel_generate.inc',
+    );
+    $items['admin/content/file/generate'] = $items['admin/config/development/generate/file'];
+    $items['admin/content/file/generate']['type'] = MENU_LOCAL_ACTION;
+    $items['file/add/generate'] = $items['admin/config/development/generate/file'];
+    $items['file/add/generate']['title'] = 'Generate';
+    $items['file/add/generate']['type'] = MENU_LOCAL_TASK;
+    $items['file/add/generate']['weight'] = 50;
   }
 
   return $items;
@@ -865,6 +896,7 @@ function file_entity_theme() {
         'controls' => TRUE,
         'autoplay' => FALSE,
         'loop' => FALSE,
+        'preload' => NULL,
       ),
       'file' => 'file_entity.theme.inc',
     ),
@@ -877,6 +909,7 @@ function file_entity_theme() {
         'muted' => FALSE,
         'width' => NULL,
         'height' => NULL,
+        'preload' => NULL,
       ),
       'file' => 'file_entity.theme.inc',
     ),
@@ -935,6 +968,7 @@ function file_entity_entity_info_alter(&$entity_info) {
         'path' => 'admin/structure/file-types/manage/%file_type',
         'real path' => 'admin/structure/file-types/manage/' . $type->type,
         'bundle argument' => 4,
+        'access arguments' => array('administer file types'),
       ),
     );
   }
@@ -944,8 +978,8 @@ function file_entity_entity_info_alter(&$entity_info) {
 
   // Ensure some of the Entity API callbacks are supported.
   $entity_info['file']['creation callback'] = 'entity_metadata_create_object';
-  $entity_info['file']['view callback'] = 'file_view_multiple';
-  $entity_info['file']['edit callback'] = 'file_entity_metadata_form_file';
+  $entity_info['file']['view callback'] = 'file_entity_metadata_view_file';
+  $entity_info['file']['form callback'] = 'file_entity_metadata_form_file';
   $entity_info['file']['access callback'] = 'file_entity_access';
 
   // Add integration with the Title module for file name replacement support.
@@ -1014,6 +1048,15 @@ function file_entity_uri($file) {
 }
 
 /**
+ * Entity API callback to view files.
+ */
+function file_entity_metadata_view_file($entities, $view_mode = 'full', $langcode = NULL) {
+  $result = file_view_multiple($entities, $view_mode, 0, $langcode);
+  // Make sure to key the result with 'file' instead of 'files'.
+  return array('file' => reset($result));
+}
+
+/**
  * Entity API callback to get the form of a file entity.
  */
 function file_entity_metadata_form_file($file) {
@@ -1026,10 +1069,9 @@ function file_entity_metadata_form_file($file) {
 /**
  * Implements hook_ctools_plugin_directory().
  */
-
-function file_entity_ctools_plugin_directory($module, $type) {
-  if ($module == 'ctools' && $type == 'content_types') {
-    return 'plugins/' . $type;
+function file_entity_ctools_plugin_directory($module, $plugin) {
+  if (in_array($module, array('panelizer', 'ctools', 'page_manager'))) {
+    return 'plugins/' . $plugin;
   }
 }
 
@@ -1127,9 +1169,16 @@ function file_entity_file_formatter_file_field_view($file, $display, $langcode) 
       // Set $display['type'] to what hook_field_formatter_*() expects.
       $display['type'] = $field_formatter_type;
 
+      // Allow any attribute overrides (e.g. from the Media module) to be
+      // respected.
+      $item = (array) $file;
+      if (!empty($file->override['attributes'])) {
+        $item = array_merge($item, $file->override['attributes']);
+      }
+
       // Set $items to what file field formatters expect. See file_field_load(),
       // and note that, here, $file is already a fully loaded entity.
-      $items = array((array) $file);
+      $items = array($item);
 
       // Invoke hook_field_formatter_prepare_view() and
       // hook_field_formatter_view(). Note that we are reusing field formatter
@@ -1173,7 +1222,7 @@ function file_entity_file_formatter_file_field_settings($form, &$form_state, $se
     // Invoke hook_field_formatter_settings_form(). We are reusing field
     // formatter functions, but we are not working with a Field API field, so
     // set $field accordingly. Unfortunately, the API is for $settings to be
-    // transfered via the $instance parameter, so we must mock it.
+    // transferred via the $instance parameter, so we must mock it.
     if (isset($field_formatter_info['module']) && ($function = ($field_formatter_info['module'] . '_field_formatter_settings_form')) && function_exists($function)) {
       $field = NULL;
       $mock_instance = array(
@@ -1474,6 +1523,7 @@ function file_entity_type_get_names() {
   $names = &drupal_static(__FUNCTION__);
 
   if (!isset($names)) {
+    $names = array();
     $info = entity_get_info('file');
     foreach ($info['bundles'] as $bundle => $bundle_info) {
       $names[$bundle] = $bundle_info['label'];
@@ -1546,11 +1596,11 @@ function file_entity_stream_wrappers_alter(&$wrappers) {
 /**
  * Implements hook_ctools_plugin_api().
  */
-function file_entity_ctools_plugin_api($owner, $api) {
-  if ($owner == 'file_entity' && $api == 'file_type') {
+function file_entity_ctools_plugin_api($module, $api) {
+  if (($module == 'file_entity' && $api == 'file_type') || ($module == 'page_manager' && $api == 'pages_default') || $module == 'panelizer') {
     return array('version' => 1);
   }
-  if ($owner == 'file_entity' && $api == 'file_default_displays') {
+  if ($module == 'file_entity' && $api == 'file_default_displays') {
     return array('version' => 1);
   }
 }
@@ -2173,59 +2223,6 @@ function file_entity_upload_validators_pre_render($element) {
 }
 
 /**
- * Implements hook_file_default_displays_alter() on behalf of image.module.
- */
-function image_file_default_displays_alter(&$file_displays) {
-  // Images should be displayed as unstyled images by default.
-  if (isset($file_displays['image__default__file_field_file_default'])) {
-    $file_displays['image__default__file_field_file_default']->status = FALSE;
-  }
-
-  $file_display = new stdClass();
-  $file_display->api_version = 1;
-  $file_display->name = 'image__default__file_field_image';
-  $file_display->weight = 50;
-  $file_display->status = TRUE;
-  $file_display->settings = array(
-    'image_style' => '',
-    'image_link' => '',
-  );
-  $file_displays['image__default__file_field_image'] = $file_display;
-
-  // Image previews should be displayed as image thumbnails by default.
-  if (isset($file_displays['image__preview__file_field_file_default'])) {
-    $file_displays['image__preview__file_field_file_default']->status = FALSE;
-  }
-
-  $file_display = new stdClass();
-  $file_display->api_version = 1;
-  $file_display->name = 'image__preview__file_field_image';
-  $file_display->weight = 50;
-  $file_display->status = TRUE;
-  $file_display->settings = array(
-    'image_style' => 'thumbnail',
-    'image_link' => '',
-  );
-  $file_displays['image__preview__file_field_image'] = $file_display;
-
-  // Image teasers should be displayed as medium images by default.
-  if (isset($file_displays['image__teaser__file_field_file_default'])) {
-    $file_displays['image__teaser__file_field_file_default']->status = FALSE;
-  }
-
-  $file_display = new stdClass();
-  $file_display->api_version = 1;
-  $file_display->name = 'image__teaser__file_field_image';
-  $file_display->weight = 50;
-  $file_display->status = TRUE;
-  $file_display->settings = array(
-    'image_style' => 'medium',
-    'image_link' => 'content',
-  );
-  $file_displays['image__teaser__file_field_image'] = $file_display;
-}
-
-/**
  * @name pathauto_file Pathauto integration for the core file module.
  * @{
  */
@@ -2503,21 +2500,25 @@ function file_entity_admin_menu_map() {
 }
 
 /*
- * Generate a file download CSRF token.
+ * Generates a token to protect a file download URL.
  *
- * This is essentially a duplicate of drupal_get_token, that attempts to still
- * work if the user is anonymous, by using ip_address() as the identifier
- * rather than session_id().
+ * This prevents unauthorized crawling of all file download URLs since the
+ * {file_managed}.fid column is an auto-incrementing serial field and is easy
+ * to guess or attempt many at once. This can be costly both in CPU time
+ * and bandwidth.
+ *
+ * @see image_style_path_token()
  *
  * @param object $file
  *   A file entity object.
  *
  * @return string
- *   A CSRF token string.
+ *   An eight-character token which can be used to protect file downloads
+ *   against denial-of-service attacks.
  */
 function file_entity_get_download_token($file) {
-  $identifier = !empty($GLOBALS['user']->uid) ? session_id() : '';
-  return drupal_hmac_base64("file/$file->fid/download" . ':' . filemtime($file->uri) . ':' . $file->filesize, $identifier . drupal_get_private_key() . drupal_get_hash_salt());
+  // Return the first eight characters.
+  return substr(drupal_hmac_base64("file/$file->fid/download:" . $file->uri, drupal_get_private_key() . drupal_get_hash_salt()), 0, 8);
 }
 
 /**
@@ -2589,4 +2590,13 @@ function file_entity_get_public_and_private_stream_wrapper_names($flag = STREAM_
     }
   }
   return $wrappers;
+}
+
+/**
+ * Implements hook_features_pipe_alter() for the file type component.
+ */
+function file_entity_features_pipe_file_type_alter(&$pipe, $data, $export) {
+  foreach ($data as $file_type) {
+    $pipe['variable'][] = "pathauto_file_{$file_type}_pattern";
+  }
 }

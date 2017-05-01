@@ -1,0 +1,106 @@
+<?php
+
+/**
+ * @file
+ * Provides Media module pages for testing purposes.
+ */
+
+/**
+ * Implements hook_media_browser_plugin_info().
+ */
+function media_module_test_media_browser_plugin_info() {
+  // Allow tests to enable or disable this hook.
+  if (!variable_get('media_module_test_media_browser_plugin_info', FALSE)) {
+    return array();
+  }
+
+  $info['media_module_test'] = array(
+    'title' => t('Media module test'),
+    'class' => 'MediaModuleTest',
+    'weight' => 50,
+  );
+
+  return $info;
+}
+
+/**
+ * Implements hook_media_browser_plugin_info_alter().
+ */
+function media_module_test_media_browser_plugin_info_alter(&$info) {
+  // Allow tests to enable or disable this hook.
+  if (!variable_get('media_module_test_media_browser_plugin_info_alter', FALSE)) {
+    return;
+  }
+
+  $info['media_module_test']['title'] = t('Altered plugin title');
+}
+
+/**
+ * Implements hook_media_browser_plugins_alter().
+ */
+function media_module_test_media_browser_plugins_alter(&$plugin_output) {
+  // Allow tests to enable or disable this hook.
+  if (!variable_get('media_module_test_media_browser_plugins_alter', FALSE)) {
+    return;
+  }
+
+  $plugin_output['media_module_test']['test']['#markup'] = '<p>' . t('Altered browser plugin output.') . '</p>';
+}
+
+/**
+ * Implements hook_menu().
+ */
+function media_module_test_menu() {
+  $items = array();
+
+  $items['media/test'] = array(
+    'title' => 'Media test',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('media_module_test_form'),
+    'access arguments' => array('view files'),
+  );
+
+  return $items;
+}
+
+/**
+ * Form constructor for testing a 'media' element.
+ *
+ * @see media_module_test_form_submit()
+ * @ingroup forms
+ */
+function media_module_test_form($form, &$form_state, $tree = TRUE, $extended = FALSE) {
+  $form['#tree'] = (bool) $tree;
+
+  $form['nested']['media'] = array(
+    '#type' => 'media',
+    '#title' => t('Media'),
+    '#extended' => (bool) $extended,
+    '#size' => 13,
+  );
+
+  $form['textfield'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Type a value and ensure it stays'),
+  );
+
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save'),
+  );
+
+  return $form;
+}
+
+/**
+ * Form submission handler for media_module_test_form().
+ */
+function media_module_test_form_submit($form, &$form_state) {
+  if ($form['#tree']) {
+    $fid = $form['nested']['media']['#extended'] ? $form_state['values']['nested']['media']['fid'] : $form_state['values']['nested']['media'];
+  }
+  else {
+    $fid = $form['nested']['media']['#extended'] ? $form_state['values']['media']['fid'] : $form_state['values']['media'];
+  }
+  drupal_set_message(t('The file id is %fid.', array('%fid' => $fid)));
+}

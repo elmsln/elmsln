@@ -50,6 +50,24 @@ class AuthcacheVarnishTestCase extends DrupalWebTestCase {
   }
 
   /**
+   * Assert that a certain directive is in the Cache-Control header.
+   */
+  protected function assertCacheControl($expectcc, $message = NULL) {
+    $ccheader = $this->drupalGetHeader('Cache-Control') ?: '';
+    $ccfields = array_map('trim', explode(',', $ccheader));
+    $this->assert(in_array($expectcc, $ccfields), $message ?: t('Did not find expected @field in Cache-Control: @header.', array('@field' => $expectcc, '@header' => $ccheader)));
+  }
+
+  /**
+   * Assert that a certain directive is not in the Cache-Control header.
+   */
+  protected function assertNoCacheControl($rejectcc, $message = NULL) {
+    $ccheader = $this->drupalGetHeader('Cache-Control') ?: '';
+    $ccfields = array_map('trim', explode(',', $ccheader));
+    $this->assert(!in_array($rejectcc, $ccfields), $message ?: t('Found unexpected @field in Cache-Control: @header.', array('@field' => $rejectcc, '@header' => $ccheader)));
+  }
+
+  /**
    * Test presence of X-Authcache-Key header on HTTP response.
    */
   public function testVaryHeader() {
@@ -62,7 +80,9 @@ class AuthcacheVarnishTestCase extends DrupalWebTestCase {
     $this->drupalGet('<front>');
     $this->assertVary('X-Authcache-Key');
     $this->assertNoVary('X-Authcache-Key-CID');
-    $this->assertEqual('no-cache, must-revalidate, post-check=0, pre-check=0', $this->drupalGetHeader('Cache-Control'), 'Cache-Control: no-cache header expected on response when caching is not enabled');
+    $this->assertCacheControl('must-revalidate');
+    $this->assertCacheControl('no-cache');
+    $this->assertNoCacheControl('public');
 
     variable_set('authcache_roles', array(
       DRUPAL_ANONYMOUS_RID => DRUPAL_ANONYMOUS_RID,
@@ -75,7 +95,10 @@ class AuthcacheVarnishTestCase extends DrupalWebTestCase {
     $this->drupalGet('<front>');
     $this->assertVary('X-Authcache-Key');
     $this->assertNoVary('X-Authcache-Key-CID');
-    $this->assertEqual('public, max-age=3600', $this->drupalGetHeader('Cache-Control'), 'Cache-Control: public header expected on response when caching is enabled');
+    $this->assertCacheControl('max-age=3600');
+    $this->assertCacheControl('public');
+    $this->assertNoCacheControl('must-revalidate');
+    $this->assertNoCacheControl('no-cache');
   }
 
   /**
@@ -96,7 +119,10 @@ class AuthcacheVarnishTestCase extends DrupalWebTestCase {
     $this->assertEqual('', $result);
     $this->assertVary('X-Authcache-Key-CID');
     $this->assertFalse($this->drupalGetHeader('X-Authcache-Key'), 'X-Authcache-Key header must not be present on response.');
-    $this->assertEqual('public, max-age=' . authcache_key_lifetime(), $this->drupalGetHeader('Cache-Control'), 'Cache-Control: public header expected on response.');
+    $this->assertCacheControl('public');
+    $this->assertCacheControl('max-age=' . authcache_key_lifetime());
+    $this->assertNoCacheControl('must-revalidate');
+    $this->assertNoCacheControl('no-cache');
 
     // Test key retrieval for anonymous user, caching disabled, custom key ttl.
     variable_set('authcache_key_lifetime', 42);
@@ -105,7 +131,10 @@ class AuthcacheVarnishTestCase extends DrupalWebTestCase {
     $this->assertEqual('', $result);
     $this->assertVary('X-Authcache-Key-CID');
     $this->assertFalse($this->drupalGetHeader('X-Authcache-Key'), 'X-Authcache-Key header must not be present on response.');
-    $this->assertEqual('public, max-age=' . authcache_key_lifetime(), $this->drupalGetHeader('Cache-Control'), 'Cache-Control: public header expected on response.');
+    $this->assertCacheControl('public');
+    $this->assertCacheControl('max-age=' . authcache_key_lifetime());
+    $this->assertNoCacheControl('must-revalidate');
+    $this->assertNoCacheControl('no-cache');
     variable_del('authcache_key_lifetime');
 
     $this->drupalLogin($user);
@@ -116,7 +145,10 @@ class AuthcacheVarnishTestCase extends DrupalWebTestCase {
     $this->assertEqual('', $result);
     $this->assertVary('X-Authcache-Key-CID');
     $this->assertFalse($this->drupalGetHeader('X-Authcache-Key'), 'X-Authcache-Key header must not be present on response.');
-    $this->assertEqual('public, max-age=' . authcache_key_lifetime(), $this->drupalGetHeader('Cache-Control'), 'Cache-Control: public header expected on response.');
+    $this->assertCacheControl('public');
+    $this->assertCacheControl('max-age=' . authcache_key_lifetime());
+    $this->assertNoCacheControl('must-revalidate');
+    $this->assertNoCacheControl('no-cache');
 
     // Test key retrieval for authenticated user, caching disabled, custom key
     // ttl.
@@ -126,7 +158,10 @@ class AuthcacheVarnishTestCase extends DrupalWebTestCase {
     $this->assertEqual('', $result);
     $this->assertVary('X-Authcache-Key-CID');
     $this->assertFalse($this->drupalGetHeader('X-Authcache-Key'), 'X-Authcache-Key header must not be present on response.');
-    $this->assertEqual('public, max-age=' . authcache_key_lifetime(), $this->drupalGetHeader('Cache-Control'), 'Cache-Control: public header expected on response.');
+    $this->assertCacheControl('public');
+    $this->assertCacheControl('max-age=' . authcache_key_lifetime());
+    $this->assertNoCacheControl('must-revalidate');
+    $this->assertNoCacheControl('no-cache');
     variable_del('authcache_key_lifetime');
 
     $this->drupalLogout();
@@ -142,7 +177,10 @@ class AuthcacheVarnishTestCase extends DrupalWebTestCase {
     $this->assertEqual('', $result);
     $this->assertVary('X-Authcache-Key-CID');
     $this->assertTrue($this->drupalGetHeader('X-Authcache-Key'), 'X-Authcache-Key header must be present on response.');
-    $this->assertEqual('public, max-age=' . authcache_key_lifetime(), $this->drupalGetHeader('Cache-Control'), 'Cache-Control: public header expected on response.');
+    $this->assertCacheControl('public');
+    $this->assertCacheControl('max-age=' . authcache_key_lifetime());
+    $this->assertNoCacheControl('must-revalidate');
+    $this->assertNoCacheControl('no-cache');
 
     // Test key retrieval for anonymous user, caching enabled, custom key ttl.
     variable_set('authcache_key_lifetime', 42);
@@ -151,7 +189,10 @@ class AuthcacheVarnishTestCase extends DrupalWebTestCase {
     $this->assertEqual('', $result);
     $this->assertVary('X-Authcache-Key-CID');
     $this->assertTrue($this->drupalGetHeader('X-Authcache-Key'), 'X-Authcache-Key header must be present on response.');
-    $this->assertEqual('public, max-age=' . authcache_key_lifetime(), $this->drupalGetHeader('Cache-Control'), 'Cache-Control: public header expected on response.');
+    $this->assertCacheControl('public');
+    $this->assertCacheControl('max-age=' . authcache_key_lifetime());
+    $this->assertNoCacheControl('must-revalidate');
+    $this->assertNoCacheControl('no-cache');
     variable_del('authcache_key_lifetime');
 
     $this->drupalLogin($user);
@@ -162,7 +203,10 @@ class AuthcacheVarnishTestCase extends DrupalWebTestCase {
     $this->assertEqual('', $result);
     $this->assertVary('X-Authcache-Key-CID');
     $this->assertTrue($this->drupalGetHeader('X-Authcache-Key'), 'X-Authcache-Key header must be present on response.');
-    $this->assertEqual('public, max-age=' . authcache_key_lifetime(), $this->drupalGetHeader('Cache-Control'), 'Cache-Control: public header expected on response.');
+    $this->assertCacheControl('public');
+    $this->assertCacheControl('max-age=' . authcache_key_lifetime());
+    $this->assertNoCacheControl('must-revalidate');
+    $this->assertNoCacheControl('no-cache');
 
     // Test key retrieval for authenticated user, caching enabled, custom key
     // ttl.
@@ -172,7 +216,10 @@ class AuthcacheVarnishTestCase extends DrupalWebTestCase {
     $this->assertEqual('', $result);
     $this->assertVary('X-Authcache-Key-CID');
     $this->assertTrue($this->drupalGetHeader('X-Authcache-Key'), 'X-Authcache-Key header must be present on response.');
-    $this->assertEqual('public, max-age=' . authcache_key_lifetime(), $this->drupalGetHeader('Cache-Control'), 'Cache-Control: public header expected on response.');
+    $this->assertCacheControl('public');
+    $this->assertCacheControl('max-age=' . authcache_key_lifetime());
+    $this->assertNoCacheControl('must-revalidate');
+    $this->assertNoCacheControl('no-cache');
     variable_del('authcache_key_lifetime');
 
     $this->drupalLogout();
@@ -196,11 +243,16 @@ class AuthcacheVarnishTestCase extends DrupalWebTestCase {
 
     $this->drupalGet('<front>');
     $this->assertNoVary('X-Authcache-Key');
-    $this->assertEqual('no-cache, must-revalidate, post-check=0, pre-check=0', $this->drupalGetHeader('Cache-Control'), 'Cache-Control: no-cache header expected on response when request validation fails');
+    $this->assertCacheControl('must-revalidate');
+    $this->assertCacheControl('no-cache');
+    $this->assertNoCacheControl('public');
 
     $this->drupalGet('<front>', array(), array('X-Varnish: 123'));
     $this->assertVary('X-Authcache-Key');
-    $this->assertEqual('public, max-age=3600', $this->drupalGetHeader('Cache-Control'), 'Cache-Control: public header expected on response when caching is enabled');
+    $this->assertCacheControl('public');
+    $this->assertCacheControl('max-age=3600');
+    $this->assertNoCacheControl('must-revalidate');
+    $this->assertNoCacheControl('no-cache');
 
     variable_set('authcache_varnish_header', 'HTTP_X_CUSTOM_HEADER');
 
@@ -212,11 +264,16 @@ class AuthcacheVarnishTestCase extends DrupalWebTestCase {
 
     $this->drupalGet('<front>');
     $this->assertNoVary('X-Authcache-Key');
-    $this->assertEqual('no-cache, must-revalidate, post-check=0, pre-check=0', $this->drupalGetHeader('Cache-Control'), 'Cache-Control: no-cache header expected on response when request validation fails');
+    $this->assertCacheControl('must-revalidate');
+    $this->assertCacheControl('no-cache');
+    $this->assertNoCacheControl('public');
 
     $this->drupalGet('<front>', array(), array('X-Custom-Header: 123'));
     $this->assertVary('X-Authcache-Key');
-    $this->assertEqual('public, max-age=3600', $this->drupalGetHeader('Cache-Control'), 'Cache-Control: public header expected on response when caching is enabled');
+    $this->assertCacheControl('public');
+    $this->assertCacheControl('max-age=3600');
+    $this->assertNoCacheControl('must-revalidate');
+    $this->assertNoCacheControl('no-cache');
   }
 }
 

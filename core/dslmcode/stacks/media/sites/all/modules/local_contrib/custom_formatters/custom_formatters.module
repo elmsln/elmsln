@@ -1,14 +1,18 @@
 <?php
+
 /**
  * @file
- * Contains core functions for the Custom Formatters module.
+ * Core functions for the Custom Formatters module.
  */
 
 /**
  * Include additional files.
  */
+$dirname  = dirname(__FILE__) . '/includes';
+$includes = file_scan_directory($dirname, '/.inc$/');
 foreach (module_list() as $module) {
-  if (file_exists($file = dirname(__FILE__) . "/includes/{$module}.inc")) {
+  $file = "{$dirname}/{$module}.inc";
+  if (isset($includes[$file])) {
     require_once $file;
   }
 }
@@ -31,33 +35,28 @@ function custom_formatters_menu() {
   $items = array();
 
   $items['admin/structure/formatters/settings'] = array(
-    'title' => 'Settings',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('custom_formatters_settings_form'),
+    'title'            => 'Settings',
+    'page callback'    => 'drupal_get_form',
+    'page arguments'   => array('custom_formatters_settings_form'),
     'access arguments' => array('administer custom formatters'),
-    'file' => 'custom_formatters.admin.inc',
-    'file path' => drupal_get_path('module', 'custom_formatters') . '/includes',
-    'type' => MENU_LOCAL_TASK,
-  );
-
-  $items['js/formatters/autocomplete'] = array(
-    'title' => 'Formatters autocomplete',
-    'page callback' => 'custom_formatters_autocomplete',
-    'access arguments' => array('administer custom formatters'),
-    'file' => 'custom_formatters.inc',
-    'file path' => drupal_get_path('module', 'custom_formatters') . '/plugins/export_ui',
-    'type' => MENU_CALLBACK,
+    'file'             => 'custom_formatters.admin.inc',
+    'file path'        => drupal_get_path('module', 'custom_formatters') . '/includes',
+    'type'             => MENU_LOCAL_TASK,
   );
 
   return $items;
 }
 
 /**
+ * Check if the supplied formatter is currently in use.
  *
+ * @param $formatter
+ *
+ * @return bool
  */
 function custom_formatters_formatter_is_active($formatter) {
   $field_types = drupal_explode_tags($formatter->field_types);
-  $field_info = field_info_fields();
+  $field_info  = field_info_fields();
 
   foreach (field_info_instances() as $bundles) {
     foreach ($bundles as $fields) {
@@ -77,15 +76,24 @@ function custom_formatters_formatter_is_active($formatter) {
 }
 
 /**
+ * Load specified Custom formatter object.
  *
+ * @param $formatter
+ *
+ * @return null
  */
 function custom_formatters_crud_load($formatter) {
   $formatters = custom_formatters_crud_load_all();
+
   return isset($formatters[$formatter]) ? $formatters[$formatter] : NULL;
 }
 
 /**
+ * Load all Custom formatter objects.
  *
+ * @param bool $flush_cache
+ *
+ * @return mixed
  */
 function custom_formatters_crud_load_all($flush_cache = FALSE) {
   $formatters = &drupal_static(__FUNCTION__, array());

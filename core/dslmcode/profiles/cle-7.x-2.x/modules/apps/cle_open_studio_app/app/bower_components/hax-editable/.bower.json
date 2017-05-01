@@ -1,0 +1,25 @@
+{
+  "name": "hax-editable",
+  "main": "hax-editable.html",
+  "dependencies": {
+    "polymer": "Polymer/polymer#^1.4.0",
+    "iron-component-page": "^1.1.8"
+  },
+  "devDependencies": {
+    "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
+    "iron-demo-helpers": "PolymerElements/iron-demo-helpers#^1.0.0",
+    "web-component-tester": "^4.0.0",
+    "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0"
+  },
+  "homepage": "https://github.com/LRNWebComponents/hax-editable",
+  "version": "0.0.2",
+  "_release": "0.0.2",
+  "_resolution": {
+    "type": "version",
+    "tag": "0.0.2",
+    "commit": "766f3575752fb2a922605bda487f09f17b5983b1"
+  },
+  "_source": "https://github.com/LRNWebComponents/hax-editable.git",
+  "_target": "^0.0.2",
+  "_originalSource": "LRNWebComponents/hax-editable"
+}

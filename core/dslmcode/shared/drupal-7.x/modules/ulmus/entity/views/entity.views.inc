@@ -605,6 +605,28 @@ class EntityDefaultViewsController {
         );
       break;
 
+      case 'duration':
+        $return += $description + array(
+          'field' => array(
+            'real field' => $views_field_name,
+            'handler' => 'entity_views_handler_field_duration',
+            'click sortable' => TRUE,
+           ),
+          'sort' => array(
+            'real field' => $views_field_name,
+            'handler' => 'views_handler_sort',
+          ),
+          'filter' => array(
+            'real field' => $views_field_name,
+            'handler' => 'views_handler_filter_numeric',
+          ),
+          'argument' => array(
+            'real field' => $views_field_name,
+            'handler' => 'views_handler_argument_numeric',
+          ),
+        );
+      break;
+
       case 'uri':
         $return += $description + array(
           'field' => array(

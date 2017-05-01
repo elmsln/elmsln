@@ -24,6 +24,11 @@ class views_plugin_access_menu extends views_plugin_access {
     // view itself. The 'current display' could be set to something else, like
     // default.
     $path = $this->display->handler->get_option('path');
+
+    if (empty($path)) {
+      return FALSE;
+    }
+
     $item = menu_get_item($path);
 
     // If we are on the original router path, the menu system has checked access already.

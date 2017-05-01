@@ -82,9 +82,9 @@ function theme_path_breadcrumbs_ui_breadcrumbs_list($vars) {
   foreach (element_children($form) as $path_id) {
     if (isset($form[$path_id]['weight'])) {
       $row = array();
-      $row[] = render($form[$path_id]['title']);
-      $row[] = render($form[$path_id]['name']);
-      $row[] = render($form[$path_id]['path']);
+      $row[] = filter_xss_admin(render($form[$path_id]['title']));
+      $row[] = check_plain(render($form[$path_id]['name']));
+      $row[] = check_plain(render($form[$path_id]['path']));
       $row[] = render($form[$path_id]['actions']);
       $row[] = render($form[$path_id]['weight']);
 

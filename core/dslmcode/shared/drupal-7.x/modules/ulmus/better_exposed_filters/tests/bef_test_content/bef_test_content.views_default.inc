@@ -32,6 +32,7 @@ function bef_test_content_views_default_views() {
     'general' => array(
       'allow_secondary' => 0,
       'secondary_label' => 'Advanced options',
+      'secondary_collapse_override' => 0,
     ),
     'sort' => array(
       'bef_format' => 'bef_toggle_links',
@@ -123,8 +124,6 @@ function bef_test_content_views_default_views() {
       ),
     ),
   );
-  $handler->display->display_options['exposed_form']['options']['input_required'] = 0;
-  $handler->display->display_options['exposed_form']['options']['text_input_required_format'] = 'filtered_html';
   $handler->display->display_options['pager']['type'] = 'full';
   $handler->display->display_options['pager']['options']['items_per_page'] = '10';
   $handler->display->display_options['pager']['options']['offset'] = '0';
@@ -255,7 +254,7 @@ function bef_test_content_views_default_views() {
     3 => 0,
   );
   $handler->display->display_options['filters']['field_bef_test_location_tid']['type'] = 'select';
-  $handler->display->display_options['filters']['field_bef_test_location_tid']['vocabulary'] = 'location';
+  $handler->display->display_options['filters']['field_bef_test_location_tid']['vocabulary'] = 'taxonomy-bef_test-location';
   $handler->display->display_options['filters']['field_bef_test_location_tid']['hierarchy'] = 1;
 
   /* Display: Page */

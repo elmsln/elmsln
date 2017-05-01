@@ -363,7 +363,7 @@ function select_or_other_field_widget_validate($element, &$form_state) {
       $delta = 0;
       $values = array();
       foreach ((array)$value as $v) {
-        if ($field_info['type'] == 'number_integer' && !preg_match('/^-?\d+$/', $v)) {
+        if ($field_info['type'] == 'number_integer' && !preg_match('/^-?\d+$/', $v) && $v != '_none') {
           form_error($element, t('!name field must be a valid integer.', array('!name' => t($element['select']['#title']))));
           break;
         }

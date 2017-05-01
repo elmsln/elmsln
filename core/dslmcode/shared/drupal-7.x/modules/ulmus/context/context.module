@@ -192,11 +192,61 @@ function context_init() {
  * theme('menu_link') for the menu rendering to html.
  */
 function context_preprocess_menu_link(&$variables) {
-  if($contexts = context_active_contexts()){
-    foreach($contexts as $context){
-      if((isset($context->reactions['menu']))){
-        if ($variables['element']['#href'] == $context->reactions['menu']) {
-          $variables['element']['#localized_options']['attributes']['class'][] = "active";
+  if ($contexts = context_active_contexts()) {
+    foreach ($contexts as $context) {
+      if (isset($context->reactions['menu'])) {
+        // In context module < v3.2 the url was a string. In version 3.3+ this is
+        // an array of urls. Implement interims BC layer.
+        //
+        // Examples:
+        // - OLD < v3.2 context reaction structure:
+        // array('menu' => 'taxonomy/term/1')
+        //
+        // - NEW 3.3+ context reaction structure:
+        // array(
+        //   'menu' => array(
+        //     0 => 'navigation:taxonomy/term/1'
+        //     1 => 'foo-menu:taxonomy/term/1'
+        //   )
+        // )
+        $reactions_menu = is_array($context->reactions['menu']) ? array_values($context->reactions['menu']) : array($context->reactions['menu']);
+
+        // Get everything after the first ':' character (if found) as the url to
+        // match against element '#href'.
+        $urls = array();
+        foreach ($reactions_menu as $url) {
+          if (strpos($url, ':') !== FALSE) {
+            // Get unique menu name 'navigation' from 'navigation:taxonomy/term/1'
+            $reaction_menu = explode(':', $url);
+            $path = $reaction_menu[1];
+            $urls[$path] = $reaction_menu[0];
+          }
+          else {
+            // BC layer for menu contexts that have not re-saved. This is for
+            // urls like 'taxonomy/term/1'. We need to add a fake menu key
+            // 'bc-context-menu-layer' or the BC link get's removed by
+            // array_intersect below.
+            //
+            // @TODO: Remove BC layer in 4.x
+            $urls[$url] = 'context-reaction-menu-bc-layer';
+          }
+        }
+
+        // Filter urls by the menu name of the current link. The link reaction
+        // can be configured per menu link in specific menus and the contect
+        // reaction should not applied to other menus with the same menu link.
+        $menu_name = $variables['element']['#original_link']['menu_name'];
+        $menu_paths = array_intersect($urls, array($menu_name, 'context-reaction-menu-bc-layer'));
+        $reaction_menu_paths = array_keys($menu_paths);
+
+        // - If menu href and context reaction menu url match, add the 'active'
+        //   css class to the link of this menu.
+        // - Do not add class twice on current page.
+        if (in_array($variables['element']['#href'], $reaction_menu_paths) && $variables['element']['#href'] != $_GET['q']) {
+          // Do not add the 'active' class twice in views tabs.
+          if (!in_array('active', $variables['element']['#localized_options']['attributes']['class'])) {
+            $variables['element']['#localized_options']['attributes']['class'][] = 'active';
+          }
         }
       }
     }

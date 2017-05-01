@@ -1,0 +1,73 @@
+<?php
+
+/**
+ * @file
+ * Primarily Drupal hooks.
+ */
+
+/*
+ * Implements hook_system_info_alter()
+ */
+function media_migrate_file_types_system_info_alter(&$info, $file, $type) {
+  if ($type == 'module' && $file->name == 'media_migrate_file_types') {
+    $info['hidden'] = FALSE;
+  }
+}
+
+/**
+ * Implements hook_menu().
+ */
+function media_migrate_file_types_menu() {
+  $items['admin/structure/file-types/upgrade'] = array(
+    'title' => 'Upgrade types',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('media_migrate_file_types_upgrade_file_types'),
+    'access arguments' => array('administer file types'),
+    'file' => 'includes/media_migrate_file_types.pages.inc',
+    'type' => MENU_CALLBACK,
+  );
+  $items['admin/structure/file-types/upgrade/confirm'] = array(
+    'title' => 'Upgrade types',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('media_migrate_file_types_upgrade_file_types_confirm'),
+    'access arguments' => array('administer file types'),
+    'file' => 'includes/media_migrate_file_types.pages.inc',
+    'type' => MENU_CALLBACK,
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_help().
+ */
+function media_migrate_file_types_help($path, $arg) {
+  switch ($path) {
+    case 'admin/structure/file-types':
+      if (_media_migrate_file_types_get_migratable_file_types()) {
+        drupal_set_message(t('There are disabled/deleted file types that can be migrated to their new alternatives. Visit <a href="!url">migration page</a> to get more information.', array('!url' => url('admin/structure/file-types/upgrade'))));
+      }
+      break;
+  }
+}
+
+/**
+ * Checks if there are any files that belong to disabled or deleted file
+ * types.
+ *
+ * @return Array of file types (machine names) that are candidates for
+ *   migration.
+ */
+function _media_migrate_file_types_get_migratable_file_types() {
+  $query = db_select('file_managed', 'f')
+    ->fields('f', array('type'))
+    ->distinct();
+  $types = $query->execute()->fetchCol();
+
+  $enabled_types = array();
+  foreach (file_type_get_enabled_types() as $type) {
+    $enabled_types[] = $type->type;
+  }
+
+  return array_diff($types, $enabled_types);
+}

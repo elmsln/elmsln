@@ -205,16 +205,19 @@ class backup_migrate_filter_utils extends backup_migrate_filter {
    * Take the site offline if configured to do so.
    */
   function take_site_offline($settings) {
-    // Save the current state of the site in case a restore overwrites it.
-    $this->saved_site_offline = variable_get('maintenance_mode', 0);
-    if (@$settings->filters['utils_site_offline']) {
-      $this->saved_site_offline_message = variable_get('maintenance_mode_message', NULL);
-      if (!empty($settings->filters['utils_site_offline_message'])) {
+    // If the site is already offline then don't do anything.
+    if (!variable_get('maintenance_mode', 0)) {
+      // Save the current state of the site in case a restore overwrites it.
+      if (!empty($settings->filters['utils_site_offline'])) {
+        $this->saved_site_offline = TRUE;
         $this->saved_site_offline_message = variable_get('maintenance_mode_message', NULL);
-        variable_set('maintenance_mode_message', $settings->filters['utils_site_offline_message']);
+        if (!empty($settings->filters['utils_site_offline_message'])) {
+          $this->saved_site_offline_message = variable_get('maintenance_mode_message', NULL);
+          variable_set('maintenance_mode_message', $settings->filters['utils_site_offline_message']);
+        }
+        variable_set('maintenance_mode', 1);
+        _backup_migrate_message('Site was taken offline.');
       }
-      variable_set('maintenance_mode', 1);
-      _backup_migrate_message('Site was taken offline.');
     }
   }
 
@@ -223,12 +226,14 @@ class backup_migrate_filter_utils extends backup_migrate_filter {
    */
   function take_site_online($settings) {
     // Take the site back off/online because the restored db may have changed that setting.
-    variable_set('maintenance_mode', $this->saved_site_offline);
-    if ($settings->filters['utils_site_offline']) {
-      if (!empty($this->saved_site_offline_message)) {
-        variable_set('maintenance_mode_message', $this->saved_site_offline_message);
+    if (variable_get('maintenance_mode', 0) && !empty($this->saved_site_offline)) {
+      variable_set('maintenance_mode', 0);
+      if ($settings->filters['utils_site_offline']) {
+        if (!empty($this->saved_site_offline_message)) {
+          variable_set('maintenance_mode_message', $this->saved_site_offline_message);
+        }
+        _backup_migrate_message('Site was taken online.');
       }
-      _backup_migrate_message('Site was taken online.');
     }
   }
 }

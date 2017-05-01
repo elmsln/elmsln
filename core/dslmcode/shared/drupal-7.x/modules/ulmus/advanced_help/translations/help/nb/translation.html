@@ -1,0 +1,51 @@
+<p>For å oversette en hjelpe-fil indeksert av <strong>Avansert hjelp</strong>
+må du først opprette en katalog
+<code>translations/help/<em>språk</em></code> i prosjektets rotkatalog der
+<em>språk</em> er språkkoden som vises på siden <em>Språk</em> i det
+administrative grensesnittet.</p>
+
+<p>Deretter kopierer du <code>.ini</code>-fila og alle
+<code>.html</code> filene fra den opprinnelige hjelpe-katalogen
+katalogen til denne katalogen. Om du trenger å endre et bilde for å
+bruke det i en oversettelse, kan du også plassere det endrede bildet
+her.</p>
+
+<p>I emne-delen av <code>.ini</code>-fila trenger du bare å beholde
+emnenavnene (uendret) og titlene (oversatt). Hvis det finnes
+en <code>name</code> eller <code>index name</code> innstilling i
+'advanced help settings'-delen, bør disse beholdes. Alle innstillinger
+som beholdes skal oversettes. Resten av dataene i
+<code>.ini</code>-filen kan fjernes eller ignoreres. </p>
+
+<p>Hver enkelt <code>.html</code>-fil skal deretter oversettes uten å
+endre navn eller plassering.</p>
+
+<p>Når du oversetter en <code>.html</code>-fil, vil du finne at
+nøkkelordet <code>&amp;path&amp;</code> (brukes for bilder og linker)
+vil føre til den opprinnelige katalogen. Hvis du må oversette
+elementer som er lenket, for eksempel bilder som inneholder tekst,
+bruke <code>&amp;trans_path&amp;</code> i stedet. Dette nøkkelordet
+vil peke på den oversatte katalogen. Dette vil tillate deg å velge
+hvilke lenkede elementer, om noen, som vil bli oversatt.</p>
+
+<p> Hvis et emne ikke er oversatt, så vil den uoversatte versjonen
+vil bli vist i stedet.</p>
+
+
+
+<h2>Oversettelse av hjelpetekstene til Avansert hjelp</h2>
+
+<p>Dersom du ønsker å hjelpe til med å oversette
+hjelpetekstene til <strong>Avansert hjelp</strong> til et bestemt språk
+kan du se etter en tråd i <a href="https://www.drupal.org/project/issues/advanced_help">sporingskøen for Advanced help</a>
+med navnet “Translation to XXX” (der
+“XXX” språket du ønsker å oversette hjelpetekstene til).
+Dersom en slik tråd ikke eksisterer kan du opprette den.
+Velg <em>Category</em>  “Task”,
+<em>Status</em>  “Needs review” og
+<em>Component</em>  “Documentation”.
+Last opp filer med oversatte hjelpetekster som
+vedlegg (endre filtype fra <code>.html</code> til <code>.txt</code> for å få lov til å laste opp).</p>
+
+<p>Oversettelser som lastes opp vil bli inkludert i neste versjon dersom de godkjennes av andre brukere (ved at de oppnår status “RTBC”).
+

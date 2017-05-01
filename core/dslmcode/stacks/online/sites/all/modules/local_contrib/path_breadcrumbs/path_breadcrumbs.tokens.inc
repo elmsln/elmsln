@@ -27,7 +27,8 @@ function path_breadcrumbs_tokens($type, $tokens, array $data = array(), array $o
     }
   }
 
-  // Support 'current-page:menu-link:*' tokens.
+  // Support 'current-page:menu-link:*' and 'current-page:path-menu-trail:*'
+  // tokens.
   if ($type == 'site') {
     // We have to unprefix 'current-page:*' tokens manually.
     if ($site_tokens = token_find_with_prefix($tokens, 'current-page')) {
@@ -51,6 +52,10 @@ function path_breadcrumbs_tokens($type, $tokens, array $data = array(), array $o
               break;
           }
         }
+      }
+      // Support 'current-page:path-menu-trail:*' tokens.
+      elseif ($path_tokens = token_find_with_prefix($site_tokens, 'path-menu-trail')) {
+        $replacements += _path_breadcrumbs_path_menu_trail_token_generate($path_tokens);
       }
     }
   }
@@ -125,6 +130,77 @@ function _path_breadcrumbs_menu_token_generate($tokens, $data, $options) {
   foreach ($pb_join_tokens as $name => $original) {
     if ($name == 'name' || $name == 'url' || $name == 'none') {
       $replacements[$original] = implode("\n", $pb_menu_data[$name]);
+    }
+  }
+
+  return $replacements;
+}
+
+/**
+ * Helper function that generates tokens for menu trail by path.
+ */
+function _path_breadcrumbs_path_menu_trail_token_generate($tokens) {
+  global $language;
+
+  // Find 'pb-join' tokens.
+  $pb_join_tokens = token_find_with_prefix($tokens, 'pb-join');
+  if (empty($pb_join_tokens)) {
+    return array();
+  }
+
+  // Get current path and explode it by path bits.
+  $current_path_alias = drupal_get_path_alias();
+  $path_bits = explode('/', $current_path_alias);
+
+  // Add static cache to avoid performance issues.
+  $pb_data = &drupal_static(__FUNCTION__);
+  if (!isset($pb_data)) {
+
+    // Check if each subpath has menu item. For example, if the current path is
+    // "this/is/path/to/check", then we will build menu structure for:
+    // * this
+    // * this/is
+    // * this/is/path
+    // * this/is/path/to
+    // * this/is/path/to/check
+    $path_bits_checked = array();
+    foreach ($path_bits as $bit) {
+      $path_bits_checked[] = $bit;
+
+      // Menu item can be added with aliased or not aliased path. We should
+      // check both cases.
+      $path = implode('/', $path_bits_checked);
+      $path_normal = drupal_get_normal_path($path);
+      $search_path = array($path);
+      if ($path != $path_normal) {
+        $search_path[] = $path_normal;
+      }
+
+      // Find menu item in menu by path.
+      $query = db_select('menu_links', 'ml')
+        ->fields('ml', array('mlid', 'link_path', 'link_title'))
+        ->condition('ml.link_path', $search_path)
+        ->range(0, 1);
+
+      if (module_exists('i18n_menu')) {
+        $query->condition('ml.language', array(LANGUAGE_NONE, $language->language));
+      }
+
+      $menu_link = $query->execute()->fetchObject();
+
+      // If menu item was found, then we can add it as a replacements.
+      if (!empty($menu_link)) {
+        $pb_data['name'][] = $menu_link->link_title;
+        $pb_data['url'][] = $menu_link->link_path;
+        $pb_data['none'][] = '<none>';
+      }
+    }
+  }
+
+  $replacements = array();
+  foreach ($pb_join_tokens as $name => $original) {
+    if (!empty($pb_data[$name])) {
+      $replacements[$original] = implode("\n", $pb_data[$name]);
     }
   }
 

@@ -1,0 +1,85 @@
+<?php
+/**
+ * @file
+ * Functions to support the drush file. Located here to support testing.
+ */
+
+/**
+ * Figures out what to do given the default changes and the whitelist.
+ *
+ * @param array $existing_tables
+ *   An array of tables and columns derived from the tables in the db.
+ * @param array $whitelist_tables
+ *   An array of tables, actions, and fields specified by hooks.
+ *
+ * @return array
+ *   An array of tables and actions determined by combining the two inputs.
+ */
+function _paranoiasanitize_decide_what_to_do($existing_tables, $whitelist_tables) {
+  $changes_to_do = array();
+  // If a table exists in whitelist and not in existing tables, don't return it.
+  foreach ($whitelist_tables as $table_name => $whitelist_action) {
+    if (!array_key_exists($table_name, $existing_tables)) {
+      watchdog('paranoiasanitize', 'The table @table is in the whitelist, but not the db, consider updating hooks to remove it.', array(
+        '@table' => $table_name), WATCHDOG_WARNING);
+      unset($whitelist_tables[$table_name]);
+    }
+    // If a record exists in whitelist and potential changes...
+    else {
+      // If a whitelist record covers all columns in the table, do that work.
+      sort($whitelist_tables[$table_name]['fields']);
+      sort($existing_tables[$table_name]['fields']);
+      if ($whitelist_tables[$table_name]['fields'] === $existing_tables[$table_name]['fields']) {
+        watchdog('paranoiasanitize', 'Columns found are covered by whitelist for @table so doing what whitelist says', array(
+          '@table' => $table_name), WATCHDOG_INFO);
+        $changes_to_do[$table_name] = $whitelist_tables[$table_name];
+      }
+      else {
+        // If the suggested whitelist changes do not cover all the columns in
+        // the table, instead truncate the table and log an error.
+        $changes_to_do[$table_name] = array('queries' => array("TRUNCATE $table_name"));
+        watchdog('paranoiasanitize', 'Suggested whitelist changes for @table do not protect all columns, so truncating data instead', array(
+          '@table' => $table_name), WATCHDOG_WARNING);
+      }
+    }
+  }
+
+  // If a record exists in the db and not the changes to do, truncate it.
+  foreach ($existing_tables as $table_name => $fields) {
+    if (!array_key_exists($table_name, $changes_to_do)) {
+      $changes_to_do[$table_name] = array('queries' => array("TRUNCATE $table_name"));
+      watchdog('paranoiasanitize', 'Existing table @table not found in whitelist, so truncating data instead', array(
+        '@table' => $table_name), WATCHDOG_WARNING);
+    }
+  }
+  ksort($changes_to_do);
+  return $changes_to_do;
+}
+
+
+/**
+ * Given an array of tables and a database config, apply prefixes.
+ *
+ * @param string $table_name
+ *   A table name.
+ * @param array $databases
+ *   A Drupal database configuration array.
+ *
+ * @return string
+ *   Same content as $table_name, but with a prefix if needed.
+ */
+function _paranoiasanitize_apply_db_prefix($table_name, $databases) {
+  if (!empty($databases['default']['default']['prefix'])) {
+    $prefixes = $databases['default']['default']['prefix'];
+    if (array_key_exists($table_name, $prefixes)) {
+      return $prefixes[$table_name] . $table_name;
+    }
+    elseif (!empty($prefixes['default'])) {
+      return $prefixes['default'] . $table_name;
+    }
+    else {
+      return $table_name;
+    }
+  }
+  return $table_name;
+}

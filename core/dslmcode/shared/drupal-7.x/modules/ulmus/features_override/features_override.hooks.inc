@@ -27,6 +27,7 @@ function image_features_override_export_render_addition($alter, $element) {
     $value_export = features_override_var_export($alter['value'], '    ');
     $code[] = "";
     $code[] = "  if (!isset(" . $component_start . "['storage']) || " . $component_start . "['storage'] == IMAGE_STORAGE_DEFAULT) {";
+    $code[] = "    " . $component_start . "['effects'] = array_values(" . $component_start . "['effects']" . ');';
     $code[] = "    " . $component_start . $code_line . ' = ' . $value_export . ';';
     $code[] = "  }";
   }

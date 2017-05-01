@@ -95,6 +95,10 @@ function editableviews_entity_form($form, &$form_state, $entities, $results_coor
 
   // Get the message option from the view style plugin.
   $form['#save_messages'] = $view->style_plugin->options['save_messages'];
+  // Get the batch option from the view style plugin.
+  $form['#batch'] = $view->style_plugin->options['batch'];
+  // Get the batch_size option from the view style plugin.
+  $form['#batch_size'] = $view->style_plugin->options['batch_size'];
 
   foreach (array_keys($entities) as $entity_type) {
     foreach ($entities[$entity_type] as $entity_id => $entity) {
@@ -173,9 +177,36 @@ function editableviews_entity_form_validate($form, &$form_state) {
       $entity = $form[$entity_type][$entity_id]['#entity'];
       $relationship = $form[$entity_type][$entity_id]['#views_relationship'];
 
+      // Start with a fresh errors array for each entity. FieldAPI field
+      // validation will add to this array.
+      $errors = array();
+
       // Invoke the field handlers on the relationship the entity is on.
       foreach ($field_handlers[$relationship] as $field_handler) {
-        $field_handler->edit_form_validate($entity_type, $entity, $form[$entity_type][$entity_id], $form_state);
+        $field_handler->edit_form_validate($entity_type, $entity, $form[$entity_type][$entity_id], $form_state, $errors);
+      }
+
+      // Invoke hook_field_attach_validate() to let other modules validate the
+      // entity. This should be done once only for each entity.
+      // Avoid module_invoke_all() to let $errors be taken by reference.
+      foreach (module_implements('field_attach_validate') as $module) {
+        $function = $module . '_field_attach_validate';
+        $function($entity_type, $entity, $errors);
+      }
+
+      if ($errors) {
+        // Pass FieldAPI validation errors back to widgets for accurate error
+        // flagging.
+        foreach ($field_handlers[$relationship] as $field_handler) {
+          // This is ugly, but only FieldAPI field handlers need this. The
+          // alternative would be for the editableviews_handler_field_field_edit
+          // handler's edit_form_validate() method to detect whether it's the
+          // last FieldAPI field handler for the current entity, which would be
+          // messier.
+          if (method_exists($field_handler, 'edit_form_validate_errors')) {
+            $field_handler->edit_form_validate_errors($entity_type, $entity, $form[$entity_type][$entity_id], $form_state, $errors);
+          }
+        }
       }
     }
   }
@@ -258,12 +289,68 @@ function editableviews_entity_form_submit_build_values($form, &$form_state) {
  *
  * Saves all entities in $form_state['entities'], with the exception of new
  * entities which have their 'editableviews_needs_save' set to FALSE.
+ * If batch support is enabled, batch is triggered from here.
  */
 function editableviews_entity_form_submit_save($form, &$form_state) {
-  //dsm($form_state['entities'], 'entities to save');
+  if (!$form['#batch']) {
+    editableviews_entity_save($form_state['entities'], $form['#save_messages']);
+  }
+  else {
+    $operations = array();
+    $entities = $form_state['entities'];
+    foreach (array_keys($entities) as $entity_type) {
+      $entity_array = $entities[$entity_type];
+      while (!empty($entity_array)) {
+        $list = array_splice($entity_array, 0, $form['#batch_size']);
+
+        $operations[] = array(
+          'editableviews_entity_save',
+          array(
+            array($entity_type => $list),
+            $form['#save_messages'],
+          )
+        );
+      }
+    }
+
+    $batch = array(
+      'operations' => $operations,
+      'finished' => 'editableviews_save_batch_finished',
+    );
+
+    batch_set($batch);
+  }
+}
+
+/**
+ * Implements callback_batch_finished().
+ */
+function editableviews_save_batch_finished($success, $results, $operations) {
+  if ($success) {
+    drupal_set_message(t('Entities saved successfully'));
+  }
+  else {
+    drupal_set_message(t('An error occurred while saving entities'), 'error');
+  }
+}
+
+/**
+ * Saves the entities in $entities array.
+ *
+ * @param array $entities
+ *   Entities to save.
+ * @param string $save_messages
+ *   Configuration setting about messages to show to end users. It must be one
+ *   of the values below:
+ *     - 'none': Show no messages.
+ *     - 'summary': Show a single message summarizing the changes.
+ *     - 'individual': Show a message for each saved entity.
+ */
+function editableviews_entity_save($entities, $save_messages) {
   $entity_info = entity_get_info();
-  foreach (array_keys($form_state['entities']) as $entity_type) {
-    foreach ($form_state['entities'][$entity_type] as $entity_id => $entity) {
+  $save_message_labels = array();
+  foreach (array_keys($entities) as $entity_type) {
+    foreach ($entities[$entity_type] as $entity_id => $entity) {
       // Check whether a save has been requested.
       if (empty($entity->editableviews_needs_save)) {
         continue;
@@ -276,9 +363,9 @@ function editableviews_entity_form_submit_save($form, &$form_state) {
       // to set the referring entity to point to it. We can do this now that the
       // new entity has been saved and has an id.
       if (isset($entity->editableviews_future_reference)) {
-        list($new_entity_id, ) = entity_extract_ids($entity_type, $entity);
+        list($new_entity_id,) = entity_extract_ids($entity_type, $entity);
 
-        $referring_entity = $form_state['entities'][$entity->editableviews_future_reference['entity_type']][$entity->editableviews_future_reference['entity_id']];
+        $referring_entity = $entities[$entity->editableviews_future_reference['entity_type']][$entity->editableviews_future_reference['entity_id']];
         $wrapper = entity_metadata_wrapper($entity->editableviews_future_reference['entity_type'], $referring_entity);
 
         // Make the existing entity point to the new entity.
@@ -291,21 +378,21 @@ function editableviews_entity_form_submit_save($form, &$form_state) {
         entity_save($entity->editableviews_future_reference['entity_type'], $referring_entity);
       }
 
-      if ($form['#save_messages'] == 'individual') {
+      if ($save_messages == 'individual') {
         // Show a confirmation message. This could get pretty long on a big View!
         drupal_set_message(t("Saved %entity-type entity %label.", array(
           '%entity-type' => $entity_info[$entity_type]['label'],
           '%label' => entity_label($entity_type, $entity),
         )));
       }
-      elseif ($form['#save_messages'] == 'summary') {
+      elseif ($save_messages == 'summary') {
         // Use drupal_placeholder() to format this the same as %label above.
         $save_message_labels[] = drupal_placeholder(entity_label($entity_type, $entity));
       }
     }
   }
 
-  if ($form['#save_messages'] == 'summary' && count($save_message_labels)) {
+  if ($save_messages == 'summary' && count($save_message_labels)) {
     drupal_set_message(t("Saved entities !labels.", array(
       // These have been sanitized already.
       '!labels' => implode(', ', $save_message_labels),

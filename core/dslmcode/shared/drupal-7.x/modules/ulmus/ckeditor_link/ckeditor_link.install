@@ -32,11 +32,18 @@ function ckeditor_link_requirements($phase) {
   if (($phase == 'runtime') && !variable_get('clean_url', 0)) {
     $requirements['ckeditor_link_clean_url'] = array(
       'title' => t('CKEditor Link'),
-      'value' => t('Clean URLs disabled'),
-      'description' => t('<em>CKEditor Link</em> requires <a href="!url">Clean URLs</a> to be enabled in order to function properly.', array('!url' => url('admin/config/search/clean-urls'))),
+      'value' => t('Clean URLs are disabled.'),
+      'description' => t('<em>CKEditor Link</em> requires <a href="@url">Clean URLs</a> to be enabled in order to function properly.', array('@url' => url('admin/config/search/clean-urls'))),
       'severity' => REQUIREMENT_ERROR,
     );
   }
 
   return $requirements;
+}
+
+/**
+ * Expose strings to potx.
+ */
+function _ckeditor_link_potx() {
+  t('Internal path');
 }

@@ -1,0 +1,6 @@
+name = HAX
+description = A completely Headless Authoring eXperience, #haxtheweb.
+core = 7.x
+dependencies[] = webcomponents
+dependencies[] = uuid
+configure = admin/config/content/hax

@@ -71,6 +71,38 @@ function responsive_tables_theme_table($variables) {
     $attributes['class'][] = 'sticky-enabled';
   }
 
+  // Track responsive classes for each column as needed. Only the header
+  // cells for a column are marked up with the responsive classes by a
+  // module developer or themer. The responsive classes on the header cells
+  // must be transferred to the content cells.
+  $responsive = array();
+  if (count($header)) {
+    $i = 0;
+    foreach ($header as $cell) {
+      $i++;
+      if (!empty($cell['class']) && is_array($cell['class'])) {
+        if (in_array(RESPONSIVE_PRIORITY_MEDIUM, $cell['class'])) {
+          $responsive[$i] = RESPONSIVE_PRIORITY_MEDIUM;
+        }
+        elseif (in_array(RESPONSIVE_PRIORITY_LOW, $cell['class'])) {
+          $responsive[$i] = RESPONSIVE_PRIORITY_LOW;
+        }
+      }
+    }
+  }
+
+  // If the table has headers and it should react responsively to columns hidden
+  // with the classes represented by the constants RESPONSIVE_PRIORITY_MEDIUM
+  // and RESPONSIVE_PRIORITY_LOW, add the tableresponsive behaviors.
+  if ($variables['responsive'] && !empty($responsive)) {
+    drupal_add_library('responsive_tables', 'drupal.tableresponsive');
+    // Add 'responsive-enabled' class to the table to identify it for JS.
+    // This is needed to target tables constructed by this function.
+    $attributes['class'][] = 'responsive-enabled';
+    // Add responsive CSS.
+    responsive_tables_add_css();
+  }
+
   $output = '<table' . drupal_attributes($attributes) . ">\n";
 
   if (isset($caption)) {
@@ -130,28 +162,13 @@ function responsive_tables_theme_table($variables) {
     ));
   }
 
-  $responsive = array();
   // Format the table header:
   if (count($header)) {
     $ts = tablesort_init($header);
     // HTML requires that the thead tag has tr tags in it followed by tbody
     // tags. Using ternary operator to check and see if we have any rows.
     $output .= (count($rows) ? ' <thead><tr>' : ' <tr>');
-    $i = 0;
     foreach ($header as $cell) {
-      $i++;
-      // Track responsive classes for each column as needed. Only the header
-      // cells for a column are marked up with the responsive classes by a
-      // module developer or themer. The responsive classes on the header cells
-      // must be transferred to the content cells.
-      if (!empty($cell['class']) && is_array($cell['class'])) {
-        if (in_array(RESPONSIVE_PRIORITY_MEDIUM, $cell['class'])) {
-          $responsive[$i] = RESPONSIVE_PRIORITY_MEDIUM;
-        }
-        elseif (in_array(RESPONSIVE_PRIORITY_LOW, $cell['class'])) {
-          $responsive[$i] = RESPONSIVE_PRIORITY_LOW;
-        }
-      }
       $cell = tablesort_header($cell, $header, $ts);
       $output .= _theme_table_cell($cell, TRUE);
     }
@@ -160,18 +177,6 @@ function responsive_tables_theme_table($variables) {
   }
   else {
     $ts = array();
-  }
-
-  // If the table has headers and it should react responsively to columns hidden
-  // with the classes represented by the constants RESPONSIVE_PRIORITY_MEDIUM
-  // and RESPONSIVE_PRIORITY_LOW, add the tableresponsive behaviors.
-  if ($variables['responsive'] && !empty($responsive)) {
-    drupal_add_library('responsive_tables', 'drupal.tableresponsive');
-    // Add 'responsive-enabled' class to the table to identify it for JS.
-    // This is needed to target tables constructed by this function.
-    $attributes['class'][] = 'responsive-enabled';
-    // Add responsive CSS.
-    responsive_tables_add_css();
   }
 
   // Format the table rows:

@@ -1,2 +1,7 @@
 /* @codingStandardsIgnoreFile */
 @charset "UTF-8";html{font-family:"sans-serif";}
+
+/* Test data with multi-byte characters */
+.copyright-©, a-with-tilde-ã, plus-minus-± {
+  font-weight: bold;
+}

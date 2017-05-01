@@ -97,6 +97,13 @@ function video_embed_field_schema() {
 }
 
 /**
+ * Implements hook_uninstall().
+ */
+function video_embed_field_uninstall() {
+  variable_del('video_embed_field_youtube_api_key');
+}
+
+/**
  * Adds an optional description form.
  */
 function video_embed_field_update_7000() {
@@ -340,4 +347,45 @@ function video_embed_field_update_7008() {
   }
 
   return t("Updated 'node' setting to 'content'");
+}
+
+/**
+ * Adds new Allowed Providers setting to existing instances.
+ */
+function video_embed_field_update_7009() {
+  $allowed_providers = array_keys(video_embed_get_handlers());
+
+  $instances = field_info_instances();
+  foreach ($instances as $entity_type) {
+    foreach ($entity_type as $bundle) {
+      foreach ($bundle as $instance) {
+        $field_info = field_info_field($instance['field_name']);
+        if ($field_info['type'] == 'video_embed_field') {
+          $instance['settings']['allowed_providers'] = $allowed_providers;
+          field_update_instance($instance);
+        }
+      }
+    }
+  }
+
+  return t('Updated default instance settings');
+}
+
+/**
+ * Update styles with empty class parameter.
+ */
+function video_embed_field_update_7010() {
+  drupal_get_schema('vef_video_styles', TRUE);
+  ctools_include('export');
+  $styles = ctools_export_load_object('vef_video_styles');
+  foreach ($styles as $style) {
+    foreach ($style->data as &$provider) {
+      if (!isset($provider['class'])) {
+        $provider['class'] = '';
+      }
+    }
+    ctools_export_crud_save('vef_video_styles', $style);
+  }
+
+  return 'Parameter class added to existing styles';
 }

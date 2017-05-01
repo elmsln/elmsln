@@ -1,6 +1,12 @@
+field_hidden 7.x-1.x, 2015-01-24
+--------------------------------
+- Issue #1472050 by jacobfriis: Fixed Rules integration for numeric field types.
+- Release 7.x-1.7.
+
 field_hidden 7.x-1.x, 2014-04-24
 --------------------------------
 * Added Feeds integration.
+* Release 7.x-1.6.
 
 field_hidden 7.x-1.5, 2013-11-23
 --------------------------------------------------------------------------------

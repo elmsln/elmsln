@@ -254,6 +254,41 @@ class LinkAttributeCrudTest extends DrupalWebTestCase {
     }
   }
 
+  function testFormatterHost() {
+    $content_type_friendly = $this->randomName(20);
+    $content_type_machine = strtolower($this->randomName(10));
+
+    $this->drupalCreateContentType(array(
+      'type' => $content_type_machine,
+      'name' => $content_type_friendly,
+    ));
+
+
+    // Now add a singleton field.
+    $single_field_name_friendly = $this->randomName(20);
+    $single_field_name_machine = strtolower($this->randomName(10));
+    //$single_field_name = 'field_'. $single_field_name_machine;
+    $this->createSimpleLinkField($single_field_name_machine, $single_field_name_friendly, $content_type_machine);
+
+    // Okay, now we want to make sure this display is changed:
+    $this->drupalGet('admin/structure/types/manage/'. $content_type_machine .'/display');
+    $edit = array(
+      'fields[field_'. $single_field_name_machine .'][label]' => 'above',
+      'fields[field_'. $single_field_name_machine .'][type]' => 'link_host',
+    );
+    $this->drupalPost(NULL, $edit, t('Save'));
+
+    $this->createNodeTypeUser($content_type_machine);
+
+    $link_text = 'Display';
+    $link_url = 'http://www.example.com/';
+    $this->createNodeForTesting($content_type_machine, $content_type_friendly, $single_field_name_machine, $link_text, $link_url);
+
+    $this->assertText('www.example.com');
+    $this->assertNoText($link_text);
+    $this->assertNoLinkByHref($link_url);
+  }
+
   function testFormatterURL() {
     $content_type_friendly = $this->randomName(20);
     $content_type_machine = strtolower($this->randomName(10));

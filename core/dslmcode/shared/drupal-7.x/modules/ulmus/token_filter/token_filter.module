@@ -24,7 +24,7 @@ function token_filter_filter_info() {
  */
 function _token_filter_filter_tokens($text, $filter, $format, $langcode, $cache, $cache_id) {
   $data = array();
-  $options = array();
+  $options = array('clear' => TRUE);
 
   // Attempt to figure out the current context based on the current backtrace.
   $backtrace = debug_backtrace();

@@ -11,3 +11,10 @@ core = "7.x"
 project = "textbook"
 datestamp = "1408544031"
 
+
+; Information added by Drupal.org packaging script on 2017-04-20
+version = "7.x-4.3+2-dev"
+core = "7.x"
+project = "textbook"
+datestamp = "1492703352"
+

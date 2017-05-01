@@ -1,0 +1,16 @@
+name = Media Migrate File Types
+description = Provides a UI for updating legacy media types with the new file types provided by File Entity.
+package = Media
+core = 7.x
+hidden = TRUE
+
+dependencies[] = media
+
+configure = admin/structure/file-types/upgrade
+
+; Information added by Drupal.org packaging script on 2017-04-06
+version = "7.x-2.0"
+core = "7.x"
+project = "media"
+datestamp = "1491500288"
+

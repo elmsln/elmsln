@@ -1,0 +1,32 @@
+<?php
+
+/**
+ * @file editableviews_test.module
+ * Test module for Editable Views.
+ */
+
+/**
+ * Implements hook_field_attach_validate().
+ *
+ * Fails validation for the entity if the field 'field_test_editable_text' has
+ * the value 'banana'.
+ */
+function editableviews_test_field_attach_validate($entity_type, $entity, &$errors) {
+  // Keep a count of how many errors we record, so each error message is unique
+  // and can be checked by assertText() / assertNoText().
+  static $error_count = 0;
+
+  $items = field_get_items($entity_type, $entity, 'field_test_editable_text');
+  $field_value = $items[0]['value'];
+
+  if ($field_value == 'banana') {
+    $error_count++;
+
+    $errors['field_test_editable_text'][LANGUAGE_NONE][0][] = array(
+      'error' => 'error',
+      'message' => t('Text may not be "banana" (error !count).', array(
+        '!count' => $error_count,
+      )),
+    );
+  }
+}

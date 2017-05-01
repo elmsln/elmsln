@@ -4,8 +4,8 @@
  * Field handler for editing an entity metadata property.
  *
  * This allows editing of Entity API metadata properties, as defined in
- * hook_entity_property_info(). To qualify, a property have a 'setter callback'
- * defined.
+ * hook_entity_property_info(). To qualify, an entity property must have its
+ * 'setter callback' info property defined.
  */
 class editableviews_handler_field_entity_metadata_property extends views_handler_field {
 

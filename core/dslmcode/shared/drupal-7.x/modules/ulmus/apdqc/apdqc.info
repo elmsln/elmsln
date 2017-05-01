@@ -7,9 +7,9 @@ files[] = apdqc.test
 
 configure = admin/config/development/performance/apdqc
 
-; Information added by Drupal.org packaging script on 2016-10-06
-version = "7.x-1.0-rc3+13-dev"
+; Information added by Drupal.org packaging script on 2016-12-19
+version = "7.x-1.0-rc3+14-dev"
 core = "7.x"
 project = "apdqc"
-datestamp = "1475720956"
+datestamp = "1482184517"
 

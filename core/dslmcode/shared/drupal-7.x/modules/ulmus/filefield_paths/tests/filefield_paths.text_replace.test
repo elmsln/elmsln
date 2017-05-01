@@ -72,7 +72,7 @@ class FileFieldPathsTextReplaceTestCase extends FileFieldPathsTestCase {
     // Iterate over each test file.
     foreach ($test_files as $type => $test_file) {
       // Get the available file paths for the test file.
-      $uri          = str_replace('public://', 'temporary://filefield_paths/', $test_file->uri);
+      $uri          = str_replace('public://', variable_get('filefield_paths_temp_location', 'public://filefield_paths') . '/', $test_file->uri);
       $source_paths = $this->getPathVariations($uri);
 
       // Upload a file and reference the original path(s) to the file in the body

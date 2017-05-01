@@ -1,9 +1,17 @@
 <?php
 
 /**
+ * @file
+ * Entity Cache module tests.
+ */
+
+/**
  * Copy of BlogTestCase.
  */
 class EntityCacheBlogTestCase extends BlogTestCase {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of BlogTestCase',
@@ -11,6 +19,9 @@ class EntityCacheBlogTestCase extends BlogTestCase {
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -21,6 +32,9 @@ class EntityCacheBlogTestCase extends BlogTestCase {
  * Copy of BookTestCase.
  */
 class EntityCacheBookTestCase extends BookTestCase {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of BookTestCase',
@@ -28,6 +42,9 @@ class EntityCacheBookTestCase extends BookTestCase {
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -38,6 +55,9 @@ class EntityCacheBookTestCase extends BookTestCase {
  * Copy of CommentAnonymous.
  */
 class EntityCacheCommentAnonymous extends CommentAnonymous {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of CommentAnonymous',
@@ -45,6 +65,9 @@ class EntityCacheCommentAnonymous extends CommentAnonymous {
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -55,6 +78,9 @@ class EntityCacheCommentAnonymous extends CommentAnonymous {
  * Copy of CommentApprovalTest.
  */
 class EntityCacheCommentApprovalTest extends CommentApprovalTest {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of CommentApprovalTest',
@@ -62,6 +88,9 @@ class EntityCacheCommentApprovalTest extends CommentApprovalTest {
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -72,6 +101,9 @@ class EntityCacheCommentApprovalTest extends CommentApprovalTest {
  * Copy of CommentBlockFunctionalTest.
  */
 class EntityCacheCommentBlockFunctionalTest extends CommentBlockFunctionalTest {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of CommentBlockFunctionalTest',
@@ -79,6 +111,9 @@ class EntityCacheCommentBlockFunctionalTest extends CommentBlockFunctionalTest {
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -89,6 +124,9 @@ class EntityCacheCommentBlockFunctionalTest extends CommentBlockFunctionalTest {
  * Copy of CommentContentRebuild.
  */
 class EntityCacheCommentContentRebuild extends CommentContentRebuild {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of CommentContentRebuild',
@@ -96,6 +134,9 @@ class EntityCacheCommentContentRebuild extends CommentContentRebuild {
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -106,6 +147,9 @@ class EntityCacheCommentContentRebuild extends CommentContentRebuild {
  * Copy of CommentFieldsTest.
  */
 class EntityCacheCommentFieldsTest extends CommentFieldsTest {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of CommentFieldsTest',
@@ -113,6 +157,9 @@ class EntityCacheCommentFieldsTest extends CommentFieldsTest {
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -123,6 +170,9 @@ class EntityCacheCommentFieldsTest extends CommentFieldsTest {
  * Copy of CommentHelperCase.
  */
 class EntityCacheCommentHelperCase extends CommentHelperCase {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of CommentHelperCase',
@@ -130,6 +180,9 @@ class EntityCacheCommentHelperCase extends CommentHelperCase {
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -140,6 +193,9 @@ class EntityCacheCommentHelperCase extends CommentHelperCase {
  * Copy of CommentNodeAccessTest.
  */
 class EntityCacheCommentNodeAccessTest extends CommentNodeAccessTest {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of CommentNodeAccessTest',
@@ -147,6 +203,9 @@ class EntityCacheCommentNodeAccessTest extends CommentNodeAccessTest {
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -157,6 +216,9 @@ class EntityCacheCommentNodeAccessTest extends CommentNodeAccessTest {
  * Copy of CommentPagerTest.
  */
 class EntityCacheCommentPagerTest extends CommentPagerTest {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of CommentPagerTest',
@@ -164,6 +226,9 @@ class EntityCacheCommentPagerTest extends CommentPagerTest {
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -174,6 +239,9 @@ class EntityCacheCommentPagerTest extends CommentPagerTest {
  * Copy of CommentPreviewTest.
  */
 class EntityCacheCommentPreviewTest extends CommentPreviewTest {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of CommentPreviewTest',
@@ -181,6 +249,9 @@ class EntityCacheCommentPreviewTest extends CommentPreviewTest {
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -191,6 +262,9 @@ class EntityCacheCommentPreviewTest extends CommentPreviewTest {
  * Copy of CommentRSSUnitTest.
  */
 class EntityCacheCommentRSSUnitTest extends CommentRSSUnitTest {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of CommentRSSUnitTest',
@@ -198,6 +272,9 @@ class EntityCacheCommentRSSUnitTest extends CommentRSSUnitTest {
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -208,6 +285,9 @@ class EntityCacheCommentRSSUnitTest extends CommentRSSUnitTest {
  * Copy of CommentTokenReplaceTestCase.
  */
 class EntityCacheCommentTokenReplaceTestCase extends CommentTokenReplaceTestCase {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of CommentTokenReplaceTestCase',
@@ -215,6 +295,9 @@ class EntityCacheCommentTokenReplaceTestCase extends CommentTokenReplaceTestCase
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -225,6 +308,9 @@ class EntityCacheCommentTokenReplaceTestCase extends CommentTokenReplaceTestCase
  * Copy of MultiStepNodeFormBasicOptionsTest.
  */
 class EntityCacheMultiStepNodeFormBasicOptionsTest extends MultiStepNodeFormBasicOptionsTest {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of MultiStepNodeFormBasicOptionsTest',
@@ -232,6 +318,9 @@ class EntityCacheMultiStepNodeFormBasicOptionsTest extends MultiStepNodeFormBasi
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -242,6 +331,9 @@ class EntityCacheMultiStepNodeFormBasicOptionsTest extends MultiStepNodeFormBasi
  * Copy of NodeAccessRebuildTestCase.
  */
 class EntityCacheNodeAccessRebuildTestCase extends NodeAccessRebuildTestCase {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of NodeAccessRebuildTestCase',
@@ -249,6 +341,9 @@ class EntityCacheNodeAccessRebuildTestCase extends NodeAccessRebuildTestCase {
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -259,6 +354,9 @@ class EntityCacheNodeAccessRebuildTestCase extends NodeAccessRebuildTestCase {
  * Copy of NodeAccessRecordsUnitTest.
  */
 class EntityCacheNodeAccessRecordsUnitTest extends NodeAccessRecordsTestCase {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of NodeAccessRecordsTestCase',
@@ -266,6 +364,9 @@ class EntityCacheNodeAccessRecordsUnitTest extends NodeAccessRecordsTestCase {
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -276,6 +377,9 @@ class EntityCacheNodeAccessRecordsUnitTest extends NodeAccessRecordsTestCase {
  * Copy of NodeAccessUnitTest.
  */
 class EntityCacheNodeAccessUnitTest extends NodeAccessTestCase {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of NodeAccessTestCase',
@@ -283,6 +387,9 @@ class EntityCacheNodeAccessUnitTest extends NodeAccessTestCase {
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -293,6 +400,9 @@ class EntityCacheNodeAccessUnitTest extends NodeAccessTestCase {
  * Copy of NodeAdminTestCase.
  */
 class EntityCacheNodeAdminTestCase extends NodeAdminTestCase {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of NodeAdminTestCase',
@@ -300,6 +410,9 @@ class EntityCacheNodeAdminTestCase extends NodeAdminTestCase {
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -310,6 +423,9 @@ class EntityCacheNodeAdminTestCase extends NodeAdminTestCase {
  * Copy of NodeBlockFunctionalTest.
  */
 class EntityCacheNodeBlockFunctionalTest extends NodeBlockFunctionalTest {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of NodeBlockFunctionalTest',
@@ -317,6 +433,9 @@ class EntityCacheNodeBlockFunctionalTest extends NodeBlockFunctionalTest {
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -327,6 +446,9 @@ class EntityCacheNodeBlockFunctionalTest extends NodeBlockFunctionalTest {
  * Copy of NodeBlockTestCase.
  */
 class EntityCacheNodeBlockTestCase extends NodeBlockTestCase {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of NodeBlockTestCase',
@@ -334,6 +456,9 @@ class EntityCacheNodeBlockTestCase extends NodeBlockTestCase {
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -344,6 +469,9 @@ class EntityCacheNodeBlockTestCase extends NodeBlockTestCase {
  * Copy of NodeBuildContent.
  */
 class EntityCacheNodeBuildContent extends NodeBuildContent {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of NodeBuildContent',
@@ -351,6 +479,9 @@ class EntityCacheNodeBuildContent extends NodeBuildContent {
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -361,6 +492,9 @@ class EntityCacheNodeBuildContent extends NodeBuildContent {
  * Copy of NodeCreationTestCase.
  */
 class EntityCacheNodeCreationTestCase extends NodeCreationTestCase {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of NodeCreationTestCase',
@@ -368,6 +502,9 @@ class EntityCacheNodeCreationTestCase extends NodeCreationTestCase {
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -378,6 +515,9 @@ class EntityCacheNodeCreationTestCase extends NodeCreationTestCase {
  * Copy of NodeEntityFieldQueryAlter.
  */
 class EntityCacheNodeEntityFieldQueryAlter extends NodeEntityFieldQueryAlter {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of NodeEntityFieldQueryAlter',
@@ -385,6 +525,9 @@ class EntityCacheNodeEntityFieldQueryAlter extends NodeEntityFieldQueryAlter {
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -395,6 +538,9 @@ class EntityCacheNodeEntityFieldQueryAlter extends NodeEntityFieldQueryAlter {
  * Copy of NodeFeedTestCase.
  */
 class EntityCacheNodeFeedTestCase extends NodeFeedTestCase {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of NodeFeedTestCase',
@@ -402,6 +548,9 @@ class EntityCacheNodeFeedTestCase extends NodeFeedTestCase {
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -412,6 +561,9 @@ class EntityCacheNodeFeedTestCase extends NodeFeedTestCase {
  * Copy of NodeLoadHooksTestCase.
  */
 class EntityCacheNodeLoadHooksTestCase extends NodeLoadHooksTestCase {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of NodeLoadHooksTestCase',
@@ -419,6 +571,9 @@ class EntityCacheNodeLoadHooksTestCase extends NodeLoadHooksTestCase {
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -429,6 +584,9 @@ class EntityCacheNodeLoadHooksTestCase extends NodeLoadHooksTestCase {
  * Copy of NodeLoadMultipleUnitTest.
  */
 class EntityCacheNodeLoadMultipleUnitTest extends NodeLoadMultipleTestCase {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of NodeLoadMultipleTestCase',
@@ -436,6 +594,9 @@ class EntityCacheNodeLoadMultipleUnitTest extends NodeLoadMultipleTestCase {
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -446,6 +607,9 @@ class EntityCacheNodeLoadMultipleUnitTest extends NodeLoadMultipleTestCase {
  * Copy of NodePostSettingsTestCase.
  */
 class EntityCacheNodePostSettingsTestCase extends NodePostSettingsTestCase {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of NodePostSettingsTestCase',
@@ -453,6 +617,9 @@ class EntityCacheNodePostSettingsTestCase extends NodePostSettingsTestCase {
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -463,6 +630,9 @@ class EntityCacheNodePostSettingsTestCase extends NodePostSettingsTestCase {
  * Copy of NodeQueryAlter.
  */
 class EntityCacheNodeQueryAlter extends NodeQueryAlter {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of NodeQueryAlter',
@@ -470,6 +640,9 @@ class EntityCacheNodeQueryAlter extends NodeQueryAlter {
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -480,6 +653,9 @@ class EntityCacheNodeQueryAlter extends NodeQueryAlter {
  * Copy of NodeRevisionsTestCase.
  */
 class EntityCacheNodeRevisionsTestCase extends NodeRevisionsTestCase {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of NodeRevisionsTestCase',
@@ -487,6 +663,9 @@ class EntityCacheNodeRevisionsTestCase extends NodeRevisionsTestCase {
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -497,6 +676,9 @@ class EntityCacheNodeRevisionsTestCase extends NodeRevisionsTestCase {
  * Copy of NodeRSSContentTestCase.
  */
 class EntityCacheNodeRSSContentTestCase extends NodeRSSContentTestCase {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of NodeRSSContentTestCase',
@@ -504,6 +686,9 @@ class EntityCacheNodeRSSContentTestCase extends NodeRSSContentTestCase {
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -514,6 +699,9 @@ class EntityCacheNodeRSSContentTestCase extends NodeRSSContentTestCase {
  * Copy of NodeSaveTestCase.
  */
 class EntityCacheNodeSaveTestCase extends NodeSaveTestCase {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of NodeSaveTestCase',
@@ -521,6 +709,9 @@ class EntityCacheNodeSaveTestCase extends NodeSaveTestCase {
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -531,6 +722,9 @@ class EntityCacheNodeSaveTestCase extends NodeSaveTestCase {
  * Copy of NodeTitleTestCase.
  */
 class EntityCacheNodeTitleTestCase extends NodeTitleTestCase {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of NodeTitleTestCase',
@@ -538,6 +732,9 @@ class EntityCacheNodeTitleTestCase extends NodeTitleTestCase {
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -548,6 +745,9 @@ class EntityCacheNodeTitleTestCase extends NodeTitleTestCase {
  * Copy of NodeTitleXSSTestCase.
  */
 class EntityCacheNodeTitleXSSTestCase extends NodeTitleXSSTestCase {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of NodeTitleXSSTestCase',
@@ -555,6 +755,9 @@ class EntityCacheNodeTitleXSSTestCase extends NodeTitleXSSTestCase {
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -565,6 +768,9 @@ class EntityCacheNodeTitleXSSTestCase extends NodeTitleXSSTestCase {
  * Copy of NodeTokenReplaceTestCase.
  */
 class EntityCacheNodeTokenReplaceTestCase extends NodeTokenReplaceTestCase {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of NodeTokenReplaceTestCase',
@@ -572,6 +778,9 @@ class EntityCacheNodeTokenReplaceTestCase extends NodeTokenReplaceTestCase {
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -582,6 +791,9 @@ class EntityCacheNodeTokenReplaceTestCase extends NodeTokenReplaceTestCase {
  * Copy of NodeTypePersistenceTestCase.
  */
 class EntityCacheNodeTypePersistenceTestCase extends NodeTypePersistenceTestCase {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of NodeTypePersistenceTestCase',
@@ -589,6 +801,9 @@ class EntityCacheNodeTypePersistenceTestCase extends NodeTypePersistenceTestCase
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -599,6 +814,9 @@ class EntityCacheNodeTypePersistenceTestCase extends NodeTypePersistenceTestCase
  * Copy of NodeTypeTestCase.
  */
 class EntityCacheNodeTypeTestCase extends NodeTypeTestCase {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of NodeTypeTestCase',
@@ -606,6 +824,9 @@ class EntityCacheNodeTypeTestCase extends NodeTypeTestCase {
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -616,6 +837,9 @@ class EntityCacheNodeTypeTestCase extends NodeTypeTestCase {
  * Copy of PageEditTestCase.
  */
 class EntityCachePageEditTestCase extends PageEditTestCase {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of PageEditTestCase',
@@ -623,16 +847,41 @@ class EntityCachePageEditTestCase extends PageEditTestCase {
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
   }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function drupalPost($path, $edit, $submit, array $options = array(), array $headers = array(), $form_html_id = NULL, $extra_post = NULL) {
+    $result = parent::drupalPost($path, $edit, $submit, $options, $headers, $form_html_id, $extra_post);
+
+    // Reset the cache, to let the test pass. The problem is that the test
+    // adds a new revision using ::drupalPost so the static cache in the context
+    // of the test, never has the chance to react.
+    if (!empty($edit['revision'])) {
+      $node = $this->drupalGetNodeByTitle($edit['title']);
+      $nid = $node->nid;
+      entity_get_controller('node')->resetCache(array($nid));
+    }
+
+    return $result;
+  }
+
 }
 
 /**
  * Copy of PagePreviewTestCase.
  */
 class EntityCachePagePreviewTestCase extends PagePreviewTestCase {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of PagePreviewTestCase',
@@ -640,6 +889,9 @@ class EntityCachePagePreviewTestCase extends PagePreviewTestCase {
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -650,6 +902,9 @@ class EntityCachePagePreviewTestCase extends PagePreviewTestCase {
  * Copy of PageViewTestCase.
  */
 class EntityCachePageViewTestCase extends PageViewTestCase {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of PageViewTestCase',
@@ -657,6 +912,9 @@ class EntityCachePageViewTestCase extends PageViewTestCase {
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -667,6 +925,9 @@ class EntityCachePageViewTestCase extends PageViewTestCase {
  * Copy of SummaryLengthTestCase.
  */
 class EntityCacheSummaryLengthTestCase extends SummaryLengthTestCase {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of SummaryLengthTestCase',
@@ -674,6 +935,9 @@ class EntityCacheSummaryLengthTestCase extends SummaryLengthTestCase {
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -684,6 +948,9 @@ class EntityCacheSummaryLengthTestCase extends SummaryLengthTestCase {
  * Copy of PollBlockTestCase.
  */
 class EntityCachePollBlockTestCase extends PollBlockTestCase {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of PollBlockTestCase',
@@ -691,6 +958,9 @@ class EntityCachePollBlockTestCase extends PollBlockTestCase {
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -701,6 +971,9 @@ class EntityCachePollBlockTestCase extends PollBlockTestCase {
  * Copy of PollCreateTestCase.
  */
 class EntityCachePollCreateTestCase extends PollCreateTestCase {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of PollCreateTestCase',
@@ -708,6 +981,9 @@ class EntityCachePollCreateTestCase extends PollCreateTestCase {
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -718,6 +994,9 @@ class EntityCachePollCreateTestCase extends PollCreateTestCase {
  * Copy of PollExpirationTestCase.
  */
 class EntityCachePollExpirationTestCase extends PollExpirationTestCase {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of PollExpirationTestCase',
@@ -725,6 +1004,9 @@ class EntityCachePollExpirationTestCase extends PollExpirationTestCase {
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -735,6 +1017,9 @@ class EntityCachePollExpirationTestCase extends PollExpirationTestCase {
  * Copy of PollJSAddChoice.
  */
 class EntityCachePollJSAddChoice extends PollJSAddChoice {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of PollJSAddChoice',
@@ -742,6 +1027,9 @@ class EntityCachePollJSAddChoice extends PollJSAddChoice {
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -752,6 +1040,9 @@ class EntityCachePollJSAddChoice extends PollJSAddChoice {
  * Copy of PollTestCase.
  */
 class EntityCachePollTestCase extends PollTestCase {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of PollTestCase',
@@ -759,6 +1050,9 @@ class EntityCachePollTestCase extends PollTestCase {
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -769,6 +1063,9 @@ class EntityCachePollTestCase extends PollTestCase {
  * Copy of PollTokenReplaceTestCase.
  */
 class EntityCachePollTokenReplaceTestCase extends PollTokenReplaceTestCase {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of PollTokenReplaceTestCase',
@@ -776,6 +1073,9 @@ class EntityCachePollTokenReplaceTestCase extends PollTokenReplaceTestCase {
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -786,6 +1086,9 @@ class EntityCachePollTokenReplaceTestCase extends PollTokenReplaceTestCase {
  * Copy of PollVoteCheckHostname.
  */
 class EntityCachePollVoteCheckHostname extends PollVoteCheckHostname {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of PollVoteCheckHostname',
@@ -793,6 +1096,9 @@ class EntityCachePollVoteCheckHostname extends PollVoteCheckHostname {
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -803,6 +1109,9 @@ class EntityCachePollVoteCheckHostname extends PollVoteCheckHostname {
  * Copy of PollVoteTestCase.
  */
 class EntityCachePollVoteTestCase extends PollVoteTestCase {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of PollVoteTestCase',
@@ -810,6 +1119,9 @@ class EntityCachePollVoteTestCase extends PollVoteTestCase {
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -820,6 +1132,9 @@ class EntityCachePollVoteTestCase extends PollVoteTestCase {
  * Copy of TaxonomyHooksTestCase.
  */
 class EntityCacheTaxonomyHooksTestCase extends TaxonomyHooksTestCase {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of TaxonomyHooksTestCase',
@@ -827,6 +1142,9 @@ class EntityCacheTaxonomyHooksTestCase extends TaxonomyHooksTestCase {
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -837,6 +1155,9 @@ class EntityCacheTaxonomyHooksTestCase extends TaxonomyHooksTestCase {
  * Copy of TaxonomyLegacyTestCase.
  */
 class EntityCacheTaxonomyLegacyTestCase extends TaxonomyLegacyTestCase {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of TaxonomyLegacyTestCase',
@@ -844,6 +1165,9 @@ class EntityCacheTaxonomyLegacyTestCase extends TaxonomyLegacyTestCase {
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -854,6 +1178,9 @@ class EntityCacheTaxonomyLegacyTestCase extends TaxonomyLegacyTestCase {
  * Copy of TaxonomyLoadMultipleUnitTest.
  */
 class EntityCacheTaxonomyLoadMultipleUnitTest extends TaxonomyLoadMultipleTestCase {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of TaxonomyLoadMultipleTestCase',
@@ -861,6 +1188,9 @@ class EntityCacheTaxonomyLoadMultipleUnitTest extends TaxonomyLoadMultipleTestCa
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -871,6 +1201,9 @@ class EntityCacheTaxonomyLoadMultipleUnitTest extends TaxonomyLoadMultipleTestCa
  * Copy of TaxonomyTermFieldTestCase.
  */
 class EntityCacheTaxonomyTermFieldTestCase extends TaxonomyTermFieldTestCase {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of TaxonomyTermFieldTestCase',
@@ -878,6 +1211,9 @@ class EntityCacheTaxonomyTermFieldTestCase extends TaxonomyTermFieldTestCase {
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -888,6 +1224,9 @@ class EntityCacheTaxonomyTermFieldTestCase extends TaxonomyTermFieldTestCase {
  * Copy of TaxonomyTermTestCase.
  */
 class EntityCacheTaxonomyTermTestCase extends TaxonomyTermTestCase {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of TaxonomyTermTestCase',
@@ -895,6 +1234,9 @@ class EntityCacheTaxonomyTermTestCase extends TaxonomyTermTestCase {
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -905,6 +1247,9 @@ class EntityCacheTaxonomyTermTestCase extends TaxonomyTermTestCase {
  * Copy of TaxonomyTermUnitTest.
  */
 class EntityCacheTaxonomyTermUnitTest extends TaxonomyTermTestCase {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of TaxonomyTermTestCase',
@@ -912,6 +1257,9 @@ class EntityCacheTaxonomyTermUnitTest extends TaxonomyTermTestCase {
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -922,6 +1270,9 @@ class EntityCacheTaxonomyTermUnitTest extends TaxonomyTermTestCase {
  * Copy of TaxonomyThemeTestCase.
  */
 class EntityCacheTaxonomyThemeTestCase extends TaxonomyThemeTestCase {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of TaxonomyThemeTestCase',
@@ -929,6 +1280,9 @@ class EntityCacheTaxonomyThemeTestCase extends TaxonomyThemeTestCase {
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -939,6 +1293,9 @@ class EntityCacheTaxonomyThemeTestCase extends TaxonomyThemeTestCase {
  * Copy of TaxonomyTokenReplaceTestCase.
  */
 class EntityCacheTaxonomyTokenReplaceTestCase extends TaxonomyTokenReplaceTestCase {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of TaxonomyTokenReplaceTestCase',
@@ -946,6 +1303,9 @@ class EntityCacheTaxonomyTokenReplaceTestCase extends TaxonomyTokenReplaceTestCa
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -956,6 +1316,9 @@ class EntityCacheTaxonomyTokenReplaceTestCase extends TaxonomyTokenReplaceTestCa
  * Copy of TaxonomyVocabularyFunctionalTest.
  */
 class EntityCacheTaxonomyVocabularyFunctionalTest extends TaxonomyVocabularyFunctionalTest {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of TaxonomyVocabularyFunctionalTest',
@@ -963,6 +1326,9 @@ class EntityCacheTaxonomyVocabularyFunctionalTest extends TaxonomyVocabularyFunc
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -973,6 +1339,9 @@ class EntityCacheTaxonomyVocabularyFunctionalTest extends TaxonomyVocabularyFunc
  * Copy of TaxonomyVocabularyUnitTest.
  */
 class EntityCacheTaxonomyVocabularyUnitTest extends TaxonomyVocabularyTestCase {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of TaxonomyVocabularyTestCase',
@@ -980,6 +1349,9 @@ class EntityCacheTaxonomyVocabularyUnitTest extends TaxonomyVocabularyTestCase {
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -990,6 +1362,9 @@ class EntityCacheTaxonomyVocabularyUnitTest extends TaxonomyVocabularyTestCase {
  * Copy of TaxonomyWebTestCase.
  */
 class EntityCacheTaxonomyWebTestCase extends TaxonomyWebTestCase {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of TaxonomyWebTestCase',
@@ -997,6 +1372,9 @@ class EntityCacheTaxonomyWebTestCase extends TaxonomyWebTestCase {
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -1007,6 +1385,9 @@ class EntityCacheTaxonomyWebTestCase extends TaxonomyWebTestCase {
  * Copy of UserAccountLinksUnitTests.
  */
 class EntityCacheUserAccountLinksUnitTests extends UserAccountLinksUnitTests {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of UserAccountLinksUnitTests',
@@ -1014,6 +1395,9 @@ class EntityCacheUserAccountLinksUnitTests extends UserAccountLinksUnitTests {
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -1024,6 +1408,9 @@ class EntityCacheUserAccountLinksUnitTests extends UserAccountLinksUnitTests {
  * Copy of UserAdminTestCase.
  */
 class EntityCacheUserAdminTestCase extends UserAdminTestCase {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of UserAdminTestCase',
@@ -1031,6 +1418,9 @@ class EntityCacheUserAdminTestCase extends UserAdminTestCase {
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -1041,6 +1431,9 @@ class EntityCacheUserAdminTestCase extends UserAdminTestCase {
  * Copy of UserAuthmapAssignmentTestCase.
  */
 class EntityCacheUserAuthmapAssignmentTestCase extends UserAuthmapAssignmentTestCase {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of UserAuthmapAssignmentTestCase',
@@ -1048,6 +1441,9 @@ class EntityCacheUserAuthmapAssignmentTestCase extends UserAuthmapAssignmentTest
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -1058,6 +1454,9 @@ class EntityCacheUserAuthmapAssignmentTestCase extends UserAuthmapAssignmentTest
  * Copy of UserAutocompleteTestCase.
  */
 class EntityCacheUserAutocompleteTestCase extends UserAutocompleteTestCase {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of UserAutocompleteTestCase',
@@ -1065,6 +1464,9 @@ class EntityCacheUserAutocompleteTestCase extends UserAutocompleteTestCase {
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -1075,6 +1477,9 @@ class EntityCacheUserAutocompleteTestCase extends UserAutocompleteTestCase {
  * Copy of UserBlocksUnitTests.
  */
 class EntityCacheUserBlocksUnitTests extends UserBlocksUnitTests {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of UserBlocksUnitTests',
@@ -1082,6 +1487,9 @@ class EntityCacheUserBlocksUnitTests extends UserBlocksUnitTests {
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -1092,6 +1500,9 @@ class EntityCacheUserBlocksUnitTests extends UserBlocksUnitTests {
  * Copy of UserCancelTestCase.
  */
 class EntityCacheUserCancelTestCase extends UserCancelTestCase {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of UserCancelTestCase',
@@ -1099,6 +1510,9 @@ class EntityCacheUserCancelTestCase extends UserCancelTestCase {
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -1109,6 +1523,9 @@ class EntityCacheUserCancelTestCase extends UserCancelTestCase {
  * Copy of UserCreateTestCase.
  */
 class EntityCacheUserCreateTestCase extends UserCreateTestCase {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of UserCreateTestCase',
@@ -1116,6 +1533,9 @@ class EntityCacheUserCreateTestCase extends UserCreateTestCase {
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -1126,6 +1546,9 @@ class EntityCacheUserCreateTestCase extends UserCreateTestCase {
  * Copy of UserEditedOwnAccountTestCase.
  */
 class EntityCacheUserEditedOwnAccountTestCase extends UserEditedOwnAccountTestCase {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of UserEditedOwnAccountTestCase',
@@ -1133,6 +1556,9 @@ class EntityCacheUserEditedOwnAccountTestCase extends UserEditedOwnAccountTestCa
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -1143,6 +1569,9 @@ class EntityCacheUserEditedOwnAccountTestCase extends UserEditedOwnAccountTestCa
  * Copy of UserEditTestCase.
  */
 class EntityCacheUserEditTestCase extends UserEditTestCase {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of UserEditTestCase',
@@ -1150,6 +1579,9 @@ class EntityCacheUserEditTestCase extends UserEditTestCase {
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -1160,6 +1592,9 @@ class EntityCacheUserEditTestCase extends UserEditTestCase {
  * Copy of UserLoginTestCase.
  */
 class EntityCacheUserLoginTestCase extends UserLoginTestCase {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of UserLoginTestCase',
@@ -1167,6 +1602,9 @@ class EntityCacheUserLoginTestCase extends UserLoginTestCase {
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -1177,6 +1615,9 @@ class EntityCacheUserLoginTestCase extends UserLoginTestCase {
  * Copy of UserPermissionsTestCase.
  */
 class EntityCacheUserPermissionsTestCase extends UserPermissionsTestCase {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of UserPermissionsTestCase',
@@ -1184,6 +1625,9 @@ class EntityCacheUserPermissionsTestCase extends UserPermissionsTestCase {
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -1194,6 +1638,9 @@ class EntityCacheUserPermissionsTestCase extends UserPermissionsTestCase {
  * Copy of UserPictureTestCase.
  */
 class EntityCacheUserPictureTestCase extends UserPictureTestCase {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of UserPictureTestCase',
@@ -1201,6 +1648,9 @@ class EntityCacheUserPictureTestCase extends UserPictureTestCase {
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -1211,6 +1661,9 @@ class EntityCacheUserPictureTestCase extends UserPictureTestCase {
  * Copy of UserRegistrationTestCase.
  */
 class EntityCacheUserRegistrationTestCase extends UserRegistrationTestCase {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of UserRegistrationTestCase',
@@ -1218,6 +1671,9 @@ class EntityCacheUserRegistrationTestCase extends UserRegistrationTestCase {
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -1228,6 +1684,9 @@ class EntityCacheUserRegistrationTestCase extends UserRegistrationTestCase {
  * Copy of UserRoleAdminTestCase.
  */
 class EntityCacheUserRoleAdminTestCase extends UserRoleAdminTestCase {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of UserRoleAdminTestCase',
@@ -1235,6 +1694,9 @@ class EntityCacheUserRoleAdminTestCase extends UserRoleAdminTestCase {
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -1245,6 +1707,9 @@ class EntityCacheUserRoleAdminTestCase extends UserRoleAdminTestCase {
  * Copy of UserRolesAssignmentTestCase.
  */
 class EntityCacheUserRolesAssignmentTestCase extends UserRolesAssignmentTestCase {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of UserRolesAssignmentTestCase',
@@ -1252,6 +1717,9 @@ class EntityCacheUserRolesAssignmentTestCase extends UserRolesAssignmentTestCase
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -1262,6 +1730,9 @@ class EntityCacheUserRolesAssignmentTestCase extends UserRolesAssignmentTestCase
  * Copy of UserSaveTestCase.
  */
 class EntityCacheUserSaveTestCase extends UserSaveTestCase {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of UserSaveTestCase',
@@ -1269,6 +1740,9 @@ class EntityCacheUserSaveTestCase extends UserSaveTestCase {
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -1279,6 +1753,9 @@ class EntityCacheUserSaveTestCase extends UserSaveTestCase {
  * Copy of UserSignatureTestCase.
  */
 class EntityCacheUserSignatureTestCase extends UserSignatureTestCase {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of UserSignatureTestCase',
@@ -1286,6 +1763,9 @@ class EntityCacheUserSignatureTestCase extends UserSignatureTestCase {
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -1296,6 +1776,9 @@ class EntityCacheUserSignatureTestCase extends UserSignatureTestCase {
  * Copy of UserTimeZoneFunctionalTest.
  */
 class EntityCacheUserTimeZoneFunctionalTest extends UserTimeZoneFunctionalTest {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of UserTimeZoneFunctionalTest',
@@ -1303,6 +1786,9 @@ class EntityCacheUserTimeZoneFunctionalTest extends UserTimeZoneFunctionalTest {
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -1313,6 +1799,9 @@ class EntityCacheUserTimeZoneFunctionalTest extends UserTimeZoneFunctionalTest {
  * Copy of UserTokenReplaceTestCase.
  */
 class EntityCacheUserTokenReplaceTestCase extends UserTokenReplaceTestCase {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of UserTokenReplaceTestCase',
@@ -1320,6 +1809,9 @@ class EntityCacheUserTokenReplaceTestCase extends UserTokenReplaceTestCase {
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -1330,6 +1822,9 @@ class EntityCacheUserTokenReplaceTestCase extends UserTokenReplaceTestCase {
  * Copy of UserUserSearchTestCase.
  */
 class EntityCacheUserUserSearchTestCase extends UserUserSearchTestCase {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of UserUserSearchTestCase',
@@ -1337,6 +1832,9 @@ class EntityCacheUserUserSearchTestCase extends UserUserSearchTestCase {
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -1347,6 +1845,9 @@ class EntityCacheUserUserSearchTestCase extends UserUserSearchTestCase {
  * Copy of UserValidateCurrentPassCustomForm.
  */
 class EntityCacheUserValidateCurrentPassCustomForm extends UserValidateCurrentPassCustomForm {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of UserValidateCurrentPassCustomForm',
@@ -1354,6 +1855,9 @@ class EntityCacheUserValidateCurrentPassCustomForm extends UserValidateCurrentPa
       'group' => 'Entity cache',
     );
   }
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache'));
@@ -1364,11 +1868,34 @@ class EntityCacheUserValidateCurrentPassCustomForm extends UserValidateCurrentPa
  * Copy of UserValidationTestCase.
  */
 class EntityCacheUserValidationTestCase extends UserValidationTestCase {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Copy of UserValidationTestCase',
       'description' => 'Copy of UserValidationTestCase',
       'group' => 'Entity cache',
+    );
+  }
+  /**
+   * {@inheritdoc}
+   */
+  function setUp() {
+    parent::setup();
+    module_enable(array('entitycache'));
+  }
+}
+
+/**
+ * Copy of TranslationTestCase.
+ */
+class EntityCacheTranslationTestCase extends TranslationTestCase {
+  public static function getInfo() {
+    return array(
+      'name' => 'Copy of TranslationTestCase',
+      'description' => 'Copy of TranslationTestCase',
+      'group' => 'Entity cache'
     );
   }
   function setUp() {
@@ -1381,6 +1908,9 @@ class EntityCacheUserValidationTestCase extends UserValidationTestCase {
  * Test comments on nodes.
  */
 class EntityCacheCommentNodeTestCase extends DrupalWebTestCase {
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
       'name' => 'Comment node cache',
@@ -1388,7 +1918,9 @@ class EntityCacheCommentNodeTestCase extends DrupalWebTestCase {
       'group' => 'Entity cache',
     );
   }
-
+  /**
+   * {@inheritdoc}
+   */
   function setUp() {
     parent::setup();
     module_enable(array('entitycache', 'comment'));

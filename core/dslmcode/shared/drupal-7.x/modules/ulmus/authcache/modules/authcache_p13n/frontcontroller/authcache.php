@@ -2,7 +2,15 @@
 
 /**
  * @file
- * Front controller for user specific content fragments.
+ * Default front controller for user specific content fragments.
+ *
+ * Note: This script tries to detect the path to the Drupal root directory
+ * automatically on every request and also rewrites values in the $_SERVER
+ * variable. This process may fail in some server environments.
+ *
+ * On production systems it is therefore highly recommended to install and
+ * configure the safe front controller by following the directions given in
+ * authcache/modules/authcache_p13n/safe_frontcontroller/authcache.php
  */
 
 // Detect root directory of the Drupal installation.

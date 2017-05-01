@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * Image module integration.
@@ -6,24 +7,28 @@
 
 /**
  * Implements hook_custom_formatters_theme_alter() on behalf of image.module.
+ *
+ * @param $theme
  */
 function image_custom_formatters_theme_alter(&$theme) {
   $theme['custom_formatters_image_styles'] = array(
     'render element' => 'element',
-    'file' => 'includes/image.inc',
+    'file'           => 'includes/image.inc',
   );
 }
 
 /**
  * Implements hook_custom_formatters_element_info_alter() on behalf of
  * image.module.
+ *
+ * @param $types
  */
 function image_custom_formatters_element_info_alter(&$types) {
-  $types['custom_formatters_image_styles'] =  array(
-    '#input' => TRUE,
-    '#multiple' => FALSE,
-    '#process' => array('form_process_select', 'ajax_process_form'),
-    '#theme' => 'custom_formatters_image_styles',
+  $types['custom_formatters_image_styles'] = array(
+    '#input'          => TRUE,
+    '#multiple'       => FALSE,
+    '#process'        => array('form_process_select', 'ajax_process_form'),
+    '#theme'          => 'custom_formatters_image_styles',
     '#theme_wrappers' => array('form_element'),
   );
 }
@@ -31,10 +36,12 @@ function image_custom_formatters_element_info_alter(&$types) {
 /**
  * Implements hook_custom_formatters_form_builder_types_alter() on behalf of
  * image.module.
+ *
+ * @param $fields
  */
 function image_custom_formatters_form_builder_types_alter(&$fields) {
   $fields['image_styles'] = array(
-    'title' => t('Image styles'),
+    'title'      => t('Image styles'),
     'properties' => array(
       'title',
       'description',
@@ -42,9 +49,9 @@ function image_custom_formatters_form_builder_types_alter(&$fields) {
       'required',
       'key',
     ),
-    'default' => array(
-      '#title' => t('New styles selector'),
-      '#type' => 'custom_formatters_image_styles',
+    'default'    => array(
+      '#title'           => t('New styles selector'),
+      '#type'            => 'custom_formatters_image_styles',
       '#multiple_toggle' => TRUE,
     ),
   );
@@ -52,9 +59,13 @@ function image_custom_formatters_form_builder_types_alter(&$fields) {
 
 /**
  * Theme callback for Custom Formatters Image Styles element.
+ *
+ * @param $variables
+ *
+ * @return string
  */
 function theme_custom_formatters_image_styles($variables) {
-  $element = $variables['element'];
+  $element             = $variables['element'];
   $element['#options'] = image_style_options();
   element_set_attributes($element, array('id', 'name', 'size'));
   _form_set_class($element, array('form-select'));

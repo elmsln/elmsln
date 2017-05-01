@@ -1244,6 +1244,9 @@ class views_plugin_query_default extends views_plugin_query {
    *
    * @param $get_count
    *   Provide a countquery if this is true, otherwise provide a normal query.
+   *
+   * @return SelectQuery
+   *   A SelectQuery object.
    */
   function query($get_count = FALSE) {
     // Check query distinct value.
@@ -1367,7 +1370,7 @@ class views_plugin_query_default extends views_plugin_query {
     }
 
     // Add all query substitutions as metadata.
-    $query->addMetaData('views_substitutions', module_invoke_all('views_query_substitutions', $this));
+    $query->addMetaData('views_substitutions', module_invoke_all('views_query_substitutions', $this->view));
 
     if (!$get_count) {
       if (!empty($this->limit) || !empty($this->offset)) {

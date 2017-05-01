@@ -21,6 +21,15 @@ ns.Boolean = function (parent, field, params, setValue) {
 
   this.field = field;
   this.setValue = setValue;
+
+  // Setup event dispatching on change
+  this.changes = [];
+  this.triggerListeners = function (value) {
+    // Run callbacks
+    for (var i = 0; i < this.changes.length; i++) {
+      this.changes[i](value);
+    }
+  }
 };
 
 /**
@@ -57,6 +66,7 @@ ns.Boolean.prototype.appendTo = function ($wrapper) {
     // Validate
     that.value = that.$input.is(':checked');
     that.setValue(that.field, that.value);
+    that.triggerListeners(that.value);
   });
 };
 

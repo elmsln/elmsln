@@ -6,7 +6,7 @@
  */
 
 /**
- * Implementats hook_drush_command().
+ * Implements hook_drush_command().
  */
 function uuid_drush_command() {
   $items = array();
@@ -18,7 +18,7 @@ function uuid_drush_command() {
 }
 
 /**
- * Implementats of hook_drush_help().
+ * Implements hook_drush_help().
  */
 function uuid_drush_help($section) {
   switch ($section) {

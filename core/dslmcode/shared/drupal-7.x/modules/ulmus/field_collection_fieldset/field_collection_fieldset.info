@@ -4,9 +4,9 @@ core = 7.x
 dependencies[] = field_collection
 package = Fields
 
-; Information added by drupal.org packaging script on 2013-07-21
-version = "7.x-2.3"
+; Information added by Drupal.org packaging script on 2015-12-05
+version = "7.x-2.6"
 core = "7.x"
 project = "field_collection_fieldset"
-datestamp = "1374400873"
+datestamp = "1449350640"
 

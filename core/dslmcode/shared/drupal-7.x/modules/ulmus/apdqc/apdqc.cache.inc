@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * Extends Drupal's default database cache so async queries happen.
@@ -243,6 +244,10 @@ function apdqc_inflate_unserialize(&$cache) {
   if ($converted) {
     $cache = (array) $cache;
   }
+}
+
+if (!class_exists('DrupalDatabaseCache')) {
+  require_once(DRUPAL_ROOT . '/includes/cache.inc');
 }
 
 /**

@@ -24,6 +24,32 @@ abstract class SchedulerTestBase extends DrupalWebTestCase {
   protected $admin_user;
 
   /**
+   * Common settings and options.
+   */
+  function commonSettings() {
+
+    // Create a 'Basic Page' content type.
+    $this->drupalCreateContentType(array('type' => 'page', 'name' => t('Basic page')));
+
+    // Create an administrator user.
+    $this->admin_user = $this->drupalCreateUser(array(
+      'access content',
+      'administer scheduler',
+      'create page content',
+      'edit own page content',
+      'delete own page content',
+      'view own unpublished content',
+      'administer nodes',
+      'schedule publishing of nodes'
+    ));
+
+    // Add scheduler functionality to the page node type.
+    variable_set('scheduler_publish_enable_page', 1);
+    variable_set('scheduler_unpublish_enable_page', 1);
+    variable_set('scheduler_field_type', 'textfield');
+  }
+
+  /**
    * Helper function for testScheduler(). Schedules content and asserts status.
    *
    * @param array $edit
@@ -170,26 +196,7 @@ class SchedulerFunctionalTest extends SchedulerTestBase {
    */
   function setUp() {
     parent::setUp('scheduler');
-
-    // Create a 'Basic Page' content type.
-    $this->drupalCreateContentType(array('type' => 'page', 'name' => t('Basic page')));
-
-    // Create an administrator user.
-    $this->admin_user = $this->drupalCreateUser(array(
-      'access content',
-      'administer scheduler',
-      'create page content',
-      'edit own page content',
-      'delete own page content',
-      'view own unpublished content',
-      'administer nodes',
-      'schedule publishing of nodes'
-    ));
-
-    // Add scheduler functionality to the page node type.
-    variable_set('scheduler_publish_enable_page', 1);
-    variable_set('scheduler_unpublish_enable_page', 1);
-    variable_set('scheduler_field_type', 'textfield');
+    parent::commonSettings();
   }
 
   /**
@@ -542,22 +549,44 @@ class SchedulerFunctionalTest extends SchedulerTestBase {
 
   /**
    * Tests the validation when editing a node.
+   *
+   * The 'required' checks and 'dates in the past' checks are handled in other
+   * tests. This test checks validation when the two fields interact.
    */
   function testValidationDuringEdit() {
     $this->drupalLogin($this->admin_user);
 
-    // Create an unpublished page node.
-    $node = $this->drupalCreateNode(array('type' => 'page', 'status' => FALSE, 'title' => $this->randomName()));
-
     // Set unpublishing to be required.
     variable_set('scheduler_unpublish_required_page', TRUE);
 
-    // Edit the node and check the validation.
+    // Create an unpublished page node, then edit the node and check that if a
+    // publish-on date is entered then an unpublish-on date is also needed.
+    $node = $this->drupalCreateNode(array('type' => 'page', 'status' => FALSE));
     $edit = array(
       'publish_on' => date('Y-m-d H:i:s', strtotime('+1 day', REQUEST_TIME)),
     );
     $this->drupalPost('node/' . $node->nid . '/edit', $edit, t('Save'));
     $this->assertRaw(t("If you set a 'publish-on' date then you must also set an 'unpublish-on' date."), 'Validation prevents entering a publish-on date with no unpublish-on date if unpublishing is required.');
+
+    // Create an unpublished page node, then edit the node and check that if the
+    // status is changed to published, then an unpublish-on date is also needed.
+    $node = $this->drupalCreateNode(array('type' => 'page', 'status' => FALSE));
+    $edit = array(
+      'status' => TRUE,
+    );
+    $this->drupalPost('node/' . $node->nid . '/edit', $edit, t('Save'));
+    $this->assertRaw(t("To publish this node you must also set an 'unpublish-on' date."), 'Validation prevents publishing the node directly without an unpublish-on date if unpublishing is required.');
+
+    // Create an unpublished page node, edit the node and check that if both
+    // dates are entered then the unpublish date is later than the publish date.
+    $node = $this->drupalCreateNode(array('type' => 'page', 'status' => FALSE));
+    $edit = array(
+      'publish_on' => date('Y-m-d H:i:s', strtotime('+2 day', REQUEST_TIME)),
+      'unpublish_on' => date('Y-m-d H:i:s', strtotime('+1 day', REQUEST_TIME)),
+    );
+    $this->drupalPost('node/' . $node->nid . '/edit', $edit, t('Save'));
+    $this->assertRaw(t("The 'unpublish on' date must be later than the 'publish on' date."), 'Validation prevents entering an unpublish-on date which is earlier than the publish-on date.');
+
   }
 
 
@@ -565,28 +594,59 @@ class SchedulerFunctionalTest extends SchedulerTestBase {
   /**
    * Tests the deletion of a scheduled node.
    *
-   * This tests if it is possible to delete a node that does not have a
-   * publication date set, when scheduled publishing is required.
-   * @see https://drupal.org/node/1614880
    */
   public function testScheduledNodeDelete() {
     // Log in.
     $this->drupalLogin($this->admin_user);
 
+    // 1. Test if it is possible to delete a node that does not have a
+    // publication date set, when scheduled publishing is required, and likewise
+    // for unpublishing.
+    // @see https://drupal.org/node/1614880
+
     // Create a published and an unpublished node, both without scheduling.
-    $unpublished_node = $this->drupalCreateNode(array('type' => 'page', 'status' => 0));
     $published_node = $this->drupalCreateNode(array('type' => 'page', 'status' => 1));
+    $unpublished_node = $this->drupalCreateNode(array('type' => 'page', 'status' => 0));
 
     // Make scheduled publishing and unpublishing required.
     variable_set('scheduler_publish_required_page', TRUE);
     variable_set('scheduler_unpublish_required_page', TRUE);
 
     // Check that deleting the nodes does not throw form validation errors.
+    // The text 'error message' is used in a header h2 html tag which is
+    // normally made hidden from browsers but will be in the page source.
+    // It is also good when testing for the absense of something to also test
+    // for the presence of text, hence the second assertion for each check.
     $this->drupalPost('node/' . $published_node->nid . '/edit', array(), t('Delete'));
     $this->assertNoRaw(t('Error message'), 'No error messages are shown when trying to delete a published node with no scheduling information.');
+    $this->assertRaw(t('Are you sure you want to delete'), 'The deletion warning message is shown immediately when trying to delete a published node with no scheduling information.');
 
     $this->drupalPost('node/' . $unpublished_node->nid . '/edit', array(), t('Delete'));
     $this->assertNoRaw(t('Error message'), 'No error messages are shown when trying to delete an unpublished node with no scheduling information.');
+    $this->assertRaw(t('Are you sure you want to delete'), 'The deletion warning message is shown immediately when trying to delete an unpublished node with no scheduling information.');
+
+    // 2. Test that nodes can be deleted with no validation errors if the
+    // dates are in the past.
+    // @see http://drupal.org/node/2627370
+
+    // Turn off required publishing and unpublishing.
+    variable_set('scheduler_publish_required_page', FALSE);
+    variable_set('scheduler_unpublish_required_page', FALSE);
+
+    // Create nodes with publish_on and unpublish_on dates in the past.
+    $published_node = $this->drupalCreateNode(array('type' => 'page', 'status' => 1, 'unpublish_on' => strtotime('- 2 day')));
+    $unpublished_node = $this->drupalCreateNode(array('type' => 'page', 'status' => 0, 'publish_on' => strtotime('- 2 day')));
+
+    // Attempt to delete the published node and check for no validation error.
+    $this->drupalPost('node/' . $published_node->nid . '/edit', array(), t('Delete'));
+    $this->assertNoRaw(t('Error message'), 'No error messages are shown when trying to delete a node with an unpublish date in the past.');
+    $this->assertRaw(t('Are you sure you want to delete'), 'The deletion warning message is shown immediately when trying to delete a node with an unpublish date in the past.');
+
+    // Attempt to delete the unpublished node and check for no validation error.
+    $this->drupalPost('node/' . $unpublished_node->nid . '/edit', array(), t('Delete'));
+    $this->assertNoRaw(t('Error message'), 'No error messages are shown when trying to delete a node with a publish date in the past.');
+    $this->assertRaw(t('Are you sure you want to delete'), 'The deletion warning message is shown immediately when trying to delete a node with a publish date in the past.');
+
   }
 
   /**
@@ -601,7 +661,7 @@ class SchedulerFunctionalTest extends SchedulerTestBase {
     $this->drupalLogin($this->admin_user);
 
     // Create a published node without scheduling.
-    $published_node = $this->drupalCreateNode(['type' => 'page', 'status' => 1]);
+    $published_node = $this->drupalCreateNode(array('type' => 'page', 'status' => 1));
     $this->drupalGet('node/' . $published_node->nid);
 
     // Since we did not set an unpublish date, there should be no X-Robots-Tag
@@ -622,6 +682,126 @@ class SchedulerFunctionalTest extends SchedulerTestBase {
     $this->assertEqual($robots_tag, 'unavailable_after: ' . date(DATE_RFC850, $unpublish_date), 'X-Robots-Tag is present with correct timestamp derived from unpublish_on date.');
   }
 
+  /**
+   * Tests that users without permission do not see the scheduler date fields.
+   */
+  public function testPermissions() {
+    // Create a user who can add the content type but who does not have the
+    // permission to use the scheduler functionality.
+    $this->webUser = $this->drupalCreateUser(array(
+      'access content',
+      'create page content',
+      'edit own page content',
+      'view own unpublished content',
+      'administer nodes',
+    ));
+    $this->drupalLogin($this->webUser);
+
+    // Set the defaults for a new node. Nothing in array means all OFF.
+    // 'status', 'promote', 'sticky'
+    variable_set('node_options_page', array());
+
+    // Check that neither of the fields are displayed when creating a node.
+    $this->drupalGet('node/add/page');
+    $this->assertNoFieldByName('publish_on', '', 'The Publish-on field is not shown for users who do not have permission to schedule content');
+    $this->assertNoFieldByName('unpublish_on', '', 'The Unpublish-on field is not shown for users who do not have permission to schedule content');
+
+    // Initially run tests when publishing and unpublishing are not required.
+    variable_set('scheduler_publish_required_page', FALSE);
+    variable_set('scheduler_unpublish_required_page', FALSE);
+
+    // Check that a new node can be saved and published.
+    $title = $this->randomString(15);
+    $this->drupalPost('node/add/page', array('title' => $title, 'status' => TRUE), t('Save'));
+    $this->assertRaw(t('@type %title has been created.', array('@type' => 'Basic page', '%title' => $title)), 'A node can be created and published when the user does not have scheduler permissions, and scheduling is not required.');
+    $node = $this->drupalGetNodeByTitle($title);
+    $this->assertTrue($node->status, 'The new node is published.');
+
+    // Check that a new node can be saved as unpublished.
+    $title = $this->randomString(15);
+    $this->drupalPost('node/add/page', array('title' => $title, 'status' => FALSE), t('Save'));
+    $this->assertRaw(t('@type %title has been created.', array('@type' => 'Basic page', '%title' => $title)), 'A node can be created and saved as unpublished when the user does not have scheduler permissions, and scheduling is not required.');
+    $node = $this->drupalGetNodeByTitle($title);
+    $this->assertFalse($node->status, 'The new node is unpublished.');
+
+    // Set publishing and unpublishing to required, to make it a stronger test.
+    variable_set('scheduler_publish_required_page', TRUE);
+    variable_set('scheduler_unpublish_required_page', TRUE);
+
+    // @TODO Add tests when scheduled publishing and unpublishing are required.
+    // Cannot be done until we make a decision on what 'required'  means.
+    // @see https://www.drupal.org/node/2707411
+    // "Conflict between 'required publishing' and not having scheduler permission"
+  }
+
+  /**
+   * Tests Scheduler token support.
+   */
+  public function testTokenReplacement() {
+    // Log in.
+    $this->drupalLogin($this->admin_user);
+
+    // Define timestamps for consistent use when repeated throughout this test.
+    $publish_on_timestamp = REQUEST_TIME + 3600;
+    $unpublish_on_timestamp = REQUEST_TIME + 7200;
+
+    // Create an unpublished page with scheduled dates.
+    $settings = array(
+      'type' => 'page',
+      'status' => FALSE,
+      'publish_on' => $publish_on_timestamp,
+      'unpublish_on' => $unpublish_on_timestamp,
+    );
+    $node = $this->drupalCreateNode($settings);
+    // Show that the node is scheduled.
+    $this->drupalGet('admin/config/content/scheduler/list');
+
+    // Create array of test case data.
+    $test_cases = array(
+      array('token_format' => '', 'date_format' => 'medium', 'custom' => ''),
+      array('token_format' => ':long', 'date_format' => 'long', 'custom' => ''),
+      array('token_format' => ':raw', 'date_format' => 'custom', 'custom' => 'U'),
+      array('token_format' => ':custom:jS F g:ia e O', 'date_format' => 'custom', 'custom' => 'jS F g:ia e O'),
+    );
+
+    $langcode = LANGUAGE_NONE;
+    foreach ($test_cases as $test_data) {
+      // With each of the test cases, test using both numeric and string input.
+      foreach (array('numeric', 'string') as $test_data['input_type']) {
+        if ($test_data['input_type'] == 'numeric') {
+          // Edit the node and set the body tokens to use the format being
+          // tested. The tokens are not replaced automatically when the node is
+          // viewed, but using the body is a convenient way to store the data.
+          $edit = array(
+            "body[$langcode][0][value]" => 'Publish on: [node:scheduler-publish' . $test_data['token_format'] . ']. Unpublish on: [node:scheduler-unpublish' . $test_data['token_format'] . '].',
+          );
+          $this->drupalPost('node/' . $node->nid . '/edit', $edit, t('Save'));
+          $this->drupalGet('node/' . $node->nid);
+          // Refresh the node. Third parameter TRUE to reset cache.
+          $node = node_load($node->nid, NULL, TRUE);
+        }
+        else {
+          // Replicate the scheduler fields as if just input by a user during
+          // edit, before hook_node_presave() has been executed.
+          // @see https://www.drupal.org/node/2750467
+          $node->publish_on = format_date($publish_on_timestamp, 'custom', 'Y-m-d H:i:s');
+          $node->unpublish_on = format_date($unpublish_on_timestamp, 'custom', 'Y-m-d H:i:s');
+        }
+
+        // Get the node body value after tokens have been replaced.
+        $token_output = token_replace($node->body[$langcode][0]['value'], array('node' => $node));
+
+        // Create the expected text for the body.
+        $publish_on_date = format_date($publish_on_timestamp, $test_data['date_format'], $test_data['custom']);
+        $unpublish_on_date = format_date($unpublish_on_timestamp, $test_data['date_format'], $test_data['custom']);
+        $expected_output = 'Publish on: ' . $publish_on_date . '. Unpublish on: ' . $unpublish_on_date . '.';
+
+        // Check that the actual text matches the expected value.
+        $tested_format = $test_data['token_format'] ? '"' . $test_data['token_format'] . '"' : 'default';
+        $this->assertEqual($token_output, $expected_output, 'Scheduler tokens replaced correctly for ' . $tested_format . ' format with ' . $test_data['input_type'] . ' input data.');
+      }
+    }
+  }
 }
 
 /**
@@ -644,26 +824,7 @@ class SchedulerDateCombinedFunctionalTest extends SchedulerTestBase {
    */
   function setUp() {
     parent::setUp('date', 'date_popup', 'scheduler');
-
-    // Create a 'Basic Page' content type.
-    $this->drupalCreateContentType(array('type' => 'page', 'name' => t('Basic page')));
-
-    // Create an administrator user.
-    $this->admin_user = $this->drupalCreateUser(array(
-      'access content',
-      'administer scheduler',
-      'create page content',
-      'edit own page content',
-      'delete own page content',
-      'view own unpublished content',
-      'administer nodes',
-      'schedule publishing of nodes'
-    ));
-
-    // Add scheduler functionality to the page node type.
-    variable_set('scheduler_publish_enable_page', 1);
-    variable_set('scheduler_unpublish_enable_page', 1);
-    variable_set('scheduler_field_type', 'textfield');
+    parent::commonSettings();
   }
 
   /**

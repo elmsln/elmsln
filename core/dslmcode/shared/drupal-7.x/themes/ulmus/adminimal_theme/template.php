@@ -71,6 +71,11 @@ function adminimal_preprocess_html(&$vars) {
     drupal_add_css($adminimal_path . '/css/avoid_custom_font.css', array('group' => CSS_THEME, 'weight' => 9000, 'preprocess' => TRUE));
   }
 
+  // Load CKEditor styles if enabled in settings.
+  if (theme_get_setting('adminimal_ckeditor')) {
+    drupal_add_css($adminimal_path . '/css/ckeditor-adminimal.css', array('group' => CSS_THEME, 'media' => 'all', 'weight' => 2));
+  }
+
   // Define Default media queries.
   $media_query_mobile = 'only screen and (max-width: 480px)';
   $media_query_tablet = 'only screen and (min-width : 481px) and (max-width : 1024px)';

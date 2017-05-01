@@ -1,0 +1,65 @@
+diff --git a/modules/block/block.module b/modules/block/block.module
+index b6a7332..7957ee4 100644
+--- a/modules/block/block.module
++++ b/modules/block/block.module
+@@ -894,9 +894,23 @@ function _block_render_blocks($region_blocks) {
+ 
+       $cid = empty($cids[$key]) ? NULL : $cids[$key];
+ 
+-      // Try fetching the block from the previously loaded cache entries.
++      // Try fetching the block from cache.  Patched with Blockcache_alter core patch.
+       if (isset($cached_blocks[$cid])) {
+-        $array = $cached_blocks[$cid]->data;
++        $time = time();
++        $cid = _block_get_cache_id($block);
++        $cache = cache_get($cid, 'cache_block');
++        if (function_exists('_blockcache_alter_core_patch') && $cid && $cache) {
++          $expire_check = _blockcache_alter_check_expire($cache, $time);
++        }
++        else {
++          $expire_check = TRUE;
++        }
++        if ($cacheable && $cid && $cache && $expire_check) {
++          $array = $cached_blocks[$cid]->data;
++          if (variable_get('bca_debug', FALSE) && user_access('administer site configuration')) {
++            drupal_set_message('DEBUG: Rendered cached block: ' . $block->title . '_' .$block->module . '_' . $block->delta);
++          }
++        }
+       }
+       else {
+         $array = module_invoke($block->module, 'block_view', $block->delta);
+@@ -908,7 +922,22 @@ function _block_render_blocks($region_blocks) {
+         drupal_alter(array('block_view', "block_view_{$block->module}_{$delta}"), $array, $block);
+ 
+         if (isset($cid)) {
+-          cache_set($cid, $array, 'cache_block', CACHE_TEMPORARY);
++          $blocklife = variable_get('bc_life_' . $block->module .'_' . $block->delta, '');
++          $blocklife = (int)$blocklife;
++          if (!empty($blocklife)) {
++            cache_set($cid, $array, 'cache_block', $blocklife + time());
++          }
++          else {
++            cache_set($cid, $array, 'cache_block', CACHE_PERMANENT);
++          }
++          if (variable_get('bca_debug', FALSE) && user_access('administer site configuration')) {
++            drupal_set_message('DEBUG: Block re-cached: ' . $block->title . '_' .$block->module . '_' . $block->delta . '_' . $blocklife . '_' . time());
++          }
++        }
++        else {
++          if (variable_get('bca_debug', FALSE) && user_access('administer site configuration')) {
++            drupal_set_message('DEBUG: Block not cached: ' . $block->title . '_' .$block->module . '_' . $block->delta);
++          }
+         }
+       }
+ 
+@@ -960,7 +989,9 @@ function _block_get_cache_id($block) {
+   // it brings too many chances of having unwanted output get in the cache
+   // and later be served to other users. We therefore exclude user 1 from
+   // block caching.
+-  if (variable_get('block_cache', FALSE) && !in_array($block->cache, array(DRUPAL_NO_CACHE, DRUPAL_CACHE_CUSTOM)) && $user->uid != 1) {
++  // BCA Patch - can override User 1 to allow it to see cached blocks
++  $user1_override = variable_get('bca_user1', FALSE);
++  if (variable_get('block_cache', FALSE) && !in_array($block->cache, array(DRUPAL_NO_CACHE, DRUPAL_CACHE_CUSTOM)) && ($user->uid != 1 || $user1_override)) {
+     // Start with common sub-patterns: block identification, theme, language.
+     $cid_parts[] = $block->module;
+     $cid_parts[] = $block->delta;

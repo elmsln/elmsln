@@ -42,8 +42,7 @@
         var $this = $(this);
         var img = $('> img', $this);
         var inputs = $('input.imagefield-focus', $this.parent());
-        var fieldName = inputs.attr('name').replace(/^([a-z0-9_]+)\[.+$/, '$1');
-        var settings = Drupal.settings.imagefield_focus[fieldName];
+        var settings = Drupal.settings.imagefield_focus[inputs.data('settings-key')];
 
         var minSize, ratio;
         if (settings.min_width && settings.min_height) {

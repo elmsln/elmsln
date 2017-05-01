@@ -35,7 +35,7 @@ class LinkCheckerLinkExtractionTest extends DrupalWebTestCase {
   public function testLinkCheckerCreateNodeWithLinks() {
 
     // Enable all node type page for link extraction.
-    variable_set('linkchecker_scan_nodetypes', array('page'));
+    variable_set('linkchecker_scan_node_page', TRUE);
     variable_set('linkchecker_scan_blocks', 1);
 
     // Core enables the URL filter for "Full HTML" by default.
@@ -75,6 +75,8 @@ class LinkCheckerLinkExtractionTest extends DrupalWebTestCase {
 <!-- URL with uncommon chars that could potentially fail to extract. See http://drupal.org/node/465462. -->
 <a href="http://www.lagrandeepicerie.fr/#e-boutique/Les_produits_du_moment,2/coffret_vins_doux_naturels,149">URL with uncommon chars</a>
 <a href="http://example.com/foo bar/is_valid-hack.test">URL with space</a>
+<a href="http://example.com/ajax.html#key1=value1&key2=value2">URL with ajax query params</a>
+<a href="http://example.com/test.html#test">URL with standard anchor</a>
 
 <!-- object tag: Embed SWF files -->
 <object width="150" height="116"
@@ -227,6 +229,8 @@ EOT;
       'http://v2v.cc/~j/theora_testsuite/pixel_aspect_ratio.mov',
       'http://v2v.cc/~j/theora_testsuite/320x240.ogg',
       'http://example.com/foo bar/is_valid-hack.test',
+      'http://example.com/ajax.html#key1=value1&key2=value2',
+      'http://example.com/test.html#test',
     );
 
     foreach ($urls_fqdn as $org_url => $check_url) {
@@ -349,6 +353,8 @@ EOT;
       'http://example.org/video/player3.swf',
       'http://example.com/iframe/',
       'http://example.com/foo bar/is_valid-hack.test',
+      'http://example.com/ajax.html#key1=value1&key2=value2',
+      'http://example.com/test.html#test',
     );
 
     foreach ($documentation_urls as $documentation_url) {
@@ -421,7 +427,7 @@ class LinkCheckerInterfaceTest extends DrupalWebTestCase {
 
   public function testLinkCheckerCreateNodeWithBrokenLinks() {
     // Enable all node type page for link extraction.
-    variable_set('linkchecker_scan_nodetypes', array('page'));
+    variable_set('linkchecker_scan_node_page', TRUE);
 
     // Core enables the URL filter for "Full HTML" by default.
     // -> Blacklist / Disable URL filter for testing.

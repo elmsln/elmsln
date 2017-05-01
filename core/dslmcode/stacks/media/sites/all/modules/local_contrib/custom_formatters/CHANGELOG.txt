@@ -1,3 +1,31 @@
+Custom Formatters 7.x-2.4, 2015-07-08
+--------------------------------------------------------------------------------
+
+- #1979894: Fixed issue with PHP field types format.
+- Fixed minor issue with Formatter preset entity_type/bundle.
+
+
+
+Custom Formatters 7.x-2.3, 2015-07-08
+--------------------------------------------------------------------------------
+
+- #2515038: Added entity_type/bundle to Formatter preset fake instance.
+- #2108235: Fixed strict warnings in Insert module integration.
+- #1990692: Fixed issue with PHP export and Form builder module.
+- #1987336: Fixed issue with Editarea library and JS aggregation.
+- #1979894: Updated Field type selection form.
+- #1920220: Fixed issue with coder review integration.
+- #1784848 by Deciphered, aaronbauman: Added token dialog.
+- #1721294: Removed makefile.
+- #1511830: Fix Entity Tokens integration.
+- #816924: Added Display suite integration.
+- Added 'Formatter preset' engine.
+- Fixed issue when returning an empty result.
+- Fixed Insert / Contextual links issue.
+- Fixed bug with Devel generate integration.
+
+
+
 Custom Formatters 7.x-2.2, 2012-07-04
 --------------------------------------------------------------------------------
 
@@ -14,6 +42,7 @@ Custom Formatters 7.x-2.2, 2012-07-04
 - Updated documentation.
 - Removed Token module dependency for HTML + Token formatter engine.
 - Removed obsolete token integration.
+
 
 
 Custom Formatters 7.x-2.1, 2012-06-17
@@ -38,12 +67,14 @@ Custom Formatters 7.x-2.1, 2012-06-17
 - Removed Contextual links support from Insert support.
 
 
+
 Custom Formatters 7.x-2.0, 2011-07-01
 --------------------------------------------------------------------------------
 
 - #1188398: Added Contextual links integration settings.
 - Added documentation.
 - Added PHP engine DPM option to preview.
+
 
 
 Custom Formatters 7.x-2.0-beta3, 2011-06-15
@@ -56,11 +87,13 @@ Custom Formatters 7.x-2.0-beta3, 2011-06-15
 - Fixed issue with Fieldsets states being reverted on AJAX callback.
 
 
+
 Custom Formatters 7.x-2.0-beta2, 2011-06-02
 --------------------------------------------------------------------------------
 
 - Fixed critical install issue.
 - Removed support for non-fieldable entities.
+
 
 
 Custom Formatters 7.x-2.0-beta1, 2011-06-01

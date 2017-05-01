@@ -308,5 +308,10 @@ H5P.XAPIEvent.allowedXAPIVerbs = [
   'shared',
   'suspended',
   'terminated',
-  'voided'
+  'voided',
+
+  // Custom verbs used for action toolbar below content
+  'downloaded',
+  'accessed-embed',
+  'accessed-copyright'
 ];

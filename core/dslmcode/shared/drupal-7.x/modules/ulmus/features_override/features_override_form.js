@@ -14,7 +14,7 @@
           $parent_label.append('<a href="' + Drupal.settings.features_override_links['main'][this.value] + '" target="_blank" class="features_override_button">' + Drupal.t('view') + '</a>');
         }
 
-        var $child_checkboxes = $('input[type=checkbox][name^="sources[features_overrides]"][value^=' + this.value + ']').each(function (i) {
+        var $child_checkboxes = $('input[type=checkbox][name^="sources[features_overrides]"][value^="' + this.value + '"]').each(function (i) {
           if (Drupal.settings.features_override_links['sub'][this.value]) {
             $($(this).parent()).find('label').append('<a href="' + Drupal.settings.features_override_links['sub'][this.value] + '" target="_blank" class="features_override_button">' + Drupal.t('view') + '</a>');
           }

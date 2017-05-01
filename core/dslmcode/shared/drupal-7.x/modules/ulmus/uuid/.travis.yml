@@ -1,0 +1,74 @@
+language: php
+sudo: false
+
+php:
+  - 5.5
+  - 5.6
+  - 7.0
+  - hhvm
+
+matrix:
+  fast_finish: true
+  allow_failures:
+    - php: hhvm
+
+mysql:
+  database: drupal
+  username: root
+  encoding: utf8
+
+install:
+  # add composer's global bin directory to the path
+  # see: https://github.com/drush-ops/drush#install---composer
+  - export PATH="$HOME/.composer/vendor/bin:$PATH"
+
+  # install drush globally
+  - composer global require drush/drush:7.*
+
+  # Install PHP_CodeSniffer and Drupal config
+  - composer global require drupal/coder
+  - phpcs --config-set installed_paths ~/.composer/vendor/drupal/coder/coder_sniffer
+
+  # Create the database
+  - mysql -e 'create database drupal;'
+
+before_script:
+
+  # Disable sendmail
+  - echo sendmail_path=`which true` >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
+
+  # Increase the MySQL connection timeout on the PHP end.
+  - echo "mysql.connect_timeout=3000" >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
+  - echo "default_socket_timeout=3000" >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
+
+  # Increase the MySQL server timetout and packet size.
+  - mysql -e "SET GLOBAL wait_timeout = 36000;"
+  - mysql -e "SET GLOBAL max_allowed_packet = 33554432;"
+
+  # Download Drupal 7.x
+  - drush pm-download drupal-7 --destination=/tmp --drupal-project-rename=drupal
+
+  # Add our module
+  - ln -s $(pwd) /tmp/drupal/sites/all/modules/
+
+  # Switch to the drupal site directory
+  - cd /tmp/drupal
+
+  # Install site and dependencies
+  - drush -vv --yes site-install --db-url=mysql://root:@127.0.0.1/drupal
+  - drush pm-download entity
+  - drush pm-enable simpletest entity uuid --yes
+
+  # Use the PHP builtin webserver to serve the site.
+  #- drush runserver 8080 > /dev/null 2>&1 &
+  - drush runserver 127.0.0.1:8888 > ~/server.log 2>&1 &
+  - export counter=0; until nc -zv localhost 8888; do if [ $counter -ge 12 ]; then echo "Failed to start server."; exit 1; fi; echo "Waiting for web server to start on port 8888..."; sleep 5; counter=$[$counter +1]; done
+
+script:
+  - cd /tmp/drupal
+  - php ./scripts/run-tests.sh --verbose --color --php "$(which php)" --url http://127.0.0.1:8888 UUID | tee ~/tests.log
+  - phpcs --standard=Drupal --extensions=php,module,inc,install,test,profile,theme sites/all/modules/uuid
+
+after_failure:
+  # See what happened with the server.
+  - cat ~/server.log

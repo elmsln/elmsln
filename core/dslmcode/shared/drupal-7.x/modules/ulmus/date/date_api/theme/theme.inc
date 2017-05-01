@@ -194,6 +194,7 @@ function theme_date_calendar_day($variables) {
 function theme_date_time_ago($variables) {
   $start_date = $variables['start_date'];
   $end_date = $variables['end_date'];
+  $use_end_date = isset($variables['use_end_date']) ? $variables['use_end_date'] : false;
   $interval = !empty($variables['interval']) ? $variables['interval'] : 2;
   $display = isset($variables['interval_display']) ? $variables['interval_display'] : 'time ago';
 
@@ -202,28 +203,43 @@ function theme_date_time_ago($variables) {
     return;
   }
 
-  // Time to compare dates to.
-  $now = date_format(date_now(), DATE_FORMAT_UNIX);
-  $start = date_format($start_date, DATE_FORMAT_UNIX);
+  // We use the end date only when the option is checked.
+  if ($use_end_date){
+    $date = date_format($end_date, DATE_FORMAT_UNIX);
+  }
+  else {
+    $date = date_format($start_date, DATE_FORMAT_UNIX);
+  }
 
-  // will be positive for a datetime in the past (ago), and negative for a datetime in the future (hence)
-  $time_diff = $now - $start;
+  // Time to compare dates to.
+
+  $now = date_format(date_now(), DATE_FORMAT_UNIX);
+
+  // Will be positive for a datetime in the past (ago), and negative for a datetime in the future (hence).
+  $time_diff = $now - $date;
 
   // Uses the same options used by Views format_interval.
   switch ($display) {
     case 'raw time ago':
       return format_interval($time_diff, $interval);
+
     case 'time ago':
       return t('%time ago', array('%time' => format_interval($time_diff, $interval)));
+
     case 'raw time hence':
       return format_interval(-$time_diff, $interval);
+
     case 'time hence':
       return t('%time hence', array('%time' => format_interval(-$time_diff, $interval)));
+
     case 'raw time span':
       return ($time_diff < 0 ? '-' : '') . format_interval(abs($time_diff), $interval);
+
     case 'inverse time span':
       return ($time_diff > 0 ? '-' : '') . format_interval(abs($time_diff), $interval);
+
     case 'time span':
       return t(($time_diff < 0 ? '%time hence' : '%time ago'), array('%time' => format_interval(abs($time_diff), $interval)));
+
   }
 }

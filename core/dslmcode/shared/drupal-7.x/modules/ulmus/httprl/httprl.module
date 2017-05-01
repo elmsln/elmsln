@@ -143,6 +143,11 @@ define('HTTPRL_SERVER_SCHEMA', 0);
 define('HTTPRL_NON_BLOCKING_FCLOSE_DELAY', 0);
 
 /**
+ * Default port value; blank, so do not set one.
+ */
+define('HTTPRL_SERVER_PORT', '');
+
+/**
  * Implements hook_url_inbound_alter().
  */
 function httprl_url_inbound_alter(&$path, $original_path, $path_language) {
@@ -252,9 +257,9 @@ function httprl_override_core($url, $options = array()) {
   // Queue up the request.
   httprl_request($url, $options);
   // Execute request.
-  $request = httprl_send_request();
+  $response = httprl_send_request();
   // Send back results.
-  return is_array($request) && is_string($url) && array_key_exists($url, $request) ? $request[$url] : array_pop($request);
+  return is_array($response) && is_string($url) && array_key_exists($url, $response) ? $response[$url] : is_array($response) ? array_pop($response) : $response;
 }
 
 /**
@@ -308,26 +313,15 @@ function _httprl_build_drupal_root($level = 0, $hostname_mode = 0) {
   if (module_exists('shield')) {
     $auth = variable_get('shield_user', '') . ':' . variable_get('shield_pass', '') . '@';
   }
-  elseif (isset($_SERVER['AUTH_TYPE']) && $_SERVER['AUTH_TYPE'] == 'Basic') {
+  elseif ((isset($_SERVER['AUTH_TYPE']) && $_SERVER['AUTH_TYPE'] == 'Basic')
+      || (isset($_SERVER['HTTP_AUTHORIZATION']) && preg_match('/Basic\s+(.*)$/i', $_SERVER['HTTP_AUTHORIZATION']))
+  ) {
     $auth = $_SERVER['PHP_AUTH_USER'] . ':' . $_SERVER['PHP_AUTH_PW'] . '@';
   }
   // Use static for gethostbyname lookup.
   static $dns_cache;
 
-  if (!empty($_SERVER['HTTP_HOST'])) {
-    $hostname = $_SERVER['HTTP_HOST'];
-    // If HTTP_HOST contains the port, use SERVER_NAME.
-    if (strpos($_SERVER['HTTP_HOST'], ':') !== FALSE) {
-      $hostname = $_SERVER['SERVER_NAME'];
-    }
-  }
-  elseif (!empty($_SERVER['SERVER_NAME'])) {
-    $hostname = $_SERVER['SERVER_NAME'];
-  }
-  else {
-    $hostname = '';
-  }
-
+  $hostname = httprl_get_hostname();
   // Get Host.
   $ip = httprl_variable_get('httprl_server_addr', FALSE);
   if ($ip == -1 || $hostname_mode == 1) {
@@ -372,13 +366,18 @@ function _httprl_build_drupal_root($level = 0, $hostname_mode = 0) {
   }
 
   // Port.
-  $port = '';
-  //   if (   isset($_SERVER['SERVER_PORT'])
-  //       && is_numeric($_SERVER['SERVER_PORT'])
-  //       && ($_SERVER['SERVER_PORT'] != 80 || $_SERVER['SERVER_PORT'] != 443)
-  //         ) {
-  //     $port = ':' . $_SERVER['SERVER_PORT'];
-  //   }
+  $port = httprl_variable_get('httprl_server_port', HTTPRL_SERVER_PORT);
+  // Add the port separator if necessary.
+  if (!empty($port)) {
+    $port = ':' . $port;
+  }
+  elseif ( isset($_SERVER['SERVER_PORT'])
+        && is_numeric($_SERVER['SERVER_PORT'])
+        && $_SERVER['SERVER_PORT'] != 80
+        && $_SERVER['SERVER_PORT'] != 443
+  ) {
+    $port = ':' . $_SERVER['SERVER_PORT'];
+  }
 
   // URL schema http or https.
   $schema_var = httprl_variable_get('httprl_server_schema', HTTPRL_SERVER_SCHEMA);
@@ -513,7 +512,7 @@ function httprl_parse_url($url, &$result) {
  * @param array &$options
  *   Array containing options.
  */
-function httprl_set_default_options(&$options) {
+function httprl_set_default_options(array &$options) {
   global $base_root;
 
   // Merge the default options.
@@ -538,6 +537,7 @@ function httprl_set_default_options(&$options) {
     'chunk_size_write' => 1024,
     'async_connect' => TRUE,
     'ping_db' => 20,
+    'url_encoding' => array(),
   );
 
   // Adjust Time To First Byte Timeout if timeout is large and ttfb is default.
@@ -555,6 +555,16 @@ function httprl_set_default_options(&$options) {
   $options['headers'] += array(
     'User-Agent' => 'Drupal (+http://drupal.org/)',
     'Connection' => 'close',
+  );
+
+  // Defaults for url encoding the url.
+  // Use %20 for spaces in the path and in the query string.
+  $options['url_encoding'] += array(
+    'space' => array(),
+  );
+  $options['url_encoding']['space'] += array(
+    'path' => '%20',
+    'query' => '%20',
   );
 
   // Set referrer to current page.
@@ -667,7 +677,12 @@ function httprl_set_socket($uri, &$options, $proxy_server, &$result) {
       // Disable SNI support as this causes issues with old versions of OpenSSL.
       // By default httprl doesn't validate the SSL certificate, so this is OK.
       if (empty($options['context'])) {
-        $options['context'] = stream_context_create(array('ssl' => array('SNI_enabled' => FALSE)));
+        $drupal_ssl_context_options = variable_get('drupal_ssl_context_options', array('verify_peer' => TRUE));
+        // Affected versions of openssl are 1.0.0i to 1.0.1b.
+        if (!defined('OPENSSL_VERSION_NUMBER') || (OPENSSL_VERSION_NUMBER >= 0x1000009f && OPENSSL_VERSION_NUMBER <= 0x1000102f)) {
+          $drupal_ssl_context_options += array('SNI_enabled' => FALSE);
+        }
+        $options['context'] = stream_context_create(array('ssl' => $drupal_ssl_context_options));
       }
       break;
 
@@ -889,9 +904,11 @@ function httprl_basic_auth($uri, &$options) {
  */
 function httprl_build_request_string($uri, $options) {
   // Construct the path to act on.
-  $path = isset($uri['path']) ? $uri['path'] : '/';
+  // Enocde any spaces to be %20.
+  $path = isset($uri['path']) ? str_replace(' ', $options['url_encoding']['space']['path'], $uri['path']) : '/';
   if (isset($uri['query'])) {
-    $path .= '?' . $uri['query'];
+    // Enocde any spaces in the query string to be %20.
+    $path .= '?' . str_replace(' ', $options['url_encoding']['space']['query'], $uri['query']);
   }
 
   // Assemble the request together. HTTP version requires to be a float.
@@ -1131,7 +1148,7 @@ function httprl_establish_stream_connection(&$result) {
  *   Array where key is the URL and the value is the return value from
  *   httprl_send_request.
  */
-function httprl_request($urls, $options = array()) {
+function httprl_request($urls, array $options = array()) {
   // See if a full bootstrap has been done.
   $full_bootstrap = httprl_drupal_full_bootstrap();
 
@@ -1197,23 +1214,17 @@ function httprl_request($urls, $options = array()) {
     // If any data is given, do the right things to this request so it works.
     httprl_handle_data($these_options);
     // Build the request string.
-    $request = httprl_build_request_string($uri, $these_options);
+    $response = httprl_build_request_string($uri, $these_options);
 
     // Put all variables into an array for easy alterations.
-    $connections[] = array($socket, $flags, $uri, $url, $these_options, $result, $request);
+    $connections[] = array($socket, $flags, $uri, $url, $these_options, $result, $response);
     $return[$url] = TRUE;
-  }
-
-  if ($full_bootstrap) {
-    // Allow other programs to alter the connections before they are made.
-    // run hook_httprl_request_alter().
-    drupal_alter('httprl_request', $connections);
   }
 
   $results = array();
   foreach ($connections as $connection) {
-    list($socket, $flags, $uri, $url, $options, $result, $request) = $connection;
-    $result->request = $request;
+    list($socket, $flags, $uri, $url, $options, $result, $response) = $connection;
+    $result->request = $response;
     $result->options = $options;
     $result->socket = $socket;
     $result->flags = $flags;
@@ -1222,8 +1233,18 @@ function httprl_request($urls, $options = array()) {
     $results[] = $result;
   }
 
-  httprl_send_request($results);
-  return $return;
+  if ($full_bootstrap) {
+    // Allow other programs to alter the connections before they are made.
+    // run hook_httprl_request_alter().
+    drupal_alter('httprl_request', $results);
+  }
+
+  if (httprl_send_request($results)) {
+    return $return;
+  }
+  else {
+    return FALSE;
+  }
 }
 
 /**
@@ -1247,6 +1268,9 @@ function httprl_send_request($results = NULL) {
   static $static_stall_freads = FALSE;
 
   if (!is_null($results)) {
+    if (empty($results)) {
+      return FALSE;
+    }
     // Put the connection information into the responses array.
     foreach ($results as $result) {
       $responses[$counter] = $result;
@@ -1272,6 +1296,13 @@ function httprl_send_request($results = NULL) {
       $result->status = 'Connection not made.';
       // Do post processing on the stream.
       httprl_post_processing($id, $responses, $output);
+      continue;
+    }
+
+    if (!empty($result->cached)) {
+      // Used the cached data.
+      $output[$result->cached->url] = $result->cached;
+      unset($responses[$id]);
       continue;
     }
 
@@ -1865,26 +1896,14 @@ function httprl_parse_data(&$result) {
 
       // If location isn't fully qualified URL (as per W3 RFC2616), build one.
       if (empty($location['scheme']) || empty($location['host'])) {
-        if (!empty($_SERVER['HTTP_HOST'])) {
-          $hostname = $_SERVER['HTTP_HOST'];
-          // If HTTP_HOST contains the port, use SERVER_NAME.
-          if (strpos($_SERVER['HTTP_HOST'], ':') !== FALSE) {
-            $hostname = $_SERVER['SERVER_NAME'];
-          }
-        }
-        elseif (!empty($_SERVER['SERVER_NAME'])) {
-          $hostname = $_SERVER['SERVER_NAME'];
-        }
-        else {
-          $hostname = '';
-        }
+        $hostname = httprl_get_hostname();
 
         // Get the important parts from the original request.
         $original_location = @parse_url($result->url);
         // Assume request is to self if none of this was setup correctly.
         $location['scheme'] = !empty($location['scheme']) ? $location['scheme'] : $original_location['scheme'];
-        $location['host'] = !empty($location['host']) ? $location['host'] : !empty($original_location['host']) ? $original_location['host'] : $hostname;
-        $location['port'] = !empty($location['port']) ? $location['port'] : !empty($original_location['port']) ? $original_location['port'] : '';
+        $location['host'] = !empty($location['host']) ? $location['host'] : (!empty($original_location['host']) ? $original_location['host'] : $hostname);
+        $location['port'] = !empty($location['port']) ? $location['port'] : (!empty($original_location['port']) ? $original_location['port'] : '');
         $location = httprl_glue_url($location);
       }
       else {
@@ -2294,20 +2313,7 @@ function httprl_queue_background_callback(&$args, &$result = NULL) {
 
   // Set Host header.
   if (empty($options['headers']['Host'])) {
-    if (!empty($_SERVER['HTTP_HOST'])) {
-      $hostname = $_SERVER['HTTP_HOST'];
-      // If HTTP_HOST contains the port, use SERVER_NAME.
-      if (strpos($_SERVER['HTTP_HOST'], ':') !== FALSE) {
-        $hostname = $_SERVER['SERVER_NAME'];
-      }
-    }
-    elseif (!empty($_SERVER['SERVER_NAME'])) {
-      $hostname = $_SERVER['SERVER_NAME'];
-    }
-    else {
-      $hostname = '';
-    }
-
+    $hostname = httprl_get_hostname();
     if (!empty($hostname)) {
       $options['headers']['Host'] = $hostname;
     }
@@ -2376,8 +2382,7 @@ function httprl_acquire_headless_lock($name, $time = 60) {
 
   // Make sure lock exists after this process is dead.
   // Remove from the global locks variable.
-  global $locks;
-  unset($locks[$name]);
+  unset($GLOBALS['locks'][$name]);
 
   // Remove the lock_id reference in the database.
   $lock_inc = httprl_variable_get('lock_inc', './includes/lock.inc');
@@ -2420,11 +2425,14 @@ function httprl_decode_data(&$result) {
       $chunk = substr($data, $stream_position, $num);
       // Decompress if compressed.
       if (isset($result->headers['content-encoding'])) {
-        if ($result->headers['content-encoding'] == 'gzip') {
+        if ($result->headers['content-encoding'] === 'gzip') {
           $chunk = @gzinflate(substr($chunk, 10));
         }
-        elseif ($result->headers['content-encoding'] == 'deflate') {
+        elseif ($result->headers['content-encoding'] === 'deflate') {
           $chunk = @gzinflate($chunk);
+        }
+        elseif ($result->headers['content-encoding'] === 'br' && is_callable('brotli_uncompress')) {
+          $chunk = @brotli_uncompress($chunk);
         }
         if ($chunk === FALSE) {
           break;
@@ -2440,13 +2448,16 @@ function httprl_decode_data(&$result) {
   }
   // Decompress if compressed.
   elseif (isset($result->headers['content-encoding'])) {
-    if ($result->headers['content-encoding'] == 'gzip') {
+    if ($result->headers['content-encoding'] === 'gzip') {
       $chunk = @gzinflate(substr($result->data, 10));
     }
-    elseif ($result->headers['content-encoding'] == 'deflate') {
+    elseif ($result->headers['content-encoding'] === 'deflate') {
       $chunk = @gzinflate($result->data);
     }
-    if ($chunk !== FALSE) {
+    elseif ($result->headers['content-encoding'] === 'br' && is_callable('brotli_uncompress')) {
+      $chunk = @brotli_uncompress($result->data);
+    }
+    if (isset($chunk) && $chunk !== FALSE) {
       $result->data = $chunk;
     }
   }
@@ -2706,9 +2717,7 @@ function httprl_lock_release($name) {
   $lock_inc = httprl_variable_get('lock_inc', './includes/lock.inc');
   // Core.
   if ($lock_inc === './includes/lock.inc') {
-    global $locks;
-
-    unset($locks[$name]);
+    unset($GLOBALS['locks'][$name]);
     if (defined('VERSION') && substr(VERSION, 0, 1) >= 7) {
       db_delete('semaphore')
         ->condition('name', $name)
@@ -2720,14 +2729,21 @@ function httprl_lock_release($name) {
   }
   // Memcache storage module.
   elseif (strpos($lock_inc, '/memcache_storage/includes/lock.inc') !== FALSE) {
-    global $locks;
-
     // We unset unconditionally since caller assumes lock is released anyway.
-    unset($locks[$name]);
+    unset($GLOBALS['locks'][$name]);
 
     // Remove current lock from memcached pool.
     if (MemcacheStorageAPI::get($name, 'semaphore')) {
       MemcacheStorageAPI::delete($name, 'semaphore');
+    }
+  }
+  // Memcache Integration module.
+  elseif (strpos($lock_inc, '/memcache/memcache-lock.inc') !== FALSE) {
+    // We unset unconditionally since caller assumes lock is released anyway.
+    unset($GLOBALS['locks'][$name]);
+
+    if (dmemcache_get($name, 'semaphore')) {
+      dmemcache_delete($name, 'semaphore');
     }
   }
   elseif (strpos($lock_inc, '/apdqc/apdqc.lock.inc') !== FALSE) {
@@ -2789,7 +2805,7 @@ function httprl_print_empty(&$data, $level = 0) {
  */
 function httprl_pr($input) {
   $output_plain_text = FALSE;
-  if (in_array('content-type: text/plain', array_map('strtolower', headers_list())) || (function_exists('drupal_is_cli') && drupal_is_cli())) {
+  if (strpos(implode("\n", array_map('strtolower', headers_list())), 'content-type: text/plain') !== FALSE || (function_exists('drupal_is_cli') && drupal_is_cli())) {
     $output_plain_text = TRUE;
   }
 
@@ -2885,9 +2901,23 @@ function httprl_pr($input) {
  * @return bool
  *   TRUE if a proxy should be used for this host.
  */
+
 function _httprl_use_proxy($host) {
-  $proxy_exceptions = httprl_variable_get('proxy_exceptions', array('localhost', '127.0.0.1'));
-  return !in_array(strtolower($host), $proxy_exceptions, TRUE);
+  // To add a specific domain name in the proxy exception so that all the URL related
+  // to this domain can bypass the proxy e.g. we add drupal.org in exception list then
+  // it can bypass api.drupal.org, groups.drupal.org so even we can get matching pattern.
+  $proxy_exceptions = httprl_variable_get('proxy_exceptions', array('localhost', '127\.0\.0\.1'));
+  $use_proxy = TRUE;
+  if (is_array($proxy_exceptions) && count($proxy_exceptions)) {
+    foreach ($proxy_exceptions as $exception) {
+      $match = preg_match("/{$exception}/is", $host);
+      if ($match) {
+        $use_proxy = FALSE;
+        break;
+      }
+    }
+  }
+  return $use_proxy;
 }
 
 /**
@@ -3495,7 +3525,6 @@ function httprl_lossless_assoc_array_merge() {
 /**
  * Run array of data through callback.
  *
- *
  * @param $data
  *   The data to process.
  * @param $callback
@@ -3542,7 +3571,7 @@ function httprl_call_user_func_array_async($callback, array $param_arr) {
  *   The parameters to be passed to the callback, as an indexed array.
  * @param array $options
  *   An associative array with the keys cache_lifetime_min, cache_lifetime_max,
- *   and bin.
+ *   bin, lock_timeout, and return_null_cache_miss.
  *
  * @return mixed
  *   Array of results.
@@ -3557,19 +3586,41 @@ function httprl_call_user_func_array_cache($callback, array $param_arr = array()
     'bin' => 'cache',
     // Lock timeout.
     'lock_timeout' => 30.0,
+    // Return NULL if cache miss.
+    'return_null_cache_miss' => FALSE,
   );
   // The cache id for this call.
-  $cid = __FUNCTION__ . ':' . drupal_hash_base64(serialize(array($callback, $param_arr)));
+  if (is_string($callback)) {
+    $cid = __FUNCTION__ . ':' . $callback . ':' . drupal_hash_base64(serialize(array($param_arr)));
+  }
+  else {
+    $cid = __FUNCTION__ . ':' . drupal_hash_base64(serialize(array($callback, $param_arr)));
+  }
 
-  $cache = cache_get($cid);
+  $cache = cache_get($cid, $options['bin']);
   // Don't use the cache if it's not there or the cached item is older than
   // the max cache lifetime.
-  if (!isset($cache->data) || $cache->created < REQUEST_TIME - $options['cache_lifetime_max']) {
-    $cache = new stdClass();
-    // Run the callback.
-    $cache->data = call_user_func_array($callback, $param_arr);
-    // Save the cached data.
-    cache_set($cid, $cache->data, $options['bin'], $options['cache_lifetime_max'] + time());
+  if (empty($options['return_null_cache_miss']) && (!isset($cache->data) || $cache->created < REQUEST_TIME - $options['cache_lifetime_max'])) {
+    if (httprl_acquire_headless_lock($cid . ':run_function', $options['lock_timeout'])) {
+      $cache = new stdClass();
+      // Run the callback.
+      $cache->data = call_user_func_array($callback, $param_arr);
+      // Save the cached data.
+      cache_set($cid, $cache->data, $options['bin'], $options['cache_lifetime_max'] + time());
+      // Release lock.
+      httprl_lock_release($cid . ':run_function');
+    }
+    else {
+      lock_wait($cid . ':run_function', $options['lock_timeout']);
+      $cache = cache_get($cid);
+      if (!isset($cache->data)) {
+        $cache = new stdClass();
+        // Run the callback.
+        $cache->data = call_user_func_array($callback, $param_arr);
+        // Save the cached data.
+        cache_set($cid, $cache->data, $options['bin'], $options['cache_lifetime_max'] + time());
+      }
+    }
     // Release the lock if the cache lifetime is 0.
     if ($options['cache_lifetime_max'] == 0) {
       httprl_lock_release($cid);
@@ -3578,17 +3629,92 @@ function httprl_call_user_func_array_cache($callback, array $param_arr = array()
   else {
     // Regenerate if cache is older than min cache lifetime and no one else is
     // doing the same thing.
-    if ( $cache->created < REQUEST_TIME - $options['cache_lifetime_min']
+    if (empty($cache) || $cache->created < REQUEST_TIME - $options['cache_lifetime_min']
+      && lock_may_be_available($cid . ':run_function')
       && httprl_acquire_headless_lock($cid, $options['lock_timeout'])
     ) {
       // Get all function arguments.
-      $args = func_get_args();
-      // Set max to zero so this gets regenerated in the background.
-      $args[2]['cache_lifetime_max'] = 0;
+      $args = array($callback, $param_arr, $options);
       // Call this function again in another process with max lifetime set to
       // zero.
-      httprl_call_user_func_array_async(__FUNCTION__, $args);
+      _httprl_run_functions_once_on_shutdown_array_cache($args);
     }
   }
-  return $cache->data;
+  return isset($cache->data) ? $cache->data : NULL;
+}
+
+/**
+ * Cache function helper. Combine duplicates & run them in a shutdown function.
+ *
+ * @param callable $args
+ *   The callable to be called.
+ */
+function _httprl_run_functions_once_on_shutdown_array_cache($args = array()) {
+  $run_list = &drupal_static('_httprl_run_functions_once_on_shutdown_array_cache', array());
+  if (!empty($args)) {
+    if (empty($run_list)) {
+      // Register a shutdown function is this is the first time being ran.
+      register_shutdown_function('_httprl_run_functions_once_on_shutdown_array_cache');
+    }
+    $run_list[] = $args;
+  }
+  else {
+    unset($args);
+    $will_run = array();
+    $already_ran = array();
+    foreach ($run_list as $args) {
+      if (empty($args)) {
+        continue;
+      }
+      if (is_string($args[0])) {
+        $cid = __FUNCTION__ . ':' . $args[0] . ':' . drupal_hash_base64(serialize(array($args[1])));
+      }
+      else {
+        $cid = __FUNCTION__ . ':' . drupal_hash_base64(serialize(array($args[0], $args[1])));
+      }
+      if (empty($already_ran[$cid])) {
+        $already_ran[$cid] = TRUE;
+        $will_run[] = $args;
+      }
+    }
+    if (!empty($will_run)) {
+      httprl_call_user_func_array_async('_httprl_run_cache_functions', array($will_run));
+    }
+  }
+}
+
+/**
+ * Cache function helper. Runs the array through the cache function.
+ *
+ * @param callable $functions_to_cache
+ *   The callable to be called.
+ */
+function _httprl_run_cache_functions($functions_to_cache) {
+  foreach ($functions_to_cache as $args) {
+    // Set max to zero so this gets regenerated in the background.
+    // Also do not skip on a cache miss.
+    $args[2]['cache_lifetime_max'] = 0;
+    $args[2]['return_null_cache_miss'] = FALSE;
+    call_user_func_array('httprl_call_user_func_array_cache', $args);
+  }
+}
+
+/**
+ * Get hostname of this server.
+
+ * @return string
+ *   hostname or empty string; does not contain the port number.
+ */
+function httprl_get_hostname() {
+  if (!empty($_SERVER['HTTP_HOST'])) {
+    // If HTTP_HOST contains the port, use SERVER_NAME.
+    if (strpos($_SERVER['HTTP_HOST'], ':') !== FALSE) {
+      return $_SERVER['SERVER_NAME'];
+    }
+    return $_SERVER['HTTP_HOST'];
+  }
+  elseif (!empty($_SERVER['SERVER_NAME'])) {
+    return $_SERVER['SERVER_NAME'];
+  }
+  return '';
 }

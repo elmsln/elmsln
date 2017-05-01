@@ -331,6 +331,8 @@ function file_entity_admin_files() {
   $query = db_select('file_managed', 'fm')->extend('PagerDefault')->extend('TableSort');
   $query->leftJoin('file_usage', 'fu', 'fm.fid = fu.fid');
   $query->groupBy('fm.fid');
+  $query->groupBy('fm.uid');
+  $query->groupBy('fm.timestamp');
   $query->addExpression('SUM(fu.count)', 'total_count');
   file_entity_build_filter_query($query);
 
@@ -354,6 +356,7 @@ function file_entity_admin_files() {
   $options = array();
   foreach ($files as $file) {
     $file_type = file_type_load($file->type);
+    $account = isset($accounts[$file->uid]) ? $accounts[$file->uid] : NULL;
     $options[$file->fid] = array(
       'title' => array(
         'data' => array(
@@ -364,7 +367,7 @@ function file_entity_admin_files() {
       ),
       'type' => $file_type ? check_plain($file_type->label) : FILE_TYPE_NONE,
       'size' => format_size($file->filesize),
-      'author' => theme('username', array('account' => $accounts[$file->uid])),
+      'author' => theme('username', array('account' => $account)),
       'timestamp' => format_date($file->timestamp, 'short'),
       'usage' => format_plural((int) $result[$file->fid]->total_count, '1 place', '@count places'),
     );
@@ -537,7 +540,9 @@ function file_entity_multiple_delete_confirm_submit($form, &$form_state) {
  */
 function file_entity_list_types_page() {
   $file_entity_info = entity_get_info('file');
-  $field_ui = module_exists('field_ui');
+  // Newer versions of Drupal core require the "administer fields" permission
+  // to access the Field UI.
+  $field_ui = module_exists('field_ui') && (user_access('administer fields') || !function_exists('field_ui_admin_access'));
   $colspan = $field_ui ? 5 : 3;
   $header = array(
     array('data' => t('Name')),

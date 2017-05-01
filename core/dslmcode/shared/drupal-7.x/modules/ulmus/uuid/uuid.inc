@@ -8,7 +8,7 @@
 /**
  * Pattern for detecting a valid UUID.
  */
-define('UUID_PATTERN', '[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}');
+define('UUID_PATTERN', '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}');
 
 /**
  * Generates an universally unique identifier.
@@ -17,7 +17,7 @@ define('UUID_PATTERN', '[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}');
  * universally unique identifiers. If that doesn't exist, then it falls back on
  * PHP for generating that.
  *
- * @return
+ * @return string
  *   An UUID, made up of 32 hex digits and 4 hyphens.
  */
 function uuid_generate() {
@@ -38,6 +38,61 @@ function uuid_generate() {
 }
 
 /**
+ * Generates a version 5 compliant UUID.
+ *
+ * @param string $namespace
+ *   Namespace UUID as a hex encoded string.
+ * @param string $name
+ *   The name for the generating the UUID.
+ *
+ * @return string
+ *   UUID as a hex encoded string.
+ *
+ * @link http://www.php.net/manual/en/function.uniqid.php#94959 Code lifted from
+ * PHP manual comment by Andrew Moore. @endlink
+ */
+function uuid_generate_v5($namespace, $name) {
+  if (!uuid_is_valid($namespace)) {
+    return FALSE;
+  }
+
+  // Get hexadecimal components of namespace.
+  $nhex = str_replace(array('-', '{', '}'), '', $namespace);
+
+  // Binary Value.
+  $nstr = '';
+
+  // Convert Namespace UUID to bits.
+  for ($i = 0; $i < strlen($nhex); $i += 2) {
+    $nstr .= chr(hexdec($nhex[$i] . $nhex[$i + 1]));
+  }
+
+  // Calculate hash value.
+  $hash = sha1($nstr . $name);
+
+  return sprintf('%08s-%04s-%04x-%04x-%12s',
+
+    // 32 bits for "time_low".
+    substr($hash, 0, 8),
+
+    // 16 bits for "time_mid".
+    substr($hash, 8, 4),
+
+    // 16 bits for "time_hi_and_version",
+    // four most significant bits holds version number 5.
+    (hexdec(substr($hash, 12, 4)) & 0x0fff) | 0x5000,
+
+    // 16 bits, 8 bits for "clk_seq_hi_res",
+    // 8 bits for "clk_seq_low",
+    // two most significant bits holds zero and one for variant DCE1.1.
+    (hexdec(substr($hash, 16, 4)) & 0x3fff) | 0x8000,
+
+    // 48 bits for "node".
+    substr($hash, 20, 12)
+  );
+}
+
+/**
  * Generate all missing UUIDs.
  */
 function uuid_sync_all() {
@@ -53,7 +108,7 @@ function uuid_sync_all() {
  *   The type of entity being used.
  *
  * @return string
- *  The generated UUID URI or normal URI if entity doesn't support UUIDs.
+ *   The generated UUID URI or normal URI if entity doesn't support UUIDs.
  */
 function uuid_entity_uuid_uri($entity, $entity_type) {
   $entity_info = entity_get_info($entity_type);
@@ -73,13 +128,13 @@ function uuid_entity_uuid_uri($entity, $entity_type) {
 /**
  * Converts an ID URI string to an entity data array.
  *
- * @see uuid_id_uri_array_to_data()
- *
  * @param string $uri
- *  The URI to convert.
+ *   The URI to convert.
  *
  * @return array
- *  The entity data.
+ *   The entity data.
+ *
+ * @see uuid_id_uri_array_to_data()
  */
 function uuid_id_uri_to_data($uri) {
   $parts = explode('/', $uri);
@@ -90,10 +145,10 @@ function uuid_id_uri_to_data($uri) {
  * Converts a URI array to entity data array.
  *
  * @param array $uri
- *  The URI parts, often taken from arg().
+ *   The URI parts, often taken from arg().
  *
  * @return array
- *  The entity data.
+ *   The entity data.
  */
 function uuid_id_uri_array_to_data($uri) {
   $data = array(
@@ -110,13 +165,13 @@ function uuid_id_uri_array_to_data($uri) {
 /**
  * Converts a UUID URI string to an entity data array.
  *
- * @see uuid_uri_array_to_data()
- *
  * @param string $uri
- *  The URI to convert.
+ *   The URI to convert.
  *
  * @return array
- *  The entity data.
+ *   The entity data.
+ *
+ * @see uuid_uri_array_to_data()
  */
 function uuid_uri_to_data($uri, $strip_uuid = TRUE) {
   return uuid_uri_array_to_data(explode('/', $uri));
@@ -126,10 +181,10 @@ function uuid_uri_to_data($uri, $strip_uuid = TRUE) {
  * Converts a URI array to entity data array.
  *
  * @param array $uri
- *  The URI parts, often taken from arg().
+ *   The URI parts, often taken from arg().
  *
  * @return array
- *  The entity data.
+ *   The entity data.
  */
 function uuid_uri_array_to_data($uri, $strip_uuid = TRUE) {
   if ($strip_uuid) {
@@ -138,8 +193,8 @@ function uuid_uri_array_to_data($uri, $strip_uuid = TRUE) {
 
   $data = array(
     'request' => $uri,
-    'entity_type' => $uri[0],
-    'uuid' => $uri[1],
+    'entity_type' => isset($uri[0]) ? $uri[0] : NULL,
+    'uuid' => isset($uri[1]) ? $uri[1] : NULL,
   );
 
   drupal_alter('uuid_uri_data', $data);
@@ -201,19 +256,20 @@ function _uuid_generate_php() {
   );
 }
 
-
-// This is wrapped in an if block to avoid conflicts with PECL's uuid_is_valid().
+// The if block avoids conflicts with PECL's uuid_is_valid().
 if (!function_exists('uuid_is_valid')) {
+
   /**
    * Check that a string appears to be in the format of a UUID.
    *
-   * @param $uuid
-   *  The string to test.
+   * @param string $uuid
+   *   The string to test.
    *
-   * @return
-   *   TRUE if the string is well formed.
+   * @return bool
+   *    TRUE if the string is well formed.
    */
   function uuid_is_valid($uuid) {
     return preg_match('/^' . UUID_PATTERN . '$/', $uuid);
   }
+
 }

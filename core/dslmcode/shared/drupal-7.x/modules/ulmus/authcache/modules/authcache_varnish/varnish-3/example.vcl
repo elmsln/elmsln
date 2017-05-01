@@ -19,10 +19,10 @@
 /**
  * Define all your backends here.
  */
-backend default {
-  .host = "127.0.0.1";
-  .port = "3000";
-}
+// backend default {
+//   .host = "127.0.0.1";
+//   .port = "3000";
+// }
 
 /**
  * Include Authcache Varnish core.vcl.

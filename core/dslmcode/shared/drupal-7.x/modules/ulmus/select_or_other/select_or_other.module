@@ -79,8 +79,6 @@ function select_or_other_element_process($element, &$form_state) {
   $element['#tree'] = TRUE;
   $element['#processed'] = TRUE;
 
-  unset($element['#type']);
-
   // Load the JS file to hide/show the 'other' box when needed.
   $element['#attached']['js'][] = drupal_get_path('module', 'select_or_other') . '/select_or_other.js';
 
@@ -93,7 +91,7 @@ function select_or_other_element_process($element, &$form_state) {
     '#type' => $element['#select_type'],
     '#title' => $element['#title'],
     '#title_display' => $element['#title_display'],
-    '#default_value' => $element['#default_value'],
+    '#default_value' => isset($element['#default_value']) ? $element['#default_value'] : NULL,
     '#disabled' => $element['#disabled'],
     '#multiple' => $element['#multiple'],
     '#required' => $element['#required'],
@@ -103,9 +101,11 @@ function select_or_other_element_process($element, &$form_state) {
     '#weight' => 10,
   );
 
-  if (isset($element['#empty_value'])) {
-    $element['select']['#empty_value'] = $element['#empty_value'];
-  };
+  foreach(array('#empty_option', '#empty_value') as $key){
+    if (isset($element[$key])) {
+      $element['select'][$key] = $element[$key];
+    };
+  }
 
   // Remove the default value on the container level so it doesn't get rendered there.
   $element['#value'] = NULL;
@@ -172,13 +172,13 @@ function select_or_other_element_process($element, &$form_state) {
   // Add in the 'other' option.
   $element['select']['#options']['select_or_other'] = $element['#other'];
 
-  // Create the 'other' textfield.
+  // Create the 'other' textfield without the required attribute, if any.
   $element['other'] = array(
     '#type' => 'textfield',
     '#weight' => 20,
     '#default_value' => $other_default_string,
     '#disabled' => $element['#disabled'],
-    '#attributes' => $element['#attributes'],
+    '#attributes' => array_diff_key($element['#attributes'], array('required' => NULL)),
   );
 
   // Populate properties set specifically as #select_property or #other_property
@@ -226,7 +226,7 @@ function select_or_other_element_validate($element, &$form_state) {
   else {
     $value = $element['select']['#value'];
   }
-  if ($other_selected && !$element['other']['#value']) {
+  if ($other_selected && $element['other']['#value'] === '') {
     form_error($element['other'], t('!title field is required.', array('!title' => $element['select']['#title'])));
   }
   if (isset($value)) {

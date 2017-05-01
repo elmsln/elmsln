@@ -110,7 +110,7 @@ function authcache_form_admin($form, &$form_state) {
 
   $form['notoken']['hint']['#markup'] = '<p>' . t('It is debatable whether search forms need to be protected against CSRF attacks at all, because there is little destructive potential caused by executing a search on behalf of another user.') . '</p>' .
     '<p>' . t('More information on CSRF prevention on search forms is available on the following site:') . '<ul>' .
-    '<li>' . t('<a href="!so_link">stackoverflow.com: Is there a reason to put tokens on a serach form?</a>', $links) . '</li>' .
+    '<li>' . t('<a href="!so_link">stackoverflow.com: Is there a reason to put tokens on a search form?</a>', $links) . '</li>' .
     '</ul>';
 
   $form['notoken']['authcache_form_notoken'] = array(

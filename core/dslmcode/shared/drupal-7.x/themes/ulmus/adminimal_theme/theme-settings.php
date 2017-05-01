@@ -105,6 +105,13 @@ function adminimal_form_system_theme_settings_alter(&$form, &$form_state) {
     '#default_value' => theme_get_setting('avoid_custom_font'),
   );
 
+  $form['adminimal_custom']['adminimal_ckeditor'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('CKEditor support'),
+    '#description' => t('Loads custom adminimal css skin for CKEditor. Disable this to avoid css conflicts when using other CKEditor skins.'),
+    '#default_value' => theme_get_setting('adminimal_ckeditor'),
+  );
+
   $form['adminimal_custom']['use_custom_media_queries'] = array(
     '#type' => 'checkbox',
     '#title' => t('Use Custom Media Queries'),

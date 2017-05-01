@@ -27,6 +27,16 @@ function file_entity_views_data() {
       'handler' => 'views_handler_argument_file_type',
     ),
   );
+
+  // File schema type.
+  $data['file_managed']['schema_type'] = array(
+    'title' => t('Schema type'),
+    'help' => t('Filter files by schema, such as public or private.'),
+    'filter' => array(
+      'handler' => 'views_handler_filter_schema_type',
+    ),
+  );
+
   // Rendered file.
   $data['file_managed']['rendered'] = array(
     'title' => t('Rendered'),
@@ -99,10 +109,14 @@ function file_entity_views_data() {
     'help' => t('Provide a simple link to view the usage of the file entity.'),
     'field' => array(
       'handler' => 'views_handler_field_file_link_usage',
+      'click sortable' => TRUE,
       'real field' => 'fid',
       'additional fields' => array(
         'fid',
       ),
+    ),
+    'sort' => array(
+      'handler' => 'views_handler_sort',
     ),
   );
 
@@ -146,5 +160,15 @@ function file_entity_views_plugins() {
         'help topic' => 'style-file-rss',
       ),
     ),
+  );
+}
+
+/**
+ * Implements hook_views_query_substitutions().
+ */
+function file_entity_views_query_substitutions() {
+  return array(
+    '***ADMINISTER_FILES***' => intval(user_access('administer files')),
+    '***BYPASS_FILE_ACCESS***' =>  intval(user_access('bypass file access')),
   );
 }

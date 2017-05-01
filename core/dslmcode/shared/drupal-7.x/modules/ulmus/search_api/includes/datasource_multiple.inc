@@ -44,6 +44,9 @@ class SearchApiCombinedEntityDataSourceController extends SearchApiAbstractDataS
         $item->item_type = $type;
         $item->item_entity_id = $entity_id;
         $item->item_bundle = NULL;
+        // Add the item language so the "search_api_language" field will work
+        // correctly.
+        $item->language = isset($entity->language) ? $entity->language : NULL;
         try {
           list(, , $bundle) = entity_extract_ids($type, $entity);
           $item->item_bundle = $bundle ? "$type:$bundle" : NULL;

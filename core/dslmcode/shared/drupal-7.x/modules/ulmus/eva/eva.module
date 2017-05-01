@@ -14,24 +14,32 @@ function eva_views_api() {
 
 
 /**
- * Implements hook_content_extra_fields().
+ * Implements hook_field_extra_fields().
  */
 function eva_field_extra_fields() {
   $extras = array();
   $views = eva_get_views();
-  
+
   foreach ($views as $entity => $data) {
     foreach ($data as $view) {
-      foreach ($view['bundles'] as $bundle) {
+      if (!empty($view['bundles'])) {
+        $bundles = $view['bundles'];
+      }
+      // If no bundles are set, apply to all bundles.
+      else {
+        $entity_info = entity_get_info($entity);
+        $bundles = array_keys($entity_info['bundles']);
+      }
+      foreach ($bundles as $bundle) {
         $extras[$entity][$bundle]['display'][$view['name'] . '_' . $view['display']] = array(
-          'label' => (empty($view['title'])) ? $view['name'] : $view['title'], 
-          'description' => $view['title'], 
+          'label' => (empty($view['title'])) ? $view['name'] : $view['title'],
+          'description' => $view['title'],
           'weight' => 10,
         );
         // Provide a separate extra field for the exposed form if there is any.
-        if ($view['exposed form']) {
+        if (!empty($view['exposed form']) && !empty($view['exposed form split'])) {
           $extras[$entity][$bundle]['display'][$view['name'] . '_' . $view['display'] . '_' . 'form'] = array(
-            'label' => ((empty($view['title'])) ? $view['name'] : $view['title']) . ' (' . t('Exposed form') . ')', 
+            'label' => ((empty($view['title'])) ? $view['name'] : $view['title']) . ' (' . t('Exposed form') . ')',
             'description' => t('The exposed filter form of the view.'),
             'weight' => 9,
           );
@@ -49,22 +57,21 @@ function eva_field_extra_fields() {
  * This is a terrible, terrible hack that should not be necessary; taxonomy and
  * some other entity types use fields, but don't implement  hook_entity_view().
  * We have to ALTER those entity types after they're built. For the time being,
- * we'll use a list of special cases to trigger this special handling. 
+ * we'll use a list of special cases to trigger this special handling.
  */
 function eva_entity_view_alter(&$build, $type) {
   $view_mode = $build['#view_mode'];
-  $language = $build['#language'];
 
-  $entity_data = entity_get_info($type);
-  $entity = _eva_extract_entity_from_build($build);
+  if (!$entity = _eva_extract_entity_from_build($build, $type)) {
+    return;
+  }
 
   $entity_ids = entity_extract_ids($type, $entity);
-  $settings = field_view_mode_settings($type, $entity_ids[2]);
   $fields = field_extra_fields_get_display($type, $entity_ids[2], $view_mode);
   $views = eva_get_views($type);
 
   foreach ($views as $info) {
-    $longname = $info['name'] .'_'. $info['display'];
+    $longname = $info['name'] . '_' . $info['display'];
     if (isset($fields[$longname]) && $fields[$longname]['visible']) {
       if ($view = views_get_view($info['name'])) {
         $view->set_display($info['display']);
@@ -93,17 +100,18 @@ function eva_entity_view_alter(&$build, $type) {
 }
 
 /**
- * Get a list of views and displays attached to speficic entities.
+ * Gets a list of views and displays attached to specific entities.
  *
  * This function will cache its results into the views cache, so it gets
  * cleared by Views appropriately.
  *
- * @param $type
- *   The entity type we want to retrieve views for. If NULL is
- *   specified, views for all entity types will be returned.
- * @param $reset
- *   Force a rebuild of the data.
- * @return
+ * @param string|null $type
+ *   (optional) The entity type we want to retrieve views for. If NULL is
+ *   specified, views for all entity types will be returned. Defaults to NULL.
+ * @param bool $reset
+ *   (optional) Force a rebuild of the data. Defaults to FALSE.
+ *
+ * @return array
  *   An array of view name/display name values, or an empty array().
  */
 function eva_get_views($type = NULL, $reset = FALSE) {
@@ -111,7 +119,7 @@ function eva_get_views($type = NULL, $reset = FALSE) {
 
   if (!isset($used_views) || $reset) {
     views_include('cache');
-    
+
     // If we're not resetting, check the Views cache.
     if (!$reset) {
       $cache = views_cache_get("eva");
@@ -122,6 +130,7 @@ function eva_get_views($type = NULL, $reset = FALSE) {
 
     // If it's still empty rebuild it.
     if (!isset($used_views)) {
+      $used_views = array();
       // Trigger a rebuild of the views object cache, which may not be fully loaded.
       ctools_include('export');
       ctools_export_load_object_reset('views_view');
@@ -139,6 +148,7 @@ function eva_get_views($type = NULL, $reset = FALSE) {
           'display' => $display_id,
           'bundles' => $view->display_handler->get_option('bundles'),
           'exposed form' => $view->display_handler->uses_exposed(),
+          'exposed form split' => $view->display_handler->get_option('exposed_form_as_field'),
         );
         $view->destroy();
       }
@@ -162,22 +172,26 @@ function eva_get_views($type = NULL, $reset = FALSE) {
  * entities, and contrib entities based on EntityAPI all store their junk in
  * different slots of the build array. See http://drupal.org/node/1170198.
  *
- * @param $build
- *   The token string defined by the view.
- * @param $entity_data
- *   The token type.
+ * @param array $build
+ *   The build array as passed to hook_entity_view_alter().
+ * @param string $entity_type
+ *   (optional) The entity type. Defaults to NULL.
  *
- * I hate you, Milkman Dan.
+ * @return object|bool
+ *   Either the entity object, or FALSE if it cannot be found.
  */
-function _eva_extract_entity_from_build($build) {
+function _eva_extract_entity_from_build($build, $entity_type = NULL) {
   // EntityAPI often sticks stuff in here.
   if (!empty($build['#entity'])) {
     return $build['#entity'];
   }
-  
+
   // Other entities stick them here!
   elseif (!empty($build['#' . $build['#entity_type']])) {
     return $build['#' . $build['#entity_type']];
+  }
+  elseif ($entity_type && !empty($build['#' . $entity_type])) {
+    return $build['#' . $entity_type];
   }
 
   // Some entities are naughty.
@@ -194,13 +208,14 @@ function _eva_extract_entity_from_build($build) {
 /**
  * Get view arguments array from string that contains tokens
  *
- * @param $string
+ * @param string $string
  *   The token string defined by the view.
- * @param $type
+ * @param string $type
  *   The token type.
- * @param $object
+ * @param object $object
  *   The object being used for replacement data (typically a node).
- * @return
+ *
+ * @return array
  *   An array of argument values.
  *
  * @todo: security?

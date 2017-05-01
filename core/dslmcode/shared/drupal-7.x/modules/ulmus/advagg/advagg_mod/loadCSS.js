@@ -6,11 +6,11 @@
 /* @codingStandardsIgnoreFile */
 /* eslint-disable */
 
-/*! loadCSS: load a CSS file asynchronously. [c]2016 @scottjehl, Filament Group, Inc. Licensed MIT */
+/*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
 (function(w){
   "use strict";
   /* exported loadCSS */
-  var loadCSS = function( href, before, media ){
+  var loadCSS = function( href, before, media, crossorigin ){
     // Arguments explained:
     // `href` [REQUIRED] is the URL for your CSS file.
     // `before` [OPTIONAL] is the element the script should use as a reference for injecting our stylesheet <link> before
@@ -30,6 +30,10 @@
     var sheets = doc.styleSheets;
     ss.rel = "stylesheet";
     ss.href = href;
+    if( crossorigin ){
+      ss.setAttribute("crossorigin", crossorigin);
+    }
+
     // temporarily set media to something inapplicable to ensure it'll fetch without blocking render
     ss.media = "only x";
 
@@ -48,7 +52,7 @@
     ready( function(){
       ref.parentNode.insertBefore( ss, ( before ? ref : ref.nextSibling ) );
     });
-    // A method (exposed on return object for external use) that mimics onload by polling until document.styleSheets until it includes the new sheet.
+    // A method (exposed on return object for external use) that mimics onload by polling document.styleSheets until it includes the new sheet.
     var onloadcssdefined = function( cb ){
       var resolvedHref = ss.href;
       var i = sheets.length;

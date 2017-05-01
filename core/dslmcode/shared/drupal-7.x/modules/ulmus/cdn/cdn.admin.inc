@@ -96,9 +96,12 @@ function cdn_admin_details_form($form, &$form_state) {
   $form['settings'][CDN_BASIC_MAPPING_VARIABLE] = array(
     '#type'          => 'textarea',
     '#title'         => t('CDN mapping'),
-    '#description'   => _cdn_help('admin-details-mode-pull-cdn-mapping') . t("Define which files are mapped to which CDN."),
+    '#description'   => _cdn_help('admin-details-mode-pull-cdn-mapping') . t("Define which files are mapped to which CDN. (To learn about how to define more advanced set-ups, install the Advanced Help module.)"),
     '#size'          => 35,
     '#default_value' => variable_get(CDN_BASIC_MAPPING_VARIABLE, ''),
+    '#attributes' => array(
+      'placeholder' => '//my-cdn.com|.css .js .jpg .jpeg .png',
+    ),
     '#states' => array(
       'visible' => array(
         ':input[name="' . CDN_MODE_VARIABLE . '"]' => array('value' => CDN_MODE_BASIC),
@@ -241,6 +244,35 @@ function cdn_admin_other_settings_form($form, &$form_state) {
     );
   }
 
+  $form['cdn_seo'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('SEO: duplicate content prevention'),
+    '#description' => t(
+      "By default most CDNs will cache full HTML pages if accessed. This means
+      that a copy of your site may appear in search engines. This is confusing, unprofessional and potentially bad for SEO.
+      <br />
+      <em>Duplicate content prevention</em> is enabled by default and ensures the CDN will redirect users to your actual ('canonical') site."
+    )
+  );
+  $form['cdn_seo'][CDN_SEO_REDIRECT_VARIABLE] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Enable duplicate content prevention'),
+    '#default_value' => variable_get(CDN_SEO_REDIRECT_VARIABLE, CDN_SEO_REDIRECT_DEFAULT),
+  );
+  $form['cdn_seo'][CDN_SEO_USER_AGENTS_VARIABLE] = array(
+    '#type' => 'textarea',
+    '#title' => t('CDN user agents'),
+    '#description' => t(
+      'A case-insensitive list of CDN user agents. These will be substring-matched against the detected user agent of a request. One per line.'
+    ),
+    '#default_value' => variable_get(CDN_SEO_USER_AGENTS_VARIABLE, CDN_SEO_USER_AGENTS_DEFAULT),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="' . CDN_SEO_REDIRECT_VARIABLE . '"]' => array('checked' => TRUE),
+      )
+    ),
+  );
+
   $form['https'] = array(
     '#type' => 'fieldset',
     '#title' => t('HTTPS'),
@@ -371,38 +403,6 @@ function cdn_admin_other_settings_form($form, &$form_state) {
     '#description'   => $path_explanation,
   );
 
-
-  $form['cdn_pick_server'] = array(
-    '#type' => 'fieldset',
-    '#title' => 'cdn_pick_server()',
-    '#description' => t('It is possible to achieve very advanced types of CDN
-                         integration by implementing the
-                         <code>cdn_pick_server()</code> function (consult the
-                         included README for examples). However, to lower the
-                         barrier to start using it, it has been made possible
-                         to just enter the body of that function right here,
-                         in the settings of the CDN module, so you would not
-                         have to create a small module for it.'),
-  );
-  if (function_exists('cdn_pick_server')) {
-    $form['cdn_pick_server']['defined_in_code'] = array(
-      '#type' => 'item',
-      '#title' => t('Defined in code'),
-      '#markup' => 'The <code>cdn_pick_server()</code> function is already defined in code.',
-    );
-  }
-  else {
-    $php_code = variable_get(CDN_PICK_SERVER_PHP_CODE_VARIABLE, '');
-    $form['cdn_pick_server'][CDN_PICK_SERVER_PHP_CODE_VARIABLE] = array(
-      '#type' => 'textarea',
-      '#title' => t('PHP code for cdn_pick_server()'),
-      '#description' => _cdn_help('admin-other-cdn-pick-server') . t('PHP code to select the most appropriate CDN server.'),
-      '#cols' => 60,
-      '#rows' => ($php_code != '') ? count(explode("\n", $php_code)) + 1 : 5,
-      '#default_value' => $php_code,
-    );
-  }
-
   return system_settings_form($form);
 }
 
@@ -431,7 +431,7 @@ function cdn_admin_details_form_validate($form, &$form_state) {
     $yays = array();
     $nays = array();
     foreach ($domains as $domain) {
-      $url = 'http://' . $domain . base_path() . 'cdn/farfuture/reverse-proxy-test/' . $token;
+      $url = 'http://' . $domain . base_path() . 'cdn/farfuture/reverse-proxy-test/' . $token . '/file.txt';
       $r1 = drupal_http_request($url);
       $r2 = drupal_http_request($url);
       unset($r1->headers);
@@ -476,14 +476,6 @@ function cdn_admin_details_form_validate($form, &$form_state) {
  * Default validate callback for the other settings form.
  */
 function cdn_admin_other_settings_form_validate($form, &$form_state) {
-  if (!empty($form_state['values'][CDN_PICK_SERVER_PHP_CODE_VARIABLE])) {
-    $php_code = $form_state['values'][CDN_PICK_SERVER_PHP_CODE_VARIABLE];
-    $servers = array();
-    if (_cdn_eval_pick_server($php_code, $servers) === FALSE) {
-      form_error($form['cdn_pick_server'][CDN_PICK_SERVER_PHP_CODE_VARIABLE], t('Your <code>cdn_pick_server()</code> cannot be evaluated. Please correct it or leave it empty.'));
-    }
-  }
-
   // Remove the non-variable.
   unset($form_state['values']['cdn_hook_blacklist']);
 }
@@ -592,7 +584,7 @@ function _cdn_settings_form_prepare(&$form, $form_state) {
 
     // Advanced help.
     _cdn_check_advanced_help();
-    $form['#attributes']['class'] = 'cdn-settings';
+    $form['#attributes']['class'][] = 'cdn-settings';
     $form['#attached']['css'][] = drupal_get_path('module', 'cdn') . '/cdn.admin.css';
   }
 

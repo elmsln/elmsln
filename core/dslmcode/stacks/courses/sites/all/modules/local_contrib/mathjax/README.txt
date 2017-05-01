@@ -57,9 +57,10 @@ Using a local copy of MathJax (relies on libraries module)
      Un-archive it into your "libraries" directory (e.g. sites/all/libraries).
      You may need to create the "libraries" directory first.
      Rename it to "mathjax" (lower case).
-Relying on the libraries module to locate the 'mathjax' folder allows you to place
-it in a site-specific directory (e.g. sites/mysite/libraries) or in the default directory
-(e.g. sites/all/libraries). Site-specific versions are selected preferentially.
+Relying on the libraries module to locate the 'mathjax' folder allows you to
+place it in a site-specific directory (e.g. sites/mysite/libraries) or in the
+default directory (e.g. sites/all/libraries). Site-specific versions are
+selected preferentially.
 
 4. Follow from step #2 above.
 
@@ -72,4 +73,3 @@ MAINTAINER(S)
 =============
 2013: Chris McCafferty (cilefen) https://drupal.org/u/cilefen
 2014: P. Magunia (pmagunia) https://www.drupal.org/u/pmagunia
-

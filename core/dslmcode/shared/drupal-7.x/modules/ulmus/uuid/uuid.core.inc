@@ -32,6 +32,12 @@ function node_entity_uuid_presave(&$entity, $entity_type) {
   if ($entity_type == 'node') {
     entity_property_uuid_to_id($entity, 'user', array('uid', 'revision_uid'));
     entity_property_uuid_to_id($entity, 'node', 'tnid');
+
+    // A node always must have an author.
+    if (empty($entity->uid)) {
+      global $user;
+      $entity->uid = $user->uid;
+    }
   }
 }
 
@@ -39,9 +45,12 @@ function node_entity_uuid_presave(&$entity, $entity_type) {
  * Implements hook_entity_uuid_save().
  */
 function node_entity_uuid_save(&$entity, $entity_type) {
-  // When a node is translated, the source node's tnid is set to it's own nid. When deploying
-  // the node for the first time the tnid can't be translated to an nid until after the node has been saved.
-  // So if the entity's tnid is still a uuid at this point it needs to be translated to an nid.
+  /*
+   * When a node is translated, the source node's tnid is set to it's own nid.
+   * When deploying the node for the first time the tnid can't be translated
+   * to an nid until after the node has been saved. So if the entity's tnid
+   * is still a uuid at this point it needs to be translated to an nid.
+   */
   if ($entity_type == 'node' && uuid_is_valid($entity->tnid)) {
     entity_property_uuid_to_id($entity, 'node', 'tnid');
     db_update('node')
@@ -80,17 +89,33 @@ function book_entity_uuid_presave(&$entity, $entity_type) {
  * Implements hook_entity_uuid_presave().
  */
 function user_entity_uuid_presave(&$entity, $entity_type) {
-  if ($entity_type == 'user') {
-    if (!empty($entity->picture)) {
-      $uuids = entity_get_id_by_uuid('file', array($entity->picture['uuid']));
-      $fid = current($uuids);
-      if (!$entity->is_new) {
-        $entity->picture = file_load($fid);
-      }
-      else {
-        $entity->picture = $fid;
-      }
-    }
+  if ($entity_type != 'user') {
+    return;
+  }
+
+  /*
+   * We need to ensure new user's passwords are encrypted. The Services module
+   * transparently encrypts the password for new users. md5() is used by
+   * users who's accounts were migrated from Drupal 6 and who haven't updated
+   * their password.
+   */
+  if (isset($entity->pass)
+    && (!('$S$D' == substr($entity->pass, 0, 4)) || preg_match('/^[a-f0-9]{32}$/', $entity->pass))) {
+    // Ensure user's password is hashed.
+    $entity->pass = user_hash_password($entity->pass);
+  }
+
+  if (empty($entity->picture)) {
+    return;
+  }
+
+  $uuids = entity_get_id_by_uuid('file', array($entity->picture['uuid']));
+  $fid = current($uuids);
+  if (!$entity->is_new) {
+    $entity->picture = file_load($fid);
+  }
+  else {
+    $entity->picture = $fid;
   }
 }
 
@@ -120,6 +145,10 @@ function comment_entity_uuid_presave(&$entity, $entity_type) {
       break;
 
     case 'comment':
+      // entity_make_entity_local() may have unset cid, add back if necessary.
+      if (!isset($entity->cid)) {
+        $entity->cid = NULL;
+      }
       entity_property_uuid_to_id($entity, 'user', array('uid', 'u_uid'));
       entity_property_uuid_to_id($entity, 'node', 'nid');
       break;
@@ -140,10 +169,14 @@ function file_entity_uuid_load(&$entities, $entity_type) {
  */
 function file_entity_uuid_presave(&$entity, $entity_type) {
   if ($entity_type == 'file') {
+    // entity_make_entity_local() may have unset fid, add back if necessary.
+    if (!isset($entity->fid)) {
+      $entity->fid = NULL;
+    }
     entity_property_uuid_to_id($entity, 'user', 'uid');
 
     // Write the new file to the local filesystem.
-    if (isset($entity->file_contents)) {
+    if (isset($entity->file_contents) && !empty($entity->filesize)) {
       // Don't try to write it if it uses a stream wrapper that isn't writeable
       // (for example, if it is a remotely-hosted video).
       $scheme = file_uri_scheme($entity->uri);
@@ -185,8 +218,9 @@ function file_entity_uuid_presave(&$entity, $entity_type) {
       }
 
       $directory = drupal_dirname($uri);
-      file_prepare_directory($directory, FILE_CREATE_DIRECTORY);
-      $entity->uri = file_unmanaged_save_data(base64_decode($entity->file_contents), $uri, $replace);
+      if (!empty($directory) && file_prepare_directory($directory, FILE_CREATE_DIRECTORY)) {
+        $entity->uri = file_unmanaged_save_data(base64_decode($entity->file_contents), $uri, $replace);
+      }
     }
   }
 }
@@ -230,7 +264,7 @@ function taxonomy_entity_uuid_presave(&$entity, $entity_type) {
  * Implements hook_entity_uuid_load().
  */
 function field_entity_uuid_load(&$entities, $entity_type) {
-  foreach ($entities as $i => $entity) {
+  foreach ($entities as $entity) {
     list(, , $bundle_name) = entity_extract_ids($entity_type, $entity);
     $instances = field_info_instances($entity_type, $bundle_name);
 
@@ -327,6 +361,7 @@ function image_field_uuid_presave($entity_type, $entity, $field, $instance, $lan
 
 /**
  * Implements hook_field_uuid_load().
+ *
  * Kept here because it is in D8 core.
  */
 function entityreference_field_uuid_load($entity_type, $entity, $field, $instance, $langcode, &$items) {
@@ -337,6 +372,7 @@ function entityreference_field_uuid_load($entity_type, $entity, $field, $instanc
 
 /**
  * Implements hook_field_uuid_presave().
+ *
  * Kept here because it is in D8 core.
  */
 function entityreference_field_uuid_presave($entity_type, $entity, $field, $instance, $langcode, &$items) {
@@ -358,24 +394,35 @@ function entityreference_field_uuid_presave($entity_type, $entity, $field, $inst
  * Implements hook_uuid_entities_features_export_entity_alter().
  */
 function node_uuid_entities_features_export_entity_alter(&$entity, $entity_type) {
-  if ($entity_type == 'node') {
-    foreach (array('data', 'name', 'picture', 'revision_uid', 'last_comment_timestamp') as $property) {
-      if (property_exists($entity, $property)) {
-        unset($entity->{$property});
-      }
+  if ('node' != $entity_type) {
+    return;
+  }
+
+  $properties = array(
+    'data',
+    'name',
+    'picture',
+    'revision_uid',
+    'last_comment_timestamp',
+  );
+  foreach ($properties as $property) {
+    if (property_exists($entity, $property)) {
+      unset($entity->{$property});
     }
   }
 }
 
 /**
- * Implementations hook_uuid_entities_features_export_entity_alter().
+ * Implements hook_uuid_entities_features_export_entity_alter().
  */
 function user_uuid_entities_features_export_entity_alter(&$entity, $entity_type) {
-  if ($entity_type == 'user') {
-    foreach (array('data', 'access', 'login') as $property) {
-      if (property_exists($entity, $property)) {
-        unset($entity->{$property});
-      }
+  if ('user' != $entity_type) {
+    return;
+  }
+
+  foreach (array('data', 'access', 'login') as $property) {
+    if (property_exists($entity, $property)) {
+      unset($entity->{$property});
     }
   }
 }

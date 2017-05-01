@@ -1,0 +1,23 @@
+name = Media Bulk Upload
+description = Adds support for uploading multiple files at a time.
+package = Media
+core = 7.x
+
+configure = admin/config/media/browser
+
+dependencies[] = media
+dependencies[] = multiform (>= 7.x-1.3)
+dependencies[] = plupload
+
+test_dependencies[] = multiform
+test_dependencies[] = plupload
+
+files[] = includes/MediaBrowserBulkUpload.inc
+files[] = tests/media_bulk_upload.test
+
+; Information added by Drupal.org packaging script on 2017-04-06
+version = "7.x-2.0"
+core = "7.x"
+project = "media"
+datestamp = "1491500288"
+

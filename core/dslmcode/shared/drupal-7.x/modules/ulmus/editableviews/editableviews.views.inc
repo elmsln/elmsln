@@ -122,6 +122,15 @@ function editableviews_views_data_alter(&$data) {
       }
     }
   }
+
+  // Save button jump link field.
+  $data['views']['editableviews_jump_link'] = array(
+    'title' => t('Editable view save button jump link'),
+    'help' => t('Ouputs a jump link to the save button at the bottom of the view.'),
+    'field' => array(
+      'handler' => 'editableviews_handler_field_save_button_jump_link',
+    ),
+  );
 }
 
 /**

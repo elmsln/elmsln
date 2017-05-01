@@ -85,6 +85,7 @@ function field_collection_field_schema($field) {
   return array(
     'columns' => $columns,
     'indexes' => array(
+      'value' => array('value'),
       'revision_id' => array('revision_id'),
     ),
   );
@@ -325,6 +326,58 @@ function field_collection_update_7006() {
     if ($num_updated != 1) {
       $t_args['@field'] = $field_config->field_name;
       throw new DrupalUpdateException(t('An error was detected when attempting to update field configuration for field @field.', $t_args));
+    }
+  }
+}
+
+/**
+ * Add index on {$field_collection_field}_value column for all tables.
+ */
+function field_collection_update_7007() {
+  foreach (field_read_fields(array('type' => 'field_collection')) as $field_name => $field) {
+    if (!isset($field['indexes']['value'])) {
+      // Add index on the value column and update the field.
+      $field['indexes']['value'] = array('value');
+      field_update_field($field);
+    }
+
+    $table_prefixes = array('field_data', 'field_revision');
+    foreach ($table_prefixes as $table_prefix) {
+      $table = "{$table_prefix}_{$field_name}";
+      $value_column = "{$field_name}_value";
+      if (!db_index_exists($table, $value_column)) {
+        // Add index on the value column.
+        db_add_index($table, $value_column, array($value_column));
+      }
+    }
+  }
+}
+
+/**
+ * Update fields in field collections already set to use Entity Translation.
+ */
+function field_collection_update_7008() {
+  // Include FieldCollectionItemEntity class.
+  module_load_include('inc', 'field_collection', 'field_collection.entity');
+
+  $results = array();
+  foreach (field_info_fields() as $f_name => $field) {
+    if ($field['translatable'] == 1 && isset($field['bundles']['field_collection_item'])) {
+      $query = new EntityFieldQuery();
+      $query->entityCondition('entity_type', 'field_collection_item')
+            ->fieldLanguageCondition($f_name, LANGUAGE_NONE);
+      $query_result = $query->execute();
+      if (isset($query_result['field_collection_item'])) {
+        $results = $results + $query_result['field_collection_item'];
+      }
+    }
+  }
+  if (count($results)) {
+    $ids = array_keys($results);
+    $field_collection_items = entity_load('field_collection_item', $ids);
+    foreach ($field_collection_items as $item) {
+      $item->copyTranslations(LANGUAGE_NONE);
+      $item->save();
     }
   }
 }

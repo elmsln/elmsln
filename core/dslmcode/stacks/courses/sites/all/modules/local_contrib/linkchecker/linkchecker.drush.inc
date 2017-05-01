@@ -44,7 +44,7 @@ function drush_linkchecker_analyze() {
     'buttons' => array(),
   );
 
-  $node_types = array_keys(array_filter(variable_get('linkchecker_scan_nodetypes', array())));
+  $node_types = linkchecker_scan_node_types();
   if (!empty($node_types) || variable_get('linkchecker_scan_blocks', 0)) {
     linkchecker_analyze_links_submit(NULL, $form_state);
     drush_backend_batch_process();
@@ -71,7 +71,7 @@ function drush_linkchecker_clear() {
     'buttons' => array(),
   );
 
-  $node_types = array_keys(array_filter(variable_get('linkchecker_scan_nodetypes', array())));
+  $node_types = linkchecker_scan_node_types();
   if (!empty($node_types) || variable_get('linkchecker_scan_blocks', 0)) {
     linkchecker_clear_analyze_links_submit(NULL, $form_state);
     drush_backend_batch_process();

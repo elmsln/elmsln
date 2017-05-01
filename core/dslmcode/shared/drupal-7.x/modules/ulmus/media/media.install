@@ -9,42 +9,12 @@
  * Implements hook_install().
  */
 function media_install() {
-  // Create initial display settings.
-  module_load_include('inc', 'file_entity', 'file_entity.file_api');
-  $default_image_styles = array(
-    'preview' => 'media_thumbnail',
-    'teaser' => 'medium',
-    'full' => 'large',
-  );
-  // Only needed by sites that updated from Media 1.x.
-  // @see media_entity_info_alter()
-  if (variable_get('media__show_deprecated_view_modes')) {
-    $default_image_styles['media_original'] = '';
-  }
-
-  foreach ($default_image_styles as $view_mode => $image_style) {
-    $existing_display = file_displays_load('image', $view_mode);
-
-    if (empty($existing_display)) {
-      $display_name = 'image__' . $view_mode . '__file_image';
-      $display = array(
-        'api_version' => 1,
-        'name' => $display_name,
-        'status' => 1,
-        'weight' => 5,
-        'settings' => array('image_style' => $image_style),
-        'export_type' => NULL,
-      );
-      file_display_save((object) $display);
-    }
-  }
-
   // Make sure that we set the icon base directory variable if it is not
   // already set.
-  $base = variable_get('media__icon_base_directory', NULL);
+  $base = variable_get('media_icon_base_directory', NULL);
   if (!isset($base)) {
     $default_base = 'public://media-icons';
-    variable_set('media__icon_base_directory', $default_base);
+    variable_set('media_icon_base_directory', $default_base);
   }
   try {
     _media_install_copy_icons();
@@ -58,12 +28,12 @@ function media_install() {
  * Copy the media file icons to files directory for use with image styles.
  */
 function _media_install_copy_icons() {
-  $destination = variable_get('media__icon_base_directory', 'public://media-icons') . '/' . variable_get('media__icon_set', 'default');
-  if (!file_prepare_directory($destination, FILE_CREATE_DIRECTORY)) {
+  $destination = variable_get('media_icon_base_directory', 'public://media-icons') . '/' . variable_get('media_icon_set', 'default');
+  if (!file_prepare_directory($destination, FILE_MODIFY_PERMISSIONS || FILE_CREATE_DIRECTORY)) {
     throw new Exception("Unable to create directory $destination.");
   }
   // @todo If we ever add another default icon set, this should copy all images from one directory up.
-  $source = drupal_get_path('module', 'media') . '/images/icons/' . variable_get('media__icon_set', 'default');
+  $source = drupal_get_path('module', 'media') . '/images/icons/' . variable_get('media_icon_set', 'default');
   $files = file_scan_directory($source, '/.*\.(png|jpg)$/');
   foreach ($files as $file) {
     $result = file_unmanaged_copy($file->uri, $destination, FILE_EXISTS_REPLACE);
@@ -78,30 +48,25 @@ function _media_install_copy_icons() {
  */
 function media_uninstall() {
   // Remove variables.
-  variable_del('media__wysiwyg_title');
-  variable_del('media__wysiwyg_icon_title');
-  variable_del('media__wysiwyg_default_view_mode');
-  variable_del('media__wysiwyg_upload_directory');
-  variable_del('media__wysiwyg_allowed_types');
-  variable_del('media__wysiwyg_allowed_attributes');
-  variable_del('media__wysiwyg_browser_plugins');
-  variable_del('media__dialog_theme');
-  variable_del('media__max_filesize');
-  variable_del('media__debug');
-  variable_del('media__file_list_size');
-  variable_del('media__xml_cache_expire');
-  variable_del('media__import_batch_size');
-  variable_del('media__fromurl_supported_schemes');
-  variable_del('media__icon_base_directory');
-  variable_del('media__icon_set');
-  variable_del('media__show_deprecated_view_modes');
-  variable_del('media__show_file_type_rebuild_nag');
-  variable_del('media__field_select_media_text');
-  variable_del('media__field_remove_media_text');
-  variable_del('media__browser_library_empty_message');
-  variable_del('media__browser_pager_limit');
-  variable_del('media__browser_viewtype_default');
-  variable_del('media__display_types_migration_mess');
+  variable_del('media_dialog_theme');
+  variable_del('media_icon_base_directory');
+  variable_del('media_icon_set');
+  variable_del('media_show_deprecated_view_modes');
+
+  // Dialog options.
+  variable_del('media_dialogclass');
+  variable_del('media_modal');
+  variable_del('media_draggable');
+  variable_del('media_resizable');
+  variable_del('media_minwidth');
+  variable_del('media_width');
+  variable_del('media_height');
+  variable_del('media_position');
+  variable_del('media_zindex');
+  variable_del('media_backgroundcolor');
+  variable_del('media_opacity');
+  // bulk edit option
+  variable_del('media_bulk_upload_edit');
 }
 
 /**
@@ -129,6 +94,9 @@ function media_update_dependencies() {
   $dependencies['media'][7208] = array(
     'file_entity' => 7210,
   );
+  $dependencies['media'][7212] = array(
+    'file_entity' => 7210,
+  );
   return $dependencies;
 }
 
@@ -138,7 +106,7 @@ function media_update_dependencies() {
 function media_requirements($phase) {
   $t = get_t();
   // Make sure that file_entity module is 2.x version.
-  // We can't add this check in .info file because drupal.org testbot cant
+  // We can't add this check in .info file because drupal.org testbot can't
   // handle it. See #1734648.
   $requirements = array();
 
@@ -154,6 +122,26 @@ function media_requirements($phase) {
     }
   }
 
+  if (module_exists('entity_translation')) {
+    if ($phase == 'update' || $phase == 'install' || $phase == 'runtime' ) {
+      $entity_translation_info = system_get_info('module', 'entity_translation');
+      $et_installed_version = $entity_translation_info['version'];
+      $et_installed_datestamp = $entity_translation_info['datestamp'];
+      $march3rd_entity_translation_timestamp = 1488530885;
+      if (!isset($entity_translation_info['version']) || !isset($entity_translation_info['datestamp'])) {
+        $et_installed_datestamp = 1488530884;
+      }
+
+      if ($et_installed_datestamp < $march3rd_entity_translation_timestamp) {
+        $description = $t('Your entity_translation installation version: %version is too old. media requires entity_translation at least beta6 from march 3 2017 or newer.  Your choice is to either upgrade entity_translation or to disable it.', array('%version' => $et_installed_version));
+        $requirements['entity_translation']['description'] = $description;
+        $requirements['entity_translation']['severity'] = REQUIREMENT_ERROR;
+        $requirements['entity_translation']['value'] = $et_installed_version;
+        $requirements['entity_translation']['title'] = $t('Entity translation (when installed) with Media');
+	drupal_set_message($description, 'error', TRUE);
+      }
+    }
+  }
   return $requirements;
 }
 
@@ -173,6 +161,10 @@ function media_update_7001() {
  * Create the media_type table from the media_types variable.
  */
 function media_update_7002() {
+  if (db_table_exists('media_type')) {
+    return;
+  }
+
   $schema['media_type'] = array(
     'description' => 'Stores the settings for media types.',
     'fields' => array(
@@ -224,7 +216,7 @@ function media_update_7002() {
   db_create_table('media_type', $schema['media_type']);
 
   drupal_load('module', 'media');
-  $old_types = variable_get('media_types');
+  $old_types = variable_get('media_types', array());
   foreach ($old_types as $type) {
     // Was an error in the original creation.
     if (isset($type->callbacks)) {
@@ -528,6 +520,13 @@ function media_update_7020() {
   if (variable_get('media__wysiwyg_allowed_types') == array('image', 'video')) {
     variable_del('media__wysiwyg_allowed_types');
   }
+}
+
+/**
+ * Rerun media_update_7002() due to a typo that would prevent table creation.
+ */
+function media_update_7021() {
+  media_update_7002();
 }
 
 /**
@@ -890,7 +889,12 @@ function media_update_7208() {
       // Merge existing type with new ones.
       if ($new_type = file_type_load($type->name)) {
         $new_type->mimetypes = array_merge($type->mimetypes, $new_type->mimetypes);
-        $new_type->streams = array_merge($type->streams, $new_type->streams);
+        if (!empty($new_type->streams)) {
+          $new_type->streams = array_merge($type->streams, $new_type->streams);
+        }
+        else{
+          $new_type->streams = $type->streams;
+        }
       }
       else {
         $new_type = $type;
@@ -916,12 +920,15 @@ function media_update_7208() {
 }
 
 /**
- * DEPRECATED: Update {file_managed}.type with the new file types provided by
- * file_entity. (Types migration has been moved to admin/structure/file-types/upgrade',
- * where can be executed manually.)
+ * Enable the hidden media_migrate_file_types module to provide a UI to update
+ * {file_managed}.type with the new file types provided by file_entity.
  */
 function media_update_7209() {
+  drupal_load('module', 'media_migrate_file_types');
 
+  if (_media_migrate_file_types_get_migratable_file_types()) {
+    module_enable(array('media_migrate_file_types'));
+  }
 }
 
 /**
@@ -932,31 +939,43 @@ function media_update_7210() {
 }
 
 /**
- * Flush old version of the image style to make the thumbnails appear correctly.
+ * Save a square_thumbnail image style in the database for legacy support if one
+ * does not already exist.
  */
 function media_update_7211() {
-  $style = image_style_load('square_thumbnail');
+  $default_style = array(
+    'name' => 'square_thumbnail'
+  );
 
-  if ($style) {
-    $style['name'] = 'media_thumbnail';
-    image_style_save($style);
+  // Clear the image cache to remove any old image styles that only exist in
+  // code.
+  cache_clear_all('*', 'cache_image', TRUE);
+
+  // Check if the square_thumbnail image style exists.
+  // The style will only exist if the user has customized it, otherwise it would
+  // have been removed by clearing the image style cache.
+  $existing_style = image_style_load('square_thumbnail');
+
+  // Save a square_thumbnail image style in the database for legacy support.
+  // This is only necessary if a square_thumbnail image style doesn't already
+  // exist.
+  if (empty($existing_style)) {
+    $style = image_style_save($default_style);
+
+    $effect = array(
+      'name' => 'image_scale_and_crop',
+      'data' => array(
+        'width' => 180,
+        'height' => 180,
+        'weight' => 0,
+      ),
+      'isid' => $style['isid'],
+    );
+
+    image_effect_save($effect);
   }
 
-  // Replace any instances in display settings
-  module_load_include('inc', 'file_entity', 'file_entity.file_api');
-  $entity_info = entity_get_info('file');
-  $view_modes = array('default' => array('label' => t('Default'))) + $entity_info['view modes'];
-  foreach ($view_modes as $view_mode => $view_mode_info) {
-    $displays = file_displays_load('image', $view_mode);
-    foreach ($displays as $display) {
-      if ($display->settings['image_style'] == 'square_thumbnail') {
-        $display->settings['image_style'] = 'media_thumbnail';
-        file_display_save($display);
-      }
-    }
-  }
-
-  return t('Flushed image style and updated display styles.');
+  return t('Saved a square_thumbnail image style in the database for legacy support if one did not already exist.');
 }
 
 /**
@@ -1067,4 +1086,124 @@ function media_update_7218() {
   }
 
   variable_del('media__xml_cache_expire');
+}
+
+/**
+ * Enable the Media WYSIWYG submodule.
+ */
+function media_update_7219() {
+  if (module_exists('wysiwyg')) {
+    module_enable(array('media_wysiwyg'));
+  }
+}
+
+/**
+ * Delete the deprecated media__file_list_size variable.
+ */
+function media_update_7220() {
+  variable_del('media__file_list_size');
+}
+
+/**
+ * Enable the Media Bulk Upload submodule.
+ */
+function media_update_7221() {
+  if (module_exists('multiform') && module_exists('plupload')) {
+    module_enable(array('media_bulk_upload'));
+  }
+}
+
+/**
+ * Delete the deprecated media__display_types_migration_mess variable.
+ */
+function media_update_7222() {
+  variable_del('media__display_types_migration_mess');
+}
+
+/**
+ * Delete legacy variables.
+ */
+function media_update_7223() {
+  variable_del('media__max_filesize');
+  variable_del('media__debug');
+  variable_del('media__xml_cache_expire');
+  variable_del('media__show_file_type_rebuild_nag');
+  variable_del('media__field_select_media_text');
+  variable_del('media__field_remove_media_text');
+  variable_del('media__browser_library_empty_message');
+  variable_del('media__browser_pager_limit');
+  variable_del('media__browser_viewtype_default');
+}
+
+/**
+ * Rename variables, removing variable namespace.
+ */
+function media_update_7224() {
+  // Create an array of variables sans 'media' prefix.
+  $variables = array('wysiwyg_title', 'wysiwyg_icon_title', 'wysiwyg_default_view_mode', 'wysiwyg_upload_directory', 'wysiwyg_allowed_types', 'wysiwyg_allowed_attributes', 'wysiwyg_browser_plugins', 'dialog_theme', 'import_batch_size', 'fromurl_supported_schemes', 'icon_base_directory', 'icon_set', 'show_deprecated_view_modes');
+
+  foreach ($variables as $variable) {
+    // Find the value of the old variable.
+    $value = variable_get('media__' . $variable);
+
+    // Port the value of the variable if it was set.
+    if (!is_null($value)) {
+      variable_set('media_' . $variable, $value);
+    }
+
+    // Remove the old variable.
+    variable_del('media__' . $variable);
+  }
+}
+
+/**
+ * Migrate variables to appropriate submodules.
+ */
+function media_update_7225() {
+  $data = array(
+    'media_wysiwyg' => array(
+      'wysiwyg_title',
+      'wysiwyg_icon_title',
+      'wysiwyg_default_view_mode',
+      'wysiwyg_upload_directory',
+      'wysiwyg_allowed_types',
+      'wysiwyg_allowed_attributes',
+      'wysiwyg_browser_plugins',
+    ),
+    'media_internet' => array(
+      'fromurl_supported_schemes',
+    ),
+    'media_bulk_upload' => array(
+      'import_batch_size',
+    ),
+  );
+
+  foreach ($data as $module => $variables) {
+    foreach ($variables as $variable) {
+      // Only port variables to submodules if the submodule exists.
+      if (module_exists($module)) {
+        // Find the value of the old variable.
+        $value = variable_get('media_' . $variable);
+
+        // Port the value of the variable if it was set.
+        if (!is_null($value)) {
+          variable_set($module . '_' . $variable, $value);
+        }
+      }
+
+      // Remove the old variable.
+      variable_del('media_' . $variable);
+    }
+  }
+}
+
+/**
+ * Grant existing user access to new media browser permission.
+ */
+function media_update_7226() {
+  $roles = user_roles(FALSE, 'create files');
+
+  foreach ($roles as $rid => $role) {
+    user_role_grant_permissions($rid, array('access media browser'));
+  }
 }

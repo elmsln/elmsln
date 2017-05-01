@@ -81,7 +81,7 @@ function context_ui_permission() {
     'description' => 'Associate menus, views, blocks, etc. with different contexts to structure your site.'
   );
   $permissions['context ajax block access'] = array(
-    'title' => t('Access All Blocks'),
+    'title' => t('Access all blocks'),
     'description' => t('Allows users to access all rendered blocks via an AJAX callback. If you have some blocks that should not be rendered for some users but need those users to be able to use context UI, then implement hook_context_allow_ajax_block_access with the necessary logic.'),
   );
   return $permissions;
@@ -143,7 +143,7 @@ function context_ui_editor($form, &$form_state, $contexts) {
 
   $form['title'] = array(
     '#prefix' => '<h2 class="context-editor-title">',
-    '#markup' => t('Select the Context/Layer to Edit'),
+    '#markup' => t('Select the context/layer to edit'),
     '#suffix' => '</h2>',
     '#weight' => -2,
   );
@@ -151,10 +151,7 @@ function context_ui_editor($form, &$form_state, $contexts) {
   //add some help text to the top of the form
   $form['help'] = array (
     '#prefix' => '<p class="context-help help">',
-    '#markup' => t('Select which context, or layer of blocks, to edit.
-                    Each context is configured to appear on different sets of pages so read the description carefully.
-                    When you are done editing click Done and save your changes.
-                    You may use the Stop Editing Layout link to close the editor.'),
+    '#markup' => t('Select which context, or layer of blocks, to edit. Each context is configured to appear on different sets of pages so read the description carefully. When you are done editing click Done and save your changes. You may use the Stop Editing Layout link to close the editor.'),
     '#suffix' => '</p>',
     '#weight' => -1,
   );
@@ -166,10 +163,9 @@ function context_ui_editor($form, &$form_state, $contexts) {
     $edit = l(t('Edit'), $_GET['q'], array('fragment' => $context->name, 'attributes' => array('class' => array('edit'))));
     $done = l(t('Done'), $_GET['q'], array('fragment' => $context->name, 'attributes' => array('class' => array('done'))));
     $readable_name = ucwords(str_replace('_', ' ', $context->name));
-    $description = empty($context->description) ? '' :
-                        "<br/><div class='label bottom'>".check_plain($context->description)."</div>";
+    $description = empty($context->description) ? '' : '<br/><div class="label bottom">' . check_plain($context->description) . '</div>';
     $items[] = array(
-      'data' => "<div class='label top'>" . $readable_name. "</div><div class='links'>{$edit} {$done}</div>" . $description,
+      'data' => '<div class="label top">' . $readable_name. "</div><div class='links'>{$edit} {$done}</div>" . $description,
       'class' => array('context-editable clearfix'),
       'id' => "context-editable-trigger-{$context->name}",
     );
@@ -306,9 +302,9 @@ function context_ui_settings($form, &$form_state) {
   }
   $form['context_ui_dialog_enabled'] = array(
     '#type' => 'checkbox',
-    '#title' => t('Use Context Editor Dialog'),
+    '#title' => t('Use context editor dialog'),
     '#default_value' => context_ui_dialog_is_enabled(),
-    '#description' => t('When enabled all contextual links will have a Edit Layout link that will refresh the page with the context editor in a dialog box.'),
+    '#description' => t('When enabled all contextual links will have a <em>Edit layout</em> link that will refresh the page with the context editor in a dialog box.'),
   );
   $form = system_settings_form($form);
   $form['#submit'][] = 'context_ui_settings_submit';
@@ -374,7 +370,7 @@ function context_ui_menu_contextual_links_alter(&$links, $router_item, $root_pat
      !context_isset('context_ui', 'context_ui_editor_present') && user_access('administer contexts')) {
     $links['layout'] = array(
       'href' => 'context-ui/activate',
-      'title' => t('Configure Layout'),
+      'title' => t('Configure layout'),
       'localized_options' => array(
         'query' =>  array('destination'=> $_GET['q']),
         'options' => array('html' => FALSE, 'attributes' => array()),

@@ -1,0 +1,185 @@
+<?php
+
+/**
+ * Tests the select or other text field based functionality
+ */
+class SelectOrOtherTextTestCase extends DrupalWebTestCase {
+  protected $privileged_user;
+  protected $single_field_name;
+  protected $single_field;
+  protected $single_instance;
+  protected $multi_field_name;
+  protected $multi_field;
+  protected $multi_instance;
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Select or Other Text',
+      'description' => 'Ensure that Select or Other functions correctly while used in combination with text fields.',
+      'group' => 'Select or Other',
+    );
+  }
+
+  public function setUp() {
+    parent::setUp(array('text', 'select_or_other'));
+    // Create and log in our privileged user.
+    $this->privileged_user = $this->drupalCreateUser(
+      array('create page content', 'edit own page content')
+    );
+    $this->drupalLogin($this->privileged_user);
+
+    $field_defaults = array(
+      'type' => 'text',
+    );
+
+    $this->single_field_name = drupal_strtolower($this->randomName());
+    $this->single_field = array(
+        'field_name' => $this->single_field_name,
+        'cardinality' => 1,
+      ) + $field_defaults;
+    field_create_field($this->single_field);
+
+    $this->multi_field_name = drupal_strtolower($this->randomName());
+    $this->multi_field = array(
+        'field_name' => $this->multi_field_name,
+        'cardinality' => FIELD_CARDINALITY_UNLIMITED,
+      ) + $field_defaults;
+    field_create_field($this->multi_field);
+
+    $instance_defaults =  array(
+      'entity_type' => 'node',
+      'bundle' => 'page',
+      'widget' => array(
+        'type' => 'select_or_other',
+        'settings' => array(
+          'available_options' => "keyed|Keyed\r\nunkeyed",
+        ),
+      ),
+      'display' => array(
+        'full' => array(
+          'type' => 'text_default',
+        ),
+      ),
+    );
+
+    $this->single_instance = array(
+        'field_name' => $this->single_field_name,
+      ) + $instance_defaults;
+    field_create_instance($this->single_instance);
+
+    $this->multi_instance = array(
+        'field_name' => $this->multi_field_name,
+        'widget' => array(
+          'type' => 'select_or_other',
+          'settings' => array(
+            'available_options' => "multi_keyed|Keyed\r\nmulti_unkeyed",
+          ),
+        ),
+      ) + $instance_defaults;
+    field_create_instance($this->multi_instance);
+  }
+
+  /**
+   * Tests Select or Other without other selected.
+   */
+  function testNoOtherSelected() {
+    $edit = array();
+    $langcode = LANGUAGE_NONE;
+
+    // A node requires a title
+    $edit["title"] = $this->randomName(8);
+    // Test single select.
+    $edit["{$this->single_field_name}[{$langcode}][select]"] = 'keyed';
+    // Test multiple select.
+    $edit["{$this->multi_field_name}[{$langcode}][select][]"] = array('multi_keyed', 'multi_unkeyed');
+    // Create the node.
+    $this->drupalPost('node/add/page', $edit, t('Save'));
+
+    // Check if the values have been created.
+    $this->assertRaw('keyed');
+    $this->assertRaw('multi_keyed');
+    $this->assertRaw('multi_unkeyed');
+    // Check if the 'select_or_other' option is not displayed.
+    $this->assertNoRaw('select_or_other');
+
+    // Test single select other.
+    $single_other = $this->randomName(8);
+    $edit["{$this->single_field_name}[{$langcode}][select]"] = 'select_or_other';
+    $edit["{$this->single_field_name}[{$langcode}][other]"] = $single_other;
+    // Test multi select other.
+    $multi_other = $this->randomName(8);
+    $edit["{$this->multi_field_name}[{$langcode}][select][]"] = array('multi_keyed', 'select_or_other');
+    $edit["{$this->multi_field_name}[{$langcode}][other]"] = $multi_other;
+    // Create the node.
+    $this->drupalPost('node/add/page', $edit, t('Save'));
+
+    // Check if the values have been created.
+    $this->assertRaw($single_other);
+    $this->assertRaw($multi_other);
+    // Check if the 'select_or_other' option is not displayed.
+    $this->assertNoRaw('select_or_other');
+  }
+
+  function testOtherSelected(){
+    $edit = array();
+    $langcode = LANGUAGE_NONE;
+
+    // A node requires a title
+    $edit["title"] = $this->randomName(8);
+
+    // Test single select other.
+    $single_other = $this->randomName(8);
+    $edit["{$this->single_field_name}[{$langcode}][select]"] = 'select_or_other';
+    $edit["{$this->single_field_name}[{$langcode}][other]"] = $single_other;
+    // Test multi select other.
+    $multi_other = $this->randomName(8);
+    $edit["{$this->multi_field_name}[{$langcode}][select][]"] = array('multi_keyed', 'select_or_other');
+    $edit["{$this->multi_field_name}[{$langcode}][other]"] = $multi_other;
+    // Create the node.
+    $this->drupalPost('node/add/page', $edit, t('Save'));
+
+    // Check if the values have been created.
+    $this->assertRaw($single_other);
+    $this->assertRaw($multi_other);
+    // Check if the 'select_or_other' option is not displayed.
+    $this->assertNoRaw('select_or_other');
+  }
+
+
+  function testOtherSelectedWithPreExistingKey(){
+    $edit = array();
+    $langcode = LANGUAGE_NONE;
+
+    // A node requires a title
+    $edit["title"] = $this->randomName(8);
+
+    // Test single select other.
+    $edit["{$this->single_field_name}[{$langcode}][select]"] = 'select_or_other';
+    $edit["{$this->single_field_name}[{$langcode}][other]"] = 'keyed';
+    // Test multi select other.
+    $edit["{$this->multi_field_name}[{$langcode}][select][]"] = array('multi_keyed', 'select_or_other');
+    $edit["{$this->multi_field_name}[{$langcode}][other]"] = 'multi_unkeyed';
+    // Create the node.
+    $this->drupalPost('node/add/page', $edit, t('Save'));
+
+    // Check if the values have been created.
+    $this->assertRaw('keyed');
+    $this->assertRaw('multi_keyed');
+    $this->assertRaw('multi_unkeyed');
+    // Check if the 'select_or_other' option is not displayed.
+    $this->assertNoRaw('select_or_other');
+
+    // Edit the node.
+    $this->drupalGet('node/1/edit');
+    // Check if the other field is empty and if the select field has the correct
+    // selected value.
+    $this->assertFieldByName("{$this->single_field_name}[{$langcode}][other]", '');
+    $this->assertOptionSelected("edit-{$this->single_field_name}-und-select", 'keyed');
+    // Check if the other field is empty and if the select field has the correct
+    // selected value.
+    $this->assertFieldByName("{$this->multi_field_name}[{$langcode}][other]", '');
+    $this->assertFieldByName("{$this->multi_field_name}[{$langcode}][select][]",'multi_keyed');
+    $this->assertOptionSelected("edit-{$this->multi_field_name}-und-select", 'multi_keyed');
+    $this->assertOptionSelected("edit-{$this->multi_field_name}-und-select", 'multi_unkeyed');
+  }
+}

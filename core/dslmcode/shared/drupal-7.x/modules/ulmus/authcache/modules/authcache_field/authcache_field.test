@@ -137,7 +137,16 @@ class AuthcacheFieldTest extends DrupalWebTestCase {
    * Ensure that a field shows up in the list of personalized elements.
    */
   public function testAdminList() {
-    $su = $this->drupalCreateUser(array('administer site configuration', 'administer content types'));
+    $required_perms = array('administer site configuration', 'administer content types');
+
+    // The permission 'administer fields' is not available in all versions of
+    // Drupal 7. See https://www.drupal.org/node/611294
+    $available_perms = user_permission_get_modules();
+    if (isset($available_perms['administer fields'])) {
+      $required_perms[] = 'administer fields';
+    }
+
+    $su = $this->drupalCreateUser($required_perms);
     $this->drupalLogin($su);
 
     $this->drupalGet('admin/config/system/authcache/p13n');
@@ -204,7 +213,7 @@ class AuthcacheFieldTest extends DrupalWebTestCase {
     $this->assertTrue($url);
 
     $result = $this->drupalGetAJAX($GLOBALS['base_root'] . $url['path'], $url['options'], array('X-Authcache: 1'));
-    $this->assertResponse(403);
+    $this->assertResponse(200);
     $this->assertFalse($result);
   }
 }

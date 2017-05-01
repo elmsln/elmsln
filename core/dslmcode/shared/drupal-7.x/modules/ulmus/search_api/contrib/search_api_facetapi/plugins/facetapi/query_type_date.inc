@@ -76,7 +76,7 @@ class SearchApiFacetapiDate extends SearchApiFacetapiTerm implements FacetapiQue
    */
   protected function createRangeFilter($value) {
     // Ignore any filters passed directly from the server (range or missing).
-    if (!$value || $value == '!' || (!ctype_digit($value[0]) && preg_match('/^[\[(][^ ]+ [^ ]+[])]$/', $value))) {
+    if (!$value || $value == '!' || (!ctype_digit($value[0]) && preg_match('/^[\[(][^ ]+ TO [^ ]+[\])]$/', $value))) {
       return $value ? $value : NULL;
     }
 
@@ -245,9 +245,19 @@ class SearchApiFacetapiDate extends SearchApiFacetapiTerm implements FacetapiQue
       }
     }
 
-    // Get the finest level of detail we're allowed to drill down to.
     $settings = $facet->getSettings()->settings;
-    $max_granularity = isset($settings['date_granularity']) ? $settings['date_granularity'] : FACETAPI_DATE_MINUTE;
+
+    // Get the finest level of detail we're allowed to drill down to.
+    $max_granularity = FACETAPI_DATE_MINUTE;
+    if (isset($settings['date_granularity'])) {
+      $max_granularity = $settings['date_granularity'];
+    }
+
+    // Get the coarsest level of detail we're allowed to start at.
+    $min_granularity = FACETAPI_DATE_YEAR;
+    if (isset($settings['date_granularity_min'])) {
+      $min_granularity = $settings['date_granularity_min'];
+    }
 
     // Gets active facets, starts building hierarchy.
     $parent = $granularity = NULL;
@@ -301,10 +311,13 @@ class SearchApiFacetapiDate extends SearchApiFacetapiTerm implements FacetapiQue
           FACETAPI_DATE_MINUTE => 2,
           FACETAPI_DATE_SECOND => 1,
         );
-        // Gets gap numbers for both the gap and minimum gap, checks if the gap
-        // is within the limit set by the $granularity parameter.
+        // Gets gap numbers for both the gap, minimum and maximum gap, checks if
+        // the gap is within the limit set by the $granularity parameters.
         if ($gap_numbers[$granularity] < $gap_numbers[$max_granularity]) {
           $granularity = $max_granularity;
+        }
+        if ($gap_numbers[$granularity] > $gap_numbers[$min_granularity]) {
+          $granularity = $min_granularity;
         }
       }
       else {

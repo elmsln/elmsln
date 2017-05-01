@@ -18,7 +18,7 @@ class EntityFieldHandlerHelper {
    * Provide appropriate default options for a handler.
    */
   public static function option_definition($handler) {
-    if (entity_property_list_extract_type($handler->definition['type'])) {
+    if (isset($handler->definition['type']) && entity_property_list_extract_type($handler->definition['type'])) {
       $options['list']['contains']['mode'] = array('default' => 'collapse');
       $options['list']['contains']['separator'] = array('default' => ', ');
       $options['list']['contains']['type'] = array('default' => 'ul');
@@ -32,7 +32,7 @@ class EntityFieldHandlerHelper {
    * Provide an appropriate default option form for a handler.
    */
   public static function options_form($handler, &$form, &$form_state) {
-    if (entity_property_list_extract_type($handler->definition['type'])) {
+    if (isset($handler->definition['type']) && entity_property_list_extract_type($handler->definition['type'])) {
       $form['list']['mode'] = array(
         '#type' => 'select',
         '#title' => t('List handling'),

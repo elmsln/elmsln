@@ -617,11 +617,11 @@ class AuthcachePolicyTestCase extends AuthcacheWebTestCase {
 
     $this->resetTestVariables();
     $this->authcacheGet('authcache-test-form-value-cache', drupal_anonymous_user());
-    $this->assertAuthcacheCanceled(t('Value element contained in the cacheable form %form_id. Please enable a suitable Authcache integration module for that form or file a support request.', array('%form_id' => 'authcache_test_form_value')));
+    $this->assertAuthcacheCanceled(t('Value element %name contained in the cacheable form %form_id. Please enable a suitable Authcache integration module for that form or file a support request.', array('%name' => 'authcache_test_form_value', '%form_id' => 'authcache_test_form_value')));
 
     $this->resetTestVariables();
     $this->authcacheGet('authcache-test-form-value-cache', $this->plainUser);
-    $this->assertAuthcacheCanceled(t('Value element contained in the cacheable form %form_id. Please enable a suitable Authcache integration module for that form or file a support request.', array('%form_id' => 'authcache_test_form_value')));
+    $this->assertAuthcacheCanceled(t('Value element %name contained in the cacheable form %form_id. Please enable a suitable Authcache integration module for that form or file a support request.', array('%name' => 'authcache_test_form_value', '%form_id' => 'authcache_test_form_value')));
 
     // Pages with tabs.
     $this->setupConfig(array('authcache_roles' => drupal_map_assoc(array_keys(user_roles()))));
@@ -1778,9 +1778,19 @@ class AuthcacheCookiesTestCase extends AuthcacheWebTestCase {
   public function extractSetCookies($headers) {
     $cookies = array();
 
+    $attribute_names = array(
+      'expires' => 'Expires',
+      'max-age' => 'Max-Age',
+      'domain' => 'Domain',
+      'path' => 'Path',
+      'secure' => 'Secure',
+      'httponly' => 'HttpOnly'
+    );
+
     foreach ($headers as $header) {
       if (preg_match('/^Set-Cookie:\s+(.*)\s*$/', trim($header), $matches)) {
         $fields = preg_split('/\s*;\s/', $matches[1]);
+        debug($header);
 
         $namepair = array_shift($fields);
         list($name, $value) = explode('=', $namepair, 2);
@@ -1788,8 +1798,13 @@ class AuthcacheCookiesTestCase extends AuthcacheWebTestCase {
 
         foreach ($fields as $parampair) {
           $kv = explode('=', $parampair, 2);
-          $cookies[$name][$kv[0]] = (count($kv) === 2) ? $kv[1] : TRUE;
+          $attr_key = strtolower($kv[0]);
+          $this->assertTrue(isset($attribute_names[$attr_key]), t('Valid cookie attribute name @attr', array('@attr' => $kv[0])));
+          $attr_name = $attribute_names[$attr_key];
+          $attr_value = (count($kv) === 2) ? $kv[1] : TRUE;
+          $cookies[$name][$attr_name] = $attr_value;
         }
+        debug($cookies);
       }
     }
 
@@ -1869,10 +1884,10 @@ class AuthcacheCookiesTestCase extends AuthcacheWebTestCase {
     $this->drupalGet('authcache-test-page-one');
     $response_cookies = $this->extractSetCookies($this->headers);
     $this->assertEqual($response_cookies[$cookie_name]['value'], $cookie_value);
-    $timestamp = strtotime($response_cookies[$cookie_name]['expires']);
+    $timestamp = strtotime($response_cookies[$cookie_name]['Expires']);
     $this->assertTrue($timestamp >= $now - 3600 * 0.1);
     $this->assertTrue($timestamp <= $now + 3600 * 1.1);
-    $this->assertEqual($response_cookies[$cookie_name]['path'], $cookie_path);
+    $this->assertEqual($response_cookies[$cookie_name]['Path'], $cookie_path);
 
     // No lifetime (delete when browser window closes).
     $this->resetTestVariables();
@@ -1891,8 +1906,8 @@ class AuthcacheCookiesTestCase extends AuthcacheWebTestCase {
     $this->drupalGet('authcache-test-page-one');
     $response_cookies = $this->extractSetCookies($this->headers);
     $this->assertEqual($response_cookies[$cookie_name]['value'], $cookie_value);
-    $this->assertTrue(!isset($response_cookies[$cookie_name]['expires']));
-    $this->assertEqual($response_cookies[$cookie_name]['path'], $cookie_path);
+    $this->assertTrue(!isset($response_cookies[$cookie_name]['Expires']));
+    $this->assertEqual($response_cookies[$cookie_name]['Path'], $cookie_path);
 
     // HTTP only flag.
     $this->resetTestVariables();
@@ -1911,7 +1926,7 @@ class AuthcacheCookiesTestCase extends AuthcacheWebTestCase {
     $this->drupalGet('authcache-test-page-one');
     $response_cookies = $this->extractSetCookies($this->headers);
     $this->assertEqual($cookie_value, $response_cookies[$cookie_name]['value']);
-    $this->assertTrue($response_cookies[$cookie_name]['httponly']);
+    $this->assertTrue($response_cookies[$cookie_name]['HttpOnly']);
 
     // Secure flag.
     $this->resetTestVariables();
@@ -1930,7 +1945,7 @@ class AuthcacheCookiesTestCase extends AuthcacheWebTestCase {
     $this->drupalGet('authcache-test-page-one');
     $response_cookies = $this->extractSetCookies($this->headers);
     $this->assertEqual($cookie_value, $response_cookies[$cookie_name]['value']);
-    $this->assertTrue($response_cookies[$cookie_name]['secure']);
+    $this->assertTrue($response_cookies[$cookie_name]['Secure']);
 
     // Ensure that cookies can be injected using the alter-hook.
     $this->resetTestVariables();
@@ -1946,7 +1961,7 @@ class AuthcacheCookiesTestCase extends AuthcacheWebTestCase {
     $this->drupalGet('authcache-test-page-one');
     $response_cookies = $this->extractSetCookies($this->headers);
     $this->assertEqual($response_cookies[$cookie_name]['value'], $cookie_value);
-    $this->assertEqual($response_cookies[$cookie_name]['path'], $cookie_path);
+    $this->assertEqual($response_cookies[$cookie_name]['Path'], $cookie_path);
 
     // Ensure that cookies can be deleted from the alter-hook.
     $this->resetTestVariables();
@@ -1994,10 +2009,10 @@ class AuthcacheCookiesTestCase extends AuthcacheWebTestCase {
     $this->drupalGet('authcache-test-add-cookie');
     $response_cookies = $this->extractSetCookies($this->headers);
     $this->assertEqual($response_cookies[$cookie_name]['value'], $cookie_value);
-    $timestamp = strtotime($response_cookies[$cookie_name]['expires']);
+    $timestamp = strtotime($response_cookies[$cookie_name]['Expires']);
     $this->assertTrue($timestamp >= $now - 3600 * 0.1);
     $this->assertTrue($timestamp <= $now + 3600 * 1.1);
-    $this->assertEqual($response_cookies[$cookie_name]['path'], $cookie_path);
+    $this->assertEqual($response_cookies[$cookie_name]['Path'], $cookie_path);
 
     // No lifetime (delete when browser window closes).
     $this->resetTestVariables();
@@ -2016,8 +2031,8 @@ class AuthcacheCookiesTestCase extends AuthcacheWebTestCase {
     $this->drupalGet('authcache-test-add-cookie');
     $response_cookies = $this->extractSetCookies($this->headers);
     $this->assertEqual($response_cookies[$cookie_name]['value'], $cookie_value);
-    $this->assertTrue(!isset($response_cookies[$cookie_name]['expires']));
-    $this->assertEqual($response_cookies[$cookie_name]['path'], $cookie_path);
+    $this->assertTrue(!isset($response_cookies[$cookie_name]['Expires']));
+    $this->assertEqual($response_cookies[$cookie_name]['Path'], $cookie_path);
 
     // HTTP only flag.
     $this->resetTestVariables();
@@ -2036,7 +2051,7 @@ class AuthcacheCookiesTestCase extends AuthcacheWebTestCase {
     $this->drupalGet('authcache-test-add-cookie');
     $response_cookies = $this->extractSetCookies($this->headers);
     $this->assertEqual($cookie_value, $response_cookies[$cookie_name]['value']);
-    $this->assertTrue($response_cookies[$cookie_name]['httponly']);
+    $this->assertTrue($response_cookies[$cookie_name]['HttpOnly']);
 
     // Secure flag.
     $this->resetTestVariables();
@@ -2055,7 +2070,7 @@ class AuthcacheCookiesTestCase extends AuthcacheWebTestCase {
     $this->drupalGet('authcache-test-add-cookie');
     $response_cookies = $this->extractSetCookies($this->headers);
     $this->assertEqual($cookie_value, $response_cookies[$cookie_name]['value']);
-    $this->assertTrue($response_cookies[$cookie_name]['secure']);
+    $this->assertTrue($response_cookies[$cookie_name]['Secure']);
 
     // Ensure that cookies can be deleted from the alter-hook.
     $this->resetTestVariables();
@@ -2086,7 +2101,7 @@ class AuthcacheCookiesTestCase extends AuthcacheWebTestCase {
    */
   public function testCookieOnSubsequentRequests() {
     // With lifetime.
-    $cookie_name = $this->randomName(8);
+    $cookie_name = 'Drupal.authcache_test.' . $this->randomName(8);
     $cookie_value = $this->randomName(16);
     url('', array('prefix' => &$prefix));
     $cookie_path = (empty($prefix) ? '' : $prefix) . '/';
@@ -2105,7 +2120,7 @@ class AuthcacheCookiesTestCase extends AuthcacheWebTestCase {
     $this->drupalGet('authcache-test-add-cookie');
     $response_cookies = $this->extractSetCookies($this->headers);
     $this->assertEqual($response_cookies[$cookie_name]['value'], $cookie_value);
-    $this->assertEqual($response_cookies[$cookie_name]['path'], $cookie_path);
+    $this->assertEqual($response_cookies[$cookie_name]['Path'], $cookie_path);
 
     $this->resetTestVariables();
     variable_set('authcache_test_add_cookie', array(
@@ -2138,7 +2153,7 @@ class AuthcacheCookiesTestCase extends AuthcacheWebTestCase {
     $this->drupalGet('authcache-test-add-cookie');
     $response_cookies = $this->extractSetCookies($this->headers);
     $this->assertEqual($response_cookies[$cookie_name]['value'], $cookie_value);
-    $this->assertEqual($response_cookies[$cookie_name]['path'], $cookie_path);
+    $this->assertEqual($response_cookies[$cookie_name]['Path'], $cookie_path);
 
     $this->resetTestVariables();
     variable_set('authcache_test_add_cookie', array(

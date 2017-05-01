@@ -21,6 +21,8 @@ function field_collection_tabs_widget_field_widget_info() {
         'fctw_new_tab_title' => t('New'),
         'fctw_empty_tab_title' => t('- None -'),
         'fctw_add_new_tab_title' => t('+'),
+        'fctw_add_new_tab_hover' => t('Add a new tab'),
+        'fctw_hide_first_blank_tab' => FALSE,
       ),
       'behaviors' => array(
         'multiple values' => FIELD_BEHAVIOR_DEFAULT,
@@ -84,6 +86,21 @@ function _fctw_widget_settings_process($element, $form_state) {
     '#default_value' => $settings['fctw_add_new_tab_title'],
     '#size' => 10,
     '#maxlength' => 30,
+  );
+
+  $element['fctw_add_new_tab_hover'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Text to use on the "add a new tab" tab hover'),
+    '#default_value' => $settings['fctw_add_new_tab_hover'],
+    '#size' => 10,
+    '#maxlength' => 30,
+  );
+
+  $element['fctw_hide_first_blank_tab'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Hide first blank tab'),
+    '#description' => t('If checked, the first blank field collection tab does not appear on form load but only when the "Add a new tab" tab is clicked.'),
+    '#default_value' => $settings['fctw_hide_first_blank_tab'],
   );
 
   $options = array(t('No titles'));
@@ -220,6 +237,26 @@ function field_collection_tabs_widget_theme($existing, $type, $theme, $path) {
  */
 function field_collection_tabs_widget_field_widget_form_alter(&$element, &$form_state, $context) {
   $element['#instance'] = $context['instance'];
+  // Display Suite forms support.
+  if (module_exists('ds_forms')) {
+    if ($ds_form = ds_build_load($element, 'field_collection_tabs')) {
+      // Use ds_forms_custom_form theme only for field_collections.
+      if (isset($element['#instance']['widget']['module']) && $element['#instance']['widget']['module'] == 'field_collection_tabs_widget') {
+        if ($layout = ds_get_layout($ds_form->entity_type, $ds_form->bundle, 'form', FALSE)) {
+          // Add the theming function and add the layout as a class.
+          $element['#theme'] = array('ds_forms_custom_form');
+          $element['#form_id'] = 'field_collection_tabs';
+          $class = strtr($layout['layout'], '_', '-');
+          if ((isset($element['#attributes']['class']) && is_array($element['#attributes']['class'])) || !(isset($element['#attributes']['class']))) {
+            $element['#attributes']['class'][] = $class;
+          }
+          elseif (isset($element['#attributes']['class']) && is_string($element['#attributes']['class'])) {
+            $element['#attributes']['class'] .= ' ' . $class . ' ';
+          }
+        }
+      }
+    }
+  }
 }
 
 /**
@@ -330,6 +367,9 @@ function theme_fctw_item_list($variables) {
       }
       if ($i == $num_items) {
         $attributes['class'][] = 'last';
+        if (strpos($item, 'add-more_button')) {
+          $attributes['class'][] = 'add-more';
+        }
       }
       $output .= '<li' . drupal_attributes($attributes) . '>' . $data . "</li>\n";
     }
@@ -339,14 +379,51 @@ function theme_fctw_item_list($variables) {
 }
 
 /**
+ * Implements hook_field_attach_form().
+ *
+ * Applies field_collection_field_attach_form() to field_collection_tabs and
+ * extends it with a modified
+ * https://www.drupal.org/files/field_collection-allow-add-another-1788222-12.patch.
+ */
+function field_collection_tabs_widget_field_attach_form($entity_type, $entity, &$form, &$form_state, $langcode) {
+  foreach (field_info_instances($entity_type, $form['#bundle']) as $field_name => $instance) {
+    $field = field_info_field($field_name);
+    if ($field['type'] == 'field_collection' && ($instance['widget']['type'] == 'field_collection_tabs') && field_access('edit', $field, $entity_type)) {
+      if ($field['settings']['hide_blank_items'] ) {
+        $element_langcode = $form[$field_name]['#language'];
+        if ($form[$field_name][$element_langcode]['#max_delta'] > 0) {
+          $form[$field_name][$element_langcode]['#max_delta']--;
+        }
+
+        $form[$field_name][$element_langcode]['#instance'] = $instance;
+        // Force user to explicitly add a fc.
+        if (!empty($instance['widget']['settings']['fctw_hide_first_blank_tab']) && !isset($form[$field_name][$element_langcode][0]['#entity']->item_id)){
+          unset($form[$field_name][$element_langcode][0]);
+          unset($form_state['field']['#parents'][$field_name][$element_langcode][0]);
+        }
+      }
+      if ($field['cardinality'] == FIELD_CARDINALITY_UNLIMITED && empty($form_state['programmed'])) {
+        $element_langcode = $form[$field_name]['#language'];
+        $element_wrapper = $form[$field_name][$element_langcode]['add_more']['#ajax']['wrapper'];
+        for($i = 0; $i <= $form[$field_name][$element_langcode]['#max_delta']; $i ++) {
+          if (isset($form[$field_name][$element_langcode][$i]['remove_button'])) {
+            $form[$field_name][$element_langcode][$i]['remove_button']['#ajax']['wrapper'] = $element_wrapper;
+          }
+        }
+      }
+    }
+  }
+}
+
+/**
  * Replacement for theme_field_multiple_value_form().
  */
 function theme_field_collection_tabs_widget_field_multiple_value_form($variables) {
   $element = $variables['element'];
-  $instance = $element['0']['#instance'];
   $output = '';
 
-  if ($instance['widget']['type'] == 'field_collection_tabs') {
+  if (isset($element['#instance']) && $element['#instance']['widget']['type'] == 'field_collection_tabs') {
+    $instance = $element['#instance'];
     if (isset($element['#cardinality']) && ($element['#cardinality'] > 1 || $element['#cardinality'] == FIELD_CARDINALITY_UNLIMITED)) {
       $title_field = $instance['widget']['settings']['fctw_title_field'];
       $id = drupal_html_id($element['#field_name'] . '_values');
@@ -361,6 +438,7 @@ function theme_field_collection_tabs_widget_field_multiple_value_form($variables
       foreach (element_children($element) as $key) {
         if ($key === 'add_more') {
           $add_more_button = &$element[$key];
+          $add_more_button['#attributes']['style'] = 'display: none';
         }
         else {
           $items[] = &$element[$key];
@@ -405,18 +483,20 @@ function theme_field_collection_tabs_widget_field_multiple_value_form($variables
       }
 
       // Adding the "Add a new tab" tab.
-      $resp_tabs_list[] = theme('fctw_add_new_tab', array('instance' => $instance));
-      $resp_tabs_container[] = array(
-        'fc_form' =>  array(
-          '#type' => 'container',
-          '#attributes' => array(),
-          'item' => $add_more_button,
-        ),
-      );
+      if (!empty($add_more_button)) {
+        $resp_tabs_list[] = theme('fctw_add_new_tab', array('instance' => $instance));
+        $resp_tabs_container[] = array(
+          'fc_form' =>  array(
+            '#type' => 'container',
+            '#attributes' => array(),
+            'item' => $add_more_button,
+          ),
+        );
+      }
 
       // We add the id of the whole fc widget to Drupal.settings to
       // call easyResponsiveTabs() on them.
-      $id = drupal_html_id('isj-shared-files');
+      $id = drupal_html_id('fctw');
       drupal_add_js(array('fieldCollectionTabsWidgetIds' => array($id)), 'setting');
       // Adding necessary javascript to do the magic.
       libraries_load('erta');
@@ -428,6 +508,10 @@ function theme_field_collection_tabs_widget_field_multiple_value_form($variables
         '#type' => 'container',
         '#attributes' => array(
           'id' => $id,
+        ),
+        'label' => array(
+          '#type' => 'markup',
+          '#markup' => '<label>' . t('!title !required', array('!title' => $element['#title'], '!required' => $required)) . '</label>',
         ),
         'tabs' => array(
           '#theme' => 'fctw_item_list',
@@ -465,5 +549,5 @@ function theme_field_collection_tabs_widget_field_multiple_value_form($variables
  */
 function theme_fctw_add_new_tab(&$variables) {
   $instance = $variables['instance'];
-  return '<div class="add-more_button" title="' . t('Add a new tab') . '">' . $instance['widget']['settings']['fctw_add_new_tab_title'] . '</div>';
+  return '<div class="add-more_button" title="' . $instance['widget']['settings']['fctw_add_new_tab_hover'] . '">' . $instance['widget']['settings']['fctw_add_new_tab_title'] . '</div>';
 }

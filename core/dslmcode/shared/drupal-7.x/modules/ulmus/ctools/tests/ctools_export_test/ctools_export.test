@@ -14,7 +14,7 @@ class CtoolsExportCrudTestCase extends DrupalWebTestCase {
     return array(
       'name' => 'CTools export CRUD tests',
       'description' => 'Test the CRUD functionality for the ctools export system.',
-      'group' => 'Chaos Tools Suite',
+      'group' => 'ctools',
     );
   }
 

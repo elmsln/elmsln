@@ -69,6 +69,14 @@ function cis_lmsless_page_build(&$page) {
       '#weight' => -10,
       '#markup' => _cis_lmsless_assemble(),
     );
+    $element = array(
+      '#tag' => 'link', // The #tag is the html tag
+      '#attributes' => array( // Set up an array of attributes inside the tag
+        'href' => base_path() . drupal_get_path('theme', 'foundation_access') . '/polymer/elmsln-lmsless/elmsln-lmsless.html',
+        'rel' => 'import',
+      ),
+    );
+    drupal_add_html_head($element, 'webcomponent-elmsln-lmsless');
   }
 }
 
@@ -436,7 +444,7 @@ function _cis_lmsless_theme_vars() {
   if (!isset($vars)) {
     $lmsless_classes = _cis_lmsless_get_distro_classes();
     $vars = array(
-      'front_page' => variable_get('site_frontpage','node'),
+      'front_page' => base_path() . variable_get('site_frontpage','node'),
       'site_name' => variable_get('site_name', t('Service')),
       'slogan' => variable_get('site_slogan', ''),
       'distro' => elmsln_core_get_profile_key(),
@@ -540,10 +548,38 @@ function _cis_lmsless_theme_vars() {
       $course_tools = menu_tree('menu-elmsln-settings');
       $vars['elmsln_main_menu'] = render($course_tools);
     }
+    else {
+      $vars['elmsln_main_menu'] = FALSE;
+    }
     // pull in services too
     $vars['network'] = _cis_lmsless_assemble_network();
     // allow other projects to alter these values
     drupal_alter('cis_lmsless_theme_vars', $vars);
+    if (isset($vars['network']['services'])) {
+      foreach ($vars['network']['services'] as $category => $items) {
+        foreach ($items as $key => $item) {
+          // ensure icon isset, should be
+          if (!isset($item['icon'])) {
+            $vars['network']['services'][$category][$key]['icon'] = $item['machine_name'];
+          }
+          if (!isset($item['distro'])) {
+            $vars['network']['services'][$category][$key]['distro'] = '_default_';
+          }
+          if (!isset($item['icon_library'])) {
+            $vars['network']['services'][$category][$key]['icon_library'] = 'elmsln';
+          }
+          // do token replacements on url and title
+          $vars['network']['services'][$category][$key]['url'] = token_replace($item['url']);
+          // add another value for token replacement
+          $vars['network']['services'][$category][$key]['title'] = token_replace($item['title']);
+          // lowercase
+          $vars['network']['services'][$category][$key]['lowertitle'] = drupal_strtolower($vars['network']['services'][$category][$key]['title']);
+          // single letter
+          $vars['network']['services'][$category][$key]['singleletter'] = substr($vars['network']['services'][$category][$key]['lowertitle'], 0, 1);
+          ;
+        }
+      }
+    }
   }
   return $vars;
 }

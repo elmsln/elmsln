@@ -22,18 +22,18 @@ interface H5PFileStorage {
    *
    * @param string $source
    *  Path on file system to content directory.
-   * @param int $id
-   *  What makes this content unique.
+   * @param array $content
+   *  Content properties
    */
-  public function saveContent($source, $id);
+  public function saveContent($source, $content);
 
   /**
    * Remove content folder.
    *
-   * @param int $id
-   *  Content identifier
+   * @param array $content
+   *  Content properties
    */
-  public function deleteContent($id);
+  public function deleteContent($content);
 
   /**
    * Creates a stored copy of the content folder.
@@ -125,4 +125,69 @@ interface H5PFileStorage {
    *   The hash keys of removed files
    */
   public function deleteCachedAssets($keys);
+
+  /**
+   * Read file content of given file and then return it.
+   *
+   * @param string $file_path
+   * @return string contents
+   */
+  public function getContent($file_path);
+
+  /**
+   * Save files uploaded through the editor.
+   * The files must be marked as temporary until the content form is saved.
+   *
+   * @param \H5peditorFile $file
+   * @param int $contentId
+   */
+  public function saveFile($file, $contentId);
+
+  /**
+   * Copy a file from another content or editor tmp dir.
+   * Used when copy pasting content in H5P.
+   *
+   * @param string $file path + name
+   * @param string|int $fromId Content ID or 'editor' string
+   * @param int $toId Target Content ID
+   */
+  public function cloneContentFile($file, $fromId, $toId);
+
+  /**
+   * Copy a content from one directory to another. Defaults to cloning
+   * content from the current temporary upload folder to the editor path.
+   *
+   * @param string $source path to source directory
+   * @param string $contentId Id of content
+   *
+   * @return object Object containing h5p json and content json data
+   */
+  public function moveContentDirectory($source, $contentId = NULL);
+
+  /**
+   * Checks to see if content has the given file.
+   * Used when saving content.
+   *
+   * @param string $file path + name
+   * @param int $contentId
+   * @return string|int File ID or NULL if not found
+   */
+  public function getContentFile($file, $contentId);
+
+  /**
+   * Remove content files that are no longer used.
+   * Used when saving content.
+   *
+   * @param string $file path + name
+   * @param int $contentId
+   */
+  public function removeContentFile($file, $contentId);
+
+  /**
+   * Check if server setup has write permission to
+   * the required folders
+   *
+   * @return bool True if server has the proper write access
+   */
+  public function hasWriteAccess();
 }

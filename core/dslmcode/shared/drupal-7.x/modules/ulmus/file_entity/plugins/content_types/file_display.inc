@@ -22,7 +22,7 @@ function file_entity_file_display_content_type_render($subtype, $conf, $panel_ar
   if (!empty($context) && empty($context->data)) {
     return;
   }
-  $file = isset($context->data) ? clone($context->data) : NULL;
+  $file = isset($context->data) ? clone $context->data : NULL;
   $block = new stdClass();
   $block->module = 'file_entity';
   $block->delta  = $file->fid;

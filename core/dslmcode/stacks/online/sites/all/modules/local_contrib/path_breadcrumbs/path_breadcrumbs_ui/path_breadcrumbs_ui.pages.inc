@@ -68,11 +68,17 @@ function path_breadcrumbs_ui_edit_page($path_breadcrumb) {
   // Save form in cache.
   path_breadcrumbs_object_cache_set($path_breadcrumb->machine_name, $path_breadcrumb);
 
+  $link_options = array();
+  if (isset($_GET['destination'])) {
+    $link_options['query']['destination'] = $_GET['destination'];
+  }
+
   $links[] = array(
     '#type' => 'link',
     '#title' => t('Basic'),
     '#href' => 'admin/structure/path-breadcrumbs/edit/' . $path_breadcrumb->machine_name . '/ajax/1',
     '#attributes' => array('class' => array('use-ajax', 'active')),
+    '#options' => $link_options,
   );
 
   $links[] = array(
@@ -80,6 +86,7 @@ function path_breadcrumbs_ui_edit_page($path_breadcrumb) {
     '#title' => t('Arguments'),
     '#href' => 'admin/structure/path-breadcrumbs/edit/' . $path_breadcrumb->machine_name . '/ajax/2',
     '#attributes' => array('class' => array('use-ajax')),
+    '#options' => $link_options,
   );
 
   $links[] = array(
@@ -87,6 +94,7 @@ function path_breadcrumbs_ui_edit_page($path_breadcrumb) {
     '#title' => t('Selection rules'),
     '#href' => 'admin/structure/path-breadcrumbs/edit/' . $path_breadcrumb->machine_name . '/ajax/3',
     '#attributes' => array('class' => array('use-ajax')),
+    '#options' => $link_options,
   );
 
   $links[] = array(
@@ -94,6 +102,7 @@ function path_breadcrumbs_ui_edit_page($path_breadcrumb) {
     '#title' => t('Breadcrumbs'),
     '#href' => 'admin/structure/path-breadcrumbs/edit/' . $path_breadcrumb->machine_name . '/ajax/4',
     '#attributes' => array('class' => array('use-ajax')),
+    '#options' => $link_options,
   );
 
   $rendered_links = array();

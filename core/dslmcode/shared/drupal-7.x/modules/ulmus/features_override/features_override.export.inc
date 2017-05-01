@@ -52,19 +52,6 @@ function features_override_make_key($keys) {
 }
 
 /**
- * Returns an array of keys to be ignored for various exportables
- * @param $component
- *   The component to retrieve ignore_keys from.
- */
-function features_get_ignore_keys($component) {
-  static $cache;
-  if (!isset($cache[$component])) {
-    $cache[$component] = module_invoke_all('features_override_ignore', $component);
-  }
-  return $cache[$component];
-}
-
-/**
  * Calculates what overrides exist for by component/element.
  *
  * @param $component_key
@@ -105,36 +92,6 @@ function features_override_get_overrides($component_key = FALSE, $element_key = 
     return !empty($cache[$component_key]) ? $cache[$component_key] : array();
   }
   return $cache;
-}
-
-/**
- * Helper function in determining equality of arrays. Credit to http://stackoverflow.com/a/4263181
- *
- * @see _features_override_remove_recursion()
- *
- * @param $a
- *  object a
- * @param $b
- *  object b
- * @return bool
- *  
- */
-function _features_override_is_ref_to(&$a, &$b, $uniqid) {
-  if (is_object($a) && is_object($b)) {
-    return ($a === $b);
-  }
-
-  $temp_a = $a;
-  $temp_b = $b;
-
-  $b = $uniqid;
-
-  if ($a === $uniqid) $return = true;
-  else $return = false;
-
-  $a = $temp_a;
-  $b = $temp_b;
-  return $return;
 }
 
 /**
@@ -195,20 +152,17 @@ function features_override_module_component_overrides($module, $component, $rese
   // Can't use _features_sanitize as that resets some keys.
   _features_override_sanitize($normal);
   _features_override_sanitize($default);
-  // make a deep copy of data to prevent problems when removing recursion later
-  $default_copy = unserialize(serialize($default));
-  $normal_copy = unserialize(serialize($normal));
 
-  $ignore_keys = features_get_ignore_keys($component);
+  $default_copy = features_remove_recursion($default);
+  $normal_copy = features_remove_recursion($normal);
+
+  $ignore_keys = _features_get_ignore_keys($component);
   // remove keys to be ignored
   // doing this now allows us to better control which recursive parts are removed
   if (count($ignore_keys)) {
-    _features_override_remove_ignores($default_copy, $ignore_keys);
-    _features_override_remove_ignores($normal_copy, $ignore_keys);
+    _features_remove_ignores($default_copy, $ignore_keys);
+    _features_remove_ignores($normal_copy, $ignore_keys);
   }
-  // now remove any remaining recursion
-  features_override_remove_recursion($default_copy);
-  features_override_remove_recursion($normal_copy);
 
   $component_overrides = array();
   if ($normal && (is_array($normal) || is_object($normal))) {
@@ -394,83 +348,6 @@ function features_override_export_keys($keys) {
     }
   }
   return $line;
-}
-
-/**
- * Removes recursion from an object or array.
- *
- * @param $item
- *   An object or array passed by reference.
- */
-function features_override_remove_recursion(&$item) {
-  $uniqid = __FUNCTION__ . mt_rand(); // use of uniqid() here impacts performance
-  $stack = array();
-  _features_override_remove_recursion($item, $stack, $uniqid);
-}
-
-/**
- * Helper to removes recursion from an object/array.
- *
- * @param $item
- *   An object or array passed by reference.
- */
-function _features_override_remove_recursion(&$object, &$stack = array(), $uniqid) {
-  if ((is_object($object) || is_array($object)) && $object) {
-    $in_stack = FALSE;
-    foreach($stack as &$item) {
-      if(_features_override_is_ref_to($object, $item, $uniqid)) {
-        $in_stack = TRUE;
-        break;
-      }
-    }
-    if(!$in_stack) {
-      $stack[] = $object;
-      foreach ($object as $key => &$subobject) {
-        if (_features_override_remove_recursion($subobject, $stack, $uniqid)) {
-          if (is_object($object)) {
-            unset($object->$key);
-          }
-          else {
-            unset($object[$key]);
-          }
-        }
-      }
-    } else {
-      return TRUE;
-    }
-  }
-  return FALSE;
-}
-
-/**
- * Helper to removes a set of keys an object/array.
- *
- * @param $item
- *   An object or array passed by reference.
- * @param $ignore_keys
- *   Array of keys to be ignored. Values are the level of the key.
- * @param $level
- *   Level of key to remove.  Up to 2 levels deep because $item can still be
- *   recursive
- */
-function _features_override_remove_ignores(&$item, $ignore_keys, $level = -1) {
-  $is_object = is_object($item);
-  if (!is_array($item) && !is_object($item)) {
-    return;
-  }
-  foreach ($item as $key => $value) {
-    if (isset($ignore_keys[$key]) && ($ignore_keys[$key] == $level)) {
-      if ($is_object) {
-        unset($item->$key);
-      }
-      else {
-        unset($item[$key]);
-      }
-    }
-    elseif (($level < 2) && (is_array($value) || is_object($value))) {
-      _features_override_remove_ignores($value, $ignore_keys, $level+1);
-    }
-  }
 }
 
 /**

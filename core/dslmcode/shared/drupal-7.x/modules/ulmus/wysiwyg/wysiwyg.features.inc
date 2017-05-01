@@ -78,6 +78,27 @@ function wysiwyg_features_revert($module) {
 function wysiwyg_features_rebuild($module) {
   if ($defaults = features_get_default('wysiwyg', $module)) {
     foreach ($defaults as $profile) {
+      if (empty($profile['settings']['_profile_preferences'])) {
+        $settings = &$profile['settings'];
+        // Importing an older profile, move state to its own section.
+        $preferences = array(
+          'add_to_summaries' => $settings['add_to_summaries'],
+          'default' => $settings['default'],
+          'show_toggle' => $settings['show_toggle'],
+          'user_choose' => $settings['user_choose'],
+          'version' => NULL,
+        );
+        unset($settings['add_to_summaries'], $settings['default'], $settings['show_toggle'], $settings['user_choose']);
+        if (!empty($settings['library'])) {
+          $prefereces['library'] = $settings['library'];
+          unset($settings['library']);
+        }
+        $editor = wysiwyg_get_editor($profile->editor);
+        if ($editor['installed']) {
+          $preferences['version'] = $editor['installed version'];
+        }
+        $settings['_profile_preferences'] = $preferences;
+      }
       db_merge('wysiwyg')
         ->key(array('format' => $profile['format']))
         ->fields(array(
@@ -85,6 +106,12 @@ function wysiwyg_features_rebuild($module) {
           'settings' => serialize($profile['settings']),
         ))
         ->execute();
+      // Clear the editing caches.
+      if (module_exists('ctools')) {
+        ctools_include('object-cache');
+        ctools_object_cache_clear_all('wysiwyg_profile', 'format' . $profile['format']);
+      }
+      cache_clear_all('wysiwyg_profile:format' . $profile['format'], 'cache');
     }
     wysiwyg_profile_cache_clear();
   }

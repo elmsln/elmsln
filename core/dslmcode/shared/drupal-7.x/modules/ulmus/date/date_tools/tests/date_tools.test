@@ -28,7 +28,7 @@ class DateToolsTestCase extends DrupalWebTestCase {
 
     // Create and log in our privileged user.
     $this->privileged_user = $this->drupalCreateUser(
-      array('administer content types', 'administer nodes', 'bypass node access', 'administer date tools')
+      array('administer content types', 'administer nodes', 'bypass node access', 'administer date tools', 'administer fields')
     );
     $this->drupalLogin($this->privileged_user);
 

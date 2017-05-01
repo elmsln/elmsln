@@ -14,13 +14,27 @@
  */
 
 /**
+ * Implements hook_help().
+ */
+function realname_help($path, $arg) {
+  switch ($path) {
+    // Main module help for the Realname module.
+    case 'admin/config/people/realname':
+    case 'admin/help#realname':
+      return '<p>' . t("A Real Name is what the site developer decides that users' names should look like. It is constructed from various tokens that are available within the site.") . '</p>';
+  }
+}
+
+/**
  * Implements hook_permission().
  */
 function realname_permission() {
-  $permissions['administer realname'] = array(
-    'title' => t('Administer Real Name configuration.'),
+  return array(
+    'administer realname' => array(
+      'title' => t('Administer Real Name'),
+      'description' => t('Allows users to administer realname settings.'),
+    ),
   );
-  return $permissions;
 }
 
 /**
@@ -38,7 +52,15 @@ function realname_menu() {
 
   $items['realname/autocomplete'] = array(
     'page callback' => 'realname_autocomplete',
+    'page arguments' => array('', '', 2),
     'access arguments' => array('access user profiles'),
+    'type' => MENU_CALLBACK,
+  );
+  $items['realname/autocomplete/%/%/%'] = array(
+    'page callback' => 'realname_autocomplete',
+    'page arguments' => array(2, 3, 4),
+    'access callback' => 'realname_autocomplete_access_callback',
+    'access arguments' => array(2, 3, 4),
     'type' => MENU_CALLBACK,
   );
 
@@ -47,10 +69,26 @@ function realname_menu() {
 
 /**
  * Implements hook_menu_alter().
+ *
+ * Replace user autocomplete with realname autocomplete.
  */
 function realname_menu_alter(&$items) {
   // Implement realname autocomplete.
   $items['user/autocomplete']['page callback'] = 'realname_autocomplete';
+  $items['user/autocomplete']['page arguments'] = array('', '', 2);
+}
+
+/**
+ * Implements hook_field_extra_fields().
+ */
+function realname_field_extra_fields() {
+  $fields['user']['user']['display']['realname'] = array(
+    'label' => t('Real name'),
+    'description' => t('Real name'),
+    'weight' => -1,
+  );
+
+  return $fields;
 }
 
 /**
@@ -91,7 +129,7 @@ function realname_username_alter(&$name, $account) {
 /**
  * Implements hook_user_load().
  */
-function realname_user_load(array $accounts) {
+function realname_user_load($accounts) {
   $realnames = realname_load_multiple($accounts);
   foreach ($realnames as $uid => $realname) {
     $accounts[$uid]->realname = $realname;
@@ -101,16 +139,51 @@ function realname_user_load(array $accounts) {
 /**
  * Implements hook_user_update().
  */
-function realname_user_update(array &$edit, stdClass $account, $category) {
-  // Since user data may have changed, delete the existing realname.
-  realname_delete($account->uid);
+function realname_user_update(&$edit, $account, $category) {
+  // Since user data may have changed, update the realname and its cache.
+  $realnames = &drupal_static('realname_load_multiple', array());
+  $realnames[$account->uid] = realname_update($account);
+}
+
+/**
+ * Implements hook_profile2_update().
+ */
+function realname_profile2_update($profile) {
+  $account = user_load($profile->uid);
+  if (is_object($account)) {
+    realname_update($account);
+  }
 }
 
 /**
  * Implements hook_user_delete().
  */
-function realname_user_delete(stdClass $account) {
+function realname_user_delete($account) {
   realname_delete($account->uid);
+}
+
+/**
+ * Implements hook_user_view().
+ */
+function realname_user_view($account, $view_mode, $langcode) {
+  if (user_view_access($account)) {
+    $markup = l($account->realname, 'user/' . $account->uid);
+  }
+  else {
+    $markup = check_plain($account->realname);
+  }
+
+  $account->content['realname'] = array(
+    '#entity_type' => 'custom',
+    '#bundle' => 'custom',
+    '#field_type' => 'text',
+    '#theme' => 'field',
+    '#field_name' => 'realname',
+    '#title' => t('Real name'),
+    '#label_display' => 'inline',
+    '#items' => array(TRUE),
+    0 => array('#markup' => $markup),
+  );
 }
 
 /**
@@ -127,13 +200,13 @@ function realname_user_operations() {
 /**
  * Callback function for admin mass generating user real names.
  *
- * @param $uids
+ * @param array $uids
  *   An array of user IDs.
  */
 function realname_user_operations_realname_update(array $uids) {
   $accounts = user_load_multiple($uids);
   foreach ($accounts as $account) {
-    realname_delete($account->uid);
+    realname_update($account);
   }
 }
 
@@ -174,7 +247,7 @@ function realname_rules_action_info() {
  * Action callback to update a user's realname.
  */
 function realname_action_realname_update($account, $context = array()) {
-  realname_delete($account->uid);
+  realname_update($account);
 }
 
 /**
@@ -192,12 +265,13 @@ function realname_views_api() {
 /**
  * Loads a real name.
  *
- * @param $uid
+ * @param object $account
  *   A user account object.
- * @return
+ *
+ * @return mixed
  *   The user's generated real name.
  */
-function realname_load(stdClass $account) {
+function realname_load($account) {
   $realnames = realname_load_multiple(array($account->uid => $account));
   return reset($realnames);
 }
@@ -205,9 +279,10 @@ function realname_load(stdClass $account) {
 /**
  * Loads multiple real names.
  *
- * @param $accounts
+ * @param array $accounts
  *   An array of user account objects keyed by user ID.
- * @return
+ *
+ * @return array
  *   An array of real names keyed by user ID.
  */
 function realname_load_multiple(array $accounts) {
@@ -232,8 +307,11 @@ function realname_load_multiple(array $accounts) {
 /**
  * Update the realname for a user account.
  *
- * @param $account
+ * @param object $account
  *   A user account object.
+ *
+ * @return string
+ *   A string with the real name.
  *
  * @see hook_realname_pattern_alter()
  * @see hook_realname_alter()
@@ -253,7 +331,8 @@ function realname_update($account) {
   // Remove double spaces (if a token had no value).
   $realname = preg_replace('/ {2,}/', ' ', $realname);
 
-  // The name must be trimmed to 255 characters before inserting into the database.
+  // The name must be trimmed to 255 characters before inserting into the
+  // database.
   $realname = truncate_utf8(trim($realname), 255);
 
   // Allow other modules to alter the generated realname.
@@ -278,7 +357,7 @@ function realname_update($account) {
 /**
  * Delete a real name.
  *
- * @param $uid
+ * @param int $uid
  *   A user ID.
  */
 function realname_delete($uid) {
@@ -288,7 +367,7 @@ function realname_delete($uid) {
 /**
  * Delete multiple real names.
  *
- * @param $uids
+ * @param array $uids
  *   An array of user IDs.
  */
 function realname_delete_multiple(array $uids) {
@@ -301,7 +380,7 @@ function realname_delete_multiple(array $uids) {
  * Delete all real names.
  */
 function realname_delete_all() {
-  db_delete('realname')->execute();
+  db_truncate('realname')->execute();
   drupal_static_reset('realname_load_multiple');
   entity_get_controller('user')->resetCache();
 }
@@ -311,31 +390,120 @@ function realname_delete_all() {
  */
 
 /**
- * Menu callback; Retrieve a JSON object containing autocomplete suggestions
+ * Menu callback.
+ *
+ * Retrieve a JSON object containing autocomplete suggestions
  * for existing users based on their generated real names.
  */
-function realname_autocomplete($string = '') {
+function realname_autocomplete($field_name, $entity_type, $bundle_name, $string = '') {
+  $instance = field_info_instance($entity_type, $field_name, $bundle_name);
   $matches = array();
 
-  if ($string) {
+  // User entityreference autocomplete fields.
+  if ($instance['widget']['type'] == 'entityreference_autocomplete' && !empty($string)) {
     $query = db_select('users', 'u');
     $query->leftJoin('realname', 'rn', 'u.uid = rn.uid');
-    $query->fields('u', array('uid'));
-    $name_like = db_or();
-    $name_like->condition('rn.realname', db_like($string) . '%', 'LIKE');
-    $name_like->condition('u.name', db_like($string) . '%', 'LIKE');
-    $query->condition($name_like);
+    $query->fields('u', array('uid', 'name'));
+    if ($instance['widget']['settings']['match_operator'] == 'CONTAINS') {
+      $query->condition(db_or()
+        ->condition('rn.realname', '%' . db_like($string) . '%', 'LIKE')
+        ->condition('u.name', '%' . db_like($string) . '%', 'LIKE')
+      );
+    }
+    else {
+      $query->condition(db_or()
+        ->condition('rn.realname', db_like($string) . '%', 'LIKE')
+        ->condition('u.name', db_like($string) . '%', 'LIKE')
+      );
+    }
     $query->range(0, 10);
     $uids = $query->execute()->fetchCol();
     $accounts = user_load_multiple($uids);
 
     foreach ($accounts as $account) {
-      $matches[$account->name] = format_username($account);
-      if ($matches[$account->name] != $account->name) {
-        $matches[$account->name] .= ' (' . check_plain($account->name) . ')';
-      }
+      $matches[t('!account (@uid)', array('!account' => format_username($account), '@uid' => $account->uid))] = t('!realname (@username)', array('!realname' => format_username($account), '@username' => $account->name));
+    }
+  }
+  // User autocomplete fields.
+  elseif (!empty($string)) {
+    $query = db_select('users', 'u');
+    $query->leftJoin('realname', 'rn', 'u.uid = rn.uid');
+    $query->fields('u', array('uid', 'name'));
+    $query->condition(db_or()
+      ->condition('rn.realname', db_like($string) . '%', 'LIKE')
+      ->condition('u.name', db_like($string) . '%', 'LIKE')
+    );
+    $query->range(0, 10);
+    $uids = $query->execute()->fetchCol();
+    $accounts = user_load_multiple($uids);
+
+    foreach ($accounts as $account) {
+      $matches[$account->name] = t('!realname (@username)', array('!realname' => format_username($account), '@username' => $account->name));
     }
   }
 
   drupal_json_output($matches);
+}
+
+/**
+ * Menu Access callback for the autocomplete widget.
+ *
+ * @param string $field_name
+ *   The name of the entity-reference field.
+ * @param string $entity_type
+ *   The entity type.
+ * @param string $bundle_name
+ *   The bundle name.
+ *
+ * @return bool
+ *   True if user can access this menu item.
+ */
+function realname_autocomplete_access_callback($field_name, $entity_type, $bundle_name) {
+  $field = field_info_field($field_name);
+  $instance = field_info_instance($entity_type, $field_name, $bundle_name);
+
+  if (!$field || !$instance || $field['type'] != 'entityreference' || !field_access('edit', $field, $entity_type)) {
+    return FALSE;
+  }
+  return TRUE;
+}
+
+/**
+ * Implements hook_widget_form_alter().
+ *
+ * Overrides entityreference autocomplete fields that point to an entity
+ * of type 'user'.
+ */
+function realname_field_widget_form_alter(&$element, &$form_state, $context) {
+  if ($context['field']['type'] == 'entityreference') {
+    if ($context['field']['settings']['target_type'] == 'user') {
+      $element['target_id']['#autocomplete_path'] = 'realname/autocomplete/' . $context['field']['field_name'] . '/' . $context['instance']['entity_type'] . '/' . $context['instance']['bundle'];
+    }
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function realname_form_user_admin_settings_alter(&$form, &$form_state, $form_id) {
+  $form['email_admin_created']['user_mail_register_admin_created_body']['#element_validate'][] = 'realname_username_raw_token_validate';
+  $form['email_no_approval_required']['user_mail_register_no_approval_required_body']['#element_validate'][] = 'realname_username_raw_token_validate';
+  $form['email_activated']['settings']['user_mail_status_activated_body']['#element_validate'][] = 'realname_username_raw_token_validate';
+}
+
+/**
+ * E-mail settings form validation callback.
+ */
+function realname_username_raw_token_validate(&$element, &$form_state) {
+  $value = isset($element['#value']) ? $element['#value'] : $element['#default_value'];
+
+  // Warns the site administrator that [user:name-raw], required to log in, is
+  // missing. You can force the deactivation of this message by setting the
+  // variable `realname_suppress_user_name_mail_validation` to TRUE (or any
+  // value that converts to TRUE, like '1').
+  if (!variable_get('realname_suppress_user_name_mail_validation', FALSE) && strpos($value, '[user:name-raw]') === FALSE) {
+    drupal_set_message(t('The %element-title does not contain the <code>[user:name-raw]</code> token, which is necessary when using username for login.', array('%element-title' => $element['#title'])), 'warning');
+  }
+
+  return $element;
 }

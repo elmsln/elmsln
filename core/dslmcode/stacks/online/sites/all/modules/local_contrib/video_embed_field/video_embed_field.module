@@ -93,6 +93,26 @@ function video_embed_field_menu() {
     'type' => MENU_CALLBACK,
   );
 
+  $items['admin/config/media/vef'] = array(
+    'title' => 'Video Embed Field',
+    'description' => 'Video Embed Field configuration',
+    'page callback' => 'system_admin_menu_block_page',
+    'access arguments' => array('administer video styles'),
+    'file' => 'system.admin.inc',
+    'file path' => drupal_get_path('module', 'system'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  $items['admin/config/media/vef/settings'] = array(
+    'title' => 'Settings',
+    'description' => 'Video Embed Field module settings',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('video_embed_field_settings_form'),
+    'file' => 'video_embed_field.admin.inc',
+    'access arguments' => array('administer video styles'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+
   return $items;
 }
 
@@ -129,6 +149,7 @@ function video_embed_field_theme() {
       'variables' => array(
         'image_url' => NULL,
         'image_style' => 'normal',
+        'image_alt' => NULL,
         'video_url' => NULL,
         'video_style' => NULL,
         'video_data' => array(),
@@ -433,6 +454,7 @@ function template_preprocess_video_embed_field_embed_code(&$variables) {
  *   An associative array containing:
  *   - image_url: The image URL.
  *   - image_style: The image style to use.
+ *   - image_alt: The image ALT attribute.
  *   - video_url: The video URL.
  *   - video_style: The video style to use.
  *   - video_data: An array of data about the video.
@@ -447,7 +469,7 @@ function theme_video_embed_field_colorbox_code($variables) {
 
   $image = array(
     '#theme' => 'image_formatter',
-    '#item' => array('uri' => $variables['image_url']),
+    '#item' => array('uri' => $variables['image_url'], 'alt' => $variables['image_alt']),
     '#image_style' => $variables['image_style'],
     '#path' => $path,
   );
@@ -530,10 +552,11 @@ function video_embed_field_get_ajax_url($video_url, $video_style) {
   return array(
     'path' => 'vef/load/' . $hash,
     'options' => array(
-      'html' => TRUE,
-      'absolute' => TRUE,
       'attributes' => array(
-        'class' => array('colorbox-load'),
+        'class' => array(
+          'colorbox-load',
+          'colorbox'
+        ),
       ),
       'query' => array(
         'width' => $data['width'],
@@ -562,6 +585,19 @@ function _video_embed_field_get_provider_domains() {
   }
 
   return $domains;
+}
+
+/**
+ * Fetches all available provider domains for certain field instance.
+ *
+ * @param array $instance
+ *   The instance definition.
+ *
+ * @return array
+ *   An array containing the allowed video domains.
+ */
+function _video_embed_field_get_instance_provider_domains($instance) {
+  return array_intersect(_video_embed_field_get_provider_domains(), $instance['settings']['allowed_providers']);
 }
 
 /**

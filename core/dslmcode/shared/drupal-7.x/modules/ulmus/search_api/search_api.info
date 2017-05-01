@@ -27,6 +27,7 @@ files[] = includes/processor.inc
 files[] = includes/processor_highlight.inc
 files[] = includes/processor_html_filter.inc
 files[] = includes/processor_ignore_case.inc
+files[] = includes/processor_stemmer.inc
 files[] = includes/processor_stopwords.inc
 files[] = includes/processor_tokenizer.inc
 files[] = includes/processor_transliteration.inc
@@ -36,9 +37,9 @@ files[] = includes/service.inc
 
 configure = admin/config/search/search_api
 
-; Information added by Drupal.org packaging script on 2016-07-05
-version = "7.x-1.19"
+; Information added by Drupal.org packaging script on 2017-02-23
+version = "7.x-1.21"
 core = "7.x"
 project = "search_api"
-datestamp = "1467710914"
+datestamp = "1487844493"
 

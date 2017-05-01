@@ -15,8 +15,15 @@ function authcache_builtin_expire_v2_expire_cache($urls, $wildcards, $object_typ
   $wildcard_cids = array();
 
   foreach (authcache_enum_keys() as $key) {
-    foreach (array_keys($urls) as $path) {
-      $cid = $key . url($path, array('absolute' => FALSE, 'alias' => TRUE));
+    foreach ($urls as $path => $url) {
+      $parts = parse_url($url);
+      $cid = $key . $parts['path'];
+      if (isset($parts['query'])) {
+        $cid .= '?' . $parts['query'];
+      }
+      if (isset($parts['fragment'])) {
+        $cid .= '#' . $parts['fragment'];
+      }
 
       if (empty($wildcards[$path])) {
         $cids[] = $cid;

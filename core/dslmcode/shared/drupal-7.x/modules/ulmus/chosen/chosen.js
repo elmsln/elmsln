@@ -1,3 +1,8 @@
+/**
+ * @file
+ * Attaches behaviors for the Chosen module.
+ */
+
 (function($) {
   Drupal.behaviors.chosen = {
     attach: function(context, settings) {
@@ -12,11 +17,13 @@
 
         // The width default option is considered the minimum width, so this
         // must be evaluated for every option.
-        if ($(element).width() < settings.chosen.minimum_width) {
-          options.width = settings.chosen.minimum_width + 'px';
-        }
-        else {
-          options.width = $(element).width() + 'px';
+        if (settings.chosen.minimum_width > 0) {
+          if ($(element).width() < settings.chosen.minimum_width) {
+            options.width = settings.chosen.minimum_width + 'px';
+          }
+          else {
+            options.width = $(element).width() + 'px';
+          }
         }
 
         // Some field widgets have cardinality, so we must respect that.
@@ -41,7 +48,7 @@
         // - WYSIWYG elements
         // - Tabledrag weights
         // - Elements that have opted-out of Chosen
-        // - Elements already processed by Chosen
+        // - Elements already processed by Chosen.
         .not('#field-ui-field-overview-form select, #field-ui-display-overview-form select, .wysiwyg, .draggable select[name$="[weight]"], .draggable select[name$="[position]"], .chosen-disable, .chosen-processed')
         .filter(function() {
           // Filter out select widgets that do not meet the minimum number of

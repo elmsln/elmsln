@@ -1,0 +1,37 @@
+/**
+ * @file
+ * Styles for the format form.
+ *
+ * The display and layout of the Media browser assumes Drupal's Seven theme as
+ * the theme active when this is displayed.
+ */
+
+#media-wysiwyg-format-form {
+  margin: 20px;
+}
+
+#media-wysiwyg-format-form .media-item {
+  float: left;
+  margin-right: 10px;
+}
+
+#media-wysiwyg-format-form .form-item-format label {
+  display: inline;
+}
+
+/* Styles for within the WYSIWYG, to support alignment. */
+.media-wysiwyg-align-left {
+  float: left;
+  margin-right: 20px;
+}
+.media-wysiwyg-align-right {
+  float: right;
+  margin-left: 20px;
+}
+.media-wysiwyg-align-center {
+  text-align: center;
+}
+img.media-wysiwyg-align-center {
+  margin: auto;
+  display: block;
+}

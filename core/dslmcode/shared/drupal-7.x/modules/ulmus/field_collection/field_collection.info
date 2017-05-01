@@ -2,16 +2,19 @@ name = Field collection
 description = Provides a field collection field, to which any number of fields can be attached.
 core = 7.x
 dependencies[] = entity
+test_dependencies[] = entity_translation
 files[] = field_collection.test
+files[] = field_collection.entity.inc
 files[] = field_collection.info.inc
+files[] = includes/translation.handler.field_collection_item.inc
 files[] = views/field_collection_handler_relationship.inc
 files[] = field_collection.migrate.inc
 configure = admin/structure/field-collections
 package = Fields
 
-; Information added by Drupal.org packaging script on 2014-04-16
-version = "7.x-1.0-beta6+8-dev"
+; Information added by Drupal.org packaging script on 2016-11-17
+version = "7.x-1.0-beta12"
 core = "7.x"
 project = "field_collection"
-datestamp = "1397607855"
+datestamp = "1479402861"
 

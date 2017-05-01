@@ -118,8 +118,8 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
 
     // Confirm button
     var confirmButton = document.createElement('button');
-    confirmButton.classList.add('h5p-core-button',
-      'h5p-confirmation-dialog-confirm-button');
+    confirmButton.classList.add('h5p-core-button');
+    confirmButton.classList.add('h5p-confirmation-dialog-confirm-button');
     confirmButton.textContent = options.confirmText;
 
     // Exit button

@@ -13,9 +13,9 @@
 /**
  * Alter the pattern for a user's real name prior to generation.
  *
- * @param $pattern
+ * @param string $pattern
  *   The real name pattern string prior to token replacement.
- * @param $account
+ * @param object $account
  *   A user account object.
  *
  * @see realname_update()
@@ -29,9 +29,9 @@ function hook_realname_pattern_alter(&$pattern, $account) {
 /**
  * Alter a user's real name before it is saved to the database.
  *
- * @param $realname
+ * @param string $realname
  *   The user's generated real name.
- * @param $account
+ * @param object $account
  *   A user account object.
  *
  * @see realname_update()

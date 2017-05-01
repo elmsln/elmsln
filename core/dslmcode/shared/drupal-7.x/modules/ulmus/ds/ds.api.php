@@ -202,7 +202,7 @@ function hook_ds_fields_info($entity_type) {
       'block' => 'user|menu',
 
       // block_render: block render type, only for block fields.
-      // - DS_BLOCK_CONTENT       : render through block template file.
+      // - DS_BLOCK_TEMPLATE      : render through block template file.
       // - DS_BLOCK_TITLE_CONTENT : render only title and content.
       // - DS_BLOCK_CONTENT       : render only content.
       'block_render' => DS_BLOCK_CONTENT,

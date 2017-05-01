@@ -1,7 +1,8 @@
 <?php
 
 /**
- * @file Schema and install hooks for the entitycache module.
+ * @file
+ * Schema and install hooks for the entitycache module.
  */
 
 /**
@@ -52,6 +53,14 @@ function entitycache_update_7001() {
  * Rebuild entity info cache and registry.
  */
 function entitycache_update_7002() {
+  registry_update();
+  entity_info_cache_clear();
+}
+
+/**
+ * Rebuild entity info cache and registry.
+ */
+function entitycache_update_7003() {
   registry_update();
   entity_info_cache_clear();
 }

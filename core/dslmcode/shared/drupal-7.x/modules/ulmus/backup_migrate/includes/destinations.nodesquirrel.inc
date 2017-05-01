@@ -124,7 +124,7 @@ function backup_migrate_nodesquirrel_info_form() {
 
   $form['nodesquirrel_info']['intro'] = array(
     '#type' => 'markup',
-    '#markup' => t('<p>NodeSquirrel is the cloud backup service for Drupal built by the maintainers of Backup and Migrate. It is secure, reliable and affordable.</p><p>NodeSquirrel is a paid service and profits help support Backup and Migrate.</p><p>Find out more at !nodesquirrel</p>', array('!nodesquirrel' => l('nodesquirrel.com', 'http://www.nodesquirrel.com'), '!add' => l(t('add other offsite destinations'), BACKUP_MIGRATE_MENU_PATH . '/destination/list/add'), '!bam' => l(t('Backup and Migrate project page'), 'http://drupal.org/project/backup_migrate'))),
+    '#markup' => t('<p>NodeSquirrel is the cloud backup service built by the maintainers of Backup and Migrate.</p></p>NodeSquirrel is now free for all Drupal sites, courtesy of Pantheon.</p><p>Create your free account at !signup</p>', array('!nodesquirrel' => l('nodesquirrel.com', 'http://www.nodesquirrel.com'), '!signup' => backup_migrate_nodesquirrel_get_activate_link())),
     );
   return $form;
 }
@@ -250,6 +250,7 @@ function backup_migrate_nodesquirrel_schedule_settings_form($destination, $statu
     'period' => empty($schedule) ? variable_get('nodesquirrel_schedule', 60*60*24) : $schedule->get('period'),
     'enabled' => empty($schedule) ? variable_get('nodesquirrel_schedule_enabled', TRUE) : $schedule->get('enabled'),
     'source_id' => empty($schedule) ? variable_get('nodesquirrel_schedule_source_id', 'db') : $schedule->get('source_id'),
+    'keep' => empty($schedule) ? variable_get('nodesquirrel_schedule_keep', BACKUP_MIGRATE_SMART_DELETE) : $schedule->get('keep'),    
   );
 
   $form['nodesquirrel_schedule'][$key]['nodesquirrel_schedule_enabled'] = array(
@@ -278,6 +279,12 @@ function backup_migrate_nodesquirrel_schedule_settings_form($destination, $statu
     '#title' => t('Schedule Frequency'),
     '#options' => $options,
     '#default_value' => $period,
+  );
+  $form['nodesquirrel_schedule'][$key]['settings']['nodesquirrel_schedule_keep'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Automatically delete old backups'),
+    '#return_value' => $defaults['keep'] == BACKUP_MIGRATE_KEEP_ALL ? BACKUP_MIGRATE_SMART_DELETE : $defaults['keep'],
+    '#default_value' => $defaults['keep'],
   );
   return $form;
 }

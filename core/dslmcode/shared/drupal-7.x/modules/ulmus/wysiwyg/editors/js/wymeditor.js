@@ -17,33 +17,21 @@ Drupal.wysiwyg.editor.attach.wymeditor = function (context, params, settings) {
 };
 
 /**
- * Detach a single or all editors.
+ * Detach a single editor instance.
  */
 Drupal.wysiwyg.editor.detach.wymeditor = function (context, params, trigger) {
-  var instances = [];
-  if (typeof params != 'undefined') {
-    var $field = $('#' + params.field, context);
-    var index = $field.data(WYMeditor.WYM_INDEX);
-    if (typeof index != 'undefined') {
-      instances[index] = WYMeditor.INSTANCES[index];
-    }
+  var $field = $('#' + params.field, context);
+  var index = $field.data(WYMeditor.WYM_INDEX);
+  if (typeof index == 'undefined' || !WYMeditor.INSTANCES[index]) {
+    return;
   }
-  else {
-    instances = WYMeditor.INSTANCES;
-  }
-  for (var index in instances) {
-    if (instances.hasOwnProperty(index)){
-      var instance = instances[index];
-      instance.update();
-      if (trigger != 'serialize') {
-        $(instance._box).remove();
-        $(instance._element).show();
-        delete WYMeditor.INSTANCES[index];
-      }
-    }
-    if (trigger != 'serialize') {
-      $field.show();
-    }
+  var instance = WYMeditor.INSTANCES[index];
+  instance.update();
+  if (trigger != 'serialize') {
+    $(instance._box).remove();
+    $(instance._element).show();
+    delete WYMeditor.INSTANCES[index];
+    $field.show();
   }
 };
 

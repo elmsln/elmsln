@@ -30,3 +30,10 @@ features[wysiwyg_template][] = topic_reading
 features[wysiwyg_template][] = two_column_list_image
 features[wysiwyg_template][] = two_column_list_video
 features[wysiwyg_template][] = vocab_term
+
+; Information added by Drupal.org packaging script on 2017-04-20
+version = "7.x-4.3+2-dev"
+core = "7.x"
+project = "textbook"
+datestamp = "1492703352"
+

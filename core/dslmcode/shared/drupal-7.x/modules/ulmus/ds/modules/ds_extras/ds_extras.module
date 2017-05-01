@@ -236,7 +236,7 @@ function ds_extras_form_field_ui_field_edit_form_alter(&$form, &$form_state, $fo
 }
 
 /**
- * Utility funtion to return the view mode for the current entity.
+ * Utility function to return the view mode for the current entity.
  *
  * The drupal_static is called in ds_extras_node_show to set
  * the current view mode. Through this technique, the hide page

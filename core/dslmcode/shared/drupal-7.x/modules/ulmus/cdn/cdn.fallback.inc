@@ -34,6 +34,16 @@ function cdn_html_alter_image_urls(&$html) {
 }
 
 /**
+ * Alter file download URLs.
+ */
+function cdn_html_alter_anchor_urls(&$html) {
+  $url_prefix_regex = _cdn_generate_url_prefix_regex();
+
+  $pattern = "#((<a\s+|<a\s+[^>]*\s+)href\s*=\s*[\"|'])($url_prefix_regex)([^\"|^'|^\?]*)()(\?[^\"|^']*)?([\"|'])#i";
+  _cdn_html_alter_file_url($html, $pattern, 0, 4, 6, 1, 7, FALSE, TRUE);
+}
+
+/**
  * Generate the URL prefix regular expression, that supports all possible
  * types of file URLs: root-relative, protocol-relative and absolute URLs.
  */
@@ -90,8 +100,15 @@ function _cdn_generate_url_prefix_regex() {
  * @param $comparison_index
  *   The index of a comparison path whose file extension should match the file
  *   extension of the path located at $path_index.
+ * @param $require_extension_match
+ *   Whether the extension must match a specific extension mapped to a CDN
+ *   server.  This is used when it is undesirable for a path matching only the
+ *   '*' matcher in the CDN mapping, such as when converting miscellaneous
+ *   anchor links.
  */
-function _cdn_html_alter_file_url(&$html, $pattern, $search_index, $path_index, $querystring_index, $prefix, $suffix, $comparison_index = FALSE) {
+function _cdn_html_alter_file_url(&$html, $pattern, $search_index, $path_index, $querystring_index, $prefix, $suffix, $comparison_index = FALSE, $require_extension_match = FALSE) {
+  $mapping = &drupal_static(__FUNCTION__ . '$mapping');
+
   // Find a match against the given pattern.
   preg_match_all($pattern, $html, $matches);
 
@@ -115,6 +132,17 @@ function _cdn_html_alter_file_url(&$html, $pattern, $search_index, $path_index, 
       $ext_length = -1 * (strlen($path) - $path_ext_pos);
 
       if (substr($path, $ext_length) !== substr($comparison, $ext_length)) {
+        continue;
+      }
+    }
+
+    if ($require_extension_match) {
+      if (!isset($mapping)) {
+        cdn_load_include('basic');
+        $mapping = _cdn_basic_parse_raw_mapping(cdn_basic_get_mapping());
+      }
+      $file_extension = drupal_strtolower(pathinfo($path, PATHINFO_EXTENSION));
+      if (!array_key_exists($file_extension, $mapping)) {
         continue;
       }
     }

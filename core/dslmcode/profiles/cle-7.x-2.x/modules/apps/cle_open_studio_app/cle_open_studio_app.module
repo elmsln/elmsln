@@ -1,0 +1,67 @@
+<?php
+/**
+ * @file
+ * Code for the CLE Open Studio
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function cle_open_studio_app_menu() {
+  $items['cle/open-studio-app'] = array(
+    'title' => 'Open studio',
+    'page callback' => '_cle_open_studio_app',
+    'page arguments' => array(),
+    'access arguments' => array('access content'),
+    'type' => MENU_NORMAL_ITEM,
+    'menu_name' => 'menu-elmsln-navigation',
+    'weight' => -10,
+  );
+  $items['cle/open-studio-app/data'] = array(
+    'title' => 'Open studio',
+    'page callback' => '_cle_open_studio_app_data',
+    'page arguments' => array(),
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+    'weight' => -10,
+  );
+  return $items;
+}
+
+/**
+ * Data callback for cle/open-studio-app
+ */
+function _cle_open_studio_app_data() {
+  // pull together all the submissions they should be seeing
+  $data = _cis_connector_assemble_entity_list('node', 'cle_submission', 'nid', '_entity');
+  foreach ($data as &$item) {
+    $item->url = base_path() . 'node/' . $item->nid;
+    $item->edit_url = base_path() . 'node/' . $item->nid . '/edit?destination=cle/open-studio-app';
+  }
+  _elmsln_jsapi_deliver_output(array('data' => $data));
+}
+
+/**
+ * Page callback for cle/open-studio-app
+ */
+function _cle_open_studio_app() {
+  $path = base_path() . drupal_get_path('module', 'cle_open_studio_app') . '/app/';
+  $element = array(
+    '#tag' => 'link',
+    '#attributes' => array(
+      'href' => $path . 'manifest.json',
+      'rel' => 'manifest',
+    ),
+  );
+  drupal_add_html_head($element, 'cle_open_studio_app_manifest');
+  drupal_add_js($path . 'bower_components/webcomponentsjs/webcomponents-lite.js');
+  $element = array(
+    '#tag' => 'link',
+    '#attributes' => array(
+      'href' => $path . 'src/elmsln-open-studio-app/elmsln-open-studio-app.html',
+      'rel' => 'import',
+    ),
+  );
+  drupal_add_html_head($element, 'cle_open_studio_app');
+  return '<elmsln-open-studio-app source-path="' . base_path() . 'cle/open-studio-app/data"></elmsln-open-studio-app>';
+}

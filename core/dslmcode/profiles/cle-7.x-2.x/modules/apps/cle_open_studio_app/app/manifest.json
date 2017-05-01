@@ -1,0 +1,7 @@
+{
+  "name": "elmsln-open-studio",
+  "short_name": "elmsln-open-studio",
+  "description": "open studio application",
+  "start_url": "/",
+  "display": "standalone"
+}

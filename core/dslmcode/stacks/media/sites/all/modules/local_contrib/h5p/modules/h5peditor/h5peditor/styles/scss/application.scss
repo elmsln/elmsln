@@ -44,6 +44,19 @@ a {
   textarea {
     resize: vertical;
   }
+
+  .has-important-description {
+    .h5peditor-field-description {
+      display: none;
+    }
+    textarea {
+      width: calc(100% - 70px);
+    }
+    .ckeditor {
+      margin-right: 70px;
+    }
+  }
+
   textarea,
   .h5peditor-text,
   .ckeditor {
@@ -57,10 +70,18 @@ a {
     outline: none;
     font-size: 16px;
     word-wrap: break-word;
+
+    &.error {
+      border-color: red;
+    }
   }
   .h5peditor-text, textarea {
     width: 100%;
     box-sizing: border-box;
+
+    &.error {
+      border-color: red;
+    }
   }
   /* Placeholders - need to be on separate lines. If not,
      the browsers will invalidate them */
@@ -89,6 +110,10 @@ a {
     @include box-shadow($form-input-box-shadow);
     -moz-appearance: none;
     -webkit-appearance: none;
+  }
+  & > select {
+    margin-bottom: 13px;
+    margin-right: 20px;
   }
   select::-ms-expand {
     display: none;
@@ -191,6 +216,108 @@ a {
       @include transition(visibility 0s 0s, opacity 0.2s);
     }
 
+    .h5p-add-dialog-table {
+      overflow: hidden;
+
+      .h5p-dialog-box {
+        float: left;
+        padding: 0;
+        width: 60%;
+        margin-right: 5%;
+        margin-left: 4%;
+        text-align: left;
+        margin-top: 30px;
+
+        &:first-child {
+          width: 22%;
+          margin-left: 3%;
+          margin-right: 1%;
+
+          h3 {
+            text-align: center;
+          }
+        }
+
+        h3 {
+          color: #666;
+          font-size: 1em;
+          margin: 1.2em 0;
+          line-height: 1.1em;
+        }
+
+        .h5peditor-field-description {
+          color: #bbb;
+        }
+
+        .h5p-file-url-wrapper {
+          background-color: #f5f5f5;
+          border: 1px solid #bbb;
+          padding: 15px 15px 15px 60px;
+          position: relative;
+
+          &:before {
+            font-family: 'H5P';
+            content: "\e904";
+            position: absolute;
+            color: #dd0505;
+            left: 0;
+            top: 0.075em;
+            font-size: 3.8em;
+          }
+
+          input {
+            border-color: #bbb;
+            text-align: left;
+            padding-left: 20px;
+          }
+        }
+
+        .h5p-file-drop-upload {
+          position: relative;
+          width: 70%;
+          height: 90px;
+          margin: 0 15%;
+          float: left;
+          background-color: #f5f5f5;
+          text-align: center;
+          cursor: pointer;
+          border: 1px solid #bbb;
+
+          .h5p-file-drop-upload-inner {
+            border: 2px dashed #bbb;;
+            background-color: white;
+            position: absolute;
+            top: 3px;
+            bottom: 3px;
+            left: 3px;
+            right: 3px;
+
+            &:after {
+              font-family: "H5P";
+              content: "\e903";
+              line-height: 1.4em;
+              font-size: 3.5em;
+              color: #bbb;
+            }
+          }
+
+          &:hover,
+          &.over {
+            .h5p-file-drop-upload-inner:after {
+              color: #999;
+            }
+          }
+        }
+      }
+
+      .h5p-or-vertical {
+        float: left;
+        position: relative;
+        width: 5%;
+        height: 250px;
+      }
+    }
+
     .h5p-dialog-box {
       text-align: center;
       padding: 1em 0.5em;
@@ -227,6 +354,43 @@ a {
       padding: 0 0.5em;
     }
   }
+
+  .h5p-or-vertical {
+    float: left;
+    position: relative;
+    width: 50px;
+    height: 80px;
+
+    .h5p-or-vertical-line {
+      position: absolute;
+      margin: 10px 0;
+      left: 49%;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background: #ccc;
+      z-index: 1;
+    }
+    .h5p-or-vertical-word-wrapper {
+      text-align: center;
+      height: 18px;
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 22%;
+      margin-top: -12px;
+      z-index: 2;
+
+      .h5p-or-vertical-word {
+        color: #999;
+        font-weight: bold;
+        font-size: 18px;
+        padding: 3px;
+        background: #fff;
+      }
+    }
+  }
+
   .h5p-file-url {
     text-align: center;
   }
@@ -294,10 +458,13 @@ a {
       border: 1px solid #fff;
       cursor: pointer;
     }
+    .thumbnail:focus {
+      @include box-shadow(0 0 10px 0 #222);
+    }
     .add {
       display: inline-block;
       cursor: pointer;
-      padding: 0.5em 1.5em 0.5em 1.2em;
+      padding: 0.5em 1.5em 0.5em 3em;
       background: linear-gradient(to bottom, #fbfbfb 0, #f2f2f2 100%);
       border: 1px solid #d0d0d1;
       border-radius: 0.25em;
@@ -316,7 +483,10 @@ a {
         font-family: $icon-font-family;
         content: "\e902";
         color: #39c943;
-        margin-right: 1em;
+        font-size: 2em;
+        position: absolute;
+        left: .3em;
+        top: .08em;
       }
     }
     .remove {
@@ -325,6 +495,9 @@ a {
       top: 7px;
       right: 7px;
       cursor: pointer;
+    }
+    .remove:focus:before {
+      @include opacity(1);
     }
     .remove:before {
       font-family: $icon-font-family;
@@ -440,6 +613,10 @@ a {
     }
   }
 
+  .h5p-copyright-button:focus {
+    box-shadow: 0 0 16px 0 rgba(133, 188, 255, 0.84);
+  }
+
   /* Copyright button for video & audio */
   .field.file > .h5p-copyright-button,
   .field.video > .h5p-copyright-button,
@@ -531,9 +708,23 @@ a {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
+  &:focus {
+    box-shadow: 0 0 16px 0 rgba(133, 188, 255, 0.84);
+  }
+
   &:before,
   &:after {
     color: $white;
+  }
+
+  .h5p-editing-image-button:before {
+    font-family: $icon-font-family;
+    content: "\e900";
+    color: #666;
+    padding-right: 0.25em;
+    vertical-align: middle;
+    font-size: 1.5em;
+    line-height: 0.9;
   }
 
   &:hover {
@@ -583,12 +774,118 @@ a {
 .h5peditor-field-description,
 .h5p-help-text {
   font-size: 12px;
-  margin-top: 4px;
+  margin-top: 20px;
   margin-bottom: 8px;
   font-weight: 500;
   color: #434446;
   line-height: 15px;
   letter-spacing: 0.5px;
+}
+
+.h5peditor-field-important-description {
+  position: relative;
+  padding: 1.5em 2.2em 2em 2.2em;
+  font-size: 0.9em;
+  margin: 0 0 20px 0;
+  border: 1px solid #ffde78;
+  background-color: #f9f9d8;
+  color: #000;
+  display: none;
+
+  &.show {
+    display: block;
+  }
+
+  &:after {
+    content: '';
+    display: block;
+    position: absolute;
+    bottom: -8px;
+    right: 20px;
+    width: 14px;
+    height: 14px;
+    background: #f9f9d8;
+    border-right: 1px solid #ffde78;
+    border-bottom: 1px solid #ffde78;
+    -webkit-transform: rotate(45deg);
+  }
+
+  .important-description-close {
+    position: absolute;
+    font-size: 0.9em;
+    line-height: 2em;
+    right: 1.5em;
+    top: 1em;
+    user-select: none;
+    cursor: pointer;
+
+    &:before {
+      font-family: $icon-font-family;
+      content: "\e894";
+      vertical-align: top;
+      font-size: 1.6em;
+    }
+  }
+
+  .h5p-info-icon {
+    font-size: 0.75em;
+
+    &:before {
+      font-family: $icon-font-family;
+      content: "\e909";
+      font-size: 2.3em;
+      line-height: 0.94em;
+      margin-left: -0.3em;
+      vertical-align: middle;
+    }
+  }
+
+  .important-description-title {
+    font-weight: bold;
+    font-size: 1.2em;
+    vertical-align: bottom;
+  }
+
+  .important-description-content {
+    ul {
+      list-style: none;
+      padding: 0;
+      line-height: 2em;
+      margin-top: 20px;
+
+      li {
+        line-height: 1.8em;
+        margin-left: 20px;
+
+        &:before {
+          content: "• ";
+          color: #adacac;
+          font-size: 1.5em;
+          vertical-align: middle;
+          margin-left: -19px;
+          margin-right: 5px;
+        }
+      }
+    }
+  }
+
+  .important-description-example {
+    border: 1px solid #bbde98;
+    background-color: #d9fac3;
+    display: flex;
+    margin-top: 20px;
+
+    .important-description-example-title {
+      padding: 15px;
+      font-weight: bold;
+    }
+
+    .important-description-example-text {
+      padding: 15px;
+      width: 100%;
+      background-color: #f6fef1;
+    }
+  }
 }
 
 .h5peditor-form {
@@ -615,17 +912,38 @@ a {
   overflow: hidden;
 }
 
-.h5p-tutorial-url {
-  font-size: 0.875em;
+.h5p-tutorial-url,
+.h5p-example-url {
+  font-size: 1em;
+  color: #2284cd;
+  display: inline-block;
+  line-height: 1;
+  height: 2em;
+  margin-right: 20px;
+  margin-bottom: 11px;
+}
+.h5p-example-url {
+
 }
 
 .h5p-tutorial-url:before {
   font-family: $icon-font-family;
-  content: "\e889";
+  content: "\e907";
   font-size: 1.5em;
   position: relative;
   top: .2em;
   left: .2em;
+  margin-right: 10px;
+}
+
+.h5p-example-url:before {
+  font-family: $icon-font-family;
+  content: "\e906";
+  font-size: 1.5em;
+  position: relative;
+  top: .2em;
+  left: .2em;
+  margin-right: 10px;
 }
 
 .h5peditor-widget-select {
@@ -688,4 +1006,32 @@ a {
 .h5peditor .cke_toolgroup,
 .h5peditor .cke_combo_button {
   border: 1px solid #f5f5f5;
+}
+
+.icon-important-desc {
+  font-family: $icon-font-family;
+  font-size: 2em;
+  float: right;
+  width: 70px;
+  text-align: center;
+  line-height: 1em;
+  cursor: pointer;
+
+  .path1:before {
+    content: "\e908";
+    color: #f3d55a;
+    vertical-align: middle;
+    font-size: 1.6em;
+  }
+  .path2 {
+    position: relative;
+    top: -1px;
+
+    &:before {
+      content: "\e909";
+      margin-left: -1.44em;
+      font-size: 0.85em;
+      vertical-align: middle;
+    }
+  }
 }

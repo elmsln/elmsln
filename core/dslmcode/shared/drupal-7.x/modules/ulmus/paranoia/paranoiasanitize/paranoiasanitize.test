@@ -1,0 +1,129 @@
+<?php
+
+/**
+ * @file
+ * Contains ParanoiaSanitizeTestCase.
+ */
+
+class ParanoiaSanitizeTestCase extends DrupalWebTestCase {
+  public static function getInfo() {
+    return array(
+      'name' => t('Paranoia sanitize.'),
+      'description' => t('Test the paranoia sanitize logic.'),
+      'group' => t('Paranoia'),
+    );
+  }
+
+  public function setUp() {
+    parent::setUp('paranoiasanitize');
+  }
+
+  /**
+   * Confirm the decisions are made properly.
+   */
+  public function testDecideWhatToDo() {
+    $existing_tables = array(
+      'both_whitelist_covered' => array(
+        'queries' => array('existing'),
+        'fields' => array('nid', 'gid', 'realm'),
+      ),
+      'both_whitelist_not_covered' => array(
+        'queries' => array('existing'),
+        'fields' => array('nid', 'vid', 'uid', 'title', 'log'),
+      ),
+      'existing_db_only' => array(
+        'queries' => array('existing'),
+        'fields' => array('type', 'name', 'base'),
+      ),
+    );
+    $whitelist_tables = array(
+      'whitelist_not_db' => array(
+        'queries' => array('whitelist'),
+        'fields' => array('pajamas', 'manteca_de_mani'),
+      ),
+      'both_whitelist_covered' => array(
+        'queries' => array('whitelist'),
+        'fields' => array('nid', 'gid', 'realm'),
+      ),
+      'both_whitelist_not_covered' => array(
+        'queries' => array('whitelist'),
+        'fields' => array('nid', 'vid', 'uid', 'title'),
+      ),
+    );
+    $derived_changes = _paranoiasanitize_decide_what_to_do($existing_tables, $whitelist_tables);
+
+    // If a table exists in whitelist & not in existing tables, don't return it.
+    $this->assertFalse(array_key_exists('whitelist_not_db', $derived_changes), t('If whitelist has a nonexistent table, remove it from the work to do.'));
+    // If a whitelist record covers all columns in the table, do that work.
+    $this->assertEqual('whitelist', $derived_changes['both_whitelist_covered']['queries'][0], t('If whitelist covers all columns of real table, do that work.'));
+
+    // If the suggested whitelist changes do not cover all the columns in
+    // the table, instead truncate the table and log an error.
+    $this->assertEqual('TRUNCATE both_whitelist_not_covered', $derived_changes['both_whitelist_not_covered']['queries'][0], t('If whitelist does not cover all columns, truncate the table.'));
+
+    // If a record exists in the db and not the changes to do, truncate it.
+    $this->assertEqual('TRUNCATE existing_db_only', $derived_changes['existing_db_only']['queries'][0], t('If whitelist does not have a table, truncate the table.'));
+
+  }
+
+  /**
+   * Confirm prefixes are properly added to tables.
+   */
+  public function testDecideTablePrefixing() {
+    // Test a default prefix, a table without prefix, a table with a prefix.
+    $fake_databases['default']['default']['prefix'] = array(
+      'default'   => 'dpx_',
+      'no_prefix_table' => '',
+      'yes_prefix_table' => 'yes_',
+    );
+
+    $table_names = array(
+      array(
+        'original' => 'some_table',
+        'prefixed' => 'dpx_some_table',
+        'description' => t('Default prefix applied to a table'),
+      ),
+      array(
+        'original' => 'no_prefix_table',
+        'prefixed' => 'no_prefix_table',
+        'description' => t('Table without prefix stays without prefix'),
+      ),
+      array(
+        'original' => 'yes_prefix_table',
+        'prefixed' => 'yes_yes_prefix_table',
+        'description' => t('Table with prefix gets the prefix'),
+      ),
+    );
+
+    foreach ($table_names as $table_name_pair) {
+      $prefixed_table_name = _paranoiasanitize_apply_db_prefix($table_name_pair['original'], $fake_databases);
+      $this->assertEqual($prefixed_table_name, $table_name_pair['prefixed'], $table_name_pair['description']);
+    }
+
+    // Now confirm that the code works without a default prefix.
+    $fake_databases['default']['default']['prefix']['default'] = '';
+
+    $table_names = array(
+      array(
+        'original' => 'some_table',
+        'prefixed' => 'some_table',
+        'description' => t('Empty default prefix applied to a table'),
+      ),
+      array(
+        'original' => 'no_prefix_table',
+        'prefixed' => 'no_prefix_table',
+        'description' => t('Table without prefix stays without prefix'),
+      ),
+      array(
+        'original' => 'yes_prefix_table',
+        'prefixed' => 'yes_yes_prefix_table',
+        'description' => t('Table with prefix gets the prefix'),
+      ),
+    );
+
+    foreach ($table_names as $table_name_pair) {
+      $prefixed_table_name = _paranoiasanitize_apply_db_prefix($table_name_pair['original'], $fake_databases);
+      $this->assertEqual($prefixed_table_name, $table_name_pair['prefixed'], $table_name_pair['description']);
+    }
+  }
+}

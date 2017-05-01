@@ -6,8 +6,6 @@
  */
 
 /**
- * Implements hook_update_N().
- *
  * Remove the advagg_bundler_info variable if set.
  */
 function advagg_bundler_update_7201() {

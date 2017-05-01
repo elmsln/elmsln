@@ -49,8 +49,10 @@ function nodeformcols_update_placements($type, $variant, &$placements) {
     $field = $form[$key];
     if (
       substr($key, 0, 8) == 'section_' ||
+      // Exclude hidden fields.
       (isset($field['#type']) && in_array($field['#type'], array('value', 'hidden', 'token'))) ||
-      (isset($field['#type'], $field['#group']) && $field['#type'] === 'fieldset')
+      // Exclude the vertical tabs.
+      (isset($field['#group']) && $field['#group'] == 'additional_settings')
     ) {
       // Remove placements that meet exclusion rules.
       if (isset($placements[$key])) {

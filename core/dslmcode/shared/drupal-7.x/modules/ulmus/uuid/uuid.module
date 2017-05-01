@@ -34,6 +34,7 @@ function uuid_menu() {
     'title' => 'UUID redirector',
     'description' => 'Redirects requests for UUID URIs to the referenced entity.',
     'page callback' => 'uuid_redirector',
+    // The access check is handled in the page callback.
     'access callback' => TRUE,
     'type' => MENU_CALLBACK,
   );
@@ -44,7 +45,6 @@ function uuid_menu() {
     'page callback' => 'drupal_get_form',
     'page arguments' => array('uuid_admin_form'),
     'access arguments' => array('administer uuid'),
-    'type' => MENU_NORMAL_ITEM,
     'file' => 'uuid.admin.inc',
   );
 
@@ -123,7 +123,6 @@ function uuid_hook_info() {
   return array_fill_keys($hook_names, array('group' => 'uuid'));
 }
 
-
 /**
  * Implements hook_views_api().
  */
@@ -155,7 +154,7 @@ function uuid_module_implements_alter(&$implementss, $hook) {
  * Implements hook_uuid_sync().
  */
 function uuid_uuid_sync() {
-  foreach (entity_get_info() as $entity_type => $info) {
+  foreach (entity_get_info() as $info) {
     if (isset($info['uuid']) && $info['uuid'] == TRUE && !empty($info['entity keys']['uuid'])) {
       _uuid_sync_table($info['base table'], $info['entity keys']['id'], $info['entity keys']['uuid']);
       if (!empty($info['entity keys']['revision uuid'])) {

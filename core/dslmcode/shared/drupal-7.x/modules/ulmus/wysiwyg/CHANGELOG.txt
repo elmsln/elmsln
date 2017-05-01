@@ -1,19 +1,55 @@
+Note: This file is no longer updated. See the git history or release notes instead.
+Project change records will also be published for major changes.
 
-Wysiwyg 7.x-2.x, xxxx-xx-xx
+
+Wysiwyg 7.x-2.2, 2012-10-02
 ---------------------------
+#356480 by TwoD, zhangtaihao, sun: Fixed initialization of editor libraries in
+  Ajax scenarios.
+Revert "- #841794 by catch, smk-ka: Fixed wysiwyg_load_includes() performance."
+#771424 by TwoD: Fixed Missing library breaks admin UI.
+#967400 by skwashd, helmo, rocketeerbkw: Plugin/button label linking to project
+  homepage is poor usability.
+#835682 by james.elliott, TwoD, Paul Lomax, JacobSingh: Fixed %t
+ (path_to_theme()) returns wrong theme path.
+#841794 by catch, smk-ka: Fixed wysiwyg_load_includes() performance.
+#614402 by jide, TwoD: Added Plugin API support for YUI Editor.
+#947676 by merlinofchaos, zhangtaihao, mradcliffe: Added event for detaching
+  when CTools modal closes.
+#356480 by Shawn_Smiley, zhangtaihao, idflood, whurleyf1: Added Lazy-load
+  support for editors.
+#1732880 by loominade, yannickoo, sun: Added EpicEditor support.
+#1691478 by aaronbauman: Fixed {wysiwyg}.settings column is not marked as
+  serialized.
+#1679272 by marcusx: Fixed Path/statusbar location setting has no effect in
+  TinyMCE.
+Fixed bogus variable references.
+#1679980 by sun: Fixed Wysiwyg Dialog code is not ported to D7.
+#614146 by jide, fearlsgroove, TwoD, aklump, sun: Added
+  Drupal.wysiwyg.editor.instance content methods.
+#1650416 by TwoD, sun: Changed settings form callback to leverage $form_state.
+#1650416 by sun: Changed arguments for settings form callback.
 #1388224 by ksenzee, sun, TwoD: Fixed editors detaching on form submissions.
+#746524 by fietserwin, sun, Sborsody, jastraat, kardave, pacproduct, osopolar,
+  amanaplan, joelcollinsdc, roderik, plach, sylus, aaronbauman, g10: Fixed No
+  Font Styles for CKeditor.
+#1650416 by sun, fietserwin: Added 'settings form callback' to allow editor
+  specific changes to be made to the profile settings form.
 #682160 by n_vashenko, TwoD: Fixed lists plugin support for TinyMCE.
 #1414354 by Merco: Fixed none.js breaks if textarea.js is not loaded.
 #1064600 by TwoD: Fixed maximized editors hidden under Drupal's toolbar.
 #1405786 by logaritmisk: Fixed CKEditor being wider than parent elements.
 #1531896 by Chi: Fixed strict warning for WYMeditor.
+#1048300 by sreynen: Fixed external CSS not properly handled in
+  wysiwyg_get_css().
 #1442226 by robertom: Fixed inverted list button names for WYMeditor.
 #1352426 by TwoD, sun: Added install notes (CKEditor edition clarification).
 #1112212 by timdiacon, TwoD: Added language direction buttons for CKEditor.
 #1398560 by markwittens: Fixed TinyMCE removing the longdesc attribute.
 #970452 by smk-ka, sun, TwoD, drzraf: Fixed outdated TinyMCE plugin info.
 #1155678 by james.elliott, Jody Lynn, sun: Add Drupal.detachBehaviors support.
-#624018 by smk-ka, quartsize, dagmar, nedjo, rickvug, catch, sun: Added Features support.
+#624018 by smk-ka, quartsize, dagmar, nedjo, rickvug, catch, sun: Added Features
+  support.
 #1238766 by Dave Reid: Fixed Missing cells in profile plugins table.
 #1073106 by scottrouse: Fixed 'Input Format' should be 'Text Format'.
 #1153458 by TwoD: Fixed TinyMCE 'Verify HTML' setting ignored.

@@ -5,11 +5,12 @@ dependencies[] = menu
 dependencies[] = entity
 dependencies[] = token
 dependencies[] = ctools
+dependencies[] = uuid
 files[] = menu_token.test
 configure = admin/config/menu_token
-; Information added by drupal.org packaging script on 2013-06-14
-version = "7.x-1.0-beta5"
+; Information added by Drupal.org packaging script on 2016-03-15
+version = "7.x-1.0-beta7"
 core = "7.x"
 project = "menu_token"
-datestamp = "1371232255"
+datestamp = "1458066299"
 

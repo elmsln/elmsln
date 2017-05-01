@@ -28,8 +28,8 @@
     });
 
     // Determine the render time if cache_render cookie is set.
-    if ($.cookie("cache_render") && $.cookie("cache_render") !== "get") {
-      cacheRenderTime = $.cookie("cache_render");
+    if ($.cookie("Drupal.authcache.cache_render") && $.cookie("Drupal.authcache.cache_render") !== "get") {
+      cacheRenderTime = $.cookie("Drupal.authcache.cache_render");
     }
 
     updateInfoFieldset();
@@ -123,7 +123,7 @@
   }
 
   function isEnabled(settings) {
-    return (settings.authcacheDebug && ($.cookie('aucdbg') !== null || settings.authcacheDebug.all) && typeof JSON === 'object');
+    return (settings.authcacheDebug && ($.cookie('Drupal.authcache.aucdbg') !== null || settings.authcacheDebug.all) && typeof JSON === 'object');
   }
 
   // Add debug info to widget
@@ -141,7 +141,7 @@
 
           updateInfoFieldset();
 
-          $.authcache_cookie("aucdbg", Math.floor(Math.random()*65535).toString(16));
+          $.authcache_cookie("Drupal.authcache.aucdbg", Math.floor(Math.random()*65535).toString(16));
         });
       });
     }
@@ -150,7 +150,7 @@
   $(window).load(function() {
     if (isEnabled(Drupal.settings)) {
       // Reset debug cookies only after all subrequests (images, JS, CSS) are completed.
-      $.authcache_cookie("cache_render", "get");
+      $.authcache_cookie("Drupal.authcache.cache_render", "get");
     }
   });
 }(Drupal, jQuery));

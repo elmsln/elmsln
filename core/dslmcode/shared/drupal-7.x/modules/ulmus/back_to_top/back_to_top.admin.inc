@@ -19,6 +19,12 @@ function back_to_top_settings($form_state) {
     '#description' => t('Do you want to prevent Back To Top on touch devices?'),
     '#default_value' => variable_get('back_to_top_prevent_on_mobile', TRUE),
   );
+  $form['back_to_top_prevent_on_non_mobile'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Prevent on non mobile and touch devices'),
+    '#description' => t('Do you want to prevent Back To Top on desktop?'),
+    '#default_value' => variable_get('back_to_top_prevent_on_non_mobile', FALSE),
+  );
   $form['back_to_top_prevent_in_admin'] = array(
     '#type' => 'checkbox',
     '#title' => t('Prevent on administration pages and node edit'),
@@ -31,6 +37,28 @@ function back_to_top_settings($form_state) {
     '#description' => t('Do you want to prevent Back To Top on front page?'),
     '#default_value' => variable_get('back_to_top_prevent_in_front', FALSE),
   );
+  $options = array(
+    BACK_TO_TOP_VISIBILITY_NOTLISTED => t('All pages except those listed'),
+    BACK_TO_TOP_VISIBILITY_LISTED => t('Only the listed pages'),
+  );
+  $description = t("Specify pages by using their paths. Enter one path per line. The '*' character is a wildcard. Example paths are %blog for the blog page and %blog-wildcard for every personal blog. %front is the front page.", array(
+    '%blog' => 'blog',
+    '%blog-wildcard' => 'blog/*',
+    '%front' => '<front>',
+  ));
+  $form['back_to_top_visibility'] = array(
+    '#type' => 'radios',
+    '#title' => t('Show Back To Top on specific pages'),
+    '#options' => $options,
+    '#default_value' => variable_get('back_to_top_visibility', BACK_TO_TOP_VISIBILITY_NOTLISTED),
+  );
+  $form['back_to_top_pages'] = array(
+    '#type' => 'textarea',
+    '#title' => '',
+    '#default_value' => variable_get('back_to_top_pages', ''),
+    '#description' => $description,
+  );
+
   $form['back_to_top_button_trigger'] = array(
     '#type' => 'textfield',
     '#title' => t('Trigger'),
@@ -46,7 +74,7 @@ function back_to_top_settings($form_state) {
     '#options' => array(
       1 => t('Bottom right'),
       2 => t('Bottom left'),
-      3 => t('Botton center'),
+      3 => t('Bottom center'),
       4 => t('Top right'),
       5 => t('Top left'),
       6 => t('Top center'),
@@ -62,14 +90,14 @@ function back_to_top_settings($form_state) {
     '#description' => 'Set the text of the Back To Top button',
     '#default_value' => variable_get('back_to_top_button_text', "Back to top"),
     '#size' => 30,
-    '#maxlength' => 30,
+    '#maxlength' => 128,
   );
   $form['back_to_top_button_type'] = array(
     '#type' => 'radios',
     '#title' => t('Do you want Back To Top to use a PNG-24 image or a Text/Css button?'),
     '#options' => array(
-    'image' => t('Image (default)'),
-    'text' => t('Text/Css')
+      'image' => t('Image (default)'),
+      'text' => t('Text/Css'),
     ),
     '#default_value' => variable_get('back_to_top_button_type', 'image'),
   );

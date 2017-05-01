@@ -1,0 +1,15 @@
+/**
+ * @file
+ * Styles to apply to all user-facing pages for alignment support.
+ */
+.media-wysiwyg-align-left {
+  float: left;
+  margin-right: 20px;
+}
+.media-wysiwyg-align-right {
+  float: right;
+  margin-left: 20px;
+}
+.media-wysiwyg-align-center {
+  text-align: center;
+}

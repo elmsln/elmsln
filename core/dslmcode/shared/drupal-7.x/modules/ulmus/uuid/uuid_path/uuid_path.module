@@ -2,7 +2,7 @@
 
 /**
  * @file
- *   UUID path module functions.
+ * UUID path module functions.
  */
 
 /**
@@ -24,7 +24,7 @@ function uuid_path_entity_uuid_save(&$entity, $entity_type) {
  */
 function _uuid_path_load_url_aliases(&$entities, $entity_type) {
   $info = entity_get_info($entity_type);
-  // we only care about entities with URLs.
+  // We only care about entities with URLs.
   if (!isset($info['uri callback'])) {
     return;
   }
@@ -35,7 +35,7 @@ function _uuid_path_load_url_aliases(&$entities, $entity_type) {
     $aliases = _uuid_path_url_alias_load($path['path']);
 
     // Ignore local IDs.
-    foreach($aliases as &$alias) {
+    foreach ($aliases as &$alias) {
       unset($alias->pid);
       unset($alias->source);
     }
@@ -50,7 +50,7 @@ function _uuid_path_load_url_aliases(&$entities, $entity_type) {
 function _uuid_path_save_url_aliases(&$entity, $entity_type) {
   $info = entity_get_info($entity_type);
 
-  // We only care when there is a url callback
+  // We only care when there is a url callback.
   if (!isset($info['uri callback'])) {
     return FALSE;
   }
@@ -63,7 +63,7 @@ function _uuid_path_save_url_aliases(&$entity, $entity_type) {
   path_delete(array('source' => $path));
 
   // Continue if aliases are present.
-  if(empty($entity->url_alias)) {
+  if (empty($entity->url_alias)) {
     return FALSE;
   }
 
@@ -77,10 +77,10 @@ function _uuid_path_save_url_aliases(&$entity, $entity_type) {
 /**
  * Loads all aliases associated with a path.
  *
- * @param $path
+ * @param string $path
  *   The source path to look up.
  *
- * @return
+ * @return array
  *   Array of paths or NULL if none found.
  */
 function _uuid_path_url_alias_load($path) {
@@ -90,4 +90,3 @@ function _uuid_path_url_alias_load($path) {
     ->execute()
     ->fetchAll(PDO::FETCH_OBJ);
 }
-

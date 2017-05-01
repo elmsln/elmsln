@@ -7,16 +7,23 @@
 /**
  * Implements hook_feeds_processor_targets_alter().
  *
- * @see FeedsNodeProcessor::getMappingTargets().
+ * @see FeedsNodeProcessor::getMappingTargets()
  */
 function video_embed_field_feeds_processor_targets_alter(&$targets, $entity_type, $bundle_name) {
   foreach (field_info_instances($entity_type, $bundle_name) as $name => $instance) {
     $info = field_info_field($name);
     if ($info['type'] == 'video_embed_field') {
-      $targets[$name] = array(
-        'name' => $instance['label'],
+      $targets[$name . ":video_url"] = array(
+        'name' => t('@name: Embed URL', array('@name' => $instance['label'])),
         'callback' => 'video_embed_field_set_target',
-        'description' => t('The @label field of the node.', array('@label' => $instance['label'])),
+        'description' => t('The URL for the @label field of the @entity_type.', array('@entity_type' => $entity_type, '@label' => $instance['label'])),
+        'real_target' => $name,
+      );
+      $targets[$name . ':description'] = array(
+        'name' => t('@name: Embed description', array('@name' => $instance['label'])),
+        'callback' => 'video_embed_field_set_target',
+        'description' => t('The description for the @label field of the @entity_type.', array('@entity_type' => $entity_type, '@label' => $instance['label'])),
+        'real_target' => $name,
       );
     }
   }
@@ -34,10 +41,33 @@ function video_embed_field_set_target($source, $entity, $target, $value) {
     return;
   }
 
-  $field = isset($entity->$target) ? $entity->$target : array();
-  if (!is_array($value) && !is_object($value)) {
-    $field['und'][0]['video_url'] = $value;
+  if (!is_array($value)) {
+    $value = array($value);
   }
-  $entity->{$target} = $field;
 
+  list($field_name, $sub_field) = explode(':', $target, 2);
+
+  $info = field_info_field($field_name);
+
+  // Iterate over all values.
+  $field = isset($entity->$field_name) ? $entity->$field_name : array(LANGUAGE_NONE => array());
+
+  // Allow for multiple mappings to the same target.
+  $count = call_user_func_array('array_merge_recursive', $field[LANGUAGE_NONE]);
+  $delta = count($count[$sub_field]);
+
+  foreach ($value as $v) {
+
+    if ($info['cardinality'] != FIELD_CARDINALITY_UNLIMITED && $info['cardinality'] <= $delta) {
+      break;
+    }
+
+    if (is_scalar($v)) {
+      $field[LANGUAGE_NONE][$delta][$sub_field] = $v;
+
+      $delta++;
+    }
+  }
+
+  $entity->{$field_name} = $field;
 }

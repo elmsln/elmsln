@@ -59,10 +59,10 @@ function extlink_admin_settings() {
 
   $form['extlink_img_class'] = array(
     '#type' => 'checkbox',
-    '#title' => t('Place an icon next to image external links.'),
+    '#title' => t('Place an icon next to image links.'),
     '#return_value' => TRUE,
     '#default_value' => variable_get('extlink_img_class', FALSE),
-    '#description' => t('Treats images wrapped in external link anchor tags the same as text links.'),
+    '#description' => t('If checked, images wrapped in an anchor tag will be treated as external links.'),
   );
 
   $form['extlink_subdomains'] = array(

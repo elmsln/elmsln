@@ -1,13 +1,12 @@
 
 .advanced-help-link {
-  width: 12px;
-  height: 12px;
   background: transparent url('help.png') no-repeat top left;
   background-position: 0px 0px;
-  display: block;
-  float: left; /* this is cheesy, I know */
+  display: inline-block;
+  height: 12px;
   margin-top: 2px;
   padding: 0px;
+  width: 12px;
 }
 
 .advanced-help-link span {

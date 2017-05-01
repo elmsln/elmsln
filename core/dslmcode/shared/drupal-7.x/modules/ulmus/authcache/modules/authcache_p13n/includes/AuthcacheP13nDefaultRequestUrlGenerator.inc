@@ -55,15 +55,16 @@ class AuthcacheP13nDefaultRequestUrlGenerator implements AuthcacheP13nRequestUrl
     );
 
     // Add path for per-page caching.
-    url('', array('prefix' => &$prefix));
     if ($this->cacheGranularity->is(AuthcacheP13nCacheGranularity::PER_PAGE)) {
       $query['o'] = $_GET;
     }
     else {
-      $query['o'] = array(
-        'q' => empty($prefix) ? '' : $prefix,
-      );
+      $query['o'] = array('q' => '');
     }
+
+    // Add language specific URL prefix if there is any.
+    url('', array('prefix' => &$prefix));
+    $query['o']['q'] = $prefix . $query['o']['q'];
 
     return array(
       'path' => $this->frontControllerURL,

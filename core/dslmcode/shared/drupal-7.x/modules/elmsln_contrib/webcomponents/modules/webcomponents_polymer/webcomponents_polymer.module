@@ -24,32 +24,35 @@ function webcomponents_polymer_register_component_format() {
 function webcomponents_polymer_webcomponents() {
   // look for polymer elements in sites/all/libraries/webcomponents/polymer
   $libraries = libraries_get_libraries();
-  $dir = $libraries['webcomponents'] . '/' . WEBCOMPONENTS_POLYMER_LOCATION . '/';
-   if (isset($libraries['webcomponents']) && is_dir(DRUPAL_ROOT . '/' . $dir)) {
-    // step into the polymer directory and find all html templates
-    $di = new DirectoryIterator($dir);
-    foreach ($di as $fileinfo) {
-      $fname = $fileinfo->getFilename();
-      // only include html file, not index
-      if (strpos($fname, '.html') && $fname != 'index.html') {
-        $files[] = $dir . $fileinfo->getFilename();
-      }
-      // @todo we need to be careful here so that we don't timeout here
-      elseif (is_dir($dir . $fname) && $fname != '.' && $fname != '..') {
-        $di2 = new DirectoryIterator($dir . $fname);
-        foreach ($di2 as $fileinfo2) {
-          $fname2 = $fileinfo2->getFilename();
-          // only include html file, not index
-          if (strpos($fname2, '.html') && $fname2 != 'index.html') {
-            $files[] = $dir . $fname . '/' . $fname2;
-          }
-          elseif (is_dir($dir . $fname . '/' . $fname2) && $fname2 != '.' && $fname2 != '..') {
-            $di3 = new DirectoryIterator($dir . $fname . '/' . $fname2);
-            foreach ($di3 as $fileinfo3) {
-              $fname3 = $fileinfo3->getFilename();
-              // only include html file, not index
-              if (strpos($fname3, '.html') && $fname3 != 'index.html') {
-                $files[] = $dir . $fname . '/' . $fname2 . '/' . $fname3;
+  $files = array();
+  if (isset($libraries['webcomponents'])) {
+    $dir = $libraries['webcomponents'] . '/' . WEBCOMPONENTS_POLYMER_LOCATION . '/';
+    if (is_dir(DRUPAL_ROOT . '/' . $dir)) {
+      // step into the polymer directory and find all html templates
+      $di = new DirectoryIterator($dir);
+      foreach ($di as $fileinfo) {
+        $fname = $fileinfo->getFilename();
+        // only include html file, not index
+        if (strpos($fname, '.html') && $fname != 'index.html') {
+          $files[] = $dir . $fileinfo->getFilename();
+        }
+        // @todo we need to be careful here so that we don't timeout here
+        elseif (is_dir($dir . $fname) && $fname != '.' && $fname != '..') {
+          $di2 = new DirectoryIterator($dir . $fname);
+          foreach ($di2 as $fileinfo2) {
+            $fname2 = $fileinfo2->getFilename();
+            // only include html file, not index
+            if (strpos($fname2, '.html') && $fname2 != 'index.html') {
+              $files[] = $dir . $fname . '/' . $fname2;
+            }
+            elseif (is_dir($dir . $fname . '/' . $fname2) && $fname2 != '.' && $fname2 != '..') {
+              $di3 = new DirectoryIterator($dir . $fname . '/' . $fname2);
+              foreach ($di3 as $fileinfo3) {
+                $fname3 = $fileinfo3->getFilename();
+                // only include html file, not index
+                if (strpos($fname3, '.html') && $fname3 != 'index.html') {
+                  $files[] = $dir . $fname . '/' . $fname2 . '/' . $fname3;
+                }
               }
             }
           }
@@ -90,7 +93,7 @@ function _webcomponents_polymer_process_components($file) {
       $component->title = $title;
       $component->file = $file;
       $component->type = 'polymer';
-      $component->properties = array();
+      $component->properties = array('innerHTML' => 'String');
       // match {{}} and [[]] based properties
       preg_match_all('/({{.*?}}|\[\[.*?\]\])/', $rawmatch->innertext, $matches);
       // find matches for custom properties so we know how to tokenize this

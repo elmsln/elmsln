@@ -2,7 +2,6 @@ name = BEF Test Content
 description = Content and Views for testing Better Exposed Filters.
 core = 7.x
 package = BEF Tests
-php = 5.2.4
 dependencies[] = better_exposed_filters
 dependencies[] = date
 dependencies[] = features
@@ -13,7 +12,7 @@ dependencies[] = text
 dependencies[] = views
 dependencies[] = views_content
 features[ctools][] = views:views_default:3.0
-features[features_api][] = api:1
+features[features_api][] = api:2
 features[field_base][] = field_bef_test_body
 features[field_base][] = field_bef_test_date
 features[field_base][] = field_bef_test_integer
@@ -29,7 +28,7 @@ features[field_instance][] = node-bef_test-field_bef_test_location
 features[field_instance][] = node-bef_test-field_bef_test_numbers
 features[field_instance][] = node-bef_test-field_bef_test_price
 features[node][] = bef_test
-features[taxonomy][] = location
+features[taxonomy][] = taxonomy-bef_test-location
 features[views_view][] = bef_test_view
 features_exclude[dependencies][ctools] = ctools
 features_exclude[dependencies][options] = options
@@ -42,9 +41,9 @@ features_exclude[field][node-bef_test-field_price] = node-bef_test-field_price
 features_exclude[field][node-bef_test-field_date] = node-bef_test-field_date
 hidden = 1
 
-; Information added by Drupal.org packaging script on 2015-04-03
-version = "7.x-3.2"
+; Information added by Drupal.org packaging script on 2017-02-01
+version = "7.x-3.4"
 core = "7.x"
 project = "better_exposed_filters"
-datestamp = "1428077889"
+datestamp = "1485926287"
 
