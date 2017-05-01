@@ -1,0 +1,98 @@
+/**
+* @file
+*   Style sheet for the revision_deletion module.
+*/
+
+.revision-deletion-options .form-item label.option {
+  float: left;
+  width: 24%; /* 4 per line */
+  /*  width: 49%; /* 2 per line */
+  /* width: 32%; /* 3 per line */
+  /* width: 19%; /* 5 per line */
+  white-space: normal;
+}
+
+.revision-deletion-options .form-item .description,
+ #revision-deletion-settings .description {
+  clear: both; 
+  display: block;
+  padding: 0.5em 0 0 2em;
+}
+
+/* This makes the diff button a bit smaller. */
+#revision-deletion-list #edit-show-diff {
+  padding: 0;
+  margin: 0;
+}
+
+#revision-deletion-list #header-show-diff-button {
+  padding: 0;
+}
+
+#revision-deletion-list  .description, #revision-deletion-list  .info {
+  clear: both; 
+  display: block;
+  margin: 0.5em 2em 1em 2em;
+  font-size: 89%;
+}
+
+#revision-deletion-list  tr.odd td, #revision-deletion-list  tr.even td {
+  padding: 0 0.5em;
+}
+
+#revision-deletion-list  .revision-log {
+}
+
+#revision-deletion-settings .fieldset-wrapper .description {
+  padding: 0 0 1em 0;
+}
+
+.revision-deletion-options .form_item label {
+  clear: left; 
+}
+
+#revision-deletion-settings fieldset legend {
+  font-size: 112%;
+}
+
+#revision-deletion-settings .container-inline input {
+  margin-left: 1em;
+}
+
+.revision-deletion-options .form-checkboxes, .revision-deletion-options .form-radios {
+  margin: 0;
+}
+
+#revision-deletion-list p {
+  margin: 1em 0 0 0;
+  text-indent: 0;
+}
+
+#revision-deletion-list table {
+  margin-bottom: 1em;
+}
+
+#revision-deletion-list th {
+  text-align: center;
+}
+
+#revision-deletion-list  .revision-log {
+  text-indent: 2em;
+}
+
+tr.revision-current {
+  /* background-color: #ffffcc !important; /* Highlight current version. "!important" overrides odd/even. */
+  /* font-size: 115%; /* */
+}
+
+tr.revision-original {
+  /* background-color: #ffcccc !important; /* Highlight original version. */
+}
+
+tr.revision-last {
+  /* background-color: #ccffcc !important; /* Highlight last-for-date version. */
+}
+
+#revision-deletion-list td.selected {
+  /* background-color: #aa2222; /* This highlights selected checkboxes. */
+}

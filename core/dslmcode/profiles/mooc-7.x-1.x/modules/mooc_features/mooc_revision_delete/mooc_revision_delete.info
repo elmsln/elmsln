@@ -1,0 +1,17 @@
+name = mooc revision delete
+description = Deletes revisions after they have been around for over 2 years
+core = 7.x
+package = Features
+version = 7.x-1.0
+dependencies[] = ctools
+dependencies[] = strongarm
+dependencies[] = revision_deletion
+features[ctools][] = strongarm:strongarm:1
+features[defaultconfig][] = strongarm:revision_delete
+features[defaultconfig][] = strongarm:revision_delete_age
+features[defaultconfig][] = strongarm:revision_delete_frequency
+features[features_api][] = api:2
+features[variable][] = revision_delete
+features[variable][] = revision_delete_age
+features[variable][] = revision_delete_frequency
+features_exclude[dependencies][defaultconfig] = defaultconfig

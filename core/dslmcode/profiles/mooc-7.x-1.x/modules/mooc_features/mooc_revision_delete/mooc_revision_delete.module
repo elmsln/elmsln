@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the mooc revision delete feature.
+ */
+
+include_once 'mooc_revision_delete.features.inc';
