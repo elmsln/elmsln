@@ -5,7 +5,7 @@ ELMSLN Vagrant Instructions
 This is a Vagrant profile for installing a fully functioning [ELMS Learning Network](https://github.com/elmsln/elmsln) in a single command!  This instance is for development purposes but you can follow the [installation instructions](https://elmsln.readthedocs.io/en/latest/INSTALL) to install this on any real server!
 
 ### How to use this to bring up ELMSLN
-1. Install [VirtualBox](https://www.virtualbox.org/wiki/Downloads) (5.1.10)
+1. Install [VirtualBox](https://www.virtualbox.org/wiki/Downloads) (5.1.14+)
 2. Install [Vagrant](http://www.vagrantup.com/downloads.html) (1.9.1+)
 3. Install [git](http://git-scm.com/downloads)
 4. Open Terminal(OSX/Linux) or PowerShell (Windows) and navigate to the folder you want elmsln in. Now clone the repository using the command (`git clone https://github.com/elmsln/elmsln.git`)
@@ -18,12 +18,15 @@ sh developer
 ```
 
 ### Spin up the development instance (Windows)
+Find Powershell, right click, select run as Administrator. Navigate to elmsln directory
 ```
 cd elmsln
+vagrant plugin install vagrant-vbguest
 vagrant plugin install vagrant-hostsupdater
+vagrant plugin install vagrant-cachier
 vagrant up
 ```
-
+If you have issues downloading the box try running `vagrant box add --insecure -c elmsln/ubuntu16 --force` ahead of time which will download just the box in question.
 This will take a long time the first time you do it as it has to download a server image. After the first build, future builds from scratch should take about 10-12 minutes.
 
 ### After installation completes

@@ -67,6 +67,8 @@ pages:
     - Infrastructure: development/General-Infrastructure.md
     - Scale: development/scale.md
     - Vagrant: development/Vagrant-Step-by-Step-setup.md
+    - Polymer CLI: development/polymer-cli-step-by-step.md
+    - Sending Mail: development/Sending-email.md
   - Front end:
     - Style guide: development/front-end/Styleguide.md
     - Fonts: development/front-end/Fonts.md
