@@ -223,7 +223,7 @@ function mooc_foundation_access_read_time($variables) {
  */
 function mooc_foundation_access_menu_tree__menu_elmsln_add($variables) {
   $links = '';
-  if (_cis_connector_role_grouping('staff')) {
+  if (_cis_connector_role_grouping('staff') && user_access('add item in context')) {
     $links = _elmsln_core_in_context_list();
     $links = implode("\n", $links);
   }

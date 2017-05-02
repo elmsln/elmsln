@@ -387,7 +387,7 @@ function elmsln_core_node_view($node, $view_mode, $langcode) {
         foreach ($results[0] as $key => $result) {
           $tmp = strip_tags(trim($results[3][$key]));
           if (!empty($tmp)) {
-            $scrollspy .= '<li class="scrollspy-depth-' . $results[1][$key] . '"><a class="scrollspy-link ' . $lmsless_classes['color'] . '-border ' . $lmsless_classes['text'] .'" href="#' . hash('md5', 'h' . $key) . '">' . $tmp . '</a></li>';
+            $scrollspy .= '<li class="scrollspy-depth-' . $results[1][$key] . '"><a class="scrollspy-link ' . $lmsless_classes['color'] . '-border black-text" href="#' . hash('md5', 'h' . $key) . '">' . $tmp . '</a></li>';
           }
         }
         $scrollspy .= '</ul></div>';
@@ -873,23 +873,26 @@ function _elmsln_core_in_context_list() {
     $tmp = json_decode($response);
     foreach ((array) $tmp->types as $typeobj) {
       $icon = str_replace(' ', '_', drupal_strtolower($typeobj->name));
-      if (isset($icon_map[$icon])) {
-        $color = $icon_map[$icon]['color'];
-        $icon_render = '<i class="material-icons white-text left">' . $icon_map[$icon]['icon'] . '</i>';
-      }
-      else {
-        $color = '';
-        $icon_render = '';
-      }
-      $options = array(
-        'html' => TRUE,
-        'attributes' => array(
-          'class' => array('elmsln-core-external-context-apply', $color, 'btn-floating', 'elmsln-btn-floating', 'vibrate'),
-        ),
-      );
+      // ignore these for now
+      if (!in_array($icon, array('figure_label', 'media_list', 'timeline', 'map', 'timeline_date', 'static_content', 'poll', 'jmol', 'interactive_player', 'image_gallery'))) {
+        if (isset($icon_map[$icon])) {
+          $color = $icon_map[$icon]['color'];
+          $icon_render = '<i class="material-icons white-text left">' . $icon_map[$icon]['icon'] . '</i>';
+        }
+        else {
+          $color = '';
+          $icon_render = '';
+        }
+        $options = array(
+          'html' => TRUE,
+          'attributes' => array(
+            'class' => array('elmsln-core-external-context-apply', $color, 'btn-floating', 'elmsln-btn-floating', 'vibrate'),
+          ),
+        );
 
-      $title = $icon_render . $typeobj->name;
-      $links[] = '<li class="leaf">' . l($title, 'elmsln/redirect/' . $key . '/node/add/' . str_replace('_', '-', $typeobj->type), $options) . '</li>';
+        $title = $icon_render . $typeobj->name;
+        $links[] = '<li class="leaf">' . l($title, 'elmsln/redirect/' . $key . '/node/add/' . str_replace('_', '-', $typeobj->type), $options) . '</li>';
+      }
     }
   }
 
