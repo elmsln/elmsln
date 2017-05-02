@@ -59,32 +59,63 @@ function _git_book_filter_markdown($text, $format) {
       \#*     # optional closing #\'s (not counted)
       \n+
     }xm', '#${0}', $text);
+    // do the messy replacement to append our full qualified URL
+    $text = preg_replace_callback('/!\[([^\[]+)\]\(([^\)]+)\)/',
+    function($matches) {
+      $path = _git_book_markdown_book_root_path();
+      if (substr($matches[2], 0, 1) == '/') {
+        $path .= $matches[2];
+      }
+      else {
+        $path .= '/' . _git_book_markdown_current_dir() . $matches[2];
+      }
+      return '![' . $matches[1] . '](' . $path . ')';
+    }
+    , $text);
+    return _filter_markdown($text, $format);
+  }
+  return $text;
+}
+
+/**
+ * Return current book path
+ * @return string path partial to current alias
+ */
+function _git_book_markdown_book_root_path() {
+  $path = &drupal_static(__FUNCTION__);
+  if (!isset($path)) {
     // find book root
     $result = db_query("SELECT * FROM {book} b INNER JOIN {menu_links} ml ON b.mlid = ml.mlid WHERE b.nid=:nid", array(':nid' =>  arg(1)), array('fetch' => PDO::FETCH_ASSOC));
     // load book root and build private file path relative to it
     foreach ($result as $record) {
       $bid = $record['bid'];
       $book = node_load($bid);
-      $path = 'private://' . preg_replace('/[^a-z0-9]/', '', drupal_strtolower($book->title));
+      $path = file_create_url('private://' . preg_replace('/[^a-z0-9]/', '', drupal_strtolower($book->title)));
     }
-    if (isset($book)) {
-      // build alias from current path
-      $alias = drupal_get_path_alias(current_path());
-      $tmp = explode('/', $alias);
-      // lob off the file itself in case of folder structure
-      if (count($tmp) == 1) {
-        $dir = '';
-      }
-      else {
-        array_pop($tmp);
-        $dir = implode('/', $tmp) . '/';
-      }
-      // do the messy replacement to append our full qualified URL
-      $text = preg_replace('/!\[([^\[]+)\]\(([^\)]+)\)/', '![$1](' . file_create_url($path) . '/' . $dir . '$2)', $text);
-    }
-    return _filter_markdown($text, $format);
   }
-  return $text;
+  return $path;
+}
+
+/**
+ * Return current directory based on current path
+ * @return string path partial to current alias
+ */
+function _git_book_markdown_current_dir() {
+  $dir = &drupal_static(__FUNCTION__);
+  if (!isset($dir)) {
+    // build alias from current path
+    $alias = drupal_get_path_alias(current_path());
+    $tmp = explode('/', $alias);
+    // lob off the file itself in case of folder structure
+    if (count($tmp) == 1) {
+      $dir = '';
+    }
+    else {
+      array_pop($tmp);
+      $dir = implode('/', $tmp) . '/';
+    }
+  }
+  return $dir;
 }
 
 /**
