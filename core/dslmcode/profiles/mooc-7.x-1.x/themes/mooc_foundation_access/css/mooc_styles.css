@@ -150,6 +150,9 @@
   border: .1rem solid #eeeeee;
   font-weight: normal;
   font-size: 1rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 .page-mooc-book-toc ul.menu a.has-children {
