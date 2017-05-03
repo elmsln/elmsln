@@ -372,6 +372,11 @@ article ul:not(.contextual-links):not(.collapsible):not(.footnotes):not(.browser
   border-bottom: solid .2rem #000000;
 }
 
+.elmsln-service-list li a div i.material-icons {
+  height: 2rem;
+  line-height: 3rem;
+}
+
 .elmsln-service-list .elmsln-network-label {
   line-height: 3rem;
   margin: 0;

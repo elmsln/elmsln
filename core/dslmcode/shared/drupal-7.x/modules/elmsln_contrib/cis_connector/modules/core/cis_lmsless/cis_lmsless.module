@@ -228,9 +228,15 @@ function _cis_lmsless_assemble_network() {
   // ensure this doesn't load when it doesn't have to
   $vars = &drupal_static(__FUNCTION__);
   if (!isset($vars)) {
-    $vars = _cis_lmsless_theme_vars();
-    $vars['site_name'] = variable_get('site_name', t('Service'));
-    $distro = elmsln_core_get_profile_key();
+    $vars = array(
+      'front_page' => base_path() . variable_get('site_frontpage','node'),
+      'site_name' => variable_get('site_name', t('Service')),
+      'slogan' => variable_get('site_slogan', ''),
+      'distro' => elmsln_core_get_profile_key(),
+      'lmsless_classes' => _cis_lmsless_get_distro_classes(),
+      'services' => array(),
+    );
+    $distro = $vars['distro'];
     $reg = _cis_connector_build_registry();
     // make sure this is in the registry
     if (isset($reg[$distro])) {
@@ -258,7 +264,7 @@ function _cis_lmsless_assemble_network() {
       'icon' => $reg[$distro]['icon'],
     );
     // bring along anything custom added, then mix in on-demand items
-    if (isset($vars['services'])) {
+    if (!isset($vars['services'])) {
       $list = $vars['services'];
     }
     // request a list of all other services that this section uses
@@ -553,8 +559,6 @@ function _cis_lmsless_theme_vars() {
     }
     // pull in services too
     $vars['network'] = _cis_lmsless_assemble_network();
-    // allow other projects to alter these values
-    drupal_alter('cis_lmsless_theme_vars', $vars);
     if (isset($vars['network']['services'])) {
       foreach ($vars['network']['services'] as $category => $items) {
         foreach ($items as $key => $item) {
@@ -580,6 +584,8 @@ function _cis_lmsless_theme_vars() {
         }
       }
     }
+    // allow other projects to alter these values
+    drupal_alter('cis_lmsless_theme_vars', $vars);
   }
   return $vars;
 }
@@ -652,7 +658,7 @@ function _cis_lmsless_get_distro_classes($distro = NULL) {
     'dark'   => 'darken-4',
     'light'  => 'lighten-4',
     'color' => 'blue',
-    'text' => 'accessible-blue-text',
+    'text' => 'black-text',
     'outline' => 'blue-outline',
     'code' => '#2196f3',
     'code_text' => '#085390',
