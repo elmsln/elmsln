@@ -130,7 +130,7 @@
 </div>
 <!-- modal fly out for settings -->
 <section id="elmsln-tools-menu" class="elmsln-modal side-nav disable-scroll left-aligned" aria-hidden="true" tabindex="-1" role="dialog">
-  <div class="center-align valign-wrapper elmsln-modal-title-wrapper <?php print $lmsless_classes[$distro]['color'];?> <?php print $lmsless_classes[$distro]['dark'];?> <?php print $lmsless_classes[$distro]['color'];?>-border"><h2 class="flow-text valign elmsln-modal-title black-text"><?php print t('Settings');?></h2><a href="#close-dialog" aria-label="Close" class="close-reveal-side-nav black-text vibrate" data-voicecommand="close (menu)" data-jwerty-key="Esc">×</a></div>
+  <div class="center-align valign-wrapper elmsln-modal-title-wrapper <?php print $lmsless_classes[$distro]['color'];?> <?php print $lmsless_classes[$distro]['dark'];?> <?php print $lmsless_classes[$distro]['color'];?>-border"><h2 class="flow-text valign elmsln-modal-title white-text"><?php print t('Settings');?></h2><a href="#close-dialog" aria-label="Close" class="close-reveal-side-nav black-text vibrate" data-voicecommand="close (menu)" data-jwerty-key="Esc">×</a></div>
   <div class="elmsln-modal-content">
     <ul>
       <li><?php print $elmsln_main_menu; ?></li>

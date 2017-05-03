@@ -1566,7 +1566,7 @@ footer.page-footer{
     font-weight: bold;
     text-decoration: underline;
     font-size: 1rem;
-    color:#000000;}
+    color:#DDDDDD;}
 
 /* undo core error message conflict */
 div.error {
