@@ -24,6 +24,10 @@ function elmsln_api_elmsln_api_callback_hash_insert() {
       $entity->body[LANGUAGE_NONE][0]['value'] = $hashed;
       $changed = TRUE;
     }
+    else {
+      $entity->body[LANGUAGE_NONE][0]['value'] .= $_elmsln['args']['token'];
+      $changed = TRUE;
+    }
     // only send back if we save the changes
     if ($changed) {
       entity_save($_elmsln['args']['type'], $entity);
