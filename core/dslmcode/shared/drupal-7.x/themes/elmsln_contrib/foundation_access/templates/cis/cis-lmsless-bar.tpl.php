@@ -17,7 +17,7 @@
 ?>
 <!-- Ecosystem Top Nav -->
 <div id="etb-course-nav" class="row full collapse white">
-  <div class="s12 m7 col">
+  <div class="s12 m6 l6 col">
     <nav class="top-bar etb-nav middle-align-wrap etb-nav--center--parent" data-options="is_hover: false" data-topbar>
      <section class="top-bar-section title-link">
         <h2 class="element-invisible"><?php print t('System navigation bar');?></h2>
@@ -48,7 +48,7 @@
       </section>
     </nav>
   </div>
-  <div class="etb-title s12 m5 col">
+  <div class="top-bar-right-actions s12 m6 l6 col">
     <nav class="top-bar etb-nav flex-vertical-right center-align-wrap" data-options="is_hover: false" data-topbar>
      <section>
       <ul class="menu right clearfix">
