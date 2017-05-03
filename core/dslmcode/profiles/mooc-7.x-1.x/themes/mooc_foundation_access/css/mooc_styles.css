@@ -342,6 +342,10 @@ a.book-sibling-parent-pagination {
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .page-mooc-book-toc article ul li a:hover,
 #block-mooc-helper-mooc-helper-toc-nav-modal .mooc-outline-modal-content a:hover {
