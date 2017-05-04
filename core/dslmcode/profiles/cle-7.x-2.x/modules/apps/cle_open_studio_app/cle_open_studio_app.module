@@ -35,7 +35,7 @@ function _cle_open_studio_app_data() {
   // pull together all the submissions they should be seeing
   $data = _cis_connector_assemble_entity_list('node', 'cle_submission', 'nid', '_entity');
   foreach ($data as &$item) {
-    $item->url = base_path() . 'node/' . $item->nid;
+    $item->url = base_path() . 'node/' . $item->nid . '.json';
     $item->edit_url = base_path() . 'node/' . $item->nid . '/edit?destination=cle/open-studio-app';
   }
   _elmsln_jsapi_deliver_output(array('data' => $data));

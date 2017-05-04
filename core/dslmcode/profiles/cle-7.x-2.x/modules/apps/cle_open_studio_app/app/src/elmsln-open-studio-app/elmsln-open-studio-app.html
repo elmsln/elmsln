@@ -14,6 +14,7 @@
 <link rel="import" href="../../bower_components/paper-styles/color.html">
 <link rel="import" href="../../bower_components/paper-styles/typography.html">
 <link rel="import" href="../../bower_components/materializecss-styles/materializecss-styles.html">
+<link rel="import" href="../../bower_components/lrndesign-gallerycard/lrndesign-gallerycard.html">
 
 <dom-module id="elmsln-open-studio-app">
   <template>
@@ -32,9 +33,6 @@
         height: 2em;
       }
     </style>
-    <lrndesign-drawer alt="Filter" icon="settings">
-      <paper-input always-float-label label="Title" value="{{titleFilter}}"></paper-input>
-    </lrndesign-drawer>
     <iron-ajax auto
       url="[[source-path]]"
       params=''
@@ -43,35 +41,8 @@
       last-response="{{submissionsResponse}}"></iron-ajax>
     <iron-list grid items="{{submissions}}" as="submission">
       <template>
-      <paper-card heading="{{submission.data.title}}" image="" alt="{{submission.data.title}}" class="white">
-        <div class="card-content">1,000 miles of wonder</div>
-        <div class="card-actions">
-          <a href="{{submission.data.url}}">
-            <paper-button raised class="red white-text">
-              <lrn-icon icon="view"></lrn-icon>view
-            </paper-button>
-          </a>
-          <a href="{{submission.data.edit_url}}">
-            <paper-button raised class="blue white-text">
-              <lrn-icon icon="edit"></lrn-icon>edit
-            </paper-button>
-          </a>
-          <paper-icon-button icon="hardware:keyboard-arrow-up" title="more info" onclick="_toggle()" style="float:right;">
-          </paper-icon-button>
-          <iron-collapse id="more-info">
-            {{}}
-          </iron-collapse>
-          <script>
-            function _toggle() {
-              var moreInfo = document.getElementById('more-info');
-              var iconButton = Polymer.dom(event).localTarget;
-              iconButton.icon = moreInfo.opened ? 'hardware:keyboard-arrow-up'
-                                                : 'hardware:keyboard-arrow-down';
-              moreInfo.toggle();
-            }
-          </script>
-        </div>
-      </paper-card>
+      <lrndesign-gallerycard title="{{submission.data.title}}" text="{{submission.data.field_submission_text.und.0.safe_value}}" url="{{submission.data.url}}" author="{{submission.data.name}}" comments="{{submission.data.comment_count}}">
+      </lrndesign-gallerycard>
       </template>
     </iron-list>
   </template>
@@ -97,6 +68,7 @@
       },
       responseCleanup: function(e) {
         var arrayIt = this._toArray(this.submissionsResponse.data);
+        console.log(arrayIt);
         this.submissions = arrayIt;
         console.log(this.submissions);
       },
