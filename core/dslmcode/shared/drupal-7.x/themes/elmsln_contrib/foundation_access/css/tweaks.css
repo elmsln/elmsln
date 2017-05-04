@@ -326,6 +326,11 @@ article ul:not(.contextual-links):not(.collapsible):not(.footnotes):not(.browser
   background-color: #eeeeee;
 }
 
+#etb-course-nav lrndesign-avatar {
+  margin: .5rem 0 0 0;
+  padding: 0 .5rem 0 0;
+}
+
 #etb-course-nav .top-bar-right-actions {
   padding-right: 0;
 }

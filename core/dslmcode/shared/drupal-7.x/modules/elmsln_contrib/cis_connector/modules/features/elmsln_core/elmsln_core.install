@@ -231,3 +231,12 @@ function elmsln_core_update_7021(&$sandbox) {
 function elmsln_core_update_7022(&$sandbox) {
   features_revert_module('elmsln_core');
 }
+
+/**
+ * Viva la Web Component revolution! Let's only enable the core technology and polymer
+ * for now and we'll do more testing on all the different display mode capabilities and
+ * the process in general.
+ */
+function elmsln_core_update_7023(&$sandbox) {
+  module_enable(array('webcomponents', 'webcomponents_polymer'));
+}

@@ -448,6 +448,7 @@ function _cis_lmsless_theme_vars() {
       'slogan' => variable_get('site_slogan', ''),
       'distro' => elmsln_core_get_profile_key(),
       'lmsless_classes' => $lmsless_classes,
+      'course_context' => _cis_connector_course_context(),
     );
     // push this into variables on the page for usage
     drupal_add_js(array('cis_lmsless' => $lmsless_classes, 'distro' => elmsln_core_get_profile_key()), array('type' => 'setting'));
@@ -625,6 +626,7 @@ function cis_lmsless_theme() {
         'site_name' => t('Service'),
         'section' => 'master',
         'active' => array('title' => ''),
+        'course_context' => '',
         'help_link' => url('course-help'),
         'resources_link' => url('resources'),
         'syllabus_link' => url('syllabus'),
