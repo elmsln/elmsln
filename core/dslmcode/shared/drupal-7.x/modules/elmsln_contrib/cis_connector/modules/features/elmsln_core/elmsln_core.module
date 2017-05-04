@@ -1887,3 +1887,17 @@ function elmsln_core_webcomponent_attached_files_alter(&$webcomponents) {
     }
   }
 }
+
+/**
+ * Implements hook_webcomponents().
+ */
+function elmsln_core_webcomponents() {
+  // look for polymer elements in sites/all/libraries/_my_libraries/my_webcomponents/
+  $files = array();
+  if (isset($libraries['webcomponents'])) {
+    $dir = DRUPAL_ROOT . '/sites/all/libraries/_my_libraries/my_webcomponents/';
+    $files = _webcomponents_find_html_includes($dir);
+  }
+  // group these all as files found to match polymer format
+  return array(WEBCOMPONENTS_POLYMER_NAME => $files);
+}
