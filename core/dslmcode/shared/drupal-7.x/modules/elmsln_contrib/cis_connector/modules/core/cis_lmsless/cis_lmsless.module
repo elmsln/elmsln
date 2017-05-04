@@ -70,14 +70,6 @@ function cis_lmsless_page_build(&$page) {
       '#weight' => -10,
       '#markup' => _cis_lmsless_assemble(),
     );
-    $element = array(
-      '#tag' => 'link', // The #tag is the html tag
-      '#attributes' => array( // Set up an array of attributes inside the tag
-        'href' => base_path() . drupal_get_path('theme', 'foundation_access') . '/polymer/elmsln-lmsless/elmsln-lmsless.html',
-        'rel' => 'import',
-      ),
-    );
-    drupal_add_html_head($element, 'webcomponent-elmsln-lmsless');
   }
 }
 
