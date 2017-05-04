@@ -16,6 +16,9 @@ function webcomponents_page_build(&$page) {
     // it doesn't matter since it'll still be available
     $files[$component->file] = $component;
   }
+  // let developers modify which files are appended to the document
+  // right before we do so
+  drupal_alter('webcomponent_attached_files', $files);
   // write the component file reference to the screen
   foreach ($files as $component) {
     _webcomponents_add_to_head($component);
@@ -233,9 +236,14 @@ function _webcomponents_rebuild() {
               }
               else {
                 // try and create the entity instead
-                $component->properties = serialize($component->properties);
-                $entity = entity_create('webcomponent', (array)$component);
-                entity_save('webcomponent', $entity);
+                if (!empty($component->properties)) {
+                  $component->properties = serialize($component->properties);
+                }
+                // ensure the file wasn't empty
+                if (isset($component->machine_name)) {
+                  $entity = entity_create('webcomponent', (array)$component);
+                  entity_save('webcomponent', $entity);
+                }
               }
             }
           }

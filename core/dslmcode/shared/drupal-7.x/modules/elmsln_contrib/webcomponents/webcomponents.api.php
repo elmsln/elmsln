@@ -49,3 +49,12 @@ function hook_webcomponents() {
 function hook_webcomponents_alter($components) {
   // add / remove files you might not want pulled in as legit components
 }
+
+/**
+ * Implements hook_webcomponent_attached_files_alter().
+ * @param  array   array of webcomponents keyed by file location
+ */
+function hook_webcomponent_attached_files_alter(&$webcomponents) {
+  // add or remove components from being included in the current page build
+  unset($webcomponents['my-thing-i-dont-want-here.html']);
+}

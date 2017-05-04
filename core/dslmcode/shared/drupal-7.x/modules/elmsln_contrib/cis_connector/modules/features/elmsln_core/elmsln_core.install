@@ -224,3 +224,10 @@ function elmsln_core_update_7021(&$sandbox) {
   module_enable(array('imagecache_actions', 'imagecache_coloractions', 'imagecache_autorotate'));
   features_revert_module('elmsln_core');
 }
+
+/**
+ * In context editor permission added to staff / faculty
+ */
+function elmsln_core_update_7022(&$sandbox) {
+  features_revert_module('elmsln_core');
+}

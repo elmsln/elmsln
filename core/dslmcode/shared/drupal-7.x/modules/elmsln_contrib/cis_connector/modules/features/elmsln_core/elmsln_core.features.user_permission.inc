@@ -91,6 +91,17 @@ function elmsln_core_user_default_permissions() {
     'module' => 'user',
   );
 
+  // Exported permission: 'add item in context'.
+  $permissions['add item in context'] = array(
+    'name' => 'add item in context',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'instructor' => 'instructor',
+      'staff' => 'staff',
+    ),
+    'module' => 'elmsln_core',
+  );
+
   // Exported permission: 'administer cis lms-less nav'.
   $permissions['administer cis lms-less nav'] = array(
     'name' => 'administer cis lms-less nav',
