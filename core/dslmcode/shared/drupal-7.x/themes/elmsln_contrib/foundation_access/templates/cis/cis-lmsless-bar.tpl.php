@@ -2,14 +2,6 @@
 /**
  * CIS LMS-less template file
  */
-?>
-<!-- Ecosystem Top Nav -->
-<!--<elmsln-lmsless source-path="<?php print base_path(); ?>api/v1/elmsln/lmsless"></elmsln-lmsless>
--->
-<?php
-/**
- * CIS LMS-less template file
- */
   // support authcache_cookie value that gets dynamically loaded instead
   if (isset($user_name)) {
     $username = $user_name;
@@ -28,6 +20,7 @@
           // account for roles that don't have access to this
           if (!empty($elmsln_main_menu)) {?>
           <a href="#" id="elmsln-tools-trigger" class="course-title elmsln-course-title elmsln-left-side-nav-trigger middle-align-wrap elmsln-user-button black-text waves-effect waves-<?php print $lmsless_classes[$distro]['color'];?> waves-light" title="" data-activates="elmsln-tools-menu" aria-controls="elmsln-tools-menu" aria-expanded="false" data-jwerty-key="t" data-voicecommand="open settings (menu)" data-elmsln-hover="<?php print $lmsless_classes[$service['distro']]['color'];?>">
+            <lrndesign-avatar label="<?php print $course_context; ?>" jdenticon color="grey darken-4"></lrndesign-avatar>
             <span class="course-title-group">
               <span class="black-text course-title"><?php print $slogan; ?></span>
               <span class="black-text course-abrv"><?php print $site_name; ?> <?php if (isset($section_title)) : print $section_title; endif; ?></span>
