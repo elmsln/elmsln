@@ -5,7 +5,5 @@ package = MOOC
 dependencies[] = features
 dependencies[] = filter
 dependencies[] = hax
-dependencies[] = hax_editor
 features[features_api][] = api:2
 features[user_permission][] = use hax
-features[user_permission][] = use text format hax_editor

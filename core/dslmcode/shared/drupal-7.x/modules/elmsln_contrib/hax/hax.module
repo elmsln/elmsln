@@ -172,33 +172,27 @@ function _hax_sanitize($properties) {
  * Implements hook_preprocess_node().
  */
 function hax_preprocess_node(&$vars) {
-  // make sure they can update
+  // make sure they can update if they have permission
   if (user_access('use hax') && entity_access('update', 'node', $vars['node'])) {
-    $hide = '';
-  }
-  else {
-    $hide = 'hide-hax';
+    $vars['properties']['show-hax'] = TRUE;
   }
   // apply tag wrapper so that this element knows it CAN use ajax to submit... most likely
-  $vars['wrap_tag'] = '<hax-ajax ' . $hide . ' url="' . base_path() . 'hax-endpoint/update/node/'. $vars['node']->uuid .'/' . drupal_get_token('hax') . '">';
+  $vars['wrap_tag'] = '<hax-ajax url="' . base_path() . 'hax-endpoint/update/node/'. $vars['node']->uuid .'/' . drupal_get_token('hax') . '">';
   $vars['wrap_tag_close'] = '</hax-ajax>';
 }
 
 /**
  * variables callbacks
  */
-function hax_entity_variables(&$vars) {
+function _hax_entity_variables(&$vars) {
   // Only alter entities that have been rendered by Display Suite.
   if (isset($vars['rendered_by_ds'])) {
     // make sure they can update
     if (user_access('use hax') && entity_access('update', 'node', $vars['node'])) {
-      $hide = '';
-    }
-    else {
-      $hide = 'hide-hax';
+      $vars['properties']['show-hax'] = TRUE;
     }
     // apply tag wrapper so that this element knows it CAN use ajax to submit... most likely
-    $vars['wrap_tag'] = '<hax-ajax ' . $hide . ' url="' . base_path() . 'hax-endpoint/update/node/'. $vars['node']->uuid .'/' . drupal_get_token('hax') . '">';
+    $vars['wrap_tag'] = '<hax-ajax url="' . base_path() . 'hax-endpoint/update/node/'. $vars['node']->uuid .'/' . drupal_get_token('hax') . '">';
     $vars['wrap_tag_close'] = '</hax-ajax>';
   }
 }
@@ -207,6 +201,6 @@ function hax_entity_variables(&$vars) {
  * Implements hook_theme_registry_alter().
  */
 function hax_theme_registry_alter(&$theme_registry) {
-  $theme_registry['node']['preprocess functions'][] = 'hax_entity_variables';
-  $theme_registry['entity']['preprocess functions'][] = 'hax_entity_variables';
+  $theme_registry['node']['preprocess functions'][] = '_hax_entity_variables';
+  $theme_registry['entity']['preprocess functions'][] = '_hax_entity_variables';
 }
