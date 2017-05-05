@@ -493,7 +493,7 @@ function _cle_assignment_v1_get_assignments($type, $filter = array()) {
   if (isset($filter['assignment'])) {
     $property_conditions['nid'] = array($filter['assignment'], '=');
   }
-  $orderby = array();
+  $orderby = array('property' => array('title'));
   $items = _cis_connector_assemble_entity_list('node', 'cle_assignment', 'nid', '_entity', $field_conditions, $property_conditions, $orderby);
   return $items;
 }
