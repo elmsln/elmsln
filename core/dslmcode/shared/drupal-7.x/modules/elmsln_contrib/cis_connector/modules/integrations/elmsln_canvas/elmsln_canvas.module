@@ -1,0 +1,102 @@
+<?php
+/**
+ * @file
+ * ELMSLN Canvas integration.
+ */
+
+/*
+  $canvas = canvas_api('courses');
+  // pass NULL to get a list of all courses
+  $courses = $canvas->getCourse(NULL);
+  $rosters = array();
+  foreach ($courses as $course) {
+    $canvas = canvas_api('sections');
+    $sections = $canvas->sectionsByCourseID('sis_course_id:' . $course['sis_course_id']);
+    $canvas = canvas_api('enrollment');
+    foreach ($sections as $section) {
+      $rosters[$course['sis_course_id']][] = $canvas->getEnrollment('sis_section_id:' . $section['sis_section_id']);
+    }
+  }
+*/
+
+/**
+ * Implements hook_cis_helper_build_roster().
+ */
+function elmsln_canvas_cis_helper_build_roster($section) {
+  $roster = array();
+  $canvas = canvas_api('enrollment');
+  $users = $canvas->getEnrollment('sis_section_id:' . $section);
+  // loop over resulting members and build into user array
+  foreach ($users as $member) {
+    // get the name from email
+    $name = _elmsln_canvas_scrub_sis_user($member['sis_user_id']);
+    // get role as an elms one
+    $role = _elmsln_canvas_convert_role($member['role']);
+    // pull the user object to get more
+    $canvas_api = canvas_api('users');
+    $sisUserID = 'sis_user_id:' . $member['sis_user_id'];
+    $userObj = $canvas_api->getUser($sisUserID);
+    // pull out full name
+    $fullname = explode(', ', $userObj['sortable_name']);
+    if (count($fullname) == 2) {
+      $lname = $fullname[0];
+      $fname = $fullname[1];
+    }
+    else {
+      $fname = '';
+      $lname = '';
+    }
+    // make the user data blob
+    $data = array(
+      'canvas' => $userObj,
+    );
+    // build the roster array
+    $roster[$name] = array(
+      'role'  => $role,
+      'mail'  => $member['sis_user_id'],
+      'fname' => $fname,
+      'lname' => $lname,
+      'data'  => $data,
+    );
+  }
+  return $roster;
+}
+
+/**
+ * SIS user in Canvas is typically an email address
+ * @param  [type] $name [description]
+ * @return [type]       [description]
+ */
+function _elmsln_canvas_scrub_sis_user($name) {
+  $tmp = explode('@', $name);
+  return $tmp[0];
+}
+
+/**
+ * Convert a canvas role to an elmsln role
+ * @param  string $canvasRole a role from canvas
+ * @return string             drupal role name
+ */
+function _elmsln_canvas_convert_role($canvasRole) {
+  switch ($canvasRole) {
+    case 'StudentEnrollment':
+      $role = 'student';
+    break;
+    case 'TaEnrollment':
+      $role = 'teaching assistant';
+    break;
+    case 'TeacherEnrollment':
+      $role = 'instructor';
+    break;
+    case 'DesignerEnrollment':
+      $role = 'staff';
+    break;
+    case 'ObserverEnrollment':
+      $role = 'guest';
+    break;
+    default:
+      $role = 'authenticated user';
+    break;
+  }
+  return $role;
+}
