@@ -550,7 +550,7 @@ function _cis_section_create_accounts($roster) {
           $fields['pass'] = $pass;
         }
         // allow other projects to update part of the user
-        drupal_alter('cis_section_user_insert', $fields);
+        drupal_alter('cis_section_user_insert', $fields, $userdata);
         // the first parameter is left blank so a new user is created
         $account = user_save('', $fields);
       }
@@ -596,6 +596,9 @@ function _cis_section_create_accounts($roster) {
       }
       // rip membership names to uid array for comparison
       $actual[] = $account->uid;
+      // allow other things to react to an account being processed
+      // via this job
+      drupal_alter('cis_section_account_processed', $account, $userdata);
     }
     // see if developer variable exists to prevent drop of access
     // if we no longer see the account come across

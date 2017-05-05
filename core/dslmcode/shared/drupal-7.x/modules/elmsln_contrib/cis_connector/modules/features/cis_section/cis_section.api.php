@@ -96,7 +96,20 @@ function hook_cis_section_build_roster_alter(&$roster, $section) {
  *
  * This example shows how psu populates an email address automatically.
  */
-function hook_cis_section_user_insert_alter(&$fields) {
+function hook_cis_section_user_insert_alter(&$fields, $userdata) {
+  $fields['mail'] = _utility_module_name_to_email($fields['name']);
+  $fields['init'] = $fields['mail'];
+}
+
+/**
+ * Implements hook_cis_section_account_processed_alter().
+ *
+ * Allow for things to react to a user account being processed by this system.
+ * This is used by the CPR system to take "data" from Canvas and store it
+ * so that it can be referenced by every place else the user goes via their
+ * central profile object.
+ */
+function hook_cis_section_account_processed_alter(&$fields, $userdata) {
   $fields['mail'] = _utility_module_name_to_email($fields['name']);
   $fields['init'] = $fields['mail'];
 }
