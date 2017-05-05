@@ -4,7 +4,7 @@
  * ELMSLN Canvas integration.
  */
 
-/*
+/*function elmsln_canvas_init() {
   $canvas = canvas_api('courses');
   // pass NULL to get a list of all courses
   $courses = $canvas->getCourse(NULL);
@@ -17,7 +17,7 @@
       $rosters[$course['sis_course_id']][] = $canvas->getEnrollment('sis_section_id:' . $section['sis_section_id']);
     }
   }
-*/
+}*/
 
 /**
  * Implements hook_cis_helper_build_roster().
@@ -32,12 +32,8 @@ function elmsln_canvas_cis_helper_build_roster($section) {
     $name = _elmsln_canvas_scrub_sis_user($member['sis_user_id']);
     // get role as an elms one
     $role = _elmsln_canvas_convert_role($member['role']);
-    // pull the user object to get more
-    $canvas_api = canvas_api('users');
-    $sisUserID = 'sis_user_id:' . $member['sis_user_id'];
-    $userObj = $canvas_api->getUser($sisUserID);
     // pull out full name
-    $fullname = explode(', ', $userObj['sortable_name']);
+    $fullname = explode(', ', $member['user']['sortable_name']);
     if (count($fullname) == 2) {
       $lname = $fullname[0];
       $fname = $fullname[1];
@@ -46,17 +42,15 @@ function elmsln_canvas_cis_helper_build_roster($section) {
       $fname = '';
       $lname = '';
     }
-    // make the user data blob
-    $data = array(
-      'canvas' => $userObj,
-    );
     // build the roster array
     $roster[$name] = array(
       'role'  => $role,
       'mail'  => $member['sis_user_id'],
       'fname' => $fname,
       'lname' => $lname,
-      'data'  => $data,
+      'data'  => array(
+        'canvas' => $member['user'],
+      ),
     );
   }
   return $roster;
