@@ -1,0 +1,10 @@
+name = CLE Submission comments
+description = Submission comments displays / functionality
+core = 7.x
+package = CLE
+dependencies[] = comment
+dependencies[] = views
+features[ctools][] = views:views_default:3.0
+features[features_api][] = api:2
+features[views_view][] = cle_submission_comments
+features_exclude[dependencies][ctools] = ctools

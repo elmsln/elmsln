@@ -113,3 +113,10 @@ function cle__2_update_7008(&$sandbox) {
 function cle__2_update_7009(&$sandbox) {
   features_revert_module('cle_perms');
 }
+
+/**
+ * CLE comments feature added.
+ */
+function cle__2_update_7010(&$sandbox) {
+  module_enable(array('cle_submission_comments'));
+}
