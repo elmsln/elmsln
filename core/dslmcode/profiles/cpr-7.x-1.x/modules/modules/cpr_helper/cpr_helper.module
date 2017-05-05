@@ -13,3 +13,25 @@ function cpr_helper_user_presave(&$edit, $account, $category) {
 		$edit['field_display_name']['und'][0]['value'] = $edit['name'];
 	}
 }
+
+/**
+ * Implements hook_cis_section_account_processed_alter().
+ * @param  object &$account an account / user object
+ * @param  array $userdata data that was used to create the user account
+ */
+function cpr_helper_cis_section_account_processed_alter(&$account, $userdata) {
+	// an accont flowed through to here and it had 'data' on it, save it
+	/*if (isset($userdata['data'])) {
+		// see if there's any already
+		if (!isset($account->data) || empty($account->data)) {
+			$account->data = $userdata['data'];
+		}
+		else {
+			// make sure to only set the fields that came across
+			foreach ($userdata['data'] as $key => $item) {
+				$account->data[$key] = $item;
+			}
+		}
+		user_save($account);
+	}*/
+}
