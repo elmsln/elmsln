@@ -30,9 +30,10 @@
           }
           else { ?>
           <a id="elmsln-tools-trigger" class="course-title elmsln-course-title middle-align-wrap elmsln-user-button black-text waves-effect waves-<?php print $lmsless_classes[$distro]['color'];?> waves-light" href="<?php print base_path(); ?>" title="<?php print t('Home'); ?>" >
-          	<span class="course-title-group">
-              <span class="course-title"><?php print $slogan; ?></span>
-              <span class="course-abrv"><?php print $site_name; ?> <?php if (isset($section_title)) : print $section_title; endif; ?></span>
+          	<lrndesign-avatar label="<?php print $course_context; ?>" jdenticon color="grey darken-4"></lrndesign-avatar>
+            <span class="course-title-group">
+              <span class="black-text course-title"><?php print $slogan; ?></span>
+              <span class="black-text course-abrv"><?php print $site_name; ?> <?php if (isset($section_title)) : print $section_title; endif; ?></span>
              </span>
           </a>
           <?php } ?>
@@ -84,33 +85,36 @@
 </div>
 <div id="etb-network-nav" class="row full collapse white">
   <ul class="elmsln-service-list">
-  <?php foreach ($network['services']['Network'] as $service) :
-    if (!isset($service['icon'])) {
-      $service['icon'] = $service['machine_name'];
-    }
-    // apply default system color if we get misses
-    if (!isset($service['distro'])) {
-      $service['distro'] = '_default_';
-    }
-    $activetool = 'tooltipped ';
-    $label = '';
-    $iconcolor = 'black-text';
-    $stitle = token_replace($service['title']);
-    if ($service['machine_name'] == $network['active']['machine_name']) {
-      $activetool = ' black active-system white-text ';
-      $iconcolor = ' white-text ';
-      $label = '<span class="elmsln-network-label hide-on-med-and-down truncate">' . $stitle . '</span>';
-    }
-    ?>
-    <li><a data-delay="75" data-tooltip="<?php print $stitle; ?>" data-prefetch-hover="true" href="<?php print token_replace($service['url']); ?>" class="black-text waves-effect waves-<?php print $lmsless_classes[$service['distro']]['color'];?> waves-light <?php print $activetool . $service['icon']; ?>-icon"  data-jwerty-key="ctrl+<?php print drupal_strtolower(substr($stitle, 0, 1)); ?>" data-voicecommand="<?php print t('go to ') . drupal_strtolower($stitle); ?>" data-elmsln-hover="<?php print $lmsless_classes[$service['distro']]['color'];?> <?php print $lmsless_classes[$service['distro']]['dark'];?> black-text" data-elmsln-icon-hover="hover-white-text">
-    <?php if (isset($service['icon_library']) && $service['icon_library'] == 'material'): ?>
-      <div class="material-icon elmsln-network-icon left elmsln-icon black-text"><i class="material-icons"><?php print $service['icon']; ?></i></div>
-    <?php else: ?>
-      <div class="elmsln-network-icon left elmsln-icon icon-<?php print $service['icon'] . ' ' . $iconcolor;?>"></div>
-    <?php endif; ?>
-      <?php print $label; ?>
-    </a></li>
-  <?php endforeach ?>
+  <?php if (isset($network['services']['Network'])) : ?>
+    <?php
+      foreach ($network['services']['Network'] as $service) :
+      if (!isset($service['icon'])) {
+        $service['icon'] = $service['machine_name'];
+      }
+      // apply default system color if we get misses
+      if (!isset($service['distro'])) {
+        $service['distro'] = '_default_';
+      }
+      $activetool = 'tooltipped ';
+      $label = '';
+      $iconcolor = 'black-text';
+      $stitle = token_replace($service['title']);
+      if ($service['machine_name'] == $network['active']['machine_name']) {
+        $activetool = ' black active-system white-text ';
+        $iconcolor = ' white-text ';
+        $label = '<span class="elmsln-network-label hide-on-med-and-down truncate">' . $stitle . '</span>';
+      }
+      ?>
+      <li><a data-delay="75" data-tooltip="<?php print $stitle; ?>" data-prefetch-hover="true" href="<?php print token_replace($service['url']); ?>" class="black-text waves-effect waves-<?php print $lmsless_classes[$service['distro']]['color'];?> waves-light <?php print $activetool . $service['icon']; ?>-icon"  data-jwerty-key="ctrl+<?php print drupal_strtolower(substr($stitle, 0, 1)); ?>" data-voicecommand="<?php print t('go to ') . drupal_strtolower($stitle); ?>" data-elmsln-hover="<?php print $lmsless_classes[$service['distro']]['color'];?> <?php print $lmsless_classes[$service['distro']]['dark'];?> black-text" data-elmsln-icon-hover="hover-white-text">
+      <?php if (isset($service['icon_library']) && $service['icon_library'] == 'material'): ?>
+        <div class="material-icon elmsln-network-icon left elmsln-icon black-text"><i class="material-icons"><?php print $service['icon']; ?></i></div>
+      <?php else: ?>
+        <div class="elmsln-network-icon left elmsln-icon icon-<?php print $service['icon'] . ' ' . $iconcolor;?>"></div>
+      <?php endif; ?>
+        <?php print $label; ?>
+      </a></li>
+    <?php endforeach ?>
+  <?php endif; ?>
   <?php if ($bar_elements['network']) : ?>
     <li class="elmsln-network-menu-item right">
       <a href="#network-menu-button" class="middle-align-wrap elmsln-network-button elmsln-right-side-nav-trigger black-text waves-effect waves-<?php print $lmsless_classes[$distro]['color'];?> waves-light" data-activates="block-cis-lmsless-cis-lmsless-network-nav-modal" data-jwerty-key="n" data-voicecommand="open network">

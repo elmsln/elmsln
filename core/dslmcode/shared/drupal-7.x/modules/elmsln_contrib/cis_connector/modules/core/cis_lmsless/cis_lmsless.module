@@ -223,8 +223,8 @@ function _cis_lmsless_assemble_network() {
   if (!isset($vars)) {
     $vars = array(
       'front_page' => base_path() . variable_get('site_frontpage','node'),
-      'site_name' => variable_get('site_name', t('Service')),
-      'slogan' => variable_get('site_slogan', ''),
+      'site_name' => variable_get('site_name', _cis_connector_course_context()),
+      'slogan' => variable_get('site_slogan', _cis_connector_course_context()),
       'distro' => elmsln_core_get_profile_key(),
       'lmsless_classes' => _cis_lmsless_get_distro_classes(),
       'services' => array(),
@@ -444,8 +444,8 @@ function _cis_lmsless_theme_vars() {
     $lmsless_classes = _cis_lmsless_get_distro_classes();
     $vars = array(
       'front_page' => base_path() . variable_get('site_frontpage','node'),
-      'site_name' => variable_get('site_name', t('Service')),
-      'slogan' => variable_get('site_slogan', ''),
+      'site_name' => variable_get('site_name', _cis_connector_course_context()),
+      'slogan' => _cis_connector_course_context(),
       'distro' => elmsln_core_get_profile_key(),
       'lmsless_classes' => $lmsless_classes,
       'course_context' => _cis_connector_course_context(),
@@ -515,12 +515,17 @@ function _cis_lmsless_theme_vars() {
     }
     // available bar elements
     $vars['bar_elements'] = array(
-      'network' => TRUE,
+      'network' => FALSE,
       'user' => TRUE,
       'help' => TRUE,
       'resources' => TRUE,
       'syllabus' => TRUE
     );
+    // only show network links to people that should see them.
+    if (user_access('view lmsless administration links')) {
+      $vars['bar_elements']['network'] = TRUE;
+    }
+
     // if authority, remove the syllabus
     if (_cis_connector_system_type() == 'authority') {
       $vars['bar_elements']['syllabus'] = FALSE;
@@ -636,7 +641,7 @@ function cis_lmsless_theme() {
         'tech_support' => array(),
         'elmsln_main_menu' => '',
         'lmsless_classes' => array(),
-        'bar_elements' => array('network' => TRUE, 'user' => TRUE, 'help' => TRUE, 'resources' => TRUE, 'syllabus' => TRUE),
+        'bar_elements' => array('network' => FALSE, 'user' => TRUE, 'help' => TRUE, 'resources' => TRUE, 'syllabus' => TRUE),
       ),
       'render element' => 'element',
       'template' => 'templates/cis-lmsless-bar',
