@@ -1,19 +1,3 @@
-<link rel="import" href="../../bower_components/polymer/polymer.html">
-<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
-<link rel="import" href="../../bower_components/paper-card/paper-card.html">
-<link rel="import" href="../../bower_components/lrndesign-drawer/lrndesign-drawer.html">
-<link rel="import" href="../../bower_components/iron-collapse/iron-collapse.html">
-<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
-<link rel="import" href="../../bower_components/paper-button/paper-button.html">
-<link rel="import" href="../../bower_components/paper-input/paper-input.html">
-<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
-<link rel="import" href="../../bower_components/iron-list/iron-list.html">
-<link rel="import" href="../../bower_components/iron-icons/hardware-icons.html">
-<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
-<link rel="import" href="../../bower_components/paper-checkbox/paper-checkbox.html">
-<link rel="import" href="../../bower_components/paper-styles/color.html">
-<link rel="import" href="../../bower_components/paper-styles/typography.html">
-<link rel="import" href="../../bower_components/materializecss-styles/materializecss-styles.html">
 <link rel="import" href="../../bower_components/lrndesign-gallerycard/lrndesign-gallerycard.html">
 
 <dom-module id="elmsln-open-studio-app">
@@ -37,11 +21,11 @@
       url="[[source-path]]"
       params=''
       handle-as="json"
-      on-response="responseCleanup"
-      last-response="{{submissionsResponse}}"></iron-ajax>
-    <iron-list grid items="{{submissions}}" as="submission">
+      last-response="{{submissions}}"></iron-ajax>
+    <iron-list grid items="[[submissions.data]]" as="item">
       <template>
-      <lrndesign-gallerycard title="{{submission.data.title}}" text="{{submission.data.field_submission_text.und.0.safe_value}}" url="{{submission.data.url}}" author="{{submission.data.name}}" comments="{{submission.data.comment_count}}">
+      stuff
+      <lrndesign-gallerycard title="{{item.title}}" text="{{item.body}}" url="{{item.url}}" author="{{item.author}}" comments="{{item.comments}}">
       </lrndesign-gallerycard>
       </template>
     </iron-list>
@@ -54,25 +38,14 @@
 
       properties: {
         submissions: {
-          type: Array
+          type: Array,
+          notify: true,
         },
         submissionsResponse: {
-          type: Object
-        },
-        titleFilter: {
-          type: String,
-          value: '',
-          reflectToAttribute: true,
+          type: Object,
           notify: true,
         }
       },
-      responseCleanup: function(e) {
-        var arrayIt = this._toArray(this.submissionsResponse.data);
-        console.log(arrayIt);
-        this.submissions = arrayIt;
-        console.log(this.submissions);
-      },
-
       _toArray: function(obj) {
         return Object.keys(obj).map(function(key) {
           return {

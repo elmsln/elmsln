@@ -34,11 +34,17 @@ function cle_open_studio_app_menu() {
 function _cle_open_studio_app_data() {
   // pull together all the submissions they should be seeing
   $data = _cis_connector_assemble_entity_list('node', 'cle_submission', 'nid', '_entity');
-  foreach ($data as &$item) {
-    $item->url = base_path() . 'node/' . $item->nid . '.json';
-    $item->edit_url = base_path() . 'node/' . $item->nid . '/edit?destination=cle/open-studio-app';
+  $return = array();
+  foreach ($data as $item) {
+    $return[$item->nid] = new stdClass();
+    $return[$item->nid]->title = $item->title;
+    $return[$item->nid]->comments = $item->comment_count;
+    $return[$item->nid]->author = $item->name;
+    $return[$item->nid]->body = strip_tags($item->field_submission_text['und'][0]['safe_value']);
+    $return[$item->nid]->url = base_path() . 'node/' . $item->nid . '.json';
+    $return[$item->nid]->edit_url = base_path() . 'node/' . $item->nid . '/edit?destination=cle/open-studio-app';
   }
-  _elmsln_jsapi_deliver_output(array('data' => $data));
+  _elmsln_jsapi_deliver_output(array('data' => $return));
 }
 
 /**
@@ -54,13 +60,13 @@ function _cle_open_studio_app() {
     ),
   );
   drupal_add_html_head($element, 'cle_open_studio_app_manifest');
-  drupal_add_js($path . 'bower_components/webcomponentsjs/webcomponents-lite.js');
   $element = array(
     '#tag' => 'link',
     '#attributes' => array(
       'href' => $path . 'src/elmsln-open-studio-app/elmsln-open-studio-app.html',
       'rel' => 'import',
     ),
+    '#weight' => '99999',
   );
   drupal_add_html_head($element, 'cle_open_studio_app');
   return '<elmsln-open-studio-app source-path="' . base_path() . 'cle/open-studio-app/data"></elmsln-open-studio-app>';
