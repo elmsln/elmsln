@@ -89,7 +89,7 @@ function git_book_node_insert($node) {
             if (isset($node->body[LANGUAGE_NONE]) && !empty($node->body[LANGUAGE_NONE])) {
               $content = $node->body[LANGUAGE_NONE][0]['value'];
             }
-            file_put_contents($path . $node->title . '.md', $content);
+            @file_put_contents($path . $node->title . '.md', $content);
             // check if we want to auto commit on save
             if ($book->field_git_commit[LANGUAGE_NONE][0]['value']) {
               // open the path
@@ -146,22 +146,15 @@ function git_book_node_update($node) {
           $parsers = git_book_get_parsers();
           if (!empty($parsers) && isset($book->field_git_parser[LANGUAGE_NONE][0]['value']) && isset($parsers[$book->field_git_parser[LANGUAGE_NONE][0]['value']]) && isset($parsers[$book->field_git_parser[LANGUAGE_NONE][0]['value']]['path'])) {
             // call this function which will modify the title accordingly
-            $path = call_user_func($parsers[$book->field_git_parser[LANGUAGE_NONE][0]['value']]['path'], $path, $node);
+            $call = $book->field_git_parser[LANGUAGE_NONE][0]['value'];
+            $path = call_user_func($parsers[$call]['path'], $path, $node);
             @drupal_mkdir($path, NULL, TRUE);
             // write to this path the current node body contents
             $content = '';
             if (isset($node->body[LANGUAGE_NONE]) && !empty($node->body[LANGUAGE_NONE])) {
               $content = $node->body[LANGUAGE_NONE][0]['value'];
             }
-            @file_put_contents($path . $node->title . '.md', $content);
-            // if old doesn't = new that means title changed
-            // since this is tied to filename we can delete
-            // the old file and know git will realize
-            // the file contents moved from 1 location to another
-            // with the changes in question.
-            if (isset($node->original) && $node->original->title != $node->title) {
-              @unlink($path . $node->original->title . '.md');
-            }
+            @file_put_contents($path . $node->path['alias'], $content);
             // open the path
             $repo = Git::open($path);
             // switch to the appropriate branch

@@ -8,15 +8,10 @@ import { StoreModule } from '@ngrx/store';
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 import { EffectsModule } from '@ngrx/effects';
 import { routerReducer, RouterStoreModule } from '@ngrx/router-store';
+import { MaterialModule } from '@angular/material';
 
 // reducers
-// import { reducer as assignmentReducer } from './assignment/assignment.reducer';
-// import { reducer as userReducer } from './reducers/users';
-// import { submissionReducer } from './submission/submission.reducer';
-// import { projectReducer } from './projects/project.reducer';
-// import { imageReducer } from './image/image.reducer';
 import { reducer } from './app.reducer';
-
 // effects
 import { AssignmentEffects } from './assignment/assignment.effects';
 import { SubmissionEffects } from './submission/submission.effects';
@@ -27,6 +22,7 @@ import { CritiqueService } from './critique.service';
 import { AssignmentService } from './assignment/assignment.service';
 import { SubmissionService } from './submission/submission.service';
 import { ProjectService } from './projects/project.service';
+import { ActivityFeedService } from './activity-feed/activity-feed.service';
 // Moment.js
 import { MomentModule } from 'angular2-moment';
 // components
@@ -65,6 +61,8 @@ import { AssignmentDetailComponent } from './assignment/assignment-detail/assign
 import { ElmslnWysiwygComponent } from './elmsln-wysiwyg/elmsln-wysiwyg.component';
 import { SubmissionCritiqueFormComponent } from './submission/submission-critique-form/submission-critique-form.component';
 import { SubmissionCritiqueComponent } from './submission/submission-critique/submission-critique.component';
+import { ActivityFeedComponent } from './activity-feed/activity-feed.component';
+import { ActivityFeedItemComponent } from './activity-feed/activity-feed-item/activity-feed-item.component';
 
 @NgModule({
   declarations: [
@@ -103,7 +101,9 @@ import { SubmissionCritiqueComponent } from './submission/submission-critique/su
     AssignmentDetailComponent,
     ElmslnWysiwygComponent,
     SubmissionCritiqueFormComponent,
-    SubmissionCritiqueComponent
+    SubmissionCritiqueComponent,
+    ActivityFeedComponent,
+    ActivityFeedItemComponent
   ],
   imports: [
     BrowserModule,
@@ -117,14 +117,16 @@ import { SubmissionCritiqueComponent } from './submission/submission-critique/su
     EffectsModule.run(AssignmentEffects),
     EffectsModule.run(SubmissionEffects),
     EffectsModule.run(ProjectEffects),
-    StoreDevtoolsModule.instrumentOnlyWithExtension({maxAge: 50})
+    StoreDevtoolsModule.instrumentOnlyWithExtension({maxAge: 50}),
+    MaterialModule
   ],
   providers: [
     ElmslnService,
     CritiqueService,
     AssignmentService,
     SubmissionService,
-    ProjectService
+    ProjectService,
+    ActivityFeedService
   ],
   bootstrap: [AppComponent]
 })

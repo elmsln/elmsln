@@ -6,19 +6,18 @@ import { AppState } from '../state';
 import { ElmslnService } from '../elmsln.service';
 import { AppSettings } from '../app.settings';
 import { Assignment } from './assignment';
+import * as fromRoot from '../app.reducer';
 declare const Materialize:any;
 
 
 @Injectable()
 export class AssignmentService {
-  assignments: Observable<Array<Assignment>>;
 
 
   constructor(
     private elmsln: ElmslnService,
-    private store: Store<AppState>
+    private store: Store<fromRoot.State>
   ) {
-    this.assignments = this.store.select(state => state.assignments);
   }
 
   getAssignments(projectId?:number) {
@@ -194,5 +193,19 @@ export class AssignmentService {
       }
     }
     return false;
+  }
+
+  public pluckAssignmentsByProject(projectId):Observable<Assignment[]> {
+    return this.store.select(fromRoot.getAssignments)
+      .map((assignemnts:Assignment[]) => assignemnts.filter(a => a.project === projectId))
+      .map((assignments:Assignment[]) => this.filterAssignments(assignments));
+  }
+
+  public filterAssignments(assignments:Assignment[]):Assignment[] {
+      return assignments.sort((a,b) => {
+        const idA = a.hierarchy['dependencies'].length > 0 ? a.hierarchy['dependencies'][0] : a.id;
+        const idB = b.hierarchy['dependencies'].length > 0 ? b.hierarchy['dependencies'][0] : b.id;
+        return idA - idB;
+      });
   }
 }
