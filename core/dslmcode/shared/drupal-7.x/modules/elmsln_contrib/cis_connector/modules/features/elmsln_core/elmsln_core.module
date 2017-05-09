@@ -1878,13 +1878,11 @@ function elmsln_core_cis_lmsless_color_alter(&$map) {
 function elmsln_core_webcomponent_attached_files_alter(&$webcomponents) {
   // remove the definitions from the node edit page for lrn components
   // till we have a good alternative
-  if (arg(0) == 'node' && arg(2) == 'edit') {
-    foreach ($webcomponents as $key => $webcomponent) {
-      // see if the tag starts with lrn- and isn't reserved
-      if (strpos($webcomponent->machine_name, 'lrn-') === 0 && !in_array($webcomponent->machine_name, array('lrn-icon', 'lrn-icons', 'lrn-page'))) {
-        unset($webcomponents[$key]);
-      }
-    }
+  if (arg(0) == 'node' && arg(2) == 'edit' && isset($webcomponents['sites/all/libraries/webcomponents/polymer/LRNWebComponents/build.html'])) {
+    $edit_path = drupal_get_path('module', 'elmsln_core') . '/LRNWebComponents/build_edit.html';
+    $webcomponents[$edit_path] = $webcomponents['sites/all/libraries/webcomponents/polymer/LRNWebComponents/build.html'];
+    $webcomponents[$edit_path]->file = $edit_path;
+    unset($webcomponents['sites/all/libraries/webcomponents/polymer/LRNWebComponents/build.html']);
   }
 }
 
