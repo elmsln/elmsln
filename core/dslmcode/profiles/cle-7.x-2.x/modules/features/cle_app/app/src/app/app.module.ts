@@ -9,7 +9,6 @@ import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 import { EffectsModule } from '@ngrx/effects';
 import { routerReducer, RouterStoreModule } from '@ngrx/router-store';
 import { MaterialModule } from '@angular/material';
-import { TruncateModule } from 'ng2-truncate';
 
 // reducers
 import { reducer } from './app.reducer';
@@ -119,8 +118,7 @@ import { ActivityFeedItemComponent } from './activity-feed/activity-feed-item/ac
     EffectsModule.run(SubmissionEffects),
     EffectsModule.run(ProjectEffects),
     StoreDevtoolsModule.instrumentOnlyWithExtension({maxAge: 50}),
-    MaterialModule,
-    TruncateModule
+    MaterialModule
   ],
   providers: [
     ElmslnService,
