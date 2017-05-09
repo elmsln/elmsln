@@ -1,0 +1,59 @@
+<?php
+
+/**
+ * @file
+ * The module file
+ *
+ * This module makes it possible to remove information in the flood table
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function flood_unblock_menu() {
+  $items['admin/config/system/flood-unblock'] = array(
+    'title'            => 'Flood unblock',
+    'description'      => 'List all user blocked by the flood table.',
+    'page callback'    => 'drupal_get_form',
+    'page arguments'   => array('flood_unblock_settings'),
+    'access arguments' => array('access flood unblock'),
+    'file' => 'flood_unblock.admin.inc',
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function flood_unblock_permission() {
+  return array(
+    'access flood unblock' => array(
+      'title' => t('Access the flood unblock module'),
+    ),
+  );
+}
+
+/**
+ * The function that clear the flood.
+ */
+function flood_unblock_clear_event($type, $identifier) {
+  $txn = db_transaction();
+  try {
+    $query = db_delete('flood')->condition('event', $type);
+    if (isset($identifier)) {
+      $query->condition('identifier', $identifier);
+    }
+    $success = $query->execute();
+    if ($success) {
+      drupal_set_message(t('Flood entries cleared.'), 'status', FALSE);
+    }
+  }
+  catch (Exception $e) {
+    // Something went wrong somewhere, so roll back now.
+    $txn->rollback();
+    // Log the exception to watchdog.
+    watchdog_exception('type', $e);
+    drupal_set_message("Error: " . $e, 'error');
+  }
+}
