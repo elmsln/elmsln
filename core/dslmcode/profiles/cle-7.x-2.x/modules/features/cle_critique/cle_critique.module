@@ -113,6 +113,8 @@ function _cle_critique_random($anid) {
   ->fieldCondition('field_assignment', 'target_id', $anid, '=')
   // only to this section
   ->fieldCondition('og_group_ref', 'target_id', $section, '=')
+  // the submission has been set to 'submission_ready'
+  ->fieldCondition('field_submission_state', 'value', 'submission_ready', '=')
   // add a random query tag so we can randomize the response
   ->addTag('random')
   // only return 200 items in case this is a MOOC or something
