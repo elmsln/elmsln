@@ -154,7 +154,7 @@ function git_book_node_update($node) {
             if (isset($node->body[LANGUAGE_NONE]) && !empty($node->body[LANGUAGE_NONE])) {
               $content = $node->body[LANGUAGE_NONE][0]['value'];
             }
-            file_put_contents($path . $node->path['alias'], $content);
+            @file_put_contents($path . $node->path['alias'], $content);
             // open the path
             $repo = Git::open($path);
             // switch to the appropriate branch
