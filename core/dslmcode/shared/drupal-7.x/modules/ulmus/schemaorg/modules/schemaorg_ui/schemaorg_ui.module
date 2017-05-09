@@ -1,0 +1,243 @@
+<?php
+
+/**
+ * @file
+ * User interface for setting the schema.org mappings
+ */
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function schemaorg_ui_form_node_type_form_alter(&$form, $form_state) {
+  if (isset($form['type'])) {
+    $bundle = $form['#node_type']->type;
+    $form['schemaorg_ui'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Schema.org settings'),
+      '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
+      '#group' => 'additional_settings',
+    );
+    $form['schemaorg_ui']['schemaorg_ui_type'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Type'),
+      '#description' => t('Specify the type you want to associated to this content type e.g. Article, Blog, etc.'),
+      '#default_value' => schemaorg_ui_term_load('node', $bundle, 'rdftype'),
+      '#attributes' => array('class' => array('schemaorg-ui-autocomplete-types')),
+    );
+    $form['#submit'][] = 'schemaorg_ui_node_type_form_submit';
+    // Use jQuery UI autocomplete to provide a faster autocomplete without
+    // callback to the server.
+    $form['#attached']['library'][] = array('system', 'ui.autocomplete');
+    $form['#attached']['css'][] = drupal_get_path('module', 'schemaorg_ui') . '/css/schemaorg_ui.jquery.ui.theme.css';
+    $form['#attached']['js'][] = drupal_get_path('module', 'schemaorg_ui') . '/js/schemaorg_ui.js';
+    $form['#attached']['js'][] =  array(
+          'data' => array('schemaorguiapiTermsPath' => base_path() . drupal_get_path('module', 'schemaorg_ui') . '/js/schemaorg_ui.terms.json'),
+          'type' => 'setting'
+    );
+  }
+}
+
+/**
+ * Submit function for node type form.
+ */
+function schemaorg_ui_node_type_form_submit($form, &$form_state) {
+  $bundle = $form_state['values']['type'];
+  $mapping = rdf_mapping_load('node', $bundle);
+  $mapping['rdftype'] = schemaorg_ui_terms_merge($form_state['values']['schemaorg_ui_type'], $mapping['rdftype']);
+
+  rdf_mapping_save(array(
+    'type' => 'node',
+    'bundle' => $bundle,
+    'mapping' => $mapping,
+    )
+  );
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function schemaorg_ui_form_field_ui_field_edit_form_alter(&$form, &$form_state) {
+  $field_name = $form['#field']['field_name'];
+  $bundle = $form['instance']['bundle']['#value'];
+  $instance = $form['instance'];
+  $label = isset($instance['label']) ? $instance['label']['#default_value'] : $instance['field_name'];
+  $entity_type = $instance['entity_type']['#value'];
+  $mapping = rdf_mapping_load($entity_type, $instance['bundle']['#value']);
+
+  $form['schemaorg_ui'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('%label schema.org mapping', array('%label' => $label)),
+  );
+
+  $form['schemaorg_ui']['schemaorg_ui_field_property'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Property'),
+    '#description' => t('Specify the property you want to associated to this field.'),
+    '#default_value' => schemaorg_ui_term_load($entity_type, $bundle, $field_name),
+    '#attributes' => array('class' => array('schemaorg-ui-autocomplete-properties')),
+  );
+
+  $form['#submit'][] = 'schemaorg_ui_field_ui_field_edit_form_submit';
+  // Use jQuery UI autocomplete to provide a faster autocomplete without
+  // callback to the server.
+  $form['#attached']['library'][] = array('system', 'ui.autocomplete');
+  $form['#attached']['css'][] = drupal_get_path('module', 'schemaorg_ui') . '/css/schemaorg_ui.jquery.ui.theme.css';
+  $form['#attached']['js'][] = drupal_get_path('module', 'schemaorg_ui') . '/js/schemaorg_ui.js';
+  $form['#attached']['js'][] =  array(
+        'data' => array('schemaorguiapiTermsPath' => base_path() . drupal_get_path('module', 'schemaorg_ui') . '/js/schemaorg_ui.terms.json'),
+        'type' => 'setting'
+  );
+}
+
+/**
+ * Submit function for edit field form.
+ */
+function schemaorg_ui_field_ui_field_edit_form_submit($form, &$form_state) {
+  $entity_type = $form['#instance']['entity_type'];
+  $bundle = $form['#instance']['bundle'];
+  $field_name = $form['#field']['field_name'];
+  $field_type = $form['#field']['type'];
+
+  $mapping = rdf_mapping_load($entity_type, $bundle);
+
+  // This field might not have an RDF mapping yet.
+  if (empty($mapping[$field_name])) {
+    $mapping[$field_name]['predicates'] = array();
+  }
+
+  $mapping[$field_name]['predicates'] = schemaorg_ui_terms_merge($form_state['values']['schemaorg_ui_field_property'], $mapping[$field_name]['predicates']);
+
+  // Sets RDF mapping type in the case of fields where the object is a resource
+  // such as image, file, etc.
+  $rel_field_types = array('image', 'file', 'taxonomy_term_reference');
+  if (in_array($field_type, $rel_field_types)) {
+    $mapping[$field_name]['type'] = 'rel';
+  }
+
+  // Performs some maintenance tasks based on whether the mapping contains
+  // schema.org terms or not.
+  // Scans the mapping array to see if some fields are mapped to schema.org.
+  $schemaorg_mappings = FALSE;
+  // Some fields are ignored since they are not input by the user.
+  $ignored_fields = array('title', 'name', 'url');
+  foreach ($mapping as $field => $info) {
+    if (!empty($info['predicates']) && !in_array($field, $ignored_fields)) {
+      if (count($info['predicates']) != count(array_filter($info['predicates'], 'schemaorg_ui_filter_schema_term'))) {
+        $schemaorg_mappings = TRUE;
+        break;
+      }
+    }
+  }
+  if ($schemaorg_mappings) {
+    // Specifies the title/name mapping as expected by schema.org. This mapping
+    // is always set to schema:name and is not exposed in the UI.
+    // The label of an entity is usually either 'title' (e.g. node) or
+    // 'name' (e.g. user).
+    if (!empty($mapping['title'])) {
+      $mapping['title']['predicates'] = array('schema:name');
+    }
+    if (!empty($mapping['name'])) {
+      $mapping['name']['predicates'] = array('schema:name');
+    }
+    // Sets the mapping for the url of the entity. This mapping is always set
+    // to schema:url and is not exposed in the UI.
+    if ($entity_type != 'profile2') {
+      $mapping['url']['predicates'] = array('schema:url');
+      $mapping['url']['type'] = 'rel';
+    }
+    // Add schema:Person type to user mapping.
+    if ($entity_type == 'user' && $bundle == 'user' ) {
+      $mapping['rdftype'] = schemaorg_ui_terms_merge('Person', $mapping['rdftype']);
+    }
+  }
+  else {
+    // Makes sure no schema.org mapping for title/name remains if no schema.org
+    // terms are used.
+    if (!empty($mapping['title'])) {
+      $mapping['title']['predicates'] = array_filter($mapping['title']['predicates'], 'schemaorg_ui_filter_schema_term');
+    }
+    if (!empty($mapping['name'])) {
+      $mapping['name']['predicates'] = array_filter($mapping['name']['predicates'], 'schemaorg_ui_filter_schema_term');
+    }
+    // Since this pseudo-field mapping is only used for the purpose of
+    // schema.org, it is entirely removed.
+    unset($mapping['url']);
+    // Remove schema.org type from the user mapping.
+    if ($entity_type == 'user' && $bundle == 'user' ) {
+      $mapping['rdftype'] = array_filter($mapping['rdftype'], 'schemaorg_ui_filter_schema_term');
+    }
+  }
+
+  rdf_mapping_save(array(
+    'type' => $entity_type,
+    'bundle' => $bundle,
+    'mapping' => $mapping,
+    )
+  );
+
+  // Handle profile2 and schema.org mappings by setting the right type and
+  // properties for the user entity type. The profile should not be seen as a
+  // separate resource in the RDFa, but instead it should be part of the user.
+  if (module_exists('profile2')) {
+    $user_mapping = rdf_mapping_load('user', 'user');
+    $user_mapping['rdftype'] = schemaorg_ui_terms_merge('Person', isset($user_mapping['rdftype']) ? $user_mapping['rdftype'] : array());
+    $user_mapping['name']['predicates'] = array('schema:name');
+    $user_mapping['url']['predicates'] = array('schema:url');
+    $user_mapping['url']['type'] = 'rel';
+
+    rdf_mapping_save(array(
+      'type' => 'user',
+      'bundle' => 'user',
+      'mapping' => $user_mapping,
+      )
+    );
+  }
+}
+
+/**
+ * Loads the schema.org term for a particular Drupal field or rdftype.
+ */
+function schemaorg_ui_term_load($type, $bundle, $field) {
+  $terms = array();
+  $mapping = rdf_mapping_load($type, $bundle);
+  if ($field == 'rdftype' && !empty($mapping['rdftype'])) {
+    $terms = $mapping['rdftype'];
+  }
+  elseif (!empty($mapping[$field]['predicates'])) {
+    $terms = $mapping[$field]['predicates'];
+  }
+  // Return the first schema: term.
+  foreach ($terms as $term) {
+    if (strpos(trim($term), 'schema:') === 0) {
+      return str_replace('schema:', '', $term);
+    }
+  }
+}
+
+/**
+ * Add, update or remove a schema term from a set of terms.
+ */
+function schemaorg_ui_terms_merge($schema_term, $terms) {
+  // Strip out existing schema.org mappings.
+  if (empty($terms)) {
+    $terms = array();
+  }
+  $terms = array_filter($terms, 'schemaorg_ui_filter_schema_term');
+
+  if ($schema_term) {
+    // Place the schema term first for commodity so it appears first in the
+    // list of CURIEs in the HTML output.
+    array_unshift($terms, 'schema:' . $schema_term);
+  }
+  return $terms;
+}
+
+/**
+ * Filters out non schema: terms.
+ *
+ * @see schemaorg_ui_terms_merge()
+ */
+function schemaorg_ui_filter_schema_term($term) {
+  return strpos(trim($term), 'schema:') !== 0;
+}

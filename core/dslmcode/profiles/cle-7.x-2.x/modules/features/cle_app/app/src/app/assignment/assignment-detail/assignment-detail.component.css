@@ -1,12 +1,12 @@
 .assignment {
   position: relative;
-  background: #e6e6e6;
+  background: white;
   display: block;
   padding: 1em;
   font-size: .9em;
   margin-bottom: 2em;
-  width: 80vw;
-  max-width: 38em;
+  width: 100%;
+  margin: auto;
   padding-left: 3em;
   box-shadow: 1px 1px 5px rgba(0, 0, 0, .6);
  }

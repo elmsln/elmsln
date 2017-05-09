@@ -1151,7 +1151,7 @@ function foundation_access_menu_link(&$variables) {
   // support for add menu to get floating classes
   if ($element['#original_link']['menu_name'] == 'menu-elmsln-add') {
     // support for passing section context as to what they are looking at currently
-    if (_cis_connector_system_type() != 'service') {
+    if (_cis_connector_system_type() != 'service' && $element['#original_link']['router_path'] != 'cis-quick-setup') {
       $element['#localized_options']['query']['elmsln_course'] = _cis_connector_course_context();
       $element['#localized_options']['query']['elmsln_section'] = _cis_connector_section_context();
     }

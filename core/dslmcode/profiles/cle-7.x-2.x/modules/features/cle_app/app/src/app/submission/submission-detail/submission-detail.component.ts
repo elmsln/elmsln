@@ -6,12 +6,12 @@ import { Submission } from '../submission';
 import { ElmslnService } from '../../elmsln.service';
 import { Observable } from 'rxjs/Observable';
 import { SubmissionService } from '../submission.service';
-import { Assignment } from '../../assignment';
+import { Assignment } from '../../assignment/assignment';
 
 @Component({
   selector: 'app-submission-detail',
   templateUrl: './submission-detail.component.html',
-  styleUrls: ['./submission-detail.component.css']
+  styleUrls: ['./submission-detail.component.scss']
 })
 export class SubmissionDetailComponent implements OnInit, AfterViewInit, OnChanges {
   @Input() submission:Submission;

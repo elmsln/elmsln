@@ -5,7 +5,8 @@
     });
     // test for cookie being set
     if ($.cookie('a11y_animation') == 'true') {
-      $('#a11y_animation_checkbox').click();
+      $('#a11y_animation_checkbox').attr('checked', true);
+      Drupal.a11y.animation(true);
     }
   });
   // animation functionality

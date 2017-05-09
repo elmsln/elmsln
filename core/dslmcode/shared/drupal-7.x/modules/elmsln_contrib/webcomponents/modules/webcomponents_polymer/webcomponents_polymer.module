@@ -22,7 +22,17 @@ function webcomponents_polymer_register_component_format() {
  * Implements hook_page_build().
  */
 function webcomponents_polymer_page_build(&$page) {
-  drupal_add_js(drupal_get_path('theme', $GLOBALS['theme_key']) . '/polymer/bower_components/webcomponentsjs/webcomponents-lite.min.js');
+  $themes = list_themes();
+  $active = $GLOBALS['theme_key'];
+  // hit active theme
+  if (isset($themes[$active])) {
+    drupal_add_js(drupal_get_path('theme', $active) . '/polymer/bower_components/webcomponentsjs/webcomponents-lite.min.js');
+    // look for base themes
+    while (isset($themes[$active]->base_theme)) {
+      $active = $themes[$active]->base_theme;
+      drupal_add_js(drupal_get_path('theme', $active) . '/polymer/bower_components/webcomponentsjs/webcomponents-lite.min.js');
+    }
+  }
 }
 
 /**
@@ -33,6 +43,7 @@ function webcomponents_polymer_webcomponents() {
   $themes = list_themes();
   $active = $GLOBALS['theme_key'];
   $lookup = array();
+  $files = array();
   // hit active theme
   if (isset($themes[$active])) {
     $lookup[] = $active;
@@ -50,7 +61,6 @@ function webcomponents_polymer_webcomponents() {
       $dir = drupal_get_path('theme', $theme) . '/' . WEBCOMPONENTS_POLYMER_LOCATION . '/';
       // see if we have default file
       if (file_exists($dir . '/' . WEBCOMPONENTS_POLYMER_INDEX)) {
-        $files = array();
         // step into the polymer directory and find all html templates
         $di = new DirectoryIterator($dir);
         foreach ($di as $fileinfo) {
@@ -133,5 +143,9 @@ function _webcomponents_polymer_process_component($file) {
   // Release resources to avoid memory leak in some versions.
   $html_obj->clear();
   unset($html_obj);
-  return $component;
+  // make sure we found a component in here
+  if (isset($component)) {
+  	return $component;
+  }
+  return FALSE;
 }

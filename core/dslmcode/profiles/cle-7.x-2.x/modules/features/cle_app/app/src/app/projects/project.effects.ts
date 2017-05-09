@@ -13,8 +13,8 @@ import {
   loadPermissions,
   loadPermissionsSuccess,
 } from './project.actions';
-import { ProjectService } from '../project.service';
-import { Project } from '../project';
+import { ProjectService } from './project.service';
+import { Project } from './project';
 declare const Materialize:any;
 
 @Injectable()

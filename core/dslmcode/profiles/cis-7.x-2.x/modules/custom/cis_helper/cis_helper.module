@@ -721,6 +721,7 @@ function cis_helper_entity_insert($entity, $type) {
       'machine_name' => $entity->field_machine_name[LANGUAGE_NONE][0]['value'],
       'uuid' => $entity->uuid,
     );
+    unset($_GET['elmsln_course']);
     _elmsln_api_course_sync($properties, '1', TRUE);
   }
   // check to see if a service_instance is being inserted
@@ -787,6 +788,7 @@ function cis_helper_entity_update($entity, $type) {
     }
     // if anything changed let's ship this off everywhere
     if (!empty($properties)) {
+      unset($_GET['elmsln_course']);
       _elmsln_api_course_sync($properties, '1', TRUE);
     }
   }

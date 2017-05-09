@@ -2,10 +2,10 @@ import { Injectable, Inject } from '@angular/core';
 import { Observable, Subscription } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { ElmslnService } from '../elmsln.service';
-import { AppSettings } from '../app-settings';
+import { AppSettings } from '../app.settings';
 import { Submission } from './submission';
-import { Assignment } from '../assignment';
-import { loadAssignments } from '../app.actions';
+import { Assignment } from '../assignment/assignment';
+import { loadAssignments } from '../assignment/assignment.actions';
 declare const Materialize:any;
 
 @Injectable()

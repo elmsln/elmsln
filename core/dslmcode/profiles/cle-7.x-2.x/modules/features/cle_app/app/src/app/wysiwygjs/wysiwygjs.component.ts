@@ -2,7 +2,7 @@ import { Component, OnInit, ElementRef, AfterViewInit, Input, Output, EventEmitt
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms'
 import { Observable, Subject } from 'rxjs/Rx';
 import { ElmslnService } from '../elmsln.service';
-import { AppSettings } from '../app-settings';
+import { AppSettings } from '../app.settings';
 
 // non-typescript definitions
 declare var jQuery:any;

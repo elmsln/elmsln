@@ -2,48 +2,42 @@ import { Action } from '@ngrx/store';
 import { ActionTypes } from './image.actions';
 import { Image } from './image';
 
-export interface ImageState {
-  status: ImageStatusState;
+export enum ImageStates {
+  default,
+  saving,
+  error
 }
 
-export interface ImageStatusState {
-  type: string,
-  message: string
+export interface ImageState {
+  state: ImageStates;
+  message: string;
 }
 
 const initialState: ImageState = {
-  status: {
-    type: 'default',
-    message: ''
-  }
+  state: ImageStates.default,
+  message: ''
 }
 
 export function imageReducer(state: ImageState = initialState, action: Action) {
   switch (action.type) {
     case ActionTypes.CREATE_IMAGE: {
       return {
-        status: {
-          type: 'saving',
-          message: ''
-        }
+        state: ImageStates.saving,
+        message: ''
       }
     }
 
     case ActionTypes.CREATE_IMAGE_SUCCESS: {
       return {
-        status: {
-          type: 'saved',
-          message: 'Image created'
-        }
+        state: ImageStates.default,
+        message: 'Image created'
       }
     }
 
     case ActionTypes.CREATE_IMAGE_FAILURE: {
       return {
-        status: {
-          type: 'error',
-          message: 'There was an error creating the image.'
-        }
+        state: ImageStates.error,
+        message: 'There was an error creating the image.'
       }
     }
     
@@ -52,3 +46,6 @@ export function imageReducer(state: ImageState = initialState, action: Action) {
     }
   }
 }
+
+export const getCurrentState = (state:ImageState) => state.state;
+export const getMessage = (state:ImageState) => state.message;
