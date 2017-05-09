@@ -61,7 +61,7 @@ function _git_book_gb_summary($path, $node, $pages = array()) {
  * Callback to modify path for git_book_gb_git_book_parser.
  */
 function git_book_gb_construct_path($path, $node) {
-  return $path . '/';
+  return '';
 }
 
 

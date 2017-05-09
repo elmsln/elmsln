@@ -15,9 +15,9 @@ import * as fromRoot from '../app.reducer';
   styleUrls: ['./submission.component.css']
 })
 export class SubmissionComponent implements OnInit {
-  submissionId$:Observable<number>;
+  submissionId:number;
   submission$:Observable<Submission>;
-  assignment$:Observable<Assignment>;
+  assignmentId: number;
   userCanEdit$:Observable<boolean>;
   submissionType$:Observable<string>;
 
@@ -32,31 +32,20 @@ export class SubmissionComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.submissionId$ = this.route.params
-      .map((params:Params) => {
+    this.route.params
+      .subscribe((params:Params) => {
         if (params['submissionId']) {
-          return Number(params['submissionId']);
-        }
-        else {
-          return null;
-        }
-      })
+          this.submissionId = Number(params['submissionId']);
 
-    this.submission$ = Observable.combineLatest(
-      this.submissionId$,
-      this.store.select(fromRoot.getAllSubmissions),
-      ((submissionId, submissions:Submission[]) => {
-        return submissions.find((s) => s.id === submissionId);
-      })
-    )
+      }})
 
-    // get the assignment
-    this.assignment$ = Observable.combineLatest(
-      this.submission$,
-      this.store.select(fromRoot.getAssignments),
-      (s:Submission, assignments:Assignment[]) => assignments.find(a => a.id === s.assignment)
-    )
-    
+    // get the submission
+    this.submission$ = this.store.select(fromRoot.getAllSubmissions)
+      .map(s => s.find((i) => i.id === this.submissionId))
+    // get the assignmentId
+    this.submission$
+      .filter(s => typeof s !== 'undefined')
+      .subscribe(s => this.assignmentId = s.assignment);
     // check if the user can edit the submission
     this.userCanEdit$ = this.submission$
       .map((state:any) => {
@@ -74,20 +63,10 @@ export class SubmissionComponent implements OnInit {
   }
 
   onClickBack() {
-    this.assignment$
-      .subscribe(a => {
-        if (a) {
-          this.router.navigate(['/assignments/' + a.id])
-        }
-      })
+    this.router.navigate(['/assignments/' + this.assignmentId]);
   }
 
   editSubmission() {
-    this.submission$
-      .subscribe(s => {
-        if (s) {
-          this.router.navigate(['/submissions/' + s.id + '/edit']);
-        }
-      })
+    this.router.navigate(['/submissions/' + this.submissionId + '/edit']);
   }
 }

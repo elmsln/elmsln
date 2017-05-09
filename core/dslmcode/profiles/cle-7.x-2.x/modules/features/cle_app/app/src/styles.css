@@ -1,5 +1,4 @@
 /* You can add global styles to this file, and also import other style files */
-@import '~@angular/material/core/theming/prebuilt/deeppurple-amber.css';
 
 nav {
   background-color: transparent;
@@ -9,10 +8,6 @@ nav ul a {
   color: #333333;
 }
 .nav-wrapper {
-}
-
-.cle-critique {
-  background-color: #f9f9f9;
 }
 
 article app-root ul li {

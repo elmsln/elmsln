@@ -4,9 +4,7 @@
       <li><a (click)="onClickBack()"><i class="material-icons left">&#xE5C4;</i> assignment</a></li>
     </ul>
     <ul id="nav-mobile-right" class="right">
-      <li *ngIf="userCanEdit$ | async" class="nav-icons">
-        <a (click)="editSubmission()" mdTooltip="Edit"><md-icon class="example-icon">edit</md-icon></a>
-      </li>
+      <li *ngIf="userCanEdit$ | async"><a (click)="editSubmission()"><i class="material-icons left">edit</i></a></li>
     </ul>
   </div>
 </nav>

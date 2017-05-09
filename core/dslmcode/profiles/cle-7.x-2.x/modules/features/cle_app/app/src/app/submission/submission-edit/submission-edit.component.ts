@@ -20,7 +20,8 @@ declare const jQuery:any;
 export class SubmissionEditComponent implements OnInit {
   @ViewChild(SubmissionFormComponent) submissionFormComponent:SubmissionFormComponent;
   submission$: Observable<Submission>;
-  submissionId$:Observable<number>;
+  submissionId:number;
+  assignmentId:number;
   assignment$:Observable<Assignment>;
   submissionFormDirty:boolean;
   isSaving:boolean = false;
@@ -38,22 +39,20 @@ export class SubmissionEditComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.submissionId$ = this.route.params
-      .map((params:Params) => params['submissionId'] ? Number(params['submissionId']) : null);
-    
-    // get the submission from store
-    this.submission$ = Observable.combineLatest(
-      this.submissionId$,
-      this.store.select(fromRoot.getAllSubmissions),
-      (id:number, submissions:Submission[]) => submissions.find(s => s.id === id)
-    )
-    
-    // get the parent assignemnt
-    this.assignment$ = Observable.combineLatest(
-      this.submission$,
-      this.store.select(fromRoot.getAssignments),
-      (s:Submission, assignments:Assignment[]) => assignments.find(a => a.id === s.assignment)
-    )
+    this.route.params.forEach((params:Params) => {
+      if (typeof params['submissionId'] !== 'undefined') {
+        let id = params['submissionId'];
+        this.submissionId = Number(id);
+      }
+    });
+
+    if (this.submissionId) {
+      this.submission$ = this.store.select(fromRoot.getAllSubmissions)
+        .map((state:any) => state.find((sub:Submission) => {
+          this.assignmentId = sub.assignment;
+          return sub.id === this.submissionId;
+        }))
+    }
 
     this.store.select(fromRoot.getSubmissionCurrentState)
       .subscribe((state:SubmissionStates) => {
@@ -65,8 +64,24 @@ export class SubmissionEditComponent implements OnInit {
         else if (state === SubmissionStates.default && this.isSaving) {
           jQuery('.toast-submission-update').remove();
           Materialize.toast('Submission updated', 1500);
-          this.router.navigate(['/assignments/' + this.assignment$.subscribe(a => a.id)]);
+          this.router.navigate(['/assignments/' + this.assignmentId]);
         }
+      })
+
+    // get the current assignemnt
+    this.assignment$ = this.submission$
+      // make sure this submission has an assignment
+      .filter((s:Submission) => {
+        if (s) {
+          if (s.assignment) {
+            return true;
+          }
+        }
+        return false
+      })
+      .mergeMap((s:Submission) => {
+        return this.store.select(fromRoot.getAssignments)
+            .map((state:any) => state.find((a:Assignment) => a.id === s.assignment))
       })
 
     this.assignment$
@@ -87,19 +102,16 @@ export class SubmissionEditComponent implements OnInit {
   }
 
   onSubmissionCancel() {
-    this.submission$
-      .subscribe(s => {
-        if (this.submissionFormDirty) {
-          if (confirm('You have unsaved changes. Are you sure you want to navigate away from this page?')) {
-            this.router.navigate(['/submissions/' + s.id]);
-            // this.submissionFormComponent.form.reset();
-          }
-        }
-        else {
-          this.router.navigate(['/submissions/' + s.id]);
-          this.submissionFormComponent.form.reset();
-        }
-      })
+    if (this.submissionFormDirty) {
+      if (confirm('You have unsaved changes. Are you sure you want to navigate away from this page?')) {
+        this.router.navigate(['/submissions/' + this.submissionId ]);
+        // this.submissionFormComponent.form.reset();
+      }
+    }
+    else {
+      this.router.navigate(['/submissions/' + this.submissionId ]);
+      this.submissionFormComponent.form.reset();
+    }
   }
 
   onFormChanges($event) {
