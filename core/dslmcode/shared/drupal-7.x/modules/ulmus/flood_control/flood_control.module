@@ -1,0 +1,30 @@
+<?php
+
+/**
+ * Implements hook_menu().
+ */
+function flood_control_menu() {
+  $items['admin/config/system/flood-control'] = array(
+    'title' => 'Flood control',
+    'description' => 'Control flood control options for failed login attempts, contact forms, etc.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('flood_control_settings_form'),
+    'access arguments' => array('administer site configuration'),
+    'file' => 'flood_control.admin.inc',
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_variables().
+ */
+function flood_control_variables() {
+  return array(
+    'user_failed_login_ip_limit' => 50,
+    'user_failed_login_ip_window' => 3600,
+    'user_failed_login_user_limit' => 5,
+    'user_failed_login_user_window' => 21600,
+    'contact_threshold_limit' => 5,
+    'contact_threshold_window' => 3600,
+  );
+}

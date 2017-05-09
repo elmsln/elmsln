@@ -1,0 +1,10 @@
+name = Flood unblock
+description = "Interface for unblocking ip's that are blocked by the flood table"
+core = 7.x
+configure = admin/config/system/flood-unblock
+; Information added by Drupal.org packaging script on 2017-01-06
+version = "7.x-1.5"
+core = "7.x"
+project = "flood_unblock"
+datestamp = "1483704253"
+
