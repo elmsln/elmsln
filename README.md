@@ -6,8 +6,8 @@ ELMS Learning Network (ELMSLN) is an open source educational technology platform
 
 Learn more about ELMSLN @ [elmsln.org](https://www.elmsln.org/)
 
-Version | PHP | Includes | Status
-------------- | ------  | --- | -------------------------- | -----------
+| Version | PHP | Includes | Status |
+| ------- | --- | -------- | ------ |
 [0.7.1](https://github.com/elmsln/elmsln/archive/0.7.1.zip)  | 5.4+ & 7 | Drupal 7.x | [![Build Status](https://travis-ci.org/elmsln/elmsln.svg?branch=master)](https://travis-ci.org/elmsln/elmsln) [![OpenCollective](https://opencollective.com/elmsln/backers/badge.svg)](#backers) [![OpenCollective](https://opencollective.com/elmsln/sponsors/badge.svg)](#sponsors)
 
 Play quickly
