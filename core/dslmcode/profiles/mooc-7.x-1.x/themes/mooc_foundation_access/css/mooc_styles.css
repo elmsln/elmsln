@@ -147,12 +147,18 @@
   width:100%;
   float: left;
   color: #222222;
-  border: .1rem solid #eeeeee;
+  border:0;
+  padding-left:1rem;
   font-weight: normal;
   font-size: 1rem;
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 100%;
+}
+
+.page-mooc-book-toc ul.menu a:hover, .page-mooc-book-toc ul.menu a:focus {
+  background:#efefef;
+  text-decoration:underline;
 }
 
 .page-mooc-book-toc ul.menu a.has-children {
@@ -427,6 +433,10 @@ a.book-sibling-parent-pagination {
 
 .etb-book .content-element-region {
   padding-top: .5rem;
+}
+
+section.main-section.etb-book a.elmsln-outline-button {
+    margin-left: 1rem;
 }
 
 

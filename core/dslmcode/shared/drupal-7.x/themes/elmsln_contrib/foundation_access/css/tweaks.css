@@ -42,7 +42,7 @@ body.page-node-edit.node-type-page .cke_focus .cke_top{
 }
 
 .elmsln-content-wrap {
-  margin-top: 1.5rem;
+  margin-top: 3.5rem;
 }
 
 /* ensure print view is better then defaults */
@@ -353,11 +353,11 @@ article ul:not(.contextual-links):not(.collapsible):not(.footnotes):not(.browser
 }
 
 #etb-network-nav {
-  height: 3.2rem;
-  padding: 0;
+  height: 3.75rem;
+  padding: 0.5rem 0 0 0.5rem;
   margin: 0;
-  border-top: solid .1rem #000000;
-  border-bottom: solid .2rem #000000;
+  border-top: solid 1px #efefef;
+  border-bottom: solid 2px #212121;
   z-index: 1;
 }
 .elmsln-service-list {
@@ -372,9 +372,13 @@ article ul:not(.contextual-links):not(.collapsible):not(.footnotes):not(.browser
 }
 
 .elmsln-service-list li a {
-  height: 3.2rem;
+  height: 3.75rem;
   padding: 0 .5rem;
-  border-bottom: solid .2rem #000000;
+  border-bottom: solid .2rem #212121;
+}
+
+.is-active {
+    background: #212121;
 }
 
 .elmsln-service-list li a div i.material-icons {
@@ -385,7 +389,7 @@ article ul:not(.contextual-links):not(.collapsible):not(.footnotes):not(.browser
 .elmsln-service-list .elmsln-network-label {
   line-height: 3rem;
   margin: 0;
-  padding: 0;
+  padding: 0 0.5rem;
 }
 
 .etb-book dl {
@@ -1384,7 +1388,7 @@ table.sticky-header {
   border-left: unset;
   border-left-style: solid;
   border-left-width: .1rem;
-  padding: 0 0 0 .1rem;
+  padding: 0 0 0 1rem;
 }
 .table-of-contents li {
   padding: 0;
@@ -1974,6 +1978,7 @@ a.add-menu-drop {
   border-top-width: .2rem;
   border-top-style: solid;
   z-index: 1;
+  padding: 1rem 0;
 }
 
 #etb-course-nav span.course-title,
