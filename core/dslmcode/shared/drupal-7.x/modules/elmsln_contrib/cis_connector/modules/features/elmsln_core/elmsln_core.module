@@ -758,13 +758,24 @@ function elmsln_core_page_build(&$page) {
   // xapi context iframe sniffer
   if (module_exists('tincanapi') && !path_is_admin(current_path())) {
     drupal_add_js(drupal_get_path('module', 'elmsln_core') . '/js/elmsln-core-xapi-context.js', array('weight' => 1000));
-    // @todo we need to only track people told to be tracked with vagrant based
-    // fallback for testing everything
-    // @todo we need a better path management solution as to when to track
-    // right now we just ignore entity iframe, admin, and 'data' paths
-    // would be good to ignore other paths without missing views / special pages in the process
+    // see if we should do some tracking on this path for LRS
     if (!_entity_iframe_mode_enabled() && arg(1) != 'course-data' && !in_array(arg(2), array('data', 'edit', 'devel', 'revisions', 'outline')) && _cis_connector_system_type() != 'authority') {
-      drupal_add_js(drupal_get_path('module', 'elmsln_core') . '/js/elmsln-core-xapi-viewed.js', array('weight' => 1001));
+      // got in here, now do the node look up if there is one to match tincanapi_content_types
+      // if not then just track it
+      if (arg(0) == 'node' && $node = menu_get_object()) {
+        // @see tincanapi_content_types_node_view
+        $content_types = array_filter(variable_get('tincanapi_content_types', array()));
+        $view_modes = array_filter(variable_get('tincanapi_content_types_view_modes', array()));
+        // page build will be for a "full" view mode
+        if (in_array($node->type, $content_types) && in_array('full', $view_modes) && !isset($_GET['no-track'])) {
+          drupal_add_js(drupal_get_path('module', 'elmsln_core') . '/js/elmsln-core-xapi-viewed.js', array('weight' => 1001));
+        }
+      }
+      else {
+        drupal_add_js(drupal_get_path('module', 'elmsln_core') . '/js/elmsln-core-xapi-viewed.js', array('weight' => 1001));
+      }
+      $content_types = array_filter(variable_get('tincanapi_content_types', array()));
+      $view_modes = array_filter(variable_get('tincanapi_content_types_view_modes', array()));
     }
   }
   // devel usability improvement
