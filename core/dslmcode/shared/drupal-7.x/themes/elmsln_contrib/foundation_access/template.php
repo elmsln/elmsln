@@ -829,21 +829,22 @@ function foundation_access_preprocess_node__inherit__external_video__mediavideo(
   if (isset($elements['#node']->field_elmsln_competency) && !empty($elements['#node']->field_elmsln_competency)) {
     $variables['competency'] = $elements['#node']->field_elmsln_competency['und'][0]['safe_value'];
   }
-  // if not, attempt to use the thumbnail created by the video upload field
-  elseif (isset($variables['content']['field_external_media']['#items'][0]['thumbnail_path'])) {
+  // if poster still blank AND thumbnail is available, then set poster to thumbnail
+  if ($poster_image_uri == '' && isset($variables['content']['field_external_media']['#items'][0]['thumbnail_path'])) {
     $poster_image_uri = $variables['content']['field_external_media']['#items'][0]['thumbnail_path'];
   }
   // if we have found a poster then assign it
   if ($poster_image_uri) {
     $variables['poster'] = image_style_url('mediavideo_poster', $poster_image_uri);
   }
-
   // Set the video url
   if (isset($elements['field_external_media']['#items'][0]['video_url']) && $elements['field_external_media']['#items'][0]['video_url']) {
     $variables['video_url'] = $elements['field_external_media']['#items'][0]['video_url'];
   }
 
   // Unset the poster if on the Mediavideo viewmode
+  // mediavideo should not have a poster, there is a viewmode for that
+  // called mediavideo__poster
   if ($variables['view_mode'] == 'mediavideo') {
     $variables['poster'] = NULL;
   }
