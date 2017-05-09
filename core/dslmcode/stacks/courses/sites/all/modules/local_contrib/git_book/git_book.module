@@ -89,7 +89,7 @@ function git_book_node_insert($node) {
             if (isset($node->body[LANGUAGE_NONE]) && !empty($node->body[LANGUAGE_NONE])) {
               $content = $node->body[LANGUAGE_NONE][0]['value'];
             }
-            file_put_contents($path . $node->title . '.md', $content);
+            @file_put_contents($path . $node->title . '.md', $content);
             // check if we want to auto commit on save
             if ($book->field_git_commit[LANGUAGE_NONE][0]['value']) {
               // open the path
