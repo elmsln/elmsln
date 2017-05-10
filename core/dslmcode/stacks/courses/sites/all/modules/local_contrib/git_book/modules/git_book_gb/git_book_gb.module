@@ -82,21 +82,21 @@ function git_book_gb_git_book_parse($path, $node) {
   $doc->loadHTML($data);
   $doc->preserveWhiteSpace = false;
 
-  $data= preg_replace('/^<!DOCTYPE.+?>/', '', str_replace( array('<html>', '</html>', '<body>', '</body>', '<h1>Summary', '</h1>'), array('', '', '', '', '', ''), $doc->saveHTML()));
-
+  $data= preg_replace('/^<!DOCTYPE.+?>/', '', str_replace( array('<html>', '</html>', '<body>', '</body>', '<hr>'), array('', '', '', '', '', ''), $doc->saveHTML()));
+  //// strip all header tags
+  $data = preg_replace('/<h\d>.*<\/h\d>/', '', $data);
   //// strip white space and end lines
-    $data = trim(str_replace(array('  ', "\r\n", "\r", "\n", '<ul>', '</ul>', '<li>', '</li>'), array('', '', '', '', '<children>', '</children>', '<nodes>', '</nodes>'), $data));
-
-    //// preg match li's that have nested structure to make them valid XML
-    $data = preg_replace('/<nodes>([^<>]*)<children>/s', '<nodes><title>${1}</title><link>null</link><children>', $data);
-    //// match links and convert to easier to parse format for XML walk
-    $data = preg_replace('/<a href="(.*?)">(.*?)<\/a>/s', '<title>${2}</title><link>${1}</link>', $data);
-    //// make empty bottom title items without children to match our previous method
-    $data = preg_replace('/<nodes>([^<>]*)<\/nodes>/s', '<nodes><title>${1}</title><link>null</link></nodes>', $data);
-    //// cheat to make this xml
-    $xml = simplexml_load_string($data, 'SimpleXMLElement');
-    //// cheat to convert simpleXML object into a nested array
-    $ary = json_decode(json_encode((array) simplexml_load_string($data)), 1);
+  $data = trim(str_replace(array('  ', "\r\n", "\r", "\n", '<ul>', '</ul>', '<li>', '</li>'), array('', '', '', '', '<children>', '</children>', '<nodes>', '</nodes>'), $data));
+  //// preg match li's that have nested structure to make them valid XML
+  $data = preg_replace('/<nodes>([^<>]*)<children>/s', '<nodes><title>${1}</title><link>null</link><children>', $data);
+  //// match links and convert to easier to parse format for XML walk
+  $data = preg_replace('/<a href="(.*?)">(.*?)<\/a>/s', '<title>${2}</title><link>${1}</link>', $data);
+  //// make empty bottom title items without children to match our previous method
+  $data = preg_replace('/<nodes>([^<>]*)<\/nodes>/s', '<nodes><title>${1}</title><link>null</link></nodes>', $data);
+  //// cheat to make this xml
+  $xml = simplexml_load_string($data, 'SimpleXMLElement');
+  //// cheat to convert simpleXML object into a nested array
+  $ary = json_decode(json_encode((array) simplexml_load_string($data)), 1);
 
   //Pass off the collected data to the parse function.
   _git_book_gb_parse($ary, $path, $node);
