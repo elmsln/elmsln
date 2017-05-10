@@ -34774,25 +34774,25 @@ A LRN element
     <style>
       :host {
         display: flex;
+		padding: .5em;
       }
-      .sticky {
+      :host[sticky] {
         top:0;
-        width: 20vw;
-        padding: .5em;
-        overflow: scroll;
-        position: fixed;
+        position: sticky;
       }
-      .hang-left {
-        right: 80vw;
+      :host[direction='left'] {
+        float: left;
+        max-width: 30em;
       }
-      .hang-right {
-        left: 80vw;
+      :host[direction='right'] {
+        float: right;
+        max-width: 30em;
       }
       paper-card {
         width: 100%;
       }
     </style>
-    <aside class$="{{_makeClass(sticky, direction)}}">
+    <aside>
       <!-- big switch statement for the different display modes we support here -->
       <template is="dom-if" if="{{matchDisplay('paper-card', display)}}">
         <paper-card heading="{{title}}" image="{{image}}" elevation="1" animated-shadow="false">
@@ -34813,12 +34813,12 @@ A LRN element
         </lrndesign-drawer>
       </template>
       <template is="dom-if" if="{{matchDisplay('contentblock', display)}}">
-        <lrndesign-contentblock title="{{title}}" persistent="">
+        <lrndesign-contentblock title="{{title}}" persistent>
           <content></content>
         </lrndesign-contentblock>
       </template>
       <template is="dom-if" if="{{matchDisplay('panelcard', display)}}">
-        <lrndesign-panelcard show-hax="" title="{{title}}" display-style="{{displayStyle}}">
+        <lrndesign-panelcard title="{{title}}" display-style="{{displayStyle}}">
           <content></content>
         </lrndesign-panelcard>
       </template>
@@ -34857,23 +34857,6 @@ A LRN element
           reflectToAttribute: true,
           notify: true,
         }
-      },
-      /**
-       * Generate a class from some options on the host element
-       */
-      _makeClass: function(sticky, direction) {
-        var str = 'aside';
-        if (sticky) {
-          str += ' sticky';
-        }
-        // allow for right / left variations of sticky
-        if (direction == 'right') {
-          str += ' hang-right';
-        }
-        else if (direction == 'left') {
-          str += ' hang-left';
-        }
-        return str;
       }
     });
   </script>
