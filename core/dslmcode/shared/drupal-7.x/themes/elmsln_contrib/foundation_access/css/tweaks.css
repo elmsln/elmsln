@@ -329,6 +329,18 @@ article ul:not(.contextual-links):not(.collapsible):not(.footnotes):not(.browser
 #etb-course-nav lrndesign-avatar {
   margin: .5rem 0 0 0;
   padding: 0 .5rem 0 0;
+  line-height: 5.5rem;
+}
+
+#etb-course-nav iron-dropdown .dropdown-content {
+  position: fixed;
+  opacity: 1;
+  display: block;
+}
+
+#etb-course-nav paper-menu-button {
+  margin: 0;
+  padding: 0;
 }
 
 #etb-course-nav .top-bar-right-actions {
@@ -342,7 +354,8 @@ article ul:not(.contextual-links):not(.collapsible):not(.footnotes):not(.browser
   height: 5rem;
 }
 
-#etb-course-nav .top-bar li a {
+#etb-course-nav .top-bar li a,
+#etb-course-nav .top-bar li span#elmsln-tools-trigger {
   border: 0;
   height: 5rem;
 }
@@ -356,6 +369,10 @@ article ul:not(.contextual-links):not(.collapsible):not(.footnotes):not(.browser
 #etb-course-nav .top-bar li a div {
   line-height: 5rem;
   margin: 1rem 1rem 1rem 0;
+}
+
+#etb-course-nav .top-bar li a div.icon-user {
+  font-size: 1.4rem;
 }
 
 #etb-network-nav {

@@ -156,7 +156,7 @@
   max-width: 100%;
 }
 
-.page-mooc-book-toc ul.menu a:hover, .page-mooc-book-toc ul.menu a:focus {
+.page-mooc-book-toc .elmsln-content-wrap ul.menu a:hover, .page-mooc-book-toc .elmsln-content-wrap ul.menu a:focus {
   background:#efefef;
   text-decoration:underline;
 }

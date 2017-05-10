@@ -15,12 +15,14 @@
         <h2 class="element-invisible"><?php print t('System navigation bar');?></h2>
         <!-- Left Nav Section -->
         <ul class="left-nav-section">
-          <li class="first expanded">
-          <?php
+        <?php
           // account for roles that don't have access to this
           if (!empty($elmsln_main_menu)) {?>
+          <li class="first expanded">
+            <lrndesign-avatar class="dropdown-trigger" label="<?php print $course_context; ?>" jdenticon color="grey darken-4"></lrndesign-avatar>
+          </li>
+          <li>
           <a href="#" id="elmsln-tools-trigger" class="course-title elmsln-course-title elmsln-left-side-nav-trigger middle-align-wrap elmsln-user-button black-text waves-effect waves-<?php print $lmsless_classes[$distro]['color'];?> waves-light" title="" data-activates="elmsln-tools-menu" aria-controls="elmsln-tools-menu" aria-expanded="false" data-jwerty-key="t" data-voicecommand="open settings (menu)" data-elmsln-hover="<?php print $lmsless_classes[$service['distro']]['color'];?>">
-            <lrndesign-avatar label="<?php print $course_context; ?>" jdenticon color="grey darken-4"></lrndesign-avatar>
             <span class="course-title-group">
               <span class="black-text course-title"><?php print $slogan; ?></span>
               <span class="black-text course-abrv"><?php print $site_name; ?> <span class="grey-text lighten-1 section-label"><?php if (isset($section_title)) : print $section_title; endif; ?></span></span>
@@ -29,13 +31,16 @@
           <?php
           }
           else { ?>
-          <a id="elmsln-tools-trigger" class="course-title elmsln-course-title middle-align-wrap elmsln-user-button black-text waves-effect waves-<?php print $lmsless_classes[$distro]['color'];?> waves-light" href="<?php print base_path(); ?>" title="<?php print t('Home'); ?>" >
-          	<lrndesign-avatar label="<?php print $course_context; ?>" jdenticon color="grey darken-4"></lrndesign-avatar>
+          <li class="first expanded">
+          <lrndesign-avatar label="<?php print $course_context; ?>" jdenticon color="grey darken-4"></lrndesign-avatar>
+          </li>
+          <li>
+          <span id="elmsln-tools-trigger" class="course-title elmsln-course-title middle-align-wrap elmsln-user-button black-text">
             <span class="course-title-group">
               <span class="black-text course-title"><?php print $slogan; ?></span>
-              <span class="black-text course-abrv"><?php print $site_name; ?> <?php if (isset($section_title)) : print $section_title; endif; ?></span>
+              <span class="black-text course-abrv"><?php print $site_name; ?> <span class="grey-text lighten-1 section-label"><?php if (isset($section_title)) : print $section_title; endif; ?></span></span>
              </span>
-          </a>
+          </span>
           <?php } ?>
         </li>
         </ul>
