@@ -406,6 +406,10 @@ article ul:not(.contextual-links):not(.collapsible):not(.footnotes):not(.browser
   padding: 0;
 }
 
+.elmsln-service-list li.elmsln-network-menu-item a {
+  height: 3.75rem;
+}
+
 .elmsln-service-list li.elmsln-network-menu-item a:hover {
   background-color: rgba(0, 0, 0, 0.1);
 }
