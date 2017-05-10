@@ -82,8 +82,9 @@ function git_book_gb_git_book_parse($path, $node) {
   $doc->loadHTML($data);
   $doc->preserveWhiteSpace = false;
 
-  $data= preg_replace('/^<!DOCTYPE.+?>/', '', str_replace( array('<html>', '</html>', '<body>', '</body>', '<h1>Summary', '</h1>'), array('', '', '', '', '', ''), $doc->saveHTML()));
-
+  $data= preg_replace('/^<!DOCTYPE.+?>/', '', str_replace( array('<html>', '</html>', '<body>', '</body>', '<hr>'), array('', '', '', '', '', ''), $doc->saveHTML()));
+  //// strip all header tags
+  $data = preg_replace('/<h\d>.*<\/h\d>/', '', $data);
   //// strip white space and end lines
     $data = trim(str_replace(array('  ', "\r\n", "\r", "\n", '<ul>', '</ul>', '<li>', '</li>'), array('', '', '', '', '<children>', '</children>', '<nodes>', '</nodes>'), $data));
 
