@@ -4,8 +4,8 @@
  * ELMSLN Canvas integration.
  */
 
-/*function elmsln_canvas_init() {
-  $canvas = canvas_api('courses');
+function elmsln_canvas_init() {
+  /*$canvas = canvas_api('courses');
   // pass NULL to get a list of all courses
   $courses = $canvas->getCourse(NULL);
   $rosters = array();
@@ -16,8 +16,8 @@
     foreach ($sections as $section) {
       $rosters[$course['sis_course_id']][] = $canvas->getEnrollment('sis_section_id:' . $section['sis_section_id']);
     }
-  }
-}*/
+  }*/
+}
 
 /**
  * Implements hook_cis_helper_build_roster().
