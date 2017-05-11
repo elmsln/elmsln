@@ -69,8 +69,10 @@ function git_book_gb_construct_path($path, $node) {
  * Callback to parse git_book_gb_git_book_parser.
  */
 function git_book_gb_git_book_parse($path, $node) {
-    // Get the contents of what is in the summary file in repo.
+  // Get the contents of what is in the summary file in repo.
   $summary = file_get_contents($path . '/SUMMARY.md');
+  // fix the fact that gitbook outputs this different then it should be :\
+  $summary = str_replace('  *', '    *', $summary);
   libraries_load('parsedown');
   // Use the Parsedown library to parse the file.
   $Parsedown = new Parsedown();
