@@ -95,7 +95,6 @@
 #block-mooc-nav-block-mooc-nav-nav.block-mooc-nav-block-mooc-nav ul li:hover,
 #block-mooc-nav-block-mooc-nav-nav.block-mooc-nav-block-mooc-nav ul li.past-page:hover {
   background-color: #FFFFFF;
-  outline: solid #000000 1px;
 }
 #block-mooc-nav-block-mooc-nav-nav.block-mooc-nav-block-mooc-nav .block-mooc-nav-block-mooc-title {
   border-bottom: .1rem solid #000000;
@@ -167,14 +166,12 @@
 }
 
 a.mooc-helper-toc {
-  border: 1px solid #e5e5e5;
-  line-height: 150%;
-  font-size: .8rem;
+  font-size: 1.2rem;
+  border-bottom: 2px solid black;
   text-align: center;
-  color: #222222;
-  padding: 0.5rem;
-  line-height: inherit;
-  height: 2.5rem;
+  padding: 0 0.5rem;
+  line-height: 3rem;
+  height: 3rem;
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -185,9 +182,10 @@ a.mooc-helper-toc {
   align-items: center;
 }
 
-a.mooc-helper-toc span {
-  padding: 0.3rem .25rem;
-  font-weight: bold;
+a.mooc-helper-toc paper-button {
+  padding: .0;
+  min-width: 2rem;
+  margin: 0;
 }
 
 .mooc-home-button {
@@ -283,24 +281,16 @@ a.book-sibling-parent-pagination {
   padding: 0 .5rem;
 }
 
-.book-sibling-spacer {
-  display: inline-block;
-  width: 0;
-  height: 0;
-  overflow: hidden;
-  padding-top: 1.5em;
-  width: 1.5em;
-  vertical-align: text-top;
-}
-
 .book-sibling-parent {
   display: inline-flex;
+  height: 3rem;
+  line-height: 3rem;
 }
 
 .book-sibling-children a,
 .book-sibling-parent a {
-  font-size: .8rem;
-  color: #8a8a8a;
+  height: 3rem;
+  line-height: 3rem;
   line-height: inherit;
   display: -webkit-box;
   display: -webkit-flex;
@@ -308,19 +298,31 @@ a.book-sibling-parent-pagination {
   display: flex;
 }
 .book-sibling-parent a.elmsln-dropdown-button {
-  border: 1px solid #e5e5e5;
+  border-bottom: black solid 2px;
+}
+
+.book-sibling-parent a.elmsln-dropdown-button paper-button {
+  margin: 0;
+}
+
+.book-sibling-spacer {
+  vertical-align: text-top;
+  font-size: 2rem;
+  height: 3rem;
+  line-height: 3rem;
+  padding: 0 .25rem;
+  margin: 0 .5rem;
 }
 
 .book-sibling-parent-text {
-  color: #4c4c4c;
   max-width: 7rem;
   display: inline-block;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   border: none;
-  height: 2.5rem;
-  text-decoration: none;
+  font-size: 1.2rem;
+  font-weight: bold;
 }
 
 .mooc-helper-toc-icon{
@@ -381,11 +383,6 @@ a.book-sibling-parent-pagination {
   margin-left: 2rem;
 }
 
-@media all and (min-width: 960px) {
-  .book-sibling-parent-1 a.active-trail .book-sibling-parent-text {
-    max-width: none;
-  }
-}
 .book-sibling-parent-arrow {
   margin: 0 0;
   padding: 0;
@@ -414,8 +411,8 @@ a.book-sibling-parent-pagination {
 }
 
 .book-parent-tree {
-  line-height: 2.25rem;
-  padding: .5rem;
+  line-height: 3rem;
+  padding: 0;
 }
 
 .book-sibling-nav-item,
@@ -510,10 +507,6 @@ section.main-section.etb-book a.elmsln-outline-button {
 }
 
 @media all and (min-width: 720px) {
-  .book-sibling-parent-1 a.active-trail {
-    border-color: transparent;
-    border-bottom: 3px solid #3570bf;
-  }
 
   .book-sibling-parent-1 a.active-trail .book-sibling-parent-text {
     color: #3570bf;

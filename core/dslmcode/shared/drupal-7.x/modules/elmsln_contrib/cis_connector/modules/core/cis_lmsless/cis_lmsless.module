@@ -445,7 +445,7 @@ function _cis_lmsless_theme_vars() {
     $vars = array(
       'front_page' => base_path() . variable_get('site_frontpage','node'),
       'site_name' => variable_get('site_name', _cis_connector_course_context()),
-      'slogan' => _cis_connector_course_context(),
+      'slogan' => variable_get('site_slogan', _cis_connector_course_context()),
       'distro' => elmsln_core_get_profile_key(),
       'lmsless_classes' => $lmsless_classes,
       'course_context' => _cis_connector_course_context(),

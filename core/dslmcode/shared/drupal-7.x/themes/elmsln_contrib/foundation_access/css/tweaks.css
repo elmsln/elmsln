@@ -32,7 +32,7 @@ body.page-node-edit.node-type-page .cke_focus .cke_top{
 
 .r-header {
   padding: 0;
-  margin: 1.5rem 0 0 0;
+  margin: 1rem 0 0 0;
 }
 
 .etb-book .is-sticky > .r-header {
@@ -2029,6 +2029,16 @@ a.add-menu-drop {
 #etb-course-nav span.course-abrv,
 #etb-course-nav span.section-label {
   justify-content: flex-start;
+  text-align: left;
+}
+
+#etb-course-nav span.course-title {
+  font-size: 1.2rem;
+  line-height: 1.2rem;
+}
+
+#etb-course-nav span.course-abrv {
+  font-weight: lighter;
 }
 
 #etb-course-nav span.section-label {
@@ -2055,9 +2065,16 @@ a.add-menu-drop {
   padding: .5rem !important;
 }
 
-.r-header__icon i:hover {
-  color: black !important;
+.r-header__icon {
+  padding: 0;
 }
+
+.r-header__edit-icons paper-button {
+  padding: .2rem;
+  min-width: 2rem;
+  margin: 0 .75rem;
+}
+
 .r-header__icon-secondary {
   opacity: 0.2;
 }

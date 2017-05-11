@@ -33,12 +33,29 @@
     <?php if ($has_links): ?>
       <div class="col s6">
       <?php if ($prev_url): ?>
-          <a href="<?php print $prev_url; ?>" class="book-sibling-parent-pagination book-sibling-parent-pagination-previous page-previous waves-effect cis-lmsless-waves btn black-text white elmsln-z-depth-0" title="<?php print t('Go to previous page'); ?>" data-voicecommand="previous" data-jwerty-key="←"><i class="material-icons left">navigate_before</i><?php print t('previous page'); ?></a>
+        <a href="<?php print $prev_url; ?>" class="book-sibling-parent-pagination book-sibling-parent-pagination-previous page-previous black-text white" title="<?php print t('Go to previous page'); ?>" data-voicecommand="previous" data-jwerty-key="←">
+          <paper-button raised>
+            <i class="material-icons left">navigate_before</i><?php print t('previous page'); ?>
+          </paper-button>
+        </a>
       <?php endif; ?>
       </div>
       <div class="col s6">
-      <?php if ($next_url): ?>
-          <a href="<?php print $next_url; ?>" data-prefetch-scrollfire="true" class="page-next book-sibling-parent-pagination book-sibling-parent-pagination-next waves-effect cis-lmsless-waves btn black-text white elmsln-z-depth-0" title="<?php print t('Go to next page'); ?>" data-voicecommand="next" data-jwerty-key="→"><i class="material-icons right">navigate_next</i><?php print t('next page'); ?></a>
+      <?php if (!$prev_url && $next_url): ?>
+        <a href="<?php print $next_url; ?>" data-prefetch-scrollfire="true" class="page-next book-sibling-parent-pagination book-sibling-parent-pagination-next black-text white" title="<?php print t('Go to next page'); ?>" data-voicecommand="next" data-jwerty-key="→">
+        <paper-button raised>
+           <?php print t('Start reading'); ?>
+            <i class="material-icons right">arrow_forward</i>
+          </paper-button>
+        </a>
+      <?php endif; ?>
+      <?php if ($prev_url && $next_url): ?>
+        <a href="<?php print $next_url; ?>" data-prefetch-scrollfire="true" class="page-next book-sibling-parent-pagination book-sibling-parent-pagination-next black-text white" title="<?php print t('Go to next page'); ?>" data-voicecommand="next" data-jwerty-key="→">
+        <paper-button raised>
+           <?php print t('next page'); ?>
+            <i class="material-icons right">navigate_next</i>
+          </paper-button>
+        </a>
       <?php endif; ?>
       </div>
     <?php endif; ?>
