@@ -166,7 +166,7 @@
 }
 
 a.mooc-helper-toc {
-  font-size: 1rem;
+  font-size: .8rem;
   border-bottom: 2px solid black;
   text-align: center;
   padding: 0 0.5rem;
@@ -328,7 +328,7 @@ a.book-sibling-parent-pagination {
   overflow: hidden;
   text-overflow: ellipsis;
   border: none;
-  font-size: 1rem;
+  font-size: .8rem;
   font-weight: bold;
 }
 
