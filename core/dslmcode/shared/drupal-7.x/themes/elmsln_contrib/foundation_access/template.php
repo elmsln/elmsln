@@ -277,9 +277,9 @@ function foundation_access_fieldset($variables) {
         // form the fieldset as a collapse element
         $output = '
         <li class="collapsible-li">
-          <a id="collapse-item-id-' . $anchor . '" href="#collapse-item-' . $anchor . '" class="collapsible-header waves-effect cis-lmsless-waves' . $collapse . '"' . drupal_attributes($element['#attributes']) .'>' .
+          <a id="collapse-item-id-' . $anchor . '" href="#collapse-item-' . $anchor . '" class="collapsible-header' . $collapse . '"' . drupal_attributes($element['#attributes']) .'><paper-button>' .
             $icon . $element['#title'] .
-          '
+          '</paper-button>
           </a>
           <div class="collapsible-body">
             <div class="elmsln-collapsible-body" aria-labelledby="collapse-item-id-' . $anchor . '" role="tabpanel">
@@ -1614,7 +1614,7 @@ function foundation_access_pager($variables) {
         if ($i == $pager_current) {
           $items[] = array(
             'class' => array('active'),
-            'data' => '<a class="black-text" href="">' . $i . '</a>',
+            'data' => '<a class="black-text" href=""><paper-button>' . $i . '</paper-button></a>',
           );
         }
         if ($i > $pager_current) {

@@ -182,6 +182,10 @@ a.mooc-helper-toc {
   align-items: center;
 }
 
+.sticky-wrapper.is-sticky a.mooc-helper-toc {
+  border-bottom-color: white;
+}
+
 a.mooc-helper-toc paper-button {
   padding: .0;
   min-width: 2rem;
@@ -299,6 +303,9 @@ a.book-sibling-parent-pagination {
 }
 .book-sibling-parent a.elmsln-dropdown-button {
   border-bottom: black solid 2px;
+}
+.sticky-wrapper.is-sticky .book-sibling-parent a.elmsln-dropdown-button {
+  border-bottom-color:white;
 }
 
 .book-sibling-parent a.elmsln-dropdown-button paper-button {

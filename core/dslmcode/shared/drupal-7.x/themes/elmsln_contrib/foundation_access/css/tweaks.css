@@ -621,6 +621,8 @@ article .collection .collection-item .badge,
 ul.collapsible li {
     list-style-type: none;
 }
+
+
 .collapsible-action-link {
   padding: 0 .25rem;
   line-height: 1rem;
@@ -1299,6 +1301,16 @@ input[type=file]:focus,
 }
 .collapsible-header-trigger:hover {
   background-color: initial;
+}
+
+.collapsible-header paper-button {
+  width: 100%;
+  -ms-flex-align: left;
+  -webkit-align-items: left;
+  align-items: left;
+  -ms-flex-pack: left;
+  -webkit-justify-content: left;
+  justify-content: left;
 }
 
 .collapsible-body p{
