@@ -577,11 +577,11 @@ function foundation_access_button($variables) {
   if ($variables['element']['#value'] == 'Upload') {
     return '
     <div class="col s12 m4 input-field">
-      <button ' . drupal_attributes($element['#attributes']) . '>' . $element['#value'] . '</button>
+      <button ' . drupal_attributes($element['#attributes']) . '><paper-button>' . $element['#value'] . '</paper-button></button>
     </div>';
   }
   else {
-    return '<button ' . drupal_attributes($element['#attributes']) . '>' . $element['#value'] . '</button>';
+    return '<button ' . drupal_attributes($element['#attributes']) . '><paper-button>' . $element['#value'] . '</paper-button></button>';
   }
 }
 
