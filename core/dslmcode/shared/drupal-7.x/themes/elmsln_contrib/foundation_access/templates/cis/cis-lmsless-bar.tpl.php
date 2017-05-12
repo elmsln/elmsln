@@ -25,7 +25,7 @@
           <a href="#" id="elmsln-tools-trigger" class="course-title elmsln-course-title elmsln-left-side-nav-trigger middle-align-wrap elmsln-user-button black-text waves-effect waves-<?php print $lmsless_classes[$distro]['color'];?> waves-light" title="" data-activates="elmsln-tools-menu" aria-controls="elmsln-tools-menu" aria-expanded="false" data-jwerty-key="t" data-voicecommand="open settings (menu)" data-elmsln-hover="<?php print $lmsless_classes[$service['distro']]['color'];?>">
             <span class="course-title-group">
               <span class="black-text course-title hide-on-med-and-down"><?php print $slogan; ?></span>
-              <span class="black-text course-abrv"><?php print $site_name; ?> <span class="grey-text lighten-1 section-label"><?php if (isset($section_title)) : print $section_title; endif; ?></span></span>
+              <span class="black-text course-abrv"><?php print $site_name; ?> <span class="accessible-grey-text lighten-1 section-label"><?php if (isset($section_title)) : print $section_title; endif; ?></span></span>
             </span>
           </a>
           <?php
@@ -54,7 +54,7 @@
         <?php if ($bar_elements['help']) : ?>
         <li>
           <a href="<?php print $help_link;?>" class="elmsln-help-button middle-align-wrap black-text waves-effect waves-<?php print $lmsless_classes[$distro]['color'];?> waves-light" data-jwerty-key="h" data-voicecommand="help">
-            <i class="material-icons">help</i>
+            <lrn-icon icon="help"></lrn-icon>
             <span class="hide-on-med-and-down"><?php print t('Help'); ?></span>
           </a>
         </li>
@@ -109,8 +109,12 @@
         $iconcolor = ' white-text ';
         $label = '<span class="elmsln-network-label hide-on-med-and-down truncate">' . $stitle . '</span>';
       }
+      else {
+        $label = '<span class="element-invisible">' . $stitle . '</span>';
+      }
       ?>
-      <li><a data-delay="75" data-tooltip="<?php print $stitle; ?>" data-prefetch-hover="true" href="<?php print token_replace($service['url']); ?>" class="black-text waves-effect waves-<?php print $lmsless_classes[$service['distro']]['color'];?> waves-light <?php print $activetool . $service['icon']; ?>-icon"  data-jwerty-key="ctrl+<?php print drupal_strtolower(substr($stitle, 0, 1)); ?>" data-voicecommand="<?php print t('go to ') . drupal_strtolower($stitle); ?>" data-elmsln-hover="<?php print $lmsless_classes[$service['distro']]['color'];?> <?php print $lmsless_classes[$service['distro']]['dark'];?> black-text" data-elmsln-icon-hover="hover-white-text">
+      <li>
+      <a data-delay="75" data-tooltip="<?php print $stitle; ?>" data-prefetch-hover="true" href="<?php print token_replace($service['url']); ?>" class="black-text waves-effect waves-<?php print $lmsless_classes[$service['distro']]['color'];?> waves-light <?php print $activetool . $service['icon']; ?>-icon"  data-jwerty-key="ctrl+<?php print drupal_strtolower(substr($stitle, 0, 1)); ?>" data-voicecommand="<?php print t('go to ') . drupal_strtolower($stitle); ?>" data-elmsln-hover="<?php print $lmsless_classes[$service['distro']]['color'];?> <?php print $lmsless_classes[$service['distro']]['dark'];?> black-text" data-elmsln-icon-hover="hover-white-text">
       <?php if (isset($service['icon_library']) && $service['icon_library'] == 'material'): ?>
         <div class="material-icon elmsln-network-icon left elmsln-icon black-text"><i class="material-icons"><?php print $service['icon']; ?></i></div>
       <?php else: ?>
@@ -132,7 +136,7 @@
 </div>
 <!-- modal fly out for settings -->
 <section id="elmsln-tools-menu" class="elmsln-modal side-nav disable-scroll left-aligned" aria-hidden="true" tabindex="-1" role="dialog">
-  <div class="center-align valign-wrapper elmsln-modal-title-wrapper <?php print $lmsless_classes[$distro]['color'];?> <?php print $lmsless_classes[$distro]['dark'];?> <?php print $lmsless_classes[$distro]['color'];?>-border"><h2 class="flow-text valign elmsln-modal-title white-text"><?php print t('Settings');?></h2><a href="#close-dialog" aria-label="Close" class="close-reveal-side-nav black-text vibrate" data-voicecommand="close (menu)" data-jwerty-key="Esc">×</a></div>
+  <div class="center-align valign-wrapper elmsln-modal-title-wrapper <?php print $lmsless_classes[$distro]['color'];?> <?php print $lmsless_classes[$distro]['dark'];?> <?php print $lmsless_classes[$distro]['color'];?>-border"><h2 class="flow-text valign elmsln-modal-title white-text"><?php print t('Settings');?></h2><a tabindex="-1" href="#close-dialog" aria-label="Close" class="close-reveal-side-nav white-text vibrate" data-voicecommand="close (menu)" data-jwerty-key="Esc"><paper-button>&#215;</paper-button></a></div>
   <div class="elmsln-modal-content">
     <ul>
       <li><?php print $elmsln_main_menu; ?></li>

@@ -83,7 +83,7 @@
 <?php ob_flush(); flush(); ?>
   <span class="cis-lmsless-color"></span>
   <div class="skip-link">
-    <a href="#main-content" class="element-invisible element-focusable"><?php print t('Skip to main content'); ?></a>
+    <a href="#main-content" class="element-invisible element-focusable black-text"><?php print t('Skip to main content'); ?></a>
   </div>
   <?php if (!empty($banner_image)) : ?>
   <div class="header-image-container">

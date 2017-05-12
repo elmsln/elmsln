@@ -1161,13 +1161,21 @@ function foundation_access_menu_link(&$variables) {
     // load up a map of icons and color associations
     $icon_map = _elmsln_core_icon_map();
     $icon = str_replace(' ', '_', drupal_strtolower($title));
+    // see if we have an icon
     if (isset($icon_map[$icon])) {
+      // see if this is being sent externally
       if (strpos($element['#href'], 'elmsln/redirect') === 0) {
         $element['#localized_options']['attributes']['class'][] = 'elmsln-core-external-context-apply';
       }
+      if (isset($icon_map[$icon]['text'])) {
+        $textcolor = $icon_map[$icon]['text'];
+      }
+      else {
+        $textcolor = 'white-text';
+      }
       $element['#localized_options']['attributes']['class'][] = $icon_map[$icon]['color'];
       $element['#localized_options']['attributes']['class'][] = 'darken-3';
-      $title = '<i class="material-icons white-text left">' . $icon_map[$icon]['icon'] . '</i>' . $title;
+      $title = '<i class="material-icons ' . $textcolor . ' left">' . $icon_map[$icon]['icon'] . '</i>' . $title;
       $element['#localized_options']['html'] = TRUE;
     }
     else {

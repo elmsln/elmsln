@@ -387,7 +387,7 @@ function elmsln_core_node_view($node, $view_mode, $langcode) {
         foreach ($results[0] as $key => $result) {
           $tmp = strip_tags(trim($results[3][$key]));
           if (!empty($tmp)) {
-            $scrollspy .= '<li class="scrollspy-depth-' . $results[1][$key] . '"><a class="scrollspy-link ' . $lmsless_classes['color'] . '-border black-text" href="#' . hash('md5', 'h' . $key) . '">' . $tmp . '</a></li>';
+            $scrollspy .= '<li class="scrollspy-depth-' . $results[1][$key] . '"><a tabindex="-1" class="scrollspy-link black-text" href="#' . hash('md5', 'h' . $key) . '"><paper-button>' . $tmp . '</paper-button></a></li>';
           }
         }
         $scrollspy .= '</ul></div>';
@@ -888,7 +888,13 @@ function _elmsln_core_in_context_list() {
       if (!in_array($icon, array('figure_label', 'media_list', 'timeline', 'map', 'timeline_date', 'static_content', 'poll', 'jmol', 'interactive_player', 'image_gallery'))) {
         if (isset($icon_map[$icon])) {
           $color = $icon_map[$icon]['color'];
-          $icon_render = '<i class="material-icons white-text left">' . $icon_map[$icon]['icon'] . '</i>';
+          if (isset($icon_map[$icon]['text'])) {
+            $textcolor = $icon_map[$icon]['text'];
+          }
+          else {
+            $textcolor = 'white-text';
+          }
+          $icon_render = '<i class="material-icons ' . $textcolor . ' left">' . $icon_map[$icon]['icon'] . '</i>';
         }
         else {
           $color = '';
@@ -897,7 +903,7 @@ function _elmsln_core_in_context_list() {
         $options = array(
           'html' => TRUE,
           'attributes' => array(
-            'class' => array('elmsln-core-external-context-apply', $color, 'btn-floating', 'elmsln-btn-floating', 'vibrate'),
+            'class' => array('elmsln-core-external-context-apply', $color, $textcolor, 'btn-floating', 'elmsln-btn-floating', 'vibrate'),
           ),
         );
 
@@ -1168,11 +1174,11 @@ function _elmsln_core_icon_map() {
         'icon' => 'person_add',
       ),
       'file' => array(
-        'color' => 'orange',
+        'color' => 'deep-orange darken-4',
         'icon' => 'attachment',
       ),
       'zip_file' => array(
-        'color' => 'deep-orange',
+        'color' => 'deep-orange darken-4',
         'icon' => 'archive',
       ),
       'timeline_item' => array(
@@ -1180,15 +1186,15 @@ function _elmsln_core_icon_map() {
         'icon' => 'access_time',
       ),
       'timeline' => array(
-        'color' => 'red',
+        'color' => 'red darken-2',
         'icon' => 'timeline',
       ),
       'map_point' => array(
-        'color' => 'light-green',
+        'color' => 'light-green darken-4',
         'icon' => 'place',
       ),
       'map' => array(
-        'color' => 'green',
+        'color' => 'green darken-3',
         'icon' => 'map',
       ),
       'jmol' => array(
@@ -1204,7 +1210,7 @@ function _elmsln_core_icon_map() {
         'icon' => 'people_outline',
       ),
       'setup_a_course' => array(
-        'color' => 'red',
+        'color' => 'red darken-2',
         'icon' => 'school',
       ),
       'program' => array(
@@ -1212,7 +1218,7 @@ function _elmsln_core_icon_map() {
         'icon' => 'code',
       ),
       'academic_area' => array(
-        'color' => 'green',
+        'color' => 'green darken-4',
         'icon' => 'account_balance',
       ),
       'global_resource' => array(
@@ -1228,27 +1234,31 @@ function _elmsln_core_icon_map() {
         'icon' => 'cloud',
       ),
       'calendar_event' => array(
-        'color' => 'green',
+        'color' => 'green darken-3',
         'icon' => 'event',
       ),
       'audio' => array(
-        'color' => 'green',
+        'color' => 'green darken-3',
         'icon' => 'music_video',
       ),
       'document' => array(
-        'color' => 'light-green',
+        'color' => 'light-green darken-4',
         'icon' => 'insert_drive_file',
       ),
       'external_video' => array(
-        'color' => 'red',
+        'color' => 'red darken-2',
         'icon' => 'video_library',
       ),
       'figure_label' => array(
-        'color' => 'deep-orange',
+        'color' => 'deep-orange darken-4',
         'icon' => 'label_outline',
       ),
       'h5p' => array(
-        'color' => 'orange',
+        'color' => 'deep-orange darken-4',
+        'icon' => 'local_activity',
+      ),
+      'interactive_content' => array(
+        'color' => 'deep-orange darken-4',
         'icon' => 'local_activity',
       ),
       'image' => array(
@@ -1278,6 +1288,7 @@ function _elmsln_core_icon_map() {
       'duplicate_outline' => array(
         'color' => 'green',
         'icon' => 'content_copy',
+        'text' => 'black-text',
       ),
       'child_page' => array(
         'color' => 'teal',
@@ -1290,6 +1301,8 @@ function _elmsln_core_icon_map() {
       'assignment' => array(
         'color' => 'green',
         'icon' => 'assignment',
+        'text' => 'black-text',
+
       ),
       'quiz' => array(
         'color' => 'orange',
@@ -1303,10 +1316,12 @@ function _elmsln_core_icon_map() {
       'started' => array(
         'color' => 'red',
         'icon' => 'flag',
+        'text' => 'black-text',
       ),
       'finished' => array(
         'color' => 'green',
         'icon' => 'golf_course',
+        'text' => 'black-text',
       ),
     );
     // allow others to modify core associations
