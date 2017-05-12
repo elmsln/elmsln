@@ -18,9 +18,6 @@
           <span class="meter <?php print $cis_lmsless['lmsless_classes'][$distro]['color'] . ' ' .$cis_lmsless['lmsless_classes'][$distro]['dark'];?>" style="width: 0%"></span>
         </div>
         <?php if (!empty($messages)): ?>
-        <div class="region-messeges">
-          <?php print $messages; ?>
-        </div>
         <?php endif; ?>
         <section class="main-section etb-book">
           <div class="r-header row">
@@ -157,6 +154,9 @@
                 <?php print render($title_suffix); ?>
               <?php endif; ?>
               <a id="main-content"></a>
+              <div class="region-messeges">
+                <?php print $messages; ?>
+              </div>
               <?php print render($page['content']); ?>
               </div>
             </div>
