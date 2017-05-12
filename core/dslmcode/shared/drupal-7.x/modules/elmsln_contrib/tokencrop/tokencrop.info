@@ -1,0 +1,10 @@
+name = Token crop
+description = Crops an area and section based on a token value.
+core = 7.x
+dependencies[] = image
+package = Image
+
+files[] = imageapi_gd.inc
+files[] = tokencrop.install
+files[] = tokencrop.module
+files[] = tokencrop.effects.inc
