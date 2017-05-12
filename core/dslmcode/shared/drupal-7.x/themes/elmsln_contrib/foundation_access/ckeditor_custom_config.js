@@ -15,7 +15,7 @@ CKEDITOR.editorConfig = function( config ) {
     attributes: { class: '#(color)' }
   };
   // protected source
-  config.protectedSource = [/<(.*?)-(.*?)\s*>[\s\S]*?<\/(.*?)-(.*?)>/g];
+  config.protectedSource = [/<(\S*?)-(\S*?)\s*>[\s\S]*?<\/(\S*?)-(\S*?)>/g];
   // config.styleSet is an array of objects that define each style available
   // in the font styles tool in the ckeditor toolbar
   config.disableNativeSpellChecker = false;
