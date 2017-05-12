@@ -212,5 +212,16 @@ function cis_section_strongarm() {
   );
   $export['og_context_providers_weight_group_context'] = $strongarm;
 
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'simplify_nodes_section';
+  $strongarm->value = array(
+    0 => 'format',
+    1 => 'book',
+    2 => 'path',
+  );
+  $export['simplify_nodes_section'] = $strongarm;
+
   return $export;
 }
