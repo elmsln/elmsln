@@ -139,5 +139,8 @@ H5PEditor.language.core = {
   nextImage: 'Next image',
   previousImage: 'Previous image',
   screenshots: 'Screenshots',
-  reloadButtonLabel: 'Reload'
+  reloadButtonLabel: 'Reload',
+  videoQuality: 'Video quality label',
+  videoQualityDescription: 'This label helps the user identify the current quality of the video. E.g. 1080p, 720p, HD or Mobile',
+  videoQualityDefaultLabel: 'Quality :index'
 };

@@ -1839,6 +1839,10 @@ time, mark, audio, video {
   border-bottom: 1px solid #ececec;
 }
 
+.h5p-hub ul.content-type-list li[tabindex="0"] {
+  background-color: #f5faff;
+}
+
 .h5p-hub ul.content-type-list .media-object {
   width: 50px;
 }
@@ -1989,3 +1993,4 @@ time, mark, audio, video {
   font-family: 'h5p-hub';
   content: "\E901";
 }
+

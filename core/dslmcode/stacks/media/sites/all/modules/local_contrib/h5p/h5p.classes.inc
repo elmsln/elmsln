@@ -903,7 +903,7 @@ class H5PDrupal implements H5PFrameworkInterface {
   /**
    * Implements afterExportCreated
    */
-  public function afterExportCreated() {
+  public function afterExportCreated($content, $filename) {
   }
 
   /**

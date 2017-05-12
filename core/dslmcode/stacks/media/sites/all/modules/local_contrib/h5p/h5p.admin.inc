@@ -768,6 +768,7 @@ function h5p_content_upgrade_library($name, $major, $minor) {
   $library->semantics = $core->loadLibrarySemantics($library->name, $library->version->major, $library->version->minor);
   if ($library->semantics === NULL) {
     drupal_not_found();
+    exit;
   }
 
   if ($core->development_mode & H5PDevelopment::MODE_LIBRARY) {

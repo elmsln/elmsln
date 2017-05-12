@@ -567,7 +567,7 @@ interface H5PFrameworkInterface {
   /**
    * Will trigger after the export file is created.
    */
-  public function afterExportCreated();
+  public function afterExportCreated($content, $filename);
 
   /**
    * Check if user has permissions to an action
@@ -1610,16 +1610,19 @@ Class H5PExport {
     foreach ($files as $file) {
       // Please note that the zip format has no concept of folders, we must
       // use forward slashes to separate our directories.
-      $zip->addFile(realpath($file->absolutePath), $file->relativePath);
+      if (file_exists(realpath($file->absolutePath))) {
+        $zip->addFile(realpath($file->absolutePath), $file->relativePath);
+      }
     }
 
     // Close zip and remove tmp dir
     $zip->close();
     H5PCore::deleteFileTree($tmpPath);
 
+    $filename = $content['slug'] . '-' . $content['id'] . '.h5p';
     try {
       // Save export
-      $this->h5pC->fs->saveExport($tmpFile, $content['slug'] . '-' . $content['id'] . '.h5p');
+      $this->h5pC->fs->saveExport($tmpFile, $filename);
     }
     catch (Exception $e) {
       $this->h5pF->setErrorMessage($this->h5pF->t($e->getMessage()));
@@ -1627,7 +1630,7 @@ Class H5PExport {
     }
 
     unlink($tmpFile);
-    $this->h5pF->afterExportCreated();
+    $this->h5pF->afterExportCreated($content, $filename);
 
     return true;
   }
@@ -1719,7 +1722,7 @@ class H5PCore {
 
   public static $coreApi = array(
     'majorVersion' => 1,
-    'minorVersion' => 12
+    'minorVersion' => 13
   );
   public static $styles = array(
     'styles/h5p.css',
@@ -1741,7 +1744,7 @@ class H5PCore {
     'js/h5p-utils.js',
   );
 
-  public static $defaultContentWhitelist = 'json png jpg jpeg gif bmp tif tiff svg eot ttf woff woff2 otf webm mp4 ogg mp3 txt pdf rtf doc docx xls xlsx ppt pptx odt ods odp xml csv diff patch swf md textile';
+  public static $defaultContentWhitelist = 'json png jpg jpeg gif bmp tif tiff svg eot ttf woff woff2 otf webm mp4 ogg mp3 wav txt pdf rtf doc docx xls xlsx ppt pptx odt ods odp xml csv diff patch swf md textile';
   public static $defaultLibraryWhitelistExtras = 'js css';
 
   public $librariesJsonData, $contentJsonData, $mainJsonData, $h5pF, $fs, $h5pD, $disableFileCheck;
@@ -2777,10 +2780,6 @@ class H5PCore {
    * @param null|int $status_code Http response code
    */
   private static function printJson($data, $status_code = NULL) {
-    if ($status_code !== NULL) {
-      http_response_code($status_code);
-    }
-
     header('Cache-Control: no-cache');
     header('Content-type: application/json; charset=utf-8');
     print json_encode($data);
@@ -3020,7 +3019,7 @@ class H5PContentValidator {
   public $h5pF;
   public $h5pC;
   private $typeMap, $libraries, $dependencies, $nextWeight;
-  private static $allowed_styleable_tags = array('span', 'p', 'div');
+  private static $allowed_styleable_tags = array('span', 'p', 'div','h1','h2','h3', 'td');
 
   /**
    * Constructor for the H5PContentValidator

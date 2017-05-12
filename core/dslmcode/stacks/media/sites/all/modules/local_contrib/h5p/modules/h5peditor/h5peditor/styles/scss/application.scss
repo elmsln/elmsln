@@ -7,6 +7,7 @@
 
 @import "variables";
 @import "mixins";
+@import "utils";
 @import "form-field";
 @import "form-groups";
 @import "h5peditor-image-edit";
@@ -174,23 +175,29 @@ a {
     border: 2px dashed #dddddd;
     color: #dddddd;
     margin: 0.5em;
-    width: 4em;
-    height: 3em;
+    width: 6em;
+    height: 4.5em;
     cursor: pointer;
     outline: none;
     box-sizing: border-box;
     -moz-box-sizing: border-box;
+
+    &:focus,
+    &:hover {
+      color: #999;
+      border-color: #999;
+    }
+
+    &.hidden {
+      visibility: hidden;
+    }
   }
-  .h5p-add-file:focus,
-  .h5p-add-file:hover {
-    color: #999;
-    border-color: #999;
-  }
+
   .h5p-add-file:after {
     position: absolute;
     content: "+";
     font-size: 2em;
-    line-height: 1.425em;
+    line-height: 2.2em;
     width: 100%;
     height: 100%;
     text-align: center;
@@ -396,8 +403,8 @@ a {
   }
   .h5p-thumbnail {
     margin: 0.5em;
-    width: 4em;
-    height: 3em;
+    width: 6em;
+    height: 4.5em;
     display: block;
     float: left;
     position: relative;
@@ -412,9 +419,9 @@ a {
       right: 0;
       cursor: pointer;
       outline: none;
-      width: 1em;
-      height: 1em;
-      line-height: 1em;
+      width: 1.6em;
+      height: 1.6em;
+      line-height: 1.6em;
       overflow: hidden;
       text-indent: -0.4em;
       padding: 0.065em;
@@ -426,7 +433,7 @@ a {
     }
     .h5p-remove:after {
       font-family: $icon-font-family;
-      font-size: 1.4em;
+      font-size: 2em;
       color: #fff;
       content: "\e890";
       @include opacity(0.6);
@@ -436,7 +443,7 @@ a {
     position: absolute;
     width: 100%;
     height: 100%;
-    font-size: 0.75em;
+    font-size: 1.1em;
     line-height: 4em;
     display: block;
     text-align: center;
@@ -447,6 +454,7 @@ a {
   .file {
     position: relative;
     float: left;
+    margin-bottom: 0;
 
     &.field {
       float: none;
@@ -519,10 +527,36 @@ a {
       max-width: 100%;
       vertical-align: bottom;
     }
+
+    .h5p-av-row {
+      overflow: auto;
+      margin-bottom: 0.5em;
+
+      .h5p-thumbnail {
+        display: table-cell;
+      }
+
+      .h5p-video-quality {
+        display: table-cell;
+        overflow: hidden;
+        width: 10000px;
+        padding-left: 1em;
+
+        input.h5peditor-text {
+          width: 100%;
+        }
+      }
+    }
+
+    .h5p-av-cell {
+      overflow: auto;
+      float: left;
+    }
   }
   .video .file, .audio .file {
     position: static;
     overflow: visible;
+
     .thumbnail, .add {
       float: left;
     }
@@ -858,7 +892,7 @@ a {
         margin-left: 20px;
 
         &:before {
-          content: "• ";
+          content: "\2022 ";
           color: #adacac;
           font-size: 1.5em;
           vertical-align: middle;

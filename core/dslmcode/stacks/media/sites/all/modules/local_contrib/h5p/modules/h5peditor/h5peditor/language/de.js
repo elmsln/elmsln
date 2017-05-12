@@ -131,5 +131,8 @@ H5PEditor.language.core = {
   nextImage: 'N\u00e4chstes Bild',
   previousImage: 'Vorheriges Bild',
   screenshots: 'Bildschirmfotos',
-  reloadButtonLabel: 'Neu laden'
+  reloadButtonLabel: 'Neu laden',
+  videoQuality: 'Videoaufl\u00f6sung',
+  videoQualityDescription: 'Dieses Label hilft dem Benutzer, die aktuelle Videoaufl\u00f6sung zu erkennen. Z.B.. 1080p, 720p, HD der Mobile',
+  videoQualityDefaultLabel: 'Aufl\u00f6sung :index'
 };

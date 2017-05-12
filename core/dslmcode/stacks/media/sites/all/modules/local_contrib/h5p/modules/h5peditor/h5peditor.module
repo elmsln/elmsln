@@ -308,6 +308,7 @@ function _h5peditor_create_content($node) {
 function h5peditor_libraries_callback() {
   $editor = h5peditor_get_instance();
   $editor->ajax->action(H5PEditorEndpoints::LIBRARIES);
+  drupal_add_http_header('Content-Type', 'application/json');
 }
 
 /**
@@ -317,6 +318,7 @@ function h5peditor_library_upload_callback($token, $contentId) {
   $editor = h5peditor_get_instance();
   $filePath = $_FILES['h5p']['tmp_name'];
   $editor->ajax->action(H5PEditorEndpoints::LIBRARY_UPLOAD, $token, $filePath, $contentId);
+  drupal_add_http_header('Content-Type', 'application/json');
 }
 
 /**
@@ -325,6 +327,7 @@ function h5peditor_library_upload_callback($token, $contentId) {
 function h5peditor_library_install_callback($token, $machineName) {
   $editor = h5peditor_get_instance();
   $editor->ajax->action(H5PEditorEndpoints::LIBRARY_INSTALL, $token, $machineName);
+  drupal_add_http_header('Content-Type', 'application/json');
 }
 
 /**
@@ -333,6 +336,7 @@ function h5peditor_library_install_callback($token, $machineName) {
 function h5peditor_content_type_cache_callback() {
   $editor = h5peditor_get_instance();
   $editor->ajax->action(H5PEditorEndpoints::CONTENT_TYPE_CACHE);
+  drupal_add_http_header('Content-Type', 'application/json');
 }
 
 /**
@@ -347,6 +351,7 @@ function h5peditor_library_callback($machine_name, $major_version, $minor_versio
   $editor->ajax->action(H5PEditorEndpoints::SINGLE_LIBRARY, $machine_name,
     $major_version, $minor_version, $language->language, _h5p_get_h5p_path()
   );
+  drupal_add_http_header('Content-Type', 'application/json');
 
   // Log library loaded
   new H5PEvent('library', NULL, NULL, NULL,
@@ -361,6 +366,7 @@ function h5peditor_library_callback($machine_name, $major_version, $minor_versio
 function h5peditor_files_callback($token, $content_id) {
   $editor = h5peditor_get_instance();
   $editor->ajax->action(H5PEditorEndpoints::FILES, $token, $content_id);
+  drupal_add_http_header('Content-Type', 'application/json');
 }
 
 /**

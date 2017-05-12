@@ -1604,3 +1604,14 @@ function h5p_update_7115() {
   variable_set('h5p_hub_is_enabled', TRUE);
   variable_del('h5p_allow_communication_with_h5p_org');
 }
+
+/**
+ * Adding wav to whitelist
+ */
+function h5p_update_7116() {
+  $whitelist = variable_get('h5p_whitelist', H5PCore::$defaultContentWhitelist);
+
+  if (strpos($whitelist, 'wav') === FALSE) {
+    variable_set('h5p_whitelist', $whitelist . ' wav');
+  }
+}

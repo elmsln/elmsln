@@ -138,6 +138,7 @@ ns.LibrarySelector.prototype.loadSemantics = function (library, params) {
 
   this.$selector.attr('disabled', true);
 
+  ns.resetLoadedLibraries();
   ns.loadLibrary(library, function (semantics) {
     if (!semantics) {
       that.form = ns.$('<div/>', {

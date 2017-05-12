@@ -15,14 +15,22 @@ H5PIntegration = window.parent.H5PIntegration;
 ns.widgets = {};
 
 /**
- * Keeps track of which semantics are loaded.
+ * Caches library data (semantics, js and css)
  */
-ns.loadedSemantics = {};
+ns.libraryCache = {};
 
 /**
- * Keeps track of callbacks to run once a semantic gets loaded.
+ * Keeps track of callbacks to run once a library gets loaded.
  */
-ns.semanticsLoaded = {};
+ns.loadedCallbacks = {};
+
+/**
+ * Keep track of which libraries have been loaded in the browser, i.e CSS is
+ * added and JS have been run
+ *
+ * @type {Object}
+ */
+ns.libraryLoaded = {};
 
 /**
  * Indiciates if the user is using Internet Explorer.
@@ -30,30 +38,76 @@ ns.semanticsLoaded = {};
 ns.isIE = navigator.userAgent.match(/; MSIE \d+.\d+;/) !== null;
 
 /**
+ * Helper function invoked when a library is requested. Will add CSS and eval JS
+ * if not already done.
+ *
+ * @private
+ * @param {string} libraryName On the form "machineName majorVersion.minorVersion"
+ * @param {Function} callback
+ */
+ns.libraryRequested = function (libraryName, callback) {
+  var libraryData = ns.libraryCache[libraryName];
+
+  if (!ns.libraryLoaded[libraryName]) {
+    // Add CSS.
+    if (libraryData.css !== undefined) {
+      var css = '';
+      for (var path in libraryData.css) {
+        if (!H5P.cssLoaded(path)) {
+          css += libraryData.css[path];
+          H5PIntegration.loadedCss.push(path);
+        }
+      }
+      if (css) {
+        ns.$('head').append('<style class="h5p-editor-style" type="text/css">' + css + '</style>');
+      }
+    }
+
+    // Add JS.
+    if (libraryData.javascript !== undefined) {
+      var js = '';
+      for (var path in libraryData.javascript) {
+        if (!H5P.jsLoaded(path)) {
+          js += libraryData.javascript[path];
+          H5PIntegration.loadedJs.push(path);
+        }
+      }
+      if (js) {
+        var k = eval.apply(window, [js]);
+      }
+    }
+
+    ns.libraryLoaded[libraryName] = true;
+  }
+
+  callback(ns.libraryCache[libraryName].semantics);
+};
+
+/**
  * Loads the given library, inserts any css and js and
  * then runs the callback with the samantics as an argument.
  *
  * @param {string} libraryName
- *  On the form machineName.majorVersion.minorVersion
+ *  On the form machineName majorVersion.minorVersion
  * @param {function} callback
  * @returns {undefined}
  */
 ns.loadLibrary = function (libraryName, callback) {
-  switch (ns.loadedSemantics[libraryName]) {
+  switch (ns.libraryCache[libraryName]) {
     default:
       // Get semantics from cache.
-      callback(ns.loadedSemantics[libraryName]);
+      ns.libraryRequested(libraryName, callback);
       break;
 
     case 0:
       // Add to queue.
-      ns.semanticsLoaded[libraryName].push(callback);
+      ns.loadedCallbacks[libraryName].push(callback);
       break;
 
     case undefined:
       // Load semantics.
-      ns.loadedSemantics[libraryName] = 0; // Indicates that others should queue.
-      ns.semanticsLoaded[libraryName] = []; // Other callbacks to run once loaded.
+      ns.libraryCache[libraryName] = 0; // Indicates that others should queue.
+      ns.loadedCallbacks[libraryName] = []; // Other callbacks to run once loaded.
       var library = ns.libraryFromString(libraryName);
 
       var url = ns.getAjaxUrl('libraries', library);
@@ -73,41 +127,13 @@ ns.loadLibrary = function (libraryName, callback) {
             semantics = ns.$.extend(true, [], semantics, language.semantics);
           }
           libraryData.semantics = semantics;
-          ns.loadedSemantics[libraryName] = libraryData.semantics;
+          ns.libraryCache[libraryName] = libraryData;
 
-          // Add CSS.
-          if (libraryData.css !== undefined) {
-            var css = '';
-            for (var path in libraryData.css) {
-              if (!H5P.cssLoaded(path)) {
-                css += libraryData.css[path];
-                H5PIntegration.loadedCss.push(path);
-              }
-            }
-            if (css) {
-              ns.$('head').append('<style type="text/css">' + css + '</style>');
-            }
-          }
-
-          // Add JS.
-          if (libraryData.javascript !== undefined) {
-            var js = '';
-            for (var path in libraryData.javascript) {
-              if (!H5P.jsLoaded(path)) {
-                js += libraryData.javascript[path];
-                H5PIntegration.loadedJs.push(path);
-              }
-            }
-            if (js) {
-              eval.apply(window, [js]);
-            }
-          }
-
-          callback(libraryData.semantics);
+          ns.libraryRequested(libraryName, callback);
 
           // Run queue.
-          for (var i = 0; i < ns.semanticsLoaded[libraryName].length; i++) {
-            ns.semanticsLoaded[libraryName][i](libraryData.semantics);
+          for (var i = 0; i < ns.loadedCallbacks[libraryName].length; i++) {
+            ns.loadedCallbacks[libraryName][i](libraryData.semantics);
           }
         },
         error: function(jqXHR, textStatus, errorThrown) {
@@ -122,6 +148,19 @@ ns.loadLibrary = function (libraryName, callback) {
       });
   }
 };
+
+/**
+ * Reset loaded libraries - i.e removes CSS added previously.
+ * @method
+ * @return {[type]}
+ */
+ns.resetLoadedLibraries = function () {
+  ns.$('head style.h5p-editor-style').remove();
+  H5PIntegration.loadedCss = [];
+  H5PIntegration.loadedJs = [];
+  ns.loadedCallbacks = {};
+  ns.libraryLoaded = {};
+}
 
 /**
  * Recursive processing of the semantics chunks.
