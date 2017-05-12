@@ -2622,6 +2622,27 @@ paper-button:focus {
   padding: 0;
 }
 
+lrn-aside {
+  max-width: 20rem !important;
+  padding: 3rem 0 0 0;
+  margin: .25rem;
+}
+lrn-aside h3 div {
+  font-size: 1rem;
+}
+lrn-aside p {
+  font-size: .8rem;
+}
+lrn-aside div.card-panel.lrndesign-panelcard {
+  padding: .75rem;
+}
+
+button.btn paper-button {
+  min-width: 1rem;
+  margin: 0;
+  padding: 0;
+}
+
 .elmsln-modal .close-reveal-side-nav paper-button,
 .elmsln-modal .close-reveal-modal paper-button,
 .etb-nav-modal .close-reveal-modal paper-button {
