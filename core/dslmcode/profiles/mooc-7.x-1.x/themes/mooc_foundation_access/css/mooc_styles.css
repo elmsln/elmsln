@@ -146,6 +146,7 @@
 #scrollspy-nav.pinned {
   left: 0;
   width: calc(47vw - 27%);
+  z-index: 2;
 }
 
 @media only screen and (max-width: 1300px) {
