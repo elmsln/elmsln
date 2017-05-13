@@ -1404,11 +1404,13 @@ table.sticky-header {
 
 /* Materialize scrollspy */
 
+#scrollspy-nav .scrollspy-link {
+  border: none;
+}
 #scrollspy-nav .scrollspy-link.active {
-  border-left: unset;
-  border-left-style: solid;
-  border-left-width: 3px;
-  font-size: 1.1rem;
+  border: none;
+  transform: scale(1.07);
+  transition: all .2s ease-in-out;
 }
 .table-of-contents li {
   padding: 0;
