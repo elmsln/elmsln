@@ -248,12 +248,34 @@ body.page-node-edit.node-type-page .cke_focus .cke_top{
   }
 }
 
+@media only screen and (min-width: 601px) {
+  .highlighted-block-area {
+    position: absolute;
+    right: 90%;
+    width: calc(55vw - 40%);
+    max-width: 20rem;
+    min-width: 10rem;
+    top: 0;
+  }
+}
+
+@media only screen and (min-width: 900px) {
+  .highlighted-block-area {
+    position: absolute;
+    right: 91%;
+    width: calc(55vw - 44%);
+    max-width: 20rem;
+    min-width: 10rem;
+    top: 0;
+  }
+}
+
 /* support shifting highlighted block region off to left column on big displays */
-@media screen and (min-width: 80rem) {
+@media screen and (min-width: 1280px) {
   .highlighted-block-area {
     position: absolute;
     right: 92%;
-    width: calc(55vw - 50%);
+    width: calc(55vw - 46%);
     max-width: 20rem;
     min-width: 10rem;
     top: 0;
@@ -280,7 +302,6 @@ body.page-node-edit.node-type-page .cke_focus .cke_top{
     margin: 0;
   }
 }
-
 
 /* Helps in the event the internet isn't there */
 .material-icons {
@@ -1382,25 +1403,12 @@ table.sticky-header {
 }
 
 /* Materialize scrollspy */
-#scrollspy-nav {
-  display: none;
-}
-#scrollspy-nav li.scrollspy-depth-1 {
-}
-#scrollspy-nav li.scrollspy-depth-2 {
-}
-#scrollspy-nav li.scrollspy-depth-3 {
-  padding-left:.2rem;
-}
-#scrollspy-nav li.scrollspy-depth-4 {
-  padding-left:.5rem;
-}
 
 #scrollspy-nav .scrollspy-link.active {
   border-left: unset;
   border-left-style: solid;
-  border-left-width: .1rem;
-  padding: 0 0 0 1rem;
+  border-left-width: 2px;
+  padding: 0 0 0 .5rem;
 }
 .table-of-contents li {
   padding: 0;
@@ -1421,42 +1429,9 @@ table.sticky-header {
   color:unset;
   font-size: 1rem;
 }
-#scrollspy-nav a:hover {
-  border-left: unset;
-  border-left-style: solid;
-  border-left-width: .2rem;
-}
-/* structure in media */
-.scrollspy-toc .table-of-contents {
-  max-height: 65vh;
-  min-width: 10rem;
-  overflow-y: scroll;
-  width: calc(50vw - 52%);
-  max-width: 30em;
-  margin: 0;
-}
-/* structure in mooc */
-.scrollspy-toc.table-of-contents {
-  margin: 0;
-  max-height: 65vh;
-  min-width: 10rem;
-  max-width: 16rem;
-  overflow-y: scroll;
-  width: 100%;
-  border-bottom-width: .1rem;
-  border-bottom-style: solid;
-}
-@media screen and (min-width: 80rem) {
-  #scrollspy-nav {
-    position: absolute !important;
-    left: 100%;
-    width: calc(52vw - 52%);
-    max-width: 14em;
-    min-width: 8rem;
-    display: block;
-    max-height: 65vh;
-    overflow-y: scroll;
-  }
+.table-of-contents a:hover {
+  border: none;
+  font-weight: bold;
 }
 
 /* fix for Drupal checkboxes that don't have a label in material */
@@ -1730,7 +1705,7 @@ div.read-time-wrapper div.chip i {
   form.node-form div.field-group-htabs-wrapper.group-settings {
     position: absolute !important;
     left: 100%;
-    width: calc(50vw - 51%);
+    width: calc(51vw - 58%);
     top: 0;
     max-width: 30em;
     display: block;
@@ -2641,6 +2616,18 @@ button.btn paper-button {
   min-width: 1rem;
   margin: 0;
   padding: 0;
+}
+
+#scrollspy-nav paper-button {
+  min-width: 1rem;
+  width: 100%;
+  -ms-flex-align: left;
+  -webkit-align-items: left;
+  align-items: left;
+  -ms-flex-pack: left;
+  -webkit-justify-content: left;
+  justify-content: left;
+  outline: none;
 }
 
 .elmsln-modal .close-reveal-side-nav paper-button,

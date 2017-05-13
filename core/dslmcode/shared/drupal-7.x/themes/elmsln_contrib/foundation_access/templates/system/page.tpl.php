@@ -111,7 +111,7 @@
           </div>
           <?php if ($contentwrappers): ?>
           <div class="elmsln-content-wrap row">
-            <div class="s12 m12 push-l1 l10 col" role="main">
+            <div class="s12 push-m2 m10 push-l1 l11 col" role="main">
           <?php else : ?>
           <div class="elmsln-content-wrap">
             <div role="main">
@@ -153,7 +153,7 @@
                 <h2 id="page-title" class="title"><?php print $title; ?></h2>
                 <?php print render($title_suffix); ?>
               <?php endif; ?>
-              <a id="main-content"></a>
+              <a id="main-content" class="scrollspy" data-scrollspy="scrollspy"></a>
               <div class="region-messeges">
                 <?php print $messages; ?>
               </div>

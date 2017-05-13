@@ -35,13 +35,13 @@
 }
 
 #block-mooc-nav-block-mooc-nav-nav.block-mooc-nav-block-mooc-nav ul li {
-  padding: 0;
+  padding: 0 0.5rem;
 }
 
 #block-mooc-nav-block-mooc-nav-nav.block-mooc-nav-block-mooc-nav ul li a {
   display: block;
   width: 100%;
-  padding: 0 0 0 1.75rem;
+  padding: 0 0 0 1.25rem;
   line-height: 2.5rem;
   white-space: nowrap;
   overflow: hidden;
@@ -64,11 +64,15 @@
   border-right-color: transparent;
   border-bottom-color: transparent;
 }
+
+#block-mooc-nav-block-mooc-nav-nav.block-mooc-nav-block-mooc-nav ul li.elmsln-book-item.has-children #scrollspy-nav a:before {
+  border: none;
+}
 .elmsln-book-item.elmsln-icon:before {
   position: absolute;
   font-size: 1.3rem;
   line-height: 2.4rem;
-  margin: 0;
+  margin: 0 0 0 -.4rem;
   padding: 0 0 0 0.1rem;
   height: 2.4rem;
   width: 1rem;
@@ -80,13 +84,19 @@
 #block-mooc-nav-block-mooc-nav-nav.block-mooc-nav-block-mooc-nav ul li {
   background-color: #E5E5E5;
 }
+#block-mooc-nav-block-mooc-nav-nav.block-mooc-nav-block-mooc-nav ul#scrollspy-nav li {
+  background-color: #FFFFFF;
+}
+#scrollspy-nav {
+  margin: 0 0 0 1rem;
+}
 #block-mooc-nav-block-mooc-nav-nav.block-mooc-nav-block-mooc-nav ul li.past-page {
   background-color: #F5F5F5;
 }
 #block-mooc-nav-block-mooc-nav-nav.block-mooc-nav-block-mooc-nav ul li.active-trail {
   background-color: #FFFFFF;
   border-style: solid;
-  border-width: 1px;
+  border-width: 2px;
   margin: 0 -1px;
 }
 #block-mooc-nav-block-mooc-nav-nav.block-mooc-nav-block-mooc-nav ul li.last.active-trail {
@@ -110,6 +120,54 @@
   padding: 0 0 0 1.25rem;
 }
 
+#scrollspy-nav .scrollspy-label {
+  display: none;
+  font-size: 1rem;
+  font-weight: bold;
+  padding-top: 1rem !important;
+  margin: -3rem 0 0 0rem !important;
+}
+
+.scrollspy-depth-2 {
+  margin-left:.5rem !important;
+}
+.scrollspy-depth-3 {
+  margin-left:1rem !important;
+}
+.scrollspy-depth-4 {
+  margin-left:1.5rem !important;
+}
+
+#scrollspy-nav.pinned .scrollspy-label {
+  display: block;
+}
+#scrollspy-nav.pinned .scrollspy-label a {
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+#scrollspy-nav.pinned {
+  left: 0;
+  width: calc(47vw - 27%);
+}
+
+@media only screen and (max-width: 1300px) {
+  #scrollspy-nav.pinned {
+    width: calc(45vw - 27%);
+  }
+}
+
+@media only screen and (max-width: 990px) {
+  #scrollspy-nav.pinned {
+    width: calc(44vw - 18%);
+  }
+}
+
+@media only screen and (max-width: 601px) {
+  #scrollspy-nav.pinned {
+    display:none;
+  }
+}
+
 #block-mooc-nav-block-mooc-nav-nav.block-mooc-nav-block-mooc-nav {
   border: .1rem solid #000000;
   border-top: none;
@@ -127,6 +185,20 @@
 
 #block-mooc-nav-block-mooc-nav-nav li.active-trail {
   background-color: #eceff1;
+}
+
+/* structure in media */
+.scrollspy-toc .table-of-contents {
+  max-height: 65vh;
+  min-width: 10rem;
+  overflow-y: scroll;
+  width: calc(50vw - 52%);
+  max-width: 30em;
+  margin: 0;
+}
+/* structure in mooc */
+.scrollspy-toc.table-of-contents {
+  list-style-type: none;
 }
 
 .mooc-nav-block-left {
