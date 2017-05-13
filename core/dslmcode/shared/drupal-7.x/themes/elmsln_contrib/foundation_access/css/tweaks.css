@@ -1407,8 +1407,8 @@ table.sticky-header {
 #scrollspy-nav .scrollspy-link.active {
   border-left: unset;
   border-left-style: solid;
-  border-left-width: 2px;
-  padding: 0 0 0 .5rem;
+  border-left-width: 3px;
+  font-size: 1.1rem;
 }
 .table-of-contents li {
   padding: 0;
