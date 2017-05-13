@@ -125,9 +125,15 @@ function _mooc_nav_block_mooc_nav_block($node) {
         }
       }
       $scrollspy .= '</ul>';
-      $tree[$node->book['mlid']]['#below'] = array(
-        '#markup' => $scrollspy,
-      );
+      // append below the item if there is one to do so, otherwise it's at the top
+      if (!$node->book['has_children']) {
+        $tree[$node->book['mlid']]['#below'] = array(
+          '#markup' => $scrollspy,
+        );
+      }
+      else {
+        $output .= $scrollspy;
+      }
       drupal_add_js(drupal_get_path('theme', 'foundation_access') .'/legacy/js/materialize/scrollspy/materialize-scrollspy.js');
     }
   }
