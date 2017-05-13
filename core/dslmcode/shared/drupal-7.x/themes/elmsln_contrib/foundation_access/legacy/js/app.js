@@ -74,8 +74,8 @@ var clipboardjs = require('./components/clipboardjs.js');
   // sticky stuff
   Drupal.behaviors.stickyStuff = {
     attach: function (context, settings) {
-      $('.r-header', context).sticky({topSpacing:4, width: '100%'});
-      $('.page-scroll.progress', context).sticky({topSpacing:0});
+      //$('.r-header', context).sticky({topSpacing:4, width: '100%'});
+      //$('.page-scroll.progress', context).sticky({topSpacing:0});
     }
   };
   // Page Scrolling Progress Bar

@@ -75,8 +75,10 @@ var clipboardjs = require('./components/clipboardjs.js');
   // sticky stuff
   Drupal.behaviors.stickyStuff = {
     attach: function (context, settings) {
-      $('.r-header', context).sticky({topSpacing:4, width: '100%'});
-      $('.page-scroll.progress', context).sticky({topSpacing:0});
+      $('.r-header').pushpin({offset: 4, top: $('.main-section').offset().top });
+      $('.page-scroll.progress').pushpin({offset: 0, top: $('.main-section').offset().top });
+      //$('.r-header', context).sticky({topSpacing:4, width: '100%'});
+      //$('.page-scroll.progress', context).sticky({topSpacing:0});
     }
   };
   // Page Scrolling Progress Bar
