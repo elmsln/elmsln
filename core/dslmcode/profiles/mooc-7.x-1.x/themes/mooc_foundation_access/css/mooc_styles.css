@@ -143,11 +143,9 @@
   font-weight: bold;
 }
 #scrollspy-nav.pinned {
-  left: 1rem;
-  width: calc(48vw - 27%);
+  width: calc(55vw - 46%);
   z-index: 2;
   position: relative;
-  border: 3px solid black;
   transition: all .2s ease-in-out;
 }
 #scrollspy-nav.pinned:after {
@@ -160,20 +158,40 @@
   right: 0;
 }
 
-@media only screen and (max-width: 1300px) {
+@media only screen and (min-width: 601px) {
   #scrollspy-nav.pinned {
-    width: calc(45vw - 27%);
+    width: calc(55vw - 40%);
+    margin-left: -1rem;
+  }
+}
+
+@media only screen and (min-width: 900px) {
+  #scrollspy-nav.pinned {
+    width: calc(55vw - 44%);
+  }
+}
+
+/* support shifting highlighted block region off to left column on big displays */
+@media screen and (min-width: 1280px) {
+  #scrollspy-nav.pinned {
+    width: calc(55vw - 46%);
+  }
+}
+/**@media only screen and (max-width: 1300px) {
+  #scrollspy-nav.pinned {
+    width: 10rem;
   }
 }
 
 @media only screen and (max-width: 990px) {
   #scrollspy-nav.pinned {
-    width: calc(44vw - 18%);
+    width: 10rem;
   }
-}
+}*/
 
 @media only screen and (max-width: 601px) {
   #scrollspy-nav.pinned {
+
     display:none;
   }
 }
