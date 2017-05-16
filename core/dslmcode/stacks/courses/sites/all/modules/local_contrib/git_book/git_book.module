@@ -18,6 +18,50 @@ function git_book_node_presave($node) {
   }
 }
 
+function git_book_node_view($node, $viewmode) {
+  $status = _git_book_get_status($node);
+  dpm($status);
+  // $status = 'status is';
+  // $commit = 'commit #';
+  // $node->content['gitbook_status'] = array(
+  //   '#type' => 'markup',
+  //   '#markup' => $status,
+  // );
+} 
+
+/*
+ * Get the status of the git_book repo
+ */
+function _git_book_get_status($node) {
+  if ($node->type == 'git_book') {
+    $repo_url = $node->field_git_repo[LANGUAGE_NONE][0]['value'];
+    $repo = _git_book_get_repo($node->title, $repo_url);
+    dpm($repo);
+  }
+}
+
+/**
+ * Helper function to get a loaded repo object from url
+ */
+function _git_book_get_repo($name, $url) {
+  // build a path for this since its brand new and not hooked
+  // up to anything currently
+  $path = drupal_realpath('private://') . '/' . preg_replace('/[^a-z0-9]/', '', drupal_strtolower($name));
+  if (is_dir($path)) {
+    try {
+      libraries_load('gitphp');
+      $repo = Git::open($path);
+      if ($repo) {
+        return $repo;
+      }
+    }
+    catch (Exception $e) {
+      return false;
+    }
+  }
+  return false;
+}
+
 /**
  * Implements hook_node_insert().
  */
