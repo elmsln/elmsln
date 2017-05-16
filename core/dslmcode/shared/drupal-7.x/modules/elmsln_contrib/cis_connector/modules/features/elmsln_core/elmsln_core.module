@@ -1852,10 +1852,6 @@ function elmsln_core_wrapped_paths() {
     '*' => TRUE,
     'user/*' => FALSE,
     'user/*/*' => FALSE,
-    'cle/app' => FALSE,
-    'cle/app/*' => FALSE,
-    'cle/open-studio-app' => FALSE,
-    'cle/open-studio-app/*' => FALSE,
   );
   return $paths;
 }

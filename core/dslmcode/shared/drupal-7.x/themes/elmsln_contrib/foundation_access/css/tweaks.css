@@ -2201,7 +2201,7 @@ ul.off-canvas-list .left-submenu li.back {
 }
 
 @media all and (min-width: 720px) {
-  .form-actions.form-wrapper {
+  .page-node-edit .form-actions.form-wrapper {
     position: fixed;
     bottom: 0;
     background: #fff;

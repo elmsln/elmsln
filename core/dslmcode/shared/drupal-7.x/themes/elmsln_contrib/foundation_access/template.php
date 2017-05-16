@@ -2038,5 +2038,7 @@ function _foundation_access_move_tabs() {
     'file/%/devel',
     'file/%/delete',
   );
+  // allow modules to dictate what to remove
+  drupal_alter('foundation_access_tabs', $tabs);
   return $tabs;
 }
