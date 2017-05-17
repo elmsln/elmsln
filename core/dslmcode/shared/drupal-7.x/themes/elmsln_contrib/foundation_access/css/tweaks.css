@@ -1693,7 +1693,7 @@ cite, .image__cite, .image--lightboxed__cite {
   max-width: 100%;
 }
 
-cite p, .image__cite p, .image--lightboxed__cite p {
+cite p, .image .image__cite p, .image--lightboxed__cite p {
   font-size: .8rem;
   max-width: 100%;
 }
