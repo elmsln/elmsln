@@ -176,6 +176,7 @@ dependencies[] = cle_submission_comments
 dependencies[] = cle_critique
 dependencies[] = cle_app
 dependencies[] = cle_project
+dependencies[] = cle_displays
 dependencies[] = cle_section
 dependencies[] = cle_perms
 dependencies[] = elmsln_student_filter
