@@ -4,9 +4,7 @@
   "dependencies": {
     "polymer": "Polymer/polymer#^1.4.0",
     "app-layout": "PolymerElements/app-layout#^0.10.7",
-    "lrn-icons": "LRNWebcomponents/lrn-icons#^1.0.4",
-    "hax-behaviors": "LRNWebComponents/hax-behaviors#^0.0.6",
-    "paper-tooltip": "^1.1.3"
+    "lrn-icons": "LRNWebcomponents/lrn-icons#^1.0.4"
   },
   "devDependencies": {
     "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",

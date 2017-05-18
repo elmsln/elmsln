@@ -12,14 +12,14 @@
     "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0"
   },
   "homepage": "https://github.com/LRNWebComponents/hax-editbar",
-  "version": "0.0.5",
-  "_release": "0.0.5",
+  "version": "0.0.9",
+  "_release": "0.0.9",
   "_resolution": {
     "type": "version",
-    "tag": "0.0.5",
-    "commit": "13e197b05b1474863eb4922c4219523070b4471d"
+    "tag": "0.0.9",
+    "commit": "ee728c314827a8b11ea5b5d5e9ecb0a90c2b5651"
   },
   "_source": "https://github.com/LRNWebComponents/hax-editbar.git",
-  "_target": "^0.0.5",
+  "_target": "^0.0.9",
   "_originalSource": "LRNWebComponents/hax-editbar"
 }

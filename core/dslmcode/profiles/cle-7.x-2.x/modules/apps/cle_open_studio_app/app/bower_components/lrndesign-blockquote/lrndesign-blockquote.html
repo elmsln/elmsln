@@ -1,0 +1,200 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../hax-behaviors/hax-behaviors.html">
+<link rel="import" href="../paper-tooltip/paper-tooltip.html">
+<link rel="import" href="../paper-swatch-picker/paper-swatch-picker.html">
+<link rel="import" href="../paper-checkbox/paper-checkbox.html">
+<link rel="import" href="../materializecss-styles/materializecss-styles.html">
+
+<!--
+`lrndesign-blockquote`
+A structured blockquote element
+
+@demo demo/index.html
+-->
+
+<dom-module id="lrndesign-blockquote">
+  <template>
+    <style include="materializecss-styles"></style>
+    <style>
+      :host {
+        display: inline-block;
+        position: relative;
+        box-sizing: border-box;
+        --lrndesign-blockquote-color: #585858;
+        --lrndesign-blockquote-cite: #3a3a3a;
+        @apply(--lrndesign-blockfquote);
+      }
+      blockquote {
+        font-size: 1.2rem;
+        font-style: italic;
+        margin: .25rem 0;
+        padding: 0 0 0 2.5rem;
+        line-height: 1.5;
+        position: relative;
+        color: var(--lrndesign-blockquote-color);
+      }
+      blockquote.decorate:before {
+        display: block;
+        font-family: Georgia, serif;
+        content: "\201C";
+        font-size: 5rem;
+        position: absolute;
+        left: -1.25rem;
+        top: -1.25rem;
+        color: var(--lrndesign-blockquote-color);
+      }
+      blockquote.outset {
+        margin: .25rem -8rem .25rem -8rem;
+      }
+      blockquote cite {
+        color: var(--lrndesign-blockquote-cite);
+        font-size: .8rem;
+        display: block;
+        margin-top: .25rem;
+        text-align: right;
+        --blockquote-cite: {
+        }
+      }
+      paper-checkbox {
+        --primary-text-color: #FFFFFF;
+      }
+    </style>
+      <blockquote class$="{{generateClass(decorate, outset, color, textColor)}}">
+      <hax-editbar edit="{{edit}}">
+        <paper-swatch-picker id="itemcolor" color="{{colorCode}}"></paper-swatch-picker>
+        <paper-tooltip for="itemcolor">Background color</paper-tooltip>
+        <paper-swatch-picker id="textcolor" color="{{textColorCode}}"></paper-swatch-picker>
+        <paper-tooltip for="textcolor">Text color</paper-tooltip>
+        <paper-checkbox checked="{{decorate}}">Decorate</paper-checkbox>
+        <paper-checkbox checked="{{outset}}">Outset</paper-checkbox>
+      </hax-editbar>
+        <hax-editable edit="{{edit}}" type="html">
+          {{quote}}
+        </hax-editable>
+        <cite>
+          <hax-editable edit="{{edit}}" type="textfield">{{citation}}</hax-editable>
+        </cite>
+      </blockquote>
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'lrndesign-blockquote',
+      behaviors: [HAXBehaviors.EditBehaviors, MaterializeCSSBehaviors.ColorBehaviors],
+      properties: {
+        /**
+         * quote to be presented
+         * @type {Object}
+         */
+        quote: {
+          type: String,
+          value: '',
+          reflectToAttribute: true,
+          notify: true,
+        },
+        /**
+         * Source being cited
+         * @type {Object}
+         */
+        citation: {
+          type: String,
+          value: '',
+          reflectToAttribute: true,
+          notify: true,
+        },
+        /**
+         * Place " glyph decorator
+         */
+        decorate: {
+          type: Boolean,
+          value: false,
+          reflectToAttribute: true,
+          notify: true,
+        },
+        /**
+         * Explode out of boundary container intentionally
+         */
+        outset: {
+          type: Boolean,
+          value: false,
+          reflectToAttribute: true,
+          notify: true,
+        },
+        /**
+         * Color code
+         */
+        colorCode: {
+          type: String,
+          observer: '_colorChange',
+        },
+        /**
+         * Color class
+         */
+        color: {
+          type: String,
+          value: 'yellow lighten-4',
+          reflectToAttribute: true,
+          notify: true,
+        },
+        /**
+         * Text color code
+         */
+        textColorCode: {
+          type: String,
+          observer: '_textColorChange',
+        },
+        /**
+         * Text color class
+         */
+        textColor: {
+          type: String,
+          value: 'black-text',
+          reflectToAttribute: true,
+          notify: true,
+        },
+      },
+      /**
+       * Notice the color change and shift it over to the class name.
+       */
+      _colorChange: function() {
+        if (this.colorCode.substring(0, 1) == '#') {
+          this.color = this._colorTransform(this.colorCode, '', '');
+        }
+      },
+      /**
+       * Text color change and shift it over to the class name.
+       */
+      _textColorChange: function(value, e) {
+        console.log(value);
+        console.log(e);
+        if (this.textColorCode.substring(0, 1) == '#') {
+          this.textColor = this._colorTransform(this.textColorCode, '-text', 'text-');
+        }
+      },
+      /**
+       * Generate a class based on the options provided
+       */
+      generateClass: function(decorate, outset, color, textColor) {
+        var returnClass = '';
+        if (decorate) {
+          returnClass += ' decorate';
+        }
+        if (outset) {
+          returnClass += ' outset';
+        }
+        // let's support mixing in our colors
+        returnClass += ' ' + textColor + ' ' + color;
+        return returnClass;
+      },
+      /**
+       * Content demo.
+       */
+      _demoInit: function() {
+        this.quote = "Disrupt, innovate out of your job. Pay everything forward. Collapse local inefficiencies. Pay forward via analysis of process. Collapse larger inefficiencies... Collapse edge industries. Rinse, repeat in other areas.";
+        this.citation = "btopro, July 26th 2011";
+        this.decorate = true;
+      }
+    });
+  </script>
+</dom-module>

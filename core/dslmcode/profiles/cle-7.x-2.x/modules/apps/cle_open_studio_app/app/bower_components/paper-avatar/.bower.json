@@ -1,0 +1,36 @@
+{
+  "name": "paper-avatar",
+  "version": "1.0.2",
+  "description": "User avatar in material style",
+  "authors": [
+    "Abe90"
+  ],
+  "main": "paper-avatar.html",
+  "license": "Apache-2.0",
+  "keywords": [
+    "avatar",
+    "polymer",
+    "paper",
+    "material design"
+  ],
+  "dependencies": {
+    "polymer": "Polymer/polymer#^1.4.0"
+  },
+  "devDependencies": {
+    "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
+    "iron-demo-helpers": "PolymerElements/iron-demo-helpers#^1.0.0",
+    "web-component-tester": "^4.0.0",
+    "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0",
+    "paper-item": "PolymerElements/paper-item#^1.2.1"
+  },
+  "homepage": "https://github.com/Abe90/paper-avatar",
+  "_release": "1.0.2",
+  "_resolution": {
+    "type": "version",
+    "tag": "1.0.2",
+    "commit": "7bf9b13d9fe564331eb2d8239806b853fc73e62f"
+  },
+  "_source": "https://github.com/Abe90/paper-avatar.git",
+  "_target": "^1.0.2",
+  "_originalSource": "Abe90/paper-avatar"
+}

@@ -12,14 +12,14 @@
     "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0"
   },
   "homepage": "https://github.com/LRNWebComponents/hax-editable",
-  "version": "0.0.2",
-  "_release": "0.0.2",
+  "version": "0.0.3",
+  "_release": "0.0.3",
   "_resolution": {
     "type": "version",
-    "tag": "0.0.2",
-    "commit": "766f3575752fb2a922605bda487f09f17b5983b1"
+    "tag": "0.0.3",
+    "commit": "87521903290382a1a62fcbf7065acfca8ac7a1ef"
   },
   "_source": "https://github.com/LRNWebComponents/hax-editable.git",
-  "_target": "^0.0.2",
+  "_target": "^0.0.3",
   "_originalSource": "LRNWebComponents/hax-editable"
 }

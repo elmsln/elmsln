@@ -14,7 +14,7 @@
   <template>
     <style>
       :host {
-        display: block;
+        display: none;
         position: absolute;
         top: 0;
         left: 0;
@@ -37,6 +37,7 @@
         justify-content: flex-end;
       }
     </style>
+    <template is="dom-if" if="{{showHax}}">
       <template is="dom-if" if="{{showEdit}}">
         <paper-toolbar>
           <paper-icon-button icon="lrn-icons:edit" on-tap="_editClicked"></paper-icon-button>
@@ -50,6 +51,7 @@
           <content></content>
         </paper-toolbar>
       </template>
+    </template>
   </template>
 
   <script>
@@ -65,22 +67,45 @@
         origContent: {
           type: String
         },
-        showEdit: Boolean,
-        showSave: Boolean
+        showHax: {
+          type: Boolean,
+          value: false,
+          reflectToAttribute: true,
+          notify: true,
+        },
+        showEdit: {
+          type: Boolean,
+        },
+        showSave: {
+          type: Boolean,
+        }
       },
       _editChanged: function(edit) {
         let state = edit;
         this.showEdit = state ? false : true;
         this.showSave = state ? true : false;
       },
-      _editClicked: function() {
-        this.fire('action', {action: 'edit'});
+      _editClicked: function(e) {
+        let root = this.parentNode;
+        var attributeArray = Polymer.dom(root).attributes;
+        console.log(attributeArray);
+        attributeArray.tagName = root.tagName;
+        attributeArray.innerHTML = Polymer.dom(root).innerHTML;
+        this.fire('haxAction', {action: 'edit', attributes: attributeArray});
       },
       _saveClicked: function() {
-        this.fire('action', {action: 'save'});
+        let root = this.parentNode;
+        var attributeArray = Polymer.dom(root).attributes;
+        attributeArray.tagName = root.tagName;
+        attributeArray.innerHTML = Polymer.dom(root).innerHTML;
+        this.fire('haxAction', {action: 'save', attributes: attributeArray});
       },
       _cancelClicked: function() {
-        this.fire('action', {action: 'cancel'});
+        let root = this.parentNode;
+        var attributeArray = root.attributes;
+        attributeArray.tagName = root.tagName;
+        attributeArray.innerHTML = Polymer.dom(root).innerHTML;
+        this.fire('haxAction', {action: 'cancel', attributes: attributeArray});
       }
     });
   </script>
