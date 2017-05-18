@@ -1,0 +1,79 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../paper-avatar/paper-avatar.html">
+<link rel="import" href="../materializecss-styles/materializecss-styles.html">
+
+<!--
+`lrndesign-avatar`
+A LRN element
+
+@demo demo/index.html
+-->
+
+<dom-module id="lrndesign-avatar">
+  <template>
+    <style include="materializecss-styles"></style>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+    <paper-avatar label="{{label}}" src="{{src}}" two-chars="{{twoChars}}" class$="{{color}}" jdenticon="{{jdenticon}}"></paper-avatar>
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'lrndesign-avatar',
+
+      properties: {
+        /**
+         * text to use for avatar
+         * @type {Object}
+         */
+        label: {
+          type: String,
+          value: 'lrndesign-avatar',
+        },
+        /**
+         * link to an image, optional
+         * @type {Object}
+         */
+        src: {
+          type: String
+        },
+        /**
+         * Mode for presenting 1st two letters
+         * @type {Object}
+         */
+        twoChars: {
+          type: Boolean,
+          value: false
+        },
+        /**
+         * Materialize CSS color class names
+         */
+        color: {
+          type: String,
+          reflectToAttribute: true,
+          notify: true,
+        },
+        /**
+         * Form abstract art from hash of label
+         * @type {Object}
+         */
+        jdenticon: {
+          type: Boolean,
+          value: false
+        }
+      },
+      /**
+       * Present self as a demo.
+       * @return {[type]} [description]
+       */
+      _demoInit: function() {
+        this.label = 'Label';
+        this.twoChars = true;
+      },
+    });
+  </script>
+</dom-module>

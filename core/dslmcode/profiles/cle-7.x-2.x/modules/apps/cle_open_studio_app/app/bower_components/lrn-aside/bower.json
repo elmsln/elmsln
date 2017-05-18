@@ -1,0 +1,20 @@
+{
+  "name": "lrn-aside",
+  "description": "A LRN element",
+  "main": "lrn-aside.html",
+  "dependencies": {
+    "polymer": "Polymer/polymer#^1.4.0",
+    "lrnsys-behaviors": "LRNWebComponents/lrnsys-behaviors#^1.0.0",
+    "lrndesign-card": "LRNWebComponents/lrndesign-card#^0.0.1",
+    "lrndesign-drawer": "LRNWebComponents/lrndesign-drawer#^0.0.2",
+    "paper-card": "^0.1.5",
+    "lrndesign-contentblock": "LRNWebComponents/lrndesign-contentblock#^0.0.1",
+    "lrndesign-panelcard": "LRNWebComponents/lrndesign-panelcard#^0.0.13"
+  },
+  "devDependencies": {
+    "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
+    "iron-demo-helpers": "PolymerElements/iron-demo-helpers#^1.0.0",
+    "web-component-tester": "^4.0.0",
+    "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0"
+  }
+}

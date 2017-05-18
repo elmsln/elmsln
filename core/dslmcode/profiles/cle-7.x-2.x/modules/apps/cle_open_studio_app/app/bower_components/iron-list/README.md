@@ -17,7 +17,7 @@ thing! https://github.com/PolymerLabs/tedium/issues
 _[Demo and API docs](https://elements.polymer-project.org/elements/iron-list)_
 
 
-##&lt;iron-list&gt;
+## &lt;iron-list&gt;
 
 `iron-list` displays a virtual, 'infinite' list. The template inside
 the iron-list element represents the DOM to create for each list item.
@@ -225,7 +225,7 @@ visible on the screen. e.g. the page has 500 nodes, but only 20 are visible at a
 This is why we refer to it as a `virtual` list. In this case, a `dom-repeat` will still
 create 500 nodes which could slow down the web app, but `iron-list` will only create 20.
 
-However, having an `iron-list` does not mean that you can load all the data at once.
-Say you have a million records in the database, you want to split the data into pages
-so you can bring in a page at the time. The page could contain 500 items, and iron-list
-will only render 20.
+However, having an `iron-list` does not mean that you should load all the data at once.
+For example, if you have a million records in the database, it is better split the data into pages
+so you can bring in a page at a time. The page could contain 500 items, and iron-list
+might only render 20.

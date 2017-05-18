@@ -1,0 +1,32 @@
+{
+  "name": "lrndesign-blockquote",
+  "description": "A structured blockquote element",
+  "main": "lrndesign-blockquote.html",
+  "dependencies": {
+    "polymer": "Polymer/polymer#^1.4.0",
+    "hax-editable": "LRNWebComponents/hax-editable#^0.0.2",
+    "hax-editbar": "LRNWebComponents/hax-editbar#^0.0.1",
+    "hax-behaviors": "LRNWebComponents/hax-behaviors#^0.0.6",
+    "materializecss-styles": "LRNWebComponents/materializecss-styles#^0.0.3",
+    "paper-swatch-picker": "^1.0.2",
+    "paper-tooltip": "^1.1.4",
+    "paper-checkbox": "^1.4.2"
+  },
+  "devDependencies": {
+    "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
+    "iron-demo-helpers": "PolymerElements/iron-demo-helpers#^1.0.0",
+    "web-component-tester": "^4.0.0",
+    "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0"
+  },
+  "homepage": "https://github.com/LRNWebcomponents/lrndesign-blockquote",
+  "version": "0.0.4",
+  "_release": "0.0.4",
+  "_resolution": {
+    "type": "version",
+    "tag": "0.0.4",
+    "commit": "e1f86058fbc05d833b872923b9cb74640409be16"
+  },
+  "_source": "https://github.com/LRNWebcomponents/lrndesign-blockquote.git",
+  "_target": "^0.0.4",
+  "_originalSource": "LRNWebcomponents/lrndesign-blockquote"
+}

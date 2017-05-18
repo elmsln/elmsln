@@ -4,8 +4,9 @@
   "main": "hax-behaviors.html",
   "dependencies": {
     "polymer": "Polymer/polymer#^1.4.0",
-    "hax-editable": "LRNWebComponents/hax-editable#^0.0.2",
-    "hax-editbar": "LRNWebComponents/hax-editbar#^0.0.5"
+    "hax-editable": "LRNWebComponents/hax-editable#^0.0.3",
+    "hax-editbar": "LRNWebComponents/hax-editbar#^0.0.9",
+    "hax-ajax": "LRNWebComponents/hax-ajax#^0.0.5"
   },
   "devDependencies": {
     "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",

@@ -67,6 +67,20 @@ The Markdown source can be specified several ways:
 Note that the `<script type="text/markdown">` approach is *static*. Changes to
 the script content will *not* update the rendered markdown!
 
+Though, you can data bind to the `src` attribute to change the markdown.
+
+```html
+<marked-element>
+  <div class="markdown-html"></div>
+  <script type="text/markdown" src$="[[source]]"></script>
+</marked-element>
+...
+<script>
+  ...
+  this.source = '../guidelines.md';
+</script>
+```
+
 ### Styling
 
 If you are using a child with the `markdown-html` class, you can style it

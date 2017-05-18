@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang='en'>
+  <head>
+    <meta charset='utf-8'>
+    <meta name='viewport' content='width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes'>
+
+    <title>lrn-vocab demo</title>
+
+    <script src='../../webcomponentsjs/webcomponents-lite.js'></script>
+
+    <link rel='import' href='../../iron-demo-helpers/demo-pages-shared-styles.html'>
+    <link rel='import' href='../../iron-demo-helpers/demo-snippet.html'>
+    <link rel='import' href='../lrn-vocab.html'>
+
+    <style is='custom-style' include='demo-pages-shared-styles'>
+      .vertical-section-container {
+        max-width: 600px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class='vertical-section-container centered'>
+      <h3>lrn-vocab as card (default)</h3>
+      <demo-snippet>
+        <template>
+          <lrn-vocab term="Pedagogy" definition="This is the assignment directions" source="Wikipedia contributors. &quot;Pedagogy.&quot; Wikipedia, The Free Encyclopedia. Wikipedia, The Free Encyclopedia, 4 Apr. 2017. Web. 4 Apr. 2017." display="card"></lrn-vocab>
+        </template>
+      </demo-snippet>
+    </div>
+    <div class='vertical-section-container centered'>
+      <h3>lrn-vocab as panelcard</h3>
+      <demo-snippet>
+        <template>
+          <lrn-vocab term="Pedagogy" definition="This is the assignment directions" source="Wikipedia contributors. &quot;Pedagogy.&quot; Wikipedia, The Free Encyclopedia. Wikipedia, The Free Encyclopedia, 4 Apr. 2017. Web. 4 Apr. 2017." display="panelcard"></lrn-vocab>
+        </template>
+      </demo-snippet>
+    </div>
+    <div class='vertical-section-container centered'>
+      <h3>lrn-vocab as drawer</h3>
+      <demo-snippet>
+        <template>
+          <lrn-vocab term="Pedagogy" definition="This is the assignment directions" source="Wikipedia contributors. &quot;Pedagogy.&quot; Wikipedia, The Free Encyclopedia. Wikipedia, The Free Encyclopedia, 4 Apr. 2017. Web. 4 Apr. 2017." display="drawer"></lrn-vocab>
+        </template>
+      </demo-snippet>
+    </div>
+    <div class='vertical-section-container centered'>
+      <h3>lrn-vocab as paper-card</h3>
+      <demo-snippet>
+        <template>
+          <lrn-vocab term="Pedagogy" definition="This is the assignment directions" source="Wikipedia contributors. &quot;Pedagogy.&quot; Wikipedia, The Free Encyclopedia. Wikipedia, The Free Encyclopedia, 4 Apr. 2017. Web. 4 Apr. 2017." display="paper-card"></lrn-vocab>
+        </template>
+      </demo-snippet>
+    </div>
+    <div class='vertical-section-container centered'>
+      <h3>lrn-vocab as blockquote</h3>
+      <demo-snippet>
+        <template>
+          <lrn-vocab term="Pedagogy" definition="This is the assignment directions" source="Wikipedia contributors. &quot;Pedagogy.&quot; Wikipedia, The Free Encyclopedia. Wikipedia, The Free Encyclopedia, 4 Apr. 2017. Web. 4 Apr. 2017." display="blockquote"></lrn-vocab>
+        </template>
+      </demo-snippet>
+    </div>
+  </body>
+</html>

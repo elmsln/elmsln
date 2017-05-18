@@ -1,0 +1,26 @@
+{
+  "name": "lrndesign-contentblock",
+  "description": "A LRN element",
+  "main": "lrndesign-contentblock.html",
+  "dependencies": {
+    "polymer": "Polymer/polymer#^1.4.0",
+    "lrnsys-behaviors": "LRNWebComponents/lrnsys-behaviors#^1.0.0"
+  },
+  "devDependencies": {
+    "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
+    "iron-demo-helpers": "PolymerElements/iron-demo-helpers#^1.0.0",
+    "web-component-tester": "^4.0.0",
+    "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0"
+  },
+  "homepage": "https://github.com/LRNWebComponents/lrndesign-contentblock",
+  "version": "0.0.1",
+  "_release": "0.0.1",
+  "_resolution": {
+    "type": "version",
+    "tag": "0.0.1",
+    "commit": "a3a76d3b620ef02eeb37e38eaaebc8488d9ec326"
+  },
+  "_source": "https://github.com/LRNWebComponents/lrndesign-contentblock.git",
+  "_target": "^0.0.1",
+  "_originalSource": "LRNWebComponents/lrndesign-contentblock"
+}

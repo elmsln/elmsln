@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+
+    <title>oer-schema demo</title>
+
+    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+
+    <link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
+    <link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
+    <link rel="import" href="../oer-schema.html">
+
+    <style is="custom-style" include="demo-pages-shared-styles">
+    </style>
+  </head>
+  <body>
+    <div class="vertical-section-container centered">
+      <h3>Basic oer-schema demo</h3>
+      <demo-snippet>
+        <template>
+          <oer-schema>
+            <div typeof="oer:SupportingMaterial">
+              <h2 property="oer:name">My resource name</h2>
+              <div property="oer:description">
+                This is the thing that can be used for the body of content.
+              </div>
+            </div>
+          </oer-schema>
+        </template>
+      </demo-snippet>
+    </div>
+  </body>
+</html>
