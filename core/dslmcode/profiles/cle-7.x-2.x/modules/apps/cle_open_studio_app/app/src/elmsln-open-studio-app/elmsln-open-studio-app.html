@@ -1,4 +1,3 @@
-<link rel="import" href="../../bower_components/build/build/default/build.html">
 <dom-module id="elmsln-open-studio-app">
   <template>
     <style include="materializecss-styles"></style>
@@ -21,9 +20,8 @@
       params=''
       handle-as="json"
       last-response="{{submissions}}"></iron-ajax>
-    <iron-list grid items="[[submissions.data]]" as="item">
+    <iron-list grid items="[[_toArray(submissions.data)]]" as="item">
       <template>
-      stuff
       <lrndesign-gallerycard title="{{item.title}}" text="{{item.body}}" url="{{item.url}}" author="{{item.author}}" comments="{{item.comments}}">
       </lrndesign-gallerycard>
       </template>
@@ -45,12 +43,12 @@
           notify: true,
         }
       },
+      /**
+       * Simple way to convert from object to array.
+       */
       _toArray: function(obj) {
         return Object.keys(obj).map(function(key) {
-          return {
-              key: key,
-              data: obj[key]
-          };
+          return obj[key];
         });
       },
     });
