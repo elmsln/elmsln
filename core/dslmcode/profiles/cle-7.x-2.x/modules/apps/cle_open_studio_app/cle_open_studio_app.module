@@ -34,7 +34,7 @@ function cle_open_studio_app_menu() {
 function _cle_open_studio_app_data($projectNid = NULL) {
   $return = array();
   // @todo need a better render method then this
-  if (!is_null($projectNid)) {
+  if (!empty($projectNid)) {
     $node = node_load($projectNid);
     $node_view = node_view($node);
     $rendered_node = drupal_render($node_view);
