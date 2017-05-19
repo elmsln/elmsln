@@ -24,6 +24,14 @@ function git_book_drush_command() {
       'branch' => 'branch to checkout'
     ),
   );
+  $commands['git-book-sync'] = array(
+    'callback' => 'drush_git_book_sync',
+    'aliases' => array('gcs'),
+    'description' => dt('Sync existing git book'),
+    'arguments' => array(
+      'node_id' => 'git_book node id'
+    ),
+  ); 
 
   return $commands;
 }
@@ -51,4 +59,17 @@ function drush_git_book_create($repo_url, $parser, $branch) {
   // save which will kick off processing of the node
   node_save($node);
   drush_print(dt('git book @repo_url successfully imported as @title', array('@repo_url' => $repo_url, '@title' => $title)));
+}
+
+/**
+ * Callback for command git-book-sync
+ */
+function drush_git_book_sync($nid) {
+  $node = node_load($nid);
+  // make sure it\s a gitbook node
+  if (isset($node->type) && $node->type == 'git_book') {
+    // get the gitbook outline
+    $path = _git_book_get_path($node);
+    git_book_gb_git_book_parse($path, $node);
+  }
 }

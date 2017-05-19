@@ -259,23 +259,34 @@ function git_book_get_parsers() {
  * title and content.
  */
 function _git_book_make_node($title, $content, $parent, $weight, $path = '') {
-  $node = new stdClass();
-  $node->type = variable_get('book_child_type', 'book');
-  node_object_prepare($node);
-  $node->language = LANGUAGE_NONE;
-  if (!empty($path)) {
-    $node->path = array('alias' => $path);
+  $url = drupal_get_normal_path($path);
+  $mode = 'creating';
+  // if a node already exists at that url, then we are going to load it
+  // and do an update of that node
+  if ($url && $url !== $path) {
+    $node = menu_get_object('node', 1, $url);
+    $mode = 'updating';
   }
-  $node->status = 1;
-  $node->promote = 0;
-  $node->revision = 1;
-  // account for drush executing this and ensure it's owned by admin
-  // as drush operates as anon account in uid checks
-  if (drupal_is_cli()) {
-    $node->uid = 1;
-  }
+  // if there was no existing node then we will create it
   else {
-    $node->uid = $GLOBALS['user']->uid;
+    $node = new stdClass();
+    $node->type = variable_get('book_child_type', 'book');
+    node_object_prepare($node);
+    $node->language = LANGUAGE_NONE;
+    if (!empty($path)) {
+      $node->path = array('alias' => $path);
+    }
+    $node->status = 1;
+    $node->promote = 0;
+    $node->revision = 1;
+    // account for drush executing this and ensure it's owned by admin
+    // as drush operates as anon account in uid checks
+    if (drupal_is_cli()) {
+      $node->uid = 1;
+    }
+    else {
+      $node->uid = $GLOBALS['user']->uid;
+    }
   }
   // set values we pull in for the outline
   $node->title = $title;
@@ -292,10 +303,9 @@ function _git_book_make_node($title, $content, $parent, $weight, $path = '') {
   if($node = node_submit($node)) {
     node_save($node);
   }
+  drush_print(t('@mode @title', array('@mode' => $mode,'@title' => $title)));
   return $node;
 }
-
-
 
 /**
  * Build the book outline as a nested array
@@ -333,4 +343,11 @@ function _git_book_delete_folder($dirPath) {
           $path->isDir() && !$path->isLink() ? rmdir($path->getPathname()) : unlink($path->getPathname());
   }
   rmdir($dirPath);
+}
+
+/**
+ * Helper function to get the path of the repo from the node object
+ */
+function _git_book_get_path($node) {
+  return drupal_realpath('private://') . '/' . preg_replace('/[^a-z0-9]/', '', drupal_strtolower($node->title));
 }
