@@ -35112,12 +35112,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <lrndesign-dialog id="dialog">
         <div id="dialogBody">
           <h2>{{title}}</h2>
-          <template is="dom-repeat" items="{{submissions}}" as="submission">
-          <h3>{{submission.title}}</h3>
-          </template>
+          <div id="dialogResponse">
+          </div>
         </div>
       </lrndesign-dialog>
-      <iron-ajax params="{}" id="ajaxRequest" url="{{url}}" handle-as="json" last-reponse="{{submissionsResponse}}" on-response="_handleReturnedData"></iron-ajax>
+      <iron-ajax params="{}" id="ajaxRequest" url="{{url}}" handle-as="json" on-response="_handleReturnedData"></iron-ajax>
   </template>
 
   <script>
@@ -35232,18 +35231,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         /**
          * Property to hold data returned from an endpoint
          */
-        submissionsResponse: {
-          type: Object,
-        },
-        submissions: {
-          type: Array
-        },
+        itemResponse: {
+          type: Object
+        }
       },
+      /**
+       * whatever is in the 'data' element rip it into
+       * the innerHTML of the response.
+       */
       _handleReturnedData: function(e) {
-        console.log(this.submissionsResponse);
-        var arrayIt = this._toArray(this.submissionsResponse.data);
-        this.submissions = arrayIt;
-        console.log(this.submissions);
+        this.itemResponse = event.detail.response.data;
+        this.$$('#dialogResponse').innerHTML = this.itemResponse;
       },
       _mouseEnter: function(e) {
         this.elevation += 1;
@@ -35251,6 +35249,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       _mouseLeave: function(e) {
         this.elevation -= 1;
       },
+      /**
+       * When someone clicks if there is a url, then we need to
+       * remote load whatever is in that url.
+       */
       _triggerDialog: function(e) {
         let root = this;
         // support remote url loading
@@ -35275,14 +35277,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           return true;
         }
         return false;
-      },
-      _toArray: function(obj) {
-        return Object.keys(obj).map(function(key) {
-          return {
-              name: key,
-              value: obj[key]
-          };
-        });
       }
     });
   </script>
