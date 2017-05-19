@@ -281,7 +281,9 @@ function _git_book_make_node($title, $content, $parent, $weight, $path = '') {
   if($node = node_submit($node)) {
     node_save($node);
   }
-  drush_print(t('@mode @title', array('@mode' => $mode,'@title' => $title)));
+  if (function_exists('drush_print')) {
+    drush_print(t('@mode @title', array('@mode' => $mode,'@title' => $title)));
+  }
   return $node;
 }
 
