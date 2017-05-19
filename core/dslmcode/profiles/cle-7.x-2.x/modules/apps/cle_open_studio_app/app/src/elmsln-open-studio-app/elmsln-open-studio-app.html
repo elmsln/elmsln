@@ -4,15 +4,6 @@
     <style>
       :host {
         display: block;
-        height: 100vh;
-        display: flex;
-        flex-direction: column;
-      }
-      iron-list {
-        flex: 1 1 auto;
-      }
-      paper-button {
-        height: 2em;
       }
     </style>
     <iron-ajax auto
@@ -20,12 +11,10 @@
       params=''
       handle-as="json"
       last-response="{{submissions}}"></iron-ajax>
-    <iron-list grid items="[[_toArray(submissions.data)]]" as="item">
-      <template>
+    <template is="dom-repeat" items="[[_toArray(submissions.data)]]" as="item">
       <lrndesign-gallerycard title="{{item.title}}" text="{{item.body}}" url="{{item.url}}" author="{{item.author}}" comments="{{item.comments}}">
       </lrndesign-gallerycard>
-      </template>
-    </iron-list>
+    </template>
   </template>
 
   <script>
