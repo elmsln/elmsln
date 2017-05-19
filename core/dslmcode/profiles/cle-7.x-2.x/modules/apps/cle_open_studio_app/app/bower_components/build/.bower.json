@@ -48,7 +48,6 @@
     "commit": "d611ac34d308b3424369eb4f9f097ff85db19743"
   },
   "_source": "https://github.com/LRNWebComponents/build.git",
-  "_target": "^0.0.2",
-  "_originalSource": "LRNWebComponents/build",
-  "_direct": true
+  "_target": "*",
+  "_originalSource": "LRNWebComponents/build"
 }

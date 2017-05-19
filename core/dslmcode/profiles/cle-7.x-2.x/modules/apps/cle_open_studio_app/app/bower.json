@@ -21,6 +21,7 @@
     "font-roboto": "^1.0.1"
   },
   "dependencies": {
-    "build": "LRNWebComponents/build#^0.0.2"
+    "build": "LRNWebComponents/build#^0.0.2",
+    "lrndesign-gallerycard": "LRNWebComponents/lrndesign-gallerycard#^0.0.10"
   }
 }
