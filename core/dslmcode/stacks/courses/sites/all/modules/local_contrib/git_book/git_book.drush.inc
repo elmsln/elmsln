@@ -29,7 +29,7 @@ function git_book_drush_command() {
     'aliases' => array('gcs'),
     'description' => dt('Sync existing git book'),
     'arguments' => array(
-      'node_id' => 'git_book node id'
+      'name' => 'unique name of the gitbook.'
     ),
   ); 
 
@@ -40,36 +40,71 @@ function git_book_drush_command() {
  * Callback for command git-book-create.
  */
 function drush_git_book_create($repo_url, $parser, $branch) {
-  $node = new stdClass();
-  $node->type = 'git_book';
-  node_object_prepare($node);
-  $node->language = LANGUAGE_NONE;
-  $node->uid = 1;
-  $node->status = 1;
-  $node->promote = 0;
-  $node->revision = 1;
   // make a path out of the repo name
   $tmp = explode('/', str_replace('.git', '', $repo_url));
   $title = array_pop($tmp);
-  $node->title = $title;
-  // set the git repo
-  $node->field_git_repo[LANGUAGE_NONE][0]['value'] = $repo_url;
-  $node->field_git_parser[LANGUAGE_NONE][0]['value'] = $parser;
-  $node->field_git_branch[LANGUAGE_NONE][0]['value'] = $branch;
-  // save which will kick off processing of the node
-  node_save($node);
-  drush_print(dt('git book @repo_url successfully imported as @title', array('@repo_url' => $repo_url, '@title' => $title)));
+  $query = new EntityFieldQuery();
+  $entities = $query->entityCondition('entity_type', 'node')
+    ->propertyCondition('type', 'git_book')
+    ->propertyCondition('title', $title)
+    ->execute();
+  if (empty($entities['node'])) {
+    $node = new stdClass();
+    $node->type = 'git_book';
+    node_object_prepare($node);
+    $node->language = LANGUAGE_NONE;
+    $node->title = $title;
+    $node->uid = 1;
+    $node->status = 1;
+    $node->promote = 0;
+    $node->revision = 1;
+    // set the git repo
+    $node->field_git_repo[LANGUAGE_NONE][0]['value'] = $repo_url;
+    $node->field_git_parser[LANGUAGE_NONE][0]['value'] = $parser;
+    $node->field_git_branch[LANGUAGE_NONE][0]['value'] = $branch;
+    // save which will kick off processing of the node
+    node_save($node);
+    drush_print(dt('git book @repo_url successfully imported as @title', array('@repo_url' => $repo_url, '@title' => $title)));
+  }
+  else {
+    drush_print(dt('A gitbook with the name @title already exists.', array('@title' => $title)));
+  }
 }
 
 /**
  * Callback for command git-book-sync
  */
-function drush_git_book_sync($nid) {
-  $node = node_load($nid);
-  // make sure it\s a gitbook node
-  if (isset($node->type) && $node->type == 'git_book') {
-    // get the gitbook outline
-    $path = _git_book_get_path($node);
-    git_book_gb_git_book_parse($path, $node);
+function drush_git_book_sync($name) {
+  $selected_node = NULL;
+  $query = new EntityFieldQuery();
+  $entities = $query->entityCondition('entity_type', 'node')
+    ->propertyCondition('type', 'git_book')
+    ->propertyCondition('title', $name)
+    ->execute();
+  if (!empty($entities['node'])) {
+    $nodes = entity_load('node', array_keys($entities['node']));
+    // if there is only one node then use that as the selected node
+    if (count($nodes) == 1) {
+      $selected_node = array_pop($nodes);
+    }
+    // if there is more than one node then we need to propmpt the user
+    // to choose.
+    else {
+      foreach ($nodes as $node) {
+        $drush_options[$node->nid] = $node->nid;
+      }
+      if (count($drush_options) > 1) {
+        $nid = drush_choice($drush_options, dt('Multple books with that name found. Which git book node would you like to update?'), '!value');
+        $selected_node = $nodes[$nid];
+      }
+    }
+  }
+  // if we had a new selected node 
+  if ($selected_node) {
+    $path = _git_book_get_path($selected_node);
+    git_book_gb_git_book_parse($path, $selected_node);
+  }
+  else {
+    drush_print(dt('Book not found.'));
   }
 }
