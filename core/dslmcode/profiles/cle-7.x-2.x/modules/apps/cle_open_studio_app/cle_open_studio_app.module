@@ -11,7 +11,7 @@ function cle_open_studio_app_register_lrnapps() {
   return array(
     'open-studio' => array(
       'module' => 'cle_open_studio_app',
-      'title' => t('Open studio'),
+      'title' => t('Open studio 2.0'),
       'menu' => array(
         'type' => MENU_NORMAL_ITEM,
         'menu_name' => 'menu-elmsln-navigation',
