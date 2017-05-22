@@ -1,0 +1,45 @@
+<link rel="import" href="../../bower_components/dry-stone-layout/dry-stone-layout.html">
+
+<dom-module id="lrnapp-gallery-grid">
+  <template>
+    <style include="materializecss-styles"></style>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+    <iron-ajax auto
+      url="[[source-path]]"
+      params=''
+      handle-as="json"
+      last-response="{{submissions}}"></iron-ajax>
+    <template is="dom-repeat" items="[[_toArray(submissions.data)]]" as="item">
+      <template is="dom-repeat" items="[[_toArray(item.images)]]" as="image">
+        <iron-image sizing="cover" style="background-color: lightgray;"
+  sizing="cover" preload title="{{item.title}}" alt="{{item.title}}" src="{{image.src}}" author="{{item.author}}" comments="{{item.comments}}" height="{{image.height}}" width="{{image.width}}"></iron-image>
+      </template>
+    </template>
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'lrnapp-gallery-grid',
+
+      properties: {
+        submissions: {
+          type: Array,
+          notify: true,
+        }
+      },
+      /**
+       * Simple way to convert from object to array.
+       */
+      _toArray: function(obj) {
+        return Object.keys(obj).map(function(key) {
+          return obj[key];
+        });
+      },
+    });
+  </script>
+</dom-module>

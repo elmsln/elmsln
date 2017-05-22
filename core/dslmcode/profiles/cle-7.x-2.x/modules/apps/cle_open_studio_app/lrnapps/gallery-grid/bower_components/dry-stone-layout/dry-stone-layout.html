@@ -1,0 +1,392 @@
+
+
+<!--
+`dry-stone-layout`
+Masonry-like layout with no gaps
+
+@demo demo/index.html
+-->
+
+<dom-module id="dry-stone-layout">
+  <template>
+    <style>
+      :host {
+        display: block;
+        position: relative;
+        overflow: hidden;
+        contain: content;
+        line-height: 0;
+      }
+
+      #container[loading] ::slotted(*) {
+        transition: none !important;
+        visibility: hidden;
+      }
+
+      #container ::slotted(*) {
+        position: absolute;
+        transform-origin: 0 0;
+        will-change: transform;
+      }
+    </style>
+    <div id="container" loading$="[[loading]]"><content id="content"></content></div>
+  </template>
+
+  <script>
+    Polymer({
+      is: 'dry-stone-layout',
+
+      behaviors: [
+        Polymer.IronResizableBehavior
+      ],
+
+      properties: {
+        /* target height for each item row */
+        targetHeight: {
+          type: Number,
+          value: 100
+        },
+
+        /* spacing gap between each item */
+        spacing: {
+          type: Number,
+          value: 1
+        },
+
+        /* resize debounce delay */
+        throttle: {
+          type: Number,
+          value: 60
+        },
+
+        /* loading flag for initial render */
+        loading: {
+          type: Boolean,
+          value: true,
+          notify: true,
+          reflectToAttribute: true
+        },
+
+        /* disabled flag to prevent layout calculations */
+        disabled: {
+          type: Boolean,
+          value: false,
+          reflectToAttribute: true
+        },
+
+        _elements: {
+          type: Array
+        },
+
+        _dimensions: {
+          type: Array,
+          computed: '_computeDimensions(_elements)'
+        },
+
+        _totalWidth: {
+          type: Number,
+          computed: '_computeTotalWidth(_dimensions, targetHeight)'
+        },
+
+        _layout: {
+          type: Object
+        }
+      },
+
+      observers: [
+        '_layoutChanged(_layout, disabled)',
+        '_layoutNeeded(targetHeight, spacing, _totalWidth, _width, disabled)'
+      ],
+
+      listeners: {
+        'iron-resize': '_onIronResize',
+        'dom-change': '_childNodesChanged'
+      },
+
+      attached: function() {
+        var boundHandler = this._childNodesChanged.bind(this);
+        this._observer = Polymer.dom(this.$.content).observeNodes(boundHandler);
+        this.async(this.notifyResize, 1);
+      },
+
+      detached: function() {
+        Polymer.dom(this.$.content).unobserveNodes(this._observer);
+      },
+
+      get parent() {
+        if (this.parentNode.nodeType === Node.DOCUMENT_FRAGMENT_NODE) {
+          return this.parentNode.host;
+        }
+        return this.parentNode;
+      },
+
+      _onIronResize: function() {
+        if (this._width) {
+          // throttle layout calculations after first one
+          this.debounce('resize', function(){
+            this._width = this.parent.clientWidth;
+          }, this.throttle);
+        } else {
+          this._width = this.parent.clientWidth;
+        }
+      },
+
+      _childNodesChanged: function(e) {
+        var nodes = this.getEffectiveChildren();
+        this._elements = nodes.filter(function(node) { return node.nodeType == Node.ELEMENT_NODE && node.tagName !== "TEMPLATE" });
+      },
+
+      // update the element positions and sizes using css transform
+      _layoutChanged: function(layout, disabled) {
+        if (disabled || !layout) return;
+
+        requestAnimationFrame(function() {
+          layout.positions.forEach(function(position, i) {
+            var scaleX, scaleY, style;
+            var dimension = this._dimensions[i];
+            var aspect = dimension.aspect;
+            scaleX = position.width / dimension.width;
+            scaleY = position.height / dimension.height;
+            var transform = 'translate(' + position.x + 'px,' + position.y + 'px) scale(' + scaleX.toFixed(6) + ',' + scaleY.toFixed(6) + ')';
+            var element = this._elements[i];
+            element.style.transform = transform;
+          }.bind(this));
+
+          // update our own height to account for the new layout and notify anyone who cares
+          this.height = layout.height;
+          this.style.height = layout.height + 'px';
+          this.fire('rendered');
+
+          // remove loading style override which prevented animation of the initial layout
+          if (this.loading && layout.positions.length > 0) {
+            this.async(function() { this.loading = false }, 1);
+          }
+        }.bind(this));
+      },
+
+      // get the dimensions from the elements
+      _computeDimensions(elements) {
+        return elements.map(function(node) { return { width: node.clientWidth, height: node.clientHeight, aspect: node.clientWidth / node.clientHeight }});
+      },
+
+      // this is the notional width of all the elements in a single row at the ideal target height
+      _computeTotalWidth(dimensions, targetHeight) {
+        return dimensions.reduce(function(total, dimension) { return total + targetHeight * dimension.aspect}, 0);
+      },
+
+      // if the elements change or the container size changes we re-compute the element positions
+      _layoutNeeded(targetHeight, spacing, totalWidth, width, disabled) {
+        if (disabled || !totalWidth || !width) return;
+
+        var i, j, k, n, positions = [], elementCount;
+
+        var dimensions = this._dimensions;
+        var containerWidth = width;
+        var idealHeight = targetHeight;
+        var summedWidth = totalWidth;
+
+        // calculate rows needed
+        var rowsNeeded = Math.round(summedWidth / containerWidth);
+
+        if (rowsNeeded < 1) {
+          // (2a) Fallback to just standard size
+          var xSum = 0, width;
+          elementCount = dimensions.length;
+
+          var padLeft = 0;
+
+          for (var i = 0; i < elementCount; i++) {
+            width = Math.round(idealHeight * dimensions[i].aspect) - (spacing * (elementCount - 1) / elementCount);
+            positions.push({
+              y: 0,
+              x: padLeft + xSum,
+              width: width,
+              height: idealHeight
+            });
+            xSum += width;
+            if (i !== n - 1) {
+              xSum += spacing;
+            }
+          }
+          ySum = idealHeight;
+        } else {
+          // (2b) Distribute elements over rows using the aspect ratio as weight
+          var weights = dimensions.map(function(d) { return d.aspect * 100; });
+          var partitions = this._linear_partition(weights, rowsNeeded);
+          var index = 0;
+          var ySum = 0, xSum;
+          for (i = 0, n = partitions.length; i < n; i++) {
+            var element_index = index;
+            var summedRatios = 0;
+            for (j = 0, k = partitions[i].length; j < k; j++) {
+              summedRatios += dimensions[element_index + j].aspect;
+              index++;
+            }
+
+            xSum = 0;
+            var height = Math.round(containerWidth / summedRatios);
+            elementCount = partitions[i].length;
+            for (j = 0; j < elementCount; j++) {
+              width = Math.round((containerWidth - (elementCount - 1) * spacing) / summedRatios * dimensions[element_index + j].aspect);
+              var item = {
+                y: ySum,
+                x: xSum,
+                width: width,
+                height: height
+              };
+              positions.push(item);
+              xSum += width;
+              if (j !== elementCount - 1) {
+                xSum += spacing;
+              }
+            }
+
+            // jiggle values to make fit exactly (because 'rounding' and spacing ...)
+            // TODO: tidy up and check logic (esp. escaping the loop)
+            //       shrink widest images, widen narrowest etc...
+            var offset = positions.length - 1;
+            while (xSum !== containerWidth) {
+              for (j = 0; j < elementCount; j++) {
+                var item = positions[offset - j];
+                if (xSum > containerWidth) {
+                  item.width--;
+                  xSum--;
+                  if (j > 0) {
+                    for (k = 0; k < j; k++) {
+                      positions[offset - k].x--;
+                    }
+                  }
+                } else if (xSum < containerWidth) {
+                  item.width++;
+                  xSum++;
+                  if (j > 0) {
+                    for (k = 0; k < j; k++) {
+                      positions[offset - k].x++;
+                    }
+                  }
+                }
+              }
+            }
+
+            ySum += height;
+            if (i !== n - 1) {
+              ySum += spacing;
+            }
+          }
+        }
+
+        this._layout = {
+          width: containerWidth,
+          height: ySum,
+          positions: positions
+        };
+      },
+
+      // see: https://github.com/crispymtn/linear-partition
+      _linear_partition(seq, k) {
+        var ans, i, j, m, n, solution, table, x, y, _i, _j, _k, _l;
+        var _m, _nn;
+
+        n = seq.length;
+        if (k <= 0) {
+          return [];
+        }
+        if (k > n) {
+          return seq.map(function(x) {
+            return [x];
+          });
+        }
+        table = (function() {
+          var _i, _results;
+          _results = [];
+          for (y = _i = 0; 0 <= n ? _i < n : _i > n; y = 0 <= n ? ++_i : --_i) {
+            _results.push((function() {
+              var _j, _results1;
+              _results1 = [];
+              for (x = _j = 0; 0 <= k ? _j < k : _j > k; x = 0 <= k ? ++_j : --_j) {
+                _results1.push(0);
+              }
+              return _results1;
+            })());
+          }
+          return _results;
+        })();
+        solution = (function() {
+          var _i, _ref, _results;
+          _results = [];
+          for (y = _i = 0, _ref = n - 1; 0 <= _ref ? _i < _ref : _i > _ref; y = 0 <= _ref ? ++_i : --_i) {
+            _results.push((function() {
+              var _j, _ref1, _results1;
+              _results1 = [];
+              for (x = _j = 0, _ref1 = k - 1; 0 <= _ref1 ? _j < _ref1 : _j > _ref1; x = 0 <= _ref1 ? ++_j : --_j) {
+                _results1.push(0);
+              }
+              return _results1;
+            })());
+          }
+          return _results;
+        })();
+        for (i = _i = 0; 0 <= n ? _i < n : _i > n; i = 0 <= n ? ++_i : --_i) {
+          table[i][0] = seq[i] + (i ? table[i - 1][0] : 0);
+        }
+        for (j = _j = 0; 0 <= k ? _j < k : _j > k; j = 0 <= k ? ++_j : --_j) {
+          table[0][j] = seq[0];
+        }
+        for (i = _k = 1; 1 <= n ? _k < n : _k > n; i = 1 <= n ? ++_k : --_k) {
+          for (j = _l = 1; 1 <= k ? _l < k : _l > k; j = 1 <= k ? ++_l : --_l) {
+
+            m = [];
+            for (x = _m = 0; 0 <= i ? _m < i : _m > i; x = 0 <= i ? ++_m : --_m) {
+              m.push([Math.max(table[x][j - 1], table[i][0] - table[x][0]), x]);
+            }
+
+            var minValue, minIndex = false;
+            for (_m = 0, _nn = m.length; _m < _nn; _m++) {
+              if (_m === 0 || m[_m][0] < minValue) {
+                minValue = m[_m][0];
+                minIndex = _m;
+              }
+            }
+
+            m = m[minIndex];
+            table[i][j] = m[0];
+            solution[i - 1][j - 1] = m[1];
+          }
+        }
+        n = n - 1;
+        k = k - 2;
+        ans = [];
+        while (k >= 0) {
+          ans = [
+            (function() {
+              var _m, _ref, _ref1, _results;
+              _results = [];
+              for (i = _m = _ref = solution[n - 1][k] + 1, _ref1 = n + 1; _ref <= _ref1 ? _m < _ref1 : _m > _ref1; i = _ref <= _ref1 ? ++_m : --_m) {
+                _results.push(seq[i]);
+              }
+              return _results;
+            })()
+          ].concat(ans);
+          n = solution[n - 1][k];
+          k = k - 1;
+        }
+        return [
+          (function() {
+            var _m, _ref, _results;
+            _results = [];
+            for (i = _m = 0, _ref = n + 1; 0 <= _ref ? _m < _ref : _m > _ref; i = 0 <= _ref ? ++_m : --_m) {
+              _results.push(seq[i]);
+            }
+            return _results;
+          })()
+        ].concat(ans);
+      }
+    });
+
+    /**
+     * Fired when the layout is rendered.
+     *
+     * @event rendered
+     */
+  </script>
+</dom-module>
