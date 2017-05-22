@@ -19,12 +19,12 @@ function git_book_node_presave($node) {
 }
 
 /**
- * Helper function to get a loaded repo object from url
+ * Helper function to get a loaded repo object from node object
  */
-function _git_book_get_repo($name, $url) {
+function _git_book_get_repo($node) {
   // build a path for this since its brand new and not hooked
   // up to anything currently
-  $path = _git_book_get_path($name);
+  $path = _git_book_get_path($node);
   if (is_dir($path)) {
     try {
       libraries_load('gitphp');
@@ -330,4 +330,17 @@ function _git_book_delete_folder($dirPath) {
  */
 function _git_book_get_path($node) {
   return drupal_realpath('private://') . '/' . preg_replace('/[^a-z0-9]/', '', drupal_strtolower($node->title));
+}
+
+/**
+ * Helper function to get current status of local repo object
+ */
+function _git_book_get_status($repo) {
+  $status = 'up-to-date';
+  $raw_status = $repo->run('status -sb');
+  preg_match('/\[(.*)\]/', $raw_status, $matches);
+  if (isset($matches[1])) {
+    $status = $matches[1];
+  }
+  return $status;
 }

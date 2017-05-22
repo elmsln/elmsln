@@ -113,7 +113,6 @@ function git_book_gb_git_book_parse($path, $node) {
  * @param  object  $parent   parent node
  */
 function _git_book_gb_parse(&$gb, $path, $parent, $weight = -15) {
-
   foreach ($gb as $nodes) {
     if (array_key_exists('title', $nodes) && array_key_exists('link', $nodes)) {
       $body = '';
