@@ -13,15 +13,17 @@
       params=''
       handle-as="json"
       last-response="{{submissions}}"></iron-ajax>
-
     <app-toolbar>
+      <template is="dom-if" if="{{submissions}}">
       <paper-dropdown-menu label="Author">
         <paper-listbox class="dropdown-content">
-        <template is="dom-repeat" items="[[_toArray(submissions.data)]]" as="item">
+          <template is="dom-repeat" items="[[_toArray(submissions.data)]]" as="item">
           <paper-item>{{item.author}}</paper-item>
-        </template>
+          </template>
         </paper-listbox>
       </paper-dropdown-menu>
+      </template>
+      <template is="dom-if" if="{{submissions}}">
       <paper-dropdown-menu label="Project">
         <paper-listbox class="dropdown-content">
         <template is="dom-repeat" items="[[_toArray(submissions.data)]]" as="item">
@@ -29,6 +31,7 @@
         </template>
         </paper-listbox>
       </paper-dropdown-menu>
+      </template>
     </app-toolbar>
     <template is="dom-repeat" items="[[_toArray(submissions.data)]]" as="item">
       <lrndesign-gallerycard title="{{item.title}}" text="{{item.body}}" url="{{item.url}}" author="{{item.author}}" comments="{{item.comments}}">

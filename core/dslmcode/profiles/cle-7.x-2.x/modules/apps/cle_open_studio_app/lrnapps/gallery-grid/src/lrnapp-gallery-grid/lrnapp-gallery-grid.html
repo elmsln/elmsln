@@ -1,4 +1,4 @@
-<link rel="import" href="../../bower_components/dry-stone-layout/dry-stone-layout.html">
+<link rel="import" href="../../bower_components/scary-gallery/scary-gallery.html">
 
 <dom-module id="lrnapp-gallery-grid">
   <template>
@@ -7,30 +7,110 @@
       :host {
         display: block;
       }
+      paper-button {
+        padding: 0;
+        margin: 0;
+        min-width: 1rem;
+      }
+      #details {
+        opacity: .5;
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        margin: 0 1rem 0 0;
+        background-color: white;
+        font-size: .8em;
+      }
+      #details:hover {
+        opacity: 1;
+      }
     </style>
     <iron-ajax auto
       url="[[source-path]]"
       params=''
       handle-as="json"
       last-response="{{submissions}}"></iron-ajax>
-    <template is="dom-repeat" items="[[_toArray(submissions.data)]]" as="item">
-      <template is="dom-repeat" items="[[_toArray(item.images)]]" as="image">
-        <iron-image sizing="cover" style="background-color: lightgray;"
-  sizing="cover" preload title="{{item.title}}" alt="{{item.title}}" src="{{image.src}}" author="{{item.author}}" comments="{{item.comments}}" height="{{image.height}}" width="{{image.width}}"></iron-image>
+    <scary-gallery min-height="150">
+      <template is="dom-repeat" items="[[_toArray(submissions.data)]]" as="item">
+        <template is="dom-repeat" items="[[_toArray(item.images)]]" as="image">
+          <paper-button>
+            <scary-image preload open-url="{{item.url}}" title="{{item.title}}" alt="{{item.title}}" src="{{image.src}}" author="{{item.author}}" comments="{{item.comments}}" height="{{image.height}}" width="{{image.width}}"></scary-image>
+          </paper-button>
+        </template>
       </template>
-    </template>
+    </scary-gallery>
+    <paper-dialog id="dialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation">
+      <paper-dialog-scrollable id="dialogResponse">
+        <iron-image src="{{activeImage}}"></iron-image>
+        <div id="details">
+          <div class="title">
+            <span>Title:</span><span>{{activeTitle}}</span>
+          </div>
+          <div class="title">
+            <span>Author:</span>{{activeAuthor}}</span>
+          </div>
+          <div class="detailComments">
+            <span>Comments:</span><span>{{activeComments}}</span>
+          </div>
+          <div class="commentOnWork">
+            <a href="{{activeUrl}}"><paper-button raised>Comment on this work</paper-button></a>
+          </div>
+        </div>
+      </paper-dialog-scrollable>
+    </paper-dialog>
   </template>
 
   <script>
     Polymer({
 
       is: 'lrnapp-gallery-grid',
-
+      listeners: {
+        'click': '_triggerDialog',
+      },
       properties: {
         submissions: {
           type: Array,
           notify: true,
-        }
+        },
+        activeImage: {
+          type: String,
+          reflectToAttribute: true,
+          notify: true,
+        },
+        activeTitle: {
+          type: String,
+          reflectToAttribute: true,
+          notify: true,
+        },
+        activeAuthor: {
+          type: String,
+          reflectToAttribute: true,
+          notify: true,
+        },
+        activeComments: {
+          type: String,
+          reflectToAttribute: true,
+          notify: true,
+        },
+        activeUrl: {
+          type: String,
+          reflectToAttribute: true,
+          notify: true,
+        },
+      },
+      /**
+       * When someone clicks if there is a url, then we need to
+       * remote load whatever is in that url.
+       */
+      _triggerDialog: function(e) {
+        let root = this;
+        console.log(e);
+        root.activeImage = e.target.nextElementSibling.src;
+        root.activeTitle = e.target.parentElement.title;
+        root.activeAuthor = e.target.parentElement.author;
+        root.activeComments = e.target.parentElement.comments;
+        root.activeUrl = e.target.parentElement.openUrl;
+        this.$$('#dialog').toggle();
       },
       /**
        * Simple way to convert from object to array.
