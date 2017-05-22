@@ -92,7 +92,7 @@ function _lrnapp_load_app_data($machine_name = NULL) {
   $app = lrnapp_load_app_definitions($machine_name);
   // make sure the machine name and the data callback both exist
   if (!empty($machine_name) && !empty($app) && isset($app['data'])) {
-    $return['data'] = call_user_func($app['data']);
+    $return['data'] = call_user_func($app['data'], $machine_name, 'lrnapps/' . $machine_name);
   }
   else {
     $return = array(
@@ -112,7 +112,7 @@ function _lrnapp_load_app($machine_name = NULL) {
   // ensure this exists
   if (!empty($machine_name) && !empty($app)) {
     // form the base path for loading the app
-    $path = base_path() . drupal_get_path('module', $app['module']) . '/lrnapps/' . $machine_name;
+    $path = base_path() . drupal_get_path('module', $app['module']) . '/lrnapps/' . $machine_name . '/';
     $element = array(
       '#tag' => 'link',
       '#attributes' => array(
@@ -132,11 +132,22 @@ function _lrnapp_load_app($machine_name = NULL) {
     drupal_add_html_head($element, 'lrnapp-' . $machine_name);
     // see if we have a data path, if so we need to pass in source-path to the element
     if (isset($app['data'])) {
-      $return = '<lrnapp-' . $machine_name . ' source-path="' . base_path() . 'lrnapp/' . $machine_name . '/data"></lrnapp-' . $machine_name . '>';
+      $return = '<lrnapp-' . $machine_name . ' source-path="' . base_path() . 'lrnapps/' . $machine_name . '/data"></lrnapp-' . $machine_name . '>';
     }
     else {
       $return = '<lrnapp-' . $machine_name . '></lrnapp-' . $machine_name . '>';
     }
   }
   return $return;
+}
+
+/**
+ * Implements hook_wrapped_paths().
+ */
+function lrnapp_wrapped_paths() {
+  $paths = array(
+    'lrnapps' => FALSE,
+    'lrnapps/*' => FALSE,
+  );
+  return $paths;
 }

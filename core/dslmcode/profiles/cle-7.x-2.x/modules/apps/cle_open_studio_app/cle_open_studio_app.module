@@ -15,7 +15,7 @@ function cle_open_studio_app_register_lrnapps() {
       'menu' => array(
         'type' => MENU_NORMAL_ITEM,
         'menu_name' => 'menu-elmsln-navigation',
-        'weight' => -10,
+        'weight' => 10,
       ),
       'data' => '_cle_open_studio_app_data',
     ),
@@ -25,7 +25,7 @@ function cle_open_studio_app_register_lrnapps() {
       'menu' => array(
         'type' => MENU_NORMAL_ITEM,
         'menu_name' => 'menu-elmsln-navigation',
-        'weight' => -11,
+        'weight' => 11,
       ),
       'data' => '_cle_open_studio_app_gallery_data',
     ),
@@ -37,7 +37,7 @@ function cle_open_studio_app_register_lrnapps() {
  * @param  string $machine_name machine name of this app
  * @return array               data to be json encoded for the front end
  */
-function _cle_open_studio_app_data($machine_name) {
+function _cle_open_studio_app_data($machine_name, $app_route) {
   $return = array();
   // @todo need a better render method then this as this is lazy for now
   if (!empty(arg(3)) && is_numeric(arg(3))) {
@@ -61,8 +61,8 @@ function _cle_open_studio_app_data($machine_name) {
       $return[$item->nid]->comments = $item->comment_count;
       $return[$item->nid]->author = $item->name;
       $return[$item->nid]->body = strip_tags($item->field_submission_text['und'][0]['safe_value']);
-      $return[$item->nid]->url = base_path() . 'lrnapp/' . $machine_name . '/data/' . $item->nid;
-      $return[$item->nid]->edit_url = base_path() . 'node/' . $item->nid . '/edit?destination=lrnapp/' . $machine_name;
+      $return[$item->nid]->url = base_path() . $app_route . '/data/' . $item->nid;
+      $return[$item->nid]->edit_url = base_path() . 'node/' . $item->nid . '/edit?destination=' . $app_route;
     }
   }
   return $return;
@@ -73,7 +73,7 @@ function _cle_open_studio_app_data($machine_name) {
  * @param  string $machine_name machine name of this app
  * @return array               data to be json encoded for the front end
  */
-function _cle_open_studio_app_gallery_data($machine_name) {
+function _cle_open_studio_app_gallery_data($machine_name, $app_route) {
   $return = array();
   // @todo need a better render method then this as this is lazy for now
   if (!empty(arg(3)) && is_numeric(arg(3))) {
@@ -92,13 +92,20 @@ function _cle_open_studio_app_gallery_data($machine_name) {
     // pull together all the submissions they should be seeing
     $data = _cis_connector_assemble_entity_list('node', 'cle_submission', 'nid', '_entity');
     foreach ($data as $item) {
+      $images = array();
+      if (!empty($item->field_images)) {
+        foreach ($item->field_images['und'] as $image) {
+          $images[$image['fid']] = $image;
+          $images[$image['fid']]['src'] = file_create_url($image['uri']);
+        }
+      }
       $return[$item->nid] = new stdClass();
       $return[$item->nid]->title = $item->title;
       $return[$item->nid]->comments = $item->comment_count;
       $return[$item->nid]->author = $item->name;
-      $return[$item->nid]->image = $item->field_images['und'][0][''];
-      $return[$item->nid]->url = base_path() . 'lrnapp/' . $machine_name . '/data/' . $item->nid;
-      $return[$item->nid]->edit_url = base_path() . 'node/' . $item->nid . '/edit?destination=lrnapp/' . $machine_name;
+      $return[$item->nid]->images = $images;
+      $return[$item->nid]->url = base_path() . $app_route . '/data/' . $item->nid;
+      $return[$item->nid]->edit_url = base_path() . 'node/' . $item->nid . '/edit?destination=' . $app_route;
     }
   }
   return $return;

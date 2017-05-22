@@ -193,8 +193,6 @@ function cle_helper_wrapped_paths() {
     'node/*' => FALSE,
     'cle/app' => FALSE,
     'cle/app/*' => FALSE,
-    'cle/open-studio-app' => FALSE,
-    'cle/open-studio-app/*' => FALSE,
   );
   return $paths;
 }
