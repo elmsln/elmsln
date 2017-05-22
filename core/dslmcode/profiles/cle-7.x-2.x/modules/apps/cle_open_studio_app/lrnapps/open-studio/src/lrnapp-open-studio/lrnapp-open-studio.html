@@ -13,6 +13,23 @@
       params=''
       handle-as="json"
       last-response="{{submissions}}"></iron-ajax>
+
+    <app-toolbar>
+      <paper-dropdown-menu label="Author">
+        <paper-listbox class="dropdown-content">
+        <template is="dom-repeat" items="[[_toArray(submissions.data)]]" as="item">
+          <paper-item>{{item.author}}</paper-item>
+        </template>
+        </paper-listbox>
+      </paper-dropdown-menu>
+      <paper-dropdown-menu label="Project">
+        <paper-listbox class="dropdown-content">
+        <template is="dom-repeat" items="[[_toArray(submissions.data)]]" as="item">
+          <paper-item>{{item.name}}</paper-item>
+        </template>
+        </paper-listbox>
+      </paper-dropdown-menu>
+    </app-toolbar>
     <template is="dom-repeat" items="[[_toArray(submissions.data)]]" as="item">
       <lrndesign-gallerycard title="{{item.title}}" text="{{item.body}}" url="{{item.url}}" author="{{item.author}}" comments="{{item.comments}}">
       </lrndesign-gallerycard>

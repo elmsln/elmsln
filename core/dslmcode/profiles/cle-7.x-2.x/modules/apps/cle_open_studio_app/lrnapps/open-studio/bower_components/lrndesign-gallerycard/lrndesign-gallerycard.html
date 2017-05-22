@@ -1,0 +1,411 @@
+<!--
+`lrndesign-gallerycard`
+A LRN element for presenting a gallery of items as cards
+that can pop up to display more info
+
+@demo demo/index.html
+-->
+
+<dom-module id="lrndesign-gallerycard">
+  <template>
+    <google-webfont-loader fonts="Droid Sans,Droid Serif:700i,Anonymous Pro:700"></google-webfont-loader>
+    <style>
+      :host {
+        display: inline-flex;
+      }
+      paper-card {
+        border-radius: 4px;
+        margin:0.75rem;
+        width:16rem;
+      }
+      paper-button {
+        display: block;
+        margin: 0;
+        padding: 0;
+      }
+      paper-dialog-scrollable {
+        max-height: 50vh;
+        overflow: auto;
+      }
+      .paper-card-responsive {
+        min-width:200px;
+        max-width:20rem;
+        width:auto;
+      }
+      .title {
+        font-size: 0.9rem;
+        padding:0.25rem 0;
+        margin:0.5rem 0 0 0;
+        white-space: nowrap;
+        overflow-x: hidden;
+        text-overflow: ellipsis;
+      }
+      .author {
+        font-size: 0.75rem;
+        margin:0;
+        padding:0.25rem 0;
+      }
+      .divider {
+        height:1px;
+        width:100%;
+        background:#efefef;
+      }
+      p.text-submission {
+        padding:1.5rem 0rem 2.5rem 0rem;
+        margin:0;
+      }
+      .text-submission {
+        font-family: 'Droid Serif', cursive;
+        font-size: 1rem;
+        font-style: italic;
+        color:#888;
+        text-decoration: none;
+        padding:0rem 2.5rem 0rem 2.5rem;
+      }
+      .text-submission:hover  {
+        color:#000;
+      }
+      p.link-submission {
+        width: 100%;
+        margin: 0;
+      }
+      .link-submission {
+        font-family: 'Anonymous Pro', monospace;
+        font-size: 2rem;
+        color:#888;
+        text-decoration: none;
+        width: 100%;
+        padding: 5rem 0;
+      }
+      .link-submission:hover  {
+        color:#000;
+      }
+      p.file-submission {
+        width: 100%;
+        margin: 0;
+      }
+      .file-submission {
+        color:#888;
+        text-decoration: none;
+        width:100%;
+        padding: 5rem 0;
+      }
+      .file-submission:hover  {
+        color:#000;
+      }
+      .image-submission {
+        color:#888;
+        text-decoration: none;
+      }
+      .image-submission:hover  {
+        color:#000;
+      }
+      .image-set-submission {
+        display: flex;
+        align-items: center;
+        flex-flow: row wrap;
+        align-content: flex-start;
+        color:#888;
+        text-decoration: none;
+      }
+      .image-set-submission:hover  {
+        color:#000;
+      }
+       .text-right{
+        text-align:right;
+       }
+       .text-center{
+        text-align:center;
+       }
+       .card-actions {
+        background-color: #f5f5f5;
+        border-radius:0 0 4px 4px;
+       }
+       .card-actions p {
+        font-size: 0.85rem;
+        margin: 0.25rem 0;
+        color:#616161;
+       }
+       .card-control-height {
+        height: 15rem;
+       }
+       .card-control-center {
+        align-items: center;
+        display: flex;
+        justify-content: center;
+       }
+       [elevation="0"] {
+        border: solid 1px #EEEEEE;
+       }
+      .truncate {
+        display: block; /* Fallback for non-webkit */
+        display: -webkit-box;
+        max-width: 400px;
+        height: 64px; /* Fallback for non-webkit */
+        margin: 0 auto;
+        line-height: 1.4;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+    </style>
+    <style is="custom-style">
+        .big {
+          --iron-icon-height: 100%;
+          --iron-icon-width: 100%;
+          max-width: 4em;
+          max-height: 4em;
+        }
+      </style>
+      <style is="custom-style">
+        .image {
+          --iron-image-width: 100%;
+          --iron-image-width: 100%;
+        }
+      </style>
+      <style is="custom-style">
+        .image-quad {
+          --iron-image-height: auto;
+          --iron-image-width: 100%;
+          flex-basis:50%;
+          /*width: 100%; 
+          height: auto;*/
+
+        }
+        /*img#img.iron-image {
+          margin: 2%;
+        }*/
+       /* header div { 
+          -webkit-box-flex: auto;
+          -ms-flex: auto;
+          flex: auto; 
+          width: 200px; 
+          margin: .5vw; 
+        }
+        header div img { */
+}
+      </style>
+      <paper-card elevation="[[elevation]]">
+        <paper-button>
+          <div class="card-content">
+            <div class="card-control-height card-control-center">
+            <!-- ----- Images Submission -----  -->
+            <template is="dom-if" if="{{_previewType(images)}}">
+            <div class="image-set-submission">
+              <template is="dom-repeat" items="[[_previewType(images)]]">
+              <iron-image class="image-quad" src="[[item.value]]"></iron-image>
+              </template>
+            </div>
+            </template>
+            <!-- ----- Image Submission -----  -->
+            <template is="dom-if" if="{{_previewType(image)}}">
+            <div class="image-submission">
+              <iron-image class="image" src="[[image]]"></iron-image>
+            </div>
+            </template>
+            <!-- ----- File Submission -----  -->
+            <template is="dom-if" if="{{_previewType(file)}}">
+            <p class="file-submission text-center">
+              <div class="file-submission truncate">
+                <iron-icon class="big" icon="file-download"></iron-icon>
+              </div>
+            </p>
+            </template>
+            <!-- ----- Link Submission -----  -->
+            <template is="dom-if" if="{{_previewType(link)}}">
+            <p class="link-submission text-center">
+              <div class="link-submission">&lt;/link&gt;</div>
+            </p>
+            </template>
+            <!-- ----- Text Submission -----  -->
+            <template is="dom-if" if="{{_previewType(text)}}">
+              <p class="text-submission">
+                <div class="text-submission truncate">[[text]]</div>
+              </p>
+            </template>
+            </div>
+            <div class=divider></div>
+            <h2 class="title">[[title]]</h2>
+            <p class="author">By [[author]]<p>
+          </div>
+          <div class="card-actions">
+            <p class="text-right">Comments: [[comments]]</p>
+          </div>
+        </paper-button>
+      </paper-card>
+      <paper-dialog id="dialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation">
+        <h2>{{title}}</h2>
+        <paper-dialog-scrollable id="dialogResponse">
+        </paper-dialog-scrollable>
+      </paper-dialog>
+      <iron-ajax
+        params="{}"
+        id="ajaxRequest"
+        url="{{url}}"
+        handle-as="json"
+        on-response="_handleReturnedData"></iron-ajax>
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'lrndesign-gallerycard',
+       listeners: {
+        'mouseenter': '_mouseEnter',
+        'mouseleave': '_mouseLeave',
+        'click': '_triggerDialog',
+      },
+      properties: {
+        /**
+         * Image src
+         */
+        image: {
+          type: String,
+          reflectToAttribute: true,
+          notify: true,
+        },
+        /**
+         * Array of src to images.
+         */
+        images: {
+          type: Object,
+          reflectToAttribute: true,
+          notify: true,
+        },
+        /**
+         * Text from the submission
+         */
+        file: {
+          type: String,
+          reflectToAttribute: true,
+          notify: true,
+        },
+        /**
+         * Text from the submission
+         */
+        text: {
+          type: String,
+          reflectToAttribute: true,
+          notify: true,
+        },
+        /**
+         * File from the submission
+         */
+        file: {
+          type: String,
+          reflectToAttribute: true,
+          notify: true,
+        },
+        /**
+         * Link from the submission
+         */
+        link: {
+          type: String,
+          reflectToAttribute: true,
+          notify: true,
+        },
+        /**
+         * Title of the gallery item
+         */
+        title: {
+          type: String,
+          value: 'Project',
+          reflectToAttribute: true,
+          notify: true,
+        },
+        /**
+         * Gallery creator
+         */
+        author: {
+          type: String,
+          value: 'Author',
+          reflectToAttribute: true,
+          notify: true,
+        },
+        /**
+         * Visual elevation of the item off the UI via paper element height
+         */
+        elevation: {
+          type: Number,
+          value: 0,
+          reflectToAttribute: true,
+          notify: true,
+        },
+        /**
+         * URL to the gallery itself
+         */
+        url: {
+          type: String,
+          reflectToAttribute: true,
+          notify: true,
+        },
+        /**
+         * Number of comments this has
+         */
+        comments: {
+          type: Number,
+          value: 0,
+          reflectToAttribute: true,
+          notify: true,
+        },
+        /**
+         * Found, internal
+         */
+        foundTypeMatch: {
+          type: Boolean,
+          value: false,
+        },
+        /**
+         * Property to hold data returned from an endpoint
+         */
+        itemResponse: {
+          type: Object,
+        }
+      },
+      /**
+       * whatever is in the 'data' element rip it into
+       * the innerHTML of the response.
+       */
+      _handleReturnedData: function(e) {
+        this.itemResponse = event.detail.response.data;
+        this.$$('#dialogResponse').innerHTML = this.itemResponse;
+      },
+      _mouseEnter: function(e) {
+        this.elevation += 1;
+      },
+      _mouseLeave: function(e) {
+        this.elevation -= 1;
+      },
+      /**
+       * When someone clicks if there is a url, then we need to
+       * remote load whatever is in that url.
+       */
+      _triggerDialog: function(e) {
+        let root = this;
+        // support remote url loading
+        if (typeof this.url !== "undefined") {
+          root.$$('#ajaxRequest').generateRequest();
+        }
+        this.$$('#dialog').toggle();
+      },
+      /**
+       * Figure out what type of preview case to match for rendering
+       * @param  mixed the item we are testing for to have a value of any kind
+       * @return boolean     If it is populated or not
+       */
+      _previewType: function(data) {
+        // make sure that if we already match a case we don't keep going
+        if (this.foundTypeMatch) {
+          return false;
+        }
+        // if the item is defined then we should load that part of the template
+        if (typeof data !== 'undefined') {
+          this.foundTypeMatch = true;
+          return true;
+        }
+        return false;
+      }
+    });
+  </script>
+</dom-module>

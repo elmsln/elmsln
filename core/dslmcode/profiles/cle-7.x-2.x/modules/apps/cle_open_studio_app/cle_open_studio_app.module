@@ -5,37 +5,43 @@
  */
 
 /**
- * Implements hook_menu().
+ * Implements hook_register_lrnapps().
  */
-function cle_open_studio_app_menu() {
-  $items['cle/open-studio-app'] = array(
-    'title' => 'Open studio',
-    'page callback' => '_cle_open_studio_app',
-    'page arguments' => array(),
-    'access arguments' => array('access content'),
-    'type' => MENU_NORMAL_ITEM,
-    'menu_name' => 'menu-elmsln-navigation',
-    'weight' => -10,
+function cle_open_studio_app_register_lrnapps() {
+  return array(
+    'open-studio' => array(
+      'module' => 'cle_open_studio_app',
+      'title' => t('Open studio'),
+      'menu' => array(
+        'type' => MENU_NORMAL_ITEM,
+        'menu_name' => 'menu-elmsln-navigation',
+        'weight' => -10,
+      ),
+      'data' => '_cle_open_studio_app_data',
+    ),
+    'gallery-grid' => array(
+      'module' => 'cle_open_studio_app',
+      'title' => t('Gallery'),
+      'menu' => array(
+        'type' => MENU_NORMAL_ITEM,
+        'menu_name' => 'menu-elmsln-navigation',
+        'weight' => -11,
+      ),
+      'data' => '_cle_open_studio_app_gallery_data',
+    ),
   );
-  $items['cle/open-studio-app/data'] = array(
-    'title' => 'Open studio',
-    'page callback' => '_cle_open_studio_app_data',
-    'page arguments' => array(3),
-    'access arguments' => array('access content'),
-    'type' => MENU_CALLBACK,
-    'weight' => -10,
-  );
-  return $items;
 }
 
 /**
- * Data callback for cle/open-studio-app
+ * Callback for lrnapp/open-studio/data.
+ * @param  string $machine_name machine name of this app
+ * @return array               data to be json encoded for the front end
  */
-function _cle_open_studio_app_data($projectNid = NULL) {
+function _cle_open_studio_app_data($machine_name) {
   $return = array();
-  // @todo need a better render method then this
-  if (!empty($projectNid)) {
-    $node = node_load($projectNid);
+  // @todo need a better render method then this as this is lazy for now
+  if (!empty(arg(3)) && is_numeric(arg(3))) {
+    $node = node_load(arg(3));
     $node_view = node_view($node);
     $rendered_node = drupal_render($node_view);
     $return = $rendered_node;
@@ -55,34 +61,45 @@ function _cle_open_studio_app_data($projectNid = NULL) {
       $return[$item->nid]->comments = $item->comment_count;
       $return[$item->nid]->author = $item->name;
       $return[$item->nid]->body = strip_tags($item->field_submission_text['und'][0]['safe_value']);
-      $return[$item->nid]->url = base_path() . 'cle/open-studio-app/data/' . $item->nid;
-      $return[$item->nid]->edit_url = base_path() . 'node/' . $item->nid . '/edit?destination=cle/open-studio-app';
+      $return[$item->nid]->url = base_path() . 'lrnapp/' . $machine_name . '/data/' . $item->nid;
+      $return[$item->nid]->edit_url = base_path() . 'node/' . $item->nid . '/edit?destination=lrnapp/' . $machine_name;
     }
   }
-  _elmsln_jsapi_deliver_output(array('data' => $return));
+  return $return;
 }
 
 /**
- * Page callback for cle/open-studio-app
+ * Callback for lrnapp/open-studio/data.
+ * @param  string $machine_name machine name of this app
+ * @return array               data to be json encoded for the front end
  */
-function _cle_open_studio_app() {
-  $path = base_path() . drupal_get_path('module', 'cle_open_studio_app') . '/app/';
-  $element = array(
-    '#tag' => 'link',
-    '#attributes' => array(
-      'href' => $path . 'manifest.json',
-      'rel' => 'manifest',
-    ),
-  );
-  drupal_add_html_head($element, 'cle_open_studio_app_manifest');
-  $element = array(
-    '#tag' => 'link',
-    '#attributes' => array(
-      'href' => $path . 'src/elmsln-open-studio-app/elmsln-open-studio-app.html',
-      'rel' => 'import',
-    ),
-    '#weight' => '99999',
-  );
-  drupal_add_html_head($element, 'cle_open_studio_app');
-  return '<elmsln-open-studio-app source-path="' . base_path() . 'cle/open-studio-app/data"></elmsln-open-studio-app>';
+function _cle_open_studio_app_gallery_data($machine_name) {
+  $return = array();
+  // @todo need a better render method then this as this is lazy for now
+  if (!empty(arg(3)) && is_numeric(arg(3))) {
+    $node = node_load(arg(3));
+    $node_view = node_view($node);
+    $rendered_node = drupal_render($node_view);
+    $return = $rendered_node;
+  }
+  else {
+    // @todo need to pull just the most recent submissions, 1 per project
+    // which might be too complex of logic for this efq to express
+    // get all submissions
+    // unique per project
+    // sort by most recent
+    // ... ugh... this is more complex then this
+    // pull together all the submissions they should be seeing
+    $data = _cis_connector_assemble_entity_list('node', 'cle_submission', 'nid', '_entity');
+    foreach ($data as $item) {
+      $return[$item->nid] = new stdClass();
+      $return[$item->nid]->title = $item->title;
+      $return[$item->nid]->comments = $item->comment_count;
+      $return[$item->nid]->author = $item->name;
+      $return[$item->nid]->image = $item->field_images['und'][0][''];
+      $return[$item->nid]->url = base_path() . 'lrnapp/' . $machine_name . '/data/' . $item->nid;
+      $return[$item->nid]->edit_url = base_path() . 'node/' . $item->nid . '/edit?destination=lrnapp/' . $machine_name;
+    }
+  }
+  return $return;
 }

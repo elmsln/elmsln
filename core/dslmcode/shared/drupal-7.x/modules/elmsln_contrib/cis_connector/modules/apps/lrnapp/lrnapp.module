@@ -1,0 +1,142 @@
+<?php
+/**
+ * @file
+ * Code for the wiring up LRN Apps.
+ */
+
+/**
+ * Load all apps we can find.
+ */
+function lrnapp_load_app_definitions($machine_name = NULL) {
+  // statically cache future calls
+  $apps = &drupal_static(__FUNCTION__);
+  if (!isset($apps)) {
+    // load up the definitions of apps out there
+    $apps = module_invoke_all('register_lrnapps');
+    drupal_alter('register_lrnapps', $apps);
+  }
+  if (!is_null($machine_name)) {
+    // validate that this bucket exists
+    if (isset($apps[$machine_name])) {
+      return $apps[$machine_name];
+    }
+    return FALSE;
+  }
+  // validate apps were found
+  if (!empty($apps)) {
+    return $apps;
+  }
+  return FALSE;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function lrnapp_permission() {
+  $perms = array(
+    'view all lrnapps' =>  array(
+      'title' => t('View all LRNApps'),
+      'description' => t('This enables the user to see all apps without checking per app access.'),
+    ),
+  );
+  // load app definitions
+  $apps = lrnapp_load_app_definitions();
+  foreach ($apps as $machine_name => $app) {
+    $perms['view ' . $machine_name . ' lrnapp'] = array(
+      'title' => t('View @name LRNApp', array('@name' => $app['title'])),
+      'description' => t('Allow user to view the LRNApp called @name', array('@name' => $app['title'])),
+    );
+  }
+  return $perms;
+}
+
+/**
+ * Implements hook_menu().
+ */
+function lrnapp_menu() {
+  $apps = lrnapp_load_app_definitions();
+  foreach ($apps as $machine_name => $app) {
+    $items['lrnapps/' . $machine_name] = array(
+      'title' => $app['title'],
+      'page callback' => '_lrnapp_load_app',
+      'page arguments' => array(1),
+      'access arguments' => array('view ' . $machine_name . ' lrnapp'),
+      'type' => MENU_CALLBACK,
+    );
+    // optional support for adding into the menu system beyond callback
+    if (isset($app['menu'])) {
+      $items['lrnapps/' . $machine_name]['type'] = $app['menu']['type'];
+      $items['lrnapps/' . $machine_name]['menu_name'] = $app['menu']['menu_name'];
+      $items['lrnapps/' . $machine_name]['weight'] = $app['menu']['weight'];
+    }
+    // add in the data wiring if it needs it, most will
+    if (isset($app['data'])) {
+      $items['lrnapps/' . $machine_name . '/data'] = array(
+        'title' => $app['title'],
+        'page callback' => '_lrnapp_load_app_data',
+        'page arguments' => array(1),
+        'access arguments' => array('view ' . $machine_name . ' lrnapp'),
+        'type' => MENU_CALLBACK,
+      );
+    }
+  }
+
+  return $items;
+}
+
+/**
+ * Data callback for cle/open-studio-app
+ */
+function _lrnapp_load_app_data($machine_name = NULL) {
+  $return = array();
+  $app = lrnapp_load_app_definitions($machine_name);
+  // make sure the machine name and the data callback both exist
+  if (!empty($machine_name) && !empty($app) && isset($app['data'])) {
+    $return['data'] = call_user_func($app['data']);
+  }
+  else {
+    $return = array(
+      'status' => '404',
+      'detail' => t('Not a valid callback'),
+    );
+  }
+  _elmsln_jsapi_deliver_output($return);
+}
+
+/**
+ * Page callback for loading an app
+ */
+function _lrnapp_load_app($machine_name = NULL) {
+  $return = '';
+  $app = lrnapp_load_app_definitions($machine_name);
+  // ensure this exists
+  if (!empty($machine_name) && !empty($app)) {
+    // form the base path for loading the app
+    $path = base_path() . drupal_get_path('module', $app['module']) . '/lrnapps/' . $machine_name;
+    $element = array(
+      '#tag' => 'link',
+      '#attributes' => array(
+        'href' => $path . 'manifest.json',
+        'rel' => 'manifest',
+      ),
+    );
+    drupal_add_html_head($element, 'lrnapp-' . $machine_name . '-manifest');
+    $element = array(
+      '#tag' => 'link',
+      '#attributes' => array(
+        'href' => $path . 'src/lrnapp-' . $machine_name . '/lrnapp-' . $machine_name . '.html',
+        'rel' => 'import',
+      ),
+      '#weight' => '99999',
+    );
+    drupal_add_html_head($element, 'lrnapp-' . $machine_name);
+    // see if we have a data path, if so we need to pass in source-path to the element
+    if (isset($app['data'])) {
+      $return = '<lrnapp-' . $machine_name . ' source-path="' . base_path() . 'lrnapp/' . $machine_name . '/data"></lrnapp-' . $machine_name . '>';
+    }
+    else {
+      $return = '<lrnapp-' . $machine_name . '></lrnapp-' . $machine_name . '>';
+    }
+  }
+  return $return;
+}
