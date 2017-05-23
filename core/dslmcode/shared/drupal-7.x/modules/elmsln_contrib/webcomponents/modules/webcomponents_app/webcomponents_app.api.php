@@ -40,6 +40,15 @@ function hook_register_webcomponent_apps() {
         // the name of the property the element uses to pull data
         'property' => 'source-path',
       ),
+      // optional: completely optional but also is hooked in from where ever it comes from
+      // this allows you to do any other kind of contextual operation you would need.
+      // For example, elmsln uses the 'distro' context value to match against the currently
+      // active distribution. This allows us to enable certain one page apps only on certain
+      // sites in a multi-site while still managing them in a single location (if needed).
+      // @see elmsln_core_register_webcomponent_apps_alter.
+      'context' => array(
+        'distro' => 'standard'
+      ),
     ),
   );
 }
