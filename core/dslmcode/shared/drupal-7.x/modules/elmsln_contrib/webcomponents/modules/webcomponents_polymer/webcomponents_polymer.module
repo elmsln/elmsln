@@ -19,6 +19,54 @@ function webcomponents_polymer_register_component_format() {
 }
 
 /**
+ * Implements hook_register_webcomponent_apps().
+ */
+function webcomponents_polymer_register_webcomponent_apps() {
+  $files = array();
+  $return = array();
+  $libraries = libraries_get_libraries();
+  // look in libraries directory for global elements
+  if (isset($libraries['webcomponents'])) {
+    $dir = $libraries['webcomponents'] . '/' . WEBCOMPONENTS_POLYMER_LOCATION . '/apps/';
+    $files = _webcomponents_find_html_includes($dir, array(), '.json');
+  }
+  // now look in module sepecific areas
+  $modulefiles = drupal_system_listing("/polymer\.json$/", "modules", 'polymer', 2);
+  foreach ($modulefiles as $file) {
+    $files[] = str_replace('polymer.json', 'manifest.json', $file->uri);
+  }
+  // walk the files
+  foreach ($files as $file) {
+    // read in the manifest file
+    if (strpos($file, 'manifest.json')) {
+      // load the manifest json file
+      $manifest = drupal_json_decode(file_get_contents($file));
+      $return[$manifest['name']] = array(
+        'title' => isset($manifest['title']) ? $manifest['title'] : $manifest['short_name'],
+        'description' => $manifest['description'],
+        'path' => str_replace('manifest.json', '', $file),
+      );
+      // support for drupal specific properties to be set in manifest
+      if (isset($manifest['drupal'])) {
+        if (isset($manifest['drupal']['menu'])) {
+          $return[$manifest['name']]['menu'] = $manifest['drupal']['menu'];
+        }
+        if (isset($manifest['drupal']['data'])) {
+          $return[$manifest['name']]['data'] = $manifest['drupal']['data'];
+        }
+        if (isset($manifest['drupal']['module'])) {
+          $return[$manifest['name']]['module'] = $manifest['drupal']['module'];
+        }
+        if (isset($manifest['drupal']['context'])) {
+          $return[$manifest['name']]['context'] = $manifest['drupal']['context'];
+        }
+      }
+    }
+  }
+  return $return;
+}
+
+/**
  * Implements hook_webcomponents().
  */
 function webcomponents_polymer_webcomponents() {
@@ -27,7 +75,7 @@ function webcomponents_polymer_webcomponents() {
   $files = array();
   if (isset($libraries['webcomponents'])) {
     $dir = $libraries['webcomponents'] . '/' . WEBCOMPONENTS_POLYMER_LOCATION . '/';
-    $files = _webcomponents_find_html_includes($dir);
+    $files = _webcomponents_find_html_includes($dir, array('apps'));
   }
   // group these all as files found to match polymer format
   return array(WEBCOMPONENTS_POLYMER_NAME => $files);

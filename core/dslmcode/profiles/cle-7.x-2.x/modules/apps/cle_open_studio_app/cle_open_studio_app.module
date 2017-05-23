@@ -5,35 +5,7 @@
  */
 
 /**
- * Implements hook_register_lrnapps().
- */
-function cle_open_studio_app_register_lrnapps() {
-  return array(
-    'open-studio' => array(
-      'module' => 'cle_open_studio_app',
-      'title' => t('Open studio 2.0'),
-      'menu' => array(
-        'type' => MENU_NORMAL_ITEM,
-        'menu_name' => 'menu-elmsln-navigation',
-        'weight' => 10,
-      ),
-      'data' => '_cle_open_studio_app_data',
-    ),
-    'gallery-grid' => array(
-      'module' => 'cle_open_studio_app',
-      'title' => t('Gallery'),
-      'menu' => array(
-        'type' => MENU_NORMAL_ITEM,
-        'menu_name' => 'menu-elmsln-navigation',
-        'weight' => 11,
-      ),
-      'data' => '_cle_open_studio_app_gallery_data',
-    ),
-  );
-}
-
-/**
- * Callback for lrnapp/open-studio/data.
+ * Callback for apps/open-studio/data.
  * @param  string $machine_name machine name of this app
  * @return array               data to be json encoded for the front end
  */
@@ -65,11 +37,14 @@ function _cle_open_studio_app_data($machine_name, $app_route) {
       $return[$item->nid]->edit_url = base_path() . 'node/' . $item->nid . '/edit?destination=' . $app_route;
     }
   }
-  return $return;
+  return array(
+    'status' => 200,
+    'data' => $return
+  );
 }
 
 /**
- * Callback for lrnapp/open-studio/data.
+ * Callback for apps/open-studio/data.
  * @param  string $machine_name machine name of this app
  * @return array               data to be json encoded for the front end
  */
@@ -98,5 +73,8 @@ function _cle_open_studio_app_gallery_data($machine_name, $app_route) {
     $return[$item->nid]->images = $images;
     $return[$item->nid]->url = base_path() . 'node/' . $item->nid . '?destination=' . $app_route;
   }
-  return $return;
+  return array(
+    'status' => 200,
+    'data' => $return
+  );
 }

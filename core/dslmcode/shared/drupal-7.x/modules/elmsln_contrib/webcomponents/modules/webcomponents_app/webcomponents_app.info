@@ -1,0 +1,4 @@
+name = Webcomponents: One Page App integration
+description = Provides drop dead simple support for one page apps.
+core = 7.x
+dependencies[] = webcomponents

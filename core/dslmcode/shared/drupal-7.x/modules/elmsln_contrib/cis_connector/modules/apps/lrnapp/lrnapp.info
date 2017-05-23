@@ -1,6 +1,0 @@
-name = LRN App loader
-description = Add scaffolded support for LRN 1 page apps.
-core = 7.x
-package = ELMSLN Core
-dependencies[] = elmsln_api
-dependencies[] = cis_connector
