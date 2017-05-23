@@ -1,0 +1,20 @@
+{
+  "name": "lrnapp-gallery-grid",
+  "short_name": "lrnapp-gallery-grid",
+  "title": "Gallery",
+  "description": "An open studio gallery of media presented as a grid.",
+  "start_url": "/",
+  "display": "standalone",
+  "drupal": {
+    "module": "cle_open_studio_app",
+    "menu": {
+      "type": 6,
+      "menu_name": "menu-elmsln-navigation",
+      "weight": 11
+    },
+    "data": {
+      "callback": "_cle_open_studio_app_gallery_data",
+      "property": "source-path"
+    }
+  }
+}

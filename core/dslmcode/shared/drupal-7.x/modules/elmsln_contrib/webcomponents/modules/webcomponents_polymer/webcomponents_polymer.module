@@ -19,6 +19,44 @@ function webcomponents_polymer_register_component_format() {
 }
 
 /**
+ * Implements hook_register_webcomponent_apps().
+ */
+function webcomponents_polymer_register_webcomponent_apps() {
+  $libraries = libraries_get_libraries();
+  $files = array();
+  $return = array();
+  if (isset($libraries['webcomponents'])) {
+    $dir = $libraries['webcomponents'] . '/' . WEBCOMPONENTS_POLYMER_LOCATION . '/apps/';
+    $files = _webcomponents_find_html_includes($dir, array(), '.json');
+    // walk the files
+    foreach ($files as $file) {
+      // read in the manifest file
+      if (strpos($file, 'manifest.json')) {
+        // load the manifest json file
+        $manifest = drupal_json_decode(file_get_contents($file));
+        $return[$manifest['name']] = array(
+          'title' => isset($manifest['title']) ? $manifest['title'] : $manifest['short_name'],
+          'description' => $manifest['description'],
+        );
+        // support for drupal specific properties to be set in manifest
+        if (isset($manifest['drupal'])) {
+          if (isset($manifest['drupal']['menu'])) {
+            $return[$manifest['name']]['menu'] = $manifest['drupal']['menu'];
+          }
+          if (isset($manifest['drupal']['data'])) {
+            $return[$manifest['name']]['data'] = $manifest['drupal']['data'];
+          }
+          if (isset($manifest['drupal']['module'])) {
+            $return[$manifest['name']]['module'] = $manifest['drupal']['module'];
+          }
+        }
+      }
+    }
+  }
+  return $return;
+}
+
+/**
  * Implements hook_webcomponents().
  */
 function webcomponents_polymer_webcomponents() {
@@ -27,7 +65,7 @@ function webcomponents_polymer_webcomponents() {
   $files = array();
   if (isset($libraries['webcomponents'])) {
     $dir = $libraries['webcomponents'] . '/' . WEBCOMPONENTS_POLYMER_LOCATION . '/';
-    $files = _webcomponents_find_html_includes($dir);
+    $files = _webcomponents_find_html_includes($dir, array('apps'));
   }
   // group these all as files found to match polymer format
   return array(WEBCOMPONENTS_POLYMER_NAME => $files);

@@ -1,0 +1,169 @@
+<?php
+/**
+ * @file
+ * Code for the wiring up one page apps to Drupal.
+ */
+
+define('WEBCOMPONENTS_APP_PATH', 'apps');
+define('WEBCOMPONENTS_DATA_PROPERTY', 'source-path');
+
+/**
+ * Load all apps we can find.
+ */
+function webcomponents_app_load_app_definitions($machine_name = NULL) {
+  // statically cache future calls
+  $apps = &drupal_static(__FUNCTION__);
+  if (!isset($apps)) {
+    // load up the definitions of apps out there
+    $apps = module_invoke_all('register_webcomponent_apps');
+    drupal_alter('register_webcomponent_apps', $apps);
+  }
+  if (!is_null($machine_name)) {
+    // validate that this bucket exists
+    if (isset($apps[$machine_name])) {
+      return $apps[$machine_name];
+    }
+    return FALSE;
+  }
+  // validate apps were found
+  if (!empty($apps)) {
+    return $apps;
+  }
+  return FALSE;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function webcomponents_app_permission() {
+  $perms = array(
+    'access all webcomponent apps' =>  array(
+      'title' => t('Access all webcomponent apps'),
+      'description' => t('This enables the user to see all apps without checking per app access.'),
+    ),
+  );
+  // load app definitions
+  $apps = webcomponents_app_load_app_definitions();
+  foreach ($apps as $machine_name => $app) {
+    $perms['access ' . $machine_name . ' app'] = array(
+      'title' => t('Access @name', array('@name' => $app['title'])),
+      'description' => t('Allow user to access the one page app called @name', array('@name' => $app['title'])),
+    );
+  }
+  return $perms;
+}
+
+/**
+ * Implements hook_menu().
+ */
+function webcomponents_app_menu() {
+  $apps = webcomponents_app_load_app_definitions();
+  foreach ($apps as $machine_name => $app) {
+    $items[WEBCOMPONENTS_APP_PATH . '/' . $machine_name] = array(
+      'title' => $app['title'],
+      'page callback' => '_webcomponents_app_load_app',
+      'page arguments' => array(1),
+      'access arguments' => array('view ' . $machine_name . ' app'),
+      'type' => MENU_CALLBACK,
+    );
+    // optional support for adding into the menu system beyond callback
+    if (isset($app['menu'])) {
+      $items[WEBCOMPONENTS_APP_PATH . '/' . $machine_name]['type'] = $app['menu']['type'];
+      $items[WEBCOMPONENTS_APP_PATH . '/' . $machine_name]['menu_name'] = $app['menu']['menu_name'];
+      $items[WEBCOMPONENTS_APP_PATH . '/' . $machine_name]['weight'] = $app['menu']['weight'];
+    }
+    // add in the data wiring if it needs it, most will
+    if (isset($app['data'])) {
+      $items[WEBCOMPONENTS_APP_PATH . '/' . $machine_name . '/data'] = array(
+        'title' => $app['title'],
+        'page callback' => '_webcomponents_app_load_app_data',
+        'page arguments' => array(1),
+        'access arguments' => array('view ' . $machine_name . ' app'),
+        'type' => MENU_CALLBACK,
+      );
+    }
+  }
+
+  return $items;
+}
+
+/**
+ * Page callback for loading an app
+ */
+function _webcomponents_app_load_app($machine_name = NULL) {
+  $return = '';
+  $app = webcomponents_app_load_app_definitions($machine_name);
+  // ensure this exists
+  if (!empty($machine_name) && !empty($app)) {
+    // form the base path for loading the app
+    $path = base_path() . $app['path'];
+    $element = array(
+      '#tag' => 'link',
+      '#attributes' => array(
+        'href' => $path . 'manifest.json',
+        'rel' => 'manifest',
+      ),
+    );
+    drupal_add_html_head($element, 'app-' . $machine_name . '-manifest');
+    $element = array(
+      '#tag' => 'link',
+      '#attributes' => array(
+        'href' => $path . 'src/' . $machine_name . '/' . $machine_name . '.html',
+        'rel' => 'import',
+      ),
+      '#weight' => '99999',
+    );
+    drupal_add_html_head($element, 'app-' . $machine_name);
+    // see if we have a data path, if so we need to pass in source-path to the element
+    if (isset($app['data']) && function_exists($app['data']['callback'])) {
+      $return = '<' . $machine_name . ' '. $app['data']['property'] .'="' . base_path() . WEBCOMPONENTS_APP_PATH . '/' . $machine_name . '/data"></' . $machine_name . '>';
+    }
+    elseif (isset($app['data']) && !function_exists($app['data']['callback'])) {
+      drupal_set_message(t('The @machine app wants to hit the callback @callback but this function could not be found', array('@machine' => $machine_name, '@callback' => $app['data']['callback'])), 'error');
+    }
+    else {
+      $return = '<' . $machine_name . '></' . $machine_name . '>';
+    }
+  }
+  return $return;
+}
+
+/**
+ * Data callback processor.
+ */
+function _webcomponents_app_load_app_data($machine_name = NULL) {
+  $return = array();
+  $app = webcomponents_app_load_app_definitions($machine_name);
+  // make sure the machine name and the data callback both exist
+  if (!empty($machine_name) && !empty($app) && isset($app['data']) && function_exists($app['data']['callback'])) {
+    $return['data'] = call_user_func($app['data']['callback'], $machine_name, WEBCOMPONENTS_APP_PATH . '/' . $machine_name);
+  }
+  else {
+    $return = array(
+      'status' => '404',
+      'detail' => t('Not a valid callback'),
+    );
+  }
+  // nothing set so make it 200 even though it already is
+  if (empty($vars['status'])) {
+    $vars['status'] = '200';
+  }
+  // ensure there's some form of detail even if empty
+  if (empty($vars['detail'])) {
+    $vars['detail'] = '';
+  }
+  // ensure there's some form of detail even if empty
+  if (empty($vars['environment'])) {
+    $vars['environment'] = array();
+  }
+  // allow output delivery to be modified contextually
+  drupal_alter('webcomponents_app_deliver_output', $vars);
+  // define return type
+  drupal_add_http_header('Content-Type', 'application/json');
+  // define status
+  drupal_add_http_header('Status', $vars['status']);
+  // output the response as json
+  print drupal_json_output($vars);
+  // official drupal exit routines
+  exit;
+}

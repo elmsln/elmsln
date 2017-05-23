@@ -3,4 +3,3 @@ description = Single page apps for the open studio.
 core = 7.x
 package = CLE
 dependencies[] = cle_submission
-dependencies[] = lrnapp

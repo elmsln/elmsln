@@ -306,31 +306,35 @@ function webcomponent_load_by_name($name) {
  * @param  string $dir a directory to search for .html includes
  * @return array       an array of html files to look for web components in
  */
-function _webcomponents_find_html_includes($dir) {
+function _webcomponents_find_html_includes($dir, $ignore = array(), $find = '.html') {
   $files = array();
+  // common things to ignore
+  $ignore[] = '.';
+  $ignore[] = '..';
+  $ignore[] = 'index.html';
   if (is_dir($dir)) {
     // step into the polymer directory and find all html templates
     $di = new DirectoryIterator(DRUPAL_ROOT . '/' . $dir);
     foreach ($di as $fileinfo) {
       $fname = $fileinfo->getFilename();
-      // only include html file, not index
-      if (strpos($fname, '.html') && $fname != 'index.html') {
+      // check for our find value skipping ignored values
+      if (strpos($fname, $find) && !in_array($fname, $ignore)) {
         $files[] = $dir . $fileinfo->getFilename();
       }
-      elseif (is_dir($dir . $fname) && $fname != '.' && $fname != '..') {
+      elseif (is_dir($dir . $fname) && !in_array($fname, $ignore)) {
         $di2 = new DirectoryIterator($dir . $fname);
         foreach ($di2 as $fileinfo2) {
           $fname2 = $fileinfo2->getFilename();
-          // only include html file, not index
-          if (strpos($fname2, '.html') && $fname2 != 'index.html') {
+          // check for our find value skipping ignored values
+          if (strpos($fname2, $find) && !in_array($fname2, $ignore)) {
             $files[] = $dir . $fname . '/' . $fname2;
           }
-          elseif (is_dir($dir . $fname . '/' . $fname2) && $fname2 != '.' && $fname2 != '..') {
+          elseif (is_dir($dir . $fname . '/' . $fname2) && !in_array($fname2, $ignore)) {
             $di3 = new DirectoryIterator($dir . $fname . '/' . $fname2);
             foreach ($di3 as $fileinfo3) {
               $fname3 = $fileinfo3->getFilename();
-              // only include html file, not index
-              if (strpos($fname3, '.html') && $fname3 != 'index.html') {
+              // check for our find value skipping ignored values
+              if (strpos($fname3, $find) && !in_array($fname3, $ignore)) {
                 $files[] = $dir . $fname . '/' . $fname2 . '/' . $fname3;
               }
             }
