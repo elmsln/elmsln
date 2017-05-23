@@ -242,7 +242,11 @@ function _git_book_make_node($title, $content, $parent, $weight, $path = '') {
   // if a node already exists at that url, then we are going to load it
   // and do an update of that node
   if ($url && $url !== $path) {
-    $node = menu_get_object('node', 1, $url);
+    // speparate the internal path into an array
+    $url_ary = explode('/', $url);
+    // load the node
+    $node = node_load($url_ary[1]);
+    // set the mode to updating instead of creating
     $mode = 'updating';
   }
   // if there was no existing node then we will create it
