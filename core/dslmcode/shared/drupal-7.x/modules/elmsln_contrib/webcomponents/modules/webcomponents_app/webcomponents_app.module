@@ -70,7 +70,8 @@ function webcomponents_app_menu() {
     );
     // optional support for adding into the menu system beyond callback
     if (isset($app['menu'])) {
-      $items[WEBCOMPONENTS_APP_PATH . '/' . $machine_name]['type'] = $app['menu']['type'];
+      // if we are making this a menu then make it normal so it shows up in lists
+      $items[WEBCOMPONENTS_APP_PATH . '/' . $machine_name]['type'] = MENU_NORMAL_ITEM;
       $items[WEBCOMPONENTS_APP_PATH . '/' . $machine_name]['menu_name'] = $app['menu']['menu_name'];
       $items[WEBCOMPONENTS_APP_PATH . '/' . $machine_name]['weight'] = $app['menu']['weight'];
     }

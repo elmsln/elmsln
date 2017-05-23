@@ -8,7 +8,6 @@
   "drupal": {
     "module": "cle_open_studio_app",
     "menu": {
-      "type": 6,
       "menu_name": "menu-elmsln-navigation",
       "weight": 10
     },
