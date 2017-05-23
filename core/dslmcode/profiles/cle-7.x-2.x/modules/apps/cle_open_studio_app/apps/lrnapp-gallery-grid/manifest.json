@@ -1,7 +1,7 @@
 {
   "name": "lrnapp-gallery-grid",
   "short_name": "lrnapp-gallery-grid",
-  "title": "Gallery stuff",
+  "title": "Gallery",
   "description": "An open studio gallery of media presented as a grid.",
   "start_url": "/",
   "display": "standalone",
