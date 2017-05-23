@@ -5,7 +5,6 @@
  */
 
 define('WEBCOMPONENTS_APP_PATH', 'apps');
-define('WEBCOMPONENTS_DATA_PROPERTY', 'source-path');
 
 /**
  * Load all apps we can find.
@@ -23,13 +22,13 @@ function webcomponents_app_load_app_definitions($machine_name = NULL) {
     if (isset($apps[$machine_name])) {
       return $apps[$machine_name];
     }
-    return FALSE;
+    return array();
   }
   // validate apps were found
   if (!empty($apps)) {
     return $apps;
   }
-  return FALSE;
+  return array();
 }
 
 /**
@@ -57,13 +56,16 @@ function webcomponents_app_permission() {
  * Implements hook_menu().
  */
 function webcomponents_app_menu() {
+  $items = array();
+  // load app definitions
   $apps = webcomponents_app_load_app_definitions();
   foreach ($apps as $machine_name => $app) {
     $items[WEBCOMPONENTS_APP_PATH . '/' . $machine_name] = array(
       'title' => $app['title'],
       'page callback' => '_webcomponents_app_load_app',
       'page arguments' => array(1),
-      'access arguments' => array('view ' . $machine_name . ' app'),
+      'access callback' => '_webcomponents_app_access',
+      'access arguments' => array(1),
       'type' => MENU_CALLBACK,
     );
     // optional support for adding into the menu system beyond callback
@@ -78,13 +80,25 @@ function webcomponents_app_menu() {
         'title' => $app['title'],
         'page callback' => '_webcomponents_app_load_app_data',
         'page arguments' => array(1),
-        'access arguments' => array('view ' . $machine_name . ' app'),
+        'access callback' => '_webcomponents_app_access',
+        'access arguments' => array(1),
         'type' => MENU_CALLBACK,
       );
     }
   }
 
   return $items;
+}
+
+/**
+ * Access callback for apps.
+ */
+function _webcomponents_app_access($machine_name) {
+  // check for the access all permission which trumps specific app access
+  if (user_access('access all webcomponent apps') || user_access('access ' . $machine_name . ' app')) {
+    return TRUE;
+  }
+  return FALSE;
 }
 
 /**
@@ -136,7 +150,7 @@ function _webcomponents_app_load_app_data($machine_name = NULL) {
   $app = webcomponents_app_load_app_definitions($machine_name);
   // make sure the machine name and the data callback both exist
   if (!empty($machine_name) && !empty($app) && isset($app['data']) && function_exists($app['data']['callback'])) {
-    $return['data'] = call_user_func($app['data']['callback'], $machine_name, WEBCOMPONENTS_APP_PATH . '/' . $machine_name);
+    $return = call_user_func($app['data']['callback'], $machine_name, WEBCOMPONENTS_APP_PATH . '/' . $machine_name);
   }
   else {
     $return = array(
@@ -145,25 +159,25 @@ function _webcomponents_app_load_app_data($machine_name = NULL) {
     );
   }
   // nothing set so make it 200 even though it already is
-  if (empty($vars['status'])) {
-    $vars['status'] = '200';
+  if (empty($return['status'])) {
+    $return['status'] = '200';
   }
   // ensure there's some form of detail even if empty
-  if (empty($vars['detail'])) {
-    $vars['detail'] = '';
+  if (empty($return['detail'])) {
+    $return['detail'] = '';
   }
   // ensure there's some form of detail even if empty
-  if (empty($vars['environment'])) {
-    $vars['environment'] = array();
+  if (empty($return['environment'])) {
+    $return['environment'] = array();
   }
   // allow output delivery to be modified contextually
-  drupal_alter('webcomponents_app_deliver_output', $vars);
+  drupal_alter('webcomponents_app_deliver_output', $return);
   // define return type
   drupal_add_http_header('Content-Type', 'application/json');
   // define status
-  drupal_add_http_header('Status', $vars['status']);
+  drupal_add_http_header('Status', $return['status']);
   // output the response as json
-  print drupal_json_output($vars);
+  print drupal_json_output($return);
   // official drupal exit routines
   exit;
 }

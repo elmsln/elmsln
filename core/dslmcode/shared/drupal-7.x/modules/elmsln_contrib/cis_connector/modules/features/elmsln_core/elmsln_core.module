@@ -1849,11 +1849,29 @@ function _elmsln_core_path_is_wrapped($path) {
  */
 function elmsln_core_wrapped_paths() {
   $paths = array(
+    // wrap everything for now
     '*' => TRUE,
+    // user pages are full width
     'user/*' => FALSE,
     'user/*/*' => FALSE,
+    // don't wrap any app
+    'apps/*' => FALSE,
+    'apps/*/*' => FALSE,
   );
   return $paths;
+}
+
+/**
+ * Implements hook_register_webcomponent_apps_alter().
+ */
+function elmsln_core_register_webcomponent_apps_alter(&$apps) {
+  // kill things not for our app
+  foreach ($apps as $key => $app) {
+    // make sure we have a context to mess with
+    if (isset($app['context']['distro']) && $app['context']['distro'] != elmsln_core_get_profile_key()) {
+      unset($apps[$key]);
+    }
+  }
 }
 
 /**

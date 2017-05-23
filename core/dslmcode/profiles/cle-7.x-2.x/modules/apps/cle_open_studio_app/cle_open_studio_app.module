@@ -37,7 +37,10 @@ function _cle_open_studio_app_data($machine_name, $app_route) {
       $return[$item->nid]->edit_url = base_path() . 'node/' . $item->nid . '/edit?destination=' . $app_route;
     }
   }
-  return $return;
+  return array(
+    'status' => 200,
+    'data' => $return
+  );
 }
 
 /**
@@ -70,5 +73,8 @@ function _cle_open_studio_app_gallery_data($machine_name, $app_route) {
     $return[$item->nid]->images = $images;
     $return[$item->nid]->url = base_path() . 'node/' . $item->nid . '?destination=' . $app_route;
   }
-  return $return;
+  return array(
+    'status' => 200,
+    'data' => $return
+  );
 }
