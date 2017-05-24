@@ -68,6 +68,16 @@ function webcomponents_app_menu() {
       'access arguments' => array(1),
       'type' => MENU_CALLBACK,
     );
+    if (module_exists('devel')) {
+      $items[WEBCOMPONENTS_APP_PATH . '/' . $machine_name . '/devel'] = array(
+        'title' => $app['title'],
+        'page callback' => '_webcomponents_app_debug',
+        'page arguments' => array(1),
+        'access callback' => '_webcomponents_app_access',
+        'access arguments' => array(1),
+        'type' => MENU_CALLBACK,
+      );
+    }
     // optional support for adding into the menu system beyond callback
     if (isset($app['menu'])) {
       // if we are making this a menu then make it normal so it shows up in lists
@@ -89,6 +99,15 @@ function webcomponents_app_menu() {
   }
 
   return $items;
+}
+
+/**
+ * Callback for apps/%/devel to view what's going on.
+ */
+function _webcomponents_app_debug($machine_name) {
+  $app = webcomponents_app_load_app_definitions($machine_name);
+  dpm($app);
+  return t('@machine debug', array('@machine' => $machine_name));
 }
 
 /**
