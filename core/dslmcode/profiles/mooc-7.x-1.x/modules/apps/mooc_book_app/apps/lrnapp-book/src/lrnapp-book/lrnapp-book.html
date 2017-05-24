@@ -112,6 +112,12 @@
         root.$$('#ajax').params.node = root.prevPage;
         root.$$('#ajax').generateRequest();
       },
+      changePage: function(e) {
+        let root = this;
+        console.log(e);
+        //root.$$('#ajax').params.node = root.activePage;
+        root.$$('#ajax').generateRequest();
+      },
       /**
        * Simple way to convert from object to array.
        */

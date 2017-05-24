@@ -27,8 +27,11 @@ function _mooc_page_player_data($machine_name, $app_route) {
   if (isset($node->nid)) {
     // render the node to content
     $GLOBALS['moocappbook'] = $node;
+    // load the navigation block; obviously not this way
     $block = block_load('mooc_nav_block', 'mooc_nav');
     $nav =  _block_get_renderable_array(_block_render_blocks(array($block)));
+    $nav['mooc_nav_block_mooc_nav']['#markup'] = str_replace('href="' . base_path() .'node/', 'on-click="changePage" data-node="', $nav['mooc_nav_block_mooc_nav']['#markup']);
+    // load the breadcrumb; obviously not this way
     $block = block_load('mooc_helper_book_nav', 'book_sibling_nav');
     $pathing =  _block_get_renderable_array(_block_render_blocks(array($block)));
     $return['content']['breadcrumb'] = drupal_render($pathing);
