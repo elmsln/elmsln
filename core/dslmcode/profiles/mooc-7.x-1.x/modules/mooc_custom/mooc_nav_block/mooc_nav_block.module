@@ -42,6 +42,9 @@ function mooc_nav_block_block_view($delta = '') {
       if (isset($node) && isset($node->book) && isset($node->book['depth']) && !empty($node->book['depth'])) {
         $block = _mooc_nav_block_mooc_nav_block($node);
       }
+      elseif (arg(0) == 'apps' && arg(1) == 'lrnapp-book' && isset($GLOBALS['moocappbook'])) {
+        $block = _mooc_nav_block_mooc_nav_block($GLOBALS['moocappbook']);
+      }
       // fallback if we're not on a node and it's not a mooc specific page
       elseif (arg(0) != 'mooc' && arg(0) != 'user' && $node = _mooc_helper_active_outline()) {
         $block = _mooc_nav_block_mooc_nav_block($node);
