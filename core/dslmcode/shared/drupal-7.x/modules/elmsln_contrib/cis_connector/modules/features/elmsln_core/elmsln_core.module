@@ -1854,9 +1854,6 @@ function elmsln_core_wrapped_paths() {
     // user pages are full width
     'user/*' => FALSE,
     'user/*/*' => FALSE,
-    // don't wrap any app
-    'apps/*' => FALSE,
-    'apps/*/*' => FALSE,
   );
   return $paths;
 }

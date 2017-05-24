@@ -5,6 +5,17 @@
  */
 
 /**
+ * Implements hook_wrapped_paths().
+ */
+function cle_open_studio_app_wrapped_paths() {
+  $paths = array(
+    // don't wrap any app
+    'apps/*' => FALSE,
+  );
+  return $paths;
+}
+
+/**
  * Callback for apps/open-studio/data.
  * @param  string $machine_name machine name of this app
  * @return array               data to be json encoded for the front end
