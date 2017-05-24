@@ -1,0 +1,50 @@
+<?php
+/**
+ * @file
+ * Code for the CLE Open Studio
+ */
+
+/**
+ * Callback for apps/open-studio/data.
+ * @param  string $machine_name machine name of this app
+ * @return array               data to be json encoded for the front end
+ */
+function _mooc_page_player_data($machine_name, $app_route) {
+  $return = array();
+  // check for node being set and being a number
+  if (isset($_GET['node']) && is_numeric($_GET['node'])) {
+    // load and see if its
+    $node = node_load($_GET['node']);
+    // validate they have access to see this otherwise bail
+    if (!node_access('view', $node)) {
+      $status = 404;
+    }
+  }
+  else {
+    $node = _mooc_helper_active_outline();
+  }
+  // verify this is a node
+  if (isset($node->nid)) {
+    $node_view = node_view($node);
+    // render the node to content
+    $return['content'] = check_markup($node->body['und'][0]['value'], $node->body['und'][0]['format']);
+    // load associations from cache
+    if (isset($node->book['mlid'])) {
+      $associations = _book_cache_get_associations($node->book);
+      // previous link
+      if (isset($associations['prev'])) {
+        $return['prev'] = str_replace('node/', '', $associations['prev']['link_path']);
+      }
+      // next link
+      if (isset($associations['next'])) {
+        $return['next'] = str_replace('node/', '', $associations['next']['link_path']);
+      }
+    }
+    $status = 200;
+  }
+  //
+  return array(
+    'status' => $status,
+    'data' => $return
+  );
+}

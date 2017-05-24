@@ -1,0 +1,121 @@
+
+<dom-module id="lrnapp-book">
+  <template>
+    <style include="materializecss-styles"></style>
+    <style>
+      :host {
+        display: block;
+      }
+      paper-button {
+        padding: 0;
+        margin: 0;
+        min-width: 1rem;
+      }
+    </style>
+    <iron-ajax
+       auto
+       id="ajax"
+       params="{{requestParams}}"
+       url="[[source-path]]"
+       handle-as="json"
+       on-response="handleResponse"
+       last-response="{{requestData}}"></iron-ajax>
+    <div id="content"></div>
+    <template is="dom-if" if="{{hasPrevPage}}">
+      <a tabindex="-1" class="book-sibling-parent-pagination book-sibling-parent-pagination-previous page-previous black-text white" title="Go to previous page" data-voicecommand="previous" data-jwerty-key="→" on-click="loadPrevPage">
+        <paper-button raised>Previous</paper-button>
+      </a>
+    </template>
+    <template is="dom-if" if="{{hasNextPage}}">
+      <a tabindex="-1" class="page-next book-sibling-parent-pagination book-sibling-parent-pagination-next black-text white" title="Go to next page" data-voicecommand="next" data-jwerty-key="→" on-click="loadNextPage">
+        <paper-button raised>Next</paper-button>
+      </a>
+    </template>
+  </template>
+
+  <script>
+    Polymer({
+      is: 'lrnapp-book',
+      properties: {
+        requestParams: {
+          type: Object,
+          reflectToAttribute: true,
+          notify: true,
+          value: {
+            "node": null
+          },
+        },
+        requestData: {
+          type: Object,
+          reflectToAttribute: true,
+          notify: true,
+        },
+        hasPrevPage: {
+          type: Boolean,
+          reflectToAttribute: true,
+          notify: true,
+        },
+        prevPage: {
+          type: String,
+          reflectToAttribute: true,
+          notify: true,
+        },
+        hasNextPage: {
+          type: Boolean,
+          reflectToAttribute: true,
+          notify: true,
+        },
+        nextPage: {
+          type: String,
+          reflectToAttribute: true,
+          notify: true,
+        },
+      },
+      /**
+       * Handle the response.
+       */
+      handleResponse: function(obj) {
+        let root = this;
+        var response = obj.detail.response.data;
+        // look for previous link
+        if (typeof response.prev !== "undefined") {
+          root.hasPrevPage = true;
+          root.prevPage = response.prev;
+        }
+        else {
+          root.hasPrevPage = false;
+        }
+        // look for next link
+        if (typeof response.next !== "undefined") {
+          root.hasNextPage = true;
+          root.nextPage = response.next;
+        }
+        else {
+          root.hasNextPage = false;
+        }
+        // ensure we have content
+        if (typeof response.content !== "undefined") {
+          root.$$('#content').innerHTML = response.content;
+        }
+      },
+      loadNextPage: function() {
+        let root = this;
+        root.$$('#ajax').params.node = root.nextPage;
+        root.$$('#ajax').generateRequest();
+      },
+      loadPrevPage: function() {
+        let root = this;
+        root.$$('#ajax').params.node = root.prevPage;
+        root.$$('#ajax').generateRequest();
+      },
+      /**
+       * Simple way to convert from object to array.
+       */
+      _toArray: function(obj) {
+        return Object.keys(obj).map(function(key) {
+          return obj[key];
+        });
+      },
+    });
+  </script>
+</dom-module>
