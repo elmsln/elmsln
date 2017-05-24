@@ -31,7 +31,9 @@ function _mooc_page_player_data($machine_name, $app_route) {
     $nav =  _block_get_renderable_array(_block_render_blocks(array($block)));
     $block = block_load('mooc_helper_book_nav', 'book_sibling_nav');
     $pathing =  _block_get_renderable_array(_block_render_blocks(array($block)));
-    $return['content'] = drupal_render($pathing) . drupal_render($nav) . check_markup('<h2>' . $node->title . '</h2>' . $node->body['und'][0]['value'], $node->body['und'][0]['format']);
+    $return['content']['breadcrumb'] = drupal_render($pathing);
+    $return['content']['nav'] = drupal_render($nav);
+    $return['content']['body'] = check_markup('<h2>' . $node->title . '</h2>' . $node->body['und'][0]['value'], $node->body['und'][0]['format']);
     // load associations from cache
     if (isset($node->book['mlid'])) {
       $associations = _book_cache_get_associations($node->book);

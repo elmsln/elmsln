@@ -20,7 +20,9 @@
        handle-as="json"
        on-response="handleResponse"
        last-response="{{requestData}}"></iron-ajax>
-    <div id="content"></div>
+    <div id="breadcrumb" class="row"></div>
+    <div id="nav" class="row"></div>
+    <div id="content" class="row"></div>
     <template is="dom-if" if="{{hasPrevPage}}">
       <a tabindex="-1" class="book-sibling-parent-pagination book-sibling-parent-pagination-previous page-previous black-text white" title="Go to previous page" data-voicecommand="previous" data-jwerty-key="→" on-click="loadPrevPage">
         <paper-button raised>Previous</paper-button>
@@ -95,7 +97,9 @@
         }
         // ensure we have content
         if (typeof response.content !== "undefined") {
-          root.$$('#content').innerHTML = response.content;
+          root.$$('#nav').innerHTML = response.content.nav;
+          root.$$('#breadcrumb').innerHTML = response.content.breadcrumb;
+          root.$$('#content').innerHTML = response.content.body;
         }
       },
       loadNextPage: function() {
