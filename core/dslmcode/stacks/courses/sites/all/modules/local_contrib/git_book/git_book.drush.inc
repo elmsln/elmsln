@@ -97,11 +97,12 @@ function drush_git_book_sync($name) {
  * Callback for command git-book-status
  */
 function drush_git_book_status($name) {
-  $books = _git_book_get_books_by_name($name);
+  $book = _git_book_drush_get_book_by_name($name);
 }
 
 /**
- * Helper function to retrieve a single book by name
+ * Helper function to retrieve a single book by name. Uses drush options to allow
+ * the user to select which book they want.
  * @return  mixed    Returns book object or false if no book was found.
  */
 function _git_book_drush_get_book_by_name($name) {
