@@ -348,3 +348,21 @@ function _git_book_get_status($repo) {
   }
   return $status;
 }
+
+/**
+ * Helper function to retreave a list of git books by machine name
+ */
+function _git_book_get_books_by_name($name) {
+  $books = array();
+  $query = new EntityFieldQuery();
+  $entities = $query->entityCondition('entity_type', 'node')
+    ->propertyCondition('type', 'git_book')
+    ->propertyCondition('title', $name)
+    ->execute();
+  if (!empty($entities['node'])) {
+    $nodes = entity_load('node', array_keys($entities['node']));
+    $books = $nodes;
+  }
+
+  return $books;
+}

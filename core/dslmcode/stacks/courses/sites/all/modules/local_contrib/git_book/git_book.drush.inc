@@ -76,16 +76,10 @@ function drush_git_book_create($repo_url, $parser, $branch) {
  */
 function drush_git_book_sync($name) {
   $selected_node = NULL;
-  $query = new EntityFieldQuery();
-  $entities = $query->entityCondition('entity_type', 'node')
-    ->propertyCondition('type', 'git_book')
-    ->propertyCondition('title', $name)
-    ->execute();
-  if (!empty($entities['node'])) {
-    $nodes = entity_load('node', array_keys($entities['node']));
-    // if there is only one node then use that as the selected node
-    if (count($nodes) == 1) {
-      $selected_node = array_pop($nodes);
+  $books = _git_book_get_books_by_name($name);
+  if ($books && !empty($books)) {
+    if (count($books) == 1) {
+      $selected_node = array_pop($books);
     }
     // if there is more than one node then we need to propmpt the user
     // to choose.
