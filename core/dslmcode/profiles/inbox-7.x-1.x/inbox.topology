@@ -1,7 +1,7 @@
 default_title="Inbox"
 type="authority"
 subdomain="inbox"
-group="Network"
+group="Experimental"
 icon_library="elmsln"
 show_in_network="1"
 weight="10"
