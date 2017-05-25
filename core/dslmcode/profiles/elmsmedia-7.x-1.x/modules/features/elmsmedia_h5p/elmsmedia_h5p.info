@@ -57,6 +57,7 @@ features[variable][] = diff_show_preview_changes_node_h5p_content
 features[variable][] = diff_view_mode_preview_node_h5p_content
 features[variable][] = field_bundle_settings_node__h5p_content
 features[variable][] = h5p_hub_is_enabled
+features[variable][] = h5p_send_usage_statistics
 features[variable][] = menu_options_h5p_content
 features[variable][] = menu_parent_h5p_content
 features[variable][] = node_options_h5p_content
