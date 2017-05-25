@@ -1,0 +1,8 @@
+<?php
+
+/**
+ * Implements hook_update_N().
+ */
+function cle_displays_update_7000(&$sandbox) {
+  features_revert_module('cle_displays');
+}
