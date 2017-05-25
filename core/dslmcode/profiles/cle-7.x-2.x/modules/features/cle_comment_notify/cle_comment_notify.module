@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the CLE Comment notify feature.
+ */
+
+include_once 'cle_comment_notify.features.inc';

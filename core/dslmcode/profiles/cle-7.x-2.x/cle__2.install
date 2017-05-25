@@ -127,3 +127,10 @@ function cle__2_update_7010(&$sandbox) {
 function cle__2_update_7011(&$sandbox) {
   module_enable(array('cle_displays'));
 }
+
+/**
+ * Enable comment notification settings
+ */
+function cle__2_update_7012(&$sandbox) {
+  module_enable(array('comment_notify', 'cle_comment_notify'));
+}
