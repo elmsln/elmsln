@@ -98,6 +98,11 @@ function drush_git_book_sync($name) {
  */
 function drush_git_book_status($name) {
   $book = _git_book_drush_get_book_by_name($name);
+  if ($book) {
+    $repo = _git_book_get_repo($book);
+    $status = _git_book_get_status($repo);
+    drush_print($status);
+  }
 }
 
 /**

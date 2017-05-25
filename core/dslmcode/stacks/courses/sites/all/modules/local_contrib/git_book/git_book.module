@@ -341,6 +341,7 @@ function _git_book_get_path($node) {
  */
 function _git_book_get_status($repo) {
   $status = 'up-to-date';
+  $raw_status = $repo->run('fetch --all');
   $raw_status = $repo->run('status -sb');
   preg_match('/\[(.*)\]/', $raw_status, $matches);
   if (isset($matches[1])) {
