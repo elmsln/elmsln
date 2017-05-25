@@ -133,4 +133,5 @@ function cle__2_update_7011(&$sandbox) {
  */
 function cle__2_update_7012(&$sandbox) {
   module_enable(array('comment_notify', 'cle_comment_notify'));
+  features_revert_module('cle_displays');
 }
