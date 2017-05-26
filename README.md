@@ -8,9 +8,8 @@ Learn more about ELMSLN @ [elmsln.org](https://www.elmsln.org/)
 
 
 | Version | PHP | Includes | Status |
-------------- | ------  | --- | -------------------------- | -----------
+| ------- | --- | -------- | ------ |
 [0.8.0](https://github.com/elmsln/elmsln/archive/0.8.0.zip)  | 5.4+ & 7 | Drupal 7.x | [![Build Status](https://travis-ci.org/elmsln/elmsln.svg?branch=master)](https://travis-ci.org/elmsln/elmsln) [![OpenCollective](https://opencollective.com/elmsln/backers/badge.svg)](#backers) [![OpenCollective](https://opencollective.com/elmsln/sponsors/badge.svg)](#sponsors)
-=======
 
 Play quickly
 ==============
@@ -50,59 +49,16 @@ Support us with a monthly donation and help us continue our activities. [[Become
 <a href="https://opencollective.com/elmsln/backer/14/website" target="_blank"><img src="https://opencollective.com/elmsln/backer/14/avatar.svg"></a>
 <a href="https://opencollective.com/elmsln/backer/15/website" target="_blank"><img src="https://opencollective.com/elmsln/backer/15/avatar.svg"></a>
 <a href="https://opencollective.com/elmsln/backer/16/website" target="_blank"><img src="https://opencollective.com/elmsln/backer/16/avatar.svg"></a>
-<a href="https://opencollective.com/elmsln/backer/17/website" target="_blank"><img src="https://opencollective.com/elmsln/backer/17/avatar.svg"></a>
-<a href="https://opencollective.com/elmsln/backer/18/website" target="_blank"><img src="https://opencollective.com/elmsln/backer/18/avatar.svg"></a>
-<a href="https://opencollective.com/elmsln/backer/19/website" target="_blank"><img src="https://opencollective.com/elmsln/backer/19/avatar.svg"></a>
-<a href="https://opencollective.com/elmsln/backer/20/website" target="_blank"><img src="https://opencollective.com/elmsln/backer/20/avatar.svg"></a>
-<a href="https://opencollective.com/elmsln/backer/21/website" target="_blank"><img src="https://opencollective.com/elmsln/backer/21/avatar.svg"></a>
-<a href="https://opencollective.com/elmsln/backer/22/website" target="_blank"><img src="https://opencollective.com/elmsln/backer/22/avatar.svg"></a>
-<a href="https://opencollective.com/elmsln/backer/23/website" target="_blank"><img src="https://opencollective.com/elmsln/backer/23/avatar.svg"></a>
-<a href="https://opencollective.com/elmsln/backer/24/website" target="_blank"><img src="https://opencollective.com/elmsln/backer/24/avatar.svg"></a>
-<a href="https://opencollective.com/elmsln/backer/25/website" target="_blank"><img src="https://opencollective.com/elmsln/backer/25/avatar.svg"></a>
-<a href="https://opencollective.com/elmsln/backer/26/website" target="_blank"><img src="https://opencollective.com/elmsln/backer/26/avatar.svg"></a>
-<a href="https://opencollective.com/elmsln/backer/27/website" target="_blank"><img src="https://opencollective.com/elmsln/backer/27/avatar.svg"></a>
-<a href="https://opencollective.com/elmsln/backer/28/website" target="_blank"><img src="https://opencollective.com/elmsln/backer/28/avatar.svg"></a>
-<a href="https://opencollective.com/elmsln/backer/29/website" target="_blank"><img src="https://opencollective.com/elmsln/backer/29/avatar.svg"></a>
+
 
 ## Sponsors
 Become a sponsor and get your logo on our README on Github with a link to your site. [[Become a sponsor](https://opencollective.com/elmsln#sponsor)]
 
-<a href="https://opencollective.com/elmsln/sponsor/0/website" target="_blank"><img src="https://opencollective.com/elmsln/sponsor/0/avatar.svg"></a>
-<a href="https://opencollective.com/elmsln/sponsor/1/website" target="_blank"><img src="https://opencollective.com/elmsln/sponsor/1/avatar.svg"></a>
-<a href="https://opencollective.com/elmsln/sponsor/2/website" target="_blank"><img src="https://opencollective.com/elmsln/sponsor/2/avatar.svg"></a>
-<a href="https://opencollective.com/elmsln/sponsor/3/website" target="_blank"><img src="https://opencollective.com/elmsln/sponsor/3/avatar.svg"></a>
-<a href="https://opencollective.com/elmsln/sponsor/4/website" target="_blank"><img src="https://opencollective.com/elmsln/sponsor/4/avatar.svg"></a>
-<a href="https://opencollective.com/elmsln/sponsor/5/website" target="_blank"><img src="https://opencollective.com/elmsln/sponsor/5/avatar.svg"></a>
-<a href="https://opencollective.com/elmsln/sponsor/6/website" target="_blank"><img src="https://opencollective.com/elmsln/sponsor/6/avatar.svg"></a>
-<a href="https://opencollective.com/elmsln/sponsor/7/website" target="_blank"><img src="https://opencollective.com/elmsln/sponsor/7/avatar.svg"></a>
-<a href="https://opencollective.com/elmsln/sponsor/8/website" target="_blank"><img src="https://opencollective.com/elmsln/sponsor/8/avatar.svg"></a>
-<a href="https://opencollective.com/elmsln/sponsor/9/website" target="_blank"><img src="https://opencollective.com/elmsln/sponsor/9/avatar.svg"></a>
-<a href="https://opencollective.com/elmsln/sponsor/10/website" target="_blank"><img src="https://opencollective.com/elmsln/sponsor/10/avatar.svg"></a>
-<a href="https://opencollective.com/elmsln/sponsor/11/website" target="_blank"><img src="https://opencollective.com/elmsln/sponsor/11/avatar.svg"></a>
-<a href="https://opencollective.com/elmsln/sponsor/12/website" target="_blank"><img src="https://opencollective.com/elmsln/sponsor/12/avatar.svg"></a>
-<a href="https://opencollective.com/elmsln/sponsor/13/website" target="_blank"><img src="https://opencollective.com/elmsln/sponsor/13/avatar.svg"></a>
-<a href="https://opencollective.com/elmsln/sponsor/14/website" target="_blank"><img src="https://opencollective.com/elmsln/sponsor/14/avatar.svg"></a>
-<a href="https://opencollective.com/elmsln/sponsor/15/website" target="_blank"><img src="https://opencollective.com/elmsln/sponsor/15/avatar.svg"></a>
-<a href="https://opencollective.com/elmsln/sponsor/16/website" target="_blank"><img src="https://opencollective.com/elmsln/sponsor/16/avatar.svg"></a>
-<a href="https://opencollective.com/elmsln/sponsor/17/website" target="_blank"><img src="https://opencollective.com/elmsln/sponsor/17/avatar.svg"></a>
-<a href="https://opencollective.com/elmsln/sponsor/18/website" target="_blank"><img src="https://opencollective.com/elmsln/sponsor/18/avatar.svg"></a>
-<a href="https://opencollective.com/elmsln/sponsor/19/website" target="_blank"><img src="https://opencollective.com/elmsln/sponsor/19/avatar.svg"></a>
-<a href="https://opencollective.com/elmsln/sponsor/20/website" target="_blank"><img src="https://opencollective.com/elmsln/sponsor/20/avatar.svg"></a>
-<a href="https://opencollective.com/elmsln/sponsor/21/website" target="_blank"><img src="https://opencollective.com/elmsln/sponsor/21/avatar.svg"></a>
-<a href="https://opencollective.com/elmsln/sponsor/22/website" target="_blank"><img src="https://opencollective.com/elmsln/sponsor/22/avatar.svg"></a>
-<a href="https://opencollective.com/elmsln/sponsor/23/website" target="_blank"><img src="https://opencollective.com/elmsln/sponsor/23/avatar.svg"></a>
-<a href="https://opencollective.com/elmsln/sponsor/24/website" target="_blank"><img src="https://opencollective.com/elmsln/sponsor/24/avatar.svg"></a>
-<a href="https://opencollective.com/elmsln/sponsor/25/website" target="_blank"><img src="https://opencollective.com/elmsln/sponsor/25/avatar.svg"></a>
-<a href="https://opencollective.com/elmsln/sponsor/26/website" target="_blank"><img src="https://opencollective.com/elmsln/sponsor/26/avatar.svg"></a>
-<a href="https://opencollective.com/elmsln/sponsor/27/website" target="_blank"><img src="https://opencollective.com/elmsln/sponsor/27/avatar.svg"></a>
-<a href="https://opencollective.com/elmsln/sponsor/28/website" target="_blank"><img src="https://opencollective.com/elmsln/sponsor/28/avatar.svg"></a>
-<a href="https://opencollective.com/elmsln/sponsor/29/website" target="_blank"><img src="https://opencollective.com/elmsln/sponsor/29/avatar.svg"></a>
 
 LICENSE
 ==============
-ELMSLN is a collection of many, many projects, all individually licensed, all open source. The myriad of License files is why this section is added to avoid confusion.
+ELMSLN is a collection of many, many projects, all individually licensed, all open source. The myriad of License files is why this section is added to avoid confusion. If you have a licensing issue / question please raise it in the issue queue.
 
-- ELMSLN code on github (and not referenced or pulled in from other sources) is GPLv3.
-- Drupal and Drupal contributed modules and themes are GPLv2 due to licensing requirements of the drupal.org community.
-- CKEditor 4.x is GPLv3
-- Other included libraries are their respective LICENSE.txt files included local to those pieces of code
+- The ELMS:LN top level repository is GPLv3, though most of the underlying code pulled in is not GPLv3. V3 enabled the greates level of licensing flexibility / compatibility with our downstream repositories
+- Drupal core and contributed modules / themes are GPLv2 due to licensing requirements of the drupal.org community.
+- For other included libraries see their respective LICENSE.txt file included local to those libraries.
