@@ -11,24 +11,22 @@
 function wysiwyg_jwysiwyg_editor() {
   $editor['jwysiwyg'] = array(
     'title' => 'jWYSIWYG',
-    'vendor url' => 'http://code.google.com/p/jwysiwyg/',
-    'download url' => 'http://code.google.com/p/jwysiwyg/downloads/list',
+    'vendor url' => 'http://github.com/akzhan/jwysiwyg',
+    'download url' => 'http://github.com/akzhan/jwysiwyg/tags',
     'libraries' => array(
       '' => array(
         'title' => 'Source',
         'files' => array('jquery.wysiwyg.js'),
       ),
-      'pack' => array(
-        'title' => 'Packed',
-        'files' => array('jquery.wysiwyg.pack.js'),
-      ),
     ),
+    'verified version range' => array('0.5', '0.97'),
     'version callback' => 'wysiwyg_jwysiwyg_version',
     'settings form callback' => 'wysiwyg_jwysiwyg_settings_form',
+    'settings callback' => 'wysiwyg_jwysiwyg_settings',
     // @todo Wrong property; add separate properties for editor requisites.
     'css path' => wysiwyg_get_path('jwysiwyg'),
     'versions' => array(
-      '0.5' => array(
+      '0.97' => array(
         'js files' => array('jwysiwyg.js'),
         'css files' => array('jquery.wysiwyg.css'),
       ),
@@ -44,6 +42,27 @@ function wysiwyg_jwysiwyg_settings_form(&$form, &$form_state) {
   $form['buttons']['#access'] = FALSE;
   $form['basic']['language']['#access'] = FALSE;
   $form['css']['#access'] = FALSE;
+}
+
+/**
+ * Return runtime editor settings for a given wysiwyg profile.
+ *
+ * @param $editor
+ *   A processed hook_editor() array of editor properties.
+ * @param $config
+ *   An array containing wysiwyg editor profile settings.
+ * @param $theme
+ *   The name of a theme/GUI/skin to use.
+ *
+ * @return
+ *   A settings array to be populated in
+ *   Drupal.settings.wysiwyg.configs.{editor}
+ */
+function wysiwyg_jwysiwyg_settings($editor, $config, $theme) {
+  $settings = array(
+    'initialContent' => '',
+  );
+  return $settings;
 }
 
 /**

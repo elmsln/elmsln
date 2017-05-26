@@ -421,7 +421,7 @@ function wysiwyg_template_save_template($template) {
     'name' => $template['name'],
     'title' => $template['title'],
     'description' => $template['description'],
-    'weight' => $template['weight'],
+    'weight' => (isset($template['weight']) ? $template['weight'] : 0),
     'fid' => $template['fid'],
     'body' => $template['body'],
     // Avoid PHP Notice when importing templates without format.
@@ -433,13 +433,15 @@ function wysiwyg_template_save_template($template) {
   // Save to database.
   if (drupal_write_record('wysiwyg_templates', $new_template, ($existing ? 'name' : array()))) {
     db_query("DELETE FROM {wysiwyg_templates_content_types} WHERE name = :name", array(':name' => $template['name']));
-    foreach ($template['content_types'] as $name => $type) {
-      if (!empty($type)) {
-        $values = array(
-          'name' => $template['name'],
-          'type' => $name,
-        );
-        drupal_write_record('wysiwyg_templates_content_types', $values);
+    if (isset($template['content_types'])) {
+      foreach ($template['content_types'] as $key => $content_type) {
+        if (!empty($content_type)) {
+          $values = array(
+            'name' => $template['name'],
+            'type' => $key,
+          );
+          drupal_write_record('wysiwyg_templates_content_types', $values);
+        }
       }
     }
     return TRUE;

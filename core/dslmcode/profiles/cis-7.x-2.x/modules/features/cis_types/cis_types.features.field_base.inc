@@ -1197,6 +1197,9 @@ function cis_types_field_default_field_bases() {
       'revision_id' => array(
         0 => 'revision_id',
       ),
+      'value' => array(
+        0 => 'value',
+      ),
     ),
     'locked' => 0,
     'module' => 'field_collection',
@@ -1204,6 +1207,7 @@ function cis_types_field_default_field_bases() {
       'cis_connector_access' => FALSE,
       'cis_connector_disable' => FALSE,
       'hide_blank_items' => 1,
+      'hide_initial_item' => FALSE,
       'path' => '',
     ),
     'translatable' => 0,
@@ -1552,6 +1556,9 @@ function cis_types_field_default_field_bases() {
       'revision_id' => array(
         0 => 'revision_id',
       ),
+      'value' => array(
+        0 => 'value',
+      ),
     ),
     'locked' => 0,
     'module' => 'field_collection',
@@ -1559,6 +1566,7 @@ function cis_types_field_default_field_bases() {
       'cis_connector_access' => FALSE,
       'cis_connector_disable' => FALSE,
       'hide_blank_items' => 0,
+      'hide_initial_item' => FALSE,
       'path' => '',
     ),
     'translatable' => 0,

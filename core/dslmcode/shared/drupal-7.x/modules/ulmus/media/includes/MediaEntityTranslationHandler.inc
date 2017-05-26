@@ -30,9 +30,14 @@ class MediaEntityTranslationHandler extends EntityTranslationDefaultHandler {
       $form['actions']['delete_translation']['#weight'] = 10;
     }
 
+    // The "Source language" element is unsupported on modal forms.
+    if (!empty($form_state['ajax'])) {
+      $form['source_language']['#access'] = FALSE;
+    }
+
     if ($this->getPathScheme() == 'media') {
       $language = $GLOBALS[LANGUAGE_TYPE_CONTENT];
-      $form_langcode = $this->getFormLanguage();
+      $form_langcode = $this->getActiveLanguage();
       $source_langcode = $this->getSourceLanguage();
       $translations = $this->getTranslations();
 

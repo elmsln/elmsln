@@ -1,12 +1,11 @@
 <?php
-
 /**
  * @file
  * Support for processing entity reference fields in Migrate.
  */
 
 /**
- * Implement hook_migrate_api().
+ * Implements hook_migrate_api().
  */
 function entityreference_migrate_api() {
   return array(
@@ -15,7 +14,14 @@ function entityreference_migrate_api() {
   );
 }
 
+/**
+ * Extended class for handling entityreference fields.
+ */
 class MigrateEntityReferenceFieldHandler extends MigrateSimpleFieldHandler {
+
+  /**
+   * Constructor.
+   */
   public function __construct() {
     parent::__construct(array(
       'value_key' => 'target_id',

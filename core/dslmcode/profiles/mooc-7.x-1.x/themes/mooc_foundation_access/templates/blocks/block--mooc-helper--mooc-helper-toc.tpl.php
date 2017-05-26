@@ -1,8 +1,7 @@
-<section id="<?php print $block_html_id ?>-nav-modal" class="modal elmsln-modal elmsln-modal-hidden disable-scroll" tabindex="-1" aria-label="<?php print t('Table of contents'); ?>" aria-hidden="true" role="dialog">
+<section id="<?php print $block_html_id ?>-nav-modal" class="modal elmsln-modal elmsln-modal-hidden disable-scroll" tabindex="-1" aria-label="<?php print t('Course outline'); ?>" aria-hidden="true" role="dialog">
   <div class="center-align valign-wrapper elmsln-modal-title-wrapper cis-lmsless-dark cis-lmsless-border">
-  <?php print l('<i class="material-icons black-text left">home</i><span class="hide-on-med-and-down">' . t('Home') . '</span>', '<front>', array('html' => TRUE, 'attributes' => array('data-voicecommand' => t('home'), 'class' => array('waves-effect waves-light btn-large white black-text mooc-home-button'))));?>
-  <h2 class="flow-text valign elmsln-modal-title white-text"><?php print t('Table of contents'); ?></h2>
-  <a href="#" class="close-reveal-modal white-text" aria-label="<?php print t('Close'); ?>" data-voicecommand="close (menu)" data-jwerty-key="Esc">&#215;</a>
+  <h2 class="flow-text valign elmsln-modal-title white-text"><?php print t('Course outline'); ?></h2>
+  <a href="#" class="close-reveal-modal white-text" aria-label="<?php print t('Close'); ?>" data-voicecommand="close (menu)" data-jwerty-key="Esc"><paper-button>&#215;</paper-button></a>
   </div>
   <div class="mooc-outline-modal-content elmsln-scroll-bar">
     <?php print $content; ?>

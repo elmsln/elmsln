@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * Node module integration.
@@ -18,18 +19,22 @@ function node_custom_formatters_devel_generate_info() {
 
 /**
  * Process callback for Node Devel Generate integration.
+ *
+ * @param $form_state
+ *
+ * @return stdClass
  */
 function custom_formatters_node_devel_generate_process($form_state) {
   module_load_include('inc', 'devel_generate', 'devel_generate');
 
-  $object = new stdClass();
-  $object->nid = mt_rand(1, 100);
-  $object->type = $form_state['values']['preview']['bundle'];
-  $object->uid = $GLOBALS['user']->uid;
-  $type = node_type_get_type($object);
-  $object->title = $type->has_title ? devel_create_greeking(mt_rand(2, rand(4, 10)), TRUE) : '';
+  $object           = new stdClass();
+  $object->nid      = mt_rand(1, 100);
+  $object->type     = $form_state['values']['preview']['bundle'];
+  $object->uid      = $GLOBALS['user']->uid;
+  $type             = node_type_get_type($object);
+  $object->title    = $type->has_title ? devel_create_greeking(mt_rand(2, rand(4, 10)), TRUE) : '';
   $object->revision = mt_rand(0, 1);
-  $object->promote = mt_rand(0, 1);
+  $object->promote  = mt_rand(0, 1);
 
   devel_generate_set_language(array(), $object);
 

@@ -12,3 +12,10 @@ features[features_overrides][] = filter.textbook_editor.filters|filter_mathjax
 features[features_overrides][] = wysiwyg.textbook_editor.settings|buttons|mathjax
 features[variable][] = mathjax_config_string
 features[variable][] = mathjax_config_type
+
+; Information added by Drupal.org packaging script on 2017-04-20
+version = "7.x-4.3+2-dev"
+core = "7.x"
+project = "textbook"
+datestamp = "1492703352"
+

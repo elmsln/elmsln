@@ -1,3 +1,14 @@
+ELMSLN 0.8.0, 2017-05-26 - Kunitz
+This release fixes 53 issues since the last release, with 99 since 0.7.0. This is a the beginning of a paradigm shift for the project with regard to design. The system is starting to take on the UX patterns of Material more directly through the core adoption of Web Component architecture across the entire platform. The theme hasn't been completely replaced but it has had major design overhauls since 0.7.x and is drastically easier to navigate / learn.
+
+We've also started to get the build process down for Polymer / Webcomponent architecture and now have 100s of web components available for usage, many of which have experimental support for HAX. There have been a lot of minor bugs fixed associated with the studio, network wide communications edge cases, and performance improvements related to syncing. Git book based workflows for markdow ingestion have also been drastically improved and are now being utilized in production deploys (at PSU).
+
+There is also experimental support for one-page-apps which will start the process of rapidly improving the UX patterns within different parts of the system both in terms of user experience as well as performance and responsiveness. ELMS:LN will start to feel more like an app unlocking the power of an ecosystem rather then a complex architecture full of "lots of stuff".
+
+A community note attached to this release cycle: ELMS:LN has also been formally accepted into the Apereo Incubation program which is a huge next step for our community!
+
+To read about the changes in this release see: https://github.com/elmsln/elmsln/milestone/18?closed=1
+
 ELMSLN 0.7.1, 2017-02-22 - MileHigh
 This release fixes 46 issues since the last release. Major improvements in stability to Studio which is starting to gain critique capabilities. We're also seeing improved ability to maintain and establish course / section context when jumping domains. We're starting to improve data visualization on dashboards for xAPI data which now can be visible everywhere.
 

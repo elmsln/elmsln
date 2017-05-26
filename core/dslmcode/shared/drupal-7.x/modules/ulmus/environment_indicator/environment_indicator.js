@@ -84,15 +84,15 @@
       $('.environment-switcher a', context).click(function (e) {
         e.preventDefault();
         var current_location = window.location;
-        window.location.href = current_location.protocol + '//' + e.currentTarget.hostname + current_location.pathname + current_location.search + current_location.hash;
+        window.location.href = current_location.protocol + '//' + e.currentTarget.host + current_location.pathname + current_location.search + current_location.hash;
       });
       $('#environment-indicator .environment-indicator-name, #toolbar .environment-indicator-name-wrapper, #navbar-bar .environment-indicator-name-wrapper', context).click(function () {
         $('#environment-indicator .item-list, #toolbar .item-list, #navbar-bar .item-list', context).slideToggle('fast');
       });
-      $('#environment-indicator.position-top.fixed-yes').once(function () {
+      $('#environment-indicator.position-top.fixed-yes').once('environment_indicator_top', function () {
         $('body').css('margin-top', $('#environment-indicator.position-top.fixed-yes').height() + 'px');
       });
-      $('#environment-indicator.position-bottom.fixed-yes').once(function () {
+      $('#environment-indicator.position-bottom.fixed-yes').once('environment_indicator_bottom', function () {
         $('body').css('margin-bottom', $('#environment-indicator.position-bottom.fixed-yes').height() + 'px');
       });
     }

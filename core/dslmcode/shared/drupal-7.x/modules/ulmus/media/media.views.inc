@@ -19,7 +19,7 @@ function media_views_plugins() {
   if (module_exists('search_api')) {
     // If the Search API module exists, also allow indices of the file-entity
     // that has the fid field indexed.
-    $indices = search_api_index_load_multiple(NULL);
+    $indices = search_api_index_load_multiple(FALSE);
     foreach ($indices as $machine_name => $index) {
       if ($index->item_type == 'file' && isset($index->options['fields']['fid'])) {
         $base[] = 'search_api_index_' . $machine_name;
@@ -74,10 +74,21 @@ function template_preprocess_media_views_view_media_browser(&$vars) {
   $files = file_load_multiple($fids);
 
   // Render the preview for each file.
+  $params = media_get_browser_params();
+  $view_mode = isset($params['view_mode']) ? $params['view_mode'] : 'preview';
+
   foreach ($vars['rows'] as $index => $row) {
+
+    // If the view result is cached, then the result may include fids that no
+    // longer exist.
+    if (!isset($files[$row->fid])) {
+      unset($vars['rows'][$index]);
+      continue;
+    }
+
     $file = $files[$row->fid];
     // Add url/preview to the file object.
-    media_browser_build_media_item($file);
+    media_browser_build_media_item($file, $view_mode);
     $vars['rows'][$index] = $file;
     $vars['rows'][$index]->preview = $file->preview;
   }
@@ -118,7 +129,7 @@ function template_preprocess_media_views_view_media_browser(&$vars) {
   // Run theming variables through a standard Views preprocess function.
   template_preprocess_views_view_unformatted($vars);
 
-  // Add media browser javascript and CSS.
+  // Add media browser JavaScript and CSS.
   drupal_add_js(drupal_get_path('module', 'media') . '/js/plugins/media.views.js');
 }
 
@@ -126,6 +137,5 @@ function template_preprocess_media_views_view_media_browser(&$vars) {
  * Implements hook_views_invalidate_cache().
  */
 function media_views_invalidate_cache() {
-  cache_clear_all('media:browser:plugin', 'cache', TRUE);
   drupal_static_reset('media_get_browser_plugin_info');
 }

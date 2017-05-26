@@ -106,7 +106,7 @@ function devel_themer_log() {
       if (is_array($call)) {
         $id = "devel_theme_log_link_$counter";
         $marker = "<div id=\"$id\" class=\"devel_theme_log_link\"></div>\n";
-
+        $items = array();
         $used = $call['used'];
         if ($call['type'] == 'func') {
           $name = $call['name'] . '()';

@@ -411,18 +411,8 @@ class view extends views_db_object {
    * Figure out what the exposed input for this view is.
    */
   function get_exposed_input() {
-    // Fill our input either from $_GET or from something previously set on the
-    // view.
     if (empty($this->exposed_input)) {
-      $this->exposed_input = $_GET;
-      // unset items that are definitely not our input:
-      foreach (array('page', 'q') as $key) {
-        if (isset($this->exposed_input[$key])) {
-          unset($this->exposed_input[$key]);
-        }
-      }
-
-      // If we have no input at all, check for remembered input via session.
+      $this->exposed_input = array();
 
       // If filters are not overridden, store the 'remember' settings on the
       // default display. If they are, store them on this display. This way,
@@ -430,8 +420,16 @@ class view extends views_db_object {
       // remember settings.
       $display_id = ($this->display_handler->is_defaulted('filters')) ? 'default' : $this->current_display;
 
-      if (empty($this->exposed_input) && !empty($_SESSION['views'][$this->name][$display_id])) {
+      // Start with remembered input via session.
+      if (!empty($_SESSION['views'][$this->name][$display_id])) {
         $this->exposed_input = $_SESSION['views'][$this->name][$display_id];
+      }
+
+      // Fetch exposed input values from $_GET. Overwrite if clashing.
+      foreach ($_GET as $key => $value) {
+        if (!in_array($key, array('page', 'q'))) {
+          $this->exposed_input[$key] = $value;
+        }
       }
     }
 
@@ -685,6 +683,10 @@ class view extends views_db_object {
    */
   function init_pager() {
     if (empty($this->query->pager)) {
+      // If the query doesn't exist, initialize it.
+      if (empty($this->query)) {
+        $this->init_query();
+      }
       $this->query->pager = $this->display_handler->get_plugin('pager');
 
       if ($this->query->pager->use_pager()) {
@@ -1282,7 +1284,7 @@ class view extends views_db_object {
     foreach ($GLOBALS['base_theme_info'] as $base) {
       $function = $base->name . '_views_post_render';
       if (function_exists($function)) {
-        $function($this);
+        $function($this, $this->display_handler->output, $cache);
       }
     }
     $function = $GLOBALS['theme'] . '_views_post_render';
@@ -1478,7 +1480,7 @@ class view extends views_db_object {
    * this sets the display handler if it hasn't been.
    */
   function access($displays = NULL, $account = NULL) {
-    // Noone should have access to disabled views.
+    // No one should have access to disabled views.
     if (!empty($this->disabled)) {
       return FALSE;
     }
@@ -1960,12 +1962,12 @@ class view extends views_db_object {
    *    The cloned view.
    */
   function clone_view() {
-    $clone = version_compare(phpversion(), '5.0') < 0 ? $this : clone($this);
+    $clone = clone $this;
 
     $keys = array('current_display', 'display_handler', 'build_info', 'built', 'executed', 'attachment_before', 'attachment_after', 'field', 'argument', 'filter', 'sort', 'relationship', 'header', 'footer', 'empty', 'query', 'inited', 'style_plugin', 'plugin_name', 'exposed_data', 'exposed_input', 'exposed_widgets', 'many_to_one_tables', 'feed_icon');
     foreach ($keys as $key) {
-      if (isset($clone->$key)) {
-        unset($clone->$key);
+      if (isset($clone->{$key})) {
+        unset($clone->{$key});
       }
     }
     $clone->built = $clone->executed = FALSE;
@@ -1994,7 +1996,7 @@ class view extends views_db_object {
    */
   function destroy() {
     foreach (array_keys($this->display) as $display_id) {
-      if (isset($this->display[$display_id]->handler)) {
+      if (isset($this->display[$display_id]->handler) && is_object($this->display[$display_id]->handler)) {
         $this->display[$display_id]->handler->destroy();
         unset($this->display[$display_id]->handler);
       }

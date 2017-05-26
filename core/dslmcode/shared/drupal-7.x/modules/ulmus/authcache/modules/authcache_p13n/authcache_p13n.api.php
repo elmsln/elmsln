@@ -109,7 +109,7 @@ function hook_authcache_p13n_assembly() {
         '#member_of' => 'partials',
         '#key' => 'f1',
       ),
-      'fragment f1' => array(
+      'fragment f2' => array(
         '#class' => 'AuthcacheFlagFlagFragment',
         '#arguments' => array(
           'friends',

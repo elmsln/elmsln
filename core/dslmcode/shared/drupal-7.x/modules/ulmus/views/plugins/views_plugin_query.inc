@@ -39,6 +39,9 @@ class views_plugin_query extends views_plugin {
    *
    * @param $get_count
    *   Provide a countquery if this is true, otherwise provide a normal query.
+   *
+   * @return SelectQuery
+   *   A SelectQuery object.
    */
   function query($get_count = FALSE) { }
 

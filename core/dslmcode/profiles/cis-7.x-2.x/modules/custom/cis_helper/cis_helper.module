@@ -113,11 +113,40 @@ function _cis_helper_sync_network() {
           'elmsln_module' => 'cis_helper',
           'elmsln_callback' => 'populate_course_network',
           'queue' => TRUE,
+          'staff' => _cis_helper_get_staff(),
         ),
       );
       _elmsln_api_nonblocking_requests(array($nonblock));
     }
   }
+}
+
+/**
+ * Helper function to pull staff members from CIS database tables
+ * directly. This is more performant then potentially loading all
+ * users just to get this listing.
+ *
+ * @return array  an array of staff members
+ */
+function _cis_helper_get_staff() {
+  $staff = array();
+  // add in the users from CIS who are global users
+  $query = db_select('users', 'u');
+  $query->addField('u', 'uid');
+  $query->addField('u', 'name', 'user_name');
+  $query->addField('u', 'mail', 'mail');
+  $query->condition('u.status', 1);
+  $query->innerJoin('users_roles', 'ur', 'u.uid = ur.uid');
+  $query->innerJoin('role', 'r', 'ur.rid = r.rid');
+  $query->addField('r', 'name', 'role_name');
+  $query->condition('r.name', 'staff');
+  $staffresult = $query->execute();
+  $staff = array();
+  // Build up the array of data to return
+  foreach ($staffresult->fetchAll() as $row) {
+    $staff[$row->user_name] = $row->mail;
+  }
+  return $staff;
 }
 
 /**
@@ -420,6 +449,17 @@ function cis_helper_menu() {
     'file' => 'cis_helper.admin.inc',
     'file path' => $path,
   );
+  // sync all rosters
+  $items['admin/config/system/cis/sync-roster'] = array(
+    'title' => 'Sync Roster',
+    'description' => 'Sync the roster for this course',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('cis_helper_sync_rosters_confirm'),
+    'access arguments' => array('administer site configuration'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'cis_helper.pages.inc',
+    'file path' => $path,
+  );
   // admin settings for CIS
   $items['admin/config/system/integrations'] = array(
     'title' => 'Global integrations',
@@ -430,7 +470,6 @@ function cis_helper_menu() {
     'type' => MENU_NORMAL_ITEM,
     'file' => 'cis_helper.admin.inc',
     'file path' => $path,
-    'menu_name' => 'menu-elmsln-settings',
     'weight' => 10,
   );
   // quick setup form
@@ -711,6 +750,7 @@ function cis_helper_entity_insert($entity, $type) {
         'elmsln_module' => 'cis_helper',
         'elmsln_callback' => 'populate_course_network',
         'course' => $course->field_machine_name[LANGUAGE_NONE][0]['value'],
+        'staff' => _cis_helper_get_staff(),
       ),
     );
     _elmsln_api_request($request, TRUE);
@@ -721,6 +761,7 @@ function cis_helper_entity_insert($entity, $type) {
       'machine_name' => $entity->field_machine_name[LANGUAGE_NONE][0]['value'],
       'uuid' => $entity->uuid,
     );
+    unset($_GET['elmsln_course']);
     _elmsln_api_course_sync($properties, '1', TRUE);
   }
   // check to see if a service_instance is being inserted
@@ -764,6 +805,7 @@ function cis_helper_entity_insert($entity, $type) {
         'elmsln_module' => 'cis_helper',
         'elmsln_callback' => 'populate_course_network',
         'course' => $course->field_machine_name[LANGUAGE_NONE][0]['value'],
+        'staff' => _cis_helper_get_staff(),
       ),
     );
     _elmsln_api_request($request, TRUE);
@@ -787,6 +829,7 @@ function cis_helper_entity_update($entity, $type) {
     }
     // if anything changed let's ship this off everywhere
     if (!empty($properties)) {
+      unset($_GET['elmsln_course']);
       _elmsln_api_course_sync($properties, '1', TRUE);
     }
   }

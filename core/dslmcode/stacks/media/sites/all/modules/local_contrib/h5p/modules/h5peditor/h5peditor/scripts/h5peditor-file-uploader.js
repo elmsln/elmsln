@@ -23,12 +23,11 @@ H5PEditor.FileUploader = (function ($, EventDispatcher) {
      * @param {string} [data] Optional for uploading string data (URI)
      * @return {boolean} false if the iframe is unavailable and the caller should try again later
      */
-    var upload = function (data) {
+    var upload = function (data, files) {
       if (!nextIframe.isReady()) {
         return false; // Iframe isn't loaded. The caller should try again later
       }
-
-      isUploadingData = (data !== undefined);
+      isUploadingData = (data !== undefined && data !== null) || (files !== undefined);
 
       // Add event listeners
       nextIframe.on('upload', function (event) {
@@ -39,7 +38,7 @@ H5PEditor.FileUploader = (function ($, EventDispatcher) {
       });
 
       // Update field
-      nextIframe.setField(field, data);
+      nextIframe.setField(field, data, files);
 
       return true;
     };
@@ -63,6 +62,10 @@ H5PEditor.FileUploader = (function ($, EventDispatcher) {
         throw('Missing data.');
       }
       return upload(data);
+    };
+
+    self.uploadFiles = function (files) {
+      return upload(null, files);
     };
 
     /**
@@ -107,7 +110,6 @@ H5PEditor.FileUploader = (function ($, EventDispatcher) {
     var upload = function () {
       // Iframe isn't really bound to a field until the upload starts
       ready = false;
-
       // Trigger upload event and submit upload form
       self.trigger('upload');
       $form.submit();
@@ -244,7 +246,7 @@ H5PEditor.FileUploader = (function ($, EventDispatcher) {
      * @param {Object} field
      * @param {string} [data] Optional URI
      */
-    self.setField = function (field, data) {
+    self.setField = function (field, data, files) {
       // Determine allowed file mimes
       var mimes;
       if (field.mimes) {
@@ -265,7 +267,9 @@ H5PEditor.FileUploader = (function ($, EventDispatcher) {
       // Set field
       $field.val(JSON.stringify(field));
 
-      if (data !== undefined) {
+      if (files !== undefined) {
+        $file.prop('files', files);
+      } else if (data !== undefined) {
         // Upload given data
         $data.val(data);
         upload();

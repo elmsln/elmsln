@@ -184,3 +184,26 @@ function cle_helper_ecd_asset_type_alter(&$type, $node) {
   // anything coming from here is content
   $type = 'content';
 }
+
+/**
+ * Implements hook_wrapped_paths().
+ */
+function cle_helper_wrapped_paths() {
+  $paths = array(
+    'node/*' => FALSE,
+    'cle/app' => FALSE,
+    'cle/app/*' => FALSE,
+  );
+  return $paths;
+}
+
+/**
+ * Implements hook_foundation_access_tabs_alter().
+ */
+function cle_helper_foundation_access_tabs_alter(&$tabs) {
+  $tabs[] = 'node/%/data';
+  $tabs[] = 'node/%/view';
+  $tabs[] = 'comment/%/view';
+  $tabs[] = 'comment/%/delete';
+  $tabs[] = 'comment/%/devel';
+}

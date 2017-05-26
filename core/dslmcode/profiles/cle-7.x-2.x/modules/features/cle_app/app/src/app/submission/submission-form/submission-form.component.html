@@ -20,7 +20,7 @@
   </app-submission-critique>
 
   <div class="actions">
-    <button type="submit" class="btn" (click)="submit()" [ngClass]="{'disabled': (savingImage$ | async)}">Save</button>
-    <a class="btn" (click)="cancel()" [ngClass]="{'disabled': (savingImage$ | async)}">Cancel</a>
+    <button type="submit" class="btn" (click)="submit()" [ngClass]="{'disabled': !(savable | async)}">Save</button>
+    <a class="btn" (click)="cancel()" [ngClass]="{'disabled': !(savable | async)}">Cancel</a>
   </div>
 </form>

@@ -1,0 +1,28 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the schemaorg_event feature.
+ */
+
+
+/**
+ * Implements hook_disable().
+ */
+function schemaorg_event_disable() {
+  // There is currently a bug in features / core which prevents the content type
+  // delete link to be displayed for content types created with features.
+  // A message is displayed with a link to the content type delete form.
+  _schemaorg_event_show_disable_message();
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function schemaorg_event_uninstall() {
+  _schemaorg_event_show_disable_message();
+}
+
+function _schemaorg_event_show_disable_message() {
+  drupal_set_message('The event content type was not automatically removed. If you want to completely remove this content type and its fields, please browse to the <a href="'. url('admin/structure/types/manage/schemaorg-event/delete') .'">content type delete</a> form.', 'warning');
+}

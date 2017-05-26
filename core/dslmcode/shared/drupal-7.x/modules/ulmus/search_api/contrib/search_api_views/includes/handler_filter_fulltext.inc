@@ -119,7 +119,17 @@ class SearchApiViewsHandlerFilterFulltext extends SearchApiViewsHandlerFilterTex
     }
 
     $words = preg_split('/\s+/', $input);
+    $quoted = FALSE;
     foreach ($words as $i => $word) {
+      // Protect quoted strings.
+      if ($quoted && $word[strlen($word) - 1] === '"') {
+        $quoted = FALSE;
+        continue;
+      }
+      if ($quoted || $word[0] === '"') {
+        $quoted = TRUE;
+        continue;
+      }
       if (drupal_strlen($word) < $this->options['min_length']) {
         unset($words[$i]);
       }

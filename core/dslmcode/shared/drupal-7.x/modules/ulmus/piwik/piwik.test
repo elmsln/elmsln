@@ -6,6 +6,13 @@
  */
 class PiwikBasicTest extends DrupalWebTestCase {
 
+  /**
+   * User without permissions to edit snippets.
+   *
+   * @var \StdClass
+   */
+  protected $noSnippetUser;
+
   public static function getInfo() {
     return array(
       'name' => t('Piwik basic tests'),
@@ -23,6 +30,8 @@ class PiwikBasicTest extends DrupalWebTestCase {
     );
 
     // User to set up piwik.
+    $this->noSnippetUser = $this->drupalCreateUser($permissions);
+    $permissions[] = 'add JS snippets for piwik';
     $this->admin_user = $this->drupalCreateUser($permissions);
     $this->drupalLogin($this->admin_user);
   }
@@ -36,6 +45,22 @@ class PiwikBasicTest extends DrupalWebTestCase {
     $edit['piwik_site_id'] = $this->randomName(2);
     $this->drupalPost('admin/config/system/piwik', $edit, 'Save configuration');
     $this->assertRaw(t('A valid Piwik site ID is an integer only.'), '[testPiwikConfiguration]: Invalid Piwik site ID number validated.');
+
+    // User should have access to code snippets.
+    $this->assertFieldByName('piwik_codesnippet_before');
+    $this->assertFieldByName('piwik_codesnippet_after');
+    $this->assertNoFieldByXPath("//textarea[@name='piwik_codesnippet_before' and @disabled='disabled']", NULL, '"Code snippet (before)" is enabled.');
+    $this->assertNoFieldByXPath("//textarea[@name='piwik_codesnippet_after' and @disabled='disabled']", NULL, '"Code snippet (after)" is enabled.');
+
+    // Login as user without JS permissions.
+    $this->drupalLogin($this->noSnippetUser);
+    $this->drupalGet('admin/config/system/piwik');
+
+    // User should *not* have access to snippets, but create fields.
+    $this->assertFieldByName('piwik_codesnippet_before');
+    $this->assertFieldByName('piwik_codesnippet_after');
+    $this->assertFieldByXPath("//textarea[@name='piwik_codesnippet_before' and @disabled='disabled']", NULL, '"Code snippet (before)" is disabled.');
+    $this->assertFieldByXPath("//textarea[@name='piwik_codesnippet_after' and @disabled='disabled']", NULL, '"Code snippet (after)" is disabled.');
   }
 
   function testPiwikPageVisibility() {

@@ -1,0 +1,12 @@
+name = Authcache Enum Test Stub
+description = Authcache Enum Test Stub
+core = 7.x
+hidden = TRUE
+dependencies[] = authcache_test_hookstub
+
+; Information added by Drupal.org packaging script on 2017-04-18
+version = "7.x-2.1"
+core = "7.x"
+project = "authcache"
+datestamp = "1492517046"
+

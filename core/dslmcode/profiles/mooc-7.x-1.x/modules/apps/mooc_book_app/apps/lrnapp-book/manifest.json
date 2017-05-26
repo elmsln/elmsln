@@ -1,0 +1,18 @@
+{
+  "name": "lrnapp-book",
+  "short_name": "lrnapp-book",
+  "title": "MOOC as app",
+  "description": "load a book and it's pages via ajax",
+  "start_url": "/",
+  "display": "standalone",
+  "drupal": {
+    "menu": {
+      "menu_name": "menu-elmsln-navigation",
+      "weight": 10
+    },
+    "data": {
+      "callback": "_mooc_page_player_data",
+      "property": "source-path"
+    }
+  }
+}

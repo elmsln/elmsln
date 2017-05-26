@@ -230,7 +230,6 @@ function scheduler_get_date_only_format($format) {
  * @see scheduler_form_node_type_form_alter()
  */
 function _scheduler_form_node_type_form_alter(&$form, $form_state) {
-  drupal_add_css(drupal_get_path('module', 'scheduler') . '/scheduler.css');
   $form['scheduler'] = array(
     '#type' => 'fieldset',
     '#title' => t('Scheduler'),
@@ -508,9 +507,16 @@ function theme_scheduler_timecheck($variables) {
 /**
  * Page callback: Displays a list of nodes scheduled for (un)publication.
  *
- * This will appear as a tab on the content admin page ('admin/content'). It is
- * also shown as a tab on the 'My account' page if the user has permission to
- * schedule content.
+ * This will appear as a tab on the Scheduler admin page at
+ * admin/config/content/scheduler/list and the content admin page at
+ * admin/content/scheduler. It is also shown on the 'My account' page
+ * user/{uid}/scheduler if the user has permission to schedule content.
+ *
+ * @param string
+ *   'user_only' if viewing a user page, NULL otherwise.
+ *
+ * @param int
+ *   The uid when viewing a user page, NULL otherwise.
  *
  * @return array
  *   A render array for a page containing a list of nodes.
@@ -567,6 +573,8 @@ function scheduler_list() {
   $args = func_get_args();
   if ($args[0] == 'user_only') {
     $query->condition('n.uid', $args[1], '=');
+    // Get user account for use later.
+    $user = user_load($args[1]);
   }
   $query = $query->extend('TableSort')->orderByHeader($header);
   $result = $query->execute();
@@ -615,7 +623,6 @@ function scheduler_list() {
       ),
     );
   }
-  global $user;
   $build['scheduler_list'] = array(
     '#theme' => 'table',
     '#header' => $header,

@@ -4,6 +4,11 @@
  * Test cases for the Authcache Commerce module.
  */
 
+// Nothing to test if CommerceCartTestCase does not exist.
+if (!class_exists('CommerceCartTestCase')) {
+  return;
+}
+
 /**
  * Tests for markup substitution.
  */

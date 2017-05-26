@@ -83,6 +83,22 @@
   };
 
   /**
+   * Unescapes the given string.
+   */
+  Drupal.autocomplete_deluxe.unescape = function (input) {
+    // Unescaping is done via a textarea, since the text inside of it is never
+    // executed. This method also allows us to support older browsers like
+    // IE 9 and below.
+    var textArea = document.createElement('textarea');
+    textArea.innerHTML = input;
+    var decoded = textArea.value;
+    if ('remove' in Element.prototype) {
+      textArea.remove();
+    }
+    return decoded;
+  };
+
+  /**
    * If there is no result this label will be shown.
    * @type {{label: string, value: string}}
    */
@@ -177,7 +193,7 @@
       return result;
     };
 
-    var cache = {}
+    var cache = {};
     var lastXhr = null;
 
     this.source = function(request, response) {
@@ -296,14 +312,17 @@
     }
 
     this.value = item.value;
-    this.element = $('<span class="autocomplete-deluxe-item">' + item.label + '</span>');
+    this.element = $('<span class="autocomplete-deluxe-item"></span>');
+    this.element.text(item.label);
     this.widget = widget;
     this.item = item;
     var self = this;
 
     var close = $('<a class="autocomplete-deluxe-item-delete" href="javascript:void(0)"></a>').appendTo(this.element);
     // Use single quotes because of the double quote encoded stuff.
-    var input = $('<input type="hidden" value=\'' + this.value + '\'/>').appendTo(this.element);
+    var input = $('<input type="hidden"/>')
+    input.val(this.value);
+    input.appendTo(this.element);
 
     close.mousedown(function() {
       self.remove(item);
@@ -381,7 +400,13 @@
     });
 
     jqObject.bind("autocompleteselect", function(event, ui) {
-      self.addValue(ui.item);
+      // JQuery ui autocomplete needs the terms escaped, otherwise it would be
+      // open to XSS issues. Drupal.autocomplete.Item also escapes on rendering
+      // the DOM elements. Thus we have to unescape the label here before adding
+      // the new item.
+      var item = ui.item;
+      item.label = Drupal.autocomplete_deluxe.unescape(item.label);
+      self.addValue(item);
       jqObject.width(25);
       // Return false to prevent setting the last term as value for the jqObject.
       return false;

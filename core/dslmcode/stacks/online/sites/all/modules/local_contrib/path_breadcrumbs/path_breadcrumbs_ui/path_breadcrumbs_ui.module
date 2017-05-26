@@ -200,9 +200,15 @@ function path_breadcrumbs_ui_add_form($form, &$form_state, $show_navigation = TR
   $form['#prefix'] = '<div id="path-breadcrumbs-ui-form-wrapper" class="' . $class . '">';
   $form['#suffix'] = '</div>';
 
+  // Save query destination to redirect on AJAX submit.
+  if (!isset($form_state['storage']['destination']) && isset($_GET['destination'])) {
+    $form_state['storage']['destination'] = $_GET['destination'];
+  }
+
   if (!isset($form_state['storage']['step'])) {
     $form_state['storage']['step'] = 1;
   }
+
   $step = $form_state['storage']['step'];
 
   if ($show_navigation) {
@@ -360,7 +366,7 @@ function _path_breadcrumbs_ui_add_form_finish_ajax_callback($form, &$form_state)
     // Save breadcrumb from cache to permanent storage.
     $breadcrumb = path_breadcrumbs_object_cache_get($form_state['storage']['machine_name']);
     path_breadcrumbs_save($breadcrumb);
-    drupal_set_message(filter_xss(t('New breadcrumb !name was created.', array('!name' => $breadcrumb->name))));
+    drupal_set_message(t('New breadcrumb @name was created.', array('@name' => $breadcrumb->name)));
 
     // Redirect user to page with breadcrumbs list.
     ctools_include('ajax');
@@ -428,6 +434,16 @@ function _path_breadcrumbs_ui_form_step_basic_settings(&$form, &$form_state) {
  * @param $form_state
  */
 function _path_breadcrumbs_ui_form_step_basic_settings_validate(&$form, &$form_state) {
+  // Check for RFC 3986 URL percent-encoded sequences.
+  if (preg_match('/((%[0-9a-fA-f]{2}).*?)(\/|$)/', $form_state['values']['path'], $matches)) {
+    form_error($form['path'], t('Please rename token %token. Tokens started with %sequence are reserved.', array('%sequence' => $matches[2], '%token' => $matches[1])));
+  }
+
+  // Aliases are not supported.
+  $unaliased_path = drupal_lookup_path('source', $form_state['values']['path']);
+  if ($unaliased_path) {
+    form_error($form['path'], t('Path %alias is an alias. Use system path %path instead.', array('%alias' => $form_state['values']['path'], '%path' => $unaliased_path)));
+  }
 
   $path = explode('/', $form_state['values']['path']);
   $correct_path = array();
@@ -719,13 +735,13 @@ function _path_breadcrumbs_ui_form_step_breadcrumbs_settings(&$form, &$form_stat
 
     $form['breadcrumbs_table'][$unique_hash]['left_value'] = array(
       '#type'          => 'textfield',
-      '#default_value' => isset($breadcrumb->titles[$i]) ? $breadcrumb->titles[$i] : '',
+      '#default_value' => isset($breadcrumb->titles[$i]) ? filter_xss($breadcrumb->titles[$i], array('none', 'front')) : '',
       '#maxlength' => 256,
     );
 
     $form['breadcrumbs_table'][$unique_hash]['right_value'] = array(
       '#type'          => 'textfield',
-      '#default_value' => isset($breadcrumb->paths[$i]) ? $breadcrumb->paths[$i] : '',
+      '#default_value' => isset($breadcrumb->paths[$i]) ? filter_xss($breadcrumb->paths[$i], array('none', 'front')) : '',
       '#maxlength' => 256,
     );
 
@@ -1282,8 +1298,9 @@ function path_breadcrumbs_ui_edit_form_ajax_callback($form, $form_state) {
       // should be added to keep module works properly for all versions.
       ctools_add_js('ajax-responder');
 
+      $destination = isset($form_state['storage']['destination']) ? $form_state['storage']['destination'] : 'admin/structure/path-breadcrumbs';
       $commands = array();
-      $commands[] = ctools_ajax_command_redirect('admin/structure/path-breadcrumbs');
+      $commands[] = ctools_ajax_command_redirect($destination);
       return array('#type' => 'ajax', '#commands' => $commands);
     }
   }

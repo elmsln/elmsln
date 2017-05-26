@@ -31,3 +31,16 @@ function better_exposed_filters_disable() {
     drupal_set_message($message, 'warning');
   }
 }
+
+/*
+ * Implementations of hook_update_N.
+ *
+ * Comments above each function appear in the update database message.
+ */
+/**
+ * Rebuild the theme registry to discover new theme_bef_checkbox() function.
+ */
+function better_exposed_filters_update_7000() {
+  drupal_theme_rebuild();
+  return t('Theme registry has been rebuilt.');
+}

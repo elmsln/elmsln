@@ -64,7 +64,7 @@ function ctools_drush_command() {
       'machine names' => 'Space separated list of exportables you want to view.',
     ),
     'options' => array(
-      'indent' => 'The string to use for indentation when dispalying the exportable export code. Defaults to \'\'.',
+      'indent' => 'The string to use for indentation when displaying the exportable export code. Defaults to \'\'.',
       'no-colour' => 'Remove any colour formatting from export string output. Ideal if you are sending the output of this command to a file.',
       'module' => $module_text,
       'all' => $all_text,

@@ -61,7 +61,6 @@ class views_handler_area_result extends views_handler_area {
     // Calculate the page totals.
     $current_page = (int) $this->view->get_current_page() + 1;
     $per_page = (int) $this->view->get_items_per_page();
-    $count = count($this->view->result);
     // @TODO: Maybe use a possible is views empty functionality.
     // Not every view has total_rows set, use view->result instead.
     $total = isset($this->view->total_rows) ? $this->view->total_rows : count($this->view->result);

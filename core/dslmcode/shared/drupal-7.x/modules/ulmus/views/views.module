@@ -377,7 +377,7 @@ function views_menu() {
     'file' => 'includes/ajax.inc',
   );
   // Define another taxonomy autocomplete because the default one of drupal
-  // does not support a vid a argument anymore
+  // does not support a vid a argument anymore.
   $items['admin/views/ajax/autocomplete/taxonomy'] = array(
     'page callback' => 'views_ajax_autocomplete_taxonomy',
     'theme callback' => 'ajax_base_page_theme',

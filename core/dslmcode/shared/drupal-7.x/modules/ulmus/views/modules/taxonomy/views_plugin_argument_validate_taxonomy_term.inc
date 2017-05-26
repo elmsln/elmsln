@@ -97,7 +97,7 @@ class views_plugin_argument_validate_taxonomy_term extends views_plugin_argument
         $query->leftJoin('taxonomy_vocabulary', 'tv', 'td.vid = tv.vid');
         $query->fields('td');
         $query->condition('td.tid', $argument);
-        $query->addTag('term_access');
+        $query->addTag('taxonomy_term_access');
         $term = $query->execute()->fetchObject();
         if (!$term) {
           return FALSE;
@@ -139,6 +139,7 @@ class views_plugin_argument_validate_taxonomy_term extends views_plugin_argument
         // if unverified tids left - verify them and cache results
         if (count($test)) {
           $query = db_select('taxonomy_term_data', 'td');
+          $query->addTag('taxonomy_term_access');
           $query->leftJoin('taxonomy_vocabulary', 'tv', 'td.vid = tv.vid');
           $query->fields('td');
           $query->fields('tv', array('machine_name'));
@@ -167,6 +168,7 @@ class views_plugin_argument_validate_taxonomy_term extends views_plugin_argument
       case 'name':
       case 'convert':
         $query = db_select('taxonomy_term_data', 'td');
+        $query->addTag('taxonomy_term_access');
         $query->leftJoin('taxonomy_vocabulary', 'tv', 'td.vid = tv.vid');
         $query->fields('td');
         $query->fields('tv', array('machine_name'));
@@ -202,6 +204,7 @@ class views_plugin_argument_validate_taxonomy_term extends views_plugin_argument
       $arg_keys = array_flip($args);
 
       $query = db_select('taxonomy_term_data', 'td');
+      $query->addTag('taxonomy_term_access');
       $query->condition('tid', $args);
       $query->addField('td', 'tid', 'tid');
       if (!empty($vocabularies)) {

@@ -12,7 +12,7 @@
  * values represent the property record the key is derived from.
  *
  * A nested structure containing information about key properties is
- * returned by implementations of hook_authcache_enum_key_properties:
+ * returned by implementations of hook_authcache_enum_key_property_info:
  *
  * @code
  * $properties_info = array(
@@ -82,7 +82,12 @@ function authcache_enum_user_keys() {
   $info = &drupal_static(__FUNCTION__);
 
   if (!isset($info)) {
-    $properties_info = module_invoke_all('authcache_enum_key_properties');
+    $properties_info = module_invoke_all('authcache_enum_key_property_info');
+
+    // Invoke hook_authcache_enum_key_properties() for backwards compatibility.
+    $properties_info += module_invoke_all('authcache_enum_key_properties');
+
+    drupal_alter('authcache_enum_key_property_info', $properties_info);
 
     $sets = array();
     foreach ($properties_info as $key => $definition) {
@@ -108,7 +113,7 @@ function authcache_enum_user_keys() {
 function authcache_enum_anonymous_keys() {
   $anonymous_keys = &drupal_static(__FUNCTION__);
 
-  if (!isset($info)) {
+  if (!isset($anonymous_keys)) {
     $anonymous_keys = module_invoke_all('authcache_enum_anonymous_keys');
     drupal_alter('authcache_enum_anonymous_keys', $anonymous_keys);
   }
@@ -121,7 +126,7 @@ function authcache_enum_anonymous_keys() {
  */
 function authcache_enum_keys() {
   // Keys for authenticated users.
-  $authcache_keys = array_keys(authcache_enum_user_keys());
+  $authcache_keys = array_map('strval', array_keys(authcache_enum_user_keys()));
 
   // Keys for anonymous users.
   $anonymous_keys = authcache_enum_anonymous_keys();
@@ -179,9 +184,9 @@ function authcache_enum_authcache_enum_anonymous_keys() {
 }
 
 /**
- * Implements hook_authcache_enum_key_properties().
+ * Implements hook_authcache_enum_key_property_info().
  */
-function authcache_enum_authcache_enum_key_properties() {
+function authcache_enum_authcache_enum_key_property_info() {
   global $base_root;
 
   $func = variable_get('authcache_enum_role_combine', '_authcache_enum_default_role_combine');

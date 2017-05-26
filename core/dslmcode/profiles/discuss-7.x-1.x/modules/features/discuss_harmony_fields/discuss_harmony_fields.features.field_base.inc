@@ -10,7 +10,7 @@
 function discuss_harmony_fields_field_default_field_bases() {
   $field_bases = array();
 
-  // Exported field_base: 'field_cis_tag'
+  // Exported field_base: 'field_cis_tag'.
   $field_bases['field_cis_tag'] = array(
     'active' => 1,
     'cardinality' => 1,

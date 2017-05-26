@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Http, Headers, Response } from '@angular/http';
 import { Observable } from 'rxjs';
 import { Critique } from './critique';
-import { AppSettings } from './app-settings';
+import { AppSettings } from './app.settings';
 import { ElmslnService } from './elmsln.service';
 
 @Injectable()

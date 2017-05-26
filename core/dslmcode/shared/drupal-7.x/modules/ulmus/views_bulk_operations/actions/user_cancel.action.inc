@@ -1,17 +1,19 @@
 <?php
 /**
-  * @file
-  * VBO action to cancel user accounts.
-  */
+ * @file
+ * VBO action to cancel user accounts.
+ */
 
 function views_bulk_operations_user_cancel_action_info() {
-  return array('views_bulk_operations_user_cancel_action' => array(
-    'type' => 'user',
-    'label' => t('Cancel user account'),
-    'configurable' => TRUE,
-    'behavior' => array('deletes_property'),
-    'triggers' => array('any'),
-  ));
+  return array(
+    'views_bulk_operations_user_cancel_action' => array(
+      'type' => 'user',
+      'label' => t('Cancel user account'),
+      'configurable' => TRUE,
+      'behavior' => array('deletes_property'),
+      'triggers' => array('any'),
+    ),
+  );
 }
 
 function views_bulk_operations_user_cancel_action_form($context) {
@@ -75,7 +77,17 @@ function views_bulk_operations_user_cancel_action($account, $context) {
       if (!empty($context['user_cancel_notify'])) {
         _user_mail_notify('status_canceled', $account);
       }
-      user_delete($account->uid);
+      // In cases when nodes are to be reassigned to UID 0, the user_delete must
+      // not run until *after* the user_cancel has been invoked, otherwise the
+      // nodes are deleted before they can be reassigned. Adding the user delete
+      // to the batch queue ensures things happen in the correct sequence.
+      $batch = array(
+        'operations' => array(
+          array('user_delete', array($account->uid)),
+        ),
+        'file' => drupal_get_path('module', 'node') . '/node.admin.inc',
+      );
+      batch_set($batch);
       watchdog('user', 'Deleted user: %name %email.', array('%name' => $account->name, '%email' => '<' . $account->mail . '>'), WATCHDOG_NOTICE);
       break;
   }

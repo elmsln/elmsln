@@ -11,6 +11,33 @@
   overflow: hidden;
 }
 
+/* structure in media */
+.scrollspy-toc .table-of-contents {
+  max-height: 65vh;
+  min-width: 10rem;
+  overflow-y: scroll;
+  width: calc(50vw - 52%);
+  max-width: 30em;
+  margin: 0;
+}
+
+#scrollspy-nav {
+  display: none;
+}
+
+@media screen and (min-width: 80rem) {
+  #scrollspy-nav {
+    position: absolute !important;
+    left: 100%;
+    width: calc(52vw - 52%);
+    max-width: 14em;
+    min-width: 8rem;
+    display: block;
+    max-height: 65vh;
+    overflow-y: scroll;
+  }
+}
+
 #scrollspy-nav,
 #scrollspy-nav .scrollspy-toc {
   border-bottom-style: solid;

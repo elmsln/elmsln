@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Schema.org: Event feature.
+ */
+
+include_once('schemaorg_event.features.inc');

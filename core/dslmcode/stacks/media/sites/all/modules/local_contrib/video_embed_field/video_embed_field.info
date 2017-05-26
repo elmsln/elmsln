@@ -2,13 +2,17 @@ name = "Video Embed Field"
 description = "Expose a field type for embedding videos from youtube or vimeo."
 core = 7.x
 package = Media
-configure = admin/config/media/vef_video_styles
+configure = admin/config/media/vef
+
+files[] = video_embed_field.migrate.inc
+files[] = views/handlers/views_embed_field_views_handler_field_thumbnail_path.inc
 
 dependencies[] = ctools
 dependencies[] = image
-; Information added by drupal.org packaging script on 2013-10-01
-version = "7.x-2.0-beta5+11-dev"
+
+; Information added by Drupal.org packaging script on 2015-09-07
+version = "7.x-2.0-beta11"
 core = "7.x"
 project = "video_embed_field"
-datestamp = "1380643667"
+datestamp = "1441639440"
 

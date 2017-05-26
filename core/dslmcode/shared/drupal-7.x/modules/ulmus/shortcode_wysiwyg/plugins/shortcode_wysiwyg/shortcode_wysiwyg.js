@@ -63,18 +63,59 @@
           var shortcode = dialogdiv.contents().find('#edit-shortcode option:selected').val();
           var editor_id = instanceId;
 
-          var options = [];
-          dialogdiv.contents().find('.form-item').not(':hidden').find('input,select')
+          var options = [], text = '';
+          dialogdiv.contents().find('.form-item').not(':hidden').find('input,select,textarea')
             .not('#edit-shortcode,[type="hidden"]')
             .each(function () {
-              var name = $(this).attr('name'), val = $(this).val();
-              if (val.length) {
-                options.push(name + '="' + val + '"');
+			  var $this = $(this), name = $this.attr('name'), val = '', params;
+
+			  // This allows a form field for text and not assuming the user selected the
+			  // text that will need to be wrapped
+			  if(name == 'text' && val.length){
+			  	text = $this.val();
+			  }
+
+			  // Encode textarea content to avoid breakage and obscure dangerous markup.
+              // Any shortcodes that use textarea form elements will need to urldecode the
+              // results.
+			  else if ($this.is('textarea')) {
+                 val = encodeURIComponent($this.val());
+               }
+
+              // For radio buttons and checkboxes, only get the value if selected
+              else if (val.length && (($this.attr('type') == 'radio' || $this.attr('type') == 'checkbox') && $this.is(':checked')) || ($this.attr('type') != 'radio' && $this.attr('type') != 'checkbox')) {
+                  val = $this.val();
               }
+
+			  // Strip the shortcode prefix from the attribute.
+              name = name.replace(shortcode + '-', '');
+
+              // Offer an opportunity for any other modules to alter the value
+              // before it's put into the shortcode
+              params = {
+                element: this,
+                shortcode: shortcode,
+                name: name,
+                value: val
+              };
+              $(document).trigger('shortcodeWYSIWYG.optionValueAlter', params);
+
+              // Save the option for use in the shortcode that is rendered to
+              // the WYSIWYG
+              val = params.value;
+               if (val.length) {
+                 options.push(name + '="' + val + '"');
+               }
+
             });
-
-          shortcode = '[' + shortcode + (options.length ? ' ' + options.join(' ') : '') + ']' + data.content + '[/' + shortcode + ']';
-
+			if(data.content != '' && text == '')
+				text = data.content
+		// Check if we have a hidden field with custom code.
+          if($('#edit-custom').length) {
+            shortcode = $('#edit-custom').val();
+          }else{
+          	shortcode = '[' + shortcode + (options.length ? ' ' + options.join(' ') : '') + ']' + text + '[/' + shortcode + ']';
+		}
           Drupal.wysiwyg.plugins.shortcode_wysiwyg.insertIntoEditor(shortcode, editor_id);
           dialogClose();
         };

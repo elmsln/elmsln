@@ -160,7 +160,7 @@ class CommerceProductInlineEntityFormController extends EntityInlineEntityFormCo
     );
     $entity_form['product_details'] = array(
       '#type' => 'fieldset',
-      '#title' => t('Details'),
+      '#title' => $this->getSetting('multi_edit') ? $product->title . ' (' . $product->sku . ')' : t('Details'),
       '#attributes' => array('class' => array('ief-product-details', 'ief-entity-fieldset')),
     );
 
@@ -332,6 +332,16 @@ class CommerceProductInlineEntityFormController extends EntityInlineEntityFormCo
     uasort($attributes, 'drupal_sort_weight');
 
     return $attributes;
+  }
+
+  /**
+   * Overrides EntityInlineEntityFormController::createClone().
+   */
+  public function createClone($entity) {
+    $cloned_entity = parent::createClone($entity);
+    $cloned_entity->sku = NULL;
+
+    return $cloned_entity;
   }
 
   /**

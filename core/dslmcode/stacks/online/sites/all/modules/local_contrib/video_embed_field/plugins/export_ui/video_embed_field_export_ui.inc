@@ -13,7 +13,7 @@ $plugin = array(
   'access' => 'administer video styles',
   // Define the menu item.
   'menu' => array(
-    'menu prefix' => 'admin/config/media',
+    'menu prefix' => 'admin/config/media/vef',
     'menu item' => 'vef_video_styles',
     'menu title' => 'Video Embed Styles',
     'menu description' => 'Administer Video Embed Field\'s video styles.',

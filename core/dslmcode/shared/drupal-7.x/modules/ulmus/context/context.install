@@ -103,7 +103,7 @@ function context_update_7000() {
     }
   }
   if (empty($updated)) {
-    $ret = t('No contexts requiring migration detected');
+    $ret = t('No contexts requiring migration detected.');
   }
   else {
     $ret = t('The following contexts had theme reaction data migrated: @names', array('@names' => join(', ', $updated)));

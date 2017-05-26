@@ -11,6 +11,7 @@ FEATURES
  * Automatic UUID generation:
    UUIDs will be generated for all core entities. An API is provided for other
    modules to enable support for custom entities.
+   See https://www.drupal.org/node/2387671
  * UUID API for entities, properties and fields:
    With this unified API you can load entities with entity_uuid_load() so that
    all supported properties and fields are made with UUID references. You can

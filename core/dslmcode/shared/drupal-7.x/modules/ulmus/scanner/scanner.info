@@ -1,12 +1,12 @@
-name = Scanner
-description = Do Search and Replace on the content of nodes.
+name = Search and Replace Scanner
+description = Perform search and replace on chosen text fields.
 
 core = 7.x
+configure = admin/config/content/scanner
 
-
-; Information added by drupal.org packaging script on 2013-10-01
-version = "7.x-1.x-dev"
+; Information added by Drupal.org packaging script on 2015-10-16
+version = "7.x-1.0-beta1"
 core = "7.x"
 project = "scanner"
-datestamp = "1380626651"
+datestamp = "1444962841"
 

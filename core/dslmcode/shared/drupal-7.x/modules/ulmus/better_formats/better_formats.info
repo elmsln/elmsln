@@ -3,9 +3,9 @@ description = Enhances the core input format system by managing input format def
 core = 7.x
 configure = admin/config/content/formats
 
-; Information added by drupal.org packaging script on 2013-09-30
-version = "7.x-1.0-beta1+2-dev"
+; Information added by Drupal.org packaging script on 2016-01-27
+version = "7.x-1.0-beta2"
 core = "7.x"
 project = "better_formats"
-datestamp = "1380555927"
+datestamp = "1453922961"
 

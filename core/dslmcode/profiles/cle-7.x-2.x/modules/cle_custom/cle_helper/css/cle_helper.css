@@ -1,4 +1,8 @@
 /* CSS Document */
+.node-type-cle-submission .elmsln-content-wrap {
+  margin-top: 1rem;
+}
+
 .node-cle_critique-form .horizontal-tabs {
   display: none;
 }
@@ -76,46 +80,73 @@ ol.cle-assignment-listing-multi-submission li {
 
 /* Comment Styling */
 .indented {
- margin-left: 35px;
+ margin-left: 1rem;
+}
+
+.submission-column {
+
+}
+.comment-column {
+
+}
+
+.comment-wrapper {
+  overflow-y: scroll;
+  max-height: 25rem;
 }
 
 .comment {
-  background-color: #eee;
-  border: 1px solid #aaa;
-  margin-bottom: 5px;
+  border: 2px solid #000000;
+  margin-bottom: -2px;
   overflow: visible;
-  padding: 20px;
+  padding: .5rem;
   position: relative;
 }
 
-.comment_number {
-  color:#aaa;
-  opacity:.25;
-  filter: alpha(opacity=25);
+.comment-number {
+  color: #aaa;
   position: absolute;
-  font-size: 110px;
+  font-size: 1.5rem;
   font-weight: bold;
-  line-height: 70px;
-  letter-spacing: -18px;
+  letter-spacing: -.25rem;
+}
+
+.comment-title {
+  font-size: .8rem;
+  color: #aaa;
+  text-align: right;
+  float: right;
+}
+
+.comment-top-container {
+  text-align: left;
+  margin-left: 2rem
+}
+
+.comment .links a{
+  color: #222222;
+}
+
+.comment .links a:hover {
+  color: #0000FF;
+  font-weight: bold;
 }
 
 .author {
-  font-size: 25px;
+  font-size: .8rem;
   font-style: italic;
   font-weight: bold;
-  text-align: right;
 }
 
 .submitted {
+  font-size: .8rem;
   color: #999;
-  text-align: right;
 }
 
 .new {
+  font-size: .8rem;
   color: #999;
-  font-size: 16px;
-  line-height:10px;
-  text-align: right;
+  line-height:.75rem;
 }
 
 .comment h3.title {
@@ -124,20 +155,16 @@ ol.cle-assignment-listing-multi-submission li {
 }
 
 .comment ul.links {
-  margin: 15px 0px 0px 0px;
-  padding:0px;
+  margin: .5rem 0 0 0;
+  padding: 0;
+  text-align: right;
 }
 
 .comment ul.links li {
   display: inline;
   list-style-type: none;
-  padding: 0 1em 0 0;
-  font-size:1.4em;
-}
-
-.comment a:visited {
-  color: #A4B8D0;
-  text-decoration: underline;
+  padding: 0 .5rem 0 0;
+  font-size: .8rem;
 }
 
 .comment .picture {
@@ -151,12 +178,16 @@ ol.cle-assignment-listing-multi-submission li {
   opacity: 0.25;
 }
 
+.comment .comment_body_container .field-name-comment-body {
+  font-size: .8rem;
+}
+
 .comment .rate-widget {
   margin-top:10px;
 }
 
 .comment .rate-widget-emotion ul {
-  margin:20px 0px 10px 0px;
+  margin:1.5rem 0px 10px 0px;
   width:80%;
 }
 

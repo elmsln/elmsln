@@ -17,6 +17,22 @@ foreach (module_list() as $module) {
 }
 
 /**
+ * Implements hook_menu().
+ */
+function filefield_paths_menu() {
+  $items['admin/config/media/file-system/filefield-paths'] = array(
+    'title'            => t('File (Field) Paths settings'),
+    'page callback'    => 'drupal_get_form',
+    'page arguments'   => array('filefield_paths_settings_form'),
+    'access arguments' => array('administer site configuration'),
+    'type'             => MENU_NORMAL_ITEM,
+    'file'             => 'filefield_paths.admin.inc',
+  );
+
+  return $items;
+}
+
+/**
  * Implements hook_form_alter().
  *
  * @param $form
@@ -184,7 +200,7 @@ function filefield_paths_temporary_upload_location(&$element) {
   if (isset($element['#type']) && $element['#type'] == 'managed_file' && isset($element['#entity_type']) && isset($element['#field_name']) && isset($element['#bundle'])) {
     $instance = field_info_instance($element['#entity_type'], $element['#field_name'], $element['#bundle']);
     if (isset($instance['settings']['filefield_paths_enabled']) && $instance['settings']['filefield_paths_enabled']) {
-      $element['#upload_location'] = 'temporary://filefield_paths';
+      $element['#upload_location'] = variable_get('filefield_paths_temp_location', 'public://filefield_paths');
     }
     return;
   }

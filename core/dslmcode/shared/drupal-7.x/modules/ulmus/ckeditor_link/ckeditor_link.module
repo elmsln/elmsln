@@ -41,6 +41,17 @@ function ckeditor_link_menu() {
   return $items;
 }
 
+/**
+ * Implements hook_theme().
+ */
+function ckeditor_link_theme() {
+  return array(
+    'ckeditor_link_autocomplete_title' => array(
+      'variables' => array('title' => NULL),
+    ),
+  );
+}
+
 function ckeditor_link_autocomplete($string = '') {
   $matches = array();
 
@@ -61,11 +72,15 @@ function ckeditor_link_autocomplete($string = '') {
 
     array_splice($results, $limit);
     foreach ($results as $path => $title) {
-      $matches[$title .' ('. $path .')'] = '<div class="reference-autocomplete">'. check_plain($title) .'</div>';
+      $matches[$title . ' (' . $path . ')'] = theme('ckeditor_link_autocomplete_title', array('title' => $title));
     }
   }
 
   drupal_json_output($matches);
+}
+
+function theme_ckeditor_link_autocomplete_title($variables) {
+  return '<div class="reference-autocomplete">' . check_plain($variables['title']) . '</div>';
 }
 
 function ckeditor_link_revert() {
@@ -156,7 +171,7 @@ function ckeditor_link_ckeditor_link_types() {
 function ckeditor_link_element_info_alter(&$type) {
   if (user_access('access ckeditor link')) {
     $type['text_format']['#pre_render'][] = 'ckeditor_link_text_format_pre_render';
-    $type['form']['#post_render'][] = 'ckeditor_link_form_post_render';
+    $type['text_format']['#post_render'][] = 'ckeditor_link_text_format_post_render';
   }
 }
 
@@ -173,7 +188,7 @@ function _ckeditor_link_has_text_format($set = FALSE) {
   $has = TRUE;
 }
 
-function ckeditor_link_form_post_render($content, $element) {
+function ckeditor_link_text_format_post_render($content, $element) {
   static $added;
   if (!isset($added) && _ckeditor_link_has_text_format() && ($js = drupal_add_js()) && isset($js['settings']['data'])) {
     $settings = call_user_func_array('array_merge_recursive', $js['settings']['data']);
@@ -301,7 +316,7 @@ function ckeditor_link_get_languages() {
 
   if (!isset($languages)) {
     $languages = FALSE;
-    if (drupal_multilingual() && language_negotiation_get_any(LOCALE_LANGUAGE_NEGOTIATION_URL)) {
+    if (drupal_multilingual() && module_exists('locale') && language_negotiation_get_any(LOCALE_LANGUAGE_NEGOTIATION_URL)) {
       $languages = language_list('enabled');
       $languages = $languages[1];
     }
@@ -310,9 +325,7 @@ function ckeditor_link_get_languages() {
   return $languages;
 }
 
-function ckeditor_link_url($path = NULL, $langcode) {
-  $options = array();
-
+function ckeditor_link_url($path = NULL, $langcode, $options = array()) {
   if ($langcode != LANGUAGE_NONE) {
     $languages = ckeditor_link_get_languages();
     if ($languages && isset($languages[$langcode])) {

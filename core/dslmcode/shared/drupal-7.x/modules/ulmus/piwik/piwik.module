@@ -60,6 +60,11 @@ function piwik_permission() {
       'description' => t('Enter PHP code in the field for tracking visibility settings.'),
       'restrict access' => TRUE,
     ),
+    'add JS snippets for piwik' => array(
+      'title' => t('Add JavaScript snippets'),
+      'description' => 'Enter JavaScript code snippets for advanced Piwik functionality.',
+      'restrict access' => TRUE,
+    ),
   );
 }
 
@@ -112,7 +117,7 @@ function piwik_page_alter(&$page) {
     $link_settings = array();
     $link_settings['trackMailto'] = variable_get('piwik_trackmailto', 1);
 
-    if (module_exists('colorbox') && ($track_colorbox = variable_get('googleanalytics_trackcolorbox', 1))) {
+    if (module_exists('colorbox') && ($track_colorbox = variable_get('piwik_trackcolorbox', 1))) {
       $link_settings['trackColorbox'] = $track_colorbox;
     }
 

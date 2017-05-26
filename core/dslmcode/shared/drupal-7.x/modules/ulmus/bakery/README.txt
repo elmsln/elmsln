@@ -179,7 +179,7 @@ domain begins with a leading dot you probably want to remove it, as it could
 cause issues when users move between sites.
 
 Once synchronization is complete you can follow the steps listed above on
-installation and setup of Baker.
+installation and setup of Bakery.
 
 Known issues:
 ===========================================

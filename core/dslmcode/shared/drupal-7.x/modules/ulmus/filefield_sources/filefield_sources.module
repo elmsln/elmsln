@@ -139,6 +139,17 @@ function filefield_sources_field_process($element, &$form_state, $form) {
   // Do all processing as needed by each source.
   $sources = filefield_sources_info();
   $enabled_sources = _filefield_sources_enabled($instance['widget']['settings']['filefield_sources']);
+
+
+  $context = array(
+    'enabled_sources' => &$enabled_sources,
+    'element'         => $element,
+    'form_state'      => $form_state,
+  );
+
+  // Allow other modules to alter the sources.
+  drupal_alter('filefield_sources_sources', $sources, $context);
+
   foreach ($sources as $source_name => $source) {
     if (empty($enabled_sources[$source_name])) {
       unset($sources[$source_name]);
@@ -513,6 +524,13 @@ function filefield_sources_save_file($filepath, $validators = array(), $destinat
   // Ensure the destination is writable.
   file_prepare_directory($destination, FILE_CREATE_DIRECTORY);
 
+  // Check if this is actually the same file being "attached" to a file record.
+  // If so, it acts as a file replace, except no file is actually moved.
+  $reuse_file = ($destination . $file->filename === $file->uri);
+  if ($reuse_file) {
+    $replace = FILE_EXISTS_REPLACE;
+  }
+
   $file->destination = file_destination($destination . $file->filename, $replace);
   // If file_destination() returns FALSE then $replace == FILE_EXISTS_ERROR and
   // there's an existing file so we need to bail.
@@ -544,7 +562,7 @@ function filefield_sources_save_file($filepath, $validators = array(), $destinat
   // directory. This overcomes open_basedir restrictions for future file
   // operations.
   $file->uri = $file->destination;
-  if (!file_unmanaged_copy($filepath, $file->uri, $replace)) {
+  if (!$reuse_file && !file_unmanaged_copy($filepath, $file->uri, $replace)) {
     drupal_set_message(t('File upload error. Could not move uploaded file.'), 'error');
     watchdog('file', 'Upload error. Could not move uploaded file %file to destination %destination.', array('%file' => $file->filename, '%destination' => $file->uri));
     return FALSE;

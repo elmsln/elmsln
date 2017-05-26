@@ -199,6 +199,7 @@ class AdminViewsPageDisplayTestCase extends AdminViewsWebTestCase {
    * Returns a test page view with a path under "admin/content".
    */
   protected function normalPageView() {
+    views_include('view');
     $view = new view();
     $view->name = 'admin_views_test_normal';
     $view->description = '';
@@ -275,6 +276,18 @@ class AdminViewsAccessHandlerTestCase extends AdminViewsWebTestCase {
       'view_name' => 'admin_views_user',
       'view_display_id' => 'system_1',
     );
+    $response_data = $this->drupalGetAJAX('views/ajax', array('query' => $params));
+
+    $this->assertResponse(200);
+    // Check no views settings are returned.
+    $this->assertTrue(empty($response_data[0]['settings']['views']));
+    // The next item in the AJAX data will be the insert command containing the
+    // rendered view.
+    $this->assertTrue(empty($response_data[1]));
+
+    // Test the access again with the default display.
+    $params['views_display_id'] = 'default';
+
     $response_data = $this->drupalGetAJAX('views/ajax', array('query' => $params));
 
     $this->assertResponse(200);

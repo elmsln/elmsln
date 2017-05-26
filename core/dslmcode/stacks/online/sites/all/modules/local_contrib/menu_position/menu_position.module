@@ -5,6 +5,21 @@
  */
 
 /**
+ * Implements hook_features_api().
+ */
+function menu_position_features_api() {
+  return array(
+    'menu_position' => array(
+      'name' => 'Menu position',
+      'default_hook' => 'menu_position_default_menu_positions',
+      'default_file' => FEATURES_DEFAULTS_INCLUDED_COMMON,
+      'feature_source' => TRUE,
+      'file' => drupal_get_path('module', 'menu_position') . '/menu_position.features.inc',
+    ),
+  );
+}
+
+/**
  * Implements hook_panels_pane_content_alter().
  *
  * Panels are rendered before hook_page_delivery_callback_alter() is called, so
@@ -168,6 +183,9 @@ function menu_position_menu_position_rule_plugins() {
     ),
     'pages' => array(
       'file' => 'plugins/menu_position.pages.inc',
+    ),
+    'user_page' => array(
+      'file' => 'plugins/menu_position.user_page.inc',
     ),
     'user_role' => array(
       'file' => 'plugins/menu_position.user_roles.inc',
@@ -336,6 +354,10 @@ function menu_position_activate_rule($rule, $context, $set_breadcrumb) {
     // menu_get_active_trail() returns the proper trail.
     $preferred_links = &drupal_static('menu_link_get_preferred');
     $preferred_links[$_GET['q']][MENU_PREFERRED_LINK] = menu_link_get_preferred($menu_item['link_path']);
+
+    // Reset static trail and breadcrumb caches.
+    drupal_static_reset('menu_set_active_trail');
+    drupal_static_reset('drupal_set_breadcrumb');
 
     // Remove the menu position router from the end of the trail.
     $active_trail = menu_set_active_trail();

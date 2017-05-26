@@ -1,0 +1,22 @@
+<?php
+
+/**
+ * @file
+ * Install file for tokencrop module
+ */
+
+/**
+ * Implements hook_enable().
+ */
+function tokencrop_enable() {
+  cache_clear_all('image_styles', 'cache');
+  cache_clear_all('image_effects:', 'cache', TRUE);
+}
+
+/**
+ * Implements hook_disable().
+ */
+function tokencrop_disable() {
+  cache_clear_all('image_styles', 'cache');
+  cache_clear_all('image_effects:', 'cache', TRUE);
+}

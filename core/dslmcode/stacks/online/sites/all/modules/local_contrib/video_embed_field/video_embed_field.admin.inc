@@ -32,3 +32,15 @@ function video_embed_field_video_style_form(&$form, &$form_state) {
 
   return $form;
 }
+
+/**
+ * VEF settings page form callback.
+ */
+function video_embed_field_settings_form($form, &$form_state) {
+  $form['video_embed_field_youtube_v3_api_key'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Youtube v3 API key'),
+    '#default_value' => variable_get('video_embed_field_youtube_v3_api_key', ''),
+  );
+  return system_settings_form($form);
+}

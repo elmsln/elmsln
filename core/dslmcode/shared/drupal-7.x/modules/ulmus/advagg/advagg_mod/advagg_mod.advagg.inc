@@ -86,3 +86,16 @@ function advagg_mod_advagg_css_content_t_replace_callback(array $matches) {
   // Put back.
   return str_replace($matches[1], str_replace($before, $after, $matches[1]), $matches[0]);
 }
+
+/**
+ * Implements hook_advagg_update_github_versions_alter().
+ */
+function advagg_mod_advagg_update_github_versions_alter(&$projects) {
+  $projects = array(
+    'loadCSS' => array(
+      'callback' => 'advagg_get_github_version',
+      'url' => 'https://rawgit.com/filamentgroup/loadCSS/master/package.json',
+      'variable_name' => 'advagg_mod_github_version_loadcss',
+    ),
+  );
+}

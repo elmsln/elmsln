@@ -76,9 +76,6 @@ function cdn_basic_farfuture_download($token, $ufi, $path) {
   // Instead of being powered by PHP, tell the world this resource was powered
   // by the CDN module!
   header("X-Powered-By: Drupal CDN module");
-  // Instruct intermediate HTTP caches to store both a compressed (gzipped)
-  // and uncompressed version of the resource.
-  header("Vary: Accept-Encoding");
   // Determine the content type.
   header("Content-Type: " . _cdn_basic_farfuture_get_mimetype(basename($path)));
   // Support partial content requests.
@@ -136,6 +133,9 @@ function cdn_basic_farfuture_download($token, $ufi, $path) {
       }
       // Make sure zlib.output_compression does not gzip our gzipped output.
       ini_set('zlib.output_compression', '0');
+      // Instruct intermediate HTTP caches to store both a compressed (gzipped)
+      // and uncompressed version of the resource.
+      header("Vary: Accept-Encoding");
       // Prepare for gzipped output.
       header("Content-Encoding: gzip");
       $path = $gzip_path;
@@ -163,6 +163,17 @@ function cdn_basic_farfuture_reverseproxy_test($token) {
     header('HTTP/1.1 403 Forbidden');
     exit();
   }
+
+  if (function_exists('header_remove')) {
+    header_remove('Cache-Control');
+  }
+  else {
+    header("Cache-Control:");
+    header("Cache-Control:");
+  }
+  header("Cache-Control: max-age=290304000, no-transform, public");
+  header("Expires: Tue, 20 Jan 2037 04:20:42 GMT");
+  header("Last-Modified: Wed, 20 Jan 1988 04:20:42 GMT");
 
   print REQUEST_TIME . '-' . md5(rand());
   exit();
@@ -437,10 +448,12 @@ function _cdn_basic_farfuture_get_mimetype($path) {
  * @param $path
  *   A path relative to the Drupal root (not urlencoded!) to the file that
  *   should be generated.
+ * @param $original_uri
+ *   The original url if available.
  * @return
  *   Whether the file was generated or not.
  */
-function _cdn_basic_farfuture_generate_file($path) {
+function _cdn_basic_farfuture_generate_file($path, $original_uri = NULL) {
   // Check if there's a file to generate in the first place!
   if (!menu_get_item($path)) {
     return FALSE;
@@ -460,6 +473,18 @@ function _cdn_basic_farfuture_generate_file($path) {
   }
 
   $url = $GLOBALS['base_url'] . '/' . drupal_encode_path($path);
+
+  // If this is an image style url ensure the image style token is set. Since we
+  // have just limited information to work with the evaluation is quite complex.
+  // The token query is added even if the 'image_allow_insecure_derivatives'
+  // variable is TRUE, so that the emitted links remain valid if it is changed
+  // back to the default FALSE.
+  if (($scheme = file_uri_scheme($original_uri)) && file_stream_wrapper_valid_scheme($scheme) && stripos($original_uri, $scheme . '://styles/') === 0) {
+    $parts = explode('/', $original_uri, 6);
+    $orinal_image_path = $scheme . '://' . $parts[5];
+    $token_query = array(IMAGE_DERIVATIVE_TOKEN => image_style_path_token($parts[3], $orinal_image_path));
+    $url .= (strpos($path, '?') !== FALSE ? '&' : '?') . drupal_http_build_query($token_query);
+  }
 
   $headers = array(
     // Make sure we hit the server and do not end up with a stale

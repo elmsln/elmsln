@@ -51,6 +51,7 @@ class SearchApiHighlight extends SearchApiAbstractProcessor {
       'excerpt' => TRUE,
       'excerpt_length' => 256,
       'highlight' => 'always',
+      'highlight_partial' => FALSE,
       'exclude_fields' => array(),
     );
 
@@ -112,6 +113,13 @@ class SearchApiHighlight extends SearchApiAbstractProcessor {
         'never' => t('Never'),
       ),
       '#default_value' => $this->options['highlight'],
+    );
+
+    $form['highlight_partial'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Highlight partial matches'),
+      '#description' => t('When enabled, matches in parts of words will be highlighted as well.'),
+      '#default_value' => $this->options['highlight_partial'],
     );
 
     return $form;
@@ -322,9 +330,9 @@ class SearchApiHighlight extends SearchApiAbstractProcessor {
     $ranges = array();
     $included = array();
     $length = 0;
-    $workkeys = $keys;
-    while ($length < $this->options['excerpt_length'] && count($workkeys)) {
-      foreach ($workkeys as $k => $key) {
+    $work_keys = $keys;
+    while ($length < $this->options['excerpt_length'] && $work_keys) {
+      foreach ($work_keys as $k => $key) {
         if ($length >= $this->options['excerpt_length']) {
           break;
         }
@@ -336,8 +344,14 @@ class SearchApiHighlight extends SearchApiAbstractProcessor {
         // Locate a keyword (position $p, always >0 because $text starts with a
         // space).
         $p = 0;
-        if (preg_match('/' . self::$boundary . preg_quote($key, '/') . self::$boundary . '/iu', $text, $match, PREG_OFFSET_CAPTURE, $included[$key])) {
-          $p = $match[0][1];
+        if (empty($this->options['highlight_partial'])) {
+          $regex = '/' . self::$boundary . preg_quote($key, '/') . self::$boundary . '/iu';
+          if (preg_match($regex, $text, $match, PREG_OFFSET_CAPTURE, $included[$key])) {
+            $p = $match[0][1];
+          }
+        }
+        else {
+          $p = stripos($text, $key, $included[$key]);
         }
         // Now locate a space in front (position $q) and behind it (position $s),
         // leaving about 60 characters extra before and after for context.
@@ -352,18 +366,13 @@ class SearchApiHighlight extends SearchApiAbstractProcessor {
               $ranges[$q] = $p + $s;
               $length += $p + $s - $q;
               $included[$key] = $p + 1;
-            }
-            else {
-              unset($workkeys[$k]);
+              continue;
             }
           }
-          else {
-            unset($workkeys[$k]);
-          }
         }
-        else {
-          unset($workkeys[$k]);
-        }
+        // Unless we got a match above, we don't need to look for this key any
+        // more.
+        unset($work_keys[$k]);
       }
     }
 
@@ -437,10 +446,14 @@ class SearchApiHighlight extends SearchApiAbstractProcessor {
       }
       return implode('', $texts);
     }
-    $replace = $this->options['prefix'] . '\0' . $this->options['suffix'];
 
     $keys = implode('|', array_map('preg_quote', $keys, array_fill(0, count($keys), '/')));
-    $text = preg_replace('/' . self::$boundary . '(' . $keys . ')' . self::$boundary . '/iu', $replace, ' ' . $text . ' ');
+    // If "Highlight partial matches" is disabled, we only want to highlight
+    // matches that are complete words. Otherwise, we want all of them.
+    $boundary = empty($this->options['highlight_partial']) ? self::$boundary : '';
+    $regex = '/' . $boundary . '(?:' . $keys . ')' . $boundary . '/iu';
+    $replace = $this->options['prefix'] . '\0' . $this->options['suffix'];
+    $text = preg_replace($regex, $replace, ' ' . $text . ' ');
     return substr($text, 1, -1);
   }
 

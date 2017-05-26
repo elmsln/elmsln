@@ -113,3 +113,25 @@ function cle__2_update_7008(&$sandbox) {
 function cle__2_update_7009(&$sandbox) {
   features_revert_module('cle_perms');
 }
+
+/**
+ * CLE comments feature added.
+ */
+function cle__2_update_7010(&$sandbox) {
+  module_enable(array('cle_submission_comments'));
+}
+
+/**
+ * CLE administration interface for bulk section association.
+ */
+function cle__2_update_7011(&$sandbox) {
+  module_enable(array('cle_displays'));
+}
+
+/**
+ * Enable comment notification settings
+ */
+function cle__2_update_7012(&$sandbox) {
+  module_enable(array('comment_notify', 'cle_comment_notify'));
+  features_revert_module('cle_displays');
+}

@@ -51,6 +51,8 @@ function cis_lmsless_block_view($delta = '') {
     break;
     case 'cis_lmsless_network':
       $vars = _cis_lmsless_assemble_network();
+      drupal_alter('cis_lmsless_theme_vars', $vars);
+      unset($vars['services']['Network']);
       $block['subject'] = t('Network');
       $block['content'] = theme('cis_lmsless_network', $vars);
     break;
@@ -219,9 +221,15 @@ function _cis_lmsless_assemble_network() {
   // ensure this doesn't load when it doesn't have to
   $vars = &drupal_static(__FUNCTION__);
   if (!isset($vars)) {
-    $vars = _cis_lmsless_theme_vars();
-    $vars['site_name'] = variable_get('site_name', t('Service'));
-    $distro = elmsln_core_get_profile_key();
+    $vars = array(
+      'front_page' => base_path() . variable_get('site_frontpage','node'),
+      'site_name' => variable_get('site_name', _cis_connector_course_context()),
+      'slogan' => variable_get('site_slogan', _cis_connector_course_context()),
+      'distro' => elmsln_core_get_profile_key(),
+      'lmsless_classes' => _cis_lmsless_get_distro_classes(),
+      'services' => array(),
+    );
+    $distro = $vars['distro'];
     $reg = _cis_connector_build_registry();
     // make sure this is in the registry
     if (isset($reg[$distro])) {
@@ -249,7 +257,7 @@ function _cis_lmsless_assemble_network() {
       'icon' => $reg[$distro]['icon'],
     );
     // bring along anything custom added, then mix in on-demand items
-    if (isset($vars['services'])) {
+    if (!isset($vars['services'])) {
       $list = $vars['services'];
     }
     // request a list of all other services that this section uses
@@ -435,11 +443,12 @@ function _cis_lmsless_theme_vars() {
   if (!isset($vars)) {
     $lmsless_classes = _cis_lmsless_get_distro_classes();
     $vars = array(
-      'front_page' => variable_get('site_frontpage','node'),
-      'site_name' => variable_get('site_name', t('Service')),
-      'slogan' => variable_get('site_slogan', ''),
+      'front_page' => base_path() . variable_get('site_frontpage','node'),
+      'site_name' => variable_get('site_name', _cis_connector_course_context()),
+      'slogan' => variable_get('site_slogan', _cis_connector_course_context()),
       'distro' => elmsln_core_get_profile_key(),
       'lmsless_classes' => $lmsless_classes,
+      'course_context' => _cis_connector_course_context(),
     );
     // push this into variables on the page for usage
     drupal_add_js(array('cis_lmsless' => $lmsless_classes, 'distro' => elmsln_core_get_profile_key()), array('type' => 'setting'));
@@ -506,12 +515,17 @@ function _cis_lmsless_theme_vars() {
     }
     // available bar elements
     $vars['bar_elements'] = array(
-      'network' => TRUE,
+      'network' => FALSE,
       'user' => TRUE,
       'help' => TRUE,
       'resources' => TRUE,
       'syllabus' => TRUE
     );
+    // only show network links to people that should see them.
+    if (user_access('view lmsless administration links')) {
+      $vars['bar_elements']['network'] = TRUE;
+    }
+
     // if authority, remove the syllabus
     if (_cis_connector_system_type() == 'authority') {
       $vars['bar_elements']['syllabus'] = FALSE;
@@ -538,6 +552,36 @@ function _cis_lmsless_theme_vars() {
     if (user_access('access elmsln administration areas')) {
       $course_tools = menu_tree('menu-elmsln-settings');
       $vars['elmsln_main_menu'] = render($course_tools);
+    }
+    else {
+      $vars['elmsln_main_menu'] = FALSE;
+    }
+    // pull in services too
+    $vars['network'] = _cis_lmsless_assemble_network();
+    if (isset($vars['network']['services'])) {
+      foreach ($vars['network']['services'] as $category => $items) {
+        foreach ($items as $key => $item) {
+          // ensure icon isset, should be
+          if (!isset($item['icon'])) {
+            $vars['network']['services'][$category][$key]['icon'] = $item['machine_name'];
+          }
+          if (!isset($item['distro'])) {
+            $vars['network']['services'][$category][$key]['distro'] = '_default_';
+          }
+          if (!isset($item['icon_library'])) {
+            $vars['network']['services'][$category][$key]['icon_library'] = 'elmsln';
+          }
+          // do token replacements on url and title
+          $vars['network']['services'][$category][$key]['url'] = token_replace($item['url']);
+          // add another value for token replacement
+          $vars['network']['services'][$category][$key]['title'] = token_replace($item['title']);
+          // lowercase
+          $vars['network']['services'][$category][$key]['lowertitle'] = drupal_strtolower($vars['network']['services'][$category][$key]['title']);
+          // single letter
+          $vars['network']['services'][$category][$key]['singleletter'] = substr($vars['network']['services'][$category][$key]['lowertitle'], 0, 1);
+          ;
+        }
+      }
     }
     // allow other projects to alter these values
     drupal_alter('cis_lmsless_theme_vars', $vars);
@@ -587,6 +631,7 @@ function cis_lmsless_theme() {
         'site_name' => t('Service'),
         'section' => 'master',
         'active' => array('title' => ''),
+        'course_context' => '',
         'help_link' => url('course-help'),
         'resources_link' => url('resources'),
         'syllabus_link' => url('syllabus'),
@@ -596,7 +641,7 @@ function cis_lmsless_theme() {
         'tech_support' => array(),
         'elmsln_main_menu' => '',
         'lmsless_classes' => array(),
-        'bar_elements' => array('network' => TRUE, 'user' => TRUE, 'help' => TRUE, 'resources' => TRUE, 'syllabus' => TRUE),
+        'bar_elements' => array('network' => FALSE, 'user' => TRUE, 'help' => TRUE, 'resources' => TRUE, 'syllabus' => TRUE),
       ),
       'render element' => 'element',
       'template' => 'templates/cis-lmsless-bar',
@@ -613,7 +658,7 @@ function _cis_lmsless_get_distro_classes($distro = NULL) {
     'dark'   => 'darken-4',
     'light'  => 'lighten-4',
     'color' => 'blue',
-    'text' => 'accessible-blue-text',
+    'text' => 'black-text',
     'outline' => 'blue-outline',
     'code' => '#2196f3',
     'code_text' => '#085390',

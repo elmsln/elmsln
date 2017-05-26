@@ -52,7 +52,7 @@ function theme_context_block_regions_form($vars) {
     $output .= "<div class='label context-blockform-regionlabel-{$region}'>";
     $output .= l(t('+') . ' ' . t('Add'), $_GET['q'], array('fragment' => $region, 'attributes' => array('class' => array('add-block'))));
     $output .= $form[$region]['#title'];
-    $output .= "</div>";
+    $output .= '</div>';
     $output .= theme('table', array('rows' => $rows, 'attributes' => $attr));
   }
   return $output;
@@ -100,14 +100,13 @@ function template_preprocess_context_block_browser(&$vars) {
   //add help text to tell people how to use the block browser
   $help_text = array(
     '#prefix' => '<div class="context_ui-help-text">',
-    '#markup' => t('To add a block to the current region, simply click on the block.  You may use the category filter to filter by
-      block type or the search filter to find the block that you wish to add.'),
+    '#markup' => t('To add a block to the current region, simply click on the block. You may use the category filter to filter by block type or the search filter to find the block that you wish to add.'),
     '#suffix' => '</div>',
   );
 
   $filter_label = array(
     '#prefix' => '<div class="filter-label">',
-    '#markup' => t('Search Filter'),
+    '#markup' => t('Search filter'),
     '#suffix' => '</div>',
   );
 

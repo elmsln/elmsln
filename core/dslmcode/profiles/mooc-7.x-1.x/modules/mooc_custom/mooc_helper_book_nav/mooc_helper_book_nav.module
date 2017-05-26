@@ -21,15 +21,21 @@ function mooc_helper_book_nav_page_build(&$page) {
  */
 function mooc_helper_book_nav_node_view($node, $view_mode, $langcode) {
   // ensure this only happens for node's viewed in books
-  if (arg(0) == 'node' && $view_mode == 'full' && isset($node->book) && isset($node->body) && empty($node->body['und'][0]['value'])) {
-    $next = book_next($node->book);
-    // ensure we have a next item and it's in this one
-    if ($next && $node->book['mlid'] == $next['plid']) {
-      if (entity_access('update', 'node', $node)) {
-        drupal_set_message(t('This page is empty, so students will automatically be taken to the next page. You have not been since you can edit this content.'), 'status', FALSE);
-      }
-      else {
-        drupal_goto($next['link_path']);
+  // make sure we are viewing a book
+  if (arg(0) == 'node' && $view_mode == 'full' && isset($node->book)) {
+    // if the node body is empty or we are on a gitbook page
+    if (isset($node->body) && empty($node->body['und'][0]['value']) || $node->type == 'git_book') {
+      $next = book_next($node->book);
+      // ensure we have a next item and it's in this one
+      if ($next && $node->book['mlid'] == $next['plid']) {
+        if (entity_access('update', 'node', $node)) {
+          // if the user is a content author let them know that this page would be automatically redirected
+          drupal_set_message(t('This page is empty, so students will automatically be taken to the next page. You have not been since you can edit this content.'), 'status', FALSE);
+        }
+        else {
+          // if the user is a standard user then take them to the next book page
+          drupal_goto($next['link_path']);
+        }
       }
     }
   }
@@ -89,12 +95,15 @@ function mooc_helper_book_nav_block_view($delta = '') {
       // build out the top navigational element with all the drop downs
       case 'book_sibling_nav':
         $block['subject'] = '';
-        $block['content'] = '<a href="#block-mooc-helper-mooc-helper-toc-nav-modal" class="mooc-helper-toc elmsln-outline-button elmsln-modal-trigger black-text waves-effect cis-lmsless-waves" aria-controls="block-mooc-helper-mooc-helper-toc-nav-modal" aria-expanded="false" title="Table of Contents" data-jwerty-key="o" data-voicecommand="open outline">
-            <i class="material-icons">explore</i>' . t('Outline') .'</a>';
+        $block['content'] = '<a href="#block-mooc-helper-mooc-helper-toc-nav-modal" class="mooc-helper-toc elmsln-outline-button elmsln-modal-trigger black-text" aria-controls="block-mooc-helper-mooc-helper-toc-nav-modal" aria-expanded="false" title="' . t('Table of Contents') .'" data-jwerty-key="o" data-voicecommand="open outline"><paper-button>
+            <i class="material-icons">explore</i>' . t('Outline') .'</paper-button></a>';
         $next_title = t('>');
         $prev_title = t('<');
         // load the node in scope globally at the moment and ensure we have one
         $globalnode = menu_get_object();
+        if (!$globalnode && isset($GLOBALS['moocappbook'])) {
+          $globalnode = $GLOBALS['moocappbook'];
+        }
         // ensure we are in the active outline before bothering to render anything
         if ($globalnode && !empty($globalnode->book) && $globalnode->book['plid'] != 0) {
           $breadcrumbs = array();

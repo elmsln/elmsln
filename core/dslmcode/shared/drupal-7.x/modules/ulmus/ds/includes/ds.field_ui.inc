@@ -774,6 +774,9 @@ function ds_field_ui_layouts_save($form, &$form_state) {
     if (isset($form_state['values']['additional_settings']['preview']['info']['settings']['disable_css'])) {
       $record->settings['layout_disable_css'] = $form_state['values']['additional_settings']['preview']['info']['settings']['disable_css'];
     }
+    else {
+      $record->settings['layout_disable_css'] = FALSE;
+    }
 
     $record->settings = $record->settings;
 
@@ -1759,6 +1762,9 @@ function _ds_field_ui_table_layouts($entity_type, $bundle, $view_mode, &$form, $
       if ($classes_access) {
         $form['additional_settings']['ds_classes']['info'] = array('#markup' => l(t('Manage region  and field CSS classes'), 'admin/structure/ds/classes', array('query' => drupal_get_destination())));
       }
+      elseif (user_access('admin_classes')) {
+        $form['additional_settings']['ds_classes']['info'] = array('#markup' => l(t('To manage region and field CSS classes, the Display Suite UI module should be enabled.'), 'admin/modules', array('query' => drupal_get_destination(), 'fragment' => 'edit-modules-display-suite')));
+      }
     }
     else {
       if ($classes_access) {
@@ -1894,6 +1900,7 @@ function _ds_field_ui_table_layouts_preview(&$form, &$form_state, $ds_layouts, $
 
       $suggestions_array[0] = $layout_string . '--' . $entity_type;
       $suggestions_array[2] = $layout_string . '--' . $entity_type . '-' . $bundle;
+      $suggestions_array[4] = $layout_string . '--' . $entity_type . '--{id}';
       if (!isset($form_state['no_view_mode_suggestions']) && $view_mode != 'default') {
         $suggestions_array[1] = $layout_string . '--' . $entity_type . '-' . $view_mode;
         $suggestions_array[3] = $layout_string . '--' . $entity_type . '-' . $bundle . '-' . $view_mode;
@@ -1935,9 +1942,6 @@ function _ds_field_ui_table_layouts_preview(&$form, &$form_state, $ds_layouts, $
         $disable_css = FALSE;
         if (isset($layout->settings['layout_disable_css'])) {
           $disable_css = $layout->settings['layout_disable_css'];
-        }
-        if (isset($form_state['values']) && $disable_css !== $form_state['values']['additional_settings']['ds_layouts']['preview']['info']['settings']['disable_css']) {
-          $disable_css = $form_state['values']['additional_settings']['ds_layouts']['preview']['info']['settings']['disable_css'];
         }
 
         $form['additional_settings']['ds_layouts']['preview']['info']['settings']['disable_css'] = array(

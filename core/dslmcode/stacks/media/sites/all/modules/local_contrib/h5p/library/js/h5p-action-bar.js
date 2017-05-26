@@ -1,9 +1,19 @@
+/**
+ * @class
+ * @augments H5P.EventDispatcher
+ * @param {Object} displayOptions
+ * @param {boolean} displayOptions.export Triggers the display of the 'Download' button
+ * @param {boolean} displayOptions.copyright Triggers the display of the 'Copyright' button
+ * @param {boolean} displayOptions.embed Triggers the display of the 'Embed' button
+ * @param {boolean} displayOptions.icon Triggers the display of the 'H5P icon' link
+ */
 H5P.ActionBar = (function ($, EventDispatcher) {
   "use strict";
 
   function ActionBar(displayOptions) {
     EventDispatcher.call(this);
 
+    /** @alias H5P.ActionBar# */
     var self = this;
 
     var hasActions = false;
@@ -19,11 +29,14 @@ H5P.ActionBar = (function ($, EventDispatcher) {
      * @param {string} customClass Instead of type class
      */
     var addActionButton = function (type, customClass) {
+      /**
+       * Handles selection of action
+       */
       var handler = function () {
         self.trigger(type);
       };
       H5P.jQuery('<li/>', {
-        'class': 'h5p-button h5p-' + (customClass ? customClass : type),
+        'class': 'h5p-button h5p-noselect h5p-' + (customClass ? customClass : type),
         role: 'button',
         tabindex: 0,
         title: H5P.t(type + 'Description'),
@@ -63,7 +76,6 @@ H5P.ActionBar = (function ($, EventDispatcher) {
     /**
      * Returns a reference to the dom element
      *
-     * @method getDOMElement
      * @return {H5P.jQuery}
      */
     self.getDOMElement = function () {
@@ -73,13 +85,12 @@ H5P.ActionBar = (function ($, EventDispatcher) {
     /**
      * Does the actionbar contain actions?
      *
-     * @method hasActions
      * @return {Boolean}
      */
     self.hasActions = function () {
       return hasActions;
-    }
-  };
+    };
+  }
 
   ActionBar.prototype = Object.create(EventDispatcher.prototype);
   ActionBar.prototype.constructor = ActionBar;

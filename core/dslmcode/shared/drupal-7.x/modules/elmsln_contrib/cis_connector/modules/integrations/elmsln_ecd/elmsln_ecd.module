@@ -25,14 +25,6 @@ function elmsln_ecd_node_update($node) {
 }
 
 /**
- * Implements hook_node_delete().
- */
-function elmsln_ecd_node_delete($node) {
-  // remote wipe this item as it got deleted
-  _elmsln_ecd_request($node, 'delete');
-}
-
-/**
  * Push an update compliance
  * @param  object $node node being worked on
  * @param  string $op   operation to commit
@@ -74,7 +66,7 @@ function _elmsln_ecd_request($node, $op) {
         'operation' => $op,
       ),
     );
-    _elmsln_api_request($request);
+    _elmsln_api_request($request, TRUE);
     // only deep scan content, media is highly specialized and doesn't need
     // to be scanned deeply as it's already a singular asset
     if ($type == 'content') {
@@ -135,7 +127,7 @@ function _elmsln_ecd_request($node, $op) {
               'operation' => $op,
             ),
           );
-          _elmsln_api_request($request);
+          _elmsln_api_request($request, TRUE);
         }
       }
     }

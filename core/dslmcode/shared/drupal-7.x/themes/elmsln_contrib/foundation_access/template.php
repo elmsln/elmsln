@@ -277,9 +277,9 @@ function foundation_access_fieldset($variables) {
         // form the fieldset as a collapse element
         $output = '
         <li class="collapsible-li">
-          <a id="collapse-item-id-' . $anchor . '" href="#collapse-item-' . $anchor . '" class="collapsible-header waves-effect cis-lmsless-waves' . $collapse . '"' . drupal_attributes($element['#attributes']) .'>' .
+          <a id="collapse-item-id-' . $anchor . '" href="#collapse-item-' . $anchor . '" class="collapsible-header' . $collapse . '"' . drupal_attributes($element['#attributes']) .'><paper-button>' .
             $icon . $element['#title'] .
-          '
+          '</paper-button>
           </a>
           <div class="collapsible-body">
             <div class="elmsln-collapsible-body" aria-labelledby="collapse-item-id-' . $anchor . '" role="tabpanel">
@@ -368,7 +368,7 @@ function foundation_access_preprocess_page(&$variables) {
   }
   // wrap non-node content in an article tag
   if (isset($variables['page']['content']['system_main']['main'])) {
-    $variables['page']['content']['system_main']['main']['#markup'] = '<article class="l12 col view-mode-full">' . $variables['page']['content']['system_main']['main']['#markup'] . '</article>';
+    $variables['page']['content']['system_main']['main']['#markup'] = '<article class="s12 col view-mode-full">' . $variables['page']['content']['system_main']['main']['#markup'] . '</article>';
   }
   /**
    * @todo Get rid of this logic and put it somewhere else
@@ -577,11 +577,11 @@ function foundation_access_button($variables) {
   if ($variables['element']['#value'] == 'Upload') {
     return '
     <div class="col s12 m4 input-field">
-      <button ' . drupal_attributes($element['#attributes']) . '>' . $element['#value'] . '</button>
+      <button ' . drupal_attributes($element['#attributes']) . '><paper-button>' . $element['#value'] . '</paper-button></button>
     </div>';
   }
   else {
-    return '<button ' . drupal_attributes($element['#attributes']) . '>' . $element['#value'] . '</button>';
+    return '<button ' . drupal_attributes($element['#attributes']) . '><paper-button>' . $element['#value'] . '</paper-button></button>';
   }
 }
 
@@ -829,21 +829,22 @@ function foundation_access_preprocess_node__inherit__external_video__mediavideo(
   if (isset($elements['#node']->field_elmsln_competency) && !empty($elements['#node']->field_elmsln_competency)) {
     $variables['competency'] = $elements['#node']->field_elmsln_competency['und'][0]['safe_value'];
   }
-  // if not, attempt to use the thumbnail created by the video upload field
-  elseif (isset($variables['content']['field_external_media']['#items'][0]['thumbnail_path'])) {
+  // if poster still blank AND thumbnail is available, then set poster to thumbnail
+  if ($poster_image_uri == '' && isset($variables['content']['field_external_media']['#items'][0]['thumbnail_path'])) {
     $poster_image_uri = $variables['content']['field_external_media']['#items'][0]['thumbnail_path'];
   }
   // if we have found a poster then assign it
   if ($poster_image_uri) {
     $variables['poster'] = image_style_url('mediavideo_poster', $poster_image_uri);
   }
-
   // Set the video url
   if (isset($elements['field_external_media']['#items'][0]['video_url']) && $elements['field_external_media']['#items'][0]['video_url']) {
     $variables['video_url'] = $elements['field_external_media']['#items'][0]['video_url'];
   }
 
   // Unset the poster if on the Mediavideo viewmode
+  // mediavideo should not have a poster, there is a viewmode for that
+  // called mediavideo__poster
   if ($variables['view_mode'] == 'mediavideo') {
     $variables['poster'] = NULL;
   }
@@ -1151,7 +1152,7 @@ function foundation_access_menu_link(&$variables) {
   // support for add menu to get floating classes
   if ($element['#original_link']['menu_name'] == 'menu-elmsln-add') {
     // support for passing section context as to what they are looking at currently
-    if (_cis_connector_system_type() != 'service') {
+    if (_cis_connector_system_type() != 'service' && $element['#original_link']['router_path'] != 'cis-quick-setup') {
       $element['#localized_options']['query']['elmsln_course'] = _cis_connector_course_context();
       $element['#localized_options']['query']['elmsln_section'] = _cis_connector_section_context();
     }
@@ -1160,13 +1161,21 @@ function foundation_access_menu_link(&$variables) {
     // load up a map of icons and color associations
     $icon_map = _elmsln_core_icon_map();
     $icon = str_replace(' ', '_', drupal_strtolower($title));
+    // see if we have an icon
     if (isset($icon_map[$icon])) {
+      // see if this is being sent externally
       if (strpos($element['#href'], 'elmsln/redirect') === 0) {
         $element['#localized_options']['attributes']['class'][] = 'elmsln-core-external-context-apply';
       }
+      if (isset($icon_map[$icon]['text'])) {
+        $textcolor = $icon_map[$icon]['text'];
+      }
+      else {
+        $textcolor = 'white-text';
+      }
       $element['#localized_options']['attributes']['class'][] = $icon_map[$icon]['color'];
       $element['#localized_options']['attributes']['class'][] = 'darken-3';
-      $title = '<i class="material-icons white-text left">' . $icon_map[$icon]['icon'] . '</i>' . $title;
+      $title = '<i class="material-icons ' . $textcolor . ' left">' . $icon_map[$icon]['icon'] . '</i>' . $title;
       $element['#localized_options']['html'] = TRUE;
     }
     else {
@@ -1613,7 +1622,7 @@ function foundation_access_pager($variables) {
         if ($i == $pager_current) {
           $items[] = array(
             'class' => array('active'),
-            'data' => '<a class="black-text" href="">' . $i . '</a>',
+            'data' => '<a class="black-text" href=""><paper-button>' . $i . '</paper-button></a>',
           );
         }
         if ($i > $pager_current) {
@@ -2029,5 +2038,7 @@ function _foundation_access_move_tabs() {
     'file/%/devel',
     'file/%/delete',
   );
+  // allow modules to dictate what to remove
+  drupal_alter('foundation_access_tabs', $tabs);
   return $tabs;
 }

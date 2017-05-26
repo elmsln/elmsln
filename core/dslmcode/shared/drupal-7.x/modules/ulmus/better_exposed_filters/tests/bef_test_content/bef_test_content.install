@@ -1,0 +1,81 @@
+<?php
+/**
+ * Provides install hooks for the BEF Test Content module.
+ */
+
+/**
+ * Adds terms to the hierarchical vocabulary.
+ */
+function bef_test_content_update_7001() {
+  // Set up an example hierarchical terms in the "Location" vocab.
+  $locations = array(
+    'United States' => array(
+      'California' => array(
+        'San Francisco',
+        'San Diego',
+        'Santa Barbara',
+      ),
+      'Oregon' => array(
+        'Portland',
+        'Eugene',
+      ),
+      'Washington' => array(
+        'Seattle',
+        'Spokane',
+        'Walla Walla',
+      ),
+    ),
+    'Canada' => array(
+      'British Columbia' => array(
+        'Vancouver',
+        'Victoria',
+        'Whistler',
+      ),
+      'Alberta' => array(
+        'Calgary',
+        'Edmonton',
+        'Lake Louise',
+      ),
+    ),
+    'Mexico' => array(),
+  );
+  foreach ($locations as $country => $states) {
+    $country_tid = _bef_test_content_add_term($country);
+    if ($country_tid && !empty($states)) {
+      foreach ($states as $state => $cities) {
+        $state_tid = _bef_test_content_add_term($state, $country_tid);
+        if ($state_tid && !empty($cities)) {
+          foreach ($cities as $city) {
+            _bef_test_content_add_term($city, $state_tid);
+          }
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Adds a new term to the bef_test-location vocabulary. If a TID is specified
+ * in $parent, the new term is added as a child of that term.
+ *
+ * @param string $name
+ *   The name of the new term.
+ * @param int $parent
+ *   The (optional) TID of the parent term.
+ *
+ * @return int
+ *   TID of the newly created term or 0 on an error.
+ */
+function _bef_test_content_add_term($name, $parent = 0) {
+  $term = new stdClass();
+  // Features manages to create a vocab machine name that includes illegal
+  // characters (taxonomy-bef_test-location -- the hyphen is not allowed). So
+  // we use the VID of the vocab instead.
+  $term->vid = 2;
+  $term->parent = $parent;
+  $term->name = $name;
+  if (taxonomy_term_save($term) == SAVED_NEW) {
+    return $term->tid;
+  }
+  return 0;
+}

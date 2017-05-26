@@ -1,7 +1,7 @@
 default_title="Account registry"
 type="authority"
 subdomain="people"
-group="Administrative"
+group="Experimental"
 icon_library="elmsln"
 show_in_network="1"
 weight="0"

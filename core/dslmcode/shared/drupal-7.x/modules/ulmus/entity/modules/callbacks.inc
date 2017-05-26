@@ -29,7 +29,7 @@ function entity_metadata_book_get_properties($node, array $options, $name, $enti
 
     case 'book_ancestors':
       $ancestors = array();
-      while (!empty($node->book['plid'])) {
+      while (!empty($node->book['plid']) && $node->book['plid'] != -1) {
         $link = book_link_load($node->book['plid']);
         array_unshift($ancestors, $link['nid']);
         $node = node_load($link['nid']);
@@ -578,7 +578,7 @@ function entity_metadata_field_get_language($entity_type, $entity, $field, $lang
  */
 function entity_metadata_field_text_get($item, array $options, $name, $type, $context) {
   // $name is either 'value' or 'summary'.
-  if (!isset($item['safe_' . $name])) {
+  if (!isset($item['safe_' . $name]) && isset($item[$name])) {
     // Apply input formats.
     $langcode = isset($options['language']) ? $options['language']->language : '';
     $format = isset($item['format']) ? $item['format'] : filter_default_format();
@@ -586,7 +586,7 @@ function entity_metadata_field_text_get($item, array $options, $name, $type, $co
     // To speed up subsequent calls, update $item with the 'safe_value'.
     $context['parent']->set($item);
   }
-  return $item['safe_' . $name];
+  return (isset($item['safe_' . $name]) ? $item['safe_' . $name] : '');
 }
 
 /**
@@ -670,9 +670,11 @@ function entity_metadata_field_file_validate_item($items, $context) {
 function entity_metadata_no_hook_node_access($op, $node = NULL, $account = NULL) {
   // First deal with the case where a $node is provided.
   if (isset($node)) {
-    if ($op == 'create') {
+    if (empty($node->vid) && in_array($op, array('create', 'update'))) {
+      // This is a new node or the original node.
       if (isset($node->type)) {
-        return node_access($op, $node->type, $account);
+        $op = !empty($node->is_new) && $node->is_new ? 'create' : 'update';
+        return node_access($op, $op == 'create' ? $node->type : $node, $account);
       }
       else {
         throw new EntityMalformedException('Permission to create a node was requested but no node type was given.');
@@ -796,14 +798,35 @@ function entity_metadata_comment_properties_access($op, $property, $entity = NUL
  * Access callback for the taxonomy entities.
  */
 function entity_metadata_taxonomy_access($op, $entity = NULL, $account = NULL, $entity_type = NULL) {
-  if ($entity_type == 'taxonomy_vocabulary') {
-    return user_access('administer taxonomy', $account);
-  }
-  if (isset($entity) && $op == 'update' && !isset($account) && taxonomy_term_edit_access($entity)) {
+  // If user has administer taxonomy permission then no further checks.
+  if (user_access('administer taxonomy', $account)) {
     return TRUE;
   }
-  if (user_access('administer taxonomy', $account) || user_access('access content', $account) && $op == 'view') {
-    return TRUE;
+  switch ($op) {
+    case "view":
+      if (user_access('access content', $account)) {
+        return TRUE;
+      }
+      break;
+    case "update":
+      if ($entity_type == 'taxonomy_term') {
+        return user_access("edit terms in $entity->vid", $account);
+      }
+      break;
+    case "create":
+      if ($entity_type == 'taxonomy_term') {
+        // Check for taxonomy_access_fix contrib module which adds additional
+        // permissions to create new terms in a given vocabulary.
+        if (function_exists('taxonomy_access_fix_access')) {
+          return taxonomy_access_fix_access('add terms', $entity->vocabulary_machine_name);
+        }
+      }
+      break;
+    case "delete":
+      if ($entity_type == 'taxonomy_term') {
+        return user_access("delete terms in $entity->vid", $account);
+      }
+      break;
   }
   return FALSE;
 }

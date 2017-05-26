@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, OnChanges, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, OnChanges, Output, EventEmitter, OnDestroy} from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
 import { Store } from '@ngrx/store';
 import { createImage, createImageSuccess, createImageFailure } from '../../image/image.actions';
@@ -6,7 +6,8 @@ import { ImageState } from '../../image/image.reducer';
 import { Submission } from '../submission';
 import { Observable } from 'rxjs/Observable';
 import { SubmissionService } from '../submission.service';
-
+import * as fromRoot from '../../app.reducer';
+import { ImageStates } from '../../image/image.reducer';
 declare const Materialize:any;
 declare const jQuery:any;
 
@@ -24,7 +25,6 @@ export class SubmissionFormComponent implements OnInit, OnChanges {
   form:FormGroup;
   formValueChanges:number = 0;
   saveAttempted:boolean = false;
-  savingImage$:Observable<boolean>
   savingImageToast:any;
 
   constructor(
@@ -49,10 +49,6 @@ export class SubmissionFormComponent implements OnInit, OnChanges {
         this.formValueChanges++;
       });
 
-    this.savingImage$ = this.store.select('images')
-      .map((s:ImageState) => s.status)
-      .map(s => s.type === 'saving')
-
     /**
      * Saving Image notifications
      */
@@ -72,20 +68,19 @@ export class SubmissionFormComponent implements OnInit, OnChanges {
     `;
     // when savingImage changes in the reducer
     // change the notifications
-    this.store.select('images')
-      .map((s:ImageState) => s.status)
+    this.store.select(fromRoot.getImageState)
       .skip(1)
       .debounceTime(200)
       .distinctUntilChanged((x,y) => x === y)
-      .subscribe(s => {
+      .subscribe((s) => {
         jQuery('.submission-form-image-saving').remove();
-        if (s.type === 'saving') {
+        if (s.state === ImageStates.saving) {
           Materialize.toast(savingImageMessage, null, 'submission-form-image-saving');
         }
-        if (s.type === 'saved') {
+        if (s.state === ImageStates.default) {
           Materialize.toast('Image uploaded', 1500);
         }
-        if (s.type === 'error') {
+        if (s.state === ImageStates.error) {
           Materialize.toast(s.message, 1500);
         }
       })
@@ -99,7 +94,6 @@ export class SubmissionFormComponent implements OnInit, OnChanges {
   }
 
   onWysiwygImageAdded($event) {
-;
   }
 
   onImageSave($event) {
@@ -136,6 +130,11 @@ export class SubmissionFormComponent implements OnInit, OnChanges {
 
   cancel() {
     this.onSubmissionCancel.emit();
+  }
+
+  // find out if the submission form should be savable
+  get savable():Observable<boolean> {
+    return this.store.select(fromRoot.getSubmissionSavable);
   }
 
   private addImageAsEvidence(image) {

@@ -6,6 +6,16 @@
  */
 
 /**
+ * Default version of csslint to use.
+ */
+define('ADVAGG_VALIDATOR_GITHUB_VERSION_CSSLINT', '1.0.5');
+
+/**
+ * Default version of jshint to use.
+ */
+define('ADVAGG_VALIDATOR_GITHUB_VERSION_JSHINT', '2.9.4');
+
+/**
  * Form builder; CSS validator via w3.
  *
  * @return array
@@ -36,9 +46,10 @@ function advagg_validator_admin_css_lint_form() {
 
   $form = advagg_validator_admin_form_generator('css', TRUE);
 
+  $version = variable_get('advagg_validator_github_version_csslint', ADVAGG_VALIDATOR_GITHUB_VERSION_CSSLINT);
   $form['#attached']['js'][] = array(
     // https://github.com/CSSLint/csslint.
-    'data' => '//cdn.rawgit.com/stubbornella/csslint/master/release/csslint.js',
+    'data' => "//cdn.rawgit.com/CSSLint/csslint/v$version/dist/csslint.js",
     'type' => 'external',
   );
   $form['#attached']['js'][] = array(
@@ -71,9 +82,10 @@ function advagg_validator_admin_js_hint_form() {
 
   $form = advagg_validator_admin_form_generator('js', TRUE);
 
+  $version = variable_get('advagg_validator_github_version_jshint', ADVAGG_VALIDATOR_GITHUB_VERSION_JSHINT);
   $form['#attached']['js'][] = array(
     // https://github.com/jshint/jshint.
-    'data' => '//cdn.rawgit.com/jshint/jshint/master/dist/jshint.js',
+    'data' => "//cdn.rawgit.com/jshint/jshint/$version/dist/jshint.js",
     'type' => 'external',
   );
   $form['#attached']['js'][] = array(

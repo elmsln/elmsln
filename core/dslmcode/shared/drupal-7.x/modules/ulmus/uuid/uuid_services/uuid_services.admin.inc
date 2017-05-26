@@ -1,7 +1,15 @@
 <?php
 
 /**
+ * @file
+ * Administration functions for UUID Service module.
+ */
+
+/**
  * Settings form for UUID Services.
+ *
+ * @return array
+ *   Configuration form structure.
  */
 function uuid_services_settings() {
   $form['uuid_services_support_all_entity_types'] = array(

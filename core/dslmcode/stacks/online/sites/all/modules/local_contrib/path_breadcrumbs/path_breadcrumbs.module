@@ -23,6 +23,16 @@ define('PATH_BREADCRUMBS_CACHE_STORAGE', 'cache_path_breadcrumbs');
  * Implements hook_page_alter().
  */
 function path_breadcrumbs_page_alter() {
+  // Do not show breadcrumbs on error pages.
+  if (!variable_get('path_breadcrumbs_enable_on_error_pages', FALSE)) {
+    $bad_statuses = array('404 Not Found', '403 Forbidden');
+    $http_headers = drupal_get_http_header();
+    $status = isset($http_headers['status']) ? $http_headers['status'] : '200 OK';
+    if (in_array($status, $bad_statuses)) {
+      return;
+    }
+  }
+
   path_breadcrumbs_set_breadcrumb();
 }
 
@@ -56,10 +66,15 @@ function path_breadcrumbs_set_breadcrumb($path = NULL) {
  *    - build: built Path Breadcrumbs array ready for drupal_set_breadcrumb().
  */
 function path_breadcrumbs_load_variant($path) {
-  global $language;
+  global $language_url;
 
   if (empty($path)) {
     return FALSE;
+  }
+
+  $path_breadcrumbs_data = &drupal_static(__FUNCTION__ . '::' . $path);
+  if (!empty($path_breadcrumbs_data)) {
+    return $path_breadcrumbs_data;
   }
 
   // See if user enabled cache for breadcrumbs.
@@ -72,7 +87,7 @@ function path_breadcrumbs_load_variant($path) {
 
   if ($cache_enabled) {
     // Trying to load breadcrumb from cache.
-    $cache_id = __FUNCTION__ . ':' . $path . ':' . $language->language;
+    $cache_id = __FUNCTION__ . ':' . $path . ':' . $language_url->language;
     $cache = cache_get($cache_id, PATH_BREADCRUMBS_CACHE_STORAGE);
     if (!empty($cache->data)) {
       // Empty results are also cached.
@@ -88,6 +103,9 @@ function path_breadcrumbs_load_variant($path) {
         $contexts = path_breadcrumbs_get_contexts_from_arguments($path_breadcrumbs->arguments, FALSE, $path);
         drupal_alter('path_breadcrumbs_view', $built_breadcrumbs, $path_breadcrumbs, $contexts);
       }
+
+      // Store data in static cache.
+      $path_breadcrumbs_data = $cache->data;
 
       return $cache->data;
     }
@@ -214,8 +232,8 @@ function _path_breadcrumbs_build_breadcrumbs($path_breadcrumb, $contexts = array
 
   // Support empty breadcrumbs (disabling).
   if (count($path_breadcrumb->titles_prepared) == 1 &&
-      $path_breadcrumb->titles_prepared[0] == '<none>' &&
-      $path_breadcrumb->paths_prepared[0] == '<none>') {
+    $path_breadcrumb->titles_prepared[0] == '<none>' &&
+    $path_breadcrumb->paths_prepared[0] == '<none>') {
     $path_breadcrumb->titles_prepared = array();
     $path_breadcrumb->paths_prepared = array();
   }
@@ -371,7 +389,7 @@ function path_breadcrumbs_breadcrumb($variables) {
       $href = '';
       if (!empty($matches[1])) {
         global $base_path;
-        global $language;
+        global $language_url;
 
         $base_string = rtrim($base_path, "/");
 
@@ -383,8 +401,8 @@ function path_breadcrumbs_breadcrumb($variables) {
         // Append additional params to base string for multilingual sites.
         // @note: Only core URL detection method supported.
         $enabled_negotiation_types = variable_get("language_negotiation_language", array());
-        if (!empty($enabled_negotiation_types['locale-url']) && !empty($language->prefix)) {
-          $base_string .= '/' . $language->prefix;
+        if (!empty($enabled_negotiation_types['locale-url']) && !empty($language_url->prefix)) {
+          $base_string .= '/' . $language_url->prefix;
         }
 
         // Means that this is href to the frontpage.
@@ -638,15 +656,15 @@ function path_breadcrumbs_load_by_name_multiple($names) {
  *   Array of path_breadcrumbs objects.
  */
 function path_breadcrumbs_load_all() {
-  $data = &drupal_static(__FUNCTION__);
-  if (empty($data)) {
-    ctools_include('export');
-    $data = ctools_export_load_object('path_breadcrumbs', 'all');
-    // Make objects more developer-friendly.
-    $data = array_map('path_breadcrumbs_load_prepare', $data);
-    // Order by weight.
-    uasort($data, '_path_breadcrumbs_sort_weight');
-  }
+
+  ctools_include('export');
+  $data = ctools_export_load_object('path_breadcrumbs', 'all');
+
+  // Make objects more developer-friendly.
+  $data = array_map('path_breadcrumbs_load_prepare', $data);
+
+  // Order by weight.
+  uasort($data, '_path_breadcrumbs_sort_weight');
   return $data;
 }
 

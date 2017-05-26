@@ -13,7 +13,12 @@ CKEDITOR.editorConfig = function( config ) {
   config.colorButton_backStyle = {
     element: 'span',
     attributes: { class: '#(color)' }
-};
+  };
+  // this helps ensure there's no conflict with made up elements
+  // and automatical <p> wrapping
+  config.autoParagraph = false;
+  // protected source
+  config.protectedSource = [/<(\S*?)-(\S*?)\s*>[\s\S]*?<\/(\S*?)-(\S*?)>/g];
   // config.styleSet is an array of objects that define each style available
   // in the font styles tool in the ckeditor toolbar
   config.disableNativeSpellChecker = false;

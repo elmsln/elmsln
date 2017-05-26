@@ -144,6 +144,15 @@ function path_breadcrumbs_variable_info($options) {
     'group' => 'path_breadcrumbs',
   );
 
+  $variables['path_breadcrumbs_enable_on_error_pages'] = array(
+    'type' => 'boolean',
+    'title' => t('Enable Path Breadcrumbs on error pages', array(), $options),
+    'description' => t('Enables Path Breadcrumbs on error pages (403, 404). <strong>Only for advanced users. May require additional access checks.</strong>'),
+    'default' => FALSE,
+    'localize' => TRUE,
+    'group' => 'path_breadcrumbs',
+  );
+
   return $variables;
 }
 

@@ -3,9 +3,9 @@ description = Provides a user interface for the Token API and some missing core 
 core = 7.x
 files[] = token.test
 
-; Information added by Drupal.org packaging script on 2015-02-28
-version = "7.x-1.6"
+; Information added by Drupal.org packaging script on 2017-01-25
+version = "7.x-1.7"
 core = "7.x"
 project = "token"
-datestamp = "1425149060"
+datestamp = "1485316088"
 

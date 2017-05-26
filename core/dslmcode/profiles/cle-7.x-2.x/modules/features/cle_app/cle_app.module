@@ -12,11 +12,47 @@
 function cle_app_page_build(&$page) {
   // ensure this is at least in scope of the app
   if (arg(0) == 'cle' && arg(1) == 'app') {
-    drupal_add_css(drupal_get_path('module', 'cle_app') . '/app/dist/styles.bundle.css');
-    drupal_add_js(drupal_get_path('module', 'cle_app') . '/app/dist/inline.bundle.js', array('scope' => 'footer'));
-    drupal_add_js(drupal_get_path('module', 'cle_app') . '/app/dist/scripts.bundle.js', array('scope' => 'footer'));
-    drupal_add_js(drupal_get_path('module', 'cle_app') . '/app/dist/vendor.bundle.js', array('scope' => 'footer'));
-    drupal_add_js(drupal_get_path('module', 'cle_app') . '/app/dist/main.bundle.js', array('scope' => 'footer'));
+    // a little silly looking probably but this allows us to ensure our Angular app can be
+    // compiled either into production or development mode and still work correctly either way
+    $dh = opendir(DRUPAL_ROOT . '/' . drupal_get_path('module', 'cle_app') . '/app/dist');
+    $items = array();
+    // open directory and walk through the filenames
+    while ($file = readdir($dh)) {
+      // skip directory iterators
+      if ($file != "." && $file != "..") {
+        // preg match for files patterned as styles/inline/scripts/vendor/main.hashvalue/or/not.bundle.css/js
+        if (preg_match('#^(styles|inline|scripts|vendor|main)\.*\.[^\s]+(\.(js|css))#', $file)) {
+          // figure out the file info so we can order them afterwards
+          $tmp = explode('.', $file);
+          $tmp_name = array_shift($tmp);
+          $tmp_cache_string = array_shift($tmp);
+          $tmp_bundle = array_shift($tmp);
+          $tmp_file_type = array_shift($tmp);
+          // compression optional so will either be 'gz' or NULL
+          $tmp_compression = array_shift($tmp);
+          // we just want the files that are not compressed so drupal can handle the compression
+          // we are going to categorize them by file type and name
+          if (is_null($tmp_compression)) {
+            $items[$tmp_file_type][$tmp_name] = drupal_get_path('module', 'cle_app') . '/app/dist/' . $file;
+          }
+        }
+      }
+    }
+
+    // specify the loading order of the file names
+    $keys = array('styles', 'inline','scripts','vendor','main');
+    foreach ($items as $file_type => $files) {
+      foreach ($keys as $id => $key){
+        if (isset($files[$key])) {
+          if ($file_type == 'css') {
+            drupal_add_css($files[$key]);
+          }
+          elseif ($file_type == 'js') {
+            drupal_add_js($files[$key], array('scope' => 'footer', 'weight' => 1000 + $id));
+          }
+        }
+      }
+    }
   }
 }
 

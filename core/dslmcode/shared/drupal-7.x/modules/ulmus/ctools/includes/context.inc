@@ -676,14 +676,19 @@ function ctools_context_keyword_substitute($string, $keywords, $contexts, $conve
         }
       }
 
-      if (empty($context_keywords[$context]) || !empty($context_keywords[$context]->empty)) {
-        $keywords['%' . $keyword] = '';
-      }
-      else if (!empty($converter)) {
-        $keywords['%' . $keyword] = ctools_context_convert_context($context_keywords[$context], $converter, $converter_options);
+      if (!isset($context_keywords[$context])) {
+        $keywords['%' . $keyword] = '%' . $keyword;
       }
       else {
-        $keywords['%' . $keyword] = $context_keywords[$keyword]->title;
+        if (empty($context_keywords[$context]) || !empty($context_keywords[$context]->empty)) {
+          $keywords['%' . $keyword] = '';
+        }
+        else if (!empty($converter)) {
+          $keywords['%' . $keyword] = ctools_context_convert_context($context_keywords[$context], $converter, $converter_options);
+        }
+        else {
+          $keywords['%' . $keyword] = $context_keywords[$keyword]->title;
+        }
       }
     }
   }

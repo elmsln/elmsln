@@ -1,0 +1,4 @@
+<?php
+
+require_once('image.gd.inc');
+require_once('tokencrop.effects.inc');

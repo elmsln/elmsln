@@ -106,6 +106,13 @@ function webcomponents_display_modes_preprocess_node(&$variables) {
     if (!isset($variables['properties'])) {
       $variables['properties'] = array();
     }
+    // check for saved additional settings to extend the entity based on component theme properties
+    if (isset($variables['elements']['#' . $variables['elements']['#entity_type']]->webcomponents_additional) && isset($variables['elements']['#' . $variables['elements']['#entity_type']]->webcomponents_additional[$view_mode])) {
+      foreach ($variables['elements']['#' . $variables['elements']['#entity_type']]->webcomponents_additional[$view_mode] as $property => $value) {
+        $variables['properties'][$property] = $value;
+      }
+    }
+    // @todo mix in the $entity->webcomponents_additional values
     // load an instance of the fields, it's already happened but closer here
     $info = field_info_instances('node', $variables['type']);
     // load all the fields for "view" in a view mode
@@ -115,8 +122,14 @@ function webcomponents_display_modes_preprocess_node(&$variables) {
       // only if something isn't hidden and it has been told via instance settings to map
       // to a property coming from the webcomponent
       if ($data['display'][$view_mode]['type'] != 'hidden' && isset($data['display'][$view_mode]['settings'][$view_mode]) && !empty($data['display'][$view_mode]['settings'][$view_mode]) && isset($component->properties[$data['display'][$view_mode]['settings'][$view_mode]])) {
-        // trip the tags out and force it into the property
-        $variables['properties'][$data['display'][$view_mode]['settings'][$view_mode]] = strip_tags(render($fields[$field]));
+        // special case for innerHTML since that populates the interior
+        if ($data['display'][$view_mode]['settings'][$view_mode] == 'innerHTML') {
+          $variables[$data['display'][$view_mode]['settings'][$view_mode]] = render($fields[$field]);
+        }
+        else {
+          // strip the tags out since it's a property and those can't have html
+          $variables['properties'][$data['display'][$view_mode]['settings'][$view_mode]] = strip_tags(render($fields[$field]));
+        }
       }
     }
     // fallback support for title property since this is pretty common

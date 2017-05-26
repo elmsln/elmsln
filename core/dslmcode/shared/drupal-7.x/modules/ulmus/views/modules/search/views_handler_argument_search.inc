@@ -42,7 +42,7 @@ class views_handler_argument_search extends views_handler_argument {
       }
     }
     if ($required) {
-      if ($this->operator == 'required') {
+      if (isset($this->operator) && ($this->operator == 'required')) {
         $this->query->add_where(0, 'FALSE');
       }
     }

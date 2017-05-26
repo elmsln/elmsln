@@ -245,6 +245,9 @@ function file_entity_uninstall() {
   variable_del('file_entity_file_upload_wizard_skip_file_type');
   variable_del('file_entity_file_upload_wizard_skip_scheme');
   variable_del('file_entity_file_upload_wizard_skip_fields');
+
+  // Remove any items from the file type queue if still there.
+  DrupalQueue::get('file_entity_type_determine')->deleteQueue();
 }
 
 /**
@@ -375,6 +378,8 @@ function file_entity_update_7104() {
             'permission' => 'view file',
             'module' => 'file_entity',
           ))
+          ->condition('rid', $rid)
+          ->condition('permission', 'view file')
           ->execute();
       }
     }
@@ -900,16 +905,13 @@ function file_entity_update_7210() {
 
   // Migrate any existing MIME type information into {file_type}.
   if (db_table_exists('file_type_mimetypes')) {
-    foreach (file_type_load_all(TRUE) as $type) {
-      $mimetypes = array();
-      $result = db_select('file_type_mimetypes', 'ftm')
+    module_load_include('inc', 'file_entity', 'file_entity.file_api');
+    $types = file_type_load_all(TRUE);
+    foreach ($types as $type) {
+      $mimetypes = db_select('file_type_mimetypes', 'ftm')
         ->fields('ftm', array('mimetype'))
-        ->condition('type', $type->type, '=')
-        ->execute();
-
-      foreach ($result as $record) {
-        $mimetypes[] = $record->mimetype;
-      }
+        ->condition('type', $type->type)
+        ->execute()->fetchCol();
 
       if (!empty($mimetypes)) {
         $type->mimetypes = $mimetypes;
@@ -1070,4 +1072,13 @@ function file_entity_update_7215() {
   ));
   db_add_primary_key('file_metadata', array('fid', 'name'));
   db_drop_index('file_metadata', 'temp');
+}
+
+/**
+ * This update has been removed and will not run.
+ */
+function file_entity_update_7216() {
+  // This update function previously saved default file displays into the
+  // database. It has been removed due to reported problems and is better
+  // addressed by adding support for ctools default content to features.
 }

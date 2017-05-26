@@ -1,12 +1,11 @@
 <?php
 /**
  * @file
- *
  * Provide example help for the advanced help module.
  */
 
 /**
- * Implementation of hook_menu().
+ * Implements hook_menu().
  */
 function help_example_menu() {
   // View help topic index.
@@ -19,6 +18,9 @@ function help_example_menu() {
   return $items;
 }
 
+/**
+ * Topic index callback.
+ */
 function help_example_index_page() {
   $output = theme('advanced_help_topic', array(
     'module' => 'help_example',

@@ -15,6 +15,18 @@ function httprl_admin_settings_form() {
     '#default_value' => variable_get('httprl_server_addr', FALSE),
     '#description' => t('If left blank it will use the same server as the request. If set to -1 it will use the host name instead of an IP address. This controls the output of httprl_build_url_self()'),
   );
+  $form['httprl_server_hostname'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Host name of the server to send all self server requests to.'),
+    '#default_value' => variable_get('httprl_server_hostname', ''),
+    '#description' => t('If left blank it will use the same server as the request.'),
+  );
+  $form['httprl_server_port'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Port of the server to send all self server requests to.'),
+    '#default_value' => variable_get('httprl_server_port', ''),
+    '#description' => t('If left blank it will use the port apprpriate for the selected schema below.'),
+  );
   $form['httprl_server_schema'] = array(
     '#type' => 'radios',
     '#title' => t('Self Server Requests Schema: HTTP vs HTTPS'),

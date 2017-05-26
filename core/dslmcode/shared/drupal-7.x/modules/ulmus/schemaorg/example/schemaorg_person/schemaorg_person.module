@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Schema.org: Person feature.
+ */
+
+include_once('schemaorg_person.features.inc');

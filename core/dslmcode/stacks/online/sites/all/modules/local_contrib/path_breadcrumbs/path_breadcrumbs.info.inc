@@ -20,6 +20,9 @@ function path_breadcrumbs_entity_property_info_alter(&$info) {
   // Add menu-link properties only for autocomplete in Path Breadcrumbs UI.
   $node_properties['menu_link'] = _path_breadcrumbs_menu_link_property_defaults();
   $site_properties['current_page']['property info']['menu_link'] = _path_breadcrumbs_menu_link_property_defaults();
+
+  // Add path-menu-trail property only for autocomplete.
+  $site_properties['current_page']['property info']['path_menu_trail'] = _path_breadcrumbs_menu_trail_property_defaults();
 }
 
 /**
@@ -128,6 +131,22 @@ function _path_breadcrumbs_menu_link_property_defaults() {
         'description' => t("Join parents URLs"),
         'type' => 'text',
       ),
+      'pb_join' => _path_breadcrumbs_pb_join_property_defaults(),
+    ),
+    'computed' => TRUE,
+  );
+}
+
+/**
+ * Return default 'path-menu-trail' structure.
+ */
+function _path_breadcrumbs_menu_trail_property_defaults() {
+  return array(
+    'label' => t('Path menu trail'),
+    'description' => t('Expands menu trail by path'),
+    'getter callback' => 'path_breadcrumbs_entity_get_properties',
+    'type' => 'struct',
+    'property info' => array(
       'pb_join' => _path_breadcrumbs_pb_join_property_defaults(),
     ),
     'computed' => TRUE,

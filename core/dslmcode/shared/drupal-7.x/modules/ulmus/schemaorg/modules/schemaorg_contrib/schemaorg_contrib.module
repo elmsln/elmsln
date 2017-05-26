@@ -1,0 +1,26 @@
+<?php
+
+/**
+ * @file
+ * Add schema.org support for compound fields from contributed modules.
+ */
+
+/**
+ * Implements MODULE_preprocess_HOOK().
+ */
+function schemaorg_contrib_preprocess_field(&$variables) {
+  $element = $variables['element'];
+  $field_name = $element['#field_name'];
+
+  // Address field module integration.
+  if ($element['#field_type'] == 'addressfield' && $element['#formatter'] == 'addressfield_default' && !empty($element['#object']->rdf_mapping[$field_name]['predicates'])) {
+    module_load_include('inc', 'schemaorg_contrib', 'schemaorg_contrib.addressfield');
+    schemaorg_contrib_field_preprocess_addressfield($variables);
+  }
+
+  // Fivestar module integration.
+  if ($element['#field_type'] == 'fivestar' && !empty($element['#object']->rdf_mapping[$field_name]['predicates'])) {
+    module_load_include('inc', 'schemaorg_contrib', 'schemaorg_contrib.fivestar');
+    schemaorg_contrib_field_preprocess_fivestar($variables);
+  }
+}

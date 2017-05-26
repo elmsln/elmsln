@@ -5,6 +5,8 @@ import { Observable } from 'rxjs';
 import { Submission } from '../submission';
 import { createSubmission } from '../submission.actions';
 import { SubmissionFormComponent } from '../submission-form/submission-form.component';
+import * as fromRoot from '../../app.reducer';
+import { SubmissionStates } from '../submission.reducer';
 declare const Materialize:any;
 declare const jQuery:any
 
@@ -23,7 +25,7 @@ export class SubmissionCreateComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private store: Store<{}>
+    private store: Store<fromRoot.State>
   ) { }
 
   ngOnInit() {
@@ -37,18 +39,17 @@ export class SubmissionCreateComponent implements OnInit {
       });
 
     // check the permissions store to see if the user has edit
-    this.userCanEdit$ = this.store.select('user')
-      .map((state:any) => state.permissions.includes('edit own cle_submission content'));
+    this.userCanEdit$ = this.store.select(fromRoot.getUserPermissions)
+      .map((state:any) => state.includes('edit own cle_submission content'));
     
-    this.store.select('submissions')
-      .map((state:any) => state.saving)
-      .subscribe(saving => {
+    this.store.select(fromRoot.getSubmissionCurrentState)
+      .subscribe((state:SubmissionStates) => {
         // saving is happening
-        if (saving && !this.isSaving) {
+        if (state === SubmissionStates.saving && !this.isSaving) {
           this.isSaving = true;
           Materialize.toast('Creating submission...', 30000, 'toast-submission-create');
         }
-        else if (!saving && this.isSaving) {
+        else if (state === SubmissionStates.default && this.isSaving) {
           jQuery('.toast-submission-create').remove();
           Materialize.toast('Submission created', 1500);
           this.router.navigate(['/assignments/' + this.assignmentId]);

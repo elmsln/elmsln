@@ -28,9 +28,9 @@ function hook_h5p_semantics_alter(&$semantics, $machine_name, $major_version, $m
 
 /**
  * Alter an H5Ps parameters
- * 
+ *
  * May be used to alter the content itself or the behaviour of the H5P
- * 
+ *
  * @param type $filtered
  *  json object
  */
@@ -52,7 +52,7 @@ function hook_h5p_filtered_params_alter(&$filtered) {
 
 /**
  * Add styles to H5Ps
- * 
+ *
  * @param array $styles
  *  Array of objects with properties path and version. Version is on the form
  *  ?ver=1.0.2 and is used as a cache buster
@@ -75,7 +75,7 @@ function hook_h5p_styles_alter(&$styles, $libraries, $mode) {
 
 /**
  * Add scripts to h5ps
- * 
+ *
  * @param array $scripts
  *  Array of objects with properties path and version. Version is on the form
  *  ?ver=1.0.2 and is used as a cache buster
@@ -94,6 +94,19 @@ function hook_h5p_scripts_alter(&$scripts, $libraries, $mode) {
       'version' => '?ver=1',
     );
   }
+}
+
+/**
+ * Hook is invoked whenever an H5P library has been installed/updated. It is created
+ * to be able to run other actions, not to alter input data.
+ *
+ * @param array $libraryData
+ *  This associative array contains everything found in library.json
+ * @param boolean $isNew
+ *  If this is a new library, this will be TRUE, otherwise FALSE
+ */
+function hook_h5p_library_installed($libraryData, $isNew) {
+  $machineName = $libraryData['machineName'];
 }
 
 ?>

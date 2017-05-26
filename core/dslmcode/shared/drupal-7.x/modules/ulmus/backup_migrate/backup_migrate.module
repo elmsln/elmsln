@@ -136,7 +136,7 @@ function backup_migrate_menu() {
     'description' => 'Backup the database.',
     'page callback' => 'backup_migrate_menu_callback',
     'page arguments' => array('', 'backup_migrate_ui_manual_backup_quick', TRUE),
-    'access arguments' => array('access backup and migrate'),
+    'access arguments' => array('perform backup'),
     'weight' => 0,
     'type' => MENU_DEFAULT_LOCAL_TASK,
   );
@@ -163,7 +163,7 @@ function backup_migrate_menu() {
     'description' => 'Previously created backups',
     'page callback' => 'backup_migrate_menu_callback',
     'page arguments' => array('', 'backup_migrate_ui_saved_backups', TRUE),
-    'access arguments' => array('access backup and migrate'),
+    'access arguments' => array('access backup files'),
     'weight' => 2,
     'type' => MENU_LOCAL_TASK,
   );
@@ -439,6 +439,7 @@ function backup_migrate_backup_migrate_schedules() {
         'profile_id' => 'default',
         'period' => variable_get('nodesquirrel_schedule', 60*60*24),
         'enabled' => variable_get('nodesquirrel_schedule_enabled', TRUE) && variable_get('nodesquirrel_secret_key', FALSE) != FALSE,
+        'keep' => variable_get('nodesquirrel_schedule_keep', BACKUP_MIGRATE_SMART_DELETE)
       );
       $schedules['nodesquirrel'] = backup_migrate_crud_create_item('schedule', $schedule);
     }
@@ -764,7 +765,7 @@ function backup_migrate_ui_manual_quick_backup_form($form, &$form_state, $inline
 
   $form['advanced'] = array(
     '#type' => 'markup',
-    '#markup' => '<div class="clearblock backup-migrate-footer-message">' . t('For more backup options, try the <a href="!advancedurl">advanced backup page</a>.', array('!advancedurl' => url('admin/content/backup_migrate/export/advanced'))) . '</div>',
+    '#markup' => '<div class="clearblock backup-migrate-footer-message">' . t('For more backup options, try the <a href="!advancedurl">advanced backup page</a>.', array('!advancedurl' => url(BACKUP_MIGRATE_MENU_PATH . '/export/advanced'))) . '</div>',
   );
 
   $form['quickbackup']['submit'] = array(
@@ -787,9 +788,11 @@ function backup_migrate_ui_manual_quick_backup_form_validate($form, &$form_state
   if ($form_state['values']['source_id'] == $form_state['values']['destination_id']) {
     form_set_error('destination_id', t('A source cannot be backed up to itself. Please pick a different destination for this backup.'));
   }
+  // Wrap profile_id for prevent Undefined index notice.
+  $profile_id = isset($form_state['values']['profile_id']) ? $form_state['values']['profile_id'] : NULL;
 
   // For a quick backup use the default settings.
-  $settings = _backup_migrate_profile_saved_default_profile($form_state['values']['profile_id']);
+  $settings = _backup_migrate_profile_saved_default_profile($profile_id);
 
   // Set the destination to the one chosen in the pulldown.
   $settings->destination_id = array($form_state['values']['destination_id']);
@@ -951,7 +954,7 @@ function theme_backup_migrate_file_list($vars) {
 
   // Render the radios so they can be placed in the file list rendering.
   $vars['element']['#display_options']['form_elements'] = array();
-  if ($vars['element']['files']) {  
+  if (isset($vars['element']['files']) && count($vars['element']['files'])) {  
     foreach (element_children($vars['element']['files']) as $id) {
       $vars['element']['files'][$id]['#title'] = '';
       $vars['element']['#display_options']['form_elements'][$id] = render($vars['element']['files'][$id]);
@@ -1828,7 +1831,7 @@ function backup_migrate_exec($command, $args = array()) {
   $output = $result = NULL;
 
   // Run the command.
-  exec($command . ' 2>&1', $output, $result);
+  exec($command, $output, $result);
 
   return $result == 0;
 }

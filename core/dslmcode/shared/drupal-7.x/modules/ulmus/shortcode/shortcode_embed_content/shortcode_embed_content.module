@@ -15,10 +15,98 @@ function shortcode_embed_content_shortcode_info() {
     'process callback' => 'shortcode_embed_content_shortcode_node',
     //'settings callback' => '_shortcode_settings_form', TODO
     'tips callback' => 'shortcode_embed_content_node_tip',
+    'attributes callback' => 'shortcode_embed_content_attributes',
     'default settings' => array(),
   );
 
   return $shortcodes;
+}
+
+/**
+ * Attributes form element for embed_content shortcode.
+ *
+ * Used by shortcode_wysiwyg module to add form elements for attributes.
+ */
+function shortcode_embed_content_attributes($form, &$form_state) {
+  $form['embed_content-nid'] = array(
+    '#title' => t('Node nid'),
+    '#type' => 'textfield',
+    '#states' => array(
+      'visible' => array(
+        ':input[name="shortcode"]' => array('value' => 'embed_content'),
+      ),
+    ),
+  );
+  $form['embed_content-class'] = array(
+    '#title' => t('Class'),
+    '#type' => 'textfield',
+    '#states' => array(
+      'visible' => array(
+        ':input[name="shortcode"]' => array('value' => 'embed_content'),
+      ),
+    ),
+  );
+  $form['embed_content-view_mode'] = array(
+    '#title' => t('View mode'),
+    '#type' => 'textfield',
+    '#states' => array(
+      'visible' => array(
+        ':input[name="shortcode"]' => array('value' => 'embed_content'),
+      ),
+    ),
+  );
+  $form['embed_content-show_title'] = array(
+    '#title' => t('Show title'),
+    '#type' => 'select',
+    '#options' => array('true' => 'True', 'false' => 'False'),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="shortcode"]' => array('value' => 'embed_content'),
+      ),
+    ),
+  );
+  $form['embed_content-show_submitted'] = array(
+    '#title' => t('Show submitted'),
+    '#type' => 'select',
+    '#options' => array('true' => 'True', 'false' => 'False'),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="shortcode"]' => array('value' => 'embed_content'),
+      ),
+    ),
+  );
+  $form['embed_content-show_meta'] = array(
+    '#title' => t('Show meta'),
+    '#type' => 'select',
+    '#options' => array('true' => 'True', 'false' => 'False'),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="shortcode"]' => array('value' => 'embed_content'),
+      ),
+    ),
+  );
+  $form['embed_content-show_terms'] = array(
+    '#title' => t('Show terms'),
+    '#type' => 'select',
+    '#options' => array('true' => 'True', 'false' => 'False'),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="shortcode"]' => array('value' => 'embed_content'),
+      ),
+    ),
+  );
+  $form['embed_content-show_links'] = array(
+    '#title' => t('Show links'),
+    '#type' => 'select',
+    '#options' => array('true' => 'True', 'false' => 'False'),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="shortcode"]' => array('value' => 'embed_content'),
+      ),
+    ),
+  );
+
+  return $form;
 }
 
 /**

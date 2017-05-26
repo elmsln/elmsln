@@ -224,3 +224,19 @@ function elmsln_core_update_7021(&$sandbox) {
   module_enable(array('imagecache_actions', 'imagecache_coloractions', 'imagecache_autorotate'));
   features_revert_module('elmsln_core');
 }
+
+/**
+ * In context editor permission added to staff / faculty
+ */
+function elmsln_core_update_7022(&$sandbox) {
+  features_revert_module('elmsln_core');
+}
+
+/**
+ * Viva la Web Component revolution! Let's only enable the core technology and polymer
+ * for now and we'll do more testing on all the different display mode capabilities and
+ * the process in general.
+ */
+function elmsln_core_update_7023(&$sandbox) {
+  module_enable(array('webcomponents', 'webcomponents_polymer'));
+}

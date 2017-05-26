@@ -59,12 +59,21 @@ function menu_position_schema() {
         'not null' => FALSE,
         'default' => 0,
       ),
+      'machine_name' => array(
+        'description' => 'The machine name.',
+        'type' => 'varchar',
+        'length' => 255,
+        'default' => NULL,
+      ),
     ),
     'indexes' => array(
       'rule_enabled' => array('enabled', 'weight', 'rid'),
       'rule_weight'  => array('weight', 'rid'),
     ),
     'primary key' => array('rid'),
+    'unique keys' => array(
+      'machine_name' => array('machine_name'),
+    ),
   );
 
   return $schema;
@@ -99,6 +108,38 @@ function menu_position_update_7102() {
   if ($rules->rowCount()) {
     return t('Due to a bug in Menu position 7.x-1.0-beta3, all menu position rules need to be fixed. All rules will be disabled until you visit the <a href="!url">menu position rules admin page</a>.', array('!url' => url('admin/structure/menu-position')));
   }
+}
+
+/**
+ * Adding the machine_name field.
+ */
+function menu_position_update_7103() {
+  db_add_field(
+    'menu_position_rules',
+    'machine_name',
+    array(
+      'description' => 'The machine name.',
+      'type' => 'varchar',
+      'length' => 255,
+      'default' => NULL,
+    )
+  );
+
+  $result = db_query('SELECT admin_title, rid FROM {menu_position_rules}')->fetchAll();
+
+  foreach ($result as $rule) {
+    $rule->machine_name = substr(preg_replace('/[^a-z0-9_]+/', '_', drupal_strtolower($rule->admin_title)), 0, 255);
+    db_update('menu_position_rules')
+      ->fields(array('machine_name' => $rule->machine_name))
+      ->condition('rid', $rule->rid)
+      ->execute();
+  }
+
+  db_add_unique_key(
+    'menu_position_rules',
+    'machine_name',
+    array('machine_name')
+  );
 }
 
 /**

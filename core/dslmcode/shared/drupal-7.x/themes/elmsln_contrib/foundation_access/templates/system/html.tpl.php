@@ -78,34 +78,15 @@
   <?php print preg_replace('~>\s+<~', '><', $styles); ?>
   <?php print preg_replace('~>\s+<~', '><', $scripts); ?>
 </head>
-<body class="<?php print $classes; ?> <?php print $lmsless_classes['color'];?>-selection" <?php print $attributes;?>>
+<body class="<?php print $classes; ?> <?php print $lmsless_classes['color'];?>-selection" <?php print $attributes;?> prefix="oer: http://oerschema.org/">
 <h1 class="element-invisible"><?php print $head_title;?></h1>
 <?php ob_flush(); flush(); ?>
   <span class="cis-lmsless-color"></span>
   <div class="skip-link">
-    <a href="#main-content" class="element-invisible element-focusable"><?php print t('Skip to main content'); ?></a>
+    <a href="#main-content" class="element-invisible element-focusable black-text"><?php print t('Skip to main content'); ?></a>
   </div>
   <?php if (!empty($banner_image)) : ?>
   <div class="header-image-container">
-  <?php if ($install_profile != 'mooc') : ?>
-    <div class="elmsln-system-badge">
-      <div class="elmsln-icon icon-<?php print $system_icon;?> white-text elmsln-badge"></div>
-      <div class="elmsln-badge-inner">
-        <div class="elmsln-badge-middle <?php print $lmsless_classes['color'];?>"></div>
-        <div class="elmsln-badge-bottom <?php print $lmsless_classes['color'];?>-border"></div>
-      </div>
-      <div class="elmsln-badge-outer">
-        <div class="elmsln-badge-middle white"></div>
-        <div class="elmsln-badge-bottom white-border"></div>
-      </div>
-      <div class="elmsln-badge-middle-name <?php print $lmsless_classes['color'];?> white-border">
-        <a href="<?php print base_path();?>" class="<?php print $lmsless_classes['color'];?> white-text white-outline">
-          <span class="element-invisible"><?php print t('Home');?></span>
-          <?php print $system_title;?>
-        </a>
-      </div>
-    </div>
-  <?php endif; ?>
     <?php print $banner_image; ?>
   </div>
   <?php endif; ?>

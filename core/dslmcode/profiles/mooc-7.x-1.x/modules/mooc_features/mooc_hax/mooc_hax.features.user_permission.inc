@@ -22,17 +22,5 @@ function mooc_hax_user_default_permissions() {
     'module' => 'hax',
   );
 
-  // Exported permission: 'use text format hax_editor'.
-  $permissions['use text format hax_editor'] = array(
-    'name' => 'use text format hax_editor',
-    'roles' => array(
-      'administrator' => 'administrator',
-      'instructor' => 'instructor',
-      'staff' => 'staff',
-      'teaching assistant' => 'teaching assistant',
-    ),
-    'module' => 'filter',
-  );
-
   return $permissions;
 }

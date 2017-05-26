@@ -70,11 +70,13 @@ function advagg_ext_compress_advagg_css_compress_configuration_alter(&$options_d
  *   The file containing the uncompressed css/js data.
  * @param string $ext
  *   The string css or js.
+ * @param array $debug
+ *   Optinal debug array.
  *
  * @return string
- *   The file containting the compressed css/js data.
+ *   The filename containting the compressed css/js data.
  */
-function advagg_ext_compress_execute_cmd($input_file, $ext = '') {
+function advagg_ext_compress_execute_cmd($input_file, $ext = '', array &$debug = array()) {
   // Get file extension.
   if (empty($ext)) {
     $ext = strtolower(pathinfo($input_file, PATHINFO_EXTENSION));
@@ -97,11 +99,13 @@ function advagg_ext_compress_execute_cmd($input_file, $ext = '') {
   $temp_file = drupal_tempnam('temporary://', 'advagg_file_');
   $new_temp_file = $temp_file . '.' . basename($input_file);
   @rename($temp_file, $new_temp_file);
+  // Set the permissions on the temp file.
+  drupal_chmod($new_temp_file);
   $output = advagg_get_relative_path($new_temp_file);
 
   // Create command to run.
   $run = variable_get("advagg_ext_compress_{$ext}_cmd", '');
-  $run = str_replace(array(
+  $cmd = str_replace(array(
     '{%CWD%}',
     '{%IN%}',
     '{%IN_URL_ENC%}',
@@ -114,7 +118,10 @@ function advagg_ext_compress_execute_cmd($input_file, $ext = '') {
   ), $run);
 
   // Run command and return the output file.
-  shell_exec($run);
+  $shell_output = array();
+  $return_var = 0;
+  $shell = exec($cmd, $shell_output, $return_var);
+  $debug = array($cmd, $shell_output, $return_var, $shell);
   return $output;
 }
 
@@ -123,22 +130,14 @@ function advagg_ext_compress_execute_cmd($input_file, $ext = '') {
  *
  * @param string $contents
  *   The JavaScript to compress.
+ * @param bool $log_errors
+ *   TRUE to log errors.
+ *
+ * @return bool
+ *   FALSE if this failed.
  */
-function advagg_ext_compress_js_compress(&$contents) {
-  list(, $js_path) = advagg_get_root_files_dir();
-  $temp_file = drupal_tempnam($js_path[0], 'advagg_file_');
-  $new_temp_file = $temp_file . '.js';
-  rename($temp_file, $new_temp_file);
-  $temp_file_full = advagg_get_relative_path($new_temp_file);
-
-  file_put_contents($new_temp_file, $contents);
-  $output = advagg_ext_compress_execute_cmd($temp_file_full, 'js');
-  $contents = (string) @file_get_contents($output);
-
-  // Cleanup.
-  unset($new_temp_file);
-  unset($temp_file_full);
-  unset($output);
+function advagg_ext_compress_js_compress(&$contents, $log_errors) {
+  return advagg_ext_compress_string($contents, 'js', $log_errors);
 }
 
 /**
@@ -146,20 +145,70 @@ function advagg_ext_compress_js_compress(&$contents) {
  *
  * @param string $contents
  *   The CSS to compress.
+ * @param bool $log_errors
+ *   TRUE to log errors.
+ *
+ * @return bool
+ *   FALSE if this failed.
  */
-function advagg_ext_compress_css_compress(&$contents) {
-  list($css_path) = advagg_get_root_files_dir();
-  $temp_file = drupal_tempnam($css_path[0], 'advagg_file_');
-  $new_temp_file = $temp_file . '.css';
-  rename($temp_file, $new_temp_file);
+function advagg_ext_compress_css_compress(&$contents, $log_errors) {
+  return advagg_ext_compress_string($contents, 'css', $log_errors);
+}
+
+/**
+ * Compress CSS using via command line.
+ *
+ * @param string $contents
+ *   The data to compress.
+ * @param string $type
+ *   Should be css or js.
+ * @param bool $log_errors
+ *   TRUE to log errors.
+ *
+ * @return bool
+ *   TRUE on success.
+ */
+function advagg_ext_compress_string(&$contents, $type, $log_errors) {
+  list($css_path, $js_path) = advagg_get_root_files_dir();
+  if ($type === 'css') {
+    $dir = $css_path[0];
+  }
+  else {
+    $dir = $js_path[0];
+  }
+  $new_temp_file = $dir . '/advagg_file_' . md5(getmypid() . microtime(TRUE) . mt_rand()) . '.' . $type;
   $temp_file_full = advagg_get_relative_path($new_temp_file);
 
   file_put_contents($new_temp_file, $contents);
-  $output = advagg_ext_compress_execute_cmd($temp_file_full, 'css');
-  $contents = file_get_contents($output);
+  // Set the permissions on the temp file.
+  drupal_chmod($new_temp_file);
+  $debug = array();
+  $output = advagg_ext_compress_execute_cmd($temp_file_full, $type, $debug);
+  $new_contents = file_get_contents($output);
+  if (strpos($new_contents, 'Error') === 0) {
+    if ($log_errors) {
+      watchdog('advagg_ext_compress', "@a \n<br>\n<br> @b", array(
+        // Only log 4k of data.
+        '@a' => substr($new_contents, 0, 4096),
+        '@b' => print_r($debug, TRUE),
+      ));
+    }
+    $return = FALSE;
+  }
+  else {
+    $contents = $new_contents;
+    $return = TRUE;
+  }
 
   // Cleanup.
-  unset($new_temp_file);
-  unset($temp_file_full);
-  unset($output);
+  if (file_exists($new_temp_file)) {
+    unlink($new_temp_file);
+  }
+  if (file_exists($temp_file_full)) {
+    unlink($temp_file_full);
+  }
+  if (file_exists($output)) {
+    unlink($output);
+  }
+  return $return;
 }

@@ -6,7 +6,7 @@
   height: 70px;
   position: fixed;
   right: 20px;
-  text-indent:-9999px;
+  text-indent: -9999px;
   width: 70px;
   z-index: 1;
 }
@@ -15,23 +15,15 @@
   opacity: 0.8;
 }
 
-<!--[if lte IE 6]>
-html {
-  overflow-x: auto;
-  overflow-y: hidden;
-}
-
-* html #backtotop {
-  position:absolute;
-}
-<![endif]-->
-
-@media (-webkit-min-device-pixel-ratio: 2), 
-(min-resolution: 192dpi) { 
-
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
   #backtotop {
     background: url(../backtotop2x.png) no-repeat center center;
     background-size: 70px 70px;
   }
+}
 
+@media print {
+  #backtotop {
+    visibility: hidden;
+  }
 }

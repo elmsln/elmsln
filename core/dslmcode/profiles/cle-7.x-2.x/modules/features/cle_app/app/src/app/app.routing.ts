@@ -23,15 +23,7 @@ import { DialogComponent } from './dialog/dialog.component';
 const appRoutes: Routes = [
   {
     path: '',
-    component: AppComponent
-  },
-  {
-    path: 'login',
-    component: LoginComponent
-  },
-  {
-    path: 'logout',
-    component: LogoutComponent
+    component: ProjectsListComponent
   },
   {
     path: 'projects',

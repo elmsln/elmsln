@@ -21,7 +21,7 @@ function filefield_source_attach_info() {
     'process' => 'filefield_source_attach_process',
     'value' => 'filefield_source_attach_value',
     'weight' => 3,
-    'file' => 'includes/attach.inc',
+    'file' => 'sources/attach.inc',
   );
   return $source;
 }
@@ -112,7 +112,7 @@ function _filefield_source_attach_file_path_validate($element, &$form_state) {
 
   // Check that the directory exists and is writable.
   if (!file_prepare_directory($filepath, FILE_CREATE_DIRECTORY)) {
-    form_error($element['path'], t('Specified file attach path must exist or be writable.'));
+    form_error($element['path'], t('Specified file attach path %path must exist or be writable.', array('%path' => $filepath)));
   }
 }
 
@@ -130,7 +130,7 @@ function filefield_source_attach_process($element, &$form_state, $form) {
   );
 
   $path = _filefield_source_attach_directory($instance);
-  $options = _filefield_source_attach_options($path);
+  $options = _filefield_source_attach_options($path, $instance['settings']['file_extensions']);
 
   // If we have built this element before, append the list of options that we
   // had previously. This allows files to be deleted after copying them and
@@ -184,7 +184,7 @@ function filefield_source_attach_process($element, &$form_state, $form) {
     '#limit_validation_errors' => array($element['#parents']),
     '#ajax' => array(
       'path' => 'file/ajax/' . implode('/', $element['#array_parents']) . '/' . $form['form_build_id']['#value'],
-      'wrapper' => $element['#id'] . '-ajax-wrapper',
+      'wrapper' => $element['upload_button']['#ajax']['wrapper'],
        'method' => 'replace',
        'effect' => 'fade',
     ),
@@ -193,24 +193,24 @@ function filefield_source_attach_process($element, &$form_state, $form) {
   return $element;
 }
 
-function _filefield_source_attach_options($path) {
+function _filefield_source_attach_options($path, $extensions = FALSE) {
   if (!file_prepare_directory($path, FILE_CREATE_DIRECTORY)) {
-    drupal_set_message(t('Specified file attach path must exist or be writable.'), 'error');
+    drupal_set_message(t('Specified file attach path %path must exist or be writable.', array('%path' => $path)), 'error');
     return FALSE;
   }
 
   $options = array();
-  $file_attach = file_scan_directory($path, '/.*/', array('key' => 'filename'), 0);
+  $pattern = !empty($extensions) ? '/\.(' . strtr($extensions, ' ', '|') . ')$/' : '/.*/';
+  $files = file_scan_directory($path, $pattern);
 
-  if (count($file_attach)) {
+  if (count($files)) {
     $options = array('' => t('-- Select file --'));
-    foreach ($file_attach as $filename => $fileinfo) {
-      $filename = basename($filename);
-      $options[$fileinfo->uri] = str_replace($path . '/', '', $fileinfo->uri);
+    foreach ($files as $file) {
+      $options[$file->uri] = str_replace($path . '/', '', $file->uri);
     }
+    natcasesort($options);
   }
 
-  natcasesort($options);
   return $options;
 }
 
@@ -251,7 +251,7 @@ function filefield_source_attach_value($element, &$item) {
       $item = array_merge($item, (array) $file);
 
       // Delete the original file if "moving" the file instead of copying.
-      if ($instance['widget']['settings']['filefield_sources']['source_attach']['attach_mode'] !== 'copy') {
+      if ($filepath != $original_filepath && $instance['widget']['settings']['filefield_sources']['source_attach']['attach_mode'] !== 'copy') {
         @unlink($filepath);
       }
     }

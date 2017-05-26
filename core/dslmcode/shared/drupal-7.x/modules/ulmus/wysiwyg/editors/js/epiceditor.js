@@ -27,38 +27,24 @@ Drupal.wysiwyg.editor.attach.epiceditor = function (context, params, settings) {
 };
 
 /**
- * Detach a single or all editors.
+ * Detach a single edtor instance.
  */
 Drupal.wysiwyg.editor.detach.epiceditor = function (context, params, trigger) {
-  var $targets = $();
-  if (typeof params != 'undefined') {
-    $targets.push($('#' + params.field));
+  var $target = $('#' + params.field, context);
+  var editor = $target.data('epiceditor');
+  if (!editor) {
+    return;
   }
-  else {
-    // Check all fields in context for active EpicEditor instances.
-    var $wysiwygs = $('.wysiwyg-processed', context);
-    $wysiwygs.each(function () {
-      var $this = $(this);
-      if (!$this.data('epiceditor')) {
-        $targets.push($this);
-      }
+  // Save contents of the editor back into the textarea.
+  $target.val(editor.exportFile());
+  if (trigger !== 'serialize') {
+    // Remove editor instance and container.
+    editor.unload(function () {
+      $target.show();
+      $('#' + $target.attr('id') + '-epiceditor').remove();
     });
+    $target.removeData('epiceditor');
   }
-
-  $targets.each(function () {
-    var $target = $(this);
-    var editor = $target.data('epiceditor');
-    // Save contents of the editor back into the textarea.
-    $target.val(editor.exportFile());
-    if (trigger !== 'serialize') {
-      // Remove editor instance and container.
-      editor.unload(function () {
-        $target.show();
-        $('#' + $target.attr('id') + '-epiceditor').remove();
-      });
-      $target.removeData('epiceditor');
-    }
-  });
 };
 
 /**

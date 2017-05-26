@@ -1,3 +1,10 @@
 name = Canvas API
 description = Integrates Canvas' API with Drupal
 core = 7.x
+configure = admin/config/services/canvas_api
+; Information added by Drupal.org packaging script on 2017-05-05
+version = "7.x-2.x-dev"
+core = "7.x"
+project = "canvas_api"
+datestamp = "1493987289"
+

@@ -1,0 +1,78 @@
+<?php
+
+/**
+ * @file
+ * Enables administrators to annotate their structured content with vocabularies
+ * from schema.org.
+ */
+
+/**
+ * Implements hook_help().
+ */
+function schemaorg_help($path, $arg) {
+  switch ($path) {
+    case 'admin/help#schemaorg':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('<a href="@schemaorg">Schema.org</a> provides a collection of schemas useful for site builders and administrators to annotate their pages in ways recognized by major search engines including Bing, Google and Yahoo!. These semantic annotations allow search providers to improve the display of search results, making it easier for people to find what they are looking for on the Web. ', array('@schemaorg' => 'http://schema.org/')) . '</p>';
+      $output .= '<p>' . t('Each of your <a href="@content_types">content types</a> and their fields can be mapped to schema.org vocabularies. The type (e.g. Event) and the property of the title (e.g. name) are defined in the edit form of each content type, in the "Schema.org" vertical tab. The property of each field can be set when editing a field, in the schema.org fieldset.', array('@content_types' => url('admin/structure/types'))) . '</p>';
+      return $output;
+  }
+}
+
+/**
+ * Implements hook_entity_view().
+ */
+function schemaorg_entity_view($entity, $type, $view_mode, $langcode) {
+  // Adds the schema.org url to the entity content as RDF metadata.
+  if (!empty($entity->rdf_mapping['url']['predicates'])) {
+    $attributes = rdf_rdfa_attributes($entity->rdf_mapping['url']);
+    $uri = entity_uri($type, $entity);
+    $attributes['resource'] = url($uri['path'], $uri['options']);
+    $entity->content['schemaorg_url'] = array(
+      '#markup' => theme('rdf_metadata', array('metadata' => array('span' => $attributes))),
+      '#weight' => 100,
+    );
+  }
+
+  // It seems parsers are expecting to find the title/name of the entity within
+  // the main content of the entity. Drupal displays the title outside the main
+  // content on full entity display, so we assert it as hidden RDF metadata.
+  foreach (array('title', 'subject', 'name') as $field_name) {
+    if (!empty($entity->{$field_name})) {
+      $label_field = $field_name;
+      break;
+    }
+  }
+  if (isset($label_field) && !empty($entity->rdf_mapping[$label_field]['predicates'])) {
+    $attributes = rdf_rdfa_attributes($entity->rdf_mapping[$label_field]);
+    $attributes['content'] = $entity->{$label_field};
+    $entity->content['schemaorg_name'] = array(
+      '#markup' => theme('rdf_metadata', array('metadata' => array('span' => $attributes))),
+      '#weight' => 100,
+    );
+  }
+}
+
+/**
+ * Implements hook_rdf_namespaces().
+ */
+function schemaorg_rdf_namespaces() {
+  return array(
+    'schema' => 'http://schema.org/',
+  );
+}
+
+/**
+ * Implements hook_features_api().
+ */
+function schemaorg_features_api() {
+  return array(
+    'schemaorg' => array(
+      'name' => t('Schema.org mappings'),
+      'default_hook' => 'rdf_default_mappings',
+      'file' => drupal_get_path('module', 'schemaorg') .'/schemaorg.features.inc',
+      'feature_source' => TRUE,
+    ),
+  );
+}

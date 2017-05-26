@@ -1,0 +1,364 @@
+<?php
+
+/**
+ * @file
+ * Support module for Inline Entity Form tests.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function inline_entity_form_test_install() {
+  // Create content types.
+  $types = array(
+    array(
+      'type' => 'ief_reference_type',
+      'name' => t('IEF reference type'),
+      'base' => 'node_content',
+      'description' => t('Entity reference content type.'),
+      'custom' => 1,
+      'modified' => 1,
+      'locked' => 0,
+    ),
+    array(
+      'type' => 'ief_simple_single',
+      'name' => t('IEF simple single'),
+      'base' => 'node_content',
+      'description' => t('Content type for IEF simple widget testing.'),
+      'custom' => 1,
+      'modified' => 1,
+      'locked' => 0,
+    ),
+    array(
+      'type' => 'ief_test_multiple',
+      'name' => t('IEF test multiple'),
+      'base' => 'node_content',
+      'description' => t('Content type for IEF multiple widget testing.'),
+      'custom' => 1,
+      'modified' => 1,
+      'locked' => 0,
+    ),
+    array(
+      'type' => 'ief_test_custom',
+      'name' => t('IEF test custom'),
+      'base' => 'node_content',
+      'description' => t('Content type for IEF custom form testing.'),
+      'custom' => 1,
+      'modified' => 1,
+      'locked' => 0,
+    ),
+    array(
+      'type' => 'ief_test_nested1',
+      'name' => t('IEF test nested1'),
+      'base' => 'node_content',
+      'description' => t('Content type for IEF custom form testing.'),
+      'custom' => 1,
+      'modified' => 1,
+      'locked' => 0,
+    ),
+    array(
+      'type' => 'ief_test_nested2',
+      'name' => t('IEF test nested2'),
+      'base' => 'node_content',
+      'description' => t('Content type for IEF custom form testing.'),
+      'custom' => 1,
+      'modified' => 1,
+      'locked' => 0,
+    ),
+    array(
+      'type' => 'ief_test_nested3',
+      'name' => t('IEF test nested3'),
+      'base' => 'node_content',
+      'description' => st("Use basic pages for your static content, such as an 'About us' page."),
+      'custom' => 1,
+      'modified' => 1,
+      'locked' => 0,
+    ),
+  );
+
+  foreach ($types as $type) {
+    $type = node_type_set_defaults($type);
+    node_type_save($type);
+  }
+
+  // Create fields.
+  field_info_cache_clear();
+
+  $field = array(
+    'field_name' => 'field_all_bundles',
+    'type' => 'entityreference',
+    'cardinality' => -1,
+    'settings' => array(
+      'target_type' => 'node',
+      'handler' => 'base',
+      'handler_settings' => array(
+        'target_bundles' => array(),
+      ),
+    ),
+  );
+  field_create_field($field);
+
+  $field = array(
+    'field_name' => 'field_first_name',
+    'type' => 'text',
+    'cardinality' => 1,
+    'settings' => array(
+      'max_length' => 255,
+    ),
+  );
+  field_create_field($field);
+
+  $field = array(
+    'field_name' => 'field_unrelatedimage',
+    'type' => 'image',
+    'cardinality' => 1,
+    'settings' => array(
+      'default_image' => 0,
+      'uri_scheme' => 'public',
+    ),
+  );
+  field_create_field($field);
+
+  $field = array(
+    'field_name' => 'field_last_name',
+    'type' => 'text',
+    'cardinality' => 1,
+    'settings' => array(
+      'max_length' => 255,
+    ),
+  );
+  field_create_field($field);
+
+  $field = array(
+    'field_name' => 'field_multiple_nodes',
+    'type' => 'entityreference',
+    'cardinality' => -1,
+    'required' => TRUE,
+    'settings' => array(
+      'target_type' => 'node',
+      'handler' => 'base',
+      'handler_settings' => array(
+        'target_bundles' => array(
+          'ief_reference_type' => 'ief_reference_type',
+        ),
+      ),
+    ),
+  );
+  field_create_field($field);
+
+  $field_bases['field_positive_int'] = array(
+    'active' => 1,
+    'cardinality' => 1,
+    'deleted' => 0,
+    'entity_types' => array(),
+    'field_name' => 'field_positive_int',
+    'indexes' => array(),
+    'locked' => 0,
+    'module' => 'number',
+    'settings' => array(),
+    'translatable' => 0,
+    'type' => 'number_integer',
+  );
+
+  $field = array(
+    'field_name' => 'field_positive_int',
+    'type' => 'number_integer',
+    'cardinality' => 1,
+    'settings' => array(),
+  );
+  field_create_field($field);
+
+  $field = array(
+    'field_name' => 'field_single_node',
+    'type' => 'entityreference',
+    'cardinality' => 1,
+    'settings' => array(
+      'target_type' => 'node',
+      'handler' => 'base',
+      'handler_settings' => array(
+        'target_bundles' => array(
+          'ief_test_custom' => 'ief_test_custom',
+        ),
+      ),
+    ),
+  );
+  field_create_field($field);
+
+  $field = array(
+    'field_name' => 'field_test_ref_nested1',
+    'type' => 'entityreference',
+    'cardinality' => -1,
+    'settings' => array(
+      'target_type' => 'node',
+      'handler' => 'base',
+      'handler_settings' => array(
+        'target_bundles' => array(
+          'ief_test_nested2' => 'ief_test_nested2',
+        ),
+      ),
+    ),
+  );
+  field_create_field($field);
+
+  $field = array(
+    'field_name' => 'field_test_ref_nested2',
+    'type' => 'entityreference',
+    'cardinality' => -1,
+    'settings' => array(
+      'target_type' => 'node',
+      'handler' => 'base',
+      'handler_settings' => array(
+        'target_bundles' => array(
+          'ief_test_nested3' => 'ief_test_nested3',
+        ),
+      ),
+    ),
+  );
+  field_create_field($field);
+
+
+  // Create field instances.
+  $instance = array(
+    'bundle' => 'ief_reference_type',
+    'entity_type' => 'node',
+    'field_name' => 'field_first_name',
+    'label' => 'First name',
+    'required' => TRUE,
+    'widget' => array('type' => 'text_textfield'),
+  );
+  field_create_instance($instance);
+
+  $instance = array(
+    'bundle' => 'ief_reference_type',
+    'entity_type' => 'node',
+    'field_name' => 'field_last_name',
+    'label' => 'Last name',
+    'required' => TRUE,
+    'widget' => array('type' => 'text_textfield'),
+  );
+  field_create_instance($instance);
+
+  $instance = array(
+    'bundle' => 'ief_simple_single',
+    'entity_type' => 'node',
+    'field_name' => 'field_single_node',
+    'label' => 'Single node',
+    'widget' => array('type' => 'inline_entity_form_single'),
+  );
+  field_create_instance($instance);
+
+  $instance = array(
+    'bundle' => 'ief_test_multiple',
+    'entity_type' => 'node',
+    'field_name' => 'field_all_bundles',
+    'label' => 'All bundles',
+    'widget' => array(
+      'type' => 'inline_entity_form',
+      'settings' => array(
+        'fields' => array(),
+        'type_settings' => array(
+          'allow_clone' => 0,
+          'allow_existing' => 1,
+          'allow_new' => 1,
+          'delete_references' => 0,
+          'label_plural' => 'nodes',
+          'label_singular' => 'node',
+          'match_operator' => 'CONTAINS',
+          'override_labels' => 0,
+        ),
+      ),
+    ),
+  );
+  field_create_instance($instance);
+
+  $instance = array(
+    'bundle' => 'ief_test_multiple',
+    'entity_type' => 'node',
+    'field_name' => 'field_unrelatedimage',
+    'label' => 'Image',
+    'widget' => array('type' => 'image_image'),
+  );
+  field_create_instance($instance);
+
+  $instance = array(
+    'bundle' => 'ief_test_multiple',
+    'entity_type' => 'node',
+    'field_name' => 'field_multiple_nodes',
+    'label' => 'Multiple nodes',
+    'required' => TRUE,
+    'widget' => array(
+      'type' => 'inline_entity_form',
+      'settings' => array(
+        'fields' => array(),
+        'type_settings' => array(
+          'allow_clone' => 0,
+          'allow_existing' => 0,
+          'allow_new' => 1,
+          'delete_references' => 0,
+          'label_plural' => 'nodes',
+          'label_singular' => 'node',
+          'match_operator' => 'CONTAINS',
+          'override_labels' => 0,
+        ),
+      ),
+    ),
+  );
+  field_create_instance($instance);
+
+  $instance = array(
+    'bundle' => 'ief_test_custom',
+    'entity_type' => 'node',
+    'field_name' => 'field_positive_int',
+    'label' => 'Positive int',
+    'widget' => array('type' => 'number'),
+  );
+  field_create_instance($instance);
+
+  $instance = array(
+    'bundle' => 'ief_test_nested1',
+    'entity_type' => 'node',
+    'field_name' => 'field_test_ref_nested1',
+    'label' => 'Multiple nodes',
+    'required' => TRUE,
+    'widget' => array(
+      'type' => 'inline_entity_form',
+      'settings' => array(
+        'fields' => array(),
+        'type_settings' => array(
+          'allow_existing' => 0,
+          'allow_new' => 1,
+          'delete_references' => 0,
+          'label_plural' => 'nodes 2',
+          'label_singular' => 'node 2',
+          'match_operator' => 'CONTAINS',
+          'override_labels' => 1,
+        ),
+      ),
+    ),
+  );
+  field_create_instance($instance);
+
+  $instance = array(
+    'bundle' => 'ief_test_nested2',
+    'entity_type' => 'node',
+    'field_name' => 'field_test_ref_nested2',
+    'label' => 'Multiple nodes',
+    'required' => TRUE,
+    'widget' => array(
+      'type' => 'inline_entity_form',
+      'settings' => array(
+        'fields' => array(),
+        'type_settings' => array(
+          'allow_existing' => 0,
+          'allow_new' => 1,
+          'delete_references' => 0,
+          'label_plural' => 'nodes 3',
+          'label_singular' => 'node 3',
+          'match_operator' => 'CONTAINS',
+          'override_labels' => 1,
+        ),
+      ),
+    ),
+  );
+  field_create_instance($instance);
+}

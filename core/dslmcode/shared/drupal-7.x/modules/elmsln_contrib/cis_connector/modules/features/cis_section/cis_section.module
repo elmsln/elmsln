@@ -502,6 +502,7 @@ function _cis_section_create_accounts($roster) {
   $actual = array();
   // loop through sections in the overall access roster
   foreach ($roster as $section => $members) {
+    // @todo ship these async into the background per section
     // loop through the user / role combination
     foreach ($members as $name => $userdata) {
       // support email address coming across too
@@ -516,6 +517,7 @@ function _cis_section_create_accounts($roster) {
         $role_name = $userdata;
       }
       // convert role name to object bc of stupid storage convention for account creation
+      // @todo only load role by name once, this is needlessly expensive
       $role = user_role_load_by_name($role_name);
       // ensure we got something, otherwise just make it auth
       if (!isset($role->rid) || empty($role->rid) || $role->rid == 0) {
@@ -525,6 +527,7 @@ function _cis_section_create_accounts($roster) {
       }
       else {
         // try and load the group role that matches
+        // @todo only load role by name once, this is needlessly expensive
         $ogrole = _cis_section_og_role_load_by_name($role_name);
       }
       // try and load the account first
@@ -547,7 +550,7 @@ function _cis_section_create_accounts($roster) {
           $fields['pass'] = $pass;
         }
         // allow other projects to update part of the user
-        drupal_alter('cis_section_user_insert', $fields);
+        drupal_alter('cis_section_user_insert', $fields, $userdata);
         // the first parameter is left blank so a new user is created
         $account = user_save('', $fields);
       }
@@ -593,6 +596,9 @@ function _cis_section_create_accounts($roster) {
       }
       // rip membership names to uid array for comparison
       $actual[] = $account->uid;
+      // allow other things to react to an account being processed
+      // via this job
+      drupal_alter('cis_section_account_processed', $account, $userdata);
     }
     // see if developer variable exists to prevent drop of access
     // if we no longer see the account come across
@@ -610,6 +616,7 @@ function _cis_section_create_accounts($roster) {
       }
       // find users that no longer came across
       $diff = array_diff($current, $actual);
+      // @todo ship this async into the background
       foreach ($diff as $uid) {
         $account = user_load($uid);
         // drop student role
@@ -630,6 +637,7 @@ function _cis_section_create_accounts($roster) {
  * @return    mixed    FALSE if nothing found or a entity id
  */
 function _cis_section_load_section_by_id($id) {
+  // @todo drupal static to prevent multiple querying here
   // entity field query to load a section by id
   $query = new EntityFieldQuery();
   $query
@@ -856,6 +864,7 @@ function _cis_section_og_role_grant($group_type, $gid, $uid, $rid, $mode = 'upda
  *   FALSE otherwise.
  */
 function _cis_section_og_role_load_by_name($name) {
+  // @todo do drupal_static with the $name value to reduce querries here
   return db_select('og_role', 'r')
     ->fields('r')
     ->condition('name', $name)

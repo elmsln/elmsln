@@ -23,7 +23,7 @@ function filefield_source_reference_info() {
     'process' => 'filefield_source_reference_process',
     'value' => 'filefield_source_reference_value',
     'weight' => 1,
-    'file' => 'includes/reference.inc',
+    'file' => 'sources/reference.inc',
   );
   return $source;
 }
@@ -84,7 +84,17 @@ function filefield_source_reference_settings($op, $instance) {
         '1' => t('Contains string'),
       ),
       '#type' => 'radios',
-      '#default_value' => isset($settings['source_reference']['autocomplete']) ? $settings['source_reference']['autocomplete'] : '0', 
+      '#default_value' => isset($settings['source_reference']['autocomplete']) ? $settings['source_reference']['autocomplete'] : '0',
+    );
+
+    $return['source_reference']['search_all_fields'] = array(
+      '#title' => t('Search all file fields'),
+      '#options' => array(
+        '0' => t('No (only fields with the same field base will be searched)'),
+        '1' => t('Yes (all file fields will be searched, regardless of type)'),
+      ),
+      '#type' => 'radios',
+      '#default_value' => isset($settings['source_reference']['search_all_fields']) ? $settings['source_reference']['search_all_fields'] : '0',
     );
   }
   elseif ($op == 'save') {
@@ -122,7 +132,7 @@ function filefield_source_reference_process($element, &$form_state, $form) {
     '#limit_validation_errors' => array($element['#parents']),
     '#ajax' => array(
       'path' => 'file/ajax/' . implode('/', $element['#array_parents']) . '/' . $form['form_build_id']['#value'],
-      'wrapper' => $element['#id'] . '-ajax-wrapper',
+      'wrapper' => $element['upload_button']['#ajax']['wrapper'],
       'effect' => 'fade',
     ),
   );
@@ -211,8 +221,14 @@ function theme_filefield_source_reference_element($variables) {
  *   Optional. A CCK field array for which to filter returned files.
  */
 function filefield_source_reference_get_files($filename, $instance = NULL) {
+  if (isset($instance)) {
+    // If we are looking at a single field, cache its settings, in case we want to search all fields.
+    $setting_autocomplete = empty($instance['widget']['settings']['filefield_sources']['source_reference']['autocomplete']) ? 0 : 1;
+    $setting_search_all_fields = empty($instance['widget']['settings']['filefield_sources']['source_reference']['search_all_fields']) ? 0 : 1;
+  }
+
   $instances = array();
-  if (!isset($instance)) {
+  if (!isset($instance) || $setting_search_all_fields) {
     foreach (field_info_fields() as $instance) {
       if ($instance['type'] == 'file' || $instance['type'] == 'image') {
         $instances[] = $instance;
@@ -231,6 +247,11 @@ function filefield_source_reference_get_files($filename, $instance = NULL) {
     // We don't support fields that are not stored with SQL.
     if (!isset($field['storage']['details']['sql']['FIELD_LOAD_CURRENT'])) {
       continue;
+    }
+
+    // If we are searching all fields, use the autocomplete settings from the source field.
+    if (!empty($setting_search_all_fields)) {
+      $instance['widget']['settings']['filefield_sources']['source_reference']['autocomplete'] = empty($setting_autocomplete) ? 0 : 1;
     }
 
     // 1 == contains, 0 == starts with.

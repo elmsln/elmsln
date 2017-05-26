@@ -82,7 +82,7 @@ class TaxonomyTermInlineEntityFormController extends EntityInlineEntityFormContr
       '#title' => t('Description'),
       '#default_value' => $term->description,
       '#format' => $term->format,
-      '#weight' => $extra_fields['description']['weight'],
+      '#weight' => !empty($extra_fields['description']) ? $extra_fields['description']['weight'] : -4,
     );
 
     $langcode = entity_language('taxonomy_term', $term);

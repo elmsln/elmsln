@@ -1,0 +1,30 @@
+<?php
+
+/**
+ * @file
+ * Contains form specific date element test cases.
+ */
+
+class DateFormTestCase extends DrupalWebTestCase {
+
+  public static function getInfo() {
+    return array(
+      'name' => t('Date Form test'),
+      'description' => t('Test Date form functions.') ,
+      'group' => t('Date'),
+    );
+  }
+
+  public function setUp() {
+    // Load the date_api module.
+    parent::setUp('date_test');
+  }
+
+  /**
+   * Tests rendering of a date element in a form.
+   */
+  public function testDateForm() {
+    $this->drupalGet('date-test/form');
+  }
+
+}

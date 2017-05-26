@@ -186,6 +186,11 @@ define('ADVAGG_MOD_CSS_DEFER_SKIP_FIRST_FILE', 0);
  */
 define('ADVAGG_MOD_CSS_DEFER_INLINE_SIZE_LIMIT', 12288);
 
+/**
+ * Default version of loadcss to use.
+ */
+define('ADVAGG_MOD_GITHUB_VERSION_LOADCSS', '1.3.1');
+
 // Core hook implementations.
 /**
  * Implements hook_module_implements_alter().
@@ -394,7 +399,7 @@ function advagg_mod_prefetch_link(array &$js) {
       if (variable_get('advagg_resource_hints_preconnect', ADVAGG_RESOURCE_HINTS_PRECONNECT)) {
         $parse = @parse_url($url);
         $inline_script = 'var preconnect_support = false; try {if (document.createElement("link").relList.supports("preconnect")) {preconnect_support = true;}} catch (e) {} if (!preconnect_support) { var prefetch = document.createElement("link"); prefetch.href = "https://' . $parse['host'] . '/robots.txt"; prefetch.rel="prefetch"; document.getElementsByTagName("head")[0].appendChild(prefetch);}';
-        $js[] = array(
+        $js['advagg_preconnect_support'] = array(
           'type' => 'inline',
           'group' => JS_LIBRARY - 1,
           'weight' => -50000,
@@ -785,7 +790,8 @@ function advagg_mod_advagg_modify_css_pre_render_alter(&$children, &$elements) {
   // Make loadCSS() available.
   $type = 'external';
   // https://github.com/filamentgroup/loadCSS.
-  $data = '//cdn.rawgit.com/filamentgroup/loadCSS/master/src/loadCSS.js';
+  $version = variable_get('advagg_mod_github_version_loadcss', ADVAGG_MOD_GITHUB_VERSION_LOADCSS);
+  $data = "//cdn.rawgit.com/filamentgroup/loadCSS/$version/src/loadCSS.js";
   $min = '';
   if (variable_get('advagg_cache_level', ADVAGG_CACHE_LEVEL) >= 0) {
     $min = '.min';
@@ -824,7 +830,7 @@ function advagg_mod_advagg_modify_css_pre_render_alter(&$children, &$elements) {
     // Make cssrelpreload available.
     $type = 'external';
     // https://github.com/filamentgroup/loadCSS.
-    $data = '//cdn.rawgit.com/filamentgroup/loadCSS/master/src/cssrelpreload.js';
+    $data = "//cdn.rawgit.com/filamentgroup/loadCSS/$version/src/cssrelpreload.js";
     $min = '';
     if (variable_get('advagg_cache_level', ADVAGG_CACHE_LEVEL) >= 0) {
       $min = '.min';
@@ -835,7 +841,7 @@ function advagg_mod_advagg_modify_css_pre_render_alter(&$children, &$elements) {
     }
     if ($css_defer_js_code == 0) {
       $type = 'inline';
-      $data = '/*! CSS rel=preload polyfill. Depends on loadCSS function. [c]2016 @scottjehl, Filament Group, Inc. Licensed MIT  */
+      $data = '/*! loadCSS rel=preload polyfill. [c]2017 Filament Group, Inc. MIT License */
 !function(t){if(t.loadCSS){var e=loadCSS.relpreload={};if(e.support=function(){try{return t.document.createElement("link").relList.supports("preload")}catch(e){return!1}},e.poly=function(){for(var e=t.document.getElementsByTagName("link"),n=0;n<e.length;n++){var r=e[n];"preload"===r.rel&&"style"===r.getAttribute("as")&&(t.loadCSS(r.href,r,r.getAttribute("media")),r.rel=null)}},!e.support()){e.poly();var n=t.setInterval(e.poly,300);t.addEventListener&&t.addEventListener("load",function(){e.poly();t.clearInterval(n)}),t.attachEvent&&t.attachEvent("onload",function(){t.clearInterval(n)})}}}(this);';
     }
     $options = array(
@@ -891,7 +897,14 @@ function advagg_mod_advagg_modify_css_pre_render_alter(&$children, &$elements) {
         if (isset($values['#browsers'])) {
           $options['browsers'] = $values['#browsers'];
         }
-        $inline = 'loadCSS("' . $values['#attributes']['href'] . '")';
+        $inline = "loadCSS(\"{$values['#attributes']['href']}\"";
+        if ($values['#attributes']['media'] !== 'all' || !empty($values['#attributes']['crossorigin'])) {
+          $inline .= ", false, \"{$values['#attributes']['media']}\"";
+          if (!empty($values['#attributes']['crossorigin'])) {
+            $inline .= ", \"{$values['#attributes']['crossorigin']}\"";
+          }
+        }
+        $inline .= ')';
         // Make async work if it's being used.
         if ($type !== 'inline') {
           $matches[2] = $matches[0] = $inline;
@@ -1078,7 +1091,6 @@ function advagg_mod_get_lists(array $js = array(), array $css = array()) {
       // Wistia js.
       '//fast.wistia.',
       // Maps.
-      '//maps.googleapis.com',
       '//dev.virtualearth.net',
       '//api.maps.yahoo.com',
     );

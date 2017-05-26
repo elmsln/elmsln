@@ -17,11 +17,11 @@ Drupal.behaviors.fileFieldSources.attach = function(context, settings) {
 
       // The default upload element is a special case.
       if ($(this).is('.filefield-source-upload')) {
-        $fileFieldElement.find('div.filefield-sources-list').siblings('input.form-file, input.form-submit').css('display', '');
+        $fileFieldElement.find('div.filefield-sources-list').siblings('.form-file, .form-submit').css('display', '');
         $fileFieldElement.find('div.filefield-source').css('display', 'none');
       }
       else {
-        $fileFieldElement.find('div.filefield-sources-list').siblings('input.form-file, input.form-submit').css('display', 'none');
+        $fileFieldElement.find('div.filefield-sources-list').siblings('.form-file, .form-submit').css('display', 'none');
         $fileFieldElement.find('div.filefield-source').not('div.' + fileFieldSourceClass).css('display', 'none');
         $fileFieldElement.find('div.' + fileFieldSourceClass).css('display', '');
       }

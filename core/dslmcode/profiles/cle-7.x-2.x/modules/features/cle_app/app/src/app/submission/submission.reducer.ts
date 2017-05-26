@@ -1,17 +1,22 @@
+import { createSelector } from 'reselect';
 import { Action } from '@ngrx/store';
 import { ActionTypes } from './submission.actions';
 import { Submission } from './submission';
-import { ActionTypes as AppActionTypes } from '../app.actions';
+import { ActionTypes as AppActionTypes } from '../assignment/assignment.actions';
+
+export enum SubmissionStates {
+  default,
+  saving,
+  error
+}
 
 export interface SubmissionState {
-  saving: boolean;
-  savingImage: boolean;
+  state: SubmissionStates;
   submissions: Submission[]
 }
 
 const initialState: SubmissionState = {
-  saving: false,
-  savingImage: false,
+  state: SubmissionStates.default,
   submissions: []
 }
 
@@ -19,16 +24,14 @@ export function submissionReducer(state: SubmissionState = initialState, action:
   switch (action.type) {
     case ActionTypes.CREATE_SUBMISSION: {
       return {
-        saving: true,
-        savingImage: state.savingImage,
+        state: SubmissionStates.saving,
         submissions: [...state.submissions, action.payload]
       }
     }
 
     case ActionTypes.CREATE_SUBMISSION_SUCCESS: {
       return {
-        saving: false,
-        savingImage: state.savingImage,
+        state: SubmissionStates.default,
         submissions: state.submissions.map((submission:Submission) => {
           if (!submission.id && action.payload.id) {
             return Object.assign({}, submission, action.payload)
@@ -38,10 +41,16 @@ export function submissionReducer(state: SubmissionState = initialState, action:
       }
     }
 
+    case ActionTypes.CREATE_SUBMISSION_FAILURE: {
+      return {
+        state: SubmissionStates.error,
+        submissions: state.submissions
+      }
+    }
+
     case ActionTypes.UPDATE_SUBMISSION: {
       return {
-        saving: true,
-        savingImage: state.savingImage,
+        state: SubmissionStates.saving,
         submissions: state.submissions.map((submission:Submission) => {
           // check if the updated submission has the same id as the current assignemnt
           if (submission.id === action.payload.id) {
@@ -55,8 +64,7 @@ export function submissionReducer(state: SubmissionState = initialState, action:
     // just return the same submissions for now since we already updated the store
     case ActionTypes.UPDATE_SUBMISSION_SUCCESS: {
       return {
-        saving: false,
-        savingImage: state.savingImage,
+        state: SubmissionStates.default,
         submissions: state.submissions.map((submission:Submission) => {
           if (submission.id === action.payload.id) {
             return Object.assign({}, submission, action.payload);
@@ -69,48 +77,42 @@ export function submissionReducer(state: SubmissionState = initialState, action:
     case ActionTypes.DELETE_SUBMISSION: {
       console.log(state.submissions, action.payload);
       return {
-        saving: state.saving,
-        savingImage: state.savingImage,
+        state: state.state,
         submissions: state.submissions.filter(submission => submission.id !== action.payload.id)
       }
     }
 
     case ActionTypes.LOAD_SUBMISSIONS: {
       return {
-        saving: state.saving,
-        savingImage: state.savingImage,
+        state: state.state,
         submissions: []
       }
     }
 
     case ActionTypes.LOAD_SUBMISSIONS_SUCCESS: {
       return {
-        saving: state.saving,
-        savingImage: state.savingImage,
+        state: state.state,
         submissions: action.payload ? action.payload : []
       }
     }
 
     case ActionTypes.CREATE_SUBMISSION_IMAGE: {
       return {
-        saving: state.saving,
-        savingImage: true,
+        state: state.state,
         submissions: state.submissions
       }
     }
 
     case ActionTypes.CREATE_SUBMISSION_IMAGE_SUCCESS: {
       return {
-        saving: state.saving,
-        savingImage: false,
+        state: state.state,
         submissions: state.submissions
       }
     }
 
     case ActionTypes.CREATE_SUBMISSION_IMAGE_FAILURE: {
       return {
-        saving: state.saving,
-        savingImage: false,
+        state: state.state,
         submissions: state.submissions
       }
     }
@@ -120,3 +122,6 @@ export function submissionReducer(state: SubmissionState = initialState, action:
     }
   }
 }
+
+export const getAll = (state:SubmissionState) => state.submissions;
+export const getCurrentState = (state:SubmissionState) => state.state;

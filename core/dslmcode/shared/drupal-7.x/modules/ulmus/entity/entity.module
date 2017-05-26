@@ -184,8 +184,17 @@ function entity_ui_entity_page_view($entity) {
  * Gets the page title for the passed operation.
  */
 function entity_ui_get_page_title($op, $entity_type, $entity = NULL) {
-  module_load_include('inc', 'entity', 'includes/entity.ui');
-  $label = entity_label($entity_type, $entity);
+  if (isset($entity)) {
+    module_load_include('inc', 'entity', 'includes/entity.ui');
+    $label = entity_label($entity_type, $entity);
+    list(, , $bundle) = entity_extract_ids($entity_type, $entity);
+  }
+  else {
+    $info = entity_get_info($entity_type);
+    $label = $info['label'];
+    $bundle = NULL;
+  }
+
   switch ($op) {
     case 'view':
       return $label;
@@ -200,12 +209,7 @@ function entity_ui_get_page_title($op, $entity_type, $entity = NULL) {
     case 'export':
       return t('Export @label', array('@label' => $label));
   }
-  if (isset($entity)) {
-    list(, , $bundle) = entity_extract_ids($entity_type, $entity);
-  }
-  else {
-    $bundle = NULL;
-  }
+
   return entity_ui_get_action_title($op, $entity_type, $bundle);
 }
 
@@ -600,7 +604,7 @@ function entity_id($entity_type, $entity) {
  *   content language of the current request.
  * @param $page
  *   (optional) If set will control if the entity is rendered: if TRUE
- *   the entity will be rendered without its title, so that it can be embeded
+ *   the entity will be rendered without its title, so that it can be embedded
  *   in another context. If FALSE the entity will be displayed with its title
  *   in a mode suitable for lists.
  *   If unset, the page mode will be enabled if the current path is the URI
@@ -1076,7 +1080,8 @@ function entity_flush_caches() {
   // case of enabling or disabling modules we already rebuild defaults in
   // entity_modules_enabled() and entity_modules_disabled(), so we do not need
   // to do it again.
-  if (current_path() != 'admin/modules/list/confirm') {
+  // Also check if rebuilding on cache flush is explicitly disabled.
+  if (current_path() != 'admin/modules/list/confirm' && variable_get('entity_rebuild_on_flush', TRUE)) {
     entity_defaults_rebuild();
   }
 
@@ -1372,7 +1377,7 @@ function entity_get_extra_fields_controller($type = NULL) {
  * Returns a property wrapper for the given data.
  *
  * If an entity is wrapped, the wrapper can be used to retrieve further wrappers
- * for the entitity properties. For that the wrapper support chaining, e.g. you
+ * for the entity properties. For that the wrapper support chaining, e.g. you
  * can use a node wrapper to get the node authors mail address:
  *
  * @code
@@ -1563,7 +1568,7 @@ function _entity_info_add_metadata(&$entity_info) {
  * Implements hook_ctools_plugin_directory().
  */
 function entity_ctools_plugin_directory($module, $plugin) {
-  if ($module == 'ctools' && $plugin == 'content_types') {
-    return 'ctools/content_types';
+  if ($module == 'ctools') {
+    return "ctools/$plugin";
   }
 }

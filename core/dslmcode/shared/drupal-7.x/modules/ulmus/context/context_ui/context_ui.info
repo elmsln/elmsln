@@ -8,9 +8,9 @@ configure = admin/structure/context
 files[] = context.module
 files[] = tests/context_ui.test
 
-; Information added by Drupal.org packaging script on 2015-01-06
-version = "7.x-3.6"
+; Information added by Drupal.org packaging script on 2016-05-18
+version = "7.x-3.7"
 core = "7.x"
 project = "context"
-datestamp = "1420573188"
+datestamp = "1463605446"
 

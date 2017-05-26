@@ -5,9 +5,9 @@
  */
 
 /**
- * Implements hook_authcache_enum_key_properties().
+ * Implements hook_authcache_enum_key_property_info().
  */
-function authcache_ajax_authcache_enum_key_properties() {
+function authcache_ajax_authcache_enum_key_property_info() {
   return array(
     'ajax' => array(
       'name' => t('Browser is capable of issuing Ajax requests'),

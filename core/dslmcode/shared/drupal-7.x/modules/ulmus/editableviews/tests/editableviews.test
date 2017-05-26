@@ -18,7 +18,7 @@
 class EditableViewsBaseWebTestCase extends DrupalWebTestCase {
 
   function setUp() {
-    parent::setUp(array('editableviews', 'features', 'entityreference', 'editableviews_test_feature'));
+    parent::setUp(array('editableviews', 'features', 'entityreference', 'editableviews_test_feature', 'editableviews_test'));
   }
 
 }
@@ -135,15 +135,45 @@ class EditableViewsBasicWebTestCase extends EditableViewsBaseWebTestCase {
       $this->assertFieldByName($field_element_names[$second_node->nid][$field_name], '', t("View shows an edit form for the second node's $field_name field."));
     }
 
-    // Save changes to the first node's fields.
-    $new_value_field_test_editable_text     = $this->randomString();
+    // Save the form with changes to the first node, but with a field value on
+    // the second node that will fail validation, because
+    // editableviews_test_field_attach_validate() will reject 'banana'.
+     // Ensure this string is definitely NOT 'banana'.
+    $new_value_field_test_editable_text     = $this->randomString(8);
     $new_value_field_test_editable_options  = 1;
     $edit = array(
-      "node[{$first_node->nid}][field_test_editable_text][und][0][value]" => $new_value_field_test_editable_text,
-      "node[{$first_node->nid}][field_test_editable_options][und]"        => $new_value_field_test_editable_options,
+      "node[{$first_node->nid}][field_test_editable_text][und][0][value]"   => $new_value_field_test_editable_text,
+      "node[{$first_node->nid}][field_test_editable_options][und]"          => $new_value_field_test_editable_options,
+      "node[{$second_node->nid}][field_test_editable_text][und][0][value]"  => 'banana',
     );
     $this->drupalPost('test-editable-views-node-fields', $edit, t('Save'));
 
+    // Form validation should fail...
+    $this->assertText('Text may not be "banana" (error 1).', "The form error message was shown for the editable text field.");
+    // ...but only once.
+    $this->assertNoText('Text may not be "banana" (error 2).', "The form error message is shown only once.");
+
+    // Neither node should be saved.
+    entity_get_controller('node')->resetCache();
+    $first_node = node_load($first_node->nid);
+    $first_node_wrapper = entity_metadata_wrapper('node', $first_node);
+
+    $this->assertNotEqual($first_node_wrapper->field_test_editable_text->value(), $new_value_field_test_editable_text, t("The node's field value was not set to the new value."));
+    $this->assertNotEqual($first_node_wrapper->field_test_editable_options->value(), $new_value_field_test_editable_options, t("The node's field value was not set to the new value."));
+
+    $second_node = node_load($second_node->nid);
+    $second_node_wrapper = entity_metadata_wrapper('node', $second_node);
+
+    $this->assertNotEqual($first_node_wrapper->field_test_editable_text->value(), 'banana', t("The node's field value was not set to the new value."));
+
+    // Save the form again, this time without a bad value.
+    $edit = array(
+      "node[{$first_node->nid}][field_test_editable_text][und][0][value]"   => $new_value_field_test_editable_text,
+      "node[{$first_node->nid}][field_test_editable_options][und]"          => $new_value_field_test_editable_options,
+    );
+    $this->drupalPost('test-editable-views-node-fields', $edit, t('Save'));
+
+    // The first node should be saved and have new data in its fields.
     entity_get_controller('node')->resetCache();
     $first_node = node_load($first_node->nid);
     $first_node_wrapper = entity_metadata_wrapper('node', $first_node);

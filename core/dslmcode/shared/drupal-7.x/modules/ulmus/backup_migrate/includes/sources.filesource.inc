@@ -104,8 +104,8 @@ class backup_migrate_destination_filesource extends backup_migrate_source {
    */
   function _backup_to_file_php($file, $settings) {
     if ($this->check_libs()) {
-      $excluded_paths = empty($settings->filters['exclude_filepaths']) ? '' : $settings->filters['exclude_filepaths'];
-      $files = $this->get_files_to_backup($this->get_realpath(), $settings, $this->get_excluded_paths($excluded_paths), DRUPAL_ROOT . '/');
+      $excluded = $this->get_excluded_paths($settings);
+      $files = $this->get_files_to_backup($this->get_realpath(), $settings, $excluded);
       if ($files) {
         $file->push_type('tar');
         $gz = new Archive_Tar($file->filepath(), false);
@@ -123,9 +123,9 @@ class backup_migrate_destination_filesource extends backup_migrate_source {
    */
   function _backup_to_file_cli($file, $settings) {
     if (!empty($settings->filters['use_cli']) && function_exists('backup_migrate_exec') && function_exists('escapeshellarg')) {
-      $excluded_paths = empty($settings->filters['exclude_filepaths']) ? '' : $settings->filters['exclude_filepaths'];
+      $excluded = $this->get_excluded_paths($settings);
       $exclude = array();
-      foreach ($this->get_excluded_paths($excluded_paths) as $path) {
+      foreach ($excluded as $path) {
         $exclude[] = '--exclude=' . escapeshellarg($path);
       }
       $exclude = implode(' ', $exclude);
@@ -135,7 +135,6 @@ class backup_migrate_destination_filesource extends backup_migrate_source {
 
       $file->push_type('tar'); 
       backup_migrate_exec("tar --dereference -C %input -rf %output $exclude .", array('%output' => $file->filepath(), '%input' => $this->get_realpath(), '%temp' => $temp));
-
       return $file;
     }
     return FALSE;
@@ -206,8 +205,9 @@ class backup_migrate_destination_filesource extends backup_migrate_source {
   /**
    * Get a list of files to backup from the given set if dirs. Exclude any that match the array $exclude.
    */
-  function get_files_to_backup($dir, $settings, $exclude = array(), $base_dir = '') {
+  function get_files_to_backup($dir, $settings, $exclude = array()) {
     $out = $errors = array();
+
     if (!file_exists($dir)) {
       backup_migrate_backup_fail('Directory %dir does not exist.', array('%dir' => $dir), $settings);
       return FALSE;
@@ -216,11 +216,10 @@ class backup_migrate_destination_filesource extends backup_migrate_source {
       while (($file = readdir($handle)) !== FALSE) {
         if ($file != '.' && $file != '..' && !in_array($file, $exclude)) {
           $real = realpath($dir . '/' . $file);
-          $path = str_replace($base_dir, '', $real);
           // If the path is not excluded.
-          if (!in_array($path, $exclude)) {
+          if (!in_array($real, $exclude)) {
             if (is_dir($real)) {
-              $subdir = $this->get_files_to_backup($real, $settings, $exclude, $base_dir);
+              $subdir = $this->get_files_to_backup($real, $settings, $exclude);
               // If there was an error reading the subdirectory then abort the backup.
               if ($subdir === FALSE) {
                 closedir($handle);
@@ -228,13 +227,13 @@ class backup_migrate_destination_filesource extends backup_migrate_source {
               }
               // If the directory is empty, add an empty directory.
               if (count($subdir) == 0) {
-                $out[] = $path;
+                $out[] = $real;
               }
               $out = array_merge($out, $subdir);
             }
             else {
               if (is_readable($real)) {
-                $out[] = $path;
+                $out[] = $real;
               }
               else {
                 $errors[] = $dir . '/' . $file;
@@ -274,10 +273,24 @@ class backup_migrate_destination_filesource extends backup_migrate_source {
   /**
    * Break the excpluded paths string into a usable list of paths.
    */
-  function get_excluded_paths($paths) {
+  function get_excluded_paths($settings) {
+    $base_dir = $this->get_realpath() . '/';
+    $paths = empty($settings->filters['exclude_filepaths']) ? '' : $settings->filters['exclude_filepaths'];
     $out = explode("\n", $paths);
     foreach ($out as $key => $val) {
-      $out[$key] = trim($val, "/ \t\r\n");
+      $path = trim($val, "/ \t\r\n");
+      // If the path specified is a stream url or absolute path add the normalized version.
+      if ($real = drupal_realpath($path)) {
+        $out[$key] = $real;
+      }
+      // If the path is a relative path add it.
+      else if ($real = drupal_realpath($base_dir . $path)) {
+        $out[$key] = $real;
+      }
+      // Otherwise add it as is even though it probably won't match any files.
+      else {
+        $out[$key] = $path;
+      }
     }
     return $out;
   }

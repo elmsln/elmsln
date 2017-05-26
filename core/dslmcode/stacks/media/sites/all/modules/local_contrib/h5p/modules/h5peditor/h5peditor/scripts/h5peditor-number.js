@@ -91,6 +91,13 @@ ns.Number.prototype.validate = function () {
   var value = H5P.trim(this.$input.val());
   var decimals = this.field.decimals !== undefined && this.field.decimals;
 
+  if (this.$errors.html().length > 0) {
+    this.$input.addClass('error');
+  }
+
+  // Clear errors before showing new ones
+  this.$errors.html('');
+
   if (!value.length) {
     if (that.field.optional === true) {
       // Field is optional and does not have a value, nothing more to validate

@@ -19,7 +19,13 @@ function cis_helper_elmsln_api_callback_populate_course_network() {
     $nid = $item->data;
     $queue->deleteItem($item);
   }
+  // ensure we have a course node id from some where
   if (isset($nid)) {
+    $staff = array();
+    // load staff if they came across, they should
+    if (isset($_elmsln['args']['staff'])) {
+      $staff = $_elmsln['args']['staff'];
+    }
     // we MUST be fully bootstrapped for this to work
     drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);
     // we MUST blow away the static cache on the registry otherwise it's possible that custom
@@ -38,22 +44,6 @@ function cis_helper_elmsln_api_callback_populate_course_network() {
     $sections = _cis_helper_course_access_strings($course);
     // pull together roster per section
     $roster = _cis_helper_assemble_roster($sections);
-    // add in the users from CIS who are global users
-    $query = db_select('users', 'u');
-    $query->addField('u', 'uid');
-    $query->addField('u', 'name', 'user_name');
-    $query->addField('u', 'mail', 'mail');
-    $query->condition('u.status', 1);
-    $query->innerJoin('users_roles', 'ur', 'u.uid = ur.uid');
-    $query->innerJoin('role', 'r', 'ur.rid = r.rid');
-    $query->addField('r', 'name', 'role_name');
-    $query->condition('r.name', 'staff');
-    $result = $query->execute();
-    $staff = array();
-    // Build up the array of data to return
-    foreach ($result->fetchAll() as $row) {
-      $staff[$row->user_name] = $row->mail;
-    }
     $active = array();
     // simplify section data so we can send along if its active or not
     foreach ($sections as $section_id => $section) {
@@ -78,7 +68,7 @@ function cis_helper_elmsln_api_callback_populate_course_network() {
           'elmsln_module' => 'cis_course_authority',
           'elmsln_callback' => 'sync_data_model',
           '__course_context' => $course->field_machine_name[LANGUAGE_NONE][0]['value'],
-          'roster' => $roster,
+          'roster' => serialize($roster),
           'course' => $course_data,
           'sections' => $active,
         ),
@@ -91,7 +81,7 @@ function cis_helper_elmsln_api_callback_populate_course_network() {
         'elmsln_module' => 'cis_course_service',
         'elmsln_callback' => 'sync_data_model',
         '__course_context' => $course->field_machine_name[LANGUAGE_NONE][0]['value'],
-        'roster' => $roster,
+        'roster' => serialize($roster),
         'course' => $course_data,
         'sections' => $active,
       )
@@ -113,6 +103,7 @@ function cis_helper_elmsln_api_callback_populate_course_network() {
           'elmsln_module' => 'cis_helper',
           'elmsln_callback' => 'populate_course_network',
           'queue' => TRUE,
+          'staff' => $staff,
         ),
       );
       _elmsln_api_nonblocking_requests(array($nonblock), TRUE);

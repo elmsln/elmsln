@@ -102,7 +102,7 @@ function module_missing_message_fixer_form() {
  * Submit handler for Missing Module Message Fixer Form.
  */
 function module_missing_message_fixer_form_submit($form, &$form_state) {
-  $module = array();
+  $modules = array();
   // Go through each record and add it to the array to win.
   foreach ($form_state['values']['table'] as $module) {
     $modules[] = $module;

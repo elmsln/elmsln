@@ -73,6 +73,24 @@ class AuthcacheTestBackend extends DrupalWebTestCase {
   }
 
   /**
+   * Assert that a certain directive is in the Cache-Control header.
+   */
+  protected function assertCacheControl($expectcc, $message = NULL) {
+    $ccheader = $this->drupalGetHeader('Cache-Control') ?: '';
+    $ccfields = array_map('trim', explode(',', $ccheader));
+    $this->assert(in_array($expectcc, $ccfields), $message ?: t('Did not find expected @field in Cache-Control: @header.', array('@field' => $expectcc, '@header' => $ccheader)));
+  }
+
+  /**
+   * Assert that a certain directive is not in the Cache-Control header.
+   */
+  protected function assertNoCacheControl($rejectcc, $message = NULL) {
+    $ccheader = $this->drupalGetHeader('Cache-Control') ?: '';
+    $ccfields = array_map('trim', explode(',', $ccheader));
+    $this->assert(!in_array($rejectcc, $ccfields), $message ?: t('Found unexpected @field in Cache-Control: @header.', array('@field' => $rejectcc, '@header' => $ccheader)));
+  }
+
+  /**
    * Test whether the given stub passes the invocation verifier.
    */
   protected function assertStub(HookStubProxy $stub, $verifier, $message = NULL) {
@@ -102,7 +120,10 @@ class AuthcacheTestBackend extends DrupalWebTestCase {
 
     $this->drupalGet('<front>');
     $this->assertVary($vary_header);
-    $this->assertEqual('public, max-age=3600', $this->drupalGetHeader('Cache-Control'), 'Cache-Control: public header expected on response when caching is enabled');
+    $this->assertCacheControl('max-age=3600');
+    $this->assertCacheControl('public');
+    $this->assertNoCacheControl('must-revalidate');
+    $this->assertNoCacheControl('no-cache');
 
     $this->assertStub($hook_boot, HookStub::once());
     $this->assertStub($hook_save, HookStub::once());
@@ -113,7 +134,10 @@ class AuthcacheTestBackend extends DrupalWebTestCase {
     $hook_save = $this->stubbackend->hook('authcache_backend_cache_save');
     $this->drupalGet('<front>');
     $this->assertVary($vary_header);
-    $this->assertEqual('public, max-age=3600', $this->drupalGetHeader('Cache-Control'), 'Cache-Control: public header expected on response when caching is enabled');
+    $this->assertCacheControl('max-age=3600');
+    $this->assertCacheControl('public');
+    $this->assertNoCacheControl('must-revalidate');
+    $this->assertNoCacheControl('no-cache');
 
     $this->assertStub($hook_boot, HookStub::once());
     $this->assertStub($hook_save, HookStub::once());
@@ -136,7 +160,9 @@ class AuthcacheTestBackend extends DrupalWebTestCase {
     $hook_save = $this->stubbackend->hook('authcache_backend_cache_save');
     $this->drupalGet('<front>');
     $this->assertVary($vary_header);
-    $this->assertEqual('no-cache, must-revalidate, post-check=0, pre-check=0', $this->drupalGetHeader('Cache-Control'), 'Cache-Control: no-cache header expected on response when caching is not enabled');
+    $this->assertCacheControl('must-revalidate');
+    $this->assertCacheControl('no-cache');
+    $this->assertNoCacheControl('public');
 
     $this->assertStub($hook_boot, HookStub::once());
     $this->assertStub($hook_save, HookStub::never());
@@ -148,7 +174,9 @@ class AuthcacheTestBackend extends DrupalWebTestCase {
     $hook_save = $this->stubbackend->hook('authcache_backend_cache_save');
     $this->drupalGet('<front>');
     $this->assertVary($vary_header);
-    $this->assertEqual('no-cache, must-revalidate, post-check=0, pre-check=0', $this->drupalGetHeader('Cache-Control'), 'Cache-Control: no-cache header expected on response when caching is not enabled');
+    $this->assertCacheControl('must-revalidate');
+    $this->assertCacheControl('no-cache');
+    $this->assertNoCacheControl('public');
 
     $this->assertStub($hook_boot, HookStub::once());
     $this->assertStub($hook_save, HookStub::never());

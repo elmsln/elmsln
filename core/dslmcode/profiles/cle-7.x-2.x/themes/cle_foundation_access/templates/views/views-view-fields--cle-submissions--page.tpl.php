@@ -29,7 +29,7 @@
     $images = '';
   }
   else {
-    $images = '<div class="elmsln-no-preview-item  light-blue lighten-5">' . t('no preview') . '</div>';
+    $images = '<div class="elmsln-no-preview-item blue darken-4 white-text">' . t('no preview') . '</div>';
     $noimages = TRUE;
   }
   // build the images out as a row
@@ -72,7 +72,7 @@
     <div class="card-action">
       <?php print l('Comment', 'node/' . $row->nid, array('attributes' => array('class' => 'cis-lmsless-text')));?>
       <?php if (isset($row->node_new_comments) && $row->node_new_comments > 0) : ?>
-      <span class="new badge cis-lmsless-color lighten-5"><?php print $row->node_new_comments;?></span>
+      <span class="new badge cis-lmsless-color darken-4"><?php print $row->node_new_comments;?></span>
     <?php endif;?>
     </div>
     <div class="card-reveal">

@@ -233,7 +233,8 @@ function environment_indicator_ui_validate($form, &$form_state) {
   }
 
   // Validate hostname regexp.
-  if (preg_match("/$values[regexurl]/", '') === FALSE) {
+  $regex = preg_quote($values['regexurl'], '/');
+  if (preg_match("/$regex/", '') === FALSE) {
     form_set_error('regexurl', t('Hostname must be a valid regular expression.'));
   }
 }
@@ -265,7 +266,7 @@ function environment_indicator_ui_form_submit(&$form, &$form_state) {
  * Helper function to check if the machine name is available.
  */
 function environment_indicator_machine_available($machine) {
-  return db_query("SELECT COUNT(*) FROM {environment_indicator_environment} WHERE machine = ':machine'", array(':machine' => $machine))->fetchField() > 0 && $machine != 'overwritten_environment';
+  return db_query("SELECT COUNT(*) FROM {environment_indicator_environment} WHERE machine = :machine", array(':machine' => $machine))->fetchField() > 0 && $machine != 'overwritten_environment';
 }
 
 /**
@@ -276,7 +277,7 @@ function environment_indicator_page_build(&$page) {
     if (environment_indicator_check_access($match)) {
       $js_settings = array(
         'environment_indicator' => array(
-          'addFavicon' => TRUE,
+          'addFavicon' => variable_get('environment_indicator_favicon_overlay', TRUE),
           // Get the first letter out of the name.
           'faviconLabel' => $match['name'][0],
           'faviconColor' => $match['color'],
@@ -292,6 +293,18 @@ function environment_indicator_page_build(&$page) {
         environment_indicator_attach_indicator($match, $page);
       }
       drupal_add_js($js_settings, 'setting');
+      drupal_add_js(drupal_get_path('module', 'environment_indicator') . '/tinycon.min.js', array(
+        'every_page' => TRUE,
+      ));
+      drupal_add_js(drupal_get_path('module', 'environment_indicator') . '/environment_indicator.js', array(
+        'every_page' => TRUE,
+      ));
+      drupal_add_js(drupal_get_path('module', 'environment_indicator') . '/color.js', array(
+        'every_page' => TRUE,
+      ));
+      drupal_add_css(drupal_get_path('module', 'environment_indicator') . '/environment_indicator.css', array(
+        'every_page' => TRUE,
+      ));
     }
   }
 }
@@ -356,7 +369,7 @@ function environment_indicator_navbar() {
       '#type' => 'navbar_item',
       'tab' => array(
         '#type' => 'link',
-        '#title' => $environment_info['name'],
+        '#title' => ($environment_info['name'] . (!empty($environment_info['git_branch']) ? ' - ' . $environment_info['git_branch'] : '')),
         '#href' => '',
         '#options' => array(
           'attributes' => array(
@@ -389,6 +402,8 @@ function environment_indicator_attach_indicator($environment_info, &$page) {
  *   The active environment array.
  */
 function environment_indicator_get_active() {
+  global $base_path;
+
   $env = &drupal_static(__FUNCTION__);
 
   // 1. Check the static cache.
@@ -414,7 +429,7 @@ function environment_indicator_get_active() {
   foreach ($environments as $machine => $environment) {
     // Check if the environment record has been disabled.
     // Then check the regex.
-    if (preg_match("/$environment->regexurl/", $_SERVER['HTTP_HOST'])) {
+    if (preg_match("@$environment->regexurl@", $_SERVER['HTTP_HOST'] . $base_path)) {
       $settings = $environment->settings;
       $matches[] = array(
         'name' => $environment->name,
@@ -469,6 +484,7 @@ function environment_indicator_get_all($fixed = FALSE) {
   module_load_include('inc', 'ctools', 'includes/export');
   $environments = ctools_export_crud_load_all('environment_indicator_environment');
   $environments = array_filter($environments, '_environment_indicator_active');
+  uasort($environments, '_environment_indicator_sort');
   // Check if the regular expression is a environment name.
   return $fixed ? array_filter($environments, '_environment_indicator_regex_filter') : $environments;
 }
@@ -516,6 +532,13 @@ function environment_indicator_needs_js() {
  */
 function _environment_indicator_regex_filter($item) {
   return !preg_match("/[\*\?\[\]\(\)]/", $item->regexurl);
+}
+
+/**
+ * Sort callback for environment_indicator_get_all().
+ */
+function _environment_indicator_sort($a, $b) {
+  return $a->settings['weight'] - $b->settings['weight'];
 }
 
 /**
@@ -570,32 +593,39 @@ function _environment_indicator_has_old_vars() {
  * Implements hook_environment_indicator_matched_indicator_alter().
  */
 function environment_indicator_environment_indicator_matched_indicator_alter(&$environment_info) {
-  // Show the git branch, if it exists.
-  if (
-    variable_get('environment_indicator_git_support', TRUE) &&
-    command_exists('git') &&
-    $git_describe = environment_indicator_execute_os_command('git describe --all')
-  ) {
-    // Execute "git descibe --all" and get the last part of heads/7.x-2.x as the
-    // tag/branch.
-    if (empty($git_describe)) {
-      return;
+  if (variable_get('environment_indicator_git_support', TRUE)) {
+    // First check to see if a variable is explicitly set.
+    if (variable_get('environment_indicator_remote_release')) {
+      $release = variable_get('environment_indicator_remote_release');
     }
-    $tag_branch_parts = explode('/', $git_describe);
-    if (!empty($tag_branch_parts[1])) {
-      $environment_info['git_branch'] = trim($tag_branch_parts[1]);
+    // Second check for the presence of an Acquia hosting variable
+    elseif (!empty($_ENV['AH_SITE_ENVIRONMENT'])) {
+      // Acquia cloud environments don't have a .git directory to check. Instead, we
+      // need to maintain the release string ourselves using the post deploy hooks.
+      // Display the contents of the variable if it is not empty. If it is empty
+      // then a warning should be set in the status report about the hook being
+      // missing for the environment.
+      $release = variable_get('environment_indicator_remote_release.' . $_ENV['AH_SITE_ENVIRONMENT'], NULL);
+    }
+    // Finally attempt to use the system git command to determine the branch.
+    else {
+      // Show the git branch, if it exists.
+      if (
+        command_exists('git') &&
+        $git_describe = environment_indicator_execute_os_command('git describe --all')
+      ) {
+        // Execute "git describe --all" and get the last part of heads/7.x-2.x as the
+        // tag/branch.
+        if (empty($git_describe)) {
+          return;
+        }
+        $tag_branch_parts = explode('/', $git_describe);
+        $release = end($tag_branch_parts);
+      }
     }
   }
-  // Acquia cloud environments don't have a .git directory to check. Instead, we
-  // need to maintain the release string ourselves using the post deploy hooks.
-  if (!empty($_ENV['AH_SITE_ENVIRONMENT']) && variable_get('environment_indicator_git_support', TRUE)) {
-    // Display the contents of the variable if it is not empty. If it is empty
-    // then a warning should be set in the status report about the hook being
-    // missing for the environment.
-    $release = variable_get('environment_indicator_remote_release.' . $_ENV['AH_SITE_ENVIRONMENT'], NULL);
-    if (!empty($release)) {
-      $environment_info['git_branch'] = $release;
-    }
+  if (!empty($release)) {
+    $environment_info['git_branch'] = $release;
   }
 }
 

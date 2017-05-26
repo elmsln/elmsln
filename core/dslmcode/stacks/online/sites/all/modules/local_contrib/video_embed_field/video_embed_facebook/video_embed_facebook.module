@@ -25,6 +25,7 @@ function video_embed_facebook_video_embed_handler_info() {
     'defaults' => array(
       'width' => 640,
       'height' => 360,
+      'class' => '',
     ),
   );
 
@@ -43,18 +44,25 @@ function video_embed_facebook_video_embed_handler_info() {
 function video_embed_facebook_form($defaults) {
   $form = array();
 
-  $form['height'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Player Width'),
-    '#description' => t('The width of the player.'),
-    '#default_value' => $defaults['height'],
-  );
-
   $form['width'] = array(
     '#type' => 'textfield',
     '#title' => t('Player Width'),
     '#description' => t('The width of the player.'),
     '#default_value' => $defaults['width'],
+  );
+
+  $form['height'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Player Height'),
+    '#description' => t('The height of the player.'),
+    '#default_value' => $defaults['height'],
+  );
+
+  $form['class'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Player CSS class'),
+    '#description' => t('CSS class to add to the player'),
+    '#default_value' => $defaults['class'],
   );
 
   return $form;
@@ -90,12 +98,13 @@ function video_embed_facebook_handle_video($url, $settings) {
 
   if ($id) {
     // Our embed code.
-    $embed='<iframe src="//www.facebook.com/video/embed?video_id=!id" width="!width" height="!height"></iframe> ';
+    $embed='<iframe class="@class" src="//www.facebook.com/video/embed?video_id=!id" width="@width" height="@height"></iframe> ';
     // Use format_string to replace our placeholders with the settings values.
     $embed = format_string($embed, array(
       '!id' => $id,
-      '!width' => $settings['width'],
-      '!height' => $settings['height'],
+      '@width' => $settings['width'],
+      '@height' => $settings['height'],
+      '@class' => $settings['class'],
     ));
 
     $video = array(
@@ -137,10 +146,10 @@ function video_embed_facebook_handle_thumbnail($url) {
 function _video_embed_facebook_get_video_id($url) {
   // Parse_url is an easy way to break a url into its components.
   $matches = array();
-  preg_match('/(.*)?[v|video_id]=([^&#]*)/', $url, $matches);
+  preg_match('/(?:.*)(?:v=|video_id=|videos\/|videos\/v.\.\d+\/)(\d+).*/', $url, $matches);
   // If the v or video_id get parameters are set, return it.
-  if ($matches && !empty($matches[2])) {
-    return $matches[2];
+  if ($matches && !empty($matches[1])) {
+    return check_plain($matches[1]);
   }
   // Otherwise return false.
   return FALSE;

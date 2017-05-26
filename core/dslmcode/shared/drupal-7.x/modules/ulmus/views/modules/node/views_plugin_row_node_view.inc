@@ -61,6 +61,7 @@ class views_plugin_row_node_view extends views_plugin_row {
       '#type' => 'checkbox',
       '#title' => t('Display comments'),
       '#default_value' => $this->options['comments'],
+      '#access' => module_exists('comments'),
     );
   }
 

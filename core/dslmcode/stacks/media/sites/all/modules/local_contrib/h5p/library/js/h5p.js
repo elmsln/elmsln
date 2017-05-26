@@ -158,16 +158,19 @@ H5P.init = function (target) {
 
       actionBar.on('download', function () {
         window.location.href = contentData.exportUrl;
+        instance.triggerXAPI('downloaded');
       });
       actionBar.on('copyrights', function () {
         var dialog = new H5P.Dialog('copyrights', H5P.t('copyrightInformation'), copyrights, $container);
         dialog.open();
+        instance.triggerXAPI('accessed-copyright');
       });
       actionBar.on('embed', function () {
         H5P.openEmbedDialog($actions, contentData.embedCode, contentData.resizeCode, {
           width: $element.width(),
           height: $element.height()
         });
+        instance.triggerXAPI('accessed-embed');
       });
 
       if (actionBar.hasActions()) {
@@ -435,7 +438,6 @@ H5P.communicator = (function () {
 /**
  * Enter semi fullscreen for the given H5P instance
  *
- * @method semiFullScreen
  * @param {H5P.jQuery} $element Content container.
  * @param {Object} instance
  * @param {function} exitCallback Callback function called when user exits fullscreen.
@@ -660,7 +662,14 @@ H5P.getPath = function (path, contentId) {
 
   var prefix;
   if (contentId !== undefined) {
-    prefix = H5PIntegration.url + '/content/' + contentId;
+    // Check for custom override URL
+    if (H5PIntegration.contents !== undefined &&
+        H5PIntegration.contents['cid-' + contentId]) {
+      prefix = H5PIntegration.contents['cid-' + contentId].contentUrl;
+    }
+    if (!prefix) {
+      prefix = H5PIntegration.url + '/content/' + contentId;
+    }
   }
   else if (window.H5PEditor !== undefined) {
     prefix = H5PEditor.filesPath;
@@ -886,6 +895,7 @@ H5P.t = function (key, vars, ns) {
  *   Which DOM element the dialog should be inserted after.
  */
 H5P.Dialog = function (name, title, content, $element) {
+  /** @alias H5P.Dialog# */
   var self = this;
   var $dialog = H5P.jQuery('<div class="h5p-popup-dialog h5p-' + name + '-dialog">\
                               <div class="h5p-inner">\
@@ -914,7 +924,10 @@ H5P.Dialog = function (name, title, content, $element) {
       .end()
     .end();
 
-  this.open = function () {
+  /**
+   * Opens the dialog.
+   */
+  self.open = function () {
     setTimeout(function () {
       $dialog.addClass('h5p-open'); // Fade in
       // Triggering an event, in case something has to be done after dialog has been opened.
@@ -922,7 +935,10 @@ H5P.Dialog = function (name, title, content, $element) {
     }, 1);
   };
 
-  this.close = function () {
+  /**
+   * Closes the dialog.
+   */
+  self.close = function () {
     $dialog.removeClass('h5p-open'); // Fade out
     setTimeout(function () {
       $dialog.remove();
@@ -1646,8 +1662,7 @@ H5P.setFinished = function (contentId, score, maxScore, time) {
       maxScore: maxScore,
       opened: toUnix(H5P.opened[contentId]),
       finished: toUnix(new Date()),
-      time: time,
-      token: H5PIntegration.tokens.result
+      time: time
     });
   }
 };
@@ -1791,8 +1806,7 @@ H5P.createTitle = function (rawTitle, maxLength) {
       options.data = {
         data: (data === null ? 0 : data),
         preload: (preload ? 1 : 0),
-        invalidate: (invalidate ? 1 : 0),
-        token: H5PIntegration.tokens.contentUserData
+        invalidate: (invalidate ? 1 : 0)
       };
     }
     else {

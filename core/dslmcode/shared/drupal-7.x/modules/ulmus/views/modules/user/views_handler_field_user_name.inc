@@ -74,7 +74,7 @@ class views_handler_field_user_name extends views_handler_field_user {
       }
     }
     // If we want a formatted username, do that.
-    if (!empty($this->options['format_username'])) {
+    if (!empty($this->options['format_username']) && !is_null($account->uid)) {
       return format_username($account);
     }
     // Otherwise, there's no special handling, so return the data directly.

@@ -1,22 +1,17 @@
 
 -------------------------------------------------------------------------------
-Backup and Migrate 2 for Drupal 7.x
+Backup and Migrate 3 for Drupal 7.x
   by Ronan Dowling, Gorton Studios - ronan (at) gortonstudios (dot) com
 -------------------------------------------------------------------------------
 
 DESCRIPTION:
-This module makes the task of backing up your Drupal database and migrating data
-from one Drupal install to another easier. It provides a function to backup the
-entire database to file or download, and to restore from a previous backup. You
-can also schedule the backup operation. Compression of backup files is also
-supported.
+This module makes the task of backing up your Drupal database, code and uploaded
+files and of migrating data from one Drupal install to another easier. 
 
-There are options to exclude the data from certain tables (such as cache or
-search index tables) to increase efficiency by ignoring data that does not need
-to be backed up or migrated.
-
-The backup files are a list of SQL statements which can be executed with a tool
-such as phpMyAdmin or the command-line mysql client.
+Database backup files are a list of SQL statements which can be executed with a 
+tool such as phpMyAdmin or the command-line mysql client. File and code
+backup files are tarballs which can be restored by extracting them to the 
+desired directory.
 
 -------------------------------------------------------------------------------
 

@@ -10,53 +10,53 @@ Drupal.wysiwyg.editor.attach.yui = function(context, params, settings) {
   // Apply theme.
   $('#' + params.field).parent().addClass('yui-skin-' + settings.theme);
 
+  var wysiwygInstance = this;
+  var enabledPlugins = wysiwygInstance.pluginInfo.instances;
   // Load plugins stylesheet.
-  if (Drupal.settings.wysiwyg.plugins[params.format]) {
-    for (var plugin in Drupal.settings.wysiwyg.plugins[params.format].drupal) {
-      settings.extracss += settings.extracss+' @import "'+Drupal.settings.wysiwyg.plugins[params.format].drupal[plugin].css+'"; ';
+  for (var pluginId in enabledPlugins.drupal) {
+    if (wysiwygInstance.pluginInfo.global.drupal[pluginId].css) {
+      settings.extracss += ' @import "' + wysiwygInstance.pluginInfo.global.drupal[pluginId].css + '"; ';
     }
   }
 
   // Attach editor.
   var editor = new YAHOO.widget.Editor(params.field, settings);
 
-  editor.on('toolbarLoaded', function() {
-    // Load Drupal plugins.
-    if (Drupal.settings.wysiwyg.plugins[params.format]) {
-      for (var plugin in Drupal.settings.wysiwyg.plugins[params.format].drupal) {
-        Drupal.wysiwyg.instances[params.field].addPlugin(plugin, Drupal.settings.wysiwyg.plugins[params.format].drupal[plugin], Drupal.settings.wysiwyg.plugins.drupal[plugin]);
+  if (enabledPlugins) {
+    editor.on('toolbarLoaded', function() {
+      // 'this' will reference the toolbar while inside the event handler.
+      var instanceId = params.field;
+      // Load Drupal plugins.
+      for (var plugin in enabledPlugins.drupal) {
+        wysiwygInstance.addPlugin(plugin, wysiwygInstance.pluginInfo.global.drupal[plugin]);
       }
-    }
-  });
+    });
 
-  // Allow plugins to act on setEditorHTML.
-  var oldSetEditorHTML = editor.setEditorHTML;
-  editor.setEditorHTML = function (content) {
-    if (Drupal.settings.wysiwyg.plugins[params.format]) {
-      for (var plugin in Drupal.settings.wysiwyg.plugins[params.format].drupal) {
-        var pluginSettings = Drupal.settings.wysiwyg.plugins.drupal[plugin];
+    // Allow plugins to act on setEditorHTML.
+    var oldSetEditorHTML = editor.setEditorHTML;
+    editor.setEditorHTML = function (content) {
+      for (var plugin in enabledPlugins.drupal) {
+        var pluginSettings = wysiwygInstance.pluginInfo.global.drupal[plugin];
         if (typeof Drupal.wysiwyg.plugins[plugin].attach == 'function') {
           content = Drupal.wysiwyg.plugins[plugin].attach(content, pluginSettings, params.field);
-          content = Drupal.wysiwyg.instances[params.field].prepareContent(content);
+          content = wysiwygInstance.prepareContent(content);
         }
       }
-    }
-    oldSetEditorHTML.call(this, content);
-  };
+      oldSetEditorHTML.call(this, content);
+    };
 
-  // Allow plugins to act on getEditorHTML.
-  var oldGetEditorHTML = editor.getEditorHTML;
-  editor.getEditorHTML = function () {
-    var content = oldGetEditorHTML.call(this);
-    if (Drupal.settings.wysiwyg.plugins[params.format]) {
-      for (var plugin in Drupal.settings.wysiwyg.plugins[params.format].drupal) {
-        var pluginSettings = Drupal.settings.wysiwyg.plugins.drupal[plugin];
+    // Allow plugins to act on getEditorHTML.
+    var oldGetEditorHTML = editor.getEditorHTML;
+    editor.getEditorHTML = function () {
+      var content = oldGetEditorHTML.call(this);
+      for (var plugin in enabledPlugins.drupal) {
+        var pluginSettings = wysiwygInstance.pluginInfo.global.drupal[plugin];
         if (typeof Drupal.wysiwyg.plugins[plugin].detach == 'function') {
           content = Drupal.wysiwyg.plugins[plugin].detach(content, pluginSettings, params.field);
         }
       }
+      return content;
     }
-    return content;
   }
 
   // Reload the editor contents to give Drupal plugins a chance to act.
@@ -65,45 +65,32 @@ Drupal.wysiwyg.editor.attach.yui = function(context, params, settings) {
   });
 
   editor.on('afterNodeChange', function (e) {
-    if (Drupal.settings.wysiwyg.plugins[params.format]) {
-      for (var plugin in Drupal.settings.wysiwyg.plugins[params.format].drupal) {
-        if (typeof Drupal.wysiwyg.plugins[plugin].isNode == 'function') {
-          if (Drupal.wysiwyg.plugins[plugin].isNode(e.target._getSelectedElement())) {
-            this.toolbar.selectButton(plugin);
-          }
+    for (var plugin in enabledPlugins.drupal) {
+      if (typeof Drupal.wysiwyg.plugins[plugin].isNode == 'function') {
+        if (Drupal.wysiwyg.plugins[plugin].isNode(e.target._getSelectedElement())) {
+          this.toolbar.selectButton(plugin);
         }
       }
     }
   });
 
   editor.render();
+  // This event never gets fired if loaded into a dialog, harmless otherwise.
+  editor.fireEvent('contentReady');
 };
 
 /**
- * Detach a single or all editors.
- *
- * See Drupal.wysiwyg.editor.detach.none() for a full desciption of this hook.
+ * Detach a single editor instance.
  */
 Drupal.wysiwyg.editor.detach.yui = function (context, params, trigger) {
   var method = (trigger && trigger == 'serialize') ? 'saveHTML' : 'destroy';
-  if (typeof params != 'undefined') {
-    var instance = YAHOO.widget.EditorInfo._instances[params.field];
-    if (instance) {
-      instance[method]();
-      if (method == 'destroy') {
-        delete YAHOO.widget.EditorInfo._instances[params.field];
-      }
-    }
+  var instance = YAHOO.widget.EditorInfo._instances[params.field];
+  if (!instance) {
+    return;
   }
-  else {
-    for (var e in YAHOO.widget.EditorInfo._instances) {
-      // Save contents of all editors back into textareas.
-      var instance = YAHOO.widget.EditorInfo._instances[e];
-      instance[method]();
-      if (method == 'destroy') {
-        delete YAHOO.widget.EditorInfo._instances[e];
-      }
-    }
+  instance[method]();
+  if (method != 'serialize') {
+    delete YAHOO.widget.EditorInfo._instances[params.field];
   }
 };
 
@@ -111,13 +98,13 @@ Drupal.wysiwyg.editor.detach.yui = function (context, params, trigger) {
  * Instance methods for YUI Editor.
  */
 Drupal.wysiwyg.editor.instance.yui = {
-  addPlugin: function (plugin, settings, pluginSettings) {
+  addPlugin: function (plugin, pluginSettings) {
     if (typeof Drupal.wysiwyg.plugins[plugin] != 'object') {
       return;
     }
     var editor = YAHOO.widget.EditorInfo.getEditorById(this.field);
     var button = editor.toolbar.getButtonByValue(plugin);
-    $(button._button).parent().css('background', 'transparent url(' + settings.icon + ') no-repeat center');
+    $(button._button).parent().css('background', 'transparent url(' + pluginSettings.icon + ') no-repeat center');
     // 'this' will reference the toolbar while inside the event handler.
     var instanceId = this.field;
     editor.toolbar.on(plugin + 'Click', function (e) {

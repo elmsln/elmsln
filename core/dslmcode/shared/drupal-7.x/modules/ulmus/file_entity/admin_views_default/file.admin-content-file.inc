@@ -33,71 +33,78 @@ $handler->display->display_options['pager']['options']['id'] = '0';
 $handler->display->display_options['pager']['options']['quantity'] = '9';
 $handler->display->display_options['style_plugin'] = 'table';
 $handler->display->display_options['style_options']['columns'] = array(
-  'views_bulk_operations' => 'views_bulk_operations',
-  'filename' => 'filename',
-  'type' => 'type',
-  'name' => 'name',
-  'filesize' => 'filesize',
-  'timestamp' => 'timestamp',
-  'edit' => 'edit',
-  'delete' => 'delete',
+    'views_bulk_operations' => 'views_bulk_operations',
+    'filename' => 'filename',
+    'type' => 'type',
+    'name' => 'name',
+    'filesize' => 'filesize',
+    'timestamp' => 'timestamp',
+    'edit' => 'edit',
+    'delete' => 'delete',
 );
 $handler->display->display_options['style_options']['default'] = 'timestamp';
 $handler->display->display_options['style_options']['info'] = array(
-  'views_bulk_operations' => array(
-    'align' => '',
-    'separator' => '',
-    'empty_column' => 0,
-  ),
-  'filename' => array(
-    'sortable' => 1,
-    'default_sort_order' => 'asc',
-    'align' => '',
-    'separator' => '',
-    'empty_column' => 0,
-  ),
-  'type' => array(
-    'sortable' => 1,
-    'default_sort_order' => 'asc',
-    'align' => '',
-    'separator' => '',
-    'empty_column' => 0,
-  ),
-  'name' => array(
-    'sortable' => 1,
-    'default_sort_order' => 'asc',
-    'align' => '',
-    'separator' => '',
-    'empty_column' => 0,
-  ),
-  'filesize' => array(
-    'sortable' => 1,
-    'default_sort_order' => 'asc',
-    'align' => '',
-    'separator' => '',
-    'empty_column' => 0,
-  ),
-  'timestamp' => array(
-    'sortable' => 1,
-    'default_sort_order' => 'desc',
-    'align' => '',
-    'separator' => '',
-    'empty_column' => 0,
-  ),
-  'edit' => array(
-    'sortable' => 0,
-    'default_sort_order' => 'asc',
-    'align' => '',
-    'separator' => '',
-    'empty_column' => 0,
-  ),
-  'delete' => array(
-    'sortable' => 0,
-    'default_sort_order' => 'asc',
-    'align' => '',
-    'separator' => '',
-    'empty_column' => 0,
-  ),
+    'views_bulk_operations' => array(
+        'align' => '',
+        'separator' => '',
+        'empty_column' => 0,
+    ),
+    'filename' => array(
+        'sortable' => 1,
+        'default_sort_order' => 'asc',
+        'align' => '',
+        'separator' => '',
+        'empty_column' => 0,
+    ),
+    'type' => array(
+        'sortable' => 1,
+        'default_sort_order' => 'asc',
+        'align' => '',
+        'separator' => '',
+        'empty_column' => 0,
+    ),
+    'name' => array(
+        'sortable' => 1,
+        'default_sort_order' => 'asc',
+        'align' => '',
+        'separator' => '',
+        'empty_column' => 0,
+    ),
+    'filesize' => array(
+        'sortable' => 1,
+        'default_sort_order' => 'asc',
+        'align' => '',
+        'separator' => '',
+        'empty_column' => 0,
+    ),
+    'timestamp' => array(
+        'sortable' => 1,
+        'default_sort_order' => 'desc',
+        'align' => '',
+        'separator' => '',
+        'empty_column' => 0,
+    ),
+    'edit' => array(
+        'sortable' => 0,
+        'default_sort_order' => 'asc',
+        'align' => '',
+        'separator' => '',
+        'empty_column' => 0,
+    ),
+    'usage' => array(
+        'sortable' => 1,
+        'default_sort_order' => 'asc',
+        'align' => '',
+        'separator' => '',
+        'empty_column' => 0,
+    ),
+    'delete' => array(
+        'sortable' => 0,
+        'default_sort_order' => 'asc',
+        'align' => '',
+        'separator' => '',
+        'empty_column' => 0,
+    ),
 );
 $handler->display->display_options['style_options']['sticky'] = TRUE;
 $handler->display->display_options['style_options']['empty_table'] = TRUE;
@@ -123,111 +130,130 @@ $handler->display->display_options['fields']['views_bulk_operations']['vbo_setti
 $handler->display->display_options['fields']['views_bulk_operations']['vbo_settings']['force_single'] = 0;
 $handler->display->display_options['fields']['views_bulk_operations']['vbo_settings']['entity_load_capacity'] = '10';
 $handler->display->display_options['fields']['views_bulk_operations']['vbo_operations'] = array(
-  'action::views_bulk_operations_archive_action' => array(
-    'selected' => 1,
-    'postpone_processing' => 0,
-    'skip_confirmation' => 0,
-    'override_label' => 1,
-    'label' => 'Archive',
-    'settings' => array(
-      'scheme' => 'public',
-      'temporary' => 1,
+    'action::views_bulk_operations_archive_action' => array(
+        'selected' => 1,
+        'postpone_processing' => 0,
+        'skip_confirmation' => 0,
+        'override_label' => 1,
+        'label' => 'Archive',
+        'settings' => array(
+            'scheme' => 'public',
+            'temporary' => 1,
+        ),
     ),
-  ),
-  'action::views_bulk_operations_delete_item' => array(
-    'selected' => 1,
-    'postpone_processing' => 0,
-    'skip_confirmation' => 0,
-    'override_label' => 1,
-    'label' => 'Delete',
-  ),
-  'action::views_bulk_operations_script_action' => array(
-    'selected' => 0,
-    'postpone_processing' => 0,
-    'skip_confirmation' => 0,
-    'override_label' => 0,
-    'label' => '',
-  ),
-  'action::views_bulk_operations_modify_action' => array(
-    'selected' => 1,
-    'postpone_processing' => 0,
-    'skip_confirmation' => 1,
-    'override_label' => 1,
-    'label' => 'Change value',
-    'settings' => array(
-      'show_all_tokens' => 1,
-      'display_values' => array(
-        '_all_' => '_all_',
-      ),
+    'action::views_bulk_operations_delete_item' => array(
+        'selected' => 1,
+        'postpone_processing' => 0,
+        'skip_confirmation' => 0,
+        'override_label' => 1,
+        'label' => 'Delete',
     ),
-  ),
-  'action::views_bulk_operations_argument_selector_action' => array(
-    'selected' => 0,
-    'skip_confirmation' => 0,
-    'override_label' => 0,
-    'label' => '',
-    'settings' => array(
-      'url' => '',
+    'action::views_bulk_operations_script_action' => array(
+        'selected' => 0,
+        'postpone_processing' => 0,
+        'skip_confirmation' => 0,
+        'override_label' => 0,
+        'label' => '',
     ),
-  ),
-  'action::system_send_email_action' => array(
-    'selected' => 0,
-    'postpone_processing' => 0,
-    'skip_confirmation' => 0,
-    'override_label' => 0,
-    'label' => '',
-  ),
-  'action::panelizer_set_status_action' => array(
-    'selected' => 0,
-    'postpone_processing' => 0,
-    'skip_confirmation' => 0,
-    'override_label' => 0,
-    'label' => '',
-  ),
+    'action::views_bulk_operations_modify_action' => array(
+        'selected' => 1,
+        'postpone_processing' => 0,
+        'skip_confirmation' => 1,
+        'override_label' => 1,
+        'label' => 'Change value',
+        'settings' => array(
+            'show_all_tokens' => 1,
+            'display_values' => array(
+                '_all_' => '_all_',
+            ),
+        ),
+    ),
+    'action::views_bulk_operations_argument_selector_action' => array(
+        'selected' => 0,
+        'skip_confirmation' => 0,
+        'override_label' => 0,
+        'label' => '',
+        'settings' => array(
+            'url' => '',
+        ),
+    ),
+    'action::system_send_email_action' => array(
+        'selected' => 0,
+        'postpone_processing' => 0,
+        'skip_confirmation' => 0,
+        'override_label' => 0,
+        'label' => '',
+    ),
+    'action::panelizer_set_status_action' => array(
+        'selected' => 0,
+        'postpone_processing' => 0,
+        'skip_confirmation' => 0,
+        'override_label' => 0,
+        'label' => '',
+    ),
 );
 /* Field: File: Name */
 $handler->display->display_options['fields']['filename']['id'] = 'filename';
 $handler->display->display_options['fields']['filename']['table'] = 'file_managed';
 $handler->display->display_options['fields']['filename']['field'] = 'filename';
+$handler->display->display_options['fields']['filename']['label'] = 'Title';
 /* Field: File: Type */
 $handler->display->display_options['fields']['type']['id'] = 'type';
 $handler->display->display_options['fields']['type']['table'] = 'file_managed';
 $handler->display->display_options['fields']['type']['field'] = 'type';
 $handler->display->display_options['fields']['type']['machine_name'] = 0;
+/* Field: File: Size */
+$handler->display->display_options['fields']['filesize']['id'] = 'filesize';
+$handler->display->display_options['fields']['filesize']['table'] = 'file_managed';
+$handler->display->display_options['fields']['filesize']['field'] = 'filesize';
+$handler->display->display_options['fields']['filesize']['empty'] = '0 bytes';
 /* Field: User: Name */
 $handler->display->display_options['fields']['name']['id'] = 'name';
 $handler->display->display_options['fields']['name']['table'] = 'users';
 $handler->display->display_options['fields']['name']['field'] = 'name';
 $handler->display->display_options['fields']['name']['relationship'] = 'uid';
-$handler->display->display_options['fields']['name']['label'] = 'User';
-/* Field: File: Size */
-$handler->display->display_options['fields']['filesize']['id'] = 'filesize';
-$handler->display->display_options['fields']['filesize']['table'] = 'file_managed';
-$handler->display->display_options['fields']['filesize']['field'] = 'filesize';
+$handler->display->display_options['fields']['name']['label'] = 'Author';
 /* Field: File: Upload date */
 $handler->display->display_options['fields']['timestamp']['id'] = 'timestamp';
 $handler->display->display_options['fields']['timestamp']['table'] = 'file_managed';
 $handler->display->display_options['fields']['timestamp']['field'] = 'timestamp';
-$handler->display->display_options['fields']['timestamp']['label'] = 'Uploaded';
+$handler->display->display_options['fields']['timestamp']['label'] = 'Updated';
 $handler->display->display_options['fields']['timestamp']['date_format'] = 'short';
+$handler->display->display_options['fields']['timestamp']['second_date_format'] = 'long';
+/* Field: File: Usage link */
+$handler->display->display_options['fields']['usage']['id'] = 'usage';
+$handler->display->display_options['fields']['usage']['table'] = 'file_managed';
+$handler->display->display_options['fields']['usage']['field'] = 'usage';
+$handler->display->display_options['fields']['usage']['label'] = 'Used in';
+$handler->display->display_options['fields']['usage']['element_label_colon'] = FALSE;
 /* Field: File: Edit link */
 $handler->display->display_options['fields']['edit']['id'] = 'edit';
 $handler->display->display_options['fields']['edit']['table'] = 'file_managed';
 $handler->display->display_options['fields']['edit']['field'] = 'edit';
 $handler->display->display_options['fields']['edit']['label'] = '';
+$handler->display->display_options['fields']['edit']['exclude'] = TRUE;
 $handler->display->display_options['fields']['edit']['element_label_colon'] = FALSE;
-/* Field: File: Usage link */
-$handler->display->display_options['fields']['usage']['id'] = 'usage';
-$handler->display->display_options['fields']['usage']['table'] = 'file_managed';
-$handler->display->display_options['fields']['usage']['field'] = 'usage';
-$handler->display->display_options['fields']['usage']['label'] = '';
-$handler->display->display_options['fields']['usage']['element_label_colon'] = FALSE;
 /* Field: File: Delete link */
 $handler->display->display_options['fields']['delete']['id'] = 'delete';
 $handler->display->display_options['fields']['delete']['table'] = 'file_managed';
 $handler->display->display_options['fields']['delete']['field'] = 'delete';
 $handler->display->display_options['fields']['delete']['label'] = '';
+$handler->display->display_options['fields']['delete']['exclude'] = TRUE;
+$handler->display->display_options['fields']['delete']['alter']['text'] = '<ul class="links inline">
+<li>[edit]</li>
+<li>[delete]</li>
+</ul>';
 $handler->display->display_options['fields']['delete']['element_label_colon'] = FALSE;
+/* Field: Global: Custom text */
+$handler->display->display_options['fields']['nothing']['id'] = 'nothing';
+$handler->display->display_options['fields']['nothing']['table'] = 'views';
+$handler->display->display_options['fields']['nothing']['field'] = 'nothing';
+$handler->display->display_options['fields']['nothing']['label'] = 'Operations';
+$handler->display->display_options['fields']['nothing']['alter']['text'] = '<ul class="links inline">
+<li>[edit]</li>
+<li>[delete]</li>
+</ul>';
+$handler->display->display_options['fields']['nothing']['element_label_colon'] = FALSE;
 /* Filter criterion: File: Name */
 $handler->display->display_options['filters']['filename']['id'] = 'filename';
 $handler->display->display_options['filters']['filename']['table'] = 'file_managed';
@@ -241,9 +267,9 @@ $handler->display->display_options['filters']['filename']['expose']['operator'] 
 $handler->display->display_options['filters']['filename']['expose']['identifier'] = 'filename';
 $handler->display->display_options['filters']['filename']['expose']['remember'] = TRUE;
 $handler->display->display_options['filters']['filename']['expose']['remember_roles'] = array(
-  2 => '2',
-  1 => 0,
-  3 => 0,
+    2 => '2',
+    1 => 0,
+    3 => 0,
 );
 /* Filter criterion: File: Type */
 $handler->display->display_options['filters']['type']['id'] = 'type';
@@ -257,9 +283,9 @@ $handler->display->display_options['filters']['type']['expose']['operator'] = 't
 $handler->display->display_options['filters']['type']['expose']['identifier'] = 'type';
 $handler->display->display_options['filters']['type']['expose']['remember'] = TRUE;
 $handler->display->display_options['filters']['type']['expose']['remember_roles'] = array(
-  2 => '2',
-  1 => 0,
-  3 => 0,
+    2 => '2',
+    1 => 0,
+    3 => 0,
 );
 /* Filter criterion: User: Name */
 $handler->display->display_options['filters']['uid']['id'] = 'uid';
@@ -275,9 +301,9 @@ $handler->display->display_options['filters']['uid']['expose']['operator'] = 'ui
 $handler->display->display_options['filters']['uid']['expose']['identifier'] = 'uid';
 $handler->display->display_options['filters']['uid']['expose']['remember'] = TRUE;
 $handler->display->display_options['filters']['uid']['expose']['remember_roles'] = array(
-  2 => '2',
-  1 => 0,
-  3 => 0,
+    2 => '2',
+    1 => 0,
+    3 => 0,
 );
 
 /* Display: System */

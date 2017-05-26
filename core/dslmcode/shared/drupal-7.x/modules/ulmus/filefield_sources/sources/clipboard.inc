@@ -21,7 +21,7 @@ function filefield_source_clipboard_info() {
     'process' => 'filefield_source_clipboard_process',
     'value' => 'filefield_source_clipboard_value',
     'weight' => 1,
-    'file' => 'includes/clipboard.inc',
+    'file' => 'sources/clipboard.inc',
   );
   return $source;
 }
@@ -84,7 +84,7 @@ function filefield_source_clipboard_process($element, &$form_state, $form) {
     '#value' => t('Upload'),
     '#ajax' => array(
       'path' => 'file/ajax/' . implode('/', $element['#array_parents']) . '/' . $form['form_build_id']['#value'],
-      'wrapper' => $element['#id'] . '-ajax-wrapper',
+      'wrapper' => $element['upload_button']['#ajax']['wrapper'],
       'effect' => 'fade',
       'progress' => array(
         'type' => 'throbber',

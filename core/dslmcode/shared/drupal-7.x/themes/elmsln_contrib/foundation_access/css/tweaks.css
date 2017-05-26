@@ -1,3 +1,20 @@
+.element-invisible {
+  width: 1px;
+}
+.skip-link {
+  top: 0;
+  position: absolute !important;
+  z-index: 1000;
+  background-color: #FFFFFF;
+  font-size: 1.5rem;
+  height: 2rem;
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+.skip-link a {
+  outline: none;
+}
 .lrs-data-chart {
   border: .25rem solid black;
   margin: 1rem 0;
@@ -32,17 +49,17 @@ body.page-node-edit.node-type-page .cke_focus .cke_top{
 
 .r-header {
   padding: 0;
-  margin: 1.5rem 0 0 0;
+  margin: 1rem 0 0 0;
 }
 
-.etb-book .is-sticky > .r-header {
+.r-header.pinned {
   padding: 0;
   margin:0;
   box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2);
 }
 
 .elmsln-content-wrap {
-  margin-top: 1.5rem;
+  margin-top: 3.5rem;
 }
 
 /* ensure print view is better then defaults */
@@ -234,12 +251,34 @@ body.page-node-edit.node-type-page .cke_focus .cke_top{
   }
 }
 
+@media only screen and (min-width: 601px) {
+  .highlighted-block-area {
+    position: absolute;
+    right: 90%;
+    width: calc(55vw - 40%);
+    max-width: 20rem;
+    min-width: 10rem;
+    top: 0;
+  }
+}
+
+@media only screen and (min-width: 900px) {
+  .highlighted-block-area {
+    position: absolute;
+    right: 91%;
+    width: calc(55vw - 44%);
+    max-width: 20rem;
+    min-width: 10rem;
+    top: 0;
+  }
+}
+
 /* support shifting highlighted block region off to left column on big displays */
-@media screen and (min-width: 80rem) {
+@media screen and (min-width: 1280px) {
   .highlighted-block-area {
     position: absolute;
     right: 92%;
-    width: calc(55vw - 50%);
+    width: calc(55vw - 46%);
     max-width: 20rem;
     min-width: 10rem;
     top: 0;
@@ -266,7 +305,6 @@ body.page-node-edit.node-type-page .cke_focus .cke_top{
     margin: 0;
   }
 }
-
 
 /* Helps in the event the internet isn't there */
 .material-icons {
@@ -326,8 +364,97 @@ article ul:not(.contextual-links):not(.collapsible):not(.footnotes):not(.browser
   background-color: #eeeeee;
 }
 
+#etb-course-nav .top-bar-right-actions {
+  padding-right: 0;
+}
 #etb-course-nav .top-bar {
-  height: 3.2rem;
+  height: 5rem;
+}
+
+#etb-course-nav .top-bar li {
+  height: 5rem;
+}
+
+#etb-course-nav .top-bar li a,
+#etb-course-nav .top-bar li span#elmsln-tools-trigger {
+  border: 0;
+  height: 5rem;
+}
+#etb-course-nav .top-bar li a i {
+  padding-right:.5rem;
+  line-height: 5rem;
+  height: 5rem;
+}
+
+#etb-course-nav .top-bar li a img,
+#etb-course-nav .top-bar li a div {
+  line-height: 5rem;
+  margin: 1rem 1rem 1rem 0;
+}
+
+#etb-course-nav .top-bar li a div.icon-user {
+  font-size: 1.4rem;
+}
+
+#etb-network-nav {
+  height: 3.75rem;
+  padding: 0 0 0 0.5rem;
+  margin: 0;
+  border-top: solid 1px #efefef;
+  border-bottom: solid 2px #212121;
+  z-index: 1;
+}
+.elmsln-service-list {
+  margin: 0;
+  padding: 0;
+}
+
+.elmsln-service-list li {
+  padding: 0.5rem 0 0 0;
+  margin: 0;
+  display: inline-block;
+  line-height: 3rem;
+  height: 3.75rem;
+}
+
+.elmsln-service-list li a {
+  height: 3.25rem;
+  padding: 0 .5rem;
+  border-bottom: solid .2rem #212121;
+}
+
+.is-active {
+    background: #212121;
+}
+
+.elmsln-service-list li a div i.material-icons {
+  height: 2rem;
+  line-height: 3rem;
+}
+
+.elmsln-service-list .elmsln-network-label {
+  line-height: 3rem;
+  margin: 0;
+  padding: 0 0.5rem;
+}
+
+
+.elmsln-service-list li.elmsln-network-menu-item {
+  height: 3.75rem;
+  padding: 0;
+}
+
+.elmsln-service-list li.elmsln-network-menu-item a {
+  height: 3.75rem;
+}
+
+.elmsln-service-list li.elmsln-network-menu-item a:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.elmsln-service-list li.elmsln-network-menu-item .cis-lmsless-network {
+  padding: 0 .75rem 0 0;
+  font-size: 1.6rem;
 }
 
 .etb-book dl {
@@ -344,12 +471,6 @@ input.cis_shortcodes_embed,
 /* elmsln-icon padding to right of font icon */
 .elmsln-icon.left {
   margin-right: .4rem;
-}
-/* in context modal buttons */
-.elmsln-filter-tpl-modal,
-.elmsln-filter-tpl-side-nav {
-  height: 2.5rem;
-  line-height: 2.5rem;
 }
 
 /* save form state */
@@ -379,7 +500,8 @@ input.cis_shortcodes_embed,
 /* Core in context items */
 .elmsln-core-in-context-hover {
   border-right-style: solid;
-  margin-right: -.2rem;
+  border-right-width: 1px;
+  margin-right: -1px;
 }
 
 /* hide attribution on map since it has a link that could confuse students easily */
@@ -514,6 +636,8 @@ article .collection .collection-item .badge,
 ul.collapsible li {
     list-style-type: none;
 }
+
+
 .collapsible-action-link {
   padding: 0 .25rem;
   line-height: 1rem;
@@ -598,24 +722,14 @@ body.devel-show .devel-querylog {
   display: flex;
   margin-left: -.6rem;
 }
-.left-nav-section li {
-  display: inline-block;
-  margin: .2rem 0 0 0;
-  padding: 0;
-  height: 3.4rem;
-  line-height: 3.4rem;
-  min-width: 3.4rem;
-}
 
 nav ul.left-nav-section a {
   padding: 0 .5rem;
-  height: 3.2rem;
-  line-height: 3.2rem;
-  min-width: 3.2rem;
+  height: 5rem;
+  line-height: 5rem;
+  min-width: 5rem;
 }
-nav ul.left-nav-section a span {
-  margin: 0 .5rem;
-}
+
 nav ul.left-nav-section a:hover {
   background-color: rgba(0, 0, 0, 0.4);
 }
@@ -623,11 +737,20 @@ nav ul.left-nav-section a i,
 nav ul.left-nav-section a div,
 nav ul.left-nav-section a img {
   font-size: 1.6rem;
-  height: 3.2rem;
-  line-height: 3.2rem
+  height: 5rem;
+  line-height: 5rem
 }
 
-nav ul.left-nav-section .elmsln-user-profile-menu-item img {
+nav ul .elmsln-user-profile-menu-item {
+  height: 5rem;
+  line-height: 5rem;
+}
+
+#block-cis-lmsless-cis-lmsless-user-nav-modal .background {
+  width: 100%;
+}
+
+nav ul .elmsln-user-profile-menu-item img {
   height: 1.6rem;
   width: 1.6rem;
 }
@@ -781,6 +904,7 @@ ul.dropdown-content .button-group > li {
   display: block;
   margin: 0;
 }
+
 .top-bar-section ul li > a {
   font-size: 1rem;
   font-weight: normal;
@@ -1240,7 +1364,8 @@ table.sticky-header {
 #admin-menu .dropdown a {
   color: #ffffff;
 }
-.sticky-wrapper.is-sticky {
+.r-header.pinned,
+.page-scroll.progress.pinned {
   z-index: 9988 !important;
 }
 
@@ -1270,31 +1395,6 @@ table.sticky-header {
 .side-nav .elmsln-modal-content {
  padding: 0;
 }
-.elmsln-modal .close-reveal-modal {
-  color: #4c4c4c;
-  cursor: pointer;
-  font-size: 2rem;
-  font-weight: bold;
-  line-height: 0;
-  position: absolute;
-  top: 0;
-  right: 0;
-  margin: 0;
-  padding: 2rem 0.25rem;
-}
-
-.elmsln-modal .close-reveal-side-nav {
-  color: #4c4c4c;
-  cursor: pointer;
-  font-size: 2rem;
-  font-weight: bold;
-  line-height: 0;
-  position: absolute;
-  top: 0;
-  right: 0;
-  margin: 0;
-  padding: 2rem 0.25rem;
-}
 
 .elmsln-modal.side-nav {
   z-index: 10001;
@@ -1307,25 +1407,14 @@ table.sticky-header {
 }
 
 /* Materialize scrollspy */
-#scrollspy-nav {
-  display: none;
-}
-#scrollspy-nav li.scrollspy-depth-1 {
-}
-#scrollspy-nav li.scrollspy-depth-2 {
-}
-#scrollspy-nav li.scrollspy-depth-3 {
-  padding-left:.2rem;
-}
-#scrollspy-nav li.scrollspy-depth-4 {
-  padding-left:.5rem;
-}
 
+#scrollspy-nav .scrollspy-link {
+  border: none;
+}
 #scrollspy-nav .scrollspy-link.active {
-  border-left: unset;
-  border-left-style: solid;
-  border-left-width: .1rem;
-  padding: 0 0 0 .1rem;
+  border: none;
+  transform: scale(1.07);
+  transition: all .2s ease-in-out;
 }
 .table-of-contents li {
   padding: 0;
@@ -1346,42 +1435,9 @@ table.sticky-header {
   color:unset;
   font-size: 1rem;
 }
-#scrollspy-nav a:hover {
-  border-left: unset;
-  border-left-style: solid;
-  border-left-width: .2rem;
-}
-/* structure in media */
-.scrollspy-toc .table-of-contents {
-  max-height: 65vh;
-  min-width: 10rem;
-  overflow-y: scroll;
-  width: calc(50vw - 52%);
-  max-width: 30em;
-  margin: 0;
-}
-/* structure in mooc */
-.scrollspy-toc.table-of-contents {
-  margin: 0;
-  max-height: 65vh;
-  min-width: 10rem;
-  max-width: 16rem;
-  overflow-y: scroll;
-  width: 100%;
-  border-bottom-width: .1rem;
-  border-bottom-style: solid;
-}
-@media screen and (min-width: 80rem) {
-  #scrollspy-nav {
-    position: absolute !important;
-    left: 100%;
-    width: calc(52vw - 52%);
-    max-width: 14em;
-    min-width: 8rem;
-    display: block;
-    max-height: 65vh;
-    overflow-y: scroll;
-  }
+.table-of-contents a:hover {
+  border: none;
+  font-weight: bold;
 }
 
 /* fix for Drupal checkboxes that don't have a label in material */
@@ -1530,7 +1586,7 @@ footer.page-footer{
     font-weight: bold;
     text-decoration: underline;
     font-size: 1rem;
-    color:#000000;}
+    color:#DDDDDD;}
 
 /* undo core error message conflict */
 div.error {
@@ -1640,7 +1696,7 @@ cite, .image__cite, .image--lightboxed__cite {
   max-width: 100%;
 }
 
-cite p, .image__cite p, .image--lightboxed__cite p {
+cite p, .image .image__cite p, .image--lightboxed__cite p {
   font-size: .8rem;
   max-width: 100%;
 }
@@ -1655,7 +1711,7 @@ div.read-time-wrapper div.chip i {
   form.node-form div.field-group-htabs-wrapper.group-settings {
     position: absolute !important;
     left: 100%;
-    width: calc(50vw - 51%);
+    width: calc(51vw - 58%);
     top: 0;
     max-width: 30em;
     display: block;
@@ -1915,12 +1971,29 @@ a.add-menu-drop {
   border-top-width: .2rem;
   border-top-style: solid;
   z-index: 1;
+  padding: 0;
 }
 
 #etb-course-nav span.course-title,
+#etb-course-nav span.course-abrv,
+#etb-course-nav span.section-label {
+  justify-content: flex-start;
+  text-align: left;
+}
+
+#etb-course-nav span.course-title {
+  font-size: 1.2rem;
+  line-height: 1.2rem;
+}
+
 #etb-course-nav span.course-abrv {
-  justify-content: flex-end;
-  color:#424242;
+  font-weight: lighter;
+}
+
+#etb-course-nav span.section-label {
+  font-size: 0.825rem;
+  font-style: italic;
+  padding: 0 0 0 1rem;
 }
 
 .ferpa-privacy-blur {
@@ -1941,9 +2014,11 @@ a.add-menu-drop {
   padding: .5rem !important;
 }
 
-.r-header__icon i:hover {
-  color: black !important;
+.r-header__icon {
+  padding: 0;
 }
+
+
 .r-header__icon-secondary {
   opacity: 0.2;
 }
@@ -2129,7 +2204,7 @@ ul.off-canvas-list .left-submenu li.back {
 }
 
 @media all and (min-width: 720px) {
-  .form-actions.form-wrapper {
+  .page-node-edit .form-actions.form-wrapper {
     position: fixed;
     bottom: 0;
     background: #fff;
@@ -2479,4 +2554,99 @@ div.horizontal-tabs ul li.horizontal-tab-button strong {
 .field-name-field-bio {
   clear:  both;
   padding: 30px;
+}
+
+/* ALL LRN / WEB COMPONENT BASED DESIGN MODIFICATIONS */
+.r-header__edit-icons paper-button,
+.r-header__edit-icons .icon-wrapper {
+  padding: .2rem;
+  min-width: 2rem;
+  margin: 0 .75rem;
+}
+paper-button:focus {
+  outline-style: solid;
+  outline-width: .1rem;
+  outline-color: #2962ff;
+}
+.scrollspy-link paper-button {
+  margin: 0;
+  padding: 0;
+}
+.collapsible-header paper-button {
+  width: 100%;
+  -ms-flex-align: left;
+  -webkit-align-items: left;
+  align-items: left;
+  -ms-flex-pack: left;
+  -webkit-justify-content: left;
+  justify-content: left;
+}
+#etb-course-nav .top-bar li a lrn-icon {
+  margin-right:.5rem;
+  line-height: 5rem;
+  height: 5rem;
+}
+#etb-course-nav lrndesign-avatar {
+  margin: .5rem 0 0 0;
+  padding: 0 .5rem 0 0;
+  line-height: 5.5rem;
+}
+
+#etb-course-nav iron-dropdown .dropdown-content {
+  position: fixed;
+  opacity: 1;
+  display: block;
+}
+
+#etb-course-nav paper-menu-button {
+  margin: 0;
+  padding: 0;
+}
+
+lrn-aside {
+  max-width: 20rem !important;
+  padding: 3rem 0 0 0;
+  margin: .25rem;
+}
+lrn-aside h3 div {
+  font-size: 1rem;
+}
+lrn-aside p {
+  font-size: .8rem;
+}
+lrn-aside div.card-panel.lrndesign-panelcard {
+  padding: .75rem;
+}
+
+button.btn paper-button {
+  min-width: 1rem;
+  margin: 0;
+  padding: 0;
+}
+
+#scrollspy-nav paper-button {
+  min-width: 1rem;
+  width: 100%;
+  -ms-flex-align: left;
+  -webkit-align-items: left;
+  align-items: left;
+  -ms-flex-pack: left;
+  -webkit-justify-content: left;
+  justify-content: left;
+  outline: none;
+}
+
+.elmsln-modal .close-reveal-side-nav paper-button,
+.elmsln-modal .close-reveal-modal paper-button,
+.etb-nav-modal .close-reveal-modal paper-button {
+  cursor: pointer;
+  font-size: 2rem;
+  font-weight: bold;
+  line-height: 0;
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: 0;
+  min-width: 2rem;
+  padding: 2rem 0.25rem;
 }

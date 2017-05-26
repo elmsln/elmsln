@@ -32,6 +32,7 @@ function path_breadcrumbs_uninstall() {
   variable_del('path_breadcrumbs_truncate_title_length');
   variable_del('path_breadcrumbs_internal_render_themes');
   variable_del('path_breadcrumbs_decode_entities');
+  variable_del('path_breadcrumbs_enable_on_error_pages');
 }
 
 /**

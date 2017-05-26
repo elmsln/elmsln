@@ -1,0 +1,18 @@
+; $Id$
+name = Revision Deletion
+description = Enables to delete aging node revisions by bulk.
+core = 7.x
+configure = admin/config/content/revision_deletion
+; Information added by drupal.org packaging script on 2009-10-09
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "revision_deletion"
+datestamp = "1255101069"
+
+
+; Information added by drupal.org packaging script on 2013-10-01
+version = "7.x-1.x-dev"
+core = "7.x"
+project = "revision_deletion"
+datestamp = "1380625916"
+

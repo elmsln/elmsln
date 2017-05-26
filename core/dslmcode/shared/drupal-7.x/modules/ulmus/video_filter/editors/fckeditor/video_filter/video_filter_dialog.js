@@ -43,6 +43,9 @@ function Ok() {
     if ($('#edit-autoplay').is(':checked')) {
       str += ' autoplay:' + $('#edit-autoplay').val();
     }
+    else {
+      str += ' autoplay:' + '0';
+    }
     str += ']';
 
     oEditor.FCKUndo.SaveUndoStep();

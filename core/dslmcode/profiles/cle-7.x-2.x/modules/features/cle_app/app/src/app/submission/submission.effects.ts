@@ -1,19 +1,22 @@
 import 'rxjs/add/operator/mergeMap';
 import { Injectable } from '@angular/core';
+import { Response } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
 import { Action } from '@ngrx/store'
+import { Submission } from './submission';
 import { Effect, Actions } from '@ngrx/effects';
 import {
   ActionTypes,
   loadSubmissionsSuccess,
   createSubmission,
   createSubmissionSuccess,
+  createSubmissionFailure,
   updateSubmissionSuccess,
   deleteSubmission,
   loadPermissions,
   loadPermissionsSuccess,
 } from './submission.actions';
-import { loadAssignments } from '../app.actions';
+import { loadAssignments } from '../assignment/assignment.actions';
 import { SubmissionService } from './submission.service';
 declare const Materialize:any;
 
@@ -26,9 +29,19 @@ export class SubmissionEffects {
 
   @Effect() createSubmission$ = this.actions$
     .ofType(ActionTypes.CREATE_SUBMISSION)
-    .mergeMap(action => this.submissionService.createSubmission(action.payload))
-    .mergeMap(sub => this.submissionService.getSubmission(sub.id))
-    .map((sub:any) => createSubmissionSuccess(sub));
+    .switchMap(action => this.submissionService.createSubmission(action.payload)
+      .switchMap((sub:Submission) => this.submissionService.getSubmission(sub.id)
+        .map((sub:Submission) => createSubmissionSuccess(sub)))
+      .catch((res:Response) => Observable.of(createSubmissionFailure(res)))
+    )
+  
+  @Effect() createSubmissionFailure$ = this.actions$
+    .ofType(ActionTypes.CREATE_SUBMISSION_FAILURE)
+    // get the response from the action payload
+    .map((action:Action) => action.payload)
+    .map((res:Response) => {
+      Materialize.toast('Something went wrong saving your submission! Please copy your work and contact an administrator.', 10000, 'create-submission-failure')
+    })
 
   // Update the submission on the server
   @Effect() updateSubmission$ = this.actions$

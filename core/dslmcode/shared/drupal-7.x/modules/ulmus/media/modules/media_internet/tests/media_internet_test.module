@@ -1,0 +1,67 @@
+<?php
+
+/**
+ * @file
+ * Provides Media Internet module hook implementations for testing purposes.
+ */
+
+/**
+ * Implements hook_media_internet_providers().
+ */
+function media_internet_test_media_internet_providers() {
+  // Allow tests to enable or disable this hook.
+  if (!variable_get('media_internet_test_media_internet_providers', FALSE)) {
+    return array();
+  }
+
+  return array(
+    'MediaInternetTestHandler' => array(
+      'title' => t('Media Internet Test'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_media_browser_plugin_info_alter_alter().
+ */
+function media_internet_test_media_internet_providers_alter(&$providers) {
+  // Allow tests to enable or disable this hook.
+  if (!variable_get('media_internet_test_media_internet_providers_alter', FALSE)) {
+    return;
+  }
+
+  $providers['MediaInternetTestHandler']['title'] = t('Altered provider title');
+}
+
+/**
+ * Implements hook_stream_wrappers().
+ */
+function media_internet_test_stream_wrappers() {
+  return array(
+    'mediainternettest' => array(
+      'name' => t('Media Internet Test'),
+      'class' => 'MediaInternetTestStreamWrapper',
+      'description' => t('Media Internet Test.'),
+      'type' => STREAM_WRAPPERS_READ_VISIBLE,
+    ),
+  );
+}
+
+/**
+ * Implements hook_media_parse().
+ *
+ * @todo This hook should be deprecated. Refactor Media module to not call it
+ *   any more, since media_internet should be able to automatically route to the
+ *   appropriate handler.
+ */
+function media_internet_test_media_parse($embed_code) {
+  $handler = new MediaInternetTestHandler($embed_code);
+  return $handler->parse($embed_code);
+}
+
+ /**
+ * Implements hook_file_mimetype_mapping_alter().
+ */
+function media_internet_test_file_mimetype_mapping_alter(&$mapping) {
+  $mapping['mimetypes'][] = 'video/mediainternettest';
+}

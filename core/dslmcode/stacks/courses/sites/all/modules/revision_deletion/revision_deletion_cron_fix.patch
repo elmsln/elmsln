@@ -1,0 +1,13 @@
+diff --git a/sites/all/modules/revision_deletion/revision_deletion.module b/sites/all/modules/revision_deletion/revision_deletion.module
+index e2ad9d4..8d64936 100644
+--- a/sites/all/modules/revision_deletion/revision_deletion.module
++++ b/sites/all/modules/revision_deletion/revision_deletion.module
+@@ -105,7 +105,7 @@
+     $revisions = _revision_deletion_get_list();
+     foreach ($revisions as $revision) {
+       if ($revision->select) {
+-        _revision_deletion_delete_revision($revision);
++        _revision_deletion_delete_revision($revision->vid);
+       }
+     }
+ 

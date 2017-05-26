@@ -5,13 +5,6 @@
  */
 
 /**
- * Implements hook_install().
- */
-function advanced_help_install() {
-  // drupal_set_message('Installing advanced_help.');
-}
-
-/**
  * Implements hook_uninstall().
  */
 function advanced_help_uninstall() {
@@ -57,7 +50,10 @@ function advanced_help_schema() {
     'primary key' => array('sid'),
     'indexes' => array('language' => array('language')),
     'foreign keys' => array(
-      'module' => array('system' => 'name'),
+      'system' => array(
+        'table' => 'system',
+        'columns' => array('name' => 'name'),
+      ),
     ),
   );
 

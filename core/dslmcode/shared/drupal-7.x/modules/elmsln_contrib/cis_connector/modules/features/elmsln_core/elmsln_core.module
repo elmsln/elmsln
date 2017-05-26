@@ -68,7 +68,7 @@ function elmsln_core_menu() {
   $items['elmsln/course-data'] = array(
     'title' => 'Course data',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('_elmsln_core_data_form'),
+    'page arguments' => array('elmsln_core_data_form'),
     'access arguments' => array('view elmsln lrs data'),
     'weight' => 10,
     'type' => MENU_NORMAL_ITEM,
@@ -371,33 +371,14 @@ function elmsln_core_node_view($node, $view_mode, $langcode) {
         // pregmatch all paragraphs for simplicity
         preg_match_all($search, $node->content['body'][0]['#markup'], $results);
         $node->content['body'][0]['#markup'] = preg_replace_callback($search, '_elmsln_core_paragraph_replace', $node->content['body'][0]['#markup']);
-        // @todo comment this back in once we get the other types in place for this capability
-        //drupal_add_js(drupal_get_path('module', 'elmsln_core') . '/js/elmsln-core-in-context.js');
-        // @todo render this list of in context items
-        //$links = _elmsln_core_in_context_list();
+        // brings in the JS stuff to allow in context editing across systems
+        drupal_add_js(drupal_get_path('module', 'elmsln_core') . '/js/elmsln-core-in-context.js');
       }
-      $lmsless_classes = _cis_lmsless_get_distro_classes(elmsln_core_get_profile_key());
       // target the scrollspy template style
       $search = '/<h([1-4])(.*?)>(.*?)<\/h(.*?)>/s';
       // pregmatch the anchor and title for the heading
       preg_match_all($search, $node->content['body'][0]['#markup'], $results);
       $node->content['body'][0]['#markup'] = preg_replace_callback($search, '_elmsln_core_scrollspy_replace', $node->content['body'][0]['#markup']);
-      // ensure we have headings in the body of the document
-      if (count($results) == 5 && count($results[0]) > 1) {
-        // loop through items found
-        $scrollspy = '<div id="scrollspy-nav" class="hide-on-med-and-down"><h2 class="element-invisible">' . t('Page contents') . '</h2><ul class="scrollspy-toc table-of-contents">';
-        foreach ($results[0] as $key => $result) {
-          $tmp = strip_tags(trim($results[3][$key]));
-          if (!empty($tmp)) {
-            $scrollspy .= '<li class="scrollspy-depth-' . $results[1][$key] . '"><a class="scrollspy-link ' . $lmsless_classes['color'] . '-border ' . $lmsless_classes['text'] .'" href="#' . hash('md5', 'h' . $key) . '">' . $tmp . '</a></li>';
-          }
-        }
-        $scrollspy .= '</ul></div>';
-        $node->content['scrollspy'] = array(
-          '#markup' => $scrollspy,
-        );
-        drupal_add_js(drupal_get_path('theme', 'foundation_access') .'/legacy/js/materialize/scrollspy/materialize-scrollspy.js');
-      }
     }
   }
 }
@@ -760,13 +741,24 @@ function elmsln_core_page_build(&$page) {
   // xapi context iframe sniffer
   if (module_exists('tincanapi') && !path_is_admin(current_path())) {
     drupal_add_js(drupal_get_path('module', 'elmsln_core') . '/js/elmsln-core-xapi-context.js', array('weight' => 1000));
-    // @todo we need to only track people told to be tracked with vagrant based
-    // fallback for testing everything
-    // @todo we need a better path management solution as to when to track
-    // right now we just ignore entity iframe, admin, and 'data' paths
-    // would be good to ignore other paths without missing views / special pages in the process
+    // see if we should do some tracking on this path for LRS
     if (!_entity_iframe_mode_enabled() && arg(1) != 'course-data' && !in_array(arg(2), array('data', 'edit', 'devel', 'revisions', 'outline')) && _cis_connector_system_type() != 'authority') {
-      drupal_add_js(drupal_get_path('module', 'elmsln_core') . '/js/elmsln-core-xapi-viewed.js', array('weight' => 1001));
+      // got in here, now do the node look up if there is one to match tincanapi_content_types
+      // if not then just track it
+      if (arg(0) == 'node' && $node = menu_get_object()) {
+        // @see tincanapi_content_types_node_view
+        $content_types = array_filter(variable_get('tincanapi_content_types', array()));
+        $view_modes = array_filter(variable_get('tincanapi_content_types_view_modes', array()));
+        // page build will be for a "full" view mode
+        if (in_array($node->type, $content_types) && in_array('full', $view_modes) && !isset($_GET['no-track'])) {
+          drupal_add_js(drupal_get_path('module', 'elmsln_core') . '/js/elmsln-core-xapi-viewed.js', array('weight' => 1001));
+        }
+      }
+      else {
+        drupal_add_js(drupal_get_path('module', 'elmsln_core') . '/js/elmsln-core-xapi-viewed.js', array('weight' => 1001));
+      }
+      $content_types = array_filter(variable_get('tincanapi_content_types', array()));
+      $view_modes = array_filter(variable_get('tincanapi_content_types_view_modes', array()));
     }
   }
   // devel usability improvement
@@ -875,22 +867,32 @@ function _elmsln_core_in_context_list() {
     $tmp = json_decode($response);
     foreach ((array) $tmp->types as $typeobj) {
       $icon = str_replace(' ', '_', drupal_strtolower($typeobj->name));
-      if (isset($icon_map[$icon])) {
-        $color = $icon_map[$icon]['color'];
-        $icon_render = '<i class="material-icons white-text left">' . $icon_map[$icon]['icon'] . '</i>';
+      // ignore these for now
+      if (!in_array($icon, array('figure_label', 'media_list', 'timeline', 'map', 'timeline_date', 'static_content', 'poll', 'jmol', 'interactive_player', 'image_gallery'))) {
+        if (isset($icon_map[$icon])) {
+          $color = $icon_map[$icon]['color'];
+          if (isset($icon_map[$icon]['text'])) {
+            $textcolor = $icon_map[$icon]['text'];
+          }
+          else {
+            $textcolor = 'white-text';
+          }
+          $icon_render = '<i class="material-icons ' . $textcolor . ' left">' . $icon_map[$icon]['icon'] . '</i>';
+        }
+        else {
+          $color = '';
+          $icon_render = '';
+        }
+        $options = array(
+          'html' => TRUE,
+          'attributes' => array(
+            'class' => array('elmsln-core-external-context-apply', $color, $textcolor, 'btn-floating', 'elmsln-btn-floating', 'vibrate'),
+          ),
+        );
+
+        $title = $icon_render . $typeobj->name;
+        $links[] = '<li class="leaf">' . l($title, 'elmsln/redirect/' . $key . '/node/add/' . str_replace('_', '-', $typeobj->type), $options) . '</li>';
       }
-      else {
-        $color = '';
-        $icon_render = '';
-      }
-      $options = array(
-        'html' => TRUE,
-        'attributes' => array(
-          'class' => array('elmsln-core-external-context-apply', $color),
-        ),
-      );
-      $title = $icon_render . $typeobj->name;
-      $links[] = l($title, 'elmsln/redirect/' . $key . '/node/add/' . str_replace('_', '-', $typeobj->type), $options);
     }
   }
 
@@ -921,7 +923,7 @@ function elmsln_core_form_node_form_alter(&$form, &$form_state, $form_id) {
     // prepopulate section reference if it exists in the current context for whatever reason
     // and hasn't existed previously but ONLY for new stuff
     if (isset($form['og_group_ref']['und'][0]['default']['#default_value']) && empty($form['og_group_ref']['und'][0]['default']['#default_value']
-  ) && $section_nid = _cis_section_load_section_by_id(_cis_connector_section_context())) {
+  ) && $section_nid = _cis_section_load_section_by_id(_cis_connector_section_context()) && !in_array(elmsln_core_get_profile_key(), array('elmsmedia', 'icor'))) {
       $form['og_group_ref']['und'][0]['default']['#default_value'] = $section_nid;
     }
   }
@@ -1155,11 +1157,11 @@ function _elmsln_core_icon_map() {
         'icon' => 'person_add',
       ),
       'file' => array(
-        'color' => 'orange',
+        'color' => 'deep-orange darken-4',
         'icon' => 'attachment',
       ),
       'zip_file' => array(
-        'color' => 'deep-orange',
+        'color' => 'deep-orange darken-4',
         'icon' => 'archive',
       ),
       'timeline_item' => array(
@@ -1167,15 +1169,15 @@ function _elmsln_core_icon_map() {
         'icon' => 'access_time',
       ),
       'timeline' => array(
-        'color' => 'red',
+        'color' => 'red darken-2',
         'icon' => 'timeline',
       ),
       'map_point' => array(
-        'color' => 'light-green',
+        'color' => 'light-green darken-4',
         'icon' => 'place',
       ),
       'map' => array(
-        'color' => 'green',
+        'color' => 'green darken-3',
         'icon' => 'map',
       ),
       'jmol' => array(
@@ -1191,7 +1193,7 @@ function _elmsln_core_icon_map() {
         'icon' => 'people_outline',
       ),
       'setup_a_course' => array(
-        'color' => 'red',
+        'color' => 'red darken-2',
         'icon' => 'school',
       ),
       'program' => array(
@@ -1199,7 +1201,7 @@ function _elmsln_core_icon_map() {
         'icon' => 'code',
       ),
       'academic_area' => array(
-        'color' => 'green',
+        'color' => 'green darken-4',
         'icon' => 'account_balance',
       ),
       'global_resource' => array(
@@ -1215,27 +1217,31 @@ function _elmsln_core_icon_map() {
         'icon' => 'cloud',
       ),
       'calendar_event' => array(
-        'color' => 'green',
+        'color' => 'green darken-3',
         'icon' => 'event',
       ),
       'audio' => array(
-        'color' => 'green',
+        'color' => 'green darken-3',
         'icon' => 'music_video',
       ),
       'document' => array(
-        'color' => 'light-green',
+        'color' => 'light-green darken-4',
         'icon' => 'insert_drive_file',
       ),
       'external_video' => array(
-        'color' => 'red',
+        'color' => 'red darken-2',
         'icon' => 'video_library',
       ),
       'figure_label' => array(
-        'color' => 'deep-orange',
+        'color' => 'deep-orange darken-4',
         'icon' => 'label_outline',
       ),
       'h5p' => array(
-        'color' => 'orange',
+        'color' => 'deep-orange darken-4',
+        'icon' => 'local_activity',
+      ),
+      'interactive_content' => array(
+        'color' => 'deep-orange darken-4',
         'icon' => 'local_activity',
       ),
       'image' => array(
@@ -1265,6 +1271,7 @@ function _elmsln_core_icon_map() {
       'duplicate_outline' => array(
         'color' => 'green',
         'icon' => 'content_copy',
+        'text' => 'black-text',
       ),
       'child_page' => array(
         'color' => 'teal',
@@ -1277,6 +1284,8 @@ function _elmsln_core_icon_map() {
       'assignment' => array(
         'color' => 'green',
         'icon' => 'assignment',
+        'text' => 'black-text',
+
       ),
       'quiz' => array(
         'color' => 'orange',
@@ -1290,10 +1299,12 @@ function _elmsln_core_icon_map() {
       'started' => array(
         'color' => 'red',
         'icon' => 'flag',
+        'text' => 'black-text',
       ),
       'finished' => array(
         'color' => 'green',
         'icon' => 'golf_course',
+        'text' => 'black-text',
       ),
     );
     // allow others to modify core associations
@@ -1406,11 +1417,11 @@ function elmsln_core_cis_service_registry_alter(&$keychain) {
       'user' => variable_get('tincanapi_auth_user', ''),
       'pass' => variable_get('tincanapi_auth_password', ''),
       'instance' => FALSE,
-      'default_title' => t('Learning record store'),
+      'default_title' => t('Learning analytics'),
       'ignore' => TRUE,
       'type' => 'external',
       'weight' => '0',
-      'group' => t('Analytics'),
+      'group' => t('Administrative'),
       'subdomain' => 'lrs',
       'icon_library' => 'materialize',
       'show_in_network' => '1',
@@ -1838,13 +1849,26 @@ function _elmsln_core_path_is_wrapped($path) {
  */
 function elmsln_core_wrapped_paths() {
   $paths = array(
+    // wrap everything for now
     '*' => TRUE,
+    // user pages are full width
     'user/*' => FALSE,
     'user/*/*' => FALSE,
-    'cle/app' => FALSE,
-    'cle/app/*' => FALSE,
   );
   return $paths;
+}
+
+/**
+ * Implements hook_register_webcomponent_apps_alter().
+ */
+function elmsln_core_register_webcomponent_apps_alter(&$apps) {
+  // kill things not for our app
+  foreach ($apps as $key => $app) {
+    // make sure we have a context to mess with
+    if (isset($app['context']['distro']) && $app['context']['distro'] != elmsln_core_get_profile_key()) {
+      unset($apps[$key]);
+    }
+  }
 }
 
 /**
@@ -1864,4 +1888,34 @@ function elmsln_core_cis_lmsless_color_alter(&$map) {
       );
     }
   }
+}
+/**
+ * Implements hook_webcomponent_attached_files_alter().
+ * Remove things on the node edit page that are lrn- prefixed
+ * this ensures that assets don't unpack when rendered by CKEditor
+ * which would reduce the usefulness of the components
+ */
+function elmsln_core_webcomponent_attached_files_alter(&$webcomponents) {
+  // remove the definitions from the node edit page for lrn components
+  // till we have a good alternative
+  if (arg(0) == 'node' && arg(2) == 'edit' && isset($webcomponents['sites/all/libraries/webcomponents/polymer/LRNWebComponents/build.html'])) {
+    $edit_path = drupal_get_path('module', 'elmsln_core') . '/LRNWebComponents/build_edit.html';
+    $webcomponents[$edit_path] = $webcomponents['sites/all/libraries/webcomponents/polymer/LRNWebComponents/build.html'];
+    $webcomponents[$edit_path]->file = $edit_path;
+    unset($webcomponents['sites/all/libraries/webcomponents/polymer/LRNWebComponents/build.html']);
+  }
+}
+
+/**
+ * Implements hook_webcomponents().
+ */
+function elmsln_core_webcomponents() {
+  // look for polymer elements in sites/all/libraries/_my_libraries/my_webcomponents/
+  $files = array();
+  if (isset($libraries['webcomponents'])) {
+    $dir = DRUPAL_ROOT . '/sites/all/libraries/_my_libraries/my_webcomponents/';
+    $files = _webcomponents_find_html_includes($dir);
+  }
+  // group these all as files found to match polymer format
+  return array(WEBCOMPONENTS_POLYMER_NAME => $files);
 }

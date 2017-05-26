@@ -1,0 +1,21 @@
+<?php
+/**
+ * @file
+ * Install the CIS helper requirements.
+ */
+
+/**
+ * Implements hook_requirements().
+ */
+function cis_helper_requirements($phase) {
+  $requirements = array();
+  // Ensure translations don't break at install time
+  $t = get_t();
+  $requirements['cis_helper'] = array(
+    'title' => $t('Sync all course rosters'),
+    'value' => $t('<a href="@url">sync all course rosters now</a>', array('@url' => url('admin/config/system/cis/sync-roster', array('alias' => TRUE)))),
+    'severity' => REQUIREMENT_INFO,
+    'weight' => -101,
+  );
+  return $requirements;
+}

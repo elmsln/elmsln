@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the CLE Displays feature.
+ */
+
+include_once 'cle_displays.features.inc';

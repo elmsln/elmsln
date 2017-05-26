@@ -1,4 +1,4 @@
-import { Assignment } from '../../assignment';
+import { Assignment } from '../../assignment/assignment';
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
@@ -7,6 +7,8 @@ import { Submission } from '../submission';
 import { updateSubmission } from '../submission.actions';
 import { SubmissionFormComponent } from '../submission-form/submission-form.component';
 import { SubmissionService } from '../submission.service';
+import * as fromRoot from '../../app.reducer';
+import { SubmissionStates } from '../submission.reducer';
 declare const Materialize:any;
 declare const jQuery:any;
 
@@ -45,22 +47,21 @@ export class SubmissionEditComponent implements OnInit {
     });
 
     if (this.submissionId) {
-      this.submission$ = this.store.select('submissions')
-        .map((state:any) => state.submissions.find((sub:Submission) => {
+      this.submission$ = this.store.select(fromRoot.getAllSubmissions)
+        .map((state:any) => state.find((sub:Submission) => {
           this.assignmentId = sub.assignment;
           return sub.id === this.submissionId;
         }))
     }
 
-    this.store.select('submissions')
-      .map((state:any) => state.saving)
-      .subscribe(saving => {
+    this.store.select(fromRoot.getSubmissionCurrentState)
+      .subscribe((state:SubmissionStates) => {
         // saving is happening
-        if (saving && !this.isSaving) {
+        if (state === SubmissionStates.saving && !this.isSaving) {
           this.isSaving = true;
           Materialize.toast('Updating submission...', 30000, 'toast-submission-update');
         }
-        else if (!saving && this.isSaving) {
+        else if (state === SubmissionStates.default && this.isSaving) {
           jQuery('.toast-submission-update').remove();
           Materialize.toast('Submission updated', 1500);
           this.router.navigate(['/assignments/' + this.assignmentId]);
@@ -79,8 +80,8 @@ export class SubmissionEditComponent implements OnInit {
         return false
       })
       .mergeMap((s:Submission) => {
-        return this.store.select('assignments')
-            .map((state:any) => state.assignments.find((a:Assignment) => a.id === s.assignment))
+        return this.store.select(fromRoot.getAssignments)
+            .map((state:any) => state.find((a:Assignment) => a.id === s.assignment))
       })
 
     this.assignment$

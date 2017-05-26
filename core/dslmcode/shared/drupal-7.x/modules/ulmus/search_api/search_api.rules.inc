@@ -10,7 +10,7 @@
  * Implements hook_rules_action_info().
  */
 function search_api_rules_action_info() {
-  $items['search_api_index'] = array (
+  $items['search_api_index'] = array(
    'parameter' => array(
       'entity' => array(
         'type' => 'entity',

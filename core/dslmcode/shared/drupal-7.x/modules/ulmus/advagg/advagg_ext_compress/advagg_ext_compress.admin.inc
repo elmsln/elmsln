@@ -8,7 +8,7 @@
 /**
  * Form builder; Configure advagg settings.
  *
- * @ingroup forms
+ * @ingroup advagg_forms
  *
  * @see system_settings_form()
  */

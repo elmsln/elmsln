@@ -1,10 +1,24 @@
-
-.advanced-help-topic code, .advanced-help-topic pre {
-  border: 1px solid #444;
+.advanced-help-topic pre {
   background: #f1f1f1;
-  margin: 1em;
-  padding: .2em;
+  border: 1px solid #ccc;
   display: block;
+  margin: 1em;
+  padding: .4em;
+}
+
+.advanced-help-topic p.bob {
+  background: #f1f1f1;
+  border: 1px solid #ccc;
+  display: block;
+  margin: 1em;
+  padding: .4em;
+}
+
+.advanced-help-topic pre.readme {
+  background: white;
+  border: none;
+  margin: 0em;
+  padding: .4em;
 }
 
 .advanced-help-topic h3,
@@ -22,37 +36,68 @@
   font-weight: normal;
 }
 
+.attribution {
+  font-size: 0.8em;
+  color: #aaa;
+}
+
 .help-left {
-  text-align: left;
-  width: 42%;
   display: block;
   float: left; /* LTR */
+  text-align: left;
+  width: 42%;
+}
+
+.help-leftalign {
+  text-align: left;
 }
 
 .help-up {
-  margin: 0 5%;
-  width: 4%;
   display: block;
   float: left; /* LTR */
+  margin: 0 5%;
+  text-align: center;
+  width: 10%;
 }
 
 .help-up-noleft {
-  margin: 0 5%;
-  width: 42%;
-  text-align: right;
   display: block;
   float: left; /* LTR */
+  margin: 0 5%;
+  text-align: right;
+  width: 42%;
 }
 
 .help-right {
-  text-align: right;
-  width: 42%;
   display: block;
   float: right;
+  text-align: right;
+  width: 42%;
 }
 
 .help-box {
   margin: .5em;
+}
+
+.help-block {
+  display: block;
+  clear: both;
+}
+
+.help-img-left {
+  margin-right: 1.5em;
+  border: solid 1px #ccc;
+}
+
+.ta-center {
+  margin: 1em;
+  text-align: center;
+}
+
+.help-img-center {
+  margin-left: auto;
+  margin-right: auto;
+  border: solid 1px #ccc;
 }
 
 .help-navigation {

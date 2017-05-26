@@ -21,10 +21,10 @@ vcl 4.0;
 /**
  * Define all your backends here.
  */
-backend default {
-  .host = "127.0.0.1";
-  .port = "3000";
-}
+// backend default {
+//   .host = "127.0.0.1";
+//   .port = "3000";
+// }
 
 /**
  * Include Authcache Varnish core.vcl.
@@ -89,18 +89,18 @@ sub authcache_recv {
   // non-standard HTTP verbs here.
 
   // /**
-  //  * Example 1: Allow purge from all clients in the purge-acl. Note that
-  //  * additional VCL is necessary to make this work, notably the acl and some
-  //  * code in vcl_backend_fetch and vcl_hit.
+  //  * Example 1: Allow purge from all clients in the purge-acl.
+  //  * additional VCL is necessary to make this work, notably the acl.
   //  *
   //  * More information on:
-  //  * https://www.varnish-cache.org/docs/3.0/tutorial/purging.html
+  //  * https://www.varnish-cache.org/docs/4.0/users-guide/purging.html?highlight=purge#http-purging
+  //  * http://book.varnish-software.com/4.0/chapters/Cache_Invalidation.html#http-purge
   //  */
   // if (req.method == "PURGE") {
   //   if (!client.ip ~ purge) {
   //     return (synth(405));
   //   }
-  //   return (hash);
+  //   return (purge);
   // }
 
   // /**

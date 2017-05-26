@@ -57,6 +57,38 @@ class ViewsExposedFormTest extends ViewsSqlTest {
   }
 
   /**
+   * Tests that exposed values are correctly stored.
+   */
+  public function testRemember() {
+    $account = $this->drupalCreateUser();
+    $this->drupalLogin($account);
+    // Create some random nodes.
+    for ($i = 0; $i < 5; $i++) {
+      $this->drupalCreateNode();
+    }
+
+    // Set the exposed filter.
+    $this->drupalGet('test_exposed_remember', array('query' => array('type' => 'page')));
+    $this->assertFieldByName('type', 'page');
+
+    // Request the page again, should still be set.
+    $this->drupalGet('test_exposed_remember');
+    $this->assertFieldByName('type', 'page');
+
+    // Request the page with an unrelated GET argument, filter should still be set.
+    $this->drupalGet('test_exposed_remember', array('query' => array('argument' => 'value')));
+    $this->assertFieldByName('type', 'page');
+
+    // Change the remembered exposed value.
+    $this->drupalGet('test_exposed_remember', array('query' => array('type' => 'article')));
+    $this->assertFieldByName('type', 'article');
+
+    // Request the page again, should have remembered the new value.
+    $this->drupalGet('test_exposed_remember');
+    $this->assertFieldByName('type', 'article');
+  }
+
+  /**
    * Tests the admin interface of exposed filter and sort items.
    */
   function testExposedAdminUi() {

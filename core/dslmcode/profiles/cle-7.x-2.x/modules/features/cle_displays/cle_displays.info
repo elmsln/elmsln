@@ -1,0 +1,11 @@
+name = CLE Displays
+description = Views that help stitch together the user experience.
+core = 7.x
+package = CLE
+dependencies[] = cle_assignment
+dependencies[] = cle_project
+dependencies[] = ctools
+dependencies[] = views
+features[ctools][] = views:views_default:3.0
+features[features_api][] = api:2
+features[views_view][] = open_studio_bulk_administration

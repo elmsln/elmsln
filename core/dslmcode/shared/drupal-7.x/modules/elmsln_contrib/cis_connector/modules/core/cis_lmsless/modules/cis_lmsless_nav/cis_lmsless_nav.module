@@ -82,16 +82,34 @@ function cis_lmsless_nav_admin_paths() {
 function cis_lmsless_nav_cis_lmsless_theme_vars_alter(&$vars) {
   $cis_lmsless_nav_links = variable_get('cis_lmsless_nav_links', NULL);
   if ($cis_lmsless_nav_links) {
-    foreach ($cis_lmsless_nav_links as $link) {
-      // make sure we are not overriding a current link
-      if (!isset($vars['services'][$link['group']][$link['title']])) {
-        $vars['services'][$link['group']][$link['title']] = array(
-          'title' => t($link['title']),
-          'url' => $link['path'],
-          'machine_name' => $link['machine_name'],
-          'icon_library' => $link['icon_library'],
-          'distro' => '_default_',
-        );
+    foreach ($cis_lmsless_nav_links as $key => $link) {
+      if (isset($vars['services'])) {
+        // make sure we are not overriding a current link
+        if (!isset($vars['services'][$link['group']][$link['title']])) {
+          $vars['services'][$link['group']][$link['title']] = array(
+            'title' => t($link['title']),
+            'url' => $link['path'],
+            'machine_name' => $link['machine_name'],
+            'icon_library' => $link['icon_library'],
+            'distro' => '_default_',
+            'icon' => $link['machine_name'],
+            'weight' => (5 + $key),
+          );
+        }
+      }
+      elseif (isset($vars['network']['services'])) {
+        // make sure we are not overriding a current link
+        if (!isset($vars['network']['services'][$link['group']][$link['title']])) {
+          $vars['network']['services'][$link['group']][$link['title']] = array(
+            'title' => t($link['title']),
+            'url' => $link['path'],
+            'machine_name' => $link['machine_name'],
+            'distro' => '_default_',
+            'icon_library' => $link['icon_library'],
+            'icon' => $link['machine_name'],
+            'weight' => (5 + $key),
+          );
+        }
       }
     }
   }

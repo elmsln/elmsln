@@ -6,9 +6,9 @@
  */
 
 /**
- * Copy of theme_file_file_link() for linking to the view file page.
+ * Copy of theme_file_link() for linking to the view file page.
  *
- * @see theme_file_file_link()
+ * @see theme_file_link()
  */
 function theme_file_entity_file_link($variables) {
   $file = $variables['file'];
@@ -38,9 +38,9 @@ function theme_file_entity_file_link($variables) {
 }
 
 /**
- * Copy of theme_file_file_link() for linking to the file download URL.
+ * Copy of theme_file_link() for linking to the file download URL.
  *
- * @see theme_file_file_link()
+ * @see theme_file_link()
  */
 function theme_file_entity_download_link($variables) {
   $file = $variables['file'];
@@ -58,9 +58,9 @@ function theme_file_entity_download_link($variables) {
     $variables['text'] = t('Download [file:name]');
   }
 
-  // Peform unsanitized token replacement if $uri['options']['html'] is empty
+  // Perform unsanitized token replacement if $uri['options']['html'] is empty
   // since then l() will escape the link text.
-  $variables['text'] = token_replace($variables['text'], array('file' => $file), array('clear' => TRUE, 'sanitize' => empty($uri['options']['html'])));
+  $variables['text'] = token_replace($variables['text'], array('file' => $file), array('clear' => TRUE, 'sanitize' => !empty($uri['options']['html'])));
 
   $output = '<span class="file">' . $icon . ' ' . l($variables['text'], $uri['path'], $uri['options']);
   $output .= ' ' . '<span class="file-size">(' . format_size($file->filesize) . ')</span>';
@@ -95,6 +95,9 @@ function theme_file_entity_file_audio($variables) {
   }
   if ($variables['loop']) {
     $audio_attributes['loop'] = 'loop';
+  }
+  if (!empty($variables['preload'])) {
+    $audio_attributes['preload'] = $variables['preload'];
   }
 
   $output .= '<audio' . drupal_attributes($audio_attributes) . '>';
@@ -142,9 +145,14 @@ function theme_file_entity_file_video($variables) {
   if ($variables['muted']) {
     $video_attributes['muted'] = 'muted';
   }
-  if ($variables['width'] && $variables['height']) {
+  if ($variables['width']) {
     $video_attributes['width'] = $variables['width'];
+  }
+  if ($variables['height']) {
     $video_attributes['height'] = $variables['height'];
+  }
+  if (!empty($variables['preload'])) {
+    $video_attributes['preload'] = $variables['preload'];
   }
 
   $output .= '<video' . drupal_attributes($video_attributes) . '>';

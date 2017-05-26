@@ -27,6 +27,7 @@ function cis_ux_default_video_embed_styles() {
       'modestbranding' => 1,
       'iv_load_policy' => '3',
       'autohide' => '1',
+      'class' => '',
     ),
     'vimeo' => array(
       'width' => '640px',
@@ -37,8 +38,9 @@ function cis_ux_default_video_embed_styles() {
       'byline' => 0,
       'autoplay' => 0,
       'loop' => 0,
+      'class' => '',
     ),
-    'data__active_tab' => 'edit-data-youtube',
+    'data__active_tab' => '' . "\0" . 'dit-data-youtube',
   );
   $export['cis_course_video'] = $video_embed_style;
 

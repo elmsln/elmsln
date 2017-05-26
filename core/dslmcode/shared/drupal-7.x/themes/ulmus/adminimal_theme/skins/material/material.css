@@ -220,6 +220,7 @@ body.adminimal-skin-material ul.action-links a {
   padding: 3px 20px 2px;
   border-radius: 3px;
   display: inline-block;
+  font-family: Roboto, sans-serif;
 }
 
 body.adminimal-skin-material ul.action-links a:hover {

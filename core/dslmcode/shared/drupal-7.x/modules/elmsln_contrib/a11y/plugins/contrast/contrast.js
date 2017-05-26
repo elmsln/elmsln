@@ -8,11 +8,13 @@
     });
     // test for cookie being set
     if ($.cookie('a11y_contrast') == 'true') {
-      $('#a11y_contrast_checkbox').click();
+      $('#a11y_contrast_checkbox').attr('checked', true);
+	  Drupal.a11y.contrast(true);
     }
     // test for cookie being set
     if ($.cookie('a11y_invert') == 'true') {
-      $('#a11y_invert_checkbox').click();
+	  $('#a11y_invert_checkbox').attr('checked', true);
+	  Drupal.a11y.invert(true);
     }
   });
   // contrast functionality

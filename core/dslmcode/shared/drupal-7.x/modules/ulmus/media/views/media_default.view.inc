@@ -28,9 +28,9 @@ $handler->display->display_options['query']['options']['query_tags'] = array(
   0 => 'media_browser',
 );
 $handler->display->display_options['exposed_form']['type'] = 'basic';
-$handler->display->display_options['exposed_form']['options']['autosubmit'] = TRUE;
+$handler->display->display_options['exposed_form']['options']['reset_button'] = FALSE;
 $handler->display->display_options['pager']['type'] = 'full';
-$handler->display->display_options['pager']['options']['items_per_page'] = '10';
+$handler->display->display_options['pager']['options']['items_per_page'] = '25';
 $handler->display->display_options['pager']['options']['offset'] = '0';
 $handler->display->display_options['pager']['options']['id'] = '0';
 $handler->display->display_options['style_plugin'] = 'media_browser';
@@ -39,7 +39,7 @@ $handler->display->display_options['empty']['area']['id'] = 'area';
 $handler->display->display_options['empty']['area']['table'] = 'views';
 $handler->display->display_options['empty']['area']['field'] = 'area';
 $handler->display->display_options['empty']['area']['content'] = 'No files available.';
-$handler->display->display_options['empty']['area']['format'] = 'plain_text';
+$handler->display->display_options['empty']['area']['format'] = filter_fallback_format();
 /* Field: File: Name */
 $handler->display->display_options['fields']['filename']['id'] = 'filename';
 $handler->display->display_options['fields']['filename']['table'] = 'file_managed';

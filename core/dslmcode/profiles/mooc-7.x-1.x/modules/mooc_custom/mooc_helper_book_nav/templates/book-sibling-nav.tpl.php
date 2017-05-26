@@ -31,12 +31,20 @@
   if (!isset($outline_label)) {
     $outline_label = '';
   }
+  if ($count != 1) {
+    $textcolor = 'black-text';
+  }
+  else {
+    $textcolor = 'accessible-blue-text';
+  }
 ?>
 <li class="toolbar-menu-icon book-sibling-parent book-sibling-parent-<?php print $count ?>">
-    <a href="#" title="<?php print $ptitle ?>" class="elmsln-dropdown-button <?php print (isset($parent['_class']) ? $parent['_class'] : ''); ?>" aria-controls="book-sibling-children-<?php print $parent['mlid'] ?>" aria-expanded="false" data-activates="book-sibling-children-<?php print $parent['mlid'] ?>">
-      <div class="book-sibling-parent-text"><?php print $outline_label; ?> <?php print $parent_count; ?> <?php print $parent_title ?></div>
+    <a tabindex="-1" href="#" title="<?php print $ptitle ?>" class="elmsln-dropdown-button <?php print (isset($parent['_class']) ? $parent['_class'] : ''); ?>" aria-controls="book-sibling-children-<?php print $parent['mlid'] ?>" aria-expanded="false" data-activates="book-sibling-children-<?php print $parent['mlid'] ?>">
+      <paper-button>
+      <div class="book-sibling-parent-text <?php print $textcolor;?>"><?php print $outline_label; ?> <?php print $parent_count; ?> <?php print $parent_title ?></div>
       <?php if ($parent_icon !== ''): ?><?php print $parent_icon ?><?php endif; ?>
       <div class="book-sibling-parent-arrow icon--dropdown off-canvas-toolbar-item-icon"></div>
+    </paper-button>
     </a>
 </li>
 <li>

@@ -12,11 +12,11 @@ function DrupalContextPlugins(form) {
     $('.context-plugin-list > li', this.form).each(function() {
       var plugin = $(this).attr('class').split('context-plugin-')[1].split(' ')[0];
       if ($(this).is('.disabled')) {
-        $('.context-plugin-selector select option[value='+plugin+']', this.form).show();
+        $('.context-plugin-selector select option[value="'+plugin+'"]', this.form).show();
       }
       else {
         state.push(plugin);
-        $('.context-plugin-selector select option[value='+plugin+']', this.form).hide();
+        $('.context-plugin-selector select option[value="'+plugin+'"]', this.form).hide();
       }
     });
     // Set the hidden plugin list state.

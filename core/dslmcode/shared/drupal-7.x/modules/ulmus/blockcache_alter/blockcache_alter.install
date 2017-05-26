@@ -1,5 +1,4 @@
 <?php
-// $Id: blockcache_alter.install,v 1.1.2.5.2.1 2010/07/30 13:55:54 timleytens Exp $
 
 /**
  * @file
@@ -30,7 +29,7 @@ function blockcache_alter_schema() {
       ),
       'delta' => array(
         'type' => 'varchar',
-        'length' => 32,
+        'length' => 64,
         'not null' => TRUE,
         'default' => '0',
         'description' => 'Unique ID for block within a module.',
@@ -47,4 +46,60 @@ function blockcache_alter_schema() {
   );
 
   return $schema;
+}
+
+/**
+ * Add the "bid" column to {blockcache_alter} and backfill block IDs.
+ */
+function blockcache_alter_update_7000() {
+  // Ensure we don't run this update for existing installs; D6 updates only.
+  if (!db_field_exists('blockcache_alter', 'bid')) {
+    // Define the bid column and primary key.
+    $spec = array(
+      'type' => 'serial',
+      'not null' => TRUE,
+      'description' => 'Primary Key: Unique block ID.',
+    );
+    $keys = array(
+      'primary key' => array('bid'),
+    );
+
+    // Add the bid column along with the new primary key.
+    db_add_field('blockcache_alter', 'bid', $spec, $keys);
+
+    // If there are existing block cache alter entries, find their block IDs.
+    $bcas = db_select('blockcache_alter', 'bca', array('fetch' => PDO::FETCH_ASSOC))
+      ->fields('bca');
+    $bcas->join('block', 'b', 'bca.module = %alias.module AND bca.delta = %alias.delta');
+    $bcas->fields('b', array('bid'));
+    $results = $bcas->execute();
+
+    // If results were returned, truncate the existing block cache alter table,
+    // then insert all of the database records we previously found/built.
+    if (!empty($results)) {
+      db_truncate('blockcache_alter')->execute();
+
+      $insert = db_insert('blockcache_alter')
+        ->fields(array('module', 'delta', 'cache', 'bid'));
+
+      foreach ($results as $bca) {
+        $insert->values($bca);
+      }
+
+      $insert->execute();
+    }
+  }
+}
+
+/**
+ * Fix the length of the delta VARCHAR to 64.
+ */
+function blockcache_alter_update_7001() {
+  db_change_field('blockcache_alter', 'delta', 'delta', array(
+    'type' => 'varchar',
+    'length' => 64,
+    'not null' => TRUE,
+    'default' => '0',
+    'description' => 'Unique ID for block within a module.',
+  ));
 }
