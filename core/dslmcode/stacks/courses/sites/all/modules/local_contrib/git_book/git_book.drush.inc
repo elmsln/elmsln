@@ -23,6 +23,10 @@ function git_book_drush_command() {
       'parser' => 'parser machine name to use',
       'branch' => 'branch to checkout'
     ),
+    'options' => array(
+      'push' => 'Boolean to set the repo to push on node changes.',
+      'push_branch' => 'Specify a different branch to push your changes to.',
+    ), 
   );
   $commands['git-book-sync'] = array(
     'callback' => 'drush_git_book_sync',
@@ -47,6 +51,9 @@ function git_book_drush_command() {
  * Callback for command git-book-create.
  */
 function drush_git_book_create($repo_url, $parser, $branch) {
+  // get the push option
+  $push = drush_get_option('push', FALSE);
+  $push_branch = drush_get_option('push_branch', '');
   // make a path out of the repo name
   $tmp = explode('/', str_replace('.git', '', $repo_url));
   $title = array_pop($tmp);
@@ -69,6 +76,8 @@ function drush_git_book_create($repo_url, $parser, $branch) {
     $node->field_git_repo[LANGUAGE_NONE][0]['value'] = $repo_url;
     $node->field_git_parser[LANGUAGE_NONE][0]['value'] = $parser;
     $node->field_git_branch[LANGUAGE_NONE][0]['value'] = $branch;
+    $node->field_git_push[LANGUAGE_NONE][0]['value'] = $push;
+    $node->field_git_push_branch[LANGUAGE_NONE][0]['value'] = $push_branch;
     // save which will kick off processing of the node
     node_save($node);
     drush_print(dt('git book @repo_url successfully imported as @title', array('@repo_url' => $repo_url, '@title' => $title)));
@@ -86,7 +95,20 @@ function drush_git_book_sync($name) {
   $book = _git_book_drush_get_book_by_name($name);
   if ($book) {
     $path = _git_book_get_path($book);
-    git_book_gb_git_book_parse($path, $book);
+    // make sure we have a branch to pull from
+    if (isset($book->field_git_branch[LANGUAGE_NONE][0]['value'])) {
+      // get the branch
+      $branch = $book->field_git_branch[LANGUAGE_NONE][0]['value'];
+      // load the repo from the book
+      $repo = _git_book_get_repo($book);
+      // attempt to pull
+      $pull = _git_book_pull($repo, 'origin', $branch);
+      // update the nodes
+      git_book_gb_git_book_parse($path, $book);
+    }
+    else {
+      drush_print(dt('You must specify a branch in your git_book.'));
+    }
   }
   else {
     drush_print(dt('Book not found.'));

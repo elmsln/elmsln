@@ -54,9 +54,11 @@ function git_book_node_insert($node) {
       // up to anything currently
       $path = drupal_realpath('private://') . '/' . preg_replace('/[^a-z0-9]/', '', drupal_strtolower($node->title));
       $repo = Git::create($path);
+      // tell the repo to NOT track permission changes
+      $repo->run('config core.fileMode false');
       $branch = 'master';
-      if (isset($node->field_git_branch[LANGUAGE_NONE][0]['value'])) {
-        $branch = $node->field_git_branch[LANGUAGE_NONE][0]['value'];
+      if (isset($book->field_git_branch[LANGUAGE_NONE][0]['value'])) {
+        $branch = $book->field_git_branch[LANGUAGE_NONE][0]['value'];
       }
       $repo->checkout($branch);
       $parsers = git_book_get_parsers();
@@ -76,8 +78,8 @@ function git_book_node_insert($node) {
         $repo = Git::create($path, $repo_url, true);
       }
       $branch = 'master';
-      if (isset($node->field_git_branch[LANGUAGE_NONE][0]['value'])) {
-        $branch = $node->field_git_branch[LANGUAGE_NONE][0]['value'];
+      if (isset($book->field_git_branch[LANGUAGE_NONE][0]['value'])) {
+        $branch = $book->field_git_branch[LANGUAGE_NONE][0]['value'];
       }
       $repo->checkout($branch);
       $parsers = git_book_get_parsers();
@@ -334,6 +336,14 @@ function _git_book_delete_folder($dirPath) {
  */
 function _git_book_get_path($node) {
   return drupal_realpath('private://') . '/' . preg_replace('/[^a-z0-9]/', '', drupal_strtolower($node->title));
+}
+
+/**
+ * Helper function to get current status of local repo object
+ */
+function _git_book_pull($repo, $remote, $branch) {
+  $status = _git_book_get_status($repo);
+  return $repo->pull($remote, $branch);
 }
 
 /**
