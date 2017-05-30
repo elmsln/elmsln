@@ -1,0 +1,5 @@
+name = Media apps
+description = Single page apps for media management.
+core = 7.x
+package = ELMSMedia
+dependencies[] = webcomponents_app
