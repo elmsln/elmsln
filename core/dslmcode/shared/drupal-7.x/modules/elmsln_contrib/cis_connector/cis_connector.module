@@ -1461,9 +1461,15 @@ function _cis_connector_assemble_entity_list($entity_type, $bundle, $id_field, $
   // assemble all entities requested
   $query = new EntityFieldQuery;
   $query->entityCondition('entity_type', $entity_type);
-  // EFQs of user entities fail since it has no bundle
-  if (!in_array($entity_type, array('user', 'file', 'comment'))) {
-    $query->entityCondition('bundle', $bundle);
+  // EFQs of user entities fail since it has no bundle, check these edge-cases
+  if (!in_array($entity_type, array('user', 'file', 'comment')) && !is_null($bundle)) {
+    // support complex bundle queries
+    if (is_array($bundle)) {
+      $query->entityCondition('bundle', $bundle[0], $bundle[1]);
+    }
+    else {
+      $query->entityCondition('bundle', $bundle);
+    }
   }
   else {
     // special clause for roles as EFQs don't do user role relation
