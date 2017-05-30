@@ -167,3 +167,10 @@ function cis_update_7015(&$sandbox) {
   features_revert_module('cis_types');
   features_revert_module('cis_ux');
 }
+
+/**
+ * Support for flood control UI
+ */
+function cis_update_7016(&$sandbox) {
+  module_enable(array('flood_unblock', 'flood_control'));
+}

@@ -37,3 +37,10 @@ function cpr_update_7001(&$sandbox) {
 function cpr_update_7002(&$sandbox) {
   features_revert_module('cpr_user');
 }
+
+/**
+ * Support for flood control UI
+ */
+function cpr_update_7003(&$sandbox) {
+  module_enable(array('flood_unblock', 'flood_control'));
+}

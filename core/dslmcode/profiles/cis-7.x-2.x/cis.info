@@ -160,6 +160,8 @@ dependencies[] = nodeaccess_nodereference
 dependencies[] = nodeaccess_userreference
 dependencies[] = responsive_tables
 dependencies[] = unique_field
+dependencies[] = flood_control
+dependencies[] = flood_unblock
 ; Path breadcrumbs
 dependencies[] = path_breadcrumbs
 dependencies[] = subpathauto
