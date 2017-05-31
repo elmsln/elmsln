@@ -32,8 +32,13 @@ function webcomponents_polymer_register_webcomponent_apps() {
   }
   // now look in module sepecific areas
   $modulefiles = drupal_system_listing("/polymer\.json$/", "modules", 'polymer', 2);
+  // replace with manifest and check if it exists, silly but works
   foreach ($modulefiles as $file) {
-    $files[] = str_replace('polymer.json', 'manifest.json', $file->uri);
+    $tmp = str_replace('polymer.json', 'manifest.json', $file->uri);
+    // include the reference if we find it
+    if (file_exists($tmp)) {
+      $files[] = $tmp;
+    }
   }
   // walk the files
   foreach ($files as $file) {
@@ -48,15 +53,28 @@ function webcomponents_polymer_register_webcomponent_apps() {
       );
       // support for drupal specific properties to be set in manifest
       if (isset($manifest['drupal'])) {
+        // support for generating a visualized menu item in drupal's menu system
         if (isset($manifest['drupal']['menu'])) {
           $return[$manifest['name']]['menu'] = $manifest['drupal']['menu'];
         }
+        // support for a data callback path
         if (isset($manifest['drupal']['data'])) {
           $return[$manifest['name']]['data'] = $manifest['drupal']['data'];
+          // support for discovering and autoloading an element-name.php file
+          // to make decoupled development even easier!
+          if (file_exists(str_replace('manifest.json', $manifest['name'] . '.php', $file))) {
+            $return[$manifest['name']]['data']['autoload'] = TRUE;
+          }
         }
+        // support automatically making a block for this element
+        if (isset($manifest['drupal']['block'])) {
+          $return[$manifest['name']]['block'] = $manifest['drupal']['block'];
+        }
+        // general support for saying this app is related to a module
         if (isset($manifest['drupal']['module'])) {
           $return[$manifest['name']]['module'] = $manifest['drupal']['module'];
         }
+        // general support for anything you want to store for context
         if (isset($manifest['drupal']['context'])) {
           $return[$manifest['name']]['context'] = $manifest['drupal']['context'];
         }
