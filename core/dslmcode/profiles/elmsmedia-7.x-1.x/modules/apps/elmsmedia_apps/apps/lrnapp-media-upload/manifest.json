@@ -1,7 +1,7 @@
 {
-  "name": "lrnapp-media-management",
-  "short_name": "lrnapp-media-management",
-  "title": "Media 2.0",
+  "name": "lrnapp-media-upload",
+  "short_name": "lrnapp-media-upload",
+  "title": "Media upload",
   "description": "Show all media for a course",
   "start_url": "/",
   "display": "standalone",
@@ -11,8 +11,9 @@
       "weight": 11
     },
     "data": {
-      "callback": "_webcomponent_app_lrnapp_media_management",
-      "property": "source-path"
-    }
+      "callback": "_webcomponent_app_lrnapp_media_upload",
+      "property": "upload-path"
+    },
+    "block": true
   }
 }
