@@ -7,7 +7,10 @@
 define('WEBCOMPONENTS_APP_PATH', 'apps');
 
 /**
- * Load all apps we can find.
+ * Load all apps we can find or a specific one if requested.
+ * @param  string $machine_name optional name of an element to load
+ * the registry for from it's manifest.json file (most likely)
+ * @return array                the definition or definitions of all found as array
  */
 function webcomponents_app_load_app_definitions($machine_name = NULL) {
   // statically cache future calls
@@ -20,14 +23,20 @@ function webcomponents_app_load_app_definitions($machine_name = NULL) {
   if (!is_null($machine_name)) {
     // validate that this bucket exists
     if (isset($apps[$machine_name])) {
+      // check for autoloading flag
+      if (isset($apps[$machine_name]['data']) && isset($apps[$machine_name]['data']['autoload']) && $apps[$machine_name]['data']['autoload'] === TRUE) {
+        include_once $apps[$machine_name]['path'] . $machine_name . '.php';
+      }
       return $apps[$machine_name];
     }
+    // nothing at this point, return nothing since we don't know that machine name
     return array();
   }
   // validate apps were found
   if (!empty($apps)) {
     return $apps;
   }
+  // nothing at this point, return nothing
   return array();
 }
 
@@ -101,13 +110,53 @@ function webcomponents_app_menu() {
   return $items;
 }
 
+
+/**
+ * Implements hook_block_info().
+ */
+function webcomponents_app_block_info() {
+  $blocks = array();
+  // load all apps
+  $apps = webcomponents_app_load_app_definitions();
+  // make blocks for each app and ensure the cache is global
+  // since these are just printing the tag into them they shouldn't change
+  foreach ($apps as $machine_name => $app) {
+    // support block per element if the registry says to
+    if (isset($app['block']) && $app['block'] == TRUE) {
+      $blocks[$machine_name] = array(
+        'info' => t('Web Component app: @title', array('@title' => $app['title'])),
+        'cache' => DRUPAL_CACHE_GLOBAL
+      );
+    }
+  }
+
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function webcomponents_app_block_view($machine_name = '') {
+  $block = array();
+  // try to load the machine name (delta in block lingo)
+  $app = webcomponents_app_load_app_definitions($machine_name);
+  if (!empty($app) && isset($app['block']) && $app['block'] == TRUE) {
+    $block['subject'] = $app['title'];
+    $block['content'] = _webcomponents_app_load_app($machine_name);
+  }
+  return $block;
+}
+
 /**
  * Callback for apps/%/devel to view what's going on.
  */
 function _webcomponents_app_debug($machine_name) {
   $app = webcomponents_app_load_app_definitions($machine_name);
   dpm($app);
-  return t('@machine debug', array('@machine' => $machine_name));
+  // side-load the data and present it
+  $data = _webcomponents_app_load_app_data($machine_name, TRUE);
+  dpm($data);
+  return t('@machine debug and data', array('@machine' => $machine_name));
 }
 
 /**
@@ -150,13 +199,23 @@ function _webcomponents_app_load_app($machine_name = NULL) {
     drupal_add_html_head($element, 'app-' . $machine_name);
     // see if we have a data path, if so we need to pass in source-path to the element
     if (isset($app['data']) && function_exists($app['data']['callback'])) {
-      $return = '<' . $machine_name . ' '. $app['data']['property'] .'="' . base_path() . WEBCOMPONENTS_APP_PATH . '/' . $machine_name . '/data"></' . $machine_name . '>';
+      $vars = array(
+        'tag' => $machine_name,
+        'properties' => array(
+          $app['data']['property'] => base_path() . WEBCOMPONENTS_APP_PATH . '/' . $machine_name . '/data?token=' . drupal_get_token('webcomponentapp'),
+        ),
+      );
+      $return = theme('webcomponent', $vars);
     }
     elseif (isset($app['data']) && !function_exists($app['data']['callback'])) {
       drupal_set_message(t('The @machine app wants to hit the callback @callback but this function could not be found', array('@machine' => $machine_name, '@callback' => $app['data']['callback'])), 'error');
     }
     else {
-      $return = '<' . $machine_name . '></' . $machine_name . '>';
+      $vars = array(
+        'tag' => $machine_name,
+        'properties' => array(),
+      );
+      $return = theme('webcomponent', $vars);
     }
   }
   return $return;
@@ -165,17 +224,26 @@ function _webcomponents_app_load_app($machine_name = NULL) {
 /**
  * Data callback processor.
  */
-function _webcomponents_app_load_app_data($machine_name = NULL) {
+function _webcomponents_app_load_app_data($machine_name = NULL, $debug = FALSE) {
   $return = array();
-  $app = webcomponents_app_load_app_definitions($machine_name);
-  // make sure the machine name and the data callback both exist
-  if (!empty($machine_name) && !empty($app) && isset($app['data']) && function_exists($app['data']['callback'])) {
-    $return = call_user_func($app['data']['callback'], $machine_name, WEBCOMPONENTS_APP_PATH . '/' . $machine_name);
+  // validate CSRF token
+  if ($debug || drupal_valid_token($_GET['token'], 'webcomponentapp')) {
+    $app = webcomponents_app_load_app_definitions($machine_name);
+    // make sure the machine name and the data callback both exist
+    if (!empty($machine_name) && !empty($app) && isset($app['data']) && function_exists($app['data']['callback'])) {
+      $return = call_user_func($app['data']['callback'], $machine_name, WEBCOMPONENTS_APP_PATH . '/' . $machine_name);
+    }
+    else {
+      $return = array(
+        'status' => '404',
+        'detail' => t('Not a valid callback'),
+      );
+    }
   }
   else {
     $return = array(
-      'status' => '404',
-      'detail' => t('Not a valid callback'),
+      'status' => '403',
+      'detail' => t('Invalid CSRF token'),
     );
   }
   // nothing set so make it 200 even though it already is
@@ -192,12 +260,18 @@ function _webcomponents_app_load_app_data($machine_name = NULL) {
   }
   // allow output delivery to be modified contextually
   drupal_alter('webcomponents_app_deliver_output', $return);
-  // define return type
-  drupal_add_http_header('Content-Type', 'application/json');
-  // define status
-  drupal_add_http_header('Status', $return['status']);
-  // output the response as json
-  print drupal_json_output($return);
-  // official drupal exit routines
-  exit;
+  // support for debugging the call in which we send the data back for processing
+  if (!$debug) {
+    // define return type
+    drupal_add_http_header('Content-Type', 'application/json');
+    // define status
+    drupal_add_http_header('Status', $return['status']);
+    // output the response as json
+    print drupal_json_output($return);
+    // official drupal exit routines
+    exit;
+  }
+  else {
+    return $return;
+  }
 }
