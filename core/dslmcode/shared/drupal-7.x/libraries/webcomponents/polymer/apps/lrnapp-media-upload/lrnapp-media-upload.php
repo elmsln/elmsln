@@ -11,7 +11,8 @@ function _webcomponent_app_lrnapp_media_upload($machine_name, $app_route) {
   $status = 403;
   $file_wrapper = 'public';
   // check for the uploaded file from our 1-page-uploader app
-  if (isset($_FILES['file-upload'])) {
+  // and ensure there are entity permissions to create a file of this type
+  if (isset($_FILES['file-upload']) && entity_access('create', 'file', $_FILES['file-upload']['type'])) {
     $upload = $_FILES['file-upload'];
     // check for a file upload
     if (isset($upload['tmp_name']) && is_uploaded_file($upload['tmp_name'])) {
@@ -23,6 +24,8 @@ function _webcomponent_app_lrnapp_media_upload($machine_name, $app_route) {
         file_save($file);
         $return = $file;
         $status = 200;
+        // allow other projects to jump in and handle this event
+        drupal_alter('lrnapp_media_upload', $return, $file, $status);
       }
     }
   }

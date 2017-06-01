@@ -14,6 +14,16 @@ function elmsmedia_helper_field_formatter_info_alter(&$info) {
 }
 
 /**
+ * Implements hook_lrnapp_media_upload_alter().
+ * Creates a node to match the file that was just uploaded
+ * based on the type. This only happens IF there's a match
+ * for a commonly used type we support.
+ */
+function elmsmedia_helper_lrnapp_media_upload_alter(&$return, $file, $status) {
+  // @todo type image, video, audio, files in general are all easy ones to hit
+}
+
+/**
  * Implements hook_page_build().
  */
 function elmsmedia_helper_page_build(&$page) {

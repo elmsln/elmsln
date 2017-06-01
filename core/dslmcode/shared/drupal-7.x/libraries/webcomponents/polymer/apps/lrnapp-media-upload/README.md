@@ -1,4 +1,4 @@
-# \<elmsln-open-studio\>
+# \<lrnapp-media-upload\>
 
 open studio application
 

@@ -21,8 +21,6 @@
   },
   "dependencies": {
     "build": "LRNWebComponents/build#^0.0.2",
-    "lrndesign-gallerycard": "LRNWebComponents/lrndesign-gallerycard#^0.0.10",
-    "scary-gallery": "Scarygami/scary-gallery#^2.0.0",
     "vaadin-upload": "vaadin/vaadin-upload#^1.1.4"
   }
 }
