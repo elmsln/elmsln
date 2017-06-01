@@ -23,7 +23,8 @@ function webcomponents_app_load_app_definitions($machine_name = NULL) {
   if (!is_null($machine_name)) {
     // validate that this bucket exists
     if (isset($apps[$machine_name])) {
-      // check for autoloading flag
+      // check for autoloading flag if so then load the file which should contain
+      // the functions needed to make the call happen
       if (isset($apps[$machine_name]['data']) && isset($apps[$machine_name]['data']['autoload']) && $apps[$machine_name]['data']['autoload'] === TRUE) {
         include_once $apps[$machine_name]['path'] . $machine_name . '.php';
       }
