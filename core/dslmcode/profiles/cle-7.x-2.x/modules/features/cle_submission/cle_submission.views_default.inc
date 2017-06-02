@@ -573,7 +573,7 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['cache']['output_max_lifespan'] = '21600';
   $handler->display->display_options['cache']['keys'] = array(
     'comment' => array(
-      'changed' => 0,
+      'changed' => 'changed',
     ),
     'node' => array(
       'cle_submission' => 'cle_submission',
@@ -718,8 +718,6 @@ function cle_submission_views_default_views() {
     'any_label' => NULL,
     'filter_rewrite_values' => NULL,
   );
-  $handler->display->display_options['exposed_form']['options']['input_required'] = 0;
-  $handler->display->display_options['exposed_form']['options']['text_input_required_format'] = 'textbook_editor';
   $handler->display->display_options['pager']['type'] = 'full';
   $handler->display->display_options['pager']['options']['items_per_page'] = '20';
   $handler->display->display_options['pager']['options']['offset'] = '0';
@@ -843,6 +841,28 @@ function cle_submission_views_default_views() {
     'cle_submission' => 'cle_submission',
   );
   $handler->display->display_options['filters']['type']['group'] = 1;
+  /* Filter criterion: Content: Section (og_group_ref) */
+  $handler->display->display_options['filters']['og_group_ref_target_id']['id'] = 'og_group_ref_target_id';
+  $handler->display->display_options['filters']['og_group_ref_target_id']['table'] = 'og_membership';
+  $handler->display->display_options['filters']['og_group_ref_target_id']['field'] = 'og_group_ref_target_id';
+  $handler->display->display_options['filters']['og_group_ref_target_id']['group'] = 1;
+  $handler->display->display_options['filters']['og_group_ref_target_id']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['og_group_ref_target_id']['expose']['operator_id'] = 'og_group_ref_target_id_op';
+  $handler->display->display_options['filters']['og_group_ref_target_id']['expose']['label'] = 'Section';
+  $handler->display->display_options['filters']['og_group_ref_target_id']['expose']['operator'] = 'og_group_ref_target_id_op';
+  $handler->display->display_options['filters']['og_group_ref_target_id']['expose']['identifier'] = 'og_group_ref_target_id';
+  $handler->display->display_options['filters']['og_group_ref_target_id']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    6065076 => 0,
+    135574917 => 0,
+    66784200 => 0,
+    67296478 => 0,
+    75987638 => 0,
+    166149871 => 0,
+    30037204 => 0,
+    76550217 => 0,
+  );
   /* Filter criterion: Content: Assignment (field_assignment) */
   $handler->display->display_options['filters']['field_assignment_target_id']['id'] = 'field_assignment_target_id';
   $handler->display->display_options['filters']['field_assignment_target_id']['table'] = 'field_data_field_assignment';
@@ -853,9 +873,8 @@ function cle_submission_views_default_views() {
   $handler->display->display_options['filters']['field_assignment_target_id']['expose']['label'] = 'Assignment';
   $handler->display->display_options['filters']['field_assignment_target_id']['expose']['operator'] = 'field_assignment_target_id_op';
   $handler->display->display_options['filters']['field_assignment_target_id']['expose']['identifier'] = 'field_assignment_target_id';
-  $handler->display->display_options['filters']['field_assignment_target_id']['expose']['remember'] = TRUE;
   $handler->display->display_options['filters']['field_assignment_target_id']['expose']['remember_roles'] = array(
-    2 => '2',
+    2 => 0,
     1 => 0,
     6065076 => 0,
     135574917 => 0,
