@@ -1,0 +1,44 @@
+<link rel="import" href="drupal-comment.html">
+
+<dom-module id="elmsln-cle-comments">
+  <template>
+    <style include="paper-item-styles">
+      :host {
+        display: block;
+      }
+    </style>
+    <iron-ajax
+       auto
+       url="{{dataSource}}"
+       handle-as="json"
+       last-response="{{response}}"
+       on-response="handleResponse"></iron-ajax>
+    <template is="dom-repeat" items="[[_toArray(response.data)]]" as="comment">
+      <drupal-comment comment-title="{{comment.title}}" action-view="{{comment.view}}" action-edit="{{comment.edit}}" action-delete="{{comment.delete}}">
+        {{comment.body}}
+      </drupal-comment>
+    </template>
+  </template>
+  <script>
+    Polymer({
+
+      is: 'elmsln-cle-comments',
+
+      properties: {
+        dataSource: {
+          type: String,
+          notify: true,
+        },
+        response: {
+          type: Array,
+          notify: true,
+        }
+      },
+      _toArray: function(obj) {
+        return Object.keys(obj).map(function(key) {
+          return obj[key];
+        });
+      }
+    });
+  </script>
+</dom-module>

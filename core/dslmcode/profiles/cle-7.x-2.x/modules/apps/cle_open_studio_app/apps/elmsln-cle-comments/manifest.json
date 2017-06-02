@@ -1,0 +1,18 @@
+{
+  "name": "elmsln-cle-comments",
+  "short_name": "elmsln-cle-comments",
+  "description": "for visualizing comments",
+  "start_url": "/",
+  "display": "standalone",
+  "title": "Comments",
+  "drupal": {
+    "menu": {
+      "menu_name": "menu-elmsln-navigation",
+      "weight": 11
+    },
+    "data": {
+      "callback": "_elmsln_cle_comments_data",
+      "property": "data-source"
+    }
+  }
+}

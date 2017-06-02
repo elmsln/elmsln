@@ -1,0 +1,69 @@
+<dom-module id="drupal-comment">
+  <template>
+    <style include="paper-item-styles">
+      :host {
+        display: inline-flex;
+      }
+      .card-actions a {
+        text-decoration: none;
+        color: var(--paper-orange-a700);
+      }
+    </style>
+    <paper-card heading="{{commentTitle}}" elevation="5">
+      <div class="card-content">
+        <content></content>
+      </div>
+      <div class="card-actions">
+        <template is="dom-if" if="{{actionView}}">
+          <a href="{{actionView}}" tabindex="-1">
+            <paper-button raised id="view">View</paper-button>
+          </a>
+          <paper-tooltip for="view" animation-delay="0">View comment</paper-tooltip>
+        </template>
+        <template is="dom-if" if="{{actionEdit}}">
+          <a href="{{actionEdit}}" tabindex="-1">
+            <paper-button id="edit">Edit</paper-button>
+          </a>
+          <paper-tooltip for="edit" animation-delay="0">Edit comment</paper-tooltip>
+        </template>
+        <template is="dom-if" if="{{actionDelete}}">
+          <a href="{{actionDelete}}" tabindex="-1">
+            <paper-icon-button id="delete" icon="icons:delete-forever"></paper-icon-button>
+          </a>
+          <paper-tooltip for="delete" animation-delay="0">Delete comment forever!</paper-tooltip>
+        </template>
+      </div>
+    </paper-card>
+  </template>
+  <script>
+    Polymer({
+
+      is: 'drupal-comment',
+
+      properties: {
+        commentTitle: {
+          type: String,
+          value: 'Comment Title',
+          reflectToAttribute: true,
+          notify: true,
+        },
+        actionView: {
+          type: String,
+          reflectToAttribute: true,
+          notify: true,
+        },
+        actionEdit: {
+          type: String,
+          reflectToAttribute: true,
+          notify: true,
+        },
+        actionDelete: {
+          type: String,
+          reflectToAttribute: true,
+          notify: true,
+        },
+      },
+
+    });
+  </script>
+</dom-module>
