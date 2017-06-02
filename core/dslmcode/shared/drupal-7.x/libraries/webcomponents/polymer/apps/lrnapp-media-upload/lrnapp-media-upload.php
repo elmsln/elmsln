@@ -7,9 +7,15 @@
 /**
  * Callback for apps/lrnapp-media-upload/data.
  */
-function _webcomponent_app_lrnapp_media_upload($machine_name, $app_route) {
+function _webcomponent_app_lrnapp_media_upload($machine_name, $app_route, $params) {
   $status = 403;
-  $file_wrapper = 'public';
+  // see if we had a file_wrapper defined, otherwise this is public
+  if (isset($params['file_wrapper'])) {
+    $file_wrapper = $params['file_wrapper'];
+  }
+  else {
+    $file_wrapper = 'public';
+  }
   // check for the uploaded file from our 1-page-uploader app
   // and ensure there are entity permissions to create a file of this type
   if (isset($_FILES['file-upload']) && entity_access('create', 'file', $_FILES['file-upload']['type'])) {
@@ -20,12 +26,9 @@ function _webcomponent_app_lrnapp_media_upload($machine_name, $app_route) {
       $data = file_get_contents($upload['tmp_name']);
       // see if Drupal can load from this data source
       if ($file = file_save_data($data, $file_wrapper . '://' . $upload['name'])) {
-        // save the file entity
         file_save($file);
-        $return = $file;
+        $return = array('file' => $file);
         $status = 200;
-        // allow other projects to jump in and handle this event
-        drupal_alter('lrnapp_media_upload', $return, $file, $status);
       }
     }
   }

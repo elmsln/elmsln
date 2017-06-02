@@ -232,7 +232,10 @@ function _webcomponents_app_load_app_data($machine_name = NULL, $debug = FALSE) 
     $app = webcomponents_app_load_app_definitions($machine_name);
     // make sure the machine name and the data callback both exist
     if (!empty($machine_name) && !empty($app) && isset($app['data']) && function_exists($app['data']['callback'])) {
-      $return = call_user_func($app['data']['callback'], $machine_name, WEBCOMPONENTS_APP_PATH . '/' . $machine_name);
+      $params = filter_var_array($_GET, FILTER_SANITIZE_STRING);
+      $return = call_user_func($app['data']['callback'], $machine_name, WEBCOMPONENTS_APP_PATH . '/' . $machine_name, $params);
+      // allow other modules to jump in after callback has run
+      drupal_alter('webcomponents_app_data', $return, $app);
     }
     else {
       $return = array(
