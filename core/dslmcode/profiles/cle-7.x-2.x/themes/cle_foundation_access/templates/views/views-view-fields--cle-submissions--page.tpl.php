@@ -70,7 +70,7 @@
       </span>
     </div>
     <div class="card-action">
-      <?php print l('Comment', 'node/' . $row->nid, array('attributes' => array('class' => 'cis-lmsless-text')));?>
+      <?php print l('<paper-button raised>Comment</paper-button>', 'node/' . $row->nid, array('html' => TRUE, 'attributes' => array('class' => 'cis-lmsless-text')));?>
       <?php if (isset($row->node_new_comments) && $row->node_new_comments > 0) : ?>
       <span class="new badge cis-lmsless-color darken-4"><?php print $row->node_new_comments;?></span>
     <?php endif;?>
