@@ -54,3 +54,42 @@ function hook_register_webcomponent_apps() {
     ),
   );
 }
+
+/**
+ * Implements hook_register_webcomponent_apps_alter().
+ * @param  array $apps loaded app definitions
+ */
+function hook_register_webcomponent_apps_alter($apps) {
+  $apps['my-app']['title'] = t('Cool stuff');
+}
+
+/**
+ * Implements hook_webcomponents_app_data_alter().
+ * @param  array $return  response from the server after data callback processed
+ * @param  array $app     loaded app definition
+ */
+function hook_webcomponents_app_data_alter($return, $app) {
+  if ($app['name'] == 'my-app' && isset($return['data']['file']) && $return['status'] == 200) {
+    // do something extra with images uploaded successfully
+    // via our app
+    if ($return['data']['file']->type == 'image') {
+
+    }
+  }
+}
+
+/**
+ * Implements hook_webcomponents_app_deliver_output_alter().
+ * @param  array $return  response from the server just before printing out
+ *                        as a json blob
+ */
+function hook_webcomponents_app_deliver_output_alter(&$return) {
+  // prevent 404s for no reason
+  if ($return['status'] == 404) {
+    // I'm a teapot short and stout
+    $return['status'] = 418;
+    $return['detail'] = t('I\'m a little tea pot short and stout');
+  }
+}
+
+
