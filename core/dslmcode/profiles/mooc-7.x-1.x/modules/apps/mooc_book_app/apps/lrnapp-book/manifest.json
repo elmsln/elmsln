@@ -6,10 +6,6 @@
   "start_url": "/",
   "display": "standalone",
   "drupal": {
-    "menu": {
-      "menu_name": "menu-elmsln-navigation",
-      "weight": 10
-    },
     "data": {
       "callback": "_mooc_page_player_data",
       "property": "source-path"
