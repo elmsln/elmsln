@@ -3,7 +3,7 @@
 /**
  * Callback for getting comment data out of Drupal
  */
-function _elmsln_cle_comments_data($machine_name, $app_route) {
+function _elmsln_cle_comments_data($machine_name, $app_route, $params) {
   $comments = array();
   $status = 404;
   $query = new EntityFieldQuery();
