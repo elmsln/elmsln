@@ -877,7 +877,7 @@ function _elmsln_core_in_context_list() {
           else {
             $textcolor = 'white-text';
           }
-          $icon_render = '<i class="material-icons ' . $textcolor . ' left">' . $icon_map[$icon]['icon'] . '</i>';
+          $icon_render = '<lrnapp-fab-speed-dial-action icon="' . $icon_map[$icon]['icon'] . '" color="' . $icon_map[$icon]['color'] . '">' . $typeobj->name . '</lrnapp-fab-speed-dial-action>';
         }
         else {
           $color = '';
@@ -886,12 +886,11 @@ function _elmsln_core_in_context_list() {
         $options = array(
           'html' => TRUE,
           'attributes' => array(
-            'class' => array('elmsln-core-external-context-apply', $color, $textcolor, 'btn-floating', 'elmsln-btn-floating', 'vibrate'),
+            'class' => array('elmsln-core-external-context-apply'),
+            'tabindex' => '-1',
           ),
         );
-
-        $title = $icon_render . $typeobj->name;
-        $links[] = '<li class="leaf">' . l($title, 'elmsln/redirect/' . $key . '/node/add/' . str_replace('_', '-', $typeobj->type), $options) . '</li>';
+        $links[] = '<li class="leaf">' . l($icon_render, 'elmsln/redirect/' . $key . '/node/add/' . str_replace('_', '-', $typeobj->type), $options) . '</li>';
       }
     }
   }

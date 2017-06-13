@@ -1156,8 +1156,6 @@ function foundation_access_menu_link(&$variables) {
       $element['#localized_options']['query']['elmsln_course'] = _cis_connector_course_context();
       $element['#localized_options']['query']['elmsln_section'] = _cis_connector_section_context();
     }
-    $element['#localized_options']['attributes']['class'][] = 'btn-floating';
-    $element['#localized_options']['attributes']['class'][] = 'elmsln-btn-floating';
     // load up a map of icons and color associations
     $icon_map = _elmsln_core_icon_map();
     $icon = str_replace(' ', '_', drupal_strtolower($title));
@@ -1173,9 +1171,7 @@ function foundation_access_menu_link(&$variables) {
       else {
         $textcolor = 'white-text';
       }
-      $element['#localized_options']['attributes']['class'][] = $icon_map[$icon]['color'];
-      $element['#localized_options']['attributes']['class'][] = 'darken-3';
-      $title = '<i class="material-icons ' . $textcolor . ' left">' . $icon_map[$icon]['icon'] . '</i>' . $title;
+      $title = '<lrnapp-fab-speed-dial-action icon="lrn-icons:' . $icon . '" color="' . $icon_map[$icon]['color'] . '">' . $title . '</lrnapp-fab-speed-dial-action>';
       $element['#localized_options']['html'] = TRUE;
     }
     else {

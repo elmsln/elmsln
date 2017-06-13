@@ -2603,6 +2603,10 @@ paper-button:focus {
   padding: 0;
 }
 
+lrnapp-fab-menu paper-fab {
+  z-index: 1000 !important;
+}
+
 lrn-aside {
   max-width: 20rem !important;
   padding: 3rem 0 0 0;
