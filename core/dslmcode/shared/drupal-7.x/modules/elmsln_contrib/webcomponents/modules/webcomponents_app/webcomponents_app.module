@@ -206,6 +206,8 @@ function _webcomponents_app_load_app($machine_name = NULL) {
           $app['data']['property'] => base_path() . WEBCOMPONENTS_APP_PATH . '/' . $machine_name . '/data?token=' . drupal_get_token('webcomponentapp'),
         ),
       );
+      // allow for modifying the app prior to render
+      drupal_alter('webcomponent_render', $vars, $app);
       $return = theme('webcomponent', $vars);
     }
     elseif (isset($app['data']) && !function_exists($app['data']['callback'])) {
@@ -216,6 +218,8 @@ function _webcomponents_app_load_app($machine_name = NULL) {
         'tag' => $machine_name,
         'properties' => array(),
       );
+      // allow for modifying the app prior to render
+      drupal_alter('webcomponent_render', $vars, $app);
       $return = theme('webcomponent', $vars);
     }
   }
