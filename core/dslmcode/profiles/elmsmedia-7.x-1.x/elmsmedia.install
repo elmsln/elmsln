@@ -254,3 +254,12 @@ function elmsmedia_update_7021(&$sandbox) {
   features_revert_module('elmsmedia_section_perms');
   features_revert_module('elmsmedia_view_mode_tabs');
 }
+
+/**
+ * If we don't set this manually then we'll get
+ * hand off issues with the file system on the data- domain
+ */
+function elmsmedia_update_7022(&$sandbox) {
+  $cfg = _elmsln_core_get_cfg();
+  variable_set('file_public_path', 'sites/media/' . $cfg['host'] . '/files');
+}
