@@ -2,10 +2,6 @@
 /**
  * CIS LMS-less template file
  */
-  // support authcache_cookie value that gets dynamically loaded instead
-  if (isset($user_name)) {
-    //$username = $user_name;
-  }
 ?>
 <!-- Ecosystem Top Nav -->
 <div id="etb-course-nav" class="row full collapse white">

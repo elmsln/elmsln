@@ -2,10 +2,6 @@
   /**
    * CIS LMS-less User block template.
    */
-  // support authcache_cookie value that gets dynamically loaded instead
-  if (isset($user_name)) {
-    //$username = $user_name;
-  }
 ?>
   <li class="ferpa-protect">
     <div class="userView">
