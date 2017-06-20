@@ -25,7 +25,7 @@
         border-color: #396;
       }
     </style>
-    <vaadin-upload target$="{{uploadPath}}" method="POST" form-data-name="file-upload"></vaadin-upload>
+    <vaadin-upload target$="{{uploadPath}}" method="POST" form-data-name="file-upload" timeout="0" accept="video/mp4,image/*,audio/*,application/pdf,application/zip"></vaadin-upload>
     <paper-dialog id="dialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation" with-backdrop>
       <h2 id="title"></h2>
       <div id="content"></div>
