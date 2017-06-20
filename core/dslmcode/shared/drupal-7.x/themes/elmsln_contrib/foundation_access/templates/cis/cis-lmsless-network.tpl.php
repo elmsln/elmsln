@@ -28,13 +28,15 @@
         }
         $stitle = token_replace($service['title']);
     ?>
-      <li><a data-prefetch-hover="true" href="<?php print token_replace($service['url']); ?>" class="waves-effect waves-<?php print $lmsless_classes[$service['distro']]['color'];?> waves-light <?php print $activetool . $service['icon']; ?>-icon"  data-jwerty-key="ctrl+<?php print drupal_strtolower(substr($stitle, 0, 1)); ?>" data-voicecommand="<?php print t('go to ') . drupal_strtolower($stitle); ?>" data-elmsln-hover="<?php print $lmsless_classes[$service['distro']]['color'];?> <?php print $lmsless_classes[$service['distro']]['dark'];?> white-text" data-elmsln-icon-hover="hover-white-text">
+      <li><a tabindex="-1" data-prefetch-hover="true" href="<?php print token_replace($service['url']); ?>" class="waves-effect waves-<?php print $lmsless_classes[$service['distro']]['color'];?> waves-light <?php print $activetool . $service['icon']; ?>-icon"  data-jwerty-key="ctrl+<?php print drupal_strtolower(substr($stitle, 0, 1)); ?>" data-voicecommand="<?php print t('go to ') . drupal_strtolower($stitle); ?>" data-elmsln-hover="<?php print $lmsless_classes[$service['distro']]['color'];?> <?php print $lmsless_classes[$service['distro']]['dark'];?> white-text" data-elmsln-icon-hover="hover-white-text">
+      <paper-button>
       <?php if (isset($service['icon_library']) && $service['icon_library'] == 'material'): ?>
-        <div class="material-icon elmsln-network-icon left elmsln-icon <?php print $iconcolor;?>"><i class="material-icons"><?php print $service['icon']; ?></i></div>
+        <div class="elmsln-hover-icon material-icon elmsln-network-icon left elmsln-icon <?php print $iconcolor;?>"><i class="material-icons"><?php print $service['icon']; ?></i></div>
       <?php else: ?>
-        <div class="elmsln-network-icon left elmsln-icon icon-<?php print $service['icon'] . ' ' . $iconcolor;?>"></div>
+        <lrn-icon icon="<?php print $service['icon'];?>" class="elmsln-hover-icon <?php print $iconcolor;?>"></lrn-icon>
       <?php endif; ?>
         <span class="elmsln-network-label"><?php print $stitle; ?></span>
-      </a></li>
+      </a>
+      </paper-button></li>
     <?php endforeach ?>
   <?php endforeach ?>

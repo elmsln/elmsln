@@ -18,11 +18,13 @@
             <lrndesign-avatar class="dropdown-trigger" label="<?php print $course_context; ?>" jdenticon color="grey darken-4"></lrndesign-avatar>
           </li>
           <li>
-          <a href="#" id="elmsln-tools-trigger" class="course-title elmsln-course-title elmsln-left-side-nav-trigger middle-align-wrap elmsln-user-button black-text waves-effect waves-<?php print $lmsless_classes[$distro]['color'];?> waves-light" title="" data-activates="elmsln-tools-menu" aria-controls="elmsln-tools-menu" aria-expanded="false" data-jwerty-key="t" data-voicecommand="open settings (menu)" data-elmsln-hover="<?php print $lmsless_classes[$service['distro']]['color'];?>">
+          <a tabindex="-1" href="#" id="elmsln-tools-trigger" class="course-title elmsln-course-title elmsln-left-side-nav-trigger middle-align-wrap elmsln-user-button black-text" title="" data-activates="elmsln-tools-menu" aria-controls="elmsln-tools-menu" aria-expanded="false" data-jwerty-key="t" data-voicecommand="open settings (menu)" data-elmsln-hover="<?php print $lmsless_classes[$service['distro']]['color'];?>">
+          <paper-button>
             <span class="course-title-group">
               <span class="black-text course-title hide-on-med-and-down"><?php print $slogan; ?></span>
               <span class="black-text course-abrv"><?php print $site_name; ?> <span class="accessible-grey-text lighten-1 section-label"><?php if (isset($section_title)) : print $section_title; endif; ?></span></span>
             </span>
+          </paper-button>
           </a>
           <?php
           }
@@ -49,33 +51,41 @@
       <ul class="menu right clearfix">
         <?php if ($bar_elements['help']) : ?>
         <li>
-          <a href="<?php print $help_link;?>" class="elmsln-help-button middle-align-wrap black-text waves-effect waves-<?php print $lmsless_classes[$distro]['color'];?> waves-light" data-jwerty-key="h" data-voicecommand="help">
+          <a tabindex="-1" href="<?php print $help_link;?>" class="elmsln-help-button middle-align-wrap black-text" data-jwerty-key="h" data-voicecommand="help">
+            <paper-button>
             <lrn-icon icon="help"></lrn-icon>
             <span class="hide-on-med-and-down"><?php print t('Help'); ?></span>
+            </paper-button>
           </a>
         </li>
         <?php endif; ?>
         <?php if (isset($bar_elements['resources']) && $bar_elements['resources']) : ?>
         <li>
-          <a href="<?php print $resources_link;?>" class="elmsln-resource-button middle-align-wrap black-text waves-effect waves-<?php print $lmsless_classes[$distro]['color'];?> waves-light" data-jwerty-key="r" data-voicecommand="resources">
+          <a tabindex="-1" href="<?php print $resources_link;?>" class="elmsln-resource-button middle-align-wrap black-text" data-jwerty-key="r" data-voicecommand="resources">
+            <paper-button>
             <i class="material-icons">local_library</i>
             <span class="hide-on-med-and-down"><?php print t('Resources'); ?></span>
+            </paper-button>
           </a>
         </li>
         <?php endif; ?>
         <?php if ($bar_elements['syllabus']) : ?>
           <li>
-          <a href="<?php print $syllabus_link;?>" class="elmsln-syllabus-button middle-align-wrap black-text waves-effect waves-<?php print $lmsless_classes[$distro]['color'];?> waves-light" data-jwerty-key="y" data-voicecommand="syllabus">
+          <a tabindex="-1" href="<?php print $syllabus_link;?>" class="elmsln-syllabus-button middle-align-wrap black-text" data-jwerty-key="y" data-voicecommand="syllabus">
+            <paper-button>
             <i class="material-icons">info_outline</i>
             <span class="hide-on-med-and-down"><?php print t('Syllabus'); ?></span>
+            </paper-button>
           </a>
         </li>
         <?php endif; ?>
         <?php if ($bar_elements['user']) : ?>
         <li class="elmsln-user-profile-menu-item ferpa-protect">
-          <a href="#user-menu-button" class="middle-align-wrap elmsln-user-button elmsln-right-side-nav-trigger black-text waves-effect waves-<?php print $lmsless_classes[$distro]['color'];?> waves-light" data-activates="block-cis-lmsless-cis-lmsless-user-nav-modal" data-jwerty-key="u" data-voicecommand="open user">
+          <a tabindex="-1" href="#user-menu-button" class="middle-align-wrap elmsln-user-button elmsln-right-side-nav-trigger black-text" data-activates="block-cis-lmsless-cis-lmsless-user-nav-modal" data-jwerty-key="u" data-voicecommand="open user">
+            <paper-button>
             <?php if (isset($userpicture)) { print $userpicture; } ?>
             <span class="hide-on-med-and-down truncate"><?php print $username; ?></span>
+            </paper-button>
           </a>
         </li>
         <?php endif; ?>
@@ -96,7 +106,7 @@
       if (!isset($service['distro'])) {
         $service['distro'] = '_default_';
       }
-      $activetool = 'tooltipped ';
+      $activetool = ' ';
       $label = '';
       $iconcolor = 'black-text';
       $stitle = token_replace($service['title']);
@@ -110,19 +120,23 @@
       }
       ?>
       <li>
-      <a data-delay="75" data-tooltip="<?php print $stitle; ?>" data-prefetch-hover="true" href="<?php print token_replace($service['url']); ?>" class="black-text waves-effect waves-<?php print $lmsless_classes[$service['distro']]['color'];?> waves-light <?php print $activetool . $service['icon']; ?>-icon"  data-jwerty-key="ctrl+<?php print drupal_strtolower(substr($stitle, 0, 1)); ?>" data-voicecommand="<?php print t('go to ') . drupal_strtolower($stitle); ?>" data-elmsln-hover="<?php print $lmsless_classes[$service['distro']]['color'];?> <?php print $lmsless_classes[$service['distro']]['dark'];?> black-text" data-elmsln-icon-hover="hover-white-text">
+      <a tabindex="-1" id="lmsless-<?php print $service['distro'];?>" data-prefetch-hover="true" href="<?php print token_replace($service['url']); ?>" class="waves waves-light black-text <?php print $activetool . $service['icon']; ?>-icon"  data-jwerty-key="ctrl+<?php print drupal_strtolower(substr($stitle, 0, 1)); ?>" data-voicecommand="<?php print t('go to ') . drupal_strtolower($stitle); ?>" data-elmsln-hover="<?php print $lmsless_classes[$service['distro']]['color'];?> <?php print $lmsless_classes[$service['distro']]['dark'];?> black-text" data-elmsln-icon-hover="hover-white-text">
+      <paper-button>
       <?php if (isset($service['icon_library']) && $service['icon_library'] == 'material'): ?>
-        <div class="material-icon elmsln-network-icon left elmsln-icon black-text"><i class="material-icons"><?php print $service['icon']; ?></i></div>
+        <div class="elmsln-hover-icon material-icon elmsln-network-icon left elmsln-icon black-text"><i class="material-icons"><?php print $service['icon']; ?></i></div>
       <?php else: ?>
-        <div class="elmsln-network-icon left elmsln-icon icon-<?php print $service['icon'] . ' ' . $iconcolor;?>"></div>
+        <lrn-icon icon="<?php print $service['icon'];?>" class="elmsln-hover-icon <?php print $iconcolor;?>"></lrn-icon>
       <?php endif; ?>
         <?php print $label; ?>
-      </a></li>
+      </paper-button>
+      </a>
+      <paper-tooltip for="lmsless-<?php print $service['distro'];?>" animation-delay="0"><?php print $stitle; ?></paper-tooltip>
+      </li>
     <?php endforeach ?>
   <?php endif; ?>
   <?php if ($bar_elements['network']) : ?>
     <li class="elmsln-network-menu-item right">
-      <a href="#network-menu-button" class="middle-align-wrap elmsln-network-button elmsln-right-side-nav-trigger black-text waves-effect waves-<?php print $lmsless_classes[$distro]['color'];?> waves-light" data-activates="block-cis-lmsless-cis-lmsless-network-nav-modal" data-jwerty-key="n" data-voicecommand="open network">
+      <a href="#network-menu-button" class="middle-align-wrap elmsln-network-button elmsln-right-side-nav-trigger black-text" data-activates="block-cis-lmsless-cis-lmsless-network-nav-modal" data-jwerty-key="n" data-voicecommand="open network">
         <div class="cis-lmsless-network elmsln-icon icon-network"></div>
         <span class="hide-on-med-and-down truncate"><?php print t('More tools'); ?></span>
       </a>

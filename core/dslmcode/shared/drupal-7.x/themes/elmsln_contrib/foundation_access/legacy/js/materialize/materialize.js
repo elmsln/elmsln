@@ -131,7 +131,7 @@
           $(this).addClass(attr);
           var attr2 = $(this).attr('data-elmsln-icon-hover');
           if (typeof attr2 !== typeof undefined && attr2 !== false) {
-            $(this).children('.elmsln-icon').addClass(attr2);
+            $(this).addClass(attr2);
           }
         }
         else {
@@ -143,7 +143,7 @@
           $(this).removeClass(attr);
           var attr2 = $(this).attr('data-elmsln-icon-hover');
           if (typeof attr2 !== typeof undefined && attr2 !== false) {
-            $(this).children('.elmsln-icon').removeClass(attr2);
+            $(this).removeClass(attr2);
           }
         }
         else {

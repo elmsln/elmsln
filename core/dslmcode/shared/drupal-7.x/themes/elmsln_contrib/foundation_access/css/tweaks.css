@@ -409,26 +409,20 @@ article ul:not(.contextual-links):not(.collapsible):not(.footnotes):not(.browser
 }
 
 .elmsln-service-list li {
-  padding: 0.5rem 0 0 0;
+  padding: 0;
   margin: 0;
   display: inline-block;
-  line-height: 3rem;
+  line-height: 3.75rem;
   height: 3.75rem;
 }
 
 .elmsln-service-list li a {
-  height: 3.25rem;
-  padding: 0 .5rem;
-  border-bottom: solid .2rem #212121;
+  height: 3.75rem;
+  display: block;
 }
 
 .is-active {
     background: #212121;
-}
-
-.elmsln-service-list li a div i.material-icons {
-  height: 2rem;
-  line-height: 3rem;
 }
 
 .elmsln-service-list .elmsln-network-label {
@@ -598,14 +592,6 @@ img.cke_tpl_preview_img {
 }
 .cke_dialog_contents {
   width: 100%;
-}
-
-/* Network flyout spacing */
-.elmsln-network-label {
-  margin-left: .75rem;
-}
-.elmsln-network-icon {
-  padding: 0 .25rem;
 }
 
 /* format pre tags */
@@ -978,30 +964,6 @@ ul.dropdown-content {
   clip: rect(auto, auto, 8rem, auto);
 }
 
-/* Materialize Waves additional colors */
-.waves-effect.waves-blue .waves-ripple {
-  /* The alpha value allows the text and background color of the button to still show through. */
-  background-color: rgba(187, 222, 251, 0.65);
-}
-.waves-effect.waves-amber .waves-ripple {
-  background-color: rgba(255, 236, 179, 0.65);
-}
-.waves-effect.waves-lime .waves-ripple {
-  background-color: rgba(240, 244, 195, 0.65);
-}
-.waves-effect.waves-deep-orange .waves-ripple {
-  background-color: rgba(255, 204, 188, 0.65);
-}
-.waves-effect.waves-light-blue .waves-ripple {
-  background-color: rgba(179, 229, 252, 0.65);
-}
-.waves-effect.waves-pink .waves-ripple {
-  background-color: rgba(248, 187, 208, 0.65);
-}
-.waves-effect.waves-light-green .waves-ripple {
-  background-color: rgba(220, 237, 200, 0.65);
-}
-
 /* consistend focus state presentation */
 a:focus,
 i:focus,
@@ -1175,11 +1137,13 @@ input[type=file]:focus,
 }
 /* Special class to highjack accessible varients on hover */
 .hover-white-text,
-.elmsln-network-icon.hover-white-text {
+.elmsln-network-icon.hover-white-text,
+.hover-white-text .elmsln-hover-icon {
   color: #FFFFFF !important;
 }
 .hover-black-text,
-.elmsln-network-icon.hover-black-text {
+.elmsln-network-icon.hover-black-text,
+.hover-black-text .elmsln-hover-icon {
   color: #222222 !important;
 }
 /* Materialize Selecton classes */
@@ -1371,6 +1335,10 @@ table.sticky-header {
 /* ELMSLN app.css conflicts w/ menu items */
 .etb-modal-icons {
   height: 3rem;
+}
+.elmsln-network-icon.material-icon {
+  height: 3.75rem;
+  line-height: 3.75rem;
 }
 #block-cis-lmsless-cis-lmsless-network-nav-modal .etb-modal-icons {
   margin-top: .5rem;
@@ -2553,12 +2521,34 @@ div.horizontal-tabs ul li.horizontal-tab-button strong {
 }
 
 /* ALL LRN / WEB COMPONENT BASED DESIGN MODIFICATIONS */
+#etb-course-nav paper-button {
+  padding: 0;
+  min-width: .1rem;
+  margin: 0;
+}
 .r-header__edit-icons paper-button,
 .r-header__edit-icons .icon-wrapper {
   padding: .2rem;
   min-width: 2rem;
   margin: 0 .75rem;
 }
+#etb-network-nav paper-button {
+  min-width: 3.25rem;
+  padding: 0 .75rem;
+  margin: 0;
+  height: 3.75rem;
+}
+#block-cis-lmsless-cis-lmsless-network-nav-modal paper-button {
+  min-width: .1rem;
+  padding: 0;
+  margin: 0;
+  height: 3.75rem;
+}
+#etb-network-nav paper-button lrn-icon {
+  width: 2rem;
+  height: 2rem;
+}
+
 paper-button:focus {
   outline-style: solid;
   outline-width: .1rem;
