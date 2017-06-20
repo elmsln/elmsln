@@ -167,7 +167,6 @@ dependencies[] = hidden_nodes
 ; Textbook
 dependencies[] = speedreader
 ; User interface
-dependencies[] = lightbox2
 dependencies[] = token_insert_entity
 dependencies[] = token_insert
 dependencies[] = token_insert_wysiwyg

@@ -150,8 +150,6 @@ dependencies[] = elmsln_ecd
 ; Other
 dependencies[] = file_entity
 dependencies[] = dynamic_select
-; User interface
-dependencies[] = lightbox2
 ; Views
 dependencies[] = eva
 dependencies[] = views_simple_pager
