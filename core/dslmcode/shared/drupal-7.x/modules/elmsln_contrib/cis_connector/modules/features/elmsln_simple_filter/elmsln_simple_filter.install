@@ -1,0 +1,13 @@
+<?php
+
+/**
+ * @file
+ * ELMSLN simple filter install.
+ */
+
+/**
+ * Make sure filter_url is included in simple filter output.
+ */
+function elmsln_simple_filter_update_7001(&$sandbox) {
+  features_revert_module('elmsln_simple_filter');
+}
