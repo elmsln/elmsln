@@ -159,13 +159,5 @@
         $(this).removeClass(Drupal.settings.cis_lmsless[Drupal.settings.distro]['color'] + ' ' + Drupal.settings.cis_lmsless[Drupal.settings.distro]['light']);
       }
     );
-    // focus event
-    $('a,i,button,li').not('li.expanded, .scrollspy-toc li').on('focusin', function() {
-      $(this).addClass(Drupal.settings.cis_lmsless[Drupal.settings.distro]['outline']);
-    }).on('focusout', function() {
-      $(this).removeClass(Drupal.settings.cis_lmsless[Drupal.settings.distro]['outline']);
-    });
-    // remove tab index from lightbox link
-    $('[href="javascript:;"]').attr('tabindex','-1');
   });
 })(jQuery);
