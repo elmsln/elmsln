@@ -10,6 +10,8 @@
       }
     </style>
     <paper-card heading="{{commentTitle}}" elevation="5">
+      Updated: <span>{{dateUpdated}}</span>
+
       <div class="card-content">
         <content></content>
       </div>
@@ -58,6 +60,11 @@
           notify: true,
         },
         actionDelete: {
+          type: String,
+          reflectToAttribute: true,
+          notify: true,
+        },
+        dateUpdated: {
           type: String,
           reflectToAttribute: true,
           notify: true,

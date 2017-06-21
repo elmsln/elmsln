@@ -1,0 +1,18 @@
+{
+  "name": "lrnapp-comments-recent",
+  "short_name": "lrnapp-comments-recent",
+  "description": "Displaying recent comments",
+  "start_url": "/",
+  "display": "standalone",
+  "title": "Recent comments",
+  "drupal": {
+    "menu": {
+      "menu_name": "menu-elmsln-navigation",
+      "weight": 11
+    },
+    "data": {
+      "callback": "_elmsln_lrnapp_comments_recent",
+      "property": "data-source"
+    }
+  }
+}

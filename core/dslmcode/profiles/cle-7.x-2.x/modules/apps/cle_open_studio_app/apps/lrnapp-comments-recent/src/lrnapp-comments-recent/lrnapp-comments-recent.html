@@ -1,6 +1,6 @@
 <link rel="import" href="drupal-comment.html">
 
-<dom-module id="elmsln-cle-comments">
+<dom-module id="lrnapp-comments-recent">
   <template>
     <style include="paper-item-styles">
       :host {
@@ -14,7 +14,7 @@
        last-response="{{response}}"
        on-response="handleResponse"></iron-ajax>
     <template is="dom-repeat" items="[[_toArray(response.data)]]" as="comment">
-      <drupal-comment comment-title="{{comment.title}}" action-view="{{comment.view}}" action-edit="{{comment.edit}}" action-delete="{{comment.delete}}">
+      <drupal-comment comment-title="{{comment.title}}" action-view="{{comment.view}}" action-edit="{{comment.edit}}" action-delete="{{comment.delete}}" date-updated="{{comment.date}}">
         {{comment.body}}
       </drupal-comment>
     </template>
@@ -22,7 +22,7 @@
   <script>
     Polymer({
 
-      is: 'elmsln-cle-comments',
+      is: 'lrnapp-comments-recent',
 
       properties: {
         dataSource: {
