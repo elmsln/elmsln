@@ -9,7 +9,7 @@
 2. `git clone --recursive https://github.com/elmsln/elmsln-developer.git elmsln`
 3. `cd elmsln/system`
 1. `git pull origin master` (or 1.x.x or whatever branch you want)
-4. `cd core/dslmcode/shared/drupal-7.x/themes/elmsln_contrib/foundation_access/`
+4. `cd core/dslmcode/shared/drupal-7.x/themes/elmsln_contrib/foundation_access/legacy`
 5. `npm install`
 6. `bower install`
 7. `grunt`
