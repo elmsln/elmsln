@@ -1656,6 +1656,9 @@ select.chosen {
   background-color:#bdbdbd;
 }
 
+cite.image__cite p,cite.image__cite {
+  font-style: italic;
+}
 cite, .image__cite, .image--lightboxed__cite {
   color:#4c4c4c;
   font-size: .8rem;
