@@ -13,8 +13,9 @@
        handle-as="json"
        last-response="{{response}}"
        on-response="handleResponse"></iron-ajax>
+       <h1>Recent Comments</h1>
     <template is="dom-repeat" items="[[_toArray(response.data)]]" as="comment">
-      <drupal-comment comment-title="{{comment.title}}" action-view="{{comment.view}}" action-edit="{{comment.edit}}" action-delete="{{comment.delete}}" date-updated="{{comment.date}}">
+      <drupal-comment comment-user="{{comment.username}}" comment-title="{{comment.title}}" action-view="{{comment.view}}" action-edit="{{comment.edit}}" action-delete="{{comment.delete}}" date-updated="{{comment.date}}">
         {{comment.body}}
       </drupal-comment>
     </template>

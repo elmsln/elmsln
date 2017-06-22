@@ -1,39 +1,76 @@
 <dom-module id="drupal-comment">
   <template>
     <style include="paper-item-styles">
-      :host {
+       :host {
         display: inline-flex;
       }
+
+      paper-card {
+        padding: 2em 1em;
+      }
+
       .card-actions a {
         text-decoration: none;
-        color: var(--paper-orange-a700);
+        color: var(--paper-grey-800);
       }
+
+      paper-button {
+        background-color: var(--paper-grey-100);
+        margin: 1em;
+      }
+
+      .card-content {
+        padding-left: 2em;
+        padding-right: 2em;
+      }
+
+      lrndesign-avatar {
+        float: left;
+        margin-right: 1em;
+      }
+
+
+      .card-date {
+        padding-left: 2em;
+      }
+
+      .card-actions {
+        text-align: right;
+      }
+
     </style>
-    <paper-card heading="{{commentTitle}}" elevation="5">
-      Updated: <span>{{dateUpdated}}</span>
-      <div class="card-content">
-        <content></content>
-      </div>
-      <div class="card-actions">
-        <template is="dom-if" if="{{actionView}}">
-          <a href="{{actionView}}" tabindex="-1">
-            <paper-button raised id="view">View thread</paper-button>
-          </a>
-        </template>
-        <template is="dom-if" if="{{actionEdit}}">
-          <a href="{{actionEdit}}" tabindex="-1">
-            <paper-button id="edit">Edit</paper-button>
-          </a>
-          <paper-tooltip for="edit" animation-delay="0">Edit comment</paper-tooltip>
-        </template>
-        <template is="dom-if" if="{{actionDelete}}">
-          <a href="{{actionDelete}}" tabindex="-1">
-            <paper-icon-button id="delete" icon="icons:delete-forever"></paper-icon-button>
-          </a>
-          <paper-tooltip for="delete" animation-delay="0">Delete comment forever!</paper-tooltip>
-        </template>
-      </div>
-    </paper-card>
+    
+      <paper-card elevation="5">
+        <div class="card-content">
+          <lrndesign-avatar label="{{commentUser}}"></lrndesign-avatar>
+          <h3><span>{{commentUser}}</span> wrote:</h3>
+             <content class="content"></content>
+        </div>
+        <div class="card-date">
+          <h4>Updated: <span>{{dateUpdated}}</span></h4>
+        </div>
+        
+
+        <div class="card-actions">
+          <template is="dom-if" if="{{actionView}}">
+            <a href="{{actionView}}" tabindex="-1">
+              <paper-button raised id="view">View thread</paper-button>
+            </a>
+          </template>
+          <template is="dom-if" if="{{actionEdit}}">
+            <a href="{{actionEdit}}" tabindex="-1">
+              <paper-button id="edit">Edit</paper-button>
+            </a>
+            <paper-tooltip for="edit" animation-delay="0">Edit comment</paper-tooltip>
+          </template>
+          <template is="dom-if" if="{{actionDelete}}">
+            <a href="{{actionDelete}}" tabindex="-1">
+              <paper-icon-button id="delete" icon="icons:delete-forever"></paper-icon-button>
+            </a>
+            <paper-tooltip for="delete" animation-delay="0">Delete comment forever!</paper-tooltip>
+          </template>
+        </div>
+      </paper-card>
   </template>
   <script>
     Polymer({
@@ -65,6 +102,13 @@
           reflectToAttribute: true,
           notify: true,
         },
+        commentUser: {
+          type: String,
+          value: 'Comment user',
+          reflectToAttribute: true,
+          notify: true,
+        },
+
       },
 
     });
