@@ -18,9 +18,8 @@
       <div class="card-actions">
         <template is="dom-if" if="{{actionView}}">
           <a href="{{actionView}}" tabindex="-1">
-            <paper-button raised id="view">View</paper-button>
+            <paper-button raised id="view">View thread</paper-button>
           </a>
-          <paper-tooltip for="view" animation-delay="0">View comment</paper-tooltip>
         </template>
         <template is="dom-if" if="{{actionEdit}}">
           <a href="{{actionEdit}}" tabindex="-1">
