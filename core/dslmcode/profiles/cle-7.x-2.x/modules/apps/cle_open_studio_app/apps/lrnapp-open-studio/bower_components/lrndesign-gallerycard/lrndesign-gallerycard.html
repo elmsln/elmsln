@@ -20,7 +20,7 @@ that can pop up to display more info
         width: 16rem;
       }
 
-      paper-button {
+      paper-card paper-button {
         display: block;
         margin: 0;
         padding: 0;
@@ -31,10 +31,19 @@ that can pop up to display more info
         overflow: auto;
       }
 
+      paper-dialog {
+        padding: 2em;
+        width: 80%;
+      }
+
       .paper-card-responsive {
         min-width: 200px;
         max-width: 20rem;
         width: auto;
+      }
+
+      hr {
+        margin: 3em 0 3em 0;
       }
 
       .title {
@@ -198,9 +207,9 @@ that can pop up to display more info
         flex-basis: 50%;
       }
 
-      paper-dialog {
-        padding: 2em;
-        width: 80%;
+      .comments {
+        float: right;
+        margin: 0 4em 2em 0;
       }
 
       .head {
@@ -209,16 +218,23 @@ that can pop up to display more info
         text-align: center;
       }
 
-      .head h2 {
-        margin-top: .5em;
-        margin-bottom: .25em;
-      }
-
       .head h3 {
-        margin: 0;
         color: var(--paper-grey-600);
       }
 
+      .assign h3 {
+        color: var(--paper-grey-800);
+      }
+
+      .assign p {
+        width: 80%;
+        margin: 1em auto 2em auto;
+      }
+
+      .assign img {
+        display: block;
+        margin: 2em auto 2em auto;
+      }
     </style>
     <paper-card elevation="[[elevation]]">
       <paper-button>
@@ -273,18 +289,36 @@ that can pop up to display more info
 
     <paper-dialog id="dialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation">
 
-      <div class="head">
+      <div class="head text-center">
         <lrndesign-avatar label="{{author}}"></lrndesign-avatar>
         <h2>{{author}}</h2>
-        <h3>{{title}}</h3>
+        <!-- Need to pull the projectTitle -->
+        <h3>{{projectTitle}}Project Title</h3>
       </div>
-      <hr>
-      <paper-dialog-scrollable id="dialogResponse">
-        <h3>{{title}}</h3>
-        <p>{{text}}</p>
-       <paper-button raised>Comments <span>[[comments]]</span><lrn-icon icon="comment"></lrn-icon></paper-button>
+
+      <!-- This will need to be repeated for each assignment -->
+      <paper-dialog-scrollable class="assign" id="dialogResponse">
+        <h3 class="text-center">{{title}}</h3>
+        <template is="dom-if" if="{{image}}">
+          <img src="{{image}}">
+        </template>
+        <template is="dom-if" if="{{text}}">
+          <p>{{text}} {{link}}</p>
+        </template>
+        <template is="dom-if" if="{{link}}">
+          {{link}} this is a link
+         <lrn-icon icon="comment"></lrn-icon><a href="{{link}}">{{link}}</a>
+        </template>
+        <template is="dom-if" if="{{file}}">
+          <span>{{file}}</span>
+        </template>
+        <template is="dom-if" if="{{video}}">
+          <span>{{video}}</span>
+        </template>
+        <span class="comments">[[comments]]<lrn-icon icon="comment"></lrn-icon></span>
         <hr>
       </paper-dialog-scrollable>
+      <!-- End Repeat -->
 
     </paper-dialog>
 
