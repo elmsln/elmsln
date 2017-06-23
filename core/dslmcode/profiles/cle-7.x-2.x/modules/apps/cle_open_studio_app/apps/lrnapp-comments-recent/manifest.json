@@ -4,15 +4,17 @@
   "description": "Displaying recent comments",
   "start_url": "/",
   "display": "standalone",
-  "title": "Recent comments",
-  "drupal": {
+  "app_integration": {
+    "title": "Recent comments",
     "menu": {
       "menu_name": "menu-elmsln-navigation",
-      "weight": 11
+      "weight": 10
     },
-    "data": {
-      "callback": "_elmsln_lrnapp_comments_recent",
-      "property": "data-source"
+    "endpoints": {
+      "data": {
+        "callback": "_elmsln_lrnapp_comments_recent",
+        "property": "data-source"
+      }
     }
   }
 }

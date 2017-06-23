@@ -9,7 +9,7 @@
       }
     </style>
     <iron-ajax auto
-      url="[[source-path]]"
+      url="[[sourcePath]]"
       params=''
       handle-as="json"
       last-response="{{submissions}}"></iron-ajax>
@@ -47,6 +47,10 @@
       properties: {
         submissions: {
           type: Array,
+          notify: true,
+        },
+        sourcePath: {
+          type: String,
           notify: true,
         }
       },

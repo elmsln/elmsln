@@ -1,15 +1,17 @@
 {
   "name": "elmsmedia-upload",
   "short_name": "elmsmedia-upload",
-  "title": "ELMS Media upload",
   "description": "Show all media for a course",
   "start_url": "/",
   "display": "standalone",
-  "drupal": {
-    "data": {
-      "callback": "_elmsln_core_elmsmedia_upload",
-      "property": "upload-path"
-    },
-    "block": true
+  "app_integration": {
+    "block": true,
+    "title": "Media upload",
+    "endpoints": {
+      "data": {
+        "callback": "_elmsln_core_elmsmedia_upload",
+        "property": "upload-path"
+      }
+    }
   }
 }

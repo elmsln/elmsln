@@ -7,7 +7,7 @@
 /**
  * Callback for apps/lrnapp-media-upload/data.
  */
-function _webcomponent_app_lrnapp_media_upload($machine_name, $app_route, $params) {
+function _webcomponent_app_lrnapp_media_upload($machine_name, $app_route, $params, $args) {
   $status = 403;
   // see if we had a file_wrapper defined, otherwise this is public
   if (isset($params['file_wrapper'])) {

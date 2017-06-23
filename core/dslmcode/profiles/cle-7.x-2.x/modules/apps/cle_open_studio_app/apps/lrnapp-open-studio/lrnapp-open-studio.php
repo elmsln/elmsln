@@ -5,7 +5,7 @@
  * @param  string $machine_name machine name of this app
  * @return array               data to be json encoded for the front end
  */
-function _cle_open_studio_app_data($machine_name, $app_route, $params) {
+function _cle_open_studio_app_data($machine_name, $app_route, $params, $args) {
   $return = array();
   // @todo need a better render method then this as this is lazy for now
   if (isset($params['nid']) && is_numeric($params['nid'])) {

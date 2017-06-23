@@ -7,7 +7,7 @@
 /**
  * Callback for apps/elmsmedia-upload/data.
  */
-function _elmsln_core_elmsmedia_upload($machine_name, $app_route, $params) {
+function _elmsln_core_elmsmedia_upload($machine_name, $app_route, $params, $args) {
   $status = 403;
   // check for the uploaded file from our 1-page-uploader app
   // and ensure there are entity permissions to create a file of this type

@@ -34,7 +34,7 @@
       }
     </style>
     <iron-ajax id="ajax"
-      url="[[source-path]]"
+      url="[[sourcePath]]"
       params=''
       handle-as="json"
       last-response="{{images}}"></iron-ajax>
@@ -71,6 +71,10 @@
         'click': '_triggerDialog',
       },
       properties: {
+        sourcePath: {
+          type: String,
+          notify: true,
+        },
         images: {
           type: Array,
           notify: true,

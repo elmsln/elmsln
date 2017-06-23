@@ -20,7 +20,7 @@ function cle_open_studio_app_wrapped_paths() {
  * @param  string $machine_name machine name of this app
  * @return array               data to be json encoded for the front end
  */
-function _cle_open_studio_app_gallery_data($machine_name, $app_route, $params) {
+function _cle_open_studio_app_gallery_data($machine_name, $app_route, $params, $args) {
   $return = array();
   // @todo need to pull just the most recent submissions, 1 per project
   // which might be too complex of logic for this efq to express
