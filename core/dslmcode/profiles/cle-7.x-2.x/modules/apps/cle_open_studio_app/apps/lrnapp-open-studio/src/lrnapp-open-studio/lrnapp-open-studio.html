@@ -14,6 +14,7 @@
       handle-as="json"
       last-response="{{submissions}}"></iron-ajax>
     <app-toolbar>
+
       <template is="dom-if" if="{{submissions}}">
       <paper-dropdown-menu label="Author">
         <paper-listbox class="dropdown-content">
@@ -23,6 +24,7 @@
         </paper-listbox>
       </paper-dropdown-menu>
       </template>
+
       <template is="dom-if" if="{{submissions}}">
       <paper-dropdown-menu label="Project">
         <paper-listbox class="dropdown-content">
@@ -32,6 +34,7 @@
         </paper-listbox>
       </paper-dropdown-menu>
       </template>
+      
     </app-toolbar>
     <template is="dom-repeat" items="[[_toArray(submissions.data)]]" as="item">
       <lrndesign-gallerycard title="{{item.title}}" text="{{item.body}}" url="{{item.url}}" author="{{item.author}}" comments="{{item.comments}}" images="{{item.images}}" image="{{item.image}}" file="{{item.file}}" video="{{item.video}}" link="{{item.link}}">

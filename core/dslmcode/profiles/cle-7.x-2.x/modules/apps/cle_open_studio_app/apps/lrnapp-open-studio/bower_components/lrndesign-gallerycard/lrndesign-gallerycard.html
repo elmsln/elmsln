@@ -10,138 +10,168 @@ that can pop up to display more info
   <template>
     <google-webfont-loader fonts="Droid Sans,Droid Serif:700i,Anonymous Pro:700"></google-webfont-loader>
     <style>
-      :host {
+       :host {
         display: inline-flex;
       }
+
       paper-card {
         border-radius: 4px;
-        margin:0.75rem;
-        width:16rem;
+        margin: 0.75rem;
+        width: 16rem;
       }
+
       paper-button {
         display: block;
         margin: 0;
         padding: 0;
       }
+
       paper-dialog-scrollable {
         max-height: 50vh;
         overflow: auto;
       }
+
       .paper-card-responsive {
-        min-width:200px;
-        max-width:20rem;
-        width:auto;
+        min-width: 200px;
+        max-width: 20rem;
+        width: auto;
       }
+
       .title {
         font-size: 0.9rem;
-        padding:0.25rem 0;
-        margin:0.5rem 0 0 0;
+        padding: 0.25rem 0;
+        margin: 0.5rem 0 0 0;
         white-space: nowrap;
         overflow-x: hidden;
         text-overflow: ellipsis;
       }
+
       .author {
         font-size: 0.75rem;
-        margin:0;
-        padding:0.25rem 0;
+        margin: 0;
+        padding: 0.25rem 0;
       }
+
       .divider {
-        height:1px;
-        width:100%;
-        background:#efefef;
+        height: 1px;
+        width: 100%;
+        background: #efefef;
       }
+
       p.text-submission {
-        padding:1.5rem 0rem 2.5rem 0rem;
-        margin:0;
+        padding: 1.5rem 0rem 2.5rem 0rem;
+        margin: 0;
       }
+
       .text-submission {
         font-family: 'Droid Serif', cursive;
         font-size: 1rem;
         font-style: italic;
-        color:#888;
+        color: #888;
         text-decoration: none;
-        padding:0rem 2.5rem 0rem 2.5rem;
+        padding: 0rem 2.5rem 0rem 2.5rem;
       }
-      .text-submission:hover  {
-        color:#000;
+
+      .text-submission:hover {
+        color: #000;
       }
+
       p.link-submission {
         width: 100%;
         margin: 0;
       }
+
       .link-submission {
         font-family: 'Anonymous Pro', monospace;
         font-size: 2rem;
-        color:#888;
+        color: #888;
         text-decoration: none;
         width: 100%;
         padding: 5rem 0;
       }
-      .link-submission:hover  {
-        color:#000;
+
+      .link-submission:hover {
+        color: #000;
       }
+
       p.file-submission {
         width: 100%;
         margin: 0;
       }
+
       .file-submission {
-        color:#888;
+        color: #888;
         text-decoration: none;
-        width:100%;
+        width: 100%;
         padding: 5rem 0;
       }
-      .file-submission:hover  {
-        color:#000;
+
+      .file-submission:hover {
+        color: #000;
       }
+
       .image-submission {
-        color:#888;
+        color: #888;
         text-decoration: none;
       }
-      .image-submission:hover  {
-        color:#000;
+
+      .image-submission:hover {
+        color: #000;
       }
+
       .image-set-submission {
         display: flex;
         align-items: center;
         flex-flow: row wrap;
         align-content: flex-start;
-        color:#888;
+        color: #888;
         text-decoration: none;
       }
-      .image-set-submission:hover  {
-        color:#000;
+
+      .image-set-submission:hover {
+        color: #000;
       }
-      .text-right{
-        text-align:right;
+
+      .text-right {
+        text-align: right;
       }
-      .text-center{
-        text-align:center;
+
+      .text-center {
+        text-align: center;
       }
+
       .card-actions {
         background-color: #f5f5f5;
-        border-radius:0 0 4px 4px;
+        border-radius: 0 0 4px 4px;
       }
+
       .card-actions p {
         font-size: 0.85rem;
         margin: 0.25rem 0;
-        color:#616161;
+        color: #616161;
       }
+
       .card-control-height {
         height: 15rem;
       }
+
       .card-control-center {
         align-items: center;
         display: flex;
         justify-content: center;
       }
+
       [elevation="0"] {
         border: solid 1px #EEEEEE;
       }
+
       .truncate {
-        display: block; /* Fallback for non-webkit */
+        display: block;
+        /* Fallback for non-webkit */
         display: -webkit-box;
         max-width: 400px;
-        height: 64px; /* Fallback for non-webkit */
+        height: 64px;
+        /* Fallback for non-webkit */
         margin: 0 auto;
         line-height: 1.4;
         -webkit-line-clamp: 3;
@@ -149,53 +179,78 @@ that can pop up to display more info
         overflow: hidden;
         text-overflow: ellipsis;
       }
+
       .big {
         --iron-icon-height: 100%;
         --iron-icon-width: 100%;
         max-width: 4em;
         max-height: 4em;
       }
+
       .image {
         --iron-image-width: 100%;
         --iron-image-width: 100%;
       }
+
       .image-quad {
         --iron-image-height: auto;
         --iron-image-width: 100%;
-        flex-basis:50%;
+        flex-basis: 50%;
       }
-      </style>
-      <paper-card elevation="[[elevation]]">
-        <paper-button>
-          <div class="card-content">
-            <div class="card-control-height card-control-center">
+
+      paper-dialog {
+        padding: 2em;
+        width: 80%;
+      }
+
+      .head {
+        width: 100%;
+        margin: auto;
+        text-align: center;
+      }
+
+      .head h2 {
+        margin-top: .5em;
+        margin-bottom: .25em;
+      }
+
+      .head h3 {
+        margin: 0;
+        color: var(--paper-grey-600);
+      }
+
+    </style>
+    <paper-card elevation="[[elevation]]">
+      <paper-button>
+        <div class="card-content">
+          <div class="card-control-height card-control-center">
             <!-- ----- Images Submission -----  -->
             <template is="dom-if" if="{{_previewType(images)}}">
-            <div class="image-set-submission">
-              <template is="dom-repeat" items="[[_previewType(images)]]">
-              <iron-image class="image-quad" src="[[item.value]]"></iron-image>
-              </template>
-            </div>
+              <div class="image-set-submission">
+                <template is="dom-repeat" items="[[_previewType(images)]]">
+                  <iron-image class="image-quad" src="[[item.value]]"></iron-image>
+                </template>
+              </div>
             </template>
             <!-- ----- Image Submission -----  -->
             <template is="dom-if" if="{{_previewType(image)}}">
-            <div class="image-submission">
-              <iron-image class="image" src="[[image]]"></iron-image>
-            </div>
+              <div class="image-submission">
+                <iron-image class="image" src="[[image]]"></iron-image>
+              </div>
             </template>
             <!-- ----- File Submission -----  -->
             <template is="dom-if" if="{{_previewType(file)}}">
-            <p class="file-submission text-center">
-              <div class="file-submission truncate">
-                <iron-icon class="big" icon="file-download"></iron-icon>
-              </div>
-            </p>
+              <p class="file-submission text-center">
+                <div class="file-submission truncate">
+                  <iron-icon class="big" icon="file-download"></iron-icon>
+                </div>
+              </p>
             </template>
             <!-- ----- Link Submission -----  -->
             <template is="dom-if" if="{{_previewType(link)}}">
-            <p class="link-submission text-center">
-              <div class="link-submission">&lt;/link&gt;</div>
-            </p>
+              <p class="link-submission text-center">
+                <div class="link-submission">&lt;/link&gt;</div>
+              </p>
             </template>
             <!-- ----- Text Submission -----  -->
             <template is="dom-if" if="{{_previewType(text)}}">
@@ -203,34 +258,45 @@ that can pop up to display more info
                 <div class="text-submission truncate">[[text]]</div>
               </p>
             </template>
-            </div>
-            <div class=divider></div>
-            <h2 class="title">[[title]]</h2>
-            <p class="author">By [[author]]<p>
           </div>
-          <div class="card-actions">
-            <p class="text-right">Comments: [[comments]]</p>
-          </div>
-        </paper-button>
-      </paper-card>
-      <paper-dialog id="dialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation">
-        <h2>{{title}}</h2>
-        <paper-dialog-scrollable id="dialogResponse">
-        </paper-dialog-scrollable>
-      </paper-dialog>
-      <iron-ajax
-        params="{}"
-        id="ajaxRequest"
-        url="{{url}}"
-        handle-as="json"
-        on-response="_handleReturnedData"></iron-ajax>
+          <div class=divider></div>
+          <h2 class="title">[[title]]</h2>
+          <p class="author">By [[author]]
+            <p>
+        </div>
+        <div class="card-actions">
+          <p class="text-right">Comments: [[comments]]</p>
+        </div>
+      </paper-button>
+    </paper-card>
+
+
+    <paper-dialog id="dialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation">
+
+      <div class="head">
+        <lrndesign-avatar label="{{author}}"></lrndesign-avatar>
+        <h2>{{author}}</h2>
+        <h3>{{title}}</h3>
+      </div>
+      <hr>
+      <paper-dialog-scrollable id="dialogResponse">
+        <h3>{{title}}</h3>
+        <p>{{text}}</p>
+       <paper-button raised>Comments <span>[[comments]]</span><lrn-icon icon="comment"></lrn-icon></paper-button>
+        <hr>
+      </paper-dialog-scrollable>
+
+    </paper-dialog>
+
+
+    <iron-ajax params="{}" id="ajaxRequest" url="{{url}}" handle-as="json" on-response="_handleReturnedData"></iron-ajax>
   </template>
 
   <script>
     Polymer({
 
       is: 'lrndesign-gallerycard',
-       listeners: {
+      listeners: {
         'mouseenter': '_mouseEnter',
         'mouseleave': '_mouseLeave',
         'click': '_triggerDialog',
@@ -346,21 +412,21 @@ that can pop up to display more info
        * whatever is in the 'data' element rip it into
        * the innerHTML of the response.
        */
-      _handleReturnedData: function(e) {
+      _handleReturnedData: function (e) {
         this.itemResponse = event.detail.response.data;
-        this.$$('#dialogResponse').innerHTML = this.itemResponse;
+        //this.$$('#dialogResponse').innerHTML = this.itemResponse;
       },
-      _mouseEnter: function(e) {
+      _mouseEnter: function (e) {
         this.elevation += 1;
       },
-      _mouseLeave: function(e) {
+      _mouseLeave: function (e) {
         this.elevation -= 1;
       },
       /**
        * When someone clicks if there is a url, then we need to
        * remote load whatever is in that url.
        */
-      _triggerDialog: function(e) {
+      _triggerDialog: function (e) {
         let root = this;
         // support remote url loading
         if (typeof this.url !== "undefined") {
@@ -373,7 +439,7 @@ that can pop up to display more info
        * @param  mixed the item we are testing for to have a value of any kind
        * @return boolean     If it is populated or not
        */
-      _previewType: function(data) {
+      _previewType: function (data) {
         // make sure that if we already match a case we don't keep going
         if (this.foundTypeMatch) {
           return false;
