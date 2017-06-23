@@ -16,27 +16,28 @@ class Canvas {
   protected $method;
 
   function __construct(){
-  	$this->_setHeaders();
-  	$this->_setUrl();
+    $this->_setHeaders();
+    $this->_setUrl();
 
   }
 
   private function _setHeaders(){
     $token = variable_get('canvas_api_token');
     $this->headers = array(
-			'Authorization' => 'Bearer ' . $token,
-			'Content-Type' => 'application/x-www-form-urlencoded',
-		);
+      'Authorization' => 'Bearer ' . $token,
+      'Cache-Control' => 'no-cache',
+      'Content-Type' => 'application/x-www-form-urlencoded',
+    );
   }
 
   private function _setURL(){
     $institution = variable_get('canvas_api_institution', '');
-  	$environment = variable_get('canvas_api_environment', 'test');
-  	$url = "https://$institution";
-  	if($environment != 'production'){
-  		$url .= '.' . $environment;
-  	}
-  	$url .= '.instructure.com/';
+    $environment = variable_get('canvas_api_environment', 'test');
+    $url = "https://$institution";
+    if($environment != 'production'){
+      $url .= '.' . $environment;
+    }
+    $url .= '.instructure.com/';
     $this->url = $url;
   }
 
@@ -53,41 +54,47 @@ class Canvas {
 
     $path = 'api/v1/' . $this->path;
 
-		$query = $this->_buildQuery($this->params);
+    $query = $this->_buildQuery($this->params);
 
+    $url = $this->url . $path;
 
-		$url = $this->url . $path;
-
-		$options = array(
-			'headers' => $this->headers,
-			'method' => $method,
-			'data' => $query,
-		);
-
-		$response = drupal_http_request($url,$options);
-
-		// Canvas limits the number of responses returned in a GET request. If we pass
-		// per_page=100, we can get up to 100, but that's all; if there are more,
-		// we need to get the "next" page, which is passed in the Link: attribute
-		// in the response header.
-		if($method == 'get'){
-			$data = json_decode($response->data, TRUE);
-			list($next, $max) = $this->_getNextURL($response);
-			// We use a counter as a failsafe to this becoming an infinite loop.
-			$i = 0;
+    $options = array(
+      'headers' => $this->headers,
+      'method' => $method,
+      'data' => $query,
+    );
+    // support httprl for faster calls if available
+    if (module_exists('httprl')) {
+      httprl_request($url, $options);
+      // send the request off
+      $tmp = httprl_send_request();
+      $response = array_pop($tmp);
+    }
+    else {
+      $response = drupal_http_request($url, $options);
+    }
+    // Canvas limits the number of responses returned in a GET request. If we pass
+    // per_page=100, we can get up to 100, but that's all; if there are more,
+    // we need to get the "next" page, which is passed in the Link: attribute
+    // in the response header.
+    if($method == 'get'){
+      $data = json_decode($response->data, TRUE);
+      list($next, $max) = $this->_getNextURL($response);
+      // We use a counter as a failsafe to this becoming an infinite loop.
+      $i = 0;
       // ensure we have something to walk and we don't go above max results
-			while($next && ($i < $max)) {
-				$response = drupal_http_request($next, $options);
-				$data = array_merge($data, json_decode($response->data, TRUE));
-        list($next, $max) = $this->_getNextURL($response);
-				$i++;
-				if ($i>30) {
-					// THIS IS JUST A FAILSAFE FOR HUGE RESULTSETS;
-					die('Over 30 iterations');
-				}
-			}
-			return $data;
-		}
+      while($next && ($i < $max)) {
+        $response = drupal_http_request($next, $options);
+        $data = array_merge($data, json_decode($response->data, TRUE));
+        list($next, $tmp) = $this->_getNextURL($response);
+        $i++;
+        if ($i>30) {
+          // THIS IS JUST A FAILSAFE FOR HUGE RESULTSETS;
+          die('Over 30 iterations');
+        }
+      }
+      return $data;
+    }
 
     return json_decode($response->data,TRUE);
   }
@@ -119,23 +126,23 @@ class Canvas {
    * Link to next URL if found, FALSE if not
    */
   private function _getNextURL($response){
-  	if(isset($response->headers['link'])){
+    if(isset($response->headers['link'])){
       $next = FALSE;
       $last = FALSE;
-			$linkHeader = $response->headers['link'];
+      $linkHeader = $response->headers['link'];
       // simplify preg later
       $links = explode(',', $response->headers['link']);
       $link = $linkHeader;
       if (is_array($linkHeader)) {
         $link = reset($linkHeader);
       }
-			$matches = array();
-			$pattern = '/,<(.+)>; rel="next"/';
-			preg_match($pattern, $link, $matches);
+      $matches = array();
+      $pattern = '/,<(.+)>; rel="next"/';
+      preg_match($pattern, $link, $matches);
       // discover next element to request
-			if(isset($matches[1])){
+      if(isset($matches[1])){
         $next = $matches[1];
-			}
+      }
       $matches = array();
       $pattern = '/<(.+)>; rel="last"/';
       preg_match($pattern, $links[3], $matches);
@@ -150,8 +157,8 @@ class Canvas {
         }
       }
       return array($next, $last);
-		}
-		return array(FALSE, FALSE);
+    }
+    return array(FALSE, FALSE);
   }
 
   /**
@@ -174,7 +181,7 @@ class Canvas {
    * @param array $params
    * @return string
    */
-  private function _buildQuery($params){
+  private function _buildQuery($params = array()){
 
     $query = [];
     foreach($params as $key=>$param){
