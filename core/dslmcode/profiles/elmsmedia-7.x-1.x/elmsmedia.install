@@ -263,3 +263,10 @@ function elmsmedia_update_7022(&$sandbox) {
   $cfg = _elmsln_core_get_cfg();
   variable_set('file_public_path', 'sites/media/' . $cfg['host'] . '/files');
 }
+
+/**
+ * SVG filter updated to allow gradients.
+ */
+function elmsmedia_update_7023(&$sandbox) {
+  features_revert_module('elmsmedia_svg');
+}
