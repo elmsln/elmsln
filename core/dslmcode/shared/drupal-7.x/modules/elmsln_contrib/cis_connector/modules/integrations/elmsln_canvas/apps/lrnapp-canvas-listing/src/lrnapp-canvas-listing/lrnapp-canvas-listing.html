@@ -8,12 +8,13 @@
     </style>
     <iron-ajax auto
       url="[[sourcePath]]"
-      params=''
+      params='{"return": "courses"}'
       handle-as="json"
       last-response="{{courses}}"></iron-ajax>
-    <template is="dom-repeat" items="[[_toArray(courses.data)]]" as="item">
-      <lrndesign-gallerycard title="{{item.title}}" text="{{item.body}}" url="{{item.url}}" author="{{item.author}}" comments="{{item.comments}}" images="{{item.images}}" image="{{item.image}}" file="{{item.file}}" video="{{item.video}}" link="{{item.link}}">
-      </lrndesign-gallerycard>
+    <template is="dom-repeat" items="[[_toArray(courses.data)]]" as="course">
+    <paper-card heading="{{course.course_code}}">
+      <div>{{course.name}}</div>
+    </paper-card>
     </template>
   </template>
 

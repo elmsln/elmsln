@@ -87,7 +87,7 @@ class Canvas {
       return $data;
     }
 
-    return json_decode($response->data,TRUE);
+    return json_decode($response->data, TRUE);
   }
 
   public function put(){
@@ -98,21 +98,36 @@ class Canvas {
     // support developers overloading the request method, specifically curl
     // as some systems can have issues with SSL configuration and socket connections
     if (variable_get('canvas_api_request_method', 'drupal_http_request') == 'curl' && function_exists('curl_init')) {
+      $headers = array();
+      foreach ($options['headers'] as $property => $value) {
+        $headers[] = $property . ': ' . $value;
+      }
       $curl = curl_init();
       curl_setopt_array($curl, array(
         CURLOPT_URL => $url . '?' . $options['data'],
-        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_RETURNTRANSFER => TRUE,
+        CURLOPT_HEADER => TRUE,
+        CURLOPT_VERBOSE => TRUE,
         CURLOPT_ENCODING => "",
         CURLOPT_MAXREDIRS => 10,
         CURLOPT_TIMEOUT => 30,
         CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
         CURLOPT_CUSTOMREQUEST => $options['method'],
-        CURLOPT_HTTPHEADER => $options['headers']
+        CURLOPT_HTTPHEADER => $headers,
       ));
-      $response = curl_exec($curl);
-      $err = curl_error($curl);
+      $return = curl_exec($curl);
+      $header_size = curl_getinfo($curl, CURLINFO_HEADER_SIZE);
+      $header = substr($return, 0, $header_size);
+      $rawheader = explode("\n", $header);
+      $body = substr($return, $header_size);
       curl_close($curl);
-      $response = json_decode($response);
+      $response = new stdClass();
+      $response->data = $body;
+      foreach ($rawheader as $header) {
+        if (strpos($header, 'Link: ') === 0) {
+          $response->headers['link'] = str_replace('Link: ', '', $header);
+        }
+      }
     }
     // support for httprl which is faster then core and does same thing
     elseif (module_exists('httprl')) {
