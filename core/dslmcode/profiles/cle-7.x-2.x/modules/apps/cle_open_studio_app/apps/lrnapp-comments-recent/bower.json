@@ -6,7 +6,8 @@
     "polymer": "Polymer/polymer#^1.9.0",
     "paper-card": "PolymerElements/paper-card#^2.0.0",
     "paper-tooltip": "PolymerElements/paper-tooltip#^2.0.0",
-    "iron-ajax": "PolymerElements/iron-ajax#^2.0.2"
+    "iron-ajax": "PolymerElements/iron-ajax#^2.0.2",
+    "grain-read-more": "daKmoR/grain-read-more#^0.8.1"
   },
   "devDependencies": {
     "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",

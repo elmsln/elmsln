@@ -38,16 +38,23 @@
         @apply --layout-horizontal;
         @apply --layout-wrap;
       }
-}
-    </style>
 
+      .content {
+        max-height: 4.6em;
+        overflow: hidden;
+      }
+
+      .active {
+        max-height: 40em;
+        overflow: hidden;
+      }
+    </style>
     <paper-card elevation="5" class="flex-wrap">
       <div class="card-content">
         <lrndesign-avatar label="{{commentUser}}"></lrndesign-avatar>
         <h3>{{commentUser}}</h3>
-        <div class="content-wrap">
-        <content class="content"></content>
-        </div>
+          <p id="comment" class="content"><content></content></p>
+          <paper-button raised id="read">Read more</paper-button>
         <h4 class="card-date">Updated: {{dateUpdated}}</h4>
       </div>
       <div class="card-actions">
@@ -68,7 +75,7 @@
           </a>
           <paper-tooltip for="delete" animation-delay="0">Delete comment forever!</paper-tooltip>
         </template>
-        </div>
+      </div>
     </paper-card>
 
   </template>
@@ -110,6 +117,14 @@
         },
 
       },
+
+      ready: function () {
+        var root = this;
+        root.$$('.card-content').addEventListener('click', function (e) {
+              document.getElementById("comment")[0].className = "active";
+        })
+      }
+      
 
     });
   </script>
