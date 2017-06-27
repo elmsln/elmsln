@@ -256,25 +256,25 @@ function elmsmedia_video_strongarm() {
     'extra_fields' => array(
       'form' => array(
         'title' => array(
-          'weight' => '2',
+          'weight' => '1',
         ),
         'path' => array(
-          'weight' => '14',
+          'weight' => '15',
         ),
         'hidden_nodes' => array(
-          'weight' => '13',
+          'weight' => '14',
         ),
         'book' => array(
-          'weight' => '12',
+          'weight' => '13',
         ),
         'options' => array(
-          'weight' => '11',
+          'weight' => '12',
         ),
         'author' => array(
-          'weight' => '9',
+          'weight' => '10',
         ),
         'revision_information' => array(
-          'weight' => '10',
+          'weight' => '11',
         ),
       ),
       'display' => array(),

@@ -22,7 +22,7 @@ function elmsmedia_document_field_default_field_instances() {
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 1,
+        'weight' => 2,
       ),
       'document' => array(
         'label' => 'above',
@@ -83,6 +83,74 @@ function elmsmedia_document_field_default_field_instances() {
     ),
   );
 
+  // Exported field_instance: 'node-document-field_citation'.
+  $field_instances['node-document-field_citation'] = array(
+    'bundle' => 'document',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'text',
+        'settings' => array(),
+        'type' => 'text_default',
+        'weight' => 1,
+      ),
+      'document' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+      'full' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_citation',
+    'label' => 'Citation',
+    'required' => 0,
+    'settings' => array(
+      'better_formats' => array(
+        'allowed_formats' => array(
+          'plain_text' => 'plain_text',
+          'simple_text' => 'simple_text',
+          'textbook_editor' => 'textbook_editor',
+        ),
+        'allowed_formats_toggle' => 0,
+        'default_order_toggle' => 0,
+        'default_order_wrapper' => array(
+          'formats' => array(
+            'plain_text' => array(
+              'weight' => 10,
+            ),
+            'simple_text' => array(
+              'weight' => 0,
+            ),
+            'textbook_editor' => array(
+              'weight' => -10,
+            ),
+          ),
+        ),
+      ),
+      'text_processing' => 0,
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'text',
+      'settings' => array(
+        'size' => 60,
+      ),
+      'type' => 'text_textfield',
+      'weight' => 3,
+    ),
+  );
+
   // Exported field_instance: 'node-document-field_document_file'.
   $field_instances['node-document-field_document_file'] = array(
     'bundle' => 'document',
@@ -124,7 +192,7 @@ function elmsmedia_document_field_default_field_instances() {
     'settings' => array(
       'description_field' => 0,
       'file_directory' => 'documents',
-      'file_extensions' => 'txt pdf doc docx xls xlsx ppt pptx',
+      'file_extensions' => 'txt pdf doc docx xls xlsx ppt pptx swf kml zip csv',
       'max_filesize' => '',
       'user_register_form' => FALSE,
     ),
@@ -135,7 +203,7 @@ function elmsmedia_document_field_default_field_instances() {
         'progress_indicator' => 'bar',
       ),
       'type' => 'file_generic',
-      'weight' => 3,
+      'weight' => 4,
     ),
   );
 
@@ -150,7 +218,7 @@ function elmsmedia_document_field_default_field_instances() {
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 3,
+        'weight' => 4,
       ),
       'document' => array(
         'label' => 'above',
@@ -221,7 +289,7 @@ function elmsmedia_document_field_default_field_instances() {
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 2,
+        'weight' => 3,
       ),
       'document' => array(
         'label' => 'above',
@@ -305,12 +373,13 @@ function elmsmedia_document_field_default_field_instances() {
       'module' => 'og',
       'settings' => array(),
       'type' => 'og_complex',
-      'weight' => 4,
+      'weight' => 5,
     ),
   );
 
   // Translatables
   // Included for use with string extractors like potx.
+  t('Citation');
   t('Course');
   t('File');
   t('Section');

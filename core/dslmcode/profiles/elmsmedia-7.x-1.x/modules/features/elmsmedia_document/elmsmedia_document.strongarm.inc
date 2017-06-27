@@ -259,22 +259,22 @@ function elmsmedia_document_strongarm() {
           'weight' => '1',
         ),
         'path' => array(
-          'weight' => '5',
+          'weight' => '6',
         ),
         'hidden_nodes' => array(
-          'weight' => '9',
-        ),
-        'book' => array(
           'weight' => '10',
         ),
-        'options' => array(
-          'weight' => '7',
+        'book' => array(
+          'weight' => '11',
         ),
-        'author' => array(
+        'options' => array(
           'weight' => '8',
         ),
+        'author' => array(
+          'weight' => '9',
+        ),
         'revision_information' => array(
-          'weight' => '6',
+          'weight' => '7',
         ),
       ),
       'display' => array(),

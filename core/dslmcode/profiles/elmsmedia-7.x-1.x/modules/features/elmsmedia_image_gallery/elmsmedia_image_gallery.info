@@ -11,6 +11,7 @@ dependencies[] = features
 dependencies[] = image
 dependencies[] = inline_entity_form
 dependencies[] = og
+dependencies[] = options
 dependencies[] = strongarm
 features[ctools][] = ds:ds:1
 features[ctools][] = strongarm:strongarm:1

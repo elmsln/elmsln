@@ -259,22 +259,22 @@ function elmsmedia_audio_strongarm() {
           'weight' => '2',
         ),
         'path' => array(
-          'weight' => '6',
+          'weight' => '7',
         ),
         'hidden_nodes' => array(
-          'weight' => '10',
-        ),
-        'book' => array(
           'weight' => '11',
         ),
-        'options' => array(
-          'weight' => '8',
+        'book' => array(
+          'weight' => '12',
         ),
-        'author' => array(
+        'options' => array(
           'weight' => '9',
         ),
+        'author' => array(
+          'weight' => '10',
+        ),
         'revision_information' => array(
-          'weight' => '7',
+          'weight' => '8',
         ),
       ),
       'display' => array(),

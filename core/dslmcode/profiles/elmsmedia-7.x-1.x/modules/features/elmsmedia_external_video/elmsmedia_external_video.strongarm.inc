@@ -259,7 +259,7 @@ function elmsmedia_external_video_strongarm() {
           'weight' => '2',
         ),
         'path' => array(
-          'weight' => '8',
+          'weight' => '9',
         ),
         'hidden_nodes' => array(
           'weight' => '13',
