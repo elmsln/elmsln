@@ -1,0 +1,45 @@
+<dom-module id="lrnapp-canvas-listing">
+  <template>
+    <style include="materializecss-styles"></style>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+    <iron-ajax auto
+      url="[[sourcePath]]"
+      params=''
+      handle-as="json"
+      last-response="{{courses}}"></iron-ajax>
+    <template is="dom-repeat" items="[[_toArray(courses.data)]]" as="item">
+      <lrndesign-gallerycard title="{{item.title}}" text="{{item.body}}" url="{{item.url}}" author="{{item.author}}" comments="{{item.comments}}" images="{{item.images}}" image="{{item.image}}" file="{{item.file}}" video="{{item.video}}" link="{{item.link}}">
+      </lrndesign-gallerycard>
+    </template>
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'lrnapp-canvas-listing',
+
+      properties: {
+        courses: {
+          type: Array,
+          notify: true,
+        },
+        sourcePath: {
+          type: String,
+          notify: true,
+        }
+      },
+      /**
+       * Simple way to convert from object to array.
+       */
+      _toArray: function(obj) {
+        return Object.keys(obj).map(function(key) {
+          return obj[key];
+        });
+      },
+    });
+  </script>
+</dom-module>

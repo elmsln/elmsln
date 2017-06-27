@@ -2,4 +2,5 @@ name = "ELMSLN: Canvas LMS Integration"
 description = "Integration with the Legacy construct known as an LMS."
 core = 7.x
 dependencies[] = canvas_api
+dependencies[] = webcomponents_app
 files[] = elmsln_canvas.module

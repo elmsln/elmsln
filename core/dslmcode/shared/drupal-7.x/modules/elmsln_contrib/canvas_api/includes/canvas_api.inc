@@ -63,28 +63,19 @@ class Canvas {
       'method' => $method,
       'data' => $query,
     );
-    // support httprl for faster calls if available
-    if (module_exists('httprl')) {
-      httprl_request($url, $options);
-      // send the request off
-      $tmp = httprl_send_request();
-      $response = array_pop($tmp);
-    }
-    else {
-      $response = drupal_http_request($url, $options);
-    }
+    $response = $this->_makeRequest($url, $options);
     // Canvas limits the number of responses returned in a GET request. If we pass
     // per_page=100, we can get up to 100, but that's all; if there are more,
     // we need to get the "next" page, which is passed in the Link: attribute
     // in the response header.
-    if($method == 'get'){
+    if ($method == 'get') {
       $data = json_decode($response->data, TRUE);
       list($next, $max) = $this->_getNextURL($response);
       // We use a counter as a failsafe to this becoming an infinite loop.
       $i = 0;
       // ensure we have something to walk and we don't go above max results
-      while($next && ($i < $max)) {
-        $response = drupal_http_request($next, $options);
+      while ($next && ($i < $max)) {
+        $response = $this->_makeRequest($next, $options);
         $data = array_merge($data, json_decode($response->data, TRUE));
         list($next, $tmp) = $this->_getNextURL($response);
         $i++;
@@ -101,6 +92,40 @@ class Canvas {
 
   public function put(){
     return $this->_getResponse('put');
+  }
+
+  public function _makeRequest($url, $options){
+    // support developers overloading the request method, specifically curl
+    // as some systems can have issues with SSL configuration and socket connections
+    if (variable_get('canvas_api_request_method', 'drupal_http_request') == 'curl' && function_exists('curl_init')) {
+      $curl = curl_init();
+      curl_setopt_array($curl, array(
+        CURLOPT_URL => $url . '?' . $options['data'],
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_ENCODING => "",
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_TIMEOUT => 30,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => $options['method'],
+        CURLOPT_HTTPHEADER => $options['headers']
+      ));
+      $response = curl_exec($curl);
+      $err = curl_error($curl);
+      curl_close($curl);
+      $response = json_decode($response);
+    }
+    // support for httprl which is faster then core and does same thing
+    elseif (module_exists('httprl')) {
+      httprl_request($url, $options);
+      // send the request off
+      $tmp = httprl_send_request();
+      $response = array_pop($tmp);
+    }
+    else {
+      // original fallback
+      $response = drupal_http_request($url, $options);
+    }
+    return $response;
   }
 
   public function post(){
@@ -194,6 +219,6 @@ class Canvas {
         $query[] = $key . '=' . $param;
       }
     }
-    return implode('&',$query);
+    return implode('&', $query);
   }
 }
