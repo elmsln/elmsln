@@ -182,6 +182,9 @@ function _webcomponents_app_load_app($machine_name = NULL, $debug = FALSE) {
   $return = '';
   $vars = array();
   $app = webcomponents_app_load_app_definitions($machine_name);
+  // set a custom is_app property so other render alters can realize
+  // this is an app rendering being modified and not a normal page component
+  $app['is_app'] = TRUE;
   // ensure this exists
   if (!empty($machine_name) && !empty($app)) {
     // form the base path for loading the app
