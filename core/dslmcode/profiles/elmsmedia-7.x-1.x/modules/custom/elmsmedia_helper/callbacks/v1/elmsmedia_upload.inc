@@ -22,7 +22,6 @@ function elmsmedia_helper_elmsln_api_callback_elmsmedia_upload() {
     $account = user_load_by_name($params['user']);
     // special handling of video and audio since these files are bigger
     if ($upload['type'][0] == 'video' || $upload['type'][0] == 'audio') {
-      // @todo this won't work with giant files or on low resource
       $file = new stdClass();
       $file->filename = $upload['name'];
       $file->uri = $params['file_data'];
