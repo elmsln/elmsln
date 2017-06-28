@@ -1929,3 +1929,13 @@ function elmsln_core_webcomponents() {
   // group these all as files found to match polymer format
   return array(WEBCOMPONENTS_POLYMER_NAME => $files);
 }
+
+/**
+ * Implements hook_gbm_book_root_path_alter().
+ */
+function elmsln_core_gbm_book_root_path_alter(&$path) {
+  // make sure heavily cached markdown paths don't accidentally
+  // have the service url in them
+  $cfg = _elmsln_core_get_cfg();
+  $path = str_replace($cfg['dataprotocol'] . '://' . $cfg['serviceprefix'], $cfg['protocol'] . '://', $path);
+}
