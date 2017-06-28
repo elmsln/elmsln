@@ -70,7 +70,7 @@ var clipboardjs = require('./components/clipboardjs.js');
       $(".accessibility-content-toggle").hide();
     }
   };
-  Drupal.settings.progressScroll ={scroll:0, total:0, scrollPercent:0};
+  Drupal.settings.progressScroll ={scroll:0, total:0, scrollPercent:0, windowDividedByDocumentPercent:($(window).height() / $(document).height()) * 100,};
   // sticky stuff
   Drupal.behaviors.stickyStuff = {
     attach: function (context, settings) {
@@ -81,18 +81,22 @@ var clipboardjs = require('./components/clipboardjs.js');
   // Page Scrolling Progress Bar
   Drupal.progressScroll = {
     attach: function (context, settings) {
-      // don't use the top bar in the calculation
-      if ($(window).height() > $("#etb-tool-nav .inner-wrap", context)[0].offsetHeight) {
-        Drupal.settings.progressScroll.scroll = $(window).scrollTop();
-        Drupal.settings.progressScroll.total = $("#etb-tool-nav", context)[0].offsetTop;
+      // Only show the progressScoll if the height of the browser viewport / height of the html document is less than or equal to 50%.
+      // (The page is at least 2x the height of the monitor.)
+      if (Drupal.settings.progressScroll.windowDividedByDocumentPercent <= 50) {
+        // don't use the top bar in the calculation
+        if ($(window).height() > $("#etb-tool-nav .inner-wrap", context)[0].offsetHeight) {
+          Drupal.settings.progressScroll.scroll = $(window).scrollTop();
+          Drupal.settings.progressScroll.total = $("#etb-tool-nav", context)[0].offsetTop;
+        }
+        else {
+          Drupal.settings.progressScroll.scroll = $(window).scrollTop() - $("#etb-tool-nav", context)[0].offsetTop;
+          Drupal.settings.progressScroll.total = $("#etb-tool-nav .inner-wrap", context)[0].offsetHeight - $(window).height();
+        }
+        Drupal.settings.progressScroll.scrollPercent = (Drupal.settings.progressScroll.scroll / Drupal.settings.progressScroll.total)*100;
+        // set percentage of the meter to the scroll down the screen
+        $(".page-scroll.progress .meter", context).css({"width": Drupal.settings.progressScroll.scrollPercent+"%"});
       }
-      else {
-        Drupal.settings.progressScroll.scroll = $(window).scrollTop() - $("#etb-tool-nav", context)[0].offsetTop;
-        Drupal.settings.progressScroll.total = $("#etb-tool-nav .inner-wrap", context)[0].offsetHeight - $(window).height();
-      }
-      Drupal.settings.progressScroll.scrollPercent = (Drupal.settings.progressScroll.scroll / Drupal.settings.progressScroll.total)*100;
-      // set percentage of the meter to the scroll down the screen
-      $(".page-scroll.progress .meter", context).css({"width": Drupal.settings.progressScroll.scrollPercent+"%"});
     }
   };
 
