@@ -38,24 +38,29 @@
         @apply --layout-horizontal;
         @apply --layout-wrap;
       }
-
-      .content {
-        max-height: 4.6em;
+      .inactive {
+        height: 4.6em;
         overflow: hidden;
       }
-
       .active {
-        max-height: 40em;
-        overflow: hidden;
+        height: 100%;
+      }
+      paper-button {
+        margin: 1em;
       }
     </style>
     <paper-card elevation="5" class="flex-wrap">
       <div class="card-content">
         <lrndesign-avatar label="{{commentUser}}"></lrndesign-avatar>
         <h3>{{commentUser}}</h3>
-          <p id="comment" class="content"><content></content></p>
-          <paper-button raised id="read">Read more</paper-button>
-        <h4 class="card-date">Updated: {{dateUpdated}}</h4>
+
+        <div class="button-wrapper">
+          <div id="comment" class="inactive">
+            <content></content>
+          </div>
+          <paper-button id="btn" raised>View More</paper-button>
+        </div>
+        <h4>Updated: {{dateUpdated}}</h4>
       </div>
       <div class="card-actions">
         <template is="dom-if" if="{{actionView}}">
@@ -117,15 +122,18 @@
         },
 
       },
-
       ready: function () {
         var root = this;
-        root.$$('.card-content').addEventListener('click', function (e) {
-              document.getElementById("comment")[0].className = "active";
-        })
+        root.$$('.button-wrapper').addEventListener('click', function (e) {
+          var target = e.target
+          if (target) {
+            var comment = document.getElementById("comment");
+            var btn = document.getElementById("btn");
+            comment.className = "active";
+            btn.innerHTML = "View Less";
+          }
+        });
       }
-      
-
     });
   </script>
 </dom-module>
