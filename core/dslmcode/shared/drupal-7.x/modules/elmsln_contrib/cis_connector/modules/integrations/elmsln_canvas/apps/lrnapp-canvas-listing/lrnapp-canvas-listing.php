@@ -6,13 +6,18 @@
  * @return array               data to be json encoded for the front end
  */
 function _elmsln_canvas_course_list($machine_name, $app_route, $params, $args) {
+  // @todo return a cross section of courses that are mapped in the system
+  // and those that aren't yet
+  // Click to expand w/ the sections available in each (no roster querying)
+  // Clicking to expand those can do a individual section query to pull up some more stats
   if ($params['return'] == 'courses') {
     $canvas = canvas_api('courses');
     $return = $canvas->getCourse(NULL);
   }
   else if ($params['return'] == 'sections') {
     $canvas = canvas_api('courses');
-    $return = $canvas->getCourse(NULL);
+    $courses = $canvas->getCourse(NULL);
+    $sections = array();
     foreach ($courses as $course) {
       $canvas = canvas_api('sections');
       $sections[] = $canvas->sectionsByCourseID('sis_course_id:' . $course['sis_course_id']);
@@ -20,6 +25,8 @@ function _elmsln_canvas_course_list($machine_name, $app_route, $params, $args) {
     $return = $sections;
   }
   else if ($params['return'] == 'rosters') {
+    $canvas = canvas_api('courses');
+    $courses = $canvas->getCourse(NULL);
     foreach ($courses as $course) {
       $canvas = canvas_api('sections');
       $sections = $canvas->sectionsByCourseID('sis_course_id:' . $course['sis_course_id']);
