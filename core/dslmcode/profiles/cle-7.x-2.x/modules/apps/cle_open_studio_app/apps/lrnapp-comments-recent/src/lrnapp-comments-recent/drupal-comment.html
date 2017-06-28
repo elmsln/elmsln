@@ -38,15 +38,21 @@
         @apply --layout-horizontal;
         @apply --layout-wrap;
       }
+
       .inactive {
-        height: 4.6em;
+        max-height: 4.6em;
         overflow: hidden;
       }
-      .active {
-        height: 100%;
-      }
+
       paper-button {
-        margin: 1em;
+        background: white;
+        width: 100%;
+        display: flex;
+      }
+
+      lrn-icon {
+        color: black;
+        width: 100%;
       }
     </style>
     <paper-card elevation="5" class="flex-wrap">
@@ -58,7 +64,9 @@
           <div id="comment" class="inactive">
             <content></content>
           </div>
-          <paper-button id="btn" raised>View More</paper-button>
+          <paper-button id="btn">
+            <lrn-icon icon="chevron-down"></lrn-icon>
+          </paper-button>
         </div>
         <h4>Updated: {{dateUpdated}}</h4>
       </div>
@@ -124,13 +132,13 @@
       },
       ready: function () {
         var root = this;
+        var comment = root.$$('#comment');
+        var btn = root.$$('#btn');
+
         root.$$('.button-wrapper').addEventListener('click', function (e) {
           var target = e.target
           if (target) {
-            var comment = document.getElementById("comment");
-            var btn = document.getElementById("btn");
-            comment.className = "active";
-            btn.innerHTML = "View Less";
+            comment.classList.toggle('inactive', this.inactive)
           }
         });
       }
