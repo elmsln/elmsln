@@ -1722,3 +1722,14 @@ function cis_helper_file_delete($file) {
     ->execute()
     ->fetchField();
 }
+
+/**
+ * Implements hook_wrapped_paths().
+ */
+function cis_helper_wrapped_paths() {
+  $paths = array(
+    // don't wrap any app
+    'apps/*' => FALSE,
+  );
+  return $paths;
+}

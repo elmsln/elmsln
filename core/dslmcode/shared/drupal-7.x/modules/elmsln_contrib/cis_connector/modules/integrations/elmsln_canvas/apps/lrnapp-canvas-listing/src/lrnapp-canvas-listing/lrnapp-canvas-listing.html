@@ -5,17 +5,58 @@
       :host {
         display: block;
       }
+      paper-card {
+        width: 20rem;
+      }
+      paper-card .header {
+        max-height: 15rem;
+      }
     </style>
     <iron-ajax auto
       url="[[sourcePath]]"
       params='{"return": "courses"}'
       handle-as="json"
-      last-response="{{courses}}"></iron-ajax>
-    <template is="dom-repeat" items="[[_toArray(courses.data)]]" as="course">
-    <paper-card heading="{{course.course_code}}">
-      <div>{{course.name}}</div>
-    </paper-card>
+      on-response="handleResponse"
+      last-response="{{queryResponse}}"></iron-ajax>
+    <div id="loading">
+      <p>Loading..</p>
+      <elmsln-loading color="grey-text" size="epic"></elmsln-loading>
+    </div>
+    <template is="dom-repeat" items="[[_toArray(courses)]]" as="course">
+      <paper-card image="{{course.image}}">
+        <div class="card-content">
+          <div>{{course.name}}</div>
+        </div>
+        <div class="card-actions">
+          <paper-button raised on-click="_triggerDialog" id$="{{course.sis_course_id}}">{{course.sections}} sections</paper-button>
+          <paper-button>{{course.student_count}} students</paper-button>
+        <div>Workflow: {{course.workflow_state}}</div>
+      </paper-card>
     </template>
+    <paper-dialog id="dialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation">
+      <h2>{{activeCourse.name}}</h2>
+      <paper-dialog-scrollable id="dialogResponse">
+        <div>{{activeCourse.sections}} sections</div>
+        <div>{{activeCourse.student_count}} students</div>
+        <div>SIS ID: {{activeCourse.sis_course_id}}</div>
+        <div>Workflow: {{activeCourse.workflow_state}}</div>
+      </paper-dialog-scrollable>
+      <div id="loadingRoster">
+        <p>Loading..</p>
+        <elmsln-loading color="grey-text" size="epic"></elmsln-loading>
+      </div>
+      <template is="dom-repeat" items="[[_toArray(roster)]]" as="user">
+        <lrndesign-avatar label$={{user.name}} jdenticon></lrndesign-avatar>
+        {{user.name}}
+      </template>
+      <iron-ajax
+      id="request"
+      url="[[sourcePath]]"
+      params='{"return": "users"}'
+      handle-as="json"
+      on-response="handleRosterResponse"
+      last-response="{{queryResponse}}"></iron-ajax>
+    </paper-dialog>
   </template>
 
   <script>
@@ -28,9 +69,22 @@
           type: Array,
           notify: true,
         },
+        roster: {
+          type: Array,
+          notify: true,
+        },
+        queryResponse: {
+          type: Array,
+          notify: true,
+        },
         sourcePath: {
           type: String,
           notify: true,
+        },
+        activeCourse: {
+          type: String,
+          notify: true,
+          reflectToAttribute: true,
         }
       },
       /**
@@ -41,6 +95,23 @@
           return obj[key];
         });
       },
+      _triggerDialog: function(e) {
+        let root = this;
+        root.activeCourse = root.courses[e.target.id];
+        root.$$('#request').params['sis_course_id'] = root.activeCourse.sis_course_id;
+        root.$$('#request').generateRequest();
+        this.$$('#dialog').toggle();
+      },
+      handleResponse: function() {
+        let root = this;
+        root.courses = root.queryResponse.data;
+        root.$$('#loading').innerHTML = '';
+      },
+      handleRosterResponse: function() {
+        let root = this;
+        root.roster = root.queryResponse.data;
+        root.$$('#loadingRoster').innerHTML = '';
+      }
     });
   </script>
 </dom-module>
