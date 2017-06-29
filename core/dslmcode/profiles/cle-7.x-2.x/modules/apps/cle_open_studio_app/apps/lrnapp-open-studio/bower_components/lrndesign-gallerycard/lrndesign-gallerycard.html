@@ -222,6 +222,11 @@ that can pop up to display more info
         color: var(--paper-grey-600);
       }
 
+      .assign {
+        width: 100%;
+        margin: 1em auto 2em auto;
+      }
+
       .assign h3 {
         color: var(--paper-grey-800);
       }
@@ -229,6 +234,7 @@ that can pop up to display more info
       .assign p {
         width: 80%;
         margin: 1em auto 2em auto;
+        text-align: left;
       }
 
       .assign img {
@@ -306,7 +312,9 @@ that can pop up to display more info
           <p>{{text}}</p>
         </template>
         <template is="dom-if" if="{{link}}">
-          <a href="{{link}}">{{link}}</a>
+          <div class="center">
+          <a href="{{link}}"></a>
+          </div>
         </template>
         <template is="dom-if" if="{{file}}">
           <span>{{file}}</span>
