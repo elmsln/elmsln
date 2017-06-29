@@ -294,6 +294,7 @@ ul.book-navigation-wrapper {
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
+  z-index: 1;
 }
 .book-sibling-parent-pagination-wrapper {
   margin-left: auto;

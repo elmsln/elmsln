@@ -277,7 +277,7 @@ function foundation_access_fieldset($variables) {
         // form the fieldset as a collapse element
         $output = '
         <li class="collapsible-li">
-          <a id="collapse-item-id-' . $anchor . '" href="#collapse-item-' . $anchor . '" class="collapsible-header' . $collapse . '"' . drupal_attributes($element['#attributes']) .'><paper-button>' .
+          <a tabindex="-1" id="collapse-item-id-' . $anchor . '" href="#collapse-item-' . $anchor . '" class="collapsible-header' . $collapse . '"' . drupal_attributes($element['#attributes']) .'><paper-button>' .
             $icon . $element['#title'] .
           '</paper-button>
           </a>
@@ -567,12 +567,9 @@ function foundation_access_button($variables) {
   $element = $variables['element'];
   $element['#attributes']['type'] = 'submit';
   element_set_attributes($element, array('id', 'name', 'value'));
-
-  $element['#attributes']['class'][] = 'form-' . $element['#button_type'];
   if (!empty($element['#attributes']['disabled'])) {
     $element['#attributes']['class'][] = 'form-button-disabled';
   }
-  $element['#attributes']['class'][] = 'btn';
   // wrap classes on an upload button
   if ($variables['element']['#value'] == 'Upload') {
     return '
