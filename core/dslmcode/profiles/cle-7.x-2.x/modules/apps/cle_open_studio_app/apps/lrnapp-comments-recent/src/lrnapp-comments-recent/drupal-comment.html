@@ -1,3 +1,5 @@
+<link rel="import" href="../iron-resizable-behavior/iron-resizable-behavior.html">
+
 <dom-module id="drupal-comment">
   <template>
     <style>
@@ -54,17 +56,20 @@
         color: black;
         width: 100%;
       }
+
+      .hidden {
+        display: none;
+      }
     </style>
     <paper-card elevation="5" class="flex-wrap">
       <div class="card-content">
         <lrndesign-avatar label="{{commentUser}}"></lrndesign-avatar>
         <h3>{{commentUser}}</h3>
-
         <div class="button-wrapper">
           <div id="comment" class="inactive">
             <content></content>
           </div>
-          <paper-button id="btn">
+          <paper-button id="btn" class="hidden">
             <lrn-icon icon="chevron-down"></lrn-icon>
           </paper-button>
         </div>
@@ -95,6 +100,21 @@
   <script>
     Polymer({
       is: 'drupal-comment',
+
+      behaviors: [Polymer.IronResizableBehavior],
+
+      listeners: {
+        "iron-resize": "onHeightChange"
+      },
+
+      onHeightChange: function () {
+        var height = this.offsetHeight;
+        var btn = this.$$('#btn');
+
+        if (height > 60)
+          btn.classList.toggle('hidden', this.hidden)
+      },
+
       properties: {
         commentTitle: {
           type: String,
@@ -128,7 +148,6 @@
           reflectToAttribute: true,
           notify: true,
         },
-
       },
       ready: function () {
         var root = this;

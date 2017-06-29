@@ -1,0 +1,119 @@
+<script>
+
+	const GrainResponsiveBehavior = subclass => class extends subclass {
+
+		static get observers() {
+			return [
+				'_responsiveChange(isMobile, isTablet, isDesktop)'
+			]
+		}
+
+		static get properties() {
+			return {
+				mobileQuery: {
+					type: String,
+					reflectToAttribute: true,
+					value: '(max-width: 425px)'
+				},
+				tabletQuery: {
+					type: String,
+					reflectToAttribute: true,
+					value: '(min-width: 426px) and (max-width: 1024px)'
+				},
+				desktopQuery: {
+					type: String,
+					reflectToAttribute: true,
+					value: '(min-width: 1025px)'
+				},
+
+				isMobile: { type: Boolean, reflectToAttribute: true },
+				isTablet: { type: Boolean, reflectToAttribute: true },
+				isDesktop: { type: Boolean, reflectToAttribute: true }
+			};
+		}
+
+		constructor() {
+			super();
+			this.__responsivePropertieNames = [];
+		}
+
+		_mqChanged(property, mq) {
+			this[property] = mq.matches;
+		}
+
+		connectedCallback() {
+			super.connectedCallback();
+			this.initMediaQueryProperties('mobileQuery', 'isMobile');
+			this.initMediaQueryProperties('tabletQuery', 'isTablet');
+			this.initMediaQueryProperties('desktopQuery', 'isDesktop');
+		}
+
+		initMediaQueryProperties(queryStringProperty, propertyName) {
+			let queryObjectName = '_' + queryStringProperty;
+			let boundMqChangedName = '_boundMqChanged' + propertyName;
+
+			this[queryObjectName] = window.matchMedia(this[queryStringProperty]);
+			this[propertyName] = this[queryObjectName].matches;
+
+			this[boundMqChangedName] = this._mqChanged.bind(this, propertyName);
+			this[queryObjectName].addListener(this[boundMqChangedName]);
+		}
+
+		initResponsiveBehaviorFor(propertyName) {
+			let originalPropertyName = '_responsiveStoreOriginal' + propertyName;
+			this[originalPropertyName] = '__replaceMe';
+			this.__responsivePropertieNames.push(propertyName);
+		}
+
+		_responsiveChange(isMobile, isTablet, isDesktop) {
+			// only accept true or false values as IE/Firefox also trigger with undefined and null
+			if (
+				!(isMobile === false || isMobile === true) ||
+				!(isTablet === false || isTablet === true) ||
+				!(isDesktop === false || isDesktop === true)
+			) {
+				return;
+			}
+			// double true or all false are in between values and should be ignored
+			if (
+				(isMobile === true && isTablet === true) ||
+				(isMobile === true && isDesktop === true) ||
+				(isTablet === true && isDesktop === true) ||
+				(isMobile === false && isTablet === false && isDesktop === false)
+			) {
+				return;
+			}
+
+			for (let propertyKey in this.__responsivePropertieNames) {
+				if (this.__responsivePropertieNames.hasOwnProperty(propertyKey)) {
+					let propertyName = this.__responsivePropertieNames[propertyKey];
+					let originalPropertyName = '_responsiveStoreOriginal' + propertyName;
+
+					let mobilePropertyName = 'mobile' + propertyName.charAt(0).toUpperCase() + propertyName.slice(1);
+					if (isMobile && this[mobilePropertyName]) {
+						if (this[originalPropertyName] === '__replaceMe') {
+							this[originalPropertyName] = this[propertyName];
+						}
+						this[propertyName] = this[mobilePropertyName];
+					}
+					let tabletPropertyName = 'tablet' + propertyName.charAt(0).toUpperCase() + propertyName.slice(1);
+					if (isTablet && this[tabletPropertyName]) {
+						if (this[originalPropertyName] === '__replaceMe') {
+							this[originalPropertyName] = this[propertyName];
+						}
+						this[propertyName] = this[tabletPropertyName];
+					}
+					if ((isMobile && !this[mobilePropertyName]) || (isTablet && !this[tabletPropertyName]) || isDesktop) {
+						if (this[originalPropertyName] === '__replaceMe') {
+							this[originalPropertyName] = this[propertyName];
+						}
+						this[propertyName] = this[originalPropertyName];
+					}
+				}
+			}
+
+		}
+
+	};
+
+</script>

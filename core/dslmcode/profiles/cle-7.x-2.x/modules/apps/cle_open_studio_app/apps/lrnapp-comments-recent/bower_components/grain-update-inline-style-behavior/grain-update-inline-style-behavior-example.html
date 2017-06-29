@@ -1,0 +1,29 @@
+<link rel="import" href="../polymer/polymer-element.html">
+<link rel="import" href="../grain-update-inline-style-behavior/grain-update-inline-style-behavior.html">
+
+<dom-module id="grain-update-inline-style-behavior-example">
+	<template>
+		<style>
+			:host {
+				--background: orange;
+				background: var(--background);
+				display: block;
+				padding: 20px;
+			}
+		</style>
+
+		<slot></slot>
+	</template>
+
+	<script>
+
+		class GrainUpdateInlineStyleBehaviorExample extends GrainUpdateInlineStyleBehavior(Polymer.Element) {
+
+			static get is() { return 'grain-update-inline-style-behavior-example' }
+
+		}
+
+		// Register custom element definition using standard platform API
+		customElements.define(GrainUpdateInlineStyleBehaviorExample.is, GrainUpdateInlineStyleBehaviorExample);
+	</script>
+</dom-module>

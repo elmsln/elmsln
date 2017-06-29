@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+
+	<title>grain-read-more test</title>
+
+	<script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+	<script src="../../web-component-tester/browser.js"></script>
+
+	<link rel="import" href="../grain-read-more.html">
+</head>
+<body>
+
+<test-fixture id="BasicTestFixture">
+	<template>
+		<grain-read-more>
+			<h3>Read More</h3>
+			<div slot="more">
+				The Content is only visible if grain-read-more is opened
+			</div>
+		</grain-read-more>
+	</template>
+</test-fixture>
+
+<test-fixture id="OpenedTestFixture">
+	<template>
+		<grain-read-more opened="true">
+			<h3>Read More</h3>
+			<div slot="more">
+				The Content is only visible if grain-read-more is opened
+			</div>
+		</grain-read-more>
+	</template>
+</test-fixture>
+
+<script>
+	suite('grain-read-more', function() {
+
+		test('instantiating the element with default properties works', function() {
+			let element = fixture('BasicTestFixture');
+			assert.equal(element.opened, 'false');
+		});
+
+		test('content is hidden if opened is "false"', function() {
+			let element = fixture('BasicTestFixture');
+			let elementContent = element.shadowRoot.querySelector('#content');
+			assert.equal(elementContent.offsetHeight, 0);
+		});
+
+		test('content is visible if opened is "true"', function(done) {
+			let element = fixture('OpenedTestFixture');
+			let elementContent = element.shadowRoot.querySelector('#content');
+
+			assert.equal(element.opened, 'true');
+			setTimeout(function() {
+				assert.notEqual(elementContent.offsetHeight, 0);
+				done();
+			}, 500);
+		});
+
+	});
+</script>
+
+</body>
+</html>

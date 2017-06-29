@@ -1,0 +1,90 @@
+<link rel="import" href="../polymer/polymer-element.html">
+<link rel="import" href="../grain-responsive-behavior/grain-responsive-behavior.html">
+
+<dom-module id="grain-responsive-behavior-example">
+	<template>
+		<style>
+			:host {
+				--width: 600px;
+				--mobile-width: 100%;
+				--tablet-width: 100%;
+				width: var(--width);
+
+				display: block;
+				background: yellow;
+				padding: 30px;
+				box-sizing: border-box;
+			}
+
+			:host([is-mobile]) {
+				width: var(--mobile-width);
+			}
+			:host([is-tablet]) {
+				width: var(--tablet-width);
+			}
+
+			:host([marked=true]) #marked {
+				display: block;
+			}
+
+			#marked {
+				display: none;
+				background: red;
+				padding: 10px;
+				margin: 10px;
+				box-sizing: border-box;
+				color: #fff;
+			}
+
+			p {
+				margin: 0;
+			}
+		</style>
+
+
+		<slot></slot>
+
+		<br />
+		<br />
+		<div>
+			<p><strong>Info:</strong></p>
+			<p>isMobile: [[isMobile]]</p>
+			<p>isTablet: [[isTablet]]</p>
+			<p>isDesktop: [[isDesktop]]</p>
+		</div>
+
+		<div id="marked">
+			I am marked
+		</div>
+
+	</template>
+
+	<script>
+
+		class GrainResponsiveBehaviorExample extends GrainResponsiveBehavior(Polymer.Element) {
+
+			static get is() { return 'grain-responsive-behavior-example' }
+
+			static get properties() {
+				return {
+					marked: {
+						type: String,
+						reflectToAttribute: true,
+						value: 'false', // 'true', 'false'
+					},
+					mobileMarked: { type: String, reflectToAttribute: true },
+					tabletMarked: { type: String, reflectToAttribute: true },
+				};
+			}
+
+			constructor() {
+				super();
+				this.initResponsiveBehaviorFor('marked');
+			}
+
+		}
+
+		// Register custom element definition using standard platform API
+		customElements.define(GrainResponsiveBehaviorExample.is, GrainResponsiveBehaviorExample);
+	</script>
+</dom-module>
