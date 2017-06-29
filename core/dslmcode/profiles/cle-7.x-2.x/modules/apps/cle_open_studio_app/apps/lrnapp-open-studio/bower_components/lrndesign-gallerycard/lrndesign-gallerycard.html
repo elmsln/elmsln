@@ -303,11 +303,10 @@ that can pop up to display more info
           <img src="{{image}}">
         </template>
         <template is="dom-if" if="{{text}}">
-          <p>{{text}} {{link}}</p>
+          <p>{{text}}</p>
         </template>
         <template is="dom-if" if="{{link}}">
-          {{link}} this is a link
-         <lrn-icon icon="comment"></lrn-icon><a href="{{link}}">{{link}}</a>
+          <a href="{{link}}">{{link}}</a>
         </template>
         <template is="dom-if" if="{{file}}">
           <span>{{file}}</span>
@@ -315,7 +314,7 @@ that can pop up to display more info
         <template is="dom-if" if="{{video}}">
           <span>{{video}}</span>
         </template>
-        <span class="comments">[[comments]]<lrn-icon icon="comment"></lrn-icon></span>
+        <a href="#" tabindex="-1"><span class="comments">[[comments]]<lrn-icon icon="comment"></lrn-icon></span></a>
         <hr>
       </paper-dialog-scrollable>
       <!-- End Repeat -->
