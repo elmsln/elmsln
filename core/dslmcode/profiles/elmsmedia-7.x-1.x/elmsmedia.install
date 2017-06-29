@@ -277,3 +277,22 @@ function elmsmedia_update_7023(&$sandbox) {
   features_revert_module('elmsmedia_svg');
   features_revert_module('elmsmedia_video');
 }
+
+/**
+ * Data model simplification.
+ */
+function elmsmedia_update_7024(&$sandbox) {
+  features_revert_module('elmsmedia_audio');
+  features_revert_module('elmsmedia_document');
+  features_revert_module('elmsmedia_external_video');
+  features_revert_module('elmsmedia_image');
+  features_revert_module('elmsmedia_image_gallery');
+  features_revert_module('elmsmedia_list');
+  features_revert_module('elmsmedia_svg');
+  features_revert_module('elmsmedia_static_content');
+  features_revert_module('elmsmedia_video');
+  features_revert_module('elmsmedia_feature');
+  features_revert_module('elmsmedia_figure_label');
+  features_revert_module('elmsmedia_h5p');
+  module_disable(array('cis_section', 'elmsmedia_section_perms'));
+}
