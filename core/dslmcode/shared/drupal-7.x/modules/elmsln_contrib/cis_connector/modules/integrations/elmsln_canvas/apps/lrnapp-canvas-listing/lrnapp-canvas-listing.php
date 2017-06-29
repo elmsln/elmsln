@@ -43,7 +43,21 @@ function _elmsln_canvas_course_list($machine_name, $app_route, $params, $args) {
         'enrollments',
       ),
     );
-    $return = $canvas->usersByCourse('sis_course_id:' . $params['sis_course_id']);
+    $users = $canvas->usersByCourse('sis_course_id:' . $params['sis_course_id']);
+    foreach ($users as $user) {
+      if (isset($user['enrollments'][0]['type'])) {
+        $username = _elmsln_canvas_scrub_sis_user($user['sis_user_id']);
+        $role = _elmsln_canvas_convert_role($user['enrollments'][0]['type']);
+        $roster[$role]['role'] = $role;
+        $roster[$role]['users'][$username] = array(
+          'name' => $user['sortable_name'],
+          'picture' => $user['avatar_url'],
+          'email' => $user['sis_user_id'],
+          'id' => $user['id'],
+        );
+      }
+    }
+    $return = $roster;
     /*$canvas = canvas_api('sections');
     $canvas->params['include'] = array(
       'students',

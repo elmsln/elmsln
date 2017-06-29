@@ -8,6 +8,14 @@
       paper-card {
         width: 20rem;
       }
+      lrndesign-avatar {
+        display:inline-block;
+      }
+      .avatar-name {
+        line-height: 2em;
+        margin: 0;
+        display:inline-block;
+      }
     </style>
     <iron-ajax auto
       url="[[sourcePath]]"
@@ -33,19 +41,22 @@
     <paper-dialog id="dialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation">
       <h2>{{activeCourse.name}}</h2>
       <paper-dialog-scrollable id="dialogResponse">
+        <div id="loadingRoster"></div>
         <div>{{activeCourse.sections}} sections</div>
         <div>{{activeCourse.student_count}} students</div>
         <div>SIS ID: {{activeCourse.sis_course_id}}</div>
         <div>Workflow: {{activeCourse.workflow_state}}</div>
+        <template is="dom-repeat" items="[[_toArray(roster)]]" as="roleList">
+          <h3>{{roleList.role}}</h3>
+          <template is="dom-repeat" items="[[_toArray(roleList.users)]]" as="user">
+            <div class="avatar-name" id$="user{{user.id}}">
+              <lrndesign-avatar label$="{{user.name}}" jdenticon src$="{{user.picture}}"></lrndesign-avatar>
+              <span>{{user.name}}</span>
+            </div>
+            <paper-tooltip for$="user{{user.id}}">{{user.email}}</paper-tooltip>
+          </template>
+        </template>
       </paper-dialog-scrollable>
-      <div id="loadingRoster">
-        <p>Loading..</p>
-        <elmsln-loading color="grey-text" size="epic"></elmsln-loading>
-      </div>
-      <template is="dom-repeat" items="[[_toArray(roster)]]" as="user">
-        <lrndesign-avatar label$={{user.name}} jdenticon></lrndesign-avatar>
-        {{user.name}}
-      </template>
       <iron-ajax
       id="request"
       url="[[sourcePath]]"
@@ -97,7 +108,8 @@
         root.activeCourse = root.courses[e.target.id];
         root.$$('#request').params['sis_course_id'] = root.activeCourse.sis_course_id;
         root.$$('#request').generateRequest();
-        this.$$('#dialog').toggle();
+        root.$$('#loadingRoster').innerHTML = '<p>Loading..</p><elmsln-loading color="grey-text" size="epic"></elmsln-loading>';
+        root.$$('#dialog').toggle();
       },
       handleResponse: function() {
         let root = this;
