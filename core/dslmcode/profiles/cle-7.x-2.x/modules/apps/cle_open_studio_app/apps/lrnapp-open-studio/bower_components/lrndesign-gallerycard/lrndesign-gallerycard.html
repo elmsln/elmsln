@@ -224,7 +224,7 @@ that can pop up to display more info
 
       .assign {
         width: 100%;
-        margin: 1em auto 2em auto;
+        margin: 1em auto 1em auto;
       }
 
       .assign h3 {
@@ -233,13 +233,25 @@ that can pop up to display more info
 
       .assign p {
         width: 80%;
-        margin: 1em auto 2em auto;
+        margin: 1em auto 1em auto;
         text-align: left;
       }
 
-      .assign img {
-        display: block;
-        margin: 2em auto 2em auto;
+      #containOne {
+        width: 10em;
+        height: 10em;
+        background: #ddd;
+      }
+
+      #containMore {
+        width: 10em;
+        height: 10em;
+        background: #ddd;
+      }
+
+      .center {
+        width: 45%;
+        margin: 1em auto 1em auto;
       }
     </style>
     <paper-card elevation="[[elevation]]">
@@ -305,25 +317,41 @@ that can pop up to display more info
       <!-- This will need to be repeated for each assignment -->
       <paper-dialog-scrollable class="assign" id="dialogResponse">
         <h3 class="text-center">{{title}}</h3>
+
         <template is="dom-if" if="{{image}}">
-          <img src="{{image}}">
+          <iron-image sizing="contain" id="containOne" src="{{image}}"></iron-image>
         </template>
+
+        <template is="dom-if" if="{{images}}">
+          <template is="dom-repeat" items="[[_toArray(images)]]">
+            <iron-image sizing="contain" id="containMore" src="[[item]]"></iron-image>
+          </template>
+        </template>
+
+        <template is="dom-if" if="{{video}}">
+          <div class="center">
+            <iframe src="{{video}}" align="center"></iframe>
+          </div>
+        </template>
+
         <template is="dom-if" if="{{text}}">
           <p>{{text}}</p>
         </template>
+
         <template is="dom-if" if="{{link}}">
           <div class="center">
-          <a href="{{link}}"></a>
+            <a href="{{link}}"></a>
           </div>
         </template>
+
         <template is="dom-if" if="{{file}}">
           <span>{{file}}</span>
         </template>
-        <template is="dom-if" if="{{video}}">
-          <span>{{video}}</span>
-        </template>
+
         <a href="#" tabindex="-1"><span class="comments">[[comments]]<lrn-icon icon="comment"></lrn-icon></span></a>
+
         <hr>
+
       </paper-dialog-scrollable>
       <!-- End Repeat -->
 
@@ -474,6 +502,11 @@ that can pop up to display more info
           root.$$('#ajaxRequest').generateRequest();
         }
         this.$$('#dialog').toggle();
+      },
+      _toArray: function (obj) {
+        return Object.keys(obj).map(function (key) {
+          return obj[key];
+        });
       },
       /**
        * Figure out what type of preview case to match for rendering
