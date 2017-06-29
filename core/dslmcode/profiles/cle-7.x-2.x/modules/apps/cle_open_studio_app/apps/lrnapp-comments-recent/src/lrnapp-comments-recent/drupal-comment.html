@@ -70,7 +70,7 @@
             <content></content>
           </div>
           <paper-button id="btn" class="hidden">
-            <lrn-icon icon="chevron-down"></lrn-icon>
+            <lrn-icon icon="chevron-down" id="icon"></lrn-icon>
           </paper-button>
         </div>
         <h4>Updated: {{dateUpdated}}</h4>
@@ -112,7 +112,7 @@
         var height = root.$$('#comment').offsetHeight;
         var btn = root.$$('#btn');
 
-        if (height > 31)
+        if (height > 80)
           
           btn.classList.toggle('hidden', this.hidden)
       },
