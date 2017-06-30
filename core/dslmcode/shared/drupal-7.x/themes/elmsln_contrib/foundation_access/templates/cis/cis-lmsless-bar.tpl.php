@@ -120,7 +120,7 @@
       }
       ?>
       <li>
-      <a tabindex="-1" id="lmsless-<?php print $service['distro'];?>" data-prefetch-hover="true" href="<?php print token_replace($service['url']); ?>" class="waves waves-light black-text <?php print $activetool . $service['icon']; ?>-icon"  data-jwerty-key="ctrl+<?php print drupal_strtolower(substr($stitle, 0, 1)); ?>" data-voicecommand="<?php print t('go to ') . drupal_strtolower($stitle); ?>" data-elmsln-hover="<?php print $lmsless_classes[$service['distro']]['color'];?> <?php print $lmsless_classes[$service['distro']]['dark'];?> black-text" data-elmsln-icon-hover="hover-white-text">
+      <a tabindex="-1" id="lmsless-<?php print $service['distro'];?>" data-prefetch-hover="true" href="<?php print token_replace($service['url']); ?>" class="black-text <?php print $activetool . $service['icon']; ?>-icon"  data-jwerty-key="ctrl+<?php print drupal_strtolower(substr($stitle, 0, 1)); ?>" data-voicecommand="<?php print t('go to ') . drupal_strtolower($stitle); ?>" data-elmsln-hover="<?php print $lmsless_classes[$service['distro']]['color'];?> <?php print $lmsless_classes[$service['distro']]['dark'];?> black-text" data-elmsln-icon-hover="hover-white-text">
       <paper-button>
       <?php if (isset($service['icon_library']) && $service['icon_library'] == 'material'): ?>
         <div class="elmsln-hover-icon material-icon elmsln-network-icon left elmsln-icon black-text"><i class="material-icons"><?php print $service['icon']; ?></i></div>
@@ -137,7 +137,7 @@
   <?php if ($bar_elements['network']) : ?>
     <li class="elmsln-network-menu-item right">
       <a href="#network-menu-button" class="middle-align-wrap elmsln-network-button elmsln-right-side-nav-trigger black-text" data-activates="block-cis-lmsless-cis-lmsless-network-nav-modal" data-jwerty-key="n" data-voicecommand="open network">
-        <div class="cis-lmsless-network elmsln-icon icon-network"></div>
+        <lrn-icon icon="network" class="cis-lmsless-network"></lrn-icon>
         <span class="hide-on-med-and-down truncate"><?php print t('More tools'); ?></span>
       </a>
     </li>

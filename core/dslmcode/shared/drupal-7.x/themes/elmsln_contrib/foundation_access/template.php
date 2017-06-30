@@ -147,18 +147,12 @@ function foundation_access_preprocess_html(&$variables) {
   $variables['theme_path'] = base_path() . drupal_get_path('theme', 'foundation_access');
 
   drupal_add_css($css, array('type' => 'inline', 'group' => CSS_THEME, 'weight' => 999));
-  // elmsln icons
-  drupal_add_css(drupal_get_path('theme', 'foundation_access') . '/fonts/elmsln/elmsln-font-styles.css', array('group' => CSS_THEME, 'weight' => -1000));
   // google font / icons from google
   drupal_add_css('//fonts.googleapis.com/css?family=Material+Icons%7CDroid+Serif:400,700,400italic,700italic%7COpen+Sans:300,600,700', array('type' => 'external', 'group' => CSS_THEME, 'weight' => 1000));
   $libraries = libraries_get_libraries();
   if (!_entity_iframe_mode_enabled()) {
-    if (isset($libraries['jquery.vibrate.js'])) {
-      drupal_add_js($libraries['jquery.vibrate.js'] .'/jquery.vibrate.min.js');
-      drupal_add_js(drupal_get_path('theme', 'foundation_access') . '/legacy/js/vibrate-enable.js');
-    }
     // gifs need to be done as a player for accessibility reasons
-    if (isset($libraries['jquery.vibrate.js'])) {
+    if (isset($libraries['freezeframe.js'])) {
       drupal_add_js($libraries['freezeframe.js'] .'/src/js/vendor/imagesloaded.pkgd.js');
       drupal_add_js($libraries['freezeframe.js'] .'/build/js/freezeframe.js');
       drupal_add_css($libraries['freezeframe.js'] .'/build/css/freezeframe_styles.min.css');
@@ -170,10 +164,6 @@ function foundation_access_preprocess_html(&$variables) {
   if (isset($libraries['materialize'])) {
     drupal_add_css($libraries['materialize'] .'/css/materialize.css', array('weight' => -1000));
     drupal_add_js($libraries['materialize'] .'/js/materialize.js', array('scope' => 'footer', 'weight' => 1000));
-  }
-  else {
-    drupal_add_css('//cdnjs.cloudflare.com/ajax/libs/materialize/' . FOUNDATION_ACCESS_MATERIALIZE_VERSION . '/css/materialize.min.css', array('type' => 'external', 'weight' => -1000));
-    drupal_add_js('//cdnjs.cloudflare.com/ajax/libs/materialize/' . FOUNDATION_ACCESS_MATERIALIZE_VERSION . '/js/materialize.min.js', array('type' => 'external', 'scope' => 'footer', 'weight' => 1000));
   }
   // support for our legacy; adding in css/js for foundation; this requires a forcible override in shared_settings.php
   if (variable_get('foundation_access_legacy', FALSE)) {

@@ -3556,28 +3556,6 @@ meta.foundation-mq-topbar {
     text-align: justify !important; } }
 
 /* Typography resets */
-div,
-dl,
-dt,
-dd,
-ul,
-ol,
-li,
-h1,
-h2,
-h3,
-h4,
-h5,
-h6,
-pre,
-form,
-p,
-blockquote,
-th,
-td {
-  margin: 0;
-  padding: 0; }
-
 /* Default Link Styles */
 a {
   color: #008CBA;
@@ -3587,22 +3565,6 @@ a {
     color: #0078a0; }
   a img {
     border: none; }
-
-/* Default paragraph styles */
-p {
-  font-family: inherit;
-  font-size: 1rem;
-  font-weight: normal;
-  line-height: 1.6;
-  margin-bottom: 1.25rem;
-  text-rendering: optimizeLegibility; }
-  p.lead {
-    font-size: 1.21875rem;
-    line-height: 1.6; }
-  p aside {
-    font-size: 0.875rem;
-    font-style: italic;
-    line-height: 1.35; }
 
 /* Default header styles */
 h1, h2, h3, h4, h5, h6 {
@@ -4759,48 +4721,6 @@ th.hide-for-touch {
     display: table-cell !important; }
   th.show-for-print {
     display: table-cell !important; } }
-
-body, p, p a {
-  font-family: "Droid Serif", "Georgia", serif;
-  font-style: normal;
-  font-weight: 400; }
-
-h5, p strong {
-  font-family: "Droid Serif", "Georgia", serif;
-  font-style: normal;
-  font-weight: 700; }
-
-p i, p.txtbk-pullquote, p.testimonial-title, .etb-nav_item_search input, .admin-status-bar span a {
-  font-family: "Droid Serif", "Georgia", serif;
-  font-style: normal;
-  font-weight: 400;
-  font-style: italic; }
-
-h6, p strong i, p i strong, span.dropcap {
-  font-family: "Droid Serif", "Georgia", serif;
-  font-style: normal;
-  font-weight: 700;
-  font-style: italic; }
-
-h3, h4, #etb-course-nav span.course-title, .alert-box, #etb-tool-nav .tab-bar span, ul.off-canvas-list li a, .etb-nav-modal ul li a,
-a.etb-nav_item_service_btn span,
-a.etb-modal-icon span,
-a.modal-img-link span, .etb-nav-modal h2, #admin-menu .dropdown li li a, .admin-status-bar span.course-section-label, .admin-status-bar span.user-role-label, .admin-status-bar span.current-user-id-label {
-  font-family: "Open Sans", "Helvetica Neue", "Helvetica", sans-serif;
-  font-style: normal;
-  font-weight: 300; }
-
-h2, a, p.txtbk-intro, p.txtbk-intro a, .section-id, .accordion .accordion-navigation > a,
-.accordion dd > a, .sub-tier-1 h2, .sub-tier-1 h3, footer p, .admin-status-bar span.course-section, .admin-status-bar span.user-role, .admin-status-bar span.current-user-id {
-  font-family: "Open Sans", "Helvetica Neue", "Helvetica", sans-serif;
-  font-style: normal;
-  font-weight: 600; }
-
-h1, .image-media h3, h4.testimonial-name, #etb-course-nav span.course-abrv, .etb-nav-modal h1 {
-  font-family: "Open Sans", "Helvetica Neue", "Helvetica", sans-serif;
-  font-style: normal;
-  font-weight: 700; }
-
 body {
   -webkit-font-smoothing: antialiased;
   text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.004); }
@@ -5836,52 +5756,6 @@ body {
   .etb-book hr.full {
     margin: 2rem 0rem 2rem; }
 
-.etb-book p {
-  margin-top: 0;
-  margin-bottom: 1.421em; }
-
-.etb-book div.txtbk-basic {
-  -o-column-count: 2;
-  -moz-column-count: 2;
-  -ms-column-count: 2;
-  column-count: 2;
-  margin: 0 auto;
-  text-align: left;
-  width: auto;
-  padding: 0px 0px 5em 0px; }
-  .etb-book div.txtbk-basic p:last-child {
-    margin-bottom: 0; }
-  @media only screen and (max-width: 40em) {
-    .etb-book div.txtbk-basic {
-      -o-column-count: 1;
-      -moz-column-count: 1;
-      -ms-column-count: 1;
-      column-count: 1;
-      padding: 0 4% 5em 4%; }
-      .etb-book div.txtbk-basic p {
-        text-align: justify; } }
-  @media only screen and (min-width: 40.063em) and (max-width: 64em) {
-    .etb-book div.txtbk-basic {
-      -o-column-count: 1;
-      -moz-column-count: 1;
-      -ms-column-count: 1;
-      column-count: 1;
-      padding: 0 8% 5em 8%; } }
-  @media only screen and (min-width: 64.063em) and (max-width: 90em) {
-    .etb-book div.txtbk-basic {
-      -o-column-count: 2;
-      -moz-column-count: 2;
-      -ms-column-count: 2;
-      column-count: 2;
-      padding: 0 0 5em 0; } }
-  @media all and (max-width: 640px) and (min-width: 620px) {
-    .etb-book div.txtbk-basic {
-      -o-column-count: 2;
-      -moz-column-count: 2;
-      -ms-column-count: 2;
-      column-count: 2;
-      padding: 0 4% 5em 4%; } }
-
 .etb-book span.dropcap {
   float: left;
   color: #333333;
@@ -5889,66 +5763,6 @@ body {
   line-height: 4.5rem;
   padding: 0 0.75rem 0 0.75rem;
   text-transform: lowercase; }
-
-.etb-book div.left-head {
-  width: auto;
-  margin: 0 0 5em 0; }
-  @media only screen and (max-width: 40em) {
-    .etb-book div.left-head {
-      padding: 0 4% 0 4%; } }
-  @media only screen and (min-width: 40.063em) and (max-width: 64em) {
-    .etb-book div.left-head {
-      padding: 0px 8% 0 8%; } }
-  @media only screen and (min-width: 64.063em) {
-    .etb-book div.left-head {
-      padding: 0 0 0 0; } }
-  .etb-book div.left-head p.left-head-text {
-    margin: 0 0 1.5em 45%; }
-    @media only screen and (max-width: 40em) {
-      .etb-book div.left-head p.left-head-text {
-        margin: 0px 0 1.5em 0; }
-        .etb-book div.left-head p.left-head-text p {
-          text-align: justify; } }
-    @media only screen and (min-width: 40.063em) and (max-width: 64em) {
-      .etb-book div.left-head p.left-head-text {
-        margin: 0 0 1.5em 0;
-        padding: 0px 0 1.421px 0; } }
-    @media only screen and (min-width: 64.063em) {
-      .etb-book div.left-head p.left-head-text {
-        margin: 0px 0px 1.5em 51.4%;
-        padding: 0px 0em 1.421px 0px; } }
-    @media all and (max-width: 640px) and (min-width: 620px) {
-      .etb-book div.left-head p.left-head-text {
-        -o-column-count: 2;
-        -moz-column-count: 2;
-        -ms-column-count: 2;
-        column-count: 2;
-        margin: 0;
-        width: 100%; } }
-  .etb-book div.left-head h2.left-head {
-    float: left;
-    width: 48.9%;
-    font-size: 1.8em;
-    line-height: 1.2em;
-    margin: 0 0 0.5em 0;
-    text-transform: uppercase;
-    text-align: center; }
-    @media only screen and (max-width: 40em) {
-      .etb-book div.left-head h2.left-head {
-        width: 100%;
-        padding: 1em 4%; } }
-    @media only screen and (min-width: 40.063em) and (max-width: 64em) {
-      .etb-book div.left-head h2.left-head {
-        padding: 2em 8%;
-        width: 100%;
-        text-align: left; } }
-  .etb-book div.left-head:after {
-    content: "";
-    display: table;
-    clear: both; }
-  .etb-book div.left-head:before, .etb-book div.left-head.imagelightbox__close:after {
-    content: "";
-    display: table; }
 
 .etb-book div.pull-quote-p {
   width: auto;
