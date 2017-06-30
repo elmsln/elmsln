@@ -145,7 +145,7 @@
 }
 #scrollspy-nav.pinned {
   left: 0;
-  width: calc(47vw - 27%);
+  width: calc(44vw - 27%);
   z-index: 2;
 }
 
