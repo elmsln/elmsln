@@ -1128,6 +1128,16 @@ function foundation_access_menu_local_tasks(&$variables) {
 }
 
 /**
+ * Implements template_link.
+ */
+function foundation_access_link(&$variables) {
+  $path = $variables['path'];
+  $text = $variables['text'];
+  $options = $variables['options'];
+  return '<a tabindex="-1" href="' . check_plain(url($path, $options)) . '"' . drupal_attributes($options['attributes']) . '><paper-button class="paper-button-link">' . ($options['html'] ? $text : check_plain($text)) . '</paper-button></a>';
+}
+
+/**
  * Implements template_menu_link.
  */
 function foundation_access_menu_link(&$variables) {
@@ -1797,7 +1807,7 @@ function foundation_access_pager_link($variables) {
   else {
     $output = check_plain($text);
   }
-  return '<a' . drupal_attributes($attributes) . '>' . $output . '</a>';
+  return '<a tabindex="-1" ' . drupal_attributes($attributes) . '><paper-button>' . $output . '</paper-button></a>';
 }
 
 /**
