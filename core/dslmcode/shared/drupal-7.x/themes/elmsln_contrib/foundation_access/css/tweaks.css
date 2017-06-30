@@ -1,3 +1,283 @@
+
+/**
+ * @file
+ * Fork of the Generic theme-independent base styles from core.
+ * This lets us remove ones that conflict with materialize.
+ */
+
+/**
+ * Autocomplete.
+ *
+ * @see autocomplete.js
+ */
+/* Suggestion list */
+#autocomplete {
+  border: 1px solid;
+  overflow: hidden;
+  position: absolute;
+  z-index: 100;
+}
+#autocomplete ul {
+  list-style: none;
+  list-style-image: none;
+  margin: 0;
+  padding: 0;
+}
+#autocomplete li {
+  background: #fff;
+  color: #000;
+  cursor: default;
+  white-space: pre;
+  zoom: 1; /* IE7 */
+}
+/* Animated throbber */
+html.js input.form-autocomplete {
+  background-image: url(../img/throbber-inactive.png);
+  background-position: 100% center; /* LTR */
+  background-repeat: no-repeat;
+}
+html.js input.throbbing {
+  background-image: url(../img/throbber-active.gif);
+  background-position: 100% center; /* LTR */
+}
+
+/**
+ * Collapsible fieldsets.
+ *
+ * @see collapse.js
+ */
+html.js fieldset.collapsed .fieldset-wrapper {
+  display: none;
+}
+fieldset.collapsible {
+  position: relative;
+}
+fieldset.collapsible .fieldset-legend {
+  display: block;
+}
+
+/**
+ * Resizable textareas.
+ *
+ * @see textarea.js
+ */
+.form-textarea-wrapper textarea {
+  display: block;
+  margin: 0;
+  width: 100%;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+.resizable-textarea .grippie {
+  background: #eee url(../img/grippie.png) no-repeat center 2px;
+  border: 1px solid #ddd;
+  border-top-width: 0;
+  cursor: s-resize;
+  height: 9px;
+  overflow: hidden;
+}
+
+/**
+ * TableDrag behavior.
+ *
+ * @see tabledrag.js
+ */
+body.drag {
+  cursor: move;
+}
+.draggable a.tabledrag-handle {
+  cursor: move;
+  float: left; /* LTR */
+  height: 1.7em;
+  margin-left: -1em; /* LTR */
+  overflow: hidden;
+  text-decoration: none;
+}
+a.tabledrag-handle:hover {
+  text-decoration: none;
+}
+a.tabledrag-handle .handle {
+  background: url(../img/draggable.png) no-repeat 6px 9px;
+  height: 13px;
+  margin: -0.4em 0.5em; /* LTR */
+  padding: 0.42em 0.5em; /* LTR */
+  width: 13px;
+}
+a.tabledrag-handle-hover .handle {
+  background-position: 6px -11px;
+}
+div.indentation {
+  float: left; /* LTR */
+  height: 1.7em;
+  margin: -0.4em 0.2em -0.4em -0.4em; /* LTR */
+  padding: 0.42em 0 0.42em 0.6em; /* LTR */
+  width: 20px;
+}
+div.tree-child {
+  background: url(../img/tree.png) no-repeat 11px center; /* LTR */
+}
+div.tree-child-last {
+  background: url(../img/tree-bottom.png) no-repeat 11px center; /* LTR */
+}
+div.tree-child-horizontal {
+  background: url(../img/tree.png) no-repeat -11px center;
+}
+.tabledrag-toggle-weight-wrapper {
+  text-align: right; /* LTR */
+}
+
+/**
+ * TableHeader behavior.
+ *
+ * @see tableheader.js
+ */
+table.sticky-header {
+  background-color: #fff;
+  margin-top: 0;
+}
+
+/**
+ * Progress behavior.
+ *
+ * @see progress.js
+ */
+/* Bar */
+.progress .bar {
+  background-color: #fff;
+  border: 1px solid;
+}
+.progress .filled {
+  background-color: #000;
+  height: 1.5em;
+  width: 5px;
+}
+.progress .percentage {
+  float: right; /* LTR */
+}
+/* Throbber */
+.ajax-progress {
+  display: inline-block;
+}
+.ajax-progress .throbber {
+  background: transparent url(../img/throbber-active.gif) no-repeat 0px center;
+  float: left; /* LTR */
+  height: 15px;
+  margin: 2px;
+  width: 15px;
+}
+.ajax-progress .message {
+  padding-left: 20px;
+}
+tr .ajax-progress .throbber {
+  margin: 0 2px;
+}
+.ajax-progress-bar {
+  width: 16em;
+}
+
+/**
+ * Inline items.
+ */
+.container-inline div,
+.container-inline label {
+  display: inline;
+}
+/* Fieldset contents always need to be rendered as block. */
+.container-inline .fieldset-wrapper {
+  display: block;
+}
+
+/**
+ * Prevent text wrapping.
+ */
+.nowrap {
+  white-space: nowrap;
+}
+
+/**
+ * For anything you want to hide on page load when JS is enabled, so
+ * that you can use the JS to control visibility and avoid flicker.
+ */
+html.js .js-hide {
+  display: none;
+}
+
+/**
+ * Hide elements from all users.
+ *
+ * Used for elements which should not be immediately displayed to any user. An
+ * example would be a collapsible fieldset that will be expanded with a click
+ * from a user. The effect of this class can be toggled with the jQuery show()
+ * and hide() functions.
+ */
+.element-hidden {
+  display: none;
+}
+
+/**
+ * Hide elements visually, but keep them available for screen-readers.
+ *
+ * Used for information required for screen-reader users to understand and use
+ * the site where visual display is undesirable. Information provided in this
+ * manner should be kept concise, to avoid unnecessary burden on the user.
+ * "!important" is used to prevent unintentional overrides.
+ */
+.element-invisible {
+  position: absolute !important;
+  clip: rect(1px 1px 1px 1px); /* IE6, IE7 */
+  clip: rect(1px, 1px, 1px, 1px);
+  overflow: hidden;
+  height: 1px;
+}
+
+/**
+ * The .element-focusable class extends the .element-invisible class to allow
+ * the element to be focusable when navigated to via the keyboard.
+ */
+.element-invisible.element-focusable:active,
+.element-invisible.element-focusable:focus {
+  position: static !important;
+  clip: auto;
+  overflow: visible;
+  height: auto;
+}
+
+/**
+ * Markup free clearing.
+ *
+ * @see http://perishablepress.com/press/2009/12/06/new-clearfix-hack
+ */
+.clearfix:after {
+  content: ".";
+  display: block;
+  height: 0;
+  clear: both;
+  visibility: hidden;
+}
+/* IE6 */
+* html .clearfix {
+  height: 1%;
+}
+/* IE7 */
+*:first-child + html .clearfix {
+  min-height: 1%;
+}
+
+
+
+p {
+  line-height: 2.5rem;
+  margin-bottom: 1.25rem;
+  text-rendering: optimizeLegibility;
+}
+button {
+  padding: 0;
+}
+button paper-button.paper-button-0 {
+  margin: 0;
+}
+
 .element-invisible {
   width: 1px;
 }
@@ -379,6 +659,8 @@ article ul:not(.contextual-links):not(.collapsible):not(.footnotes):not(.browser
 #etb-course-nav .top-bar li span#elmsln-tools-trigger {
   border: 0;
   height: 5rem;
+  padding: 0;
+  margin: 0;
 }
 #etb-course-nav .top-bar li a i {
   padding-right:.5rem;
@@ -446,8 +728,7 @@ article ul:not(.contextual-links):not(.collapsible):not(.footnotes):not(.browser
 }
 
 .elmsln-service-list li.elmsln-network-menu-item .cis-lmsless-network {
-  padding: 0 .75rem 0 0;
-  font-size: 1.6rem;
+  margin: 0 .5rem 0 0;
 }
 
 .etb-book dl {
@@ -964,23 +1245,6 @@ ul.dropdown-content {
   clip: rect(auto, auto, 8rem, auto);
 }
 
-/* consistend focus state presentation */
-a:focus,
-i:focus,
-li:focus,
-button:focus,
-input[type=file]:focus,
-.btn:focus {
-  outline-style: solid;
-  outline-width: .1rem;
-  outline-color: #2962ff;
-}
-
-button:focus,
-input[type=file]:focus,
-.btn:focus {
-  outline-width: .3rem;
-}
 /* Materialize Outline classes */
 .indigo-outline {
   outline-color: #3f51b5 !important;
@@ -1330,6 +1594,7 @@ table.sticky-header {
 .r-header.pinned,
 .page-scroll.progress.pinned {
   z-index: 9988 !important;
+  width: 100%;
 }
 
 /* ELMSLN app.css conflicts w/ menu items */
@@ -1427,6 +1692,12 @@ div.form-type-checkbox :last-child {
   height: 5rem;
   width: 5rem;
 }
+#block-speedreader-speedreader-block-nav-modal paper-icon-button {
+  width: 5rem;
+  height: 5rem;
+  padding: 0;
+  margin: 0;
+}
 .spritz-word {
   font-size: 5rem;
   line-height: 8rem;
@@ -1439,6 +1710,246 @@ div.form-type-checkbox :last-child {
   height: 10rem;
   overflow: hidden;
   margin: 1rem;
+}
+.spritz {
+  position: relative;
+  max-width: 90%;
+  padding: 1rem 0 1.2rem;
+  border-top: 2px solid black;
+  border-bottom: 2px solid black;
+  margin: 1em auto;
+  font-size: 1em;
+}
+.spritz:before, .spritz:after {
+  content: "";
+  position: absolute;
+  left: 40%;
+  height: 0.8rem;
+  width: 2px;
+  margin-left: -1px;
+  background-color: black;
+}
+.night .spritz {
+  border-color: #555555;
+}
+.night .spritz:before, .night .spritz:after {
+  background-color: #555555;
+}
+.spritz:before {
+  top: 0;
+}
+.spritz:after {
+  bottom: 0;
+}
+
+.spritz-word {
+  font-size: 1.6em;
+  line-height: 1.6em;
+  height: 1.7em;
+  font-weight: 600;
+  color: black;
+}
+.night .spritz-word {
+  color: #bbbbbb;
+}
+.spritz-word div {
+  display: table-cell;
+}
+.spritz-word div:first-child {
+  width: 40%;
+  text-align: right;
+}
+.spritz-word div:nth-child(2) {
+  color: #e60000;
+}
+.night .spritz-word div:nth-child(2) {
+  color: #ff4d4d;
+}
+.spritz-word div:last-child {
+  width: 60%;
+  text-align: left;
+}
+
+.controls {
+  text-align: center;
+}
+.controls:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+.controls a {
+  display: inline-block;
+  vertical-align: bottom;
+  color: #aaaaaa;
+  text-decoration: none;
+  transition: color 150ms linear;
+}
+.controls a:hover, .controls a.active {
+  color: #777777;
+}
+.night .controls a {
+  color: #444444;
+}
+.night .controls a:hover, .night .controls a.active {
+  color: #999999;
+}
+
+.settings input, .settings textarea, .settings button {
+  box-sizing: border-box;
+  border: 0;
+  color: black;
+  background: transparent;
+}
+.night .settings input, .night .settings textarea, .night .settings button {
+  color: #888888;
+}
+.settings input:focus, .settings textarea:focus, .settings button:focus {
+  outline: none;
+}
+
+.settings-controls {
+  max-width: 30rem;
+  margin: 0 auto;
+}
+.settings-controls a {
+  font-size: 3rem;
+  line-height: 4rem;
+}
+.settings-controls .save {
+  transition: opacity 0.2s linear;
+  opacity: 0;
+  font-size: 2.5rem;
+}
+.paused .settings-controls .save {
+  opacity: 1;
+}
+.autosave .settings-controls .save {
+  opacity: 0;
+}
+.settings-controls .save.active {
+  opacity: 0.4 !important;
+}
+.settings-controls .pause {
+  margin: 0;
+  width: 4rem;
+  text-align: center;
+  font-size: 4rem;
+}
+.paused .settings-controls .pause:before {
+  content: "\e601";
+  position: relative;
+  margin-left: -0.4rem;
+}
+
+.wpm {
+  position: relative;
+  display: inline-block;
+  width: 7rem;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+  font-weight: 600;
+  font-size: 2rem;
+  line-height: 4rem;
+  vertical-align: top;
+}
+.wpm::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+}
+
+.extra-controls {
+  margin: 1em auto 0;
+}
+.extra-controls .toggle {
+  font-size: 2rem;
+  padding: 1rem 2rem;
+}
+.extra-controls .togglable {
+  display: none;
+}
+.extra-controls .zoom {
+  font-size: 2rem;
+}
+.extra-controls .zoom * {
+  display: inline-block;
+  padding: 0.6rem;
+}
+.extra-controls .autosave .checkbox {
+  display: none;
+}
+.extra-controls .autosave .checkbox:checked + .checkbox-label:before {
+  content: "\e60a";
+}
+.extra-controls .autosave .checkbox-label {
+  user-select: none;
+  cursor: pointer;
+}
+.extra-controls .autosave .checkbox-label:before {
+  position: relative;
+  display: inline-block;
+  margin-right: 1rem;
+  width: 1.4rem;
+  vertical-align: top;
+  overflow: visible;
+  font-size: 1.8rem;
+}
+
+.words {
+  max-width: 30rem;
+  margin: 0 auto;
+  position: relative;
+  transition: max-width 0.2s linear;
+}
+.fullscreen .words {
+  max-width: 60rem;
+}
+.fullscreen .words .demo-words {
+  height: 30rem;
+}
+.words .demo-words {
+  width: 100%;
+  height: 5em;
+  transition: height 0.2s linear;
+  padding: 1rem 1.5rem;
+  background-color: #eeeeee;
+}
+.words .demo-words::-webkit-scrollbar {
+  width: 0.8rem;
+}
+.words .demo-words::-webkit-scrollbar-thumb {
+  background: #d4d4d4;
+}
+.night .words .demo-words {
+  background-color: #191919;
+}
+.night .words .demo-words::-webkit-scrollbar-thumb {
+  background: #2d2d2d;
+}
+.night .words .demo-words::-webkit-resizer {
+  background: #141414;
+}
+
+.progress-bar {
+  height: 2px;
+  width: 0;
+  background: red;
+  opacity: 0.4;
+}
+
+.words-controls {
+  margin: 0 0 2rem;
+}
+.words-controls a {
+  margin: 0 0.6rem;
+  font-size: 2rem;
+  line-height: 2rem;
+}
+.words-controls .refresh {
+  font-size: 2.6rem;
+}
+.fullscreen .words-controls .expand:before {
+  content: "\e612";
 }
 #spritz_progress {
   height: .5rem;
@@ -2394,88 +2905,6 @@ table tbody td a:hover {
   text-decoration: underline;
 }
 
-/* Buttons */
-
-/* Gray Button */
-button[type="submit"],
-button.form-submit,
-a.button,
-div.exposed-filters button#edit-submit {
-  cursor: pointer;
-  background: #145650;
-  border: none;
-  color: #fff;
-  text-align: center;
-  font-size: 1.077em;
-  font-weight: 500;
-  text-transform: uppercase;
-  border-radius: 0.2rem;
-  transition: all, 0.3s;
-}
-
-/* Green Button */
-i.zmdi-save {
- color: #225c35;
-}
-button[type="submit"][id^="edit-submit"],
-button#edit-actions-submit,
-button[id^="save-continue"],
-button[type="submit"][id^="edit-save"],
-button#edit-save,
-button#edit-submit,
-button#edit-addanother,
-button#edit-actions-save {
-  cursor: pointer;
-  border: none;
-  text-align: center;
-  font-weight: normal;
-  font-size: 1.077em;
-  background: #225c35;
-  color: #fff;
-  font-weight: 500;
-  text-transform: uppercase;
-  border-radius: 0.2rem;
-}
-
-/* Red Button */
-button#edit-delete,
-button#remove-button,
-button#edit-remove,
-button#edit-clear,
-a.button.remove,
-button[id*="remove-button"],
-.page-node-delete button#edit-submit {
-  cursor: pointer;
-  border: none;
-  color: #fff;
-  text-align: center;
-  font-weight: normal;
-  font-size: 1.077em;
-  background: #D32F2F;
-  font-weight: 500;
-  text-transform: uppercase;
-  border-radius: 0.2rem;
-  transition: all, 0.3s;
-}
-
-/* Blue Button */
-button#edit-preview-changes,
-button#edit-next,
-button#preview-submit,
-button[type="submit"][id^="edit-return"] {
-  cursor: pointer;
-  border: none;
-  color: #fff;
-  text-align: center;
-  font-weight: normal;
-  font-size: 1.077em;
-  background: #0074BD;
-  font-weight: 500;
-  text-transform: uppercase;
-  border-radius: 0.2rem;
-  transition: all, 0.3s;
-}
-
 div.horizontal-tabs ul li.horizontal-tab-button strong {
   font-size: 13px;
 }
@@ -2524,10 +2953,26 @@ div.horizontal-tabs ul li.horizontal-tab-button strong {
 }
 
 /* ALL LRN / WEB COMPONENT BASED DESIGN MODIFICATIONS */
+paper-button.paper-button-link {
+  padding: 0;
+  margin: 0;
+  min-width: .1rem;
+  -webkit-justify-content: flex-start;
+  justify-content: flex-start;
+  align-items: center;
+  width: 100%;
+  text-transform: unset;
+}
+paper-button:focus {
+  outline: 1px solid #2196F3;
+}
 #etb-course-nav paper-button {
   padding: 0;
   min-width: .1rem;
   margin: 0;
+}
+#etb-course-nav .top-bar li a paper-button {
+  margin: 0 1rem;
 }
 .r-header__edit-icons paper-button,
 .r-header__edit-icons .icon-wrapper {
@@ -2541,22 +2986,11 @@ div.horizontal-tabs ul li.horizontal-tab-button strong {
   margin: 0;
   height: 3.75rem;
 }
-#block-cis-lmsless-cis-lmsless-network-nav-modal paper-button {
-  min-width: .1rem;
-  padding: 0;
-  margin: 0;
-  height: 3.75rem;
-}
 #etb-network-nav paper-button lrn-icon {
   width: 2rem;
   height: 2rem;
 }
 
-paper-button:focus {
-  outline-style: solid;
-  outline-width: .1rem;
-  outline-color: #2962ff;
-}
 .scrollspy-link paper-button {
   margin: 0;
   padding: 0;

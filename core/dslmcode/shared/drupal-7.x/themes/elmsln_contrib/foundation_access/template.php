@@ -147,18 +147,12 @@ function foundation_access_preprocess_html(&$variables) {
   $variables['theme_path'] = base_path() . drupal_get_path('theme', 'foundation_access');
 
   drupal_add_css($css, array('type' => 'inline', 'group' => CSS_THEME, 'weight' => 999));
-  // elmsln icons
-  drupal_add_css(drupal_get_path('theme', 'foundation_access') . '/fonts/elmsln/elmsln-font-styles.css', array('group' => CSS_THEME, 'weight' => -1000));
   // google font / icons from google
   drupal_add_css('//fonts.googleapis.com/css?family=Material+Icons%7CDroid+Serif:400,700,400italic,700italic%7COpen+Sans:300,600,700', array('type' => 'external', 'group' => CSS_THEME, 'weight' => 1000));
   $libraries = libraries_get_libraries();
   if (!_entity_iframe_mode_enabled()) {
-    if (isset($libraries['jquery.vibrate.js'])) {
-      drupal_add_js($libraries['jquery.vibrate.js'] .'/jquery.vibrate.min.js');
-      drupal_add_js(drupal_get_path('theme', 'foundation_access') . '/legacy/js/vibrate-enable.js');
-    }
     // gifs need to be done as a player for accessibility reasons
-    if (isset($libraries['jquery.vibrate.js'])) {
+    if (isset($libraries['freezeframe.js'])) {
       drupal_add_js($libraries['freezeframe.js'] .'/src/js/vendor/imagesloaded.pkgd.js');
       drupal_add_js($libraries['freezeframe.js'] .'/build/js/freezeframe.js');
       drupal_add_css($libraries['freezeframe.js'] .'/build/css/freezeframe_styles.min.css');
@@ -170,10 +164,6 @@ function foundation_access_preprocess_html(&$variables) {
   if (isset($libraries['materialize'])) {
     drupal_add_css($libraries['materialize'] .'/css/materialize.css', array('weight' => -1000));
     drupal_add_js($libraries['materialize'] .'/js/materialize.js', array('scope' => 'footer', 'weight' => 1000));
-  }
-  else {
-    drupal_add_css('//cdnjs.cloudflare.com/ajax/libs/materialize/' . FOUNDATION_ACCESS_MATERIALIZE_VERSION . '/css/materialize.min.css', array('type' => 'external', 'weight' => -1000));
-    drupal_add_js('//cdnjs.cloudflare.com/ajax/libs/materialize/' . FOUNDATION_ACCESS_MATERIALIZE_VERSION . '/js/materialize.min.js', array('type' => 'external', 'scope' => 'footer', 'weight' => 1000));
   }
   // support for our legacy; adding in css/js for foundation; this requires a forcible override in shared_settings.php
   if (variable_get('foundation_access_legacy', FALSE)) {
@@ -277,7 +267,7 @@ function foundation_access_fieldset($variables) {
         // form the fieldset as a collapse element
         $output = '
         <li class="collapsible-li">
-          <a id="collapse-item-id-' . $anchor . '" href="#collapse-item-' . $anchor . '" class="collapsible-header' . $collapse . '"' . drupal_attributes($element['#attributes']) .'><paper-button>' .
+          <a tabindex="-1" id="collapse-item-id-' . $anchor . '" href="#collapse-item-' . $anchor . '" class="collapsible-header' . $collapse . '"' . drupal_attributes($element['#attributes']) .'><paper-button>' .
             $icon . $element['#title'] .
           '</paper-button>
           </a>
@@ -285,7 +275,7 @@ function foundation_access_fieldset($variables) {
             <div class="elmsln-collapsible-body" aria-labelledby="collapse-item-id-' . $anchor . '" role="tabpanel">
               ' . $body . '
             </div>
-            <div class="divider cis-lmsless-background"></div>
+            <div class="divider"></div>
           </div>
         </li>';
       break;
@@ -538,7 +528,7 @@ function foundation_access_file($variables) {
   _form_set_class($element, array('form-file', 'elmsln-file-input'));
   // apply classes and wrappers needed for materializecss
   return '<div class="col s12 m8 file-field input-field">
-      <div class="elmsln-file-btn-trigger btn">
+      <div class="elmsln-file-btn-trigger">
         <span>' . $element['#title'] . '</span>
         <input' . drupal_attributes($element['#attributes']) . ' />
       </div>
@@ -567,12 +557,10 @@ function foundation_access_button($variables) {
   $element = $variables['element'];
   $element['#attributes']['type'] = 'submit';
   element_set_attributes($element, array('id', 'name', 'value'));
-
-  $element['#attributes']['class'][] = 'form-' . $element['#button_type'];
   if (!empty($element['#attributes']['disabled'])) {
     $element['#attributes']['class'][] = 'form-button-disabled';
   }
-  $element['#attributes']['class'][] = 'btn';
+  $element['#attributes']['class'][] = 'black white-text';
   // wrap classes on an upload button
   if ($variables['element']['#value'] == 'Upload') {
     return '
@@ -875,8 +863,8 @@ function foundation_access_preprocess_node__inherit__elmsmedia_image__image(&$va
       $variables['is_gif'] = TRUE;
       $variables['gif_buttons'] = '
       <div class="container">
-        <button class="start waves-effect waves-light btn col s3 blue push-s2"><i class="material-icons left">play_arrow</i>' . t('start') . '</button>
-        <button class="stop waves-effect waves-light btn col s3 red pull-s2 right"><i class="material-icons left">stop</i>' . t('stop') . '</button>
+        <button class="start col s3 blue push-s2"><i class="material-icons left">play_arrow</i>' . t('start') . '</button>
+        <button class="stop col s3 red pull-s2 right"><i class="material-icons left">stop</i>' . t('stop') . '</button>
       </div>';
     }
     // alt/title info
@@ -1131,6 +1119,16 @@ function foundation_access_menu_local_tasks(&$variables) {
 }
 
 /**
+ * Implements template_link.
+ */
+function foundation_access_link(&$variables) {
+  $path = $variables['path'];
+  $text = $variables['text'];
+  $options = $variables['options'];
+  return '<a tabindex="-1" href="' . check_plain(url($path, $options)) . '"' . drupal_attributes($options['attributes']) . '><paper-button class="paper-button-link">' . ($options['html'] ? $text : check_plain($text)) . '</paper-button></a>';
+}
+
+/**
  * Implements template_menu_link.
  */
 function foundation_access_menu_link(&$variables) {
@@ -1259,26 +1257,6 @@ function foundation_access_preprocess_book_sibling_nav(&$variables) {
 }
 
 /**
- * Helper to generate a menu link in a consistent way at the bottom.
- */
-function _foundation_access_single_menu_link($element) {
-  $options = $element['#localized_options'];
-  $options['html'] = TRUE;
-  $title = check_plain($element['#title']);
-  // ensure class array is at least set
-  if (empty($element['#attributes']['class'])) {
-    $element['#attributes']['class'] = array();
-  }
-  $classes = implode(' ', $element['#attributes']['class']);
-  $options['attributes']['class'] = $element['#attributes']['class'];
-  $icon = 'page';
-  if (isset($options['fa_icon'])) {
-    $icon = $options['fa_icon'];
-  }
-  return '<li>' . l($title, $element['#href'], $options) . '</li>';
-}
-
-/**
  * Callback to do most of the work for rendering a nested slide out menu
  * @return string             rendered html structure for this menu
  */
@@ -1296,67 +1274,15 @@ function _foundation_access_menu_outline($variables, $word = FALSE, $number = FA
   if ($element['#href'] == '<nolink>') {
     $output = '<a href="#menu-no-link-' . hash('md5', 'mnl' . $title) . '">' . $title . '</a>';
   }
-  // account for sub menu things being rendered differently
-  if (empty($sub_menu)) {
-    // ending element
-    $return .= _foundation_access_single_menu_link($element);
+  $options = $element['#localized_options'];
+  $options['html'] = TRUE;
+  // ensure class array is at least set
+  if (empty($element['#attributes']['class'])) {
+    $element['#attributes']['class'] = array();
   }
-  else {
-    // ensure class array is at least set
-    if (empty($element['#attributes']['class'])) {
-      $element['#attributes']['class'] = array();
-    }
-    // active trail set classes based on that since its a core class
-    if (in_array('active-trail', $element['#attributes']['class'])) {
-      $element['#attributes']['class'][] = 'expanded';
-      $element['#attributes']['class'][] = 'active';
-    }
-    // calculate relative depth
-    $depth = $element['#original_link']['depth'] - 2;
-    // generate a short name
-    $short = preg_replace('/[^a-zA-Z0-9]/', '', strtolower($title)) . '-' . $element['#original_link']['mlid'];
-    // extract nid
-    $nid = str_replace('node/', '', $element['#href']);
-    // test for active class, meaning this should be expanded by default
-    if ($element['#original_link']['p3'] == 0) {
-      $return .= '
-      <li class="has-submenu level-' . $depth . '-top ' . implode(' ', $element['#attributes']['class']) . '">' . "\n" .
-      '<a href="#' . $short . '-panel">' . "\n";
-      $labeltmp = _foundation_access_auto_label_build($word, $number, $counter);
-      if (!empty($labeltmp)) {
-        $return .= '<h2>' . $labeltmp . '</h2>' . "\n";
-      }
-      $return .= '<h3>' . $title . '</h3>' . "\n" .
-      '</a>' . "\n" .
-      '<ul class="left-submenu level-' . $depth . '-sub">'  . "\n" .
-      '<div>'  . "\n";
-      $labeltmp = _foundation_access_auto_label_build($word, $number, $counter);
-      if (!empty($labeltmp)) {
-        $return .= '<h2>' . $labeltmp . '</h2>' . "\n";
-      }
-      $return .= '<h3>' . _foundation_access_single_menu_link($element) . '</h3>' . "\n" .
-      '</div>'  . "\n" .
-      '<li class="back">'  . "\n" .
-      '<a href="#fa-back" class="kill-content-before middle-align-wrap center-align-wrap"><div class="icon-arrow-left-black back-arrow-left-btn"></div><span>' . t('Back') . '</span></a></li>' . "\n" .
-      $sub_menu . "\n</ul>\n</li>";
-      $counter++;
-    }
-    else {
-      $return ='<li class="has-submenu level-' . $depth . '-top ' . implode(' ', $element['#attributes']['class']) . '"><a href="#elmsln-menu-sub-level-' . hash('md5', 'emsl' . $title) . '"><span class="outline-nav-text">' . $title . '</span></a>' . "\n" .
-      '<ul class="left-submenu level-' . $depth . '-sub">'  . "\n" .
-      '<div>'  . "\n";
-      $labeltmp = _foundation_access_auto_label_build($word, $number, $counter);
-      if (!empty($labeltmp)) {
-        $return .= '<h2>' . $labeltmp . '</h2>' . "\n";
-      }
-      $return .= '<h3>' . _foundation_access_single_menu_link($element) . '</h3>' . "\n" .
-      '</div>'  . "\n" .
-      '<li class="back">'  . "\n" .
-      '<a href="#fa-back" class="kill-content-before middle-align-wrap center-align-wrap"><div class="icon-arrow-left-black back-arrow-left-btn"></div><span>' . t('Back') . '</span></a></li>' . "\n" .
-      $sub_menu . "\n</ul>\n</li>";
-    }
-  }
-  return $return;
+  $classes = implode(' ', $element['#attributes']['class']);
+  $options['attributes']['class'] = $element['#attributes']['class'];
+  return '<li>' . l($title, $element['#href'], $options) . '</li>';
 }
 
 /**
@@ -1612,7 +1538,6 @@ function foundation_access_pager($variables) {
               'interval' => ($pager_current - $i),
               'parameters' => $parameters,
             )),
-            'class' => array('waves-effect', 'cis-lmsless-waves', 'cis-lmsless-background'),
           );
         }
         if ($i == $pager_current) {
@@ -1629,7 +1554,6 @@ function foundation_access_pager($variables) {
               'interval' => ($i - $pager_current),
               'parameters' => $parameters,
             )),
-            'class' => array('waves-effect', 'cis-lmsless-waves', 'cis-lmsless-background'),
           );
         }
       }
@@ -1800,7 +1724,7 @@ function foundation_access_pager_link($variables) {
   else {
     $output = check_plain($text);
   }
-  return '<a' . drupal_attributes($attributes) . '>' . $output . '</a>';
+  return '<a tabindex="-1" ' . drupal_attributes($attributes) . '><paper-button>' . $output . '</paper-button></a>';
 }
 
 /**
@@ -1973,10 +1897,6 @@ function _foundation_access_contextual_colors($lmsless_classes) {
   ul.pagination li:hover a, ul.pagination li a:focus, ul.pagination li:hover button, ul.pagination li button:focus {
     color: ' . $lmsless_classes['code_text'] . ';
     background-color: ' . $lmsless_classes['code'] . '
-  }
-  .btn,
-  .btn-large {
-    background-color: ' . $lmsless_classes['code_text'] . ';
   }
   .dropdown-content li > a, .dropdown-content li > span,
   form.node-form div.field-group-htabs-wrapper .horizontal-tabs a.fieldset-title,

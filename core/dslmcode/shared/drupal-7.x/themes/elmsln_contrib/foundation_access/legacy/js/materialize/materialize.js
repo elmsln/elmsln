@@ -106,21 +106,9 @@
       }, 150);
     });
     // apply color styling for this tool to accent the interface
-    $('.cis-lmsless-text, .dropdown-content .nolink').addClass(Drupal.settings.cis_lmsless[Drupal.settings.distro]['text']);
-    // color text icons that want it
-    $('i.cis-lmsless-text').addClass('text-' + Drupal.settings.cis_lmsless[Drupal.settings.distro]['dark']);
-    // apply waves to things that want its color
-    $('.cis-lmsless-waves').addClass('waves-' + Drupal.settings.cis_lmsless[Drupal.settings.distro]['color'] + ' waves-light');
-    // apply background to things that want our background
-    $('.cis-lmsless-background').addClass(Drupal.settings.cis_lmsless[Drupal.settings.distro]['color'] + ' ' + Drupal.settings.cis_lmsless[Drupal.settings.distro]['light']);
-
-    $('.cis-lmsless-dark').addClass(Drupal.settings.cis_lmsless[Drupal.settings.distro]['color'] + ' ' + Drupal.settings.cis_lmsless[Drupal.settings.distro]['dark']);
-
-    $('.cis-lmsless-color').addClass(Drupal.settings.cis_lmsless[Drupal.settings.distro]['color']);
+    $('.dropdown-content .nolink').addClass(Drupal.settings.cis_lmsless[Drupal.settings.distro]['text']);
     // apply border to things that want our background
-    $('.cis-lmsless-border, .tabs li.tab a').addClass(Drupal.settings.cis_lmsless[Drupal.settings.distro]['color'] + '-border');
-    // color chips
-    $('.book-menu-item-active-link').not('.book-parent-tree').addClass(Drupal.settings.cis_lmsless[Drupal.settings.distro]['color'] + ' ' + Drupal.settings.cis_lmsless[Drupal.settings.distro]['light']);
+    $('.tabs li.tab a').addClass(Drupal.settings.cis_lmsless[Drupal.settings.distro]['color'] + '-border');
     // meta property names so mobile reflects system color
     $('meta[name="theme-color"],meta[name="msapplication-TileColor"],meta[name="msapplication-navbutton-color"]').attr('content', $('.cis-lmsless-color').css('backgroundColor'));
     // hover state for tables to match styling

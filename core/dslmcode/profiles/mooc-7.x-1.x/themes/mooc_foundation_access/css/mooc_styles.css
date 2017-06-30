@@ -145,7 +145,7 @@
 }
 #scrollspy-nav.pinned {
   left: 0;
-  width: calc(47vw - 27%);
+  width: calc(44vw - 27%);
   z-index: 2;
 }
 
@@ -294,6 +294,7 @@ ul.book-navigation-wrapper {
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
+  z-index: 1;
 }
 .book-sibling-parent-pagination-wrapper {
   margin-left: auto;
@@ -414,6 +415,9 @@ a.book-sibling-parent-pagination {
   width: 80%;
   height: 80%;
   padding: 0;
+}
+#block-mooc-helper-mooc-helper-toc-nav-modal .elmsln-book-item.elmsln-icon:before {
+  margin: 0;
 }
 .mooc-outline-modal-content {
   padding: 2rem 2rem 0;

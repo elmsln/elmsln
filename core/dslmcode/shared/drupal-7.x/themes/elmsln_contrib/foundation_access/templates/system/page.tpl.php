@@ -37,7 +37,7 @@
                     <span class="element-invisible"><?php print t('Save content'); ?></span>
                   </paper-button>
                   </a>
-                  <paper-tooltip for="edit-tip"><?php print t('Save')?></paper-tooltip>
+                  <paper-tooltip for="edit-tip" animation-delay="0"><?php print t('Save')?></paper-tooltip>
                 <?php else: ?>
                   <a tabindex="-1" id="edit-tip" href="<?php print $edit_path; ?>" class="r-header__icon elmsln-edit-button" data-jwerty-key="e" data-voicecommand="edit">
                   <paper-button>
@@ -45,7 +45,7 @@
                     <span class="element-invisible"><?php print t('Edit content'); ?></span>
                   </paper-button>
                   </a>
-                  <paper-tooltip for="edit-tip"><?php print t('Edit content')?></paper-tooltip>
+                  <paper-tooltip for="edit-tip" animation-delay="0"><?php print t('Edit content')?></paper-tooltip>
                 <?php endif; ?>
                 </li>
                 <?php endif; ?>
@@ -57,7 +57,7 @@
                       <span class="element-invisible"><?php print t('Menu to embed this elsewhere'); ?></span>
                     </paper-button>
                     </a>
-                    <paper-tooltip for="elmsln-shortcodes-button"><?php print t('Embed content elsewhere')?></paper-tooltip>
+                    <paper-tooltip for="elmsln-shortcodes-button" animation-delay="0"><?php print t('Embed content elsewhere')?></paper-tooltip>
                   </li>
                 <?php endif; ?>
                 <?php if (!empty($a11y)) : ?>
@@ -68,7 +68,7 @@
                       <span class="element-invisible"><?php print t('Your preferences menu'); ?></span>
                     </paper-button>
                     </a>
-                    <paper-tooltip for="elmsln-preferences-button"><?php print t('Your preferences')?></paper-tooltip>
+                    <paper-tooltip for="elmsln-preferences-button" animation-delay="0"><?php print t('Your preferences')?></paper-tooltip>
                   </li>
                 <?php endif; ?>
                 <!-- end Edit Icon -->
@@ -80,7 +80,7 @@
                     <span class="element-invisible"><?php print t('Less common options'); ?></span>
                   </paper-button>
                   </a>
-                  <paper-tooltip for="more-options-tip"><?php print t('Less common options')?></paper-tooltip>
+                  <paper-tooltip for="more-options-tip" animation-delay="0"><?php print t('Less common options')?></paper-tooltip>
                   <ul id="elmsln-more-menu" class="dropdown-content" aria-hidden="true" tabindex="-1">
                   <?php if (!empty($tabs)): ?>
                       <?php print render($tabs); ?>
@@ -165,7 +165,7 @@
       <a class="exit-off-canvas"></a>
       </div>
     </main>
-    <footer class="page-footer <?php print $cis_lmsless['lmsless_classes'][$distro]['color'] . ' ' . $cis_lmsless['lmsless_classes'][$distro]['dark'] . ' ' . $cis_lmsless['lmsless_classes'][$distro]['color'];?>-border white-text">
+    <footer class="page-footer black white-text">
       <div class="container">
         <div class="row">
           <div class="s12 push-m1 m-10 col">
@@ -198,7 +198,7 @@
     <!-- Accessibility side nav -->
     <?php if (!empty($a11y)) : ?>
     <section id="page-accessibility-menu" class="elmsln-modal elmsln-modal-hidden side-nav disable-scroll" aria-label="<?php print t('Preferences'); ?>" aria-hidden="true" role="dialog" tabindex="-1">
-        <div class="center-align valign-wrapper elmsln-modal-title-wrapper <?php print $cis_lmsless['lmsless_classes'][$distro]['color'] . ' ' . $cis_lmsless['lmsless_classes'][$distro]['dark'];?> <?php print $cis_lmsless['lmsless_classes'][$distro]['color'];?>-border">
+        <div class="center-align valign-wrapper elmsln-modal-title-wrapper black">
         <h2 class="flow-text valign elmsln-modal-title white-text"><?php print t('Preferences'); ?></h2>
           <a tabindex="-1" href="#close-dialog" aria-label="<?php print t('Close'); ?>" class="close-reveal-side-nav white-text" data-voicecommand="close (menu)" data-jwerty-key="Esc" ><paper-button>×</paper-button></a>
         </div>

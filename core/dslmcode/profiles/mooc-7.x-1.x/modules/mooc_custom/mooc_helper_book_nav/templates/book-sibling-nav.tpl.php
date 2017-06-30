@@ -53,10 +53,10 @@
     foreach ($items as $item) {
       // look for active trail item
       if ($parent['link_path'] == $item['link_path']) {
-        $active = 'book-menu-item-active';
+        $active = 'book-menu-item-active black white-text ';
       }
       else {
-        $active = 'book-item';
+        $active = 'book-item ';
       }
       $pre = '';
       if (isset($outline_count) && $outline_count && isset($item['_count'])) {

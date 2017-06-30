@@ -3,7 +3,7 @@
     <?php print render($content['field_figurelabel_ref'][0]); ?>
   <?php endif; ?>
   <div class="card <?php print $card_size;?>">
-    <div class="card-image waves-effect waves-block waves-light">
+    <div class="card-image">
       <?php if ($image_lightbox_url): ?>
       <a data-imagelightbox href="<?php print $image_lightbox_url; ?>">
         <?php print render($image); ?>
