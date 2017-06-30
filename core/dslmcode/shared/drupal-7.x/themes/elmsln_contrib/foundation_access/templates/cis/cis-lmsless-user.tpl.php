@@ -18,7 +18,7 @@
   <li><?php print $userprofile; ?></li>
 <?php endif; ?>
 <?php if (isset($user_section) || !empty($masquerade)) : ?>
-  <li><div class="divider cis-lmsless-background"></div></li>
+  <li><div class="divider"></div></li>
 <?php endif; ?>
 <?php if (!empty($ferpa_flter)) : ?>
   <li><?php print $ferpa_flter; ?></li>
@@ -29,5 +29,5 @@
 <?php if (!empty($masquerade)) : ?>
   <li><?php print $masquerade; ?></li>
 <?php endif; ?>
-  <li><div class="divider cis-lmsless-background"></div></li>
+  <li><div class="divider"></div></li>
   <li><?php print $userlink; ?></li>

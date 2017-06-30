@@ -285,7 +285,7 @@ function foundation_access_fieldset($variables) {
             <div class="elmsln-collapsible-body" aria-labelledby="collapse-item-id-' . $anchor . '" role="tabpanel">
               ' . $body . '
             </div>
-            <div class="divider cis-lmsless-background"></div>
+            <div class="divider"></div>
           </div>
         </li>';
       break;
@@ -538,7 +538,7 @@ function foundation_access_file($variables) {
   _form_set_class($element, array('form-file', 'elmsln-file-input'));
   // apply classes and wrappers needed for materializecss
   return '<div class="col s12 m8 file-field input-field">
-      <div class="elmsln-file-btn-trigger btn">
+      <div class="elmsln-file-btn-trigger">
         <span>' . $element['#title'] . '</span>
         <input' . drupal_attributes($element['#attributes']) . ' />
       </div>
@@ -570,6 +570,7 @@ function foundation_access_button($variables) {
   if (!empty($element['#attributes']['disabled'])) {
     $element['#attributes']['class'][] = 'form-button-disabled';
   }
+  $element['#attributes']['class'][] = 'black white-text';
   // wrap classes on an upload button
   if ($variables['element']['#value'] == 'Upload') {
     return '
@@ -872,8 +873,8 @@ function foundation_access_preprocess_node__inherit__elmsmedia_image__image(&$va
       $variables['is_gif'] = TRUE;
       $variables['gif_buttons'] = '
       <div class="container">
-        <button class="start waves-effect waves-light btn col s3 blue push-s2"><i class="material-icons left">play_arrow</i>' . t('start') . '</button>
-        <button class="stop waves-effect waves-light btn col s3 red pull-s2 right"><i class="material-icons left">stop</i>' . t('stop') . '</button>
+        <button class="start col s3 blue push-s2"><i class="material-icons left">play_arrow</i>' . t('start') . '</button>
+        <button class="stop col s3 red pull-s2 right"><i class="material-icons left">stop</i>' . t('stop') . '</button>
       </div>';
     }
     // alt/title info
@@ -1547,7 +1548,6 @@ function foundation_access_pager($variables) {
               'interval' => ($pager_current - $i),
               'parameters' => $parameters,
             )),
-            'class' => array('waves-effect', 'cis-lmsless-waves', 'cis-lmsless-background'),
           );
         }
         if ($i == $pager_current) {
@@ -1564,7 +1564,6 @@ function foundation_access_pager($variables) {
               'interval' => ($i - $pager_current),
               'parameters' => $parameters,
             )),
-            'class' => array('waves-effect', 'cis-lmsless-waves', 'cis-lmsless-background'),
           );
         }
       }
@@ -1908,10 +1907,6 @@ function _foundation_access_contextual_colors($lmsless_classes) {
   ul.pagination li:hover a, ul.pagination li a:focus, ul.pagination li:hover button, ul.pagination li button:focus {
     color: ' . $lmsless_classes['code_text'] . ';
     background-color: ' . $lmsless_classes['code'] . '
-  }
-  .btn,
-  .btn-large {
-    background-color: ' . $lmsless_classes['code_text'] . ';
   }
   .dropdown-content li > a, .dropdown-content li > span,
   form.node-form div.field-group-htabs-wrapper .horizontal-tabs a.fieldset-title,
