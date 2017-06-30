@@ -1266,26 +1266,6 @@ function foundation_access_preprocess_book_sibling_nav(&$variables) {
 }
 
 /**
- * Helper to generate a menu link in a consistent way at the bottom.
- */
-function _foundation_access_single_menu_link($element) {
-  $options = $element['#localized_options'];
-  $options['html'] = TRUE;
-  $title = check_plain($element['#title']);
-  // ensure class array is at least set
-  if (empty($element['#attributes']['class'])) {
-    $element['#attributes']['class'] = array();
-  }
-  $classes = implode(' ', $element['#attributes']['class']);
-  $options['attributes']['class'] = $element['#attributes']['class'];
-  $icon = 'page';
-  if (isset($options['fa_icon'])) {
-    $icon = $options['fa_icon'];
-  }
-  return '<li>' . l($title, $element['#href'], $options) . '</li>';
-}
-
-/**
  * Callback to do most of the work for rendering a nested slide out menu
  * @return string             rendered html structure for this menu
  */
@@ -1303,67 +1283,15 @@ function _foundation_access_menu_outline($variables, $word = FALSE, $number = FA
   if ($element['#href'] == '<nolink>') {
     $output = '<a href="#menu-no-link-' . hash('md5', 'mnl' . $title) . '">' . $title . '</a>';
   }
-  // account for sub menu things being rendered differently
-  if (empty($sub_menu)) {
-    // ending element
-    $return .= _foundation_access_single_menu_link($element);
+  $options = $element['#localized_options'];
+  $options['html'] = TRUE;
+  // ensure class array is at least set
+  if (empty($element['#attributes']['class'])) {
+    $element['#attributes']['class'] = array();
   }
-  else {
-    // ensure class array is at least set
-    if (empty($element['#attributes']['class'])) {
-      $element['#attributes']['class'] = array();
-    }
-    // active trail set classes based on that since its a core class
-    if (in_array('active-trail', $element['#attributes']['class'])) {
-      $element['#attributes']['class'][] = 'expanded';
-      $element['#attributes']['class'][] = 'active';
-    }
-    // calculate relative depth
-    $depth = $element['#original_link']['depth'] - 2;
-    // generate a short name
-    $short = preg_replace('/[^a-zA-Z0-9]/', '', strtolower($title)) . '-' . $element['#original_link']['mlid'];
-    // extract nid
-    $nid = str_replace('node/', '', $element['#href']);
-    // test for active class, meaning this should be expanded by default
-    if ($element['#original_link']['p3'] == 0) {
-      $return .= '
-      <li class="has-submenu level-' . $depth . '-top ' . implode(' ', $element['#attributes']['class']) . '">' . "\n" .
-      '<a href="#' . $short . '-panel">' . "\n";
-      $labeltmp = _foundation_access_auto_label_build($word, $number, $counter);
-      if (!empty($labeltmp)) {
-        $return .= '<h2>' . $labeltmp . '</h2>' . "\n";
-      }
-      $return .= '<h3>' . $title . '</h3>' . "\n" .
-      '</a>' . "\n" .
-      '<ul class="left-submenu level-' . $depth . '-sub">'  . "\n" .
-      '<div>'  . "\n";
-      $labeltmp = _foundation_access_auto_label_build($word, $number, $counter);
-      if (!empty($labeltmp)) {
-        $return .= '<h2>' . $labeltmp . '</h2>' . "\n";
-      }
-      $return .= '<h3>' . _foundation_access_single_menu_link($element) . '</h3>' . "\n" .
-      '</div>'  . "\n" .
-      '<li class="back">'  . "\n" .
-      '<a href="#fa-back" class="kill-content-before middle-align-wrap center-align-wrap"><div class="icon-arrow-left-black back-arrow-left-btn"></div><span>' . t('Back') . '</span></a></li>' . "\n" .
-      $sub_menu . "\n</ul>\n</li>";
-      $counter++;
-    }
-    else {
-      $return ='<li class="has-submenu level-' . $depth . '-top ' . implode(' ', $element['#attributes']['class']) . '"><a href="#elmsln-menu-sub-level-' . hash('md5', 'emsl' . $title) . '"><span class="outline-nav-text">' . $title . '</span></a>' . "\n" .
-      '<ul class="left-submenu level-' . $depth . '-sub">'  . "\n" .
-      '<div>'  . "\n";
-      $labeltmp = _foundation_access_auto_label_build($word, $number, $counter);
-      if (!empty($labeltmp)) {
-        $return .= '<h2>' . $labeltmp . '</h2>' . "\n";
-      }
-      $return .= '<h3>' . _foundation_access_single_menu_link($element) . '</h3>' . "\n" .
-      '</div>'  . "\n" .
-      '<li class="back">'  . "\n" .
-      '<a href="#fa-back" class="kill-content-before middle-align-wrap center-align-wrap"><div class="icon-arrow-left-black back-arrow-left-btn"></div><span>' . t('Back') . '</span></a></li>' . "\n" .
-      $sub_menu . "\n</ul>\n</li>";
-    }
-  }
-  return $return;
+  $classes = implode(' ', $element['#attributes']['class']);
+  $options['attributes']['class'] = $element['#attributes']['class'];
+  return '<li>' . l($title, $element['#href'], $options) . '</li>';
 }
 
 /**

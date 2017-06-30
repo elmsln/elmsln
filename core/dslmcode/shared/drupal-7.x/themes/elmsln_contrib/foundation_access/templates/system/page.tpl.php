@@ -165,7 +165,7 @@
       <a class="exit-off-canvas"></a>
       </div>
     </main>
-    <footer class="page-footer <?php print $cis_lmsless['lmsless_classes'][$distro]['color'] . ' ' . $cis_lmsless['lmsless_classes'][$distro]['dark'] . ' ' . $cis_lmsless['lmsless_classes'][$distro]['color'];?>-border white-text">
+    <footer class="page-footer black white-text">
       <div class="container">
         <div class="row">
           <div class="s12 push-m1 m-10 col">

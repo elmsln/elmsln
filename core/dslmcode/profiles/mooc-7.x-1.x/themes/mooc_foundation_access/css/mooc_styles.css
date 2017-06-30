@@ -416,6 +416,9 @@ a.book-sibling-parent-pagination {
   height: 80%;
   padding: 0;
 }
+#block-mooc-helper-mooc-helper-toc-nav-modal .elmsln-book-item.elmsln-icon:before {
+  margin: 0;
+}
 .mooc-outline-modal-content {
   padding: 2rem 2rem 0;
   overflow: scroll;

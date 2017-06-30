@@ -29,7 +29,7 @@
         $stitle = token_replace($service['title']);
     ?>
       <li><a tabindex="-1" data-prefetch-hover="true" href="<?php print token_replace($service['url']); ?>" class="waves-effect waves-<?php print $lmsless_classes[$service['distro']]['color'];?> waves-light <?php print $activetool . $service['icon']; ?>-icon"  data-jwerty-key="ctrl+<?php print drupal_strtolower(substr($stitle, 0, 1)); ?>" data-voicecommand="<?php print t('go to ') . drupal_strtolower($stitle); ?>" data-elmsln-hover="<?php print $lmsless_classes[$service['distro']]['color'];?> <?php print $lmsless_classes[$service['distro']]['dark'];?> white-text" data-elmsln-icon-hover="hover-white-text">
-      <paper-button>
+      <paper-button class="paper-button-link">
       <?php if (isset($service['icon_library']) && $service['icon_library'] == 'material'): ?>
         <div class="elmsln-hover-icon material-icon elmsln-network-icon left elmsln-icon <?php print $iconcolor;?>"><i class="material-icons"><?php print $service['icon']; ?></i></div>
       <?php else: ?>
