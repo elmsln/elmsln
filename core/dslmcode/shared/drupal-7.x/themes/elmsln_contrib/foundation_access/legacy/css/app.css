@@ -1305,19 +1305,6 @@ label.error {
     .inline-list > li > * {
       display: block; }
 
-.keystroke,
-kbd {
-  background-color: #ededed;
-  border-color: #dddddd;
-  color: #222222;
-  border-style: solid;
-  border-width: 1px;
-  font-family: "Consolas", "Menlo", "Courier", monospace;
-  font-size: inherit;
-  margin: 0;
-  padding: 0.125rem 0.25rem 0;
-  border-radius: 3px; }
-
 .label {
   display: inline-block;
   font-family: "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
@@ -1359,42 +1346,6 @@ kbd {
   to {
     -ms-transform: rotate(360deg);
     transform: rotate(360deg); } }
-
-/* Orbit Graceful Loading */
-.slideshow-wrapper {
-  position: relative; }
-  .slideshow-wrapper ul {
-    list-style-type: none;
-    margin: 0; }
-    .slideshow-wrapper ul li,
-    .slideshow-wrapper ul li .orbit-caption {
-      display: none; }
-    .slideshow-wrapper ul li:first-child {
-      display: block; }
-  .slideshow-wrapper .orbit-container {
-    background-color: transparent; }
-    .slideshow-wrapper .orbit-container li {
-      display: block; }
-      .slideshow-wrapper .orbit-container li .orbit-caption {
-        display: block; }
-    .slideshow-wrapper .orbit-container .orbit-bullets li {
-      display: inline-block; }
-  .slideshow-wrapper .preloader {
-    border-radius: 1000px;
-    animation-duration: 1.5s;
-    animation-iteration-count: infinite;
-    animation-name: rotate;
-    animation-timing-function: linear;
-    border-color: #555555 #FFFFFF;
-    border: solid 3px;
-    display: block;
-    height: 40px;
-    left: 50%;
-    margin-left: -20px;
-    margin-top: -20px;
-    position: absolute;
-    top: 50%;
-    width: 40px; }
 
 ul.pagination {
   display: block;

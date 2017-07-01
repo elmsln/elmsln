@@ -1087,7 +1087,7 @@ function elmsln_core_fa_a11y() {
       ),
       '#materialize' => array(
         'type' => 'collapsible',
-        'icon' => 'keyboard',
+        'icon' => 'hardware:keyboard',
       ),
       'keys' => array(
         '#markup' =>

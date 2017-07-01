@@ -2953,6 +2953,10 @@ div.horizontal-tabs ul li.horizontal-tab-button strong {
 }
 
 /* ALL LRN / WEB COMPONENT BASED DESIGN MODIFICATIONS */
+paper-button iron-icon.iron-icon-0 {
+  height: 3em;
+  margin: 0 .25em;
+}
 paper-button.paper-button-link {
   padding: 0;
   margin: 0;

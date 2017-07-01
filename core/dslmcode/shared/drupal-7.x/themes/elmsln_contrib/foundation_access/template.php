@@ -1,6 +1,4 @@
 <?php
-// global cdn materialize version
-define('FOUNDATION_ACCESS_MATERIALIZE_VERSION', '0.97.8');
 
 /**
  * Implements template_preprocess_user_profile.
@@ -246,7 +244,7 @@ function foundation_access_fieldset($variables) {
         }
         // support icons in the headings of collapsed fieldsets
         if (isset($element['#materialize']['icon'])) {
-          $icon = '<i class="material-icons">' . $element['#materialize']['icon'] . '</i>';
+          $icon = '<iron-icon icon="' . $element['#materialize']['icon'] . '"></iron-icon>';
         }
         // support descriptions / form the body
         if (isset($element['#description'])) {
@@ -1373,9 +1371,6 @@ function foundation_access_html_head_alter(&$head_elements) {
     if (isset($libraries['materialize'])) {
       $css[] = base_path() . $libraries['materialize'] . '/css/materialize.css';
     }
-    else {
-      $css[] = '//cdnjs.cloudflare.com/ajax/libs/materialize/' . FOUNDATION_ACCESS_MATERIALIZE_VERSION . '/css/materialize.min.css';
-    }
     // parse returned locations array and manually add to html head
     foreach ($css as $key => $file) {
       $head_elements['fa_print_' . $key] = array(
@@ -1859,9 +1854,6 @@ function foundation_access_wysiwyg_editor_settings_alter(&$settings, $context) {
   // This allows EASY CDN module to switch to CDN later if that's the intention
   if (isset($libraries['materialize'])) {
     $settings['contentsCss'][] = base_path() . $libraries['materialize'] .'/css/materialize.css';
-  }
-  else {
-    $settings['contentsCss'][] = '//cdnjs.cloudflare.com/ajax/libs/materialize/' . FOUNDATION_ACCESS_MATERIALIZE_VERSION . '/css/materialize.min.css';
   }
   $lmsless_classes = _cis_lmsless_get_distro_classes(elmsln_core_get_profile_key());
   $css = _foundation_access_contextual_colors($lmsless_classes);

@@ -835,10 +835,10 @@ function mooc_helper_fa_a11y() {
       ),
       '#materialize' => array(
         'type' => 'collapsible',
-        'icon' => 'view_carousel',
+        'icon' => 'view-carousel',
       ),
       'speedreader' => array(
-        '#markup' => '<a data-voicecommand="open speed reader" class="elmsln-modal-trigger waves-effect btn-flat" href="#block-speedreader-speedreader-block-nav-modal" aria-controls="block-speedreader-speedreader-block-nav-modal" aria-expanded="false"><i class="material-icons black-text left">chrome_reader_mode</i>' . t('Speed reader') . '</a>',
+        '#markup' => '<a tabindex="-1" data-voicecommand="open speed reader" class="elmsln-modal-trigger" href="#block-speedreader-speedreader-block-nav-modal" aria-controls="block-speedreader-speedreader-block-nav-modal" aria-expanded="false"><paper-button class="paper-button-link"><iron-icon icon="chrome-reader-mode"></iron-icon>' . t('Speed reader') . '</paper-button></a>',
         '#weight' => 10,
       ),
     ),
@@ -846,14 +846,14 @@ function mooc_helper_fa_a11y() {
   // support print / book printing
   if (arg(0) == 'node' && is_numeric(arg(1)) && user_access('access printer-friendly version')) {
     $a11y['formats']['print'] = array(
-      '#markup' => '<a class="waves-effect btn-flat" href="' . base_path() . 'book/export/html/' . arg(1) . '" aria-expanded="false"><i class="material-icons black-text left">print</i>' . t('Print page') . '</a>',
+      '#markup' => '<a tabindex="-1" href="' . base_path() . 'book/export/html/' . arg(1) . '" aria-expanded="false"><paper-button class="paper-button-link"><iron-icon icon="print"></iron-icon>' . t('Print page') . '</paper-button></a>',
       '#weight' => -10,
     );
   }
   // print to pdf
   if (arg(0) == 'node' && is_numeric(arg(1)) && user_access('access PDF version')) {
     $a11y['formats']['pdf'] = array(
-      '#markup' => '<a class="waves-effect btn-flat" href="' . base_path() . 'printpdf/' . arg(1) . '" aria-expanded="false"><i class="material-icons black-text left">picture_as_pdf</i>' . t('PDF page') . '</a>',
+      '#markup' => '<a tabindex="-1" href="' . base_path() . 'printpdf/' . arg(1) . '" aria-expanded="false"><paper-button class="paper-button-link"><iron-icon icon="image:picture-as-pdf"></iron-icon>' . t('PDF page') . '</paper-button></a>',
       '#weight' => -9,
     );
   }
