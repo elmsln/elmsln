@@ -2957,6 +2957,10 @@ paper-button iron-icon.iron-icon-0 {
   height: 3em;
   margin: 0 .25em;
 }
+lrnsys-drawer lrn-icon.lrnsys-drawer {
+  height: 2em;
+  width: 2em;
+}
 paper-button.paper-button-link {
   padding: 0;
   margin: 0;

@@ -62,13 +62,9 @@
                 <?php endif; ?>
                 <?php if (!empty($a11y)) : ?>
                   <li class="r-header__edit-icons__list-item">
-                    <a tabindex="-1" id="elmsln-preferences-button" title="<?php print t('Your preferences')?>" class="r-header__icon elmsln-accessibility-button elmsln-right-side-nav-trigger" data-activates="page-accessibility-menu" aria-controls="page-accessibility-menu" aria-expanded="false" data-jwerty-key="a" data-voicecommand="open preferences (menu)">
-                    <paper-button>
-                      <i class="material-icons black-text" data-elmsln-hover="<?php print $cis_lmsless['lmsless_classes'][$distro]['text'] . ' text-' . $cis_lmsless['lmsless_classes'][$distro]['dark'];?>">accessibility</i>
-                      <span class="element-invisible"><?php print t('Your preferences menu'); ?></span>
-                    </paper-button>
-                    </a>
-                    <paper-tooltip for="elmsln-preferences-button" animation-delay="0"><?php print t('Your preferences')?></paper-tooltip>
+                  <lrnsys-drawer align="right" alt="<?php print t('Your preferences')?>" icon="accessibility" header="<?php print t('Preferences'); ?>" data-jwerty-key="a" data-voicecommand="open preferences (menu)">
+                    <?php print $a11y; ?>
+                  </lrnsys-drawer>
                   </li>
                 <?php endif; ?>
                 <!-- end Edit Icon -->
@@ -195,16 +191,3 @@
     <div class="elmsln-modal-container">
       <?php print render($page['cis_lmsless_modal']); ?>
     </div>
-    <!-- Accessibility side nav -->
-    <?php if (!empty($a11y)) : ?>
-    <section id="page-accessibility-menu" class="elmsln-modal elmsln-modal-hidden side-nav disable-scroll" aria-label="<?php print t('Preferences'); ?>" aria-hidden="true" role="dialog" tabindex="-1">
-        <div class="center-align valign-wrapper elmsln-modal-title-wrapper black">
-        <h2 class="flow-text valign elmsln-modal-title white-text"><?php print t('Preferences'); ?></h2>
-          <a tabindex="-1" href="#close-dialog" aria-label="<?php print t('Close'); ?>" class="close-reveal-side-nav white-text" data-voicecommand="close (menu)" data-jwerty-key="Esc" ><paper-button>×</paper-button></a>
-        </div>
-        <div class="elmsln-modal-content">
-          <?php print $a11y; ?>
-        </div>
-    </section>
-    <?php endif; ?>
-    <!-- /Accessibility side nav -->
