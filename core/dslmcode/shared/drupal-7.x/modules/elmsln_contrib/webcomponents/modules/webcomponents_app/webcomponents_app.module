@@ -271,9 +271,39 @@ function _webcomponents_app_load_app_data($machine_name = NULL, $debug = FALSE) 
     // this ensures that apps/machine-name get shifted off
     array_shift($args);
     array_shift($args);
-    // @todo this will need to account for wildcards which it currently can't
-    // match accurately and pass down
-    $endpointpath = implode('/', $args);
+    // match the route that was specified in $app['endpoints']
+    $endpointpath = NULL;
+    if (isset($app['endpoints'])) {
+      foreach ($app['endpoints'] as $path => $endpoint) {
+        // we're going to compare the args array and the endpoint.
+        // to do this we are going to convert the path to an array.
+        $path_ary = explode('/', $path);
+        // see if args and path are the same length
+        if (count($path_ary) == count($args)) {
+          // see if there are any differences between the two
+          $ary_diff = array_diff($path_ary, $args);
+          // if no differences then we found the path
+          if (!$ary_diff) {
+            $endpointpath = $path;
+          }
+          // if there is a difference in the path but the only differences
+          // are wildcards then it's a match
+          else {
+            $mismatch = false;
+            foreach ($ary_diff as $diff) {
+              if ($diff != '%') {
+                $mismatch = true;
+              }
+            }
+            // if we went through the diffs and there were no
+            // matches other than % then it's a match
+            if (!$mismatch) {
+              $endpointpath = $path;
+            }
+          }
+        }
+      }
+    }
     // make sure the machine name and the data callback both exist
     if (!empty($machine_name) && !empty($app) && isset($app['endpoints']) && function_exists($app['endpoints'][$endpointpath]['callback'])) {
       $params = filter_var_array($_GET, FILTER_SANITIZE_STRING);
