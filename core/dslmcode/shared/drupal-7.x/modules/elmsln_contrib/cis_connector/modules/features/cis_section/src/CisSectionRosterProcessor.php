@@ -2,13 +2,29 @@
 
 /**
  * Process a roster, creating and updating accounts accordingly.
+ *
+ * This provides support for deferred, batched processing via Drupal cron. This
+ * is disabled by default to preserve existing behavior and can be enabled by
+ * providing a batch size using the \CisSectionRosterProcessor::BATCH_VARIABLE
+ * variable.
  */
 class CisSectionRosterProcessor {
 
   /**
+   * The variable name for the default roster batch size.
+   */
+  const BATCH_VARIABLE = 'cis_section_roster_processor_batch_size';
+
+  /**
    * Unlimited batch size, used to disable cron based processing.
    */
-  const BATCH_UNLIMITED = -1;
+  const BATCH_UNLIMITED = FALSE;
+
+  /**
+   * Default batch size, use the batch size in the
+   * \CisSectionRosterProcessor::BATCH_VARIABLE variable.
+   */
+  const BATCH_DEFAULT = TRUE;
 
   /**
    * The name for the Drupal queue.
@@ -67,13 +83,27 @@ class CisSectionRosterProcessor {
    *
    * @param array $roster
    *   The roster to process.
-   * @param int $batch_size
+   * @param int|bool $batch_size
    *   How many items to process in a batch. Once we hit the batch limit, we
-   *   will queue up the next task in the cron.
+   *   will queue up the next task in the cron. Alternatively, you can provide:
+   *   - \CisSectionRosterProcessor::BATCH_UNLIMITED: (TRUE, default) Unlimited
+   *     batch size to disable batching and process all immediately.
+   *   - \CisSectionRosterProcessor::BATCH_DEFAULT: (FALSE) Use the site's
+   *     default batch size, definined by the
+   *     \CisSectionRosterProcessor::BATCH_VARIABLE variable, defaulting to
+   *     disabled for backwards compatibility.
    */
   public function __construct(array $roster, $batch_size = self::BATCH_UNLIMITED) {
     $this->roster = $roster;
-    $this->batchSize = $batch_size;
+
+    // If the default is requested, retrieve it from settings.
+    if ($batch_size = self::BATCH_DEFAULT) {
+      $this->batchSize = variable_get(self::BATCH_VARIABLE, self::BATCH_UNLIMITED);
+    }
+    // Otherwise we can just set it.
+    else {
+      $this->batchSize = $batch_size;
+    }
   }
 
   /**

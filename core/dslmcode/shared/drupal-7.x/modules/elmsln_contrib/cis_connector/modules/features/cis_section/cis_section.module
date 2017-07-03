@@ -505,7 +505,7 @@ function cis_section_state_change($node, $state = 'activate') {
  *   Whether we should defer large sets complete on cron. Defaults to FALSE.
  */
 function _cis_section_create_accounts($roster, $defer = FALSE) {
-  $batch_size = $defer ? 50 : CisSectionRosterProcessor::BATCH_UNLIMITED;
+  $batch_size = $defer ? CisSectionRosterProcessor::BATCH_DEFAULT : CisSectionRosterProcessor::BATCH_UNLIMITED;
   $processor = new CisSectionRosterProcessor($roster, $batch_size);
 
   // Always attempt to process a batch the first time round.
