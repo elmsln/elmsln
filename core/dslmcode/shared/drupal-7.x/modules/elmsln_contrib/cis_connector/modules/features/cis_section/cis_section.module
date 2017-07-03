@@ -31,6 +31,14 @@ function cis_section_menu() {
 }
 
 /**
+ * Implements hook_registry_files_alter().
+ */
+function cis_section_registry_files_alter(&$files, $modules) {
+  // Manually add here as this is a feature and the .info may get overridden.
+  $files[] = drupal_get_path('module', 'cis_section') . '/src/CisSectionRosterProcessor.php';
+}
+
+/**
  * Implements hook_og_context_negotiation_info().
  * Add context negotiation info.
  *
@@ -492,134 +500,10 @@ function cis_section_state_change($node, $state = 'activate') {
  * Create accounts, groups, and associate to groups.
  */
 function _cis_section_create_accounts($roster) {
-  $actual = array();
-  // loop through sections in the overall access roster
-  foreach ($roster as $section => $members) {
-    // @todo ship these async into the background per section
-    // loop through the user / role combination
-    foreach ($members as $name => $userdata) {
-      // support email address coming across too
-      if (is_array($userdata)) {
-        $role_name = $userdata['role'];
-        $mail = $userdata['mail'];
-        if (isset($userdata['pass'])) {
-          $pass = $userdata['pass'];
-        }
-      }
-      else {
-        $role_name = $userdata;
-      }
-      // convert role name to object bc of stupid storage convention for account creation
-      // @todo only load role by name once, this is needlessly expensive
-      $role = user_role_load_by_name($role_name);
-      // ensure we got something, otherwise just make it auth
-      if (!isset($role->rid) || empty($role->rid) || $role->rid == 0) {
-        $role->rid = 2;
-        $role->name = 'authenticated user';
-        $ogrole = FALSE;
-      }
-      else {
-        // try and load the group role that matches
-        // @todo only load role by name once, this is needlessly expensive
-        $ogrole = _cis_section_og_role_load_by_name($role_name);
-      }
-      // try and load the account first
-      // @ignore druplart_conditional_assignment
-      if (!$account = user_load_by_name($name)) {
-        $fields = array(
-          'name' => $name,
-          'pass' => user_password(20),
-          'status' => 1,
-          'roles' => array(
-            $role->rid => $role->name,
-          ),
-        );
-        // support mail being set during roster sync too
-        if (isset($mail)) {
-          $fields['mail'] = $mail;
-        }
-        // support for uniform password
-        if (isset($pass)) {
-          $fields['pass'] = $pass;
-        }
-        // allow other projects to update part of the user
-        drupal_alter('cis_section_user_insert', $fields, $userdata);
-        // the first parameter is left blank so a new user is created
-        $account = user_save('', $fields);
-      }
-      else {
-        // only save role if it is new
-        if (!isset($account->roles[$role->rid])) {
-          $account->roles[$role->rid] = $role->name;
-          user_save($account);
-        }
-      }
-      // load group by section
-      $gid = _cis_section_load_section_by_id($section);
-      // false returned if this group doesn't exist
-      if (!$gid) {
-        // we need to create the group as this is a new one
-        // possibly produced at run time of the sync
-        $group = new stdClass();
-        $group->type = 'section';
-        $group->status = 1;
-        $group->uid = 1;
-        $group->title = $section;
-        $group->promote = 0;
-        $group->revision = 1;
-        $group->field_section_id = array(
-          'und' => array(
-            0 => array(
-              'value' => $section,
-            ),
-          ),
-        );
-        node_save($group);
-        $gid = $group->nid;
-      }
-      // add group membership
-      $values = array(
-        'entity_type' => 'user',
-        'entity' => $account,
-      );
-      og_group('node', $gid, $values);
-      // give them the special staff role if it exists
-      if ($ogrole) {
-        _cis_section_og_role_grant('node', $gid, $account->uid, $ogrole->rid, 'update');
-      }
-      // rip membership names to uid array for comparison
-      $actual[] = $account->uid;
-      // allow other things to react to an account being processed
-      // via this job
-      drupal_alter('cis_section_account_processed', $account, $userdata);
-    }
-    // see if developer variable exists to prevent drop of access
-    // if we no longer see the account come across
-    if (variable_get('cis_section_strict_access', CIS_SECTION_STRICT_ACCESS)) {
-      // compare members that just came across to members currently (that are students)
-      // anyone currently that didn't just come across, gets role dropped
-      // they gain past student
-      $student = user_role_load_by_name(CIS_SECTION_STUDENT);
-      $past = user_role_load_by_name(CIS_SECTION_PAST_STUDENT);
-      if (isset($gid)) {
-        $current = _cis_section_load_users_by_gid($gid, $student->rid);
-      }
-      else {
-        $current = array();
-      }
-      // find users that no longer came across
-      $diff = array_diff($current, $actual);
-      // @todo ship this async into the background
-      foreach ($diff as $uid) {
-        $account = user_load($uid);
-        // drop student role
-        unset($account->roles[$student->rid]);
-        // gain past student role
-        $account->roles[$past->rid] = $past->name;
-        user_save($account);
-      }
-    }
-  }
+  $processor = new CisSectionRosterProcessor($roster, CisSectionRosterProcessor::BATCH_UNLIMITED);
+
+  // Always attempt to process a batch the first time round.
+  $processor->process();
 }
 
 /**
