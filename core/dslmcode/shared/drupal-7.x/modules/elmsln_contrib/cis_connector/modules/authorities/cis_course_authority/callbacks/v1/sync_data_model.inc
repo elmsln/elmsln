@@ -69,7 +69,7 @@ function cis_course_authority_elmsln_api_callback_sync_data_model() {
     if (isset($_elmsln['args']['roster']) && module_exists('cis_section')) {
       // attempt to deserialize
       $roster = @unserialize($_elmsln['args']['roster']);
-      _cis_section_create_accounts($roster);
+      _cis_section_create_accounts($roster, TRUE);
     }
     return array(
       'sync_data_model' => TRUE,

@@ -498,9 +498,15 @@ function cis_section_state_change($node, $state = 'activate') {
 
 /**
  * Create accounts, groups, and associate to groups.
+ *
+ * @param array $roster
+ *   The roster.
+ * @param bool $defer
+ *   Whether we should defer large sets complete on cron. Defaults to FALSE.
  */
-function _cis_section_create_accounts($roster) {
-  $processor = new CisSectionRosterProcessor($roster, CisSectionRosterProcessor::BATCH_UNLIMITED);
+function _cis_section_create_accounts($roster, $defer = FALSE) {
+  $batch_size = $defer ? 50 : CisSectionRosterProcessor::BATCH_UNLIMITED;
+  $processor = new CisSectionRosterProcessor($roster, $batch_size);
 
   // Always attempt to process a batch the first time round.
   $processor->process();
@@ -747,4 +753,26 @@ function _cis_section_og_role_load_by_name($name) {
     ->condition('name', $name)
     ->execute()
     ->fetchObject();
+}
+
+/**
+ * Implements hook_cron_queue_info().
+ */
+function cis_section_cron_queue_info() {
+  $queues[CisSectionRosterProcessor::QUEUE_NAME] = array(
+    'worker callback' => 'cis_section_roster_processor_worker',
+    'time' => 60,
+  );
+  return $queues;
+}
+
+/**
+ * Queue worker callback for the roster processor.
+ *
+ * @param \CisSectionRosterProcessor $processor
+ *   The roster processor.
+ */
+function cis_section_roster_processor_worker(CisSectionRosterProcessor $processor) {
+  // Simply process it! If it doesn't finish, it will re-queue itself.
+  $processor->process();
 }
