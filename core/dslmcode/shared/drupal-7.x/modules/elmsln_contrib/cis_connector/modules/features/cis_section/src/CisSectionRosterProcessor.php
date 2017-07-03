@@ -204,11 +204,27 @@ class CisSectionRosterProcessor {
       // the first parameter is left blank so a new user is created
       $account = user_save('', $values);
     }
-    // Otherwise, simple add the role.
+    // Otherwise, check our sync details.
     else {
-      // only save role if it is new
+      $save_user = FALSE;
+
+      // Add the role if it doesn't already exist.
       if (!isset($account->roles[$role])) {
         $account->roles[$role] = $role_name;
+        $save_user = TRUE;
+      }
+
+      // If we were given an email or password and they differ, update them.
+      if (isset($user_data['mail']) && $account->mail != $user_data['mail']) {
+        $account->mail = $user_data['mail'];
+        $save_user = TRUE;
+      }
+      if (isset($user_data['pass']) && $account->pass != $user_data['pass']) {
+        $account->pass = $user_data['pass'];
+        $save_user = TRUE;
+      }
+
+      if ($save_user) {
         user_save($account);
       }
     }
