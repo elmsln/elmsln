@@ -70,13 +70,18 @@ class CisSectionRosterProcessor {
   protected $roleCache = array();
 
   /**
-   * An array of user IDs for students still on the roster.
+   * The user IDs for students still on the roster for the current section.
    *
    * @var int[]
-   *
-   * @fixme: Check whether this should be a global rather than per section.
    */
   protected $actualStudents = array();
+
+  /**
+   * The user IDs for students to be archived across all sections.
+   *
+   * @var int[]
+   */
+  protected $archiveStudents;
 
   /**
    * Construct the roster processor object.
@@ -114,7 +119,7 @@ class CisSectionRosterProcessor {
       'roster',
       'batchSize',
       'actualStudents',
-      // @fixme: Decide if this is too much to store.
+      'archiveStudents',
       'roleCache',
     );
   }
@@ -129,7 +134,9 @@ class CisSectionRosterProcessor {
 
     // Process items until we have to stop.
     while ($this->batchSize == self::BATCH_UNLIMITED || $this->processed < $this->batchSize) {
-      $this->processItem();
+      if (!$this->processItem()) {
+        break;
+      }
       $this->processed++;
     }
 
@@ -162,25 +169,40 @@ class CisSectionRosterProcessor {
    *
    * Clean up means that this method can be called again and it will process the
    * next item.
+   *
+   * @return bool
+   *   Whether we have processed an item.
    */
   protected function processItem() {
-    // Get the section and group.
-    $section = current($this->roster);
-    $gid = $this->getSectionGroup($section);
+    // If the roster is not empty, continue to process it.
+    if (!empty($this->roster)) {
+      // Get the section and group.
+      $section = reset($this->roster);
+      $gid = $this->getSectionGroup($section);
 
-    // Figure out what is next to process.
-    // If we have members, process the next one.
-    if (!empty($this->roster[$section])) {
-      reset($this->roster[$section]);
-      $name = key($this->roster[$section]);
-      $user_data = array_shift($this->roster[$section]);
-      $this->processStudent($gid, $name, $user_data, $this->actualStudents);
+      // Figure out what is next to process.
+      // If we have members, process the next one.
+      if (!empty($this->roster[$section])) {
+        reset($this->roster[$section]);
+        $name = key($this->roster[$section]);
+        $user_data = array_shift($this->roster[$section]);
+        $this->processStudent($gid, $name, $user_data, $this->actualStudents);
+      }
+      // Otherwise, we have finished this section, so clean up and move on.
+      else {
+        $this->completeSection($section, $gid);
+      }
     }
+    // Otherwise, if there are any students to archive, process them.
+    elseif (!empty($this->archiveStudents)) {
+      $this->archiveStudent(array_shift($this->archiveStudents));
+    }
+    // Otherwise it looks like there's nothing to do.
     else {
-      // Otherwise, we will remove archived students and remove the section.
-      $this->archiveStudents($gid, $this->actualStudents);
-      unset($this->roster[$section]);
+      return FALSE;
     }
+
+    return TRUE;
   }
 
   /**
@@ -279,27 +301,27 @@ class CisSectionRosterProcessor {
   }
 
   /**
-   * Archive existing users that are't part of the current set.
+   * Get the IDs of students to be archived.
    *
    * @param int $gid
    *   The group ID for the section we are processing.
    * @param int[]
    *   An array of actually enrolled student user IDs.
    *
-   * @fixme: Allow each update to count as an item.
+   * @return array
+   *   An array of students to archive.
    */
-  protected function archiveStudents($gid, $actual) {
+  protected function getStudentsToArchive($gid, $actual) {
     // see if developer variable exists to prevent drop of access
     // if we no longer see the account come across
     if (!variable_get('cis_section_strict_access', CIS_SECTION_STRICT_ACCESS)) {
-      return;
+      return array();
     }
 
     // compare members that just came across to members currently (that are students)
     // anyone currently that didn't just come across, gets role dropped
     // they gain past student
     $student = user_role_load_by_name(CIS_SECTION_STUDENT);
-    $past = user_role_load_by_name(CIS_SECTION_PAST_STUDENT);
     if (isset($gid)) {
       $current = _cis_section_load_users_by_gid($gid, $student->rid);
     }
@@ -308,16 +330,51 @@ class CisSectionRosterProcessor {
     }
 
     // find users that no longer came across
-    $diff = array_diff($current, $actual);
+    return array_diff($current, $actual);
+  }
 
-    foreach ($diff as $uid) {
-      $account = user_load($uid);
-      // drop student role
-      unset($account->roles[$student->rid]);
-      // gain past student role
-      $account->roles[$past->rid] = $past->name;
-      user_save($account);
-    }
+  /**
+   * Archive a student who is no longer enrolled.
+   *
+   * @param int $uid
+   *   User ID of the student to archive.
+   */
+  protected function archiveStudent($uid) {
+    // compare members that just came across to members currently (that are students)
+    // anyone currently that didn't just come across, gets role dropped
+    // they gain past student
+    $student = user_role_load_by_name(CIS_SECTION_STUDENT);
+    $past = user_role_load_by_name(CIS_SECTION_PAST_STUDENT);
+
+    $account = user_load($uid);
+    // drop student role
+    unset($account->roles[$student->rid]);
+    // gain past student role
+    $account->roles[$past->rid] = $past->name;
+    user_save($account);
+  }
+
+  /**
+   * Reset variables when we complete a section.
+   *
+   * @param int $section
+   *   The section ID.
+   * @param int $gid
+   *   The group ID for the section we are processing.
+   */
+  protected function completeSection($section, $gid) {
+    // Remove the section from the roster.
+    unset($this->roster[$section]);
+
+    // compare members that just came across to members currently (that are students)
+    // anyone currently that didn't just come across, gets role dropped
+    // they gain past student
+    $student = user_role_load_by_name(CIS_SECTION_STUDENT);
+    $current = _cis_section_load_users_by_gid($gid, $student->rid);
+
+    // find users that no longer came across
+    $diff = array_diff($current, $this->actualStudents);
+    $this->archiveStudents = array_merge($this->archiveStudents, $diff);
   }
 
   /**
@@ -403,8 +460,9 @@ class CisSectionRosterProcessor {
    *   Whether we have finished.
    */
   public function isFinished() {
-    // If there is anything in the roster, we haven't finished.
-    return empty($roster);
+    // If there is anything in the roster or archive students, we haven't
+    // finished.
+    return empty($roster) && empty($this->archiveStudents);
   }
 
 }
