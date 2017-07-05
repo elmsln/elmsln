@@ -346,7 +346,6 @@ function _git_book_get_path($node) {
  * Helper function to get current status of local repo object
  */
 function _git_book_pull($repo, $remote, $branch) {
-  $status = _git_book_get_status($repo);
   return $repo->pull($remote, $branch);
 }
 

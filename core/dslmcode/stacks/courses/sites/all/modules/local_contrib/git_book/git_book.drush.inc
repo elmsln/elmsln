@@ -35,13 +35,6 @@ function git_book_drush_command() {
       'name' => 'unique name of the gitbook.'
     ),
   );
-  $commands['git-book-status'] = array(
-    'callback' => 'drush_git_book_status',
-    'description' => dt('Get the current status of a gitbook.'),
-    'arguments' => array(
-      'name' => 'unique name of the gitbook.'
-    ),
-  ); 
 
   return $commands;
 }
@@ -110,18 +103,6 @@ function drush_git_book_sync($name) {
   }
   else {
     drush_print(dt('Book not found.'));
-  }
-}
-
-/**
- * Callback for command git-book-status
- */
-function drush_git_book_status($name) {
-  $book = _git_book_drush_get_book_by_name($name);
-  if ($book) {
-    $repo = _git_book_get_repo($book);
-    $status = _git_book_get_status($repo);
-    drush_print($status);
   }
 }
 
