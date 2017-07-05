@@ -58,8 +58,8 @@ function git_book_node_insert($node) {
       $repo->run('config core.fileMode false');
       $repo->run('config core.autocrlf false');
       $branch = 'master';
-      if (isset($book->field_git_branch[LANGUAGE_NONE][0]['value'])) {
-        $branch = $book->field_git_branch[LANGUAGE_NONE][0]['value'];
+      if (isset($node->field_git_branch[LANGUAGE_NONE][0]['value'])) {
+        $branch = $node->field_git_branch[LANGUAGE_NONE][0]['value'];
       }
       $repo->checkout($branch);
       $parsers = git_book_get_parsers();
@@ -77,10 +77,13 @@ function git_book_node_insert($node) {
       }
       else {
         $repo = Git::create($path, $repo_url, true);
+        // tell the repo to NOT track permission changes
+        $repo->run('config core.fileMode false');
+        $repo->run('config core.autocrlf false');
       }
       $branch = 'master';
-      if (isset($book->field_git_branch[LANGUAGE_NONE][0]['value'])) {
-        $branch = $book->field_git_branch[LANGUAGE_NONE][0]['value'];
+      if (isset($node->field_git_branch[LANGUAGE_NONE][0]['value'])) {
+        $branch = $node->field_git_branch[LANGUAGE_NONE][0]['value'];
       }
       $repo->checkout($branch);
       $parsers = git_book_get_parsers();
