@@ -3085,3 +3085,9 @@ button.btn paper-button {
   min-width: 2rem;
   padding: 2rem 0.25rem;
 }
+
+
+/* Mathjax overrides */
+div.MathJax_Display {
+  display: inline!important;
+}
