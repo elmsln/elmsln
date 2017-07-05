@@ -34,7 +34,7 @@ function cis_course_service_elmsln_api_callback_sync_data_model() {
     if (isset($_elmsln['args']['roster'])) {
       // attempt to deserialize
       $roster = @unserialize($_elmsln['args']['roster']);
-      _cis_section_create_accounts($roster, TRUE);
+      _cis_section_create_accounts($roster);
     }
     return array(
       'sync_data_model' => TRUE,
