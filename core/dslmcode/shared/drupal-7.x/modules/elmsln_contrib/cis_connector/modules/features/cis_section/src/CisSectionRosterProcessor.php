@@ -91,12 +91,11 @@ class CisSectionRosterProcessor {
    * @param int|bool $batch_size
    *   How many items to process in a batch. Once we hit the batch limit, we
    *   will queue up the next task in the cron. Alternatively, you can provide:
-   *   - \CisSectionRosterProcessor::BATCH_UNLIMITED: (TRUE, default) Unlimited
+   *   - \CisSectionRosterProcessor::BATCH_UNLIMITED: (Default) Unlimited
    *     batch size to disable batching and process all immediately.
-   *   - \CisSectionRosterProcessor::BATCH_DEFAULT: (FALSE) Use the site's
-   *     default batch size, definined by the
-   *     \CisSectionRosterProcessor::BATCH_VARIABLE variable, defaulting to
-   *     disabled for backwards compatibility.
+   *   - \CisSectionRosterProcessor::BATCH_DEFAULT: Use the site's default batch
+   *     size, definined by the \CisSectionRosterProcessor::BATCH_VARIABLE
+   *     variable, defaulting to disabled for backwards compatibility.
    */
   public function __construct(array $roster, $batch_size = self::BATCH_UNLIMITED) {
     $this->roster = $roster;
