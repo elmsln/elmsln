@@ -237,21 +237,16 @@ that can pop up to display more info
         text-align: left;
       }
 
-      #containOne {
-        width: 10em;
-        height: 10em;
-        background: #ddd;
-      }
-
-      #containMore {
+      #contain {
         width: 10em;
         height: 10em;
         background: #ddd;
       }
 
       .center {
-        width: 45%;
-        margin: 1em auto 1em auto;
+        margin: auto;
+        width: 80%;
+        padding: 1em;
       }
     </style>
     <paper-card elevation="[[elevation]]">
@@ -311,26 +306,28 @@ that can pop up to display more info
         <lrndesign-avatar label="{{author}}"></lrndesign-avatar>
         <h2>{{author}}</h2>
         <!-- Need to pull the projectTitle -->
-        <h3>{{projectTitle}}Project Title</h3>
+        <h3>Project Title</h3>
       </div>
 
       <!-- This will need to be repeated for each assignment -->
       <paper-dialog-scrollable class="assign" id="dialogResponse">
         <h3 class="text-center">{{title}}</h3>
 
-        <template is="dom-if" if="{{image}}">
-          <iron-image sizing="contain" id="containOne" src="{{image}}"></iron-image>
-        </template>
-
         <template is="dom-if" if="{{images}}">
-          <template is="dom-repeat" items="[[_toArray(images)]]">
-            <iron-image sizing="contain" id="containMore" src="[[item]]"></iron-image>
-          </template>
+          <div class="center">
+            <h4>Images Submitted</h4>
+            <template is="dom-repeat" items="[[_toArray(images)]]">
+              <iron-image sizing="contain" id="contain" src="[[item]]"></iron-image>
+            </template>
+          </div>
         </template>
 
-        <template is="dom-if" if="{{video}}">
+        <template is="dom-if" if="{{videos}}">
           <div class="center">
-            <iframe src="{{video}}" align="center"></iframe>
+            <h4>Videos Submitted</h4>
+            <template is="dom-repeat" items="[[_toArray(videos)]]">
+              <iframe src="[[item]]"></iframe>
+            </template>
           </div>
         </template>
 
@@ -338,14 +335,22 @@ that can pop up to display more info
           <p>{{text}}</p>
         </template>
 
-        <template is="dom-if" if="{{link}}">
+        <template is="dom-if" if="{{links}}">
           <div class="center">
-            <a href="{{link}}"></a>
+            <h4>Links Submitted</h4>
+            <template is="dom-repeat" items="[[_toArray(links)]]">
+              <a href="[[item]]">[[item]]</a>
+            </template>
           </div>
         </template>
 
-        <template is="dom-if" if="{{file}}">
-          <span>{{file}}</span>
+        <template is="dom-if" if="{{files}}">
+          <div class="center">
+            <h4>Files Submitted</h4>
+            <template is="dom-repeat" items="[[_toArray(files)]]">
+              <a href="[[item]]">[[item]]</a>
+            </template>
+          </div>
         </template>
 
         <a href="#" tabindex="-1"><span class="comments">[[comments]]<lrn-icon icon="comment"></lrn-icon></span></a>
@@ -372,14 +377,6 @@ that can pop up to display more info
       },
       properties: {
         /**
-         * Image src
-         */
-        image: {
-          type: String,
-          reflectToAttribute: true,
-          notify: true,
-        },
-        /**
          * Array of src to images.
          */
         images: {
@@ -390,8 +387,8 @@ that can pop up to display more info
         /**
          * Text from the submission
          */
-        file: {
-          type: String,
+        files: {
+          type: Object,
           reflectToAttribute: true,
           notify: true,
         },
@@ -404,18 +401,18 @@ that can pop up to display more info
           notify: true,
         },
         /**
-         * File from the submission
+         * Links from the submission
          */
-        file: {
-          type: String,
+        links: {
+          type: Object,
           reflectToAttribute: true,
           notify: true,
         },
         /**
-         * Link from the submission
+         * Videos from the submission
          */
-        link: {
-          type: String,
+        videos: {
+          type: Object,
           reflectToAttribute: true,
           notify: true,
         },
