@@ -14,6 +14,12 @@ that can pop up to display more info
         display: inline-flex;
       }
 
+      /* Custom Tags */
+
+      lrn-icon {
+        margin: 0 .5em;
+      }
+
       paper-card {
         border-radius: 4px;
         margin: 0.75rem;
@@ -31,10 +37,37 @@ that can pop up to display more info
         overflow: auto;
       }
 
+      paper-dialog-scrollable h3 {
+        color: var(--paper-grey-800);
+      }
+
+      paper-dialog-scrollable p {
+        width: 80%;
+        margin: 1em auto 1em auto;
+        text-align: left;
+      }
+
       paper-dialog {
         padding: 2em;
         width: 80%;
       }
+
+      paper-dialog .comments {
+        float: right;
+        margin: 0 4em 2em 0;
+      }
+
+      paper-dialog .head {
+        width: 100%;
+        margin: auto;
+        text-align: center;
+      }
+
+      paper-dialog .head h3 {
+        color: var(--paper-grey-600);
+      }
+
+      /* Paper Card */
 
       .paper-card-responsive {
         min-width: 200px;
@@ -67,88 +100,6 @@ that can pop up to display more info
         background: #efefef;
       }
 
-      p.text-submission {
-        padding: 1.5rem 0rem 2.5rem 0rem;
-        margin: 0;
-      }
-
-      .text-submission {
-        font-family: 'Droid Serif', cursive;
-        font-size: 1rem;
-        font-style: italic;
-        color: #888;
-        text-decoration: none;
-        padding: 0rem 2.5rem 0rem 2.5rem;
-      }
-
-      .text-submission:hover {
-        color: #000;
-      }
-
-      p.link-submission {
-        width: 100%;
-        margin: 0;
-      }
-
-      .link-submission {
-        font-family: 'Anonymous Pro', monospace;
-        font-size: 2rem;
-        color: #888;
-        text-decoration: none;
-        width: 100%;
-        padding: 5rem 0;
-      }
-
-      .link-submission:hover {
-        color: #000;
-      }
-
-      p.file-submission {
-        width: 100%;
-        margin: 0;
-      }
-
-      .file-submission {
-        color: #888;
-        text-decoration: none;
-        width: 100%;
-        padding: 5rem 0;
-      }
-
-      .file-submission:hover {
-        color: #000;
-      }
-
-      .image-submission {
-        color: #888;
-        text-decoration: none;
-      }
-
-      .image-submission:hover {
-        color: #000;
-      }
-
-      .image-set-submission {
-        display: flex;
-        align-items: center;
-        flex-flow: row wrap;
-        align-content: flex-start;
-        color: #888;
-        text-decoration: none;
-      }
-
-      .image-set-submission:hover {
-        color: #000;
-      }
-
-      .text-right {
-        text-align: right;
-      }
-
-      .text-center {
-        text-align: center;
-      }
-
       .card-actions {
         background-color: #f5f5f5;
         border-radius: 0 0 4px 4px;
@@ -174,19 +125,36 @@ that can pop up to display more info
         border: solid 1px #EEEEEE;
       }
 
-      .truncate {
-        display: block;
-        /* Fallback for non-webkit */
-        display: -webkit-box;
-        max-width: 400px;
-        height: 64px;
-        /* Fallback for non-webkit */
-        margin: 0 auto;
-        line-height: 1.4;
-        -webkit-line-clamp: 3;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-        text-overflow: ellipsis;
+      .text-right {
+        text-align: right;
+      }
+
+      .text-center {
+        text-align: center;
+      }
+
+      /* Text Submission */
+
+      .text-submission {
+        font-family: 'Droid Serif', cursive;
+        font-size: 1rem;
+        font-style: italic;
+        color: #888;
+        text-decoration: none;
+      }
+
+      .text-submission:hover {
+        color: #000;
+      }
+
+      /* Icon Preview Submission */
+
+      .icon-submission {
+        color: #888;
+      }
+
+      .icon-submission:hover {
+        color: #000;
       }
 
       .big {
@@ -196,48 +164,27 @@ that can pop up to display more info
         max-height: 4em;
       }
 
-      .image {
-        --iron-image-width: 100%;
-        --iron-image-width: 100%;
+      /* Image Submission */
+
+      .image-set-submission {
+        display: flex;
+        align-items: center;
+        flex-flow: row wrap;
+        align-content: flex-start;
+        color: #888;
+        text-decoration: none;
       }
 
       .image-quad {
         --iron-image-height: auto;
         --iron-image-width: 100%;
-        flex-basis: 50%;
-      }
-
-      .comments {
-        float: right;
-        margin: 0 4em 2em 0;
-      }
-
-      .head {
-        width: 100%;
+        flex-basis: 90%;
         margin: auto;
-        text-align: center;
       }
 
-      .head h3 {
-        color: var(--paper-grey-600);
-      }
+      /* Paper Dialog */
 
-      .assign {
-        width: 100%;
-        margin: 1em auto 1em auto;
-      }
-
-      .assign h3 {
-        color: var(--paper-grey-800);
-      }
-
-      .assign p {
-        width: 80%;
-        margin: 1em auto 1em auto;
-        text-align: left;
-      }
-
-      #contain {
+      .contain {
         width: 10em;
         height: 10em;
         background: #ddd;
@@ -248,44 +195,41 @@ that can pop up to display more info
         width: 80%;
         padding: 1em;
       }
+
+      .link {
+        font-size: 1em;
+        line-height: 1em;
+      }
     </style>
-    <paper-card elevation="[[elevation]]">
+    <paper-card class="horizontal" elevation="[[elevation]]">
       <paper-button>
         <div class="card-content">
           <div class="card-control-height card-control-center">
             <!-- ----- Images Submission -----  -->
             <template is="dom-if" if="{{_previewType(images)}}">
+              <template is="dom-repeat" items="[[_toArray(images)]]">
               <div class="image-set-submission">
-                <template is="dom-repeat" items="[[_previewType(images)]]">
-                  <iron-image class="image-quad" src="[[item.value]]"></iron-image>
-                </template>
+                  <iron-image class="image-quad" src="[[item]]"></iron-image>
               </div>
+              </template>
             </template>
-            <!-- ----- Image Submission -----  -->
-            <template is="dom-if" if="{{_previewType(image)}}">
-              <div class="image-submission">
-                <iron-image class="image" src="[[image]]"></iron-image>
-              </div>
+            <!-- ----- Videos Submission -----  -->
+            <template is="dom-if" if="{{_previewType(videos)}}">
+                  <div class="icon-submission"><iron-icon class="big" icon="av:video-library"></lrn-icon></div>
             </template>
-            <!-- ----- File Submission -----  -->
-            <template is="dom-if" if="{{_previewType(file)}}">
-              <p class="file-submission text-center">
-                <div class="file-submission truncate">
-                  <iron-icon class="big" icon="file-download"></iron-icon>
-                </div>
-              </p>
+            <!-- ----- Files Submission -----  -->
+            <template is="dom-if" if="{{_previewType(files)}}">
+                  <div class="icon-submission"><iron-icon class="big" icon="icons:file-download"></lrn-icon></div>
             </template>
             <!-- ----- Link Submission -----  -->
-            <template is="dom-if" if="{{_previewType(link)}}">
-              <p class="link-submission text-center">
-                <div class="link-submission">&lt;/link&gt;</div>
-              </p>
+            <template is="dom-if" if="{{_previewType(links)}}">
+                  <div class="icon-submission"><iron-icon class="big" icon="icons:link"></lrn-icon></div>
             </template>
             <!-- ----- Text Submission -----  -->
             <template is="dom-if" if="{{_previewType(text)}}">
               <p class="text-submission">
                 <div class="text-submission truncate">[[text]]</div>
-              </p>
+                </p>
             </template>
           </div>
           <div class=divider></div>
@@ -298,30 +242,27 @@ that can pop up to display more info
         </div>
       </paper-button>
     </paper-card>
-
-
+    <!-- END paper-card -- START paper-dialog -->
     <paper-dialog id="dialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation">
-
       <div class="head text-center">
         <lrndesign-avatar label="{{author}}"></lrndesign-avatar>
         <h2>{{author}}</h2>
         <!-- Need to pull the projectTitle -->
         <h3>Project Title</h3>
       </div>
-
       <!-- This will need to be repeated for each assignment -->
-      <paper-dialog-scrollable class="assign" id="dialogResponse">
+      <paper-dialog-scrollable id="dialogResponse">
         <h3 class="text-center">{{title}}</h3>
-
+        <!-- ----- Images Submission -----  -->
         <template is="dom-if" if="{{images}}">
           <div class="center">
             <h4>Images Submitted</h4>
             <template is="dom-repeat" items="[[_toArray(images)]]">
-              <iron-image sizing="contain" id="contain" src="[[item]]"></iron-image>
+              <iron-image sizing="contain" class="contain" src="[[item]]"></iron-image>
             </template>
           </div>
         </template>
-
+        <!-- ----- Videos Submission -----  -->
         <template is="dom-if" if="{{videos}}">
           <div class="center">
             <h4>Videos Submitted</h4>
@@ -330,42 +271,36 @@ that can pop up to display more info
             </template>
           </div>
         </template>
-
+        <!-- ----- Text Submission -----  -->
         <template is="dom-if" if="{{text}}">
           <p>{{text}}</p>
         </template>
-
+        <!-- ----- Links Submission -----  -->
         <template is="dom-if" if="{{links}}">
           <div class="center">
             <h4>Links Submitted</h4>
             <template is="dom-repeat" items="[[_toArray(links)]]">
-              <a href="[[item]]">[[item]]</a>
+              <a class="link" href="[[item]]">
+                <lrn-icon icon="online"></lrn-icon>[[item]]</a>
             </template>
           </div>
         </template>
-
+        <!-- ----- Files Submission -----  -->
         <template is="dom-if" if="{{files}}">
           <div class="center">
             <h4>Files Submitted</h4>
             <template is="dom-repeat" items="[[_toArray(files)]]">
-              <a href="[[item]]">[[item]]</a>
+              <a class="link" href="[[item]]" target="_blank">[[item]]</a>
             </template>
           </div>
         </template>
-
-        <a href="#" tabindex="-1"><span class="comments">[[comments]]<lrn-icon icon="comment"></lrn-icon></span></a>
-
-        <hr>
-
+        <a href="{{url}}" tabindex="-1"><span class="comments">[[comments]]<lrn-icon icon="comment"></lrn-icon></span></a>
+        <hr class="divider">
       </paper-dialog-scrollable>
       <!-- End Repeat -->
-
     </paper-dialog>
-
-
     <iron-ajax params="{}" id="ajaxRequest" url="{{url}}" handle-as="json" on-response="_handleReturnedData"></iron-ajax>
   </template>
-
   <script>
     Polymer({
 
@@ -525,3 +460,16 @@ that can pop up to display more info
     });
   </script>
 </dom-module>
+
+
+
+
+
+
+
+
+
+
+
+
+
