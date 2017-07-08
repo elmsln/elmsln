@@ -688,10 +688,7 @@ function cis_filter_preprocess_cis_filter_render__side_nav(&$vars) {
   $code = $vars['settings']['code'];
   $vars['tool'] = $code['tool'];
   if (isset($code['icon'])) {
-    $vars['icon'] = '<i class="material-icons black-text left">' . $code['icon'] . '</i>';
-  }
-  else {
-    $vars['icon'] = '<i class="material-icons black-text left">pageview</i>';
+    $vars['icon'] = $code['icon'];
   }
   $vars['trigger'] = uniqid();
   $vars['class'] = 'cis-filter-side-nav-item';
