@@ -3011,6 +3011,8 @@ paper-button:focus {
   -ms-flex-pack: left;
   -webkit-justify-content: left;
   justify-content: left;
+  padding: 0;
+  margin: 0;
 }
 #etb-course-nav .top-bar li a lrn-icon {
   margin-right:.5rem;

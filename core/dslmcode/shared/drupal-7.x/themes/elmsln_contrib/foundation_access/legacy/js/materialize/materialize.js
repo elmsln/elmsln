@@ -105,8 +105,6 @@
         Drupal.settings.activeSideNav = null;
       }, 150);
     });
-    // apply color styling for this tool to accent the interface
-    $('.dropdown-content .nolink').addClass(Drupal.settings.cis_lmsless[Drupal.settings.distro]['text']);
     // apply border to things that want our background
     $('.tabs li.tab a').addClass(Drupal.settings.cis_lmsless[Drupal.settings.distro]['color'] + '-border');
     // meta property names so mobile reflects system color
