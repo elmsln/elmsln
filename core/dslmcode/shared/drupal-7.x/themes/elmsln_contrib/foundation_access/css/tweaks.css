@@ -1,8 +1,8 @@
-
 /**
  * @file
- * Fork of the Generic theme-independent base styles from core.
- * This lets us remove ones that conflict with materialize.
+ * Our "tweaks" to make the styles correct. This file will eventually be
+ * gutted as well but for now we're reducing the overhead in our CSS files
+ * across the application till we get there.
  */
 
 /* Typography resets */
@@ -5312,7 +5312,12 @@ button.btn paper-button {
   padding: 2rem 0.25rem;
 }
 
+/* TOTAL HACK JOB SOLUTIONS */
 
+/* Hide group access controls, they should always be default of private */
+#edit-group-access {
+  display:none;
+}
 /* Mathjax overrides */
 div.MathJax_Display {
   display: inline!important;
