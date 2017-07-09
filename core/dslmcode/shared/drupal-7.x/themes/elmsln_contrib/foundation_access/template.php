@@ -1884,21 +1884,7 @@ function foundation_access_wysiwyg_editor_settings_alter(&$settings, $context) {
 function _foundation_access_contextual_colors($lmsless_classes) {
   // loop through our system specific colors
   $colors = array('primary', 'secondary', 'required', 'optional');
-  $css = '
-  .pagination li.active,
-  ul.pagination li:hover a, ul.pagination li a:focus, ul.pagination li:hover button, ul.pagination li button:focus {
-    color: ' . $lmsless_classes['code_text'] . ';
-    background-color: ' . $lmsless_classes['code'] . '
-  }
-  .dropdown-content li > a, .dropdown-content li > span,
-  form.node-form div.field-group-htabs-wrapper .horizontal-tabs a.fieldset-title,
-  a {
-    color: ' . $lmsless_classes['code_text'] . ';
-  }
-  [type="checkbox"]:checked + label:before {
-    border-right: 2px solid ' . $lmsless_classes['code_text'] . ';
-    border-bottom: 2px solid ' . $lmsless_classes['code_text'] . ';
-  }';
+  $css = '';
   foreach ($colors as $current) {
     $color = theme_get_setting('foundation_access_' . $current . '_color');
     // allow other projects to override the FA colors
