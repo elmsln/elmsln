@@ -1,39 +1,9 @@
 @charset "UTF-8";
-
-html, body {
-  height: 100%; }
-
 *,
 *:before,
 *.imagelightbox__close:after,
 *:after {
   box-sizing: border-box; }
-
-html,
-body {
-  font-size: 100%; }
-
-body {
-  background: #fff;
-  color: #222;
-  cursor: auto;
-  font-family: "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
-  font-style: normal;
-  font-weight: normal;
-  line-height: 1.5;
-  margin: 0;
-  padding: 0;
-  position: relative; }
-
-a:hover {
-  cursor: pointer; }
-
-img {
-  max-width: 100%;
-  height: auto; }
-
-img {
-  -ms-interpolation-mode: bicubic; }
 
 #map_canvas img,
 #map_canvas embed,
@@ -420,55 +390,6 @@ span.postfix, label.postfix {
   color: #333333;
   border-color: #cccccc; }
 
-/* We use this to get basic styling on all basic form elements */
-/*input:not([type]), input[type="text"], input[type="password"], input[type="date"], input[type="datetime"], input[type="datetime-local"], input[type="month"], input[type="week"], input[type="email"], input[type="number"], input[type="search"], input[type="tel"], input[type="time"], input[type="url"], input[type="color"], textarea {
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  border-radius: 0;
-  background-color: #FFFFFF;
-  border-style: solid;
-  border-width: 1px;
-  border-color: #cccccc;
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
-  color: rgba(0, 0, 0, 0.75);
-  display: block;
-  font-family: inherit;
-  font-size: 0.875rem;
-  height: 2.3125rem;
-  margin: 0 0 1rem 0;
-  padding: 0.5rem;
-  width: 100%;
-  box-sizing: border-box;
-  transition: border-color 0.15s linear, background 0.15s linear; }
-  input:not([type]):focus, input[type="text"]:focus, input[type="password"]:focus, input[type="date"]:focus, input[type="datetime"]:focus, input[type="datetime-local"]:focus, input[type="month"]:focus, input[type="week"]:focus, input[type="email"]:focus, input[type="number"]:focus, input[type="search"]:focus, input[type="tel"]:focus, input[type="time"]:focus, input[type="url"]:focus, input[type="color"]:focus, textarea:focus {
-    background: #fafafa;
-    border-color: #999999;
-    outline: none; }
-  input:not([type]):disabled, input[type="text"]:disabled, input[type="password"]:disabled, input[type="date"]:disabled, input[type="datetime"]:disabled, input[type="datetime-local"]:disabled, input[type="month"]:disabled, input[type="week"]:disabled, input[type="email"]:disabled, input[type="number"]:disabled, input[type="search"]:disabled, input[type="tel"]:disabled, input[type="time"]:disabled, input[type="url"]:disabled, input[type="color"]:disabled, textarea:disabled {
-    background-color: #DDDDDD;
-    cursor: default; }
-  input:not([type])[disabled], input:not([type])[readonly],
-  fieldset[disabled] input:not([type]), input[type="text"][disabled], input[type="text"][readonly],
-  fieldset[disabled] input[type="text"], input[type="password"][disabled], input[type="password"][readonly],
-  fieldset[disabled] input[type="password"], input[type="date"][disabled], input[type="date"][readonly],
-  fieldset[disabled] input[type="date"], input[type="datetime"][disabled], input[type="datetime"][readonly],
-  fieldset[disabled] input[type="datetime"], input[type="datetime-local"][disabled], input[type="datetime-local"][readonly],
-  fieldset[disabled] input[type="datetime-local"], input[type="month"][disabled], input[type="month"][readonly],
-  fieldset[disabled] input[type="month"], input[type="week"][disabled], input[type="week"][readonly],
-  fieldset[disabled] input[type="week"], input[type="email"][disabled], input[type="email"][readonly],
-  fieldset[disabled] input[type="email"], input[type="number"][disabled], input[type="number"][readonly],
-  fieldset[disabled] input[type="number"], input[type="search"][disabled], input[type="search"][readonly],
-  fieldset[disabled] input[type="search"], input[type="tel"][disabled], input[type="tel"][readonly],
-  fieldset[disabled] input[type="tel"], input[type="time"][disabled], input[type="time"][readonly],
-  fieldset[disabled] input[type="time"], input[type="url"][disabled], input[type="url"][readonly],
-  fieldset[disabled] input[type="url"], input[type="color"][disabled], input[type="color"][readonly],
-  fieldset[disabled] input[type="color"], textarea[disabled], textarea[readonly],
-  fieldset[disabled] textarea {
-    background-color: #DDDDDD;
-    cursor: default; }
-  input:not([type]).radius, input[type="text"].radius, input[type="password"].radius, input[type="date"].radius, input[type="datetime"].radius, input[type="datetime-local"].radius, input[type="month"].radius, input[type="week"].radius, input[type="email"].radius, input[type="number"].radius, input[type="search"].radius, input[type="tel"].radius, input[type="time"].radius, input[type="url"].radius, input[type="color"].radius, textarea.radius {
-    border-radius: 3px; }
-*/`
 form .row .prefix-radius.row.collapse input,
 form .row .prefix-radius.row.collapse textarea,
 form .row .prefix-radius.row.collapse select,
@@ -577,7 +498,6 @@ select {
   border-width: 1px;
   border-color: #cccccc;
   color: rgba(0, 0, 0, 0.75);
-  font-family: inherit;
   font-size: 0.875rem;
   line-height: normal;
   padding: 0.5rem;
@@ -716,7 +636,6 @@ label.error {
 
 .label {
   display: inline-block;
-  font-family: "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
   font-weight: normal;
   line-height: 1;
   margin-bottom: auto;
@@ -1039,7 +958,6 @@ ul.pagination {
   .sub-nav li {
     color: #999999;
     float: left;
-    font-family: "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
     font-size: 0.875rem;
     font-weight: normal;
     margin-left: 1rem;
@@ -1226,7 +1144,6 @@ table {
       display: block;
       background-color: #EFEFEF;
       color: #222222;
-      font-family: "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
       font-size: 1rem;
       padding: 1rem 2rem; }
       .tabs dd > a:hover,
@@ -1534,7 +1451,6 @@ table {
     .top-bar-section ul li > a {
       color: #54a901;
       display: block;
-      font-family: "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
       font-size: 0.8125rem;
       font-weight: normal;
       padding-left: 0.9375rem;
@@ -2897,19 +2813,11 @@ body {
 h1.title {
   text-transform: uppercase; }
 
-@media only screen and (max-width: 40em) {
-  p.txtbk-pullquote {
-    font-family: "Georgia", sans-serif; } }
-
 #etb-course-nav span.course-title {
   text-transform: uppercase; }
 
 #etb-course-nav span.course-abrv {
   text-transform: uppercase; }
-
-@media only screen and (max-width: 40em) {
-  .etb-nav_item_search input {
-    font-family: "Georgia", sans-serif; } }
 
 .etb-nav-modal h2 {
   text-transform: uppercase; }
@@ -3656,29 +3564,9 @@ ul.off-canvas-list {
   .show-me-small-only {
     display: none; } }
 
-.f-dropdown.content {
-  padding: 0;
-  border-radius: 3px; }
-  .f-dropdown.content hr {
-    margin: 0; }
-  .f-dropdown.content a {
-    height: auto;
-    padding-left: 0.75rem; }
-  .f-dropdown.content ul li {
-    display: block; }
-    .f-dropdown.content ul li a {
-      margin: 0;
-      border: none; }
-
 .region-footer {
   padding: 2em inherit; }
 
-html, body {
-  height: 100%; }
-
-body {
-  margin: 0px;
-  padding: 0px; }
 
 .off-canvas-wrap {
   min-height: 100%;
@@ -4275,11 +4163,6 @@ p.txtbk-intro {
     display: flex;
     -ms-flex-align: center;
         align-items: center; }
-  .r-header .f-dropdown {
-    text-align: left;
-    margin: 0; }
-    .r-header .f-dropdown > ul {
-      margin: 0; }
 
 .etb-book .is-sticky {
   margin-bottom: 5em; }
@@ -4345,22 +4228,6 @@ p.txtbk-intro {
     border-left-color: transparent;
     border-bottom-color: transparent; }
 
-/*doc
----
-title: Buttons
-name: 1button
-category:
-  - Components - Buttons
----
-
-```html_example
-<a class="ev1-button"><i class="zmdi zmdi-copy"></i>Copy to clipboard</a>
-```
-
-```html_example
-<a class="ev1-button ev1-button--icon"><i class="zmdi zmdi-copy"></i>Copy to clipboard</a>
-```
-*/
 .ev1-button, .clipboard--button-only .clipboardjs-button {
   background: #008CBA;
   color: white;
@@ -4399,84 +4266,6 @@ category:
       left: 50%;
       -ms-transform: translate(-50%, -50%);
           transform: translate(-50%, -50%); }
-
-/*doc
----
-title: Quote
-name: quote
-category:
-  - Components - Quote
----
-
-This is a pullquote that can be used in the body of any rich text area. The base element class is `quote`. It can be attached to a
-`<p>` tag or a `<div>`.
-
-`blockquote` tags and `.txtbk-pullquote` elements will inherit these styles.
-
-```html_example
-<p class="quote">In open source, we feel strongly that to really do something well, you have to get a lot of people involved.</p>
-
-<div class="quote">
-	<p>In open source, we feel strongly that to really do something well, you have to get a lot of people involved.</p>
-	<p>For me, open source is a moral thing.</p>
-</div>
-```
-*/
-/*doc
----
-title: Quote Left
-name: quote-left
-category:
-  - Components - Quote
----
-
-```html_example
-<p class="quote quote--left">In open source, we feel strongly that to really do something well, you have to get a lot of people involved.</p>
-```
-*/
-/*doc
----
-title: Quote Right
-name: quote-right
-category:
-  - Components - Quote
----
-
-```html_example
-<p class="quote quote--right">In open source, we feel strongly that to really do something well, you have to get a lot of people involved.</p>
-```
-*/
-/*doc
----
-title: Quote Examples
-name: x-quote-example
-category:
-  - Components - Quote
----
-
-```html_example
-<p>Lorem ipsum Duis Ut non nulla amet laborum commodo aute dolor in consequat aliquip culpa non ut laboris in consequat tempor et veniam do ullamco est fugiat incididunt incididunt et cupidatat Excepteur proident mollit minim labore mollit velit exercitation laboris nulla ullamco aliquip exercitation cupidatat ad dolore nisi cillum commodo pariatur mollit dolore in eu tempor aliquip aute sunt nulla esse amet in dolor ad laboris aute non occaecat voluptate quis irure sit nisi consectetur tempor veniam aute fugiat culpa occaecat nostrud velit dolore minim dolor quis dolor ea esse aliqua ullamco do esse sint anim elit cupidatat laborum veniam ut anim labore minim aliqua proident et aute in laboris do laborum ea occaecat elit.</p>
-
-<p class="quote">In open source, we feel strongly that to really do something well, you have to get a lot of people involved.</p>
-
-<p>Lorem ipsum Dolor commodo irure ut sed ea dolore mollit aute ullamco in in cupidatat ut mollit quis dolor reprehenderit nulla officia occaecat veniam proident laboris cillum reprehenderit dolore adipisicing nulla commodo aute elit minim sit enim enim anim deserunt aliqua cillum aute Ut nostrud adipisicing Excepteur ex incididunt deserunt dolore est Duis qui eu sint amet nulla voluptate aliqua deserunt in enim deserunt et dolore velit aliqua do elit commodo laborum id cillum cupidatat esse quis cillum Duis culpa exercitation velit Duis in officia nulla.</p>
-<p>Lorem ipsum Duis Ut non nulla amet laborum commodo aute dolor in consequat aliquip culpa non ut laboris in consequat tempor et veniam do ullamco est fugiat incididunt incididunt et cupidatat Excepteur proident mollit minim labore mollit velit exercitation laboris nulla ullamco aliquip exercitation cupidatat ad dolore nisi cillum commodo pariatur mollit dolore in eu tempor aliquip aute sunt nulla esse amet in dolor ad laboris aute non occaecat voluptate quis irure sit nisi consectetur tempor veniam aute fugiat culpa occaecat nostrud velit dolore minim dolor quis dolor ea esse aliqua ullamco do esse sint anim elit cupidatat laborum veniam ut anim labore minim aliqua proident et aute in laboris do laborum ea occaecat elit.</p>
-
-<p class="quote quote--left">In open source, we feel strongly that to really do something well, you have to get a lot of people involved.</p>
-
-<p>Lorem ipsum Dolor commodo irure ut sed ea dolore mollit aute ullamco in in cupidatat ut mollit quis dolor reprehenderit nulla officia occaecat veniam proident laboris cillum reprehenderit dolore adipisicing nulla commodo aute elit minim sit enim enim anim deserunt aliqua cillum aute Ut nostrud adipisicing Excepteur ex incididunt deserunt dolore est Duis qui eu sint amet nulla voluptate aliqua deserunt in enim deserunt et dolore velit aliqua do elit commodo laborum id cillum cupidatat esse quis cillum Duis culpa exercitation velit Duis in officia nulla.</p>
-<p>Lorem ipsum Duis Ut non nulla amet laborum commodo aute dolor in consequat aliquip culpa non ut laboris in consequat tempor et veniam do ullamco est fugiat incididunt incididunt et cupidatat Excepteur proident mollit minim labore mollit velit exercitation laboris nulla ullamco aliquip exercitation cupidatat ad dolore nisi cillum commodo pariatur mollit dolore in eu tempor aliquip aute sunt nulla esse amet in dolor ad laboris aute non occaecat voluptate quis irure sit nisi consectetur tempor veniam aute fugiat culpa occaecat nostrud velit dolore minim dolor quis dolor ea esse aliqua ullamco do esse sint anim elit cupidatat laborum veniam ut anim labore minim aliqua proident et aute in laboris do laborum ea occaecat elit.</p>
-
-<p class="quote quote--right">In open source, we feel strongly that to really do something well, you have to get a lot of people involved.</p>
-
-<p>Lorem ipsum Dolor commodo irure ut sed ea dolore mollit aute ullamco in in cupidatat ut mollit quis dolor reprehenderit nulla officia occaecat veniam proident laboris cillum reprehenderit dolore adipisicing nulla commodo aute elit minim sit enim enim anim deserunt aliqua cillum aute Ut nostrud adipisicing Excepteur ex incididunt deserunt dolore est Duis qui eu sint amet nulla voluptate aliqua deserunt in enim deserunt et dolore velit aliqua do elit commodo laborum id cillum cupidatat esse quis cillum Duis culpa exercitation velit Duis in officia nulla.</p>
-<p>Lorem ipsum Duis Ut non nulla amet laborum commodo aute dolor in consequat aliquip culpa non ut laboris in consequat tempor et veniam do ullamco est fugiat incididunt incididunt et cupidatat Excepteur proident mollit minim labore mollit velit exercitation laboris nulla ullamco aliquip exercitation cupidatat ad dolore nisi cillum commodo pariatur mollit dolore in eu tempor aliquip aute sunt nulla esse amet in dolor ad laboris aute non occaecat voluptate quis irure sit nisi consectetur tempor veniam aute fugiat culpa occaecat nostrud velit dolore minim dolor quis dolor ea esse aliqua ullamco do esse sint anim elit cupidatat laborum veniam ut anim labore minim aliqua proident et aute in laboris do laborum ea occaecat elit.</p>
-
-<p class="quote">In open source, we feel strongly that to really do something well, you have to get a lot of people involved.</p>
-
-<p>Lorem ipsum Dolor commodo irure ut sed ea dolore mollit aute ullamco in in cupidatat ut mollit quis dolor reprehenderit nulla officia occaecat veniam proident laboris cillum reprehenderit dolore adipisicing nulla commodo aute elit minim sit enim enim anim deserunt aliqua cillum aute Ut nostrud adipisicing Excepteur ex incididunt deserunt dolore est Duis qui eu sint amet nulla voluptate aliqua deserunt in enim deserunt et dolore velit aliqua do elit commodo laborum id cillum cupidatat esse quis cillum Duis culpa exercitation velit Duis in officia nulla.</p>
-```
-*/
 .quote,
 .txtbk-pullquote,
 blockquote,
@@ -4510,7 +4299,7 @@ blockquote,
       line-height: 1.4em;
       margin: 0 7% 1.5em 7%;
       padding: 0.313em 0px 0.313em 0.625em;
-      font-family: "Vollkorn", "Georgia", serif; } }
+      } }
   @media only screen and (min-width: 64.063em) {
     .quote,
     .txtbk-pullquote,
@@ -5311,23 +5100,6 @@ The figure label component is used to present textbook like captions to media el
       margin-top: 0; }
     .figurelabel__desc > *:last-of-type {
       margin-bottom: 0; }
-
-.f-dropdown.content:focus {
-  outline-style: none; }
-
-.f-dropdown--classic li {
-  width: 100%; }
-  .f-dropdown--classic li a {
-    font-family: "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif !important;
-    font-size: 0.8125rem !important;
-    font-weight: normal !important;
-    color: #333333 !important;
-    padding: .75rem !important;
-    height: auto !important;
-    line-height: 1rem !important; }
-    .f-dropdown--classic li a:hover {
-      background-color: #EEEEEE !important; }
-
 .clipboard__wrapper {
   position: relative;
   display: inline-block;

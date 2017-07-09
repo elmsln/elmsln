@@ -8,10 +8,10 @@
       <?php print $userbackground; ?>
       <?php if (isset($userpicturebig)) { print $userpicturebig; } ?>
       <?php if (!empty($username)) : ?>
-        <a><span class="white-text name"><?php print "$username"; ?></span></a>
+        <a><span class="white name"><?php print "$username"; ?></span></a>
       <?php endif; ?>
-      <a><span class="white-text section-title"><?php if (isset($section_title)) { print $section_title; } ?></span></a>
-      <a><span class="white-text user-roles"><?php if (!empty($user_roles)) { print $user_roles; } ?></span></a>
+      <a><span class="white section-title"><?php if (isset($section_title)) { print $section_title; } ?></span></a>
+      <a><span class="white user-roles"><?php if (!empty($user_roles)) { print $user_roles; } ?></span></a>
     </div>
   </li>
 <?php if (!empty($username)) : ?>

@@ -5,7 +5,6 @@
  *    without disabling user zoom.
  */
 html {
-  font-family: sans-serif;
   /* 1 */
   -ms-text-size-adjust: 100%;
   /* 2 */
@@ -2056,13 +2055,6 @@ nav .input-field label.active {
 
 a {
   text-decoration: none;
-}
-
-html {
-  line-height: 1.5;
-  font-family: "Roboto", sans-serif;
-  font-weight: normal;
-  color: rgba(0, 0, 0, 0.87);
 }
 
 @media only screen and (min-width: 0) {

@@ -375,6 +375,7 @@ a.book-sibling-parent-pagination {
 }
 .book-sibling-parent a.elmsln-dropdown-button {
   border-bottom: black solid 2px;
+  color: #222222;
 }
 .sticky-wrapper.is-sticky .book-sibling-parent a.elmsln-dropdown-button {
   border-bottom-color:white;
