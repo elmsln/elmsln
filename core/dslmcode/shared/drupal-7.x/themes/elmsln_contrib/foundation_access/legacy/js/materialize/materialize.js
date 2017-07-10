@@ -107,10 +107,8 @@
     });
     // apply border to things that want our background
     $('.tabs li.tab a').addClass(Drupal.settings.cis_lmsless[Drupal.settings.distro]['color'] + '-border');
-    // meta property names so mobile reflects system color
-    $('meta[name="theme-color"],meta[name="msapplication-TileColor"],meta[name="msapplication-navbutton-color"]').attr('content', $('.cis-lmsless-color').css('backgroundColor'));
     // hover state for tables to match styling
-    $('tr.even, tr.odd, [data-elmsln-hover]').not('.active,.active-system,.elmsln-fixed-action-btn a').hover(
+    $('[data-elmsln-hover]').hover(
       function() {
         var attr = $(this).attr('data-elmsln-hover');
         if (typeof attr !== typeof undefined && attr !== false) {

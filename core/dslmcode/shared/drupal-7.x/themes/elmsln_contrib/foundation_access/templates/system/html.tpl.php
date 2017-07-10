@@ -88,14 +88,11 @@
 <body class="<?php print $classes; ?> <?php print $lmsless_classes['color'];?>-selection" <?php print $attributes;?> prefix="oer: http://oerschema.org/">
 <h1 class="element-invisible"><?php print $head_title;?></h1>
 <?php ob_flush(); flush(); ?>
-  <span class="cis-lmsless-color"></span>
   <div class="skip-link">
     <a href="#main-content" class="element-invisible element-focusable black-text"><?php print t('Skip to main content'); ?></a>
   </div>
   <?php if (!empty($banner_image)) : ?>
-  <div class="header-image-container">
-    <?php print $banner_image; ?>
-  </div>
+    <div class="header-image-container"><?php print $banner_image; ?></div>
   <?php endif; ?>
   <?php print preg_replace('~>\s+<~', '><', $page_top . $page . $page_bottom); ?>
   </body>
