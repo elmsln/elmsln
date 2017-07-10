@@ -1,5 +1,0 @@
-default:
-  extensions:
-    Drupal\DrupalExtension:
-      drupal:
-        drupal_root: "/var/www/foundation_access/www"
