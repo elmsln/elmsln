@@ -1125,6 +1125,7 @@ function foundation_access_link(&$variables) {
   $options = $variables['options'];
   // support for lrn icon
   if ($variables['options']['fa_icon']) {
+    $options['html'] = TRUE;
     $text = '<lrn-icon icon="' . $variables['options']['fa_icon'] . '"></lrn-icon>' . $text;
   }
   // support for has-children chevron
