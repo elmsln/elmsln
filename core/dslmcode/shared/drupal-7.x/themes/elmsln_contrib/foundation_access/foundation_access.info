@@ -27,13 +27,10 @@ engine = phptemplate
 ; CSS3 media queries: http://www.w3.org/TR/css3-mediaqueries/
 
 ; CSS
-stylesheets[all][] = legacy/css/system.base.css
-stylesheets[all][] = legacy/css/app.css
-stylesheets[all][] = legacy/css/comparison.css
-stylesheets[all][] = css/tweaks.css
-
-
-; Print as null
+stylesheets[all][] = css/system.base.css
+stylesheets[all][] = css/comparison.css
+stylesheets[all][] = css/main.css
+; Print
 stylesheets[print][] = css/print.css
 
 ; Modernizr acts as a shim for HTML5 elements for older browsers

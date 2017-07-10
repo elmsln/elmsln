@@ -4,7 +4,7 @@
  * Inlined to avoid required HTTP connection: www.phpied.com/delay-loading-your-print-css/
  * Credit to Paul Irish and HTML5 Boilerplate (html5boilerplate.com)
 */
-@media print {
+
   * {
     background: transparent !important;
     color: #000000 !important;
@@ -43,4 +43,15 @@
     widows: 3; }
   h2,
   h3 {
-    page-break-after: avoid; } }
+    page-break-after: avoid; }
+
+  p {
+    -moz-column-count: 2;
+         column-count: 2; }
+  h1 {
+    font-size: 2rem;
+    text-transform: uppercase; }
+  h2 {
+    font-size: 1.75rem; }
+  h3 {
+    font-size: 1.5rem; }
