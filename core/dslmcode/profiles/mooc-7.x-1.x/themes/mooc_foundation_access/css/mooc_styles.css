@@ -1,3 +1,59 @@
+.content-outline-navigation a {
+  color: #333; }
+
+.content-outline-navigation h2 {
+  color: #333;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
+  text-transform: uppercase;
+  font-size: 1.3rem;
+  padding: 0.9375rem 0 0.9375rem 0;
+  margin: 0.9375rem 1rem 0.9375rem 0; }
+  @media only screen and (max-width: 40em) {
+    .content-outline-navigation h2 {
+      max-width: 48%; } }
+  @media only screen and (min-width: 40.063em) {
+    .content-outline-navigation h2 {
+      max-width: 16rem; } }
+
+.content-outline-navigation h3 {
+  color: #4d4d4d;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
+  margin: 0;
+  padding: 0.9375rem 0 0.9375rem 1rem;
+  border-left: 2px solid #1a1a1a;
+  font-size: 1rem;
+  text-align: left; }
+  @media only screen and (max-width: 40em) {
+    .content-outline-navigation h3 {
+      max-width: 48%; } }
+  @media only screen and (min-width: 40.063em) {
+    .content-outline-navigation h3 {
+      max-width: 16rem; } }
+
+.content-outline-navigation h4 {
+  margin: 0 0 1.875rem 1.875rem; }
+
+.content-outline-navigation ul.accordion {
+  margin: 0.5rem; }
+
+.content-outline-navigation .accordion .accordion-navigation > .content.active,
+.content-outline-navigation .accordion dd > .content.active {
+  background-color: transparent;
+  padding: 0; }
+
+.content-outline-navigation .accordion .accordion-navigation > a,
+.content-outline-navigation .accordion dd > a {
+  background: transparent; }
+
+.content-outline-navigation .left-submenu .back > a {
+  background: transparent;
+  text-align: center;
+  padding: 0;
+  margin: 0 2rem;
+  border: none; }
+
 .elmsln-learning-pathway-wrapper {
   margin-top: 4rem;
   padding: 2rem;
