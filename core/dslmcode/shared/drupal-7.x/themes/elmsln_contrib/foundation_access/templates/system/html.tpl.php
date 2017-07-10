@@ -52,9 +52,9 @@
       lazyRegister: true
     };
   </script>
-  <?php print preg_replace('~>\s+<~', '><', $scripts); ?>
   <?php print preg_replace('~>\s+<~', '><', $head); ?>
   <?php print preg_replace('~>\s+<~', '><', $styles); ?>
+  <?php print preg_replace('~>\s+<~', '><', $scripts); ?>
   <!-- tell IE versions to render as high as possible -->
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
