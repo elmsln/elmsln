@@ -45,7 +45,16 @@
 <html class="no-js" lang="<?php print $language->language ?>" dir="<?php print $language->dir ?>"> <!--<![endif]-->
 <head>
   <title><?php print $head_title; ?></title>
-  <?php print $head; ?>
+  <script>
+    /* this script must run before Polymer is imported */
+    window.Polymer = {
+      dom: 'shady',
+      lazyRegister: true
+    };
+  </script>
+  <?php print preg_replace('~>\s+<~', '><', $scripts); ?>
+  <?php print preg_replace('~>\s+<~', '><', $head); ?>
+  <?php print preg_replace('~>\s+<~', '><', $styles); ?>
   <!-- tell IE versions to render as high as possible -->
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -75,8 +84,6 @@
   <meta name="msapplication-TileColor" content="#eeeeee">
   <meta name="theme-color" content="#eeeeee">
   <!--/end cross platform favicons and tweaks-->
-  <?php print preg_replace('~>\s+<~', '><', $styles); ?>
-  <?php print preg_replace('~>\s+<~', '><', $scripts); ?>
 </head>
 <body class="<?php print $classes; ?> <?php print $lmsless_classes['color'];?>-selection" <?php print $attributes;?> prefix="oer: http://oerschema.org/">
 <h1 class="element-invisible"><?php print $head_title;?></h1>
