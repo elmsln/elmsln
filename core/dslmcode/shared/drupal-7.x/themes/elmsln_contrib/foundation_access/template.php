@@ -1123,6 +1123,14 @@ function foundation_access_link(&$variables) {
   $path = $variables['path'];
   $text = $variables['text'];
   $options = $variables['options'];
+  // support for lrn icon
+  if ($variables['options']['fa_icon']) {
+    $text = '<lrn-icon icon="' . $variables['options']['fa_icon'] . '"></lrn-icon>' . $text;
+  }
+  // support for has-children chevron
+  if (isset($variables['options']['has-children']) && $variables['options']['has-children']) {
+      $options['attributes']['icon'] = 'chevron-right';
+    }
   // if HTML is set to true then we can't handle this at the moment
   if ($options['html']) {
     return '<lrnsys-button href="' . check_plain(url($path, $options)) . '" ' . drupal_attributes($options['attributes']) . '>' . $text . '</lrnsys-button>';
@@ -1192,7 +1200,8 @@ function foundation_access_menu_link(&$variables) {
   elseif (strpos($element['#original_link']['menu_name'], 'book-toc-') === 0) {
     $element['#attributes']['class'][] = 'elmsln-book-item';
     if ($element['#original_link']['has_children'] == 1) {
-      $element['#attributes']['class'][] = 'has-children';
+      $element['#localized_options']['has-children'] = TRUE;
+      $element['#localized_options']['attributes']['class'][] = 'has-children';
     }
     elseif (isset($element['#original_link']['options']['fa_icon']) && !empty($element['#original_link']['options']['fa_icon'])) {
       // overview page renders differently for full screen mode

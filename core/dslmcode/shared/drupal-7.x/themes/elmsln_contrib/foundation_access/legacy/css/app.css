@@ -634,39 +634,6 @@ label.error {
     .inline-list > li > * {
       display: block; }
 
-.label {
-  display: inline-block;
-  font-weight: normal;
-  line-height: 1;
-  margin-bottom: auto;
-  position: relative;
-  text-align: center;
-  text-decoration: none;
-  white-space: nowrap;
-  padding: 0.25rem 0.5rem 0.25rem;
-  font-size: 0.6875rem;
-  background-color: #008CBA;
-  color: #FFFFFF; }
-  .label.radius {
-    border-radius: 3px; }
-  .label.round {
-    border-radius: 1000px; }
-  .label.alert {
-    background-color: #f04124;
-    color: #FFFFFF; }
-  .label.warning {
-    background-color: #f08a24;
-    color: #FFFFFF; }
-  .label.success {
-    background-color: #43AC6A;
-    color: #FFFFFF; }
-  .label.secondary {
-    background-color: #e7e7e7;
-    color: #333333; }
-  .label.info {
-    background-color: #a0d3e8;
-    color: #333333; }
-
 @keyframes rotate {
   from {
     -ms-transform: rotate(0deg);
@@ -4680,31 +4647,6 @@ blockquote,
   .alert-box.alert {
     color: #8c2e0b;
     background-color: #EFC9C9; }
-
-#block-mooc-nav-block-mooc-nav-nav.block-mooc-nav-block-mooc-nav {
-  padding: .5em;
-  margin: 0;
-  border: none;
-  border-radius: 0;
-  font-size: .75rem;
-  background-color: #F5F5F5;
-  padding: 0;
-  float: none;
-  margin-bottom: 2em; }
-  #block-mooc-nav-block-mooc-nav-nav.block-mooc-nav-block-mooc-nav h3 {
-    font-size: 1.2em;
-    padding: .5em; }
-  #block-mooc-nav-block-mooc-nav-nav.block-mooc-nav-block-mooc-nav ul {
-    margin: 0;
-    padding: 0; }
-    #block-mooc-nav-block-mooc-nav-nav.block-mooc-nav-block-mooc-nav ul li {
-      margin: 0;
-      padding: 0 .5em; }
-      #block-mooc-nav-block-mooc-nav-nav.block-mooc-nav-block-mooc-nav ul li:hover {
-        background-color: transparent; }
-      #block-mooc-nav-block-mooc-nav-nav.block-mooc-nav-block-mooc-nav ul li a {
-        display: -ms-flexbox;
-        display: flex; }
 
 .cis--tab-panel__wrapper.tabs-content > .content {
   padding: 1rem;

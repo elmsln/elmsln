@@ -28,15 +28,20 @@
         }
         $stitle = token_replace($service['title']);
     ?>
-      <li><a tabindex="-1" data-prefetch-hover="true" href="<?php print token_replace($service['url']); ?>" class="<?php print $activetool . $service['icon']; ?>-icon"  data-jwerty-key="ctrl+<?php print drupal_strtolower(substr($stitle, 0, 1)); ?>" data-voicecommand="<?php print t('go to ') . drupal_strtolower($stitle); ?>" data-elmsln-hover="<?php print $lmsless_classes[$service['distro']]['color'];?> <?php print $lmsless_classes[$service['distro']]['dark'];?> white-text" data-elmsln-icon-hover="hover-white-text">
-      <paper-button class="paper-button-link">
-      <?php if (isset($service['icon_library']) && $service['icon_library'] == 'material'): ?>
-        <div class="elmsln-hover-icon material-icon elmsln-network-icon left elmsln-icon <?php print $iconcolor;?>"><i class="material-icons"><?php print $service['icon']; ?></i></div>
-      <?php else: ?>
-        <lrn-icon icon="<?php print $service['icon'];?>" class="elmsln-hover-icon <?php print $iconcolor;?>"></lrn-icon>
-      <?php endif; ?>
-        <span class="elmsln-network-label"><?php print $stitle; ?></span>
+    <li>
+    <?php if (isset($service['icon_library']) && $service['icon_library'] == 'material'): ?>
+      <a tabindex="-1" data-prefetch-hover="true" href="<?php print token_replace($service['url']); ?>" class="<?php print $activetool . $service['icon']; ?>-icon" data-jwerty-key="ctrl+<?php print drupal_strtolower(substr($stitle, 0, 1)); ?>" data-voicecommand="<?php print t('go to ') . drupal_strtolower($stitle); ?>" hover-class="<?php print $lmsless_classes[$service['distro']]['color'];?> <?php print $lmsless_classes[$service['distro']]['dark'];?> white-text">
+        <paper-button class="paper-button-link">
+          <div class="elmsln-hover-icon material-icon elmsln-network-icon left elmsln-icon <?php print $iconcolor;?>"><i class="material-icons"><?php print $service['icon']; ?></i></div>
+          <span class="elmsln-network-label"><?php print $stitle; ?></span>
+        </paper-button>
       </a>
-      </paper-button></li>
+    <?php else: ?>
+      <lrnsys-button href="<?php print token_replace($service['url']); ?>" class="account-logout" hover-class="<?php print $lmsless_classes[$service['distro']]['color'];?> <?php print $lmsless_classes[$service['distro']]['dark'];?> white-text" data-prefetch-hover="true" data-jwerty-key="ctrl+<?php print drupal_strtolower(substr($stitle, 0, 1)); ?>" data-voicecommand="<?php print t('go to ') . drupal_strtolower($stitle); ?>">
+        <lrn-icon icon="<?php print $service['icon'];?>"></lrn-icon>
+        <span class="elmsln-network-label"><?php print $stitle; ?></span>
+      </lrnsys-button>
+    <?php endif; ?>
+    </li>
     <?php endforeach ?>
   <?php endforeach ?>
