@@ -1123,7 +1123,13 @@ function foundation_access_link(&$variables) {
   $path = $variables['path'];
   $text = $variables['text'];
   $options = $variables['options'];
-  return '<a tabindex="-1" href="' . check_plain(url($path, $options)) . '"' . drupal_attributes($options['attributes']) . '><paper-button class="paper-button-link">' . ($options['html'] ? $text : check_plain($text)) . '</paper-button></a>';
+  // if HTML is set to true then we can't handle this at the moment
+  if ($options['html']) {
+    return '<lrnsys-button href="' . check_plain(url($path, $options)) . '" ' . drupal_attributes($options['attributes']) . '>' . $text . '</lrnsys-button>';
+  }
+  else {
+    return '<lrnsys-button label="' . check_plain($text) . '" href="' . check_plain(url($path, $options)) . '" ' . drupal_attributes($options['attributes']) . '></lrnsys-button>';
+  }
 }
 
 /**

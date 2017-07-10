@@ -3662,17 +3662,6 @@ select:disabled {
   background-color: #26a69a;
 }
 
-.side-nav li > a > i,
-.side-nav li > a > [class^="mdi-"], .side-nav li > a > [class*="mdi-"],
-.side-nav li > a > i.material-icons {
-  float: left;
-  height: 48px;
-  line-height: 48px;
-  margin: 0 32px 0 0;
-  width: 24px;
-  color: rgba(0, 0, 0, 0.54);
-}
-
 .side-nav .divider {
   margin: 8px 0 0 0;
 }
