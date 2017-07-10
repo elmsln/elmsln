@@ -34,7 +34,6 @@
   margin: 0;
 }
 
-
 #block-mooc-nav-block-mooc-nav-nav {
   padding: .5em;
   margin: 0;
@@ -524,6 +523,32 @@ a.book-sibling-parent-pagination {
 .etb-book .content-element-region {
   padding-top: .5rem;
 }
+
+ul.off-canvas-list {
+  list-style-type: none;
+  margin: 0;
+  padding: 0; }
+  ul.off-canvas-list li label {
+    background: #444444;
+    border-bottom: none;
+    border-top: 1px solid #5e5e5e;
+    color: #999999;
+    display: block;
+    font-size: 0.75rem;
+    font-weight: bold;
+    margin: 0;
+    padding: 0.3rem 0.9375rem;
+    text-transform: uppercase; }
+  ul.off-canvas-list li a {
+    border-bottom: 1px solid #2f2f2f;
+    color: rgba(255, 255, 255, 0.7);
+    display: block;
+    padding: 0.6666666667rem;
+    transition: background 300ms ease; }
+    ul.off-canvas-list li a:hover {
+      background: #242424; }
+    ul.off-canvas-list li a:active {
+      background: #242424; }
 
 section.main-section.etb-book a.elmsln-outline-button {
     margin-left: 1rem;

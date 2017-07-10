@@ -25,7 +25,7 @@
   }
   // support for icon on lowest level parent
   if (isset($parent['_icon'])) {
-    $parent_icon = '<div class="book-sibling-parent-icon book-menu-item-' . $parent['mlid'] . ' icon-' . $parent['_icon'] . '-black outline-nav-icon"></div>';
+    $parent_icon = '<div class="book-sibling-parent-icon book-menu-item-' . $parent['mlid'] . ' icon-' . $parent['_icon'] . '-black"></div>';
   }
   // make sure this isset
   if (!isset($outline_label)) {
@@ -58,7 +58,7 @@
       }
       // check for icon, we only render these at lowest level
       if (isset($item['_icon'])) {
-        $pre .= '<div class="book-menu-item-' . $item['mlid'] . ' icon-' . $item['_icon'] . '-black outline-nav-icon"></div>';
+        $pre .= '<div class="book-menu-item-' . $item['mlid'] . ' icon-' . $item['_icon'] . '-black"></div>';
       }
       $link_title = check_plain($item['link_title']);
       $link = '<li class="' . $active . '">' . l($pre . $link_title,
