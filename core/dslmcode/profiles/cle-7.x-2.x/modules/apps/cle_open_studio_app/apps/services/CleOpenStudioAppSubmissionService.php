@@ -52,10 +52,30 @@ class CleOpenStudioAppSubmissionService {
       $encoded_submission->type = $submission->type;
       $encoded_submission->id = $submission->nid;
       $encoded_submission->attributes->title = $submission->title;
+      $encoded_submission->attributes->body = $submission->field_submission_text[LANGUAGE_NONE][0]['safe_value'];
+      $encoded_submission->attributes->state = $submission->field_submission_state[LANGUAGE_NONE][0]['value'];
+      // Images
+      $encoded_submission->attributes->images = array();
+      foreach ($submission->field_images[LANGUAGE_NONE] as $file) {
+        $encoded_submission->attributes->images[] = _elmsln_api_v1_file_output($file);
+      }
+      // Files
+      $encoded_submission->attributes->files = array();
+      foreach ($submission->field_files[LANGUAGE_NONE] as $file) {
+        $encoded_submission->attributes->files[] = _elmsln_api_v1_file_output($file);
+      }
+      // Links
+      $encoded_submission->attributes->links = $submission->field_links[LANGUAGE_NONE];
+      // Video
+      $encoded_submission->attributes->links = $submission->field_links[LANGUAGE_NONE];
       $encoded_submission->meta->created = Date('c', $submission->created);
-      $encoded_submission->meta->updated = Date('c', $submission->updated);
+      $encoded_submission->meta->changed = Date('c', $submission->changed);
+      $encoded_submission->meta->revision_timestamp = Date('c', $submission->revision_timestamp);
+      $encoded_submission->relationships->assignment->data->id = $submission->field_assignment[LANGUAGE_NONE][0]['target_id'];
+      $encoded_submission->relationships->group->data->id = $submission->og_group_ref[LANGUAGE_NONE][0]['target_id'];
+      $encoded_submission->actions = array();
     }
-    drupal_alter('cle_open_studio_app_encode_submission');
+    drupal_alter('cle_open_studio_app_encode_submission', $encoded_submission);
     return $encoded_submission;
   }
 }

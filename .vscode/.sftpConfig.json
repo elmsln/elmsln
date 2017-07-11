@@ -1,0 +1,27 @@
+{
+    "host": "0.0.0.0",
+    "port": 2222,
+    "username": "vagrant",
+    "password": "vagrant",
+    "protocol": "sftp",
+    "agent": null,
+    "privateKeyPath": null,
+    "passphrase": null,
+    "passive": false,
+    "interactiveAuth": false,
+    "remotePath": "/var/www/elmsln",
+    "uploadOnSave": true,
+    "syncMode": "update",
+    "watcher": {
+        "files": false,
+        "autoUpload": true,
+        "autoDelete": true
+    },
+    "ignore": [
+        "**/.vscode",
+        "**/.git",
+        "**/.DS_Store",
+        "**/.sftpConfig.json",
+        "**/node_modules"
+    ]
+}
