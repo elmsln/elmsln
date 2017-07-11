@@ -7340,7 +7340,7 @@ div.read-time-wrapper div.chip i {
   form.node-form div.field-group-htabs-wrapper.group-settings {
     position: absolute !important;
     left: 100%;
-    width: calc(51vw - 58%);
+    width: calc(55vw - 58%);
     top: 0;
     max-width: 30em;
     display: block;

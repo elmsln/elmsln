@@ -143,7 +143,7 @@
                   <?php endif; ?>
                 </div>
               <?php endif; ?>
-              <div class="push-s1 s10 col">
+              <div class="push-s1 s9 col">
               <?php if ($title && arg(0) != 'node'): ?>
                 <?php print render($title_prefix); ?>
                 <h2 id="page-title" class="title"><?php print $title; ?></h2>
