@@ -65,3 +65,12 @@ function _cle_open_studio_app_submission_index($machine_name, $app_route, $param
     'data' => $return
   );
 }
+
+function cle_open_studio_app_cle_open_studio_app_encode_submission_alter(&$submissions) {
+  if (_assignment_is_open()) {
+    $action = new stdClass();
+    $action->title = 'Make a Submission';
+    $action->url = '/lrnapp-submission/create';
+    $submissions->actions[] = $action;
+  }
+}
