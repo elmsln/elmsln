@@ -1,0 +1,24 @@
+{
+  "name": "lrnapp-studio-submission",
+  "description": "A LRN app",
+  "main": "lrnapp-studio-submission.html",
+  "dependencies": {
+    "polymer": "Polymer/polymer#^1.9.1",
+    "build": "LRNWebComponents/build#^0",
+    "hax-behaviors": "LRNWebComponents/hax-behaviors#^0",
+    "paper-spinner": "PolymerElements/paper-spinner#^1",
+    "paper-tooltip": "PolymerElements/paper-tooltip#^1",
+    "secure-request": "LRNWebComponents/secure-request#^0.0.1"
+  },
+  "devDependencies": {
+    "iron-component-page": "PolymerElements/iron-component-page#^1",
+    "iron-demo-helpers": "PolymerElements/iron-demo-helpers#^1",
+    "web-component-tester": "^4.0.0",
+    "webcomponentsjs": "webcomponents/webcomponentsjs#^0"
+  },
+  "resolutions": {
+    "lrndesign-avatar": "^0.0.3",
+    "paper-card": "^1.1.6",
+    "webcomponentsjs": "^0.7.0"
+  }
+}
