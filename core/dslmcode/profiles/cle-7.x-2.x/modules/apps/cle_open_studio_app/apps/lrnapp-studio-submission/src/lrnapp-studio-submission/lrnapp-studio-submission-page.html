@@ -1,0 +1,68 @@
+<link rel="import" href="../../bower_components/secure-request/secure-request.html">
+
+<dom-module id="lrnapp-studio-submission-page">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+
+    <iron-ajax
+       url="[[reqUrl]]"
+       method="PUT"
+       body="[[reqBody]]"
+       params="[[reqParams]]"
+       content-type="application/json"
+       handle-as="json"></iron-ajax>
+    
+    <paper-input label="New Title" value={{title}}></paper-input>
+    
+    <paper-button raised id="update-title">Update Title</paper-button>
+
+  </template>
+  <script>
+    Polymer({
+      is: 'lrnapp-studio-submission-page',
+      properties: {
+        reqUrl: {
+          type: String
+        },
+        reqParams: {
+          type: Object
+        },
+        reqBody: {
+          type: Object
+        }
+      },
+      observers: [
+        '_urlVarsChanged(id, endPoint)',
+        '_paramsChanged(csrfToken)',
+        '_bodyChanged(title)'
+      ],
+      listeners: {
+        'click': '_onClick'
+      },
+      _onClick: function(e) {
+        var root = this;
+        if (e.target.id === 'update-title') {
+          var ajax = root.$$('iron-ajax');
+          ajax.generateRequest();
+        }
+      },
+      _urlVarsChanged: function(id, endPoint) {
+        this.reqUrl = endPoint + '/api/submissions/' + id;
+      },
+      _paramsChanged: function(csrfToken) {
+        var params = this.reqParams || {};
+        params.token = csrfToken;
+        this.reqParams = params;
+      },
+      _bodyChanged: function(title) {
+        var body = this.reqBody || {};
+        body.title = title;
+        this.reqBody = body;
+      }
+    });
+  </script>
+</dom-module>

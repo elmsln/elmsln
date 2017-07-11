@@ -50,3 +50,18 @@ function _cle_open_studio_app_gallery_data($machine_name, $app_route, $params, $
     'data' => $return
   );
 }
+
+/**
+ * Implements hook_registry_files_alter().
+ */
+function cle_open_studio_app_registry_files_alter(&$files, $modules) {
+  // Manually add here as this is a feature and the .info may get overridden.
+  $files[] = drupal_get_path('module', 'cle_open_studio_app') . '/apps/services/CleOpenStudioAppSubmissionService.php';
+}
+
+/**
+ * Service function for apps to use to create, update and delete submissions
+ * @action
+ */
+function _cle_open_studio_app_submission_service($action) {
+}
