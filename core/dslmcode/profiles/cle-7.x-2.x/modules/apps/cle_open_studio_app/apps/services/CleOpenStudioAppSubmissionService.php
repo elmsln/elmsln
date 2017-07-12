@@ -32,7 +32,7 @@ class CleOpenStudioAppSubmissionService {
    * @return object
    */
   public function getSubmission($id) {
-    $items = array();
+    $item = null;
     $section_id = _cis_connector_section_context();
     $section = _cis_section_load_section_by_id($section_id);
     $field_conditions = array(
@@ -43,9 +43,11 @@ class CleOpenStudioAppSubmissionService {
       $property_conditions['nid'] = array($id, '=');
     }
     $orderby = array();
-    $items = _cis_connector_assemble_entity_list('node', 'cle_submission', 'nid', '_entity', $field_conditions, $property_conditions, $orderby);
-    $items = $this->encodeSubmission($items);
-    return $items;
+    $item = _cis_connector_assemble_entity_list('node', 'cle_submission', 'nid', '_entity', $field_conditions, $property_conditions, $orderby);
+    if (isset($item[0])) {
+      $item = $this->encodeSubmission($item[0]);
+    }
+    return $item;
   }
 
   /**
