@@ -15,12 +15,36 @@ class CleOpenStudioAppSubmissionService {
       'og_group_ref' => array('target_id', $section, '='),
     );
     $property_conditions = array('status' => array(NODE_PUBLISHED, '='));
-    if (isset($filter['submission'])) {
-      $property_conditions['nid'] = array($filter['submission'], '=');
-    }
     $orderby = array();
     $items = _cis_connector_assemble_entity_list('node', 'cle_submission', 'nid', '_entity', $field_conditions, $property_conditions, $orderby);
     $items = $this->encodeSubmissions($items);
+    return $items;
+  }
+
+  /**
+   * Get a single submission
+   * This will take into concideration what section the user is in and what section
+   * they have access to.
+   *
+   * @param string $id
+   *    Nid of the submission
+   *
+   * @return object
+   */
+  public function getSubmission($id) {
+    $items = array();
+    $section_id = _cis_connector_section_context();
+    $section = _cis_section_load_section_by_id($section_id);
+    $field_conditions = array(
+      'og_group_ref' => array('target_id', $section, '='),
+    );
+    $property_conditions = array('status' => array(NODE_PUBLISHED, '='));
+    if (isset($id)) {
+      $property_conditions['nid'] = array($id, '=');
+    }
+    $orderby = array();
+    $items = _cis_connector_assemble_entity_list('node', 'cle_submission', 'nid', '_entity', $field_conditions, $property_conditions, $orderby);
+    $items = $this->encodeSubmission($items);
     return $items;
   }
 
@@ -29,11 +53,13 @@ class CleOpenStudioAppSubmissionService {
    * 
    * @param array $submissions
    *  An array of submission node objects
+   *
+   * @return array
    */
   protected function encodeSubmissions($submissions) {
     if (is_array($submissions)) {
       foreach ($submissions as &$submission) {
-        $submission = $this->endcodeSubmission($submission);
+        $submission = $this->encodeSubmission($submission);
       }
     }
     return $submissions;
@@ -44,8 +70,10 @@ class CleOpenStudioAppSubmissionService {
    * 
    * @param object $submission
    *  A submission node object
+   *
+   * @return Object
    */
-  protected function endcodeSubmission($submission) {
+  protected function encodeSubmission($submission) {
     $encoded_submission = new stdClass();
     if (is_object($submission)) {
       $encoded_submission->type = $submission->type;

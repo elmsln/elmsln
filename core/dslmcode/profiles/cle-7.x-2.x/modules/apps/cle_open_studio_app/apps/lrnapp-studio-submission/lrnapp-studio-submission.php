@@ -14,12 +14,13 @@ function _cle_open_studio_app_submission_findone($machine_name, $app_route, $par
   // Find out if there is a nid specified
   if ($method == 'GET' || $method == 'PUT') {
     if (isset($args[2])) {
-      $node = node_load($args[2]);
-      if ($node) {
+      $nid = $args[2];
+      if ($nid) {
         // if it's a GET method then we can return the node.
         switch ($method) {
           case 'GET':
-            # code...
+            $service = new CleOpenStudioAppSubmissionService();
+            $return = $service->getSubmission($args[2]);
             break;
           case 'PUT':
             break;
