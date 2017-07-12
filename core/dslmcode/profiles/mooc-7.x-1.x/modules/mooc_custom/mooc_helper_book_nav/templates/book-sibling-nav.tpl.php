@@ -47,7 +47,7 @@
     foreach ($items as $item) {
       // look for active trail item
       if ($parent['link_path'] == $item['link_path']) {
-        $active = 'book-menu-item-active black white-text ';
+        $active = 'book-menu-item-active ';
       }
       else {
         $active = 'book-item ';

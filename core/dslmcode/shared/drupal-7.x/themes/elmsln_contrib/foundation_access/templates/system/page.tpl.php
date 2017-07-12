@@ -11,6 +11,7 @@
     $cis_lmsless['active']['title'] = '';
   }
 ?>
+    <?php print $messages; ?>
     <main id="etb-tool-nav" data-offcanvas>
       <div class="inner-wrap">
         <!-- progress bar -->
@@ -150,9 +151,6 @@
                 <?php print render($title_suffix); ?>
               <?php endif; ?>
               <a id="main-content" class="scrollspy" data-scrollspy="scrollspy"></a>
-              <div class="region-messeges">
-                <?php print $messages; ?>
-              </div>
               <?php print render($page['content']); ?>
               </div>
             </div>

@@ -18,7 +18,7 @@
             <lrndesign-avatar class="dropdown-trigger" label="<?php print $course_context; ?>" jdenticon color="grey darken-4"></lrndesign-avatar>
           </li>
           <li>
-          <a tabindex="-1" href="#" id="elmsln-tools-trigger" class="course-title elmsln-course-title elmsln-left-side-nav-trigger middle-align-wrap elmsln-user-button black-text" title="" data-activates="elmsln-tools-menu" aria-controls="elmsln-tools-menu" aria-expanded="false" data-jwerty-key="t" data-voicecommand="open settings (menu)" data-elmsln-hover="<?php print $lmsless_classes[$service['distro']]['color'];?>">
+          <a tabindex="-1" href="#" id="elmsln-tools-trigger" class="course-title elmsln-course-title elmsln-left-side-nav-trigger middle-align-wrap elmsln-user-button black-text" title="" data-activates="elmsln-tools-menu" aria-controls="elmsln-tools-menu" aria-expanded="false" data-jwerty-key="t" data-voicecommand="open settings (menu)" data-elmsln-hover="<?php print $lmsless_classes[$network['active']['machine_name']]['color'];?>">
           <paper-button>
             <span class="course-title-group">
               <span class="black-text course-title hide-on-med-and-down"><?php print $slogan; ?></span>
@@ -51,32 +51,24 @@
       <ul class="menu right clearfix">
         <?php if ($bar_elements['help']) : ?>
         <li>
-          <a tabindex="-1" href="<?php print $help_link;?>" class="elmsln-help-button middle-align-wrap black-text" data-jwerty-key="h" data-voicecommand="help">
-            <paper-button>
+          <lrnsys-button data-jwerty-key="h" data-voicecommand="help" href="<?php print $help_link;?>" class="elmsln-help-button middle-align-wrap black-text" hover-class="<?php print $lmsless_classes[$network['active']['distro']]['color'] . ' ' . $lmsless_classes[$network['active']['distro']]['dark'];?> white-text">
             <lrn-icon icon="help"></lrn-icon>
             <span class="hide-on-med-and-down"><?php print t('Help'); ?></span>
-            </paper-button>
-          </a>
+          </lrnsys-button>
         </li>
         <?php endif; ?>
         <?php if (isset($bar_elements['resources']) && $bar_elements['resources']) : ?>
         <li>
-          <a tabindex="-1" href="<?php print $resources_link;?>" class="elmsln-resource-button middle-align-wrap black-text" data-jwerty-key="r" data-voicecommand="resources">
-            <paper-button>
-            <i class="material-icons">local_library</i>
+          <lrnsys-button data-jwerty-key="r" data-voicecommand="resources" href="<?php print $resources_link;?>" class="elmsln-resource-button middle-align-wrap black-text" icon="maps:local-library" hover-class="<?php print $lmsless_classes[$network['active']['distro']]['color'] . ' ' . $lmsless_classes[$network['active']['distro']]['dark'];?> white-text">
             <span class="hide-on-med-and-down"><?php print t('Resources'); ?></span>
-            </paper-button>
-          </a>
+          </lrnsys-button>
         </li>
         <?php endif; ?>
         <?php if ($bar_elements['syllabus']) : ?>
           <li>
-          <a tabindex="-1" href="<?php print $syllabus_link;?>" class="elmsln-syllabus-button middle-align-wrap black-text" data-jwerty-key="y" data-voicecommand="syllabus">
-            <paper-button>
-            <i class="material-icons">info_outline</i>
+          <lrnsys-button data-jwerty-key="y" data-voicecommand="syllabus" href="<?php print $syllabus_link;?>" class="elmsln-syllabus-button middle-align-wrap black-text" icon="info-outline" hover-class="<?php print $lmsless_classes[$network['active']['distro']]['color'] . ' ' . $lmsless_classes[$network['active']['distro']]['dark'];?> white-text">
             <span class="hide-on-med-and-down"><?php print t('Syllabus'); ?></span>
-            </paper-button>
-          </a>
+          </lrnsys-button>
         </li>
         <?php endif; ?>
         <?php if ($bar_elements['user']) : ?>
@@ -108,8 +100,9 @@
       }
       $activetool = ' ';
       $label = '';
-      $iconcolor = 'black-text';
+      $iconcolor = '';
       $stitle = token_replace($service['title']);
+      $hover = $lmsless_classes[$service['distro']]['color'] . ' ' . $lmsless_classes[$service['distro']]['dark'];
       if ($service['machine_name'] == $network['active']['machine_name']) {
         $activetool = ' black active-system white-text ';
         $iconcolor = ' white-text ';
@@ -117,35 +110,36 @@
       }
       else {
         $label = '<span class="element-invisible">' . $stitle . '</span>';
+        $hover .= ' white-text';
       }
       ?>
       <li>
-      <a tabindex="-1" id="lmsless-<?php print $service['distro'];?>" data-prefetch-hover="true" href="<?php print token_replace($service['url']); ?>" class="black-text <?php print $activetool . $service['icon']; ?>-icon"  data-jwerty-key="ctrl+<?php print drupal_strtolower(substr($stitle, 0, 1)); ?>" data-voicecommand="<?php print t('go to ') . drupal_strtolower($stitle); ?>" data-elmsln-hover="<?php print $lmsless_classes[$service['distro']]['color'];?> <?php print $lmsless_classes[$service['distro']]['dark'];?> black-text" data-elmsln-icon-hover="hover-white-text">
-      <paper-button>
-      <?php if (isset($service['icon_library']) && $service['icon_library'] == 'material'): ?>
-        <div class="elmsln-hover-icon material-icon elmsln-network-icon left elmsln-icon black-text"><i class="material-icons"><?php print $service['icon']; ?></i></div>
-      <?php else: ?>
-        <lrn-icon icon="<?php print $service['icon'];?>" class="elmsln-hover-icon <?php print $iconcolor;?>"></lrn-icon>
-      <?php endif; ?>
+      <lrnsys-button id="lmsless-<?php print $service['distro'];?>" data-prefetch-hover="true" href="<?php print token_replace($service['url']); ?>" class="black-text <?php print $activetool . $service['icon']; ?>-icon"  data-jwerty-key="ctrl+<?php print drupal_strtolower(substr($stitle, 0, 1)); ?>" data-voicecommand="<?php print t('go to ') . drupal_strtolower($stitle); ?>" hover-class="<?php print $hover;?>">
+        <?php if (isset($service['icon_library']) && $service['icon_library'] == 'material'): ?>
+        <i class="material-icons"><?php print $service['icon']; ?></i>
+        <?php else: ?>
+          <lrn-icon icon="<?php print $service['icon'];?>" class="elmsln-hover-icon"></lrn-icon>
+        <?php endif; ?>
         <?php print $label; ?>
-      </paper-button>
-      </a>
+      </lrnsys-button>
       <paper-tooltip for="lmsless-<?php print $service['distro'];?>" animation-delay="0"><?php print $stitle; ?></paper-tooltip>
       </li>
     <?php endforeach ?>
   <?php endif; ?>
   <?php if ($bar_elements['network']) : ?>
     <li class="elmsln-network-menu-item right">
-      <a href="#network-menu-button" class="middle-align-wrap elmsln-network-button elmsln-right-side-nav-trigger black-text" data-activates="block-cis-lmsless-cis-lmsless-network-nav-modal" data-jwerty-key="n" data-voicecommand="open network">
-        <lrn-icon icon="network" class="cis-lmsless-network"></lrn-icon>
-        <span class="hide-on-med-and-down truncate"><?php print t('More tools'); ?></span>
+      <a tabindex="-1" href="#network-menu-button" class="middle-align-wrap elmsln-network-button elmsln-right-side-nav-trigger black-text" data-activates="block-cis-lmsless-cis-lmsless-network-nav-modal" data-jwerty-key="n" data-voicecommand="open network">
+        <paper-button>
+          <lrn-icon icon="network" class="cis-lmsless-network"></lrn-icon>
+          <span class="hide-on-med-and-down truncate"><?php print t('More tools'); ?></span>
+        </paper-button>
       </a>
     </li>
   <?php endif; ?>
   </ul>
 </div>
 <!-- modal fly out for settings -->
-<section id="elmsln-tools-menu" class="elmsln-modal side-nav disable-scroll left-aligned" aria-hidden="true" tabindex="-1" role="dialog">
+<section id="elmsln-tools-menu" class="elmsln-modal elmsln-modal-hidden side-nav disable-scroll left-aligned" aria-hidden="true" tabindex="-1" role="dialog">
   <div class="center-align valign-wrapper elmsln-modal-title-wrapper black"><h2 class="flow-text valign elmsln-modal-title white-text"><?php print t('Settings');?></h2><a tabindex="-1" href="#close-dialog" aria-label="Close" class="close-reveal-side-nav white-text vibrate" data-voicecommand="close (menu)" data-jwerty-key="Esc"><paper-button>&#215;</paper-button></a></div>
   <div class="elmsln-modal-content">
     <ul>

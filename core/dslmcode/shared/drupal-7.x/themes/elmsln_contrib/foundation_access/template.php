@@ -558,7 +558,8 @@ function foundation_access_button($variables) {
   if (!empty($element['#attributes']['disabled'])) {
     $element['#attributes']['class'][] = 'form-button-disabled';
   }
-  $element['#attributes']['class'][] = 'black white-text';
+  $colors = _cis_lmsless_get_distro_classes(elmsln_core_get_profile_key());
+  $element['#attributes']['class'][] = $colors['color'] . ' ' . $colors['dark'] . ' white-text';
   // wrap classes on an upload button
   if ($variables['element']['#value'] == 'Upload') {
     return '
@@ -1123,8 +1124,11 @@ function foundation_access_link(&$variables) {
   $path = $variables['path'];
   $text = $variables['text'];
   $options = $variables['options'];
+  // good thing for static caching
+  $colors = _cis_lmsless_get_distro_classes(elmsln_core_get_profile_key());
+  $options['attributes']['hover-class'] = $colors['color'] . ' ' . $colors['dark'] . ' white-text';
   // support for lrn icon
-  if ($variables['options']['fa_icon']) {
+  if ($variables['options']['fa_icon'] && !isset($variables['options']['identifier'])) {
     $options['html'] = TRUE;
     $text = '<lrn-icon icon="' . $variables['options']['fa_icon'] . '"></lrn-icon>' . $text;
   }
@@ -1188,8 +1192,8 @@ function foundation_access_menu_link(&$variables) {
     else {
       $lmsless_classes = _cis_lmsless_get_distro_classes(elmsln_core_get_profile_key());
       $element['#localized_options']['attributes']['class'][] = $lmsless_classes['color'];
-      $element['#localized_options']['attributes']['class'][] = 'black-text';
-      $element['#localized_options']['attributes']['class'][] = $lmsless_classes['light'];
+      $element['#localized_options']['attributes']['class'][] = 'white-text';
+      $element['#localized_options']['attributes']['class'][] = $lmsless_classes['dark'];
     }
   }
   elseif ($element['#original_link']['menu_name'] == 'menu-elmsln-navigation') {
@@ -1623,37 +1627,31 @@ function foundation_access_status_messages($variables) {
   );
 
   foreach (drupal_get_messages($display) as $type => $messages) {
-    if ($type == 'notification') {
-      foreach($messages as $message) {
-        _foundation_access_make_toast($message);
-      }
+    if (isset($status_mapping[$type])) {
+      $output .= "<div role=\"alert\" aria-live=\"assertive\" data-alert class=\"alert-box $status_mapping[$type]\">\n";
     }
     else {
-      if (isset($status_mapping[$type])) {
-        $output .= "<div role=\"alert\" aria-live=\"assertive\" data-alert class=\"alert-box $status_mapping[$type]\">\n";
-      }
-      else {
-        $output .= "<div role=\"alert\" aria-live=\"assertive\" data-alert class=\"alert-box\">\n";
-      }
-
-      if (!empty($status_heading[$type])) {
-        $output .= '<h2 class="element-invisible">' . $status_heading[$type] . "</h2>\n";
-      }
-      if (count($messages) > 1) {
-        $output .= " <ul class=\"no-bullet\">\n";
-        foreach ($messages as $message) {
-          $output .= '  <li>' . $message . "</li>\n";
-        }
-        $output .= " </ul>\n";
-      }
-      else {
-        $output .= $messages[0];
-      }
-      $output .= '<a href="#close-dialog" class="close" aria-label="' . t('Hide messages') . '" data-voicecommand="hide messages" data-jwerty-key="Esc">&#215;</a>';
-      $output .= "</div>\n";
+      $output .= "<div role=\"alert\" aria-live=\"assertive\" data-alert class=\"alert-box\">\n";
     }
+
+    if (!empty($status_heading[$type])) {
+      $output .= '<h2 class="element-invisible">' . $status_heading[$type] . "</h2>\n";
+    }
+    if (count($messages) > 1) {
+      $output .= " <ul class=\"no-bullet\">\n";
+      foreach ($messages as $message) {
+        $output .= '  <li>' . $message . "</li>\n";
+      }
+      $output .= " </ul>\n";
+    }
+    else {
+      $output .= $messages[0];
+    }
+    $output .= "</div>\n";
   }
-  return $output;
+  if (!empty($output)) {
+    return _foundation_access_make_toast($output);
+  }
 }
 
 /**
@@ -1663,14 +1661,7 @@ function foundation_access_status_messages($variables) {
  *   Materialize.toast(message, displayLength, className, completeCallback);
  */
 function _foundation_access_make_toast($message, $display_length = 4000, $class_name = NULL, $callback = NULL) {
-  if ($message) {
-    drupal_add_js(
-      'jQuery(document).ready(function () { Materialize.toast("'. htmlspecialchars($message) .'", "'. $display_length .'", "'. $class_name.'", "'. $callback .'") });',
-      array(
-        'type' => 'inline',
-      )
-    );
-  }
+  return '<paper-toast id="toastdrawer" class="fit-bottom" text="Messages" opened duration="0"><paper-button onclick="toastdrawer.toggle()" class="red darken-4 white-text close-button">' . t('Close') . '</paper-button>' . $message . '</paper-toast>';
 }
 
 /**

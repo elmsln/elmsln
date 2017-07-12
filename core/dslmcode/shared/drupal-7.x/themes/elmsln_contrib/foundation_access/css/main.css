@@ -2716,8 +2716,7 @@ blockquote,
     display: block;
     position: absolute !important;
     clip: rect(1px 1px 1px 1px);
-    /* IE6, IE7 */
-    clip: rect(1px, 1px, 1px, 1px); }
+    }
 
 .mediasvg--left, .mediasvg--left--medium, .mediasvg--left--small {
   text-align: left;
@@ -3149,7 +3148,6 @@ blockquote {
   color: #000;
   cursor: default;
   white-space: pre;
-  zoom: 1; /* IE7 */
 }
 /* Animated throbber */
 html.js input.form-autocomplete {
@@ -3175,6 +3173,9 @@ fieldset.collapsible {
 }
 fieldset.collapsible .fieldset-legend {
   display: block;
+}
+fieldset a.fieldset-title {
+  color: #222222;
 }
 
 /**
@@ -3346,7 +3347,6 @@ html.js .js-hide {
  */
 .element-invisible {
   position: absolute !important;
-  clip: rect(1px 1px 1px 1px); /* IE6, IE7 */
   clip: rect(1px, 1px, 1px, 1px);
   overflow: hidden;
   height: 1px;
@@ -3376,16 +3376,6 @@ html.js .js-hide {
   clear: both;
   visibility: hidden;
 }
-/* IE6 */
-* html .clearfix {
-  height: 1%;
-}
-/* IE7 */
-*:first-child + html .clearfix {
-  min-height: 1%;
-}
-
-
 
 p {
   line-height: 2.5rem;
@@ -3397,6 +3387,7 @@ button {
 }
 button paper-button.paper-button-0 {
   margin: 0;
+  text-transform: none;
 }
 
 .element-invisible {
@@ -3832,6 +3823,7 @@ article ul:not(.contextual-links):not(.collapsible):not(.footnotes):not(.browser
   line-height: 3rem;
   margin: 0;
   padding: 0 0.5rem;
+  display: inline;
 }
 
 
@@ -4086,10 +4078,12 @@ body.devel-show .devel-querylog {
 .tabs .tab a:hover {
   border-bottom-style: solid;
   border-bottom-width: .2rem;
+  margin-bottom: -.2rem;
 }
 .tabs .tab a.active {
   border-bottom-style: solid;
   border-bottom-width: .2rem;
+  margin-bottom: -.2rem;
 }
 .elmsln-tabs.tabs .indicator {
   height: 0;
@@ -4269,7 +4263,6 @@ ul.dropdown-content ul {
   background-color: transparent;
   line-height: 2.5rem;
   height: 2.5rem;
-  padding: 0 0 0 .5rem !important;
   display: block;
   font-weight: normal;
 }
@@ -4304,6 +4297,7 @@ ul.dropdown-content {
 /* materialize paralax modifications */
 .parallax-container {
   height: 6rem;
+  z-index: 0;
 }
 
 /* header banner image falling under the content */
@@ -6660,6 +6654,9 @@ ul.dropdown-content {
    margin: 0;
    line-height: 2rem;
 }
+.side-nav .subheader {
+  padding: 0 1rem;
+}
 
 .side-nav li>a>i, .side-nav li>a>[class^="mdi-"], .side-nav li>a>[class*="mdi-"], .side-nav li>a>i.material-icons {
   height: 3rem;
@@ -6675,7 +6672,7 @@ ul.dropdown-content {
   font-weight: normal;
   height: 3rem;
   line-height: 3rem;
-  padding: 0 .5rem 0 1rem;
+  padding:0;
 }
 
 .side-nav a span {
@@ -6754,10 +6751,7 @@ table.sticky-header {
 .etb-modal-icons {
   height: 3rem;
 }
-.elmsln-network-icon.material-icon {
-  height: 3.75rem;
-  line-height: 3.75rem;
-}
+
 #block-cis-lmsless-cis-lmsless-network-nav-modal .etb-modal-icons {
   margin-top: .5rem;
   margin-right: 1rem;
@@ -8105,6 +8099,25 @@ paper-button iron-icon.iron-icon-0 {
   height: 3em;
   margin: 0 .25em;
 }
+paper-toast#toastdrawer {
+  bottom: 0;
+  top: auto !important;
+  max-height: 35vh !important;
+  height: auto;
+  overflow: auto;
+}
+
+.dropdown-content li a paper-button {
+  border-radius: 0;
+  margin: 0;
+  padding: 0 0 0 .25rem;
+}
+#etb-course-nav .top-bar li a paper-button {
+  padding: 0 .25rem;
+}
+lrnsys-button paper-button {
+  height: inherit;
+}
 lrnsys-drawer lrn-icon.lrnsys-drawer {
   height: 2em;
   width: 2em;
@@ -8112,13 +8125,14 @@ lrnsys-drawer lrn-icon.lrnsys-drawer {
 paper-button:focus {
   outline: 1px solid #2196F3;
 }
+.side-nav a paper-button {
+  padding: 0 0 0 1rem;
+  border-radius: 0;
+}
 #etb-course-nav paper-button {
   padding: 0;
   min-width: .1rem;
   margin: 0;
-}
-#etb-course-nav .top-bar li a paper-button {
-  margin: 0 1rem;
 }
 .r-header__edit-icons paper-button,
 .r-header__edit-icons .icon-wrapper {
@@ -8131,6 +8145,11 @@ paper-button:focus {
   padding: 0 .75rem;
   margin: 0;
   height: 3.75rem;
+  border-radius: 0;
+  text-transform: none;
+}
+.elmsln-network-icon {
+  display: inline-grid;
 }
 #etb-network-nav paper-button lrn-icon {
   width: 2rem;
@@ -8210,6 +8229,12 @@ button.btn paper-button {
   justify-content: left;
   outline: none;
 }
+.elmsln-modal .close-reveal-side-nav {
+  line-height: 0;
+  position: absolute;
+  top: 0;
+  right: 0;
+}
 
 .elmsln-modal .close-reveal-side-nav paper-button,
 .elmsln-modal .close-reveal-modal paper-button,
@@ -8217,10 +8242,6 @@ button.btn paper-button {
   cursor: pointer;
   font-size: 2rem;
   font-weight: bold;
-  line-height: 0;
-  position: absolute;
-  top: 0;
-  right: 0;
   margin: 0;
   min-width: 2rem;
   padding: 2rem 0.25rem;

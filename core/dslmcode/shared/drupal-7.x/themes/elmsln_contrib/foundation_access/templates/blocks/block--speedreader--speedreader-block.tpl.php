@@ -1,7 +1,7 @@
 <section id="<?php print $block_html_id ?>-nav-modal" class="elmsln-scroll-bar elmsln-modal modal" aria-label="<?php print $block->subject; ?>" aria-hidden="true" role="dialog" tabindex="-1">
   <div class="center-align valign-wrapper elmsln-modal-title-wrapper black">
     <h2 class="flow-text valign elmsln-modal-title white-text"><?php print $block->subject; ?></h2>
-    <a href="#close-dialog" class="close-reveal-modal" aria-label="<?php print t('Close'); ?>" data-voicecommand="close" data-jwerty-key="Esc">&#215;</a>
+    <a tabindex="-1" href="#close-dialog" class="close-reveal-modal" aria-label="<?php print t('Close'); ?>" data-voicecommand="close" data-jwerty-key="Esc"><paper-button>&#215;</paper-button></a>
   </div>
   <div class="elmsln-modal-content">
     <div id="spritz" class="spritz">

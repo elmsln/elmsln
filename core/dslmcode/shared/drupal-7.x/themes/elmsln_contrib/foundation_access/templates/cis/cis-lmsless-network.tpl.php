@@ -8,8 +8,8 @@
   <!-- End Menu Item Dropdowns -->
   <?php foreach ($services as $title => $items) : ?>
     <li>
-      <a class="subheader"><?php print t('@title', array('@title' => token_replace($title))); ?></a>
-      <div class="divider <?php print $lmsless_classes[$distro]['color'] . ' ' . $lmsless_classes[$distro]['light'];?>"></div>
+      <div class="subheader"><?php print t('@title', array('@title' => token_replace($title))); ?></div>
+      <div class="divider grey"></div>
     </li>
     <?php
       foreach ($items as $service) :

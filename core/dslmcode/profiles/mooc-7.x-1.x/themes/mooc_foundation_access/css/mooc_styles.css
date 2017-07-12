@@ -177,12 +177,10 @@
 }
 #block-mooc-nav-block-mooc-nav-nav .block-mooc-nav-block-mooc-title {
   border-bottom: .1rem solid #000000;
-  text-transform: uppercase;
   margin: 0;
   line-height: 2.5rem;
   height: 2.5rem;
-  font-size: .75rem;
-  font-weight: bold;
+  font-size: .8rem;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -200,13 +198,6 @@
   padding: 0 .5rem;
   margin: 0 0 0 .25rem;
   width: calc(100% - .5rem);
-}
-
-.scrollspy-depth-3 a {
-  padding-left: 1rem !important;
-}
-.scrollspy-depth-4 a {
-  padding-left: 1.5rem !important;
 }
 
 #scrollspy-nav.pinned .scrollspy-label {
@@ -355,7 +346,9 @@ ul.book-navigation-wrapper {
 }
 
 .book-menu-item-active {
-  background-color: #eceff1;
+  background-color: #0D47A1;
+  font-weight: bold;
+  color: #FFFFFF;
 }
 .book-navigation-header {
   display: -webkit-box;

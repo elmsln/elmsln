@@ -95,16 +95,15 @@
     // close x's for modals
     $('.close-reveal-modal').click(function(){
       $('#' + $(this).parents().parents().attr('id')).modal('close');
-      $('[href=#' + $(this).parents().attr('id') + ']').focus();
+      $('[href=#' + $(this).parents().attr('id') + '] paper-button').focus();
     });
     // close x's for the side-nav items
     $('.close-reveal-side-nav').click(function(){
-      $('[data-activates=' + Drupal.settings.activeSideNav + ']').focus().sideNav('hide');
+      $('[data-activates=' + Drupal.settings.activeSideNav + '] paper-button').focus().sideNav('hide');
       setTimeout(function() {
         $('#' + Drupal.settings.activeSideNav).addClass('elmsln-modal-hidden');
         Drupal.settings.activeSideNav = null;
       }, 150);
     });
-    
   });
 })(jQuery);
