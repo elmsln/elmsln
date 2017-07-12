@@ -97,7 +97,7 @@ class CleOpenStudioAppSubmissionService {
       // Links
       $encoded_submission->attributes->links = $submission->field_links[LANGUAGE_NONE];
       // Video
-      $encoded_submission->attributes->links = $submission->field_links[LANGUAGE_NONE];
+      $encoded_submission->attributes->video = $submission->field_video[LANGUAGE_NONE];
       // Meta Info
       $encoded_submission->meta->created = Date('c', $submission->created);
       $encoded_submission->meta->changed = Date('c', $submission->changed);
