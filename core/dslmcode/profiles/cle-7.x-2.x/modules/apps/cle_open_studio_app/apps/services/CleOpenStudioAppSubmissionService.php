@@ -44,6 +44,10 @@ class CleOpenStudioAppSubmissionService {
     }
     $orderby = array();
     $items = _cis_connector_assemble_entity_list('node', 'cle_submission', 'nid', '_entity', $field_conditions, $property_conditions, $orderby);
+    /**
+     * @todo add better checks to return status codes based on if none were found or if more than
+     *       one was found.
+     */
     if (count($items) == 1) {
       $item = $this->encodeSubmission(array_shift($items));
     }
@@ -89,22 +93,20 @@ class CleOpenStudioAppSubmissionService {
       $encoded_submission->attributes->body = $submission->field_submission_text[LANGUAGE_NONE][0]['safe_value'];
       $encoded_submission->attributes->state = $submission->field_submission_state[LANGUAGE_NONE][0]['value'];
       // Images
-      $encoded_submission->attributes->images = new stdClass();
-      $encoded_submission->attributes->images = array();
+      $encoded_submission->attributes->images = NULL;
       foreach ($submission->field_images[LANGUAGE_NONE] as $file) {
         $encoded_submission->attributes->images[] = _elmsln_api_v1_file_output($file);
       }
       // Files
-      $encoded_submission->attributes->files = new stdClass();
-      $encoded_submission->attributes->files = array();
+      $encoded_submission->attributes->files = NULL;
       foreach ($submission->field_files[LANGUAGE_NONE] as $file) {
         $encoded_submission->attributes->files[] = _elmsln_api_v1_file_output($file);
       }
       // Links
-      $encoded_submission->attributes->links = new stdClass();
+      $encoded_submission->attributes->links = NULL;
       $encoded_submission->attributes->links = $submission->field_links[LANGUAGE_NONE];
       // Video
-      $encoded_submission->attributes->video = new stdClass();
+      $encoded_submission->attributes->video = NULL;
       $encoded_submission->attributes->video = $submission->field_video[LANGUAGE_NONE];
       // Meta Info
       $encoded_submission->meta = new stdClass();
@@ -116,7 +118,7 @@ class CleOpenStudioAppSubmissionService {
       $encoded_submission->relationships->assignment->data->id = $submission->field_assignment[LANGUAGE_NONE][0]['target_id'];
       $encoded_submission->relationships->group->data->id = $submission->og_group_ref[LANGUAGE_NONE][0]['target_id'];
       // Actions
-      $encoded_submission->actions = array();
+      $encoded_submission->actions = null;
       drupal_alter('cle_open_studio_app_encode_submission', $encoded_submission);
       return $encoded_submission;
     }
