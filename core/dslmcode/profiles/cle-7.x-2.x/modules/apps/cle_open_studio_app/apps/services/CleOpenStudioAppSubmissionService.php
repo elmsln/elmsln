@@ -48,9 +48,9 @@ class CleOpenStudioAppSubmissionService {
   protected function endcodeSubmission($submission) {
     $encoded_submission = new stdClass();
     if (is_object($submission)) {
-      $encoded_submission->title = $submission->title;
       $encoded_submission->type = $submission->type;
       $encoded_submission->id = $submission->nid;
+      // Attributes
       $encoded_submission->attributes->title = $submission->title;
       $encoded_submission->attributes->body = $submission->field_submission_text[LANGUAGE_NONE][0]['safe_value'];
       $encoded_submission->attributes->state = $submission->field_submission_state[LANGUAGE_NONE][0]['value'];
@@ -68,11 +68,14 @@ class CleOpenStudioAppSubmissionService {
       $encoded_submission->attributes->links = $submission->field_links[LANGUAGE_NONE];
       // Video
       $encoded_submission->attributes->links = $submission->field_links[LANGUAGE_NONE];
+      // Meta Info
       $encoded_submission->meta->created = Date('c', $submission->created);
       $encoded_submission->meta->changed = Date('c', $submission->changed);
       $encoded_submission->meta->revision_timestamp = Date('c', $submission->revision_timestamp);
+      // Relationships
       $encoded_submission->relationships->assignment->data->id = $submission->field_assignment[LANGUAGE_NONE][0]['target_id'];
       $encoded_submission->relationships->group->data->id = $submission->og_group_ref[LANGUAGE_NONE][0]['target_id'];
+      // Actions
       $encoded_submission->actions = array();
     }
     drupal_alter('cle_open_studio_app_encode_submission', $encoded_submission);
