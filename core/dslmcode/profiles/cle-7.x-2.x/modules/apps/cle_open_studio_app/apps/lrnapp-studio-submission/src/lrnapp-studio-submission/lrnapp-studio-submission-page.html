@@ -13,9 +13,13 @@
        body="[[reqBody]]"
        params="[[reqParams]]"
        content-type="application/json"
-       handle-as="json"></iron-ajax>
+       handle-as="json"
+       on-response="_handleResponse"></iron-ajax>
 
-       Submission Page: {{id}}
+       <template is="dom-if" if="[[submission]]">
+        {{submission.attributes.title}}
+        {{submission.attributes.body}}
+       </template>
 
   </template>
   <script>
@@ -30,6 +34,9 @@
         },
         reqBody: {
           type: Object
+        },
+        submission: {
+          type: Object
         }
       },
       observers: [
@@ -38,12 +45,16 @@
         '_bodyChanged(title)'
       ],
       _urlVarsChanged: function(id, endPoint) {
-        this.reqUrl = endPoint + '/api/submissions/' + id;
+        this.reqUrl = endPoint + '/api/submissions';
       },
       _paramsChanged: function(csrfToken) {
         var params = this.reqParams || {};
         params.token = csrfToken;
         this.reqParams = params;
+      },
+      _handleResponse: function(data) {
+        this.submission = data.detail.response.data[this.id];
+        console.log(this.submission);
       }
     });
   </script>
