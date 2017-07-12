@@ -1,5 +1,3 @@
-<link rel="import" href="../../bower_components/secure-request/secure-request.html">
-
 <dom-module id="lrnapp-studio-submission-page">
   <template>
     <style>
@@ -9,16 +7,15 @@
     </style>
 
     <iron-ajax
+       auto
        url="[[reqUrl]]"
-       method="PUT"
+       method="GET"
        body="[[reqBody]]"
        params="[[reqParams]]"
        content-type="application/json"
        handle-as="json"></iron-ajax>
-    
-    <paper-input label="New Title" value={{title}}></paper-input>
-    
-    <paper-button raised id="update-title">Update Title</paper-button>
+
+       Submission Page: {{id}}
 
   </template>
   <script>
@@ -40,16 +37,6 @@
         '_paramsChanged(csrfToken)',
         '_bodyChanged(title)'
       ],
-      listeners: {
-        'click': '_onClick'
-      },
-      _onClick: function(e) {
-        var root = this;
-        if (e.target.id === 'update-title') {
-          var ajax = root.$$('iron-ajax');
-          ajax.generateRequest();
-        }
-      },
       _urlVarsChanged: function(id, endPoint) {
         this.reqUrl = endPoint + '/api/submissions/' + id;
       },
@@ -57,11 +44,6 @@
         var params = this.reqParams || {};
         params.token = csrfToken;
         this.reqParams = params;
-      },
-      _bodyChanged: function(title) {
-        var body = this.reqBody || {};
-        body.title = title;
-        this.reqBody = body;
       }
     });
   </script>

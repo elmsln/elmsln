@@ -1,6 +1,5 @@
 <!--<link rel="import" href="../../bower_components/build/build/default/build.html">-->
 <link rel="import" href="./lrnapp-studio-submission-page.html">
-<link rel="import" href="../../bower_components/secure-request/secure-request.html">
 
 <dom-module id="lrnapp-studio-submission">
   <template>
@@ -23,14 +22,18 @@
         tail="{{tail}}">
     </app-route>
 
-    <lrnapp-studio-submission-page id="[[data.submission]]" end-point="[[endPoint]]" csrf-token="[[csrfToken]]"></lrnapp-studio-submission-page>
+    <template is="dom-if" if="[[data.submission]]">
+      <lrnapp-studio-submission-page id="[[data.submission]]" end-point="[[endPoint]]" csrf-token="[[csrfToken]]"></lrnapp-studio-submission-page>
+    </template>
+    <template is="dom-if" if="[[!data.submission]]">
+      This is the lrnapp-studio-submission page.
+    </template>
 
   </template>
 
   <script>
     Polymer({
       is: 'lrnapp-studio-submission',
-      behaviors: [SecureRequest.xhr],
       properties: {
       },
       observers: [
