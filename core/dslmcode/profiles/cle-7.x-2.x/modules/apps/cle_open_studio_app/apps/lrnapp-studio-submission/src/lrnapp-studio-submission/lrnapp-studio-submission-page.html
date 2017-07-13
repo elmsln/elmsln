@@ -5,6 +5,14 @@
         display: block;
       }
 
+      lrndesign-contentblock {
+        margin: .5em;
+      }
+
+      iron-image {
+        margin: 0 .5em;
+      }
+
       .contain {
         width: 10em;
         height: 10em;
@@ -13,69 +21,79 @@
 
       .center {
         margin: auto;
-        width: 80%;
-        padding: 1em;
+        width: 100%;
       }
 
-      .submission {
-        margin-bottom: 1em;
+      .comments {
+        float: right;
+        margin: 2em;
+      }
+
+      .card-actions {
+        background-color: #ddd;
       }
     </style>
 
-    <iron-ajax auto url="[[reqUrl]]" method="GET" body="[[reqBody]]" params="[[reqParams]]" content-type="application/json" handle-as="json"
-      on-response="_handleResponse"></iron-ajax>
-    <!-- ----- Title Submission -----  -->
-    <template is="dom-if" if="[[submission]]">
-      <h2>{{submission.attributes.title}}</h2>
-    </template>
-    <!-- ----- Images Submission -----  -->
-    <template is="dom-if" if="[[submission.attributes.images]]">
-      <div class="center submisson">
-        <h4>Images Submitted</h4>
-        <template is="dom-repeat" items="[[_toArray(submission.attributes.images)]]" as="image">
-          <iron-image sizing="contain" class="contain" src="[[image.image_styles.elmsln_small]]"></iron-image>
+    <iron-ajax id="ajaxRequest" auto url="[[reqUrl]]" method="GET" body="[[reqBody]]" params="[[reqParams]]" content-type="application/json"
+      handle-as="json" on-response="_handleResponse"></iron-ajax>
+    <paper-card>
+      <div class="card-content">
+        <!-- ----- Title Submission -----  -->
+        <template is="dom-if" if="[[submission]]">
+          <h2>{{submission.attributes.title}}</h2>
+        </template>
+        <!-- ----- Images Submission -----  -->
+        <template is="dom-if" if="[[submission.attributes.images]]">
+          <lrndesign-contentblock class="center" title="Images Submitted">
+            <template is="dom-repeat" items="[[_toArray(submission.attributes.images)]]" as="image">
+              <iron-image sizing="contain" class="contain" src="[[image.image_styles.elmsln_small]]"></iron-image>
+            </template>
+          </lrndesign-contentblock>
+        </template>
+        <!-- ----- Video Submission -----  -->
+        <template is="dom-if" if="[[submission.attributes.video]]">
+          <lrndesign-contentblock class="center" title="Videos Submitted">
+            <template is="dom-repeat" items="[[_toArray(submission.attributes.video)]]" as="video">
+              <iframe src="[[video.video_url]]"></iframe>
+            </template>
+          </lrndesign-contentblock>
+        </template>
+        <!-- ----- Text Submission -----  -->
+        <template is="dom-if" if="[[submission.attributes.body]]">
+          <lrndesign-contentblock title="Text Submitted">
+            <p>{{submission.attributes.body}}</p>
+          </lrndesign-contentblock>
         </template>
       </div>
-    </template>
-    <!-- ----- Video Submission -----  -->
-    <template is="dom-if" if="[[submission.attributes.video]]">
-      <div class="center submission">
-        <h4>Videos Submitted</h4>
-        <template is="dom-repeat" items="[[_toArray(submission.attributes.video)]]" as="video">
-          <iframe src="[[video.video_url]]"></iframe>
+      <div class="card-actions">
+        <!-- ----- Links Submission -----  -->
+        <template is="dom-if" if="[[submission.attributes.links]]">
+          <lrndesign-contentblock title="Links Submitted">
+            <template is="dom-repeat" items="[[_toArray(submission.attributes.links)]]" as="link">
+              [[link.title]]:
+              <a class="link" href="[[link.url]]">[[link.url]]</a>
+            </template>
+          </lrndesign-contentblock>
         </template>
-      </div>
-    </template>
-    <!-- ----- Text Submission -----  -->
-    <template is="dom-if" if="[[submission.attributes.body]]">
-      <div class="submission">
-        <p>{{submission.attributes.body}}</p>
-      </div>
-    </template>
-    <!-- ----- Links Submission -----  -->
-    <template is="dom-if" if="[[submission.attributes.links]]">
-      <div class="submission">
-        <h4>Links Submitted</h4>
-        <template is="dom-repeat" items="[[_toArray(submission.attributes.links)]]" as="link">
-          [[link.title]]:
-          <a class="link" href="[[link.url]]">[[link.url]]</a>
+        <!-- ----- Files Submission -----  -->
+        <template is="dom-if" if="[[submission.attributes.files]]">
+            <lrndesign-contentblock title="Files Submitted">
+              <template is="dom-repeat" items="[[_toArray(submission.attributes.files)]]" as="file">
+                [[file.filename]]:
+                <a class="link" href="[[file.url]]" target="_blank">[[file.url]]</a>
+              </template>
+            </lrndesign-contentblock>
         </template>
-      </div>
-    </template>
-    <!-- ----- Files Submission -----  -->
-    <template is="dom-if" if="[[submission.attributes.files]]">
-      <div class="submission">
-        <h4>Files Submitted</h4>
-        <template is="dom-repeat" items="[[_toArray(submission.attributes.files)]]" as="file">
-          [[file.filename]]:
-          <a class="link" href="[[file.url]]" target="_blank">[[file.url]]</a>
-        </template>
-      </div>
-    </template>
+        <a href="{{url}}" tabindex="-1"><span class="comments">comments<lrn-icon icon="comment"></lrn-icon></span></a>
+        </div>
+    </paper-card>
   </template>
   <script>
     Polymer({
       is: 'lrnapp-studio-submission-page',
+      listeners: {
+        'click': '_triggerDialog',
+      },
       properties: {
         reqUrl: {
           type: String
