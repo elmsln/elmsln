@@ -24,13 +24,23 @@
         width: 100%;
       }
 
-      .comments {
-        float: right;
-        margin: 2em;
+      .title {
+        font-size: 2rem;
+        padding: 0.25rem 0;
+        margin: 0.5rem 0 0 0;
+        white-space: nowrap;
+        overflow-x: hidden;
+        text-overflow: ellipsis;
       }
 
-      .card-actions {
-        background-color: #ddd;
+      .author {
+        font-size: 1rem;
+        margin: 0;
+        padding: 0.25rem 0;
+      }
+
+      .body {
+        width: 80%;
       }
     </style>
 
@@ -38,15 +48,16 @@
       handle-as="json" on-response="_handleResponse"></iron-ajax>
     <paper-card>
       <div class="card-content">
-        <!-- ----- Title Submission -----  -->
+        <!-- ----- Title and Author -----  -->
         <template is="dom-if" if="[[submission]]">
-          <h2>{{submission.attributes.title}}</h2>
+          <h2 class="title">{{submission.attributes.title}}</h2>
+          <h3 class="author">By: {{submission.relationships.author.data.name}}</h3>
         </template>
         <!-- ----- Images Submission -----  -->
         <template is="dom-if" if="[[submission.attributes.images]]">
           <lrndesign-contentblock class="center" title="Images Submitted">
             <template is="dom-repeat" items="[[_toArray(submission.attributes.images)]]" as="image">
-              <iron-image sizing="contain" class="contain" src="[[image.image_styles.elmsln_small]]"></iron-image>
+              <a href="[[image.url]]" target="_blank"><iron-image sizing="contain" class="contain" src="[[image.image_styles.elmsln_small]]"></iron-image></a>
             </template>
           </lrndesign-contentblock>
         </template>
@@ -61,17 +72,15 @@
         <!-- ----- Text Submission -----  -->
         <template is="dom-if" if="[[submission.attributes.body]]">
           <lrndesign-contentblock title="Text Submitted">
-            <p>{{submission.attributes.body}}</p>
+            <p class="body">{{submission.attributes.body}}</p>
           </lrndesign-contentblock>
         </template>
-      </div>
-      <div class="card-actions">
         <!-- ----- Links Submission -----  -->
         <template is="dom-if" if="[[submission.attributes.links]]">
           <lrndesign-contentblock title="Links Submitted">
             <template is="dom-repeat" items="[[_toArray(submission.attributes.links)]]" as="link">
-              [[link.title]]:
-              <a class="link" href="[[link.url]]">[[link.url]]</a>
+              <p><strong>[[link.title]]:</strong>
+              <a class="link" href="[[link.url]]" target="_blank">[[link.url]]</a></p>
             </template>
           </lrndesign-contentblock>
         </template>
@@ -79,12 +88,11 @@
         <template is="dom-if" if="[[submission.attributes.files]]">
             <lrndesign-contentblock title="Files Submitted">
               <template is="dom-repeat" items="[[_toArray(submission.attributes.files)]]" as="file">
-                [[file.filename]]:
-                <a class="link" href="[[file.url]]" target="_blank">[[file.url]]</a>
+                <p><strong>[[file.filename]]:</strong>
+                <a class="link" href="[[file.url]]" target="_blank">[[file.url]]</a></p>
               </template>
             </lrndesign-contentblock>
         </template>
-        <a href="{{url}}" tabindex="-1"><span class="comments">comments<lrn-icon icon="comment"></lrn-icon></span></a>
         </div>
     </paper-card>
   </template>
