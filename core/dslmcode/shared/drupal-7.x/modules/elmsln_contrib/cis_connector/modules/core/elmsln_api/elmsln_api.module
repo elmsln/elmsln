@@ -735,14 +735,21 @@ function _elmsln_api_v1_get_files($type, $filter = array()) {
  */
 function _elmsln_api_video_url($video_url) {
   // account for the broken form of embed code from youtube
-  if (strpos($video_url, 'youtube') && !strpos($video_url, 'embed')) {
+  if ((strpos($video_url, 'youtube') || strpos($video_url, 'youtu.be')) && !strpos($video_url, 'embed')) {
     $tmp = drupal_parse_url($video_url);
     $yvid = '';
-    // check for youtube url vs embed
+    // if the video id is set in the v query param then use that
     if (isset($tmp['query']['v'])) {
       $yvid = $tmp['query']['v'];
-      return 'https://www.youtube.com/embed/' . $yvid;
     }
+    // if not we'll check if this is a youtube share link
+    elseif (strpos($tmp['path'], 'youtu.be')) {
+      $url = preg_match('/http(?:s?):\/\/(?:www\.)?youtu(?:be\.com\/watch\?v=|\.be\/)([\w\-\_]*)(&(amp;)?‌​[\w\?‌​=]*)?/', $tmp['path'], $matches);
+      if (isset($matches[1])) {
+        $yvid = $matches[1];
+      }
+    }
+    return 'https://www.youtube.com/embed/' . $yvid;
   }
   // account for the broken form of embed code from vimeo
   if (strpos($video_url, 'vimeo') && !strpos($video_url, 'player')) {
@@ -756,6 +763,7 @@ function _elmsln_api_video_url($video_url) {
   // didn't know what to do or it was already well formed
   return $video_url;
 }
+
 
 /**
  * Returns the menus available
