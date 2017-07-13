@@ -109,7 +109,14 @@ class CleOpenStudioAppSubmissionService {
       $encoded_submission->attributes->links = $submission->field_links[LANGUAGE_NONE];
       // Video
       $encoded_submission->attributes->video = NULL;
-      $encoded_submission->attributes->video = $submission->field_video[LANGUAGE_NONE];
+      $videos = $submission->field_video[LANGUAGE_NONE];
+      if ($videos) {
+        foreach ($videos as $key => &$video) {
+          // add a video_src property to give the correct embed src to an iframe
+          $video['video_src'] = _elmsln_api_video_url($video['video_url']);
+        }
+      }
+      $encoded_submission->attributes->video = $videos;
       // Meta Info
       $encoded_submission->meta = new stdClass();
       $encoded_submission->meta->created = Date('c', $submission->created);
