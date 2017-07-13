@@ -117,6 +117,9 @@ class CleOpenStudioAppSubmissionService {
       $encoded_submission->relationships = new stdClass();
       $encoded_submission->relationships->assignment->data->id = $submission->field_assignment[LANGUAGE_NONE][0]['target_id'];
       $encoded_submission->relationships->group->data->id = $submission->og_group_ref[LANGUAGE_NONE][0]['target_id'];
+      $encoded_submission->relationships->author->data->type = 'user';
+      $encoded_submission->relationships->author->data->id = $submission->uid;
+      $encoded_submission->relationships->author->data->name = $submission->name;
       // Actions
       $encoded_submission->actions = null;
       drupal_alter('cle_open_studio_app_encode_submission', $encoded_submission);
