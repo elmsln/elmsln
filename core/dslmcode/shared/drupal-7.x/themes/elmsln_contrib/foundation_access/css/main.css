@@ -602,15 +602,14 @@ ul.pagination {
   .reveal-modal > :last-child {
     margin-bottom: 0; }
   @media only screen and (min-width: 1.063em) {
-    .reveal-modal {
+  .reveal-modal {
       left: 0;
       margin: 0 auto;
       max-width: 80rem;
       right: 0;
-      width: 80%; } }
-  @media only screen and (min-width: 1.063em) {
-    .reveal-modal {
-      top: 6.25rem; } }
+      width: 80%; }
+  .reveal-modal {
+      top: 6.25rem; }
   .reveal-modal.radius {
     box-shadow: none;
     border-radius: 3px; }
@@ -620,36 +619,31 @@ ul.pagination {
   .reveal-modal.collapse {
     padding: 0;
     box-shadow: none; }
-  @media only screen and (min-width: 1.063em) {
-    .reveal-modal.tiny {
+  .reveal-modal.tiny {
       left: 0;
       margin: 0 auto;
       max-width: 80rem;
       right: 0;
-      width: 30%; } }
-  @media only screen and (min-width: 1.063em) {
-    .reveal-modal.small {
+      width: 30%; }
+  .reveal-modal.small {
       left: 0;
       margin: 0 auto;
       max-width: 80rem;
       right: 0;
-      width: 40%; } }
-  @media only screen and (min-width: 1.063em) {
-    .reveal-modal.medium {
+      width: 40%; }
+  .reveal-modal.medium {
       left: 0;
       margin: 0 auto;
       max-width: 80rem;
       right: 0;
-      width: 60%; } }
-  @media only screen and (min-width: 1.063em) {
-    .reveal-modal.large {
+      width: 60%; }
+  .reveal-modal.large {
       left: 0;
       margin: 0 auto;
       max-width: 80rem;
       right: 0;
-      width: 70%; } }
-  @media only screen and (min-width: 1.063em) {
-    .reveal-modal.xlarge {
+      width: 70%; }
+  .reveal-modal.xlarge {
       left: 0;
       margin: 0 auto;
       max-width: 80rem;
@@ -663,13 +657,12 @@ ul.pagination {
     max-width: none !important;
     min-height: 100vh;
     top: 0; }
-    @media only screen and (min-width: 1.063em) {
-      .reveal-modal.full {
+  .reveal-modal.full {
         left: 0;
         margin: 0 auto;
         max-width: 80rem;
         right: 0;
-        width: 100%; } }
+        width: 100%; }
   .reveal-modal.toback {
     z-index: 1003; }
   .reveal-modal .close-reveal-modal {
@@ -681,6 +674,7 @@ ul.pagination {
     position: absolute;
     top: 0.625rem;
     right: 1.375rem; }
+  }
 
 .switch {
   border: none;
@@ -8098,6 +8092,9 @@ div.horizontal-tabs ul li.horizontal-tab-button strong {
 paper-button iron-icon.iron-icon-0 {
   height: 3em;
   margin: 0 .25em;
+}
+lrnapp-fab-speed-dial-action.lrnapp-fab-speed-dial-action-0 {
+  margin: 0;
 }
 paper-toast#toastdrawer {
   bottom: 0;
