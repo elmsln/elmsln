@@ -104,7 +104,9 @@
 
 #block-mooc-nav-block-mooc-nav-nav li.elmsln-book-item paper-button{
   padding-left: 1.75rem;
+  border-radius: unset;
 }
+
 #block-mooc-nav-block-mooc-nav-nav li.elmsln-book-item.elmsln-icon paper-button,
 #block-mooc-nav-block-mooc-nav-nav li.elmsln-book-item lrnsys-button.has-children paper-button{
   padding-left: .25rem;
@@ -249,6 +251,9 @@
   list-style-type: none;
   margin: 0;
 }
+.page-mooc-book-toc ul.menu paper-button {
+  color: #222222;
+}
 .page-mooc-book-toc ul.menu ul.menu {
   list-style-type: none;
   margin: 0 0 0 2rem;
@@ -266,21 +271,8 @@
   margin: 0 0 0 2rem;
 }
 
-.page-mooc-book-toc ul.menu a {
-  width:100%;
-  float: left;
-  color: #222222;
-  border:none;
-  padding: 0;
-  font-weight: normal;
-  font-size: 1rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100%;
-}
-
-.page-mooc-book-toc ul.menu a paper-button {
-  border-radius: none;
+.etb-book .page-mooc-book-toc ul.menu a paper-button {
+  border-radius: unset;
   padding: 0 0 0 1rem;
   border-left: 2px solid #222222;
 }
@@ -291,12 +283,6 @@
 
 .page-mooc-book-toc ul.menu a paper-button iron-icon {
   margin: 0 .5rem 0 0;
-}
-
-.mooc-home-button {
-  position: absolute;
-  padding: 0 1rem;
-  margin-left: 1rem;
 }
 
 ul.book-navigation-wrapper {
@@ -397,7 +383,7 @@ a.book-sibling-parent-pagination {
   display: flex;
 }
 
-.book-sibling-parent lrnsys-button paper-button {
+.book-sibling-parent lrnsys-button.elmsln-dropdown-button paper-button {
   border-bottom: black solid 2px;
   border-radius: unset;
   padding: 0 1rem;
