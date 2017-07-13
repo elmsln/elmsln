@@ -1803,32 +1803,14 @@ function _foundation_access_svg_whitelist_tags() {
 }
 
 /**
+ * MOVED TO elmsln_api MODULE
+ *
  * Converts youtube / vimeo URLs into things we can embed
  * @param  string $video_url a well formed youtube/vimeo direct URL.
  * @return string            the address that's valid for embed codes.
  */
 function _foundation_access_video_url($video_url) {
-  // account for the broken form of embed code from youtube
-  if (strpos($video_url, 'youtube') && !strpos($video_url, 'embed')) {
-    $tmp = drupal_parse_url($video_url);
-    $yvid = '';
-    // check for youtube url vs embed
-    if (isset($tmp['query']['v'])) {
-      $yvid = $tmp['query']['v'];
-      return 'https://www.youtube.com/embed/' . $yvid;
-    }
-  }
-  // account for the broken form of embed code from vimeo
-  if (strpos($video_url, 'vimeo') && !strpos($video_url, 'player')) {
-    // rip out from embed based url
-    $vpath = explode('/', $video_url);
-    $part = array_pop($vpath);
-    // drop the autoplay property cause it conflicts with what we're doing
-    $part = str_replace('autoplay=1', '', $part);
-    return 'https://player.vimeo.com/video/' . $part;
-  }
-  // didn't know what to do or it was already well formed
-  return $video_url;
+  return __elmsln_api_video_url($video_url);
 }
 
 /**
