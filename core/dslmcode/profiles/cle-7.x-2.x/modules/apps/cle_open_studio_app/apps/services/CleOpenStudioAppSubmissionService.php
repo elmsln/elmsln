@@ -1,5 +1,7 @@
 <?php
 
+include_once 'CleOpenStudioAppCommentService.php';
+
 class CleOpenStudioAppSubmissionService {
 
   /**
@@ -115,11 +117,24 @@ class CleOpenStudioAppSubmissionService {
       $encoded_submission->meta->revision_timestamp = Date('c', $submission->revision_timestamp);
       // Relationships
       $encoded_submission->relationships = new stdClass();
+      // assignment
       $encoded_submission->relationships->assignment->data->id = $submission->field_assignment[LANGUAGE_NONE][0]['target_id'];
+      // group
       $encoded_submission->relationships->group->data->id = $submission->og_group_ref[LANGUAGE_NONE][0]['target_id'];
+      // author
       $encoded_submission->relationships->author->data->type = 'user';
       $encoded_submission->relationships->author->data->id = $submission->uid;
       $encoded_submission->relationships->author->data->name = $submission->name;
+      // comments
+      $encoded_submission->relationships->comments = null;
+      $encoded_submission->meta->comment_count = $submission->comment_count;
+      if ($submission->comment_count > 0) {
+        $comments_service = new CleOpenStudioAppCommentService();
+        $options = new stdClass();
+        $options->filter->submission = $submission->nid;
+        $comments = $comments_service->getComments($options);
+        $encoded_submission->relationships->comments->data = $comments;
+      }
       // Actions
       $encoded_submission->actions = null;
       drupal_alter('cle_open_studio_app_encode_submission', $encoded_submission);
