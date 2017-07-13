@@ -157,8 +157,8 @@ function foundation_access_preprocess_html(&$variables) {
       drupal_add_js(drupal_get_path('theme', 'foundation_access') . '/js/freezeframe-enable.js');
     }
   }
-  drupal_add_css(base_path() . drupal_get_path('theme', 'foundation_access') . '/materialize_unwinding/css/materialize.css', array('weight' => -1000));
-  drupal_add_js(base_path() . drupal_get_path('theme', 'foundation_access') . '/materialize_unwinding/js/materialize.js', array('scope' => 'footer', 'weight' => 1000));
+  drupal_add_css(drupal_get_path('theme', 'foundation_access') . '/materialize_unwinding/css/materialize.css', array('weight' => -1000));
+  drupal_add_js(drupal_get_path('theme', 'foundation_access') . '/materialize_unwinding/js/materialize.js', array('scope' => 'footer', 'weight' => 1000));
   // support for legacy, stock materializeCSS implementation
   if (variable_get('materializecss_legacy', FALSE)) {
     drupal_add_css($libraries['materialize'] . '/css/materialize.css', array('weight' => -1000));
