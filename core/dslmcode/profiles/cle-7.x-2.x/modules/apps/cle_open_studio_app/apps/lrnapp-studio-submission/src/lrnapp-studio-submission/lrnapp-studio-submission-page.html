@@ -42,6 +42,12 @@
       .body {
         width: 80%;
       }
+
+      .comments {
+        text-align: right;
+        margin: 2em;
+        font-size: 1.5em;
+      }
     </style>
 
     <iron-ajax id="ajaxRequest" auto url="[[reqUrl]]" method="GET" body="[[reqBody]]" params="[[reqParams]]" content-type="application/json"
@@ -92,6 +98,9 @@
                 <a class="link" href="[[file.url]]" target="_blank">[[file.url]]</a></p>
               </template>
             </lrndesign-contentblock>
+        </template>
+        <template is="dom-if" if="[[submission.relationships.comments]]">
+        <p class="comments"><a href="{{url}}" tabindex="-1">{{submission.relationships.comments.data.length}} <lrn-icon icon="comment"></lrn-icon></a></p>
         </template>
         </div>
     </paper-card>
