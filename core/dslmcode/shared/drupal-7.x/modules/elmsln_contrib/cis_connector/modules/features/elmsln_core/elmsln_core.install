@@ -240,3 +240,10 @@ function elmsln_core_update_7022(&$sandbox) {
 function elmsln_core_update_7023(&$sandbox) {
   module_enable(array('webcomponents', 'webcomponents_polymer'));
 }
+
+/**
+ * These still hang around for some reason
+ */
+function elmsln_core_update_7024(&$sandbox) {
+  module_disable(array('entity_iframe_provider', 'entity_iframe_consumer'));
+}

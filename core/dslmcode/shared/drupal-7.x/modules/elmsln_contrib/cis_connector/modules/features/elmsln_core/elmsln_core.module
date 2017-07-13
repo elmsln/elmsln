@@ -475,10 +475,10 @@ function elmsln_core_library() {
     'website' => 'http://materializecss.com/tabs.html',
     'version' => '0.97.7',
     'js' => array(
-      $path . '/js/materialize/tabs/materialize-tabs.js' => array(),
+      $path . '/js/materialize-tabs.js' => array(),
     ),
     'css' => array(
-      $path . '/js/materialize/tabs/materialize-tabs.css' => array(),
+      $path . '/css/materialize-tabs.css' => array(),
     ),
   );
 

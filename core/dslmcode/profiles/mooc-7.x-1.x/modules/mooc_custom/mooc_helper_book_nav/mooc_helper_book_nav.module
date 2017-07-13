@@ -189,7 +189,7 @@ function mooc_helper_book_nav_block_view($delta = '') {
                 $tmp2['bid'] = $bid[2];
                 $tmp2['mlid'] = -1;
                 $tmp2['link_path'] = '';
-                $tmp2['link_title'] = t('...');
+                $tmp2['link_title'] = '<iron-icon icon="more-horiz"></iron-icon>';
                 $tmp2['_class'] = 'book-parent-tree';
                 $parents[-1] = $tmp2;
               }

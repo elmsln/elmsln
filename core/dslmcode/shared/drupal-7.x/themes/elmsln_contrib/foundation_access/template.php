@@ -87,7 +87,7 @@ function foundation_access_preprocess_user_profile(&$vars) {
     }
     else {
       // default fallback of design office image
-      $vars['banner'] = '<img class="background" src="' . $GLOBALS['base_url'] . '/sites/all/libraries/materialize/images/office.jpg" alt="" />';
+      $vars['banner'] = '<img class="background" src="' . base_path() . drupal_get_path('theme', 'foundation_access') . '/materialize_unwinding/images/office.jpg" alt="" />';
     }
    // load up related user data
     $blockObject = block_load('elmsln_core', 'elmsln_core_user_xapi_data');
@@ -154,14 +154,15 @@ function foundation_access_preprocess_html(&$variables) {
       drupal_add_js($libraries['freezeframe.js'] .'/src/js/vendor/imagesloaded.pkgd.js');
       drupal_add_js($libraries['freezeframe.js'] .'/build/js/freezeframe.js');
       drupal_add_css($libraries['freezeframe.js'] .'/build/css/freezeframe_styles.min.css');
-      drupal_add_js(drupal_get_path('theme', 'foundation_access') . '/legacy/js/freezeframe-enable.js');
+      drupal_add_js(drupal_get_path('theme', 'foundation_access') . '/js/freezeframe-enable.js');
     }
   }
-  // see if we have it locally before serviing CDN
-  // This allows EASY CDN module to switch to CDN later if that's the intention
-  if (isset($libraries['materialize'])) {
-    drupal_add_css($libraries['materialize'] .'/css/materialize.css', array('weight' => -1000));
-    drupal_add_js($libraries['materialize'] .'/js/materialize.js', array('scope' => 'footer', 'weight' => 1000));
+  drupal_add_css(base_path() . drupal_get_path('theme', 'foundation_access') . '/materialize_unwinding/css/materialize.css', array('weight' => -1000));
+  drupal_add_js(base_path() . drupal_get_path('theme', 'foundation_access') . '/materialize_unwinding/js/materialize.js', array('scope' => 'footer', 'weight' => 1000));
+  // support for legacy, stock materializeCSS implementation
+  if (variable_get('materializecss_legacy', FALSE)) {
+    drupal_add_css($libraries['materialize'] . '/css/materialize.css', array('weight' => -1000));
+    drupal_add_js($libraries['materialize'] . '/js/materialize.js', array('scope' => 'footer', 'weight' => 1000));
   }
   // support for our legacy; adding in css/js for foundation; this requires a forcible override in shared_settings.php
   if (variable_get('foundation_access_legacy', FALSE)) {
@@ -186,7 +187,7 @@ function foundation_access_preprocess_html(&$variables) {
     $variables['favicon_path'] = file_create_url($variables['favicon_path']);
   }
   else {
-    $variables['favicon_path'] = $variables['theme_path'] . '/legacy/icons/elmsicons/elmsln.ico';
+    $variables['favicon_path'] = $variables['theme_path'] . '/icons/elmsicons/elmsln.ico';
   }
   $variables['banner_image'] = '';
   // build the remote banner URI, this is the best solution for an image
@@ -1373,24 +1374,13 @@ function foundation_access_html_head_alter(&$head_elements) {
   if ($args[0] == 'book' && $args[1] = 'export' && $args[2] == 'html') {
     $path = base_path() . drupal_get_path('theme', 'foundation_access') . '/';
     $css = array(
-      $path . 'legacy/icons/faccess-icons/output/icons.data.svg.css',
-      $path . 'legacy/bower_components/material-design-iconic-font/dist/css/material-design-iconic-font.min.css',
-      $path . 'legacy/css/system.base.css',
-      $path . 'legacy/css/app.css',
-      $path . 'legacy/css/normalize.css',
-      $path . 'legacy/css/comparison.css',
-      $path . 'app/dist/css/styles.css',
-      $path . 'css/tweaks.css',
+      $path . 'css/system.base.css',
+      $path . 'css/main.css',
       $path . 'fonts/elmsln/elmsln-font-styles.css',
       '//fonts.googleapis.com/css?family=Material+Icons|Droid+Serif:400,700,400italic,700italic|Open+Sans:300,600,700)',
 
     );
-    $libraries = libraries_get_libraries();
-    // see if we have it locally before serviing CDN
-    // This allows EASY CDN module to switch to CDN later if that's the intention
-    if (isset($libraries['materialize'])) {
-      $css[] = base_path() . $libraries['materialize'] . '/css/materialize.css';
-    }
+    $css[] = $path . 'materialize_unwinding/css/materialize.css';
     // parse returned locations array and manually add to html head
     foreach ($css as $key => $file) {
       $head_elements['fa_print_' . $key] = array(
@@ -1458,7 +1448,7 @@ function foundation_access_form_page_node_form_alter(&$form, &$form_state) {
   // support for images in significance dropdown
   $form['field_instructional_significance']['und']['#materialize'] = array(
     'class' => 'left',
-    'icon_path' => drupal_get_path('theme', 'foundation_access') . '/legacy/icons/pedagogy/',
+    'icon_path' => drupal_get_path('theme', 'foundation_access') . '/icons/pedagogy/',
   );
 }
 
@@ -1856,12 +1846,7 @@ function foundation_access_wysiwyg_editor_settings_alter(&$settings, $context) {
   // google font / icons from google
   $settings['contentsCss'][] = '//fonts.googleapis.com/css?family=Material+Icons|Droid+Serif:400,700,400italic,700italic|Open+Sans:300,600,700)';
   // bring in materialize
-  $libraries = libraries_get_libraries();
-  // see if we have it locally before serviing CDN
-  // This allows EASY CDN module to switch to CDN later if that's the intention
-  if (isset($libraries['materialize'])) {
-    $settings['contentsCss'][] = base_path() . $libraries['materialize'] .'/css/materialize.css';
-  }
+  $settings['contentsCss'][] = base_path() . drupal_get_path('theme', 'foundation_access') . '/materialize_unwinding/css/materialize.css';
   $lmsless_classes = _cis_lmsless_get_distro_classes(elmsln_core_get_profile_key());
   $css = _foundation_access_contextual_colors($lmsless_classes);
   $settings['contentsCss'][] = $css;
@@ -1918,6 +1903,17 @@ function _foundation_access_contextual_colors($lmsless_classes) {
     }
   }
   return $css;
+}
+
+/**
+ * Remove white space from what's returned
+ */
+function _foundation_access_drop_whitespace($content) {
+  // don't do it for user 1
+  if ($GLOBALS['user']->uid == 1) {
+    return $content;
+  }
+  return preg_replace('~>\s+<~', '><', $content);
 }
 
 /**
