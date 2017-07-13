@@ -27,57 +27,41 @@
             </div>
             <div class="r-header__right">
               <h2 class="element-invisible"><?php print t('Primary tabs');?></h2>
-              <ul class="r-header__edit-icons">
+              <ul class="elmsln--page--operations">
                 <!-- Edit Icon -->
                 <?php if (isset($edit_path)): ?>
-                <li class="r-header__edit-icons__list-item">
+                <li class="page-op-button">
                   <?php if (arg(2) == 'edit'): ?>
-                  <a tabindex="-1" id="edit-tip" onclick="document.getElementById('edit-submit').click();" class="r-header__icon elmsln-edit-button">
-                  <paper-button>
-                    <i class="material-icons green-text text-darken-4">save</i>
-                    <span class="element-invisible"><?php print t('Save content'); ?></span>
-                  </paper-button>
-                  </a>
+                  <lrnsys-button id="edit-tip" onclick="document.getElementById('edit-submit').click();" class="r-header__icon elmsln-edit-button accessible-green-text" hover-class="<?php print $cis_lmsless['lmsless_classes'][$distro]['text'] . ' text-' . $cis_lmsless['lmsless_classes'][$distro]['dark'];?>" icon="save" title="<?php print t('Save content'); ?>">
+                  </lrnsys-button>
                   <paper-tooltip for="edit-tip" animation-delay="0"><?php print t('Save')?></paper-tooltip>
                 <?php else: ?>
-                  <a tabindex="-1" id="edit-tip" href="<?php print $edit_path; ?>" class="r-header__icon elmsln-edit-button" data-jwerty-key="e" data-voicecommand="edit">
-                  <paper-button>
-                    <i class="material-icons black-text" data-elmsln-hover="<?php print $cis_lmsless['lmsless_classes'][$distro]['text'] . ' text-' . $cis_lmsless['lmsless_classes'][$distro]['dark'];?>">mode_edit</i>
-                    <span class="element-invisible"><?php print t('Edit content'); ?></span>
-                  </paper-button>
-                  </a>
+                  <lrnsys-button id="edit-tip" href="<?php print $edit_path; ?>" class="r-header__icon elmsln-edit-button" data-jwerty-key="e" data-voicecommand="edit" hover-class="<?php print $cis_lmsless['lmsless_classes'][$distro]['text'] . ' text-' . $cis_lmsless['lmsless_classes'][$distro]['dark'];?>" icon="editor:mode-edit" title="<?php print t('Edit content'); ?>">
+                  </lrnsys-button>
                   <paper-tooltip for="edit-tip" animation-delay="0"><?php print t('Edit content')?></paper-tooltip>
                 <?php endif; ?>
                 </li>
                 <?php endif; ?>
                 <?php if (!empty($cis_shortcodes)) : ?>
-                  <li class="r-header__edit-icons__list-item">
-                    <a tabindex="-1" id="elmsln-shortcodes-button" title="<?php print t('Embed this item')?>" class="r-header__icon elmsln-share-button elmsln-right-side-nav-trigger" data-activates="block-cis-shortcodes-cis-shortcodes-block-nav-modal" aria-controls="block-cis-shortcodes-cis-shortcodes-block-nav-modal" aria-expanded="false" data-jwerty-key="s" data-voicecommand="open share (menu)">
-                    <paper-button>
-                      <i class="material-icons black-text" data-elmsln-hover="<?php print $cis_lmsless['lmsless_classes'][$distro]['text'] . ' text-' . $cis_lmsless['lmsless_classes'][$distro]['dark'];?>">share</i>
-                      <span class="element-invisible"><?php print t('Menu to embed this elsewhere'); ?></span>
-                    </paper-button>
-                    </a>
-                    <paper-tooltip for="elmsln-shortcodes-button" animation-delay="0"><?php print t('Embed content elsewhere')?></paper-tooltip>
+                  <li class="page-op-button">
+                  <lrnsys-drawer align="right" alt="<?php print t('Embed this content')?>" icon="share" header="<?php print t('Embed this content'); ?>" data-jwerty-key="s" data-voicecommand="open embed (menu)">
+                    <?php print $cis_shortcodes; ?>
+                  </lrnsys-drawer>
                   </li>
                 <?php endif; ?>
                 <?php if (!empty($a11y)) : ?>
-                  <li class="r-header__edit-icons__list-item">
+                  <li class="page-op-button">
                   <lrnsys-drawer align="right" alt="<?php print t('Your preferences')?>" icon="accessibility" header="<?php print t('Preferences'); ?>" data-jwerty-key="a" data-voicecommand="open preferences (menu)">
                     <?php print $a11y; ?>
                   </lrnsys-drawer>
                   </li>
                 <?php endif; ?>
                 <!-- end Edit Icon -->
-                <li class="r-header__edit-icons__list-item">
+                <li class="page-op-button">
                 <?php if (!empty($tabs['#primary']) || !empty($tabs['#secondary']) || !empty($tabs_extras)): ?>
-                  <a tabindex="-1" id="more-options-tip" class="r-header__icon elmsln-more-button elmsln-dropdown-button" data-activates="elmsln-more-menu" aria-controls="elmsln-more-menu" aria-expanded="false" data-jwerty-key="m" data-voicecommand="open more (menu)">
-                  <paper-button>
-                    <i class="material-icons black-text" data-elmsln-hover="<?php print $cis_lmsless['lmsless_classes'][$distro]['text'] . ' text-' . $cis_lmsless['lmsless_classes'][$distro]['dark'];?>">more_vert</i>
-                    <span class="element-invisible"><?php print t('Less common options'); ?></span>
-                  </paper-button>
-                  </a>
-                  <paper-tooltip for="more-options-tip" animation-delay="0"><?php print t('Less common options')?></paper-tooltip>
+                  <lrnsys-button id="more-options-tip" class="r-header__icon elmsln-more-button elmsln-dropdown-button" data-activates="elmsln-more-menu" aria-controls="elmsln-more-menu" aria-expanded="false" data-jwerty-key="m" data-voicecommand="open more (menu)" hover-class="<?php print $cis_lmsless['lmsless_classes'][$distro]['text'] . ' text-' . $cis_lmsless['lmsless_classes'][$distro]['dark'];?>" icon="more-vert" title="<?php print t('Less common operations'); ?>">
+                  </lrnsys-button>
+                  <paper-tooltip for="more-options-tip" animation-delay="0"><?php print t('More options')?></paper-tooltip>
                   <ul id="elmsln-more-menu" class="dropdown-content" aria-hidden="true" tabindex="-1">
                   <?php if (!empty($tabs)): ?>
                       <?php print render($tabs); ?>
@@ -95,12 +79,9 @@
                   <?php endif; ?>
                   </ul>
                 <?php else: ?>
-                  <a tabindex="-1" href="#no-options" title="<?php print t('No additional options')?>" class="r-header__icon fa-action-disabled  elmsln-more-button">
-                  <div class="icon-wrapper">
-                    <i class="zmdi zmdi-more-vert"></i>
-                    <span class="element-invisible"><?php print t('No additional options'); ?></span>
-                  </div>
-                  </a>
+                  <paper-button disabled class="disabled elmsln-more-menu-button">
+                    <iron-icon icon="more-vert"></iron-icon>
+                  </paper-button>
                 <?php endif; ?>
                 </li>
               </ul>

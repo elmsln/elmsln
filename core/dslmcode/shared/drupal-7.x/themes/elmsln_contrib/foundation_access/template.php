@@ -348,13 +348,6 @@ function foundation_access_preprocess_page(&$variables) {
   else {
     $variables['cis_shortcodes'] = '';
   }
-  // support for entity_iframe
-  if (module_exists('entity_iframe')) {
-    $block = entity_iframe_block_view('entity_iframe_block');
-    if (!empty($block['content'])) {
-      $variables['cis_shortcodes'] .= $block['content'];
-    }
-  }
   // wrap non-node content in an article tag
   if (isset($variables['page']['content']['system_main']['main'])) {
     $variables['page']['content']['system_main']['main']['#markup'] = '<article class="s12 col view-mode-full">' . $variables['page']['content']['system_main']['main']['#markup'] . '</article>';

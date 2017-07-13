@@ -99,12 +99,6 @@ function foundation_access_ux_context_default_contexts() {
           'region' => 'cis_lmsless_modal',
           'weight' => '-7',
         ),
-        'cis_shortcodes-cis_shortcodes_block' => array(
-          'module' => 'cis_shortcodes',
-          'delta' => 'cis_shortcodes_block',
-          'region' => 'cis_lmsless_modal',
-          'weight' => '-6',
-        ),
         'cis_service_connection_ux-elmsln_navigation_l2' => array(
           'module' => 'cis_service_connection_ux',
           'delta' => 'elmsln_navigation_l2',

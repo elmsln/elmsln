@@ -2194,14 +2194,14 @@ p.txtbk-intro {
         align-items: center;
     -ms-flex-pack: end;
         justify-content: flex-end; }
-  .r-header__edit-icons {
+  .elmsln--page--operations {
     margin: 0;
     padding: 0;
     display: -ms-flexbox;
     display: flex;
     -ms-flex-pack: end;
         justify-content: flex-end; }
-    .r-header__edit-icons__list-item {
+    .elmsln--page--operations li.page-op-button {
       margin: 0;
       padding: 0;
       list-style: none;
@@ -7756,7 +7756,7 @@ ul.header-menu-options li.active-trail {
   font-size: 2.25rem;
   line-height: 2.25rem;
   padding: 0;
-  margin: 0 0 0.5rem 0;
+  margin: 0 0 0.75rem 0;
   text-align: left;
   text-transform: none;
   padding-left: 0;
@@ -8093,6 +8093,9 @@ paper-button iron-icon.iron-icon-0 {
   height: 3em;
   margin: 0 .25em;
 }
+paper-button paper-tooltip {
+  text-transform: unset;
+}
 lrnapp-fab-speed-dial-action.lrnapp-fab-speed-dial-action-0 {
   margin: 0;
 }
@@ -8131,11 +8134,26 @@ paper-button:focus {
   min-width: .1rem;
   margin: 0;
 }
-.r-header__edit-icons paper-button,
-.r-header__edit-icons .icon-wrapper {
-  padding: .2rem;
-  min-width: 2rem;
-  margin: 0 .75rem;
+.elmsln--page--operations li.page-op-button paper-button {
+  margin: 0 .75rem 0 0;
+  padding: .25rem;
+  min-width: unset;
+  border: none;
+  border-radius: unset;
+}
+.elmsln--page--operations li.page-op-button paper-button iron-icon,
+.elmsln--page--operations li.page-op-button paper-button lrn-icon {
+  margin: 0;
+  width: 2rem;
+  height: 2rem;
+  line-height: 2rem;
+}
+.elmsln--page--operations li.page-op-button app-drawer paper-button {
+  margin: 0;
+  padding: 0;
+}
+.disabled.elmsln-more-menu-button {
+  background-color: unset;
 }
 #etb-network-nav paper-button {
   min-width: 3.25rem;
