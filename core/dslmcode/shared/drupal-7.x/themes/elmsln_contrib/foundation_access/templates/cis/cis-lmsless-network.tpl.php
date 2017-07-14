@@ -3,10 +3,10 @@
    * CIS LMS-less Network block template.
    */
 ?>
-  <li class="center-align valign-wrapper elmsln-modal-title-wrapper black">
-  <h2 class="flow-text valign elmsln-modal-title white-text"><?php print t('More tools'); ?></h2></li>
+  <ul>
   <!-- End Menu Item Dropdowns -->
-  <?php foreach ($services as $title => $items) : ?>
+  <?php foreach ($network['services'] as $title => $items) : ?>
+    <?php if ($title == t('Network')) { continue; } ?>
     <li>
       <div class="subheader"><?php print t('@title', array('@title' => token_replace($title))); ?></div>
       <div class="divider grey"></div>
@@ -30,14 +30,11 @@
     ?>
     <li>
     <?php if (isset($service['icon_library']) && $service['icon_library'] == 'material'): ?>
-      <a tabindex="-1" data-prefetch-hover="true" href="<?php print token_replace($service['url']); ?>" class="<?php print $activetool . $service['icon']; ?>-icon" data-jwerty-key="ctrl+<?php print drupal_strtolower(substr($stitle, 0, 1)); ?>" data-voicecommand="<?php print t('go to ') . drupal_strtolower($stitle); ?>" hover-class="<?php print $lmsless_classes[$service['distro']]['color'];?> <?php print $lmsless_classes[$service['distro']]['dark'];?> white-text">
-        <paper-button class="paper-button-link">
-          <div class="elmsln-hover-icon material-icon elmsln-network-icon left elmsln-icon <?php print $iconcolor;?>"><i class="material-icons"><?php print $service['icon']; ?></i></div>
-          <span class="elmsln-network-label"><?php print $stitle; ?></span>
-        </paper-button>
-      </a>
+      <lrnsys-button href="<?php print token_replace($service['url']); ?>" class="black-text" hover-class="<?php print $lmsless_classes[$service['distro']]['color'];?> <?php print $lmsless_classes[$service['distro']]['dark'];?> white-text" data-prefetch-hover="true" data-jwerty-key="ctrl+<?php print drupal_strtolower(substr($stitle, 0, 1)); ?>" data-voicecommand="<?php print t('go to ') . drupal_strtolower($stitle); ?>" icon="<?php print $service['icon'];?>">
+        <span class="elmsln-network-label"><?php print $stitle; ?></span>
+      </lrnsys-button>
     <?php else: ?>
-      <lrnsys-button href="<?php print token_replace($service['url']); ?>" class="account-logout" hover-class="<?php print $lmsless_classes[$service['distro']]['color'];?> <?php print $lmsless_classes[$service['distro']]['dark'];?> white-text" data-prefetch-hover="true" data-jwerty-key="ctrl+<?php print drupal_strtolower(substr($stitle, 0, 1)); ?>" data-voicecommand="<?php print t('go to ') . drupal_strtolower($stitle); ?>">
+      <lrnsys-button href="<?php print token_replace($service['url']); ?>" class="black-text" hover-class="<?php print $lmsless_classes[$service['distro']]['color'];?> <?php print $lmsless_classes[$service['distro']]['dark'];?> white-text" data-prefetch-hover="true" data-jwerty-key="ctrl+<?php print drupal_strtolower(substr($stitle, 0, 1)); ?>" data-voicecommand="<?php print t('go to ') . drupal_strtolower($stitle); ?>">
         <lrn-icon icon="<?php print $service['icon'];?>"></lrn-icon>
         <span class="elmsln-network-label"><?php print $stitle; ?></span>
       </lrnsys-button>
@@ -45,3 +42,4 @@
     </li>
     <?php endforeach ?>
   <?php endforeach ?>
+  </ul>

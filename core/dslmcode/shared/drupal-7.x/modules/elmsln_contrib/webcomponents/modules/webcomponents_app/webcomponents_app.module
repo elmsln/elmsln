@@ -245,6 +245,7 @@ function _webcomponents_app_load_app($machine_name = NULL, $debug = FALSE) {
       // @see secure-request webcomponent for behavior details if doing app development
       $vars['properties']['csrf-token'] = drupal_get_token('webcomponentapp');
       $vars['properties']['end-point'] = base_path() . WEBCOMPONENTS_APP_PATH . '/' . $machine_name;
+      $vars['properties']['base-path'] = base_path() . WEBCOMPONENTS_APP_PATH . '/';
       // see if anything needs ripped into the element
       foreach ($app['endpoints'] as $endpointpath => $endpoint) {
         if (isset($endpoint['property'])) {

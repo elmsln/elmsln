@@ -30,7 +30,7 @@
           </lrnsys-drawer>
           <?php } else { ?>
           <lrndesign-avatar label="<?php print $course_context; ?>" class="elmsln-course-avatar" jdenticon color="grey darken-4"></lrndesign-avatar>
-          <span class="course-title elmsln-course-title middle-align-wrap elmsln-user-button black-text">
+          <span class="course-title elmsln-course-title middle-align-wrap black-text">
             <span class="course-title-group">
               <span class="black-text course-title"><?php print $slogan; ?></span>
               <span class="black-text course-abrv"><?php print $site_name; ?> <span class="grey-text lighten-1 section-label"><?php if (isset($section_title)) : print $section_title; endif; ?></span></span>
@@ -67,13 +67,13 @@
         </li>
         <?php endif; ?>
         <?php if ($bar_elements['user']) : ?>
-        <li class="elmsln-user-profile-menu-item ferpa-protect">
-          <a tabindex="-1" href="#user-menu-button" class="middle-align-wrap elmsln-user-button elmsln-right-side-nav-trigger black-text" data-activates="block-cis-lmsless-cis-lmsless-user-nav-modal" data-jwerty-key="u" data-voicecommand="open user">
-            <paper-button>
-            <?php if (isset($userpicture)) { print $userpicture; } ?>
-            <span class="hide-on-med-and-down truncate"><?php print $username; ?></span>
-            </paper-button>
-          </a>
+        <li class="elmsln-user-profile-menu-item">
+          <lrnsys-drawer class="middle-align-wrap elmsln-user-button black-text" align="right" avatar="<?php print $userpicture;?>" icon="<?php print $usericon;?>" text="<?php print $username; ?>" hover-class="<?php print $lmsless_classes[$network['active']['distro']]['color'] . ' ' . $lmsless_classes[$network['active']['distro']]['dark'];?> white-text">
+            <h2 class="element-invisible" slot="header"><?php print t('User menu'); ?></h2>
+            <span slot="content" class="elmsln-modal-content">
+              <?php print $user_block;?>
+            </span>
+          </lrnsys-drawer>
         </li>
         <?php endif; ?>
       </ul>
@@ -123,12 +123,11 @@
   <?php endif; ?>
   <?php if ($bar_elements['network']) : ?>
     <li class="elmsln-network-menu-item right">
-      <a tabindex="-1" href="#network-menu-button" class="middle-align-wrap elmsln-network-button elmsln-right-side-nav-trigger black-text" data-activates="block-cis-lmsless-cis-lmsless-network-nav-modal" data-jwerty-key="n" data-voicecommand="open network">
-        <paper-button>
-          <lrn-icon icon="network" class="cis-lmsless-network"></lrn-icon>
-          <span class="hide-on-med-and-down truncate"><?php print t('More tools'); ?></span>
-        </paper-button>
-      </a>
+      <lrnsys-drawer class="middle-align-wrap elmsln-network-button black-text" align="right" icon="network" text="<?php print t('More tools'); ?>" header="<?php print t('More tools'); ?>" data-jwerty-key="n" data-voicecommand="open network" hover-class="<?php print $lmsless_classes[$network['active']['distro']]['color'] . ' ' . $lmsless_classes[$network['active']['distro']]['dark'];?> white-text">
+        <div slot="content" class="elmsln-modal-content elmsln-network-modal">
+          <?php print $network_block;?>
+        </div>
+      </lrnsys-drawer>
     </li>
   <?php endif; ?>
   </ul>

@@ -102,10 +102,6 @@ var clipboardjs = require('./components/clipboardjs.js');
       var lightboxes = $('.lightbox--is-open .imagelightbox__close').trigger('click');
       if (lightboxes.length == 0) {
         var modals = $('.close-reveal-modal:visible').trigger('click');
-        // test that there were modals to close, this allows us to do multiple escapes
-        if (modals.length == 0) {
-          $('#' + Drupal.settings.activeSideNav + ' .close-reveal-side-nav').trigger('click');
-        }
       }
     }
   });
@@ -197,31 +193,6 @@ var clipboardjs = require('./components/clipboardjs.js');
     $('body:not(.page-cle-app) .elmsln-dropdown-button').click(function(){
       $('#etb-course-nav').css('z-index', '2');
     });
-    // side triggers
-    $('.elmsln-right-side-nav-trigger').bind('click', function() {
-        $('#' + $(this).attr('data-activates')).removeClass('elmsln-modal-hidden').focus();
-        Drupal.settings.activeSideNav = $(this).attr('data-activates');
-      }).sideNav({
-      menuWidth: 400, // Default is 240
-      edge: 'right',
-      closeOnClick: false
-    });
-    $('.elmsln-right-side-nav-widget-trigger').bind('click', function() {
-        $('#' + $(this).attr('data-activates')).removeClass('elmsln-modal-hidden').focus();
-        Drupal.settings.activeSideNav = $(this).attr('data-activates');
-      }).sideNav({
-      menuWidth: '50%',
-      edge: 'right', // Choose the horizontal origin
-      closeOnClick: false // Closes side-nav on <a> clicks, useful for Angular/Meteor
-    });
-    $('.elmsln-left-side-nav-trigger').bind('click', function() {
-        $('#' + $(this).attr('data-activates')).removeClass('elmsln-modal-hidden').focus();
-        Drupal.settings.activeSideNav = $(this).attr('data-activates');
-      }).sideNav({
-      menuWidth: 280, // Default is 240
-      edge: 'left', // Choose the horizontal origin
-      closeOnClick: false // Closes side-nav on <a> clicks, useful for Angular/Meteor
-    });
     // modal items
     $('.elmsln-modal-trigger').bind('click', function() {
       // hide all currently visible modals
@@ -257,14 +228,6 @@ var clipboardjs = require('./components/clipboardjs.js');
     $('.close-reveal-modal').click(function(){
       $('#' + $(this).parents().parents().attr('id')).modal('close');
       $('[href=#' + $(this).parents().attr('id') + '] paper-button').focus();
-    });
-    // close x's for the side-nav items
-    $('.close-reveal-side-nav').click(function(){
-      $('[data-activates=' + Drupal.settings.activeSideNav + '] paper-button').focus().sideNav('hide');
-      setTimeout(function() {
-        $('#' + Drupal.settings.activeSideNav).addClass('elmsln-modal-hidden');
-        Drupal.settings.activeSideNav = null;
-      }, 150);
     });
     /* Implement customer javascript here */
     $(".disable-scroll").on("show", function () {

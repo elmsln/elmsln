@@ -36,12 +36,6 @@ function foundation_access_ux_context_default_contexts() {
           'region' => 'cis_lmsless_modal',
           'weight' => '-10',
         ),
-        'cis_service_connection-section_context_changer' => array(
-          'module' => 'cis_service_connection',
-          'delta' => 'section_context_changer',
-          'region' => 'cis_lmsless_modal',
-          'weight' => '-9',
-        ),
         'cis_service_connection-ferpa_filter' => array(
           'module' => 'cis_service_connection',
           'delta' => 'ferpa_filter',
@@ -86,18 +80,6 @@ function foundation_access_ux_context_default_contexts() {
           'delta' => 'masquerade',
           'region' => 'cis_lmsless_modal',
           'weight' => '-9',
-        ),
-        'cis_lmsless-cis_lmsless_user' => array(
-          'module' => 'cis_lmsless',
-          'delta' => 'cis_lmsless_user',
-          'region' => 'cis_lmsless_modal',
-          'weight' => '-8',
-        ),
-        'cis_lmsless-cis_lmsless_network' => array(
-          'module' => 'cis_lmsless',
-          'delta' => 'cis_lmsless_network',
-          'region' => 'cis_lmsless_modal',
-          'weight' => '-7',
         ),
         'cis_service_connection_ux-elmsln_navigation_l2' => array(
           'module' => 'cis_service_connection_ux',

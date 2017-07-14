@@ -25,14 +25,7 @@ function cis_service_connection_ux_context_default_contexts() {
   );
   $context->reactions = array(
     'block' => array(
-      'blocks' => array(
-        'cis_service_connection-section_context_changer' => array(
-          'module' => 'cis_service_connection',
-          'delta' => 'section_context_changer',
-          'region' => 'regions_admin_left',
-          'weight' => '22',
-        ),
-      ),
+      'blocks' => array(),
     ),
   );
   $context->condition_mode = 1;
