@@ -14,34 +14,29 @@
         <?php
           // account for roles that don't have access to this
           if (!empty($elmsln_main_menu)) {?>
-          <li class="first expanded hide-on-small-only">
-            <lrndesign-avatar class="dropdown-trigger" label="<?php print $course_context; ?>" jdenticon color="grey darken-4"></lrndesign-avatar>
-          </li>
-          <li>
-          <a tabindex="-1" href="#" id="elmsln-tools-trigger" class="course-title elmsln-course-title elmsln-left-side-nav-trigger middle-align-wrap elmsln-user-button black-text" title="" data-activates="elmsln-tools-menu" aria-controls="elmsln-tools-menu" aria-expanded="false" data-jwerty-key="t" data-voicecommand="open settings (menu)" data-elmsln-hover="<?php print $lmsless_classes[$network['active']['machine_name']]['color'];?>">
-          <paper-button>
-            <span class="course-title-group">
-              <span class="black-text course-title hide-on-med-and-down"><?php print $slogan; ?></span>
-              <span class="black-text course-abrv"><?php print $site_name; ?> <span class="accessible-grey-text lighten-1 section-label"><?php if (isset($section_title)) : print $section_title; endif; ?></span></span>
+          <lrnsys-drawer alt="<?php print t('Settings menu');?>" header="<?php print t('Settings');?>" align="left" class="course-title elmsln-course-title middle-align-wrap black-text" title="" aria-expanded="false" data-jwerty-key="t" data-voicecommand="open settings (menu)">
+            <span slot="button">
+              <lrndesign-avatar class="elmsln-course-avatar" label="<?php print $course_context; ?>" jdenticon color="grey darken-4"></lrndesign-avatar>
+              <span class="course-title-group">
+                <span class="black-text course-title hide-on-med-and-down"><?php print $slogan; ?></span>
+                <span class="black-text course-abrv"><?php print $site_name; ?> <span class="accessible-grey-text lighten-1 section-label"><?php if (isset($section_title)) : print $section_title; endif; ?></span></span>
+              </span>
             </span>
-          </paper-button>
-          </a>
-          <?php
-          }
-          else { ?>
-          <li class="first expanded">
-          <lrndesign-avatar label="<?php print $course_context; ?>" jdenticon color="grey darken-4"></lrndesign-avatar>
-          </li>
-          <li>
-          <span id="elmsln-tools-trigger" class="course-title elmsln-course-title middle-align-wrap elmsln-user-button black-text">
+            <div class="elmsln-modal-content">
+              <ul>
+                <li><?php print $elmsln_main_menu; ?></li>
+              </ul>
+            </div>
+          </lrnsys-drawer>
+          <?php } else { ?>
+          <lrndesign-avatar label="<?php print $course_context; ?>" class="elmsln-course-avatar" jdenticon color="grey darken-4"></lrndesign-avatar>
+          <span class="course-title elmsln-course-title middle-align-wrap elmsln-user-button black-text">
             <span class="course-title-group">
               <span class="black-text course-title"><?php print $slogan; ?></span>
               <span class="black-text course-abrv"><?php print $site_name; ?> <span class="grey-text lighten-1 section-label"><?php if (isset($section_title)) : print $section_title; endif; ?></span></span>
              </span>
           </span>
           <?php } ?>
-        </li>
-        </ul>
       </section>
     </nav>
   </div>
@@ -138,12 +133,3 @@
   <?php endif; ?>
   </ul>
 </div>
-<!-- modal fly out for settings -->
-<section id="elmsln-tools-menu" class="elmsln-modal elmsln-modal-hidden side-nav disable-scroll left-aligned" aria-hidden="true" tabindex="-1" role="dialog">
-  <div class="center-align valign-wrapper elmsln-modal-title-wrapper black"><h2 class="flow-text valign elmsln-modal-title white-text"><?php print t('Settings');?></h2><a tabindex="-1" href="#close-dialog" aria-label="Close" class="close-reveal-side-nav white-text vibrate" data-voicecommand="close (menu)" data-jwerty-key="Esc"><paper-button>&#215;</paper-button></a></div>
-  <div class="elmsln-modal-content">
-    <ul>
-      <li><?php print $elmsln_main_menu; ?></li>
-    </ul>
-  </div>
-</section>

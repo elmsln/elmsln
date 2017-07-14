@@ -1528,7 +1528,9 @@ a.modal-img-link {
         justify-content: center; }
   #etb-course-nav .course-title-group {
     display: inline-block;
-    line-height: inherit; }
+    line-height: inherit;
+    margin-top: .25rem;
+  }
   #etb-course-nav span.course-title {
     display: block;
     margin: 0;
@@ -6765,6 +6767,13 @@ table.sticky-header {
 .elmsln-modal-content {
   padding: 2rem;
 }
+.elmsln-modal-content ul {
+  display: block;
+}
+.elmsln-modal-content ul li {
+  height: unset;
+  float: unset;
+}
 .side-nav .elmsln-modal-content {
  padding: 0;
 }
@@ -8118,6 +8127,12 @@ paper-toast#toastdrawer {
 lrnsys-button paper-button {
   height: inherit;
 }
+lrnsys-drawer paper-button {
+  height: unset;
+}
+#etb-course-nav lrnsys-drawer .elmsln-modal-content li {
+  height: unset;
+}
 lrnsys-drawer lrn-icon.lrnsys-drawer {
   height: 2em;
   width: 2em;
@@ -8159,9 +8174,15 @@ paper-button:focus {
   height: 3rem;
   width: 1rem;
 }
+lrnsys-drawer app-drawer,
 .elmsln--page--operations li.page-op-button app-drawer {
   z-index: 1000;
 }
+
+.elmsln-course-avatar {
+  float: left;
+}
+
 .disabled.elmsln-more-menu-button {
   background-color: unset;
 }
@@ -8202,9 +8223,9 @@ paper-button:focus {
   height: 5rem;
 }
 #etb-course-nav lrndesign-avatar {
-  margin: .5rem 0 0 0;
-  padding: 0 .5rem 0 0;
-  line-height: 5.5rem;
+  margin: 0;
+  padding: 0 .75rem 0 0;
+  line-height: 1rem;
 }
 
 #etb-course-nav iron-dropdown .dropdown-content {

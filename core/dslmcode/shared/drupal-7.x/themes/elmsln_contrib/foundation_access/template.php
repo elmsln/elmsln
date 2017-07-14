@@ -128,7 +128,6 @@ function foundation_access_preprocess_user_profile(&$vars) {
 /**
  * Adds CSS classes based on user roles
  * Implements template_preprocess_html().
- *
  */
 function foundation_access_preprocess_html(&$variables) {
   // find the name of the install profile
@@ -1644,7 +1643,7 @@ function foundation_access_status_messages($variables) {
  *   Materialize.toast(message, displayLength, className, completeCallback);
  */
 function _foundation_access_make_toast($message, $display_length = 4000, $class_name = NULL, $callback = NULL) {
-  return '<paper-toast id="toastdrawer" class="fit-bottom" text="Messages" opened duration="0"><paper-button onclick="toastdrawer.toggle()" class="red darken-4 white-text close-button">' . t('Close') . '</paper-button>' . $message . '</paper-toast>';
+  return '<paper-toast id="toastdrawer" class="fit-bottom" text="' . t('Messages') . '" opened duration="0"><paper-button onclick="toastdrawer.toggle()" class="red darken-4 white-text close-button">' . t('Close') . '</paper-button>' . $message . '</paper-toast>';
 }
 
 /**
