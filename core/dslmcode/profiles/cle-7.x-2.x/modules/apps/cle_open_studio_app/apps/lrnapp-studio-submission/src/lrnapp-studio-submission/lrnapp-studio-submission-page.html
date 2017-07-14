@@ -39,10 +39,6 @@
         padding: 0.25rem 0;
       }
 
-      .body {
-        width: 80%;
-      }
-
       .comments {
         text-align: right;
         margin: 2em;
@@ -63,7 +59,9 @@
         <template is="dom-if" if="[[submission.attributes.images]]">
           <lrndesign-contentblock class="center" title="Images Submitted">
             <template is="dom-repeat" items="[[_toArray(submission.attributes.images)]]" as="image">
-              <a href="[[image.url]]" target="_blank"><iron-image sizing="contain" class="contain" src="[[image.image_styles.elmsln_small]]"></iron-image></a>
+              <a href="[[image.url]]" target="_blank">
+                <iron-image sizing="contain" class="contain" src="[[image.image_styles.elmsln_small]]"></iron-image>
+              </a>
             </template>
           </lrndesign-contentblock>
         </template>
@@ -71,7 +69,7 @@
         <template is="dom-if" if="[[submission.attributes.video]]">
           <lrndesign-contentblock class="center" title="Videos Submitted">
             <template is="dom-repeat" items="[[_toArray(submission.attributes.video)]]" as="video">
-              <iframe src="[[video.video_url]]"></iframe>
+                <iframe width="460" height="249" src="[[video.video_src]]"></iframe>
             </template>
           </lrndesign-contentblock>
         </template>
@@ -86,23 +84,23 @@
           <lrndesign-contentblock title="Links Submitted">
             <template is="dom-repeat" items="[[_toArray(submission.attributes.links)]]" as="link">
               <p><strong>[[link.title]]:</strong>
-              <a class="link" href="[[link.url]]" target="_blank">[[link.url]]</a></p>
+                <a class="link" href="[[link.url]]" target="_blank">[[link.url]]</a></p>
             </template>
           </lrndesign-contentblock>
         </template>
         <!-- ----- Files Submission -----  -->
         <template is="dom-if" if="[[submission.attributes.files]]">
-            <lrndesign-contentblock title="Files Submitted">
-              <template is="dom-repeat" items="[[_toArray(submission.attributes.files)]]" as="file">
-                <p><strong>[[file.filename]]:</strong>
+          <lrndesign-contentblock title="Files Submitted">
+            <template is="dom-repeat" items="[[_toArray(submission.attributes.files)]]" as="file">
+              <p><strong>[[file.filename]]:</strong>
                 <a class="link" href="[[file.url]]" target="_blank">[[file.url]]</a></p>
-              </template>
-            </lrndesign-contentblock>
+            </template>
+          </lrndesign-contentblock>
         </template>
         <template is="dom-if" if="[[submission.relationships.comments]]">
-        <p class="comments"><a href="{{url}}" tabindex="-1">{{submission.relationships.comments.data.length}} <lrn-icon icon="comment"></lrn-icon></a></p>
+          <p class="comments"><a href="{{url}}" tabindex="-1">{{submission.relationships.comments.data.length}} <lrn-icon icon="comment"></lrn-icon></a></p>
         </template>
-        </div>
+      </div>
     </paper-card>
   </template>
   <script>
