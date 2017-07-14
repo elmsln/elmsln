@@ -8108,6 +8108,9 @@ paper-button paper-tooltip {
 lrnapp-fab-speed-dial-action.lrnapp-fab-speed-dial-action-0 {
   margin: 0;
 }
+.app-drawer-0 #contentContainer.app-drawer {
+  margin-top: 7em;
+}
 paper-toast#toastdrawer {
   bottom: 0;
   top: auto !important;
