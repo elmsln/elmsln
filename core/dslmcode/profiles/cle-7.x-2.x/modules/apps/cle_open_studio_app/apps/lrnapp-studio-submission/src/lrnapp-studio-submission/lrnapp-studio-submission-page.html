@@ -135,7 +135,7 @@
         '_bodyChanged(title)'
       ],
       _urlVarsChanged: function (id, endPoint) {
-        this.reqUrl = endPoint + '/api/submissions';
+        this.reqUrl = endPoint + '/api/submissions/' + id;
       },
       _paramsChanged: function (csrfToken) {
         var params = this.reqParams || {};
@@ -143,7 +143,7 @@
         this.reqParams = params;
       },
       _handleResponse: function (data) {
-        this.submission = data.detail.response.data[this.id];
+        this.submission = data.detail.response.data;
         console.log(this.submission);
       },
       /**
