@@ -13,6 +13,10 @@
         margin: 0 .5em;
       }
 
+      lrnsys-dialog {
+        display: inline;
+      }
+
       .contain {
         width: 10em;
         height: 10em;
@@ -59,9 +63,14 @@
         <template is="dom-if" if="[[submission.attributes.images]]">
           <lrndesign-contentblock class="center" title="Images Submitted">
             <template is="dom-repeat" items="[[_toArray(submission.attributes.images)]]" as="image">
-              <a href="[[image.url]]" target="_blank">
+
+              <lrnsys-dialog alt="View Image">
+                <span slot="button">
                 <iron-image sizing="contain" class="contain" src="[[image.image_styles.elmsln_small]]"></iron-image>
-              </a>
+                </span>
+                <iron-image src="[[image.image_styles.elmsln_medium]]"></iron-image>
+              </lrnsys-dialog>
+
             </template>
           </lrndesign-contentblock>
         </template>
@@ -106,9 +115,6 @@
   <script>
     Polymer({
       is: 'lrnapp-studio-submission-page',
-      listeners: {
-        'click': '_triggerDialog',
-      },
       properties: {
         reqUrl: {
           type: String
