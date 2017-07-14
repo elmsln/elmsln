@@ -7788,6 +7788,10 @@ ul.header-menu-options li.active-trail {
   max-width: 100%;
   margin: 0 auto;
 }
+.read-time .chip iron-icon {
+  width: 1.5em;
+  height: 1.5em;
+}
 .highlighted-block-area .read-time {
   float: none;
   margin: 0;
