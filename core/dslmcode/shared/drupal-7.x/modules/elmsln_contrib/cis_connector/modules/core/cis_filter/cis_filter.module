@@ -624,10 +624,10 @@ function cis_filter_preprocess_cis_filter_render__modal(&$vars) {
   $code = $vars['settings']['code'];
   $vars['tool'] = $code['tool'];
   if (isset($code['icon'])) {
-    $vars['icon'] = '<i class="material-icons left ' . $vars['lmsless_classes'][$code['tool']]['text'] . '">' . $code['icon'] . '</i>';
+    $vars['icon'] = $code['icon'];
   }
   else {
-    $vars['icon'] = '<div class="elmsln-icon left ' . $vars['lmsless_classes'][$code['tool']]['text'] . ' icon-' . $code['tool'] . '"></div>';
+    $vars['icon'] = $code['tool'];
   }
   $vars['trigger'] = uniqid();
   $vars['class'] = 'cis-filter-modal-item';

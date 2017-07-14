@@ -18,8 +18,8 @@
             <span slot="button">
               <lrndesign-avatar class="elmsln-course-avatar" label="<?php print $course_context; ?>" jdenticon color="grey darken-4"></lrndesign-avatar>
               <span class="course-title-group">
-                <span class="black-text course-title hide-on-med-and-down"><?php print $slogan; ?></span>
-                <span class="black-text course-abrv"><?php print $site_name; ?> <span class="accessible-grey-text lighten-1 section-label"><?php if (isset($section_title)) : print $section_title; endif; ?></span></span>
+                <span class="course-title hide-on-med-and-down"><?php print $slogan; ?></span>
+                <span class="course-abrv"><?php print $site_name; ?> <span class="accessible-grey-text lighten-1 section-label"><?php if (isset($section_title)) : print $section_title; endif; ?></span></span>
               </span>
             </span>
             <div class="elmsln-modal-content">

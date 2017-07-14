@@ -31,14 +31,14 @@
             <?php endif; ?>
             <?php if (!empty($cis_shortcodes)) : ?>
               <li class="page-op-button">
-              <lrnsys-drawer align="right" alt="<?php print t('Embed this content')?>" icon="share" header="<?php print t('Embed this content'); ?>" data-jwerty-key="s" data-voicecommand="open embed (menu)">
+              <lrnsys-drawer hover-class="<?php print $cis_lmsless['lmsless_classes'][$distro]['text'] . ' text-' . $cis_lmsless['lmsless_classes'][$distro]['dark'];?>" align="right" alt="<?php print t('Embed this content')?>" icon="share" header="<?php print t('Embed this content'); ?>" data-jwerty-key="s" data-voicecommand="open embed (menu)">
                 <?php print $cis_shortcodes; ?>
               </lrnsys-drawer>
               </li>
             <?php endif; ?>
             <?php if (!empty($a11y)) : ?>
               <li class="page-op-button">
-              <lrnsys-drawer align="right" alt="<?php print t('Your preferences')?>" icon="accessibility" header="<?php print t('Preferences'); ?>" data-jwerty-key="a" data-voicecommand="open preferences (menu)">
+              <lrnsys-drawer hover-class="<?php print $cis_lmsless['lmsless_classes'][$distro]['text'] . ' text-' . $cis_lmsless['lmsless_classes'][$distro]['dark'];?>" align="right" alt="<?php print t('Your preferences')?>" icon="accessibility" header="<?php print t('Preferences'); ?>" data-jwerty-key="a" data-voicecommand="open preferences (menu)">
                 <?php print $a11y; ?>
               </lrnsys-drawer>
               </li>
