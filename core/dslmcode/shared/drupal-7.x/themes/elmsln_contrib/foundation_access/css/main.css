@@ -8004,13 +8004,17 @@ lrnapp-fab-speed-dial-action.lrnapp-fab-speed-dial-action-0 {
 .user-drawer-block {
   margin: -7em 0 0 0;
 }
-.user-drawer-block .elmsln-user-big-avatar {
+.user-drawer-block .background {
+  width: 100%;
+}
+.user-drawer-block .details {
   position: absolute;
   top: 10%;
   left: 10%;
 }
-.user-drawer-block .background {
-  width: 100%;
+.user-drawer-block .user-details-image,
+.user-drawer-block .user-details-text {
+  display: inline-block;
 }
 paper-toast#toastdrawer {
   bottom: 0;
