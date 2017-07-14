@@ -1,6 +1,6 @@
 <link rel="import" href="drupal-comment.html">
 
-<dom-module id="lrnapp-comments-recent">
+<dom-module id="lrnapp-comments-thread">
   <template>
     <style include="paper-item-styles">
       :host {
@@ -16,7 +16,7 @@
        handle-as="json"
        last-response="{{response}}"
        on-response="handleResponse"></iron-ajax>
-       <h1>Recent Comments</h1>
+       <h1>Comments Thread</h1>
     <template is="dom-repeat" items="[[_toArray(response.data)]]" as="comment">
       <drupal-comment comment-user="{{comment.username}}" comment-title="{{comment.title}}" action-view="{{comment.view}}" action-edit="{{comment.edit}}" action-delete="{{comment.delete}}" date-updated="{{comment.date}}">
         {{comment.body}}
@@ -26,7 +26,7 @@
   <script>
     Polymer({
 
-      is: 'lrnapp-comments-recent',
+      is: 'lrnapp-comments-thread',
 
       properties: {
         dataSource: {
