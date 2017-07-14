@@ -13,9 +13,7 @@ that can pop up to display more info
        :host {
         display: inline-flex;
       }
-
       /* Custom Tags */
-
       lrn-icon {
         margin: 0 .5em;
       }
@@ -24,12 +22,6 @@ that can pop up to display more info
         border-radius: 4px;
         margin: 0.75rem;
         width: 16rem;
-      }
-
-      paper-card paper-button {
-        display: block;
-        margin: 0;
-        padding: 0;
       }
 
       paper-dialog-scrollable {
@@ -83,7 +75,6 @@ that can pop up to display more info
         font-size: 0.9rem;
         padding: 0.25rem 0;
         margin: 0.5rem 0 0 0;
-        white-space: nowrap;
         overflow-x: hidden;
         text-overflow: ellipsis;
       }
@@ -119,6 +110,13 @@ that can pop up to display more info
         align-items: center;
         display: flex;
         justify-content: center;
+        width: 13em;
+        padding: 0 1em 0 0;
+        margin: 0 0 0 -.86em;
+      }
+      .card-content {
+        padding: 0;
+        margin: 0;
       }
 
       [elevation="0"] {
@@ -200,11 +198,16 @@ that can pop up to display more info
         font-size: 1em;
         line-height: 1em;
       }
+      lrnsys-dialog.inline-dialog-trigger {
+        display: inline-flex;
+        margin: 0;
+        padding: 0;
+      }
     </style>
     <paper-card class="horizontal" elevation="[[elevation]]">
-      <paper-button>
-        <div class="card-content">
-          <div class="card-control-height card-control-center">
+      <lrnsys-dialog id="dialog">
+        <div slot="button" class="card-control-height card-control-center">
+          <div class="card-content">
             <!-- ----- Images Submission -----  -->
             <template is="dom-if" if="{{_previewType(images)}}">
               <template is="dom-repeat" items="[[_toArray(images)]]">
@@ -215,90 +218,90 @@ that can pop up to display more info
             </template>
             <!-- ----- Videos Submission -----  -->
             <template is="dom-if" if="{{_previewType(videos)}}">
-                  <div class="icon-submission"><iron-icon class="big" icon="av:video-library"></lrn-icon></div>
+              <div class="icon-submission"><iron-icon class="big" icon="av:video-library"></lrn-icon></div>
             </template>
             <!-- ----- Files Submission -----  -->
             <template is="dom-if" if="{{_previewType(files)}}">
-                  <div class="icon-submission"><iron-icon class="big" icon="icons:file-download"></lrn-icon></div>
+              <div class="icon-submission"><iron-icon class="big" icon="icons:file-download"></lrn-icon></div>
             </template>
             <!-- ----- Link Submission -----  -->
             <template is="dom-if" if="{{_previewType(links)}}">
-                  <div class="icon-submission"><iron-icon class="big" icon="icons:link"></lrn-icon></div>
+              <div class="icon-submission"><iron-icon class="big" icon="icons:link"></lrn-icon></div>
             </template>
             <!-- ----- Text Submission -----  -->
             <template is="dom-if" if="{{_previewType(text)}}">
               <p class="text-submission">
                 <div class="text-submission truncate">[[text]]</div>
-                </p>
+              </p>
             </template>
+            <div class=divider></div>
+            <h2 class="title">[[title]]</h2>
+            <p class="author">By [[author]]<p>
           </div>
-          <div class=divider></div>
-          <h2 class="title">[[title]]</h2>
-          <p class="author">By [[author]]
-            <p>
         </div>
-        <div class="card-actions">
-          <p class="text-right">Comments: [[comments]]</p>
+        <div slot="header">
+          <div class="head text-center">
+            <lrndesign-avatar label="{{author}}"></lrndesign-avatar>
+            <h2>{{author}}</h2>
+            <!-- Need to pull the projectTitle -->
+            <h3>Project Title</h3>
+          </div>
+          <h3 class="text-center">{{title}}</h3>
         </div>
-      </paper-button>
-    </paper-card>
-    <!-- END paper-card -- START paper-dialog -->
-    <paper-dialog id="dialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation">
-      <div class="head text-center">
-        <lrndesign-avatar label="{{author}}"></lrndesign-avatar>
-        <h2>{{author}}</h2>
-        <!-- Need to pull the projectTitle -->
-        <h3>Project Title</h3>
+        <!-- slot for content of the modal -->
+        <span slot="content">
+          <!-- ----- Images Submission -----  -->
+          <template is="dom-if" if="{{images}}">
+            <div class="center">
+              <h4>Images Submitted</h4>
+              <template is="dom-repeat" items="[[_toArray(images)]]">
+                <lrnsys-dialog class="inline-dialog-trigger">
+                  <iron-image slot="button" sizing="contain" class="contain" src="[[item]]"></iron-image>
+                  <iron-image src="[[item]]"></iron-image>
+                </lrnsys-dialog>
+              </template>
+            </div>
+          </template>
+          <!-- ----- Videos Submission -----  -->
+          <template is="dom-if" if="{{videos}}">
+            <div class="center">
+              <h4>Videos Submitted</h4>
+              <template is="dom-repeat" items="[[_toArray(videos)]]">
+                <iframe src="[[item]]"></iframe>
+              </template>
+            </div>
+          </template>
+          <!-- ----- Text Submission -----  -->
+          <template is="dom-if" if="{{text}}">
+            <p>{{text}}</p>
+          </template>
+          <!-- ----- Links Submission -----  -->
+          <template is="dom-if" if="{{links}}">
+            <div class="center">
+              <h4>Links Submitted</h4>
+              <template is="dom-repeat" items="[[_toArray(links)]]">
+                <a class="link" href="[[item]]">
+                  <lrn-icon icon="online"></lrn-icon>[[item]]</a>
+              </template>
+            </div>
+          </template>
+          <!-- ----- Files Submission -----  -->
+          <template is="dom-if" if="{{files}}">
+            <div class="center">
+              <h4>Files Submitted</h4>
+              <template is="dom-repeat" items="[[_toArray(files)]]">
+                <a class="link" href="[[item]]" target="_blank">[[item]]</a>
+              </template>
+            </div>
+          </template>
+          <a href="{{url}}" tabindex="-1"><span class="comments">[[comments]]<lrn-icon icon="comment"></lrn-icon></span></a>
+          <hr class="divider">
+        </span>
+      </lrnsys-dialog>
+      <div class="card-actions">
+        <p class="text-right">Comments: [[comments]]</p>
       </div>
-      <!-- This will need to be repeated for each assignment -->
-      <paper-dialog-scrollable id="dialogResponse">
-        <h3 class="text-center">{{title}}</h3>
-        <!-- ----- Images Submission -----  -->
-        <template is="dom-if" if="{{images}}">
-          <div class="center">
-            <h4>Images Submitted</h4>
-            <template is="dom-repeat" items="[[_toArray(images)]]">
-              <iron-image sizing="contain" class="contain" src="[[item]]"></iron-image>
-            </template>
-          </div>
-        </template>
-        <!-- ----- Videos Submission -----  -->
-        <template is="dom-if" if="{{videos}}">
-          <div class="center">
-            <h4>Videos Submitted</h4>
-            <template is="dom-repeat" items="[[_toArray(videos)]]">
-              <iframe src="[[item]]"></iframe>
-            </template>
-          </div>
-        </template>
-        <!-- ----- Text Submission -----  -->
-        <template is="dom-if" if="{{text}}">
-          <p>{{text}}</p>
-        </template>
-        <!-- ----- Links Submission -----  -->
-        <template is="dom-if" if="{{links}}">
-          <div class="center">
-            <h4>Links Submitted</h4>
-            <template is="dom-repeat" items="[[_toArray(links)]]">
-              <a class="link" href="[[item]]">
-                <lrn-icon icon="online"></lrn-icon>[[item]]</a>
-            </template>
-          </div>
-        </template>
-        <!-- ----- Files Submission -----  -->
-        <template is="dom-if" if="{{files}}">
-          <div class="center">
-            <h4>Files Submitted</h4>
-            <template is="dom-repeat" items="[[_toArray(files)]]">
-              <a class="link" href="[[item]]" target="_blank">[[item]]</a>
-            </template>
-          </div>
-        </template>
-        <a href="{{url}}" tabindex="-1"><span class="comments">[[comments]]<lrn-icon icon="comment"></lrn-icon></span></a>
-        <hr class="divider">
-      </paper-dialog-scrollable>
-      <!-- End Repeat -->
-    </paper-dialog>
+    </paper-card>
     <iron-ajax params="{}" id="ajaxRequest" url="{{url}}" handle-as="json" on-response="_handleReturnedData"></iron-ajax>
   </template>
   <script>
@@ -308,7 +311,6 @@ that can pop up to display more info
       listeners: {
         'mouseenter': '_mouseEnter',
         'mouseleave': '_mouseLeave',
-        'click': '_triggerDialog',
       },
       properties: {
         /**
@@ -415,7 +417,6 @@ that can pop up to display more info
        */
       _handleReturnedData: function (e) {
         this.itemResponse = event.detail.response.data;
-        //this.$$('#dialogResponse').innerHTML = this.itemResponse;
       },
       _mouseEnter: function (e) {
         this.elevation += 1;
@@ -423,17 +424,15 @@ that can pop up to display more info
       _mouseLeave: function (e) {
         this.elevation -= 1;
       },
-      /**
-       * When someone clicks if there is a url, then we need to
-       * remote load whatever is in that url.
-       */
-      _triggerDialog: function (e) {
+      ready: function() {
         let root = this;
-        // support remote url loading
-        if (typeof this.url !== "undefined") {
-          root.$$('#ajaxRequest').generateRequest();
-        }
-        this.$$('#dialog').toggle();
+        root.$$('#dialog').addEventListener('click', function(e) {
+          let root = this;
+          // support remote url loading
+          if (typeof this.url !== "undefined") {
+            root.$$('#ajaxRequest').generateRequest();
+          }
+        });
       },
       _toArray: function (obj) {
         return Object.keys(obj).map(function (key) {
