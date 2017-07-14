@@ -1,0 +1,16 @@
+[{
+  "title": "Comment title",
+  "view": "node/123/comments/34",
+  "body": "<p>A new comment here!</p>"
+}, {
+  "title": "Another title",
+  "view": "node/123/comments/34",
+  "edit": "node/123/comments/34/edit",
+  "delete": "node/123/comments/34/delete",
+  "body": "<p>A new comment here!</p>"
+}, {
+  "title": "More stuff title",
+  "view": "node/123/comments/34",
+  "edit": "node/123/comments/34/edit",
+  "body": "<p>A new comment here!</p>"
+}]

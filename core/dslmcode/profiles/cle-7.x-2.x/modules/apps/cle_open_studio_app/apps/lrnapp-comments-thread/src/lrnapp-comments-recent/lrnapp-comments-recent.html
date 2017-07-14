@@ -1,0 +1,48 @@
+<link rel="import" href="drupal-comment.html">
+
+<dom-module id="lrnapp-comments-recent">
+  <template>
+    <style include="paper-item-styles">
+      :host {
+        display: block;
+      }
+      
+
+
+    </style>
+    <iron-ajax
+       auto
+       url="{{dataSource}}"
+       handle-as="json"
+       last-response="{{response}}"
+       on-response="handleResponse"></iron-ajax>
+       <h1>Recent Comments</h1>
+    <template is="dom-repeat" items="[[_toArray(response.data)]]" as="comment">
+      <drupal-comment comment-user="{{comment.username}}" comment-title="{{comment.title}}" action-view="{{comment.view}}" action-edit="{{comment.edit}}" action-delete="{{comment.delete}}" date-updated="{{comment.date}}">
+        {{comment.body}}
+      </drupal-comment>
+    </template>
+  </template>
+  <script>
+    Polymer({
+
+      is: 'lrnapp-comments-recent',
+
+      properties: {
+        dataSource: {
+          type: String,
+          notify: true,
+        },
+        response: {
+          type: Array,
+          notify: true,
+        }
+      },
+      _toArray: function(obj) {
+        return Object.keys(obj).map(function(key) {
+          return obj[key];
+        });
+      }
+    });
+  </script>
+</dom-module>
