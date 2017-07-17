@@ -118,6 +118,8 @@ class CleOpenStudioAppCommentService {
       // Relationships
       $encoded_comments->relationships = new stdClass();
       // author
+      $encoded_comments->relationships->author = new stdClass();
+      $encoded_comments->relationships->author->data = new stdClass();
       $encoded_comments->relationships->author->data->type = 'user';
       $encoded_comments->relationships->author->data->id = $comment->uid;
       $encoded_comments->relationships->author->data->name = $comment->name;

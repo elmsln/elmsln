@@ -96,13 +96,17 @@ class CleOpenStudioAppSubmissionService {
       $encoded_submission->attributes->state = $submission->field_submission_state[LANGUAGE_NONE][0]['value'];
       // Images
       $encoded_submission->attributes->images = NULL;
-      foreach ($submission->field_images[LANGUAGE_NONE] as $file) {
-        $encoded_submission->attributes->images[] = _elmsln_api_v1_file_output($file);
+      if (isset($submission->field_images[LANGUAGE_NONE])) {
+        foreach ($submission->field_images[LANGUAGE_NONE] as $file) {
+          $encoded_submission->attributes->images[] = _elmsln_api_v1_file_output($file);
+        }
       }
       // Files
       $encoded_submission->attributes->files = NULL;
-      foreach ($submission->field_files[LANGUAGE_NONE] as $file) {
-        $encoded_submission->attributes->files[] = _elmsln_api_v1_file_output($file);
+      if (isset($submission->field_files[LANGUAGE_NONE])) {
+        foreach ($submission->field_files[LANGUAGE_NONE] as $file) {
+          $encoded_submission->attributes->files[] = _elmsln_api_v1_file_output($file);
+        }
       }
       // Links
       $encoded_submission->attributes->links = NULL;
@@ -125,10 +129,16 @@ class CleOpenStudioAppSubmissionService {
       // Relationships
       $encoded_submission->relationships = new stdClass();
       // assignment
+      $encoded_submission->relationships->assignment = new stdClass();
+      $encoded_submission->relationships->assignment->data = new stdClass();
       $encoded_submission->relationships->assignment->data->id = $submission->field_assignment[LANGUAGE_NONE][0]['target_id'];
       // group
+      $encoded_submission->relationships->group = new stdClass();
+      $encoded_submission->relationships->group->data = new stdClass();
       $encoded_submission->relationships->group->data->id = $submission->og_group_ref[LANGUAGE_NONE][0]['target_id'];
       // author
+      $encoded_submission->relationships->author = new stdClass();
+      $encoded_submission->relationships->author->data = new stdClass();
       $encoded_submission->relationships->author->data->type = 'user';
       $encoded_submission->relationships->author->data->id = $submission->uid;
       $encoded_submission->relationships->author->data->name = $submission->name;
@@ -137,9 +147,9 @@ class CleOpenStudioAppSubmissionService {
       $encoded_submission->meta->comment_count = $submission->comment_count;
       if ($submission->comment_count > 0) {
         $comments_service = new CleOpenStudioAppCommentService();
-        $options = new stdClass();
-        $options->filter->submission = $submission->nid;
+        $options = (object) array('filter' => array('submission' => $submission->nid));
         $comments = $comments_service->getComments($options);
+        $encoded_submission->relationships->comments = new stdClass();
         $encoded_submission->relationships->comments->data = $comments;
       }
       // Actions
