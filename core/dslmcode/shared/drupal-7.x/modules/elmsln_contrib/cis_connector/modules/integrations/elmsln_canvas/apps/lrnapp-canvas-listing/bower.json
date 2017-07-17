@@ -22,6 +22,7 @@
   },
   "dependencies": {
     "build": "LRNWebComponents/build#^0.0.2",
-    "lrndesign-gallerycard": "LRNWebComponents/lrndesign-gallerycard#^0.0.10"
+    "lrndesign-gallerycard": "LRNWebComponents/lrndesign-gallerycard#^0.0.10",
+    "vaadin-grid": "vaadin/vaadin-grid#^3.0.0"
   }
 }

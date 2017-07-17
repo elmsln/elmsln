@@ -3609,7 +3609,7 @@ body.page-node-edit.node-type-page .cke_focus .cke_top{
   }
   .r-local-subheader .views-exposed-form {
     right: 92%;
-    width: calc(55vw - 50%);
+    width: calc(55vw - 45%);
   }
   .views-exposed-form .views-exposed-widget {
     float: unset;
