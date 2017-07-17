@@ -4,7 +4,7 @@
   * in order to react correctly to the page's content.
   */
 ?>
-<div id="speedreader-nav-modal" class="reveal-modal etb-nav-modal" data-reveal>
+<div id="speedreader-nav-modal" class="reveal-modal" data-reveal>
   <h1><?php print $name; ?></h1>
   <hr></hr>
   <div id="spritz" class="spritz">

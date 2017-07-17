@@ -32,8 +32,13 @@ function webcomponents_polymer_register_webcomponent_apps() {
   }
   // now look in module sepecific areas
   $modulefiles = drupal_system_listing("/polymer\.json$/", "modules", 'polymer', 2);
+  // replace with manifest and check if it exists, silly but works
   foreach ($modulefiles as $file) {
-    $files[] = str_replace('polymer.json', 'manifest.json', $file->uri);
+    $tmp = str_replace('polymer.json', 'manifest.json', $file->uri);
+    // include the reference if we find it
+    if (file_exists($tmp)) {
+      $files[] = $tmp;
+    }
   }
   // walk the files
   foreach ($files as $file) {
@@ -42,23 +47,41 @@ function webcomponents_polymer_register_webcomponent_apps() {
       // load the manifest json file
       $manifest = drupal_json_decode(file_get_contents($file));
       $return[$manifest['name']] = array(
-        'title' => isset($manifest['title']) ? $manifest['title'] : $manifest['short_name'],
+        'title' => $manifest['short_name'],
         'description' => $manifest['description'],
         'path' => str_replace('manifest.json', '', $file),
       );
       // support for drupal specific properties to be set in manifest
-      if (isset($manifest['drupal'])) {
-        if (isset($manifest['drupal']['menu'])) {
-          $return[$manifest['name']]['menu'] = $manifest['drupal']['menu'];
+      if (isset($manifest['app_integration'])) {
+        $app = $manifest['app_integration'];
+        // support for more expressive title specific to integrations
+        if (isset($app['title'])) {
+          $return[$manifest['name']]['title'] = $app['title'];
         }
-        if (isset($manifest['drupal']['data'])) {
-          $return[$manifest['name']]['data'] = $manifest['drupal']['data'];
+        // support for generating a visualized menu item in drupal's menu system
+        if (isset($app['menu'])) {
+          $return[$manifest['name']]['menu'] = $app['menu'];
         }
-        if (isset($manifest['drupal']['module'])) {
-          $return[$manifest['name']]['module'] = $manifest['drupal']['module'];
+        // support for additional properties
+        if (isset($app['properties'])) {
+          $return[$manifest['name']]['properties'] = $app['properties'];
         }
-        if (isset($manifest['drupal']['context'])) {
-          $return[$manifest['name']]['context'] = $manifest['drupal']['context'];
+        // support for a endpoint paths for getting data into the app
+        if (isset($app['endpoints'])) {
+          $return[$manifest['name']]['endpoints'] = $app['endpoints'];
+        }
+        // support for discovering and autoloading an element-name.php file
+        // to make decoupled development even easier!
+        if (file_exists(str_replace('manifest.json', $manifest['name'] . '.php', $file))) {
+          $return[$manifest['name']]['autoload'] = TRUE;
+        }
+        // support automatically making a block for this element
+        if (isset($app['block'])) {
+          $return[$manifest['name']]['block'] = $app['block'];
+        }
+        // general support for anything you want to store for context
+        if (isset($app['context'])) {
+          $return[$manifest['name']]['context'] = $app['context'];
         }
       }
     }

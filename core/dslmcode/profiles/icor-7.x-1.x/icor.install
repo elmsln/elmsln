@@ -112,3 +112,10 @@ function icor_update_7008(&$sandbox) {
     ->condition('type', 'module')
     ->execute();
 }
+
+/**
+ * Simplify data model in interact.
+ */
+function icor_update_7009(&$sandbox) {
+  module_disable(array('cis_section'));
+}

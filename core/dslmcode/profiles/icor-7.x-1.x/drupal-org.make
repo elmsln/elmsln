@@ -30,9 +30,6 @@ projects[user_progress][version] = "1.x-dev"
 projects[user_progress][subdir] = "contrib"
 projects[file_entity][version] = "2.x-dev"
 projects[file_entity][subdir] = "contrib"
-; User interface
-projects[lightbox2][version] = "1.x-dev"
-projects[lightbox2][subdir] = "contrib"
 ; Views
 projects[eva][version] = "1.x-dev"
 projects[eva][subdir] = "contrib"

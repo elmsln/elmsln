@@ -1,0 +1,127 @@
+<dom-module id="lrnapp-canvas-listing">
+  <template>
+    <style include="materializecss-styles"></style>
+    <style>
+      :host {
+        display: block;
+      }
+      paper-card {
+        width: 20rem;
+      }
+      lrndesign-avatar {
+        display:inline-block;
+      }
+      .avatar-name {
+        line-height: 2em;
+        margin: 0;
+        display:inline-block;
+      }
+    </style>
+    <iron-ajax auto
+      url="[[sourcePath]]"
+      params='{"return": "courses"}'
+      handle-as="json"
+      on-response="handleResponse"
+      last-response="{{queryResponse}}"></iron-ajax>
+    <div id="loading">
+      <p>Loading..</p>
+      <elmsln-loading color="grey-text" size="epic"></elmsln-loading>
+    </div>
+    <template is="dom-repeat" items="[[_toArray(courses)]]" as="course">
+      <paper-card image="{{course.image}}">
+        <div class="card-content">
+          <div>{{course.name}}</div>
+        </div>
+        <div class="card-actions">
+          <paper-button raised on-click="_triggerDialog" id$="{{course.sis_course_id}}">{{course.sections}} sections</paper-button>
+          <paper-button>{{course.student_count}} students</paper-button>
+        <div>Workflow: {{course.workflow_state}}</div>
+      </paper-card>
+    </template>
+    <paper-dialog id="dialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation">
+      <h2>{{activeCourse.name}}</h2>
+      <paper-dialog-scrollable id="dialogResponse">
+        <div id="loadingRoster"></div>
+        <div>{{activeCourse.sections}} sections</div>
+        <div>{{activeCourse.student_count}} students</div>
+        <div>SIS ID: {{activeCourse.sis_course_id}}</div>
+        <div>Workflow: {{activeCourse.workflow_state}}</div>
+        <template is="dom-repeat" items="[[_toArray(roster)]]" as="roleList">
+          <h3>{{roleList.role}}</h3>
+          <template is="dom-repeat" items="[[_toArray(roleList.users)]]" as="user">
+            <div class="avatar-name" id$="user{{user.id}}">
+              <lrndesign-avatar label$="{{user.name}}" jdenticon src$="{{user.picture}}"></lrndesign-avatar>
+              <span>{{user.name}}</span>
+            </div>
+            <paper-tooltip for$="user{{user.id}}">{{user.email}}</paper-tooltip>
+          </template>
+        </template>
+
+      </paper-dialog-scrollable>
+      <iron-ajax
+      id="request"
+      url="[[sourcePath]]"
+      params='{"return": "users"}'
+      handle-as="json"
+      on-response="handleRosterResponse"
+      last-response="{{queryResponse}}"></iron-ajax>
+    </paper-dialog>
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'lrnapp-canvas-listing',
+
+      properties: {
+        courses: {
+          type: Array,
+          notify: true,
+        },
+        roster: {
+          type: Array,
+          notify: true,
+        },
+        queryResponse: {
+          type: Array,
+          notify: true,
+        },
+        sourcePath: {
+          type: String,
+          notify: true,
+        },
+        activeCourse: {
+          type: String,
+          notify: true,
+          reflectToAttribute: true,
+        }
+      },
+      /**
+       * Simple way to convert from object to array.
+       */
+      _toArray: function(obj) {
+        return Object.keys(obj).map(function(key) {
+          return obj[key];
+        });
+      },
+      _triggerDialog: function(e) {
+        let root = this;
+        root.activeCourse = root.courses[e.target.id];
+        root.$$('#request').params['sis_course_id'] = root.activeCourse.sis_course_id;
+        root.$$('#request').generateRequest();
+        root.$$('#loadingRoster').innerHTML = '<p>Loading..</p><elmsln-loading color="grey-text" size="epic"></elmsln-loading>';
+        root.$$('#dialog').toggle();
+      },
+      handleResponse: function() {
+        let root = this;
+        root.courses = root.queryResponse.data;
+        root.$$('#loading').innerHTML = '';
+      },
+      handleRosterResponse: function() {
+        let root = this;
+        root.roster = root.queryResponse.data;
+        root.$$('#loadingRoster').innerHTML = '';
+      }
+    });
+  </script>
+</dom-module>

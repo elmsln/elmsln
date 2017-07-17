@@ -137,6 +137,8 @@ dependencies[] = cis_course_authority
 ; ----------
 ; CPR Dependencies
 ; ----------
+dependencies[] = flood_control
+dependencies[] = flood_unblock
 dependencies[] = imagefield_focus
 dependencies[] = cpr_helper
 dependencies[] = cpr_user

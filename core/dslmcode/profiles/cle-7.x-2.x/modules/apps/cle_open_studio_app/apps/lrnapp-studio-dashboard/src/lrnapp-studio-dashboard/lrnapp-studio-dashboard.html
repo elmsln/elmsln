@@ -1,0 +1,137 @@
+
+<dom-module id="lrnapp-studio-dashboard">
+  <template>
+    <style include="materializecss-styles"></style>
+    <style>
+      :host {
+        display: block;
+      }
+      paper-button {
+        padding: 0;
+        margin: 0;
+        min-width: 1rem;
+      }
+      #details {
+        opacity: .5;
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        margin: 0 1rem 0 0;
+        background-color: white;
+        padding: .5em;
+      }
+      #details:hover {
+        opacity: 1;
+      }
+      #details span {
+        font-size: .6em;
+        font-weight: normal;
+      }
+      #details .comment-on-work {
+        font-size: .8em;
+        background-color: white;
+      }
+      #notes {
+        @apply(--layout-vertical);
+        @apply(--layout-wrap);
+        height: 344px;
+        width: 384px;
+      }
+      #notes > paper-card {
+        box-sizing: border-box;
+        max-width: 184px;
+        margin: 3px;
+        flex: 0 0 auto;
+      }
+    </style>
+    <iron-ajax id="ajax"
+      url="[[sourcePath]]"
+      params=''
+      handle-as="json"
+      last-response="{{dataset}}"></iron-ajax>
+    <template is="dom-repeat" items="[[_toArray(dataset.blocks)]]" as="block">
+
+    </template>
+    <div id="notes">
+      <paper-card heading="bto108" class="cyan">
+        <lrndesign-avatar label="bto108"></lrndesign-avatar>
+        <div class="card-actions">
+          <paper-icon-button icon="communication:call" style="color:white;"></paper-icon-button>
+          <span>Last post: 2017</span>
+        </div>
+      </paper-card>
+      <paper-card class="dark">
+        <div class="card-content">
+          <p>Groceries:</p>
+          <paper-checkbox>almond milk</paper-checkbox>
+          <paper-checkbox>coconut water</paper-checkbox>
+          <paper-checkbox>cheese</paper-checkbox>
+          <paper-checkbox>green apples</paper-checkbox>
+        </div>
+        <div class="card-actions">
+          <paper-icon-button icon="communication:location-on" style="color:white"></paper-icon-button>
+          <span>Campbell</span>
+        </div>
+      </paper-card>
+      <paper-card heading="clean desk" class="lime"></paper-card>
+      <paper-card image="./donuts.png" alt="Donuts" class="amber">
+        <div class="card-content">New cafe opened on Valencia St.</div>
+      </paper-card>
+      <paper-card heading="Yuna tickets on sale 6/24" class="cyan">
+      </paper-card>
+    </div>
+    <custom-style>
+  <style is="custom-style">
+    paper-card.white {
+      --paper-card-header-color: #fff;
+    }
+  </style>
+</custom-style>
+<paper-card heading="Pre-fab homes" image="./house.png" alt="House" class="white" style="margin-bottom:8px;">
+  <div class="card-actions">
+    <paper-icon-button icon="favorite"></paper-icon-button>
+    <paper-icon-button icon="bookmark"></paper-icon-button>
+    <paper-icon-button icon="social:share"></paper-icon-button>
+  </div>
+</paper-card>
+<div class="horizontal">
+  <paper-card heading="Favorite trips" image="./trip.png" alt="Trip" class="white" style="margin-right:4px;">
+    <div class="card-actions horizontal justified">
+      <paper-icon-button icon="favorite"></paper-icon-button>
+      <paper-icon-button icon="bookmark"></paper-icon-button>
+      <paper-icon-button icon="social:share"></paper-icon-button>
+    </div>
+  </paper-card>
+  <paper-card heading="Best airlines" image="./travel.png" alt="Travel" class="white" style="margin-left:4px;">
+    <div class="card-actions horizontal justified">
+      <paper-icon-button icon="favorite"></paper-icon-button>
+      <paper-icon-button icon="bookmark"></paper-icon-button>
+      <paper-icon-button icon="social:share"></paper-icon-button>
+    </div>
+  </paper-card>
+</div>
+  </template>
+  <script>
+    Polymer({
+      is: 'lrnapp-studio-dashboard',
+      properties: {
+        sourcePath: {
+          type: String,
+          notify: true,
+        },
+        dataset: {
+          type: Array,
+          notify: true,
+        }
+      },
+      /**
+       * Simple way to convert from object to array.
+       */
+      _toArray: function(obj) {
+        return Object.keys(obj).map(function(key) {
+          return obj[key];
+        });
+      },
+    });
+  </script>
+</dom-module>

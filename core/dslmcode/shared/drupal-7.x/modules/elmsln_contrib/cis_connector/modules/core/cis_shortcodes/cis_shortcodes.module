@@ -509,10 +509,10 @@ function _cis_shortcode_render_codes($entity, $type) {
     t('Advanced items that provide dedicated capabilities.'),
   );
   $icons = array(
-    'settings_system_daydream',
-    'web',
-    'compare_arrows',
-    'widgets',
+    'device:settings-system-daydream',
+    'av:web',
+    'icons:compare-arrows',
+    'device:widgets',
   );
   // loop through the groupings and see if we have any shortcodes for each
   foreach ($groupings as $key => $group) {

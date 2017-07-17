@@ -119,13 +119,6 @@ dependencies[] = elmsln_authcache
 dependencies[] = elmsln_advagg
 
 ; ----------
-; Service Dependencies
-; ----------
-dependencies[] = og
-dependencies[] = og_ui
-dependencies[] = cis_section
-
-; ----------
 ; Authority Dependencies
 ; ----------
 dependencies[] = cis_course_authority
@@ -150,8 +143,6 @@ dependencies[] = elmsln_ecd
 ; Other
 dependencies[] = file_entity
 dependencies[] = dynamic_select
-; User interface
-dependencies[] = lightbox2
 ; Views
 dependencies[] = eva
 dependencies[] = views_simple_pager

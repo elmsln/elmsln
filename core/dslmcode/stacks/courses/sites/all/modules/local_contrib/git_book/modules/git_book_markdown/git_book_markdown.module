@@ -93,6 +93,8 @@ function _git_book_markdown_book_root_path() {
       $path = file_create_url('private://' . preg_replace('/[^a-z0-9]/', '', drupal_strtolower($book->title)));
     }
   }
+  // allow developers to modify this before it goes out
+  drupal_alter('gbm_book_root_path', $path);
   return $path;
 }
 

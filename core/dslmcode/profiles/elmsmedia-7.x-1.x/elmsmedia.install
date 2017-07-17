@@ -254,3 +254,45 @@ function elmsmedia_update_7021(&$sandbox) {
   features_revert_module('elmsmedia_section_perms');
   features_revert_module('elmsmedia_view_mode_tabs');
 }
+
+/**
+ * If we don't set this manually then we'll get
+ * hand off issues with the file system on the data- domain
+ */
+function elmsmedia_update_7022(&$sandbox) {
+  $cfg = _elmsln_core_get_cfg();
+  variable_set('file_public_path', 'sites/media/' . $cfg['host'] . '/files');
+}
+
+/**
+ * SVG filter updated to allow gradients and citation fields added.
+ */
+function elmsmedia_update_7023(&$sandbox) {
+  features_revert_module('elmsmedia_audio');
+  features_revert_module('elmsmedia_document');
+  features_revert_module('elmsmedia_external_video');
+  features_revert_module('elmsmedia_image');
+  features_revert_module('elmsmedia_image_gallery');
+  features_revert_module('elmsmedia_list');
+  features_revert_module('elmsmedia_svg');
+  features_revert_module('elmsmedia_video');
+}
+
+/**
+ * Data model simplification.
+ */
+function elmsmedia_update_7024(&$sandbox) {
+  features_revert_module('elmsmedia_audio');
+  features_revert_module('elmsmedia_document');
+  features_revert_module('elmsmedia_external_video');
+  features_revert_module('elmsmedia_image');
+  features_revert_module('elmsmedia_image_gallery');
+  features_revert_module('elmsmedia_list');
+  features_revert_module('elmsmedia_svg');
+  features_revert_module('elmsmedia_static_content');
+  features_revert_module('elmsmedia_video');
+  features_revert_module('elmsmedia_feature');
+  features_revert_module('elmsmedia_figure_label');
+  features_revert_module('elmsmedia_h5p');
+  module_disable(array('cis_section', 'elmsmedia_section_perms'));
+}

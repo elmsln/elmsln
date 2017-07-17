@@ -128,10 +128,6 @@ function cis_service_connection_block_info() {
       'info' => t('Instructor contact info'),
       'cache' => DRUPAL_CACHE_PER_USER,
     ),
-    'section_context_changer' => array(
-      'info' => t('Change section context'),
-      'cache' => DRUPAL_CACHE_PER_USER,
-    ),
     'managed_footer' => array(
       'info' => t('CIS managed footer'),
       'cache' => DRUPAL_CACHE_GLOBAL,
@@ -153,12 +149,6 @@ function cis_service_connection_block_view($delta = '') {
     case 'instructor_contact':
       $block['subject'] = t('Instructor Contact');
       $block['content'] = cis_service_connection_block_instructor_contact();
-    break;
-    case 'section_context_changer':
-      if (user_access('switch section context')) {
-        $block['subject'] = t('Section change');
-        $block['content'] = drupal_get_form('cis_service_connection_block_section_context_changer_form');
-      }
     break;
     case 'managed_footer':
       $block['subject'] = '<none>';

@@ -1,0 +1,20 @@
+{
+  "name": "lrnapp-studio-dashboard",
+  "short_name": "lrnapp-studio-dashboard",
+  "description": "Dashboard for students when they first enter the studio space.",
+  "start_url": "/",
+  "display": "standalone",
+  "app_integration": {
+    "title": "Overview",
+    "menu": {
+      "menu_name": "menu-elmsln-navigation",
+      "weight": -10
+    },
+    "endpoints": {
+      "data": {
+        "callback": "_cle_open_studio_app_dashboard_data",
+        "property": "source-path"
+      }
+    }
+  }
+}

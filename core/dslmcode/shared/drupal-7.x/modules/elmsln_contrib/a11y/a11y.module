@@ -70,7 +70,7 @@ function a11y_a11y_block($render = TRUE) {
     ),
     '#materialize' => array(
       'type' => 'collapsible',
-      'icon' => 'brightness_medium',
+      'icon' => 'device:brightness-medium',
     ),
   );
   // textsize default state
@@ -212,7 +212,7 @@ function a11y_a11y_block($render = TRUE) {
       ),
       '#materialize' => array(
         'type' => 'collapsible',
-        'icon' => 'videogame_asset',
+        'icon' => 'hardware:videogame-asset',
       ),
     );
     // support for dyslexia simulator

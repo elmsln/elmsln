@@ -14,6 +14,20 @@ function elmsmedia_helper_field_formatter_info_alter(&$info) {
 }
 
 /**
+ * Implements hook_elmsln_api_info().
+ */
+function elmsmedia_helper_elmsln_api_info() {
+  // upload callback
+  $callbacks['elmsmedia_upload'] = array(
+    'methods' => array('POST'),
+    'bootstrap' => DRUPAL_BOOTSTRAP_FULL,
+    'file' => 'callbacks/v1/elmsmedia_upload.inc',
+  );
+
+  return $callbacks;
+}
+
+/**
  * Implements hook_page_build().
  */
 function elmsmedia_helper_page_build(&$page) {

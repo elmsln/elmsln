@@ -20,46 +20,7 @@ function cle_open_studio_app_wrapped_paths() {
  * @param  string $machine_name machine name of this app
  * @return array               data to be json encoded for the front end
  */
-function _cle_open_studio_app_data($machine_name, $app_route) {
-  $return = array();
-  // @todo need a better render method then this as this is lazy for now
-  if (!empty(arg(3)) && is_numeric(arg(3))) {
-    $node = node_load(arg(3));
-    $node_view = node_view($node);
-    $rendered_node = drupal_render($node_view);
-    $return = $rendered_node;
-  }
-  else {
-    // @todo need to pull just the most recent submissions, 1 per project
-    // which might be too complex of logic for this efq to express
-    // get all submissions
-    // unique per project
-    // sort by most recent
-    // ... ugh... this is more complex then this
-    // pull together all the submissions they should be seeing
-    $data = _cis_connector_assemble_entity_list('node', 'cle_submission', 'nid', '_entity');
-    foreach ($data as $item) {
-      $return[$item->nid] = new stdClass();
-      $return[$item->nid]->title = $item->title;
-      $return[$item->nid]->comments = $item->comment_count;
-      $return[$item->nid]->author = $item->name;
-      $return[$item->nid]->body = strip_tags($item->field_submission_text['und'][0]['safe_value']);
-      $return[$item->nid]->url = base_path() . $app_route . '/data/' . $item->nid;
-      $return[$item->nid]->edit_url = base_path() . 'node/' . $item->nid . '/edit?destination=' . $app_route;
-    }
-  }
-  return array(
-    'status' => 200,
-    'data' => $return
-  );
-}
-
-/**
- * Callback for apps/open-studio/data.
- * @param  string $machine_name machine name of this app
- * @return array               data to be json encoded for the front end
- */
-function _cle_open_studio_app_gallery_data($machine_name, $app_route) {
+function _cle_open_studio_app_gallery_data($machine_name, $app_route, $params, $args) {
   $return = array();
   // @todo need to pull just the most recent submissions, 1 per project
   // which might be too complex of logic for this efq to express
@@ -88,4 +49,20 @@ function _cle_open_studio_app_gallery_data($machine_name, $app_route) {
     'status' => 200,
     'data' => $return
   );
+}
+
+/**
+ * Implements hook_registry_files_alter().
+ */
+function cle_open_studio_app_registry_files_alter(&$files, $modules) {
+  // Manually add here as this is a feature and the .info may get overridden.
+  $files[] = drupal_get_path('module', 'cle_open_studio_app') . '/apps/services/CleOpenStudioAppSubmissionService.php';
+  $files[] = drupal_get_path('module', 'cle_open_studio_app') . '/apps/services/CleOpenStudioAppCommentService.php';
+}
+
+/**
+ * Service function for apps to use to create, update and delete submissions
+ * @action
+ */
+function _cle_open_studio_app_submission_service($action) {
 }

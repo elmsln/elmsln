@@ -1,0 +1,159 @@
+<dom-module id="lrnapp-studio-submission-page">
+  <template>
+    <style>
+       :host {
+        display: block;
+      }
+
+      lrndesign-contentblock {
+        margin: .5em;
+      }
+
+      iron-image {
+        margin: 0 .5em;
+      }
+
+      lrnsys-dialog {
+        display: inline;
+      }
+
+      .contain {
+        width: 10em;
+        height: 10em;
+        background: #ddd;
+      }
+
+      .center {
+        margin: auto;
+        width: 100%;
+      }
+
+      .title {
+        font-size: 2rem;
+        padding: 0.25rem 0;
+        margin: 0.5rem 0 0 0;
+        white-space: nowrap;
+        overflow-x: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .author {
+        font-size: 1rem;
+        margin: 0;
+        padding: 0.25rem 0;
+      }
+
+      .comments {
+        text-align: right;
+        margin: 2em;
+        font-size: 1.5em;
+      }
+    </style>
+
+    <iron-ajax id="ajaxRequest" auto url="[[reqUrl]]" method="GET" body="[[reqBody]]" params="[[reqParams]]" content-type="application/json"
+      handle-as="json" on-response="_handleResponse"></iron-ajax>
+    <paper-card>
+      <div class="card-content">
+        <!-- ----- Title and Author -----  -->
+        <template is="dom-if" if="[[submission]]">
+          <h2 class="title">{{submission.attributes.title}}</h2>
+          <h3 class="author">By: {{submission.relationships.author.data.name}}</h3>
+        </template>
+        <!-- ----- Images Submission -----  -->
+        <template is="dom-if" if="[[submission.attributes.images]]">
+          <lrndesign-contentblock class="center" title="Images Submitted">
+            <template is="dom-repeat" items="[[_toArray(submission.attributes.images)]]" as="image">
+
+              <lrnsys-dialog alt="View Image">
+                <span slot="button">
+                <iron-image sizing="contain" class="contain" src="[[image.image_styles.elmsln_small]]"></iron-image>
+                </span>
+                <iron-image src="[[image.image_styles.elmsln_medium]]"></iron-image>
+              </lrnsys-dialog>
+
+            </template>
+          </lrndesign-contentblock>
+        </template>
+        <!-- ----- Video Submission -----  -->
+        <template is="dom-if" if="[[submission.attributes.video]]">
+          <lrndesign-contentblock class="center" title="Videos Submitted">
+            <template is="dom-repeat" items="[[_toArray(submission.attributes.video)]]" as="video">
+                <iframe width="460" height="249" src="[[video.video_src]]"></iframe>
+            </template>
+          </lrndesign-contentblock>
+        </template>
+        <!-- ----- Text Submission -----  -->
+        <template is="dom-if" if="[[submission.attributes.body]]">
+          <lrndesign-contentblock title="Text Submitted">
+            <p class="body">{{submission.attributes.body}}</p>
+          </lrndesign-contentblock>
+        </template>
+        <!-- ----- Links Submission -----  -->
+        <template is="dom-if" if="[[submission.attributes.links]]">
+          <lrndesign-contentblock title="Links Submitted">
+            <template is="dom-repeat" items="[[_toArray(submission.attributes.links)]]" as="link">
+              <p><strong>[[link.title]]:</strong>
+                <a class="link" href="[[link.url]]" target="_blank">[[link.url]]</a></p>
+            </template>
+          </lrndesign-contentblock>
+        </template>
+        <!-- ----- Files Submission -----  -->
+        <template is="dom-if" if="[[submission.attributes.files]]">
+          <lrndesign-contentblock title="Files Submitted">
+            <template is="dom-repeat" items="[[_toArray(submission.attributes.files)]]" as="file">
+              <p><strong>[[file.filename]]:</strong>
+                <a class="link" href="[[file.url]]" target="_blank">[[file.url]]</a></p>
+            </template>
+          </lrndesign-contentblock>
+        </template>
+        <template is="dom-if" if="[[submission.relationships.comments]]">
+          <p class="comments"><a href="{{url}}" tabindex="-1">{{submission.relationships.comments.data.length}} <lrn-icon icon="comment"></lrn-icon></a></p>
+        </template>
+      </div>
+    </paper-card>
+  </template>
+  <script>
+    Polymer({
+      is: 'lrnapp-studio-submission-page',
+      properties: {
+        reqUrl: {
+          type: String
+        },
+        reqParams: {
+          type: Object
+        },
+        reqBody: {
+          type: Object
+        },
+        submission: {
+          type: Object
+        }
+      },
+      observers: [
+        '_urlVarsChanged(id, endPoint)',
+        '_paramsChanged(csrfToken)',
+        '_bodyChanged(title)'
+      ],
+      _urlVarsChanged: function (id, endPoint) {
+        this.reqUrl = endPoint + '/api/submissions/' + id;
+      },
+      _paramsChanged: function (csrfToken) {
+        var params = this.reqParams || {};
+        params.token = csrfToken;
+        this.reqParams = params;
+      },
+      _handleResponse: function (data) {
+        this.submission = data.detail.response.data;
+        console.log(this.submission);
+      },
+      /**
+       * Simple way to convert from object to array.
+       */
+      _toArray: function (obj) {
+        return Object.keys(obj).map(function (key) {
+          return obj[key];
+        });
+      },
+    });
+  </script>
+</dom-module>

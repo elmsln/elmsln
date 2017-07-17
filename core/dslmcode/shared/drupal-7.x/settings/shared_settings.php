@@ -14,6 +14,8 @@ $conf['bakery_freshness'] = 86400;
 // redirect default error pages to some standard ones
 $conf['site_403'] = 'elmsln/error/403';
 $conf['site_404'] = 'elmsln/error/404';
+// stupid error to present
+$conf['drupal_http_request_fails'] = FALSE;
 
 // use this to debug restws issues
 #$conf['restws_debug_log'] = '/var/www/elmsln/config/tmp/rest.debug';

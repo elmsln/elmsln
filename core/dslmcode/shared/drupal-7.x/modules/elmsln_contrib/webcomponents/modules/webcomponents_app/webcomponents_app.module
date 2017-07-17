@@ -7,7 +7,10 @@
 define('WEBCOMPONENTS_APP_PATH', 'apps');
 
 /**
- * Load all apps we can find.
+ * Load all apps we can find or a specific one if requested.
+ * @param  string $machine_name optional name of an element to load
+ * the registry for from it's manifest.json file (most likely)
+ * @return array                the definition or definitions of all found as array
  */
 function webcomponents_app_load_app_definitions($machine_name = NULL) {
   // statically cache future calls
@@ -20,14 +23,21 @@ function webcomponents_app_load_app_definitions($machine_name = NULL) {
   if (!is_null($machine_name)) {
     // validate that this bucket exists
     if (isset($apps[$machine_name])) {
+      // check for autoloading flag if so then load the file which should contain
+      // the functions needed to make the call happen
+      if (isset($apps[$machine_name]['autoload']) && $apps[$machine_name]['autoload'] === TRUE) {
+        include_once $apps[$machine_name]['path'] . $machine_name . '.php';
+      }
       return $apps[$machine_name];
     }
+    // nothing at this point, return nothing since we don't know that machine name
     return array();
   }
   // validate apps were found
   if (!empty($apps)) {
     return $apps;
   }
+  // nothing at this point, return nothing
   return array();
 }
 
@@ -86,19 +96,58 @@ function webcomponents_app_menu() {
       $items[WEBCOMPONENTS_APP_PATH . '/' . $machine_name]['weight'] = $app['menu']['weight'];
     }
     // add in the data wiring if it needs it, most will
-    if (isset($app['data'])) {
-      $items[WEBCOMPONENTS_APP_PATH . '/' . $machine_name . '/data'] = array(
-        'title' => $app['title'],
-        'page callback' => '_webcomponents_app_load_app_data',
-        'page arguments' => array(1),
-        'access callback' => '_webcomponents_app_access',
-        'access arguments' => array(1),
-        'type' => MENU_CALLBACK,
-      );
+    if (isset($app['endpoints'])) {
+      foreach ($app['endpoints'] as $path => $endpoint) {
+        $items[WEBCOMPONENTS_APP_PATH . '/' . $machine_name . '/' . $path] = array(
+          'title' => $app['title'],
+          'page callback' => '_webcomponents_app_load_app_data',
+          'page arguments' => array(1),
+          'access callback' => '_webcomponents_app_access',
+          'access arguments' => array(1),
+          'type' => MENU_CALLBACK,
+        );
+      }
     }
   }
 
   return $items;
+}
+
+
+/**
+ * Implements hook_block_info().
+ */
+function webcomponents_app_block_info() {
+  $blocks = array();
+  // load all apps
+  $apps = webcomponents_app_load_app_definitions();
+  // make blocks for each app and ensure the cache is global
+  // since these are just printing the tag into them they shouldn't change
+  foreach ($apps as $machine_name => $app) {
+    // support block per element if the registry says to
+    if (isset($app['block']) && $app['block'] == TRUE) {
+      $blocks[$machine_name] = array(
+        'info' => t('Web Component app: @title', array('@title' => $app['title'])),
+        'cache' => DRUPAL_CACHE_GLOBAL
+      );
+    }
+  }
+
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function webcomponents_app_block_view($machine_name = '') {
+  $block = array();
+  // try to load the machine name (delta in block lingo)
+  $app = webcomponents_app_load_app_definitions($machine_name);
+  if (!empty($app) && isset($app['block']) && $app['block'] == TRUE) {
+    $block['subject'] = $app['title'];
+    $block['content'] = _webcomponents_app_load_app($machine_name);
+  }
+  return $block;
 }
 
 /**
@@ -107,7 +156,12 @@ function webcomponents_app_menu() {
 function _webcomponents_app_debug($machine_name) {
   $app = webcomponents_app_load_app_definitions($machine_name);
   dpm($app);
-  return t('@machine debug', array('@machine' => $machine_name));
+  $loaded = _webcomponents_app_load_app($machine_name);
+  dpm($loaded);
+  // side-load the data and present it
+  $data = _webcomponents_app_load_app_data($machine_name, TRUE);
+  dpm($data);
+  return t('@machine debug and data', array('@machine' => $machine_name));
 }
 
 /**
@@ -124,9 +178,13 @@ function _webcomponents_app_access($machine_name) {
 /**
  * Page callback for loading an app
  */
-function _webcomponents_app_load_app($machine_name = NULL) {
+function _webcomponents_app_load_app($machine_name = NULL, $debug = FALSE) {
   $return = '';
+  $vars = array();
   $app = webcomponents_app_load_app_definitions($machine_name);
+  // set a custom is_app property so other render alters can realize
+  // this is an app rendering being modified and not a normal page component
+  $app['is_app'] = TRUE;
   // ensure this exists
   if (!empty($machine_name) && !empty($app)) {
     // form the base path for loading the app
@@ -148,16 +206,56 @@ function _webcomponents_app_load_app($machine_name = NULL) {
       '#weight' => '99999',
     );
     drupal_add_html_head($element, 'app-' . $machine_name);
-    // see if we have a data path, if so we need to pass in source-path to the element
-    if (isset($app['data']) && function_exists($app['data']['callback'])) {
-      $return = '<' . $machine_name . ' '. $app['data']['property'] .'="' . base_path() . WEBCOMPONENTS_APP_PATH . '/' . $machine_name . '/data"></' . $machine_name . '>';
+    // construct the tag base to be written
+    $vars = array(
+      'tag' => $machine_name,
+      'properties' => array(),
+    );
+    // support for properties to be mixed in automatically
+    if (isset($app['properties'])) {
+      foreach ($app['properties'] as $key => $property) {
+        // support for simple function based callbacks for properties from functions
+        if (is_array($property) && isset($property['callback'])) {
+          // ensure it exists of that would be bad news bears
+          if (function_exists($property['callback'])) {
+            // only allow for simple function callbacks
+            $vars['properties'][$key] = call_user_func($property['callback']);
+          }
+          else {
+            // well it failed but at least set it to nothing
+            $vars['properties'][$key] = NULL;
+            // missing function, let's log this to the screen or watchdog if its debug mode
+            if ($debug) {
+              dpm(t('The @machine app wants to hit the callback @callback for property @key but this function could not be found', array('@key' => $key, '@machine' => $machine_name, '@callback' => $property['callback'])));
+            }
+            else {
+              // report to the watchdog soemthing is missing
+              watchdog('webcomponents_app', t('The @machine app wants to hit the callback @callback for property @key but this function could not be found', array('@key' => $key, '@machine' => $machine_name, '@callback' => $property['callback'])), array(), WATCHDOG_ERROR, 'link');
+            }
+          }
+        }
+        else {
+          $vars['properties'][$key] = $property;
+        }
+      }
     }
-    elseif (isset($app['data']) && !function_exists($app['data']['callback'])) {
-      drupal_set_message(t('The @machine app wants to hit the callback @callback but this function could not be found', array('@machine' => $machine_name, '@callback' => $app['data']['callback'])), 'error');
+    // special properties that register endpoints
+    if (isset($app['endpoints'])) {
+      // all end points will be able to use this for simple, secure construction
+      // @see secure-request webcomponent for behavior details if doing app development
+      $vars['properties']['csrf-token'] = drupal_get_token('webcomponentapp');
+      $vars['properties']['end-point'] = base_path() . WEBCOMPONENTS_APP_PATH . '/' . $machine_name;
+      $vars['properties']['base-path'] = base_path() . WEBCOMPONENTS_APP_PATH . '/';
+      // see if anything needs ripped into the element
+      foreach ($app['endpoints'] as $endpointpath => $endpoint) {
+        if (isset($endpoint['property'])) {
+          $vars['properties'][$endpoint['property']] = $vars['properties']['end-point'] . '/' . $endpointpath . '?token=' . $vars['properties']['csrf-token'];
+        }
+      }
     }
-    else {
-      $return = '<' . $machine_name . '></' . $machine_name . '>';
-    }
+    // allow for modifying the app prior to render
+    drupal_alter('webcomponent_render', $vars, $app);
+    $return = theme('webcomponent', $vars);
   }
   return $return;
 }
@@ -165,17 +263,68 @@ function _webcomponents_app_load_app($machine_name = NULL) {
 /**
  * Data callback processor.
  */
-function _webcomponents_app_load_app_data($machine_name = NULL) {
+function _webcomponents_app_load_app_data($machine_name = NULL, $debug = FALSE) {
   $return = array();
-  $app = webcomponents_app_load_app_definitions($machine_name);
-  // make sure the machine name and the data callback both exist
-  if (!empty($machine_name) && !empty($app) && isset($app['data']) && function_exists($app['data']['callback'])) {
-    $return = call_user_func($app['data']['callback'], $machine_name, WEBCOMPONENTS_APP_PATH . '/' . $machine_name);
+  // validate CSRF token
+  if ($debug || drupal_valid_token($_GET['token'], 'webcomponentapp')) {
+    $app = webcomponents_app_load_app_definitions($machine_name);
+    $args = arg();
+    // this ensures that apps/machine-name get shifted off
+    array_shift($args);
+    array_shift($args);
+    // match the route that was specified in $app['endpoints']
+    $endpointpath = NULL;
+    if (isset($app['endpoints'])) {
+      foreach ($app['endpoints'] as $path => $endpoint) {
+        // we're going to compare the args array and the endpoint.
+        // to do this we are going to convert the path to an array.
+        $path_ary = explode('/', $path);
+        // see if args and path are the same length
+        if (count($path_ary) == count($args)) {
+          // see if there are any differences between the two
+          $ary_diff = array_diff($path_ary, $args);
+          // if no differences then we found the path
+          if (!$ary_diff) {
+            $endpointpath = $path;
+          }
+          // if there is a difference in the path but the only differences
+          // are wildcards then it's a match
+          else {
+            $mismatch = false;
+            foreach ($ary_diff as $diff) {
+              if ($diff != '%') {
+                $mismatch = true;
+              }
+            }
+            // if we went through the diffs and there were no
+            // matches other than % then it's a match
+            if (!$mismatch) {
+              $endpointpath = $path;
+            }
+          }
+        }
+      }
+    }
+    // make sure the machine name and the data callback both exist
+    if (!empty($machine_name) && !empty($app) && isset($app['endpoints']) && function_exists($app['endpoints'][$endpointpath]['callback'])) {
+      $params = filter_var_array($_GET, FILTER_SANITIZE_STRING);
+      // include additional url arguments to downstream
+      // check for extended args on this call
+      $return = call_user_func($app['endpoints'][$endpointpath]['callback'], $machine_name, WEBCOMPONENTS_APP_PATH . '/' . $machine_name, $params, $args);
+      // allow other modules to jump in after callback has run
+      drupal_alter('webcomponents_app_data', $return, $app);
+    }
+    else {
+      $return = array(
+        'status' => '404',
+        'detail' => t('Not a valid callback'),
+      );
+    }
   }
   else {
     $return = array(
-      'status' => '404',
-      'detail' => t('Not a valid callback'),
+      'status' => '403',
+      'detail' => t('Invalid CSRF token'),
     );
   }
   // nothing set so make it 200 even though it already is
@@ -192,12 +341,18 @@ function _webcomponents_app_load_app_data($machine_name = NULL) {
   }
   // allow output delivery to be modified contextually
   drupal_alter('webcomponents_app_deliver_output', $return);
-  // define return type
-  drupal_add_http_header('Content-Type', 'application/json');
-  // define status
-  drupal_add_http_header('Status', $return['status']);
-  // output the response as json
-  print drupal_json_output($return);
-  // official drupal exit routines
-  exit;
+  // support for debugging the call in which we send the data back for processing
+  if (!$debug) {
+    // define return type
+    drupal_add_http_header('Content-Type', 'application/json');
+    // define status
+    drupal_add_http_header('Status', $return['status']);
+    // output the response as json
+    print drupal_json_output($return);
+    // official drupal exit routines
+    exit;
+  }
+  else {
+    return $return;
+  }
 }

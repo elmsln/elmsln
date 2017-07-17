@@ -11,13 +11,6 @@ define('CIS_SECTION_STRICT_ACCESS', TRUE);
 include_once 'cis_section.features.inc';
 
 /**
- * Implements hook_page_build().
- */
-function cis_section_page_build(&$page) {
-  drupal_add_css(drupal_get_path('module', 'cis_section') . '/cis_section.css');
-}
-
-/**
  * Implements hook_menu().
  */
 function cis_section_menu() {

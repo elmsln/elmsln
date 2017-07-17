@@ -475,10 +475,10 @@ function elmsln_core_library() {
     'website' => 'http://materializecss.com/tabs.html',
     'version' => '0.97.7',
     'js' => array(
-      $path . '/js/materialize/tabs/materialize-tabs.js' => array(),
+      $path . '/js/materialize-tabs.js' => array(),
     ),
     'css' => array(
-      $path . '/js/materialize/tabs/materialize-tabs.css' => array(),
+      $path . '/css/materialize-tabs.css' => array(),
     ),
   );
 
@@ -877,7 +877,7 @@ function _elmsln_core_in_context_list() {
           else {
             $textcolor = 'white-text';
           }
-          $icon_render = '<i class="material-icons ' . $textcolor . ' left">' . $icon_map[$icon]['icon'] . '</i>';
+          $icon_render = '<lrnapp-fab-speed-dial-action icon="' . $icon_map[$icon]['icon'] . '" color="' . $icon_map[$icon]['color'] . '">' . $typeobj->name . '</lrnapp-fab-speed-dial-action>';
         }
         else {
           $color = '';
@@ -886,12 +886,11 @@ function _elmsln_core_in_context_list() {
         $options = array(
           'html' => TRUE,
           'attributes' => array(
-            'class' => array('elmsln-core-external-context-apply', $color, $textcolor, 'btn-floating', 'elmsln-btn-floating', 'vibrate'),
+            'class' => array('elmsln-core-external-context-apply'),
+            'tabindex' => '-1',
           ),
         );
-
-        $title = $icon_render . $typeobj->name;
-        $links[] = '<li class="leaf">' . l($title, 'elmsln/redirect/' . $key . '/node/add/' . str_replace('_', '-', $typeobj->type), $options) . '</li>';
+        $links[] = '<li class="leaf">' . l($icon_render, 'elmsln/redirect/' . $key . '/node/add/' . str_replace('_', '-', $typeobj->type), $options) . '</li>';
       }
     }
   }
@@ -1088,7 +1087,7 @@ function elmsln_core_fa_a11y() {
       ),
       '#materialize' => array(
         'type' => 'collapsible',
-        'icon' => 'keyboard',
+        'icon' => 'hardware:keyboard',
       ),
       'keys' => array(
         '#markup' =>
@@ -1872,6 +1871,17 @@ function elmsln_core_register_webcomponent_apps_alter(&$apps) {
 }
 
 /**
+ * Implements hook_webcomponent_render_alter().
+ */
+function elmsln_core_webcomponent_render_alter(&$vars, $app) {
+  // verify this is an app since this runs on other renders
+  if (isset($app['is_app']) && $app['is_app']) {
+    $vars['properties']['elmsln_course'] = _cis_connector_course_context();
+    $vars['properties']['elmsln_section'] = _cis_connector_section_context();
+  }
+}
+
+/**
  * Implements hook_cis_lmsless_color_alter().
  */
 function elmsln_core_cis_lmsless_color_alter(&$map) {
@@ -1918,4 +1928,14 @@ function elmsln_core_webcomponents() {
   }
   // group these all as files found to match polymer format
   return array(WEBCOMPONENTS_POLYMER_NAME => $files);
+}
+
+/**
+ * Implements hook_gbm_book_root_path_alter().
+ */
+function elmsln_core_gbm_book_root_path_alter(&$path) {
+  // make sure heavily cached markdown paths don't accidentally
+  // have the service url in them
+  $cfg = _elmsln_core_get_cfg();
+  $path = str_replace($cfg['dataprotocol'] . '://' . $cfg['serviceprefix'], $cfg['protocol'] . '://', $path);
 }

@@ -9,7 +9,7 @@
  * @param  string $machine_name machine name of this app
  * @return array               data to be json encoded for the front end
  */
-function _mooc_page_player_data($machine_name, $app_route) {
+function _mooc_page_player_data($machine_name, $app_route, $params, $args) {
   $return = array();
   // check for node being set and being a number
   if (isset($_GET['node']) && is_numeric($_GET['node'])) {

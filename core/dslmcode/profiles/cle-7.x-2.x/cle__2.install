@@ -135,3 +135,10 @@ function cle__2_update_7012(&$sandbox) {
   module_enable(array('comment_notify', 'cle_comment_notify'));
   features_revert_module('cle_displays');
 }
+
+/**
+ * Studio adds section filtering and comment cache frag granularity
+ */
+function cle__2_update_7013(&$sandbox) {
+  features_revert_module('cle_submission');
+}

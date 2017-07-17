@@ -54,8 +54,6 @@ projects[hidden_nodes][subdir] = "contrib"
 projects[speedreader][version] = "1.x-dev"
 projects[speedreader][subdir] = "contrib"
 ; User interface
-projects[lightbox2][version] = "1.x-dev"
-projects[lightbox2][subdir] = "contrib"
 projects[token_insert_entity][version] = "1.x-dev"
 projects[token_insert_entity][subdir] = "contrib"
 projects[token_insert][version] = "2.x-dev"

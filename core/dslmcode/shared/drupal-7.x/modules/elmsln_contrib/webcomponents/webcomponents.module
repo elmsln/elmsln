@@ -26,7 +26,27 @@ function webcomponents_page_build(&$page) {
   // load webcomponentsjs polyfill library if it exists
   $libraries = libraries_get_libraries();
   if (isset($libraries['webcomponents']) && is_dir(DRUPAL_ROOT . '/' . $libraries['webcomponents'] . '/webcomponentsjs')) {
-    drupal_add_js(base_path() . $libraries['webcomponents'] . '/webcomponentsjs/webcomponents-lite.min.js', array('weight' => -1000, 'group' => JS_LIBRARY, 'scope' => 'header', 'every_page' => TRUE));
+    $inline = "
+<script type='text/javascript'>
+window.onload = function() {
+  if ('registerElement' in document
+    && 'import' in document.createElement('link')
+    && 'content' in document.createElement('template')) {
+    // platform is good!
+  }
+  else {
+    // polyfill the platform!
+    var e = document.createElement('script');
+    e.src = '" . base_path() . $libraries['webcomponents'] . "/webcomponentsjs/webcomponents-lite.min.js';
+    document.head.appendChild(e);
+  }
+};
+</script>";
+    $element = array(
+      '#type' => 'markup',
+      '#markup' => $inline,
+    );
+    drupal_add_html_head($element, 'webcomponents-lite');
   }
 }
 

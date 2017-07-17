@@ -55,31 +55,54 @@ You can turbo charge you single page app development workflows with Drupal and t
 {
   "name": "phone-book",
   "short_name": "phone-book",
-  "title": "Phone book",
   "description": "An app for loading phone numbers and making them searchable",
   "start_url": "/",
   "display": "standalone",
-  "drupal": {
+  "title": "Phone Book App",
+  "app_integration": {
     "menu": {
       "menu_name": "main-menu",
       "weight": 10
     },
-    "data": {
-      "callback": "_custom_phonebook_module_data",
-      "property": "source-path"
+    "endpoints": {
+      "api/numbers": {
+        "callback": "_custom_phonebook_module_numbers",
+        "property": "source-path"
+      }
+      "api/numbers/%": {
+        "callback": "_custom_phonebook_module_number"
+        "property": "source-path"
+      },
+      "api/numbers/%/call": {
+        "callback": "_custom_phonebook_module_number_call"
+        "property": "source-path"
+      },
+      "api/numbers/%/text": {
+        "callback": "_custom_phonebook_module_number_text"
+        "property": "source-path"
+      }
     }
   }
 }
 ```
 - Note that menu will provide the ability for the app to be visible in Drupal's menu system, in this example the main menu. Weight is the order it falls in that menu.
-- If you need a data callback to power your app, then the `data` property is for you. `data` has two parameters, callback and property.
+- If you need a data callback to power your app, then the `endpoints` property is for you. `endpoints` has two parameters, callback and property.
   - `callback` is the php function to call in order to return the data needed. If all goes well, this is probably the most "drupal" specific stuff you have to do today.
-  - property is the property your webcomponent is looking for data from. For example. if you have a one page tag called `<phone-book>` and phone-book gets data by using `source-path="whatever.json"` then property would be `source-path`.
+  - `property` is the property your webcomponent is looking for data from. For example. if you have a one page tag called `<phone-book>` and phone-book gets data by using `source-path="whatever.json"` then property would be `source-path`.
+  - Wildcard routes are supported by using the `%` placeholder when defining your routes. You can access the wildcard value via the `arg()` function your defined callback. For instance, if your route is `api/numbers/%/call` then you would access
+  the wildcard value in your function like so:
+  ```
+  function _custom_phonebook_module_number_call($machine_name, $path, $params, $args) {
+    $args = arg();
+    $number = arg[2]
+    ...
+  }
+  ```
 - Now when you clear your caches and have these files pushed up, the following will happen automatically!
 1. A permission called `access phone-book app` will be created
 2. A menu path called `apps/phone-book` will be created and will load your element if accessed
 3. A menu item called "Phone book" will show up in the main menu that links to `apps/phone-book`
-4. A menu callback path called `apps/phone-book/data` will be created and will return your data delivered by the function `_custom_phonebook_module_data`
+4. For each `endpoint` you have defined menu callback paths will be created and will return your data delivered by the function you've specified. So `apps/phone-book/api/numbers` will be created and fed data via `_custom_phonebook_module_numbers`.
 5. You will be incredibly happy with how little Drupal specific work your front-end designer just had to do!
 
 ### A note on data returned by that PHP function

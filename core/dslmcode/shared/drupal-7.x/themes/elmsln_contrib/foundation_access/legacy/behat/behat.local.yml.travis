@@ -1,5 +1,0 @@
-default:
-  extensions:
-    Drupal\DrupalExtension:
-      drupal:
-        drupal_root: "/home/travis/build/drupalprojects/foundation_access/www"

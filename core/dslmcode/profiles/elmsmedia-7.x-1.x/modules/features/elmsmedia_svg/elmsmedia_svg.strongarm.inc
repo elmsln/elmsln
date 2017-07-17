@@ -325,7 +325,9 @@ function elmsmedia_svg_strongarm() {
   $strongarm->api_version = 1;
   $strongarm->name = 'svg_sanitizer_allowedattrs';
   $strongarm->value = array(
-    0 => 'viewBox',
+    0 => 'gradientTransform',
+    1 => 'gradientUnits',
+    2 => 'viewBox',
   );
   $export['svg_sanitizer_allowedattrs'] = $strongarm;
 
@@ -334,7 +336,8 @@ function elmsmedia_svg_strongarm() {
   $strongarm->api_version = 1;
   $strongarm->name = 'svg_sanitizer_allowedtags';
   $strongarm->value = array(
-    0 => '',
+    0 => 'linearGradient',
+    1 => 'radialGradient',
   );
   $export['svg_sanitizer_allowedtags'] = $strongarm;
 

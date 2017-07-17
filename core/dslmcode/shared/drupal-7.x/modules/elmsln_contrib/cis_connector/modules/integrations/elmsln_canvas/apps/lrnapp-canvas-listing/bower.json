@@ -1,0 +1,27 @@
+{
+  "name": "lrnapp-canvas-listing",
+  "description": "listing of courses from canvas",
+  "main": "index.html",
+  "devDependencies": {
+    "build": "LRNWebComponents/build"
+  },
+  "resolutions": {
+    "polymer": "^1.2.4",
+    "lrndesign-panelcard": "^0.0.13",
+    "lrndesign-blockquote": "^0.0.4",
+    "lrndesign-avatar": "^0.0.3",
+    "paper-card": "^1.1.6",
+    "materializecss-styles": "^0.0.5",
+    "webcomponentsjs": "^0.7.24",
+    "lrnsys-behaviors": "^1.0.0",
+    "hax-behaviors": "^0.0.13",
+    "hax-editable": "^0.0.3",
+    "hax-editbar": "^0.0.9",
+    "paper-ripple": "^1.0.0",
+    "font-roboto": "^1.0.1"
+  },
+  "dependencies": {
+    "build": "LRNWebComponents/build#^0.0.2",
+    "lrndesign-gallerycard": "LRNWebComponents/lrndesign-gallerycard#^0.0.10"
+  }
+}
