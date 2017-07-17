@@ -48,10 +48,78 @@
         margin: 2em;
         font-size: 1.5em;
       }
+      /*COMMENT CSS*/
+
+      .cmmnt paper-card {
+        padding: 2em 2em 0 2em;
+        clear: right;
+      }
+
+      .cmmnt.card-content {
+        padding-left: 2em;
+        padding-right: 2em;
+        width: 100%;
+      }
+
+      .cmmnt lrndesign-avatar {
+        float: left;
+        margin-right: 1em;
+      }
+
+      .cmmnt.flex-wrap {
+        @apply --layout-horizontal;
+        @apply --layout-wrap;
+      }
+
+      .cmmnt.date {
+        font-family: 'Open Sans', sans-serif;
+        font-weight: lighter;
+        font-size: 12px;
+        color: #555;
+      }
+
+      .cmmnt h3 {
+        margin-bottom: 0;
+      }
+
+      .right-actions {
+        float: right;
+      }
+
+      .action-reply {
+        margin: 40px 0 10px 0;
+        text-transform: uppercase;
+        font-family: 'Open Sans', sans-serif;
+        font-weight: lighter;
+        font-size: 12px;
+        color: #555;
+      }
+
+      .comment-body {
+        margin-left: 55px;
+        margin-right: 125px;
+      }
+
+      .comment-reply {
+        margin-left: 50px;
+      }
+
+      .comment-reply.card-actions {
+        width: 95%;
+      }
+
+      .extra {
+        margin-left: 100px;
+      }
+
+      .hidden {
+        display: none;
+      }
     </style>
 
     <iron-ajax id="ajaxRequest" auto url="[[reqUrl]]" method="GET" body="[[reqBody]]" params="[[reqParams]]" content-type="application/json"
       handle-as="json" on-response="_handleResponse"></iron-ajax>
+
     <paper-card>
       <div class="card-content">
         <!-- ----- Title and Author -----  -->
@@ -78,7 +146,7 @@
         <template is="dom-if" if="[[submission.attributes.video]]">
           <lrndesign-contentblock class="center" title="Videos Submitted">
             <template is="dom-repeat" items="[[_toArray(submission.attributes.video)]]" as="video">
-                <iframe width="460" height="249" src="[[video.video_src]]"></iframe>
+              <iframe width="460" height="249" src="[[video.video_src]]"></iframe>
             </template>
           </lrndesign-contentblock>
         </template>
@@ -111,6 +179,41 @@
         </template>
       </div>
     </paper-card>
+
+
+
+
+
+
+
+
+    <div class="cmmnt">
+      <paper-card>
+        <h2>Comments</h2>
+        <!-- ----- Comment Body -----  -->
+        <template is="dom-if" if="[[submission.relationships.comments]]">
+          <template is="dom-repeat" items="[[_toArray(submission.relationships.comments.data)]]" as="comment">
+            <div class="card-content comment-reply">
+              <lrndesign-avatar label="[[comment.relationships.author.data.name]]"></lrndesign-avatar>
+              <h3>{{comment.relationships.author.data.name}}</h3>
+              <span class="date">{{comment.meta.created}}</span>
+              <p class="comment-body">{{comment.attributes.body}}</p>
+            </div>
+            <div class="card-actions comment-reply">
+              <paper-icon-button id="reply" icon="icons:reply"></paper-icon-button><span class="action-reply">reply</span>
+              <paper-tooltip for="reply" animation-delay="0">Reply</paper-tooltip>
+              <paper-icon-button class="right-actions hidden" id="edit" icon="icons:create"></paper-icon-button>
+              <paper-tooltip for="edit" animation-delay="0">Edit</paper-tooltip>
+              <paper-icon-button class="right-actions hidden" id="delete" icon="icons:delete-forever"></paper-icon-button>
+              <paper-tooltip for="delete" animation-delay="0">Delete</paper-tooltip>
+            </div>
+          </template>
+        </template>
+      </paper-card>
+    </div>
+
+    
+
   </template>
   <script>
     Polymer({
