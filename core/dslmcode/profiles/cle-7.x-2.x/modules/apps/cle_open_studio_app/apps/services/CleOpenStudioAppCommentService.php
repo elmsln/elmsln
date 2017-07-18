@@ -110,7 +110,7 @@ class CleOpenStudioAppCommentService {
       $encoded_comments->attributes->subject = $comment->subject;
       $encoded_comments->attributes->body = $comment->comment_body[LANGUAGE_NONE][0]['safe_value'];
       $encoded_comments->attributes->thread = $comment->thread;
-      $tmp = explode("/", $comment->thread));
+      $tmp = explode("/", $comment->thread);
       $encoded_comments->attributes->threadDepth = count($tmp);
       $encoded_comments->attributes->parent_comment = $comment->pid;
       // Meta Info
