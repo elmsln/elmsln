@@ -1,3 +1,5 @@
+
+<link rel="import" href="lrnapp-studio-submission-comments.html">
 <dom-module id="lrnapp-studio-submission-page">
   <template>
     <style>
@@ -100,16 +102,34 @@
         margin-right: 125px;
       }
 
-      .comment-reply {
-        margin-left: 50px;
-      }
+      
 
       .comment-reply.card-actions {
         width: 95%;
       }
 
-      .extra {
+      .comment-depth-1 {
+        margin-left: 0;
+      }
+
+      .comment-depth-2 {
         margin-left: 100px;
+      }
+
+      .comment-depth-3 {
+        margin-left: 150px;
+      }
+
+      .comment-depth-4 {
+        margin-left: 150px;
+      }
+
+      .comment-depth-5 {
+        margin-left: 150px;
+      }
+
+      .comment-depth-6 {
+        margin-left: 150px;
       }
 
       .hidden {
@@ -180,30 +200,7 @@
       </div>
     </paper-card>
 
-    <div class="cmmnt">
-      <paper-card>
-        <h2>Comments</h2>
-        <!-- ----- Comment Body -----  -->
-        <template is="dom-if" if="[[submission.relationships.comments]]">
-          <template is="dom-repeat" items="[[_toArray(submission.relationships.comments.data)]]" as="comment">
-            <div class="card-content comment-reply">
-              <lrndesign-avatar label="[[comment.relationships.author.data.name]]"></lrndesign-avatar>
-              <h3>{{comment.relationships.author.data.name}}</h3>
-              <span class="date">{{comment.meta.created}}</span>
-              <p class="comment-body">{{comment.attributes.body}}</p>
-            </div>
-            <div class="card-actions comment-reply">
-              <paper-icon-button id="reply" icon="icons:reply"></paper-icon-button><span class="action-reply">reply</span>
-              <paper-tooltip for="reply" animation-delay="0">Reply</paper-tooltip>
-              <paper-icon-button class="right-actions hidden" id="edit" icon="icons:create"></paper-icon-button>
-              <paper-tooltip for="edit" animation-delay="0">Edit</paper-tooltip>
-              <paper-icon-button class="right-actions hidden" id="delete" icon="icons:delete-forever"></paper-icon-button>
-              <paper-tooltip for="delete" animation-delay="0">Delete</paper-tooltip>
-            </div>
-          </template>
-        </template>
-      </paper-card>
-    </div>
+<lrnapp-studio-submission-comments submission="{{submission}}"></lrnapp-studio-submission-comments>
 
   </template>
   <script>
