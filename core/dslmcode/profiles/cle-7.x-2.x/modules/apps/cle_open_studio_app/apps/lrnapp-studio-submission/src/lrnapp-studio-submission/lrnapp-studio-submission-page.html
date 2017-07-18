@@ -180,13 +180,6 @@
       </div>
     </paper-card>
 
-
-
-
-
-
-
-
     <div class="cmmnt">
       <paper-card>
         <h2>Comments</h2>
@@ -211,8 +204,6 @@
         </template>
       </paper-card>
     </div>
-
-    
 
   </template>
   <script>
@@ -248,6 +239,10 @@
       _handleResponse: function (data) {
         this.submission = data.detail.response.data;
         console.log(this.submission);
+      },
+      _isReply: function (data) {
+        this.thread = submission.relationships.comments.data.attributes.thread;
+        console.log(this.thread);
       },
       /**
        * Simple way to convert from object to array.
