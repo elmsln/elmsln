@@ -27,7 +27,7 @@
   <?php endif; ?>
   <?php if (isset($user_section)) : ?>
   <li>
-    <lrnsys-dialog header="<?php print t('Change section');?>" class="black-text" hover-class="<?php print $lmsless_classes[$distro]['color'] . ' ' . $lmsless_classes[$distro]['dark'];?> white-text">
+    <lrnsys-dialog body-append header="<?php print t('Change section');?>" class="black-text" hover-class="<?php print $lmsless_classes[$distro]['color'] . ' ' . $lmsless_classes[$distro]['dark'];?> white-text">
       <span slot="button">
         <iron-icon icon="perm-identity"></iron-icon>
         <span><?php print t('Change section');?></span>

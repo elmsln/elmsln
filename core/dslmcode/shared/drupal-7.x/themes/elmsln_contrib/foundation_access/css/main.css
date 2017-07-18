@@ -4000,9 +4000,6 @@ body.devel-show .devel-querylog {
   border-bottom-width: .2rem;
   margin-bottom: -.2rem;
 }
-.elmsln-tabs.tabs .indicator {
-  height: 0;
-}
 /* cis lmsless nav */
 .left-nav-section {
   display: -webkit-flex;
@@ -8034,6 +8031,9 @@ paper-toast#toastdrawer {
 }
 lrnsys-button paper-button {
   height: inherit;
+}
+.elmsln-tabs lrnsys-button.active-trail {
+  text-decoration: underline;
 }
 lrnsys-drawer paper-button {
   height: unset;

@@ -55,6 +55,10 @@ function _elmsln_canvas_course_list($machine_name, $app_route, $params, $args) {
           'email' => $user['sis_user_id'],
           'id' => $user['id'],
         );
+        // remove the generic avatar so we can use the letter in a circle
+        if (strpos($roster[$role]['users'][$username]['picture'], 'avatar-50.png')) {
+          $roster[$role]['users'][$username]['picture'] = '';
+        }
       }
     }
     $return = $roster;

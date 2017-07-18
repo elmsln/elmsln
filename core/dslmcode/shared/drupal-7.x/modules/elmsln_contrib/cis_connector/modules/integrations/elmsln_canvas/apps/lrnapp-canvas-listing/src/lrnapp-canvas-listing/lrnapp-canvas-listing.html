@@ -10,9 +10,10 @@
     <style>
       :host {
         display: block;
+        margin: 0 2em;
       }
       vaadin-grid#material {
-
+        height: 75vh;
         font-family: Roboto, sans-serif;
         --divider-color: rgba(0, 0, 0, var(--dark-divider-opacity));
 
@@ -21,15 +22,15 @@
         };
 
         --vaadin-grid-header-cell: {
-          height: 64px;
+          height: 3.5em;
           color: rgba(0, 0, 0, var(--dark-secondary-opacity));
-          font-size: 12px;
+          font-size: 1em;
         };
 
         --vaadin-grid-body-cell: {
-          height: 48px;
+          height: 3em;
           color: rgba(0, 0, 0, var(--dark-primary-opacity));
-          font-size: 13px;
+          font-size: .8em;
         };
 
         --vaadin-grid-body-row-hover-cell: {
@@ -93,9 +94,8 @@
       vaadin-grid#material vaadin-grid-sorter[direction=desc] iron-icon {
         transform: scale(0.8) rotate(180deg);
       }
-
-      paper-card {
-        width: 20rem;
+      vaadin-grid-sorter {
+        text-align: center;
       }
       lrndesign-avatar {
         display:inline-flex;
@@ -111,9 +111,6 @@
         margin: 0;
         display:inline-block;
       }
-      .loading-hide {
-        display: none;
-      }
     </style>
     <iron-ajax auto
       url="[[sourcePath]]"
@@ -125,70 +122,68 @@
       <p>Loading..</p>
       <elmsln-loading color="grey-text" size="epic"></elmsln-loading>
     </div>
-    <!-- The array is set as the <vaadin-grid>'s "items" property -->
-    <vaadin-grid id="material" aria-label="Course list" items="[[_toArray(courses)]]">
+    <vaadin-grid column-reordering-allowed id="material" aria-label="Course list" items="[[_toArray(courses)]]">
       <vaadin-grid-column width="50px" flex-grow="0">
         <template class="header">#</template>
         <template>[[index]]</template>
         <template class="footer">#</template>
       </vaadin-grid-column>
 
-      <vaadin-grid-column>
+      <vaadin-grid-column resizable>
         <template class="header">
-          <span draggable="true">
-            Name
-          </span>
+          <vaadin-grid-sorter path="course_code">Course code</vaadin-grid-sorter>
         </template>
-        <template>
-          <span draggable="true">
-            [[item.name]]
-          </span>
+        <template>[[item.course_code]]</template>
+        <template class="footer">
+          <vaadin-grid-filter aria-label="Course code" path="course_code" value="[[_filterCourseCode]]">
+            <paper-input label="Course code" value="{{_filterCourseCode::input}}" focus-target></paper-input>
+          </vaadin-grid-filter>
         </template>
-        <template class="footer">Name</template>
       </vaadin-grid-column>
-      <vaadin-grid-column>
+      <vaadin-grid-column resizable>
         <template class="header">
-          <span draggable="true">
-            Sections
-          </span>
+          <vaadin-grid-sorter path="sis_course_id">SIS</vaadin-grid-sorter>
         </template>
         <template>
-          <span draggable="true">
+            [[item.sis_course_id]]
+        </template>
+        <template class="footer">
+          <vaadin-grid-filter aria-label="Student information system ID" path="sis_course_id" value="[[_filterSIS]]">
+            <paper-input label="SIS" value="{{_filterSIS::input}}" focus-target></paper-input>
+          </vaadin-grid-filter>
+        </template>
+      </vaadin-grid-column>
+      <vaadin-grid-column width="100px" flex-grow="0" resizable>
+        <template class="header">
+          <vaadin-grid-sorter path="sections">Sections</vaadin-grid-sorter>
+        </template>
+        <template>
             [[item.sections]]
-          </span>
         </template>
-        <template class="footer">Sections</template>
       </vaadin-grid-column>
-      <vaadin-grid-column>
-        <template class="header">Student #</template>
+      <vaadin-grid-column width="100px" flex-grow="0" resizable>
+        <template class="header">
+          <vaadin-grid-sorter path="student_count">Students</vaadin-grid-sorter>
+        </template>
         <template>[[item.student_count]]</template>
-        <template class="footer">Student #</template>
       </vaadin-grid-column>
-      <vaadin-grid-column>
-        <template class="header">Details</template>
-        <template>
-          <lrnsys-dialog raised on-click="_triggerDialog" id$="{{item.sis_course_id}}" text="Details" alt$="{{item.name}} details" header="{{item.name}}">
-            <div id="loadingRoster"></div>
-            <div id="loadingContent">
-              <div><iron-image src$="{{activeCourse.image}}"></iron-image></div>
-              <div>{{activeCourse.sections}} sections</div>
-              <div>{{activeCourse.student_count}} students</div>
-              <div>SIS ID: {{activeCourse.sis_course_id}}</div>
-              <div>Workflow: {{activeCourse.workflow_state}}</div>
-              <template is="dom-repeat" items="[[_toArray(roster)]]" as="roleList">
-                <h3>{{roleList.role}}</h3>
-                <template is="dom-repeat" items="[[_toArray(roleList.users)]]" as="user">
-                  <div class="avatar-name" id$="user{{user.id}}">
-                    <lrndesign-avatar label$="{{user.name}}" jdenticon src$="{{user.picture}}"></lrndesign-avatar>
-                    <span>{{user.name}}</span>
-                  </div>
-                  <paper-tooltip for$="user{{user.id}}">{{user.email}}</paper-tooltip>
-                </template>
-              </template>
-            </div>
-          </lrnsys-dialog>
+      <vaadin-grid-column width="100px" flex-grow="0" resizable>
+        <template class="header">
+          <vaadin-grid-sorter path="workflow_state">State</vaadin-grid-sorter>
         </template>
-        <template class="footer">Details</template>
+        <template>[[item.workflow_state]]</template>
+        <template class="footer">
+          <vaadin-grid-filter aria-label="Workflow state" path="workflow_state" value="[[_filterWorkflow]]">
+            <paper-input label="State" value="{{_filterWorkflow::input}}" focus-target></paper-input>
+          </vaadin-grid-filter>
+        </template>
+      </vaadin-grid-column>
+      <vaadin-grid-column width="100px" flex-grow="0">
+        <template class="header"></template>
+        <template>
+          <paper-button raised on-click="_triggerDialog" id$="{{item.sis_course_id}}">Details</paper-button>
+        </template>
+        <template class="footer"></template>
       </vaadin-grid-column>
     </vaadin-grid>
       <iron-ajax
@@ -198,6 +193,39 @@
       handle-as="json"
       on-response="handleRosterResponse"
       last-response="{{queryResponse}}"></iron-ajax>
+      <lrnsys-dialog tabindex="-1" id="details-dialog" body-append header="{{activeCourse.name}}">
+        <div slot="content">
+          <template is="dom-if" if="{{!roster}}">
+            <div id="loadingRoster">
+            <elmsln-loading color="grey-text" size="epic"></elmsln-loading>
+            </div>
+          </template>
+        </div>
+        <div slot="header">
+          <template is="dom-if" if="{{roster}}">
+            <template is="dom-if" if="{{activeCourse.image}}">
+              <iron-image style="width:100%; height:200px; background-color: lightgray;" sizing="cover" preload fade src$="{{activeCourse.image}}"></iron-image>
+            </template>
+            <span class="heading">
+            <span>Sections: {{activeCourse.sections}}</span>
+            <span>Student count: {{activeCourse.student_count}}</span>
+            <span>SIS ID: {{activeCourse.sis_course_id}}</span>
+            <span>Workflow: {{activeCourse.workflow_state}}</span>
+            </span>
+          </template>
+        </div>
+        <div id="loadingContent" slot="content">
+          <template is="dom-repeat" items="[[_toArray(roster)]]" as="roleList">
+            <h2>{{roleList.role}}s</h2>
+            <template is="dom-repeat" items="[[_toArray(roleList.users)]]" as="user">
+              <div class="avatar-name" id$="user-{{user.id}}">
+                <lrndesign-avatar label$="{{user.name}}" src$="{{user.picture}}"></lrndesign-avatar>
+              </div>
+              <paper-tooltip for$="user-{{user.id}}">{{user.name}}</paper-tooltip>
+            </template>
+          </template>
+        </div>
+      </lrnsys-dialog>
   </template>
 
   <script>
@@ -213,6 +241,7 @@
         roster: {
           type: Array,
           notify: true,
+          value: false,
         },
         queryResponse: {
           type: Array,
@@ -227,10 +256,6 @@
           notify: true,
           reflectToAttribute: true,
         },
-        rosterContent: {
-          type: Array,
-          notify: true,
-        }
       },
       /**
        * Simple way to convert from object to array.
@@ -240,44 +265,33 @@
           return obj[key];
         });
       },
+      /**
+       * Toggling collapse on an iron element.
+       */
+      collapseToggle: function(e) {
+        e.target.nextElementSibling.toggle();
+      },
+      /**
+       * Trigger the dialog box to opened and kick off request for data.
+       */
       _triggerDialog: function(e) {
         let root = this;
-        var target = e.target
-        // account for hitting the span
-        if (target.tagName == 'SPAN') {
-          target = target.parentElement.parentElement;
-        }
-        else if (target.tagName == 'PAPER-BUTTON') {
-          target = target.parentElement;
-        }
-        else {
-          console.log(target);
-        }
-        root.activeCourse = root.courses[target.id];
+        root.$$('#details-dialog').toggleDialog();
+        root.roster = false;
+        root.activeCourse = root.courses[e.target.id];
         root.$$('#request').params['sis_course_id'] = root.activeCourse.sis_course_id;
         root.$$('#request').generateRequest();
-        root.$$('#loadingRoster').innerHTML = '<p>Loading..</p><elmsln-loading color="grey-text" size="epic"></elmsln-loading>';
-        root.$$('#loadingContent').classList.add('loading-hide');
+        root.$$('#loadingContent').style.display = 'none';
       },
       handleResponse: function() {
         let root = this;
         root.courses = root.queryResponse.data;
-        console.log(root.courses);
         root.$$('#loading').innerHTML = '';
       },
       handleRosterResponse: function() {
         let root = this;
         root.roster = root.queryResponse.data;
-        //root.rosterContent = new Array();
-        for (var i=0; i<root.roster.length; i++) {
-          root.rosterContent[i] = {
-            'icon': 'user',
-            'label': root.roster[i].role,
-            'content': 'Content here'
-          };
-        }
-        root.$$('#loadingContent').classList.remove('loading-hide');
-        root.$$('#loadingRoster').innerHTML = '';
+        root.$$('#loadingContent').style.display = 'block';
       }
     });
   </script>
