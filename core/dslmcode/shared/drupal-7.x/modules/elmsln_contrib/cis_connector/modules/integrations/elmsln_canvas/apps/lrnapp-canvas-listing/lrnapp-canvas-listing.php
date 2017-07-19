@@ -9,30 +9,40 @@ function _elmsln_canvas_course_list($machine_name, $app_route, $params, $args) {
   // @todo return a cross section of courses that are mapped in the system
   // and those that aren't yet
   // Click to expand w/ the sections available in each (no roster querying)
-  // Clicking to expand those can do a individual section query to pull up some more stats
   if ($params['return'] == 'courses') {
     $canvas = canvas_api('courses');
     $canvas->params['include'] = array(
-      'sections',
       'total_students',
       'course_image',
+      'term',
     );
     $response = $canvas->getCourse(NULL);
     $courses = array();
     foreach ($response as $data) {
       $course = array(
         'name' => $data['name'],
-        'course_code' => $data['course_code'],
-        'sections' => count($data['sections']),
         'student_count' => $data['total_students'],
         'image' => $data['image_download_url'],
         'sis_course_id' => $data['sis_course_id'],
         'workflow_state' => $data['workflow_state'],
+        'term' => $data['term']['name'],
       );
       $courses[$data['sis_course_id']] = $course;
     }
-    // @todo query against current SIS mappings to put that in output
-    $return = $courses;
+    $nodes = _cis_connector_assemble_entity_list('node', 'course', 'field_machine_name', 'title');
+    $elmslnCourses = array(
+      array('machineName' => '', 'name' => t('-- none --'))
+    );
+    foreach ($nodes as $machine_name => $name) {
+      $elmslnCourses[] = array(
+        'machineName' => $machine_name,
+        'name' => $name,
+      );
+    }
+    $return = array(
+      'elmslnCourses' => $elmslnCourses,
+      'canvasCourses' => $courses,
+    );
   }
   else if ($params['return'] == 'users') {
     $canvas = canvas_api('courses');
