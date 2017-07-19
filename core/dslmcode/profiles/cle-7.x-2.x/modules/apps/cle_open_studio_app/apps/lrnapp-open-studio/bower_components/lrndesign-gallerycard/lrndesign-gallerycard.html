@@ -2,7 +2,6 @@
 `lrndesign-gallerycard`
 A LRN element for presenting a gallery of items as cards
 that can pop up to display more info
-
 @demo demo/index.html
 -->
 
@@ -12,8 +11,10 @@ that can pop up to display more info
     <style>
        :host {
         display: inline-flex;
+        width: 24%;
       }
       /* Custom Tags */
+
       lrn-icon {
         margin: 0 .5em;
       }
@@ -25,60 +26,68 @@ that can pop up to display more info
       }
 
       paper-dialog-scrollable {
-        max-height: 200vh;
+        max-height: 50vh;
         overflow: auto;
       }
 
-      paper-dialog-scrollable h3 {
+      lrnsys-dialog {
+        width: 100%;
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      lrnsys-dialog h3 {
         color: var(--paper-grey-800);
       }
 
-      paper-dialog-scrollable p {
+      lrnsys-dialog p {
         width: 80%;
         margin: 1em auto 1em auto;
         text-align: left;
       }
 
-      paper-dialog {
-        padding: 2em;
-        width: 80%;
-      }
-
-      paper-dialog .comments {
+      lrnsys-dialog .comments {
         float: right;
         margin: 0 4em 2em 0;
       }
 
-      paper-dialog .head {
+      lrnsys-dialog .head {
         width: 100%;
         margin: auto;
         text-align: center;
       }
 
-      paper-dialog .head h3 {
+      lrnsys-dialog .head h3 {
         color: var(--paper-grey-600);
       }
 
+      lrnsys-dialog.lrndesign-gallerycard p.lrndesign-gallerycard {
+        margin: 0;
+        text-align: left;
+        width: 100%;
+      }
       /* Paper Card */
 
-      .paper-card-responsive {
-        min-width: 200px;
-        max-width: 20rem;
-        width: auto;
+      hr {
+        margin: 3em 0 3em 0;
       }
 
       .title {
-        font-size: 0.9rem;
+        font-size: 1rem;
         padding: 0.25rem 0;
-        margin: 0.5rem 0 0 0;
+        margin: 0;
         overflow-x: hidden;
         text-overflow: ellipsis;
       }
 
-      .author {
+      .student p {
         font-size: 0.75rem;
         margin: 0;
         padding: 0.25rem 0;
+        line-height: 0;
+        font-weight: lighter;
       }
 
       .divider {
@@ -102,19 +111,6 @@ that can pop up to display more info
         height: 15rem;
       }
 
-      .card-control-center {
-        align-items: center;
-        display: flex;
-        justify-content: center;
-        width: 13em;
-        padding: 0 1em 0 0;
-        margin: 0 0 0 -.86em;
-      }
-      .card-content {
-        padding: 0;
-        margin: 0;
-      }
-
       [elevation="0"] {
         border: solid 1px #EEEEEE;
       }
@@ -126,7 +122,6 @@ that can pop up to display more info
       .text-center {
         text-align: center;
       }
-
       /* Text Submission */
 
       .text-submission {
@@ -140,7 +135,6 @@ that can pop up to display more info
       .text-submission:hover {
         color: #000;
       }
-
       /* Icon Preview Submission */
 
       .icon-submission {
@@ -154,34 +148,14 @@ that can pop up to display more info
       .big {
         --iron-icon-height: 100%;
         --iron-icon-width: 100%;
-        max-width: 4em;
-        max-height: 4em;
       }
-
-      /* Image Submission */
-
-      .image-set-submission {
-        display: flex;
-        align-items: center;
-        flex-flow: row wrap;
-        align-content: flex-start;
-        color: #888;
-        text-decoration: none;
-      }
-
-      .image-quad {
-        --iron-image-height: auto;
-        --iron-image-width: 100%;
-        flex-basis: 90%;
-        margin: auto;
-      }
-
       /* Paper Dialog */
 
       .contain {
         width: 10em;
         height: 10em;
         background: #ddd;
+        display: inline;
       }
 
       .center {
@@ -194,37 +168,53 @@ that can pop up to display more info
         font-size: 1em;
         line-height: 1em;
       }
-      lrnsys-dialog.inline-dialog-trigger {
-        display: inline-flex;
-        margin: 0;
-        padding: 0;
+
+      .submission-info {
+        position: absolute;
+        bottom: 0;
+      }
+
+      .card-content{
+        max-height: 10em;
+        overflow: hidden;
+      }
+      .image-quad {
+        display: inline;
+        
       }
     </style>
-
     <paper-card elevation="[[elevation]]">
-      <paper-button>
-        <div class="card-content">
-          <div class="card-control-height card-control-center">
-
+      <lrnsys-dialog id="dialog">
+        <div slot="button" class="card-control-height card-control-center">
+          <div class="card-content">
             <!-- ----- Images Submission -----  -->
             <template is="dom-if" if="{{_previewType(images)}}">
-              <template is="dom-repeat" items="[[_toArray(images)]]">
-              <div class="image-set-submission">
-                  <iron-image class="image-quad" src="[[item]]"></iron-image>
-              </div>
+              <template is="dom-repeat" items="[[_toArray(images)]]" as="image">
+                <div class="image-set-submission">
+                  <iron-image class="image-quad" src="[[image]]"></iron-image>
+                </div>
               </template>
             </template>
             <!-- ----- Videos Submission -----  -->
             <template is="dom-if" if="{{_previewType(videos)}}">
-              <div class="icon-submission"><iron-icon class="big" icon="av:video-library"></lrn-icon></div>
+              <div class="icon-submission">
+                <iron-icon class="big" icon="av:video-library">
+                  </lrn-icon>
+              </div>
             </template>
             <!-- ----- Files Submission -----  -->
             <template is="dom-if" if="{{_previewType(files)}}">
-              <div class="icon-submission"><iron-icon class="big" icon="icons:file-download"></lrn-icon></div>
+              <div class="icon-submission">
+                <iron-icon class="big" icon="icons:file-download">
+                  </lrn-icon>
+              </div>
             </template>
             <!-- ----- Link Submission -----  -->
             <template is="dom-if" if="{{_previewType(links)}}">
-              <div class="icon-submission"><iron-icon class="big" icon="icons:link"></lrn-icon></div>
+              <div class="icon-submission">
+                <iron-icon class="big" icon="icons:link">
+                  </lrn-icon>
+              </div>
             </template>
             <!-- ----- Text Submission -----  -->
             <template is="dom-if" if="{{_previewType(text)}}">
@@ -232,10 +222,14 @@ that can pop up to display more info
                 <div class="text-submission truncate">[[text]]</div>
               </p>
             </template>
-            <div class=divider></div>
-            <h2 class="title">[[title]]</h2>
-            <p class="author">By [[author]]<p>
           </div>
+
+          <div class="submission-info">
+            <div class=divider></div>
+            <h3 class="title">[[title]]</h3>
+            <h4 class="student">[[author]]</h4>
+          </div>
+
         </div>
         <div slot="header">
           <div class="head text-center">
@@ -293,7 +287,7 @@ that can pop up to display more info
             </div>
           </template>
           <a href="{{url}}" tabindex="-1"><span class="comments">[[comments]]<lrn-icon icon="comment"></lrn-icon></span></a>
-          <hr class="divider">
+        <hr class="divider">
         </span>
       </lrnsys-dialog>
       <div class="card-actions">
@@ -304,7 +298,6 @@ that can pop up to display more info
   </template>
   <script>
     Polymer({
-
       is: 'lrndesign-gallerycard',
       listeners: {
         'mouseenter': '_mouseEnter',
@@ -422,9 +415,9 @@ that can pop up to display more info
       _mouseLeave: function (e) {
         this.elevation -= 1;
       },
-      ready: function() {
+      ready: function () {
         let root = this;
-        root.$$('#dialog').addEventListener('click', function(e) {
+        root.$$('#dialog').addEventListener('click', function (e) {
           let root = this;
           // support remote url loading
           if (typeof this.url !== "undefined") {
@@ -457,16 +450,3 @@ that can pop up to display more info
     });
   </script>
 </dom-module>
-
-
-
-
-
-
-
-
-
-
-
-
-
