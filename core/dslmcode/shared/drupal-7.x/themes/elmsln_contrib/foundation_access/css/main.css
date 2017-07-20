@@ -8028,6 +8028,10 @@ paper-toast#toastdrawer {
 }
 #etb-course-nav .top-bar li a paper-button {
   padding: 0 .25rem;
+  display: flex;
+}
+#etb-course-nav .top-bar li a paper-button span.label {
+  height: unset;
 }
 lrnsys-button paper-button {
   height: inherit;
@@ -8055,6 +8059,10 @@ paper-button:focus {
   margin: 0;
   justify-content: initial;
   width: 100%;
+}
+#etb-course-nav lrnsys-dialog {
+  width: 100%;
+  display: flex;
 }
 paper-button#close-button {
   height: unset;
@@ -8102,8 +8110,8 @@ lrnsys-drawer app-drawer,
   padding: 0 .75rem;
   margin: 0;
   height: 3.75rem;
-  border-radius: 0;
-  text-transform: none;
+  justify-content: flex-start;
+  display: flex;
 }
 .elmsln-network-icon {
   display: inline-grid;
