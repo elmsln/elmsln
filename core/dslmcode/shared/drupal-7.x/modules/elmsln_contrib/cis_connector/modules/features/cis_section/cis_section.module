@@ -35,7 +35,8 @@ function cis_section_menu() {
  */
 function cis_section_registry_files_alter(&$files, $modules) {
   // Manually add here as this is a feature and the .info may get overridden.
-  $files[] = drupal_get_path('module', 'cis_section') . '/src/CisSectionRosterProcessor.php';
+  $file_path = drupal_get_path('module', 'cis_section') . '/src/CisSectionRosterProcessor.php';
+  $files[$file_path] = array('module' => 'cis_section', 'weight' => 0);
 }
 
 /**
