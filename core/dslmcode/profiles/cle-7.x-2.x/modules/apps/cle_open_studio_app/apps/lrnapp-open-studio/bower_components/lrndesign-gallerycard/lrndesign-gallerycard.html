@@ -13,7 +13,6 @@ that can pop up to display more info
         display: inline-flex;
         width: 24%;
       }
-      /* Custom Tags */
 
       lrn-icon {
         margin: 0 .5em;
@@ -25,21 +24,118 @@ that can pop up to display more info
         width: 16rem;
       }
 
-      paper-dialog-scrollable {
-        max-height: 50vh;
-        overflow: auto;
+      .card-actions {
+        background-color: #f5f5f5;
+        border-radius: 0 0 4px 4px;
       }
 
+      .card-control-height {
+        height: 15rem;
+      }
+
+      [elevation="0"] {
+        border: solid 1px #EEEEEE;
+      }
+
+      .text-right {
+        text-align: right;
+      }
+
+      .text-center {
+        text-align: center;
+      }
+
+      .text-left {
+        text-align: left;
+      }
+
+      h1, h2, h3, h4 {
+        font-family: 'Open Sans', sans-serif;
+        margin: 0;
+        text-align: left;
+      }
+
+      .title {
+        color: #222;
+        font-size: 1.25rem;
+        font-weight: 600;
+        line-height: 1.25rem;
+        padding: 0.25rem 0;
+        overflow-x: hidden;
+        text-overflow: ellipsis;
+        margin-top: 1rem;
+      }
+
+      .student {
+        color: #555;
+        font-size: 1rem;
+        font-weight: 500;
+        line-height: 1rem;
+        padding: 0.25rem 0 0.5rem 0;
+        text-transform: capitalize;
+      }
+
+      .comments {
+        color: #444;
+        font-size: .75rem;
+        font-weight: 400;
+        line-height: .75rem;
+        padding: 0.25rem 0 0.5rem 0;
+      }
+
+      .assignment {
+        color: #222;
+        font-size: 1.5rem;
+        font-weight: 600;
+        line-height: 1.25rem;
+        padding: 0.5rem 0 0.5rem 0;
+        width: 100%;
+      }
+
+      h4 {
+        color: #444;
+        font-size: 1rem;
+        font-weight: 500;
+        line-height: 1rem;
+        padding: 0.5rem 0 0.5rem 0;
+        text-align: center;
+      }
+
+      .divider {
+        height: 1px;
+        width: 100%;
+        background: #efefef;
+      }
+
+      .header {
+        background: #efefef;
+        padding-bottom: 1rem;
+      }
+
+      .icon-submission {
+        color: #888;
+      }
+
+      .icon-submission:hover {
+        color: #000;
+      }
+
+      .big {
+        --iron-icon-height: 100%;
+        --iron-icon-width: 100%;
+      }
+
+     .avatar {
+        padding-top: 2rem;
+      }
+      
+      /* Custom Tags */
       lrnsys-dialog {
         width: 100%;
         position: relative;
         display: flex;
         justify-content: center;
         align-items: center;
-      }
-
-      lrnsys-dialog h3 {
-        color: var(--paper-grey-800);
       }
 
       lrnsys-dialog p {
@@ -68,93 +164,12 @@ that can pop up to display more info
         text-align: left;
         width: 100%;
       }
-      /* Paper Card */
 
-      hr {
-        margin: 3em 0 3em 0;
-      }
-
-      .title {
-        font-size: 1rem;
-        padding: 0.25rem 0;
-        margin: 0;
-        overflow-x: hidden;
-        text-overflow: ellipsis;
-      }
-
-      .student p {
-        font-size: 0.75rem;
-        margin: 0;
-        padding: 0.25rem 0;
-        line-height: 0;
-        font-weight: lighter;
-      }
-
-      .divider {
-        height: 1px;
-        width: 100%;
-        background: #efefef;
-      }
-
-      .card-actions {
-        background-color: #f5f5f5;
-        border-radius: 0 0 4px 4px;
-      }
-
-      .card-actions p {
-        font-size: 0.85rem;
-        margin: 0.25rem 0;
-        color: #616161;
-      }
-
-      .card-control-height {
-        height: 15rem;
-      }
-
-      [elevation="0"] {
-        border: solid 1px #EEEEEE;
-      }
-
-      .text-right {
-        text-align: right;
-      }
-
-      .text-center {
-        text-align: center;
-      }
-      /* Text Submission */
-
-      .text-submission {
-        font-family: 'Droid Serif', cursive;
-        font-size: 1rem;
-        font-style: italic;
-        color: #888;
-        text-decoration: none;
-      }
-
-      .text-submission:hover {
-        color: #000;
-      }
-      /* Icon Preview Submission */
-
-      .icon-submission {
-        color: #888;
-      }
-
-      .icon-submission:hover {
-        color: #000;
-      }
-
-      .big {
-        --iron-icon-height: 100%;
-        --iron-icon-width: 100%;
-      }
-      /* Paper Dialog */
 
       .contain {
         width: 10em;
         height: 10em;
-        background: #ddd;
+        background: #efefef;
         display: inline;
       }
 
@@ -174,14 +189,33 @@ that can pop up to display more info
         bottom: 0;
       }
 
-      .card-content{
-        max-height: 10em;
+      .card-content {
+        max-height: 8em;
         overflow: hidden;
       }
-      .image-quad {
-        display: inline;
-        
+
+      .image-set-submission {
+        display: inline-flex;
+        flex-flow: row wrap;
+        align-content: flex-start;
+        height: 4rem;
       }
+
+      .image-quad {
+          --iron-image-height: auto;
+          --iron-image-width: 100%;
+          flex-basis:100%;
+        }
+
+      .inline {
+        display: inline;
+      }
+
+      ul {
+        text-align: left;
+        margin-left: 5em;
+      }
+
     </style>
     <paper-card elevation="[[elevation]]">
       <lrnsys-dialog id="dialog">
@@ -199,55 +233,56 @@ that can pop up to display more info
             <template is="dom-if" if="{{_previewType(videos)}}">
               <div class="icon-submission">
                 <iron-icon class="big" icon="av:video-library">
-                  </lrn-icon>
+                  </iron-icon>
               </div>
             </template>
             <!-- ----- Files Submission -----  -->
             <template is="dom-if" if="{{_previewType(files)}}">
               <div class="icon-submission">
                 <iron-icon class="big" icon="icons:file-download">
-                  </lrn-icon>
+                  </iron-icon>
               </div>
             </template>
             <!-- ----- Link Submission -----  -->
             <template is="dom-if" if="{{_previewType(links)}}">
               <div class="icon-submission">
                 <iron-icon class="big" icon="icons:link">
-                  </lrn-icon>
+                  </iron-icon>
               </div>
             </template>
             <!-- ----- Text Submission -----  -->
             <template is="dom-if" if="{{_previewType(text)}}">
-              <p class="text-submission">
-                <div class="text-submission truncate">[[text]]</div>
+              <p class="icon-submission">
+               <iron-icon class="big" icon="icons:subject">
+                  </iron-icon>
               </p>
             </template>
           </div>
 
           <div class="submission-info">
             <div class=divider></div>
-            <h3 class="title">[[title]]</h3>
-            <h4 class="student">[[author]]</h4>
+            <h1 class="title">[[title]]</h1>
+            <h2 class="student">[[author]]</h2>
           </div>
 
         </div>
-        <div slot="header">
+        <div class="header" slot="header">
           <div class="head text-center">
-            <lrndesign-avatar label="{{author}}"></lrndesign-avatar>
-            <h2>{{author}}</h2>
+            <lrndesign-avatar class="avatar" label="{{author}}"></lrndesign-avatar>
+            <h1 class="student text-center">{{author}}</h1>
             <!-- Need to pull the projectTitle -->
-            <h3>Project Title</h3>
+            <h2 class="title text-center">Project Title</h2>
           </div>
-          <h3 class="text-center">{{title}}</h3>
         </div>
         <!-- slot for content of the modal -->
         <span slot="content">
+          <h3 class="assignment text-center">{{title}}</h3>
           <!-- ----- Images Submission -----  -->
           <template is="dom-if" if="{{images}}">
             <div class="center">
               <h4>Images Submitted</h4>
               <template is="dom-repeat" items="[[_toArray(images)]]">
-                <lrnsys-dialog class="inline-dialog-trigger">
+                <lrnsys-dialog class="inline-dialog-trigger inline">
                   <iron-image slot="button" sizing="contain" class="contain" src="[[item]]"></iron-image>
                   <iron-image src="[[item]]"></iron-image>
                 </lrnsys-dialog>
@@ -270,20 +305,27 @@ that can pop up to display more info
           <!-- ----- Links Submission -----  -->
           <template is="dom-if" if="{{links}}">
             <div class="center">
-              <h4>Links Submitted</h4>
+              <h4 class="text-left">Links Submitted</h4>
+              <ul>
               <template is="dom-repeat" items="[[_toArray(links)]]">
-                <a class="link" href="[[item]]">
-                  <lrn-icon icon="online"></lrn-icon>[[item]]</a>
+                <li>
+                <a class="link" href="[[item]]"><lrn-icon icon="online"></lrn-icon>[[item]]</a>
+                </li>
               </template>
+              </ul>
             </div>
           </template>
           <!-- ----- Files Submission -----  -->
           <template is="dom-if" if="{{files}}">
             <div class="center">
-              <h4>Files Submitted</h4>
+              <h4 class="text-left">Files Submitted</h4>
+              <ul>
               <template is="dom-repeat" items="[[_toArray(files)]]">
+                <li>
                 <a class="link" href="[[item]]" target="_blank">[[item]]</a>
+                </li>
               </template>
+              </ul>
             </div>
           </template>
           <a href="{{url}}" tabindex="-1"><span class="comments">[[comments]]<lrn-icon icon="comment"></lrn-icon></span></a>
@@ -291,7 +333,7 @@ that can pop up to display more info
         </span>
       </lrnsys-dialog>
       <div class="card-actions">
-        <p class="text-right">Comments: [[comments]]</p>
+        <h3 class="comments text-right">Comments: [[comments]]</h3>
       </div>
     </paper-card>
     <iron-ajax params="{}" id="ajaxRequest" url="{{url}}" handle-as="json" on-response="_handleReturnedData"></iron-ajax>
