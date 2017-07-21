@@ -249,6 +249,11 @@ function _cis_helper_assemble_roster(&$sections) {
       drupal_alter('cis_helper_build_roster', $tmproster, $section_id);
       $roster[$section_id] = $tmproster;
     }
+    // ensure there isn't a null user; entirely possible
+    // if user is using upload mode and there's a blank row
+    if (isset($roster[$section_id][''])) {
+      unset($roster[$section_id]['']);
+    }
   }
   return $roster;
 }
