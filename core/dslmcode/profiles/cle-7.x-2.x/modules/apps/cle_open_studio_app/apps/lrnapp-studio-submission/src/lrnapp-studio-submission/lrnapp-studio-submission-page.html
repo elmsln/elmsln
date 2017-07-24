@@ -30,19 +30,34 @@
         width: 100%;
       }
 
+      h1, h2, h3, h4 {
+        font-family: 'Open Sans', sans-serif;
+        margin: 0;
+        text-align: left;
+      }
+
       .title {
+        color: #222;
         font-size: 2rem;
+        font-weight: 600;
+        line-height: 2.5rem;
         padding: 0.25rem 0;
-        margin: 0.5rem 0 0 0;
         white-space: nowrap;
         overflow-x: hidden;
         text-overflow: ellipsis;
+        margin-top: 1rem;
+        text-transform: uppercase;
       }
 
       .author {
+        color: #555;
         font-size: 1rem;
+        font-weight: 500;
+        font-style: normal;
+        line-height: 1rem;
+        padding: 0.25rem 0 0.5rem 0;
         margin: 0;
-        padding: 0.25rem 0;
+        text-transform: capitalize;
       }
 
       .comments {
@@ -144,8 +159,8 @@
       <div class="card-content">
         <!-- ----- Title and Author -----  -->
         <template is="dom-if" if="[[submission]]">
-          <h2 class="title">{{submission.attributes.title}}</h2>
-          <h3 class="author">By: {{submission.relationships.author.data.name}}</h3>
+          <h1 class="title">{{submission.attributes.title}}</h1>
+          <h2 class="author">By: {{submission.relationships.author.data.name}}</h2>
         </template>
         <!-- ----- Images Submission -----  -->
         <template is="dom-if" if="[[submission.attributes.images]]">

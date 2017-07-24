@@ -4,9 +4,11 @@
        :host {
         display: block;
       }
-
-  
       /*COMMENT CSS*/
+
+      paper-card {
+        width: 100%;
+      }
 
       .cmmnt paper-card {
         padding: 2em 2em 0 2em;
@@ -58,7 +60,7 @@
         margin-right: 125px;
       }
 
-      
+
 
       .comment-reply.card-actions {
         width: 95%;
@@ -91,32 +93,52 @@
       .hidden {
         display: none;
       }
+
+      .grey-said {
+        color: #555;
+      }
+
+      .container-flex {
+        display: flex;
+      }
+
+      p {
+        line-height: 1.25em;
+      }
+
+      paper-icon-button:hover {
+        color: #555
+      }
     </style>
 
 
     <div class="cmmnt">
-      <paper-card>
-        <h2>Comments</h2>
-        <!-- ----- Comment Body -----  -->
-        <template is="dom-if" if="[[submission.relationships.comments]]">
-          <template is="dom-repeat" items="[[_toArray(submission.relationships.comments.data)]]" as="comment">
-            <div class$="card-content comment-depth-[[comment.attributes.threadDepth]]">
+
+      <h2>Comments</h2>
+      <!-- ----- Comment Body -----  -->
+      <template is="dom-if" if="[[submission.relationships.comments]]">
+        <template is="dom-repeat" items="[[_toArray(submission.relationships.comments.data)]]" as="comment">
+          <div class$="card-content comment-depth-[[comment.attributes.threadDepth]]">
+            <div class="container-flex">
               <lrndesign-avatar label="[[comment.relationships.author.data.name]]"></lrndesign-avatar>
-              <h3>{{comment.relationships.author.data.name}}</h3>
-              <span class="date">{{comment.meta.created}}</span>
-              <p class="comment-body">{{comment.attributes.body}}</p>
+              <p class="date">{{comment.meta.created}}</p>
+              <paper-card>
+                <h4>{{comment.relationships.author.data.name}} <span class="grey-said">said:</span></h4>
+                <p class="comment-body">{{comment.attributes.body}}</p>
+                <div class="card-actions">
+                  <paper-icon-button id="reply" icon="icons:reply"></paper-icon-button><span class="action-reply">reply</span>
+                  <paper-tooltip for="reply" animation-delay="0">Reply</paper-tooltip>
+                  <paper-icon-button class="right-actions hidden" id="edit" icon="icons:create"></paper-icon-button>
+                  <paper-tooltip for="edit" animation-delay="0">Edit</paper-tooltip>
+                  <paper-icon-button class="right-actions hidden" id="delete" icon="icons:delete-forever"></paper-icon-button>
+                  <paper-tooltip for="delete" animation-delay="0">Delete</paper-tooltip>
+                </div>
+              </paper-card>
             </div>
-            <div class="card-actions">
-              <paper-icon-button id="reply" icon="icons:reply"></paper-icon-button><span class="action-reply">reply</span>
-              <paper-tooltip for="reply" animation-delay="0">Reply</paper-tooltip>
-              <paper-icon-button class="right-actions hidden" id="edit" icon="icons:create"></paper-icon-button>
-              <paper-tooltip for="edit" animation-delay="0">Edit</paper-tooltip>
-              <paper-icon-button class="right-actions hidden" id="delete" icon="icons:delete-forever"></paper-icon-button>
-              <paper-tooltip for="delete" animation-delay="0">Delete</paper-tooltip>
-            </div>
-          </template>
+          </div>
         </template>
-      </paper-card>
+      </template>
+
     </div>
 
   </template>
