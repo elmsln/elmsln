@@ -7978,6 +7978,11 @@ paper-button iron-icon.iron-icon-0 {
   height: 3em;
   margin: 0 .25em;
 }
+ul.pagination paper-button {
+    margin: 0;
+    padding: 0;
+    min-width: 2em;
+}
 paper-button paper-tooltip {
   text-transform: unset;
 }

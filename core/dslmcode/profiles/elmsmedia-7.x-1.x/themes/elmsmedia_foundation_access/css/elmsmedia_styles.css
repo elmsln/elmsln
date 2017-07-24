@@ -67,3 +67,24 @@
   position: absolute;
   width: 3rem;
 }
+
+.card-col paper-card {
+  margin: .5em 0;
+  min-height: 15em;
+  min-width: 15em;
+}
+paper-card .header.paper-card {
+  min-height: 10em;
+}
+paper-card .card-content lrnsys-button {
+  display: inline-flex;
+}
+paper-card .paper-card .title-text {
+  font-size: .8em !important;
+  background-color: white;
+  opacity: .6;
+  padding: .25em !important;
+}
+paper-card .paper-card:hover .title-text {
+  opacity: 1;
+}
