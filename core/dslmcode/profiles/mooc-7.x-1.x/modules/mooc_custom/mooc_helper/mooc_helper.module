@@ -695,26 +695,45 @@ function mooc_helper_module_implements_alter(&$implementations, $hook) {
 /**
  * Implements hook_form_FORM_ID_alter().
  */
-function mooc_helper_form_cis_service_connection_ux_form_alter(&$form, &$form_state, $form_id) {
-  $options = _mooc_helper_all_book_outlines('nid');
+function mooc_helper_form_elmsln_core_service_settings_form_alter(&$form, &$form_state, $form_id) {
+  // @see _mooc_helper_book_homepage_redirect()
+  $form['site_information_links']['site_frontpage']['#description'] .= '.  Use the "mooc/book-homepage" url to dynamically set the homepage based on active section';
+
+}
+
+/**
+ * Implements hook_elmsln_core_service_settings().
+ * @return array options for this service
+ */
+function mooc_helper_elmsln_core_service_settings($section = NULL) {
+  $options = array();
+  $outlines = _mooc_helper_all_book_outlines('nid');
   $require = TRUE;
   // don't brick other things if we don't have any options to set
-  // edge casy but possible as you clean out books and create other ones
+  // edge casey but possible as you clean out books and create other ones
   // now that we support those kinds of things
   if (empty($options)) {
     $require = FALSE;
   }
-  $form['site_information']['mooc_default_outline'] = array(
+  $options['mooc_default_outline'] = array(
     '#description' => t('This is the default content outline for new sections that register.'),
     '#default_value' => variable_get('mooc_default_outline', ''),
     '#weight' => '0',
     '#title' => t('Default content outline'),
     '#type' => 'select',
     '#required' => $require,
-    '#options' => $options,
+    '#options' => $outlines,
   );
-  // @see _mooc_helper_book_homepage_redirect()
-  $form['site_information_links']['site_frontpage']['#description'] .= '.  Use the "mooc/book-homepage" url to dynamically set the homepage based on active section';
+  // if section in scope we need to send back this section's setting for this
+  if (!is_null($section)) {
+    $nid = _cis_section_load_section_by_id($section);
+    $node = node_load($nid);
+    // see if this has an outline associated
+    if (isset($node->field_instructional_outlines['und'])) {
+      $options['mooc_default_outline']['#default_value'] = $node->field_instructional_outlines['und'][0]['target_id'];
+    }
+  }
+  return $options;
 }
 
 /**

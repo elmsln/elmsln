@@ -2,7 +2,6 @@ name = Editorial Blog Post
 description = A Blog post content type for open (to the course / section) blogging
 core = 7.x
 package = Editorial
-dependencies[] = cis_service_connection_ux
 dependencies[] = ctools
 dependencies[] = defaultconfig
 dependencies[] = entityreference

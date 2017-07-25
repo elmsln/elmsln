@@ -3,7 +3,6 @@ description = Menu and some UX glue
 core = 7.x
 package = CIS
 dependencies[] = cis_displays
-dependencies[] = cis_service_connection_ux
 dependencies[] = cis_types
 dependencies[] = ctools
 dependencies[] = defaultconfig

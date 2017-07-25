@@ -290,9 +290,9 @@ function _cis_tokens_get_token_scope($scope = FALSE) {
 }
 
 /**
- * Implementation of hook_form_cis-service-connection-ux-form_alter().
+ * Implementation of hook_form_elmsln_core_form_alter().
  */
-function cis_tokens_form_cis_service_connection_ux_form_alter(&$form, &$form_state, $form_id) {
+function cis_tokens_form_elmsln_core_service_settings_form_alter(&$form, &$form_state, $form_id) {
   /* Your code here */
   $form['tokens'] = array(
     '#tree' => '0',

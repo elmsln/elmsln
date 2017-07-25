@@ -16,7 +16,6 @@
                 "cis_section",
                 "cis_connector",
                 "cis_service_connection",
-                "cis_service_connection_ux",
                 "textbook_editor",
                 "cis_unique_tag",
                 "cis_shortcodes",
@@ -30,7 +29,6 @@
                 "cis_lms_required",
                 "cis_account_required",
                 "cis_section",
-                "cis_service_connection_ux",
                 "cis_service_restws",
                 "cis_service_roles"
             ]

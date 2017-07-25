@@ -107,7 +107,6 @@ dependencies[] = features_override
 dependencies[] = elmsln_api
 dependencies[] = cis_connector
 dependencies[] = cis_service_connection
-dependencies[] = cis_service_connection_ux
 dependencies[] = cis_service_roles
 dependencies[] = cis_lmsless
 dependencies[] = cis_shortcodes

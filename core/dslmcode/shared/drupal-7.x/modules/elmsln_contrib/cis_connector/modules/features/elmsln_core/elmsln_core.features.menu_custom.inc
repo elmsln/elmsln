@@ -1,13 +1,13 @@
 <?php
 /**
  * @file
- * cis_service_connection_ux.features.menu_custom.inc
+ * elmsln_core.features.menu_custom.inc
  */
 
 /**
  * Implements hook_menu_default_menu_custom().
  */
-function cis_service_connection_ux_menu_default_menu_custom() {
+function elmsln_core_menu_default_menu_custom() {
   $menus = array();
 
   // Exported menu: menu-elmsln-add.

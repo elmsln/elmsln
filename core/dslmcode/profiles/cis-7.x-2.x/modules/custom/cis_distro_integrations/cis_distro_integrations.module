@@ -66,7 +66,6 @@ function cis_distro_integrations_cis_service_instance_blog_options_alter(&$optio
   // revert these features that always need reverted
   $options['fr'][] = 'cis_service_lti';
   $options['fr'][] = 'cis_section';
-  $options['fr'][] = 'cis_service_connection_ux';
 }
 
 /**
@@ -80,5 +79,5 @@ function cis_distro_integrations_cis_service_instance_discuss_options_alter(&$op
   // revert these features that always need reverted
   $options['fr'][] = 'cis_service_lti';
   $options['fr'][] = 'cis_section';
-  $options['fr'][] = 'cis_service_connection_ux';
+
 }

@@ -1,13 +1,13 @@
 <?php
 /**
  * @file
- * cis_service_connection_ux.features.menu_links.inc
+ * elmsln_core.features.menu_links.inc
  */
 
 /**
  * Implements hook_menu_default_menu_links().
  */
-function cis_service_connection_ux_menu_default_menu_links() {
+function elmsln_core_menu_default_menu_links() {
   $menu_links = array();
 
   // Exported menu link: menu-elmsln-settings_admin:admin

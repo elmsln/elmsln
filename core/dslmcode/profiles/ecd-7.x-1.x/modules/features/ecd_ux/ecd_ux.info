@@ -2,7 +2,6 @@ name = ECD UX
 description = User experience components for ECD
 core = 7.x
 package = ECD
-dependencies[] = cis_service_connection_ux
 dependencies[] = ctools
 dependencies[] = ecd_displays
 dependencies[] = features

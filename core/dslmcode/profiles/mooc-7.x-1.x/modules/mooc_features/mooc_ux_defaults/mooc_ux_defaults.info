@@ -4,7 +4,6 @@ core = 7.x
 package = MOOC
 project = mooc_ux_defaults
 dependencies[] = book
-dependencies[] = cis_service_connection_ux
 dependencies[] = context
 dependencies[] = ctools
 dependencies[] = defaultconfig

@@ -685,7 +685,7 @@ function _cis_section_load_users_by_gid($gid, $rid = NULL) {
 /**
  * Implements hook_form_FORM_ID_alter().
  */
-function cis_section_form_cis_service_connection_ux_form_alter(&$form, &$form_state, $form_id) {
+function cis_section_form_elmsln_core_service_settings_form_alter(&$form, &$form_state, $form_id) {
   $options = array(CIS_NO_SECTION => 'No default') + _cis_connector_assemble_entity_list('node', 'section', 'field_section_id', 'title');
   $form['section'] = array(
     '#tree' => '0',

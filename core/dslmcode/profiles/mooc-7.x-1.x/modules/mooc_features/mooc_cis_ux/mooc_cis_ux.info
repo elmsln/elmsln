@@ -4,7 +4,6 @@ core = 7.x
 package = MOOC
 dependencies[] = cis_section
 dependencies[] = cis_service_connection
-dependencies[] = cis_service_connection_ux
 dependencies[] = ctools
 dependencies[] = entityreference
 dependencies[] = features

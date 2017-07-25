@@ -67,10 +67,12 @@ function cle_helper_form_views_exposed_form_alter(&$form, &$form_state, $form_id
 }
 
 /**
- * Implements hook_form_FORM_ID_alter().
+ * Implements hook_elmsln_core_service_settings().
+ * @return array options for this service
  */
-function cle_helper_form_cis_service_connection_ux_form_alter(&$form, &$form_state, $form_id) {
-  $form['site_information']['cle_default_projects'] = array(
+function cle_helper_elmsln_core_service_settings($section = NULL) {
+  $options = array();
+  $options['cle_default_projects'] = array(
     '#description' => t('This is the default projects for new sections that are registered.'),
     '#default_value' => variable_get('cle_default_projects', array()),
     '#weight' => '0',
@@ -80,6 +82,19 @@ function cle_helper_form_cis_service_connection_ux_form_alter(&$form, &$form_sta
     '#multiple' => '1',
     '#options' => _cis_connector_assemble_entity_list('node', 'cle_project', 'nid', 'title'),
   );
+  // if section in scope we need to send back this section's setting for this
+  if (!is_null($section)) {
+    $nid = _cis_section_load_section_by_id($section);
+    $node = node_load($nid);
+    // see if this has an outline associated
+    if (isset($node->field_section_projects['und'])) {
+      $options['cle_default_projects']['#default_value'] = array();
+      foreach ($node->field_section_projects['und'] as $project) {
+        $options['cle_default_projects']['#default_value'][$project['target_id']] = $project['target_id'];
+      }
+    }
+  }
+  return $options;
 }
 
 /**
