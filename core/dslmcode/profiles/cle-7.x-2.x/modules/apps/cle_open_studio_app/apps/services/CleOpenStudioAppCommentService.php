@@ -19,11 +19,11 @@ class CleOpenStudioAppCommentService {
     $property_conditions = array('status' => array(NODE_PUBLISHED, '='));
     if (isset($options)) {
       if (isset($options->filter)) {
-        if (isset($options->filter->author)) {
+        if (isset($options->filter['author'])) {
           $property_conditions['uid'] = array($options->filter->author, '=');
         }
-        if (isset($options->filter->submission)) {
-          $property_conditions['nid'] = array($options->filter->submission, '=');
+        if (isset($options->filter['submission'])) {
+          $property_conditions['nid'] = array($options->filter['submission'], '=');
         }
       }
     }
