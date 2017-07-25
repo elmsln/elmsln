@@ -31,18 +31,15 @@
       }
     </style>
 
-    <iron-ajax id="ajaxRequest" auto url="[[reqUrl]]" method="GET" body="[[reqBody]]" params="[[reqParams]]" content-type="application/json"
-      handle-as="json" on-response="_handleResponse"></iron-ajax>
-
-    <iron-ajax id="ajaxUpdate" url="[[reqUrl]]" method="PUT" body="[[reqBody]]" params="[[reqParams]]" content-type="application/json"
-      handle-as="json" on-response="_handleResponse"></iron-ajax>
+    <iron-ajax id="ajaxUpdateRequest" url="[[reqUrl]]" method="PUT" body="[[reqBody]]" params="[[reqParams]]" content-type="application/json"
+      handle-as="json" on-response="_handleUpdateResponse"></iron-ajax>
     
     <template is="dom-if" if="[[submission]]">
       <paper-input label="Title" value="{{submission.attributes.title}}"></paper-input>
     </template>
 
     <div class="actions">
-      <paper-button id="publish"><iron-icon icon="check"></iron-icon> Publish to Studio</paper-button>
+      <paper-button id="publish" on-click="_publishClicked"><iron-icon icon="check"></iron-icon> Publish to Studio</paper-button>
       <paper-button id="save-draft"><iron-icon icon="drafts"></iron-icon> Save Draft</paper-button>
       <span class="spacer"></span>
       <paper-button id="delete"><iron-icon icon="delete"></iron-icon> Delete</paper-button>
@@ -66,7 +63,7 @@
         }
       },
       observers: [
-        '_urlVarsChanged(id, endPoint)',
+        '_urlVarsChanged(submission.id, endPoint)',
         '_paramsChanged(csrfToken)',
         '_bodyChanged(title)'
       ],
@@ -81,6 +78,19 @@
       _handleResponse: function (data) {
         this.submission = data.detail.response.data;
       },
+      _publishClicked: function (e) {
+        this.reqBody = this.submission;
+        this.reqBody.state = 'submission_ready';
+        this.$$('#ajaxUpdateRequest').generateRequest();
+      },
+      _handleUpdateResponse: function(res) {
+        var root = this;
+        var status = res.detail.response.status;
+        if (status === 200) {
+          // this will go back to the submission page.
+          root.set('route.path', '');
+        }
+      },
       /**
        * Simple way to convert from object to array.
        */
@@ -89,6 +99,8 @@
           return obj[key];
         });
       },
+      ready: function () {
+      }
     });
   </script>
 </dom-module>
