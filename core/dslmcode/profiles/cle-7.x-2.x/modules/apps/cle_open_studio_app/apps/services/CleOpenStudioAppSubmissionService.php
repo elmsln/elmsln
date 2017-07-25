@@ -55,6 +55,23 @@ class CleOpenStudioAppSubmissionService {
     }
     return $item;
   }
+  
+  public function updateSubmission($payload, $id) {
+    if ($payload) {
+      // make sure we have an id to work with
+      if ($id && is_numeric($id)) {
+        // load the submission from drupal
+        $node = node_load($id);
+        // make sure the node is actually a submission
+        if ($node && isset($node->type) && $node->type == 'cle_submission') {
+          // decode the payload submission to the drupal node
+          $decoded_submission = $this->decodeSubmission($payload, $node);
+          // save the node
+          node_save($decoded_submission);
+        }
+      }
+    }
+  }
 
   /**
    * Prepare a list of submissions to be outputed in json
@@ -158,5 +175,31 @@ class CleOpenStudioAppSubmissionService {
       return $encoded_submission;
     }
     return NULL;
+  }
+
+  protected function decodeSubmission($payload, $node) {
+    if ($payload) {
+      if ($payload->attributes) {
+        if ($payload->attributes->title) {
+          $node->title = $payload->attributes->title;
+        }
+        if ($payload->attributes->body) {
+          $node->field_submission_text[LANGUAGE_NONE][0]['value'] = $payload->attributes->body;
+        }
+        if ($payload->attributes->state) {
+          $node->field_submission_state[LANGUAGE_NONE][0]['value'] = $payload->attributes->state;
+        }
+        // if ($payload->attributes->links) {
+        //   $node->field_links[LANGUAGE_NONE] = (array) $payload->attributes->links;
+        // }
+        // if ($payload->attributes->videos) {
+        //   $node->field_video[LANGUAGE_NONE] = $payload->attributes->videos;
+        // }
+        // if ($payload->attributes->images) {
+        //   $node->field_images[LANGUAGE_NONE] = $payload->attributes->images;
+        // }
+      }
+    }
+    return $node;
   }
 }

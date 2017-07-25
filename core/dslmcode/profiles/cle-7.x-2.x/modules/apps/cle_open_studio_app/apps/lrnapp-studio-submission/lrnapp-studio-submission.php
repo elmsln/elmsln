@@ -23,6 +23,10 @@ function _cle_open_studio_app_submission_findone($machine_name, $app_route, $par
             $return = $service->getSubmission($args[2]);
             break;
           case 'PUT':
+            $service = new CleOpenStudioAppSubmissionService();
+            $post_data = file_get_contents("php://input");
+            $post_data = json_decode($post_data);
+            $return = $service->updateSubmission($post_data, $args[2]);
             break;
           default:
             # code...

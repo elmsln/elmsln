@@ -1,0 +1,94 @@
+<dom-module id="lrnapp-studio-submission-edit">
+  <template>
+    <style>
+       :host {
+        display: block;
+        padding: 1rem;
+      }
+
+      .actions {
+        display: flex;
+        border-top: 2px solid gainsboro;
+        margin-top: 1em;
+      }
+
+      .actions .spacer {
+        flex: 1 1 auto;
+      }
+
+      iron-icon {
+         margin-right: .4em; 
+        --iron-icon-height: 2em;
+        --iron-icon-width: 2em; 
+      }
+
+      #publish iron-icon {
+        color: green;
+      }
+      
+      #delete iron-icon {
+        color: red;
+      }
+    </style>
+
+    <iron-ajax id="ajaxRequest" auto url="[[reqUrl]]" method="GET" body="[[reqBody]]" params="[[reqParams]]" content-type="application/json"
+      handle-as="json" on-response="_handleResponse"></iron-ajax>
+
+    <iron-ajax id="ajaxUpdate" url="[[reqUrl]]" method="PUT" body="[[reqBody]]" params="[[reqParams]]" content-type="application/json"
+      handle-as="json" on-response="_handleResponse"></iron-ajax>
+    
+    <template is="dom-if" if="[[submission]]">
+      <paper-input label="Title" value="{{submission.attributes.title}}"></paper-input>
+    </template>
+
+    <div class="actions">
+      <paper-button id="publish"><iron-icon icon="check"></iron-icon> Publish to Studio</paper-button>
+      <paper-button id="save-draft"><iron-icon icon="drafts"></iron-icon> Save Draft</paper-button>
+      <span class="spacer"></span>
+      <paper-button id="delete"><iron-icon icon="delete"></iron-icon> Delete</paper-button>
+    </div>
+  </template>
+  <script>
+    Polymer({
+      is: 'lrnapp-studio-submission-edit',
+      properties: {
+        reqUrl: {
+          type: String
+        },
+        reqParams: {
+          type: Object
+        },
+        reqBody: {
+          type: Object
+        },
+        submission: {
+          type: Object
+        }
+      },
+      observers: [
+        '_urlVarsChanged(id, endPoint)',
+        '_paramsChanged(csrfToken)',
+        '_bodyChanged(title)'
+      ],
+      _urlVarsChanged: function (id, endPoint) {
+        this.reqUrl = endPoint + '/api/submissions/' + id;
+      },
+      _paramsChanged: function (csrfToken) {
+        var params = this.reqParams || {};
+        params.token = csrfToken;
+        this.reqParams = params;
+      },
+      _handleResponse: function (data) {
+        this.submission = data.detail.response.data;
+      },
+      /**
+       * Simple way to convert from object to array.
+       */
+      _toArray: function (obj) {
+        return Object.keys(obj).map(function (key) {
+          return obj[key];
+        });
+      },
+    });
+  </script>
+</dom-module>
