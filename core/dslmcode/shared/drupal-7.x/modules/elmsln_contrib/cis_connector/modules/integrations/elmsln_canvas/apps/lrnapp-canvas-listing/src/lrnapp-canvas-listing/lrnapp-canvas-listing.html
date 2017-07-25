@@ -191,7 +191,7 @@
       <vaadin-grid-column>
         <template class="header">ELMSLN Course</template>
         <template>
-          <select class="listing-select" value="{{item.elmslnCourse::input}}">
+          <select name$="elmsln--map--:key:[[item.sis_course_id]]:key:[[item.term]]" class="listing-select" value="{{item.elmslnCourse::input}}">
             <template is="dom-repeat" items="[[elmslnCourses]]" as="elmsCourse">
               <option value="[[elmsCourse.machineName]]">[[elmsCourse.name]] ([[elmsCourse.machineName]])</option>
             </template>
