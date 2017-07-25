@@ -258,7 +258,11 @@ function _cis_helper_assemble_roster(&$sections) {
   return $roster;
 }
 
-function _cis_helper_update_course_model($course, $semester, $year, $campus, $number, $access_string) {
+/**
+ * Update the data model of a course with offerings and sections
+ * based on what exists and what we just got passed in
+ */
+function _cis_helper_update_course_model($course, $semester, $year, $campus, $access_string, $start_date, $end_date) {
   $offering = NULL;
   // make sure that this course doesn't already have an offering for this semester/year
   if (!empty($course->field_offerings)) {
@@ -302,12 +306,15 @@ function _cis_helper_update_course_model($course, $semester, $year, $campus, $nu
   $section = entity_create('field_collection_item', array('field_name' => 'field_sections'));
   // associate this section to the offering
   $section->setHostEntity('field_collection_item', $offering);
-  // set the section number
-  $section->field_section_number[LANGUAGE_NONE][0]['value'] = $number;
   // set the campus code
   $section->field_campus[LANGUAGE_NONE][0]['value'] = $campus;
   // set the access string
   $section->field_access_string[LANGUAGE_NONE][0]['value'] = $access_string;
+  // set start / end dates
+  $section->field_access_dates['und'][0]['value'] = $start_date;
+  $section->field_access_dates['und'][0]['value2'] = $end_date;
+  // course start
+  $section->field_course_start['und'][0]['value'] = $start_date;
   // set the services in use to the ones just created
   $fields = array('field_course' => array('target_id', $course->nid));
   // build a list of current services

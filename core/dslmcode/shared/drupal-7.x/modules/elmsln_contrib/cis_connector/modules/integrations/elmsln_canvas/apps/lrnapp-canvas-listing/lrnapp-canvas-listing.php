@@ -26,6 +26,8 @@ function _elmsln_canvas_course_list($machine_name, $app_route, $params, $args) {
         'sis_course_id' => $data['sis_course_id'],
         'workflow_state' => $data['workflow_state'],
         'term' => $data['term']['name'],
+        'start' => $data['start_at'],
+        'end' => $data['end_at'],
       );
       $courses[$data['sis_course_id']] = $course;
     }

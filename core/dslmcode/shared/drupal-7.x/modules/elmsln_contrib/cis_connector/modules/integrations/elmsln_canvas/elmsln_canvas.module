@@ -5,6 +5,64 @@
  */
 
 /**
+ * Implements hook_webcomponents_app_deliver_output_alter().
+ * @param  string &$return text based output of the app
+ * @param  array $app      structure of the app
+ */
+function elmsln_canvas_webcomponents_app_deliver_output_alter(&$return, $app) {
+  // get the form to add to lrnapp-canvas-listing output
+  if ($app['machine_name'] == 'lrnapp-canvas-listing') {
+    $form = drupal_get_form('_elmsln_canvas_form');
+    $form['app-content'] = array(
+      '#markup' => $return,
+    );
+    $return = drupal_render($form);
+  }
+}
+
+/**
+ * Form tee up
+ * @return [type] [description]
+ */
+function _elmsln_canvas_form($form = array()) {
+  $form['actions']['#type'] = 'actions';
+  $form['actions']['submit'] = array('#type' => 'submit', '#value' => t('Save'));
+  return $form;
+}
+
+/**
+ * Form return from user hitting save on the dashboard.
+ */
+function _elmsln_canvas_form_submit($form, $form_state) {
+  foreach ($form_state['input'] as $key => $value) {
+    // check for things that start with elmsln--map--
+    if (strpos($key, 'elmsln--map--') === 0) {
+      $etid = _cis_connector_get_course_by_machine_name($value);
+      $course = entity_load_single('node', $etid);
+      // break out the access string and term
+      $tmp = str_replace('elmsln--map--', '', $key);
+      $ary = explode(":key:", $tmp);
+      $access_string = $ary[1];
+      $term = explode('_-_', $ary[2]);
+      // convert dates to start / end dates for course
+      $start_date = $ary[3];
+      $end_date = NULL;
+      if (!empty($start_date)) {
+        $start_date = strtotime($start_date);
+        $end_date = strtotime($ary[4]);
+      }
+      // @todo need to break semester out into the actual year
+      $semester = $term[1];
+      $year = '';
+      $campus = '';
+      drupal_alter('elmsln_canvas_submit', $semester, $year, $campus, $start_date, $end_date, $course);
+      // update course model for this course
+      _cis_helper_update_course_model($course, $semester, $year, $campus, $access_string, $start_date, $end_date);
+    }
+  }
+}
+
+/**
  * Implements hook_cis_helper_build_roster().
  */
 function elmsln_canvas_cis_helper_build_roster($section) {
