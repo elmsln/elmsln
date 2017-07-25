@@ -166,6 +166,9 @@ ol.cle-assignment-listing-multi-submission li {
   padding: 0 .5rem 0 0;
   font-size: .8rem;
 }
+.comment ul.links li lrnsys-button {
+	display: inline-flex;
+}
 
 .comment .picture {
   position: absolute;
