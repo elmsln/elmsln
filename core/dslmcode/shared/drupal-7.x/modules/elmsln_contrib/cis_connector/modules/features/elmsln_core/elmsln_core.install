@@ -247,3 +247,16 @@ function elmsln_core_update_7023(&$sandbox) {
 function elmsln_core_update_7024(&$sandbox) {
   module_disable(array('entity_iframe_provider', 'entity_iframe_consumer'));
 }
+
+/**
+ * Delete {system} records for long-lost modules.
+ */
+function elmsln_core_update_7025(&$sandbox) {
+  $modules = array(
+    'cis_service_connection_ux',
+  );
+  db_delete('system')
+    ->condition('name', $modules, 'IN')
+    ->condition('type', 'module')
+    ->execute();
+}
