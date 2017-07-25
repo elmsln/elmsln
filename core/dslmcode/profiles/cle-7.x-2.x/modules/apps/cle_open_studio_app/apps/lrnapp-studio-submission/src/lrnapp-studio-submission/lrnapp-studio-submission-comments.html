@@ -4,138 +4,12 @@
        :host {
         display: block;
       }
-       p {
-        font-size: 14px;
-        line-height: 18px;
-      }
-
-      paper-card {
-        width: 100%;
-        margin: 1em;
-        padding-top: 1em;
-      }
-
-      .hidden {
-        display: none;
-      }
-
-      .inactive {
-        max-height: 10em;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-
-      .nowrap {
-        white-space: nowrap;
-      }
-
-      p.date {
-        font-weight: lighter;
-        font-size: 10px;
-        line-height: 10px;
-        color: #555;
-       padding: 0;
-      }
-
-      .right-actions {
-        float: right;
-      }
-
-      .action-reply {
-        margin: 40px 0 10px 0;
-        text-transform: uppercase;
-        font-weight: lighter;
-        font-size: 12px;
-        color: #555;
-      }
-
-      .comment-body {
-        margin-left: 20px;
-        margin-right: 20px;
-      }
-
-      .comment-reply.card-actions {
-        width: 95%;
-      }
-
-      /*.comment-depth-1 {
-        margin-left: 0;
-      }
-
-      .comment-depth-2 {
-        margin-left: 125px;
-      }
-
-      .comment-depth-3 {
-        margin-left: 250px;
-      }
-
-      .comment-depth-4 {
-        margin-left: 150px;
-      }
-
-      .comment-depth-5 {
-        margin-left: 150px;
-      }
-
-      .comment-depth-6 {
-        margin-left: 150px;
-      }*/
-
-      .grey-said {
-        color: #555;
-        padding-right: .5em;
-      }
-
-      .container-flex {
-        display: flex;
-      }
-
-      paper-icon-button:hover {
-        color: #555
-      }
-
-      .center {
-        margin: auto;
-        text-align: center;
-      }
     </style>
-
-
-
-    <div id="cmmnt" class="cmmnt nowrap">
-    <!-- ----- Comment Body -----  -->
     <template is="dom-if" if="[[submission.relationships.comments]]">
       <template is="dom-repeat" items="[[_toArray(submission.relationships.comments.data)]]" as="comment">
-          <div class$="card-content comment-depth-[[comment.attributes.threadDepth]]">
-            <div class="container-flex">
-              <div class="center">
-                <lrndesign-avatar label="[[comment.relationships.author.data.name]]" class="float-left"></lrndesign-avatar>
-                <!--<p class="date">{{comment.meta.created}}</p>-->
-                <p class="date">07/25/17</p>
-              </div>
-              <paper-card>
-                <div class="comment-body">
-                  <h4>{{comment.relationships.author.data.name}} <span class="grey-said"> said:</span></h4>
-                  <p class="inactive">{{comment.attributes.body}}</p>
-                </div>
-                <div class="card-actions">
-                  <paper-icon-button id="reply" icon="icons:reply"></paper-icon-button><span class="action-reply">reply</span>
-                  <paper-tooltip for="reply" animation-delay="0">Reply</paper-tooltip>
-                  <paper-icon-button class="right-actions hidden" id="edit" icon="icons:create"></paper-icon-button>
-                  <paper-tooltip for="edit" animation-delay="0">Edit</paper-tooltip>
-                  <paper-icon-button class="right-actions hidden" id="delete" icon="icons:delete-forever"></paper-icon-button>
-                  <paper-tooltip for="delete" animation-delay="0">Delete</paper-tooltip>
-                </div>
-              </paper-card>
-            </div>
-          </div>
-
+        <lrnapp-studio-submission-comment comment="{{comment}}"></lrnapp-studio-submission-comment>
       </template>
     </template>
-
-
-
   </template>
   <script>
     Polymer({
@@ -152,12 +26,62 @@
         return Object.keys(obj).map(function (key) {
           return obj[key];
         });
+      }
+    });
+  </script>
+</dom-module>
+
+
+<dom-module id="lrnapp-studio-submission-comment">
+  <template>
+    <style>
+       :host {
+        display: block;
+      }
+    </style>
+    <div id="cmmnt" class="cmmnt">
+      <div class$="card-content comment-depth-[[comment.attributes.threadDepth]]">
+        <div class="container-flex">
+          <div class="center">
+            <lrndesign-avatar label="[[comment.relationships.author.data.name]]" class="float-left"></lrndesign-avatar>
+            <!--<p class="date">{{comment.meta.created}}</p>-->
+            <p class="date">07/25/17</p>
+          </div>
+          <paper-card class="nowrap">
+            <div class="comment-body">
+              <h4>{{comment.relationships.author.data.name}} <span class="grey-said"> said:</span></h4>
+              <p class="inactive">{{comment.attributes.body}}</p>
+            </div>
+            <div class="card-actions">
+              <paper-icon-button id="reply" icon="icons:reply"></paper-icon-button><span class="action-reply">reply</span>
+              <paper-tooltip for="reply" animation-delay="0">Reply</paper-tooltip>
+              <paper-icon-button class="right-actions hidden" id="edit" icon="icons:create"></paper-icon-button>
+              <paper-tooltip for="edit" animation-delay="0">Edit</paper-tooltip>
+              <paper-icon-button class="right-actions hidden" id="delete" icon="icons:delete-forever"></paper-icon-button>
+              <paper-tooltip for="delete" animation-delay="0">Delete</paper-tooltip>
+            </div>
+
+            <paper-button raised>test</paper-button>
+
+          </paper-card>
+        </div>
+      </div>
+
+  </template>
+  <script>
+    Polymer({
+      is: 'lrnapp-studio-submission-comment',
+      properties: {
+        comment: {
+          type: Object
+        }
       },
       ready: function () {
         var root = this;
-        var comment = root.$$('#cmmnt');
-
-        root.$$('.cmmnt').addEventListener('click', function (e) {
+        var comment = root.$$('paper-card');
+        comment.addEventListener('click', function (e) {
+          // var normalizedEvent = Polymer.dom(e);
+          // console.info('localTarget is:', normalizedEvent.localTarget);
           var target = e.target
           if (target) {
             comment.classList.toggle('nowrap');
