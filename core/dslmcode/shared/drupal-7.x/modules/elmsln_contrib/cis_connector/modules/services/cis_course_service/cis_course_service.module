@@ -21,6 +21,12 @@ function cis_course_service_elmsln_api_info() {
     'bootstrap' => DRUPAL_BOOTSTRAP_FULL,
     'file' => 'callbacks/v1/sync_data_model.inc',
   );
+  // get service
+  $callbacks['get_service_options'] = array(
+    'methods' => array('POST'),
+    'bootstrap' => DRUPAL_BOOTSTRAP_FULL,
+    'file' => 'callbacks/v1/get_service_options.inc',
+  );
 
   return $callbacks;
 }
