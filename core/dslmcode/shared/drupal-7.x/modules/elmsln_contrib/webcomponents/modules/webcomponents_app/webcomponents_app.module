@@ -28,6 +28,7 @@ function webcomponents_app_load_app_definitions($machine_name = NULL) {
       if (isset($apps[$machine_name]['autoload']) && $apps[$machine_name]['autoload'] === TRUE) {
         include_once $apps[$machine_name]['path'] . $machine_name . '.php';
       }
+      $apps[$machine_name]['machine_name'] = $machine_name;
       return $apps[$machine_name];
     }
     // nothing at this point, return nothing since we don't know that machine name
@@ -256,6 +257,8 @@ function _webcomponents_app_load_app($machine_name = NULL, $debug = FALSE) {
     // allow for modifying the app prior to render
     drupal_alter('webcomponent_render', $vars, $app);
     $return = theme('webcomponent', $vars);
+    // allow output delivery to be modified contextually
+    drupal_alter('webcomponents_app_deliver_output', $return, $app);
   }
   return $return;
 }
@@ -340,7 +343,7 @@ function _webcomponents_app_load_app_data($machine_name = NULL, $debug = FALSE) 
     $return['environment'] = array();
   }
   // allow output delivery to be modified contextually
-  drupal_alter('webcomponents_app_deliver_output', $return);
+  drupal_alter('webcomponents_app_deliver_data', $return);
   // support for debugging the call in which we send the data back for processing
   if (!$debug) {
     // define return type
