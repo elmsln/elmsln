@@ -16,7 +16,8 @@ $conf['site_403'] = 'elmsln/error/403';
 $conf['site_404'] = 'elmsln/error/404';
 // stupid error to present
 $conf['drupal_http_request_fails'] = FALSE;
-
+// stupid issues w/ curl and canvas API if using that
+$conf['canvas_api_request_method'] = 'curl';
 // use this to debug restws issues
 #$conf['restws_debug_log'] = '/var/www/elmsln/config/tmp/rest.debug';
 
