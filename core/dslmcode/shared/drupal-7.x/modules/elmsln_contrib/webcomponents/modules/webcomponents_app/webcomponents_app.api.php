@@ -81,9 +81,18 @@ function hook_webcomponents_app_data_alter($return, $app) {
 /**
  * Implements hook_webcomponents_app_deliver_output_alter().
  * @param  array $return  response from the server just before printing out
- *                        as a json blob
  */
-function hook_webcomponents_app_deliver_output_alter(&$return) {
+function hook_webcomponents_app_deliver_output_alter(&$return, $app) {
+  if ($app->machine_name == 'cool-stuff') {
+    $return .= "\n" . '<add-on-some-custom-element-too></add-on-some-custom-element-too>';
+  }
+}
+
+/**
+ * Implements hook_webcomponents_app_deliver_data_alter().
+ * @param  array $return  response from the server just before returning data as a json blob
+ */
+function hook_webcomponents_app_deliver_data_alter(&$return, $app) {
   // prevent 404s for no reason
   if ($return['status'] == 404) {
     // I'm a teapot short and stout
@@ -91,5 +100,3 @@ function hook_webcomponents_app_deliver_output_alter(&$return) {
     $return['detail'] = t('I\'m a little tea pot short and stout');
   }
 }
-
-
