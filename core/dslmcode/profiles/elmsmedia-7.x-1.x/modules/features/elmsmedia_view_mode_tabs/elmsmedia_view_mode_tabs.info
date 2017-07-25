@@ -5,7 +5,6 @@ package = ELMSMedia
 dependencies[] = ctools
 dependencies[] = display_inherit
 dependencies[] = features
-dependencies[] = foundation_access_viewmodes
 dependencies[] = strongarm
 dependencies[] = view_mode_tab
 features[ctools][] = strongarm:strongarm:1

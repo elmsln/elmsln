@@ -254,6 +254,7 @@ function elmsln_core_update_7024(&$sandbox) {
 function elmsln_core_update_7025(&$sandbox) {
   $modules = array(
     'cis_service_connection_ux',
+    'cis_performance_overrides',
   );
   db_delete('system')
     ->condition('name', $modules, 'IN')

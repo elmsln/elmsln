@@ -293,9 +293,9 @@ function elmsln_core_service_settings_form($form, $form_state) {
  * Return the settings specific to this service
  * @return array  whatever the service says its settings are.
  */
-function _elmsln_core_get_service_settings() {
-  $settings = module_invoke_all('elmsln_core_service_settings');
-  drupal_alter('elmsln_core_service_settings', $settings);
+function _elmsln_core_get_service_settings($section = NULL) {
+  $settings = module_invoke_all('elmsln_core_service_settings', $section);
+  drupal_alter('elmsln_core_service_settings', $settings, $section);
   return $settings;
 }
 
@@ -1597,11 +1597,22 @@ function _elmsln_core_icon_map() {
  * Implements hook_module_implements_alter().
  */
 function elmsln_core_module_implements_alter(&$implementations, $hook) {
-  // ensure elmsln_core fires first so everything else can alter the expected list
-  if ($hook == 'cis_service_registry_alter') {
-    $tmp = array('elmsln_core' => $implementations['elmsln_core']);
-    unset($implementations['elmsln_core']);
-    $implementations = $tmp + $implementations;
+  switch ($hook) {
+    // ensure elmsln_core fires first so everything else can alter the expected list
+    case 'cis_service_registry_alter':
+      $tmp = array('elmsln_core' => $implementations['elmsln_core']);
+      unset($implementations['elmsln_core']);
+      $implementations = $tmp + $implementations;
+    break;
+    case 'init':
+      // this adds .5 megs to memory footprint in testing and all it
+      // does it skim through breadcrumb links and removes ones
+      // listed as being blank. Hardly worth all the extra code on
+      // every page when we don't even use breadcrumbs in this manner
+      if (module_exists('special_menu_items')) {
+        unset($implementations['special_menu_items']);
+      }
+    break;
   }
 }
 

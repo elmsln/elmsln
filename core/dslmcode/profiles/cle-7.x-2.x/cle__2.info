@@ -71,7 +71,6 @@ dependencies[] = video_filter
 dependencies[] = advagg
 dependencies[] = advagg_bundler
 dependencies[] = blockcache_alter
-dependencies[] = cis_performance_overrides
 dependencies[] = httprl
 dependencies[] = imageinfo_cache
 dependencies[] = entitycache

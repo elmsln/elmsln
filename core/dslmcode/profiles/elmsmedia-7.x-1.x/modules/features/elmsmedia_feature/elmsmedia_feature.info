@@ -13,7 +13,6 @@ dependencies[] = elmsmedia_helper
 dependencies[] = entityreference
 dependencies[] = eva
 dependencies[] = features
-dependencies[] = foundation_access_viewmodes
 dependencies[] = image
 dependencies[] = inline_entity_form
 dependencies[] = menu
