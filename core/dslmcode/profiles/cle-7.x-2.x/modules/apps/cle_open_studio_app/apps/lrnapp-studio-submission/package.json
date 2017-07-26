@@ -13,5 +13,8 @@
   "license": "ISC",
   "devDependencies": {
     "replace": "^0.3.0"
+  },
+  "dependencies": {
+    "glob": "^7.1.2"
   }
 }
