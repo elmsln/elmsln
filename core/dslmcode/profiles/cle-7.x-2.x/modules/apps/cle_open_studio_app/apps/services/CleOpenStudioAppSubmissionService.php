@@ -68,7 +68,7 @@ class CleOpenStudioAppSubmissionService {
           $decoded_submission = $this->decodeSubmission($payload, $node);
           // save the node
           try {
-            $decoded_submission = new stdClass();
+            // $decoded_submission = new stdClass(); #fake error message
             node_save($decoded_submission);
             // encode the submission to send it back
             $encoded_submission = $this->encodeSubmission($decoded_submission);

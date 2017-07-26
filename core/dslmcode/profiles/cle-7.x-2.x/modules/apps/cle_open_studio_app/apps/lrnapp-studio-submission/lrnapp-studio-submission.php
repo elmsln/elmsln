@@ -20,7 +20,6 @@ function _cle_open_studio_app_submission_findone($machine_name, $app_route, $par
           case 'GET':
             $service = new CleOpenStudioAppSubmissionService();
             $return['data'] = $service->getSubmission($args[2]);
-            drupal_set_message('asdf');
             break;
           case 'PUT':
             $service = new CleOpenStudioAppSubmissionService();
