@@ -1,0 +1,78 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../paper-fab/paper-fab.html">
+
+<!--
+An action within a material design [Floating Action Button with Speed Dial](https://www.google.com/design/spec/components/buttons-floating-action-button.html#buttons-floating-action-button-transitions)
+
+### Styling
+
+Style                                                   | Description
+------------------------------------------------------- | ------------
+--paper-fab-speed-dial-action-background                | The background color of the Floating Action Button
+--paper-fab-speed-dial-action-keyboard-focus-background | The background color of the Floating Action Button when focused
+
+### Example
+
+```html
+<paper-fab-speed-dial-action icon="icons:content-copy">Copy</paper-fab-speed-dial-action>
+```
+
+@demo demo/index.html
+-->
+<dom-module id="paper-fab-speed-dial-action">
+
+	<template>
+
+		<style>
+			:host {
+				@apply(--layout-horizontal);
+				@apply(--layout-center);
+				@apply(--layout-end-justified);
+				margin-top: 15px;
+				margin-right: 8px;
+				/** For IE11: otherwise the label overlays the FAB */
+				min-width: 270px;
+			}
+
+			.label {
+				color: black;
+				background: white;
+				padding: 5px 10px;
+				border-radius: 3px;
+				margin-right: 20px;
+			}
+
+			.fab {
+				--paper-fab-background: var(--paper-fab-speed-dial-action-background);
+				--paper-fab-keyboard-focus-background: var(--paper-fab-speed-dial-action-keyboard-focus-background);
+			}
+
+			.label,.fab {
+				display: inline-block;
+			}
+		</style>
+
+		<div class="flex"><span class="label"><slot></slot></span></div>
+		<paper-fab class="fab" icon=[[icon]] mini></paper-fab>
+
+	</template>
+</dom-module>
+
+<script>
+
+(function() {
+
+	Polymer({
+		is: 'paper-fab-speed-dial-action',
+		properties: {
+			/**
+			 * Icon that is shown next to the content
+			 */
+			icon: String
+		}
+	});
+
+})();
+
+</script>

@@ -1,0 +1,190 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../paper-card/paper-card.html">
+<link rel="import" href="../paper-button/paper-button.html">
+<link rel="import" href="../lrndesign-card/lrndesign-card.html">
+<link rel="import" href="../lrndesign-drawer/lrndesign-drawer.html">
+<link rel="import" href="../lrnsys-behaviors/lrnsys-behaviors.html">
+<link rel="import" href="../lrndesign-avatar/lrndesign-avatar.html">
+<link rel="import" href="../lrndesign-panelcard/lrndesign-panelcard.html">
+<link rel="import" href="../lrndesign-buttondialog/lrndesign-buttondialog.html">
+
+<!--
+`lrn-assignment`
+
+
+@demo demo/index.html
+-->
+
+<dom-module id="lrn-assignment">
+  <template>
+    <style>
+      :host {
+        display: flex;
+        width: 100%;
+      }
+      paper-card {
+        width: 100%;
+      }
+    </style>
+    <!-- big switch statement for the different display modes we support here -->
+    <template is="dom-if" if="{{matchDisplay('paper-card', display)}}">
+      <paper-card heading="{{title}}" image="{{image}}" elevation="1" animated-shadow="false">
+        <div class="card-content">
+          <content></content>
+        </div>
+        <div class="card-actions">
+          <template is="dom-repeat" items="{{actions}}">
+            <paper-button raised>{{item}}</paper-button>
+          </template>
+        </div>
+      </paper-card>
+    </template>
+
+    <template is="dom-if" if="{{matchDisplay('card', display)}}">
+      <lrndesign-card title="{{title}}" image="{{image}}">
+        {{details}}
+      </lrndesign-card>
+    </template>
+
+    <template is="dom-if" if="{{matchDisplay('drawer', display)}}">
+      <lrndesign-drawer icon="lrn-icons:assignment" align="right">
+        <h2>{{title}}</h2>
+        <p>{{details}}</p>
+      </lrndesign-drawer>
+    </template>
+
+    <template is="dom-if" if="{{matchDisplay('avatar', display)}}">
+      <lrndesign-avatar label="{{title}}" two-chars>
+      </lrndesign-avatar>
+    </template>
+
+    <template is="dom-if" if="{{matchDisplay('panelcard', display)}}">
+      <lrndesign-panelcard title="{{title}}" display-style="{{displayStyle}}">
+      {{details}}
+      </lrndesign-panelcard>
+    </template>
+
+    <template is="dom-if" if="{{matchDisplay('buttondialog', display)}}">
+      <lrndesign-buttondialog title="{{title}}" button-label="{{title}}" display-style="{{displayStyle}}">
+      {{details}}
+      </lrndesign-buttondialog>
+    </template>
+
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'lrn-assignment',
+      behaviors: [LRNBehaviors.DisplayBehaviors],
+      properties: {
+        /**
+         * Title
+         */
+        title: {
+          type: String
+        },
+        /**
+         * Image url
+         */
+        image: {
+          type: String
+        },
+        /**
+         * Details of the assignment
+         */
+        details: {
+          type: String
+        },
+        /**
+         * url
+         */
+        url: {
+          type: String
+        },
+        open: {
+          type: Boolean,
+          value: false
+        },
+        complete: {
+          type: Boolean,
+          value: false
+        },
+        actions: {
+          type: Object
+        }
+      }
+    });
+  </script>
+</dom-module>
+
+<dom-module id="lrn-assignments">
+  <template>
+    <style>
+      :host {
+        display: flex;
+        flex-wrap: wrap;
+      }
+      :host lrn-assignment {
+        margin: 1em;
+      }
+      :host[layout="wide"] lrn-assignment {
+        width: calc(100% - 2em);
+      }
+      :host[layout="medium"] lrn-assignment {
+        width: calc(50% - 2em);
+      }
+      :host[layout="tight"] lrn-assignment {
+        width: calc(25% - 2em);
+      }
+    </style>
+    <template is="dom-repeat" items="{{assignments}}">
+      <lrn-assignment title="{{item.title}}" actions="{{item.actions}}"></lrn-assignment>
+    </template>
+
+    <template is="dom-if" if="{{url}}">
+      <iron-ajax
+        auto
+        url="{{url}}"
+        handle-as="json"
+        on-response="handleResponse"></iron-ajax>
+    </template>
+
+  </template>
+  <script>
+    Polymer({
+      is: 'lrn-assignments',
+      properties: {
+        assignments: {
+          type: Object,
+          reflectToAttribute: true,
+          observer: 'assignmentsChanged'
+        },
+        layout: {
+          type: String,
+          reflectToAttribute: true
+        },
+        url: {
+          type: String
+        }
+      },
+      assignmentsChanged: function(assignments) {
+        if (assignments.length <= 1) {
+          this.layout = 'wide'
+        }
+        else if (assignments.length <= 4) {
+          this.layout = 'medium'
+        }
+        else if (assignments.length <= 6) {
+          this.layout = 'tight'
+        }
+      },
+      rowItemsChanged: function(items) {
+      },
+      handleResponse: function(data) {
+        this.assignments = data.response;
+      }
+    });
+  </script>
+</dom-module>
+

@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+
+    <title>lrnapp-fab-menu demo</title>
+
+    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+
+    <link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
+    <link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
+    <link rel="import" href="../lrnapp-fab-menu.html">
+
+    <style is="custom-style" include="demo-pages-shared-styles">
+    </style>
+  </head>
+  <body>
+    <div class="vertical-section-container centered">
+      <h3>Basic lrnapp-fab-menu demo</h3>
+      <demo-snippet>
+        <template>
+          <lrnapp-fab-menu>
+            <lrnapp-fab-speed-dial-action icon="lrn-icons:inbox" color="red">Inbox</lrnapp-fab-speed-dial-action>
+            <lrnapp-fab-speed-dial-action icon="lrn-icons:mooc" color="green">Content</lrnapp-fab-speed-dial-action>
+            <lrnapp-fab-speed-dial-action icon="lrn-icons:blogs" color="orange">Blog</lrnapp-fab-speed-dial-action>
+            <lrnapp-fab-speed-dial-action icon="lrn-icons:cle">Studio</lrnapp-fab-speed-dial-action>
+          </lrnapp-fab-menu>
+        </template>
+      </demo-snippet>
+    </div>
+  </body>
+</html>

@@ -74,13 +74,13 @@
                 padding: 0;
             }
         </style>
-        <div class$="center card-content comment-depth-[[comment.attributes.threadDepth]]">
+        <div class$="center comment-depth-[[comment.attributes.threadDepth]]">
             <lrndesign-avatar label="[[comment.relationships.author.data.name]]" class="float-left"></lrndesign-avatar>
             <!--<p class="date">{{comment.meta.created}}</p>-->
-            <p class="date">07/09/17</p>
+            <moment-element datetime="1991-12-31" output-format="MMM DD[,] YYYY"></moment-element>
         </div>
-        <paper-card class$="nowrap paper-card-length-[[comment.attributes.threadDepth]]">
-            <div class="comment-body">
+        <paper-card class$="paper-card-length-[[comment.attributes.threadDepth]]">
+            <div id="body" class="comment-body nowrap">
                 <h4>{{comment.relationships.author.data.name}} <span class="grey-said"> said:</span></h4>
                 <p>{{comment.attributes.body}}</p>
             </div>
@@ -104,7 +104,8 @@
             },
             ready: function () {
                 var root = this;
-                var comment = root.$$('paper-card');
+                var comment = root.$$('#body');
+                console.log(comment);
                 comment.addEventListener('click', function (e) {
                     // var normalizedEvent = Polymer.dom(e);
                     // console.info('localTarget is:', normalizedEvent.localTarget);

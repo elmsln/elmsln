@@ -1,0 +1,47 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../paper-tooltip/paper-tooltip.html">
+
+<!--
+`lrndesign-abbreviation`
+A wrapper to make a cleaner abbreviation deign element
+
+@demo demo/index.html
+-->
+
+<dom-module id="lrndesign-abbreviation">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+    <abbr title="{{phrase}}" id="abbr">{{abbr}}</abbr>
+    <paper-tooltip for="abbr">{{phrase}}</paper-tooltip>
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'lrndesign-abbreviation',
+      properties: {
+        /**
+         * Abbreviation text.
+         */
+        abbr: {
+          type: String,
+          reflectToAttribute: true,
+          notify: true,
+        },
+        /**
+         * The thing the abbreviation represents.
+         */
+        phrase: {
+          type: String,
+          reflectToAttribute: true,
+          notify: true,
+        },
+      },
+
+    });
+  </script>
+</dom-module>

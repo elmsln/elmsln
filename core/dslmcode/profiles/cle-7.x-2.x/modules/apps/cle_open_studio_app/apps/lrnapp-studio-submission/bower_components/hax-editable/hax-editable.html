@@ -1,0 +1,70 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../paper-toolbar/paper-toolbar.html">
+
+<!--
+`hax-editable`
+
+@demo demo/index.html
+-->
+
+<dom-module id="hax-editable">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+      div[contenteditable] {
+        position: relative;
+        z-index: 11;
+      }
+
+    </style>
+
+    <template is="dom-if" if="{{matchType('textfield', type)}}">
+      <div contenteditable$="{{edit}}">
+        <content></content>
+      </div>
+    </template>
+    <template is="dom-if" if="{{matchType('html', type)}}">
+      <div contenteditable$="{{edit}}">
+        <content></content>
+      </div>
+    </template>
+    <!-- future support for date/time and other items that would have a modal pop up state -->
+  </template>
+
+  <script>
+    Polymer({
+      is: 'hax-editable',
+      properties: {
+        /**
+         * whether this item is currently in the "edit" state
+         */
+        edit: {
+          type: Boolean,
+        },
+        /**
+         * type of field to display the edit mode for
+         */
+        type: {
+          type: String,
+          value: 'textfield',
+        }
+      },
+      /**
+       * Simple boolean output for string comparison of editable element type
+       * @param  {string} test     the test case
+       * @param  {string} type     the type to match
+       * @return {boolean}         if the test case is the same as the type
+       */
+      matchType: function(test, type) {
+        // see if they match
+        if (test == type) {
+          return true;
+        }
+        return false;
+      }
+    });
+  </script>
+</dom-module>

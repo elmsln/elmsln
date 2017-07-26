@@ -80,15 +80,31 @@
 
       .flex-wrap {
         display: flex;
-        float: right;
-        margin-top: 3em;
-        margin-right: 1em;
+      }
+
+      .submission-page {
+        width: 100vh;
+      }
+
+      .submission-comments {
+        width: 50vh;
+        height: 100vh;
+        overflow-y: scroll;
+        padding: 2em;
+        margin: 2em;
       }
     </style>
 
     <iron-ajax id="ajaxRequest" auto url="[[reqUrl]]" method="GET" body="[[reqBody]]" params="[[reqParams]]" content-type="application/json"
       handle-as="json" on-response="_handleResponse"></iron-ajax>
-    <div class="flex-wrap">
+      <div class="flex-wrap">
+        <div class="submission-comments">
+            <template is="dom-if" if="[[submission.relationships.comments]]">
+               <!--<div class="comments">{{submission.relationships.comments.data.length}}</div>-->
+                <h2 class="title">Comments</h2>
+                <lrnapp-studio-submission-comments submission="{{submission}}"></lrnapp-studio-submission-comments>
+            </template>
+            </div>
       <div class="submission-page">
         <paper-card>
           <div class="card-content">
@@ -144,20 +160,10 @@
                 </template>
               </lrndesign-contentblock>
             </template>
-            <template is="dom-if" if="[[submission.relationships.comments]]">
-              <div class="flex-wrap">
-               <div class="comments">{{submission.relationships.comments.data.length}}</div>
-              <lrndesign-drawer icon="lrn-icons:comment" align="right" alt="View Comment Thread">
-                <h2 class="title">Comments</h2>
-                <lrnapp-studio-submission-comments submission="{{submission}}"></lrnapp-studio-submission-comments>
-              </lrndesign-drawer>
-              </div>
-            </template>
-          </div>
-        </paper-card>
-      </div>
-
-    </div>
+            </div>
+            </paper-card>
+            </div>
+            </div>
   </template>
   <script>
     Polymer({
