@@ -77,7 +77,7 @@ function _elmsln_canvas_form_submit($form, $form_state) {
 function elmsln_canvas_cis_helper_build_roster($section) {
   $roster = array();
   $canvas = canvas_api('enrollment');
-  $users = $canvas->getEnrollment('sis_section_id:' . $section);
+  $users = $canvas->getEnrollment('sis_course_id:' . $section, 'course');
   // loop over resulting members and build into user array
   foreach ($users as $member) {
     // get the name from email
