@@ -77,6 +77,13 @@ function _elmsln_canvas_form_submit($form, $form_state) {
 function elmsln_canvas_cis_helper_build_roster($section) {
   $roster = array();
   $canvas = canvas_api('enrollment');
+  $canvas->params = array(
+    'enrollment_state' => array('active'),
+    'include' => array(
+      'avatar_url',
+      'enrollments',
+    ),
+  );
   $users = $canvas->getEnrollment('sis_course_id:' . $section, 'course');
   // loop over resulting members and build into user array
   foreach ($users as $member) {
@@ -101,9 +108,12 @@ function elmsln_canvas_cis_helper_build_roster($section) {
       'fname' => $fname,
       'lname' => $lname,
       'data'  => array(
-        'canvas' => $member['user'],
+        'sis' => $member['user'],
       ),
     );
+    if (!empty($member['avatar_url'])) {
+      $roster[$name]['data']['sis']['avatar_url'] = $member['avatar_url'];
+    }
   }
   return $roster;
 }
