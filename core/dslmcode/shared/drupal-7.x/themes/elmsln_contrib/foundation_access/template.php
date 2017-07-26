@@ -538,6 +538,9 @@ function foundation_access_css_alter(&$css) {
     if (strpos($path, 'modules/') === 0 && !in_array($path, array('modules/contextual/contextual.css'))) {
       unset($css[$path]);
     }
+    if ($path == 'sites/all/modules/ulmus/adminimal_admin_menu/adminimal_admin_menu.css') {
+      unset($css[$path]);
+    }
   }
 }
 
