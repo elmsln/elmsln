@@ -42,6 +42,15 @@
       observers: [
         '_routeChanged(route, endPoint)'
       ],
+      listeners: {
+        'routeChange': '_handleRouteChange'
+      },
+      _handleRouteChange: function (event) {
+        var path = event.detail.path;
+        if (path) {
+          this.set('route.path', path);
+        }
+      },
       // If the current route is outside the scope of our app
       // then allow the website to break out of the single page
       // application routing
