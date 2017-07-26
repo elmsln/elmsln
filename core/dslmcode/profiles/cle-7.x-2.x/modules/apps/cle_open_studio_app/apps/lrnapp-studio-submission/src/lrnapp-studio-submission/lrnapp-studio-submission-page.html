@@ -1,4 +1,5 @@
 <link rel="import" href="lrnapp-studio-submission-comments.html">
+<link rel="import" href="lrnapp-studio-submission-comment.html">
 <dom-module id="lrnapp-studio-submission-page">
   <template>
     <style>
@@ -77,10 +78,7 @@
         display: flex;
       }
 
-      .submission-comments {
-        width: 48%;
-        margin-left: 2%;
-      }
+   
     </style>
 
     <iron-ajax id="ajaxRequest" auto url="[[reqUrl]]" method="GET" body="[[reqBody]]" params="[[reqParams]]" content-type="application/json"
@@ -143,17 +141,15 @@
           </template>
           <template is="dom-if" if="[[submission.relationships.comments]]">
             <lrndesign-drawer icon="lrn-icons:comment" align="right" alt="View Comment Thread">
-  <p>This is some help text</p>
+  <h2 class="title">Comments</h2>
+      <lrnapp-studio-submission-comments submission="{{submission}}"></lrnapp-studio-submission-comments>
 </lrndesign-drawer>
             <p class="comments"><a href="{{url}}" tabindex="-1">{{submission.relationships.comments.data.length}} <lrn-icon icon="comment"></lrn-icon></a></p>
           </template>
         </div>
       </paper-card>
     </div>
-    <div class="submission-comments">
-      <h2 class="title">Comments</h2>
-      <lrnapp-studio-submission-comments submission="{{submission}}"></lrnapp-studio-submission-comments>
-    </div>
+   
     </div>
   </template>
   <script>
