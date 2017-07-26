@@ -9,9 +9,9 @@
  */
 function cpr_helper_user_presave(&$edit, $account, $category) {
   // ensure there's a default display name when set programatically
-	if (!isset($edit['field_display_name']) || empty($edit['field_display_name'])) {
-		$edit['field_display_name']['und'][0]['value'] = $edit['name'];
-	}
+  if (!isset($edit['field_display_name']) || empty($edit['field_display_name'])) {
+    $edit['field_display_name']['und'][0]['value'] = $edit['name'];
+  }
 }
 
 /**
@@ -20,18 +20,28 @@ function cpr_helper_user_presave(&$edit, $account, $category) {
  * @param  array $userdata data that was used to create the user account
  */
 function cpr_helper_cis_section_account_processed_alter(&$account, $userdata) {
-	// an accont flowed through to here and it had 'data' on it, save it
-	/*if (isset($userdata['data'])) {
-		// see if there's any already
-		if (!isset($account->data) || empty($account->data)) {
-			$account->data = $userdata['data'];
-		}
-		else {
-			// make sure to only set the fields that came across
-			foreach ($userdata['data'] as $key => $item) {
-				$account->data[$key] = $item;
-			}
-		}
-		user_save($account);
-	}*/
+  $changed = FALSE;
+  // an accont flowed through to here and it had 'data' on it, save it
+  if (isset($userdata['data'])) {
+    // see if there's any already
+    if (!isset($account->data) || empty($account->data)) {
+      $account->data = $userdata['data'];
+    }
+    else {
+      // make sure to only set the fields that came across
+      foreach ($userdata['data'] as $key => $item) {
+        $account->data[$key] = $item;
+      }
+    }
+    $changed = TRUE;
+  }
+  // @todo play with if we want to do it this way in the first place
+  if (isset($userdata['fname'])) {
+    $account->field_first_name['und'][0]['value'] = $userdata['fname'];
+    $account->field_last_name['und'][0]['value'] = $userdata['lname'];
+    $changed = TRUE;
+  }
+  if ($changed == TRUE) {
+    user_save($account);
+  }
 }
