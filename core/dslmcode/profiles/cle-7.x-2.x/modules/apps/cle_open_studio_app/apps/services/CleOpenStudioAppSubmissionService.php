@@ -67,10 +67,17 @@ class CleOpenStudioAppSubmissionService {
           // decode the payload submission to the drupal node
           $decoded_submission = $this->decodeSubmission($payload, $node);
           // save the node
-          node_save($decoded_submission);
-          // encode the submission to send it back
-          $encoded_submission = $this->encodeSubmission($decoded_submission);
-          return $encoded_submission;
+          try {
+            $decoded_submission = new stdClass();
+            node_save($decoded_submission);
+            // encode the submission to send it back
+            $encoded_submission = $this->encodeSubmission($decoded_submission);
+            return $encoded_submission;
+          }
+          catch (Exception $e) {
+            throw new Exception($e->getMessage());
+            return;
+          }
         }
       }
     }

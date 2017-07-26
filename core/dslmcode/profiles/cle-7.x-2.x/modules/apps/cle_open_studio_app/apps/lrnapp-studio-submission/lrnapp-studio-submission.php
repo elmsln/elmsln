@@ -7,8 +7,7 @@ define('__ROOT__', dirname(dirname(__FILE__)));
 require_once(__ROOT__.'/services/CleOpenStudioAppSubmissionService.php'); 
 
 function _cle_open_studio_app_submission_findone($machine_name, $app_route, $params, $args) {
-  $return = '';
-  $status = 200;
+  $return = array('status' => 200);
   $method = $_SERVER['REQUEST_METHOD'];
 
   // Find out if there is a nid specified
@@ -20,42 +19,36 @@ function _cle_open_studio_app_submission_findone($machine_name, $app_route, $par
         switch ($method) {
           case 'GET':
             $service = new CleOpenStudioAppSubmissionService();
-            $return = $service->getSubmission($args[2]);
+            $return['data'] = $service->getSubmission($args[2]);
+            drupal_set_message('asdf');
             break;
           case 'PUT':
             $service = new CleOpenStudioAppSubmissionService();
             $post_data = file_get_contents("php://input");
             $post_data = json_decode($post_data);
-            $return = $service->updateSubmission($post_data, $args[2]);
+            // try to update the node
+            try {
+              $update = $service->updateSubmission($post_data, $args[2]);
+              $return['data'] = $update;
+            }
+            // if it fails we'll add errors and return 500
+            catch (Exception $e) {
+              $return['status'] = 500;
+              $return['errors'][] = $e->getMessage();
+            }
             break;
           default:
             # code...
             break;
         }
-        // if ($method == 'GET') {
-        //   $return = $node;
-        // }
-        // if ($method == 'PUT') {
-        //   $post_data = file_get_contents("php://input");
-        //   $post_data = json_decode($post_data);
-        //   if (isset($post_data->title)) {
-        //     $node->title = filter_xss($post_data->title);
-        //     node_save($node);
-        //     $status = 201;
-        //   }
-        //   $return = $post_data;
-        // }
       }
       else {
-        $status = 404;
+        $return['status'] = 404;
       }
     }
   }
 
-  return array(
-    'status' => $status,
-    'data' => $return
-  );
+  return $return;
 }
 
 function _cle_open_studio_app_submission_index($machine_name, $app_route, $params, $args) {
