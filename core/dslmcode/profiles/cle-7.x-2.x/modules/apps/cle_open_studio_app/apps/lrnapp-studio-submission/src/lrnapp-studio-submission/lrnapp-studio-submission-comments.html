@@ -38,35 +38,48 @@
        :host {
         display: block;
       }
+
+      paper-card {
+        padding: .5em;
+      }
+
+      h1, h2, h3, h4 {
+        text-align: left;
+      }
+
+      .nowrap {
+        width: 90%;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
     </style>
-    <div id="cmmnt" class="cmmnt">
-      <div class$="card-content comment-depth-[[comment.attributes.threadDepth]]">
-        <div class="container-flex">
-          <div class="center">
-            <lrndesign-avatar label="[[comment.relationships.author.data.name]]" class="float-left"></lrndesign-avatar>
-            <!--<p class="date">{{comment.meta.created}}</p>-->
-            <p class="date">07/25/17</p>
-          </div>
-          <paper-card class="nowrap">
-            <div class="comment-body">
-              <h4>{{comment.relationships.author.data.name}} <span class="grey-said"> said:</span></h4>
-              <p class="inactive">{{comment.attributes.body}}</p>
-            </div>
-            <div class="card-actions">
-              <paper-icon-button id="reply" icon="icons:reply"></paper-icon-button><span class="action-reply">reply</span>
-              <paper-tooltip for="reply" animation-delay="0">Reply</paper-tooltip>
-              <paper-icon-button class="right-actions hidden" id="edit" icon="icons:create"></paper-icon-button>
-              <paper-tooltip for="edit" animation-delay="0">Edit</paper-tooltip>
-              <paper-icon-button class="right-actions hidden" id="delete" icon="icons:delete-forever"></paper-icon-button>
-              <paper-tooltip for="delete" animation-delay="0">Delete</paper-tooltip>
-            </div>
-
-            <paper-button raised>test</paper-button>
-
-          </paper-card>
+    <div class="container">
+    <div class$="card-content comment-depth-[[comment.attributes.threadDepth]]">
+      <div class="container-flex">
+        <div class="center">
+          <lrndesign-avatar label="[[comment.relationships.author.data.name]]" class="float-left"></lrndesign-avatar>
+          <!--<p class="date">{{comment.meta.created}}</p>-->
+          <p class="date">07/09/17</p>
         </div>
+        <paper-card class="nowrap">
+          <div class="comment-body">
+            <h4>{{comment.relationships.author.data.name}} <span class="grey-said"> said:</span></h4>
+            <p class="inactive">{{comment.attributes.body}}</p>
+          </div>
+          <div class="card-actions">
+            <paper-icon-button id="reply" icon="icons:reply"></paper-icon-button>
+            <paper-tooltip for="reply" animation-delay="0">Reply</paper-tooltip>
+            <paper-icon-button class="right-actions hidden" id="edit" icon="icons:create"></paper-icon-button>
+            <paper-tooltip for="edit" animation-delay="0">Edit</paper-tooltip>
+            <paper-icon-button class="right-actions hidden" id="delete" icon="icons:delete-forever"></paper-icon-button>
+            <paper-tooltip for="delete" animation-delay="0">Delete</paper-tooltip>
+          </div>
+        </paper-card>
       </div>
-
+    </div>
+</div>
   </template>
   <script>
     Polymer({

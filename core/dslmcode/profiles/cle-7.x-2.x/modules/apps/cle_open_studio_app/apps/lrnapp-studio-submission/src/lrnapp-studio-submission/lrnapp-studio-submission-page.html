@@ -142,6 +142,9 @@
             </lrndesign-contentblock>
           </template>
           <template is="dom-if" if="[[submission.relationships.comments]]">
+            <lrndesign-drawer icon="lrn-icons:comment" align="right" alt="View Comment Thread">
+  <p>This is some help text</p>
+</lrndesign-drawer>
             <p class="comments"><a href="{{url}}" tabindex="-1">{{submission.relationships.comments.data.length}} <lrn-icon icon="comment"></lrn-icon></a></p>
           </template>
         </div>
