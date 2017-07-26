@@ -97,6 +97,13 @@ function entity_metadata_user_entity_property_info() {
     'access callback' => 'entity_metadata_user_properties_access',
     'schema field' => 'status',
   );
+  $properties['data'] = array(
+    'label' => t("Data"),
+    'description' => t("A generic local data serialized property."),
+    'getter callback' => 'entity_metadata_user_get_properties',
+    'access callback' => 'entity_metadata_user_properties_access',
+    'schema field' => 'data',
+  );
   $properties['theme'] = array(
     'label' => t("Default theme"),
     'description' => t("The user's default theme."),
