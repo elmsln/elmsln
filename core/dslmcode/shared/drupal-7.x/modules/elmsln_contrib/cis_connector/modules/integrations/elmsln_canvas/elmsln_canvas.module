@@ -34,10 +34,10 @@ function _elmsln_canvas_form($form = array()) {
  * Form return from user hitting save on the dashboard.
  */
 function _elmsln_canvas_form_submit($form, $form_state) {
-  foreach ($form_state['input'] as $key => $value) {
+  foreach ($form_state['input'] as $key => $machine_name) {
     // check for things that start with elmsln--map--
     if (strpos($key, 'elmsln--map--') === 0) {
-      $etid = _cis_connector_get_course_by_machine_name($value);
+      $etid = _cis_connector_get_course_by_machine_name($machine_name);
       $course = entity_load_single('node', $etid);
       // break out the access string and term
       $tmp = str_replace('elmsln--map--', '', $key);
@@ -45,19 +45,28 @@ function _elmsln_canvas_form_submit($form, $form_state) {
       $access_string = $ary[1];
       $term = explode('_-_', $ary[2]);
       // convert dates to start / end dates for course
-      $start_date = $ary[3];
+      $start_date = NULL;
       $end_date = NULL;
-      if (!empty($start_date)) {
-        $start_date = strtotime($start_date);
-        $end_date = strtotime($ary[4]);
+      if (!empty($ary[3])) {
+        $date = new DateTime($ary[3]);
+        $start_date = $date->format('Y-m-d H:i:s');
+        $date = new DateTime($ary[4]);
+        $end_date = $date->format('Y-m-d H:i:s');
       }
-      // @todo need to break semester out into the actual year
+      // @todo need to break semester out into the actual year and semester
       $semester = $term[1];
       $year = '';
       $campus = '';
       drupal_alter('elmsln_canvas_submit', $semester, $year, $campus, $start_date, $end_date, $course);
-      // update course model for this course
-      _cis_helper_update_course_model($course, $semester, $year, $campus, $access_string, $start_date, $end_date);
+      $existing = _cis_helper_load_machine_name_by_access_string($access_string);
+      // make sure they don't match before updating / creating a new one
+      if ($existing != $machine_name) {
+        if ($existing == NULL) {
+          // @todo drop existing so we can shift it over
+        }
+        // update course model for this course
+        _cis_helper_update_course_model($course, $semester, $year, $campus, $access_string, $start_date, $end_date);
+      }
     }
   }
 }

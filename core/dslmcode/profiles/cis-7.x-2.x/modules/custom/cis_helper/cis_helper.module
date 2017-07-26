@@ -32,6 +32,38 @@ function cis_helper_module_implements_alter(&$implementations, $hook) {
 }
 
 /**
+ * Try and load a course from a section string
+ * @param  string $access_string an access string
+ * @return object                node of a course
+ */
+function _cis_helper_load_machine_name_by_access_string($access_string) {
+  $query = new EntityFieldQuery;
+  $result = $query
+    // pull all field collections
+    ->entityCondition('entity_type', 'field_collection_item')
+    // that are sections
+    ->entityCondition('bundle', 'field_sections')
+    // that aren't archived
+    ->propertyCondition('archived', 0)
+    // that have something in the cis_ops field
+    ->fieldCondition('field_access_string', 'value', $access_string)
+    // run as user 1 to avoid issues of ability to load as cron is anon
+    ->addMetaData('account', user_load(1))
+    ->execute();
+  // load the instances
+  if (isset($result['field_collection_item'])) {
+    $item = array_pop($result['field_collection_item']);
+    // convert this id into a course
+    $course = _cis_helper_derive_parent($item->item_id);
+    // make sure we have something
+    if (isset($course->field_machine_name)) {
+      return $course->field_machine_name[LANGUAGE_NONE][0]['value'];
+    }
+  }
+  return NULL;
+}
+
+/**
  * Implements hook_cron().
  */
 function cis_helper_cron() {
@@ -311,10 +343,12 @@ function _cis_helper_update_course_model($course, $semester, $year, $campus, $ac
   // set the access string
   $section->field_access_string[LANGUAGE_NONE][0]['value'] = $access_string;
   // set start / end dates
-  $section->field_access_dates['und'][0]['value'] = $start_date;
-  $section->field_access_dates['und'][0]['value2'] = $end_date;
+  $section->field_access_dates[LANGUAGE_NONE][0]['value'] = $start_date;
+  if (!is_null($end_date)) {
+    $section->field_access_dates[LANGUAGE_NONE][0]['value2'] = $end_date;
+  }
   // course start
-  $section->field_course_start['und'][0]['value'] = $start_date;
+  $section->field_course_start[LANGUAGE_NONE][0]['value'] = $start_date;
   // set the services in use to the ones just created
   $fields = array('field_course' => array('target_id', $course->nid));
   // build a list of current services
