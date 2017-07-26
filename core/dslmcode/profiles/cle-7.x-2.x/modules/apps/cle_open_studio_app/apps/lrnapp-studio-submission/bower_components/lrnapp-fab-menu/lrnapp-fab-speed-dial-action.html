@@ -1,0 +1,85 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../paper-fab/paper-fab.html">
+<link rel="import" href="../materializecss-styles/materializecss-styles.html">
+
+<!--
+An action within a material design [Floating Action Button with Speed Dial](https://www.google.com/design/spec/components/buttons-floating-action-button.html#buttons-floating-action-button-transitions)
+
+### Styling
+
+Style                                                   | Description
+------------------------------------------------------- | ------------
+--lrnapp-fab-speed-dial-action-background                | The background color of the Floating Action Button
+--lrnapp-fab-speed-dial-action-keyboard-focus-background | The background color of the Floating Action Button when focused
+
+### Example
+
+```html
+<lrnapp-fab-speed-dial-action icon="icons:content-copy">Copy</lrnapp-fab-speed-dial-action>
+```
+
+@demo demo/index.html
+-->
+<dom-module id="lrnapp-fab-speed-dial-action">
+
+  <template>
+      <style include="materializecss-styles-colors"></style>
+    <style>
+      :host {
+        @apply(--layout-horizontal);
+        @apply(--layout-center);
+        @apply(--layout-end-justified);
+        margin-top: 15px;
+        margin-right: 8px;
+        /** For IE11: otherwise the label overlays the FAB */
+        min-width: 270px;
+      }
+
+      .label {
+        color: black;
+        background: white;
+        padding: 5px 10px;
+        border-radius: 3px;
+        margin-right: 20px;
+      }
+
+      .fab {
+        --lrnapp-fab-background: var(--lrnapp-fab-speed-dial-action-background);
+        --lrnapp-fab-keyboard-focus-background: var(--lrnapp-fab-speed-dial-action-keyboard-focus-background);
+      }
+
+      .label,.fab {
+        display: inline-block;
+      }
+    </style>
+
+    <div class="flex"><span class="label"><content></content></span></div>
+    <paper-fab class$="fab {{color}}" icon=[[icon]] mini></paper-fab>
+
+  </template>
+</dom-module>
+
+<script>
+
+(function() {
+
+  Polymer({
+    is: 'lrnapp-fab-speed-dial-action',
+    properties: {
+      /**
+       * Icon that is shown next to the content
+       */
+      icon: {
+        type: String
+      },
+      color: {
+        type: String,
+        value: 'blue'
+      }
+    }
+  });
+
+})();
+
+</script>

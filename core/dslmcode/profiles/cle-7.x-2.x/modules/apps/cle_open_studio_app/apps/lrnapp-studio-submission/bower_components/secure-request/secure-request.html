@@ -1,0 +1,30 @@
+
+<!--
+`secure-request`
+A LRN element
+
+@demo demo/index.html
+-->
+<script>
+  window.SecureRequest = window.SecureRequest || {};
+  window.SecureRequest.xhr = {
+    properties: {
+      endPoint: {
+        type: String,
+        notify: true,
+        reflectToAttribute: true,
+      },
+      csrfToken: {
+        type: String,
+        notify: true,
+        reflectToAttribute: true,
+      }
+    },
+    /**
+      * Generate a secure URL with CSRF from properties
+      */
+    generateURL: function(path, end, csrf) {
+      return end + '/' + path + '?token=' + csrf;
+    }
+  }
+</script>

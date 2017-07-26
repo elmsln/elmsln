@@ -1,0 +1,158 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../hax-behaviors/hax-behaviors.html">
+<link rel="import" href="../paper-material/paper-material.html">
+<link rel="import" href="../paper-tooltip/paper-tooltip.html">
+<link rel="import" href="../paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../paper-swatch-picker/paper-swatch-picker.html">
+<link rel="import" href="../materializecss-styles/materializecss-styles.html">
+<!--
+`lrndesign-panelcard`
+A LRN element
+
+@demo demo/index.html
+-->
+
+<dom-module id="lrndesign-panelcard">
+  <template>
+    <style include="materializecss-styles"></style>
+    <style>
+      :host {
+        display: inline-block;
+        position: relative;
+        box-sizing: border-box;
+        --secondary-text-color: #FFFFFF;
+        --paper-input-container-color: #FFFFFF;
+      }
+      .card-panel {
+        transition: box-shadow .25s;
+        padding: 1.5em;
+        margin: .5em 0 1em 0;
+        border-radius: 2px;
+        background-color: #fff;
+      }
+      .elevation-dropdown {
+        width: 4em;
+      }
+      :host[show-hax] hax-editbar {
+        display: block;
+      }
+    </style>
+    <hax-editbar show-hax="{{showHax}}" edit="{{edit}}">
+      <paper-swatch-picker id="itemcolor" color="{{colorCode}}"></paper-swatch-picker>
+      <paper-tooltip for="itemcolor">Background color</paper-tooltip>
+      <paper-swatch-picker id="textcolor" color="{{textColorCode}}"></paper-swatch-picker>
+      <paper-tooltip for="textcolor">Text color</paper-tooltip>
+      <paper-dropdown-menu class="elevation-dropdown" label="Elevation">
+        <paper-listbox class="dropdown-content" selected="{{elevationList}}">
+          <paper-item>1</paper-item>
+          <paper-item>2</paper-item>
+          <paper-item>3</paper-item>
+          <paper-item>4</paper-item>
+          <paper-item>5</paper-item>
+        </paper-listbox>
+      </paper-dropdown-menu>
+    </hax-editbar>
+    <paper-material elevation="{{elevation}}">
+      <div class$="card-panel {{color}}">
+        <h3 class$="{{textColor}}"><hax-editable edit="{{edit}}" type="textfield">{{title}}</hax-editable></h3>
+        <span class$="{{textColor}}">
+          <hax-editable edit="{{edit}}" type="html">
+            <content></content>
+          </hax-editable>
+        </span>
+      </div>
+    </paper-material>
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'lrndesign-panelcard',
+      behaviors: [HAXBehaviors.EditBehaviors, MaterializeCSSBehaviors.ColorBehaviors],
+      properties: {
+        /**
+         * Title of the panel
+         */
+        title: {
+          type: String,
+          value: 'Block heading',
+          reflectToAttribute: true,
+        },
+        /**
+         * Color code
+         */
+        colorCode: {
+          type: String,
+          observer: '_colorChange',
+        },
+        /**
+         * Color class
+         */
+        color: {
+          type: String,
+          value: 'yellow lighten-4',
+          reflectToAttribute: true,
+          notify: true,
+        },
+        /**
+         * Text color code
+         */
+        textColorCode: {
+          type: String,
+          observer: '_textColorChange',
+        },
+        /**
+         * Text color class
+         */
+        textColor: {
+          type: String,
+          value: 'black-text',
+          reflectToAttribute: true,
+          notify: true,
+        },
+        /**
+         * Height of the paper.
+         */
+        elevation: {
+          type: Number,
+          value: 2,
+          reflectToAttribute: true,
+        },
+        elevationList: {
+          type: Number,
+          value: 1,
+          observer: '_elevationListChange',
+        }
+      },
+      /**
+       * Reflect value back to elevation correctly from list order.
+       */
+      _elevationListChange: function(value) {
+        this.elevation = (value+1);
+      },
+      /**
+       * Notice the color change and shift it over to the class name.
+       */
+      _colorChange: function() {
+        if (this.colorCode.substring(0, 1) == '#') {
+          this.color = this._colorTransform(this.colorCode, '', '');
+        }
+      },
+      /**
+       * Text color change and shift it over to the class name.
+       */
+      _textColorChange: function() {
+        if (this.textColorCode.substring(0, 1) == '#') {
+          this.textColor = this._colorTransform(this.textColorCode, '-text', 'text-');
+        }
+      },
+      /**
+       * Demo mode.
+       */
+       _demoInit: function() {
+        this.title = "Block title";
+        this.innerHTML = "Disrupt, innovate out of your job. Pay everything forward. Collapse local inefficiencies. Pay forward via analysis of process. Collapse larger inefficiencies... Collapse edge industries. Rinse, repeat in other areas.";
+      }
+    });
+  </script>
+</dom-module>

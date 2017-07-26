@@ -1,0 +1,27 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-overlay-behavior/iron-overlay-behavior.html">
+
+<dom-module id="paper-fab-speed-dial-overlay">
+
+	<template>
+		<slot></slot>
+	</template>
+
+</dom-module>
+
+<script>
+
+(function() {
+
+  Polymer({
+    is: 'paper-fab-speed-dial-overlay',
+
+    behaviors: [
+      Polymer.IronOverlayBehavior
+    ]
+
+  });
+
+})();
+
+</script>

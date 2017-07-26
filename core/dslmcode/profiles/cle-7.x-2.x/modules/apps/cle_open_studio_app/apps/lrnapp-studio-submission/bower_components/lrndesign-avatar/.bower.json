@@ -1,0 +1,29 @@
+{
+  "name": "lrndesign-avatar",
+  "description": "A LRN element",
+  "main": "lrndesign-avatar.html",
+  "dependencies": {
+    "polymer": "Polymer/polymer#^1.4.0",
+    "lrnsys-behaviors": "LRNWebComponents/lrnsys-behaviors#^1.0.0",
+    "paper-avatar": "Abe90/paper-avatar#^1.0.2",
+    "hax-behaviors": "LRNWebComponents/hax-behaviors#^0.0.4",
+    "materializecss-styles": "LRNWebComponents/materializecss-styles#^0.0.5"
+  },
+  "devDependencies": {
+    "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
+    "iron-demo-helpers": "PolymerElements/iron-demo-helpers#^1.0.0",
+    "web-component-tester": "^4.0.0",
+    "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0"
+  },
+  "homepage": "https://github.com/LRNWebComponents/lrndesign-avatar",
+  "version": "0.0.3",
+  "_release": "0.0.3",
+  "_resolution": {
+    "type": "version",
+    "tag": "0.0.3",
+    "commit": "e9ee53f8424b2c56ad7c60b0cdd65a5d3754e204"
+  },
+  "_source": "https://github.com/LRNWebComponents/lrndesign-avatar.git",
+  "_target": "^0.0.3",
+  "_originalSource": "LRNWebComponents/lrndesign-avatar"
+}

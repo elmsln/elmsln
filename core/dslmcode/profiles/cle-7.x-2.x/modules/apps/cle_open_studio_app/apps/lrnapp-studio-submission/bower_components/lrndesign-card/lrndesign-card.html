@@ -1,0 +1,143 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../paper-card/paper-card.html">
+<link rel="import" href="../iron-icons/iron-icons.html">
+<link rel="import" href="../iron-icons/communication-icons.html">
+<link rel="import" href="../paper-button/paper-button.html">
+<link rel="import" href="../paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../paper-styles/color.html">
+<link rel="import" href="../paper-styles/typography.html">
+<link rel="import" href="../paper-toolbar/paper-toolbar.html">
+<link rel="import" href="../hax-editbar/hax-editbar.html">
+<link rel="import" href="../hax-editable/hax-editable.html">
+
+
+<!--
+`lrndesign-card`
+
+
+@demo demo/index.html 
+-->
+
+<dom-module id="lrndesign-card">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+      body {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      paper-card {
+        max-width: 500px;
+      }
+      .card-header { @apply(--paper-font-headline); }
+      .card-light { color: var(--paper-grey-600); }
+      .card-location {
+        float: right;
+        font-size: 15px;
+        vertical-align: middle;
+      }
+      .card-reserve { color: var(--google-blue-500); }
+      iron-icon.star {
+        --iron-icon-width: 16px;
+        --iron-icon-height: 16px;
+        color: var(--paper-amber-500);
+      }
+      iron-icon.star:last-of-type { color: var(--paper-grey-500); }
+
+      hax-editbar {
+        position: absolute;
+        top: 0;
+        width: 100%;
+        opacity: 0;
+        transition: opacity .3s ease-in-out;
+      }
+      :host:hover hax-editbar, :host:focus hax-editbar {
+        opacity: 1;
+      }
+      :host[edit] hax-editbar {
+        opacity: 1
+      }
+    </style>
+    <paper-card image="https://unsplash.it/600/300">
+      <hax-editbar edit="{{edit}}"></hax-editbar>
+      <div class="card-content">
+        <div class="card-header">
+          <hax-editable edit="{{edit}}" type="textfield">{{title}}</hax-editable>
+          <div class="card-location">
+            <iron-icon icon="communication:location-on"></iron-icon>
+            <span>250ft</span>
+          </div>
+        </div>
+        <hax-editable edit="{{edit}}" type="html">
+          <p>$・Italian, Cafe</p>
+          <p>Small plates, salads &amp; sandwiches in an intimate setting.</p>
+        </hax-editable>
+      </div>
+      <div class="card-actions">
+        <div class="horizontal justified">
+          <paper-icon-button icon="icons:event"></paper-icon-button>
+          <paper-button>5:30PM</paper-button>
+          <paper-button>7:30PM</paper-button>
+          <paper-button>9:00PM</paper-button>
+          <paper-button class="cafe-reserve">Reserve</paper-button>
+        </div>
+      </div>
+    </paper-card>
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'lrndesign-card',
+
+      properties: {
+        title: {
+          type: String,
+          value: '',
+          notify: true,
+          readOnly: false
+        },
+        body: {
+          type: String,
+          value: ''
+        },
+        image: {
+          type: String,
+          value: ''
+        },
+        edit: {
+          type: Boolean,
+          value: false,
+          reflectAttribute: true,
+          readOnly: false,
+          notify: true,
+          observer: '_editChanged'
+        }
+      },
+      ready: function() {
+        let root = this;
+        this.$$('hax-editbar').addEventListener('action', function(e) {
+          let action = e.detail.action;
+          switch(action) {
+            case 'edit':
+              root.edit = true;
+              break;
+            case 'save':
+              root.edit = false;
+              break;
+            case 'cancel':
+              root.edit = false;
+              break;
+          }
+        });
+      },
+      _editChanged: function(edit) {
+        if (edit === false) {
+        }
+      }
+    });
+  </script>
+</dom-module>

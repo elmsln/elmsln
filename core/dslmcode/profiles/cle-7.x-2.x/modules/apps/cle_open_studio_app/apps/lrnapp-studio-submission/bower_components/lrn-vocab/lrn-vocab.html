@@ -1,0 +1,84 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../paper-card/paper-card.html">
+<link rel="import" href="../paper-button/paper-button.html">
+<link rel="import" href="../lrndesign-card/lrndesign-card.html">
+<link rel="import" href="../lrndesign-drawer/lrndesign-drawer.html">
+<link rel="import" href="../lrndesign-panelcard/lrndesign-panelcard.html">
+<link rel="import" href="../lrndesign-blockquote/lrndesign-blockquote.html">
+<link rel="import" href="../lrnsys-behaviors/lrnsys-behaviors.html">
+
+<!--
+`lrn-vocab`
+
+
+@demo demo/index.html
+-->
+
+<dom-module id="lrn-vocab">
+  <template>
+    <style>
+      :host {
+        display: flex;
+        width: 100%;
+      }
+      paper-card {
+        width: 100%;
+      }
+    </style>
+    <!-- big switch statement for the different display modes we support here -->
+    <template is="dom-if" if="{{matchDisplay('paper-card', display)}}">
+      <paper-card heading="{{term}}" elevation="1" animated-shadow="false">
+        <div class="card-content">
+          <content>
+            <p>{{definition}}</p>
+            <cite>{{source}}</cite>
+          </content>
+        </div>
+      </paper-card>
+    </template>
+    <template is="dom-if" if="{{matchDisplay('card', display)}}">
+      <lrndesign-card title="{{term}}">
+        <p>{{definition}}</p>
+        <cite>{{source}}</cite>
+      </lrndesign-card>
+    </template>
+    <template is="dom-if" if="{{matchDisplay('drawer', display)}}">
+      <lrndesign-drawer alt="{{term}}" icon="lrn-icons:about" align="right">
+        <h2>{{term}}</h2>
+        <p>{{definition}}</p>
+        <cite>{{source}}</cite>
+      </lrndesign-drawer>
+    </template>
+    <template is="dom-if" if="{{matchDisplay('blockquote', display)}}">
+      <lrndesign-blockquote background quote$="{{term}}: {{definition}}" citation="{{source}}">
+      </lrndesign-blockquote>
+    </template>
+    <template is="dom-if" if="{{matchDisplay('panelcard', display)}}">
+      <lrndesign-panelcard title="{{term}}" display-style="{{displayStyle}}">
+      {{definition}}
+      </lrndesign-panelcard>
+    </template>
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'lrn-vocab',
+      behaviors: [LRNBehaviors.DisplayBehaviors],
+      properties: {
+        term: {
+          type: String,
+          value: ''
+        },
+        definition: {
+          type: String,
+          value: ''
+        },
+        source: {
+          type: String,
+          value: ''
+        }
+      }
+    });
+  </script>
+</dom-module>

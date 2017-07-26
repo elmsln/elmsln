@@ -1,0 +1,285 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../hax-behaviors/hax-behaviors.html">
+<link rel="import" href="../materializecss-styles/materializecss-styles.html">
+<link rel="import" href="../lrn-icons/lrn-icons.html">
+<link rel="import" href="../paper-tooltip/paper-tooltip.html">
+<link rel="import" href="../paper-swatch-picker/paper-swatch-picker.html">
+
+
+
+<!--
+`lrndesign-paperstack`
+A LRN element
+
+@demo demo/index.html
+-->
+
+<dom-module id="lrndesign-paperstack">
+  <template>
+    <style include="materializecss-styles"></style>
+    <style>
+      @import url('https://fonts.googleapis.com/css?family=Inconsolata');
+
+       :host {
+        display: block;
+      }
+
+      h1, h2, h3, h4, h5, h6 {
+        margin: 0 !important;
+      }
+      /* Example card */
+
+      .egletter p {
+        position: relative;
+        z-index: 3;
+        line-height: 1.5rem;
+      }
+
+      .egletter ul {
+        position: relative;
+        z-index: 3;
+        line-height: 1.5rem;
+      }
+
+      .egletter h2,
+      .egletter h3,
+      .egletter h4,
+      .egletter h5,
+      .egletter h6 {
+        font-family: cursive;
+        margin: 0 auto;
+        position: relative;
+        z-index: 3;
+        line-height: 4em;
+      }
+
+      lrn-icon {
+        font-size: 1.2em;
+        height: 2em;
+        width: 2em;
+        margin: -.75em 0 0 .25em;
+      }
+
+      .icon-container {
+        float: left;
+        width: 3em;
+        height: 3em;
+        margin-right: .5em;
+      }
+
+      .egletter h2 span,
+      .egletter h3 span,
+      .egletter h4 span,
+      .egletter h5 span,
+      .egletter h6 span {
+        line-height: 3em;
+      }
+
+      .egletterMode h2 span,
+      .egletterMode h3 span,
+      .egletterMode h4 span,
+      .egletterMode h5 span,
+      .egletterMode h6 span {
+        display: none;
+      }
+
+      .egletter {
+        min-height: 10rem;
+        padding: .75rem 1.5rem;
+        position: relative;
+        width: 80%;
+        z-index: 4;
+        margin-bottom: 3rem;
+      }
+
+      .egletter:before,
+      .egletter:after {
+        content: "";
+        height: 98%;
+        position: absolute;
+        width: 100%;
+        z-index: 2;
+      }
+
+      .egletter:before {
+        background: #fafafa;
+        box-shadow: 0 0 .5rem rgba(0, 0, 0, 0.2);
+        left: -.2rem;
+        top: .2rem;
+        transform: rotate(-2.5deg);
+      }
+
+      .egletter:after {
+        background: #ffffff;
+        box-shadow: 0 0 .2rem rgba(0, 0, 0, 0.2);
+        right: -.2rem;
+        top: .1rem;
+        transform: rotate(1.4deg);
+      }
+
+       :host[mode="bold"] .egletter:before,
+       :host[mode="bold"] .egletter:after {
+        border: 1px black solid;
+        border-radius: 8px;
+      }
+
+       :host[mode="bold"] .egletter:before {
+        box-shadow: -7px 11px 16px rgba(0, 0, 0, 0.5);
+      }
+
+       :host[mode="bold"] .egletter:after {
+        box-shadow: 7px 8px 16px rgba(0, 0, 0, 0.5);
+      }
+
+       :host[mode="bold"] .egletterMode h2 span,
+       :host[mode="bold"] .egletterMode h3 span,
+       :host[mode="bold"] .egletterMode h4 span,
+       :host[mode="bold"] .egletterMode h5 span,
+       :host[mode="bold"] .egletterMode h6 span {
+        display: block;
+        transform: rotate(1.4deg);
+        margin-left: 1.5em;
+        padding: .5em;
+        border-radius: 15px 15px 0px 0px;
+        background-color: black;
+        color: #ecf0f1;
+        text-align: center;
+        width: 45%;
+        font-family: 'Inconsolata', monospace;
+      }
+
+       :host[mode="bold"] .egletter h2 span,
+       :host[mode="bold"] .egletter h3 span,
+       :host[mode="bold"] .egletter h4 span,
+       :host[mode="bold"] .egletter h5 span,
+       :host[mode="bold"] .egletter h6 span {
+        font-family: 'Inconsolata', monospace;
+      }
+
+       :host[mode="bold"] .egletter p {
+        font-family: 'Inconsolata', monospace;
+      }
+    </style>
+    <div class="egletterMode">
+      <h4>
+        <span><hax-editable edit="{{edit}}" type="textfield">{{heading}}</hax-editable></span>
+      </h4>
+    </div>
+    <div class="egletter">
+      <hax-editbar edit="{{edit}}">
+        <paper-swatch-picker id="itemcolor" color="{{colorCode}}"></paper-swatch-picker>
+        <paper-tooltip for="itemcolor">Background color</paper-tooltip>
+        <paper-swatch-picker id="textcolor" color="{{textColorCode}}"></paper-swatch-picker>
+        <paper-tooltip for="textcolor">Text color</paper-tooltip>
+      </hax-editbar>
+      <h3>
+        <div class$="icon-container circle {{color}}">
+          <lrn-icon icon="{{icon}}" class$="{{textColor}}"></lrn-icon>
+        </div>
+        <span><hax-editable edit="{{edit}}" type="textfield">{{title}}</hax-editable></span>
+      </h3>
+      <p>
+        <hax-editable edit="{{edit}}" type="html">
+          <content></content>
+        </hax-editable>
+      </p>
+    </div>
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'lrndesign-paperstack',
+      behaviors: [HAXBehaviors.EditBehaviors, MaterializeCSSBehaviors.ColorBehaviors],
+      properties: {
+        /**
+         * Title
+         */
+        title: {
+          type: String,
+          value: 'Title',
+        },
+        /**
+         * LRN icon
+         */
+        icon: {
+          type: String,
+          value: 'assignment',
+        },
+        /**
+         * Color code
+         */
+        colorCode: {
+          type: String,
+          observer: '_colorChange',
+        },
+        /**
+         * Color class
+         */
+        color: {
+          type: String,
+          value: 'grey darken-4',
+          reflectToAttribute: true,
+          notify: true,
+        },
+        /**
+         * Text color code
+         */
+        textColorCode: {
+          type: String,
+          observer: '_textColorChange',
+        },
+        /**
+         * Text color class
+         */
+        textColor: {
+          type: String,
+          value: 'white-text',
+          reflectToAttribute: true,
+          notify: true,
+        },
+        /**
+         * Mode Design
+         */
+        mode: {
+          type: String,
+          value: 'default',
+          reflectToAttribute: true,
+          notify: true
+        },
+        /**
+         * Heading
+         */
+        heading: {
+          type: String,
+          value: 'Heading',
+        },
+      },
+      /**
+       * Notice the color change and shift it over to the class name.
+       */
+      _colorChange: function () {
+        if (this.colorCode.substring(0, 1) == '#') {
+          this.color = this._colorTransform(this.colorCode, '', '');
+        }
+      },
+      /**
+       * Text color change and shift it over to the class name.
+       */
+      _textColorChange: function () {
+        if (this.textColorCode.substring(0, 1) == '#') {
+          this.textColor = this._colorTransform(this.textColorCode, '-text', 'text-');
+        }
+      },
+      /**
+       * Demo mode.
+       */
+      _demoInit: function () {
+        this.innerHTML =
+          "This is a great example, one of the best example I've ever seen. In fact, it's the best example ever produced and it says a lot about your content that you are about to see here.";
+        this.title = "A piece of content worth highlighting";
+        this.icon = 'assignment';
+      }
+    });
+  </script>
+</dom-module>

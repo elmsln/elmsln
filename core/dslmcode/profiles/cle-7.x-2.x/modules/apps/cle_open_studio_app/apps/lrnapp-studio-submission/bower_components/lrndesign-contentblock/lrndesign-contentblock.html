@@ -1,0 +1,48 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../hax-behaviors/hax-behaviors.html">
+<!--
+`lrndesign-contentblock`
+A LRN element
+
+@demo demo/index.html 
+-->
+
+<dom-module id="lrndesign-contentblock">
+  <template>
+  <style>
+      :host {
+        display: inline-block;
+        position: relative;
+        box-sizing: border-box;
+      }
+    </style>
+    <hax-editbar edit="{{edit}}"></hax-editbar>
+    <h3><hax-editable edit="{{edit}}" type="textfield">{{title}}</hax-editable></h3>
+    <hax-editable edit="{{edit}}" type="html">
+      <content></content>
+    </hax-editable>
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'lrndesign-contentblock',
+      behaviors: [HAXBehaviors.EditBehaviors],
+      properties: {
+        /**
+         * Heading for this block
+         */
+        title: {
+          type: String,
+        }
+      },
+      /**
+       * Demo mode.
+       */
+       _demoInit: function() {
+        this.title = "Related content";
+        this.innerHTML = "A bunch of content here";
+      }
+    });
+  </script>
+</dom-module>

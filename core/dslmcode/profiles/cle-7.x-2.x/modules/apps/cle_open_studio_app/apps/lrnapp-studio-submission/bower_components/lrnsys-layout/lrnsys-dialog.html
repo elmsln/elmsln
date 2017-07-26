@@ -1,0 +1,222 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../paper-dialog/paper-dialog.html">
+<link rel="import" href="../paper-dialog-scrollable/paper-dialog-scrollable.html">
+<link rel="import" href="../paper-avatar/paper-avatar.html">
+<link rel="import" href="../lrn-icons/lrn-icons.html">
+<link rel="import" href="../paper-tooltip/paper-tooltip.html">
+<link rel="import" href="../paper-button/paper-button.html">
+<link rel="import" href="../neon-animation/web-animations.html">
+<link rel="import" href="../neon-animation/neon-animations.html">
+<link rel="import" href="../materializecss-styles/colors.html">
+<link rel="import" href="../iron-icons/iron-icons.html">
+<!--
+`lrnsys-dialog`
+
+@demo demo/index.html
+-->
+
+<dom-module id="lrnsys-dialog">
+  <template>
+    <style include="materializecss-styles-colors">
+      :host {
+        display: inline-block;
+      }
+      paper-dialog {
+        position: fixed;
+        top: 10%;
+        right: 10%;
+        bottom: 10%;
+        left: 10%;
+        overflow: auto;
+      }
+      .dialog-header {
+        width: 100%;
+        padding: 0 0 .5em 0;
+        margin: 0 0 .5em 0;
+        text-align: -webkit-center;
+        text-align: center;
+        text-transform: uppercase;
+      }
+      .dialog-heading {
+        padding: 0;
+        margin: 0;
+        height: 2.5em;
+        line-height: 3em;
+        font-size: 1.5em;
+      }
+      .text-label {
+        margin-left: 1em;
+      }
+      #close-button {
+        position: absolute;
+        right: 0;
+        top:0;
+        padding: 0;
+        margin: 0;
+        min-width: .1em;
+      }
+    </style>
+    <paper-button class$="[[class]]" id="dialog-trigger" on-tap="toggleDialog" raised="[[raised]]">
+      <template is="dom-if" if="{{avatar}}">
+        <paper-avatar src$="{{avatar}}"></paper-avatar>
+      </template>
+      <template is="dom-if" if="{{icon}}">
+        <lrn-icon icon="{{icon}}" alt="{{alt}}"></lrn-icon>
+      </template>
+      <template is="dom-if" if="{{text}}">
+        <span class="text-label">{{text}}</span>
+      </template>
+      <slot name="button"></slot>
+    </paper-button>
+    <template is="dom-if" if="{{alt}}">
+      <paper-tooltip for="dialog-trigger" animation-delay="0">{{alt}}</paper-tooltip>
+    </template>
+    <paper-dialog id="dialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation" with-backdrop>
+      <div class="dialog-header">
+        <slot name="header"></slot>
+        <template is="dom-if" if="{{header}}">
+          <h3 class="white-text black dialog-heading">{{header}}</h3>
+        </template>
+      </div>
+      <paper-dialog-scrollable class="dialog-contents">
+        <slot></slot>
+      </paper-dialog-scrollable>
+      <paper-button id="close-button" dialog-dismiss class="black white-text"><iron-icon icon="close"></iron-icon>Close</paper-button>
+    </paper-dialog>
+  </template>
+  <script>
+    Polymer({
+      is: 'lrnsys-dialog',
+      listeners: {
+        'mousedown': 'tapEventOn',
+        'mouseover': 'tapEventOn',
+        'mouseout': 'tapEventOff',
+        'dialog-trigger.focused-changed': 'focusToggle',
+      },
+      properties: {
+        /**
+         * Icon to present for clicking.
+         */
+        icon: {
+          type: String
+        },
+        /**
+         * If the button should be visually lifted off the UI.
+         */
+        raised: {
+          type: Boolean,
+        },
+        /**
+         * Icon to present for clicking.
+         */
+        avatar: {
+          type: String
+        },
+        /**
+         * Text to present for clicking.
+         */
+        text: {
+          type: String
+        },
+        /**
+         * Alt / hover text for this link
+         */
+        alt: {
+          type: String
+        },
+        /**
+         * Header for the dialog
+         */
+        header: {
+          type: String
+        },
+        /**
+         * Classes to add / subtract based on the item being hovered
+         */
+        hoverClass: {
+          type: String,
+        },
+        /**
+         * Support for body-appending which is a hack for stacking context
+         * correction but breaks scoped styles / shadowDOM
+         */
+        bodyAppend: {
+          type: Boolean,
+          value: false
+        },
+        /**
+         * Tracks if focus state is applied
+         */
+        focusState: {
+          type: Boolean,
+          value: false,
+        }
+      },
+      /**
+       * Handle a focus/tap event and add the hoverclasses
+       * to the classList array for paper-button.
+       */
+      tapEventOn: function(e) {
+        let root = this;
+        if (typeof root.hoverClass !== typeof undefined) {
+          var classes = root.hoverClass.split(' ');
+          classes.forEach(function(item, index) {
+            if (item != '') {
+              root.$$('#dialog-trigger').classList.add(item);
+            }
+          });
+        }
+      },
+      /**
+       * Handle a mouse out event and remove the hoverclasses
+       * from the classList array for paper-button.
+       */
+      tapEventOff: function(e) {
+        let root = this;
+        if (typeof root.hoverClass !== typeof undefined) {
+          var classes = root.hoverClass.split(' ');
+          classes.forEach(function(item, index) {
+            if (item != '') {
+              root.$$('#dialog-trigger').classList.remove(item);
+            }
+          });
+        }
+      },
+      /**
+       * Toggle the drawer to open / close.
+       */
+      toggleDialog: function() {
+        let root = this;
+        // support for appending to the light document
+        if (root.bodyAppend) {
+          document.body.appendChild(root.$$("#dialog"));
+        }
+        root.$$("#dialog").toggle();
+      },
+      /**
+       * Handle toggle for mouse class and manage classList array for paper-button.
+       */
+      focusToggle: function(e) {
+        let root = this;
+        this.fire('focus-changed', {focus: root.focusState});
+        // see if it has hover classes
+        if (typeof root.hoverClass !== typeof undefined) {
+          // break class into array
+          var classes = root.hoverClass.split(' ');
+          // run through each and add or remove classes
+          classes.forEach(function(item, index) {
+            if (item != '') {
+              if (root.focusState) {
+                root.$$('#dialog-trigger').classList.add(item);
+              }
+              else {
+                root.$$('#dialog-trigger').classList.remove(item);
+              }
+            }
+          });
+        }
+        root.focusState = !root.focusState;
+      },
+    });
+  </script>
+</dom-module>

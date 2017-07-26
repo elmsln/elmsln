@@ -1,0 +1,32 @@
+<link rel="import" href="../polymer/polymer.html">
+
+<!--
+`oer-schema`
+A LRN element to wrap an oer schema prefix onto materials.
+
+@demo demo/index.html
+-->
+
+<dom-module id="oer-schema">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+    <div prefix="oer: http://oerschema.org/">
+      <content></content>
+    </div>
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'oer-schema',
+
+      properties: {
+      },
+
+    });
+  </script>
+</dom-module>
