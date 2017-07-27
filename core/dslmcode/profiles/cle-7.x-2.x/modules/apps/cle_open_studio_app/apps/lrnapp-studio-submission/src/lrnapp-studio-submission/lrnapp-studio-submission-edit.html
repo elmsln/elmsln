@@ -36,6 +36,19 @@
     
     <template is="dom-if" if="[[submission]]">
       <paper-input label="Title" value="{{submission.attributes.title}}"></paper-input>
+
+      <label for="image-upload">Images</label>
+       <vaadin-upload 
+        accept="[[fileTypes]]"
+        target="[[uploadFilesUrl]]?token=[[csrfToken]]"
+        method="POST"
+        form-data-name="file-upload"
+        on-upload-success="_handleImageUploadSuccess">
+        <div class="drop-label">
+          <iron-icon icon="description"></iron-icon>
+          Upload files here:
+        </div>
+      </vaadin-upload> 
     </template>
 
     <div class="actions">
@@ -60,6 +73,9 @@
         },
         submission: {
           type: Object
+        },
+        uploadFilesUrl: {
+          type: String
         }
       },
       observers: [
@@ -69,6 +85,7 @@
       ],
       _urlVarsChanged: function (id, endPoint) {
         this.reqUrl = endPoint + '/api/submissions/' + id;
+        this.uploadFilesUrl = endPoint + '/api/files';
       },
       _paramsChanged: function (csrfToken) {
         var params = this.reqParams || {};
@@ -83,13 +100,20 @@
         this.reqBody.state = 'submission_ready';
         this.$$('#ajaxUpdateRequest').generateRequest();
       },
-      _handleUpdateResponse: function(res) {
+      _handleUpdateResponse: function (res) {
         var root = this;
         var status = res.detail.response.status;
         if (status === 200) {
           // this will go back to the submission page.
-          this.fire('routeChange', {path: root.route.prefix });
+          this.fire('routeChange', { path: root.route.prefix });
         }
+      },
+      _handleImageUploadSuccess: function (e) {
+        var response = e.detail.xhr.response;
+        // normalize response string
+        var response = JSON.parse(response);
+        // get the file
+        var file = response.file;
       },
       /**
        * Simple way to convert from object to array.

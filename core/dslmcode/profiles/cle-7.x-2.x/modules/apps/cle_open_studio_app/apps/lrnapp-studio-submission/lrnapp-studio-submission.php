@@ -5,6 +5,7 @@
  */
 define('__ROOT__', dirname(dirname(__FILE__))); 
 require_once(__ROOT__.'/services/CleOpenStudioAppSubmissionService.php'); 
+require_once(__ROOT__.'/services/CleOpenStudioAppFileService.php'); 
 
 function _cle_open_studio_app_submission_findone($machine_name, $app_route, $params, $args) {
   $return = array('status' => 200);
@@ -51,7 +52,7 @@ function _cle_open_studio_app_submission_findone($machine_name, $app_route, $par
 }
 
 function _cle_open_studio_app_submission_index($machine_name, $app_route, $params, $args) {
-  $return = [];
+  $return = array();
   $status = 200;
   $service = new CleOpenStudioAppSubmissionService();
 
@@ -61,6 +62,32 @@ function _cle_open_studio_app_submission_index($machine_name, $app_route, $param
     'status' => 200,
     'data' => $return
   );
+}
+
+function _cle_open_studio_app_file_index($machine_name, $app_route, $params, $args) {
+  $return = array('status' => 200);
+  $method = $_SERVER['REQUEST_METHOD'];
+  $file_service = new CleOpenStudioAppFileService();
+
+  if ($method == 'POST') {
+    // check for a file upload
+    if (isset($_FILES['file-upload']) && isset($_FILES['file-upload']['type']) && isset($_FILES['file-upload']['tmp_name'])) {
+      $type = $_FILES['file-upload']['type'];
+      $tmp_name = $_FILES['file-upload']['tmp_name'];
+      $options = array();
+      if (isset($params['file_wrapper'])) {
+        $options['file_wrapper'] = $params['file_wrapper'];
+      }
+      if (isset($_FILES['file-upload']['name'])) {
+        $options['name'] = $_FILES['file-upload']['name'];
+      }
+      $file = $file_service->create($type, $tmp_name, $options);
+      if ($file) {
+        $return['data'] = $file;
+      }
+    }
+  }
+  return $return;
 }
 
 // function cle_open_studio_app_cle_open_studio_app_encode_submission_alter(&$submissions) {

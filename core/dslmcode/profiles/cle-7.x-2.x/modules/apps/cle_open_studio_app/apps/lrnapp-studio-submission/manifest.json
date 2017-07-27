@@ -19,6 +19,10 @@
       "api/submissions/%": {
         "callback": "_cle_open_studio_app_submission_findone",
         "property": "source-path"
+      },
+      "api/files": {
+        "callback": "_cle_open_studio_app_file_index",
+        "property": "source-path"
       }
     },
     "context": {
