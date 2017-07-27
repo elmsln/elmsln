@@ -205,10 +205,9 @@ class CleOpenStudioAppSubmissionService {
         // if ($payload->attributes->videos) {
         //   $node->field_video[LANGUAGE_NONE] = $payload->attributes->videos;
         // }
-        if ($payload->attributes->images) {
-          foreach ($payload->attributes->images as $image) {
-            $node->field_images[LANGUAGE_NONE][] = $this->objectToArray($image);
-          }
+        if (isset($payload->attributes->images)) {
+          $node->field_images[LANGUAGE_NONE] = $this->objectToArray($payload->attributes->images);
+          ddl($node);
         }
       }
     }

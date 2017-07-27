@@ -29,21 +29,44 @@
       #delete iron-icon {
         color: red;
       }
+
+      .imagesfiled {
+      }
+
+      .imagesfiled__image {
+        display: inline-flex;
+        justify-content: space-around;
+        min-height: 100px;
+        position: relative;
+      }
+      .imagesfiled__image iron-image {
+        --iron-image-height: 100px;
+      }
+      .imagesfiled__image iron-image:hover {
+        /* transform: scale(1.1); */
+      }
+      .imagesfiled__image_delete {
+        position: absolute;
+        top: 0;
+        right: 0;
+      }
     </style>
 
     <iron-ajax id="ajaxUpdateRequest" url="[[reqUrl]]" method="PUT" body="[[reqBody]]" params="[[reqParams]]" content-type="application/json"
       handle-as="json" on-response="_handleUpdateResponse"></iron-ajax>
     
-    <template is="dom-if" if="[[submission]]">
+    <template is="dom-if" if="{{submission}}">
       <paper-input label="Title" value="{{submission.attributes.title}}"></paper-input>
 
       <!-- Images -->
-      
-      <template is="dom-repeat" items="[[submission.attributes.images]]" as="image">
-        <div class="imagesfield">
-          <iron-image src="[[image.image_styles.elmsln_thumb]]" preload></iron-image>
-        </div>
+      <div class="imagesfield">
+      <template is="dom-repeat" items="{{submission.attributes.images}}" as="image">
+          <div class="imagesfiled__image">
+            <iron-image src="{{image.image_styles.elmsln_thumb}}" preload></iron-image>
+            <paper-icon-button class="imagesfiled__image_delete" icon="delete" data-fid$="{{image.fid}}" on-click="_imageDelete"></paper-icon-button>
+          </div>
       </template>
+      </div>
 
       <label for="image-upload">Images</label>
        <vaadin-upload 
@@ -131,7 +154,7 @@
           // find out if the image is already referenced in the submission
           // images array and if it is replace it.
           var replacement = false;
-          submission.attributes.images = submission.attributes.images.map(function(image) {
+          root.submission.attributes.images = submission.attributes.images.map(function(image) {
             if (image.fid === file.fid) {
               replacement = true;
               return file;
@@ -142,8 +165,24 @@
           });
           // if the image was not a replacement then add it to the array
           if (!replacement) {
-            submission.attributes.images.push(file);
+            root.submission.attributes.images.push(file);
           }
+        }
+      },
+      _imageDelete: function (e) {
+        var root = this;
+        var normalizedEvent = Polymer.dom(e);
+        var deleteFid = normalizedEvent.localTarget.getAttribute('data-fid');
+        if (deleteFid) {
+          // cast deleteFid to a number
+          deleteFid = Number(deleteFid);
+          var submission = Object.assign({}, root.submission);
+          submission.attributes = submission.attributes || {};
+          submission.attributes.images =  submission.attributes.images || [];
+          // find the delete image and filter it out of the images array
+          root.submission.attributes.images = submission.attributes.images.filter(function(image) {
+            return image.fid !== deleteFid;
+          });
           // immutabley replace submission images with the new submission images.
           root.submission.attributes.images = submission.attributes.images;
         }
