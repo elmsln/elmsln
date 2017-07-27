@@ -6,6 +6,11 @@
         padding: 1rem;
       }
 
+      .field {
+        padding-top: 2em;
+        padding-bottom: 2em;
+      }
+
       .actions {
         display: flex;
         border-top: 2px solid gainsboro;
@@ -50,6 +55,20 @@
         top: 0;
         right: 0;
       }
+
+      .linksfield__item {
+        display: flex;
+        margin: auto;
+      }
+      .linksfield__info {
+        flex: 1 1 auto;
+      }
+      .linksfield__create {
+        display: flex;
+      }
+      .linksfield__input {
+        flex: 1 1 auto;
+      }
     </style>
 
     <iron-ajax id="ajaxUpdateRequest" url="[[reqUrl]]" method="PUT" body="[[reqBody]]" params="[[reqParams]]" content-type="application/json"
@@ -59,16 +78,15 @@
       <paper-input label="Title" value="{{submission.attributes.title}}"></paper-input>
 
       <!-- Images -->
-      <div class="imagesfield">
-      <template is="dom-repeat" items="{{submission.attributes.images}}" as="image">
-          <div class="imagesfiled__image">
-            <iron-image src="{{image.image_styles.elmsln_thumb}}" preload></iron-image>
-            <paper-icon-button class="imagesfiled__image_delete" icon="delete" data-fid$="{{image.fid}}" on-click="_imageDelete"></paper-icon-button>
-          </div>
+      <div class="imagesfield field">
+      <label for="image-upload">Images</label>
+      <template id="imagesfield_repeat" is="dom-repeat" items="{{submission.attributes.images}}" as="image" observe="submission">
+        <div class="imagesfiled__image">
+          <iron-image src="{{image.image_styles.elmsln_thumb}}" preload></iron-image>
+          <paper-icon-button class="imagesfiled__image_delete" icon="delete" data-fid$="{{image.fid}}" on-click="_imageDelete"></paper-icon-button>
+        </div>
       </template>
       </div>
-
-      <label for="image-upload">Images</label>
        <vaadin-upload 
         accept="[[fileTypes]]"
         target="[[uploadFilesUrl]]?token=[[csrfToken]]"
@@ -81,6 +99,24 @@
         </div>
       </vaadin-upload> 
     </template>
+
+    <!-- Links -->
+    <div id="linksfield" class="linksfield field">
+      <template is="dom-repeat" items="{{submission.attributes.links}}" as="link" observe="submission">
+        <div class="linksfield__item">
+          <div class="linksfield__info">
+            <div class="linksfield__url">{{link.url}}</div>
+          </div>
+          <div class="linksfield__actions">
+            <paper-icon-button icon="delete" class="linksfield__delete"></paper-icon-button>
+          </div>
+        </div>
+      </template>
+      <div class="linksfield__create">
+        <paper-input class="linksfield__input" label="URL" value="{{newlink}}"></paper-input>
+        <paper-icon-button icon="add" class="linksfield__create_button" on-click="_linksfieldCreate"></paper-icon-button>
+      </div>
+    </div>
 
     <div class="actions">
       <paper-button id="publish" on-click="_publishClicked"><iron-icon icon="check"></iron-icon> Publish to Studio</paper-button>
@@ -106,6 +142,9 @@
           type: Object
         },
         uploadFilesUrl: {
+          type: String
+        },
+        newlink: {
           type: String
         }
       },
@@ -154,7 +193,7 @@
           // find out if the image is already referenced in the submission
           // images array and if it is replace it.
           var replacement = false;
-          root.submission.attributes.images = submission.attributes.images.map(function(image) {
+          submission.attributes.images = submission.attributes.images.map(function(image) {
             if (image.fid === file.fid) {
               replacement = true;
               return file;
@@ -165,8 +204,9 @@
           });
           // if the image was not a replacement then add it to the array
           if (!replacement) {
-            root.submission.attributes.images.push(file);
+            submission.attributes.images.push(file);
           }
+          this.set('submission', submission);
         }
       },
       _imageDelete: function (e) {
@@ -180,12 +220,20 @@
           submission.attributes = submission.attributes || {};
           submission.attributes.images =  submission.attributes.images || [];
           // find the delete image and filter it out of the images array
-          root.submission.attributes.images = submission.attributes.images.filter(function(image) {
+          submission.attributes.images = submission.attributes.images.filter(function(image) {
             return image.fid !== deleteFid;
           });
           // immutabley replace submission images with the new submission images.
-          root.submission.attributes.images = submission.attributes.images;
+          this.set('submission', submission);
         }
+      },
+      _linksfieldCreate: function () {
+        var root = this;
+        root.submission.attributes.links.push({
+          url: root.newlink
+        });
+        root.newlink = '';
+        root.attributes.title = 'hi';
       },
       /**
        * Simple way to convert from object to array.

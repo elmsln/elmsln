@@ -199,9 +199,9 @@ class CleOpenStudioAppSubmissionService {
         if ($payload->attributes->state) {
           $node->field_submission_state[LANGUAGE_NONE][0]['value'] = $payload->attributes->state;
         }
-        // if ($payload->attributes->links) {
-        //   $node->field_links[LANGUAGE_NONE] = (array) $payload->attributes->links;
-        // }
+        if ($payload->attributes->links) {
+          $node->field_links[LANGUAGE_NONE] = $this->objectToArray($payload->attributes->links);
+        }
         // if ($payload->attributes->videos) {
         //   $node->field_video[LANGUAGE_NONE] = $payload->attributes->videos;
         // }
