@@ -60,12 +60,16 @@
         display: flex;
         margin: auto;
       }
+
       .linksfield__info {
         flex: 1 1 auto;
       }
+
       .linksfield__create {
         display: flex;
+        align-items: center;
       }
+
       .linksfield__input {
         flex: 1 1 auto;
       }
@@ -81,10 +85,10 @@
       <div class="imagesfield field">
         <label for="image-upload">Images</label>
         <template id="imagesfield_repeat" is="dom-repeat" items="{{submission.attributes.images}}" as="image">
-           <div class="imagesfiled__image">
-            <iron-image src="{{image.image_styles.elmsln_medium}}" preload></iron-image>
+          <div class="imagesfiled__image">
+            <iron-image src="{{image.url}}" preload></iron-image>
             <paper-icon-button class="imagesfiled__image_delete" icon="delete" data-fid$="{{image.fid}}" on-click="_imageDelete"></paper-icon-button>
-          </div> 
+          </div>
         </template>
       </div>
       <vaadin-upload accept="[[fileTypes]]" target="[[uploadFilesUrl]]?token=[[csrfToken]]" method="POST" form-data-name="file-upload"
@@ -93,32 +97,36 @@
           <iron-icon icon="description"></iron-icon>
           Upload files here:
         </div>
-      </vaadin-upload> 
+      </vaadin-upload>
     </template>
 
     <!-- Links -->
     <div id="linksfield" class="linksfield field">
+      <label for="links-input">Links</label>
       <template is="dom-repeat" items="{{submission.attributes.links}}" as="link" observe="submission">
         <div class="linksfield__item">
           <div class="linksfield__info">
             <div class="linksfield__url">{{link.url}}</div>
           </div>
           <div class="linksfield__actions">
-            <paper-icon-button icon="delete" class="linksfield__delete"></paper-icon-button>
+            <paper-icon-button icon="delete" class="linksfield__delete" data-index$="{{index}}" on-click="_linksfieldDelete"></paper-icon-button>
           </div>
         </div>
       </template>
       <div class="linksfield__create">
-        <paper-input class="linksfield__input" label="URL" value="{{newlink}}"></paper-input>
         <paper-icon-button icon="add" class="linksfield__create_button" on-click="_linksfieldCreate"></paper-icon-button>
+        <paper-input id="link-input"class="linksfield__input" label="URL" value="{{newlink}}"></paper-input>
       </div>
     </div>
 
     <div class="actions">
-      <paper-button id="publish" on-click="_publishClicked"><iron-icon icon="check"></iron-icon> Publish to Studio</paper-button>
-      <paper-button id="save-draft"><iron-icon icon="drafts"></iron-icon> Save Draft</paper-button>
+      <paper-button id="publish" on-click="_publishClicked">
+        <iron-icon icon="check"></iron-icon> Publish to Studio</paper-button>
+      <paper-button id="save-draft">
+        <iron-icon icon="drafts"></iron-icon> Save Draft</paper-button>
       <span class="spacer"></span>
-      <paper-button id="delete"><iron-icon icon="delete"></iron-icon> Delete</paper-button>
+      <paper-button id="delete">
+        <iron-icon icon="delete"></iron-icon> Delete</paper-button>
     </div>
   </template>
   <script>
@@ -185,11 +193,11 @@
           // add it to the list of submission images.
           var submission = Object.assign({}, root.submission);
           submission.attributes = submission.attributes || {};
-          submission.attributes.images =  submission.attributes.images || [];
+          submission.attributes.images = submission.attributes.images || [];
           // find out if the image is already referenced in the submission
           // images array and if it is replace it.
           var replacement = false;
-          submission.attributes.images = submission.attributes.images.map(function(image) {
+          submission.attributes.images = submission.attributes.images.map(function (image) {
             if (image.fid === file.fid) {
               replacement = true;
               return file;
@@ -214,22 +222,25 @@
           deleteFid = Number(deleteFid);
           var submission = Object.assign({}, root.submission);
           submission.attributes = submission.attributes || {};
-          submission.attributes.images =  submission.attributes.images || [];
+          submission.attributes.images = submission.attributes.images || [];
           // find the delete image and filter it out of the images array
-          submission.attributes.images = submission.attributes.images.filter(function(image) {
+          submission.attributes.images = submission.attributes.images.filter(function (image) {
             return image.fid !== deleteFid;
           });
           // immutabley replace submission images with the new submission images.
           this.set('submission', submission);
         }
       },
-      _linksfieldCreate: function () {
+      _linksfieldCreate: function (e) {
         var root = this;
-        root.submission.attributes.links.push({
-          url: root.newlink
-        });
+        root.push('submission.attributes.links', { url: root.newlink });
         root.newlink = '';
-        root.attributes.title = 'hi';
+      },
+      _linksfieldDelete: function (e) {
+        var root = this;
+        var normalizedEvent = Polymer.dom(e);
+        var deleteIndex = normalizedEvent.localTarget.getAttribute('data-index');
+        root.splice('submission.attributes.links', deleteIndex, 1);
       },
       /**
        * Simple way to convert from object to array.
