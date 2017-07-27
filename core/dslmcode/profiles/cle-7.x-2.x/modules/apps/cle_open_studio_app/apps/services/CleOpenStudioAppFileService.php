@@ -36,7 +36,7 @@ class CleOpenStudioAppFileService {
         }
         if ($file = file_save_data($data, $file_wrapper . '://' . $name)) {
           file_save($file);
-          $return = array('file' => $file);
+          return _elmsln_api_v1_file_output($file);
         }
       }
     }

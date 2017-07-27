@@ -205,11 +205,27 @@ class CleOpenStudioAppSubmissionService {
         // if ($payload->attributes->videos) {
         //   $node->field_video[LANGUAGE_NONE] = $payload->attributes->videos;
         // }
-        // if ($payload->attributes->images) {
-        //   $node->field_images[LANGUAGE_NONE] = $payload->attributes->images;
-        // }
+        if ($payload->attributes->images) {
+          foreach ($payload->attributes->images as $image) {
+            $node->field_images[LANGUAGE_NONE][] = $this->objectToArray($image);
+          }
+        }
       }
     }
     return $node;
+  }
+
+  // Convert multidimentional Object to arrays
+  private function objectToArray($obj) {
+    if (is_object($obj)) $obj = (array)$obj;
+    if (is_array($obj)) {
+        $new = array();
+        foreach ($obj as $key => $val) {
+            $new[$key] = $this->objectToArray($val);
+        }
+    } else {
+        $new = $obj;
+    }
+    return $new;
   }
 }

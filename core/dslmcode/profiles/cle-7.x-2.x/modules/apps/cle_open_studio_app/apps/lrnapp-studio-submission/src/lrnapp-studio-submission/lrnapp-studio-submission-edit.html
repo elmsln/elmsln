@@ -37,6 +37,14 @@
     <template is="dom-if" if="[[submission]]">
       <paper-input label="Title" value="{{submission.attributes.title}}"></paper-input>
 
+      <!-- Images -->
+      
+      <template is="dom-repeat" items="[[submission.attributes.images]]" as="image">
+        <div class="imagesfield">
+          <iron-image src="[[image.image_styles.elmsln_thumb]]" preload></iron-image>
+        </div>
+      </template>
+
       <label for="image-upload">Images</label>
        <vaadin-upload 
         accept="[[fileTypes]]"
@@ -109,11 +117,36 @@
         }
       },
       _handleImageUploadSuccess: function (e) {
+        var root = this;
         var response = e.detail.xhr.response;
         // normalize response string
         var response = JSON.parse(response);
-        // get the file
-        var file = response.file;
+        // get the newely created file
+        if (response.data.file) {
+          var file = response.data.file;
+          // add it to the list of submission images.
+          var submission = Object.assign({}, root.submission);
+          submission.attributes = submission.attributes || {};
+          submission.attributes.images =  submission.attributes.images || [];
+          // find out if the image is already referenced in the submission
+          // images array and if it is replace it.
+          var replacement = false;
+          submission.attributes.images = submission.attributes.images.map(function(image) {
+            if (image.fid === file.fid) {
+              replacement = true;
+              return file;
+            }
+            else {
+              return image;
+            }
+          });
+          // if the image was not a replacement then add it to the array
+          if (!replacement) {
+            submission.attributes.images.push(file);
+          }
+          // immutabley replace submission images with the new submission images.
+          root.submission.attributes.images = submission.attributes.images;
+        }
       },
       /**
        * Simple way to convert from object to array.

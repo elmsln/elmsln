@@ -82,9 +82,7 @@ function _cle_open_studio_app_file_index($machine_name, $app_route, $params, $ar
         $options['name'] = $_FILES['file-upload']['name'];
       }
       $file = $file_service->create($type, $tmp_name, $options);
-      if ($file) {
-        $return['data'] = $file;
-      }
+      $return['data'] = array('file' => $file);
     }
   }
   return $return;
