@@ -79,19 +79,15 @@
 
       <!-- Images -->
       <div class="imagesfield field">
-      <label for="image-upload">Images</label>
-      <template id="imagesfield_repeat" is="dom-repeat" items="{{submission.attributes.images}}" as="image" observe="submission">
-        <div class="imagesfiled__image">
-          <iron-image src="{{image.image_styles.elmsln_thumb}}" preload></iron-image>
-          <paper-icon-button class="imagesfiled__image_delete" icon="delete" data-fid$="{{image.fid}}" on-click="_imageDelete"></paper-icon-button>
-        </div>
-      </template>
+        <label for="image-upload">Images</label>
+        <template id="imagesfield_repeat" is="dom-repeat" items="{{submission.attributes.images}}" as="image">
+           <div class="imagesfiled__image">
+            <iron-image src="{{image.image_styles.elmsln_medium}}" preload></iron-image>
+            <paper-icon-button class="imagesfiled__image_delete" icon="delete" data-fid$="{{image.fid}}" on-click="_imageDelete"></paper-icon-button>
+          </div> 
+        </template>
       </div>
-       <vaadin-upload 
-        accept="[[fileTypes]]"
-        target="[[uploadFilesUrl]]?token=[[csrfToken]]"
-        method="POST"
-        form-data-name="file-upload"
+      <vaadin-upload accept="[[fileTypes]]" target="[[uploadFilesUrl]]?token=[[csrfToken]]" method="POST" form-data-name="file-upload"
         on-upload-success="_handleImageUploadSuccess">
         <div class="drop-label">
           <iron-icon icon="description"></iron-icon>

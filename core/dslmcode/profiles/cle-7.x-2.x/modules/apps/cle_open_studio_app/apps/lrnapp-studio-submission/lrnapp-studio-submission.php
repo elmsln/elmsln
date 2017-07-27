@@ -72,7 +72,9 @@ function _cle_open_studio_app_file_index($machine_name, $app_route, $params, $ar
   if ($method == 'POST') {
     // check for a file upload
     if (isset($_FILES['file-upload']) && isset($_FILES['file-upload']['type']) && isset($_FILES['file-upload']['tmp_name'])) {
-      $type = $_FILES['file-upload']['type'];
+      // find out what the file type is. It's often separated by a '/'
+      $type = explode('/', $_FILES['file-upload']['type']);
+      $type = $type[0];
       $tmp_name = $_FILES['file-upload']['tmp_name'];
       $options = array();
       if (isset($params['file_wrapper'])) {
