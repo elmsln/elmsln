@@ -172,7 +172,16 @@
           </template>
         </paper-card>
       </div>
+<<<<<<< HEAD
     </div>
+=======
+    </template>
+
+    <template is="dom-if" if="[[editPage]]">
+      <lrnapp-studio-submission-edit submission="{{submission}}" route="{{route}}" end-point="[[endPoint]]" csrf-token="[[csrfToken]]" on-updated="_submissionUpdated"></lrnapp-studio-submission-edit>
+    </template>
+
+>>>>>>> added updated event.
   </template>
   <script>
     Polymer({
@@ -209,7 +218,13 @@
       },
       _isReply: function (data) {
         this.thread = submission.relationships.comments.data.attributes.thread;
-        console.log(this.thread);
+      },
+      _submissionUpdated: function (e) {
+        var type = e.detail.type;
+        // navigate to the main page
+        this.set('route.path', '');
+        // refresh the data
+        this.$$('#ajaxRequest').generateRequest();
       },
       /**
        * Simple way to convert from object to array.

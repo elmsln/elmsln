@@ -236,7 +236,7 @@
         var status = res.detail.response.status;
         if (status === 200) {
           // this will go back to the submission page.
-          this.fire('routeChange', { path: root.route.prefix });
+          this.fire('updated', {type: 'update'});
         }
       },
       _handleImageUploadSuccess: function (e) {
