@@ -139,15 +139,18 @@ class CleOpenStudioAppSubmissionService {
       $encoded_submission->attributes->links = NULL;
       $encoded_submission->attributes->links = $submission->field_links[LANGUAGE_NONE];
       // Video
-      $encoded_submission->attributes->video = NULL;
-      $videos = $submission->field_video[LANGUAGE_NONE];
-      if ($videos) {
-        foreach ($videos as $key => &$video) {
-          // add a video_src property to give the correct embed src to an iframe
-          $video['video_src'] = _elmsln_api_video_url($video['video_url']);
+      $encoded_submission->attributes->video = array();
+      if (isset($submission->field_video[LANGUAGE_NONE])) {
+        $videos = $submission->field_video[LANGUAGE_NONE];
+        if ($videos) {
+          foreach ($videos as $key => &$video) {
+            // add a video_src property to give the correct embed src to an iframe
+            $video['video_src'] = _elmsln_api_video_url($video['video_url']);
+          }
         }
+        $encoded_submission->attributes->video = $videos;
       }
-      $encoded_submission->attributes->video = $videos;
+
       // Meta Info
       $encoded_submission->meta = new stdClass();
       $encoded_submission->meta->created = Date('c', $submission->created);
@@ -202,12 +205,15 @@ class CleOpenStudioAppSubmissionService {
         if ($payload->attributes->links) {
           $node->field_links[LANGUAGE_NONE] = $this->objectToArray($payload->attributes->links);
         }
-        // if ($payload->attributes->videos) {
-        //   $node->field_video[LANGUAGE_NONE] = $payload->attributes->videos;
-        // }
+        if (isset($payload->attributes->video)) {
+          $videos = array();
+          foreach ($payload->attributes->video as $key => $video) {
+            $videos[$key]['video_url'] = $video->video_url;
+          }
+          $node->field_video[LANGUAGE_NONE] = $videos;
+        }
         if (isset($payload->attributes->images)) {
           $node->field_images[LANGUAGE_NONE] = $this->objectToArray($payload->attributes->images);
-          ddl($node);
         }
       }
     }

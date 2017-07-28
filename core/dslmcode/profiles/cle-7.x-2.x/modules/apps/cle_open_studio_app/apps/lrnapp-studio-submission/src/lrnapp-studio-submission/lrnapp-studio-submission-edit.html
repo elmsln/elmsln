@@ -73,6 +73,31 @@
       .linksfield__input {
         flex: 1 1 auto;
       }
+
+      .videosfield__item {
+        position: relative;
+        width: 300px;
+        height: 200px;
+      }
+
+      .videosfield__item:after {
+        content: '';
+        display: block;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, .9);
+        position: absolute;
+        z-index: 1;
+      }
+
+      .videosfield__actions {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%);
+        z-index: 5;
+        color: white;
+      }
     </style>
 
     <iron-ajax id="ajaxUpdateRequest" url="[[reqUrl]]" method="PUT" body="[[reqBody]]" params="[[reqParams]]" content-type="application/json"
@@ -115,7 +140,23 @@
       </template>
       <div class="linksfield__create">
         <paper-icon-button icon="add" class="linksfield__create_button" on-click="_linksfieldCreate"></paper-icon-button>
-        <paper-input id="link-input"class="linksfield__input" label="URL" value="{{newlink}}"></paper-input>
+        <paper-input id="link-input" class="linksfield__input" label="URL" value="{{newlink}}"></paper-input>
+      </div>
+    </div>
+
+    <!-- Videos -->
+    <div id="videosfield" class="videosfield field">
+      <label for="videos-input">Links</label>
+      <template is="dom-if" if="{{submission.attributes.video}}">
+        <template is="dom-repeat" items="{{submission.attributes.video}}" as="video">
+          <lrnapp-studio-submission-media-editoverlay on-delete="_videofieldDelete" data-index$="[[index]]">
+            <iframe class="videosfield__iframe" src="{{video.video_src}}"></iframe>
+          </lrnapp-studio-submission-media-editoverlay>
+        </template>
+      </template>
+      <div class="videosfield__create">
+        <paper-icon-button icon="add" class="videosfield__create_button" on-click="_videofieldCreate"></paper-icon-button>
+        <paper-input id="videos-input" class="videosfield__input" label="URL" value="{{newvideo}}"></paper-input>
       </div>
     </div>
 
@@ -149,6 +190,9 @@
           type: String
         },
         newlink: {
+          type: String
+        },
+        newvideo: {
           type: String
         }
       },
@@ -241,6 +285,17 @@
         var normalizedEvent = Polymer.dom(e);
         var deleteIndex = normalizedEvent.localTarget.getAttribute('data-index');
         root.splice('submission.attributes.links', deleteIndex, 1);
+      },
+      _videofieldCreate: function (e) {
+        var root = this;
+        root.push('submission.attributes.video', { video_url: root.newvideo });
+        root.newvideo = '';
+      },
+      _videofieldDelete: function (e) {
+        var root = this;
+        var normalizedEvent = Polymer.dom(e);
+        var deleteIndex = normalizedEvent.localTarget.getAttribute('data-index');
+        root.splice('submission.attributes.video', deleteIndex, 1);
       },
       /**
        * Simple way to convert from object to array.
