@@ -124,14 +124,12 @@
               <template is="dom-if" if="[[submission.attributes.images]]">
                 <lrndesign-contentblock class="center" title="Images Submitted">
                   <template is="dom-repeat" items="[[_toArray(submission.attributes.images)]]" as="image">
-
                     <lrnsys-dialog alt="View Image">
                       <span slot="button">
-                <iron-image sizing="contain" class="contain" src="[[image.image_styles.elmsln_small]]"></iron-image>
-                </span>
+                        <iron-image sizing="contain" class="contain" src="[[image.image_styles.elmsln_small]]"></iron-image>
+                      </span>
                       <iron-image src="[[image.image_styles.elmsln_medium]]"></iron-image>
                     </lrnsys-dialog>
-
                   </template>
                 </lrndesign-contentblock>
               </template>
