@@ -83,6 +83,10 @@ class CleOpenStudioAppSubmissionService {
     }
   }
 
+  public function videoGenerateSourceUrl($url) {
+    return _elmsln_api_video_url($url);
+  }
+
   /**
    * Prepare a list of submissions to be outputed in json
    *

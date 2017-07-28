@@ -100,8 +100,13 @@
       }
     </style>
 
+    <!-- Update Submission Node -->
     <iron-ajax id="ajaxUpdateRequest" url="[[reqUrl]]" method="PUT" body="[[reqBody]]" params="[[reqParams]]" content-type="application/json"
       handle-as="json" on-response="_handleUpdateResponse"></iron-ajax>
+
+    <!-- Generate Video Source Url for preview -->
+    <iron-ajax id="videoGenerateSourceUrl" url="[[videoGenerateSourceUrl]]" method="POST" body="[[newvideo]]" params="[[reqParams]]" content-type="application/json"
+      handle-as="json" on-response="_videofieldCreate"></iron-ajax>
     
     <template is="dom-if" if="{{submission}}">
       <paper-input label="Title" value="{{submission.attributes.title}}"></paper-input>
@@ -194,6 +199,9 @@
         },
         newvideo: {
           type: String
+        },
+        videoGenerateSourceUrl: {
+          type: String
         }
       },
       observers: [
@@ -204,6 +212,7 @@
       _urlVarsChanged: function (id, endPoint) {
         this.reqUrl = endPoint + '/api/submissions/' + id;
         this.uploadFilesUrl = endPoint + '/api/files';
+        this.videoGenerateSourceUrl = endPoint + '/api/video/generate-source-url';
       },
       _paramsChanged: function (csrfToken) {
         var params = this.reqParams || {};
@@ -288,8 +297,22 @@
       },
       _videofieldCreate: function (e) {
         var root = this;
-        root.push('submission.attributes.video', { video_url: root.newvideo });
-        root.newvideo = '';
+        var video_url = root.newvideo;
+        var normalizedEvent = Polymer.dom(e);
+        var tagname = normalizedEvent.localTarget.tagName;
+        // find out if the component that called this function
+        // if it's the iron-ajax then that means we have what we
+        // need to add this new video to the array.
+        if (tagname === 'IRON-AJAX') {
+          var video_src = e.detail.response.data;
+          root.push('submission.attributes.video', { video_url: root.newvideo, video_src: video_src });
+          root.newvideo = '';
+        }
+        // if it wasn't iron ajax, then we need to go get the
+        // newvideo's source url from the api
+        else {
+          this.$$('#videoGenerateSourceUrl').generateRequest();
+        }
       },
       _videofieldDelete: function (e) {
         var root = this;

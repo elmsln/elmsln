@@ -90,6 +90,28 @@ function _cle_open_studio_app_file_index($machine_name, $app_route, $params, $ar
   return $return;
 }
 
+function _cle_open_studio_app_video_index($machine_name, $app_route, $params, $args) {
+  return array('status' => 403);
+}
+
+function _cle_open_studio_app_video_generate_source_url($machine_name, $app_route, $params, $args) {
+  $return = array('status' => 200);
+  $method = $_SERVER['REQUEST_METHOD'];
+  if ($method == 'POST') {
+    $post_data = file_get_contents("php://input");
+    $submission_service = new CleOpenStudioAppSubmissionService;
+    $src_url = $submission_service->videoGenerateSourceUrl($post_data);
+    if ($src_url) {
+      $return['data'] = $src_url;
+      return $return;
+    }
+  }
+  else {
+    return array('status' => 400, 'errors' => array(t('No video url was provided')));
+  }
+  return array('status' => 422, 'errors' => array(t('Unprocessable entity')));
+}
+
 // function cle_open_studio_app_cle_open_studio_app_encode_submission_alter(&$submissions) {
 //   if (_assignment_is_open()) {
 //     $action = new stdClass();

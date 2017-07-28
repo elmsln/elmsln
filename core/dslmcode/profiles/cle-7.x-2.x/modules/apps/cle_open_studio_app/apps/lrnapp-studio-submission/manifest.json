@@ -23,6 +23,14 @@
       "api/files": {
         "callback": "_cle_open_studio_app_file_index",
         "property": "source-path"
+      },
+      "api/video": {
+        "callback": "_cle_open_studio_app_video_index",
+        "property": "source-path"
+      },
+      "api/video/generate-source-url": {
+        "callback": "_cle_open_studio_app_video_generate_source_url",
+        "property": "source-path"
       }
     },
     "context": {
