@@ -1,0 +1,51 @@
+
+<dom-module id="lrnapp-studio-submission-media-editoverlay">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+      .wrapper {
+        position: relative;
+        z-index: 1;
+        overflow: hidden;
+        display: inline-block;
+      }
+      .actions {
+        overflow: hidden;
+        position: absolute;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        top: 0;
+        left: 0;
+        z-index: 5;
+        color: white;
+        background: rgba(0,0,0, 0.70);
+        height: 100%;
+        width: 100%;
+        opacity: 0;
+        transition: all .3s ease-in-out;
+      }
+      .wrapper:hover .actions {
+        opacity: 1;
+      }
+    </style>
+
+    <div class="wrapper">
+      <content></content>
+      <div class="actions">
+        <paper-icon-button icon="delete" class="delete" on-click="_deleteClicked"></paper-icon-button>
+      </div>
+    </div>
+    
+  </template>
+  <script>
+    Polymer({
+      is: 'lrnapp-studio-submission-media-editoverlay',
+      _deleteClicked: function (e) {
+        this.fire('delete');
+      }
+    });
+  </script>
+</dom-module>

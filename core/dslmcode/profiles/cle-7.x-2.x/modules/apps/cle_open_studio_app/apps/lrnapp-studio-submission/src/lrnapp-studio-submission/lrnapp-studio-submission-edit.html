@@ -1,3 +1,6 @@
+
+<link rel="import" href="lrnapp-studio-submission-media-editoverlay.html">
+
 <dom-module id="lrnapp-studio-submission-edit">
   <template>
     <style>
@@ -116,8 +119,9 @@
         <label for="image-upload">Images</label>
         <template id="imagesfield_repeat" is="dom-repeat" items="{{submission.attributes.images}}" as="image">
           <div class="imagesfiled__image">
-            <iron-image src="{{image.url}}" preload></iron-image>
-            <paper-icon-button class="imagesfiled__image_delete" icon="delete" data-fid$="{{image.fid}}" on-click="_imageDelete"></paper-icon-button>
+            <lrnapp-studio-submission-media-editoverlay on-delete="_imagesfieldDelete" data-index$="[[index]]">
+              <iron-image src="{{image.url}}" preload></iron-image>
+            </lrnapp-studio-submission-media-editoverlay>
           </div>
         </template>
       </div>
@@ -151,7 +155,7 @@
 
     <!-- Videos -->
     <div id="videosfield" class="videosfield field">
-      <label for="videos-input">Links</label>
+      <label for="videos-input">Videos</label>
       <template is="dom-if" if="{{submission.attributes.video}}">
         <template is="dom-repeat" items="{{submission.attributes.video}}" as="video">
           <lrnapp-studio-submission-media-editoverlay on-delete="_videofieldDelete" data-index$="[[index]]">
@@ -266,23 +270,11 @@
           this.set('submission', submission);
         }
       },
-      _imageDelete: function (e) {
+      _imagesfieldDelete: function (e) {
         var root = this;
         var normalizedEvent = Polymer.dom(e);
-        var deleteFid = normalizedEvent.localTarget.getAttribute('data-fid');
-        if (deleteFid) {
-          // cast deleteFid to a number
-          deleteFid = Number(deleteFid);
-          var submission = Object.assign({}, root.submission);
-          submission.attributes = submission.attributes || {};
-          submission.attributes.images = submission.attributes.images || [];
-          // find the delete image and filter it out of the images array
-          submission.attributes.images = submission.attributes.images.filter(function (image) {
-            return image.fid !== deleteFid;
-          });
-          // immutabley replace submission images with the new submission images.
-          this.set('submission', submission);
-        }
+        var deleteIndex = normalizedEvent.localTarget.getAttribute('data-index');
+        root.splice('submission.attributes.images', deleteIndex, 1);
       },
       _linksfieldCreate: function (e) {
         var root = this;
