@@ -101,6 +101,30 @@
         z-index: 5;
         color: white;
       }
+
+      elmsln-loading {
+        position: absolute;
+        display: none;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255,255,255, 0.8);
+        z-index: 10;
+        align-items: flex-end;
+        justify-content: center;
+      }
+      :host[saving] elmsln-loading {
+        display: block;
+      }
+      elmsln-loading ::shadow > lrn-icon {
+        top: calc(50% - 5vmax);
+        left: calc(50% - 5vmax);
+        position: fixed;
+        transform-origin: center center;
+        width: 10vmax !important;
+        height: 10vmax !important;
+      }
     </style>
 
     <!-- Update Submission Node -->
@@ -178,6 +202,8 @@
       <paper-button id="delete">
         <iron-icon icon="delete"></iron-icon> Delete</paper-button>
     </div>
+
+    <elmsln-loading></elmsln-loading>
   </template>
   <script>
     Polymer({
@@ -206,6 +232,11 @@
         },
         videoGenerateSourceUrl: {
           type: String
+        },
+        saving: {
+          type: Boolean,
+          reflectToAttribute: true,
+          value: false
         }
       },
       observers: [
@@ -230,10 +261,12 @@
         this.reqBody = this.submission;
         this.reqBody.state = 'submission_ready';
         this.$$('#ajaxUpdateRequest').generateRequest();
+        this.saving = true;
       },
       _handleUpdateResponse: function (res) {
         var root = this;
         var status = res.detail.response.status;
+        this.saving = false;
         if (status === 200) {
           // this will go back to the submission page.
           this.fire('updated', {type: 'update'});
