@@ -24,11 +24,11 @@
         background: rgba(0,0,0, 0.70);
         height: 100%;
         width: 100%;
-        opacity: 0;
-        transition: all .3s ease-in-out;
+        transition: all .2s ease-in-out;
+        transform: translateY(-100%);
       }
       .wrapper:hover .actions {
-        opacity: 1;
+        transform: translateY(0);
       }
     </style>
 
@@ -36,6 +36,7 @@
       <content></content>
       <div class="actions">
         <paper-icon-button icon="delete" class="delete" on-click="_deleteClicked"></paper-icon-button>
+        <paper-ripple></paper-ripple>
       </div>
     </div>
     
