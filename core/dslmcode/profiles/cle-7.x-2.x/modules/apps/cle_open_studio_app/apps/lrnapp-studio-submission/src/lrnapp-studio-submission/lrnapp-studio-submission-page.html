@@ -101,6 +101,7 @@
     <app-route route="{{route}}" pattern="/edit" tail="{{tail}}" active="{{editPage}}">
     </app-route>
 
+
     <iron-ajax id="ajaxRequest" auto url="[[reqUrl]]" method="GET" body="[[reqBody]]" params="[[reqParams]]" content-type="application/json"
       handle-as="json" on-response="_handleResponse"></iron-ajax>
     <div class="flex-wrap">
@@ -126,9 +127,9 @@
                   <template is="dom-repeat" items="[[_toArray(submission.attributes.images)]]" as="image">
                     <lrnsys-dialog alt="View Image">
                       <span slot="button">
-                        <iron-image sizing="contain" class="contain" src="[[image.image_styles.elmsln_small]]"></iron-image>
+                        <iron-image sizing="contain" class="contain" src="[[image.url]]"></iron-image>
                       </span>
-                      <iron-image src="[[image.image_styles.elmsln_medium]]"></iron-image>
+                      <iron-image src="[[image.url]]"></iron-image>
                     </lrnsys-dialog>
                   </template>
                 </lrndesign-contentblock>

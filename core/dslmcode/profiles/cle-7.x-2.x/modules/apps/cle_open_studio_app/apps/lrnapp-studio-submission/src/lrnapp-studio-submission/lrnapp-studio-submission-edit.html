@@ -1,5 +1,5 @@
-
 <link rel="import" href="lrnapp-studio-submission-media-editoverlay.html">
+<link rel="import" href="lrnapp-studio-submission-edit-images.html">
 
 <dom-module id="lrnapp-studio-submission-edit">
   <template>
@@ -25,34 +25,22 @@
       }
 
       iron-icon {
-         margin-right: .4em; 
+        margin-right: .4em;
         --iron-icon-height: 2em;
-        --iron-icon-width: 2em; 
+        --iron-icon-width: 2em;
       }
 
       #publish iron-icon {
         color: green;
       }
-      
+
       #delete iron-icon {
         color: red;
       }
 
-      .imagesfiled {
-      }
+      .imagesfiled {}
 
-      .imagesfiled__image {
-        display: inline-flex;
-        justify-content: space-around;
-        min-height: 100px;
-        position: relative;
-      }
-      .imagesfiled__image iron-image {
-        --iron-image-height: 100px;
-      }
-      .imagesfiled__image iron-image:hover {
-        /* transform: scale(1.1); */
-      }
+
       .imagesfiled__image_delete {
         position: absolute;
         top: 0;
@@ -109,15 +97,17 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background: rgba(255,255,255, 0.8);
+        background: rgba(255, 255, 255, 0.8);
         z-index: 10;
         align-items: flex-end;
         justify-content: center;
       }
-      :host[saving] elmsln-loading {
+
+       :host[saving] elmsln-loading {
         display: block;
       }
-      elmsln-loading ::shadow > lrn-icon {
+
+      elmsln-loading ::shadow>lrn-icon {
         top: calc(50% - 5vmax);
         left: calc(50% - 5vmax);
         position: fixed;
@@ -132,30 +122,17 @@
       handle-as="json" on-response="_handleUpdateResponse"></iron-ajax>
 
     <!-- Generate Video Source Url for preview -->
-    <iron-ajax id="videoGenerateSourceUrl" url="[[videoGenerateSourceUrl]]" method="POST" body="[[newvideo]]" params="[[reqParams]]" content-type="application/json"
-      handle-as="json" on-response="_videofieldCreate"></iron-ajax>
-    
+    <iron-ajax id="videoGenerateSourceUrl" url="[[videoGenerateSourceUrl]]" method="POST" body="[[newvideo]]" params="[[reqParams]]"
+      content-type="application/json" handle-as="json" on-response="_videofieldCreate"></iron-ajax>
+
     <template is="dom-if" if="{{submission}}">
       <paper-input label="Title" value="{{submission.attributes.title}}"></paper-input>
 
       <!-- Images -->
       <div class="imagesfield field">
         <label for="image-upload">Images</label>
-        <template id="imagesfield_repeat" is="dom-repeat" items="{{submission.attributes.images}}" as="image">
-          <div class="imagesfiled__image">
-            <lrnapp-studio-submission-media-editoverlay on-delete="_imagesfieldDelete" data-index$="[[index]]">
-              <iron-image src="{{image.url}}" preload></iron-image>
-            </lrnapp-studio-submission-media-editoverlay>
-          </div>
-        </template>
+        <lrnapp-studio-submission-edit-images images="{{submission.attributes.images}}" upload-url="[[uploadFilesUrl]]"></lrnapp-studio-submission-edit-images>
       </div>
-      <vaadin-upload accept="[[fileTypes]]" target="[[uploadFilesUrl]]?token=[[csrfToken]]" method="POST" form-data-name="file-upload"
-        on-upload-success="_handleImageUploadSuccess">
-        <div class="drop-label">
-          <iron-icon icon="description"></iron-icon>
-          Upload files here:
-        </div>
-      </vaadin-upload>
     </template>
 
     <!-- Links -->
@@ -240,13 +217,13 @@
         }
       },
       observers: [
-        '_urlVarsChanged(submission.id, endPoint)',
+        '_urlVarsChanged(submission.id, endPoint, csrfToken)',
         '_paramsChanged(csrfToken)',
         '_bodyChanged(title)'
       ],
-      _urlVarsChanged: function (id, endPoint) {
+      _urlVarsChanged: function (id, endPoint, csrfToken) {
         this.reqUrl = endPoint + '/api/submissions/' + id;
-        this.uploadFilesUrl = endPoint + '/api/files';
+        this.uploadFilesUrl = endPoint + '/api/files?token=' + csrfToken;
         this.videoGenerateSourceUrl = endPoint + '/api/video/generate-source-url';
       },
       _paramsChanged: function (csrfToken) {
@@ -269,45 +246,8 @@
         this.saving = false;
         if (status === 200) {
           // this will go back to the submission page.
-          this.fire('updated', {type: 'update'});
+          this.fire('updated', { type: 'update' });
         }
-      },
-      _handleImageUploadSuccess: function (e) {
-        var root = this;
-        var response = e.detail.xhr.response;
-        // normalize response string
-        var response = JSON.parse(response);
-        // get the newely created file
-        if (response.data.file) {
-          var file = response.data.file;
-          // add it to the list of submission images.
-          var submission = Object.assign({}, root.submission);
-          submission.attributes = submission.attributes || {};
-          submission.attributes.images = submission.attributes.images || [];
-          // find out if the image is already referenced in the submission
-          // images array and if it is replace it.
-          var replacement = false;
-          submission.attributes.images = submission.attributes.images.map(function (image) {
-            if (image.fid === file.fid) {
-              replacement = true;
-              return file;
-            }
-            else {
-              return image;
-            }
-          });
-          // if the image was not a replacement then add it to the array
-          if (!replacement) {
-            submission.attributes.images.push(file);
-          }
-          this.set('submission', submission);
-        }
-      },
-      _imagesfieldDelete: function (e) {
-        var root = this;
-        var normalizedEvent = Polymer.dom(e);
-        var deleteIndex = normalizedEvent.localTarget.getAttribute('data-index');
-        root.splice('submission.attributes.images', deleteIndex, 1);
       },
       _linksfieldCreate: function (e) {
         var root = this;
