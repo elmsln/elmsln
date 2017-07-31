@@ -1,5 +1,5 @@
-<link rel="import" href="lrnapp-studio-submission-media-editoverlay.html">
 <link rel="import" href="lrnapp-studio-submission-edit-add-asset.html">
+<link rel="import" href="lrnapp-studio-submission-edit-image.html">
 
 <dom-module id="lrnapp-studio-submission-edit-images">
   <template>
@@ -24,22 +24,6 @@
         min-width: 200px;
       }
 
-      .images__image {
-        display: inline-flex;
-        justify-content: space-around;
-        min-height: 100px;
-        position: relative;
-      }
-
-      .images__image iron-image {
-        --iron-image-height: 200px;
-        display: block;
-      }
-
-      .images__image iron-image:hover {
-        /* transform: scale(1.1); */
-      }
-
       neon-animated-pages .iron-selected {
         position: static;
       }
@@ -53,11 +37,12 @@
 
     <div class="images__images">
       <template is="dom-repeat" items="{{images}}" as="image">
-        <div class="images__image">
-          <lrnapp-studio-submission-media-editoverlay on-delete="_delete" data-index$="[[index]]">
+        <lrnapp-studio-submission-edit-image image="{{image}}"></lrnapp-studio-submission-edit-image>
+        <!-- <div class="images__image">
+          <lrnapp-studio-submission-media-editoverlay on-delete="_delete" data-index$="[[index]]" embedcode="yeasd">
             <iron-image src="{{image.url}}" preload></iron-image>
           </lrnapp-studio-submission-media-editoverlay>
-        </div>
+        </div> -->
       </template>
       <lrnapp-studio-submission-edit-add-asset on-click="_addImage" icon="image:photo-library"></lrnapp-studio-submission-edit-add-asset>
     </div>

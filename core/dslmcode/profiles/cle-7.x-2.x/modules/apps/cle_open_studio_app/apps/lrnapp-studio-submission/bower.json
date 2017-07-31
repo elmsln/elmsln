@@ -10,7 +10,11 @@
     "paper-tooltip": "PolymerElements/paper-tooltip#^1",
     "secure-request": "LRNWebComponents/secure-request#^0.0.1",
     "lrnsys-comment": "LRNWebComponents/lrnsys-comment#^0",
-    "moment-element": "abdonrd/moment-element#^1.0.0"
+    "moment-element": "abdonrd/moment-element#^1.0.0",
+    "mtz-marked-editor": "MaritzSTL/mtz-marked-editor#^0",
+    "paper-tabs": "PolymerElements/paper-tabs#^1.8",
+    "iron-pages": "PolymerElements/iron-pages#^1",
+    "granite-clipboard": "LostInBrittany/granite-clipboard#^1.1.0"
   },
   "devDependencies": {
     "iron-component-page": "PolymerElements/iron-component-page#^1",

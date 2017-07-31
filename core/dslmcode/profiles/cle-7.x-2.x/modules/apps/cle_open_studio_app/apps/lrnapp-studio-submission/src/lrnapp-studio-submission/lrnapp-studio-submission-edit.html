@@ -2,6 +2,7 @@
 <link rel="import" href="lrnapp-studio-submission-edit-images.html">
 <link rel="import" href="lrnapp-studio-submission-edit-video.html">
 <link rel="import" href="lrnapp-studio-submission-edit-links.html">
+<link rel="import" href="lrnapp-studio-submission-edit-textarea.html">
 
 <dom-module id="lrnapp-studio-submission-edit">
   <template>
@@ -81,7 +82,15 @@
       handle-as="json" on-response="_handleUpdateResponse"></iron-ajax>
 
     <template is="dom-if" if="{{submission}}">
-      <paper-input label="Title" value="{{submission.attributes.title}}"></paper-input>
+      <div class="field">
+        <paper-input label="Title" value="{{submission.attributes.title}}"></paper-input>
+      </div>
+
+      <!-- Body -->
+      <div class="field">
+        <label>Submission Text</label>
+        <lrnapp-studio-submission-edit-textarea></lrnapp-studio-submission-edit-textarea>
+      </div>
 
       <!-- Images -->
       <div class="imagesfield field">
@@ -101,6 +110,7 @@
       <label for="videos-input">Videos</label>
       <lrnapp-studio-submission-edit-video videos="{{submission.attributes.video}}" end-point="[[endPoint]]" csrf-token="[[csrfToken]]"></lrnapp-studio-submission-edit-video>
     </div>
+
 
     <div class="actions">
       <paper-button id="publish" on-click="_publishClicked">

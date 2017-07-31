@@ -1,0 +1,41 @@
+<link rel="import" href="lrnapp-studio-submission-media-editoverlay.html">
+
+<dom-module id="lrnapp-studio-submission-edit-image">
+  <template>
+    <style>
+       :host {
+        display: inline-flex;
+        justify-content: space-around;
+        min-height: 100px;
+        position: relative;
+      }
+
+      iron-image {
+        --iron-image-height: 200px;
+        display: block;
+      }
+    </style>
+
+    <lrnapp-studio-submission-media-editoverlay on-delete="_delete" data-index$="[[index]]" embedcode="{{embedcode}}">
+      <iron-image src="{{image.url}}" preload></iron-image>
+    </lrnapp-studio-submission-media-editoverlay>
+
+  </template>
+  <script>
+    Polymer({
+      is: 'lrnapp-studio-submission-edit-image',
+      properties: {
+        image: {
+          type: Object
+        },
+        embedcode: {
+          type: String,
+          computed: '_computeEmbedCode(image)'
+        }
+      },
+      _computeEmbedCode: function (image) {
+        return '![](' + image.url + ')';
+      }
+    });
+  </script>
+</dom-module>
