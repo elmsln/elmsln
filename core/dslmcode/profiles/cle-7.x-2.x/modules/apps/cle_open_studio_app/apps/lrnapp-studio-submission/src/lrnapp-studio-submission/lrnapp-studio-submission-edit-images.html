@@ -59,11 +59,11 @@
           </lrnapp-studio-submission-media-editoverlay>
         </div>
       </template>
-      <lrnapp-studio-submission-edit-add-asset on-click="_addImage"></lrnapp-studio-submission-edit-add-asset>
+      <lrnapp-studio-submission-edit-add-asset on-click="_addImage" icon="image:photo-library"></lrnapp-studio-submission-edit-add-asset>
     </div>
 
     <paper-dialog id="dialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation" with-backdrop>
-      <h2>Add Video</h2>
+      <h2>Add Image(s)</h2>
       <paper-dialog-scrollable>
         <div class="images__upload">
           <vaadin-upload accept="[[fileTypes]]" target="[[uploadUrl]]" method="POST" form-data-name="file-upload" on-upload-success="_handleImageUploadSuccess">

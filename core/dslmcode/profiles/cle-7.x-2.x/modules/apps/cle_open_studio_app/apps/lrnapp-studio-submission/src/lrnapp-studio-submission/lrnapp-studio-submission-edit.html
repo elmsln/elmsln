@@ -1,6 +1,7 @@
 <link rel="import" href="lrnapp-studio-submission-media-editoverlay.html">
 <link rel="import" href="lrnapp-studio-submission-edit-images.html">
 <link rel="import" href="lrnapp-studio-submission-edit-video.html">
+<link rel="import" href="lrnapp-studio-submission-edit-links.html">
 
 <dom-module id="lrnapp-studio-submission-edit">
   <template>
@@ -48,25 +49,6 @@
         right: 0;
       }
 
-      .linksfield__item {
-        display: flex;
-        margin: auto;
-      }
-
-      .linksfield__info {
-        flex: 1 1 auto;
-      }
-
-      .linksfield__create {
-        display: flex;
-        align-items: center;
-      }
-
-      .linksfield__input {
-        flex: 1 1 auto;
-      }
-
-
       elmsln-loading {
         position: absolute;
         display: none;
@@ -111,20 +93,7 @@
     <!-- Links -->
     <div id="linksfield" class="linksfield field">
       <label for="links-input">Links</label>
-      <template is="dom-repeat" items="{{submission.attributes.links}}" as="link" observe="submission">
-        <div class="linksfield__item">
-          <div class="linksfield__info">
-            <div class="linksfield__url">{{link.url}}</div>
-          </div>
-          <div class="linksfield__actions">
-            <paper-icon-button icon="delete" class="linksfield__delete" data-index$="{{index}}" on-click="_linksfieldDelete"></paper-icon-button>
-          </div>
-        </div>
-      </template>
-      <div class="linksfield__create">
-        <paper-icon-button icon="add" class="linksfield__create_button" on-click="_linksfieldCreate"></paper-icon-button>
-        <paper-input id="link-input" class="linksfield__input" label="URL" value="{{newlink}}"></paper-input>
-      </div>
+      <lrnapp-studio-submission-edit-links links="{{submission.attributes.links}}"></lrnapp-studio-submission-edit-links>
     </div>
 
     <!-- Videos -->
@@ -211,17 +180,6 @@
           // this will go back to the submission page.
           this.fire('updated', { type: 'update' });
         }
-      },
-      _linksfieldCreate: function (e) {
-        var root = this;
-        root.push('submission.attributes.links', { url: root.newlink });
-        root.newlink = '';
-      },
-      _linksfieldDelete: function (e) {
-        var root = this;
-        var normalizedEvent = Polymer.dom(e);
-        var deleteIndex = normalizedEvent.localTarget.getAttribute('data-index');
-        root.splice('submission.attributes.links', deleteIndex, 1);
       },
       /**
        * Simple way to convert from object to array.
