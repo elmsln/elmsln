@@ -1,5 +1,6 @@
 <link rel="import" href="lrnapp-studio-submission-media-editoverlay.html">
 <link rel="import" href="lrnapp-studio-submission-edit-images.html">
+<link rel="import" href="lrnapp-studio-submission-edit-video.html">
 
 <dom-module id="lrnapp-studio-submission-edit">
   <template>
@@ -65,30 +66,6 @@
         flex: 1 1 auto;
       }
 
-      .videosfield__item {
-        position: relative;
-        width: 300px;
-        height: 200px;
-      }
-
-      .videosfield__item:after {
-        content: '';
-        display: block;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, .9);
-        position: absolute;
-        z-index: 1;
-      }
-
-      .videosfield__actions {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%);
-        z-index: 5;
-        color: white;
-      }
 
       elmsln-loading {
         position: absolute;
@@ -120,10 +97,6 @@
     <!-- Update Submission Node -->
     <iron-ajax id="ajaxUpdateRequest" url="[[reqUrl]]" method="PUT" body="[[reqBody]]" params="[[reqParams]]" content-type="application/json"
       handle-as="json" on-response="_handleUpdateResponse"></iron-ajax>
-
-    <!-- Generate Video Source Url for preview -->
-    <iron-ajax id="videoGenerateSourceUrl" url="[[videoGenerateSourceUrl]]" method="POST" body="[[newvideo]]" params="[[reqParams]]"
-      content-type="application/json" handle-as="json" on-response="_videofieldCreate"></iron-ajax>
 
     <template is="dom-if" if="{{submission}}">
       <paper-input label="Title" value="{{submission.attributes.title}}"></paper-input>
@@ -157,17 +130,7 @@
     <!-- Videos -->
     <div id="videosfield" class="videosfield field">
       <label for="videos-input">Videos</label>
-      <template is="dom-if" if="{{submission.attributes.video}}">
-        <template is="dom-repeat" items="{{submission.attributes.video}}" as="video">
-          <lrnapp-studio-submission-media-editoverlay on-delete="_videofieldDelete" data-index$="[[index]]">
-            <iframe class="videosfield__iframe" src="{{video.video_src}}"></iframe>
-          </lrnapp-studio-submission-media-editoverlay>
-        </template>
-      </template>
-      <div class="videosfield__create">
-        <paper-icon-button icon="add" class="videosfield__create_button" on-click="_videofieldCreate"></paper-icon-button>
-        <paper-input id="videos-input" class="videosfield__input" label="URL" value="{{newvideo}}"></paper-input>
-      </div>
+      <lrnapp-studio-submission-edit-video videos="{{submission.attributes.video}}" end-point="[[endPoint]]" csrf-token="[[csrfToken]]"></lrnapp-studio-submission-edit-video>
     </div>
 
     <div class="actions">
@@ -259,31 +222,6 @@
         var normalizedEvent = Polymer.dom(e);
         var deleteIndex = normalizedEvent.localTarget.getAttribute('data-index');
         root.splice('submission.attributes.links', deleteIndex, 1);
-      },
-      _videofieldCreate: function (e) {
-        var root = this;
-        var video_url = root.newvideo;
-        var normalizedEvent = Polymer.dom(e);
-        var tagname = normalizedEvent.localTarget.tagName;
-        // find out if the component that called this function
-        // if it's the iron-ajax then that means we have what we
-        // need to add this new video to the array.
-        if (tagname === 'IRON-AJAX') {
-          var video_src = e.detail.response.data;
-          root.push('submission.attributes.video', { video_url: root.newvideo, video_src: video_src });
-          root.newvideo = '';
-        }
-        // if it wasn't iron ajax, then we need to go get the
-        // newvideo's source url from the api
-        else {
-          this.$$('#videoGenerateSourceUrl').generateRequest();
-        }
-      },
-      _videofieldDelete: function (e) {
-        var root = this;
-        var normalizedEvent = Polymer.dom(e);
-        var deleteIndex = normalizedEvent.localTarget.getAttribute('data-index');
-        root.splice('submission.attributes.video', deleteIndex, 1);
       },
       /**
        * Simple way to convert from object to array.
