@@ -1,0 +1,31 @@
+<dom-module id="lrnapp-studio-submission-edit-add-asset">
+  <template>
+    <style>
+       :host {
+        display: block;
+        width: 200px;
+        height: 200px;
+        background: lightgray;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative
+      }
+
+      .add iron-icon {
+        color: gray;
+        --iron-icon-height: 50px;
+        --iron-icon-width: 50px;
+      }
+    </style>
+
+      <iron-icon icon="add"></iron-icon>
+      <paper-ripple></paper-ripple>
+
+  </template>
+  <script>
+    Polymer({
+      is: 'lrnapp-studio-submission-edit-add-asset'
+    });
+  </script>
+</dom-module>
