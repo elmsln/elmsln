@@ -3,9 +3,17 @@
 <dom-module id="lrnapp-studio-submission-edit-video">
   <template>
     <style>
-       :host {
+      :host {
         display: flex;
         position: relative;
+        align-items: stretch;
+      }
+
+      :host > *:not(paper-dialog) {
+        background: lightgray;
+        display: flex;
+        align-items: center;
+        margin-right: 1em;
       }
 
       iframe {

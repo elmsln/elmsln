@@ -66,9 +66,6 @@
       <h2>Add Video</h2>
       <paper-dialog-scrollable>
         <div class="images__upload">
-          <paper-button on-click="_selectPage" data-page="0">
-            Back
-          </paper-button>
           <vaadin-upload accept="[[fileTypes]]" target="[[uploadUrl]]" method="POST" form-data-name="file-upload" on-upload-success="_handleImageUploadSuccess">
             <div class="images__drop-label">
               <iron-icon icon="images__description"></iron-icon>
