@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+
+    <title>lrnsys-button demo</title>
+
+    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+
+    <link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
+    <link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
+    <link rel="import" href="../lrnsys-button.html">
+
+    <style is="custom-style" include="demo-pages-shared-styles">
+    </style>
+  </head>
+  <body>
+    <div class="vertical-section-container centered">
+      <h3>Basic lrnsys-button demo</h3>
+      <demo-snippet>
+        <template>
+          <lrnsys-button alt="Google.com" icon="cloud-done" label="Google"></lrnsys-button>
+        </template>
+      </demo-snippet>
+    </div>
+    <div class="vertical-section-container centered">
+      <h3>Another lrnsys-button with hover option</h3>
+      <demo-snippet>
+        <template>
+          <lrnsys-button raised icon="cloud-done" label="Google" hover-class="blue  white-text" prefetch="true"></lrnsys-button>
+        </template>
+      </demo-snippet>
+    </div>
+    <div class="vertical-section-container centered">
+      <h3>Another lrnsys-button with hover and color options</h3>
+      <demo-snippet>
+        <template>
+          <lrnsys-button href="https://google.com/" icon="cloud-done" label="Google" hover-class="white-text" text-color="red-text" color="green"></lrnsys-button>
+        </template>
+      </demo-snippet>
+    </div>
+    <div class="vertical-section-container centered">
+      <h3>Another lrnsys-button no icon and inner html</h3>
+      <demo-snippet>
+        <template>
+          <lrnsys-button hover-class="black-text" class="red-text yellow">
+            <div>Google . com</div>
+          </lrnsys-button>
+        </template>
+      </demo-snippet>
+    </div>
+    <div class="vertical-section-container centered">
+      <h3>Another lrnsys-button with hover and class pass down options</h3>
+      <demo-snippet>
+        <template>
+          <lrnsys-button href="https://google.com/" icon="cloud-done" label="Google" hover-class="black-text" class="red-text yellow"></lrnsys-button>
+        </template>
+      </demo-snippet>
+    </div>
+    <div class="vertical-section-container centered">
+      <h3>disabled</h3>
+      <demo-snippet>
+        <template>
+          <lrnsys-button href="https://google.com/" icon="cloud-done" label="Google" hover-class="black-text" class="red-text yellow" disabled></lrnsys-button>
+        </template>
+      </demo-snippet>
+    </div>
+  </body>
+</html>

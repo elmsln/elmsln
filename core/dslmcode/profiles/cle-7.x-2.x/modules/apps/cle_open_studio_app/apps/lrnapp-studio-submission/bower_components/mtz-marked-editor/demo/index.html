@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+
+    <title>mtz-marked-editor demo</title>
+
+    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+
+    <link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
+    <link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
+    <link rel="import" href="../../iron-icons/editor-icons.html">
+    <link rel="import" href="../mtz-marked-editor.html">
+    <link rel="import" href="../mtz-marked-control-generic-wrap.html">
+    <link rel="import" href="../mtz-marked-control-generic-line.html">
+    <link rel="import" href="../controls/mtz-marked-control-link.html">
+
+    <style is="custom-style" include="demo-pages-shared-styles">
+    </style>
+  </head>
+  <body>
+    <div class="vertical-section-container centered">
+      <h3>Basic mtz-marked-editor demo</h3>
+      <demo-snippet>
+        <template>
+          <mtz-marked-editor>
+            <div slot="controls">
+              <mtz-marked-control-generic-wrap
+                icon="editor:format-bold"
+                title="Bold"
+                syntax-prefix="**"
+                syntax-suffix="**"
+                keys="ctrl+b"
+              ></mtz-marked-control-generic-wrap>
+              <mtz-marked-control-generic-wrap
+                icon="editor:format-italic"
+                title="Italic"
+                syntax-prefix="_"
+                syntax-suffix="_"
+                keys="ctrl+i"
+              ></mtz-marked-control-generic-wrap>
+              <mtz-marked-control-generic-line
+                icon="editor:format-size"
+                title="Heading"
+                syntax-prefix="# "
+              ></mtz-marked-control-generic-line>
+              <mtz-marked-control-generic-line
+                icon="editor:format-list-numbered"
+                title="Ordered List"
+                syntax-prefix="1. "
+              ></mtz-marked-control-generic-line>
+              <mtz-marked-control-generic-line
+                icon="editor:format-list-bulleted"
+                title="Unordered List"
+                syntax-prefix="- "
+              ></mtz-marked-control-generic-line>
+              <mtz-marked-control-link
+                icon="editor:insert-link"
+                title="Link"
+              ></mtz-marked-control-link>
+            </div>
+            <textarea slot="textarea"></textarea>
+          </mtz-marked-editor>
+        </template>
+      </demo-snippet>
+    </div>
+  </body>
+</html>

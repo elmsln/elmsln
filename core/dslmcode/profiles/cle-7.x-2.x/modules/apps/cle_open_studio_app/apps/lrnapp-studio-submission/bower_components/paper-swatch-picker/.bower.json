@@ -1,0 +1,48 @@
+{
+  "name": "paper-swatch-picker",
+  "version": "1.0.2",
+  "description": "A color picker element using all the Material Design colours",
+  "authors": [
+    "The Polymer Authors"
+  ],
+  "keywords": [
+    "web-components",
+    "polymer",
+    "color",
+    "picker"
+  ],
+  "main": "paper-swatch-picker.html",
+  "ignore": [],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/PolymerElements/paper-swatch-picker.git"
+  },
+  "license": "http://polymer.github.io/LICENSE.txt",
+  "homepage": "https://github.com/PolymerElements/paper-swatch-picker",
+  "dependencies": {
+    "iron-flex-layout": "PolymerElements/iron-flex-layout#^1.0.0",
+    "iron-iconset-svg": "PolymerElements/iron-iconset-svg#^1.0.0",
+    "paper-icon-button": "PolymerElements/paper-icon-button#^1.0.0",
+    "paper-item": "PolymerElements/paper-item#^1.0.0",
+    "paper-listbox": "PolymerElements/paper-listbox#^1.1.1",
+    "paper-menu-button": "PolymerElements/paper-menu-button#^1.0.0",
+    "polymer": "Polymer/polymer#^1.1.0"
+  },
+  "devDependencies": {
+    "iron-component-page": "PolymerElements/iron-component-page#^1.1.0",
+    "iron-demo-helpers": "PolymerElements/iron-demo-helpers#^1.1.0",
+    "iron-test-helpers": "PolymerElements/iron-test-helpers#^1.0.0",
+    "test-fixture": "PolymerElements/test-fixture#^1.0.0",
+    "web-component-tester": "^4.0.0",
+    "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0"
+  },
+  "_release": "1.0.2",
+  "_resolution": {
+    "type": "version",
+    "tag": "v1.0.2",
+    "commit": "0a277c5c24e2448fbf8010a24b866f9c9ec1bf11"
+  },
+  "_source": "https://github.com/PolymerElements/paper-swatch-picker.git",
+  "_target": "^1.0.2",
+  "_originalSource": "PolymerElements/paper-swatch-picker"
+}

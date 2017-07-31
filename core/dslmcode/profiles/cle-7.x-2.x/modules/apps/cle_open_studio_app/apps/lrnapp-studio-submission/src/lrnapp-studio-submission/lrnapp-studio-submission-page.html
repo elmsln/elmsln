@@ -1,6 +1,6 @@
 <link rel="import" href="lrnapp-studio-submission-comments.html">
 <link rel="import" href="lrnapp-studio-submission-comment.html">
-<link rel="import" href="../lrnsys-comment/lrnsys-comment.html">
+<link rel="import" href="../../bower_components/<lrnsys-comment></lrnsys-comment>/lrnsys-comment-list.html">
 
 <dom-module id="lrnapp-studio-submission-page">
   <template>
@@ -104,7 +104,7 @@
             <template is="dom-if" if="[[submission.relationships.comments]]">
                <!--<div class="comments">{{submission.relationships.comments.data.length}}</div>-->
                 <h2 class="title">Comments</h2>
-                <lrnsys-comment-list source-path="../../bower_components/lrnsys-comment/demo/data.json"></lrnsys-comment>
+                <lrnsys-comment-list source-path="../../bower_components/lrnsys-comment/demo/data.json"></lrnsys-comment-list>
             </template>
             </div>
       <div class="submission-page">

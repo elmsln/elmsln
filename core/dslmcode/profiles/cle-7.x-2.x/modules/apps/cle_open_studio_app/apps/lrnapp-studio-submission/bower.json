@@ -9,7 +9,8 @@
     "paper-spinner": "PolymerElements/paper-spinner#^1",
     "paper-tooltip": "PolymerElements/paper-tooltip#^1",
     "secure-request": "LRNWebComponents/secure-request#^0.0.1",
-    "moment-element": "abdonrd/moment-element#^2.0.0"
+    "lrnsys-comment": "LRNWebComponents/lrnsys-comment#^0",
+    "moment-element": "abdonrd/moment-element#^1.0.0"
   },
   "devDependencies": {
     "iron-component-page": "PolymerElements/iron-component-page#^1",

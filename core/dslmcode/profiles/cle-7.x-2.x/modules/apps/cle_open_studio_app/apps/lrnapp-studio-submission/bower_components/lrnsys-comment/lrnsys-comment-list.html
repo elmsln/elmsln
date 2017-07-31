@@ -1,0 +1,148 @@
+<link rel="import" href="lrnsys-comment.html">
+<link rel="import" href="../iron-ajax/iron-ajax.html">
+<link rel="import" href="../iron-list/iron-list.html">
+<link rel="import" href="../paper-toast/paper-toast.html">
+<!--
+`lrnsys-comment-list`
+A listing and event handling for comments.
+
+@demo demo/index.html
+-->
+<dom-module id="lrnsys-comment-list">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+    <iron-ajax
+     auto
+     url="[[sourcePath]]"
+     handle-as="json"
+     last-response="{{comments}}"></iron-ajax>
+    <iron-list items="[[_toArray(comments.data)]]">
+      <template>
+      <lrnsys-comment comment="{{item}}" hover-class="blue white-text"></lrnsys-comment>
+      </template>
+    </iron-list>
+    <paper-toast text="Updated" id="toast"></paper-toast>
+  </template>
+  <script>
+    Polymer({
+      is: 'lrnsys-comment-list',
+      listeners: {
+        'comment-save': 'handleSave',
+        'comment-editing': 'handleEditing',
+        'comment-reply': 'handleReply',
+        'comment-delete': 'handleDelete'
+      },
+      properties: {
+        /**
+         * An object containing all comments to render in the list
+         */
+        comments: {
+          type: Object,
+          notify: true,
+        },
+        /**
+         * Source to pull the comments from
+         */
+        sourcePath: {
+          type: String,
+          notify: true,
+          reflectToAttribute: true
+        }
+      },
+      handleEditing: function (e) {
+        let root = this;
+        root.$$('#toast').text = 'Be awesome to each other';
+        root.$$('#toast').toggle();
+      },
+      /**
+       * Handle a reply event bubbling up from a comment we've printed
+       * via our template in this element. This allows the higher element
+       * to create new lower ones which can invoke more lower ones from
+       * up above.
+       */
+      handleReply: function (e) {
+        let root = this;
+        var comment = e.detail.comment;
+        var comments = root.comments.data;
+        for (var index = 0; index < comments.length; index++) {
+          if (comments[index].metadata.id == comment.metadata.id) {
+            var newcomment = {
+              "metadata": {
+                "id": (comments[index].metadata.id + 1),
+                "editable": true,
+                "disabled": false
+              },
+              "actions": {
+                "edit": true,
+                "reply": true,
+                "delete": true
+              },
+              "attributes": {
+                "body": "",
+                "threadDepth": (comments[index].attributes.threadDepth + 1),
+                "created": "2001-2-1"
+              },
+              "relationships": {
+                "author": {
+                  "data": {
+                    "name": "Bryan",
+                    "avatar": "http://www.elmsln.org/sites/redesign/files/styles/square-profile-portrait/public/headshot.jpg?itok=_1HEhahr",
+                    "username": "btopro",
+                    "userid": "1"
+                  }
+                }
+              }
+            };
+            comments.splice(index+1, 0, newcomment);
+          }
+        }
+        // force tree to notice element updated
+        root.set('comments.data', []);
+        root.set('comments.data', comments);
+      },
+      /**
+       * Handle a delete event bubbling up from a comment we've printed.
+       */
+      handleDelete: function (e) {
+        let root = this;
+        var comment = e.detail.comment;
+        var comments = root.comments.data;
+        for (var index = 0; index < comments.length; index++) {
+          if (comments[index].metadata.id == comment.metadata.id) {
+            comments.splice(index, 1);
+            // force tree to notice element updated
+            root.set('comments.data', []);
+            root.set('comments.data', comments);
+            // force tree to notice element updated
+            root.$$('#toast').text = 'Comment deleted';
+            root.$$('#toast').toggle();
+            // bail early
+            return true;
+          }
+        }
+      },
+      /**
+       * Handle saving a comment.
+       */
+      handleSave: function (e) {
+        let root = this;
+        // @todo something with the actual saved comment
+        var comment = e.detail.comment;
+        root.$$('#toast').text = 'Comment saved!';
+        root.$$('#toast').toggle();
+      },
+      /**
+       * Simple way to convert from object to array.
+       */
+      _toArray: function (obj) {
+        return Object.keys(obj).map(function (key) {
+          return obj[key];
+        });
+      }
+    });
+  </script>
+</dom-module>

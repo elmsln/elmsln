@@ -1,0 +1,275 @@
+<link rel="import" href="../moment-element/moment-element.html">
+<link rel="import" href="../lrndesign-avatar/lrndesign-avatar.html">
+<link rel="import" href="../paper-tooltip/paper-tooltip.html">
+<link rel="import" href="../paper-card/paper-card.html">
+<link rel="import" href="../paper-input/paper-textarea.html">
+<link rel="import" href="../lrnsys-button/lrnsys-button.html">
+<link rel="import" href="../materializecss-styles/colors.html">
+<link rel="import" href="../iron-icons/editor-icons.html">
+<link rel="import" href="../marked-element/marked-element.html">
+<link rel="import" href="../mtz-marked-editor/mtz-marked-control-generic-wrap.html">
+<link rel="import" href="../mtz-marked-editor/mtz-marked-editor.html">
+<link rel="import" href="../mtz-marked-editor/mtz-marked-control-generic-line.html">
+<link rel="import" href="../mtz-marked-editor/controls/mtz-marked-control-link.html">
+
+<!--
+`lrnsys-comment`
+A well styled comment for a user with markdown support.
+
+@demo demo/index.html
+-->
+<dom-module id="lrnsys-comment">
+  <template>
+    <style include="materializecss-styles-colors">
+      :host {
+        display: flex;
+      }
+      :host[disabled] {
+        opacity: .5;
+        background-color: #cccccc;
+        pointer-events: none;
+      }
+      :host:hover {
+        z-index: 2;
+        border-bottom: 2px #888888 solid;
+        margin-bottom: -2px;
+      }
+      paper-card {
+        margin: 1.25em;
+        padding: 1em;
+      }
+      h1,
+      h2,
+      h3,
+      h4 {
+        text-align: left;
+      }
+      p {
+        font-size: 14px;
+        line-height: 18px;
+        text-align: left;
+      }
+      .nowrap marked-element {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .paper-card-length-1 {
+        width: 85%;
+        margin-bottom: .5em;
+      }
+      .paper-card-length-2 {
+        width: 81%;
+        margin-top: 0;
+        margin-bottom: .5em;
+      }
+      .paper-card-length-3 {
+        width: 77%;
+        margin-top: 0;
+        margin-bottom: .5em;
+      }
+      .comment-depth-2 {
+        margin: .5em;
+      }
+      .comment-depth-3 {
+        margin: 1em;
+      }
+      .comment-depth-4 {
+        margin: 1em;
+      }
+      .comment-depth-5 {
+        margin: 1em;
+      }
+      .comment-depth-6 {
+        margin: 1em;
+      }
+      .center {
+        padding: 0;
+      }
+      .circle {
+        border-radius: 50% !important;
+      }
+      .card-actions {
+        margin-top: .5em;
+      }
+      .card-actions lrnsys-button {
+        display: inline-flex;
+      }
+      .card-actions .card-actions-group {
+        margin: 0;
+        padding: 0;
+        display: inline-flex;
+      }
+      .card-actions .card-actions-group.left-actions {
+        float: left;
+      }
+      .card-actions .card-actions-group.right-actions {
+        float: right;
+      }
+      .hide-element {
+        display: none;
+      }
+    </style>
+    <div class$="center comment-depth-[[comment.attributes.threadDepth]]">
+      <lrndesign-avatar id="avatar" label="[[comment.relationships.author.data.name]]" src="[[comment.relationships.author.data.avatar]]" class="float-left"></lrndesign-avatar>
+      <moment-element datetime$="[[comment.attributes.created]]" output-format="MMM DD[,] YYYY"></moment-element>
+    </div>
+    <paper-tooltip for="avatar" animation-delay="0">[[comment.relationships.author.data.username]]</paper-tooltip>
+    <paper-card class$="paper-card-length-[[comment.attributes.threadDepth]]">
+      <div class="comment-body">
+        <div id="bodyarea" class="nowrap">
+          <h4>{{comment.relationships.author.data.name}} <span class="grey-said"> said:</span></h4>
+          <marked-element id="rendered-comment" markdown="[[comment.attributes.body]]">
+            <div slot="markdown-html"></div>
+          </marked-element>
+        </div>
+        <mtz-marked-editor id="comment-editor" class="hide-element">
+          <div slot="controls">
+            <mtz-marked-control-generic-wrap
+              icon="editor:format-bold"
+              title="Bold"
+              syntax-prefix="**"
+              syntax-suffix="**"
+              keys="ctrl+b"
+            ></mtz-marked-control-generic-wrap>
+            <mtz-marked-control-generic-wrap
+              icon="editor:format-italic"
+              title="Italic"
+              syntax-prefix="_"
+              syntax-suffix="_"
+              keys="ctrl+i"
+            ></mtz-marked-control-generic-wrap>
+            <mtz-marked-control-generic-line
+              icon="editor:format-size"
+              title="Heading 3"
+              syntax-prefix="### "
+            ></mtz-marked-control-generic-line>
+            <mtz-marked-control-generic-line
+              icon="editor:format-list-numbered"
+              title="Ordered List"
+              syntax-prefix="1. "
+            ></mtz-marked-control-generic-line>
+            <mtz-marked-control-generic-line
+              icon="editor:format-list-bulleted"
+              title="Unordered List"
+              syntax-prefix="- "
+            ></mtz-marked-control-generic-line>
+            <mtz-marked-control-link
+              icon="editor:insert-link"
+              title="Link"
+            ></mtz-marked-control-link>
+          </div>
+          <paper-textarea char-counter autofocus id="edit-comment" label="Comment" value="{{comment.attributes.body}}" slot="textarea"></paper-textarea>
+        </mtz-marked-editor>
+      </div>
+      <div class="card-actions">
+        <div class="card-actions-group left-actions">
+          <template is="dom-if" if="[[comment.actions.reply]]">
+            <lrnsys-button on-click="actionHandler" id="reply" data-commentid="[[comment.metadata.id]]" alt="Reply" icon="reply" class="circle" hover-class="[[hoverClass]]"></lrnsys-button>
+          </template>
+        </div>
+        <div class="card-actions-group right-actions">
+          <template is="dom-if" if="[[comment.actions.edit]]">
+            <lrnsys-button on-click="actionHandler" id="edit" data-commentid="[[comment.metadata.id]]" icon="create" class="circle" alt="Edit" hover-class="[[hoverClass]]"></lrnsys-button>
+          </template>
+          <template is="dom-if" if="[[comment.actions.delete]]">
+            <lrnsys-button on-click="actionHandler" id="delete" data-commentid="[[comment.metadata.id]]" icon="delete-forever" class="circle" alt="Delete" hover-class="[[hoverClass]]"></lrnsys-button>
+          </template>
+        </div>
+      </div>
+    </paper-card>
+  </template>
+  <script>
+    Polymer({
+      is: 'lrnsys-comment',
+      listeners: {
+        'bodyarea.tap': 'bodyToggle',
+      },
+      properties: {
+        comment: {
+          type: Object,
+          notify: true,
+          observer: '_commentLoaded',
+        },
+        hoverClass: {
+          type: String,
+          reflectToAttribute: true,
+        },
+        editform: {
+          type: Boolean,
+          notify: true,
+          observer: '_editTrigger',
+          reflectToAttribute: true,
+        },
+        disabled: {
+          type: Boolean,
+          notify: true,
+          reflectToAttribute: true,
+        }
+      },
+      _commentLoaded: function(e) {
+        let root = this;
+        root.editform = root.comment.metadata.editable;
+        root.disabled = root.comment.metadata.disabled;
+      },
+      /**
+       * Handle all actions from the button bar.
+       */
+      actionHandler: function(e) {
+        let root = this;
+        // convert click handler into local dom object
+        var normalizedEvent = Polymer.dom(e);
+        var target = normalizedEvent.localTarget;
+        var comment = null;
+        // ensure we have a comment ID to operate against
+        if (target.dataCommentid != null && !target.disabled) {
+          comment = target.dataCommentid;
+          // handle the type of event requested
+          if (target.id == 'reply') {
+            root.fire('comment-reply', {comment: root.comment});
+          }
+          else if (target.id == 'edit') {
+            // toggle edit, allow edit state handle itself via observer
+            root.editform = !root.editform;
+          }
+          else if (target.id == 'delete') {
+            root.fire('comment-delete', {comment: root.comment});
+          }
+        }
+      },
+      _editTrigger: function(e) {
+        let root = this;
+        // bother checking if they can edit or not first
+        if (typeof root.comment !== typeof undefined && root.comment.actions.edit) {
+          root.async(function() {
+            // show / hide the edit vs display area
+            root.$$('#rendered-comment').classList.toggle('hide-element');
+            root.$$('#comment-editor').classList.toggle('hide-element');
+            // simple icon toggle
+            if (root.editform) {
+              root.$$('#edit').icon = 'save';
+              root.$$('#reply').disabled = true;
+              root.$$('#edit-comment').focus();
+              root.fire('comment-editing', {comment: root.comment});
+            }
+            else {
+              root.fire('comment-save', {comment: root.comment});
+              root.$$('#edit').icon = 'create';
+              root.$$('#reply').disabled = false;
+            }
+            document.querySelector('iron-list').fire('iron-resize');
+            // access sibling or parent elements here
+          });
+        }
+      },
+      /**
+       * Toggle the body field expanding to show the whole comment
+       */
+      bodyToggle: function (e) {
+        let root = this;
+        root.$$('#bodyarea').classList.toggle('nowrap');
+        document.querySelector('iron-list').fire('iron-resize');
+      },
+    });
+  </script>
+</dom-module>

@@ -1,0 +1,66 @@
+<!doctype html>
+<html>
+<head>
+  <title>emoji selector demo</title>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+
+  <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+  <link rel="import" href="../../paper-input/paper-input.html">
+  <link rel="import" href="../../paper-input/paper-input-container.html">
+  <link rel="import" href="../../iron-autogrow-textarea/iron-autogrow-textarea.html">
+  <link rel="import" href="../../paper-styles/color.html">
+  <link rel="import" href="../emoji-selector.html">
+
+  <link rel="stylesheet" href="../../paper-styles/demo.css">
+
+  <style is="custom-style">
+    paper-input, paper-input-container {
+      display: block;
+      width: 200px;
+    }
+
+    emoji-selector.shiny {
+      --emoji-selector-background-color: var(--paper-light-green-400);
+      --emoji-selector-icon-color: white;
+      --paper-tabs-selection-bar-color: var(--paper-light-blue-500);
+      --paper-tab-ink: var(--paper-light-blue-500);
+
+      /* UGH */
+      --paper-input-container-color: white !important;
+      --paper-input-container-input-color: white !important;
+      --paper-input-container-focus-color: var(--paper-light-blue-500) !important;
+    }
+
+    paper-input.shiny {
+      --paper-input-container-color: var(--paper-light-blue-500);
+      --paper-input-container-input-color: var(--paper-light-blue-500);
+      --paper-input-container-focus-color: var(--paper-light-green-500) !important;
+    }
+  </style>
+</head>
+<body unresolved>
+
+  <paper-input label="needs moar emoji">
+    <emoji-selector suffix></emoji-selector>
+  </paper-input>
+
+  <paper-input class="shiny" label="shiny all the things">
+    <emoji-selector class="shiny" suffix></emoji-selector>
+  </paper-input>
+
+  <paper-input-container>
+    <emoji-selector suffix id="s1"></emoji-selector>
+    <label>whoa! textareas!</label>
+    <iron-autogrow-textarea class="paper-input-input" id="a1"></iron-autogrow-textarea>
+  </paper-input-container>
+</body>
+
+<script>
+  // Elements that aren't paper-inputs need to be manually wired up.
+  document.getElementById('s1').inputTarget = document.getElementById('a1');
+</script>
+</html>

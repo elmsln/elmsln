@@ -1,24 +1,21 @@
 var glob = require("glob");
 var fs = require("fs");
-var replace = require("replace");
+var replace = require("replace-in-file");
+var options = {
+	files: [
+		'bower_components/**/*.html'
+	],
+	from: [
+		/<link .*polymer.html\W>/g,
+		/<link .*iron-meta.html\W>/g
+	],
+	to: ' '
+};
 
-// Find file
-glob("bower_components/**/*.html",function (err,files) {
-	if (err) throw err;
-	files.forEach(function (item,index,array){
-		console.log(item + " found");
-     	// Read file
-     	console.log(fs.readFileSync(item,'utf8'));
-     	// Replace string
-     	replace({
-     		regex: "^<import.*polymer.html\W>",
-     		replacement: "",
-     		paths: [item],
-     		recursive: true,
-     		silent: true,
-     	});
-     	console.log("Replacement complete");
-          // Read file
-     	console.log(fs.readFileSync(item,'utf8'));
-      });
-});
+replace(options)
+  .then(changedFiles => {
+    console.log('Modified files:', changedFiles.join(', '));
+  })
+  .catch(error => {
+    console.error('Error occurred:', error);
+  });
