@@ -112,6 +112,98 @@ function _cle_open_studio_app_video_generate_source_url($machine_name, $app_rout
   return array('status' => 422, 'errors' => array(t('Unprocessable entity')));
 }
 
+function _cle_open_studio_app_submission_comments($machine_name, $app_route, $params, $args) {
+  $raw_data = '[
+    {
+      "metadata": {
+        "id": 100,
+        "editform": false,
+        "disabled": false
+      },
+      "actions": {
+        "edit": true,
+        "reply": true,
+        "like": false,
+        "delete": true
+      },
+      "attributes": {
+        "body": "This a **whole** bunch of my content that you now see!",
+        "threadDepth": 1,
+        "created": "1991-12-31"
+      },
+      "relationships": {
+        "author": {
+          "data": {
+            "name": "Bryan",
+            "avatar": "http://www.elmsln.org/sites/redesign/files/styles/square-profile-portrait/public/headshot.jpg?itok=_1HEhahr",
+            "username": "btopro",
+            "userid": 1
+          }
+        }
+      }
+    },
+    {
+      "metadata": {
+        "id": 200,
+        "editform": false,
+        "disabled": false
+      },
+      "actions": {
+        "edit": false,
+        "reply": true,
+        "like": true,
+        "delete": false
+      },
+      "attributes": {
+        "body": "This a **whole** bunch of my content that you now see!",
+        "threadDepth": 2,
+        "created": "2000-12-31"
+      },
+      "relationships": {
+        "author": {
+          "data": {
+            "name": "Michael Potter",
+            "avatar": "http://www.elmsln.org/sites/redesign/files/styles/square-profile-portrait/public/img_1773-1-sq_720_1.jpg?itok=KR9AsnhA",
+            "username": "heymp",
+            "userid": 2
+          }
+        }
+      }
+    },
+    {
+      "metadata": {
+        "id": 300,
+        "editform": false,
+        "disabled": false
+      },
+      "actions": {
+        "edit": false,
+        "reply": true,
+        "like": true,
+        "delete": false
+      },
+      "attributes": {
+        "body": "This a **whole** bunch of my content that you now see!",
+        "threadDepth": 3,
+        "created": "2017-12-31"
+      },
+      "relationships": {
+        "author": {
+          "data": {
+            "name": "Brittany Terpstra",
+            "avatar": "http://www.elmsln.org/sites/redesign/files/styles/square-profile-portrait/public/brt.png?itok=WdC_WcB4",
+            "username": "bterp",
+            "userid": 41
+          }
+        }
+      }
+    }
+  ]';
+  $normalized_data = json_decode($raw_data);
+
+  return array('status' => 200, 'data' => $normalized_data);
+}
+
 // function cle_open_studio_app_cle_open_studio_app_encode_submission_alter(&$submissions) {
 //   if (_assignment_is_open()) {
 //     $action = new stdClass();

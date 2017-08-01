@@ -109,7 +109,7 @@
         <template is="dom-if" if="[[submission.relationships.comments]]">
           <!--<div class="comments">{{submission.relationships.comments.data.length}}</div>-->
           <h2 class="title">Comments</h2>
-           <lrnsys-comment-list source-path="../../bower_components/lrnsys-comment/demo/data.json"></lrnsys-comment-list> 
+           <lrnsys-comment-list source-path="{{commentsUrl}}"></lrnsys-comment-list> 
         </template>
       </div>
       <div class="submission-page">
@@ -179,6 +179,15 @@
     Polymer({
       is: 'lrnapp-studio-submission-page',
       properties: {
+        id: {
+          type: String
+        },
+        endPoint: {
+          type: String
+        },
+        csrfToken: {
+          type: String
+        },
         reqUrl: {
           type: String
         },
@@ -190,6 +199,10 @@
         },
         submission: {
           type: Object
+        },
+        commentsUrl: {
+          type: String,
+          computed: '_computeCommentsUrl(id, endPoint, csrfToken)'
         }
       },
       observers: [
@@ -197,6 +210,9 @@
         '_paramsChanged(csrfToken)',
         '_bodyChanged(title)'
       ],
+      _computeCommentsUrl: function (id, endPoint, csrfToken) {
+        return endPoint + '/api/submissions/' + id + '/comments?token=' + csrfToken
+      },
       _urlVarsChanged: function (id, endPoint) {
         this.reqUrl = endPoint + '/api/submissions/' + id;
       },
