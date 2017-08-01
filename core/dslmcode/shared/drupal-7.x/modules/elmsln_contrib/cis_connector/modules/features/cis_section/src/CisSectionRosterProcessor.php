@@ -81,7 +81,7 @@ class CisSectionRosterProcessor {
    *
    * @var int[]
    */
-  protected $archiveStudents;
+  protected $archiveStudents = array();
 
   /**
    * Construct the roster processor object.
@@ -176,7 +176,8 @@ class CisSectionRosterProcessor {
     // If the roster is not empty, continue to process it.
     if (!empty($this->roster)) {
       // Get the section and group.
-      $section = reset($this->roster);
+      reset($this->roster);
+      $section = key($this->roster);
       $gid = $this->getSectionGroup($section);
 
       // Figure out what is next to process.
@@ -230,7 +231,9 @@ class CisSectionRosterProcessor {
     }
 
     // Get our role IDs from the cache.
-    list($role, $og_role) = $this->getRoleIds($role_name);
+    extract($this->getRoleIds($role_name));
+    /* @var $role_id int */
+    /* @var $group_id int */
 
     // Attempt to load the account.
     $account = user_load_by_name($name);
@@ -240,7 +243,7 @@ class CisSectionRosterProcessor {
       $values = array(
         'name' => $name,
         'status' => 1,
-        'roles' => array($role => $role_name),
+        'roles' => array($role_id => $role_name),
       ) + $user_data;
       unset($values['role']);
 
@@ -260,8 +263,8 @@ class CisSectionRosterProcessor {
       $save_user = FALSE;
 
       // Add the role if it doesn't already exist.
-      if (!isset($account->roles[$role])) {
-        $account->roles[$role] = $role_name;
+      if (!isset($account->roles[$role_id])) {
+        $account->roles[$role_id] = $role_name;
         $save_user = TRUE;
       }
 
@@ -287,8 +290,8 @@ class CisSectionRosterProcessor {
     );
     og_group('node', $gid, $values);
     // give them the special staff role if it exists
-    if ($og_role) {
-      _cis_section_og_role_grant('node', $gid, $account->uid, $og_role, 'update');
+    if ($group_id) {
+      _cis_section_og_role_grant('node', $gid, $account->uid, $group_id, 'update');
     }
 
     // Store our ID so we can archive inactive students.
@@ -445,7 +448,7 @@ class CisSectionRosterProcessor {
 
       $this->roleCache[$role_name] = array(
         'role_id' => $role->rid,
-        'group_id' => $og_role->rid,
+        'group_id' => $og_role ? $og_role->rid : NULL,
       );
     }
 
@@ -461,7 +464,7 @@ class CisSectionRosterProcessor {
   public function isFinished() {
     // If there is anything in the roster or archive students, we haven't
     // finished.
-    return empty($roster) && empty($this->archiveStudents);
+    return empty($this->roster) && empty($this->archiveStudents);
   }
 
 }
