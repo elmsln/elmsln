@@ -45,6 +45,6 @@
     "commit": "14b9d3009695b00d14d802e69751ce9b2e6fd1e9"
   },
   "_source": "https://github.com/MaritzSTL/mtz-marked-editor.git",
-  "_target": "^0.2.2",
+  "_target": "^0",
   "_originalSource": "MaritzSTL/mtz-marked-editor"
 }
