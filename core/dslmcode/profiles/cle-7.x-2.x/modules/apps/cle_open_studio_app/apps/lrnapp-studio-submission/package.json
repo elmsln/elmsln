@@ -12,16 +12,9 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-<<<<<<< HEAD
     "replace-in-file": "^2.5.3"
   },
   "dependencies": {
     "glob": "^7.1.2"
-=======
-    "replace": "^0.3.0"
-  },
-  "dependencies": {
-    "replace-in-file": "^2.5.3"
->>>>>>> fixed the post install script.
   }
 }
