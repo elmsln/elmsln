@@ -109,7 +109,7 @@
         <template is="dom-if" if="[[submission.relationships.comments]]">
           <!--<div class="comments">{{submission.relationships.comments.data.length}}</div>-->
           <h2 class="title">Comments</h2>
-          <lrnsys-comment-list source-path="../../bower_components/lrnsys-comment/demo/data.json"></lrnsys-comment-list>
+           <lrnsys-comment-list source-path="../../bower_components/lrnsys-comment/demo/data.json"></lrnsys-comment-list> 
         </template>
       </div>
       <div class="submission-page">
@@ -169,7 +169,7 @@
             </div>
           </template>
           <template is="dom-if" if="[[editPage]]">
-            <lrnapp-studio-submission-edit id="[[id]]" end-point="[[endPoint]]" csrf-token="[[csrfToken]]"></lrnapp-studio-submission-edit>
+            <lrnapp-studio-submission-edit submission="[[submission]]" id="[[id]]" end-point="[[endPoint]]" csrf-token="[[csrfToken]]" on-updated="_submissionUpdated"></lrnapp-studio-submission-edit>
           </template>
         </paper-card>
       </div>

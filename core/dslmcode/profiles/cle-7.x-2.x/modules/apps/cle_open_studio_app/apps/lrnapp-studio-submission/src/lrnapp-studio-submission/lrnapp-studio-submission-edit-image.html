@@ -35,6 +35,9 @@
       },
       _computeEmbedCode: function (image) {
         return '![](' + image.url + ')';
+      },
+      _delete: function (e) {
+        this.fire('deleted');
       }
     });
   </script>
