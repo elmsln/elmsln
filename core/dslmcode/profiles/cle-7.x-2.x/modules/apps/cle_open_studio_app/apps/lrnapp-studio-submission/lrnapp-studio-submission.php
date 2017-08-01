@@ -6,6 +6,7 @@
 define('__ROOT__', dirname(dirname(__FILE__))); 
 require_once(__ROOT__.'/services/CleOpenStudioAppSubmissionService.php'); 
 require_once(__ROOT__.'/services/CleOpenStudioAppFileService.php'); 
+require_once(__ROOT__.'/services/CleOpenStudioAppCommentService.php'); 
 
 function _cle_open_studio_app_submission_findone($machine_name, $app_route, $params, $args) {
   $return = array('status' => 200);
@@ -201,7 +202,13 @@ function _cle_open_studio_app_submission_comments($machine_name, $app_route, $pa
   ]';
   $normalized_data = json_decode($raw_data);
 
-  return array('status' => 200, 'data' => $normalized_data);
+  $comments_service = new CleOpenStudioAppCommentService();
+  $submission_id = $args[2];
+  $options = new stdClass();
+  $options->filter = array('submission' => $submission_id);
+  $data = $comments_service->getComments($options);
+
+  return array('status' => 200, 'data' => $data);
 }
 
 // function cle_open_studio_app_cle_open_studio_app_encode_submission_alter(&$submissions) {
