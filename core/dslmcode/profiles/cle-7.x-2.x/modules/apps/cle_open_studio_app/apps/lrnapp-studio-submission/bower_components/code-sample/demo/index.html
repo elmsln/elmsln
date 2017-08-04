@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+    <title>code-sample demo</title>
+    <script src="../../webcomponentsjs/webcomponents-loader.js"></script>
+    <link rel="import" href="../../transburger-icon/transburger-icon.html">
+    <link rel="import" href="../themes/one-dark.html">
+    <link rel="import" href="../code-sample.html">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Mono|Roboto:300,400">
+    <link rel="stylesheet" href="css/demo.css">
+    <style>
+      code-sample + code-sample { margin-top: 20px; }
+      .navy-bg { --code-sample-background: #000D25; }
+      .white-bg { --code-sample-background: #eeeef1; }
+    </style>
+  </head>
+  <body>
+    <div class="wrapper">
+      <div class="demo">
+        <div class="demo-text">
+          <h1>HTML and inline JavaScript</h1>
+        </div>
+
+        <div class="demo-sample">
+          <code-sample>
+            <template>
+              <custom-element boolean-attribute>content</custom-element>
+
+              <div class="something">
+                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Amet distinctio nam, possimus officia error delectus impedit libero corrupti, sunt, sapiente suscipit. Esse, quisquam tempore similique eveniet veritatis pariatur adipisci sit.</p>
+              </div>
+
+              <script>
+                alert('hola');
+              </script>
+            </template>
+          </code-sample>
+        </div>
+      </div>
+
+      <div class="demo">
+        <div class="demo-text">
+          <h1>JavaScript</h1>
+        </div>
+
+        <div class="demo-sample">
+          <code-sample>
+            <template>
+              const something = param => {
+                // comment
+                let a = `${param}-something`;
+              }
+            </template>
+          </code-sample>
+        </div>
+      </div>
+
+      <div class="demo">
+        <div class="demo-text">
+          <h1>CSS</h1>
+        </div>
+
+        <div class="demo-sample">
+          <code-sample>
+            <template>
+              .my-style { display: block; }
+
+              :host {
+                display: flex;
+                box-sizing: border-box;
+              }
+
+              :host([hidden]) { display: none; }
+            </template>
+          </code-sample>
+        </div>
+      </div>
+
+      <div class="demo">
+        <div class="demo-text">
+          <h1>Rendered code</h1>
+        </div>
+
+        <div class="demo-sample">
+          <p>Use the boolean attribute <code>render</code> to render the code inside the <code>&lt;template&gt;</code> tag.</p>
+          <code-sample render>
+            <template>
+              <style>
+                .btn {
+                  --transburger-icon-button-font-size: inherit;
+                  --transburger-icon-button-padding: 0 0 0.13em;
+                  --transburger-icon-button-cursor: pointer;
+                  --transburger-icon-button-outline: none;
+                  --transburger-icon-button-border-radius: 0.25em;
+                  --transburger-icon-button-box-shadow: inset 0 -0.25em 0 rgba(0, 0, 0, 0.2);
+                  --transburger-icon-button-color: #fff;
+                  --transburger-icon-button-background: #006dbe;
+                }
+              </style>
+
+              <transburger-icon class="btn"></transburger-icon>
+            </template>
+          </code-sample>
+        </div>
+      </div>
+
+      <div class="demo">
+        <div class="demo-text">
+          <div class="title-button">
+            <h1>Change content dynamically</h1>
+            <button class="demo-btn" id="changeContent">Change content</button>
+          </div>
+        </div>
+        <div class="demo-sample">
+          <code-sample id="sample">
+            <template>
+              <p>Initial content.</p>
+            </template>
+          </code-sample>
+        </div>
+      </div>
+
+      <div class="demo">
+        <div class="demo-text">
+          <h1>Custom background colors</h1>
+        </div>
+
+        <div class="demo-sample">
+          <code-sample class="navy-bg">
+            <template>
+              <resizable-panels>
+                <div class="panel-1">lorem...</div>
+                <div class="panel-2">ipsum...</div>
+                <div class="panel-3">dolor...</div>
+              </resizable-panels>
+            </template>
+          </code-sample>
+
+          <code-sample class="white-bg">
+            <template>
+              function algo(param) {
+                alert('helloooow');
+              }
+            </template>
+          </code-sample>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      (function(d) {
+        const btn = d.querySelector('#changeContent');
+        const sample = d.querySelector('#sample');
+        const obj = {
+          prop1: 'value',
+          prop2: {
+            subProp1: 'something',
+            subProp2: true,
+            subProp3: [{
+              subSub1: 'a',
+              subSub2: 'b'
+            }, {
+              subSub1: 'c',
+              subSub2: 'd'
+            }]
+          }
+        };
+
+        let initial = true;
+
+        function customContent() {
+          let content;
+          if (initial) {
+            content = `
+              <template>
+                ${JSON.stringify(obj, null, 2)}
+              </template>`;
+            initial = false;
+          } else {
+            content = `
+              <template>
+                <p>Initial content.</p>
+              </template>`;
+            initial = true;
+          }
+          return content;
+        }
+
+        function changeContent() {
+          sample.innerHTML = customContent();
+        }
+
+        btn.addEventListener('click', changeContent);
+      }(document));
+    </script>
+  </body>
+</html>

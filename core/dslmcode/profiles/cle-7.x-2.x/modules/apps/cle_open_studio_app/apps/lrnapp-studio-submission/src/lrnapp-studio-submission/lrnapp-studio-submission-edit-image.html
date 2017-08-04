@@ -34,7 +34,7 @@
         }
       },
       _computeEmbedCode: function (image) {
-        return '![](' + image.url + ')';
+        return '<iron-image src="' + image.url + '" alt="">';
       },
       _delete: function (e) {
         this.fire('deleted');

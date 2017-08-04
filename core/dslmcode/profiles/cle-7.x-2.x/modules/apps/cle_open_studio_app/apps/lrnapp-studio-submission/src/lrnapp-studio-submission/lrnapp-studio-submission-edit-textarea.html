@@ -1,10 +1,4 @@
-<link rel="import" href="../../bower_components/mtz-marked-editor/mtz-marked-editor.html">
-<link rel="import" href="../../bower_components/mtz-marked-editor/mtz-marked-control-generic-wrap.html">
-<link rel="import" href="../../bower_components/mtz-marked-editor/mtz-marked-control-generic-line.html">
-<link rel="import" href="../../bower_components/mtz-marked-editor/controls/mtz-marked-control-link.html">
-<link rel="import" href="../../bower_components/paper-tabs/paper-tabs.html">
-<link rel="import" href="../../bower_components/marked-element/marked-element.html">
-<link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../../bower_components/lrn-markdown-editor/lrn-markdown-editor.html">
 
 <dom-module id="lrnapp-studio-submission-edit-textarea">
   <template>
@@ -13,43 +7,9 @@
         display: block;
         max-width: 50em;
       }
-
-      .mtz-controls {
-        display: flex;
-      }
-
-      .mtz-toolbar {
-        flex: 1 1 auto;
-      }
     </style>
 
-    <div class="mtz-toolbar">
-      <paper-tabs selected="{{selected}}" scrollable>
-        <paper-tab>Write</paper-tab>
-        <paper-tab>Preview</paper-tab>
-      </paper-tabs>
-    </div>
-
-    <iron-pages selected="{{selected}}">
-      <section>
-        <mtz-marked-editor id="markededitor">
-          <div slot="controls" class="mtz-controls">
-            <mtz-marked-control-generic-wrap icon="editor:format-bold" title="Bold" syntax-prefix="**" syntax-suffix="**" keys="ctrl+b"></mtz-marked-control-generic-wrap>
-            <mtz-marked-control-generic-wrap icon="editor:format-italic" title="Italic" syntax-prefix="_" syntax-suffix="_" keys="ctrl+i"></mtz-marked-control-generic-wrap>
-            <mtz-marked-control-generic-line icon="editor:format-size" title="Heading" syntax-prefix="# "></mtz-marked-control-generic-line>
-            <mtz-marked-control-generic-line icon="editor:format-list-numbered" title="Ordered List" syntax-prefix="1. "></mtz-marked-control-generic-line>
-            <mtz-marked-control-generic-line icon="editor:format-list-bulleted" title="Unordered List" syntax-prefix="- "></mtz-marked-control-generic-line>
-            <mtz-marked-control-link icon="editor:insert-link" title="Link"></mtz-marked-control-link>
-          </div>
-          <textarea slot="textarea" on-change="_changed"></textarea>
-        </mtz-marked-editor>
-      </section>
-      <section>
-        <marked-element markdown="{{content}}"></marked-element>
-      </section>
-      <section></section>
-    </iron-pages>
-
+    <lrn-markdown-editor content="{{content}}"></lrn-markdown-editor>
 
   </template>
   <script>
@@ -57,17 +17,9 @@
       is: 'lrnapp-studio-submission-edit-textarea',
       properties: {
         content: {
-          type: String
-        },
-        selected: {
           type: String,
-          value: '0'
+          notify: true
         }
-      },
-      _changed: function (e)  {
-        var content = this.$.markededitor.getContent();
-        this.set('content', content);
-        console.log(content);
       }
     });
   </script>

@@ -1,5 +1,4 @@
 <link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
-<!-- <link rel="import" href="../../bower_components/granite-clipboard/granite-clipboard.html"> -->
 
 <dom-module id="lrnapp-studio-submission-media-editoverlay">
   <template>
@@ -59,7 +58,7 @@
         <h2>Embed Code</h2>
         <p>Paste this into the text area and your image will appear.</p>
         <paper-dialog-scrollable>
-          <div contenteditable>{{embedcode}}</div>
+          <pre>{{embedcode}}</pre>
         </paper-dialog-scrollable>
       </paper-dialog>
     </template>
