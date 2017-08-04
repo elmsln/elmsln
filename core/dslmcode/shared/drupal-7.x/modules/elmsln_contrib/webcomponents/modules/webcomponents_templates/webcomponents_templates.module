@@ -21,7 +21,7 @@ function webcomponents_templates_entity_insert($entity, $type) {
     if (!$found) {
       $template = array(
         'title' => $component->title,
-        'description' => $component->description,
+        'description' => (isset($component->description) ? $component->description : ''),
         'weight' => 50,
         'fid' => 0,
         'body' => _webcomponents_render_component($component),
