@@ -1,0 +1,20 @@
+{
+  "name": "lrnapp-studio-kanban",
+  "short_name": "lrnapp-studio-kanban",
+  "description": "The kanban board for managing projects / assignments.",
+  "start_url": "/",
+  "display": "standalone",
+  "app_integration": {
+    "title": "Project management",
+    "menu": {
+      "menu_name": "menu-elmsln-navigation",
+      "weight": -10
+    },
+    "endpoints": {
+      "data": {
+        "callback": "_cle_studio_kanban_data",
+        "property": "source-path"
+      }
+    }
+  }
+}
