@@ -13,7 +13,7 @@ function _cle_open_studio_app_submission_findone($machine_name, $app_route, $par
   $method = $_SERVER['REQUEST_METHOD'];
 
   // Find out if there is a nid specified
-  if ($method == 'GET' || $method == 'PUT') {
+  if ($method == 'GET' || $method == 'PUT' || $method == 'DELETE') {
     if (isset($args[2])) {
       $nid = $args[2];
       if ($nid) {
@@ -33,6 +33,16 @@ function _cle_open_studio_app_submission_findone($machine_name, $app_route, $par
               $return['data'] = $update;
             }
             // if it fails we'll add errors and return 500
+            catch (Exception $e) {
+              $return['status'] = 500;
+              $return['errors'][] = $e->getMessage();
+            }
+            break;
+          case 'DELETE':
+            $service = new CleOpenStudioAppSubmissionService();
+            try {
+              $delete = $service->deleteSubmission($args[2]);
+            }
             catch (Exception $e) {
               $return['status'] = 500;
               $return['errors'][] = $e->getMessage();

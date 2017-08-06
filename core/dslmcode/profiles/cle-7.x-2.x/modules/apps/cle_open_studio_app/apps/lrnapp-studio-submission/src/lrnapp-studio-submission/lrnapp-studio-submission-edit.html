@@ -75,11 +75,20 @@
         width: 10vmax !important;
         height: 10vmax !important;
       }
+
+      paper-dialog {
+        width: 50%;
+        width: 50vmax;
+        padding: 1em;
+      }
     </style>
 
     <!-- Update Submission Node -->
     <iron-ajax id="ajaxUpdateRequest" url="[[reqUrl]]" method="PUT" body="[[reqBody]]" params="[[reqParams]]" content-type="application/json"
       handle-as="json" on-response="_handleUpdateResponse"></iron-ajax>
+    <!-- Delete Submission Node -->
+    <iron-ajax id="ajaxDeleteRequest" url="[[reqUrl]]" method="DELETE" params="[[reqParams]]" content-type="application/json"
+      handle-as="json" on-response="_handleDeleteResponse"></iron-ajax>
 
     <template is="dom-if" if="{{submission}}">
       <div class="field">
@@ -115,12 +124,21 @@
     <div class="actions">
       <paper-button id="publish" on-click="_publishClicked">
         <iron-icon icon="check"></iron-icon> Publish to Studio</paper-button>
-      <paper-button id="save-draft">
+      <paper-button id="save-draft" on-click="_saveDraftClicked">
         <iron-icon icon="drafts"></iron-icon> Save Draft</paper-button>
       <span class="spacer"></span>
-      <paper-button id="delete">
+      <paper-button id="delete" on-click="_deleteClicked">
         <iron-icon icon="delete"></iron-icon> Delete</paper-button>
     </div>
+
+    <paper-dialog id="deletedialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation" with-backdrop>
+      <h2>Delete Submission</h2>
+      <p>Are you sure you want to delete submission: <em>{{submission.attributes.title}}</em>?</p>
+      <div class="buttons">
+        <paper-button dialog-dismiss>Cancel</paper-button>
+        <paper-button dialog-confirm on-click="_deleteConfirmed">Delete</paper-button>
+      </div>
+    </paper-dialog>
 
     <elmsln-loading></elmsln-loading>
   </template>
@@ -177,12 +195,6 @@
       _handleResponse: function (data) {
         this.submission = data.detail.response.data;
       },
-      _publishClicked: function (e) {
-        this.reqBody = this.submission;
-        this.reqBody.state = 'submission_ready';
-        this.$$('#ajaxUpdateRequest').generateRequest();
-        this.saving = true;
-      },
       _handleUpdateResponse: function (res) {
         var root = this;
         var status = res.detail.response.status;
@@ -190,6 +202,32 @@
         if (status === 200) {
           // this will go back to the submission page.
           this.fire('updated', { type: 'update' });
+        }
+      },
+      _publishClicked: function (e) {
+        this.reqBody = this.submission;
+        this.reqBody.attributes.state = 'submission_ready';
+        this.$$('#ajaxUpdateRequest').generateRequest();
+        this.saving = true;
+      },
+      _saveDraftClicked: function (e) {
+        this.reqBody = this.submission;
+        this.reqBody.attributes.state = 'submission_in_progress';
+        this.$$('#ajaxUpdateRequest').generateRequest();
+        this.saving = true;
+      },
+      _deleteClicked: function (e) {
+        this.$.deletedialog.open();
+      },
+      _deleteConfirmed: function (e) {
+        this.$.ajaxDeleteRequest.generateRequest();
+      },
+      _handleDeleteResponse: function (res) {
+        var root = this;
+        var status = res.detail.response.status;
+        this.saving = false;
+        if (status === 200) {
+          this.fire('updated', { type: 'deleted' });
         }
       },
       /**

@@ -122,6 +122,7 @@
               <template is="dom-if" if="[[submission]]">
                 <h1 class="title">{{submission.attributes.title}}</h1>
                 <h2 class="author">By: {{submission.relationships.author.data.name}}</h2>
+                <h3 class="status">Status: {{submission.attributes.state}}</h3> 
               </template>
               <!-- ----- Text Submission -----  -->
               <template is="dom-if" if="[[submission.attributes.body]]">
@@ -235,11 +236,18 @@
       },
       _submissionUpdated: function (e) {
         var type = e.detail.type;
-        // navigate to the main page
-        this.set('route.path', '');
-        // refresh the data
-        this.$$('#ajaxRequest').generateRequest();
-      },
+        if (type === 'updated') {
+          // navigate to the main page
+          this.set('route.path', '');
+          // refresh the data
+          this.$$('#ajaxRequest').generateRequest();
+        }
+        else if (type === 'deleted') {
+          this.set('route.path', '');
+          this.fire('submissionDeleted', { submission: this.submission });
+          this.submission = {};
+        }
+     },
       /**
        * Simple way to convert from object to array.
        */

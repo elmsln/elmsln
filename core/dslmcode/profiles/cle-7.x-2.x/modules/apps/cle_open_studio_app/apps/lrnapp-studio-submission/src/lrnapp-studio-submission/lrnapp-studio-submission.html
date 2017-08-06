@@ -29,6 +29,10 @@
       This is the lrnapp-studio-submission page.
     </template>
 
+    
+    <paper-toast id="toast"></paper-toast>
+    
+
   </template>
 
   <script>
@@ -43,7 +47,7 @@
         '_routeChanged(route, endPoint)'
       ],
       listeners: {
-        'routeChange': '_handleRouteChange'
+        'submissionDeleted': '_handleSubmissionDeletion'
       },
       _handleRouteChange: function (event) {
         var path = event.detail.path;
@@ -62,6 +66,13 @@
             }
           }
           window.location = route.path;
+        }
+      },
+      _handleSubmissionDeletion: function (e) {
+        var submission = e.detail.submission;
+        if (submission) {
+          this.set('route.path', this.endPoint);
+          this.$.toast.show('Submission has been deleted.');
         }
       },
       /**

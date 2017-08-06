@@ -83,6 +83,25 @@ class CleOpenStudioAppSubmissionService {
     }
   }
 
+  public function deleteSubmission($id) {
+    if ($id && is_numeric($id)) {
+      $node = node_load($id);
+      if ($node && isset($node->type) && $node->type == 'cle_submission') {
+        $decoded_submission = $this->decodeSubmission($payload, $node);
+        // unpublish the node
+        $decoded_submission->status = 0;
+        try {
+          node_save($decoded_submission);
+          return true;
+        }
+        catch (Exception $e) {
+          throw new Exception($e->getMessage());
+          return;
+        }
+      }
+    }
+  }
+
   public function videoGenerateSourceUrl($url) {
     return _elmsln_api_video_url($url);
   }
