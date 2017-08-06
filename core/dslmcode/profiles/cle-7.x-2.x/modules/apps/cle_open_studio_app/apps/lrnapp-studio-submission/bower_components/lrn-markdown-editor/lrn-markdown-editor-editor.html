@@ -17,11 +17,13 @@
 
       .mtz-controls {
         display: flex;
+        width: 100%;
       }
 
       .mtz-toolbar {
-        flex: 1 1 auto;
+        flex-grow: 5;
       }
+
     </style>
     <mtz-marked-editor id="markededitor">
       <div slot="controls" class="mtz-controls">
@@ -32,7 +34,7 @@
         <mtz-marked-control-generic-line icon="editor:format-list-bulleted" title="Unordered List" syntax-prefix="- "></mtz-marked-control-generic-line>
         <mtz-marked-control-link icon="editor:insert-link" title="Link"></mtz-marked-control-link>
       </div>
-      <paper-textarea slot="textarea" label="Floating label" value="{{content}}"></paper-textarea>
+      <paper-textarea slot="textarea" label="Start typing..." value="{{content}}"></paper-textarea>
     </mtz-marked-editor>
   </template>
   <script>

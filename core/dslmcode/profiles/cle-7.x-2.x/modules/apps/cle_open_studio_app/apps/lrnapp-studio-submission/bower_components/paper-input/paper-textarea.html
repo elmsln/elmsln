@@ -49,11 +49,17 @@ style this element.
       }
     </style>
 
-    <paper-input-container no-label-float$="[[noLabelFloat]]" always-float-label="[[_computeAlwaysFloatLabel(alwaysFloatLabel,placeholder)]]" auto-validate$="[[autoValidate]]" disabled$="[[disabled]]" invalid="[[invalid]]">
+    <paper-input-container no-label-float$="[[noLabelFloat]]"
+        always-float-label="[[_computeAlwaysFloatLabel(alwaysFloatLabel,placeholder)]]"
+        auto-validate$="[[autoValidate]]"
+        disabled$="[[disabled]]"
+        invalid="[[invalid]]">
 
-      <label hidden$="[[!label]]" aria-hidden="true">[[label]]</label>
+      <label hidden$="[[!label]]" aria-hidden="true" for="input" slot="label">[[label]]</label>
 
-      <iron-autogrow-textarea id="input" class="paper-input-input"
+      <iron-autogrow-textarea id="input" class="paper-input-input" slot="input"
+        aria-labelledby$="[[_ariaLabelledBy]]"
+        aria-describedby$="[[_ariaDescribedBy]]"
         bind-value="{{value}}"
         invalid="{{invalid}}"
         validator$="[[validator]]"
@@ -73,11 +79,11 @@ style this element.
         on-change="_onChange"></iron-autogrow-textarea>
 
       <template is="dom-if" if="[[errorMessage]]">
-        <paper-input-error>[[errorMessage]]</paper-input-error>
+        <paper-input-error aria-live="assertive" slot="add-on">[[errorMessage]]</paper-input-error>
       </template>
 
       <template is="dom-if" if="[[charCounter]]">
-        <paper-input-char-counter></paper-input-char-counter>
+        <paper-input-char-counter slot="add-on"></paper-input-char-counter>
       </template>
 
     </paper-input-container>
@@ -90,18 +96,18 @@ style this element.
 
     behaviors: [
       Polymer.PaperInputBehavior,
-      Polymer.IronFormElementBehavior
+      Polymer.IronFormElementBehavior,
     ],
 
     properties: {
       _ariaLabelledBy: {
         observer: '_ariaLabelledByChanged',
-        type: String
+        type: String,
       },
 
       _ariaDescribedBy: {
         observer: '_ariaDescribedByChanged',
-        type: String
+        type: String,
       },
 
       /**
@@ -113,7 +119,7 @@ style this element.
        */
       rows: {
         type: Number,
-        value: 1
+        value: 1,
       },
 
       /**
@@ -125,9 +131,23 @@ style this element.
        * @default 0
        */
       maxRows: {
-       type: Number,
-       value: 0
-      }
+        type: Number,
+        value: 0,
+      },
+    },
+
+    get selectionStart() {
+      return this.$.input.textarea.selectionStart;
+    },
+    set selectionStart(start) {
+      this.$.input.textarea.selectionStart = start;
+    },
+
+    get selectionEnd() {
+      return this.$.input.textarea.selectionEnd;
+    },
+    set selectionEnd(end) {
+      this.$.input.textarea.selectionEnd = end;
     },
 
     _ariaLabelledByChanged: function(ariaLabelledBy) {

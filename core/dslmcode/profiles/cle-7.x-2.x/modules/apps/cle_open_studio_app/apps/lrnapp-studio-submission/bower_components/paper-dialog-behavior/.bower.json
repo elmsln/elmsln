@@ -44,6 +44,6 @@
     "commit": "89f4269be54796eafbf49996a9bb1d76e39b38b7"
   },
   "_source": "https://github.com/PolymerElements/paper-dialog-behavior.git",
-  "_target": "^1.2.8",
+  "_target": "^1.0.0",
   "_originalSource": "PolymerElements/paper-dialog-behavior"
 }

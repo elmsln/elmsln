@@ -32,7 +32,13 @@ Material design: [Text fields](https://www.google.com/design/spec/components/tex
 ```html
 <paper-input always-float-label label="Floating label"></paper-input>
 <paper-input label="username">
-  <iron-icon icon="mail" prefix></iron-icon>
-  <div suffix>@email.com</div>
+  <iron-icon icon="mail" slot="prefix"></iron-icon>
+  <div slot="suffix">@email.com</div>
 </paper-input>
 ```
+
+### Changes in 2.0
+- Distribution is now done with slots, so things have changed because of that (before: <label>foo</label>, now <label slot="label">foo</label>; same for input, prefix and suffix)
+- Since type extensions are not available, any use of `<input is="iron-input">` has been replaced by `<iron-input><input></iron-input>`. See [iron-input](https://github.com/PolymerElements/iron-input) for more details about that change
+- `prevent-invalid-input` and `allowed-pattern` had to be always used together; deleted `prevent-invalid-input`, so that only `allowed-pattern` is needed
+
