@@ -65,7 +65,11 @@ var options = {
 		/<link .*iron-icon.html\W>/g,
 		/<link .*iron-ajax.html\W>/g,
 		/<link .*paper-input-container.html\W>/g,
-		/<link .*paper-input-char-counter.html\W>/g
+    /<link .*paper-input-char-counter.html\W>/g,
+    /<link .*paper-ripple.html\W>/g,
+    /<link .*iron-meta.html\W>/g,
+    /<link .*iron-autogrow-textarea.html\W>/g,
+    /<link .*paper-textarea.html\W>/g
 	],
 	to: ' '
 };
