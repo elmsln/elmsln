@@ -21,6 +21,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   <script src="../../web-component-tester/browser.js"></script>
   <script src="../../iron-test-helpers/test-helpers.js"></script>
+  <script src="../../iron-test-helpers/mock-interactions.js"></script>
 
    
   <link rel="import" href="letters-only.html">
@@ -76,7 +77,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </template>
   </test-fixture>
 
-  <test-fixture id="basic-char-counter">
+  <test-fixture id="char-counter">
     <template>
       <paper-input char-counter value="foobar"></paper-input>
     </template>
@@ -124,67 +125,33 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </test-fixture>
 
   <script>
-    function getIronInput(paperInput) {
-      return paperInput.inputElement;
-    }
-    function getNativeInput(paperInput) {
-      return Polymer.Element ? paperInput.inputElement.inputElement : paperInput.inputElement;
-    }
-    function getFloatingLabel(paperInput) {
-      return Polymer.dom(Polymer.dom(paperInput.root).querySelector('paper-input-container').root)
-          .querySelector('.label-is-floating');
-    }
-    function getErrorDiv(paperInput) {
-      return Polymer.dom(paperInput.root).querySelector('paper-input-error')
-    }
-    function getCharCounterDiv(paperInput) {
-      return Polymer.dom(paperInput.root).querySelector('paper-input-char-counter')
-    }
-
-    function ensureDocumentHasFocus() {
-      window.top && window.top.focus();
-      window.focus();
-    }
 
     suite('basic', function() {
-      test('setting value sets the input value', function(done) {
+
+      test('setting value sets the input value', function() {
         var input = fixture('basic');
-
-        // Mutation observer is async, so wait one tick.
-        Polymer.Base.async(function() {
-          input.value = 'foobar';
-          assert.equal(getIronInput(input).value, input.value, 'iron-input value equals input.value');
-          assert.equal(getNativeInput(input).value, input.value, 'iron-getNativeInput(input) value equals input.value');
-          done();
-        }, 1);
+        input.value = 'foobar';
+        assert.equal(input.inputElement.value, input.value, 'inputElement.value equals input.value');
       });
 
-      test('placeholder does not overlap label', function(done) {
+      test('placeholder does not overlap label', function() {
         var input = fixture('placeholder');
-
-        // Mutation observer is async, so wait one tick.
-        Polymer.Base.async(function() {
-          assert.equal(getNativeInput(input).placeholder, input.placeholder, 'inputElement.placeholder equals input.placeholder');
-          assert.equal(input.noLabelFloat, false);
-          assert.ok(getFloatingLabel(input));
-          done();
-        }, 1);
+        assert.equal(input.inputElement.placeholder, input.placeholder, 'inputElement.placeholder equals input.placeholder');
+        assert.equal(input.noLabelFloat, false);
+        var floatingLabel = Polymer.dom(Polymer.dom(input.root).querySelector('paper-input-container').root).querySelector('.label-is-floating');
+        assert.ok(floatingLabel);
       });
 
-      test('special types autofloat the label', function(done) {
+      test('special types autofloat the label', function() {
         var input = fixture('date');
-
-        // Mutation observer is async, so wait one tick.
-        Polymer.Base.async(function() {
-          // Browsers that don't support special <input> types like `date` fallback
-          // to `text`, so make sure to only test if type is still preserved after
-          // the element is attached.
-          if (getNativeInput(input).type === "date") {
-            assert.equal(input.alwaysFloatLabel, true);
-            assert.ok(getFloatingLabel(input));
-          }
-          done();
-        }, 1);
+        // Browsers that don't support special <input> types like `date` fallback
+        // to `text`, so make sure to only test if type is still preserved after
+        // the element is attached.
+        if (input.inputElement.type === "date") {
+          assert.equal(input.alwaysFloatLabel, true);
+          var floatingLabel = Polymer.dom(Polymer.dom(input.root).querySelector('paper-input-container').root).querySelector('.label-is-floating');
+          assert.ok(floatingLabel);
+        }
       });
 
       test('always-float-label attribute works without placeholder', function() {
@@ -202,47 +169,44 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       test('error message is displayed', function() {
         var input = fixture('error');
-        var errorDiv = getErrorDiv(input);
-        assert.notEqual(getComputedStyle(error).visibility, 'hidden', 'error is not visibility:hidden');
+        forceXIfStamp(input);
+        var error = Polymer.dom(input.root).querySelector('paper-input-error');
+        assert.ok(error, 'paper-input-error exists');
+        assert.notEqual(getComputedStyle(error).display, 'none', 'error is not display:none');
       });
 
-      test('character counter is displayed', function(done) {
-        var input = fixture('basic-char-counter');
-
-        // Need to wait a tick to stamp the char-counter.
-        Polymer.Base.async(function() {
-          var counter = getCharCounterDiv(input);
-          assert.ok(counter, 'paper-input-char-counter exists');
-          assert.equal(counter._charCounterStr, input.value.length, 'character counter shows the value length');
-          done();
-        }, 1);
+      test('empty required input shows error', function() {
+        var input = fixture('required');
+        forceXIfStamp(input);
+        var error = Polymer.dom(input.root).querySelector('paper-input-error');
+        assert.ok(error, 'paper-input-error exists');
+        assert.notEqual(getComputedStyle(error).display, 'none', 'error is not display:none');
       });
 
-      test('character counter is correct for type=number', function(done) {
+      test('character counter is displayed', function() {
+        var input = fixture('char-counter');
+        forceXIfStamp(input);
+        var counter = Polymer.dom(input.root).querySelector('paper-input-char-counter')
+        assert.ok(counter, 'paper-input-char-counter exists');
+        assert.equal(counter._charCounterStr, input.value.length, 'character counter shows the value length');
+      });
+
+      test('character counter is correct for type=number', function() {
         var input = fixture('type-number-char-counter');
-
-        // Need to wait a tick to stamp the char-counter.
-        Polymer.Base.async(function() {
-          var counter = getCharCounterDiv(input)
-          assert.ok(counter, 'paper-input-char-counter exists');
-          assert.equal(counter._charCounterStr, input.value.toString().length, 'character counter shows the value length');
-          done();
-        }, 1);
+        forceXIfStamp(input);
+        var counter = Polymer.dom(input.root).querySelector('paper-input-char-counter')
+        assert.ok(counter, 'paper-input-char-counter exists');
+        assert.equal(counter._charCounterStr, input.value.toString().length, 'character counter shows the value length');
       });
 
-      test('validator is used', function(done) {
+      test('validator is used', function() {
         var input = fixture('validator');
-
-        // Mutation observer is async, so wait one tick.
-        Polymer.Base.async(function() {
-          assert.ok(getIronInput(input).invalid, 'input is invalid');
-          done();
-        }, 1);
+        assert.ok(input.inputElement.invalid, 'input is invalid');
       });
 
       test('caret position is preserved', function() {
         var input = fixture('basic');
-        var ironInput = getIronInput(input);
+        var ironInput = Polymer.dom(input.root).querySelector('input[is="iron-input"]');
         input.value = 'nananana';
         ironInput.selectionStart = 2;
         ironInput.selectionEnd = 2;
@@ -255,290 +219,179 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       test('setting autofocus to true implictly acquires focus', function(done) {
         var input = fixture('basic');
-
-        // Mutation observer is async, so wait one tick.
-        Polymer.Base.async(function() {
-          var inputFocusSpy = sinon.spy(getNativeInput(input), 'focus');
-          window.setTimeout(function() {
-            assert(inputFocusSpy.called);
-            done();
-          }, 50);
-          input.autofocus = true;
-
-        }, 1);
+        var inputFocusSpy = sinon.spy(input.inputElement, 'focus');
+        window.setTimeout(function() {
+          assert(inputFocusSpy.called);
+          done();
+        }, 50);
+        input.autofocus = true;
       });
+
+      test('autofocus doesn\'t grab focus if another element already has it', function(done) {
+        var inputs = fixture('multiple-inputs');
+        var inputFocusSpies = inputs.map(function(input) {
+          return sinon.spy(input.inputElement, 'focus');
+        });
+        window.setTimeout(function() {
+          assert(inputFocusSpies[0].called, 'first autofocus input with grabbed focus');
+          assert(!inputFocusSpies[1].called, 'second autofocus input let first input keep focus');
+          done();
+        }, 50);
+        inputs[0].autofocus = true;
+        inputs[1].autofocus = true; // Shouldn't cause focus to change
+      });
+
     });
 
     suite('focus/blur events', function() {
       var input;
-      var inputFocusSpy, blurFocusSpy;
 
       setup(function() {
         input = fixture('basic');
-        inputFocusSpy = sinon.spy();
-        blurFocusSpy = sinon.spy();
-
-        input.addEventListener('focus', inputFocusSpy);
-        input.addEventListener('blur', blurFocusSpy);
       });
 
-      teardown(function() {
-        input.removeEventListener('focus', inputFocusSpy);
-        input.removeEventListener('blur', blurFocusSpy);
-      });
-
-      // When you focus a paper-input, this is what happens:
-      // paper-input gets focused -> it focuses its nested <input>
-      // In shadow DOM, the nested <input>'s focus event stays inside the shadow root.
-      // In shady DOM, this is a different event (it blurs the paper-input and fires
-      // another focus event for the 'input (which we retarget).
-      // This means that in Shady DOM, you get *two* focus events (and a blur)
-      // every time a paper-input is focused.
-      test('focus events fired on host element', function(done) {
-        // Mutation observer is async, so wait one tick.
-        Polymer.Base.async(function() {
-          ensureDocumentHasFocus();
-          // If the document doesn't have focus, we can't test focus.
-          if (!window.top.document.hasFocus()) {
-            this.skip();
-          }
-          input.focus();
+      // At the moment, it is very hard to correctly fire exactly
+      // one focus/blur events on a paper-input. This is because
+      // when a paper-input is focused, it needs to focus
+      // its underlying native input, which will also fire a `blur`
+      // event.
+      test('focus events fired on host element', function() {
+        input.addEventListener('focus', function(event) {
           assert(input.focused, 'input is focused');
-          assert(inputFocusSpy.callCount > 0, 'focus event fired');
-          done();
-        }, 1);
+        });
+        MockInteractions.focus(input);
       });
 
-      test('focus events fired on host element if nested element is focused', function(done) {
-        ensureDocumentHasFocus();
-        // If the document doesn't have focus, we can't test focus.
-        if (!window.top.document.hasFocus()) {
-          this.skip();
-        }
-        // Mutation observer is async, so wait one tick.
-        Polymer.Base.async(function() {
-          getNativeInput(input).focus();
+      test('focus events fired on host element if nested element is focused', function() {
+        input.addEventListener('focus', function(event) {
           assert(input.focused, 'input is focused');
-          assert(inputFocusSpy.callCount > 0, 'focus event fired');
-          done();
-        }, 1);
+        });
+        MockInteractions.focus(input.inputElement);
       });
 
-      test('blur events fired on host element', function(done) {
-        ensureDocumentHasFocus();
-        // If the document doesn't have focus, we can't test focus.
-        if (!window.top.document.hasFocus()) {
-          this.skip();
-        }
-
-        // Mutation observer is async, so wait one tick.
-        Polymer.Base.async(function() {
-          input.focus();
-          assert(input.focused, 'input is focused');
-          assert(inputFocusSpy.callCount > 0, 'focus event fired');
-          var blursBecauseOfFocus = blurFocusSpy.callCount;
-
-          // We can't call blur() on the paper-input, because in shady dom
-          // it's not actually the element that's focused (the nested <input>)
-          // is. So, next best thing, blur the thing that's focused.
-          document.activeElement.blur();
-          input.blur();
-          assert(blurFocusSpy.callCount > blursBecauseOfFocus, 'blur event fired');
-          done();
-        }, 1);
-      });
-
-      test('blur events fired on host element nested element is blurred', function(done) {
-        ensureDocumentHasFocus();
-        // If the document doesn't have focus, we can't test focus.
-        if (!window.top.document.hasFocus()) {
-          this.skip();
-        }
-
-        // Mutation observer is async, so wait one tick.
-        Polymer.Base.async(function() {
-          input.focus();
-          assert(inputFocusSpy.callCount > 0, 'focus event fired');
-
-          var blursBecauseOfFocus = blurFocusSpy.callCount;
-          getNativeInput(input).blur();
-          assert(blurFocusSpy.callCount > blursBecauseOfFocus, 'blur event fired');
-          done();
-        }, 1)
-      });
-
-      test('focusing then bluring sets the focused attribute correctly', function(done) {
-        ensureDocumentHasFocus();
-        // If the document doesn't have focus, we can't test focus.
-        if (!window.top.document.hasFocus()) {
-          this.skip();
-        }
-        // Mutation observer is async, so wait one tick.
-        Polymer.Base.async(function() {
-          input.focus();
-          assert(input.focused, 'input is focused');
-          getNativeInput(input).blur();
+      test('blur events fired on host element', function() {
+        MockInteractions.focus(input);
+        input.addEventListener('blur', function(event) {
           assert(!input.focused, 'input is blurred');
-          getNativeInput(input).focus();
-          assert(input.focused, 'input is focused');
-          getNativeInput(input).blur();
-          assert(!input.focused, 'input is blurred');
-          done();
-        }, 1);
+        });
+        MockInteractions.blur(input);
       });
 
-      test('focusing then bluring with shift-tab removes the focused attribute correctly', function(done) {
-        ensureDocumentHasFocus();
-        // If the document doesn't have focus, we can't test focus.
-        if (!window.top.document.hasFocus()) {
-          this.skip();
-        }
-        // Mutation observer is async, so wait one tick.
-        Polymer.Base.async(function() {
-          input.focus();
-          assert(input.focused, 'input is focused');
-
-          // Fake a shift-tab induced blur by forcing the flag.
-          input._shiftTabPressed = true;
-          getNativeInput(input).blur();
+      test('blur events fired on host element nested element is blurred', function() {
+        MockInteractions.focus(input);
+        input.addEventListener('blur', function(event) {
           assert(!input.focused, 'input is blurred');
-          done();
-        }, 1);
+        });
+        MockInteractions.blur(input.inputElement);
+      });
+
+      test('focusing then bluring sets the focused attribute correctly', function() {
+        MockInteractions.focus(input);
+        assert(input.focused, 'input is focused');
+        MockInteractions.blur(input);
+        assert(!input.focused, 'input is blurred');
+        MockInteractions.focus(input.inputElement);
+        assert(input.focused, 'input is focused');
+        MockInteractions.blur(input.inputElement);
+        assert(!input.focused, 'input is blurred');
+      });
+
+      test('focusing then bluring with shift-tab removes the focused attribute correctly', function() {
+        MockInteractions.focus(input);
+        assert(input.focused, 'input is focused');
+
+        // Fake a shift-tab induced blur by forcing the flag.
+        input._shiftTabPressed = true;
+        MockInteractions.blur(input.inputElement);
+        assert(!input.focused, 'input is blurred');
       });
     });
 
-    suite('focused styling (integration test)', function(done) {
+    suite('focused styling (integration test)', function() {
+
       test('underline is colored when input is focused', function(done) {
-        ensureDocumentHasFocus();
-        // If the document doesn't have focus, we can't test focus.
-        if (!window.top.document.hasFocus()) {
-          this.skip();
-        }
-
         var input = fixture('basic');
-        // Mutation observer is async, so wait one tick.
-        Polymer.Base.async(function() {
-          var container = Polymer.dom(input.root).querySelector('paper-input-container');
-          var line = Polymer.dom(container.root).querySelector('.underline');
-          assert.isFalse(line.classList.contains('is-highlighted'), 'line is not highlighted when input is not focused');
-
-          input.focus();
-          requestAnimationFrame(function() {
-            assert.isTrue(line.classList.contains('is-highlighted'), 'line is highlighted when input is focused');
-            done();
-          });
-        }, 1);
+        var container = Polymer.dom(input.root).querySelector('paper-input-container');
+        var line = Polymer.dom(container.root).querySelector('.underline');
+        assert.isFalse(line.classList.contains('is-highlighted'), 'line is not highlighted when input is not focused');
+        MockInteractions.focus(input.inputElement);
+        requestAnimationFrame(function() {
+          assert.isTrue(line.classList.contains('is-highlighted'), 'line is highlighted when input is focused');
+          done();
+        });
       });
+
     });
 
     suite('validation', function() {
 
-      test('invalid attribute updated after calling validate()', function(done) {
+      test('invalid attribute updated after calling validate()', function() {
         var input = fixture('required-no-auto-validate');
-
-        // Mutation observer is async, so wait one tick.
-        Polymer.Base.async(function() {
-          input.validate();
-
-          // Need to wait a tick to stamp the error message.
-          Polymer.Base.async(function() {
-            var error = getErrorDiv(input);
-            assert.ok(error, 'paper-input-error exists');
-            assert.notEqual(getComputedStyle(error).visibility, 'hidden', 'error is not visibility:hidden');
-            assert.isTrue(input.invalid, 'invalid is true');
-            done();
-          }, 1);
-        }, 1);
+        forceXIfStamp(input);
+        input.validate();
+        var error = Polymer.dom(input.root).querySelector('paper-input-error');
+        assert.ok(error, 'paper-input-error exists');
+        assert.notEqual(getComputedStyle(error).display, 'none', 'error is not display:none');
+        assert.isTrue(input.invalid, 'invalid is true');
       });
+
     });
 
     suite('a11y', function() {
-      test('has aria-labelledby, which is monotonically increasing', function(done) {
+      test('has aria-labelledby, which is monotonically increasing', function() {
         var inputs = fixture('multiple-inputs');
 
-        // Mutation observer is async, so wait one tick.
-        Polymer.Base.async(function() {
-          // Find the first index of the input in this fixture. Since the label
-          // ids monotonically increase every time a new input is created, and
-          // this fixture isn't the first one in the document, we're going to start
-          // at an ID > 1.
-          var firstLabel = Polymer.dom(inputs[0].root).querySelector('label').id;
-          var index = parseInt(firstLabel.substr(firstLabel.lastIndexOf('-') + 1));
+        // Find the first index of the input in this fixture. Since the label
+        // ids monotonically increase every time a new input is created, and
+        // this fixture isn't the first one in the document, we're going to start
+        // at an ID > 1.
+        var firstLabel = Polymer.dom(inputs[0].root).querySelector('label').id;
+        var index = parseInt(firstLabel.substr(firstLabel.lastIndexOf('-') + 1));
 
-          for (var i = 0; i < inputs.length; i++ ) {
-            var input = getNativeInput(inputs[i]);
-            var label = Polymer.dom(inputs[i].root).querySelector('label').id;
+        for (var i = 0; i < inputs.length; i++ ) {
+          var input = inputs[i].inputElement;
+          var label = Polymer.dom(inputs[i].root).querySelector('label').id;
 
-            assert.isTrue(input.hasAttribute('aria-labelledby'));
-            assert.equal(label, 'paper-input-label-' + (index++));
-            assert.equal(input.getAttribute('aria-labelledby'), label);
-          }
-          done();
-        }, 1)
+          assert.isTrue(input.hasAttribute('aria-labelledby'));
+          assert.equal(label, 'paper-input-label-' + (index++));
+          assert.equal(input.getAttribute('aria-labelledby'), label);
+        }
       });
 
-      test('has aria-describedby for error message', function(done) {
+      test('has aria-describedby for error message', function() {
         var input = fixture('required');
-
-        // Need to wait a tick to stamp the error message.
-        Polymer.Base.async(function() {
-          assert.isTrue(getNativeInput(input).hasAttribute('aria-describedby'));
-          assert.equal(getNativeInput(input).getAttribute('aria-describedby'), getErrorDiv(input).id, 'aria-describedby points to the error message');
-          done();
-        }, 1);
+        forceXIfStamp(input);
+        assert.isTrue(input.inputElement.hasAttribute('aria-describedby'));
+        assert.equal(input.inputElement.getAttribute('aria-describedby'), Polymer.dom(input.root).querySelector('paper-input-error').id, 'aria-describedby points to the error message');
       });
 
-      test('has aria-describedby for character counter', function(done) {
-        var input = fixture('basic-char-counter');
-
-        // Need to wait a tick to stamp the char-counter.
-        Polymer.Base.async(function() {
-          assert.isTrue(getNativeInput(input).hasAttribute('aria-describedby'));
-          assert.equal(getNativeInput(input).getAttribute('aria-describedby'), getCharCounterDiv(input).id, 'aria-describedby points to the character counter');
-          done();
-        }, 1);
+      test('has aria-describedby for character counter', function() {
+        var input = fixture('char-counter');
+        forceXIfStamp(input);
+        assert.isTrue(input.inputElement.hasAttribute('aria-describedby'));
+        assert.equal(input.inputElement.getAttribute('aria-describedby'), Polymer.dom(input.root).querySelector('paper-input-char-counter').id, 'aria-describedby points to the character counter');
       });
 
-      test('has aria-describedby for character counter and error', function(done) {
+      test('has aria-describedby for character counter and error', function() {
         var input = fixture('required-char-counter');
-
-        // Need to wait a tick to stamp the char-counter and error message.
-        Polymer.Base.async(function() {
-          assert.isTrue(getNativeInput(input).hasAttribute('aria-describedby'));
-          var ariaDescribedBy = getNativeInput(input).getAttribute('aria-describedby');
-
-          assert.notEqual(ariaDescribedBy.indexOf(getErrorDiv(input).id, -1,
-              'aria-describedby points to the error message'));
-          assert.notEqual(ariaDescribedBy.indexOf(getCharCounterDiv(input).id, -1,
-              'aria-describedby points to the character counter'));
-          done();
-        }, 1);
+        forceXIfStamp(input);
+        assert.isTrue(input.inputElement.hasAttribute('aria-describedby'));
+        assert.equal(input.inputElement.getAttribute('aria-describedby'), Polymer.dom(input.root).querySelector('paper-input-error').id + ' ' + Polymer.dom(input.root).querySelector('paper-input-char-counter').id, 'aria-describedby points to the error message and character counter');
       });
 
       test('focus an input with tabindex', function(done) {
-        ensureDocumentHasFocus();
-        // If the document doesn't have focus, we can't test focus.
-        if (!window.top.document.hasFocus()) {
-          this.skip();
-        }
-
         var input = fixture('has-tabindex');
-
-        // Mutation observer is async, so wait one tick.
-        Polymer.Base.async(function() {
-          input.focus();
-          assert.equal(input.shadowRoot ? input.shadowRoot.activeElement :
-                  document.activeElement, input._focusableElement);
-          done();
-        }, 1);
+        flush(function() {
+          MockInteractions.focus(input);
+          flush(function() {
+            assert.equal(input.shadowRoot ? input.shadowRoot.activeElement :
+                document.activeElement, input._focusableElement);
+            done();
+          });
+        });
       });
     });
 
-    // TODO(nowaldorf): This currently crashes on Firefox/Safari.
-    a11ySuite('basic');
-    a11ySuite('label');
-    a11ySuite('label-has-value');
-    a11ySuite('error');
   </script>
 
 </body>

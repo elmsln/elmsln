@@ -18,7 +18,7 @@
     "web-component-tester": "^4.0.0",
     "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0"
   },
-  "homepage": "https://github.com/LRNWebComponents/lrnsys-button",
+  "homepage": "https://github.com/LRNWebcomponents/lrnsys-button",
   "version": "0.3.1",
   "_release": "0.3.1",
   "_resolution": {
@@ -26,13 +26,7 @@
     "tag": "0.3.1",
     "commit": "38f5de24dab348e2ab21fe2c3788495bfc00822d"
   },
-<<<<<<< HEAD
   "_source": "https://github.com/LRNWebcomponents/lrnsys-button.git",
   "_target": "^0.3.1",
   "_originalSource": "LRNWebcomponents/lrnsys-button"
-=======
-  "_source": "https://github.com/LRNWebComponents/lrnsys-button.git",
-  "_target": "^0.3.1",
-  "_originalSource": "LRNWebComponents/lrnsys-button"
->>>>>>> Updated bower. Updated markdown editor. added markdown render to body field.
 }
