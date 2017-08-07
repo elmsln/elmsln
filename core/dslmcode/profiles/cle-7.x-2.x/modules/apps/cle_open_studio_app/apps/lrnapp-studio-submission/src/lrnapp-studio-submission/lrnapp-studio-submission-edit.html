@@ -227,7 +227,7 @@
         var status = res.detail.response.status;
         this.saving = false;
         if (status === 200) {
-          this.fire('updated', { type: 'deleted' });
+          this.fire('updated', { type: 'delete' });
         }
       },
       /**

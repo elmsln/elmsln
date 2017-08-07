@@ -236,13 +236,15 @@
       },
       _submissionUpdated: function (e) {
         var type = e.detail.type;
-        if (type === 'updated') {
+        console.log(type);
+        if (type === 'update') {
           // navigate to the main page
           this.set('route.path', '');
+          console.log('set');
           // refresh the data
           this.$$('#ajaxRequest').generateRequest();
         }
-        else if (type === 'deleted') {
+        else if (type === 'delete') {
           this.set('route.path', '');
           this.fire('submissionDeleted', { submission: this.submission });
           this.submission = {};
