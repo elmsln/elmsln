@@ -401,9 +401,13 @@ function _cle_submission_submission_status($assignment, $account = NULL) {
   if ($gid = _cis_section_load_section_by_id(_cis_connector_section_context())) {
       $field_conditions = array('og_group_ref' => array('target_id', array($gid), 'IN'));
   }
+  $property_conditions = array(
+    'status' => array(NODE_PUBLISHED, '='),
+    'uid' => $account->uid,
+  );
   $field_conditions['field_assignment'] = array('target_id', array($assignment->nid), 'IN');
   // load results
-  $results = _cis_connector_assemble_entity_list('node', 'cle_submission', 'nid', '_entity', $field_conditions, array('uid' => $account->uid));
+  $results = _cis_connector_assemble_entity_list('node', 'cle_submission', 'nid', '_entity', $field_conditions, $property_conditions);
   $submissions = array();
   $status = 0;
   $submission = array();
