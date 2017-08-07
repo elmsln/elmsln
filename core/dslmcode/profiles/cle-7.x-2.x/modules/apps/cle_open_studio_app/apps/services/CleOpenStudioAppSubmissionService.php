@@ -55,6 +55,56 @@ class CleOpenStudioAppSubmissionService {
     }
     return $item;
   }
+  
+  public function updateSubmission($payload, $id) {
+    if ($payload) {
+      // make sure we have an id to work with
+      if ($id && is_numeric($id)) {
+        // load the submission from drupal
+        $node = node_load($id);
+        // make sure the node is actually a submission
+        if ($node && isset($node->type) && $node->type == 'cle_submission') {
+          // decode the payload submission to the drupal node
+          $decoded_submission = $this->decodeSubmission($payload, $node);
+          // save the node
+          try {
+            // $decoded_submission = new stdClass(); #fake error message
+            node_save($decoded_submission);
+            // encode the submission to send it back
+            $encoded_submission = $this->encodeSubmission($decoded_submission);
+            return $encoded_submission;
+          }
+          catch (Exception $e) {
+            throw new Exception($e->getMessage());
+            return;
+          }
+        }
+      }
+    }
+  }
+
+  public function deleteSubmission($id) {
+    if ($id && is_numeric($id)) {
+      $node = node_load($id);
+      if ($node && isset($node->type) && $node->type == 'cle_submission') {
+        $decoded_submission = $this->decodeSubmission($payload, $node);
+        // unpublish the node
+        $decoded_submission->status = 0;
+        try {
+          node_save($decoded_submission);
+          return true;
+        }
+        catch (Exception $e) {
+          throw new Exception($e->getMessage());
+          return;
+        }
+      }
+    }
+  }
+
+  public function videoGenerateSourceUrl($url) {
+    return _elmsln_api_video_url($url);
+  }
 
   /**
    * Prepare a list of submissions to be outputed in json
@@ -112,15 +162,18 @@ class CleOpenStudioAppSubmissionService {
       $encoded_submission->attributes->links = NULL;
       $encoded_submission->attributes->links = $submission->field_links[LANGUAGE_NONE];
       // Video
-      $encoded_submission->attributes->video = NULL;
-      $videos = $submission->field_video[LANGUAGE_NONE];
-      if ($videos) {
-        foreach ($videos as $key => &$video) {
-          // add a video_src property to give the correct embed src to an iframe
-          $video['video_src'] = _elmsln_api_video_url($video['video_url']);
+      $encoded_submission->attributes->video = array();
+      if (isset($submission->field_video[LANGUAGE_NONE])) {
+        $videos = $submission->field_video[LANGUAGE_NONE];
+        if ($videos) {
+          foreach ($videos as $key => &$video) {
+            // add a video_src property to give the correct embed src to an iframe
+            $video['video_src'] = _elmsln_api_video_url($video['video_url']);
+          }
         }
+        $encoded_submission->attributes->video = $videos;
       }
-      $encoded_submission->attributes->video = $videos;
+
       // Meta Info
       $encoded_submission->meta = new stdClass();
       $encoded_submission->meta->created = Date('c', $submission->created);
@@ -158,5 +211,49 @@ class CleOpenStudioAppSubmissionService {
       return $encoded_submission;
     }
     return NULL;
+  }
+
+  protected function decodeSubmission($payload, $node) {
+    if ($payload) {
+      if ($payload->attributes) {
+        if ($payload->attributes->title) {
+          $node->title = $payload->attributes->title;
+        }
+        if ($payload->attributes->body) {
+          $node->field_submission_text[LANGUAGE_NONE][0]['value'] = $payload->attributes->body;
+        }
+        if ($payload->attributes->state) {
+          $node->field_submission_state[LANGUAGE_NONE][0]['value'] = $payload->attributes->state;
+        }
+        if ($payload->attributes->links) {
+          $node->field_links[LANGUAGE_NONE] = $this->objectToArray($payload->attributes->links);
+        }
+        if (isset($payload->attributes->video)) {
+          $videos = array();
+          foreach ($payload->attributes->video as $key => $video) {
+            $videos[$key]['video_url'] = $video->video_url;
+          }
+          $node->field_video[LANGUAGE_NONE] = $videos;
+        }
+        if (isset($payload->attributes->images)) {
+          $node->field_images[LANGUAGE_NONE] = $this->objectToArray($payload->attributes->images);
+        }
+      }
+    }
+    return $node;
+  }
+
+  // Convert multidimentional Object to arrays
+  private function objectToArray($obj) {
+    if (is_object($obj)) $obj = (array)$obj;
+    if (is_array($obj)) {
+        $new = array();
+        foreach ($obj as $key => $val) {
+            $new[$key] = $this->objectToArray($val);
+        }
+    } else {
+        $new = $obj;
+    }
+    return $new;
   }
 }

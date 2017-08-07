@@ -1,5 +1,9 @@
+<link rel="import" href="lrnapp-studio-submission-edit.html">
 <link rel="import" href="lrnapp-studio-submission-comments.html">
 <link rel="import" href="lrnapp-studio-submission-comment.html">
+<link rel="import" href="../../bower_components/lrnsys-comment/lrnsys-comment-list.html">
+<link rel="import" href="../../bower_components/marked-element/marked-element.html">
+
 <dom-module id="lrnapp-studio-submission-page">
   <template>
     <style>
@@ -82,8 +86,8 @@
         display: flex;
       }
 
-      .submission-page {
-        width: 100vh;
+      :host[edit-page] .submission-page {
+        width: 100%;
       }
 
       .submission-comments {
@@ -95,80 +99,98 @@
       }
     </style>
 
+    <app-route route="{{route}}" pattern="/edit" tail="{{tail}}" active="{{editPage}}">
+    </app-route>
+
     <iron-ajax id="ajaxRequest" auto url="[[reqUrl]]" method="GET" body="[[reqBody]]" params="[[reqParams]]" content-type="application/json"
       handle-as="json" on-response="_handleResponse"></iron-ajax>
-      <div class="flex-wrap">
+    <div class="flex-wrap">
+      <template is="dom-if" if="[[!editPage]]">
         <div class="submission-comments">
-            <template is="dom-if" if="[[submission.relationships.comments]]">
-               <!--<div class="comments">{{submission.relationships.comments.data.length}}</div>-->
-                <h2 class="title">Comments</h2>
-                <lrnapp-studio-submission-comments submission="{{submission}}"></lrnapp-studio-submission-comments>
-            </template>
-            </div>
+          <template is="dom-if" if="[[submission.relationships.comments]]">
+            <!--<div class="comments">{{submission.relationships.comments.data.length}}</div>-->
+            <h2 class="title">Comments</h2>
+            <lrnsys-comment-list source-path="{{commentsUrl}}"></lrnsys-comment-list> 
+          </template>
+        </div>
+      </template>
       <div class="submission-page">
         <paper-card>
-          <div class="card-content">
-            <!-- ----- Title and Author -----  -->
-            <template is="dom-if" if="[[submission]]">
-              <h1 class="title">{{submission.attributes.title}}</h1>
-              <h2 class="author">By: {{submission.relationships.author.data.name}}</h2>
-            </template>
-            <!-- ----- Images Submission -----  -->
-            <template is="dom-if" if="[[submission.attributes.images]]">
-              <lrndesign-contentblock class="center" title="Images Submitted">
-                <template is="dom-repeat" items="[[_toArray(submission.attributes.images)]]" as="image">
-
-                  <lrnsys-dialog alt="View Image">
-                    <span slot="button">
-                <iron-image sizing="contain" class="contain" src="[[image.image_styles.elmsln_small]]"></iron-image>
-                </span>
-                    <iron-image src="[[image.image_styles.elmsln_medium]]"></iron-image>
-                  </lrnsys-dialog>
-
-                </template>
-              </lrndesign-contentblock>
-            </template>
-            <!-- ----- Video Submission -----  -->
-            <template is="dom-if" if="[[submission.attributes.video]]">
-              <lrndesign-contentblock class="center" title="Videos Submitted">
-                <template is="dom-repeat" items="[[_toArray(submission.attributes.video)]]" as="video">
-                  <iframe width="460" height="249" src="[[video.video_src]]"></iframe>
-                </template>
-              </lrndesign-contentblock>
-            </template>
-            <!-- ----- Text Submission -----  -->
-            <template is="dom-if" if="[[submission.attributes.body]]">
-              <lrndesign-contentblock title="Text Submitted">
-                <p class="body">{{submission.attributes.body}}</p>
-              </lrndesign-contentblock>
-            </template>
-            <!-- ----- Links Submission -----  -->
-            <template is="dom-if" if="[[submission.attributes.links]]">
-              <lrndesign-contentblock title="Links Submitted">
-                <template is="dom-repeat" items="[[_toArray(submission.attributes.links)]]" as="link">
-                  <p><strong>[[link.title]]:</strong>
-                    <a class="link" href="[[link.url]]" target="_blank">[[link.url]]</a></p>
-                </template>
-              </lrndesign-contentblock>
-            </template>
-            <!-- ----- Files Submission -----  -->
-            <template is="dom-if" if="[[submission.attributes.files]]">
-              <lrndesign-contentblock title="Files Submitted">
-                <template is="dom-repeat" items="[[_toArray(submission.attributes.files)]]" as="file">
-                  <p><strong>[[file.filename]]:</strong>
-                    <a class="link" href="[[file.url]]" target="_blank">[[file.url]]</a></p>
-                </template>
-              </lrndesign-contentblock>
-            </template>
+          <template is="dom-if" if="[[!editPage]]">
+            <div class="card-content">
+              <!-- ----- Title and Author -----  -->
+              <template is="dom-if" if="[[submission]]">
+                <h1 class="title">{{submission.attributes.title}}</h1>
+                <h2 class="author">By: {{submission.relationships.author.data.name}}</h2>
+                <h3 class="status">Status: {{submission.attributes.state}}</h3> 
+              </template>
+              <!-- ----- Text Submission -----  -->
+              <template is="dom-if" if="[[submission.attributes.body]]">
+                <lrndesign-contentblock title="Text Submitted">
+                  <marked-element markdown="[[submission.attributes.body]]"></marked-element>
+                </lrndesign-contentblock>
+              </template>
+              <!-- ----- Images Submission -----  -->
+              <template is="dom-if" if="[[submission.attributes.images]]">
+                <lrndesign-contentblock class="center" title="Images Submitted">
+                  <template is="dom-repeat" items="[[_toArray(submission.attributes.images)]]" as="image">
+                    <lrnsys-dialog alt="View Image">
+                      <span slot="button">
+                        <iron-image sizing="contain" class="contain" src="[[image.url]]"></iron-image>
+                      </span>
+                      <iron-image src="[[image.url]]"></iron-image>
+                    </lrnsys-dialog>
+                  </template>
+                </lrndesign-contentblock>
+              </template>
+              <!-- ----- Video Submission -----  -->
+              <template is="dom-if" if="[[submission.attributes.video]]">
+                <lrndesign-contentblock class="center" title="Videos Submitted">
+                  <template is="dom-repeat" items="[[_toArray(submission.attributes.video)]]" as="video">
+                    <iframe width="460" height="249" src="[[video.video_src]]"></iframe>
+                  </template>
+                </lrndesign-contentblock>
+              </template>
+              <!-- ----- Links Submission -----  -->
+              <template is="dom-if" if="[[submission.attributes.links]]">
+                <lrndesign-contentblock title="Links Submitted">
+                  <template is="dom-repeat" items="[[_toArray(submission.attributes.links)]]" as="link">
+                    <p><strong>[[link.title]]:</strong>
+                      <a class="link" href="[[link.url]]" target="_blank">[[link.url]]</a></p>
+                  </template>
+                </lrndesign-contentblock>
+              </template>
+              <!-- ----- Files Submission -----  -->
+              <template is="dom-if" if="[[submission.attributes.files]]">
+                <lrndesign-contentblock title="Files Submitted">
+                  <template is="dom-repeat" items="[[_toArray(submission.attributes.files)]]" as="file">
+                    <p><strong>[[file.filename]]:</strong>
+                      <a class="link" href="[[file.url]]" target="_blank">[[file.url]]</a></p>
+                  </template>
+                </lrndesign-contentblock>
+              </template>
             </div>
-            </paper-card>
-            </div>
-            </div>
+          </template>
+          <template is="dom-if" if="[[editPage]]">
+            <lrnapp-studio-submission-edit submission="[[submission]]" id="[[id]]" end-point="[[endPoint]]" csrf-token="[[csrfToken]]" on-updated="_submissionUpdated"></lrnapp-studio-submission-edit>
+          </template>
+        </paper-card>
+      </div>
+    </div>
   </template>
   <script>
     Polymer({
       is: 'lrnapp-studio-submission-page',
       properties: {
+        id: {
+          type: String
+        },
+        endPoint: {
+          type: String
+        },
+        csrfToken: {
+          type: String
+        },
         reqUrl: {
           type: String
         },
@@ -180,6 +202,14 @@
         },
         submission: {
           type: Object
+        },
+        commentsUrl: {
+          type: String,
+          computed: '_computeCommentsUrl(id, endPoint, csrfToken)'
+        },
+        editPage: {
+          type: Boolean,
+          reflectToAttribute: true
         }
       },
       observers: [
@@ -187,6 +217,9 @@
         '_paramsChanged(csrfToken)',
         '_bodyChanged(title)'
       ],
+      _computeCommentsUrl: function (id, endPoint, csrfToken) {
+        return endPoint + '/api/submissions/' + id + '/comments?token=' + csrfToken
+      },
       _urlVarsChanged: function (id, endPoint) {
         this.reqUrl = endPoint + '/api/submissions/' + id;
       },
@@ -197,12 +230,26 @@
       },
       _handleResponse: function (data) {
         this.submission = data.detail.response.data;
-        console.log(this.submission);
       },
       _isReply: function (data) {
         this.thread = submission.relationships.comments.data.attributes.thread;
-        console.log(this.thread);
       },
+      _submissionUpdated: function (e) {
+        var type = e.detail.type;
+        console.log(type);
+        if (type === 'update') {
+          // navigate to the main page
+          this.set('route.path', '');
+          console.log('set');
+          // refresh the data
+          this.$$('#ajaxRequest').generateRequest();
+        }
+        else if (type === 'delete') {
+          this.set('route.path', '');
+          this.fire('submissionDeleted', { submission: this.submission });
+          this.submission = {};
+        }
+     },
       /**
        * Simple way to convert from object to array.
        */

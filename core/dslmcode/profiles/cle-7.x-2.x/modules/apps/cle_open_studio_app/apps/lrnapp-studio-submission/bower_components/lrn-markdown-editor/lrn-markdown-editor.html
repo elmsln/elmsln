@@ -1,0 +1,190 @@
+<link rel="import" href="../paper-tabs/paper-tabs.html">
+
+<link rel="import" href="../marked-element/marked-element.html">
+<link rel="import" href="../iron-pages/iron-pages.html">
+<link rel="import" href="lrn-markdown-editor-editor.html">
+
+<dom-module id="lrn-markdown-editor">
+  <template>
+    <style>
+       :host {
+        display: block;
+      }
+
+      #split-pane {
+        display: flex;
+      }
+
+      .split-pane>* {
+        flex: 1 1 auto;
+        min-height: 10em;
+      }
+
+      .preview-pane {
+        background: lightblue;
+      }
+
+      paper-card {
+        width: 100%;
+        min-width: 500px;
+        padding: 20px;
+      }
+
+      paper-tabs {
+        background: #F5F5F5;
+        border-style: solid;
+        border-color: #DCDCDC;
+        border-width: 1px;
+        min-width: 500px;
+      }
+
+      marked-element.lrn-markdown-editor {
+        width: 100%;
+        word-wrap: break-word;
+      }
+
+      .container-flex {
+        display: flex;
+        flex-wrap: nowrap;
+      }
+
+      .split-pane {
+        min-width: 35em;
+      }
+
+      .split-pane .container-flex>* {
+        width: 50%;
+      }
+
+      .split-pane marked-element {
+        width: 100%;
+        min-width: 150px;
+        margin: 40px 20px 0 40px;
+        padding: 0 20px;
+        background: #FFF;
+      }
+    </style>
+
+    <div class="mtz-toolbar">
+      <paper-tabs selected="{{selected}}">
+        <paper-tab>Write</paper-tab>
+        <paper-tab>Preview</paper-tab>
+        <paper-tab>Split View</paper-tab>
+      </paper-tabs>
+    </div>
+
+    <iron-pages selected="{{selected}}">
+
+      <section>
+        <paper-card>
+          <lrn-markdown-editor-editor content="{{content}}"></lrn-markdown-editor-editor>
+        </paper-card>
+      </section>
+
+      <section>
+        <paper-card>
+          <marked-element markdown="{{content}}"></marked-element>
+        </paper-card>
+      </section>
+
+      <section class="split-pane">
+        <paper-card>
+          <div class="container-flex">
+            <lrn-markdown-editor-editor content="{{content}}"></lrn-markdown-editor-editor>
+            <marked-element class="preview-pane" markdown="{{content}}"></marked-element>
+          </div>
+        </paper-card>
+      </section>
+
+    </iron-pages>
+
+  </template>
+  <script>
+    Polymer({
+      is: 'lrn-markdown-editor',
+      properties: {
+        content: {
+          type: String,
+          notify: true
+        },
+        selected: {
+          type: String,
+          value: '0',
+          reflectToAttribute: true
+        },
+        layout: {
+          type: String,
+          value: 0
+        },
+        cookies: {
+          type: Boolean,
+          value: true
+        },
+        elReady: {
+          type: Boolean,
+          value: false
+        }
+      },
+      observers: [
+        '_selectedChanged(selected)'
+      ],
+      _selectedChanged: function (selected) {
+        var root = this;
+        var cookieName = root._getCookieName();
+        // get current cookies
+        // if the 'split-view' pane is selected
+        if (selected === 2) {
+          // add a cookie for lrn-markdown-editor-splitview
+          root._createCookie(cookieName, 'true', '30');
+        }
+        else if (selected !== 2 && root.elReady === true) {
+          /**
+           * @todo: this is erasing the cookie erroneously 
+           */
+          console.log('Ready ', root.elReady, selected, ' Erasing cookie');
+          root._eraseCookie(cookieName);
+        }
+      },
+      _createCookie: function (name, value, days) {
+        var expires = "";
+        if (days) {
+          var date = new Date();
+          date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+          expires = "; expires=" + date.toUTCString();
+        }
+        document.cookie = name + "=" + value + expires + "; path=/";
+      },
+      _readCookie: function (name) {
+        var nameEQ = name + "=";
+        var ca = document.cookie.split(';');
+        console.log(ca);
+        for (var i = 0; i < ca.length; i++) {
+          var c = ca[i];
+          while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+          if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+        }
+        return null;
+      },
+      _eraseCookie: function (name) {
+        this._createCookie(name, "", -1);
+      },
+      _getCookieName: function () {
+        return 'lrnmarkdowneditorsplitview';
+      },
+      ready: function () {
+        var root = this;
+        // tell others we are ready
+        root.elReady = true;
+        // get the cookie for splitview
+        var cookieName = root._getCookieName();
+        var cookie = root._readCookie(cookieName);
+        // if there is a cookie set for splitview
+        console.log('cookie: ', cookie);
+        if (cookie && cookie === 'true') {
+          // show splitview pane
+          root.selected = 2;
+        }
+      },
+    });
+  </script>
+</dom-module>

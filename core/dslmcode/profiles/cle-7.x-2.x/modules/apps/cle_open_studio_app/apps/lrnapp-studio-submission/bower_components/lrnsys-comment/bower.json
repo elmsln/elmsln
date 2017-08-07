@@ -1,0 +1,29 @@
+{
+  "name": "lrnsys-comment",
+  "description": "A LRN element",
+  "main": "lrnsys-comment.html",
+  "dependencies": {
+    "polymer": "Polymer/polymer#^1.9.3",
+    "lrnsys-behaviors": "LRNWebComponents/lrnsys-behaviors#^1.0.0",
+    "materializecss-styles": "LRNWebComponents/materializecss-styles#^0.0.5",
+    "lrndesign-avatar": "LRNWebComponents/lrndesign-avatar#^0.0.3",
+    "paper-input": "LRNWebComponents/paper-input#feature/selection",
+    "mtz-marked-editor": "MaritzSTL/mtz-marked-editor#^0.2.2",
+    "paper-toast": "PolymerElements/paper-toast#^2.0.0",
+    "iron-ajax": "PolymerElements/iron-ajax#^2.0.2",
+    "moment-element": "abdonrd/moment-element#^2.0.0",
+    "paper-card": "PolymerElements/paper-card#^2.0.0",
+    "paper-icon-button": "PolymerElements/paper-icon-button#^2.0.0",
+    "marked-element": "PolymerElements/marked-element#^2.2.0",
+    "iron-list": "PolymerElements/iron-list#^2.0.7",
+    "lrnsys-button": "LRNWebComponents/lrnsys-button#^0.3.1",
+    "emoji-selector": "notwaldorf/emoji-selector#^1.1.1",
+    "iron-autogrow-textarea": "PolymerElements/iron-autogrow-textarea#^2.1.0"
+  },
+  "devDependencies": {
+    "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
+    "iron-demo-helpers": "PolymerElements/iron-demo-helpers#^1.0.0",
+    "web-component-tester": "^4.0.0",
+    "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0"
+  }
+}

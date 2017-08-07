@@ -23,11 +23,15 @@
     </app-route>
 
     <template is="dom-if" if="[[data.submission]]">
-      <lrnapp-studio-submission-page id="[[data.submission]]" end-point="[[endPoint]]" csrf-token="[[csrfToken]]"></lrnapp-studio-submission-page>
+      <lrnapp-studio-submission-page route="{{tail}}" id="[[data.submission]]" end-point="[[endPoint]]" csrf-token="[[csrfToken]]"></lrnapp-studio-submission-page>
     </template>
     <template is="dom-if" if="[[!data.submission]]">
       This is the lrnapp-studio-submission page.
     </template>
+
+    
+    <paper-toast id="toast"></paper-toast>
+    
 
   </template>
 
@@ -35,10 +39,22 @@
     Polymer({
       is: 'lrnapp-studio-submission',
       properties: {
+        activePage: {
+          type: String
+        }
       },
       observers: [
         '_routeChanged(route, endPoint)'
       ],
+      listeners: {
+        'submissionDeleted': '_handleSubmissionDeletion'
+      },
+      _handleRouteChange: function (event) {
+        var path = event.detail.path;
+        if (path) {
+          this.set('route.path', path);
+        }
+      },
       // If the current route is outside the scope of our app
       // then allow the website to break out of the single page
       // application routing
@@ -50,6 +66,13 @@
             }
           }
           window.location = route.path;
+        }
+      },
+      _handleSubmissionDeletion: function (e) {
+        var submission = e.detail.submission;
+        if (submission) {
+          this.set('route.path', this.endPoint);
+          this.$.toast.show('Submission has been deleted.');
         }
       },
       /**

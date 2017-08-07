@@ -1,0 +1,165 @@
+<!doctype html>
+<!--
+@license
+Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>paper-swatch-picker basic tests</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+  <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+  <script src="../../web-component-tester/browser.js"></script>
+  <script src="../../iron-test-helpers/mock-interactions.js"></script>
+  <script src="../../iron-test-helpers/test-helpers.js"></script>
+
+  <link rel="import" href="../paper-swatch-picker.html">
+</head>
+<body>
+  <style is="custom-style">
+    paper-swatch-picker.custom {
+      --paper-swatch-picker-color-size: 10px;
+    }
+  </style>
+
+  <test-fixture id="basic">
+    <template>
+      <paper-swatch-picker></paper-swatch-picker>
+    </template>
+  </test-fixture>
+
+  <test-fixture id="preselected">
+    <template>
+      <paper-swatch-picker class="preselected" color="#ffcdd2"></paper-swatch-picker>
+    </template>
+  </test-fixture>
+
+  <test-fixture id="custom">
+    <template>
+      <paper-swatch-picker class="custom" column-count="5" color-list='["#ff0000", "#00ff00", "#0000ff", "#000", "#fff"]'></paper-swatch-picker>
+    </template>
+  </test-fixture>
+
+  <script>
+    suite('basic', function() {
+      var picker, container;
+
+      setup(function() {
+        picker = fixture('basic');
+        container = picker.$.container;
+      });
+
+      test('clicking the button opens a rendered menu', function(done) {
+        Polymer.dom.flush();
+
+        // No color is selected.
+        assert.equal(picker.color, undefined);
+        MockInteractions.tap(picker.$.iconButton);
+
+        Polymer.Base.async(function() {
+          // There are 18 default columns, and each column is 20px wide.
+          assert.equal(container.style.width, 18 * 20 +'px');
+          // There are 10 default rows, and each row is 20px wide.
+          assert.equal(container.style.height, 10 * 20 +'px');
+
+          // The colors have been filled in. The first box is #ffebee.
+          var box = container.querySelector('.color');
+          assert.equal('#ffebee', picker._rgbToHex(box.style.color));
+          done();
+        }, 1);
+      });
+
+      test('clicking a color selects it', function(done) {
+        Polymer.dom.flush();
+
+        // No color is selected.
+        assert.equal(picker.color, undefined);
+        MockInteractions.tap(picker.$.iconButton);
+
+        Polymer.Base.async(function() {
+          // The colors have been filled in. The first box is #ffebee.
+          var box = container.querySelector('.color');
+          MockInteractions.tap(box);
+          Polymer.Base.async(function() {
+            assert.equal('#ffebee', picker.color);
+            assert.equal('#ffebee', picker._rgbToHex(picker.$.iconButton.style.color));
+            done();
+          }, 1);
+        });
+      });
+    });
+
+    suite('initial selection', function() {
+      var picker, container;
+
+      setup(function() {
+        picker = fixture('preselected');
+        container = picker.$.container;
+      });
+
+      test('the picker can have an initially selected color', function() {
+        Polymer.dom.flush();
+        assert.equal(picker.color, '#ffcdd2');
+        assert.equal('#ffcdd2', picker._rgbToHex(picker.$.iconButton.style.color));
+      });
+
+      test('selecting a different color updates the button color', function(done) {
+        Polymer.dom.flush();
+        assert.equal(picker.color, '#ffcdd2');
+        assert.equal('#ffcdd2', picker._rgbToHex(picker.$.iconButton.style.color));
+
+        MockInteractions.tap(picker.$.iconButton);
+
+        Polymer.Base.async(function() {
+          // Select a different color. The first box is #ffebee.
+          var box = container.querySelector('.color');
+          MockInteractions.tap(box);
+          Polymer.Base.async(function() {
+            assert.equal('#ffebee', picker.color);
+            assert.equal('#ffebee', picker._rgbToHex(picker.$.iconButton.style.color));
+            done();
+          }, 1);
+        }, 1);
+      });
+    });
+
+    suite('custom color list', function() {
+      var picker, container;
+
+      setup(function() {
+        picker = fixture('custom');
+        container = picker.$.container;
+      });
+
+      test('the picker shows the right colors', function(done) {
+        Polymer.dom.flush();
+        assert.equal(picker.colorList.length, 5);
+
+        MockInteractions.tap(picker.$.iconButton);
+
+        Polymer.Base.async(function() {
+          // There are 5 default columns, and each column is 10px wide.
+          assert.equal(container.style.width, 5 * 10 +'px');
+          // There is 1 default row, and each row is 10px wide.
+          assert.equal(container.style.height, 10 +'px');
+
+          // The colors have been filled in correctly
+          var boxes = container.querySelectorAll('.color');
+          assert.equal('#ff0000', picker._rgbToHex(boxes[0].style.color));
+          assert.equal('#00ff00', picker._rgbToHex(boxes[1].style.color));
+          assert.equal('#0000ff', picker._rgbToHex(boxes[2].style.color));
+          assert.equal('#000000', picker._rgbToHex(boxes[3].style.color));
+          assert.equal('#ffffff', picker._rgbToHex(boxes[4].style.color));
+          done();
+        }, 1);
+      });
+    });
+  </script>
+</body>
+</html>

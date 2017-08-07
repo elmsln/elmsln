@@ -1,0 +1,245 @@
+<link rel="import" href="lrnapp-studio-submission-media-editoverlay.html">
+<link rel="import" href="lrnapp-studio-submission-edit-images.html">
+<link rel="import" href="lrnapp-studio-submission-edit-video.html">
+<link rel="import" href="lrnapp-studio-submission-edit-links.html">
+<link rel="import" href="lrnapp-studio-submission-edit-textarea.html">
+
+<dom-module id="lrnapp-studio-submission-edit">
+  <template>
+    <style>
+       :host {
+        display: block;
+        padding: 1rem;
+      }
+
+      .field {
+        padding-top: 2em;
+        padding-bottom: 2em;
+      }
+
+      .actions {
+        display: flex;
+        border-top: 2px solid gainsboro;
+        margin-top: 1em;
+      }
+
+      .actions .spacer {
+        flex: 1 1 auto;
+      }
+
+      iron-icon {
+        margin-right: .4em;
+        --iron-icon-height: 2em;
+        --iron-icon-width: 2em;
+      }
+
+      #publish iron-icon {
+        color: green;
+      }
+
+      #delete iron-icon {
+        color: red;
+      }
+
+      .imagesfiled {}
+
+
+      .imagesfiled__image_delete {
+        position: absolute;
+        top: 0;
+        right: 0;
+      }
+
+      elmsln-loading {
+        position: absolute;
+        display: none;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.8);
+        z-index: 10;
+        align-items: flex-end;
+        justify-content: center;
+      }
+
+       :host[saving] elmsln-loading {
+        display: block;
+      }
+
+      elmsln-loading ::shadow>lrn-icon {
+        top: calc(50% - 5vmax);
+        left: calc(50% - 5vmax);
+        position: fixed;
+        transform-origin: center center;
+        width: 10vmax !important;
+        height: 10vmax !important;
+      }
+
+      paper-dialog {
+        width: 50%;
+        width: 50vmax;
+        padding: 1em;
+      }
+    </style>
+
+    <!-- Update Submission Node -->
+    <iron-ajax id="ajaxUpdateRequest" url="[[reqUrl]]" method="PUT" body="[[reqBody]]" params="[[reqParams]]" content-type="application/json"
+      handle-as="json" on-response="_handleUpdateResponse"></iron-ajax>
+    <!-- Delete Submission Node -->
+    <iron-ajax id="ajaxDeleteRequest" url="[[reqUrl]]" method="DELETE" params="[[reqParams]]" content-type="application/json"
+      handle-as="json" on-response="_handleDeleteResponse"></iron-ajax>
+
+    <template is="dom-if" if="{{submission}}">
+      <div class="field">
+        <paper-input label="Title" value="{{submission.attributes.title}}"></paper-input>
+      </div>
+
+      <!-- Body -->
+      <div class="field">
+        <label>Submission Text</label>
+        <lrnapp-studio-submission-edit-textarea content="{{submission.attributes.body}}"></lrnapp-studio-submission-edit-textarea>
+      </div>
+
+      <!-- Images -->
+      <div class="imagesfield field">
+        <label for="image-upload">Images</label>
+        <lrnapp-studio-submission-edit-images images="{{submission.attributes.images}}" upload-url="[[uploadFilesUrl]]"></lrnapp-studio-submission-edit-images>
+      </div>
+    </template>
+
+    <!-- Links -->
+    <div id="linksfield" class="linksfield field">
+      <label for="links-input">Links</label>
+      <lrnapp-studio-submission-edit-links links="{{submission.attributes.links}}"></lrnapp-studio-submission-edit-links>
+    </div>
+
+    <!-- Videos -->
+    <div id="videosfield" class="videosfield field">
+      <label for="videos-input">Videos</label>
+      <lrnapp-studio-submission-edit-video videos="{{submission.attributes.video}}" end-point="[[endPoint]]" csrf-token="[[csrfToken]]"></lrnapp-studio-submission-edit-video>
+    </div>
+
+
+    <div class="actions">
+      <paper-button id="publish" on-click="_publishClicked">
+        <iron-icon icon="check"></iron-icon> Publish to Studio</paper-button>
+      <paper-button id="save-draft" on-click="_saveDraftClicked">
+        <iron-icon icon="drafts"></iron-icon> Save Draft</paper-button>
+      <span class="spacer"></span>
+      <paper-button id="delete" on-click="_deleteClicked">
+        <iron-icon icon="delete"></iron-icon> Delete</paper-button>
+    </div>
+
+    <paper-dialog id="deletedialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation" with-backdrop>
+      <h2>Delete Submission</h2>
+      <p>Are you sure you want to delete submission: <em>{{submission.attributes.title}}</em>?</p>
+      <div class="buttons">
+        <paper-button dialog-dismiss>Cancel</paper-button>
+        <paper-button dialog-confirm on-click="_deleteConfirmed">Delete</paper-button>
+      </div>
+    </paper-dialog>
+
+    <elmsln-loading></elmsln-loading>
+  </template>
+  <script>
+    Polymer({
+      is: 'lrnapp-studio-submission-edit',
+      properties: {
+        reqUrl: {
+          type: String
+        },
+        reqParams: {
+          type: Object
+        },
+        reqBody: {
+          type: Object
+        },
+        submission: {
+          type: Object,
+          notify: true
+        },
+        uploadFilesUrl: {
+          type: String
+        },
+        newlink: {
+          type: String
+        },
+        newvideo: {
+          type: String
+        },
+        videoGenerateSourceUrl: {
+          type: String
+        },
+        saving: {
+          type: Boolean,
+          reflectToAttribute: true,
+          value: false
+        }
+      },
+      observers: [
+        '_urlVarsChanged(submission.id, endPoint, csrfToken)',
+        '_paramsChanged(csrfToken)',
+        '_bodyChanged(title)'
+      ],
+      _urlVarsChanged: function (id, endPoint, csrfToken) {
+        this.reqUrl = endPoint + '/api/submissions/' + id;
+        this.uploadFilesUrl = endPoint + '/api/files?token=' + csrfToken;
+        this.videoGenerateSourceUrl = endPoint + '/api/video/generate-source-url';
+      },
+      _paramsChanged: function (csrfToken) {
+        var params = this.reqParams || {};
+        params.token = csrfToken;
+        this.reqParams = params;
+      },
+      _handleResponse: function (data) {
+        this.submission = data.detail.response.data;
+      },
+      _handleUpdateResponse: function (res) {
+        var root = this;
+        var status = res.detail.response.status;
+        this.saving = false;
+        if (status === 200) {
+          // this will go back to the submission page.
+          this.fire('updated', { type: 'update' });
+        }
+      },
+      _publishClicked: function (e) {
+        this.reqBody = this.submission;
+        this.reqBody.attributes.state = 'submission_ready';
+        this.$$('#ajaxUpdateRequest').generateRequest();
+        this.saving = true;
+      },
+      _saveDraftClicked: function (e) {
+        this.reqBody = this.submission;
+        this.reqBody.attributes.state = 'submission_in_progress';
+        this.$$('#ajaxUpdateRequest').generateRequest();
+        this.saving = true;
+      },
+      _deleteClicked: function (e) {
+        this.$.deletedialog.open();
+      },
+      _deleteConfirmed: function (e) {
+        this.$.ajaxDeleteRequest.generateRequest();
+      },
+      _handleDeleteResponse: function (res) {
+        var root = this;
+        var status = res.detail.response.status;
+        this.saving = false;
+        if (status === 200) {
+          this.fire('updated', { type: 'delete' });
+        }
+      },
+      /**
+       * Simple way to convert from object to array.
+       */
+      _toArray: function (obj) {
+        return Object.keys(obj).map(function (key) {
+          return obj[key];
+        });
+      },
+      ready: function () {
+      }
+    });
+  </script>
+</dom-module>
