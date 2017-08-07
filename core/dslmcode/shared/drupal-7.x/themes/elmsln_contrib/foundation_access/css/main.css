@@ -8287,9 +8287,6 @@ lrnsys-drawer lrn-icon.lrnsys-drawer {
   height: 2em;
   width: 2em;
 }
-paper-button:focus {
-  outline: 1px solid #2196F3;
-}
 
 #etb-course-nav paper-button {
   padding: 0;

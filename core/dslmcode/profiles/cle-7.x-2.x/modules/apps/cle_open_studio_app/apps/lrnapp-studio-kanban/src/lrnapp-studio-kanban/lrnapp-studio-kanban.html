@@ -5,6 +5,17 @@
       :host {
         display: block;
       }
+      #loading {
+        width: 100%;
+        z-index: 1000;
+        opacity: .8;
+        text-align: center;
+        align-content: center;
+        justify-content: center;
+        height: 100vh;
+        position: absolute;
+        background-color: white;
+      }
       .projects-container {
         display: block;
         -webkit-box-align: center;
@@ -53,8 +64,9 @@
       }
       .project-card {
         width: 100%;
-        min-width: 25em;
-        max-width: 30em;
+        min-width: 20em;
+        max-width: 28em;
+        margin: 0 1em;
       }
       .project-operations {
         position: absolute;
@@ -78,12 +90,27 @@
       .assignment-row:hover .assignment-operations {
         display: block;
         overflow: visible;
+        margin: .2em;
       }
       .assignment-row-button {
         width: 100%;
         justify-content: flex-start;
         height: 3em;
         text-transform: none;
+      }
+      .status-indicator {
+        border-right: 1px solid grey;
+        padding: .5em;
+        margin: 0 .5em 0 0;
+        display: inline-flex;
+        line-height: 3em;
+        height: 3em;
+        justify-content: center;
+        align-items: center;
+      }
+      .assignment-title {
+        display: inline-flex;
+        align-items: center;
       }
       .assignment-operations {
         position: absolute;
@@ -101,20 +128,29 @@
         width: 2.5em;
         height: 2.5em;
       }
-
     </style>
     <iron-ajax auto
+      id="projectbackend"
       url="[[projectData]]"
+      handle-as="json"
       last-response="{{projects}}"
-      on-response="handleProjectResponse">
+      on-response="_handleProjectResponse">
+    </iron-ajax>
+    <iron-ajax
+      id="backend"
+      url="[[projectData]]"
+      params=""
+      handle-as="json"
+      last-response="{{backendResponse}}"
+      on-response="_handleUpdateResponse">
     </iron-ajax>
     <div id="loading">
-      <p>Loading..</p>
-      <elmsln-loading color="grey-text" size="epic"></elmsln-loading>
+      <h3>Loading..</h3>
+      <elmsln-loading color="grey-text" size="large"></elmsln-loading>
     </div>
     <iron-list items="[[_toArray(projects.data)]]" as="project" class="projects-container" grid>
       <template class="projects-container-items">
-      <paper-card id$="project-[[project.id]]" class="project-card grey lighten-4" heading="{{project.title}}" elevation="2">
+      <paper-card id$="project-[[project.id]]" class="project-card grey lighten-3" heading="{{project.title}}" elevation="2">
         <div class="project-operations">
           <lrnsys-dialog body-append id$="project-[[project.id]]-add" alt="Add assignment" class="circle operation" hover-class="amber lighten-2" header="Add assignment" hidden="[[!project.metadata.canUpdate]]">
             <iron-icon slot="button" icon="add"></iron-icon>
@@ -128,21 +164,33 @@
         <div class="card-content">
           <iron-list items="[[_toArray(project.assignments)]]" as="assignment">
             <template>
-            <div class="assignment-row">
+            <div class="assignment-row" id="assignment">
               <lrnsys-dialog body-append on-focusin="assignmentFocusIn" class="assignment-row-button" id$="assignment-[[project.id]]-[[assignment.id]]" header="[[assignment.title]]" hover-class="amber lighten-5">
                 <span slot="button">
-                  <iron-icon icon="[[assignment.icon]]"></iron-icon>
-                  <span>[[assignment.title]]</span>
+                  <div class$="status-indicator [[assignment.metadata.relatedSubmissions.complete.color]]">
+                    <iron-icon icon="[[assignment.metadata.relatedSubmissions.complete.icon]]"disabled$="[[!assignment.metadata.relatedSubmissions.canCreate]]"></iron-icon>
+                  </div>
+                  <div class="assignment-title">[[assignment.title]]</div>
                 </span>
                 <div slot="content">
-                  <h2>[[assignment.title]]</h2>
+                  <app-toolbar class$="[[assignment.metadata.relatedSubmissions.complete.color]]">
+                    <div main-title>
+                      <iron-icon icon="[[assignment.metadata.relatedSubmissions.complete.icon]]"disabled$="[[!assignment.metadata.relatedSubmissions.canCreate]]"></iron-icon>
+                      [[assignment.metadata.relatedSubmissions.complete.submission.title]]
+                    </div>
+                    <div bottom-item spacer class="status-rationale">
+                      [[assignment.metadata.relatedSubmissions.complete.rationale.text]]
+                    </div>
+                    <paper-toggle-button id$="assignment-[[project.id]]-[[assignment.id]]-toggle" on-tap="statusToggle"></paper-toggle-button>
+                    <span id$="assignment-[[project.id]]-[[assignment.id]]-toggle-text"></span>
+                  </app-toolbar>
                   <lrnsys-render-html html="[[assignment.body]]"></lrnsys-render-html>
                  </div>
               </lrnsys-dialog>
               <span class="assignment-operations">
                 <lrnsys-button id$="assignment-[[project.id]]-[[assignment.id]]-add-critique" icon="editor:insert-comment" alt="Add critique" class="circle operation" hover-class="green lighten-2" hidden="[[!assignment.metadata.canCritique]]" href$="[[assignment.metadata.critiqueLink]]"></lrnsys-button>
-                <lrnsys-button id$="assignment-[[project.id]]-[[assignment.id]]-edit" icon="editor:mode-edit" alt="Edit" class="circle operation" hover-class="amber lighten-2" hidden="[[!assignment.metadata.canUpdate]]" href$="[[assignment.metadata.updateLink]]"></lrnsys-button>
-                <lrnsys-button id$="assignment-[[project.id]]-[[assignment.id]]-delete" icon="delete" alt="Delete" class="circle operation" hover-class="red darken-2 white-text" hidden="[[!assignment.metadata.canDelete]]" href$="[[assignment.metadata.deleteLink]]"></lrnsys-button>
+                <lrnsys-button id$="assignment-[[project.id]]-[[assignment.id]]-edit" icon="editor:mode-edit" alt="Edit" class="circle operation" hover-class="amber lighten-2" hidden="[[!assignment.metadata.canUpdate]]" href$="[[assignment.links.update]]"></lrnsys-button>
+                <lrnsys-button id$="assignment-[[project.id]]-[[assignment.id]]-delete" icon="delete" alt="Delete" class="circle operation" hover-class="red darken-2 white-text" hidden="[[!assignment.metadata.canDelete]]" href$="[[assignment.links.delete]]"></lrnsys-button>
               </span>
             </div>
             </template>
@@ -165,20 +213,50 @@
           value: null,
         },
         projectData: {
-          type: String
+          type: String,
+        },
+        /**
+         * Projects array to render.
+         */
+        projects: {
+          type: Object,
+        },
+        /**
+         * Response from the server.
+         */
+        projectResponse: {
+          type: Object,
+        },
+        /**
+         * Response from the server for non-project requests.
+         */
+        backendResponse: {
+          type: Object,
         },
       },
-      handleProjectResponse: function(response) {
-        let root = this;
-        root.$.loading.hidden = true;
-      },
-      /*
-       * Simple way to convert from object to array.
+      /**
+       * Handle toggling the status for the submission.
        */
-      _toArray: function(obj) {
-        return Object.keys(obj).map(function(key) {
-          return obj[key];
-        });
+      statusToggle: function(e) {
+        let root = this;
+        // find our xhr for callbacks
+        var xhr = root.$.backend;
+        // break the id out into project and assignment
+        var parts = root.activeAssignment.split('-');
+        // focus in on the submissions / assignment metadataq
+        var submission = root.projects.data['project-' + parts[1]].assignments['assignment-' + parts[2]].metadata.relatedSubmissions.complete;
+        // ensure this isn't disabled though it shouldn't be possible
+        if (!root.$$('#' + root.activeAssignment + '-toggle').disabled) {
+          // hide the loading screen
+          root.$.loading.hidden = false;
+          // queue of the request parameters
+          xhr.params = {
+            'submissionid': submission.submission.id,
+            'status': root.$$('#' + root.activeAssignment + '-toggle').checked
+          };
+          // send the request
+          xhr.generateRequest();
+        }
       },
       /**
        * Handle toggle for mouse class and manage classList array for paper-button.
@@ -192,8 +270,66 @@
           root.$$('#' + root.activeAssignment).classList.remove('active');
         }
         root.activeAssignment = local.id;
+        root._setToggle();
         local.nextElementSibling.classList.add('show');
         local.classList.add('active');
+      },
+      /**
+       * Handle response for the whole projects object.
+       */
+      _handleProjectResponse: function(event) {
+        this.$.loading.hidden = true;
+      },
+      /**
+       * Handle a response from updating an item
+       */
+      _handleUpdateResponse: function(event) {
+        let root = this;
+        if (root.backendResponse.status == 200) {
+          var parts = root.activeAssignment.split('-');
+          // update this assignment's metadata from the backend for the user
+          root.projects.data['project-' + parts[1]].assignments['assignment-' + parts[2]].metadata.relatedSubmissions = root.backendResponse.data;
+        }
+        var data = this.projects.data;
+        root.set('projects.data', []);
+        root.set('projects.data', data);
+        root.$.loading.hidden = true;
+      },
+      /**
+       * set the toggle state when assignment gets focus
+       */
+      _setToggle: function(e) {
+        let root = this;
+        var parts = root.activeAssignment.split('-');
+        // focus in on the submissions / assignment metadataq
+        var submission = root.projects.data['project-' + parts[1]].assignments['assignment-' + parts[2]].metadata.relatedSubmissions.complete;
+        // not finished but also not started
+        if (submission.status == 0 && submission.submission.length == 0) {
+          root.$$('#' + root.activeAssignment + '-toggle').disabled = true;
+          root.$$('#' + root.activeAssignment + '-toggle').checked = false;
+          root.$$('#' + root.activeAssignment + '-toggle').title = 'Submission not started';
+          root.$$('#' + root.activeAssignment + '-toggle-text').textContent = 'Submission not started';
+        }
+        else if (submission.status == 0) {
+          root.$$('#' + root.activeAssignment + '-toggle').disabled = false;
+          root.$$('#' + root.activeAssignment + '-toggle').checked = false;
+          root.$$('#' + root.activeAssignment + '-toggle').title = 'Submission in progress';
+          root.$$('#' + root.activeAssignment + '-toggle-text').textContent = 'Submission in progress';
+        }
+        else {
+          root.$$('#' + root.activeAssignment + '-toggle').disabled = false;
+          root.$$('#' + root.activeAssignment + '-toggle').checked = true;
+          root.$$('#' + root.activeAssignment + '-toggle').title = 'Submission ready';
+          root.$$('#' + root.activeAssignment + '-toggle-text').textContent = 'Submission ready';
+        }
+      },
+      /*
+       * Simple way to convert from object to array.
+       */
+      _toArray: function(obj) {
+        return Object.keys(obj).map(function(key) {
+          return obj[key];
+        });
       },
     });
   </script>

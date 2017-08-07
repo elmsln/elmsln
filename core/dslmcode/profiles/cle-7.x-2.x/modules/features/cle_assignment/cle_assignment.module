@@ -316,7 +316,7 @@ function _cle_assignment_v1_assignment_modify($node, $params = NULL) {
 /**
  * Helper function that prepares an assignment for api output.
  */
-function _cle_assignment_v1_assignment_output($node) {
+function _cle_assignment_v1_assignment_output($node, $app_route = '') {
   global $base_url;
   $account = $GLOBALS['user'];
   // get an array of formatted dates
@@ -408,6 +408,7 @@ function _cle_assignment_v1_assignment_output($node) {
     'canUpdate' => 0,
     'canDelete' => 0,
     'afterDueDate' => 0,
+    'canCritique' => 0,
   );
   // see the operations they can perform here
   if (entity_access('update', 'node', $node, $account)) {
@@ -467,6 +468,8 @@ function _cle_assignment_v1_assignment_output($node) {
       'self' => $base_url . '/api/v1/cle/assignments/' . $node->nid,
       'url' => $base_url . '/cle/app/assignments/' . $node->nid,
       'direct' => $base_url . '/node/' . $node->nid,
+      'delete' => $base_url . '/node/' . $node->nid . '/delete?destination=' . $app_route,
+      'update' => $base_url . '/node/' . $node->nid . '/edit?destination=' . $app_route,
     ),
   );
   // developer support

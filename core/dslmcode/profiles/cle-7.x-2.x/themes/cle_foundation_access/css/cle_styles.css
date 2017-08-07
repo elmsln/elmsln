@@ -1,4 +1,18 @@
 /* CSS Document */
+.dialog-header.lrnsys-dialog {
+  padding: 0;
+  margin: 0;
+}
+paper-dialog.lrnsys-dialog paper-dialog-scrollable {
+  margin: 0;
+}
+paper-dialog.lrnsys-dialog paper-dialog-scrollable .scrollable.paper-dialog-scrollable {
+  padding: 0;
+}
+paper-dialog.lrnsys-dialog paper-dialog-scrollable .status-rationale {
+  font-size: .6em;
+}
+
 .views-fluid-grid i.zmdi {
   font-size: 1.75rem;
   padding:1.5rem;
