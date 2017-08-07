@@ -74,13 +74,8 @@
           </ul>
         </div>
       </div>
-      <?php if ($contentwrappers): ?>
-      <div class="elmsln-content-wrap row">
-        <div class="s12 push-m2 m10 push-l1 l11 col" role="main">
-      <?php else : ?>
       <div class="elmsln-content-wrap">
         <div role="main">
-      <?php endif; ?>
           <?php if (!empty($page['highlighted'])): ?>
             <div class="highlighted-block-area">
               <?php print render($page['highlighted']); ?>

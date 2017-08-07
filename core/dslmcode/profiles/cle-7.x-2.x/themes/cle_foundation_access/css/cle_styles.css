@@ -91,43 +91,6 @@ article app-root .container .row {
   padding: 1rem 0 0 0 !important;
 }
 
-/* Scroll bar for breadcrumb nav that's really really long */
-app-root .projects-container {
-  overflow-x: scroll;
-}
-
-app-root .projects-container {
-  scrollbar-face-color: #833900;
-  scrollbar-shadow-color: #ffc107;
-  scrollbar-highlight-color:#ffc107;
-  scrollbar-3dlight-color: #ffc107;
-  scrollbar-darkshadow-color: #ffc107;
-  scrollbar-track-color: #ffc107;
-  scrollbar-arrow-color: #ffc107;
-}
-app-root .projects-container::-webkit-scrollbar-track {
-  background-color: #833900;
-} /* the new scrollbar will have a flat appearance with the set background color */
-
-app-root .projects-container::-webkit-scrollbar-thumb {
-  background-color: #ffc107;
-} /* this will style the thumb, ignoring the track */
-
-app-root .projects-container::-webkit-scrollbar-button {
-  background-color: #833900;
-} /* optionally, you can style the top and the bottom buttons (left and right for horizontal bars) */
-
-app-root .projects-container::-webkit-scrollbar-corner {
-  background-color: #833900;
-} /* if both the vertical and the horizontal bars appear, then perhaps the right bottom corner*/
-
-app-root .projects-container::-webkit-scrollbar {
-  width: 1rem;
-  height: 1rem;
-} /* this targets the default scrollbar (compulsory) */
-
-/* end scroll bar styling */
-
 .etb-book article app-root app-submission h1 {
   font-size: 2rem;
 }

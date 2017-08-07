@@ -20,6 +20,32 @@
         height: 100vh;
         width: 100%;
       }
+      .projects-container {
+        scrollbar-face-color: #833900;
+        scrollbar-shadow-color: #ffc107;
+        scrollbar-highlight-color:#ffc107;
+        scrollbar-3dlight-color: #ffc107;
+        scrollbar-darkshadow-color: #ffc107;
+        scrollbar-track-color: #ffc107;
+        scrollbar-arrow-color: #ffc107;
+      }
+      .projects-container::-webkit-scrollbar-track {
+        background-color: #833900;
+      } /* the new scrollbar will have a flat appearance with the set background color */
+      .projects-container::-webkit-scrollbar-thumb {
+        background-color: #ffc107;
+      } /* this will style the thumb, ignoring the track */
+      .projects-container::-webkit-scrollbar-button {
+        background-color: #833900;
+      } /* optionally, you can style the top and the bottom buttons (left and right for horizontal bars) */
+      .projects-container::-webkit-scrollbar-corner {
+        background-color: #833900;
+      } /* if both the vertical and the horizontal bars appear, then perhaps the right bottom corner*/
+      .projects-container::-webkit-scrollbar {
+        width: 1rem;
+        height: 1rem;
+      } /* this targets the default scrollbar (compulsory) */
+
       paper-button {
         padding: 0;
         margin: 0;
@@ -27,11 +53,8 @@
       }
       .project-card {
         width: 100%;
-        height: 100%;
-        min-height: 300px;
-        max-height: 400px;
-        min-width: 300px;
-        max-width: 400px;
+        min-width: 25em;
+        max-width: 30em;
       }
       .project-operations {
         position: absolute;
@@ -41,6 +64,8 @@
       }
       .project-operations .operation {
         display: inline-flex;
+        height: 2.5em;
+        width: 2.5em;
       }
       .assignment-row {
         border: 1px solid #000000;
@@ -73,38 +98,35 @@
       }
       .assignment-operations .operation {
         display: inline-flex;
+        width: 2.5em;
+        height: 2.5em;
       }
 
     </style>
     <iron-ajax auto
-      url="projects.json"
+      url="[[projectData]]"
       last-response="{{projects}}"
       on-response="handleProjectResponse">
     </iron-ajax>
-    <iron-ajax auto
-      url="assignments.json"
-      last-response="{{assignments}}"
-      on-response="handleAssignmentResponse">
-    </iron-ajax>
-    <iron-list items="[[_toArray(projects)]]" as="project" class="projects-container" grid>
+    <div id="loading">
+      <p>Loading..</p>
+      <elmsln-loading color="grey-text" size="epic"></elmsln-loading>
+    </div>
+    <iron-list items="[[_toArray(projects.data)]]" as="project" class="projects-container" grid>
       <template class="projects-container-items">
       <paper-card id$="project-[[project.id]]" class="project-card grey lighten-4" heading="{{project.title}}" elevation="2">
         <div class="project-operations">
-          <lrnsys-dialog body-append id$="project-[[project.id]]-add" alt="Add assignment" class="circle operation" hover-class="amber lighten-2" header="Add assignment">
+          <lrnsys-dialog body-append id$="project-[[project.id]]-add" alt="Add assignment" class="circle operation" hover-class="amber lighten-2" header="Add assignment" hidden="[[!project.metadata.canUpdate]]">
             <iron-icon slot="button" icon="add"></iron-icon>
             <div slot="content">
               Add another assignment
             </div>
           </lrnsys-dialog>
-          <lrnsys-dialog body-append id$="project-[[project.id]]-delete" alt="Delete project!" class="circle operation" hover-class="red darken-2 white-text" header="Delete project!">
-            <iron-icon slot="button" icon="delete-forever"></iron-icon>
-            <div slot="content">
-              Delete form here
-            </div>
+          <lrnsys-button id$="project-[[project.id]]-delete" alt="Delete project!" class="circle operation" hover-class="red darken-2 white-text" header="Delete project!" hidden="[[!project.metadata.canDelete]]" icon="delete-forever" href$="[[project.metadata.deleteLink]]">
           </lrnsys-dialog>
         </div>
         <div class="card-content">
-          <iron-list items="[[_toArray(assignments)]]" as="assignment">
+          <iron-list items="[[_toArray(project.assignments)]]" as="assignment">
             <template>
             <div class="assignment-row">
               <lrnsys-dialog body-append on-focusin="assignmentFocusIn" class="assignment-row-button" id$="assignment-[[project.id]]-[[assignment.id]]" header="[[assignment.title]]" hover-class="amber lighten-5">
@@ -113,13 +135,14 @@
                   <span>[[assignment.title]]</span>
                 </span>
                 <div slot="content">
-                  Body of the assignment would go here
-                </div>
+                  <h2>[[assignment.title]]</h2>
+                  <lrnsys-render-html html="[[assignment.body]]"></lrnsys-render-html>
+                 </div>
               </lrnsys-dialog>
               <span class="assignment-operations">
-                <lrnsys-button id$="assignment-[[project.id]]-[[assignment.id]]-add-critique" icon="editor:insert-comment" alt="Add critique" class="circle operation" hover-class="green lighten-2"></lrnsys-button>
-                <lrnsys-button id$="assignment-[[project.id]]-[[assignment.id]]-edit" icon="editor:mode-edit" alt="Edit" class="circle operation" hover-class="amber lighten-2"></lrnsys-button>
-                <lrnsys-button id$="assignment-[[project.id]]-[[assignment.id]]-delete" icon="delete" alt="Delete" class="circle operation" hover-class="red darken-2 white-text"></lrnsys-button>
+                <lrnsys-button id$="assignment-[[project.id]]-[[assignment.id]]-add-critique" icon="editor:insert-comment" alt="Add critique" class="circle operation" hover-class="green lighten-2" hidden="[[!assignment.metadata.canCritique]]" href$="[[assignment.metadata.critiqueLink]]"></lrnsys-button>
+                <lrnsys-button id$="assignment-[[project.id]]-[[assignment.id]]-edit" icon="editor:mode-edit" alt="Edit" class="circle operation" hover-class="amber lighten-2" hidden="[[!assignment.metadata.canUpdate]]" href$="[[assignment.metadata.updateLink]]"></lrnsys-button>
+                <lrnsys-button id$="assignment-[[project.id]]-[[assignment.id]]-delete" icon="delete" alt="Delete" class="circle operation" hover-class="red darken-2 white-text" hidden="[[!assignment.metadata.canDelete]]" href$="[[assignment.metadata.deleteLink]]"></lrnsys-button>
               </span>
             </div>
             </template>
@@ -140,14 +163,14 @@
         activeAssignment: {
           type: String,
           value: null,
-        }
+        },
+        projectData: {
+          type: String
+        },
       },
-
       handleProjectResponse: function(response) {
         let root = this;
-      },
-      handleAssignmentResponse: function(response) {
-        let root = this;
+        root.$.loading.hidden = true;
       },
       /*
        * Simple way to convert from object to array.

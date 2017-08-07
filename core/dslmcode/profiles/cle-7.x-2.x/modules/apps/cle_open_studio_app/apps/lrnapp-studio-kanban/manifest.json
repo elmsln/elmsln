@@ -11,9 +11,9 @@
       "weight": -10
     },
     "endpoints": {
-      "data": {
-        "callback": "_cle_studio_kanban_data",
-        "property": "source-path"
+      "project-data": {
+        "callback": "_cle_studio_kanban_project_data",
+        "property": "project-data"
       }
     }
   }

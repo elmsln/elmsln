@@ -8210,10 +8210,7 @@ body.adminimal-menu #admin-menu .dropdown li.admin-menu-toolbar-category a,
   margin: 0;
   padding: 0.5em 0.5em 0 0.5em;
 }
-paper-button iron-icon.iron-icon-0 {
-  height: 3em;
-  margin: 0 .25em;
-}
+
 ul.pagination paper-button {
     margin: 0;
     padding: 0;
@@ -8308,6 +8305,9 @@ paper-button:focus {
 paper-button#close-button {
   height: unset;
   width: unset;
+}
+paper-button#close-button.lrnsys-dialog {
+  padding: 1em;
 }
 .elmsln--page--operations li.page-op-button paper-button {
   margin: 0 .75rem 0 0;

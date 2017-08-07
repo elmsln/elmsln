@@ -1,59 +1,68 @@
 <?php
-
 /**
- * Callback for apps/open-studio/data.
+ * Callback for apps/lrnapp-studio-kanban/project-data.
  * @param  string $machine_name machine name of this app
  * @return array               data to be json encoded for the front end
  */
-function _cle_studio_kanban_data($machine_name, $app_route, $params, $args) {
+function _cle_studio_kanban_project_data($machine_name, $app_route, $params, $args) {
   $return = array();
-  // @todo need a better render method then this as this is lazy for now
-  if (isset($params['nid']) && is_numeric($params['nid'])) {
-    $node = node_load($params['nid']);
-    $node_view = node_view($node);
-    $rendered_node = drupal_render($node_view);
-    $return = $rendered_node;
-  }
-  else {
-    // @todo need to pull just the most recent submissions, 1 per project
-    // which might be too complex of logic for this efq to express
-    // get all submissions
-    // unique per project
-    // sort by most recent
-    // ... ugh... this is more complex then this
-    // pull together all the submissions they should be seeing
-    $data = _cis_connector_assemble_entity_list('node', 'cle_submission', 'nid', '_entity');
-    foreach ($data as $item) {
-      $return[$item->nid] = new stdClass();
-      $return[$item->nid]->title = $item->title;
-      $return[$item->nid]->comments = $item->comment_count;
-      $return[$item->nid]->author = $item->name;
-      $return[$item->nid]->body = strip_tags($item->field_submission_text['und'][0]['safe_value']);
-      $return[$item->nid]->url = base_path() . $app_route . '/data?nid=' . $item->nid . '&token=' . drupal_get_token('webcomponentapp');
-      $return[$item->nid]->view_url = base_path() . 'node/' . $item->nid . '#comments';
-      if (!empty($item->field_images)) {
-        $images = array();
-        foreach ($item->field_images['und'] as $image) {
-          $images[] = file_create_url($image['uri']);
-        }
-        $return[$item->nid]->images = $images;
+    // find all the projects for the current section
+    $section_id = _cis_connector_section_context();
+    $section = _cis_section_load_section_by_id($section_id);
+    $field_conditions = array(
+      'og_group_ref' => array('target_id', $section, '='),
+    );
+    $property_conditions = array('status' => array(NODE_PUBLISHED, '='));
+    $data = _cis_connector_assemble_entity_list('node', 'cle_project', 'nid', '_entity', $field_conditions, $property_conditions);
+    foreach ($data as $project) {
+      $return['project-' . $project->nid] = new stdClass();
+      // calculate metadata to act on this
+      $metadata = array(
+        'canUpdate' => 0,
+        'canDelete' => 0,
+        'deleteLink' => base_path() . 'node/' . $project->nid . '/delete?destination=' . $app_route,
+        'updateLink' => base_path() . 'node/' . $project->nid . '/edit?destination=' . $app_route,
+      );
+      // see the operations they can perform here
+      if (entity_access('update', 'node', $project)) {
+        $metadata['canUpdate'] = 1;
       }
-      if (!empty($item->field_files)) {
-        foreach ($item->field_files['und'] as $file) {
-          $return[$item->nid]->files[] = file_create_url($file['uri']);
+      if (entity_access('delete', 'node', $project)) {
+        $metadata['canDelete'] = 1;
+      }
+      $return['project-' . $project->nid]->metadata = $metadata;
+      $return['project-' . $project->nid]->title = $project->title;
+      $return['project-' . $project->nid]->id = $project->nid;
+      $return['project-' . $project->nid]->assignments = array();
+      // loop through the steps and pull in all the assignments
+      foreach ($project->field_project_steps['und'] as $step) {
+        $tmp = array();
+        $assignment = node_load($step['target_id']);
+        if (isset($assignment->nid)) {
+          $metadata = array(
+            'canCritique' => 0,
+            'canUpdate' => 0,
+            'canDelete' => 0,
+            'critiqueLink' => '',
+            'deleteLink' => base_path() . 'node/' . $assignment->nid . '/delete?destination=' . $app_route,
+            'updateLink' => base_path() . 'node/' . $assignment->nid . '/edit?destination=' . $app_route,
+          );
+          // see the operations they can perform here
+          if (entity_access('update', 'node', $assignment)) {
+            $metadata['canUpdate'] = 1;
+          }
+          if (entity_access('delete', 'node', $assignment)) {
+            $metadata['canDelete'] = 1;
+          }
+          $tmp['title'] = $assignment->title;
+          $tmp['icon'] = 'assignment';
+          $tmp['id'] = $assignment->nid;
+          $tmp['metadata'] = $metadata;
+          $tmp['body'] = $assignment->field_assignment_description['und'][0]['safe_value'];
+          $return['project-' . $project->nid]->assignments['assignment-' . $step['target_id']] = $tmp;
         }
       }
-      if (!empty($item->field_video)) {
-        foreach ($item->field_video['und'] as $video) {
-          $return[$item->nid]->videos[] = $video['video_url'];
-        }
-      }
-      if (!empty($item->field_links)) {
-        foreach ($item->field_links['und'] as $link) {
-          $return[$item->nid]->links[] = $link['url'];
-        }
-      }
-    }
+      $return['project-' . $project->nid]->body = $project->field_project_description['und'][0]['safe_value'];
   }
   return array(
     'status' => 200,
