@@ -7,33 +7,43 @@
       :host {
         display: block;
       }
+      #loading {
+        width: 100%;
+        z-index: 1000;
+        opacity: .8;
+        text-align: center;
+        align-content: center;
+        justify-content: center;
+        height: 100vh;
+        position: absolute;
+        background-color: white;
+      }
     </style>
     <iron-ajax auto
       url="[[sourcePath]]"
       params=''
       handle-as="json"
-      last-response="{{submissions}}"></iron-ajax>
+      last-response="{{submissions}}"
+      on-response="_handleResponse"></iron-ajax>
+    <div id="loading">
+      <h3>Loading..</h3>
+      <elmsln-loading color="grey-text" size="large"></elmsln-loading>
+    </div>
     <app-toolbar>
-
-      <template is="dom-if" if="{{submissions}}">
-      <paper-dropdown-menu label="Author">
+      <paper-dropdown-menu label="Author" hidden$="[[!submissions]]">
         <paper-listbox class="dropdown-content">
           <template is="dom-repeat" items="[[_toArray(submissions.data)]]" as="item">
           <paper-item>{{item.author}}</paper-item>
           </template>
         </paper-listbox>
       </paper-dropdown-menu>
-      </template>
-
-      <template is="dom-if" if="{{submissions}}">
-      <paper-dropdown-menu label="Project">
+      <paper-dropdown-menu label="Project" hidden$="[[!submissions]]">
         <paper-listbox class="dropdown-content">
         <template is="dom-repeat" items="[[_toArray(submissions.data)]]" as="item">
           <paper-item>{{item.title}}</paper-item>
         </template>
         </paper-listbox>
       </paper-dropdown-menu>
-      </template>
 
     </app-toolbar>
     <template is="dom-repeat" items="[[_toArray(submissions.data)]]" as="item">
@@ -46,14 +56,26 @@
     Polymer({
       is: 'lrnapp-open-studio',
       properties: {
+        /**
+         * The submissions to render
+         */
         submissions: {
           type: Array,
           notify: true,
         },
+        /**
+         * Endpoint for submission data.
+         */
         sourcePath: {
           type: String,
           notify: true,
-        }
+        },
+      },
+      /**
+       * Handle response for the whole projects object.
+       */
+      _handleResponse: function(event) {
+        this.$.loading.hidden = true;
       },
       /**
        * Simple way to convert from object to array.

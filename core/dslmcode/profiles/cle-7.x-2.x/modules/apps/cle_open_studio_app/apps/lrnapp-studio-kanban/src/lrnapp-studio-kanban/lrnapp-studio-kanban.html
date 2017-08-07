@@ -211,27 +211,32 @@
         activeAssignment: {
           type: String,
           value: null,
+          notify: true,
         },
         projectData: {
           type: String,
+          notify: true,
         },
         /**
          * Projects array to render.
          */
         projects: {
           type: Object,
+          notify: true,
         },
         /**
          * Response from the server.
          */
         projectResponse: {
           type: Object,
+          notify: true,
         },
         /**
          * Response from the server for non-project requests.
          */
         backendResponse: {
           type: Object,
+          notify: true,
         },
       },
       /**
@@ -270,7 +275,7 @@
           root.$$('#' + root.activeAssignment).classList.remove('active');
         }
         root.activeAssignment = local.id;
-        root._setToggle();
+        root._setToggle(false);
         local.nextElementSibling.classList.add('show');
         local.classList.add('active');
       },
@@ -279,6 +284,7 @@
        */
       _handleProjectResponse: function(event) {
         this.$.loading.hidden = true;
+        this._setToggle(true);
       },
       /**
        * Handle a response from updating an item
@@ -286,41 +292,47 @@
       _handleUpdateResponse: function(event) {
         let root = this;
         if (root.backendResponse.status == 200) {
-          var parts = root.activeAssignment.split('-');
-          // update this assignment's metadata from the backend for the user
-          root.projects.data['project-' + parts[1]].assignments['assignment-' + parts[2]].metadata.relatedSubmissions = root.backendResponse.data;
+          root.$.projectbackend.generateRequest();
         }
-        var data = this.projects.data;
-        root.set('projects.data', []);
-        root.set('projects.data', data);
-        root.$.loading.hidden = true;
+        else {
+          // this would imply an error
+          root.$.loading.hidden = true;
+        }
       },
       /**
        * set the toggle state when assignment gets focus
        */
-      _setToggle: function(e) {
+      _setToggle: function(update) {
         let root = this;
-        var parts = root.activeAssignment.split('-');
-        // focus in on the submissions / assignment metadataq
-        var submission = root.projects.data['project-' + parts[1]].assignments['assignment-' + parts[2]].metadata.relatedSubmissions.complete;
-        // not finished but also not started
-        if (submission.status == 0 && submission.submission.length == 0) {
-          root.$$('#' + root.activeAssignment + '-toggle').disabled = true;
-          root.$$('#' + root.activeAssignment + '-toggle').checked = false;
-          root.$$('#' + root.activeAssignment + '-toggle').title = 'Submission not started';
-          root.$$('#' + root.activeAssignment + '-toggle-text').textContent = 'Submission not started';
-        }
-        else if (submission.status == 0) {
-          root.$$('#' + root.activeAssignment + '-toggle').disabled = false;
-          root.$$('#' + root.activeAssignment + '-toggle').checked = false;
-          root.$$('#' + root.activeAssignment + '-toggle').title = 'Submission in progress';
-          root.$$('#' + root.activeAssignment + '-toggle-text').textContent = 'Submission in progress';
-        }
-        else {
-          root.$$('#' + root.activeAssignment + '-toggle').disabled = false;
-          root.$$('#' + root.activeAssignment + '-toggle').checked = true;
-          root.$$('#' + root.activeAssignment + '-toggle').title = 'Submission ready';
-          root.$$('#' + root.activeAssignment + '-toggle-text').textContent = 'Submission ready';
+        if (root.activeAssignment != null) {
+          var parts = root.activeAssignment.split('-');
+          // focus in on the submissions / assignment metadataq
+          var submission = root.projects.data['project-' + parts[1]].assignments['assignment-' + parts[2]].metadata.relatedSubmissions.complete;
+          // not finished but also not started
+          if (submission.status == 0 && submission.submission.length == 0) {
+            if (!update) {
+              root.$$('#' + root.activeAssignment + '-toggle').disabled = true;
+              root.$$('#' + root.activeAssignment + '-toggle').checked = false;
+            }
+            root.$$('#' + root.activeAssignment + '-toggle').title = 'Submission not started';
+            root.$$('#' + root.activeAssignment + '-toggle-text').textContent = 'Submission not started';
+          }
+          else if (submission.status == 0) {
+            if (!update) {
+              root.$$('#' + root.activeAssignment + '-toggle').disabled = false;
+              root.$$('#' + root.activeAssignment + '-toggle').checked = false;
+            }
+            root.$$('#' + root.activeAssignment + '-toggle').title = 'Submission in progress';
+            root.$$('#' + root.activeAssignment + '-toggle-text').textContent = 'Submission in progress';
+          }
+          else {
+            if (!update) {
+              root.$$('#' + root.activeAssignment + '-toggle').disabled = false;
+              root.$$('#' + root.activeAssignment + '-toggle').checked = true;
+            }
+            root.$$('#' + root.activeAssignment + '-toggle').title = 'Submission ready';
+            root.$$('#' + root.activeAssignment + '-toggle-text').textContent = 'Submission ready';
+          }
         }
       },
       /*
