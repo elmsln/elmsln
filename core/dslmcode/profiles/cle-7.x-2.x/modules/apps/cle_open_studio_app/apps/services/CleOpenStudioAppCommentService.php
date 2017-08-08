@@ -8,7 +8,6 @@ class CleOpenStudioAppCommentService {
     global $user;
     $comment = new stdClass();
     $comment->subject = t('Feedback from @name', array('@name' => $user->name));
-    $comment->type = 'comment';
     $comment->uid = $user->uid;
     $comment->name = $user->name;
     $comment->status = 1;
@@ -17,7 +16,7 @@ class CleOpenStudioAppCommentService {
     $comment->pid = $data['pid'];
     comment_save($comment);
     if (isset($comment->cid)) {
-      return $this->encodeComment($comment);
+      return $this->encodeComment($comment, TRUE);
     }
     else {
       return FALSE;
@@ -36,7 +35,7 @@ class CleOpenStudioAppCommentService {
   public function getComments($options) {
     $items = array();
     $field_conditions = array();
-    $property_conditions = array('status' => array(NODE_PUBLISHED, '='));
+    $property_conditions = array('status' => array(COMMENT_PUBLISHED, '='));
     if (isset($options)) {
       if (isset($options->filter)) {
         if (isset($options->filter['author'])) {
@@ -70,18 +69,81 @@ class CleOpenStudioAppCommentService {
    * @return object
    */
   public function getComment($id) {
-    $item = comment_load($id);
-    if (!is_null($item)) {
-      $item = $this->encodeComment($item);
+    $comment = comment_load($id);
+    if ($comment && isset($comment->cid) && entity_access('view', 'comment', $comment)) {
+      $comment = $this->encodeComment($comment);
+      return $comment;
     }
-    return $item;
+    return NULL;
+  }
+
+
+  public function updateComment($payload, $id) {
+    if ($payload) {
+      // make sure we have an id to work with
+      if ($id && is_numeric($id)) {
+        // load the comment from drupal
+        $comment = comment_load($id);
+        // make sure the comment is allowed to be updated
+        if ($comment && isset($comment->cid) && entity_access('update', 'comment', $comment)) {
+          // decode the payload comment to the drupal comment
+          $decoded_comment = $this->decodeComment($payload, $comment);
+          // save the comment
+          try {
+            comment_save($decoded_comment);
+            // encode the comment to send it back
+            $encoded_comment = $this->encodeComment($decoded_comment);
+            return $encoded_comment;
+          }
+          catch (Exception $e) {
+            throw new Exception($e->getMessage());
+            return;
+          }
+        }
+      }
+    }
+  }
+
+  public function likeComment($payload, $id) {
+    if ($payload) {
+      // make sure we have an id to work with
+      if ($id && is_numeric($id)) {
+        // load the comment from drupal
+        $comment = comment_load($id);
+        // make sure the comment is allowed to be updated / liked
+        if ($comment && isset($comment->cid) && entity_access('update', 'comment', $comment)) {
+          // @todo like the comment via rate / voting API
+          // may be able to skip rate entirely via voting API directly
+          return true;
+        }
+      }
+    }
+  }
+
+  public function deleteComment($id) {
+    if ($id && is_numeric($id)) {
+      $comment = comment_load($id);
+      if ($comment && isset($comment->cid) && entity_access('update', 'comment', $comment)) {
+        $decoded_comment = $this->decodeComment($payload, $comment);
+        // unpublish the comment
+        $decoded_comment->status = 0;
+        try {
+          comment_save($decoded_comment);
+          return true;
+        }
+        catch (Exception $e) {
+          throw new Exception($e->getMessage());
+          return;
+        }
+      }
+    }
   }
 
   /**
    * Prepare a list of comments to be outputed in json
    *
    * @param array $comments
-   *  An array of comments node objects
+   *  An array of comment objects
    *
    * @return array
    */
@@ -101,11 +163,11 @@ class CleOpenStudioAppCommentService {
    * Prepare a single comments to be outputed in json
    *
    * @param object $comment
-   *  A comments node object
+   *  A comment object
    *
    * @return Object
    */
-  protected function encodeComment($comment) {
+  protected function encodeComment($comment, $editing = FALSE) {
     $encoded_comments = new stdClass();
     if (is_object($comment)) {
       $encoded_comments->type = 'comment';
@@ -122,7 +184,7 @@ class CleOpenStudioAppCommentService {
       $encoded_comments->attributes->changed = Date('c', $comment->changed);
       // Metadata info
       $encoded_comments->metadata = new stdClass();
-      $encoded_comments->metadata->editing = false;
+      $encoded_comments->metadata->editing = $editing;
       $encoded_comments->metadata->disabled = false;
       // Relationships
       $encoded_comments->relationships = new stdClass();
@@ -132,17 +194,47 @@ class CleOpenStudioAppCommentService {
       $encoded_comments->relationships->author->data->type = 'user';
       $encoded_comments->relationships->author->data->id = $comment->uid;
       $encoded_comments->relationships->author->data->name = $comment->name;
+      // Assignment
+      $encoded_comments->relationships->node = new stdClass();
+      $encoded_comments->relationships->node->data = new stdClass();
+      $encoded_comments->relationships->node->data->type = 'node';
+      $encoded_comments->relationships->node->data->id = $comment->nid;
       // Actions
       $encoded_comments->actions = new stdClass();
       $encoded_comments->actions->reply = entity_access('view', 'comment', $comment);
       // @todo this needs to hit the _rate_check_permissions stuff in rate module really work
-      $encoded_comments->actions->like = $encoded_comments->actions->reply;
+      if ($editing || $comment->uid == $GLOBALS['user']->uid || !$encoded_comments->actions->reply) {
+        $like = FALSE;
+      }
+      else {
+        $like = TRUE;
+      }
+      $encoded_comments->actions->like = $like;
       $encoded_comments->actions->edit = entity_access('update', 'comment', $comment);
-      $encoded_comments->actions->delete = entity_access('delete', 'comment', $comment);
+      $encoded_comments->actions->delete = entity_access('update', 'comment', $comment);
 
       drupal_alter('cle_open_studio_app_encode_comments', $encoded_comments);
       return $encoded_comments;
     }
     return NULL;
+  }
+
+  protected function decodeComment($payload, $comment) {
+    if ($payload) {
+      if ($payload->attributes) {
+        if ($payload->attributes->subject) {
+          $comment->subject = $payload->attributes->subject;
+        }
+        if ($payload->attributes->body) {
+          $format = 'student_format';
+          $comment->comment_body[LANGUAGE_NONE][0] = array(
+            'format' => $format,
+            'value' => $payload->attributes->body,
+            'safe_value' => check_markup($payload->attributes->body, $format),
+          );
+        }
+      }
+    }
+    return $comment;
   }
 }

@@ -28,8 +28,8 @@
         "callback": "_cle_open_studio_app_submission_comments",
         "property": "source-path"
       },
-      "api/submissions/%/comments/create-stub": {
-        "callback": "_cle_open_studio_app_submission_comments_create_stub",
+      "api/submissions/%/comments/%": {
+        "callback": "_cle_open_studio_app_submission_comments_findone",
         "property": "source-path"
       },
       "api/files": {

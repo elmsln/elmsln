@@ -215,6 +215,7 @@ A well styled comment for a user with markdown support.
         let root = this;
         root.editform = root.comment.metadata.editing;
         root.disabled = root.comment.metadata.disabled;
+        root.blockFirstState = true;
       },
       /**
        * Handle all actions from the button bar.
@@ -245,24 +246,35 @@ A well styled comment for a user with markdown support.
           }
         }
       },
+      /**
+       * Trigger the edit form.
+       */
       _editTrigger: function(e) {
         let root = this;
         // bother checking if they can edit or not first
         if (typeof root.comment !== typeof undefined && root.comment.actions.edit) {
           root.async(function() {
             // show / hide the edit vs display area
-            root.$$('#rendered-comment').hidden = !root.$$('#rendered-comment').hidden;
-            root.$$('#comment-editor').hidden = !root.$$('#comment-editor').hidden;
+            root.$$('#rendered-comment').hidden = root.editform;
+            root.$$('#comment-editor').hidden = !root.editform;
             // simple icon toggle
             if (root.editform) {
               root.$$('#edit').icon = 'save';
+              root.$$('#edit').alt = 'Save';
               root.$$('#reply').disabled = true;
               root.$$('#edit-comment').focus();
               root.fire('comment-editing', {comment: root.comment});
+              root.blockFirstState = false;
             }
             else {
-              root.fire('comment-save', {comment: root.comment});
+              if (!root.blockFirstState) {
+                root.fire('comment-save', {comment: root.comment});
+              }
+              else {
+                root.blockFirstState = false;
+              }
               root.$$('#edit').icon = 'create';
+              root.$$('#edit').alt = 'Edit';
               root.$$('#reply').disabled = false;
             }
             document.querySelector('iron-list').fire('iron-resize');

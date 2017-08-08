@@ -167,34 +167,94 @@ function _cle_open_studio_app_submission_comments($machine_name, $app_route, $pa
   return array('status' => 200, 'data' => $data);
 }
 
-function _cle_open_studio_app_submission_comments_create_stub($machine_name, $app_route, $params, $args) {
+function _cle_open_studio_app_submission_comments_findone($machine_name, $app_route, $params, $args) {
   $return = array('status' => 200);
   $method = $_SERVER['REQUEST_METHOD'];
-
   // Find out if there is a nid specified
-  if ($method == 'POST') {
-    $post_data = file_get_contents("php://input");
-    if ($post_data) {
-      $post_data = json_decode($post_data);
-      $service = new CleOpenStudioAppCommentService();
-      try {
-        $comment = $service->createStubComment($post_data);
-        $return['data'] = $comment;
+  if ($method == 'POST' || $method == 'GET' || $method == 'PATCH' || $method == 'PUT' || $method == 'DELETE') {
+    if (isset($args[2])) {
+      $nid = $args[2];
+      if ($nid) {
+        // if it's a GET method then we can return the node.
+        switch ($method) {
+          case 'POST':
+            // ensure this is a post to make a stub
+            if ($args[count($args)-1] == 'create-stub') {
+              $post_data = file_get_contents("php://input");
+              if ($post_data) {
+                $data = array(
+                  'nid' => $args[2],
+                  'pid' => json_decode($post_data)
+                );
+              }
+              else {
+                $data = array(
+                  'nid' => $args[2],
+                  'pid' => 0
+                );
+              }
+              $service = new CleOpenStudioAppCommentService();
+              try {
+                $comment = $service->createStubComment($data);
+                $return['data'] = $comment;
+              }
+              // if it fails we'll add errors and return 500
+              catch (Exception $e) {
+                $return['status'] = 500;
+                $return['errors'][] = $e->getMessage();
+              }
+            }
+          break;
+          case 'GET':
+            $service = new CleOpenStudioAppCommentService();
+            $return['data'] = $service->getComment($args[4]);
+          break;
+          case 'PUT':
+            $service = new CleOpenStudioAppCommentService();
+            $post_data = file_get_contents("php://input");
+            $post_data = json_decode($post_data);
+            // try to update the node
+            try {
+              $update = $service->updateComment($post_data, $args[4]);
+              $return['data'] = $update;
+            }
+            // if it fails we'll add errors and return 500
+            catch (Exception $e) {
+              $return['status'] = 500;
+              $return['errors'][] = $e->getMessage();
+            }
+          break;
+          case 'DELETE':
+            $service = new CleOpenStudioAppCommentService();
+            try {
+              $delete = $service->deleteComment($args[4]);
+              $return['data'] = $delete;
+            }
+            catch (Exception $e) {
+              $return['status'] = 500;
+              $return['errors'][] = $e->getMessage();
+            }
+          break;
+          // treat patch like a like statement
+          case 'PATCH':
+            $service = new CleOpenStudioAppCommentService();
+            try {
+              $like = $service->likeComment($args[4]);
+              $return['data'] = $like;
+            }
+            catch (Exception $e) {
+              $return['status'] = 500;
+              $return['errors'][] = $e->getMessage();
+            }
+          default:
+            # code...
+          break;
+        }
       }
-      // if it fails we'll add errors and return 500
-      catch (Exception $e) {
-        $return['status'] = 500;
-        $return['errors'][] = $e->getMessage();
+      else {
+        $return['status'] = 404;
       }
     }
-    else {
-      $return['status'] = 422;
-      $return['errors'][] = t('No assignment id defined.');
-    }
-  }
-  else {
-    $return['status'] = 400;
-    $return['errors'][] = t('Bad request. Method not allowed.');
   }
 
   return $return;
