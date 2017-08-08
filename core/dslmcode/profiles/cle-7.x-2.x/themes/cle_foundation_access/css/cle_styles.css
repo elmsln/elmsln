@@ -11,6 +11,7 @@ paper-dialog.lrnsys-dialog paper-dialog-scrollable .scrollable.paper-dialog-scro
 }
 paper-dialog.lrnsys-dialog paper-dialog-scrollable .status-rationale {
   font-size: .6em;
+  text-align: right;
 }
 
 .views-fluid-grid i.zmdi {

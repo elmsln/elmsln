@@ -398,7 +398,7 @@ function _cle_assignment_v1_assignment_output($node, $app_route = '') {
   // regardless of due date stuff
   if (_cis_connector_role_groupings(array('staff', 'teacher')) && $submissionActive == 0) {
     $submissionActive = 1;
-    $rationale['text'] .= ' ' . t('<em>Your privledges allow you to submit this regardless.</em>');
+    $rationale['text'] .= ' ' . t('<em>Your privileges allow you to submit this regardless.</em>');
   }
   // calculate metadata to act on this
   $metadata = array(

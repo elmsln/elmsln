@@ -175,23 +175,25 @@
                 </span>
                 <div slot="content">
                   <app-toolbar class$="[[assignment.metadata.relatedSubmissions.complete.color]]">
-                    <lrnapp-studio-submission-button auto assignment-id="[[assignment.id]]" submission="{{submission}}" end-point="[[buildSubmissionPath(basePath)]]" csrf-token="[[csrfToken]]" submission-id="[[assignment.metadata.relatedSubmissions.complete.submission.id]]"></lrnapp-studio-submission-button>
-                    <div main-title>
+                    <div>
                       <iron-icon icon="[[assignment.metadata.relatedSubmissions.complete.icon]]"disabled$="[[!assignment.metadata.relatedSubmissions.canCreate]]"></iron-icon>
                       [[assignment.metadata.relatedSubmissions.complete.submission.title]]
                     </div>
-                    <div class="comment-box" hidden$="[[!assignment.metadata.relatedSubmissions.complete.submission.id]]">
+                    <div spacer class="comment-box" hidden$="[[!assignment.metadata.relatedSubmissions.complete.submission.id]]">
                       <paper-button id$="assignment-[[project.id]]-[[assignment.id]]-comments" style="margin:0;padding:.25em;text-transform:none;">
                         <iron-icon icon="communication:forum"></iron-icon>
-                        Comments
+                        [[assignment.metadata.relatedSubmissions.complete.submission.metadata.comments.count]] Comments
                       </paper-button>
-                      <paper-badge for$="assignment-[[project.id]]-[[assignment.id]]-comments" label$="[[assignment.metadata.relatedSubmissions.complete.submission.metadata.comments.count]] new([[assignment.metadata.relatedSubmissions.complete.submission.metadata.comments.new]])"></paper-badge>
+                      <paper-badge hidden$="[[displayNewBadge(assignment.metadata.relatedSubmissions.complete.submission.metadata.comments.new)]]" for$="assignment-[[project.id]]-[[assignment.id]]-comments" label$="[[assignment.metadata.relatedSubmissions.complete.submission.metadata.comments.new]]"></paper-badge>
                     </div>
-                    <div bottom-item spacer class="status-rationale">
-                      [[assignment.metadata.relatedSubmissions.complete.rationale.text]]
-                    </div>
+
+                    <lrnapp-studio-submission-button spacer auto assignment-id="[[assignment.id]]" submission="{{submission}}" end-point="[[buildSubmissionPath(basePath)]]" csrf-token="[[csrfToken]]" submission-id="[[assignment.metadata.relatedSubmissions.complete.submission.id]]"></lrnapp-studio-submission-button>
+                    <div main-title></div>
                     <paper-toggle-button id$="assignment-[[project.id]]-[[assignment.id]]-toggle" on-tap="statusToggle"></paper-toggle-button>
                     <span id$="assignment-[[project.id]]-[[assignment.id]]-toggle-text"></span>
+                    <div bottom-item class="status-rationale">
+                      [[assignment.metadata.relatedSubmissions.complete.rationale.text]]
+                    </div>
                   </app-toolbar>
                   <lrnsys-render-html html="[[assignment.body]]"></lrnsys-render-html>
                  </div>
@@ -254,6 +256,15 @@
           type: Object,
           notify: true,
         },
+      },
+      /**
+       * if we should show new badge based on new comment count.
+       */
+      displayNewBadge: function(count) {
+        if (count == 0) {
+          return true;
+        }
+        return false;
       },
       /**
        * Handle toggling the status for the submission.

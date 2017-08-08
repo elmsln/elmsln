@@ -165,15 +165,15 @@ A well styled comment for a user with markdown support.
       <div class="card-actions">
         <div class="card-actions-group left-actions">
           <template is="dom-if" if="[[comment.actions.reply]]">
-            <lrnsys-button on-click="actionHandler" id="reply" data-commentid="[[comment.metadata.id]]" alt="Reply" icon="reply" class="circle" hover-class="[[hoverClass]]"></lrnsys-button>
+            <lrnsys-button on-click="actionHandler" id="reply" data-commentid="[[comment.id]]" alt="Reply" icon="reply" class="circle" hover-class="[[hoverClass]]"></lrnsys-button>
           </template>
         </div>
         <div class="card-actions-group right-actions">
           <template is="dom-if" if="[[comment.actions.edit]]">
-            <lrnsys-button on-click="actionHandler" id="edit" data-commentid="[[comment.metadata.id]]" icon="create" class="circle" alt="Edit" hover-class="[[hoverClass]]"></lrnsys-button>
+            <lrnsys-button on-click="actionHandler" id="edit" data-commentid="[[comment.id]]" icon="create" class="circle" alt="Edit" hover-class="[[hoverClass]]"></lrnsys-button>
           </template>
           <template is="dom-if" if="[[comment.actions.delete]]">
-            <lrnsys-button on-click="actionHandler" id="delete" data-commentid="[[comment.metadata.id]]" icon="delete-forever" class="circle" alt="Delete" hover-class="[[hoverClass]]"></lrnsys-button>
+            <lrnsys-button on-click="actionHandler" id="delete" data-commentid="[[comment.id]]" icon="delete-forever" class="circle" alt="Delete" hover-class="[[hoverClass]]"></lrnsys-button>
           </template>
         </div>
       </div>
@@ -209,7 +209,7 @@ A well styled comment for a user with markdown support.
       },
       _commentLoaded: function(e) {
         let root = this;
-        root.editform = root.comment.metadata.editable;
+        root.editform = root.comment.metadata.editing;
         root.disabled = root.comment.metadata.disabled;
       },
       /**
