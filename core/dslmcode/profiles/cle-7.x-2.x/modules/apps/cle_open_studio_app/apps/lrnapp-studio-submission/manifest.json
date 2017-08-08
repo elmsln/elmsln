@@ -6,7 +6,7 @@
   "start_url": "/",
   "display": "standalone",
   "app_integration": {
-    "title": "Submission",
+    "title": "Submissions",
     "menu": {
       "menu_name": "menu-elmsln-navigation",
       "weight": 10
