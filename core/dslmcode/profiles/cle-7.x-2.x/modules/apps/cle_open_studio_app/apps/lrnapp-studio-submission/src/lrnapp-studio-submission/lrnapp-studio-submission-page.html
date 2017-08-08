@@ -119,7 +119,7 @@
     <div class="flex-wrap submission-page-wrapper">
       <template is="dom-if" if="[[!editPage]]">
         <div class="submission-comments">
-          <lrnsys-comment-list source-path="{{commentsUrl}}"></lrnsys-comment-list>
+          <lrnsys-comment-list source-path="{{commentsUrl}}" create-stub-url="{{createStubUrl}}"></lrnsys-comment-list>
         </div>
       </template>
       <div class="submission-page">
@@ -230,6 +230,10 @@
           type: String,
           computed: '_computeCommentsUrl(id, endPoint, csrfToken)'
         },
+        createStubUrl: {
+          type: String,
+          computed: '_computeCommentsStubUrl(id, endPoint, csrfToken)'
+        },
         editPage: {
           type: Boolean,
           reflectToAttribute: true
@@ -251,6 +255,9 @@
       },
       _computeCommentsUrl: function (id, endPoint, csrfToken) {
         return endPoint + '/api/submissions/' + id + '/comments?token=' + csrfToken
+      },
+      _computeCommentsStubUrl: function (id, endPoint, csrfToken) {
+        return endPoint + '/api/submissions/' + id + '/comments/create-stub?token=' + csrfToken
       },
       _urlVarsChanged: function (id, endPoint) {
         this.reqUrl = endPoint + '/api/submissions/' + id;

@@ -157,93 +157,6 @@ function _cle_open_studio_app_video_generate_source_url($machine_name, $app_rout
 }
 
 function _cle_open_studio_app_submission_comments($machine_name, $app_route, $params, $args) {
-  $raw_data = '[
-    {
-      "metadata": {
-        "id": 100,
-        "editform": false,
-        "disabled": false
-      },
-      "actions": {
-        "edit": true,
-        "reply": true,
-        "like": false,
-        "delete": true
-      },
-      "attributes": {
-        "body": "This a **whole** bunch of my content that you now see!",
-        "threadDepth": 1,
-        "created": "1991-12-31"
-      },
-      "relationships": {
-        "author": {
-          "data": {
-            "name": "Bryan",
-            "avatar": "http://www.elmsln.org/sites/redesign/files/styles/square-profile-portrait/public/headshot.jpg?itok=_1HEhahr",
-            "username": "btopro",
-            "userid": 1
-          }
-        }
-      }
-    },
-    {
-      "metadata": {
-        "id": 200,
-        "editform": false,
-        "disabled": false
-      },
-      "actions": {
-        "edit": false,
-        "reply": true,
-        "like": true,
-        "delete": false
-      },
-      "attributes": {
-        "body": "This a **whole** bunch of my content that you now see!",
-        "threadDepth": 2,
-        "created": "2000-12-31"
-      },
-      "relationships": {
-        "author": {
-          "data": {
-            "name": "Michael Potter",
-            "avatar": "http://www.elmsln.org/sites/redesign/files/styles/square-profile-portrait/public/img_1773-1-sq_720_1.jpg?itok=KR9AsnhA",
-            "username": "heymp",
-            "userid": 2
-          }
-        }
-      }
-    },
-    {
-      "metadata": {
-        "id": 300,
-        "editform": false,
-        "disabled": false
-      },
-      "actions": {
-        "edit": false,
-        "reply": true,
-        "like": true,
-        "delete": false
-      },
-      "attributes": {
-        "body": "This a **whole** bunch of my content that you now see!",
-        "threadDepth": 3,
-        "created": "2017-12-31"
-      },
-      "relationships": {
-        "author": {
-          "data": {
-            "name": "Brittany Terpstra",
-            "avatar": "http://www.elmsln.org/sites/redesign/files/styles/square-profile-portrait/public/brt.png?itok=WdC_WcB4",
-            "username": "bterp",
-            "userid": 41
-          }
-        }
-      }
-    }
-  ]';
-  $normalized_data = json_decode($raw_data);
 
   $comments_service = new CleOpenStudioAppCommentService();
   $submission_id = $args[2];
@@ -252,6 +165,39 @@ function _cle_open_studio_app_submission_comments($machine_name, $app_route, $pa
   $data = $comments_service->getComments($options);
 
   return array('status' => 200, 'data' => $data);
+}
+
+function _cle_open_studio_app_submission_comments_create_stub($machine_name, $app_route, $params, $args) {
+  $return = array('status' => 200);
+  $method = $_SERVER['REQUEST_METHOD'];
+
+  // Find out if there is a nid specified
+  if ($method == 'POST') {
+    $post_data = file_get_contents("php://input");
+    if ($post_data) {
+      $post_data = json_decode($post_data);
+      $service = new CleOpenStudioAppCommentService();
+      try {
+        $comment = $service->createStubComment($post_data);
+        $return['data'] = $comment;
+      }
+      // if it fails we'll add errors and return 500
+      catch (Exception $e) {
+        $return['status'] = 500;
+        $return['errors'][] = $e->getMessage();
+      }
+    }
+    else {
+      $return['status'] = 422;
+      $return['errors'][] = t('No assignment id defined.');
+    }
+  }
+  else {
+    $return['status'] = 400;
+    $return['errors'][] = t('Bad request. Method not allowed.');
+  }
+
+  return $return;
 }
 
 // function cle_open_studio_app_cle_open_studio_app_encode_submission_alter(&$submissions) {

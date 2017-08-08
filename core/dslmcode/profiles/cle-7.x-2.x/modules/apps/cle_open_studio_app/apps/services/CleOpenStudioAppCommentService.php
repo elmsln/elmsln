@@ -4,7 +4,7 @@ class CleOpenStudioAppCommentService {
   /**
    * Create Stub Comment based on assignment
    */
-  public function createStubComment($comment_id) {
+  public function createStubComment($data) {
     global $user;
     $comment = new stdClass();
     $comment->subject = t('Feedback from @name', array('@name' => $user->name));
@@ -13,17 +13,11 @@ class CleOpenStudioAppCommentService {
     $comment->name = $user->name;
     $comment->status = 1;
     $comment->language = LANGUAGE_NONE;
-    $comment->pid = $comment_id;
-     array(
-      'name' => '',
-      'mail' => '',
-      'homepage' => '',
-      'subject' => '',
-      'comment' => '',
-    );
+    $comment->nid = $data['nid'];
+    $comment->pid = $data['pid'];
     comment_save($comment);
     if (isset($comment->cid)) {
-      return $this->encodeSubmission($comment);
+      return $this->encodeComment($comment);
     }
     else {
       return FALSE;
@@ -76,24 +70,9 @@ class CleOpenStudioAppCommentService {
    * @return object
    */
   public function getComment($id) {
-    $item = array();
-    $section_id = _cis_connector_section_context();
-    $section = _cis_section_load_section_by_id($section_id);
-    $field_conditions = array(
-      'og_group_ref' => array('target_id', $section, '='),
-    );
-    $property_conditions = array('status' => array(NODE_PUBLISHED, '='));
-    if (isset($id)) {
-      $property_conditions['cid'] = array($id, '=');
-    }
-    $orderby = array();
-    $items = _cis_connector_assemble_entity_list('node', 'cle_comments', 'nid', '_entity', $field_conditions, $property_conditions, $orderby);
-    /**
-     * @todo add better checks to return status codes based on if none were found or if more than
-     *       one was found.
-     */
-    if (count($items) == 1) {
-      $item = $this->encodeComment(array_shift($items));
+    $item = comment_load($id);
+    if (!is_null($item)) {
+      $item = $this->encodeComment($item);
     }
     return $item;
   }
@@ -156,6 +135,8 @@ class CleOpenStudioAppCommentService {
       // Actions
       $encoded_comments->actions = new stdClass();
       $encoded_comments->actions->reply = entity_access('view', 'comment', $comment);
+      // @todo this needs to hit the _rate_check_permissions stuff in rate module really work
+      $encoded_comments->actions->like = $encoded_comments->actions->reply;
       $encoded_comments->actions->edit = entity_access('update', 'comment', $comment);
       $encoded_comments->actions->delete = entity_access('delete', 'comment', $comment);
 

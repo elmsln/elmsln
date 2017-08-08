@@ -107,6 +107,9 @@ A well styled comment for a user with markdown support.
       .card-actions .card-actions-group.right-actions {
         float: right;
       }
+      .like-icon-color {
+        color: #2196F3;
+      }
     </style>
     <div class$="center comment-depth-[[comment.attributes.threadDepth]]">
       <lrndesign-avatar id="avatar" label="[[comment.relationships.author.data.name]]" src="[[comment.relationships.author.data.avatar]]" class="float-left"></lrndesign-avatar>
@@ -116,8 +119,8 @@ A well styled comment for a user with markdown support.
     <paper-card class$="paper-card-length-[[comment.attributes.threadDepth]]">
       <div class="comment-body">
         <div id="bodyarea" class="nowrap">
-          <h4>{{comment.relationships.author.data.name}} <span class="grey-said"> said:</span></h4>
-          <marked-element id="rendered-comment" markdown="[[comment.attributes.body]]">
+          <h4>[[comment.relationships.author.data.name]] said:</h4>
+          <marked-element smartypants id="rendered-comment" markdown="[[comment.attributes.body]]">
             <div slot="markdown-html"></div>
           </marked-element>
         </div>
@@ -164,6 +167,9 @@ A well styled comment for a user with markdown support.
         <div class="card-actions-group left-actions">
           <template is="dom-if" if="[[comment.actions.reply]]">
             <lrnsys-button on-click="actionHandler" id="reply" data-commentid="[[comment.id]]" alt="Reply" icon="reply" class="circle" hover-class="[[hoverClass]]"></lrnsys-button>
+          </template>
+          <template is="dom-if" if="[[comment.actions.like]]">
+            <lrnsys-button on-click="actionHandler" id="like" data-commentid="[[comment.id]]" alt="Like" icon="thumb-up" class="circle" hover-class="[[hoverClass]]"></lrnsys-button>
           </template>
         </div>
         <div class="card-actions-group right-actions">
@@ -226,12 +232,16 @@ A well styled comment for a user with markdown support.
           if (target.id == 'reply') {
             root.fire('comment-reply', {comment: root.comment});
           }
+          else if (target.id == 'like') {
+            root.$$('#like').classList.toggle('like-icon-color');
+            root.fire('comment-like', {comment: root.comment});
+          }
           else if (target.id == 'edit') {
             // toggle edit, allow edit state handle itself via observer
             root.editform = !root.editform;
           }
           else if (target.id == 'delete') {
-            root.fire('comment-delete', {comment: root.comment});
+            root.fire('comment-delete-dialog', {comment: root.comment});
           }
         }
       },
