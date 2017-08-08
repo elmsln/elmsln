@@ -3,10 +3,10 @@
 /**
  * Require the submission service.
  */
-define('__ROOT__', dirname(dirname(__FILE__))); 
-require_once(__ROOT__.'/services/CleOpenStudioAppSubmissionService.php'); 
-require_once(__ROOT__.'/services/CleOpenStudioAppFileService.php'); 
-require_once(__ROOT__.'/services/CleOpenStudioAppCommentService.php'); 
+define('__ROOT__', dirname(dirname(__FILE__)));
+require_once(__ROOT__.'/services/CleOpenStudioAppSubmissionService.php');
+require_once(__ROOT__.'/services/CleOpenStudioAppFileService.php');
+require_once(__ROOT__.'/services/CleOpenStudioAppCommentService.php');
 
 function _cle_open_studio_app_submission_findone($machine_name, $app_route, $params, $args) {
   $return = array('status' => 200);
@@ -57,6 +57,39 @@ function _cle_open_studio_app_submission_findone($machine_name, $app_route, $par
         $return['status'] = 404;
       }
     }
+  }
+
+  return $return;
+}
+
+function _cle_open_studio_app_submission_create_stub($machine_name, $app_route, $params, $args) {
+  $return = array('status' => 200);
+  $method = $_SERVER['REQUEST_METHOD'];
+
+  // Find out if there is a nid specified
+  if ($method == 'POST') {
+    $post_data = file_get_contents("php://input");
+    if ($post_data) {
+      $post_data = json_decode($post_data);
+      $service = new CleOpenStudioAppSubmissionService();
+      try {
+        $submission = $service->createStubSubmission($post_data);
+        $return['data'] = $submission;
+      }
+      // if it fails we'll add errors and return 500
+      catch (Exception $e) {
+        $return['status'] = 500;
+        $return['errors'][] = $e->getMessage();
+      }
+    }
+    else {
+      $return['status'] = 422;
+      $return['errors'][] = t('No assignment id defined.');
+    }
+  }
+  else {
+    $return['status'] = 400;
+    $return['errors'][] = t('Bad request. Method not allowed.');
   }
 
   return $return;
