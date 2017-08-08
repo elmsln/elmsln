@@ -124,13 +124,32 @@
       </template>
       <div class="submission-page">
         <paper-card>
-          <div class="card-header" hidden$="[[!submission]]">
+        <div class="card-content">
+          <template is="dom-if" if="[[editPage]]">
+            <app-toolbar class$="[[submission.meta.color]]">
+              <div>
+                <iron-icon icon="[[submission.meta.icon]]"></iron-icon>
+                {{submission.attributes.title}}
+              </div>
+              <div spacer class="comment-box" hidden$="[[!submission.id]]">
+                <paper-button id="submission-comments-overview" style="margin:0;padding:.25em;text-transform:none;">
+                  <iron-icon icon="communication:forum"></iron-icon>
+                  [[submission.meta.comment_count]] Comments
+                </paper-button>
+                <paper-badge hidden$="[[displayNewBadge(submission.meta.comment_new)]]" for="submission-comments-overview" label$="[[submission.meta.comment_new]]"></paper-badge>
+              </div>
+              <div main-title></div>
+              <span></span>
+              <div bottom-item class="status-rationale">
+                [[assignment.metadata.relatedSubmissions.complete.rationale.text]]
+              </div>
+            </app-toolbar>
+            <lrnapp-studio-submission-edit submission="{{submission}}" id="[[id]]" end-point="[[endPoint]]" csrf-token="[[csrfToken]]" on-updated="_submissionUpdated"></lrnapp-studio-submission-edit>
+          </template>
+          <template is="dom-if" if="[[!editPage]]">
             <h1 class="title">{{submission.attributes.title}}</h1>
             <div class="author">By: {{submission.relationships.author.data.name}}</div>
             <div class="status">Status: {{submission.attributes.state}}</div> 
-          </div>
-          <div class="card-content">
-          <template is="dom-if" if="[[!editPage]]">
             <!-- ----- Text Submission -----  -->
             <template is="dom-if" if="[[submission.attributes.body]]">
               <lrndesign-contentblock title="Text Submitted">
@@ -177,9 +196,6 @@
               </lrndesign-contentblock>
             </template>
           </template>
-          <template is="dom-if" if="[[editPage]]">
-            <lrnapp-studio-submission-edit submission="[[submission]]" id="[[id]]" end-point="[[endPoint]]" csrf-token="[[csrfToken]]" on-updated="_submissionUpdated"></lrnapp-studio-submission-edit>
-          </template>
           </div>
         </paper-card>
       </div>
@@ -224,6 +240,15 @@
         '_paramsChanged(csrfToken)',
         '_bodyChanged(title)'
       ],
+      /**
+       * if we should show new badge based on new comment count.
+       */
+      displayNewBadge: function(count) {
+        if (count == 0) {
+          return true;
+        }
+        return false;
+      },
       _computeCommentsUrl: function (id, endPoint, csrfToken) {
         return endPoint + '/api/submissions/' + id + '/comments?token=' + csrfToken
       },

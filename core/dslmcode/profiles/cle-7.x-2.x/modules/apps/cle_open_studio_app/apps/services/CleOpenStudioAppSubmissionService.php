@@ -253,6 +253,7 @@ class CleOpenStudioAppSubmissionService {
       // comments
       $encoded_submission->relationships->comments = null;
       $encoded_submission->meta->comment_count = $submission->comment_count;
+      $encoded_submission->meta->comment_new = comment_num_new($submission->nid);
       if ($submission->comment_count > 0) {
         $comments_service = new CleOpenStudioAppCommentService();
         $options = (object) array('filter' => array('submission' => $submission->nid));
