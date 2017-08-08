@@ -5,6 +5,26 @@ include_once 'CleOpenStudioAppCommentService.php';
 class CleOpenStudioAppSubmissionService {
 
   /**
+   * Create Stub Submission based on assignment
+   */
+  public function createStubSubmission($assignment_id) {
+    global $user;
+    $node = new stdClass();
+    $node->title = t('Submission for assignment @id', array('@id' => $assignment_id));
+    $node->type = 'cle_submission';
+    $node->uid = $user->uid;
+    $node->status = 1;
+    $node->field_assignment[LANGUAGE_NONE][0]['target_id'] = $assignment_id;
+    node_save($node);
+    if (isset($node->nid)) {
+      return $this->encodeSubmission($node);
+    }
+    else {
+      return FALSE;
+    }
+  }
+
+  /**
    * Get a list of submissions
    * This will take into concideration what section the user is in and what section
    * they have access to.

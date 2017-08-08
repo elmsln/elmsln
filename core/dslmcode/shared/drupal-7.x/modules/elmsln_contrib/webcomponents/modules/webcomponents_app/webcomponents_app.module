@@ -286,9 +286,11 @@ function _webcomponents_app_load_app_data($machine_name = NULL, $debug = FALSE) 
         if (count($path_ary) == count($args)) {
           // see if there are any differences between the two
           $ary_diff = array_diff($path_ary, $args);
-          // if no differences then we found the path
-          if (!$ary_diff) {
+          // if no differences then we found the path and we should exit
+          // immediately
+          if (empty($ary_diff)) {
             $endpointpath = $path;
+            break;
           }
           // if there is a difference in the path but the only differences
           // are wildcards then it's a match

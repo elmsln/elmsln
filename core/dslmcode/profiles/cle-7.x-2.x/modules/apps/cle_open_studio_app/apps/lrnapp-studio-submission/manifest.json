@@ -16,6 +16,10 @@
         "callback": "_cle_open_studio_app_submission_index",
         "property": "source-path"
       },
+      "api/submissions/create-stub": {
+        "callback": "_cle_open_studio_app_submission_create_stub",
+        "property": "source-path"
+      },
       "api/submissions/%": {
         "callback": "_cle_open_studio_app_submission_findone",
         "property": "source-path"
