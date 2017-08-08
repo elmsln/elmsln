@@ -124,7 +124,14 @@ function _cle_submission_v1_submission_output($node) {
     'canUpdate' => 0,
     'canDelete' => 0,
     'canCritique' => 0,
+    'comments' => array(),
   );
+  // support sending across comment count
+  if (isset($node->comment_count)) {
+    $metadata['comments']['count'] = $node->comment_count;
+    // figure out new comments
+    $metadata['comments']['new'] = comment_num_new($node->nid);
+  }
   // see the operations they can perform here
   if (entity_access('update', 'node', $node, $account)) {
     $metadata['canUpdate'] = 1;

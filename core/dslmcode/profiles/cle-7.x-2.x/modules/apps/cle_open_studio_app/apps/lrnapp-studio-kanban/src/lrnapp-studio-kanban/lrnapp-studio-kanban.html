@@ -1,3 +1,4 @@
+<link rel="import" href="../../../lrnapp-studio-submission/src/lrnapp-studio-submission/lrnapp-studio-submission-button.html">
 <dom-module id="lrnapp-studio-kanban">
   <template>
     <style include="materializecss-styles"></style>
@@ -174,9 +175,17 @@
                 </span>
                 <div slot="content">
                   <app-toolbar class$="[[assignment.metadata.relatedSubmissions.complete.color]]">
+                    <lrnapp-studio-submission-button auto assignment-id="[[assignment.id]]" submission="{{submission}}" end-point="[[buildSubmissionPath(basePath)]]" csrf-token="[[csrfToken]]" submission-id="[[assignment.metadata.relatedSubmissions.complete.submission.id]]"></lrnapp-studio-submission-button>
                     <div main-title>
                       <iron-icon icon="[[assignment.metadata.relatedSubmissions.complete.icon]]"disabled$="[[!assignment.metadata.relatedSubmissions.canCreate]]"></iron-icon>
                       [[assignment.metadata.relatedSubmissions.complete.submission.title]]
+                    </div>
+                    <div class="comment-box" hidden$="[[!assignment.metadata.relatedSubmissions.complete.submission.id]]">
+                      <paper-button id$="assignment-[[project.id]]-[[assignment.id]]-comments" style="margin:0;padding:.25em;text-transform:none;">
+                        <iron-icon icon="communication:forum"></iron-icon>
+                        Comments
+                      </paper-button>
+                      <paper-badge for$="assignment-[[project.id]]-[[assignment.id]]-comments" label$="[[assignment.metadata.relatedSubmissions.complete.submission.metadata.comments.count]] new([[assignment.metadata.relatedSubmissions.complete.submission.metadata.comments.new]])"></paper-badge>
                     </div>
                     <div bottom-item spacer class="status-rationale">
                       [[assignment.metadata.relatedSubmissions.complete.rationale.text]]
@@ -224,6 +233,13 @@
           type: Object,
           notify: true,
         },
+        /**
+         * Submission for two-way data binding on return from the button being pushed
+         */
+         submission: {
+          type: Object,
+          notify: true,
+         },
         /**
          * Response from the server.
          */
@@ -285,6 +301,12 @@
       _handleProjectResponse: function(event) {
         this.$.loading.hidden = true;
         this._setToggle(true);
+      },
+      /**
+       * buildSubmissionPath for generating a new submission or linking to existing.
+       */
+      buildSubmissionPath: function(path) {
+        return path + 'lrnapp-studio-submission';
       },
       /**
        * Handle a response from updating an item
