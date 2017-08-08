@@ -35,7 +35,7 @@ A well styled comment for a user with markdown support.
         margin-bottom: -2px;
       }
       paper-card {
-        margin: 1.25em;
+        margin: .5em 1em .5em .5em;
         padding: 1em;
       }
       h1,
@@ -54,34 +54,35 @@ A well styled comment for a user with markdown support.
         overflow: hidden;
         text-overflow: ellipsis;
       }
-      .paper-card-length-1 {
-        width: 85%;
-        margin-bottom: .5em;
-      }
-      .paper-card-length-2 {
-        width: 81%;
-        margin-top: 0;
-        margin-bottom: .5em;
-      }
-      .paper-card-length-3 {
-        width: 77%;
-        margin-top: 0;
-        margin-bottom: .5em;
+      .comment-depth-1 {
+        margin: 0em;
       }
       .comment-depth-2 {
         margin: .5em;
       }
-      .comment-depth-3 {
+      .comment-depth-3,
+      .comment-depth-4,
+      .comment-depth-5,
+      .comment-depth-6,
+      .comment-depth-7,
+      .comment-depth-8,
+      .comment-depth-9 {
         margin: 1em;
       }
-      .comment-depth-4 {
-        margin: 1em;
+      .paper-card-length-1 {
+        width: 85%;
       }
-      .comment-depth-5 {
-        margin: 1em;
+      .paper-card-length-2 {
+        width: 81%;
       }
-      .comment-depth-6 {
-        margin: 1em;
+      .paper-card-length-3,
+      .paper-card-length-4,
+      .paper-card-length-5,
+      .paper-card-length-6,
+      .paper-card-length-7,
+      .paper-card-length-8,
+      .paper-card-length-9 {
+        width: 77%;
       }
       .center {
         padding: 0;
@@ -106,9 +107,6 @@ A well styled comment for a user with markdown support.
       .card-actions .card-actions-group.right-actions {
         float: right;
       }
-      .hide-element {
-        display: none;
-      }
     </style>
     <div class$="center comment-depth-[[comment.attributes.threadDepth]]">
       <lrndesign-avatar id="avatar" label="[[comment.relationships.author.data.name]]" src="[[comment.relationships.author.data.avatar]]" class="float-left"></lrndesign-avatar>
@@ -123,7 +121,7 @@ A well styled comment for a user with markdown support.
             <div slot="markdown-html"></div>
           </marked-element>
         </div>
-        <mtz-marked-editor id="comment-editor" class="hide-element">
+        <mtz-marked-editor id="comment-editor" hidden>
           <div slot="controls">
             <mtz-marked-control-generic-wrap
               icon="editor:format-bold"
@@ -243,8 +241,8 @@ A well styled comment for a user with markdown support.
         if (typeof root.comment !== typeof undefined && root.comment.actions.edit) {
           root.async(function() {
             // show / hide the edit vs display area
-            root.$$('#rendered-comment').classList.toggle('hide-element');
-            root.$$('#comment-editor').classList.toggle('hide-element');
+            root.$$('#rendered-comment').hidden = !root.$$('#rendered-comment').hidden;
+            root.$$('#comment-editor').hidden = !root.$$('#comment-editor').hidden;
             // simple icon toggle
             if (root.editform) {
               root.$$('#edit').icon = 'save';

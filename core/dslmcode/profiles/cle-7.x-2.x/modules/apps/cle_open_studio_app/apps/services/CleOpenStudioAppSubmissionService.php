@@ -155,6 +155,8 @@ class CleOpenStudioAppSubmissionService {
    * @return Object
    */
   protected function encodeSubmission($submission) {
+    global $user;
+    $account = $user;
     $encoded_submission = new stdClass();
     if (is_object($submission)) {
       $encoded_submission->type = $submission->type;
@@ -199,6 +201,39 @@ class CleOpenStudioAppSubmissionService {
       $encoded_submission->meta->created = Date('c', $submission->created);
       $encoded_submission->meta->changed = Date('c', $submission->changed);
       $encoded_submission->meta->revision_timestamp = Date('c', $submission->revision_timestamp);
+      $encoded_submission->meta->canUpdate = 0;
+      $encoded_submission->meta->canDelete = 0;
+      $encoded_submission->meta->canCritique = 0;
+        // see the operations they can perform here
+      if (entity_access('update', 'node', $submission)) {
+        $encoded_submission->meta->canUpdate = 1;
+      }
+      if (entity_access('delete', 'node', $submission)) {
+        $encoded_submission->meta->canDelete = 1;
+      }
+      // @todo need more advanced check then just this based on
+      // assignment methodology for critique
+      if (entity_access('view', 'node', $submission) && $submission->uid != $account->uid) {
+        $encoded_submission->meta->canCritique = 1;
+      }
+      switch ($submission->field_submission_state[LANGUAGE_NONE][0]['value']) {
+        case 'submission_in_progress':
+          $encoded_submission->meta->icon = 'assignment-late';
+          $encoded_submission->meta->color = 'amber lighten-3';
+        break;
+        case 'submission_ready':
+          $encoded_submission->meta->icon = 'done';
+          $encoded_submission->meta->color = 'green lighten-3';
+        break;
+        case 'submission_needs_work':
+          $encoded_submission->meta->icon = 'assignment-returned';
+          $encoded_submission->meta->color = 'yellow lighten-3';
+        break;
+        default:
+          $encoded_submission->meta->icon = 'assignment';
+          $encoded_submission->meta->color = 'grey lighten-3';
+        break;
+      }
       // Relationships
       $encoded_submission->relationships = new stdClass();
       // assignment

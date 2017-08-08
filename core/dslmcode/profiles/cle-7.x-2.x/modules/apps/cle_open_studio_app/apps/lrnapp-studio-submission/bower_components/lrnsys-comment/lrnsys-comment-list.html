@@ -14,13 +14,20 @@ A listing and event handling for comments.
       :host {
         display: block;
       }
+      .comment-button {
+        padding-right: 1em;
+      }
     </style>
     <iron-ajax
      auto
      url="[[sourcePath]]"
      handle-as="json"
      last-response="{{comments}}"></iron-ajax>
-    <iron-list items="[[_toArray(comments.data)]]">
+    <app-toolbar>
+      <h3 main-title class="title">[[comments.data.length]] Comments</h3>
+      <lrnsys-button class="comment-button" raised on-click="handleTopReply" id="leave-comment" icon="reply" hover-class="blue white-text" label="Add comment"></lrnsys-button>
+    </app-toolbar>
+    <iron-list id="commentlist" items="[[_toArray(comments.data)]]">
       <template>
       <lrnsys-comment comment="{{item}}" hover-class="blue white-text"></lrnsys-comment>
       </template>
@@ -64,6 +71,54 @@ A listing and event handling for comments.
        * to create new lower ones which can invoke more lower ones from
        * up above.
        */
+      handleTopReply: function (e) {
+        let root = this;
+        var comments = root.comments.data;
+        // @todo need to generate a comment
+        var newcomment = {
+          "id": 1,
+          "metadata": {
+            "editing": true,
+            "disabled": false
+          },
+          "actions": {
+            "edit": true,
+            "reply": true,
+            "delete": true
+          },
+          "attributes": {
+            "body": "",
+            "threadDepth": 1,
+            "created": "2001-2-1"
+          },
+          "relationships": {
+            "author": {
+              "data": {
+                "name": "Bryan",
+                "avatar": "http://www.elmsln.org/sites/redesign/files/styles/square-profile-portrait/public/headshot.jpg?itok=_1HEhahr",
+                "username": "btopro",
+                "userid": "1"
+              }
+            }
+          }
+        };
+        comments.splice(1, 0, newcomment);
+        // force tree to notice element updated
+        root.set('comments.data', []);
+        root.set('comments.data', comments);
+      },
+      /**
+       * Ready event should ensure that the iron-list is the correct size.
+       */
+      ready: function(e) {
+        this.$.commentlist.fire('iron-resize');
+      },
+      /**
+       * Handle a reply event bubbling up from a comment we've printed
+       * via our template in this element. This allows the higher element
+       * to create new lower ones which can invoke more lower ones from
+       * up above.
+       */
       handleReply: function (e) {
         let root = this;
         var comment = e.detail.comment;
@@ -71,8 +126,8 @@ A listing and event handling for comments.
         for (var index = 0; index < comments.length; index++) {
           if (comments[index].id == comment.id) {
             var newcomment = {
+              "id": (comments[index].id + 1),
               "metadata": {
-                "id": (comments[index].id + 1),
                 "editing": true,
                 "disabled": false
               },
