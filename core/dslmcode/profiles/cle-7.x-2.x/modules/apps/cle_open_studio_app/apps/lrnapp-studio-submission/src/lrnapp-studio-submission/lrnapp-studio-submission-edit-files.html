@@ -1,0 +1,125 @@
+<link rel="import" href="lrnapp-studio-submission-edit-add-asset.html">
+<link rel="import" href="lrnapp-studio-submission-edit-file.html">
+<link rel="import" href="../../bower_components/iron-icons/editor-icons.html">
+
+<dom-module id="lrnapp-studio-submission-edit-files">
+  <template>
+    <style>
+       :host {
+        display: block;
+        position: relative;
+        min-height: 300px;
+      }
+
+      #pages {
+        display: block;
+      }
+
+      .files__files {
+        display: flex;
+        flex-wrap: wrap;
+      }
+
+      .files__files>* {
+        margin-right: 1em;
+        min-width: 200px;
+      }
+
+      neon-animated-pages .iron-selected {
+        position: static;
+      }
+
+      paper-dialog {
+        width: 50%;
+        width: 50vmax;
+        padding: 1em;
+      }
+    </style>
+
+    <div class="files__files">
+      <template is="dom-repeat" items="{{files}}" as="file">
+        <lrnapp-studio-submission-edit-file file="{{file}}" on-deleted="_deleteImage" data-index$="[[index]]"></lrnapp-studio-submission-edit-file>
+      </template>
+      <lrnapp-studio-submission-edit-add-asset on-click="_addImage" icon="editor:attach-file"></lrnapp-studio-submission-edit-add-asset>
+    </div>
+
+    <paper-dialog id="dialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation" with-backdrop>
+      <h2>Add Files(s)</h2>
+      <paper-dialog-scrollable>
+        <div class="files__upload">
+          <vaadin-upload accept="[[fileTypes]]" target="[[uploadUrl]]" method="POST" form-data-name="file-upload" on-upload-success="_handleImageUploadSuccess">
+            <div class="files__drop-label">
+              <iron-icon icon="files__description"></iron-icon>
+              Upload files here:
+            </div>
+          </vaadin-upload>
+        </div>
+      </paper-dialog-scrollable>
+      <div class="buttons">
+        <paper-button dialog-dismiss>Cancel</paper-button>
+      </div>
+    </paper-dialog>
+
+  </template>
+  <script>
+    Polymer({
+      is: 'lrnapp-studio-submission-edit-files',
+      properties: {
+        files: {
+          type: Array,
+          notify: true,
+          value: null
+        },
+        selectedPage: {
+          type: String,
+          value: 0
+        },
+        uploadUrl: {
+          type: String
+        },
+        fileTypes: {
+          type: String,
+          value: '.pdf,audio/mp3,.doc,.docx,.svg'
+        }
+      },
+      observers: [
+        '_filesChanged(files)'
+      ],
+      _filesChanged: function (files) {
+        console.log(files);
+      },
+      _addImage: function (e) {
+        this.$.dialog.open();
+      },
+      _selectPage: function (e) {
+        var root = this;
+        var normalizedEvent = Polymer.dom(e);
+        var page = normalizedEvent.localTarget.getAttribute('data-page');
+        root.set('selectedPage', page);
+      },
+      _handleImageUploadSuccess: function (e) {
+        var root = this;
+        root.set('selectedPage', 0);
+        var files = [];
+        var response = e.detail.xhr.response;
+        // normalize response string
+        var response = JSON.parse(response);
+        // get the newely created file
+        if (response.data.file) {
+          var file = response.data.file;
+          if (root.files === null) {
+            this.set('files', []);
+          }
+          root.push('files', file);
+          this.$.dialog.close();
+        }
+      },
+      _deleteImage: function (e) {
+        var root = this;
+        var normalizedEvent = Polymer.dom(e);
+        var deleteIndex = normalizedEvent.localTarget.getAttribute('data-index');
+        root.splice('files', deleteIndex, 1);
+      },
+    });
+  </script>
+</dom-module>

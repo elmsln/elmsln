@@ -1,0 +1,57 @@
+<link rel="import" href="lrnapp-studio-submission-media-editoverlay.html">
+<link rel="import" href="../../bower_components/pdf-element/pdf-element.html">
+
+<dom-module id="lrnapp-studio-submission-edit-file">
+  <template>
+    <style>
+       :host {
+        display: inline-flex;
+        justify-content: space-around;
+        align-items: stretch;
+        min-height: 100px;
+        width: 100px;
+        position: relative;
+        background: lightgray;
+        color: #333333;
+      }
+
+      lrnapp-studio-submission-media-editoverlay {
+        display: flex;
+      }
+
+      .file_url {
+        margin: 1em;
+      }
+    </style>
+
+    <lrnapp-studio-submission-media-editoverlay on-delete="_delete" data-index$="[[index]]" embedcode="{{embedcode}}">
+      <div class="file_url">[[file.filename]]</div>
+    </lrnapp-studio-submission-media-editoverlay>
+
+  </template>
+  <script>
+    Polymer({
+      is: 'lrnapp-studio-submission-edit-file',
+      properties: {
+        file: {
+          type: Object
+        },
+        embedcode: {
+          type: String,
+          computed: '_computeEmbedCode(file)'
+        }
+      },
+      observers: [
+      ],
+      _isPdf: function () {
+        return this.file.memetype === 'application/pdf';
+      },
+      _computeEmbedCode: function (file) {
+        return '[Alternative Text Here](' + file.url + ')';
+      },
+      _delete: function (e) {
+        this.fire('deleted');
+      }
+    });
+  </script>
+</dom-module>

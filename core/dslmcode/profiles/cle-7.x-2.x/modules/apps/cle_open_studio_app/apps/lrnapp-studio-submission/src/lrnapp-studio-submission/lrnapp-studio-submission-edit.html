@@ -1,5 +1,6 @@
 <link rel="import" href="lrnapp-studio-submission-media-editoverlay.html">
 <link rel="import" href="lrnapp-studio-submission-edit-images.html">
+<link rel="import" href="lrnapp-studio-submission-edit-files.html">
 <link rel="import" href="lrnapp-studio-submission-edit-video.html">
 <link rel="import" href="lrnapp-studio-submission-edit-links.html">
 <link rel="import" href="lrnapp-studio-submission-edit-textarea.html">
@@ -98,39 +99,48 @@
         <label for="image-upload">Images</label>
         <lrnapp-studio-submission-edit-images images="{{submission.attributes.images}}" upload-url="[[uploadFilesUrl]]"></lrnapp-studio-submission-edit-images>
       </div>
-    </template>
 
-    <!-- Links -->
-    <div id="linksfield" class="linksfield field">
-      <label for="links-input">Links</label>
-      <lrnapp-studio-submission-edit-links links="{{submission.attributes.links}}"></lrnapp-studio-submission-edit-links>
-    </div>
-
-    <!-- Videos -->
-    <div id="videosfield" class="videosfield field">
-      <label for="videos-input">Videos</label>
-      <lrnapp-studio-submission-edit-video videos="{{submission.attributes.video}}" end-point="[[endPoint]]" csrf-token="[[csrfToken]]"></lrnapp-studio-submission-edit-video>
-    </div>
-
-
-    <div class="actions">
-      <lrnsys-button id="publish" icon="check" label="Publish to Studio" on-click="_publishClicked" hover-class="amber lighten-5 green-text text-darken-4" icon-class="green-text"></lrnsys-button>
-      <lrnsys-button id="save-draft" icon="drafts" label="Save Draft" on-click="_saveDraftClicked"  hover-class="amber lighten-5 amber-text text-darken-4" icon-class="amber-text text-darken-4"></lrnsys-button>
-      <span class="spacer"></span>
-      <lrnsys-button id="delete" label="Delete" icon="delete" on-click="_deleteClicked" hover-class="amber lighten-5 red-text" icon-class="red-text text-darken-4">
-      </lrnsys-button>
-    </div>
-
-    <paper-dialog id="deletedialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation" with-backdrop>
-      <h2>Delete Submission</h2>
-      <p>Are you sure you want to delete submission: <em>{{submission.attributes.title}}</em>?</p>
-      <div class="buttons">
-        <paper-button dialog-dismiss>Cancel</paper-button>
-        <paper-button dialog-confirm on-click="_deleteConfirmed">Delete</paper-button>
+      <!-- Files -->
+      <div class="filesfield field">
+        <label for="file-upload">Files</label>
+        <lrnapp-studio-submission-edit-files files="{{submission.attributes.files}}" upload-url="[[uploadFilesUrl]]"></lrnapp-studio-submission-edit-images>
       </div>
-    </paper-dialog>
 
-    <elmsln-loading></elmsln-loading>
+      <!-- Links -->
+      <div id="linksfield" class="linksfield field">
+        <label for="links-input">Links</label>
+        <lrnapp-studio-submission-edit-links links="{{submission.attributes.links}}"></lrnapp-studio-submission-edit-links>
+      </div>
+
+      <!-- Videos -->
+      <div id="videosfield" class="videosfield field">
+        <label for="videos-input">Videos</label>
+        <lrnapp-studio-submission-edit-video videos="{{submission.attributes.video}}" end-point="[[endPoint]]" csrf-token="[[csrfToken]]"></lrnapp-studio-submission-edit-video>
+      </div>
+
+
+      <div class="actions">
+        <lrnsys-button id="publish" icon="check" label="Publish to Studio" on-click="_publishClicked" hover-class="amber lighten-5 green-text text-darken-4"
+          icon-class="green-text"></lrnsys-button>
+        <lrnsys-button id="save-draft" icon="drafts" label="Save Draft" on-click="_saveDraftClicked" hover-class="amber lighten-5 amber-text text-darken-4"
+          icon-class="amber-text text-darken-4"></lrnsys-button>
+        <span class="spacer"></span>
+        <lrnsys-button id="delete" label="Delete" icon="delete" on-click="_deleteClicked" hover-class="amber lighten-5 red-text"
+          icon-class="red-text text-darken-4">
+        </lrnsys-button>
+      </div>
+
+      <paper-dialog id="deletedialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation" with-backdrop>
+        <h2>Delete Submission</h2>
+        <p>Are you sure you want to delete submission: <em>{{submission.attributes.title}}</em>?</p>
+        <div class="buttons">
+          <paper-button dialog-dismiss>Cancel</paper-button>
+          <paper-button dialog-confirm on-click="_deleteConfirmed">Delete</paper-button>
+        </div>
+      </paper-dialog>
+
+      <elmsln-loading></elmsln-loading>
+    </template>
   </template>
   <script>
     Polymer({

@@ -667,7 +667,12 @@ function _elmsln_api_v1_file_output($file) {
   settype($file['filesize'], 'int');
   settype($file['timestamp'], 'int');
   settype($file['status'], 'int');
+  settype($file['display'], 'int');
   $file['created'] = Date('c', $file['timestamp']);
+  // ensure that file display is set
+  if (!isset($file['display'])) {
+    $file['display'] = (int) 1;
+  }
   // special support for images
   if (isset($file['type']) && $file['type'] == 'image') {
     $styles = image_styles();

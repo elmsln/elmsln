@@ -284,6 +284,9 @@ class CleOpenStudioAppSubmissionService {
         if ($payload->attributes->links) {
           $node->field_links[LANGUAGE_NONE] = $this->objectToArray($payload->attributes->links);
         }
+        if ($payload->attributes->files) {
+          $node->field_files[LANGUAGE_NONE] = $this->objectToArray($payload->attributes->files);
+        }
         if (isset($payload->attributes->video)) {
           $videos = array();
           foreach ($payload->attributes->video as $key => $video) {
