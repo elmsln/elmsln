@@ -33,14 +33,6 @@
         --iron-icon-width: 2em;
       }
 
-      #publish iron-icon {
-        color: green;
-      }
-
-      #delete iron-icon {
-        color: red;
-      }
-
       .imagesfiled {}
 
 
@@ -122,13 +114,11 @@
 
 
     <div class="actions">
-      <paper-button id="publish" on-click="_publishClicked">
-        <iron-icon icon="check"></iron-icon> Publish to Studio</paper-button>
-      <paper-button id="save-draft" on-click="_saveDraftClicked">
-        <iron-icon icon="drafts"></iron-icon> Save Draft</paper-button>
+      <lrnsys-button id="publish" icon="check" label="Publish to Studio" on-click="_publishClicked" hover-class="amber lighten-5 green-text text-darken-4" icon-class="green-text"></lrnsys-button>
+      <lrnsys-button id="save-draft" icon="drafts" label="Save Draft" on-click="_saveDraftClicked"  hover-class="amber lighten-5 amber-text text-darken-4" icon-class="amber-text text-darken-4"></lrnsys-button>
       <span class="spacer"></span>
-      <paper-button id="delete" on-click="_deleteClicked">
-        <iron-icon icon="delete"></iron-icon> Delete</paper-button>
+      <lrnsys-button id="delete" label="Delete" icon="delete" on-click="_deleteClicked" hover-class="amber lighten-5 red-text" icon-class="red-text text-darken-4">
+      </lrnsys-button>
     </div>
 
     <paper-dialog id="deletedialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation" with-backdrop>
