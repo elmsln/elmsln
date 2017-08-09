@@ -156,7 +156,7 @@
           <template is="dom-if" if="[[!editPage]]">
             <h1 class="title">{{submission.attributes.title}}</h1>
             <div class="author">By: {{submission.relationships.author.data.name}}</div>
-            <div class="status">Status: {{submission.attributes.state}}</div> 
+            <div class="status">Status: {{submission.attributes.state}}</div>
             <lrnsys-button name="edit" on-tap="_setEditRoute" icon="create" label="Edit submission" hover-class="amber darken-4 white-text"></lrnsys-button>
             <!-- ----- Text Submission -----  -->
             <template is="dom-if" if="[[submission.attributes.body]]">
