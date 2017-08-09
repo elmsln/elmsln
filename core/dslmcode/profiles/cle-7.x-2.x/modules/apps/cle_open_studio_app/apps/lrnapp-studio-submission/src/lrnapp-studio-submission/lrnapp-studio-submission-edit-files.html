@@ -118,7 +118,7 @@
         var root = this;
         var normalizedEvent = Polymer.dom(e);
         var deleteIndex = normalizedEvent.localTarget.getAttribute('data-index');
-        root.splice('files', deleteIndex, 1);
+        root.splice('files', Number(deleteIndex), 1);
       },
     });
   </script>
