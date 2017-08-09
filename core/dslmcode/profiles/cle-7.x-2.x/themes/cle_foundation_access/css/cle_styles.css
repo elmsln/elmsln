@@ -14,6 +14,13 @@ paper-dialog.lrnsys-dialog paper-dialog-scrollable .status-rationale {
   text-align: right;
 }
 
+.card-actions lrnsys-button iron-icon {
+  margin: 0 !important;
+  padding: 0;
+  width: 1.5em;
+  height: 1.5em !important;
+}
+
 .views-fluid-grid i.zmdi {
   font-size: 1.75rem;
   padding:1.5rem;
