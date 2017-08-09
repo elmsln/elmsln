@@ -125,7 +125,7 @@
             <iron-icon icon="communication:forum"></iron-icon>
             [[submission.meta.comment_count]] Comments
           </paper-button>
-          <paper-badge hidden$="[[displayNewBadge(submission.meta.comments.new)]]" for="comment-count" label$="[[submission.meta.comment_new]]"></paper-badge>
+          <paper-badge hidden$="[[displayNewBadge(submission.meta.comment_new)]]" for="comment-count" label$="[[submission.meta.comment_new]]"></paper-badge>
         </div>
         <div hidden$="[[editPage]]">
           <lrnsys-button on-tap="_setEditRoute" icon="create" label="Edit" hover-class="amber darken-4 white-text" hidden$="[[!submission.meta.canUpdate]]"></lrnsys-button>
