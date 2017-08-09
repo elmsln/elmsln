@@ -6,6 +6,7 @@
     <style>
       :host {
         display: block;
+        align-content: center;
       }
       #loading {
         width: 100%;
@@ -18,6 +19,20 @@
         position: absolute;
         background-color: white;
       }
+      paper-button.gallerycard-wrapper {
+        margin: 0;
+        padding: 0;
+      }
+      lrndesign-gallerycard {
+        padding: 0;
+        margin: 1em;
+        height: 15em;
+        width: 14em;
+      }
+      .gallery-grid {
+        margin: 0 auto;
+        width: 95%;
+      }
     </style>
     <iron-ajax auto
       url="[[sourcePath]]"
@@ -29,27 +44,32 @@
       <h3>Loading..</h3>
       <elmsln-loading color="grey-text" size="large"></elmsln-loading>
     </div>
-    <app-toolbar>
+    <app-toolbar class="amber lighten-3">
       <paper-dropdown-menu label="Author" hidden$="[[!submissions]]">
         <paper-listbox class="dropdown-content">
           <template is="dom-repeat" items="[[_toArray(submissions.data)]]" as="item">
-          <paper-item>{{item.author}}</paper-item>
+          <paper-item>[[item.author]]</paper-item>
           </template>
         </paper-listbox>
       </paper-dropdown-menu>
       <paper-dropdown-menu label="Project" hidden$="[[!submissions]]">
         <paper-listbox class="dropdown-content">
         <template is="dom-repeat" items="[[_toArray(submissions.data)]]" as="item">
-          <paper-item>{{item.title}}</paper-item>
+          <paper-item>[[item.title]]</paper-item>
         </template>
         </paper-listbox>
       </paper-dropdown-menu>
-
     </app-toolbar>
-    <template is="dom-repeat" items="[[_toArray(submissions.data)]]" as="item">
-      <lrndesign-gallerycard title="{{item.title}}" text="{{item.body}}" url="{{item.url}}" author="{{item.author}}" comments="{{item.comments}}" images="{{item.images}}" files="{{item.files}}" videos="{{item.videos}}" links="{{item.links}}">
-      </lrndesign-gallerycard>
-    </template>
+    <div class="gallery-grid">
+      <iron-list items="[[_toArray(submissions.data)]]" as="item" grid>
+        <template>
+        <paper-button class="gallerycard-wrapper" on-tap="_loadSubmissionUrl">
+          <lrndesign-gallerycard data-submission-id$="[[item.id]]" title="[[item.title]]" text="[[item.body]]" url="[[endPoint]]" author="[[item.author]]" comments="[[item.comments]]" images="[[item.images]]" files="[[item.files]]" videos="[[item.videos]]" links="[[item.links]]">
+          </lrndesign-gallerycard>
+        </paper-button>
+        </template>
+      </iron-list>
+    </div>
   </template>
 
   <script>
@@ -70,6 +90,33 @@
           type: String,
           notify: true,
         },
+        /**
+         * base path for the app
+         */
+        basePath: {
+          type: String,
+          notify: true,
+        },
+        /**
+         * Active / clicked submission.
+         */
+        activeSubmission: {
+          type: String,
+          value: null,
+          notify: true,
+        },
+      },
+      /**
+       * Handle tap on paper-button above to redirect to the correct submission url.
+       */
+      _loadSubmissionUrl: function(e) {
+        let root = this;
+        var normalizedEvent = Polymer.dom(e);
+        var local = normalizedEvent.localTarget;
+        // this will have the id of the current submission
+        var active = local.getAttribute('data-submission-id');
+        // @todo need a cleaner integration but this at least goes the right place for now
+        window.location.href = this.basePath + 'lrnapp-studio-submission/submissions/' + active;
       },
       /**
        * Handle response for the whole projects object.
