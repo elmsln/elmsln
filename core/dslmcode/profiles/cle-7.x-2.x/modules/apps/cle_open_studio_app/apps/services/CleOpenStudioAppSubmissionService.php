@@ -299,6 +299,7 @@ class CleOpenStudioAppSubmissionService {
         }
       }
     }
+    drupal_alter('cle_open_studio_app_decode_submission', $node, $payload);
     return $node;
   }
 
