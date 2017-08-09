@@ -1,4 +1,5 @@
 <link rel="import" href="../../bower_components/lrndesign-gallerycard/lrndesign-gallerycard.html">
+<link rel="import" href="lrnapp-open-studio-table.html">
 
 <dom-module id="lrnapp-open-studio">
   <template>
@@ -18,6 +19,12 @@
         height: 100vh;
         position: absolute;
         background-color: white;
+      }
+      iron-selector {
+        line-height: 1em;
+      }
+      iron-selector lrnsys-button {
+        display: inline-flex;
       }
       paper-button.gallerycard-wrapper {
         margin: 0;
@@ -40,11 +47,26 @@
       handle-as="json"
       last-response="{{submissions}}"
       on-response="_handleResponse"></iron-ajax>
+
+    <app-location route="{{route}}"></app-location>
+    <app-route
+        route="{{route}}"
+        pattern="[[endPoint]]/:page"
+        data="{{data}}"
+        tail="{{tail}}">
+    </app-route>
+
     <div id="loading">
       <h3>Loading..</h3>
       <elmsln-loading color="grey-text" size="large"></elmsln-loading>
     </div>
     <app-toolbar class="amber lighten-3">
+      <iron-selector selected="{{page}}" attr-for-selected="name" role="navigation">
+        <lrnsys-button name="submissions" href$="[[endPoint]]/submissions" icon="apps" label="Submissions" hover-class="amber darken-4 white-text"></lrnsys-button>
+        <lrnsys-button name="projects" href$="[[endPoint]]/projects" icon="folder" label="Projects" hover-class="amber darken-4 white-text"></lrnsys-button>
+        <lrnsys-button name="table" href$="[[endPoint]]/table" icon="view-list" label="Table" hover-class="amber darken-4 white-text"></lrnsys-button>
+      </iron-selector>
+      <span main-title></span>
       <paper-dropdown-menu label="Author" hidden$="[[!submissions]]">
         <paper-listbox class="dropdown-content">
           <template is="dom-repeat" items="[[_toArray(submissions.data)]]" as="item">
@@ -61,14 +83,24 @@
       </paper-dropdown-menu>
     </app-toolbar>
     <div class="gallery-grid">
-      <iron-list items="[[_toArray(submissions.data)]]" as="item" grid>
-        <template>
-        <paper-button class="gallerycard-wrapper" on-tap="_loadSubmissionUrl">
-          <lrndesign-gallerycard data-submission-id$="[[item.id]]" title="[[item.title]]" text="[[item.body]]" url="[[endPoint]]" author="[[item.author]]" comments="[[item.comments]]" images="[[item.images]]" files="[[item.files]]" videos="[[item.videos]]" links="[[item.links]]">
-          </lrndesign-gallerycard>
-        </paper-button>
-        </template>
-      </iron-list>
+    <iron-pages
+      selected="{{page}}"
+      attr-for-selected="name"
+      fallback-selection="submissions"
+      role="main">
+      <div name="submissions">
+        <iron-list items="[[_toArray(submissions.data)]]" as="item" grid>
+          <template>
+          <paper-button class="gallerycard-wrapper" on-tap="_loadSubmissionUrl">
+            <lrndesign-gallerycard data-submission-id$="[[item.id]]" title="[[item.title]]" text="[[item.body]]" url="[[endPoint]]" author="[[item.author]]" comments="[[item.comments]]" images="[[item.images]]" files="[[item.files]]" videos="[[item.videos]]" links="[[item.links]]">
+            </lrndesign-gallerycard>
+          </paper-button>
+          </template>
+        </iron-list>
+      </div>
+      <div name="projects">This is supposed to be project centric!</div>
+      <lrnapp-open-studio-table name="table" submissions="[[_toArray(submissions.data)]"></lrnapp-open-studio-table>
+    </iron-pages>
     </div>
   </template>
 
@@ -77,6 +109,15 @@
       is: 'lrnapp-open-studio',
       properties: {
         /**
+         * Tracking what the current page.
+         */
+        page: {
+          type: String,
+          reflectToAttribute: true,
+          notify: true,
+          observer: '_routePageChanged',
+        },
+        /**
          * The submissions to render
          */
         submissions: {
@@ -84,9 +125,16 @@
           notify: true,
         },
         /**
-         * Endpoint for submission data.
+         * sourcePath for submission data.
          */
         sourcePath: {
+          type: String,
+          notify: true,
+        },
+        /**
+         * Endpoint for submission data.
+         */
+        endPoint: {
           type: String,
           notify: true,
         },
@@ -105,6 +153,20 @@
           value: null,
           notify: true,
         },
+      },
+      /**
+       * default us to the submission centric board if nothing exists
+       */
+      _routePageChanged(page) {
+        // Polymer 2.0 will call with `undefined` on initialization.
+        // Ignore until we are properly called with a string.
+        if (page === undefined) {
+          return;
+        }
+
+        // If no page was found in the route data, page will be an empty string.
+        // Deault page
+        this.page = page || 'submissions';
       },
       /**
        * Handle tap on paper-button above to redirect to the correct submission url.

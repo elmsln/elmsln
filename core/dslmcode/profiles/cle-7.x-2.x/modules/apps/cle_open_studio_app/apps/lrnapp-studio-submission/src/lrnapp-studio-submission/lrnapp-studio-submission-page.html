@@ -16,6 +16,13 @@
         line-height: 18px;
       }
 
+      iron-selector {
+        line-height: 1em;
+      }
+      iron-selector lrnsys-button {
+        display: inline-flex;
+      }
+
       lrndesign-contentblock {
         margin: .5em;
       }
@@ -113,6 +120,7 @@
     <app-route route="{{route}}" pattern="/edit" tail="{{tail}}" active="{{editPage}}">
     </app-route>
 
+
     <iron-ajax id="ajaxRequest" auto url="[[reqUrl]]" method="GET" body="[[reqBody]]" params="[[reqParams]]" content-type="application/json"
       handle-as="json" on-response="_handleResponse"></iron-ajax>
     <div class="flex-wrap submission-page-wrapper">
@@ -142,6 +150,7 @@
               <div bottom-item class="status-rationale">
                 [[assignment.metadata.relatedSubmissions.complete.rationale.text]]
               </div>
+              <lrnsys-button name="edit" hidden$="{{editPage}}" on-tap="_setEditRoute" icon="apps" label="Submissions" hover-class="amber darken-4 white-text"></lrnsys-button>
             </app-toolbar>
             <lrnapp-studio-submission-edit submission="{{submission}}" id="[[id]]" end-point="[[endPoint]]" csrf-token="[[csrfToken]]" on-updated="_submissionUpdated"></lrnapp-studio-submission-edit>
           </template>
@@ -247,6 +256,9 @@
         '_paramsChanged(csrfToken)',
         '_bodyChanged(title)'
       ],
+      _setEditRoute: function(e) {
+        this.set('route.path', 'edit');
+      },
       /**
        * if we should show new badge based on new comment count.
        */
