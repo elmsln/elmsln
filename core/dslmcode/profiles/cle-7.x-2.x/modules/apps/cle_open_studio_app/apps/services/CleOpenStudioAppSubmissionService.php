@@ -204,6 +204,7 @@ class CleOpenStudioAppSubmissionService {
       $encoded_submission->meta->canUpdate = 0;
       $encoded_submission->meta->canDelete = 0;
       $encoded_submission->meta->canCritique = 0;
+      $encoded_submission->meta->filefieldTypes = $this->fileFieldTypes('node', 'field_files', 'cle_submission');
         // see the operations they can perform here
       if (entity_access('update', 'node', $submission)) {
         $encoded_submission->meta->canUpdate = 1;
@@ -284,6 +285,9 @@ class CleOpenStudioAppSubmissionService {
         if ($payload->attributes->links) {
           $node->field_links[LANGUAGE_NONE] = $this->objectToArray($payload->attributes->links);
         }
+        if ($payload->attributes->files) {
+          $node->field_files[LANGUAGE_NONE] = $this->objectToArray($payload->attributes->files);
+        }
         if (isset($payload->attributes->video)) {
           $videos = array();
           foreach ($payload->attributes->video as $key => $video) {
@@ -296,6 +300,7 @@ class CleOpenStudioAppSubmissionService {
         }
       }
     }
+    drupal_alter('cle_open_studio_app_decode_submission', $node, $payload);
     return $node;
   }
 
@@ -311,5 +316,23 @@ class CleOpenStudioAppSubmissionService {
         $new = $obj;
     }
     return $new;
+  }
+
+  private function fileFieldTypes($entity_type, $field_name, $bundle_name) {
+    $instance = field_info_instance($entity_type, $field_name, $bundle_name);
+    if ($instance && is_array($instance)) {
+      if (isset($instance['settings'])) {
+        if (isset($instance['settings']['file_extensions'])) {
+          $extensions = trim($instance['settings']['file_extensions']);
+          $extensions = explode(' ', $extensions);
+          foreach ($extensions as &$extension) {
+            $extension = '.' . trim($extension);
+          }
+          $extensions = implode(',', $extensions);
+          return $extensions;
+        }
+      }
+    }
+    return '';
   }
 }

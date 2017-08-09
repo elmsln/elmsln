@@ -7,7 +7,8 @@
     "test": "test"
   },
   "scripts": {
-    "post-install": "node post-install.js"
+    "post-install": "node post-install.js",
+    "sync": "vagrant scp ./ :/home/vagrant//elmsln/core/dslmcode/profiles/cle-7.x-2.x/modules/apps/cle_open_studio_app/apps/lrnapp-studio-submission"
   },
   "author": "",
   "license": "ISC",

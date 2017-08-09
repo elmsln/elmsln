@@ -320,9 +320,12 @@
        * Simple way to convert from object to array.
        */
       _toArray: function (obj) {
-        return Object.keys(obj).map(function (key) {
-          return obj[key];
-        });
+        if (typeof obj === 'object' && obj !== null ) {
+          return Object.keys(obj).map(function (key) {
+            return obj[key];
+          });
+        }
+        return [];
       },
     });
   </script>
