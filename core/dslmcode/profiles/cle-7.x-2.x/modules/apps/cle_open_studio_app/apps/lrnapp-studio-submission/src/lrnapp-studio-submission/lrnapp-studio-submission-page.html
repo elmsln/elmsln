@@ -35,10 +35,6 @@
         display: inline;
       }
 
-      paper-card {
-        padding: 2em;
-      }
-
       .contain {
         width: 10em;
         height: 10em;
@@ -99,10 +95,10 @@
       .submission-page {
         width: 70vw;
       }
-      .submission-page paper-card {
+      .submission-page-card {
         width: 100%;
         margin: 0;
-        padding-top: 0;
+        padding: 0 0 2em 1em;
       }
 
       :host[edit-page] .submission-page {
@@ -114,6 +110,18 @@
         overflow-y: visible;
         padding: 0;
         margin: 0;
+      }
+      .top-operations {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: unset !important;
+        padding: 0;
+        margin: 0;
+        text-align: right;
+      }
+      .top-operations lrnsys-button {
+        display: inline-flex;
       }
     </style>
 
@@ -130,7 +138,7 @@
         </div>
       </template>
       <div class="submission-page">
-        <paper-card>
+        <paper-card class="submission-page-card">
         <div class="card-content">
           <template is="dom-if" if="[[editPage]]">
             <app-toolbar class$="[[submission.meta.color]]">
@@ -156,8 +164,12 @@
           <template is="dom-if" if="[[!editPage]]">
             <h1 class="title">{{submission.attributes.title}}</h1>
             <div class="author">By: {{submission.relationships.author.data.name}}</div>
-            <div class="status">Status: {{submission.attributes.state}}</div>
-            <lrnsys-button name="edit" on-tap="_setEditRoute" icon="create" label="Edit submission" hover-class="amber darken-4 white-text"></lrnsys-button>
+            <paper-card class="top-operations">
+              <div class="card-content">
+                <lrnsys-button on-tap="_backToStudio" icon="arrow-back" label="Back to studio" hover-class="amber darken-4 white-text"></lrnsys-button>
+                <lrnsys-button on-tap="_setEditRoute" icon="create" label="Edit" hover-class="amber darken-4 white-text"></lrnsys-button>
+              </div>
+            </paper-card>
             <!-- ----- Text Submission -----  -->
             <template is="dom-if" if="[[submission.attributes.body]]">
               <lrndesign-contentblock title="Text Submitted">
@@ -219,6 +231,9 @@
         endPoint: {
           type: String
         },
+        basePath: {
+          type: String,
+        },
         csrfToken: {
           type: String
         },
@@ -256,6 +271,15 @@
         '_paramsChanged(csrfToken)',
         '_bodyChanged(title)'
       ],
+      /**
+       * Go back to the studio relative to the app's path.
+       */
+      _backToStudio: function(e) {
+        window.location.href = this.basePath + 'lrnapp-open-studio';
+      },
+      /**
+       * Trigger the page router to invoke edit state.
+       */
       _setEditRoute: function(e) {
         this.set('route.path', 'edit');
       },

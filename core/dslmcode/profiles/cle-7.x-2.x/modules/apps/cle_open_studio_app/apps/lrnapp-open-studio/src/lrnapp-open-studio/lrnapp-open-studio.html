@@ -62,9 +62,9 @@
     </div>
     <app-toolbar class="amber lighten-3">
       <iron-selector selected="{{page}}" attr-for-selected="name" role="navigation">
-        <lrnsys-button name="submissions" href$="[[endPoint]]/submissions" icon="apps" label="Submissions" hover-class="amber darken-4 white-text"></lrnsys-button>
-        <lrnsys-button name="projects" href$="[[endPoint]]/projects" icon="folder" label="Projects" hover-class="amber darken-4 white-text"></lrnsys-button>
-        <lrnsys-button name="table" href$="[[endPoint]]/table" icon="view-list" label="Table" hover-class="amber darken-4 white-text"></lrnsys-button>
+        <a name="submissions" href$="[[endPoint]]/submissions"><lrnsys-button icon="apps" label="Submissions" hover-class="amber darken-4 white-text"></lrnsys-button></a>
+        <a name="projects" href$="[[endPoint]]/projects"><lrnsys-button icon="folder" label="Projects" hover-class="amber darken-4 white-text"></lrnsys-button></a>
+        <a name="table" href$="[[endPoint]]/table"><lrnsys-button icon="view-list" label="Table" hover-class="amber darken-4 white-text"></lrnsys-button></a>
       </iron-selector>
       <span main-title></span>
       <paper-dropdown-menu label="Author" hidden$="[[!submissions]]">
@@ -98,8 +98,8 @@
           </template>
         </iron-list>
       </div>
-      <div name="projects">This is supposed to be project centric!</div>
-      <lrnapp-open-studio-table name="table" submissions="[[_toArray(submissions.data)]"></lrnapp-open-studio-table>
+      <div name="projects">This is project centric!</div>
+      <lrnapp-open-studio-table name="table" base-path="[[basePath]]" submissions="[[_toArray(submissions.data)]]"></lrnapp-open-studio-table>
     </iron-pages>
     </div>
   </template>
@@ -115,7 +115,6 @@
           type: String,
           reflectToAttribute: true,
           notify: true,
-          observer: '_routePageChanged',
         },
         /**
          * The submissions to render

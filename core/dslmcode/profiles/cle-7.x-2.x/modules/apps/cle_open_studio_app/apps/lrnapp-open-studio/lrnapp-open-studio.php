@@ -25,11 +25,17 @@ function _cle_open_studio_app_data($machine_name, $app_route, $params, $args) {
     $data = _cis_connector_assemble_entity_list('node', 'cle_submission', 'nid', '_entity');
     foreach ($data as $item) {
       $return[$item->nid] = new stdClass();
+      $return[$item->nid]->id = $item->nid;
+      $return[$item->nid]->changed = Date("F j, Y, g:i a", $item->changed);
       $return[$item->nid]->title = $item->title;
-      $return[$item->nid]->comments = $item->comment_count;
+      $return[$item->nid]->comments = (!empty($item->comment_count) ? $item->comment_count : 0);
       $return[$item->nid]->author = $item->name;
       $return[$item->nid]->body = strip_tags($item->field_submission_text['und'][0]['safe_value']);
-      $return[$item->nid]->id = $item->nid;
+      $return[$item->nid]->images = array();
+      $return[$item->nid]->files = array();
+      $return[$item->nid]->videos = array();
+      $return[$item->nid]->links = array();
+      // append specific data about each output type
       if (!empty($item->field_images)) {
         $images = array();
         foreach ($item->field_images['und'] as $image) {

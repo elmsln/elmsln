@@ -190,29 +190,25 @@ that can pop up to display more info
         <!-- ----- Videos Submission -----  -->
         <template is="dom-if" if="{{_previewType(videos)}}">
           <div class="icon-submission">
-            <iron-icon class="big" icon="av:video-library">
-              </iron-icon>
+            <iron-icon class="big" icon="av:video-library"></iron-icon>
           </div>
         </template>
         <!-- ----- Files Submission -----  -->
         <template is="dom-if" if="{{_previewType(files)}}">
           <div class="icon-submission">
-            <iron-icon class="big" icon="icons:file-download">
-              </iron-icon>
+            <iron-icon class="big" icon="file-download"></iron-icon>
           </div>
         </template>
         <!-- ----- Link Submission -----  -->
         <template is="dom-if" if="{{_previewType(links)}}">
           <div class="icon-submission">
-            <iron-icon class="big" icon="icons:link">
-              </iron-icon>
+            <iron-icon class="big" icon="link"></iron-icon>
           </div>
         </template>
         <!-- ----- Text Submission -----  -->
         <template is="dom-if" if="{{_previewType(text)}}">
           <p class="icon-submission">
-           <iron-icon class="big" icon="icons:subject">
-              </iron-icon>
+           <iron-icon class="big" icon="subject"></iron-icon>
           </p>
         </template>
         <div class="submission-info">
@@ -346,7 +342,7 @@ that can pop up to display more info
           return false;
         }
         // if the item is defined then we should load that part of the template
-        if (typeof data !== 'undefined') {
+        if (typeof data !== 'undefined' && data.length > 0) {
           this.foundTypeMatch = true;
           return true;
         }

@@ -24,7 +24,7 @@
     </app-route>
 
     <template is="dom-if" if="[[data.submission]]">
-      <lrnapp-studio-submission-page route="{{tail}}" id="[[data.submission]]" end-point="[[endPoint]]" csrf-token="[[csrfToken]]" data="{{data}}"></lrnapp-studio-submission-page>
+      <lrnapp-studio-submission-page base-path="{{basePath}}" route="{{tail}}" id="[[data.submission]]" end-point="[[endPoint]]" csrf-token="[[csrfToken]]" data="{{data}}"></lrnapp-studio-submission-page>
     </template>
     <template is="dom-if" if="[[!data.submission]]">
       This is the lrnapp-studio-submission page.
@@ -41,7 +41,10 @@
       properties: {
         activePage: {
           type: String
-        }
+        },
+        basePath: {
+          type: String,
+        },
       },
       observers: [
         '_routeChanged(route, endPoint)'
