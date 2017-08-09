@@ -7,7 +7,6 @@ that can pop up to display more info
 
 <dom-module id="lrndesign-gallerycard">
   <template>
-    <google-webfont-loader fonts="Droid Sans,Droid Serif:700i,Anonymous Pro:700"></google-webfont-loader>
     <style>
        :host {
         display: inline-flex;
@@ -20,13 +19,14 @@ that can pop up to display more info
 
       paper-card {
         border-radius: 4px;
-        margin: 0.75rem;
-        width: 16rem;
+        margin: 0;
+        width: 100%;
       }
 
       .card-actions {
         background-color: #f5f5f5;
         border-radius: 0 0 4px 4px;
+        padding: .44em 1em;
       }
 
       .card-control-height {
@@ -49,21 +49,15 @@ that can pop up to display more info
         text-align: left;
       }
 
-      h1, h2, h3, h4 {
-        font-family: 'Open Sans', sans-serif;
-        margin: 0;
-        text-align: left;
-      }
-
       .title {
         color: #222;
-        font-size: 1.25rem;
+        font-size: 1rem;
         font-weight: 600;
         line-height: 1.25rem;
-        padding: 0.25rem 0;
+        padding: 0;
         overflow-x: hidden;
         text-overflow: ellipsis;
-        margin-top: 1rem;
+        margin-top: .5rem;
       }
 
       .student {
@@ -121,50 +115,15 @@ that can pop up to display more info
       }
 
       .big {
-        --iron-icon-height: 100%;
-        --iron-icon-width: 100%;
+        --iron-icon-height: 50%;
+        --iron-icon-width: 50%;
       }
 
      .avatar {
         padding-top: 2rem;
       }
-      
+
       /* Custom Tags */
-      lrnsys-dialog {
-        width: 100%;
-        position: relative;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-      }
-
-      lrnsys-dialog p {
-        width: 80%;
-        margin: 1em auto 1em auto;
-        text-align: left;
-      }
-
-      lrnsys-dialog .comments {
-        float: right;
-        margin: 0 4em 2em 0;
-      }
-
-      lrnsys-dialog .head {
-        width: 100%;
-        margin: auto;
-        text-align: center;
-      }
-
-      lrnsys-dialog .head h3 {
-        color: var(--paper-grey-600);
-      }
-
-      lrnsys-dialog.lrndesign-gallerycard p.lrndesign-gallerycard {
-        margin: 0;
-        text-align: left;
-        width: 100%;
-      }
-
 
       .contain {
         width: 10em;
@@ -185,13 +144,14 @@ that can pop up to display more info
       }
 
       .submission-info {
-        position: absolute;
-        bottom: 0;
+        width: 100%;
       }
 
       .card-content {
-        max-height: 8em;
+        padding: 0;
+        margin: 0;
         overflow: hidden;
+        text-align: center;
       }
 
       .image-set-submission {
@@ -203,7 +163,7 @@ that can pop up to display more info
 
       .image-quad {
           --iron-image-height: auto;
-          --iron-image-width: 100%;
+          --iron-image-width: 50%;
           flex-basis:100%;
         }
 
@@ -218,125 +178,53 @@ that can pop up to display more info
 
     </style>
     <paper-card elevation="[[elevation]]">
-      <lrnsys-dialog id="dialog">
-        <div slot="button" class="card-control-height card-control-center">
-          <div class="card-content">
-            <!-- ----- Images Submission -----  -->
-            <template is="dom-if" if="{{_previewType(images)}}">
-              <template is="dom-repeat" items="[[_toArray(images)]]" as="image">
-                <div class="image-set-submission">
-                  <iron-image class="image-quad" src="[[image]]"></iron-image>
-                </div>
-              </template>
-            </template>
-            <!-- ----- Videos Submission -----  -->
-            <template is="dom-if" if="{{_previewType(videos)}}">
-              <div class="icon-submission">
-                <iron-icon class="big" icon="av:video-library">
-                  </iron-icon>
-              </div>
-            </template>
-            <!-- ----- Files Submission -----  -->
-            <template is="dom-if" if="{{_previewType(files)}}">
-              <div class="icon-submission">
-                <iron-icon class="big" icon="icons:file-download">
-                  </iron-icon>
-              </div>
-            </template>
-            <!-- ----- Link Submission -----  -->
-            <template is="dom-if" if="{{_previewType(links)}}">
-              <div class="icon-submission">
-                <iron-icon class="big" icon="icons:link">
-                  </iron-icon>
-              </div>
-            </template>
-            <!-- ----- Text Submission -----  -->
-            <template is="dom-if" if="{{_previewType(text)}}">
-              <p class="icon-submission">
-               <iron-icon class="big" icon="icons:subject">
-                  </iron-icon>
-              </p>
-            </template>
+      <div class="card-content card-control-height card-control-center">
+        <!-- ----- Images Submission -----  -->
+        <template is="dom-if" if="{{_previewType(images)}}">
+          <template is="dom-repeat" items="[[_toArray(images)]]" as="image">
+            <div class="image-set-submission">
+              <iron-image class="image-quad" src="[[image]]"></iron-image>
+            </div>
+          </template>
+        </template>
+        <!-- ----- Videos Submission -----  -->
+        <template is="dom-if" if="{{_previewType(videos)}}">
+          <div class="icon-submission">
+            <iron-icon class="big" icon="av:video-library">
+              </iron-icon>
           </div>
-
-          <div class="submission-info">
-            <div class=divider></div>
-            <h1 class="title">[[title]]</h1>
-            <h2 class="student">[[author]]</h2>
+        </template>
+        <!-- ----- Files Submission -----  -->
+        <template is="dom-if" if="{{_previewType(files)}}">
+          <div class="icon-submission">
+            <iron-icon class="big" icon="icons:file-download">
+              </iron-icon>
           </div>
-
+        </template>
+        <!-- ----- Link Submission -----  -->
+        <template is="dom-if" if="{{_previewType(links)}}">
+          <div class="icon-submission">
+            <iron-icon class="big" icon="icons:link">
+              </iron-icon>
+          </div>
+        </template>
+        <!-- ----- Text Submission -----  -->
+        <template is="dom-if" if="{{_previewType(text)}}">
+          <p class="icon-submission">
+           <iron-icon class="big" icon="icons:subject">
+              </iron-icon>
+          </p>
+        </template>
+        <div class="submission-info">
+          <div class=divider></div>
+          <span class="title">[[title]]</span>
         </div>
-        <div class="header" slot="header">
-          <div class="head text-center">
-            <lrndesign-avatar class="avatar" label="{{author}}"></lrndesign-avatar>
-            <h1 class="student text-center">{{author}}</h1>
-            <!-- Need to pull the projectTitle -->
-            <h2 class="title text-center">Project Title</h2>
-          </div>
-        </div>
-        <!-- slot for content of the modal -->
-        <span slot="content">
-          <h3 class="assignment text-center">{{title}}</h3>
-          <!-- ----- Images Submission -----  -->
-          <template is="dom-if" if="{{images}}">
-            <div class="center">
-              <h4>Images Submitted</h4>
-              <template is="dom-repeat" items="[[_toArray(images)]]">
-                <lrnsys-dialog class="inline-dialog-trigger inline">
-                  <iron-image slot="button" sizing="contain" class="contain" src="[[item]]"></iron-image>
-                  <iron-image src="[[item]]"></iron-image>
-                </lrnsys-dialog>
-              </template>
-            </div>
-          </template>
-          <!-- ----- Videos Submission -----  -->
-          <template is="dom-if" if="{{videos}}">
-            <div class="center">
-              <h4>Videos Submitted</h4>
-              <template is="dom-repeat" items="[[_toArray(videos)]]">
-                <iframe src="[[item]]"></iframe>
-              </template>
-            </div>
-          </template>
-          <!-- ----- Text Submission -----  -->
-          <template is="dom-if" if="{{text}}">
-            <p>{{text}}</p>
-          </template>
-          <!-- ----- Links Submission -----  -->
-          <template is="dom-if" if="{{links}}">
-            <div class="center">
-              <h4 class="text-left">Links Submitted</h4>
-              <ul>
-              <template is="dom-repeat" items="[[_toArray(links)]]">
-                <li>
-                <a class="link" href="[[item]]"><lrn-icon icon="online"></lrn-icon>[[item]]</a>
-                </li>
-              </template>
-              </ul>
-            </div>
-          </template>
-          <!-- ----- Files Submission -----  -->
-          <template is="dom-if" if="{{files}}">
-            <div class="center">
-              <h4 class="text-left">Files Submitted</h4>
-              <ul>
-              <template is="dom-repeat" items="[[_toArray(files)]]">
-                <li>
-                <a class="link" href="[[item]]" target="_blank">[[item]]</a>
-                </li>
-              </template>
-              </ul>
-            </div>
-          </template>
-          <a href="{{url}}" tabindex="-1"><span class="comments">[[comments]]<lrn-icon icon="comment"></lrn-icon></span></a>
-        <hr class="divider">
-        </span>
-      </lrnsys-dialog>
+      </div>
       <div class="card-actions">
-        <h3 class="comments text-right">Comments: [[comments]]</h3>
+        <span class="text-left author">[[author]]</span>
+        <span class="comments text-right">Comments: [[comments]]</span>
       </div>
     </paper-card>
-    <iron-ajax params="{}" id="ajaxRequest" url="{{url}}" handle-as="json" on-response="_handleReturnedData"></iron-ajax>
   </template>
   <script>
     Polymer({
@@ -351,7 +239,6 @@ that can pop up to display more info
          */
         images: {
           type: Object,
-          reflectToAttribute: true,
           notify: true,
         },
         /**
@@ -359,7 +246,6 @@ that can pop up to display more info
          */
         files: {
           type: Object,
-          reflectToAttribute: true,
           notify: true,
         },
         /**
@@ -367,7 +253,6 @@ that can pop up to display more info
          */
         text: {
           type: String,
-          reflectToAttribute: true,
           notify: true,
         },
         /**
@@ -375,7 +260,6 @@ that can pop up to display more info
          */
         links: {
           type: Object,
-          reflectToAttribute: true,
           notify: true,
         },
         /**
@@ -383,7 +267,6 @@ that can pop up to display more info
          */
         videos: {
           type: Object,
-          reflectToAttribute: true,
           notify: true,
         },
         /**
@@ -392,7 +275,6 @@ that can pop up to display more info
         title: {
           type: String,
           value: 'Project',
-          reflectToAttribute: true,
           notify: true,
         },
         /**
@@ -401,7 +283,6 @@ that can pop up to display more info
         author: {
           type: String,
           value: 'Author',
-          reflectToAttribute: true,
           notify: true,
         },
         /**
@@ -410,14 +291,6 @@ that can pop up to display more info
         elevation: {
           type: Number,
           value: 0,
-          reflectToAttribute: true,
-          notify: true,
-        },
-        /**
-         * URL to the gallery itself
-         */
-        url: {
-          type: String,
           reflectToAttribute: true,
           notify: true,
         },
@@ -456,16 +329,6 @@ that can pop up to display more info
       },
       _mouseLeave: function (e) {
         this.elevation -= 1;
-      },
-      ready: function () {
-        let root = this;
-        root.$$('#dialog').addEventListener('click', function (e) {
-          let root = this;
-          // support remote url loading
-          if (typeof this.url !== "undefined") {
-            root.$$('#ajaxRequest').generateRequest();
-          }
-        });
       },
       _toArray: function (obj) {
         return Object.keys(obj).map(function (key) {

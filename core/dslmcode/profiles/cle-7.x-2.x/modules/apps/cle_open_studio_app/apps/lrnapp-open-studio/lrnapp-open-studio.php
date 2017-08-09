@@ -29,8 +29,7 @@ function _cle_open_studio_app_data($machine_name, $app_route, $params, $args) {
       $return[$item->nid]->comments = $item->comment_count;
       $return[$item->nid]->author = $item->name;
       $return[$item->nid]->body = strip_tags($item->field_submission_text['und'][0]['safe_value']);
-      $return[$item->nid]->url = base_path() . $app_route . '/data?nid=' . $item->nid . '&token=' . drupal_get_token('webcomponentapp');
-      $return[$item->nid]->view_url = base_path() . 'node/' . $item->nid . '#comments';
+      $return[$item->nid]->id = $item->nid;
       if (!empty($item->field_images)) {
         $images = array();
         foreach ($item->field_images['und'] as $image) {
