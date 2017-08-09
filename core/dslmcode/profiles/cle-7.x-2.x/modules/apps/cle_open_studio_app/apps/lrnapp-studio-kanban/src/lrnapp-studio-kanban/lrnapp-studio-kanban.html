@@ -159,7 +159,7 @@
               Add another assignment
             </div>
           </lrnsys-dialog>
-          <lrnsys-button id$="project-[[project.id]]-delete" alt="Delete project!" class="circle operation" hover-class="red darken-2 white-text" header="Delete project!" hidden="[[!project.metadata.canDelete]]" icon="delete-forever" href$="[[project.metadata.deleteLink]]">
+          <lrnsys-button id$="project-[[project.id]]-delete" alt="Delete project!" class="circle operation" hover-class="red darken-2 white-text" header="Delete project!" hidden="[[!project.metadata.canDelete]]" icon="delete-forever" href$="[[project.metadata.deleteLink]]" icon-class="no-margin">
           </lrnsys-dialog>
         </div>
         <div class="card-content">
@@ -199,9 +199,9 @@
                  </div>
               </lrnsys-dialog>
               <span class="assignment-operations">
-                <lrnsys-button id$="assignment-[[project.id]]-[[assignment.id]]-add-critique" icon="editor:insert-comment" alt="Add critique" class="circle operation" hover-class="green lighten-2" hidden="[[!assignment.metadata.canCritique]]" href$="[[assignment.metadata.critiqueLink]]"></lrnsys-button>
-                <lrnsys-button id$="assignment-[[project.id]]-[[assignment.id]]-edit" icon="editor:mode-edit" alt="Edit" class="circle operation" hover-class="amber lighten-2" hidden="[[!assignment.metadata.canUpdate]]" href$="[[assignment.links.update]]"></lrnsys-button>
-                <lrnsys-button id$="assignment-[[project.id]]-[[assignment.id]]-delete" icon="delete" alt="Delete" class="circle operation" hover-class="red darken-2 white-text" hidden="[[!assignment.metadata.canDelete]]" href$="[[assignment.links.delete]]"></lrnsys-button>
+                <lrnsys-button id$="assignment-[[project.id]]-[[assignment.id]]-add-critique" icon="editor:insert-comment" alt="Add critique" class="circle operation" hover-class="green lighten-2" hidden="[[!assignment.metadata.canCritique]]" href$="[[assignment.metadata.critiqueLink]]" icon-class="no-margin"></lrnsys-button>
+                <lrnsys-button id$="assignment-[[project.id]]-[[assignment.id]]-edit" icon="editor:mode-edit" alt="Edit" class="circle operation" hover-class="amber lighten-4" hidden="[[!assignment.metadata.canUpdate]]" href$="[[assignment.links.update]]" icon-class="no-margin green-text text-darken-4"></lrnsys-button>
+                <lrnsys-button id$="assignment-[[project.id]]-[[assignment.id]]-delete" icon="delete" alt="Delete" class="circle operation" hover-class="amber lighten-4" hidden="[[!assignment.metadata.canDelete]]" href$="[[assignment.links.delete]]" icon-class="no-margin red-text text-darken-4"></lrnsys-button>
               </span>
             </div>
             </template>

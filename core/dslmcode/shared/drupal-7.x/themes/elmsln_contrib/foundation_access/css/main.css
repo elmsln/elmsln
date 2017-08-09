@@ -8268,8 +8268,11 @@ paper-toast#toastdrawer {
   padding: 0 .25rem;
   display: flex;
 }
+#etb-course-nav .top-bar li a paper-button div.inner,
 #etb-course-nav .top-bar li a paper-button span.label {
   height: unset;
+  padding: 0;
+  margin: 0;
 }
 lrnsys-button paper-button {
   height: inherit;

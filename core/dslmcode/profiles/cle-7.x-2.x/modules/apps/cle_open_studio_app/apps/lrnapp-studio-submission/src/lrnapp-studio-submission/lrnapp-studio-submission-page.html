@@ -15,6 +15,10 @@
         font-size: 14px;
         line-height: 18px;
       }
+      h1 {
+        margin: 0;
+        text-align: left;
+      }
 
       iron-selector {
         line-height: 1em;
@@ -44,14 +48,6 @@
       .center {
         margin: auto;
         width: 100%;
-      }
-
-      h1,
-      h2,
-      h3,
-      h4 {
-        margin: 0;
-        text-align: left;
       }
 
       .title {
@@ -88,6 +84,7 @@
       .flex-wrap {
         display: flex;
       }
+
       .submission-page-wrapper {
         padding: 0 1em;
       }
@@ -111,18 +108,6 @@
         padding: 0;
         margin: 0;
       }
-      .top-operations {
-        position: absolute;
-        top: 0;
-        right: 0;
-        width: unset !important;
-        padding: 0;
-        margin: 0;
-        text-align: right;
-      }
-      .top-operations lrnsys-button {
-        display: inline-flex;
-      }
     </style>
 
     <app-route route="{{route}}" pattern="/edit" tail="{{tail}}" active="{{editPage}}">
@@ -131,6 +116,18 @@
 
     <iron-ajax id="ajaxRequest" auto url="[[reqUrl]]" method="GET" body="[[reqBody]]" params="[[reqParams]]" content-type="application/json"
       handle-as="json" on-response="_handleResponse"></iron-ajax>
+    <app-header reveals shadow effects="waterfall">
+      <app-toolbar class="amber lighten-3" sticky>
+        <lrnsys-button on-tap="_backToStudio" icon="arrow-back" label="Back to studio" hover-class="amber darken-4 white-text"></lrnsys-button>
+        <div main-title>[[submission.attributes.title]]</div>
+        <div hidden$="[[editPage]]">
+          <lrnsys-button on-tap="_setEditRoute" icon="create" label="Edit" hover-class="amber darken-4 white-text" hidden$="[[!submission.meta.canUpdate]]"></lrnsys-button>
+        </div>
+        <div hidden$="[[!editPage]]">
+          <lrnsys-button on-tap="_resetRoute" icon="cancel" label="Cancel" hover-class="amber darken-4 white-text" hidden$="[[!submission.meta.canUpdate]]"></lrnsys-button>
+        </div>
+      </app-toolbar>
+    </app-header>
     <div class="flex-wrap submission-page-wrapper">
       <template is="dom-if" if="[[!editPage]]">
         <div class="submission-comments">
@@ -141,35 +138,11 @@
         <paper-card class="submission-page-card">
         <div class="card-content">
           <template is="dom-if" if="[[editPage]]">
-            <app-toolbar class$="[[submission.meta.color]]">
-              <div>
-                <iron-icon icon="[[submission.meta.icon]]"></iron-icon>
-                {{submission.attributes.title}}
-              </div>
-              <div spacer class="comment-box" hidden$="[[!submission.id]]">
-                <paper-button id="submission-comments-overview" style="margin:0;padding:.25em;text-transform:none;">
-                  <iron-icon icon="communication:forum"></iron-icon>
-                  [[submission.meta.comment_count]] Comments
-                </paper-button>
-                <paper-badge hidden$="[[displayNewBadge(submission.meta.comment_new)]]" for="submission-comments-overview" label$="[[submission.meta.comment_new]]"></paper-badge>
-              </div>
-              <div main-title></div>
-              <span></span>
-              <div bottom-item class="status-rationale">
-                [[assignment.metadata.relatedSubmissions.complete.rationale.text]]
-              </div>
-            </app-toolbar>
             <lrnapp-studio-submission-edit submission="{{submission}}" id="[[id]]" end-point="[[endPoint]]" csrf-token="[[csrfToken]]" on-updated="_submissionUpdated"></lrnapp-studio-submission-edit>
           </template>
           <template is="dom-if" if="[[!editPage]]">
             <h1 class="title">{{submission.attributes.title}}</h1>
             <div class="author">By: {{submission.relationships.author.data.name}}</div>
-            <paper-card class="top-operations">
-              <div class="card-content">
-                <lrnsys-button on-tap="_backToStudio" icon="arrow-back" label="Back to studio" hover-class="amber darken-4 white-text"></lrnsys-button>
-                <lrnsys-button on-tap="_setEditRoute" icon="create" label="Edit" hover-class="amber darken-4 white-text"></lrnsys-button>
-              </div>
-            </paper-card>
             <!-- ----- Text Submission -----  -->
             <template is="dom-if" if="[[submission.attributes.body]]">
               <lrndesign-contentblock title="Text Submitted">
@@ -284,6 +257,12 @@
         this.set('route.path', 'edit');
       },
       /**
+       * Trigger the page router to invoke edit state.
+       */
+      _resetRoute: function(e) {
+        this.set('route.path', '');
+      },
+      /**
        * if we should show new badge based on new comment count.
        */
       displayNewBadge: function(count) {
@@ -317,7 +296,6 @@
       },
       _submissionUpdated: function (e) {
         var type = e.detail.type;
-        console.log(type);
         if (type === 'update') {
           // navigate to the main page
           this.set('route.path', '');

@@ -22,41 +22,59 @@ function _cle_open_studio_app_data($machine_name, $app_route, $params, $args) {
     // sort by most recent
     // ... ugh... this is more complex then this
     // pull together all the submissions they should be seeing
-    $data = _cis_connector_assemble_entity_list('node', 'cle_submission', 'nid', '_entity');
+    $section_id = _cis_connector_section_context();
+    $section = _cis_section_load_section_by_id($section_id);
+    $field_conditions = array(
+      'og_group_ref' => array('target_id', $section, '='),
+    );
+    $property_conditions = array('status' => array(NODE_PUBLISHED, '='));
+    $orderby = array('property' => array(array('changed', 'DESC')));
+    $data = _cis_connector_assemble_entity_list('node', 'cle_submission', 'nid', '_entity', $field_conditions, $property_conditions, $orderby);
     foreach ($data as $item) {
-      $return[$item->nid] = new stdClass();
-      $return[$item->nid]->id = $item->nid;
-      $return[$item->nid]->changed = Date("F j, Y, g:i a", $item->changed);
-      $return[$item->nid]->title = $item->title;
-      $return[$item->nid]->comments = (!empty($item->comment_count) ? $item->comment_count : 0);
-      $return[$item->nid]->author = $item->name;
-      $return[$item->nid]->body = strip_tags($item->field_submission_text['und'][0]['safe_value']);
-      $return[$item->nid]->images = array();
-      $return[$item->nid]->files = array();
-      $return[$item->nid]->videos = array();
-      $return[$item->nid]->links = array();
+      $key = 'node-' . $item->nid;
+      $return[$key] = new stdClass();
+      $return[$key]->image = NULL;
+      $return[$key]->icon = FALSE;
+      $return[$key]->images = array();
+      $return[$key]->files = array();
+      $return[$key]->videos = array();
+      $return[$key]->links = array();
+      $return[$key]->id = $item->nid;
+      $return[$key]->changed = Date("F j, Y, g:i a", $item->changed);
+      $return[$key]->title = $item->title;
+      $return[$key]->comments = (!empty($item->comment_count) ? $item->comment_count : 0);
+      $return[$key]->author = $item->name;
+      $return[$key]->body = strip_tags($item->field_submission_text['und'][0]['safe_value']);
+      if (!empty($return[$item->nid]->body)) {
+        $return[$key]->icon = 'subject';
+      }
       // append specific data about each output type
-      if (!empty($item->field_images)) {
+      if (isset($item->field_files['und'])) {
+        foreach ($item->field_files['und'] as $file) {
+          $return[$key]->files[] = file_create_url($file['uri']);
+        }
+        $return[$key]->icon = 'file-download';
+      }
+      if (isset($item->field_links['und'])) {
+        foreach ($item->field_links['und'] as $link) {
+          $return[$key]->links[] = $link['url'];
+        }
+        $return[$key]->icon = 'link';
+      }
+      if (isset($item->field_video['und'])) {
+        foreach ($item->field_video['und'] as $video) {
+          $return[$key]->videos[] = $video['video_url'];
+        }
+        $return[$key]->icon = 'av:video-library';
+      }
+      if (isset($item->field_images['und'])) {
         $images = array();
         foreach ($item->field_images['und'] as $image) {
           $images[] = file_create_url($image['uri']);
         }
-        $return[$item->nid]->images = $images;
-      }
-      if (!empty($item->field_files)) {
-        foreach ($item->field_files['und'] as $file) {
-          $return[$item->nid]->files[] = file_create_url($file['uri']);
-        }
-      }
-      if (!empty($item->field_video)) {
-        foreach ($item->field_video['und'] as $video) {
-          $return[$item->nid]->videos[] = $video['video_url'];
-        }
-      }
-      if (!empty($item->field_links)) {
-        foreach ($item->field_links['und'] as $link) {
-          $return[$item->nid]->links[] = $link['url'];
-        }
+        $return[$key]->images = $images;
+        $return[$key]->image = array_pop($images);
+        $return[$key]->icon = FALSE;
       }
     }
   }

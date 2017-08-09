@@ -123,7 +123,8 @@
   <?php endif; ?>
   <?php if ($bar_elements['network']) : ?>
     <li class="elmsln-network-menu-item right">
-      <lrnsys-drawer class="middle-align-wrap elmsln-network-button black-text" align="right" icon="network" text="<?php print t('More tools'); ?>" header="<?php print t('More tools'); ?>" data-jwerty-key="n" data-voicecommand="open network" hover-class="<?php print $lmsless_classes[$network['active']['distro']]['color'] . ' ' . $lmsless_classes[$network['active']['distro']]['dark'];?> white-text">
+      <lrnsys-drawer class="middle-align-wrap elmsln-network-button black-text" align="right" header="<?php print t('Applications'); ?>" data-jwerty-key="o+a" data-voicecommand="open applications" hover-class="<?php print $lmsless_classes[$network['active']['distro']]['color'] . ' ' . $lmsless_classes[$network['active']['distro']]['dark'];?> white-text">
+        <span slot="button"><iron-icon icon="apps"></iron-icon><?php print t('More apps'); ?></span>
         <div slot="content" class="elmsln-modal-content elmsln-network-modal">
           <?php print $network_block;?>
         </div>

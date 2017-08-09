@@ -92,7 +92,7 @@
         <iron-list items="[[_toArray(submissions.data)]]" as="item" grid>
           <template>
           <paper-button class="gallerycard-wrapper" on-tap="_loadSubmissionUrl">
-            <lrndesign-gallerycard data-submission-id$="[[item.id]]" title="[[item.title]]" text="[[item.body]]" url="[[endPoint]]" author="[[item.author]]" comments="[[item.comments]]" images="[[item.images]]" files="[[item.files]]" videos="[[item.videos]]" links="[[item.links]]">
+            <lrndesign-gallerycard data-submission-id$="[[item.id]]" title="[[item.title]]" author="[[item.author]]" comments="[[item.comments]]" image="[[item.image]]" icon="[[item.icon]]">
             </lrndesign-gallerycard>
           </paper-button>
           </template>
@@ -115,6 +115,7 @@
           type: String,
           reflectToAttribute: true,
           notify: true,
+          observer: '_routePageChanged',
         },
         /**
          * The submissions to render

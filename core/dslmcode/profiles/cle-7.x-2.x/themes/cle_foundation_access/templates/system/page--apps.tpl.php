@@ -74,7 +74,7 @@
           </ul>
         </div>
       </div>
-      <div class="elmsln-content-wrap">
+      <div>
         <div role="main">
           <?php if (!empty($page['highlighted'])): ?>
             <div class="highlighted-block-area">
