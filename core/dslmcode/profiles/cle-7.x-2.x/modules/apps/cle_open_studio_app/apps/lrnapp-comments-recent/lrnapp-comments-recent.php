@@ -20,7 +20,7 @@ function _elmsln_lrnapp_comments_recent($machine_name, $app_route, $params, $arg
 	    $comments[$comment->cid] = array(
 	    	'title' => $comment->subject,
 	    	'body' => $comment->comment_body['und'][0]['safe_value'],
-	    	'view' => base_path() . 'comment/'. $comment->cid .'#comment-' . $comment->cid,
+	    	'view' => base_path() . 'apps/lrnapp-studio-submission/submissions/' . $comment->nid,
         'date' => date('m/d h:m A', $comment->changed),
         'username' => $comment->name,
 	    );

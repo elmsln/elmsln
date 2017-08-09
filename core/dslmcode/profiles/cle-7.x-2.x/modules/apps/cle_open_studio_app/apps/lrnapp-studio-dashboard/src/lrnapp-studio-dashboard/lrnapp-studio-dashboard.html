@@ -1,3 +1,4 @@
+<link rel="import" href="../../../lrnapp-comments-recent/src/lrnapp-comments-recent/lrnapp-comments-recent.html">
 
 <dom-module id="lrnapp-studio-dashboard">
   <template>
@@ -44,85 +45,38 @@
         flex: 0 0 auto;
       }
     </style>
-    <iron-ajax id="ajax"
-      url="[[sourcePath]]"
-      params=''
-      handle-as="json"
-      last-response="{{dataset}}"></iron-ajax>
-    <template is="dom-repeat" items="[[_toArray(dataset.blocks)]]" as="block">
-
-    </template>
-    <div id="notes">
-      <paper-card heading="bto108" class="cyan">
-        <lrndesign-avatar label="bto108"></lrndesign-avatar>
-        <div class="card-actions">
-          <paper-icon-button icon="communication:call" style="color:white;"></paper-icon-button>
-          <span>Last post: 2017</span>
-        </div>
-      </paper-card>
-      <paper-card class="dark">
+      <paper-card heading="Recent comments">
         <div class="card-content">
-          <p>Groceries:</p>
-          <paper-checkbox>almond milk</paper-checkbox>
-          <paper-checkbox>coconut water</paper-checkbox>
-          <paper-checkbox>cheese</paper-checkbox>
-          <paper-checkbox>green apples</paper-checkbox>
-        </div>
-        <div class="card-actions">
-          <paper-icon-button icon="communication:location-on" style="color:white"></paper-icon-button>
-          <span>Campbell</span>
+          <lrnapp-comments-recent csrf-token="[[csrfToken]]" end-point="[[_getEndPoint(basePath)]]" base-path="[[basePath]]" data-source="[[_getDataSource(csrfToken, basePath)]]">
+          </lrnapp-comments-recent>
         </div>
       </paper-card>
-      <paper-card heading="clean desk" class="lime"></paper-card>
-      <paper-card image="./donuts.png" alt="Donuts" class="amber">
-        <div class="card-content">New cafe opened on Valencia St.</div>
-      </paper-card>
-      <paper-card heading="Yuna tickets on sale 6/24" class="cyan">
-      </paper-card>
-    </div>
-    <custom-style>
-  <style is="custom-style">
-    paper-card.white {
-      --paper-card-header-color: #fff;
-    }
-  </style>
-</custom-style>
-<paper-card heading="Pre-fab homes" image="./house.png" alt="House" class="white" style="margin-bottom:8px;">
-  <div class="card-actions">
-    <paper-icon-button icon="favorite"></paper-icon-button>
-    <paper-icon-button icon="bookmark"></paper-icon-button>
-    <paper-icon-button icon="social:share"></paper-icon-button>
-  </div>
-</paper-card>
-<div class="horizontal">
-  <paper-card heading="Favorite trips" image="./trip.png" alt="Trip" class="white" style="margin-right:4px;">
-    <div class="card-actions horizontal justified">
-      <paper-icon-button icon="favorite"></paper-icon-button>
-      <paper-icon-button icon="bookmark"></paper-icon-button>
-      <paper-icon-button icon="social:share"></paper-icon-button>
-    </div>
-  </paper-card>
-  <paper-card heading="Best airlines" image="./travel.png" alt="Travel" class="white" style="margin-left:4px;">
-    <div class="card-actions horizontal justified">
-      <paper-icon-button icon="favorite"></paper-icon-button>
-      <paper-icon-button icon="bookmark"></paper-icon-button>
-      <paper-icon-button icon="social:share"></paper-icon-button>
-    </div>
-  </paper-card>
-</div>
   </template>
   <script>
     Polymer({
       is: 'lrnapp-studio-dashboard',
       properties: {
+        basePath: {
+          type: String,
+          notify: true,
+          reflectToAttribute: true,
+        },
+        csrfToken: {
+          type: String,
+          notify: true,
+          reflectToAttribute: true,
+        },
         sourcePath: {
           type: String,
           notify: true,
-        },
-        dataset: {
-          type: Array,
-          notify: true,
+          reflectToAttribute: true,
         }
+      },
+      _getEndPoint: function(basePath) {
+        return basePath + 'lrnapp-comments-recent';
+      },
+      _getDataSource: function(csrfToken, basePath) {
+        return basePath + 'lrnapp-comments-recent/data?token=' + csrfToken;
       },
       /**
        * Simple way to convert from object to array.

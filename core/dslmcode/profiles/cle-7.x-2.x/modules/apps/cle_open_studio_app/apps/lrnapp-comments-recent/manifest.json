@@ -6,10 +6,7 @@
   "display": "standalone",
   "app_integration": {
     "title": "Recent comments",
-    "menu": {
-      "menu_name": "menu-elmsln-navigation",
-      "weight": 10
-    },
+    "block": true,
     "endpoints": {
       "data": {
         "callback": "_elmsln_lrnapp_comments_recent",

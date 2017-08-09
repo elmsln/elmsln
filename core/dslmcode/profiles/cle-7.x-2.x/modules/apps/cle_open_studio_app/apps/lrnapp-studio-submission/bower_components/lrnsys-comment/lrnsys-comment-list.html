@@ -41,7 +41,6 @@ A listing and event handling for comments.
     <iron-ajax id="ajaxLikeRequest" url="[[reqUrl]]" method="PATCH" body="[[activeComment]]" content-type="application/json"
       handle-as="json" on-response="_handleLikeResponse"></iron-ajax>
     <app-toolbar>
-      <h3 main-title class="title">[[comments.data.length]] Comments</h3>
       <lrnsys-button class="comment-button" raised on-click="handleTopReply" id="leave-comment" icon="reply" hover-class="blue white-text" label="Add comment"></lrnsys-button>
     </app-toolbar>
     <iron-list id="commentlist" items="[[_toArray(comments.data)]]">

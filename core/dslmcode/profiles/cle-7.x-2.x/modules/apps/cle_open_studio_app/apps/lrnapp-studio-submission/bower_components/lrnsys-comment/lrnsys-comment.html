@@ -91,7 +91,8 @@ A well styled comment for a user with markdown support.
         border-radius: 50% !important;
       }
       .card-actions {
-        margin-top: .5em;
+        margin: .5em 0 0 0;
+        padding: 0;
       }
       .card-actions lrnsys-button {
         display: inline-flex;
@@ -100,6 +101,7 @@ A well styled comment for a user with markdown support.
         margin: 0;
         padding: 0;
         display: inline-flex;
+        width: 35%;
       }
       .card-actions .card-actions-group.left-actions {
         float: left;
@@ -165,20 +167,12 @@ A well styled comment for a user with markdown support.
       </div>
       <div class="card-actions">
         <div class="card-actions-group left-actions">
-          <template is="dom-if" if="[[comment.actions.reply]]">
-            <lrnsys-button on-click="actionHandler" id="reply" data-commentid="[[comment.id]]" alt="Reply" icon="reply" class="circle" hover-class="[[hoverClass]]"></lrnsys-button>
-          </template>
-          <template is="dom-if" if="[[comment.actions.like]]">
-            <lrnsys-button on-click="actionHandler" id="like" data-commentid="[[comment.id]]" alt="Like" icon="thumb-up" class="circle" hover-class="[[hoverClass]]"></lrnsys-button>
-          </template>
+          <lrnsys-button on-click="actionHandler" id="reply" data-commentid="[[comment.id]]" alt="Reply" icon="reply" class="circle" hover-class="[[hoverClass]]" icon-class="blue-text no-margin" hidden$="[[!comment.actions.reply]]"></lrnsys-button>
+          <lrnsys-button on-click="actionHandler" id="like" data-commentid="[[comment.id]]" alt="Like" icon="thumb-up" class="circle" hover-class="[[hoverClass]]" icon-class="blue-text no-margin" hidden$="[[!comment.actions.like]]"></lrnsys-button>
         </div>
         <div class="card-actions-group right-actions">
-          <template is="dom-if" if="[[comment.actions.edit]]">
-            <lrnsys-button on-click="actionHandler" id="edit" data-commentid="[[comment.id]]" icon="create" class="circle" alt="Edit" hover-class="[[hoverClass]]"></lrnsys-button>
-          </template>
-          <template is="dom-if" if="[[comment.actions.delete]]">
-            <lrnsys-button on-click="actionHandler" id="delete" data-commentid="[[comment.id]]" icon="delete-forever" class="circle" alt="Delete" hover-class="[[hoverClass]]"></lrnsys-button>
-          </template>
+          <lrnsys-button on-click="actionHandler" id="edit" data-commentid="[[comment.id]]" icon="create" class="circle" alt="Edit" hover-class="[[hoverClass]]" icon-class="blue-text no-margin" hidden$="[[!comment.actions.edit]]"></lrnsys-button>
+          <lrnsys-button on-click="actionHandler" id="delete" data-commentid="[[comment.id]]" icon="delete-forever" class="circle" alt="Delete" hover-class="[[hoverClass]]" icon-class="blue-text no-margin" hidden$="[[!comment.actions.delete]]"></lrnsys-button>
         </div>
       </div>
     </paper-card>
