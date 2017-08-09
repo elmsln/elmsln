@@ -15,13 +15,11 @@ Usage:
     </style>
 
     <template is="dom-if" if="[[!submissionId]]">
-      <paper-button raised on-click="_createSubmission">Create Submission</paper-button>
+      <lrnsys-button raised on-tap="_createSubmission" label="Create submission" href$="[[_submissionUrl()]]"></lrnsys-button>
       <iron-ajax id="ajaxCreateStub" url="[[createStubUrl]]" method="POST" body="[[assignmentId]]" handle-as="json" on-response="_ajaxCreateStubHandler"></iron-ajax>
     </template>
     <template is="dom-if" if="[[submissionId]]">
-      <a href="[[_submissionUrl()]]">
-        <paper-button raised>View Submission</paper-button>
-      </a>
+      <lrnsys-button raised label="View submission" href$="[[_submissionUrl()]]"></lrnsys-button>
     </template>
   </template>
   <script>
