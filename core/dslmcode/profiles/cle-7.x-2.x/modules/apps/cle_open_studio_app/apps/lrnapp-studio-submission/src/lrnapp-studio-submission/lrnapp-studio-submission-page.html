@@ -150,7 +150,6 @@
               <div bottom-item class="status-rationale">
                 [[assignment.metadata.relatedSubmissions.complete.rationale.text]]
               </div>
-              <lrnsys-button name="edit" hidden$="{{editPage}}" on-tap="_setEditRoute" icon="apps" label="Submissions" hover-class="amber darken-4 white-text"></lrnsys-button>
             </app-toolbar>
             <lrnapp-studio-submission-edit submission="{{submission}}" id="[[id]]" end-point="[[endPoint]]" csrf-token="[[csrfToken]]" on-updated="_submissionUpdated"></lrnapp-studio-submission-edit>
           </template>
@@ -158,6 +157,7 @@
             <h1 class="title">{{submission.attributes.title}}</h1>
             <div class="author">By: {{submission.relationships.author.data.name}}</div>
             <div class="status">Status: {{submission.attributes.state}}</div> 
+            <lrnsys-button name="edit" on-tap="_setEditRoute" icon="create" label="Edit submission" hover-class="amber darken-4 white-text"></lrnsys-button>
             <!-- ----- Text Submission -----  -->
             <template is="dom-if" if="[[submission.attributes.body]]">
               <lrndesign-contentblock title="Text Submitted">
