@@ -15,11 +15,11 @@ Usage:
     </style>
 
     <template is="dom-if" if="[[!submissionId]]">
-      <lrnsys-button raised on-tap="_createSubmission" label="Create submission" href$="[[_submissionUrl()]]"></lrnsys-button>
+      <lrnsys-button raised on-tap="_createSubmission" label="Create submission" href$="[[_submissionUrl(submissionId)]]"></lrnsys-button>
       <iron-ajax id="ajaxCreateStub" url="[[createStubUrl]]" method="POST" body="[[assignmentId]]" handle-as="json" on-response="_ajaxCreateStubHandler"></iron-ajax>
     </template>
     <template is="dom-if" if="[[submissionId]]">
-      <lrnsys-button raised label="View submission" href$="[[_submissionUrl()]]"></lrnsys-button>
+      <lrnsys-button raised label="View submission" href$="[[_submissionUrl(submissionId)]]"></lrnsys-button>
     </template>
   </template>
   <script>
@@ -64,13 +64,13 @@ Usage:
             this.submissionId = submissionId;
             // auto implies we should just go there to the edit form after creation
             if (this.auto) {
-              window.location.href = this._submissionUrl() + '/edit';
+              window.location.href = this._submissionUrl(submissionId) + '/edit';
             }
           }
         }
       },
-      _submissionUrl: function () {
-        return this.endPoint + '/submissions/' + this.submissionId;
+      _submissionUrl: function (id) {
+        return this.endPoint + '/submissions/' + id;
       }
     });
   </script>

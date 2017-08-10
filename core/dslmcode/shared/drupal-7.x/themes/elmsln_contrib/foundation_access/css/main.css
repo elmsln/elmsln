@@ -1,4 +1,15 @@
 @charset "UTF-8";
+
+lrnsys-drawer,
+.elmsln-modal-content {
+  display: none;
+}
+lrnsys-drawer.x-scope,
+.x-scope .elmsln-modal-content,
+.elmsln-modal-container .elmsln-modal-content {
+  display: unset;
+}
+
 *,
 *:before,
 *.imagelightbox__close:after,

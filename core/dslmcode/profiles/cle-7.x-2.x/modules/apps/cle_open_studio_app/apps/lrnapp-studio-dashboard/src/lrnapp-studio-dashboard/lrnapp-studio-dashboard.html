@@ -8,6 +8,7 @@
     <style>
       :host {
         display: block;
+        padding: 0 2em;
       }
       h1.title {
         font-size: 2em;
@@ -32,19 +33,19 @@
       <h1 class="title">Welcome back [[username]]!</h1>
       <p class="para">Here's what's been going on in the studio</p>
       <div class="dashboard-row">
-        <paper-card heading="Active project" class="dashboard-item">
+        <paper-card heading="Your active project" class="dashboard-item">
           <div class="card-content">
             <lrnapp-block-recent-project csrf-token="[[csrfToken]]" end-point="[[_getEndPoint(basePath)]]" base-path="[[basePath]]" source-path="[[_getDataSource(csrfToken, basePath,'recent-project')]]">
             </lrnapp-block-recent-project>
           </div>
         </paper-card>
-        <paper-card heading="Recent submissions" class="dashboard-item">
+        <paper-card heading="Recent Studio submissions" class="dashboard-item">
           <div class="card-content">
             <lrnapp-block-recent-submissions csrf-token="[[csrfToken]]" end-point="[[_getEndPoint(basePath)]]" base-path="[[basePath]]" source-path="[[_getDataSource(csrfToken, basePath,'recent-submissions')]]">
             </lrnapp-block-recent-submissions>
           </div>
         </paper-card>
-        <paper-card heading="Recent comments" class="dashboard-item">
+        <paper-card heading="Recent Studio comments" class="dashboard-item">
           <div class="card-content">
             <lrnapp-block-recent-comments csrf-token="[[csrfToken]]" end-point="[[_getEndPoint(basePath)]]" base-path="[[basePath]]" source-path="[[_getDataSource(csrfToken, basePath,'recent-comments')]]">
             </lrnapp-block-recent-comments>

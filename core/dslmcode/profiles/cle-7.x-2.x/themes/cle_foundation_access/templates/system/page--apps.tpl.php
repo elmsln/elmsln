@@ -5,8 +5,6 @@
     <div class="page-scroll progress white">
       <span class="meter <?php print $cis_lmsless['lmsless_classes'][$distro]['color'] . ' ' .$cis_lmsless['lmsless_classes'][$distro]['dark'];?>" style="width: 0%"></span>
     </div>
-    <?php if (!empty($messages)): ?>
-    <?php endif; ?>
     <section class="main-section etb-book">
       <div class="r-header row">
         <div class="r-header__left">

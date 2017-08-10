@@ -160,7 +160,7 @@
       <template class="projects-container-items">
       <paper-card id$="project-[[project.id]]" class="project-card grey lighten-3" heading="{{project.attributes.title}}" elevation="2">
         <div class="project-operations">
-          <lrnsys-button body-append id$="project-[[project.id]]-add" alt="Add assignment" class="circle operation" hover-class="amber lighten-2" hidden="[[!project.meta.canUpdate]]" icon="add" href$="[[_makeAddLink(project.id)]]">
+          <lrnsys-button icon-class="no-margin" id$="project-[[project.id]]-add" alt="Add assignment" class="circle operation" hover-class="amber lighten-2" hidden="[[!project.meta.canUpdate]]" icon="add" href$="[[_makeAddLink(project.id)]]">
           </lrnsys-button>
           <lrnsys-button id$="project-[[project.id]]-delete" alt="Delete project!" class="circle operation" hover-class="red darken-2 white-text" header="Delete project!" hidden="[[!project.meta.canDelete]]" icon="delete-forever" href$="[[_makeDeleteLink(project.id)]]" icon-class="no-margin">
           </lrnsys-dialog>

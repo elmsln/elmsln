@@ -7,8 +7,7 @@
         display: block;
       }
       paper-button {
-        padding: 0;
-        margin: 0;
+        width: 100%;
       }
     </style>
     <iron-ajax
@@ -21,12 +20,14 @@
       <h3>Loading..</h3>
       <elmsln-loading color="grey-text" size="large"></elmsln-loading>
     </div>
-    <template is="dom-repeat" items="[[_toArray(response.data)]]" as="item">
-      <paper-button class="gallerycard-wrapper" on-tap="_loadSubmissionUrl">
-        <lrndesign-gallerycard size="small" data-submission-id$="[[item.id]]" title="[[item.attributes.title]]" author="[[item.relationships.author.data.name]]" comments="[[item.meta.comment_count]]" image="[[item.display.image]]" icon="[[item.display.icon]]">
-        </lrndesign-gallerycard>
-      </paper-button>
-    </template>
+    <iron-list items="[[_toArray(response.data)]]" as="item">
+      <template>
+        <paper-button on-tap="_loadSubmissionUrl">
+          <lrndesign-gallerycard data-submission-id$="[[item.id]]" title="[[item.attributes.title]]" author="[[item.relationships.author.data.name]]" comments="[[item.meta.comment_count]]" image="[[item.display.image]]" icon="[[item.display.icon]]">
+          </lrndesign-gallerycard>
+        </paper-button>
+      </template>
+    </iron-list>
   </template>
   <script>
     Polymer({

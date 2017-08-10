@@ -38,7 +38,7 @@ function _lrnapp_studio_dashboard_recent_project($machine_name, $app_route, $par
   // get the last thing they touched of their own creation
   $options = new stdClass();
   $options->order = array('property' => array(array('changed', 'DESC')));
-  $options->limit = array(0, 2);
+  $options->limit = array(0, 1);
   $options->filter = array('author' => $GLOBALS['user']->uid);
   // invoke our submission service to get submissions
   $service = new CleOpenStudioAppSubmissionService();

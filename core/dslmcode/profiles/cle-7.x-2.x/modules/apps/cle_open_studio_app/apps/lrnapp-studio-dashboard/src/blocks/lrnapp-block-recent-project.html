@@ -50,6 +50,21 @@
         height: 3em;
         text-transform: none;
       }
+      .status-indicator {
+        border-right: 1px solid grey;
+        padding: .5em;
+        margin: 0 .5em 0 0;
+        display: inline-flex;
+        line-height: 3em;
+        height: 3em;
+        justify-content: center;
+        align-items: center;
+      }
+      .whole-project {
+        width: 100%;
+        margin: 0;
+        padding: 0;
+      }
     </style>
     <iron-ajax
        auto
@@ -61,24 +76,28 @@
       <h3>Loading..</h3>
       <elmsln-loading color="grey-text" size="large"></elmsln-loading>
     </div>
-    <paper-card id$="project-[[project.id]]" class="project-card grey lighten-3" heading="{{project.attributes.title}}" elevation="2">
-      <div class="card-content">
-        <iron-list items="[[_toArray(project.relationships.assignments)]]" as="assignment">
-          <template>
-          <div class="assignment-row" id="assignment">
-            <lrnsys-button class="assignment-row-button" id$="assignment-[[project.id]]-[[assignment.id]]" header="[[assignment.title]]" hover-class="amber lighten-5">
-              <span slot="button" class="button-contents">
-                <div class$="status-indicator [[assignment.metadata.relatedSubmissions.complete.color]]">
-                  <iron-icon icon="[[assignment.metadata.relatedSubmissions.complete.icon]]"></iron-icon>
-                </div>
-                <div class="assignment-title">[[assignment.title]]</div>
-              </span>
-            </lrnsys-button>
+    <a tabindex="-1" href$="[[basePath]]lrnapp-studio-kanban">
+      <paper-button class="whole-project">
+        <paper-card id$="project-[[project.id]]" class="project-card grey lighten-3" heading="{{project.attributes.title}}" elevation="2">
+          <div class="card-content">
+            <iron-list items="[[_toArray(project.relationships.assignments)]]" as="assignment">
+              <template>
+              <div class="assignment-row" id="assignment">
+                <lrnsys-button inner-class="no-left-padding" class="assignment-row-button" id$="assignment-[[project.id]]-[[assignment.id]]" hover-class="amber lighten-5">
+                  <span slot="button" class="button-contents">
+                    <div class$="status-indicator [[assignment.metadata.relatedSubmissions.complete.color]]">
+                      <iron-icon icon="[[assignment.metadata.relatedSubmissions.complete.icon]]"></iron-icon>
+                    </div>
+                    <div class="assignment-title">[[assignment.title]]</div>
+                  </span>
+                </lrnsys-button>
+              </div>
+              </template>
+            </iron-list>
           </div>
-          </template>
-        </iron-list>
-      </div>
-    </paper-card>
+        </paper-card>
+      </paper-button>
+    </a>
   </template>
   <script>
     Polymer({
