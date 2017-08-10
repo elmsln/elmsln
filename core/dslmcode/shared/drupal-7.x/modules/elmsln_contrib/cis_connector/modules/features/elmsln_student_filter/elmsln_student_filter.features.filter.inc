@@ -42,5 +42,25 @@ function elmsln_student_filter_filter_default_formats() {
     ),
   );
 
+  // Exported format: Student Markdown Format.
+  $formats['student_markdown'] = array(
+    'format' => 'student_markdown',
+    'name' => 'Student Markdown Format',
+    'cache' => 1,
+    'status' => 1,
+    'weight' => 0,
+    'filters' => array(
+      'filter_html' => array(
+        'weight' => -10,
+        'status' => 1,
+        'settings' => array(
+          'allowed_html' => '<a> <em> <strong> <h3> <iframe> <code> <ul> <ol> <li> <video> <source> <img>',
+          'filter_html_help' => 1,
+          'filter_html_nofollow' => 0,
+        ),
+      ),
+    ),
+  );
+
   return $formats;
 }
