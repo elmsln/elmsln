@@ -2231,3 +2231,94 @@ function elmsln_core_gbm_book_root_path_alter(&$path) {
   $cfg = _elmsln_core_get_cfg();
   $path = str_replace($cfg['dataprotocol'] . '://' . $cfg['serviceprefix'], $cfg['protocol'] . '://', $path);
 }
+
+/**
+ * Return a form of the user's name based on possible fields
+ * @var $priority string  The piece of info to try and return
+ * @var $uid  int  Account to render or active if empty
+ * @return        string  a representation of the user's name
+ */
+function _elmsln_core_get_user_name($priority = 'full', $uid = NULL) {
+  // user global if nothing there
+  if (is_null($uid)) {
+    $account = $GLOBALS['user'];
+  }
+  // account for getting a uid
+  else {
+    $account = user_load($uid);
+  }
+  // edge case, deserialize array; we want this as an array no matter what
+  if (is_string($account->data)) {
+    $account->data = unserialize($account->data);
+  }
+  else if (is_bool($account->data)) {
+    $account->data = array();
+  }
+  else if (!isset($account->data)) {
+    $account->data = array();
+  }
+  switch ($priority) {
+    case 'first':
+      // try for the sis data first
+      if (isset($account->data['sis'])) {
+        if (isset($account->data['sis']['first'])) {
+          return $account->data['sis']['first'];
+        }
+      }
+    break;
+    case 'last':
+      // try for the sis data first
+      if (isset($account->data['sis'])) {
+        if (isset($account->data['sis']['last'])) {
+          return $account->data['sis']['last'];
+        }
+      }
+    break;
+    case 'full':
+      // try for the sis data first
+      if (isset($account->data['sis'])) {
+        if (isset($account->data['sis']['full'])) {
+          return $account->data['sis']['full'];
+        }
+        else if (isset($account->data['sis']['name'])) {
+          return $account->data['sis']['name'];
+        }
+        else if (isset($account->data['sis']['sortable'])) {
+          return $account->data['sis']['sortable'];
+        }
+      }
+    break;
+  }
+  return $account->name;
+}
+
+/**
+ * Return a form of the user's name based on possible fields
+ * @var $uid  int  Account to render or active if empty
+ * @return        object user's sis data if it exists
+ */
+function _elmsln_core_get_sis_user_data($uid = NULL) {
+  $sis = NULL;
+  // user global if nothing there
+  if (is_null($uid)) {
+    $account = $GLOBALS['user'];
+  }
+  // account for getting a uid
+  else {
+    $account = user_load($uid);
+  }
+  // edge case, deserialize array; we want this as an array no matter what
+  if (is_string($account->data)) {
+    $account->data = unserialize($account->data);
+  }
+  else if (is_bool($account->data)) {
+    $account->data = array();
+  }
+  else if (!isset($account->data)) {
+    $account->data = array();
+  }
+  if (isset($account->data['sis'])) {
+    $sis = $account->data['sis'];
+  }
+  return $sis;
+}

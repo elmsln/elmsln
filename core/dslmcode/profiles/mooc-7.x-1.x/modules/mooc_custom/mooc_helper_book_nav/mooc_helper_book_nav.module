@@ -95,7 +95,7 @@ function mooc_helper_book_nav_block_view($delta = '') {
       // build out the top navigational element with all the drop downs
       case 'book_sibling_nav':
         $block['subject'] = '';
-        $block['content'] = '<lrnsys-button href="#block-mooc-helper-mooc-helper-toc-nav-modal" class="mooc-helper-toc elmsln-outline-button elmsln-modal-trigger black-text" aria-controls="block-mooc-helper-mooc-helper-toc-nav-modal" aria-expanded="false" label="' . t('Outline') .'" icon="explore"></lrnsys-button>';
+        $block['content'] = '<a tabindex="-1" class="elmsln-modal-trigger" href="#block-mooc-helper-mooc-helper-toc-nav-modal" aria-controls="block-mooc-helper-mooc-helper-toc-nav-modal"><lrnsys-button class="mooc-helper-toc elmsln-outline-button black-text" aria-expanded="false" label="' . t('Outline') .'" icon="explore"></lrnsys-button></a>';
         $next_title = t('>');
         $prev_title = t('<');
         // load the node in scope globally at the moment and ensure we have one

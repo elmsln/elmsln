@@ -1,4 +1,4 @@
-<dom-module id="drupal-comment">
+<dom-module id="lrnapp-block-recent-comments-comment">
   <template>
     <style>
        :host {
@@ -79,25 +79,13 @@
             <paper-button raised id="view">View thread</paper-button>
           </a>
         </template>
-        <template is="dom-if" if="{{actionEdit}}">
-          <a href="{{actionEdit}}" tabindex="-1">
-            <paper-button id="edit">Edit</paper-button>
-          </a>
-          <paper-tooltip for="edit" animation-delay="0">Edit comment</paper-tooltip>
-        </template>
-        <template is="dom-if" if="{{actionDelete}}">
-          <a href="{{actionDelete}}" tabindex="-1">
-            <paper-icon-button id="delete" icon="icons:delete-forever"></paper-icon-button>
-          </a>
-          <paper-tooltip for="delete" animation-delay="0">Delete comment forever!</paper-tooltip>
-        </template>
       </div>
     </paper-card>
 
   </template>
   <script>
     Polymer({
-      is: 'drupal-comment',
+      is: 'lrnapp-block-recent-comments-comment',
 
       behaviors: [Polymer.IronResizableBehavior],
 
@@ -122,16 +110,6 @@
           notify: true,
         },
         actionView: {
-          type: String,
-          reflectToAttribute: true,
-          notify: true,
-        },
-        actionEdit: {
-          type: String,
-          reflectToAttribute: true,
-          notify: true,
-        },
-        actionDelete: {
           type: String,
           reflectToAttribute: true,
           notify: true,

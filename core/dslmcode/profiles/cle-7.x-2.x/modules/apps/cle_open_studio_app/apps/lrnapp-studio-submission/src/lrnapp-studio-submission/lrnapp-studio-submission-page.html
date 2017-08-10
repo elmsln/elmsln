@@ -116,25 +116,23 @@
 
     <iron-ajax id="ajaxRequest" auto url="[[reqUrl]]" method="GET" body="[[reqBody]]" params="[[reqParams]]" content-type="application/json"
       handle-as="json" on-response="_handleResponse"></iron-ajax>
-    <app-header reveals shadow effects="waterfall">
-      <app-toolbar class="amber lighten-3" sticky>
-        <lrnsys-button on-tap="_backToStudio" icon="arrow-back" label="Back to studio" hover-class="amber darken-4 white-text"></lrnsys-button>
-        <div main-title>[[submission.attributes.title]]</div>
-        <div spacer class="comment-box">
-          <paper-button id="comment-count" style="margin:0;padding:.25em;text-transform:none;">
-            <iron-icon icon="communication:forum"></iron-icon>
-            [[submission.meta.comment_count]] Comments
-          </paper-button>
-          <paper-badge hidden$="[[displayNewBadge(submission.meta.comment_new)]]" for="comment-count" label$="[[submission.meta.comment_new]]"></paper-badge>
-        </div>
-        <div hidden$="[[editPage]]">
-          <lrnsys-button on-tap="_setEditRoute" icon="create" label="Edit" hover-class="amber darken-4 white-text" hidden$="[[!submission.meta.canUpdate]]"></lrnsys-button>
-        </div>
-        <div hidden$="[[!editPage]]">
-          <lrnsys-button on-tap="_resetRoute" icon="cancel" label="Cancel" hover-class="amber darken-4 white-text" hidden$="[[!submission.meta.canUpdate]]"></lrnsys-button>
-        </div>
-      </app-toolbar>
-    </app-header>
+    <app-toolbar class="amber lighten-3">
+      <lrnsys-button on-tap="_backToStudio" icon="arrow-back" label="Back to studio" hover-class="amber darken-4 white-text"></lrnsys-button>
+      <div spacer main-title>[[submission.attributes.title]]</div>
+      <div spacer class="comment-box">
+        <paper-button id="comment-count" style="margin:0;padding:.25em;text-transform:none;">
+          <iron-icon icon="communication:forum"></iron-icon>
+          [[submission.meta.comment_count]] Comments
+        </paper-button>
+        <paper-badge hidden$="[[displayNewBadge(submission.meta.comment_new)]]" for="comment-count" label$="[[submission.meta.comment_new]]"></paper-badge>
+      </div>
+      <div hidden$="[[editPage]]">
+        <lrnsys-button on-tap="_setEditRoute" icon="create" label="Edit" hover-class="amber darken-4 white-text" hidden$="[[!submission.meta.canUpdate]]"></lrnsys-button>
+      </div>
+      <div hidden$="[[!editPage]]">
+        <lrnsys-button on-tap="_resetRoute" icon="cancel" label="Cancel" hover-class="amber darken-4 white-text" hidden$="[[!submission.meta.canUpdate]]"></lrnsys-button>
+      </div>
+    </app-toolbar>
     <div class="flex-wrap submission-page-wrapper">
       <template is="dom-if" if="[[!editPage]]">
         <div class="submission-comments">

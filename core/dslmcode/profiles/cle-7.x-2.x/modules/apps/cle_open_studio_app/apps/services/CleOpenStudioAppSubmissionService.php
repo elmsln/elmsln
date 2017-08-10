@@ -29,16 +29,38 @@ class CleOpenStudioAppSubmissionService {
    * This will take into concideration what section the user is in and what section
    * they have access to.
    */
-  public function getSubmissions() {
+  public function getSubmissions($options) {
     $items = array();
     $section_id = _cis_connector_section_context();
     $section = _cis_section_load_section_by_id($section_id);
     $field_conditions = array(
       'og_group_ref' => array('target_id', $section, '='),
     );
+    // things unpublished are considered "deleted"
     $property_conditions = array('status' => array(NODE_PUBLISHED, '='));
-    $orderby = array();
-    $items = _cis_connector_assemble_entity_list('node', 'cle_submission', 'nid', '_entity', $field_conditions, $property_conditions, $orderby);
+    $orderby = array('property' => array(array('changed', 'DESC')));
+    $limit = NULL;
+    $property_conditions = array('status' => array(COMMENT_PUBLISHED, '='));
+    if (isset($options)) {
+      if (isset($options->filter)) {
+        if (isset($options->filter['author'])) {
+          $property_conditions['uid'] = array($options->filter->author, '=');
+        }
+        if (isset($options->filter['submission'])) {
+          $property_conditions['nid'] = array($options->filter['submission'], '=');
+        }
+        if (isset($options->filter['state'])) {
+          $field_conditions['field_submission_state'] = array('value', $options->filter['state'][0], $options->filter['state'][1]);
+        }
+      }
+      if (isset($options->order)) {
+        $orderby = $options->order;
+      }
+      if (isset($options->limit)) {
+        $limit = $options->limit;
+      }
+    }
+    $items = _cis_connector_assemble_entity_list('node', 'cle_submission', 'nid', '_entity', $field_conditions, $property_conditions, $orderby, TRUE, $limit);
     $items = $this->encodeSubmissions($items);
     return $items;
   }
@@ -161,18 +183,24 @@ class CleOpenStudioAppSubmissionService {
     if (is_object($submission)) {
       $encoded_submission->type = $submission->type;
       $encoded_submission->id = $submission->nid;
+      $encoded_submission->display = new stdClass();
+      $encoded_submission->display->image = NULL;
+      $encoded_submission->display->icon = 'subject';
+      // append specific data about each output type
+      if (isset($submission->field_files['und'])) {
+        $encoded_submission->display->icon = 'file-download';
+      }
+      if (isset($submission->field_links['und'])) {
+        $encoded_submission->display->icon = 'link';
+      }
+      if (isset($submission->field_video['und'])) {
+        $encoded_submission->display->icon = 'av:video-library';
+      }
       // Attributes
       $encoded_submission->attributes = new stdClass();
       $encoded_submission->attributes->title = $submission->title;
       $encoded_submission->attributes->body = $submission->field_submission_text[LANGUAGE_NONE][0]['safe_value'];
       $encoded_submission->attributes->state = $submission->field_submission_state[LANGUAGE_NONE][0]['value'];
-      // Images
-      $encoded_submission->attributes->images = NULL;
-      if (isset($submission->field_images[LANGUAGE_NONE])) {
-        foreach ($submission->field_images[LANGUAGE_NONE] as $file) {
-          $encoded_submission->attributes->images[] = _elmsln_api_v1_file_output($file);
-        }
-      }
       // Files
       $encoded_submission->attributes->files = NULL;
       if (isset($submission->field_files[LANGUAGE_NONE])) {
@@ -195,11 +223,22 @@ class CleOpenStudioAppSubmissionService {
         }
         $encoded_submission->attributes->video = $videos;
       }
-
+      // Images
+      $encoded_submission->attributes->images = NULL;
+      if (isset($submission->field_images[LANGUAGE_NONE])) {
+        foreach ($submission->field_images[LANGUAGE_NONE] as $file) {
+          $encoded_submission->attributes->images[] = _elmsln_api_v1_file_output($file);
+        }
+        $images = $encoded_submission->attributes->images;
+        $encoded_submission->display->image = array_pop($images);
+        $encoded_submission->display->image = file_create_url($encoded_submission->display->image['uri']);
+        $encoded_submission->display->icon = FALSE;
+      }
       // Meta Info
       $encoded_submission->meta = new stdClass();
       $encoded_submission->meta->created = Date('c', $submission->created);
       $encoded_submission->meta->changed = Date('c', $submission->changed);
+      $encoded_submission->meta->humandate = Date("F j, Y, g:i a", $submission->changed);
       $encoded_submission->meta->revision_timestamp = Date('c', $submission->revision_timestamp);
       $encoded_submission->meta->canUpdate = 0;
       $encoded_submission->meta->canDelete = 0;
@@ -219,20 +258,20 @@ class CleOpenStudioAppSubmissionService {
       }
       switch ($submission->field_submission_state[LANGUAGE_NONE][0]['value']) {
         case 'submission_in_progress':
-          $encoded_submission->meta->icon = 'assignment-late';
-          $encoded_submission->meta->color = 'amber lighten-3';
+          $encoded_submission->meta->state_icon = 'assignment-late';
+          $encoded_submission->meta->state_color = 'red lighten-3';
         break;
         case 'submission_ready':
-          $encoded_submission->meta->icon = 'done';
-          $encoded_submission->meta->color = 'green lighten-3';
+          $encoded_submission->meta->state_icon = 'done';
+          $encoded_submission->meta->state_color = 'green lighten-3';
         break;
         case 'submission_needs_work':
-          $encoded_submission->meta->icon = 'assignment-returned';
-          $encoded_submission->meta->color = 'yellow lighten-3';
+          $encoded_submission->meta->state_icon = 'assignment-returned';
+          $encoded_submission->meta->state_color = 'yellow lighten-3';
         break;
         default:
-          $encoded_submission->meta->icon = 'assignment';
-          $encoded_submission->meta->color = 'grey lighten-3';
+          $encoded_submission->meta->state_icon = 'assignment';
+          $encoded_submission->meta->state_color = 'grey lighten-3';
         break;
       }
       // Relationships
@@ -251,9 +290,11 @@ class CleOpenStudioAppSubmissionService {
       $encoded_submission->relationships->author->data->type = 'user';
       $encoded_submission->relationships->author->data->id = $submission->uid;
       $encoded_submission->relationships->author->data->name = $submission->name;
+      $encoded_submission->relationships->author->data->display_name = _elmsln_core_get_user_name('full', $submission->uid);
+      $encoded_submission->relationships->author->data->sis = _elmsln_core_get_sis_user_data($submission->uid);
       // comments
       $encoded_submission->relationships->comments = null;
-      $encoded_submission->meta->comment_count = $submission->comment_count;
+      $encoded_submission->meta->comment_count = (!empty($submission->comment_count) ? $submission->comment_count : 0);
       $encoded_submission->meta->comment_new = comment_num_new($submission->nid);
       if ($submission->comment_count > 0) {
         $comments_service = new CleOpenStudioAppCommentService();

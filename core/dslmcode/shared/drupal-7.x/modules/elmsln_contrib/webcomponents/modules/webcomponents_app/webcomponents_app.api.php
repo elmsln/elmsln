@@ -40,8 +40,13 @@ function hook_register_webcomponent_apps() {
         // the name of the property the element uses to pull data
         'property' => 'source-path',
       ),
-      // optional: module it comes from
-      'module' => 'my_custom_module',
+      // optional: allow for defining properties that need to be added automatically
+      'properties' => array(
+        'name' => 'Dana',
+        'age' => array(
+          'callback' => '_get_user_age',
+        )
+      ),
       // optional: completely optional but also is hooked in from where ever it comes from
       // this allows you to do any other kind of contextual operation you would need.
       // For example, elmsln uses the 'distro' context value to match against the currently

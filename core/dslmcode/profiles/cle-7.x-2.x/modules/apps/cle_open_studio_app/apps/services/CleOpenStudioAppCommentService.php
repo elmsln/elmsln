@@ -35,6 +35,8 @@ class CleOpenStudioAppCommentService {
   public function getComments($options) {
     $items = array();
     $field_conditions = array();
+    $orderby = array();
+    $limit = NULL;
     $property_conditions = array('status' => array(COMMENT_PUBLISHED, '='));
     if (isset($options)) {
       if (isset($options->filter)) {
@@ -45,9 +47,14 @@ class CleOpenStudioAppCommentService {
           $property_conditions['nid'] = array($options->filter['submission'], '=');
         }
       }
+      if (isset($options->order)) {
+        $orderby = $options->order;
+      }
+      if (isset($options->limit)) {
+        $limit = $options->limit;
+      }
     }
-    $orderby = array();
-    $items = _cis_connector_assemble_entity_list('comment', 'comment', 'cid', '_entity', $field_conditions, $property_conditions, $orderby);
+    $items = _cis_connector_assemble_entity_list('comment', 'comment', 'cid', '_entity', $field_conditions, $property_conditions, $orderby, TRUE, $limit);
     // sort the comments into a thread
     usort($items, 'CleOpenStudioAppCommentService::sortComments');
     $items = $this->encodeComments($items);

@@ -68,7 +68,11 @@
         <?php endif; ?>
         <?php if ($bar_elements['user']) : ?>
         <li class="elmsln-user-profile-menu-item">
-          <lrnsys-drawer body-append class="middle-align-wrap elmsln-user-button black-text" align="right" avatar="<?php print $userpicture;?>" icon="<?php print $usericon;?>" text="<?php print $username; ?>" hover-class="<?php print $lmsless_classes[$network['active']['distro']]['color'] . ' ' . $lmsless_classes[$network['active']['distro']]['dark'];?> white-text">
+          <lrnsys-drawer body-append class="middle-align-wrap elmsln-user-button black-text" align="right" hover-class="<?php print $lmsless_classes[$network['active']['distro']]['color'] . ' ' . $lmsless_classes[$network['active']['distro']]['dark'];?> white-text">
+            <span slot="button">
+              <lrndesign-avatar style="display:inline-block; vertical-align: middle;" label="<?php print $username;?>" src="<?php print $userpicture;?>"></lrndesign-avatar>
+              <span style="display:inline-block; vertical-align: middle;"><?php print $username; ?></span>
+            </span>
             <h2 class="element-invisible" slot="header"><?php print t('User menu'); ?></h2>
             <span slot="content" class="elmsln-modal-content">
               <?php print $user_block;?>

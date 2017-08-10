@@ -12,6 +12,12 @@ that can pop up to display more info
        :host {
         display: inline-flex;
       }
+      :host[size="micro"] {
+        transform: scale(.5);
+      }
+      :host[size="small"] {
+        transform: scale(.8);
+      }
 
       paper-card {
         border-radius: 4px;
@@ -22,7 +28,18 @@ that can pop up to display more info
       .card-actions {
         background-color: #f5f5f5;
         border-radius: 0 0 4px 4px;
-        padding: .44em 1em;
+        padding: 0 .5em;
+      }
+      .card-actions .card-action-details{
+        display: inline-block;
+        vertical-align: middle;
+        vertical-align: -webkit-baseline-middle;
+        width: 80%;
+      }
+      #avatar {
+        display: inline-block;
+        vertical-align: text-top;
+        transform: scale(.8);
       }
 
       .card-control-height {
@@ -53,11 +70,8 @@ that can pop up to display more info
       }
 
       .comments {
-        color: #444;
         font-size: .75rem;
-        font-weight: 400;
-        line-height: .75rem;
-        padding: 0.25rem 0 0.5rem 0;
+        float: right;
       }
 
       .divider {
@@ -118,8 +132,11 @@ that can pop up to display more info
         </div>
       </div>
       <div class="card-actions">
-        <span class="text-left author">[[author]]</span>
-        <span class="comments text-right">Comments: [[comments]]</span>
+        <lrndesign-avatar id="avatar" label="[[author]]" src="[[authorAvatar]]"></lrndesign-avatar>
+        <div class="card-action-details">
+          <span class="text-left author">[[author]]</span>
+          <span class="comments text-right">Comments: [[comments]]</span>
+        </div>
       </div>
     </paper-card>
   </template>
@@ -131,6 +148,11 @@ that can pop up to display more info
         'mouseleave': '_mouseLeave',
       },
       properties: {
+        size: {
+          type: String,
+          notify: true,
+          reflectToAttribute: true,
+        },
         /**
          * Cover image src.
          */
@@ -162,6 +184,11 @@ that can pop up to display more info
           type: String,
           value: 'Author',
           notify: true,
+        },
+        authorAvatar: {
+          type: String,
+          notify: true,
+          reflectToAttribute: true,
         },
         /**
          * Visual elevation of the item off the UI via paper element height

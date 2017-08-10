@@ -65,8 +65,8 @@
       }
       .project-card {
         width: 100%;
-        min-width: 20em;
-        max-width: 25em;
+        min-width: 15em;
+        max-width: 20em;
         margin: 0 1em;
       }
       .project-operations {
@@ -109,9 +109,16 @@
         justify-content: center;
         align-items: center;
       }
+      .button-contents {
+        display: flex;
+        align-content: center;
+      }
       .assignment-title {
         display: inline-flex;
         align-items: center;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        line-height: 1em;
       }
       .assignment-operations {
         position: absolute;
@@ -167,7 +174,7 @@
             <template>
             <div class="assignment-row" id="assignment">
               <lrnsys-dialog body-append on-focusin="assignmentFocusIn" class="assignment-row-button" id$="assignment-[[project.id]]-[[assignment.id]]" header="[[assignment.title]]" hover-class="amber lighten-5">
-                <span slot="button">
+                <span slot="button" class="button-contents">
                   <div class$="status-indicator [[assignment.metadata.relatedSubmissions.complete.color]]">
                     <iron-icon icon="[[assignment.metadata.relatedSubmissions.complete.icon]]"disabled$="[[!assignment.metadata.relatedSubmissions.canCreate]]"></iron-icon>
                   </div>

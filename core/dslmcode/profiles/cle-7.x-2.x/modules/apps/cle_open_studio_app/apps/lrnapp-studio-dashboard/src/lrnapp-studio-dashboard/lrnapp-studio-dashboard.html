@@ -1,4 +1,6 @@
-<link rel="import" href="../../../lrnapp-comments-recent/src/lrnapp-comments-recent/lrnapp-comments-recent.html">
+<link rel="import" href="../blocks/lrnapp-block-recent-project.html">
+<link rel="import" href="../blocks/lrnapp-block-recent-submissions.html">
+<link rel="import" href="../blocks/lrnapp-block-recent-comments.html">
 
 <dom-module id="lrnapp-studio-dashboard">
   <template>
@@ -7,55 +9,57 @@
       :host {
         display: block;
       }
-      paper-button {
-        padding: 0;
+      h1.title {
+        font-size: 2em;
+        color: black;
         margin: 0;
-        min-width: 1rem;
+        padding: .5em 0 0 0;
+        text-transform: none;
+        text-align: left;
       }
-      #details {
-        opacity: .5;
-        position: absolute;
-        bottom: 0;
-        right: 0;
-        margin: 0 1rem 0 0;
-        background-color: white;
-        padding: .5em;
+      p.para {
+        margin: 0;
+        padding: .25em .5em;
       }
-      #details:hover {
-        opacity: 1;
+      .dashboard-row {
+        width: 100%;
+        display: inline-flex;
       }
-      #details span {
-        font-size: .6em;
-        font-weight: normal;
-      }
-      #details .comment-on-work {
-        font-size: .8em;
-        background-color: white;
-      }
-      #notes {
-        @apply(--layout-vertical);
-        @apply(--layout-wrap);
-        height: 344px;
-        width: 384px;
-      }
-      #notes > paper-card {
-        box-sizing: border-box;
-        max-width: 184px;
-        margin: 3px;
-        flex: 0 0 auto;
+      .dashboard-item {
+        width: 30%;
       }
     </style>
-      <paper-card heading="Recent comments">
-        <div class="card-content">
-          <lrnapp-comments-recent csrf-token="[[csrfToken]]" end-point="[[_getEndPoint(basePath)]]" base-path="[[basePath]]" data-source="[[_getDataSource(csrfToken, basePath)]]">
-          </lrnapp-comments-recent>
-        </div>
-      </paper-card>
+      <h1 class="title">Welcome back [[username]]!</h1>
+      <p class="para">Here's what's been going on in the studio</p>
+      <div class="dashboard-row">
+        <paper-card heading="Active project" class="dashboard-item">
+          <div class="card-content">
+            <lrnapp-block-recent-project csrf-token="[[csrfToken]]" end-point="[[_getEndPoint(basePath)]]" base-path="[[basePath]]" source-path="[[_getDataSource(csrfToken, basePath,'recent-project')]]">
+            </lrnapp-block-recent-project>
+          </div>
+        </paper-card>
+        <paper-card heading="Recent submissions" class="dashboard-item">
+          <div class="card-content">
+            <lrnapp-block-recent-submissions csrf-token="[[csrfToken]]" end-point="[[_getEndPoint(basePath)]]" base-path="[[basePath]]" source-path="[[_getDataSource(csrfToken, basePath,'recent-submissions')]]">
+            </lrnapp-block-recent-submissions>
+          </div>
+        </paper-card>
+        <paper-card heading="Recent comments" class="dashboard-item">
+          <div class="card-content">
+            <lrnapp-block-recent-comments csrf-token="[[csrfToken]]" end-point="[[_getEndPoint(basePath)]]" base-path="[[basePath]]" source-path="[[_getDataSource(csrfToken, basePath,'recent-comments')]]">
+            </lrnapp-block-recent-comments>
+          </div>
+        </paper-card>
+      </div>
   </template>
   <script>
     Polymer({
       is: 'lrnapp-studio-dashboard',
       properties: {
+        username: {
+          type: String,
+          reflectToAttribute: true,
+        },
         basePath: {
           type: String,
           notify: true,
@@ -73,10 +77,10 @@
         }
       },
       _getEndPoint: function(basePath) {
-        return basePath + 'lrnapp-comments-recent';
+        return basePath + 'lrnapp-studio-dashboard/blocks';
       },
-      _getDataSource: function(csrfToken, basePath) {
-        return basePath + 'lrnapp-comments-recent/data?token=' + csrfToken;
+      _getDataSource: function(csrfToken, basePath, dataPoint) {
+        return basePath + 'lrnapp-studio-dashboard/blocks/' + dataPoint + '?token=' + csrfToken;
       },
       /**
        * Simple way to convert from object to array.

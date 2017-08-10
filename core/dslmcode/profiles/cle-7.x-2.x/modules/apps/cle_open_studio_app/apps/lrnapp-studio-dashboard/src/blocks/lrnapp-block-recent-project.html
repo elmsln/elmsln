@@ -1,0 +1,59 @@
+<link rel="import" href="../../../elements/lrndesign-gallerycard/lrndesign-gallerycard.html">
+
+<dom-module id="lrnapp-block-recent-project">
+  <template>
+    <style include="paper-item-styles">
+      :host {
+        display: block;
+      }
+    </style>
+    <iron-ajax
+       auto
+       url="{{sourcePath}}"
+       handle-as="json"
+       last-response="{{response}}"
+       on-response="handleResponse"></iron-ajax>
+    <div id="loading">
+      <h3>Loading..</h3>
+      <elmsln-loading color="grey-text" size="large"></elmsln-loading>
+    </div>
+    <template is="dom-repeat" items="[[_toArray(response.data)]]" as="project">
+    <template is="dom-repeat" items="[[_toArray(project)]]" as="assignment">
+      <lrnsys-button class="assignment-row-button" header="[[assignment.title]]" hover-class="amber lighten-5">
+        <span slot="button">
+          <div class$="status-indicator [[assignment.metadata.relatedSubmissions.complete.color]]">
+            <iron-icon icon="[[assignment.metadata.relatedSubmissions.complete.icon]]"disabled$="[[!assignment.metadata.relatedSubmissions.canCreate]]"></iron-icon>
+          </div>
+          <div class="assignment-title">[[assignment.title]]</div>
+        </span>
+      </lrnsys-button>
+    </template>
+    </template>
+  </template>
+  <script>
+    Polymer({
+      is: 'lrnapp-block-recent-project',
+      properties: {
+        sourcePath: {
+          type: String,
+          notify: true,
+        },
+        response: {
+          type: Array,
+          notify: true,
+        }
+      },
+      handleResponse: function(e) {
+        this.$.loading.hidden = true;
+      },
+      _getViewLink: function(nid) {
+        return this.basePath + 'lrnapp-studio-submission/submissions/' + nid;
+      },
+      _toArray: function(obj) {
+        return Object.keys(obj).map(function(key) {
+          return obj[key];
+        });
+      }
+    });
+  </script>
+</dom-module>
