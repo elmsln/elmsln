@@ -1,3 +1,4 @@
+<link rel="import" href="lrnapp-studio-submission-display.html">
 <link rel="import" href="lrnapp-studio-submission-edit.html">
 <link rel="import" href="lrnapp-studio-submission-comments.html">
 <link rel="import" href="lrnapp-studio-submission-comment.html">
@@ -9,12 +10,14 @@
     <style>
        :host {
         display: block;
+        position: relative;
       }
 
       p {
         font-size: 14px;
         line-height: 18px;
       }
+
       h1 {
         margin: 0;
         text-align: left;
@@ -23,6 +26,7 @@
       iron-selector {
         line-height: 1em;
       }
+
       iron-selector lrnsys-button {
         display: inline-flex;
       }
@@ -92,13 +96,14 @@
       .submission-page {
         width: 70vw;
       }
+
       .submission-page-card {
         width: 100%;
         margin: 0;
         padding: 0 0 2em 1em;
       }
 
-      :host[edit-page] .submission-page {
+       :host[edit-page] .submission-page {
         width: 100%;
       }
 
@@ -108,14 +113,47 @@
         padding: 0;
         margin: 0;
       }
+
+      elmsln-loading {
+        position: absolute;
+        display: none;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.8);
+        z-index: 10;
+        align-items: flex-end;
+        justify-content: center;
+      }
+
+       :host[saving] elmsln-loading {
+        display: block;
+      }
+
+      elmsln-loading ::shadow>lrn-icon {
+        top: calc(50% - 5vmax);
+        left: calc(50% - 5vmax);
+        position: fixed;
+        transform-origin: center center;
+        width: 10vmax !important;
+        height: 10vmax !important;
+      }
     </style>
 
     <app-route route="{{route}}" pattern="/edit" tail="{{tail}}" active="{{editPage}}">
     </app-route>
 
 
-    <iron-ajax id="ajaxRequest" auto url="[[reqUrl]]" method="GET" body="[[reqBody]]" params="[[reqParams]]" content-type="application/json"
-      handle-as="json" on-response="_handleResponse"></iron-ajax>
+    <iron-ajax id="ajaxRequest" auto url="[[reqUrl]]" method="GET" params="[[reqParams]]" content-type="application/json" handle-as="json"
+      on-response="_handleResponse"></iron-ajax>
+    <!-- Update Submission Node -->
+    <iron-ajax id="ajaxUpdateRequest" url="[[reqUrl]]" method="PUT" body="[[submission]]" params="[[reqParams]]" content-type="application/json"
+      handle-as="json" on-response="_handleUpdateResponse"></iron-ajax>
+    <!-- Delete Submission Node -->
+    <iron-ajax id="ajaxDeleteRequest" url="[[reqUrl]]" method="DELETE" params="[[reqParams]]" content-type="application/json"
+      handle-as="json" on-response="_handleDeleteResponse"></iron-ajax>
+
     <app-toolbar class="amber lighten-3">
       <lrnsys-button on-tap="_backToStudio" icon="arrow-back" label="Back to studio" hover-class="amber darken-4 white-text"></lrnsys-button>
       <div spacer main-title>[[submission.attributes.title]]</div>
@@ -139,65 +177,17 @@
           <lrnsys-comment-list comment-ops-base="{{commentOpsBase}}" csrf-token="[[csrfToken]]" source-path="{{commentsUrl}}" create-stub-url="{{createStubUrl}}"></lrnsys-comment-list>
         </div>
       </template>
-      <div class="submission-page">
-        <paper-card class="submission-page-card">
-        <div class="card-content">
-          <template is="dom-if" if="[[editPage]]">
-            <lrnapp-studio-submission-edit submission="{{submission}}" id="[[id]]" end-point="[[endPoint]]" csrf-token="[[csrfToken]]" on-updated="_submissionUpdated"></lrnapp-studio-submission-edit>
-          </template>
-          <template is="dom-if" if="[[!editPage]]">
-            <h1 class="title">{{submission.attributes.title}}</h1>
-            <div class="author">By: {{submission.relationships.author.data.name}}</div>
-            <!-- ----- Text Submission -----  -->
-            <template is="dom-if" if="[[submission.attributes.body]]">
-              <lrndesign-contentblock title="Text Submitted">
-                <marked-element markdown="[[submission.attributes.body]]"></marked-element>
-              </lrndesign-contentblock>
-            </template>
-            <!-- ----- Images Submission -----  -->
-            <template is="dom-if" if="[[submission.attributes.images]]">
-              <lrndesign-contentblock class="center" title="Images Submitted">
-                <template is="dom-repeat" items="[[_toArray(submission.attributes.images)]]" as="image">
-                  <lrnsys-dialog alt="View Image">
-                    <span slot="button">
-                      <iron-image sizing="contain" class="contain" src="[[image.url]]"></iron-image>
-                    </span>
-                    <iron-image src="[[image.url]]"></iron-image>
-                  </lrnsys-dialog>
-                </template>
-              </lrndesign-contentblock>
-            </template>
-            <!-- ----- Video Submission -----  -->
-            <template is="dom-if" if="[[submission.attributes.video]]">
-              <lrndesign-contentblock class="center" title="Videos Submitted">
-                <template is="dom-repeat" items="[[_toArray(submission.attributes.video)]]" as="video">
-                  <iframe width="460" height="249" src="[[video.video_src]]"></iframe>
-                </template>
-              </lrndesign-contentblock>
-            </template>
-            <!-- ----- Links Submission -----  -->
-            <template is="dom-if" if="[[submission.attributes.links]]">
-              <lrndesign-contentblock title="Links Submitted">
-                <template is="dom-repeat" items="[[_toArray(submission.attributes.links)]]" as="link">
-                  <p><strong>[[link.title]]:</strong>
-                    <a class="link" href="[[link.url]]" target="_blank">[[link.url]]</a></p>
-                </template>
-              </lrndesign-contentblock>
-            </template>
-            <!-- ----- Files Submission -----  -->
-            <template is="dom-if" if="[[submission.attributes.files]]">
-              <lrndesign-contentblock title="Files Submitted">
-                <template is="dom-repeat" items="[[_toArray(submission.attributes.files)]]" as="file">
-                  <p><strong>[[file.filename]]:</strong>
-                    <a class="link" href="[[file.url]]" target="_blank">[[file.url]]</a></p>
-                </template>
-              </lrndesign-contentblock>
-            </template>
-          </template>
-          </div>
-        </paper-card>
-      </div>
+
+      <template is="dom-if" if="[[editPage]]">
+        <lrnapp-studio-submission-edit submission="{{submission}}"></lrnapp-studio-submission-edit>
+      </template>
+
+      <template is="dom-if" if="[[!editPage]]">
+        <lrnapp-studio-submission-display submission="{{submission}}"></lrnapp-studio-submission-display>
+      </template>
     </div>
+
+    <elmsln-loading></elmsln-loading>
   </template>
   <script>
     Polymer({
@@ -221,9 +211,6 @@
         reqParams: {
           type: Object
         },
-        reqBody: {
-          type: Object
-        },
         submission: {
           type: Object
         },
@@ -242,6 +229,12 @@
         editPage: {
           type: Boolean,
           reflectToAttribute: true
+        },
+        saving: {
+          type: Boolean,
+          value: false,
+          notify: true,
+          reflectToAttribute: true
         }
       },
       observers: [
@@ -249,28 +242,33 @@
         '_paramsChanged(csrfToken)',
         '_bodyChanged(title)'
       ],
+      listeners: {
+        'submissionDeleteClicked': '_submissionDeleteClicked',
+        'submissionPublishClicked': '_submissionPublishClicked',
+        'submissionSaveDraftClicked': '_submissionSaveDraftClicked'
+      },
       /**
        * Go back to the studio relative to the app's path.
        */
-      _backToStudio: function(e) {
+      _backToStudio: function (e) {
         window.location.href = this.basePath + 'lrnapp-open-studio';
       },
       /**
        * Trigger the page router to invoke edit state.
        */
-      _setEditRoute: function(e) {
+      _setEditRoute: function (e) {
         this.set('route.path', 'edit');
       },
       /**
        * Trigger the page router to invoke edit state.
        */
-      _resetRoute: function(e) {
+      _resetRoute: function (e) {
         this.set('route.path', '');
       },
       /**
        * if we should show new badge based on new comment count.
        */
-      displayNewBadge: function(count) {
+      displayNewBadge: function (count) {
         if (count == 0) {
           return true;
         }
@@ -299,32 +297,43 @@
       _isReply: function (data) {
         this.thread = submission.relationships.comments.data.attributes.thread;
       },
-      _submissionUpdated: function (e) {
-        var type = e.detail.type;
-        if (type === 'update') {
-          // navigate to the main page
+      _submissionSaveDraftClicked: function (e) {
+        this.saving = true;
+        this.$$('#ajaxUpdateRequest').generateRequest();
+      },
+      _submissionPublishClicked: function (e) {
+        this.saving = true;
+        this.$$('#ajaxUpdateRequest').generateRequest();
+      },
+      _submissionDeleteClicked: function (e) {
+        this.saving = true;
+        this.$.ajaxDeleteRequest.generateRequest();
+      },
+      _handleUpdateResponse: function (res) {
+        var root = this;
+        var status = res.detail.response.status;
+        root.saving = false;
+        root.set('route.path', '');
+      },
+      _handleDeleteResponse: function (res) {
+        var root = this;
+        var status = res.detail.response.status;
+        root.saving = false;
+        if (status === 200) {
           this.set('route.path', '');
-          console.log('set');
-          // refresh the data
-          this.$$('#ajaxRequest').generateRequest();
         }
-        else if (type === 'delete') {
-          this.set('route.path', '');
-          this.fire('submissionDeleted', { submission: this.submission });
-          this.submission = {};
-        }
-     },
+      },
       /**
-       * Simple way to convert from object to array.
-       */
+      * Simple way to convert from object to array.
+      */
       _toArray: function (obj) {
-        if (typeof obj === 'object' && obj !== null ) {
+        if (typeof obj === 'object' && obj !== null) {
           return Object.keys(obj).map(function (key) {
             return obj[key];
           });
         }
         return [];
-      },
+      }
     });
   </script>
 </dom-module>

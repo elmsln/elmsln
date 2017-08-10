@@ -1,0 +1,184 @@
+<dom-module id="lrnapp-studio-submission-display">
+  <template>
+    <style>
+       :host {
+        display: block;
+      }
+
+      p {
+        font-size: 14px;
+        line-height: 18px;
+      }
+      h1 {
+        margin: 0;
+        text-align: left;
+      }
+
+      iron-selector {
+        line-height: 1em;
+      }
+      iron-selector lrnsys-button {
+        display: inline-flex;
+      }
+
+      lrndesign-contentblock {
+        margin: .5em;
+      }
+
+      iron-image {
+        margin: 0 .5em;
+      }
+
+      lrnsys-dialog {
+        display: inline;
+      }
+
+      .contain {
+        width: 10em;
+        height: 10em;
+        background: #ddd;
+      }
+
+      .center {
+        margin: auto;
+        width: 100%;
+      }
+
+      .title {
+        color: #222;
+        font-size: 2rem;
+        font-weight: 600;
+        line-height: 2.5rem;
+        padding: 0.25rem 0;
+        white-space: nowrap;
+        overflow-x: hidden;
+        text-overflow: ellipsis;
+        margin-top: 1rem;
+        text-transform: uppercase;
+        text-align: left;
+      }
+
+      .author {
+        color: #555;
+        font-size: 1rem;
+        font-weight: 500;
+        font-style: normal;
+        line-height: 1rem;
+        padding: 0.25rem 0 0.5rem 0;
+        margin: 0;
+        text-transform: capitalize;
+      }
+
+      .comments {
+        text-align: right;
+        margin: 0;
+        font-size: 1.5em;
+      }
+
+      .flex-wrap {
+        display: flex;
+      }
+
+      .submission-page-wrapper {
+        padding: 0 1em;
+      }
+
+      .submission-page {
+        width: 70vw;
+      }
+      .submission-page-card {
+        width: 100%;
+        margin: 0;
+        padding: 0 0 2em 1em;
+      }
+
+      :host[edit-page] .submission-page {
+        width: 100%;
+      }
+
+      .submission-comments {
+        width: 30vw;
+        overflow-y: visible;
+        padding: 0;
+        margin: 0;
+      }
+    </style>
+
+    <div class="submission-page">
+      <paper-card class="submission-page-card">
+        <div class="card-content">
+            <h1 class="title">{{submission.attributes.title}}</h1>
+            <div class="author">By: {{submission.relationships.author.data.name}}</div>
+            <!-- ----- Text Submission -----  -->
+            <template is="dom-if" if="[[submission.attributes.body]]">
+              <lrndesign-contentblock title="Text Submitted">
+                <marked-element markdown="[[submission.attributes.body]]"></marked-element>
+              </lrndesign-contentblock>
+            </template>
+            <!-- ----- Images Submission -----  -->
+            <template is="dom-if" if="[[submission.attributes.images]]">
+              <lrndesign-contentblock class="center" title="Images Submitted">
+                <template is="dom-repeat" items="[[_toArray(submission.attributes.images)]]" as="image">
+                  <lrnsys-dialog alt="View Image">
+                    <span slot="button">
+                      <iron-image sizing="contain" class="contain" src="[[image.url]]"></iron-image>
+                    </span>
+                    <iron-image src="[[image.url]]"></iron-image>
+                  </lrnsys-dialog>
+                </template>
+              </lrndesign-contentblock>
+            </template>
+            <!-- ----- Video Submission -----  -->
+            <template is="dom-if" if="[[submission.attributes.video]]">
+              <lrndesign-contentblock class="center" title="Videos Submitted">
+                <template is="dom-repeat" items="[[_toArray(submission.attributes.video)]]" as="video">
+                  <iframe width="460" height="249" src="[[video.video_src]]"></iframe>
+                </template>
+              </lrndesign-contentblock>
+            </template>
+            <!-- ----- Links Submission -----  -->
+            <template is="dom-if" if="[[submission.attributes.links]]">
+              <lrndesign-contentblock title="Links Submitted">
+                <template is="dom-repeat" items="[[_toArray(submission.attributes.links)]]" as="link">
+                  <p><strong>[[link.title]]:</strong>
+                    <a class="link" href="[[link.url]]" target="_blank">[[link.url]]</a></p>
+                </template>
+              </lrndesign-contentblock>
+            </template>
+            <!-- ----- Files Submission -----  -->
+            <template is="dom-if" if="[[submission.attributes.files]]">
+              <lrndesign-contentblock title="Files Submitted">
+                <template is="dom-repeat" items="[[_toArray(submission.attributes.files)]]" as="file">
+                  <p><strong>[[file.filename]]:</strong>
+                    <a class="link" href="[[file.url]]" target="_blank">[[file.url]]</a></p>
+                </template>
+              </lrndesign-contentblock>
+            </template>
+        </div>
+      </paper-card>
+    </div>
+
+  </template>
+  <script>
+    Polymer({
+      is: 'lrnapp-studio-submission-display',
+      properties: {
+        submission: {
+          type: Object,
+          notify: true
+        }
+      },
+      /**
+       * Simple way to convert from object to array.
+       */
+      _toArray: function (obj) {
+        if (typeof obj === 'object' && obj !== null ) {
+          return Object.keys(obj).map(function (key) {
+            return obj[key];
+          });
+        }
+        return [];
+      },
+    });
+  </script>
+</dom-module>
