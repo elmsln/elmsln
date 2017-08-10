@@ -8,7 +8,7 @@
     "title": "Project management",
     "menu": {
       "menu_name": "menu-elmsln-navigation",
-      "weight": -10
+      "weight": -11
     },
     "endpoints": {
       "project-data": {

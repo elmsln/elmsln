@@ -7,10 +7,6 @@
   "display": "standalone",
   "app_integration": {
     "title": "Submissions",
-    "menu": {
-      "menu_name": "menu-elmsln-navigation",
-      "weight": 10
-    },
     "endpoints": {
       "api/submissions": {
         "callback": "_cle_open_studio_app_submission_index",
@@ -44,10 +40,6 @@
         "callback": "_cle_open_studio_app_video_generate_source_url",
         "property": "source-path"
       }
-    },
-    "context": {
-      "distro": "cle",
-      "module": "cle_open_studio_app"
     }
   }
 }

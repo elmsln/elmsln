@@ -5,10 +5,10 @@
   "start_url": "/",
   "display": "standalone",
   "app_integration": {
-    "title": "Overview",
+    "title": "Dashboard",
     "menu": {
       "menu_name": "menu-elmsln-navigation",
-      "weight": -10
+      "weight": -12
     },
     "endpoints": {
       "data": {

@@ -14,6 +14,15 @@ paper-dialog.lrnsys-dialog paper-dialog-scrollable .status-rationale {
   text-align: right;
 }
 
+.elmsln-tabs .tab .active-trail {
+  background-color: #ff6f00;
+  color: #FFFFFF !important;
+  font-weight: bold;
+}
+lrnapp-open-studio {
+  border-top: solid 2px #ff6f00;
+}
+
 .card-actions lrnsys-button iron-icon {
   margin: 0 !important;
   padding: 0;
