@@ -97,7 +97,7 @@ class CleOpenStudioAppSubmissionService {
     }
     return $item;
   }
-  
+
   public function updateSubmission($payload, $id) {
     if ($payload) {
       // make sure we have an id to work with
@@ -146,6 +146,26 @@ class CleOpenStudioAppSubmissionService {
 
   public function videoGenerateSourceUrl($url) {
     return _elmsln_api_video_url($url);
+  }
+
+  /**
+   * Get the Submission Type based on the settings within parent assignment
+   * $assignment id/nodeObject  Assignment nid or node object
+   * return string  default or critique
+   */
+  public function submissionType($assignment) {
+    $entity = entity_load_single('node', $assignment);
+    $entity_efw = entity_metadata_wrapper('node', $entity);
+    if (!$entity_efw) {
+      return 'default';
+    }
+    $assignment_critique = $entity_efw->field_critique_method->value();
+    if ($assignment_critique) {
+      if ($assignment_critique != 'none') {
+        return 'critique';
+      }
+    }
+    return 'default';
   }
 
   /**
@@ -274,6 +294,8 @@ class CleOpenStudioAppSubmissionService {
           $encoded_submission->meta->state_color = 'grey lighten-3';
         break;
       }
+      // Submission Type
+      $encoded_submission->meta->submissionType = $this->submissionType($submission->field_assignment[LANGUAGE_NONE][0]['target_id']);
       // Relationships
       $encoded_submission->relationships = new stdClass();
       // load associations
