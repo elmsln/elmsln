@@ -149,26 +149,6 @@ class CleOpenStudioAppSubmissionService {
   }
 
   /**
-   * Get the Submission Type based on the settings within parent assignment
-   * $assignment id/nodeObject  Assignment nid or node object
-   * return string  default or critique
-   */
-  public function submissionType($assignment) {
-    $entity = entity_load_single('node', $assignment);
-    $entity_efw = entity_metadata_wrapper('node', $entity);
-    if (!$entity_efw) {
-      return 'default';
-    }
-    $assignment_critique = $entity_efw->field_critique_method->value();
-    if ($assignment_critique) {
-      if ($assignment_critique != 'none') {
-        return 'critique';
-      }
-    }
-    return 'default';
-  }
-
-  /**
    * Prepare a list of submissions to be outputed in json
    *
    * @param array $submissions
@@ -295,7 +275,7 @@ class CleOpenStudioAppSubmissionService {
         break;
       }
       // Submission Type
-      $encoded_submission->meta->submissionType = $this->submissionType($submission->field_assignment[LANGUAGE_NONE][0]['target_id']);
+      $encoded_submission->meta->submissionType = $submission->field_submission_type[LANGUAGE_NONE][0]['value'];
       // Relationships
       $encoded_submission->relationships = new stdClass();
       // load associations
