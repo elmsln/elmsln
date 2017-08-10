@@ -158,19 +158,15 @@
     </div>
     <iron-list items="[[_toArray(projects.data)]]" as="project" class="projects-container" grid>
       <template class="projects-container-items">
-      <paper-card id$="project-[[project.id]]" class="project-card grey lighten-3" heading="{{project.title}}" elevation="2">
+      <paper-card id$="project-[[project.id]]" class="project-card grey lighten-3" heading="{{project.attributes.title}}" elevation="2">
         <div class="project-operations">
-          <lrnsys-dialog body-append id$="project-[[project.id]]-add" alt="Add assignment" class="circle operation" hover-class="amber lighten-2" header="Add assignment" hidden="[[!project.metadata.canUpdate]]">
-            <iron-icon slot="button" icon="add"></iron-icon>
-            <div slot="content">
-              Add another assignment
-            </div>
-          </lrnsys-dialog>
-          <lrnsys-button id$="project-[[project.id]]-delete" alt="Delete project!" class="circle operation" hover-class="red darken-2 white-text" header="Delete project!" hidden="[[!project.metadata.canDelete]]" icon="delete-forever" href$="[[project.metadata.deleteLink]]" icon-class="no-margin">
+          <lrnsys-button body-append id$="project-[[project.id]]-add" alt="Add assignment" class="circle operation" hover-class="amber lighten-2" hidden="[[!project.meta.canUpdate]]" icon="add" href$="[[_makeAddLink(project.id)]]">
+          </lrnsys-button>
+          <lrnsys-button id$="project-[[project.id]]-delete" alt="Delete project!" class="circle operation" hover-class="red darken-2 white-text" header="Delete project!" hidden="[[!project.meta.canDelete]]" icon="delete-forever" href$="[[_makeDeleteLink(project.id)]]" icon-class="no-margin">
           </lrnsys-dialog>
         </div>
         <div class="card-content">
-          <iron-list items="[[_toArray(project.assignments)]]" as="assignment">
+          <iron-list items="[[_toArray(project.relationships.assignments)]]" as="assignment">
             <template>
             <div class="assignment-row" id="assignment">
               <lrnsys-dialog body-append on-focusin="assignmentFocusIn" class="assignment-row-button" id$="assignment-[[project.id]]-[[assignment.id]]" header="[[assignment.title]]" hover-class="amber lighten-5">
@@ -264,6 +260,12 @@
           notify: true,
         },
       },
+      _makeAddLink: function(id) {
+        return this.basePath + '../node/add/cle-assignment?field_project=' + id + 'destination=apps/lrnapp-studio-kanban';
+      },
+      _makeDeleteLink: function(id) {
+        return this.basePath + '../node/' + id + '/delete?destination=apps/lrnapp-studio-kanban';
+      },
       /**
        * if we should show new badge based on new comment count.
        */
@@ -282,8 +284,8 @@
         var xhr = root.$.backend;
         // break the id out into project and assignment
         var parts = root.activeAssignment.split('-');
-        // focus in on the submissions / assignment metadataq
-        var submission = root.projects.data['project-' + parts[1]].assignments['assignment-' + parts[2]].metadata.relatedSubmissions.complete;
+        // focus in on the submissions / assignment metadata
+        var submission = root.projects.data['project-' + parts[1]].relationships.assignments['assignment-' + parts[2]].metadata.relatedSubmissions.complete;
         // ensure this isn't disabled though it shouldn't be possible
         if (!root.$$('#' + root.activeAssignment + '-toggle').disabled) {
           // hide the loading screen
@@ -347,7 +349,7 @@
         if (root.activeAssignment != null) {
           var parts = root.activeAssignment.split('-');
           // focus in on the submissions / assignment metadataq
-          var submission = root.projects.data['project-' + parts[1]].assignments['assignment-' + parts[2]].metadata.relatedSubmissions.complete;
+          var submission = root.projects.data['project-' + parts[1]].relationships.assignments['assignment-' + parts[2]].metadata.relatedSubmissions.complete;
           // not finished but also not started
           if (submission.status == 0 && submission.submission.length == 0) {
             if (!update) {

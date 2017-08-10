@@ -69,14 +69,14 @@
       <span main-title></span>
       <paper-dropdown-menu label="Author" hidden$="[[!submissions]]">
         <paper-listbox class="dropdown-content">
-          <template is="dom-repeat" items="[[_toArray(submissions.data)]]" as="item">
+          <template is="dom-repeat" items="[[_listAuthors(submissions)]]" as="item">
           <paper-item>[[item.author]]</paper-item>
           </template>
         </paper-listbox>
       </paper-dropdown-menu>
       <paper-dropdown-menu label="Project" hidden$="[[!submissions]]">
         <paper-listbox class="dropdown-content">
-        <template is="dom-repeat" items="[[_toArray(submissions.data)]]" as="item">
+        <template is="dom-repeat" items="[[_listAuthors(submissions)]]" as="item">
           <paper-item>[[item.title]]</paper-item>
         </template>
         </paper-listbox>

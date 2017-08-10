@@ -2,9 +2,53 @@
 
 <dom-module id="lrnapp-block-recent-project">
   <template>
+    <style include="materializecss-styles"></style>
     <style include="paper-item-styles">
       :host {
         display: block;
+      }
+      #loading {
+        width: 100%;
+        z-index: 1000;
+        opacity: .8;
+        text-align: center;
+        align-content: center;
+        justify-content: center;
+        background-color: white;
+      }
+      paper-button {
+        padding: 0;
+        margin: 0;
+        min-width: 1rem;
+      }
+      .project-card {
+        width: 100%;
+        min-width: 15em;
+        max-width: 20em;
+        margin: 0 1em;
+      }
+      .button-contents {
+        display: flex;
+        align-content: center;
+      }
+      .assignment-row {
+        border: 1px solid #000000;
+        background-color: #FFFFFF;
+      }
+      .assignment-row .assignment-row-button.active {
+        background-color: var(--paper-amber-50);
+        font-weight: bold;
+      }
+      .assignment-row:hover .assignment-operations {
+        display: block;
+        overflow: visible;
+        margin: .2em;
+      }
+      .assignment-row-button {
+        width: 100%;
+        justify-content: flex-start;
+        height: 3em;
+        text-transform: none;
       }
     </style>
     <iron-ajax
@@ -17,18 +61,24 @@
       <h3>Loading..</h3>
       <elmsln-loading color="grey-text" size="large"></elmsln-loading>
     </div>
-    <template is="dom-repeat" items="[[_toArray(response.data)]]" as="project">
-    <template is="dom-repeat" items="[[_toArray(project)]]" as="assignment">
-      <lrnsys-button class="assignment-row-button" header="[[assignment.title]]" hover-class="amber lighten-5">
-        <span slot="button">
-          <div class$="status-indicator [[assignment.metadata.relatedSubmissions.complete.color]]">
-            <iron-icon icon="[[assignment.metadata.relatedSubmissions.complete.icon]]"disabled$="[[!assignment.metadata.relatedSubmissions.canCreate]]"></iron-icon>
+    <paper-card id$="project-[[project.id]]" class="project-card grey lighten-3" heading="{{project.attributes.title}}" elevation="2">
+      <div class="card-content">
+        <iron-list items="[[_toArray(project.relationships.assignments)]]" as="assignment">
+          <template>
+          <div class="assignment-row" id="assignment">
+            <lrnsys-button class="assignment-row-button" id$="assignment-[[project.id]]-[[assignment.id]]" header="[[assignment.title]]" hover-class="amber lighten-5">
+              <span slot="button" class="button-contents">
+                <div class$="status-indicator [[assignment.metadata.relatedSubmissions.complete.color]]">
+                  <iron-icon icon="[[assignment.metadata.relatedSubmissions.complete.icon]]"></iron-icon>
+                </div>
+                <div class="assignment-title">[[assignment.title]]</div>
+              </span>
+            </lrnsys-button>
           </div>
-          <div class="assignment-title">[[assignment.title]]</div>
-        </span>
-      </lrnsys-button>
-    </template>
-    </template>
+          </template>
+        </iron-list>
+      </div>
+    </paper-card>
   </template>
   <script>
     Polymer({
@@ -39,12 +89,17 @@
           notify: true,
         },
         response: {
-          type: Array,
+          type: Object,
           notify: true,
-        }
+        },
+        project: {
+          type: Object,
+          notify: true,
+        },
       },
       handleResponse: function(e) {
         this.$.loading.hidden = true;
+        this.project = this.response.data;
       },
       _getViewLink: function(nid) {
         return this.basePath + 'lrnapp-studio-submission/submissions/' + nid;

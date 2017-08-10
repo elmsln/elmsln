@@ -44,7 +44,7 @@ class CleOpenStudioAppSubmissionService {
     if (isset($options)) {
       if (isset($options->filter)) {
         if (isset($options->filter['author'])) {
-          $property_conditions['uid'] = array($options->filter->author, '=');
+          $property_conditions['uid'] = array($options->filter['author'], '=');
         }
         if (isset($options->filter['submission'])) {
           $property_conditions['nid'] = array($options->filter['submission'], '=');
@@ -276,10 +276,19 @@ class CleOpenStudioAppSubmissionService {
       }
       // Relationships
       $encoded_submission->relationships = new stdClass();
+      // load associations
+      $assignment = node_load($submission->field_assignment[LANGUAGE_NONE][0]['target_id']);
+      $project = node_load($assignment->field_assignment_project[LANGUAGE_NONE][0]['target_id']);
       // assignment
       $encoded_submission->relationships->assignment = new stdClass();
       $encoded_submission->relationships->assignment->data = new stdClass();
-      $encoded_submission->relationships->assignment->data->id = $submission->field_assignment[LANGUAGE_NONE][0]['target_id'];
+      $encoded_submission->relationships->assignment->data->id = $assignment->nid;
+      $encoded_submission->relationships->assignment->data->title = $assignment->title;
+      // project
+      $encoded_submission->relationships->project = new stdClass();
+      $encoded_submission->relationships->project->data = new stdClass();
+      $encoded_submission->relationships->project->data->id = $project->nid;
+      $encoded_submission->relationships->project->data->title = $project->title;
       // group
       $encoded_submission->relationships->group = new stdClass();
       $encoded_submission->relationships->group->data = new stdClass();
