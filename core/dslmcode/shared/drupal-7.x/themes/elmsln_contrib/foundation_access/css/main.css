@@ -6568,7 +6568,7 @@ table.sticky-header {
 .elmsln-network-modal {
   padding: 0;
 }
-.elmsln-modal-content ul {
+.elmsln-modal-content ul:not(.dropdown-content) {
   display: block;
   margin: 0;
 }
