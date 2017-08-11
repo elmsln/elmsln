@@ -12,6 +12,7 @@
       :host {
         display: block;
         align-content: center;
+        padding: .8em;
       }
       #loading {
         width: 100%;
@@ -24,10 +25,8 @@
         position: absolute;
         background-color: white;
       }
-      :host {
-        display: block;
-
-        padding: 10px;
+      .center-data {
+        text-align: center;
       }
       vaadin-grid#material {
         height: 75vh;
@@ -115,13 +114,29 @@
         text-align: center;
       }
     </style>
-     <vaadin-grid column-reordering-allowed id="material" aria-label="Course list" items="[[submissions]]">
+     <vaadin-grid column-reordering-allowed id="material" aria-label="Course list" items="{{submissions}}">
       <vaadin-grid-column resizable>
+        <template class="header">
+          <vaadin-grid-sorter path="relationships.project.data.title">Project</vaadin-grid-sorter>
+        </template>
+        <template>
+          <lrnsys-button raised on-tap="_loadProjectRoute" data-project-id$="{{item.id}}" label="[[item.relationships.project.data.title]]" hover-class="amber lighten-4" icon="folder"></lrnsys-button>
+        </template>
+      </vaadin-grid-column>
+      <vaadin-grid-column resizable>
+        <template class="header">
+          <vaadin-grid-sorter path="relationships.assignment.data.title">Assignment</vaadin-grid-sorter>
+        </template>
+        <template>
+          [[item.relationships.assignment.data.title]]
+        </template>
+      </vaadin-grid-column>
+      <vaadin-grid-column resizable width="20em" flex-grow="0" >
         <template class="header">
           <vaadin-grid-sorter path="attributes.title">Title</vaadin-grid-sorter>
         </template>
         <template>
-          <lrnsys-button raised on-tap="_loadSubmissionUrl" data-submission-id$="{{item.id}}" label="[[item.attributes.title]]" hover-class="amber lighten-4"></lrnsys-button>
+          <lrnsys-button raised on-tap="_loadSubmissionUrl" data-submission-id$="{{item.id}}" label="[[item.attributes.title]]" hover-class="amber lighten-4" icon="assignment"></lrnsys-button>
         </template>
         <template class="footer">
           <vaadin-grid-filter aria-label="Title" path="attributes.title" value="[[_filterTitle]]">
@@ -149,18 +164,13 @@
         <template>
             [[item.relationships.author.data.display_name]]
         </template>
-        <template class="footer">
-          <vaadin-grid-filter aria-label="Author" path="relationships.author.data.display_name" value="[[_filterAuthor]]">
-            <paper-input slot="filter" label="Author" value="{{_filterAuthor::input}}" focus-target></paper-input>
-          </vaadin-grid-filter>
-        </template>
       </vaadin-grid-column>
-      <vaadin-grid-column resizable>
+      <vaadin-grid-column resizable width="[[_numWidth]]">
         <template class="header">
           <vaadin-grid-sorter path="meta.comment_count">Comments</vaadin-grid-sorter>
         </template>
         <template>
-            [[item.meta.comment_count]]
+            <span class="center-data">[[item.meta.comment_count]]</span>
         </template>
         <template class="footer">
           <vaadin-grid-filter aria-label="Comments" path="meta.comment_count" value="[[_filterCommentsCount]]">
@@ -168,12 +178,12 @@
           </vaadin-grid-filter>
         </template>
       </vaadin-grid-column>
-      <vaadin-grid-column resizable>
+      <vaadin-grid-column resizable width="[[_numWidth]]">
         <template class="header">
           <vaadin-grid-sorter path="attributes.images.length">Images</vaadin-grid-sorter>
         </template>
         <template>
-            [[item.attributes.images.length]]
+            <span class="center-data">[[item.attributes.images.length]]</span>
         </template>
         <template class="footer">
           <vaadin-grid-filter aria-label="Images" path="attributes.images.length" value="[[_filterImageCount]]">
@@ -181,25 +191,25 @@
           </vaadin-grid-filter>
         </template>
       </vaadin-grid-column>
-      <vaadin-grid-column resizable>
+      <vaadin-grid-column resizable width="[[_numWidth]]">
         <template class="header">
           <vaadin-grid-sorter path="attributes.video.length">Video</vaadin-grid-sorter>
         </template>
         <template>
-            [[item.attributes.videos.length]]
+            <span class="center-data">[[item.attributes.video.length]]</span>
         </template>
         <template class="footer">
-          <vaadin-grid-filter aria-label="Video" path="attributes.videos.length" value="[[_filterVideosCount]]">
+          <vaadin-grid-filter aria-label="Video" path="attributes.video.length" value="[[_filterVideosCount]]">
             <paper-input slot="filter" label="Video" value="{{_filterVideosCount::input}}" focus-target></paper-input>
           </vaadin-grid-filter>
         </template>
       </vaadin-grid-column>
-      <vaadin-grid-column resizable>
+      <vaadin-grid-column resizable width="[[_numWidth]]">
         <template class="header">
           <vaadin-grid-sorter path="attributes.links.length">Links</vaadin-grid-sorter>
         </template>
         <template>
-            [[item.attributes.links.length]]
+            <span class="center-data">[[item.attributes.links.length]]</span>
         </template>
         <template class="footer">
           <vaadin-grid-filter aria-label="Links" path="attributes.links.length" value="[[_filterLinksCount]]">
@@ -207,12 +217,12 @@
           </vaadin-grid-filter>
         </template>
       </vaadin-grid-column>
-      <vaadin-grid-column resizable>
+      <vaadin-grid-column resizable width="[[_numWidth]]">
         <template class="header">
           <vaadin-grid-sorter path="attributes.files.length">Files</vaadin-grid-sorter>
         </template>
         <template>
-            [[item.attributes.files.length]]
+            <span class="center-data">[[item.attributes.files.length]]</span>
         </template>
         <template class="footer">
           <vaadin-grid-filter aria-label="Files" path="attributes.files.length" value="[[_filterFileCount]]">
@@ -234,6 +244,10 @@
         submissions: {
           type: Array,
           notify: true,
+        },
+        _numWidth: {
+          type: String,
+          value: '2.25em'
         },
         /**
          * Endpoint for submission data.

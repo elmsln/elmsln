@@ -1,5 +1,6 @@
 <link rel="import" href="../../../elements/lrndesign-gallerycard/lrndesign-gallerycard.html">
 <link rel="import" href="lrnapp-open-studio-table.html">
+<link rel="import" href="lrnapp-open-studio-projects.html">
 
 <dom-module id="lrnapp-open-studio">
   <template>
@@ -45,7 +46,7 @@
       url="[[sourcePath]]"
       params=''
       handle-as="json"
-      last-response="{{submissions}}"
+      last-response="{{studioResponse}}"
       on-response="_handleResponse"></iron-ajax>
 
     <app-location route="{{route}}"></app-location>
@@ -67,17 +68,28 @@
         <a name="table" href$="[[endPoint]]/table"><lrnsys-button icon="view-list" label="Table" hover-class="amber darken-4 white-text"></lrnsys-button></a>
       </iron-selector>
       <span main-title></span>
-      <paper-dropdown-menu label="Author" hidden$="[[!submissions]]">
-        <paper-listbox class="dropdown-content">
-          <template is="dom-repeat" items="[[_listAuthors(submissions)]]" as="item">
-          <paper-item>[[item.author]]</paper-item>
+      <span top-item style="text-align:right;font-size:.5em;padding-right:1em;">Displaying [[submissions.length]] of [[originalSubmissions.length]]</span>
+      <paper-dropdown-menu label="Author" hidden$="[[!authors]]" on-iron-select="_setAuthorFilter">
+        <paper-listbox class="dropdown-content" selected="{{_selectedAuthor}}">
+          <paper-item></paper-item>
+          <template is="dom-repeat" items="[[_toArray(authors)]]" as="author">
+          <paper-item data-item-id$="[[author.id]]">[[author.display_name]]</paper-item>
           </template>
         </paper-listbox>
       </paper-dropdown-menu>
-      <paper-dropdown-menu label="Project" hidden$="[[!submissions]]">
-        <paper-listbox class="dropdown-content">
-        <template is="dom-repeat" items="[[_listAuthors(submissions)]]" as="item">
-          <paper-item>[[item.title]]</paper-item>
+      <paper-dropdown-menu label="Project" hidden$="[[!projects]]" on-iron-select="_setProjectFilter">
+        <paper-listbox class="dropdown-content" selected="{{_selectedProject}}">
+          <paper-item></paper-item>
+        <template is="dom-repeat" items="[[_toArray(projects)]]" as="project">
+          <paper-item data-item-id$="[[project.id]]">[[project.attributes.title]]</paper-item>
+        </template>
+        </paper-listbox>
+      </paper-dropdown-menu>
+      <paper-dropdown-menu label="Assignment" hidden$="[[!assignments]]" on-iron-select="_setAssignmentFilter">
+        <paper-listbox class="dropdown-content" selected="{{_selectedAssignment}}">
+          <paper-item></paper-item>
+        <template is="dom-repeat" items="[[_toArray(assignments)]]" as="assignment">
+          <paper-item data-item-id$="[[assignment.id]]">[[assignment.title]]</paper-item>
         </template>
         </paper-listbox>
       </paper-dropdown-menu>
@@ -89,7 +101,7 @@
       fallback-selection="submissions"
       role="main">
       <div name="submissions">
-        <iron-list items="[[_toArray(submissions.data)]]" as="item" grid>
+        <iron-list items="[[submissions]]" as="item" grid>
           <template>
           <paper-button class="gallerycard-wrapper" on-tap="_loadSubmissionUrl">
             <lrndesign-gallerycard elevation="2" data-submission-id$="[[item.id]]" title="[[item.attributes.title]]" author="[[item.relationships.author.data.display_name]]" comments="[[item.meta.comment_count]]" image="[[item.display.image]]" icon="[[item.display.icon]]" date="[[item.meta.humandate]]" author-avatar="[[item.relationships.author.data.sis.avatar_url]]">
@@ -98,8 +110,8 @@
           </template>
         </iron-list>
       </div>
-      <div name="projects">This is project centric!</div>
-      <lrnapp-open-studio-table name="table" base-path="[[basePath]]" submissions="[[_toArray(submissions.data)]]"></lrnapp-open-studio-table>
+      <lrnapp-open-studio-projects name="projects" base-path="[[basePath]]" projects="[[projects]]" submissions="[[submissions]]" assignments="[[assignments]]" active-author="[[authorFilter]]" active-project="[[projectFilter]]"></lrnapp-open-studio-projects>
+      <lrnapp-open-studio-table name="table" base-path="[[basePath]]" submissions="{{submissions}}"></lrnapp-open-studio-table>
     </iron-pages>
     </div>
   </template>
@@ -118,11 +130,64 @@
           observer: '_routePageChanged',
         },
         /**
-         * The submissions to render
+         * The studioResponse from server
+         */
+        studioResponse: {
+          type: Object,
+          notify: true,
+        },
+        /**
+         * The submissions to render; potentially filtered
          */
         submissions: {
+          type: Object,
+          notify: true,
+        },
+        /**
+         * The original submissions array; used to filter against
+         */
+        originalSubmissions: {
+          type: Object,
+          notify: true,
+        },
+        projectFilter: {
+          type: String,
+          notify: true,
+          value: null,
+        },
+        authorFilter: {
+          type: String,
+          notify: true,
+          value: null,
+        },
+        assignmentFilter: {
+          type: String,
+          notify: true,
+          value: null,
+        },
+        /**
+         * The submissions to render
+         */
+        projects: {
           type: Array,
           notify: true,
+          value: [],
+        },
+        /**
+         * The assignments to render
+         */
+        assignments: {
+          type: Array,
+          notify: true,
+          value: [],
+        },
+        /**
+         * The authors to render
+         */
+        authors: {
+          type: Array,
+          notify: true,
+          value: [],
         },
         /**
          * sourcePath for submission data.
@@ -154,6 +219,77 @@
           notify: true,
         },
       },
+      _setProjectFilter: function (e) {
+        if (this._selectedProject != -1) {
+          this.projectFilter = e.target.selectedItem.getAttribute('data-item-id');
+          // when picking a project we have to undo assignment
+          if (this._selectedProject != 0) {
+            this.assignmentFilter = null;
+            this._selectedAssignment = -1;
+          }
+          this._applyFilters();
+        }
+        else {
+          this._selectedProject = 0;
+        }
+      },
+      _setAuthorFilter: function (e) {
+        this.authorFilter = e.target.selectedItem.getAttribute('data-item-id');
+        this._applyFilters();
+      },
+      _setAssignmentFilter: function (e) {
+        if (this._selectedAssignment != -1) {
+          this.assignmentFilter = e.target.selectedItem.getAttribute('data-item-id');
+          // when picking an assignment we have to undo project
+          if (this._selectedAssignment != 0) {
+            this.projectFilter = null;
+            this._selectedProject = -1;
+          }
+          this._applyFilters();
+        }
+        else {
+          this._selectedAssignment = 0;
+        }
+      },
+      _applyFilters: function () {
+        var submissions = [];
+        // this is effectively resetting the filters
+        if (typeof this.projectFilter == typeof null && typeof this.authorFilter == typeof null && typeof this.assignmentFilter == typeof null) {
+          submissions = this.originalSubmissions;
+        }
+        else {
+          // we have a filter, let's see if it's applying one or both
+          for (var index = 0; index < this.originalSubmissions.length; index++) {
+            // check user and project filters so we can utilize the two together only if they are set
+            if (typeof this.projectFilter != typeof null && typeof this.authorFilter != typeof null) {
+              // only add if both exist otherwise we'll skip it all
+              if (this.originalSubmissions[index].relationships.project.data.id == this.projectFilter && this.originalSubmissions[index].relationships.author.data.id == this.authorFilter) {
+                submissions.push(this.originalSubmissions[index]);
+              }
+            }
+            else if (typeof this.assignmentFilter != typeof null && typeof this.authorFilter != typeof null) {
+              // only add if both exist otherwise we'll skip it all
+              if (this.originalSubmissions[index].relationships.assignment.data.id == this.assignmentFilter && this.originalSubmissions[index].relationships.author.data.id == this.authorFilter) {
+                submissions.push(this.originalSubmissions[index]);
+              }
+            }
+            // only filter by project
+            else if (typeof this.projectFilter != typeof null && this.originalSubmissions[index].relationships.project.data.id == this.projectFilter) {
+              submissions.push(this.originalSubmissions[index]);
+            }
+            // only filter by assignment
+            else if (typeof this.assignmentFilter != typeof null && this.originalSubmissions[index].relationships.assignment.data.id == this.assignmentFilter) {
+              submissions.push(this.originalSubmissions[index]);
+            }
+            // only filter by author
+            else if (typeof this.authorFilter != typeof null && this.originalSubmissions[index].relationships.author.data.id == this.authorFilter) {
+              submissions.push(this.originalSubmissions[index]);
+            }
+          }
+        }
+        this.set('submissions', []);
+        this.set('submissions', submissions);
+      },
       /**
        * default us to the submission centric board if nothing exists
        */
@@ -184,7 +320,43 @@
        * Handle response for the whole projects object.
        */
       _handleResponse: function(event) {
-        this.$.loading.hidden = true;
+        let root = this;
+        var author = {};
+        var project = {};
+        var tmp = {
+          "authors": [],
+          "assignments": [],
+        };
+        var assignment = {};
+        var assignments = [];
+        var authors = [];
+        // get the submission response's data and convert to array ahead of time
+        var submissions = this._toArray(root.studioResponse.data.submissions);
+        var projects = this._toArray(root.studioResponse.data.projects);
+        this.set('projects', projects);
+        // original = active off the bat then we apply filters later to chang this
+        this.set('originalSubmissions', submissions);
+        this.set('submissions', submissions);
+        // figure out authors and assignments
+        for (var index = 0; index < submissions.length; index++) {
+          author = submissions[index].relationships.author.data;
+          tmp.authors[author.id] = author;
+          project = submissions[index].relationships.project.data;
+          assignment = submissions[index].relationships.assignment.data;
+          tmp.assignments[assignment.id] = assignment;
+          tmp.assignments[assignment.id].project = project.id;
+        }
+        // this is stupid but we have to normalize the IDs or else dom repeats will be screwed up
+        tmp.authors.forEach(function(element) {
+            authors.push(element);
+        });
+        // this is stupid but we have to normalize the IDs or else dom repeats will be screwed up
+        tmp.assignments.forEach(function(element) {
+            assignments.push(element);
+        });
+        root.$.loading.hidden = true;
+        this.set('assignments', assignments);
+        this.set('authors', authors);
       },
       /**
        * Simple way to convert from object to array.

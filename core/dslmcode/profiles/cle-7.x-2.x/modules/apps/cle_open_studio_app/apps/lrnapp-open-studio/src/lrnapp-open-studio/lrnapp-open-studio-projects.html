@@ -1,0 +1,149 @@
+<link rel="import" href="../../../lrnapp-studio-submission/src/lrnapp-studio-submission/lrnapp-studio-submission-display.html">
+
+<dom-module id="lrnapp-open-studio-projects">
+  <template>
+    <style include="materializecss-styles"></style>
+    <style>
+      :host {
+        display: block;
+        align-content: center;
+      }
+      #loading {
+        width: 100%;
+        z-index: 1000;
+        opacity: .8;
+        text-align: center;
+        align-content: center;
+        justify-content: center;
+        height: 100vh;
+        position: absolute;
+        background-color: white;
+      }
+      h1.empty-title,
+      h1.project-title {
+        font-size: 2em;
+      }
+    </style>
+    <paper-button on-tap="_debug" raised>Debug</paper-button>
+    <template is="dom-if" if="[[!_projectSelected(activeProject,activeAuthor)]]">
+      <h1 class="empty-title black-text">Please select an Author and Project in order to review their portfolio</h1>
+    </template>
+    <template is="dom-if" if="[[_projectSelected(activeProject,activeAuthor)]]">
+      <h1 class="project-title black-text">[[projectTitle]]</h1>
+      <template is="dom-repeat" items="[[renderSubmissions]]" as="submission">
+        <lrnapp-studio-submission-display submission="[[submission]]"></lrnapp-studio-submission-display>
+      </template>
+    </template>
+  </template>
+
+  <script>
+    Polymer({
+      is: 'lrnapp-open-studio-projects',
+      properties: {
+        /**
+         * The projects that exist so we can make other calls for data
+         */
+        projects: {
+          type: Array,
+          notify: true,
+        },
+        /**
+         * The submissions that exist so we can make other calls for data
+         */
+        submissions: {
+          type: Array,
+          notify: true,
+          observer: '_submissionsChanged',
+        },
+        /**
+         * The renderSubmissions we kick to the screen
+         */
+        renderSubmissions: {
+          type: Array,
+          notify: true,
+        },
+        /**
+         * The assignments that exist so we can make other calls for data
+         */
+        assignments: {
+          type: Array,
+          notify: true,
+        },
+        activeProject: {
+          type: String,
+          reflectToAttribute: true,
+          value: null,
+        },
+        activeAuthor: {
+          type: String,
+          reflectToAttribute: true,
+          value: null,
+        },
+        projectTitle: {
+          type: String,
+          computed: '_getProjectTitle(projects,activeProject)',
+          notify: true,
+        },
+        /**
+         * Endpoint for submission data.
+         */
+        sourcePath: {
+          type: String,
+          notify: true,
+        },
+        /**
+         * base path for the app
+         */
+        basePath: {
+          type: String,
+          notify: true,
+        }
+      },
+      _submissionsChanged: function(e) {
+        this.set('renderSubmissions', this.submissions);
+      },
+      _getProjectTitle: function(projects, active) {
+        for (var index = 0; index < projects.length; index++) {
+          if (projects[index].id == active) {
+            return projects[index].attributes.title;
+          }
+        }
+        return '';
+      },
+      /**
+       * Make sure we have a project / author before we render or else it'll blow up
+       */
+      _projectSelected: function(project, author) {
+        if (project != null && author != null) {
+          this.set('renderSubmissions', this.submissions);
+          return true;
+        }
+        else {
+          this.set('renderSubmissions', []);
+          return false;
+        }
+      },
+      _debug: function(e) {
+        console.log(this.projects);
+        console.log(this.activeProject);
+        console.log(this.activeAuthor);
+        console.log(this.assignments);
+        console.log(this.submissions);
+      },
+      /**
+       * Handle response for the whole projects object.
+       */
+      _handleResponse: function(event) {
+        this.$.loading.hidden = true;
+      },
+      /**
+       * Simple way to convert from object to array.
+       */
+      _toArray: function(obj) {
+        return Object.keys(obj).map(function(key) {
+          return obj[key];
+        });
+      },
+    });
+  </script>
+</dom-module>
