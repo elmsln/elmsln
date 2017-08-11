@@ -1,6 +1,7 @@
 <link rel="import" href="lrnapp-studio-submission-edit-add-asset.html">
 <link rel="import" href="lrnapp-studio-submission-edit-file.html">
 <link rel="import" href="../../bower_components/iron-icons/editor-icons.html">
+<link rel="import" href="../../bower_components/secure-request/secure-request.html">
 
 <dom-module id="lrnapp-studio-submission-edit-files">
   <template>
@@ -47,12 +48,14 @@
       <h2>Add Files(s)</h2>
       <paper-dialog-scrollable>
         <div class="files__upload">
-          <vaadin-upload accept="[[fileTypes]]" target="[[uploadUrl]]" method="POST" form-data-name="file-upload" on-upload-success="_handleImageUploadSuccess">
-            <div class="files__drop-label">
-              <iron-icon icon="files__description"></iron-icon>
-              Upload files here:
-            </div>
-          </vaadin-upload>
+          <template is="dom-if" if="[[uploadUrl]]">
+            <vaadin-upload accept="[[fileTypes]]" target="[[uploadUrl]]" method="POST" form-data-name="file-upload" on-upload-success="_handleImageUploadSuccess">
+              <div class="files__drop-label">
+                <iron-icon icon="files__description"></iron-icon>
+                Upload files here:
+              </div>
+            </vaadin-upload>
+          </template>
         </div>
       </paper-dialog-scrollable>
       <div class="buttons">
@@ -64,6 +67,7 @@
   <script>
     Polymer({
       is: 'lrnapp-studio-submission-edit-files',
+      behaviors: [ SecureRequest.xhr ],
       properties: {
         files: {
           type: Array,
@@ -75,7 +79,9 @@
           value: 0
         },
         uploadUrl: {
-          type: String
+          type: String,
+          value: null,
+          observer: 'log'
         },
         fileTypes: {
           type: String,
@@ -120,6 +126,24 @@
         var deleteIndex = normalizedEvent.localTarget.getAttribute('data-index');
         root.splice('files', Number(deleteIndex), 1);
       },
+      _canUpload: function () {
+        const uploadUrl = this.uploadUrl;
+        if (uploadUrl !== null) {
+          return true;
+        }
+        else {
+          return false;
+        }
+      },
+      log: function (property) {
+        console.log(property);
+      },
+      ready: function () {
+        const uploadUrl = this.generateUrl('/api/files');
+        if (uploadUrl !== null) {
+          this.set('uploadUrl', uploadUrl);
+        }
+      }
     });
   </script>
 </dom-module>
