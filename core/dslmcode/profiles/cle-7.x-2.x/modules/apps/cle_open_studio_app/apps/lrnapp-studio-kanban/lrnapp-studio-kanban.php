@@ -6,6 +6,7 @@
 define('__ROOT__', dirname(dirname(__FILE__)));
 require_once(__ROOT__.'/services/CleOpenStudioAppSubmissionService.php');
 require_once(__ROOT__.'/services/CleOpenStudioAppProjectService.php');
+require_once(__ROOT__.'/services/CleOpenStudioAppAssignmentService.php');
 require_once(__ROOT__.'/services/CleOpenStudioAppFileService.php');
 require_once(__ROOT__.'/services/CleOpenStudioAppCommentService.php');
 
@@ -14,7 +15,7 @@ require_once(__ROOT__.'/services/CleOpenStudioAppCommentService.php');
  * @param  string $machine_name machine name of this app
  * @return array               data to be json encoded for the front end
  */
-function _cle_studio_kanban_project_data($machine_name, $app_route, $params, $args) {
+function _cle_studio_kanban_kanban_data($machine_name, $app_route, $params, $args) {
   $data = array();
   $status = 404;
   // see if we're doing updates from the app
@@ -66,5 +67,197 @@ function _cle_studio_kanban_project_data($machine_name, $app_route, $params, $ar
   return array(
     'status' => $status,
     'data' => $data
+  );
+}
+
+function _cle_studio_kanban_project_findone($machine_name, $app_route, $params, $args) {
+  $return = array('status' => 200);
+  $method = $_SERVER['REQUEST_METHOD'];
+
+  // Find out if there is a nid specified
+  if ($method == 'GET' || $method == 'PUT' || $method == 'DELETE') {
+    if (isset($args[2])) {
+      $nid = $args[2];
+      if ($nid) {
+        // if it's a GET method then we can return the node.
+        switch ($method) {
+          case 'GET':
+            $service = new CleOpenStudioAppProjectService();
+            $return['data'] = $service->getProject($args[2]);
+            break;
+          case 'PUT':
+            $service = new CleOpenStudioAppProjectService();
+            $post_data = file_get_contents("php://input");
+            $post_data = json_decode($post_data);
+            // try to update the node
+            try {
+              $update = $service->updateProject($post_data, $args[2]);
+              $return['data'] = $update;
+            }
+            // if it fails we'll add errors and return 500
+            catch (Exception $e) {
+              $return['status'] = 500;
+              $return['errors'][] = $e->getMessage();
+            }
+            break;
+          case 'DELETE':
+            $service = new CleOpenStudioAppProjectService();
+            try {
+              $delete = $service->deleteProject($args[2]);
+            }
+            catch (Exception $e) {
+              $return['status'] = 500;
+              $return['errors'][] = $e->getMessage();
+            }
+            break;
+          default:
+            # code...
+            break;
+        }
+      }
+      else {
+        $return['status'] = 404;
+      }
+    }
+  }
+
+  return $return;
+}
+
+function _cle_studio_kanban_project_create_stub($machine_name, $app_route, $params, $args) {
+  $return = array('status' => 200);
+  $method = $_SERVER['REQUEST_METHOD'];
+
+  // Find out if there is a nid specified
+  if ($method == 'POST') {
+    $service = new CleOpenStudioAppProjectService();
+    try {
+      $submission = $service->createStubProject();
+      $return['data'] = $submission;
+    }
+    // if it fails we'll add errors and return 500
+    catch (Exception $e) {
+      $return['status'] = 500;
+      $return['errors'][] = $e->getMessage();
+    }
+  }
+  else {
+    $return['status'] = 400;
+    $return['errors'][] = t('Bad request. Method not allowed.');
+  }
+
+  return $return;
+}
+
+function _cle_studio_kanban_project_index($machine_name, $app_route, $params, $args) {
+  $return = array();
+  $status = 200;
+  $service = new CleOpenStudioAppProjectService();
+
+  $return = $service->getProjects();
+
+  return array(
+    'status' => 200,
+    'data' => $return
+  );
+}
+
+function _cle_studio_kanban_assignment_findone($machine_name, $app_route, $params, $args) {
+  $return = array('status' => 200);
+  $method = $_SERVER['REQUEST_METHOD'];
+
+  // Find out if there is a nid specified
+  if ($method == 'GET' || $method == 'PUT' || $method == 'DELETE') {
+    if (isset($args[2])) {
+      $nid = $args[2];
+      if ($nid) {
+        // if it's a GET method then we can return the node.
+        switch ($method) {
+          case 'GET':
+            $service = new CleOpenStudioAppAssignmentService();
+            $return['data'] = $service->getAssignment($args[2]);
+            break;
+          case 'PUT':
+            $service = new CleOpenStudioAppAssignmentService();
+            $post_data = file_get_contents("php://input");
+            $post_data = json_decode($post_data);
+            // try to update the node
+            try {
+              $update = $service->updateAssignment($post_data, $args[2]);
+              $return['data'] = $update;
+            }
+            // if it fails we'll add errors and return 500
+            catch (Exception $e) {
+              $return['status'] = 500;
+              $return['errors'][] = $e->getMessage();
+            }
+            break;
+          case 'DELETE':
+            $service = new CleOpenStudioAppAssignmentService();
+            try {
+              $delete = $service->deleteAssignment($args[2]);
+            }
+            catch (Exception $e) {
+              $return['status'] = 500;
+              $return['errors'][] = $e->getMessage();
+            }
+            break;
+          default:
+            # code...
+            break;
+        }
+      }
+      else {
+        $return['status'] = 404;
+      }
+    }
+  }
+
+  return $return;
+}
+
+function _cle_studio_kanban_assignment_create_stub($machine_name, $app_route, $params, $args) {
+  $return = array('status' => 200);
+  $method = $_SERVER['REQUEST_METHOD'];
+
+  // Find out if there is a nid specified
+  if ($method == 'POST') {
+    $post_data = file_get_contents("php://input");
+    if ($post_data) {
+      $post_data = json_decode($post_data);
+      $service = new CleOpenStudioAppAssignmentService();
+      try {
+        $submission = $service->createStubAssignment($post_data);
+        $return['data'] = $submission;
+      }
+      // if it fails we'll add errors and return 500
+      catch (Exception $e) {
+        $return['status'] = 500;
+        $return['errors'][] = $e->getMessage();
+      }
+    }
+    else {
+      $return['status'] = 422;
+      $return['errors'][] = t('No project id defined.');
+    }
+  }
+  else {
+    $return['status'] = 400;
+    $return['errors'][] = t('Bad request. Method not allowed.');
+  }
+
+  return $return;
+}
+
+function _cle_studio_kanban_assignment_index($machine_name, $app_route, $params, $args) {
+  $return = array();
+  $status = 200;
+  $service = new CleOpenStudioAppAssignmentService();
+
+  $return = $service->getAssignments();
+
+  return array(
+    'status' => 200,
+    'data' => $return
   );
 }

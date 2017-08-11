@@ -11,9 +11,33 @@
       "weight": -11
     },
     "endpoints": {
-      "project-data": {
-        "callback": "_cle_studio_kanban_project_data",
-        "property": "project-data"
+      "kanban-data": {
+        "callback": "_cle_studio_kanban_kanban_data",
+        "property": "source-data"
+      },
+      "api/projects": {
+        "callback": "_cle_studio_kanban_project_index",
+        "property": "source-path"
+      },
+      "api/projects/create-stub": {
+        "callback": "_cle_studio_kanban_project_create_stub",
+        "property": "source-path"
+      },
+      "api/projects/%": {
+        "callback": "_cle_studio_kanban_project_findone",
+        "property": "source-path"
+      },
+      "api/assignments": {
+        "callback": "_cle_studio_kanban_assignment_index",
+        "property": "source-path"
+      },
+      "api/assignments/create-stub": {
+        "callback": "_cle_studio_kanban_assignment_create_stub",
+        "property": "source-path"
+      },
+      "api/assignments/%": {
+        "callback": "_cle_studio_kanban_assignment_findone",
+        "property": "source-path"
       }
     }
   }
