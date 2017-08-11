@@ -24,7 +24,6 @@
         font-size: 2em;
       }
     </style>
-    <paper-button on-tap="_debug" raised>Debug</paper-button>
     <template is="dom-if" if="[[!_projectSelected(activeProjectId,activeAuthorId)]]">
       <h1 class="empty-title black-text">Please select an Author and Project in order to review their portfolio</h1>
     </template>
@@ -123,14 +122,6 @@
           this.set('renderSubmissions', []);
           return false;
         }
-      },
-      _debug: function(e) {
-        console.log(this.projects);
-        console.log(this.activeProject);
-        console.log(this.assignments);
-        console.log(this.submissions);
-        console.log(this.activeProjectId);
-        console.log(this.activeAuthorId);
       },
       /**
        * Handle response for the whole projects object.
