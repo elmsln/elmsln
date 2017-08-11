@@ -27,6 +27,10 @@
       "blocks/recent-comments": {
         "callback": "_lrnapp_studio_dashboard_recent_comments",
         "property": "source-path"
+      },
+      "blocks/need-feedback": {
+        "callback": "_lrnapp_studio_dashboard_need_feedback",
+        "property": "source-path"
       }
     }
   }

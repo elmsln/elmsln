@@ -1,6 +1,7 @@
 <link rel="import" href="../blocks/lrnapp-block-recent-project.html">
 <link rel="import" href="../blocks/lrnapp-block-recent-submissions.html">
 <link rel="import" href="../blocks/lrnapp-block-recent-comments.html">
+<link rel="import" href="../blocks/lrnapp-block-need-feedback.html">
 
 <dom-module id="lrnapp-studio-dashboard">
   <template>
@@ -37,6 +38,12 @@
           <div class="card-content">
             <lrnapp-block-recent-project csrf-token="[[csrfToken]]" end-point="[[_getEndPoint(basePath)]]" base-path="[[basePath]]" source-path="[[_getDataSource(csrfToken, basePath,'recent-project')]]">
             </lrnapp-block-recent-project>
+          </div>
+        </paper-card>
+        <paper-card heading="Classmates needing feedback" class="dashboard-item">
+          <div class="card-content">
+            <lrnapp-block-need-feedback csrf-token="[[csrfToken]]" end-point="[[_getEndPoint(basePath)]]" base-path="[[basePath]]" source-path="[[_getDataSource(csrfToken, basePath,'need-feedback')]]">
+            </lrnapp-block-need-feedback>
           </div>
         </paper-card>
         <paper-card heading="Recent Studio submissions" class="dashboard-item">

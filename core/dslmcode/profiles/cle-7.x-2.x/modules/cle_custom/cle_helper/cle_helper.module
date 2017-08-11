@@ -176,6 +176,17 @@ function cle_helper_get_group_content_ids_alter(&$ids) {
 }
 
 /**
+ * Implements hook_query_TAG_alter().
+ * This allows us to relate nodes with comment statistics in an EFQ
+ * so that we can pull things that don't have comments
+ */
+function cle_helper_query_nocomments_alter(QueryAlterableInterface $query) {
+  $query->join('node_comment_statistics', 'ncs', 'ncs.nid = node.nid');
+  $query->fields('ncs', array('comment_count'));
+  $query->condition('ncs.comment_count', 0, '=');
+}
+
+/**
  * Implements hook_page_build().
  */
 function cle_helper_page_build(&$page) {

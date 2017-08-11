@@ -77,7 +77,30 @@ function _lrnapp_studio_dashboard_recent_submissions($machine_name, $app_route, 
   $options = new stdClass();
   $options->state = array('submission_ready', '=');
   $options->order = array('property' => array(array('changed', 'DESC')));
-  $options->limit = array(0, 5);
+  $options->limit = array(0, 3);
+  // invoke our submission service to get submissions
+  $service = new CleOpenStudioAppSubmissionService();
+  $data = $service->getSubmissions($options);
+  if (!empty($data)) {
+    $status = 200;
+  }
+  return array(
+    'status' => $status,
+    'data' => $data
+  );
+}
+
+/**
+ * Get recent submission info
+ */
+function _lrnapp_studio_dashboard_need_feedback($machine_name, $app_route, $params, $args) {
+  $data = array();
+  $status = 404;
+  $options = new stdClass();
+  $options->state = array('submission_ready', '=');
+  $options->order = array('property' => array(array('changed', 'DESC')));
+  $options->limit = array(0, 3);
+  $options->tags = array('nocomments');
   // invoke our submission service to get submissions
   $service = new CleOpenStudioAppSubmissionService();
   $data = $service->getSubmissions($options);

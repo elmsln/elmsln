@@ -40,6 +40,7 @@ class CleOpenStudioAppSubmissionService {
     $property_conditions = array('status' => array(NODE_PUBLISHED, '='));
     $orderby = array('property' => array(array('changed', 'DESC')));
     $limit = NULL;
+    $tags = array();
     $property_conditions = array('status' => array(COMMENT_PUBLISHED, '='));
     if (isset($options)) {
       if (isset($options->filter)) {
@@ -59,8 +60,11 @@ class CleOpenStudioAppSubmissionService {
       if (isset($options->limit)) {
         $limit = $options->limit;
       }
+      if (isset($options->tags)) {
+        $tags = $options->tags;
+      }
     }
-    $items = _cis_connector_assemble_entity_list('node', 'cle_submission', 'nid', '_entity', $field_conditions, $property_conditions, $orderby, TRUE, $limit);
+    $items = _cis_connector_assemble_entity_list('node', 'cle_submission', 'nid', '_entity', $field_conditions, $property_conditions, $orderby, TRUE, $limit, $tags);
     $items = $this->encodeSubmissions($items);
     return $items;
   }

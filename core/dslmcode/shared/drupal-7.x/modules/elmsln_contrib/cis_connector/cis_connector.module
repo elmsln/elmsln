@@ -1452,10 +1452,14 @@ function cis_connector_libraries_info_file_paths() {
  *   (optional) order the results by field / property condtions keyed in array
  * @param  $strict bool
  *   (optional) whether to strictly enforce entity permissions or not, default enforce.
+ * @param  $limit array
+ *   (optional) range to return from results
+ * @param  $tags array
+ *   (optional) EFQ tags, beyond advanced capability to extend EFQ logic
  * @return $options
  *   array of options as a clean list for selection of an entity id
  */
-function _cis_connector_assemble_entity_list($entity_type, $bundle, $id_field, $title_field, $field_conditions = array(), $property_conditions = array(), $orderby = array(), $strict = TRUE, $limit = NULL) {
+function _cis_connector_assemble_entity_list($entity_type, $bundle, $id_field, $title_field, $field_conditions = array(), $property_conditions = array(), $orderby = array(), $strict = TRUE, $limit = NULL, $tags = NULL) {
   // pull items based on bundle
   $options = array();
   // assemble all entities requested
@@ -1555,6 +1559,12 @@ function _cis_connector_assemble_entity_list($entity_type, $bundle, $id_field, $
   // support for a limit / range of values
   if (is_array($limit)) {
     $query->range($limit[0], $limit[1]);
+  }
+  // support crazy things like EFQ tags
+  if (is_array($tags)) {
+    foreach ($tags as $tag) {
+      $query->addTag($tag);
+    }
   }
   // execute our results
   $result = $query->execute();
