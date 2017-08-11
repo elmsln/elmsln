@@ -43,45 +43,12 @@
         right: 0;
       }
 
-      elmsln-loading {
-        position: absolute;
-        display: none;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(255, 255, 255, 0.8);
-        z-index: 10;
-        align-items: flex-end;
-        justify-content: center;
-      }
-
-       :host[saving] elmsln-loading {
-        display: block;
-      }
-
-      elmsln-loading ::shadow>lrn-icon {
-        top: calc(50% - 5vmax);
-        left: calc(50% - 5vmax);
-        position: fixed;
-        transform-origin: center center;
-        width: 10vmax !important;
-        height: 10vmax !important;
-      }
-
       paper-dialog {
         width: 50%;
         width: 50vmax;
         padding: 1em;
       }
     </style>
-
-    <!-- Update Submission Node -->
-    <iron-ajax id="ajaxUpdateRequest" url="[[reqUrl]]" method="PUT" body="[[reqBody]]" params="[[reqParams]]" content-type="application/json"
-      handle-as="json" on-response="_handleUpdateResponse"></iron-ajax>
-    <!-- Delete Submission Node -->
-    <iron-ajax id="ajaxDeleteRequest" url="[[reqUrl]]" method="DELETE" params="[[reqParams]]" content-type="application/json"
-      handle-as="json" on-response="_handleDeleteResponse"></iron-ajax>
 
     <template is="dom-if" if="{{submission}}">
       <div class="field">
@@ -138,23 +105,12 @@
           <paper-button dialog-confirm on-click="_deleteConfirmed">Delete</paper-button>
         </div>
       </paper-dialog>
-
-      <elmsln-loading></elmsln-loading>
     </template>
   </template>
   <script>
     Polymer({
       is: 'lrnapp-studio-submission-edit',
       properties: {
-        reqUrl: {
-          type: String
-        },
-        reqParams: {
-          type: Object
-        },
-        reqBody: {
-          type: Object
-        },
         submission: {
           type: Object,
           notify: true
@@ -171,64 +127,27 @@
         videoGenerateSourceUrl: {
           type: String
         },
-        saving: {
-          type: Boolean,
-          reflectToAttribute: true,
-          value: false
+        submission: {
+          type: Object,
+          notify: true
         }
       },
       observers: [
-        '_urlVarsChanged(submission.id, endPoint, csrfToken)',
-        '_paramsChanged(csrfToken)',
         '_bodyChanged(title)'
       ],
-      _urlVarsChanged: function (id, endPoint, csrfToken) {
-        this.reqUrl = endPoint + '/api/submissions/' + id;
-        this.uploadFilesUrl = endPoint + '/api/files?token=' + csrfToken;
-        this.videoGenerateSourceUrl = endPoint + '/api/video/generate-source-url';
-      },
-      _paramsChanged: function (csrfToken) {
-        var params = this.reqParams || {};
-        params.token = csrfToken;
-        this.reqParams = params;
-      },
-      _handleResponse: function (data) {
-        this.submission = data.detail.response.data;
-      },
-      _handleUpdateResponse: function (res) {
-        var root = this;
-        var status = res.detail.response.status;
-        this.saving = false;
-        if (status === 200) {
-          // this will go back to the submission page.
-          this.fire('updated', { type: 'update' });
-        }
-      },
       _publishClicked: function (e) {
-        this.reqBody = this.submission;
-        this.reqBody.attributes.state = 'submission_ready';
-        this.$$('#ajaxUpdateRequest').generateRequest();
-        this.saving = true;
+        this.set('submission.attributes.state', 'submission_ready');
+        this.fire('submissionPublishClicked');
       },
       _saveDraftClicked: function (e) {
-        this.reqBody = this.submission;
-        this.reqBody.attributes.state = 'submission_in_progress';
-        this.$$('#ajaxUpdateRequest').generateRequest();
-        this.saving = true;
+        this.set('submission.attributes.state', 'submission_in_progress');
+        this.fire('submissionSaveDraftClicked');
       },
       _deleteClicked: function (e) {
         this.$.deletedialog.open();
       },
       _deleteConfirmed: function (e) {
-        this.$.ajaxDeleteRequest.generateRequest();
-      },
-      _handleDeleteResponse: function (res) {
-        var root = this;
-        var status = res.detail.response.status;
-        this.saving = false;
-        if (status === 200) {
-          this.fire('updated', { type: 'delete' });
-        }
+        this.fire('submissionDeleteClicked');
       },
       /**
        * Simple way to convert from object to array.

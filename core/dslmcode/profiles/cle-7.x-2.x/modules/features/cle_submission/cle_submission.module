@@ -396,6 +396,28 @@ function cle_submission_node_access($node, $op, $account) {
 }
 
 /**
+ * Implements cle_submission_node_presave().
+ *
+ * Check the parent assignment to find out what type of submission should be.
+ */
+function cle_submission_node_presave($node) {
+  if ($node->type == 'cle_submission') {
+    $return = 'default';
+    $entity = entity_load_single('node', $node->field_assignment[LANGUAGE_NONE][0]['target_id']);
+    $entity_efw = entity_metadata_wrapper('node', $entity);
+    if ($entity_efw) {
+      $assignment_critique = $entity_efw->field_critique_method->value();
+      if ($assignment_critique) {
+        if ($assignment_critique != 'none') {
+          $return = 'critique';
+        }
+      }
+    }
+    $node->field_submission_type[LANGUAGE_NONE][0]['value'] = $return;
+  }
+}
+
+/**
  * Return if a user has completed an assignment / has anything submitted for it.
  */
 function _cle_submission_submission_status($assignment, $account = NULL) {
