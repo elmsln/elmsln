@@ -25,11 +25,11 @@
       }
     </style>
     <paper-button on-tap="_debug" raised>Debug</paper-button>
-    <template is="dom-if" if="[[!_projectSelected(activeProject,activeAuthor)]]">
+    <template is="dom-if" if="[[!_projectSelected(activeProjectId,activeAuthorId)]]">
       <h1 class="empty-title black-text">Please select an Author and Project in order to review their portfolio</h1>
     </template>
-    <template is="dom-if" if="[[_projectSelected(activeProject,activeAuthor)]]">
-      <h1 class="project-title black-text">[[projectTitle]]</h1>
+    <template is="dom-if" if="[[_projectSelected(activeProjectId,activeAuthorId)]]">
+      <h1 class="project-title black-text">[[activeProject.attributes.title]]</h1>
       <template is="dom-repeat" items="[[renderSubmissions]]" as="submission">
         <lrnapp-studio-submission-display submission="[[submission]]"></lrnapp-studio-submission-display>
       </template>
@@ -69,20 +69,19 @@
           type: Array,
           notify: true,
         },
+        activeProjectId: {
+          type: String,
+          reflectToAttribute: true,
+          value: null,
+        },
         activeProject: {
+          type: Object,
+          computed: '_getProject(projects,activeProjectId)',
+        },
+        activeAuthorId: {
           type: String,
           reflectToAttribute: true,
           value: null,
-        },
-        activeAuthor: {
-          type: String,
-          reflectToAttribute: true,
-          value: null,
-        },
-        projectTitle: {
-          type: String,
-          computed: '_getProjectTitle(projects,activeProject)',
-          notify: true,
         },
         /**
          * Endpoint for submission data.
@@ -102,18 +101,20 @@
       _submissionsChanged: function(e) {
         this.set('renderSubmissions', this.submissions);
       },
-      _getProjectTitle: function(projects, active) {
+      _getProject: function(projects, active) {
         for (var index = 0; index < projects.length; index++) {
           if (projects[index].id == active) {
-            return projects[index].attributes.title;
+            return projects[index];
           }
         }
-        return '';
+        return null;
       },
       /**
        * Make sure we have a project / author before we render or else it'll blow up
        */
       _projectSelected: function(project, author) {
+        console.log(project);
+        console.log(author);
         if (project != null && author != null) {
           this.set('renderSubmissions', this.submissions);
           return true;
@@ -126,9 +127,10 @@
       _debug: function(e) {
         console.log(this.projects);
         console.log(this.activeProject);
-        console.log(this.activeAuthor);
         console.log(this.assignments);
         console.log(this.submissions);
+        console.log(this.activeProjectId);
+        console.log(this.activeAuthorId);
       },
       /**
        * Handle response for the whole projects object.

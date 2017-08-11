@@ -63,9 +63,9 @@
     </div>
     <app-toolbar class="amber lighten-3">
       <iron-selector selected="{{page}}" attr-for-selected="name" role="navigation">
-        <a name="submissions" href$="[[endPoint]]/submissions"><lrnsys-button icon="apps" label="Submissions" hover-class="amber darken-4 white-text"></lrnsys-button></a>
-        <a name="projects" href$="[[endPoint]]/projects"><lrnsys-button icon="folder" label="Projects" hover-class="amber darken-4 white-text"></lrnsys-button></a>
-        <a name="table" href$="[[endPoint]]/table"><lrnsys-button icon="view-list" label="Table" hover-class="amber darken-4 white-text"></lrnsys-button></a>
+        <a tabindex="-1" name="submissions" href$="[[endPoint]]/submissions"><lrnsys-button icon="apps" label="Submissions" hover-class="amber darken-4 white-text"></lrnsys-button></a>
+        <a tabindex="-1" name="projects" href$="[[endPoint]]/projects"><lrnsys-button icon="folder" label="Projects" hover-class="amber darken-4 white-text"></lrnsys-button></a>
+        <a tabindex="-1" name="table" href$="[[endPoint]]/table"><lrnsys-button icon="view-list" label="Table" hover-class="amber darken-4 white-text"></lrnsys-button></a>
       </iron-selector>
       <span main-title></span>
       <span top-item style="text-align:right;font-size:.5em;padding-right:1em;">Displaying [[submissions.length]] of [[originalSubmissions.length]]</span>
@@ -110,7 +110,7 @@
           </template>
         </iron-list>
       </div>
-      <lrnapp-open-studio-projects name="projects" base-path="[[basePath]]" projects="[[projects]]" submissions="[[submissions]]" assignments="[[assignments]]" active-author="[[authorFilter]]" active-project="[[projectFilter]]"></lrnapp-open-studio-projects>
+      <lrnapp-open-studio-projects name="projects" base-path="[[basePath]]" projects="[[projects]]" submissions="[[submissions]]" assignments="[[assignments]]" active-author-id="[[authorFilter]]" active-project-id="[[projectFilter]]"></lrnapp-open-studio-projects>
       <lrnapp-open-studio-table name="table" base-path="[[basePath]]" submissions="{{submissions}}"></lrnapp-open-studio-table>
     </iron-pages>
     </div>
