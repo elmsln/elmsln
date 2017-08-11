@@ -1,5 +1,6 @@
 <link rel="import" href="lrnapp-studio-submission-edit-add-asset.html">
 <link rel="import" href="lrnapp-studio-submission-edit-image.html">
+<link rel="import" href="../../bower_components/secure-request/secure-request.html">
 
 <dom-module id="lrnapp-studio-submission-edit-images">
   <template>
@@ -46,12 +47,14 @@
       <h2>Add Image(s)</h2>
       <paper-dialog-scrollable>
         <div class="images__upload">
-          <vaadin-upload accept="[[fileTypes]]" target="[[uploadUrl]]" method="POST" form-data-name="file-upload" on-upload-success="_handleImageUploadSuccess">
-            <div class="images__drop-label">
-              <iron-icon icon="images__description"></iron-icon>
-              Upload files here:
-            </div>
-          </vaadin-upload>
+          <template is="dom-if" if="[[uploadUrl]]">
+            <vaadin-upload accept="[[fileTypes]]" target="[[uploadUrl]]" method="POST" form-data-name="file-upload" on-upload-success="_handleImageUploadSuccess">
+              <div class="images__drop-label">
+                <iron-icon icon="images__description"></iron-icon>
+                Upload files here:
+              </div>
+            </vaadin-upload>
+          </template>
         </div>
       </paper-dialog-scrollable>
       <div class="buttons">
@@ -63,6 +66,7 @@
   <script>
     Polymer({
       is: 'lrnapp-studio-submission-edit-images',
+      behaviors: [ SecureRequest.xhr ],
       properties: {
         images: {
           type: Array,
@@ -74,7 +78,8 @@
           value: 0
         },
         uploadUrl: {
-          type: String
+          type: String,
+          value: null
         }
       },
       _addImage: function (e) {
@@ -127,6 +132,12 @@
         // console.log(deleteIndex);
         root.splice('images', deleteIndex, 1);
       },
+      ready: function() {
+        const uploadUrl = this.generateUrl('/api/files');
+        if (uploadUrl !== null) {
+          this.set('uploadUrl', uploadUrl);
+        }
+      }
     });
   </script>
 </dom-module>

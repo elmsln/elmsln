@@ -15,14 +15,14 @@
     "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0"
   },
   "homepage": "https://github.com/LRNWebComponents/secure-request",
-  "version": "0.0.1",
-  "_release": "0.0.1",
+  "version": "0.0.2",
+  "_release": "0.0.2",
   "_resolution": {
     "type": "version",
-    "tag": "v0.0.1",
-    "commit": "d03d93c9df904993f06d8a502baf52ea10651e48"
+    "tag": "v0.0.2",
+    "commit": "c664953b1207a50455d68bc6b31a4665b3419b89"
   },
   "_source": "https://github.com/LRNWebComponents/secure-request.git",
-  "_target": "^0.0.1",
+  "_target": "^0.0.2",
   "_originalSource": "LRNWebComponents/secure-request"
 }

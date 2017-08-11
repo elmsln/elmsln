@@ -36,7 +36,6 @@
 
       .imagesfiled {}
 
-
       .imagesfiled__image_delete {
         position: absolute;
         top: 0;
@@ -64,13 +63,13 @@
       <!-- Images -->
       <div class="imagesfield field">
         <label for="image-upload">Images</label>
-        <lrnapp-studio-submission-edit-images images="{{submission.attributes.images}}" upload-url="[[uploadFilesUrl]]"></lrnapp-studio-submission-edit-images>
+        <lrnapp-studio-submission-edit-images images="{{submission.attributes.images}}"></lrnapp-studio-submission-edit-images>
       </div>
 
       <!-- Files -->
       <div class="filesfield field">
         <label for="file-upload">Files</label>
-        <lrnapp-studio-submission-edit-files files="{{submission.attributes.files}}" upload-url="[[uploadFilesUrl]]" file-types="[[submission.meta.filefieldTypes]]"></lrnapp-studio-submission-edit-images>
+        <lrnapp-studio-submission-edit-files files="{{submission.attributes.files}}" file-types="[[submission.meta.filefieldTypes]]"></lrnapp-studio-submission-edit-images>
       </div>
 
       <!-- Links -->

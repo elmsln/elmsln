@@ -144,7 +144,6 @@
     <app-route route="{{route}}" pattern="/edit" tail="{{tail}}" active="{{editPage}}">
     </app-route>
 
-
     <iron-ajax id="ajaxRequest" auto url="[[reqUrl]]" method="GET" params="[[reqParams]]" content-type="application/json" handle-as="json"
       on-response="_handleResponse"></iron-ajax>
     <!-- Update Submission Node -->
@@ -178,13 +177,10 @@
         </div>
       </template>
 
-      <template is="dom-if" if="[[editPage]]">
-        <lrnapp-studio-submission-edit submission="{{submission}}"></lrnapp-studio-submission-edit>
-      </template>
-
-      <template is="dom-if" if="[[!editPage]]">
+      <iron-pages selected="[[selectedPage]]">
         <lrnapp-studio-submission-display submission="{{submission}}"></lrnapp-studio-submission-display>
-      </template>
+        <lrnapp-studio-submission-edit submission="{{submission}}"></lrnapp-studio-submission-edit>
+      </iron-pages>
     </div>
 
     <elmsln-loading></elmsln-loading>
@@ -235,12 +231,17 @@
           value: false,
           notify: true,
           reflectToAttribute: true
+        },
+        selectedPage: {
+          type: Number,
+          value: 0
         }
       },
       observers: [
         '_urlVarsChanged(id, endPoint)',
         '_paramsChanged(csrfToken)',
-        '_bodyChanged(title)'
+        '_bodyChanged(title)',
+        '_selectedPageChanged(editPage, submission.meta.submissionType)'
       ],
       listeners: {
         'submissionDeleteClicked': '_submissionDeleteClicked',
@@ -322,6 +323,32 @@
         if (status === 200) {
           this.set('route.path', '');
         }
+      },
+      _selectedPageChanged: function (editPage, type) {
+        console.log(editPage);
+        console.log(type);
+        var selected = 0;
+        if (editPage) {
+          switch (type) {
+            case 'default':
+              selected = 1;
+              break;
+            case 'critique':
+              selected = 1;
+              break;
+          }
+        }
+        else {
+          switch (type) {
+            case 'default':
+              selected = 0;
+              break;
+            case 'critique':
+              selected = 0;
+              break;
+          }
+        }
+        this.set('selectedPage', selected);
       },
       /**
       * Simple way to convert from object to array.
