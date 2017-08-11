@@ -139,14 +139,14 @@
     </style>
     <iron-ajax auto
       id="projectbackend"
-      url="[[projectData]]"
+      url="[[sourcePath]]"
       handle-as="json"
       last-response="{{projects}}"
       on-response="_handleProjectResponse">
     </iron-ajax>
     <iron-ajax
       id="backend"
-      url="[[projectData]]"
+      url="[[sourcePath]]"
       params=""
       handle-as="json"
       last-response="{{backendResponse}}"
@@ -227,7 +227,7 @@
           value: null,
           notify: true,
         },
-        projectData: {
+        sourcePath: {
           type: String,
           notify: true,
         },

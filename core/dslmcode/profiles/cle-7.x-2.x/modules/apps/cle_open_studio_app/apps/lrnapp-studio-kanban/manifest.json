@@ -13,7 +13,7 @@
     "endpoints": {
       "kanban-data": {
         "callback": "_cle_studio_kanban_kanban_data",
-        "property": "source-data"
+        "property": "source-path"
       },
       "api/projects": {
         "callback": "_cle_studio_kanban_project_index",
