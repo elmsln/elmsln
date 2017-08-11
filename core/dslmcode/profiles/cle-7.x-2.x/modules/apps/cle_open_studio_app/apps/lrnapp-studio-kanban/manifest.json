@@ -11,10 +11,6 @@
       "weight": -11
     },
     "endpoints": {
-      "kanban-data": {
-        "callback": "_cle_studio_kanban_kanban_data",
-        "property": "source-path"
-      },
       "api/projects": {
         "callback": "_cle_studio_kanban_project_index",
         "property": "source-path"
@@ -37,6 +33,10 @@
       },
       "api/assignments/%": {
         "callback": "_cle_studio_kanban_assignment_findone",
+        "property": "source-path"
+      },
+      "kanban-data": {
+        "callback": "_cle_studio_kanban_kanban_data",
         "property": "source-path"
       }
     }
