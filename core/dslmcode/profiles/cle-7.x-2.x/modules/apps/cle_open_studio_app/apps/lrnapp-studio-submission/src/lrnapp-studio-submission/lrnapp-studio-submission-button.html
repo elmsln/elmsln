@@ -21,6 +21,10 @@ Usage:
     <template is="dom-if" if="[[submissionId]]">
       <lrnsys-button raised label="View submission" href$="[[_submissionUrl(submissionId)]]"></lrnsys-button>
     </template>
+
+    <template is="dom-if" if="[[displayErrors]]">
+      <paper-toast id="toast"></paper-toast>
+    </template>
   </template>
   <script>
     Polymer({
@@ -42,7 +46,11 @@ Usage:
           reflectToAttribute: true,
         },
         endPoint: String,
-        csrfToken: String
+        csrfToken: String,
+        displayErrors: {
+          type: Boolean,
+          value: true
+        }
       },
       observers: [
         '_requestUrlChanged(endPoint, csrfToken)'
@@ -58,7 +66,8 @@ Usage:
       },
       _ajaxCreateStubHandler: function (e) {
         var status = e.detail.response.status;
-        if (status === 200) {
+        var response = e.detail.response;
+        if (status === 201) {
           var submissionId = e.detail.response.data.id;
           if (submissionId) {
             this.submissionId = submissionId;
@@ -67,6 +76,15 @@ Usage:
               window.location.href = this._submissionUrl(submissionId) + '/edit';
             }
           }
+        }
+        // if we have errors to display
+        if (typeof response.errors !== 'undefined') {
+          var ul = document.createElement('ul');
+          var text = '';
+          response.errors.forEach(function(error) {
+            text = text + ' ' + error;
+          });
+          this.$$('#toast').show(text);
         }
       },
       _submissionUrl: function (id) {

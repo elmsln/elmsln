@@ -377,7 +377,7 @@
       _computeShowComments: function (submission, editPage) {
         try {
           var type = submission.meta.submissionType;
-          if (type === 'default' && !editPage) {
+          if (type !== 'critique' && !editPage) {
             return true;
           }
         } catch (error) {
