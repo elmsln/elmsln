@@ -1,4 +1,5 @@
 <link rel="import" href="lrnapp-studio-submission-edit-add-asset.html">
+<link rel="import" href="../../bower_components/secure-request/secure-request.html">
 
 <dom-module id="lrnapp-studio-submission-edit-video">
   <template>
@@ -52,24 +53,22 @@
       </div>
     </paper-dialog>
 
-    <!-- Generate Video Source Url for preview -->
-    <iron-ajax id="videoGenerateSourceUrl" url="[[videoGenerateSourceUrl]]" method="POST" body="[[newvideo]]" 
-      content-type="application/json" handle-as="json" on-response="_addImage"></iron-ajax>
+    <template is="dom-if" if="[[videoGenerateSourceUrl]]">
+      <!-- Generate Video Source Url for preview -->
+      <iron-ajax id="videoGenerateSourceUrl" url="[[videoGenerateSourceUrl]]" method="POST" body="[[newvideo]]"
+        content-type="application/json" handle-as="json" on-response="_addImage"></iron-ajax>
+    </template>
 
   </template>
   <script>
     Polymer({
       is: 'lrnapp-studio-submission-edit-video',
+      behaviors: [ SecureRequest.xhr ],
       properties: {
-        endPoint: {
-          type: String
-        },
-        csrfToken: {
-          type: String
-        },
         videos: {
           type: Array,
-          value: []
+          value: [],
+          notify: true
         },
         selectedPage: {
           type: String,
@@ -81,11 +80,8 @@
         },
         videoGenerateSourceUrl: {
           type: String,
-          computed: '_computeVideoGenerateSourceUrl(endPoint, csrfToken)'
+          value: null
         }
-      },
-      _computeVideoGenerateSourceUrl: function (endPoint, csrfToken) {
-        return endPoint + '/api/video/generate-source-url?token=' + csrfToken;
       },
       _openDialog: function (e) {
         this.$.dialog.open();
@@ -115,6 +111,10 @@
         var deleteIndex = normalizedEvent.localTarget.getAttribute('data-index');
         root.splice('videos', deleteIndex, 1);
       },
+      ready: function () {
+        const url = this.generateUrl('/api/video/generate-source-url');
+        this.set('videoGenerateSourceUrl', url);
+      }
     });
   </script>
 </dom-module>

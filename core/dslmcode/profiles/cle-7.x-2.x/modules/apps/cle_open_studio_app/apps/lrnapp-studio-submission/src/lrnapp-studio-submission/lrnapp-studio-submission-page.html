@@ -297,7 +297,7 @@
         this.reqParams = params;
       },
       _handleResponse: function (data) {
-        this.submission = data.detail.response.data;
+        this.set('submission', data.detail.response.data);
       },
       _isReply: function (data) {
         this.thread = submission.relationships.comments.data.attributes.thread;
@@ -317,8 +317,12 @@
       _handleUpdateResponse: function (res) {
         var root = this;
         var status = res.detail.response.status;
+        var submission = res.detail.response.data;
         root.saving = false;
-        root.set('route.path', '');
+        if (status === 200) {
+          root.set('submission', submission);
+          root.set('route.path', '');
+        }
       },
       _handleDeleteResponse: function (res) {
         var root = this;
