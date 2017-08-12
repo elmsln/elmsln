@@ -1,0 +1,134 @@
+<link rel="import" href="lrnapp-studio-submission-media-editoverlay.html">
+<link rel="import" href="lrnapp-studio-submission-edit-images.html">
+<link rel="import" href="lrnapp-studio-submission-edit-files.html">
+<link rel="import" href="lrnapp-studio-submission-edit-video.html">
+<link rel="import" href="lrnapp-studio-submission-edit-links.html">
+<link rel="import" href="lrnapp-studio-submission-edit-textarea.html">
+
+<dom-module id="lrnapp-studio-submission-critique">
+  <template>
+    <style>
+       :host {
+        display: block;
+        padding: 1rem;
+      }
+
+      .field {
+        padding-top: 2em;
+        padding-bottom: 2em;
+      }
+
+      .actions {
+        display: flex;
+        border-top: 2px solid gainsboro;
+        margin-top: 1em;
+      }
+
+      .actions .spacer {
+        flex: 1 1 auto;
+      }
+
+      iron-icon {
+        margin-right: .4em;
+        --iron-icon-height: 2em;
+        --iron-icon-width: 2em;
+      }
+
+      .imagesfiled {}
+
+      .imagesfiled__image_delete {
+        position: absolute;
+        top: 0;
+        right: 0;
+      }
+
+      paper-dialog {
+        width: 50%;
+        width: 50vmax;
+        padding: 1em;
+      }
+    </style>
+
+    <template is="dom-if" if="{{submission}}">
+      <!-- Body -->
+      <div class="field">
+        <label>Give Feedback</label>
+        <lrnapp-studio-submission-edit-textarea content="{{submission.attributes.body}}"></lrnapp-studio-submission-edit-textarea>
+      </div>
+
+      <div class="actions">
+        <lrnsys-button id="publish" icon="check" label="Publish to Studio" on-click="_publishClicked" hover-class="amber lighten-5 green-text text-darken-4"
+          icon-class="green-text"></lrnsys-button>
+        <lrnsys-button id="save-draft" icon="drafts" label="Save Draft" on-click="_saveDraftClicked" hover-class="amber lighten-5 amber-text text-darken-4"
+          icon-class="amber-text text-darken-4"></lrnsys-button>
+        <span class="spacer"></span>
+        <lrnsys-button id="delete" label="Delete" icon="delete" on-click="_deleteClicked" hover-class="amber lighten-5 red-text"
+          icon-class="red-text text-darken-4">
+        </lrnsys-button>
+      </div>
+
+      <paper-dialog id="deletedialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation" with-backdrop>
+        <h2>Delete feedback?</h2>
+        <p>Are you sure you want to delete feedback?</p>
+        <div class="buttons">
+          <paper-button dialog-dismiss>Cancel</paper-button>
+          <paper-button dialog-confirm on-click="_deleteConfirmed">Delete</paper-button>
+        </div>
+      </paper-dialog>
+    </template>
+  </template>
+  <script>
+    Polymer({
+      is: 'lrnapp-studio-submission-critique',
+      properties: {
+        submission: {
+          type: Object,
+          notify: true
+        },
+        uploadFilesUrl: {
+          type: String
+        },
+        newlink: {
+          type: String
+        },
+        newvideo: {
+          type: String
+        },
+        videoGenerateSourceUrl: {
+          type: String
+        },
+        submission: {
+          type: Object,
+          notify: true
+        }
+      },
+      observers: [
+        '_bodyChanged(title)'
+      ],
+      _publishClicked: function (e) {
+        this.set('submission.attributes.state', 'submission_ready');
+        this.fire('submissionPublishClicked');
+      },
+      _saveDraftClicked: function (e) {
+        this.set('submission.attributes.state', 'submission_in_progress');
+        this.fire('submissionSaveDraftClicked');
+      },
+      _deleteClicked: function (e) {
+        this.$.deletedialog.open();
+      },
+      _deleteConfirmed: function (e) {
+        this.fire('submissionDeleteClicked');
+      },
+      /**
+       * Simple way to convert from object to array.
+       */
+      _toArray: function (obj) {
+        return Object.keys(obj).map(function (key) {
+          return obj[key];
+        });
+      },
+      ready: function () {
+      }
+    });
+  </script>
+</dom-module>
