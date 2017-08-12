@@ -49,6 +49,6 @@
     "commit": "a28a9ac9e5937ac1bab83939f00256d232c91b65"
   },
   "_source": "https://github.com/PolymerElements/app-layout.git",
-  "_target": "^0.10.7",
+  "_target": "^0.10.0",
   "_originalSource": "PolymerElements/app-layout"
 }

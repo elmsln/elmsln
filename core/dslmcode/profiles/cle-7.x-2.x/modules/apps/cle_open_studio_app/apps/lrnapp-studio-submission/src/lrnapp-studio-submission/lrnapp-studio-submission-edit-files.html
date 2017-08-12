@@ -92,7 +92,6 @@
         '_filesChanged(files)'
       ],
       _filesChanged: function (files) {
-        console.log(files);
       },
       _addImage: function (e) {
         this.$.dialog.open();
@@ -136,7 +135,6 @@
         }
       },
       log: function (property) {
-        console.log(property);
       },
       ready: function () {
         const uploadUrl = this.generateUrl('/api/files');

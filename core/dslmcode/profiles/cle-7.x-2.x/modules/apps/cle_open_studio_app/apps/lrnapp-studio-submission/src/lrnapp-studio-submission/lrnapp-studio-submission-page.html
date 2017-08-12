@@ -114,6 +114,10 @@
         margin: 0;
       }
 
+      lrnapp-studio-submission-edit {
+        width: 100%;
+      }
+
       elmsln-loading {
         position: absolute;
         display: none;
@@ -138,6 +142,15 @@
         transform-origin: center center;
         width: 10vmax !important;
         height: 10vmax !important;
+      }
+
+      iron-pages {
+        width: 100%;
+      }
+
+      lrnapp-studio-submission-edit {
+        max-width: 70em;
+        margin: auto;
       }
     </style>
 
@@ -293,7 +306,7 @@
         this.reqParams = params;
       },
       _handleResponse: function (data) {
-        this.submission = data.detail.response.data;
+        this.set('submission', data.detail.response.data);
       },
       _isReply: function (data) {
         this.thread = submission.relationships.comments.data.attributes.thread;
@@ -313,8 +326,12 @@
       _handleUpdateResponse: function (res) {
         var root = this;
         var status = res.detail.response.status;
+        var submission = res.detail.response.data;
         root.saving = false;
-        root.set('route.path', '');
+        if (status === 200) {
+          root.set('submission', submission);
+          root.set('route.path', '');
+        }
       },
       _handleDeleteResponse: function (res) {
         var root = this;
@@ -325,8 +342,6 @@
         }
       },
       _selectedPageChanged: function (editPage, type) {
-        console.log(editPage);
-        console.log(type);
         var selected = 0;
         if (editPage) {
           switch (type) {

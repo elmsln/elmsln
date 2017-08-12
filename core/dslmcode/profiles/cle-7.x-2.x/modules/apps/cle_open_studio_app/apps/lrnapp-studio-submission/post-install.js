@@ -22,6 +22,7 @@ var options = {
     /<link .*oer-schema.html\W>/g,
     /<link .*lrndesign-avatar.html\W>/g,
     /<link .*materializecss-styles.html\W>/g,
+    /<link .*iron-pages.html\W>/g,
     /<link .*iron-iconset.html\W>/g,
     /<link .*iron-list.html\W>/g,
     /<link .*iron-icons.html\W>/g,

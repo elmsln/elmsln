@@ -66,16 +66,16 @@ firing a `location-changed` event on `window`. i.e.
 -->
 <dom-module id="app-location">
   <template>
+    <iron-query-params
+        params-string="{{__query}}"
+        params-object="{{queryParams}}">
+    </iron-query-params>
     <iron-location
         path="{{__path}}"
         query="{{__query}}"
         hash="{{__hash}}"
         url-space-regex={{urlSpaceRegex}}>
     </iron-location>
-    <iron-query-params
-        params-string="{{__query}}"
-        params-object="{{queryParams}}">
-    </iron-query-params>
   </template>
   <script>
     (function() {

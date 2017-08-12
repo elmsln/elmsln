@@ -1,6 +1,6 @@
 {
   "name": "app-route",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "authors": [
     "The Polymer Authors"
   ],
@@ -63,11 +63,11 @@
   "resolutions": {
     "webcomponentsjs": "^1.0.0"
   },
-  "_release": "2.0.1",
+  "_release": "2.0.2",
   "_resolution": {
     "type": "version",
-    "tag": "v2.0.1",
-    "commit": "da2d1c251202bf0c76542a4cfdedec028ee3f33c"
+    "tag": "v2.0.2",
+    "commit": "56a888dbff04db02d27359ce50132a85d24931bb"
   },
   "_source": "https://github.com/PolymerElements/app-route.git",
   "_target": "^2.0.1",
