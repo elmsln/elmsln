@@ -22,12 +22,12 @@
     "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0"
   },
   "homepage": "https://github.com/LRNWebComponents/lrn-markdown-editor",
-  "version": "0.0.5",
-  "_release": "0.0.5",
+  "version": "0.0.6",
+  "_release": "0.0.6",
   "_resolution": {
     "type": "version",
-    "tag": "0.0.5",
-    "commit": "45d1ecd07121371d6dd3b6b94f25bf368a0aeacf"
+    "tag": "v0.0.6",
+    "commit": "469c7254f2cabea52f2d54435d5b5219772f64ef"
   },
   "_source": "https://github.com/LRNWebComponents/lrn-markdown-editor.git",
   "_target": "^0",

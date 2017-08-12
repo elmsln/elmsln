@@ -143,6 +143,15 @@
         width: 10vmax !important;
         height: 10vmax !important;
       }
+
+      iron-pages {
+        width: 100%;
+      }
+
+      lrnapp-studio-submission-edit {
+        max-width: 70em;
+        margin: auto;
+      }
     </style>
 
     <app-route route="{{route}}" pattern="/edit" tail="{{tail}}" active="{{editPage}}">
@@ -333,8 +342,6 @@
         }
       },
       _selectedPageChanged: function (editPage, type) {
-        console.log(editPage);
-        console.log(type);
         var selected = 0;
         if (editPage) {
           switch (type) {
