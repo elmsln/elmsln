@@ -178,20 +178,22 @@
       <h3>Loading..</h3>
       <elmsln-loading color="grey-text" size="large"></elmsln-loading>
     </div>
-    <lrnapp-studio-project-button classes="amber darken-3 white-text" end-point="[[endPoint]]" csrf-token="[[csrfToken]]"></lrnapp-studio-project-button>
+    <template is="dom-if" if="[[projects.meta.canUpdate]]">
+      <lrnapp-studio-project-button classes="amber darken-3 white-text" end-point="[[endPoint]]" csrf-token="[[csrfToken]]"></lrnapp-studio-project-button>
+    </template>
     <iron-list items="[[_toArray(projects.data)]]" as="project" class="projects-container" grid>
       <template class="projects-container-items">
         <div class="project-container">
           <paper-card id$="project-[[project.id]]" class="project-card grey lighten-3" heading="{{project.attributes.title}}" elevation="2">
             <div class="project-operations">
               <lrnsys-button icon-class="no-margin" id$="project-[[project.id]]-edit" alt="Edit project" class="circle operation" hover-class="amber lighten-2"
-                hidden="[[!project.meta.canUpdate]]" icon="create" href$="[[_makeEditLink(project.id)]]">
+                hidden="[[!projects.meta.canUpdate]]" icon="create" href$="[[_makeEditLink(project.id)]]">
               </lrnsys-button>
               <lrnapp-studio-assignment-button project-id="[[project.id]]" icon-class="no-margin" id$="project-[[project.id]]-add" alt="Add assignment" class="circle operation" hover-class="amber lighten-2"
-                hidden="[[!project.meta.canUpdate]]" icon="add" end-point="[[endPoint]]" csrf-token="[[csrfToken]]">
+                hidden="[[!projects.meta.canUpdate]]" icon="add" end-point="[[endPoint]]" csrf-token="[[csrfToken]]">
               </lrnapp-studio-assignment-button>
               <lrnsys-button id$="project-[[project.id]]-delete" alt="Delete project!" class="circle operation" hover-class="red darken-2 white-text"
-                header="Delete project!" hidden="[[!project.meta.canDelete]]" icon="delete-forever" href$="[[_makeDeleteLink(project.id)]]"
+                header="Delete project!" hidden="[[!projects.meta.canDelete]]" icon="delete-forever" href$="[[_makeDeleteLink(project.id)]]"
                 icon-class="no-margin">
                 </lrnsys-dialog>
             </div>
