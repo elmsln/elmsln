@@ -1,5 +1,6 @@
 <link rel="import" href="lrnapp-studio-submission-display.html">
 <link rel="import" href="lrnapp-studio-submission-edit.html">
+<link rel="import" href="lrnapp-studio-submission-critique.html">
 <link rel="import" href="lrnapp-studio-submission-comments.html">
 <link rel="import" href="lrnapp-studio-submission-comment.html">
 <link rel="import" href="../../bower_components/lrnsys-comment/lrnsys-comment-list.html">
@@ -183,18 +184,22 @@
         <lrnsys-button on-tap="_resetRoute" icon="cancel" label="Cancel" hover-class="amber darken-4 white-text" hidden$="[[!submission.meta.canUpdate]]"></lrnsys-button>
       </div>
     </app-toolbar>
-    <div class="flex-wrap submission-page-wrapper">
-      <template is="dom-if" if="[[!editPage]]">
-        <div class="submission-comments">
-          <lrnsys-comment-list comment-ops-base="{{commentOpsBase}}" csrf-token="[[csrfToken]]" source-path="{{commentsUrl}}" create-stub-url="{{createStubUrl}}"></lrnsys-comment-list>
-        </div>
-      </template>
 
-      <iron-pages selected="[[selectedPage]]">
-        <lrnapp-studio-submission-display submission="{{submission}}"></lrnapp-studio-submission-display>
-        <lrnapp-studio-submission-edit submission="{{submission}}"></lrnapp-studio-submission-edit>
-      </iron-pages>
-    </div>
+    <template is="dom-if" if="[[submission]]">
+      <div class="flex-wrap submission-page-wrapper">
+        <template is="dom-if" if="[[showComments]]">
+          <div class="submission-comments">
+            <lrnsys-comment-list comment-ops-base="{{commentOpsBase}}" csrf-token="[[csrfToken]]" source-path="{{commentsUrl}}" create-stub-url="{{createStubUrl}}"></lrnsys-comment-list>
+          </div>
+        </template>
+
+        <iron-pages selected="[[selectedPage]]">
+          <lrnapp-studio-submission-display submission="{{submission}}"></lrnapp-studio-submission-display>
+          <lrnapp-studio-submission-edit submission="{{submission}}"></lrnapp-studio-submission-edit>
+          <lrnapp-studio-submission-critique submission="{{submission}}"></lrnapp-studio-submission-critique>
+        </iron-pages>
+      </div>
+    </template>
 
     <elmsln-loading></elmsln-loading>
   </template>
@@ -248,6 +253,10 @@
         selectedPage: {
           type: Number,
           value: 0
+        },
+        showComments: {
+          type: Boolean,
+          computed: '_computeShowComments(submission, editPage)'
         }
       },
       observers: [
@@ -349,7 +358,7 @@
               selected = 1;
               break;
             case 'critique':
-              selected = 1;
+              selected = 2;
               break;
           }
         }
@@ -359,11 +368,21 @@
               selected = 0;
               break;
             case 'critique':
-              selected = 0;
+              selected = 2;
               break;
           }
         }
         this.set('selectedPage', selected);
+      },
+      _computeShowComments: function (submission, editPage) {
+        try {
+          var type = submission.meta.submissionType;
+          if (type !== 'critique' && !editPage) {
+            return true;
+          }
+        } catch (error) {
+        }
+        return false;
       },
       /**
       * Simple way to convert from object to array.

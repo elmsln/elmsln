@@ -15,13 +15,16 @@ class CleOpenStudioAppSubmissionService {
     $node->uid = $user->uid;
     $node->status = 1;
     $node->field_assignment[LANGUAGE_NONE][0]['target_id'] = $assignment_id;
-    node_save($node);
-    if (isset($node->nid)) {
-      return $this->encodeSubmission($node);
+    try {
+      node_save($node);
+      if (isset($node->nid)) {
+        return $this->encodeSubmission($node);
+      }
     }
-    else {
-      return FALSE;
+    catch (Exception $e) {
+      throw new Exception($e->getMessage(), 1);
     }
+    return FALSE;
   }
 
   /**

@@ -76,11 +76,11 @@ function _cle_open_studio_app_submission_create_stub($machine_name, $app_route, 
       $service = new CleOpenStudioAppSubmissionService();
       try {
         $submission = $service->createStubSubmission($post_data);
+        $return['status'] = 201;
         $return['data'] = $submission;
       }
       // if it fails we'll add errors and return 500
       catch (Exception $e) {
-        $return['status'] = 500;
         $return['errors'][] = $e->getMessage();
       }
     }
