@@ -119,8 +119,10 @@ class CleOpenStudioAppSubmissionService {
           try {
             // $decoded_submission = new stdClass(); #fake error message
             node_save($decoded_submission);
+            // load the new node that we just saved.
+            $new_node = node_load($decoded_submission->nid);
             // encode the submission to send it back
-            $encoded_submission = $this->encodeSubmission($decoded_submission);
+            $encoded_submission = $this->encodeSubmission($new_node);
             return $encoded_submission;
           }
           catch (Exception $e) {
@@ -332,20 +334,20 @@ class CleOpenStudioAppSubmissionService {
   protected function decodeSubmission($payload, $node) {
     if ($payload) {
       if ($payload->attributes) {
-        if ($payload->attributes->title) {
+        if (isset($payload->attributes->title)) {
           $node->title = $payload->attributes->title;
         }
         if (isset($payload->attributes->body)) {
           $node->field_submission_text[LANGUAGE_NONE][0]['value'] = $payload->attributes->body;
           $node->field_submission_text[LANGUAGE_NONE][0]['format'] = 'student_markdown';
         }
-        if ($payload->attributes->state) {
+        if (isset($payload->attributes->links)) {
           $node->field_submission_state[LANGUAGE_NONE][0]['value'] = $payload->attributes->state;
         }
-        if ($payload->attributes->links) {
+        if (isset($payload->attributes->links)) {
           $node->field_links[LANGUAGE_NONE] = $this->objectToArray($payload->attributes->links);
         }
-        if ($payload->attributes->files) {
+        if (isset($payload->attributes->files)) {
           $node->field_files[LANGUAGE_NONE] = $this->objectToArray($payload->attributes->files);
         }
         if (isset($payload->attributes->video)) {

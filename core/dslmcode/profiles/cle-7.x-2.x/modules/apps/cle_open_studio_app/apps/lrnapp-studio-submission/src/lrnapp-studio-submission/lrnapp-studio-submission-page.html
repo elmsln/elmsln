@@ -162,8 +162,7 @@
       on-response="_handleResponse"></iron-ajax>
     <!-- Update Submission Node -->
     <iron-ajax id="ajaxUpdateRequest" url="[[reqUrl]]" method="PUT" body="[[submission]]" params="[[reqParams]]" content-type="application/json"
-      handle-as="json" on-response="_handleUpdateResponse"></iron-ajax>
-    <!-- Delete Submission Node -->
+      handle-as="json" on-response="_handleUpdateResponse"></iron-ajax>    <!-- Delete Submission Node -->
     <iron-ajax id="ajaxDeleteRequest" url="[[reqUrl]]" method="DELETE" params="[[reqParams]]" content-type="application/json"
       handle-as="json" on-response="_handleDeleteResponse"></iron-ajax>
 
@@ -338,6 +337,7 @@
         var submission = res.detail.response.data;
         root.saving = false;
         if (status === 200) {
+          root.set('submission', {});
           root.set('submission', submission);
           root.set('route.path', '');
         }
