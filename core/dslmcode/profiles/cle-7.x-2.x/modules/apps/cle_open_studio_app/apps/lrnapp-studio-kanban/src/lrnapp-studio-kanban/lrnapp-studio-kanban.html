@@ -4,9 +4,10 @@
   <template>
     <style include="materializecss-styles"></style>
     <style>
-      :host {
+       :host {
         display: block;
       }
+
       #loading {
         width: 100%;
         z-index: 1000;
@@ -18,6 +19,7 @@
         position: absolute;
         background-color: white;
       }
+
       .projects-container {
         display: block;
         -webkit-box-align: center;
@@ -33,73 +35,92 @@
         height: 100vh;
         width: 100%;
       }
+
       .projects-container {
         scrollbar-face-color: #833900;
         scrollbar-shadow-color: #ffc107;
-        scrollbar-highlight-color:#ffc107;
+        scrollbar-highlight-color: #ffc107;
         scrollbar-3dlight-color: #ffc107;
         scrollbar-darkshadow-color: #ffc107;
         scrollbar-track-color: #ffc107;
         scrollbar-arrow-color: #ffc107;
       }
+
       .projects-container::-webkit-scrollbar-track {
         background-color: #833900;
-      } /* the new scrollbar will have a flat appearance with the set background color */
+      }
+      /* the new scrollbar will have a flat appearance with the set background color */
+
       .projects-container::-webkit-scrollbar-thumb {
         background-color: #ffc107;
-      } /* this will style the thumb, ignoring the track */
+      }
+      /* this will style the thumb, ignoring the track */
+
       .projects-container::-webkit-scrollbar-button {
         background-color: #833900;
-      } /* optionally, you can style the top and the bottom buttons (left and right for horizontal bars) */
+      }
+      /* optionally, you can style the top and the bottom buttons (left and right for horizontal bars) */
+
       .projects-container::-webkit-scrollbar-corner {
         background-color: #833900;
-      } /* if both the vertical and the horizontal bars appear, then perhaps the right bottom corner*/
+      }
+      /* if both the vertical and the horizontal bars appear, then perhaps the right bottom corner*/
+
       .projects-container::-webkit-scrollbar {
         width: 1rem;
         height: 1rem;
-      } /* this targets the default scrollbar (compulsory) */
+      }
+      /* this targets the default scrollbar (compulsory) */
 
       paper-button {
         padding: 0;
         margin: 0;
         min-width: 1rem;
       }
+
       .project-card {
         width: 100%;
         min-width: 15em;
         max-width: 20em;
-        margin: 0 1em;
+        margin: 0 3em;
       }
+
       .project-operations {
         position: absolute;
         top: 0;
         right: 0;
         padding: 1em;
       }
+
       .project-operations .operation {
         display: inline-flex;
         height: 2.5em;
         width: 2.5em;
       }
+
       .assignment-row {
         border: 1px solid #000000;
         background-color: #FFFFFF;
       }
+
       .assignment-row .assignment-row-button.active {
         background-color: var(--paper-amber-50);
         font-weight: bold;
       }
+
       .assignment-row:hover .assignment-operations {
         display: block;
         overflow: visible;
         margin: .2em;
       }
+
       .assignment-row-button {
         width: 100%;
         justify-content: flex-start;
         height: 3em;
         text-transform: none;
       }
+
       .status-indicator {
         border-right: 1px solid grey;
         padding: .5em;
@@ -110,10 +131,12 @@
         justify-content: center;
         align-items: center;
       }
+
       .button-contents {
         display: flex;
         align-content: center;
       }
+
       .assignment-title {
         display: inline-flex;
         align-items: center;
@@ -121,6 +144,7 @@
         text-overflow: ellipsis;
         line-height: 1em;
       }
+
       .assignment-operations {
         position: absolute;
         top: 0;
@@ -128,93 +152,99 @@
         padding: 0;
         display: none;
       }
+
       .assignment-operations.show {
         display: block;
         overflow: visible;
       }
+
       .assignment-operations .operation {
         display: inline-flex;
         width: 2.5em;
         height: 2.5em;
       }
+
+      lrnapp-studio-project-button {
+        margin: 4em auto;
+        max-width: 20em;
+      }
     </style>
-    <iron-ajax auto
-      id="projectbackend"
-      url="[[sourcePath]]"
-      handle-as="json"
-      last-response="{{projects}}"
-      on-response="_handleProjectResponse">
+    <iron-ajax auto id="projectbackend" url="[[sourcePath]]" handle-as="json" last-response="{{projects}}" on-response="_handleProjectResponse">
     </iron-ajax>
-    <iron-ajax
-      id="backend"
-      url="[[sourcePath]]"
-      params=""
-      handle-as="json"
-      last-response="{{backendResponse}}"
-      on-response="_handleUpdateResponse">
+    <iron-ajax id="backend" url="[[sourcePath]]" params="" handle-as="json" last-response="{{backendResponse}}" on-response="_handleUpdateResponse">
     </iron-ajax>
     <div id="loading">
       <h3>Loading..</h3>
       <elmsln-loading color="grey-text" size="large"></elmsln-loading>
     </div>
-    <lrnapp-studio-project-button end-point="[[endPoint]]" csrf-token="[[csrfToken]]"></lrnapp-studio-project-button>
+    <lrnapp-studio-project-button classes="amber darken-3 white-text" end-point="[[endPoint]]" csrf-token="[[csrfToken]]"></lrnapp-studio-project-button>
     <iron-list items="[[_toArray(projects.data)]]" as="project" class="projects-container" grid>
       <template class="projects-container-items">
-      <paper-card id$="project-[[project.id]]" class="project-card grey lighten-3" heading="{{project.attributes.title}}" elevation="2">
-        <div class="project-operations">
-          <lrnsys-button icon-class="no-margin" id$="project-[[project.id]]-edit" alt="Edit project" class="circle operation" hover-class="amber lighten-2" hidden="[[!project.meta.canUpdate]]" icon="create" href$="[[_makeEditLink(project.id)]]">
-          </lrnsys-button>
-          <lrnsys-button icon-class="no-margin" id$="project-[[project.id]]-add" alt="Add assignment" class="circle operation" hover-class="amber lighten-2" hidden="[[!project.meta.canUpdate]]" icon="add" href$="[[_makeAddLink(project.id)]]">
-          </lrnsys-button>
-          <lrnsys-button id$="project-[[project.id]]-delete" alt="Delete project!" class="circle operation" hover-class="red darken-2 white-text" header="Delete project!" hidden="[[!project.meta.canDelete]]" icon="delete-forever" href$="[[_makeDeleteLink(project.id)]]" icon-class="no-margin">
-          </lrnsys-dialog>
-        </div>
-        <div class="card-content">
-          <iron-list items="[[_toArray(project.relationships.assignments)]]" as="assignment">
-            <template>
-            <div class="assignment-row" id="assignment">
-              <lrnsys-dialog body-append on-focusin="assignmentFocusIn" class="assignment-row-button" id$="assignment-[[project.id]]-[[assignment.id]]" header="[[assignment.title]]" hover-class="amber lighten-5">
-                <span slot="button" class="button-contents">
+        <div class="project-container">
+          <paper-card id$="project-[[project.id]]" class="project-card grey lighten-3" heading="{{project.attributes.title}}" elevation="2">
+            <div class="project-operations">
+              <lrnsys-button icon-class="no-margin" id$="project-[[project.id]]-edit" alt="Edit project" class="circle operation" hover-class="amber lighten-2"
+                hidden="[[!project.meta.canUpdate]]" icon="create" href$="[[_makeEditLink(project.id)]]">
+              </lrnsys-button>
+              <lrnsys-button icon-class="no-margin" id$="project-[[project.id]]-add" alt="Add assignment" class="circle operation" hover-class="amber lighten-2"
+                hidden="[[!project.meta.canUpdate]]" icon="add" href$="[[_makeAddLink(project.id)]]">
+              </lrnsys-button>
+              <lrnsys-button id$="project-[[project.id]]-delete" alt="Delete project!" class="circle operation" hover-class="red darken-2 white-text"
+                header="Delete project!" hidden="[[!project.meta.canDelete]]" icon="delete-forever" href$="[[_makeDeleteLink(project.id)]]"
+                icon-class="no-margin">
+                </lrnsys-dialog>
+            </div>
+            <div class="card-content">
+              <iron-list items="[[_toArray(project.relationships.assignments)]]" as="assignment">
+                <template>
+                  <div class="assignment-row" id="assignment">
+                    <lrnsys-dialog body-append on-focusin="assignmentFocusIn" class="assignment-row-button" id$="assignment-[[project.id]]-[[assignment.id]]"
+                      header="[[assignment.title]]" hover-class="amber lighten-5">
+                      <span slot="button" class="button-contents">
                   <div class$="status-indicator [[assignment.metadata.relatedSubmissions.complete.color]]">
                     <iron-icon icon="[[assignment.metadata.relatedSubmissions.complete.icon]]"disabled$="[[!assignment.metadata.relatedSubmissions.canCreate]]"></iron-icon>
                   </div>
                   <div class="assignment-title">[[assignment.title]]</div>
                 </span>
-                <div slot="content">
-                  <app-toolbar class$="[[assignment.metadata.relatedSubmissions.complete.color]]">
-                    <div>
-                      <iron-icon icon="[[assignment.metadata.relatedSubmissions.complete.icon]]"disabled$="[[!assignment.metadata.relatedSubmissions.canCreate]]"></iron-icon>
-                      [[assignment.metadata.relatedSubmissions.complete.submission.title]]
-                    </div>
-                    <div spacer class="comment-box" hidden$="[[!assignment.metadata.relatedSubmissions.complete.submission.id]]">
-                      <paper-button id$="assignment-[[project.id]]-[[assignment.id]]-comments" style="margin:0;padding:.25em;text-transform:none;">
-                        <iron-icon icon="communication:forum"></iron-icon>
-                        [[assignment.metadata.relatedSubmissions.complete.submission.metadata.comments.count]] Comments
-                      </paper-button>
-                      <paper-badge hidden$="[[displayNewBadge(assignment.metadata.relatedSubmissions.complete.submission.metadata.comments.new)]]" for$="assignment-[[project.id]]-[[assignment.id]]-comments" label$="[[assignment.metadata.relatedSubmissions.complete.submission.metadata.comments.new]]"></paper-badge>
-                    </div>
+                      <div slot="content">
+                        <app-toolbar class$="[[assignment.metadata.relatedSubmissions.complete.color]]">
+                          <div>
+                            <iron-icon icon="[[assignment.metadata.relatedSubmissions.complete.icon]]" disabled$="[[!assignment.metadata.relatedSubmissions.canCreate]]"></iron-icon>
+                            [[assignment.metadata.relatedSubmissions.complete.submission.title]]
+                          </div>
+                          <div spacer class="comment-box" hidden$="[[!assignment.metadata.relatedSubmissions.complete.submission.id]]">
+                            <paper-button id$="assignment-[[project.id]]-[[assignment.id]]-comments" style="margin:0;padding:.25em;text-transform:none;">
+                              <iron-icon icon="communication:forum"></iron-icon>
+                              [[assignment.metadata.relatedSubmissions.complete.submission.metadata.comments.count]] Comments
+                            </paper-button>
+                            <paper-badge hidden$="[[displayNewBadge(assignment.metadata.relatedSubmissions.complete.submission.metadata.comments.new)]]"
+                              for$="assignment-[[project.id]]-[[assignment.id]]-comments" label$="[[assignment.metadata.relatedSubmissions.complete.submission.metadata.comments.new]]"></paper-badge>
+                          </div>
 
-                    <lrnapp-studio-submission-button spacer auto assignment-id="[[assignment.id]]" submission="{{submission}}" end-point="[[buildSubmissionPath(basePath)]]" csrf-token="[[csrfToken]]" submission-id="[[assignment.metadata.relatedSubmissions.complete.submission.id]]"></lrnapp-studio-submission-button>
-                    <div main-title></div>
-                    <paper-toggle-button id$="assignment-[[project.id]]-[[assignment.id]]-toggle" on-tap="statusToggle"></paper-toggle-button>
-                    <span id$="assignment-[[project.id]]-[[assignment.id]]-toggle-text"></span>
-                    <div bottom-item class="status-rationale">
-                      [[assignment.metadata.relatedSubmissions.complete.rationale.text]]
-                    </div>
-                  </app-toolbar>
-                  <lrnsys-render-html html="[[assignment.body]]"></lrnsys-render-html>
-                 </div>
-              </lrnsys-dialog>
-              <span class="assignment-operations">
+                          <lrnapp-studio-submission-button spacer auto assignment-id="[[assignment.id]]" submission="{{submission}}" end-point="[[buildSubmissionPath(basePath)]]"
+                            csrf-token="[[csrfToken]]" submission-id="[[assignment.metadata.relatedSubmissions.complete.submission.id]]"></lrnapp-studio-submission-button>
+                          <div main-title></div>
+                          <paper-toggle-button id$="assignment-[[project.id]]-[[assignment.id]]-toggle" on-tap="statusToggle"></paper-toggle-button>
+                          <span id$="assignment-[[project.id]]-[[assignment.id]]-toggle-text"></span>
+                          <div bottom-item class="status-rationale">
+                            [[assignment.metadata.relatedSubmissions.complete.rationale.text]]
+                          </div>
+                        </app-toolbar>
+                        <lrnsys-render-html html="[[assignment.body]]"></lrnsys-render-html>
+                      </div>
+                    </lrnsys-dialog>
+                    <span class="assignment-operations">
                 <lrnsys-button id$="assignment-[[project.id]]-[[assignment.id]]-add-critique" icon="editor:insert-comment" alt="Add critique" class="circle operation" hover-class="green lighten-2" hidden="[[!assignment.metadata.canCritique]]" href$="[[assignment.metadata.critiqueLink]]" icon-class="no-margin"></lrnsys-button>
                 <lrnsys-button id$="assignment-[[project.id]]-[[assignment.id]]-edit" icon="editor:mode-edit" alt="Edit" class="circle operation" hover-class="amber lighten-4" hidden="[[!assignment.metadata.canUpdate]]" href$="[[assignment.links.update]]" icon-class="no-margin green-text text-darken-4"></lrnsys-button>
                 <lrnsys-button id$="assignment-[[project.id]]-[[assignment.id]]-delete" icon="delete" alt="Delete" class="circle operation" hover-class="amber lighten-4" hidden="[[!assignment.metadata.canDelete]]" href$="[[assignment.links.delete]]" icon-class="no-margin red-text text-darken-4"></lrnsys-button>
               </span>
+                  </div>
+                </template>
+              </iron-list>
             </div>
-            </template>
-          </iron-list>
+          </paper-card>
+
         </div>
-      </paper-card>
       </template>
     </iron-list>
   </template>
@@ -245,10 +275,10 @@
         /**
          * Submission for two-way data binding on return from the button being pushed
          */
-         submission: {
+        submission: {
           type: Object,
           notify: true,
-         },
+        },
         /**
          * Response from the server.
          */
@@ -270,16 +300,16 @@
       _makeEditLink: function (id) {
         return this.basePath + '../node/' + id + '/edit?destination=apps/lrnapp-studio-kanban';
       },
-      _makeAddLink: function(id) {
+      _makeAddLink: function (id) {
         return this.basePath + '../node/add/cle-assignment?field_project=' + id + 'destination=apps/lrnapp-studio-kanban';
       },
-      _makeDeleteLink: function(id) {
+      _makeDeleteLink: function (id) {
         return this.basePath + '../node/' + id + '/delete?destination=apps/lrnapp-studio-kanban';
       },
       /**
        * if we should show new badge based on new comment count.
        */
-      displayNewBadge: function(count) {
+      displayNewBadge: function (count) {
         if (count == 0) {
           return true;
         }
@@ -288,7 +318,7 @@
       /**
        * Handle toggling the status for the submission.
        */
-      statusToggle: function(e) {
+      statusToggle: function (e) {
         let root = this;
         // find our xhr for callbacks
         var xhr = root.$.backend;
@@ -312,7 +342,7 @@
       /**
        * Handle toggle for mouse class and manage classList array for paper-button.
        */
-      assignmentFocusIn: function(e) {
+      assignmentFocusIn: function (e) {
         let root = this;
         var normalizedEvent = Polymer.dom(e);
         var local = normalizedEvent.localTarget;
@@ -328,20 +358,20 @@
       /**
        * Handle response for the whole projects object.
        */
-      _handleProjectResponse: function(event) {
+      _handleProjectResponse: function (event) {
         this.$.loading.hidden = true;
         this._setToggle(true);
       },
       /**
        * buildSubmissionPath for generating a new submission or linking to existing.
        */
-      buildSubmissionPath: function(path) {
+      buildSubmissionPath: function (path) {
         return path + 'lrnapp-studio-submission';
       },
       /**
        * Handle a response from updating an item
        */
-      _handleUpdateResponse: function(event) {
+      _handleUpdateResponse: function (event) {
         let root = this;
         if (root.backendResponse.status == 200) {
           root.$.projectbackend.generateRequest();
@@ -354,7 +384,7 @@
       /**
        * set the toggle state when assignment gets focus
        */
-      _setToggle: function(update) {
+      _setToggle: function (update) {
         let root = this;
         if (root.activeAssignment != null) {
           var parts = root.activeAssignment.split('-');
@@ -394,8 +424,8 @@
       /*
        * Simple way to convert from object to array.
        */
-      _toArray: function(obj) {
-        return Object.keys(obj).map(function(key) {
+      _toArray: function (obj) {
+        return Object.keys(obj).map(function (key) {
           return obj[key];
         });
       },
