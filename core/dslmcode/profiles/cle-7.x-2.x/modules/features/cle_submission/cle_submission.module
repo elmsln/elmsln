@@ -418,22 +418,19 @@ function cle_submission_node_presave($node) {
     // store the submission type on the submission object
     $node->field_submission_type[LANGUAGE_NONE][0]['value'] = $return;
 
-
     // If this submission needs to have a critique submission automatically assigned to it
     // then do it here.
     // $critique_cle_critique_random($node->field_assignment[LANGUAGE_NONE][0]['target_id']);
-    if ($node->is_new) {
-      if ($entity_efw) {
-        $assignment_critique = $entity_efw->field_critique_method->value();
-        if ($assignment_critique) {
-          if ($assignment_critique == 'random') {
-            $critique_submission = _cle_critique_random($entity->nid);
-            if ($critique_submission) {
-              $node->field_related_submission[LANGUAGE_NONE][0]['target_id'] = $critique_submission->nid;
-            }
-            else {
-              throw new Exception(t('There are no submissions to critique at this time. Please check back later.'));
-            }
+    if ($entity_efw) {
+      $assignment_critique = $entity_efw->field_critique_method->value();
+      if ($assignment_critique) {
+        if ($assignment_critique == 'random') {
+          $critique_submission = _cle_critique_random($entity->nid);
+          if ($critique_submission) {
+            $node->field_related_submission[LANGUAGE_NONE][0]['target_id'] = $critique_submission->nid;
+          }
+          else {
+            throw new Exception(t('There are no submissions to critique at this time. Please check back later.'));
           }
         }
       }
