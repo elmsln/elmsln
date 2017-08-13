@@ -55,7 +55,8 @@
         }
       },
       observers: [
-        '_routeChanged(route, endPoint)'
+        '_routeChanged(route, endPoint)',
+        '_updateCookies(endPoint, csrfToken)'
       ],
       listeners: {
         'submissionDeleted': '_handleSubmissionDeletion'
@@ -84,6 +85,12 @@
         if (submission) {
           this.set('route.path', this.endPoint);
           this.$.toast.show('Submission has been deleted.');
+        }
+      },
+      _updateCookies: function (endPoint, csrfToken) {
+        console.log('updateCoookies');
+        if (endPoint && csrfToken) {
+          this.setCookies(endPoint, csrfToken);
         }
       },
       /**

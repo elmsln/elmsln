@@ -234,12 +234,18 @@ function _cle_studio_kanban_assignment_create_stub($machine_name, $app_route, $p
       $post_data = json_decode($post_data);
       $service = new CleOpenStudioAppAssignmentService();
       try {
-        $submission = $service->createStubAssignment($post_data);
-        $return['data'] = $submission;
+        $assignment = $service->createStubAssignment($post_data);
+        if ($assignment) {
+          $return['status'] = 201;
+          $return['data'] = $assignment;
+        }
+        else {
+          $return['errors'][] = t('Could not create assignment.');
+        }
       }
       // if it fails we'll add errors and return 500
       catch (Exception $e) {
-        $return['status'] = 500;
+        $return['status'] = 422;
         $return['errors'][] = $e->getMessage();
       }
     }

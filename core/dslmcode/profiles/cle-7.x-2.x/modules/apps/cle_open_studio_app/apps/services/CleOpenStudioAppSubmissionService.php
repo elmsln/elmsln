@@ -284,7 +284,10 @@ class CleOpenStudioAppSubmissionService {
         break;
       }
       // Submission Type
-      $encoded_submission->meta->submissionType = $submission->field_submission_type[LANGUAGE_NONE][0]['value'];
+      $encoded_submission->meta->submissionType = 'default';
+      if (isset($submission->field_submission_type[LANGUAGE_NONE][0]['value'])) {
+        $encoded_submission->meta->submissionType = $submission->field_submission_type[LANGUAGE_NONE][0]['value'];
+      }
       // Relationships
       $encoded_submission->relationships = new stdClass();
       // load associations

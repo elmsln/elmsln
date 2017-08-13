@@ -1,4 +1,5 @@
 <link rel="import" href="lrnapp-studio-project-button.html">
+<link rel="import" href="lrnapp-studio-assignment-button.html">
 <link rel="import" href="../../../lrnapp-studio-submission/src/lrnapp-studio-submission/lrnapp-studio-submission-button.html">
 <dom-module id="lrnapp-studio-kanban">
   <template>
@@ -186,9 +187,9 @@
               <lrnsys-button icon-class="no-margin" id$="project-[[project.id]]-edit" alt="Edit project" class="circle operation" hover-class="amber lighten-2"
                 hidden="[[!project.meta.canUpdate]]" icon="create" href$="[[_makeEditLink(project.id)]]">
               </lrnsys-button>
-              <lrnsys-button icon-class="no-margin" id$="project-[[project.id]]-add" alt="Add assignment" class="circle operation" hover-class="amber lighten-2"
-                hidden="[[!project.meta.canUpdate]]" icon="add" href$="[[_makeAddLink(project.id)]]">
-              </lrnsys-button>
+              <lrnapp-studio-assignment-button project-id="[[project.id]]" icon-class="no-margin" id$="project-[[project.id]]-add" alt="Add assignment" class="circle operation" hover-class="amber lighten-2"
+                hidden="[[!project.meta.canUpdate]]" icon="add" end-point="[[endPoint]]" csrf-token="[[csrfToken]]">
+              </lrnapp-studio-assignment-button>
               <lrnsys-button id$="project-[[project.id]]-delete" alt="Delete project!" class="circle operation" hover-class="red darken-2 white-text"
                 header="Delete project!" hidden="[[!project.meta.canDelete]]" icon="delete-forever" href$="[[_makeDeleteLink(project.id)]]"
                 icon-class="no-margin">
@@ -295,7 +296,8 @@
         },
       },
       listeners: {
-        'project-created': '_handleProjectCreated'
+        'project-created': '_handleProjectCreated',
+        'assignment-created': '_handleAssignmentCreated',
       },
       _makeEditLink: function (id) {
         return this.basePath + '../node/' + id + '/edit?destination=apps/lrnapp-studio-kanban';
@@ -419,6 +421,10 @@
       },
       _handleProjectCreated: function (e) {
         // for now just reload the page to see the new project
+        location.reload();
+      },
+      _handleAssignmentCreated: function (e) {
+        // for now just reload the page to see the new assignment
         location.reload();
       },
       /*

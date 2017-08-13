@@ -3,21 +3,28 @@
 class CleOpenStudioAppAssignmentService {
   /**
    * Create Stub Assignment based on assignment
+   * @param string node ID of this assignments parent project
+   * @return object node encoded for api output. Return FALSE if it could not create one.
    */
-  public function createStubAssignment() {
+  public function createStubAssignment($project_id) {
     global $user;
     $node = new stdClass();
     $node->title = t('New assignment');
     $node->type = 'cle_assignment';
     $node->uid = $user->uid;
     $node->status = 1;
+    $node->field_assignment_project['und'][0]['target_id'] = $project_id;
     node_save($node);
-    if (isset($node->nid)) {
-      return $this->encodeAssignment($node);
+    try {
+      node_save($node);
+      if (isset($node->nid)) {
+        return $this->encodeAssignment($node);
+      }
     }
-    else {
-      return FALSE;
+    catch (Exception $e) {
+      throw new Exception($e->getMessage(), 1);
     }
+    return FALSE;
   }
 
   /**

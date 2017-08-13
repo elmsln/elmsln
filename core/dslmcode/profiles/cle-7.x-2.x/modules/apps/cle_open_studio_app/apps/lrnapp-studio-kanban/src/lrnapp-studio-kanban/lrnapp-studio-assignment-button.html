@@ -1,3 +1,4 @@
+
 <!--
 `lrnapp-studio-assignment-button`
 Allows users to either start a assignment or link to a assignment.
@@ -14,12 +15,10 @@ Usage:
       }
     </style>
 
-    <template is="dom-if" if="[[!assignmentId]]">
-      <lrnsys-button raised on-tap="_createassignment" label="Create assignment" href$="[[_assignmentUrl(assignmentId)]]"></lrnsys-button>
-      <iron-ajax id="ajaxCreateStub" url="[[createStubUrl]]" method="POST" body="[[projectId]]" handle-as="json" on-response="_ajaxCreateStubHandler"></iron-ajax>
-    </template>
-    <template is="dom-if" if="[[assignmentId]]">
-      <lrnsys-button raised label="View assignment" href$="[[_assignmentUrl(assignmentId)]]"></lrnsys-button>
+    <lrnsys-button on-tap="_createAssignment" icon-class="[[iconClass]]" alt="[[alt]]" class$="[[classes]]" hover-class="[[hoverClass]]" icon="[[icon]]"></lrnsys-button>
+    <iron-ajax id="ajaxCreateStub" url="[[createAssignmentUrl]]" method="POST" body="[[projectId]]" handle-as="json" on-response="_ajaxCreateStubHandler"></iron-ajax>
+    <template is="dom-if" if="[[displayErrors]]">
+      <paper-toast id="toast"></paper-toast>
     </template>
   </template>
   <script>
@@ -32,45 +31,65 @@ Usage:
           value: false,
           notify: true,
         },
-        projectId: {
-          type: String,
-          reflectToAttribute: true,
+        displayErrors: {
+          type: Boolean,
+          value: true
         },
-        assignmentId: {
+        projectId: {
+          type: String
+        },
+        createAssignmentUrl: {
           type: String,
-          value: false,
-          reflectToAttribute: true,
+          value: null
+        },
+        iconClass: {
+          type: String,
+          value: null
+        },
+        alt: {
+          type: String,
+          value: null
+        },
+        classes: {
+          type: String,
+          value: null
+        },
+        hoverClass: {
+          type: String,
+          value: null
+        },
+        icon: {
+          type: String,
+          value: null
         },
         endPoint: String,
         csrfToken: String
       },
-      observers: [
-        '_requestUrlChanged(endPoint, csrfToken)'
-      ],
-      ready: function(e) {
+      ready: function (e) {
         // @todo need to load a assignment if one exists ahead of time
+        this.createAssignmentUrl = this.endPoint + '/api/assignments/create-stub?token=' + this.csrfToken;
       },
-      _requestUrlChanged: function (endPoint, csrfToken) {
-        this.createStubUrl = endPoint + '/api/assignments/create-stub?token=' + csrfToken;
-      },
-      _createassignment: function () {
+      _createAssignment: function () {
         this.$$('#ajaxCreateStub').generateRequest();
       },
       _ajaxCreateStubHandler: function (e) {
         var status = e.detail.response.status;
-        if (status === 200) {
-          var assignmentId = e.detail.response.data.id;
-          if (assignmentId) {
-            this.assignmentId = assignmentId;
-            // auto implies we should just go there to the edit form after creation
-            if (this.auto) {
-              window.location.href = this._assignmentUrl(assignmentId) + '/edit';
-            }
+        var response = e.detail.response;
+        if (status === 201) {
+          var assignment = e.detail.response.data;
+          if (assignment) {
+            this.fire('assignment-created', { assignment: assignment });
           }
         }
-      },
-      _assignmentUrl: function (id) {
-        return this.endPoint + '/assignments/' + id;
+        // if we have errors to display
+        if (typeof response.errors !== 'undefined') {
+          var ul = document.createElement('ul');
+          var text = '';
+          response.errors.forEach(function (error) {
+            text = text + ' ' + error;
+          });
+          this.$$('#toast').show(text);
+        }
       }
     });
   </script>
