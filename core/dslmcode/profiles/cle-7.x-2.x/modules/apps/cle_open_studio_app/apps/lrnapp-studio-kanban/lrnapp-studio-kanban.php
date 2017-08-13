@@ -17,7 +17,8 @@ require_once(__ROOT__.'/services/CleOpenStudioAppCommentService.php');
  */
 function _cle_studio_kanban_kanban_data($machine_name, $app_route, $params, $args) {
   $data = array();
-  $status = 404;
+  $status = 200;
+  $data = [];
   // see if we're doing updates from the app
   if (isset($params['submissionid'])) {
     // load the submission node, typecasting
@@ -62,7 +63,6 @@ function _cle_studio_kanban_kanban_data($machine_name, $app_route, $params, $arg
         }
       }
     }
-
   }
   return array(
     'status' => $status,
@@ -132,12 +132,18 @@ function _cle_studio_kanban_project_create_stub($machine_name, $app_route, $para
   if ($method == 'POST') {
     $service = new CleOpenStudioAppProjectService();
     try {
-      $submission = $service->createStubProject();
-      $return['data'] = $submission;
+      $project = $service->createStubProject();
+      if ($project) {
+        $return['status'] = 201;
+        $return['data'] = $project;
+      }
+      else {
+        $return['errors'][] = t('Could not create project.');
+      }
     }
     // if it fails we'll add errors and return 500
     catch (Exception $e) {
-      $return['status'] = 500;
+      $return['status'] = 422;
       $return['errors'][] = $e->getMessage();
     }
   }
