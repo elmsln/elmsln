@@ -727,7 +727,7 @@ function cle_assignment_field_default_field_instances() {
     'bundle' => 'cle_assignment',
     'default_value' => array(
       0 => array(
-        'value' => 'random',
+        'value' => 'none',
       ),
     ),
     'deleted' => 0,
