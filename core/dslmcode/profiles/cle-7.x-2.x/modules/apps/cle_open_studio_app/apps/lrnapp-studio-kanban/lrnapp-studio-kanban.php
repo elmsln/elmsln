@@ -141,7 +141,8 @@ function _cle_studio_kanban_project_create_stub($machine_name, $app_route, $para
         $return['errors'][] = t('Could not create project.');
       }
     }
-    // if it fails we'll add errors and return 500
+    // if it fails we'll add errors and return 422 to indicate that it couldn't be completed
+    // based off of what was sent.
     catch (Exception $e) {
       $return['status'] = 422;
       $return['errors'][] = $e->getMessage();

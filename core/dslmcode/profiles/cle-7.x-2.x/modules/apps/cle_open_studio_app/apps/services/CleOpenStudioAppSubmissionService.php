@@ -341,7 +341,7 @@ class CleOpenStudioAppSubmissionService {
           $node->field_submission_text[LANGUAGE_NONE][0]['value'] = $payload->attributes->body;
           $node->field_submission_text[LANGUAGE_NONE][0]['format'] = 'student_markdown';
         }
-        if (isset($payload->attributes->links)) {
+        if (isset($payload->attributes->state)) {
           $node->field_submission_state[LANGUAGE_NONE][0]['value'] = $payload->attributes->state;
         }
         if (isset($payload->attributes->links)) {
