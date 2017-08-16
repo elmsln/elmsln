@@ -216,7 +216,8 @@ class CleOpenStudioAppCommentService {
       else {
         $like = TRUE;
       }
-      $encoded_comments->actions->like = $like;
+      // @todo actually implement this, disabled globally for now
+      $encoded_comments->actions->like = FALSE;
       $encoded_comments->actions->edit = entity_access('update', 'comment', $comment);
       $encoded_comments->actions->delete = entity_access('update', 'comment', $comment);
 
