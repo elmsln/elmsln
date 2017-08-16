@@ -4149,6 +4149,11 @@ ul.dropdown-content {
   border: .1rem solid #eeeeee;
   z-index: 1;
 }
+ul.dropdown-content li {
+  height: 2.5rem;
+  width: 100%;
+  display: block;
+}
 
 /* materialize paralax modifications */
 .parallax-container {
