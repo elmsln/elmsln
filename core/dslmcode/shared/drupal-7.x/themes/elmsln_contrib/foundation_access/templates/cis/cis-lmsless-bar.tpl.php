@@ -113,7 +113,7 @@
       }
       ?>
       <li>
-      <lrnsys-button id="lmsless-<?php print $service['distro'];?>" data-prefetch-hover="true" href="<?php print token_replace($service['url']); ?>" class="black-text <?php print $activetool . $service['icon']; ?>-icon"  data-jwerty-key="ctrl+<?php print drupal_strtolower(substr($stitle, 0, 1)); ?>" data-voicecommand="<?php print t('go to ') . drupal_strtolower($stitle); ?>" hover-class="<?php print $hover;?>">
+      <lrnsys-button id="lmsless-<?php print $service['machine_name'];?>" data-prefetch-hover="true" href="<?php print token_replace($service['url']); ?>" class="black-text <?php print $activetool . $service['icon']; ?>-icon"  data-jwerty-key="ctrl+<?php print drupal_strtolower(substr($stitle, 0, 1)); ?>" data-voicecommand="<?php print t('go to ') . drupal_strtolower($stitle); ?>" hover-class="<?php print $hover;?>">
         <?php if (isset($service['icon_library']) && $service['icon_library'] == 'material'): ?>
         <i class="material-icons"><?php print $service['icon']; ?></i>
         <?php else: ?>
@@ -121,7 +121,7 @@
         <?php endif; ?>
         <?php print $label; ?>
       </lrnsys-button>
-      <paper-tooltip for="lmsless-<?php print $service['distro'];?>" animation-delay="0"><?php print $stitle; ?></paper-tooltip>
+      <paper-tooltip for="lmsless-<?php print $service['machine_name'];?>" animation-delay="0"><?php print $stitle; ?></paper-tooltip>
       </li>
     <?php endforeach ?>
   <?php endif; ?>
