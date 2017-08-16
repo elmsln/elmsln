@@ -15,16 +15,13 @@ require_once(__ROOT__.'/services/CleOpenStudioAppCommentService.php');
  */
 function _lrnapp_studio_dashboard_recent_comments($machine_name, $app_route, $params, $args) {
   $data = array();
-  $status = 404;
   $options = new stdClass();
   $options->order = array('property' => array(array('changed', 'DESC')));
   $options->limit = array(0, 3);
   // invoke our submission service to get submissions
   $service = new CleOpenStudioAppCommentService();
   $data = $service->getComments($options);
-  if (!empty($data)) {
-    $status = 200;
-  }
+  $status = 200;
   return array(
     'status' => $status,
     'data' => $data
@@ -35,7 +32,7 @@ function _lrnapp_studio_dashboard_recent_comments($machine_name, $app_route, $pa
  */
 function _lrnapp_studio_dashboard_recent_project($machine_name, $app_route, $params, $args) {
   $data = array();
-  $status = 404;
+  $status = 200;
   // get the last thing they touched of their own creation
   $options = new stdClass();
   $options->order = array('property' => array(array('changed', 'DESC')));
@@ -51,7 +48,6 @@ function _lrnapp_studio_dashboard_recent_project($machine_name, $app_route, $par
     $service = new CleOpenStudioAppProjectService();
     $project = $service->getProject($submission->relationships->project->data->id);
     if (!empty($project)) {
-      $status = 200;
       $project->relationships->assignments = array();
       // loop through the steps and pull in all the assignments
       foreach ($project->attributes->steps as $step) {
@@ -73,7 +69,7 @@ function _lrnapp_studio_dashboard_recent_project($machine_name, $app_route, $par
  */
 function _lrnapp_studio_dashboard_recent_submissions($machine_name, $app_route, $params, $args) {
   $data = array();
-  $status = 404;
+  $status = 200;
   $options = new stdClass();
   $options->state = array('submission_ready', '=');
   $options->order = array('property' => array(array('changed', 'DESC')));
@@ -81,9 +77,6 @@ function _lrnapp_studio_dashboard_recent_submissions($machine_name, $app_route, 
   // invoke our submission service to get submissions
   $service = new CleOpenStudioAppSubmissionService();
   $data = $service->getSubmissions($options);
-  if (!empty($data)) {
-    $status = 200;
-  }
   return array(
     'status' => $status,
     'data' => $data
@@ -95,7 +88,7 @@ function _lrnapp_studio_dashboard_recent_submissions($machine_name, $app_route, 
  */
 function _lrnapp_studio_dashboard_need_feedback($machine_name, $app_route, $params, $args) {
   $data = array();
-  $status = 404;
+  $status = 200;
   $options = new stdClass();
   $options->state = array('submission_ready', '=');
   $options->order = array('property' => array(array('changed', 'DESC')));
@@ -104,9 +97,6 @@ function _lrnapp_studio_dashboard_need_feedback($machine_name, $app_route, $para
   // invoke our submission service to get submissions
   $service = new CleOpenStudioAppSubmissionService();
   $data = $service->getSubmissions($options);
-  if (!empty($data)) {
-    $status = 200;
-  }
   return array(
     'status' => $status,
     'data' => $data
