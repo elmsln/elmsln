@@ -190,9 +190,6 @@ var clipboardjs = require('./components/clipboardjs.js');
       belowOrigin: true,
       alignment: 'left'
     });
-    $('body:not(.page-cle-app) .elmsln-dropdown-button').click(function(){
-      $('#etb-course-nav').css('z-index', '2');
-    });
     // modal items
     $('.elmsln-modal-trigger').bind('click', function() {
       // hide all currently visible modals
