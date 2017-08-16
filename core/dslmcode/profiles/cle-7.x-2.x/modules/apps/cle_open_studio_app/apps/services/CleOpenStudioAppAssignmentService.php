@@ -14,7 +14,8 @@ class CleOpenStudioAppAssignmentService {
     $node->uid = $user->uid;
     $node->status = 1;
     $node->field_assignment_project['und'][0]['target_id'] = $project_id;
-    node_save($node);
+    // associate to the currently active section
+    $node->og_group_ref[LANGUAGE_NONE][0]['target_id'] = _cis_section_load_section_by_id(_cis_connector_section_context());
     try {
       node_save($node);
       if (isset($node->nid)) {

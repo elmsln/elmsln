@@ -11,13 +11,18 @@ class CleOpenStudioAppProjectService {
     $node->type = 'cle_project';
     $node->uid = $user->uid;
     $node->status = 1;
-    node_save($node);
-    if (isset($node->nid)) {
-      return $this->encodeProject($node);
+    // associate to the currently active section
+    $node->og_group_ref[LANGUAGE_NONE][0]['target_id'] = _cis_section_load_section_by_id(_cis_connector_section_context());
+    try {
+      node_save($node);
+      if (isset($node->nid)) {
+        return $this->encodeProject($node);
+      }
     }
-    else {
-      return FALSE;
+    catch (Exception $e) {
+      throw new Exception($e->getMessage(), 1);
     }
+    return FALSE;
   }
 
   /**
