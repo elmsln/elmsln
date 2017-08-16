@@ -149,3 +149,14 @@ function cle__2_update_7013(&$sandbox) {
 function cle__2_update_7014(&$sandbox) {
   module_enable(array('cle_rate'));
 }
+
+/**
+ * Enable the new studio instead of the angular one.
+ */
+function cle__2_update_7015(&$sandbox) {
+  module_disable(array('cle_app'));
+  module_enable(array('cle_open_studio_app'));
+  features_revert_module('cle_submission');
+  features_revert_module('cle_assignment');
+  features_revert_module('cle_project');
+}
