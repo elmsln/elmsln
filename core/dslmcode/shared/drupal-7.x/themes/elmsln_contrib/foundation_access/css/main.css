@@ -8306,7 +8306,21 @@ lrnsys-drawer paper-button {
 }
 #etb-course-nav lrnsys-drawer .elmsln-modal-content li {
   height: unset;
+  line-height: 2em;
 }
+#etb-course-nav lrnsys-drawer .elmsln-modal-content li a {
+  height: 2em;
+  line-height: 2em;
+}
+#etb-course-nav lrnsys-drawer .elmsln-modal-content li paper-button {
+  height: 2em;
+  line-height: 2em;
+}
+#etb-course-nav lrnsys-drawer .elmsln-modal-content li paper-button div.inner img, #etb-course-nav lrnsys-drawer .elmsln-modal-content li paper-button div.inner {
+  line-height: 2em;
+  font-size: 1em;
+}
+
 lrnsys-drawer lrn-icon.lrnsys-drawer {
   height: 2em;
   width: 2em;
