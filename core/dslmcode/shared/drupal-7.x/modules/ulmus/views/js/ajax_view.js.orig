@@ -110,10 +110,6 @@ Drupal.views.ajaxView.prototype.attachPagerLinkAjax = function(id, link) {
   var $link = $(link);
   var viewData = {};
   var href = $link.attr('href');
-  //Leave the function early if there is no href to be parsed
-  if (!href){
-    return;
-  }
   // Construct an object using the settings defaults and then overriding
   // with data specific to the link.
   $.extend(

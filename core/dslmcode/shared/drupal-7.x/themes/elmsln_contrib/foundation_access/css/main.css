@@ -6520,6 +6520,7 @@ ul.dropdown-content li {
 .collapsible-body .elmsln-collapsible-body {
   padding: 1rem;
   line-height: 1rem;
+  overflow: hidden;
 }
 
 .collapsible-body .elmsln-collapsible-body .a11y-textsize-controls a {
@@ -7953,7 +7954,6 @@ body.adminimal-menu div#admin-menu {
   background: #333;
   background: none repeat scroll 0 0 #202020;
   border-bottom: 1px solid #111111;
-  font-family: Open Sans, "Segoe UI", "Helvetica", sans-serif;
 }
 
 body.adminimal-menu div#admin-menu li.admin-menu-toolbar-home-menu {
@@ -7971,9 +7971,12 @@ body.adminimal-menu div#admin-menu ul.dropdown span.admin-menu-home-icon {
 body.adminimal-menu div#admin-menu a,
 body.adminimal-menu div#admin-menu span {
   border: none !important;
-  font-family: "Open Sans", "Segoe UI", "Helvetica", sans-serif;
-  font-size: 12px;
-  line-height: 18px;
+  font-family: sans-serif;
+  font-size: .9em;
+  line-height: 2.5em;
+  height: 2.5em;
+  text-overflow: ellipsis;
+  overflow-x: hidden;
 }
 
 body.adminimal-menu #admin-menu .dropdown li li {

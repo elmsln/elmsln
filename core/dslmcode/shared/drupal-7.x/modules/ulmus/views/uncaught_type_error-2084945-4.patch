@@ -1,0 +1,101 @@
+diff --git a/js/ajax_view.js b/js/ajax_view.js
+index 780691c..bf63778 100644
+--- a/js/ajax_view.js
++++ b/js/ajax_view.js
+@@ -101,6 +101,10 @@ Drupal.views.ajaxView.prototype.attachPagerLinkAjax = function(id, link) {
+   var $link = $(link);
+   var viewData = {};
+   var href = $link.attr('href');
++  //Leave the function early if there is no href to be parsed
++  if (!href){
++    return;
++  }
+   // Construct an object using the settings defaults and then overriding
+   // with data specific to the link.
+   $.extend(
+diff --git a/js/base.js b/js/base.js
+index 5855dce..8a58b55 100644
+--- a/js/base.js
++++ b/js/base.js
+@@ -42,6 +42,11 @@ Drupal.behaviors.viewsTabs = {
+  * Helper function to parse a querystring.
+  */
+ Drupal.Views.parseQueryString = function (query) {
++  //Exit early if called without query
++  if (!query) {
++    return;
++  }
++  
+   var args = {};
+   var pos = query.indexOf('?');
+   if (pos != -1) {
+@@ -57,41 +62,56 @@ Drupal.Views.parseQueryString = function (query) {
+       }
+     }
+   }
+-  return args;
++  return args;  
+ };
+ 
+ /**
+  * Helper function to return a view's arguments based on a path.
+  */
+ Drupal.Views.parseViewArgs = function (href, viewPath) {
++  //Exit early if called without href or viewPath
++  if (!(href && viewPath)) {
++    return;
++  }
++  
+   var returnObj = {};
+   var path = Drupal.Views.getPath(href);
+   // Ensure we have a correct path.
+-  if (viewPath && path.substring(0, viewPath.length + 1) == viewPath + '/') {
++  if (path && path.substring(0, viewPath.length + 1) == viewPath + '/') {
+     var args = decodeURIComponent(path.substring(viewPath.length + 1, path.length));
+     returnObj.view_args = args;
+     returnObj.view_path = path;
+   }
+-  return returnObj;
++  return returnObj;  
+ };
+ 
+ /**
+  * Strip off the protocol plus domain from an href.
+  */
+ Drupal.Views.pathPortion = function (href) {
++  //Exit early if called without href
++  if (!href) {
++    return;
++  }
++  
+   // Remove e.g. http://example.com if present.
+   var protocol = window.location.protocol;
+   if (href.substring(0, protocol.length) == protocol) {
+     // 2 is the length of the '//' that normally follows the protocol
+     href = href.substring(href.indexOf('/', protocol.length + 2));
+   }
+-  return href;
++  return href;  
+ };
+ 
+ /**
+  * Return the Drupal path portion of an href.
+  */
+ Drupal.Views.getPath = function (href) {
++  //Exit early if called without href
++  if (!href) {
++    return;
++  }
++  
+   href = Drupal.Views.pathPortion(href);
+   href = href.substring(Drupal.settings.basePath.length, href.length);
+   // 3 is the length of the '?q=' added to the url without clean urls.
+@@ -104,7 +124,7 @@ Drupal.Views.getPath = function (href) {
+       href = href.substr(0, href.indexOf(chars[i]));
+     }
+   }
+-  return href;
++  return href;  
+ };
+ 
+ })(jQuery);
