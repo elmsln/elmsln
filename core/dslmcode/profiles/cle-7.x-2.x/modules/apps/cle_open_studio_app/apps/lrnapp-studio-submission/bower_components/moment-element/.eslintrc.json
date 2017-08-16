@@ -1,7 +1,0 @@
-{
-  "extends": "ibmresearch/html",
-  "globals": {
-    "moment": false,
-    "Polymer": false
-  }
-}
