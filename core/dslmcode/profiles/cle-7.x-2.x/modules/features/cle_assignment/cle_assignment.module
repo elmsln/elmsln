@@ -81,48 +81,6 @@ function cle_assignment_form_cle_assignment_node_form_alter(&$form, &$form_state
 }
 
 /**
- * Implements hook_node_insert().
- */
-function cle_assignment_node_insert($node) {
-  // make sure there's an outline associated to this
-  // but only if we have at least 1 to do so with
-  if ($node->type == 'cle_assignment') {
-    // when we save a new assignment make sure there's a reverse entity reference to match
-    if (isset($node->field_assignment_project['und'][0]['target_id'])) {
-      $found = FALSE;
-      $project = node_load($node->field_assignment_project['und'][0]['target_id']);
-      // see if this currently has any steps in it
-      if (isset($project->field_project_steps['und'])) {
-        // check for this assignment currently being in here
-        foreach ($project->field_project_steps['und'] as $step) {
-          // edge case but if we find we've already referenced this then don't double save
-          if ($step['target_id'] == $node->nid) {
-            $found = TRUE;
-          }
-        }
-        // build cause we didn't find it
-        if (!$found) {
-          $project->field_project_steps['und'][] = array('target_id' => $node->nid);
-          $found = TRUE;
-        }
-      }
-      else {
-        $found = TRUE;
-        $project->field_project_steps = array(
-          'und' => array(
-            0 => array('target_id' => $node->nid),
-          )
-        );
-      }
-      // only save project if we changed something
-      if ($found) {
-        node_save($project);
-      }
-    }
-  }
-}
-
-/**
  * Implements hook_page_build().
  */
 function cle_assignment_page_build(&$page) {
@@ -131,22 +89,6 @@ function cle_assignment_page_build(&$page) {
     $path = drupal_get_path('module', 'cle_assignment') . '/';
     drupal_add_js($path . 'js/' . $file . '.js');
     drupal_add_css($path . 'css/' . $file . '.css');
-  }
-  $node = menu_get_object();
-  if ($node && $node->type == 'cle_assignment' && arg(2) != 'edit') {
-    $field_conditions = array('field_assignment' => array('target_id', array($node->nid), 'IN'));
-    $submission = _cis_connector_assemble_entity_list('node', 'cle_submission', 'nid', 'title', $field_conditions, array('uid' => $GLOBALS['user']->uid));
-    $output = '';
-    foreach ($submission as $nid => $title) {
-      $output .= l($title, 'node/' . $nid) . ' ';
-    }
-    if (empty($output)) {
-      $output = l(t('Submit assignment'),'node/add/cle-submission', array('query' => array('field_assignment' => $node->nid)));
-    }
-    $page['content']['assignment_submission'] = array(
-      '#markup' => $output,
-      '#weight' => 100,
-    );
   }
 }
 

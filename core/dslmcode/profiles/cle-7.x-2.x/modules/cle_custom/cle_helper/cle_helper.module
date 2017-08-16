@@ -72,63 +72,55 @@ function cle_helper_form_views_exposed_form_alter(&$form, &$form_state, $form_id
  */
 function cle_helper_elmsln_core_service_settings($section = NULL) {
   $options = array();
-  $options['cle_default_projects'] = array(
-    '#description' => t('This is the default projects for new sections that are registered.'),
-    '#default_value' => variable_get('cle_default_projects', array()),
-    '#weight' => '0',
-    '#title' => t('Default projects'),
-    '#type' => 'select',
-    '#required' => '1',
-    '#multiple' => '1',
-    '#options' => _cis_connector_assemble_entity_list('node', 'cle_project', 'nid', 'title'),
-  );
-  // if section in scope we need to send back this section's setting for this
-  if (!is_null($section)) {
-    $nid = _cis_section_load_section_by_id($section);
-    $node = node_load($nid);
-    // see if this has an outline associated
-    if (isset($node->field_section_projects['und'])) {
-      $options['cle_default_projects']['#default_value'] = array();
-      foreach ($node->field_section_projects['und'] as $project) {
-        $options['cle_default_projects']['#default_value'][$project['target_id']] = $project['target_id'];
-      }
-    }
-  }
   return $options;
 }
 
-/**
- * Implements hook_node_presave().
- */
-function cle_helper_node_presave($node) {
-  // make sure there's assignments associated to this
-  if ($node->type == 'section') {
-    // ensure assignments are set, if not use default
-    if (empty($node->field_section_projects['und'])) {
-      $default = variable_get('cle_default_projects', array());
-      // edge case, default was never set
-      if ($default == array()) {
-        // load all projects
-        $default = _cis_connector_assemble_entity_list('node', 'cle_project', 'nid', 'title');
-      }
-      // make sure we have something to set
-      if (!empty($default)) {
-        foreach ($default as $key => $title) {
-          $node->field_section_projects['und'][] = array('target_id' => $key);
+function cle_helper_node_insert($node) {
+  // make sure there's project associated with this section if not master
+  if ($node->type == 'section' && empty($node->field_section_projects['und'])) {
+    // load the master section, ensure this isn't that!
+    if ($gid = _cis_section_load_section_by_id(CIS_SECTION_MASTER) && $node->nid != $gid) {
+      $master = node_load($gid);
+      // if there aren't any then this will just do nothing in the end, oh well. very rare
+      foreach ($master->field_section_projects['und'] as $projectref) {
+        // replicate the project
+        $project_clone = replicate_entity_by_id('node', $projectref['target_id']);
+        // associate the cloned project to the section's project list
+        $node->field_section_projects['und'][] = array('target_id' => $project_clone->nid);
+        // loop through the steps for this project if it has any
+        if (!empty($project_clone->field_project_steps['und'])) {
+          $steps = $project_clone->field_project_steps['und'];
+          /// unset this so we can rebuild with the new references
+          $project_clone->field_project_steps['und'] = array();
+          // loop through and clone assignments based on what we found
+          foreach ($steps as $assignmentref) {
+            // clone but don't save
+            $assignment_clone = replicate_clone_entity_by_id('node', $assignmentref['target_id']);
+            // manually set project to the new one
+            $assignment_clone->field_assignment_project['und'][0]['target_id'] = $project_clone->nid;
+            // makes sure we don't double save and create a huge nightmare
+            $assignment_clone->_isclone = TRUE;
+            node_save($assignment_clone);
+            // set the reference reference into the project steps
+            $project_clone->field_project_steps['und'][] = array('target_id' => $assignment_clone->nid);
+          }
+          // save the project steps so we get the references
+          node_save($project_clone);
         }
       }
     }
   }
-  // special stuff for these field types to ensure some things aren't null
-  elseif(in_array($node->type, array('cle_submission', 'cle_project', 'cle_assignment'))) {
-    // ensure we don't have anonymous creation since it's not possible
-    if (!isset($node->uid) || $node->uid == 0) {
-      $node->uid = $GLOBALS['user']->uid;
-    }
-    // ensure there's a group set for cle_submission
-    if (!isset($node->og_group_ref[LANGUAGE_NONE][0]['target_id'])) {
-      $node->og_group_ref[LANGUAGE_NONE][0]['target_id'] = _cis_section_load_section_by_id(_cis_connector_section_context());
-    }
+  // add the reverse reference to section from project
+  if ($node->type == 'cle_project' && isset($node->og_group_ref[LANGUAGE_NONE][0]['target_id'])) {
+    $section = node_load($node->og_group_ref[LANGUAGE_NONE][0]['target_id']);
+    $section->field_section_projects['und'][] = array('target_id' => $node->nid);
+    node_save($section);
+  }
+  // add the reverse reference to project from assignment
+  if ($node->type == 'cle_assignment' && isset($node->field_assignment_project['und'][0]['target_id']) && !isset($node->_isclone)) {
+    $project = node_load($node->field_assignment_project['und'][0]['target_id']);
+    $project->field_project_steps['und'][] = array('target_id' => $node->nid);
+    node_save($project);
   }
 }
 
