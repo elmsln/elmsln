@@ -8555,32 +8555,19 @@ div.MathJax_Display {
 /**
  * Make input fields look better on add/edit forms
  */
-.page-node-add input:not([type]),
-.page-node-add input[type=text],
-.page-node-add input[type=password],
-.page-node-add input[type=email],
-.page-node-add input[type=url],
-.page-node-add input[type=time],
-.page-node-add input[type=date],
-.page-node-add input[type=datetime],
-.page-node-add input[type=datetime-local],
-.page-node-add input[type=tel],
-.page-node-add input[type=number],
-.page-node-add input[type=search],
-.page-node-add textarea.materialize-textarea,
-.page-node-edit input:not([type]),
-.page-node-edit input[type=text],
-.page-node-edit input[type=password],
-.page-node-edit input[type=email],
-.page-node-edit input[type=url],
-.page-node-edit input[type=time],
-.page-node-edit input[type=date],
-.page-node-edit input[type=datetime],
-.page-node-edit input[type=datetime-local],
-.page-node-edit input[type=tel],
-.page-node-edit input[type=number],
-.page-node-edit input[type=search],
-.page-node-edit textarea.materialize-textarea {
+input:not([type]):not(.style-scope),
+input[type=text]:not(.style-scope),
+input[type=password]:not(.style-scope),
+input[type=email]:not(.style-scope),
+input[type=url]:not(.style-scope),
+input[type=time]:not(.style-scope),
+input[type=date]:not(.style-scope),
+input[type=datetime]:not(.style-scope),
+input[type=datetime-local]:not(.style-scope),
+input[type=tel]:not(.style-scope),
+input[type=number]:not(.style-scope),
+input[type=search]:not(.style-scope),
+textarea.materialize-textarea:not(.style-scope) {
   background-color: transparent;
   border: none;
   border-bottom: 1px solid #9e9e9e;
