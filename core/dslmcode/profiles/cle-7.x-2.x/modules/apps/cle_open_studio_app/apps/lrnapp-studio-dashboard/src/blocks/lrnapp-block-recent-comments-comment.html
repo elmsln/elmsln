@@ -1,3 +1,5 @@
+<link rel="import" href="../../../elements/moment-element/moment-element.html">
+
 <dom-module id="lrnapp-block-recent-comments-comment">
   <template>
     <style>
@@ -61,7 +63,7 @@
     </style>
     <paper-card elevation="3" class="flex-wrap">
       <div class="card-content">
-        <lrndesign-avatar label="{{commentUser}}"></lrndesign-avatar>
+        <lrndesign-avatar label="{{commentUser}}" class="ferpa-protect"></lrndesign-avatar>
         <h3>{{commentUser}}</h3>
         <div class="button-wrapper">
           <div id="comment" class="inactive">
@@ -71,7 +73,7 @@
             <lrn-icon icon="chevron-down" id="icon"></lrn-icon>
           </paper-button>
         </div>
-        <h4>Updated: {{dateUpdated}}</h4>
+        Updated: <moment-element datetime$="[[dateUpdated]]" output-format="MMM DD[,] YYYY"></moment-element>
       </div>
       <div class="card-actions">
         <template is="dom-if" if="{{actionView}}">

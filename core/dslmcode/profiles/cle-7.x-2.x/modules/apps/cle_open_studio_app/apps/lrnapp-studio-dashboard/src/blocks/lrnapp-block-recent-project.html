@@ -84,7 +84,7 @@
       <elmsln-loading color="grey-text" size="large"></elmsln-loading>
     </div>
     <a tabindex="-1" href$="[[basePath]]lrnapp-studio-kanban">
-      <paper-button class="whole-project">
+      <paper-button class="whole-project ferpa-protect">
         <paper-card id$="project-[[project.id]]" class="project-card grey lighten-3" heading="{{project.attributes.title}}" elevation="2">
           <div class="card-content">
             <iron-list items="[[_toArray(project.relationships.assignments)]]" as="assignment">
