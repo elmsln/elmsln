@@ -18,7 +18,7 @@ function cle__2_install() {
   _elmsln_installer_post_install_cleanup();
 
   // set homepage
-  variable_set('site_frontpage', 'cle');
+  variable_set('site_frontpage', 'apps/lrnapp-studio-dashboard');
   // last ditch revert
   features_revert_module('cle_critique');
   features_revert_module('cle_submission');
@@ -159,4 +159,5 @@ function cle__2_update_7015(&$sandbox) {
   features_revert_module('cle_submission');
   features_revert_module('cle_assignment');
   features_revert_module('cle_project');
+  variable_set('site_frontpage', 'apps/lrnapp-studio-dashboard');
 }
