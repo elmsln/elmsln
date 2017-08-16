@@ -8552,6 +8552,22 @@ div.MathJax_Display {
   display: inline!important;
 }
 
+/**
+ * Make input fields look better on add/edit forms
+ */
+.page-node-add input:not([type]),
+.page-node-add input[type=text],
+.page-node-add input[type=password],
+.page-node-add input[type=email],
+.page-node-add input[type=url],
+.page-node-add input[type=time],
+.page-node-add input[type=date],
+.page-node-add input[type=datetime],
+.page-node-add input[type=datetime-local],
+.page-node-add input[type=tel],
+.page-node-add input[type=number],
+.page-node-add input[type=search],
+.page-node-add textarea.materialize-textarea,
 .page-node-edit input:not([type]),
 .page-node-edit input[type=text],
 .page-node-edit input[type=password],
@@ -8578,4 +8594,17 @@ div.MathJax_Display {
   box-shadow: none;
   box-sizing: content-box;
   transition: all 0.3s;
+}
+/**
+ * Autocomplete
+ */
+div.autocomplete-deluxe-multiple {
+  width: unset;
+}
+
+/**
+ * Floating column on forms
+ */
+.views-exposed-widget {
+  overflow: hidden;
 }
