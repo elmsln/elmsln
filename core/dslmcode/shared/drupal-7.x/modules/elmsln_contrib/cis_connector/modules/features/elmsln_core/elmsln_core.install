@@ -12,6 +12,9 @@ function elmsln_core_install() {
   // ensure a11y domain is set
   $cfg = _elmsln_core_get_cfg();
   variable_set('a11y_domain', '.' . $cfg['address']);
+  // httprl defaults
+  variable_set('httprl_server_addr', '-1');
+  variable_set('httprl_background_callback', '1');
   // Make sure that the elmsln_core module runs later then CORS for example.
   db_update('system')
   ->fields(array(
@@ -260,4 +263,12 @@ function elmsln_core_update_7025(&$sandbox) {
     ->condition('name', $modules, 'IN')
     ->condition('type', 'module')
     ->execute();
+}
+
+/**
+ * Stop using HTTPRL for core calls, this is hard to debug.
+ */
+function elmsln_core_update_7026(&$sandbox) {
+  // stop using httprl for the request function
+  variable_del('drupal_http_request_function');
 }
