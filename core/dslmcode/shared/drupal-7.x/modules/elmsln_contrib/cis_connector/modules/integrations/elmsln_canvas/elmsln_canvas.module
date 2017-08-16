@@ -72,7 +72,15 @@ function _elmsln_canvas_form_submit($form, $form_state) {
         $year = str_replace('sp', '', $tmp);
       }
       $campus = '';
-      drupal_alter('elmsln_canvas_submit', $semester, $year, $campus, $start_date, $end_date, $course);
+      $variables = array(
+        'semester' => &$semester,
+        'year' => &$year,
+        'campus' => &$campus,
+        'start_date' => &$start_date,
+        'end_date' => &$end_date,
+        'course' => &$course
+      );
+      drupal_alter('elmsln_canvas_submit', $variables);
       $existing = _cis_helper_load_machine_name_by_access_string($access_string);
       // make sure they don't match before updating / creating a new one
       if ($existing != $machine_name) {
