@@ -154,10 +154,22 @@ function cle__2_update_7014(&$sandbox) {
  * Enable the new studio instead of the angular one.
  */
 function cle__2_update_7015(&$sandbox) {
+  // wipe cle_submission_comments
+  $modules = array(
+    'cle_submission_comments',
+  );
+  db_delete('system')
+    ->condition('name', $modules, 'IN')
+    ->condition('type', 'module')
+    ->execute();
+  // disable old app
   module_disable(array('cle_app'));
+  // enable new app
   module_enable(array('cle_open_studio_app'));
+  // revert the modules that were influenced by the switch
   features_revert_module('cle_submission');
   features_revert_module('cle_assignment');
   features_revert_module('cle_project');
+  // change the home page to be the dashboard
   variable_set('site_frontpage', 'apps/lrnapp-studio-dashboard');
 }

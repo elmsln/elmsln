@@ -170,7 +170,6 @@ dependencies[] = votingapi
 dependencies[] = cle_cis_ux
 dependencies[] = cle_assignment
 dependencies[] = cle_submission
-dependencies[] = cle_submission_comments
 dependencies[] = cle_critique
 dependencies[] = cle_project
 dependencies[] = cle_displays
