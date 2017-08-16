@@ -53,9 +53,24 @@ function _elmsln_canvas_form_submit($form, $form_state) {
         $date = new DateTime($ary[4]);
         $end_date = $date->format('Y-m-d H:i:s');
       }
-      // @todo need to break semester out into the actual year and semester
-      $semester = $term[1];
-      $year = '';
+      // try and break things out into year and semester
+      $tmp = drupal_strtolower($term[1]);
+      if (strpos($tmp, 's1')) {
+        $semester = 'su';
+        $year = str_replace('s1', '', $tmp);
+      }
+      else if (strpos($tmp, 'su')) {
+        $semester = 'su';
+        $year = str_replace('su', '', $tmp);
+      }
+      else if (strpos($tmp, 'fa')) {
+        $semester = 'fa';
+        $year = str_replace('fa', '', $tmp);
+      }
+      else if (strpos($tmp, 'sp')) {
+        $semester = 'sp';
+        $year = str_replace('sp', '', $tmp);
+      }
       $campus = '';
       drupal_alter('elmsln_canvas_submit', $semester, $year, $campus, $start_date, $end_date, $course);
       $existing = _cis_helper_load_machine_name_by_access_string($access_string);

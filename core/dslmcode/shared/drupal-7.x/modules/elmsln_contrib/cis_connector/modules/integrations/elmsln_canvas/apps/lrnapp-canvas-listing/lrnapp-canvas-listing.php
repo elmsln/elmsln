@@ -77,37 +77,6 @@ function _elmsln_canvas_course_list($machine_name, $app_route, $params, $args) {
       }
     }
     $return = $roster;
-    /*$canvas = canvas_api('sections');
-    $canvas->params['include'] = array(
-      'students',
-      'avatar_url',
-      'enrollments',
-      'total_students',
-    );
-    $return = $canvas->sectionsByCourseID('sis_course_id:'. $params['sis_course_id']);*/
-
-    //}
-    //$return = $courses;
-      /*$canvas = canvas_api('enrollment');
-      foreach ($sections as $section) {
-        $rosters[$course['sis_course_id']][] = $canvas->getEnrollment('sis_section_id:' . $section['sis_section_id']);
-      }
-      foreach ($rosters[$course['sis_course_id']] as $key1 => $enrollments) {
-        // drop things that don't have enrollments
-        if (empty($enrollments)) {
-          unset($rosters[$course['sis_course_id']][$key1]);
-        }
-        else {
-          // look through enrollments for people that are active
-          foreach ($enrollments as $key2 => $enrollment) {
-            // only keep people who are active
-            if ($enrollment['enrollment_state'] != 'active') {
-              unset($rosters[$course['sis_course_id']][$key1][$key2]);
-            }
-          }
-        }
-      }
-    }*/
   }
   return array(
     'status' => 200,
