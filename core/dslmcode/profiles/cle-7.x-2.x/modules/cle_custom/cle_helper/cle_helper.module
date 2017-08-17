@@ -75,11 +75,15 @@ function cle_helper_elmsln_core_service_settings($section = NULL) {
   return $options;
 }
 
+/**
+ * Implements hook_node_insert().
+ */
 function cle_helper_node_insert($node) {
   // make sure there's project associated with this section if not master
   if ($node->type == 'section' && empty($node->field_section_projects['und'])) {
     // load the master section, ensure this isn't that!
-    if ($gid = _cis_section_load_section_by_id(CIS_SECTION_MASTER) && $node->nid != $gid) {
+    $gid = _cis_section_load_section_by_id(CIS_SECTION_MASTER);
+    if ($gid && $node->nid != $gid) {
       $master = node_load($gid);
       // if there aren't any then this will just do nothing in the end, oh well. very rare
       foreach ($master->field_section_projects['und'] as $projectref) {
@@ -88,7 +92,7 @@ function cle_helper_node_insert($node) {
         if ($project) {
           // replicate the project
           $project_clone = replicate_clone_entity('node', $project);
-          $assignment_clone->_isclone = TRUE;
+          // make sure the below condition doesn't get tripped
           // associate the cloned project with this new section
           $project_clone->og_group_ref[LANGUAGE_NONE][0]['target_id'] = $node->nid;
           // save so we generate an nid
@@ -126,13 +130,13 @@ function cle_helper_node_insert($node) {
     }
   }
   // add the reverse reference to section from project
-  if ($node->type == 'cle_project' && isset($node->og_group_ref[LANGUAGE_NONE][0]['target_id']) && !isset($node->_isclone)) {
+  else if ($node->type == 'cle_project' && isset($node->og_group_ref[LANGUAGE_NONE][0]['target_id'])) {
     $section = node_load($node->og_group_ref[LANGUAGE_NONE][0]['target_id']);
     $section->field_section_projects['und'][] = array('target_id' => $node->nid);
     node_save($section);
   }
   // add the reverse reference to project from assignment
-  if ($node->type == 'cle_assignment' && isset($node->field_assignment_project['und'][0]['target_id']) && !isset($node->_isclone)) {
+  else if ($node->type == 'cle_assignment' && isset($node->field_assignment_project['und'][0]['target_id']) && !isset($node->_isclone)) {
     $project = node_load($node->field_assignment_project['und'][0]['target_id']);
     $project->field_project_steps['und'][] = array('target_id' => $node->nid);
     node_save($project);
