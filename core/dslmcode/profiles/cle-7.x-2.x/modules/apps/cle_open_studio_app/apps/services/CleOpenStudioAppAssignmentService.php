@@ -74,11 +74,14 @@ class CleOpenStudioAppAssignmentService {
    *
    * @param string $id
    *    Nid of the assignment
+   * @param array $options
+   *    - encode Boolean Specify whether the assignment should be encoded
    *
    * @return object
    */
-  public function getAssignment($id, $app_route = '') {
+  public function getAssignment($id, $options = array()) {
     $item = array();
+    $encode = (isset($options['encode']) ? $options['encode'] : TRUE);
     $section_id = _cis_connector_section_context();
     $section = _cis_section_load_section_by_id($section_id);
     $field_conditions = array(
@@ -95,7 +98,10 @@ class CleOpenStudioAppAssignmentService {
      *       one was found.
      */
     if (count($items) == 1) {
-      $item = $this->encodeAssignment(array_shift($items), $app_route);
+      $item = array_shift($items);
+      if ($encode) {
+        $item = $this->encodeAssignment(array_shift($items));
+      }
     }
     return $item;
   }
@@ -148,6 +154,13 @@ class CleOpenStudioAppAssignmentService {
 
   public function videoGenerateSourceUrl($url) {
     return _elmsln_api_video_url($url);
+  }
+
+  public function openDependencies($assignment_id) {
+    ddl('test');
+    $assignment = $this->getAssignment($assignment_id, array('encode' => FALSE));
+    ddl($assignment);
+    return FALSE;
   }
 
   /**

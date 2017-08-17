@@ -5,6 +5,7 @@
  */
 
 include_once 'cle_submission.features.inc';
+include_once drupal_get_path('module', 'cle_open_studio_app') . '/apps/services/CleOpenStudioAppSubmissionService.php';
 
 /**
  * Implements hook_menu().
@@ -402,11 +403,21 @@ function cle_submission_node_access($node, $op, $account) {
 function cle_submission_node_presave($node) {
   // Check the parent assignment to find out what type of submission should be.
   if ($node->type == 'cle_submission') {
+    // ensure we have a parent assignment
+    if (!isset($node->field_assignment[LANGUAGE_NONE][0]['target_id'])) {
+      throw new Exception(t('Submissions need to have a parent assignment.'));
+    }
+
+    // Make sure that the submissions parent assignment has it's dependencies met.
+    $submission_service = new CleOpenStudioAppSubmissionService();
+    $assignment = $node->field_assignment[LANGUAGE_NONE][0]['target_id'];
+    $res = $submission_service->assignmentComplete($assignment);
+
+    // load the parent assignment
     $entity = entity_load_single('node', $node->field_assignment[LANGUAGE_NONE][0]['target_id']);
     $entity_efw = entity_metadata_wrapper('node', $entity);
+    // Figure out critique method
     $return = 'default';
-    $entity = entity_load_single('node', $node->field_assignment[LANGUAGE_NONE][0]['target_id']);
-    $entity_efw = entity_metadata_wrapper('node', $entity);
     if ($entity_efw) {
       $assignment_critique = $entity_efw->field_critique_method->value();
       if ($assignment_critique) {
