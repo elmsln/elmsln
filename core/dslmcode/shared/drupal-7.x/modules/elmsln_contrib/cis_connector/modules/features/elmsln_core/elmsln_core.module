@@ -1203,7 +1203,7 @@ function elmsln_core_form_node_form_alter(&$form, &$form_state, $form_id) {
     // prepopulate section reference if it exists in the current context for whatever reason
     // and hasn't existed previously but ONLY for new stuff
     if (isset($form['og_group_ref']['und'][0]['default']['#default_value']) && empty($form['og_group_ref']['und'][0]['default']['#default_value']
-  ) && $section_nid = _cis_section_load_section_by_id(_cis_connector_section_context()) && !in_array(elmsln_core_get_profile_key(), array('elmsmedia', 'icor'))) {
+  ) && module_exists('cis_section') && $section_nid = _cis_section_load_section_by_id(_cis_connector_section_context()) && !in_array(elmsln_core_get_profile_key(), array('elmsmedia', 'icor'))) {
       $form['og_group_ref']['und'][0]['default']['#default_value'] = $section_nid;
     }
   }
