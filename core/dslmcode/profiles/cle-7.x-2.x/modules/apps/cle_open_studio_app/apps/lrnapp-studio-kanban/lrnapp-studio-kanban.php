@@ -45,14 +45,17 @@ function _cle_studio_kanban_kanban_data($machine_name, $app_route, $params, $arg
     }
   }
   else {
-    $data = array();
+    $data = array(
+      'canCreateProjects' => user_access('create cle-project content'),
+      'projects' => array(),
+    );
     $options = new stdClass();
     $options->order = array();
     $service = new CleOpenStudioAppProjectService();
-    $data = $service->getProjects($options);
+    $data['projects'] = $service->getProjects($options);
     if (!empty($data)) {
       $status = 200;
-      foreach ($data as $key => &$project) {
+      foreach ($data['projects'] as $key => &$project) {
         $project->relationships->assignments = array();
         // loop through the steps and pull in all the assignments
         foreach ($project->attributes->steps as $step) {
