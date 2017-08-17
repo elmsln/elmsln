@@ -382,15 +382,6 @@ html {
   box-sizing: inherit;
 }
 
-ul:not(.browser-default) {
-  padding-left: 0;
-  list-style-type: none;
-}
-
-ul:not(.browser-default) li {
-  list-style-type: none;
-}
-
 .valign-wrapper {
   display: -webkit-flex;
   display: -ms-flexbox;
