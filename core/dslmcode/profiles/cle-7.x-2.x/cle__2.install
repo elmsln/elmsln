@@ -21,7 +21,11 @@ function cle__2_install() {
   variable_set('site_frontpage', 'apps/lrnapp-studio-dashboard');
   // last ditch revert
   features_revert_module('cle_critique');
+  features_revert_module('cle_assignment');
+  features_revert_module('cle_project');
   features_revert_module('cle_submission');
+  features_revert_module('cle_perms');
+  features_revert_module('cle_open_studio_app');
 }
 
 /**
@@ -163,13 +167,16 @@ function cle__2_update_7015(&$sandbox) {
     ->condition('type', 'module')
     ->execute();
   // disable old app
-  module_disable(array('cle_app'));
+  module_disable(array('cle_app', 'cle_critique'));
   // enable new app
   module_enable(array('cle_open_studio_app'));
   // revert the modules that were influenced by the switch
   features_revert_module('cle_submission');
   features_revert_module('cle_assignment');
   features_revert_module('cle_project');
+  features_revert_module('cle_perms');
+  features_revert_module('cle_open_studio_app');
   // change the home page to be the dashboard
   variable_set('site_frontpage', 'apps/lrnapp-studio-dashboard');
 }
+
