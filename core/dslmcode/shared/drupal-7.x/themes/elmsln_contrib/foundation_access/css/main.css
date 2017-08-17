@@ -2948,9 +2948,11 @@ dl {
   margin-bottom: 1.5rem; }
 
 ul {
-  margin-left: 1.1rem; }
+  margin-left: 1.4rem; }
 
 /* Unordered Lists */
+li {
+  margin-left: 1.4rem; }
 ul li ul,
 ul li ol {
   margin-left: 1.25rem;
