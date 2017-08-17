@@ -2942,10 +2942,10 @@ code {
 ul,
 ol,
 dl {
-  font-size: 1rem;
-  line-height: 1.6;
+  font-size: 1.2rem;
+  line-height: 2.5rem;
   list-style-position: outside;
-  margin-bottom: 1.25rem; }
+  margin-bottom: 1.5rem; }
 
 ul {
   margin-left: 1.1rem; }
