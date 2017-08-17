@@ -26,7 +26,8 @@
   // see if we have a cron key, this is easiest indicator its working
   if (isset($row->field_field_cron_key[0]['raw']['value'])) {
     $text = t('Service available');
-    $color = '#AAFFAA';
+    $color = 'green-text text-darken-1';
+    $icon = FALSE;
   }
   else {
     $course = $row->field_field_machine_name[0]['raw']['value'];
@@ -40,51 +41,61 @@
       if (count($progfile) > 1) {
         $msg = implode("\n", $progfile);
       }
+      $icon = TRUE;
       switch ($step) {
         case 1:
           // scipt started
           $text = t('Starting error checking');
-          $color = '#FFFFAA';
+          $color = 'orange-text text-darken-2';
         break;
         case 2:
           // right before drush si
           $text = t('Installing @service', array('@service' => $service));
-          $color = '#FFFFCC';
+          $color = 'amber-text text-darken-2';
         break;
         case 3:
           // right after drush si
           $text = t('Verifying install');
-          $color = '#FFAAAA';
+          $color = 'yellow-text text-darken-3';
         break;
         case 4:
           // after drush commands
           $text = t('Verification complete');
-          $color = '#FFCCCC';
+          $color = 'light-green-text';
         break;
         case 5:
           $text = t('Integrating with network');
-          $color = '#CCFFCC';
+          $color = 'green-text text-lighten-1';
         break;
         case 6:
           $text = t('Finished');
-          $color = '#AAFFAA';
+          $color = 'green-text text-darken-1';
+          $icon = FALSE;
         break;
       }
     }
     elseif (file_exists($filepath . '.processed')) {
       // job just about finished
       $text = t('Almost there..');
-      $color = '#AAFFAA';
+      $color = 'grey-text text-lighten-2';
+      $icon = TRUE;
     }
     elseif (file_exists($filepath)) {
       // job hasn't started yet
       $text = t('Waiting for server');
-      $color = '#FFFFFF';
+      $color = 'grey-text text-lighten-2';
+      $icon = TRUE;
     }
+  }
+  if ($icon) {
+    $icon = '<elmsln-loading size="small" color="' . $color . '" style="display:inline-flex;"></elmsln-loading>';
+  }
+  else {
+    $icon = '<iron-icon icon="check" class="' . $color . '"></iron-icon>';
   }
   // make sure we have something to render
   if (isset($text)) {
-    print '<div style="line-height:2rem; background-color:' . $color . '"><div title="' . $text . '" class="icon-ecd-black etb-modal-icons"></div><span>' . $text . '</span></div>';
+    print '<paper-button>' . $icon . '<div style="display:inline-flex;">' . $text . '</div></paper-button>';
   }
 ?>
 
