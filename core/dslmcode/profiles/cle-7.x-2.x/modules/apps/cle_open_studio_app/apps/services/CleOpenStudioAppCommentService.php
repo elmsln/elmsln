@@ -14,13 +14,18 @@ class CleOpenStudioAppCommentService {
     $comment->language = LANGUAGE_NONE;
     $comment->nid = $data['nid'];
     $comment->pid = $data['pid'];
-    comment_save($comment);
-    if (isset($comment->cid)) {
-      return $this->encodeComment($comment, TRUE);
+    if (user_access('post comments')) {
+      try {
+        comment_save($comment);
+        if (isset($comment->cid)) {
+          return $this->encodeComment($comment, TRUE);
+        }
+      }
+      catch (Exception $e) {
+        throw new Exception($e->getMessage(), 1);
+      }
     }
-    else {
-      return FALSE;
-    }
+    return FALSE;
   }
   /**
    * Get a list of comments

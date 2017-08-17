@@ -16,14 +16,16 @@ class CleOpenStudioAppAssignmentService {
     $node->field_assignment_project['und'][0]['target_id'] = $project_id;
     // associate to the currently active section
     $node->og_group_ref[LANGUAGE_NONE][0]['target_id'] = _cis_section_load_section_by_id(_cis_connector_section_context());
-    try {
-      node_save($node);
-      if (isset($node->nid)) {
-        return $this->encodeAssignment($node);
+    if (entity_access('create', 'node', $node)) {
+      try {
+        node_save($node);
+        if (isset($node->nid)) {
+          return $this->encodeAssignment($node);
+        }
       }
-    }
-    catch (Exception $e) {
-      throw new Exception($e->getMessage(), 1);
+      catch (Exception $e) {
+        throw new Exception($e->getMessage(), 1);
+      }
     }
     return FALSE;
   }
