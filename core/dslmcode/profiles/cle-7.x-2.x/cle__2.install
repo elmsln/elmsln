@@ -25,7 +25,6 @@ function cle__2_install() {
   features_revert_module('cle_project');
   features_revert_module('cle_submission');
   features_revert_module('cle_perms');
-  features_revert_module('cle_open_studio_app');
 }
 
 /**
@@ -175,7 +174,6 @@ function cle__2_update_7015(&$sandbox) {
   features_revert_module('cle_assignment');
   features_revert_module('cle_project');
   features_revert_module('cle_perms');
-  features_revert_module('cle_open_studio_app');
   // change the home page to be the dashboard
   variable_set('site_frontpage', 'apps/lrnapp-studio-dashboard');
 }
