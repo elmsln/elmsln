@@ -1806,17 +1806,6 @@ function _foundation_access_svg_whitelist_tags() {
 }
 
 /**
- * MOVED TO elmsln_api MODULE
- *
- * Converts youtube / vimeo URLs into things we can embed
- * @param  string $video_url a well formed youtube/vimeo direct URL.
- * @return string            the address that's valid for embed codes.
- */
-function _foundation_access_video_url($video_url) {
-  return __elmsln_api_video_url($video_url);
-}
-
-/**
  * Implementation of hook_wysiwyg_editor_settings_alter().
  */
 function foundation_access_wysiwyg_editor_settings_alter(&$settings, $context) {
