@@ -12,10 +12,10 @@ define('WEBCOMPONENTS_APP_PATH', 'apps');
  * the registry for from it's manifest.json file (most likely)
  * @return array                the definition or definitions of all found as array
  */
-function webcomponents_app_load_app_definitions($machine_name = NULL) {
+function webcomponents_app_load_app_definitions($machine_name = NULL, $force_rebuild = FALSE) {
   // statically cache future calls
   $apps = &drupal_static(__FUNCTION__);
-  if (!isset($apps)) {
+  if (!isset($apps) || $force_rebuild) {
     // load up the definitions of apps out there
     $apps = module_invoke_all('register_webcomponent_apps');
     drupal_alter('register_webcomponent_apps', $apps);
@@ -53,7 +53,7 @@ function webcomponents_app_permission() {
     ),
   );
   // load app definitions
-  $apps = webcomponents_app_load_app_definitions();
+  $apps = webcomponents_app_load_app_definitions(NULL, TRUE);
   foreach ($apps as $machine_name => $app) {
     $perms['access ' . $machine_name . ' app'] = array(
       'title' => t('Access @name', array('@name' => $app['title'])),
@@ -69,7 +69,7 @@ function webcomponents_app_permission() {
 function webcomponents_app_menu() {
   $items = array();
   // load app definitions
-  $apps = webcomponents_app_load_app_definitions();
+  $apps = webcomponents_app_load_app_definitions(NULL, TRUE);
   foreach ($apps as $machine_name => $app) {
     $items[WEBCOMPONENTS_APP_PATH . '/' . $machine_name] = array(
       'title' => $app['title'],
