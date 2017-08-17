@@ -278,10 +278,13 @@ function _webcomponents_rebuild() {
  * Add webcomponent to the header of the site so it can work.
  */
 function _webcomponents_add_to_head($component) {
+  // generate filename hash based on the size of the file
+  // this is a quick and dirty way to do invalidation when it updates without local cache refreshes client side
+  $hash = filesize(DRUPAL_ROOT . '/' . $component->file);
   $element = array(
     '#tag' => 'link', // The #tag is the html tag
     '#attributes' => array( // Set up an array of attributes inside the tag
-      'href' => base_path() . $component->file,
+      'href' => base_path() . $component->file . '?h' . $hash,
       'rel' => 'import',
     ),
   );

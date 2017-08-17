@@ -188,20 +188,22 @@ function _webcomponents_app_load_app($machine_name = NULL, $debug = FALSE) {
   $app['is_app'] = TRUE;
   // ensure this exists
   if (!empty($machine_name) && !empty($app)) {
+    $hash = filesize(DRUPAL_ROOT . '/' . $app['path'] . 'manifest.json');
     // form the base path for loading the app
     $path = base_path() . $app['path'];
     $element = array(
       '#tag' => 'link',
       '#attributes' => array(
-        'href' => $path . 'manifest.json',
+        'href' => $path . 'manifest.json?h' . $hash,
         'rel' => 'manifest',
       ),
     );
     drupal_add_html_head($element, 'app-' . $machine_name . '-manifest');
+    $hash = filesize(DRUPAL_ROOT . '/' . $app['path'] . 'src/' . $machine_name . '/' . $machine_name . '.html');
     $element = array(
       '#tag' => 'link',
       '#attributes' => array(
-        'href' => $path . 'src/' . $machine_name . '/' . $machine_name . '.html',
+        'href' => $path . 'src/' . $machine_name . '/' . $machine_name . '.html?h' . $hash,
         'rel' => 'import',
       ),
       '#weight' => '99999',
