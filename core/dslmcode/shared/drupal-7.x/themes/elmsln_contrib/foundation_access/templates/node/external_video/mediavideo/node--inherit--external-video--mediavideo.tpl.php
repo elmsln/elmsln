@@ -17,10 +17,14 @@
   </div>
 
   <?php if ($poster): ?>
-  <aside class="mediavideo__poster">
-    <img src="<?php print $poster; ?>">
-    <a class="mediavideo__open icon-play-black" href="#play-video" title="Click to view video."></a>
-  </aside>
+  <aside class="mediavideo__poster mediavideo-button-container mediavideo-button-display">
+      <a tabindex="-1" href="#play-video" class="mediavideo__open" title="<?php print t('Press to start video');?>">
+        <paper-button class="mediavideo-button center">
+        <img src="<?php print $poster; ?>" class="poster--image" />
+          <iron-icon icon="av:play-circle-outline" class="mediavideo-icon"></iron-icon>
+        </paper-button>
+      </a>
+    </aside>
   <?php endif; ?>
   <?php if (isset($duration)): ?>
     <div class="mediavideo__duration">

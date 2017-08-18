@@ -294,6 +294,8 @@ module.exports = function() {
 	  $(".mediavideo__open, .mediavideo__close").click(function(e) {
 	  	e.preventDefault();
 	    var videoContainer = $(this).parents('.mediavideo');
+      var videoPoster = $(this).parents('.mediavideo-button-container');
+      videoPoster.toggleClass('mediavideo-button-display');
 	    // Add the is-open tag to the base element.
 	    videoContainer.toggleClass('mediavideo--is-open');
 			videoContainer.find('*[data-mediavideo-src]').each(function() {
