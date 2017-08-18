@@ -310,6 +310,10 @@ ul.book-navigation-wrapper {
   z-index: 1;
 }
 
+.book-navigation-header ul {
+  padding: 0;
+}
+
 .book-sibling-nav-container {
   margin: 0;
   font-size: 0.8rem;
@@ -458,10 +462,11 @@ lrnsys-button.mooc-helper-toc {
 .page-mooc-book-toc article ul,
 #block-mooc-helper-mooc-helper-toc-nav-modal .mooc-outline-modal-content ul {
   margin-left: 0;
+  list-style: none;
 }
 .page-mooc-book-toc article ul li ul,
 #block-mooc-helper-mooc-helper-toc-nav-modal .mooc-outline-modal-content ul li ul {
-  margin-left: 2rem;
+  list-style: none;
 }
 
 .book-parent-tree {
@@ -543,8 +548,9 @@ section.main-section.etb-book a.elmsln-outline-button {
   #block-mooc-helper-mooc-helper-toc-nav-modal ul li ul {
     margin-left: 1rem;
   }
-  #block-mooc-helper-mooc-helper-toc-nav-modal li {
+  #block-mooc-helper-mooc-helper-toc-nav-modal ul li {
     min-width: 400px;
+    list-style: none !important;
   }
   #block-mooc-helper-mooc-helper-toc-nav-modal a {
     height: inherit;

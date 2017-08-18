@@ -2116,6 +2116,9 @@ p.txtbk-intro {
     display: flex;
     -ms-flex-align: center;
         align-items: center; }
+        .book-navigation-header li {
+          list-style: none;
+        }
   .r-header ul.book-navigation-wrapper {
     display: -ms-flexbox;
     display: flex;
