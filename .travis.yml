@@ -36,13 +36,13 @@ before_install:
   - sudo apt-get update -qq
   - sudo apt-get install -y -qq postfix
 install:
-  # install php packages required for running a web server from drush on php 5.3
   - sudo apt-get install -y --force-yes php5-cgi php5-mysql
   # install drush globally
   - composer global require drush/drush:7.*
   # add composer's global bin directory to the path
   # see: https://github.com/drush-ops/drush#install---composer
   - export PATH="$HOME/.composer/vendor/bin:$PATH"
+  - export PATH="$HOME/.config/composer/vendor/bin:$PATH"
 before_script:
   - cd ../../../
   - sudo apt-get install apache2 libapache2-mod-fastcgi
@@ -85,6 +85,7 @@ before_script:
   - ls -lasD /etc/apache2/sites-enabled
   - ls -lasD /etc/apache2/sites-available
   - sudo service apache2 restart
+  - cat $PATH
 script:
   - sudo chown -R travis:travis /var/www/elmsln
   - sudo chown -R travis:travis /var/www/elmsln/config
