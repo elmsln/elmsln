@@ -85,7 +85,6 @@ before_script:
   - ls -lasD /etc/apache2/sites-enabled
   - ls -lasD /etc/apache2/sites-available
   - sudo service apache2 restart
-  - cat $PATH
 script:
   - sudo chown -R travis:travis /var/www/elmsln
   - sudo chown -R travis:travis /var/www/elmsln/config
