@@ -8476,11 +8476,16 @@ lrn-aside {
   padding: 3rem 0 0 0;
   margin: .25rem;
 }
+lrn-aside[sticky] {
+  z-index: 1;
+  padding: 0;
+}
 lrn-aside h3 div {
   font-size: 1rem;
 }
 lrn-aside p {
   font-size: .8rem;
+  line-height: 2rem;
 }
 lrn-aside div.card-panel.lrndesign-panelcard {
   padding: .75rem;
