@@ -272,6 +272,11 @@ function _cle_studio_kanban_assignment_index($machine_name, $app_route, $params,
   $service = new CleOpenStudioAppAssignmentService();
 
   $return = $service->getAssignments();
+  $items = $this->encodeAssignments($items, $app_route);
+  foreach ($items as $key => $data) {
+    $return['assignment-' . $key] = $data;
+  }
+  return $return;
 
   return array(
     'status' => 200,

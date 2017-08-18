@@ -66,11 +66,7 @@ class CleOpenStudioAppAssignmentService {
       }
     }
     $items = _cis_connector_assemble_entity_list('node', 'cle_assignment', 'nid', '_entity', $field_conditions, $property_conditions, $orderby, TRUE, $limit);
-    $items = $this->encodeAssignments($items);
-    foreach ($items as $key => $data) {
-      $return['assignment-' . $key] = $data;
-    }
-    return $return;
+    return $items;
   }
 
   /**
@@ -220,10 +216,10 @@ class CleOpenStudioAppAssignmentService {
    *
    * @return array
    */
-  protected function encodeAssignments($assignments) {
+  protected function encodeAssignments($assignments, $app_route) {
     if (is_array($assignments)) {
       foreach ($assignments as &$assignment) {
-        $assignment = $this->encodeAssignment($assignment);
+        $assignment = $this->encodeAssignment($assignment, $app_route);
       }
       return $assignments;
     }
