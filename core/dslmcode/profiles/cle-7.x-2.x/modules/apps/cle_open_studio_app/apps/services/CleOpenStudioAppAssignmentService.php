@@ -75,12 +75,10 @@ class CleOpenStudioAppAssignmentService {
    *
    * @param string $id
    *    Nid of the assignment
-   * @param array $options
-   *    - encode Boolean Specify whether the assignment should be encoded
    *
    * @return object
    */
-  public function getAssignment($id, $options = array()) {
+  public function getAssignment($id) {
     $item = array();
     $encode = (isset($options['encode']) ? $options['encode'] : TRUE);
     $section_id = _cis_connector_section_context();
@@ -102,9 +100,6 @@ class CleOpenStudioAppAssignmentService {
      */
     if (count($items) == 1) {
       $item = array_shift($items);
-      if ($encode) {
-        $item = $this->encodeAssignment($item);
-      }
     }
     return $item;
   }
@@ -181,11 +176,11 @@ class CleOpenStudioAppAssignmentService {
    * @return object/false
    */
   public function getAssignmentDependency($assignment_id) {
-    $assignment = $this->getAssignment($assignment_id, array('encode' => FALSE));
+    $assignment = $this->getAssignment($assignment_id);
     if ($assignment) {
       // if we have a dependency
       if (isset($assignment->field_assignment_dependencies[LANGUAGE_NONE][0]['target_id'])) {
-        return $this->getAssignment($assignment->field_assignment_dependencies[LANGUAGE_NONE][0]['target_id'], array('encode' => FALSE));
+        return $this->getAssignment($assignment->field_assignment_dependencies[LANGUAGE_NONE][0]['target_id']);
       }
     }
     return FALSE;

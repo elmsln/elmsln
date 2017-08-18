@@ -60,9 +60,12 @@ function _cle_studio_kanban_kanban_data($machine_name, $app_route, $params, $arg
         $project->relationships->assignments = array();
         // loop through the steps and pull in all the assignments
         foreach ($project->attributes->steps as $step) {
-          $assignment = $assignmentservice->getAssignment($step->id, $app_route);
-          if (isset($assignment->id)) {
-            $project->relationships->assignments['assignment-' . $assignment->id] = $assignment;
+          $assignment = $assignmentservice->getAssignment($step->id);
+          if ($assignment) {
+            $encoded_assignment = $assignmentservice->encodeAssignment($assignment, $app_route);
+            if ($encoded_assignment) {
+              $project->relationships->assignments['assignment-' . $encoded_assignment->id] = $encoded_assignment;
+            }
           }
         }
       }
