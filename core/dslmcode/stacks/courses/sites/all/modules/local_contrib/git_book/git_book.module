@@ -96,6 +96,7 @@ function git_book_node_insert($node) {
         }
       }
     }
+    drupal_flush_all_caches();
   }
   // if we see a new git book page is about to be inserted
   elseif (!empty($node->book['bid']) && $node->log != t(GIT_BOOK_STANDARD_LOG)) {
