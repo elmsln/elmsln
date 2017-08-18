@@ -9,8 +9,10 @@ class CleOpenStudioAppSubmissionService {
    */
   public function createStubSubmission($assignment_id) {
     global $user;
+    $service = new CleOpenStudioAppAssignmentService();
+    $assignment = $service->getAssignment($assignment_id);
     $node = new stdClass();
-    $node->title = t('Submission for assignment @id', array('@id' => $assignment_id));
+    $node->title = t('Submission for @name', array('@name' => $assignment->attributes->title));
     $node->type = 'cle_submission';
     $node->uid = $user->uid;
     $node->status = 1;
