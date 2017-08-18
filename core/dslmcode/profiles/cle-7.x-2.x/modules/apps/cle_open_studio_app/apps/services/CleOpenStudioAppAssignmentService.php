@@ -1,5 +1,7 @@
 <?php
 
+include_once 'CleOpenStudioAppSubmissionService.php';
+
 class CleOpenStudioAppAssignmentService {
   /**
    * Create Stub Assignment based on assignment
@@ -37,9 +39,11 @@ class CleOpenStudioAppAssignmentService {
     $items = array();
     $section_id = _cis_connector_section_context();
     $section = _cis_section_load_section_by_id($section_id);
-    $field_conditions = array(
-      'og_group_ref' => array('target_id', $section, '='),
-    );
+    if ($section) {
+      $field_conditions = array(
+        'og_group_ref' => array('target_id', $section, '='),
+      );
+    }
     // things unpublished are considered "deleted"
     $property_conditions = array('status' => array(NODE_PUBLISHED, '='));
     $orderby = array('property' => array(array('changed', 'DESC')));
@@ -84,9 +88,11 @@ class CleOpenStudioAppAssignmentService {
     $encode = (isset($options['encode']) ? $options['encode'] : TRUE);
     $section_id = _cis_connector_section_context();
     $section = _cis_section_load_section_by_id($section_id);
-    $field_conditions = array(
-      'og_group_ref' => array('target_id', $section, '='),
-    );
+    if ($section) {
+      $field_conditions = array(
+        'og_group_ref' => array('target_id', $section, '='),
+      );
+    }
     $property_conditions = array('status' => array(NODE_PUBLISHED, '='));
     if (isset($id)) {
       $property_conditions['nid'] = array($id, '=');
@@ -100,7 +106,7 @@ class CleOpenStudioAppAssignmentService {
     if (count($items) == 1) {
       $item = array_shift($items);
       if ($encode) {
-        $item = $this->encodeAssignment(array_shift($items));
+        $item = $this->encodeAssignment($item);
       }
     }
     return $item;
@@ -156,12 +162,55 @@ class CleOpenStudioAppAssignmentService {
     return _elmsln_api_video_url($url);
   }
 
-  public function openDependencies($assignment_id) {
-    ddl('test');
-    $assignment = $this->getAssignment($assignment_id, array('encode' => FALSE));
-    ddl($assignment);
+  /**
+   * Find out an assignment is complete assignment of a submission is complete
+   *
+   * @param [string] $assignment_id
+   * @return boolean
+   */
+  public function assignmentComplete($assignment_id) {
+    $submission_service = new CleOpenStudioAppSubmissionService();
+    $submission = $submission_service->getSubmissionByAssignment($assignment_id);
+    if ($submission->field_submission_state[LANGUAGE_NONE][0]['value'] == 'submission_ready') {
+      return TRUE;
+    }
     return FALSE;
   }
+
+  /**
+   * Get an assignment's parent assignment
+   *
+   * @param [string] $assignment_id
+   * @return object/false
+   */
+  public function getAssignmentDependency($assignment_id) {
+    $assignment = $this->getAssignment($assignment_id, array('encode' => FALSE));
+    if ($assignment) {
+      // if we have a dependency
+      if (isset($assignment->field_assignment_dependencies[LANGUAGE_NONE][0]['target_id'])) {
+        return $this->getAssignment($assignment->field_assignment_dependencies[LANGUAGE_NONE][0]['target_id'], array('encode' => FALSE));
+      }
+    }
+    return FALSE;
+  }
+
+  /**
+   * Find out if an assignment's dependecy has unmet dependencies
+   *
+   * @param [type] $assignment_id
+   * @return boolean
+   */
+  public function assignmentHasUnmetDependencies($assignment_id) {
+    $parent = $this->getAssignmentDependency($assignment_id);
+    if ($parent) {
+      $complete = $this->assignmentComplete($parent->nid);
+      if (!$complete) {
+        return TRUE;
+      }
+    }
+    return FALSE;
+  }
+
 
   /**
    * Prepare a list of assignments to be outputed in json

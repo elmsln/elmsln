@@ -6,6 +6,7 @@
 
 include_once 'cle_submission.features.inc';
 include_once drupal_get_path('module', 'cle_open_studio_app') . '/apps/services/CleOpenStudioAppSubmissionService.php';
+include_once drupal_get_path('module', 'cle_open_studio_app') . '/apps/services/CleOpenStudioAppAssignmentService.php';
 
 /**
  * Implements hook_menu().
@@ -409,11 +410,16 @@ function cle_submission_node_presave($node) {
     }
 
     // Make sure that the submissions parent assignment has it's dependencies met.
-    $submission_service = new CleOpenStudioAppSubmissionService();
-    $assignment = $node->field_assignment[LANGUAGE_NONE][0]['target_id'];
-    $res = $submission_service->assignmentComplete($assignment);
+    $assignment_service = new CleOpenStudioAppAssignmentService();
+    if (isset($node->field_assignment[LANGUAGE_NONE][0]['target_id'])) {
+      $assignment_id = $node->field_assignment[LANGUAGE_NONE][0]['target_id'];
+      $has_unmet_dependencies = $assignment_service->assignmentHasUnmetDependencies($assignment_id);
+      if ($has_unmet_dependencies) {
+        throw new Exception(t('You must complete the previous assignment before you can submit assignment.'));
+      }
+    }
 
-    // load the parent assignment
+    // figure out submission type
     $entity = entity_load_single('node', $node->field_assignment[LANGUAGE_NONE][0]['target_id']);
     $entity_efw = entity_metadata_wrapper('node', $entity);
     // Figure out critique method
