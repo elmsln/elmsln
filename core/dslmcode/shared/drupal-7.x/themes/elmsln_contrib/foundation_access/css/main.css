@@ -3598,6 +3598,8 @@ body.page-node-edit.node-type-page .cke_focus .cke_top{
   }
   .views-exposed-form ul {
     margin: 0;
+    list-style: none;
+    padding: 0;
   }
 }
 
