@@ -16,13 +16,14 @@ class CleOpenStudioAppAssignmentService {
     $node->uid = $user->uid;
     $node->status = 1;
     $node->field_assignment_project['und'][0]['target_id'] = $project_id;
+    $node->field_critique_method[LANGUAGE_NONE][0]['value'] = 'none';
     // associate to the currently active section
     $node->og_group_ref[LANGUAGE_NONE][0]['target_id'] = _cis_section_load_section_by_id(_cis_connector_section_context());
     if (entity_access('create', 'node', $node)) {
       try {
         node_save($node);
         if (isset($node->nid)) {
-          return $this->encodeAssignment($node);
+          return $node;
         }
       }
       catch (Exception $e) {
@@ -216,7 +217,7 @@ class CleOpenStudioAppAssignmentService {
    *
    * @return array
    */
-  protected function encodeAssignments($assignments, $app_route) {
+  public function encodeAssignments($assignments, $app_route) {
     if (is_array($assignments)) {
       foreach ($assignments as &$assignment) {
         $assignment = $this->encodeAssignment($assignment, $app_route);
@@ -236,7 +237,7 @@ class CleOpenStudioAppAssignmentService {
    *
    * @return Object
    */
-  protected function encodeAssignment($assignment, $app_route = '') {
+  public function encodeAssignment($assignment, $app_route = '') {
     global $user;
     global $base_url;
     $account = $user;
@@ -391,7 +392,7 @@ class CleOpenStudioAppAssignmentService {
     return NULL;
   }
 
-  protected function decodeAssignment($payload, $node) {
+  public function decodeAssignment($payload, $node) {
     if ($payload) {
       if ($payload->attributes) {
         if ($payload->attributes->title) {
@@ -407,7 +408,7 @@ class CleOpenStudioAppAssignmentService {
   }
 
   // Convert multidimentional Object to arrays
-  private function objectToArray($obj) {
+  public function objectToArray($obj) {
     if (is_object($obj)) $obj = (array)$obj;
     if (is_array($obj)) {
         $new = array();
@@ -420,7 +421,7 @@ class CleOpenStudioAppAssignmentService {
     return $new;
   }
 
-  private function fileFieldTypes($entity_type, $field_name, $bundle_name) {
+  public function fileFieldTypes($entity_type, $field_name, $bundle_name) {
     $instance = field_info_instance($entity_type, $field_name, $bundle_name);
     if ($instance && is_array($instance)) {
       if (isset($instance['settings'])) {

@@ -239,9 +239,9 @@ function _cle_studio_kanban_assignment_create_stub($machine_name, $app_route, $p
       $service = new CleOpenStudioAppAssignmentService();
       try {
         $assignment = $service->createStubAssignment($post_data);
-        if ($assignment) {
+        if (isset($assignment->nid)) {
           $return['status'] = 201;
-          $return['data'] = $assignment;
+          $return['data'] = $service->encodeAssignment($assignment, $app_route);
         }
         else {
           $return['errors'][] = t('Could not create assignment.');
