@@ -84,9 +84,6 @@ before_script:
   - cat /var/www/elmsln/scripts/server/php.txt >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
   - ls -lasD /etc/apache2/sites-enabled
   - ls -lasD /etc/apache2/sites-available
-  - rm /etc/apache2/sites-enabled/elmsln.conf*.conf
-  - mv /etc/apache2/sites-available/elmsln.conf*.conf /etc/apache2/sites-available/elmsln.conf
-  - ln -s /etc/apache2/sites-available/elmsln.conf /etc/apache2/sites-enabled/elmsln.conf
   - sudo service apache2 restart
 script:
   - sudo chown -R travis:travis /var/www/elmsln
