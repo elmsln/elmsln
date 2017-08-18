@@ -52,6 +52,7 @@ function _cle_studio_kanban_kanban_data($machine_name, $app_route, $params, $arg
     $options = new stdClass();
     $options->order = array();
     $service = new CleOpenStudioAppProjectService();
+    $assignmentservice = new CleOpenStudioAppAssignmentService();
     $data['projects'] = $service->getProjects($options);
     if (!empty($data['projects'])) {
       $status = 200;
@@ -59,9 +60,9 @@ function _cle_studio_kanban_kanban_data($machine_name, $app_route, $params, $arg
         $project->relationships->assignments = array();
         // loop through the steps and pull in all the assignments
         foreach ($project->attributes->steps as $step) {
-          $assignment = node_load($step->id);
-          if (isset($assignment->nid)) {
-            $project->relationships->assignments['assignment-' . $assignment->nid] = _cle_assignment_v1_assignment_output($assignment, $app_route);
+          $assignment = $assignmentservice->getAssignment($step->id, $app_route);
+          if (isset($assignment->id)) {
+            $project->relationships->assignments['assignment-' . $assignment->id] = $assignment;
           }
         }
       }

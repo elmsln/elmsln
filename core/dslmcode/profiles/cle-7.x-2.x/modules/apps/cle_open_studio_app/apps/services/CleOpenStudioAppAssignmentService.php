@@ -77,7 +77,7 @@ class CleOpenStudioAppAssignmentService {
    *
    * @return object
    */
-  public function getAssignment($id) {
+  public function getAssignment($id, $app_route = '') {
     $item = array();
     $section_id = _cis_connector_section_context();
     $section = _cis_section_load_section_by_id($section_id);
@@ -95,11 +95,11 @@ class CleOpenStudioAppAssignmentService {
      *       one was found.
      */
     if (count($items) == 1) {
-      $item = $this->encodeAssignment(array_shift($items));
+      $item = $this->encodeAssignment(array_shift($items), $app_route);
     }
     return $item;
   }
-  
+
   public function updateAssignment($payload, $id) {
     if ($payload) {
       // make sure we have an id to work with
@@ -178,8 +178,9 @@ class CleOpenStudioAppAssignmentService {
    *
    * @return Object
    */
-  protected function encodeAssignment($assignment) {
+  protected function encodeAssignment($assignment, $app_route = '') {
     global $user;
+    global $base_url;
     $account = $user;
     $encoded_assignment = new stdClass();
     if (is_object($assignment)) {
@@ -197,6 +198,8 @@ class CleOpenStudioAppAssignmentService {
       $encoded_assignment->meta->revision_timestamp = Date('c', $assignment->revision_timestamp);
       $encoded_assignment->meta->canUpdate = 0;
       $encoded_assignment->meta->canDelete = 0;
+      $encoded_assignment->meta->afterDueDate = 0;
+      $encoded_assignment->meta->canCritique = 0;
       // see the operations they can perform here
       if (entity_access('update', 'node', $assignment)) {
         $encoded_assignment->meta->canUpdate = 1;
@@ -204,6 +207,100 @@ class CleOpenStudioAppAssignmentService {
       if (entity_access('delete', 'node', $assignment)) {
         $encoded_assignment->meta->canDelete = 1;
       }
+      // add in related submissions
+      $encoded_assignment->meta->relatedSubmissions = _cle_submission_submission_status($assignment);
+      // see if this allows late submissions
+      $allowLate = (bool)$assignment->field_assignment_late_submission[LANGUAGE_NONE][0]['value'];
+      // calculate if this is on time / can be active for submissions
+      // as well as providing a rationale behind this response
+      // this helps in both debugging and messages to the end user
+      // so logic all stays server side
+      $time = REQUEST_TIME;
+      $rationale = array();
+      // see if this has a due date and if it is after as a result
+      if (isset($assignment->field_assignment_due_date[LANGUAGE_NONE][0]['value'])) {
+        // time is greater than the due date, meaning its late
+        // see if it's allowed to be late though
+        if ($time > $assignment->field_assignment_due_date['und'][0]['value2'] && $allowLate) {
+          $submissionActive = 1;
+          $rationale['text'] = t('The assignment was due @date, but late submissions are accepted.', array('@date' => date('M d, Y - h:iA', $assignment->field_assignment_due_date['und'][0]['value2'])));
+          $rationale['code'] = 'date-late';
+          $rationale['data'] = array($assignment->field_assignment_due_date['und'][0]['value2']);
+        }
+        // time is greater than the due date and they can't submit
+        else if ($time > $assignment->field_assignment_due_date['und'][0]['value2'] && !$allowLate) {
+          $submissionActive = 0;
+          $rationale['text'] = t('The assignment was due @date and submissions are now closed.', array('@date' => date('M d, Y - h:iA', $assignment->field_assignment_due_date['und'][0]['value2'])));
+          $rationale['code'] = 'date-closed';
+          $rationale['data'] = array($assignment->field_assignment_due_date['und'][0]['value2']);
+        }
+        // time greater than 1st date (within it starting) and less than 2nd (due date)
+        else if ($time > $assignment->field_assignment_due_date['und'][0]['value'] && $time < $assignment->field_assignment_due_date['und'][0]['value2']) {
+          $submissionActive = 1;
+          $rationale['text'] = t('Assignment submissions opened @date1 and are due by @date2.', array('@date1' => date('M d, Y - h:iA', $assignment->field_assignment_due_date['und'][0]['value']), '@date2' => date('M d, Y - h:iA', $assignment->field_assignment_due_date['und'][0]['value2'])));
+          $rationale['code'] = 'date-open';
+          $rationale['data'] = array($assignment->field_assignment_due_date['und'][0]['value'], $assignment->field_assignment_due_date['und'][0]['value2']);
+
+        }
+        // time is less than the start of the date range meaning it hasn't opened yet
+        else if ($time < $assignment->field_assignment_due_date['und'][0]['value'] && $assignment->field_assignment_due_date['und'][0]['value'] != $assignment->field_assignment_due_date['und'][0]['value2'] && !is_null($assignment->field_assignment_due_date['und'][0]['value2'])) {
+          $submissionActive = 0;
+          $rationale['text'] = t('Assignment submissions are currently closed. This assignment will open @date1 and is due by @date2.', array('@date1' => date('M d, Y - h:iA', $assignment->field_assignment_due_date['und'][0]['value']), '@date2' => date('M d, Y - h:iA', $assignment->field_assignment_due_date['und'][0]['value2'])));
+          $rationale['code'] = 'date-closed';
+          $rationale['data'] = array($assignment->field_assignment_due_date['und'][0]['value'], $assignment->field_assignment_due_date['und'][0]['value2']);
+        }
+        // time is before the due date, we're good.
+        else if ($time < $assignment->field_assignment_due_date['und'][0]['value']) {
+          $submissionActive = 1;
+          $rationale['text'] = t('The assignment is accepting submissions and is due @date.', array('@date' => date('M d, Y - h:iA', $assignment->field_assignment_due_date['und'][0]['value'])));
+          $rationale['code'] = 'date-open';
+          $rationale['data'] = array($assignment->field_assignment_due_date['und'][0]['value']);
+        }
+      }
+      else {
+        $submissionActive = 1;
+        $rationale['text'] = t('The assignment is open for submission, there is no due date.');
+        $rationale['code'] = 'date-none';
+      }
+      // support for assignment dependencies
+      if (isset($assignment->field_assignment_dependencies[LANGUAGE_NONE][0])) {
+        // loop through dependencies and check if they have been met
+        foreach ($assignment->field_assignment_dependencies[LANGUAGE_NONE] as $item) {
+          $assignment = node_load($item['target_id']);
+          $tmp = _cle_submission_submission_status($assignment);
+          if (empty($tmp['complete']['submissions'])) {
+            $submissionActive = 0;
+            $rationale['text'] = t('This assignment won\'t open until dependencies have been met.');
+            $rationale['code'] = 'dependencies-unmet';
+            $rationale['data'][] = $assignment->nid;
+          }
+        }
+      }
+      // account for admin / staff / teacher roles which can submit things
+      // regardless of due date stuff
+      if (_cis_connector_role_groupings(array('staff', 'teacher')) && $submissionActive == 0) {
+        $submissionActive = 1;
+        $rationale['text'] .= ' ' . t('<em>Your privileges allow you to submit this regardless.</em>');
+      }
+      // see if this has a due date and if it is after as a result
+      if (isset($assignment->field_assignment_due_date['und'][0]['value'])) {
+        // check for due date 2
+        if (isset($assignment->field_assignment_due_date['und'][0]['value2'])) {
+          if ($time > $assignment->field_assignment_due_date['und'][0]['value2']) {
+            $metadata['afterDueDate'] = 1;
+          }
+        }
+        else {
+          if ($time > $assignment->field_assignment_due_date['und'][0]['value']) {
+            $metadata['afterDueDate'] = 1;
+          }
+        }
+      }
+      // bring along the rationale
+      $encoded_assignment->meta->rationale = $rationale;
+      // bring the submission active status
+      $encoded_assignment->meta->submissionActive = $submissionActive;
+
       // Relationships
       $encoded_assignment->relationships = new stdClass();
       // assignment
@@ -222,6 +319,14 @@ class CleOpenStudioAppAssignmentService {
       $encoded_assignment->relationships->author->data->name = $assignment->name;
       // Actions
       $encoded_assignment->actions = null;
+      // shim till we remove these
+      $encoded_assignment->links = array(
+        'self' => $base_url . '/api/v1/cle/assignments/' . $assignment->nid,
+        'url' => $base_url . '/cle/app/assignments/' . $assignment->nid,
+        'direct' => $base_url . '/node/' . $assignment->nid,
+        'delete' => $base_url . '/node/' . $assignment->nid . '/delete?destination=' . $app_route,
+        'update' => $base_url . '/node/' . $assignment->nid . '/edit?destination=' . $app_route,
+      );
       drupal_alter('cle_open_studio_app_encode_assignment', $encoded_assignment);
       return $encoded_assignment;
     }
