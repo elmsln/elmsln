@@ -6973,6 +6973,7 @@ div.form-type-checkbox :last-child {
 }
 .elmsln-fixed-action-btn ul li {
   margin-bottom: 0.5rem;
+  list-style: none;
 }
 
 .elmsln-btn-floating {
@@ -8271,6 +8272,10 @@ lrnapp-fab-speed-dial-action.lrnapp-fab-speed-dial-action-0 {
 }
 .app-drawer-0 #contentContainer.app-drawer {
   margin-top: 7em;
+}
+.app-drawer ul {
+  padding: 0;
+  margin: 0;
 }
 .elmsln-user-button {
   height: 100%;
