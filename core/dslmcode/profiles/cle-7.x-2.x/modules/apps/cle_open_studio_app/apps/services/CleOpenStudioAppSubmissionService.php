@@ -173,13 +173,15 @@ class CleOpenStudioAppSubmissionService {
    * Get a submission for a paticular user by submission id
    *
    * @param [string] $id  Assignment id
+   * @param [string] $uid  Specify user that you are looking for, defaults to active user
    * @return [node_object] Submission node object
    */
-  public function getSubmissionByAssignment($assignment_id) {
+  public function getSubmissionByAssignment($assignment_id, $uid = NULL) {
     global $user;
     $return = FALSE;
     $section_id = _cis_connector_section_context();
     $section = _cis_section_load_section_by_id($section_id);
+    $uid = ($uid ? $uid : $user->uid);
     $field_conditions = array(
       'og_group_ref' => array('target_id', $section, '='),
     );
@@ -187,7 +189,7 @@ class CleOpenStudioAppSubmissionService {
     $query->entityCondition('entity_type', 'node')
       ->entityCondition('bundle', 'cle_submission')
       ->propertyCondition('status', NODE_PUBLISHED)
-      ->propertyCondition('uid', $user->uid)
+      ->propertyCondition('uid', $uid)
       ->fieldCondition('field_assignment', 'target_id', $assignment_id, '=');
     $result = $query->execute();
     if (isset($result['node'])) {
@@ -199,6 +201,97 @@ class CleOpenStudioAppSubmissionService {
       $return = node_load(array_shift($nids));
     }
     return $return;
+  }
+
+  /**
+   * Determine if a user has to view a submission. This factors in assignment privacy
+   * settings as well if the current user has any outstanding dependencies that would
+   * prevent them from seeing a submission.
+   *
+   * @param [mixed] $submission Specify the submssion node_object or nid
+   * @param [string] $uid Optionally specify the user, defaults to active user.
+   * @return boolean
+   */
+  public function submissionVisibleToUser($submission, $uid = NULL) {
+    $submission_emw = entity_metadata_wrapper('node', $submission);
+    // if the user is the author then they should
+    $author_uid = $submission_emw->author->uid->value();
+    if ($author_uid && $author_uid == $uid) {
+      return TRUE;
+    }
+    // find out if the submission is potentially visible to class
+    $visible_to_class = $this->submissionVisibleToClass($submission);
+    // if it's potentially visible to the class then make sure this user can see it
+    if ($visible_to_class) {
+      // check if the submission is set to be open after submission
+      /**
+       * @todo this line is throwing a 500 error when viewing a submission as a student
+       */
+      $privacy_setting = $submission_emw->field_assignment->field_assignment_privacy_setting->value();
+      if ($privacy_setting && $privacy_setting == 'open_after_submission') {
+        // if it is, then we should check if the user has submitted to this assignment
+        $user_completed_submission = $this->getSubmissionByAssignment($submission_emw->nid->value(), $uid);
+        // if they have then allow then return TRUE
+        if ($user_completed_submission) {
+          return TRUE;
+        }
+      }
+    }
+    return FALSE;
+  }
+
+  /**
+   * Determine if the submission is potentialy visible to the class. This does not mean that
+   * users absolutely have the ability to see it, just that there is a potential for the class
+   * to view it based on submission state and assignment privacy settings.  For a more complete
+   * check see submissionVisibleToUser()
+   *
+   * @param [type] $submission
+   * @return void
+   */
+  public function submissionVisibleToClass($submission) {
+    $submission_emw = entity_metadata_wrapper('node', $submission);
+
+    // if the submission is published then it can be seen by everyone
+    $submission_state = $submission_emw->field_submission_state->value();
+    if ($submission_state != 'submission_ready') {
+      return FALSE;
+    }
+
+    // make sure there is an assignment. if not throw an error because that
+    // shouldn't be the case at all
+    if (!$submission_emw->field_assignment->value()) {
+      throw new Exception(t('Submission does not have an assignment.'));
+      return FALSE;
+    }
+
+    // if the privacy setting is set to closed then no one in the class can see it
+    $privacy_setting = $submission_emw->field_assignment->field_assignment_privacy_setting->value();
+    if ($privacy_setting) {
+      if ($privacy_setting == 'closed') {
+        return FALSE;
+      }
+    }
+
+    return TRUE;
+  }
+
+  /**
+   * IN DEVELOPMENT DO NOT USE
+   */
+  private function submissionBeingCritiqued($submission_id) {
+    $query = new EntityFieldQuery();
+    $query->entityCondition('entity_type', 'node')
+      ->entityCondition('bundle', 'cle_submission')
+      ->fieldCondition('field_related_submission', 'target_id', $submission_id, '=');
+    $result = $query->execute();
+    if (isset($result['node'])) {
+      $submission_nids = array_keys($result['node']);
+      $submissions = entity_load('node', $submission_nids);
+      return $submissions;
+    }
+
+    return FALSE;
   }
 
   /**

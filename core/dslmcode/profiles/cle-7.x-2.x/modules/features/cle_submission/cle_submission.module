@@ -382,16 +382,12 @@ function cle_submission_page_build(&$page) {
  * Implements hook_node_access().
  */
 function cle_submission_node_access($node, $op, $account) {
+  $submission_service = new CleOpenStudioAppSubmissionService();
   // allow for privacy value on the assignment to dictate who can see this
   if ($op == 'view' && !_cis_connector_role_groupings(array('teacher', 'staff', 'webservice'), $account) && $node->type == 'cle_submission' && $node->uid != $account->uid) {
-    // see if this assignment is private
-    $assignment = node_load($node->field_assignment['und'][0]['target_id']);
-    // boolean for visibility
-    if ($assignment->field_assignment_privacy_setting['und'][0]['value'] == 'closed') {
-      // if it's a hidden assignment, the last check is admin member
-      if (!_cle_submission_submission_being_critiqued($node, $account)) {
-        return NODE_ACCESS_DENY;
-      }
+    $visible = $submission_service->submissionVisibleToUser($node);
+    if (!$visible) {
+      return NODE_ACCESS_DENY;
     }
   }
   return NODE_ACCESS_IGNORE;
@@ -540,7 +536,7 @@ function _cle_submission_submission_being_critiqued($submission, $user = NULL) {
     $submission_nids = array_keys($result['node']);
     $submissions = entity_load('node', $submission_nids);
     return $submissions;
-  } 
+  }
 
   return false;
 }
