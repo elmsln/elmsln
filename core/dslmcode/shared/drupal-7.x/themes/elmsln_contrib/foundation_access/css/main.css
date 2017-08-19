@@ -8576,6 +8576,13 @@ button.btn paper-button {
   background-color:#00C;
 }
 
+
+.content-callout-icon-left {
+  width: 8rem;
+  height: 11rem;
+  opacity: .8;
+  float: left;
+}
 /* TOTAL HACK JOB SOLUTIONS */
 
 /* Hide group access controls, they should always be default of private */
