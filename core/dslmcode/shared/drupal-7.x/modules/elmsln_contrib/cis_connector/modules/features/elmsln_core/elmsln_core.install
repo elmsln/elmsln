@@ -283,6 +283,7 @@ function elmsln_core_update_7027(&$sandbox) {
     'tipsy',
     'joyride',
     'jammer',
+    'lightbox2',
   );
   db_delete('system')
     ->condition('name', $modules, 'IN')
