@@ -5,16 +5,6 @@
  */
 
 /**
- * Implements hook_page_build().
- */
-function cis_tokens_page_build(&$page) {
-  // display token highlighting for privledged users
-  if ($GLOBALS['user']->uid == 1 || array_intersect(array('administrator', 'instructor', 'staff'), array_values($GLOBALS['user']->roles))) {
-    drupal_add_css(drupal_get_path('module', 'cis_tokens') . '/cis_tokens.css');
-  }
-}
-
-/**
  * Implements hook_preprocess_html().
  */
 function cis_tokens_preprocess_html(&$variables) {
@@ -68,19 +58,33 @@ function cis_tokens_tokens($type, $tokens, $data = array(), $options = array()) 
     $section_tokens = _cis_tokens_get_token_scope();
     $section_scope = _cis_tokens_get_token_scope(TRUE);
     foreach ($tokens as $name => $original) {
+      $hash = 'token-' . rand(0, 10000);
       // elements we know about ahead of time
       switch ($name) {
         case 'section_context':
           $replacements[$original] = _cis_connector_section_context();
           if ($GLOBALS['user']->uid == 1 || array_intersect(array('administrator', 'instructor', 'staff'), array_values($GLOBALS['user']->roles))) {
-            $replacements[$original] = '<span data-cis-token="' . t('Scope: Current section') . '<br/>' . t('Token: @token', array('@token' => strip_tags($original))) . '"  class="cis_token_dynamic_value">' . $replacements[$original] . '</span>';
+            $replacements[$original] = '<span tabindex="0" id="' . $hash . '" class="cis_token_dynamic_value">' . $replacements[$name] . '</span>
+              <paper-tooltip
+                for="' . $hash . '"
+                position="bottom"
+                delay="0"
+                offset="0">' . t('Scope: Current section') . '<br/>' . t('Token: @token', array('@token' => strip_tags($original))) . '
+              </paper-tooltip>';
           }
         break;
         default:
           // see if one of our global tokens is matched
           if (isset($section_tokens[$name])) {
             if ($GLOBALS['user']->uid == 1 || array_intersect(array('administrator', 'instructor', 'staff'), array_values($GLOBALS['user']->roles))) {
-              $replacements[$original] = '<span data-cis-token="' . t('Scope: @section', array('@section' => $section_scope[$name])) . '<br/>' . t('Token: @token', array('@token' => strip_tags($original))) . '"  class="cis_token_dynamic_value">' . $section_tokens[$name] . '</span>';
+              $replacements[$original] = '<span tabindex="0" id="' . $hash . '" class="cis_token_dynamic_value">' . $section_tokens[$name] . '</span>
+              <paper-tooltip
+                for="' . $hash . '"
+                position="bottom"
+                delay="0"
+                offset="0">' .
+                t('Scope: @section', array('@section' => $section_scope[$name])) . '<br/>' . t('Token: @token', array('@token' => strip_tags($original))) . '
+              </paper-tooltip>';
             }
             else {
               $replacements[$original] = $section_tokens[$name];

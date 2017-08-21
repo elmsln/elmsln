@@ -2718,6 +2718,14 @@ blockquote,
   background-color: #008CBA;
   color: white; }
 
+.cis_token_dynamic_value {
+  box-shadow: 0px 0px 0px 4px #22FF22;
+}
+.cis_token_dynamic_value:hover,
+.cis_token_dynamic_value:focus {
+  box-shadow: 0px 0px 0px 4px #00AA00;
+}
+
 .cis--tab-panel__wrapper.tabs-content > .content {
   padding: 1rem;
   margin-top: -1px; }

@@ -148,7 +148,6 @@ dependencies[] = footnotes
 dependencies[] = footnotes_wysiwyg
 dependencies[] = job_scheduler
 dependencies[] = linkchecker
-dependencies[] = tipsy
 dependencies[] = read_time
 dependencies[] = read_time_media
 dependencies[] = read_time_book
