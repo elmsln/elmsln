@@ -37,9 +37,16 @@ class CleOpenStudioAppSubmissionService {
    * Get a list of submissions
    * This will take into concideration what section the user is in and what section
    * they have access to.
+   * @param object $options
+   *                - uid  Specify the user of the request, defaults to active user
+   *                - filter
+   *                  - author
+   *                  - submission
    */
-  public function getSubmissions($options) {
+  public function getSubmissions($options = NULL) {
+    global $user;
     $items = array();
+    $user = (isset($options->uid) ? user_load($options->uid) : $user);
     $section_id = _cis_connector_section_context();
     $section = _cis_section_load_section_by_id($section_id);
     $field_conditions = array(
@@ -74,6 +81,11 @@ class CleOpenStudioAppSubmissionService {
       }
     }
     $items = _cis_connector_assemble_entity_list('node', 'cle_submission', 'nid', '_entity', $field_conditions, $property_conditions, $orderby, TRUE, $limit, $tags);
+    foreach ($items as $key => $item) {
+      if (!node_access('view', $item, $user)) {
+        unset($items[$key]);
+      }
+    }
     $items = $this->encodeSubmissions($items);
     return $items;
   }
@@ -85,11 +97,17 @@ class CleOpenStudioAppSubmissionService {
    *
    * @param string $id
    *    Nid of the submission
+   * @param array $options
+   *    - encode [boolean] Specify whether the submission should be encoded.
+   *    - uid [string] Specify User
    *
    * @return object
    */
-  public function getSubmission($id) {
+  public function getSubmission($id, $options = array()) {
+    global $user;
     $item = array();
+    $encode = (isset($options['encode']) ? $options['encode'] : TRUE);
+    $user = (isset($options['uid']) ? user_load($options['uid']) : $user);
     $section_id = _cis_connector_section_context();
     $section = _cis_section_load_section_by_id($section_id);
     $field_conditions = array(
@@ -106,7 +124,14 @@ class CleOpenStudioAppSubmissionService {
      *       one was found.
      */
     if (count($items) == 1) {
-      $item = $this->encodeSubmission(array_shift($items));
+      $item = array_shift($items);
+      // make sure the user has access to see it.
+      if (!node_access('view', $item, $user)) {
+        return FALSE;
+      }
+      if ($encode) {
+        $item = $this->encodeSubmission($item);
+      }
     }
     return $item;
   }
@@ -161,6 +186,188 @@ class CleOpenStudioAppSubmissionService {
 
   public function videoGenerateSourceUrl($url) {
     return _elmsln_api_video_url($url);
+  }
+
+  /**
+   * Get a submission for a paticular user by submission id
+   *
+   * @param [string] $id  Assignment id
+   * @param [string] $uid  Specify user that you are looking for, defaults to active user
+   * @return [node_object] Submission node object
+   */
+  public function getSubmissionByAssignment($assignment_id, $uid = NULL) {
+    global $user;
+    $return = FALSE;
+    $section_id = _cis_connector_section_context();
+    $section = _cis_section_load_section_by_id($section_id);
+    $uid = ($uid ? $uid : $user->uid);
+    $query = new EntityFieldQuery();
+    $query->entityCondition('entity_type', 'node')
+      ->entityCondition('bundle', 'cle_submission')
+      ->propertyCondition('status', NODE_PUBLISHED)
+      ->propertyCondition('uid', $uid)
+      ->fieldCondition('field_assignment', 'target_id', $assignment_id, '=');
+    // If there is a section to search on then segment it by section
+    if ($section) {
+      $query->fieldCondition('og_group_ref', 'target_id', $section, '=');
+    }
+    $result = $query->execute();
+    if (isset($result['node'])) {
+      /**
+       * @todo add better checks to return status codes based on if none were found or if more than
+       *       one was found.
+       */
+      $nids = array_keys($result['node']);
+      $return = node_load(array_shift($nids));
+    }
+    return $return;
+  }
+
+  /**
+   * Determine if a user has to view a submission. This factors in assignment privacy
+   * settings as well if the current user has any outstanding dependencies that would
+   * prevent them from seeing a submission.
+   *
+   * @param [mixed] $submission Specify the submssion node_object or nid
+   * @param [string] $uid Optionally specify the user, defaults to active user.
+   * @return boolean
+   */
+  public function submissionVisibleToUser($submission, $uid = NULL) {
+    global $user;
+    $uid = ($uid ? $uid : $user->uid);
+    $submission_emw = entity_metadata_wrapper('node', $submission);
+    // if the user is the author then they should
+    $author_uid = $submission_emw->author->uid->value();
+    if ($author_uid && $author_uid == $uid) {
+      return TRUE;
+    }
+    // find out if the submission is potentially visible to class
+    $visible_to_class = $this->submissionVisibleToClass($submission);
+    // if it's potentially visible to the class then make sure this user can see it
+    if ($visible_to_class) {
+      // check if the submission is set to be open after submission
+      $privacy_setting = $submission_emw->field_assignment->field_assignment_privacy_setting->value();
+      if ($privacy_setting && $privacy_setting == 'open_after_submission') {
+        // if it is, then we should check if the user has submitted to this assignment and the submission
+        // is marked as complete
+        $submission = $this->getSubmissionByAssignment($submission_emw->field_assignment->nid->value(), $uid);
+        if ($submission) {
+          if ($submission->field_submission_state[LANGUAGE_NONE][0]['value'] == 'submission_ready') {
+            return TRUE;
+          }
+        }
+      }
+    }
+    return FALSE;
+  }
+
+  /**
+   * Determine if the submission is potentialy visible to the class. This does not mean that
+   * users absolutely have the ability to see it, just that there is a potential for the class
+   * to view it based on submission state and assignment privacy settings.  For a more complete
+   * check see submissionVisibleToUser()
+   *
+   * @param [type] $submission
+   * @return void
+   */
+  public function submissionVisibleToClass($submission) {
+    $submission_emw = entity_metadata_wrapper('node', $submission);
+
+    // if the submission is published then it can be seen by everyone
+    $submission_state = $submission_emw->field_submission_state->value();
+    if ($submission_state != 'submission_ready') {
+      return FALSE;
+    }
+
+    // make sure there is an assignment. if not throw an error because that
+    // shouldn't be the case at all
+    if (!$submission_emw->field_assignment->value()) {
+      throw new Exception(t('Submission does not have an assignment.'));
+      return FALSE;
+    }
+
+    // if the privacy setting is set to closed then no one in the class can see it
+    $privacy_setting = $submission_emw->field_assignment->field_assignment_privacy_setting->value();
+    if ($privacy_setting) {
+      if ($privacy_setting == 'closed') {
+        return FALSE;
+      }
+    }
+
+    return TRUE;
+  }
+
+  public function getSubmissionToCritique($assignment_id, $uid = null) {
+    global $user;
+    $uid = ($uid ? $uid : $user->uid);
+    $section_id = _cis_connector_section_context();
+    $section = _cis_section_load_section_by_id($section_id);
+    // find all the critiques on current submissions they have access to
+    // make sure these submissions are filtered out below select submissions
+    $query = new EntityFieldQuery();
+    // pull all nodes
+    $query->entityCondition('entity_type', 'node')
+    // that are sections
+    ->entityCondition('bundle', 'cle_submission')
+    // that are published
+    ->propertyCondition('status', 1)
+    // that are NOT by the currently logged in user
+    ->propertyCondition('uid', $uid, '<>')
+    // only allow for pulling the submissions the could have access to
+    ->fieldCondition('field_assignment', 'target_id', $assignment_id, '=')
+    // only to this section
+    ->fieldCondition('og_group_ref', 'target_id', $section, '=')
+    // the submission has been set to 'submission_ready'
+    ->fieldCondition('field_submission_state', 'value', 'submission_ready', '=')
+    // add a random query tag so we can randomize the response
+    ->addTag('random')
+    // only return 200 items in case this is a MOOC or something
+    ->range(0, 200)
+    // run as administrator because we need to bipass node_access checks
+    ->addMetaData('account', user_load(1));
+    // store results
+    $result = $query->execute();
+    // ensure we have results
+    if (isset($result['node'])) {
+      $nids = array_keys($result['node']);
+      // loop through and check if these exist as options
+      foreach ($nids as $nid) {
+        // see if anyone else has critiqued this already
+        $critiques = _cis_connector_assemble_entity_list('node', 'cle_submission', 'nid', '_entity', array('field_related_submission' => array('target_id', $nid, '=')));
+        // if this wasn't set then we know we can return this submission
+        // for rendering on the critique viewer
+        if (!isset($critiques[$nid])) {
+          $submission = node_load($nid);
+          return $submission;
+        }
+      }
+      // if we got here, it means all our random items were already selected
+      // so we better assign them someone to critique even though it already has a critique
+      // (implies random number of students)
+      $nid = array_pop($nids);
+      $submission = node_load($nid);
+      return $submission;
+    }
+    // there aren't any that exists
+    return FALSE;
+  }
+
+  /**
+   * IN DEVELOPMENT DO NOT USE
+   */
+  private function submissionBeingCritiqued($submission_id) {
+    $query = new EntityFieldQuery();
+    $query->entityCondition('entity_type', 'node')
+      ->entityCondition('bundle', 'cle_submission')
+      ->fieldCondition('field_related_submission', 'target_id', $submission_id, '=');
+    $result = $query->execute();
+    if (isset($result['node'])) {
+      $submission_nids = array_keys($result['node']);
+      $submissions = entity_load('node', $submission_nids);
+      return $submissions;
+    }
+
+    return FALSE;
   }
 
   /**
