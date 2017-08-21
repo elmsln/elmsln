@@ -8254,7 +8254,7 @@ lrnapp-fab-speed-dial-action.lrnapp-fab-speed-dial-action-0 {
   margin: 0;
 }
 .app-drawer-0 #contentContainer.app-drawer {
-  margin-top: 7em;
+  margin-top: 6em;
 }
 .app-drawer ul {
   padding: 0;
@@ -8411,6 +8411,9 @@ lrnsys-drawer paper-button {
 lrnsys-drawer lrn-icon.lrnsys-drawer {
   height: 2em;
   width: 2em;
+}
+lrnsys-drawer .drawer-contents {
+  overflow: auto;
 }
 
 #etb-course-nav paper-button {
