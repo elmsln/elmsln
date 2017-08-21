@@ -603,3 +603,12 @@ section.main-section.etb-book a.elmsln-outline-button {
     max-width:1rem;
   }
 }
+
+/**
+ * Ensure that menu inner padding isn't applied
+ */
+.highlighted-block-area .lrnsys-button-0 paper-button.lrnsys-button div.inner.lrnsys-button {
+  padding: 0;
+}
+
+
