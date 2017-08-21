@@ -8321,6 +8321,11 @@ paper-toast#toastdrawer .alert-heading {
   overflow: auto;
   max-height: 40vh !important;
 }
+.alert-box {
+  background-color: #FFB428;
+  color: black;
+  padding: .5rem;
+}
 .alert-box pre {
   color: black;
   background-color: #FFB428;
