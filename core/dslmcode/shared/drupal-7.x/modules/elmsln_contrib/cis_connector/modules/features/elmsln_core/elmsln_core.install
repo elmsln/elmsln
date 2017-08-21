@@ -281,6 +281,7 @@ function elmsln_core_update_7027(&$sandbox) {
     'back_to_top',
     'fastclick',
     'tipsy',
+    'joyride',
   );
   db_delete('system')
     ->condition('name', $modules, 'IN')

@@ -188,13 +188,6 @@ libraries[ckeditor][destination] = "libraries"
 libraries[ckeditor][download][type] = "get"
 libraries[ckeditor][download][url] = "http://download.cksource.com/CKEditor/CKEditor/CKEditor%203.6.6.1/ckeditor_3.6.6.1.tar.gz"
 
-; jQuery Joyride
-libraries[joyride][directory_name] = "joyride"
-libraries[joyride][type] = "library"
-libraries[joyride][destination] = "libraries"
-libraries[joyride][download][type] = "get"
-libraries[joyride][download][url] = "https://github.com/zurb/joyride/archive/v2.0.3.tar.gz"
-
 ; OAuth Drupal fork
 libraries[oauth][directory_name] = "oauth"
 libraries[oauth][type] = "library"
