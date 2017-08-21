@@ -296,3 +296,17 @@ function elmsmedia_update_7024(&$sandbox) {
   features_revert_module('elmsmedia_h5p');
   module_disable(array('cis_section', 'elmsmedia_section_perms'));
 }
+
+/**
+ * Data model simplification.
+ */
+function elmsmedia_update_7025(&$sandbox) {
+  $modules = array(
+    'elmsmedia_section_perms',
+    'foundation_access_viewmodes',
+  );
+  db_delete('system')
+    ->condition('name', $modules, 'IN')
+    ->condition('type', 'module')
+    ->execute();
+}
