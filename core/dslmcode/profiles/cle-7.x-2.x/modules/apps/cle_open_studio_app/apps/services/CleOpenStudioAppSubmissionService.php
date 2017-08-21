@@ -37,9 +37,16 @@ class CleOpenStudioAppSubmissionService {
    * Get a list of submissions
    * This will take into concideration what section the user is in and what section
    * they have access to.
+   * @param object $options
+   *                - uid  Specify the user of the request, defaults to active user
+   *                - filter
+   *                  - author
+   *                  - submission
    */
   public function getSubmissions($options = NULL) {
+    global $user;
     $items = array();
+    $user = (isset($options->uid) ? user_load($options->uid) : $user);
     $section_id = _cis_connector_section_context();
     $section = _cis_section_load_section_by_id($section_id);
     $field_conditions = array(
@@ -74,6 +81,11 @@ class CleOpenStudioAppSubmissionService {
       }
     }
     $items = _cis_connector_assemble_entity_list('node', 'cle_submission', 'nid', '_entity', $field_conditions, $property_conditions, $orderby, TRUE, $limit, $tags);
+    foreach ($items as $key => $item) {
+      if (!node_access('view', $item, $user)) {
+        unset($items[$key]);
+      }
+    }
     $items = $this->encodeSubmissions($items);
     return $items;
   }
@@ -87,12 +99,15 @@ class CleOpenStudioAppSubmissionService {
    *    Nid of the submission
    * @param array $options
    *    - encode [boolean] Specify whether the submission should be encoded.
+   *    - uid [string] Specify User
    *
    * @return object
    */
   public function getSubmission($id, $options = array()) {
+    global $user;
     $item = array();
     $encode = (isset($options['encode']) ? $options['encode'] : TRUE);
+    $user = (isset($options['uid']) ? user_load($options['uid']) : $user);
     $section_id = _cis_connector_section_context();
     $section = _cis_section_load_section_by_id($section_id);
     $field_conditions = array(
@@ -110,6 +125,10 @@ class CleOpenStudioAppSubmissionService {
      */
     if (count($items) == 1) {
       $item = array_shift($items);
+      // make sure the user has access to see it.
+      if (!node_access('view', $item, $user)) {
+        return FALSE;
+      }
       if ($encode) {
         $item = $this->encodeSubmission($item);
       }
@@ -182,15 +201,16 @@ class CleOpenStudioAppSubmissionService {
     $section_id = _cis_connector_section_context();
     $section = _cis_section_load_section_by_id($section_id);
     $uid = ($uid ? $uid : $user->uid);
-    $field_conditions = array(
-      'og_group_ref' => array('target_id', $section, '='),
-    );
     $query = new EntityFieldQuery();
     $query->entityCondition('entity_type', 'node')
       ->entityCondition('bundle', 'cle_submission')
       ->propertyCondition('status', NODE_PUBLISHED)
       ->propertyCondition('uid', $uid)
       ->fieldCondition('field_assignment', 'target_id', $assignment_id, '=');
+    // If there is a section to search on then segment it by section
+    if ($section) {
+      $query->fieldCondition('og_group_ref', 'target_id', $section, '=');
+    }
     $result = $query->execute();
     if (isset($result['node'])) {
       /**
@@ -213,6 +233,8 @@ class CleOpenStudioAppSubmissionService {
    * @return boolean
    */
   public function submissionVisibleToUser($submission, $uid = NULL) {
+    global $user;
+    $uid = ($uid ? $uid : $user->uid);
     $submission_emw = entity_metadata_wrapper('node', $submission);
     // if the user is the author then they should
     $author_uid = $submission_emw->author->uid->value();
@@ -229,11 +251,13 @@ class CleOpenStudioAppSubmissionService {
        */
       $privacy_setting = $submission_emw->field_assignment->field_assignment_privacy_setting->value();
       if ($privacy_setting && $privacy_setting == 'open_after_submission') {
-        // if it is, then we should check if the user has submitted to this assignment
-        $user_completed_submission = $this->getSubmissionByAssignment($submission_emw->nid->value(), $uid);
-        // if they have then allow then return TRUE
-        if ($user_completed_submission) {
-          return TRUE;
+        // if it is, then we should check if the user has submitted to this assignment and the submission
+        // is marked as complete
+        $submission = $this->getSubmissionByAssignment($submission_emw->field_assignment->nid->value(), $uid);
+        if ($submission) {
+          if ($submission->field_submission_state[LANGUAGE_NONE][0]['value'] == 'submission_ready') {
+            return TRUE;
+          }
         }
       }
     }
