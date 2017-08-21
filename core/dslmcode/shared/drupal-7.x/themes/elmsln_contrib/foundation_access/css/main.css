@@ -2718,28 +2718,6 @@ blockquote,
   background-color: #008CBA;
   color: white; }
 
-
-.alert-box {
-  background-position: 8px 8px;
-  background-repeat: no-repeat;
-  border: 1px solid;
-  margin: 6px 0;
-  padding: 10px 10px 10px 10px;
-  background-color: #E8F5E9;
-  border: none;
-  border-radius: 3px;
-  background-position: 14px 50%;
-  color: #234600;
-  font-size: 16px;
-  font-size: 1rem;
-  font-weight: 600; }
-  .alert-box.secondary {
-    color: #840;
-    background-color: #fff3e0; }
-  .alert-box.alert {
-    color: #8c2e0b;
-    background-color: #EFC9C9; }
-
 .cis--tab-panel__wrapper.tabs-content > .content {
   padding: 1rem;
   margin-top: -1px; }
@@ -7400,24 +7378,6 @@ input:not([type])[disabled], input:not([type])[readonly], fieldset[disabled] inp
   position: fixed;
 }
 
-.alert-box {
-  border-style: solid;
-  border-width: .2rem;
-  margin: 0;
-  padding: .5rem;
-  line-height: 1.5rem;
-  border-radius: 0;
-  height: auto;
-}
-
-.alert-box.success {
-  background-color:#96d5b0;
-  color:#222222;
-  border-color: #00843b;
-}
-.alert-box.success a {
-  color:#282828;
-}
 
 .confirm-parent, .password-parent {
   width: inherit;
@@ -7987,11 +7947,12 @@ body.adminimal-menu div#admin-menu li.admin-menu-toolbar-home-menu {
 }
 
 body.adminimal-menu div#admin-menu ul.dropdown span.admin-menu-home-icon {
-  background: url("../img/home.svg") no-repeat scroll 0 0 transparent;
+  background: url(../img/home.svg) no-repeat scroll 0 0 transparent;
   display: block;
-  margin: 5px 0 0;
+  margin: 0;
   padding: 0;
-  width: 15px;
+  width: 1rem;
+  height: 1rem;
 }
 
 body.adminimal-menu div#admin-menu a,
@@ -8010,7 +7971,7 @@ body.adminimal-menu #admin-menu .dropdown li li {
 }
 
 body.adminimal-menu #admin-menu .dropdown li li.expandable ul {
-  margin-top: -28px;
+  margin: -2.75rem 0 0 12rem;
 }
 
 body.adminimal-menu #admin-menu .dropdown li li > li.admin-menu-toolbar-category {
@@ -8034,12 +7995,12 @@ body.adminimal-menu #admin-menu #admin-menu-wrapper .dropdown li li a {
 }
 
 body.adminimal-menu #admin-menu #admin-menu-wrapper .dropdown li li.expandable {
-  background: url("../img/square.png") no-repeat scroll 145px 11px #1f1f1f;
+  background: #202020 url("../img/arrow.png") no-repeat 10rem 1rem;
 }
 
 body.adminimal-menu #admin-menu #admin-menu-wrapper .dropdown li li.expandable a {
   background: transparent;
-  padding-right: 25px;
+  padding-right: 0;
 }
 
 /* Shortcuts bar */
@@ -8073,6 +8034,12 @@ body.adminimal-menu #admin-menu .dropdown li ul {
 
 body.adminimal-menu #admin-menu .dropdown li ul {
   border-top: 3px solid #0074BD;
+}
+body.adminimal-menu #admin-menu .dropdown li ul {
+  width: 12rem;
+}
+body.adminimal-menu #admin-menu .dropdown li li {
+  width: 12rem;
 }
 
 body.adminimal-menu #admin-menu .admin-menu-toolbar-category.expandable .dropdown li ul,
@@ -8258,7 +8225,13 @@ body.adminimal-menu #admin-menu .dropdown li.admin-menu-toolbar-category a,
 }
 #admin-menu paper-button {
   margin: 0;
-  padding: 0.5em 0.5em 0 0.5em;
+  padding: 0 0.5em;
+}
+#admin-menu .lrnsys-button-0 paper-button.lrnsys-button div.inner.lrnsys-button {
+  padding: 0;
+  line-height: unset;
+  height: unset;
+  font-size: 1rem;
 }
 
 ul.pagination paper-button {
@@ -8308,9 +8281,82 @@ lrnapp-fab-speed-dial-action.lrnapp-fab-speed-dial-action-0 {
 paper-toast#toastdrawer {
   bottom: 0;
   top: auto !important;
-  max-height: 35vh !important;
+  max-height: 40vh !important;
   height: auto;
+  padding: 0;
+}
+paper-toast .close-button {
+  margin: 0 0 0 .5rem;
+  border-radius: 0;
+}
+
+paper-toast#toastdrawer .status-icon {
+  margin-right: .5rem;
+}
+
+paper-toast#toastdrawer .paper-toast-label {
+  position: absolute;
+  top:0;
+  left: 0;
+  background-color: #323232;
+  margin: -3rem 0 0 0;
+  padding: 0 0 0 .5rem;
+  font-size: 1rem;
+  font-weight: bold;
+  height: 3rem;
+}
+paper-toast#toastdrawer .alert-heading {
+  padding: .5rem;
+  margin: 0;
+}
+.toast-content-container {
   overflow: auto;
+  max-height: 40vh !important;
+}
+.alert-box pre {
+  color: black;
+  background-color: #FFB428;
+  font-size: 1rem;
+  padding: .5rem;
+  border-left: 1.25rem solid #FF8D1B;
+}
+.alert-box ul.top-level {
+  padding: 0;
+  margin: 0;
+}
+.alert-box a.krumo-name {
+  color: black;
+}
+.alert-box ul.krumo-first {
+  padding: 0;
+  margin: 0;
+}
+.alert-box .krumo-root {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.alert-box .krumo-element {
+  background-color: #FFD78B;
+}
+.alert-box .krumo-element.krumo-expand {
+  color: black;
+  background-color: #FFB428;
+}
+.alert-box .krumo-php-path {
+  color: black;
+  margin-left: 1rem;
+}
+.alert-box li.krumo-child {
+  font-size: 1rem;
+}
+.alert-box .krumo-nest {
+  color: black;
+  background-color: #FF8D1B;
+}
+.alert-box li.krumo-footnote,
+.alert-box li.krumo-footnote .krumo-call {
+  color: black;
 }
 
 .dropdown-content li a paper-button {

@@ -140,7 +140,6 @@ function foundation_access_preprocess_html(&$variables) {
   $variables['lmsless_classes'] = _cis_lmsless_get_distro_classes(elmsln_core_get_profile_key());
   $variables['system_title'] = (isset($settings['default_title']) ? $settings['default_title'] : $variables['distro']);
   $css = _foundation_access_contextual_colors($variables['lmsless_classes']);
-
   $variables['theme_path'] = base_path() . drupal_get_path('theme', 'foundation_access');
 
   drupal_add_css($css, array('type' => 'inline', 'group' => CSS_THEME, 'weight' => 999));
@@ -1606,32 +1605,30 @@ function foundation_access_status_messages($variables) {
   $display = $variables['display'];
   $output = '';
 
-  $status_heading = array(
-    'error' => t('Error message'),
-    'status' => t('Status message'),
-    'warning' => t('Warning message'),
-    'notification' => t('Notification message'),
-  );
-
   $status_mapping = array(
-    'error' => 'alert',
-    'status' => 'success',
-    'warning' => 'secondary'
+    'error' => array(
+      'icon' => 'error',
+      'color' => 'red darken-4 white-text',
+      'heading' => t('Errors'),
+    ),
+    'warning' => array(
+      'icon' => 'warning',
+      'color' => 'yellow darken-4 white-text',
+      'heading' => t('Warnings'),
+    ),
+    'status' => array(
+      'icon' => 'info',
+      'color' => 'green darken-4 white-text',
+      'heading' => t('Notifications'),
+    ),
   );
-
   foreach (drupal_get_messages($display) as $type => $messages) {
-    if (isset($status_mapping[$type])) {
-      $output .= "<div role=\"alert\" aria-live=\"assertive\" data-alert class=\"alert-box $status_mapping[$type]\">\n";
+    if (!empty($status_mapping[$type])) {
+      $output .= '<h2 class="alert-heading ' . $status_mapping[$type]['color'] . '"><iron-icon icon="' . $status_mapping[$type]['icon'] . '" class="status-icon"></iron-icon>' . $status_mapping[$type]['heading'] . '</h2>';
     }
-    else {
-      $output .= "<div role=\"alert\" aria-live=\"assertive\" data-alert class=\"alert-box\">\n";
-    }
-
-    if (!empty($status_heading[$type])) {
-      $output .= '<h2 class="element-invisible">' . $status_heading[$type] . "</h2>\n";
-    }
+    $output .= "<div role=\"alert\" aria-live=\"assertive\" data-alert class=\"alert-box\">";
     if (count($messages) > 1) {
-      $output .= " <ul class=\"no-bullet\">\n";
+      $output .= " <ul class=\"no-bullet top-level\">\n";
       foreach ($messages as $message) {
         $output .= '  <li>' . $message . "</li>\n";
       }
@@ -1654,7 +1651,7 @@ function foundation_access_status_messages($variables) {
  *   Materialize.toast(message, displayLength, className, completeCallback);
  */
 function _foundation_access_make_toast($message, $display_length = 4000, $class_name = NULL, $callback = NULL) {
-  return '<paper-toast id="toastdrawer" class="fit-bottom" text="' . t('Messages') . '" opened duration="0"><paper-button onclick="toastdrawer.toggle()" class="red darken-4 white-text close-button">' . t('Close') . '</paper-button>' . $message . '</paper-toast>';
+  return '<paper-toast id="toastdrawer" class="fit-bottom" opened duration="0"><div class="paper-toast-label">' . t('Message center') . '<paper-button onclick="toastdrawer.toggle()" class="red darken-4 white-text close-button">' . t('Close') . '</paper-button></div><div class="toast-content-container">' . $message . '</div></paper-toast>';
 }
 
 /**
