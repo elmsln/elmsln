@@ -1085,17 +1085,8 @@ function foundation_access_preprocess_clipboardjs(&$variables) {
   $variables['content']['text']['markup'] = array(
     '#markup' => $variables['text'],
   );
-
   $variables['content']['button'] = array(
-    '#type' => 'button',
-    '#value' => check_plain($variables['button_label']),
-    '#attributes' => array(
-      'class' => array('clipboardjs-button', 'zmdi', 'zmdi-copy'),
-      'data-clipboard-alert' => 'toast',
-      'data-clipboard-alert-text' => $variables['alert_text'],
-      'data-clipboard-target' => '#' . $uniqid,
-      'onClick' => 'return false;',
-    ),
+    '#markup' => '<button title="' . t('Copy content') . '" class="clipboardjs-button" data-clipboard-alert="toast" data-clipboard-alert-text="' . $variables['alert_text'] . '" data-clipboard-target="#' . $uniqid . '" onclick="return false;"><iron-icon icon="content-copy" style="display:block;"></iron-icon></button>',
   );
 }
 
@@ -1120,9 +1111,6 @@ function foundation_access_link(&$variables) {
   $path = $variables['path'];
   $text = $variables['text'];
   $options = $variables['options'];
-  // good thing for static caching
-  $colors = _cis_lmsless_get_distro_classes(elmsln_core_get_profile_key());
-  $options['attributes']['hover-class'] = $colors['color'] . ' ' . $colors['dark'] . ' white-text';
   // support for lrn icon
   if ($variables['options']['fa_icon'] && !isset($variables['options']['identifier'])) {
     $options['html'] = TRUE;
@@ -1130,14 +1118,34 @@ function foundation_access_link(&$variables) {
   }
   // support for has-children chevron
   if (isset($variables['options']['has-children']) && $variables['options']['has-children']) {
-      $options['attributes']['icon'] = 'chevron-right';
-    }
+    $options['attributes']['icon'] = 'chevron-right';
+  }
+  return _foundation_access_lrnsys_button($text, $path, $options);
+}
+
+/**
+ * Shortcut to correctly render a lrnsys-button tag.
+ * @param  string $label   button label
+ * @param  string $path    href / location
+ * @param  array $options  array of options typically passed into l()
+ * @return string          a rendered button
+ */
+function _foundation_access_lrnsys_button($label, $path, $options) {
+  // good thing for static caching
+  if (!isset($options['attributes']['hover-class'])) {
+    $colors = _cis_lmsless_get_distro_classes(elmsln_core_get_profile_key());
+    $options['attributes']['hover-class'] = $colors['color'] . ' ' . $colors['dark'] . ' white-text';
+  }
+  // support links without a path
+  if ($path != NULL) {
+    $options['attributes']['href'] = check_plain(url($path, $options));
+  }
   // if HTML is set to true then we can't handle this at the moment
   if ($options['html']) {
-    return '<lrnsys-button href="' . check_plain(url($path, $options)) . '" ' . drupal_attributes($options['attributes']) . '>' . $text . '</lrnsys-button>';
+    return '<lrnsys-button ' . drupal_attributes($options['attributes']) . '>' . $label . '</lrnsys-button>';
   }
   else {
-    return '<lrnsys-button label="' . check_plain($text) . '" href="' . check_plain(url($path, $options)) . '" ' . drupal_attributes($options['attributes']) . '></lrnsys-button>';
+    return '<lrnsys-button label="' . check_plain($label) . '" ' . drupal_attributes($options['attributes']) . '></lrnsys-button>';
   }
 }
 
