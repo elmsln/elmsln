@@ -18,6 +18,8 @@ $conf['site_404'] = 'elmsln/error/404';
 $conf['drupal_http_request_fails'] = FALSE;
 // stupid issues w/ curl and canvas API if using that
 $conf['canvas_api_request_method'] = 'curl';
+// hide status message about dompdf since we addressed it
+$conf['print_pdf_dompdf_secure_06'] = TRUE;
 // use this to debug restws issues
 #$conf['restws_debug_log'] = '/var/www/elmsln/config/tmp/rest.debug';
 
