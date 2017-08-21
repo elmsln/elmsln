@@ -49,15 +49,6 @@ function cis_default_permissions_defaultconfig_user_default_permissions() {
     'module' => 'views',
   );
 
-  // Exported permission: 'access back_to_top settings'.
-  $permissions['access back_to_top settings'] = array(
-    'name' => 'access back_to_top settings',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
-    'module' => 'back_to_top',
-  );
-
   // Exported permission: 'access cis get course list'.
   $permissions['access cis get course list'] = array(
     'name' => 'access cis get course list',

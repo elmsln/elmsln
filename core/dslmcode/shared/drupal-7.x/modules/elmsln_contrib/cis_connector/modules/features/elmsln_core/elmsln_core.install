@@ -272,3 +272,17 @@ function elmsln_core_update_7026(&$sandbox) {
   // stop using httprl for the request function
   variable_del('drupal_http_request_function');
 }
+
+/**
+ * Delete {system} records for dropped modules.
+ */
+function elmsln_core_update_7027(&$sandbox) {
+  $modules = array(
+    'back_to_top',
+    'fastclick',
+  );
+  db_delete('system')
+    ->condition('name', $modules, 'IN')
+    ->condition('type', 'module')
+    ->execute();
+}

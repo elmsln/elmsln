@@ -6,7 +6,6 @@ dependencies[] = defaultconfig
 features[defaultconfig][] = user_default_permissions:access admin theme
 features[defaultconfig][] = user_default_permissions:access administration menu
 features[defaultconfig][] = user_default_permissions:access all views
-features[defaultconfig][] = user_default_permissions:access back_to_top settings
 features[defaultconfig][] = user_default_permissions:access cis get course list
 features[defaultconfig][] = user_default_permissions:access cis setup form
 features[defaultconfig][] = user_default_permissions:access ckeditor link
