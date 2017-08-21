@@ -1207,51 +1207,6 @@ function cis_default_permissions_defaultconfig_user_default_permissions() {
     'module' => 'accessibility',
   );
 
-  // Exported permission: 'view author options'.
-  $permissions['view author options'] = array(
-    'name' => 'view author options',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
-    'module' => 'jammer',
-  );
-
-  // Exported permission: 'view body options'.
-  $permissions['view body options'] = array(
-    'name' => 'view body options',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
-    'module' => 'jammer',
-  );
-
-  // Exported permission: 'view comment preview button'.
-  $permissions['view comment preview button'] = array(
-    'name' => 'view comment preview button',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
-    'module' => 'jammer',
-  );
-
-  // Exported permission: 'view comment settings'.
-  $permissions['view comment settings'] = array(
-    'name' => 'view comment settings',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
-    'module' => 'jammer',
-  );
-
-  // Exported permission: 'view delete button'.
-  $permissions['view delete button'] = array(
-    'name' => 'view delete button',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
-    'module' => 'jammer',
-  );
-
   // Exported permission: 'view lmsless bar'.
   $permissions['view lmsless bar'] = array(
     'name' => 'view lmsless bar',
@@ -1284,15 +1239,6 @@ function cis_default_permissions_defaultconfig_user_default_permissions() {
     'module' => 'lti_tool_provider',
   );
 
-  // Exported permission: 'view menu options'.
-  $permissions['view menu options'] = array(
-    'name' => 'view menu options',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
-    'module' => 'jammer',
-  );
-
   // Exported permission: 'view own unpublished content'.
   $permissions['view own unpublished content'] = array(
     'name' => 'view own unpublished content',
@@ -1302,42 +1248,6 @@ function cis_default_permissions_defaultconfig_user_default_permissions() {
       'staff' => 'staff',
     ),
     'module' => 'node',
-  );
-
-  // Exported permission: 'view path options'.
-  $permissions['view path options'] = array(
-    'name' => 'view path options',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
-    'module' => 'jammer',
-  );
-
-  // Exported permission: 'view preview button'.
-  $permissions['view preview button'] = array(
-    'name' => 'view preview button',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
-    'module' => 'jammer',
-  );
-
-  // Exported permission: 'view revision information'.
-  $permissions['view revision information'] = array(
-    'name' => 'view revision information',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
-    'module' => 'jammer',
-  );
-
-  // Exported permission: 'view revision log textarea'.
-  $permissions['view revision log textarea'] = array(
-    'name' => 'view revision log textarea',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
-    'module' => 'jammer',
   );
 
   // Exported permission: 'view revisions'.
@@ -1351,24 +1261,6 @@ function cis_default_permissions_defaultconfig_user_default_permissions() {
     'module' => 'node',
   );
 
-  // Exported permission: 'view submit button'.
-  $permissions['view submit button'] = array(
-    'name' => 'view submit button',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
-    'module' => 'jammer',
-  );
-
-  // Exported permission: 'view teaser controls'.
-  $permissions['view teaser controls'] = array(
-    'name' => 'view teaser controls',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
-    'module' => 'jammer',
-  );
-
   // Exported permission: 'view the administration theme'.
   $permissions['view the administration theme'] = array(
     'name' => 'view the administration theme',
@@ -1377,15 +1269,6 @@ function cis_default_permissions_defaultconfig_user_default_permissions() {
       'authenticated user' => 'authenticated user',
     ),
     'module' => 'system',
-  );
-
-  // Exported permission: 'view user delete button'.
-  $permissions['view user delete button'] = array(
-    'name' => 'view user delete button',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
-    'module' => 'jammer',
   );
 
   return $permissions;

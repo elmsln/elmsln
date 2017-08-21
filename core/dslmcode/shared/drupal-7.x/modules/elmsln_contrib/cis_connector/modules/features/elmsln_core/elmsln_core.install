@@ -282,10 +282,15 @@ function elmsln_core_update_7027(&$sandbox) {
     'fastclick',
     'tipsy',
     'joyride',
+    'jammer',
   );
   db_delete('system')
     ->condition('name', $modules, 'IN')
     ->condition('type', 'module')
+    ->execute();
+  // drop the jammer variables
+  db_delete('variable')
+    ->condition('name', 'jammer_%', 'LIKE')
     ->execute();
   // remove tipsy variable
   variable_del('tipsy');

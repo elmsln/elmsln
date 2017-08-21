@@ -88,7 +88,6 @@ dependencies[] = imce
 dependencies[] = imce_crop
 dependencies[] = imce_mkdir
 dependencies[] = imce_wysiwyg
-dependencies[] = jammer
 dependencies[] = jquery_update
 dependencies[] = wysiwyg
 dependencies[] = wysiwyg_template
