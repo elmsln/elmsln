@@ -246,9 +246,6 @@ class CleOpenStudioAppSubmissionService {
     // if it's potentially visible to the class then make sure this user can see it
     if ($visible_to_class) {
       // check if the submission is set to be open after submission
-      /**
-       * @todo this line is throwing a 500 error when viewing a submission as a student
-       */
       $privacy_setting = $submission_emw->field_assignment->field_assignment_privacy_setting->value();
       if ($privacy_setting && $privacy_setting == 'open_after_submission') {
         // if it is, then we should check if the user has submitted to this assignment and the submission
