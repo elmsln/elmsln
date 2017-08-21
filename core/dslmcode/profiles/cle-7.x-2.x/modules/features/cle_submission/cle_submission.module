@@ -400,13 +400,15 @@ function cle_submission_node_access($node, $op, $account) {
 function cle_submission_node_presave($node) {
   // Check the parent assignment to find out what type of submission should be.
   if ($node->type == 'cle_submission') {
+    $submission_service = new CleOpenStudioAppSubmissionService();
+    $assignment_service = new CleOpenStudioAppAssignmentService();
+
     // ensure we have a parent assignment
     if (!isset($node->field_assignment[LANGUAGE_NONE][0]['target_id'])) {
       throw new Exception(t('Submissions need to have a parent assignment.'));
     }
 
     // Make sure that the submissions parent assignment has it's dependencies met.
-    $assignment_service = new CleOpenStudioAppAssignmentService();
     if (isset($node->field_assignment[LANGUAGE_NONE][0]['target_id'])) {
       $assignment_id = $node->field_assignment[LANGUAGE_NONE][0]['target_id'];
       $has_unmet_dependencies = $assignment_service->assignmentHasUnmetDependencies($assignment_id);
@@ -416,12 +418,12 @@ function cle_submission_node_presave($node) {
     }
 
     // figure out submission type
-    $entity = entity_load_single('node', $node->field_assignment[LANGUAGE_NONE][0]['target_id']);
-    $entity_efw = entity_metadata_wrapper('node', $entity);
+    $assignment = entity_load_single('node', $node->field_assignment[LANGUAGE_NONE][0]['target_id']);
+    $assignment_emw = entity_metadata_wrapper('node', $assignment);
     // Figure out critique method
     $return = 'default';
-    if ($entity_efw) {
-      $assignment_critique = $entity_efw->field_critique_method->value();
+    if ($assignment_emw) {
+      $assignment_critique = $assignment_emw->field_critique_method->value();
       if ($assignment_critique) {
         if ($assignment_critique != 'none') {
           $return = 'critique';
@@ -434,16 +436,25 @@ function cle_submission_node_presave($node) {
     // If this submission needs to have a critique submission automatically assigned to it
     // then do it here.
     // $critique_cle_critique_random($node->field_assignment[LANGUAGE_NONE][0]['target_id']);
-    if ($entity_efw) {
-      $assignment_critique = $entity_efw->field_critique_method->value();
+    if ($assignment_emw) {
+      $assignment_critique = $assignment_emw->field_critique_method->value();
       if ($assignment_critique) {
         if ($assignment_critique == 'random') {
-          $critique_submission = _cle_critique_random($entity->nid);
-          if ($critique_submission) {
-            $node->field_related_submission[LANGUAGE_NONE][0]['target_id'] = $critique_submission->nid;
+          // get the assignments dependency
+          $assignment_dependency_nid = $assignment_emw->field_assignment_dependencies->nid->value();
+          if ($assignment_dependency_nid) {
+            // Attempt to find a critique
+            $critique_submission = $submission_service->getSubmissionToCritique($assignment_dependency_nid);
+            // if we found one then we will assign to this submissions related submission.
+            if ($critique_submission) {
+              $node->field_related_submission[LANGUAGE_NONE][0]['target_id'] = $critique_submission->nid;
+            }
+            else {
+              throw new Exception(t('There are no submissions to critique at this time. Please check back later.'));
+            }
           }
           else {
-            throw new Exception(t('There are no submissions to critique at this time. Please check back later.'));
+            throw new Exception(t('This assignment does not have a dependency that is needed for critiquing.'));
           }
         }
       }

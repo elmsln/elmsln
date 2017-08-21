@@ -297,6 +297,61 @@ class CleOpenStudioAppSubmissionService {
     return TRUE;
   }
 
+  public function getSubmissionToCritique($assignment_id, $uid = null) {
+    global $user;
+    $uid = ($uid ? $uid : $user->uid);
+    $section_id = _cis_connector_section_context();
+    $section = _cis_section_load_section_by_id($section_id);
+    // find all the critiques on current submissions they have access to
+    // make sure these submissions are filtered out below select submissions
+    $query = new EntityFieldQuery();
+    // pull all nodes
+    $query->entityCondition('entity_type', 'node')
+    // that are sections
+    ->entityCondition('bundle', 'cle_submission')
+    // that are published
+    ->propertyCondition('status', 1)
+    // that are NOT by the currently logged in user
+    ->propertyCondition('uid', $uid, '<>')
+    // only allow for pulling the submissions the could have access to
+    ->fieldCondition('field_assignment', 'target_id', $assignment_id, '=')
+    // only to this section
+    ->fieldCondition('og_group_ref', 'target_id', $section, '=')
+    // the submission has been set to 'submission_ready'
+    ->fieldCondition('field_submission_state', 'value', 'submission_ready', '=')
+    // add a random query tag so we can randomize the response
+    ->addTag('random')
+    // only return 200 items in case this is a MOOC or something
+    ->range(0, 200)
+    // run as administrator because we need to bipass node_access checks
+    ->addMetaData('account', user_load(1));
+    // store results
+    $result = $query->execute();
+    // ensure we have results
+    if (isset($result['node'])) {
+      $nids = array_keys($result['node']);
+      // loop through and check if these exist as options
+      foreach ($nids as $nid) {
+        // see if anyone else has critiqued this already
+        $critiques = _cis_connector_assemble_entity_list('node', 'cle_submission', 'nid', '_entity', array('field_related_submission' => array('target_id', $nid, '=')));
+        // if this wasn't set then we know we can return this submission
+        // for rendering on the critique viewer
+        if (!isset($critiques[$nid])) {
+          $submission = node_load($nid);
+          return $submission;
+        }
+      }
+      // if we got here, it means all our random items were already selected
+      // so we better assign them someone to critique even though it already has a critique
+      // (implies random number of students)
+      $nid = array_pop($nids);
+      $submission = node_load($nid);
+      return $submission;
+    }
+    // there aren't any that exists
+    return FALSE;
+  }
+
   /**
    * IN DEVELOPMENT DO NOT USE
    */
