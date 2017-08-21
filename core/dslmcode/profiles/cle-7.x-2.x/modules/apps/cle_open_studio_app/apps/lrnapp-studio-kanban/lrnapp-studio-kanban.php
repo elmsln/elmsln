@@ -60,9 +60,12 @@ function _cle_studio_kanban_kanban_data($machine_name, $app_route, $params, $arg
         $project->relationships->assignments = array();
         // loop through the steps and pull in all the assignments
         foreach ($project->attributes->steps as $step) {
-          $assignment = $assignmentservice->getAssignment($step->id, $app_route);
-          if (isset($assignment->id)) {
-            $project->relationships->assignments['assignment-' . $assignment->id] = $assignment;
+          $assignment = $assignmentservice->getAssignment($step->id);
+          if ($assignment) {
+            $encoded_assignment = $assignmentservice->encodeAssignment($assignment, $app_route);
+            if ($encoded_assignment) {
+              $project->relationships->assignments['assignment-' . $encoded_assignment->id] = $encoded_assignment;
+            }
           }
         }
       }
@@ -239,9 +242,9 @@ function _cle_studio_kanban_assignment_create_stub($machine_name, $app_route, $p
       $service = new CleOpenStudioAppAssignmentService();
       try {
         $assignment = $service->createStubAssignment($post_data);
-        if ($assignment) {
+        if (isset($assignment->nid)) {
           $return['status'] = 201;
-          $return['data'] = $assignment;
+          $return['data'] = $service->encodeAssignment($assignment, $app_route);
         }
         else {
           $return['errors'][] = t('Could not create assignment.');
@@ -272,6 +275,11 @@ function _cle_studio_kanban_assignment_index($machine_name, $app_route, $params,
   $service = new CleOpenStudioAppAssignmentService();
 
   $return = $service->getAssignments();
+  $items = $this->encodeAssignments($items, $app_route);
+  foreach ($items as $key => $data) {
+    $return['assignment-' . $key] = $data;
+  }
+  return $return;
 
   return array(
     'status' => 200,

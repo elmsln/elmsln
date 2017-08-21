@@ -1,5 +1,7 @@
 <?php
 
+include_once 'CleOpenStudioAppSubmissionService.php';
+
 class CleOpenStudioAppAssignmentService {
   /**
    * Create Stub Assignment based on assignment
@@ -14,13 +16,14 @@ class CleOpenStudioAppAssignmentService {
     $node->uid = $user->uid;
     $node->status = 1;
     $node->field_assignment_project['und'][0]['target_id'] = $project_id;
+    $node->field_critique_method[LANGUAGE_NONE][0]['value'] = 'none';
     // associate to the currently active section
     $node->og_group_ref[LANGUAGE_NONE][0]['target_id'] = _cis_section_load_section_by_id(_cis_connector_section_context());
     if (entity_access('create', 'node', $node)) {
       try {
         node_save($node);
         if (isset($node->nid)) {
-          return $this->encodeAssignment($node);
+          return $node;
         }
       }
       catch (Exception $e) {
@@ -37,9 +40,11 @@ class CleOpenStudioAppAssignmentService {
     $items = array();
     $section_id = _cis_connector_section_context();
     $section = _cis_section_load_section_by_id($section_id);
-    $field_conditions = array(
-      'og_group_ref' => array('target_id', $section, '='),
-    );
+    if ($section) {
+      $field_conditions = array(
+        'og_group_ref' => array('target_id', $section, '='),
+      );
+    }
     // things unpublished are considered "deleted"
     $property_conditions = array('status' => array(NODE_PUBLISHED, '='));
     $orderby = array('property' => array(array('changed', 'DESC')));
@@ -62,11 +67,7 @@ class CleOpenStudioAppAssignmentService {
       }
     }
     $items = _cis_connector_assemble_entity_list('node', 'cle_assignment', 'nid', '_entity', $field_conditions, $property_conditions, $orderby, TRUE, $limit);
-    $items = $this->encodeAssignments($items);
-    foreach ($items as $key => $data) {
-      $return['assignment-' . $key] = $data;
-    }
-    return $return;
+    return $items;
   }
 
   /**
@@ -77,13 +78,16 @@ class CleOpenStudioAppAssignmentService {
    *
    * @return object
    */
-  public function getAssignment($id, $app_route = '') {
+  public function getAssignment($id) {
     $item = array();
+    $encode = (isset($options['encode']) ? $options['encode'] : TRUE);
     $section_id = _cis_connector_section_context();
     $section = _cis_section_load_section_by_id($section_id);
-    $field_conditions = array(
-      'og_group_ref' => array('target_id', $section, '='),
-    );
+    if ($section) {
+      $field_conditions = array(
+        'og_group_ref' => array('target_id', $section, '='),
+      );
+    }
     $property_conditions = array('status' => array(NODE_PUBLISHED, '='));
     if (isset($id)) {
       $property_conditions['nid'] = array($id, '=');
@@ -95,7 +99,7 @@ class CleOpenStudioAppAssignmentService {
      *       one was found.
      */
     if (count($items) == 1) {
-      $item = $this->encodeAssignment(array_shift($items), $app_route);
+      $item = array_shift($items);
     }
     return $item;
   }
@@ -151,6 +155,56 @@ class CleOpenStudioAppAssignmentService {
   }
 
   /**
+   * Find out an assignment is complete assignment of a submission is complete
+   *
+   * @param [string] $assignment_id
+   * @return boolean
+   */
+  public function assignmentComplete($assignment_id) {
+    $submission_service = new CleOpenStudioAppSubmissionService();
+    $submission = $submission_service->getSubmissionByAssignment($assignment_id);
+    if ($submission->field_submission_state[LANGUAGE_NONE][0]['value'] == 'submission_ready') {
+      return TRUE;
+    }
+    return FALSE;
+  }
+
+  /**
+   * Get an assignment's parent assignment
+   *
+   * @param [string] $assignment_id
+   * @return object/false
+   */
+  public function getAssignmentDependency($assignment_id) {
+    $assignment = $this->getAssignment($assignment_id);
+    if ($assignment) {
+      // if we have a dependency
+      if (isset($assignment->field_assignment_dependencies[LANGUAGE_NONE][0]['target_id'])) {
+        return $this->getAssignment($assignment->field_assignment_dependencies[LANGUAGE_NONE][0]['target_id']);
+      }
+    }
+    return FALSE;
+  }
+
+  /**
+   * Find out if an assignment's dependecy has unmet dependencies
+   *
+   * @param [type] $assignment_id
+   * @return boolean
+   */
+  public function assignmentHasUnmetDependencies($assignment_id) {
+    $parent = $this->getAssignmentDependency($assignment_id);
+    if ($parent) {
+      $complete = $this->assignmentComplete($parent->nid);
+      if (!$complete) {
+        return TRUE;
+      }
+    }
+    return FALSE;
+  }
+
+
+  /**
    * Prepare a list of assignments to be outputed in json
    *
    * @param array $assignments
@@ -158,10 +212,10 @@ class CleOpenStudioAppAssignmentService {
    *
    * @return array
    */
-  protected function encodeAssignments($assignments) {
+  public function encodeAssignments($assignments, $app_route) {
     if (is_array($assignments)) {
       foreach ($assignments as &$assignment) {
-        $assignment = $this->encodeAssignment($assignment);
+        $assignment = $this->encodeAssignment($assignment, $app_route);
       }
       return $assignments;
     }
@@ -178,7 +232,7 @@ class CleOpenStudioAppAssignmentService {
    *
    * @return Object
    */
-  protected function encodeAssignment($assignment, $app_route = '') {
+  public function encodeAssignment($assignment, $app_route = '') {
     global $user;
     global $base_url;
     $account = $user;
@@ -333,7 +387,7 @@ class CleOpenStudioAppAssignmentService {
     return NULL;
   }
 
-  protected function decodeAssignment($payload, $node) {
+  public function decodeAssignment($payload, $node) {
     if ($payload) {
       if ($payload->attributes) {
         if ($payload->attributes->title) {
@@ -349,7 +403,7 @@ class CleOpenStudioAppAssignmentService {
   }
 
   // Convert multidimentional Object to arrays
-  private function objectToArray($obj) {
+  public function objectToArray($obj) {
     if (is_object($obj)) $obj = (array)$obj;
     if (is_array($obj)) {
         $new = array();
@@ -362,7 +416,7 @@ class CleOpenStudioAppAssignmentService {
     return $new;
   }
 
-  private function fileFieldTypes($entity_type, $field_name, $bundle_name) {
+  public function fileFieldTypes($entity_type, $field_name, $bundle_name) {
     $instance = field_info_instance($entity_type, $field_name, $bundle_name);
     if ($instance && is_array($instance)) {
       if (isset($instance['settings'])) {

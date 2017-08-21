@@ -5,6 +5,8 @@
  */
 
 include_once 'cle_submission.features.inc';
+include_once drupal_get_path('module', 'cle_open_studio_app') . '/apps/services/CleOpenStudioAppSubmissionService.php';
+include_once drupal_get_path('module', 'cle_open_studio_app') . '/apps/services/CleOpenStudioAppAssignmentService.php';
 
 /**
  * Implements hook_menu().
@@ -380,16 +382,12 @@ function cle_submission_page_build(&$page) {
  * Implements hook_node_access().
  */
 function cle_submission_node_access($node, $op, $account) {
+  $submission_service = new CleOpenStudioAppSubmissionService();
   // allow for privacy value on the assignment to dictate who can see this
   if ($op == 'view' && !_cis_connector_role_groupings(array('teacher', 'staff', 'webservice'), $account) && $node->type == 'cle_submission' && $node->uid != $account->uid) {
-    // see if this assignment is private
-    $assignment = node_load($node->field_assignment['und'][0]['target_id']);
-    // boolean for visibility
-    if ($assignment->field_assignment_privacy_setting['und'][0]['value'] == 'closed') {
-      // if it's a hidden assignment, the last check is admin member
-      if (!_cle_submission_submission_being_critiqued($node, $account)) {
-        return NODE_ACCESS_DENY;
-      }
+    $visible = $submission_service->submissionVisibleToUser($node);
+    if (!$visible) {
+      return NODE_ACCESS_DENY;
     }
   }
   return NODE_ACCESS_IGNORE;
@@ -402,11 +400,26 @@ function cle_submission_node_access($node, $op, $account) {
 function cle_submission_node_presave($node) {
   // Check the parent assignment to find out what type of submission should be.
   if ($node->type == 'cle_submission') {
+    // ensure we have a parent assignment
+    if (!isset($node->field_assignment[LANGUAGE_NONE][0]['target_id'])) {
+      throw new Exception(t('Submissions need to have a parent assignment.'));
+    }
+
+    // Make sure that the submissions parent assignment has it's dependencies met.
+    $assignment_service = new CleOpenStudioAppAssignmentService();
+    if (isset($node->field_assignment[LANGUAGE_NONE][0]['target_id'])) {
+      $assignment_id = $node->field_assignment[LANGUAGE_NONE][0]['target_id'];
+      $has_unmet_dependencies = $assignment_service->assignmentHasUnmetDependencies($assignment_id);
+      if ($has_unmet_dependencies) {
+        throw new Exception(t('You must complete the previous assignment before you can submit assignment.'));
+      }
+    }
+
+    // figure out submission type
     $entity = entity_load_single('node', $node->field_assignment[LANGUAGE_NONE][0]['target_id']);
     $entity_efw = entity_metadata_wrapper('node', $entity);
+    // Figure out critique method
     $return = 'default';
-    $entity = entity_load_single('node', $node->field_assignment[LANGUAGE_NONE][0]['target_id']);
-    $entity_efw = entity_metadata_wrapper('node', $entity);
     if ($entity_efw) {
       $assignment_critique = $entity_efw->field_critique_method->value();
       if ($assignment_critique) {
@@ -523,7 +536,7 @@ function _cle_submission_submission_being_critiqued($submission, $user = NULL) {
     $submission_nids = array_keys($result['node']);
     $submissions = entity_load('node', $submission_nids);
     return $submissions;
-  } 
+  }
 
   return false;
 }
