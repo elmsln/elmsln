@@ -1,0 +1,6 @@
+name = CLE Textbook
+description = Textbook tweaks for being part of elmsln
+core = 7.x
+package = CLE
+features[features_api][] = api:2
+features[features_overrides][] = filter.textbook_editor.filters|cis_filter

@@ -173,5 +173,6 @@ dependencies[] = cle_section
 dependencies[] = cle_open_studio_app
 dependencies[] = cle_comment_notify
 dependencies[] = cle_rate
+dependencies[] = cle_textbook
 dependencies[] = cle_perms
 dependencies[] = elmsln_student_filter

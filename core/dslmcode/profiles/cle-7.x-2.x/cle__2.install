@@ -178,3 +178,9 @@ function cle__2_update_7015(&$sandbox) {
   variable_set('site_frontpage', 'apps/lrnapp-studio-dashboard');
 }
 
+/**
+ * Adds cle_textbook.
+ */
+function cle__2_update_7016(&$sandbox) {
+  module_enable(array('cle_textbook'));
+}
