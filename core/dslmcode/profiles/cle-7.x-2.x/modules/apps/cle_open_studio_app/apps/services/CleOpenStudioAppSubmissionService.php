@@ -11,6 +11,7 @@ class CleOpenStudioAppSubmissionService {
     global $user;
     $service = new CleOpenStudioAppAssignmentService();
     $assignment = $service->getAssignment($assignment_id);
+    $assignment = $service->encodeAssignment($assignment);
     $node = new stdClass();
     $node->title = t('Submission for @name', array('@name' => $assignment->attributes->title));
     $node->type = 'cle_submission';
