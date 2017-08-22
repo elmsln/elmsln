@@ -3,7 +3,7 @@ var fs = require("fs");
 var replace = require("replace-in-file");
 var options = {
 	files: [
-		'../**/*.html'
+		'bower_components/**/*.html'
 	],
 	from: [
     /<link .*polymer.html\W>/g,
