@@ -754,7 +754,7 @@ function _elmsln_api_video_url($video_url) {
         $yvid = $matches[1];
       }
     }
-    return 'https://www.youtube.com/embed/' . $yvid;
+    return 'https://www.youtube.com/embed/' . $yvid .'?rel=0';
   }
   // account for the broken form of embed code from vimeo
   if (strpos($video_url, 'vimeo') && !strpos($video_url, 'player')) {
