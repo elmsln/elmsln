@@ -403,6 +403,7 @@ class CleOpenStudioAppSubmissionService {
     global $user;
     $account = $user;
     $encoded_submission = new stdClass();
+    $assignment_service = new CleOpenStudioAppAssignmentService();
     if (is_object($submission)) {
       $encoded_submission->type = $submission->type;
       $encoded_submission->id = $submission->nid;
@@ -424,6 +425,7 @@ class CleOpenStudioAppSubmissionService {
       $encoded_submission->attributes->title = $submission->title;
       $encoded_submission->attributes->body = $submission->field_submission_text[LANGUAGE_NONE][0]['safe_value'];
       $encoded_submission->attributes->state = $submission->field_submission_state[LANGUAGE_NONE][0]['value'];
+      $encoded_submission->attributes->relatedSubmission = $submission->field_related_submission[LANGUAGE_NONE][0]['target_id'];
       // Files
       $encoded_submission->attributes->files = NULL;
       if (isset($submission->field_files[LANGUAGE_NONE])) {
@@ -508,10 +510,12 @@ class CleOpenStudioAppSubmissionService {
       $assignment = node_load($submission->field_assignment[LANGUAGE_NONE][0]['target_id']);
       $project = node_load($assignment->field_assignment_project[LANGUAGE_NONE][0]['target_id']);
       // assignment
-      $encoded_submission->relationships->assignment = new stdClass();
-      $encoded_submission->relationships->assignment->data = new stdClass();
-      $encoded_submission->relationships->assignment->data->id = $assignment->nid;
-      $encoded_submission->relationships->assignment->data->title = $assignment->title;
+      if ($assignment) {
+        /**
+         * @todo this breaks the kanban board. We need to update the kanban to the new encoded assignment format
+         */
+        $encoded_submission->relationships->assignment = $assignment_service->encodeAssignment($assignment);
+      }
       // project
       $encoded_submission->relationships->project = new stdClass();
       $encoded_submission->relationships->project->data = new stdClass();
@@ -529,6 +533,15 @@ class CleOpenStudioAppSubmissionService {
       $encoded_submission->relationships->author->data->name = $submission->name;
       $encoded_submission->relationships->author->data->display_name = _elmsln_core_get_user_name('full', $submission->uid);
       $encoded_submission->relationships->author->data->sis = _elmsln_core_get_sis_user_data($submission->uid);
+      // related submissions
+      $encoded_submission->relationships->relatedSubmission = new stdClass();
+      if (isset($submission->field_related_submission[LANGUAGE_NONE][0]['target_id'])) {
+        // load the related submission with node_load to get around node_access
+        $related_submission = node_load($submission->field_related_submission[LANGUAGE_NONE][0]['target_id']);
+        if ($related_submission) {
+          $encoded_submission->relationships->relatedSubmission = $this->encodeSubmission($related_submission);
+        }
+      }
       // comments
       $encoded_submission->relationships->comments = null;
       $encoded_submission->meta->comment_count = (!empty($submission->comment_count) ? $submission->comment_count : 0);

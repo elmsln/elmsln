@@ -202,7 +202,6 @@ class CleOpenStudioAppAssignmentService {
     return FALSE;
   }
 
-
   /**
    * Prepare a list of assignments to be outputed in json
    *
@@ -243,6 +242,7 @@ class CleOpenStudioAppAssignmentService {
       $encoded_assignment->attributes = new stdClass();
       $encoded_assignment->attributes->title = $assignment->title;
       $encoded_assignment->attributes->body = $assignment->field_assignment_description[LANGUAGE_NONE][0]['safe_value'];
+      $encoded_assignment->attributes->critiqueOutline = $assignment->field_critique_outline[LANGUAGE_NONE][0]['safe_value'];
       // Meta Info
       $encoded_assignment->meta = new stdClass();
       $encoded_assignment->meta->created = Date('c', $assignment->created);
