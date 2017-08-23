@@ -188,3 +188,33 @@ app-root .switch label {
 app-root .switch label:after {
   content: none;
 }
+
+.lrnapp-studio-kanban-0 .assignment-row.lrnapp-studio-kanban .assignment-row-button.active.lrnapp-studio-kanban {
+background-color: #efefef;
+}
+
+.lrnapp-studio-kanban-0 {
+background-color: #efefef;
+}
+
+.lrnapp-studio-kanban-0 .grey.lighten-3.lrnapp-studio-kanban {
+background-color: #fff !important;
+}
+
+.lrnapp-studio-kanban-0 .project-card.lrnapp-studio-kanban {
+border-radius: 6px;
+}
+
+.lrnapp-studio-kanban-0 .assignment-row.lrnapp-studio-kanban {
+border: 0;
+background-color: #fff;
+}
+
+.lrnapp-studio-kanban-0 .status-indicator.lrnapp-studio-kanban {
+border-right: 0;
+}
+
+.lrnapp-studio-kanban-0 .project-operations.lrnapp-studio-kanban {
+position: inherit;
+padding: 0 0.25rem;
+}
