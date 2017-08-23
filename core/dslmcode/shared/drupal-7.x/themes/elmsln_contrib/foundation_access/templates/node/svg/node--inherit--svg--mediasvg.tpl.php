@@ -9,7 +9,13 @@
     <?php print render($content['field_figurelabel_ref'][0]); ?>
   <?php endif; ?>
   <div class="mediasvg__img" aria-hidden="<?php print $svg_aria_hidden; ?>">
+  <?php if ($svg_lightbox_url): ?>
+      <a data-imagelightbox href="<?php print $svg_lightbox_url; ?>">
+        <?php print render($content['field_svg'][0]); ?>
+      </a>
+  <?php else: ?>
     <?php print render($content['field_svg'][0]); ?>
+  <?php endif; ?>
   </div>
   <div class="mediasvg__alttext"><?php print render($svg_alttext); ?></div>
 </figure>

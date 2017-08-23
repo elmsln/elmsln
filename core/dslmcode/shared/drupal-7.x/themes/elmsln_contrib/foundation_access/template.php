@@ -1043,6 +1043,11 @@ function foundation_access_preprocess_node__inherit__image_gallery__image(&$vari
 function foundation_access_preprocess_node__inherit__svg(&$variables) {
   $variables['svg_aria_hidden'] = 'false';
   $variables['svg_alttext'] = NULL;
+  $variables['svg_lightbox_url'] = '';
+  // support lightboxing this if mode looks for it
+  if (strpos($variables['view_mode'], 'lightboxed')) {
+    $variables['svg_lightbox_url'] = file_create_url($variables['field_svg'][0]['uri']);
+  }
   $node_wrapper = entity_metadata_wrapper('node', $variables['node']);
   try {
     // if there is an accessbile text alternative then set the svg to aria-hidden
