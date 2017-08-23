@@ -2337,14 +2337,14 @@ blockquote,
       margin-bottom: 0; }
 
 @media only screen and (min-width: 1.063em) {
-  .image--left, .mediasvg--left, .mediasvg--left--medium, .mediasvg--left--small,
+  .image--left, .mediasvg--left, .mediasvg--left--medium, .mediasvg--left--medium--lightboxed, .mediasvg--left--small, .mediasvg--left--small--lightboxed
   .image--left--lightboxed {
     max-width: 50%;
     margin-left: 0;
     float: left;
     margin-top: .5em; } }
 
-.image--left .image__img, .mediasvg--left .image__img, .mediasvg--left--medium .image__img, .mediasvg--left--small .image__img,
+.image--left .image__img, .mediasvg--left .mediasvg__img, .mediasvg--left--medium .mediasvg__img, .mediasvg--left--medium--lightboxed .mediasvg__img, .mediasvg--left--small .mediasvg__img, .mediasvg--left--small--lightboxed .mediasvg__img,
 .image--left--lightboxed .image__img {
   max-height: 40em; }
 
@@ -2361,14 +2361,14 @@ blockquote,
   max-height: 40em; }
 
 @media only screen and (min-width: 1.063em) {
-  .image--right, .mediasvg--right, .mediasvg--right--medium, .mediasvg--right--small,
+  .image--right, .mediasvg--right, .mediasvg--right--medium, .mediasvg--right--medium--lightboxed, .mediasvg--right--small, .mediasvg--right--small--lightboxed,
   .image--right--lightboxed {
     max-width: 50%;
     margin-right: 0;
     float: right;
     margin-top: .5em; } }
 
-.image--right .image__img, .mediasvg--right .image__img, .mediasvg--right--medium .image__img, .mediasvg--right--small .image__img,
+.image--right .image__img, .mediasvg--right .mediasvg__img, .mediasvg--right--medium .mediasvg__img, .mediasvg--right--medium--lightboxed .mediasvg__img, .mediasvg--right--small .mediasvg__img, .mediasvg--right--small--lightboxed .mediasvg__img,
 .image--right--lightboxed .image__img {
   max-height: 40em; }
 
@@ -2632,28 +2632,28 @@ blockquote,
     clip: rect(1px 1px 1px 1px);
     }
 
-.mediasvg--left, .mediasvg--left--medium, .mediasvg--left--small {
+.mediasvg--left, .mediasvg--left--medium, .mediasvg--left--medium--lightboxed, .mediasvg--left--small, .mediasvg--left--small--lightboxed {
   text-align: left;
   float: left; }
 
 @media only screen and (min-width: 1.063em) {
-  .mediasvg--left--medium {
+  .mediasvg--left--medium, .mediasvg--left--medium--lightboxed {
     max-width: 30%; } }
 
 @media only screen and (min-width: 1.063em) {
-  .mediasvg--left--small {
+  .mediasvg--left--small, .mediasvg--left--small--lightboxed {
     max-width: 20%; } }
 
-.mediasvg--right, .mediasvg--right--medium, .mediasvg--right--small {
+.mediasvg--right, .mediasvg--right--medium, .mediasvg--right--medium--lightboxed, .mediasvg--right--small, .mediasvg--right--small--lightboxed {
   text-align: right;
   float: right; }
 
 @media only screen and (min-width: 1.063em) {
-  .mediasvg--right--medium {
+  .mediasvg--stretch--medium, .mediasvg--right--medium, .mediasvg--right--medium--lightboxed {
     max-width: 30%; } }
 
 @media only screen and (min-width: 1.063em) {
-  .mediasvg--right--small {
+  .mediasvg--stretch--small, .mediasvg--right--small, .mediasvg--right--small--lightboxed {
     max-width: 20%; } }
 
 .mediasvg--stretch .mediasvg__img {
