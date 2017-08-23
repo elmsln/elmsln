@@ -8699,3 +8699,10 @@ div.autocomplete-deluxe-multiple {
 .views-exposed-widget {
   overflow: hidden;
 }
+
+/**
+ * Clipped content when it's too short
+ */
+paper-dialog.lrnsys-dialog .paper-dialog-scrollable-0 .scrollable.paper-dialog-scrollable {
+  min-height: 400px;
+}
