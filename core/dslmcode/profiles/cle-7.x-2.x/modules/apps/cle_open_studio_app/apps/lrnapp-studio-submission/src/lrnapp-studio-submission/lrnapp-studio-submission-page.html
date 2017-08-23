@@ -226,6 +226,8 @@
           <paper-button dialog-confirm on-click="_submissionPublishConfirmed">Yes Publish</paper-button>
         </div>
       </paper-dialog>
+
+    <paper-toast id="toast"></paper-toast>
   </template>
   <script>
     Polymer({
@@ -371,6 +373,10 @@
           root.set('submission', {});
           root.set('submission', submission);
           root.set('route.path', '');
+          // display a submission published notification
+          if (submission.attributes.state === 'submission_ready') {
+            this.$.toast.show('Published!');
+          }
         }
       },
       _handleDeleteResponse: function (res) {

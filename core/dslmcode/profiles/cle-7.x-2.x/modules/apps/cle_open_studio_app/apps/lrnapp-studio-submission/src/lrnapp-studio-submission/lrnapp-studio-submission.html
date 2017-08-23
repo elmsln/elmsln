@@ -59,7 +59,8 @@
         '_updateCookies(endPoint, csrfToken)'
       ],
       listeners: {
-        'submissionDeleted': '_handleSubmissionDeletion'
+        'submissionDeleted': '_handleSubmissionDeletion',
+        'displaymessage': '_handleDisplayMessage'
       },
       _handleRouteChange: function (event) {
         var path = event.detail.path;
@@ -91,6 +92,11 @@
         console.log('updateCoookies');
         if (endPoint && csrfToken) {
           this.setCookies(endPoint, csrfToken);
+        }
+      },
+      _handleDisplayMessage: function (e, detail) {
+        if (typeof e.detail.messsage !== 'undefined') {
+          this.$.toast.show(e.detail.message);
         }
       },
       /**
