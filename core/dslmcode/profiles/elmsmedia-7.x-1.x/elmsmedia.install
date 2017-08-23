@@ -310,3 +310,10 @@ function elmsmedia_update_7025(&$sandbox) {
     ->condition('type', 'module')
     ->execute();
 }
+
+/**
+ * Brings lightbox to SVG.
+ */
+function elmsmedia_update_7026(&$sandbox) {
+  features_revert_module('elmsmedia_view_mode_tabs');
+}
