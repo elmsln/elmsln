@@ -6,6 +6,7 @@ ul.ui-autocomplete {
   overflow-x: hidden;
   overflow-y: scroll;
   padding: 3px;
+  z-index: 1002;
 }
 
 a.autocomplete-deluxe-single:hover {
@@ -157,7 +158,7 @@ div.autocomplete-deluxe-throbber {
   border-radius: 3px 3px 3px 3px;
   box-shadow: 0 0 2px #FFFFFF inset, 0 1px 0 rgba(0, 0, 0, 0.05);
   color: #333333;
-  cursor: default;
+  cursor: move;
   line-height: 13px;
   margin: 3px 0 3px 5px;
   padding: 3px 20px 3px 5px;

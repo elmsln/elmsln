@@ -153,7 +153,7 @@
     this.required = settings.required;
     this.limit = settings.limit;
     this.synonyms = typeof settings.use_synonyms == 'undefined' ? false : settings.use_synonyms;
-    this.not_found_message = typeof settings.use_synonyms == 'undefined' ? "The term '@term' will be added." : settings.not_found_message;
+    this.not_found_message = typeof settings.use_synonyms == 'undefined' ? Drupal.t("The term '@term' will be added.") : settings.not_found_message;
 
     this.wrapper = '""';
 
@@ -210,7 +210,8 @@
         term = " ";
       }
       request.synonyms = self.synonyms;
-      var url = settings.uri + '/' + term +'/' +  self.limit;
+      // Encode twice to allow passing forward slashes.
+      var url = settings.uri + '/' + encodeURIComponent(encodeURIComponent(term)) +'/' +  self.limit;
       lastXhr = $.getJSON(url, request, function(data, status, xhr) {
         cache[term] = data;
         if (xhr === lastXhr) {
@@ -318,7 +319,7 @@
     this.item = item;
     var self = this;
 
-    var close = $('<a class="autocomplete-deluxe-item-delete" href="javascript:void(0)"></a>').appendTo(this.element);
+    var close = $('<a class="autocomplete-deluxe-item-delete" href="javascript:void(0)"><span class="element-invisible">Remove</span></a>').appendTo(this.element);
     // Use single quotes because of the double quote encoded stuff.
     var input = $('<input type="hidden"/>')
     input.val(this.value);
@@ -347,6 +348,22 @@
     var self = this;
     this.valueForm = value_input;
 
+    // Order values based on the UI. Usually called after a manual sort.
+    this.orderValues = function() {
+      var items = [];
+      parent.find('.autocomplete-deluxe-item input').each( function(index, value) {
+        items[index] = $(value).val();
+      });
+
+      value_input.val('""' + items.join('"" ""') + '""');
+    };
+
+    parent.sortable({
+      update: self.orderValues,
+      containment: 'parent',
+      tolerance: 'pointer',
+    });
+
     // Override the resize function, so that the suggestion list doesn't resizes
     // all the time.
     var autocompleteDataKey = typeof(this.jqObject.data('autocomplete')) === 'object' ? 'autocomplete' : 'ui-autocomplete';
@@ -361,7 +378,7 @@
     var default_values = value_input.val();
     default_values = $.trim(default_values);
     default_values = default_values.substr(2, default_values.length-4);
-    default_values = default_values.split('"" ""');
+    default_values = default_values.split(/"" +""/);
 
     for (var index in default_values) {
       var value = default_values[index];

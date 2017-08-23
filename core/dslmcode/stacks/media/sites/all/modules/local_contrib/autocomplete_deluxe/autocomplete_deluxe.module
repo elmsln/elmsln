@@ -6,7 +6,7 @@
  */
 
 /**
- * Implements hook_field_info().
+ * Implements hook_field_widget_info().
  */
 function autocomplete_deluxe_field_widget_info() {
   return array(
@@ -31,11 +31,13 @@ function autocomplete_deluxe_taxonomy_callback($field_name, $tags_typed = '', $l
   $field = field_info_field($field_name);
   $use_synonyms = !empty($_GET['synonyms']);
 
-  // The user enters a comma-separated list of tags. We only autocomplete the last tag.
-  $tags_typed = drupal_explode_tags($tags_typed);
+  // The user enters a comma-separated list of tags. We only autocomplete the
+  // last tag.
+  $tags_typed = drupal_explode_tags(urldecode($tags_typed));
   $tag_last = drupal_strtolower(array_pop($tags_typed));
 
-  $matches = array();
+  // Initiate tag collections.
+  $tags_return = $beginning_tags = $middle_tags = array();
 
   // Part of the criteria for the query come from the field's own settings.
   $vids = array();
@@ -66,22 +68,60 @@ function autocomplete_deluxe_taxonomy_callback($field_name, $tags_typed = '', $l
       ->fields('t', array('tid', 'name'))
       ->condition('t.vid', $vids);
 
-    if (module_exists('synonyms') && !empty($use_synonyms)) {
-      $or = db_or();
-      $or->condition('fdss.synonyms_synonym_value', '%' . db_like($tag_last) . '%', 'LIKE');
-      $or->condition('t.name', '%' . db_like($tag_last) . '%', 'LIKE');
-      $query->condition($or);
-    }
-    else {
-      $query->condition('t.name', '%' . db_like($tag_last) . '%', 'LIKE');
-    }
+    // Clone query, because we need the current state for the "middle" query.
+    $middle_query = clone $query;
 
+    // Apply general limit.
     if (isset($limit) && $limit > 0) {
       $query->range(0, $limit);
     }
 
-    $tags_return = $query->execute()
+    // Check for terms beginning with the given term first.
+    if (module_exists('synonyms') && !empty($use_synonyms)) {
+      $or = db_or();
+      $or->condition('fdss.synonyms_synonym_value', db_like($tag_last) . '%', 'LIKE');
+      $or->condition('t.name', db_like($tag_last) . '%', 'LIKE');
+      $query->condition($or);
+    }
+    else {
+      $query->condition('t.name', db_like($tag_last) . '%', 'LIKE');
+    }
+
+    $beginning_tags = $query->execute()
       ->fetchAllKeyed();
+
+    // Check for terms having the term somewhere in it second.
+    // Apply new limit, which is the general one minus the results of the
+    // beginning query.
+    $middle_limit = $limit - count($beginning_tags);
+
+    // Only proceed, if we really need more results.
+    if ($middle_limit > 0) {
+      // Apply limit.
+      $middle_query->range(0, $middle_limit);
+
+      // Make sure we are not getting the same results as for the query above.
+      if (!empty($beginning_tags)) {
+        $beginning_term_ids = array_keys($beginning_tags);
+        $middle_query->condition('t.tid', $beginning_term_ids, 'NOT IN');
+      }
+
+      if (module_exists('synonyms') && !empty($use_synonyms)) {
+        $or = db_or();
+        $or->condition('fdss.synonyms_synonym_value', '%' . db_like($tag_last) . '%', 'LIKE');
+        $or->condition('t.name', '%' . db_like($tag_last) . '%', 'LIKE');
+        $middle_query->condition($or);
+      }
+      else {
+        $middle_query->condition('t.name', '%' . db_like($tag_last) . '%', 'LIKE');
+      }
+
+      $middle_tags = $middle_query->execute()
+        ->fetchAllKeyed();
+    }
+
+    // Build tags.
+    $tags_return = $beginning_tags + $middle_tags;
   }
   else {
     $query
@@ -151,7 +191,7 @@ function autocomplete_deluxe_field_widget_settings_form($field, $instance) {
   );
   $form['min_length'] = array(
     '#type' => 'textfield',
-    '#title' => t('Mininum length.'),
+    '#title' => t('Minimum length.'),
     '#description' => t('The minimum length of characters to enter to open the suggestion list.'),
     '#default_value' => isset($settings['min_length']) ? $settings['min_length'] : 0,
     '#element_validate' => array('_element_validate_integer'),
@@ -167,7 +207,13 @@ function autocomplete_deluxe_field_widget_settings_form($field, $instance) {
     '#type' => 'textfield',
     '#title' => t('Term not found message.'),
     '#description' => t('A message text which will be displayed, if the entered term was not found.'),
-    '#default_value' => isset($settings['not_found_message']) ? $settings['not_found_message'] : "The term '@term' will be added.",
+    '#default_value' => isset($settings['not_found_message']) ? t($settings['not_found_message']) : t("The term '@term' will be added."),
+  );
+  $form['show_link'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Show manage terms link'),
+    '#description' => t('Should users be able to have direct access to manage terms for vocabulary of this field?'),
+    '#default_value' => isset($settings['show_link']) ? $settings['show_link'] : '',
   );
 
   if (module_exists('synonyms')) {
@@ -184,7 +230,7 @@ function autocomplete_deluxe_field_widget_settings_form($field, $instance) {
 /**
  * Implodes the tags from the taxonomy module.
  *
- * This function is essentially the same as axonomy_implode_tags, with the
+ * This function is essentially the same as taxonomy_implode_tags, with the
  * difference, that it uses only a comma instead of a comma and a space to
  * implode the tags. It will help keep problems with delimiters to a minimum.
  */
@@ -218,14 +264,25 @@ function autocomplete_deluxe_field_widget_error($element, $error, $form, &$form_
  * Implements hook_field_widget_form().
  */
 function autocomplete_deluxe_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
+  global $base_url;
+
+  if (isset($instance['widget']['settings']['show_link']) && !empty($instance['widget']['settings']['show_link']) && user_access('administer taxonomy')) {
+    $vocabulary = $field['settings']['allowed_values'][0]['vocabulary'];
+    $suffix = '<a target="_blank" href="' . $base_url . '/admin/structure/taxonomy/' . $vocabulary . '">' . t('Manage terms') . '</a>';
+  }
+  else {
+    $suffix = '';
+  }
+
   $element += array(
     '#type' => 'autocomplete_deluxe',
     '#size' => $instance['widget']['settings']['size'],
     '#limit' => isset($instance['widget']['settings']['limit']) ? $instance['widget']['settings']['limit'] : 10,
     '#min_length' => isset($instance['widget']['settings']['min_length']) ? $instance['widget']['settings']['min_length'] : 0,
-    '#use_synonyms' =>isset($instance['widget']['settings']['use_synonyms']) ? $instance['widget']['settings']['use_synonyms'] : 0,
-    '#delimiter' =>isset($instance['widget']['settings']['delimiter']) ? $instance['widget']['settings']['delimiter'] : '',
-    '#not_found_message' =>isset($instance['widget']['settings']['not_found_message']) ? $instance['widget']['settings']['not_found_message'] : "The term '@term' will be added.",
+    '#use_synonyms' => isset($instance['widget']['settings']['use_synonyms']) ? $instance['widget']['settings']['use_synonyms'] : 0,
+    '#delimiter' => isset($instance['widget']['settings']['delimiter']) ? $instance['widget']['settings']['delimiter'] : '',
+    '#not_found_message' => isset($instance['widget']['settings']['not_found_message']) ? $instance['widget']['settings']['not_found_message'] : t("The term '@term' will be added."),
+    '#suffix' => $suffix,
   );
 
   $multiple = $field['cardinality'] > 1 || $field['cardinality'] == FIELD_CARDINALITY_UNLIMITED ? TRUE : FALSE;
@@ -250,7 +307,11 @@ function autocomplete_deluxe_field_widget_form(&$form, &$form_state, $field, $in
  */
 function autocomplete_deluxe_element_process($element) {
   $element['#attached'] = array(
-    'library' => array(array('system', 'ui.autocomplete'), array('system', 'ui.button')),
+    'library' => array(
+      array('system', 'ui.autocomplete'),
+      array('system', 'ui.button'),
+      array('system', 'ui.sortable'),
+    ),
     'js' => array(drupal_get_path('module', 'autocomplete_deluxe') . '/autocomplete_deluxe.js'),
     'css' => array(drupal_get_path('module', 'autocomplete_deluxe') . '/autocomplete_deluxe.css'),
   );
@@ -269,7 +330,14 @@ function autocomplete_deluxe_element_process($element) {
   $element['textfield'] = array(
     '#type' => 'textfield',
     '#size' => isset($element['#size']) ? $element['#size'] : '',
-    '#attributes' => array('class' => array('autocomplete-deluxe-form'), 'id' => array($html_id)),
+    '#attributes' => array_merge_recursive(
+      $element['#attributes'],
+      array(
+        'class' => array('autocomplete-deluxe-form'),
+        'id' => array($html_id),
+        'aria-label' => t('Autocomplete'),
+      )
+    ),
     '#default_value' => '',
     '#prefix' => '<div class="autocomplete-deluxe-container">',
     '#suffix' => '</div>',
@@ -283,7 +351,7 @@ function autocomplete_deluxe_element_process($element) {
     'min_length' => isset($element['#min_length']) ? $element['#min_length'] : 0,
     'use_synonyms' => isset($element['#use_synonyms']) ? $element['#use_synonyms'] : 0,
     'delimiter' => isset($element['#delimiter']) ? $element['#delimiter'] : '',
-    'not_found_message' => isset($element['#not_found_message']) ? $element['#not_found_message'] : "The term '@term' will be added.",
+    'not_found_message' => isset($element['#not_found_message']) ? $element['#not_found_message'] : t("The term '@term' will be added."),
   );
 
   if (isset($element['#autocomplete_deluxe_path'])) {
@@ -301,10 +369,13 @@ function autocomplete_deluxe_element_process($element) {
     if ($element['#multiple']) {
       $element['value_field'] = array(
         '#type' => 'textfield',
-        '#attributes' => array('class' => array('autocomplete-deluxe-value-field')),
+        '#attributes' => array('class' => array('autocomplete-deluxe-value-field'), 'aria-label' => t('Autocomplete Value')),
         '#default_value' => $default_value,
         '#prefix' => '<div class="autocomplete-deluxe-value-container">',
         '#suffix' => '</div>',
+        '#required' => isset($element['#required']) ? $element['#required'] : FALSE,
+        '#element_validate' => array('autocomplete_deluxe_validate_multiple'),
+        '#parent_element' => &$element,
       );
       $element['textfield']['#attributes']['style'] = array('display:none');
     }
@@ -329,13 +400,39 @@ function autocomplete_deluxe_element_process($element) {
 }
 
 /**
- * Helper function to determine the value for a autocomplete deluxe form
- * element.
+ * Validation callback for "multiple" mode.
+ */
+function autocomplete_deluxe_validate_multiple($element, &$form_state) {
+  if (isset($element['#required']) && $element['#required']) {
+    $tags = autocomplete_deluxe_extract_tags($element['#value']);
+    if (!$tags) {
+      form_error($element['#parent_element'], t('!name field is required.', array('!name' => $element['#parent_element']['#title'])));
+    }
+  }
+}
+
+/**
+ * Extracts tags from string which is a result of tags implosion.
+ */
+function autocomplete_deluxe_extract_tags($str) {
+  preg_match_all('/""([^"]*)""/', $str, $matches);
+  $tags = $matches[1];
+  foreach ($tags as $key => &$tag) {
+    $tag = trim($tag);
+    if (!$tag) {
+      unset($tags[$key]);
+    }
+  }
+  return empty($tags) ? NULL : $tags;
+}
+
+/**
+ * Helper function-determines the value for an autocomplete deluxe form element.
  */
 function autocomplete_deluxe_value(&$element, $input = FALSE, $form_state = NULL) {
   // This runs before child elements are processed, so we cannot calculate the
   // value here. But we have to make sure the value is an array, so the form
-  // API is able to proccess the children to set their values in the array. Thus
+  // API is able to process the children to set their values in the array. Thus
   // once the form API has finished processing the element, the value is an
   // array containing the child element values. Then finally the after build
   // callback converts it back to the numeric value and sets that.
@@ -344,6 +441,7 @@ function autocomplete_deluxe_value(&$element, $input = FALSE, $form_state = NULL
 
 /**
  * FAPI after build callback for the duration parameter type form.
+ *
  * Fixes up the form value by applying the multiplier.
  */
 function autocomplete_deluxe_after_build($element, &$form_state) {
@@ -356,18 +454,24 @@ function autocomplete_deluxe_after_build($element, &$form_state) {
   $element['#value'] = isset($element['value_field']) ? $element['value_field']['#value'] : $element['textfield']['#value'];
 
   if (isset($element['value_field'])) {
+    // Remove any empty double double quoted strings that throw
+    // off downstream str_replace functions, then trim whitespace.
+    $element['#value'] = str_replace('""""', '', $element['#value']);
     $element['#value'] = trim($element['#value']);
-    // Replace all double double quotes and space with a comma. This will allows
-    // us to keep entries in double quotes.
-    $element['#value'] = str_replace('"" ""', ',', $element['#value']);
-    $element['#value'] = str_replace('""  ""', ',', $element['#value']);
+    // Replace all cases of double double quotes and one or more spaces with a
+    // comma. This will allow us to keep entries in double quotes.
+    $element['#value'] = preg_replace('/"" +""/', '", "', $element['#value']);
     // Remove the double quotes at the beginning and the end from the first and
     // the last term.
-    $element['#value'] = substr($element['#value'], 2, strlen($element['#value']) - 4);
-
+    $element['#value'] = substr($element['#value'], 1, strlen($element['#value']) - 2);
+    // One final check to turn all double double quotes into single double
+    // quotes. Necessary when re-saving existing values.
+    $element['#value'] = str_replace('""', '"', $element['#value']);
     unset($element['value_field']['#maxlength']);
   }
-
+  elseif ($form_state['process_input']) {
+    $element['#value'] = '"' . $element['#value'] . '"';
+  }
 
   form_set_value($element, $element['#value'], $form_state);
   return $element;
