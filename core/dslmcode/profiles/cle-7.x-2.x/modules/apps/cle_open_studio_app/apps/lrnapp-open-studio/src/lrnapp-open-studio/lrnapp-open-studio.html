@@ -273,7 +273,7 @@
             }
             else if (typeof this.assignmentFilter != typeof null && typeof this.authorFilter != typeof null) {
               // only add if both exist otherwise we'll skip it all
-              if (this.originalSubmissions[index].relationships.assignment.data.id == this.assignmentFilter && this.originalSubmissions[index].relationships.author.data.id == this.authorFilter) {
+              if (this.originalSubmissions[index].relationships.assignment.id == this.assignmentFilter && this.originalSubmissions[index].relationships.author.data.id == this.authorFilter) {
                 submissions.push(this.originalSubmissions[index]);
               }
             }
@@ -282,7 +282,7 @@
               submissions.push(this.originalSubmissions[index]);
             }
             // only filter by assignment
-            else if (typeof this.assignmentFilter != typeof null && this.originalSubmissions[index].relationships.assignment.data.id == this.assignmentFilter) {
+            else if (typeof this.assignmentFilter != typeof null && this.originalSubmissions[index].relationships.assignment.id == this.assignmentFilter) {
               submissions.push(this.originalSubmissions[index]);
             }
             // only filter by author
@@ -346,7 +346,7 @@
           author = submissions[index].relationships.author.data;
           tmp.authors[author.id] = author;
           project = submissions[index].relationships.project.data;
-          assignment = submissions[index].relationships.assignment.data;
+          assignment = submissions[index].relationships.assignment;
           tmp.assignments[assignment.id] = assignment;
           tmp.assignments[assignment.id].project = project.id;
         }
