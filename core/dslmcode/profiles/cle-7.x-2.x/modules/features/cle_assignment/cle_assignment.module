@@ -102,7 +102,7 @@ function cle_assignment_node_presave($node) {
       if ($node->field_assignment_dependencies['und'][0]['target_id'] == $node->nid) {
         $message = t('An assignment can not list itself as a dependency.');
         watchdog('cle_assignment_presave', $message, array('nid' => $node->nid), WATCHDOG_ERROR);
-        throw new Exception($message);
+        //throw new Exception($message);
       }
     }
     // if we have a critique method chosen then we need to ensure we have a
@@ -111,7 +111,7 @@ function cle_assignment_node_presave($node) {
       if (!isset($node->field_assignment_dependencies['und'][0]['target_id']) || !$node->field_assignment_dependencies['und'][0]['target_id']) {
         $message = t('An critique assignment must have an assignment dependency.');
         watchdog('cle_assignment_presave', $message, array('nid' => $node->nid), WATCHDOG_ERROR);
-        throw new Exception($message);
+        //throw new Exception($message);
       }
     }
   }
