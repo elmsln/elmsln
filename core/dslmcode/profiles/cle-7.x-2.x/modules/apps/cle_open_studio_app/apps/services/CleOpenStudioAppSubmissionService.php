@@ -511,9 +511,6 @@ class CleOpenStudioAppSubmissionService {
       $project = node_load($assignment->field_assignment_project[LANGUAGE_NONE][0]['target_id']);
       // assignment
       if ($assignment) {
-        /**
-         * @todo this breaks the kanban board. We need to update the kanban to the new encoded assignment format
-         */
         $encoded_submission->relationships->assignment = $assignment_service->encodeAssignment($assignment);
       }
       // project

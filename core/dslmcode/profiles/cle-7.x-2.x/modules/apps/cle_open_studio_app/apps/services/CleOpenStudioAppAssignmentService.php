@@ -319,13 +319,13 @@ class CleOpenStudioAppAssignmentService {
       if (isset($assignment->field_assignment_dependencies[LANGUAGE_NONE][0])) {
         // loop through dependencies and check if they have been met
         foreach ($assignment->field_assignment_dependencies[LANGUAGE_NONE] as $item) {
-          $assignment = node_load($item['target_id']);
-          $tmp = _cle_submission_submission_status($assignment);
+          $assignment_dependency = node_load($item['target_id']);
+          $tmp = _cle_submission_submission_status($assignment_dependency);
           if (empty($tmp['complete']['submissions'])) {
             $submissionActive = 0;
             $rationale['text'] = t('This assignment won\'t open until dependencies have been met.');
             $rationale['code'] = 'dependencies-unmet';
-            $rationale['data'][] = $assignment->nid;
+            $rationale['data'][] = $assignment_dependency->nid;
           }
         }
       }
