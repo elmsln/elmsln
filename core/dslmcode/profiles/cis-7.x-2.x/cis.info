@@ -112,7 +112,6 @@ dependencies[] = cis_shortcodes
 dependencies[] = foundation_access_ux
 dependencies[] = elmsln_core
 ; ELMSLN Core - Performance
-dependencies[] = elmsln_authcache
 dependencies[] = elmsln_advagg
 
 

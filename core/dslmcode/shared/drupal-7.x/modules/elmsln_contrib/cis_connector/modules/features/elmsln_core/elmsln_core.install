@@ -296,3 +296,30 @@ function elmsln_core_update_7027(&$sandbox) {
   // remove tipsy variable
   variable_del('tipsy');
 }
+
+/**
+ * OMG drop authcache. It's like it never even happened...
+ */
+function elmsln_core_update_7028(&$sandbox) {
+  $modules = array(
+    'authcache',
+    'authcache_p13n',
+    'authcache_ajax',
+    'authcache_block',
+    'authcache_builtin',
+    'authcache_user',
+    'authcache_field',
+    'authcache_menu',
+    'authcache_usercookie',
+    'authcache_views',
+    'elmsln_authcache',
+  );
+  db_delete('system')
+    ->condition('name', $modules, 'IN')
+    ->condition('type', 'module')
+    ->execute();
+  // drop the authcache variables
+  db_delete('variable')
+    ->condition('name', 'authcache_%', 'LIKE')
+    ->execute();
+}

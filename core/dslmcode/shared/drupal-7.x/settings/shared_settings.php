@@ -32,13 +32,9 @@ if (isset($conf['restws_basic_auth_user_regex'])) {
 $conf['restws_basic_auth_user_regex'] = '/.*/';
 // httprl setting to avoid really long timeouts
 $conf['httprl_install_lock_time'] = 1;
-// make authcache happy with the safer controller if we're using it
-$conf['authcache_p13n_frontcontroller_path'] = 'authcache.php';
 
-// cache backends so we know about authcache and apdqc, those we formally support
+// cache backends so we know about  apdqc, those we formally support
 $conf['cache_backends'][] = 'sites/all/modules/ulmus/apdqc/apdqc.cache.inc';
-$conf['cache_backends'][] = 'sites/all/modules/ulmus/authcache/authcache.cache.inc';
-$conf['cache_backends'][] = 'sites/all/modules/ulmus/authcache/modules/authcache_builtin/authcache_builtin.cache.inc';
 // Default backend controller to be apdqc
 $conf['cache_default_class']    = 'APDQCache';
 // THIS MUST BE SERVED FROM DB FOR STABILITY
