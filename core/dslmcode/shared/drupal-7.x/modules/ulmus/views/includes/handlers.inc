@@ -1544,6 +1544,12 @@ class views_join {
 
     // Tack on the extra.
     if (isset($this->extra)) {
+      // If extra has been provided as string instead of an array, convert it
+      // to an array.
+      if (!is_array($this->extra)) {
+        $this->extra = array($this->extra);
+      }
+
       $extras = array();
       foreach ($this->extra as $info) {
         if (is_array($info)) {
@@ -1658,6 +1664,12 @@ class views_join_subquery extends views_join {
     // This is just copied verbatim from the parent class, which itself has a
     // bug: http://drupal.org/node/1118100
     if (isset($this->extra)) {
+      // If extra has been provided as string instead of an array, convert it
+      // to an array.
+      if (!is_array($this->extra)) {
+        $this->extra = array($this->extra);
+      }
+
       $extras = array();
       foreach ($this->extra as $info) {
         if (is_array($info)) {

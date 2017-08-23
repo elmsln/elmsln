@@ -7,8 +7,11 @@
 
 /**
  * Views class tests.
+ *
+ * @codingStandardsIgnoreStart
  */
 class ViewsViewTest extends ViewsSqlTest {
+  // @codingStandardsIgnoreEnd
   public static function getInfo() {
     return array(
       'name' => 'Test the view class',
@@ -227,6 +230,8 @@ class ViewsViewTest extends ViewsSqlTest {
       'default' => 'default',
       'page_1' => 'page_1',
     );
+
+    // @codingStandardsIgnoreLine
     $translatables['test_destroy'] = array(
       t('Master'),
       t('more'),
@@ -272,6 +277,8 @@ class ViewsViewTest extends ViewsSqlTest {
     $handler->display->display_options['pager']['type'] = 'full';
     $handler->display->display_options['style_plugin'] = 'default';
     $handler->display->display_options['row_plugin'] = 'fields';
+
+    // @codingStandardsIgnoreLine
     $translatables['test_view_delete'] = array(
       t('Defaults'),
       t('more'),

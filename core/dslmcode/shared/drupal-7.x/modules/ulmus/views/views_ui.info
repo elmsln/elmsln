@@ -4,12 +4,13 @@ package = Views
 core = 7.x
 configure = admin/structure/views
 dependencies[] = views
+# @codingStandardsIgnoreLine
 files[] = views_ui.module
 files[] = plugins/views_wizard/views_ui_base_views_wizard.class.php
 
-; Information added by Drupal.org packaging script on 2017-04-02
-version = "7.x-3.16"
+; Information added by Drupal.org packaging script on 2017-08-23
+version = "7.x-3.18"
 core = "7.x"
 project = "views"
-datestamp = "1491158591"
+datestamp = "1503495103"
 
