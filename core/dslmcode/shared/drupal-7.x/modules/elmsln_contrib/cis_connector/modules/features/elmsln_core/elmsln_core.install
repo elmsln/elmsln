@@ -323,3 +323,13 @@ function elmsln_core_update_7028(&$sandbox) {
     ->condition('name', 'authcache_%', 'LIKE')
     ->execute();
 }
+
+/**
+ * Kill views internal cache and drop dead tables, don't try this at home kids.
+ */
+function elmsln_core_update_7029(&$sandbox) {
+  views_invalidate_cache();
+  db_drop_table('cache_authcache_key');
+  db_drop_table('cache_authcache_p13n');
+  db_drop_table('authcache_p13n_key_value');
+}
