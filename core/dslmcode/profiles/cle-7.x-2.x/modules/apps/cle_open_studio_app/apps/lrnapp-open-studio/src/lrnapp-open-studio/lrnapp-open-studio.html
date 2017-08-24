@@ -83,18 +83,18 @@
         </paper-listbox>
       </paper-dropdown-menu>
       <paper-dropdown-menu label="Project" hidden$="[[!projects]]">
-        <paper-listbox class="dropdown-content" selected="{{queryParams.project}}">
+        <paper-listbox class="dropdown-content" selected="{{queryParams.project}}" attr-for-selected="item-id">
           <paper-item></paper-item>
         <template is="dom-repeat" items="[[_toArray(projects)]]" as="project">
-          <paper-item data-item-id$="[[project.id]]">[[project.attributes.title]]</paper-item>
+          <paper-item item-id="[[project.id]]">[[project.attributes.title]]</paper-item>
         </template>
         </paper-listbox>
       </paper-dropdown-menu>
       <paper-dropdown-menu label="Assignment" hidden$="[[!assignments]]">
-        <paper-listbox class="dropdown-content" selected="{{queryParams.assignment}}">
+        <paper-listbox class="dropdown-content" selected="{{queryParams.assignment}}" attr-for-selected="item-id">
           <paper-item></paper-item>
         <template is="dom-repeat" items="[[_toArray(assignments)]]" as="assignment">
-          <paper-item data-item-id$="[[assignment.id]]">[[assignment.title]]</paper-item>
+          <paper-item item-id="[[assignment.id]]">[[assignment.title]]</paper-item>
         </template>
         </paper-listbox>
       </paper-dropdown-menu>
@@ -233,7 +233,16 @@
             if (submission.relationships.author.data.id !== root.queryParams.author) {
               return false;
             }
-            // console.log(submission);
+          }
+          if (typeof root.queryParams.project !== 'undefined') {
+            if (submission.relationships.project.data.id !== root.queryParams.project) {
+              return false;
+            }
+          }
+          if (typeof root.queryParams.assignment !== 'undefined') {
+            if (submission.relationships.assignment.id !== root.queryParams.assignment) {
+              return false;
+            }
           }
           return true;
         });
