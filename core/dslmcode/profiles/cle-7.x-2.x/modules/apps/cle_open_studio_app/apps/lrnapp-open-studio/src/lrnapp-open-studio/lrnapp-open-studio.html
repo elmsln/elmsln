@@ -53,12 +53,13 @@
       last-response="{{studioResponse}}"
       on-response="_handleResponse"></iron-ajax>
 
-    <app-location route="{{route}}"></app-location>
+    <app-location route="{{route}}" query-params="{{queryParams}}"></app-location>
     <app-route
         route="{{route}}"
         pattern="[[endPoint]]/:page"
         data="{{data}}"
-        tail="{{tail}}">
+        tail="{{tail}}"
+        query-params="{{queryParams}}">
     </app-route>
 
     <div id="loading">
@@ -66,7 +67,7 @@
       <elmsln-loading color="grey-text" size="large"></elmsln-loading>
     </div>
     <app-toolbar class="amber lighten-3">
-      <iron-selector selected="{{page}}" attr-for-selected="name" role="navigation">
+      <iron-selector selected="{{data.page}}" attr-for-selected="name" role="navigation">
         <a tabindex="-1" name="submissions" href$="[[endPoint]]/submissions"><lrnsys-button icon="apps" label="Submissions" hover-class="amber darken-4 white-text" class="display-mode"></lrnsys-button></a>
         <a tabindex="-1" name="projects" href$="[[endPoint]]/projects"><lrnsys-button icon="folder" label="Projects" hover-class="amber darken-4 white-text" class="display-mode"></lrnsys-button></a>
         <a tabindex="-1" name="table" href$="[[endPoint]]/table"><lrnsys-button icon="view-list" label="Table" hover-class="amber darken-4 white-text" class="display-mode"></lrnsys-button></a>
@@ -100,7 +101,7 @@
     </app-toolbar>
     <div class="gallery-grid">
     <iron-pages
-      selected="{{page}}"
+      selected="{{data.page}}"
       attr-for-selected="name"
       fallback-selection="submissions"
       role="main">
@@ -124,15 +125,6 @@
     Polymer({
       is: 'lrnapp-open-studio',
       properties: {
-        /**
-         * Tracking what the current page.
-         */
-        page: {
-          type: String,
-          reflectToAttribute: true,
-          notify: true,
-          observer: '_routePageChanged',
-        },
         /**
          * The studioResponse from server
          */
@@ -293,20 +285,6 @@
         }
         this.set('submissions', []);
         this.set('submissions', submissions);
-      },
-      /**
-       * default us to the submission centric board if nothing exists
-       */
-      _routePageChanged(page) {
-        // Polymer 2.0 will call with `undefined` on initialization.
-        // Ignore until we are properly called with a string.
-        if (page === undefined) {
-          return;
-        }
-
-        // If no page was found in the route data, page will be an empty string.
-        // Deault page
-        this.page = page || 'submissions';
       },
       /**
        * Handle tap on paper-button above to redirect to the correct submission url.
