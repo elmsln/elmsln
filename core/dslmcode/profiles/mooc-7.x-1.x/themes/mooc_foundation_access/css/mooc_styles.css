@@ -1,5 +1,83 @@
+.node-view-mode-full .card-panel, .card {
+  box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2);
+}
+.node-view-mode-full .card-panel {
+  transition: box-shadow .25s;
+  padding: 20px;
+  margin: 0.5rem 0 1rem 0;
+  border-radius: 2px;
+  background-color: #fff;
+}
+
+.node-view-mode-full .card {
+  position: relative;
+  margin: 0.5rem 0 1rem 0;
+  background-color: #fff;
+  transition: box-shadow .25s;
+  border-radius: 2px;
+}
+
+.node-view-mode-full .card .card-title {
+  font-size: 24px;
+  font-weight: 300;
+}
+
+.node-view-mode-full .card .card-title.activator {
+  cursor: pointer;
+}
+
+.node-view-mode-full .card .card-content {
+  padding: 20px;
+  border-radius: 0 0 2px 2px;
+}
+
+.node-view-mode-full .card .card-content p {
+  margin: 0;
+  color: inherit;
+}
+
+.node-view-mode-full .card .card-content .card-title {
+  line-height: 48px;
+}
+
+.node-view-mode-full .card .card-action {
+  position: relative;
+  background-color: inherit;
+  border-top: 1px solid rgba(160, 160, 160, 0.2);
+  padding: 20px;
+}
+
+.node-view-mode-full .card .card-action a:not(.btn):not(.btn-large):not(.btn-floating) {
+  color: #ffab40;
+  margin-right: 20px;
+  transition: color .3s ease;
+  text-transform: uppercase;
+}
+
+.node-view-mode-full .card .card-action a:not(.btn):not(.btn-large):not(.btn-floating):hover {
+  color: #ffd8a6;
+}
+
+.node-view-mode-full .card .card-reveal {
+  padding: 20px;
+  position: absolute;
+  background-color: #fff;
+  width: 100%;
+  overflow-y: auto;
+  left: 0;
+  top: 100%;
+  height: 100%;
+  z-index: 3;
+  display: none;
+}
+
+.node-view-mode-full .card .card-reveal .card-title {
+  cursor: pointer;
+  display: block;
+}
+
 /* Panels */
-.panel {
+.node-view-mode-full .panel {
   border-style: solid;
   border-width: 1px;
   border-color: #d8d8d8;
@@ -7,18 +85,18 @@
   padding: 1.25rem;
   background: #f2f2f2;
   color: #333333; }
-  .panel > :first-child {
+  .node-view-mode-full .panel > :first-child {
     margin-top: 0; }
-  .panel > :last-child {
+  .node-view-mode-full .panel > :last-child {
     margin-bottom: 0; }
-  .panel h1, .panel h2, .panel h3, .panel h4, .panel h5, .panel h6, .panel p, .panel li, .panel dl {
+  .node-view-mode-full .panel h1, .panel h2, .panel h3, .panel h4, .panel h5, .panel h6, .panel p, .panel li, .panel dl {
     color: #333333; }
-  .panel h1, .panel h2, .panel h3, .panel h4, .panel h5, .panel h6 {
+  .node-view-mode-full .panel h1, .panel h2, .panel h3, .panel h4, .panel h5, .panel h6 {
     line-height: 1;
     margin-bottom: 0.625rem; }
-    .panel h1.subheader, .panel h2.subheader, .panel h3.subheader, .panel h4.subheader, .panel h5.subheader, .panel h6.subheader {
+    .node-view-mode-full .panel h1.subheader, .panel h2.subheader, .panel h3.subheader, .panel h4.subheader, .panel h5.subheader, .panel h6.subheader {
       line-height: 1.4; }
-  .panel.callout {
+  .node-view-mode-full .panel.callout {
     border-style: solid;
     border-width: 1px;
     border-color: #d8d8d8;
@@ -26,22 +104,22 @@
     padding: 1.25rem;
     background: #ecfaff;
     color: #333333; }
-    .panel.callout > :first-child {
+    .node-view-mode-full .panel.callout > :first-child {
       margin-top: 0; }
-    .panel.callout > :last-child {
+    .node-view-mode-full .panel.callout > :last-child {
       margin-bottom: 0; }
-    .panel.callout h1, .panel.callout h2, .panel.callout h3, .panel.callout h4, .panel.callout h5, .panel.callout h6, .panel.callout p, .panel.callout li, .panel.callout dl {
+    .node-view-mode-full .panel.callout h1, .panel.callout h2, .panel.callout h3, .panel.callout h4, .panel.callout h5, .panel.callout h6, .panel.callout p, .panel.callout li, .panel.callout dl {
       color: #333333; }
-    .panel.callout h1, .panel.callout h2, .panel.callout h3, .panel.callout h4, .panel.callout h5, .panel.callout h6 {
+    .node-view-mode-full .panel.callout h1, .panel.callout h2, .panel.callout h3, .panel.callout h4, .panel.callout h5, .panel.callout h6 {
       line-height: 1;
       margin-bottom: 0.625rem; }
-      .panel.callout h1.subheader, .panel.callout h2.subheader, .panel.callout h3.subheader, .panel.callout h4.subheader, .panel.callout h5.subheader, .panel.callout h6.subheader {
+      .node-view-mode-full .panel.callout h1.subheader, .panel.callout h2.subheader, .panel.callout h3.subheader, .panel.callout h4.subheader, .panel.callout h5.subheader, .panel.callout h6.subheader {
         line-height: 1.4; }
-    .panel.callout a:not(.button) {
+    .node-view-mode-full .panel.callout a:not(.button) {
       color: #008CBA; }
-      .panel.callout a:not(.button):hover, .panel.callout a:not(.button):focus {
+      .node-view-mode-full .panel.callout a:not(.button):hover, .panel.callout a:not(.button):focus {
         color: #0078a0; }
-  .panel.radius {
+  .node-view-mode-full .panel.radius {
     border-radius: 3px; }
 
 .mooc-banner-image-wrapper {
