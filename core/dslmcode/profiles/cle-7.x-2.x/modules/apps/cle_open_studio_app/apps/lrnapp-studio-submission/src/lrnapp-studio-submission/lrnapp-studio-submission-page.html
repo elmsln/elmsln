@@ -351,14 +351,14 @@
         this.$$('#ajaxUpdateRequest').generateRequest();
       },
       _submissionPublishClicked: function (e) {
-        this.$.publishdialog.open();
+        this.$$('#publishdialog').open();
       },
       _submissionPublishConfirmed: function (e) {
         this.saving = true;
         this.$$('#ajaxUpdateRequest').generateRequest();
       },
       _submissionDeleteClicked: function (e) {
-        this.$.deletedialog.open();
+        this.$$('#deletedialog').open();
       },
       _submissionDeleteConfirmed: function (e) {
         this.saving = true;

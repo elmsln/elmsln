@@ -95,15 +95,6 @@
           icon-class="red-text text-darken-4">
         </lrnsys-button>
       </div>
-
-      <paper-dialog id="deletedialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation" with-backdrop>
-        <h2>Delete Submission</h2>
-        <p>Are you sure you want to delete submission: <em>{{submission.attributes.title}}</em>?</p>
-        <div class="buttons">
-          <paper-button dialog-dismiss>Cancel</paper-button>
-          <paper-button dialog-confirm on-click="_deleteConfirmed">Delete</paper-button>
-        </div>
-      </paper-dialog>
     </template>
   </template>
   <script>
@@ -143,9 +134,6 @@
         this.fire('submissionSaveDraftClicked');
       },
       _deleteClicked: function (e) {
-        this.$.deletedialog.open();
-      },
-      _deleteConfirmed: function (e) {
         this.fire('submissionDeleteClicked');
       },
       /**
