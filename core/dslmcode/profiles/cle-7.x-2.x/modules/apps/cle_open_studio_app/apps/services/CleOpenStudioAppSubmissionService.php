@@ -1,6 +1,7 @@
 <?php
 
 include_once 'CleOpenStudioAppCommentService.php';
+include_once 'CleOpenStudioAppAssignmentService.php';
 
 class CleOpenStudioAppSubmissionService {
 
@@ -170,11 +171,10 @@ class CleOpenStudioAppSubmissionService {
     if ($id && is_numeric($id)) {
       $node = node_load($id);
       if ($node && isset($node->type) && $node->type == 'cle_submission') {
-        $decoded_submission = $this->decodeSubmission($payload, $node);
         // unpublish the node
-        $decoded_submission->status = 0;
+        $node->status = 0;
         try {
-          node_save($decoded_submission);
+          node_save($node);
           return true;
         }
         catch (Exception $e) {

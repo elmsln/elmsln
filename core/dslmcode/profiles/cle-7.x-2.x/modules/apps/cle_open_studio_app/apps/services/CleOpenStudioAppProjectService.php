@@ -1,5 +1,7 @@
 <?php
 
+include_once 'CleOpenStudioAppAssignmentService.php';
+
 class CleOpenStudioAppProjectService {
   /**
    * Create Stub Project based on assignment
@@ -128,12 +130,16 @@ class CleOpenStudioAppProjectService {
     if ($id && is_numeric($id)) {
       $node = node_load($id);
       if ($node && isset($node->type) && $node->type == 'cle_project') {
-        $decoded_project = $this->deleteProject($payload, $node);
         // unpublish the node
-        $decoded_project->status = 0;
+        $node->status = 0;
+        $service = new CleOpenStudioAppAssignmentService();
+        // loop through and clone assignments based on what we found
+        foreach ($node->field_project_steps['und'] as $assignmentref) {
+          $assignment = $service->deleteAssignment($assignmentref['target_id']);
+        }
         try {
-          node_save($decoded_project);
-          return true;
+          node_save($node);
+          return TRUE;
         }
         catch (Exception $e) {
           throw new Exception($e->getMessage());

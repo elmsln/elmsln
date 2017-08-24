@@ -135,11 +135,10 @@ class CleOpenStudioAppAssignmentService {
     if ($id && is_numeric($id)) {
       $node = node_load($id);
       if ($node && isset($node->type) && $node->type == 'cle_assignment') {
-        $decoded_assignment = $this->deleteAssignment($payload, $node);
         // unpublish the node
-        $decoded_assignment->status = 0;
+        $node->status = 0;
         try {
-          node_save($decoded_assignment);
+          node_save($node);
           return true;
         }
         catch (Exception $e) {
