@@ -46,7 +46,6 @@ Drupal.Views.parseQueryString = function (query) {
   if (!query) {
     return;
   }
-  
   var args = {};
   var pos = query.indexOf('?');
   if (pos != -1) {
@@ -69,7 +68,10 @@ Drupal.Views.parseQueryString = function (query) {
  * Helper function to return a view's arguments based on a path.
  */
 Drupal.Views.parseViewArgs = function (href, viewPath) {
-
+  //Exit early if called without href or viewPath
+  if (!(href && viewPath)) {
+    return;
+  }
   // Provide language prefix.
   if (Drupal.settings.pathPrefix) {
     var viewPath = Drupal.settings.pathPrefix + viewPath;
@@ -77,7 +79,7 @@ Drupal.Views.parseViewArgs = function (href, viewPath) {
   var returnObj = {};
   var path = Drupal.Views.getPath(href);
   // Ensure we have a correct path.
-  if (viewPath && path.substring(0, viewPath.length + 1) == viewPath + '/') {
+  if (path && path.substring(0, viewPath.length + 1) == viewPath + '/') {
     var args = decodeURIComponent(path.substring(viewPath.length + 1, path.length));
     returnObj.view_args = args;
     returnObj.view_path = path;
@@ -89,6 +91,10 @@ Drupal.Views.parseViewArgs = function (href, viewPath) {
  * Strip off the protocol plus domain from an href.
  */
 Drupal.Views.pathPortion = function (href) {
+  //Exit early if called without href
+  if (!href) {
+    return;
+  }
   // Remove e.g. http://example.com if present.
   var protocol = window.location.protocol;
   if (href.substring(0, protocol.length) == protocol) {
@@ -102,6 +108,10 @@ Drupal.Views.pathPortion = function (href) {
  * Return the Drupal path portion of an href.
  */
 Drupal.Views.getPath = function (href) {
+  //Exit early if called without href
+  if (!href) {
+    return;
+  }
   href = Drupal.Views.pathPortion(href);
   href = href.substring(Drupal.settings.basePath.length, href.length);
   // 3 is the length of the '?q=' added to the url without clean urls.
@@ -114,7 +124,7 @@ Drupal.Views.getPath = function (href) {
       href = href.substr(0, href.indexOf(chars[i]));
     }
   }
-  return href;  
+  return href;
 };
 
 })(jQuery);
