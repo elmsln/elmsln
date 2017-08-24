@@ -25,6 +25,7 @@ function cle__2_install() {
   features_revert_module('cle_project');
   features_revert_module('cle_submission');
   features_revert_module('cle_perms');
+  features_revert_module('cle_textbook');
 }
 
 /**
@@ -183,4 +184,34 @@ function cle__2_update_7015(&$sandbox) {
  */
 function cle__2_update_7016(&$sandbox) {
   module_enable(array('cle_textbook'));
+}
+
+/**
+ * Clean up data model.
+ */
+function cle__2_update_7017(&$sandbox) {
+  // revert the data model to match perfecto
+  features_revert_module('cle_assignment');
+  features_revert_module('cle_project');
+  features_revert_module('cle_submission');
+  features_revert_module('cle_textbook');
+  // drop legacy fields
+  field_delete_field('field_media_requirements');
+  field_delete_field('body');
+  field_delete_field('field_cle_sub_type');
+  field_delete_field('field_visibility');
+  field_delete_field('field_due_date');
+  field_delete_field('field_color');
+  field_delete_field('field_number');
+  field_delete_field('field_sub_number');
+  field_delete_field('field_cle_order');
+  field_delete_field('field_cis_tag');
+  field_delete_field('field_cle_crit_type');
+  field_delete_field('field_cle_crit_criteria');
+  field_delete_field('field_cle_crit_outline');
+  field_delete_field('field_cle_archived');
+  field_delete_field('field_cle_assignments');
+  // actually deletes the fields
+  field_purge_batch(1000);
+  field_purge_batch(1000);
 }

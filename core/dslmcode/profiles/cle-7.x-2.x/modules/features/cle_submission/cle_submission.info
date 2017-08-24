@@ -66,7 +66,6 @@ features[field_group][] = group_media|node|cle_submission|form
 features[field_group][] = group_video|node|cle_submission|default
 features[field_group][] = group_video|node|cle_submission|form
 features[field_instance][] = comment-comment_node_cle_submission-comment_body
-features[field_instance][] = node-cle_submission-body
 features[field_instance][] = node-cle_submission-field_assignment
 features[field_instance][] = node-cle_submission-field_energy
 features[field_instance][] = node-cle_submission-field_files
