@@ -190,8 +190,19 @@ function cle__2_update_7016(&$sandbox) {
  * Clean up data model.
  */
 function cle__2_update_7017(&$sandbox) {
+  // wipe more really old project references if there
+  $modules = array(
+    'cle_submission_assessment',
+    'cle_gradebook_ux',
+    'cle_gradebook',
+  );
+  db_delete('system')
+    ->condition('name', $modules, 'IN')
+    ->condition('type', 'module')
+    ->execute();
   module_disable(array('unique_field'));
-  drupal_uninstall_modules(array('unique_field'));
+  drupal_uninstall_modules(array('unique_field', 'cle_require_profile', 'cle_app'));
+  drupal_uninstall_modules(array('cle_critique'));
   // revert the data model to match perfecto
   features_revert_module('cle_assignment');
   features_revert_module('cle_project');
