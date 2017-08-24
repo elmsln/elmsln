@@ -137,7 +137,7 @@ function cle_assignment_strongarm() {
           'weight' => '0',
         ),
         'path' => array(
-          'weight' => '7',
+          'weight' => '6',
         ),
         'hidden_nodes' => array(
           'weight' => '9',
@@ -146,10 +146,10 @@ function cle_assignment_strongarm() {
           'weight' => '6',
         ),
         'options' => array(
-          'weight' => '10',
+          'weight' => '4',
         ),
         'author' => array(
-          'weight' => '8',
+          'weight' => '7',
         ),
         'revision_information' => array(
           'weight' => '5',

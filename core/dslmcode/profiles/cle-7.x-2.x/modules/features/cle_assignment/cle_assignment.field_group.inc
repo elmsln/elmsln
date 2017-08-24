@@ -24,13 +24,15 @@ function cle_assignment_field_group_info() {
     'weight' => '0',
     'children' => array(
       0 => 'field_assignment_color',
-      1 => 'field_assignment_due_date',
-      2 => 'field_assignment_feedback',
-      3 => 'field_assignment_image',
-      4 => 'field_assignment_late_submission',
-      5 => 'field_assignment_privacy_setting',
-      6 => 'field_assignment_description',
-      7 => 'title',
+      1 => 'field_assignment_description',
+      2 => 'field_assignment_due_date',
+      3 => 'field_assignment_feedback',
+      4 => 'field_assignment_image',
+      5 => 'field_assignment_late_submission',
+      6 => 'field_assignment_privacy_setting',
+      7 => 'og_group_ref',
+      8 => 'title',
+      9 => 'options',
     ),
     'format_type' => 'fieldset',
     'format_settings' => array(
@@ -91,7 +93,6 @@ function cle_assignment_field_group_info() {
     'children' => array(
       0 => 'field_assignment_dependencies',
       1 => 'field_assignment_project',
-      2 => 'og_group_ref',
     ),
     'format_type' => 'fieldset',
     'format_settings' => array(

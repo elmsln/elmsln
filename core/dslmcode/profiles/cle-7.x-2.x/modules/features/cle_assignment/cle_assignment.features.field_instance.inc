@@ -290,6 +290,7 @@ function cle_assignment_field_default_field_instances() {
           'multiple_from' => '',
           'multiple_number' => '',
           'multiple_to' => '',
+          'show_remaining_days' => FALSE,
         ),
         'type' => 'date_default',
         'weight' => 31,
@@ -968,14 +969,13 @@ function cle_assignment_field_default_field_instances() {
       'module' => 'og',
       'settings' => array(),
       'type' => 'og_complex',
-      'weight' => 5,
+      'weight' => 3,
     ),
   );
 
   // Translatables
   // Included for use with string extractors like potx.
   t('Allow late submissions');
-  t('Archived');
   t('Artifacts');
   t('Assignment Due Date');
   t('Assignment dependencies');
