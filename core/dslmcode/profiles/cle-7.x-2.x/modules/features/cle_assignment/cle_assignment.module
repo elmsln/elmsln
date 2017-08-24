@@ -141,9 +141,6 @@ function _cle_assignment_v1_assignment_modify($node, $params = NULL) {
       case 'body':
         $node->field_assignment_description[LANGUAGE_NONE][0] = $value;
       break;
-      case 'archived':
-        $node->field_cle_archived['und'][0]['value'] = $value;
-      break;
       case 'section':
         if (!is_null($value)) {
           $node->og_group_ref[LANGUAGE_NONE][0]['target_id'] = $value;
@@ -415,7 +412,6 @@ function _cle_assignment_v1_assignment_output($node, $app_route = '') {
     'startDate' => $dates[0],
     'endDate' => $dates[1],
     'commentStyle' => $node->field_assignment_feedback[LANGUAGE_NONE][0]['value'],
-    'archived' => (int)$node->field_cle_archived['und'][0]['value'],
     'hierarchy' => array(
       'dependencies' => _elmsln_api_multifield_clean($node, 'field_assignment_dependencies', 'target_id', TRUE),
       'project' => (int)$node->field_assignment_project[LANGUAGE_NONE][0]['target_id'],
