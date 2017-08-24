@@ -216,19 +216,19 @@
         },
       },
       observers: [
-        '_filterChanged(queryParams)',
+        '_filterChanged(queryParams, originalSubmissions)',
         '_authorFilterChanged(queryParams.author)',
         '_projectFilterChanged(queryParams.project)',
         '_assignmentFilterChanged(queryParams.assignment)'
       ],
-      _filterChanged: function (queryParams) {
+      _filterChanged: function (queryParams, originalSubmissions) {
         // if we don't have an original submissions object to work with then we need to bail
-        if (typeof this.originalSubmissions === 'undefined') {
+        if (typeof originalSubmissions === 'undefined') {
           return;
         }
         // define vars
         const root = this;
-        const submissions = this.originalSubmissions;
+        const submissions = originalSubmissions;
         let filteredSubmissions = [];
         // filter the submissions by the query params
         filteredSubmissions = submissions.filter(submission => {
@@ -258,90 +258,15 @@
         // if we have a project then we need to uncheck
         // assignment
         if (typeof project !== 'undefined') {
-          let params = Object.assign({}, this.queryParams);
-          delete params.assignment;
-          this.set('queryParams', params);
+          this.set('queryParams.assignment', undefined);
         }
       },
       _assignmentFilterChanged: function (assignment, old) {
-        // if we have an assignment then we need to uncheck
+        // if we have a assignment then we need to uncheck
         // project
         if (typeof assignment !== 'undefined') {
-          let params = Object.assign({}, this.queryParams);
-          delete params.project;
-          this.set('queryParams', params);
+          this.set('queryParams.project', undefined);
         }
-      },
-      _setProjectFilter: function (e) {
-        if (this._selectedProject != -1) {
-          this.projectFilter = e.target.selectedItem.getAttribute('data-item-id');
-          // when picking a project we have to undo assignment
-          if (this._selectedProject != 0) {
-            this.assignmentFilter = null;
-            this._selectedAssignment = -1;
-          }
-          this._applyFilters();
-        }
-        else {
-          this._selectedProject = 0;
-        }
-      },
-      _setAuthorFilter: function (e) {
-        this.authorFilter = e.target.selectedItem.getAttribute('data-item-id');
-        this._applyFilters();
-      },
-      _setAssignmentFilter: function (e) {
-        if (this._selectedAssignment != -1) {
-          this.assignmentFilter = e.target.selectedItem.getAttribute('data-item-id');
-          // when picking an assignment we have to undo project
-          if (this._selectedAssignment != 0) {
-            this.projectFilter = null;
-            this._selectedProject = -1;
-          }
-          this._applyFilters();
-        }
-        else {
-          this._selectedAssignment = 0;
-        }
-      },
-      _applyFilters: function () {
-        var submissions = [];
-        // this is effectively resetting the filters
-        if (typeof this.queryParams.project == typeof null && typeof this.queryParams.author == typeof null && typeof this.queryParams.assignment == typeof null) {
-          submissions = this.originalSubmissions;
-        }
-        else {
-          // we have a filter, let's see if it's applying one or both
-          for (var index = 0; index < this.originalSubmissions.length; index++) {
-            // check user and project filters so we can utilize the two together only if they are set
-            if (typeof this.queryParams.project != typeof null && typeof this.queryParams.author != typeof null) {
-              // only add if both exist otherwise we'll skip it all
-              if (this.originalSubmissions[index].relationships.project.data.id == this.queryParams.project && this.originalSubmissions[index].relationships.author.data.id == this.queryParams.author) {
-                submissions.push(this.originalSubmissions[index]);
-              }
-            }
-            else if (typeof this.queryParams.assignment != typeof null && typeof this.queryParams.author != typeof null) {
-              // only add if both exist otherwise we'll skip it all
-              if (this.originalSubmissions[index].relationships.assignment.id == this.queryParams.assignment && this.originalSubmissions[index].relationships.author.data.id == this.queryParams.author) {
-                submissions.push(this.originalSubmissions[index]);
-              }
-            }
-            // only filter by project
-            else if (typeof this.queryParams.project != typeof null && this.originalSubmissions[index].relationships.project.data.id == this.queryParams.project) {
-              submissions.push(this.originalSubmissions[index]);
-            }
-            // only filter by assignment
-            else if (typeof this.queryParams.assignment != typeof null && this.originalSubmissions[index].relationships.assignment.id == this.queryParams.assignment) {
-              submissions.push(this.originalSubmissions[index]);
-            }
-            // only filter by author
-            else if (typeof this.queryParams.author != typeof null && this.originalSubmissions[index].relationships.author.data.id == this.queryParams.author) {
-              submissions.push(this.originalSubmissions[index]);
-            }
-          }
-        }
-        this.set('submissions', []);
-        this.set('submissions', submissions);
       },
       /**
        * Handle tap on paper-button above to redirect to the correct submission url.
