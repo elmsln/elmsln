@@ -1237,17 +1237,18 @@ function path_to_theme() {
 /**
  * Allows themes and/or theme engines to discover overridden theme functions.
  *
- * @param array $cache
+ * @param $cache
  *   The existing cache of theme hooks to test against.
- * @param array $prefixes
+ * @param $prefixes
  *   An array of prefixes to test, in reverse order of importance.
  *
- * @return array
+ * @return $implementations
  *   The functions found, suitable for returning from hook_theme;
  */
 function drupal_find_theme_functions($cache, $prefixes) {
   $implementations = array();
-  $grouped_functions = drupal_group_functions_by_prefix();
+  $functions = get_defined_functions();
+  $theme_functions = preg_grep('/^(' . implode(')|(', $prefixes) . ')_/', $functions['user']);
 
   foreach ($cache as $hook => $info) {
     foreach ($prefixes as $prefix) {
@@ -1263,10 +1264,8 @@ function drupal_find_theme_functions($cache, $prefixes) {
       // are found using the base hook's pattern, not a pattern from an
       // intermediary suggestion.
       $pattern = isset($info['pattern']) ? $info['pattern'] : ($hook . '__');
-      // Grep only the functions which are within the prefix group.
-      list($first_prefix,) = explode('_', $prefix, 2);
-      if (!isset($info['base hook']) && !empty($pattern) && isset($grouped_functions[$first_prefix])) {
-        $matches = preg_grep('/^' . $prefix . '_' . $pattern . '/', $grouped_functions[$first_prefix]);
+      if (!isset($info['base hook']) && !empty($pattern)) {
+        $matches = preg_grep('/^' . $prefix . '_' . $pattern . '/', $theme_functions);
         if ($matches) {
           foreach ($matches as $match) {
             $new_hook = substr($match, strlen($prefix) + 1);
@@ -1291,25 +1290,6 @@ function drupal_find_theme_functions($cache, $prefixes) {
   }
 
   return $implementations;
-}
-
-/**
- * Group all user functions by word before first underscore.
- *
- * @return array
- *   Functions grouped by the first prefix.
- */
-function drupal_group_functions_by_prefix() {
-  $functions = get_defined_functions();
-
-  $grouped_functions = array();
-  // Splitting user defined functions into groups by the first prefix.
-  foreach ($functions['user'] as $function) {
-    list($first_prefix,) = explode('_', $function, 2);
-    $grouped_functions[$first_prefix][] = $function;
-  }
-
-  return $grouped_functions;
 }
 
 /**
