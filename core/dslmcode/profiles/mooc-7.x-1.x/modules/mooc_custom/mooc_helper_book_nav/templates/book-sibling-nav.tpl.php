@@ -30,9 +30,8 @@
   }
 ?>
 <li id="book-sibling-children-<?php print $parent['mlid'] ?>-container" class="toolbar-menu-icon book-sibling-parent book-sibling-parent-<?php print $count ?>">
-  <lrnsys-button href="#" title="<?php print $ptitle ?>" class="black-text elmsln-dropdown-button <?php print (isset($parent['_class']) ? $parent['_class'] : ''); ?>" aria-controls="book-sibling-children-<?php print $parent['mlid'] ?>" aria-expanded="false" data-activates="book-sibling-children-<?php print $parent['mlid'] ?>" hover-class="blue darken-4 white-text">
+  <lrnsys-button href="#" title="<?php print $ptitle ?>" class="black-text elmsln-dropdown-button <?php print (isset($parent['_class']) ? $parent['_class'] : ''); ?> no-padding" aria-controls="book-sibling-children-<?php print $parent['mlid'] ?>" aria-expanded="false" data-activates="book-sibling-children-<?php print $parent['mlid'] ?>" hover-class="blue darken-4 white-text" inner-class="no-padding">
     <span class="book-sibling-parent-text"><?php print $outline_label; ?> <?php print $parent_count; ?> <?php print $parent_title ?></span>
-    <iron-icon icon="arrow-drop-down"></iron-icon>
   </lrnsys-button>
   <paper-tooltip animation-delay="0" for="book-sibling-children-<?php print $parent['mlid'] ?>-container"><?php print $plabel; ?></paper-tooltip>
 </li>
