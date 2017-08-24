@@ -8706,3 +8706,15 @@ div.autocomplete-deluxe-multiple {
 paper-dialog.lrnsys-dialog .paper-dialog-scrollable-0 .scrollable.paper-dialog-scrollable {
   min-height: 400px;
 }
+
+/**
+ * Fixes some stuff that's loaded into tight spaces
+ */
+.collapsible-header paper-button,
+paper-button.lrnsys-button div.inner.lrnsys-button {
+  font-size: .9rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-all;
+  word-wrap: break-word;
+}
