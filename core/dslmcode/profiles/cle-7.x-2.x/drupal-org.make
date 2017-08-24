@@ -36,8 +36,6 @@ projects[jquery_colorpicker][version] = "1.x-dev"
 projects[jquery_colorpicker][subdir] = "contrib"
 projects[quickpost_bookmarklet][version] = "2.x-dev"
 projects[quickpost_bookmarklet][subdir] = "contrib"
-projects[unique_field][version] = "1.0-rc1"
-projects[unique_field][subdir] = "contrib"
 projects[achievements][version] = "1.x-dev"
 projects[achievements][subdir] = "contrib"
 ; Radioactivity

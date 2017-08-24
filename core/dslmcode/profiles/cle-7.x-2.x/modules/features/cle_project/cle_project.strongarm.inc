@@ -220,34 +220,6 @@ function cle_project_strongarm() {
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
-  $strongarm->name = 'unique_field_comp_cle_project';
-  $strongarm->value = 'all';
-  $export['unique_field_comp_cle_project'] = $strongarm;
-
-  $strongarm = new stdClass();
-  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
-  $strongarm->api_version = 1;
-  $strongarm->name = 'unique_field_fields_cle_project';
-  $strongarm->value = array();
-  $export['unique_field_fields_cle_project'] = $strongarm;
-
-  $strongarm = new stdClass();
-  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
-  $strongarm->api_version = 1;
-  $strongarm->name = 'unique_field_scope_cle_project';
-  $strongarm->value = 'type';
-  $export['unique_field_scope_cle_project'] = $strongarm;
-
-  $strongarm = new stdClass();
-  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
-  $strongarm->api_version = 1;
-  $strongarm->name = 'unique_field_show_matches_cle_project';
-  $strongarm->value = array();
-  $export['unique_field_show_matches_cle_project'] = $strongarm;
-
-  $strongarm = new stdClass();
-  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
-  $strongarm->api_version = 1;
   $strongarm->name = 'wysiwyg_template_default_cle_project';
   $strongarm->value = '';
   $export['wysiwyg_template_default_cle_project'] = $strongarm;

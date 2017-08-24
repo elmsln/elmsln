@@ -190,11 +190,14 @@ function cle__2_update_7016(&$sandbox) {
  * Clean up data model.
  */
 function cle__2_update_7017(&$sandbox) {
+  module_disable(array('unique_field'));
+  drupal_uninstall_modules(array('unique_field'));
   // revert the data model to match perfecto
   features_revert_module('cle_assignment');
   features_revert_module('cle_project');
   features_revert_module('cle_submission');
   features_revert_module('cle_textbook');
+  features_revert_module('cle_perms');
   // drop legacy fields
   field_delete_field('field_media_requirements');
   field_delete_field('body');

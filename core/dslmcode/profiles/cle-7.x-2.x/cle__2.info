@@ -142,7 +142,6 @@ dependencies[] = imagefield_crop
 dependencies[] = elmsln_ecd
 dependencies[] = jquery_colorpicker
 dependencies[] = quickpost_bookmarklet
-dependencies[] = unique_field
 dependencies[] = achievements
 dependencies[] = elmsln_lrs
 ; Radioactivity

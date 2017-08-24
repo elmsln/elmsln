@@ -15,7 +15,6 @@ dependencies[] = masquerade
 dependencies[] = node
 dependencies[] = rate
 dependencies[] = strongarm
-dependencies[] = unique_field
 features[features_api][] = api:2
 features[user_permission][] = access comments
 features[user_permission][] = access content
