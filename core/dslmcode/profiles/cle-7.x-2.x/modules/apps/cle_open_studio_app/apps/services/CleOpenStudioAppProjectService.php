@@ -30,7 +30,7 @@ class CleOpenStudioAppProjectService {
   /**
    * Get a list of projects
    */
-  public function getProjects($options) {
+  public function getProjects($options = NULL) {
     $items = array();
     $section_id = _cis_connector_section_context();
     $section = _cis_section_load_section_by_id($section_id);
