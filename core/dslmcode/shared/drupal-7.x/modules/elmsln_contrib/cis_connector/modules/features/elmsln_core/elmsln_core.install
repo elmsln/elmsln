@@ -333,3 +333,10 @@ function elmsln_core_update_7029(&$sandbox) {
   db_drop_table('cache_authcache_p13n');
   db_drop_table('authcache_p13n_key_value');
 }
+
+/**
+ * Uninstall some old global modules
+ */
+function elmsln_core_update_7030(&$sandbox) {
+  drupal_uninstall_modules(array('entity_iframe_consumer', 'entity_iframe_provider'));
+}
