@@ -94,7 +94,7 @@
         <paper-listbox class="dropdown-content" selected="{{queryParams.assignment}}" attr-for-selected="item-id">
           <paper-item></paper-item>
         <template is="dom-repeat" items="[[_toArray(assignments)]]" as="assignment">
-          <paper-item item-id="[[assignment.id]]">[[assignment.title]]</paper-item>
+          <paper-item item-id="[[assignment.id]]">[[assignment.attributes.title]]</paper-item>
         </template>
         </paper-listbox>
       </paper-dropdown-menu>
@@ -216,18 +216,21 @@
         },
       },
       observers: [
-        '_queryParamsChanged(queryParams)'
+        '_filterChanged(queryParams)',
+        '_authorFilterChanged(queryParams.author)',
+        '_projectFilterChanged(queryParams.project)',
+        '_assignmentFilterChanged(queryParams.assignment)'
       ],
-      _queryParamsChanged: function (queryParams) {
+      _filterChanged: function (queryParams) {
         // if we don't have an original submissions object to work with then we need to bail
         if (typeof this.originalSubmissions === 'undefined') {
           return;
         }
-
+        // define vars
         const root = this;
         const submissions = this.originalSubmissions;
         let filteredSubmissions = [];
-
+        // filter the submissions by the query params
         filteredSubmissions = submissions.filter(submission => {
           if (typeof root.queryParams.author !== 'undefined') {
             if (submission.relationships.author.data.id !== root.queryParams.author) {
@@ -246,46 +249,28 @@
           }
           return true;
         });
-
-        // if (typeof this.queryParams.project === 'undefined' && typeof this.queryParams.author === 'undefined' && typeof this.queryParams.assignment === 'undefined') {
-        //   submissions = this.originalSubmissions;
-        // }
-        // else {
-        //   // check user and project filters so we can utilize the two together only if they are set
-
-        //   // only filter by author
-
-
-          // // we have a filter, let's see if it's applying one or both
-          // for (index = 0; index < this.originalSubmissions.length; index++) {
-          //   // check user and project filters so we can utilize the two together only if they are set
-          //   if (typeof this.queryParams.project !== 'undefined' && typeof this.queryParams.author !== 'undefined') {
-          //     // only add if both exist otherwise we'll skip it all
-          //     if (this.originalSubmissions[index].relationships.project.data.id == this.queryParams.project && this.originalSubmissions[index].relationships.author.data.id == this.queryParams.author) {
-          //       submissions.push(this.originalSubmissions[index]);
-          //     }
-          //   }
-          //   else if (typeof this.queryParams.assignment !== 'undefined' && typeof this.queryParams.author !== 'undefined') {
-          //     // only add if both exist otherwise we'll skip it all
-          //     if (this.originalSubmissions[index].relationships.assignment.id == this.queryParams.assignment && this.originalSubmissions[index].relationships.author.data.id == this.queryParams.author) {
-          //       submissions.push(this.originalSubmissions[index]);
-          //     }
-          //   }
-          //   // only filter by project
-          //   else if (typeof this.queryParams.project !== 'undefined' && this.originalSubmissions[index].relationships.project.data.id == this.queryParams.project) {
-          //     submissions.push(this.originalSubmissions[index]);
-          //   }
-          //   // only filter by assignment
-          //   else if (typeof this.queryParams.assignment !== 'undefined' && this.originalSubmissions[index].relationships.assignment.id == this.queryParams.assignment) {
-          //     submissions.push(this.originalSubmissions[index]);
-          //   }
-          //   // only filter by author
-          //   else if (typeof this.queryParams.author !== 'undefined' && this.originalSubmissions[index].relationships.author.data.id == this.queryParams.author) {
-          //     submissions.push(this.originalSubmissions[index]);
-          //   }
-          // }
         this.set('submissions', []);
         this.set('submissions', filteredSubmissions);
+      },
+      _authorFilterChanged: function (author, old) {
+      },
+      _projectFilterChanged: function (project, old) {
+        // if we have a project then we need to uncheck
+        // assignment
+        if (typeof project !== 'undefined') {
+          let params = Object.assign({}, this.queryParams);
+          delete params.assignment;
+          this.set('queryParams', params);
+        }
+      },
+      _assignmentFilterChanged: function (assignment, old) {
+        // if we have an assignment then we need to uncheck
+        // project
+        if (typeof assignment !== 'undefined') {
+          let params = Object.assign({}, this.queryParams);
+          delete params.project;
+          this.set('queryParams', params);
+        }
       },
       _setProjectFilter: function (e) {
         if (this._selectedProject != -1) {
