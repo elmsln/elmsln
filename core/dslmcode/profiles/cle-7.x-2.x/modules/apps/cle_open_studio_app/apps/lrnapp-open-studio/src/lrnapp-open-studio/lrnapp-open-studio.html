@@ -68,9 +68,9 @@
     </div>
     <app-toolbar class="amber lighten-3">
       <iron-selector selected="{{data.page}}" attr-for-selected="name" role="navigation">
-        <a tabindex="-1" name="submissions" href$="[[endPoint]]/submissions"><lrnsys-button icon="apps" label="Submissions" hover-class="amber darken-4 white-text" class="display-mode"></lrnsys-button></a>
-        <a tabindex="-1" name="projects" href$="[[endPoint]]/projects"><lrnsys-button icon="folder" label="Projects" hover-class="amber darken-4 white-text" class="display-mode"></lrnsys-button></a>
-        <a tabindex="-1" name="table" href$="[[endPoint]]/table"><lrnsys-button icon="view-list" label="Table" hover-class="amber darken-4 white-text" class="display-mode"></lrnsys-button></a>
+        <a tabindex="-1" name="submissions" on-tap="_submissionsClicked"><lrnsys-button icon="apps" label="Submissions" hover-class="amber darken-4 white-text" class="display-mode"></lrnsys-button></a>
+        <a tabindex="-1" name="projects" on-tap="_projectsClicked"><lrnsys-button icon="folder" label="Projects" hover-class="amber darken-4 white-text" class="display-mode"></lrnsys-button></a>
+        <a tabindex="-1" name="table" on-tap="_tableClicked"><lrnsys-button icon="view-list" label="Table" hover-class="amber darken-4 white-text" class="display-mode"></lrnsys-button></a>
       </iron-selector>
       <span main-title></span>
       <span top-item style="text-align:right;font-size:.5em;padding-right:1em;">Displaying [[submissions.length]] of [[originalSubmissions.length]]</span>
@@ -115,7 +115,7 @@
           </template>
         </iron-list>
       </div>
-      <lrnapp-open-studio-projects name="projects" base-path="[[basePath]]" projects="[[projects]]" submissions="[[submissions]]" assignments="[[assignments]]" active-author-id="{{queryParams.author}}" active-project-id="{{queryParams.project}}"></lrnapp-open-studio-projects>
+      <lrnapp-open-studio-projects name="projects" base-path="[[basePath]]" projects="[[projects]]" submissions="[[submissions]]" assignments="[[assignments]]" active-author-id="[[queryParams.author]]" active-project-id="[[queryParams.project]]"></lrnapp-open-studio-projects>
       <lrnapp-open-studio-table name="table" base-path="[[basePath]]" submissions="{{submissions}}"></lrnapp-open-studio-table>
     </iron-pages>
     </div>
@@ -138,6 +138,7 @@
         submissions: {
           type: Object,
           notify: true,
+          computed: '_submissionsCompute(originalSubmissions, queryParams)'
         },
         /**
          * The original submissions array; used to filter against
@@ -216,22 +217,20 @@
         },
       },
       observers: [
-        '_filterChanged(queryParams, originalSubmissions)',
         '_authorFilterChanged(queryParams.author)',
         '_projectFilterChanged(queryParams.project)',
         '_assignmentFilterChanged(queryParams.assignment)'
       ],
-      _filterChanged: function (queryParams, originalSubmissions) {
+      _submissionsCompute: function (originalSubmissions, queryParams) {
         // if we don't have an original submissions object to work with then we need to bail
         if (typeof originalSubmissions === 'undefined') {
-          return;
+          return [];
         }
         // define vars
         const root = this;
-        const submissions = originalSubmissions;
         let filteredSubmissions = [];
         // filter the submissions by the query params
-        filteredSubmissions = submissions.filter(submission => {
+        filteredSubmissions = originalSubmissions.filter(submission => {
           if (typeof root.queryParams.author !== 'undefined') {
             if (submission.relationships.author.data.id !== root.queryParams.author) {
               return false;
@@ -249,8 +248,7 @@
           }
           return true;
         });
-        this.set('submissions', []);
-        this.set('submissions', filteredSubmissions);
+        return filteredSubmissions;
       },
       _authorFilterChanged: function (author, old) {
       },
@@ -300,7 +298,6 @@
         this.set('projects', projects);
         // original = active off the bat then we apply filters later to chang this
         this.set('originalSubmissions', submissions);
-        this.set('submissions', submissions);
         // figure out authors and assignments
         for (var index = 0; index < submissions.length; index++) {
           author = submissions[index].relationships.author.data;
@@ -322,6 +319,15 @@
         this.set('assignments', assignments);
         this.set('authors', authors);
       },
+      _submissionsClicked: function (e) {
+        this.set('route.path', this.endPoint + '/submissions');
+      },
+      _projectsClicked: function (e) {
+        this.set('route.path', this.endPoint + '/projects');
+      },
+      _tableClicked: function (e) {
+        this.set('route.path', this.endPoint + '/projects');
+      },
       /**
        * Simple way to convert from object to array.
        */
@@ -329,7 +335,7 @@
         return Object.keys(obj).map(function(key) {
           return obj[key];
         });
-      },
+      }
     });
   </script>
 </dom-module>
