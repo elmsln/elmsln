@@ -665,23 +665,26 @@ function elmsln_core_node_view($node, $view_mode, $langcode) {
 }
 
 /**
- * Implements /**
-  * Implements hook_field_extra_fields_alter().
-  */
- function elmsln_core_field_extra_fields_alter(&$info) {
+ * Implements hook_field_extra_fields_alter().
+ */
+function elmsln_core_field_extra_fields_alter(&$info) {
   // do the magic so we can use these as individual buttons;
   // this is one of the stupidest drupal conventions ever to overcome
   foreach (node_type_get_types() as $type) {
-    $info['node'][$type->type]['form']['hidden_nodes'] = array(
-      'label' => t('Hidden nodes'),
-      'description' => t('Hidden nodes'),
-      'weight' => 100,
-    );
-    $info['node'][$type->type]['form']['book'] = array(
-      'label' => t('Outline'),
-      'description' => t('Book outline configuration'),
-      'weight' => 100,
-    );
+    if (module_exists('hidden_nodes')) {
+      $info['node'][$type->type]['form']['hidden_nodes'] = array(
+        'label' => t('Hidden nodes'),
+        'description' => t('Hidden nodes'),
+        'weight' => 100,
+      );
+    }
+    if (module_exists('book')) {
+      $info['node'][$type->type]['form']['book'] = array(
+        'label' => t('Outline'),
+        'description' => t('Book outline configuration'),
+        'weight' => 100,
+      );
+    }
     $info['node'][$type->type]['form']['options'] = array(
       'label' => t('Publishing'),
       'description' => t('Additional publishing options'),
