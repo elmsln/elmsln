@@ -31,10 +31,10 @@
           <?php } else { ?>
           <lrndesign-avatar label="<?php print $course_context; ?>" class="elmsln-course-avatar" jdenticon color="grey darken-4"></lrndesign-avatar>
           <span class="course-title elmsln-course-title middle-align-wrap black-text">
-            <span class="course-title-group">
+            <div class="course-title-group">
               <span class="black-text course-title"><?php print $slogan; ?></span>
               <span class="black-text course-abrv"><?php print $site_name; ?> <span class="grey-text lighten-1 section-label"><?php if (isset($section_title)) : print $section_title; endif; ?></span></span>
-             </span>
+            </div>
           </span>
           <?php } ?>
       </section>
