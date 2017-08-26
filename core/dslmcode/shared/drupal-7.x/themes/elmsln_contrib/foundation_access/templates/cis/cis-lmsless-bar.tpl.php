@@ -29,7 +29,7 @@
             </div>
           </lrnsys-drawer>
           <?php } else { ?>
-          <div class="course-title elmsln-course-title middle-align-wrap black-text">
+          <div class="course-title elmsln-course-title middle-align-wrap">
 	          <lrndesign-avatar label="<?php print $course_context; ?>" class="elmsln-course-avatar" jdenticon color="grey darken-4"></lrndesign-avatar>
 	          <div class="course-title-group">
 	            <span class="hide-on-med-and-down course-title"><?php print $slogan; ?></span>

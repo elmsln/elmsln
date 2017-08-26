@@ -8521,6 +8521,7 @@ lrnsys-drawer app-drawer,
   margin: 0;
   padding: 0;
   display: inline-block;
+  min-width: 39px;
 }
 
 #etb-course-nav iron-dropdown .dropdown-content {
