@@ -506,6 +506,9 @@ function _cis_section_create_accounts($roster) {
         if (isset($userdata['pass'])) {
           $pass = $userdata['pass'];
         }
+        if (isset($userdata['data'])) {
+          $data = $userdata['data'];
+        }
       }
       else {
         $role_name = $userdata;
@@ -542,6 +545,10 @@ function _cis_section_create_accounts($roster) {
         // support for uniform password
         if (isset($pass)) {
           $fields['pass'] = $pass;
+        }
+        // support for data object
+        if (isset($data)) {
+          $fields['data'] = $data;
         }
         // allow other projects to update part of the user
         drupal_alter('cis_section_user_insert', $fields, $userdata);
