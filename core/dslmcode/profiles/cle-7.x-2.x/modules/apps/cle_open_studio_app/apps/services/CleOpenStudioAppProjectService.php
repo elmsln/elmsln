@@ -47,7 +47,13 @@ class CleOpenStudioAppProjectService {
     if (isset($options)) {
       if (isset($options->filter)) {
         if (isset($options->filter['author'])) {
-          $property_conditions['uid'] = array($options->filter['author'], '=');
+          // support modified operator
+          if (is_array($options->filter['author'])) {
+            $property_conditions['uid'] = array($options->filter['author'][0], $options->filter['author'][1]);
+          }
+          else {
+            $property_conditions['uid'] = array($options->filter['author'], '=');
+          }
         }
         if (isset($options->filter['project'])) {
           $property_conditions['nid'] = array($options->filter['project'], '=');
