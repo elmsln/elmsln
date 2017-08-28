@@ -120,7 +120,7 @@
           <vaadin-grid-sorter path="relationships.project.data.title">Project</vaadin-grid-sorter>
         </template>
         <template>
-          <lrnsys-button raised on-tap="_loadProjectRoute" data-project-id$="{{item.id}}" label="[[item.relationships.project.data.title]]" hover-class="amber lighten-4" icon="folder"></lrnsys-button>
+          <lrnsys-button raised on-tap="_loadProjectRoute" data-project-id$="{{relationships.project.data.id}}" data-author-id$="{{relationships.author.data.id}}" label="[[item.relationships.project.data.title]]" hover-class="amber lighten-4" icon="folder"></lrnsys-button>
         </template>
       </vaadin-grid-column>
       <vaadin-grid-column resizable>
@@ -271,6 +271,15 @@
           value: null,
           notify: true,
         },
+      },
+      _loadProjectRoute: function(e) {
+        var normalizedEvent = Polymer.dom(e);
+        var local = normalizedEvent.localTarget;
+        // this will have the id of the current submission
+        var project = local.getAttribute('data-project-id');
+        var author = local.getAttribute('data-author-id');
+        // fire event w/ parts of the route to changes
+        this.fire('route-change', {'data': {'page': 'project'}, 'queryParams': {'author': author, 'project': project}});
       },
       /**
        * Handle tap on paper-button above to redirect to the correct submission url.

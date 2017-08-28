@@ -216,11 +216,29 @@
           notify: true,
         },
       },
+      listeners: {
+        'route-change': '_routeChange',
+      },
       observers: [
         '_authorFilterChanged(queryParams.author)',
         '_projectFilterChanged(queryParams.project)',
         '_assignmentFilterChanged(queryParams.assignment)'
       ],
+      _routeChange: function(e) {
+        var details = e.detail;
+        if (typeof details.queryParams.assignment !== typeof undefined) {
+          this.set('queryParams.assignment', details.queryParams.assignment);
+        }
+        if (typeof details.queryParams.project !== typeof undefined) {
+          this.set('queryParams.project', details.queryParams.project);
+        }
+        if (typeof details.queryParams.author !== typeof undefined) {
+          this.set('queryParams.author', details.queryParams.author);
+        }
+        if (typeof details.data.page !== typeof undefined) {
+          this.set('data.page', details.data.page);
+        }
+      },
       _submissionsCompute: function (originalSubmissions, queryParams) {
         // if we don't have an original submissions object to work with then we need to bail
         if (typeof originalSubmissions === 'undefined') {
