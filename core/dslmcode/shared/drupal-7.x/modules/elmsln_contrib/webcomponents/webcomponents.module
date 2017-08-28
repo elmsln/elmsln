@@ -280,15 +280,17 @@ function _webcomponents_rebuild() {
 function _webcomponents_add_to_head($component) {
   // generate filename hash based on the size of the file
   // this is a quick and dirty way to do invalidation when it updates without local cache refreshes client side
-  $hash = filesize(DRUPAL_ROOT . '/' . $component->file);
-  $element = array(
-    '#tag' => 'link', // The #tag is the html tag
-    '#attributes' => array( // Set up an array of attributes inside the tag
-      'href' => base_path() . $component->file . '?h' . $hash,
-      'rel' => 'import',
-    ),
-  );
-  drupal_add_html_head($element, 'webcomponent-' . $component->machine_name);
+  if (file_exists(DRUPAL_ROOT . '/' . $component->file)) {
+    $hash = filesize(DRUPAL_ROOT . '/' . $component->file);
+    $element = array(
+      '#tag' => 'link', // The #tag is the html tag
+      '#attributes' => array( // Set up an array of attributes inside the tag
+        'href' => base_path() . $component->file . '?h' . $hash,
+        'rel' => 'import',
+      ),
+    );
+    drupal_add_html_head($element, 'webcomponent-' . $component->machine_name);
+  }
 }
 
 /**
