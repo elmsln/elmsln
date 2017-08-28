@@ -1497,6 +1497,7 @@ a.modal-img-link {
     display: block;
     margin: 0;
     padding: 0;
+    min-width: 200px;
     line-height: 1rem;
     text-align: right;
     color: #000;
