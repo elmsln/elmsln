@@ -279,7 +279,7 @@
         var project = local.getAttribute('data-project-id');
         var author = local.getAttribute('data-author-id');
         // fire event w/ parts of the route to changes
-        this.fire('route-change', {'data': {'page': 'project'}, 'queryParams': {'author': author, 'project': project}});
+        this.fire('route-change', {'data': {'page': 'projects'}, 'queryParams': {'author': author, 'project': project}});
       },
       /**
        * Handle tap on paper-button above to redirect to the correct submission url.
