@@ -98,7 +98,7 @@
       <paper-card class="submission-page-card">
         <div class="card-content">
             <h1 class="title">{{submission.attributes.title}}</h1>
-            <div class="author">By: {{submission.relationships.author.data.name}}</div>
+            <div class="author">By: {{submission.relationships.author.data.display_name}}</div>
             <!-- ----- Text Submission -----  -->
             <template is="dom-if" if="[[submission.attributes.body]]">
               <lrndesign-contentblock title="Text Submitted">

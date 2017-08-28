@@ -212,6 +212,9 @@ class CleOpenStudioAppCommentService {
       $encoded_comments->relationships->author->data->type = 'user';
       $encoded_comments->relationships->author->data->id = $comment->uid;
       $encoded_comments->relationships->author->data->name = $comment->name;
+      $encoded_comments->relationships->author->data->display_name = _elmsln_core_get_user_name('full', $comment->uid);
+      $encoded_comments->relationships->author->data->avatar = _elmsln_core_get_user_picture('avatar', $comment->uid);
+      $encoded_comments->relationships->author->data->sis = _elmsln_core_get_sis_user_data($comment->uid);
       // Assignment
       $encoded_comments->relationships->node = new stdClass();
       $encoded_comments->relationships->node->data = new stdClass();

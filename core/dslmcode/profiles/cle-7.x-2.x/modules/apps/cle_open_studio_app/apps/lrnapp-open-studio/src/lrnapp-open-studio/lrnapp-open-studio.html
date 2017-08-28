@@ -109,7 +109,7 @@
         <iron-list items="[[submissions]]" as="item" grid>
           <template>
           <paper-button class="gallerycard-wrapper" on-tap="_loadSubmissionUrl">
-            <lrndesign-gallerycard elevation="2" data-submission-id$="[[item.id]]" title="[[item.attributes.title]]" author="[[item.relationships.author.data.display_name]]" comments="[[item.meta.comment_count]]" image="[[item.display.image]]" icon="[[item.display.icon]]" date="[[item.meta.humandate]]" author-avatar="[[item.relationships.author.data.sis.avatar_url]]" class="ferpa-protect">
+            <lrndesign-gallerycard elevation="2" data-submission-id$="[[item.id]]" title="[[item.attributes.title]]" author="[[item.relationships.author.data]]" comments="[[item.meta.comment_count]]" image="[[item.display.image]]" icon="[[item.display.icon]]" date="[[item.meta.humandate]]" class="ferpa-protect">
             </lrndesign-gallerycard>
           </paper-button>
           </template>
