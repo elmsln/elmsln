@@ -220,10 +220,27 @@
         'route-change': '_routeChange',
       },
       observers: [
+        '_routeChanged(route, endPoint)',
         '_authorFilterChanged(queryParams.author)',
         '_projectFilterChanged(queryParams.project)',
         '_assignmentFilterChanged(queryParams.assignment)'
       ],
+      // If the current route is outside the scope of our app
+      // then allow the website to break out of the single page
+      // application routing
+      _routeChanged: function(route, endPoint) {
+        if (typeof route.path === 'string') {
+          if (typeof endPoint === 'string') {
+            if (route.path.startsWith(endPoint)) {
+              return;
+            }
+          }
+          window.location = route.path;
+        }
+      },
+      /**
+       * Change route from deeper in the app.
+       */
       _routeChange: function(e) {
         var details = e.detail;
         if (typeof details.queryParams.assignment !== typeof undefined) {
