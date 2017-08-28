@@ -8419,6 +8419,9 @@ lrnsys-drawer lrn-icon.lrnsys-drawer {
 lrnsys-drawer .drawer-contents {
   overflow: auto;
 }
+.form-actions lrnsys-button {
+  display: inline-block;
+}
 
 #etb-course-nav paper-button {
   padding: 0;
