@@ -153,6 +153,13 @@
         max-width: 70em;
         margin: auto;
       }
+
+      paper-dialog {
+        width: 50%;
+        width: 50vmax;
+        padding: 1em;
+        z-index: 99999;
+      }
     </style>
 
     <app-route route="{{route}}" pattern="/edit" tail="{{tail}}" active="{{editPage}}">
@@ -200,12 +207,32 @@
         <iron-pages selected="[[selectedPage]]">
           <lrnapp-studio-submission-display submission="{{submission}}"></lrnapp-studio-submission-display>
           <lrnapp-studio-submission-edit submission="{{submission}}"></lrnapp-studio-submission-edit>
-          <lrnapp-studio-submission-critique submission="{{submission}}"></lrnapp-studio-submission-critique>
+          <lrnapp-studio-submission-critique submission="{{submission}}" edit="[[editPage]]"></lrnapp-studio-submission-critique>
         </iron-pages>
       </div>
     </template>
 
     <elmsln-loading></elmsln-loading>
+
+
+    <paper-dialog id="deletedialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation" with-backdrop>
+        <h2>Delete feedback?</h2>
+        <p>Are you sure you want to delete feedback?</p>
+        <div class="buttons">
+          <paper-button dialog-dismiss>Cancel</paper-button>
+          <paper-button dialog-confirm on-click="_submissionDeleteConfirmed">Delete</paper-button>
+        </div>
+      </paper-dialog>
+      <paper-dialog id="publishdialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation" with-backdrop>
+        <h2>Ready to publish?</h2>
+        <p>By publishing, the author of this submission will be able to view your feedback.  Are you ready to publish?</p>
+        <div class="buttons">
+          <paper-button dialog-dismiss>Cancel</paper-button>
+          <paper-button dialog-confirm on-click="_submissionPublishConfirmed">Yes Publish</paper-button>
+        </div>
+      </paper-dialog>
+
+    <paper-toast id="toast"></paper-toast>
   </template>
   <script>
     Polymer({
@@ -335,10 +362,16 @@
         this.$$('#ajaxUpdateRequest').generateRequest();
       },
       _submissionPublishClicked: function (e) {
+        this.$$('#publishdialog').open();
+      },
+      _submissionPublishConfirmed: function (e) {
         this.saving = true;
         this.$$('#ajaxUpdateRequest').generateRequest();
       },
       _submissionDeleteClicked: function (e) {
+        this.$$('#deletedialog').open();
+      },
+      _submissionDeleteConfirmed: function (e) {
         this.saving = true;
         this.$.ajaxDeleteRequest.generateRequest();
       },
@@ -351,6 +384,10 @@
           root.set('submission', {});
           root.set('submission', submission);
           root.set('route.path', '');
+          // display a submission published notification
+          if (submission.attributes.state === 'submission_ready') {
+            this.$.toast.show('Published!');
+          }
         }
       },
       _handleDeleteResponse: function (res) {

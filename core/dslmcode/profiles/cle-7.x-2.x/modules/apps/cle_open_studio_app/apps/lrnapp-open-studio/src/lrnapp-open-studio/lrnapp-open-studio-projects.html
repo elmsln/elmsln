@@ -40,10 +40,10 @@
         word-wrap: break-word;
       }
     </style>
-    <template is="dom-if" if="[[!_projectSelected(activeProjectId,activeAuthorId)]]">
+    <template is="dom-if" if="[[!showSubmissions]]">
       <h1 class="empty-title black-text">Please select an Author and Project in order to review their portfolio</h1>
     </template>
-    <template is="dom-if" if="[[_projectSelected(activeProjectId,activeAuthorId)]]">
+    <template is="dom-if" if="[[showSubmissions]]">
       <h1 class="project-title black-text">[[activeProject.attributes.title]]</h1>
       <div class="project-steps">
         <template is="dom-repeat" items="[[activeProject.attributes.steps]]" as="assignment">
@@ -51,7 +51,7 @@
         </template>
       </div>
       <template is="dom-repeat" items="[[renderSubmissions]]" as="submission">
-        <a name="[[[submission.relationships.assignment.data.title]]" class$="assignment-[[submission.relationships.assignment.data.id]]"><h2 class="assignment-title">[[submission.relationships.assignment.data.title]]</h2></a>
+        <a name="[[submission.relationships.assignment.title]]" class$="assignment-[[submission.relationships.assignment.id]]"><h2 class="assignment-title">[[submission.relationships.assignment.title]]</h2></a>
         <lrnapp-studio-submission-display submission="[[submission]]" class="ferpa-protect"></lrnapp-studio-submission-display>
       </template>
     </template>
@@ -73,8 +73,7 @@
          */
         submissions: {
           type: Array,
-          notify: true,
-          observer: '_submissionsChanged',
+          notify: true
         },
         /**
          * The renderSubmissions we kick to the screen
@@ -82,13 +81,7 @@
         renderSubmissions: {
           type: Array,
           notify: true,
-        },
-        /**
-         * The assignments that exist so we can make other calls for data
-         */
-        assignments: {
-          type: Array,
-          notify: true,
+          computed: '_renderSubmissionsCompute(submissions, activeProject, activeAuthorId)'
         },
         activeProjectId: {
           type: String,
@@ -97,13 +90,17 @@
         },
         activeProject: {
           type: Object,
-          value: null,
-          notify: true,
+          computed: '_activeProjectCompute(activeProjectId, projects)'
         },
         activeAuthorId: {
           type: String,
           reflectToAttribute: true,
           value: null,
+        },
+        showSubmissions: {
+          type: Boolean,
+          computed: '_showSubmissions(activeProjectId, activeAuthorId)',
+          value: false
         },
         /**
          * Endpoint for submission data.
@@ -120,9 +117,53 @@
           notify: true,
         }
       },
+      _renderSubmissionsCompute: function (submissions, activeProject, activeAuthorId) {
+        // if we don't have all three variables then we need to bail and set to null
+        if (!submissions || !activeProject || !activeAuthorId) {
+          return null;
+        }
+        let renderSubmissions = [];
+        // make an array of parent assignment ids
+        const parentAssignments = activeProject.attributes.steps.map(step => step.id);
+        // filter the submissions by if they are listed in the active projects steps
+        renderSubmissions = submissions.filter(submission => {
+          return parentAssignments.includes(submission.relationships.assignment.id);
+        });
+        // sort render submissions by how the assignment steps are listed in the active project
+        renderSubmissions.sort(
+          function(a, b)
+          {
+            for (index = 0; index < activeProject.attributes.steps.length; index++) {
+              if (activeProject.attributes.steps[index].id == a.relationships.assignment.id) {
+                return -1;
+              }
+              if (activeProject.attributes.steps[index].id == b.relationships.assignment.id) {
+                return 1;
+              }
+            }
+            return 0;
+          }
+        );
+        return renderSubmissions;
+      },
+      _activeProjectCompute: function (activeProjectId, projects) {
+        let activeProject = null;
+        if (projects) {
+          activeProject = projects.find(project => {
+            return project.id === activeProjectId;
+          });
+        }
+        return activeProject;
+      },
+      _showSubmissions: function (activeProjectId, activeAuthorId) {
+        if (activeProjectId && activeAuthorId) {
+          return true;
+        }
+        return false;
+      },
       _getSubmissionIcon: function(id) {
         for (var index = 0; index < this.renderSubmissions.length; index++) {
-          if (this.renderSubmissions[index].relationships.assignment.data.id == id) {
+          if (this.renderSubmissions[index].relationships.assignment.id == id) {
             return 'check';
           }
         }
@@ -130,7 +171,7 @@
       },
       _getSubmissionClass: function(id) {
         for (var index = 0; index < this.renderSubmissions.length; index++) {
-          if (this.renderSubmissions[index].relationships.assignment.data.id == id) {
+          if (this.renderSubmissions[index].relationships.assignment.id == id) {
             return 'green-text text-darken-2';
           }
         }
@@ -141,50 +182,7 @@
         var local = normalizedEvent.localTarget;
         // this will have the id of the current submission
         var active = local.getAttribute('data-assignment-id');
-        console.log(local);
-        console.log(active);
         this.$$('.assignment-' + active).scrollIntoView({block: "end", behavior: "smooth"});
-      },
-      _submissionsChanged: function(e) {
-        if (this.activeProjectId) {
-          // set this to window since it's a global of sorts
-          window.projectSteps = this.activeProject.attributes.steps;
-          // sort by the order the assignments are presented in for the project
-          this.submissions.sort(
-            function(a, b)
-            {
-              for (var index = 0; index < window.projectSteps.length; index++) {
-                if (window.projectSteps[index].id == a.relationships.assignment.data.id) {
-                  return -1;
-                }
-                if (window.projectSteps[index].id == b.relationships.assignment.data.id) {
-                  return 1;
-                }
-              }
-              return 0;
-            }
-          );
-          this.set('renderSubmissions', this.submissions);
-        }
-      },
-      /**
-       * Make sure we have a project / author before we render or else it'll blow up
-       */
-      _projectSelected: function(project, author) {
-        if (project != null && author != null) {
-          for (var index = 0; index < this.projects.length; index++) {
-            if (this.projects[index].id == this.activeProjectId) {
-              this.set('activeProject', [null]);
-              this.set('activeProject', this.projects[index]);
-            }
-          }
-          this.set('renderSubmissions', this.submissions);
-          return true;
-        }
-        else {
-          this.set('renderSubmissions', []);
-          return false;
-        }
       },
       /**
        * Handle response for the whole projects object.

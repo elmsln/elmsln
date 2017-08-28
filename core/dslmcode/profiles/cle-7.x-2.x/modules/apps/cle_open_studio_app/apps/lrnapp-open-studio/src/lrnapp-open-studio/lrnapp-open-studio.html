@@ -53,12 +53,13 @@
       last-response="{{studioResponse}}"
       on-response="_handleResponse"></iron-ajax>
 
-    <app-location route="{{route}}"></app-location>
+    <app-location route="{{route}}" query-params="{{queryParams}}"></app-location>
     <app-route
         route="{{route}}"
         pattern="[[endPoint]]/:page"
         data="{{data}}"
-        tail="{{tail}}">
+        tail="{{tail}}"
+        query-params="{{queryParams}}">
     </app-route>
 
     <div id="loading">
@@ -66,41 +67,41 @@
       <elmsln-loading color="grey-text" size="large"></elmsln-loading>
     </div>
     <app-toolbar class="amber lighten-3">
-      <iron-selector selected="{{page}}" attr-for-selected="name" role="navigation">
-        <a tabindex="-1" name="submissions" href$="[[endPoint]]/submissions"><lrnsys-button icon="apps" label="Submissions" hover-class="amber darken-4 white-text" class="display-mode"></lrnsys-button></a>
-        <a tabindex="-1" name="projects" href$="[[endPoint]]/projects"><lrnsys-button icon="folder" label="Projects" hover-class="amber darken-4 white-text" class="display-mode"></lrnsys-button></a>
-        <a tabindex="-1" name="table" href$="[[endPoint]]/table"><lrnsys-button icon="view-list" label="Table" hover-class="amber darken-4 white-text" class="display-mode"></lrnsys-button></a>
+      <iron-selector selected="{{data.page}}" attr-for-selected="name" role="navigation">
+        <a tabindex="-1" name="submissions" on-tap="_submissionsClicked"><lrnsys-button icon="apps" label="Submissions" hover-class="amber darken-4 white-text" class="display-mode"></lrnsys-button></a>
+        <a tabindex="-1" name="projects" on-tap="_projectsClicked"><lrnsys-button icon="folder" label="Projects" hover-class="amber darken-4 white-text" class="display-mode"></lrnsys-button></a>
+        <a tabindex="-1" name="table" on-tap="_tableClicked"><lrnsys-button icon="view-list" label="Table" hover-class="amber darken-4 white-text" class="display-mode"></lrnsys-button></a>
       </iron-selector>
       <span main-title></span>
       <span top-item style="text-align:right;font-size:.5em;padding-right:1em;">Displaying [[submissions.length]] of [[originalSubmissions.length]]</span>
-      <paper-dropdown-menu label="Author" hidden$="[[!authors]]" on-iron-select="_setAuthorFilter">
-        <paper-listbox class="dropdown-content" selected="{{_selectedAuthor}}">
+      <paper-dropdown-menu label="Author" hidden$="[[!authors]]">
+        <paper-listbox class="dropdown-content" selected="{{queryParams.author}}" attr-for-selected="item-id">
           <paper-item></paper-item>
           <template is="dom-repeat" items="[[_toArray(authors)]]" as="author">
-          <paper-item data-item-id$="[[author.id]]">[[author.display_name]]</paper-item>
+          <paper-item item-id="[[author.id]]">[[author.display_name]]</paper-item>
           </template>
         </paper-listbox>
       </paper-dropdown-menu>
-      <paper-dropdown-menu label="Project" hidden$="[[!projects]]" on-iron-select="_setProjectFilter">
-        <paper-listbox class="dropdown-content" selected="{{_selectedProject}}">
+      <paper-dropdown-menu label="Project" hidden$="[[!projects]]">
+        <paper-listbox class="dropdown-content" selected="{{queryParams.project}}" attr-for-selected="item-id">
           <paper-item></paper-item>
         <template is="dom-repeat" items="[[_toArray(projects)]]" as="project">
-          <paper-item data-item-id$="[[project.id]]">[[project.attributes.title]]</paper-item>
+          <paper-item item-id="[[project.id]]">[[project.attributes.title]]</paper-item>
         </template>
         </paper-listbox>
       </paper-dropdown-menu>
-      <paper-dropdown-menu label="Assignment" hidden$="[[!assignments]]" on-iron-select="_setAssignmentFilter">
-        <paper-listbox class="dropdown-content" selected="{{_selectedAssignment}}">
+      <paper-dropdown-menu label="Assignment" hidden$="[[!assignments]]">
+        <paper-listbox class="dropdown-content" selected="{{queryParams.assignment}}" attr-for-selected="item-id">
           <paper-item></paper-item>
         <template is="dom-repeat" items="[[_toArray(assignments)]]" as="assignment">
-          <paper-item data-item-id$="[[assignment.id]]">[[assignment.title]]</paper-item>
+          <paper-item item-id="[[assignment.id]]">[[assignment.attributes.title]]</paper-item>
         </template>
         </paper-listbox>
       </paper-dropdown-menu>
     </app-toolbar>
     <div class="gallery-grid">
     <iron-pages
-      selected="{{page}}"
+      selected="{{data.page}}"
       attr-for-selected="name"
       fallback-selection="submissions"
       role="main">
@@ -114,7 +115,7 @@
           </template>
         </iron-list>
       </div>
-      <lrnapp-open-studio-projects name="projects" base-path="[[basePath]]" projects="[[projects]]" submissions="[[submissions]]" assignments="[[assignments]]" active-author-id="[[authorFilter]]" active-project-id="[[projectFilter]]"></lrnapp-open-studio-projects>
+      <lrnapp-open-studio-projects name="projects" base-path="[[basePath]]" projects="[[projects]]" submissions="[[submissions]]" assignments="[[assignments]]" active-author-id="[[queryParams.author]]" active-project-id="[[queryParams.project]]"></lrnapp-open-studio-projects>
       <lrnapp-open-studio-table name="table" base-path="[[basePath]]" submissions="{{submissions}}"></lrnapp-open-studio-table>
     </iron-pages>
     </div>
@@ -124,15 +125,6 @@
     Polymer({
       is: 'lrnapp-open-studio',
       properties: {
-        /**
-         * Tracking what the current page.
-         */
-        page: {
-          type: String,
-          reflectToAttribute: true,
-          notify: true,
-          observer: '_routePageChanged',
-        },
         /**
          * The studioResponse from server
          */
@@ -146,6 +138,7 @@
         submissions: {
           type: Object,
           notify: true,
+          computed: '_submissionsCompute(originalSubmissions, queryParams)'
         },
         /**
          * The original submissions array; used to filter against
@@ -223,90 +216,55 @@
           notify: true,
         },
       },
-      _setProjectFilter: function (e) {
-        if (this._selectedProject != -1) {
-          this.projectFilter = e.target.selectedItem.getAttribute('data-item-id');
-          // when picking a project we have to undo assignment
-          if (this._selectedProject != 0) {
-            this.assignmentFilter = null;
-            this._selectedAssignment = -1;
-          }
-          this._applyFilters();
+      observers: [
+        '_authorFilterChanged(queryParams.author)',
+        '_projectFilterChanged(queryParams.project)',
+        '_assignmentFilterChanged(queryParams.assignment)'
+      ],
+      _submissionsCompute: function (originalSubmissions, queryParams) {
+        // if we don't have an original submissions object to work with then we need to bail
+        if (typeof originalSubmissions === 'undefined') {
+          return [];
         }
-        else {
-          this._selectedProject = 0;
-        }
-      },
-      _setAuthorFilter: function (e) {
-        this.authorFilter = e.target.selectedItem.getAttribute('data-item-id');
-        this._applyFilters();
-      },
-      _setAssignmentFilter: function (e) {
-        if (this._selectedAssignment != -1) {
-          this.assignmentFilter = e.target.selectedItem.getAttribute('data-item-id');
-          // when picking an assignment we have to undo project
-          if (this._selectedAssignment != 0) {
-            this.projectFilter = null;
-            this._selectedProject = -1;
-          }
-          this._applyFilters();
-        }
-        else {
-          this._selectedAssignment = 0;
-        }
-      },
-      _applyFilters: function () {
-        var submissions = [];
-        // this is effectively resetting the filters
-        if (typeof this.projectFilter == typeof null && typeof this.authorFilter == typeof null && typeof this.assignmentFilter == typeof null) {
-          submissions = this.originalSubmissions;
-        }
-        else {
-          // we have a filter, let's see if it's applying one or both
-          for (var index = 0; index < this.originalSubmissions.length; index++) {
-            // check user and project filters so we can utilize the two together only if they are set
-            if (typeof this.projectFilter != typeof null && typeof this.authorFilter != typeof null) {
-              // only add if both exist otherwise we'll skip it all
-              if (this.originalSubmissions[index].relationships.project.data.id == this.projectFilter && this.originalSubmissions[index].relationships.author.data.id == this.authorFilter) {
-                submissions.push(this.originalSubmissions[index]);
-              }
-            }
-            else if (typeof this.assignmentFilter != typeof null && typeof this.authorFilter != typeof null) {
-              // only add if both exist otherwise we'll skip it all
-              if (this.originalSubmissions[index].relationships.assignment.data.id == this.assignmentFilter && this.originalSubmissions[index].relationships.author.data.id == this.authorFilter) {
-                submissions.push(this.originalSubmissions[index]);
-              }
-            }
-            // only filter by project
-            else if (typeof this.projectFilter != typeof null && this.originalSubmissions[index].relationships.project.data.id == this.projectFilter) {
-              submissions.push(this.originalSubmissions[index]);
-            }
-            // only filter by assignment
-            else if (typeof this.assignmentFilter != typeof null && this.originalSubmissions[index].relationships.assignment.data.id == this.assignmentFilter) {
-              submissions.push(this.originalSubmissions[index]);
-            }
-            // only filter by author
-            else if (typeof this.authorFilter != typeof null && this.originalSubmissions[index].relationships.author.data.id == this.authorFilter) {
-              submissions.push(this.originalSubmissions[index]);
+        // define vars
+        const root = this;
+        let filteredSubmissions = [];
+        // filter the submissions by the query params
+        filteredSubmissions = originalSubmissions.filter(submission => {
+          if (typeof root.queryParams.author !== 'undefined') {
+            if (submission.relationships.author.data.id !== root.queryParams.author) {
+              return false;
             }
           }
-        }
-        this.set('submissions', []);
-        this.set('submissions', submissions);
+          if (typeof root.queryParams.project !== 'undefined') {
+            if (submission.relationships.project.data.id !== root.queryParams.project) {
+              return false;
+            }
+          }
+          if (typeof root.queryParams.assignment !== 'undefined') {
+            if (submission.relationships.assignment.id !== root.queryParams.assignment) {
+              return false;
+            }
+          }
+          return true;
+        });
+        return filteredSubmissions;
       },
-      /**
-       * default us to the submission centric board if nothing exists
-       */
-      _routePageChanged(page) {
-        // Polymer 2.0 will call with `undefined` on initialization.
-        // Ignore until we are properly called with a string.
-        if (page === undefined) {
-          return;
+      _authorFilterChanged: function (author, old) {
+      },
+      _projectFilterChanged: function (project, old) {
+        // if we have a project then we need to uncheck
+        // assignment
+        if (typeof project !== 'undefined') {
+          this.set('queryParams.assignment', undefined);
         }
-
-        // If no page was found in the route data, page will be an empty string.
-        // Deault page
-        this.page = page || 'submissions';
+      },
+      _assignmentFilterChanged: function (assignment, old) {
+        // if we have a assignment then we need to uncheck
+        // project
+        if (typeof assignment !== 'undefined') {
+          this.set('queryParams.project', undefined);
+        }
       },
       /**
        * Handle tap on paper-button above to redirect to the correct submission url.
@@ -340,13 +298,12 @@
         this.set('projects', projects);
         // original = active off the bat then we apply filters later to chang this
         this.set('originalSubmissions', submissions);
-        this.set('submissions', submissions);
         // figure out authors and assignments
         for (var index = 0; index < submissions.length; index++) {
           author = submissions[index].relationships.author.data;
           tmp.authors[author.id] = author;
           project = submissions[index].relationships.project.data;
-          assignment = submissions[index].relationships.assignment.data;
+          assignment = submissions[index].relationships.assignment;
           tmp.assignments[assignment.id] = assignment;
           tmp.assignments[assignment.id].project = project.id;
         }
@@ -362,6 +319,15 @@
         this.set('assignments', assignments);
         this.set('authors', authors);
       },
+      _submissionsClicked: function (e) {
+        this.set('route.path', this.endPoint + '/submissions');
+      },
+      _projectsClicked: function (e) {
+        this.set('route.path', this.endPoint + '/projects');
+      },
+      _tableClicked: function (e) {
+        this.set('route.path', this.endPoint + '/projects');
+      },
       /**
        * Simple way to convert from object to array.
        */
@@ -369,7 +335,7 @@
         return Object.keys(obj).map(function(key) {
           return obj[key];
         });
-      },
+      }
     });
   </script>
 </dom-module>

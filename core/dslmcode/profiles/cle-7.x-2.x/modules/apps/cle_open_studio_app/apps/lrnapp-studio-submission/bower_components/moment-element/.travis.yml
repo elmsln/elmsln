@@ -1,0 +1,22 @@
+sudo: required
+dist: trusty
+language: node_js
+node_js:
+  - '6'
+addons:
+  firefox: '46.0'
+  apt:
+    sources:
+    - google-chrome
+    packages:
+    - google-chrome-stable
+cache:
+  directories:
+    - node_modules
+install:
+  - npm install -g web-component-tester
+  - npm install -g bower
+  - npm install -g eslint eslint-plugin-html eslint-config-ibmresearch
+  - bower install
+script:
+  - xvfb-run wct

@@ -208,7 +208,6 @@ class CleOpenStudioAppAssignmentService {
     return FALSE;
   }
 
-
   /**
    * Prepare a list of assignments to be outputed in json
    *
@@ -249,6 +248,7 @@ class CleOpenStudioAppAssignmentService {
       $encoded_assignment->attributes = new stdClass();
       $encoded_assignment->attributes->title = $assignment->title;
       $encoded_assignment->attributes->body = $assignment->field_assignment_description[LANGUAGE_NONE][0]['safe_value'];
+      $encoded_assignment->attributes->critiqueOutline = $assignment->field_critique_outline[LANGUAGE_NONE][0]['safe_value'];
       // Meta Info
       $encoded_assignment->meta = new stdClass();
       $encoded_assignment->meta->created = Date('c', $assignment->created);
@@ -325,13 +325,13 @@ class CleOpenStudioAppAssignmentService {
       if (isset($assignment->field_assignment_dependencies[LANGUAGE_NONE][0])) {
         // loop through dependencies and check if they have been met
         foreach ($assignment->field_assignment_dependencies[LANGUAGE_NONE] as $item) {
-          $assignment = node_load($item['target_id']);
-          $tmp = _cle_submission_submission_status($assignment);
+          $assignment_dependency = node_load($item['target_id']);
+          $tmp = _cle_submission_submission_status($assignment_dependency);
           if (empty($tmp['complete']['submissions'])) {
             $submissionActive = 0;
             $rationale['text'] = t('This assignment won\'t open until dependencies have been met.');
             $rationale['code'] = 'dependencies-unmet';
-            $rationale['data'][] = $assignment->nid;
+            $rationale['data'][] = $assignment_dependency->nid;
           }
         }
       }

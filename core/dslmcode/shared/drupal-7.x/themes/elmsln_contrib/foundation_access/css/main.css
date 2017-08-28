@@ -2956,8 +2956,6 @@ code {
 ul,
 ol,
 dl {
-  font-size: 1.2rem;
-  line-height: 2.5rem;
   list-style-position: outside;
   margin-bottom: 1.5rem; }
 
@@ -7291,8 +7289,6 @@ form.node-form div.field-group-htabs-wrapper fieldset.field-group-htab {
 }
 
 article,
-article p,
-article div,
 article h1,
 article h2,
 article h3,

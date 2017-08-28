@@ -22,6 +22,7 @@
       }
 
       lrndesign-contentblock {
+        display: block;
         margin: .5em;
       }
 
@@ -83,24 +84,13 @@
         padding: 0 1em;
       }
 
-      .submission-page {
-        width: 70vw;
-      }
       .submission-page-card {
         width: 100%;
         margin: 0;
-        padding: 0 0 2em 1em;
       }
 
       :host[edit-page] .submission-page {
         width: 100%;
-      }
-
-      .submission-comments {
-        width: 30vw;
-        overflow-y: visible;
-        padding: 0;
-        margin: 0;
       }
     </style>
 
@@ -119,7 +109,7 @@
             <template is="dom-if" if="[[submission.attributes.images]]">
               <lrndesign-contentblock class="center" title="Images Submitted">
                 <template is="dom-repeat" items="[[_toArray(submission.attributes.images)]]" as="image">
-                  <lrnsys-dialog alt="View Image">
+                  <lrnsys-dialog alt="View Image" body-append>
                     <span slot="button">
                       <iron-image sizing="contain" class="contain" src="[[image.url]]"></iron-image>
                     </span>
