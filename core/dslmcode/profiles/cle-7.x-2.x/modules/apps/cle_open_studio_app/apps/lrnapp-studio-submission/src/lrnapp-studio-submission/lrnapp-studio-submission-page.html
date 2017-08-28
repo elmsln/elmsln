@@ -167,7 +167,12 @@
       handle-as="json" on-response="_handleDeleteResponse"></iron-ajax>
 
     <app-toolbar class="amber lighten-3">
-      <lrnsys-button on-tap="_backToStudio" icon="arrow-back" label="Back to studio" hover-class="amber darken-4 white-text"></lrnsys-button>
+      <template is="dom-if" if="[[showComments]]">
+        <lrnsys-button on-tap="_backToStudio" icon="arrow-back" label="See in studio" hover-class="amber darken-4 white-text"></lrnsys-button>
+      </template>
+      <template is="dom-if" if="[[!showComments]]">
+        <lrnsys-button on-tap="_backToKanban" icon="arrow-back" label="Back to project management" hover-class="amber darken-4 white-text"></lrnsys-button>
+      </template>
       <div spacer main-title>[[submission.attributes.title]]</div>
       <div spacer class="comment-box">
         <paper-button id="comment-count" style="margin:0;padding:.25em;text-transform:none;">
@@ -274,6 +279,12 @@
        */
       _backToStudio: function (e) {
         window.location.href = this.basePath + 'lrnapp-open-studio';
+      },
+      /**
+       * Go back to the studio relative to the app's path.
+       */
+      _backToKanban: function (e) {
+        window.location.href = this.basePath + 'lrnapp-studio-kanban';
       },
       /**
        * Trigger the page router to invoke edit state.
