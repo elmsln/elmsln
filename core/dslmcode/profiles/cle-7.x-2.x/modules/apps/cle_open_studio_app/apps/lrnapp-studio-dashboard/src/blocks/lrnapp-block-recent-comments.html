@@ -18,7 +18,7 @@
        last-response="{{response}}"
        on-response="handleResponse"></iron-ajax>
     <template is="dom-repeat" items="[[_toArray(response.data)]]" as="comment">
-      <lrnapp-block-recent-comments-comment comment-user="{{comment.relationships.author.data.name}}" comment-title="{{comment.attributes.subject}}" action-view="{{_getViewLink(comment.relationships.node.data.id)}}" date-updated="{{comment.attributes.changed}}" class="ferpa-protect">
+      <lrnapp-block-recent-comments-comment comment-user="{{comment.relationships.author.data}}" comment-title="{{comment.attributes.subject}}" action-view="{{_getViewLink(comment.relationships.node.data.id)}}" date-updated="{{comment.attributes.changed}}" class="ferpa-protect">
         {{comment.attributes.body}}
       </lrnapp-block-recent-comments-comment>
     </template>
