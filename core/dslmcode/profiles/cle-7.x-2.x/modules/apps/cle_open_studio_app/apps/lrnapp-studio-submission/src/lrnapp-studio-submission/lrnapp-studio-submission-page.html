@@ -1,6 +1,4 @@
-<link rel="import" href="lrnapp-studio-submission-display.html">
-<link rel="import" href="lrnapp-studio-submission-edit.html">
-<link rel="import" href="lrnapp-studio-submission-critique.html">
+<link rel="import" href="lrnapp-studio-submission-object.html">
 <link rel="import" href="lrnapp-studio-submission-comments.html">
 <link rel="import" href="lrnapp-studio-submission-comment.html">
 <link rel="import" href="../../bower_components/lrnsys-comment/lrnsys-comment-list.html">
@@ -115,10 +113,6 @@
         margin: 0;
       }
 
-      lrnapp-studio-submission-edit {
-        width: 100%;
-      }
-
       elmsln-loading {
         position: absolute;
         display: none;
@@ -149,16 +143,15 @@
         width: 100%;
       }
 
-      lrnapp-studio-submission-edit {
-        max-width: 70em;
-        margin: auto;
-      }
-
       paper-dialog {
         width: 50%;
         width: 50vmax;
         padding: 1em;
         z-index: 99999;
+      }
+
+      lrnapp-studio-submission-object {
+        width: 100%;
       }
     </style>
 
@@ -196,21 +189,14 @@
       </div>
     </app-toolbar>
 
-    <template is="dom-if" if="[[submission]]">
-      <div class="flex-wrap submission-page-wrapper">
-        <template is="dom-if" if="[[showComments]]">
-          <div class="submission-comments">
-            <lrnsys-comment-list comment-ops-base="{{commentOpsBase}}" csrf-token="[[csrfToken]]" source-path="{{commentsUrl}}" create-stub-url="{{createStubUrl}}"></lrnsys-comment-list>
-          </div>
-        </template>
-
-        <iron-pages selected="[[selectedPage]]">
-          <lrnapp-studio-submission-display submission="{{submission}}"></lrnapp-studio-submission-display>
-          <lrnapp-studio-submission-edit submission="{{submission}}"></lrnapp-studio-submission-edit>
-          <lrnapp-studio-submission-critique submission="{{submission}}" edit="[[editPage]]"></lrnapp-studio-submission-critique>
-        </iron-pages>
-      </div>
-    </template>
+    <div class="flex-wrap submission-page-wrapper">
+      <template is="dom-if" if="[[showComments]]">
+        <div class="submission-comments">
+          <lrnsys-comment-list comment-ops-base="{{commentOpsBase}}" csrf-token="[[csrfToken]]" source-path="{{commentsUrl}}" create-stub-url="{{createStubUrl}}"></lrnsys-comment-list>
+        </div>
+      </template>
+      <lrnapp-studio-submission-object submission="{{submission}}" edit="[[editPage]]"></lrnapp-studio-submission-object>
+    </div>
 
     <elmsln-loading></elmsln-loading>
 
@@ -281,10 +267,6 @@
           notify: true,
           reflectToAttribute: true
         },
-        selectedPage: {
-          type: Number,
-          value: 0
-        },
         showComments: {
           type: Boolean,
           computed: '_computeShowComments(submission, editPage)'
@@ -294,7 +276,6 @@
         '_urlVarsChanged(id, endPoint)',
         '_paramsChanged(csrfToken)',
         '_bodyChanged(title)',
-        '_selectedPageChanged(editPage, submission.meta.submissionType)'
       ],
       listeners: {
         'submissionDeleteClicked': '_submissionDeleteClicked',
@@ -403,30 +384,6 @@
         if (status === 200) {
           window.location.href = this.basePath + 'lrnapp-studio-kanban?deletetoast';
         }
-      },
-      _selectedPageChanged: function (editPage, type) {
-        var selected = 0;
-        if (editPage) {
-          switch (type) {
-            case 'default':
-              selected = 1;
-              break;
-            case 'critique':
-              selected = 2;
-              break;
-          }
-        }
-        else {
-          switch (type) {
-            case 'default':
-              selected = 0;
-              break;
-            case 'critique':
-              selected = 2;
-              break;
-          }
-        }
-        this.set('selectedPage', selected);
       },
       _computeShowComments: function (submission, editPage) {
         try {
