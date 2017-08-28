@@ -556,10 +556,28 @@ function _cis_section_create_accounts($roster) {
         $account = user_save('', $fields);
       }
       else {
-        // only save role if it is new
+        // support updating this info after the fact
+        $fields = array();
+        // support mail being set during roster sync too
+        if (isset($mail) && $account->mail != $mail) {
+          $fields['mail'] = $mail;
+        }
+        // support for uniform password
+        if (isset($pass) && $account->pass != $pass) {
+          $fields['pass'] = $pass;
+        }
+        // support for data object
+        if (isset($data) && $account->data != $data) {
+          $fields['data'] = $data;
+        }
+        // save role if it is new
         if (!isset($account->roles[$role->rid])) {
           $account->roles[$role->rid] = $role->name;
-          user_save($account);
+          user_save($account, $fields);
+        }
+        // save if we have fields to change
+        elseif (!empty($fields)) {
+          user_save($account, $fields);
         }
       }
       // load group by section
