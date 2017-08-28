@@ -377,7 +377,7 @@
       _computeShowComments: function (submission, editPage) {
         try {
           var type = submission.meta.submissionType;
-          if (type !== 'critique' && !editPage) {
+          if (type !== 'critique' && !editPage && submission.attributes.state == 'submission_ready') {
             return true;
           }
         } catch (error) {
