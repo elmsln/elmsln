@@ -418,8 +418,8 @@ function cle_submission_node_presave($node) {
     }
 
     // figure out submission type
-    $assignment = entity_load_single('node', $node->field_assignment[LANGUAGE_NONE][0]['target_id']);
-    $assignment_emw = entity_metadata_wrapper('node', $assignment);
+    //$assignment = entity_load_single('node', $node->field_assignment[LANGUAGE_NONE][0]['target_id']);
+    //$assignment_emw = entity_metadata_wrapper('node', $assignment);
     // Figure out critique method
     $return = 'default';
     /*if ($assignment_emw) {
