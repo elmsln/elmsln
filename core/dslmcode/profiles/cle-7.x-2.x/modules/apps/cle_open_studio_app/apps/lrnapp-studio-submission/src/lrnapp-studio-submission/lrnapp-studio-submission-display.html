@@ -9,6 +9,7 @@
         font-size: 14px;
         line-height: 18px;
       }
+
       h1 {
         margin: 0;
         text-align: left;
@@ -17,6 +18,7 @@
       iron-selector {
         line-height: 1em;
       }
+
       iron-selector lrnsys-button {
         display: inline-flex;
       }
@@ -89,61 +91,83 @@
         margin: 0;
       }
 
-      :host[edit-page] .submission-page {
+       :host[edit-page] .submission-page {
         width: 100%;
+      }
+
+      .assignment {
+        border: 2px dashed #444;
+        padding: 1em;
+      }
+
+      .assignment h1 {
+        font-size: 1.2em;
+        color: #555;
+      }
+
+      #assignment-body {
+        font-size: .8em;
+        color: #888;
       }
     </style>
 
     <div class="submission-page">
       <paper-card class="submission-page-card ferpa-protect">
         <div class="card-content">
-            <h1 class="title">{{submission.attributes.title}}</h1>
-            <div class="author">By: {{submission.relationships.author.data.display_name}}</div>
-            <!-- ----- Text Submission -----  -->
-            <template is="dom-if" if="[[submission.attributes.body]]">
-              <lrndesign-contentblock title="Text Submitted">
-                <marked-element markdown="[[submission.attributes.body]]"></marked-element>
-              </lrndesign-contentblock>
-            </template>
-            <!-- ----- Images Submission -----  -->
-            <template is="dom-if" if="[[submission.attributes.images]]">
-              <lrndesign-contentblock class="center" title="Images Submitted">
-                <template is="dom-repeat" items="[[_toArray(submission.attributes.images)]]" as="image">
-                  <lrnsys-dialog alt="View Image" body-append>
-                    <span slot="button">
+
+          <paper-button on-click="toggle">View Assignment</paper-button>
+          <iron-collapse id="collapse">
+            <div class="assignment">
+              <h1 class="title">{{submission.relationships.assignment.attributes.title}}</h1>
+              <marked-element id="assignment-body" markdown="[[submission.relationships.assignment.attributes.body]]"></marked-element>
+            </div>
+          </iron-collapse>
+
+          <!-- ----- Text Submission -----  -->
+          <template is="dom-if" if="[[submission.attributes.body]]">
+            <lrndesign-contentblock title="Text Submitted">
+              <marked-element markdown="[[submission.attributes.body]]"></marked-element>
+            </lrndesign-contentblock>
+          </template>
+          <!-- ----- Images Submission -----  -->
+          <template is="dom-if" if="[[submission.attributes.images]]">
+            <lrndesign-contentblock class="center" title="Images Submitted">
+              <template is="dom-repeat" items="[[_toArray(submission.attributes.images)]]" as="image">
+                <lrnsys-dialog alt="View Image" body-append>
+                  <span slot="button">
                       <iron-image sizing="contain" class="contain" src="[[image.url]]"></iron-image>
                     </span>
-                    <iron-image src="[[image.url]]"></iron-image>
-                  </lrnsys-dialog>
-                </template>
-              </lrndesign-contentblock>
-            </template>
-            <!-- ----- Video Submission -----  -->
-            <template is="dom-if" if="[[submission.attributes.video]]">
-              <lrndesign-contentblock class="center" title="Videos Submitted">
-                <template is="dom-repeat" items="[[_toArray(submission.attributes.video)]]" as="video">
-                  <iframe width="460" height="249" src="[[video.video_src]]"></iframe>
-                </template>
-              </lrndesign-contentblock>
-            </template>
-            <!-- ----- Links Submission -----  -->
-            <template is="dom-if" if="[[submission.attributes.links]]">
-              <lrndesign-contentblock title="Links Submitted">
-                <template is="dom-repeat" items="[[_toArray(submission.attributes.links)]]" as="link">
-                  <p><strong>[[link.title]]:</strong>
-                    <a class="link" href="[[link.url]]" target="_blank">[[link.url]]</a></p>
-                </template>
-              </lrndesign-contentblock>
-            </template>
-            <!-- ----- Files Submission -----  -->
-            <template is="dom-if" if="[[submission.attributes.files]]">
-              <lrndesign-contentblock title="Files Submitted">
-                <template is="dom-repeat" items="[[_toArray(submission.attributes.files)]]" as="file">
-                  <p><strong>[[file.filename]]:</strong>
-                    <a class="link" href="[[file.url]]" target="_blank">[[file.url]]</a></p>
-                </template>
-              </lrndesign-contentblock>
-            </template>
+                  <iron-image src="[[image.url]]"></iron-image>
+                </lrnsys-dialog>
+              </template>
+            </lrndesign-contentblock>
+          </template>
+          <!-- ----- Video Submission -----  -->
+          <template is="dom-if" if="[[submission.attributes.video]]">
+            <lrndesign-contentblock class="center">
+              <template is="dom-repeat" items="[[_toArray(submission.attributes.video)]]" as="video">
+                <iframe width="460" height="249" src="[[video.video_src]]"></iframe>
+              </template>
+            </lrndesign-contentblock>
+          </template>
+          <!-- ----- Links Submission -----  -->
+          <template is="dom-if" if="[[submission.attributes.links]]">
+            <lrndesign-contentblock title="Links Submitted">
+              <template is="dom-repeat" items="[[_toArray(submission.attributes.links)]]" as="link">
+                <p><strong>[[link.title]]:</strong>
+                  <a class="link" href="[[link.url]]" target="_blank">[[link.url]]</a></p>
+              </template>
+            </lrndesign-contentblock>
+          </template>
+          <!-- ----- Files Submission -----  -->
+          <template is="dom-if" if="[[submission.attributes.files]]">
+            <lrndesign-contentblock title="Files Submitted">
+              <template is="dom-repeat" items="[[_toArray(submission.attributes.files)]]" as="file">
+                <p><strong>[[file.filename]]:</strong>
+                  <a class="link" href="[[file.url]]" target="_blank">[[file.url]]</a></p>
+              </template>
+            </lrndesign-contentblock>
+          </template>
         </div>
       </paper-card>
     </div>
@@ -162,13 +186,16 @@
        * Simple way to convert from object to array.
        */
       _toArray: function (obj) {
-        if (typeof obj === 'object' && obj !== null ) {
+        if (typeof obj === 'object' && obj !== null) {
           return Object.keys(obj).map(function (key) {
             return obj[key];
           });
         }
         return [];
       },
+      toggle: function() {
+  this.$.collapse.toggle();
+},
     });
   </script>
 </dom-module>
