@@ -153,6 +153,18 @@
       lrnapp-studio-submission-object {
         width: 100%;
       }
+
+      marked-element {
+        padding: 0 2.5em 0 2.5em;
+      }
+
+      .assignment-title {
+        padding: 1em 1em 0 1em;
+      }
+
+      .paper-button-0 {
+        text-transform: capitalize;
+      }
     </style>
 
     <app-route route="{{route}}" pattern="/edit" tail="{{tail}}" active="{{editPage}}">
@@ -174,7 +186,13 @@
         <lrnsys-button on-tap="_backToKanban" icon="arrow-back" label="Back to project management" hover-class="amber darken-4 white-text"></lrnsys-button>
       </template>
       <div spacer main-title>[[submission.attributes.title]]</div>
-      <div spacer class="comment-box">
+      <div spacer>
+        <lrnsys-dialog alt="View Assignment" body-append>
+          <span slot="button"><iron-icon icon="icons:assignment"></iron-icon>Assignment Details</span>
+          <h1 class="assignment-title">{{submission.relationships.assignment.attributes.title}}</h1>
+          <marked-element markdown="[[submission.relationships.assignment.attributes.body]]"></marked-element>
+        </lrnsys-dialog>
+      </div>
         <paper-button id="comment-count" style="margin:0;padding:.25em;text-transform:none;">
           <iron-icon icon="communication:forum"></iron-icon>
           [[submission.meta.comment_count]] Comments
@@ -383,6 +401,7 @@
         root.saving = false;
         if (status === 200) {
           this.set('route.path', '');
+          window.location.href = this.basePath + 'lrnapp-studio-kanban?deletetoast';
         }
       },
       _computeShowComments: function (submission, editPage) {
