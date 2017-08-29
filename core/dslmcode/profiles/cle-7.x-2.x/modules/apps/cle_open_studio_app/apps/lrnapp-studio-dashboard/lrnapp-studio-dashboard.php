@@ -94,7 +94,7 @@ function _lrnapp_studio_dashboard_need_feedback($machine_name, $app_route, $para
   $options->filter['state'] = array('submission_ready', '=');
   $options->order = array('property' => array(array('changed', 'DESC')));
   // don't show student's own submissions in needing feedback column
-  $options->filter = array('author' => array($GLOBALS['user']->uid, '<>'));
+  $options->filter['author'] = array($GLOBALS['user']->uid, '<>');
   $options->limit = array(0, 3);
   $options->tags = array('nocomments');
   // invoke our submission service to get submissions
