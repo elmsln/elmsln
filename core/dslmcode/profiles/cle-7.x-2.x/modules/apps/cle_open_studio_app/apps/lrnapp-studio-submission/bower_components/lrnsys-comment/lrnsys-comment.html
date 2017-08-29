@@ -37,6 +37,7 @@ A well styled comment for a user with markdown support.
       paper-card {
         margin: .5em 1em .5em .5em;
         padding: 1em;
+        max-width: 70%;
       }
       h1,
       h2,
@@ -49,7 +50,15 @@ A well styled comment for a user with markdown support.
         line-height: 18px;
         text-align: left;
       }
-      .nowrap marked-element {
+      #edit-comment {
+        background-color: white;
+        padding: .25em;
+      }
+      .nowrap marked-element:hover {
+        box-shadow: -1px 0 0 0 black inset;
+        cursor: pointer;
+      }
+      .nowrap marked-element ::slotted(#content p.marked-element) {
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -124,7 +133,7 @@ A well styled comment for a user with markdown support.
         <div id="bodyarea" class="nowrap">
           <h4 class="ferpa-protect">[[comment.relationships.author.data.display_name]] <span class="element-invisible">[[comment.relationships.author.data.visual.label]]</span> said:</h4>
           <marked-element smartypants id="rendered-comment" markdown="[[comment.attributes.body]]">
-            <div slot="markdown-html"></div>
+            <div class="markdown-html-slot" slot="markdown-html"></div>
           </marked-element>
         </div>
         <mtz-marked-editor id="comment-editor" hidden>
@@ -187,6 +196,7 @@ A well styled comment for a user with markdown support.
       is: 'lrnsys-comment',
       listeners: {
         'bodyarea.tap': 'bodyToggle',
+        'bodyarea.dblclick': 'bodyToggleOn',
       },
       properties: {
         comment: {
@@ -228,7 +238,7 @@ A well styled comment for a user with markdown support.
       },
       _generateCardColor: function(visual) {
         if (typeof visual !== typeof undefined && visual.label !== false) {
-          return 'yellow lighten-4';
+          return 'amber lighten-5';
         }
         return '';
       },
@@ -308,7 +318,15 @@ A well styled comment for a user with markdown support.
        */
       bodyToggle: function (e) {
         let root = this;
-        root.$$('#bodyarea').classList.toggle('nowrap');
+        root.$.bodyarea.classList.remove('nowrap');
+        document.querySelector('iron-list').fire('iron-resize');
+      },
+      /**
+       * Toggle the body field expanding to show the whole comment
+       */
+      bodyToggleOn: function (e) {
+        let root = this;
+        root.$.bodyarea.classList.toggle('nowrap');
         document.querySelector('iron-list').fire('iron-resize');
       },
     });

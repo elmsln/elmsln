@@ -5,6 +5,8 @@
 <link rel="import" href="lrnapp-studio-submission-comment.html">
 <link rel="import" href="../../bower_components/lrnsys-comment/lrnsys-comment-list.html">
 <link rel="import" href="../../bower_components/marked-element/marked-element.html">
+<link rel="import" href="../../bower_components/vaadin-split-layout/vaadin-split-layout.html">
+
 
 <dom-module id="lrnapp-studio-submission-page">
   <template>
@@ -86,12 +88,12 @@
         font-size: 1.5em;
       }
 
-      .flex-wrap {
-        display: flex;
-      }
-
       .submission-page-wrapper {
         padding: 0 1em;
+        --vaadin-split-layout-splitter: {
+          min-width: .4em;
+          background: var(--paper-amber-200);
+        };
       }
 
       .submission-page {
@@ -104,13 +106,8 @@
         padding: 0 0 2em 1em;
       }
 
-       :host[edit-page] .submission-page {
-        width: 100%;
-      }
-
       .submission-comments {
-        width: 40vw;
-        overflow-y: visible;
+        overflow-y: hidden;
         padding: 0;
         margin: 0;
       }
@@ -195,22 +192,21 @@
         <lrnsys-button on-tap="_resetRoute" icon="cancel" label="Cancel" hover-class="amber darken-4 white-text" hidden$="[[!submission.meta.canUpdate]]"></lrnsys-button>
       </div>
     </app-toolbar>
-
-    <template is="dom-if" if="[[submission]]">
-      <div class="flex-wrap submission-page-wrapper">
+    <vaadin-split-layout class="submission-page-wrapper">
+      <div id="commentcolumn" class="submission-comments" style="min-width: 25%; max-width: 40%; width:30%;">
         <template is="dom-if" if="[[showComments]]">
-          <div class="submission-comments">
             <lrnsys-comment-list comment-ops-base="{{commentOpsBase}}" csrf-token="[[csrfToken]]" source-path="{{commentsUrl}}" create-stub-url="{{createStubUrl}}"></lrnsys-comment-list>
-          </div>
         </template>
-
+      </div>
+      <div id="submissioncolumn" style="width:70%;">
         <iron-pages selected="[[selectedPage]]">
           <lrnapp-studio-submission-display submission="{{submission}}"></lrnapp-studio-submission-display>
           <lrnapp-studio-submission-edit submission="{{submission}}"></lrnapp-studio-submission-edit>
           <lrnapp-studio-submission-critique submission="{{submission}}" edit="[[editPage]]"></lrnapp-studio-submission-critique>
         </iron-pages>
       </div>
-    </template>
+      <iron-icon class="splitter-handle" icon="more-vert"></iron-icon>
+    </vaadin-split-layout>
 
     <elmsln-loading></elmsln-loading>
 
@@ -287,7 +283,7 @@
         },
         showComments: {
           type: Boolean,
-          computed: '_computeShowComments(submission, editPage)'
+          computed: '_computeShowComments(submission)'
         }
       },
       observers: [
@@ -428,10 +424,10 @@
         }
         this.set('selectedPage', selected);
       },
-      _computeShowComments: function (submission, editPage) {
+      _computeShowComments: function (submission) {
         try {
           var type = submission.meta.submissionType;
-          if (type !== 'critique' && !editPage && submission.attributes.state == 'submission_ready') {
+          if (type !== 'critique' && submission.attributes.state == 'submission_ready') {
             return true;
           }
         } catch (error) {
