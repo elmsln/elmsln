@@ -319,8 +319,22 @@
         'assignment-created': '_handleAssignmentCreated',
       },
       observers: [
+        '_routeChanged(route, endPoint)',
         '_deleteToast(queryParams.deletetoast)',
       ],
+      // If the current route is outside the scope of our app
+      // then allow the website to break out of the single page
+      // application routing
+      _routeChanged: function(route, endPoint) {
+        if (typeof route.path === 'string') {
+          if (typeof endPoint === 'string') {
+            if (route.path.startsWith(endPoint)) {
+              return;
+            }
+          }
+          window.location = route.path;
+        }
+      },
       /**
        * Support having a toast message because of delete or error elsewhere.
        */

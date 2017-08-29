@@ -20,6 +20,7 @@
         padding: 0;
         margin: 0;
         min-width: 1rem;
+        text-transform: unset;
       }
       .project-card {
         width: 100%;
@@ -91,7 +92,7 @@
             <iron-list items="[[_toArray(project.relationships.assignments)]]" as="assignment">
               <template>
               <div class="assignment-row" id="assignment">
-                <lrnsys-button inner-class="no-left-padding" class="assignment-row-button" id$="assignment-[[project.id]]-[[assignment.id]]" hover-class="amber lighten-5">
+                <lrnsys-button inner-class="no-left-padding" class="assignment-row-button" id$="assignment-[[project.id]]-[[assignment.id]]" hover-class="amber lighten-5" href$="[[basePath]]lrnapp-studio-kanban">
                   <span slot="button" class="button-contents">
                     <div class$="status-indicator [[assignment.metadata.relatedSubmissions.complete.color]]">
                       <iron-icon icon="[[assignment.metadata.relatedSubmissions.complete.icon]]"></iron-icon>
@@ -108,8 +109,14 @@
     </a>
     </template>
     <template is="dom-if" if="[[!hasProject]]">
-    <a tabindex="-1" href$="[[basePath]]lrnapp-studio-kanban">
-    <paper-button raised>Tap to start your first project</paper-button></a>
+    <lrnsys-button inner-class="no-left-padding" class="assignment-row-button" href$="[[basePath]]lrnapp-studio-kanban" hover-class="amber lighten-5">
+      <span slot="button" class="button-contents">
+        <div class="status-indicator">
+          <iron-icon icon="assignment"></iron-icon>
+        </div>
+        <div class="assignment-title">Tap to start your first project!</div>
+      </span>
+    </lrnsys-button>
     </template>
   </template>
   <script>
