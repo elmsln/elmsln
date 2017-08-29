@@ -135,6 +135,9 @@ function entity_metadata_node_get_properties($node, array $options, $name, $enti
     case 'is_new':
       return empty($node->nid) || !empty($node->is_new);
 
+    case 'comment':
+      return $node->comment;
+
     case 'source':
       if (!empty($node->tnid) && $source = node_load($node->tnid)) {
         return $source;
