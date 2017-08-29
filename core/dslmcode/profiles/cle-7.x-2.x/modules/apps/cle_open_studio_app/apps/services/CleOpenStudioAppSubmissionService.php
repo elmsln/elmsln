@@ -460,11 +460,13 @@ class CleOpenStudioAppSubmissionService {
       $encoded_submission->attributes->images = NULL;
       if (isset($submission->field_images[LANGUAGE_NONE])) {
         foreach ($submission->field_images[LANGUAGE_NONE] as $file) {
-          $encoded_submission->attributes->images[] = _elmsln_api_v1_file_output($file);
+          $file_output = _elmsln_api_v1_file_output($file);
+          $file_output['thumbnail'] = image_style_url('cle_square', $file_output['uri']);
+          $encoded_submission->attributes->images[] = $file_output;
         }
         $images = $encoded_submission->attributes->images;
         $encoded_submission->display->image = array_pop($images);
-        $encoded_submission->display->image = file_create_url($encoded_submission->display->image['uri']);
+        $encoded_submission->display->image = image_style_url('cle_square', $encoded_submission->display->image['uri']);
         $encoded_submission->display->icon = FALSE;
       }
       // Meta Info
