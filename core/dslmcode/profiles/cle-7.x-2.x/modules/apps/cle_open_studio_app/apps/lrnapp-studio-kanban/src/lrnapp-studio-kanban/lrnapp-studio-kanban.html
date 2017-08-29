@@ -183,7 +183,7 @@
           <paper-card id$="project-[[project.id]]" class="project-card grey lighten-3" heading="{{project.attributes.title}}" elevation="2">
             <div class="project-operations">
               <lrnsys-button icon-class="no-margin" id$="project-[[project.id]]-edit" alt="Edit project" class="circle operation" hover-class="amber lighten-2"
-                hidden="[[!project.meta.canUpdate]]" icon="create" href$="[[_makeEditLink(project.id)]]">
+                hidden="[[!project.meta.canUpdate]]" icon="create" on-tap="_makeProjectEditLink">
               </lrnsys-button>
               <lrnapp-studio-assignment-button project-id="[[project.id]]" icon-class="no-margin" id$="project-[[project.id]]-add" alt="Add assignment" class="circle operation" hover-class="amber lighten-2"
                 hidden="[[!project.meta.canUpdate]]" icon="add" end-point="[[endPoint]]" csrf-token="[[csrfToken]]">
@@ -234,7 +234,7 @@
                     </lrnsys-dialog>
                     <span class="assignment-operations">
                 <lrnsys-button id$="assignment-[[project.id]]-[[assignment.id]]-add-critique" icon="editor:insert-comment" alt="Add critique" class="circle operation" hover-class="green lighten-2" hidden="[[!assignment.meta.canCritique]]" href$="[[assignment.meta.critiqueLink]]" icon-class="no-margin"></lrnsys-button>
-                <lrnsys-button id$="assignment-[[project.id]]-[[assignment.id]]-edit" icon="editor:mode-edit" alt="Edit" class="circle operation" hover-class="amber lighten-4" hidden="[[!assignment.meta.canUpdate]]" href$="[[assignment.links.update]]" icon-class="no-margin green-text text-darken-4"></lrnsys-button>
+                <lrnsys-button id$="assignment-[[project.id]]-[[assignment.id]]-edit" icon="editor:mode-edit" alt="Edit" class="circle operation" hover-class="amber lighten-4" hidden="[[!assignment.meta.canUpdate]]" on-tap="_makeAssignmentEditLink" icon-class="no-margin green-text text-darken-4"></lrnsys-button>
                 <lrnsys-button id$="assignment-[[project.id]]-[[assignment.id]]-delete" icon="delete" alt="Delete" class="circle operation" hover-class="amber lighten-4" hidden="[[!assignment.meta.canDelete]]" on-tap="_deleteAssignmentDialog" icon-class="no-margin red-text text-darken-4"></lrnsys-button>
               </span>
                   </div>
@@ -312,8 +312,20 @@
       /**
        * @todo  remove this once we have a modal for it
        */
-      _makeEditLink: function (id) {
-        return this.basePath + '../node/' + id + '/edit?destination=apps/lrnapp-studio-kanban';
+      _makeProjectEditLink: function (e) {
+        var normalizedEvent = Polymer.dom(e);
+        var local = normalizedEvent.localTarget;
+        var parts = local.id.split('-');
+        window.location.href = this.basePath + '../node/' + parts[1] + '/edit?destination=apps/lrnapp-studio-kanban';
+      },
+      /**
+       * @todo  remove this once we have a modal for it
+       */
+      _makeAssignmentEditLink: function (e) {
+        var normalizedEvent = Polymer.dom(e);
+        var local = normalizedEvent.localTarget;
+        var parts = local.id.split('-');
+        window.location.href = this.basePath + '../node/' + parts[2] + '/edit?destination=apps/lrnapp-studio-kanban';
       },
       /**
        * Handle the push to delete a project, pop up the modal.
