@@ -83,6 +83,7 @@
       <h3>Loading..</h3>
       <elmsln-loading color="grey-text" size="large"></elmsln-loading>
     </div>
+    <template is="dom-if" if="[[hasProject]]">
     <a tabindex="-1" href$="[[basePath]]lrnapp-studio-kanban">
       <paper-button class="whole-project ferpa-protect">
         <paper-card id$="project-[[project.id]]" class="project-card grey lighten-3" heading="{{project.attributes.title}}" elevation="2">
@@ -105,6 +106,11 @@
         </paper-card>
       </paper-button>
     </a>
+    </template>
+    <template is="dom-if" if="[[!hasProject]]">
+    <a tabindex="-1" href$="[[basePath]]lrnapp-studio-kanban">
+    <paper-button raised>Tap to start your first project</paper-button></a>
+    </template>
   </template>
   <script>
     Polymer({
@@ -122,14 +128,32 @@
           type: Object,
           notify: true,
         },
+        hasProject: {
+          type: Boolean,
+          notify: true,
+          reflectToAttribute: true,
+          computed: '_getHasProject(project)',
+        },
       },
+      /**
+       * Generate the correct boolean for having a project.
+       */
+      _getHasProject: function(project) {
+        if (typeof project.id !== typeof undefined) {
+          return true;
+        }
+        return false;
+      },
+      /**
+       * Swap off the loading with project data.
+       */
       handleResponse: function(e) {
         this.$.loading.hidden = true;
         this.project = this.response.data;
       },
-      _getViewLink: function(nid) {
-        return this.basePath + 'lrnapp-studio-submission/submissions/' + nid;
-      },
+      /**
+       * Generate an array.
+       */
       _toArray: function(obj) {
         return Object.keys(obj).map(function(key) {
           return obj[key];

@@ -171,6 +171,15 @@
     </iron-ajax>
     <iron-ajax id="backend" url="[[sourcePath]]" params="" handle-as="json" last-response="{{backendResponse}}" on-response="_handleUpdateResponse">
     </iron-ajax>
+
+    <app-location route="{{route}}" query-params="{{queryParams}}"></app-location>
+    <app-route
+        route="{{route}}"
+        pattern="[[endPoint]]/:page"
+        data="{{data}}"
+        tail="{{tail}}"
+        query-params="{{queryParams}}">
+    </app-route>
     <div id="loading">
       <h3>Loading..</h3>
       <elmsln-loading color="grey-text" size="large"></elmsln-loading>
@@ -308,6 +317,23 @@
       listeners: {
         'project-created': '_handleProjectCreated',
         'assignment-created': '_handleAssignmentCreated',
+      },
+      observers: [
+        '_deleteToast(queryParams.deletetoast)',
+      ],
+      /**
+       * Support having a toast message because of delete or error elsewhere.
+       */
+      _deleteToast: function (deletetoast, old) {
+        if (typeof deletetoast !== typeof undefined) {
+          if (deletetoast == 'error') {
+            this.$.toast.show('That submission on longer exists!');
+          }
+          else {
+            this.$.toast.show('Submission deleted successfully!');
+          }
+          this.set('queryParams.deletetoast', undefined);
+        }
       },
       /**
        * @todo  remove this once we have a modal for it
