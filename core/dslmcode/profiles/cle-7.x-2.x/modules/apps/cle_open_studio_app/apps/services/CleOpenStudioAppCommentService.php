@@ -31,7 +31,6 @@ class CleOpenStudioAppCommentService {
    * Get a list of comments
    * This will take into concideration what section the user is in and what section
    * they have access to.
-   *
    * @param object $options
    *                - filter
    *                -- author
@@ -65,7 +64,7 @@ class CleOpenStudioAppCommentService {
         $limit = $options->limit;
       }
     }
-    $items = _cis_connector_assemble_entity_list('comment', 'comment', 'cid', '_entity', $field_conditions, $property_conditions, $orderby, TRUE, $limit);
+    $items = _cis_connector_assemble_entity_list('comment', 'comment', 'cid', '_entity', $field_conditions, $property_conditions, $orderby, TRUE, $limit, array('node_access'));
     // sort the comments into a thread
     usort($items, 'CleOpenStudioAppCommentService::sortComments');
     $items = $this->encodeComments($items);
