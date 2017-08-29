@@ -202,8 +202,8 @@
 
 
     <paper-dialog id="deletedialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation" with-backdrop>
-        <h2>Delete feedback?</h2>
-        <p>Are you sure you want to delete feedback?</p>
+        <h2>Delete submission?</h2>
+        <p>Are you sure you want to delete this submission?</p>
         <div class="buttons">
           <paper-button dialog-dismiss>Cancel</paper-button>
           <paper-button dialog-confirm on-click="_submissionDeleteConfirmed">Delete</paper-button>
@@ -333,7 +333,13 @@
         this.reqParams = params;
       },
       _handleResponse: function (data) {
-        this.set('submission', data.detail.response.data);
+        // empty response means no access or deleted item
+        if (data.detail.response.data) {
+          this.set('submission', data.detail.response.data);
+        }
+        else {
+          window.location.href = this.basePath + 'lrnapp-open-studio?deletetoast=error';
+        }
       },
       _isReply: function (data) {
         this.thread = submission.relationships.comments.data.attributes.thread;
@@ -376,7 +382,7 @@
         var status = res.detail.response.status;
         root.saving = false;
         if (status === 200) {
-          this.set('route.path', '');
+          window.location.href = this.basePath + 'lrnapp-studio-kanban?deletetoast';
         }
       },
       _computeShowComments: function (submission, editPage) {

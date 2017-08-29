@@ -18,6 +18,8 @@ class CleOpenStudioAppSubmissionService {
     $node->type = 'cle_submission';
     $node->uid = $user->uid;
     $node->status = 1;
+    // make sure comment statistics are triggered
+    $node->comment = COMMENT_NODE_OPEN;
     $node->field_assignment[LANGUAGE_NONE][0]['target_id'] = $assignment_id;
     // associate to the currently active section
     $node->og_group_ref[LANGUAGE_NONE][0]['target_id'] = _cis_section_load_section_by_id(_cis_connector_section_context());
@@ -113,7 +115,7 @@ class CleOpenStudioAppSubmissionService {
    */
   public function getSubmission($id, $options = array()) {
     global $user;
-    $item = array();
+    $item = FALSE;
     $encode = (isset($options['encode']) ? $options['encode'] : TRUE);
     $user = (isset($options['uid']) ? user_load($options['uid']) : $user);
     $section_id = _cis_connector_section_context();
@@ -254,7 +256,10 @@ class CleOpenStudioAppSubmissionService {
     if ($visible_to_class) {
       // check if the submission is set to be open after submission
       $privacy_setting = $submission_emw->field_assignment->field_assignment_privacy_setting->value();
-      if ($privacy_setting && $privacy_setting == 'open_after_submission') {
+      if ($privacy_setting && $privacy_setting == 'open') {
+        return TRUE;
+      }
+      else if ($privacy_setting && $privacy_setting == 'open_after_submission') {
         // if it is, then we should check if the user has submitted to this assignment and the submission
         // is marked as complete
         $submission = $this->getSubmissionByAssignment($submission_emw->field_assignment->nid->value(), $uid);
@@ -279,7 +284,6 @@ class CleOpenStudioAppSubmissionService {
    */
   public function submissionVisibleToClass($submission) {
     $submission_emw = entity_metadata_wrapper('node', $submission);
-
     // if the submission is published then it can be seen by everyone
     $submission_state = $submission_emw->field_submission_state->value();
     if ($submission_state != 'submission_ready') {
@@ -292,7 +296,6 @@ class CleOpenStudioAppSubmissionService {
       throw new Exception(t('Submission does not have an assignment.'));
       return FALSE;
     }
-
     // if the privacy setting is set to closed then no one in the class can see it
     $privacy_setting = $submission_emw->field_assignment->field_assignment_privacy_setting->value();
     if ($privacy_setting) {
@@ -300,7 +303,6 @@ class CleOpenStudioAppSubmissionService {
         return FALSE;
       }
     }
-
     return TRUE;
   }
 
@@ -535,6 +537,7 @@ class CleOpenStudioAppSubmissionService {
       $encoded_submission->relationships->author->data->id = $submission->uid;
       $encoded_submission->relationships->author->data->name = $submission->name;
       $encoded_submission->relationships->author->data->display_name = _elmsln_core_get_user_name('full', $submission->uid);
+      $encoded_submission->relationships->author->data->avatar = _elmsln_core_get_user_picture('full', $submission->uid);
       $encoded_submission->relationships->author->data->sis = _elmsln_core_get_sis_user_data($submission->uid);
       // related submissions
       $encoded_submission->relationships->relatedSubmission = new stdClass();

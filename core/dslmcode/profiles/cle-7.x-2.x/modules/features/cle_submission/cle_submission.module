@@ -405,7 +405,7 @@ function cle_submission_node_presave($node) {
 
     // ensure we have a parent assignment
     if (!isset($node->field_assignment[LANGUAGE_NONE][0]['target_id'])) {
-      throw new Exception(t('Submissions need to have a parent assignment.'));
+      //throw new Exception(t('Submissions need to have a parent assignment.'));
     }
 
     // Make sure that the submissions parent assignment has it's dependencies met.
@@ -413,30 +413,30 @@ function cle_submission_node_presave($node) {
       $assignment_id = $node->field_assignment[LANGUAGE_NONE][0]['target_id'];
       $has_unmet_dependencies = $assignment_service->assignmentHasUnmetDependencies($assignment_id);
       if ($has_unmet_dependencies) {
-        throw new Exception(t('You must complete the previous assignment before you can submit assignment.'));
+        //throw new Exception(t('You must complete the previous assignment before you can submit assignment.'));
       }
     }
 
     // figure out submission type
-    $assignment = entity_load_single('node', $node->field_assignment[LANGUAGE_NONE][0]['target_id']);
-    $assignment_emw = entity_metadata_wrapper('node', $assignment);
+    //$assignment = entity_load_single('node', $node->field_assignment[LANGUAGE_NONE][0]['target_id']);
+    //$assignment_emw = entity_metadata_wrapper('node', $assignment);
     // Figure out critique method
     $return = 'default';
-    if ($assignment_emw) {
+    /*if ($assignment_emw) {
       $assignment_critique = $assignment_emw->field_critique_method->value();
       if ($assignment_critique) {
         if ($assignment_critique != 'none') {
           $return = 'critique';
         }
       }
-    }
+    }*/
     // store the submission type on the submission object
     $node->field_submission_type[LANGUAGE_NONE][0]['value'] = $return;
 
     // If this submission needs to have a critique submission automatically assigned to it
     // then do it here.
     // $critique_cle_critique_random($node->field_assignment[LANGUAGE_NONE][0]['target_id']);
-    if ($assignment_emw) {
+    /*if ($assignment_emw) {
       $assignment_critique = $assignment_emw->field_critique_method->value();
       if ($assignment_critique) {
         if ($assignment_critique == 'random') {
@@ -458,7 +458,7 @@ function cle_submission_node_presave($node) {
           }
         }
       }
-    }
+    }*/
   }
 }
 

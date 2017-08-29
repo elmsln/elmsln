@@ -63,8 +63,8 @@
     </style>
     <paper-card elevation="3" class="flex-wrap">
       <div class="card-content">
-        <lrndesign-avatar label="{{commentUser}}"></lrndesign-avatar>
-        <h3>{{commentUser}}</h3>
+        <lrndesign-avatar label="{{commentUser.name}}" src="{{commentUser.avatar}}"></lrndesign-avatar>
+        <h3>{{commentUser.display_name}}</h3>
         <div class="button-wrapper">
           <div id="comment" class="inactive">
             <content></content>
@@ -122,8 +122,8 @@
           notify: true,
         },
         commentUser: {
-          type: String,
-          value: 'Comment user',
+          type: Object,
+          value: {},
           reflectToAttribute: true,
           notify: true,
         },

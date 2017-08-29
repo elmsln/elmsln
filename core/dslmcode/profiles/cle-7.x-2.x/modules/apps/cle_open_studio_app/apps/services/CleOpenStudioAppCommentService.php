@@ -31,7 +31,6 @@ class CleOpenStudioAppCommentService {
    * Get a list of comments
    * This will take into concideration what section the user is in and what section
    * they have access to.
-   *
    * @param object $options
    *                - filter
    *                -- author
@@ -65,7 +64,7 @@ class CleOpenStudioAppCommentService {
         $limit = $options->limit;
       }
     }
-    $items = _cis_connector_assemble_entity_list('comment', 'comment', 'cid', '_entity', $field_conditions, $property_conditions, $orderby, TRUE, $limit);
+    $items = _cis_connector_assemble_entity_list('comment', 'comment', 'cid', '_entity', $field_conditions, $property_conditions, $orderby, TRUE, $limit, array('node_access'));
     // sort the comments into a thread
     usort($items, 'CleOpenStudioAppCommentService::sortComments');
     $items = $this->encodeComments($items);
@@ -212,6 +211,9 @@ class CleOpenStudioAppCommentService {
       $encoded_comments->relationships->author->data->type = 'user';
       $encoded_comments->relationships->author->data->id = $comment->uid;
       $encoded_comments->relationships->author->data->name = $comment->name;
+      $encoded_comments->relationships->author->data->display_name = _elmsln_core_get_user_name('full', $comment->uid);
+      $encoded_comments->relationships->author->data->avatar = _elmsln_core_get_user_picture('avatar', $comment->uid);
+      $encoded_comments->relationships->author->data->sis = _elmsln_core_get_sis_user_data($comment->uid);
       // Assignment
       $encoded_comments->relationships->node = new stdClass();
       $encoded_comments->relationships->node->data = new stdClass();

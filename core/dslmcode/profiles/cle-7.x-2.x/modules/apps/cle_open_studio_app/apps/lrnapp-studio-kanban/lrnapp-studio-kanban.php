@@ -189,7 +189,7 @@ function _cle_studio_kanban_assignment_findone($machine_name, $app_route, $param
         switch ($method) {
           case 'GET':
             $service = new CleOpenStudioAppAssignmentService();
-            $return['data'] = $service->getAssignment($args[2]);
+            $return['data'] = $service->getAssignment($nid);
             break;
           case 'PUT':
             $service = new CleOpenStudioAppAssignmentService();
@@ -197,7 +197,7 @@ function _cle_studio_kanban_assignment_findone($machine_name, $app_route, $param
             $post_data = json_decode($post_data);
             // try to update the node
             try {
-              $update = $service->updateAssignment($post_data, $args[2]);
+              $update = $service->updateAssignment($post_data, $nid);
               $return['data'] = $update;
             }
             // if it fails we'll add errors and return 500
@@ -209,7 +209,8 @@ function _cle_studio_kanban_assignment_findone($machine_name, $app_route, $param
           case 'DELETE':
             $service = new CleOpenStudioAppAssignmentService();
             try {
-              $delete = $service->deleteAssignment($args[2]);
+              $delete = $service->deleteAssignment($nid);
+              $return['data'] = $delete;
             }
             catch (Exception $e) {
               $return['status'] = 500;

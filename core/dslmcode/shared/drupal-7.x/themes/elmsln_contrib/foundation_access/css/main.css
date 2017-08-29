@@ -1497,6 +1497,7 @@ a.modal-img-link {
     display: block;
     margin: 0;
     padding: 0;
+    min-width: 200px;
     line-height: 1rem;
     text-align: right;
     color: #000;
@@ -7966,9 +7967,9 @@ body.adminimal-menu div#admin-menu a,
 body.adminimal-menu div#admin-menu span {
   border: none !important;
   font-family: sans-serif;
-  font-size: .9em;
-  line-height: 2.5em;
-  height: 2.5em;
+  font-size: .9rem;
+  line-height: 2.5rem;
+  height: 2.5rem;
   text-overflow: ellipsis;
   overflow-x: hidden;
 }
@@ -8418,6 +8419,9 @@ lrnsys-drawer lrn-icon.lrnsys-drawer {
 }
 lrnsys-drawer .drawer-contents {
   overflow: auto;
+}
+.form-actions lrnsys-button {
+  display: inline-block;
 }
 
 #etb-course-nav paper-button {

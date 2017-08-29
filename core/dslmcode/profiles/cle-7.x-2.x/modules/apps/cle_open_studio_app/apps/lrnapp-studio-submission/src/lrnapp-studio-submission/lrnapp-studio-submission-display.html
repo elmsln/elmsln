@@ -112,8 +112,9 @@
     </style>
 
     <div class="submission-page">
-      <paper-card class="submission-page-card">
+      <paper-card class="submission-page-card ferpa-protect">
         <div class="card-content">
+<<<<<<< HEAD
 
           <paper-button on-click="toggle">View Assignment</paper-button>
           <iron-collapse id="collapse">
@@ -135,6 +136,22 @@
               <template is="dom-repeat" items="[[_toArray(submission.attributes.images)]]" as="image">
                 <lrnsys-dialog alt="View Image" body-append>
                   <span slot="button">
+=======
+            <h1 class="title">{{submission.attributes.title}}</h1>
+            <div class="author">By: {{submission.relationships.author.data.display_name}}</div>
+            <!-- ----- Text Submission -----  -->
+            <template is="dom-if" if="[[submission.attributes.body]]">
+              <lrndesign-contentblock title="Text Submitted">
+                <marked-element markdown="[[submission.attributes.body]]"></marked-element>
+              </lrndesign-contentblock>
+            </template>
+            <!-- ----- Images Submission -----  -->
+            <template is="dom-if" if="[[submission.attributes.images]]">
+              <lrndesign-contentblock class="center" title="Images Submitted">
+                <template is="dom-repeat" items="[[_toArray(submission.attributes.images)]]" as="image">
+                  <lrnsys-dialog alt="View Image" body-append>
+                    <span slot="button">
+>>>>>>> b84d19cf4bb3b7e3fdaeeacd1fce2abd9868488d
                       <iron-image sizing="contain" class="contain" src="[[image.url]]"></iron-image>
                     </span>
                   <iron-image src="[[image.url]]"></iron-image>

@@ -104,7 +104,7 @@ class CleOpenStudioAppProjectService {
     }
     return $item;
   }
-  
+
   public function updateProject($payload, $id) {
     if ($payload) {
       // make sure we have an id to work with
@@ -139,9 +139,12 @@ class CleOpenStudioAppProjectService {
         // unpublish the node
         $node->status = 0;
         $service = new CleOpenStudioAppAssignmentService();
-        // loop through and clone assignments based on what we found
-        foreach ($node->field_project_steps['und'] as $assignmentref) {
-          $assignment = $service->deleteAssignment($assignmentref['target_id']);
+        // clean up assignments if they exist
+        if (!empty($node->field_project_steps['und'])) {
+          // loop through and clone assignments based on what we found
+          foreach ($node->field_project_steps['und'] as $assignmentref) {
+            $assignment = $service->deleteAssignment($assignmentref['target_id']);
+          }
         }
         try {
           node_save($node);

@@ -20,6 +20,7 @@
         padding: 0;
         margin: 0;
         min-width: 1rem;
+        text-transform: unset;
       }
       .project-card {
         width: 100%;
@@ -83,6 +84,7 @@
       <h3>Loading..</h3>
       <elmsln-loading color="grey-text" size="large"></elmsln-loading>
     </div>
+    <template is="dom-if" if="[[hasProject]]">
     <a tabindex="-1" href$="[[basePath]]lrnapp-studio-kanban">
       <paper-button class="whole-project ferpa-protect">
         <paper-card id$="project-[[project.id]]" class="project-card grey lighten-3" heading="{{project.attributes.title}}" elevation="2">
@@ -90,7 +92,7 @@
             <iron-list items="[[_toArray(project.relationships.assignments)]]" as="assignment">
               <template>
               <div class="assignment-row" id="assignment">
-                <lrnsys-button inner-class="no-left-padding" class="assignment-row-button" id$="assignment-[[project.id]]-[[assignment.id]]" hover-class="amber lighten-5">
+                <lrnsys-button inner-class="no-left-padding" class="assignment-row-button" id$="assignment-[[project.id]]-[[assignment.id]]" hover-class="amber lighten-5" href$="[[basePath]]lrnapp-studio-kanban">
                   <span slot="button" class="button-contents">
                     <div class$="status-indicator [[assignment.metadata.relatedSubmissions.complete.color]]">
                       <iron-icon icon="[[assignment.metadata.relatedSubmissions.complete.icon]]"></iron-icon>
@@ -105,6 +107,17 @@
         </paper-card>
       </paper-button>
     </a>
+    </template>
+    <template is="dom-if" if="[[!hasProject]]">
+    <lrnsys-button inner-class="no-left-padding" class="assignment-row-button" href$="[[basePath]]lrnapp-studio-kanban" hover-class="amber lighten-5">
+      <span slot="button" class="button-contents">
+        <div class="status-indicator">
+          <iron-icon icon="assignment"></iron-icon>
+        </div>
+        <div class="assignment-title">Tap to start your first project!</div>
+      </span>
+    </lrnsys-button>
+    </template>
   </template>
   <script>
     Polymer({
@@ -122,14 +135,32 @@
           type: Object,
           notify: true,
         },
+        hasProject: {
+          type: Boolean,
+          notify: true,
+          reflectToAttribute: true,
+          computed: '_getHasProject(project)',
+        },
       },
+      /**
+       * Generate the correct boolean for having a project.
+       */
+      _getHasProject: function(project) {
+        if (typeof project.id !== typeof undefined) {
+          return true;
+        }
+        return false;
+      },
+      /**
+       * Swap off the loading with project data.
+       */
       handleResponse: function(e) {
         this.$.loading.hidden = true;
         this.project = this.response.data;
       },
-      _getViewLink: function(nid) {
-        return this.basePath + 'lrnapp-studio-submission/submissions/' + nid;
-      },
+      /**
+       * Generate an array.
+       */
       _toArray: function(obj) {
         return Object.keys(obj).map(function(key) {
           return obj[key];

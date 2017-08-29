@@ -4,6 +4,8 @@
  * ELMSLN Canvas integration.
  */
 
+define('CANVAS_DEFAULT_AVATAR_NAME', 'avatar-50.png');
+
 /**
  * Implements hook_webcomponents_app_deliver_output_alter().
  * @param  string &$return text based output of the app
@@ -124,6 +126,10 @@ function elmsln_canvas_cis_helper_build_roster($section) {
       $fname = '';
       $lname = '';
     }
+    // support ripping out the avatar_url if it's default
+    if (strpos($member['user']['avatar_url'], CANVAS_DEFAULT_AVATAR_NAME)) {
+      unset($member['user']['avatar_url']);
+    }
     // build the roster array
     $roster[$name] = array(
       'role'  => $role,
@@ -134,9 +140,6 @@ function elmsln_canvas_cis_helper_build_roster($section) {
         'sis' => $member['user'],
       ),
     );
-    if (!empty($member['avatar_url'])) {
-      $roster[$name]['data']['sis']['avatar_url'] = $member['avatar_url'];
-    }
   }
   return $roster;
 }

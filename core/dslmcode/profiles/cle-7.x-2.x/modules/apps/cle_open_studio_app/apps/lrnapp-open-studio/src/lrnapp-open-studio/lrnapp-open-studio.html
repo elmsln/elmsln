@@ -109,7 +109,7 @@
         <iron-list items="[[submissions]]" as="item" grid>
           <template>
           <paper-button class="gallerycard-wrapper" on-tap="_loadSubmissionUrl">
-            <lrndesign-gallerycard elevation="2" data-submission-id$="[[item.id]]" title="[[item.attributes.title]]" author="[[item.relationships.author.data.display_name]]" comments="[[item.meta.comment_count]]" image="[[item.display.image]]" icon="[[item.display.icon]]" date="[[item.meta.humandate]]" author-avatar="[[item.relationships.author.data.sis.avatar_url]]" class="ferpa-protect">
+            <lrndesign-gallerycard elevation="2" data-submission-id$="[[item.id]]" title="[[item.attributes.title]]" author="[[item.relationships.author.data]]" comments="[[item.meta.comment_count]]" image="[[item.display.image]]" icon="[[item.display.icon]]" date="[[item.meta.humandate]]" class="ferpa-protect">
             </lrndesign-gallerycard>
           </paper-button>
           </template>
@@ -119,6 +119,7 @@
       <lrnapp-open-studio-table name="table" base-path="[[basePath]]" submissions="{{submissions}}"></lrnapp-open-studio-table>
     </iron-pages>
     </div>
+    <paper-toast id="toast"></paper-toast>
   </template>
 
   <script>
@@ -216,11 +217,47 @@
           notify: true,
         },
       },
+      listeners: {
+        'route-change': '_routeChange',
+      },
       observers: [
+        '_routeChanged(route, endPoint)',
+        '_deleteToast(queryParams.deletetoast)',
         '_authorFilterChanged(queryParams.author)',
         '_projectFilterChanged(queryParams.project)',
         '_assignmentFilterChanged(queryParams.assignment)'
       ],
+      // If the current route is outside the scope of our app
+      // then allow the website to break out of the single page
+      // application routing
+      _routeChanged: function(route, endPoint) {
+        if (typeof route.path === 'string') {
+          if (typeof endPoint === 'string') {
+            if (route.path.startsWith(endPoint)) {
+              return;
+            }
+          }
+          window.location = route.path;
+        }
+      },
+      /**
+       * Change route from deeper in the app.
+       */
+      _routeChange: function(e) {
+        var details = e.detail;
+        if (typeof details.queryParams.assignment !== typeof undefined) {
+          this.set('queryParams.assignment', details.queryParams.assignment);
+        }
+        if (typeof details.queryParams.project !== typeof undefined) {
+          this.set('queryParams.project', details.queryParams.project);
+        }
+        if (typeof details.queryParams.author !== typeof undefined) {
+          this.set('queryParams.author', details.queryParams.author);
+        }
+        if (typeof details.data.page !== typeof undefined) {
+          this.set('data.page', details.data.page);
+        }
+      },
       _submissionsCompute: function (originalSubmissions, queryParams) {
         // if we don't have an original submissions object to work with then we need to bail
         if (typeof originalSubmissions === 'undefined') {
@@ -249,6 +286,20 @@
           return true;
         });
         return filteredSubmissions;
+      },
+      /**
+       * Support having a toast message because of delete or error elsewhere.
+       */
+      _deleteToast: function (deletetoast, old) {
+        if (typeof deletetoast !== typeof undefined) {
+          if (deletetoast == 'error') {
+            this.$.toast.show('That submission on longer exists!');
+          }
+          else {
+            this.$.toast.show('Submission deleted successfully!');
+          }
+          this.set('queryParams.deletetoast', undefined);
+        }
       },
       _authorFilterChanged: function (author, old) {
       },

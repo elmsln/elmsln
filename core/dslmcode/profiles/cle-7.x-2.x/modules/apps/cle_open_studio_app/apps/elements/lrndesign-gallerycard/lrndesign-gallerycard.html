@@ -132,9 +132,9 @@ that can pop up to display more info
         </div>
       </div>
       <div class="card-actions">
-        <lrndesign-avatar id="avatar" label="[[author]]" src="[[authorAvatar]]"></lrndesign-avatar>
+        <lrndesign-avatar id="avatar" label="[[author.name]]" src="[[author.avatar]]"></lrndesign-avatar>
         <div class="card-action-details">
-          <span class="text-left author">[[author]]</span>
+          <span class="text-left author">[[author.display_name]]</span>
           <span class="comments text-right">Comments: [[comments]]</span>
         </div>
       </div>
@@ -181,14 +181,9 @@ that can pop up to display more info
          * Gallery creator
          */
         author: {
-          type: String,
-          value: 'Author',
+          type: Object,
+          value: {'name' : 'author', 'display_name': 'Author'},
           notify: true,
-        },
-        authorAvatar: {
-          type: String,
-          notify: true,
-          reflectToAttribute: true,
         },
         /**
          * Visual elevation of the item off the UI via paper element height

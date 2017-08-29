@@ -2296,9 +2296,49 @@ function _elmsln_core_get_user_name($priority = 'full', $uid = NULL) {
 }
 
 /**
- * Return a form of the user's name based on possible fields
- * @var $uid  int  Account to render or active if empty
- * @return        object user's sis data if it exists
+ * Return a form of the user's picture.
+ * @var $style    string  The piece of info to try and return
+ * @var $uid      int     Account to render or active if empty
+ * @return        string  a representation of the user's name
+ */
+function _elmsln_core_get_user_picture($style = 'avatar', $uid = NULL) {
+  $picture = FALSE;
+  // user global if nothing there
+  if (is_null($uid)) {
+    $account = $GLOBALS['user'];
+  }
+  // account for getting a uid
+  else {
+    $account = user_load($uid);
+  }
+  $sis = _elmsln_core_get_sis_user_data($uid);
+  switch ($style) {
+    case 'avatar':
+    default:
+      // try for the sis data first
+      if (!is_null($sis) && isset($sis['avatar_url'])) {
+        $picture = $sis['avatar_url'];
+      }
+      else {
+        // fallback, a globgal profile value from CPR
+        $elmsln_global_profile = variable_get('elmsln_global_profile', 'cpr');
+        $uri = 'elmslnauthority://' . $elmsln_global_profile . '/users/photos/' . $account->name .'.jpg';
+        if (file_exists(_elmsln_core_realpath($uri))) {
+          $picture = file_create_url($uri);
+          $picture = str_replace('files/users', 'files/styles/foundation_access_lmsless_bar/public/users', $image);
+        }
+      }
+    break;
+  }
+  // allow people to override this
+  drupal_alter('elmsln_core_user_picture', $picture, $style, $account);
+  return $picture;
+}
+
+/**
+ * Return a form of the user's sis information.
+ * @var     $uid  int     Account to render or active if empty
+ * @return        object  user's sis data if it exists
  */
 function _elmsln_core_get_sis_user_data($uid = NULL) {
   $sis = NULL;
