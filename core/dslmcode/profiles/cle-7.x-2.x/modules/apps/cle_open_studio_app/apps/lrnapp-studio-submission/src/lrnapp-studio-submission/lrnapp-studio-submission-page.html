@@ -382,7 +382,11 @@
         var status = res.detail.response.status;
         root.saving = false;
         if (status === 200) {
+<<<<<<< HEAD
           window.location.href = this.basePath + 'lrnapp-studio-kanban?deletetoast';
+=======
+          this.set('route.path', '');
+>>>>>>> 9da078bbc52002cc9b657df60663eede5e0071c3
         }
       },
       _computeShowComments: function (submission, editPage) {
