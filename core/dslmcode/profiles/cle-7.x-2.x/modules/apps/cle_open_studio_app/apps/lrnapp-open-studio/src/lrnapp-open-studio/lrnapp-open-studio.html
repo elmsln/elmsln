@@ -119,6 +119,7 @@
       <lrnapp-open-studio-table name="table" base-path="[[basePath]]" submissions="{{submissions}}"></lrnapp-open-studio-table>
     </iron-pages>
     </div>
+    <paper-toast id="toast"></paper-toast>
   </template>
 
   <script>
@@ -221,6 +222,7 @@
       },
       observers: [
         '_routeChanged(route, endPoint)',
+        '_deleteToast(queryParams.deletetoast)',
         '_authorFilterChanged(queryParams.author)',
         '_projectFilterChanged(queryParams.project)',
         '_assignmentFilterChanged(queryParams.assignment)'
@@ -284,6 +286,20 @@
           return true;
         });
         return filteredSubmissions;
+      },
+      /**
+       * Support having a toast message because of delete or error elsewhere.
+       */
+      _deleteToast: function (deletetoast, old) {
+        if (typeof deletetoast !== typeof undefined) {
+          if (deletetoast == 'error') {
+            this.$.toast.show('That submission on longer exists!');
+          }
+          else {
+            this.$.toast.show('Submission deleted successfully!');
+          }
+          this.set('queryParams.deletetoast', undefined);
+        }
       },
       _authorFilterChanged: function (author, old) {
       },

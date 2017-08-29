@@ -115,7 +115,7 @@ class CleOpenStudioAppSubmissionService {
    */
   public function getSubmission($id, $options = array()) {
     global $user;
-    $item = array();
+    $item = FALSE;
     $encode = (isset($options['encode']) ? $options['encode'] : TRUE);
     $user = (isset($options['uid']) ? user_load($options['uid']) : $user);
     $section_id = _cis_connector_section_context();
