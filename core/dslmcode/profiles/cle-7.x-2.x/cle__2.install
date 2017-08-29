@@ -237,9 +237,7 @@ function cle__2_update_7018(&$sandbox) {
   $submissions = _cis_connector_assemble_entity_list('node', 'cle_submission', 'nid', 'nid');
   foreach ($submissions as $nid => $tmp) {
     $submission = node_load($nid);
-    if ($submission->comment == 0) {
-      $submission->comment = 2;
-      node_save($submission);
-    }
+    $submission->comment = 2;
+    node_save($submission);
   }
 }

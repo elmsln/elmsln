@@ -114,6 +114,14 @@ function entity_metadata_node_entity_property_info() {
     'schema field' => 'changed',
     'description' => t("The date the node was most recently updated."),
   );
+  $properties['comment'] = array(
+    'label' => t("Comment"),
+    'type' => 'integer',
+    'description' => t("Whether comments are allowed on this node: 0 = no, 1 = closed (read only), 2 = open (read/write)."),
+    'getter callback' => 'entity_metadata_node_get_properties',
+    'setter callback' => 'entity_property_verbatim_set',
+    'schema field' => 'comment',
+  );
   $properties['author'] = array(
     'label' => t("Author"),
     'type' => 'user',
