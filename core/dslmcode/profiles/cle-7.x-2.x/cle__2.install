@@ -229,3 +229,16 @@ function cle__2_update_7017(&$sandbox) {
   field_purge_batch(1000);
   field_purge_batch(1000);
 }
+
+/**
+ * Fix the fact that nodes were being told NOT to allow commenting by default.
+ */
+function cle__2_update_7018(&$sandbox) {
+  $submissions = _cis_connector_assemble_entity_list('node', 'cle_submission', 'nid', '_entity');
+  foreach ($submissions as $submission) {
+    if ($submission->comment == COMMENT_NODE_HIDDEN) {
+      $submission->comment = COMMENT_NODE_OPEN;
+      node_save($submission);
+    }
+  }
+}

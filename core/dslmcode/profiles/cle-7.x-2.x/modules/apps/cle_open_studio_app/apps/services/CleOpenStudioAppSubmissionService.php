@@ -18,6 +18,8 @@ class CleOpenStudioAppSubmissionService {
     $node->type = 'cle_submission';
     $node->uid = $user->uid;
     $node->status = 1;
+    // make sure comment statistics are triggered
+    $node->comment = COMMENT_NODE_OPEN;
     $node->field_assignment[LANGUAGE_NONE][0]['target_id'] = $assignment_id;
     // associate to the currently active section
     $node->og_group_ref[LANGUAGE_NONE][0]['target_id'] = _cis_section_load_section_by_id(_cis_connector_section_context());

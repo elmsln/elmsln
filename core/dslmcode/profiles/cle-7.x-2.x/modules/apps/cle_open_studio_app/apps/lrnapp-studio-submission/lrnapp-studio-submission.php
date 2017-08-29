@@ -24,6 +24,16 @@ function _cle_open_studio_app_submission_findone($machine_name, $app_route, $par
           case 'GET':
             $service = new CleOpenStudioAppSubmissionService();
             $return['data'] = $service->getSubmission($args[2]);
+            // update the last viewed history timestamp
+            if ($GLOBALS['user']->uid && $return['data']->id) {
+              db_merge('history')
+                ->key(array(
+                  'uid' => $GLOBALS['user']->uid,
+                  'nid' => $return['data']->id,
+                ))
+                ->fields(array('timestamp' => REQUEST_TIME))
+                ->execute();
+             }
             break;
           case 'PUT':
             $service = new CleOpenStudioAppSubmissionService();
