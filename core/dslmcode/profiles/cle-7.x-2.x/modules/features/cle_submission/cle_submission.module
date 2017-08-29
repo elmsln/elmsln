@@ -405,7 +405,7 @@ function cle_submission_node_presave($node) {
 
     // ensure we have a parent assignment
     if (!isset($node->field_assignment[LANGUAGE_NONE][0]['target_id'])) {
-      throw new Exception(t('Submissions need to have a parent assignment.'));
+      //throw new Exception(t('Submissions need to have a parent assignment.'));
     }
 
     // Make sure that the submissions parent assignment has it's dependencies met.
@@ -413,7 +413,7 @@ function cle_submission_node_presave($node) {
       $assignment_id = $node->field_assignment[LANGUAGE_NONE][0]['target_id'];
       $has_unmet_dependencies = $assignment_service->assignmentHasUnmetDependencies($assignment_id);
       if ($has_unmet_dependencies) {
-        throw new Exception(t('You must complete the previous assignment before you can submit assignment.'));
+        //throw new Exception(t('You must complete the previous assignment before you can submit assignment.'));
       }
     }
 
