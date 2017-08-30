@@ -3,6 +3,8 @@
 <link rel="import" href="lrnapp-studio-submission-comment.html">
 <link rel="import" href="../../bower_components/lrnsys-comment/lrnsys-comment-list.html">
 <link rel="import" href="../../bower_components/marked-element/marked-element.html">
+<link rel="import" href="../../bower_components/vaadin-split-layout/vaadin-split-layout.html">
+
 
 <dom-module id="lrnapp-studio-submission-page">
   <template>
@@ -84,12 +86,12 @@
         font-size: 1.5em;
       }
 
-      .flex-wrap {
-        display: flex;
-      }
-
       .submission-page-wrapper {
         padding: 0 1em;
+        --vaadin-split-layout-splitter: {
+          min-width: .4em;
+          background: var(--paper-amber-200);
+        };
       }
 
       .submission-page {
@@ -102,13 +104,8 @@
         padding: 0 0 2em 1em;
       }
 
-       :host[edit-page] .submission-page {
-        width: 100%;
-      }
-
       .submission-comments {
-        width: 40vw;
-        overflow-y: visible;
+        overflow-y: hidden;
         padding: 0;
         margin: 0;
       }
@@ -153,18 +150,6 @@
       lrnapp-studio-submission-object {
         width: 100%;
       }
-
-      marked-element {
-        padding: 0 2.5em 0 2.5em;
-      }
-
-      .assignment-title {
-        padding: 1em 1em 0 1em;
-      }
-
-      .paper-button-0 {
-        text-transform: capitalize;
-      }
     </style>
 
     <app-route route="{{route}}" pattern="/edit" tail="{{tail}}" active="{{editPage}}">
@@ -186,13 +171,7 @@
         <lrnsys-button on-tap="_backToKanban" icon="arrow-back" label="Back to project management" hover-class="amber darken-4 white-text"></lrnsys-button>
       </template>
       <div spacer main-title>[[submission.attributes.title]]</div>
-      <div spacer>
-        <lrnsys-dialog alt="View Assignment" body-append>
-          <span slot="button"><iron-icon icon="icons:assignment"></iron-icon>Assignment Details</span>
-          <h1 class="assignment-title">{{submission.relationships.assignment.attributes.title}}</h1>
-          <marked-element markdown="[[submission.relationships.assignment.attributes.body]]"></marked-element>
-        </lrnsys-dialog>
-      </div>
+      <div spacer class="comment-box">
         <paper-button id="comment-count" style="margin:0;padding:.25em;text-transform:none;">
           <iron-icon icon="communication:forum"></iron-icon>
           [[submission.meta.comment_count]] Comments
@@ -287,7 +266,7 @@
         },
         showComments: {
           type: Boolean,
-          computed: '_computeShowComments(submission, editPage)'
+          computed: '_computeShowComments(submission)'
         }
       },
       observers: [
@@ -400,14 +379,13 @@
         var status = res.detail.response.status;
         root.saving = false;
         if (status === 200) {
-          this.set('route.path', '');
           window.location.href = this.basePath + 'lrnapp-studio-kanban?deletetoast';
         }
       },
       _computeShowComments: function (submission, editPage) {
         try {
           var type = submission.meta.submissionType;
-          if (type !== 'critique' && !editPage && submission.attributes.state == 'submission_ready') {
+          if (type !== 'critique' && submission.attributes.state == 'submission_ready') {
             return true;
           }
         } catch (error) {
