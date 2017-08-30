@@ -27,7 +27,8 @@
           "h5peditor.class.php",
           "h5peditor-file.class.php",
           "h5peditor-ajax.class.php",
-          "h5peditor-storage.interface.php"
+          "h5peditor-storage.interface.php",
+          "h5peditor-ajax.interface.php"
         ]
     }
 }

@@ -426,6 +426,18 @@ class H5PDefaultStorage implements \H5PFileStorage {
     $path = "{$this->path}/content/{$contentId}/{$file}";
     if (file_exists($path)) {
       unlink($path);
+
+      // Clean up any empty parent directories to avoid cluttering the file system
+      $parts = explode('/', $path);
+      while (array_pop($parts) !== NULL) {
+        $dir = implode('/', $parts);
+        if (is_dir($dir) && count(scandir($dir)) === 2) { // empty contains '.' and '..'
+          rmdir($dir); // Remove empty parent
+        }
+        else {
+          return; // Not empty
+        }
+      }
     }
   }
 

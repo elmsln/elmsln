@@ -168,7 +168,12 @@ function h5p_admin_settings($form, &$form_state) {
     '#type' => 'checkbox',
     '#title' => t('Automatically contribute usage statistics'),
     '#default_value' => variable_get('h5p_send_usage_statistics', TRUE),
-    '#description' => t('Usage statistics numbers will automatically be reported to help the developers better understand how H5P is used and to determine potential areas of improvement.'),
+    '#description' => t(
+        'Usage statistics numbers will automatically be reported to help the developers better ' .
+        'understand how H5P is used and to determine potential areas of improvement. Read more about ' .
+        'which <a href="@url">data is collected on h5p.org</a>.',
+        array('@url' => 'https://h5p.org/tracking-the-usage-of-h5p')
+    ),
   );
 
   // Set h5p settings class on form container

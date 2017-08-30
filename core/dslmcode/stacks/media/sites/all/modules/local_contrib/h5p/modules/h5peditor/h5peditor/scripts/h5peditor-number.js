@@ -47,6 +47,9 @@ ns.Number.prototype.appendTo = function ($wrapper) {
       if (that.$range !== undefined) {
         that.$range.val(value);
       }
+      if (value !== undefined && that.field.unit) {
+        that.$input.val(value + ' ' + that.field.unit);
+      }
     }
   });
 
@@ -71,8 +74,8 @@ ns.Number.prototype.appendTo = function ($wrapper) {
 /**
  * Create HTML for the field.
  */
-ns.Number.prototype.createHtml = function () {
-  var input = ns.createText(this.value, 15);
+ns.Number.prototype.createHtml = function () {  
+  var input = ns.createText((this.field.unit && this.value !== undefined ? (this.value + ' ' + this.field.unit) : this.value), 15);
   /* TODO: Add back in when FF gets support for input:range....
    *if (this.field.min !== undefined && this.field.max !== undefined && this.field.step !== undefined) {
     input = '<input type="range" min="' + this.field.min + '" max="' + this.field.max + '" step="' + this.field.step + '"' + (this.value === undefined ? '' : ' value="' + this.value + '"') + '/>' + input;
@@ -91,16 +94,20 @@ ns.Number.prototype.validate = function () {
   var value = H5P.trim(this.$input.val());
   var decimals = this.field.decimals !== undefined && this.field.decimals;
 
-  if (this.$errors.html().length > 0) {
-    this.$input.addClass('error');
+  if (this.field.unit) {
+    value = value.replace(new RegExp(' *' + this.field.unit + '$'), '');
   }
 
   // Clear errors before showing new ones
   this.$errors.html('');
 
+  // Determine property name
+  var propertyName = (that.field.label === 0 ? ns.t('core', 'numberField') : that.field.label);
+
   if (!value.length) {
     if (that.field.optional === true) {
       // Field is optional and does not have a value, nothing more to validate
+      this.$input.removeClass('error');
       return;
     }
 
@@ -108,10 +115,10 @@ ns.Number.prototype.validate = function () {
     this.$errors.append(ns.createError(ns.t('core', 'requiredProperty', {':property': ns.t('core', 'numberField')})));
   }
   else if (decimals && !value.match(new RegExp('^-?[0-9]+(.|,)[0-9]{1,}$'))) {
-    this.$errors.append(ns.createError(ns.t('core', 'onlyNumbers', {':property': that.field.label})));
+    this.$errors.append(ns.createError(ns.t('core', 'onlyNumbers', {':property': propertyName})));
   }
   else if (!decimals && !value.match(new RegExp('^-?[0-9]+$'))) {
-    this.$errors.append(ns.createError(ns.t('core', 'onlyNumbers', {':property': that.field.label})));
+    this.$errors.append(ns.createError(ns.t('core', 'onlyNumbers', {':property': propertyName})));
   }
   else {
     if (decimals) {
@@ -122,15 +129,17 @@ ns.Number.prototype.validate = function () {
     }
 
     if (this.field.max !== undefined && value > this.field.max) {
-      this.$errors.append(ns.createError(ns.t('core', 'exceedsMax', {':property': that.field.label, ':max': this.field.max})));
+      this.$errors.append(ns.createError(ns.t('core', 'exceedsMax', {':property': propertyName, ':max': this.field.max})));
     }
     else if (this.field.min !== undefined && value < this.field.min) {
-      this.$errors.append(ns.createError(ns.t('core', 'belowMin', {':property': that.field.label, ':min': this.field.min})));
+      this.$errors.append(ns.createError(ns.t('core', 'belowMin', {':property': propertyName, ':min': this.field.min})));
     }
     else if (this.field.step !== undefined && value % this.field.step)  {
-      this.$errors.append(ns.createError(ns.t('core', 'outOfStep', {':property': that.field.label, ':step': this.field.step})));
+      this.$errors.append(ns.createError(ns.t('core', 'outOfStep', {':property': propertyName, ':step': this.field.step})));
     }
   }
+
+  this.$input.toggleClass('error', this.$errors.html().length > 0);
 
   return ns.checkErrors(this.$errors, this.$input, value);
 };

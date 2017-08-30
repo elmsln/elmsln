@@ -145,8 +145,8 @@ class H5PEditorAjax {
 
     // Make sure file is valid and mark it for cleanup at a later time
     if ($file->validate()) {
-      $file_id = $this->core->fs->saveFile($file, $contentId);
-      $this->storage->markFileForCleanup($file_id, $contentId);
+      $file_id = $this->core->fs->saveFile($file, 0);
+      $this->storage->markFileForCleanup($file_id);
     }
     $file->printResult();
   }
@@ -317,8 +317,7 @@ class H5PEditorAjax {
    */
   private function callHubEndpoint($endpoint) {
     $path = $this->core->h5pF->getUploadedH5pPath();
-    $protocol = (extension_loaded('openssl') ? 'https' : 'http');
-    $response = $this->core->h5pF->fetchExternalData("{$protocol}://{$endpoint}", NULL, TRUE, empty($path) ? TRUE : $path);
+    $response = $this->core->h5pF->fetchExternalData(H5PHubEndpoints::createURL($endpoint), NULL, TRUE, empty($path) ? TRUE : $path);
     if (!$response) {
       H5PCore::ajaxError(
         $this->core->h5pF->t('Failed to download the requested H5P.'),

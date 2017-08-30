@@ -312,48 +312,9 @@ H5PEditor.ListEditor = (function ($) {
       if (item instanceof H5PEditor.Group) {
         // Good UX: automatically expand groups if not explicitly disabled by semantics
         item.expand();
-
-        item.children.some(function (child) {
-          var isTextField = self.isTextField(child);
-          if (isTextField) {
-            // Change label to reflect content of list group
-            setListgroupTitle(item.field.label, parseHtml(child.value));
-
-            // Update label when description has changed
-            child.$input.change(function () {
-              setListgroupTitle(item.field.label, parseHtml(child.value));
-            });
-          }
-          return isTextField;
-        });
       }
 
       $titleBar.children('.h5peditor-label').mousedown(down);
-
-      /**
-       * Parses a html string with special character codes into a text string
-       *
-       * @param {string} html
-       * @returns {string} Parsed html string
-       */
-      function parseHtml(html) {
-        return $('<p>').html(html).text();
-      }
-
-      /**
-       * Add text to the listgroups title element.
-       *
-       * @private
-       * @param {string} label
-       * @param {string} text
-       */
-      function setListgroupTitle(label, text) {
-        var title = label;
-        if (text !== undefined && text !== '') {
-          title += ': ' + text;
-        }
-        $titleBar.children('.title').html(title);
-      }
     };
 
     /**

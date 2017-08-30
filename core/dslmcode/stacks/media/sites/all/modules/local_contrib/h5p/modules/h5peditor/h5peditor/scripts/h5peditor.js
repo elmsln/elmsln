@@ -2,12 +2,14 @@
  * This file contains helper functions for the editor.
  */
 
-// Use resources set in parent window
-var ns = H5PEditor = window.parent.H5PEditor;
+// Grab common resources set in parent window, but avoid sharing back resources set in iframe)
+var ns = H5PEditor = H5P.jQuery.extend(false, {}, window.parent.H5PEditor);
 ns.$ = H5P.jQuery;
 
 // Load needed resources from parent.
 H5PIntegration = window.parent.H5PIntegration;
+H5PIntegration.loadedJs = {};
+H5PIntegration.loadedCss = {};
 
 /**
  * Keep track of our widgets.
@@ -677,10 +679,9 @@ ns.createImportantDescription = function (importantDescription) {
     }
 
     html += '</div>' +
-            '<span class="icon-important-desc" role="button" aria-label="' + ns.t('core', 'importantInstructions') + '" tabindex="0">' +
-              '<span class="path1"></span>' +
-              '<span class="path2"></span>' +
-            '</span>';
+            '<span class="important-description-show" role="button" tabindex="0">' +
+              ns.t('core', 'showImportantInstructions') +
+            '</span><span class="important-description-clear-right"></span>';
   }
 
   return html;
@@ -704,43 +705,40 @@ ns.bindImportantDescriptionEvents = function (widget, fieldName, parent) {
   var librarySelector = ns.findLibraryAncestor(parent);
   if (librarySelector.currentLibrary !== undefined) {
     var lib = librarySelector.currentLibrary.split(' ')[0];
-    context = (lib + '-' + fieldName).replace(/\.|_/g,'-');
+    context = (lib + '-' + fieldName).replace(/\.|_/g,'-') + '-important-description-open';
   }
 
   var $importantField = widget.$item.find('.h5peditor-field-important-description');
 
   // Set first occurance to visible
-  ns.storage.get(context + '-seen', function (value) {
-    if (value !== true) {
-      $importantField.addClass('show');
+  ns.storage.get(context, function (value) {
+    if (value === undefined || value === true) {
+      widget.$item.addClass('important-description-visible');
     }
   });
 
   widget.$item.addClass('has-important-description');
 
   // Bind events to toggle button and update aria-pressed
-  widget.$item.find('.icon-important-desc')
-    .click(function() {
-      $importantField.toggleClass('show');
-      ns.$(this).attr('aria-pressed', $importantField.hasClass('show'));
+  widget.$item.find('.important-description-show')
+    .click(function () {
+      widget.$item.addClass('important-description-visible');
+      ns.storage.set(context, true);
     })
-    .keydown(function() {
+    .keydown(function () {
       if (event.which == 13 || event.which == 32) {
         ns.$(this).trigger('click');
         event.preventDefault();
       }
-    })
-    .attr('aria-pressed', $importantField.hasClass('show') ? 'true' : 'false' );
+    });
 
   // Bind events to close button and update aria-pressed of toggle button
   widget.$item.find('.important-description-close')
-    .click(function() {
-      ns.$(this).parent()
-        .removeClass('show')
-        .siblings('.icon-important-desc').attr('aria-pressed', false);
-      ns.storage.set(context + '-seen', true);
+    .click(function () {
+      widget.$item.removeClass('important-description-visible');
+      ns.storage.set(context, false);
     })
-    .keydown(function() {
+    .keydown(function () {
       if (event.which == 13 || event.which == 32) {
         ns.$(this).trigger('click');
         event.preventDefault();

@@ -60,10 +60,17 @@ ns.LibrarySelector = function (libraries, defaultLibrary, defaultParams) {
     that.$exampleUrl.attr('href', library.exampleUrl ? library.exampleUrl : '#').toggle(!!library.exampleUrl);
   }
 
-  // Change library on confirmation
-  changeLibraryDialog.on('confirmed', function () {
+  /**
+   * Event handler for loading a new library editor
+   * @private
+   */
+  var loadLibrary = function () {
+    that.trigger('editorload', that.selector.currentLibrary);
     that.selector.getSelectedLibrary(librarySelectHandler);
-  });
+  };
+
+  // Change library on confirmation
+  changeLibraryDialog.on('confirmed', loadLibrary);
 
   // Revert selector on cancel
   changeLibraryDialog.on('canceled', function () {
@@ -71,17 +78,13 @@ ns.LibrarySelector = function (libraries, defaultLibrary, defaultParams) {
   });
 
   // First time a library is selected in the editor
-  this.selector.on('selected', function () {
-    that.selector.getSelectedLibrary(librarySelectHandler);
-  });
+  this.selector.on('selected', loadLibrary);
 
   this.selector.on('resized', function () {
     that.trigger('resized');
   });
 
-  this.on('select', function () {
-    that.selector.getSelectedLibrary(librarySelectHandler);
-  });
+  this.on('select', loadLibrary);
 };
 
 // Extends the event dispatcher
@@ -165,6 +168,7 @@ ns.LibrarySelector.prototype.loadSemantics = function (library, params) {
 
     that.$selector.attr('disabled', false);
     $loading.remove();
+    that.trigger('editorloaded', library);
   });
 };
 
