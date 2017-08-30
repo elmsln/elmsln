@@ -23,9 +23,9 @@
         display: inline-flex;
       }
 
-      lrndesign-contentblock {
+      marked-element {
         display: block;
-        margin: .5em;
+        margin: 0 5em 0 5em;
       }
 
       iron-image {
@@ -57,13 +57,23 @@
         overflow-x: hidden;
         text-overflow: ellipsis;
         margin-top: 1rem;
-        text-transform: uppercase;
-        text-align: left;
+        text-align: center;
       }
 
       .author {
         color: #555;
         font-size: 1rem;
+        font-weight: 500;
+        font-style: normal;
+        line-height: 1rem;
+        padding: 0.25rem 0 0.5rem 0;
+        margin: 0;
+        text-transform: capitalize;
+      }
+
+      .date {
+        color: #555;
+        font-size: 1.5rem;
         font-weight: 500;
         font-style: normal;
         line-height: 1rem;
@@ -114,17 +124,17 @@
     <div class="submission-page">
       <paper-card class="submission-page-card ferpa-protect">
         <div class="card-content">
-            <h1 class="title">{{submission.attributes.title}}</h1>
-            <div class="author">By: {{submission.relationships.author.data.display_name}}</div>
+            <lrndesign-avatar class="center" label="{{submission.relationships.author.data.display_name}}"></lrndesign-avatar>
+            <div class="author center">{{submission.relationships.author.data.display_name}}</div>
+             <h2 class="title center">{{submission.attributes.title}}</h2>
+             <h3 class="date center">Submitted:<moment-element output-format="MMM DD[,] YYYY" datetime="{{submission.meta.created}}"></h3>
             <!-- ----- Text Submission -----  -->
             <template is="dom-if" if="[[submission.attributes.body]]">
-              <lrndesign-contentblock title="Text Submitted">
                 <marked-element markdown="[[submission.attributes.body]]"></marked-element>
-              </lrndesign-contentblock>
             </template>
             <!-- ----- Images Submission -----  -->
             <template is="dom-if" if="[[submission.attributes.images]]">
-              <lrndesign-contentblock class="center" title="Images Submitted">
+              <lrndesign-contentblock class="center">
                 <template is="dom-repeat" items="[[_toArray(submission.attributes.images)]]" as="image">
                   <lrnsys-dialog alt="View Image" body-append>
                     <span slot="button">
@@ -145,7 +155,7 @@
           </template>
           <!-- ----- Links Submission -----  -->
           <template is="dom-if" if="[[submission.attributes.links]]">
-            <lrndesign-contentblock title="Links Submitted">
+            <lrndesign-contentblock>
               <template is="dom-repeat" items="[[_toArray(submission.attributes.links)]]" as="link">
                 <p><strong>[[link.title]]:</strong>
                   <a class="link" href="[[link.url]]" target="_blank">[[link.url]]</a></p>
