@@ -146,13 +146,13 @@
       </vaadin-grid-column>
       <vaadin-grid-column resizable>
         <template class="header">
-          <vaadin-grid-sorter path="changed">Submitted</vaadin-grid-sorter>
+          <vaadin-grid-sorter path="meta.changed">Submitted</vaadin-grid-sorter>
         </template>
         <template>
             [[item.meta.humandate]]
         </template>
         <template class="footer">
-          <vaadin-grid-filter aria-label="Submitted" path="changed" value="[[_filterSubmitted]]">
+          <vaadin-grid-filter aria-label="Submitted" path="meta.changed" value="[[_filterSubmitted]]">
             <paper-input slot="filter" label="Submitted" value="{{_filterSubmitted::input}}" focus-target></paper-input>
           </vaadin-grid-filter>
         </template>
