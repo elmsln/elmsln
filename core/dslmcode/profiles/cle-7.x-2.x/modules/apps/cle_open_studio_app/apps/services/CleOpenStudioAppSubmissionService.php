@@ -445,7 +445,7 @@ class CleOpenStudioAppSubmissionService {
       $encoded_submission->attributes->links = NULL;
       $encoded_submission->attributes->links = $submission->field_links[LANGUAGE_NONE];
       // Video
-      $encoded_submission->attributes->video = array();
+      $encoded_submission->attributes->video = NULL;
       if (isset($submission->field_video[LANGUAGE_NONE])) {
         $videos = $submission->field_video[LANGUAGE_NONE];
         if ($videos) {
