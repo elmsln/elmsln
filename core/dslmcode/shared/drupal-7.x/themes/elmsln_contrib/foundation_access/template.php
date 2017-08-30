@@ -144,7 +144,7 @@ function foundation_access_preprocess_html(&$variables) {
 
   drupal_add_css($css, array('type' => 'inline', 'group' => CSS_THEME, 'weight' => 999));
   // google font / icons from google
-  drupal_add_css('//fonts.googleapis.com/css?family=Material+Icons%7CDroid+Serif:400,700,400italic,700italic%7COpen+Sans:300,600,700', array('type' => 'external', 'group' => CSS_THEME, 'weight' => 1000));
+  drupal_add_css('//fonts.googleapis.com/css?family=Material+Icons%7CDroid+Serif:400,700,400italic,700italic%7COpen+Sans:300,600,700%7CRoboto:300,400,500,700', array('type' => 'external', 'group' => CSS_THEME, 'weight' => 1000));
   $libraries = libraries_get_libraries();
   if (!_entity_iframe_mode_enabled()) {
     // gifs need to be done as a player for accessibility reasons
@@ -1384,7 +1384,7 @@ function foundation_access_html_head_alter(&$head_elements) {
       $path . 'css/system.base.css',
       $path . 'css/main.css',
       $path . 'fonts/elmsln/elmsln-font-styles.css',
-      '//fonts.googleapis.com/css?family=Material+Icons|Droid+Serif:400,700,400italic,700italic|Open+Sans:300,600,700)',
+      '//fonts.googleapis.com/css?family=Material+Icons%7CDroid+Serif:400,700,400italic,700italic%7COpen+Sans:300,600,700%7CRoboto:300,400,500,700)',
 
     );
     $css[] = $path . 'materialize_unwinding/css/materialize.css';
@@ -1820,7 +1820,7 @@ function _foundation_access_svg_whitelist_tags() {
  */
 function foundation_access_wysiwyg_editor_settings_alter(&$settings, $context) {
   // google font / icons from google
-  $settings['contentsCss'][] = '//fonts.googleapis.com/css?family=Material+Icons|Droid+Serif:400,700,400italic,700italic|Open+Sans:300,600,700)';
+  $settings['contentsCss'][] = '//fonts.googleapis.com/css?family=Material+Icons|Droid+Serif:400,700,400italic,700italic|Open+Sans:300,600,700%7CRoboto:300,400,500,700)';
   // bring in materialize
   $settings['contentsCss'][] = base_path() . drupal_get_path('theme', 'foundation_access') . '/materialize_unwinding/css/materialize.css';
   $lmsless_classes = _cis_lmsless_get_distro_classes(elmsln_core_get_profile_key());
