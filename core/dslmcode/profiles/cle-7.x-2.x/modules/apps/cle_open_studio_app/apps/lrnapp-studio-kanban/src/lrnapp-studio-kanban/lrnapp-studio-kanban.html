@@ -20,6 +20,7 @@
         position: absolute;
         background-color: white;
       }
+
       .projects-container {
         -webkit-box-pack: start;
         -ms-flex-pack: start;
@@ -31,6 +32,7 @@
         width: 150vw;
         padding-top: 1em;
       }
+
       .projects-window {
         width: 100vw;
         overflow-x: scroll;
@@ -166,6 +168,7 @@
         margin: 0em auto 1em;
         max-width: 20em;
       }
+
     </style>
     <iron-ajax auto id="projectbackend" url="[[sourcePath]]" handle-as="json" last-response="{{projectResponse}}" on-response="_handleProjectResponse">
     </iron-ajax>
@@ -173,86 +176,83 @@
     </iron-ajax>
 
     <app-location route="{{route}}" query-params="{{queryParams}}"></app-location>
-    <app-route
-        route="{{route}}"
-        pattern="[[endPoint]]/:page"
-        data="{{data}}"
-        tail="{{tail}}"
-        query-params="{{queryParams}}">
+    <app-route route="{{route}}" pattern="[[endPoint]]/:page" data="{{data}}" tail="{{tail}}" query-params="{{queryParams}}">
     </app-route>
     <div id="loading">
       <h3>Loading..</h3>
       <elmsln-loading color="grey-text" size="large"></elmsln-loading>
     </div>
-    <lrnapp-studio-project-button hidden$="[[!projectResponse.data.canCreateProjects]]" classes="amber darken-3 white-text" end-point="[[endPoint]]" csrf-token="[[csrfToken]]" icon="add"></lrnapp-studio-project-button>
+    <lrnapp-studio-project-button hidden$="[[!projectResponse.data.canCreateProjects]]" classes="amber darken-3 white-text" end-point="[[endPoint]]"
+      csrf-token="[[csrfToken]]" icon="add"></lrnapp-studio-project-button>
     <div class="projects-window">
       <iron-list items="[[_toArray(projectResponse.data.projects)]]" as="project" class="projects-container" grid>
-      <template class="projects-container-items">
-        <div class="project-container">
-          <paper-card id$="project-[[project.id]]" class="project-card grey lighten-3" heading="{{project.attributes.title}}" elevation="2">
-            <div class="project-operations">
-              <lrnsys-button icon-class="no-margin" id$="project-[[project.id]]-edit" alt="Edit project" class="circle operation" hover-class="amber lighten-2"
-                hidden="[[!project.meta.canUpdate]]" icon="create" on-tap="_makeProjectEditLink">
-              </lrnsys-button>
-              <lrnapp-studio-assignment-button project-id="[[project.id]]" icon-class="no-margin" id$="project-[[project.id]]-add" alt="Add assignment" class="circle operation" hover-class="amber lighten-2"
-                hidden="[[!project.meta.canUpdate]]" icon="add" end-point="[[endPoint]]" csrf-token="[[csrfToken]]">
-              </lrnapp-studio-assignment-button>
-              <lrnsys-button id$="project-[[project.id]]-delete" alt="Delete project!" class="circle operation" hover-class="red darken-2 white-text"
-                header="Delete project!" hidden="[[!project.meta.canDelete]]" icon="delete-forever" on-tap="_deleteProjectDialog"
-                icon-class="no-margin">
-                </lrnsys-dialog>
-            </div>
-            <div class="card-content">
-              <iron-list items="[[_toArray(project.relationships.assignments)]]" as="assignment">
-                <template>
-                  <div class="assignment-row" id="assignment">
-                    <lrnsys-dialog body-append on-focusin="assignmentFocusIn" class="assignment-row-button" id$="assignment-[[project.id]]-[[assignment.id]]"
-                      header="[[assignment.attributes.title]]" hover-class="amber lighten-5">
-                      <span slot="button" class="button-contents">
+        <template class="projects-container-items">
+          <div class="project-container">
+            <paper-card id$="project-[[project.id]]" class="project-card grey lighten-3" heading="{{project.attributes.title}}" elevation="2">
+              <div class="project-operations">
+                <lrnsys-button icon-class="no-margin" id$="project-[[project.id]]-edit" alt="Edit project" class="circle operation" hover-class="amber lighten-2"
+                  hidden="[[!project.meta.canUpdate]]" icon="create" on-tap="_makeProjectEditLink">
+                </lrnsys-button>
+                <lrnapp-studio-assignment-button project-id="[[project.id]]" icon-class="no-margin" id$="project-[[project.id]]-add" alt="Add assignment"
+                  class="circle operation" hover-class="amber lighten-2" hidden="[[!project.meta.canUpdate]]" icon="add" end-point="[[endPoint]]"
+                  csrf-token="[[csrfToken]]">
+                </lrnapp-studio-assignment-button>
+                <lrnsys-button id$="project-[[project.id]]-delete" alt="Delete project!" class="circle operation" hover-class="red darken-2 white-text"
+                  header="Delete project!" hidden="[[!project.meta.canDelete]]" icon="delete-forever" on-tap="_deleteProjectDialog"
+                  icon-class="no-margin">
+                  </lrnsys-dialog>
+              </div>
+              <div class="card-content">
+                <iron-list items="[[_toArray(project.relationships.assignments)]]" as="assignment">
+                  <template>
+                    <div class="assignment-row" id="assignment">
+                      <lrnsys-dialog body-append on-focusin="assignmentFocusIn" class="assignment-row-button" id$="assignment-[[project.id]]-[[assignment.id]]"
+                        header="[[assignment.attributes.title]]" hover-class="amber lighten-5">
+                        <span slot="button" class="button-contents">
                   <div class$="status-indicator [[assignment.meta.relatedSubmissions.complete.color]]">
                     <iron-icon icon="[[assignment.meta.relatedSubmissions.complete.icon]]"disabled$="[[!assignment.meta.relatedSubmissions.canCreate]]"></iron-icon>
                   </div>
                   <div class="assignment-title">[[assignment.attributes.title]]</div>
                 </span>
-                      <div slot="content">
-                        <app-toolbar class$="[[assignment.meta.relatedSubmissions.complete.color]]">
-                          <div>
-                            <iron-icon icon="[[assignment.meta.relatedSubmissions.complete.icon]]" disabled$="[[!assignment.meta.relatedSubmissions.canCreate]]"></iron-icon>
-                            [[assignment.meta.relatedSubmissions.complete.submission.title]]
-                          </div>
-                          <div spacer class="comment-box" hidden$="[[!assignment.meta.relatedSubmissions.complete.submission.id]]">
-                            <paper-button id$="assignment-[[project.id]]-[[assignment.id]]-comments" style="margin:0;padding:.25em;text-transform:none;">
-                              <iron-icon icon="communication:forum"></iron-icon>
-                              [[assignment.meta.relatedSubmissions.complete.submission.meta.comments.count]] Comments
-                            </paper-button>
-                            <paper-badge hidden$="[[displayNewBadge(assignment.meta.relatedSubmissions.complete.submission.meta.new)]]"
-                              for$="assignment-[[project.id]]-[[assignment.id]]-comments" label$="[[assignment.meta.relatedSubmissions.complete.submission.meta.comments.new]]"></paper-badge>
-                          </div>
+                        <div slot="content">
+                          <app-toolbar class$="[[assignment.meta.relatedSubmissions.complete.color]]">
+                            <div>
+                              <iron-icon icon="[[assignment.meta.relatedSubmissions.complete.icon]]" disabled$="[[!assignment.meta.relatedSubmissions.canCreate]]"></iron-icon>
+                              [[assignment.meta.relatedSubmissions.complete.submission.title]]
+                            </div>
+                            <div spacer class="comment-box" hidden$="[[!assignment.meta.relatedSubmissions.complete.submission.id]]">
+                              <paper-button id$="assignment-[[project.id]]-[[assignment.id]]-comments" style="margin:0;padding:.25em;text-transform:none;">
+                                <iron-icon icon="communication:forum"></iron-icon>
+                                [[assignment.meta.relatedSubmissions.complete.submission.meta.comments.count]] Comments
+                              </paper-button>
+                              <paper-badge hidden$="[[displayNewBadge(assignment.meta.relatedSubmissions.complete.submission.meta.new)]]" for$="assignment-[[project.id]]-[[assignment.id]]-comments"
+                                label$="[[assignment.meta.relatedSubmissions.complete.submission.meta.comments.new]]"></paper-badge>
+                            </div>
 
-                          <lrnapp-studio-submission-button spacer auto assignment-id="[[assignment.id]]" submission="{{submission}}" end-point="[[buildSubmissionPath(basePath)]]"
-                            csrf-token="[[csrfToken]]" submission-id="[[assignment.meta.relatedSubmissions.complete.submission.id]]"></lrnapp-studio-submission-button>
-                          <div main-title></div>
-                          <paper-toggle-button id$="assignment-[[project.id]]-[[assignment.id]]-toggle" on-tap="statusToggle"></paper-toggle-button>
-                          <span id$="assignment-[[project.id]]-[[assignment.id]]-toggle-text"></span>
-                          <div bottom-item class="status-rationale">
-                            [[assignment.meta.relatedSubmissions.complete.rationale.text]]
-                          </div>
-                        </app-toolbar>
-                        <lrnsys-render-html html="[[assignment.attributes.body]]"></lrnsys-render-html>
-                      </div>
-                    </lrnsys-dialog>
-                    <span class="assignment-operations">
+                            <lrnapp-studio-submission-button spacer auto assignment-id="[[assignment.id]]" submission="{{submission}}" end-point="[[buildSubmissionPath(basePath)]]"
+                              csrf-token="[[csrfToken]]" submission-id="[[assignment.meta.relatedSubmissions.complete.submission.id]]"></lrnapp-studio-submission-button>
+                            <div main-title></div>
+                            <paper-toggle-button id$="assignment-[[project.id]]-[[assignment.id]]-toggle" on-tap="statusToggle"></paper-toggle-button>
+                            <span id$="assignment-[[project.id]]-[[assignment.id]]-toggle-text"></span>
+                            <div bottom-item class="status-rationale">
+                              [[assignment.meta.relatedSubmissions.complete.rationale.text]]
+                            </div>
+                          </app-toolbar>
+                          <lrnsys-render-html style="padding:2em;" html="[[assignment.attributes.body]]"></lrnsys-render-html>
+                        </div>
+                      </lrnsys-dialog>
+                      <span class="assignment-operations">
                 <lrnsys-button id$="assignment-[[project.id]]-[[assignment.id]]-add-critique" icon="editor:insert-comment" alt="Add critique" class="circle operation" hover-class="green lighten-2" hidden="[[!assignment.meta.canCritique]]" href$="[[assignment.meta.critiqueLink]]" icon-class="no-margin"></lrnsys-button>
                 <lrnsys-button id$="assignment-[[project.id]]-[[assignment.id]]-edit" icon="editor:mode-edit" alt="Edit" class="circle operation" hover-class="amber lighten-4" hidden="[[!assignment.meta.canUpdate]]" on-tap="_makeAssignmentEditLink" icon-class="no-margin green-text text-darken-4"></lrnsys-button>
                 <lrnsys-button id$="assignment-[[project.id]]-[[assignment.id]]-delete" icon="delete" alt="Delete" class="circle operation" hover-class="amber lighten-4" hidden="[[!assignment.meta.canDelete]]" on-tap="_deleteAssignmentDialog" icon-class="no-margin red-text text-darken-4"></lrnsys-button>
               </span>
-                  </div>
-                </template>
-              </iron-list>
-            </div>
-          </paper-card>
-        </div>
-      </template>
+                    </div>
+                  </template>
+                </iron-list>
+              </div>
+            </paper-card>
+          </div>
+        </template>
       </iron-list>
     </div>
     <paper-toast text="Updated" id="toast"></paper-toast>
@@ -325,7 +325,7 @@
       // If the current route is outside the scope of our app
       // then allow the website to break out of the single page
       // application routing
-      _routeChanged: function(route, endPoint) {
+      _routeChanged: function (route, endPoint) {
         if (typeof route.path === 'string') {
           if (typeof endPoint === 'string') {
             if (route.path.startsWith(endPoint)) {
@@ -342,8 +342,7 @@
         if (typeof deletetoast !== typeof undefined) {
           if (deletetoast == 'error') {
             this.$.toast.show('That submission on longer exists!');
-          }
-          else {
+          } else {
             this.$.toast.show('Submission deleted successfully!');
           }
           this.set('queryParams.deletetoast', undefined);
@@ -356,7 +355,8 @@
         var normalizedEvent = Polymer.dom(e);
         var local = normalizedEvent.localTarget;
         var parts = local.id.split('-');
-        window.location.href = this.basePath + '../node/' + parts[1] + '/edit?destination=apps/lrnapp-studio-kanban';
+        window.location.href = this.basePath + '../node/' + parts[1] +
+          '/edit?destination=apps/lrnapp-studio-kanban';
       },
       /**
        * @todo  remove this once we have a modal for it
@@ -365,7 +365,8 @@
         var normalizedEvent = Polymer.dom(e);
         var local = normalizedEvent.localTarget;
         var parts = local.id.split('-');
-        window.location.href = this.basePath + '../node/' + parts[2] + '/edit?destination=apps/lrnapp-studio-kanban';
+        window.location.href = this.basePath + '../node/' + parts[2] +
+          '/edit?destination=apps/lrnapp-studio-kanban';
       },
       /**
        * Handle the push to delete a project, pop up the modal.
@@ -390,8 +391,7 @@
           this.$.backend.body = this.projectToDelete;
           this.$.backend.url = this.endPoint + '/api/projects/' + this.projectToDelete + '?token=' + this.csrfToken;
           this.$.backend.generateRequest();
-        }
-        else if (this._deleteType == 'assignment') {
+        } else if (this._deleteType == 'assignment') {
           this.$.backend.method = 'DELETE';
           this.$.backend.body = this.assignmentToDelete;
           this.$.backend.url = this.endPoint + '/api/assignments/' + this.assignmentToDelete + '?token=' + this.csrfToken;
@@ -430,7 +430,8 @@
         // break the id out into project and assignment
         var parts = this.activeAssignment.split('-');
         // focus in on the submissions / assignment meta
-        var submission = this.projectResponse.data.projects['project-' + parts[1]].relationships.assignments['assignment-' + parts[2]].meta.relatedSubmissions.complete;
+        var submission = this.projectResponse.data.projects['project-' + parts[1]].relationships.assignments[
+          'assignment-' + parts[2]].meta.relatedSubmissions.complete;
         // ensure this isn't disabled though it shouldn't be possible
         if (!this.$$('#' + this.activeAssignment + '-toggle').disabled) {
           // hide the loading screen
@@ -480,8 +481,7 @@
           this.$.toast.text = 'Updated successfully';
           this.$.toast.toggle();
           this.$.projectbackend.generateRequest();
-        }
-        else {
+        } else {
           // this would imply an error
           this.$.loading.hidden = true;
         }
@@ -493,7 +493,8 @@
         if (this.activeAssignment != null) {
           var parts = this.activeAssignment.split('-');
           // focus in on the submissions / assignment meta
-          var submission = this.projectResponse.data.projects['project-' + parts[1]].relationships.assignments['assignment-' + parts[2]].meta.relatedSubmissions.complete;
+          var submission = this.projectResponse.data.projects['project-' + parts[1]].relationships.assignments[
+            'assignment-' + parts[2]].meta.relatedSubmissions.complete;
           // not finished but also not started
           if (submission.status == 0 && submission.submission.length == 0) {
             if (!update) {
@@ -502,16 +503,14 @@
             }
             this.$$('#' + this.activeAssignment + '-toggle').title = 'Submission not started';
             this.$$('#' + this.activeAssignment + '-toggle-text').textContent = 'Submission not started';
-          }
-          else if (submission.status == 0) {
+          } else if (submission.status == 0) {
             if (!update) {
               this.$$('#' + this.activeAssignment + '-toggle').disabled = false;
               this.$$('#' + this.activeAssignment + '-toggle').checked = false;
             }
             this.$$('#' + this.activeAssignment + '-toggle').title = 'Submission started';
             this.$$('#' + this.activeAssignment + '-toggle-text').textContent = 'Submission in progress';
-          }
-          else {
+          } else {
             if (!update) {
               this.$$('#' + this.activeAssignment + '-toggle').disabled = false;
               this.$$('#' + this.activeAssignment + '-toggle').checked = true;
