@@ -206,15 +206,6 @@
       </div>
     </app-toolbar>
 
-    <div class="flex-wrap submission-page-wrapper">
-      <template is="dom-if" if="[[showComments]]">
-        <div class="submission-comments">
-          <lrnsys-comment-list comment-ops-base="{{commentOpsBase}}" csrf-token="[[csrfToken]]" source-path="{{commentsUrl}}" create-stub-url="{{createStubUrl}}"></lrnsys-comment-list>
-        </div>
-      </template>
-      <lrnapp-studio-submission-object submission="{{submission}}" edit="[[editPage]]"></lrnapp-studio-submission-object>
-    </div>
-
     <vaadin-split-layout class="submission-page-wrapper">
       <div id="commentcolumn" class="submission-comments" style="min-width: 25%; max-width: 40%; width:30%;">
         <template is="dom-if" if="[[showComments]]">
