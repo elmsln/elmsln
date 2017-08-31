@@ -222,7 +222,7 @@ function webcomponents_load_all() {
 /**
  * Rebuild webcomponents from the file system.
  */
-function _webcomponents_rebuild() {
+function _webcomponents_rebuild($hide_messages = FALSE) {
   // force rebuild of components from static
   $processed = array();
   // load all possible web components
@@ -246,7 +246,9 @@ function _webcomponents_rebuild() {
                 foreach ($component as $key => $value) {
                   // see if any aspects changed
                   if ($key != 'file' && isset($entity->{$key}) && $entity->{$key} != $value) {
-                    drupal_set_message(t('Web components have changed! Make sure that your attributes are correctly reflected in your site. @key changed on @machine from @old to @new', array('@key' => $key, '@old' => serialize($entity->{$key}), '@new' => serialize($value), '@machine' => $component->machine_name)), 'warning', TRUE);
+                    if (!$hide_messages) {
+                      drupal_set_message(t('Web components have changed! Make sure that your attributes are correctly reflected in your site. @key changed on @machine from @old to @new', array('@key' => $key, '@old' => serialize($entity->{$key}), '@new' => serialize($value), '@machine' => $component->machine_name)), 'warning', TRUE);
+                    }
                     $entity->{$key} = $value;
                   }
                 }
