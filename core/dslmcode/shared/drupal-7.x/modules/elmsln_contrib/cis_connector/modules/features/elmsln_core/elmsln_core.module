@@ -1275,10 +1275,22 @@ function elmsln_core_url_inbound_alter(&$path, $original_path, $path_language) {
     $changed = TRUE;
   }
   // look or cross-network masquerade
-  if (isset($query_params['elmsln_masquerade']) && $masquerad = $query_params['elmsln_masquerade']) {
+  if (isset($query_params['elmsln_masquerade']) && $masqname = $query_params['elmsln_masquerade']) {
+    $changed = TRUE;
     // Remove masquerade item
     unset($query_params['elmsln_masquerade']);
-    $changed = TRUE;
+    // we were masquerading, but now we're back at a system after we stopped
+    if ($masqname == '__back' && isset($_SESSION['masquerading'])) {
+      masquerade_switch_back();
+    }
+    // odd case but make sure we don't switch to ourselves before allowing a switch
+    else if ($masqname != $GLOBALS['user']->name) {
+      // convert name to uid if possible
+      if ($tmp = user_load_by_name($masqname)) {
+        // perform the masquerade of the account which automatically does permission checks
+        masquerade_switch_user($tmp->uid);
+      }
+    }
   }
   // ensure we skimmed something off before redirect looping!
   if ($changed) {
@@ -1318,6 +1330,9 @@ function elmsln_core_url_outbound_alter(&$path, &$options, $original_path) {
         // keep masquerade context
         if (isset($_SESSION['masquerading'])) {
           $options['query']['elmsln_masquerade'] = $GLOBALS['user']->name;
+        }
+        else {
+          $options['query']['elmsln_masquerade'] = '__back';
         }
       }
     }
