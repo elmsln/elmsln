@@ -227,6 +227,7 @@ function cis_lmsless_form_masquerade_block_1_alter(&$form, &$form_state, $form_i
     '#type' => 'button',
     '#suffix' => '</div>',
     '#weight' => 11,
+    '#attributes' => array('class' => array('grey', 'view-user-button')),
   );
   // push on additional validation handler
   array_unshift($form['#validate'], 'cis_lmsless_form_masquerade_block_1_submit');
