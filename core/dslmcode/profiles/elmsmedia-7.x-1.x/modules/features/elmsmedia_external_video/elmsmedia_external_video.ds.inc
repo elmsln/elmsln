@@ -34,7 +34,6 @@ function elmsmedia_external_video_ds_layout_settings_info() {
       'footer' => array(
         6 => 'field_tagging',
         7 => 'field_figurelabel_ref',
-        8 => 'og_group_ref',
       ),
       'hidden' => array(
         9 => 'path',
@@ -55,7 +54,6 @@ function elmsmedia_external_video_ds_layout_settings_info() {
       'field_poster' => 'right',
       'field_tagging' => 'footer',
       'field_figurelabel_ref' => 'footer',
-      'og_group_ref' => 'footer',
       'path' => 'hidden',
       'revision_information' => 'hidden',
       'options' => 'hidden',

@@ -7,9 +7,6 @@
     {
       "command": "en",
       "arguments": [
-        "og_access",
-        "og_context",
-        "cis_unique_tag",
         "cis_service_restws"
       ]
     }

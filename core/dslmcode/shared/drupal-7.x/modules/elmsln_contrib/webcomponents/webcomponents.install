@@ -147,5 +147,5 @@ function webcomponents_update_7000(&$sandbox) {
  * Implements hook_install().
  */
 function webcomponents_install() {
- _webcomponents_rebuild();
+ _webcomponents_rebuild(TRUE);
 }

@@ -34,9 +34,6 @@ function elmsmedia_video_ds_layout_settings_info() {
         7 => 'field_caption',
         8 => 'field_transcript',
       ),
-      'footer' => array(
-        9 => 'og_group_ref',
-      ),
       'hidden' => array(
         10 => 'author',
         11 => 'revision_information',
@@ -57,7 +54,6 @@ function elmsmedia_video_ds_layout_settings_info() {
       'field_poster' => 'right',
       'field_caption' => 'right',
       'field_transcript' => 'right',
-      'og_group_ref' => 'footer',
       'author' => 'hidden',
       'revision_information' => 'hidden',
       'options' => 'hidden',

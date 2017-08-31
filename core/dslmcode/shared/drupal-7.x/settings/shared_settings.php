@@ -32,7 +32,7 @@ if (isset($conf['restws_basic_auth_user_regex'])) {
 $conf['restws_basic_auth_user_regex'] = '/.*/';
 // httprl setting to avoid really long timeouts
 $conf['httprl_install_lock_time'] = 1;
-
+// COMMENT ALL THIS OUT IF YOU NEED TO REINSTALL A SITE FOR SOME REASON
 // cache backends so we know about  apdqc, those we formally support
 $conf['cache_backends'][] = 'sites/all/modules/ulmus/apdqc/apdqc.cache.inc';
 // Default backend controller to be apdqc

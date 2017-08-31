@@ -59,24 +59,6 @@ function elmsmedia_feature_strongarm() {
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
-  $strongarm->name = 'entity_iframe_bundle_og_membership';
-  $strongarm->value = array(
-    'og_membership_type_default' => 'og_membership_type_default',
-  );
-  $export['entity_iframe_bundle_og_membership'] = $strongarm;
-
-  $strongarm = new stdClass();
-  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
-  $strongarm->api_version = 1;
-  $strongarm->name = 'entity_iframe_bundle_og_membership_type';
-  $strongarm->value = array(
-    'og_membership_type' => 'og_membership_type',
-  );
-  $export['entity_iframe_bundle_og_membership_type'] = $strongarm;
-
-  $strongarm = new stdClass();
-  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
-  $strongarm->api_version = 1;
   $strongarm->name = 'entity_iframe_bundle_user';
   $strongarm->value = array(
     'user' => 'user',
@@ -97,8 +79,6 @@ function elmsmedia_feature_strongarm() {
   $strongarm->value = array(
     'node' => 'node',
     'accessibility_test' => 0,
-    'og_membership_type' => 0,
-    'og_membership' => 0,
     'taxonomy_term' => 0,
     'user' => 0,
   );

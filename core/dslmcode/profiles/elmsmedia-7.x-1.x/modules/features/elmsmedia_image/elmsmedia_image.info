@@ -54,4 +54,3 @@ features[variable][] = node_preview_elmsmedia_image
 features[variable][] = node_submitted_elmsmedia_image
 features[variable][] = wysiwyg_template_default_elmsmedia_image
 features_exclude[field_base][field_figurelabel_ref] = field_figurelabel_ref
-features_exclude[dependencies][og_ui] = og_ui

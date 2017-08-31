@@ -27,7 +27,6 @@ function elmsmedia_image_field_group_info() {
       1 => 'field_citation',
       2 => 'field_image_caption',
       3 => 'field_tagging',
-      4 => 'og_group_ref',
     ),
     'format_type' => 'fieldset',
     'format_settings' => array(
