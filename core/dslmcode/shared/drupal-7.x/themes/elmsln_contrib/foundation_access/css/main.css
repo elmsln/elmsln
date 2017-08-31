@@ -7559,6 +7559,9 @@ ul.header-menu-options li.active-trail {
 .user-nav-masquerade div {
   padding: .25rem;
 }
+.view-user-button {
+  margin-left: 2rem;
+}
 .user-nav-user-roles {
   width: 100%;
   text-align: center;

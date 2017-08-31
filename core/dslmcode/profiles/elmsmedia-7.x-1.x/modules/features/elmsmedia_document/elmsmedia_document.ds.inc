@@ -30,9 +30,6 @@ function elmsmedia_document_ds_layout_settings_info() {
       'right' => array(
         4 => 'field_document_file',
       ),
-      'footer' => array(
-        5 => 'og_group_ref',
-      ),
       'hidden' => array(
         6 => 'path',
         7 => 'revision_information',
@@ -49,7 +46,6 @@ function elmsmedia_document_ds_layout_settings_info() {
       'field_tagging' => 'left',
       'field_citation' => 'left',
       'field_document_file' => 'right',
-      'og_group_ref' => 'footer',
       'path' => 'hidden',
       'revision_information' => 'hidden',
       'options' => 'hidden',

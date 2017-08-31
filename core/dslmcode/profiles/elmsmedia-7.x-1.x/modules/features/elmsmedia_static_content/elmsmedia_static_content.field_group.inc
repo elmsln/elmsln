@@ -23,7 +23,6 @@ function elmsmedia_static_content_field_group_info() {
     'label' => 'Details',
     'weight' => '1',
     'children' => array(
-      0 => 'og_group_ref',
       1 => 'field_cis_course_ref',
     ),
     'format_type' => 'fieldset',

@@ -29,9 +29,6 @@ function elmsmedia_figure_label_ds_layout_settings_info() {
       'right' => array(
         3 => 'field_tagging',
       ),
-      'footer' => array(
-        4 => 'og_group_ref',
-      ),
       'hidden' => array(
         5 => 'author',
         6 => 'options',
@@ -47,7 +44,6 @@ function elmsmedia_figure_label_ds_layout_settings_info() {
       'field_cis_course_ref' => 'header',
       'body' => 'left',
       'field_tagging' => 'right',
-      'og_group_ref' => 'footer',
       'author' => 'hidden',
       'options' => 'hidden',
       'revision_information' => 'hidden',

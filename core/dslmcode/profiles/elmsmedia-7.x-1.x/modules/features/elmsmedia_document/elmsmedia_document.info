@@ -42,4 +42,3 @@ features[variable][] = node_options_document
 features[variable][] = node_preview_document
 features[variable][] = node_submitted_document
 features[variable][] = wysiwyg_template_default_document
-features_exclude[dependencies][og_ui] = og_ui

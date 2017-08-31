@@ -64,7 +64,6 @@ function icor_ux_field_default_field_instances() {
           'action_on_edit' => 0,
           'fallback' => 'none',
           'providers' => array(
-            'og_context' => TRUE,
             'url' => 1,
           ),
           'skip_perm' => 0,
@@ -144,7 +143,6 @@ function icor_ux_field_default_field_instances() {
           'action_on_edit' => 0,
           'fallback' => 'none',
           'providers' => array(
-            'og_context' => TRUE,
             'url' => 1,
           ),
           'skip_perm' => 0,

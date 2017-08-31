@@ -31,9 +31,6 @@ function elmsmedia_audio_ds_layout_settings_info() {
       'right' => array(
         5 => 'field_audio',
       ),
-      'footer' => array(
-        6 => 'og_group_ref',
-      ),
       'hidden' => array(
         7 => 'path',
         8 => 'revision_information',
@@ -51,7 +48,6 @@ function elmsmedia_audio_ds_layout_settings_info() {
       'field_citation' => 'left',
       'field_tagging' => 'left',
       'field_audio' => 'right',
-      'og_group_ref' => 'footer',
       'path' => 'hidden',
       'revision_information' => 'hidden',
       'options' => 'hidden',

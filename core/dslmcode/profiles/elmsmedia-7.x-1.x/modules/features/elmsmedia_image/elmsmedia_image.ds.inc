@@ -33,7 +33,6 @@ function elmsmedia_image_ds_layout_settings_info() {
       'footer' => array(
         5 => 'field_tagging',
         6 => 'field_figurelabel_ref',
-        7 => 'og_group_ref',
       ),
       'hidden' => array(
         8 => 'author',
@@ -53,7 +52,6 @@ function elmsmedia_image_ds_layout_settings_info() {
       'field_image' => 'right',
       'field_tagging' => 'footer',
       'field_figurelabel_ref' => 'footer',
-      'og_group_ref' => 'footer',
       'author' => 'hidden',
       'revision_information' => 'hidden',
       'options' => 'hidden',
