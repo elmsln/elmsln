@@ -157,6 +157,8 @@ H5PEditor.widgets.video = H5PEditor.widgets.audio = H5PEditor.AV = (function ($)
       for (var i = 0; i < this.params.length; i++) {
         this.addFile(i);
       }
+    } else {
+      $container.find('.h5p-copyright-button').addClass('hidden');
     }
 
     var $dialog = $container.find('.h5p-editor-dialog');
@@ -165,13 +167,10 @@ H5PEditor.widgets.video = H5PEditor.widgets.audio = H5PEditor.AV = (function ($)
       return false;
     });
 
-    var group = new H5PEditor.widgets.group(self, H5PEditor.copyrightSemantics, self.copyright, function (field, value) {
+    ns.File.addCopyright(self, $dialog, function (field, value) {
       self.setCopyright(value);
     });
-    group.appendTo($dialog);
-    group.expand();
-    group.$group.find('.title').remove();
-    this.children = [group];
+
   };
 
   /**
@@ -250,6 +249,8 @@ H5PEditor.widgets.video = H5PEditor.widgets.audio = H5PEditor.AV = (function ($)
       $file.insertBefore(that.$files.children().eq(index));
     }
 
+    this.$add.parent().find('.h5p-copyright-button').removeClass('hidden');
+
     // Handle thumbnail click
     $file
       .children('.h5p-thumbnail')
@@ -288,6 +289,9 @@ H5PEditor.widgets.video = H5PEditor.widgets.audio = H5PEditor.AV = (function ($)
     // Remove file on confirmation
     confirmRemovalDialog.on('confirmed', function () {
       that.removeFileWithElement($file);
+      if (that.$files.children().length === 0) {
+        that.$add.parent().find('.h5p-copyright-button').addClass('hidden');
+      }
     });
   };
 
@@ -446,7 +450,7 @@ H5PEditor.widgets.video = H5PEditor.widgets.audio = H5PEditor.AV = (function ($)
    */
   C.providers = [{
     name: 'YouTube',
-    regexp: /^https?:\/\/((youtu.|y2u.)?be|(www.|m.)?youtube.com)\//i
+    regexp: /(?:https?:\/\/)?(?:www\.)?(?:(?:youtube.com\/(?:attribution_link\?(?:\S+))?(?:v\/|embed\/|watch\/|(?:user\/(?:\S+)\/)?watch(?:\S+)v\=))|(?:youtu.be\/|y2u.be\/))([A-Za-z0-9_-]{11})/i
   }];
 
   return C;

@@ -93,88 +93,83 @@ var H5PLibraryDetails= H5PLibraryDetails || {};
    * Creates the pager element on the bottom of the list
    */
   H5PLibraryDetails.createPagerElement = function () {
+    H5PLibraryDetails.$previous = $('<button type="button" class="previous h5p-admin"><</button>');
+    H5PLibraryDetails.$next = $('<button type="button" class="next h5p-admin">></button>');
 
-    // Only create pager if needed:
-    if(H5PLibraryDetails.currentContent.length > H5PLibraryDetails.PAGER_SIZE) {
+    H5PLibraryDetails.$previous.on('click', function () {
+      if(H5PLibraryDetails.$previous.hasClass('disabled')) {
+        return;
+      }
 
-      H5PLibraryDetails.$previous = $('<button type="button" class="previous h5p-admin"><</button>');
-      H5PLibraryDetails.$next = $('<button type="button" class="next h5p-admin">></button>');
+      H5PLibraryDetails.currentPage--;
+      H5PLibraryDetails.updatePager();
+      H5PLibraryDetails.createContentTable();
+    });
 
-      H5PLibraryDetails.$previous.on('click', function () {
-        if(H5PLibraryDetails.$previous.hasClass('disabled')) {
+    H5PLibraryDetails.$next.on('click', function () {
+      if(H5PLibraryDetails.$next.hasClass('disabled')) {
+        return;
+      }
+
+      H5PLibraryDetails.currentPage++;
+      H5PLibraryDetails.updatePager();
+      H5PLibraryDetails.createContentTable();
+    });
+
+    // This is the Page x of y widget:
+    H5PLibraryDetails.$pagerInfo = $('<span class="pager-info"></span>');
+
+    H5PLibraryDetails.$pager = $('<div class="h5p-content-pager"></div>').append(H5PLibraryDetails.$previous, H5PLibraryDetails.$pagerInfo, H5PLibraryDetails.$next);
+    H5PLibraryDetails.$content.append(H5PLibraryDetails.$pager);
+
+    H5PLibraryDetails.$pagerInfo.on('click', function () {
+      var width = H5PLibraryDetails.$pagerInfo.innerWidth();
+      H5PLibraryDetails.$pagerInfo.hide();
+
+      // User has updated the pageNumber
+      var pageNumerUpdated = function() {
+        var newPageNum = $gotoInput.val()-1;
+        var intRegex = /^\d+$/;
+
+        $goto.remove();
+        H5PLibraryDetails.$pagerInfo.css({display: 'inline-block'});
+
+        // Check if input value is valid, and that it has actually changed
+        if(!(intRegex.test(newPageNum) && newPageNum >= 0 && newPageNum < H5PLibraryDetails.getNumPages() && newPageNum != H5PLibraryDetails.currentPage)) {
           return;
         }
 
-        H5PLibraryDetails.currentPage--;
+        H5PLibraryDetails.currentPage = newPageNum;
         H5PLibraryDetails.updatePager();
         H5PLibraryDetails.createContentTable();
-      });
+      };
 
-      H5PLibraryDetails.$next.on('click', function () {
-        if(H5PLibraryDetails.$next.hasClass('disabled')) {
-          return;
-        }
-
-        H5PLibraryDetails.currentPage++;
-        H5PLibraryDetails.updatePager();
-        H5PLibraryDetails.createContentTable();
-      });
-
-      // This is the Page x of y widget:
-      H5PLibraryDetails.$pagerInfo = $('<span class="pager-info"></span>');
-
-      H5PLibraryDetails.$pager = $('<div class="h5p-content-pager"></div>').append(H5PLibraryDetails.$previous, H5PLibraryDetails.$pagerInfo, H5PLibraryDetails.$next);
-      H5PLibraryDetails.$content.append(H5PLibraryDetails.$pager);
-
-      H5PLibraryDetails.$pagerInfo.on('click', function () {
-        var width = H5PLibraryDetails.$pagerInfo.innerWidth();
-        H5PLibraryDetails.$pagerInfo.hide();
-
-        // User has updated the pageNumber
-        var pageNumerUpdated = function() {
-          var newPageNum = $gotoInput.val()-1;
-          var intRegex = /^\d+$/;
-
-          $goto.remove();
-          H5PLibraryDetails.$pagerInfo.css({display: 'inline-block'});
-
-          // Check if input value is valid, and that it has actually changed
-          if(!(intRegex.test(newPageNum) && newPageNum >= 0 && newPageNum < H5PLibraryDetails.getNumPages() && newPageNum != H5PLibraryDetails.currentPage)) {
-            return;
-          }
-
-          H5PLibraryDetails.currentPage = newPageNum;
-          H5PLibraryDetails.updatePager();
-          H5PLibraryDetails.createContentTable();
-        };
-
-        // We create an input box where the user may type in the page number
-        // he wants to be displayed.
-        // Reson for doing this is when user has ten-thousands of elements in list,
-        // this is the easiest way of getting to a specified page
-        var $gotoInput = $('<input/>', {
-          type: 'number',
-          min : 1,
-          max: H5PLibraryDetails.getNumPages(),
-          on: {
-            // Listen to blur, and the enter-key:
-            'blur': pageNumerUpdated,
-            'keyup': function (event) {
-              if (event.keyCode === 13) {
-                pageNumerUpdated();
-              }
+      // We create an input box where the user may type in the page number
+      // he wants to be displayed.
+      // Reson for doing this is when user has ten-thousands of elements in list,
+      // this is the easiest way of getting to a specified page
+      var $gotoInput = $('<input/>', {
+        type: 'number',
+        min : 1,
+        max: H5PLibraryDetails.getNumPages(),
+        on: {
+          // Listen to blur, and the enter-key:
+          'blur': pageNumerUpdated,
+          'keyup': function (event) {
+            if (event.keyCode === 13) {
+              pageNumerUpdated();
             }
           }
-        }).css({width: width});
-        var $goto = $('<span/>', {
-          'class': 'h5p-pager-goto'
-        }).css({width: width}).append($gotoInput).insertAfter(H5PLibraryDetails.$pagerInfo);
+        }
+      }).css({width: width});
+      var $goto = $('<span/>', {
+        'class': 'h5p-pager-goto'
+      }).css({width: width}).append($gotoInput).insertAfter(H5PLibraryDetails.$pagerInfo);
 
-        $gotoInput.focus();
-      });
+      $gotoInput.focus();
+    });
 
-      H5PLibraryDetails.updatePager();
-    }
+    H5PLibraryDetails.updatePager();
   };
 
   /**

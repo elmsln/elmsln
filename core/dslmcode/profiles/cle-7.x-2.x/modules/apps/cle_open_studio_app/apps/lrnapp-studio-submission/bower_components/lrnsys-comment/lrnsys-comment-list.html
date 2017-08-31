@@ -158,6 +158,7 @@ A listing and event handling for comments.
       handleDeleteDialog: function (e) {
         let root = this;
         root.activeComment = e.detail.comment;
+        document.body.appendChild(root.$.deleteaction);
         root.$.deleteaction.open();
       },
 

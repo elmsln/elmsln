@@ -138,7 +138,7 @@
                 <template is="dom-repeat" items="[[_toArray(submission.attributes.images)]]" as="image">
                   <lrnsys-dialog alt="View Image" body-append>
                     <span slot="button">
-                      <iron-image sizing="contain" class="contain" src="[[image.url]]"></iron-image>
+                      <iron-image sizing="contain" class="contain" src="[[image.thumbnail]]"></iron-image>
                     </span>
                   <iron-image src="[[image.url]]"></iron-image>
                 </lrnsys-dialog>

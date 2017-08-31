@@ -197,9 +197,16 @@ class H5peditorDrupalStorage implements H5peditorStorage {
    * @param $contentId
    */
   public static function markFileForCleanup($file, $content_id = null) {
-    // H5P Core cleans up
+    // Determine URI
+    $uri = 'public://';
+    $file_type = $file->getType();
+    $file_name = $file->getName();
     if ($content_id) {
-      return;
+      $h5pPath = variable_get('h5p_default_path', 'h5p');
+      $uri .= "{$h5pPath}/content/{$content_id}/{$file_type}s/{$file_name}";
+    }
+    else {
+      $uri .= "h5peditor/{$file_type}s/{$file_name}";
     }
 
     global $user;
@@ -208,7 +215,7 @@ class H5peditorDrupalStorage implements H5peditorStorage {
     $file_managed = (object) array(
       'uid' => $user->uid,
       'filename' => $file->getName(),
-      'uri' => 'public://h5peditor/' . $file->getType() . 's/' . $file->getName(),
+      'uri' => $uri,
       'filemime' => $file->type,
       'filesize' => $file->size,
       'status' => 0,

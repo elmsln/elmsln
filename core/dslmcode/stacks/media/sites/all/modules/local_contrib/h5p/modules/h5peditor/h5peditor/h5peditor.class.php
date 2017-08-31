@@ -249,6 +249,11 @@ class H5peditor {
       return; // Skip external files
     }
 
+    // Remove temporary files suffix
+    if (substr($params->path, -4, 4) === '#tmp') {
+      $params->path = substr($params->path, 0, strlen($params->path) - 4);
+    }
+
     // File could be copied from another content folder.
     $matches = array();
     if (preg_match($this->h5p->relativePathRegExp, $params->path, $matches)) {
@@ -436,7 +441,9 @@ class H5peditor {
     // Check if user has access to install libraries
     $libraries = array();
     foreach ($cached_libraries as &$result) {
+      // Check if user can install content type
       $result->restricted = !$this->canInstallContentType($result);
+
       // Formats json
       $libraries[] = $this->getCachedLibsMap($result);
     }
@@ -476,6 +483,8 @@ class H5peditor {
    * library to send to the front-end
    */
   public function getCachedLibsMap($cached_library) {
+    $restricted = isset($cached_library->restricted) ? $cached_library->restricted : FALSE;
+
     // Add mandatory fields
     $lib = array(
       'id'              => intval($cached_library->id),
@@ -498,7 +507,8 @@ class H5peditor {
       'owner'           => $cached_library->owner,
       'installed'       => FALSE,
       'isUpToDate'      => FALSE,
-      'restricted'      => isset($cached_library->restricted) ? $cached_library->restricted : FALSE
+      'restricted'      => $restricted,
+      'canInstall'      => !$restricted
     );
 
     // Add optional fields

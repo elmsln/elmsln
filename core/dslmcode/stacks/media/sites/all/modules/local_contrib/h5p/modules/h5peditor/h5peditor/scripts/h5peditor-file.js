@@ -122,28 +122,96 @@ ns.File.prototype.appendTo = function ($wrapper) {
     return false;
   });
 
-  var group = new ns.widgets.group(self, ns.copyrightSemantics, self.copyright, function (field, value) {
+  ns.File.addCopyright(self, $dialog, function (field, value) {
     if (self.params !== undefined) {
       self.params.copyright = value;
     }
     self.copyright = value;
   });
+
+};
+
+/**
+ * Help add copyright dialog to the given field
+ *
+ * @param {Object} field
+ * @param {function} setCopyright
+ */
+ns.File.addCopyright = function (field, $dialog, setCopyright) {
+
+  /**
+   * Help find object in list with the given property value.
+   *
+   * @param {Object[]} list of objects to search through
+   * @param {string} property to look for
+   * @param {string} value to match property value against
+   */
+  var find = function (list, property, value) {
+    var properties = property.split('.');
+
+    for (var i = 0; i < list.length; i++) {
+      var objProp = list[i];
+
+      for (var j = 0; j < properties.length; j++) {
+        objProp = objProp[properties[j]];
+      }
+
+      if (objProp === value) {
+        return list[i];
+      }
+    }
+  }
+
+  // Re-map old licenses that has been moved
+  if (field.copyright) {
+    if (field.copyright.license === 'ODC PDDL') {
+      field.copyright.license = 'PD';
+      field.copyright.version = 'CC0 1.0';
+    }
+    else if (field.copyright.license === 'CC PDM') {
+      field.copyright.license = 'PD';
+      field.copyright.version = 'CC PDM';
+    }
+  }
+
+  var group = new H5PEditor.widgets.group(field, H5PEditor.copyrightSemantics, field.copyright, setCopyright);
   group.appendTo($dialog);
   group.expand();
   group.$group.find('.title').remove();
-  this.children = [group];
+  field.children = [group];
+
+  // Locate license and version selectors
+  var licenseField = find(group.children, 'field.name', 'license');
+  var versionField = find(group.children, 'field.name', 'version');
+  versionField.field.optional = true; // Avoid any error messages
+
+  // Listen for changes to license
+  licenseField.changes.push(function (value) {
+
+    // Find versions for selected value
+    var option = find(licenseField.field.options, 'value', value);
+    var versions = option.versions;
+
+    versionField.$select.prop('disabled', versions === undefined);
+    if (versions === undefined) {
+      // If no versions add default
+      versions = [{
+        value: '-',
+        label: '-'
+      }];
+    }
+
+    // Find default selected version
+    var selected = (field.copyright.license === value &&
+                    field.copyright.version ? field.copyright.version : versions[0].value);
+
+    // Update versions selector
+    versionField.$select.html(H5PEditor.Select.createOptionsHtml(versions, selected)).change();
+  });
+
+  // Trigger update straight away
+  licenseField.changes[licenseField.changes.length - 1](field.copyright.license);
 };
-
-
-/**
- * Sync copyright between all video files.
- *
- * @returns {undefined}
- */
-ns.File.prototype.setCopyright = function (value) {
-  this.copyright = this.params.copyright = value;
-};
-
 
 /**
  * Creates thumbnail HTML and actions.

@@ -323,6 +323,14 @@ H5PEditor.List = (function ($) {
       return (parameters === undefined ? parameters : $.extend(true, [], parameters));
     };
 
+    /**
+     * Get a copy of the field semantics used by this list to create rows.
+     * @return {Object}
+     */
+    self.getField = function () {
+      return $.extend(true, {}, field.field);
+    };
+
     // Start the party!
     init();
   }

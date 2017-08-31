@@ -50,11 +50,20 @@ a {
     .h5peditor-field-description {
       display: none;
     }
-    textarea {
-      width: calc(100% - 70px);
+    .h5peditor-label-wrapper {
+      float: left;
     }
-    .ckeditor {
-      margin-right: 70px;
+  }
+
+  .important-description-visible {
+    .h5peditor-field-important-description {
+      display: block;
+    }
+    .h5peditor-label-wrapper {
+      float: none;
+    }
+    .important-description-show {
+      display: none;
     }
   }
 
@@ -86,6 +95,27 @@ a {
   }
   /* Placeholders - need to be on separate lines. If not,
      the browsers will invalidate them */
+  textarea:focus::-webkit-input-placeholder,
+  input:focus::-webkit-input-placeholder {
+    color: $form-input-focus-placeholder-color;
+  }
+  textarea:focus:-moz-placeholder,
+  input:focus:-moz-placeholder {
+    color: $form-input-focus-placeholder-color;
+  }
+  textarea:focus::-moz-placeholder,
+  input:focus::-moz-placeholder {
+    color: $form-input-focus-placeholder-color;
+  }
+  textarea:focus:-ms-input-placeholder,
+  input:focus:-ms-input-placeholder {
+    color: $form-input-focus-placeholder-color;
+  }
+  textarea:focus.h5peditor-ckeditor-placeholder,
+  input:focus.h5peditor-ckeditor-placeholder {
+    color: $form-input-focus-placeholder-color;
+  }
+
   ::-webkit-input-placeholder {
     color: $form-input-placeholder-color;
   }
@@ -111,6 +141,10 @@ a {
     @include box-shadow($form-input-box-shadow);
     -moz-appearance: none;
     -webkit-appearance: none;
+
+    &:disabled {
+      background-color: #efefef;
+    }
   }
   & > select {
     margin-bottom: 13px;
@@ -455,6 +489,7 @@ a {
     position: relative;
     float: left;
     margin-bottom: 0;
+    max-width: 100%;
 
     &.field {
       float: none;
@@ -465,6 +500,9 @@ a {
       @include box-shadow(0 0 10px 0 #666666);
       border: 1px solid #fff;
       cursor: pointer;
+      max-width: 100%;
+      min-width: 1em;
+      min-height: 1em;
     }
     .thumbnail:focus {
       @include box-shadow(0 0 10px 0 #222);
@@ -490,11 +528,12 @@ a {
       .h5peditor-field-file-upload-text:before {
         font-family: $icon-font-family;
         content: "\e902";
+        line-height: 1;
         color: #39c943;
         font-size: 2em;
         position: absolute;
-        left: .3em;
-        top: .08em;
+        left: 0.3em;
+        top: 0.08em;
       }
     }
     .remove {
@@ -526,6 +565,7 @@ a {
     img {
       max-width: 100%;
       vertical-align: bottom;
+      max-height: 100px;
     }
 
     .h5p-av-row {
@@ -808,8 +848,8 @@ a {
 .h5peditor-field-description,
 .h5p-help-text {
   font-size: 12px;
-  margin-top: 20px;
-  margin-bottom: 8px;
+  margin-top: 0.3em;
+  margin-bottom: 1em;
   font-weight: 500;
   color: #434446;
   line-height: 15px;
@@ -825,24 +865,6 @@ a {
   background-color: #f9f9d8;
   color: #000;
   display: none;
-
-  &.show {
-    display: block;
-  }
-
-  &:after {
-    content: '';
-    display: block;
-    position: absolute;
-    bottom: -8px;
-    right: 20px;
-    width: 14px;
-    height: 14px;
-    background: #f9f9d8;
-    border-right: 1px solid #ffde78;
-    border-bottom: 1px solid #ffde78;
-    -webkit-transform: rotate(45deg);
-  }
 
   .important-description-close {
     position: absolute;
@@ -882,23 +904,13 @@ a {
 
   .important-description-content {
     ul {
-      list-style: none;
       padding: 0;
       line-height: 2em;
       margin-top: 20px;
 
       li {
         line-height: 1.8em;
-        margin-left: 20px;
-
-        &:before {
-          content: "\2022 ";
-          color: #adacac;
-          font-size: 1.5em;
-          vertical-align: middle;
-          margin-left: -19px;
-          margin-right: 5px;
-        }
+        margin-left: 1.5em;
       }
     }
   }
@@ -1042,30 +1054,34 @@ a {
   border: 1px solid #f5f5f5;
 }
 
-.icon-important-desc {
-  font-family: $icon-font-family;
-  font-size: 2em;
-  float: right;
-  width: 70px;
-  text-align: center;
-  line-height: 1em;
+/* The show important description button */
+.important-description-show {
+  background: #f3d55a;
+  padding: 0.2em 0.5em 0.2em 1.7em;
+  margin-bottom: 0.5em;
+  font-size: 0.9em;
   cursor: pointer;
+  float: right;
+  position: relative;
 
-  .path1:before {
-    content: "\e908";
-    color: #f3d55a;
-    vertical-align: middle;
-    font-size: 1.6em;
-  }
-  .path2 {
-    position: relative;
-    top: -1px;
+  font-style: italic;
+  font-weight: bold;
 
-    &:before {
-      content: "\e909";
-      margin-left: -1.44em;
-      font-size: 0.85em;
-      vertical-align: middle;
-    }
+  &:before {
+    font-family: $icon-font-family;
+    font-style: normal;
+    font-weight: normal;
+    content: "\e909";
+    font-size: 1.8em;
+    position: absolute;
+    left: 0em;
+    top: 0em;
+    line-height: 0.85em;
+    vertical-align: top;
   }
+}
+
+.important-description-clear-right {
+  display: block;
+  clear: right;
 }

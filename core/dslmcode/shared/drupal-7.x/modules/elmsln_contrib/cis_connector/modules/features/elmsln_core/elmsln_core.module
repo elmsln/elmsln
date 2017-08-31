@@ -2336,6 +2336,38 @@ function _elmsln_core_get_user_picture($style = 'avatar', $uid = NULL) {
 }
 
 /**
+ * Load some user extra info useful for representing the user visually.
+ */
+function _elmsln_core_get_user_extras($uid = NULL) {
+  // resolve a user account
+  if (!is_null($uid)) {
+    $account = user_load($uid);
+  }
+  else {
+    global $user;
+    $account = $user;
+  }
+  if (_cis_connector_role_grouping('teacher', $account)) {
+    return array(
+      'icon' => 'social:school',
+      'label' => t('Instructor'),
+    );
+  }
+  else if (_cis_connector_role_grouping('staff', $account)) {
+    return array(
+      'icon' => 'stars',
+      'label' => t('Staff'),
+    );
+  }
+  else {
+    return array(
+      'icon' => FALSE,
+      'label' => FALSE,
+    );
+  }
+}
+
+/**
  * Return a form of the user's sis information.
  * @var     $uid  int     Account to render or active if empty
  * @return        object  user's sis data if it exists
