@@ -1,6 +1,4 @@
-<link rel="import" href="lrnapp-studio-submission-display.html">
-<link rel="import" href="lrnapp-studio-submission-edit.html">
-<link rel="import" href="lrnapp-studio-submission-critique.html">
+<link rel="import" href="lrnapp-studio-submission-object.html">
 <link rel="import" href="lrnapp-studio-submission-comments.html">
 <link rel="import" href="lrnapp-studio-submission-comment.html">
 <link rel="import" href="../../bower_components/lrnsys-comment/lrnsys-comment-list.html">
@@ -112,10 +110,6 @@
         margin: 0;
       }
 
-      lrnapp-studio-submission-edit {
-        width: 100%;
-      }
-
       elmsln-loading {
         position: absolute;
         display: none;
@@ -146,16 +140,27 @@
         width: 100%;
       }
 
-      lrnapp-studio-submission-edit {
-        max-width: 70em;
-        margin: auto;
-      }
-
       paper-dialog {
         width: 50%;
         width: 50vmax;
         padding: 1em;
         z-index: 99999;
+      }
+
+      lrnapp-studio-submission-object {
+        width: 100%;
+      }
+
+      .paper-button-0 {
+        text-transform: capitalize;
+      }
+
+      .assignment-body {
+        padding: 2em;
+      }
+
+      iron-icon {
+        margin: .2em;
       }
     </style>
 
@@ -178,7 +183,15 @@
         <lrnsys-button on-tap="_backToKanban" icon="arrow-back" label="Back to project management" hover-class="amber darken-4 white-text"></lrnsys-button>
       </template>
       <div spacer main-title>[[submission.attributes.title]]</div>
-      <div spacer class="comment-box">
+        <div spacer>
+        <lrnsys-dialog body-append header="[[submission.relationships.assignment.attributes.title]]">
+          <span slot="button"><iron-icon icon="icons:assignment"></iron-icon>Assignment Details</span>
+            <div class="assignment-body">
+            <marked-element id="assignment-body" markdown="[[submission.relationships.assignment.attributes.body]]"></marked-element>
+            </div>
+        </lrnsys-dialog>
+        </div>
+        <div>
         <paper-button id="comment-count" style="margin:0;padding:.25em;text-transform:none;">
           <iron-icon icon="communication:forum"></iron-icon>
           [[submission.meta.comment_count]] Comments
@@ -192,6 +205,16 @@
         <lrnsys-button on-tap="_resetRoute" icon="cancel" label="Cancel" hover-class="amber darken-4 white-text" hidden$="[[!submission.meta.canUpdate]]"></lrnsys-button>
       </div>
     </app-toolbar>
+
+    <div class="flex-wrap submission-page-wrapper">
+      <template is="dom-if" if="[[showComments]]">
+        <div class="submission-comments">
+          <lrnsys-comment-list comment-ops-base="{{commentOpsBase}}" csrf-token="[[csrfToken]]" source-path="{{commentsUrl}}" create-stub-url="{{createStubUrl}}"></lrnsys-comment-list>
+        </div>
+      </template>
+      <lrnapp-studio-submission-object submission="{{submission}}" edit="[[editPage]]"></lrnapp-studio-submission-object>
+    </div>
+
     <vaadin-split-layout class="submission-page-wrapper">
       <div id="commentcolumn" class="submission-comments" style="min-width: 25%; max-width: 40%; width:30%;">
         <template is="dom-if" if="[[showComments]]">
@@ -199,11 +222,7 @@
         </template>
       </div>
       <div id="submissioncolumn" style="width:70%;">
-        <iron-pages selected="[[selectedPage]]">
-          <lrnapp-studio-submission-display submission="{{submission}}"></lrnapp-studio-submission-display>
-          <lrnapp-studio-submission-edit submission="{{submission}}"></lrnapp-studio-submission-edit>
-          <lrnapp-studio-submission-critique submission="{{submission}}" edit="[[editPage]]"></lrnapp-studio-submission-critique>
-        </iron-pages>
+        <lrnapp-studio-submission-object submission="{{submission}}" edit="[[editPage]]"></lrnapp-studio-submission-object>
       </div>
       <iron-icon class="splitter-handle" icon="more-vert"></iron-icon>
     </vaadin-split-layout>
@@ -277,10 +296,6 @@
           notify: true,
           reflectToAttribute: true
         },
-        selectedPage: {
-          type: Number,
-          value: 0
-        },
         showComments: {
           type: Boolean,
           computed: '_computeShowComments(submission)'
@@ -290,7 +305,6 @@
         '_urlVarsChanged(id, endPoint)',
         '_paramsChanged(csrfToken)',
         '_bodyChanged(title)',
-        '_selectedPageChanged(editPage, submission.meta.submissionType)'
       ],
       listeners: {
         'submissionDeleteClicked': '_submissionDeleteClicked',
@@ -399,30 +413,6 @@
         if (status === 200) {
           window.location.href = this.basePath + 'lrnapp-studio-kanban?deletetoast';
         }
-      },
-      _selectedPageChanged: function (editPage, type) {
-        var selected = 0;
-        if (editPage) {
-          switch (type) {
-            case 'default':
-              selected = 1;
-              break;
-            case 'critique':
-              selected = 2;
-              break;
-          }
-        }
-        else {
-          switch (type) {
-            case 'default':
-              selected = 0;
-              break;
-            case 'critique':
-              selected = 2;
-              break;
-          }
-        }
-        this.set('selectedPage', selected);
       },
       _computeShowComments: function (submission) {
         try {
