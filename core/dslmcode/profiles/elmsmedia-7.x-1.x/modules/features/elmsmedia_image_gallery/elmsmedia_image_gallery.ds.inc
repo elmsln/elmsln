@@ -25,9 +25,6 @@ function elmsmedia_image_gallery_ds_layout_settings_info() {
       'right' => array(
         1 => 'field_images',
       ),
-      'footer' => array(
-        2 => 'og_group_ref',
-      ),
       'hidden' => array(
         3 => 'author',
         4 => 'options',
@@ -44,7 +41,6 @@ function elmsmedia_image_gallery_ds_layout_settings_info() {
     'fields' => array(
       'title' => 'left',
       'field_images' => 'right',
-      'og_group_ref' => 'footer',
       'author' => 'hidden',
       'options' => 'hidden',
       'revision_information' => 'hidden',

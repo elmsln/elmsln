@@ -61,7 +61,6 @@ function icor_jmol_field_default_field_instances() {
           'action_on_edit' => 0,
           'fallback' => 'none',
           'providers' => array(
-            'og_context' => FALSE,
             'url' => 1,
           ),
           'skip_perm' => 0,

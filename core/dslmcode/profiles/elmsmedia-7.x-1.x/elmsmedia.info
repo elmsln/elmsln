@@ -126,6 +126,7 @@ dependencies[] = entity_iframe_mode
 ; Fields
 dependencies[] = video_embed_field
 ; Other
+dependencies[] = cis_unique_tag
 dependencies[] = h5p
 dependencies[] = h5p_tincan_bridge
 dependencies[] = tincanapi

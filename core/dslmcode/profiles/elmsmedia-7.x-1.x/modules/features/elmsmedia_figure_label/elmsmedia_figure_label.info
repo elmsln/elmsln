@@ -39,4 +39,3 @@ features[variable][] = node_options_figurelabel
 features[variable][] = node_preview_figurelabel
 features[variable][] = node_submitted_figurelabel
 features[variable][] = wysiwyg_template_default_figurelabel
-features_exclude[dependencies][og_ui] = og_ui

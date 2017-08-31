@@ -132,6 +132,7 @@ dependencies[] = cis_course_authority
 ; Assessment Dependencies
 ; ----------
 ; Quiz goodness
+dependencies[] = cis_unique_tag
 dependencies[] = quiz
 dependencies[] = quiz_question
 dependencies[] = quiz_page

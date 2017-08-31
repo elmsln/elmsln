@@ -28,7 +28,6 @@ function elmsmedia_video_field_group_info() {
       2 => 'field_poster',
       3 => 'field_tagging',
       4 => 'field_transcript',
-      5 => 'og_group_ref',
     ),
     'format_type' => 'fieldset',
     'format_settings' => array(
