@@ -123,7 +123,7 @@
     <div class="submission-page">
       <paper-card class="submission-page-card ferpa-protect">
         <div class="card-content">
-            <lrndesign-avatar class="center" label="{{submission.relationships.author.data.display_name}}"></lrndesign-avatar>
+            <lrndesign-avatar class="center" label="{{submission.relationships.author.data.name}}" src="{{submission.relationships.author.data.avatar}}"></lrndesign-avatar>
             <div class="author center">{{submission.relationships.author.data.display_name}}</div>
              <h2 class="title center">{{submission.attributes.title}}</h2>
              <h3 class="date center">Submitted:<moment-element output-format="MMM DD[,] YYYY" datetime="{{submission.meta.created}}"></h3>

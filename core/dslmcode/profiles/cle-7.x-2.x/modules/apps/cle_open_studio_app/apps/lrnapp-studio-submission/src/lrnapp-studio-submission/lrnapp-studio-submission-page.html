@@ -183,15 +183,15 @@
         <lrnsys-button on-tap="_backToKanban" icon="arrow-back" label="Back to project management" hover-class="amber darken-4 white-text"></lrnsys-button>
       </template>
       <div spacer main-title>[[submission.attributes.title]]</div>
-        <div spacer>
+      <div spacer>
         <lrnsys-dialog body-append header="[[submission.relationships.assignment.attributes.title]]">
-          <span slot="button"><iron-icon icon="icons:assignment"></iron-icon>Assignment Details</span>
-            <div class="assignment-body">
-            <marked-element id="assignment-body" markdown="[[submission.relationships.assignment.attributes.body]]"></marked-element>
-            </div>
+        <span slot="button"><iron-icon icon="icons:assignment"></iron-icon>Assignment Details</span>
+          <div class="assignment-body">
+          <marked-element id="assignment-body" markdown="[[submission.relationships.assignment.attributes.body]]"></marked-element>
+          </div>
         </lrnsys-dialog>
-        </div>
-        <div>
+      </div>
+      <div>
         <paper-button id="comment-count" style="margin:0;padding:.25em;text-transform:none;">
           <iron-icon icon="communication:forum"></iron-icon>
           [[submission.meta.comment_count]] Comments
