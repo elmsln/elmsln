@@ -9,7 +9,7 @@
         font-size: 14px;
         line-height: 18px;
       }
-      h1 {
+      h1,h2,h3 {
         margin: 0;
         text-align: left;
       }
@@ -97,7 +97,7 @@
     <div class="submission-page">
       <paper-card class="submission-page-card ferpa-protect">
         <div class="card-content">
-            <h1 class="title">{{submission.attributes.title}}</h1>
+            <h2 class="title">{{submission.attributes.title}}</h2>
             <div class="author">By: {{submission.relationships.author.data.display_name}}</div>
             <!-- ----- Text Submission -----  -->
             <template is="dom-if" if="[[submission.attributes.body]]">
