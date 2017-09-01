@@ -15,11 +15,19 @@ define('WEBCOMPONENTS_APP_PATH', 'apps');
 function webcomponents_app_load_app_definitions($machine_name = NULL, $force_rebuild = FALSE) {
   // statically cache future calls
   $apps = &drupal_static(__FUNCTION__);
-  if (!isset($apps) || $force_rebuild) {
-    // load up the definitions of apps out there
-    $apps = module_invoke_all('register_webcomponent_apps');
-    drupal_alter('register_webcomponent_apps', $apps);
+  if (!isset($apps)) {
+    // Additional database cache to support alternative caches like memcache.
+    if (!$force_rebuild && $cached = cache_get('webcomponents_apps')) {
+      $apps = $cached->data;
+    }
+    else {
+      // load up the definitions of apps out there
+      $apps = module_invoke_all('register_webcomponent_apps');
+      drupal_alter('register_webcomponent_apps', $apps);
+      cache_set('webcomponents_apps', $apps);
+    }
   }
+
   if (!is_null($machine_name)) {
     // validate that this bucket exists
     if (isset($apps[$machine_name])) {
