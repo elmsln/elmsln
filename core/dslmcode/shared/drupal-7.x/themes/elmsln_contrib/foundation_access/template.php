@@ -89,9 +89,9 @@ function foundation_access_preprocess_user_profile(&$vars) {
       // default fallback of design office image
       $vars['banner'] = '<img class="background" src="' . base_path() . drupal_get_path('theme', 'foundation_access') . '/materialize_unwinding/images/office.jpg" alt="" />';
     }
-   // load up related user data
-    $blockObject = block_load('elmsln_core', 'elmsln_core_user_xapi_data');
-    $vars['user_data'] = _block_get_renderable_array(_block_render_blocks(array($blockObject)));
+    // load up related user data
+    //$blockObject = block_load('elmsln_core', 'elmsln_core_user_xapi_data');
+    //$vars['user_data'] = _block_get_renderable_array(_block_render_blocks(array($blockObject)));
     // load bio info into "about" tab
     $bio = '';
     if (isset($vars['user_profile']['field_bio'])) {
@@ -107,12 +107,12 @@ function foundation_access_preprocess_user_profile(&$vars) {
     // list tabs for rendering
     $vars['tabs'] = array(
       'bio' => t('About'),
-      'xapidata' => t('Activity data'),
+      //'xapidata' => t('Activity data'),
     );
     // list content for those tabs to match on key names
     $vars['tabs_content'] = array(
       'bio' => $bio,
-      'xapidata' => $vars['user_data'],
+      //'xapidata' => $vars['user_data'],
     );
   }
   else {
