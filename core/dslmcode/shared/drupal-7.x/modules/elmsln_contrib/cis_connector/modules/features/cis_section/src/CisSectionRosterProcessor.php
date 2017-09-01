@@ -278,6 +278,12 @@ class CisSectionRosterProcessor {
         $save_user = TRUE;
       }
 
+      // Update the data, if provided.
+      if (isset($user_data['data']) && $account->data != $user_data['data']) {
+        $account->data = $user_data['data'];
+        $save_user = TRUE;
+      }
+
       if ($save_user) {
         user_save($account);
       }
