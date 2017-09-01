@@ -50,6 +50,13 @@ function drush_cis_section_cis_process_roster() {
     catch (Exception $e) {
       watchdog_exception('cis_section_cron', $e);
     }
+
+    // Extend our lock.
+    $lock = lock_acquire('cis_section_drush_process', 300);
+    if (!$lock) {
+      drush_log('Failed to extend lock.', 'error');
+      return;
+    }
   }
 
   lock_release('cis_section_drush_process');
