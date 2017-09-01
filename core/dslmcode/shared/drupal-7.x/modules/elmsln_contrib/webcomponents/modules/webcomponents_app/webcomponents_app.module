@@ -79,6 +79,17 @@ function webcomponents_app_menu() {
   // load app definitions
   $apps = webcomponents_app_load_app_definitions(NULL, TRUE);
   foreach ($apps as $machine_name => $app) {
+    // support for an element being used as the root element
+    if (isset($app['opa-root'])) {
+      $items[WEBCOMPONENTS_APP_PATH] = array(
+        'title' => $app['title'],
+        'page callback' => '_webcomponents_app_load_app',
+        'page arguments' => array($machine_name),
+        'access callback' => '_webcomponents_app_access',
+        'access arguments' => array($machine_name),
+        'type' => MENU_CALLBACK,
+      );
+    }
     $items[WEBCOMPONENTS_APP_PATH . '/' . $machine_name] = array(
       'title' => $app['title'],
       'page callback' => '_webcomponents_app_load_app',
@@ -86,6 +97,7 @@ function webcomponents_app_menu() {
       'access callback' => '_webcomponents_app_access',
       'access arguments' => array(1),
       'type' => MENU_CALLBACK,
+      'options' => array('attributes' => array('name' => $machine_name)),
     );
     if (module_exists('devel')) {
       $items[WEBCOMPONENTS_APP_PATH . '/' . $machine_name . '/devel'] = array(
@@ -263,6 +275,11 @@ function _webcomponents_app_load_app($machine_name = NULL, $debug = FALSE) {
           $vars['properties'][$endpoint['property']] = $vars['properties']['end-point'] . '/' . $endpointpath . '?token=' . $vars['properties']['csrf-token'];
         }
       }
+    }
+    // support for one page apps to pass down their root correctly
+    else if (isset($app['opa-root'])) {
+      $vars['properties']['csrf-token'] = drupal_get_token('webcomponentapp');
+      $vars['properties']['base-path'] = base_path() . WEBCOMPONENTS_APP_PATH . '/';
     }
     // allow for modifying the app prior to render
     drupal_alter('webcomponent_render', $vars, $app);

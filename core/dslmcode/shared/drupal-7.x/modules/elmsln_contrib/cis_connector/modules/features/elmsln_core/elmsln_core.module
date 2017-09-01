@@ -2186,8 +2186,8 @@ function elmsln_core_register_webcomponent_apps_alter(&$apps) {
 function elmsln_core_webcomponent_render_alter(&$vars, $app) {
   // verify this is an app since this runs on other renders
   if (isset($app['is_app']) && $app['is_app']) {
-    $vars['properties']['elmsln_course'] = _cis_connector_course_context();
-    $vars['properties']['elmsln_section'] = _cis_connector_section_context();
+    $vars['properties']['elmsln-course'] = _cis_connector_course_context();
+    $vars['properties']['elmsln-section'] = _cis_connector_section_context();
   }
 }
 

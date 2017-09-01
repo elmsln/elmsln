@@ -58,6 +58,10 @@ function webcomponents_polymer_register_webcomponent_apps() {
         if (isset($app['title'])) {
           $return[$manifest['name']]['title'] = $app['title'];
         }
+        // support for opa-root integrations
+        if (isset($app['opa-root'])) {
+          $return[$manifest['name']]['opa-root'] = $app['opa-root'];
+        }
         // support for generating a visualized menu item in drupal's menu system
         if (isset($app['menu'])) {
           $return[$manifest['name']]['menu'] = $app['menu'];
