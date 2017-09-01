@@ -3645,6 +3645,10 @@ article ul:not(.contextual-links):not(.collapsible):not(.footnotes):not(.browser
 .contextual-container-left div.custom-contextual-links {
   float: left;
 }
+/* See https://github.com/elmsln/elmsln/issues/1900 for how this fixes inception race conditions. */
+div.contextual-links-wrapper:not(.contextual-links-processed) {
+  display:none;
+}
 
 #etb-course-nav .top-bar-section.title-link li a.active-trail {
   background-color: #eeeeee;
