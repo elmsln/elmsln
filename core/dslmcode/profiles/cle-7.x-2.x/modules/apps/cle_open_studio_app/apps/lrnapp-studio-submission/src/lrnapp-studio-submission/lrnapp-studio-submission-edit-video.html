@@ -97,6 +97,10 @@
         // need to add this new video to the array.
         if (tagname === 'IRON-AJAX') {
           var video_src = e.detail.response.data;
+          // make sure we upgrade from NULL to an array if needed
+          if (Object.prototype.toString.call(root.videos) != '[object Array]') {
+          	this.videos = [];
+          }
           root.push('videos', { video_url: root.newvideo, video_src: video_src });
           root.newvideo = '';
         }
