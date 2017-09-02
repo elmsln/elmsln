@@ -30,10 +30,10 @@
       attr-for-selected="name"
       fallback-selection="lrnapp-studio-dashboard"
       role="main">
-      <lrnapp-studio-dashboard name="lrnapp-studio-dashboard" csrf-token="[[csrfToken]]" end-point="[[_endPoint('lrnapp-studio-dashboard')]]" base-path="[[basePath]]" elmsln-course="[[elmslnCourse]]" elmsln-section="[[elmslnSection]]" tail="[[tail]]">
+      <lrnapp-studio-dashboard name="lrnapp-studio-dashboard" csrf-token="[[csrfToken]]" end-point="[[_endPoint('lrnapp-studio-dashboard')]]" base-path="[[basePath]]" elmsln-course="[[elmslnCourse]]" elmsln-section="[[elmslnSection]]" route="[[tail]]">
       </lrnapp-studio-dashboard>
-      <lrnapp-studio-kanban name="lrnapp-studio-kanban" csrf-token="[[csrfToken]]" end-point="[[_endPoint('lrnapp-studio-dashboard')]]" base-path="[[basePath]]" source-path="[[_sourcePath('lrnapp-studio-kanban/kanban-data')]]" elmsln-course="[[elmslnCourse]]" elmsln-section="[[elmslnSection]]" tail="[[tail]]"></lrnapp-studio-kanban>
-      <lrnapp-open-studio name="lrnapp-open-studio" csrf-token="[[csrfToken]]" end-point="[[_endPoint('lrnapp-open-studio')]]" base-path="[[basePath]]" source-path="[[_sourcePath('lrnapp-open-studio/data')]]" elmsln-course="[[elmslnCourse]]" elmsln-section="[[elmslnSection]]" tail="[[tail]]">
+      <lrnapp-studio-kanban name="lrnapp-studio-kanban" csrf-token="[[csrfToken]]" end-point="[[_endPoint('lrnapp-studio-dashboard')]]" base-path="[[basePath]]" source-path="[[_sourcePath('lrnapp-studio-kanban/kanban-data')]]" elmsln-course="[[elmslnCourse]]" elmsln-section="[[elmslnSection]]" route="[[tail]]"></lrnapp-studio-kanban>
+      <lrnapp-open-studio name="lrnapp-open-studio" csrf-token="[[csrfToken]]" end-point="[[_endPoint('lrnapp-open-studio')]]" base-path="[[basePath]]" source-path="[[_sourcePath('lrnapp-open-studio/data')]]" elmsln-course="[[elmslnCourse]]" elmsln-section="[[elmslnSection]]" route="[[tail]]">
       </lrnapp-open-studio>
     </iron-pages>
   </template>
