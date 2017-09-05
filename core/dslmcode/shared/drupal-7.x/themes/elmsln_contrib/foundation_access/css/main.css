@@ -1,18 +1,53 @@
 @charset "UTF-8";
 
 /**
- * These two selectors help ensure progressive enhancement on Safari and firefox is less ridiculous looking.
+ * These selectors with the x-scope help ensure progressive enhancement on Safari and firefox is less ridiculous looking.
  * If these aren't here we see the content inside off canvas items prior to them being enhanced by the
- * browser to full elements
+ * browser to full elements among other things. It also attempts to help these browsers have a less jerky load.
  */
 lrnsys-drawer,
-.elmsln-modal-content {
+.elmsln-modal-content,
+paper-tooltip {
   display: none;
 }
 lrnsys-drawer.x-scope,
 .x-scope .elmsln-modal-content,
-.elmsln-modal-container .elmsln-modal-content {
+.elmsln-modal-container .elmsln-modal-content,
+paper-tooltip.x-scope {
   display: unset;
+}
+
+lrnsys-button,paper-button {
+  display: block;
+  height: 3rem;
+  min-width: 3rem;
+  line-height: 3rem;
+}
+#etb-course-nav .top-bar li lrnsys-button {
+  height: 5rem;
+  padding: 0 1.5rem;
+}
+lrn-icon,iron-icon {
+  display: inline-block;
+}
+#etb-course-nav .top-bar li lrnsys-button.x-scope {
+  height: unset;
+  padding: unset;
+}
+#block-mooc-nav-block-mooc-nav-nav li.elmsln-book-item lrnsys-button {
+  padding-left: 1.75rem;
+}
+#block-mooc-nav-block-mooc-nav-nav li.elmsln-book-item lrnsys-button.x-scope {
+  padding-left: unset;
+}
+.elmsln-service-list li lrnsys-button {
+  height: 3.75rem;
+  line-height: 3.75rem;
+}
+lrnsys-button.x-scope,lrn-icon.x-scope,iron-icon.x-scope,paper-button.x-scope {
+  height: unset;
+  min-width: unset;
+  line-height: unset;
 }
 
 *,
