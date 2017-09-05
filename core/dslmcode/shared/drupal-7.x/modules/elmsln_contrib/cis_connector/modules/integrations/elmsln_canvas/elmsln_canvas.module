@@ -4,6 +4,8 @@
  * ELMSLN Canvas integration.
  */
 
+define('CANVAS_DEFAULT_AVATAR_NAME', 'avatar-50.png');
+
 /**
  * Implements hook_webcomponents_app_deliver_output_alter().
  * @param  string &$return text based output of the app
@@ -53,11 +55,34 @@ function _elmsln_canvas_form_submit($form, $form_state) {
         $date = new DateTime($ary[4]);
         $end_date = $date->format('Y-m-d H:i:s');
       }
-      // @todo need to break semester out into the actual year and semester
-      $semester = $term[1];
-      $year = '';
+      // try and break things out into year and semester
+      $tmp = drupal_strtolower($term[1]);
+      if (strpos($tmp, 's1')) {
+        $semester = 'su';
+        $year = str_replace('s1', '', $tmp);
+      }
+      else if (strpos($tmp, 'su')) {
+        $semester = 'su';
+        $year = str_replace('su', '', $tmp);
+      }
+      else if (strpos($tmp, 'fa')) {
+        $semester = 'fa';
+        $year = str_replace('fa', '', $tmp);
+      }
+      else if (strpos($tmp, 'sp')) {
+        $semester = 'sp';
+        $year = str_replace('sp', '', $tmp);
+      }
       $campus = '';
-      drupal_alter('elmsln_canvas_submit', $semester, $year, $campus, $start_date, $end_date, $course);
+      $variables = array(
+        'semester' => &$semester,
+        'year' => &$year,
+        'campus' => &$campus,
+        'start_date' => &$start_date,
+        'end_date' => &$end_date,
+        'course' => &$course
+      );
+      drupal_alter('elmsln_canvas_submit', $variables);
       $existing = _cis_helper_load_machine_name_by_access_string($access_string);
       // make sure they don't match before updating / creating a new one
       if ($existing != $machine_name) {
@@ -101,6 +126,10 @@ function elmsln_canvas_cis_helper_build_roster($section) {
       $fname = '';
       $lname = '';
     }
+    // support ripping out the avatar_url if it's default
+    if (strpos($member['user']['avatar_url'], CANVAS_DEFAULT_AVATAR_NAME)) {
+      unset($member['user']['avatar_url']);
+    }
     // build the roster array
     $roster[$name] = array(
       'role'  => $role,
@@ -111,9 +140,6 @@ function elmsln_canvas_cis_helper_build_roster($section) {
         'sis' => $member['user'],
       ),
     );
-    if (!empty($member['avatar_url'])) {
-      $roster[$name]['data']['sis']['avatar_url'] = $member['avatar_url'];
-    }
   }
   return $roster;
 }

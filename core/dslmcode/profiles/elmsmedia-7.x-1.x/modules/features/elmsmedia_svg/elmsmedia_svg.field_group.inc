@@ -26,7 +26,6 @@ function elmsmedia_svg_field_group_info() {
       0 => 'field_cis_course_ref',
       1 => 'field_svg_alttext',
       2 => 'field_tagging',
-      3 => 'og_group_ref',
       4 => 'field_accessible_fallback',
     ),
     'format_type' => 'fieldset',

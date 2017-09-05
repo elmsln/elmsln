@@ -89,9 +89,9 @@ function foundation_access_preprocess_user_profile(&$vars) {
       // default fallback of design office image
       $vars['banner'] = '<img class="background" src="' . base_path() . drupal_get_path('theme', 'foundation_access') . '/materialize_unwinding/images/office.jpg" alt="" />';
     }
-   // load up related user data
-    $blockObject = block_load('elmsln_core', 'elmsln_core_user_xapi_data');
-    $vars['user_data'] = _block_get_renderable_array(_block_render_blocks(array($blockObject)));
+    // load up related user data
+    //$blockObject = block_load('elmsln_core', 'elmsln_core_user_xapi_data');
+    //$vars['user_data'] = _block_get_renderable_array(_block_render_blocks(array($blockObject)));
     // load bio info into "about" tab
     $bio = '';
     if (isset($vars['user_profile']['field_bio'])) {
@@ -107,12 +107,12 @@ function foundation_access_preprocess_user_profile(&$vars) {
     // list tabs for rendering
     $vars['tabs'] = array(
       'bio' => t('About'),
-      'xapidata' => t('Activity data'),
+      //'xapidata' => t('Activity data'),
     );
     // list content for those tabs to match on key names
     $vars['tabs_content'] = array(
       'bio' => $bio,
-      'xapidata' => $vars['user_data'],
+      //'xapidata' => $vars['user_data'],
     );
   }
   else {
@@ -140,12 +140,11 @@ function foundation_access_preprocess_html(&$variables) {
   $variables['lmsless_classes'] = _cis_lmsless_get_distro_classes(elmsln_core_get_profile_key());
   $variables['system_title'] = (isset($settings['default_title']) ? $settings['default_title'] : $variables['distro']);
   $css = _foundation_access_contextual_colors($variables['lmsless_classes']);
-
   $variables['theme_path'] = base_path() . drupal_get_path('theme', 'foundation_access');
 
   drupal_add_css($css, array('type' => 'inline', 'group' => CSS_THEME, 'weight' => 999));
   // google font / icons from google
-  drupal_add_css('//fonts.googleapis.com/css?family=Material+Icons%7CDroid+Serif:400,700,400italic,700italic%7COpen+Sans:300,600,700', array('type' => 'external', 'group' => CSS_THEME, 'weight' => 1000));
+  drupal_add_css('//fonts.googleapis.com/css?family=Material+Icons%7CDroid+Serif:400,700,400italic,700italic%7COpen+Sans:300,600,700%7CRoboto:300,400,500,700', array('type' => 'external', 'group' => CSS_THEME, 'weight' => 1000));
   $libraries = libraries_get_libraries();
   if (!_entity_iframe_mode_enabled()) {
     // gifs need to be done as a player for accessibility reasons
@@ -1044,6 +1043,11 @@ function foundation_access_preprocess_node__inherit__image_gallery__image(&$vari
 function foundation_access_preprocess_node__inherit__svg(&$variables) {
   $variables['svg_aria_hidden'] = 'false';
   $variables['svg_alttext'] = NULL;
+  $variables['svg_lightbox_url'] = '';
+  // support lightboxing this if mode looks for it
+  if (strpos($variables['view_mode'], 'lightboxed')) {
+    $variables['svg_lightbox_url'] = file_create_url($variables['field_svg'][0]['uri']);
+  }
   $node_wrapper = entity_metadata_wrapper('node', $variables['node']);
   try {
     // if there is an accessbile text alternative then set the svg to aria-hidden
@@ -1085,17 +1089,8 @@ function foundation_access_preprocess_clipboardjs(&$variables) {
   $variables['content']['text']['markup'] = array(
     '#markup' => $variables['text'],
   );
-
   $variables['content']['button'] = array(
-    '#type' => 'button',
-    '#value' => check_plain($variables['button_label']),
-    '#attributes' => array(
-      'class' => array('clipboardjs-button', 'zmdi', 'zmdi-copy'),
-      'data-clipboard-alert' => 'toast',
-      'data-clipboard-alert-text' => $variables['alert_text'],
-      'data-clipboard-target' => '#' . $uniqid,
-      'onClick' => 'return false;',
-    ),
+    '#markup' => '<button title="' . t('Copy content') . '" class="clipboardjs-button" data-clipboard-alert="toast" data-clipboard-alert-text="' . $variables['alert_text'] . '" data-clipboard-target="#' . $uniqid . '" onclick="return false;"><iron-icon icon="content-copy" style="display:block;"></iron-icon></button>',
   );
 }
 
@@ -1120,9 +1115,6 @@ function foundation_access_link(&$variables) {
   $path = $variables['path'];
   $text = $variables['text'];
   $options = $variables['options'];
-  // good thing for static caching
-  $colors = _cis_lmsless_get_distro_classes(elmsln_core_get_profile_key());
-  $options['attributes']['hover-class'] = $colors['color'] . ' ' . $colors['dark'] . ' white-text';
   // support for lrn icon
   if ($variables['options']['fa_icon'] && !isset($variables['options']['identifier'])) {
     $options['html'] = TRUE;
@@ -1130,14 +1122,34 @@ function foundation_access_link(&$variables) {
   }
   // support for has-children chevron
   if (isset($variables['options']['has-children']) && $variables['options']['has-children']) {
-      $options['attributes']['icon'] = 'chevron-right';
-    }
+    $options['attributes']['icon'] = 'chevron-right';
+  }
+  return _foundation_access_lrnsys_button($text, $path, $options);
+}
+
+/**
+ * Shortcut to correctly render a lrnsys-button tag.
+ * @param  string $label   button label
+ * @param  string $path    href / location
+ * @param  array $options  array of options typically passed into l()
+ * @return string          a rendered button
+ */
+function _foundation_access_lrnsys_button($label, $path, $options) {
+  // good thing for static caching
+  if (!isset($options['attributes']['hover-class'])) {
+    $colors = _cis_lmsless_get_distro_classes(elmsln_core_get_profile_key());
+    $options['attributes']['hover-class'] = $colors['color'] . ' ' . $colors['dark'] . ' white-text';
+  }
+  // support links without a path
+  if ($path != NULL) {
+    $options['attributes']['href'] = check_plain(url($path, $options));
+  }
   // if HTML is set to true then we can't handle this at the moment
   if ($options['html']) {
-    return '<lrnsys-button href="' . check_plain(url($path, $options)) . '" ' . drupal_attributes($options['attributes']) . '>' . $text . '</lrnsys-button>';
+    return '<lrnsys-button ' . drupal_attributes($options['attributes']) . '>' . $label . '</lrnsys-button>';
   }
   else {
-    return '<lrnsys-button label="' . check_plain($text) . '" href="' . check_plain(url($path, $options)) . '" ' . drupal_attributes($options['attributes']) . '></lrnsys-button>';
+    return '<lrnsys-button label="' . check_plain($label) . '" ' . drupal_attributes($options['attributes']) . '></lrnsys-button>';
   }
 }
 
@@ -1182,7 +1194,7 @@ function foundation_access_menu_link(&$variables) {
       else {
         $textcolor = 'white-text';
       }
-      $title = '<lrnapp-fab-speed-dial-action icon="lrn-icons:' . $icon . '" color="' . $icon_map[$icon]['color'] . '">' . $title . '</lrnapp-fab-speed-dial-action>';
+      $title = '<lrnapp-fab-speed-dial-action icon="' . $icon_map[$icon]['icon'] . '" color="' . $icon_map[$icon]['color'] . '">' . $title . '</lrnapp-fab-speed-dial-action>';
       $element['#localized_options']['html'] = TRUE;
     }
     else {
@@ -1372,7 +1384,7 @@ function foundation_access_html_head_alter(&$head_elements) {
       $path . 'css/system.base.css',
       $path . 'css/main.css',
       $path . 'fonts/elmsln/elmsln-font-styles.css',
-      '//fonts.googleapis.com/css?family=Material+Icons|Droid+Serif:400,700,400italic,700italic|Open+Sans:300,600,700)',
+      '//fonts.googleapis.com/css?family=Material+Icons%7CDroid+Serif:400,700,400italic,700italic%7COpen+Sans:300,600,700%7CRoboto:300,400,500,700)',
 
     );
     $css[] = $path . 'materialize_unwinding/css/materialize.css';
@@ -1598,32 +1610,30 @@ function foundation_access_status_messages($variables) {
   $display = $variables['display'];
   $output = '';
 
-  $status_heading = array(
-    'error' => t('Error message'),
-    'status' => t('Status message'),
-    'warning' => t('Warning message'),
-    'notification' => t('Notification message'),
-  );
-
   $status_mapping = array(
-    'error' => 'alert',
-    'status' => 'success',
-    'warning' => 'secondary'
+    'error' => array(
+      'icon' => 'error',
+      'color' => 'red darken-4 white-text',
+      'heading' => t('Errors'),
+    ),
+    'warning' => array(
+      'icon' => 'warning',
+      'color' => 'yellow darken-4 white-text',
+      'heading' => t('Warnings'),
+    ),
+    'status' => array(
+      'icon' => 'info',
+      'color' => 'green darken-4 white-text',
+      'heading' => t('Notifications'),
+    ),
   );
-
   foreach (drupal_get_messages($display) as $type => $messages) {
-    if (isset($status_mapping[$type])) {
-      $output .= "<div role=\"alert\" aria-live=\"assertive\" data-alert class=\"alert-box $status_mapping[$type]\">\n";
+    if (!empty($status_mapping[$type])) {
+      $output .= '<h2 class="alert-heading ' . $status_mapping[$type]['color'] . '"><iron-icon icon="' . $status_mapping[$type]['icon'] . '" class="status-icon"></iron-icon>' . $status_mapping[$type]['heading'] . '</h2>';
     }
-    else {
-      $output .= "<div role=\"alert\" aria-live=\"assertive\" data-alert class=\"alert-box\">\n";
-    }
-
-    if (!empty($status_heading[$type])) {
-      $output .= '<h2 class="element-invisible">' . $status_heading[$type] . "</h2>\n";
-    }
+    $output .= "<div role=\"alert\" aria-live=\"assertive\" data-alert class=\"alert-box\">";
     if (count($messages) > 1) {
-      $output .= " <ul class=\"no-bullet\">\n";
+      $output .= " <ul class=\"no-bullet top-level\">\n";
       foreach ($messages as $message) {
         $output .= '  <li>' . $message . "</li>\n";
       }
@@ -1646,7 +1656,7 @@ function foundation_access_status_messages($variables) {
  *   Materialize.toast(message, displayLength, className, completeCallback);
  */
 function _foundation_access_make_toast($message, $display_length = 4000, $class_name = NULL, $callback = NULL) {
-  return '<paper-toast id="toastdrawer" class="fit-bottom" text="' . t('Messages') . '" opened duration="0"><paper-button onclick="toastdrawer.toggle()" class="red darken-4 white-text close-button">' . t('Close') . '</paper-button>' . $message . '</paper-toast>';
+  return '<paper-toast id="toastdrawer" class="fit-bottom" opened duration="0"><div class="paper-toast-label">' . t('Message center') . '<paper-button onclick="toastdrawer.toggle()" class="red darken-4 white-text close-button">' . t('Close') . '</paper-button></div><div class="toast-content-container">' . $message . '</div></paper-toast>';
 }
 
 /**
@@ -1806,22 +1816,11 @@ function _foundation_access_svg_whitelist_tags() {
 }
 
 /**
- * MOVED TO elmsln_api MODULE
- *
- * Converts youtube / vimeo URLs into things we can embed
- * @param  string $video_url a well formed youtube/vimeo direct URL.
- * @return string            the address that's valid for embed codes.
- */
-function _foundation_access_video_url($video_url) {
-  return __elmsln_api_video_url($video_url);
-}
-
-/**
  * Implementation of hook_wysiwyg_editor_settings_alter().
  */
 function foundation_access_wysiwyg_editor_settings_alter(&$settings, $context) {
   // google font / icons from google
-  $settings['contentsCss'][] = '//fonts.googleapis.com/css?family=Material+Icons|Droid+Serif:400,700,400italic,700italic|Open+Sans:300,600,700)';
+  $settings['contentsCss'][] = '//fonts.googleapis.com/css?family=Material+Icons|Droid+Serif:400,700,400italic,700italic|Open+Sans:300,600,700%7CRoboto:300,400,500,700)';
   // bring in materialize
   $settings['contentsCss'][] = base_path() . drupal_get_path('theme', 'foundation_access') . '/materialize_unwinding/css/materialize.css';
   $lmsless_classes = _cis_lmsless_get_distro_classes(elmsln_core_get_profile_key());

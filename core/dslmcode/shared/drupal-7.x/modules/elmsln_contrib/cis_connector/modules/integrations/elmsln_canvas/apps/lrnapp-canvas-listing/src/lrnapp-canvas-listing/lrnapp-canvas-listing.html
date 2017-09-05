@@ -12,6 +12,17 @@
         display: block;
         margin: 0 2em;
       }
+      .loading {
+        width: 100%;
+        z-index: 1000;
+        opacity: .8;
+        text-align: center;
+        align-content: center;
+        justify-content: center;
+        height: 100vh;
+        position: absolute;
+        background-color: white;
+      }
       vaadin-grid#material {
         height: 75vh;
         font-family: Roboto, sans-serif;
@@ -124,9 +135,9 @@
       handle-as="json"
       on-response="handleResponse"
       last-response="{{queryResponse}}"></iron-ajax>
-    <div id="loading">
-      <p>Loading..</p>
-      <elmsln-loading color="grey-text" size="epic"></elmsln-loading>
+    <div id="loading" class="loading">
+      <h3>Loading..</h3>
+      <elmsln-loading color="grey-text" size="large"></elmsln-loading>
     </div>
     <vaadin-grid column-reordering-allowed id="material" aria-label="Course list" items="[[_toArray(canvasCourses)]]">
       <vaadin-grid-column width="50px" flex-grow="0">
@@ -221,8 +232,9 @@
       <lrnsys-dialog tabindex="-1" id="details-dialog" body-append header="{{activeCourse.name}}">
         <div slot="content">
           <template is="dom-if" if="{{!roster}}">
-            <div id="loadingRoster">
-            <elmsln-loading color="grey-text" size="epic"></elmsln-loading>
+            <div id="loadingRoster" class="loading">
+              <h3>Loading..</h3>
+              <elmsln-loading color="grey-text" size="large"></elmsln-loading>
             </div>
           </template>
         </div>
@@ -316,7 +328,7 @@
         let root = this;
         root.elmslnCourses = root.queryResponse.data.elmslnCourses;
         root.canvasCourses = root.queryResponse.data.canvasCourses;
-        root.$$('#loading').innerHTML = '';
+        root.$.loading.hidden = true;
       },
       handleRosterResponse: function() {
         let root = this;

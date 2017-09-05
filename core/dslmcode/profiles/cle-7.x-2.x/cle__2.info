@@ -54,7 +54,6 @@ dependencies[] = chosen
 dependencies[] = defaultconfig
 dependencies[] = diff
 dependencies[] = elements
-dependencies[] = fastclick
 dependencies[] = libraries
 dependencies[] = pathauto
 dependencies[] = placeholder
@@ -82,14 +81,12 @@ dependencies[] = textbook_templates
 dependencies[] = uuid
 ; User interface
 dependencies[] = addanother
-dependencies[] = back_to_top
 dependencies[] = ckeditor_link
 dependencies[] = ds
 dependencies[] = imce
 dependencies[] = imce_crop
 dependencies[] = imce_mkdir
 dependencies[] = imce_wysiwyg
-dependencies[] = jammer
 dependencies[] = jquery_update
 dependencies[] = wysiwyg
 dependencies[] = wysiwyg_template
@@ -111,7 +108,6 @@ dependencies[] = cis_shortcodes
 dependencies[] = foundation_access_ux
 dependencies[] = elmsln_core
 ; ELMSLN Core - Performance
-dependencies[] = elmsln_authcache
 dependencies[] = elmsln_advagg
 
 ; ----------
@@ -146,7 +142,6 @@ dependencies[] = imagefield_crop
 dependencies[] = elmsln_ecd
 dependencies[] = jquery_colorpicker
 dependencies[] = quickpost_bookmarklet
-dependencies[] = unique_field
 dependencies[] = achievements
 dependencies[] = elmsln_lrs
 ; Radioactivity
@@ -170,12 +165,12 @@ dependencies[] = votingapi
 dependencies[] = cle_cis_ux
 dependencies[] = cle_assignment
 dependencies[] = cle_submission
-dependencies[] = cle_submission_comments
-dependencies[] = cle_critique
-dependencies[] = cle_app
 dependencies[] = cle_project
 dependencies[] = cle_displays
 dependencies[] = cle_section
+dependencies[] = cle_open_studio_app
 dependencies[] = cle_comment_notify
+dependencies[] = cle_rate
+dependencies[] = cle_textbook
 dependencies[] = cle_perms
 dependencies[] = elmsln_student_filter

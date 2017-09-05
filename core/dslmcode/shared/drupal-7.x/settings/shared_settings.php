@@ -18,6 +18,8 @@ $conf['site_404'] = 'elmsln/error/404';
 $conf['drupal_http_request_fails'] = FALSE;
 // stupid issues w/ curl and canvas API if using that
 $conf['canvas_api_request_method'] = 'curl';
+// hide status message about dompdf since we addressed it
+$conf['print_pdf_dompdf_secure_06'] = TRUE;
 // use this to debug restws issues
 #$conf['restws_debug_log'] = '/var/www/elmsln/config/tmp/rest.debug';
 
@@ -30,13 +32,9 @@ if (isset($conf['restws_basic_auth_user_regex'])) {
 $conf['restws_basic_auth_user_regex'] = '/.*/';
 // httprl setting to avoid really long timeouts
 $conf['httprl_install_lock_time'] = 1;
-// make authcache happy with the safer controller if we're using it
-$conf['authcache_p13n_frontcontroller_path'] = 'authcache.php';
-
-// cache backends so we know about authcache and apdqc, those we formally support
+// COMMENT ALL THIS OUT IF YOU NEED TO REINSTALL A SITE FOR SOME REASON
+// cache backends so we know about  apdqc, those we formally support
 $conf['cache_backends'][] = 'sites/all/modules/ulmus/apdqc/apdqc.cache.inc';
-$conf['cache_backends'][] = 'sites/all/modules/ulmus/authcache/authcache.cache.inc';
-$conf['cache_backends'][] = 'sites/all/modules/ulmus/authcache/modules/authcache_builtin/authcache_builtin.cache.inc';
 // Default backend controller to be apdqc
 $conf['cache_default_class']    = 'APDQCache';
 // THIS MUST BE SERVED FROM DB FOR STABILITY

@@ -1,4 +1,4 @@
-name = CLE App
+name = CLE App (Angular legacy)
 description = Angular 2 single page applications for the CLE Studio.
 core = 7.x
 package = CLE

@@ -21,6 +21,7 @@ function cis_distro_integrations_cis_service_instance_courses_options_alter(&$op
 function cis_distro_integrations_cis_service_instance_studio_options_alter(&$options, $course, $service) {
   // CLE should default to our latest version as 1.x is legacy
   $options['field_distribution'] = 'cle__2';
+  $options['fr'][] = 'cle_perms';
 }
 
 /**

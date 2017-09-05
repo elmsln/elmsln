@@ -56,7 +56,6 @@ dependencies[] = chosen
 dependencies[] = defaultconfig
 dependencies[] = diff
 dependencies[] = elements
-dependencies[] = fastclick
 dependencies[] = libraries
 dependencies[] = pathauto
 dependencies[] = placeholder
@@ -84,7 +83,6 @@ dependencies[] = textbook_templates
 dependencies[] = uuid
 ; User interface
 dependencies[] = addanother
-dependencies[] = back_to_top
 dependencies[] = ckeditor_link
 dependencies[] = ds
 dependencies[] = ds_forms
@@ -92,7 +90,6 @@ dependencies[] = imce
 dependencies[] = imce_crop
 dependencies[] = imce_mkdir
 dependencies[] = imce_wysiwyg
-dependencies[] = jammer
 dependencies[] = jquery_update
 dependencies[] = logintoboggan
 dependencies[] = wysiwyg
@@ -115,7 +112,6 @@ dependencies[] = cis_shortcodes
 dependencies[] = foundation_access_ux
 dependencies[] = elmsln_core
 ; ELMSLN Core - Performance
-dependencies[] = elmsln_authcache
 dependencies[] = elmsln_advagg
 
 

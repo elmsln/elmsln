@@ -1,0 +1,11 @@
+{
+  "name": "lrnapp-studio-kanban",
+  "description": "studio kanban board",
+  "main": "index.html",
+  "resolutions": {
+    "polymer": "^1.9.3"
+  },
+  "dependencies": {
+    "build": "LRNWebComponents/build#^0.1.3"
+  }
+}

@@ -9,7 +9,6 @@ dependencies[] = harmony_core
 features[features_api][] = api:2
 features[features_override_items][] = field_instance.harmony_post-harmony_post-field_harmony_text
 features[features_overrides][] = field_instance.harmony_post-harmony_post-field_harmony_text.fences_wrapper
-features[features_overrides][] = field_instance.harmony_post-harmony_post-field_harmony_text.settings|authcache
 features[features_overrides][] = field_instance.harmony_post-harmony_post-field_harmony_text.settings|better_formats|allowed_formats|filtered_html
 features[features_overrides][] = field_instance.harmony_post-harmony_post-field_harmony_text.settings|better_formats|allowed_formats|full_html
 features[features_overrides][] = field_instance.harmony_post-harmony_post-field_harmony_text.settings|better_formats|allowed_formats|harmony_filtered

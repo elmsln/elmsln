@@ -1,0 +1,27 @@
+{
+  "name": "hax-behaviors",
+  "description": "A series of core behaviors for hax components",
+  "main": "hax-behaviors.html",
+  "dependencies": {
+    "polymer": "Polymer/polymer#^1.4.0",
+    "hax-editable": "LRNWebComponents/hax-editable#^0.0.2",
+    "hax-editbar": "LRNWebComponents/hax-editbar#^0.0.3"
+  },
+  "devDependencies": {
+    "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
+    "iron-demo-helpers": "PolymerElements/iron-demo-helpers#^1.0.0",
+    "web-component-tester": "^4.0.0",
+    "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0"
+  },
+  "homepage": "https://github.com/LRNWebComponents/hax-behaviors",
+  "version": "0.0.4",
+  "_release": "0.0.4",
+  "_resolution": {
+    "type": "version",
+    "tag": "0.0.4",
+    "commit": "5774e3d2145f18579a232ecba26141852e731467"
+  },
+  "_source": "https://github.com/LRNWebComponents/hax-behaviors.git",
+  "_target": "^0.0.4",
+  "_originalSource": "LRNWebComponents/hax-behaviors"
+}

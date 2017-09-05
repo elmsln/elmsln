@@ -1,4 +1,40 @@
 /* CSS Document */
+.dialog-header.lrnsys-dialog {
+  padding: 0;
+  margin: 0;
+}
+paper-dialog.lrnsys-dialog paper-dialog-scrollable {
+  margin: 0;
+}
+paper-dialog.lrnsys-dialog paper-dialog-scrollable .scrollable.paper-dialog-scrollable {
+  padding: 0;
+}
+paper-dialog.lrnsys-dialog paper-dialog-scrollable .status-rationale {
+  font-size: .6em;
+  text-align: right;
+}
+lrnapp-studio-dashboard .lrnsys-button-0 paper-button.lrnsys-button div.inner.lrnsys-button {
+  height: unset;
+}
+lrnapp-studio-dashboard lrndesign-gallerycard {
+  width: 18em;
+}
+.elmsln-tabs .tab .active-trail {
+  background-color: #ff6f00;
+  color: #FFFFFF !important;
+  font-weight: bold;
+}
+lrnapp-open-studio {
+  border-top: solid 2px #ff6f00;
+}
+
+.card-actions lrnsys-button iron-icon {
+  margin: 0 !important;
+  padding: 0;
+  width: 1.5em;
+  height: 1.5em !important;
+}
+
 .views-fluid-grid i.zmdi {
   font-size: 1.75rem;
   padding:1.5rem;
@@ -91,43 +127,6 @@ article app-root .container .row {
   padding: 1rem 0 0 0 !important;
 }
 
-/* Scroll bar for breadcrumb nav that's really really long */
-app-root .projects-container {
-  overflow-x: scroll;
-}
-
-app-root .projects-container {
-  scrollbar-face-color: #833900;
-  scrollbar-shadow-color: #ffc107;
-  scrollbar-highlight-color:#ffc107;
-  scrollbar-3dlight-color: #ffc107;
-  scrollbar-darkshadow-color: #ffc107;
-  scrollbar-track-color: #ffc107;
-  scrollbar-arrow-color: #ffc107;
-}
-app-root .projects-container::-webkit-scrollbar-track {
-  background-color: #833900;
-} /* the new scrollbar will have a flat appearance with the set background color */
-
-app-root .projects-container::-webkit-scrollbar-thumb {
-  background-color: #ffc107;
-} /* this will style the thumb, ignoring the track */
-
-app-root .projects-container::-webkit-scrollbar-button {
-  background-color: #833900;
-} /* optionally, you can style the top and the bottom buttons (left and right for horizontal bars) */
-
-app-root .projects-container::-webkit-scrollbar-corner {
-  background-color: #833900;
-} /* if both the vertical and the horizontal bars appear, then perhaps the right bottom corner*/
-
-app-root .projects-container::-webkit-scrollbar {
-  width: 1rem;
-  height: 1rem;
-} /* this targets the default scrollbar (compulsory) */
-
-/* end scroll bar styling */
-
 .etb-book article app-root app-submission h1 {
   font-size: 2rem;
 }
@@ -193,4 +192,34 @@ app-root .switch label {
 
 app-root .switch label:after {
   content: none;
+}
+
+.lrnapp-studio-kanban-0 .assignment-row.lrnapp-studio-kanban .assignment-row-button.active.lrnapp-studio-kanban {
+background-color: #efefef;
+}
+
+.lrnapp-studio-kanban-0 {
+background-color: #efefef;
+}
+
+.lrnapp-studio-kanban-0 .grey.lighten-3.lrnapp-studio-kanban {
+background-color: #fff !important;
+}
+
+.lrnapp-studio-kanban-0 .project-card.lrnapp-studio-kanban {
+border-radius: 6px;
+}
+
+.lrnapp-studio-kanban-0 .assignment-row.lrnapp-studio-kanban {
+border: 0;
+background-color: #fff;
+}
+
+.lrnapp-studio-kanban-0 .status-indicator.lrnapp-studio-kanban {
+border-right: 0;
+}
+
+.lrnapp-studio-kanban-0 .project-operations.lrnapp-studio-kanban {
+position: inherit;
+padding: 0 0.25rem;
 }

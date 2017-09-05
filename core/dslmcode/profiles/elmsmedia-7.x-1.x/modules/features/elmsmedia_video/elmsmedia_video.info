@@ -51,4 +51,3 @@ features[variable][] = node_preview_video
 features[variable][] = node_submitted_video
 features[variable][] = wysiwyg_template_default_video
 features_exclude[field_base][field_poster] = field_poster
-features_exclude[dependencies][og_ui] = og_ui

@@ -366,6 +366,19 @@ class views_plugin_display extends views_plugin {
   }
 
   /**
+   * Should the enabled display more link being opened in an new window?
+   *
+   * @codingStandardsIgnoreStart
+   */
+  function use_more_open_new_window() {
+    // @codingStandardsIgnoreEnd
+    if (!empty($this->definition['use more'])) {
+      return $this->get_option('open_new_window');
+    }
+    return FALSE;
+  }
+
+  /**
    * Does the display have custom link text?
    */
   function use_more_text() {
@@ -414,9 +427,29 @@ class views_plugin_display extends views_plugin {
       'hide_admin_links' => array('hide_admin_links'),
       'group_by' => array('group_by'),
       'query' => array('query'),
-      'use_more' => array('use_more', 'use_more_always', 'use_more_text'),
-      'use_more_always' => array('use_more', 'use_more_always', 'use_more_text'),
-      'use_more_text' => array('use_more', 'use_more_always', 'use_more_text'),
+      'use_more' => array('use_more',
+        'use_more_always',
+        'open_new_window',
+        'use_more_text',
+      ),
+      'use_more_always' => array(
+        'use_more',
+        'use_more_always',
+        'open_new_window',
+        'use_more_text',
+      ),
+      'use_more_text' => array(
+        'use_more',
+        'use_more_always',
+        'open_new_window',
+        'use_more_text',
+      ),
+      'open_new_window' => array(
+        'use_more',
+        'use_more_always',
+        'open_new_window',
+        'use_more_text',
+      ),
       'link_display' => array('link_display', 'link_url'),
 
       // Force these to cascade properly.
@@ -481,6 +514,7 @@ class views_plugin_display extends views_plugin {
           'pager_options' => TRUE,
           'use_more' => TRUE,
           'use_more_always' => TRUE,
+          'open_new_window' => FALSE,
           'use_more_text' => TRUE,
           'exposed_form' => TRUE,
           'exposed_form_options' => TRUE,
@@ -1529,6 +1563,17 @@ class views_plugin_display extends views_plugin {
               'edit-use-more' => array(TRUE),
             ),
         );
+
+        $form['open_new_window'] = array(
+          '#type' => 'checkbox',
+          '#title' => t("Open 'more' link in new window (target='blank')"),
+          '#description' => t("Leave this unchecked to open the more link in the same window."),
+          '#default_value' => $this->get_option('open_new_window'),
+          '#dependency' => array(
+            'edit-use-more' => array(TRUE),
+          ),
+        );
+
         $form['use_more_text'] = array(
           '#type' => 'textfield',
           '#title' => t('More link text'),
@@ -2386,6 +2431,7 @@ class views_plugin_display extends views_plugin {
       case 'use_more':
         $this->set_option($section, intval($form_state['values'][$section]));
         $this->set_option('use_more_always', !intval($form_state['values']['use_more_always']));
+        $this->set_option('open_new_window', $form_state['values']['open_new_window']) == '1';
         $this->set_option('use_more_text', $form_state['values']['use_more_text']);
       case 'distinct':
         $this->set_option($section, $form_state['values'][$section]);
@@ -2599,7 +2645,7 @@ class views_plugin_display extends views_plugin {
 
         $path = check_url(url($path, $url_options));
 
-        return theme($theme, array('more_url' => $path, 'link_text' => check_plain($this->use_more_text()), 'view' => $this->view));
+        return theme($theme, array('more_url' => $path, 'new_window' => $this->use_more_open_new_window(), 'link_text' => check_plain($this->use_more_text()), 'view' => $this->view));
       }
     }
   }

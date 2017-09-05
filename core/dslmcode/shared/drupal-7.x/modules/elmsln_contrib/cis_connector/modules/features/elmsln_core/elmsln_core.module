@@ -665,23 +665,26 @@ function elmsln_core_node_view($node, $view_mode, $langcode) {
 }
 
 /**
- * Implements /**
-  * Implements hook_field_extra_fields_alter().
-  */
- function elmsln_core_field_extra_fields_alter(&$info) {
+ * Implements hook_field_extra_fields_alter().
+ */
+function elmsln_core_field_extra_fields_alter(&$info) {
   // do the magic so we can use these as individual buttons;
   // this is one of the stupidest drupal conventions ever to overcome
   foreach (node_type_get_types() as $type) {
-    $info['node'][$type->type]['form']['hidden_nodes'] = array(
-      'label' => t('Hidden nodes'),
-      'description' => t('Hidden nodes'),
-      'weight' => 100,
-    );
-    $info['node'][$type->type]['form']['book'] = array(
-      'label' => t('Outline'),
-      'description' => t('Book outline configuration'),
-      'weight' => 100,
-    );
+    if (module_exists('hidden_nodes')) {
+      $info['node'][$type->type]['form']['hidden_nodes'] = array(
+        'label' => t('Hidden nodes'),
+        'description' => t('Hidden nodes'),
+        'weight' => 100,
+      );
+    }
+    if (module_exists('book')) {
+      $info['node'][$type->type]['form']['book'] = array(
+        'label' => t('Outline'),
+        'description' => t('Book outline configuration'),
+        'weight' => 100,
+      );
+    }
     $info['node'][$type->type]['form']['options'] = array(
       'label' => t('Publishing'),
       'description' => t('Additional publishing options'),
@@ -1203,7 +1206,7 @@ function elmsln_core_form_node_form_alter(&$form, &$form_state, $form_id) {
     // prepopulate section reference if it exists in the current context for whatever reason
     // and hasn't existed previously but ONLY for new stuff
     if (isset($form['og_group_ref']['und'][0]['default']['#default_value']) && empty($form['og_group_ref']['und'][0]['default']['#default_value']
-  ) && $section_nid = _cis_section_load_section_by_id(_cis_connector_section_context()) && !in_array(elmsln_core_get_profile_key(), array('elmsmedia', 'icor'))) {
+  ) && module_exists('cis_section') && $section_nid = _cis_section_load_section_by_id(_cis_connector_section_context()) && !in_array(elmsln_core_get_profile_key(), array('elmsmedia', 'icor'))) {
       $form['og_group_ref']['und'][0]['default']['#default_value'] = $section_nid;
     }
   }
@@ -1272,10 +1275,22 @@ function elmsln_core_url_inbound_alter(&$path, $original_path, $path_language) {
     $changed = TRUE;
   }
   // look or cross-network masquerade
-  if (isset($query_params['elmsln_masquerade']) && $masquerad = $query_params['elmsln_masquerade']) {
+  if (isset($query_params['elmsln_masquerade']) && $masqname = $query_params['elmsln_masquerade']) {
+    $changed = TRUE;
     // Remove masquerade item
     unset($query_params['elmsln_masquerade']);
-    $changed = TRUE;
+    // we were masquerading, but now we're back at a system after we stopped
+    if ($masqname == '__back' && isset($_SESSION['masquerading'])) {
+      masquerade_switch_back();
+    }
+    // odd case but make sure we don't switch to ourselves before allowing a switch
+    else if ($masqname != $GLOBALS['user']->name) {
+      // convert name to uid if possible
+      if ($tmp = user_load_by_name($masqname)) {
+        // perform the masquerade of the account which automatically does permission checks
+        masquerade_switch_user($tmp->uid);
+      }
+    }
   }
   // ensure we skimmed something off before redirect looping!
   if ($changed) {
@@ -1315,6 +1330,9 @@ function elmsln_core_url_outbound_alter(&$path, &$options, $original_path) {
         // keep masquerade context
         if (isset($_SESSION['masquerading'])) {
           $options['query']['elmsln_masquerade'] = $GLOBALS['user']->name;
+        }
+        else {
+          $options['query']['elmsln_masquerade'] = '__back';
         }
       }
     }
@@ -1434,7 +1452,7 @@ function _elmsln_core_icon_map() {
     $map = array(
       'roster' => array(
         'color' => 'orange',
-        'icon' => 'person_add',
+        'icon' => 'social:person-add',
       ),
       'file' => array(
         'color' => 'deep-orange darken-4',
@@ -1446,7 +1464,7 @@ function _elmsln_core_icon_map() {
       ),
       'timeline_item' => array(
         'color' => 'pink',
-        'icon' => 'access_time',
+        'icon' => 'device:access-time',
       ),
       'timeline' => array(
         'color' => 'red darken-2',
@@ -1454,27 +1472,27 @@ function _elmsln_core_icon_map() {
       ),
       'map_point' => array(
         'color' => 'light-green darken-4',
-        'icon' => 'place',
+        'icon' => 'maps:place',
       ),
       'map' => array(
         'color' => 'green darken-3',
-        'icon' => 'map',
+        'icon' => 'maps:map',
       ),
       'jmol' => array(
         'color' => 'blue',
-        'icon' => 'share',
+        'icon' => 'social:share',
       ),
       'poll' => array(
         'color' => 'light-blue',
-        'icon' => 'poll',
+        'icon' => 'social:poll',
       ),
       'course_offering' => array(
         'color' => 'blue',
-        'icon' => 'people_outline',
+        'icon' => 'social:people-outline',
       ),
       'setup_a_course' => array(
         'color' => 'red darken-2',
-        'icon' => 'school',
+        'icon' => 'social:school',
       ),
       'program' => array(
         'color' => 'pink',
@@ -1482,7 +1500,7 @@ function _elmsln_core_icon_map() {
       ),
       'academic_area' => array(
         'color' => 'green darken-4',
-        'icon' => 'account_balance',
+        'icon' => 'account-balance',
       ),
       'global_resource' => array(
         'color' => 'indigo',
@@ -1490,7 +1508,7 @@ function _elmsln_core_icon_map() {
       ),
       'course_access' => array(
         'color' => 'blue',
-        'icon' => 'school',
+        'icon' => 'social:school',
       ),
       'system_access' => array(
         'color' => 'indigo',
@@ -1502,64 +1520,64 @@ function _elmsln_core_icon_map() {
       ),
       'audio' => array(
         'color' => 'green darken-3',
-        'icon' => 'music_video',
+        'icon' => 'av:music-video',
       ),
       'document' => array(
         'color' => 'light-green darken-4',
-        'icon' => 'insert_drive_file',
+        'icon' => 'editor:insert-drive-file',
       ),
       'external_video' => array(
         'color' => 'red darken-2',
-        'icon' => 'video_library',
+        'icon' => 'av:video-library',
       ),
       'figure_label' => array(
         'color' => 'deep-orange darken-4',
-        'icon' => 'label_outline',
+        'icon' => 'label-outline',
       ),
       'h5p' => array(
         'color' => 'deep-orange darken-4',
-        'icon' => 'local_activity',
+        'icon' => 'maps:local-activity',
       ),
       'interactive_content' => array(
         'color' => 'deep-orange darken-4',
-        'icon' => 'local_activity',
+        'icon' => 'maps:local-activity',
       ),
       'image' => array(
         'color' => 'deep-purple',
-        'icon' => 'photo',
+        'icon' => 'image:photo',
       ),
       'image_gallery' => array(
         'color' => 'teal',
-        'icon' => 'collections',
+        'icon' => 'image:collections',
       ),
       'media_list' => array(
         'color' => 'pink',
-        'icon' => 'collections',
+        'icon' => 'image:collections',
       ),
       'static_content' => array(
         'color' => 'blue',
-        'icon' => 'insert_drive_file',
+        'icon' => 'editor:insert-drive-file',
       ),
       'svg' => array(
         'color' => 'indigo',
-        'icon' => 'graphic_eq',
+        'icon' => 'device:graphic-eq',
       ),
       'video' => array(
         'color' => 'purple',
-        'icon' => 'ondemand_video',
+        'icon' => 'notification:ondemand-video',
       ),
       'duplicate_outline' => array(
         'color' => 'green',
-        'icon' => 'content_copy',
+        'icon' => 'content-copy',
         'text' => 'black-text',
       ),
       'child_page' => array(
         'color' => 'teal',
-        'icon' => 'insert_drive_file',
+        'icon' => 'editor:insert-drive-file',
       ),
       'thread' => array(
         'color' => 'blue',
-        'icon' => 'forumn',
+        'icon' => 'communication:forum',
       ),
       'assignment' => array(
         'color' => 'green',
@@ -1574,7 +1592,7 @@ function _elmsln_core_icon_map() {
       // xAPI verbs
       'viewed' => array(
         'color' => 'blue',
-        'icon' => 'remove_red_eye',
+        'icon' => 'image:remove-red-eye',
       ),
       'started' => array(
         'color' => 'red',
@@ -1583,7 +1601,7 @@ function _elmsln_core_icon_map() {
       ),
       'finished' => array(
         'color' => 'green',
-        'icon' => 'golf_course',
+        'icon' => 'places:golf-course',
         'text' => 'black-text',
       ),
     );
@@ -2168,8 +2186,8 @@ function elmsln_core_register_webcomponent_apps_alter(&$apps) {
 function elmsln_core_webcomponent_render_alter(&$vars, $app) {
   // verify this is an app since this runs on other renders
   if (isset($app['is_app']) && $app['is_app']) {
-    $vars['properties']['elmsln_course'] = _cis_connector_course_context();
-    $vars['properties']['elmsln_section'] = _cis_connector_section_context();
+    $vars['properties']['elmsln-course'] = _cis_connector_course_context();
+    $vars['properties']['elmsln-section'] = _cis_connector_section_context();
   }
 }
 
@@ -2230,4 +2248,167 @@ function elmsln_core_gbm_book_root_path_alter(&$path) {
   // have the service url in them
   $cfg = _elmsln_core_get_cfg();
   $path = str_replace($cfg['dataprotocol'] . '://' . $cfg['serviceprefix'], $cfg['protocol'] . '://', $path);
+}
+
+/**
+ * Return a form of the user's name based on possible fields
+ * @var $priority string  The piece of info to try and return
+ * @var $uid  int  Account to render or active if empty
+ * @return        string  a representation of the user's name
+ */
+function _elmsln_core_get_user_name($priority = 'full', $uid = NULL) {
+  // user global if nothing there
+  if (is_null($uid)) {
+    $account = $GLOBALS['user'];
+  }
+  // account for getting a uid
+  else {
+    $account = user_load($uid);
+  }
+  // edge case, deserialize array; we want this as an array no matter what
+  if (is_string($account->data)) {
+    $account->data = unserialize($account->data);
+  }
+  else if (is_bool($account->data)) {
+    $account->data = array();
+  }
+  else if (!isset($account->data)) {
+    $account->data = array();
+  }
+  switch ($priority) {
+    case 'first':
+      // try for the sis data first
+      if (isset($account->data['sis'])) {
+        if (isset($account->data['sis']['first'])) {
+          return $account->data['sis']['first'];
+        }
+      }
+    break;
+    case 'last':
+      // try for the sis data first
+      if (isset($account->data['sis'])) {
+        if (isset($account->data['sis']['last'])) {
+          return $account->data['sis']['last'];
+        }
+      }
+    break;
+    case 'full':
+      // try for the sis data first
+      if (isset($account->data['sis'])) {
+        if (isset($account->data['sis']['full'])) {
+          return $account->data['sis']['full'];
+        }
+        else if (isset($account->data['sis']['name'])) {
+          return $account->data['sis']['name'];
+        }
+        else if (isset($account->data['sis']['sortable'])) {
+          return $account->data['sis']['sortable'];
+        }
+      }
+    break;
+  }
+  return $account->name;
+}
+
+/**
+ * Return a form of the user's picture.
+ * @var $style    string  The piece of info to try and return
+ * @var $uid      int     Account to render or active if empty
+ * @return        string  a representation of the user's name
+ */
+function _elmsln_core_get_user_picture($style = 'avatar', $uid = NULL) {
+  $picture = FALSE;
+  // user global if nothing there
+  if (is_null($uid)) {
+    $account = $GLOBALS['user'];
+  }
+  // account for getting a uid
+  else {
+    $account = user_load($uid);
+  }
+  $sis = _elmsln_core_get_sis_user_data($uid);
+  switch ($style) {
+    case 'avatar':
+    default:
+      // try for the sis data first
+      if (!is_null($sis) && isset($sis['avatar_url'])) {
+        $picture = $sis['avatar_url'];
+      }
+      else {
+        // fallback, a globgal profile value from CPR
+        $elmsln_global_profile = variable_get('elmsln_global_profile', 'cpr');
+        $uri = 'elmslnauthority://' . $elmsln_global_profile . '/users/photos/' . $account->name .'.jpg';
+        if (file_exists(_elmsln_core_realpath($uri))) {
+          $picture = file_create_url($uri);
+          $picture = str_replace('files/users', 'files/styles/foundation_access_lmsless_bar/public/users', $image);
+        }
+      }
+    break;
+  }
+  // allow people to override this
+  drupal_alter('elmsln_core_user_picture', $picture, $style, $account);
+  return $picture;
+}
+
+/**
+ * Load some user extra info useful for representing the user visually.
+ */
+function _elmsln_core_get_user_extras($uid = NULL) {
+  // resolve a user account
+  if (!is_null($uid)) {
+    $account = user_load($uid);
+  }
+  else {
+    global $user;
+    $account = $user;
+  }
+  if (_cis_connector_role_grouping('teacher', $account)) {
+    return array(
+      'icon' => 'social:school',
+      'label' => t('Instructor'),
+    );
+  }
+  else if (_cis_connector_role_grouping('staff', $account)) {
+    return array(
+      'icon' => 'stars',
+      'label' => t('Staff'),
+    );
+  }
+  else {
+    return array(
+      'icon' => FALSE,
+      'label' => FALSE,
+    );
+  }
+}
+
+/**
+ * Return a form of the user's sis information.
+ * @var     $uid  int     Account to render or active if empty
+ * @return        object  user's sis data if it exists
+ */
+function _elmsln_core_get_sis_user_data($uid = NULL) {
+  $sis = NULL;
+  // user global if nothing there
+  if (is_null($uid)) {
+    $account = $GLOBALS['user'];
+  }
+  // account for getting a uid
+  else {
+    $account = user_load($uid);
+  }
+  // edge case, deserialize array; we want this as an array no matter what
+  if (is_string($account->data)) {
+    $account->data = unserialize($account->data);
+  }
+  else if (is_bool($account->data)) {
+    $account->data = array();
+  }
+  else if (!isset($account->data)) {
+    $account->data = array();
+  }
+  if (isset($account->data['sis'])) {
+    $sis = $account->data['sis'];
+  }
+  return $sis;
 }

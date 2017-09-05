@@ -44,4 +44,3 @@ features[variable][] = node_options_audio
 features[variable][] = node_preview_audio
 features[variable][] = node_submitted_audio
 features[variable][] = wysiwyg_template_default_audio
-features_exclude[dependencies][og_ui] = og_ui

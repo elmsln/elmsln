@@ -67,62 +67,6 @@ function cle_project_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-cle_project-field_cle_archived'.
-  $field_instances['node-cle_project-field_cle_archived'] = array(
-    'bundle' => 'cle_project',
-    'default_value' => array(
-      0 => array(
-        'value' => 0,
-      ),
-    ),
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'inline',
-        'module' => 'list',
-        'settings' => array(),
-        'type' => 'list_default',
-        'weight' => 9,
-      ),
-      'teaser' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'field_cle_archived',
-    'label' => 'Archived',
-    'required' => 0,
-    'settings' => array(
-      'authcache' => array(
-        'clients' => array(
-          'authcache_ajax' => array(
-            'status' => 1,
-            'weight' => 0,
-          ),
-        ),
-        'fallback' => 'cancel',
-        'lifespan' => 3600,
-        'perpage' => 0,
-        'peruser' => 1,
-        'status' => 0,
-      ),
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'options',
-      'settings' => array(
-        'display_label' => 1,
-      ),
-      'type' => 'options_onoff',
-      'weight' => 16,
-    ),
-  );
-
   // Exported field_instance: 'node-cle_project-field_project_color'.
   $field_instances['node-cle_project-field_project_color'] = array(
     'bundle' => 'cle_project',

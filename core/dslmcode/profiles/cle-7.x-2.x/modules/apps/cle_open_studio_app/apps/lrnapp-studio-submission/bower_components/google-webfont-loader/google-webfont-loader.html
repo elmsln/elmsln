@@ -1,0 +1,214 @@
+ 
+<link rel="import" href="webfontloader-import.html">
+
+<!--
+Element providing google font loading functionality and throws an "fonts-active" event after all fonts are loaded.
+
+Example:
+
+    <google-webfont-loader loading={{loading}} fonts="Droid Sans, Oswald, Lobster"></google-webfont-loader>
+
+@demo
+-->
+<dom-module id="google-webfont-loader">
+
+    <style>
+        :host {
+            display: block;
+            box-sizing: border-box;
+        }
+
+    </style>
+
+</dom-module>
+
+<script type="application/javascript">
+    (function () {
+
+        // Run once. Private and static to the element.
+        var WebFontConfig_ = {};
+
+
+        // these variables are shared by all instances of app-globals
+        var values = {
+            fonts_loaded: []
+        };
+
+
+        Polymer({
+
+            is: 'google-webfont-loader',
+
+//        listeners: {
+//            'fonts-active': 'fontsAreActive',
+//            'font-active': 'fontIsActive'
+//        },
+
+            properties: {
+                /**
+                 * The `fonts` attribute sets a list of fonts to load comma separated
+                 *
+                 * @attribute fonts
+                 * @type Array
+                 * @default 'Droid Sans'
+                 */
+                fonts: {
+                    type: String,
+                    value: 'Droid Sans',
+                    notify: true,
+                    observer: '_fontsChanged'
+                },
+                /**
+                 * @attribute loading
+                 * @type Boolean
+                 * @default false
+                 */
+                loading: {
+                    type: Boolean,
+                    value: false,
+                    notify: true
+                },
+
+                /**
+                 * @attribute fontsToLoadCount
+                 * @type Number
+                 * @default 0
+                 */
+                fontsToLoadCount: {
+                    type: Number,
+                    value: 0,
+                    notify: true,
+                    readOnly: true
+                },
+                /**
+                 * @attribute fontsLoadProgress
+                 * @type Number
+                 * @default 0
+                 */
+                fontsLoadProgress: {
+                    type: Number,
+                    value: 0,
+                    notify: true,
+                    readOnly: true
+                }
+            },
+
+            _fonts_added: [],
+
+            _fontsChanged: function (newValue, oldValue) {
+                //console.log('_fontsChanged', newValue, oldValue);
+
+                this._fonts_added = newValue.split(/,[\s]*/);
+            },
+
+            created: function () {
+                //console.log(this.localName + '#' + this.id + ' was created');
+            },
+
+            attached: function () {
+                //console.log(this.localName + '#' + this.id + ' was attached');
+                this._init();
+            },
+
+            detached: function () {
+                //console.log(this.localName + '#' + this.id + ' was detached');
+            },
+
+            attributeChanged: function (name, type) {
+                console.log(this.localName + '#' + this.id + ' attribute ' + name +
+                        ' was changed to ' + this.getAttribute(name));
+            },
+
+
+            // Element Lifecycle
+
+
+            ready: function () {
+                // make global values available on instance.
+                this.values = values;
+                //console.log(this.localName + '#' + this.id + ' is ready');
+            },
+
+
+            _init: function () {
+                // `ready` is called after all elements have been configured, but
+                // propagates bottom-up. This element's children are ready, but parents
+                // are not.
+                //
+                // This is the point where you should make modifications to the DOM (when
+                // necessary), or kick off any processes the element wants to perform.
+
+                console.log('ready to load', this._fonts_added);
+
+                this.fontsToLoadCount = this._fonts_added.length;
+
+                WebFontConfig_ = {
+                    inactive: function () {
+                        console.log('WebFont:inactive');
+                    }.bind(this),
+                    fontloading: function (familyName, fvd) {
+                        console.log('WebFont:fontloading');
+                    }.bind(this),
+                    fontinactive: function (familyName, fvd) {
+                        console.log('WebFont:fontinactive');
+                    }.bind(this),
+                    active: function () {
+                        console.log('WebFont:active');
+                        this.loading = false;
+                        this.fontsAreActive(this.values.fonts_loaded);
+                    }.bind(this),
+                    loading: function () {
+                        console.log('WebFont:loading');
+                        this.loading = true;
+                    }.bind(this),
+                    fontactive: function (fontactive, fvd) {
+                        this.fontIsActive(fontactive);
+                    }.bind(this),
+                    google: {
+                        families: this._fonts_added
+                    }
+                };
+
+                if (this._fonts_added.length > 0) {
+                    WebFont.load(WebFontConfig_);
+                }
+            },
+
+            /**
+             * Get loaded fonts
+             */
+            getLoadedFonts: function () {
+                return this.values.fonts_loaded;
+            },
+            /**
+             * check if font is loaded
+             */
+            isFontLoaded: function (font) {
+                this.values.fonts_loaded.every(function (index, value) {
+                    if (font == value) {
+                        return true;
+                    }
+                });
+            },
+            // Element Behavior
+            /**
+             * Dispatches an event that font is active
+             */
+            fontIsActive: function (font) {
+                console.log('WebFont:font-active', font);
+                this.fontsLoadProgress++;
+                this.values.fonts_loaded.push(font);
+                this.fire('font-active', {font: font});
+            },
+            /**
+             * Dispatches an event that font is active
+             */
+            fontsAreActive: function (fonts) {
+                console.log('WebFonts: fonts-active', fonts);
+                this.fire('fonts-active', {fonts: fonts});
+            }
+        });
+
+    })();
+
+</script>

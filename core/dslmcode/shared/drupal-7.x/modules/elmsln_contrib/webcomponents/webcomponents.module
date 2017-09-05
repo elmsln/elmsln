@@ -199,21 +199,27 @@ function webcomponents_entity_load($entities, $type) {
  * Load all webcomponents in the database.
  * @return array array of entities or empty.
  */
-function webcomponents_load_all() {
+function webcomponents_load_all($force_rebuild = FALSE) {
   $entities = &drupal_static(__FUNCTION__);
   // @ignore druplart_conditional_assignment
   if (!$entities) {
-    $query = new EntityFieldQuery();
-    $query->entityCondition('entity_type', 'webcomponent');
-    $query->execute();
-    $result = $query->execute();
-    // flip the results if it found them
-    if (isset($result['webcomponent'])) {
-      $keys = array_keys($result['webcomponent']);
-      $entities = entity_load('webcomponent', $keys);
+    if (!$force_rebuild && $cached = cache_get('webcomponents')) {
+      $entities = $cached->data;
     }
     else {
-      $entities = array();
+      $query = new EntityFieldQuery();
+      $query->entityCondition('entity_type', 'webcomponent');
+      $query->execute();
+      $result = $query->execute();
+      // flip the results if it found them
+      if (isset($result['webcomponent'])) {
+        $keys = array_keys($result['webcomponent']);
+        $entities = entity_load('webcomponent', $keys);
+      }
+      else {
+        $entities = array();
+      }
+      cache_set('webcomponents', $entities);
     }
   }
   return $entities;
@@ -222,7 +228,7 @@ function webcomponents_load_all() {
 /**
  * Rebuild webcomponents from the file system.
  */
-function _webcomponents_rebuild() {
+function _webcomponents_rebuild($hide_messages = FALSE) {
   // force rebuild of components from static
   $processed = array();
   // load all possible web components
@@ -246,7 +252,9 @@ function _webcomponents_rebuild() {
                 foreach ($component as $key => $value) {
                   // see if any aspects changed
                   if ($key != 'file' && isset($entity->{$key}) && $entity->{$key} != $value) {
-                    drupal_set_message(t('Web components have changed! Make sure that your attributes are correctly reflected in your site. @key changed on @machine from @old to @new', array('@key' => $key, '@old' => serialize($entity->{$key}), '@new' => serialize($value), '@machine' => $component->machine_name)), 'warning', TRUE);
+                    if (!$hide_messages) {
+                      drupal_set_message(t('Web components have changed! Make sure that your attributes are correctly reflected in your site. @key changed on @machine from @old to @new', array('@key' => $key, '@old' => serialize($entity->{$key}), '@new' => serialize($value), '@machine' => $component->machine_name)), 'warning', TRUE);
+                    }
                     $entity->{$key} = $value;
                   }
                 }
@@ -278,14 +286,19 @@ function _webcomponents_rebuild() {
  * Add webcomponent to the header of the site so it can work.
  */
 function _webcomponents_add_to_head($component) {
-  $element = array(
-    '#tag' => 'link', // The #tag is the html tag
-    '#attributes' => array( // Set up an array of attributes inside the tag
-      'href' => base_path() . $component->file,
-      'rel' => 'import',
-    ),
-  );
-  drupal_add_html_head($element, 'webcomponent-' . $component->machine_name);
+  // generate filename hash based on the size of the file
+  // this is a quick and dirty way to do invalidation when it updates without local cache refreshes client side
+  if (file_exists(DRUPAL_ROOT . '/' . $component->file)) {
+    $hash = filesize(DRUPAL_ROOT . '/' . $component->file);
+    $element = array(
+      '#tag' => 'link', // The #tag is the html tag
+      '#attributes' => array( // Set up an array of attributes inside the tag
+        'href' => base_path() . $component->file . '?h' . $hash,
+        'rel' => 'import',
+      ),
+    );
+    drupal_add_html_head($element, 'webcomponent-' . $component->machine_name);
+  }
 }
 
 /**

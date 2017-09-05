@@ -180,3 +180,15 @@ function mooc_update_7013(&$sandbox) {
   features_revert_module('mooc_page');
   features_revert_module('mooc_content_theming');
 }
+
+/**
+ * Clean up fields that don't need to exist.
+ */
+function mooc_update_7014(&$sandbox) {
+  field_delete_field('field_mooc_nav_style');
+  field_delete_field('field_mooc_nav_display');
+  field_delete_field('field_mooc_nav_type');
+  // actually deletes the fields
+  field_purge_batch(1000);
+  field_purge_batch(1000);
+}

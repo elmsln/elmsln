@@ -384,6 +384,7 @@ function cis_section_node_insert($node) {
       $values = array(
         'entity_type' => 'user',
         'entity' => $member,
+        'field_name' => 'og_user_node1',
       );
       // add user to the group as a member
       og_group('node', $node->nid, $values);
@@ -633,6 +634,7 @@ function cis_section_user_insert(&$edit, $account, $category) {
         $values = array(
           'entity_type' => 'user',
           'entity' => $account,
+          'field_name' => 'og_user_node1',
         );
         // add user to the group
         og_group('node', $section->nid, $values);

@@ -5,9 +5,9 @@ core = 7.x
 files[] = autocomplete_deluxe.module
 dependencies[] = taxonomy
 
-; Information added by Drupal.org packaging script on 2017-01-11
-version = "7.x-2.2"
+; Information added by Drupal.org packaging script on 2017-08-17
+version = "7.x-2.3+15-dev"
 core = "7.x"
 project = "autocomplete_deluxe"
-datestamp = "1484128687"
+datestamp = "1502947503"
 

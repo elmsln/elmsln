@@ -4,8 +4,8 @@ core = 7.x
 hidden = TRUE
 engine = nyan_cat
 
-; Information added by Drupal.org packaging script on 2017-02-01
-version = "7.54"
+; Information added by Drupal.org packaging script on 2017-06-21
+version = "7.56"
 project = "drupal"
-datestamp = "1485986921"
+datestamp = "1498069849"
 

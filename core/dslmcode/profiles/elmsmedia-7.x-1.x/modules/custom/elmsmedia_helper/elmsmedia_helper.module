@@ -458,9 +458,9 @@ function elmsmedia_helper_entity_info_alter(&$entity_info) {
     ),
     'mediasvg' => array(
       '' => array(
-        '__stretch' => array('__medium', '__small'),
-        '__left' => array('__medium', '__small'),
-        '__right' => array('__medium', '__small'),
+        '__stretch' => array('__medium', '__small', '__medium__lightboxed', '__small__lightboxed'),
+        '__left' => array('__medium', '__small', '__medium__lightboxed', '__small__lightboxed'),
+        '__right' => array('__medium', '__small', '__medium__lightboxed', '__small__lightboxed'),
       ),
     ),
     'figurelabel' => array(

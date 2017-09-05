@@ -5,14 +5,31 @@
   "start_url": "/",
   "display": "standalone",
   "app_integration": {
-    "title": "Overview",
+    "title": "Recent activity",
     "menu": {
       "menu_name": "menu-elmsln-navigation",
-      "weight": -10
+      "weight": -12
+    },
+    "properties": {
+      "username": {
+        "callback": "_elmsln_core_get_user_name"
+      }
     },
     "endpoints": {
-      "data": {
-        "callback": "_cle_open_studio_app_dashboard_data",
+      "blocks/recent-project": {
+        "callback": "_lrnapp_studio_dashboard_recent_project",
+        "property": "source-path"
+      },
+      "blocks/recent-submissions": {
+        "callback": "_lrnapp_studio_dashboard_recent_submissions",
+        "property": "source-path"
+      },
+      "blocks/recent-comments": {
+        "callback": "_lrnapp_studio_dashboard_recent_comments",
+        "property": "source-path"
+      },
+      "blocks/need-feedback": {
+        "callback": "_lrnapp_studio_dashboard_need_feedback",
         "property": "source-path"
       }
     }

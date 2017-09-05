@@ -12,14 +12,22 @@ define('WEBCOMPONENTS_APP_PATH', 'apps');
  * the registry for from it's manifest.json file (most likely)
  * @return array                the definition or definitions of all found as array
  */
-function webcomponents_app_load_app_definitions($machine_name = NULL) {
+function webcomponents_app_load_app_definitions($machine_name = NULL, $force_rebuild = FALSE) {
   // statically cache future calls
   $apps = &drupal_static(__FUNCTION__);
   if (!isset($apps)) {
-    // load up the definitions of apps out there
-    $apps = module_invoke_all('register_webcomponent_apps');
-    drupal_alter('register_webcomponent_apps', $apps);
+    // Additional database cache to support alternative caches like memcache.
+    if (!$force_rebuild && $cached = cache_get('webcomponents_apps')) {
+      $apps = $cached->data;
+    }
+    else {
+      // load up the definitions of apps out there
+      $apps = module_invoke_all('register_webcomponent_apps');
+      drupal_alter('register_webcomponent_apps', $apps);
+      cache_set('webcomponents_apps', $apps);
+    }
   }
+
   if (!is_null($machine_name)) {
     // validate that this bucket exists
     if (isset($apps[$machine_name])) {
@@ -53,7 +61,7 @@ function webcomponents_app_permission() {
     ),
   );
   // load app definitions
-  $apps = webcomponents_app_load_app_definitions();
+  $apps = webcomponents_app_load_app_definitions(NULL, TRUE);
   foreach ($apps as $machine_name => $app) {
     $perms['access ' . $machine_name . ' app'] = array(
       'title' => t('Access @name', array('@name' => $app['title'])),
@@ -69,8 +77,19 @@ function webcomponents_app_permission() {
 function webcomponents_app_menu() {
   $items = array();
   // load app definitions
-  $apps = webcomponents_app_load_app_definitions();
+  $apps = webcomponents_app_load_app_definitions(NULL, TRUE);
   foreach ($apps as $machine_name => $app) {
+    // support for an element being used as the root element
+    if (isset($app['opa-root'])) {
+      $items[WEBCOMPONENTS_APP_PATH] = array(
+        'title' => $app['title'],
+        'page callback' => '_webcomponents_app_load_app',
+        'page arguments' => array($machine_name),
+        'access callback' => '_webcomponents_app_access',
+        'access arguments' => array($machine_name),
+        'type' => MENU_CALLBACK,
+      );
+    }
     $items[WEBCOMPONENTS_APP_PATH . '/' . $machine_name] = array(
       'title' => $app['title'],
       'page callback' => '_webcomponents_app_load_app',
@@ -78,6 +97,7 @@ function webcomponents_app_menu() {
       'access callback' => '_webcomponents_app_access',
       'access arguments' => array(1),
       'type' => MENU_CALLBACK,
+      'options' => array('attributes' => array('name' => $machine_name)),
     );
     if (module_exists('devel')) {
       $items[WEBCOMPONENTS_APP_PATH . '/' . $machine_name . '/devel'] = array(
@@ -188,20 +208,22 @@ function _webcomponents_app_load_app($machine_name = NULL, $debug = FALSE) {
   $app['is_app'] = TRUE;
   // ensure this exists
   if (!empty($machine_name) && !empty($app)) {
+    $hash = filesize(DRUPAL_ROOT . '/' . $app['path'] . 'manifest.json');
     // form the base path for loading the app
     $path = base_path() . $app['path'];
     $element = array(
       '#tag' => 'link',
       '#attributes' => array(
-        'href' => $path . 'manifest.json',
+        'href' => $path . 'manifest.json?h' . $hash,
         'rel' => 'manifest',
       ),
     );
     drupal_add_html_head($element, 'app-' . $machine_name . '-manifest');
+    $hash = filesize(DRUPAL_ROOT . '/' . $app['path'] . 'src/' . $machine_name . '/' . $machine_name . '.html');
     $element = array(
       '#tag' => 'link',
       '#attributes' => array(
-        'href' => $path . 'src/' . $machine_name . '/' . $machine_name . '.html',
+        'href' => $path . 'src/' . $machine_name . '/' . $machine_name . '.html?h' . $hash,
         'rel' => 'import',
       ),
       '#weight' => '99999',
@@ -254,6 +276,11 @@ function _webcomponents_app_load_app($machine_name = NULL, $debug = FALSE) {
         }
       }
     }
+    // support for one page apps to pass down their root correctly
+    else if (isset($app['opa-root'])) {
+      $vars['properties']['csrf-token'] = drupal_get_token('webcomponentapp');
+      $vars['properties']['base-path'] = base_path() . WEBCOMPONENTS_APP_PATH . '/';
+    }
     // allow for modifying the app prior to render
     drupal_alter('webcomponent_render', $vars, $app);
     $return = theme('webcomponent', $vars);
@@ -286,9 +313,11 @@ function _webcomponents_app_load_app_data($machine_name = NULL, $debug = FALSE) 
         if (count($path_ary) == count($args)) {
           // see if there are any differences between the two
           $ary_diff = array_diff($path_ary, $args);
-          // if no differences then we found the path
-          if (!$ary_diff) {
+          // if no differences then we found the path and we should exit
+          // immediately
+          if (empty($ary_diff)) {
             $endpointpath = $path;
+            break;
           }
           // if there is a difference in the path but the only differences
           // are wildcards then it's a match

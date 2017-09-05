@@ -108,13 +108,20 @@ body.h5p-semi-fullscreen {
   width: 1.125em;
   height: 0.925em;
   text-indent: -0.0875em;
-  outline: none;
 }
 .h5p-disable-fullscreen {
   line-height: 0.925em;
   width: 1.1em;
   height: 0.9em;
 }
+
+.h5p-enable-fullscreen:focus,
+.h5p-disable-fullscreen:focus {
+  outline-style: solid;
+  outline-width: 1px;
+  outline-offset: 0.25em;
+}
+
 .h5p-enable-fullscreen:hover, .h5p-disable-fullscreen:hover {
   background: rgba(0,0,0,0.5);
 }

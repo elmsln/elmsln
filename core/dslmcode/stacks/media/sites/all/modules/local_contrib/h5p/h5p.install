@@ -1615,3 +1615,22 @@ function h5p_update_7116() {
     variable_set('h5p_whitelist', $whitelist . ' wav');
   }
 }
+
+/**
+ * Adding vtt and webvtt to whitelist
+ */
+function h5p_update_7117() {
+  $whitelist = variable_get('h5p_whitelist', H5PCore::$defaultContentWhitelist);
+
+  $add = '';
+  if (strpos($whitelist, 'vtt') === FALSE) {
+    $add .= ' vtt';
+  }
+  if (strpos($whitelist, 'webvtt') === FALSE) {
+    $add .= ' webvtt';
+  }
+
+  if ($add !== '') {
+    variable_set('h5p_whitelist', $whitelist . $add);
+  }
+}

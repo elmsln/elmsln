@@ -18,10 +18,14 @@ function cle__2_install() {
   _elmsln_installer_post_install_cleanup();
 
   // set homepage
-  variable_set('site_frontpage', 'cle');
+  variable_set('site_frontpage', 'apps/lrnapp-studio-dashboard');
   // last ditch revert
   features_revert_module('cle_critique');
+  features_revert_module('cle_assignment');
+  features_revert_module('cle_project');
   features_revert_module('cle_submission');
+  features_revert_module('cle_perms');
+  features_revert_module('cle_textbook');
 }
 
 /**
@@ -141,4 +145,99 @@ function cle__2_update_7012(&$sandbox) {
  */
 function cle__2_update_7013(&$sandbox) {
   features_revert_module('cle_submission');
+}
+
+/**
+ * Implement rate so we can have a like stoage engine for comments
+ */
+function cle__2_update_7014(&$sandbox) {
+  module_enable(array('cle_rate'));
+}
+
+/**
+ * Enable the new studio instead of the angular one.
+ */
+function cle__2_update_7015(&$sandbox) {
+  // wipe cle_submission_comments
+  $modules = array(
+    'cle_submission_comments',
+  );
+  db_delete('system')
+    ->condition('name', $modules, 'IN')
+    ->condition('type', 'module')
+    ->execute();
+  // disable old app
+  module_disable(array('cle_app', 'cle_critique'));
+  // enable new app
+  module_enable(array('cle_open_studio_app'));
+  // revert the modules that were influenced by the switch
+  features_revert_module('cle_submission');
+  features_revert_module('cle_assignment');
+  features_revert_module('cle_project');
+  features_revert_module('cle_perms');
+  // change the home page to be the dashboard
+  variable_set('site_frontpage', 'apps/lrnapp-studio-dashboard');
+}
+
+/**
+ * Adds cle_textbook.
+ */
+function cle__2_update_7016(&$sandbox) {
+  module_enable(array('cle_textbook'));
+}
+
+/**
+ * Clean up data model.
+ */
+function cle__2_update_7017(&$sandbox) {
+  // wipe more really old project references if there
+  $modules = array(
+    'cle_submission_assessment',
+    'cle_gradebook_ux',
+    'cle_gradebook',
+  );
+  db_delete('system')
+    ->condition('name', $modules, 'IN')
+    ->condition('type', 'module')
+    ->execute();
+  module_disable(array('unique_field'));
+  drupal_uninstall_modules(array('unique_field', 'cle_require_profile', 'cle_app'));
+  drupal_uninstall_modules(array('cle_critique'));
+  // revert the data model to match perfecto
+  features_revert_module('cle_assignment');
+  features_revert_module('cle_project');
+  features_revert_module('cle_submission');
+  features_revert_module('cle_textbook');
+  features_revert_module('cle_perms');
+  // drop legacy fields
+  field_delete_field('field_media_requirements');
+  field_delete_field('body');
+  field_delete_field('field_cle_sub_type');
+  field_delete_field('field_visibility');
+  field_delete_field('field_due_date');
+  field_delete_field('field_color');
+  field_delete_field('field_number');
+  field_delete_field('field_sub_number');
+  field_delete_field('field_cle_order');
+  field_delete_field('field_cis_tag');
+  field_delete_field('field_cle_crit_type');
+  field_delete_field('field_cle_crit_criteria');
+  field_delete_field('field_cle_crit_outline');
+  field_delete_field('field_cle_archived');
+  field_delete_field('field_cle_assignments');
+  // actually deletes the fields
+  field_purge_batch(1000);
+  field_purge_batch(1000);
+}
+
+/**
+ * Fix the fact that nodes were being told NOT to allow commenting by default.
+ */
+function cle__2_update_7018(&$sandbox) {
+  $submissions = _cis_connector_assemble_entity_list('node', 'cle_submission', 'nid', 'nid');
+  foreach ($submissions as $nid => $tmp) {
+    $submission = node_load($nid);
+    $submission->comment = 2;
+    node_save($submission);
+  }
 }

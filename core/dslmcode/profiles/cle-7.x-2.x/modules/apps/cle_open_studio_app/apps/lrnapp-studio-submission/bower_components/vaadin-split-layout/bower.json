@@ -1,0 +1,51 @@
+{
+  "name": "vaadin-split-layout",
+  "description": "Polymer element for partitioning a layout into resizeable areas",
+  "authors": [
+    "Vaadin Ltd"
+  ],
+  "keywords": [
+    "web-components",
+    "web-component",
+    "polymer",
+    "Vaadin",
+    "split-panel",
+    "split-layout"
+  ],
+  "main": "vaadin-split-layout.html",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/vaadin/vaadin-split-layout"
+  },
+  "dependencies": {
+    "polymer": "^2.0.0",
+    "iron-resizable-behavior": "^2.0.0"
+  },
+  "devDependencies": {
+    "elements-demo-resources": "vaadin/elements-demo-resources#^2.0.0",
+    "iron-component-page": "^2.0.0",
+    "iron-icon": "^2.0.0",
+    "iron-icons": "^2.0.0",
+    "iron-test-helpers": "^2.0.0",
+    "paper-button": "^2.0.0",
+    "web-component-tester": "^6.0.0",
+    "webcomponentsjs": "^v1.0.0-rc.11"
+  },
+  "variants": {
+    "1.x": {
+      "dependencies": {
+        "polymer": "^1.7.0"
+      },
+      "devDependencies": {
+        "webcomponentsjs": "^0.7.24"
+      },
+      "resolutions": {
+        "webcomponentsjs": "^0.7.24"
+      }
+    }
+  },
+  "resolutions": {
+    "iron-doc-viewer": "1 - 2"
+  }
+}

@@ -1,3 +1,7 @@
+<link rel="import" href="../blocks/lrnapp-block-recent-project.html">
+<link rel="import" href="../blocks/lrnapp-block-recent-submissions.html">
+<link rel="import" href="../blocks/lrnapp-block-recent-comments.html">
+<link rel="import" href="../blocks/lrnapp-block-need-feedback.html">
 
 <dom-module id="lrnapp-studio-dashboard">
   <template>
@@ -5,124 +9,86 @@
     <style>
       :host {
         display: block;
+        padding: 0 2em;
       }
-      paper-button {
-        padding: 0;
+      h1.title {
+        font-size: 2em;
+        color: black;
         margin: 0;
-        min-width: 1rem;
+        padding: .5em 0 0 0;
+        text-transform: none;
+        text-align: left;
       }
-      #details {
-        opacity: .5;
-        position: absolute;
-        bottom: 0;
-        right: 0;
-        margin: 0 1rem 0 0;
-        background-color: white;
-        padding: .5em;
+      p.para {
+        margin: 0;
+        padding: .25em .5em;
       }
-      #details:hover {
-        opacity: 1;
+      .dashboard-row {
+        width: 100%;
+        display: inline-flex;
       }
-      #details span {
-        font-size: .6em;
-        font-weight: normal;
-      }
-      #details .comment-on-work {
-        font-size: .8em;
-        background-color: white;
-      }
-      #notes {
-        @apply(--layout-vertical);
-        @apply(--layout-wrap);
-        height: 344px;
-        width: 384px;
-      }
-      #notes > paper-card {
-        box-sizing: border-box;
-        max-width: 184px;
-        margin: 3px;
-        flex: 0 0 auto;
+      .dashboard-item {
+        width: 30%;
       }
     </style>
-    <iron-ajax id="ajax"
-      url="[[sourcePath]]"
-      params=''
-      handle-as="json"
-      last-response="{{dataset}}"></iron-ajax>
-    <template is="dom-repeat" items="[[_toArray(dataset.blocks)]]" as="block">
-
-    </template>
-    <div id="notes">
-      <paper-card heading="bto108" class="cyan">
-        <lrndesign-avatar label="bto108"></lrndesign-avatar>
-        <div class="card-actions">
-          <paper-icon-button icon="communication:call" style="color:white;"></paper-icon-button>
-          <span>Last post: 2017</span>
-        </div>
-      </paper-card>
-      <paper-card class="dark">
-        <div class="card-content">
-          <p>Groceries:</p>
-          <paper-checkbox>almond milk</paper-checkbox>
-          <paper-checkbox>coconut water</paper-checkbox>
-          <paper-checkbox>cheese</paper-checkbox>
-          <paper-checkbox>green apples</paper-checkbox>
-        </div>
-        <div class="card-actions">
-          <paper-icon-button icon="communication:location-on" style="color:white"></paper-icon-button>
-          <span>Campbell</span>
-        </div>
-      </paper-card>
-      <paper-card heading="clean desk" class="lime"></paper-card>
-      <paper-card image="./donuts.png" alt="Donuts" class="amber">
-        <div class="card-content">New cafe opened on Valencia St.</div>
-      </paper-card>
-      <paper-card heading="Yuna tickets on sale 6/24" class="cyan">
-      </paper-card>
-    </div>
-    <custom-style>
-  <style is="custom-style">
-    paper-card.white {
-      --paper-card-header-color: #fff;
-    }
-  </style>
-</custom-style>
-<paper-card heading="Pre-fab homes" image="./house.png" alt="House" class="white" style="margin-bottom:8px;">
-  <div class="card-actions">
-    <paper-icon-button icon="favorite"></paper-icon-button>
-    <paper-icon-button icon="bookmark"></paper-icon-button>
-    <paper-icon-button icon="social:share"></paper-icon-button>
-  </div>
-</paper-card>
-<div class="horizontal">
-  <paper-card heading="Favorite trips" image="./trip.png" alt="Trip" class="white" style="margin-right:4px;">
-    <div class="card-actions horizontal justified">
-      <paper-icon-button icon="favorite"></paper-icon-button>
-      <paper-icon-button icon="bookmark"></paper-icon-button>
-      <paper-icon-button icon="social:share"></paper-icon-button>
-    </div>
-  </paper-card>
-  <paper-card heading="Best airlines" image="./travel.png" alt="Travel" class="white" style="margin-left:4px;">
-    <div class="card-actions horizontal justified">
-      <paper-icon-button icon="favorite"></paper-icon-button>
-      <paper-icon-button icon="bookmark"></paper-icon-button>
-      <paper-icon-button icon="social:share"></paper-icon-button>
-    </div>
-  </paper-card>
-</div>
+      <h1 class="title">Welcome back [[username]]!</h1>
+      <p class="para">Here's what's been going on in the studio</p>
+      <div class="dashboard-row">
+        <paper-card heading="Your active project" class="dashboard-item">
+          <div class="card-content">
+            <lrnapp-block-recent-project csrf-token="[[csrfToken]]" end-point="[[_getEndPoint(basePath)]]" base-path="[[basePath]]" source-path="[[_getDataSource(csrfToken, basePath,'recent-project')]]">
+            </lrnapp-block-recent-project>
+          </div>
+        </paper-card>
+        <paper-card heading="Classmates needing feedback" class="dashboard-item">
+          <div class="card-content">
+            <lrnapp-block-need-feedback csrf-token="[[csrfToken]]" end-point="[[_getEndPoint(basePath)]]" base-path="[[basePath]]" source-path="[[_getDataSource(csrfToken, basePath,'need-feedback')]]">
+            </lrnapp-block-need-feedback>
+          </div>
+        </paper-card>
+        <paper-card heading="Recent Studio submissions" class="dashboard-item">
+          <div class="card-content">
+            <lrnapp-block-recent-submissions csrf-token="[[csrfToken]]" end-point="[[_getEndPoint(basePath)]]" base-path="[[basePath]]" source-path="[[_getDataSource(csrfToken, basePath,'recent-submissions')]]">
+            </lrnapp-block-recent-submissions>
+          </div>
+        </paper-card>
+        <paper-card heading="Recent Studio comments" class="dashboard-item">
+          <div class="card-content">
+            <lrnapp-block-recent-comments csrf-token="[[csrfToken]]" end-point="[[_getEndPoint(basePath)]]" base-path="[[basePath]]" source-path="[[_getDataSource(csrfToken, basePath,'recent-comments')]]">
+            </lrnapp-block-recent-comments>
+          </div>
+        </paper-card>
+      </div>
   </template>
   <script>
     Polymer({
       is: 'lrnapp-studio-dashboard',
       properties: {
+        username: {
+          type: String,
+          reflectToAttribute: true,
+        },
+        basePath: {
+          type: String,
+          notify: true,
+          reflectToAttribute: true,
+        },
+        csrfToken: {
+          type: String,
+          notify: true,
+          reflectToAttribute: true,
+        },
         sourcePath: {
           type: String,
           notify: true,
-        },
-        dataset: {
-          type: Array,
-          notify: true,
+          reflectToAttribute: true,
         }
+      },
+      _getEndPoint: function(basePath) {
+        return basePath + 'lrnapp-studio-dashboard/blocks';
+      },
+      _getDataSource: function(csrfToken, basePath, dataPoint) {
+        return basePath + 'lrnapp-studio-dashboard/blocks/' + dataPoint + '?token=' + csrfToken;
       },
       /**
        * Simple way to convert from object to array.

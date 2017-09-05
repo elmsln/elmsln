@@ -5,19 +5,6 @@
  */
 
 /**
- * Implements hook_menu().
- */
-function cle_critique_menu() {
-  $items['api/v1/cle/assignments/%/critique'] = array(
-    'page callback' => '_cle_critique_assignment',
-    'page arguments' => array(4),
-    'access callback' => 'user_is_logged_in',
-    'type' => MENU_CALLBACK,
-  );
-  return $items;
-}
-
-/**
  * Page callback: returns information to establish a headless application
  * to connect to the site. This assumes a user session already exists.
  */

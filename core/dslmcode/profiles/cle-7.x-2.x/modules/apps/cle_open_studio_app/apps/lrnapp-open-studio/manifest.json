@@ -5,7 +5,7 @@
   "start_url": "/",
   "display": "standalone",
   "app_integration": {
-    "title": "Open studio",
+    "title": "View studio projects",
     "menu": {
       "menu_name": "menu-elmsln-navigation",
       "weight": 10

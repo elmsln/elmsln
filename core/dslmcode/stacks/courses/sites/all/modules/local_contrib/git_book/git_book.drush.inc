@@ -72,6 +72,7 @@ function drush_git_book_create($repo_url, $parser, $branch) {
     // save which will kick off processing of the node
     node_save($node);
     drush_print(dt('git book @repo_url successfully imported as @title', array('@repo_url' => $repo_url, '@title' => $title)));
+    drupal_flush_all_caches();
   }
   else {
     drush_print(dt('A gitbook with the name @title already exists.', array('@title' => $title)));
@@ -82,7 +83,7 @@ function drush_git_book_create($repo_url, $parser, $branch) {
  * Callback for command git-book-sync
  */
 function drush_git_book_sync($name) {
-  // if we had a new selected node 
+  // if we had a new selected node
   $book = _git_book_drush_get_book_by_name($name);
   if ($book) {
     $path = _git_book_get_path($book);
@@ -96,6 +97,7 @@ function drush_git_book_sync($name) {
       $pull = _git_book_pull($repo, 'origin', $branch);
       // update the nodes
       git_book_gb_git_book_parse($path, $book);
+      drupal_flush_all_caches();
     }
     else {
       drush_print(dt('You must specify a branch in your git_book.'));

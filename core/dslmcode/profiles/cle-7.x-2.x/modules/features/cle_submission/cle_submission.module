@@ -5,6 +5,8 @@
  */
 
 include_once 'cle_submission.features.inc';
+include_once drupal_get_path('module', 'cle_open_studio_app') . '/apps/services/CleOpenStudioAppSubmissionService.php';
+include_once drupal_get_path('module', 'cle_open_studio_app') . '/apps/services/CleOpenStudioAppAssignmentService.php';
 
 /**
  * Implements hook_menu().
@@ -124,7 +126,14 @@ function _cle_submission_v1_submission_output($node) {
     'canUpdate' => 0,
     'canDelete' => 0,
     'canCritique' => 0,
+    'comments' => array(),
   );
+  // support sending across comment count
+  if (isset($node->comment_count)) {
+    $metadata['comments']['count'] = $node->comment_count;
+    // figure out new comments
+    $metadata['comments']['new'] = comment_num_new($node->nid);
+  }
   // see the operations they can perform here
   if (entity_access('update', 'node', $node, $account)) {
     $metadata['canUpdate'] = 1;
@@ -136,6 +145,24 @@ function _cle_submission_v1_submission_output($node) {
   // assignment methodology for critique
   if (entity_access('view', 'node', $node, $account) && $node->uid != $account->uid) {
     $metadata['canCritique'] = 1;
+  }
+  switch ($node->field_submission_state[LANGUAGE_NONE][0]['value']) {
+    case 'submission_in_progress':
+      $metadata['icon'] = 'assignment-late';
+      $metadata['color'] = 'amber lighten-3';
+    break;
+    case 'submission_ready':
+      $metadata['icon'] = 'done';
+      $metadata['color'] = 'green lighten-3';
+    break;
+    case 'submission_needs_work':
+      $metadata['icon'] = 'assignment-returned';
+      $metadata['color'] = 'yellow lighten-3';
+    break;
+    default:
+      $metadata['icon'] = 'assignment';
+      $metadata['color'] = 'grey lighten-3';
+    break;
   }
   // this will be our json formatted output
   $return = array(
@@ -355,19 +382,84 @@ function cle_submission_page_build(&$page) {
  * Implements hook_node_access().
  */
 function cle_submission_node_access($node, $op, $account) {
+  $submission_service = new CleOpenStudioAppSubmissionService();
   // allow for privacy value on the assignment to dictate who can see this
   if ($op == 'view' && !_cis_connector_role_groupings(array('teacher', 'staff', 'webservice'), $account) && $node->type == 'cle_submission' && $node->uid != $account->uid) {
-    // see if this assignment is private
-    $assignment = node_load($node->field_assignment['und'][0]['target_id']);
-    // boolean for visibility
-    if ($assignment->field_assignment_privacy_setting['und'][0]['value'] == 'closed') {
-      // if it's a hidden assignment, the last check is admin member
-      if (!_cle_submission_submission_being_critiqued($node, $account)) {
-        return NODE_ACCESS_DENY;
-      }
+    $visible = $submission_service->submissionVisibleToUser($node);
+    if (!$visible) {
+      return NODE_ACCESS_DENY;
     }
   }
   return NODE_ACCESS_IGNORE;
+}
+
+/**
+ * Implements cle_submission_node_presave().
+ *
+ */
+function cle_submission_node_presave($node) {
+  // Check the parent assignment to find out what type of submission should be.
+  if ($node->type == 'cle_submission') {
+    $submission_service = new CleOpenStudioAppSubmissionService();
+    $assignment_service = new CleOpenStudioAppAssignmentService();
+
+    // ensure we have a parent assignment
+    if (!isset($node->field_assignment[LANGUAGE_NONE][0]['target_id'])) {
+      //throw new Exception(t('Submissions need to have a parent assignment.'));
+    }
+
+    // Make sure that the submissions parent assignment has it's dependencies met.
+    if (isset($node->field_assignment[LANGUAGE_NONE][0]['target_id'])) {
+      $assignment_id = $node->field_assignment[LANGUAGE_NONE][0]['target_id'];
+      $has_unmet_dependencies = $assignment_service->assignmentHasUnmetDependencies($assignment_id);
+      if ($has_unmet_dependencies) {
+        //throw new Exception(t('You must complete the previous assignment before you can submit assignment.'));
+      }
+    }
+
+    // figure out submission type
+    //$assignment = entity_load_single('node', $node->field_assignment[LANGUAGE_NONE][0]['target_id']);
+    //$assignment_emw = entity_metadata_wrapper('node', $assignment);
+    // Figure out critique method
+    $return = 'default';
+    /*if ($assignment_emw) {
+      $assignment_critique = $assignment_emw->field_critique_method->value();
+      if ($assignment_critique) {
+        if ($assignment_critique != 'none') {
+          $return = 'critique';
+        }
+      }
+    }*/
+    // store the submission type on the submission object
+    $node->field_submission_type[LANGUAGE_NONE][0]['value'] = $return;
+
+    // If this submission needs to have a critique submission automatically assigned to it
+    // then do it here.
+    // $critique_cle_critique_random($node->field_assignment[LANGUAGE_NONE][0]['target_id']);
+    /*if ($assignment_emw) {
+      $assignment_critique = $assignment_emw->field_critique_method->value();
+      if ($assignment_critique) {
+        if ($assignment_critique == 'random') {
+          // get the assignments dependency
+          $assignment_dependency_nid = $assignment_emw->field_assignment_dependencies->nid->value();
+          if ($assignment_dependency_nid) {
+            // Attempt to find a critique
+            $critique_submission = $submission_service->getSubmissionToCritique($assignment_dependency_nid);
+            // if we found one then we will assign to this submissions related submission.
+            if ($critique_submission) {
+              $node->field_related_submission[LANGUAGE_NONE][0]['target_id'] = $critique_submission->nid;
+            }
+            else {
+              throw new Exception(t('There are no submissions to critique at this time. Please check back later.'));
+            }
+          }
+          else {
+            throw new Exception(t('This assignment does not have a dependency that is needed for critiquing.'));
+          }
+        }
+      }
+    }*/
+  }
 }
 
 /**
@@ -383,25 +475,36 @@ function _cle_submission_submission_status($assignment, $account = NULL) {
   if ($gid = _cis_section_load_section_by_id(_cis_connector_section_context())) {
       $field_conditions = array('og_group_ref' => array('target_id', array($gid), 'IN'));
   }
+  $property_conditions = array(
+    'status' => array(NODE_PUBLISHED, '='),
+    'uid' => $account->uid,
+  );
   $field_conditions['field_assignment'] = array('target_id', array($assignment->nid), 'IN');
   // load results
-  $results = _cis_connector_assemble_entity_list('node', 'cle_submission', 'nid', '_entity', $field_conditions, array('uid' => $account->uid));
+  $results = _cis_connector_assemble_entity_list('node', 'cle_submission', 'nid', '_entity', $field_conditions, $property_conditions);
   $submissions = array();
   $status = 0;
-  $rationale['text'] = t('You have not submitted anything for this assignment yet.');
+  $submission = array();
+  $rationale['text'] = t('You have not submitted anything');
   $rationale['code'] = 'submission-nosubmission';
+  $icon = 'assignment';
+  $color = 'grey lighten-4';
   foreach ($results as $nid => $node) {
     $submissions[$nid] = _cle_submission_v1_submission_output($node);
+    $submission = $submissions[$nid];
     // check for a valid submission state
     if (isset($node->field_submission_state[LANGUAGE_NONE][0]['value']) && $node->field_submission_state[LANGUAGE_NONE][0]['value'] == 'submission_ready') {
       $status = 1;
-      $rationale['text'] = t('Submission is in and marked ready for review.');
+      $rationale['text'] = t('Submission accepted and ready for comment');
       $rationale['code'] = 'submission-ready';
     }
+    // faster way of getting the icon upstream in app
+    $icon = $submissions[$nid]['metadata']['icon'];
+    $color = $submissions[$nid]['metadata']['color'];
   }
   // if this still isn't valid but they have results, we need to say way
   if ($status == 0 && !empty($results)) {
-    $rationale['text'] = t('You have made submissions but they have not been marked "Submission ready".');
+    $rationale['text'] = t('Submission started but not available for comment');
     $rationale['code'] = 'submission-notready';
   }
   // create a stub node to see if they can access this object
@@ -416,10 +519,13 @@ function _cle_submission_submission_status($assignment, $account = NULL) {
   return array(
     'canCreate' => $canCreate,
     'complete' => array(
+      'icon' => $icon,
+      'color' => $color,
       'status' => $status,
       'rationale' => $rationale,
+      'submission' => $submission,
       'submissions' => $submissions,
-    )
+    ),
   );
 }
 
@@ -441,7 +547,7 @@ function _cle_submission_submission_being_critiqued($submission, $user = NULL) {
     $submission_nids = array_keys($result['node']);
     $submissions = entity_load('node', $submission_nids);
     return $submissions;
-  } 
+  }
 
   return false;
 }

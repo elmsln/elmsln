@@ -50,27 +50,15 @@
 ?>
 <div class="col s12 m6 l4 elmsln-card">
   <div class="card small sticky-action">
-    <div class="card-image waves-effect waves-block waves-light">
-       <div class="center" data-indicators="true">
-         <?php print $images; ?>
-      </div>
-    </div>
     <div class="card-content">
       <span class="card-title activator grey-text text-darken-4">
         <span class="truncate elmsln-card-title">
           <?php print l($row->node_title, 'node/' . $row->nid, array('attributes' => array('class' => 'cis-lmsless-text')));?>
         </span>
-        <i class="material-icons right cis-lmsless-text" tabindex="0" role="button">more_vert</i>
       </span>
     </div>
-    <div class="card-action">
-      <?php print l('Comment', 'node/' . $row->nid, array('attributes' => array('class' => 'cis-lmsless-text')));?>
-      <?php if (isset($row->node_new_comments) && $row->node_new_comments > 0) : ?>
-      <span class="new badge cis-lmsless-color lighten-5"><?php print $row->node_new_comments;?></span>
-    <?php endif;?>
     </div>
     <div class="card-reveal">
-      <span class="card-title grey-text text-darken-4"><span class="truncate elmsln-card-title"><?php print l($row->node_title, 'node/' . $row->nid, array('attributes' => array('class' => 'cis-lmsless-text')));?></span><i class="material-icons right cis-lmsless-text"><?php print t('close');?></i></span>
       <ul class="collection">
         <li class="collection-item">
           <span class="ferpa-protect"><?php print $row->users_node_name?></span>

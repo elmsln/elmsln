@@ -667,7 +667,12 @@ function _elmsln_api_v1_file_output($file) {
   settype($file['filesize'], 'int');
   settype($file['timestamp'], 'int');
   settype($file['status'], 'int');
+  settype($file['display'], 'int');
   $file['created'] = Date('c', $file['timestamp']);
+  // ensure that file display is set
+  if (!isset($file['display'])) {
+    $file['display'] = (int) 1;
+  }
   // special support for images
   if (isset($file['type']) && $file['type'] == 'image') {
     $styles = image_styles();
@@ -749,7 +754,7 @@ function _elmsln_api_video_url($video_url) {
         $yvid = $matches[1];
       }
     }
-    return 'https://www.youtube.com/embed/' . $yvid;
+    return 'https://www.youtube.com/embed/' . $yvid .'?rel=0';
   }
   // account for the broken form of embed code from vimeo
   if (strpos($video_url, 'vimeo') && !strpos($video_url, 'player')) {

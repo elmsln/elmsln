@@ -31,12 +31,13 @@ function elmsln_bakery_deliver_html_page($page_callback_result) {
   // on a bakery slave domain and are not currently logged in.
   if ($GLOBALS['user']->uid == 0 && is_int($page_callback_result) && $page_callback_result == MENU_ACCESS_DENIED && !variable_get('bakery_is_master', 0)) {
     // do nothing, let the page go through if these cases match
-    // because they are anonymous by design
+    // because they are annonymous by design
     if (drupal_is_cli() || arg(0) == 'httprl_async_function_callback' || strpos(request_uri(), 'files/advagg_css/css') != 0 || strpos(request_uri(), 'files/advagg_js/js') != 0) {
     }
     else {
       // redirect to the user page which will auto login if bakery is detected
       // this also ensures a cleaner user experience if not logged in anywhere yet
+      drupal_set_message(t('You have to login to see this content.'), 'warning', FALSE);
       drupal_goto('user');
     }
   }

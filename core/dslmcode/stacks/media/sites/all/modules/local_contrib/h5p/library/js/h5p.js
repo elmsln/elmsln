@@ -133,9 +133,26 @@ H5P.init = function (target) {
 
     // Check if we should add and display a fullscreen button for this H5P.
     if (contentData.fullScreen == 1 && H5P.fullscreenSupported) {
-      H5P.jQuery('<div class="h5p-content-controls"><div role="button" tabindex="0" class="h5p-enable-fullscreen" title="' + H5P.t('fullscreen') + '"></div></div>').prependTo($container).children().click(function () {
-        H5P.fullScreen($container, instance);
-      });
+      H5P.jQuery(
+        '<div class="h5p-content-controls">' +
+          '<div role="button" ' +
+                'tabindex="0" ' +
+                'class="h5p-enable-fullscreen" ' +
+                'title="' + H5P.t('fullscreen') + '">' +
+          '</div>' +
+        '</div>')
+        .prependTo($container)
+          .children()
+          .click(function () {
+            H5P.fullScreen($container, instance);
+          })
+        .keydown(function (e) {
+          if (e.which === 32 || e.which === 13) {
+            H5P.fullScreen($container, instance);
+            return false;
+          }
+        })
+      ;
     }
 
     /**
@@ -230,7 +247,7 @@ H5P.init = function (target) {
       if (H5P.externalEmbed === false) {
         // Internal embed
         // Make it possible to resize the iframe when the content changes size. This way we get no scrollbars.
-        var iframe = window.parent.document.getElementById('h5p-iframe-' + contentId);
+        var iframe = window.frameElement;
         var resizeIframe = function () {
           if (window.parent.H5P.isFullscreen) {
             return; // Skip if full screen.
@@ -661,7 +678,8 @@ H5P.getPath = function (path, contentId) {
   }
 
   var prefix;
-  if (contentId !== undefined) {
+  var isTmpFile = (path.substr(-4,4) === '#tmp');
+  if (contentId !== undefined && !isTmpFile) {
     // Check for custom override URL
     if (H5PIntegration.contents !== undefined &&
         H5PIntegration.contents['cid-' + contentId]) {
@@ -1000,24 +1018,13 @@ H5P.findCopyrights = function (info, parameters, contentId) {
       continue; // Do not check
     }
 
-    /*
-     * TODO: Make parameters clean again
-     * Some content types adds jQuery or other objects to parameters
-     * in order to determine override settings for sub-content-types.
-     * For instance Question Set tells Multiple Choice that it should
-     * attach Multi Choice's confirmation dialog to a Question Set
-     * jQuery element, so that the confirmation dialog will not be restricted
-     * to the space confined by Multi Choice.
-     * Ideally this should not be added to parameters, we must make a better
-     * solution. We should likely be adding these to sub-content through
-     * functions/setters instead of passing them down as params.
-     *
-     * This solution is implemented as a hack that will ignore all parameters
-     * inside a "overrideSettings" field, this should suffice for now since
-     * all overridden objects are added to this field, however this is not very
-     * robust solution and will very likely lead to problems in the future.
+    /**
+     * @deprecated This hack should be removed after 2017-11-01
+     * The code that was using this was removed by HFP-574
      */
     if (field === 'overrideSettings') {
+      console.warn("The semantics field 'overrideSettings' is DEPRECATED and should not be used.");
+      console.warn(parameters);
       continue;
     }
 
@@ -1245,16 +1252,70 @@ H5P.MediaCopyright = function (copyright, labels, order, extraFields) {
   };
 
   /**
-   * Get humanized value for field.
+   * Get humanized value for the license field.
    *
    * @private
-   * @param {string} fieldName
-   * @param {string} value
+   * @param {string} license
+   * @param {string} [version]
    * @returns {string}
    */
-  var humanizeValue = function (fieldName, value) {
-    if (fieldName === 'license') {
-      return H5P.copyrightLicenses[value];
+  var humanizeLicense = function (license, version) {
+    var copyrightLicense = H5P.copyrightLicenses[license];
+
+    // Build license string
+    var value = '';
+    if (!(license === 'PD' && version)) {
+      // Add license label
+      value += (copyrightLicense.hasOwnProperty('label') ? copyrightLicense.label : copyrightLicense);
+    }
+
+    // Check for version info
+    var versionInfo;
+    if (copyrightLicense.versions) {
+      if (copyrightLicense.versions.default && (!version || !copyrightLicense.versions[version])) {
+        version = copyrightLicense.versions.default;
+      }
+      if (version && copyrightLicense.versions[version]) {
+        versionInfo = copyrightLicense.versions[version];
+      }
+    }
+
+    if (versionInfo) {
+      // Add license version
+      if (value) {
+        value += ' ';
+      }
+      value += (versionInfo.hasOwnProperty('label') ? versionInfo.label : versionInfo);
+    }
+
+    // Add link if specified
+    var link;
+    if (copyrightLicense.hasOwnProperty('link')) {
+      link = copyrightLicense.link.replace(':version', copyrightLicense.linkVersions ? copyrightLicense.linkVersions[version] : version);
+    }
+    else if (versionInfo && copyrightLicense.hasOwnProperty('link')) {
+      link = versionInfo.link
+    }
+    if (link) {
+      value = '<a href="' + link + '" target="_blank">' + value + '</a>';
+    }
+
+    // Generate parenthesis
+    var parenthesis = '';
+    if (license !== 'PD' && license !== 'C') {
+      parenthesis += license;
+    }
+    if (version && version !== 'CC0 1.0') {
+      if (parenthesis && license !== 'GNU GPL') {
+        parenthesis += ' ';
+      }
+      parenthesis += version;
+    }
+    if (parenthesis) {
+      value += ' (' + parenthesis + ')';
+    }
+    if (license === 'C') {
+      value += ' &copy;';
     }
 
     return value;
@@ -1276,7 +1337,11 @@ H5P.MediaCopyright = function (copyright, labels, order, extraFields) {
     for (var i = 0; i < order.length; i++) {
       var fieldName = order[i];
       if (copyright[fieldName] !== undefined) {
-        list.add(new H5P.Field(getLabel(fieldName), humanizeValue(fieldName, copyright[fieldName])));
+        var humanValue = copyright[fieldName];
+        if (fieldName === 'license') {
+          humanValue = humanizeLicense(copyright.license, copyright.version);
+        }
+        list.add(new H5P.Field(getLabel(fieldName), humanValue));
       }
     }
   }
@@ -1299,7 +1364,7 @@ H5P.MediaCopyright = function (copyright, labels, order, extraFields) {
   this.undisclosed = function () {
     if (list.size() === 1) {
       var field = list.get(0);
-      if (field.getLabel() === getLabel('license') && field.getValue() === humanizeValue('license', 'U')) {
+      if (field.getLabel() === getLabel('license') && field.getValue() === humanizeLicense('U')) {
         return true;
       }
     }
@@ -1329,26 +1394,6 @@ H5P.MediaCopyright = function (copyright, labels, order, extraFields) {
 
     return html;
   };
-};
-
-/**
- * Maps copyright license codes to their human readable counterpart.
- *
- * @type {Object}
- */
-H5P.copyrightLicenses = {
-  'U': 'Undisclosed',
-  'CC BY': '<a href="http://creativecommons.org/licenses/by/4.0/legalcode" target="_blank">Attribution 4.0</a>',
-  'CC BY-SA': '<a href="https://creativecommons.org/licenses/by-sa/4.0/legalcode" target="_blank">Attribution-ShareAlike 4.0</a>',
-  'CC BY-ND': '<a href="https://creativecommons.org/licenses/by-nd/4.0/legalcode" target="_blank">Attribution-NoDerivs 4.0</a>',
-  'CC BY-NC': '<a href="https://creativecommons.org/licenses/by-nc/4.0/legalcode" target="_blank">Attribution-NonCommercial 4.0</a>',
-  'CC BY-NC-SA': '<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode" target="_blank">Attribution-NonCommercial-ShareAlike 4.0</a>',
-  'CC BY-NC-ND': '<a href="https://creativecommons.org/licenses/by-nc-nd/4.0/legalcode" target="_blank">Attribution-NonCommercial-NoDerivs 4.0</a>',
-  'GNU GPL': '<a href="http://www.gnu.org/licenses/gpl-3.0-standalone.html" target="_blank">General Public License v3</a>',
-  'PD': 'Public Domain',
-  'ODC PDDL': '<a href="http://opendatacommons.org/licenses/pddl/1.0/" target="_blank">Public Domain Dedication and Licence</a>',
-  'CC PDM': 'Public Domain Mark',
-  'C': 'Copyright'
 };
 
 /**
@@ -1988,6 +2033,85 @@ H5P.createTitle = function (rawTitle, maxLength) {
 
   // Init H5P when page is fully loadded
   $(document).ready(function () {
+
+    var ccVersions = {
+      'default': '4.0',
+      '4.0': H5P.t('licenseCC40'),
+      '3.0': H5P.t('licenseCC30'),
+      '2.5': H5P.t('licenseCC25'),
+      '2.0': H5P.t('licenseCC20'),
+      '1.0': H5P.t('licenseCC10'),
+    };
+
+    /**
+     * Maps copyright license codes to their human readable counterpart.
+     *
+     * @type {Object}
+     */
+    H5P.copyrightLicenses = {
+      'U': H5P.t('licenseU'),
+      'CC BY': {
+        label: H5P.t('licenseCCBY'),
+        link: 'http://creativecommons.org/licenses/by/:version/legalcode',
+        versions: ccVersions
+      },
+      'CC BY-SA': {
+        label: H5P.t('licenseCCBYSA'),
+        link: 'http://creativecommons.org/licenses/by-sa/:version/legalcode',
+        versions: ccVersions
+      },
+      'CC BY-ND': {
+        label: H5P.t('licenseCCBYND'),
+        link: 'http://creativecommons.org/licenses/by-nd/:version/legalcode',
+        versions: ccVersions
+      },
+      'CC BY-NC': {
+        label: H5P.t('licenseCCBYNC'),
+        link: 'http://creativecommons.org/licenses/by-nc/:version/legalcode',
+        versions: ccVersions
+      },
+      'CC BY-NC-SA': {
+        label: H5P.t('licenseCCBYNCSA'),
+        link: 'http://creativecommons.org/licenses/by-nc-sa/:version/legalcode',
+        versions: ccVersions
+      },
+      'CC BY-NC-ND': {
+        label: H5P.t('licenseCCBYNCND'),
+        link: 'http://creativecommons.org/licenses/by-nc-nd/:version/legalcode',
+        versions: ccVersions
+      },
+      'GNU GPL': {
+        label: H5P.t('licenseGPL'),
+        link: 'http://www.gnu.org/licenses/gpl-:version-standalone.html',
+        linkVersions: {
+          'v3': '3.0',
+          'v2': '2.0',
+          'v1': '1.0'
+        },
+        versions: {
+          'default': 'v3',
+          'v3': H5P.t('licenseV3'),
+          'v2': H5P.t('licenseV2'),
+          'v1': H5P.t('licenseV1')
+        }
+      },
+      'PD': {
+        label: H5P.t('licensePD'),
+        versions: {
+          'CC0 1.0': {
+            label: H5P.t('licenseCC010'),
+            link: 'https://creativecommons.org/publicdomain/zero/1.0/'
+          },
+          'CC PDM': {
+            label: H5P.t('licensePDM'),
+            link: 'https://creativecommons.org/publicdomain/mark/1.0/'
+          }
+        }
+      },
+      'ODC PDDL': '<a href="http://opendatacommons.org/licenses/pddl/1.0/" target="_blank">Public Domain Dedication and Licence</a>',
+      'CC PDM': H5P.t('licensePDM'),
+      'C': H5P.t('licenseC'),
+    };
 
     /**
      * Indicates if H5P is embedded on an external page using iframe.

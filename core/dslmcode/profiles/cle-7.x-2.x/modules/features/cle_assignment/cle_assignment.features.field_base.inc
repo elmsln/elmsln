@@ -85,7 +85,7 @@ function cle_assignment_field_default_field_bases() {
   // Exported field_base: 'field_assignment_dependencies'.
   $field_bases['field_assignment_dependencies'] = array(
     'active' => 1,
-    'cardinality' => -1,
+    'cardinality' => 1,
     'deleted' => 0,
     'entity_types' => array(),
     'field_name' => 'field_assignment_dependencies',
@@ -342,33 +342,6 @@ function cle_assignment_field_default_field_bases() {
     ),
     'translatable' => 0,
     'type' => 'entityreference',
-  );
-
-  // Exported field_base: 'field_cle_archived'.
-  $field_bases['field_cle_archived'] = array(
-    'active' => 1,
-    'cardinality' => 1,
-    'deleted' => 0,
-    'entity_types' => array(),
-    'field_name' => 'field_cle_archived',
-    'indexes' => array(
-      'value' => array(
-        0 => 'value',
-      ),
-    ),
-    'locked' => 0,
-    'module' => 'list',
-    'settings' => array(
-      'allowed_values' => array(
-        0 => '',
-        1 => '',
-      ),
-      'allowed_values_function' => '',
-      'cis_connector_access' => FALSE,
-      'cis_connector_disable' => FALSE,
-    ),
-    'translatable' => 0,
-    'type' => 'list_boolean',
   );
 
   // Exported field_base: 'field_critique_method'.

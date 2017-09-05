@@ -716,6 +716,58 @@ function cle_submission_field_default_field_instances() {
     ),
   );
 
+  // Exported field_instance: 'node-cle_submission-field_submission_type'.
+  $field_instances['node-cle_submission-field_submission_type'] = array(
+    'bundle' => 'cle_submission',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'list',
+        'settings' => array(),
+        'type' => 'list_default',
+        'weight' => 20,
+      ),
+      'full' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_submission_type',
+    'label' => 'Submission Type',
+    'required' => 1,
+    'settings' => array(
+      'authcache' => array(
+        'clients' => array(
+          'authcache_ajax' => array(
+            'status' => 1,
+            'weight' => 0,
+          ),
+        ),
+        'fallback' => 'cancel',
+        'lifespan' => 3600,
+        'perpage' => 0,
+        'peruser' => 1,
+        'status' => 0,
+      ),
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'options',
+      'settings' => array(
+        'apply_chosen' => '',
+      ),
+      'type' => 'options_select',
+      'weight' => 21,
+    ),
+  );
+
   // Exported field_instance: 'node-cle_submission-field_video'.
   $field_instances['node-cle_submission-field_video'] = array(
     'bundle' => 'cle_submission',
@@ -894,6 +946,7 @@ function cle_submission_field_default_field_instances() {
   t('Related submission');
   t('Section');
   t('State');
+  t('Submission Type');
   t('Text');
   t('This relates submissions together, usually because of it being a critique.');
   t('Video');

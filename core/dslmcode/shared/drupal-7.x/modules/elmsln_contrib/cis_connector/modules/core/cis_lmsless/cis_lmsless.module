@@ -227,6 +227,7 @@ function cis_lmsless_form_masquerade_block_1_alter(&$form, &$form_state, $form_i
     '#type' => 'button',
     '#suffix' => '</div>',
     '#weight' => 11,
+    '#attributes' => array('class' => array('grey', 'view-user-button')),
   );
   // push on additional validation handler
   array_unshift($form['#validate'], 'cis_lmsless_form_masquerade_block_1_submit');
@@ -326,13 +327,8 @@ function _cis_lmsless_theme_vars() {
     // throw in username
     $vars['username'] = (isset($GLOBALS['user']->name) ? check_plain($GLOBALS['user']->name) : '');
     // build the remote banner URI, this is the best solution for an image
-    $elmsln_global_profile = variable_get('elmsln_global_profile', 'cpr');
-    $uri = 'elmslnauthority://' . $elmsln_global_profile . '/users/photos/' . $vars['username'] .'.jpg';
-    // load in the user picture if it exists
-    if (file_exists(_elmsln_core_realpath($uri))) {
-      $image = file_create_url($uri);
-      $image = str_replace('files/users', 'files/styles/foundation_access_lmsless_bar/public/users', $image);
-      $vars['userpicture'] = $image;
+    if ($picture = _elmsln_core_get_user_picture('avatar', $GLOBALS['user']->uid)) {
+      $vars['userpicture'] = $picture;
     }
     else {
       $vars['usericon'] = 'social:person';
@@ -455,12 +451,12 @@ function _cis_lmsless_theme_vars() {
     }
     // set a login link if we don't have a user name
     if ($vars['username'] == '') {
-      $vars['userlink'] = '<lrnsys-button label="' . t('Log in') . '" href="' . url('user/logout') . '" class="account-login" icon="power-settings-new" hover-class="' . $vars['lmsless_classes'][$vars['distro']]['color'] . ' ' . $vars['lmsless_classes'][$vars['distro']]['dark'] . ' white-text"></lrnsys-button>';
+      $vars['userlink'] = '<lrnsys-button label="' . t('Log in') . '" href="' . url('user/login') . '" class="account-login" icon="power-settings-new" hover-class="' . $vars['lmsless_classes'][$vars['distro']]['color'] . ' ' . $vars['lmsless_classes'][$vars['distro']]['dark'] . ' white-text"></lrnsys-button>';
     }
     else {
       $vars['userlink'] = '<lrnsys-button label="' . t('Log out') . '" href="' . url('user/logout') . '" class="account-logout" icon="power-settings-new" hover-class="' . $vars['lmsless_classes'][$vars['distro']]['color'] . ' ' . $vars['lmsless_classes'][$vars['distro']]['dark'] . ' white-text"></lrnsys-button>';
 
-      $vars['userprofile'] = '<lrnsys-button label="' . t('My profile') . '" href="' . url('user/' . $GLOBALS['user']->uid) . '" class="elmsln-modal-trigger" icon="account-circle" hover-class="' . $vars['lmsless_classes'][$vars['distro']]['color'] . ' ' . $vars['lmsless_classes'][$vars['distro']]['dark'] . ' white-text"></lrnsys-button>';
+      $vars['userprofile'] = '<lrnsys-button label="' . t('My profile') . '" href="' . url('user/' . $GLOBALS['user']->uid) . '" icon="account-circle" hover-class="' . $vars['lmsless_classes'][$vars['distro']]['color'] . ' ' . $vars['lmsless_classes'][$vars['distro']]['dark'] . ' white-text"></lrnsys-button>';
     }
     if (_cis_connector_role_groupings(array('staff','teacher')) || isset($_SESSION['masquerading'])) {
       // account for systems without sections (like authorities)
@@ -468,7 +464,7 @@ function _cis_lmsless_theme_vars() {
         // ensure they can see the section switcher link
         if (user_access('switch section context')) {
           // support for the FERPA filter block
-          $vars['ferpa_flter'] = '<lrnsys-button href="#block-cis-service-connection-ferpa-filter-nav-modal" class="elmsln-modal-trigger" icon="visibility" label="' . t('Privacy settings') . '" hover-class="' . $vars['lmsless_classes'][$vars['distro']]['color'] . ' ' . $vars['lmsless_classes'][$vars['distro']]['dark'] . ' white-text"></lrnsys-button>';
+          $vars['ferpa_flter'] = '<a tabindex="-1" class="elmsln-modal-trigger" href="#block-cis-service-connection-ferpa-filter-nav-modal"><lrnsys-button icon="visibility" label="' . t('Privacy settings') . '" hover-class="' . $vars['lmsless_classes'][$vars['distro']]['color'] . ' ' . $vars['lmsless_classes'][$vars['distro']]['dark'] . ' white-text"></lrnsys-button></a>';
           $section_form = drupal_get_form('cis_service_connection_block_section_context_changer_form');
           $vars['user_section'] = drupal_render($section_form);
         }
@@ -478,7 +474,7 @@ function _cis_lmsless_theme_vars() {
         $vars['masquerade'] = '<lrnsys-button label="' . t('revert (@name)', array('@name' => $GLOBALS['user']->name)) . '" href="' . url('masquerade/unswitch', array('query' => array('token' => drupal_get_token('masquerade/unswitch')))) . '" icon="supervisor-account" hover-class="' . $vars['lmsless_classes'][$vars['distro']]['color'] . ' ' . $vars['lmsless_classes'][$vars['distro']]['dark'] . ' white-text"></lrnsys-button>';
       }
       else {
-        $vars['masquerade'] = '<lrnsys-button label="' . t('Impersonate account') . '" href="#block-masquerade-masquerade-nav-modal" class="elmsln-modal-trigger" icon="supervisor-account" hover-class="' . $vars['lmsless_classes'][$vars['distro']]['color'] . ' ' . $vars['lmsless_classes'][$vars['distro']]['dark'] . ' white-text"></lrnsys-button>';
+        $vars['masquerade'] = '<a tabindex="-1" href="#block-masquerade-masquerade-nav-modal" class="elmsln-modal-trigger"><lrnsys-button label="' . t('Impersonate account') . '" icon="supervisor-account" hover-class="' . $vars['lmsless_classes'][$vars['distro']]['color'] . ' ' . $vars['lmsless_classes'][$vars['distro']]['dark'] . ' white-text"></lrnsys-button></a>';
       }
       // calculate roles
       $tmproles = $GLOBALS['user']->roles;

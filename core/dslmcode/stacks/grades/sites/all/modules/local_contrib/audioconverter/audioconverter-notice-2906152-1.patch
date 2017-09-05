@@ -1,0 +1,100 @@
+diff --git a/audioconverter.module b/audioconverter.module
+index a9af0d6..e2a1af0 100644
+--- a/audioconverter.module
++++ b/audioconverter.module
+@@ -53,52 +53,53 @@ function _audioconverter_process_entity($entity, $type) {
+     //Todo: need to check about other entity type structures
+     $fields = $finfo['instances'][$type];
+   }
++  if (is_array($fields)) {
++    foreach ($fields as $field) {
++      //Filter only allowed audio fields
++      if (isset($field['widget']) && in_array($field['widget']['module'], audioconverter_allowed_fields())) {
++        $fname = $field['field_name'];
++        //Only convert if conversion is enabled for all fields or for this field.
++        $field_settings = variable_get('audioconverter_' . $fname, 0);
++        $global_settings = variable_get('audioconverter_all', 0);
++        if ($global_settings || $field_settings) {
++          //Use field_get_items as part of the field localisation
++          $values = field_get_items($type, $entity, $fname);
++          if($values) {
++            foreach ($values as $field_data) {
++              //Check if field is empty
++              if (empty($field_data['fid'])) {
++                continue;
++              }
++              //Check if this file is already in queue
++              $exist = _audioconverter_file_in_queue($field_data['fid']);
++              if ($exist) {
++                continue;
++              }
++              $rfile = file_load($field_data['fid']);
+ 
+-  foreach ($fields as $field) {
+-    //Filter only allowed audio fields
+-    if (isset($field['widget']) && in_array($field['widget']['module'], audioconverter_allowed_fields())) {
+-      $fname = $field['field_name'];
+-      //Only convert if conversion is enabled for all fields or for this field.
+-      $field_settings = variable_get('audioconverter_' . $fname, 0);
+-      $global_settings = variable_get('audioconverter_all', 0);
+-      if ($global_settings || $field_settings) {
+-        //Use field_get_items as part of the field localisation
+-        $values = field_get_items($type, $entity, $fname);
+-        if($values) {
+-          foreach ($values as $field_data) {
+-            //Check if field is empty
+-            if (empty($field_data['fid'])) {
+-              continue;
+-            }
+-            //Check if this file is already in queue
+-            $exist = _audioconverter_file_in_queue($field_data['fid']);
+-            if ($exist) {
+-              continue;
+-            }
+-            $rfile = file_load($field_data['fid']);
+-
+-            $info = pathinfo($rfile->uri);
+-            $op = $info['extension'];
++              $info = pathinfo($rfile->uri);
++              $op = $info['extension'];
+ 
+-            if ($op == 'mp3') {
+-              continue;
+-            }
+-            #Else:
+-            audioconverter_save_file($field_data['fid']);
+-            if (variable_get('audioconverter_on_save', 0)) {
+-              //Convert now
+-              $job = _audio_render_load_job($field_data['fid']);
+-              _audioconverter_scheduler_start($job);
+-              drupal_set_message(t('Audio converted to mp3.'));
+-              // support entitycache if tables exist
+-              if (module_exists('entitycache') && $type == 'node') {
+-                if (isset($entity->nid)){
+-                  cache_clear_all($entity->nid, 'cache_entity_node');
++              if ($op == 'mp3') {
++                continue;
++              }
++              #Else:
++              audioconverter_save_file($field_data['fid']);
++              if (variable_get('audioconverter_on_save', 0)) {
++                //Convert now
++                $job = _audio_render_load_job($field_data['fid']);
++                _audioconverter_scheduler_start($job);
++                drupal_set_message(t('Audio converted to mp3.'));
++                // support entitycache if tables exist
++                if (module_exists('entitycache') && $type == 'node') {
++                  if (isset($entity->nid)){
++                    cache_clear_all($entity->nid, 'cache_entity_node');
++                  }
+                 }
+               }
+-            }
+-            else {
+-              drupal_set_message(t('Audio submission queued for processing. Please wait: our servers are preparing your audio for web displaying.'));
++              else {
++                drupal_set_message(t('Audio submission queued for processing. Please wait: our servers are preparing your audio for web displaying.'));
++              }
+             }
+           }
+         }

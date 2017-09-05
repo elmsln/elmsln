@@ -1,7 +1,0 @@
-<?php
-/**
- * @file
- * Code for the CLE Submission comments feature.
- */
-
-include_once 'cle_submission_comments.features.inc';

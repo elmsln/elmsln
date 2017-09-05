@@ -69,18 +69,37 @@ function elmsmedia_h5p_h5p_filtered_params_alter(&$filtered) {
   $allowed_tags = variable_get('elmsmedia_h5p_allowed_tags', array());
   $allowed_tags = _elmsmedia_variable_formatter($allowed_tags);
   drupal_alter('elmsln_h5p_allowed_tags', $allowed_tags);
-  // find questions and answers
-  foreach ($filtered->choices as &$choice) {
-    // decode H5P's escaping
-    $choice->question = html_entity_decode($choice->question);
-    // run it through drupal's xss filter but whitelist our allowed tags
-    $choice->question = filter_xss($choice->question, $allowed_tags);
-    if (isset($choice->answers)) {
-      foreach ($choice->answers as &$answer) {
-        // decode H5P's escaping
-        $answer = html_entity_decode($answer);
+  // support filtering questions
+  if (isset($filtered->questions)) {
+    // find questions and answers
+    foreach ($filtered->questions as &$choice) {
+      // decode H5P's escaping
+      if (is_string($choice->params->question)) {
+        $choice->params->question = html_entity_decode($choice->params->question);
         // run it through drupal's xss filter but whitelist our allowed tags
-        $answer = filter_xss($answer, $allowed_tags);
+        $choice->params->question = filter_xss($choice->params->question, $allowed_tags);
+      }
+      if (isset($choice->params->answers)) {
+        foreach ($choice->params->answers as &$answer) {
+          // decode H5P's escaping
+          $answer->text = html_entity_decode($answer->text);
+          // run it through drupal's xss filter but whitelist our allowed tags
+          $answer->text = filter_xss($answer->text, $allowed_tags);
+        }
+      }
+    }
+  }
+  else if (isset($filtered->question)) {
+    // decode H5P's escaping
+    $filtered->question = html_entity_decode($filtered->question);
+    // run it through drupal's xss filter but whitelist our allowed tags
+    $filtered->question = filter_xss($filtered->question, $allowed_tags);
+    if (isset($filtered->answers)) {
+      foreach ($filtered->answers as &$answer) {
+        // decode H5P's escaping
+        $answer->text = html_entity_decode($answer->text);
+        // run it through drupal's xss filter but whitelist our allowed tags
+        $answer->text = filter_xss($answer->text, $allowed_tags);
       }
     }
   }

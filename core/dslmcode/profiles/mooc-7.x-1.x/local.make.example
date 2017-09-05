@@ -12,13 +12,7 @@ projects[textbook][subdir] = "contrib"
 projects[accessibility][version] = "1.x-dev"
 projects[accessibility][subdir] = "contrib"
 projects[accessibility][patch][] = "https://www.drupal.org/files/issues/accessibility-2221601-2-features-fix.patch"
-; jQuery Joyride hack similar to the profile download
-libraries[joyride][type] = "module"
-libraries[joyride][destination] = "modules/contrib"
-libraries[joyride][download][type] = "git"
-libraries[joyride][download][branch] = "7.x-1.x"
-libraries[joyride][directory_name] = "joyride"
-libraries[joyride][download][url] = "http://git.drupal.org/project/joyride.git"
+
 ; +++++ Libraries +++++
 
 ; ckeditor 4.4.6 + codemirror and table resize

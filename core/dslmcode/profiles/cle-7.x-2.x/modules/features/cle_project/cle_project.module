@@ -133,7 +133,6 @@ function _cle_project_v1_project_output($node) {
     'dueDate' => _elmsln_api_format_date_field($node->field_project_due_date[LANGUAGE_NONE][0]),
     'allowLateSubmissions' => (int)$node->field_assignment_late_submission[LANGUAGE_NONE][0]['value'],
     'color' => $color,
-    'archived' => (int)$node->field_cle_archived['und'][0]['value'],
     'image' => _elmsln_api_v1_file_output($node->field_project_image[LANGUAGE_NONE][0]),
     'hierarchy' => array(
       'stepsToComplete' => $steps,
@@ -176,9 +175,6 @@ function _cle_project_v1_project_modify($node, $params = NULL) {
             $node->og_group_ref[LANGUAGE_NONE][] = array('target_id' => $section);
           }
         }
-      break;
-      case 'archived':
-        $node->field_cle_archived['und'][0]['value'] = $value;
       break;
       case 'body':
         $node->field_project_description[LANGUAGE_NONE][0] = $value;
@@ -230,22 +226,4 @@ function _cle_project_v1_project_modify($node, $params = NULL) {
     'node' => (array) $node,
   );
   return $vars;
-}
-
-/**
- * Implements hook_node_insert().
- */
-function cle_project_node_insert($node) {
-  // make sure there's an outline associated to this
-  // but only if we have at least 1 to do so with
-  if ($node->type == 'cle_project') {
-    // add this assignment to the master section assignment list automatically
-    if ($gid = _cis_section_load_section_by_id(CIS_SECTION_MASTER)) {
-      // this case can be triggered if the dates get updated downstream in CIS
-      // or if we create something ahead of the semester
-      $section = node_load($gid);
-      $section->field_section_projects['und'][] = array('target_id' => $node->nid);
-      node_save($section);
-    }
-  }
 }

@@ -1,49 +1,107 @@
 <?php
 
 /**
- * Callback for apps/lrnapp-studio-dashboard/data.
+ * Require the submission service.
  */
-function _cle_open_studio_app_dashboard_data($machine_name, $app_route, $params, $args) {
-  $return = array();
-  $data = _cis_connector_assemble_entity_list('node', 'cle_submission', 'nid', '_entity');
-  foreach ($data as $item) {
-    $return[$item->nid] = new stdClass();
-    $return[$item->nid]->title = $item->title;
-    $return[$item->nid]->comments = $item->comment_count;
-    $return[$item->nid]->author = $item->name;
-    $return[$item->nid]->body = strip_tags($item->field_submission_text['und'][0]['safe_value']);
-    $return[$item->nid]->url = base_path() . $app_route . '/data?nid=' . $item->nid . '&token=' . drupal_get_token('webcomponentapp');
-    $return[$item->nid]->edit_url = base_path() . 'node/' . $item->nid . '/edit?destination=' . $app_route;
-    if (!empty($item->field_images)) {
-      $images = array();
-      foreach ($item->field_images['und'] as $image) {
-        $images[$image['fid']] = file_create_url($image['uri']);
-      }
-      if (count($images) == 1) {
-        $return[$item->nid]->image = array_pop($images);
-      }
-      else if (count($images) > 1) {
-        $return[$item->nid]->images = $images;
+define('__ROOT__', dirname(dirname(__FILE__)));
+require_once(__ROOT__.'/services/CleOpenStudioAppSubmissionService.php');
+require_once(__ROOT__.'/services/CleOpenStudioAppProjectService.php');
+require_once(__ROOT__.'/services/CleOpenStudioAppAssignmentService.php');
+require_once(__ROOT__.'/services/CleOpenStudioAppFileService.php');
+require_once(__ROOT__.'/services/CleOpenStudioAppCommentService.php');
+
+/**
+ * Callback for getting comment data out of Drupal
+ */
+function _lrnapp_studio_dashboard_recent_comments($machine_name, $app_route, $params, $args) {
+  $data = array();
+  $options = new stdClass();
+  $options->order = array('property' => array(array('changed', 'DESC')));
+  $options->filter = array('author' => array($GLOBALS['user']->uid, '<>'));
+  $options->limit = array(0, 3);
+  // invoke our submission service to get submissions
+  $service = new CleOpenStudioAppCommentService();
+  $data = $service->getComments($options);
+  $status = 200;
+  return array(
+    'status' => $status,
+    'data' => $data
+  );
+}
+/**
+ * Callback to get details of the recent project
+ */
+function _lrnapp_studio_dashboard_recent_project($machine_name, $app_route, $params, $args) {
+  $data = array();
+  $status = 200;
+  // get the last thing they touched of their own creation
+  $options = new stdClass();
+  $options->order = array('property' => array(array('changed', 'DESC')));
+  $options->limit = array(0, 1);
+  $options->filter = array('author' => $GLOBALS['user']->uid);
+  // invoke our submission service to get submissions
+  $service = new CleOpenStudioAppSubmissionService();
+  $data = $service->getSubmissions($options);
+  // make sure we got something
+  if (!empty($data)) {
+    $submission = array_pop($data);
+    // invoke our project service to get assignments
+    $service = new CleOpenStudioAppProjectService();
+    $project = $service->getProject($submission->relationships->project->data->id);
+    if (!empty($project)) {
+      $project->relationships->assignments = array();
+      // loop through the steps and pull in all the assignments
+      foreach ($project->attributes->steps as $step) {
+        $assignment = node_load($step->id);
+        if (isset($assignment->nid)) {
+          $project->relationships->assignments['assignment-' . $assignment->nid] = _cle_assignment_v1_assignment_output($assignment, $app_route);
+        }
       }
     }
-    if (!empty($item->field_files)) {
-      foreach ($item->field_files['und'] as $file) {
-        $return[$item->nid]->file = file_create_url($file['uri']);
-      }
-    }
-    if (!empty($item->field_video)) {
-      foreach ($item->field_video['und'] as $video) {
-        $return[$item->nid]->video = $video['video_url'];
-      }
-    }
-    if (!empty($item->field_links)) {
-      foreach ($item->field_links['und'] as $link) {
-        $return[$item->nid]->link = $link['url'];
-      }
-    }
+    $data = $project;
   }
   return array(
-    'status' => 200,
-    'data' => $return
+    'status' => $status,
+    'data' => $data
+  );
+}
+/**
+ * Get recent submission info
+ */
+function _lrnapp_studio_dashboard_recent_submissions($machine_name, $app_route, $params, $args) {
+  $data = array();
+  $status = 200;
+  $options = new stdClass();
+  $options->filter['state'] = array('submission_ready', '=');
+  $options->order = array('property' => array(array('changed', 'DESC')));
+  $options->limit = array(0, 3);
+  // invoke our submission service to get submissions
+  $service = new CleOpenStudioAppSubmissionService();
+  $data = $service->getSubmissions($options);
+  return array(
+    'status' => $status,
+    'data' => $data
+  );
+}
+
+/**
+ * Get recent submission info
+ */
+function _lrnapp_studio_dashboard_need_feedback($machine_name, $app_route, $params, $args) {
+  $data = array();
+  $status = 200;
+  $options = new stdClass();
+  $options->filter['state'] = array('submission_ready', '=');
+  $options->order = array('property' => array(array('changed', 'DESC')));
+  // don't show student's own submissions in needing feedback column
+  $options->filter['author'] = array($GLOBALS['user']->uid, '<>');
+  $options->limit = array(0, 3);
+  $options->tags = array('nocomments');
+  // invoke our submission service to get submissions
+  $service = new CleOpenStudioAppSubmissionService();
+  $data = $service->getSubmissions($options);
+  return array(
+    'status' => $status,
+    'data' => $data
   );
 }

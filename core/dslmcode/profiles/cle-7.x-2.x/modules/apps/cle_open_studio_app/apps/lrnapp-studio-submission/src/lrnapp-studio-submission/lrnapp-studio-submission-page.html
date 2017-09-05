@@ -1,15 +1,35 @@
+<link rel="import" href="lrnapp-studio-submission-object.html">
 <link rel="import" href="lrnapp-studio-submission-comments.html">
 <link rel="import" href="lrnapp-studio-submission-comment.html">
+<link rel="import" href="../../bower_components/lrnsys-comment/lrnsys-comment-list.html">
+<link rel="import" href="../../bower_components/marked-element/marked-element.html">
+<link rel="import" href="../../bower_components/vaadin-split-layout/vaadin-split-layout.html">
+
+
 <dom-module id="lrnapp-studio-submission-page">
   <template>
     <style>
        :host {
         display: block;
+        position: relative;
       }
 
       p {
         font-size: 14px;
         line-height: 18px;
+      }
+
+      h1 {
+        margin: 0;
+        text-align: left;
+      }
+
+      iron-selector {
+        line-height: 1em;
+      }
+
+      iron-selector lrnsys-button {
+        display: inline-flex;
       }
 
       lrndesign-contentblock {
@@ -24,10 +44,6 @@
         display: inline;
       }
 
-      paper-card {
-        padding: 2em;
-      }
-
       .contain {
         width: 10em;
         height: 10em;
@@ -37,14 +53,6 @@
       .center {
         margin: auto;
         width: 100%;
-      }
-
-      h1,
-      h2,
-      h3,
-      h4 {
-        margin: 0;
-        text-align: left;
       }
 
       .title {
@@ -78,115 +86,264 @@
         font-size: 1.5em;
       }
 
-      .flex-wrap {
-        display: flex;
+      .submission-page-wrapper {
+        padding: 0 1em;
+        --vaadin-split-layout-splitter: {
+          min-width: .4em;
+          background: var(--paper-amber-200);
+        };
       }
 
       .submission-page {
-        width: 100vh;
+        width: 70vw;
+      }
+
+      .submission-page-card {
+        width: 100%;
+        margin: 0;
+        padding: 0 0 2em 1em;
       }
 
       .submission-comments {
-        width: 50vh;
-        height: 100vh;
-        overflow-y: scroll;
+        overflow-y: hidden;
+        padding: 0;
+        margin: 0;
+      }
+
+      elmsln-loading {
+        position: absolute;
+        display: none;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.8);
+        z-index: 10;
+        align-items: flex-end;
+        justify-content: center;
+      }
+
+       :host[saving] elmsln-loading {
+        display: block;
+      }
+
+      elmsln-loading ::shadow>lrn-icon {
+        top: calc(50% - 5vmax);
+        left: calc(50% - 5vmax);
+        position: fixed;
+        transform-origin: center center;
+        width: 10vmax !important;
+        height: 10vmax !important;
+      }
+
+      iron-pages {
+        width: 100%;
+      }
+
+      paper-dialog {
+        width: 50%;
+        width: 50vmax;
+        padding: 1em;
+        z-index: 99999;
+      }
+
+      lrnapp-studio-submission-object {
+        width: 100%;
+      }
+
+      .paper-button-0 {
+        text-transform: capitalize;
+      }
+
+      .assignment-body {
         padding: 2em;
-        margin: 2em;
+      }
+
+      iron-icon {
+        margin: .2em;
       }
     </style>
 
-    <iron-ajax id="ajaxRequest" auto url="[[reqUrl]]" method="GET" body="[[reqBody]]" params="[[reqParams]]" content-type="application/json"
-      handle-as="json" on-response="_handleResponse"></iron-ajax>
-      <div class="flex-wrap">
-        <div class="submission-comments">
-            <template is="dom-if" if="[[submission.relationships.comments]]">
-               <!--<div class="comments">{{submission.relationships.comments.data.length}}</div>-->
-                <h2 class="title">Comments</h2>
-                <lrnapp-studio-submission-comments submission="{{submission}}"></lrnapp-studio-submission-comments>
-            </template>
-            </div>
-      <div class="submission-page">
-        <paper-card>
-          <div class="card-content">
-            <!-- ----- Title and Author -----  -->
-            <template is="dom-if" if="[[submission]]">
-              <h1 class="title">{{submission.attributes.title}}</h1>
-              <h2 class="author">By: {{submission.relationships.author.data.name}}</h2>
-            </template>
-            <!-- ----- Images Submission -----  -->
-            <template is="dom-if" if="[[submission.attributes.images]]">
-              <lrndesign-contentblock class="center" title="Images Submitted">
-                <template is="dom-repeat" items="[[_toArray(submission.attributes.images)]]" as="image">
+    <app-route route="{{route}}" pattern="/edit" tail="{{tail}}" active="{{editPage}}">
+    </app-route>
 
-                  <lrnsys-dialog alt="View Image">
-                    <span slot="button">
-                <iron-image sizing="contain" class="contain" src="[[image.image_styles.elmsln_small]]"></iron-image>
-                </span>
-                    <iron-image src="[[image.image_styles.elmsln_medium]]"></iron-image>
-                  </lrnsys-dialog>
+    <iron-ajax id="ajaxRequest" auto url="[[reqUrl]]" method="GET" params="[[reqParams]]" content-type="application/json" handle-as="json"
+      on-response="_handleResponse"></iron-ajax>
+    <!-- Update Submission Node -->
+    <iron-ajax id="ajaxUpdateRequest" url="[[reqUrl]]" method="PUT" body="[[submission]]" params="[[reqParams]]" content-type="application/json"
+      handle-as="json" on-response="_handleUpdateResponse"></iron-ajax>    <!-- Delete Submission Node -->
+    <iron-ajax id="ajaxDeleteRequest" url="[[reqUrl]]" method="DELETE" params="[[reqParams]]" content-type="application/json"
+      handle-as="json" on-response="_handleDeleteResponse"></iron-ajax>
 
-                </template>
-              </lrndesign-contentblock>
-            </template>
-            <!-- ----- Video Submission -----  -->
-            <template is="dom-if" if="[[submission.attributes.video]]">
-              <lrndesign-contentblock class="center" title="Videos Submitted">
-                <template is="dom-repeat" items="[[_toArray(submission.attributes.video)]]" as="video">
-                  <iframe width="460" height="249" src="[[video.video_src]]"></iframe>
-                </template>
-              </lrndesign-contentblock>
-            </template>
-            <!-- ----- Text Submission -----  -->
-            <template is="dom-if" if="[[submission.attributes.body]]">
-              <lrndesign-contentblock title="Text Submitted">
-                <p class="body">{{submission.attributes.body}}</p>
-              </lrndesign-contentblock>
-            </template>
-            <!-- ----- Links Submission -----  -->
-            <template is="dom-if" if="[[submission.attributes.links]]">
-              <lrndesign-contentblock title="Links Submitted">
-                <template is="dom-repeat" items="[[_toArray(submission.attributes.links)]]" as="link">
-                  <p><strong>[[link.title]]:</strong>
-                    <a class="link" href="[[link.url]]" target="_blank">[[link.url]]</a></p>
-                </template>
-              </lrndesign-contentblock>
-            </template>
-            <!-- ----- Files Submission -----  -->
-            <template is="dom-if" if="[[submission.attributes.files]]">
-              <lrndesign-contentblock title="Files Submitted">
-                <template is="dom-repeat" items="[[_toArray(submission.attributes.files)]]" as="file">
-                  <p><strong>[[file.filename]]:</strong>
-                    <a class="link" href="[[file.url]]" target="_blank">[[file.url]]</a></p>
-                </template>
-              </lrndesign-contentblock>
-            </template>
-            </div>
-            </paper-card>
-            </div>
-            </div>
+    <app-toolbar class="amber lighten-3">
+      <template is="dom-if" if="[[showComments]]">
+        <lrnsys-button on-tap="_backToStudio" icon="arrow-back" label="See in studio" hover-class="amber darken-4 white-text"></lrnsys-button>
+      </template>
+      <template is="dom-if" if="[[!showComments]]">
+        <lrnsys-button on-tap="_backToKanban" icon="arrow-back" label="Back to project management" hover-class="amber darken-4 white-text"></lrnsys-button>
+      </template>
+      <div spacer main-title>[[submission.attributes.title]]</div>
+      <div spacer>
+        <lrnsys-dialog body-append header="[[submission.relationships.assignment.attributes.title]]">
+        <span slot="button"><iron-icon icon="icons:assignment"></iron-icon>Assignment Details</span>
+          <div class="assignment-body">
+          <marked-element id="assignment-body" markdown="[[submission.relationships.assignment.attributes.body]]"></marked-element>
+          </div>
+        </lrnsys-dialog>
+      </div>
+      <div>
+        <paper-button id="comment-count" style="margin:0;padding:.25em;text-transform:none;">
+          <iron-icon icon="communication:forum"></iron-icon>
+          [[submission.meta.comment_count]] Comments
+        </paper-button>
+        <paper-badge hidden$="[[displayNewBadge(submission.meta.comment_new)]]" for="comment-count" label$="[[submission.meta.comment_new]]"></paper-badge>
+      </div>
+      <div hidden$="[[editPage]]">
+        <lrnsys-button on-tap="_setEditRoute" icon="create" label="Edit" hover-class="amber darken-4 white-text" hidden$="[[!submission.meta.canUpdate]]"></lrnsys-button>
+      </div>
+      <div hidden$="[[!editPage]]">
+        <lrnsys-button on-tap="_resetRoute" icon="cancel" label="Cancel" hover-class="amber darken-4 white-text" hidden$="[[!submission.meta.canUpdate]]"></lrnsys-button>
+      </div>
+    </app-toolbar>
+
+    <vaadin-split-layout class="submission-page-wrapper">
+      <div id="commentcolumn" class="submission-comments" style="min-width: 25%; max-width: 40%; width:30%;">
+        <template is="dom-if" if="[[showComments]]">
+            <lrnsys-comment-list comment-ops-base="{{commentOpsBase}}" csrf-token="[[csrfToken]]" source-path="{{commentsUrl}}" create-stub-url="{{createStubUrl}}"></lrnsys-comment-list>
+        </template>
+      </div>
+      <div id="submissioncolumn" style="width:70%;">
+        <lrnapp-studio-submission-object submission="{{submission}}" edit="[[editPage]]"></lrnapp-studio-submission-object>
+      </div>
+      <iron-icon class="splitter-handle" icon="more-vert"></iron-icon>
+    </vaadin-split-layout>
+
+    <elmsln-loading></elmsln-loading>
+
+
+    <paper-dialog id="deletedialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation" with-backdrop>
+        <h2>Delete submission?</h2>
+        <p>Are you sure you want to delete this submission?</p>
+        <div class="buttons">
+          <paper-button dialog-dismiss>Cancel</paper-button>
+          <paper-button dialog-confirm on-click="_submissionDeleteConfirmed">Delete</paper-button>
+        </div>
+      </paper-dialog>
+      <paper-dialog id="publishdialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation" with-backdrop>
+        <h2>Ready to publish?</h2>
+        <p>By publishing, the author of this submission will be able to view your feedback.  Are you ready to publish?</p>
+        <div class="buttons">
+          <paper-button dialog-dismiss>Cancel</paper-button>
+          <paper-button dialog-confirm on-click="_submissionPublishConfirmed">Yes Publish</paper-button>
+        </div>
+      </paper-dialog>
+
+    <paper-toast id="toast"></paper-toast>
   </template>
   <script>
     Polymer({
       is: 'lrnapp-studio-submission-page',
       properties: {
+        id: {
+          type: String
+        },
+        endPoint: {
+          type: String
+        },
+        basePath: {
+          type: String,
+        },
+        csrfToken: {
+          type: String
+        },
         reqUrl: {
           type: String
         },
         reqParams: {
           type: Object
         },
-        reqBody: {
-          type: Object
-        },
         submission: {
           type: Object
+        },
+        commentsUrl: {
+          type: String,
+          computed: '_computeCommentsUrl(id, endPoint, csrfToken)'
+        },
+        createStubUrl: {
+          type: String,
+          computed: '_computeCommentsStubUrl(id, endPoint, csrfToken)'
+        },
+        commentOpsBase: {
+          type: String,
+          computed: '_computeCommentsOpsUrl(id, endPoint, csrfToken)'
+        },
+        editPage: {
+          type: Boolean,
+          reflectToAttribute: true
+        },
+        saving: {
+          type: Boolean,
+          value: false,
+          notify: true,
+          reflectToAttribute: true
+        },
+        showComments: {
+          type: Boolean,
+          computed: '_computeShowComments(submission)'
         }
       },
       observers: [
         '_urlVarsChanged(id, endPoint)',
         '_paramsChanged(csrfToken)',
-        '_bodyChanged(title)'
+        '_bodyChanged(title)',
       ],
+      listeners: {
+        'submissionDeleteClicked': '_submissionDeleteClicked',
+        'submissionPublishClicked': '_submissionPublishClicked',
+        'submissionSaveDraftClicked': '_submissionSaveDraftClicked'
+      },
+      /**
+       * Go back to the studio relative to the app's path.
+       */
+      _backToStudio: function (e) {
+        window.location.href = this.basePath + 'lrnapp-open-studio';
+      },
+      /**
+       * Go back to the studio relative to the app's path.
+       */
+      _backToKanban: function (e) {
+        window.location.href = this.basePath + 'lrnapp-studio-kanban';
+      },
+      /**
+       * Trigger the page router to invoke edit state.
+       */
+      _setEditRoute: function (e) {
+        this.set('route.path', 'edit');
+      },
+      /**
+       * Trigger the page router to invoke edit state.
+       */
+      _resetRoute: function (e) {
+        this.set('route.path', '');
+      },
+      /**
+       * if we should show new badge based on new comment count.
+       */
+      displayNewBadge: function (count) {
+        if (count == 0) {
+          return true;
+        }
+        return false;
+      },
+      _computeCommentsUrl: function (id, endPoint, csrfToken) {
+        return endPoint + '/api/submissions/' + id + '/comments?token=' + csrfToken;
+      },
+      _computeCommentsOpsUrl: function (id, endPoint, csrfToken) {
+        return endPoint + '/api/submissions/' + id + '/comments';
+      },
+      _computeCommentsStubUrl: function (id, endPoint, csrfToken) {
+        return endPoint + '/api/submissions/' + id + '/comments/create-stub?token=' + csrfToken;
+      },
       _urlVarsChanged: function (id, endPoint) {
         this.reqUrl = endPoint + '/api/submissions/' + id;
       },
@@ -196,21 +353,79 @@
         this.reqParams = params;
       },
       _handleResponse: function (data) {
-        this.submission = data.detail.response.data;
-        console.log(this.submission);
+        // empty response means no access or deleted item
+        if (data.detail.response.data) {
+          this.set('submission', data.detail.response.data);
+        }
+        else {
+          window.location.href = this.basePath + 'lrnapp-open-studio?deletetoast=error';
+        }
       },
       _isReply: function (data) {
         this.thread = submission.relationships.comments.data.attributes.thread;
-        console.log(this.thread);
+      },
+      _submissionSaveDraftClicked: function (e) {
+        this.saving = true;
+        this.$$('#ajaxUpdateRequest').generateRequest();
+      },
+      _submissionPublishClicked: function (e) {
+        this.$$('#publishdialog').open();
+      },
+      _submissionPublishConfirmed: function (e) {
+        this.saving = true;
+        this.$$('#ajaxUpdateRequest').generateRequest();
+      },
+      _submissionDeleteClicked: function (e) {
+        this.$$('#deletedialog').open();
+      },
+      _submissionDeleteConfirmed: function (e) {
+        this.saving = true;
+        this.$.ajaxDeleteRequest.generateRequest();
+      },
+      _handleUpdateResponse: function (res) {
+        var root = this;
+        var status = res.detail.response.status;
+        var submission = res.detail.response.data;
+        root.saving = false;
+        if (status === 200) {
+          root.set('submission', {});
+          root.set('submission', submission);
+          root.set('route.path', '');
+          // display a submission published notification
+          if (submission.attributes.state === 'submission_ready') {
+            this.$.toast.show('Published!');
+          }
+        }
+      },
+      _handleDeleteResponse: function (res) {
+        var root = this;
+        var status = res.detail.response.status;
+        root.saving = false;
+        if (status === 200) {
+          window.location.href = this.basePath + 'lrnapp-studio-kanban?deletetoast';
+        }
+      },
+      _computeShowComments: function (submission) {
+        try {
+          var type = submission.meta.submissionType;
+          if (type !== 'critique' && submission.attributes.state == 'submission_ready') {
+            return true;
+          }
+        } catch (error) {
+        }
+        return false;
       },
       /**
-       * Simple way to convert from object to array.
-       */
+      * Simple way to convert from object to array.
+      */
       _toArray: function (obj) {
-        return Object.keys(obj).map(function (key) {
-          return obj[key];
-        });
-      },
+        if (typeof obj === 'object' && obj !== null) {
+          return Object.keys(obj).map(function (key) {
+            return obj[key];
+          });
+        }
+        return [];
+      }
     });
   </script>
 </dom-module>

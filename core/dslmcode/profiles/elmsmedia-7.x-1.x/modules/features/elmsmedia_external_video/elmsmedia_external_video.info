@@ -51,4 +51,3 @@ features[variable][] = node_submitted_external_video
 features[variable][] = wysiwyg_template_default_external_video
 features_exclude[field_base][field_figurelabel_ref] = field_figurelabel_ref
 features_exclude[field_base][field_poster] = field_poster
-features_exclude[dependencies][og_ui] = og_ui

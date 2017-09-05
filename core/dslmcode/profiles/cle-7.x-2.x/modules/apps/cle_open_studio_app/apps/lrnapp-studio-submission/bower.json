@@ -8,8 +8,14 @@
     "hax-behaviors": "LRNWebComponents/hax-behaviors#^0",
     "paper-spinner": "PolymerElements/paper-spinner#^1",
     "paper-tooltip": "PolymerElements/paper-tooltip#^1",
-    "secure-request": "LRNWebComponents/secure-request#^0.0.1",
-    "moment-element": "abdonrd/moment-element#^2.0.0"
+    "secure-request": "LRNWebComponents/secure-request#^0",
+    "lrnsys-comment": "LRNWebComponents/lrnsys-comment#^0",
+    "lrn-markdown-editor": "LRNWebComponents/lrn-markdown-editor#^0",
+    "moment-element": "abdonrd/moment-element#^1.0.0",
+    "mtz-marked-editor": "MaritzSTL/mtz-marked-editor#^0",
+    "paper-tabs": "PolymerElements/paper-tabs#^1.8",
+    "iron-pages": "PolymerElements/iron-pages#^1",
+    "vaadin-split-layout": "vaadin/vaadin-split-layout#^2.0.0"
   },
   "devDependencies": {
     "iron-component-page": "PolymerElements/iron-component-page#^1",

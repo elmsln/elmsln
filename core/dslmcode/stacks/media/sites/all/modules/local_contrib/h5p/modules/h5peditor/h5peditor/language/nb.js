@@ -68,6 +68,7 @@ H5PEditor.language.core = {
   removeItem: 'Fjern element',
   hubPanelLabel: 'Velg innholdstype',
   importantInstructions: 'Viktige instruksjoner',
+  showImportantInstructions: 'Vis instruksjoner',
   hideImportantInstructions: 'Skjul viktige instruksjoner',
   hide: 'Skjul',
   createContentTabLabel: 'Lag innhold',

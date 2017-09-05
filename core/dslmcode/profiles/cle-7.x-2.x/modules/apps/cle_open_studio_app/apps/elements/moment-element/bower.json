@@ -1,0 +1,32 @@
+{
+  "name": "moment-element",
+  "description": "Polymer element wrapper for the moment library",
+  "authors": [
+    "Abdón Rodríguez Davila <a@abdonrd.com>"
+  ],
+  "keywords": [
+    "web-component",
+    "polymer",
+    "moment",
+    "date",
+    "time",
+    "parse",
+    "format"
+  ],
+  "license": "https://abdonrd.github.io/LICENSE.txt",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/abdonrd/moment-element.git"
+  },
+  "main": "moment-element.html",
+  "dependencies": {
+    "moment": "~2.15.0",
+    "polymer": "Polymer/polymer#^1.6.0"
+  },
+  "devDependencies": {
+    "iron-component-page": "PolymerElements/iron-component-page#^1.1.0",
+    "iron-demo-helpers": "PolymerElements/iron-demo-helpers#^1.2.0",
+    "web-component-tester": "^4.0.0",
+    "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0"
+  }
+}

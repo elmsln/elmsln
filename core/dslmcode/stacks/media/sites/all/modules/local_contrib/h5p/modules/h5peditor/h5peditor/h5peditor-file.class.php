@@ -254,7 +254,7 @@ class H5peditorFile {
    * Print result from file processing.
    */
   public function printResult() {
-    $this->result->path = $this->getType() . 's/' . $this->getName();
+    $this->result->path = $this->getType() . 's/' . $this->getName() . '#tmp';
 
     // text/plain is used to support IE
     header('Cache-Control: no-cache');

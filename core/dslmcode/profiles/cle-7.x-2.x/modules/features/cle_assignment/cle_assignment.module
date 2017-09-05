@@ -81,48 +81,6 @@ function cle_assignment_form_cle_assignment_node_form_alter(&$form, &$form_state
 }
 
 /**
- * Implements hook_node_insert().
- */
-function cle_assignment_node_insert($node) {
-  // make sure there's an outline associated to this
-  // but only if we have at least 1 to do so with
-  if ($node->type == 'cle_assignment') {
-    // when we save a new assignment make sure there's a reverse entity reference to match
-    if (isset($node->field_assignment_project['und'][0]['target_id'])) {
-      $found = FALSE;
-      $project = node_load($node->field_assignment_project['und'][0]['target_id']);
-      // see if this currently has any steps in it
-      if (isset($project->field_project_steps['und'])) {
-        // check for this assignment currently being in here
-        foreach ($project->field_project_steps['und'] as $step) {
-          // edge case but if we find we've already referenced this then don't double save
-          if ($step['target_id'] == $node->nid) {
-            $found = TRUE;
-          }
-        }
-        // build cause we didn't find it
-        if (!$found) {
-          $project->field_project_steps['und'][] = array('target_id' => $node->nid);
-          $found = TRUE;
-        }
-      }
-      else {
-        $found = TRUE;
-        $project->field_project_steps = array(
-          'und' => array(
-            0 => array('target_id' => $node->nid),
-          )
-        );
-      }
-      // only save project if we changed something
-      if ($found) {
-        node_save($project);
-      }
-    }
-  }
-}
-
-/**
  * Implements hook_page_build().
  */
 function cle_assignment_page_build(&$page) {
@@ -132,21 +90,30 @@ function cle_assignment_page_build(&$page) {
     drupal_add_js($path . 'js/' . $file . '.js');
     drupal_add_css($path . 'css/' . $file . '.css');
   }
-  $node = menu_get_object();
-  if ($node && $node->type == 'cle_assignment' && arg(2) != 'edit') {
-    $field_conditions = array('field_assignment' => array('target_id', array($node->nid), 'IN'));
-    $submission = _cis_connector_assemble_entity_list('node', 'cle_submission', 'nid', 'title', $field_conditions, array('uid' => $GLOBALS['user']->uid));
-    $output = '';
-    foreach ($submission as $nid => $title) {
-      $output .= l($title, 'node/' . $nid) . ' ';
+}
+
+/**
+ * Implements hook_node_presave().
+ */
+function cle_assignment_node_presave($node) {
+  if ($node->type == 'cle_assignment') {
+    // make sure that an assignment doesn't list itself as a dependency.
+    if (isset($node->field_assignment_dependencies['und'][0]['target_id']) && isset($node->nid)) {
+      if ($node->field_assignment_dependencies['und'][0]['target_id'] == $node->nid) {
+        $message = t('An assignment can not list itself as a dependency.');
+        watchdog('cle_assignment_presave', $message, array('nid' => $node->nid), WATCHDOG_ERROR);
+        //throw new Exception($message);
+      }
     }
-    if (empty($output)) {
-      $output = l(t('Submit assignment'),'node/add/cle-submission', array('query' => array('field_assignment' => $node->nid)));
+    // if we have a critique method chosen then we need to ensure we have a
+    // parent submission
+    if ($node->field_critique_method[LANGUAGE_NONE][0]['value'] != 'none') {
+      if (!isset($node->field_assignment_dependencies['und'][0]['target_id']) || !$node->field_assignment_dependencies['und'][0]['target_id']) {
+        $message = t('An critique assignment must have an assignment dependency.');
+        watchdog('cle_assignment_presave', $message, array('nid' => $node->nid), WATCHDOG_ERROR);
+        //throw new Exception($message);
+      }
     }
-    $page['content']['assignment_submission'] = array(
-      '#markup' => $output,
-      '#weight' => 100,
-    );
   }
 }
 
@@ -173,9 +140,6 @@ function _cle_assignment_v1_assignment_modify($node, $params = NULL) {
       break;
       case 'body':
         $node->field_assignment_description[LANGUAGE_NONE][0] = $value;
-      break;
-      case 'archived':
-        $node->field_cle_archived['und'][0]['value'] = $value;
       break;
       case 'section':
         if (!is_null($value)) {
@@ -316,7 +280,7 @@ function _cle_assignment_v1_assignment_modify($node, $params = NULL) {
 /**
  * Helper function that prepares an assignment for api output.
  */
-function _cle_assignment_v1_assignment_output($node) {
+function _cle_assignment_v1_assignment_output($node, $app_route = '') {
   global $base_url;
   $account = $GLOBALS['user'];
   // get an array of formatted dates
@@ -398,7 +362,7 @@ function _cle_assignment_v1_assignment_output($node) {
   // regardless of due date stuff
   if (_cis_connector_role_groupings(array('staff', 'teacher')) && $submissionActive == 0) {
     $submissionActive = 1;
-    $rationale['text'] .= ' ' . t('<em>Your privledges allow you to submit this regardless.</em>');
+    $rationale['text'] .= ' ' . t('<em>Your privileges allow you to submit this regardless.</em>');
   }
   // calculate metadata to act on this
   $metadata = array(
@@ -408,6 +372,7 @@ function _cle_assignment_v1_assignment_output($node) {
     'canUpdate' => 0,
     'canDelete' => 0,
     'afterDueDate' => 0,
+    'canCritique' => 0,
   );
   // see the operations they can perform here
   if (entity_access('update', 'node', $node, $account)) {
@@ -447,7 +412,6 @@ function _cle_assignment_v1_assignment_output($node) {
     'startDate' => $dates[0],
     'endDate' => $dates[1],
     'commentStyle' => $node->field_assignment_feedback[LANGUAGE_NONE][0]['value'],
-    'archived' => (int)$node->field_cle_archived['und'][0]['value'],
     'hierarchy' => array(
       'dependencies' => _elmsln_api_multifield_clean($node, 'field_assignment_dependencies', 'target_id', TRUE),
       'project' => (int)$node->field_assignment_project[LANGUAGE_NONE][0]['target_id'],
@@ -467,6 +431,8 @@ function _cle_assignment_v1_assignment_output($node) {
       'self' => $base_url . '/api/v1/cle/assignments/' . $node->nid,
       'url' => $base_url . '/cle/app/assignments/' . $node->nid,
       'direct' => $base_url . '/node/' . $node->nid,
+      'delete' => $base_url . '/node/' . $node->nid . '/delete?destination=' . $app_route,
+      'update' => $base_url . '/node/' . $node->nid . '/edit?destination=' . $app_route,
     ),
   );
   // developer support

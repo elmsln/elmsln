@@ -57,16 +57,29 @@ H5PEditor.widgets.select = H5PEditor.Select = (function (E) {
     if (this.field.optional === true || this.field.default === undefined) {
       var options = E.createOption('-', '-');
     }
-    for (var i = 0; i < this.field.options.length; i++) {
-      var option = this.field.options[i];
-      options += E.createOption(option.value, option.label, option.value === this.value);
-    }
+    options += C.createOptionsHtml(this.field.options, this.value);
 
     var select = '<select>' + options + '</select>';
 
     return E.createFieldMarkup(this.field, select);
   };
 
+  /**
+   * Generate HTML for select options.
+   *
+   * @param {Array} options
+   * @param {string} selected value
+   * @return {string}
+   */
+  C.createOptionsHtml = function (options, selected) {
+    var html = '';
+
+    for (var i = 0; i < options.length; i++) {
+      html += E.createOption(options[i].value, options[i].label, options[i].value === selected);
+    }
+
+    return html;
+  };
 
   /**
    * Validate this field.
@@ -94,7 +107,6 @@ H5PEditor.widgets.select = H5PEditor.Select = (function (E) {
 
     return value;
   };
-
 
   /**
    * Remove widget from DOM.
