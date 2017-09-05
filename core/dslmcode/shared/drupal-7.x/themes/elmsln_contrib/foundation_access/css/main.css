@@ -7943,8 +7943,9 @@ body.admin-menu.adminimal-menu {
   margin-top: 0px !important;
   background-color: #444 !important;
 }
-body#admin-menu-wrapper {
+body #admin-menu-wrapper {
   background-color: #444 !important;
+  padding: 0;
 }
 
 body.admin-menu.adminimal-menu:before {
@@ -8204,7 +8205,7 @@ body.adminimal-menu #admin-menu #environment-indicator .environment-indicator-na
   border-radius: 0;
   font-size: 12px;
   line-height: 18px;
-  padding: 5px 10px;
+  padding: 0;
 }
 
 body.adminimal-menu #admin-menu #admin-menu-wrapper div#toolbar div.toolbar-shortcuts ul,
