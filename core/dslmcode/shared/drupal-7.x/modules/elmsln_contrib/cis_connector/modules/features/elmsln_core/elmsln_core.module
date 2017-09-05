@@ -1452,7 +1452,7 @@ function _elmsln_core_icon_map() {
     $map = array(
       'roster' => array(
         'color' => 'orange',
-        'icon' => 'person_add',
+        'icon' => 'social:person-add',
       ),
       'file' => array(
         'color' => 'deep-orange darken-4',
@@ -1464,7 +1464,7 @@ function _elmsln_core_icon_map() {
       ),
       'timeline_item' => array(
         'color' => 'pink',
-        'icon' => 'access_time',
+        'icon' => 'device:access-time',
       ),
       'timeline' => array(
         'color' => 'red darken-2',
@@ -1472,27 +1472,27 @@ function _elmsln_core_icon_map() {
       ),
       'map_point' => array(
         'color' => 'light-green darken-4',
-        'icon' => 'place',
+        'icon' => 'maps:place',
       ),
       'map' => array(
         'color' => 'green darken-3',
-        'icon' => 'map',
+        'icon' => 'maps:map',
       ),
       'jmol' => array(
         'color' => 'blue',
-        'icon' => 'share',
+        'icon' => 'social:share',
       ),
       'poll' => array(
         'color' => 'light-blue',
-        'icon' => 'poll',
+        'icon' => 'social:poll',
       ),
       'course_offering' => array(
         'color' => 'blue',
-        'icon' => 'people_outline',
+        'icon' => 'social:people-outline',
       ),
       'setup_a_course' => array(
         'color' => 'red darken-2',
-        'icon' => 'school',
+        'icon' => 'social:school',
       ),
       'program' => array(
         'color' => 'pink',
@@ -1500,7 +1500,7 @@ function _elmsln_core_icon_map() {
       ),
       'academic_area' => array(
         'color' => 'green darken-4',
-        'icon' => 'account_balance',
+        'icon' => 'account-balance',
       ),
       'global_resource' => array(
         'color' => 'indigo',
@@ -1508,7 +1508,7 @@ function _elmsln_core_icon_map() {
       ),
       'course_access' => array(
         'color' => 'blue',
-        'icon' => 'school',
+        'icon' => 'social:school',
       ),
       'system_access' => array(
         'color' => 'indigo',
@@ -1520,64 +1520,64 @@ function _elmsln_core_icon_map() {
       ),
       'audio' => array(
         'color' => 'green darken-3',
-        'icon' => 'music_video',
+        'icon' => 'av:music-video',
       ),
       'document' => array(
         'color' => 'light-green darken-4',
-        'icon' => 'insert_drive_file',
+        'icon' => 'editor:insert-drive-file',
       ),
       'external_video' => array(
         'color' => 'red darken-2',
-        'icon' => 'video_library',
+        'icon' => 'av:video-library',
       ),
       'figure_label' => array(
         'color' => 'deep-orange darken-4',
-        'icon' => 'label_outline',
+        'icon' => 'label-outline',
       ),
       'h5p' => array(
         'color' => 'deep-orange darken-4',
-        'icon' => 'local_activity',
+        'icon' => 'maps:local-activity',
       ),
       'interactive_content' => array(
         'color' => 'deep-orange darken-4',
-        'icon' => 'local_activity',
+        'icon' => 'maps:local-activity',
       ),
       'image' => array(
         'color' => 'deep-purple',
-        'icon' => 'photo',
+        'icon' => 'image:photo',
       ),
       'image_gallery' => array(
         'color' => 'teal',
-        'icon' => 'collections',
+        'icon' => 'image:collections',
       ),
       'media_list' => array(
         'color' => 'pink',
-        'icon' => 'collections',
+        'icon' => 'image:collections',
       ),
       'static_content' => array(
         'color' => 'blue',
-        'icon' => 'insert_drive_file',
+        'icon' => 'editor:insert-drive-file',
       ),
       'svg' => array(
         'color' => 'indigo',
-        'icon' => 'graphic_eq',
+        'icon' => 'device:graphic-eq',
       ),
       'video' => array(
         'color' => 'purple',
-        'icon' => 'ondemand_video',
+        'icon' => 'notification:ondemand-video',
       ),
       'duplicate_outline' => array(
         'color' => 'green',
-        'icon' => 'content_copy',
+        'icon' => 'content-copy',
         'text' => 'black-text',
       ),
       'child_page' => array(
         'color' => 'teal',
-        'icon' => 'insert_drive_file',
+        'icon' => 'editor:insert-drive-file',
       ),
       'thread' => array(
         'color' => 'blue',
-        'icon' => 'forumn',
+        'icon' => 'communication:forum',
       ),
       'assignment' => array(
         'color' => 'green',
@@ -1592,7 +1592,7 @@ function _elmsln_core_icon_map() {
       // xAPI verbs
       'viewed' => array(
         'color' => 'blue',
-        'icon' => 'remove_red_eye',
+        'icon' => 'image:remove-red-eye',
       ),
       'started' => array(
         'color' => 'red',
@@ -1601,7 +1601,7 @@ function _elmsln_core_icon_map() {
       ),
       'finished' => array(
         'color' => 'green',
-        'icon' => 'golf_course',
+        'icon' => 'places:golf-course',
         'text' => 'black-text',
       ),
     );

@@ -1194,7 +1194,7 @@ function foundation_access_menu_link(&$variables) {
       else {
         $textcolor = 'white-text';
       }
-      $title = '<lrnapp-fab-speed-dial-action icon="lrn-icons:' . $icon . '" color="' . $icon_map[$icon]['color'] . '">' . $title . '</lrnapp-fab-speed-dial-action>';
+      $title = '<lrnapp-fab-speed-dial-action icon="' . $icon_map[$icon]['icon'] . '" color="' . $icon_map[$icon]['color'] . '">' . $title . '</lrnapp-fab-speed-dial-action>';
       $element['#localized_options']['html'] = TRUE;
     }
     else {

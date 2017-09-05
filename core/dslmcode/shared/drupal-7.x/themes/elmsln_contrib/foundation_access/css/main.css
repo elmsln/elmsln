@@ -8549,6 +8549,7 @@ lrnsys-drawer app-drawer,
 
 lrnapp-fab-menu paper-fab {
   z-index: 1000 !important;
+  line-height: 1em;
 }
 
 lrn-aside {
