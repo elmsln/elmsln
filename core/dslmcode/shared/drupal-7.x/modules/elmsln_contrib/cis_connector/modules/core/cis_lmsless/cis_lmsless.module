@@ -451,7 +451,7 @@ function _cis_lmsless_theme_vars() {
     }
     // set a login link if we don't have a user name
     if ($vars['username'] == '') {
-      $vars['userlink'] = '<lrnsys-button label="' . t('Log in') . '" href="' . url('user/logout') . '" class="account-login" icon="power-settings-new" hover-class="' . $vars['lmsless_classes'][$vars['distro']]['color'] . ' ' . $vars['lmsless_classes'][$vars['distro']]['dark'] . ' white-text"></lrnsys-button>';
+      $vars['userlink'] = '<lrnsys-button label="' . t('Log in') . '" href="' . url('user/login') . '" class="account-login" icon="power-settings-new" hover-class="' . $vars['lmsless_classes'][$vars['distro']]['color'] . ' ' . $vars['lmsless_classes'][$vars['distro']]['dark'] . ' white-text"></lrnsys-button>';
     }
     else {
       $vars['userlink'] = '<lrnsys-button label="' . t('Log out') . '" href="' . url('user/logout') . '" class="account-logout" icon="power-settings-new" hover-class="' . $vars['lmsless_classes'][$vars['distro']]['color'] . ' ' . $vars['lmsless_classes'][$vars['distro']]['dark'] . ' white-text"></lrnsys-button>';
