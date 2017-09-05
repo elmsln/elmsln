@@ -44,10 +44,10 @@ lrn-icon,iron-icon {
   height: 3.75rem;
   line-height: 3.75rem;
 }
-lrnsys-button.x-scope,lrn-icon.x-scope,iron-icon.x-scope,paper-button.x-scope {
-  height: unset;
-  min-width: unset;
-  line-height: unset;
+lrnsys-button.x-scope,paper-button.x-scope {
+  height: initial;
+  min-width: initial;
+  line-height: initial;
 }
 
 *,

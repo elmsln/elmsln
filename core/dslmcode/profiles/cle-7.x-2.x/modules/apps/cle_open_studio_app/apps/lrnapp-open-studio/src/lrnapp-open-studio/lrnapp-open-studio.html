@@ -77,7 +77,7 @@
       <span main-title></span>
       <span top-item style="text-align:right;font-size:.5em;padding-right:1em;">Displaying [[submissions.length]] of [[originalSubmissions.length]]</span>
       <paper-dropdown-menu label="Author" hidden$="[[!authors]]">
-        <paper-listbox class="dropdown-content" selected="{{queryParams.author}}" attr-for-selected="item-id">
+        <paper-listbox slot="dropdown-content" class="dropdown-content" selected="{{queryParams.author}}" attr-for-selected="item-id">
           <paper-item></paper-item>
           <template is="dom-repeat" items="[[_toArray(authors)]]" as="author">
           <paper-item item-id="[[author.id]]">[[author.display_name]]</paper-item>
@@ -85,7 +85,7 @@
         </paper-listbox>
       </paper-dropdown-menu>
       <paper-dropdown-menu label="Project" hidden$="[[!projects]]">
-        <paper-listbox class="dropdown-content" selected="{{queryParams.project}}" attr-for-selected="item-id">
+        <paper-listbox slot="dropdown-content" class="dropdown-content" selected="{{queryParams.project}}" attr-for-selected="item-id">
           <paper-item></paper-item>
         <template is="dom-repeat" items="[[_toArray(projects)]]" as="project">
           <paper-item item-id="[[project.id]]">[[project.attributes.title]]</paper-item>
@@ -93,7 +93,7 @@
         </paper-listbox>
       </paper-dropdown-menu>
       <paper-dropdown-menu label="Assignment" hidden$="[[!assignments]]">
-        <paper-listbox class="dropdown-content" selected="{{queryParams.assignment}}" attr-for-selected="item-id">
+        <paper-listbox slot="dropdown-content" class="dropdown-content" selected="{{queryParams.assignment}}" attr-for-selected="item-id">
           <paper-item></paper-item>
         <template is="dom-repeat" items="[[_toArray(assignments)]]" as="assignment">
           <paper-item item-id="[[assignment.id]]">[[assignment.attributes.title]]</paper-item>
