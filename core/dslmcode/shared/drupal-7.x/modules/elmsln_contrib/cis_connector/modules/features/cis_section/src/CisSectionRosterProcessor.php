@@ -261,7 +261,7 @@ class CisSectionRosterProcessor {
     // Otherwise, check our sync details.
     else {
       $save_user = FALSE;
-
+      $edit = array();
       // Add the role if it doesn't already exist.
       if (!isset($account->roles[$role_id])) {
         $account->roles[$role_id] = $role_name;
@@ -278,8 +278,14 @@ class CisSectionRosterProcessor {
         $save_user = TRUE;
       }
 
+      // Update the data, if provided.
+      if (isset($user_data['data']) && $account->data != $user_data['data']) {
+        $edit['data'] = $user_data['data'];
+        $save_user = TRUE;
+      }
+
       if ($save_user) {
-        user_save($account);
+        user_save($account, $edit);
       }
     }
 
