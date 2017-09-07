@@ -151,21 +151,6 @@
           type: Object,
           notify: true,
         },
-        projectFilter: {
-          type: String,
-          notify: true,
-          value: null,
-        },
-        authorFilter: {
-          type: String,
-          notify: true,
-          value: null,
-        },
-        assignmentFilter: {
-          type: String,
-          notify: true,
-          value: null,
-        },
         /**
          * The submissions to render
          */
@@ -217,7 +202,15 @@
         activeSubmission: {
           type: String,
           value: null,
+          notify: true
+        },
+        queryParams: {
+          type: Object,
           notify: true,
+        },
+        _blockcycle: {
+          type: Boolean,
+          value: false,
         },
       },
       listeners: {
@@ -226,9 +219,8 @@
       observers: [
         '_routeChanged(route, endPoint)',
         '_deleteToast(queryParams.deletetoast)',
-        '_authorFilterChanged(queryParams.author)',
+        '_assignmentFilterChanged(queryParams.assignment)',
         '_projectFilterChanged(queryParams.project)',
-        '_assignmentFilterChanged(queryParams.assignment)'
       ],
       // If the current route is outside the scope of our app
       // then allow the website to break out of the single page
@@ -304,20 +296,26 @@
           this.set('queryParams.deletetoast', undefined);
         }
       },
-      _authorFilterChanged: function (author, old) {
-      },
-      _projectFilterChanged: function (project, old) {
-        // if we have a project then we need to uncheck
-        // assignment
-        if (typeof project !== 'undefined') {
-          this.set('queryParams.assignment', undefined);
+      _assignmentFilterChanged: function (assignment) {
+        // if we have a assignment then we need to uncheck project
+        if (typeof assignment !== typeof undefined && !this._blockcycle) {
+          this._blockcycle = true;
+          this.set('queryParams.project', undefined);
+          this.set('queryParams.assignment', assignment);
+        }
+        else {
+          this._blockcycle = false;
         }
       },
-      _assignmentFilterChanged: function (assignment, old) {
-        // if we have a assignment then we need to uncheck
-        // project
-        if (typeof assignment !== 'undefined') {
-          this.set('queryParams.project', undefined);
+      _projectFilterChanged: function (project) {
+        // if we have a project then we need to uncheck assignment
+        if (typeof project !== typeof undefined && !this._blockcycle) {
+          this._blockcycle = true;
+          this.set('queryParams.project', project);
+          this.set('queryParams.assignment', undefined);
+        }
+        else {
+          this._blockcycle = false;
         }
       },
       /**
