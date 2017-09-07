@@ -461,12 +461,18 @@ class CleOpenStudioAppSubmissionService {
       if (isset($submission->field_images[LANGUAGE_NONE])) {
         foreach ($submission->field_images[LANGUAGE_NONE] as $file) {
           $file_output = _elmsln_api_v1_file_output($file);
-          $file_output['thumbnail'] = image_style_url('cle_square', $file_output['uri']);
+          $file_output['originalurl'] = $file_output['url'];
+          $file_output['thumbnail'] = $file_output['url'];
+          // fix things that aren't gif since it might be animated
+          if ($file_output['filemime'] != 'image/gif') {
+            $file_output['url'] = $file_output['image_styles']['elmsln_normalize'];
+            $file_output['thumbnail'] = $file_output['image_styles']['elmsln_small'];
+          }
           $encoded_submission->attributes->images[] = $file_output;
         }
         $images = $encoded_submission->attributes->images;
         $encoded_submission->display->image = array_pop($images);
-        $encoded_submission->display->image = image_style_url('cle_square', $encoded_submission->display->image['uri']);
+        $encoded_submission->display->image = $encoded_submission->display->image['image_styles']['elmsln_small'];
         $encoded_submission->display->icon = FALSE;
       }
       // Meta Info

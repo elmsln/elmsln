@@ -355,6 +355,7 @@
       _handleResponse: function (data) {
         // empty response means no access or deleted item
         if (data.detail.response.data) {
+          this.set('submission', []);
           this.set('submission', data.detail.response.data);
         }
         else {
@@ -395,6 +396,8 @@
           if (submission.attributes.state === 'submission_ready') {
             this.$.toast.show('Published!');
           }
+          // @todo replace this with the page just being there once we fix the lazy load dilema
+          window.location.href = this.endPoint + "/submissions/" + submission.id;
         }
       },
       _handleDeleteResponse: function (res) {

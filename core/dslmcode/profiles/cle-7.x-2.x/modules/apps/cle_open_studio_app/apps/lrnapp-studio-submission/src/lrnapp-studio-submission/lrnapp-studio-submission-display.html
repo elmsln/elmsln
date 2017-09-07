@@ -137,11 +137,11 @@
             <template is="dom-if" if="[[submission.attributes.images]]">
               <lrndesign-contentblock class="center">
                 <template is="dom-repeat" items="[[_toArray(submission.attributes.images)]]" as="image">
-                  <lrnsys-dialog alt="View Image" body-append>
-                    <span slot="button">
-                      <iron-image sizing="contain" class="contain" src="[[image.thumbnail]]"></iron-image>
-                    </span>
-                  <iron-image src="[[image.url]]"></iron-image>
+                <lrnsys-dialog alt="View Image" body-append dynamic-images>
+                  <span slot="button">
+                    <iron-image style="width:200px; height:200px; background-color: lightgray;" sizing="contain" class="contain" src="[[image.thumbnail]]" preload fade></iron-image>
+                  </span>
+                  <iron-image prevent-load style="width:100vw; height:100vh; background-color: lightgray;" src="[[image.url]]" preload fade></iron-image>
                 </lrnsys-dialog>
               </template>
             </lrndesign-contentblock>
@@ -198,8 +198,8 @@
         return [];
       },
       toggle: function() {
-  this.$.collapse.toggle();
-},
+        this.$.collapse.toggle();
+      },
     });
   </script>
 </dom-module>
