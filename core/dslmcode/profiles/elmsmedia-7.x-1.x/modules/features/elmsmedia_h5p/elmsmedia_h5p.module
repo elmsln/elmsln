@@ -68,7 +68,7 @@ function elmsmedia_h5p_h5p_filtered_params_alter(&$filtered) {
   // Get the list of allowed tags
   $allowed_tags = variable_get('elmsmedia_h5p_allowed_tags', array());
   $allowed_tags = _elmsmedia_variable_formatter($allowed_tags);
-  drupal_alter('elmsln_h5p_allowed_tags', $allowed_tags);
+  drupal_alter('elmsmedia_h5p_allowed_tags', $allowed_tags);
   // support filtering questions
   if (isset($filtered->questions)) {
     // find questions and answers
