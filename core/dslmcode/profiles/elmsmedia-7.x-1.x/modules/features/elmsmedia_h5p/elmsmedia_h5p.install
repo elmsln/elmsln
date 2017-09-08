@@ -26,8 +26,8 @@ function elmsmedia_h5p_update_7002() {
  * Add sane default to elmsmedia_h5p_allowed_tags
  */
 function elmsmedia_h5p_update_7003() {
-  $allowed_tags = variable_get('elmsln_h5p_allowed_tags', NULL);
+  $allowed_tags = variable_get('elmsmedia_h5p_allowed_tags', NULL);
   if (!$allowed_tags) {
-    variable_set('elmsln_h5p_allowed_tags', array('a', 'em', 'strong', 'cite', 'blockquote', 'code', 'ul', 'ol', 'li', 'dl', 'dt', 'dd'));
+    variable_set('elmsmedia_h5p_allowed_tags', array('a', 'em', 'strong', 'cite', 'blockquote', 'code', 'ul', 'ol', 'li', 'dl', 'dt', 'dd'));
   }
 }
