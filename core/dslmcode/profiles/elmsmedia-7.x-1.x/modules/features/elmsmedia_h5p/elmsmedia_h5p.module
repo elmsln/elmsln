@@ -66,7 +66,7 @@ function elmsmedia_h5p_replicate_ui_access_check_alter(&$access, $type, $entity)
  */
 function elmsmedia_h5p_h5p_filtered_params_alter(&$filtered) {
   // Get the list of allowed tags
-  $allowed_tags = variable_get('elmsmedia_h5p_allowed_tags', array());
+  $allowed_tags = variable_get('elmsln_h5p_allowed_tags', array());
   $allowed_tags = _elmsmedia_variable_formatter($allowed_tags);
   drupal_alter('elmsln_h5p_allowed_tags', $allowed_tags);
   // support filtering questions
