@@ -9,10 +9,10 @@ function elmsmedia_h5p_update_7000() {
 }
 
 /**
- * Instantiate elmsln_h5p_allowed_tags variable
+ * Instantiate elmsmedia_h5p_allowed_tags variable
  */
 function elmsmedia_h5p_update_7001() {
-  variable_set('elmsln_h5p_allowed_tags', array());
+  variable_set('elmsmedia_h5p_allowed_tags', array());
 }
 
 /**
