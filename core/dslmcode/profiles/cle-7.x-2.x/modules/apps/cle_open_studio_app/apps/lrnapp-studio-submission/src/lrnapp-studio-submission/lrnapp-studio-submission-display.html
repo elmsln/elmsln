@@ -138,10 +138,15 @@
               <lrndesign-contentblock class="center">
                 <template is="dom-repeat" items="[[_toArray(submission.attributes.images)]]" as="image">
                 <lrnsys-dialog alt="View Image" body-append dynamic-images>
+                  <span slot="header">
+                  	<lrnsys-button class="blue darken-4 white-text" icon="launch" href="[[image.url]]" target="_blank">Open in new window</lrnsys-button>
+                  </span>
                   <span slot="button">
                     <iron-image style="width:200px; height:200px; background-color: lightgray;" sizing="contain" class="contain" src="[[image.thumbnail]]" preload fade></iron-image>
                   </span>
-                  <iron-image prevent-load style="width:100vw; height:100vh; background-color: lightgray;" src="[[image.url]]" preload fade></iron-image>
+                  <div style="width: 60%; margin:0 auto;">
+                  	<iron-image prevent-load style="width:100%; height:100%; background-color: lightgray;" src="[[image.url]]" preload fade></iron-image>
+                  </div>
                 </lrnsys-dialog>
               </template>
             </lrndesign-contentblock>
