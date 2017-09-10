@@ -140,7 +140,7 @@ class CleOpenStudioAppAssignmentService {
   public function deleteAssignment($id) {
     if ($id && is_numeric($id)) {
       $node = node_load($id);
-      if ($node && isset($node->type) && $node->type == 'cle_assignment') {
+      if ($node && isset($node->type) && $node->type == 'cle_assignment' && entity_access('delete', 'node', $node)) {
         // unpublish the node
         $node->status = 0;
         try {
