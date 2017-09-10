@@ -241,3 +241,9 @@ function cle__2_update_7018(&$sandbox) {
     node_save($submission);
   }
 }
+/**
+ * Fix permissions to match what backend will enforce now.
+ */
+function cle__2_update_7019(&$sandbox) {
+  features_revert_module('cle_perms');
+}

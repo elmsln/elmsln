@@ -243,6 +243,7 @@ function cle_perms_user_default_permissions() {
     'roles' => array(
       'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
       'administrator' => 'administrator',
+      'instructor' => 'instructor',
       'staff' => 'staff',
     ),
     'module' => 'node',
@@ -254,6 +255,7 @@ function cle_perms_user_default_permissions() {
     'roles' => array(
       'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
       'administrator' => 'administrator',
+      'instructor' => 'instructor',
       'staff' => 'staff',
     ),
     'module' => 'node',
@@ -328,6 +330,7 @@ function cle_perms_user_default_permissions() {
     'roles' => array(
       'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
       'administrator' => 'administrator',
+      'instructor' => 'instructor',
       'staff' => 'staff',
     ),
     'module' => 'node',
@@ -339,6 +342,7 @@ function cle_perms_user_default_permissions() {
     'roles' => array(
       'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
       'administrator' => 'administrator',
+      'instructor' => 'instructor',
       'staff' => 'staff',
     ),
     'module' => 'node',

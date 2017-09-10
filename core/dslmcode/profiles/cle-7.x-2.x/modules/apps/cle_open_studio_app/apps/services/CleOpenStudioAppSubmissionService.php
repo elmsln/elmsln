@@ -178,7 +178,7 @@ class CleOpenStudioAppSubmissionService {
   public function deleteSubmission($id) {
     if ($id && is_numeric($id)) {
       $node = node_load($id);
-      if ($node && isset($node->type) && $node->type == 'cle_submission') {
+      if ($node && isset($node->type) && $node->type == 'cle_submission' && entity_access('delete', 'node', $node)) {
         // unpublish the node
         $node->status = 0;
         try {
