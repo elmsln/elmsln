@@ -1,5 +1,6 @@
 <link rel="import" href="../../../elements/moment-element/moment-element.html">
 <link rel="import" href="../../bower_components/img-pan-zoom/img-pan-zoom.html">
+<link rel="import" href="../../bower_components/img-pan-zoom/openseadragon-import.html">
 
 <dom-module id="lrnapp-studio-submission-display">
   <template>
@@ -12,7 +13,10 @@
         font-size: 14px;
         line-height: 18px;
       }
-      h1,h2,h3 {
+
+      h1,
+      h2,
+      h3 {
         margin: 0;
         text-align: left;
       }
@@ -121,23 +125,51 @@
         font-size: .8em;
         color: #888;
       }
+
+      img-pan-zoom,
+      demo-snippet {
+        min-height: 75vh;
+      }
+
+      paper-button {
+        display: block;
+        margin: 20px auto;
+        color: white;
+        width: 200px;
+        text-align: center;
+      }
+
+      .swap {
+        background: #2196F3;
+      }
+
+      .zoom {
+        background: green;
+      }
+
+      .horizontal {
+        @apply(--layout-horizontal);
+        @apply(--layout-center-center);
+      }
     </style>
 
     <div class="submission-page">
       <paper-card class="submission-page-card ferpa-protect">
         <div class="card-content">
-            <lrndesign-avatar class="center" label="{{submission.relationships.author.data.name}}" src="{{submission.relationships.author.data.avatar}}"></lrndesign-avatar>
-            <div class="author center">{{submission.relationships.author.data.display_name}}</div>
-             <h2 class="title center">{{submission.attributes.title}}</h2>
-             <h3 class="date center">Submitted:<moment-element output-format="MMM DD[,] YYYY" datetime="{{submission.meta.created}}"></h3>
-            <!-- ----- Text Submission -----  -->
-            <template is="dom-if" if="[[submission.attributes.body]]">
-                <marked-element markdown="[[submission.attributes.body]]"></marked-element>
-            </template>
-            <!-- ----- Images Submission -----  -->
-            <template is="dom-if" if="[[submission.attributes.images]]">
-              <lrndesign-contentblock class="center">
-                <template is="dom-repeat" items="[[_toArray(submission.attributes.images)]]" as="image">
+          <lrndesign-avatar class="center" label="{{submission.relationships.author.data.name}}" src="{{submission.relationships.author.data.avatar}}"></lrndesign-avatar>
+          <div class="author center">{{submission.relationships.author.data.display_name}}</div>
+          <h2 class="title center">{{submission.attributes.title}}</h2>
+          <h3 class="date center">Submitted:
+            <moment-element output-format="MMM DD[,] YYYY" datetime="{{submission.meta.created}}">
+          </h3>
+          <!-- ----- Text Submission -----  -->
+          <template is="dom-if" if="[[submission.attributes.body]]">
+            <marked-element markdown="[[submission.attributes.body]]"></marked-element>
+          </template>
+          <!-- ----- Images Submission -----  -->
+          <template is="dom-if" if="[[submission.attributes.images]]">
+            <lrndesign-contentblock class="center">
+              <template is="dom-repeat" items="[[_toArray(submission.attributes.images)]]" as="image">
                 <lrnsys-dialog alt="View Image" body-append dynamic-images>
                   <span slot="header">
                   	<lrnsys-button class="blue darken-4 white-text" icon="launch" href="[[image.url]]" target="_blank">Open in new window</lrnsys-button>
@@ -147,7 +179,10 @@
                   </span>
                   <div style="width: 60%; margin:0 auto;">
                     <img-pan-zoom src="[[image.url]]"></img-pan-zoom>
-                  	<!--<iron-image prevent-load style="width:100%; height:100%; background-color: lightgray;" src="[[image.url]]" preload fade></iron-image>-->
+                    <div class="horizontal">
+                      <paper-button class="zoom" on-tap="zoomIn" raised>Zoom In</paper-button>
+                      <paper-button class="zoom" on-tap="zoomOut" raised>Zoom Out</paper-button>
+                    </div>
                   </div>
                 </lrnsys-dialog>
               </template>
@@ -204,8 +239,33 @@
         }
         return [];
       },
-      toggle: function() {
+      toggle: function () {
         this.$.collapse.toggle();
+      },
+      // Zoom in
+      zoomIn: function() {
+        // TODO: Replace with native openseadragon zoomIn
+        var currentZoom = this.viewer.viewport.getZoom();
+        var maxZoom = this.viewer.viewport.getMaxZoom();
+        var zoomTo = currentZoom + .7;
+         if(zoomTo < maxZoom){
+           this.viewer.viewport.zoomTo(zoomTo);
+         }
+      },
+
+      // Zoom out
+      zoomOut: function() {
+        // TODO: Replace with openseadragon native zoomOut
+        var currentZoom = this.viewer.viewport.getZoom();
+        var minZoom = this.viewer.viewport.getMinZoom();
+        var zoomTo = currentZoom - .7;
+         if( zoomTo > minZoom){
+           this.viewer.viewport.zoomTo(zoomTo);
+         }else {
+           if (minZoom != currentZoom) {
+             this.resetZoom();
+           }
+         }
       },
     });
   </script>
