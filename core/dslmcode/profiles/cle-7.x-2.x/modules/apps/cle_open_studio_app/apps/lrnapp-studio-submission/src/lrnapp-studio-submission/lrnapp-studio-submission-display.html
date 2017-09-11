@@ -1,4 +1,5 @@
 <link rel="import" href="../../../elements/moment-element/moment-element.html">
+<link rel="import" href="../../bower_components/img-pan-zoom/img-pan-zoom.html">
 
 <dom-module id="lrnapp-studio-submission-display">
   <template>
@@ -145,7 +146,8 @@
                     <iron-image style="width:200px; height:200px; background-color: lightgray;" sizing="contain" class="contain" src="[[image.thumbnail]]" preload fade></iron-image>
                   </span>
                   <div style="width: 60%; margin:0 auto;">
-                  	<iron-image prevent-load style="width:100%; height:100%; background-color: lightgray;" src="[[image.url]]" preload fade></iron-image>
+                    <img-pan-zoom src="[[image.url]]"></img-pan-zoom>
+                  	<!--<iron-image prevent-load style="width:100%; height:100%; background-color: lightgray;" src="[[image.url]]" preload fade></iron-image>-->
                   </div>
                 </lrnsys-dialog>
               </template>
