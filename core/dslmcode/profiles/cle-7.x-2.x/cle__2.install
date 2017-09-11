@@ -251,3 +251,11 @@ function cle__2_update_7018(&$sandbox) {
 function cle__2_update_7019(&$sandbox) {
   features_revert_module('cle_perms');
 }
+
+/**
+ * Enable download module so we can bulk download items.
+ */
+function cle__2_update_7020(&$sandbox) {
+  module_enable(array('download'));
+  features_revert_module('cle_submission');
+}
