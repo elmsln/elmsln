@@ -47,6 +47,24 @@ function cle_submission_field_default_field_bases() {
     'type' => 'entityreference',
   );
 
+  // Exported field_base: 'field_download'.
+  $field_bases['field_download'] = array(
+    'active' => 1,
+    'cardinality' => 1,
+    'deleted' => 0,
+    'entity_types' => array(),
+    'field_name' => 'field_download',
+    'indexes' => array(),
+    'locked' => 0,
+    'module' => 'download',
+    'settings' => array(
+      'cis_connector_access' => FALSE,
+      'cis_connector_disable' => FALSE,
+    ),
+    'translatable' => 0,
+    'type' => 'download_link',
+  );
+
   // Exported field_base: 'field_energy'.
   $field_bases['field_energy'] = array(
     'active' => 1,
