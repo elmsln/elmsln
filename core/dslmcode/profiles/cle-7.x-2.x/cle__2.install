@@ -211,7 +211,6 @@ function cle__2_update_7017(&$sandbox) {
   features_revert_module('cle_perms');
   // drop legacy fields
   field_delete_field('field_media_requirements');
-  field_delete_field('body');
   field_delete_field('field_cle_sub_type');
   field_delete_field('field_visibility');
   field_delete_field('field_due_date');
@@ -238,6 +237,11 @@ function cle__2_update_7018(&$sandbox) {
   foreach ($submissions as $nid => $tmp) {
     $submission = node_load($nid);
     $submission->comment = 2;
+    // check for legacy body field to port it over
+    if (!empty($submission->body) && empty($submission->field_submission_text)) {
+      $submission->field_submission_text[LANGUAGE_NONE][0]['value'] = $submission->body[LANGUAGE_NONE][0]['value'];
+      $submission->field_submission_text[LANGUAGE_NONE][0]['format'] = 'student_markdown';
+    }
     node_save($submission);
   }
 }
