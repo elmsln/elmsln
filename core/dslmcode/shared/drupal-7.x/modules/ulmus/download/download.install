@@ -1,0 +1,23 @@
+<?php
+/**
+ * @file
+ * Install function for the download module.
+ */
+
+function download_field_schema($field) {
+  $columns = array(
+    'download_fields' => array(
+      'type' => 'varchar',
+      'length' => 255,
+      'not null' => FALSE,
+    ),
+    'download_label' => array(
+      'type' => 'varchar',
+      'length' => 255,
+      'not null' => FALSE,
+    ),
+  );
+  return array(
+    'columns' => $columns,
+  );
+}
