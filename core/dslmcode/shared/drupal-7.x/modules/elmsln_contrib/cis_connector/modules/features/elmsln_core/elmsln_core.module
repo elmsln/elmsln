@@ -842,6 +842,12 @@ function _elmsln_core_remote_redirect($tool, $type, $etid, $op) {
     if (!empty($etid)) {
       $address .= '/' . $etid . '/' . $op;
     }
+    // weird encoding work around specific to contextual shortcode redirects
+    if (isset($_GET['amp;destination'])) {
+      $_GET['destination'] = $_GET['amp;destination'];
+      unset($_GET['amp;destination']);
+    }
+
     // allow for redirecting back to whatever was set
     if (isset($_GET['destination'])) {
       $address .= '?destination=' . $_GET['destination'];
