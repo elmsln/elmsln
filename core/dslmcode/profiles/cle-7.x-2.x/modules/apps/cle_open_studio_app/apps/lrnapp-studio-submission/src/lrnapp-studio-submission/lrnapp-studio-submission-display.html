@@ -1,6 +1,5 @@
 <link rel="import" href="../../../elements/moment-element/moment-element.html">
 <link rel="import" href="../../bower_components/img-pan-zoom/img-pan-zoom.html">
-<link rel="import" href="../../bower_components/img-pan-zoom/openseadragon-import.html">
 
 <dom-module id="lrnapp-studio-submission-display">
   <template>
@@ -126,30 +125,27 @@
         color: #888;
       }
 
-      img-pan-zoom,
-      demo-snippet {
-        min-height: 75vh;
-      }
-
-      paper-button {
-        display: block;
-        margin: 20px auto;
-        color: white;
-        width: 200px;
-        text-align: center;
-      }
-
-      .swap {
-        background: #2196F3;
-      }
-
       .zoom {
-        background: green;
+        background: #888;
       }
 
-      .horizontal {
-        @apply(--layout-horizontal);
-        @apply(--layout-center-center);
+      @-webkit-keyframes animate-rotate {
+        from {
+          -webkit-transform: rotate(0deg);
+          transform: rotate(0deg);
+        }
+        to {
+          -webkit-transform: rotate(360deg);
+          transform: rotate(360deg);
+        }
+      }
+
+     .rotated-image {
+        transform: rotate(90deg);
+      }
+
+      .rotated-image {
+        transform: rotate(0deg);
       }
     </style>
 
@@ -178,10 +174,11 @@
                     <iron-image style="width:200px; height:200px; background-color: lightgray;" sizing="contain" class="contain" src="[[image.thumbnail]]" preload fade></iron-image>
                   </span>
                   <div style="width: 60%; margin:0 auto;">
-                    <img-pan-zoom src="[[image.url]]"></img-pan-zoom>
+                    <img-pan-zoom id="img" class="normal-image" src="[[image.url]]"></img-pan-zoom>
                     <div class="horizontal">
                       <paper-button class="zoom" on-tap="zoomIn" raised>Zoom In</paper-button>
                       <paper-button class="zoom" on-tap="zoomOut" raised>Zoom Out</paper-button>
+                      <paper-button class="zoom" on-tap="rotate" raised>Rotate</paper-button>
                     </div>
                   </div>
                 </lrnsys-dialog>
@@ -242,31 +239,18 @@
       toggle: function () {
         this.$.collapse.toggle();
       },
-      // Zoom in
-      zoomIn: function() {
-        // TODO: Replace with native openseadragon zoomIn
-        var currentZoom = this.viewer.viewport.getZoom();
-        var maxZoom = this.viewer.viewport.getMaxZoom();
-        var zoomTo = currentZoom + .7;
-         if(zoomTo < maxZoom){
-           this.viewer.viewport.zoomTo(zoomTo);
-         }
+      zoomIn: function () {
+        this.$$('#img').zoomIn();
+      },
+      zoomOut: function () {
+        this.$$('#img').zoomOut();
       },
 
-      // Zoom out
-      zoomOut: function() {
-        // TODO: Replace with openseadragon native zoomOut
-        var currentZoom = this.viewer.viewport.getZoom();
-        var minZoom = this.viewer.viewport.getMinZoom();
-        var zoomTo = currentZoom - .7;
-         if( zoomTo > minZoom){
-           this.viewer.viewport.zoomTo(zoomTo);
-         }else {
-           if (minZoom != currentZoom) {
-             this.resetZoom();
-           }
-         }
-      },
+      rotate: function () {
+        var img = this.$$('#img');
+        img.className = "rotated-image style-scope lrnapp-studio-submission-display x-scope img-pan-zoom-0";
+      }
+
     });
   </script>
 </dom-module>
