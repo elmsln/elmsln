@@ -53,7 +53,6 @@ function _cle_critique_page_random_form($arg, &$form_state) {
       '#type' => 'select',
       '#required' => '1',
       '#multiple' => '0',
-      '#chosen' => TRUE,
     );
     $form['actions']['submit'] = array(
       '#type' => 'submit',

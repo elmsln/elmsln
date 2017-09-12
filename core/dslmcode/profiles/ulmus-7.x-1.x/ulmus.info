@@ -51,7 +51,6 @@ dependencies[] = special_menu_items
 ; Other
 dependencies[] = navigation404
 dependencies[] = better_formats
-dependencies[] = chosen
 dependencies[] = defaultconfig
 dependencies[] = diff
 dependencies[] = elements

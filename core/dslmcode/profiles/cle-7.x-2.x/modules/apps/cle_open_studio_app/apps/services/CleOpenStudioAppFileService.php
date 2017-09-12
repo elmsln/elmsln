@@ -36,7 +36,30 @@ class CleOpenStudioAppFileService {
         }
         $file_uri = $file_wrapper . '://' . $name;
         if ($file = file_save_data($data, $file_uri)) {
+          $ext = explode('.', $name);
+          $extention = array_pop($ext);
+          // generate derivatives if we know this is an image we support
+          if (module_exists('imageinfo_cache') && in_array($extention, array('png', 'gif', 'jpeg', 'jpg'))) {
+            $styles = image_styles();
+            // only process our core elmsln ones we care about
+            foreach ($styles as $style => $style_settings) {
+              // only pull in our elmsln core styles that are derivatives
+              // otherwise everything downstream will fail
+              if (!in_array($style, array('elmsln_gray', 'elmsln_normalize', 'elmsln_small'))) {
+                unset($styles[$style]);
+              }
+            }
+            // generate background callback to build the image styles
+            $return = _elmsln_api_create_image_styles_call(array($file_uri, image_style_path('elmsln_normalize', $file_uri)), $styles);
+          }
           $encoded_file = _elmsln_api_v1_file_output($file);
+          $encoded_file['originalurl'] = $encoded_file['url'];
+          $encoded_file['thumbnail'] = $encoded_file['url'];
+          // fix things that aren't gif since it might be animated
+          if ($encoded_file['filemime'] != 'image/gif') {
+            $encoded_file['url'] = $encoded_file['image_styles']['elmsln_normalize'];
+            $encoded_file['thumbnail'] = $encoded_file['image_styles']['elmsln_small'] . '&reload=' . time();
+          }
           return $encoded_file;
         }
       }

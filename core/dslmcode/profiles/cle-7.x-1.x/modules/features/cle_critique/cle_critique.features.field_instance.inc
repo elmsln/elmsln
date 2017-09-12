@@ -207,9 +207,7 @@ Open critique - Students know who they are critiquing and who gave a critique.',
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(
-        'apply_chosen' => '',
-      ),
+      'settings' => array(),
       'type' => 'options_select',
       'weight' => 17,
     ),
@@ -325,9 +323,7 @@ Open critique - Students know who they are critiquing and who gave a critique.',
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(
-        'apply_chosen' => '',
-      ),
+      'settings' => array(),
       'type' => 'options_select',
       'weight' => 0,
     ),

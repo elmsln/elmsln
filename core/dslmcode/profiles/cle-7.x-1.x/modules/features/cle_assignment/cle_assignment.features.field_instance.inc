@@ -221,9 +221,7 @@ function cle_assignment_field_default_field_instances() {
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(
-        'apply_chosen' => '',
-      ),
+      'settings' => array(),
       'type' => 'options_select',
       'weight' => 16,
     ),
@@ -297,7 +295,6 @@ function cle_assignment_field_default_field_instances() {
       'active' => 1,
       'module' => 'select_or_other',
       'settings' => array(
-        'apply_chosen' => 1,
         'available_options' => 'Exercise',
         'available_options_php' => '',
         'markup_available_options_php' => '&lt;none&gt;',
@@ -578,9 +575,7 @@ function cle_assignment_field_default_field_instances() {
     'widget' => array(
       'active' => 1,
       'module' => 'select_or_other',
-      'settings' => array(
-        'apply_chosen' => '',
-        'available_options' => '1
+      'settings' => array(  'available_options' => '1
 2
 3
 4
@@ -682,9 +677,7 @@ Page',
     'widget' => array(
       'active' => 1,
       'module' => 'select_or_other',
-      'settings' => array(
-        'apply_chosen' => '',
-        'available_options' => 'a
+      'settings' => array(  'available_options' => 'a
 b
 c
 d

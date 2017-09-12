@@ -9,10 +9,10 @@ function elmsmedia_h5p_update_7000() {
 }
 
 /**
- * Instantiate elmsln_h5p_allowed_tags variable
+ * Instantiate elmsmedia_h5p_allowed_tags variable
  */
 function elmsmedia_h5p_update_7001() {
-  variable_set('elmsln_h5p_allowed_tags', array());
+  variable_set('elmsmedia_h5p_allowed_tags', array());
 }
 
 /**
@@ -20,4 +20,14 @@ function elmsmedia_h5p_update_7001() {
  */
 function elmsmedia_h5p_update_7002() {
   variable_set('h5p_hub_is_enabled', TRUE);
+}
+
+/**
+ * Add sane default to elmsmedia_h5p_allowed_tags
+ */
+function elmsmedia_h5p_update_7003() {
+  $allowed_tags = variable_get('elmsmedia_h5p_allowed_tags', NULL);
+  if (!$allowed_tags) {
+    variable_set('elmsmedia_h5p_allowed_tags', array('a', 'em', 'strong', 'cite', 'blockquote', 'code', 'ul', 'ol', 'li', 'dl', 'dt', 'dd'));
+  }
 }

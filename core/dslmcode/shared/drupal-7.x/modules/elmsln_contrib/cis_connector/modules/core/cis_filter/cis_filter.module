@@ -897,8 +897,8 @@ function cis_filter_menu_contextual_links_alter(&$links, $router_item, $root_pat
     foreach ($links as &$link) {
       $link['localized_options'] = array(
         'query' => array(
-          'destination' => 'elmsln/redirect/' . elmsln_core_get_profile_key() .  '/' . arg(0) . '/' . arg(1),
           'elmsln_course' => 1,
+          'destination' => 'elmsln/redirect/' . elmsln_core_get_profile_key() .  '/' . arg(0) . '/' . arg(1),
         )
       );
     }

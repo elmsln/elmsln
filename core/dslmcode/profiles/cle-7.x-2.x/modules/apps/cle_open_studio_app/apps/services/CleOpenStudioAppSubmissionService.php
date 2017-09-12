@@ -23,6 +23,8 @@ class CleOpenStudioAppSubmissionService {
     $node->field_assignment[LANGUAGE_NONE][0]['target_id'] = $assignment_id;
     // associate to the currently active section
     $node->og_group_ref[LANGUAGE_NONE][0]['target_id'] = _cis_section_load_section_by_id(_cis_connector_section_context());
+    // set so that we can download things as stuff is uploaded
+    $node->field_download['und'][0]['download_fields'] = 'field_files;field_images;';
     if (entity_access('create', 'node', $node)) {
       try {
         node_save($node);
@@ -158,6 +160,8 @@ class CleOpenStudioAppSubmissionService {
           $decoded_submission = $this->decodeSubmission($payload, $node);
           // save the node
           try {
+            // make sure this updates itself over time
+            $node->field_download['und'][0]['download_fields'] = 'field_files;field_images;';
             // $decoded_submission = new stdClass(); #fake error message
             node_save($decoded_submission);
             // load the new node that we just saved.
@@ -178,7 +182,7 @@ class CleOpenStudioAppSubmissionService {
   public function deleteSubmission($id) {
     if ($id && is_numeric($id)) {
       $node = node_load($id);
-      if ($node && isset($node->type) && $node->type == 'cle_submission') {
+      if ($node && isset($node->type) && $node->type == 'cle_submission' && entity_access('delete', 'node', $node)) {
         // unpublish the node
         $node->status = 0;
         try {
@@ -431,6 +435,7 @@ class CleOpenStudioAppSubmissionService {
       // Attributes
       $encoded_submission->attributes = new stdClass();
       $encoded_submission->attributes->title = $submission->title;
+      $encoded_submission->attributes->download_files = url('download/cle_submission/node-field_download-' . $submission->nid . '-0');
       $encoded_submission->attributes->body = $submission->field_submission_text[LANGUAGE_NONE][0]['safe_value'];
       $encoded_submission->attributes->state = $submission->field_submission_state[LANGUAGE_NONE][0]['value'];
       $encoded_submission->attributes->relatedSubmission = $submission->field_related_submission[LANGUAGE_NONE][0]['target_id'];
@@ -461,12 +466,18 @@ class CleOpenStudioAppSubmissionService {
       if (isset($submission->field_images[LANGUAGE_NONE])) {
         foreach ($submission->field_images[LANGUAGE_NONE] as $file) {
           $file_output = _elmsln_api_v1_file_output($file);
-          $file_output['thumbnail'] = image_style_url('cle_square', $file_output['uri']);
+          $file_output['originalurl'] = $file_output['url'];
+          $file_output['thumbnail'] = $file_output['url'];
+          // fix things that aren't gif since it might be animated
+          if ($file_output['filemime'] != 'image/gif') {
+            $file_output['url'] = $file_output['image_styles']['elmsln_normalize'];
+            $file_output['thumbnail'] = $file_output['image_styles']['elmsln_small'];
+          }
           $encoded_submission->attributes->images[] = $file_output;
         }
         $images = $encoded_submission->attributes->images;
         $encoded_submission->display->image = array_pop($images);
-        $encoded_submission->display->image = image_style_url('cle_square', $encoded_submission->display->image['uri']);
+        $encoded_submission->display->image = $encoded_submission->display->image['image_styles']['elmsln_small'];
         $encoded_submission->display->icon = FALSE;
       }
       // Meta Info
@@ -479,6 +490,7 @@ class CleOpenStudioAppSubmissionService {
       $encoded_submission->meta->canDelete = 0;
       $encoded_submission->meta->canCritique = 0;
       $encoded_submission->meta->filefieldTypes = $this->fileFieldTypes('node', 'field_files', 'cle_submission');
+      $encoded_submission->meta->imagefieldTypes = $this->fileFieldTypes('node', 'field_images', 'cle_submission');
         // see the operations they can perform here
       if (entity_access('update', 'node', $submission)) {
         $encoded_submission->meta->canUpdate = 1;

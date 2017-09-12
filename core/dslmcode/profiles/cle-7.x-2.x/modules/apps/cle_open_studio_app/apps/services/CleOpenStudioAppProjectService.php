@@ -135,7 +135,7 @@ class CleOpenStudioAppProjectService {
   public function deleteProject($id) {
     if ($id && is_numeric($id)) {
       $node = node_load($id);
-      if ($node && isset($node->type) && $node->type == 'cle_project') {
+      if ($node && isset($node->type) && $node->type == 'cle_project' && entity_access('delete', 'node', $node)) {
         // unpublish the node
         $node->status = 0;
         $service = new CleOpenStudioAppAssignmentService();

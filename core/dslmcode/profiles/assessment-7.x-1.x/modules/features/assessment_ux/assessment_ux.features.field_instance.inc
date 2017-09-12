@@ -75,9 +75,7 @@ function assessment_ux_field_default_field_instances() {
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(
-        'apply_chosen' => 1,
-      ),
+      'settings' => array(),
       'type' => 'options_select',
       'weight' => 0,
     ),
@@ -143,9 +141,7 @@ function assessment_ux_field_default_field_instances() {
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(
-        'apply_chosen' => '',
-      ),
+      'settings' => array(),
       'type' => 'options_select',
       'weight' => 1,
     ),

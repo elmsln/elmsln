@@ -15,6 +15,7 @@ dependencies[] = masquerade
 dependencies[] = node
 dependencies[] = rate
 dependencies[] = strongarm
+dependencies[] = webcomponents_app
 features[features_api][] = api:2
 features[user_permission][] = access comments
 features[user_permission][] = access content

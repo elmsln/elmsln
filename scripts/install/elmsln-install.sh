@@ -293,6 +293,8 @@ elmslnecho "║   Penn State Smeal College of Business                        �
 elmslnecho "║   Buttercups Training                                         ║"
 elmslnecho "║   You!                                                        ║"
 elmslnecho "╟───────────────────────────────────────────────────────────────╢"
+elmslnecho "║ Install issues logged to:                                     ║"
+elmslnecho "║   /var/www/elmsln/config/tmp/INSTALL-LOG.txt                  ║"
 elmslnecho "║ If you have issues, submit them to                            ║"
 elmslnecho "║   http://github.com/elmsln/elmsln/issues                      ║"
 elmslnecho "╟───────────────────────────────────────────────────────────────╢"

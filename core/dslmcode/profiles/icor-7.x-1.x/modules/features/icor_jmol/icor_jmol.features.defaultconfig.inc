@@ -107,9 +107,7 @@ function icor_jmol_defaultconfig_field_default_fields() {
       'widget' => array(
         'active' => 1,
         'module' => 'options',
-        'settings' => array(
-          'apply_chosen' => '',
-        ),
+        'settings' => array(),
         'type' => 'options_select',
         'weight' => 32,
       ),

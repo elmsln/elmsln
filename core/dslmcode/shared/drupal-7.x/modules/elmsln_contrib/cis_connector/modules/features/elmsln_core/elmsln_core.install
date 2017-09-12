@@ -340,3 +340,21 @@ function elmsln_core_update_7029(&$sandbox) {
 function elmsln_core_update_7030(&$sandbox) {
   drupal_uninstall_modules(array('entity_iframe_consumer', 'entity_iframe_provider'));
 }
+
+/**
+ * Disable Chosen so we can use a webcomponent to solve this in the future.
+ */
+function elmsln_core_update_7031(&$sandbox) {
+  features_revert_module('elmsln_core');
+  $modules = array(
+    'chosen',
+  );
+  db_delete('system')
+    ->condition('name', $modules, 'IN')
+    ->condition('type', 'module')
+    ->execute();
+  // drop the chosen variables
+  db_delete('variable')
+    ->condition('name', 'chosen_%', 'LIKE')
+    ->execute();
+}
