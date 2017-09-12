@@ -139,9 +139,7 @@ function icor_interactive_player_field_default_field_instances() {
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(
-        'apply_chosen' => 1,
-      ),
+      'settings' => array(),
       'type' => 'options_select',
       'weight' => 0,
     ),

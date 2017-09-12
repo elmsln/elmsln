@@ -47,7 +47,6 @@ function assessment_gradebook_grid_form($form, &$form_state) {
     '#type' => 'select',
     '#required' => '1',
     '#multiple' => '1',
-    '#chosen' => TRUE,
   );
   // force a section to be selected if we couldn't identify a default somehow
   if (empty($query['sections'])) {
@@ -72,7 +71,6 @@ function assessment_gradebook_grid_form($form, &$form_state) {
     '#options' =>  array('-all-' => t('All')) + $students,
     '#type' => 'select',
     '#required' => '0',
-    '#chosen' => TRUE,
     '#multiple' => '1',
   );
   // pull assignments you should use
@@ -96,7 +94,6 @@ function assessment_gradebook_grid_form($form, &$form_state) {
     '#options' => array('-all-' => t('All')) + $assignments,
     '#type' => 'select',
     '#required' => '0',
-    '#chosen' => TRUE,
     '#multiple' => '1',
   );
   // assessment status filter
@@ -108,7 +105,6 @@ function assessment_gradebook_grid_form($form, &$form_state) {
   $form['filters']['status'] = array(
     '#required' => '0',
     '#multiple' => '1',
-    '#chosen' => TRUE,
     '#key_type_toggled' => '1',
     '#type' => 'select',
     '#options' => $status,

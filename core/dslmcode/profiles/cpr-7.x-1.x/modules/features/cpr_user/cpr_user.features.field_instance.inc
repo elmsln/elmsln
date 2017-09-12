@@ -47,9 +47,7 @@ function cpr_user_field_default_field_instances() {
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(
-        'apply_chosen' => '',
-      ),
+      'settings' => array(),
       'type' => 'options_buttons',
       'weight' => 6,
     ),

@@ -1,9 +1,0 @@
-Dear Future ELMS:LN Developers, 
-
-We have patched the chosen library in Dec 2016 to meet accessibility guidelines. 
-(https://github.com/elmsln/elmsln/issues/1532).
-This issue has been referenced here in case someone notices we have made a change to this project in the
-future and is confused why there is no patch documented. 
-
-Thanks, and hope the future is bright! 
--mmilutinovic1313
