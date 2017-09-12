@@ -238,7 +238,7 @@ function cle__2_update_7018(&$sandbox) {
     $submission = node_load($nid);
     $submission->comment = 2;
     // check for legacy body field to port it over
-    if (!empty($submission->body) && empty($submission->field_submission_text)) {
+    if (!empty($submission->body[LANGUAGE_NONE]) && empty($submission->field_submission_text[LANGUAGE_NONE])) {
       $submission->field_submission_text[LANGUAGE_NONE][0]['value'] = $submission->body[LANGUAGE_NONE][0]['value'];
       $submission->field_submission_text[LANGUAGE_NONE][0]['format'] = 'student_markdown';
     }
