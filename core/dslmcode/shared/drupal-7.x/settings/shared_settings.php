@@ -33,7 +33,7 @@ $conf['restws_basic_auth_user_regex'] = '/.*/';
 // httprl setting to avoid really long timeouts
 $conf['httprl_install_lock_time'] = 1;
 // a sane batch size, change this downstream if on limited resources or wanting more per run
-$conf['cis_section_roster_processor_batch_size'] = 1500;
+$conf['cis_section_roster_processor_batch_size'] = 1000;
 // COMMENT ALL THIS OUT IF YOU NEED TO REINSTALL A SITE FOR SOME REASON
 // cache backends so we know about  apdqc, those we formally support
 $conf['cache_backends'][] = 'sites/all/modules/ulmus/apdqc/apdqc.cache.inc';

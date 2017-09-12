@@ -508,10 +508,26 @@ function cis_section_state_change($node, $state = 'activate') {
  */
 function _cis_section_create_accounts($roster, $defer = TRUE) {
   $batch_size = $defer ? CisSectionRosterProcessor::BATCH_DEFAULT : CisSectionRosterProcessor::BATCH_UNLIMITED;
-  $processor = new CisSectionRosterProcessor($roster, $batch_size);
+  // load the queue for long running batch processing
+  $queue = \DrupalQueue::get(CisSectionRosterProcessor::QUEUE_NAME);
+  // see if we already have a queue running for this
+  if ($queue->numberOfItems() == 0) {
+    $processor = new CisSectionRosterProcessor($roster, $batch_size);
+  }
+  else {
+    // we found something, claim it, and then remove it
+    $item = $queue->claimItem(300);
+    try {
+      $processor = $item->data;
+      $queue->deleteItem($item);
+    }
+    catch (Exception $e) {
+      watchdog_exception('cis_section_cron', $e);
+    }
+  }
 
   // Always attempt to process a batch the first time round.
-  $processor->process();
+  return $processor->process();
 }
 
 /**

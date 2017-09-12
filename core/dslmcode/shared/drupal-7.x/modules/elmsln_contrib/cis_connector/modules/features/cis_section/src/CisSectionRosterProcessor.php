@@ -142,7 +142,9 @@ class CisSectionRosterProcessor {
     // If we are not finished, queue ourselves.
     if (!$this->isFinished()) {
       $this->queue();
+      return FALSE;
     }
+    return TRUE;
   }
 
   /**
