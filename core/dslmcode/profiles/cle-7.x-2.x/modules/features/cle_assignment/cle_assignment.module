@@ -105,7 +105,7 @@ function cle_assignment_node_presave($node) {
         //throw new Exception($message);
       }
     }
-    // if we have a critique method chosen then we need to ensure we have a
+    // if we have a critique method then we need to ensure we have a
     // parent submission
     if ($node->field_critique_method[LANGUAGE_NONE][0]['value'] != 'none') {
       if (!isset($node->field_assignment_dependencies['und'][0]['target_id']) || !$node->field_assignment_dependencies['und'][0]['target_id']) {

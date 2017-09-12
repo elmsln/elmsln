@@ -46,8 +46,6 @@ projects[special_menu_items][subdir] = "contrib"
 ; Other
 projects[better_formats][version] = "1.0-beta1"
 projects[better_formats][subdir] = "contrib"
-projects[chosen][version] = "2.0-beta4"
-projects[chosen][subdir] = "contrib"
 projects[defaultconfig][version] = "1.x-dev"
 projects[defaultconfig][subdir] = "contrib"
 projects[diff][version] = "3.2"

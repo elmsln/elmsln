@@ -1,8 +1,0 @@
--- UPDATING NOTES --
-
-Everyone who upgrades from 1.x version or updates from alpha 2.x or dev
-version before 28.07.2013 has to make sure of the following changes:
-Chosen 1.1.0 has been released, this is the  version chosen.module is using
-since now. You can use the make file to download the recommended version or
-replace it by your self. Note that the path changed from
-libraries/chosen/chosen to libraries/chosen.
