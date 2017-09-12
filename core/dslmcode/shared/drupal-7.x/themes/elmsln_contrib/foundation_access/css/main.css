@@ -8350,6 +8350,12 @@ paper-toast#toastdrawer .status-icon {
   margin-right: .5rem;
 }
 
+paper-toast#toastdrawer .username {
+  display:inline-flex;
+  font-weight: bold;
+  text-decoration: underline;
+}
+
 paper-toast#toastdrawer .paper-toast-label {
   position: absolute;
   top:0;
