@@ -490,6 +490,7 @@ class CleOpenStudioAppSubmissionService {
       $encoded_submission->meta->canDelete = 0;
       $encoded_submission->meta->canCritique = 0;
       $encoded_submission->meta->filefieldTypes = $this->fileFieldTypes('node', 'field_files', 'cle_submission');
+      $encoded_submission->meta->imagefieldTypes = $this->fileFieldTypes('node', 'field_images', 'cle_submission');
         // see the operations they can perform here
       if (entity_access('update', 'node', $submission)) {
         $encoded_submission->meta->canUpdate = 1;
