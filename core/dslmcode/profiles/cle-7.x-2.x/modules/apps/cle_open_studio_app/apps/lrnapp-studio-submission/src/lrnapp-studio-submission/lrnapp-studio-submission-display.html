@@ -140,12 +140,13 @@
         }
       }
 
-      .rotated {
-        -webkit-transform: rotate(90deg);
-        -moz-transform: rotate(90deg);
-        -o-transform: rotate(90deg);
-        -ms-transform: rotate(90deg);
-        transform: rotate(90deg);
+      .mirrored {
+        -moz-transform: scaleX(-1);
+        -o-transform: scaleX(-1);
+        -webkit-transform: scaleX(-1);
+        transform: scaleX(-1);
+        filter: FlipH;
+        -ms-filter: "FlipH";
       }
     </style>
 
@@ -263,9 +264,7 @@
       },
       mirrorImage: function () {
         var img = this.$$('#img');
-        var scale = this.scale -= 1;
-        console.log(scale);
-        img.style.webkitTransform = "scaleX('scale')";
+        img.toggleClass("mirrored");
       },
       zoomIn: function () {
         this.$$('#img').zoomIn();
