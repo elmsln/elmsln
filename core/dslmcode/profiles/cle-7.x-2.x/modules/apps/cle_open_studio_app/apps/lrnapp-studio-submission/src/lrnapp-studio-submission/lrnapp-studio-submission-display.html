@@ -140,12 +140,12 @@
         }
       }
 
-     .rotated-image {
+      .rotated {
+        -webkit-transform: rotate(90deg);
+        -moz-transform: rotate(90deg);
+        -o-transform: rotate(90deg);
+        -ms-transform: rotate(90deg);
         transform: rotate(90deg);
-      }
-
-      .rotated-image {
-        transform: rotate(0deg);
       }
     </style>
 
@@ -174,11 +174,13 @@
                     <iron-image style="width:200px; height:200px; background-color: lightgray;" sizing="contain" class="contain" src="[[image.thumbnail]]" preload fade></iron-image>
                   </span>
                   <div style="width: 60%; margin:0 auto;">
-                    <img-pan-zoom id="img" class="normal-image" src="[[image.url]]"></img-pan-zoom>
+                    <img-pan-zoom id="img" src="[[image.url]]"></img-pan-zoom>
                     <div class="horizontal">
-                      <paper-button class="zoom" on-tap="zoomIn" raised>Zoom In</paper-button>
-                      <paper-button class="zoom" on-tap="zoomOut" raised>Zoom Out</paper-button>
-                      <paper-button class="zoom" on-tap="rotate" raised>Rotate</paper-button>
+                      <paper-icon-button icon="icons:zoom-in" on-tap="zoomIn">Zoom In</paper-icon-button>
+                      <paper-icon-button icon="icons:zoom-out" on-tap="zoomOut">Zoom Out</paper-icon-button>
+                      <paper-icon-button icon="image:rotate-right" on-tap="rotateRight">Rotate Right</paper-icon-button>
+                      <paper-icon-button icon="image:rotate-left" on-tap="rotateLeft" >Rotate Left</paper-icon-button>
+                      <paper-icon-button icon="image:flip" on-tap="mirrorImage" >Mirror Image</paper-icon-button>
                     </div>
                   </div>
                 </lrnsys-dialog>
@@ -223,6 +225,14 @@
         submission: {
           type: Object,
           notify: true
+        },
+        degrees: {
+          type: Number,
+          value: 0
+        },
+        scale: {
+          type: Number,
+          value: 0
         }
       },
       /**
@@ -239,17 +249,30 @@
       toggle: function () {
         this.$.collapse.toggle();
       },
+      rotateRight: function () {
+        var img = this.$$('#img');
+        var degrees = this.degrees += 90;
+
+        img.style.webkitTransform = "rotate(" + degrees + "deg)";
+      },
+      rotateLeft: function () {
+        var img = this.$$('#img');
+        var degrees = this.degrees += -90;
+
+        img.style.webkitTransform = "rotate(" + degrees + "deg)";
+      },
+      mirrorImage: function () {
+        var img = this.$$('#img');
+        var scale = this.scale -= 1;
+        console.log(scale);
+        img.style.webkitTransform = "scaleX('scale')";
+      },
       zoomIn: function () {
         this.$$('#img').zoomIn();
       },
       zoomOut: function () {
         this.$$('#img').zoomOut();
       },
-
-      rotate: function () {
-        var img = this.$$('#img');
-        img.className = "rotated-image style-scope lrnapp-studio-submission-display x-scope img-pan-zoom-0";
-      }
 
     });
   </script>
