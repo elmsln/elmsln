@@ -7,51 +7,41 @@
        :host {
         display: block;
       }
-
       p {
         font-size: 14px;
         line-height: 18px;
       }
-
       h1,
       h2,
       h3 {
         margin: 0;
         text-align: left;
       }
-
       iron-selector {
         line-height: 1em;
       }
-
       iron-selector lrnsys-button {
         display: inline-flex;
       }
-
       marked-element {
         display: block;
         margin: 0 5em 0 5em;
       }
-
       iron-image {
         margin: 0 .5em;
       }
-
       lrnsys-dialog {
         display: inline;
       }
-
       .contain {
         width: 10em;
         height: 10em;
         background: #ddd;
       }
-
       .center {
         margin: auto;
         width: 100%;
       }
-
       .title {
         color: #222;
         font-size: 2rem;
@@ -64,7 +54,6 @@
         margin-top: 1rem;
         text-align: center;
       }
-
       .author {
         color: #555;
         font-size: 1rem;
@@ -75,7 +64,6 @@
         margin: 0;
         text-transform: capitalize;
       }
-
       .date {
         color: #555;
         font-size: 1.5rem;
@@ -86,60 +74,39 @@
         margin: 0;
         text-transform: capitalize;
       }
-
       .comments {
         text-align: right;
         margin: 0;
         font-size: 1.5em;
       }
-
       .flex-wrap {
         display: flex;
       }
-
       .submission-page-wrapper {
         padding: 0 1em;
       }
-
       .submission-page-card {
         width: 100%;
         margin: 0;
       }
-
        :host[edit-page] .submission-page {
         width: 100%;
       }
-
       .assignment {
         border: 2px dashed #444;
         padding: 1em;
       }
-
       .assignment h1 {
         font-size: 1.2em;
         color: #555;
       }
-
       #assignment-body {
         font-size: .8em;
         color: #888;
       }
-
       .zoom {
         background: #888;
       }
-
-      @-webkit-keyframes animate-rotate {
-        from {
-          -webkit-transform: rotate(0deg);
-          transform: rotate(0deg);
-        }
-        to {
-          -webkit-transform: rotate(360deg);
-          transform: rotate(360deg);
-        }
-      }
-
       .mirrored {
         -moz-transform: scaleX(-1);
         -o-transform: scaleX(-1);
@@ -249,13 +216,11 @@
       rotateRight: function () {
         var img = this.$$('#img');
         var degrees = this.degrees += 90;
-
         img.style.webkitTransform = "rotate(" + degrees + "deg)";
       },
       rotateLeft: function () {
         var img = this.$$('#img');
         var degrees = this.degrees += -90;
-
         img.style.webkitTransform = "rotate(" + degrees + "deg)";
       },
       mirrorImage: function () {
@@ -268,7 +233,6 @@
       zoomOut: function () {
         this.$$('#img').zoomOut();
       },
-
     });
   </script>
 </dom-module>
