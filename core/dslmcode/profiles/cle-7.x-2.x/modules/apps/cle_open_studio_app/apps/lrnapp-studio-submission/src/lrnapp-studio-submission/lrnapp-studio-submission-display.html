@@ -141,6 +141,10 @@
       .image-dialog-header {
         display: flex;
       }
+
+      app-toolbar {
+        z-index: 1;
+      }
     </style>
 
     <div class="submission-page">
@@ -162,7 +166,7 @@
               <template is="dom-repeat" items="[[_toArray(submission.attributes.images)]]" as="image">
                 <lrnsys-dialog alt="View Image" body-append dynamic-images>
 
-                  
+                  <div class="image-dialog-header">
                     
                     <app-toolbar> 
                     <lrnsys-button alt="Zoom in" icon="icons:zoom-in" label="Zoom in" on-tap="zoomIn"></lrnsys-button>
@@ -174,7 +178,7 @@
                     <lrnsys-button alt="Download all images" icon="icons:file-download" label="Download all images" href="[[submission.attributes.download_files]]" target="_blank"></lrnsys-button> 
                   </app-toolbar>
                     
-               
+                  </div>
 
                   <span slot="button">
                     <iron-image style="width:200px; height:200px; background-color: lightgray;" sizing="contain" class="contain" src="[[image.thumbnail]]" preload fade></iron-image>
@@ -249,6 +253,7 @@
         var img = this.$$('#img');
         var degrees = this.degrees += 90;
         img.style.webkitTransform = "rotate(" + degrees + "deg)";
+        img.style.margin = "2em";
       },
       rotateLeft: function () {
         var img = this.$$('#img');
