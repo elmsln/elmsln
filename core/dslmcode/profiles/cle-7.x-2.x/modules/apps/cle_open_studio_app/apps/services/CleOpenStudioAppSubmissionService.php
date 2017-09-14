@@ -586,7 +586,7 @@ class CleOpenStudioAppSubmissionService {
     if ($payload) {
       if ($payload->attributes) {
         if (isset($payload->attributes->title)) {
-          $node->title = _transliteration_process($payload->attributes->title);
+          $node->title = _transliteration_process(drupal_substr($payload->attributes->title, 0, 255));
         }
         if (isset($payload->attributes->body)) {
           $node->field_submission_text[LANGUAGE_NONE][0]['value'] = _transliteration_process($payload->attributes->body);
