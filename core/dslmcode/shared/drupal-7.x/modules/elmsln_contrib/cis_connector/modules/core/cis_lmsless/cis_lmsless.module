@@ -261,6 +261,9 @@ function cis_lmsless_form_masquerade_block_1_submit($form, $form_state) {
       drupal_goto('user/' . $tmp->uid);
     }
   }
+  else {
+    $_SESSION['about_to_masquerade'] = true;
+  }
 }
 
 /**
