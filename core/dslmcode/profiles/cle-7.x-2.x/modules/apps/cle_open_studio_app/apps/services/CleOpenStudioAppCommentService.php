@@ -243,12 +243,14 @@ class CleOpenStudioAppCommentService {
 
   protected function decodeComment($payload, $comment) {
     if ($payload) {
+      module_load_include('inc', 'transliteration');
       if ($payload->attributes) {
         if ($payload->attributes->subject) {
-          $comment->subject = $payload->attributes->subject;
+          $comment->subject = _transliteration_process(drupal_substr($payload->attributes->subject, 0, 255));
         }
         if ($payload->attributes->body) {
           $format = 'student_format';
+          $payload->attributes->body = _transliteration_process($payload->attributes->body);
           $comment->comment_body[LANGUAGE_NONE][0] = array(
             'format' => $format,
             'value' => $payload->attributes->body,
