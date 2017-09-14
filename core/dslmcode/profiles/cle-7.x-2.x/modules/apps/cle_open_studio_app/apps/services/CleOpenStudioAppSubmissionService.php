@@ -161,7 +161,7 @@ class CleOpenStudioAppSubmissionService {
           // save the node
           try {
             // make sure this updates itself over time
-            $node->field_download['und'][0]['download_fields'] = 'field_files;field_images;';
+            $decoded_submission->field_download['und'][0]['download_fields'] = 'field_files;field_images;';
             // $decoded_submission = new stdClass(); #fake error message
             node_save($decoded_submission);
             // load the new node that we just saved.
@@ -585,10 +585,10 @@ class CleOpenStudioAppSubmissionService {
     if ($payload) {
       if ($payload->attributes) {
         if (isset($payload->attributes->title)) {
-          $node->title = $payload->attributes->title;
+          $node->title = utf8_encode($payload->attributes->title);
         }
         if (isset($payload->attributes->body)) {
-          $node->field_submission_text[LANGUAGE_NONE][0]['value'] = $payload->attributes->body;
+          $node->field_submission_text[LANGUAGE_NONE][0]['value'] = utf8_encode($payload->attributes->body);
           $node->field_submission_text[LANGUAGE_NONE][0]['format'] = 'student_markdown';
         }
         if (isset($payload->attributes->state)) {
