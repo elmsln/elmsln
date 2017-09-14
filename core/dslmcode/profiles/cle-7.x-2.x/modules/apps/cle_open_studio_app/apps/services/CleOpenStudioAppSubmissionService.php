@@ -582,13 +582,14 @@ class CleOpenStudioAppSubmissionService {
   }
 
   protected function decodeSubmission($payload, $node) {
+    module_load_include('inc', 'transliteration');
     if ($payload) {
       if ($payload->attributes) {
         if (isset($payload->attributes->title)) {
-          $node->title = utf8_encode($payload->attributes->title);
+          $node->title = _transliteration_process($payload->attributes->title);
         }
         if (isset($payload->attributes->body)) {
-          $node->field_submission_text[LANGUAGE_NONE][0]['value'] = utf8_encode($payload->attributes->body);
+          $node->field_submission_text[LANGUAGE_NONE][0]['value'] = _transliteration_process($payload->attributes->body);
           $node->field_submission_text[LANGUAGE_NONE][0]['format'] = 'student_markdown';
         }
         if (isset($payload->attributes->state)) {
