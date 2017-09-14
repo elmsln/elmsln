@@ -100,7 +100,7 @@ function cle_submission_field_default_field_instances() {
           'link' => FALSE,
         ),
         'type' => 'entityreference_label',
-        'weight' => 0,
+        'weight' => 1,
       ),
       'gradebook_viewer' => array(
         'label' => 'inline',
@@ -132,11 +132,56 @@ function cle_submission_field_default_field_instances() {
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(
-        'apply_chosen' => '',
-      ),
+      'settings' => array(),
       'type' => 'options_select',
       'weight' => 0,
+    ),
+  );
+
+  // Exported field_instance: 'node-cle_submission-field_download'.
+  $field_instances['node-cle_submission-field_download'] = array(
+    'bundle' => 'cle_submission',
+    'default_value' => array(
+      0 => array(
+        'download_fields' => array(
+          'field_files' => 'field_files',
+          'field_images' => 'field_images',
+        ),
+        'download_label' => 'Download',
+      ),
+    ),
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'download',
+        'settings' => array(),
+        'type' => 'download_link_formatter',
+        'weight' => 21,
+      ),
+      'full' => array(
+        'label' => 'inline',
+        'module' => 'download',
+        'settings' => array(),
+        'type' => 'download_link_formatter',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_download',
+    'label' => 'Download',
+    'required' => 0,
+    'settings' => array(
+      'filename' => '[node:title]-files',
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 0,
+      'module' => 'download',
+      'settings' => array(),
+      'type' => 'download_link_widget',
+      'weight' => 22,
     ),
   );
 
@@ -168,7 +213,7 @@ function cle_submission_field_default_field_instances() {
         'label' => 'hidden',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 18,
+        'weight' => 13,
       ),
       'gradebook_viewer' => array(
         'label' => 'hidden',
@@ -227,7 +272,7 @@ function cle_submission_field_default_field_instances() {
           'text' => 'Download [file:name]',
         ),
         'type' => 'file_download_link',
-        'weight' => 4,
+        'weight' => 5,
       ),
       'gradebook_viewer' => array(
         'label' => 'hidden',
@@ -299,18 +344,11 @@ function cle_submission_field_default_field_instances() {
       ),
       'default' => array(
         'label' => 'hidden',
-        'module' => 'colorbox',
+        'module' => 'file_entity',
         'settings' => array(
-          'colorbox_caption' => 'auto',
-          'colorbox_caption_custom' => '',
-          'colorbox_gallery' => 'field_page',
-          'colorbox_gallery_custom' => '',
-          'colorbox_image_style' => '',
-          'colorbox_multivalue_index' => NULL,
-          'colorbox_node_style' => 'cle_submission',
-          'colorbox_node_style_first' => 'cle_submission',
+          'text' => 'Download [file:name]',
         ),
-        'type' => 'colorbox',
+        'type' => 'file_download_link',
         'weight' => 1,
       ),
       'full' => array(
@@ -320,7 +358,7 @@ function cle_submission_field_default_field_instances() {
           'text' => 'Download [file:name]',
         ),
         'type' => 'file_download_link',
-        'weight' => 3,
+        'weight' => 4,
       ),
       'gradebook_viewer' => array(
         'label' => 'hidden',
@@ -418,7 +456,7 @@ function cle_submission_field_default_field_instances() {
         'module' => 'link',
         'settings' => array(),
         'type' => 'link_default',
-        'weight' => 5,
+        'weight' => 6,
       ),
       'gradebook_viewer' => array(
         'label' => 'hidden',
@@ -480,7 +518,7 @@ function cle_submission_field_default_field_instances() {
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 14,
+        'weight' => 10,
       ),
     ),
     'entity_type' => 'node',
@@ -522,18 +560,15 @@ function cle_submission_field_default_field_instances() {
     'display' => array(
       'default' => array(
         'label' => 'above',
-        'module' => 'entityreference',
-        'settings' => array(
-          'link' => FALSE,
-        ),
-        'type' => 'entityreference_label',
+        'settings' => array(),
+        'type' => 'hidden',
         'weight' => 19,
       ),
       'full' => array(
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 0,
+        'weight' => 8,
       ),
     ),
     'entity_type' => 'node',
@@ -564,9 +599,7 @@ function cle_submission_field_default_field_instances() {
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(
-        'apply_chosen' => '',
-      ),
+      'settings' => array(),
       'type' => 'options_select',
       'weight' => 19,
     ),
@@ -599,7 +632,7 @@ function cle_submission_field_default_field_instances() {
         'label' => 'hidden',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 17,
+        'weight' => 12,
       ),
       'gradebook_viewer' => array(
         'label' => 'hidden',
@@ -632,9 +665,7 @@ function cle_submission_field_default_field_instances() {
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(
-        'apply_chosen' => '',
-      ),
+      'settings' => array(),
       'type' => 'options_select',
       'weight' => 12,
     ),
@@ -659,7 +690,7 @@ function cle_submission_field_default_field_instances() {
         'module' => 'text',
         'settings' => array(),
         'type' => 'text_default',
-        'weight' => 1,
+        'weight' => 2,
       ),
     ),
     'entity_type' => 'node',
@@ -725,16 +756,15 @@ function cle_submission_field_default_field_instances() {
     'display' => array(
       'default' => array(
         'label' => 'above',
-        'module' => 'list',
         'settings' => array(),
-        'type' => 'list_default',
+        'type' => 'hidden',
         'weight' => 20,
       ),
       'full' => array(
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 0,
+        'weight' => 9,
       ),
     ),
     'entity_type' => 'node',
@@ -760,9 +790,7 @@ function cle_submission_field_default_field_instances() {
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(
-        'apply_chosen' => '',
-      ),
+      'settings' => array(),
       'type' => 'options_select',
       'weight' => 21,
     ),
@@ -806,7 +834,7 @@ function cle_submission_field_default_field_instances() {
           'video_style' => 'cle_default',
         ),
         'type' => 'video_embed_field',
-        'weight' => 2,
+        'weight' => 3,
       ),
       'gradebook_viewer' => array(
         'label' => 'hidden',
@@ -868,7 +896,7 @@ function cle_submission_field_default_field_instances() {
         'label' => 'inline',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 16,
+        'weight' => 11,
       ),
       'gradebook_viewer' => array(
         'label' => 'inline',
@@ -938,6 +966,7 @@ function cle_submission_field_default_field_instances() {
   t('Assignment');
   t('Comment');
   t('Current workflow state of this submission on its way to being graded and viewed by the student.');
+  t('Download');
   t('Energy');
   t('Files');
   t('Images');

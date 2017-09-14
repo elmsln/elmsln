@@ -23,6 +23,8 @@ class CleOpenStudioAppSubmissionService {
     $node->field_assignment[LANGUAGE_NONE][0]['target_id'] = $assignment_id;
     // associate to the currently active section
     $node->og_group_ref[LANGUAGE_NONE][0]['target_id'] = _cis_section_load_section_by_id(_cis_connector_section_context());
+    // set so that we can download things as stuff is uploaded
+    $node->field_download['und'][0]['download_fields'] = 'field_files;field_images;';
     if (entity_access('create', 'node', $node)) {
       try {
         node_save($node);
@@ -158,6 +160,8 @@ class CleOpenStudioAppSubmissionService {
           $decoded_submission = $this->decodeSubmission($payload, $node);
           // save the node
           try {
+            // make sure this updates itself over time
+            $node->field_download['und'][0]['download_fields'] = 'field_files;field_images;';
             // $decoded_submission = new stdClass(); #fake error message
             node_save($decoded_submission);
             // load the new node that we just saved.
@@ -431,6 +435,7 @@ class CleOpenStudioAppSubmissionService {
       // Attributes
       $encoded_submission->attributes = new stdClass();
       $encoded_submission->attributes->title = $submission->title;
+      $encoded_submission->attributes->download_files = url('download/cle_submission/node-field_download-' . $submission->nid . '-0');
       $encoded_submission->attributes->body = $submission->field_submission_text[LANGUAGE_NONE][0]['safe_value'];
       $encoded_submission->attributes->state = $submission->field_submission_state[LANGUAGE_NONE][0]['value'];
       $encoded_submission->attributes->relatedSubmission = $submission->field_related_submission[LANGUAGE_NONE][0]['target_id'];
@@ -485,6 +490,7 @@ class CleOpenStudioAppSubmissionService {
       $encoded_submission->meta->canDelete = 0;
       $encoded_submission->meta->canCritique = 0;
       $encoded_submission->meta->filefieldTypes = $this->fileFieldTypes('node', 'field_files', 'cle_submission');
+      $encoded_submission->meta->imagefieldTypes = $this->fileFieldTypes('node', 'field_images', 'cle_submission');
         // see the operations they can perform here
       if (entity_access('update', 'node', $submission)) {
         $encoded_submission->meta->canUpdate = 1;

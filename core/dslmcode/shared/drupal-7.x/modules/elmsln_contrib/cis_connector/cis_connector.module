@@ -581,7 +581,7 @@ function _cis_connector_section_context($account = NULL, $skip_og_context = FALS
       return $section;
     }
     // check for global session override
-    if (isset($_SESSION['cis_section_context'])) {
+    if (isset($_SESSION['cis_section_context']) && empty($_SESSION['about_to_masquerade'])) {
       $section = $_SESSION['cis_section_context'];
       return $section;
     }

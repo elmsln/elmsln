@@ -115,6 +115,9 @@
         filter: FlipH;
         -ms-filter: "FlipH";
       }
+      .image-dialog-header {
+        display: flex;
+      }
     </style>
 
     <div class="submission-page">
@@ -136,7 +139,10 @@
               <template is="dom-repeat" items="[[_toArray(submission.attributes.images)]]" as="image">
                 <lrnsys-dialog alt="View Image" body-append dynamic-images>
                   <span slot="header">
-                  	<lrnsys-button class="blue darken-4 white-text" icon="launch" href="[[image.url]]" target="_blank">Open in new window</lrnsys-button>
+                    <div class="image-dialog-header">
+                    	<lrnsys-button class="blue darken-4 white-text" icon="launch" href="[[image.url]]" target="_blank">Open in new window</lrnsys-button>
+                      <lrnsys-button class="blue darken-4 white-text" icon="launch" href="[[submission.attributes.download_files]]" target="_blank">Download all images</lrnsys-button>
+                    </div>
                   </span>
                   <span slot="button">
                     <iron-image style="width:200px; height:200px; background-color: lightgray;" sizing="contain" class="contain" src="[[image.thumbnail]]" preload fade></iron-image>

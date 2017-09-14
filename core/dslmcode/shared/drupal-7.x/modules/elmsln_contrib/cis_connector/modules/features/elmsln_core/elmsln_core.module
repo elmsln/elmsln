@@ -1356,6 +1356,17 @@ function _elmsln_core_icon_libraries() {
 }
 
 /**
+ * Implements hook_user_login().
+ */
+function elmsln_core_user_login(&$edit, $account) {
+  // support things knowing when someone is switching accounts
+  if (isset($_SESSION['about_to_masquerade'])) {
+    unset($_SESSION['about_to_masquerade']);
+    unset($_SESSION['cis_section_context']);
+  }
+}
+
+/**
  * Implements hook_icon_library().
  */
 function elmsln_core_icon_library() {

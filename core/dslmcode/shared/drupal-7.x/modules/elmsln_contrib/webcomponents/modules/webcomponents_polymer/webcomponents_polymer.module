@@ -6,7 +6,6 @@
 
 define('WEBCOMPONENTS_POLYMER_NAME', 'polymer1');
 define('WEBCOMPONENTS_POLYMER_LOCATION', 'polymer');
-define('WEBCOMPONENTS_POLYMER_INDEX', 'index.html');
 /**
  * Impements hook_register_component_format().
  */
@@ -31,7 +30,7 @@ function webcomponents_polymer_register_webcomponent_apps() {
     $files = _webcomponents_find_html_includes($dir, array(), '.json');
   }
   // now look in module sepecific areas
-  $modulefiles = drupal_system_listing("/polymer\.json$/", "modules", 'polymer', 2);
+  $modulefiles = drupal_system_listing("/polymer\.json$/", "modules", 'uri', 2);
   // replace with manifest and check if it exists, silly but works
   foreach ($modulefiles as $file) {
     $tmp = str_replace('polymer.json', 'manifest.json', $file->uri);
@@ -103,6 +102,24 @@ function webcomponents_polymer_webcomponents() {
   if (isset($libraries['webcomponents'])) {
     $dir = $libraries['webcomponents'] . '/' . WEBCOMPONENTS_POLYMER_LOCATION . '/';
     $files = _webcomponents_find_html_includes($dir, array('apps'));
+  }
+  // now look in module sepecific areas
+  $modulefiles = drupal_system_listing("/.*?-.*?\.html$/", "modules", 'uri', 2);
+  // replace with manifest and check if it exists, silly but works
+  foreach ($modulefiles as $file) {
+    // DO NOT INCLUDE APPS
+    $tmp1 = dirname($file->uri) . '/polymer.json';
+    $tmp2 = dirname($file->uri) . '/manifest.json';
+    // include the reference if we find it
+    if (file_exists($tmp1) && !file_exists($tmp2)) {
+      // check polymer.json for a import statement
+      $json = file_get_contents($tmp1);
+      $json = json_decode($json);
+      // only import things that import
+      if (isset($json->drupal_import)) {
+        $files[] = $file->uri;
+      }
+    }
   }
   // group these all as files found to match polymer format
   return array(WEBCOMPONENTS_POLYMER_NAME => $files);
