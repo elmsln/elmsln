@@ -53,7 +53,7 @@ function _lrnapp_studio_dashboard_recent_project($machine_name, $app_route, $par
       // loop through the steps and pull in all the assignments
       foreach ($project->attributes->steps as $step) {
         $assignment = node_load($step->id);
-        if (isset($assignment->nid)) {
+        if (isset($assignment->nid) && $assignment->published) {
           $project->relationships->assignments['assignment-' . $assignment->nid] = _cle_assignment_v1_assignment_output($assignment, $app_route);
         }
       }
