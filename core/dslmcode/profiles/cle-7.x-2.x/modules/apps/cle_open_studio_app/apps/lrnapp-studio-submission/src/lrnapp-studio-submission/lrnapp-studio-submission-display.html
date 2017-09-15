@@ -143,7 +143,12 @@
       }
 
       app-toolbar {
-        z-index: 1;
+        width: 100%;
+        background: #ddd;
+      }
+
+      lrn-sys-button {
+        padding: 5em;
       }
     </style>
 
@@ -168,15 +173,7 @@
 
                   <div class="image-dialog-header">
                     
-                    <app-toolbar> 
-                    <lrnsys-button alt="Zoom in" icon="icons:zoom-in" label="Zoom in" on-tap="zoomIn"></lrnsys-button>
-                    <lrnsys-button alt="Zoom out" icon="icons:zoom-out" label="Zoom out" on-tap="zoomOut"></lrnsys-button>
-                    <lrnsys-button alt="Rotate right" icon="image:rotate-right" label="Rotate right" on-tap="rotateRight"></lrnsys-button>
-                    <lrnsys-button alt="Rotate left" icon="image:rotate-left" label="Rotate left" on-tap="rotateLeft"></lrnsys-button>
-                    <lrnsys-button alt="Mirror image" icon="image:flip" label="Mirror image" on-tap="mirrorImage"></lrnsys-button>
-                    <lrnsys-button alt="Open in new window" icon="icons:launch" label="Open in new window" href="[[image.url]]" target="_blank"></lrnsys-button>
-                    <lrnsys-button alt="Download all images" icon="icons:file-download" label="Download all images" href="[[submission.attributes.download_files]]" target="_blank"></lrnsys-button> 
-                  </app-toolbar>
+          
                     
                   </div>
 
@@ -184,6 +181,15 @@
                     <iron-image style="width:200px; height:200px; background-color: lightgray;" sizing="contain" class="contain" src="[[image.thumbnail]]" preload fade></iron-image>
                   </span>
                   <div style="width: 60%; margin:0 auto;">
+                    <app-toolbar> 
+                    <lrnsys-button alt="Zoom in" icon="icons:zoom-in" on-tap="zoomIn"></lrnsys-button>
+                    <lrnsys-button alt="Zoom out" icon="icons:zoom-out" on-tap="zoomOut"></lrnsys-button>
+                    <lrnsys-button alt="Rotate right" icon="image:rotate-right" on-tap="rotateRight"></lrnsys-button>
+                    <lrnsys-button alt="Rotate left" icon="image:rotate-left" on-tap="rotateLeft"></lrnsys-button>
+                    <lrnsys-button alt="Mirror image" icon="image:flip" on-tap="mirrorImage"></lrnsys-button>
+                    <lrnsys-button alt="Open in new window" icon="icons:launch" href="[[image.url]]" target="_blank"></lrnsys-button>
+                    <lrnsys-button alt="Download all images" icon="icons:file-download" href="[[submission.attributes.download_files]]" target="_blank"></lrnsys-button> 
+                  </app-toolbar>
                     <img-pan-zoom id="img" src="[[image.url]]"></img-pan-zoom>
                   </div>
         </div>
