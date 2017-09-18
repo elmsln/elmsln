@@ -1864,7 +1864,7 @@ function _foundation_access_contextual_colors($lmsless_classes) {
       // specialized additions for each wheel value
       switch ($current) {
         case 'primary':
-          $css .= ".etb-book h1,.etb-book h2 {color: $color;}";
+          $css .= ".etb-book h1,.etb-book h2,h1#page-title,h2#page-title {color: $color;}";
         break;
         case 'secondary':
           $css .= ".etb-book h3,.etb-book h4,.etb-book h5 {color: $color;}";
