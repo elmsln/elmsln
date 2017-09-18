@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+
+    <title>img-pan-zoom demo</title>
+
+    <script src="../../webcomponentsjs/webcomponents-loader.js"></script>
+
+    <link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
+    <link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
+    <link rel="import" href="../../paper-button/paper-button.html">
+    <link rel="import" href="../img-pan-zoom.html">
+
+    <style is="custom-style" include="demo-pages-shared-styles">
+    </style>
+
+    <style media="screen">
+      body{
+        max-width: 1000px;
+        padding: 0 20px;
+        margin: 0 auto;
+        display: block;
+        /* System fonts :) */
+        font-family: -apple-system, BlinkMacSystemFont,
+        "Segoe UI", "Roboto", "Oxygen",
+        "Ubuntu", "Cantarell", "Fira Sans",
+        "Droid Sans", "Helvetica Neue", sans-serif;
+      }
+    </style>
+
+  </head>
+  <body>
+
+    <h1>Regular Images</h1>
+    <demo-snippet>
+      <template>
+        <img-pan-zoom dzi src='images/output.dzi'></img-pan-zoom>
+      </template>
+    </demo-snippet>
+
+    <dom-module id="demo-element">
+      <template>
+        <style>
+          :host {
+            max-width: 1000px;
+            padding: 0 20px;
+            margin: 0 auto;
+            display: block;
+            /* System fonts :) */
+            font-family: -apple-system, BlinkMacSystemFont,
+            "Segoe UI", "Roboto", "Oxygen",
+            "Ubuntu", "Cantarell", "Fira Sans",
+            "Droid Sans", "Helvetica Neue", sans-serif;
+          }
+          p{
+            text-align: center;
+            max-width: 400px;
+            margin: 15px auto;
+            margin-top: 30px;
+          }
+          img-pan-zoom,
+          demo-snippet{
+            min-height: 75vh;
+          }
+          paper-button{
+            display: block;
+            margin: 20px auto;
+            color: white;
+            width: 200px;
+            text-align: center;
+          }
+
+          .swap{
+            background: #2196F3;
+          }
+
+          .zoom{
+            background: green;
+          }
+          .horizontal{
+            @apply(--layout-horizontal);
+            @apply(--layout-center-center);
+          }
+
+
+        </style>
+
+        <h1>Deep Zoom Image</h1>
+        <img-pan-zoom id="img" src='[[src]]'></img-pan-zoom>
+
+        <div class="horizontal">
+          <paper-button class="zoom" on-tap="zoomIn" raised>Zoom In</paper-button>
+          <paper-button class="swap" on-tap="swap" raised>preload New Image</paper-button>
+          <paper-button class="zoom" on-tap="zoomOut" raised>Zoom Out</paper-button>
+        </div>
+
+
+      </template>
+      <script>
+      document.addEventListener('WebComponentsReady', function() {
+        Polymer({
+          is: 'demo-element',
+          properties: {
+            src: {
+              type: String,
+              value: "images/dez.jpg"
+            },
+            buttonText: {
+              type: String,
+              value: "load a cat"
+            },
+            count: {
+              type: Number,
+              value: 0
+            }
+          },
+
+          // all this does is change the src
+          swap: function(){
+            if (this.count == 8) {
+              this.count = 0;
+            }
+            this.count = this.count + 1;
+            this.src = "images/"+this.count+".jpg";
+          },
+          zoomIn: function(){
+            this.$.img.zoomIn();
+          },
+          zoomOut: function(){
+            this.$.img.zoomOut();
+          },
+
+        });
+      });
+      </script>
+    </dom-module>
+
+    <demo-element></demo-element>
+
+  </body>
+</html>
