@@ -40,22 +40,14 @@ function drush_cis_section_cis_process_roster() {
   drush_log('Starting to process rosters.', 'ok');
 
   /* @var \DrupalQueueInterface $queue */
-  $queue = \DrupalQueue::get(CisSectionRosterProcessor::class);
-
+  $queue = \DrupalQueue::get(CisSectionRosterProcessor::QUEUE_NAME);
   while ($item = $queue->claimItem(300)) {
     try {
-      //$item->data->process();
-      //$queue->deleteItem($item);
+      $item->data->process();
+      $queue->deleteItem($item);
     }
     catch (Exception $e) {
       watchdog_exception('cis_section_cron', $e);
-    }
-
-    // Extend our lock.
-    $lock = lock_acquire('cis_section_drush_process', 300);
-    if (!$lock) {
-      drush_log('Failed to extend lock.', 'error');
-      return;
     }
   }
 
