@@ -10,7 +10,7 @@ define('ELMSLN_ECD_DEFAULT_TYPE', 'media');
  */
 function elmsln_ecd_node_insert($node) {
   // this will generate a new entry
-  _elmsln_ecd_request($node, 'create');
+  //_elmsln_ecd_request($node, 'create');
 }
 
 /**
@@ -21,7 +21,7 @@ function elmsln_ecd_node_update($node) {
   // also will update just the parts needed if we decide
   // it has to. The decision tree is why we don't use straight
   // up REST to accomplish this task
-  _elmsln_ecd_request($node, 'create');
+  //_elmsln_ecd_request($node, 'create');
 }
 
 /**
@@ -179,6 +179,7 @@ function _elmsln_ecd_scan_for_tags($html, $tag_names) {
 /**
  * Bulk send data about all the types that are not being
  * told to be ignored by this system.
+ * @todo  wire this up to a UI / backend job so we can do audits on demand
  */
 function _elmsln_ecd_bulk_send() {
   $ignore = _elmsln_ecd_ignored_types();
