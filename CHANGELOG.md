@@ -1,3 +1,6 @@
+ELMSLN 0.8.0, 2017-05-26 - Snake it
+Only #1945 added so that older builds can complete without our design enhancements yet. This was asked for by the community and is not the issue finished but gets this contributed functionality into production systems running 0.8.0 previously.
+
 ELMSLN 0.8.0, 2017-05-26 - Kunitz
 This release fixes 53 issues since the last release, with 99 since 0.7.0. This is a the beginning of a paradigm shift for the project with regard to design. The system is starting to take on the UX patterns of Material more directly through the core adoption of Web Component architecture across the entire platform. The theme hasn't been completely replaced but it has had major design overhauls since 0.7.x and is drastically easier to navigate / learn.
 
