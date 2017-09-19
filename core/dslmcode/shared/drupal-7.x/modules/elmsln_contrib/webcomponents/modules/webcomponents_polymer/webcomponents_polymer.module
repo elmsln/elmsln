@@ -104,7 +104,7 @@ function webcomponents_polymer_webcomponents() {
     $files = _webcomponents_find_html_includes($dir, array('apps'));
   }
   // now look in module sepecific areas
-  $modulefiles = drupal_system_listing("/.*?-.*?\.html$/", "modules", 'uri', 2);
+  $modulefiles = drupal_system_listing("/(.*?)-(.*?)\.html$/", "modules", 'uri', 2);
   // replace with manifest and check if it exists, silly but works
   foreach ($modulefiles as $file) {
     // DO NOT INCLUDE APPS
@@ -115,9 +115,18 @@ function webcomponents_polymer_webcomponents() {
       // check polymer.json for a import statement
       $json = file_get_contents($tmp1);
       $json = json_decode($json);
-      // only import things that import
+      // only import things that claim import
       if (isset($json->drupal_import)) {
-        $files[] = $file->uri;
+        $items = explode('/', $file->uri);
+        // work our way down to the module location
+        do {
+          $item = array_pop($items);
+        } while ($item != 'webcomponents' && !empty($items));
+        $module = array_pop($items);
+        // see if this module is enabled and only add if it is
+        if (module_exists($module)) {
+          $files[] = $file->uri;
+        }
       }
     }
   }
