@@ -11,13 +11,6 @@ define('CIS_SECTION_STRICT_ACCESS', TRUE);
 include_once 'cis_section.features.inc';
 
 /**
- * Implements hook_page_build().
- */
-function cis_section_page_build(&$page) {
-  drupal_add_css(drupal_get_path('module', 'cis_section') . '/cis_section.css');
-}
-
-/**
  * Implements hook_menu().
  */
 function cis_section_menu() {
@@ -391,6 +384,7 @@ function cis_section_node_insert($node) {
       $values = array(
         'entity_type' => 'user',
         'entity' => $member,
+        'field_name' => 'og_user_node1',
       );
       // add user to the group as a member
       og_group('node', $node->nid, $values);
@@ -514,10 +508,26 @@ function cis_section_state_change($node, $state = 'activate') {
  */
 function _cis_section_create_accounts($roster, $defer = TRUE) {
   $batch_size = $defer ? CisSectionRosterProcessor::BATCH_DEFAULT : CisSectionRosterProcessor::BATCH_UNLIMITED;
-  $processor = new CisSectionRosterProcessor($roster, $batch_size);
+  // load the queue for long running batch processing
+  $queue = \DrupalQueue::get(CisSectionRosterProcessor::QUEUE_NAME);
+  // see if we already have a queue running for this
+  if ($queue->numberOfItems() == 0) {
+    $processor = new CisSectionRosterProcessor($roster, $batch_size);
+  }
+  else {
+    // we found something, claim it, and then remove it
+    $item = $queue->claimItem(300);
+    try {
+      $processor = $item->data;
+      $queue->deleteItem($item);
+    }
+    catch (Exception $e) {
+      watchdog_exception('cis_section_cron', $e);
+    }
+  }
 
   // Always attempt to process a batch the first time round.
-  $processor->process();
+  return $processor->process();
 }
 
 /**
@@ -583,7 +593,7 @@ function _cis_section_load_users_by_gid($gid, $rid = NULL) {
 /**
  * Implements hook_form_FORM_ID_alter().
  */
-function cis_section_form_cis_service_connection_ux_form_alter(&$form, &$form_state, $form_id) {
+function cis_section_form_elmsln_core_service_settings_form_alter(&$form, &$form_state, $form_id) {
   $options = array(CIS_NO_SECTION => 'No default') + _cis_connector_assemble_entity_list('node', 'section', 'field_section_id', 'title');
   $form['section'] = array(
     '#tree' => '0',
@@ -640,6 +650,7 @@ function cis_section_user_insert(&$edit, $account, $category) {
         $values = array(
           'entity_type' => 'user',
           'entity' => $account,
+          'field_name' => 'og_user_node1',
         );
         // add user to the group
         og_group('node', $section->nid, $values);
@@ -761,4 +772,26 @@ function _cis_section_og_role_load_by_name($name) {
     ->condition('name', $name)
     ->execute()
     ->fetchObject();
+}
+
+/**
+ * Implements hook_cron_queue_info().
+ */
+function cis_section_cron_queue_info() {
+  $queues[CisSectionRosterProcessor::QUEUE_NAME] = array(
+    'worker callback' => 'cis_section_roster_processor_worker',
+    'time' => 60,
+  );
+  return $queues;
+}
+
+/**
+ * Queue worker callback for the roster processor.
+ *
+ * @param \CisSectionRosterProcessor $processor
+ *   The roster processor.
+ */
+function cis_section_roster_processor_worker(CisSectionRosterProcessor $processor) {
+  // Simply process it! If it doesn't finish, it will re-queue itself.
+  $processor->process();
 }
