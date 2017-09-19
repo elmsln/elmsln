@@ -259,3 +259,10 @@ function cle__2_update_7020(&$sandbox) {
   module_enable(array('download'));
   features_revert_module('cle_submission');
 }
+
+/**
+ * Upload field expanded to allow more types.
+ */
+function cle__2_update_7021(&$sandbox) {
+  features_revert_module('cle_submission');
+}

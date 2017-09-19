@@ -35,15 +35,18 @@ A well styled comment for a user with markdown support.
         margin-bottom: -2px;
       }
       paper-card {
-        margin: .5em 1em .5em .5em;
-        padding: 1em;
         max-width: 70%;
+        padding: 0.5rem 1rem;
+        margin: 0.5rem;
+        background: transparent;
       }
       h1,
       h2,
       h3,
       h4 {
         text-align: left;
+        font-size: 1rem;
+        line-height: 1.25rem;
       }
       p {
         font-size: 14px;
@@ -54,6 +57,10 @@ A well styled comment for a user with markdown support.
         background-color: white;
         padding: .25em;
       }
+      marked-element {
+        line-height: 1rem;
+        font-size: 0.9rem;
+      }
       .nowrap marked-element:hover {
         box-shadow: -1px 0 0 0 black inset;
         cursor: pointer;
@@ -62,6 +69,12 @@ A well styled comment for a user with markdown support.
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+      }
+      .nowrap marked-element ::slotted(#content p.marked-element::after) {
+        content: "see more";
+        position: absolute;
+        bottom: 30%;
+        left: 80%;
       }
       .comment-depth-1 {
         margin: 0em;
@@ -128,7 +141,7 @@ A well styled comment for a user with markdown support.
       <moment-element datetime$="[[comment.attributes.created]]" output-format="MMM DD[,] YYYY"></moment-element>
     </div>
     <paper-tooltip for="avatar" animation-delay="0" class="ferpa-protect">[[displayName]]</paper-tooltip>
-    <paper-card id="papercard" class$="paper-card-length-[[comment.attributes.threadDepth]] [[cardColor]]">
+    <paper-card id="papercard" elevation="0" class$="paper-card-length-[[comment.attributes.threadDepth]]">
       <div class="comment-body">
         <div id="bodyarea" class="nowrap">
           <h4 class="ferpa-protect">[[comment.relationships.author.data.display_name]] <span class="element-invisible">[[comment.relationships.author.data.visual.label]]</span> said:</h4>
@@ -186,10 +199,6 @@ A well styled comment for a user with markdown support.
         </div>
       </div>
     </paper-card>
-    <template is="dom-if" if="[[comment.relationships.author.data.visual.icon]]">
-      <paper-badge icon="[[comment.relationships.author.data.visual.icon]]" for="papercard" label="[[comment.relationships.author.data.visual.label]]">
-      </paper-badge>
-    </template>
   </template>
   <script>
     Polymer({
@@ -238,6 +247,8 @@ A well styled comment for a user with markdown support.
       },
       _generateCardColor: function(visual) {
         if (typeof visual !== typeof undefined && visual.label !== false) {
+          Polymer.dom(this).node.classList.add('amber');
+          Polymer.dom(this).node.classList.add('lighten-5');
           return 'amber lighten-5';
         }
         return '';

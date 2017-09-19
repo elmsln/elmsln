@@ -78,7 +78,8 @@
               return;
             }
           }
-          window.location = route.path;
+          // reload the page which since route changed will load that page
+          window.location.reload();
         }
       },
       _handleSubmissionDeletion: function (e) {
