@@ -142,7 +142,9 @@ class CisSectionRosterProcessor {
     // If we are not finished, queue ourselves.
     if (!$this->isFinished()) {
       $this->queue();
+      return FALSE;
     }
+    return TRUE;
   }
 
   /**
@@ -262,7 +264,6 @@ class CisSectionRosterProcessor {
     else {
       $save_user = FALSE;
       $edit = array();
-
       // Add the role if it doesn't already exist.
       if (!isset($account->roles[$role_id])) {
         $account->roles[$role_id] = $role_name;
