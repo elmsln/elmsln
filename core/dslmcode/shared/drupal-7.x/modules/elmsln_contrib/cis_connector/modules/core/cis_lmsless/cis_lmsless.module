@@ -474,7 +474,7 @@ function _cis_lmsless_theme_vars() {
       }
       // render differently if the user is already masquerading
       if (isset($_SESSION['masquerading'])) {
-        $vars['masquerade'] = '<lrnsys-button label="' . t('revert (@name)', array('@name' => $GLOBALS['user']->name)) . '" href="' . url('masquerade/unswitch', array('query' => array('token' => drupal_get_token('masquerade/unswitch')))) . '" icon="supervisor-account" hover-class="' . $vars['lmsless_classes'][$vars['distro']]['color'] . ' ' . $vars['lmsless_classes'][$vars['distro']]['dark'] . ' white-text"></lrnsys-button>';
+        $vars['masquerade'] = '<lrnsys-button label="' . t('revert (@name)', array('@name' => $GLOBALS['user']->name)) . '" href="' . url('masquerade/unswitch', array('query' => array('destination' => current_path(), 'token' => drupal_get_token('masquerade/unswitch')))) . '" icon="supervisor-account" hover-class="' . $vars['lmsless_classes'][$vars['distro']]['color'] . ' ' . $vars['lmsless_classes'][$vars['distro']]['dark'] . ' white-text"></lrnsys-button>';
       }
       else {
         $vars['masquerade'] = '<a tabindex="-1" href="#block-masquerade-masquerade-nav-modal" class="elmsln-modal-trigger"><lrnsys-button label="' . t('Impersonate account') . '" icon="supervisor-account" hover-class="' . $vars['lmsless_classes'][$vars['distro']]['color'] . ' ' . $vars['lmsless_classes'][$vars['distro']]['dark'] . ' white-text"></lrnsys-button></a>';
