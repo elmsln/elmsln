@@ -24,7 +24,7 @@
         font-size: 2em;
       }
       .submission-title {
-        font-size: 1.5em;
+        font-size: 1em;
         font-weight: bold;
         width: 100%;
         margin-bottom: 2rem;
@@ -58,7 +58,7 @@
       </div>
       <template is="dom-repeat" items="[[submissions]]" as="submission">
         <lrnapp-studio-submission-display id$="submission-[[submission.id]]" submission="[[submission]]" class="ferpa-protect"></lrnapp-studio-submission-display>
-        <a tabindex="-1"><paper-button class="submission-title" on-tap="_loadSubmissionUrl" data-submission-id$="[[submission.id]]">Tap to comment on [[submission.attributes.title]] by [[submission.relationships.author.data.display_name]]</paper-button></a>
+        <a tabindex="-1"><paper-button class="submission-title ferpa-protect" on-tap="_loadSubmissionUrl" data-submission-id$="[[submission.id]]">Tap to comment on[[submission.attributes.title]] by [[submission.relationships.author.data.display_name]]</paper-button></a>
       </template>
     </template>
   </template>
