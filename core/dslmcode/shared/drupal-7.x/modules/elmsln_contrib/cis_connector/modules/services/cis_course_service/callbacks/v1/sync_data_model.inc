@@ -34,7 +34,20 @@ function cis_course_service_elmsln_api_callback_sync_data_model() {
     if (isset($_elmsln['args']['roster'])) {
       // attempt to deserialize
       $roster = @unserialize($_elmsln['args']['roster']);
-      _cis_section_create_accounts($roster);
+      $processed = _cis_section_create_accounts($roster);
+      // account for REALLY big call structures requiring multiple jobs
+      // in this event, we should add ourselves back onto the stack
+      // thus allowing the call to process further until it's completed
+      // at which point the next child down would do the same!
+      // This only comes into play with REALLY big structures
+      if (!$processed) {
+        if (isset($_elmsln['args']['__snake_stack']) && !empty($_elmsln['args']['__snake_stack'])) {
+          array_unshift($_elmsln['args']['__snake_stack'], elmsln_core_get_profile_key());
+        }
+        else {
+          $_elmsln['args']['__snake_stack'] = array(elmsln_core_get_profile_key());
+        }
+      }
     }
     return array(
       'sync_data_model' => TRUE,
