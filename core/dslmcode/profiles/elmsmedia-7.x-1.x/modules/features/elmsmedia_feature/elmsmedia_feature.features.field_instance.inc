@@ -111,9 +111,7 @@ function elmsmedia_feature_field_default_field_instances() {
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(
-        'apply_chosen' => '',
-      ),
+      'settings' => array(),
       'type' => 'options_select',
       'weight' => 36,
     ),
@@ -201,9 +199,7 @@ function elmsmedia_feature_field_default_field_instances() {
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(
-        'apply_chosen' => '',
-      ),
+      'settings' => array(),
       'type' => 'options_select',
       'weight' => 37,
     ),
@@ -339,9 +335,7 @@ function elmsmedia_feature_field_default_field_instances() {
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(
-        'apply_chosen' => '',
-      ),
+      'settings' => array(),
       'type' => 'options_select',
       'weight' => 36,
     ),
@@ -818,9 +812,7 @@ function elmsmedia_feature_field_default_field_instances() {
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(
-        'apply_chosen' => '',
-      ),
+      'settings' => array(),
       'type' => 'options_select',
       'weight' => 5,
     ),
@@ -1236,7 +1228,6 @@ function elmsmedia_feature_field_default_field_instances() {
           'action_on_edit' => 0,
           'fallback' => 'none',
           'providers' => array(
-            'og_context' => 0,
             'url' => 1,
           ),
           'skip_perm' => 0,
@@ -1248,9 +1239,7 @@ function elmsmedia_feature_field_default_field_instances() {
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(
-        'apply_chosen' => '',
-      ),
+      'settings' => array(),
       'type' => 'options_select',
       'weight' => 33,
     ),
@@ -1368,9 +1357,7 @@ function elmsmedia_feature_field_default_field_instances() {
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(
-        'apply_chosen' => '',
-      ),
+      'settings' => array(),
       'type' => 'options_select',
       'weight' => 35,
     ),
@@ -1676,9 +1663,7 @@ function elmsmedia_feature_field_default_field_instances() {
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(
-        'apply_chosen' => '',
-      ),
+      'settings' => array(),
       'type' => 'options_select',
       'weight' => 10,
     ),

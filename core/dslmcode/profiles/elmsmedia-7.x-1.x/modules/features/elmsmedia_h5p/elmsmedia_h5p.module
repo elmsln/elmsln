@@ -12,7 +12,7 @@ include_once 'elmsmedia_h5p.features.inc';
  */
 function elmsmedia_h5p_form_h5p_library_upload_form_alter(&$form, &$form_state, $form_id) {
   /* Your code here */
-  drupal_set_message(t('You can get the latest copy of H5P <a href="@link">from here</a>.', array('@link' => 'https://h5p.org/update-all-content-types')), 'status');
+  drupal_set_message(t('You can get the latest copy of H5P <a href="@link">from here</a>.', array('@link' => 'https://h5p.org/sites/default/files/official-h5p-release-20170313.h5p')), 'status');
 }
 
 /**
@@ -57,4 +57,71 @@ function elmsmedia_h5p_replicate_ui_access_check_alter(&$access, $type, $entity)
   if ($type == 'node' && $entity->type == 'h5p_content') {
     $access = FALSE;
   }
+}
+
+/**
+ * Impliments hook_h5p_filtered_params_alter
+ *
+ * Replace H5P's text filter with Drupal's xss filter.
+ */
+function elmsmedia_h5p_h5p_filtered_params_alter(&$filtered) {
+  // Get the list of allowed tags
+  $allowed_tags = variable_get('elmsmedia_h5p_allowed_tags', array());
+  $allowed_tags = _elmsmedia_variable_formatter($allowed_tags);
+  drupal_alter('elmsmedia_h5p_allowed_tags', $allowed_tags);
+  // support filtering questions
+  if (isset($filtered->questions)) {
+    // find questions and answers
+    foreach ($filtered->questions as &$choice) {
+      // decode H5P's escaping
+      if (is_string($choice->params->question)) {
+        $choice->params->question = html_entity_decode($choice->params->question);
+        // run it through drupal's xss filter but whitelist our allowed tags
+        $choice->params->question = filter_xss($choice->params->question, $allowed_tags);
+      }
+      if (isset($choice->params->answers)) {
+        foreach ($choice->params->answers as &$answer) {
+          // decode H5P's escaping
+          $answer->text = html_entity_decode($answer->text);
+          // run it through drupal's xss filter but whitelist our allowed tags
+          $answer->text = filter_xss($answer->text, $allowed_tags);
+        }
+      }
+    }
+  }
+  else if (isset($filtered->question)) {
+    // decode H5P's escaping
+    $filtered->question = html_entity_decode($filtered->question);
+    // run it through drupal's xss filter but whitelist our allowed tags
+    $filtered->question = filter_xss($filtered->question, $allowed_tags);
+    if (isset($filtered->answers)) {
+      foreach ($filtered->answers as &$answer) {
+        // decode H5P's escaping
+        $answer->text = html_entity_decode($answer->text);
+        // run it through drupal's xss filter but whitelist our allowed tags
+        $answer->text = filter_xss($answer->text, $allowed_tags);
+      }
+    }
+  }
+}
+
+/**
+ * Helper function to format the form values to variable arrays
+ * @param  [mixed: string or array] Either array or comma separated string that will be converted an array.
+ * @return [array]
+ */
+function _elmsmedia_variable_formatter($variable) {
+  $array = array();
+  if (is_string($variable)) {
+    // trim the whitespace from the attributes
+    $variable = explode(',', $variable);
+    foreach ($variable as $key => $value) {
+      $array[$key] = trim($value);
+    }
+  }
+  elseif (is_array($variable)) {
+    $array = $variable;
+  }
+
+  return $array;
 }

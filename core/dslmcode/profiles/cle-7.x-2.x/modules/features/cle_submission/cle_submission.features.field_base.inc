@@ -47,6 +47,24 @@ function cle_submission_field_default_field_bases() {
     'type' => 'entityreference',
   );
 
+  // Exported field_base: 'field_download'.
+  $field_bases['field_download'] = array(
+    'active' => 1,
+    'cardinality' => 1,
+    'deleted' => 0,
+    'entity_types' => array(),
+    'field_name' => 'field_download',
+    'indexes' => array(),
+    'locked' => 0,
+    'module' => 'download',
+    'settings' => array(
+      'cis_connector_access' => FALSE,
+      'cis_connector_disable' => FALSE,
+    ),
+    'translatable' => 0,
+    'type' => 'download_link',
+  );
+
   // Exported field_base: 'field_energy'.
   $field_bases['field_energy'] = array(
     'active' => 1,
@@ -253,6 +271,33 @@ function cle_submission_field_default_field_bases() {
     ),
     'translatable' => 0,
     'type' => 'text_long',
+  );
+
+  // Exported field_base: 'field_submission_type'.
+  $field_bases['field_submission_type'] = array(
+    'active' => 1,
+    'cardinality' => 1,
+    'deleted' => 0,
+    'entity_types' => array(),
+    'field_name' => 'field_submission_type',
+    'indexes' => array(
+      'value' => array(
+        0 => 'value',
+      ),
+    ),
+    'locked' => 0,
+    'module' => 'list',
+    'settings' => array(
+      'allowed_values' => array(
+        'default' => 'Default',
+        'critique' => 'Critique',
+      ),
+      'allowed_values_function' => '',
+      'cis_connector_access' => FALSE,
+      'cis_connector_disable' => FALSE,
+    ),
+    'translatable' => 0,
+    'type' => 'list_text',
   );
 
   // Exported field_base: 'field_video'.

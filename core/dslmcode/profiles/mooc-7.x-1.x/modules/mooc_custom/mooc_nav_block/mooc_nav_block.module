@@ -124,7 +124,7 @@ function _mooc_nav_block_mooc_nav_block($node) {
       foreach ($results[0] as $key => $result) {
         $tmp = strip_tags(trim($results[3][$key]));
         if (!empty($tmp)) {
-          $scrollspy .= '<li class="scrollspy-depth-' . $results[1][$key] . '"><a tabindex="-1" class="scrollspy-link black-text" href="#' . hash('md5', 'h' . $key) . '"><paper-button>' . $tmp . '</paper-button></a></li>';
+          $scrollspy .= '<li class="scrollspy-depth"><a tabindex="-1" class="scrollspy-link black-text" href="#' . hash('md5', 'h' . $key) . '"><paper-button>' . $tmp . '</paper-button></a></li>';
         }
       }
       $scrollspy .= '</ul>';
@@ -137,7 +137,7 @@ function _mooc_nav_block_mooc_nav_block($node) {
       else {
         $output .= $scrollspy;
       }
-      drupal_add_js(drupal_get_path('theme', 'foundation_access') .'/legacy/js/materialize/scrollspy/materialize-scrollspy.js');
+      drupal_add_js(drupal_get_path('theme', 'foundation_access') .'/js/materialize-scrollspy.js');
     }
   }
   // @todo may need to hijack the theme suggestion here

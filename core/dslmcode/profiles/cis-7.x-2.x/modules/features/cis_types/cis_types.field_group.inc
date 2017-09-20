@@ -72,7 +72,7 @@ function cis_types_field_group_info() {
   $field_groups['group_administrative|field_collection_item|field_sections|form'] = $field_group;
 
   $field_group = new stdClass();
-  $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
+  $field_group->disabled = TRUE; /* Edit this to true to make a default field_group disabled initially */
   $field_group->api_version = 1;
   $field_group->identifier = 'group_administrative|node|course|form';
   $field_group->group_name = 'group_administrative';
@@ -181,7 +181,6 @@ function cis_types_field_group_info() {
       5 => 'field_method_of_access',
       6 => 'field_program_classification',
       7 => 'title',
-      8 => 'group_pedagogical',
     ),
     'format_type' => 'fieldset',
     'format_settings' => array(
@@ -294,7 +293,7 @@ function cis_types_field_group_info() {
   $field_group->parent_name = 'group_resources';
   $field_group->data = array(
     'label' => 'Instructors',
-    'weight' => '24',
+    'weight' => '8',
     'children' => array(
       0 => 'field_inst_delivery_guide',
       1 => 'field_inst_design_doc',
@@ -326,11 +325,10 @@ function cis_types_field_group_info() {
   $field_group->parent_name = '';
   $field_group->data = array(
     'label' => 'Internal logistics',
-    'weight' => '3',
+    'weight' => '1',
     'children' => array(
-      0 => 'field_instructional_designer',
-      1 => 'field_lead_instructor',
-      2 => 'group_resources',
+      0 => 'field_elmsln_course_competencies',
+      1 => 'field_sis_course_id',
     ),
     'format_type' => 'fieldset',
     'format_settings' => array(
@@ -387,7 +385,7 @@ function cis_types_field_group_info() {
   $field_group->parent_name = '';
   $field_group->data = array(
     'label' => 'Offerings',
-    'weight' => '1',
+    'weight' => '2',
     'children' => array(
       0 => 'field_offerings',
     ),
@@ -406,7 +404,7 @@ function cis_types_field_group_info() {
   $field_groups['group_offerings|node|course|form'] = $field_group;
 
   $field_group = new stdClass();
-  $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
+  $field_group->disabled = TRUE; /* Edit this to true to make a default field_group disabled initially */
   $field_group->api_version = 1;
   $field_group->identifier = 'group_pedagogical|node|course|form';
   $field_group->group_name = 'group_pedagogical';
@@ -506,13 +504,15 @@ function cis_types_field_group_info() {
   $field_group->entity_type = 'node';
   $field_group->bundle = 'course';
   $field_group->mode = 'form';
-  $field_group->parent_name = 'group_internal_logistics';
+  $field_group->parent_name = '';
   $field_group->data = array(
     'label' => 'Resources',
-    'weight' => '8',
+    'weight' => '3',
     'children' => array(
-      0 => 'group_instructors',
-      1 => 'group_tas',
+      0 => 'field_instructional_designer',
+      1 => 'field_lead_instructor',
+      2 => 'group_instructors',
+      3 => 'group_tas',
     ),
     'format_type' => 'fieldset',
     'format_settings' => array(
@@ -538,7 +538,7 @@ function cis_types_field_group_info() {
   $field_group->parent_name = '';
   $field_group->data = array(
     'label' => 'Promotional',
-    'weight' => '2',
+    'weight' => '4',
     'children' => array(
       0 => 'group_promo_details',
       1 => 'group_screenshots',
@@ -713,7 +713,7 @@ function cis_types_field_group_info() {
   $field_group->parent_name = 'group_resources';
   $field_group->data = array(
     'label' => 'Teaching Assistants',
-    'weight' => '25',
+    'weight' => '9',
     'children' => array(
       0 => 'field_ta_documents',
       1 => 'field_ta_instructions',

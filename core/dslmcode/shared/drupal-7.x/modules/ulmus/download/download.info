@@ -1,0 +1,11 @@
+name = Download
+description =  Provides a download link with compressed files
+core = 7.x
+dependencies[] = libraries
+
+; Information added by Drupal.org packaging script on 2013-12-18
+version = "7.x-2.5"
+core = "7.x"
+project = "download"
+datestamp = "1387397905"
+

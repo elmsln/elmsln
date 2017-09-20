@@ -695,26 +695,45 @@ function mooc_helper_module_implements_alter(&$implementations, $hook) {
 /**
  * Implements hook_form_FORM_ID_alter().
  */
-function mooc_helper_form_cis_service_connection_ux_form_alter(&$form, &$form_state, $form_id) {
-  $options = _mooc_helper_all_book_outlines('nid');
+function mooc_helper_form_elmsln_core_service_settings_form_alter(&$form, &$form_state, $form_id) {
+  // @see _mooc_helper_book_homepage_redirect()
+  $form['site_information_links']['site_frontpage']['#description'] .= '.  Use the "mooc/book-homepage" url to dynamically set the homepage based on active section';
+
+}
+
+/**
+ * Implements hook_elmsln_core_service_settings().
+ * @return array options for this service
+ */
+function mooc_helper_elmsln_core_service_settings($section = NULL) {
+  $options = array();
+  $outlines = _mooc_helper_all_book_outlines('nid');
   $require = TRUE;
   // don't brick other things if we don't have any options to set
-  // edge casy but possible as you clean out books and create other ones
+  // edge casey but possible as you clean out books and create other ones
   // now that we support those kinds of things
   if (empty($options)) {
     $require = FALSE;
   }
-  $form['site_information']['mooc_default_outline'] = array(
+  $options['mooc_default_outline'] = array(
     '#description' => t('This is the default content outline for new sections that register.'),
     '#default_value' => variable_get('mooc_default_outline', ''),
     '#weight' => '0',
     '#title' => t('Default content outline'),
     '#type' => 'select',
     '#required' => $require,
-    '#options' => $options,
+    '#options' => $outlines,
   );
-  // @see _mooc_helper_book_homepage_redirect()
-  $form['site_information_links']['site_frontpage']['#description'] .= '.  Use the "mooc/book-homepage" url to dynamically set the homepage based on active section';
+  // if section in scope we need to send back this section's setting for this
+  if (!is_null($section)) {
+    $nid = _cis_section_load_section_by_id($section);
+    $node = node_load($nid);
+    // see if this has an outline associated
+    if (isset($node->field_instructional_outlines['und'])) {
+      $options['mooc_default_outline']['#default_value'] = $node->field_instructional_outlines['und'][0]['target_id'];
+    }
+  }
+  return $options;
 }
 
 /**
@@ -727,11 +746,21 @@ function mooc_helper_tokens($type, $tokens, array $data = array(), array $option
     $outline_node = _mooc_helper_active_outline();
     $section = _cis_connector_section_context();
     foreach ($tokens as $name => $original) {
+      $hash = 'token-' . rand(0, 10000);
       // elements we know about ahead of time
       switch ($name) {
         case 'active_outline_nid':
           $replacements[$original] = $outline_node->nid;
-          $replacements[$original] = '<span data-cis-token="' . t('Scope: Current section') . '<br/>' . t('Token: @token', array('@token' => strip_tags($original))) . '"  class="cis_token_dynamic_value">' . $replacements[$original] . '</span>';
+          if ($GLOBALS['user']->uid == 1 || array_intersect(array('administrator', 'instructor', 'staff'), array_values($GLOBALS['user']->roles))) {
+            $replacements[$original] = '<span tabindex="0" id="' . $hash . '" class="cis_token_dynamic_value">' . $replacements[$original] . '</span>
+            <paper-tooltip
+              for="' . $hash . '"
+              position="bottom"
+              delay="0"
+              offset="0">' .
+              t('Scope: Current section') . '<br/>' . t('Token: @token', array('@token' => strip_tags($original))) . '
+            </paper-tooltip>';
+          }
         break;
       }
     }
@@ -835,10 +864,10 @@ function mooc_helper_fa_a11y() {
       ),
       '#materialize' => array(
         'type' => 'collapsible',
-        'icon' => 'view_carousel',
+        'icon' => 'view-carousel',
       ),
       'speedreader' => array(
-        '#markup' => '<a data-voicecommand="open speed reader" class="elmsln-modal-trigger waves-effect btn-flat" href="#block-speedreader-speedreader-block-nav-modal" aria-controls="block-speedreader-speedreader-block-nav-modal" aria-expanded="false"><i class="material-icons black-text left">chrome_reader_mode</i>' . t('Speed reader') . '</a>',
+        '#markup' => '<a tabindex="-1" data-voicecommand="open speed reader" class="elmsln-modal-trigger" href="#block-speedreader-speedreader-block-nav-modal" aria-controls="block-speedreader-speedreader-block-nav-modal" aria-expanded="false"><paper-button class="paper-button-link"><iron-icon icon="chrome-reader-mode"></iron-icon>' . t('Speed reader') . '</paper-button></a>',
         '#weight' => 10,
       ),
     ),
@@ -846,14 +875,14 @@ function mooc_helper_fa_a11y() {
   // support print / book printing
   if (arg(0) == 'node' && is_numeric(arg(1)) && user_access('access printer-friendly version')) {
     $a11y['formats']['print'] = array(
-      '#markup' => '<a class="waves-effect btn-flat" href="' . base_path() . 'book/export/html/' . arg(1) . '" aria-expanded="false"><i class="material-icons black-text left">print</i>' . t('Print page') . '</a>',
+      '#markup' => '<a tabindex="-1" href="' . base_path() . 'book/export/html/' . arg(1) . '" aria-expanded="false"><paper-button class="paper-button-link"><iron-icon icon="print"></iron-icon>' . t('Print page') . '</paper-button></a>',
       '#weight' => -10,
     );
   }
   // print to pdf
   if (arg(0) == 'node' && is_numeric(arg(1)) && user_access('access PDF version')) {
     $a11y['formats']['pdf'] = array(
-      '#markup' => '<a class="waves-effect btn-flat" href="' . base_path() . 'printpdf/' . arg(1) . '" aria-expanded="false"><i class="material-icons black-text left">picture_as_pdf</i>' . t('PDF page') . '</a>',
+      '#markup' => '<a tabindex="-1" href="' . base_path() . 'printpdf/' . arg(1) . '" aria-expanded="false"><paper-button class="paper-button-link"><iron-icon icon="image:picture-as-pdf"></iron-icon>' . t('PDF page') . '</paper-button></a>',
       '#weight' => -9,
     );
   }

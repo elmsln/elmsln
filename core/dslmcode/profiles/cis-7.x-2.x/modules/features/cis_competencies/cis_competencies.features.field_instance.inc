@@ -19,13 +19,13 @@ function cis_competencies_field_default_field_instances() {
     'description' => '',
     'display' => array(
       'default' => array(
-        'label' => 'above',
+        'label' => 'hidden',
         'module' => 'entityreference',
         'settings' => array(
           'link' => FALSE,
         ),
         'type' => 'entityreference_label',
-        'weight' => 31,
+        'weight' => 4,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -96,7 +96,7 @@ function cis_competencies_field_default_field_instances() {
       'module' => 'options',
       'settings' => array(),
       'type' => 'options_buttons',
-      'weight' => 55,
+      'weight' => 5,
     ),
   );
 

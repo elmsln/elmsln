@@ -252,8 +252,7 @@ function views_schema_6000() {
     ),
   );
 
-  // $schema['cache_views_data'] added in views_schema_6006()
-
+  // $schema['cache_views_data'] added in views_schema_6006().
   return $schema;
 }
 
@@ -295,8 +294,10 @@ function views_update_6001() {
   update_sql("UPDATE {blocks} SET delta = CONCAT(delta, '-block_1') WHERE module = 'views'");
 }
 
-// NOTE: Update 6002 removed because it did not always work.
-// Update 6004 implements the change correctly.
+/*
+ * NOTE: Update 6002 removed because it did not always work.
+ * Update 6004 implements the change correctly.
+ */
 
 /**
  * Add missing unique key.
@@ -487,7 +488,7 @@ function views_update_6011() {
  */
 function views_update_6012() {
   // There is only one simple query to run.
-  $update = db_update('blocks')
+  db_update('blocks')
     ->condition('module', 'views')
     ->condition('delta', db_like('-exp-') . '%', 'LIKE')
     ->fields(array('cache' => DRUPAL_NO_CACHE));

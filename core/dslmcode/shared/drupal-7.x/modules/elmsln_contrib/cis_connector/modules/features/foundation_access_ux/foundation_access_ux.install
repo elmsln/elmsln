@@ -27,8 +27,6 @@ function foundation_access_ux_update_7000(&$sandbox) {
  * down into 3 for a sense of the scope of this.
  */
 function foundation_access_ux_update_7001(&$sandbox) {
-  // this holds all the menu that we just completely shifted around
-  features_revert_module('cis_service_connection_ux');
   // self revert so those blocks get in position
   features_revert_module('foundation_access_ux');
   // revert CIS UX feature for menu link placement

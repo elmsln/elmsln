@@ -1,0 +1,53 @@
+<!doctype html>
+<html>
+	<head>
+		<title>paper-fab-speed-dial</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		
+		<script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+		<script src="../../web-component-tester/browser.js"></script>
+		<script src="../../test-fixture/test-fixture-mocha.js"></script>
+		
+		<link rel="import" href="../paper-fab-speed-dial.html">
+		<link rel="import" href="../../test-fixture/test-fixture.html">
+	</head>
+	<body>
+	
+		<test-fixture id="TrivialElement">
+			<template>
+				<paper-fab-speed-dial></paper-fab-speed-dial>
+			</template>
+		</test-fixture>
+	
+		<script>
+			suite('<paper-fab-speed-dial>', function() {
+				suite('open/close behavior', function() {
+					var element;
+	
+					setup(function() {
+						element = fixture('TrivialElement');
+					});
+					
+					test('defaults to closed', function() {
+						expect(element.opened).to.be.eql(false);
+					});
+
+					test('is opened when calling open()', function() {
+						element.open();
+						expect(element.opened).to.be.eql(true);
+					});
+
+					test('is opened when calling open()', function() {
+						element.open();
+						expect(element.opened).to.be.eql(true); // Check pre-condition
+
+						element.close();
+						expect(element.opened).to.be.eql(false);
+					});
+				});
+			});
+		</script>
+	
+	</body>
+</html>

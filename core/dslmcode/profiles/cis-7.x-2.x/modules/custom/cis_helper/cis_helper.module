@@ -32,6 +32,38 @@ function cis_helper_module_implements_alter(&$implementations, $hook) {
 }
 
 /**
+ * Try and load a course from a section string
+ * @param  string $access_string an access string
+ * @return object                node of a course
+ */
+function _cis_helper_load_machine_name_by_access_string($access_string) {
+  $query = new EntityFieldQuery;
+  $result = $query
+    // pull all field collections
+    ->entityCondition('entity_type', 'field_collection_item')
+    // that are sections
+    ->entityCondition('bundle', 'field_sections')
+    // that aren't archived
+    ->propertyCondition('archived', 0)
+    // that have something in the cis_ops field
+    ->fieldCondition('field_access_string', 'value', $access_string)
+    // run as user 1 to avoid issues of ability to load as cron is anon
+    ->addMetaData('account', user_load(1))
+    ->execute();
+  // load the instances
+  if (isset($result['field_collection_item'])) {
+    $item = array_pop($result['field_collection_item']);
+    // convert this id into a course
+    $course = _cis_helper_derive_parent($item->item_id);
+    // make sure we have something
+    if (isset($course->field_machine_name)) {
+      return $course->field_machine_name[LANGUAGE_NONE][0]['value'];
+    }
+  }
+  return NULL;
+}
+
+/**
  * Implements hook_cron().
  */
 function cis_helper_cron() {
@@ -249,8 +281,196 @@ function _cis_helper_assemble_roster(&$sections) {
       drupal_alter('cis_helper_build_roster', $tmproster, $section_id);
       $roster[$section_id] = $tmproster;
     }
+    // ensure there isn't a null user; entirely possible
+    // if user is using upload mode and there's a blank row
+    if (isset($roster[$section_id][''])) {
+      unset($roster[$section_id]['']);
+    }
   }
   return $roster;
+}
+
+/**
+ * Update the data model of a course with offerings and sections
+ * based on what exists and what we just got passed in
+ */
+function _cis_helper_update_course_model($course, $semester, $year, $campus, $access_string, $start_date, $end_date) {
+  $offering = NULL;
+  // make sure that this course doesn't already have an offering for this semester/year
+  if (!empty($course->field_offerings)) {
+    foreach ($course->field_offerings[LANGUAGE_NONE] as $offering_ref) {
+      $offering_refs[] = $offering_ref['value'];
+    }
+    $query = new EntityFieldQuery;
+    $result = $query
+      // select all field collections
+      ->entityCondition('entity_type', 'field_collection_item')
+      // that are offerings
+      ->entityCondition('bundle', 'field_offerings')
+      // that have an internal id associated to the current course
+      ->propertyCondition('item_id', $offering_refs, 'IN')
+      // and semester of the one submitted
+      ->fieldCondition('field_semester', 'value', $semester, '=')
+      // and year of the one submitted
+      ->fieldCondition('field_year', 'value', $year, '=')
+      // load as user 1 to ignore access issues for current user
+      ->addMetaData('account', user_load(1))
+      ->execute();
+    // if we had results, set the offering
+    if (isset($result['field_collection_item'])) {
+      $item = array_keys($result['field_collection_item']);
+      $offerings = entity_load('field_collection_item', $item);
+      $offering = array_pop($offerings);
+    }
+  }
+  // create an offering if we didn't select one above
+  if (is_null($offering)) {
+    // now work on the offering
+    $offering = entity_create('field_collection_item', array('field_name' => 'field_offerings'));
+    // associate this offering to the course
+    $offering->setHostEntity('node', $course);
+    // set semester
+    $offering->field_semester[LANGUAGE_NONE][0]['value'] = $semester;
+    // set year
+    $offering->field_year[LANGUAGE_NONE][0]['value'] = $year;
+  }
+  // now work on the section
+  $section = entity_create('field_collection_item', array('field_name' => 'field_sections'));
+  // associate this section to the offering
+  $section->setHostEntity('field_collection_item', $offering);
+  // set the campus code
+  $section->field_campus[LANGUAGE_NONE][0]['value'] = $campus;
+  // set the access string
+  $section->field_access_string[LANGUAGE_NONE][0]['value'] = $access_string;
+  // set start / end dates
+  if (!is_null($start_date)) {
+    $section->field_access_dates[LANGUAGE_NONE][0]['value'] = $start_date;
+    if (!is_null($end_date)) {
+      $section->field_access_dates[LANGUAGE_NONE][0]['value2'] = $end_date;
+    }
+    // course start
+    $section->field_course_start[LANGUAGE_NONE][0]['value'] = $start_date;
+  }
+  // set the services in use to the ones just created
+  $fields = array('field_course' => array('target_id', $course->nid));
+  // build a list of current services
+  $services = _cis_connector_assemble_entity_list('node', 'service_instance', 'nid', 'title', $fields);
+  foreach ($services as $serv_item => $title) {
+    $section->field_services[LANGUAGE_NONE][] = array('target_id' => $serv_item);
+  }
+  // look up past ones
+  $offering_refs = array();
+  // make sure that this course doesn't already have an offering for this semester/year
+  if (!empty($course->field_offerings)) {
+    foreach ($course->field_offerings[LANGUAGE_NONE] as $offering_ref) {
+      $offering_refs[] = (isset($offering_ref['value']) ? $offering_ref['value'] : '');
+    }
+    $query = new EntityFieldQuery;
+    $result = $query
+      // select all field collections
+      ->entityCondition('entity_type', 'field_collection_item')
+      // that are offerings
+      ->entityCondition('bundle', 'field_offerings')
+      // that have an internal id associated to the current course
+      ->propertyCondition('item_id', $offering_refs, 'IN')
+      // and semester of the one submitted
+      ->fieldCondition('field_semester', 'value', $semester, '=')
+      // and year of the one submitted
+      ->fieldCondition('field_year', 'value', $year, '=')
+      // load as user 1 to ignore access issues for current user
+      ->addMetaData('account', user_load(1))
+      ->execute();
+    // if we had results, set the offering
+    if (isset($result['field_collection_item'])) {
+      $item = array_keys($result['field_collection_item']);
+      $offerings = entity_load('field_collection_item', $item);
+      $offering = array_pop($offerings);
+    }
+  }
+  if (!empty($offering_refs)) {
+    $query = new EntityFieldQuery;
+    $query
+      // select all field collections
+      ->entityCondition('entity_type', 'field_collection_item')
+      // that are offerings
+      ->entityCondition('bundle', 'field_offerings')
+      // that have an internal id associated to the current course
+      ->propertyCondition('item_id', $offering_refs, 'IN')
+      // order by ID descending so most recent is picked
+      ->propertyOrderBy('item_id', 'DESC')
+      // limit range to 1 item
+      ->range(0, 1)
+      // load as user 1 to ignore access issues for current user
+      ->addMetaData('account', user_load(1));
+    // make sure it's not the current one being acted on
+    if (isset($offering->item_id) && !is_null($offering->item_id)) {
+      $query->propertyCondition('item_id', $offering->item_id, '<>');
+    }
+    $result = $query->execute();
+    $tmpoff = array();
+    // if we had results, set the offering
+    if (isset($result['field_collection_item'])) {
+      $item = array_keys($result['field_collection_item']);
+      $tmp = entity_load('field_collection_item', $item);
+      $tmpoff = array_pop($tmp);
+    }
+    // see if this found anything
+    // check for existing references to this offering / campus combo
+    if (isset($tmpoff->field_sections[LANGUAGE_NONE])) {
+      foreach ($tmpoff->field_sections[LANGUAGE_NONE] as $tmpref) {
+        $tmprefs[] = $tmpref['value'];
+      }
+      // sort just to be safe
+      sort($tmprefs);
+    }
+    $result = array();
+    $sec_match = NULL;
+    $campus_match = NULL;
+    // make sure we have references
+    if (!empty($tmprefs)) {
+      $query = new EntityFieldQuery;
+      $result = $query
+        // select all field collections
+        ->entityCondition('entity_type', 'field_collection_item')
+        // that are offerings
+        ->entityCondition('bundle', 'field_sections')
+        // that have an internal id associated to the current course
+        ->propertyCondition('item_id', $tmprefs, 'IN')
+        // load as user 1 to ignore access issues for current user
+        ->addMetaData('account', user_load(1))
+        ->execute();
+      // if we had results, look through them
+      if (isset($result['field_collection_item'])) {
+        $item = array_keys($result['field_collection_item']);
+        $past_sections = entity_load('field_collection_item', $item);
+        foreach ($past_sections as $sec) {
+          if (isset($sec->field_campus['und']) && $sec->field_campus['und'][0]['value'] == $campus) {
+            $campus_match = $sec;
+          }
+          else {
+            $sec_match = $sec;
+          }
+        }
+      }
+    }
+    // see if we found anything worth trying for additional field population
+    if (!is_null($campus_match) || !is_null($sec_match)) {
+      // give priority to a past campus code match
+      if (!is_null($campus_match)) {
+        $clone = replicate_clone_entity('field_collection_item', $campus_match);
+      }
+      else {
+        $clone = replicate_clone_entity('field_collection_item', $sec_match);
+      }
+      // dup data that's possibly useful
+      $section->field_welcome_page = $clone->field_welcome_page;
+      $section->field_contact_info = $clone->field_contact_info;
+      $section->field_resources = $clone->field_resources;
+      $section->field_services = $clone->field_services;
+    }
+  }
+  // save section
+  $section->save();
 }
 
 /**
@@ -1721,4 +1941,15 @@ function cis_helper_file_delete($file) {
     ->condition('f.fid', $file->fid)
     ->execute()
     ->fetchField();
+}
+
+/**
+ * Implements hook_wrapped_paths().
+ */
+function cis_helper_wrapped_paths() {
+  $paths = array(
+    // don't wrap any app
+    'apps/*' => FALSE,
+  );
+  return $paths;
 }

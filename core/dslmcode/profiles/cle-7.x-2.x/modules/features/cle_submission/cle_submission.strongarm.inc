@@ -203,38 +203,5 @@ function cle_submission_strongarm() {
   $strongarm->value = 'Save and add fields';
   $export['save_continue_cle_submission'] = $strongarm;
 
-  $strongarm = new stdClass();
-  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
-  $strongarm->api_version = 1;
-  $strongarm->name = 'unique_field_comp_cle_submission';
-  $strongarm->value = 'all';
-  $export['unique_field_comp_cle_submission'] = $strongarm;
-
-  $strongarm = new stdClass();
-  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
-  $strongarm->api_version = 1;
-  $strongarm->name = 'unique_field_fields_cle_submission';
-  $strongarm->value = array(
-    0 => 'name',
-    1 => 'field_assignment',
-  );
-  $export['unique_field_fields_cle_submission'] = $strongarm;
-
-  $strongarm = new stdClass();
-  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
-  $strongarm->api_version = 1;
-  $strongarm->name = 'unique_field_scope_cle_submission';
-  $strongarm->value = 'type';
-  $export['unique_field_scope_cle_submission'] = $strongarm;
-
-  $strongarm = new stdClass();
-  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
-  $strongarm->api_version = 1;
-  $strongarm->name = 'unique_field_show_matches_cle_submission';
-  $strongarm->value = array(
-    0 => 'show_matches',
-  );
-  $export['unique_field_show_matches_cle_submission'] = $strongarm;
-
   return $export;
 }

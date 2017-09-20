@@ -1,0 +1,16 @@
+<?php
+/**
+ * @file
+ * Code for the ELMS Media apps
+ */
+
+/**
+ * Implements hook_wrapped_paths().
+ */
+function elmsmedia_apps_wrapped_paths() {
+  $paths = array(
+    // don't wrap any app
+    'apps/*' => FALSE,
+  );
+  return $paths;
+}

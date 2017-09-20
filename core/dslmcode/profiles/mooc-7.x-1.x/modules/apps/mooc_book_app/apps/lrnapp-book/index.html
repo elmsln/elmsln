@@ -8,13 +8,20 @@
     <meta name="description" content="lrnapp-book description">
 
     <!-- See https://goo.gl/OOhYW5 -->
-    <link rel="manifest" href="/manifest.json">
+    <link rel="manifest" href="manifest.json">
+    <link href="https://cdn.rawgit.com/LRNWebComponents/build/0.0.5/build/default/build.html" rel="import" />
+    <script type="text/javascript">
+    if(navigator.serviceworker) {
+      navigator.serviceworker.register('src/lrnapp-book/build/sw.js')
+      .catch(function(err) {
+        console.error('Unable to register service worker.', err);
+      });
+    }
+    </script>
 
-    <script src="/bower_components/webcomponentsjs/webcomponents-lite.js"></script>
-
-    <link rel="import" href="/src/lrnapp-book/lrnapp-book.html">
+    <link rel="import" href="src/lrnapp-book/lrnapp-book.html">
   </head>
   <body>
-    <lrnapp-book></lrnapp-book>
+    <lrnapp-book source-path="/sing100/apps/lrnapp-book/data?token=PXZgSgh6jQF2ZfFLCBjmi2woNbwkPynXz7sKlgj8Pss&node"></lrnapp-book>
   </body>
 </html>

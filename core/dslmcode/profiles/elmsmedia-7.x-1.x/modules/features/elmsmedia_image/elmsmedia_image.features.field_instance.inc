@@ -141,9 +141,7 @@ function elmsmedia_image_field_default_field_instances() {
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(
-        'apply_chosen' => '',
-      ),
+      'settings' => array(),
       'type' => 'options_select',
       'weight' => 0,
     ),
@@ -327,6 +325,7 @@ function elmsmedia_image_field_default_field_instances() {
         'module' => 'entityreference',
         'settings' => array(
           'links' => 1,
+          'use_content_language' => TRUE,
           'view_mode' => 'figurelabel',
         ),
         'type' => 'entityreference_entity_view',
@@ -337,6 +336,7 @@ function elmsmedia_image_field_default_field_instances() {
         'module' => 'entityreference',
         'settings' => array(
           'links' => 1,
+          'use_content_language' => TRUE,
           'view_mode' => 'default',
         ),
         'type' => 'entityreference_entity_view',
@@ -353,6 +353,7 @@ function elmsmedia_image_field_default_field_instances() {
         'module' => 'entityreference',
         'settings' => array(
           'links' => 1,
+          'use_content_language' => TRUE,
           'view_mode' => 'figurelabel',
         ),
         'type' => 'entityreference_entity_view',
@@ -363,6 +364,7 @@ function elmsmedia_image_field_default_field_instances() {
         'module' => 'entityreference',
         'settings' => array(
           'links' => 1,
+          'use_content_language' => TRUE,
           'view_mode' => 'default',
         ),
         'type' => 'entityreference_entity_view',
@@ -373,6 +375,7 @@ function elmsmedia_image_field_default_field_instances() {
         'module' => 'entityreference',
         'settings' => array(
           'links' => 1,
+          'use_content_language' => TRUE,
           'view_mode' => 'default',
         ),
         'type' => 'entityreference_entity_view',
@@ -383,6 +386,7 @@ function elmsmedia_image_field_default_field_instances() {
         'module' => 'entityreference',
         'settings' => array(
           'links' => 1,
+          'use_content_language' => TRUE,
           'view_mode' => 'default',
         ),
         'type' => 'entityreference_entity_view',
@@ -393,6 +397,7 @@ function elmsmedia_image_field_default_field_instances() {
         'module' => 'entityreference',
         'settings' => array(
           'links' => 1,
+          'use_content_language' => TRUE,
           'view_mode' => 'default',
         ),
         'type' => 'entityreference_entity_view',
@@ -403,6 +408,7 @@ function elmsmedia_image_field_default_field_instances() {
         'module' => 'entityreference',
         'settings' => array(
           'links' => 1,
+          'use_content_language' => TRUE,
           'view_mode' => 'default',
         ),
         'type' => 'entityreference_entity_view',
@@ -413,6 +419,7 @@ function elmsmedia_image_field_default_field_instances() {
         'module' => 'entityreference',
         'settings' => array(
           'links' => 1,
+          'use_content_language' => TRUE,
           'view_mode' => 'default',
         ),
         'type' => 'entityreference_entity_view',
@@ -423,6 +430,7 @@ function elmsmedia_image_field_default_field_instances() {
         'module' => 'entityreference',
         'settings' => array(
           'links' => 1,
+          'use_content_language' => TRUE,
           'view_mode' => 'default',
         ),
         'type' => 'entityreference_entity_view',
@@ -960,154 +968,6 @@ function elmsmedia_image_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-elmsmedia_image-og_group_ref'.
-  $field_instances['node-elmsmedia_image-og_group_ref'] = array(
-    'bundle' => 'elmsmedia_image',
-    'default_value' => NULL,
-    'default_value_function' => 'entityreference_prepopulate_field_default_value',
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 6,
-      ),
-      'full' => array(
-        'label' => 'above',
-        'module' => 'entityreference',
-        'settings' => array(
-          'link' => 1,
-        ),
-        'type' => 'entityreference_label',
-        'weight' => 2,
-      ),
-      'image' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 6,
-      ),
-      'image__boxed' => array(
-        'label' => 'above',
-        'module' => 'og_ui',
-        'settings' => array(),
-        'type' => 'og_list_default',
-        'weight' => 6,
-      ),
-      'image__boxed__lightboxed' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 6,
-      ),
-      'image__left' => array(
-        'label' => 'above',
-        'module' => 'og_ui',
-        'settings' => array(),
-        'type' => 'og_list_default',
-        'weight' => 6,
-      ),
-      'image__left__lightboxed' => array(
-        'label' => 'above',
-        'module' => 'og_ui',
-        'settings' => array(),
-        'type' => 'og_list_default',
-        'weight' => 6,
-      ),
-      'image__lightboxed' => array(
-        'label' => 'above',
-        'module' => 'og_ui',
-        'settings' => array(),
-        'type' => 'og_list_default',
-        'weight' => 6,
-      ),
-      'image__right' => array(
-        'label' => 'above',
-        'module' => 'og_ui',
-        'settings' => array(),
-        'type' => 'og_list_default',
-        'weight' => 6,
-      ),
-      'image__right__lightboxed' => array(
-        'label' => 'above',
-        'module' => 'og_ui',
-        'settings' => array(),
-        'type' => 'og_list_default',
-        'weight' => 6,
-      ),
-      'teaser' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'og_group_ref',
-    'label' => 'Section',
-    'required' => 0,
-    'settings' => array(
-      'authcache' => array(
-        'clients' => array(
-          'authcache_ajax' => array(
-            'status' => 1,
-            'weight' => 0,
-          ),
-        ),
-        'fallback' => 'cancel',
-        'lifespan' => 3600,
-        'perpage' => 0,
-        'peruser' => 1,
-        'status' => 0,
-      ),
-      'behaviors' => array(
-        'og_widget' => array(
-          'access_override' => 0,
-          'admin' => array(
-            'widget_type' => 'entityreference_autocomplete',
-          ),
-          'default' => array(
-            'widget_type' => 'options_select',
-          ),
-          'status' => TRUE,
-        ),
-        'prepopulate' => array(
-          'action' => 'none',
-          'action_on_edit' => 0,
-          'fallback' => 'none',
-          'providers' => array(
-            'og_context' => 0,
-            'url' => 1,
-          ),
-          'skip_perm' => 0,
-          'status' => 1,
-        ),
-      ),
-      'user_register_form' => FALSE,
-    ),
-    'view modes' => array(
-      'full' => array(
-        'custom settings' => FALSE,
-        'label' => 'Full',
-        'type' => 'og_list_default',
-      ),
-      'teaser' => array(
-        'custom settings' => FALSE,
-        'label' => 'Teaser',
-        'type' => 'og_list_default',
-      ),
-    ),
-    'widget' => array(
-      'active' => 0,
-      'module' => 'og',
-      'settings' => array(),
-      'type' => 'og_complex',
-      'weight' => 7,
-    ),
-  );
-
   // Translatables
   // Included for use with string extractors like potx.
   t('Caption');
@@ -1115,7 +975,6 @@ function elmsmedia_image_field_default_field_instances() {
   t('Course');
   t('Figure Label');
   t('Image');
-  t('Section');
   t('Tagging media can make it easier to find after the fact. This is used for searching and filtering.');
   t('Tags');
 

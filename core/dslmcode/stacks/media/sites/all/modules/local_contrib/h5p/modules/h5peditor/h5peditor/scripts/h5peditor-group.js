@@ -335,5 +335,13 @@ ns.Group.prototype.remove = function () {
   }
 };
 
+/**
+ * Get a copy of the fields semantics used by this group.
+ * @return {Array}
+ */
+ns.Group.prototype.getFields = function () {
+  return H5PEditor.$.extend(true, [], this.field.fields);
+};
+
 // Tell the editor what widget we are.
 ns.widgets.group = ns.Group;

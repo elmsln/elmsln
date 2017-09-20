@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the CLE Textbook feature.
+ */
+
+include_once 'cle_textbook.features.inc';

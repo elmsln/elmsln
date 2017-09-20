@@ -51,11 +51,9 @@ dependencies[] = special_menu_items
 ; Other
 dependencies[] = navigation404
 dependencies[] = better_formats
-dependencies[] = chosen
 dependencies[] = defaultconfig
 dependencies[] = diff
 dependencies[] = elements
-dependencies[] = fastclick
 dependencies[] = libraries
 dependencies[] = pathauto
 dependencies[] = placeholder
@@ -72,7 +70,6 @@ dependencies[] = video_filter
 dependencies[] = advagg
 dependencies[] = advagg_bundler
 dependencies[] = blockcache_alter
-dependencies[] = cis_performance_overrides
 dependencies[] = httprl
 dependencies[] = imageinfo_cache
 dependencies[] = entitycache
@@ -84,14 +81,12 @@ dependencies[] = textbook_templates
 dependencies[] = uuid
 ; User interface
 dependencies[] = addanother
-dependencies[] = back_to_top
 dependencies[] = ckeditor_link
 dependencies[] = ds
 dependencies[] = imce
 dependencies[] = imce_crop
 dependencies[] = imce_mkdir
 dependencies[] = imce_wysiwyg
-dependencies[] = jammer
 dependencies[] = jquery_update
 dependencies[] = wysiwyg
 dependencies[] = wysiwyg_template
@@ -107,14 +102,12 @@ dependencies[] = features_override
 dependencies[] = elmsln_api
 dependencies[] = cis_connector
 dependencies[] = cis_service_connection
-dependencies[] = cis_service_connection_ux
 dependencies[] = cis_service_roles
 dependencies[] = cis_lmsless
 dependencies[] = cis_shortcodes
 dependencies[] = foundation_access_ux
 dependencies[] = elmsln_core
 ; ELMSLN Core - Performance
-dependencies[] = elmsln_authcache
 dependencies[] = elmsln_advagg
 
 ; ----------
@@ -152,7 +145,6 @@ dependencies[] = footnotes
 dependencies[] = footnotes_wysiwyg
 dependencies[] = job_scheduler
 dependencies[] = linkchecker
-dependencies[] = tipsy
 dependencies[] = read_time
 dependencies[] = read_time_media
 dependencies[] = read_time_book
@@ -167,7 +159,6 @@ dependencies[] = hidden_nodes
 ; Textbook
 dependencies[] = speedreader
 ; User interface
-dependencies[] = lightbox2
 dependencies[] = token_insert_entity
 dependencies[] = token_insert
 dependencies[] = token_insert_wysiwyg

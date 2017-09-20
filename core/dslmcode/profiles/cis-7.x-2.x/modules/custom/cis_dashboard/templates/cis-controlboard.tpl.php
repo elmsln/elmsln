@@ -1,6 +1,6 @@
 <div class="row" ng-app="Fa" ng-controller="cisDashboard">
 <div class="l6 col">
-  <div class="l6 col text-right">
+  <div class="l6 col">
    <ul id="sort-drop" class="f-dropdown f-open-dropdown text-left" data-dropdown-content="" style="position: absolute; left: 13.3281px; top: 1892.75px;" aria-hidden="false">
     <li>
       <a ng-click="orderCourses('+title')" href="#">Ascending</a>

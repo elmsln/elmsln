@@ -2,7 +2,6 @@ name = CLE Critique
 description = Adds ability for critiquing
 core = 7.x
 package = CLE
-dependencies[] = cis_service_connection_ux
 dependencies[] = list
 dependencies[] = og
 dependencies[] = options

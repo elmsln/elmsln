@@ -624,10 +624,10 @@ function cis_filter_preprocess_cis_filter_render__modal(&$vars) {
   $code = $vars['settings']['code'];
   $vars['tool'] = $code['tool'];
   if (isset($code['icon'])) {
-    $vars['icon'] = '<i class="material-icons left ' . $vars['lmsless_classes'][$code['tool']]['text'] . '">' . $code['icon'] . '</i>';
+    $vars['icon'] = $code['icon'];
   }
   else {
-    $vars['icon'] = '<div class="elmsln-icon left ' . $vars['lmsless_classes'][$code['tool']]['text'] . ' icon-' . $code['tool'] . '"></div>';
+    $vars['icon'] = $code['tool'];
   }
   $vars['trigger'] = uniqid();
   $vars['class'] = 'cis-filter-modal-item';
@@ -688,10 +688,7 @@ function cis_filter_preprocess_cis_filter_render__side_nav(&$vars) {
   $code = $vars['settings']['code'];
   $vars['tool'] = $code['tool'];
   if (isset($code['icon'])) {
-    $vars['icon'] = '<i class="material-icons black-text left">' . $code['icon'] . '</i>';
-  }
-  else {
-    $vars['icon'] = '<i class="material-icons black-text left">pageview</i>';
+    $vars['icon'] = $code['icon'];
   }
   $vars['trigger'] = uniqid();
   $vars['class'] = 'cis-filter-side-nav-item';
@@ -900,8 +897,8 @@ function cis_filter_menu_contextual_links_alter(&$links, $router_item, $root_pat
     foreach ($links as &$link) {
       $link['localized_options'] = array(
         'query' => array(
-          'destination' => 'elmsln/redirect/' . elmsln_core_get_profile_key() .  '/' . arg(0) . '/' . arg(1),
           'elmsln_course' => 1,
+          'destination' => 'elmsln/redirect/' . elmsln_core_get_profile_key() .  '/' . arg(0) . '/' . arg(1),
         )
       );
     }

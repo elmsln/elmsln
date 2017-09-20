@@ -137,7 +137,7 @@ function cle_assignment_strongarm() {
           'weight' => '0',
         ),
         'path' => array(
-          'weight' => '7',
+          'weight' => '6',
         ),
         'hidden_nodes' => array(
           'weight' => '9',
@@ -146,10 +146,10 @@ function cle_assignment_strongarm() {
           'weight' => '6',
         ),
         'options' => array(
-          'weight' => '10',
+          'weight' => '4',
         ),
         'author' => array(
-          'weight' => '8',
+          'weight' => '7',
         ),
         'revision_information' => array(
           'weight' => '5',
@@ -204,40 +204,6 @@ function cle_assignment_strongarm() {
   $strongarm->name = 'save_continue_cle_assignment';
   $strongarm->value = 'Save and add fields';
   $export['save_continue_cle_assignment'] = $strongarm;
-
-  $strongarm = new stdClass();
-  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
-  $strongarm->api_version = 1;
-  $strongarm->name = 'unique_field_comp_cle_assignment';
-  $strongarm->value = 'all';
-  $export['unique_field_comp_cle_assignment'] = $strongarm;
-
-  $strongarm = new stdClass();
-  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
-  $strongarm->api_version = 1;
-  $strongarm->name = 'unique_field_fields_cle_assignment';
-  $strongarm->value = array(
-    0 => 'field_number',
-    1 => 'field_sub_number',
-    2 => 'field_submission_type',
-  );
-  $export['unique_field_fields_cle_assignment'] = $strongarm;
-
-  $strongarm = new stdClass();
-  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
-  $strongarm->api_version = 1;
-  $strongarm->name = 'unique_field_scope_cle_assignment';
-  $strongarm->value = 'all';
-  $export['unique_field_scope_cle_assignment'] = $strongarm;
-
-  $strongarm = new stdClass();
-  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
-  $strongarm->api_version = 1;
-  $strongarm->name = 'unique_field_show_matches_cle_assignment';
-  $strongarm->value = array(
-    0 => 'show_matches',
-  );
-  $export['unique_field_show_matches_cle_assignment'] = $strongarm;
 
   return $export;
 }

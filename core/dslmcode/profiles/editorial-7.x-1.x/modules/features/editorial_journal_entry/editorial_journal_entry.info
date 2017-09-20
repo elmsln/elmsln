@@ -3,7 +3,6 @@ description = A Journal entry content type for private writing
 core = 7.x
 package = Editorial
 dependencies[] = cis_section
-dependencies[] = cis_service_connection_ux
 dependencies[] = ctools
 dependencies[] = defaultconfig
 dependencies[] = editorial_blog_post

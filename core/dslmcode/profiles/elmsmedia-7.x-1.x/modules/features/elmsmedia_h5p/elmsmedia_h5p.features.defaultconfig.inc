@@ -33,14 +33,14 @@ function elmsmedia_h5p_defaultconfig_strongarm() {
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'h5p_embed';
-  $strongarm->value = 0;
+  $strongarm->value = '0';
   $export['h5p_embed'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'h5p_export';
-  $strongarm->value = 0;
+  $strongarm->value = '0';
   $export['h5p_export'] = $strongarm;
 
   $strongarm = new stdClass();

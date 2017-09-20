@@ -24,16 +24,14 @@ function cle_submission_field_group_info() {
     'weight' => '4',
     'children' => array(
       0 => 'field_energy',
-      1 => 'field_submission_state',
-      2 => 'og_group_ref',
-      3 => 'field_metadata',
-      4 => 'field_related_submission',
+      1 => 'field_metadata',
+      2 => 'field_related_submission',
+      3 => 'field_submission_state',
+      4 => 'og_group_ref',
       5 => 'path',
-      6 => 'hidden_nodes',
-      7 => 'book',
-      8 => 'options',
-      9 => 'author',
-      10 => 'revision_information',
+      6 => 'options',
+      7 => 'author',
+      8 => 'revision_information',
     ),
     'format_type' => 'tab',
     'format_settings' => array(
@@ -59,7 +57,7 @@ function cle_submission_field_group_info() {
   $field_group->parent_name = '';
   $field_group->data = array(
     'label' => 'Ferpa elements',
-    'weight' => '15',
+    'weight' => '7',
     'children' => array(),
     'format_type' => 'div',
     'format_settings' => array(

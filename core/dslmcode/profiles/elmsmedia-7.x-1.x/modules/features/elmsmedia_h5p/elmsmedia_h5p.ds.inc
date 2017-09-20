@@ -34,9 +34,6 @@ function elmsmedia_h5p_ds_layout_settings_info() {
         7 => 'field_figurelabel_ref',
         8 => 'field_tagging',
       ),
-      'footer' => array(
-        9 => 'og_group_ref',
-      ),
       'hidden' => array(
         10 => 'path',
         11 => 'hidden_nodes',
@@ -57,7 +54,6 @@ function elmsmedia_h5p_ds_layout_settings_info() {
       'field_accessible_fallback' => 'left',
       'field_figurelabel_ref' => 'right',
       'field_tagging' => 'right',
-      'og_group_ref' => 'footer',
       'path' => 'hidden',
       'hidden_nodes' => 'hidden',
       'author' => 'hidden',

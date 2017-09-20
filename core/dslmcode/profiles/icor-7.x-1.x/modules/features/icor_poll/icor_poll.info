@@ -39,4 +39,3 @@ features[variable][] = node_options_poll
 features[variable][] = node_preview_poll
 features[variable][] = node_submitted_poll
 features[variable][] = wysiwyg_template_default_poll
-features_exclude[dependencies][cis_service_connection_ux] = cis_service_connection_ux

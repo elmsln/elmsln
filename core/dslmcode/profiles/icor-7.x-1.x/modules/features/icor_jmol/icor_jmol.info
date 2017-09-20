@@ -33,4 +33,3 @@ features[variable][] = node_options_jmol
 features[variable][] = node_preview_jmol
 features[variable][] = node_submitted_jmol
 features_exclude[dependencies][defaultconfig] = defaultconfig
-features_exclude[dependencies][cis_service_connection_ux] = cis_service_connection_ux

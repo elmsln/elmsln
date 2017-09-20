@@ -1,9 +1,33 @@
 <?php
 
 /**
- * update hook 'use H5P hub','automatically contribute usage statistics' variable from TRUE to FALSE #1990.
+ * Update hook 'use H5P hub','automatically contribute usage statistics' variable from TRUE to FALSE #1990.
  */
 function elmsmedia_h5p_update_7000() {
-    variable_set('h5p_hub_is_enabled', FALSE);
-    variable_set('h5p_send_usage_statistics', FALSE);
+  variable_set('h5p_hub_is_enabled', FALSE);
+  variable_set('h5p_send_usage_statistics', FALSE);
+}
+
+/**
+ * Instantiate elmsmedia_h5p_allowed_tags variable
+ */
+function elmsmedia_h5p_update_7001() {
+  variable_set('elmsmedia_h5p_allowed_tags', array());
+}
+
+/**
+ * H5P Hub can now be enabled.
+ */
+function elmsmedia_h5p_update_7002() {
+  variable_set('h5p_hub_is_enabled', TRUE);
+}
+
+/**
+ * Add sane default to elmsmedia_h5p_allowed_tags
+ */
+function elmsmedia_h5p_update_7003() {
+  $allowed_tags = variable_get('elmsmedia_h5p_allowed_tags', NULL);
+  if (!$allowed_tags) {
+    variable_set('elmsmedia_h5p_allowed_tags', array('a', 'em', 'strong', 'cite', 'blockquote', 'code', 'ul', 'ol', 'li', 'dl', 'dt', 'dd'));
+  }
 }

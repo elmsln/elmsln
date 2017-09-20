@@ -22,14 +22,14 @@ function hook_register_webcomponent_apps() {
       'path' => 'sites/all/libraries/webcomponents/polymer/apps/my-one-page/src/my-one-page-app/my-one-page-app.html',
       // a human readable title
       'title' => t('Open studio'),
-      // optional: module it comes from
-      'module' => 'my_custom_module',
       // optional: menu for making this visible in drupal's menu system
       'menu' => array(
         'type' => MENU_NORMAL_ITEM,
         'menu_name' => 'menu-navigation',
         'weight' => -10,
       ),
+      // optional: support for automatically generating a block that theme's the web component
+      'block' => TRUE,
       // optional: adding a data router for getting information back in
       // a consistent way. This isn't required but will be used almost
       // all of the time unless paths are hard wired into the app itself
@@ -39,6 +39,13 @@ function hook_register_webcomponent_apps() {
         'callback' => 'my_custom_module_data_callback',
         // the name of the property the element uses to pull data
         'property' => 'source-path',
+      ),
+      // optional: allow for defining properties that need to be added automatically
+      'properties' => array(
+        'name' => 'Dana',
+        'age' => array(
+          'callback' => '_get_user_age',
+        )
       ),
       // optional: completely optional but also is hooked in from where ever it comes from
       // this allows you to do any other kind of contextual operation you would need.
@@ -51,4 +58,50 @@ function hook_register_webcomponent_apps() {
       ),
     ),
   );
+}
+
+/**
+ * Implements hook_register_webcomponent_apps_alter().
+ * @param  array $apps loaded app definitions
+ */
+function hook_register_webcomponent_apps_alter($apps) {
+  $apps['my-app']['title'] = t('Cool stuff');
+}
+
+/**
+ * Implements hook_webcomponents_app_data_alter().
+ * @param  array $return  response from the server after data callback processed
+ * @param  array $app     loaded app definition
+ */
+function hook_webcomponents_app_data_alter($return, $app) {
+  if ($app['name'] == 'my-app' && isset($return['data']['file']) && $return['status'] == 200) {
+    // do something extra with images uploaded successfully
+    // via our app
+    if ($return['data']['file']->type == 'image') {
+
+    }
+  }
+}
+
+/**
+ * Implements hook_webcomponents_app_deliver_output_alter().
+ * @param  array $return  response from the server just before printing out
+ */
+function hook_webcomponents_app_deliver_output_alter(&$return, $app) {
+  if ($app->machine_name == 'cool-stuff') {
+    $return .= "\n" . '<add-on-some-custom-element-too></add-on-some-custom-element-too>';
+  }
+}
+
+/**
+ * Implements hook_webcomponents_app_deliver_data_alter().
+ * @param  array $return  response from the server just before returning data as a json blob
+ */
+function hook_webcomponents_app_deliver_data_alter(&$return, $app) {
+  // prevent 404s for no reason
+  if ($return['status'] == 404) {
+    // I'm a teapot short and stout
+    $return['status'] = 418;
+    $return['detail'] = t('I\'m a little tea pot short and stout');
+  }
 }

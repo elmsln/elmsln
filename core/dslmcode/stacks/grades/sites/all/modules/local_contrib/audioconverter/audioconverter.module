@@ -4,13 +4,13 @@
  * Define some constants
  */
 defined('AUDIO_RENDERING_PENDING')
-  or define('AUDIO_RENDERING_PENDING', 1);
+or define('AUDIO_RENDERING_PENDING', 1);
 defined('AUDIO_RENDERING_ACTIVE')
-  or define('AUDIO_RENDERING_ACTIVE', 5);
+or define('AUDIO_RENDERING_ACTIVE', 5);
 defined('AUDIO_RENDERING_COMPLETE')
-  or define('AUDIO_RENDERING_COMPLETE', 10);
+or define('AUDIO_RENDERING_COMPLETE', 10);
 defined('AUDIO_RENDERING_FAILED')
-  or define('AUDIO_RENDERING_FAILED', 20);
+or define('AUDIO_RENDERING_FAILED', 20);
 
 /**
  *Implementation of hook_menu()
@@ -31,67 +31,76 @@ function audioconverter_menu() {
  * Implementation of hook_entity_presave()
  */
 function audioconverter_entity_presave($entity, $type) {
-  if($type != 'file') {
-     _audioconverter_process_entity($entity, $type);
+  if ($type != 'file') {
+    _audioconverter_process_entity($entity, $type);
   }
 }
 
 function _audioconverter_process_entity($entity, $type) {
   $finfo = _field_info_collate_fields();
-  if($type == 'node') {
+  if ($type == 'node') {
     $ntype = $entity->type;
-	$fields =  $finfo['instances']['node'][$ntype];
+    $fields = $finfo['instances']['node'][$ntype];
   }
-  elseif($type == 'user') {
-    $fields =  $finfo['instances']['user']['user'];
+  elseif ($type == 'user') {
+    $fields = $finfo['instances']['user']['user'];
   }
-  elseif($type == 'comment') {
+  elseif ($type == 'comment') {
     $ntype = $entity->node_type;
-    $fields =  $finfo['instances']['comment'][$ntype];
+    $fields = $finfo['instances']['comment'][$ntype];
   }
   else {
     //Todo: need to check about other entity type structures
-    $fields =  $finfo['instances'][$type];
+    $fields = $finfo['instances'][$type];
   }
+  if (is_array($fields)) {
+    foreach ($fields as $field) {
+      //Filter only allowed audio fields
+      if (isset($field['widget']) && in_array($field['widget']['module'], audioconverter_allowed_fields())) {
+        $fname = $field['field_name'];
+        //Only convert if conversion is enabled for all fields or for this field.
+        $field_settings = variable_get('audioconverter_' . $fname, 0);
+        $global_settings = variable_get('audioconverter_all', 0);
+        if ($global_settings || $field_settings) {
+          //Use field_get_items as part of the field localisation
+          $values = field_get_items($type, $entity, $fname);
+          if($values) {
+            foreach ($values as $field_data) {
+              //Check if field is empty
+              if (empty($field_data['fid'])) {
+                continue;
+              }
+              //Check if this file is already in queue
+              $exist = _audioconverter_file_in_queue($field_data['fid']);
+              if ($exist) {
+                continue;
+              }
+              $rfile = file_load($field_data['fid']);
 
-  foreach ($fields as $field) {
-    //Filter only allowed audio fields
-    if (isset($field['widget']) && in_array($field['widget']['module'], audioconverter_allowed_fields())) {
-      $fname = $field['field_name'];
-      //Only convert if conversion is enabled for all fields or for this field.
-      $field_settings = variable_get('audioconverter_' . $fname, 0);
-      $global_settings = variable_get('audioconverter_all', 0);
-      if ($global_settings || $field_settings) {
-        //Use field_get_items as part of the field localisation
-        $values = field_get_items($type, $entity, $fname);
-        foreach ($values as $field_data) {
-          //Check if field is empty
-          if (empty($field_data['fid'])) {
-            continue;
-          }
-          //Check if this file is already in queue
-          $exist = _audioconverter_file_in_queue($field_data['fid']);
-          if ($exist) {
-            continue;
-          }
-          $rfile = file_load($field_data['fid']);
+              $info = pathinfo($rfile->uri);
+              $op = $info['extension'];
 
-          $info = pathinfo($rfile->uri);
-          $op = $info['extension'];
-
-          if ($op == 'mp3') {
-            continue;
-          }
-          #Else:
-          audioconverter_save_file($field_data['fid']);
-          if (variable_get('audioconverter_on_save', 0)) {
-            //Convert now
-            $job = _audio_render_load_job($field_data['fid']);
-            _audioconverter_scheduler_start($job);
-            drupal_set_message(t('Audio converted to mp3.'));
-          }
-          else {
-            drupal_set_message(t('Audio submission queued for processing. Please wait: our servers are preparing your audio for web displaying.'));
+              if ($op == 'mp3') {
+                continue;
+              }
+              #Else:
+              audioconverter_save_file($field_data['fid']);
+              if (variable_get('audioconverter_on_save', 0)) {
+                //Convert now
+                $job = _audio_render_load_job($field_data['fid']);
+                _audioconverter_scheduler_start($job);
+                drupal_set_message(t('Audio converted to mp3.'));
+                // support entitycache if tables exist
+                if (module_exists('entitycache') && $type == 'node') {
+                  if (isset($entity->nid)){
+                    cache_clear_all($entity->nid, 'cache_entity_node');
+                  }
+                }
+              }
+              else {
+                drupal_set_message(t('Audio submission queued for processing. Please wait: our servers are preparing your audio for web displaying.'));
+              }
+            }
           }
         }
       }
@@ -103,7 +112,7 @@ function _audioconverter_process_entity($entity, $type) {
  * Implementation of hook_form_[form_id]_alter().
  * Add per field settings.
  */
- //TODO: We need per field settings, not per node settings
+//TODO: We need per field settings, not per node settings
 /*function audioconverter_form_alter(&$form, &$form_state , $form_id) {
   if (!empty($form['type']['#value'])) {
     $finfo = _field_info_collate_fields();
@@ -153,14 +162,14 @@ function audioconverter_form_field_ui_field_edit_form_alter(&$form, &$form_state
     );
 
     $form['audioconverter']['autoconversion'] = array(
-     '#type' => 'checkbox',
-     '#title' => t('Enable automatic audio conversion.'),
-     '#description' => t('Automatically convert existing audio fields to mp3. Please make sure the Audio Converter settings are properly configured.'),
-     '#default_value' => variable_get('audioconverter_' . $field_name, 0),
+      '#type' => 'checkbox',
+      '#title' => t('Enable automatic audio conversion.'),
+      '#description' => t('Automatically convert existing audio fields to mp3. Please make sure the Audio Converter settings are properly configured.'),
+      '#default_value' => variable_get('audioconverter_' . $field_name, 0),
     );
 
-    $form['submit']['#weight']=10;
-    $form['#submit'][]='audioconverter_form_field_submit';
+    $form['submit']['#weight'] = 10;
+    $form['#submit'][] = 'audioconverter_form_field_submit';
   }
 }
 
@@ -190,49 +199,58 @@ function audioconverter_admin_settings_form() {
     '#type' => 'radios',
     '#title' => t('Audio fields to be converted'),
     '#default_value' => variable_get('audioconverter_all', 0),
-    '#options' => array('Use individual field settings', 'Automatically convert all audio fields in the system'),
+    '#options' => array(
+      'Use individual field settings',
+      'Automatically convert all audio fields in the system'
+    ),
   );
 
   $form['audioconverter_on_save'] = array(
     '#type' => 'radios',
     '#title' => t('Audio conversion time'),
     '#default_value' => variable_get('audioconverter_on_save', 0),
-    '#options' => array('Audio files should be converted on cron', 'Audio files should be converted on Node Submit'),
+    '#options' => array(
+      'Audio files should be converted on cron',
+      'Audio files should be converted on Node Submit'
+    ),
   );
 
   $form['audioconverter_wav_setting'] = array(
     '#type' => 'radios',
     '#title' => t('What to do after converting files to mp3?'),
     '#default_value' => variable_get('audioconverter_wav_setting', 1),
-    '#options' => array('Delete existing .wav files', 'Leave .wav files untouched'),
+    '#options' => array(
+      'Delete existing .wav files',
+      'Leave .wav files untouched'
+    ),
   );
 
   $form['ffmpeg'] = array(
-          '#type' => 'fieldset',
-          '#title' => t('FFMPEG Settings'),
-          '#collapsible' => TRUE,
-          '#collapsed' => FALSE
+    '#type' => 'fieldset',
+    '#title' => t('FFMPEG Settings'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE
   );
 
   $form['ffmpeg']['ffmpeg_executable_path'] = array(
-          '#type' => 'textfield',
-          '#title' => t('FFMPEG Path'),
-          '#default_value' => variable_get('ffmpeg_executable_path', '/usr/bin/ffmpeg'),
-          '#description' => t('Path to FFMPEG (ie. /usr/bin/ffmpeg, etc.)')
+    '#type' => 'textfield',
+    '#title' => t('FFMPEG Path'),
+    '#default_value' => variable_get('ffmpeg_executable_path', '/usr/bin/ffmpeg'),
+    '#description' => t('Path to FFMPEG (ie. /usr/bin/ffmpeg, etc.)')
   );
 
   $form['ffmpeg']['ffmpeg_executable_command'] = array(
-          '#type' => 'textfield',
-          '#title' => t('FFMPEG Command Options'),
-          '#default_value' => variable_get('ffmpeg_executable_command', ' -i %audiofile %convertfile'),
-          '#description' => t('Arguments to be passed to FFMPEG. Tokens available: %audiofile - original audio filename, %convertfile - name of the converted file.')
+    '#type' => 'textfield',
+    '#title' => t('FFMPEG Command Options'),
+    '#default_value' => variable_get('ffmpeg_executable_command', ' -i %audiofile %convertfile'),
+    '#description' => t('Arguments to be passed to FFMPEG. Tokens available: %audiofile - original audio filename, %convertfile - name of the converted file.')
   );
 
   $form['sox'] = array(
-          '#type' => 'fieldset',
-          '#title' => t('SOX Utility Settings'),
-          '#collapsible' => TRUE,
-          '#collapsed' => TRUE
+    '#type' => 'fieldset',
+    '#title' => t('SOX Utility Settings'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE
   );
 
   $form['sox']['sox_executable_path'] = array(
@@ -271,7 +289,7 @@ function _audioconverter_scheduler_select() {
   $i = 0;
   $result = db_query('SELECT f.fid, f.uri, f.filesize, f.filename, f.filemime, f.status FROM {audio_rendering} ar INNER JOIN {file_managed}
       f ON ar.fid = f.fid WHERE ar.fid = f.fid AND ar.status = :as AND f.status = :fs ORDER BY f.timestamp',
-         array(':as' => AUDIO_RENDERING_PENDING , ':fs' => 1) );
+    array(':as' => AUDIO_RENDERING_PENDING, ':fs' => 1));
   foreach ($result as $job) {
     $jobs[] = $job;
   }
@@ -315,23 +333,22 @@ function _audioconverter_scheduler_start($job) {
       drupal_unlink($job->uri);
     }
     // support entitycache if tables exist
-    if (db_table_exists('cache_entity_node')) {
-      $node = menu_get_object();
-      if (isset($node->nid)) {
-        cache_clear_all($node->nid, 'cache_entity_node');
-      }
+    if (module_exists('entitycache')) {
       if (db_table_exists('cache_entity_file')) {
         cache_clear_all($file->fid, 'cache_entity_file');
       }
     }
     // TODO : add data of rendering
     _audioconverter_render_job_change_status($fid, AUDIO_RENDERING_COMPLETE);
-    // clear all cache data
+    // clear all cache data 
     field_cache_clear();
-    watchdog('audioconverter', 'successfully converted %orig to %dest', array('%orig' => $job->uri, '%dest' => $file->uri), WATCHDOG_INFO);
+    watchdog('audioconverter', 'successfully converted %orig to %dest', array(
+      '%orig' => $job->uri,
+      '%dest' => $file->uri
+    ), WATCHDOG_INFO);
   }
   /*else {
-
+    
     // get the username of the process owner
     $ownerarray = posix_getpwuid(posix_getuid());
     $owner=$ownerarray['name'];
@@ -373,11 +390,11 @@ function _audioconverter_scheduler_ffmpeg_helper(&$job) {
   }
   else {
     $file = new stdClass();
-    //TODO: uid always empty, should add field to the table and store it
+    //TODO: uid always empty, should add field to the table and store it 
     global $user;
-    $file->uid      = $user->uid;
+    $file->uid = $user->uid;
     //$file->uid      = $job->uid;
-    $file->status   = FILE_STATUS_PERMANENT;
+    $file->status = FILE_STATUS_PERMANENT;
     $file->filename = basename($job->convfile);
     $file->uri = $job->uri . ".mp3";
     $file->filemime = file_get_mimetype($job->convfile);
@@ -392,14 +409,14 @@ function _audioconverter_scheduler_sox_helper(&$job) {
   $scheme = file_uri_scheme($job->uri);
   $wrapper = file_stream_wrapper_get_instance_by_scheme($scheme);
   $audiofile = file_create_url($job->uri);
-  $convfile =  getcwd(). '/'. $wrapper->getDirectoryPath() . '/' . $info['filename'] . ".mp3";
+  $convfile = getcwd() . '/' . $wrapper->getDirectoryPath() . '/' . $info['filename'] . ".mp3";
 
   $converter = variable_get('sox_executable_path', '/usr/bin/sox');
 
   $options = preg_replace(array('/%videofile/', '/%convertfile/'),
-          array($audiofile, $convfile),
-          variable_get('sox_executable_command',
-          '%videofile %convertfile'));
+    array($audiofile, $convfile),
+    variable_get('sox_executable_command',
+      '%videofile %convertfile'));
 
   // set to the converted file output
   $job->convfile = $convfile;
@@ -419,7 +436,7 @@ function _audioconverter_scheduler_sox_helper(&$job) {
   else {
     $file_name = $convfile;
     $file = new stdClass();
-    $file->status   = FILE_STATUS_PERMANENT;
+    $file->status = FILE_STATUS_PERMANENT;
     $file->filename = basename($job->convfile);
     $file->uri = $job->uri . ".mp3";
     $file->filemime = file_get_mimetype($job->convfile);
@@ -438,9 +455,9 @@ function _audio_render_load_job($fid) {
 
 function _audioconverter_render_job_change_status($fid, $status) {
   $result = db_update('audio_rendering')
-  ->fields(array('status' => $status))
-  ->condition('fid', $fid)
-  ->execute();
+    ->fields(array('status' => $status))
+    ->condition('fid', $fid)
+    ->execute();
 }
 
 function _audioconverter_file_in_queue($fid) {
@@ -450,7 +467,8 @@ function _audioconverter_file_in_queue($fid) {
 
 function audioconverter_save_file($fid) {
   //TODO: do we need pid?
-  $arr = array('fid' => $fid,
+  $arr = array(
+    'fid' => $fid,
     'pid' => 0,
     'status' => AUDIO_RENDERING_PENDING,
     'started' => 0,
@@ -461,10 +479,11 @@ function audioconverter_save_file($fid) {
 
 /* Return array of supported CCK fields */
 function audioconverter_allowed_fields() {
-    //Invoke hook_audioconverter_allowed_fields()
-    $fields=module_invoke_all('audioconverter_allowed_fields');
-    $fields[]='audiofield';
-    $fields[]='audiorecorderfield';
-    $fields[]='media_recorder';
-    return $fields;
+  //Invoke hook_audioconverter_allowed_fields()
+  $fields = module_invoke_all('audioconverter_allowed_fields');
+  $fields[] = 'audiofield';
+  $fields[] = 'audiorecorderfield';
+  $fields[] = 'media_recorder';
+  $fields[] = 'file';
+  return $fields;
 }

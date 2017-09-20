@@ -52,11 +52,9 @@ dependencies[] = special_menu_items
 ; Other
 dependencies[] = navigation404
 dependencies[] = better_formats
-dependencies[] = chosen
 dependencies[] = defaultconfig
 dependencies[] = diff
 dependencies[] = elements
-dependencies[] = fastclick
 dependencies[] = libraries
 dependencies[] = pathauto
 dependencies[] = placeholder
@@ -73,7 +71,6 @@ dependencies[] = video_filter
 dependencies[] = advagg
 dependencies[] = advagg_bundler
 dependencies[] = blockcache_alter
-dependencies[] = cis_performance_overrides
 dependencies[] = httprl
 dependencies[] = imageinfo_cache
 dependencies[] = entitycache
@@ -85,7 +82,6 @@ dependencies[] = textbook_templates
 dependencies[] = uuid
 ; User interface
 dependencies[] = addanother
-dependencies[] = back_to_top
 dependencies[] = ckeditor_link
 dependencies[] = ds
 dependencies[] = ds_forms
@@ -93,7 +89,6 @@ dependencies[] = imce
 dependencies[] = imce_crop
 dependencies[] = imce_mkdir
 dependencies[] = imce_wysiwyg
-dependencies[] = jammer
 dependencies[] = jquery_update
 dependencies[] = logintoboggan
 dependencies[] = wysiwyg
@@ -110,14 +105,12 @@ dependencies[] = features_override
 dependencies[] = elmsln_api
 dependencies[] = cis_connector
 dependencies[] = cis_service_connection
-dependencies[] = cis_service_connection_ux
 dependencies[] = cis_service_roles
 dependencies[] = cis_lmsless
 dependencies[] = cis_shortcodes
 dependencies[] = foundation_access_ux
 dependencies[] = elmsln_core
 ; ELMSLN Core - Performance
-dependencies[] = elmsln_authcache
 dependencies[] = elmsln_advagg
 
 
@@ -160,6 +153,8 @@ dependencies[] = nodeaccess_nodereference
 dependencies[] = nodeaccess_userreference
 dependencies[] = responsive_tables
 dependencies[] = unique_field
+dependencies[] = flood_control
+dependencies[] = flood_unblock
 ; Path breadcrumbs
 dependencies[] = path_breadcrumbs
 dependencies[] = subpathauto

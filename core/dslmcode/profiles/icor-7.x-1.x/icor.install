@@ -112,3 +112,24 @@ function icor_update_7008(&$sandbox) {
     ->condition('type', 'module')
     ->execute();
 }
+
+/**
+ * Simplify data model in interact.
+ */
+function icor_update_7009(&$sandbox) {
+  module_disable(array('cis_section'));
+}
+
+/**
+ * Drop legacy OG stuff as it's a performance killer
+ */
+function icor_update_7011(&$sandbox) {
+  module_disable(array('cis_service_lti'));
+  module_disable(array('lti_tool_provider_og'));
+  module_disable(array('og_access', 'og_context', 'og_ui'));
+  module_disable(array('og'));
+  drupal_uninstall_modules(array('cis_service_lti'));
+  drupal_uninstall_modules(array('lti_tool_provider_og'));
+  drupal_uninstall_modules(array('og_access', 'og_context', 'og_ui'));
+  drupal_uninstall_modules(array('og'));
+}

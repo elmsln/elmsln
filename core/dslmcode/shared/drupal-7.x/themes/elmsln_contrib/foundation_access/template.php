@@ -1,6 +1,4 @@
 <?php
-// global cdn materialize version
-define('FOUNDATION_ACCESS_MATERIALIZE_VERSION', '0.97.8');
 
 /**
  * Implements template_preprocess_user_profile.
@@ -89,11 +87,11 @@ function foundation_access_preprocess_user_profile(&$vars) {
     }
     else {
       // default fallback of design office image
-      $vars['banner'] = '<img class="background" src="' . $GLOBALS['base_url'] . '/sites/all/libraries/materialize/images/office.jpg" alt="" />';
+      $vars['banner'] = '<img class="background" src="' . base_path() . drupal_get_path('theme', 'foundation_access') . '/materialize_unwinding/images/office.jpg" alt="" />';
     }
-   // load up related user data
-    $blockObject = block_load('elmsln_core', 'elmsln_core_user_xapi_data');
-    $vars['user_data'] = _block_get_renderable_array(_block_render_blocks(array($blockObject)));
+    // load up related user data
+    //$blockObject = block_load('elmsln_core', 'elmsln_core_user_xapi_data');
+    //$vars['user_data'] = _block_get_renderable_array(_block_render_blocks(array($blockObject)));
     // load bio info into "about" tab
     $bio = '';
     if (isset($vars['user_profile']['field_bio'])) {
@@ -109,12 +107,12 @@ function foundation_access_preprocess_user_profile(&$vars) {
     // list tabs for rendering
     $vars['tabs'] = array(
       'bio' => t('About'),
-      'xapidata' => t('Activity data'),
+      //'xapidata' => t('Activity data'),
     );
     // list content for those tabs to match on key names
     $vars['tabs_content'] = array(
       'bio' => $bio,
-      'xapidata' => $vars['user_data'],
+      //'xapidata' => $vars['user_data'],
     );
   }
   else {
@@ -130,7 +128,6 @@ function foundation_access_preprocess_user_profile(&$vars) {
 /**
  * Adds CSS classes based on user roles
  * Implements template_preprocess_html().
- *
  */
 function foundation_access_preprocess_html(&$variables) {
   // find the name of the install profile
@@ -143,37 +140,27 @@ function foundation_access_preprocess_html(&$variables) {
   $variables['lmsless_classes'] = _cis_lmsless_get_distro_classes(elmsln_core_get_profile_key());
   $variables['system_title'] = (isset($settings['default_title']) ? $settings['default_title'] : $variables['distro']);
   $css = _foundation_access_contextual_colors($variables['lmsless_classes']);
-
   $variables['theme_path'] = base_path() . drupal_get_path('theme', 'foundation_access');
 
   drupal_add_css($css, array('type' => 'inline', 'group' => CSS_THEME, 'weight' => 999));
-  // elmsln icons
-  drupal_add_css(drupal_get_path('theme', 'foundation_access') . '/fonts/elmsln/elmsln-font-styles.css', array('group' => CSS_THEME, 'weight' => -1000));
   // google font / icons from google
-  drupal_add_css('//fonts.googleapis.com/css?family=Material+Icons%7CDroid+Serif:400,700,400italic,700italic%7COpen+Sans:300,600,700', array('type' => 'external', 'group' => CSS_THEME, 'weight' => 1000));
+  drupal_add_css('//fonts.googleapis.com/css?family=Material+Icons%7CDroid+Serif:400,700,400italic,700italic%7COpen+Sans:300,600,700%7CRoboto:300,400,500,700', array('type' => 'external', 'group' => CSS_THEME, 'weight' => 1000));
   $libraries = libraries_get_libraries();
   if (!_entity_iframe_mode_enabled()) {
-    if (isset($libraries['jquery.vibrate.js'])) {
-      drupal_add_js($libraries['jquery.vibrate.js'] .'/jquery.vibrate.min.js');
-      drupal_add_js(drupal_get_path('theme', 'foundation_access') . '/legacy/js/vibrate-enable.js');
-    }
     // gifs need to be done as a player for accessibility reasons
-    if (isset($libraries['jquery.vibrate.js'])) {
+    if (isset($libraries['freezeframe.js'])) {
       drupal_add_js($libraries['freezeframe.js'] .'/src/js/vendor/imagesloaded.pkgd.js');
       drupal_add_js($libraries['freezeframe.js'] .'/build/js/freezeframe.js');
       drupal_add_css($libraries['freezeframe.js'] .'/build/css/freezeframe_styles.min.css');
-      drupal_add_js(drupal_get_path('theme', 'foundation_access') . '/legacy/js/freezeframe-enable.js');
+      drupal_add_js(drupal_get_path('theme', 'foundation_access') . '/js/freezeframe-enable.js');
     }
   }
-  // see if we have it locally before serviing CDN
-  // This allows EASY CDN module to switch to CDN later if that's the intention
-  if (isset($libraries['materialize'])) {
-    drupal_add_css($libraries['materialize'] .'/css/materialize.css', array('weight' => -1000));
-    drupal_add_js($libraries['materialize'] .'/js/materialize.js', array('scope' => 'footer', 'weight' => 1000));
-  }
-  else {
-    drupal_add_css('//cdnjs.cloudflare.com/ajax/libs/materialize/' . FOUNDATION_ACCESS_MATERIALIZE_VERSION . '/css/materialize.min.css', array('type' => 'external', 'weight' => -1000));
-    drupal_add_js('//cdnjs.cloudflare.com/ajax/libs/materialize/' . FOUNDATION_ACCESS_MATERIALIZE_VERSION . '/js/materialize.min.js', array('type' => 'external', 'scope' => 'footer', 'weight' => 1000));
+  drupal_add_css(drupal_get_path('theme', 'foundation_access') . '/materialize_unwinding/css/materialize.css', array('weight' => -1000));
+  drupal_add_js(drupal_get_path('theme', 'foundation_access') . '/materialize_unwinding/js/materialize.js', array('scope' => 'footer', 'weight' => 1000));
+  // support for legacy, stock materializeCSS implementation
+  if (variable_get('materializecss_legacy', FALSE)) {
+    drupal_add_css($libraries['materialize'] . '/css/materialize.css', array('weight' => -1000));
+    drupal_add_js($libraries['materialize'] . '/js/materialize.js', array('scope' => 'footer', 'weight' => 1000));
   }
   // support for our legacy; adding in css/js for foundation; this requires a forcible override in shared_settings.php
   if (variable_get('foundation_access_legacy', FALSE)) {
@@ -198,7 +185,7 @@ function foundation_access_preprocess_html(&$variables) {
     $variables['favicon_path'] = file_create_url($variables['favicon_path']);
   }
   else {
-    $variables['favicon_path'] = $variables['theme_path'] . '/legacy/icons/elmsicons/elmsln.ico';
+    $variables['favicon_path'] = $variables['theme_path'] . '/icons/elmsicons/elmsln.ico';
   }
   $variables['banner_image'] = '';
   // build the remote banner URI, this is the best solution for an image
@@ -256,7 +243,7 @@ function foundation_access_fieldset($variables) {
         }
         // support icons in the headings of collapsed fieldsets
         if (isset($element['#materialize']['icon'])) {
-          $icon = '<i class="material-icons">' . $element['#materialize']['icon'] . '</i>';
+          $icon = '<iron-icon icon="' . $element['#materialize']['icon'] . '"></iron-icon>';
         }
         // support descriptions / form the body
         if (isset($element['#description'])) {
@@ -277,7 +264,7 @@ function foundation_access_fieldset($variables) {
         // form the fieldset as a collapse element
         $output = '
         <li class="collapsible-li">
-          <a id="collapse-item-id-' . $anchor . '" href="#collapse-item-' . $anchor . '" class="collapsible-header' . $collapse . '"' . drupal_attributes($element['#attributes']) .'><paper-button>' .
+          <a tabindex="-1" id="collapse-item-id-' . $anchor . '" href="#collapse-item-' . $anchor . '" class="collapsible-header' . $collapse . '"' . drupal_attributes($element['#attributes']) .'><paper-button>' .
             $icon . $element['#title'] .
           '</paper-button>
           </a>
@@ -285,7 +272,7 @@ function foundation_access_fieldset($variables) {
             <div class="elmsln-collapsible-body" aria-labelledby="collapse-item-id-' . $anchor . '" role="tabpanel">
               ' . $body . '
             </div>
-            <div class="divider cis-lmsless-background"></div>
+            <div class="divider"></div>
           </div>
         </li>';
       break;
@@ -358,13 +345,6 @@ function foundation_access_preprocess_page(&$variables) {
   }
   else {
     $variables['cis_shortcodes'] = '';
-  }
-  // support for entity_iframe
-  if (module_exists('entity_iframe')) {
-    $block = entity_iframe_block_view('entity_iframe_block');
-    if (!empty($block['content'])) {
-      $variables['cis_shortcodes'] .= $block['content'];
-    }
   }
   // wrap non-node content in an article tag
   if (isset($variables['page']['content']['system_main']['main'])) {
@@ -538,7 +518,7 @@ function foundation_access_file($variables) {
   _form_set_class($element, array('form-file', 'elmsln-file-input'));
   // apply classes and wrappers needed for materializecss
   return '<div class="col s12 m8 file-field input-field">
-      <div class="elmsln-file-btn-trigger btn">
+      <div class="elmsln-file-btn-trigger">
         <span>' . $element['#title'] . '</span>
         <input' . drupal_attributes($element['#attributes']) . ' />
       </div>
@@ -557,6 +537,9 @@ function foundation_access_css_alter(&$css) {
     if (strpos($path, 'modules/') === 0 && !in_array($path, array('modules/contextual/contextual.css'))) {
       unset($css[$path]);
     }
+    if ($path == 'sites/all/modules/ulmus/adminimal_admin_menu/adminimal_admin_menu.css') {
+      unset($css[$path]);
+    }
   }
 }
 
@@ -567,12 +550,11 @@ function foundation_access_button($variables) {
   $element = $variables['element'];
   $element['#attributes']['type'] = 'submit';
   element_set_attributes($element, array('id', 'name', 'value'));
-
-  $element['#attributes']['class'][] = 'form-' . $element['#button_type'];
   if (!empty($element['#attributes']['disabled'])) {
     $element['#attributes']['class'][] = 'form-button-disabled';
   }
-  $element['#attributes']['class'][] = 'btn';
+  $colors = _cis_lmsless_get_distro_classes(elmsln_core_get_profile_key());
+  $element['#attributes']['class'][] = $colors['color'] . ' ' . $colors['dark'] . ' white-text';
   // wrap classes on an upload button
   if ($variables['element']['#value'] == 'Upload') {
     return '
@@ -875,8 +857,8 @@ function foundation_access_preprocess_node__inherit__elmsmedia_image__image(&$va
       $variables['is_gif'] = TRUE;
       $variables['gif_buttons'] = '
       <div class="container">
-        <button class="start waves-effect waves-light btn col s3 blue push-s2"><i class="material-icons left">play_arrow</i>' . t('start') . '</button>
-        <button class="stop waves-effect waves-light btn col s3 red pull-s2 right"><i class="material-icons left">stop</i>' . t('stop') . '</button>
+        <button class="start col s3 blue push-s2"><i class="material-icons left">play_arrow</i>' . t('start') . '</button>
+        <button class="stop col s3 red pull-s2 right"><i class="material-icons left">stop</i>' . t('stop') . '</button>
       </div>';
     }
     // alt/title info
@@ -1061,6 +1043,11 @@ function foundation_access_preprocess_node__inherit__image_gallery__image(&$vari
 function foundation_access_preprocess_node__inherit__svg(&$variables) {
   $variables['svg_aria_hidden'] = 'false';
   $variables['svg_alttext'] = NULL;
+  $variables['svg_lightbox_url'] = '';
+  // support lightboxing this if mode looks for it
+  if (strpos($variables['view_mode'], 'lightboxed')) {
+    $variables['svg_lightbox_url'] = file_create_url($variables['field_svg'][0]['uri']);
+  }
   $node_wrapper = entity_metadata_wrapper('node', $variables['node']);
   try {
     // if there is an accessbile text alternative then set the svg to aria-hidden
@@ -1102,17 +1089,8 @@ function foundation_access_preprocess_clipboardjs(&$variables) {
   $variables['content']['text']['markup'] = array(
     '#markup' => $variables['text'],
   );
-
   $variables['content']['button'] = array(
-    '#type' => 'button',
-    '#value' => check_plain($variables['button_label']),
-    '#attributes' => array(
-      'class' => array('clipboardjs-button', 'zmdi', 'zmdi-copy'),
-      'data-clipboard-alert' => 'toast',
-      'data-clipboard-alert-text' => $variables['alert_text'],
-      'data-clipboard-target' => '#' . $uniqid,
-      'onClick' => 'return false;',
-    ),
+    '#markup' => '<button title="' . t('Copy content') . '" class="clipboardjs-button" data-clipboard-alert="toast" data-clipboard-alert-text="' . $variables['alert_text'] . '" data-clipboard-target="#' . $uniqid . '" onclick="return false;"><iron-icon icon="content-copy" style="display:block;"></iron-icon></button>',
   );
 }
 
@@ -1128,6 +1106,51 @@ function foundation_access_menu_local_tasks(&$variables) {
     $output .= drupal_render($variables['secondary']);
   }
   return $output;
+}
+
+/**
+ * Implements template_link.
+ */
+function foundation_access_link(&$variables) {
+  $path = $variables['path'];
+  $text = $variables['text'];
+  $options = $variables['options'];
+  // support for lrn icon
+  if ($variables['options']['fa_icon'] && !isset($variables['options']['identifier'])) {
+    $options['html'] = TRUE;
+    $text = '<lrn-icon icon="' . $variables['options']['fa_icon'] . '"></lrn-icon>' . $text;
+  }
+  // support for has-children chevron
+  if (isset($variables['options']['has-children']) && $variables['options']['has-children']) {
+    $options['attributes']['icon'] = 'chevron-right';
+  }
+  return _foundation_access_lrnsys_button($text, $path, $options);
+}
+
+/**
+ * Shortcut to correctly render a lrnsys-button tag.
+ * @param  string $label   button label
+ * @param  string $path    href / location
+ * @param  array $options  array of options typically passed into l()
+ * @return string          a rendered button
+ */
+function _foundation_access_lrnsys_button($label, $path, $options) {
+  // good thing for static caching
+  if (!isset($options['attributes']['hover-class'])) {
+    $colors = _cis_lmsless_get_distro_classes(elmsln_core_get_profile_key());
+    $options['attributes']['hover-class'] = $colors['color'] . ' ' . $colors['dark'] . ' white-text';
+  }
+  // support links without a path
+  if ($path != NULL) {
+    $options['attributes']['href'] = check_plain(url($path, $options));
+  }
+  // if HTML is set to true then we can't handle this at the moment
+  if ($options['html']) {
+    return '<lrnsys-button ' . drupal_attributes($options['attributes']) . '>' . $label . '</lrnsys-button>';
+  }
+  else {
+    return '<lrnsys-button label="' . check_plain($label) . '" ' . drupal_attributes($options['attributes']) . '></lrnsys-button>';
+  }
 }
 
 /**
@@ -1156,8 +1179,6 @@ function foundation_access_menu_link(&$variables) {
       $element['#localized_options']['query']['elmsln_course'] = _cis_connector_course_context();
       $element['#localized_options']['query']['elmsln_section'] = _cis_connector_section_context();
     }
-    $element['#localized_options']['attributes']['class'][] = 'btn-floating';
-    $element['#localized_options']['attributes']['class'][] = 'elmsln-btn-floating';
     // load up a map of icons and color associations
     $icon_map = _elmsln_core_icon_map();
     $icon = str_replace(' ', '_', drupal_strtolower($title));
@@ -1173,16 +1194,14 @@ function foundation_access_menu_link(&$variables) {
       else {
         $textcolor = 'white-text';
       }
-      $element['#localized_options']['attributes']['class'][] = $icon_map[$icon]['color'];
-      $element['#localized_options']['attributes']['class'][] = 'darken-3';
-      $title = '<i class="material-icons ' . $textcolor . ' left">' . $icon_map[$icon]['icon'] . '</i>' . $title;
+      $title = '<lrnapp-fab-speed-dial-action icon="' . $icon_map[$icon]['icon'] . '" color="' . $icon_map[$icon]['color'] . '">' . $title . '</lrnapp-fab-speed-dial-action>';
       $element['#localized_options']['html'] = TRUE;
     }
     else {
       $lmsless_classes = _cis_lmsless_get_distro_classes(elmsln_core_get_profile_key());
       $element['#localized_options']['attributes']['class'][] = $lmsless_classes['color'];
-      $element['#localized_options']['attributes']['class'][] = 'black-text';
-      $element['#localized_options']['attributes']['class'][] = $lmsless_classes['light'];
+      $element['#localized_options']['attributes']['class'][] = 'white-text';
+      $element['#localized_options']['attributes']['class'][] = $lmsless_classes['dark'];
     }
   }
   elseif ($element['#original_link']['menu_name'] == 'menu-elmsln-navigation') {
@@ -1194,7 +1213,8 @@ function foundation_access_menu_link(&$variables) {
   elseif (strpos($element['#original_link']['menu_name'], 'book-toc-') === 0) {
     $element['#attributes']['class'][] = 'elmsln-book-item';
     if ($element['#original_link']['has_children'] == 1) {
-      $element['#attributes']['class'][] = 'has-children';
+      $element['#localized_options']['has-children'] = TRUE;
+      $element['#localized_options']['attributes']['class'][] = 'has-children';
     }
     elseif (isset($element['#original_link']['options']['fa_icon']) && !empty($element['#original_link']['options']['fa_icon'])) {
       // overview page renders differently for full screen mode
@@ -1263,26 +1283,6 @@ function foundation_access_preprocess_book_sibling_nav(&$variables) {
 }
 
 /**
- * Helper to generate a menu link in a consistent way at the bottom.
- */
-function _foundation_access_single_menu_link($element) {
-  $options = $element['#localized_options'];
-  $options['html'] = TRUE;
-  $title = check_plain($element['#title']);
-  // ensure class array is at least set
-  if (empty($element['#attributes']['class'])) {
-    $element['#attributes']['class'] = array();
-  }
-  $classes = implode(' ', $element['#attributes']['class']);
-  $options['attributes']['class'] = $element['#attributes']['class'];
-  $icon = 'page';
-  if (isset($options['fa_icon'])) {
-    $icon = $options['fa_icon'];
-  }
-  return '<li>' . l($title, $element['#href'], $options) . '</li>';
-}
-
-/**
  * Callback to do most of the work for rendering a nested slide out menu
  * @return string             rendered html structure for this menu
  */
@@ -1300,67 +1300,15 @@ function _foundation_access_menu_outline($variables, $word = FALSE, $number = FA
   if ($element['#href'] == '<nolink>') {
     $output = '<a href="#menu-no-link-' . hash('md5', 'mnl' . $title) . '">' . $title . '</a>';
   }
-  // account for sub menu things being rendered differently
-  if (empty($sub_menu)) {
-    // ending element
-    $return .= _foundation_access_single_menu_link($element);
+  $options = $element['#localized_options'];
+  $options['html'] = TRUE;
+  // ensure class array is at least set
+  if (empty($element['#attributes']['class'])) {
+    $element['#attributes']['class'] = array();
   }
-  else {
-    // ensure class array is at least set
-    if (empty($element['#attributes']['class'])) {
-      $element['#attributes']['class'] = array();
-    }
-    // active trail set classes based on that since its a core class
-    if (in_array('active-trail', $element['#attributes']['class'])) {
-      $element['#attributes']['class'][] = 'expanded';
-      $element['#attributes']['class'][] = 'active';
-    }
-    // calculate relative depth
-    $depth = $element['#original_link']['depth'] - 2;
-    // generate a short name
-    $short = preg_replace('/[^a-zA-Z0-9]/', '', strtolower($title)) . '-' . $element['#original_link']['mlid'];
-    // extract nid
-    $nid = str_replace('node/', '', $element['#href']);
-    // test for active class, meaning this should be expanded by default
-    if ($element['#original_link']['p3'] == 0) {
-      $return .= '
-      <li class="has-submenu level-' . $depth . '-top ' . implode(' ', $element['#attributes']['class']) . '">' . "\n" .
-      '<a href="#' . $short . '-panel">' . "\n";
-      $labeltmp = _foundation_access_auto_label_build($word, $number, $counter);
-      if (!empty($labeltmp)) {
-        $return .= '<h2>' . $labeltmp . '</h2>' . "\n";
-      }
-      $return .= '<h3>' . $title . '</h3>' . "\n" .
-      '</a>' . "\n" .
-      '<ul class="left-submenu level-' . $depth . '-sub">'  . "\n" .
-      '<div>'  . "\n";
-      $labeltmp = _foundation_access_auto_label_build($word, $number, $counter);
-      if (!empty($labeltmp)) {
-        $return .= '<h2>' . $labeltmp . '</h2>' . "\n";
-      }
-      $return .= '<h3>' . _foundation_access_single_menu_link($element) . '</h3>' . "\n" .
-      '</div>'  . "\n" .
-      '<li class="back">'  . "\n" .
-      '<a href="#fa-back" class="kill-content-before middle-align-wrap center-align-wrap"><div class="icon-arrow-left-black back-arrow-left-btn"></div><span>' . t('Back') . '</span></a></li>' . "\n" .
-      $sub_menu . "\n</ul>\n</li>";
-      $counter++;
-    }
-    else {
-      $return ='<li class="has-submenu level-' . $depth . '-top ' . implode(' ', $element['#attributes']['class']) . '"><a href="#elmsln-menu-sub-level-' . hash('md5', 'emsl' . $title) . '"><span class="outline-nav-text">' . $title . '</span></a>' . "\n" .
-      '<ul class="left-submenu level-' . $depth . '-sub">'  . "\n" .
-      '<div>'  . "\n";
-      $labeltmp = _foundation_access_auto_label_build($word, $number, $counter);
-      if (!empty($labeltmp)) {
-        $return .= '<h2>' . $labeltmp . '</h2>' . "\n";
-      }
-      $return .= '<h3>' . _foundation_access_single_menu_link($element) . '</h3>' . "\n" .
-      '</div>'  . "\n" .
-      '<li class="back">'  . "\n" .
-      '<a href="#fa-back" class="kill-content-before middle-align-wrap center-align-wrap"><div class="icon-arrow-left-black back-arrow-left-btn"></div><span>' . t('Back') . '</span></a></li>' . "\n" .
-      $sub_menu . "\n</ul>\n</li>";
-    }
-  }
-  return $return;
+  $classes = implode(' ', $element['#attributes']['class']);
+  $options['attributes']['class'] = $element['#attributes']['class'];
+  return '<li>' . l($title, $element['#href'], $options) . '</li>';
 }
 
 /**
@@ -1433,27 +1381,13 @@ function foundation_access_html_head_alter(&$head_elements) {
   if ($args[0] == 'book' && $args[1] = 'export' && $args[2] == 'html') {
     $path = base_path() . drupal_get_path('theme', 'foundation_access') . '/';
     $css = array(
-      $path . 'legacy/icons/faccess-icons/output/icons.data.svg.css',
-      $path . 'legacy/bower_components/material-design-iconic-font/dist/css/material-design-iconic-font.min.css',
-      $path . 'legacy/css/system.base.css',
-      $path . 'legacy/css/app.css',
-      $path . 'legacy/css/normalize.css',
-      $path . 'legacy/css/comparison.css',
-      $path . 'app/dist/css/styles.css',
-      $path . 'css/tweaks.css',
+      $path . 'css/system.base.css',
+      $path . 'css/main.css',
       $path . 'fonts/elmsln/elmsln-font-styles.css',
-      '//fonts.googleapis.com/css?family=Material+Icons|Droid+Serif:400,700,400italic,700italic|Open+Sans:300,600,700)',
+      '//fonts.googleapis.com/css?family=Material+Icons%7CDroid+Serif:400,700,400italic,700italic%7COpen+Sans:300,600,700%7CRoboto:300,400,500,700)',
 
     );
-    $libraries = libraries_get_libraries();
-    // see if we have it locally before serviing CDN
-    // This allows EASY CDN module to switch to CDN later if that's the intention
-    if (isset($libraries['materialize'])) {
-      $css[] = base_path() . $libraries['materialize'] . '/css/materialize.css';
-    }
-    else {
-      $css[] = '//cdnjs.cloudflare.com/ajax/libs/materialize/' . FOUNDATION_ACCESS_MATERIALIZE_VERSION . '/css/materialize.min.css';
-    }
+    $css[] = $path . 'materialize_unwinding/css/materialize.css';
     // parse returned locations array and manually add to html head
     foreach ($css as $key => $file) {
       $head_elements['fa_print_' . $key] = array(
@@ -1521,7 +1455,7 @@ function foundation_access_form_page_node_form_alter(&$form, &$form_state) {
   // support for images in significance dropdown
   $form['field_instructional_significance']['und']['#materialize'] = array(
     'class' => 'left',
-    'icon_path' => drupal_get_path('theme', 'foundation_access') . '/legacy/icons/pedagogy/',
+    'icon_path' => drupal_get_path('theme', 'foundation_access') . '/icons/pedagogy/',
   );
 }
 
@@ -1616,7 +1550,6 @@ function foundation_access_pager($variables) {
               'interval' => ($pager_current - $i),
               'parameters' => $parameters,
             )),
-            'class' => array('waves-effect', 'cis-lmsless-waves', 'cis-lmsless-background'),
           );
         }
         if ($i == $pager_current) {
@@ -1633,7 +1566,6 @@ function foundation_access_pager($variables) {
               'interval' => ($i - $pager_current),
               'parameters' => $parameters,
             )),
-            'class' => array('waves-effect', 'cis-lmsless-waves', 'cis-lmsless-background'),
           );
         }
       }
@@ -1678,51 +1610,43 @@ function foundation_access_status_messages($variables) {
   $display = $variables['display'];
   $output = '';
 
-  $status_heading = array(
-    'error' => t('Error message'),
-    'status' => t('Status message'),
-    'warning' => t('Warning message'),
-    'notification' => t('Notification message'),
-  );
-
   $status_mapping = array(
-    'error' => 'alert',
-    'status' => 'success',
-    'warning' => 'secondary'
+    'error' => array(
+      'icon' => 'error',
+      'color' => 'red darken-4 white-text',
+      'heading' => t('Errors'),
+    ),
+    'warning' => array(
+      'icon' => 'warning',
+      'color' => 'yellow darken-4 white-text',
+      'heading' => t('Warnings'),
+    ),
+    'status' => array(
+      'icon' => 'info',
+      'color' => 'green darken-4 white-text',
+      'heading' => t('Notifications'),
+    ),
   );
-
   foreach (drupal_get_messages($display) as $type => $messages) {
-    if ($type == 'notification') {
-      foreach($messages as $message) {
-        _foundation_access_make_toast($message);
+    if (!empty($status_mapping[$type])) {
+      $output .= '<h2 class="alert-heading ' . $status_mapping[$type]['color'] . '"><iron-icon icon="' . $status_mapping[$type]['icon'] . '" class="status-icon"></iron-icon>' . $status_mapping[$type]['heading'] . '</h2>';
+    }
+    $output .= "<div role=\"alert\" aria-live=\"assertive\" data-alert class=\"alert-box\">";
+    if (count($messages) > 1) {
+      $output .= " <ul class=\"no-bullet top-level\">\n";
+      foreach ($messages as $message) {
+        $output .= '  <li>' . $message . "</li>\n";
       }
+      $output .= " </ul>\n";
     }
     else {
-      if (isset($status_mapping[$type])) {
-        $output .= "<div role=\"alert\" aria-live=\"assertive\" data-alert class=\"alert-box $status_mapping[$type]\">\n";
-      }
-      else {
-        $output .= "<div role=\"alert\" aria-live=\"assertive\" data-alert class=\"alert-box\">\n";
-      }
-
-      if (!empty($status_heading[$type])) {
-        $output .= '<h2 class="element-invisible">' . $status_heading[$type] . "</h2>\n";
-      }
-      if (count($messages) > 1) {
-        $output .= " <ul class=\"no-bullet\">\n";
-        foreach ($messages as $message) {
-          $output .= '  <li>' . $message . "</li>\n";
-        }
-        $output .= " </ul>\n";
-      }
-      else {
-        $output .= $messages[0];
-      }
-      $output .= '<a href="#close-dialog" class="close" aria-label="' . t('Hide messages') . '" data-voicecommand="hide messages" data-jwerty-key="Esc">&#215;</a>';
-      $output .= "</div>\n";
+      $output .= $messages[0];
     }
+    $output .= "</div>\n";
   }
-  return $output;
+  if (!empty($output)) {
+    return _foundation_access_make_toast($output);
+  }
 }
 
 /**
@@ -1732,14 +1656,7 @@ function foundation_access_status_messages($variables) {
  *   Materialize.toast(message, displayLength, className, completeCallback);
  */
 function _foundation_access_make_toast($message, $display_length = 4000, $class_name = NULL, $callback = NULL) {
-  if ($message) {
-    drupal_add_js(
-      'jQuery(document).ready(function () { Materialize.toast("'. htmlspecialchars($message) .'", "'. $display_length .'", "'. $class_name.'", "'. $callback .'") });',
-      array(
-        'type' => 'inline',
-      )
-    );
-  }
+  return '<paper-toast id="toastdrawer" class="fit-bottom" opened duration="0"><div class="paper-toast-label">' . t('Message center') . '<paper-button onclick="toastdrawer.toggle()" class="red darken-4 white-text close-button">' . t('Close') . '</paper-button></div><div class="toast-content-container">' . $message . '</div></paper-toast>';
 }
 
 /**
@@ -1804,7 +1721,7 @@ function foundation_access_pager_link($variables) {
   else {
     $output = check_plain($text);
   }
-  return '<a' . drupal_attributes($attributes) . '>' . $output . '</a>';
+  return '<a tabindex="-1" ' . drupal_attributes($attributes) . '><paper-button>' . $output . '</paper-button></a>';
 }
 
 /**
@@ -1899,50 +1816,13 @@ function _foundation_access_svg_whitelist_tags() {
 }
 
 /**
- * Converts youtube / vimeo URLs into things we can embed
- * @param  string $video_url a well formed youtube/vimeo direct URL.
- * @return string            the address that's valid for embed codes.
- */
-function _foundation_access_video_url($video_url) {
-  // account for the broken form of embed code from youtube
-  if (strpos($video_url, 'youtube') && !strpos($video_url, 'embed')) {
-    $tmp = drupal_parse_url($video_url);
-    $yvid = '';
-    // check for youtube url vs embed
-    if (isset($tmp['query']['v'])) {
-      $yvid = $tmp['query']['v'];
-      return 'https://www.youtube.com/embed/' . $yvid;
-    }
-  }
-  // account for the broken form of embed code from vimeo
-  if (strpos($video_url, 'vimeo') && !strpos($video_url, 'player')) {
-    // rip out from embed based url
-    $vpath = explode('/', $video_url);
-    $part = array_pop($vpath);
-    // drop the autoplay property cause it conflicts with what we're doing
-    $part = str_replace('autoplay=1', '', $part);
-    return 'https://player.vimeo.com/video/' . $part;
-  }
-  // didn't know what to do or it was already well formed
-  return $video_url;
-}
-
-/**
  * Implementation of hook_wysiwyg_editor_settings_alter().
  */
 function foundation_access_wysiwyg_editor_settings_alter(&$settings, $context) {
   // google font / icons from google
-  $settings['contentsCss'][] = '//fonts.googleapis.com/css?family=Material+Icons|Droid+Serif:400,700,400italic,700italic|Open+Sans:300,600,700)';
+  $settings['contentsCss'][] = '//fonts.googleapis.com/css?family=Material+Icons|Droid+Serif:400,700,400italic,700italic|Open+Sans:300,600,700%7CRoboto:300,400,500,700)';
   // bring in materialize
-  $libraries = libraries_get_libraries();
-  // see if we have it locally before serviing CDN
-  // This allows EASY CDN module to switch to CDN later if that's the intention
-  if (isset($libraries['materialize'])) {
-    $settings['contentsCss'][] = base_path() . $libraries['materialize'] .'/css/materialize.css';
-  }
-  else {
-    $settings['contentsCss'][] = '//cdnjs.cloudflare.com/ajax/libs/materialize/' . FOUNDATION_ACCESS_MATERIALIZE_VERSION . '/css/materialize.min.css';
-  }
+  $settings['contentsCss'][] = base_path() . drupal_get_path('theme', 'foundation_access') . '/materialize_unwinding/css/materialize.css';
   $lmsless_classes = _cis_lmsless_get_distro_classes(elmsln_core_get_profile_key());
   $css = _foundation_access_contextual_colors($lmsless_classes);
   $settings['contentsCss'][] = $css;
@@ -1972,25 +1852,7 @@ function foundation_access_wysiwyg_editor_settings_alter(&$settings, $context) {
 function _foundation_access_contextual_colors($lmsless_classes) {
   // loop through our system specific colors
   $colors = array('primary', 'secondary', 'required', 'optional');
-  $css = '
-  .pagination li.active,
-  ul.pagination li:hover a, ul.pagination li a:focus, ul.pagination li:hover button, ul.pagination li button:focus {
-    color: ' . $lmsless_classes['code_text'] . ';
-    background-color: ' . $lmsless_classes['code'] . '
-  }
-  .btn,
-  .btn-large {
-    background-color: ' . $lmsless_classes['code_text'] . ';
-  }
-  .dropdown-content li > a, .dropdown-content li > span,
-  form.node-form div.field-group-htabs-wrapper .horizontal-tabs a.fieldset-title,
-  a {
-    color: ' . $lmsless_classes['code_text'] . ';
-  }
-  [type="checkbox"]:checked + label:before {
-    border-right: 2px solid ' . $lmsless_classes['code_text'] . ';
-    border-bottom: 2px solid ' . $lmsless_classes['code_text'] . ';
-  }';
+  $css = '';
   foreach ($colors as $current) {
     $color = theme_get_setting('foundation_access_' . $current . '_color');
     // allow other projects to override the FA colors
@@ -2002,7 +1864,7 @@ function _foundation_access_contextual_colors($lmsless_classes) {
       // specialized additions for each wheel value
       switch ($current) {
         case 'primary':
-          $css .= ".etb-book h1,.etb-book h2 {color: $color;}";
+          $css .= ".etb-book h1,.etb-book h2,h1#page-title,h2#page-title {color: $color;}";
         break;
         case 'secondary':
           $css .= ".etb-book h3,.etb-book h4,.etb-book h5 {color: $color;}";
@@ -2017,6 +1879,17 @@ function _foundation_access_contextual_colors($lmsless_classes) {
     }
   }
   return $css;
+}
+
+/**
+ * Remove white space from what's returned
+ */
+function _foundation_access_drop_whitespace($content) {
+  // don't do it for user 1
+  if ($GLOBALS['user']->uid == 1) {
+    return $content;
+  }
+  return preg_replace('~>\s+<~', '><', $content);
 }
 
 /**

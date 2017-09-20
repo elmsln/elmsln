@@ -21,6 +21,7 @@ function cis_distro_integrations_cis_service_instance_courses_options_alter(&$op
 function cis_distro_integrations_cis_service_instance_studio_options_alter(&$options, $course, $service) {
   // CLE should default to our latest version as 1.x is legacy
   $options['field_distribution'] = 'cle__2';
+  $options['fr'][] = 'cle_perms';
 }
 
 /**
@@ -66,7 +67,6 @@ function cis_distro_integrations_cis_service_instance_blog_options_alter(&$optio
   // revert these features that always need reverted
   $options['fr'][] = 'cis_service_lti';
   $options['fr'][] = 'cis_section';
-  $options['fr'][] = 'cis_service_connection_ux';
 }
 
 /**
@@ -80,5 +80,5 @@ function cis_distro_integrations_cis_service_instance_discuss_options_alter(&$op
   // revert these features that always need reverted
   $options['fr'][] = 'cis_service_lti';
   $options['fr'][] = 'cis_section';
-  $options['fr'][] = 'cis_service_connection_ux';
+
 }

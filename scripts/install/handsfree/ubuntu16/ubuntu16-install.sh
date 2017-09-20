@@ -46,7 +46,7 @@ apt-get -y install apache2
 apt-get -y install sendmail uuid uuid-runtime curl policycoreutils unzip patch git nano gcc make mcrypt
 
 #install php
-apt-get -y install php php-fpm php-common php-mysql php-ldap php-cgi php-pear php-mbstring php-zip php-xml-parser php-curl php-gd php-cli php-fpm php-apcu php-dev php-mcrypt mcrypt
+apt-get -y install php php-fpm php-common php-mysql php-ldap php-cgi php-pear php7.0-mbstring php7.0-zip php-xml-parser php-curl php-gd php-cli php-fpm php-apcu php-dev php-mcrypt mcrypt
 a2enmod proxy_fcgi setenvif
 a2enconf php7.0-fpm
 

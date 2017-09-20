@@ -65,7 +65,7 @@ class H5PDrupal implements H5PFrameworkInterface {
    * Implements setErrorMessage
    */
   public function setErrorMessage($message) {
-    if (user_access('create h5p_content content')) {
+    if (user_access('create h5p_content content') || drupal_is_cli()) {
       drupal_set_message($message, 'error');
     }
   }
@@ -74,7 +74,7 @@ class H5PDrupal implements H5PFrameworkInterface {
    * Implements setInfoMessage
    */
   public function setInfoMessage($message) {
-    if (user_access('create h5p_content content')) {
+    if (user_access('create h5p_content content') || drupal_is_cli()) {
       drupal_set_message($message);
     }
   }

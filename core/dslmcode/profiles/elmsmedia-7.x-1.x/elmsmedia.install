@@ -254,3 +254,80 @@ function elmsmedia_update_7021(&$sandbox) {
   features_revert_module('elmsmedia_section_perms');
   features_revert_module('elmsmedia_view_mode_tabs');
 }
+
+/**
+ * If we don't set this manually then we'll get
+ * hand off issues with the file system on the data- domain
+ */
+function elmsmedia_update_7022(&$sandbox) {
+  $cfg = _elmsln_core_get_cfg();
+  variable_set('file_public_path', 'sites/media/' . $cfg['host'] . '/files');
+}
+
+/**
+ * SVG filter updated to allow gradients and citation fields added.
+ */
+function elmsmedia_update_7023(&$sandbox) {
+  features_revert_module('elmsmedia_audio');
+  features_revert_module('elmsmedia_document');
+  features_revert_module('elmsmedia_external_video');
+  features_revert_module('elmsmedia_image');
+  features_revert_module('elmsmedia_image_gallery');
+  features_revert_module('elmsmedia_list');
+  features_revert_module('elmsmedia_svg');
+  features_revert_module('elmsmedia_video');
+}
+
+/**
+ * Data model simplification.
+ */
+function elmsmedia_update_7024(&$sandbox) {
+  features_revert_module('elmsmedia_audio');
+  features_revert_module('elmsmedia_document');
+  features_revert_module('elmsmedia_external_video');
+  features_revert_module('elmsmedia_image');
+  features_revert_module('elmsmedia_image_gallery');
+  features_revert_module('elmsmedia_list');
+  features_revert_module('elmsmedia_svg');
+  features_revert_module('elmsmedia_static_content');
+  features_revert_module('elmsmedia_video');
+  features_revert_module('elmsmedia_feature');
+  features_revert_module('elmsmedia_figure_label');
+  features_revert_module('elmsmedia_h5p');
+  module_disable(array('cis_section', 'elmsmedia_section_perms'));
+}
+
+/**
+ * Data model simplification.
+ */
+function elmsmedia_update_7025(&$sandbox) {
+  $modules = array(
+    'elmsmedia_section_perms',
+    'foundation_access_viewmodes',
+  );
+  db_delete('system')
+    ->condition('name', $modules, 'IN')
+    ->condition('type', 'module')
+    ->execute();
+}
+
+/**
+ * Brings lightbox to SVG.
+ */
+function elmsmedia_update_7026(&$sandbox) {
+  features_revert_module('elmsmedia_view_mode_tabs');
+}
+
+/**
+ * Drop legacy OG stuff as it's a performance killer
+ */
+function elmsmedia_update_7027(&$sandbox) {
+  module_disable(array('cis_service_lti'));
+  module_disable(array('lti_tool_provider_og'));
+  module_disable(array('og_access', 'og_context', 'og_ui'));
+  module_disable(array('og'));
+  drupal_uninstall_modules(array('cis_service_lti'));
+  drupal_uninstall_modules(array('lti_tool_provider_og'));
+  drupal_uninstall_modules(array('og_access', 'og_context', 'og_ui'));
+  drupal_uninstall_modules(array('og'));
+}

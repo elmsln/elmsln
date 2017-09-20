@@ -43,14 +43,14 @@ function search_views_data() {
       'left_table' => 'search_index',
       'left_field' => 'sid',
       'field' => 'sid',
-      'extra' => 'search_index.type = search_dataset.type',
+      'extra' => array('search_index.type = search_dataset.type'),
       'type' => 'INNER',
     ),
     'users' => array(
       'left_table' => 'search_index',
       'left_field' => 'sid',
       'field' => 'sid',
-      'extra' => 'search_index.type = search_dataset.type',
+      'extra' => array('search_index.type = search_dataset.type'),
       'type' => 'INNER',
     ),
   );

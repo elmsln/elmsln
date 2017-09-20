@@ -66,6 +66,7 @@ H5PEditor.language.core = {
   removeItem: 'Item verwijderen',
   hubPanelLabel: 'Selecteer content type',
   importantInstructions: 'Belangrijke instructies',
+  showImportantInstructions: 'Show instructions',
   hideImportantInstructions: 'Verberg belangrijke instructies',
   hide: 'Verberg',
   example: 'Voorbeeld',

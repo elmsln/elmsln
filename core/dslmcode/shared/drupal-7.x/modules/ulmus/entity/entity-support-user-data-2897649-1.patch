@@ -1,0 +1,32 @@
+diff --git a/modules/callbacks.inc b/modules/callbacks.inc
+index ee156ab..bbd23ad 100644
+--- a/modules/callbacks.inc
++++ b/modules/callbacks.inc
+@@ -374,6 +374,9 @@ function entity_metadata_user_get_properties($account, array $options, $name, $e
+     case 'roles':
+       return isset($account->roles) ? array_keys($account->roles) : array();
+ 
++    case 'data':
++      return isset($account->data) ? $account->data : array();
++
+     case 'theme':
+       return empty($account->theme) ? variable_get('theme_default', 'bartik') : $account->theme;
+   }
+diff --git a/modules/user.info.inc b/modules/user.info.inc
+index 67a62b5..3e5eec5 100644
+--- a/modules/user.info.inc
++++ b/modules/user.info.inc
+@@ -97,6 +97,13 @@ function entity_metadata_user_entity_property_info() {
+     'access callback' => 'entity_metadata_user_properties_access',
+     'schema field' => 'status',
+   );
++  $properties['data'] = array(
++    'label' => t("Data"),
++    'description' => t("A generic local data serialized property."),
++    'getter callback' => 'entity_metadata_user_get_properties',
++    'access callback' => 'entity_metadata_user_properties_access',
++    'schema field' => 'data',
++  );
+   $properties['theme'] = array(
+     'label' => t("Default theme"),
+     'description' => t("The user's default theme."),

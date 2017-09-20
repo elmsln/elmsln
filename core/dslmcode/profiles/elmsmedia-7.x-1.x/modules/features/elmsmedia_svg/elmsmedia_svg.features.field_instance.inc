@@ -22,6 +22,7 @@ function elmsmedia_svg_field_default_field_instances() {
         'module' => 'entityreference',
         'settings' => array(
           'links' => 0,
+          'use_content_language' => TRUE,
           'view_mode' => 'iframe',
         ),
         'type' => 'entityreference_entity_view',
@@ -167,9 +168,7 @@ function elmsmedia_svg_field_default_field_instances() {
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(
-        'apply_chosen' => '',
-      ),
+      'settings' => array(),
       'type' => 'options_select',
       'weight' => 0,
     ),
@@ -269,6 +268,7 @@ function elmsmedia_svg_field_default_field_instances() {
         'module' => 'entityreference',
         'settings' => array(
           'links' => 0,
+          'use_content_language' => TRUE,
           'view_mode' => 'iframe',
         ),
         'type' => 'entityreference_entity_view',
@@ -279,6 +279,7 @@ function elmsmedia_svg_field_default_field_instances() {
         'module' => 'entityreference',
         'settings' => array(
           'links' => 1,
+          'use_content_language' => TRUE,
           'view_mode' => 'default',
         ),
         'type' => 'entityreference_entity_view',
@@ -298,6 +299,7 @@ function elmsmedia_svg_field_default_field_instances() {
         'module' => 'entityreference',
         'settings' => array(
           'links' => 1,
+          'use_content_language' => TRUE,
           'view_mode' => 'figurelabel',
         ),
         'type' => 'entityreference_entity_view',
@@ -594,112 +596,6 @@ function elmsmedia_svg_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-svg-og_group_ref'.
-  $field_instances['node-svg-og_group_ref'] = array(
-    'bundle' => 'svg',
-    'default_value' => NULL,
-    'default_value_function' => 'entityreference_prepopulate_field_default_value',
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'accessible_fallback' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 4,
-      ),
-      'default' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 6,
-      ),
-      'full' => array(
-        'label' => 'above',
-        'module' => 'entityreference',
-        'settings' => array(
-          'link' => 1,
-        ),
-        'type' => 'entityreference_label',
-        'weight' => 9,
-      ),
-      'mediasvg' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 4,
-      ),
-      'teaser' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'og_group_ref',
-    'label' => 'Section',
-    'required' => 0,
-    'settings' => array(
-      'authcache' => array(
-        'clients' => array(
-          'authcache_ajax' => array(
-            'status' => 1,
-            'weight' => 0,
-          ),
-        ),
-        'fallback' => 'cancel',
-        'lifespan' => 3600,
-        'perpage' => 0,
-        'peruser' => 1,
-        'status' => 0,
-      ),
-      'behaviors' => array(
-        'og_widget' => array(
-          'access_override' => 0,
-          'admin' => array(
-            'widget_type' => 'entityreference_autocomplete',
-          ),
-          'default' => array(
-            'widget_type' => 'options_select',
-          ),
-          'status' => TRUE,
-        ),
-        'prepopulate' => array(
-          'action' => 'none',
-          'action_on_edit' => 0,
-          'fallback' => 'none',
-          'providers' => array(
-            'og_context' => 0,
-            'url' => 1,
-          ),
-          'skip_perm' => 0,
-          'status' => 1,
-        ),
-      ),
-      'user_register_form' => FALSE,
-    ),
-    'view modes' => array(
-      'full' => array(
-        'custom settings' => FALSE,
-        'label' => 'Full',
-        'type' => 'og_list_default',
-      ),
-      'teaser' => array(
-        'custom settings' => FALSE,
-        'label' => 'Teaser',
-        'type' => 'og_list_default',
-      ),
-    ),
-    'widget' => array(
-      'active' => 0,
-      'module' => 'og',
-      'settings' => array(),
-      'type' => 'og_complex',
-      'weight' => 8,
-    ),
-  );
-
   // Translatables
   // Included for use with string extractors like potx.
   t('Accessible fallback');
@@ -709,7 +605,6 @@ function elmsmedia_svg_field_default_field_instances() {
   t('Does this item reflect achievement in pursuit of a course competency? Set this for critical events / learning objectives to send additional xAPI metadata for tracking student progression toward learning this competency.');
   t('Figure Label');
   t('SVG');
-  t('Section');
   t('Tagging media can make it easier to find after the fact. This is used for searching and filtering.');
   t('Tags');
   t('Use this text area if the included SVG needs alternative text description.  If text is included in this field, the SVG will be hidden from screen readers and text will be read from this field.');

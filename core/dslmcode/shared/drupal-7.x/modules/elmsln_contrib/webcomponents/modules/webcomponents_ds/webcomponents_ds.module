@@ -23,7 +23,6 @@ function webcomponents_ds_ds_layout_info() {
       // load the webcomponent
       $layouts['webcomponent--' . $component->machine_name] = array(
         'label' => $component->title,
-        // @todo this needs to load the generic webcomponents template
         'path' => $path . '/templates',
         'regions' => $regions,
         'css' => TRUE,
@@ -92,18 +91,4 @@ function webcomponents_ds_module_implements_alter(&$implementations, $hook) {
 function webcomponents_ds_theme_registry_alter(&$theme_registry) {
   $theme_registry['node']['preprocess functions'][] = 'webcomponents_ds_entity_variables';
   $theme_registry['entity']['preprocess functions'][] = 'webcomponents_ds_entity_variables';
-}
-
-/**
- * Implements hook_form_FORM_ID_alter().
- */
-function webcomponents_ds_form_field_ui_display_overview_form_alter(&$form, &$form_state) {
-  // ensure the value coming across ajax load is a webcomponent
-  //if (strpos($form_state['triggering_element']['#value'], 'webcomponent--') === 0) {
-    //$tmp = str_replace('webcomponent--', '', $form_state['triggering_element']['#value']);
-    // show element example straight from docs
-    //$component = webcomponent_load_by_name($tmp);
-    // @todo not currently updating w/ the real template for some reason
-    //$form_state['complete form']['additional_settings']['ds_layouts']['preview']['image']['#markup'] = '<div class="ds-webcomponent-preview" style="width:50%;height:auto">' . _webcomponents_render_component($component) . '</div>';
-  //}
 }

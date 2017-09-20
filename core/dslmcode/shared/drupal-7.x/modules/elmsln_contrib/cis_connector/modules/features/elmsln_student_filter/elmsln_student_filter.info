@@ -7,5 +7,6 @@ dependencies[] = filter
 dependencies[] = wysiwyg
 features[features_api][] = api:2
 features[filter][] = student_format
+features[filter][] = student_markdown
 features[user_permission][] = use text format student_format
 features[wysiwyg][] = student_format

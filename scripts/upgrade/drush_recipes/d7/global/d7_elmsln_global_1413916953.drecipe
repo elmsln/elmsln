@@ -7,12 +7,6 @@
     {
       "command": "ev",
       "arguments": [
-        "\"variable_set(\\\"drupal_http_request_function\\\", 'httprl_override_core');\""
-      ]
-    },
-    {
-      "command": "ev",
-      "arguments": [
         "\"variable_set(\\\"httprl_server_addr\\\", '-1');\""
       ]
     },

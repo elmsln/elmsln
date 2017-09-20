@@ -17,10 +17,10 @@ function foundation_access_iframe_process_page(&$variables) {
 function foundation_access_iframe_field__field_accessible_fallback(&$variables) {
   if (isset($variables['element']['#object']->nid)) {
     if ($variables['element']['#formatter'] == 'entityreference_entity_id') {
-      return l(t('Enable more accessible form of this media.'), 'entity_iframe/node/' . $variables['element']['#object']->nid . '/accessible_fallback');
+      return l(t('Enable more accessible form of this media.'), 'entity_iframe/node/' . $variables['element']['#object']->nid . '/accessible_fallback', array('attributes' => array('icon' => 'accessibility')));
     }
     else {
-      print l(t('Switch to more interactive form of this media.'), 'entity_iframe/node/' . $variables['element']['#object']->nid);
+      print l(t('Switch to more interactive form of this media.'), 'entity_iframe/node/' . $variables['element']['#object']->nid, array('attributes' => array('icon' => 'touch-app')));
     }
   }
 }

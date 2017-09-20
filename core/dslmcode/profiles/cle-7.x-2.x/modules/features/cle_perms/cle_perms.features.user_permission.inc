@@ -17,6 +17,7 @@ function cle_perms_user_default_permissions() {
       'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
       'administrator' => 'administrator',
       'instructor' => 'instructor',
+      'past student' => 'past student',
       'staff' => 'staff',
       'student' => 'student',
       'teaching assistant' => 'teaching assistant',
@@ -38,6 +39,90 @@ function cle_perms_user_default_permissions() {
       'teaching assistant' => 'teaching assistant',
     ),
     'module' => 'node',
+  );
+
+  // Exported permission: 'access lrnapp-gallery-grid app'.
+  $permissions['access lrnapp-gallery-grid app'] = array(
+    'name' => 'access lrnapp-gallery-grid app',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'instructor' => 'instructor',
+      'past student' => 'past student',
+      'staff' => 'staff',
+      'student' => 'student',
+      'teaching assistant' => 'teaching assistant',
+    ),
+    'module' => 'webcomponents_app',
+  );
+
+  // Exported permission: 'access lrnapp-media-upload app'.
+  $permissions['access lrnapp-media-upload app'] = array(
+    'name' => 'access lrnapp-media-upload app',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'instructor' => 'instructor',
+      'past student' => 'past student',
+      'staff' => 'staff',
+      'student' => 'student',
+      'teaching assistant' => 'teaching assistant',
+    ),
+    'module' => 'webcomponents_app',
+  );
+
+  // Exported permission: 'access lrnapp-open-studio app'.
+  $permissions['access lrnapp-open-studio app'] = array(
+    'name' => 'access lrnapp-open-studio app',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'instructor' => 'instructor',
+      'past student' => 'past student',
+      'staff' => 'staff',
+      'student' => 'student',
+      'teaching assistant' => 'teaching assistant',
+    ),
+    'module' => 'webcomponents_app',
+  );
+
+  // Exported permission: 'access lrnapp-studio-dashboard app'.
+  $permissions['access lrnapp-studio-dashboard app'] = array(
+    'name' => 'access lrnapp-studio-dashboard app',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'instructor' => 'instructor',
+      'past student' => 'past student',
+      'staff' => 'staff',
+      'student' => 'student',
+      'teaching assistant' => 'teaching assistant',
+    ),
+    'module' => 'webcomponents_app',
+  );
+
+  // Exported permission: 'access lrnapp-studio-kanban app'.
+  $permissions['access lrnapp-studio-kanban app'] = array(
+    'name' => 'access lrnapp-studio-kanban app',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'instructor' => 'instructor',
+      'past student' => 'past student',
+      'staff' => 'staff',
+      'student' => 'student',
+      'teaching assistant' => 'teaching assistant',
+    ),
+    'module' => 'webcomponents_app',
+  );
+
+  // Exported permission: 'access lrnapp-studio-submission app'.
+  $permissions['access lrnapp-studio-submission app'] = array(
+    'name' => 'access lrnapp-studio-submission app',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'instructor' => 'instructor',
+      'past student' => 'past student',
+      'staff' => 'staff',
+      'student' => 'student',
+      'teaching assistant' => 'teaching assistant',
+    ),
+    'module' => 'webcomponents_app',
   );
 
   // Exported permission: 'administer comments'.
@@ -158,6 +243,7 @@ function cle_perms_user_default_permissions() {
     'roles' => array(
       'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
       'administrator' => 'administrator',
+      'instructor' => 'instructor',
       'staff' => 'staff',
     ),
     'module' => 'node',
@@ -169,6 +255,7 @@ function cle_perms_user_default_permissions() {
     'roles' => array(
       'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
       'administrator' => 'administrator',
+      'instructor' => 'instructor',
       'staff' => 'staff',
     ),
     'module' => 'node',
@@ -243,6 +330,7 @@ function cle_perms_user_default_permissions() {
     'roles' => array(
       'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
       'administrator' => 'administrator',
+      'instructor' => 'instructor',
       'staff' => 'staff',
     ),
     'module' => 'node',
@@ -254,6 +342,7 @@ function cle_perms_user_default_permissions() {
     'roles' => array(
       'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
       'administrator' => 'administrator',
+      'instructor' => 'instructor',
       'staff' => 'staff',
     ),
     'module' => 'node',
@@ -587,6 +676,7 @@ function cle_perms_user_default_permissions() {
       'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
       'administrator' => 'administrator',
       'instructor' => 'instructor',
+      'past student' => 'past student',
       'staff' => 'staff',
       'student' => 'student',
       'teaching assistant' => 'teaching assistant',
@@ -643,6 +733,7 @@ function cle_perms_user_default_permissions() {
       'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
       'administrator' => 'administrator',
       'instructor' => 'instructor',
+      'past student' => 'past student',
       'staff' => 'staff',
       'student' => 'student',
       'teaching assistant' => 'teaching assistant',
@@ -657,6 +748,7 @@ function cle_perms_user_default_permissions() {
       'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
       'administrator' => 'administrator',
       'instructor' => 'instructor',
+      'past student' => 'past student',
       'staff' => 'staff',
       'student' => 'student',
       'teaching assistant' => 'teaching assistant',

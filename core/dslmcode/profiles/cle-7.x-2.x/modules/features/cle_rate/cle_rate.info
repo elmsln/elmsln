@@ -1,0 +1,10 @@
+name = CLE Rate
+description = Provides rate module integration
+core = 7.x
+package = CLE
+dependencies[] = ctools
+dependencies[] = rate
+dependencies[] = strongarm
+features[ctools][] = strongarm:strongarm:1
+features[features_api][] = api:2
+features[variable][] = rate_widgets

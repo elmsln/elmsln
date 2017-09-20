@@ -3,7 +3,6 @@ description = CLE Integration with CIS services
 core = 7.x
 package = CLE
 dependencies[] = cis_service_connection
-dependencies[] = cis_service_connection_ux
 dependencies[] = ctools
 dependencies[] = features
 dependencies[] = imageinfo_cache

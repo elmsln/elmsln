@@ -1,0 +1,31 @@
+{
+  "name": "lrn-table",
+  "description": "A LRN element",
+  "main": "lrn-table.html",
+  "dependencies": {
+    "polymer": "Polymer/polymer#^1.4.0",
+    "lrnsys-behaviors": "LRNWebComponents/lrnsys-behaviors#^1.0.0",
+    "hax-behaviors": "LRNWebComponents/hax-behaviors#^0.0.6",
+    "materializecss-styles": "LRNWebComponents/materializecss-styles#^0.0.5",
+    "paper-spinner": "PolymerElements/paper-spinner#^2.0.0",
+    "paper-tooltip": "PolymerElements/paper-tooltip#^2.0.0",
+    "csv-render": "LRNWebComponents/csv-render#^0.1.0"
+  },
+  "devDependencies": {
+    "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
+    "iron-demo-helpers": "PolymerElements/iron-demo-helpers#^1.0.0",
+    "web-component-tester": "^4.0.0",
+    "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0"
+  },
+  "homepage": "https://github.com/LRNWebComponents/lrn-table",
+  "version": "0.1.0",
+  "_release": "0.1.0",
+  "_resolution": {
+    "type": "version",
+    "tag": "0.1.0",
+    "commit": "7b512556f1223c4a195a29d73e5c30685d6a9f29"
+  },
+  "_source": "https://github.com/LRNWebComponents/lrn-table.git",
+  "_target": "^0.1.0",
+  "_originalSource": "LRNWebComponents/lrn-table"
+}

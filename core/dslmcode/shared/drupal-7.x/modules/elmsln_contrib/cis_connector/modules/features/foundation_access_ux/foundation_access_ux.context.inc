@@ -36,12 +36,6 @@ function foundation_access_ux_context_default_contexts() {
           'region' => 'cis_lmsless_modal',
           'weight' => '-10',
         ),
-        'cis_service_connection-section_context_changer' => array(
-          'module' => 'cis_service_connection',
-          'delta' => 'section_context_changer',
-          'region' => 'cis_lmsless_modal',
-          'weight' => '-9',
-        ),
         'cis_service_connection-ferpa_filter' => array(
           'module' => 'cis_service_connection',
           'delta' => 'ferpa_filter',
@@ -87,38 +81,20 @@ function foundation_access_ux_context_default_contexts() {
           'region' => 'cis_lmsless_modal',
           'weight' => '-9',
         ),
-        'cis_lmsless-cis_lmsless_user' => array(
-          'module' => 'cis_lmsless',
-          'delta' => 'cis_lmsless_user',
-          'region' => 'cis_lmsless_modal',
-          'weight' => '-8',
-        ),
-        'cis_lmsless-cis_lmsless_network' => array(
-          'module' => 'cis_lmsless',
-          'delta' => 'cis_lmsless_network',
-          'region' => 'cis_lmsless_modal',
-          'weight' => '-7',
-        ),
-        'cis_shortcodes-cis_shortcodes_block' => array(
-          'module' => 'cis_shortcodes',
-          'delta' => 'cis_shortcodes_block',
-          'region' => 'cis_lmsless_modal',
-          'weight' => '-6',
-        ),
-        'cis_service_connection_ux-elmsln_navigation_l2' => array(
-          'module' => 'cis_service_connection_ux',
+        'elmsln_core-elmsln_navigation_l2' => array(
+          'module' => 'elmsln_core',
           'delta' => 'elmsln_navigation_l2',
           'region' => 'local_header',
           'weight' => '-9',
         ),
-        'cis_service_connection_ux-elmsln_navigation_l3' => array(
-          'module' => 'cis_service_connection_ux',
+        'elmsln_core-elmsln_navigation_l3' => array(
+          'module' => 'elmsln_core',
           'delta' => 'elmsln_navigation_l3',
           'region' => 'local_subheader',
           'weight' => '-10',
         ),
-        'cis_service_connection_ux-elmsln_navigation_l1' => array(
-          'module' => 'cis_service_connection_ux',
+        'elmsln_core-elmsln_navigation_l1' => array(
+          'module' => 'elmsln_core',
           'delta' => 'elmsln_navigation_l1',
           'region' => 'header',
           'weight' => '-10',

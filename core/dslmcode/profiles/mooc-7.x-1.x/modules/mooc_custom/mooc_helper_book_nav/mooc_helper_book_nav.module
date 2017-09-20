@@ -95,8 +95,7 @@ function mooc_helper_book_nav_block_view($delta = '') {
       // build out the top navigational element with all the drop downs
       case 'book_sibling_nav':
         $block['subject'] = '';
-        $block['content'] = '<a href="#block-mooc-helper-mooc-helper-toc-nav-modal" class="mooc-helper-toc elmsln-outline-button elmsln-modal-trigger black-text" aria-controls="block-mooc-helper-mooc-helper-toc-nav-modal" aria-expanded="false" title="' . t('Table of Contents') .'" data-jwerty-key="o" data-voicecommand="open outline"><paper-button>
-            <i class="material-icons">explore</i>' . t('Outline') .'</paper-button></a>';
+        $block['content'] = '<a tabindex="-1" class="elmsln-modal-trigger" href="#block-mooc-helper-mooc-helper-toc-nav-modal" aria-controls="block-mooc-helper-mooc-helper-toc-nav-modal"><lrnsys-button class="mooc-helper-toc elmsln-outline-button black-text" aria-expanded="false" label="' . t('Outline') .'" icon="explore"></lrnsys-button></a>';
         $next_title = t('>');
         $prev_title = t('<');
         // load the node in scope globally at the moment and ensure we have one
@@ -189,7 +188,7 @@ function mooc_helper_book_nav_block_view($delta = '') {
                 $tmp2['bid'] = $bid[2];
                 $tmp2['mlid'] = -1;
                 $tmp2['link_path'] = '';
-                $tmp2['link_title'] = t('...');
+                $tmp2['link_title'] = '<iron-icon icon="more-horiz"></iron-icon>';
                 $tmp2['_class'] = 'book-parent-tree';
                 $parents[-1] = $tmp2;
               }

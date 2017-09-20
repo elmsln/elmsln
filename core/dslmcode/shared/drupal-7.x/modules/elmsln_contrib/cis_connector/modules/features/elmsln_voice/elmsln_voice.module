@@ -38,7 +38,7 @@ function elmsln_voice_fa_a11y_alter(&$a11y) {
       ),
       '#materialize' => array(
         'type' => 'collapsible',
-        'icon' => 'keyboard_voice',
+        'icon' => 'hardware:keyboard-voice',
       ),
       'keys' => array(
         '#markup' => '<ul>

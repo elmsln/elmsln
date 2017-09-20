@@ -67,53 +67,82 @@ function cle_helper_form_views_exposed_form_alter(&$form, &$form_state, $form_id
 }
 
 /**
- * Implements hook_form_FORM_ID_alter().
+ * Implements hook_elmsln_core_service_settings().
+ * @return array options for this service
  */
-function cle_helper_form_cis_service_connection_ux_form_alter(&$form, &$form_state, $form_id) {
-  $form['site_information']['cle_default_projects'] = array(
-    '#description' => t('This is the default projects for new sections that are registered.'),
-    '#default_value' => variable_get('cle_default_projects', array()),
-    '#weight' => '0',
-    '#title' => t('Default projects'),
-    '#type' => 'select',
-    '#required' => '1',
-    '#multiple' => '1',
-    '#options' => _cis_connector_assemble_entity_list('node', 'cle_project', 'nid', 'title'),
-  );
+function cle_helper_elmsln_core_service_settings($section = NULL) {
+  $options = array();
+  return $options;
 }
 
 /**
- * Implements hook_node_presave().
+ * Implements hook_node_insert().
  */
-function cle_helper_node_presave($node) {
-  // make sure there's assignments associated to this
-  if ($node->type == 'section') {
-    // ensure assignments are set, if not use default
-    if (empty($node->field_section_projects['und'])) {
-      $default = variable_get('cle_default_projects', array());
-      // edge case, default was never set
-      if ($default == array()) {
-        // load all projects
-        $default = _cis_connector_assemble_entity_list('node', 'cle_project', 'nid', 'title');
-      }
-      // make sure we have something to set
-      if (!empty($default)) {
-        foreach ($default as $key => $title) {
-          $node->field_section_projects['und'][] = array('target_id' => $key);
+function cle_helper_node_insert($node) {
+  // make sure there's project associated with this section if not master
+  if ($node->type == 'section' && empty($node->field_section_projects['und'])) {
+    // load the master section, ensure this isn't that!
+    $gid = _cis_section_load_section_by_id(CIS_SECTION_MASTER);
+    if ($gid && $node->nid != $gid) {
+      $master = node_load($gid);
+      // ensure we have projects
+      if (isset($master->field_section_projects['und'])) {
+        // if there aren't any then this will just do nothing in the end, oh well. very rare
+        foreach ($master->field_section_projects['und'] as $projectref) {
+          $project = node_load($projectref['target_id']);
+          // make sure we can load something
+          if ($project) {
+            // replicate the project
+            $project_clone = replicate_clone_entity('node', $project);
+            // make sure the below condition doesn't get tripped
+            // associate the cloned project with this new section
+            $project_clone->og_group_ref[LANGUAGE_NONE][0]['target_id'] = $node->nid;
+            // save so we generate an nid
+            node_save($project_clone);
+            // set the reverse reference into the section from the project we just made
+            $node->field_section_projects['und'][] = array('target_id' => $project_clone->nid);
+            // loop through the steps for this project if it has any
+            if (!empty($project_clone->field_project_steps['und'])) {
+              $steps = $project_clone->field_project_steps['und'];
+              /// unset this so we can rebuild with the new references
+              $project_clone->field_project_steps['und'] = array();
+              // loop through and clone assignments based on what we found
+              foreach ($steps as $assignmentref) {
+                // make sure we can load
+                $assignment = node_load($assignmentref['target_id']);
+                 if ($assignment) {
+                  // clone but don't save
+                  $assignment_clone = replicate_clone_entity('node', $assignment);
+                  // manually set project to the new one
+                  $assignment_clone->field_assignment_project['und'][0]['target_id'] = $project_clone->nid;
+                  // set the section for the assignment
+                  $assignment_clone->og_group_ref[LANGUAGE_NONE][0]['target_id'] = $node->nid;
+                  // makes sure we don't double save and create a huge nightmare
+                  $assignment_clone->_isclone = TRUE;
+                  node_save($assignment_clone);
+                  // set the reference reference into the project steps
+                  $project_clone->field_project_steps['und'][] = array('target_id' => $assignment_clone->nid);
+                }
+              }
+              // save the project steps so we get the references
+              node_save($project_clone);
+            }
+          }
         }
       }
     }
   }
-  // special stuff for these field types to ensure some things aren't null
-  elseif(in_array($node->type, array('cle_submission', 'cle_project', 'cle_assignment'))) {
-    // ensure we don't have anonymous creation since it's not possible
-    if (!isset($node->uid) || $node->uid == 0) {
-      $node->uid = $GLOBALS['user']->uid;
-    }
-    // ensure there's a group set for cle_submission
-    if (!isset($node->og_group_ref[LANGUAGE_NONE][0]['target_id'])) {
-      $node->og_group_ref[LANGUAGE_NONE][0]['target_id'] = _cis_section_load_section_by_id(_cis_connector_section_context());
-    }
+  // add the reverse reference to section from project
+  else if ($node->type == 'cle_project' && isset($node->og_group_ref[LANGUAGE_NONE][0]['target_id'])) {
+    $section = node_load($node->og_group_ref[LANGUAGE_NONE][0]['target_id']);
+    $section->field_section_projects['und'][] = array('target_id' => $node->nid);
+    node_save($section);
+  }
+  // add the reverse reference to project from assignment
+  else if ($node->type == 'cle_assignment' && isset($node->field_assignment_project['und'][0]['target_id']) && !isset($node->_isclone)) {
+    $project = node_load($node->field_assignment_project['und'][0]['target_id']);
+    $project->field_project_steps['und'][] = array('target_id' => $node->nid);
+    node_save($project);
   }
 }
 
@@ -158,6 +187,17 @@ function cle_helper_get_group_content_ids_alter(&$ids) {
       }
     }
   }
+}
+
+/**
+ * Implements hook_query_TAG_alter().
+ * This allows us to relate nodes with comment statistics in an EFQ
+ * so that we can pull things that don't have comments
+ */
+function cle_helper_query_nocomments_alter(QueryAlterableInterface $query) {
+  $query->join('node_comment_statistics', 'ncs', 'ncs.nid = node.nid');
+  $query->fields('ncs', array('comment_count'));
+  $query->condition('ncs.comment_count', 0, '=');
 }
 
 /**

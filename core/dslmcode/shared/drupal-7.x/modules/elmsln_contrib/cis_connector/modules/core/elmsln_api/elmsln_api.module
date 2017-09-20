@@ -667,7 +667,12 @@ function _elmsln_api_v1_file_output($file) {
   settype($file['filesize'], 'int');
   settype($file['timestamp'], 'int');
   settype($file['status'], 'int');
+  settype($file['display'], 'int');
   $file['created'] = Date('c', $file['timestamp']);
+  // ensure that file display is set
+  if (!isset($file['display'])) {
+    $file['display'] = (int) 1;
+  }
   // special support for images
   if (isset($file['type']) && $file['type'] == 'image') {
     $styles = image_styles();
@@ -727,6 +732,43 @@ function _elmsln_api_v1_get_files($type, $filter = array()) {
   $items = _cis_connector_assemble_entity_list('file', '', 'fid', '_entity', $field_conditions, $property_conditions, $orderby);
   return $items;
 }
+
+/**
+ * Converts youtube / vimeo URLs into things we can embed
+ * @param  string $video_url a well formed youtube/vimeo direct URL.
+ * @return string            the address that's valid for embed codes.
+ */
+function _elmsln_api_video_url($video_url) {
+  // account for the broken form of embed code from youtube
+  if ((strpos($video_url, 'youtube') || strpos($video_url, 'youtu.be')) && !strpos($video_url, 'embed')) {
+    $tmp = drupal_parse_url($video_url);
+    $yvid = '';
+    // if the video id is set in the v query param then use that
+    if (isset($tmp['query']['v'])) {
+      $yvid = $tmp['query']['v'];
+    }
+    // if not we'll check if this is a youtube share link
+    elseif (strpos($tmp['path'], 'youtu.be')) {
+      $url = preg_match('/http(?:s?):\/\/(?:www\.)?youtu(?:be\.com\/watch\?v=|\.be\/)([\w\-\_]*)(&(amp;)?‌​[\w\?‌​=]*)?/', $tmp['path'], $matches);
+      if (isset($matches[1])) {
+        $yvid = $matches[1];
+      }
+    }
+    return 'https://www.youtube.com/embed/' . $yvid .'?rel=0';
+  }
+  // account for the broken form of embed code from vimeo
+  if (strpos($video_url, 'vimeo') && !strpos($video_url, 'player')) {
+    // rip out from embed based url
+    $vpath = explode('/', $video_url);
+    $part = array_pop($vpath);
+    // drop the autoplay property cause it conflicts with what we're doing
+    $part = str_replace('autoplay=1', '', $part);
+    return 'https://player.vimeo.com/video/' . $part;
+  }
+  // didn't know what to do or it was already well formed
+  return $video_url;
+}
+
 
 /**
  * Returns the menus available

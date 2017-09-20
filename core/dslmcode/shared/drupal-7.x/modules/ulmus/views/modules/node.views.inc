@@ -733,7 +733,7 @@ function node_row_node_view_preprocess_node(&$vars) {
     unset($vars['content']['links']);
   }
 
-  if (module_exists('comments') && !empty($options['comments']) && user_access('access comments') && $node->comment) {
+  if (module_exists('comment') && !empty($options['comments']) && user_access('access comments') && $node->comment) {
     $vars['content']['comments'] = comment_node_page_additions($node);
   }
 }

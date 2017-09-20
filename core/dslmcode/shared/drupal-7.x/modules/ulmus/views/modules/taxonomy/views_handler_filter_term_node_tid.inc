@@ -275,7 +275,7 @@ class views_handler_filter_term_node_tid extends views_handler_filter_many_to_on
 
     // We only validate if they've chosen the text field style.
     if ($this->options['type'] != 'textfield') {
-      if ($form_state['values'][$identifier] != 'All')  {
+      if (isset($form_state['values'][$identifier]) && $form_state['values'][$identifier] != 'All') {
         $this->validated_exposed_input = (array) $form_state['values'][$identifier];
       }
       return;

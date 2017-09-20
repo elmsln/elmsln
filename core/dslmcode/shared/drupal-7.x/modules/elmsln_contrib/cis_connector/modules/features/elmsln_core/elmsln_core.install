@@ -12,6 +12,9 @@ function elmsln_core_install() {
   // ensure a11y domain is set
   $cfg = _elmsln_core_get_cfg();
   variable_set('a11y_domain', '.' . $cfg['address']);
+  // httprl defaults
+  variable_set('httprl_server_addr', '-1');
+  variable_set('httprl_background_callback', '1');
   // Make sure that the elmsln_core module runs later then CORS for example.
   db_update('system')
   ->fields(array(
@@ -239,4 +242,119 @@ function elmsln_core_update_7022(&$sandbox) {
  */
 function elmsln_core_update_7023(&$sandbox) {
   module_enable(array('webcomponents', 'webcomponents_polymer'));
+}
+
+/**
+ * These still hang around for some reason
+ */
+function elmsln_core_update_7024(&$sandbox) {
+  module_disable(array('entity_iframe_provider', 'entity_iframe_consumer'));
+}
+
+/**
+ * Delete {system} records for long-lost modules.
+ */
+function elmsln_core_update_7025(&$sandbox) {
+  $modules = array(
+    'cis_service_connection_ux',
+    'cis_performance_overrides',
+  );
+  db_delete('system')
+    ->condition('name', $modules, 'IN')
+    ->condition('type', 'module')
+    ->execute();
+}
+
+/**
+ * Stop using HTTPRL for core calls, this is hard to debug.
+ */
+function elmsln_core_update_7026(&$sandbox) {
+  // stop using httprl for the request function
+  variable_del('drupal_http_request_function');
+}
+
+/**
+ * Delete {system} records for dropped modules.
+ */
+function elmsln_core_update_7027(&$sandbox) {
+  $modules = array(
+    'back_to_top',
+    'fastclick',
+    'tipsy',
+    'joyride',
+    'jammer',
+    'lightbox2',
+  );
+  db_delete('system')
+    ->condition('name', $modules, 'IN')
+    ->condition('type', 'module')
+    ->execute();
+  // drop the jammer variables
+  db_delete('variable')
+    ->condition('name', 'jammer_%', 'LIKE')
+    ->execute();
+  // remove tipsy variable
+  variable_del('tipsy');
+}
+
+/**
+ * OMG drop authcache. It's like it never even happened...
+ */
+function elmsln_core_update_7028(&$sandbox) {
+  $modules = array(
+    'authcache',
+    'authcache_p13n',
+    'authcache_ajax',
+    'authcache_block',
+    'authcache_builtin',
+    'authcache_user',
+    'authcache_field',
+    'authcache_menu',
+    'authcache_usercookie',
+    'authcache_views',
+    'elmsln_authcache',
+  );
+  db_delete('system')
+    ->condition('name', $modules, 'IN')
+    ->condition('type', 'module')
+    ->execute();
+  // drop the authcache variables
+  db_delete('variable')
+    ->condition('name', 'authcache_%', 'LIKE')
+    ->execute();
+}
+
+/**
+ * Kill views internal cache and drop dead tables, don't try this at home kids.
+ */
+function elmsln_core_update_7029(&$sandbox) {
+  views_invalidate_cache();
+  db_drop_table('cache_authcache_key');
+  db_drop_table('cache_authcache_p13n');
+  db_drop_table('authcache_p13n_key_value');
+}
+
+/**
+ * Uninstall some old global modules
+ */
+function elmsln_core_update_7030(&$sandbox) {
+  drupal_uninstall_modules(array('entity_iframe_consumer', 'entity_iframe_provider'));
+}
+
+/**
+ * Disable Chosen so we can use a webcomponent to solve this in the future.
+ */
+function elmsln_core_update_7031(&$sandbox) {
+  features_revert_module('elmsln_core');
+  $modules = array(
+    'chosen',
+  );
+  db_delete('system')
+    ->condition('name', $modules, 'IN')
+    ->condition('type', 'module')
+    ->execute();
+  // drop the chosen variables
+  db_delete('variable')
+    ->condition('name', 'chosen_%', 'LIKE')
+    ->execute();
 }

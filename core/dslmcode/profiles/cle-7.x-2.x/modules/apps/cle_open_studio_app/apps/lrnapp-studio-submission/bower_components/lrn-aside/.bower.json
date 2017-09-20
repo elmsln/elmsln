@@ -1,0 +1,34 @@
+{
+  "name": "lrn-aside",
+  "description": "A LRN element",
+  "main": "lrn-aside.html",
+  "dependencies": {
+    "polymer": "Polymer/polymer#^1.4.0",
+    "lrnsys-behaviors": "LRNWebComponents/lrnsys-behaviors#^1.0.0",
+    "lrndesign-card": "LRNWebComponents/lrndesign-card#^0.0.1",
+    "lrndesign-drawer": "LRNWebComponents/lrndesign-drawer#^0.0.2",
+    "lrndesign-contentblock": "LRNWebComponents/lrndesign-contentblock#^0.0.1",
+    "lrndesign-panelcard": "LRNWebComponents/lrndesign-panelcard#^0.0.14",
+    "hax-editable": "LRNWebComponents/hax-editable#^0.0.3",
+    "hax-editbar": "LRNWebComponents/hax-editbar#^0.1.0",
+    "hax-behaviors": "LRNWebComponents/hax-behaviors#^0.0.14",
+    "lrndesign-blockquote": "LRNWebComponents/lrndesign-blockquote#^0.0.8"
+  },
+  "devDependencies": {
+    "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
+    "iron-demo-helpers": "PolymerElements/iron-demo-helpers#^1.0.0",
+    "web-component-tester": "^4.0.0",
+    "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0"
+  },
+  "homepage": "https://github.com/LRNWebComponents/lrn-aside",
+  "version": "0.0.10",
+  "_release": "0.0.10",
+  "_resolution": {
+    "type": "version",
+    "tag": "0.0.10",
+    "commit": "95bccdd32a35a95389404a5a1eb5b3880b0d66fc"
+  },
+  "_source": "https://github.com/LRNWebComponents/lrn-aside.git",
+  "_target": "^0.0.10",
+  "_originalSource": "LRNWebComponents/lrn-aside"
+}

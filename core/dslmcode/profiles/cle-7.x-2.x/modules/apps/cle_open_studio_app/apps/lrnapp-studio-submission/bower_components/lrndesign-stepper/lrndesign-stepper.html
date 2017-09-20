@@ -1,0 +1,53 @@
+ 
+<link rel="import" href="lrndesign-stepper-button.html">
+
+
+<!--
+`lrndesign-stepper`
+visualization of steps
+
+@demo demo/index.html
+-->
+
+<dom-module id="lrndesign-stepper">
+  <template>
+    <style>
+       :host {
+        display: block;
+      }
+    </style>
+
+    <div class="buttons">
+      <content id="stepper-children">
+      </content>
+    </div>
+  </template>
+  <script>
+    Polymer({
+
+      is: 'lrndesign-stepper',
+
+      properties: {
+      },
+      ready: function() {
+        var root = this;
+        var children = root.getContentChildren('#stepper-children');
+        if (children.length > 1) {
+          children.forEach(function(child, index) {
+            if (index === 0) {
+              child.setAttribute('location', 'start');
+            }
+            else if (index === children.length - 1) {
+              child.setAttribute('location', 'end');
+            }
+            else {
+              child.setAttribute('location', 'middle');
+            }
+            console.log(child, index);
+          });
+        }
+      }
+
+    });
+  </script>
+</dom-module>

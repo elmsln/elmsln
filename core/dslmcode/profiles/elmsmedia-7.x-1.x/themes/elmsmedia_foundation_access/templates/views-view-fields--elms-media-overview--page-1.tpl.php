@@ -113,44 +113,19 @@
   else {
     $course = t('no course');
   }
+  preg_match('/< *img[^>]*src *= *["\']?([^"\']*)/i', $preview, $matches);
+  if (isset($matches[1])) {
+    $preview = $matches[1];
+  }
+  else {
+    $preview = '';
+  }
 ?>
-<div class="col s12 m6 l4 elmsln-card">
-  <div class="card small sticky-action">
-    <div class="card-image waves-effect waves-block waves-light">
-      <?php print l($preview, 'node/' . $row->nid . '/view_modes', array('html' => TRUE)); ?>
-    </div>
+<div class="col card-col">
+  <paper-card heading="<?php print $row->node_title;?>" image="<?php print $preview;?>">
     <div class="card-content">
-      <span class="card-title activator grey-text text-darken-4">
-        <span class="truncate elmsln-card-title accessible-red-text">
-          <?php print l($row->node_title, 'node/' . $row->nid . '/view_modes', array('attributes' => array('class' => 'accessible-red-text')));?>
-        </span>
-        <i class="material-icons right accessible-red-text" tabindex="0" role="button">more_vert</i>
-      </span>
+      <?php print l('view', 'node/' . $row->nid . '/view_modes', array('attributes' => array('class' => 'accessible-red-text', 'icon' => 'image:remove-red-eye')));?>
+      <?php print l('edit', 'node/' . $row->nid . '/edit', array('attributes' => array('class' => 'accessible-red-text', 'icon' => 'editor:mode-edit')));?>
     </div>
-    <div class="card-action">
-      <?php print l('view', 'node/' . $row->nid . '/view_modes', array('attributes' => array('class' => 'accessible-red-text')));?>
-      <?php print l('edit', 'node/' . $row->nid . '/edit', array('attributes' => array('class' => 'accessible-red-text')));?>
-    </div>
-    <div class="card-reveal">
-      <span class="card-title grey-text text-darken-4"><span class="truncate elmsln-card-title"><?php print l($row->node_title, 'node/' . $row->nid . '/view_modes', array('attributes' => array('class' => 'accessible-red-text')));?></span><i class="material-icons right accessible-red-text" tabindex="0" role="button"><?php print t('close');?></i></span>
-      <ul class="collection">
-        <li class="collection-item">
-          <span><?php print $fields['type']->content;?></span>
-          <span class="secondary-content"><i class="tiny material-icons accessible-red-text">info_outline</i></span>
-        </li>
-        <li class="collection-item">
-          <span><?php print $course;?></span>
-          <span class="secondary-content"><i class="tiny material-icons accessible-red-text">library_books</i></span>
-        </li>
-        <li class="collection-item">
-          <span><?php print $fields['changed']->content;?></span>
-          <span class="secondary-content"><i class="tiny material-icons accessible-red-text">schedule</i></span>
-        </li>
-        <li class="collection-item">
-          <span class="secondary-content"><i class="tiny material-icons accessible-red-text">label</i></span>
-          <span class="tags"><?php print $fields['field_tagging']->content;?></span>
-        </li>
-      </ul>
-    </div>
-  </div>
+  </paper-card>
 </div>

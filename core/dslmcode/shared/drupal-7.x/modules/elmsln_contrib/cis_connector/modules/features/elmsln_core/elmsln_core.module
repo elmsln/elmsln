@@ -159,20 +159,242 @@ function elmsln_core_menu() {
     'access arguments' => array('view form as json'),
     'page arguments' => array(2),
   );
+  $items['admin/config/system/service-settings'] = array(
+    'title' => 'Course settings',
+    'description' => 'Change system settings for this service.',
+    'type' => MENU_NORMAL_ITEM,
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('elmsln_core_service_settings_form'),
+    'access callback' => '_cis_connector_role_groupings',
+    'access arguments' => array(array('teacher', 'staff')),
+  );
 
+  $items['elmsln/course-settings'] = array(
+    'title' => 'Settings',
+    'description' => 'Change settings for this service.',
+    'type' => MENU_NORMAL_ITEM,
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('elmsln_core_service_settings_form'),
+    'access callback' => '_cis_connector_role_groupings',
+    'access arguments' => array(array('teacher', 'staff')),
+    'menu_name' => 'menu-elmsln-settings',
+    'weight' => -10,
+  );
   return $items;
+}
+
+/**
+ * Page callback for elmsln_core_service_settings.
+ */
+function elmsln_core_service_settings_form($form, $form_state) {
+  $form = array();
+  $form['site_information_name'] = array(
+    '#tree' => '0',
+    '#type' => 'fieldset',
+    '#collapsed' => '1',
+    '#collapsible' => '1',
+    '#title' => t('Course Name'),
+    '#description' => t('Course name and title displayed in the top right.'),
+    '#weight' => '-2',
+  );
+  $form['site_information_links'] = array(
+    '#tree' => '0',
+    '#type' => 'fieldset',
+    '#collapsed' => '1',
+    '#collapsible' => '1',
+    '#title' => t('Links'),
+    '#weight' => '-1',
+  );
+  $form['site_information'] = array(
+    '#tree' => '0',
+    '#type' => 'fieldset',
+    '#collapsed' => '1',
+    '#collapsible' => '1',
+    '#title' => t('Tool details'),
+    '#weight' => '0',
+  );
+  $form['site_information_name']['site_name'] = array(
+    '#description' => t('A short name for the Course'),
+    '#default_value' => variable_get('site_name', ''),
+    '#weight' => '0',
+    '#title' => t('Name'),
+    '#type' => 'textfield',
+    '#required' => '1',
+  );
+  $form['site_information_name']['site_slogan'] = array(
+    '#default_value' => variable_get('site_slogan', ''),
+    '#weight' => '1',
+    '#description' => t('Title of the course'),
+    '#type' => 'textfield',
+    '#title' => t('Title'),
+    '#required' => '1',
+  );
+  // links
+  $form['site_information_links']['site_frontpage'] = array(
+    '#default_value' => variable_get('site_frontpage', 'node'),
+    '#weight' => '2',
+    '#description' => t('Home page for this site'),
+    '#type' => 'textfield',
+    '#title' => t('Front page'),
+    '#required' => '1',
+  );
+  $form['site_information_links']['cis_help_page'] = array(
+    '#default_value' => variable_get('cis_help_page', 'course-help'),
+    '#weight' => '3',
+    '#description' => t('Where the help button points. Leave blank to hide the button'),
+    '#type' => 'textfield',
+    '#title' => t('Help button'),
+  );
+  $form['site_information_links']['cis_resource_page'] = array(
+    '#default_value' => variable_get('cis_resource_page', 'resources'),
+    '#weight' => '3',
+    '#description' => t('Where the resources button points. Leave blank to hide the button'),
+    '#type' => 'textfield',
+    '#title' => t('Resources button'),
+  );
+  $form['site_information_links']['cis_syllabus_page'] = array(
+    '#default_value' => variable_get('cis_syllabus_page', 'syllabus'),
+    '#weight' => '4',
+    '#description' => t('Where the syllabus link points. Leave blank to hide the button'),
+    '#type' => 'textfield',
+    '#title' => t('Syllabus button'),
+  );
+  // allow service specific settings to be mixed in
+  $options = _elmsln_core_get_service_settings();
+  $form['site_information'] += $options;
+  // load up the system theme admin form to modify it here
+  module_load_include('inc', 'system', 'system.admin');
+  $tmp = drupal_get_form('system_theme_settings', variable_get('theme_default', 'foundation_access'));
+  // see if we have foundation access settings we can dump in here too
+  if (isset($tmp['zurb_foundation']['foundation_access'])) {
+    // format and append the collapse
+    $tmp['zurb_foundation']['foundation_access']['#collapsible'] = TRUE;
+    $form['theme'] = $tmp['zurb_foundation']['foundation_access'];
+    $form['theme']['#title'] = t('Theme / Style settings');
+    $form['theme']['#collapsed'] = '1';
+    $form['var'] = array(
+      '#type' => 'hidden',
+      '#value' => 'theme_' . variable_get('theme_default', 'foundation_access') . '_settings',
+    );
+    // unset some of the standard theme settings
+    foreach ($form['theme'] as &$value) {
+      if (is_array($value) && isset($value['#value'])) {
+        unset($value['#value']);
+      }
+    }
+    // submit handlers
+    $form['#submit'][] = 'system_theme_settings_submit';
+    $form['#submit'][] = 'elmsln_core_service_settings_form_submit';
+  }
+  return system_settings_form($form);
+}
+
+/**
+ * Return the settings specific to this service
+ * @return array  whatever the service says its settings are.
+ */
+function _elmsln_core_get_service_settings($section = NULL) {
+  $settings = module_invoke_all('elmsln_core_service_settings', $section);
+  drupal_alter('elmsln_core_service_settings', $settings, $section);
+  return $settings;
+}
+
+/**
+ * Callback for the settings form.
+ */
+function elmsln_core_service_settings_form_submit($form, &$form_state) {
+  module_load_include('inc', 'system', 'system.admin');
+  // Exclude unnecessary elements before saving.
+  form_state_values_clean($form_state);
+  // ensure that course name is changed globally if updated anywhere
+  $properties = array();
+  if (variable_get('site_name', '') != $form_state['values']['site_name']) {
+    $properties['title'] = $form_state['values']['site_name'];
+  }
+  if (variable_get('site_slogan', '') != $form_state['values']['site_slogan']) {
+    $properties['slogan'] = $form_state['values']['site_slogan'];
+  }
+  // if anything changed let's ship this off everywhere
+  if (!empty($properties)) {
+    _elmsln_api_course_sync($properties, '1', TRUE);
+  }
 }
 
 /**
  * Implements hook_block_info().
  */
 function elmsln_core_block_info() {
-  $blocks['elmsln_core_user_xapi_data'] = array(
-    'info' => t('User xAPI Data'),
-    'cache' => DRUPAL_NO_CACHE
+  $blocks = array(
+    'elmsln_core_user_xapi_data' => array(
+      'info' => t('User xAPI Data'),
+      'cache' => DRUPAL_NO_CACHE,
+    ),
+    'elmsln_navigation_l1' => array(
+      'info' => t('ELMSLN nav level 1'),
+      'cache' => DRUPAL_CACHE_PER_ROLE,
+    ),
+    'elmsln_navigation_l2' => array(
+      'info' => t('ELMSLN nav level 2'),
+      'cache' => DRUPAL_CACHE_PER_ROLE,
+    ),
+    'elmsln_navigation_l3' => array(
+      'info' => t('ELMSLN nav level 3'),
+      'cache' => DRUPAL_CACHE_PER_ROLE,
+    ),
   );
-
   return $blocks;
+}
+
+/**
+ * Fork of menu_tree_all_data which allows for passing in min value
+ * @see  menu_tree_some_data()
+ */
+function menu_tree_some_data($menu_name, $link = NULL, $min_depth = NULL, $max_depth = NULL) {
+  $tree = &drupal_static(__FUNCTION__, array());
+
+  // Use $mlid as a flag for whether the data being loaded is for the whole tree.
+  $mlid = isset($link['mlid']) ? $link['mlid'] : 0;
+  // Generate a cache ID (cid) specific for this $menu_name, $link, $language, max depth, min depth.
+  $cid = 'links:' . $menu_name . ':all:' . $mlid . ':' . $GLOBALS['language']->language . ':' . (int) $max_depth . ':' . (int) $min_depth;
+
+  if (!isset($tree[$cid])) {
+    // If the static variable doesn't have the data, check {cache_menu}.
+    $cache = cache_get($cid, 'cache_menu');
+    if ($cache && isset($cache->data)) {
+      // If the cache entry exists, it contains the parameters for
+      // menu_build_tree().
+      $tree_parameters = $cache->data;
+    }
+    // If the tree data was not in the cache, build $tree_parameters.
+    if (!isset($tree_parameters)) {
+      $tree_parameters = array(
+        'min_depth' => $min_depth,
+        'max_depth' => $max_depth,
+      );
+      if ($mlid) {
+        // The tree is for a single item, so we need to match the values in its
+        // p columns and 0 (the top level) with the plid values of other links.
+        $parents = array(0);
+        for ($i = 1; $i < MENU_MAX_DEPTH; $i++) {
+          if (!empty($link["p$i"])) {
+            $parents[] = $link["p$i"];
+          }
+        }
+        $tree_parameters['expanded'] = $parents;
+        $tree_parameters['active_trail'] = $parents;
+        $tree_parameters['active_trail'][] = $mlid;
+      }
+
+      // Cache the tree building parameters using the page-specific cid.
+      cache_set($cid, $tree_parameters, 'cache_menu');
+    }
+
+    // Build the tree using the parameters; the resulting tree will be cached
+    // by _menu_build_tree()).
+    $tree[$cid] = menu_build_tree($menu_name, $tree_parameters);
+  }
+
+  return $tree[$cid];
 }
 
 /**
@@ -254,8 +476,67 @@ function elmsln_core_block_view($delta = '') {
     if (_elmsln_core_data_access('user', $account)) {
       $block['subject'] = '';
       $block['content'] = _elmsln_core_user_xapi_data();
-      break;
     }
+    break;
+    case 'elmsln_navigation_l1':
+      $block['subject'] = t('Navigation');
+      // get current item, load everything at top level
+      $item = menu_link_get_preferred();
+      $tree = menu_tree_all_data('menu-elmsln-navigation', $item, 1);
+      $block['content'] = menu_tree_output($tree);
+    break;
+    case 'elmsln_navigation_l2':
+      $block['subject'] = t('Sub-navigation');
+      // get current, test everything below for children
+      $item = menu_link_get_preferred();
+      $item2 = $item;
+      // look at the parent if we are on level 2 item
+      if ($item['depth'] == 2) {
+        $item2 = menu_link_load($item['plid']);
+      }
+      // look at parent's parent if we are on level 3
+      elseif ($item['depth'] == 3) {
+        $item = menu_link_load($item['plid']);
+        $item2 = menu_link_load($item['plid']);
+      }
+      $tree = menu_tree_some_data('menu-elmsln-navigation', $item, 1, 2);
+      // ensure we aren't a step down
+      foreach ($tree as $branch) {
+        if ($branch['link']['link_path'] == $item2['link_path']) {
+          $below = $branch['below'];
+          continue;
+        }
+      }
+      // make sure we have something in order to render
+      if (isset($below)) {
+        $block['content'] = menu_tree_output($below);
+      }
+    break;
+    case 'elmsln_navigation_l3':
+      $block['subject'] = t('Sub-sub-navigation');
+      // get the curren item
+      $item = menu_link_get_preferred();
+      // don't bother loading for level 1
+      if ($item['depth'] != 1) {
+        $item2 = $item;
+        // if level 3 we need to load parent
+        if ($item['depth'] == 3) {
+          $item2 = menu_link_load($item['plid']);
+        }
+        $tree = menu_tree_some_data('menu-elmsln-navigation', $item, 2, 3);
+        // ensure we aren't down a step
+        foreach ($tree as $branch) {
+          if ($branch['link']['link_path'] == $item2['link_path']) {
+            $below = $branch['below'];
+            continue;
+          }
+        }
+        // make sure we have something in order to render
+        if (isset($below)) {
+          $block['content'] = menu_tree_output($below);
+        }
+      }
+    break;
   }
   return $block;
 }
@@ -384,23 +665,26 @@ function elmsln_core_node_view($node, $view_mode, $langcode) {
 }
 
 /**
- * Implements /**
-  * Implements hook_field_extra_fields_alter().
-  */
- function elmsln_core_field_extra_fields_alter(&$info) {
+ * Implements hook_field_extra_fields_alter().
+ */
+function elmsln_core_field_extra_fields_alter(&$info) {
   // do the magic so we can use these as individual buttons;
   // this is one of the stupidest drupal conventions ever to overcome
   foreach (node_type_get_types() as $type) {
-    $info['node'][$type->type]['form']['hidden_nodes'] = array(
-      'label' => t('Hidden nodes'),
-      'description' => t('Hidden nodes'),
-      'weight' => 100,
-    );
-    $info['node'][$type->type]['form']['book'] = array(
-      'label' => t('Outline'),
-      'description' => t('Book outline configuration'),
-      'weight' => 100,
-    );
+    if (module_exists('hidden_nodes')) {
+      $info['node'][$type->type]['form']['hidden_nodes'] = array(
+        'label' => t('Hidden nodes'),
+        'description' => t('Hidden nodes'),
+        'weight' => 100,
+      );
+    }
+    if (module_exists('book')) {
+      $info['node'][$type->type]['form']['book'] = array(
+        'label' => t('Outline'),
+        'description' => t('Book outline configuration'),
+        'weight' => 100,
+      );
+    }
     $info['node'][$type->type]['form']['options'] = array(
       'label' => t('Publishing'),
       'description' => t('Additional publishing options'),
@@ -475,10 +759,10 @@ function elmsln_core_library() {
     'website' => 'http://materializecss.com/tabs.html',
     'version' => '0.97.7',
     'js' => array(
-      $path . '/js/materialize/tabs/materialize-tabs.js' => array(),
+      $path . '/js/materialize-tabs.js' => array(),
     ),
     'css' => array(
-      $path . '/js/materialize/tabs/materialize-tabs.css' => array(),
+      $path . '/css/materialize-tabs.css' => array(),
     ),
   );
 
@@ -558,6 +842,12 @@ function _elmsln_core_remote_redirect($tool, $type, $etid, $op) {
     if (!empty($etid)) {
       $address .= '/' . $etid . '/' . $op;
     }
+    // weird encoding work around specific to contextual shortcode redirects
+    if (isset($_GET['amp;destination'])) {
+      $_GET['destination'] = $_GET['amp;destination'];
+      unset($_GET['amp;destination']);
+    }
+
     // allow for redirecting back to whatever was set
     if (isset($_GET['destination'])) {
       $address .= '?destination=' . $_GET['destination'];
@@ -877,7 +1167,7 @@ function _elmsln_core_in_context_list() {
           else {
             $textcolor = 'white-text';
           }
-          $icon_render = '<i class="material-icons ' . $textcolor . ' left">' . $icon_map[$icon]['icon'] . '</i>';
+          $icon_render = '<lrnapp-fab-speed-dial-action icon="' . $icon_map[$icon]['icon'] . '" color="' . $icon_map[$icon]['color'] . '">' . $typeobj->name . '</lrnapp-fab-speed-dial-action>';
         }
         else {
           $color = '';
@@ -886,12 +1176,11 @@ function _elmsln_core_in_context_list() {
         $options = array(
           'html' => TRUE,
           'attributes' => array(
-            'class' => array('elmsln-core-external-context-apply', $color, $textcolor, 'btn-floating', 'elmsln-btn-floating', 'vibrate'),
+            'class' => array('elmsln-core-external-context-apply'),
+            'tabindex' => '-1',
           ),
         );
-
-        $title = $icon_render . $typeobj->name;
-        $links[] = '<li class="leaf">' . l($title, 'elmsln/redirect/' . $key . '/node/add/' . str_replace('_', '-', $typeobj->type), $options) . '</li>';
+        $links[] = '<li class="leaf">' . l($icon_render, 'elmsln/redirect/' . $key . '/node/add/' . str_replace('_', '-', $typeobj->type), $options) . '</li>';
       }
     }
   }
@@ -923,7 +1212,7 @@ function elmsln_core_form_node_form_alter(&$form, &$form_state, $form_id) {
     // prepopulate section reference if it exists in the current context for whatever reason
     // and hasn't existed previously but ONLY for new stuff
     if (isset($form['og_group_ref']['und'][0]['default']['#default_value']) && empty($form['og_group_ref']['und'][0]['default']['#default_value']
-  ) && $section_nid = _cis_section_load_section_by_id(_cis_connector_section_context()) && !in_array(elmsln_core_get_profile_key(), array('elmsmedia', 'icor'))) {
+  ) && module_exists('cis_section') && $section_nid = _cis_section_load_section_by_id(_cis_connector_section_context()) && !in_array(elmsln_core_get_profile_key(), array('elmsmedia', 'icor'))) {
       $form['og_group_ref']['und'][0]['default']['#default_value'] = $section_nid;
     }
   }
@@ -992,10 +1281,22 @@ function elmsln_core_url_inbound_alter(&$path, $original_path, $path_language) {
     $changed = TRUE;
   }
   // look or cross-network masquerade
-  if (isset($query_params['elmsln_masquerade']) && $masquerad = $query_params['elmsln_masquerade']) {
+  if (isset($query_params['elmsln_masquerade']) && $masqname = $query_params['elmsln_masquerade']) {
+    $changed = TRUE;
     // Remove masquerade item
     unset($query_params['elmsln_masquerade']);
-    $changed = TRUE;
+    // we were masquerading, but now we're back at a system after we stopped
+    if ($masqname == '__back' && isset($_SESSION['masquerading'])) {
+      masquerade_switch_back();
+    }
+    // odd case but make sure we don't switch to ourselves before allowing a switch
+    else if ($masqname != $GLOBALS['user']->name) {
+      // convert name to uid if possible
+      if ($tmp = user_load_by_name($masqname)) {
+        // perform the masquerade of the account which automatically does permission checks
+        masquerade_switch_user($tmp->uid);
+      }
+    }
   }
   // ensure we skimmed something off before redirect looping!
   if ($changed) {
@@ -1036,6 +1337,9 @@ function elmsln_core_url_outbound_alter(&$path, &$options, $original_path) {
         if (isset($_SESSION['masquerading'])) {
           $options['query']['elmsln_masquerade'] = $GLOBALS['user']->name;
         }
+        else {
+          $options['query']['elmsln_masquerade'] = '__back';
+        }
       }
     }
   }
@@ -1049,6 +1353,17 @@ function _elmsln_core_icon_libraries() {
   $icon_libraries = module_invoke_all('icon_library');
   drupal_alter('icon_library', $icon_libraries);
   return $icon_libraries;
+}
+
+/**
+ * Implements hook_user_login().
+ */
+function elmsln_core_user_login(&$edit, $account) {
+  // support things knowing when someone is switching accounts
+  if (isset($_SESSION['about_to_masquerade'])) {
+    unset($_SESSION['about_to_masquerade']);
+    unset($_SESSION['cis_section_context']);
+  }
 }
 
 /**
@@ -1088,7 +1403,7 @@ function elmsln_core_fa_a11y() {
       ),
       '#materialize' => array(
         'type' => 'collapsible',
-        'icon' => 'keyboard',
+        'icon' => 'hardware:keyboard',
       ),
       'keys' => array(
         '#markup' =>
@@ -1154,7 +1469,7 @@ function _elmsln_core_icon_map() {
     $map = array(
       'roster' => array(
         'color' => 'orange',
-        'icon' => 'person_add',
+        'icon' => 'social:person-add',
       ),
       'file' => array(
         'color' => 'deep-orange darken-4',
@@ -1166,7 +1481,7 @@ function _elmsln_core_icon_map() {
       ),
       'timeline_item' => array(
         'color' => 'pink',
-        'icon' => 'access_time',
+        'icon' => 'device:access-time',
       ),
       'timeline' => array(
         'color' => 'red darken-2',
@@ -1174,27 +1489,27 @@ function _elmsln_core_icon_map() {
       ),
       'map_point' => array(
         'color' => 'light-green darken-4',
-        'icon' => 'place',
+        'icon' => 'maps:place',
       ),
       'map' => array(
         'color' => 'green darken-3',
-        'icon' => 'map',
+        'icon' => 'maps:map',
       ),
       'jmol' => array(
         'color' => 'blue',
-        'icon' => 'share',
+        'icon' => 'social:share',
       ),
       'poll' => array(
         'color' => 'light-blue',
-        'icon' => 'poll',
+        'icon' => 'social:poll',
       ),
       'course_offering' => array(
         'color' => 'blue',
-        'icon' => 'people_outline',
+        'icon' => 'social:people-outline',
       ),
       'setup_a_course' => array(
         'color' => 'red darken-2',
-        'icon' => 'school',
+        'icon' => 'social:school',
       ),
       'program' => array(
         'color' => 'pink',
@@ -1202,7 +1517,7 @@ function _elmsln_core_icon_map() {
       ),
       'academic_area' => array(
         'color' => 'green darken-4',
-        'icon' => 'account_balance',
+        'icon' => 'account-balance',
       ),
       'global_resource' => array(
         'color' => 'indigo',
@@ -1210,7 +1525,7 @@ function _elmsln_core_icon_map() {
       ),
       'course_access' => array(
         'color' => 'blue',
-        'icon' => 'school',
+        'icon' => 'social:school',
       ),
       'system_access' => array(
         'color' => 'indigo',
@@ -1222,64 +1537,64 @@ function _elmsln_core_icon_map() {
       ),
       'audio' => array(
         'color' => 'green darken-3',
-        'icon' => 'music_video',
+        'icon' => 'av:music-video',
       ),
       'document' => array(
         'color' => 'light-green darken-4',
-        'icon' => 'insert_drive_file',
+        'icon' => 'editor:insert-drive-file',
       ),
       'external_video' => array(
         'color' => 'red darken-2',
-        'icon' => 'video_library',
+        'icon' => 'av:video-library',
       ),
       'figure_label' => array(
         'color' => 'deep-orange darken-4',
-        'icon' => 'label_outline',
+        'icon' => 'label-outline',
       ),
       'h5p' => array(
         'color' => 'deep-orange darken-4',
-        'icon' => 'local_activity',
+        'icon' => 'maps:local-activity',
       ),
       'interactive_content' => array(
         'color' => 'deep-orange darken-4',
-        'icon' => 'local_activity',
+        'icon' => 'maps:local-activity',
       ),
       'image' => array(
         'color' => 'deep-purple',
-        'icon' => 'photo',
+        'icon' => 'image:photo',
       ),
       'image_gallery' => array(
         'color' => 'teal',
-        'icon' => 'collections',
+        'icon' => 'image:collections',
       ),
       'media_list' => array(
         'color' => 'pink',
-        'icon' => 'collections',
+        'icon' => 'image:collections',
       ),
       'static_content' => array(
         'color' => 'blue',
-        'icon' => 'insert_drive_file',
+        'icon' => 'editor:insert-drive-file',
       ),
       'svg' => array(
         'color' => 'indigo',
-        'icon' => 'graphic_eq',
+        'icon' => 'device:graphic-eq',
       ),
       'video' => array(
         'color' => 'purple',
-        'icon' => 'ondemand_video',
+        'icon' => 'notification:ondemand-video',
       ),
       'duplicate_outline' => array(
         'color' => 'green',
-        'icon' => 'content_copy',
+        'icon' => 'content-copy',
         'text' => 'black-text',
       ),
       'child_page' => array(
         'color' => 'teal',
-        'icon' => 'insert_drive_file',
+        'icon' => 'editor:insert-drive-file',
       ),
       'thread' => array(
         'color' => 'blue',
-        'icon' => 'forumn',
+        'icon' => 'communication:forum',
       ),
       'assignment' => array(
         'color' => 'green',
@@ -1294,7 +1609,7 @@ function _elmsln_core_icon_map() {
       // xAPI verbs
       'viewed' => array(
         'color' => 'blue',
-        'icon' => 'remove_red_eye',
+        'icon' => 'image:remove-red-eye',
       ),
       'started' => array(
         'color' => 'red',
@@ -1303,7 +1618,7 @@ function _elmsln_core_icon_map() {
       ),
       'finished' => array(
         'color' => 'green',
-        'icon' => 'golf_course',
+        'icon' => 'places:golf-course',
         'text' => 'black-text',
       ),
     );
@@ -1317,11 +1632,22 @@ function _elmsln_core_icon_map() {
  * Implements hook_module_implements_alter().
  */
 function elmsln_core_module_implements_alter(&$implementations, $hook) {
-  // ensure elmsln_core fires first so everything else can alter the expected list
-  if ($hook == 'cis_service_registry_alter') {
-    $tmp = array('elmsln_core' => $implementations['elmsln_core']);
-    unset($implementations['elmsln_core']);
-    $implementations = $tmp + $implementations;
+  switch ($hook) {
+    // ensure elmsln_core fires first so everything else can alter the expected list
+    case 'cis_service_registry_alter':
+      $tmp = array('elmsln_core' => $implementations['elmsln_core']);
+      unset($implementations['elmsln_core']);
+      $implementations = $tmp + $implementations;
+    break;
+    case 'init':
+      // this adds .5 megs to memory footprint in testing and all it
+      // does it skim through breadcrumb links and removes ones
+      // listed as being blank. Hardly worth all the extra code on
+      // every page when we don't even use breadcrumbs in this manner
+      if (module_exists('special_menu_items')) {
+        unset($implementations['special_menu_items']);
+      }
+    break;
   }
 }
 
@@ -1872,6 +2198,17 @@ function elmsln_core_register_webcomponent_apps_alter(&$apps) {
 }
 
 /**
+ * Implements hook_webcomponent_render_alter().
+ */
+function elmsln_core_webcomponent_render_alter(&$vars, $app) {
+  // verify this is an app since this runs on other renders
+  if (isset($app['is_app']) && $app['is_app']) {
+    $vars['properties']['elmsln-course'] = _cis_connector_course_context();
+    $vars['properties']['elmsln-section'] = _cis_connector_section_context();
+  }
+}
+
+/**
  * Implements hook_cis_lmsless_color_alter().
  */
 function elmsln_core_cis_lmsless_color_alter(&$map) {
@@ -1918,4 +2255,177 @@ function elmsln_core_webcomponents() {
   }
   // group these all as files found to match polymer format
   return array(WEBCOMPONENTS_POLYMER_NAME => $files);
+}
+
+/**
+ * Implements hook_gbm_book_root_path_alter().
+ */
+function elmsln_core_gbm_book_root_path_alter(&$path) {
+  // make sure heavily cached markdown paths don't accidentally
+  // have the service url in them
+  $cfg = _elmsln_core_get_cfg();
+  $path = str_replace($cfg['dataprotocol'] . '://' . $cfg['serviceprefix'], $cfg['protocol'] . '://', $path);
+}
+
+/**
+ * Return a form of the user's name based on possible fields
+ * @var $priority string  The piece of info to try and return
+ * @var $uid  int  Account to render or active if empty
+ * @return        string  a representation of the user's name
+ */
+function _elmsln_core_get_user_name($priority = 'full', $uid = NULL) {
+  // user global if nothing there
+  if (is_null($uid)) {
+    $account = $GLOBALS['user'];
+  }
+  // account for getting a uid
+  else {
+    $account = user_load($uid);
+  }
+  // edge case, deserialize array; we want this as an array no matter what
+  if (is_string($account->data)) {
+    $account->data = unserialize($account->data);
+  }
+  else if (is_bool($account->data)) {
+    $account->data = array();
+  }
+  else if (!isset($account->data)) {
+    $account->data = array();
+  }
+  switch ($priority) {
+    case 'first':
+      // try for the sis data first
+      if (isset($account->data['sis'])) {
+        if (isset($account->data['sis']['first'])) {
+          return $account->data['sis']['first'];
+        }
+      }
+    break;
+    case 'last':
+      // try for the sis data first
+      if (isset($account->data['sis'])) {
+        if (isset($account->data['sis']['last'])) {
+          return $account->data['sis']['last'];
+        }
+      }
+    break;
+    case 'full':
+      // try for the sis data first
+      if (isset($account->data['sis'])) {
+        if (isset($account->data['sis']['full'])) {
+          return $account->data['sis']['full'];
+        }
+        else if (isset($account->data['sis']['name'])) {
+          return $account->data['sis']['name'];
+        }
+        else if (isset($account->data['sis']['sortable'])) {
+          return $account->data['sis']['sortable'];
+        }
+      }
+    break;
+  }
+  return $account->name;
+}
+
+/**
+ * Return a form of the user's picture.
+ * @var $style    string  The piece of info to try and return
+ * @var $uid      int     Account to render or active if empty
+ * @return        string  a representation of the user's name
+ */
+function _elmsln_core_get_user_picture($style = 'avatar', $uid = NULL) {
+  $picture = FALSE;
+  // user global if nothing there
+  if (is_null($uid)) {
+    $account = $GLOBALS['user'];
+  }
+  // account for getting a uid
+  else {
+    $account = user_load($uid);
+  }
+  $sis = _elmsln_core_get_sis_user_data($uid);
+  switch ($style) {
+    case 'avatar':
+    default:
+      // try for the sis data first
+      if (!is_null($sis) && isset($sis['avatar_url'])) {
+        $picture = $sis['avatar_url'];
+      }
+      else {
+        // fallback, a globgal profile value from CPR
+        $elmsln_global_profile = variable_get('elmsln_global_profile', 'cpr');
+        $uri = 'elmslnauthority://' . $elmsln_global_profile . '/users/photos/' . $account->name .'.jpg';
+        if (file_exists(_elmsln_core_realpath($uri))) {
+          $picture = file_create_url($uri);
+          $picture = str_replace('files/users', 'files/styles/foundation_access_lmsless_bar/public/users', $image);
+        }
+      }
+    break;
+  }
+  // allow people to override this
+  drupal_alter('elmsln_core_user_picture', $picture, $style, $account);
+  return $picture;
+}
+
+/**
+ * Load some user extra info useful for representing the user visually.
+ */
+function _elmsln_core_get_user_extras($uid = NULL) {
+  // resolve a user account
+  if (!is_null($uid)) {
+    $account = user_load($uid);
+  }
+  else {
+    global $user;
+    $account = $user;
+  }
+  if (_cis_connector_role_grouping('teacher', $account)) {
+    return array(
+      'icon' => 'social:school',
+      'label' => t('Instructor'),
+    );
+  }
+  else if (_cis_connector_role_grouping('staff', $account)) {
+    return array(
+      'icon' => 'stars',
+      'label' => t('Staff'),
+    );
+  }
+  else {
+    return array(
+      'icon' => FALSE,
+      'label' => FALSE,
+    );
+  }
+}
+
+/**
+ * Return a form of the user's sis information.
+ * @var     $uid  int     Account to render or active if empty
+ * @return        object  user's sis data if it exists
+ */
+function _elmsln_core_get_sis_user_data($uid = NULL) {
+  $sis = NULL;
+  // user global if nothing there
+  if (is_null($uid)) {
+    $account = $GLOBALS['user'];
+  }
+  // account for getting a uid
+  else {
+    $account = user_load($uid);
+  }
+  // edge case, deserialize array; we want this as an array no matter what
+  if (is_string($account->data)) {
+    $account->data = unserialize($account->data);
+  }
+  else if (is_bool($account->data)) {
+    $account->data = array();
+  }
+  else if (!isset($account->data)) {
+    $account->data = array();
+  }
+  if (isset($account->data['sis'])) {
+    $sis = $account->data['sis'];
+  }
+  return $sis;
 }

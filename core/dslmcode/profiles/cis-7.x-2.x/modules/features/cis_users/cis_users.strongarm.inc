@@ -53,13 +53,6 @@ function cis_users_strongarm() {
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
-  $strongarm->name = 'jammer_user_delete_hide_button';
-  $strongarm->value = '1';
-  $export['jammer_user_delete_hide_button'] = $strongarm;
-
-  $strongarm = new stdClass();
-  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
-  $strongarm->api_version = 1;
   $strongarm->name = 'lti_tool_provider_user_attribute_mapping';
   $strongarm->value = array(
     'lis_person_name_given' => 'field_first_name',

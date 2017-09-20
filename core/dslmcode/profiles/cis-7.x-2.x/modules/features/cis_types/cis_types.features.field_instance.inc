@@ -253,9 +253,7 @@ function cis_types_field_default_field_instances() {
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(
-        'apply_chosen' => '',
-      ),
+      'settings' => array(),
       'type' => 'options_select',
       'weight' => 1,
     ),
@@ -318,9 +316,7 @@ function cis_types_field_default_field_instances() {
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(
-        'apply_chosen' => '',
-      ),
+      'settings' => array(),
       'type' => 'options_select',
       'weight' => 2,
     ),
@@ -499,9 +495,7 @@ function cis_types_field_default_field_instances() {
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(
-        'apply_chosen' => '',
-      ),
+      'settings' => array(),
       'type' => 'options_select',
       'weight' => 12,
     ),
@@ -774,9 +768,7 @@ function cis_types_field_default_field_instances() {
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(
-        'apply_chosen' => '',
-      ),
+      'settings' => array(),
       'type' => 'options_select',
       'weight' => 17,
     ),
@@ -831,9 +823,7 @@ function cis_types_field_default_field_instances() {
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(
-        'apply_chosen' => '',
-      ),
+      'settings' => array(),
       'type' => 'options_select',
       'weight' => 13,
     ),
@@ -982,9 +972,7 @@ function cis_types_field_default_field_instances() {
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(
-        'apply_chosen' => '',
-      ),
+      'settings' => array(),
       'type' => 'options_select',
       'weight' => 12,
     ),
@@ -1089,9 +1077,7 @@ function cis_types_field_default_field_instances() {
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(
-        'apply_chosen' => '',
-      ),
+      'settings' => array(),
       'type' => 'options_select',
       'weight' => 18,
     ),
@@ -1370,9 +1356,7 @@ function cis_types_field_default_field_instances() {
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(
-        'apply_chosen' => '',
-      ),
+      'settings' => array(),
       'type' => 'options_select',
       'weight' => 5,
     ),
@@ -1467,9 +1451,7 @@ function cis_types_field_default_field_instances() {
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(
-        'apply_chosen' => '',
-      ),
+      'settings' => array(),
       'type' => 'options_select',
       'weight' => 4,
     ),
@@ -1484,10 +1466,9 @@ function cis_types_field_default_field_instances() {
     'display' => array(
       'default' => array(
         'label' => 'hidden',
-        'module' => 'text',
         'settings' => array(),
-        'type' => 'text_default',
-        'weight' => 1,
+        'type' => 'hidden',
+        'weight' => 5,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -1533,7 +1514,7 @@ function cis_types_field_default_field_instances() {
           'link' => FALSE,
         ),
         'type' => 'entityreference_label',
-        'weight' => 6,
+        'weight' => 1,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -1592,9 +1573,7 @@ function cis_types_field_default_field_instances() {
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(
-        'apply_chosen' => '',
-      ),
+      'settings' => array(),
       'type' => 'options_select',
       'weight' => 51,
     ),
@@ -1609,14 +1588,9 @@ function cis_types_field_default_field_instances() {
     'display' => array(
       'default' => array(
         'label' => 'hidden',
-        'module' => 'video_embed_field',
-        'settings' => array(
-          'description' => 1,
-          'description_position' => 'bottom',
-          'video_style' => 'cis_course_video',
-        ),
-        'type' => 'video_embed_field',
-        'weight' => 0,
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 12,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -1661,7 +1635,7 @@ function cis_types_field_default_field_instances() {
           'image_style' => '',
         ),
         'type' => 'image',
-        'weight' => 2,
+        'weight' => 0,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -1747,7 +1721,7 @@ function cis_types_field_default_field_instances() {
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 16,
+        'weight' => 19,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -1803,9 +1777,7 @@ function cis_types_field_default_field_instances() {
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(
-        'apply_chosen' => '',
-      ),
+      'settings' => array(),
       'type' => 'options_select',
       'weight' => 54,
     ),
@@ -1820,10 +1792,9 @@ function cis_types_field_default_field_instances() {
     'display' => array(
       'default' => array(
         'label' => 'above',
-        'module' => 'text',
         'settings' => array(),
-        'type' => 'text_default',
-        'weight' => 30,
+        'type' => 'hidden',
+        'weight' => 17,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -1863,7 +1834,7 @@ function cis_types_field_default_field_instances() {
         'module' => 'text',
         'settings' => array(),
         'type' => 'text_default',
-        'weight' => 9,
+        'weight' => 3,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -1901,10 +1872,9 @@ function cis_types_field_default_field_instances() {
     'display' => array(
       'default' => array(
         'label' => 'hidden',
-        'module' => 'text',
         'settings' => array(),
-        'type' => 'text_default',
-        'weight' => 10,
+        'type' => 'hidden',
+        'weight' => 11,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -1924,9 +1894,7 @@ function cis_types_field_default_field_instances() {
     'widget' => array(
       'active' => 1,
       'module' => 'select_or_other',
-      'settings' => array(
-        'apply_chosen' => '',
-        'available_options' => '0|Not for credit
+      'settings' => array(  'available_options' => '0|Not for credit
 1|1 Credit hour
 2|2 Credit hours
 3|3 Credit hours
@@ -1959,7 +1927,7 @@ function cis_types_field_default_field_instances() {
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 28,
+        'weight' => 31,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -2005,17 +1973,9 @@ function cis_types_field_default_field_instances() {
     'display' => array(
       'default' => array(
         'label' => 'inline',
-        'module' => 'date',
-        'settings' => array(
-          'format_type' => 'long',
-          'fromto' => 'both',
-          'multiple_from' => '',
-          'multiple_number' => '',
-          'multiple_to' => '',
-          'show_remaining_days' => FALSE,
-        ),
-        'type' => 'date_default',
-        'weight' => 3,
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 8,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -2061,7 +2021,7 @@ function cis_types_field_default_field_instances() {
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 22,
+        'weight' => 25,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -2103,7 +2063,7 @@ function cis_types_field_default_field_instances() {
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 21,
+        'weight' => 24,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -2146,7 +2106,7 @@ function cis_types_field_default_field_instances() {
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 25,
+        'weight' => 28,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -2185,7 +2145,7 @@ function cis_types_field_default_field_instances() {
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 24,
+        'weight' => 27,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -2227,7 +2187,7 @@ function cis_types_field_default_field_instances() {
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 23,
+        'weight' => 26,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -2271,7 +2231,7 @@ function cis_types_field_default_field_instances() {
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 26,
+        'weight' => 29,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -2333,9 +2293,7 @@ function cis_types_field_default_field_instances() {
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(
-        'apply_chosen' => '',
-      ),
+      'settings' => array(),
       'type' => 'options_select',
       'weight' => 7,
     ),
@@ -2353,7 +2311,7 @@ function cis_types_field_default_field_instances() {
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 29,
+        'weight' => 32,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -2415,9 +2373,7 @@ function cis_types_field_default_field_instances() {
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(
-        'apply_chosen' => '',
-      ),
+      'settings' => array(),
       'type' => 'options_select',
       'weight' => 6,
     ),
@@ -2432,10 +2388,9 @@ function cis_types_field_default_field_instances() {
     'display' => array(
       'default' => array(
         'label' => 'hidden',
-        'module' => 'text',
         'settings' => array(),
-        'type' => 'text_default',
-        'weight' => 8,
+        'type' => 'hidden',
+        'weight' => 7,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -2474,7 +2429,7 @@ function cis_types_field_default_field_instances() {
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 17,
+        'weight' => 20,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -2513,7 +2468,7 @@ function cis_types_field_default_field_instances() {
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 27,
+        'weight' => 30,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -2532,9 +2487,7 @@ function cis_types_field_default_field_instances() {
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(
-        'apply_chosen' => '',
-      ),
+      'settings' => array(),
       'type' => 'options_select',
       'weight' => 44,
     ),
@@ -2551,7 +2504,7 @@ function cis_types_field_default_field_instances() {
         'label' => 'hidden',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 18,
+        'weight' => 21,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -2592,7 +2545,7 @@ function cis_types_field_default_field_instances() {
           'link' => FALSE,
         ),
         'type' => 'entityreference_label',
-        'weight' => 7,
+        'weight' => 2,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -2651,9 +2604,7 @@ function cis_types_field_default_field_instances() {
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(
-        'apply_chosen' => '',
-      ),
+      'settings' => array(),
       'type' => 'options_select',
       'weight' => 50,
     ),
@@ -2669,12 +2620,9 @@ function cis_types_field_default_field_instances() {
     'display' => array(
       'default' => array(
         'label' => 'above',
-        'module' => 'entityreference',
-        'settings' => array(
-          'link' => FALSE,
-        ),
-        'type' => 'entityreference_label',
-        'weight' => 15,
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 14,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -2748,20 +2696,9 @@ function cis_types_field_default_field_instances() {
     'display' => array(
       'default' => array(
         'label' => 'hidden',
-        'module' => 'file',
-        'settings' => array(
-          'compact' => 0,
-          'gallery' => '',
-          'icon' => 'ico',
-          'image_link' => '',
-          'image_style' => '',
-          'title' => 'description',
-          'video_height' => 360,
-          'video_thumb' => 128,
-          'video_width' => 640,
-        ),
-        'type' => 'file_default',
-        'weight' => 13,
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 15,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -2801,10 +2738,9 @@ function cis_types_field_default_field_instances() {
     'display' => array(
       'default' => array(
         'label' => 'hidden',
-        'module' => 'file',
         'settings' => array(),
-        'type' => 'file_url_plain',
-        'weight' => 12,
+        'type' => 'hidden',
+        'weight' => 13,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -2844,16 +2780,9 @@ function cis_types_field_default_field_instances() {
     'display' => array(
       'default' => array(
         'label' => 'hidden',
-        'module' => 'image',
-        'settings' => array(
-          'compact' => 0,
-          'gallery' => 'page',
-          'image_link' => '',
-          'image_style' => 'course_thumb',
-          'title' => 'title',
-        ),
-        'type' => 'image',
-        'weight' => 11,
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 10,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -2893,6 +2822,63 @@ function cis_types_field_default_field_instances() {
     ),
   );
 
+  // Exported field_instance: 'node-course-field_sis_course_id'.
+  $field_instances['node-course-field_sis_course_id'] = array(
+    'bundle' => 'course',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 18,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_sis_course_id',
+    'label' => 'SIS Course id',
+    'required' => 0,
+    'settings' => array(
+      'better_formats' => array(
+        'allowed_formats' => array(
+          'plain_text' => 'plain_text',
+          'textbook_editor' => 'textbook_editor',
+        ),
+        'allowed_formats_toggle' => 0,
+        'default_order_toggle' => 0,
+        'default_order_wrapper' => array(
+          'formats' => array(
+            'plain_text' => array(
+              'weight' => 10,
+            ),
+            'textbook_editor' => array(
+              'weight' => -10,
+            ),
+          ),
+        ),
+      ),
+      'text_processing' => 0,
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'text',
+      'settings' => array(
+        'size' => 60,
+      ),
+      'type' => 'text_textfield',
+      'weight' => 6,
+    ),
+  );
+
   // Exported field_instance: 'node-course-field_special_classifications'.
   $field_instances['node-course-field_special_classifications'] = array(
     'bundle' => 'course',
@@ -2902,10 +2888,9 @@ function cis_types_field_default_field_instances() {
     'display' => array(
       'default' => array(
         'label' => 'inline',
-        'module' => 'list',
         'settings' => array(),
-        'type' => 'list_default',
-        'weight' => 5,
+        'type' => 'hidden',
+        'weight' => 6,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -2924,9 +2909,7 @@ function cis_types_field_default_field_instances() {
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(
-        'apply_chosen' => '',
-      ),
+      'settings' => array(),
       'type' => 'options_select',
       'weight' => 52,
     ),
@@ -2942,7 +2925,7 @@ function cis_types_field_default_field_instances() {
         'label' => 'hidden',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 19,
+        'weight' => 22,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -2985,7 +2968,7 @@ function cis_types_field_default_field_instances() {
         'label' => 'hidden',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 20,
+        'weight' => 23,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -3023,10 +3006,9 @@ function cis_types_field_default_field_instances() {
     'display' => array(
       'default' => array(
         'label' => 'above',
-        'module' => 'text',
         'settings' => array(),
-        'type' => 'text_default',
-        'weight' => 4,
+        'type' => 'hidden',
+        'weight' => 9,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -3068,10 +3050,9 @@ function cis_types_field_default_field_instances() {
     'display' => array(
       'default' => array(
         'label' => 'hidden',
-        'module' => 'link',
         'settings' => array(),
-        'type' => 'link_default',
-        'weight' => 14,
+        'type' => 'hidden',
+        'weight' => 16,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -3282,9 +3263,7 @@ function cis_types_field_default_field_instances() {
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(
-        'apply_chosen' => '',
-      ),
+      'settings' => array(),
       'type' => 'options_select',
       'weight' => 3,
     ),
@@ -3577,9 +3556,7 @@ Global will be available to all resources to reference',
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(
-        'apply_chosen' => '',
-      ),
+      'settings' => array(),
       'type' => 'options_select',
       'weight' => 2,
     ),
@@ -3783,9 +3760,7 @@ Global will be available to all resources to reference',
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(
-        'apply_chosen' => '',
-      ),
+      'settings' => array(),
       'type' => 'options_select',
       'weight' => 2,
     ),
@@ -3943,9 +3918,7 @@ Global will be available to all resources to reference',
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(
-        'apply_chosen' => '',
-      ),
+      'settings' => array(),
       'type' => 'options_select',
       'weight' => 1,
     ),
@@ -4003,6 +3976,7 @@ Global will be available to all resources to reference',
   t('Related courses');
   t('Resource type');
   t('Resources');
+  t('SIS Course id');
   t('Sample Lesson');
   t('Sample Syllabus');
   t('Schedule number');

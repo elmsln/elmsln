@@ -41,9 +41,7 @@ function ecd_types_field_default_field_instances() {
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(
-        'apply_chosen' => '',
-      ),
+      'settings' => array(),
       'type' => 'options_select',
       'weight' => 10,
     ),
@@ -80,9 +78,7 @@ function ecd_types_field_default_field_instances() {
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(
-        'apply_chosen' => '',
-      ),
+      'settings' => array(),
       'type' => 'options_select',
       'weight' => 11,
     ),
@@ -269,9 +265,7 @@ function ecd_types_field_default_field_instances() {
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(
-        'apply_chosen' => '',
-      ),
+      'settings' => array(),
       'type' => 'options_select',
       'weight' => 12,
     ),
@@ -457,9 +451,7 @@ function ecd_types_field_default_field_instances() {
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(
-        'apply_chosen' => 1,
-      ),
+      'settings' => array(),
       'type' => 'options_select',
       'weight' => 3,
     ),
@@ -525,9 +517,7 @@ function ecd_types_field_default_field_instances() {
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(
-        'apply_chosen' => 1,
-      ),
+      'settings' => array(),
       'type' => 'options_select',
       'weight' => 1,
     ),
@@ -820,9 +810,7 @@ Licensed - You purchased a license to utilize this.',
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(
-        'apply_chosen' => 1,
-      ),
+      'settings' => array(),
       'type' => 'options_select',
       'weight' => 2,
     ),

@@ -142,9 +142,7 @@ function assessment_assignment_field_default_field_instances() {
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(
-        'apply_chosen' => 1,
-      ),
+      'settings' => array(),
       'type' => 'options_select',
       'weight' => 14,
     ),
@@ -244,9 +242,7 @@ function assessment_assignment_field_default_field_instances() {
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(
-        'apply_chosen' => 1,
-      ),
+      'settings' => array(),
       'type' => 'options_select',
       'weight' => 3,
     ),
@@ -300,9 +296,7 @@ There is no data based evidence (example: in class attendence / physical project
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(
-        'apply_chosen' => 1,
-      ),
+      'settings' => array(),
       'type' => 'options_select',
       'weight' => 2,
     ),
@@ -371,9 +365,7 @@ There is no data based evidence (example: in class attendence / physical project
     'widget' => array(
       'active' => 1,
       'module' => 'select_or_other',
-      'settings' => array(
-        'apply_chosen' => '',
-        'available_options' => '1
+      'settings' => array(  'available_options' => '1
 2
 3
 4
@@ -605,9 +597,7 @@ There is no data based evidence (example: in class attendence / physical project
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(
-        'apply_chosen' => 1,
-      ),
+      'settings' => array(),
       'type' => 'options_select',
       'weight' => 5,
     ),
@@ -659,9 +649,7 @@ There is no data based evidence (example: in class attendence / physical project
     'widget' => array(
       'active' => 1,
       'module' => 'options',
-      'settings' => array(
-        'apply_chosen' => '',
-      ),
+      'settings' => array(),
       'type' => 'options_select',
       'weight' => 5,
     ),

@@ -1,4 +1,19 @@
-ELMSLN 0.8.0, 2017-05-26 - Snake it
+ELMSLN 0.9.0, 2017-09-20 - Birth
+This is the biggest design release of the platform to date. It takes a bold new step into the web components world and the world of one page apps through the creation of our first production Polymer application in the Open Studio. It realizes the paradygm shift away from traditional page transactions to AJAX and web component based application development.
+
+The new studio is in production usage already and is seeing incredibly promising early results from students and faculty using it (over 100 using it currently). This release closes 157 issues, many related to studio and UX bug fixes. The changes pushed in 0.8.1 are also reflected, meaning that we now have a concept of near infinite scale as far as section size during roster synchronization.
+
+This means that no matter how big ELMSLN gets, no matter how many tools it has, no matter how many user accounts you push at it, it will process them all. User page transaction scale is then up to the resources you through behind it. On the topic of scale, this also includes enhancements to the web component page delivery which show 200% gains over previous page delivery (back end gain, front end coming).
+
+There is also support built in for Canvas roster API integration which can pull names and avatars throughout ELMS:LN as well; meaning that student experience is that much more seemless when interfacing with that LMS.
+
+This release is published on September 10th, 2017; marking our first 10 year anniversary. We celebrate our "birthday" as a movement on the date stamp of the first file we created coining "ELMS" and what it was to do. You can read this historical document here: https://psu.box.com/s/g477s7ippa8e9yxjp5jz98n2ot9w64gd
+
+We celebrate today for tomorrow marks the dawn of a new era.
+
+To read about the changes in this release see: https://github.com/elmsln/elmsln/milestone/11?closed=1
+
+ELMSLN 0.8.1, 2017-09-19 - Snake it
 Only #1945 added so that older builds can complete without our design enhancements yet. This was asked for by the community and is not the issue finished but gets this contributed functionality into production systems running 0.8.0 previously.
 
 ELMSLN 0.8.0, 2017-05-26 - Kunitz

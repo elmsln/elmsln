@@ -814,6 +814,7 @@ function h5p_add_core_assets() {
 function h5p_get_core_settings() {
   global $user, $base_url;
 
+  $core = _h5p_get_instance('core');
   $settings = array(
     'baseUrl' => $base_url,
     'url' => base_path() . _h5p_get_h5p_path(),
@@ -824,40 +825,7 @@ function h5p_get_core_settings() {
     ),
     'saveFreq' => variable_get('h5p_save_content_state', 0) ? variable_get('h5p_save_content_frequency', 30) : FALSE,
     'l10n' => array(
-      'H5P' => array( // Could core provide this?
-        'fullscreen' => t('Fullscreen'),
-        'disableFullscreen' => t('Disable fullscreen'),
-        'download' => t('Download'),
-        'copyrights' => t('Rights of use'),
-        'embed' => t('Embed'),
-        'size' => t('Size'),
-        'showAdvanced' => t('Show advanced'),
-        'hideAdvanced' => t('Hide advanced'),
-        'advancedHelp' => t('Include this script on your website if you want dynamic sizing of the embedded content:'),
-        'copyrightInformation' => t('Rights of use'),
-        'close' => t('Close'),
-        'title' => t('Title'),
-        'author' => t('Author'),
-        'year' => t('Year'),
-        'source' => t('Source'),
-        'license' => t('License'),
-        'thumbnail' => t('Thumbnail'),
-        'noCopyrights' => t('No copyright information available for this content.'),
-        'downloadDescription' => t('Download this content as a H5P file.'),
-        'copyrightsDescription' => t('View copyright information for this content.'),
-        'embedDescription' => t('View the embed code for this content.'),
-        'h5pDescription' => t('Visit H5P.org to check out more cool content.'),
-        'contentChanged' => t('This content has changed since you last used it.'),
-        'startingOver' => t("You'll be starting over."),
-        'by' => t('by'),
-        'showMore' => t('Show more'),
-        'showLess' => t('Show less'),
-        'subLevel' => t('Sublevel'),
-        'confirmDialogHeader' => t('Confirm action'),
-        'confirmDialogBody' => t('Please confirm that you wish to proceed. This action is not reversible.'),
-        'cancelLabel' => t('Cancel'),
-        'confirmLabel' => t('Confirm')
-      )
+      'H5P' => $core->getLocalization()
     ),
     'hubIsEnabled' => variable_get('h5p_hub_is_enabled', TRUE) ? TRUE : FALSE
   );
@@ -1439,14 +1407,6 @@ function h5p_content_user_data($content_id, $data_id, $sub_content_id) {
  */
 function h5p_embed($node) {
   global $language;
-
-  $callback = filter_input(INPUT_GET, 'callback');
-  if ($callback !== NULL) {
-
-    // Old embed code only returns resizer url
-    print $callback . '(\'' . h5p_get_resize_url() . '\');';
-    return;
-  }
 
   $module_path = base_path() . drupal_get_path('module', 'h5p');
   $node = node_load($node);

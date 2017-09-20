@@ -2,7 +2,6 @@ name = Editorial Story Seeds
 description = A story seed content type that allows capturing of a running list of ideas
 core = 7.x
 package = Editorial
-dependencies[] = cis_service_connection_ux
 dependencies[] = context
 dependencies[] = ctools
 dependencies[] = defaultconfig

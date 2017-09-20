@@ -6,6 +6,29 @@
  */
 
 /**
+ * Implements hook_help().
+ */
+function views_ui_help($path, $arg) {
+  switch ($path) {
+    case 'admin/help#views_ui':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('The Views UI module provides an interface for managing views for the Views module. For more information, see the <a href="@views" target="blank">online documentation for the Views UI module</a>.', array('@views' => 'https://www.drupal.org/documentation/modules/views')) . '</p>';
+      $output .= '<h3>' . t('Uses') . '</h3>';
+      $output .= '<dl>';
+      $output .= '<dt>' . t('Creating and managing views') . '</dt>';
+      $output .= '<dd>' . t('Views can be created from the <a href="/admin/structure/views">Views list page</a> by using the "Add view" action. Existing views can be managed from the <a href="/admin/structure/views">Views list page</a> by locating the view in the "Enabled" or "Disabled" list and selecting the desired operation action, for example "Edit".') . '</dd>';
+
+      $output .= '<dt>' . t('Enabling and disabling views') . '</dt>';
+      $output .= '<dd>' . t('Views can be enabled or disabled from the <a href="/admin/structure/views">Views list page</a>. To enable a view, find the view within the "Disabled" list and select the "Enable" operation. To disable a view find the view within the "Enabled" list and select the "Disable" operation.') . '</dd>';
+
+      $output .= '<dt>' . t('Exporting and importing views') . '</dt>';
+      $output .= '<dd>' . t('Views can be exported and imported as configuration files by using the Configuration Manager module.') . '</dd>';
+      return $output;
+  }
+}
+
+/**
  * Implements hook_menu().
  */
 function views_ui_menu() {
@@ -96,7 +119,6 @@ function views_ui_menu() {
   ) + $base;
 
   // Additional pages for acting on a View.
-
   $items['admin/structure/views/view/%views_ui_cache/break-lock'] = array(
     'title' => 'Break lock',
     'page callback' => 'drupal_get_form',
@@ -143,7 +165,7 @@ function views_ui_menu() {
     'type' => MENU_CALLBACK,
   ) + $base;
 
-  // A page in the Reports section to show usage of fields in all views
+  // A page in the Reports section to show usage of fields in all views.
   $items['admin/reports/fields/list'] = array(
     'title' => 'List',
     'type' => MENU_DEFAULT_LOCAL_TASK,
@@ -175,9 +197,17 @@ function views_ui_theme() {
   require_once DRUPAL_ROOT . "/$path/includes/admin.inc";
 
   return array(
-    // edit a view
+    // Edit a view.
     'views_ui_display_tab_setting' => array(
-      'variables' => array('description' => '', 'link' => '', 'settings_links' => array(), 'overridden' => FALSE, 'defaulted' => FALSE, 'description_separator' => TRUE, 'class' => array()),
+      'variables' => array(
+        'description' => '',
+        'link' => '',
+        'settings_links' => array(),
+        'overridden' => FALSE,
+        'defaulted' => FALSE,
+        'description_separator' => TRUE,
+        'class' => array(),
+      ),
       'template' => 'views-ui-display-tab-setting',
       'path' => "$path/theme",
     ),
@@ -198,7 +228,7 @@ function views_ui_theme() {
       'file' => 'includes/admin.inc',
     ),
 
-    // list views
+    // List views.
     'views_ui_view_info' => array(
       'variables' => array('view' => NULL, 'base' => NULL),
       'file' => "includes/admin.inc",
@@ -210,7 +240,7 @@ function views_ui_theme() {
       'file' => 'includes/admin.inc',
     ),
 
-    // tab themes
+    // Tab themes.
     'views_tabset' => array(
       'variables' => array('tabs' => NULL),
     ),
@@ -222,15 +252,19 @@ function views_ui_theme() {
       'file' => 'includes/admin.inc',
     ),
 
-
-    // On behalf of a plugin
+    // On behalf of a plugin.
     'views_ui_style_plugin_table' => array(
       'render element' => 'form',
     ),
 
     // When previewing a view.
     'views_ui_view_preview_section' => array(
-      'variables' => array('view' => NULL, 'section' => NULL, 'content' => NULL, 'links' => ''),
+      'variables' => array(
+        'view' => NULL,
+        'section' => NULL,
+        'content' => NULL,
+        'links' => '',
+      ),
     ),
 
     // Generic container wrapper, to use instead of theme_container when an id
@@ -274,10 +308,10 @@ function views_ui_edit_page_title($view) {
 /**
  * Specialized menu callback to load a view and check its locked status.
  *
- * @param $name
+ * @param string $name
  *   The machine name of the view.
  *
- * @return
+ * @return object
  *   The view object, with a "locked" property indicating whether or not
  *   someone else is already editing the view.
  */
@@ -315,6 +349,8 @@ function views_ui_cache_load($name) {
 }
 
 /**
+ * Cache set.
+ *
  * Specialized cache function to add a flag to our view, include an appropriate
  * include, and cache more easily.
  */
@@ -324,7 +360,8 @@ function views_ui_cache_set(&$view) {
     return;
   }
   ctools_include('object-cache');
-  $view->changed = TRUE; // let any future object know that this view has changed.
+  // Let any future object know that this view has changed.
+  $view->changed = TRUE;
 
   if (isset($view->current_display)) {
     // Add the knowledge of the changed display, too.
@@ -332,7 +369,7 @@ function views_ui_cache_set(&$view) {
     unset($view->current_display);
   }
 
-  // Unset handlers; we don't want to write these into the cache
+  // Unset handlers; we don't want to write these into the cache.
   unset($view->display_handler);
   unset($view->default_display);
   $view->query = NULL;
@@ -343,8 +380,9 @@ function views_ui_cache_set(&$view) {
   ctools_object_cache_set('view', $view->name, $view);
 }
 
-
 /**
+ * Default Load.
+ *
  * Specialized menu callback to load a view that is only a default
  * view.
  */
@@ -364,7 +402,21 @@ function views_ui_preprocess_views_view(&$vars) {
   $view = $vars['view'];
   if (!empty($view->views_ui_context) && module_exists('contextual')) {
     $view->hide_admin_links = TRUE;
-    foreach (array('title', 'header', 'exposed', 'rows', 'pager', 'more', 'footer', 'empty', 'attachment_after', 'attachment_before') as $section) {
+
+    $sections = array(
+      'title',
+      'header',
+      'exposed',
+      'rows',
+      'pager',
+      'more',
+      'footer',
+      'empty',
+      'attachment_after',
+      'attachment_before',
+    );
+
+    foreach ($sections as $section) {
       if (!empty($vars[$section])) {
         $vars[$section] = array(
           '#theme' => 'views_ui_view_preview_section',
@@ -392,40 +444,49 @@ function template_preprocess_views_ui_view_preview_section(&$vars) {
       $vars['title'] = t('Title');
       $links = views_ui_view_preview_section_display_category_links($vars['view'], 'title', $vars['title']);
       break;
+
     case 'header':
       $vars['title'] = t('Header');
       $links = views_ui_view_preview_section_handler_links($vars['view'], $vars['section']);
       break;
+
     case 'empty':
       $vars['title'] = t('No results behavior');
       $links = views_ui_view_preview_section_handler_links($vars['view'], $vars['section']);
       break;
+
     case 'exposed':
       // @todo Sorts can be exposed too, so we may need a better title.
       $vars['title'] = t('Exposed Filters');
       $links = views_ui_view_preview_section_display_category_links($vars['view'], 'exposed_form_options', $vars['title']);
       break;
+
     case 'rows':
       // @todo The title needs to depend on what is being viewed.
       $vars['title'] = t('Content');
       $links = views_ui_view_preview_section_rows_links($vars['view']);
       break;
+
     case 'pager':
       $vars['title'] = t('Pager');
       $links = views_ui_view_preview_section_display_category_links($vars['view'], 'pager_options', $vars['title']);
       break;
+
     case 'more':
       $vars['title'] = t('More');
       $links = views_ui_view_preview_section_display_category_links($vars['view'], 'use_more', $vars['title']);
       break;
+
     case 'footer':
       $vars['title'] = t('Footer');
       $links = views_ui_view_preview_section_handler_links($vars['view'], $vars['section']);
       break;
+
     case 'attachment_before':
       // @todo: Add links to the attachment configuration page.
       $vars['title'] = t('Attachment before');
       break;
+
     case 'attachment_after':
       // @todo: Add links to the attachment configuration page.
       $vars['title'] = t('Attachment after');
@@ -454,18 +515,18 @@ function template_preprocess_views_ui_view_preview_section(&$vars) {
 function theme_views_ui_view_preview_section($vars) {
   return '<h1 class="section-title">' . $vars['title'] . '</h1>'
   . $vars['links']
-  . '<div class="preview-section">'. $vars['content'] . '</div>';
+  . '<div class="preview-section">' . $vars['content'] . '</div>';
 }
 
 /**
  * Returns contextual links for each handler of a certain section.
  *
+ * @param string $title
+ *   Add a bolded title of this section.
+ *
  * @TODO
  *   Bring in relationships
  *   Refactor this function to use much stuff of views_ui_edit_form_get_bucket.
- *
- * @param $title
- *   Add a bolded title of this section.
  */
 function views_ui_view_preview_section_handler_links($view, $type, $title = FALSE) {
   $display = $view->display_handler->display;
@@ -516,8 +577,9 @@ function views_ui_view_preview_section_display_category_links($view, $type, $tit
  * Returns all contextual links for the main content part of the view.
  */
 function views_ui_view_preview_section_rows_links($view) {
-  $display = $view->display_handler->display;
+
   $links = array();
+
   $links = array_merge($links, views_ui_view_preview_section_handler_links($view, 'filter', TRUE));
   $links = array_merge($links, views_ui_view_preview_section_handler_links($view, 'field', TRUE));
   $links = array_merge($links, views_ui_view_preview_section_handler_links($view, 'sort', TRUE));
@@ -526,7 +588,6 @@ function views_ui_view_preview_section_rows_links($view) {
 
   return $links;
 }
-
 
 /**
  * Implments hook_ctools_plugin_directory().
@@ -542,10 +603,10 @@ function views_ui_ctools_plugin_directory($module, $plugin) {
 /**
  * Fetch metadata on a specific views ui wizard plugin.
  *
- * @param $wizard_type
+ * @param string $wizard_type
  *   Name of a wizard, or name of a base table.
  *
- * @return
+ * @return array
  *   An array with information about the requested wizard type.
  */
 function views_ui_get_wizard($wizard_type) {
@@ -571,14 +632,14 @@ function views_ui_get_wizard($wizard_type) {
 /**
  * Fetch metadata for all content_type plugins.
  *
- * @return
+ * @return array
  *   An array of arrays with information about all available views wizards.
  */
 function views_ui_get_wizards() {
   ctools_include('plugins');
   $wizard_plugins = ctools_get_plugins('views_ui', 'views_wizard');
   $wizard_tables = array();
-  foreach ($wizard_plugins as $name => $info) {
+  foreach ($wizard_plugins as $info) {
     $wizard_tables[$info['base_table']] = TRUE;
   }
   $base_tables = views_fetch_base_tables();
@@ -599,7 +660,7 @@ function views_ui_get_wizards() {
 /**
  * Helper function to define the default values for a Views wizard plugin.
  *
- * @return
+ * @return array
  *   An array of defaults for a views wizard.
  */
 function views_ui_views_wizard_defaults() {
@@ -607,7 +668,7 @@ function views_ui_views_wizard_defaults() {
     // The children may, for example, be a different variant for each node type.
     'get children' => NULL,
     'get child' => NULL,
-    // title and base table must be populated.  They are empty here just
+    // Title and base table must be populated.  They are empty here just
     // so they are documented.
     'title' => '',
     'base_table' => NULL,
@@ -636,6 +697,9 @@ function views_ui_ctools_plugin_type() {
   );
 }
 
+/**
+ * Get form wizard instance.
+ */
 function views_ui_get_form_wizard_instance($wizard) {
   if (isset($wizard['form_wizard_class']['class'])) {
     $class = $wizard['form_wizard_class']['class'];
@@ -705,7 +769,7 @@ function views_ui_contextual_links_suppress($set = NULL) {
  * @see views_ui_contextual_links_suppress_pop()
  */
 function views_ui_contextual_links_suppress_push() {
-  views_ui_contextual_links_suppress(((int) views_ui_contextual_links_suppress())+1);
+  views_ui_contextual_links_suppress(((int) views_ui_contextual_links_suppress()) + 1);
 }
 
 /**
@@ -714,13 +778,16 @@ function views_ui_contextual_links_suppress_push() {
  * @see views_ui_contextual_links_suppress_push()
  */
 function views_ui_contextual_links_suppress_pop() {
-  views_ui_contextual_links_suppress(((int) views_ui_contextual_links_suppress())-1);
+  views_ui_contextual_links_suppress(((int) views_ui_contextual_links_suppress()) - 1);
 }
 
 /**
- * Menu callback; handles AJAX form submissions similar to ajax_form_callback(), but can be used for uncached forms.
+ * Menu callback.
  *
- * ajax_form_callback(), the menu callback for the system/ajax path, requires
+ * Handles AJAX form submissions similar to ajax_form_callback(), but can be
+ * used for uncached forms.
+ *
+ * Ajax_form_callback(), the menu callback for the system/ajax path, requires
  * the form to be retrievable from the form cache, because it lacks a trusted
  * $form_id argument with which to call drupal_retrieve_form(). When AJAX is
  * wanted on a non-cacheable form, #ajax['path'] can be set to a path whose
@@ -760,16 +827,18 @@ function views_ui_ajax_get_form($form_id) {
     return $callback($form, $form_state);
   }
 }
-// @todo move these when we can
 
+/**
+ * @todo move these when we can
+ */
 
 /**
  * Helper function to get a list of paths assigned to a view.
  *
- * @param $view
+ * @param object $view
  *   The view.
  *
- * @return
+ * @return array
  *   An array of links to this view's display paths.
  */
 function _views_ui_get_paths($view) {
@@ -778,14 +847,14 @@ function _views_ui_get_paths($view) {
     $all_paths[] = t('Edit this view to add a display.');
   }
   else {
-    $view->init_display();   // Make sure all the handlers are set up
+    // Make sure all the handlers are set up.
+    $view->init_display();
     foreach ($view->display as $display) {
       if (!empty($display->handler) && $display->handler->has_path()) {
         $one_path = $display->handler->get_option('path');
-        if (empty($path_sort)) {
-          $path_sort = strtolower($one_path);
-        }
+
         if (empty($view->disabled) && strpos($one_path, '%') === FALSE) {
+          // @codingStandardsIgnoreLine
           $all_paths[] = l('/' . $one_path, $one_path);
         }
         else {
@@ -801,10 +870,10 @@ function _views_ui_get_paths($view) {
 /**
  * Helper function to get a list of displays included in a view.
  *
- * @param $view
+ * @param object $view
  *   The view.
  *
- * @return
+ * @return array
  *   An array of display types that this view includes.
  */
 function _views_ui_get_displays_list($view) {
@@ -823,21 +892,22 @@ function _views_ui_get_displays_list($view) {
 }
 
 /**
- * This is part of a patch to address a jQueryUI bug.  The bug is responsible
- * for the inability to scroll a page when a modal dialog is active. If the content
- * of the dialog extends beyond the bottom of the viewport, the user is only able
- * to scroll with a mousewheel or up/down keyboard keys.
+ * This is part of a patch to address a jQueryUI bug.
+ *
+ * The bug is responsible
+ * for the inability to scroll a page when a modal dialog is active. If the
+ * content of the dialog extends beyond the bottom of the viewport, the user is
+ * only able to scroll with a mousewheel or up/down keyboard keys.
  *
  * @see http://bugs.jqueryui.com/ticket/4671
  * @see https://bugs.webkit.org/show_bug.cgi?id=19033
  * @see /js/jquery.ui.dialog.patch.js
  * @see /js/jquery.ui.dialog.min.js
  *
- * The javascript patch overwrites the $.ui.dialog.overlay.events object to remove
- * the mousedown, mouseup and click events from the list of events that are bound
- * in $.ui.dialog.overlay.create.
+ * The javascript patch overwrites the $.ui.dialog.overlay.events object to
+ * remove the mousedown, mouseup and click events from the list of events that
+ * are bound in $.ui.dialog.overlay.create.
  */
-
 function views_ui_library_alter(&$libraries, $module) {
   if ($module == 'system' && isset($libraries['ui.dialog'])) {
     // Only apply the fix, if we don't have an up to date jQueryUI version.
