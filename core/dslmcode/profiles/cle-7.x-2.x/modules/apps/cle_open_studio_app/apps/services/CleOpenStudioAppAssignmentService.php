@@ -117,7 +117,7 @@ class CleOpenStudioAppAssignmentService {
         // load the assignment from drupal
         $node = node_load($id);
         // make sure the node is actually a assignment
-        if ($node && isset($node->type) && $node->type == 'cle_assignment') {
+        if ($node && isset($node->type) && $node->type == 'cle_assignment' && entity_access('update', 'node', $node)) {
           // decode the payload assignment to the drupal node
           $decoded_assignment = $this->decodeAssignment($payload, $node);
           // save the node

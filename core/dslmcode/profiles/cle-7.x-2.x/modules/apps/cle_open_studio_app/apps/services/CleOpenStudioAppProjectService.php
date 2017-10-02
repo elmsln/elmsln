@@ -112,7 +112,7 @@ class CleOpenStudioAppProjectService {
         // load the project from drupal
         $node = node_load($id);
         // make sure the node is actually a project
-        if ($node && isset($node->type) && $node->type == 'cle_project') {
+        if ($node && isset($node->type) && $node->type == 'cle_project' && entity_access('update', 'node', $node)) {
           // decode the payload project to the drupal node
           $decoded_project = $this->decodeProject($payload, $node);
           // save the node

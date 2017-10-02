@@ -52,7 +52,7 @@ class CleOpenStudioAppSubmissionService {
   public function getSubmissions($options = NULL) {
     global $user;
     $items = array();
-    $user = (isset($options->uid) ? user_load($options->uid) : $user);
+    $account = (isset($options->uid) ? user_load($options->uid) : $user);
     $section_id = _cis_connector_section_context();
     $section = _cis_section_load_section_by_id($section_id);
     $field_conditions = array(
@@ -94,7 +94,7 @@ class CleOpenStudioAppSubmissionService {
     }
     $items = _cis_connector_assemble_entity_list('node', 'cle_submission', 'nid', '_entity', $field_conditions, $property_conditions, $orderby, TRUE, $limit, $tags);
     foreach ($items as $key => $item) {
-      if (!node_access('view', $item, $user)) {
+      if (!node_access('view', $item, $account)) {
         unset($items[$key]);
       }
     }
@@ -119,7 +119,7 @@ class CleOpenStudioAppSubmissionService {
     global $user;
     $item = FALSE;
     $encode = (isset($options['encode']) ? $options['encode'] : TRUE);
-    $user = (isset($options['uid']) ? user_load($options['uid']) : $user);
+    $account = (isset($options['uid']) ? user_load($options['uid']) : $user);
     $section_id = _cis_connector_section_context();
     $section = _cis_section_load_section_by_id($section_id);
     $field_conditions = array(
@@ -138,7 +138,7 @@ class CleOpenStudioAppSubmissionService {
     if (count($items) == 1) {
       $item = array_shift($items);
       // make sure the user has access to see it.
-      if (!node_access('view', $item, $user)) {
+      if (!node_access('view', $item, $account)) {
         return FALSE;
       }
       if ($encode) {
@@ -155,7 +155,7 @@ class CleOpenStudioAppSubmissionService {
         // load the submission from drupal
         $node = node_load($id);
         // make sure the node is actually a submission
-        if ($node && isset($node->type) && $node->type == 'cle_submission') {
+        if ($node && isset($node->type) && $node->type == 'cle_submission'  && entity_access('update', 'node', $node)) {
           // decode the payload submission to the drupal node
           $decoded_submission = $this->decodeSubmission($payload, $node);
           // save the node
