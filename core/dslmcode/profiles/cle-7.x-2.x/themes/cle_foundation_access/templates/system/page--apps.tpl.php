@@ -2,9 +2,6 @@
 <main id="etb-tool-nav" data-offcanvas>
   <div class="inner-wrap">
     <!-- progress bar -->
-    <div class="page-scroll progress white">
-      <span class="meter <?php print $cis_lmsless['lmsless_classes'][$distro]['color'] . ' ' .$cis_lmsless['lmsless_classes'][$distro]['dark'];?>" style="width: 0%"></span>
-    </div>
     <section class="main-section etb-book">
       <div class="r-header row">
         <div class="r-header__left">

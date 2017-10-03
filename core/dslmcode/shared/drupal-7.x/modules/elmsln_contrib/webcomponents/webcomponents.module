@@ -3,6 +3,8 @@
  * @file Web components integration
  */
 
+define('WEBCOMPONENTS_CLASS_IDENTIFIER', 'webcomponent-module-selector');
+
 /**
  * Implements hook_page_build().
  */
@@ -103,6 +105,26 @@ function _webcomponents_render_component($component) {
       'tag' => $component->machine_name,
       'properties' => $component->properties,
     );
+    // support compressing slots into the innerHTML tag
+    if (isset($component->slots)) {
+      // support single slot name
+      if (is_string($component->slots)) {
+        $vars['innerHTML'] = $component->slots;
+      }
+      // support for multiple slot names
+      else if (is_array($component->slots)) {
+        $vars['innerHTML'] = '';
+        foreach ($component->slots as $name => $content) {
+          $vars['innerHTML'] .= '<span slot="' . $name . '">' . $content . '</span>';
+        }
+      }
+    }
+    if (!isset($vars['properties']['class'])) {
+      $vars['properties']['class'] = WEBCOMPONENTS_CLASS_IDENTIFIER;
+    }
+    else {
+      $vars['properties']['class'] .= ' ' . WEBCOMPONENTS_CLASS_IDENTIFIER;
+    }
     // allow other projects to add onto and modify the webcomponent before it renders
     // useful for tag wrapping for systems like HAX
     drupal_alter('webcomponent_render', $vars, $component);

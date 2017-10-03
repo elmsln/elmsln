@@ -17,6 +17,11 @@ paper-tooltip.x-scope {
   display: unset;
 }
 
+.webcomponent-module-selector,
+.webcomponent-module-selector * {
+  box-sizing: content-box;
+}
+
 lrnsys-button,paper-button {
   display: block;
   height: 3rem;
@@ -8301,9 +8306,6 @@ paper-button paper-tooltip {
 }
 lrnapp-fab-speed-dial-action.lrnapp-fab-speed-dial-action-0 {
   margin: 0;
-}
-.app-drawer-0 #contentContainer.app-drawer {
-  margin-top: 6em;
 }
 .app-drawer ul {
   padding: 0;

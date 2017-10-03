@@ -5,11 +5,41 @@
   "start_url": "/",
   "display": "standalone",
   "app_integration": {
-    "title": "MOOC as app",
+    "title": "",
     "endpoints": {
-      "data": {
-        "callback": "_mooc_page_player_data",
-        "property": "source-path"
+      "data/outline": {
+        "callback": "_lrnapp_book_outline_data",
+        "property": "outline-path"
+      },
+      "data/book": {
+        "callback": "_lrnapp_book_book_data",
+        "property": "book-path"
+      },
+      "data/page": {
+        "callback": "_lrnapp_book_page_data",
+        "property": "page-path"
+      }
+    },
+    "properties": {
+      "request-params" : {
+        "callback": "_lrnapp_book_render_active_params"
+      },
+      "current-title" : {
+        "callback": "_lrnapp_book_render_active_title"
+      },
+      "outline-title" : {
+        "callback": "_lrnapp_book_render_outline_title"
+      },
+      "complete-sound" : {
+        "callback": "_lrnapp_book_complete_sound"
+      },
+      "finished-sound" : {
+        "callback": "_lrnapp_book_finish_sound"
+      }
+    },
+    "slots": {
+      "content" : {
+        "callback": "_lrnapp_book_render_active_node"
       }
     }
   }

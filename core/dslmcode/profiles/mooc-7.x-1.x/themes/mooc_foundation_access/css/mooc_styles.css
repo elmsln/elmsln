@@ -230,6 +230,14 @@
   margin: 0;
 }
 
+/* Special accounting for the page layout when on the lrnapp-book */
+.page-apps-lrnapp-book .elmsln-content-wrap {
+  margin: .5rem 0 0 0;
+}
+.page-apps-lrnapp-book .r-header {
+  margin: 0 0 -3rem 0;
+}
+
 #block-mooc-nav-block-mooc-nav-nav li.elmsln-book-item paper-button{
   padding-left: 1.75rem;
   border-radius: unset;

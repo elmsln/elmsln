@@ -1,10 +1,6 @@
 <?php print $messages; ?>
 <main id="etb-tool-nav" data-offcanvas>
   <div class="inner-wrap">
-    <!-- progress bar -->
-    <div class="page-scroll progress white">
-      <span class="meter <?php print $cis_lmsless['lmsless_classes'][$distro]['color'] . ' ' .$cis_lmsless['lmsless_classes'][$distro]['dark'];?>" style="width: 0%"></span>
-    </div>
     <?php if (!empty($messages)): ?>
     <?php endif; ?>
     <section class="main-section etb-book">
