@@ -149,6 +149,12 @@ A LRN element
         padding-left: 9em;
         width: 75%;
       }
+      :host app-drawer-layout {
+        pointer-events: none;
+      }
+      :host[drawer-opened] app-drawer-layout {
+        pointer-events: all;
+      }
       .progress-container {
         width: 90%;
         padding: 0;
@@ -494,6 +500,21 @@ A LRN element
           type: Boolean,
           value: false,
         },
+        /**
+         * Store current page data.
+         */
+        currentPageData: {
+          type: Object,
+          value: {},
+          observer: '_currentPageDataUpdated',
+        },
+        /**
+         * Store current page data.
+         */
+        responseData: {
+          type: Object,
+          value: {},
+        },
       },
       /**
        * Ready event.
@@ -510,12 +531,18 @@ A LRN element
             if (route.path.startsWith(endPoint)) {
               // trigger change if data location changed
               if (this.pageParams.load != false && typeof data.type !== typeof undefined && typeof data.id !== typeof undefined) {
-                // trigger loading state
-                this.$.bodyloading.hidden = false;
-                // set the page request parameters to match path
-                this.pageParams[data.type] = data.id;
-                // send request out the door to the actual end point
-                this.$.pageajax.generateRequest();
+                // test if we already have this request
+                if (typeof this.responseData[this.activePage] !== typeof undefined) {
+                  this.set('currentPageData', this.responseData[this.activePage]);
+                }
+                else {
+                  // trigger loading state
+                  this.$.bodyloading.hidden = false;
+                  // set the page request parameters to match path
+                  this.pageParams[data.type] = data.id;
+                  // send request out the door to the actual end point
+                  this.$.pageajax.generateRequest();
+                }
               }
               return;
             }
@@ -661,6 +688,7 @@ A LRN element
       handlePageResponse: function (obj) {
         if (typeof obj !== typeof undefined) {
           const response = obj.detail.response.data;
+          this.set('responseData.' + this.activePage, response);
           this.set('currentPageData', response);
         }
       },
@@ -670,7 +698,7 @@ A LRN element
        * or from the ajax call.
        */
       _currentPageDataUpdated: function (newValue, oldValue) {
-        if (typeof newValue !== typeof undefined) {
+        if (typeof newValue !== typeof undefined && typeof newValue.content !== typeof undefined) {
           this.set('currentTitle', newValue.title);
           this.$.currentcontent.innerHTML = newValue.content;
           this.$.bodyloading.hidden = true;
