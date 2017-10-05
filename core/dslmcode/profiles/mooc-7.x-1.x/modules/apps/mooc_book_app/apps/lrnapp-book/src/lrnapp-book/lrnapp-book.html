@@ -84,7 +84,7 @@ A LRN element
         display: flex;
         margin: 0 auto;
         visibility: visible;
-        transition: visibility .4s, opacity .4s ease;
+        transition: visibility 1s, opacity 1s ease;
       }
       .loading elmsln-loading {
         margin: 0 5em;
@@ -226,7 +226,7 @@ A LRN element
         visibility: visible;
         display: block;
         opacity: 1;
-        transition: visibility 0.4s linear, opacity 0.4s linear;
+        transition: visibility 1s linear, opacity 1s linear;
       }
 
       @media (max-width: 639px) {
@@ -395,7 +395,6 @@ A LRN element
       is: 'lrnapp-book',
       listeners: {
         'menubutton.tap': 'toggleBook',
-        'progress.progress-response-loaded': 'loadPage',
         'progress.node-percent-milestone': 'testMilestone',
         'route-change': '_routeChange',
       },
@@ -634,7 +633,6 @@ A LRN element
         var local = normalizedEvent.localTarget;
         if (typeof local.getAttribute('data-book-index') !== typeof undefined) {
           this.activeOutline = local.getAttribute('data-book-index');
-          console.log(this.activeOutline);
         }
       },
       /**
@@ -805,13 +803,6 @@ A LRN element
         if (this.activePage > 0) {
           this.activePage = this.activePage - 1;
         }
-      },
-      /**
-       * Load the page that the progress bar dictated.
-       */
-      loadPage: function (e) {
-        this.$.bodyloading.hidden = true;
-        console.log(e);
       },
       /**
        * Toggle the book drawer
