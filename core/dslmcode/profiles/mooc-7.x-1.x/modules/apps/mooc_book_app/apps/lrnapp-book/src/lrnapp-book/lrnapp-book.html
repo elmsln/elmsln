@@ -42,13 +42,13 @@ A LRN element
         padding: 0;
         top: 1.9em;
         bottom: 0;
-        z-index: 100;
+        z-index: 1;
         position: absolute;
         box-sizing: content-box;
         --app-drawer-content-container: {
           background-color: #fafafa;
           padding: 10px;
-          z-index: 100;
+          z-index: 1;
           border-right: 1px solid #c8c8c8;
           overflow: inherit;
         }
@@ -60,11 +60,20 @@ A LRN element
       lrndesign-stepper-button ::shadow paper-button {
         margin: 0;
       }
+      lrndesign-stepper-button ::shadow .title-container.lrndesign-stepper-button {
+        padding: 0;
+        width: 100%;
+        right: unset;
+      }
+      lrndesign-stepper-button ::shadow .node-title.lrndesign-stepper-button {
+        font-size: .9em;
+        line-height: 1.5em;
+      }
 
       .loading {
         width: 100%;
         z-index: 1000;
-        opacity: .8;
+        opacity: .9;
         text-align: center;
         align-content: space-around;
         justify-content: center;
@@ -74,28 +83,46 @@ A LRN element
         margin: 0;
         display: flex;
         margin: 0 auto;
+        visibility: visible;
+        transition: visibility .4s, opacity .4s ease;
       }
       .loading elmsln-loading {
         margin: 0 5em;
+        display: inline-flex;
       }
       #bodyloading {
-        height: 50vh;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+      }
+      #bodyloading .loading,
+      #bodyloading elmsln-loading{
+        display: block;
+        height: 5em;
       }
       .outline-title {
         margin-left: .5em;
         max-width: 50%;
       }
       .content-nav-buttons {
-        bottom: 0;
-        position: absolute;
-        height: 50vh;
-        padding: 0 1em;
+        top: 50%;
+        position: fixed;
+        opacity: .8;
+        padding: 0 .25em;
+        height: 50%;
+        padding-top: 15%;
+        margin-top: -15%;
+      }
+      .content-nav-buttons:hover {
+        opacity: 1;
       }
       .prev {
         left: 0;
+        transition: left .4s ease;
       }
       .next {
         right: 0;
+        transition: right .2s ease;
       }
       #body {
         font-family: sans-serif;
@@ -103,30 +130,43 @@ A LRN element
       .content-body {
         position: relative;
         padding: 0;
-        margin: 0 auto;
+        margin: .5em 4em 0 4em;
         font-size: 1.3em;
         width: 85%;
-        -webkit-transition:
-          padding-left 0.3s linear,
-          margin-top 0.3s linear,
-          width .3s linear;
-        -ms-transition:
-          padding-left 0.3s linear,
-          margin-top 0.3s linear,
-          width .3s linear;
         transition:
-          padding-left 0.3s linear,
-          margin-top 0.3s linear,
-          width .3s linear;
+          margin .4s ease,
+          width .4s ease;
+      }
+      :host[drawer-opened] .content-body {
+        margin: .5em 0 0 13em;
+        width: 73%;
+      }
+      .content-nav-buttons paper-icon-button {
+        width: 4em;
+        height: 4em;
+        opacity: .4;
+        display: block;
+        visibility: visible;
+        transition:
+          opacity .4s linear,
+          visibility 1s linear,
+          height .4s ease,
+          width .4s ease;
+      }
+      .content-nav-buttons paper-icon-button:hover {
+        opacity: 1;
+      }
+      :host[drawer-opened] .content-nav-buttons paper-icon-button {
+        width: 2.5em;
+        height: 2.5em;
       }
       .content-title {
         font-size: 1.4em;
         margin: 0;
-        padding: .25em;
+        padding: .25em 0;
       }
       .content-current {
-        height: 100vh;
-        overflow-y: scroll;
+        min-height: 80vh;
       }
       .content-next {
         background-color: grey;
@@ -139,21 +179,19 @@ A LRN element
         width: 100%;
         color: black;
         background-color: white;
-        z-index: 101;
+        z-index: 2;
         padding: 0;
         margin: 0;
         box-sizing: content-box;
-      }
-      :host[drawer-opened] .content-body {
-        margin-top: .5em;
-        padding-left: 9em;
-        width: 75%;
       }
       :host app-drawer-layout {
         pointer-events: none;
       }
       :host[drawer-opened] app-drawer-layout {
         pointer-events: all;
+      }
+      :host[drawer-opened] .prev {
+        left: 14em;
       }
       .progress-container {
         width: 90%;
@@ -170,7 +208,9 @@ A LRN element
         overflow-y: scroll;
       }
       [hidden] {
-        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        display: block !important;
       }
       lrnsys-progress {
         margin-top: .5em;
@@ -182,9 +222,30 @@ A LRN element
         box-sizing: content-box;
       }
 
+      #bookdrawercontent {
+        visibility: visible;
+        display: block;
+        opacity: 1;
+        transition: visibility 0.4s linear, opacity 0.4s linear;
+      }
+
       @media (max-width: 639px) {
+        :host[drawer-opened] app-drawer-layout,
+        app-drawer-layout {
+          top: 0;
+        }
+        :host .next paper-icon-button,
+        :host .prev paper-icon-button,
+        :host[drawer-opened] .next paper-icon-button,
+        :host[drawer-opened] .prev paper-icon-button {
+          width: 2.5em;
+          height: 2.5em;
+        }
         [main-title] {
           font-size: .8em;
+        }
+        .content-title {
+          font-size: 1.1em;
         }
         .outline-title {
           position: absolute !important;
@@ -193,6 +254,30 @@ A LRN element
           overflow: hidden;
           height: 1px;
         }
+        :host[drawer-opened] .content-body,
+        :host .content-body {
+          margin: 0 .5em;
+          font-size: .9em;
+        }
+        .content-nav-buttons {
+          position: relative;
+          display: flex;
+          top: unset;
+          padding: 0;
+          opacity: .8;
+          height: unset;
+          margin: 0;
+        }
+        .content-nav {
+          width: 100%;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          vertical-align: middle;
+        }
+        .next {
+          right: unset;
+        }
       }
       @media (max-width: 500px) {
         [main-title] {
@@ -200,6 +285,7 @@ A LRN element
         }
       }
     </style>
+    <page-scroll-position value="{{scrollPosition}}"></page-scroll-position>
     <div id="anchor"></div>
     <iron-ajax
        auto
@@ -234,8 +320,7 @@ A LRN element
     </app-route>
 
     <app-header id="header" condenses shadow reveals scroll-target="currentcontent">
-      <div id="progressloading" class="loading">
-        <elmsln-loading color="grey-text" size="medium"></elmsln-loading>
+      <div id="outlineloading" class="loading">
         <elmsln-loading color="grey-text" size="medium"></elmsln-loading>
         <elmsln-loading color="grey-text" size="medium"></elmsln-loading>
         <elmsln-loading color="grey-text" size="medium"></elmsln-loading>
@@ -255,52 +340,53 @@ A LRN element
 
     <div id="body">
       <app-drawer-layout>
-      <app-drawer slot="drawer" id="drawer" opened="{{drawerOpened}}" swipe-open transition-duration="400">
-        <div style="height: 100%; overflow: auto;">
+      <app-drawer slot="drawer" id="bookdrawer" opened="{{drawerOpened}}" swipe-open transition-duration="400">
+        <div id="bookdrawercontent" style="height: 100%; overflow: auto;" hidden$="[[!bookItems]]">
           <paper-search-bar hide-filter-button></paper-search-bar>
           <div class="course-title-drawer">Course Outline</div>
           <div>
           <template is="dom-repeat" items="[[bookItems]]" as="item">
-            <lrndesign-stepper-button class="tab" title="[[item.title]]" icon="[[item.icon]]" location="[[item.url]]"></lrndesign-stepper-button>
+            <lrndesign-stepper-button data-book-index$="[[index]]" on-tap="_bookOutlineTap" title="[[item.title]]" icon="[[item.icon]]" url="[[item.url]]"></lrndesign-stepper-button>
           </template>
           </div>
         </div>
       </app-drawer>
       </app-drawer-layout>
-      <div class="content-nav-buttons prev">
-        <paper-icon-button id="prev" title="[[prevLabel]]" on-tap="_prevBtn" icon="hardware:keyboard-arrow-left" hidden$="[[!hasPrevPage]]"></paper-icon-button>
-        <paper-tooltip
-          for="prev"
-          position="bottom"
-          offset="0"
-          animation-delay="0">
-          [[prevLabel]]
-        </paper-tooltip>
-      </div>
-      <div class="content-nav-buttons next">
-        <paper-icon-button id="next" title="[[nextLabel]]" on-tap="_nextBtn" icon="hardware:keyboard-arrow-right" hidden$="[[!hasNextPage]]"></paper-icon-button>
-        <paper-tooltip
-          for="next"
-          position="bottom"
-          offset="0"
-          animation-delay="0">
-          [[nextLabel]]
-        </paper-tooltip>
-      </div>
       <div class="content-body">
         <h2 class="content-title">[[currentTitle]]</h2>
         <div id="previous" class="content-previous"></div>
         <div id="current" class="content-current">
           <div id="bodyloading" class="loading">
-            <h3>Loading content..</h3>
             <elmsln-loading color="grey-text" size="large"></elmsln-loading>
+            <h3 class="loading-text">Loading content..</h3>
           </div>
-          <scroll-position value="{{scrollPosition}}"></scroll-position>
           <div id="currentcontent">
             <slot></slot>
           </div>
         </div>
         <div id="next" class="content-next"></div>
+      </div>
+      <div class="content-nav">
+        <div class="content-nav-buttons prev">
+          <paper-icon-button id="prev" title="[[prevLabel]]" on-tap="_prevBtn" icon="hardware:keyboard-arrow-left" hidden$="[[!hasPrevPage]]"></paper-icon-button>
+          <paper-tooltip
+            for="prev"
+            position="bottom"
+            offset="0"
+            animation-delay="0">
+            [[prevLabel]]
+          </paper-tooltip>
+        </div>
+        <div class="content-nav-buttons next">
+          <paper-icon-button id="next" title="[[nextLabel]]" on-tap="_nextBtn" icon="hardware:keyboard-arrow-right" hidden$="[[!hasNextPage]]"></paper-icon-button>
+          <paper-tooltip
+            for="next"
+            position="bottom"
+            offset="0"
+            animation-delay="0">
+            [[nextLabel]]
+          </paper-tooltip>
+        </div>
       </div>
     </div>
   </template>
@@ -308,7 +394,7 @@ A LRN element
     Polymer({
       is: 'lrnapp-book',
       listeners: {
-        'menubutton.tap': 'toggleoutline',
+        'menubutton.tap': 'toggleBook',
         'progress.progress-response-loaded': 'loadPage',
         'progress.node-percent-milestone': 'testMilestone',
         'route-change': '_routeChange',
@@ -319,7 +405,7 @@ A LRN element
       properties: {
         drawerOpened: {
           type: Boolean,
-          value: false,
+          value: true,
           reflectToAttribute: true,
         },
         route: {
@@ -381,6 +467,14 @@ A LRN element
           type: Number,
           value: 0,
           observer: '_activePageChanged',
+        },
+        /**
+         * Track the active outline to load data for the progress bar.
+         */
+        activeOutline: {
+          type: Number,
+          value: 0,
+          observer: '_activeOutlineChanged',
         },
         /**
          * List of items in our outline presently.
@@ -470,7 +564,6 @@ A LRN element
          */
         hasPrevPage: {
           type: Boolean,
-          reflectToAttribute: true,
           notify: true,
         },
         /**
@@ -484,7 +577,6 @@ A LRN element
          */
         hasNextPage: {
           type: Boolean,
-          reflectToAttribute: true,
           notify: true,
         },
         /**
@@ -515,16 +607,50 @@ A LRN element
           type: Object,
           value: {},
         },
+        /**
+         * Rebuild outline flag so we know to call it on page build.
+         */
+        rebuildOutline: {
+          type: Boolean,
+          value: false,
+        },
       },
       /**
        * Ready event.
        */
       ready: function(e) {
+        // this helps ensure the initial load of the UI doesn't trigger
+        // an ajax call; there's no reason to do so
         this.pageParams.load = true;
+        // scroll top into view
+        // @todo comment back in once we know why drupal is highjacking this
+        //this._resetScroll();
       },
-      // If the current route is outside the scope of our app
-      // then allow the website to break out of the single page
-      // application routing
+      /**
+       * Change the activeOutline
+       */
+      _bookOutlineTap: function (e) {
+        var normalizedEvent = Polymer.dom(e);
+        var local = normalizedEvent.localTarget;
+        if (typeof local.getAttribute('data-book-index') !== typeof undefined) {
+          this.activeOutline = local.getAttribute('data-book-index');
+          console.log(this.activeOutline);
+        }
+      },
+      /**
+       * A book level button was pressed, we need to invoke a change of
+       * content as well as outline.
+       */
+      _activeOutlineChanged: function(newValue, oldValue) {
+        if (typeof newValue !== typeof undefined && typeof oldValue !== typeof undefined) {
+          // trigger loading state
+          this.rebuildOutline = true;
+        }
+      },
+      /**
+       * If the current route is outside the scope of our app then allow
+       * the website to break out of the single page application routing.
+       */
       _routeChanged: function(route, endPoint, data) {
         if (typeof route.path === 'string') {
           if (typeof endPoint === 'string') {
@@ -532,8 +658,8 @@ A LRN element
               // trigger change if data location changed
               if (this.pageParams.load != false && typeof data.type !== typeof undefined && typeof data.id !== typeof undefined) {
                 // test if we already have this request
-                if (typeof this.responseData[this.activePage] !== typeof undefined) {
-                  this.set('currentPageData', this.responseData[this.activePage]);
+                if (typeof this.responseData[data.type + data.id] !== typeof undefined) {
+                  this.set('currentPageData', this.responseData[data.type + data.id]);
                 }
                 else {
                   // trigger loading state
@@ -542,6 +668,25 @@ A LRN element
                   this.pageParams[data.type] = data.id;
                   // send request out the door to the actual end point
                   this.$.pageajax.generateRequest();
+                }
+                // support for being told to rebuild the outline
+                if (this.rebuildOutline || typeof this.responseData[data.type + 'outline' + data.id] !== typeof undefined) {
+                  // dirty rebuild of params
+                  this.set('requestParams', []);
+                  // our page params have the current page in scope
+                  this.set('requestParams', this.pageParams);
+                  this.activePage = 0;
+                  this.$.outlineloading.hidden = false;
+                  // test if we already have this request
+                  if (typeof this.responseData[data.type + 'outline' + data.id] !== typeof undefined) {
+                    this.set('outlineItems', []);
+                    this.set('outlineItems', this.responseData[data.type + 'outline' + data.id]);
+                  }
+                  else {
+                    // send request out the door to the actual end point
+                    this.$.outlineajax.generateRequest();
+                  }
+                  this.rebuildOutline = false;
                 }
               }
               return;
@@ -552,15 +697,20 @@ A LRN element
         }
       },
       /**
+       * Reset scroll position visually and internally data wise.
+       */
+      _resetScroll: function () {
+        this.resetScroll = true;
+        this.scrollPosition = 0;
+        this.$.anchor.scrollIntoView({block: "start", behavior: "smooth", inline: "nearest"});
+      },
+      /**
        * React to active page being changed.
        */
       _activePageChanged: function (newValue, oldValue) {
         if (typeof newValue !== typeof undefined) {
-          // scroll into view the container that's about to be
-          // swapped out
-          this.resetScroll = true;
-          this.scrollPosition = 0;
-          this.$.anchor.scrollIntoView({block: "start", behavior: "smooth"});
+          // scroll into view the container that's about to be swapped out
+          this._resetScroll();
           if (typeof this.outlineItems !== typeof undefined) {
             this.set('route.path', this.outlineItems[newValue].url);
           }
@@ -628,7 +778,7 @@ A LRN element
        */
       _scrollChanged: function (newValue, oldValue) {
         // only evaluate scroll if value is greater then previous
-        if (typeof this.outlineItems !== typeof undefined && newValue > this.outlineItems[this.activePage].value && !this.resetScroll) {
+        if (typeof this.outlineItems !== typeof undefined && typeof this.outlineItems[this.activePage] !== typeof undefined && newValue > this.outlineItems[this.activePage].value && !this.resetScroll) {
           // once we get 90% of the way through the material consider it finished
           if (newValue > 90) {
             this.outlineItems[this.activePage].value = this.outlineItems[this.activePage].max;
@@ -664,19 +814,26 @@ A LRN element
         console.log(e);
       },
       /**
-       * Toggle the outline.
+       * Toggle the book drawer
        */
-      toggleoutline: function (e) {
-        this.$.drawer.toggle();
+      toggleBook: function (e) {
+        this.$.bookdrawer.toggle();
       },
       /**
        * Handle the response.
        */
       handleOutlineResponse: function (obj) {
-        const response = this._toArray(obj.detail.response.data.items);
-        this.set('outlineItems', response);
-        this.$.progressloading.hidden = true;
-        this.$.bookajax.generateRequest();
+        if (typeof obj !== typeof undefined) {
+          const response = this._toArray(obj.detail.response.data.items);
+          this.set('responseData.' + this.data.type + 'outline' + this.data.id, response);
+          this.set('outlineItems', []);
+          this.set('outlineItems', responåse);
+          this.$.outlineloading.hidden = true;
+          // only repopulate the first time
+          if (this.bookItems.length === 0 ) {
+            this.$.bookajax.generateRequest();
+          }
+        }
       },
       /**
        * Handle the response.
@@ -685,10 +842,13 @@ A LRN element
         const response = this._toArray(obj.detail.response.data.items);
         this.set('bookItems', response);
       },
+      /**
+       * Page response callback.
+       */
       handlePageResponse: function (obj) {
         if (typeof obj !== typeof undefined) {
           const response = obj.detail.response.data;
-          this.set('responseData.' + this.activePage, response);
+          this.set('responseData.' + this.data.type + this.data.id, response);
           this.set('currentPageData', response);
         }
       },

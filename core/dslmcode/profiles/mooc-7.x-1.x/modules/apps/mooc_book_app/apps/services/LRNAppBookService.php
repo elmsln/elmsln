@@ -61,11 +61,17 @@ class LRNAppBookService {
     // if the outline is for the book at the top then we need
     // mlid instead of parent since it's in control of all structure
     if ($book) {
-      //@todo figure out book
-      $plid = $node->book['plid'];
+      $book = node_load($node->book['bid']);
+      $plid = $book->book['mlid'];
     }
     else {
-      $plid = $node->book['plid'];
+      // see if this is an indie page or not
+      if (isset($node->book['has_children']) && $node->book['has_children']) {
+        $plid = $node->book['mlid'];
+      }
+      else {
+        $plid = $node->book['plid'];
+      }
     }
     if (!empty($node->book)) {
       // load all items that share the same parent as the current item

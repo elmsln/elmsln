@@ -63,9 +63,15 @@ function webcomponents_app_permission() {
   // load app definitions
   $apps = webcomponents_app_load_app_definitions(NULL, TRUE);
   foreach ($apps as $machine_name => $app) {
+    if (empty($app['title'])){
+      $human = $machine_name;
+    }
+    else {
+      $human = $app['title'];
+    }
     $perms['access ' . $machine_name . ' app'] = array(
-      'title' => t('Access @name', array('@name' => $app['title'])),
-      'description' => t('Allow user to access the one page app called @name', array('@name' => $app['title'])),
+      'title' => t('Access @name', array('@name' => $human)),
+      'description' => t('Allow user to access the one page app called @name', array('@name' => $human)),
     );
   }
   return $perms;
