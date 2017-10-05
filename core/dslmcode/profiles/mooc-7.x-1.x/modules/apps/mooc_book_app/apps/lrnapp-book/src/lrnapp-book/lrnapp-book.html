@@ -827,7 +827,7 @@ A LRN element
           const response = this._toArray(obj.detail.response.data.items);
           this.set('responseData.' + this.data.type + 'outline' + this.data.id, response);
           this.set('outlineItems', []);
-          this.set('outlineItems', responåse);
+          this.set('outlineItems', response);
           this.$.outlineloading.hidden = true;
           // only repopulate the first time
           if (this.bookItems.length === 0 ) {
