@@ -156,6 +156,9 @@ A LRN element
       .content-nav-buttons paper-icon-button:hover {
         opacity: 1;
       }
+      paper-tooltip {
+        --paper-tooltip-opacity: .96;
+      }
       :host[drawer-opened] .content-nav-buttons paper-icon-button {
         width: 2.5em;
         height: 2.5em;
@@ -166,7 +169,7 @@ A LRN element
         padding: .25em 0;
       }
       .content-current {
-        min-height: 80vh;
+        min-height: 100vh;
       }
       .content-next {
         background-color: grey;
@@ -288,7 +291,6 @@ A LRN element
     <page-scroll-position value="{{scrollPosition}}"></page-scroll-position>
     <div id="anchor"></div>
     <iron-ajax
-       auto
        id="outlineajax"
        params="[[requestParams]]"
        url="[[outlinePath]]"
@@ -371,9 +373,10 @@ A LRN element
           <paper-icon-button id="prev" title="[[prevLabel]]" on-tap="_prevBtn" icon="hardware:keyboard-arrow-left" hidden$="[[!hasPrevPage]]"></paper-icon-button>
           <paper-tooltip
             for="prev"
-            position="bottom"
+            position="right"
             offset="0"
-            animation-delay="0">
+            fit-to-visible-bounds
+            animation-delay="100">
             [[prevLabel]]
           </paper-tooltip>
         </div>
@@ -381,9 +384,10 @@ A LRN element
           <paper-icon-button id="next" title="[[nextLabel]]" on-tap="_nextBtn" icon="hardware:keyboard-arrow-right" hidden$="[[!hasNextPage]]"></paper-icon-button>
           <paper-tooltip
             for="next"
-            position="bottom"
+            position="left"
             offset="0"
-            animation-delay="0">
+            fit-to-visible-bounds
+            animation-delay="100">
             [[nextLabel]]
           </paper-tooltip>
         </div>
@@ -399,14 +403,21 @@ A LRN element
         'route-change': '_routeChange',
       },
       observers: [
-        '_routeChanged(route, endPoint, data)',
+        '_routeChanged(data, route, endPoint)',
       ],
       properties: {
+        /**
+         * Binding so we can style based on drawer status
+         * @type {Object}
+         */
         drawerOpened: {
           type: Boolean,
           value: true,
           reflectToAttribute: true,
         },
+        /**
+         * App route tracking.
+         */
         route: {
           type: Object,
           notify: true,
@@ -482,7 +493,7 @@ A LRN element
           type: Array,
           value: [],
           notify: true,
-          observer: '_itemsChanged',
+          observer: '_outlineItemsChanged',
         },
         /**
          * List of items in our book presently.
@@ -621,9 +632,14 @@ A LRN element
         // this helps ensure the initial load of the UI doesn't trigger
         // an ajax call; there's no reason to do so
         this.pageParams.load = true;
+        this.$.bodyloading.hidden = true;
+        // fire an outline request to kick things off!
+        this.$.outlineajax.generateRequest();
         // scroll top into view
         // @todo comment back in once we know why drupal is highjacking this
-        //this._resetScroll();
+        setTimeout( () => {
+          this._resetScroll();
+        }, 500);
       },
       /**
        * Change the activeOutline
@@ -649,12 +665,14 @@ A LRN element
        * If the current route is outside the scope of our app then allow
        * the website to break out of the single page application routing.
        */
-      _routeChanged: function(route, endPoint, data) {
+      _routeChanged: function(data, route, endPoint) {
         if (typeof route.path === 'string') {
           if (typeof endPoint === 'string') {
             if (route.path.startsWith(endPoint)) {
               // trigger change if data location changed
               if (this.pageParams.load != false && typeof data.type !== typeof undefined && typeof data.id !== typeof undefined) {
+                // prime the page request parameters
+                this.pageParams[data.type] = data.id;
                 // test if we already have this request
                 if (typeof this.responseData[data.type + data.id] !== typeof undefined) {
                   this.set('currentPageData', this.responseData[data.type + data.id]);
@@ -662,25 +680,25 @@ A LRN element
                 else {
                   // trigger loading state
                   this.$.bodyloading.hidden = false;
-                  // set the page request parameters to match path
-                  this.pageParams[data.type] = data.id;
                   // send request out the door to the actual end point
                   this.$.pageajax.generateRequest();
                 }
                 // support for being told to rebuild the outline
-                if (this.rebuildOutline || typeof this.responseData[data.type + 'outline' + data.id] !== typeof undefined) {
+                if (this.rebuildOutline) {
                   // dirty rebuild of params
                   this.set('requestParams', []);
                   // our page params have the current page in scope
                   this.set('requestParams', this.pageParams);
-                  this.activePage = 0;
-                  this.$.outlineloading.hidden = false;
                   // test if we already have this request
-                  if (typeof this.responseData[data.type + 'outline' + data.id] !== typeof undefined) {
+                  if (typeof this.responseData[data.type + '.' + data.id + '.outline'] !== typeof undefined) {
+                    this.activePage = 0;
                     this.set('outlineItems', []);
-                    this.set('outlineItems', this.responseData[data.type + 'outline' + data.id]);
+                    this.set('outlineItems', this._toArray(this.responseData[data.type + '.' + data.id + '.outline'].items));
+                    this.set('outlineTitle', this.responseData[data.type + '.' + data.id + '.outline'].items.outlineTitle);
                   }
                   else {
+                    this.$.outlineloading.hidden = false;
+                    this.pageParams.load = false;
                     // send request out the door to the actual end point
                     this.$.outlineajax.generateRequest();
                   }
@@ -707,10 +725,12 @@ A LRN element
        */
       _activePageChanged: function (newValue, oldValue) {
         if (typeof newValue !== typeof undefined) {
-          // scroll into view the container that's about to be swapped out
-          this._resetScroll();
           if (typeof this.outlineItems !== typeof undefined) {
             this.set('route.path', this.outlineItems[newValue].url);
+          }
+          // scroll into view the container that's about to be swapped out
+          if (typeof oldValue !== typeof undefined) {
+
           }
           // ensure that scrolling percentage doesn't increase the next item
           // while active is being changed
@@ -724,23 +744,23 @@ A LRN element
           // contents of the slot
 
           // manage the previous page button on the UI
-          if (this.activePage == 0) {
+          if (newValue == 0) {
             this.hasPrevPage = false;
           }
           else {
             this.hasPrevPage = true;
             if (typeof this.outlineItems !== typeof undefined) {
-              this.prevLabel = this.outlineItems[this.activePage - 1].title;
+              this.prevLabel = this.outlineItems[newValue- 1].title;
             }
           }
           // manage next page button on the UI
-          if (typeof this.outlineItems !== typeof undefined && (this.activePage + 1) == this.outlineItems.length) {
+          if (typeof this.outlineItems !== typeof undefined && (newValue + 1) == this.outlineItems.length) {
             this.hasNextPage = false;
           }
           else {
             this.hasNextPage = true;
             if (typeof this.outlineItems !== typeof undefined) {
-              this.nextLabel = this.outlineItems[this.activePage + 1].title;
+              this.nextLabel = this.outlineItems[newValue + 1].title;
             }
           }
         }
@@ -748,16 +768,16 @@ A LRN element
       /**
        * React to items being changed.
        */
-      _itemsChanged: function (newValue, oldValue) {
+      _outlineItemsChanged: function (newValue, oldValue) {
         // these need set immediately
-        if (typeof this.outlineItems !== typeof undefined && this.outlineItems.length != 0) {
+        if (typeof newValue !== typeof undefined && newValue.length != 0) {
           // manage the previous page button on the UI
           if (this.activePage != 0) {
-            this.prevLabel = this.outlineItems[this.activePage - 1].title;
+            this.prevLabel = newValue[this.activePage - 1].title;
           }
           // manage next page button on the UI
-          if ((this.activePage + 1) != this.outlineItems.length) {
-            this.nextLabel = this.outlineItems[this.activePage + 1].title;
+          if ((this.activePage + 1) != newValue.length) {
+            this.nextLabel = newValue[this.activePage + 1].title;
           }
         }
       },
@@ -768,7 +788,7 @@ A LRN element
        testMilestone: function (e) {
         // we should preload the next page
         if (e.detail.percentage == 75) {
-          console.log('preload the next page and present greyed out right of UI.');
+          console.log('@todo preload the next page and present grayed out right of UI.');
         }
        },
       /**
@@ -778,7 +798,7 @@ A LRN element
         // only evaluate scroll if value is greater then previous
         if (typeof this.outlineItems !== typeof undefined && typeof this.outlineItems[this.activePage] !== typeof undefined && newValue > this.outlineItems[this.activePage].value && !this.resetScroll) {
           // once we get 90% of the way through the material consider it finished
-          if (newValue > 90) {
+          if (newValue >= 75) {
             this.outlineItems[this.activePage].value = this.outlineItems[this.activePage].max;
             this.set('outlineItems.' + this.activePage + '.value', this.outlineItems[this.activePage].max);
           }
@@ -792,7 +812,8 @@ A LRN element
        * Pass down the click to the next page if we have one
        */
       _nextBtn: function (e) {
-        if (this.activePage < this.outlineItems.length) {
+        // make sure we are able to move forward more
+        if (this.activePage < this.outlineItems.length - 1) {
           this.activePage = this.activePage + 1;
         }
       },
@@ -815,15 +836,38 @@ A LRN element
        */
       handleOutlineResponse: function (obj) {
         if (typeof obj !== typeof undefined) {
-          const response = this._toArray(obj.detail.response.data.items);
-          this.set('responseData.' + this.data.type + 'outline' + this.data.id, response);
+          const response = obj.detail.response.data;
+          const items = this._toArray(obj.detail.response.data.items);
+          const outlineTitle = obj.detail.response.data.outlineTitle;
+          // set active to 0 because once we update the outlineItems it will try to
+          // pick a title and be out of sync for a moment in time
+          if (this.activePage !== 0) {
+            this.activePage = 0;
+          }
+          // store the response for the outline object data to skip future calls
+          this.set('responseData.' + this.data.type + '.' + this.data.id + '.outline', response);
+          // set outline items to repaint, aggressively
           this.set('outlineItems', []);
-          this.set('outlineItems', response);
+          this.set('outlineItems', items);
+          // set title to match new parent title
+          this.set('outlineTitle', outlineTitle);
+          var activePage = 0;
+          // see if we can find a match of routing for an active page
+          for (var i in items) {
+            // we have a match; usually this would only happen on initial page load
+            if (this.data.type === items[i].type && this.data.id === items[i].id && i !== 0) {
+              activePage = parseInt(i);
+            }
+          }
+          if (activePage !== 0) {
+            this.activePage = activePage;
+          }
           this.$.outlineloading.hidden = true;
           // only repopulate the first time
           if (this.bookItems.length === 0 ) {
             this.$.bookajax.generateRequest();
           }
+          this.pageParams.load = true;
         }
       },
       /**
@@ -852,6 +896,7 @@ A LRN element
         if (typeof newValue !== typeof undefined && typeof newValue.content !== typeof undefined) {
           this.set('currentTitle', newValue.title);
           this.$.currentcontent.innerHTML = newValue.content;
+          this._resetScroll();
           this.$.bodyloading.hidden = true;
         }
       },

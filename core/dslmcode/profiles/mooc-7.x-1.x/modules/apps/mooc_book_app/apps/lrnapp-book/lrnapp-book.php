@@ -24,10 +24,9 @@ function _lrnapp_book_outline_data($machine_name, $app_route, $params, $args) {
     $page = $service->getPage($node->nid);
     $outline = $service->getOutline($node->nid);
     $items = $service->encodeOutline($outline, $app_route . '/');
+    $return['outlineTitle'] = $page->attributes->title;
   }
-  $return = array(
-    "items" => $items
-  );
+  $return['items'] = $items;
   // verify this is a node
   if (isset($node->nid)) {
     $status = 200;

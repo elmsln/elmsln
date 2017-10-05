@@ -68,6 +68,9 @@ class LRNAppBookService {
       // see if this is an indie page or not
       if (isset($node->book['has_children']) && $node->book['has_children']) {
         $plid = $node->book['mlid'];
+        // push the container as the 1st page; this makes downstream UX
+        // better in our book player
+        $items[$node->nid] = $node;
       }
       else {
         $plid = $node->book['plid'];
@@ -128,13 +131,16 @@ class LRNAppBookService {
     if (is_array($items)) {
       foreach ($items as $key => $page) {
         $output[$key] =array(
-          "title" => $page->attributes->title,
-          "url" => base_path() . $path . $page->meta->link,
-          "status" => "available",
-          "value" => 0,
-          "max" => 100,
-          "icon" => $page->meta->icon,
-          "iconComplete" => "check"
+          'title' => $page->attributes->title,
+          'url' => base_path() . $path . $page->meta->link,
+          'status' => 'available',
+          'value' => 0,
+          'max' => 100,
+          'icon' => $page->meta->icon,
+          'iconComplete' => 'check',
+          'type' => 'node',
+          'id' => $page->id,
+          'hasChildren' => $page->relationships->has_children,
         );
       }
     }
@@ -325,6 +331,9 @@ class LRNAppBookService {
       $encoded_page->relationships->parent = new stdClass();
       // load associations from cache if we have a book
       if (isset($node->book['mlid'])) {
+        // has_children boolean
+        $encoded_page->relationships->has_children = $node->book['has_children'];
+        // pass along book data
         $encoded_page->relationships->book->id = $node->book['bid'];
         $associations = _book_cache_get_associations($node->book);
         // previous link if we have one
