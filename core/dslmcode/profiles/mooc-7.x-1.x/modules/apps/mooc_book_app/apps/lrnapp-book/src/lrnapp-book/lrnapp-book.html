@@ -23,13 +23,14 @@ A LRN element
         font-size: 1em;
         box-sizing: content-box;
       }
-      app-toolbar {
+      #toolbar {
         color: gray;
         background-color: white;
         padding: 0 .5em;
         margin: 0;
         height: auto;
         box-sizing: content-box;
+        transition: all .4s ease;
       }
       paper-button {
         padding: 0;
@@ -177,7 +178,7 @@ A LRN element
         background-color: grey;
         opacity: .8;
       }
-      app-header {
+      #header {
         position: sticky;
         top: 0;
         left: 0;
@@ -187,7 +188,9 @@ A LRN element
         z-index: 2;
         padding: 0;
         margin: 0;
+        opacity: 1;
         box-sizing: content-box;
+        transition: all .4s ease;
       }
       :host app-drawer-layout {
         pointer-events: none;
@@ -321,6 +324,37 @@ A LRN element
           font-size: .7em;
         }
       }
+      /**
+       * Authoring section
+       */
+      #editbutton {
+        position: fixed;
+        bottom: 4em;
+        right: 0;
+        margin: 1em;
+        padding: .5em;
+        width: 1.6em;
+        height: 1.6em;
+        visibility: visible;
+        opacity: 1;
+        transition: all .4s ease;
+      }
+      :host[edit-mode] #editbutton {
+        width: 100%;
+        z-index: 10000;
+        right: 0;
+        bottom: 0;
+        border-radius: 0;
+        margin: 0;
+        padding: 1em;
+        background-color: var(--paper-blue-500) !important;
+      }
+      :host[edit-mode] #header {
+        background-color: var(--paper-grey-500);
+      }
+      :host[edit-mode] #toolbar {
+        opacity: .5;
+      }
     </style>
     <page-scroll-position value="{{scrollPosition}}"></page-scroll-position>
     <div id="anchor"></div>
@@ -340,11 +374,35 @@ A LRN element
        last-response="{{bookData}}"></iron-ajax>
     <iron-ajax
        id="pageajax"
-       params="[[pageParams]]"
        url="[[pagePath]]"
+       params="[[pageParams]]"
        handle-as="json"
        on-response="handlePageResponse"
        last-response="{{pageData}}"></iron-ajax>
+    <iron-ajax
+      id="pageupdateajax"
+      url="[[pageUpdatePath]]"
+      params="[[pageParams]]"
+      method="PUT"
+      body="[[currentPageData]]"
+      content-type="application/json"
+      handle-as="json"
+      on-response="_handleUpdateResponse"></iron-ajax>
+    <iron-ajax
+      id="pagedeleteajax"
+      url="[[pageDeletePath]]"
+      params="[[pageParams]]"
+      method="DELETE"
+      content-type="application/json"
+      handle-as="json"
+      on-response="_handleDeleteResponse"></iron-ajax>
+    <iron-ajax
+      id="pagecreateajax"
+      url="[[pageCreatePath]]"
+      method="POST"
+      body="[[createRequestBody]]"
+      handle-as="json"
+      on-response="_ajaxCreateStubHandler"></iron-ajax>
 
     <app-location route="{{route}}" query-params="{{queryParams}}"></app-location>
     <app-route
@@ -361,7 +419,7 @@ A LRN element
         <elmsln-loading color="grey-text" size="medium"></elmsln-loading>
         <elmsln-loading color="grey-text" size="medium"></elmsln-loading>
       </div>
-      <app-toolbar sticky class="tall">
+      <app-toolbar id="toolbar" sticky class="tall">
         <div style="pointer-events: auto;" class="menu-btn-wrap">
           <paper-icon-button style="pointer-events: auto;" title="Content outline" id="menubutton" icon="menu"></paper-icon-button>
         </div>
@@ -389,20 +447,20 @@ A LRN element
       </app-drawer>
       </app-drawer-layout>
       <div class="content-body">
-        <h2 class="content-title">[[currentTitle]]</h2>
         <div id="current" class="content-current">
+          <h2 id="currenttitle" class="content-title">[[currentTitle]]</h2>
           <div id="bodyloading" class="loading">
             <elmsln-loading color="grey-text" size="large"></elmsln-loading>
             <h3 class="loading-text">Loading content..</h3>
           </div>
-          <div id="currentcontent">
-            <slot></slot>
+          <div id="currentcontentcontainer">
+            <slot id="currentcontent"></slot>
           </div>
         </div>
       </div>
       <div class="content-nav">
         <div class="content-nav-buttons next">
-          <paper-icon-button id="next" title="[[nextLabel]]" on-tap="_nextBtn" icon="hardware:keyboard-arrow-right" hidden$="[[!hasNextPage]]"></paper-icon-button>
+          <paper-icon-button id="next" title="[[nextLabel]]" on-tap="_nextBtn" icon="hardware:keyboard-arrow-right" data-voicecommand="next page" hidden$="[[!hasNextPage]]"></paper-icon-button>
           <paper-tooltip
             for="next"
             position="left"
@@ -412,7 +470,7 @@ A LRN element
           </paper-tooltip>
         </div>
         <div class="content-nav-buttons prev">
-          <paper-icon-button id="prev" title="[[prevLabel]]" on-tap="_prevBtn" icon="hardware:keyboard-arrow-left" hidden$="[[!hasPrevPage]]"></paper-icon-button>
+          <paper-icon-button id="prev" title="[[prevLabel]]" on-tap="_prevBtn" icon="hardware:keyboard-arrow-left" data-voicecommand="previous page" hidden$="[[!hasPrevPage]]"></paper-icon-button>
           <paper-tooltip
             for="prev"
             position="right"
@@ -423,6 +481,15 @@ A LRN element
         </div>
       </div>
     </div>
+
+    <paper-fab id="editbutton" icon="editor:mode-edit" class="red white-text" hidden$="[[!currentPageData.page.meta.canUpdate]]" data-voicecommand="Edit content" on-tap="_toggleEditMode" title="Tap to place content in edit mode."></paper-fab>
+    <paper-tooltip
+      for="editbutton"
+      position="bottom"
+      offset="8"
+      animation-delay="100">
+      <span id="fablabel">edit mode</span>
+    </paper-tooltip>
   </template>
   <script>
     Polymer({
@@ -436,6 +503,22 @@ A LRN element
         '_routeChanged(data, route, endPoint)',
       ],
       properties: {
+        /**
+         * Request body parameters for creating a new item.
+         */
+        createRequestBody: {
+          type: Object,
+          computed: '_computeCreateRequestBody(currentPageData)',
+        },
+        /**
+         * Edit / authoring mode.
+         */
+        editMode: {
+          type: Boolean,
+          value: false,
+          reflectToAttribute: true,
+          observer: '_editModeChanged',
+        },
         /**
          * Binding so we can style based on drawer status
          * @type {Object}
@@ -666,17 +749,75 @@ A LRN element
        * Ready event.
        */
       ready: function(e) {
-        // this helps ensure the initial load of the UI doesn't trigger
-        // an ajax call; there's no reason to do so
-        this.pageParams.load = true;
         this.$.bodyloading.hidden = true;
         // fire an outline request to kick things off!
         this.$.outlineajax.generateRequest();
         // scroll top into view
-        // @todo comment back in once we know why drupal is highjacking this
         setTimeout( () => {
           this._resetScroll();
         }, 500);
+      },
+      /**
+       * Calculate what would happen if we added a page here.
+       */
+      _computeCreateRequestBody: function (currentPageData) {
+        if (typeof currentPageData.page !== typeof undefined) {
+          return {
+            'bid': currentPageData.page.relationships.book.id,
+            'pid': currentPageData.page.relationships.parent.id
+          };
+        }
+      },
+      /**
+       * Simple state toggle for edit button being pressed.
+       */
+      _toggleEditMode: function (e) {
+        this.editMode = !this.editMode;
+      },
+      /**
+       * React when state changes for editMode
+       */
+      _editModeChanged: function (newValue, oldValue) {
+        if (newValue === true) {
+          // prevent silly scroll tracking
+          this.resetScroll = true;
+          // update the button to be for saving state
+          this.$.editbutton.icon = 'save';
+          this.$.editbutton.title = 'Tap to save content and exit edit mode';
+          this.$.fablabel = 'save changes';
+          // simple way to remember state of opened drawer
+          this.__bookdraweropened = this.$.bookdrawer.opened;
+          // close the menu to give us more room to work
+          if (this.$.bookdrawer.opened) {
+            this.$.bookdrawer.opened = false;
+          }
+          // @todo more graceful then this but basically this
+          this.$.currenttitle.contentEditable = true;
+          let children = Polymer.dom(this.$.currentcontent).getDistributedNodes()
+          for (var i = 0, len = children.length; i < len; i++) {
+            children[i].contentEditable = true;
+          }
+        }
+        else {
+          // we were in edit mode, now time to save for real
+          if (oldValue === true) {
+            this.currentPageData.title = this.$.currenttitle.innerHTML;
+            this.currentPageData.content = this.$.currentcontentcontainer.innerHTML;
+            //this.$.pageupdateajax.generateRequest();
+            // @todo do some kind of detection so we know we can save
+          }
+          this.$.editbutton.icon = 'editor:mode-edit';
+          this.$.editbutton.title = 'Tap to place content in edit mode.';
+          this.$.fablabel = 'edit mode';
+          this.$.bookdrawer.opened = this.__bookdraweropened;
+          // @todo more graceful then this but basically this
+          this.$.currenttitle.contentEditable = false;
+          let children = Polymer.dom(this.$.currentcontent).getDistributedNodes()
+          for (var i = 0, len = children.length; i < len; i++) {
+            children[i].contentEditable = false;
+          }
+          this.resetScroll = false;
+        }
       },
       /**
        * Change the activeOutline
@@ -774,11 +915,6 @@ A LRN element
           setTimeout( () => {
             this.resetScroll = false;
           }, 1000);
-          // manage the requests to ensure we already have
-          // data for this since the bar should have loaded
-          // it up for us but doesnt know what to do with it
-          // @todo pipe this into the body field / replace
-          // contents of the slot
 
           // manage the previous page button on the UI
           if (newValue == 0) {
@@ -900,11 +1036,15 @@ A LRN element
             this.activePage = activePage;
           }
           this.$.outlineloading.hidden = true;
+          this.pageParams.load = true;
           // only repopulate the first time
           if (this.bookItems.length === 0 ) {
             this.$.bookajax.generateRequest();
+            // kick off page request to since we paint it into slot early
+            // this allows us to do admin user perm checking on initial load
+            this.pageParams = this.requestParams;
+            this.$.pageajax.generateRequest();
           }
-          this.pageParams.load = true;
         }
       },
       /**
@@ -932,9 +1072,18 @@ A LRN element
       _currentPageDataUpdated: function (newValue, oldValue) {
         if (typeof newValue !== typeof undefined && typeof newValue.content !== typeof undefined) {
           this.set('currentTitle', newValue.title);
-          this.$.currentcontent.innerHTML = newValue.content;
+          Polymer.dom
+          var tmp = document.createElement('div');
+          tmp.innerHTML = newValue.content;
+          // @todo this wipes the slot, we need to update the slot
+          // see : https://www.polymer-project.org/1.0/docs/devguide/local-dom#light-dom-children
+          this.$.currentcontentcontainer.innerHTML = newValue.content;
           this._resetScroll();
           this.$.bodyloading.hidden = true;
+          // manage state associated w/ edit mode if we were in edit mode previously
+          if (this.editMode && !newValue.page.meta.canUpdate) {
+            this.editMode = false;
+          }
         }
       },
       /**

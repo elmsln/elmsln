@@ -8,7 +8,7 @@ class LRNAppBookService {
   /**
    * Try to load active from URL
    */
-  public function loadActivePage() {
+  public function loadActiveNode() {
     $node = FALSE;
     $arg = arg(3);
     // check for node expressed directly via URL; less optimal
@@ -24,14 +24,19 @@ class LRNAppBookService {
   /**
    * Create Stub Page based on book nid
    */
-  public function createStubPage($bid) {
+  public function createStubPage($data) {
     global $user;
     $node = new stdClass();
     $node->title = t('New page');
     $node->type = 'page';
     $node->uid = $user->uid;
     $node->status = 1;
-    $node->book = array('bid' => $bid);
+    // load parent based on nid
+    $parent = $this->getPage($data['pid']);
+    $node->book = array(
+      'bid' => $data['bid'],
+      'plid' => $parent->book['mlid'],
+    );
     if (entity_access('create', 'node', $node)) {
       try {
         node_save($node);
@@ -53,7 +58,7 @@ class LRNAppBookService {
     $items = array();
     // support loading off the active or a passed in one
     if (empty($id)) {
-      $node = $this->loadActivePage();
+      $node = $this->loadActiveNode();
     }
     else {
       $node = node_load($id);
@@ -141,7 +146,6 @@ class LRNAppBookService {
           'type' => 'node',
           'id' => $page->id,
           'hasChildren' => $page->relationships->has_children,
-          'canUpdate' => $page->meta->canUpdate,
         );
       }
     }
@@ -289,7 +293,12 @@ class LRNAppBookService {
       // title
       $encoded_page->attributes->title = $node->title;
       // content area
-      $encoded_page->attributes->body = $node->body[LANGUAGE_NONE][0]['safe_value'];
+      if (isset($node->body[LANGUAGE_NONE][0]['safe_value'])) {
+        $encoded_page->attributes->body = $node->body[LANGUAGE_NONE][0]['safe_value'];
+      }
+      else {
+        $encoded_page->attributes->body = check_markup($node->body['und'][0]['value'], $node->body['und'][0]['format']);
+      }
       // banner image
       if (!empty($node->field_mooc_image[LANGUAGE_NONE])) {
         $encoded_page->attributes->image = _elmsln_api_v1_file_output($node->field_mooc_image[LANGUAGE_NONE][0]);
@@ -334,8 +343,11 @@ class LRNAppBookService {
       if (isset($node->book['mlid'])) {
         // has_children boolean
         $encoded_page->relationships->has_children = $node->book['has_children'];
-        // pass along book data
+        // pass along book data relationships and associations
         $encoded_page->relationships->book->id = $node->book['bid'];
+        $book = node_load($node->book['bid']);
+        $encoded_page->relationships->book->title = $book->book['link_title'];
+        $encoded_page->relationships->book->path = $book->book['link_path'];
         $associations = _book_cache_get_associations($node->book);
         // previous link if we have one
         if (isset($associations['prev'])) {

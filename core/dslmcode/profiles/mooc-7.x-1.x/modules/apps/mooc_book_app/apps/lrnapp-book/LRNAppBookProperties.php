@@ -25,7 +25,7 @@ function _lrnapp_book_finish_sound() {
  */
 function _lrnapp_book_render_active_title() {
   $service = new LRNAppBookService();
-  $node = $service->loadActivePage();
+  $node = $service->loadActiveNode();
   if ($node) {
     return $node->title;
   }
@@ -38,7 +38,7 @@ function _lrnapp_book_render_active_title() {
  */
 function _lrnapp_book_render_outline_title() {
   $service = new LRNAppBookService();
-  $node = $service->loadActivePage();
+  $node = $service->loadActiveNode();
   $page = $service->getPage($node->nid);
   if ($page) {
     return $page->relationships->parent->title;
@@ -52,7 +52,7 @@ function _lrnapp_book_render_outline_title() {
  */
 function _lrnapp_book_render_book_title() {
   $service = new LRNAppBookService();
-  $node = $service->loadActivePage();
+  $node = $service->loadActiveNode();
   $page = $service->getPage($node->nid);
   if ($page) {
     return $page->relationships->book->title;
@@ -65,7 +65,7 @@ function _lrnapp_book_render_book_title() {
  */
 function _lrnapp_book_render_active_node() {
   $service = new LRNAppBookService();
-  $node = $service->loadActivePage();
+  $node = $service->loadActiveNode();
   // return node content if they can see this
   if ($node && node_access('view', $node)) {
     // return safe value if it's already been built
@@ -85,7 +85,7 @@ function _lrnapp_book_render_active_node() {
 function _lrnapp_book_render_active_params() {
   $return = array();
   $service = new LRNAppBookService();
-  $node = $service->loadActivePage();
+  $node = $service->loadActiveNode();
   // return node content if they can see this
   if ($node && node_access('view', $node)) {
     $return = array('node' => $node->nid);

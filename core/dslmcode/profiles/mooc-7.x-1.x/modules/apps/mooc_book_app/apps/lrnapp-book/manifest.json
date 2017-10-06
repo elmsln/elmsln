@@ -7,17 +7,25 @@
   "app_integration": {
     "title": "",
     "endpoints": {
-      "data/outline": {
+      "api/outline": {
         "callback": "_lrnapp_book_outline_data",
         "property": "outline-path"
       },
-      "data/book": {
+      "api/book": {
         "callback": "_lrnapp_book_book_data",
         "property": "book-path"
       },
-      "data/page": {
+      "api/page": {
         "callback": "_lrnapp_book_page_data",
         "property": "page-path"
+      },
+      "api/page/create-stub": {
+        "callback": "_lrnapp_book_create_stub",
+        "property": "source-path"
+      },
+      "api/page/%": {
+        "callback": "_lrnapp_book_findone",
+        "property": "source-path"
       }
     },
     "properties": {
