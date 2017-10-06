@@ -47,6 +47,20 @@ function _lrnapp_book_render_outline_title() {
 }
 
 /**
+ * Return the active node's parent title.
+ * @return [type] [description]
+ */
+function _lrnapp_book_render_book_title() {
+  $service = new LRNAppBookService();
+  $node = $service->loadActivePage();
+  $page = $service->getPage($node->nid);
+  if ($page) {
+    return $page->relationships->book->title;
+  }
+  return '';
+}
+
+/**
  * Return the active node
  */
 function _lrnapp_book_render_active_node() {
@@ -54,7 +68,13 @@ function _lrnapp_book_render_active_node() {
   $node = $service->loadActivePage();
   // return node content if they can see this
   if ($node && node_access('view', $node)) {
-    return check_markup($node->body['und'][0]['value'], $node->body['und'][0]['format']);
+    // return safe value if it's already been built
+    if (isset($node->body['und'][0]['safe_value'])) {
+      return $node->body['und'][0]['safe_value'];
+    }
+    else {
+      return check_markup($node->body['und'][0]['value'], $node->body['und'][0]['format']);
+    }
   }
   return '';
 }

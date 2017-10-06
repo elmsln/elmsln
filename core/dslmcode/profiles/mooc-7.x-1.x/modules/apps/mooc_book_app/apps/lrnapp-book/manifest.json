@@ -30,6 +30,9 @@
       "outline-title" : {
         "callback": "_lrnapp_book_render_outline_title"
       },
+      "book-title" : {
+        "callback": "_lrnapp_book_render_book_title"
+      },
       "complete-sound" : {
         "callback": "_lrnapp_book_complete_sound"
       },

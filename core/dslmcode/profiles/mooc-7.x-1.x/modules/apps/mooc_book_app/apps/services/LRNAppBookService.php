@@ -141,6 +141,7 @@ class LRNAppBookService {
           'type' => 'node',
           'id' => $page->id,
           'hasChildren' => $page->relationships->has_children,
+          'canUpdate' => $page->meta->canUpdate,
         );
       }
     }
