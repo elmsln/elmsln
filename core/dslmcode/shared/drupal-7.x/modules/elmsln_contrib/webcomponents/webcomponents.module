@@ -248,6 +248,18 @@ function webcomponents_load_all($force_rebuild = FALSE) {
 }
 
 /**
+ * Helper function to return all components as an array of tag names.
+ */
+function _webcomponents_all_tags() {
+  $tags = array();
+  $components = webcomponents_load_all();
+  foreach ($components as $component) {
+    $tags[] = $component->machine_name;
+  }
+  return $tags;
+}
+
+/**
  * Rebuild webcomponents from the file system.
  */
 function _webcomponents_rebuild($hide_messages = FALSE) {

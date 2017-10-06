@@ -42,10 +42,54 @@ function elmsmedia_h5p_page_build(&$page) {
 /**
  * Implements hook_embedded_h5p_alter().
  */
-function elmsmedia_h5p_embedded_h5p_alter(&$node) {
+function elmsmedia_h5p_embedded_h5p_alter(&$head, $node) {
   // append domain partcial if we can for avoiding XSS blocking on same origin root
   if ($domain = _cis_connector_parent_domain()) {
-    print '<script>document.domain = "' . $domain . '"</script>';
+    $head .= "\n" . '<script>document.domain = "' . $domain . '"</script>';
+  }
+  // load all the components so we can use webcomponents in H5P
+  $components = webcomponents_load_all();
+  $files = array();
+  // ensure files w/ multiple elements are only
+  // imported once
+  foreach ($components as $component) {
+    // if it matches multiple to same file
+    // it doesn't matter since it'll still be available
+    $files[$component->file] = $component;
+  }
+  // let developers modify which files are appended to the document
+  // right before we do so
+  drupal_alter('webcomponent_attached_files', $files);
+  // write the component file reference to the screen
+  foreach ($files as $component) {
+    // @see _webcomponents_add_to_head
+    // generate filename hash based on the size of the file
+    // this is a quick and dirty way to do invalidation when it updates without local cache refreshes client side
+    if (file_exists(DRUPAL_ROOT . '/' . $component->file)) {
+      $hash = filesize(DRUPAL_ROOT . '/' . $component->file);
+      $head .= "\n" . '<link rel="import" href="' . base_path() . $component->file . '?h' . $hash . '"/>';
+    }
+
+  }
+  // load webcomponentsjs polyfill library if it exists
+  $libraries = libraries_get_libraries();
+  if (isset($libraries['webcomponents']) && is_dir(DRUPAL_ROOT . '/' . $libraries['webcomponents'] . '/webcomponentsjs')) {
+    $head .= "\n" . "
+      <script type='text/javascript'>
+      window.onload = function() {
+        if ('registerElement' in document
+          && 'import' in document.createElement('link')
+          && 'content' in document.createElement('template')) {
+          // platform is good!
+        }
+        else {
+          // polyfill the platform!
+          var e = document.createElement('script');
+          e.src = '" . base_path() . $libraries['webcomponents'] . "/webcomponentsjs/webcomponents-lite.min.js';
+          document.head.appendChild(e);
+        }
+      };
+      </script>";
   }
 }
 
@@ -60,7 +104,7 @@ function elmsmedia_h5p_replicate_ui_access_check_alter(&$access, $type, $entity)
 }
 
 /**
- * Impliments hook_h5p_filtered_params_alter
+ * Implements hook_h5p_filtered_params_alter
  *
  * Replace H5P's text filter with Drupal's xss filter.
  */
@@ -91,11 +135,32 @@ function _elmsmedia_h5p_recursively_add_drupal_filter(&$fields) {
   }
 }
 
+/**
+ * Implements elmsmedia_h5p_allowed_tags_alter().
+ */
+function elmsmedia_h5p_h5p_allowed_tags_alter(&$allowed_tags) {
+  $allowed_tags = array_merge($allowed_tags, _webcomponents_all_tags());
+}
+
+/**
+ * Assemble (and static cache cause it's called a lot on) allowed tags.
+ */
+function _elmsmedia_h5p_allowed_tags() {
+  $allowed_tags = &drupal_static(__FUNCTION__);
+  if (!$allowed_tags) {
+    // Get the list of allowed tags
+    $allowed_tags = variable_get('elmsmedia_h5p_allowed_tags', array('a', 'em', 'strong', 'cite', 'code', 'ul', 'ol', 'li', 'dl', 'dt', 'dd', 'p', 'div'));
+    $allowed_tags = _elmsmedia_variable_formatter($allowed_tags);
+    drupal_alter('h5p_allowed_tags', $allowed_tags);
+  }
+  return $allowed_tags;
+}
+
+/**
+ * [_elmsmedia_h5p_add_drupal_filter description]
+ */
 function _elmsmedia_h5p_add_drupal_filter(&$field) {
-  // Get the list of allowed tags
-  $allowed_tags = variable_get('elmsmedia_h5p_allowed_tags', array());
-  $allowed_tags = _elmsmedia_variable_formatter($allowed_tags);
-  drupal_alter('elmsmedia_h5p_allowed_tags', $allowed_tags);
+  $allowed_tags = _elmsmedia_h5p_allowed_tags();
 
   $value = '';
   // decode H5P's escaping
