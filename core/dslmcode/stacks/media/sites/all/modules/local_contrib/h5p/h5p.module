@@ -960,9 +960,7 @@ function h5p_add_files_and_settings($node, $embed_type) {
 
   drupal_alter('h5p_scripts', $files['scripts'], $library_list, $embed_type);
   drupal_alter('h5p_styles', $files['styles'], $library_list, $embed_type);
-  // allow for appending output to this page
-  $content['head'] = '';
-  drupal_alter('embedded_h5p', $content['head'], $node);
+
   if ($embed_type === 'div') {
     foreach ($files['scripts'] as $script) {
       $url = base_path() . $script->path . $script->version;

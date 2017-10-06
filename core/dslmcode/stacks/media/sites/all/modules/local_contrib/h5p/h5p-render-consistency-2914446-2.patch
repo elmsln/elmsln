@@ -1,0 +1,39 @@
+diff --git a/h5p.module b/h5p.module
+index e311e07..a1419b8 100644
+--- a/h5p.module
++++ b/h5p.module
+@@ -607,9 +607,11 @@ function h5p_view($node, $view_mode = 'full') {
+   else {
+     h5p_set_started(h5p_get_content_id($node));
+   }
++  $output = '<div class="h5p-iframe-wrapper"><iframe style="height:1px" src="' . url('h5p/embed/' . $node->nid, array('absolute' => TRUE)) . '" width=":w" height=":h" frameborder="0" scrolling="no" allowfullscreen="allowfullscreen"></iframe></div>';
++  $output .= '<script src="' . h5p_get_resize_url() . '" charset="UTF-8"></script>';
+ 
+   $node->content['h5p'] = array(
+-    '#markup' => $html,
++    '#markup' => $output,
+     '#weight' => 1,
+   );
+ 
+@@ -1457,6 +1459,9 @@ function h5p_embed($node) {
+   $styles = array_merge($styles, $core->getAssetsUrls($files['styles']));
+ 
+   $lang = $language->language;
++  // allow for appending output to this page
++  $content['head'] = '';
++  drupal_alter('embedded_h5p', $content['head'], $node);
+   include('library/embed.php');
+ }
+ 
+diff --git a/library/embed.php b/library/embed.php
+index 430b5a0..389e40c 100644
+--- a/library/embed.php
++++ b/library/embed.php
+@@ -3,6 +3,7 @@
+ <head>
+   <meta charset="utf-8">
+   <title><?php print $content['title']; ?></title>
++  <?php print $content['head']; ?>
+   <?php for ($i = 0, $s = count($scripts); $i < $s; $i++): ?>
+     <script src="<?php print $scripts[$i]; ?>"></script>
+   <?php endfor; ?>
