@@ -119,10 +119,12 @@ A LRN element
       .prev {
         left: 0;
         transition: left .4s ease;
+        order: 1;
       }
       .next {
         right: 0;
         transition: right .2s ease;
+        order: 2;
       }
       #body {
         font-family: sans-serif;
@@ -231,7 +233,38 @@ A LRN element
         opacity: 1;
         transition: visibility 1s linear, opacity 1s linear;
       }
-
+      @media (max-width: 1200px) {
+        :host[drawer-opened] .content-body,
+        :host .content-body {
+          font-size: .94em;
+          margin: .5em 0 0 16em;
+          width: 70%;
+        }
+      }
+      @media (max-width: 960px) {
+        :host[drawer-opened] .content-body,
+        :host .content-body {
+          font-size: .92em;
+          margin: .5em 0 0 16em;
+          width: 65%;
+        }
+      }
+      @media (max-width: 820px) {
+        :host[drawer-opened] .content-body,
+        :host .content-body {
+          font-size: .9em;
+          margin: .5em 0 0 17em;
+          width: 50%;
+        }
+      }
+      @media (max-width: 700px) {
+        :host[drawer-opened] .content-body,
+        :host .content-body {
+          font-size: .9em;
+          margin: .5em 0 0 17em;
+          width: 48%;
+        }
+      }
       @media (max-width: 639px) {
         :host[drawer-opened] app-drawer-layout,
         app-drawer-layout {
@@ -261,6 +294,7 @@ A LRN element
         :host .content-body {
           margin: 0 .5em;
           font-size: .9em;
+          width: 85%;
         }
         .content-nav-buttons {
           position: relative;
@@ -345,7 +379,7 @@ A LRN element
       <app-drawer slot="drawer" id="bookdrawer" opened="{{drawerOpened}}" swipe-open transition-duration="400">
         <div id="bookdrawercontent" style="height: 100%; overflow: auto;" hidden$="[[!bookItems]]">
           <paper-search-bar hide-filter-button></paper-search-bar>
-          <div class="course-title-drawer">Course Outline</div>
+          <div class="course-title-drawer">[[bookTitle]]</div>
           <div>
           <template is="dom-repeat" items="[[bookItems]]" as="item">
             <lrndesign-stepper-button data-book-index$="[[index]]" on-tap="_bookOutlineTap" title="[[item.title]]" icon="[[item.icon]]" url="[[item.url]]"></lrndesign-stepper-button>
@@ -356,7 +390,6 @@ A LRN element
       </app-drawer-layout>
       <div class="content-body">
         <h2 class="content-title">[[currentTitle]]</h2>
-        <div id="previous" class="content-previous"></div>
         <div id="current" class="content-current">
           <div id="bodyloading" class="loading">
             <elmsln-loading color="grey-text" size="large"></elmsln-loading>
@@ -366,29 +399,26 @@ A LRN element
             <slot></slot>
           </div>
         </div>
-        <div id="next" class="content-next"></div>
       </div>
       <div class="content-nav">
-        <div class="content-nav-buttons prev">
-          <paper-icon-button id="prev" title="[[prevLabel]]" on-tap="_prevBtn" icon="hardware:keyboard-arrow-left" hidden$="[[!hasPrevPage]]"></paper-icon-button>
-          <paper-tooltip
-            for="prev"
-            position="right"
-            offset="0"
-            fit-to-visible-bounds
-            animation-delay="100">
-            [[prevLabel]]
-          </paper-tooltip>
-        </div>
         <div class="content-nav-buttons next">
           <paper-icon-button id="next" title="[[nextLabel]]" on-tap="_nextBtn" icon="hardware:keyboard-arrow-right" hidden$="[[!hasNextPage]]"></paper-icon-button>
           <paper-tooltip
             for="next"
             position="left"
             offset="0"
-            fit-to-visible-bounds
             animation-delay="100">
             [[nextLabel]]
+          </paper-tooltip>
+        </div>
+        <div class="content-nav-buttons prev">
+          <paper-icon-button id="prev" title="[[prevLabel]]" on-tap="_prevBtn" icon="hardware:keyboard-arrow-left" hidden$="[[!hasPrevPage]]"></paper-icon-button>
+          <paper-tooltip
+            for="prev"
+            position="right"
+            offset="0"
+            animation-delay="100">
+            [[prevLabel]]
           </paper-tooltip>
         </div>
       </div>
@@ -433,6 +463,13 @@ A LRN element
          */
         outlineTitle: {
           type: String,
+        },
+        /**
+         * Title for the top of the bar
+         */
+        bookTitle: {
+          type: String,
+          value: 'Course outline',
         },
         /**
          * If the sound should play on finish.
