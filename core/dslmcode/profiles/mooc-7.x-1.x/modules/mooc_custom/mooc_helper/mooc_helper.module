@@ -973,3 +973,13 @@ function mooc_helper_theme($existing, $type, $theme, $path) {
   );
 }
 
+/**
+ * Implements hook_wrapped_paths().
+ */
+function mooc_helper_wrapped_paths() {
+  $paths = array(
+    'apps/*' => FALSE,
+  );
+  return $paths;
+}
+

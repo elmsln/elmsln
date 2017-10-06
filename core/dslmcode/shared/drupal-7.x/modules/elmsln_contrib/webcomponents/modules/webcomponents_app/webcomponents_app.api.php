@@ -47,6 +47,15 @@ function hook_register_webcomponent_apps() {
           'callback' => '_get_user_age',
         )
       ),
+      // optional: allow for defining slots that get added to the contents of the tag
+      // this compiles prior to rendering through the theme layer so that this would look
+      // like <span slot="title">Page 1</span><span slot="content"></span> and etc
+      'slots' => array(
+        'title' => 'Page 1',
+        'content' => array(
+          'callback' => '_get_active_content',
+        )
+      ),
       // optional: completely optional but also is hooked in from where ever it comes from
       // this allows you to do any other kind of contextual operation you would need.
       // For example, elmsln uses the 'distro' context value to match against the currently

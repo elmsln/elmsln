@@ -5,5 +5,3 @@ package = MOOC
 dependencies[] = book
 dependencies[] = book_cache
 dependencies[] = webcomponents_app
-dependencies[] = mooc_nav_block
-dependencies[] = mooc_helper_book_nav

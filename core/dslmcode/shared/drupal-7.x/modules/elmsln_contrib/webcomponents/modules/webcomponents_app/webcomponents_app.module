@@ -63,9 +63,15 @@ function webcomponents_app_permission() {
   // load app definitions
   $apps = webcomponents_app_load_app_definitions(NULL, TRUE);
   foreach ($apps as $machine_name => $app) {
+    if (empty($app['title'])){
+      $human = $machine_name;
+    }
+    else {
+      $human = $app['title'];
+    }
     $perms['access ' . $machine_name . ' app'] = array(
-      'title' => t('Access @name', array('@name' => $app['title'])),
-      'description' => t('Allow user to access the one page app called @name', array('@name' => $app['title'])),
+      'title' => t('Access @name', array('@name' => $human)),
+      'description' => t('Allow user to access the one page app called @name', array('@name' => $human)),
     );
   }
   return $perms;
@@ -262,6 +268,34 @@ function _webcomponents_app_load_app($machine_name = NULL, $debug = FALSE) {
         }
       }
     }
+    // support for slots to be mixed in automatically
+    if (isset($app['slots'])) {
+      foreach ($app['slots'] as $key => $slot) {
+        // support for simple function based callbacks for slots from functions
+        if (is_array($slot) && isset($slot['callback'])) {
+          // ensure it exists of that would be bad news bears
+          if (function_exists($slot['callback'])) {
+            // only allow for simple function callbacks
+            $vars['slots'][$key] = call_user_func($slot['callback']);
+          }
+          else {
+            // well it failed but at least set it to nothing
+            $vars['slots'][$key] = NULL;
+            // missing function, let's log this to the screen or watchdog if its debug mode
+            if ($debug) {
+              dpm(t('The @machine app wants to hit the callback @callback for slot @key but this function could not be found', array('@key' => $key, '@machine' => $machine_name, '@callback' => $slot['callback'])));
+            }
+            else {
+              // report to the watchdog soemthing is missing
+              watchdog('webcomponents_app', t('The @machine app wants to hit the callback @callback for slot @key but this function could not be found', array('@key' => $key, '@machine' => $machine_name, '@callback' => $slot['callback'])), array(), WATCHDOG_ERROR, 'link');
+            }
+          }
+        }
+        else {
+          $vars['slots'][$key] = $slot;
+        }
+      }
+    }
     // special properties that register endpoints
     if (isset($app['endpoints'])) {
       // all end points will be able to use this for simple, secure construction
@@ -280,6 +314,27 @@ function _webcomponents_app_load_app($machine_name = NULL, $debug = FALSE) {
     else if (isset($app['opa-root'])) {
       $vars['properties']['csrf-token'] = drupal_get_token('webcomponentapp');
       $vars['properties']['base-path'] = base_path() . WEBCOMPONENTS_APP_PATH . '/';
+    }
+    // support compressing slots into the innerHTML tag
+    if (isset($vars['slots'])) {
+      // support single slot name
+      if (is_string($vars['slots'])) {
+        $vars['innerHTML'] = $vars['slots'];
+      }
+      // support for multiple slot names
+      else if (is_array($vars['slots'])) {
+        $vars['innerHTML'] = '';
+        foreach ($vars['slots'] as $name => $content) {
+          $vars['innerHTML'] .= '<span slot="' . $name . '">' . $content . '</span>';
+        }
+      }
+    }
+    // add on custom class to help idenfity that drupal delivered this
+    if (!isset($vars['properties']['class'])) {
+      $vars['properties']['class'] = WEBCOMPONENTS_CLASS_IDENTIFIER;
+    }
+    else {
+      $vars['properties']['class'] .= ' ' . WEBCOMPONENTS_CLASS_IDENTIFIER;
     }
     // allow for modifying the app prior to render
     drupal_alter('webcomponent_render', $vars, $app);

@@ -1,3 +1,18 @@
+<link rel="import" href="elmsln-imports.html">
+
+<!--
+`lrnapp-book`
+A LRN element
+
+@demo demo/index.html
+
+@microcopy
+  node / circle - A progress circle on the line
+  nodes / items - the list of items in the progress bar
+  bubble - reserved for when events fire out of an element or value is tracking events
+  percentage - amount complete either in the bar or the nodes themselves
+  bar - the underlayed bar that's tracking overall progression
+-->
 
 <dom-module id="lrnapp-book">
   <template>
@@ -5,118 +20,922 @@
     <style>
       :host {
         display: block;
+        font-size: 1em;
+        box-sizing: content-box;
+      }
+      app-toolbar {
+        color: gray;
+        background-color: white;
+        padding: 0 .5em;
+        margin: 0;
+        height: auto;
+        box-sizing: content-box;
       }
       paper-button {
         padding: 0;
         margin: 0;
         min-width: 1rem;
       }
-    </style>
-    <iron-ajax
-       auto
-       id="ajax"
-       params="{{requestParams}}"
-       url="[[sourcePath]]"
-       handle-as="json"
-       on-response="handleResponse"
-       last-response="{{requestData}}"></iron-ajax>
-    <div id="breadcrumb" class="row"></div>
-    <div id="nav" class="row"></div>
-    <div id="content" class="row"></div>
-    <template is="dom-if" if="{{hasPrevPage}}">
-      <a tabindex="-1" class="book-sibling-parent-pagination book-sibling-parent-pagination-previous page-previous black-text white" title="Go to previous page" data-voicecommand="previous" data-jwerty-key="→" on-click="loadPrevPage">
-        <paper-button raised>Previous</paper-button>
-      </a>
-    </template>
-    <template is="dom-if" if="{{hasNextPage}}">
-      <a tabindex="-1" class="page-next book-sibling-parent-pagination book-sibling-parent-pagination-next black-text white" title="Go to next page" data-voicecommand="next" data-jwerty-key="→" on-click="loadNextPage">
-        <paper-button raised>Next</paper-button>
-      </a>
-    </template>
-  </template>
 
+      app-drawer,
+      app-drawer-layout {
+        padding: 0;
+        top: 1.9em;
+        bottom: 0;
+        z-index: 1;
+        position: absolute;
+        box-sizing: content-box;
+        --app-drawer-content-container: {
+          background-color: #fafafa;
+          padding: 10px;
+          z-index: 1;
+          border-right: 1px solid #c8c8c8;
+          overflow: inherit;
+        }
+      }
+
+      lrndesign-stepper-button {
+        --lrndesign-stepper-btn-active: #f6f7f7;
+      }
+      lrndesign-stepper-button ::shadow paper-button {
+        margin: 0;
+      }
+      lrndesign-stepper-button ::shadow .title-container.lrndesign-stepper-button {
+        padding: 0;
+        width: 100%;
+        right: unset;
+      }
+      lrndesign-stepper-button ::shadow .node-title.lrndesign-stepper-button {
+        font-size: .9em;
+        line-height: 1.5em;
+      }
+
+      .loading {
+        width: 100%;
+        z-index: 1000;
+        opacity: .9;
+        text-align: center;
+        align-content: space-around;
+        justify-content: center;
+        position: absolute;
+        background-color: white;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        margin: 0 auto;
+        visibility: visible;
+        transition: visibility 1s, opacity 1s ease;
+      }
+      .loading elmsln-loading {
+        margin: 0 5em;
+        display: inline-flex;
+      }
+      #bodyloading {
+        height: 100%;
+        display: flex;
+        justify-content: center;
+      }
+      #bodyloading .loading,
+      #bodyloading elmsln-loading{
+        display: block;
+        height: 5em;
+      }
+      .outline-title {
+        margin-left: .5em;
+        max-width: 50%;
+      }
+      .content-nav-buttons {
+        top: 50%;
+        position: fixed;
+        opacity: .8;
+        padding: 0 .25em;
+        height: 50%;
+        padding-top: 15%;
+        margin-top: -15%;
+      }
+      .content-nav-buttons:hover {
+        opacity: 1;
+      }
+      .prev {
+        left: 0;
+        transition: left .4s ease;
+        order: 1;
+      }
+      .next {
+        right: 0;
+        transition: right .2s ease;
+        order: 2;
+      }
+      #body {
+        font-family: sans-serif;
+      }
+      .content-body {
+        position: relative;
+        padding: 0;
+        margin: .5em 4em 0 4em;
+        font-size: 1.3em;
+        width: 85%;
+        transition:
+          margin .4s ease,
+          width .4s ease;
+      }
+      :host[drawer-opened] .content-body {
+        margin: .5em 0 0 13em;
+        width: 73%;
+      }
+      .content-nav-buttons paper-icon-button {
+        width: 4em;
+        height: 4em;
+        opacity: .4;
+        display: block;
+        visibility: visible;
+        transition:
+          opacity .4s linear,
+          visibility 1s linear,
+          height .4s ease,
+          width .4s ease;
+      }
+      .content-nav-buttons paper-icon-button:hover {
+        opacity: 1;
+      }
+      paper-tooltip {
+        --paper-tooltip-opacity: .96;
+      }
+      :host[drawer-opened] .content-nav-buttons paper-icon-button {
+        width: 2.5em;
+        height: 2.5em;
+      }
+      .content-title {
+        font-size: 1.4em;
+        margin: 0;
+        padding: .25em 0;
+      }
+      .content-current {
+        min-height: 100vh;
+      }
+      .content-next {
+        background-color: grey;
+        opacity: .8;
+      }
+      app-header {
+        position: sticky;
+        top: 0;
+        left: 0;
+        width: 100%;
+        color: black;
+        background-color: white;
+        z-index: 2;
+        padding: 0;
+        margin: 0;
+        box-sizing: content-box;
+      }
+      :host app-drawer-layout {
+        pointer-events: none;
+      }
+      :host[drawer-opened] app-drawer-layout {
+        pointer-events: all;
+      }
+      :host[drawer-opened] .prev {
+        left: 14em;
+      }
+      .progress-container {
+        width: 90%;
+        padding: 0;
+        margin: 0 0 0 1em;
+        overflow: visible;
+      }
+
+      [main-title] {
+        font-weight: lighter;
+        padding: .6em 0 0 0;
+        margin: 0;
+        height: 3em;
+        overflow-y: scroll;
+      }
+      [hidden] {
+        visibility: hidden !important;
+        opacity: 0 !important;
+        display: block !important;
+      }
+      lrnsys-progress {
+        margin-top: .5em;
+        padding: .2em 0 0 0;
+        box-sizing: content-box;
+      }
+      lrnsys-progress lrnsys-progress-circle {
+        list-style-type: none;
+        box-sizing: content-box;
+      }
+
+      #bookdrawercontent {
+        visibility: visible;
+        display: block;
+        opacity: 1;
+        transition: visibility 1s linear, opacity 1s linear;
+      }
+      @media (max-width: 1200px) {
+        :host[drawer-opened] .content-body,
+        :host .content-body {
+          font-size: .94em;
+          margin: .5em 0 0 16em;
+          width: 70%;
+        }
+      }
+      @media (max-width: 960px) {
+        :host[drawer-opened] .content-body,
+        :host .content-body {
+          font-size: .92em;
+          margin: .5em 0 0 16em;
+          width: 65%;
+        }
+      }
+      @media (max-width: 820px) {
+        :host[drawer-opened] .content-body,
+        :host .content-body {
+          font-size: .9em;
+          margin: .5em 0 0 17em;
+          width: 50%;
+        }
+      }
+      @media (max-width: 700px) {
+        :host[drawer-opened] .content-body,
+        :host .content-body {
+          font-size: .9em;
+          margin: .5em 0 0 17em;
+          width: 48%;
+        }
+      }
+      @media (max-width: 639px) {
+        :host[drawer-opened] app-drawer-layout,
+        app-drawer-layout {
+          top: 0;
+        }
+        :host .next paper-icon-button,
+        :host .prev paper-icon-button,
+        :host[drawer-opened] .next paper-icon-button,
+        :host[drawer-opened] .prev paper-icon-button {
+          width: 2.5em;
+          height: 2.5em;
+        }
+        [main-title] {
+          font-size: .8em;
+        }
+        .content-title {
+          font-size: 1.1em;
+        }
+        .outline-title {
+          position: absolute !important;
+          clip: rect(1px 1px 1px 1px); /* IE6, IE7 */
+          clip: rect(1px, 1px, 1px, 1px);
+          overflow: hidden;
+          height: 1px;
+        }
+        :host[drawer-opened] .content-body,
+        :host .content-body {
+          margin: 0 .5em;
+          font-size: .9em;
+          width: 85%;
+        }
+        .content-nav-buttons {
+          position: relative;
+          display: flex;
+          top: unset;
+          padding: 0;
+          opacity: .8;
+          height: unset;
+          margin: 0;
+        }
+        .content-nav {
+          width: 100%;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          vertical-align: middle;
+        }
+        .next {
+          right: unset;
+        }
+      }
+      @media (max-width: 500px) {
+        [main-title] {
+          font-size: .7em;
+        }
+      }
+    </style>
+    <page-scroll-position value="{{scrollPosition}}"></page-scroll-position>
+    <div id="anchor"></div>
+    <iron-ajax
+       id="outlineajax"
+       params="[[requestParams]]"
+       url="[[outlinePath]]"
+       handle-as="json"
+       on-response="handleOutlineResponse"
+       last-response="{{outlineData}}"></iron-ajax>
+    <iron-ajax
+       id="bookajax"
+       params="[[requestParams]]"
+       url="[[bookPath]]"
+       handle-as="json"
+       on-response="handleBookResponse"
+       last-response="{{bookData}}"></iron-ajax>
+    <iron-ajax
+       id="pageajax"
+       params="[[pageParams]]"
+       url="[[pagePath]]"
+       handle-as="json"
+       on-response="handlePageResponse"
+       last-response="{{pageData}}"></iron-ajax>
+
+    <app-location route="{{route}}" query-params="{{queryParams}}"></app-location>
+    <app-route
+        route="{{route}}"
+        pattern="[[endPoint]]/:type/:id"
+        data="{{data}}"
+        tail="{{tail}}"
+        query-params="{{queryParams}}">
+    </app-route>
+
+    <app-header id="header" condenses shadow reveals scroll-target="currentcontent">
+      <div id="outlineloading" class="loading">
+        <elmsln-loading color="grey-text" size="medium"></elmsln-loading>
+        <elmsln-loading color="grey-text" size="medium"></elmsln-loading>
+        <elmsln-loading color="grey-text" size="medium"></elmsln-loading>
+      </div>
+      <app-toolbar sticky class="tall">
+        <div style="pointer-events: auto;" class="menu-btn-wrap">
+          <paper-icon-button style="pointer-events: auto;" title="Content outline" id="menubutton" icon="menu"></paper-icon-button>
+        </div>
+        <div spacer class="outline-title">[[outlineTitle]]</div>
+        <div spacer main-title style="pointer-events: auto;">
+          <div class="progress-container">
+            <lrnsys-progress sound-finish="[[soundFinish]]" sound="[[sound]]" complete-sound="[[completeSound]]" finished-sound="[[finishedSound]]" title="The steps to complete this lesson" id="progress" active="{{activePage}}" items="{{outlineItems}}" progressive-unlock size="small"></lrnsys-progress>
+          </div>
+        </div>
+      </app-toolbar>
+    </app-header>
+
+    <div id="body">
+      <app-drawer-layout>
+      <app-drawer slot="drawer" id="bookdrawer" opened="{{drawerOpened}}" swipe-open transition-duration="400">
+        <div id="bookdrawercontent" style="height: 100%; overflow: auto;" hidden$="[[!bookItems]]">
+          <paper-search-bar hide-filter-button></paper-search-bar>
+          <div class="course-title-drawer">[[bookTitle]]</div>
+          <div>
+          <template is="dom-repeat" items="[[bookItems]]" as="item">
+            <lrndesign-stepper-button data-book-index$="[[index]]" on-tap="_bookOutlineTap" title="[[item.title]]" icon="[[item.icon]]" url="[[item.url]]"></lrndesign-stepper-button>
+          </template>
+          </div>
+        </div>
+      </app-drawer>
+      </app-drawer-layout>
+      <div class="content-body">
+        <h2 class="content-title">[[currentTitle]]</h2>
+        <div id="current" class="content-current">
+          <div id="bodyloading" class="loading">
+            <elmsln-loading color="grey-text" size="large"></elmsln-loading>
+            <h3 class="loading-text">Loading content..</h3>
+          </div>
+          <div id="currentcontent">
+            <slot></slot>
+          </div>
+        </div>
+      </div>
+      <div class="content-nav">
+        <div class="content-nav-buttons next">
+          <paper-icon-button id="next" title="[[nextLabel]]" on-tap="_nextBtn" icon="hardware:keyboard-arrow-right" hidden$="[[!hasNextPage]]"></paper-icon-button>
+          <paper-tooltip
+            for="next"
+            position="left"
+            offset="0"
+            animation-delay="100">
+            [[nextLabel]]
+          </paper-tooltip>
+        </div>
+        <div class="content-nav-buttons prev">
+          <paper-icon-button id="prev" title="[[prevLabel]]" on-tap="_prevBtn" icon="hardware:keyboard-arrow-left" hidden$="[[!hasPrevPage]]"></paper-icon-button>
+          <paper-tooltip
+            for="prev"
+            position="right"
+            offset="0"
+            animation-delay="100">
+            [[prevLabel]]
+          </paper-tooltip>
+        </div>
+      </div>
+    </div>
+  </template>
   <script>
     Polymer({
       is: 'lrnapp-book',
+      listeners: {
+        'menubutton.tap': 'toggleBook',
+        'progress.node-percent-milestone': 'testMilestone',
+        'route-change': '_routeChange',
+      },
+      observers: [
+        '_routeChanged(data, route, endPoint)',
+      ],
       properties: {
+        /**
+         * Binding so we can style based on drawer status
+         * @type {Object}
+         */
+        drawerOpened: {
+          type: Boolean,
+          value: true,
+          reflectToAttribute: true,
+        },
+        /**
+         * App route tracking.
+         */
+        route: {
+          type: Object,
+          notify: true,
+        },
+        /**
+         * Title for the content
+         */
+        currentTitle: {
+          type: String,
+        },
+        /**
+         * Title for the top of the bar
+         */
+        outlineTitle: {
+          type: String,
+        },
+        /**
+         * Title for the top of the bar
+         */
+        bookTitle: {
+          type: String,
+          value: 'Course outline',
+        },
+        /**
+         * If the sound should play on finish.
+         */
+        soundFinish: {
+          type: Boolean,
+          value: true,
+        },
+        /**
+         * If the sound should play on complete.
+         */
+        sound: {
+          type: Boolean,
+          value: true,
+        },
+        /**
+         * Completing a step sound.
+         */
+        completeSound: {
+          type: String,
+          value: '',
+        },
+        /**
+         * Finished sound file.
+         */
+        finishedSound: {
+          type: String,
+          value: '',
+        },
+        /**
+         * Distance through the present document so we can visualize
+         */
+        scrollPosition: {
+          type: Number,
+          value: 0,
+          observer: '_scrollChanged',
+        },
+        /**
+         * Track the active page exposed from the progress bar.
+         */
+        activePage: {
+          type: Number,
+          value: 0,
+          observer: '_activePageChanged',
+        },
+        /**
+         * Track the active outline to load data for the progress bar.
+         */
+        activeOutline: {
+          type: Number,
+          value: 0,
+          observer: '_activeOutlineChanged',
+        },
+        /**
+         * List of items in our outline presently.
+         */
+        outlineItems: {
+          type: Array,
+          value: [],
+          notify: true,
+          observer: '_outlineItemsChanged',
+        },
+        /**
+         * List of items in our book presently.
+         */
+        bookItems: {
+          type: Array,
+          value: [],
+          notify: true,
+        },
+        /**
+         * Item responses.
+         */
+        itemResponses: {
+          type: Array,
+          value: [],
+        },
+        /**
+         * Params for the request for outline/book to load.
+         */
         requestParams: {
           type: Object,
-          reflectToAttribute: true,
           notify: true,
           value: {
             "node": null
           },
         },
-        requestData: {
+        /**
+         * Params for the request for content to load.
+         */
+        pageParams: {
           type: Object,
-          reflectToAttribute: true,
+          notify: true,
+          value: {
+            "load": false
+          },
+        },
+        /**
+         * Returned data for processing.
+         */
+        outlineData: {
+          type: Object,
           notify: true,
         },
+        /**
+         * Returned data for processing.
+         */
+        bookData: {
+          type: Object,
+          notify: true,
+        },
+        /**
+         * Returned data for processing.
+         */
+        pageData: {
+          type: Object,
+          notify: true,
+        },
+        /**
+         * data pathway that expects the present outline returned.
+         */
+        outlinePath: {
+          type: String,
+        },
+        /**
+         * data pathway that expects the book chapters returned.
+         */
+        bookPath: {
+          type: String,
+        },
+        /**
+         * data pathway that expects the book chapters returned.
+         */
+        pagePath: {
+          type: String,
+        },
+        /**
+         * Simple flag for having the previous button show.
+         */
         hasPrevPage: {
           type: Boolean,
-          reflectToAttribute: true,
           notify: true,
         },
-        prevPage: {
+        /**
+         * Previous page title.
+         */
+        prevLabel: {
           type: String,
-          reflectToAttribute: true,
-          notify: true,
         },
+        /**
+         * Simple flag for having the next button show.
+         */
         hasNextPage: {
           type: Boolean,
-          reflectToAttribute: true,
           notify: true,
         },
-        nextPage: {
+        /**
+         * Next page title.
+         */
+        nextLabel: {
           type: String,
-          reflectToAttribute: true,
-          notify: true,
         },
+        /**
+         * Ensure scrolling doesn't influence during a transition.
+         */
+        resetScroll: {
+          type: Boolean,
+          value: false,
+        },
+        /**
+         * Store current page data.
+         */
+        currentPageData: {
+          type: Object,
+          value: {},
+          observer: '_currentPageDataUpdated',
+        },
+        /**
+         * Store current page data.
+         */
+        responseData: {
+          type: Object,
+          value: {},
+        },
+        /**
+         * Rebuild outline flag so we know to call it on page build.
+         */
+        rebuildOutline: {
+          type: Boolean,
+          value: false,
+        },
+      },
+      /**
+       * Ready event.
+       */
+      ready: function(e) {
+        // this helps ensure the initial load of the UI doesn't trigger
+        // an ajax call; there's no reason to do so
+        this.pageParams.load = true;
+        this.$.bodyloading.hidden = true;
+        // fire an outline request to kick things off!
+        this.$.outlineajax.generateRequest();
+        // scroll top into view
+        // @todo comment back in once we know why drupal is highjacking this
+        setTimeout( () => {
+          this._resetScroll();
+        }, 500);
+      },
+      /**
+       * Change the activeOutline
+       */
+      _bookOutlineTap: function (e) {
+        var normalizedEvent = Polymer.dom(e);
+        var local = normalizedEvent.localTarget;
+        if (typeof local.getAttribute('data-book-index') !== typeof undefined) {
+          this.activeOutline = local.getAttribute('data-book-index');
+        }
+      },
+      /**
+       * A book level button was pressed, we need to invoke a change of
+       * content as well as outline.
+       */
+      _activeOutlineChanged: function(newValue, oldValue) {
+        if (typeof newValue !== typeof undefined && typeof oldValue !== typeof undefined) {
+          // trigger loading state
+          this.rebuildOutline = true;
+        }
+      },
+      /**
+       * If the current route is outside the scope of our app then allow
+       * the website to break out of the single page application routing.
+       */
+      _routeChanged: function(data, route, endPoint) {
+        if (typeof route.path === 'string') {
+          if (typeof endPoint === 'string') {
+            if (route.path.startsWith(endPoint)) {
+              // trigger change if data location changed
+              if (this.pageParams.load != false && typeof data.type !== typeof undefined && typeof data.id !== typeof undefined) {
+                // prime the page request parameters
+                this.pageParams[data.type] = data.id;
+                // test if we already have this request
+                if (typeof this.responseData[data.type + data.id] !== typeof undefined) {
+                  this.set('currentPageData', this.responseData[data.type + data.id]);
+                }
+                else {
+                  // trigger loading state
+                  this.$.bodyloading.hidden = false;
+                  // send request out the door to the actual end point
+                  this.$.pageajax.generateRequest();
+                }
+                // support for being told to rebuild the outline
+                if (this.rebuildOutline) {
+                  // dirty rebuild of params
+                  this.set('requestParams', []);
+                  // our page params have the current page in scope
+                  this.set('requestParams', this.pageParams);
+                  // test if we already have this request
+                  if (typeof this.responseData[data.type + '.' + data.id + '.outline'] !== typeof undefined) {
+                    this.activePage = 0;
+                    this.set('outlineItems', []);
+                    this.set('outlineItems', this._toArray(this.responseData[data.type + '.' + data.id + '.outline'].items));
+                    this.set('outlineTitle', this.responseData[data.type + '.' + data.id + '.outline'].items.outlineTitle);
+                  }
+                  else {
+                    this.$.outlineloading.hidden = false;
+                    this.pageParams.load = false;
+                    // send request out the door to the actual end point
+                    this.$.outlineajax.generateRequest();
+                  }
+                  this.rebuildOutline = false;
+                }
+              }
+              return;
+            }
+          }
+          // reload the page which since route changed will load that page
+          window.location.reload();
+        }
+      },
+      /**
+       * Reset scroll position visually and internally data wise.
+       */
+      _resetScroll: function () {
+        this.resetScroll = true;
+        this.scrollPosition = 0;
+        this.$.anchor.scrollIntoView({block: "start", behavior: "smooth", inline: "nearest"});
+      },
+      /**
+       * React to active page being changed.
+       */
+      _activePageChanged: function (newValue, oldValue) {
+        if (typeof newValue !== typeof undefined) {
+          if (typeof this.outlineItems !== typeof undefined) {
+            this.set('route.path', this.outlineItems[newValue].url);
+          }
+          // scroll into view the container that's about to be swapped out
+          if (typeof oldValue !== typeof undefined) {
+
+          }
+          // ensure that scrolling percentage doesn't increase the next item
+          // while active is being changed
+          setTimeout( () => {
+            this.resetScroll = false;
+          }, 1000);
+          // manage the requests to ensure we already have
+          // data for this since the bar should have loaded
+          // it up for us but doesnt know what to do with it
+          // @todo pipe this into the body field / replace
+          // contents of the slot
+
+          // manage the previous page button on the UI
+          if (newValue == 0) {
+            this.hasPrevPage = false;
+          }
+          else {
+            this.hasPrevPage = true;
+            if (typeof this.outlineItems !== typeof undefined) {
+              this.prevLabel = this.outlineItems[newValue- 1].title;
+            }
+          }
+          // manage next page button on the UI
+          if (typeof this.outlineItems !== typeof undefined && (newValue + 1) == this.outlineItems.length) {
+            this.hasNextPage = false;
+          }
+          else {
+            this.hasNextPage = true;
+            if (typeof this.outlineItems !== typeof undefined) {
+              this.nextLabel = this.outlineItems[newValue + 1].title;
+            }
+          }
+        }
+      },
+      /**
+       * React to items being changed.
+       */
+      _outlineItemsChanged: function (newValue, oldValue) {
+        // these need set immediately
+        if (typeof newValue !== typeof undefined && newValue.length != 0) {
+          // manage the previous page button on the UI
+          if (this.activePage != 0) {
+            this.prevLabel = newValue[this.activePage - 1].title;
+          }
+          // manage next page button on the UI
+          if ((this.activePage + 1) != newValue.length) {
+            this.nextLabel = newValue[this.activePage + 1].title;
+          }
+        }
+      },
+      /**
+       * Test what milestone has been hit and if we should start to preload
+       * items as a result of it!
+       */
+       testMilestone: function (e) {
+        // we should preload the next page
+        if (e.detail.percentage == 75) {
+          console.log('@todo preload the next page and present grayed out right of UI.');
+        }
+       },
+      /**
+       * Pass down scroll change to the element for progress visualization.
+       */
+      _scrollChanged: function (newValue, oldValue) {
+        // only evaluate scroll if value is greater then previous
+        if (typeof this.outlineItems !== typeof undefined && typeof this.outlineItems[this.activePage] !== typeof undefined && newValue > this.outlineItems[this.activePage].value && !this.resetScroll) {
+          // once we get 90% of the way through the material consider it finished
+          if (newValue >= 75) {
+            this.outlineItems[this.activePage].value = this.outlineItems[this.activePage].max;
+            this.set('outlineItems.' + this.activePage + '.value', this.outlineItems[this.activePage].max);
+          }
+          else {
+            this.outlineItems[this.activePage].value = newValue;
+            this.set('outlineItems.' + this.activePage + '.value', newValue);
+          }
+        }
+      },
+      /**
+       * Pass down the click to the next page if we have one
+       */
+      _nextBtn: function (e) {
+        // make sure we are able to move forward more
+        if (this.activePage < this.outlineItems.length - 1) {
+          this.activePage = this.activePage + 1;
+        }
+      },
+      /**
+       * Pass down the click to the prev page if we have one
+       */
+      _prevBtn: function (e) {
+        if (this.activePage > 0) {
+          this.activePage = this.activePage - 1;
+        }
+      },
+      /**
+       * Toggle the book drawer
+       */
+      toggleBook: function (e) {
+        this.$.bookdrawer.toggle();
       },
       /**
        * Handle the response.
        */
-      handleResponse: function(obj) {
-        let root = this;
-        var response = obj.detail.response.data;
-        // look for previous link
-        if (typeof response.prev !== "undefined") {
-          root.hasPrevPage = true;
-          root.prevPage = response.prev;
-        }
-        else {
-          root.hasPrevPage = false;
-        }
-        // look for next link
-        if (typeof response.next !== "undefined") {
-          root.hasNextPage = true;
-          root.nextPage = response.next;
-        }
-        else {
-          root.hasNextPage = false;
-        }
-        // ensure we have content
-        if (typeof response.content !== "undefined") {
-          root.$$('#nav').innerHTML = response.content.nav;
-          root.$$('#breadcrumb').innerHTML = response.content.breadcrumb;
-          root.$$('#content').innerHTML = response.content.body;
+      handleOutlineResponse: function (obj) {
+        if (typeof obj !== typeof undefined) {
+          const response = obj.detail.response.data;
+          const items = this._toArray(obj.detail.response.data.items);
+          const outlineTitle = obj.detail.response.data.outlineTitle;
+          // set active to 0 because once we update the outlineItems it will try to
+          // pick a title and be out of sync for a moment in time
+          if (this.activePage !== 0) {
+            this.activePage = 0;
+          }
+          // store the response for the outline object data to skip future calls
+          this.set('responseData.' + this.data.type + '.' + this.data.id + '.outline', response);
+          // set outline items to repaint, aggressively
+          this.set('outlineItems', []);
+          this.set('outlineItems', items);
+          // set title to match new parent title
+          this.set('outlineTitle', outlineTitle);
+          var activePage = 0;
+          // see if we can find a match of routing for an active page
+          for (var i in items) {
+            // we have a match; usually this would only happen on initial page load
+            if (this.data.type === items[i].type && this.data.id === items[i].id && i !== 0) {
+              activePage = parseInt(i);
+            }
+          }
+          if (activePage !== 0) {
+            this.activePage = activePage;
+          }
+          this.$.outlineloading.hidden = true;
+          // only repopulate the first time
+          if (this.bookItems.length === 0 ) {
+            this.$.bookajax.generateRequest();
+          }
+          this.pageParams.load = true;
         }
       },
-      loadNextPage: function() {
-        let root = this;
-        root.$$('#ajax').params.node = root.nextPage;
-        root.$$('#ajax').generateRequest();
+      /**
+       * Handle the response.
+       */
+      handleBookResponse: function (obj) {
+        const response = this._toArray(obj.detail.response.data.items);
+        this.set('bookItems', response);
       },
-      loadPrevPage: function() {
-        let root = this;
-        root.$$('#ajax').params.node = root.prevPage;
-        root.$$('#ajax').generateRequest();
+      /**
+       * Page response callback.
+       */
+      handlePageResponse: function (obj) {
+        if (typeof obj !== typeof undefined) {
+          const response = obj.detail.response.data;
+          this.set('responseData.' + this.data.type + this.data.id, response);
+          this.set('currentPageData', response);
+        }
       },
-      changePage: function(e) {
-        let root = this;
-        console.log(e);
-        //root.$$('#ajax').params.node = root.activePage;
-        root.$$('#ajax').generateRequest();
+      /**
+       * Handle page object getting updated. This allows
+       * for updating parts of the page either from the localcache
+       * or from the ajax call.
+       */
+      _currentPageDataUpdated: function (newValue, oldValue) {
+        if (typeof newValue !== typeof undefined && typeof newValue.content !== typeof undefined) {
+          this.set('currentTitle', newValue.title);
+          this.$.currentcontent.innerHTML = newValue.content;
+          this._resetScroll();
+          this.$.bodyloading.hidden = true;
+        }
       },
       /**
        * Simple way to convert from object to array.

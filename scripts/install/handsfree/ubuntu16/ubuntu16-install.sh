@@ -46,7 +46,7 @@ apt-get -y install apache2
 apt-get -y install sendmail uuid uuid-runtime curl policycoreutils unzip patch git nano gcc make mcrypt
 
 #install php
-apt-get -y install php php-fpm php-common php-mysql php-ldap php-cgi php-pear php7.0-mbstring php7.0-zip php-xml-parser php-curl php-gd php-cli php-fpm php-apcu php-dev php-mcrypt mcrypt
+apt-get -y install php php-fpm php-common php-mysql php-ldap php-cgi php-pear php7.0-mbstring php7.0-zip php-xml-parser php-curl php-gd php-cli php-apcu php-dev php-mcrypt mcrypt
 a2enmod proxy_fcgi setenvif
 a2enconf php7.0-fpm
 
@@ -91,6 +91,8 @@ yes '' | pecl install -f yaml-2.0.0
 echo "extension=yaml.so" > /etc/php/7.0/mods-available/yaml.ini
 phpenmod yaml
 service php7.0-fpm restart
+# these are supposed to be installed but aren't for whatever reason...
+apt-get -y install php7.0-mbstring php7.0-zip
 
 # kick off hands free deployment
 cd $HOME

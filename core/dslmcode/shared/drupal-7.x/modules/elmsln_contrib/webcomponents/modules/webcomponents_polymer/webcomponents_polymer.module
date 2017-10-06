@@ -69,6 +69,10 @@ function webcomponents_polymer_register_webcomponent_apps() {
         if (isset($app['properties'])) {
           $return[$manifest['name']]['properties'] = $app['properties'];
         }
+        // support for additional slots
+        if (isset($app['slots'])) {
+          $return[$manifest['name']]['slots'] = $app['slots'];
+        }
         // support for a endpoint paths for getting data into the app
         if (isset($app['endpoints'])) {
           $return[$manifest['name']]['endpoints'] = $app['endpoints'];
@@ -165,6 +169,7 @@ function _webcomponents_polymer_process_components($file) {
       $component->type = 'polymer';
       $component->properties = array('innerHTML' => 'String');
       // match {{}} and [[]] based properties
+      // @todo add optional support for hitting a polmer-analyzer.json style file
       preg_match_all('/({{.*?}}|\[\[.*?\]\])/', $rawmatch->innertext, $matches);
       // find matches for custom properties so we know how to tokenize this
       if (isset($matches[0])) {
@@ -182,6 +187,8 @@ function _webcomponents_polymer_process_components($file) {
           }
         }
       }
+      // @todo need a match for slots based on <slot name="whatever"></slot>
+
     }
     $components[$machine_name] = $component;
   }

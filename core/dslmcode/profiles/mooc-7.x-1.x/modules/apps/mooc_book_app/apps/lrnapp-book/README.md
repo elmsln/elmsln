@@ -1,6 +1,6 @@
-# \<elmsln-open-studio\>
+# \<lrnapp-book\>
 
-open studio application
+A stand alone book player for materials.
 
 ## Install the Polymer-CLI
 
