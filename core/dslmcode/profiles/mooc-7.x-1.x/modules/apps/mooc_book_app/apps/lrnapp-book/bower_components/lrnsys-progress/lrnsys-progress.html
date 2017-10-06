@@ -332,7 +332,7 @@ A LRN element
         // strange but this is effectively the same as "ready" except the ready
         // state invokes potentially without items while this one will only
         // match a case where there was no values and now we have one
-        if (typeof oldValue !== typeof undefined && newValue.length != oldValue.length && typeof this._responseList[this.active] === typeof undefined) {
+        if (typeof oldValue !== typeof undefined && newValue.length != oldValue.length && typeof this._responseList[this.active] === typeof undefined && typeof newValue[this.active] !== typeof undefined) {
           newValue[this.active].status = 'loading';
           this.set('items.' + this.active +'.status', 'loading');
           // becasue this is so early in bootstrap of the element we
