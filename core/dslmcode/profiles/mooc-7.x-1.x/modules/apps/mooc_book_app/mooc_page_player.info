@@ -1,7 +1,0 @@
-name = MOOC page player
-description = Single page apps for viewing content
-core = 7.x
-package = MOOC
-dependencies[] = book
-dependencies[] = book_cache
-dependencies[] = webcomponents_app
