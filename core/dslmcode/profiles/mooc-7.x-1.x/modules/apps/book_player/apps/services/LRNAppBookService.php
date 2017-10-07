@@ -37,7 +37,7 @@ class LRNAppBookService {
       'bid' => $data['bid'],
       'plid' => $parent->book['mlid'],
     );
-    if (entity_access('create', 'node', $node)) {
+    if (node_access('create', $node)) {
       try {
         node_save($node);
         if (isset($node->nid)) {
@@ -214,7 +214,7 @@ class LRNAppBookService {
         // load the page from drupal
         $node = node_load($id);
         // make sure the node is actually a page
-        if ($node && isset($node->type) && $node->type == 'page' && entity_access('update', 'node', $node)) {
+        if ($node && isset($node->type) && $node->type == 'page' && node_access('update', $node)) {
           // decode the payload page to the drupal node
           $decoded_page = $this->decodePage($payload, $node);
           // save the node
@@ -239,7 +239,7 @@ class LRNAppBookService {
   public function deletePage($id) {
     if ($id && is_numeric($id)) {
       $node = node_load($id);
-      if ($node && isset($node->type) && $node->type == 'page' && entity_access('delete', 'node', $node)) {
+      if ($node && isset($node->type) && $node->type == 'page' && node_access('delete', $node)) {
         // unpublish the node
         $node->status = 0;
         try {
@@ -318,10 +318,10 @@ class LRNAppBookService {
       $encoded_page->meta->canUpdate = 0;
       $encoded_page->meta->canDelete = 0;
         // see the operations they can perform here
-      if (entity_access('update', 'node', $node)) {
+      if (node_access('update', $node)) {
         $encoded_page->meta->canUpdate = 1;
       }
-      if (entity_access('delete', 'node', $node)) {
+      if (node_access('delete', $node)) {
         $encoded_page->meta->canDelete = 1;
       }
       // get the icon
