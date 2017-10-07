@@ -363,8 +363,18 @@ function webcomponents_load_webcomponents_files() {
  * @return object       fully loaded entity
  */
 function webcomponent_load_by_name($name) {
-  $entity = entity_load('webcomponent', FALSE, array('machine_name' => $name));
-  $entity = array_pop($entity);
+  $entity = FALSE;
+  $query = new EntityFieldQuery();
+  $result = $query
+  ->entityCondition('entity_type', 'webcomponent')
+  ->propertyCondition('machine_name', $name)
+  ->range(0, 1)
+  ->execute();
+  // flip the results if it found them
+  if (isset($result['webcomponent'])) {
+    $tmp = array_pop($result['webcomponent']);
+    $entity = entity_load_single('webcomponent', $tmp->wid);
+  }
   return $entity;
 }
 
