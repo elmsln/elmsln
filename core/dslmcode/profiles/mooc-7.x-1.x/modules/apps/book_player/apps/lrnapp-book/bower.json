@@ -17,7 +17,8 @@
     "paper-icon-button": "PolymerElements/paper-icon-button#^2.0.1",
     "page-scroll-position": "LRNWebComponents/page-scroll-position#^1.0.0",
     "elmsln-loading": "LRNWebComponents/elmsln-loading#^0.0.4",
-    "app-route": "PolymerElements/app-route#^2.0.2"
+    "app-route": "PolymerElements/app-route#^2.0.2",
+    "hax-panel": "LRNWebComponents/hax-panel#^0.0.1"
   },
   "devDependencies": {
     "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",

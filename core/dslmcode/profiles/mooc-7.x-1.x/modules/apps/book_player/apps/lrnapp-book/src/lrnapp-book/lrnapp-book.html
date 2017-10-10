@@ -12,6 +12,7 @@ A LRN element
   bubble - reserved for when events fire out of an element or value is tracking events
   percentage - amount complete either in the bar or the nodes themselves
   bar - the underlayed bar that's tracking overall progression
+  author mode - authoring mode
 -->
 
 <dom-module id="lrnapp-book">
@@ -38,6 +39,8 @@ A LRN element
         min-width: 1rem;
       }
 
+      hax-panel,
+      hax-panel ::shadow app-drawer,
       app-drawer,
       app-drawer-layout {
         padding: 0;
@@ -54,12 +57,16 @@ A LRN element
           overflow: inherit;
         }
       }
+      hax-panel ::shadow hax-panel-item {
+        font-size: .72em;
+      }
 
       lrndesign-stepper-button {
         --lrndesign-stepper-btn-active: #f6f7f7;
       }
       lrndesign-stepper-button ::shadow paper-button {
         margin: 0;
+        height: 3em;
       }
       lrndesign-stepper-button ::shadow .title-container.lrndesign-stepper-button {
         padding: 0;
@@ -144,6 +151,11 @@ A LRN element
         margin: .5em 0 0 13em;
         width: 73%;
       }
+      :host .content-body {
+        margin: .5em 0 0 13em;
+        width: 73%;
+      }
+
       .content-nav-buttons paper-icon-button {
         width: 4em;
         height: 4em;
@@ -341,7 +353,7 @@ A LRN element
       }
       :host[edit-mode] #editbutton {
         width: 100%;
-        z-index: 10000;
+        z-index: 100;
         right: 0;
         bottom: 0;
         border-radius: 0;
@@ -433,18 +445,19 @@ A LRN element
     </app-header>
 
     <div id="body">
+      <hax-panel id="haxpanel"></hax-panel>
       <app-drawer-layout>
-      <app-drawer slot="drawer" id="bookdrawer" opened="{{drawerOpened}}" swipe-open transition-duration="400">
-        <div id="bookdrawercontent" style="height: 100%; overflow: auto;" hidden$="[[!bookItems]]">
-          <paper-search-bar hide-filter-button></paper-search-bar>
-          <div class="course-title-drawer">[[bookTitle]]</div>
-          <div>
-          <template is="dom-repeat" items="[[bookItems]]" as="item">
-            <lrndesign-stepper-button data-book-index$="[[index]]" on-tap="_bookOutlineTap" title="[[item.title]]" icon="[[item.icon]]" url="[[item.url]]"></lrndesign-stepper-button>
-          </template>
+        <app-drawer slot="drawer" id="bookdrawer" opened="{{drawerOpened}}" swipe-open transition-duration="400">
+          <div id="bookdrawercontent" style="height: 100%; overflow: auto;" hidden$="[[!bookItems]]">
+            <paper-search-bar hide-filter-button></paper-search-bar>
+            <div class="course-title-drawer">[[bookTitle]]</div>
+            <div>
+            <template is="dom-repeat" items="[[bookItems]]" as="item">
+              <lrndesign-stepper-button data-book-index$="[[index]]" on-tap="_bookOutlineTap" title="[[item.title]]" icon="[[item.icon]]" url="[[item.url]]"></lrndesign-stepper-button>
+            </template>
+            </div>
           </div>
-        </div>
-      </app-drawer>
+        </app-drawer>
       </app-drawer-layout>
       <div class="content-body">
         <div id="current" class="content-current">
@@ -490,6 +503,8 @@ A LRN element
       animation-delay="100">
       <span id="fablabel">edit mode</span>
     </paper-tooltip>
+
+    <paper-toast id="toast"></paper-toast>
   </template>
   <script>
     Polymer({
@@ -498,6 +513,7 @@ A LRN element
         'menubutton.tap': 'toggleBook',
         'progress.node-percent-milestone': 'testMilestone',
         'route-change': '_routeChange',
+        'haxpanel.hax-item-selected': '_haxOperation',
       },
       observers: [
         '_routeChanged(data, route, endPoint)',
@@ -758,6 +774,12 @@ A LRN element
         }, 500);
       },
       /**
+       * Hax operation capture and UI routing.
+       */
+      _haxOperation: function (e) {
+        this.$.toast.show(e.detail.eventName);
+      },
+      /**
        * Calculate what would happen if we added a page here.
        */
       _computeCreateRequestBody: function (currentPageData) {
@@ -783,17 +805,22 @@ A LRN element
           this.resetScroll = true;
           // update the button to be for saving state
           this.$.editbutton.icon = 'save';
+          // notification to user
+          this.$.toast.show('Authoring mode active');
           this.$.editbutton.title = 'Tap to save content and exit edit mode';
           this.$.fablabel = 'save changes';
           // simple way to remember state of opened drawer
           this.__bookdraweropened = this.$.bookdrawer.opened;
           // close the menu to give us more room to work
           if (this.$.bookdrawer.opened) {
+            this.$.bookdrawer.disabled = true;
             this.$.bookdrawer.opened = false;
           }
+          // open the haxpanel
+          this.$.haxpanel.opened = true;
           // @todo more graceful then this but basically this
           this.$.currenttitle.contentEditable = true;
-          let children = Polymer.dom(this.$.currentcontent).getDistributedNodes()
+          let children = Polymer.dom(this.$.currentcontent).getDistributedNodes();
           for (var i = 0, len = children.length; i < len; i++) {
             children[i].contentEditable = true;
           }
@@ -809,7 +836,12 @@ A LRN element
           this.$.editbutton.icon = 'editor:mode-edit';
           this.$.editbutton.title = 'Tap to place content in edit mode.';
           this.$.fablabel = 'edit mode';
+          // @todo actually save...
+          this.$.toast.show('Saved! (but not yet actually)');
           this.$.bookdrawer.opened = this.__bookdraweropened;
+          // close the haxpanel
+          this.$.haxpanel.opened = false;
+          this.$.bookdrawer.disabled = false;
           // @todo more graceful then this but basically this
           this.$.currenttitle.contentEditable = false;
           let children = Polymer.dom(this.$.currentcontent).getDistributedNodes()
@@ -1072,12 +1104,11 @@ A LRN element
       _currentPageDataUpdated: function (newValue, oldValue) {
         if (typeof newValue !== typeof undefined && typeof newValue.content !== typeof undefined) {
           this.set('currentTitle', newValue.title);
-          Polymer.dom
           var tmp = document.createElement('div');
           tmp.innerHTML = newValue.content;
-          // @todo this wipes the slot, we need to update the slot
-          // see : https://www.polymer-project.org/1.0/docs/devguide/local-dom#light-dom-children
-          this.$.currentcontentcontainer.innerHTML = newValue.content;
+          // tap into the element as it exists in the DOM and replace it's inner content
+          // this will then force the <slot> to reprocess and put in the right place
+          Polymer.dom(this).innerHTML = newValue.content;
           this._resetScroll();
           this.$.bodyloading.hidden = true;
           // manage state associated w/ edit mode if we were in edit mode previously

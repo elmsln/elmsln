@@ -1,0 +1,180 @@
+<link rel="import" href="imports.html">
+
+<!--
+`hax-panel`
+A LRN element that provides a panel / pallet of options to choose from.
+This is intended to be placed in a larger system for creating content quickly
+as the events being bubbled up include HTML nodes to inject into something
+
+@demo demo/index.html
+
+@microcopy - the mental model for this element
+ - panel - the flyout from left or right side that has elements that can be placed
+ - element - buttons on the panel which when pressed will trigger an event
+
+-->
+
+<dom-module id="hax-panel">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+      app-drawer {
+        --app-drawer-width: 264px;
+        touch-action: auto;
+        transition: all .3s ease;
+      }
+    </style>
+    <app-drawer id="drawer" opened="{{opened}}" disable-swipe transition-duration="300">
+
+      <div style="height: 100%; overflow: auto;">
+        <lrnsys-collapselist-item >
+          <span slot="label"><div class="label">Content outline</div></span>
+          <span slot="content" style="display:flex;">
+            <hax-panel-item
+              icon="editor:linear-scale"
+              icon-class="black-text"
+              label="Add sibling page"
+              event-name="add-page" wide></hax-panel-item>
+            <hax-panel-item
+              icon="hardware:keyboard-return"
+              icon-class="grey-text text-darken-2 flip-icon"
+              label="Add child page"
+              event-name="add-child-page" wide></hax-panel-item>
+          </span>
+        </lrnsys-collapselist-item>
+        <lrnsys-collapselist-item opened>
+          <span slot="label"><div class="label">Content</div></span>
+          <span slot="content">
+            <hax-panel-item
+              icon="editor:text-fields"
+              icon-class="black-text"
+              label="Text area"
+              event-name="text"></hax-panel-item>
+            <hax-panel-item
+              icon="editor:title"
+              icon-class="grey-text text-darken-2"
+              label="Heading"
+              event-name="header"></hax-panel-item>
+            <hax-panel-item
+              icon="editor:space-bar"
+              icon-class="grey-text"
+              label="Divider"
+              event-name="divider"></hax-panel-item>
+          </span>
+        </lrnsys-collapselist-item>
+        <lrnsys-collapselist-item opened>
+          <span slot="label"><div class="label">Multimedia</div></span>
+          <span slot="content">
+            <hax-panel-item
+              icon="editor:insert-link"
+              icon-class="grey-text"
+              label="Embed URL"
+              event-name="iframe"></hax-panel-item>
+            <hax-panel-item
+              icon="editor:insert-photo"
+              icon-class="blue-text"
+              label="Image"
+              event-name="image"></hax-panel-item>
+            <hax-panel-item
+              icon="av:video-library"
+              icon-class="red-text"
+              label="Video"
+              event-name="video"></hax-panel-item>
+            <hax-panel-item
+              icon="av:music-video"
+              icon-class="purple-text"
+              label="Audio"
+              event-name="audio"></hax-panel-item>
+            <hax-panel-item
+              icon="device:graphic-eq"
+              icon-class="amber-text"
+              label="SVG"
+              event-name="svg"></hax-panel-item>
+              <hax-panel-item
+              icon="cloud-upload"
+              icon-class="green-text"
+              label="File"
+              event-name="file-upload"></hax-panel-item>
+          </span>
+        </lrnsys-collapselist-item>
+        <lrnsys-collapselist-item>
+          <span slot="label"><div class="label">Engagements</div></span>
+          <span slot="content">
+            <hax-panel-item
+              icon="touch-app"
+              icon-class="blue-text"
+              label="Interactive video"
+              event-name="h5p-interactive-video"></hax-panel-item>
+            <hax-panel-item
+              icon="hardware:videogame-asset"
+              icon-class="red-text"
+              label="Self-check"
+              event-name="h5p-multiple-choice"></hax-panel-item>
+            <hax-panel-item
+              icon="timeline"
+              icon-class="yellow-text text-darken-4"
+              label="Timeline"
+              event-name="timeline"></hax-panel-item>
+            <hax-panel-item
+              icon="maps:place"
+              icon-class="green-text"
+              label="Map"
+              event-name="map"></hax-panel-item>
+            <hax-panel-item
+              icon="social:share"
+              icon-class="pink-text"
+              label="JMOL"
+              event-name="jmol"></hax-panel-item>
+            <hax-panel-item
+              icon="social:poll"
+              icon-class="orange-text"
+              label="Poll"
+              event-name="poll"></hax-panel-item>
+          </span>
+        </lrnsys-collapselist-item>
+        <lrnsys-collapselist-item>
+          <span slot="label"><div class="label">Assessments</div></span>
+          <span slot="content">
+            <hax-panel-item
+              icon="assignment"
+              icon-class="yellow-text text-darken-2"
+              label="Assignment"
+              event-name="assignment"></hax-panel-item>
+            <hax-panel-item
+              icon="assessment"
+              icon-class="purple-text text-darken-2"
+              label="Quiz"
+              event-name="quiz"></hax-panel-item>
+          </span>
+        </lrnsys-collapselist-item>
+      </div>
+    </app-drawer>
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'hax-panel',
+
+      properties: {
+        /**
+         * State of the panel
+         */
+        opened: {
+          type: Boolean,
+          reflectToAttribute: true,
+          notify: true,
+          value: false,
+        }
+      },
+      /**
+       * Toggle the panel.
+       */
+      _togglePanel: function(e) {
+        this.$.drawer.toggle();
+      }
+    });
+  </script>
+</dom-module>
