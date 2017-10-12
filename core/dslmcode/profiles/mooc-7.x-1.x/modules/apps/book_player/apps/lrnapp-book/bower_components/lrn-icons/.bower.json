@@ -1,0 +1,27 @@
+{
+  "name": "lrn-icons",
+  "main": "lrn-icons.html",
+  "dependencies": {
+    "polymer": "Polymer/polymer#^1.4.0",
+    "iron-icon": "PolymerElements/iron-icon#^1.0.12",
+    "iron-iconset-svg": "PolymerElements/iron-iconset-svg#^1.1.0",
+    "lrn-icon": "LRNWebComponents/lrn-icon#^1.0.0"
+  },
+  "devDependencies": {
+    "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
+    "iron-demo-helpers": "PolymerElements/iron-demo-helpers#^1.0.0",
+    "web-component-tester": "^4.0.0",
+    "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0"
+  },
+  "homepage": "https://github.com/LRNWebComponents/lrn-icons",
+  "version": "1.0.13",
+  "_release": "1.0.13",
+  "_resolution": {
+    "type": "version",
+    "tag": "1.0.13",
+    "commit": "5a0bc5aed83378562c3d656feeec6685f568dc5c"
+  },
+  "_source": "https://github.com/LRNWebComponents/lrn-icons.git",
+  "_target": "^1.0.13",
+  "_originalSource": "LRNWebComponents/lrn-icons"
+}

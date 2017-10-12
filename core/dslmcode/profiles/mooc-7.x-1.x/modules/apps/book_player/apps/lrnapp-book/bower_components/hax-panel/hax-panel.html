@@ -26,7 +26,7 @@ as the events being bubbled up include HTML nodes to inject into something
         transition: all .3s ease;
       }
     </style>
-    <app-drawer id="drawer" opened="{{opened}}" disable-swipe transition-duration="300">
+    <app-drawer id="drawer" opened="{{opened}}" persistent="{{opened}}" disable-swipe transition-duration="300">
 
       <div style="height: 100%; overflow: auto;">
         <lrnsys-collapselist-item >
@@ -50,13 +50,8 @@ as the events being bubbled up include HTML nodes to inject into something
             <hax-panel-item
               icon="editor:text-fields"
               icon-class="black-text"
-              label="Text area"
+              label="Text"
               event-name="text"></hax-panel-item>
-            <hax-panel-item
-              icon="editor:title"
-              icon-class="grey-text text-darken-2"
-              label="Heading"
-              event-name="header"></hax-panel-item>
             <hax-panel-item
               icon="editor:space-bar"
               icon-class="grey-text"

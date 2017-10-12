@@ -1,0 +1,25 @@
+{
+  "name": "lrnsys-behaviors",
+  "description": "A series of core behaviors for lrn components",
+  "main": "lrnsys-behaviors.html",
+  "dependencies": {
+    "polymer": "Polymer/polymer#^1.4.0"
+  },
+  "devDependencies": {
+    "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
+    "iron-demo-helpers": "PolymerElements/iron-demo-helpers#^1.0.0",
+    "web-component-tester": "^4.0.0",
+    "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0"
+  },
+  "homepage": "https://github.com/LRNWebComponents/lrnsys-behaviors",
+  "version": "1.0.1",
+  "_release": "1.0.1",
+  "_resolution": {
+    "type": "version",
+    "tag": "1.0.1",
+    "commit": "435a1d09098b66f41897baf89a5bd661695c1ef7"
+  },
+  "_source": "https://github.com/LRNWebComponents/lrnsys-behaviors.git",
+  "_target": "^1.0.0",
+  "_originalSource": "LRNWebComponents/lrnsys-behaviors"
+}

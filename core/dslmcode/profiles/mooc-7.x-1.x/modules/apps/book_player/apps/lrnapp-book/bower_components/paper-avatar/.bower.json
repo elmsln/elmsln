@@ -1,0 +1,50 @@
+{
+  "name": "paper-avatar",
+  "version": "1.0.5-lrn",
+  "description": "User avatar in material style",
+  "authors": [
+    "Abe90"
+  ],
+  "main": "paper-avatar.html",
+  "license": "Apache-2.0",
+  "keywords": [
+    "avatar",
+    "polymer",
+    "paper",
+    "material design"
+  ],
+  "dependencies": {
+    "polymer": "Polymer/polymer#^1.0.0 || ^2.0.0"
+  },
+  "devDependencies": {
+    "iron-component-page": "PolymerElements/iron-component-page#^2.0.0",
+    "iron-demo-helpers": "PolymerElements/iron-demo-helpers#^2.0.0",
+    "paper-item": "PolymerElements/paper-item#^2.0.0",
+    "web-component-tester": "^6.0.0",
+    "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0 || ^1.0.0"
+  },
+  "variants": {
+    "1.x": {
+      "dependencies": {
+        "polymer": "Polymer/polymer#^1.0.0"
+      },
+      "devDependencies": {
+        "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
+        "iron-demo-helpers": "PolymerElements/iron-demo-helpers#^1.0.0",
+        "paper-item": "PolymerElements/paper-item#^1.0.0",
+        "web-component-tester": "*",
+        "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0"
+      }
+    }
+  },
+  "homepage": "https://github.com/LRNWebComponents/paper-avatar",
+  "_release": "1.0.5-lrn",
+  "_resolution": {
+    "type": "version",
+    "tag": "1.0.5-lrn",
+    "commit": "3ad6f8ea7b2ef943e2b500c269164090e026d86a"
+  },
+  "_source": "https://github.com/LRNWebComponents/paper-avatar.git",
+  "_target": "1.0.5-lrn",
+  "_originalSource": "LRNWebComponents/paper-avatar"
+}

@@ -467,7 +467,9 @@ A LRN element
             <h3 class="loading-text">Loading content..</h3>
           </div>
           <div id="currentcontentcontainer">
-            <slot id="currentcontent"></slot>
+            <hax-body id="currentcontent">
+              <slot></slot>
+            </hax-body>
           </div>
         </div>
       </div>
@@ -504,7 +506,7 @@ A LRN element
       <span id="fablabel">edit mode</span>
     </paper-tooltip>
 
-    <paper-toast id="toast"></paper-toast>
+    <paper-toast id="toast" horizontal-align="right"></paper-toast>
   </template>
   <script>
     Polymer({
@@ -778,6 +780,7 @@ A LRN element
        */
       _haxOperation: function (e) {
         this.$.toast.show(e.detail.eventName);
+
       },
       /**
        * Calculate what would happen if we added a page here.
@@ -801,54 +804,48 @@ A LRN element
        */
       _editModeChanged: function (newValue, oldValue) {
         if (newValue === true) {
-          // prevent silly scroll tracking
-          this.resetScroll = true;
           // update the button to be for saving state
           this.$.editbutton.icon = 'save';
-          // notification to user
-          this.$.toast.show('Authoring mode active');
           this.$.editbutton.title = 'Tap to save content and exit edit mode';
           this.$.fablabel = 'save changes';
           // simple way to remember state of opened drawer
           this.__bookdraweropened = this.$.bookdrawer.opened;
           // close the menu to give us more room to work
           if (this.$.bookdrawer.opened) {
-            this.$.bookdrawer.disabled = true;
             this.$.bookdrawer.opened = false;
           }
           // open the haxpanel
           this.$.haxpanel.opened = true;
-          // @todo more graceful then this but basically this
+          // play things in an editable state and let hax take over from here
           this.$.currenttitle.contentEditable = true;
-          let children = Polymer.dom(this.$.currentcontent).getDistributedNodes();
-          for (var i = 0, len = children.length; i < len; i++) {
-            children[i].contentEditable = true;
-          }
+          this.$.currentcontent.editMode = true;
+          // block scroll tracking during edit mode
+          this.resetScroll = true;
+          // notification to user
+          this.$.toast.show('Authoring mode active');
         }
         else {
+          // reset visuals
+          this.$.editbutton.icon = 'editor:mode-edit';
+          this.$.editbutton.title = 'Tap to place content in edit mode.';
+          this.$.fablabel = 'edit mode';
+          this.$.bookdrawer.opened = this.__bookdraweropened;
+          // open the haxpanel
+          this.$.haxpanel.opened = false;
+          // play things in an editable state and let hax take over from here
+          this.$.currenttitle.contentEditable = false;
+          this.$.currentcontent.editMode = false;
+          // allow scrolling to take place now
+          this.resetScroll = false;
           // we were in edit mode, now time to save for real
           if (oldValue === true) {
             this.currentPageData.title = this.$.currenttitle.innerHTML;
             this.currentPageData.content = this.$.currentcontentcontainer.innerHTML;
             //this.$.pageupdateajax.generateRequest();
             // @todo do some kind of detection so we know we can save
+            // @todo actually save...
+            this.$.toast.show('Saved! (but not yet actually)');
           }
-          this.$.editbutton.icon = 'editor:mode-edit';
-          this.$.editbutton.title = 'Tap to place content in edit mode.';
-          this.$.fablabel = 'edit mode';
-          // @todo actually save...
-          this.$.toast.show('Saved! (but not yet actually)');
-          this.$.bookdrawer.opened = this.__bookdraweropened;
-          // close the haxpanel
-          this.$.haxpanel.opened = false;
-          this.$.bookdrawer.disabled = false;
-          // @todo more graceful then this but basically this
-          this.$.currenttitle.contentEditable = false;
-          let children = Polymer.dom(this.$.currentcontent).getDistributedNodes()
-          for (var i = 0, len = children.length; i < len; i++) {
-            children[i].contentEditable = false;
-          }
-          this.resetScroll = false;
         }
       },
       /**

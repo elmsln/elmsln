@@ -1,0 +1,54 @@
+{
+  "name": "vaadin-context-menu",
+  "description": "Polymer element for showing context dependent items for any element on the page",
+  "homepage": "https://github.com/vaadin/vaadin-context-menu",
+  "keywords": [
+    "web-components",
+    "web-component",
+    "polymer",
+    "vaadin",
+    "context-menu",
+    "context",
+    "menu"
+  ],
+  "main": "vaadin-context-menu.html",
+  "license": "Apache-2.0",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test"
+  ],
+  "dependencies": {
+    "polymer": "^2.0.0",
+    "iron-overlay-behavior": "^2.0.0",
+    "iron-media-query": "^2.0.0"
+  },
+  "devDependencies": {
+    "elements-demo-resources": "vaadin/elements-demo-resources#^2.0.0",
+    "iron-component-page": "^2.0.0",
+    "iron-demo-helpers": "^2.0.0",
+    "iron-icons": "^2.0.0",
+    "iron-test-helpers": "^2.0.0",
+    "paper-item": "^2.0.0",
+    "paper-listbox": "^2.0.0",
+    "paper-styles": "^2.0.0",
+    "test-fixture": "^3.0.0",
+    "vaadin-grid": "#2.1-polymer-2-rebased",
+    "web-component-tester": "^6.0.0"
+  },
+  "variants": {
+    "1.x": {
+      "dependencies": {
+        "polymer": "^1.7.0"
+      },
+      "resolutions": {
+        "polymer": "^1.7.0",
+        "webcomponentsjs": "^0.7.24"
+      }
+    }
+  },
+  "resolutions": {
+    "iron-doc-viewer": "1 - 2"
+  }
+}

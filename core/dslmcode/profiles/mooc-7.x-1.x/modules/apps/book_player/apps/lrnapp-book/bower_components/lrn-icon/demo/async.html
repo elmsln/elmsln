@@ -1,0 +1,62 @@
+<!doctype html>
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<html>
+<head>
+  <title>lrn-icon demo</title>
+  <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+  <link rel="import" href="../lrn-icon.html">
+  <link rel="import" href="../../paper-styles/demo-pages.html" >
+
+  <style is="custom-style">
+    #loading_message {
+      color: #444;
+      margin-bottom: 16px;
+    }
+    .vertical-section h4 {
+      border-left: 3px solid var(--paper-grey-300);
+      padding-left: 10px;
+    }
+
+    .vertical-section h4:hover {
+      border-left-color: var(--google-blue-700);
+    }
+  </style>
+</head>
+<body>
+  <div class="vertical-section-container centered">
+    <h4>
+      This demo is for an &lt;lrn-icon&gt; with an asynchronously loaded
+      iconset.
+    </h4>
+
+    <div id='loading_message'>Waiting to load iconset...</div>
+
+    <div class="vertical-section">
+      <!-- lrn-icon using a lrn-iconset as its icon source -->
+      <lrn-iconset name="example" icons="location" src="location.png" size="24" width="24"></lrn-iconset>
+
+      <h4>&lt;lrn-icon icon="example:location"&gt;</h4>
+      <lrn-icon icon="example:location"></lrn-icon>
+
+    </div>
+  </div>
+  <script>
+    setTimeout(function() {
+      // Import the code that powers the lrn-iconset asynchronously
+      var linkElem = document.createElement('link');
+      linkElem.setAttribute('rel', 'import');
+      linkElem.setAttribute('href', '../../lrn-iconset/lrn-iconset.html');
+      document.head.appendChild(linkElem);
+      document.querySelector('#loading_message').innerText = "Iconset Loaded.";
+    }, 1000);
+  </script>
+</body>
+</html>

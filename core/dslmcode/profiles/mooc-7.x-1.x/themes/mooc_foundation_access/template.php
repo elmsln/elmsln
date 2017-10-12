@@ -223,9 +223,13 @@ function mooc_foundation_access_read_time($variables) {
  */
 function mooc_foundation_access_menu_tree__menu_elmsln_add($variables) {
   $links = '';
-  if (_cis_connector_role_grouping('staff') && user_access('add item in context')) {
-    $links = _elmsln_core_in_context_list();
-    $links = implode("\n", $links);
+  // make sure nothing shows up if this is the new book
+  if (arg(1) != 'lrnapp-book') {
+    if (_cis_connector_role_grouping('staff') && user_access('add item in context')) {
+      $links = _elmsln_core_in_context_list();
+      $links = implode("\n", $links);
+    }
+    return '<ul role="menu" aria-hidden="false" tabindex="-1" class="elmsln-add-menu-items">' . $links . $variables['tree'] . '</ul>';
   }
-  return '<ul role="menu" aria-hidden="false" tabindex="-1" class="elmsln-add-menu-items">' . $links . $variables['tree'] . '</ul>';
+  return FALSE;
 }

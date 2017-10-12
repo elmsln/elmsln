@@ -1,0 +1,77 @@
+<script>
+  // ensure LRNBehaviors exists globally before acting on them
+  window.LRNBehaviors = window.LRNBehaviors || {};
+  // create a behavior for elements that have a 'display' connotation
+  window.LRNBehaviors.DisplayBehaviors = {
+    properties: {
+      /**
+       * The display for the component implementing it which can then
+       * be used in order for elements to switch between which element
+       * to render themselves as based on matching an element definition.
+       * This provides <lrn> tags the ability to easily make a boolean
+       * evaluation about if they should output the way they are told.
+       */
+      display: {
+        type: String,
+        value: 'card',
+        notify: true
+      },
+      /**
+       * This supports multiple display styles. This is important to provide
+       * constrained flexibility in the number of ways an element can be
+       * implemented. For example, a block quote might have 10 options
+       * but only 3 different combinations that are considered acceptable
+       * styles to implement instructionally.
+       */
+      displayStyle: {
+        type: String,
+        value: '1',
+        notify: true,
+      },
+      /**
+       * An element toggle to allow for an element to match all output cases
+       * for display. This is useful for systems like hax or demos that wish to
+       * render an element in all possible configurations for demonstration
+       * or to review possible options.
+       */
+      displayAllOverride: {
+        type: Boolean,
+        value: false,
+      }
+    },
+    /**
+     * this is able to transform display names that are shorthand
+     * and convert them to longhand. For example 'card' will be returned
+     * as lrndesign-card. lrndesign-card passed in would be lrndesign-card
+     * returned. paper-card passed in would be paper-card returned.
+     * This allows end users to say "render as a card" without constantly
+     * having to write "lrndesign-" when it's redundant in most situations
+     * @param  {string} display full or particial display name
+     * @return {string}         transformed display name
+     */
+    getDisplay: function(display) {
+      var parts = (display || '').split('-');
+      this._displayStyle = parts.pop();
+      this._displayFamily = parts.pop() || 'lrndesign';
+      return this._displayFamily + '-' + this._displayStyle;
+    },
+    /**
+     * verify that the test case requested matches the display
+     * implemented by the end-user. This wrapper helps ensure
+     * that shorthand display calls like card end up matching
+     * the same as longhand lrndesign-card. This also makes it
+     * so that paper-card would not match card or lrndesign-card
+     * which are all different elements.
+     * @param  {string} test    test case 1
+     * @param  {string} display test case 2
+     * @return {boolean}        if the displays match based on getDisplay or global bypass
+     */
+    matchDisplay: function(test, display) {
+      // see if they match OR always show up as true if the override is true
+      if (this.getDisplay(test) == this.getDisplay(display) || this.displayAllOverride) {
+        return true;
+      }
+      return false;
+    }
+  };
+</script>
