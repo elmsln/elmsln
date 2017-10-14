@@ -1,0 +1,552 @@
+<link rel="import" href="imports.html">
+
+<!--
+`hax-body`
+A LRN element that will change the world.
+
+@demo demo/index.html
+
+@microcopy - the mental model for this element
+ - body is effectively a body of content that can be manipulated in the browser. This is for other HAX elements ultimately to interface with and reside in. It is the controller of input and output for all of HAX as it exists in a document. body is not the <body> tag but we need a similar mental model container for all our other elements.
+ - text-context - the context menu that shows up when an item is active so it can have text based operations performed to it.
+ - plate/grid plate - a plate or grid plate is a container that we can operate on in HAX. it can also have layout / "global" type of body operations performed on it such as delete, duplicate and higher level format styling.
+
+-->
+
+<dom-module id="hax-body">
+  <template>
+    <style>
+      :host {
+        display: block;
+        min-height: 2em;
+        min-width: 2em;
+      }
+      vaadin-context-menu ::shadow vaadin-context-menu-overlay {
+        background-color: white;
+      }
+      :host #bodycontainer ::slotted(.hax-context-menu) {
+        padding: 0;
+        margin: 0;
+        position: absolute;
+        visibility: hidden;
+        opacity: 0;
+        transition: visibility .4s ease, opacity .4s ease;
+        z-index: 1;
+      }
+      :host #bodycontainer ::slotted(.hax-context-visible) {
+        visibility: visible;
+        opacity: .95;
+        border: 1px solid black;
+        display: block;
+      }
+      :host #bodycontainer ::slotted(.hax-context-visible:hover) {
+        opacity: 1;
+      }
+      :host[edit-mode] #bodycontainer ::slotted(*.justify-center) {
+        text-align: center;
+      }
+      :host[edit-mode] #bodycontainer ::slotted(*.justify-right) {
+        text-align: right;
+      }
+      :host[edit-mode] #bodycontainer ::slotted(*.justify-text) {
+        text-align: justify;
+      }
+      :host[edit-mode] #bodycontainer ::slotted(p:hover),
+      :host[edit-mode] #bodycontainer ::slotted(h1:hover),
+      :host[edit-mode] #bodycontainer ::slotted(h2:hover),
+      :host[edit-mode] #bodycontainer ::slotted(h3:hover),
+      :host[edit-mode] #bodycontainer ::slotted(h4:hover),
+      :host[edit-mode] #bodycontainer ::slotted(h5:hover),
+      :host[edit-mode] #bodycontainer ::slotted(h6:hover) {
+        box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14),
+          0 1px 10px 0 rgba(0, 0, 0, 0.12),
+          0 2px 4px -1px rgba(0, 0, 0, 0.4);
+      }
+      :host[edit-mode] #bodycontainer ::slotted(*.active-edit[contenteditable]) {
+        padding: .5em;
+        box-shadow: 0 16px 24px 2px rgba(0, 0, 0, 0.14),
+          0  6px 30px 5px rgba(0, 0, 0, 0.12),
+          0  8px 10px -5px rgba(0, 0, 0, 0.4) !important;
+        cursor:text !important;
+      }
+      :host[edit-mode] #bodycontainer ::slotted(code.active-edit[contenteditable]) {
+        display: block;
+      }
+      :host[edit-mode] #bodycontainer ::slotted(hr[contenteditable]) {
+        box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14),
+          0 1px 10px 0 rgba(0, 0, 0, 0.12),
+          0 2px 4px -1px rgba(0, 0, 0, 0.4);
+        height: .1em;
+        color: black;
+      }
+      /** Fix to support safari as it defaults to none */
+      :host[edit-mode] #bodycontainer ::slotted(*[contenteditable]) {
+        -webkit-user-select: all;
+        user-select: all;
+        cursor:pointer;
+      }
+
+      :host[edit-mode] #bodycontainer ::slotted(*[contenteditable]::-moz-selection),
+      :host[edit-mode] #bodycontainer ::slotted(*[contenteditable] *::-moz-selection) {
+        background-color: var(--hax-body-highlight, --paper-yellow-300);
+        color: black;
+      }
+      :host[edit-mode] #bodycontainer ::slotted(*[contenteditable]::selection),
+      :host[edit-mode] #bodycontainer ::slotted(*[contenteditable] *::selection) {
+        background-color: var(--hax-body-highlight, --paper-yellow-300);
+        color: black;
+      }
+      #bodycontainer {
+        -webkit-user-select: text;
+        user-select: text;
+      }
+
+      /* CSS grid overlay */
+      :host[show-grid] {
+        --offset: 0;
+        --max_width: 72rem;
+        --columns: 3;
+        --gutter: 1rem;
+        --baseline: 3rem;
+        --baseline-shift: 2rem;
+        --color: hsla(204, 80%, 72%, 0.25);
+        --color-text: hsla(204, 80%, 72%, 1);
+        --media-query: 'base';
+        cursor: crosshair !important;
+      }
+      @media (min-width: 35em) {
+        :host[show-grid] {
+          --color: hsla(286, 51%, 44%, 0.25);
+          --color-text: hsla(286, 51%, 44%, 1);
+          --media-query: 'small';
+        }
+      }
+      @media (min-width: 48em) {
+        :host[show-grid] {
+          --columns: 12;
+          --color: hsla(204, 80%, 72%, 0.25);
+          --color-text: hsla(204, 80%, 72%, 1);
+          --media-query: 'medium';
+        }
+      }
+      @media (min-width: 70em) {
+        :host[show-grid] {
+          --color: hsla(286, 51%, 44%, 0.25);
+          --color-text: hsla(286, 51%, 44%, 1);
+          --media-query: 'large';
+        }
+      }
+      :host[show-grid] {
+        --repeating-width: calc(100% / var(--columns));
+        --column-width: calc((100% / var(--columns)) - var(--gutter));
+        --background-width: calc(100% + var(--gutter));
+        --background-columns: repeating-linear-gradient(
+          to right,
+          var(--color),
+          var(--color) var(--column-width),
+          transparent var(--column-width),
+          transparent var(--repeating-width)
+        );
+        --background-baseline: repeating-linear-gradient(
+          to bottom,
+          var(--color),
+          var(--color) 1px,
+          transparent 1px,
+          transparent var(--baseline)
+        );
+        position: relative;
+      }
+      :host[show-grid]::before {
+        position: absolute;
+        top: 0; right: 0; bottom: 0; left: 0;
+        margin-right: auto;
+        margin-left: auto;
+        width: calc(100% - (2 * var(--offset)));
+        max-width: var(--max_width);
+        min-height: 100vh;
+        content: '';
+        background-image: var(--background-columns), var(--background-baseline);
+        background-size: var(--background-width) 100%;
+        background-position: 0 var(--baseline-shift);
+        z-index: 1000;
+        pointer-events: none;
+      }
+      :host[show-grid]::after {
+        content: var(--media-query);
+        position: fixed;
+        top: 1rem;
+        left: 1rem;
+        font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
+        color: var(--color-text);
+      }
+      #grid2 tile {
+          background-color: limegreen;
+      }
+      #grid2 [placeholder] {
+          background-color: lightgray;
+      }
+      #contextcontainer {
+        display: none;
+      }
+    </style>
+
+    <vaadin-context-menu selector=".has-menu">
+      <template>
+        <paper-listbox>
+          <paper-item>Option 1</paper-item>
+          <paper-item>Option 2</paper-item>
+        </paper-listbox>
+      </template>
+    <div id="bodycontainer">
+      <slot id="body"></slot>
+    </div>
+    </vaadin-context-menu>
+    <div id="contextcontainer">
+      <hax-text-context id="textcontextmenu" class="hax-context-menu ignore-activation"></hax-text-context>
+      <hax-plate-context id="platecontextmenu" class="hax-context-menu ignore-activation"></hax-plate-context>
+    </div>
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'hax-body',
+      listeners: {
+        'focusin': '_focusIn',
+        'hax-context-item-selected': '_haxContextOperation',
+      },
+      properties: {
+        /**
+         * State of if we are editing or not.
+         */
+        editMode: {
+          type: Boolean,
+          value: false,
+          reflectToAttribute: true,
+          notify: true,
+          observer: '_editModeChanged',
+        },
+        /**
+         * Show grid on the screen.
+         */
+        showGrid: {
+          type: Boolean,
+          value: false,
+          reflectToAttribute: true,
+          notify: true,
+        },
+        /**
+         * A reference to the active node in the slot.
+         */
+        activeNode: {
+          type: Object,
+          value: null,
+          notify: true,
+          observer: '_activeNodeChanged',
+        },
+        /**
+         * A reference to the currently hovered node in the slot.
+         */
+        activeHover: {
+          type: Object,
+          value: {},
+          notify: true,
+          observer: '_activeHoverChanged',
+        },
+      },
+      /**
+       * Ready state to tee everything up.
+       */
+      ready: function(e) {
+        // mutation observer that ensures state of hax applied correctly
+        this._observer = Polymer.dom(this).observeNodes(function(info) {
+          // if we've got new nodes, we have to react to that
+          if (info.addedNodes.length > 0) {
+            info.addedNodes.map((node) => {
+              if (typeof node.tagName !== typeof undefined && node.tagName !== 'HAX-TEXT-CONTEXT' && node.tagName !== 'HAX-PLATE-CONTEXT') {
+                node.contentEditable = this.editMode;
+                if (info.addedNodes.length === 1) {
+                  node.focus();
+                  if (node.tagName !== 'HR') {
+                    document.execCommand('SelectAll');
+                  }
+                }
+              }
+              this.fire('hax-body-tag-added', {node: node});
+            });
+          }
+          // if we dropped nodes via the UI (delete event basically)
+          if (info.removedNodes.length > 0) {
+            // handle removing items... not sure we need to do anything here
+            info.removedNodes.map((node) => {
+              if (typeof node.tagName !== typeof undefined && node.tagName !== 'HAX-TEXT-CONTEXT' && node.tagName !== 'HAX-PLATE-CONTEXT') {
+                this.fire('hax-body-tag-removed', {node: node});
+              }
+            });
+          }
+        });
+      },
+      /**
+       * Insert new tag + content into the local DOM as a node.
+       */
+      haxInsert: function(tag, content) {
+        var tags = this._validTags();
+        // verify this tag is a valid one
+        if (tags.includes(tag)) {
+          var newNode = document.createElement(tag);
+          newNode.innerHTML = content;
+          // insert at active insert point if we have one
+          if (this.activeNode !== null) {
+            Polymer.dom(this).insertBefore(newNode, this.activeNode.nextElementSibling);
+          }
+          else {
+            // send this into the root, which should filter it back down into the slot
+            Polymer.dom(this).appendChild(newNode);
+          }
+          return true;
+        }
+        return false;
+      },
+      /**
+       * Duplicate node into the local DOM below the current item if we can.
+       */
+      haxDuplicateNode: function(node) {
+        // move the context menu before duplicating!!!!
+        this._hideContextMenu(this.$.textcontextmenu);
+        this._hideContextMenu(this.$.platecontextmenu);
+        var nodeClone = node.cloneNode(true);
+        // shouldn't be possible but might as well check
+        if (this.activeNode !== null) {
+          Polymer.dom(this).insertBefore(nodeClone, this.activeNode.nextElementSibling);
+        }
+        else {
+          Polymer.dom(this).appendChild(nodeClone);
+        }
+        return true;
+      },
+      /**
+       * Convert an element from one tag to another.
+       */
+      haxChangeTagName: function (node, tagName) {
+        // move the context menu before duplicating!!!!
+        this._hideContextMenu(this.$.textcontextmenu);
+        this._hideContextMenu(this.$.platecontextmenu);
+        // Create a replacement tag of the desired type
+        var replacement = document.createElement(tagName);
+        // Grab all of the original's attributes, and pass them to the replacement
+        for(var i = 0, l = node.attributes.length; i < l; ++i){
+          var nodeName  = node.attributes.item(i).nodeName;
+          var nodeValue = node.attributes.item(i).nodeValue;
+          replacement.setAttribute(nodeName, nodeValue);
+        }
+        // Persist contents
+        replacement.innerHTML = node.innerHTML;
+        // Switch!
+        Polymer.dom(this).replaceChild(replacement, node);
+        return node;
+      },
+      /**
+       * Delete the node passed in
+       */
+      haxDeleteNode: function(node) {
+        // move the context menu before duplicating!!!!
+        this._hideContextMenu(this.$.textcontextmenu);
+        this._hideContextMenu(this.$.platecontextmenu);
+        // shift active to a viable replacement
+        if (this.activeNode.previousElementSibling !== null) {
+          this.activeNode.previousElementSibling.focus();
+        }
+        else if (this.activeNode.nextElementSibling !== null) {
+          this.activeNode.nextElementSibling.focus();
+        }
+        else {
+          this.activeNode = null;
+        }
+        return Polymer.dom(this).removeChild(node);
+      },
+      /**
+       * Respond to hax operations.
+       */
+      _haxContextOperation: function(e) {
+        let detail = e.detail;
+        // support a simple insert event to bubble up or everything else
+        switch(detail.eventName) {
+          case 'p':
+          case 'h2':
+          case 'h3':
+          case 'h4':
+          case 'h5':
+          case 'h6':
+          case 'code':
+          case 'blockquote':
+            // trigger the default selected value in context menu to match
+            this.$.textcontextmenu.selectedValue = detail.eventName;
+            this.activeNode = this.haxChangeTagName(this.activeNode, detail.eventName);
+            this.activeNode.focus();
+          break;
+          case 'text-align-left':
+            this.activeNode.classList.add('justify-left');
+            this.$.textcontextmenu.justifyValue = 'text-align-left';
+            this.activeNode.classList.remove('justify-center');
+            this.activeNode.classList.remove('justify-right');
+            this.activeNode.classList.remove('justify-text');
+            document.execCommand('justifyLeft', false, null);
+          break;
+          case 'text-align-center':
+            this.activeNode.classList.remove('justify-left');
+            this.activeNode.classList.add('justify-center');
+            this.$.textcontextmenu.justifyValue = 'text-align-center';
+            this.activeNode.classList.remove('justify-right');
+            this.activeNode.classList.remove('justify-text');
+            document.execCommand('justifyCenter', false, null);
+          break;
+          case 'text-align-right':
+            this.activeNode.classList.remove('justify-left');
+            this.activeNode.classList.remove('justify-center');
+            this.activeNode.classList.add('justify-right');
+            this.$.textcontextmenu.justifyValue = 'text-align-right';
+            this.activeNode.classList.remove('justify-text');
+            document.execCommand('justifyRight', false, null);
+          break;
+          case 'text-justify-full':
+            this.activeNode.classList.remove('justify-left');
+            this.activeNode.classList.remove('justify-center');
+            this.activeNode.classList.remove('justify-right');
+            this.activeNode.classList.add('justify-text');
+            this.$.textcontextmenu.justifyValue = 'text-justify-full';
+            document.execCommand('justifyJustify', false, null);
+          break;
+          case 'grid-plate-duplicate':
+            this.haxDuplicateNode(this.activeNode);
+          break;
+          case 'grid-plate-delete':
+            this.haxDeleteNode(this.activeNode);
+          break;
+          case 'close-menu':
+            // this is the equivalent of hiding menus and resetting the board
+            this.activeNode = null;
+          break;
+          default:
+            console.log(detail);
+          break;
+        }
+      },
+      /**
+       * Item has gained focus, change active element to match
+       */
+      _focusIn: function(e) {
+        var normalizedEvent = Polymer.dom(e);
+        var local = normalizedEvent.localTarget;
+        var tags = this._validTags();
+        if (tags.includes(e.target.tagName.toLowerCase()) && !local.classList.contains('ignore-activation')) {
+          this.activeNode = e.target;
+        }
+      },
+      /**
+       * Return what tags are valid as part of the hax-body area for working against.
+       */
+      _validTags: function(e) {
+        // @todo need a global way of hijacking this
+        var tags = ['p', 'div', 'hr', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'code'];
+        return tags;
+      },
+      /**
+       * Notice the change between states for editing.
+       */
+      _editModeChanged: function(newValue, oldValue) {
+        // fire above that we have changed states so things can react if needed
+        if (typeof oldValue !== typeof undefined) {
+          this.fire('hax-body-state', {editMode: newValue});
+          this._applyContentEditable(newValue);
+          if (typeof this.activeNode !== typeof undefined && this.activeNode !== null) {
+            this._positionContextMenu(this.$.textcontextmenu, this.activeNode, '-48px', '-56px');
+            this._positionContextMenu(this.$.platecontextmenu, this.activeNode, '-48px', '-5px');
+          }
+        }
+        // hide menus when state changes
+        if (newValue === false) {
+          this._hideContextMenu(this.$.textcontextmenu);
+          this._hideContextMenu(this.$.platecontextmenu);
+        }
+      },
+      /**
+       * Walk everything we find and either enable or disable editable state.
+       */
+      _applyContentEditable: function(status) {
+        let children = Polymer.dom(this.$.body).getDistributedNodes();
+        for (var i = 0, len = children.length; i < len; i++) {
+          if (typeof children[i].tagName !== typeof undefined && children[i].tagName !== 'HAX-TEXT-CONTEXT' && children[i].tagName !== 'HAX-PLATE-CONTEXT') {
+            console.log(children[i]);
+            children[i].contentEditable = status;
+          }
+        }
+      },
+      /**
+       * React to a new node being set to active.
+       */
+      _activeNodeChanged: function (newValue, oldValue) {
+        // clean up the older one
+        if (typeof oldValue !== typeof undefined && oldValue != null) {
+          oldValue.classList.remove('active-edit');
+        }
+        if (typeof newValue !== typeof undefined && newValue !== null) {
+          newValue.classList.add('active-edit');
+          this.$.textcontextmenu.selectedValue = newValue.tagName.toLowerCase();
+          // position the operations / in context element
+          this._positionContextMenu(this.$.textcontextmenu, newValue, '-48px', '-56px');
+          if (newValue.classList.contains('justify-center')) {
+            this.$.textcontextmenu.justifyIcon = 'editor:format-align-center';
+            this.$.textcontextmenu.justifyValue = 'text-align-center';
+          }
+          else if (newValue.classList.contains('justify-right')) {
+            this.$.textcontextmenu.justifyIcon = 'editor:format-align-right';
+            this.$.textcontextmenu.justifyValue = 'text-align-right';
+          }
+          else if (newValue.classList.contains('justify-text')) {
+            this.$.textcontextmenu.justifyIcon = 'editor:format-align-justify';
+            this.$.textcontextmenu.justifyValue = 'text-justify-full';
+          }
+          else {
+            this.$.textcontextmenu.justifyIcon = 'editor:format-align-left';
+            this.$.textcontextmenu.justifyValue = 'text-align-left';
+          }
+          this._positionContextMenu(this.$.platecontextmenu, newValue, '-48px', '-5px');
+        }
+        // hide menus if we don't have an active item
+        else if (newValue === null) {
+          this._hideContextMenu(this.$.textcontextmenu);
+          this._hideContextMenu(this.$.platecontextmenu);
+          this.$.textcontextmenu.justifyIcon = 'editor:format-align-left';
+          this.$.textcontextmenu.justifyValue = 'text-align-left';
+        }
+      },
+      /**
+       * React to a new node being hovered over.
+       */
+      _activeHoverChanged: function (newValue, oldValue) {
+        // if we have actually hovered on the element that's active, trigger
+        // the grid plate context menu to show up
+        if (typeof newValue !== typeof undefined && newValue !== null && this.activeNode === newValue) {
+          // position the operations / in context element
+          this._positionContextMenu(this.$.platecontextmenu, newValue, '-48px', '-5px');
+        }
+      },
+      /**
+       * Handle display and position of the context menu
+       */
+      _positionContextMenu: function (menu, target, xoffset, yoffset) {
+        menu.classList.add('hax-context-visible');
+        Polymer.dom(this).insertBefore(menu, target);
+        menu.style["margin-left"] = xoffset;
+        menu.style["margin-top"] = yoffset;
+      },
+      /**
+       * Simple hide / reset of whatever menu it's handed.
+       */
+      _hideContextMenu: function(menu) {
+        menu.classList.remove('hax-context-visible');
+        Polymer.dom(this.$.contextcontainer).appendChild(menu);
+      },
+    });
+  </script>
+</dom-module>

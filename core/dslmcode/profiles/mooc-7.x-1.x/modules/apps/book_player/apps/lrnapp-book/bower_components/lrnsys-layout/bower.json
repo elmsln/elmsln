@@ -1,0 +1,25 @@
+{
+  "name": "lrnsys-layout",
+  "description": "A LRN element",
+  "main": "lrnsys-layout.html",
+  "dependencies": {
+    "polymer": "Polymer/polymer#^1.4.0",
+    "lrnsys-behaviors": "LRNWebComponents/lrnsys-behaviors#^1.0.0",
+    "hax-behaviors": "LRNWebComponents/hax-behaviors#^1.0.0",
+    "materializecss-styles": "LRNWebComponents/materializecss-styles#^1.0.0",
+    "paper-avatar": "LRNWebComponents/paper-avatar#1.0.5-lrn",
+    "app-layout": "PolymerElements/app-layout#^2.0.0",
+    "paper-tooltip": "PolymerElements/paper-tooltip#^2.0.0",
+    "iron-collapse": "PolymerElements/iron-collapse#^2.0.0",
+    "paper-drawer-panel": "PolymerElements/paper-drawer-panel#^2.0.0",
+    "paper-dialog": "PolymerElements/paper-dialog#^2.0.0",
+    "paper-dialog-scrollable": "PolymerElements/paper-dialog-scrollable#^2.1.0",
+    "iron-image": "PolymerElements/iron-image#^2.1.2"
+  },
+  "devDependencies": {
+    "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
+    "iron-demo-helpers": "PolymerElements/iron-demo-helpers#^1.0.0",
+    "web-component-tester": "^4.0.0",
+    "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0"
+  }
+}

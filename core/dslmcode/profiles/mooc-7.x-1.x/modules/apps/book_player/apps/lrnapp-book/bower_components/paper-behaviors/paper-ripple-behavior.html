@@ -8,6 +8,10 @@ Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
 -->
 
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-behaviors/iron-button-state.html">
+<link rel="import" href="../paper-ripple/paper-ripple.html">
+
 <script>
   /**
    * `Polymer.PaperRippleBehavior` dynamically implements a ripple
@@ -110,8 +114,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
      * @return {!PaperRippleElement} Returns a `<paper-ripple>` element.
      */
     _createRipple: function() {
-      return /** @type {!PaperRippleElement} */ (
+      var element = /** @type {!PaperRippleElement} */ (
           document.createElement('paper-ripple'));
+      return element;
     },
 
     _noinkChanged: function(noink) {

@@ -516,6 +516,7 @@ A LRN element
         'progress.node-percent-milestone': 'testMilestone',
         'route-change': '_routeChange',
         'haxpanel.hax-item-selected': '_haxOperation',
+        'haxpanel.hax-content-insert': '_haxContentInsert',
       },
       observers: [
         '_routeChanged(data, route, endPoint)',
@@ -780,7 +781,10 @@ A LRN element
        */
       _haxOperation: function (e) {
         this.$.toast.show(e.detail.eventName);
-
+      },
+      _haxContentInsert: function (e) {
+        this.$.toast.show(e.detail.eventName);
+        this.$.currentcontent.haxInsert(e.detail.tag, e.detail.content);
       },
       /**
        * Calculate what would happen if we added a page here.

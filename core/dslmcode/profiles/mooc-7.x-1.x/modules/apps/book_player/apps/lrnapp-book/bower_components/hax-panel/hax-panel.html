@@ -26,9 +26,24 @@ as the events being bubbled up include HTML nodes to inject into something
         transition: all .3s ease;
       }
     </style>
-    <app-drawer id="drawer" opened="{{opened}}" persistent="{{opened}}" disable-swipe transition-duration="300">
+    <app-drawer id="drawer" opened="{{opened}}" disable-swipe persistent transition-duration="300">
 
       <div style="height: 100%; overflow: auto;">
+        <lrnsys-collapselist-item opened>
+          <span slot="label"><div class="label">Editor panel</div></span>
+          <span slot="content" style="display:flex;">
+            <hax-panel-item
+              icon="undo"
+              icon-class="black-text"
+              label="Undo last action"
+              event-name="undo" wide></hax-panel-item>
+            <hax-panel-item
+              icon="redo"
+              icon-class="black-text"
+              label="Redo last action"
+              event-name="redo" wide></hax-panel-item>
+          </span>
+        </lrnsys-collapselist-item>
         <lrnsys-collapselist-item >
           <span slot="label"><div class="label">Content outline</div></span>
           <span slot="content" style="display:flex;">
@@ -50,8 +65,18 @@ as the events being bubbled up include HTML nodes to inject into something
             <hax-panel-item
               icon="editor:text-fields"
               icon-class="black-text"
-              label="Text"
+              label="Text area"
               event-name="text"></hax-panel-item>
+            <hax-panel-item
+              icon="editor:title"
+              icon-class="grey-text text-darken-1"
+              label="Heading"
+              event-name="header"></hax-panel-item>
+            <hax-panel-item
+              icon="editor:format-quote"
+              icon-class="grey-text text-darken-2"
+              label="Block quote"
+              event-name="blockquote"></hax-panel-item>
             <hax-panel-item
               icon="editor:space-bar"
               icon-class="grey-text"
@@ -152,7 +177,9 @@ as the events being bubbled up include HTML nodes to inject into something
     Polymer({
 
       is: 'hax-panel',
-
+      listeners: {
+        'hax-item-selected': '_processItemEvent',
+      },
       properties: {
         /**
          * State of the panel
@@ -162,6 +189,44 @@ as the events being bubbled up include HTML nodes to inject into something
           reflectToAttribute: true,
           notify: true,
           value: false,
+        }
+      },
+      /**
+       * Process event for simple content inserts.
+       */
+      _processItemEvent: function(e) {
+        let detail = e.detail;
+        // support a simple insert event to bubble up or everything else
+        switch(detail.eventName) {
+          case 'text':
+            detail.tag = 'p';
+            detail.content = 'New paragraph';
+            this.fire('hax-content-insert', detail);
+          break;
+          case 'divider':
+            detail.tag = 'hr';
+            detail.content = '';
+            this.fire('hax-content-insert', detail);
+          break;
+          case 'header':
+            detail.tag = 'h2';
+            detail.content = 'Heading';
+            this.fire('hax-content-insert', detail);
+          break;
+          case 'blockquote':
+            detail.tag = 'blockquote';
+            detail.content = 'Quote';
+            this.fire('hax-content-insert', detail);
+          break;
+          case 'undo':
+            document.execCommand('undo');
+          break;
+          case 'redo':
+            document.execCommand('redo');
+          break;
+          default:
+            // we sit on this, something else will have to handle it
+          break;
         }
       },
       /**

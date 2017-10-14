@@ -32,7 +32,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             try {
               result = neonAnimation.configure(config);
               // Check if we have an Effect rather than an Animation
-              if (typeof result.cancel != 'function') { 
+              if (typeof result.cancel != 'function') {
                 result = document.timeline.play(result);
               }
             } catch (e) {

@@ -1,0 +1,58 @@
+
+<link rel="import" href="hax-context-item-menu.html">
+<link rel="import" href="hax-context-item.html">
+
+<!--
+`hax-plate-context`
+A context menu that provides common grid plate based authoring options.
+
+@demo demo/index.html
+
+@microcopy - the mental model for this element
+ - context menu - this is a menu of text based buttons and events for use in a larger solution.
+ - grid plate - the container / full HTML tag which can have operations applied to it.
+-->
+
+<dom-module id="hax-plate-context">
+  <template>
+    <style>
+      :host {
+        display: block;
+        background-color: white;
+        width: 42px;
+      }
+      hax-context-item-menu,
+      hax-context-item {
+        display: block;
+        margin: 0;
+        width: 100%;
+      }
+      hax-context-item ::shadow paper-icon-button {
+        height: 2.75em;
+      }
+    </style>
+    <hax-context-item-menu
+      label="Styles"
+      event-name="grid-plate-style">
+      <paper-item value="normal">Normal</paper-item>
+      <paper-item value="grid-plate-center">Center</paper-item>
+      <paper-item value="grid-plate-explode">Explode</paper-item>
+    </hax-context-item-menu>
+    <hax-context-item
+      icon="content-copy"
+      icon-class="green-text text-lighten-2"
+      label="Duplcate element"
+      event-name="grid-plate-duplicate"></hax-context-item>
+    <hax-context-item
+      icon="delete"
+      icon-class="red-text text-darken-2"
+      label="Delete forever"
+      event-name="grid-plate-delete"></hax-context-item>
+  </template>
+
+  <script>
+    Polymer({
+      is: 'hax-plate-context',
+    });
+  </script>
+</dom-module>

@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+
+    <title>hax-panel demo</title>
+
+    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+
+    <link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
+    <link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
+    <link rel="import" href="../../paper-toast/paper-toast.html">
+    <link rel="import" href="../hax-panel.html">
+
+    <style is="custom-style" include="demo-pages-shared-styles">
+    </style>
+  </head>
+  <body>
+    <div class="vertical-section-container centered">
+      <h3>Basic hax-panel demo</h3>
+      <demo-snippet>
+        <template is="dom-bind">
+          <paper-button id="button">Toggle</paper-button>
+          <hax-panel id="panel"></hax-panel>
+
+          <paper-toast id="toast"></paper-toast>
+          <script>
+            var t = document.querySelector('#button');
+            var h = document.querySelector('#panel');
+            t.addEventListener('click', function(e) {
+              document.querySelector('#panel')._togglePanel();
+            });
+            // alert if there was an error loading content
+            h.addEventListener('hax-item-selected', function(e) {
+              console.log(e.detail);
+              document.querySelector('#toast').show(e.detail.eventName);
+            });
+          </script>
+        </template>
+      </demo-snippet>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,96 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../app-layout/app-toolbar/app-toolbar.html">
+<link rel="import" href="lrnsys-dialog-toolbar-button.html">
+
+
+<dom-module id="lrnsys-dialog-toolbar">
+    <template>
+        <style>
+             :host {
+                display: block;
+                --app-toolbar-primary-color: whitesmoke;
+                --app-toolbar-primary-height: 40px;
+                --app-toolbar-secondary-height: 50px;
+                --app-toolbar-secondary-color: rgba(0, 0, 0, 0.7);
+                position: relative;
+                margin: 0;
+                padding: 0;
+            }
+
+
+            app-toolbar#primary {
+                background-color: var(--app-toolbar-primary-color);
+                z-index: 10;
+                position: relative;
+                height: var(--app-toolbar-primary-height);
+            }
+
+            app-toolbar#secondary {
+                background-color: var(--app-toolbar-secondary-color);
+                z-index: 5;
+                position: absolute;
+                width: 100%;
+                transform: translateY(-100%);
+                transition: all 0.3s ease-in;
+                height: var(--app-toolbar-primary-height);
+                color: #fff;
+                display: flex;
+                justify-content: center;
+                padding: 0;
+            }
+
+             :host[secondary-visible] #secondary {
+                transform: translateY(0);
+                height: var(--app-toolbar-secondary-height);
+            }
+
+            .secondary-buttons {
+                display: flex;
+            }
+
+            .secondary-buttons ::shadow * {
+                display: inline-flex;
+            }
+        </style>
+        <app-toolbar id="primary">
+            <slot name="primary"></slot>
+            <div main-title></div>
+            <lrnsys-dialog-toolbar-button icon="close" id="close"></lrnsys-dialog-toolbar-button>
+        </app-toolbar>
+        <app-toolbar id="secondary" hidden$="[[!_secondaryHasChildren]]">
+            <div class="secondary-buttons">
+                <slot name="secondary" id="secondary-slot"></slot>
+            </div>
+        </app-toolbar>
+    </template>
+    <script>
+        Polymer({
+            is: 'lrnsys-dialog-toolbar',
+
+            properties: {
+                /**
+                * Internal state of secondary toolbar
+                */
+                _secondaryHasChildren: {
+                    type: Boolean,
+                    value: false
+                }
+            },
+
+            listeners: {
+                'clicked': '_clickedHandler'
+            },
+
+            _clickedHandler: function (e) {
+                this.fire('button-clicked', e.detail);
+            },
+            ready: function () {
+                // listen to see if buttons have been initialized in the secondary
+                // toolbar
+                this.$.secondary.addEventListener('button-initialized', (e) => {
+                    this._secondaryHasChildren = true;
+                });
+            }
+        });
+    </script>
+</dom-module>

@@ -1,0 +1,87 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../app-layout/app-layout.html">
+<link rel="import" href="../paper-avatar/paper-avatar.html">
+<link rel="import" href="../lrn-icons/lrn-icons.html">
+<link rel="import" href="../paper-button/paper-button.html">
+<link rel="import" href="../materializecss-styles/colors.html">
+<link rel="import" href="../iron-icons/iron-icons.html">
+<link rel="import" href="../iron-collapse/iron-collapse.html">
+
+<!--
+`lrnsys-collapselist`
+
+
+@demo demo/index.html
+-->
+
+<dom-module id="lrnsys-collapselist">
+  <template>
+    <style include="materializecss-styles-colors">
+      :host {
+        display: block;
+      }
+      ul {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+      }
+      ul li {
+        width: 100%;
+        border: 1px solid black;
+        margin-bottom: -1px;
+      }
+      ul li paper-button {
+        height: 2em;
+        padding: .5em;
+        margin: 0;
+        min-width: .1em;
+        -webkit-justify-content: flex-start;
+        justify-content: flex-start;
+        align-items: center;
+        width: 100%;
+        text-transform: unset;
+        border-radius: 0;
+      }
+      ul li paper-button iron-icon,
+      ul li paper-button span {
+        pointer-events: none;
+      }
+      .collapse-label {
+        margin-left: .5em;
+      }
+      .collapse-content {
+        padding: 1em;
+      }
+    </style>
+    <ul>
+    <template is="dom-repeat" items="{{items}}" as="row">
+      <li>
+        <lrnsys-collapselist-item>
+          <span slot="label">
+            <iron-icon icon="[[row.icon]]"></iron-icon>
+            <span class="collapse-label">[[row.label]]</span>
+          </span>
+          <span slot="content">
+            [[row.content]]
+          </span>
+        </lrnsys-collapselist-item>
+      </li>
+    </template>
+    </ul>
+  </template>
+
+  <script>
+    Polymer({
+      is: 'lrnsys-collapselist',
+      properties: {
+        /**
+         * Array of items to present with label and content for the list of collapses.
+         */
+        items: {
+          type: Array,
+          notify: true,
+        },
+      }
+    });
+  </script>
+</dom-module>

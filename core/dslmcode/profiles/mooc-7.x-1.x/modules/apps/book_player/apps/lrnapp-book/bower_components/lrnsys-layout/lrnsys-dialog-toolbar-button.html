@@ -1,0 +1,51 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../paper-tooltip/paper-tooltip.html">
+
+<dom-module id="lrnsys-dialog-toolbar-button">
+    <template>
+        <style>
+             :host {
+                display: block;
+                margin-right: 10px;
+            }
+        </style>
+        <paper-icon-button raised icon="[[icon]]" on-click="clicked" id$="[[id]]">[[title]]</paper-icon-button>
+        <paper-tooltip for$="[[id]]" animation-delay="200">[[title]]</paper-tooltip>
+    </template>
+    <script>
+        Polymer({
+            is: 'lrnsys-dialog-toolbar-button',
+
+            properties: {
+                /**
+                The title of the button.
+                */
+                title: {
+                    type: String,
+                },
+                /**
+                The button icon.
+                */
+                icon: {
+                    type: String,
+                },
+                /**
+                The button ID.
+                */
+                id: {
+                    type: String,
+                }
+            },
+            clicked: function (e) {
+                var normalizedEvent = Polymer.dom(e);
+                var localTarget = normalizedEvent.localTarget;
+                var id = localTarget.getAttribute('id');
+                this.fire('clicked', { id: id });
+            },
+            ready: function () {
+                this.fire('button-initialized', {id: this.id});
+            }
+        });
+    </script>
+</dom-module>

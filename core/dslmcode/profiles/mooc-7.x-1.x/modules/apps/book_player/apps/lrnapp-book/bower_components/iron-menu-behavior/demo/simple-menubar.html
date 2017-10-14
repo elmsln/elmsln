@@ -8,38 +8,45 @@ Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
 -->
 
-<link rel="import" href="../../../polymer/polymer.html">
-<link rel="import" href="../../neon-animated-pages.html">
+<link rel="import" href="../../polymer/polymer.html">
+<link rel="import" href="../iron-menubar-behavior.html">
+<link rel="import" href="../../paper-styles/color.html">
 
-<dom-module id="reprojected-pages">
+<dom-module id="simple-menubar">
   <template>
     <style>
-      neon-animated-pages {
-        height: 100%;
+      .content ::content > .iron-selected {
+        color: white;
+        background-color: var(--google-red-500);
+      }
+
+      .content ::content > * {
+        display: inline-block;
       }
     </style>
-    <neon-animated-pages selected="{{selected}}">
+
+    <div class="content">
       <content></content>
-    </neon-animated-pages>
+    </div>
 
   </template>
+
 </dom-module>
 
 <script>
 
+(function() {
+
   Polymer({
 
-    is: 'reprojected-pages',
+    is: 'simple-menubar',
 
-    properties: {
-
-      selected: {
-        type: String,
-        notify: true
-      }
-
-    }
+    behaviors: [
+      Polymer.IronMenubarBehavior
+    ]
 
   });
+
+})();
 
 </script>
