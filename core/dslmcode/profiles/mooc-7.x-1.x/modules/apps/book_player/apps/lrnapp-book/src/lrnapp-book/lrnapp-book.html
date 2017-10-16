@@ -396,7 +396,7 @@ A LRN element
       url="[[pageUpdatePath]]"
       params="[[pageParams]]"
       method="PUT"
-      body="[[currentPageData]]"
+      body="[[updatePageData]]"
       content-type="application/json"
       handle-as="json"
       on-response="_handleUpdateResponse"></iron-ajax>
@@ -425,7 +425,7 @@ A LRN element
         query-params="{{queryParams}}">
     </app-route>
 
-    <app-header id="header" condenses shadow reveals scroll-target="currentcontent">
+    <app-header id="header" condenses shadow reveals scroll-target="haxbody">
       <div id="outlineloading" class="loading">
         <elmsln-loading color="grey-text" size="medium"></elmsln-loading>
         <elmsln-loading color="grey-text" size="medium"></elmsln-loading>
@@ -466,9 +466,9 @@ A LRN element
             <elmsln-loading color="grey-text" size="large"></elmsln-loading>
             <h3 class="loading-text">Loading content..</h3>
           </div>
-          <div id="currentcontentcontainer">
-            <hax-body id="currentcontent">
-              <slot></slot>
+          <div>
+            <hax-body id="haxbody">
+              <slot id="slottedarea"></slot>
             </hax-body>
           </div>
         </div>
@@ -528,6 +528,30 @@ A LRN element
         createRequestBody: {
           type: Object,
           computed: '_computeCreateRequestBody(currentPageData)',
+        },
+        /**
+         * Data to be shipped off to the update endpoint.
+         */
+        updatePageData: {
+          type: Object,
+          value: {
+            id: null,
+            type: null,
+            attributes: {}
+          },
+        },
+        /**
+         * Path for updating content.
+         */
+        pageUpdatePath: {
+          type: String,
+          computed: '_computePageUpdatePath(data, sourcePath)'
+        },
+        /**
+         * Source path to the 'find one' end point
+         */
+        sourcePath: {
+          type: String,
         },
         /**
          * Edit / authoring mode.
@@ -777,6 +801,12 @@ A LRN element
         }, 500);
       },
       /**
+       * Generate path to point to the right endpoint for updating items.
+       */
+      _computePageUpdatePath: function (data, sourcePath) {
+        return sourcePath.replace('%', data.id);
+      },
+      /**
        * Hax operation capture and UI routing.
        */
       _haxOperation: function (e) {
@@ -784,7 +814,7 @@ A LRN element
       },
       _haxContentInsert: function (e) {
         this.$.toast.show(e.detail.eventName);
-        this.$.currentcontent.haxInsert(e.detail.tag, e.detail.content);
+        this.$.haxbody.haxInsert(e.detail.tag, e.detail.content);
       },
       /**
        * Calculate what would happen if we added a page here.
@@ -822,7 +852,7 @@ A LRN element
           this.$.haxpanel.opened = true;
           // play things in an editable state and let hax take over from here
           this.$.currenttitle.contentEditable = true;
-          this.$.currentcontent.editMode = true;
+          this.$.haxbody.editMode = true;
           // block scroll tracking during edit mode
           this.resetScroll = true;
           // notification to user
@@ -838,19 +868,42 @@ A LRN element
           this.$.haxpanel.opened = false;
           // play things in an editable state and let hax take over from here
           this.$.currenttitle.contentEditable = false;
-          this.$.currentcontent.editMode = false;
+          this.$.haxbody.editMode = false;
           // allow scrolling to take place now
           this.resetScroll = false;
           // we were in edit mode, now time to save for real
           if (oldValue === true) {
-            this.currentPageData.title = this.$.currenttitle.innerHTML;
-            this.currentPageData.content = this.$.currentcontentcontainer.innerHTML;
-            //this.$.pageupdateajax.generateRequest();
-            // @todo do some kind of detection so we know we can save
-            // @todo actually save...
-            this.$.toast.show('Saved! (but not yet actually)');
+            let updated = false;
+            // get computed / cleaned up content area
+            let haxcontent = this.$.haxbody.haxToContent();
+            console.log(this.updatePageData);
+            // see if title changed
+            if (this.$.currenttitle.innerHTML !== this.currentPageData.title) {
+              this.currentPageData.title = this.$.currenttitle.innerHTML;
+              this.updatePageData.attributes.title = this.currentPageData.title;
+            }
+            // see if content updated
+            if (this.currentPageData.content !== haxcontent) {
+              this.currentPageData.content = haxcontent;
+              this.updatePageData.attributes.body = this.currentPageData.content;
+              updated = true;
+            }
+            // see if we've changed anything in order to ship off
+            if (updated) {
+              // set type and id data from routing and ship this off!
+              this.updatePageData.type = this.data.type;
+              this.updatePageData.id = this.data.id;
+              this.$.pageupdateajax.generateRequest();
+            }
           }
         }
+      },
+      /**
+       * Get response back from the server on updating this content.
+       */
+      _handleUpdateResponse: function (e) {
+        // @todo error checking here
+        this.$.toast.show('Saved!');
       },
       /**
        * Change the activeOutline
@@ -938,6 +991,10 @@ A LRN element
         if (typeof newValue !== typeof undefined) {
           if (typeof this.outlineItems !== typeof undefined) {
             this.set('route.path', this.outlineItems[newValue].url);
+            // ensure that we clear any previously set update data
+            this.updatePageData.attributes = {};
+            this.updatePageData.id = null;
+            this.updatePageData.type = null;
           }
           // scroll into view the container that's about to be swapped out
           if (typeof oldValue !== typeof undefined) {
@@ -1104,13 +1161,40 @@ A LRN element
        */
       _currentPageDataUpdated: function (newValue, oldValue) {
         if (typeof newValue !== typeof undefined && typeof newValue.content !== typeof undefined) {
+          // set page title; easiest for sure
           this.set('currentTitle', newValue.title);
+          // when updating data we nee dto clear the slot's content
+          // while maintaining the data model correctly
+          let slot = Polymer.dom(this.$.haxbody);
+          while (slot.firstChild !== null) {
+            slot.removeChild(slot.firstChild);
+          }
+          // add HTML to a div which makes it's DOM unpack
           var tmp = document.createElement('div');
           tmp.innerHTML = newValue.content;
-          // tap into the element as it exists in the DOM and replace it's inner content
-          // this will then force the <slot> to reprocess and put in the right place
-          Polymer.dom(this).innerHTML = newValue.content;
+          // trap for text without wrapping HTML tags
+          if (typeof tmp.firstChild.length !== typeof undefined) {
+            var tmp2 = document.createElement('p');
+            tmp2.innerHTML = tmp.innerHTML;
+            tmp = document.createElement('div');
+            tmp.innerHTML = tmp2.outerHTML;
+          }
+          // same as above but in reverse; now take stuf from what
+          // came across and correctly add it into the slot
+          while (tmp.firstChild) {
+            //Polymer.dom(this.$.slottedarea).appendChild(tmp.firstChild);
+            Polymer.dom(this.$.haxbody).appendChild(tmp.firstChild);
+            try {
+              tmp.removeChild(tmp.firstChild);
+            } catch(err) {
+              continue;
+            }
+          }
+          console.log(this.$.haxbody);
+
+          // reset scroll position back to top of this content
           this._resetScroll();
+          // hide the loading area
           this.$.bodyloading.hidden = true;
           // manage state associated w/ edit mode if we were in edit mode previously
           if (this.editMode && !newValue.page.meta.canUpdate) {

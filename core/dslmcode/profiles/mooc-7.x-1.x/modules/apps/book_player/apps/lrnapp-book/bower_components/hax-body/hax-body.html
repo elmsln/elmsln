@@ -306,6 +306,35 @@ A LRN element that will change the world.
         return false;
       },
       /**
+       * Return the current hax content area as text that could be
+       * inserted into something.
+       */
+      haxToContent: function() {
+        // remove from the body area so we can generate a legit html structure
+        this.hideContextMenus();
+        var __active = this.activeNode;
+        // null this to drop hax based classes
+        this.set('activeNode', null);
+        let children = Polymer.dom(this.$.body).getDistributedNodes();
+        var content = '';
+        for (var i = 0, len = children.length; i < len; i++) {
+          if (typeof children[i].tagName !== typeof undefined && children[i].tagName !== 'HAX-TEXT-CONTEXT' && children[i].tagName !== 'HAX-PLATE-CONTEXT') {
+            // delete this property since it's silly
+            children[i].contentEditable = false;
+            content += children[i].outerHTML + "\n";
+          }
+        }
+        // remove the contenteditable property as it isn't needed on export
+        content = content.replace(/\scontenteditable=\"false\"/g, '');
+        // remove empty class structures
+        content = content.replace(/\sclass=\"\"/g, '');
+        // re-apply contenteditable if needed
+        this._applyContentEditable(this.editMode);
+        // set active again
+        this.set('activeNode', __active);
+        return content;
+      },
+      /**
        * Duplicate node into the local DOM below the current item if we can.
        */
       haxDuplicateNode: function(node) {
@@ -315,9 +344,11 @@ A LRN element that will change the world.
         // shouldn't be possible but might as well check
         if (this.activeNode !== null) {
           Polymer.dom(this).insertBefore(nodeClone, this.activeNode.nextElementSibling);
+          this.activeNode = nodeClone;
         }
         else {
           Polymer.dom(this).appendChild(nodeClone);
+          this.activeNode = nodeClone;
         }
         return true;
       },
@@ -486,8 +517,8 @@ A LRN element that will change the world.
        * Return what tags are valid as part of the hax-body area for working against.
        */
       _validTags: function(e) {
-        // @todo need a global way of hijacking this
-        var tags = ['p', 'div', 'hr', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'code'];
+        // @todo need a global way of hijacking this for integrations
+        var tags = ['p', 'div', 'ol', 'ul', 'li', 'iframe', 'a', 'hr', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'code'];
         return tags;
       },
       /**
@@ -514,7 +545,6 @@ A LRN element that will change the world.
         let children = Polymer.dom(this.$.body).getDistributedNodes();
         for (var i = 0, len = children.length; i < len; i++) {
           if (typeof children[i].tagName !== typeof undefined && children[i].tagName !== 'HAX-TEXT-CONTEXT' && children[i].tagName !== 'HAX-PLATE-CONTEXT') {
-            console.log(children[i]);
             children[i].contentEditable = status;
           }
         }
@@ -528,6 +558,9 @@ A LRN element that will change the world.
           oldValue.classList.remove('hax-active');
         }
         if (typeof newValue !== typeof undefined && newValue !== null) {
+          // remove the menu, establish the new active, then reapply
+          // this is nessecary because the context menu gets appended into
+          // the document
           this.hideContextMenus();
           newValue.classList.add('hax-active');
           this.$.textcontextmenu.selectedValue = newValue.tagName.toLowerCase();
@@ -550,7 +583,7 @@ A LRN element that will change the world.
             this.$.textcontextmenu.justifyValue = 'text-align-left';
           }
         }
-        // hide menus if we don't have an active item
+        // just hide menus if we don't have an active item
         else if (newValue === null) {
           this.hideContextMenus();
           this.$.textcontextmenu.justifyIcon = 'editor:format-align-left';

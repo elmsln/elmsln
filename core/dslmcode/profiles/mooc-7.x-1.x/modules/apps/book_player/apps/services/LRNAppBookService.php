@@ -383,7 +383,9 @@ class LRNAppBookService {
         }
         if (isset($payload->attributes->body)) {
           $node->body[LANGUAGE_NONE][0]['value'] = _transliteration_process($payload->attributes->body);
-          $node->body[LANGUAGE_NONE][0]['format'] = LRNAPP_BOOK_DEFAULT_FORMAT;
+          if (!isset($node->body[LANGUAGE_NONE][0]['format'])) {
+            $node->body[LANGUAGE_NONE][0]['format'] = LRNAPP_BOOK_DEFAULT_FORMAT;
+          }
         }
         if (isset($payload->attributes->image)) {
           $node->field_mooc_image[LANGUAGE_NONE] = $this->objectToArray($payload->attributes->image);

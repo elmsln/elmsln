@@ -41,7 +41,7 @@ function _lrnapp_book_findone($machine_name, $app_route, $params, $args) {
             $post_data = json_decode($post_data);
             // try to update the node
             try {
-              $update = $service->updatePage($post_data, $args[2]);
+              $update = $service->updatePage($post_data, $post_data->id);
               $return['data'] = $update;
             }
             // if it fails we'll add errors and return 500
