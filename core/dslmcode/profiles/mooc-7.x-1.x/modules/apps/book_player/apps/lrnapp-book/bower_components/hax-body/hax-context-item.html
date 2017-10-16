@@ -45,10 +45,10 @@ A single button in the hax panel for consistency.
         transform: rotateY(180deg);
       }
     </style>
-    <paper-icon-button icon="[[icon]]" hidden$="[[!icon]]" class$="[[iconClass]]" on-tap="_fireEvent"></paper-icon-button>
+    <paper-icon-button id="button" icon="[[icon]]" hidden$="[[!icon]]" class$="[[iconClass]]" on-tap="_fireEvent"></paper-icon-button>
     <paper-tooltip
       for="button"
-      position="bottom"
+      position="[[direction]]"
       offset="14">
       [[label]]
     </paper-tooltip>
@@ -67,6 +67,13 @@ A single button in the hax panel for consistency.
           type: Boolean,
           value: false,
           reflectToAttribute: true,
+        },
+        /**
+         * Direction for the tooltip
+         */
+        direction: {
+          type: String,
+          value: 'bottom',
         },
         /**
          * Icon for the button.

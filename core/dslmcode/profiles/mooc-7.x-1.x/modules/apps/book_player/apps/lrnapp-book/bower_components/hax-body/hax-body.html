@@ -62,14 +62,14 @@ A LRN element that will change the world.
           0 1px 10px 0 rgba(0, 0, 0, 0.12),
           0 2px 4px -1px rgba(0, 0, 0, 0.4);
       }
-      :host[edit-mode] #bodycontainer ::slotted(*.active-edit[contenteditable]) {
+      :host[edit-mode] #bodycontainer ::slotted(*.hax-active[contenteditable]) {
         padding: .5em;
         box-shadow: 0 16px 24px 2px rgba(0, 0, 0, 0.14),
           0  6px 30px 5px rgba(0, 0, 0, 0.12),
           0  8px 10px -5px rgba(0, 0, 0, 0.4) !important;
         cursor:text !important;
       }
-      :host[edit-mode] #bodycontainer ::slotted(code.active-edit[contenteditable]) {
+      :host[edit-mode] #bodycontainer ::slotted(code.hax-active[contenteditable]) {
         display: block;
       }
       :host[edit-mode] #bodycontainer ::slotted(hr[contenteditable]) {
@@ -265,14 +265,8 @@ A LRN element that will change the world.
             info.addedNodes.map((node) => {
               if (typeof node.tagName !== typeof undefined && node.tagName !== 'HAX-TEXT-CONTEXT' && node.tagName !== 'HAX-PLATE-CONTEXT') {
                 node.contentEditable = this.editMode;
-                if (info.addedNodes.length === 1) {
-                  node.focus();
-                  if (node.tagName !== 'HR') {
-                    document.execCommand('SelectAll');
-                  }
-                }
+                this.fire('hax-body-tag-added', {node: node});
               }
-              this.fire('hax-body-tag-added', {node: node});
             });
           }
           // if we dropped nodes via the UI (delete event basically)
@@ -280,7 +274,9 @@ A LRN element that will change the world.
             // handle removing items... not sure we need to do anything here
             info.removedNodes.map((node) => {
               if (typeof node.tagName !== typeof undefined && node.tagName !== 'HAX-TEXT-CONTEXT' && node.tagName !== 'HAX-PLATE-CONTEXT') {
-                this.fire('hax-body-tag-removed', {node: node});
+                if (!node.classList.contains('hax-active')) {
+                  this.fire('hax-body-tag-removed', {node: node});
+                }
               }
             });
           }
@@ -298,10 +294,12 @@ A LRN element that will change the world.
           // insert at active insert point if we have one
           if (this.activeNode !== null) {
             Polymer.dom(this).insertBefore(newNode, this.activeNode.nextElementSibling);
+            this.activeNode = newNode;
           }
           else {
             // send this into the root, which should filter it back down into the slot
             Polymer.dom(this).appendChild(newNode);
+            this.activeNode = newNode;
           }
           return true;
         }
@@ -312,8 +310,7 @@ A LRN element that will change the world.
        */
       haxDuplicateNode: function(node) {
         // move the context menu before duplicating!!!!
-        this._hideContextMenu(this.$.textcontextmenu);
-        this._hideContextMenu(this.$.platecontextmenu);
+        this.hideContextMenus();
         var nodeClone = node.cloneNode(true);
         // shouldn't be possible but might as well check
         if (this.activeNode !== null) {
@@ -325,12 +322,51 @@ A LRN element that will change the world.
         return true;
       },
       /**
+       * Hide both context menus.
+       */
+      hideContextMenus: function() {
+        this._hideContextMenu(this.$.textcontextmenu);
+        this._hideContextMenu(this.$.platecontextmenu);
+      },
+      /**
+       * Reposition context menus to match an element.
+       */
+      positionContextMenus: function(node) {
+        this._positionContextMenu(this.$.textcontextmenu, node, '-48px', '-56px');
+        this._positionContextMenu(this.$.platecontextmenu, node, '-48px', '-5px');
+      },
+      /**
+       * Move grid plate around
+       */
+      haxMoveGridPlate: function(direction, node) {
+        // support moving things multiple directions
+        switch (direction) {
+          case 'up':
+            // menu is actually in the element for render purposes
+            // need to hide it, THEN check if thing above is null
+            this.hideContextMenus();
+            if (node.previousElementSibling !== null) {
+              Polymer.dom(this).insertBefore(node, node.previousElementSibling);
+            }
+            this.positionContextMenus(node);
+          break;
+          case 'down':
+            if (node.nextElementSibling !== null) {
+              this.hideContextMenus();
+              Polymer.dom(this).insertBefore(node.nextElementSibling, node);
+              this.positionContextMenus(node);
+            }
+          break;
+          // @todo support other directions for when inside of an element
+        }
+        return true;
+      },
+      /**
        * Convert an element from one tag to another.
        */
       haxChangeTagName: function (node, tagName) {
-        // move the context menu before duplicating!!!!
-        this._hideContextMenu(this.$.textcontextmenu);
-        this._hideContextMenu(this.$.platecontextmenu);
+        // ensure we're not in the document tree for the replaced node
+        this.hideContextMenus();
         // Create a replacement tag of the desired type
         var replacement = document.createElement(tagName);
         // Grab all of the original's attributes, and pass them to the replacement
@@ -343,15 +379,14 @@ A LRN element that will change the world.
         replacement.innerHTML = node.innerHTML;
         // Switch!
         Polymer.dom(this).replaceChild(replacement, node);
-        return node;
+        return replacement;
       },
       /**
        * Delete the node passed in
        */
       haxDeleteNode: function(node) {
         // move the context menu before duplicating!!!!
-        this._hideContextMenu(this.$.textcontextmenu);
-        this._hideContextMenu(this.$.platecontextmenu);
+        this.hideContextMenus();
         // shift active to a viable replacement
         if (this.activeNode.previousElementSibling !== null) {
           this.activeNode.previousElementSibling.focus();
@@ -382,7 +417,6 @@ A LRN element that will change the world.
             // trigger the default selected value in context menu to match
             this.$.textcontextmenu.selectedValue = detail.eventName;
             this.activeNode = this.haxChangeTagName(this.activeNode, detail.eventName);
-            this.activeNode.focus();
           break;
           case 'text-align-left':
             this.activeNode.classList.add('justify-left');
@@ -422,6 +456,12 @@ A LRN element that will change the world.
           case 'grid-plate-delete':
             this.haxDeleteNode(this.activeNode);
           break;
+          case 'grid-plate-up':
+            this.haxMoveGridPlate('up', this.activeNode);
+          break;
+          case 'grid-plate-down':
+            this.haxMoveGridPlate('down', this.activeNode);
+          break;
           case 'close-menu':
             // this is the equivalent of hiding menus and resetting the board
             this.activeNode = null;
@@ -459,14 +499,12 @@ A LRN element that will change the world.
           this.fire('hax-body-state', {editMode: newValue});
           this._applyContentEditable(newValue);
           if (typeof this.activeNode !== typeof undefined && this.activeNode !== null) {
-            this._positionContextMenu(this.$.textcontextmenu, this.activeNode, '-48px', '-56px');
-            this._positionContextMenu(this.$.platecontextmenu, this.activeNode, '-48px', '-5px');
+            this.positionContextMenus(this.activeNode);
           }
         }
         // hide menus when state changes
         if (newValue === false) {
-          this._hideContextMenu(this.$.textcontextmenu);
-          this._hideContextMenu(this.$.platecontextmenu);
+          this.hideContextMenus();
         }
       },
       /**
@@ -487,13 +525,14 @@ A LRN element that will change the world.
       _activeNodeChanged: function (newValue, oldValue) {
         // clean up the older one
         if (typeof oldValue !== typeof undefined && oldValue != null) {
-          oldValue.classList.remove('active-edit');
+          oldValue.classList.remove('hax-active');
         }
         if (typeof newValue !== typeof undefined && newValue !== null) {
-          newValue.classList.add('active-edit');
+          this.hideContextMenus();
+          newValue.classList.add('hax-active');
           this.$.textcontextmenu.selectedValue = newValue.tagName.toLowerCase();
           // position the operations / in context element
-          this._positionContextMenu(this.$.textcontextmenu, newValue, '-48px', '-56px');
+          this.positionContextMenus(newValue);
           if (newValue.classList.contains('justify-center')) {
             this.$.textcontextmenu.justifyIcon = 'editor:format-align-center';
             this.$.textcontextmenu.justifyValue = 'text-align-center';
@@ -510,12 +549,10 @@ A LRN element that will change the world.
             this.$.textcontextmenu.justifyIcon = 'editor:format-align-left';
             this.$.textcontextmenu.justifyValue = 'text-align-left';
           }
-          this._positionContextMenu(this.$.platecontextmenu, newValue, '-48px', '-5px');
         }
         // hide menus if we don't have an active item
         else if (newValue === null) {
-          this._hideContextMenu(this.$.textcontextmenu);
-          this._hideContextMenu(this.$.platecontextmenu);
+          this.hideContextMenus();
           this.$.textcontextmenu.justifyIcon = 'editor:format-align-left';
           this.$.textcontextmenu.justifyValue = 'text-align-left';
         }

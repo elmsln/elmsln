@@ -31,23 +31,28 @@ A context menu that provides common grid plate based authoring options.
         height: 2.75em;
       }
     </style>
-    <hax-context-item-menu
-      label="Styles"
-      event-name="grid-plate-style">
-      <paper-item value="normal">Normal</paper-item>
-      <paper-item value="grid-plate-center">Center</paper-item>
-      <paper-item value="grid-plate-explode">Explode</paper-item>
-    </hax-context-item-menu>
+    <hax-context-item
+      icon="arrow-upward"
+      label="Move element up"
+      event-name="grid-plate-up"
+      direction="left"></hax-context-item>
+    <hax-context-item
+      icon="arrow-downward"
+      label="Move element down"
+      event-name="grid-plate-down"
+      direction="left"></hax-context-item>
     <hax-context-item
       icon="content-copy"
       icon-class="green-text text-lighten-2"
       label="Duplcate element"
-      event-name="grid-plate-duplicate"></hax-context-item>
+      event-name="grid-plate-duplicate"
+      direction="left"></hax-context-item>
     <hax-context-item
       icon="delete"
       icon-class="red-text text-darken-2"
       label="Delete forever"
-      event-name="grid-plate-delete"></hax-context-item>
+      event-name="grid-plate-delete"
+      direction="left"></hax-context-item>
   </template>
 
   <script>
