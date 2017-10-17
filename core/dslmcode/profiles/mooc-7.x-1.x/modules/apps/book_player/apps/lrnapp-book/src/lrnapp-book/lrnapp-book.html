@@ -876,7 +876,6 @@ A LRN element
             let updated = false;
             // get computed / cleaned up content area
             let haxcontent = this.$.haxbody.haxToContent();
-            console.log(this.updatePageData);
             // see if title changed
             if (this.$.currenttitle.innerHTML !== this.currentPageData.title) {
               this.currentPageData.title = this.$.currenttitle.innerHTML;
@@ -1190,8 +1189,6 @@ A LRN element
               continue;
             }
           }
-          console.log(this.$.haxbody);
-
           // reset scroll position back to top of this content
           this._resetScroll();
           // hide the loading area
