@@ -20,15 +20,17 @@ A context menu that provides common text based authoring options.
       }
       app-toolbar {
         background-color: white;
-        padding: 0 1em 0 0;
-        height: 2.5em;
+        padding: 0 8px 0 0;
+        height: 40px;
       }
       hax-context-item {
-        margin: .25em .25em 0 .25em;
+        margin: 0 4px;
+        width: 40px;
+        height: 40px;
       }
       .close-cap {
         margin: 0;
-        padding: 0 .1em 0 0;
+        padding: 0 2px 0 0;
         border-right: 1px solid black;
       }
     </style>
@@ -46,12 +48,11 @@ A context menu that provides common text based authoring options.
         label="Styles"
         event-name="text-tag">
         <paper-item value="p">Normal text</paper-item>
-        <paper-item value="blockquote">Quote</paper-item>
         <paper-item value="h2">Title</paper-item>
-        <paper-item value="h3">Heading</paper-item>
+        <paper-item value="h3">Content heading</paper-item>
         <paper-item value="h4">Subheading</paper-item>
-        <paper-item value="h5">Deeper Subheading</paper-item>
-        <paper-item value="h6">Deepest Subheading</paper-item>
+        <paper-item value="h5">Deeper subheading</paper-item>
+        <paper-item value="blockquote">Quote</paper-item>
         <paper-item value="code">Code</paper-item>
       </hax-context-item-menu>
       <hax-context-item
@@ -99,7 +100,7 @@ A context menu that provides common text based authoring options.
         event-name="text-underline"></hax-context-item>
       <hax-context-item
         icon="editor:format-clear"
-        label="Underline"
+        label="Remove formatting"
         event-name="text-remove-format"></hax-context-item>
     </app-toolbar>
   </template>
@@ -176,9 +177,6 @@ A context menu that provides common text based authoring options.
           break;
           case 'text-justify-full':
             this.justifyIcon = detail.target.children[0].attributes[0].nodeValue;
-          break;
-          default:
-            console.log('command not handled by context menu; bubbling up ' + detail.eventName);
           break;
         }
       },
