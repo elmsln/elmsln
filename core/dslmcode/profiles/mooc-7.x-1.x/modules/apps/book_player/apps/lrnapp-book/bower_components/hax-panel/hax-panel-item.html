@@ -49,7 +49,7 @@ A single button in the hax panel for consistency.
         transform: rotateY(180deg);
       }
     </style>
-    <paper-button on-tap="_fireEvent">
+    <paper-button on-tap="_fireEvent" data-voicecommand$="[[voiceCommand]]">
       <div class="button-inner">
         <iron-icon icon="[[icon]]" class$="[[iconClass]]"></iron-icon>
         <div class="label">[[label]]</div>
@@ -70,6 +70,12 @@ A single button in the hax panel for consistency.
           type: Boolean,
           value: false,
           reflectToAttribute: true,
+        },
+        /**
+         * Voice command to append for things that support data-voicecommand.
+         */
+        voiceCommand: {
+          type: String,
         },
         /**
          * Icon for the button.
