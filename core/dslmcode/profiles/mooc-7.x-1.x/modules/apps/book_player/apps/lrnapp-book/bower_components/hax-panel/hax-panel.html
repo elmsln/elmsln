@@ -29,8 +29,9 @@ as the events being bubbled up include HTML nodes to inject into something
     <app-drawer id="drawer" opened="{{opened}}" disable-swipe persistent transition-duration="300">
 
       <div style="height: 100%; overflow: auto;">
+        <slot name="pre"></slot>
         <lrnsys-collapselist-item opened>
-          <span slot="label"><div class="label">Editor panel</div></span>
+          <span slot="label"><div class="label">Global</div></span>
           <span slot="content" style="display:flex;">
             <hax-panel-item
               icon="undo"
@@ -44,44 +45,34 @@ as the events being bubbled up include HTML nodes to inject into something
               event-name="redo" wide></hax-panel-item>
           </span>
         </lrnsys-collapselist-item>
-        <lrnsys-collapselist-item >
-          <span slot="label"><div class="label">Content outline</div></span>
-          <span slot="content" style="display:flex;">
-            <hax-panel-item
-              icon="editor:linear-scale"
-              icon-class="black-text"
-              label="Add sibling page"
-              event-name="add-page" wide></hax-panel-item>
-            <hax-panel-item
-              icon="hardware:keyboard-return"
-              icon-class="grey-text text-darken-2 flip-icon"
-              label="Add child page"
-              event-name="add-child-page" wide></hax-panel-item>
-          </span>
-        </lrnsys-collapselist-item>
+        <slot name="after-global"></slot>
         <lrnsys-collapselist-item opened>
           <span slot="label"><div class="label">Content</div></span>
           <span slot="content">
             <hax-panel-item
               icon="editor:text-fields"
               icon-class="black-text"
-              label="Text area"
-              event-name="text"></hax-panel-item>
+              label="Text"
+              event-name="text"
+              data-voicecommand="insert text"></hax-panel-item>
             <hax-panel-item
               icon="editor:title"
               icon-class="grey-text text-darken-1"
               label="Heading"
-              event-name="header"></hax-panel-item>
+              event-name="header"
+              data-voicecommand="insert heading"></hax-panel-item>
             <hax-panel-item
               icon="editor:format-quote"
               icon-class="grey-text text-darken-2"
               label="Block quote"
-              event-name="blockquote"></hax-panel-item>
+              event-name="blockquote"
+              data-voicecommand="insert blockquote"></hax-panel-item>
             <hax-panel-item
               icon="editor:space-bar"
               icon-class="grey-text"
               label="Divider"
-              event-name="divider"></hax-panel-item>
+              event-name="divider"
+              data-voicecommand="insert divider"></hax-panel-item>
           </span>
         </lrnsys-collapselist-item>
         <lrnsys-collapselist-item opened>
@@ -91,32 +82,38 @@ as the events being bubbled up include HTML nodes to inject into something
               icon="editor:insert-link"
               icon-class="grey-text"
               label="Embed URL"
-              event-name="iframe"></hax-panel-item>
+              event-name="iframe"
+              data-voicecommand="insert url"></hax-panel-item>
             <hax-panel-item
               icon="editor:insert-photo"
               icon-class="blue-text"
               label="Image"
-              event-name="image"></hax-panel-item>
+              event-name="image"
+              data-voicecommand="insert image"></hax-panel-item>
             <hax-panel-item
               icon="av:video-library"
               icon-class="red-text"
               label="Video"
-              event-name="video"></hax-panel-item>
+              event-name="video"
+              data-voicecommand="insert video"></hax-panel-item>
             <hax-panel-item
               icon="av:music-video"
               icon-class="purple-text"
               label="Audio"
-              event-name="audio"></hax-panel-item>
+              event-name="audio"
+              data-voicecommand="insert audio"></hax-panel-item>
             <hax-panel-item
               icon="device:graphic-eq"
               icon-class="amber-text"
               label="SVG"
-              event-name="svg"></hax-panel-item>
+              event-name="svg"
+              data-voicecommand="insert SVG"></hax-panel-item>
               <hax-panel-item
               icon="cloud-upload"
               icon-class="green-text"
               label="File"
-              event-name="file-upload"></hax-panel-item>
+              event-name="file-upload"
+              data-voicecommand="insert file"></hax-panel-item>
           </span>
         </lrnsys-collapselist-item>
         <lrnsys-collapselist-item>
@@ -126,32 +123,38 @@ as the events being bubbled up include HTML nodes to inject into something
               icon="touch-app"
               icon-class="blue-text"
               label="Interactive video"
-              event-name="h5p-interactive-video"></hax-panel-item>
+              event-name="h5p-interactive-video"
+              data-voicecommand="insert interactive video"></hax-panel-item>
             <hax-panel-item
               icon="hardware:videogame-asset"
               icon-class="red-text"
               label="Self-check"
-              event-name="h5p-multiple-choice"></hax-panel-item>
+              event-name="h5p-multiple-choice"
+              data-voicecommand="insert self check"></hax-panel-item>
             <hax-panel-item
               icon="timeline"
               icon-class="yellow-text text-darken-4"
               label="Timeline"
-              event-name="timeline"></hax-panel-item>
+              event-name="timeline"
+              data-voicecommand="insert timeline"></hax-panel-item>
             <hax-panel-item
               icon="maps:place"
               icon-class="green-text"
               label="Map"
-              event-name="map"></hax-panel-item>
+              event-name="map"
+              data-voicecommand="insert map"></hax-panel-item>
             <hax-panel-item
               icon="social:share"
               icon-class="pink-text"
               label="JMOL"
-              event-name="jmol"></hax-panel-item>
+              event-name="jmol"
+              data-voicecommand="insert molecule"></hax-panel-item>
             <hax-panel-item
               icon="social:poll"
               icon-class="orange-text"
               label="Poll"
-              event-name="poll"></hax-panel-item>
+              event-name="poll"
+              data-voicecommand="insert poll"></hax-panel-item>
           </span>
         </lrnsys-collapselist-item>
         <lrnsys-collapselist-item>
@@ -161,12 +164,14 @@ as the events being bubbled up include HTML nodes to inject into something
               icon="assignment"
               icon-class="yellow-text text-darken-2"
               label="Assignment"
-              event-name="assignment"></hax-panel-item>
+              event-name="assignment"
+              data-voicecommand="insert assignment"></hax-panel-item>
             <hax-panel-item
               icon="assessment"
               icon-class="purple-text text-darken-2"
               label="Quiz"
-              event-name="quiz"></hax-panel-item>
+              event-name="quiz"
+              data-voicecommand="insert quiz"></hax-panel-item>
           </span>
         </lrnsys-collapselist-item>
         <lrnsys-collapselist-item>
@@ -174,10 +179,11 @@ as the events being bubbled up include HTML nodes to inject into something
           <span slot="content">
             <hax-panel-item
               icon="communication:import-export"
-              label="Import / Export"
+              label="Export"
               event-name="advanced-import-export" wide></hax-panel-item>
           </span>
         </lrnsys-collapselist-item>
+        <slot name="post"></slot>
       </div>
     </app-drawer>
   </template>
