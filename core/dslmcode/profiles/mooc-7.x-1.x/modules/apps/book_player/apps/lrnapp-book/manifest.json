@@ -11,6 +11,10 @@
         "callback": "_lrnapp_book_outline_data",
         "property": "outline-path"
       },
+      "api/progress-dashboard": {
+        "callback": "_lrnapp_book_progress_dashboard_data",
+        "property": "progress-dashboard-path"
+      },
       "api/book": {
         "callback": "_lrnapp_book_book_data",
         "property": "book-path"

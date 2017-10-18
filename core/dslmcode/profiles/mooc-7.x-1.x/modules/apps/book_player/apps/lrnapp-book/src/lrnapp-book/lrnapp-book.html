@@ -1,4 +1,5 @@
 <link rel="import" href="elmsln-imports.html">
+<link rel="import" href="lrnapp-book-progress-dashboard.html">
 
 <!--
 `lrnapp-book`
@@ -367,6 +368,9 @@ A LRN element
       :host[edit-mode] #toolbar {
         opacity: .5;
       }
+      .your-progress-button {
+        padding-right: 1em;
+      }
     </style>
     <page-scroll-position value="{{scrollPosition}}"></page-scroll-position>
     <div id="anchor"></div>
@@ -441,9 +445,18 @@ A LRN element
             <lrnsys-progress sound-finish="[[soundFinish]]" sound="[[sound]]" complete-sound="[[completeSound]]" finished-sound="[[finishedSound]]" title="The steps to complete this lesson" id="progress" active="{{activePage}}" items="{{outlineItems}}" progressive-unlock size="small"></lrnsys-progress>
           </div>
         </div>
+        <div class="your-progress-button">
+          <lrnsys-dialog body-append modal on-tap="progressdashboardopen" header="Your progress" alt="Your progress">
+            <span slot="button"><iron-icon icon="av:equalizer"></iron-icon></span>
+            <div>
+              <lrnapp-book-progress-dashboard id="progressdashboard" source-path="[[progressDashboardPath]]" route-data="[[data]]"></lrnapp-book-progress-dashboard>
+            </div>
+          </lrnsys-dialog>
+        </div>
       </app-toolbar>
     </app-header>
 
+  <!-- body where most of the heavy lifting happens -->
     <div id="body">
       <hax-panel id="haxpanel"></hax-panel>
       <app-drawer-layout>
@@ -497,6 +510,7 @@ A LRN element
       </div>
     </div>
 
+  <!-- edit mode if they have permissions -->
     <paper-fab id="editbutton" icon="editor:mode-edit" class="red white-text" hidden$="[[!currentPageData.page.meta.canUpdate]]" data-voicecommand="Edit content" on-tap="_toggleEditMode" title="Tap to place content in edit mode."></paper-fab>
     <paper-tooltip
       for="editbutton"
@@ -522,6 +536,12 @@ A LRN element
         '_routeChanged(data, route, endPoint)',
       ],
       properties: {
+        /**
+         * Path for getting progress dashboard data
+         */
+        progressDashboardPath: {
+          type: String,
+        },
         /**
          * Request body parameters for creating a new item.
          */
@@ -799,6 +819,12 @@ A LRN element
         setTimeout( () => {
           this._resetScroll();
         }, 500);
+      },
+      /**
+       * Handle click on dashboard to trigger loading data.
+       */
+      progressdashboardopen: function (e) {
+        this.$.progressdashboard.showProgress = true;
       },
       /**
        * Generate path to point to the right endpoint for updating items.

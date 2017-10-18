@@ -139,6 +139,35 @@ function _lrnapp_book_outline_data($machine_name, $app_route, $params, $args) {
 }
 
 /**
+ * Callback for apps/lrnapp-book/api/progress-dashboard.
+ * @param  string $machine_name machine name of this app
+ * @return array               data to be json encoded for the front end
+ */
+function _lrnapp_book_progress_dashboard_data($machine_name, $app_route, $params, $args) {
+  $return = array();
+  $items = array();
+  $userdata = array();
+  $status = 404;
+  $service = new LRNAppBookService();
+  $node = $service->loadActiveNode();
+  if (isset($node->nid)) {
+    $items = $service->getOutline($node->nid);
+    $userdata = $service->getUserData($GLOBALS['user']->uid, $items);
+  }
+  $return['items'] = $items;
+  $return['userdata'] = $userdata;
+  // verify this is a node
+  if (isset($node->nid)) {
+    $status = 200;
+  }
+
+  return array(
+    'status' => $status,
+    'data' => $return
+  );
+}
+
+/**
  * Callback for apps/lrnapp-book/api/book.
  * @param  string $machine_name machine name of this app
  * @return array               data to be json encoded for the front end

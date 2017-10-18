@@ -206,7 +206,28 @@ class LRNAppBookService {
       return NULL;
     }
   }
-
+  /**
+   * Generate userData for visualizing progression through the material.
+   * @param  int $id         a drupal user ID
+   * @param  array $dataset  an array of node ids to query for
+   */
+  public function getUserData($id, $dataset) {
+    $account = user_load($id);
+    // author
+    $return = new stdClass();
+    $return->user = new stdClass();
+    $return->user->type = 'user';
+    $return->user->id = $account->uid;
+    $return->user->name = $account->name;
+    $return->user->display_name = _elmsln_core_get_user_name('full', $account->uid);
+    $return->user->avatar = _elmsln_core_get_user_picture('full', $account->uid);
+    $return->user->sis = _elmsln_core_get_sis_user_data($account->uid);
+    // assemble their data from the LRS
+    $return->data = new stdClass();
+    // @todo query the LRS for relevent data based on the item IDs found
+    // in $dataset
+    return $return;
+  }
   public function updatePage($payload, $id) {
     if ($payload) {
       // make sure we have an id to work with
@@ -326,8 +347,17 @@ class LRNAppBookService {
       }
       // get the icon
       $encoded_page->meta->icon = $this->significanceToIcon($node->field_instructional_significance[LANGUAGE_NONE][0]['value']);
-      // get read time
-      $encoded_page->meta->read_time = theme('read_time', array('node' => $node));
+      // add in the read time stuff
+      if (module_exists('read_time')) {
+        if (!isset($node->read_time_total)) {
+        $node->read_time_total = read_time_node_get_properties($node, array(), 'read_time_total');
+        }
+        if (!isset($node->read_time)) {
+          $node->read_time = read_time_node_get_properties($node, array(), 'read_time');
+        }
+        // get read time mixed in
+        $encoded_page->meta->read_time = $node->read_time;
+      }
       // link for loading info
       $encoded_page->meta->link = 'node/' . $node->nid;
       // Relationships
