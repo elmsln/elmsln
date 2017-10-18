@@ -24,6 +24,35 @@ A LRN element
         --paper-progress-active-color: var(--paper-blue-300, blue);
         --paper-progress-secondary-color: var(--paper-yellow-300, yellow);
         --paper-progress-container-color: var(--paper-green-300, green);
+        height: 1.5em;
+        display: inline-block;
+        vertical-align: text-top;
+      }
+      lrndesign-avatar {
+        display: inline-block;
+      }
+      lrnsys-progress-circle {
+        font-size: 4em;
+      }
+      .progress-icon {
+        height: 2.5em;
+        width: 2.5em;
+        padding: .25em;
+        display: inline-block;
+        color: white;
+        background-color: var(--paper-gray-300, gray);
+        border-radius: 50%;
+      }
+      .progress-row {
+        display: block;
+        width: 100%;
+      }
+      .progress-left,
+      .progress-right {
+        padding: 1em;
+        display: inline-block;
+        height: 10em;
+        vertical-align: text-top;
       }
     </style>
     <iron-ajax
@@ -40,12 +69,24 @@ A LRN element
     </div>
     <div>
     <template is="dom-repeat" items="[[dashboardItems]]" as="item">
-      <lrnsys-progress-circle status="disabled" class="flex" icon="[[item.meta.icon]]"></lrnsys-progress-circle>
-        <h3 class="progress-item-title">[[item.attributes.title]]</h3>
-        <div class="description-content">
-          <iron-icon src="[[item.meta.icon]]"></iron-icon><paper-progress value="70" secondary-progress="80"></paper-progress>
-          <lrndesign-avatar src="[[userData.avatar]]" label="[[userData.display_name]]"></lrndesign-avatar><paper-progress value="70" secondary-progress="80"></paper-progress>
+      <div class="progress-row">
+        <div class="progress-left">
+          <lrnsys-progress-circle status="disabled" class="flex" icon="[[item.meta.icon]]"></lrnsys-progress-circle>
         </div>
+        <div class="progress-right">
+          <h3 class="progress-item-title">[[item.attributes.title]]</h3>
+          <div class="description-content">
+            <div>
+              <lrn-icon icon="network" class="progress-icon"></lrn-icon>
+              <paper-progress value="70" secondary-progress="80"></paper-progress>
+            </div>
+            <div>
+              <lrndesign-avatar src="[[userData.user.avatar]]" label="[[userData.user.display_name]]"></lrndesign-avatar>
+              <paper-progress value="70" secondary-progress="80"></paper-progress>
+            </div>
+          </div>
+        </div>
+      </div>
     </template>
     </div>
   </template>
