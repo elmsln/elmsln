@@ -149,7 +149,7 @@ function _elmsmedia_h5p_allowed_tags() {
   $allowed_tags = &drupal_static(__FUNCTION__);
   if (!$allowed_tags) {
     // Get the list of allowed tags
-    $allowed_tags = variable_get('elmsmedia_h5p_allowed_tags', array('a', 'em', 'strong', 'cite', 'code', 'ul', 'ol', 'li', 'dl', 'dt', 'dd', 'p', 'div'));
+    $allowed_tags = variable_get('elmsmedia_h5p_allowed_tags', array('a', 'em', 'strong', 'cite', 'code', 'ul', 'ol', 'li', 'dl', 'dt', 'dd', 'p', 'div', 'h2', 'h3', 'sup', 'sub'));
     $allowed_tags = _elmsmedia_variable_formatter($allowed_tags);
     drupal_alter('h5p_allowed_tags', $allowed_tags);
   }
