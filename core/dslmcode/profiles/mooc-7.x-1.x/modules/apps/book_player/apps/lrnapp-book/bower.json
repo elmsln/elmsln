@@ -21,7 +21,8 @@
     "hax-panel": "LRNWebComponents/hax-panel#^0.0.3",
     "vaadin-context-menu": "vaadin/vaadin-context-menu#^2.0.0",
     "hax-body": "LRNWebComponents/hax-body#^0.0.4",
-    "lrnsys-layout": "LRNWebComponents/lrnsys-layout#^1.1.2"
+    "lrnsys-layout": "LRNWebComponents/lrnsys-layout#^1.1.2",
+    "lrndesign-mapmenu": "LRNWebComponents/lrndesign-mapmenu#^1.0.0"
   },
   "devDependencies": {
     "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",

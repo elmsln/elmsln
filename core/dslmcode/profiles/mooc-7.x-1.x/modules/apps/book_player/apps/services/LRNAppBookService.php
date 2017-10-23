@@ -11,6 +11,7 @@ class LRNAppBookService {
   public function loadActiveNode() {
     $node = FALSE;
     $arg = arg(3);
+    $argfallback = arg(4);
     // check for node expressed directly via URL; less optimal
     if (!empty($_GET['node']) && is_numeric($_GET['node'])) {
       $node = node_load($_GET['node']);
@@ -18,6 +19,10 @@ class LRNAppBookService {
     // check for arg 3 for pattern apps/lrnapp-book/node/{id}
     else if (!empty($arg) && is_numeric($arg) ) {
       $node = node_load($arg);
+    }
+    // check for arg 4 for pattern apps/lrnapp-book/api/page/{id}
+    else if (!empty($argfallback) && is_numeric($argfallback) ) {
+      $node = node_load($argfallback);
     }
     return $node;
   }
@@ -63,32 +68,43 @@ class LRNAppBookService {
     else {
       $node = node_load($id);
     }
-    // if the outline is for the book at the top then we need
-    // mlid instead of parent since it's in control of all structure
-    if ($book) {
-      $book = node_load($node->book['bid']);
-      $plid = $book->book['mlid'];
-    }
-    else {
-      // see if this is an indie page or not
-      if (isset($node->book['has_children']) && $node->book['has_children']) {
-        $plid = $node->book['mlid'];
-        // push the container as the 1st page; this makes downstream UX
-        // better in our book player
-        $items[$node->nid] = $node;
+    // sanity check
+    if (!empty($node->book)) {
+      // if the outline is for the book at the top then we need
+      // mlid instead of parent since it's in control of all structure
+      if ($book) {
+        $book = node_load($node->book['bid']);
+        // load everything for this book
+        $results = db_select('menu_links', 'ml')
+          ->fields('ml')
+          ->condition('p1', $book->book['mlid'], '=')
+          ->orderBy('weight', 'ASC')
+          ->execute()
+          ->fetchAll();
       }
       else {
-        $plid = $node->book['plid'];
+        // see if this is an indie page or not
+        if (isset($node->book['has_children']) && $node->book['has_children']) {
+          $results = db_select('menu_links', 'ml')
+            ->fields('ml')
+            ->condition('plid', $node->book['mlid'], '=')
+            ->orderBy('weight', 'ASC')
+            ->execute()
+            ->fetchAll();
+          // push the container as the 1st page; this makes downstream UX
+          // better in our book player
+          $items[$node->nid] = $node;
+        }
+        else {
+          // load all items that share the same parent as the current item
+          $results = db_select('menu_links', 'ml')
+            ->fields('ml')
+            ->condition('plid', $node->book['plid'], '=')
+            ->orderBy('weight', 'ASC')
+            ->execute()
+            ->fetchAll();
+        }
       }
-    }
-    if (!empty($node->book)) {
-      // load all items that share the same parent as the current item
-      $results = db_select('menu_links', 'ml')
-        ->fields('ml')
-        ->condition('plid', $plid, '=')
-        ->orderBy('weight', 'ASC')
-        ->execute()
-        ->fetchAll();
       // associate the items that are siblings of the same parent
       $nids = array();
       $tmpary = array();
@@ -127,26 +143,74 @@ class LRNAppBookService {
     }
     return $items;
   }
-
   /**
-   * Output in a simplified format for rendering
+   * Output in a simplified format for rendering which is recursively generated.
+   * @param  array  $pages     all encoded pages available for output
+   * @param  array  $menu      menu items from drupal; children pass down for recursion
+   * @param  string $path      base path to add
+   * @param  array  &$output   recursively produced array; by reference
+   * @return array             returns $output variable once we have the whole thing
    */
-  public function encodeOutline($items = array(), $path = '/') {
-    $output = array();
-    if (is_array($items)) {
-      foreach ($items as $key => $page) {
-        $output[$key] =array(
-          'title' => $page->attributes->title,
-          'url' => base_path() . $path . $page->meta->link,
-          'status' => 'available',
+  public function encodeOutline($pages = array(), $menu = array(), $path = '/') {
+    if (is_array($menu)) {
+      $index = 0;
+      foreach ($menu as $menu_item) {
+        $menu_link = $menu_item['link'];
+        $id = str_replace('node/', '', $menu_link['link_path']);
+        $output[$id] = array(
+          'title' => $menu_link['link_title'],
+          'url' => base_path() . $path . $menu_link['link_path'],
+          'status' => ($encoded_page->attributes->hidden ? 'disabled' : 'available'),
           'value' => 0,
           'max' => 100,
-          'icon' => $page->meta->icon,
+          'icon' => $pages[$id]->meta->icon,
           'iconComplete' => 'check',
           'type' => 'node',
-          'id' => $page->id,
-          'hasChildren' => $page->relationships->has_children,
+          'id' => $id,
+          'parentid' => $pages[$id]->relationships->parent->id,
+          'children' => array(),
+          'number' => $index,
         );
+        // if we have to go down, do it now
+        if (!empty($menu_item['below'])) {
+          $output[$id]['children'] = $this->encodeOutline($pages, $menu_item['below'], $path);
+        }
+      }
+    }
+    return $output;
+  }
+
+  /**
+   * Render the outline that we've been passed in a recursive manner.
+   * @param  array  $outline   items that can be rendered
+   * @param  string  &$output  part of the outline being rendered
+   * @return string            the full output being rendered and returned
+   */
+  public function renderOutline($outline = array(), $depth = 1) {
+    $output = '';
+    if (is_array($outline)) {
+      $index = 0;
+      foreach ($outline as $key => $item) {
+        $index++;
+        // see if we are a leaf or a branch
+        if (empty($item['children'])) {
+          $output .= '<lrndesign-mapmenu-item data-book-parent="' . $item['parentid'] . '" title="' . $item['title'] . '" icon="' . $item['icon'] . '" url="' . $item['url'] . '" class="mapmenu-depth-' . $depth . '"></lrndesign-mapmenu-item>';
+        }
+        else {
+          // only do high level w/ the fancy button
+          if ($depth === 1) {
+            $output .= '<lrndesign-mapmenu-submenu collapsable title="' . $item['title'] . '" avatar-label="' . $index . '" data-book-parent="' . $item['parentid'] . '" class="mapmenu-depth-' . $depth . '">';
+          }
+          else if ($depth === 2) {
+            $output .= '<lrndesign-mapmenu-submenu collapsable title="' . $item['title'] . '" data-book-parent="' . $item['parentid'] . '" class="mapmenu-depth-' . $depth . '">';
+          }
+          else {
+            $output .= '<lrndesign-mapmenu-submenu collapsable expand-children label="' . $item['title'] . '" data-book-parent="' . $item['parentid'] . '" class="mapmenu-depth-' . $depth . '">';
+          }
+          // step down further
+          $output .= $this->renderOutline($item['children'], ($depth+1));
+          $output .= '</lrndesign-mapmenu-submenu>';
+        }
       }
     }
     return $output;

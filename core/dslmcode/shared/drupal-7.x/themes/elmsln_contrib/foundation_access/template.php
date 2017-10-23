@@ -1241,7 +1241,7 @@ function foundation_access_menu_link(&$variables) {
 }
 
 /**
- * Implements menu_tree__menu_elmsln_settings.
+ * Implements a generic hook_menu_tree callback.
  */
 function foundation_access_menu_tree($variables) {
   return '<ul class="menu">' . $variables['tree'] . '</ul>';

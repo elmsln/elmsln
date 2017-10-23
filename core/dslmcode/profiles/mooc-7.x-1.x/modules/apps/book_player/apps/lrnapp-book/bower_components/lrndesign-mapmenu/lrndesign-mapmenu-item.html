@@ -1,0 +1,56 @@
+
+
+<dom-module id="lrndesign-mapmenu-item">
+  <template>
+    <style>
+      :host {
+        display: block;
+        --lrndesign-mapmenu-item-height: 16px;
+      }
+      iron-icon {
+        --iron-icon-height: var(--lrndesign-mapmenu-item-height);
+      }
+      paper-button {
+        min-width: .1em;
+        padding: 0;
+        margin: 0;
+        text-transform: unset;
+      }
+      a {
+        color : var(--lrndesign-mapmenu-item-color, black);
+      }
+      a:hover {
+        font-weight: bold;
+      }
+    </style>
+    <a tabindex="-1" href="[[url]]">
+    <paper-button>
+      <iron-icon icon="[[icon]]" hidden$="[[!icon]]"></iron-icon>
+      <span id="title">[[title]]</span>
+    </paper-button>
+    </a>
+  </template>
+  <script>
+    Polymer({
+      is: 'lrndesign-mapmenu-item',
+      properties: {
+        icon: {
+          type: String,
+          value: ''
+        },
+        title: {
+          type: String,
+          value: ''
+        },
+        url: {
+          type: String,
+          value: ''
+        },
+        icon: {
+          type: String,
+          value: ''
+        }
+      }
+    });
+  </script>
+</dom-module>

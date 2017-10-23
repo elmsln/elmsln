@@ -1,0 +1,48 @@
+<link rel="import" href="imports.html">
+<link rel="import" href="lrndesign-mapmenu-item.html">
+<link rel="import" href="lrndesign-mapmenu-submenu.html">
+
+<!--
+`lrndesign-mapmenu`
+A LRN element
+
+@demo demo/index.html
+-->
+
+<dom-module id="lrndesign-mapmenu">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+      #container {
+        padding: 1em 2em;
+      }
+      :host > ::shadow lrndesign-mapmenu-submenu + lrndesign-mapmenu-submenu {
+        margin-top: 1em;
+      }
+      :host > ::shadow lrndesign-mapmenu-item.mapmenu-depth-1 {
+        padding-left: .25em;
+        padding-top: 1em;
+        --lrndesign-mapmenu-item-height: 2em;
+      }
+      :host > ::shadow lrndesign-mapmenu-item.mapmenu-depth-1  ::shadow iron-icon {
+        width: 2em;
+        height: 2em;
+        padding-right: .5em;
+      }
+}
+    </style>
+    <slot></slot>
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'lrndesign-mapmenu',
+
+      properties: {
+      }
+    });
+  </script>
+</dom-module>

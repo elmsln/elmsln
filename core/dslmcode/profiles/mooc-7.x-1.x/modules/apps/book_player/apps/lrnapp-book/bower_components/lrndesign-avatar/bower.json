@@ -1,0 +1,18 @@
+{
+  "name": "lrndesign-avatar",
+  "description": "A LRN element",
+  "main": "lrndesign-avatar.html",
+  "dependencies": {
+    "polymer": "Polymer/polymer#^1.9.1",
+    "lrnsys-behaviors": "LRNWebComponents/lrnsys-behaviors#^1.0.0",
+    "paper-avatar": "LRNWebComponents/paper-avatar#1.0.5-lrn",
+    "hax-behaviors": "LRNWebComponents/hax-behaviors#^1.0.0",
+    "materializecss-styles": "LRNWebComponents/materializecss-styles#^1.0.0"
+  },
+  "devDependencies": {
+    "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
+    "iron-demo-helpers": "PolymerElements/iron-demo-helpers#^1.0.0",
+    "web-component-tester": "^4.0.0",
+    "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0"
+  }
+}

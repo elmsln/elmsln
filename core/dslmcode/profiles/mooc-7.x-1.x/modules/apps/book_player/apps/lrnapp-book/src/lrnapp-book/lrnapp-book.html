@@ -371,6 +371,11 @@ A LRN element
       .your-progress-button {
         padding-right: 1em;
       }
+      #mapmenu {
+        overflow: scroll;
+        height: 100%;
+        padding-bottom: 1em;
+      }
     </style>
     <page-scroll-position value="{{scrollPosition}}"></page-scroll-position>
     <div id="anchor"></div>
@@ -464,11 +469,9 @@ A LRN element
           <div id="bookdrawercontent" style="height: 100%; overflow: auto;" hidden$="[[!bookItems]]">
             <paper-search-bar hide-filter-button></paper-search-bar>
             <div class="course-title-drawer">[[bookTitle]]</div>
-            <div>
-            <template is="dom-repeat" items="[[bookItems]]" as="item">
-              <lrndesign-stepper-button data-book-index$="[[index]]" on-tap="_bookOutlineTap" title="[[item.title]]" icon="[[item.icon]]" url="[[item.url]]"></lrndesign-stepper-button>
-            </template>
-            </div>
+            <lrndesign-mapmenu id="mapmenu" on-tap="_bookOutlineTap">
+              <!-- I get cleaned out w/ server response -->
+            </lrndesign-mapmenu>
           </div>
         </app-drawer>
       </app-drawer-layout>
@@ -936,8 +939,9 @@ A LRN element
       _bookOutlineTap: function (e) {
         var normalizedEvent = Polymer.dom(e);
         var local = normalizedEvent.localTarget;
-        if (typeof local.getAttribute('data-book-index') !== typeof undefined) {
-          this.activeOutline = local.getAttribute('data-book-index');
+        // support switching if the thing clicked has a book index associated
+        if (typeof local.getAttribute('data-book-parent') !== typeof undefined) {
+          this.activeOutline = local.getAttribute('data-book-parent');
         }
       },
       /**
@@ -1166,8 +1170,11 @@ A LRN element
        * Handle the response.
        */
       handleBookResponse: function (obj) {
-        const response = this._toArray(obj.detail.response.data.items);
-        this.set('bookItems', response);
+        const response = obj.detail.response.data;
+        this.set('bookItems', this._toArray(response.items));
+        // rip the items into the DOM
+        // @todo might need to do the append HTML trick
+        this.$.mapmenu.innerHTML = response.render;
       },
       /**
        * Page response callback.
