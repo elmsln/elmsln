@@ -41,21 +41,34 @@ A LRN element
       }
 
       hax-panel,
-      hax-panel ::shadow app-drawer,
-      app-drawer,
-      app-drawer-layout {
+      hax-panel ::shadow app-drawer {
         padding: 0;
-        top: 1.9em;
+        top: 0;
         bottom: 0;
         z-index: 1;
         position: absolute;
         box-sizing: content-box;
         --app-drawer-content-container: {
           background-color: #fafafa;
-          padding: 10px;
-          z-index: 1;
+          padding: 0;
           border-right: 1px solid #c8c8c8;
           overflow: inherit;
+          width: 300px !important;
+        }
+      }
+      app-drawer {
+        padding: 0;
+        top: 0;
+        bottom: 0;
+        z-index: 1;
+        position: absolute;
+        box-sizing: content-box;
+        --app-drawer-content-container: {
+          background-color: #fafafa;
+          padding: 0 10px;
+          border-right: 1px solid #c8c8c8;
+          overflow: inherit;
+          width: 279px !important;
         }
       }
       hax-panel ::shadow hax-panel-item {
@@ -114,11 +127,11 @@ A LRN element
         max-width: 50%;
       }
       .content-nav-buttons {
-        top: 50%;
+        top: 60%;
         position: fixed;
         opacity: .8;
         padding: 0 .25em;
-        height: 50%;
+        height: 40%;
         padding-top: 15%;
         margin-top: -15%;
       }
@@ -127,7 +140,6 @@ A LRN element
       }
       .prev {
         left: 0;
-        transition: left .4s ease;
         order: 1;
       }
       .next {
@@ -135,26 +147,25 @@ A LRN element
         transition: right .2s ease;
         order: 2;
       }
-      #body {
-        font-family: sans-serif;
+      app-header {
+        width: 100%;
+        left: 0 !important;
+        z-index: 2 !important;
+        position: sticky !important;
+      }
+      app-header-layout {
+        margin: 0;
+        padding: 0;
+        width: 100%;
       }
       .content-body {
         position: relative;
         padding: 0;
-        margin: .5em 4em 0 4em;
-        font-size: 1.3em;
-        width: 85%;
+        margin: -3em 4em 0 4em;
+        font-size: 1.1em;
         transition:
           margin .4s ease,
           width .4s ease;
-      }
-      :host[drawer-opened] .content-body {
-        margin: .5em 0 0 13em;
-        width: 73%;
-      }
-      :host .content-body {
-        margin: .5em 0 0 13em;
-        width: 73%;
       }
 
       .content-nav-buttons paper-icon-button {
@@ -205,14 +216,18 @@ A LRN element
         box-sizing: content-box;
         transition: all .4s ease;
       }
-      :host app-drawer-layout {
-        pointer-events: none;
+      app-drawer-layout {
+        font-family: sans-serif;
       }
-      :host[drawer-opened] app-drawer-layout {
-        pointer-events: all;
+      :host {
+        --app-drawer-width: 0px;
+      }
+      :host[drawer-opened],
+      :host[edit-mode] {
+        --app-drawer-width: 300px;
       }
       :host[drawer-opened] .prev {
-        left: 14em;
+        left: 17em;
       }
       .progress-container {
         width: 90%;
@@ -233,6 +248,9 @@ A LRN element
         opacity: 0 !important;
         display: block !important;
       }
+      paper-search-bar[hidden] {
+        display: none !important;
+      }
       lrnsys-progress {
         margin-top: .5em;
         padding: .2em 0 0 0;
@@ -244,6 +262,7 @@ A LRN element
       }
 
       #bookdrawercontent {
+        overflow: scroll;
         visibility: visible;
         display: block;
         opacity: 1;
@@ -253,32 +272,24 @@ A LRN element
         :host[drawer-opened] .content-body,
         :host .content-body {
           font-size: .94em;
-          margin: .5em 0 0 16em;
-          width: 70%;
         }
       }
       @media (max-width: 960px) {
         :host[drawer-opened] .content-body,
         :host .content-body {
           font-size: .92em;
-          margin: .5em 0 0 16em;
-          width: 65%;
         }
       }
       @media (max-width: 820px) {
         :host[drawer-opened] .content-body,
         :host .content-body {
           font-size: .9em;
-          margin: .5em 0 0 17em;
-          width: 50%;
         }
       }
       @media (max-width: 700px) {
         :host[drawer-opened] .content-body,
         :host .content-body {
           font-size: .9em;
-          margin: .5em 0 0 17em;
-          width: 48%;
         }
       }
       @media (max-width: 639px) {
@@ -372,9 +383,10 @@ A LRN element
         padding-right: 1em;
       }
       #mapmenu {
-        overflow: scroll;
-        height: 100%;
         padding-bottom: 1em;
+      }
+      .course-title-drawer {
+        font-size: 1.2em;
       }
     </style>
     <page-scroll-position value="{{scrollPosition}}"></page-scroll-position>
@@ -433,96 +445,92 @@ A LRN element
         tail="{{tail}}"
         query-params="{{queryParams}}">
     </app-route>
-
-    <app-header id="header" condenses shadow reveals scroll-target="haxbody">
-      <div id="outlineloading" class="loading">
-        <elmsln-loading color="grey-text" size="medium"></elmsln-loading>
-        <elmsln-loading color="grey-text" size="medium"></elmsln-loading>
-        <elmsln-loading color="grey-text" size="medium"></elmsln-loading>
-      </div>
-      <app-toolbar id="toolbar" sticky class="tall">
-        <div style="pointer-events: auto;" class="menu-btn-wrap">
-          <paper-icon-button style="pointer-events: auto;" title="Content outline" id="menubutton" icon="menu"></paper-icon-button>
-        </div>
-        <div spacer class="outline-title">[[outlineTitle]]</div>
-        <div spacer main-title style="pointer-events: auto;">
-          <div class="progress-container">
-            <lrnsys-progress sound-finish="[[soundFinish]]" sound="[[sound]]" complete-sound="[[completeSound]]" finished-sound="[[finishedSound]]" title="The steps to complete this lesson" id="progress" active="{{activePage}}" items="{{outlineItems}}" progressive-unlock size="small"></lrnsys-progress>
-          </div>
-        </div>
-        <div class="your-progress-button">
-          <lrnsys-dialog body-append modal on-tap="progressdashboardopen" header="Your progress" alt="Your progress">
-            <span slot="button"><iron-icon icon="av:equalizer"></iron-icon></span>
-            <div>
-              <lrnapp-book-progress-dashboard id="progressdashboard" source-path="[[progressDashboardPath]]" route-data="[[data]]"></lrnapp-book-progress-dashboard>
-            </div>
-          </lrnsys-dialog>
-        </div>
-      </app-toolbar>
-    </app-header>
-
+    <hax-panel id="haxpanel"></hax-panel>
   <!-- body where most of the heavy lifting happens -->
-    <div id="body">
-      <hax-panel id="haxpanel"></hax-panel>
-      <app-drawer-layout>
-        <app-drawer slot="drawer" id="bookdrawer" opened="{{drawerOpened}}" swipe-open transition-duration="400">
-          <div id="bookdrawercontent" style="height: 100%; overflow: auto;" hidden$="[[!bookItems]]">
-            <paper-search-bar hide-filter-button></paper-search-bar>
-            <div class="course-title-drawer">[[bookTitle]]</div>
-            <lrndesign-mapmenu id="mapmenu" on-tap="_bookOutlineTap">
-              <!-- I get cleaned out w/ server response -->
-            </lrndesign-mapmenu>
+    <app-drawer-layout>
+      <app-drawer slot="drawer" id="bookdrawer" opened="{{drawerOpened}}" swipe-open transition-duration="150">
+        <div id="bookdrawercontent" style="height: 100%; overflow: auto;" hidden$="[[!bookItems]]">
+          <paper-search-bar hide-filter-button hidden$="[[!showSearch]]"></paper-search-bar>
+          <h2 class="course-title-drawer">[[bookTitle]]</h2>
+          <lrndesign-mapmenu id="mapmenu" on-tap="_bookOutlineTap">
+            <!-- Server response will populate this -->
+          </lrndesign-mapmenu>
+        </div>
+      </app-drawer>
+      <app-header-layout>
+        <app-header slot="header" id="header" shadow fixed>
+          <div id="outlineloading" class="loading">
+            <elmsln-loading color="grey-text" size="medium"></elmsln-loading>
+            <elmsln-loading color="grey-text" size="medium"></elmsln-loading>
+            <elmsln-loading color="grey-text" size="medium"></elmsln-loading>
           </div>
-        </app-drawer>
-      </app-drawer-layout>
-      <div class="content-body">
-        <div id="current" class="content-current">
-          <h2 id="currenttitle" class="content-title">[[currentTitle]]</h2>
-          <div id="bodyloading" class="loading">
-            <elmsln-loading color="grey-text" size="large"></elmsln-loading>
-            <h3 class="loading-text">Loading content..</h3>
-          </div>
-          <div>
-            <hax-body id="haxbody">
-              <slot id="slottedarea"></slot>
-            </hax-body>
+          <app-toolbar id="toolbar" sticky class="tall">
+            <div style="pointer-events: auto;" class="menu-btn-wrap">
+              <paper-icon-button style="pointer-events: auto;" title="Content outline" id="menubutton" icon="menu"></paper-icon-button>
+            </div>
+            <div spacer class="outline-title">[[outlineTitle]]</div>
+            <div spacer main-title style="pointer-events: auto;">
+              <div class="progress-container">
+                <lrnsys-progress sound-finish="[[soundFinish]]" sound="[[sound]]" complete-sound="[[completeSound]]" finished-sound="[[finishedSound]]" title="The steps to complete this lesson" id="progress" active="{{activePage}}" items="{{outlineItems}}" progressive-unlock size="small"></lrnsys-progress>
+              </div>
+            </div>
+            <div class="your-progress-button">
+              <lrnsys-dialog body-append modal on-tap="progressdashboardopen" header="Your progress" alt="Your progress">
+                <span slot="button"><iron-icon icon="av:equalizer"></iron-icon></span>
+                <div>
+                  <lrnapp-book-progress-dashboard id="progressdashboard" source-path="[[progressDashboardPath]]" route-data="[[data]]"></lrnapp-book-progress-dashboard>
+                </div>
+              </lrnsys-dialog>
+            </div>
+          </app-toolbar>
+        </app-header>
+        <div class="content-body">
+          <div id="current" class="content-current">
+            <h2 id="currenttitle" class="content-title">[[currentTitle]]</h2>
+            <div id="bodyloading" class="loading">
+              <elmsln-loading color="grey-text" size="large"></elmsln-loading>
+              <h3 class="loading-text">Loading content..</h3>
+            </div>
+            <div>
+              <hax-body id="haxbody">
+                <slot id="slottedarea"></slot>
+              </hax-body>
+            </div>
           </div>
         </div>
-      </div>
-      <div class="content-nav">
-        <div class="content-nav-buttons next">
-          <paper-icon-button id="next" title="[[nextLabel]]" on-tap="_nextBtn" icon="hardware:keyboard-arrow-right" data-voicecommand="next page" hidden$="[[!hasNextPage]]"></paper-icon-button>
-          <paper-tooltip
-            for="next"
-            position="left"
-            offset="0"
-            animation-delay="100">
-            [[nextLabel]]
-          </paper-tooltip>
+        <div class="content-nav">
+          <div class="content-nav-buttons next">
+            <paper-icon-button id="next" title="[[nextLabel]]" on-tap="_nextBtn" icon="hardware:keyboard-arrow-right" data-voicecommand="next page" hidden$="[[!hasNextPage]]"></paper-icon-button>
+            <paper-tooltip
+              for="next"
+              position="left"
+              offset="0"
+              animation-delay="100">
+              [[nextLabel]]
+            </paper-tooltip>
+          </div>
+          <div class="content-nav-buttons prev">
+            <paper-icon-button id="prev" title="[[prevLabel]]" on-tap="_prevBtn" icon="hardware:keyboard-arrow-left" data-voicecommand="previous page" hidden$="[[!hasPrevPage]]"></paper-icon-button>
+            <paper-tooltip
+              for="prev"
+              position="right"
+              offset="0"
+              animation-delay="100">
+              [[prevLabel]]
+            </paper-tooltip>
+          </div>
         </div>
-        <div class="content-nav-buttons prev">
-          <paper-icon-button id="prev" title="[[prevLabel]]" on-tap="_prevBtn" icon="hardware:keyboard-arrow-left" data-voicecommand="previous page" hidden$="[[!hasPrevPage]]"></paper-icon-button>
-          <paper-tooltip
-            for="prev"
-            position="right"
-            offset="0"
-            animation-delay="100">
-            [[prevLabel]]
-          </paper-tooltip>
-        </div>
-      </div>
-    </div>
-
-  <!-- edit mode if they have permissions -->
-    <paper-fab id="editbutton" icon="editor:mode-edit" class="red white-text" hidden$="[[!currentPageData.page.meta.canUpdate]]" data-voicecommand="Edit content" on-tap="_toggleEditMode" title="Tap to place content in edit mode."></paper-fab>
-    <paper-tooltip
-      for="editbutton"
-      position="bottom"
-      offset="8"
-      animation-delay="100">
-      <span id="fablabel">edit mode</span>
-    </paper-tooltip>
-
+          <!-- edit mode if they have permissions -->
+        <paper-fab id="editbutton" icon="editor:mode-edit" class="red white-text" hidden$="[[!currentPageData.page.meta.canUpdate]]" data-voicecommand="Edit content" on-tap="_toggleEditMode" title="Tap to place content in edit mode."></paper-fab>
+        <paper-tooltip
+          for="editbutton"
+          position="bottom"
+          offset="8"
+          animation-delay="100">
+          <span id="fablabel">edit mode</span>
+        </paper-tooltip>
+      </app-header-layout>
+    </app-drawer-layout>
     <paper-toast id="toast" horizontal-align="right"></paper-toast>
   </template>
   <script>
@@ -544,6 +552,14 @@ A LRN element
          */
         progressDashboardPath: {
           type: String,
+        },
+        /**
+         * Option to display the search bar.
+         */
+        showSearch: {
+          type: Boolean,
+          reflectToAttribute: true,
+          value: false,
         },
         /**
          * Request body parameters for creating a new item.
@@ -593,6 +609,7 @@ A LRN element
           type: Boolean,
           value: true,
           reflectToAttribute: true,
+          observer: '_drawerOpenedChanged',
         },
         /**
          * App route tracking.
@@ -818,9 +835,11 @@ A LRN element
         this.$.bodyloading.hidden = true;
         // fire an outline request to kick things off!
         this.$.outlineajax.generateRequest();
+
         // scroll top into view
         setTimeout( () => {
           this._resetScroll();
+          Polymer.updateStyles();
         }, 500);
       },
       /**
@@ -1122,6 +1141,12 @@ A LRN element
        */
       toggleBook: function (e) {
         this.$.bookdrawer.toggle();
+      },
+      /**
+       * notice the drawer changing value.
+       */
+      _drawerOpenedChanged: function (newValue, oldValue) {
+        Polymer.updateStyles();
       },
       /**
        * Handle the response.

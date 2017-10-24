@@ -7092,7 +7092,8 @@ footer.page-footer{
   margin-bottom: -1rem;
   border-top-width: .25rem;
   border-top-style: solid;
-  text-align: center;}
+  text-align: center;
+  z-index: -1;}
   footer.page-footer p {
     font-size: 1rem;
     margin: 0;

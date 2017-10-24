@@ -232,7 +232,7 @@
 
 /* Special accounting for the page layout when on the lrnapp-book */
 .page-apps-lrnapp-book .elmsln-content-wrap {
-  margin: .5rem 0 0 0;
+  margin: 5px 0 0 0;
 }
 .page-apps-lrnapp-book .r-header {
   margin: 0 0 -3rem 0;

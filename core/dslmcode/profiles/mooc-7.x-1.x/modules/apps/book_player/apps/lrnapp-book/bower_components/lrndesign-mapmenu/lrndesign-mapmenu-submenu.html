@@ -19,7 +19,7 @@
         margin-top: .4em;
       }
     </style>
-    <lrndesign-mapmenu-header on-tap="_headerClickHandler" avatar-label="[[avatarLabel]]" title="[[title]]" label="[[label]]" opened="[[opened]]"></lrndesign-mapmenu-header>
+    <lrndesign-mapmenu-header id="header" avatar-label="[[avatarLabel]]" title="[[title]]" label="[[label]]" opened="[[opened]]" url="[[url]]"></lrndesign-mapmenu-header>
     <iron-collapse id="container">
       <slot id="slot"></slot>
     </iron-collapse>
@@ -27,6 +27,9 @@
   <script>
     Polymer({
       is: 'lrndesign-mapmenu-submenu',
+      listeners: {
+        'header.click' : '_headerTapHandler',
+      },
       properties: {
         title: {
           type: String
@@ -39,26 +42,33 @@
         },
         opened: {
           type: Boolean,
-          value: false
+          value: false,
+          observer: '_openChanged',
         },
         collapsable: {
           type: Boolean,
-          value: true
+          value: true,
         },
         expandChildren: {
           type: Boolean,
-          value: false
+          value: false,
+        },
+        url: {
+          type: String,
+        },
+      },
+      _openChanged: function (newValue, oldValue) {
+        if (typeof newValue !== typeof undefined) {
+          let target = this.$.container;
+          if (newValue) {
+            target.show();
+          }
+          else {
+            target.hide();
+          }
         }
       },
-      observers: [
-        '_openChanged(opened)',
-      ],
-      _openChanged: function (opened) {
-        var target = this.$.container;
-        if (opened) target.show();
-        if (!opened) target.hide();
-      },
-      _headerClickHandler: function (e) {
+      _headerTapHandler: function (e) {
         if (this.collapsable) {
           this.opened = !this.opened;
         }

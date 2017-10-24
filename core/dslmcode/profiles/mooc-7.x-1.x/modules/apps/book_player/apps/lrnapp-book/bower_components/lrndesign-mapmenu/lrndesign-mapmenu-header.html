@@ -36,24 +36,35 @@
       #right iron-icon {
         color: gray;
       }
+      paper-button {
+        min-width: .1em;
+        padding: 0;
+        margin: 0;
+        text-transform: unset;
+      }
+      a {
+        color : var(--lrndesign-mapmenu-header-color, black);
+      }
+      a:hover {
+        font-weight: bold;
+      }
     </style>
     <div id="container">
-      <template is="dom-if" if="[[avatarLabel]]">
-        <div id="icon">
-          <lrndesign-avatar label="[[avatarLabel]]" two-chars></lrndesign-avatar>
+      <a tabindex="-1" href="[[url]]">
+      <paper-button>
+        <template is="dom-if" if="[[avatarLabel]]">
+          <div id="icon">
+              <lrndesign-avatar label="[[avatarLabel]]" two-chars></lrndesign-avatar>
+          </div>
+        </template>
+        <div id="center">
+          <div id="label">[[label]]</div>
+          <div id="title">[[title]]</div>
         </div>
-      </template>
-      <div id="center">
-        <div id="label">[[label]]</div>
-        <div id="title">[[title]]</div>
-      </div>
+      </paper-button>
+      </a>
       <div id="right">
-        <template is="dom-if" if="[[!opened]]">
-          <iron-icon icon="arrow-drop-down"></iron-icon>
-        </template>
-        <template is="dom-if" if="[[opened]]">
-          <iron-icon icon="arrow-drop-up"></iron-icon>
-        </template>
+        <iron-icon id="icon" icon="arrow-drop-down"></iron-icon>
       </div>
     </div>
   </template>
@@ -63,23 +74,40 @@
       behaviors: [Polymer.IronButtonState],
       properties: {
         title: {
-          type: String
+          type: String,
         },
         label: {
-          type: String
+          type: String,
         },
         avatarLabel: {
           type: String,
           value: ''
         },
         opened: {
-          type: Boolean
-        }
+          type: Boolean,
+          observer: '_openedChanged',
+        },
+        url: {
+          type: String,
+        },
       },
       hostAttributes: {
         role: 'button',
-        tabindex: 0
-      }
+        tabindex: 0,
+      },
+      /**
+       * Monitor opening changing.
+       */
+      _openedChanged: function (newValue, oldValue) {
+        if (typeof newValue !== typeof undefined) {
+          if (newValue) {
+            this.$.icon.icon = 'arrow-drop-up';
+          }
+          else {
+            this.$.icon.icon = 'arrow-drop-down';
+          }
+        }
+      },
     });
   </script>
 </dom-module>

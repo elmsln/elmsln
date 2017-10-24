@@ -199,13 +199,13 @@ class LRNAppBookService {
         else {
           // only do high level w/ the fancy button
           if ($depth === 1) {
-            $output .= '<lrndesign-mapmenu-submenu collapsable title="' . $item['title'] . '" avatar-label="' . $index . '" data-book-parent="' . $item['parentid'] . '" class="mapmenu-depth-' . $depth . '">';
+            $output .= '<lrndesign-mapmenu-submenu collapsable title="' . $item['title'] . '" avatar-label="' . $index . '" data-book-parent="' . $item['parentid'] . '" class="mapmenu-depth-' . $depth . '" url="' . $item['url'] . '">';
           }
           else if ($depth === 2) {
-            $output .= '<lrndesign-mapmenu-submenu collapsable title="' . $item['title'] . '" data-book-parent="' . $item['parentid'] . '" class="mapmenu-depth-' . $depth . '">';
+            $output .= '<lrndesign-mapmenu-submenu collapsable title="' . $item['title'] . '" data-book-parent="' . $item['parentid'] . '" class="mapmenu-depth-' . $depth . '" url="' . $item['url'] . '">';
           }
           else {
-            $output .= '<lrndesign-mapmenu-submenu collapsable expand-children label="' . $item['title'] . '" data-book-parent="' . $item['parentid'] . '" class="mapmenu-depth-' . $depth . '">';
+            $output .= '<lrndesign-mapmenu-submenu collapsable expand-children label="' . $item['title'] . '" data-book-parent="' . $item['parentid'] . '" class="mapmenu-depth-' . $depth . '" url="' . $item['url'] . '">';
           }
           // step down further
           $output .= $this->renderOutline($item['children'], ($depth+1));
