@@ -54,6 +54,31 @@ A LRN element
         height: 10em;
         vertical-align: text-top;
       }
+      material-progress-histo {
+        width: 100%;
+        @apply(--paper-font-body2);
+      }
+      material-progress-bars {
+        width: 100%;
+        @apply(--paper-font-body2);
+      }
+      material-progress-bars > .bar > span {
+        text-align: end;
+        font-size: 0.9em;
+        @apply(--layout-flex);
+      }
+      .bar {
+        background-color: var(--paper-deep-orange-500);
+      }
+      .bar.run {
+        background-color: var(--paper-purple-500);
+      }
+      .bar.hello {
+        background-color: var(--paper-cyan-500);
+      }
+      .bar.world {
+        background-color: var(--paper-orange-500);
+      }
     </style>
     <iron-ajax
       id="dataajax"
@@ -68,6 +93,36 @@ A LRN element
       <h3 class="loading-text">Loading content..</h3>
     </div>
     <div>
+    <material-progress-bars max="128" bar-height="22" animated>
+      <div class="bar" data-value="21">
+        <iron-icon icon="av:video-library"></iron-icon>
+      </div>
+      <div class="bar run" data-value="13">
+        <iron-icon icon="maps:directions-run"></iron-icon>
+      </div>
+      <div class="bar hello" data-value="50">
+        <iron-icon icon="maps:directions-bike"></iron-icon>
+        <span>Hello</span>
+      </div>
+      <div class="bar world" data-value="30">
+        <span>World</span>
+      </div>
+    </material-progress-bars>
+    <material-progress-histo bar-height="22" animated>
+      <div class="bar" data-value="21">
+        <iron-icon icon="maps:directions-walk"></iron-icon>
+      </div>
+      <div class="bar run" data-value="13">
+        <iron-icon icon="maps:directions-run"></iron-icon>
+      </div>
+      <div class="bar hello" data-value="50">
+        <iron-icon icon="maps:directions-bike"></iron-icon>
+        <span>Hello</span>
+      </div>
+      <div class="bar world" data-value="30">
+        <span>World</span>
+      </div>
+    </material-progress-histo>
     <template is="dom-repeat" items="[[dashboardItems]]" as="item">
       <div class="progress-row">
         <div class="progress-left">

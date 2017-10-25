@@ -1,0 +1,71 @@
+:host {
+  @apply(--layout-vertical);
+}
+#barsContainer {
+  -webkit-transform: translateZ(0);
+  -moz-transform: translateZ(0);
+  -ms-transform: translateZ(0);
+  -o-transform: translateZ(0);
+  transform: translateZ(0);
+}
+:host > #barsContainer > ::content > .bar.visible {
+  height: var(--material-progress-bar-height);
+}
+:host > #barsContainer > ::content > .bar {
+  float: left;
+  position: relative;
+  width: 0px;
+  z-index: 0;
+  @apply(--layout-inline);
+  @apply(--layout-horizontal-reverse);
+  @apply(--layout-center);
+}
+:host([animated]) > #barsContainer > ::content > .bar:not(.entry) {
+  -webkit-transition: width 850ms cubic-bezier(0.4, 0.0, 0.2, 1), z-index 0ms 850ms;
+  -ms-transition: width 850ms cubic-bezier(0.4, 0.0, 0.2, 1), z-index 0ms 850ms;
+  -moz-transition: width 850ms cubic-bezier(0.4, 0.0, 0.2, 1), z-index 0ms 850ms;
+  -o-transition: width 850ms cubic-bezier(0.4, 0.0, 0.2, 1), z-index 0ms 850ms;
+  transition: width 850ms cubic-bezier(0.4, 0.0, 0.2, 1), z-index 0ms 850ms;
+}
+:host([animated]) > #barsContainer > ::content > .bar.entry {
+  -webkit-transition: width 850ms cubic-bezier(0.4, 0.0, 0.2, 1);
+  -ms-transition: width 850ms cubic-bezier(0.4, 0.0, 0.2, 1);
+  -moz-transition: width 850ms cubic-bezier(0.4, 0.0, 0.2, 1);
+  -o-transition: width 850ms cubic-bezier(0.4, 0.0, 0.2, 1);
+  transition: width 850ms cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+:host > #barsContainer > ::content > .bar > * {
+  float: right;
+  color: #FFFFFF;
+}
+:host([animated]) > #barsContainer > ::content > .bar > * {
+  opacity: 0;
+}
+:host([animated]) > #barsContainer > ::content > .bar:not(.entry) > * {
+  opacity: 1;
+  -webkit-transition: opacity 0.5s cubic-bezier(0.4, 0.0, 0.2, 1);
+  -ms-transition: opacity 0.5s cubic-bezier(0.4, 0.0, 0.2, 1);
+  -moz-transition: opacity 0.5s cubic-bezier(0.4, 0.0, 0.2, 1);
+  -o-transition: opacity 0.5s cubic-bezier(0.4, 0.0, 0.2, 1);
+  transition: opacity 0.5s cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+:host > #barsContainer > ::content > .bar > iron-icon {
+  height: calc(var(--material-progress-bar-height) * 2/3 - 1px);
+  width: calc(var(--material-progress-bar-height) * 2/3);
+  min-width: calc(var(--material-progress-bar-height) * 2/3);
+  margin-right: calc(var(--material-progress-bar-height) * 1/6);
+}
+:host > #barsContainer > ::content > .bar > span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+:host > .legend {
+  margin-top: 6px;
+  @apply(--material-progress-legend-style);
+}
+:host > .legend > span {
+  margin: 0 8px;
+  white-space: nowrap;
+  @apply(--material-progress-legend-item-style);
+}

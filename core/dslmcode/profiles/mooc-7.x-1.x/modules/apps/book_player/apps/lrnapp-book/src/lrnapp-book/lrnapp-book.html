@@ -69,6 +69,8 @@ A LRN element
           border-right: 1px solid #c8c8c8;
           overflow: inherit;
           width: 279px !important;
+          box-shadow: 0 76px 8px 0 rgba(0, 0, 0, 0.5);
+          height: 102%;
         }
       }
       hax-panel ::shadow hax-panel-item {
@@ -383,7 +385,7 @@ A LRN element
         padding-right: 1em;
       }
       #mapmenu {
-        padding-bottom: 1em;
+        padding: 1em 0;
       }
       .course-title-drawer {
         font-size: 1.2em;
@@ -451,7 +453,6 @@ A LRN element
       <app-drawer slot="drawer" id="bookdrawer" opened="{{drawerOpened}}" swipe-open transition-duration="150">
         <div id="bookdrawercontent" style="height: 100%; overflow: auto;" hidden$="[[!bookItems]]">
           <paper-search-bar hide-filter-button hidden$="[[!showSearch]]"></paper-search-bar>
-          <h2 class="course-title-drawer">[[bookTitle]]</h2>
           <lrndesign-mapmenu id="mapmenu" on-tap="_bookOutlineTap">
             <!-- Server response will populate this -->
           </lrndesign-mapmenu>
@@ -1230,7 +1231,13 @@ A LRN element
           var tmp = document.createElement('div');
           tmp.innerHTML = newValue.content;
           // trap for text without wrapping HTML tags
-          if (typeof tmp.firstChild.length !== typeof undefined) {
+          if (tmp.firstChild == null) {
+            var tmp2 = document.createElement('p');
+            tmp2.innerHTML = tmp.innerHTML;
+            tmp = document.createElement('div');
+            tmp.innerHTML = tmp2.outerHTML;
+          }
+          else if (typeof tmp.firstChild.length !== typeof undefined) {
             var tmp2 = document.createElement('p');
             tmp2.innerHTML = tmp.innerHTML;
             tmp = document.createElement('div');

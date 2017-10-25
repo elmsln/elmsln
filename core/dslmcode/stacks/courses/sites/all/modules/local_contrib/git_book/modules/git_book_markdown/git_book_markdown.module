@@ -98,11 +98,17 @@ function _git_book_filter_markdown($text, $format) {
  * Return current book path
  * @return string path partial to current alias
  */
-function _git_book_markdown_book_root_path() {
+function _git_book_markdown_book_root_path($nid = NULL) {
+  // support manual pass through
+  if (empty($nid)) {
+    $nid = arg(1);
+  }
+  // support for non node/id based pages
+  drupal_alter('gbm_active_nid', $nid);
   $path = &drupal_static(__FUNCTION__);
   if (!isset($path)) {
     // find book root
-    $result = db_query("SELECT * FROM {book} b INNER JOIN {menu_links} ml ON b.mlid = ml.mlid WHERE b.nid=:nid", array(':nid' =>  arg(1)), array('fetch' => PDO::FETCH_ASSOC));
+    $result = db_query("SELECT * FROM {book} b INNER JOIN {menu_links} ml ON b.mlid = ml.mlid WHERE b.nid=:nid", array(':nid' =>  $nid), array('fetch' => PDO::FETCH_ASSOC));
     // load book root and build private file path relative to it
     foreach ($result as $record) {
       $bid = $record['bid'];

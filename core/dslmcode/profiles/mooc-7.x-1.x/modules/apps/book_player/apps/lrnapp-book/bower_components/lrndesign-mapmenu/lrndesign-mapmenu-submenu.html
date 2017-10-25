@@ -56,6 +56,10 @@
         url: {
           type: String,
         },
+        __setLock: {
+          type: Boolean,
+          value: false,
+        },
       },
       _openChanged: function (newValue, oldValue) {
         if (typeof newValue !== typeof undefined) {
@@ -69,7 +73,27 @@
         }
       },
       _headerTapHandler: function (e) {
-        if (this.collapsable) {
+        var normalizedEvent = Polymer.dom(e);
+        let roottarget = normalizedEvent.rootTarget;
+        // trap multiple button hits / ensure that we can only expand if button clicked
+        // vs the full item tapped which can then toggle open / closed state
+        if (normalizedEvent.rootTarget.tagName === 'PAPER-BUTTON') {
+          // only open for paper button if ENTER is hit and it's already open
+          if (this.collapsable && !this.opened) {
+            this.opened = !this.opened;
+          }
+          // set a lock to ensure this doesn't happen
+          this.__setLock = true;
+        }
+        else if (normalizedEvent.rootTarget.tagName === 'LRNDESIGN-MAPMENU-HEADER') {
+          // only allow if the lock isn't there; this way double events bubbling up
+          // won't actually do anything
+          if (this.collapsable && !this.__setLock) {
+            this.opened = !this.opened;
+          }
+          this.__setLock = false;
+        }
+        else if (this.collapsable) {
           this.opened = !this.opened;
         }
       },
