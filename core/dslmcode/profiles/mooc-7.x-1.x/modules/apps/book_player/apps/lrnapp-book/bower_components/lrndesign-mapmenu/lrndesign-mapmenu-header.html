@@ -5,6 +5,7 @@
     <style>
       :host {
         display: block;
+        clear: both;
       }
       #container {
         display: flex;
@@ -43,10 +44,11 @@
         text-transform: unset;
       }
       a {
-        color : var(--lrndesign-mapmenu-header-color, black);
+        color : var(--lrndesign-mapmenu-item-color, --paper-grey-800);
       }
-      a:hover {
-        font-weight: bold;
+      a:hover,
+      a:focus {
+        color : var(--lrndesign-mapmenu-item-color, black);
       }
     </style>
     <div id="container">
