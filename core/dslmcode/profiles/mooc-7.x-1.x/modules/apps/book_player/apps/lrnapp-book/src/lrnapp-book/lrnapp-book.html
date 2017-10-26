@@ -241,11 +241,10 @@ A LRN element
         font-family: sans-serif;
       }
       :host {
-        --app-drawer-width: 0px;
-      }
-      :host[drawer-opened],
-      :host[edit-mode] {
         --app-drawer-width: 300px;
+      }
+      :host[full-width] {
+        --app-drawer-width: 0px;
       }
       :host[drawer-opened] .prev,
       :host[edit-mode] .prev {
@@ -618,7 +617,6 @@ A LRN element
           type: Boolean,
           value: true,
           reflectToAttribute: true,
-          observer: '_drawerOpenedChanged',
         },
         /**
          * App route tracking.
@@ -836,6 +834,15 @@ A LRN element
           type: Boolean,
           value: false,
         },
+        /**
+         * Track if we should go full width or not.
+         */
+        fullWidth: {
+          type: Boolean,
+          reflectToAttribute: true,
+          value: false,
+          observer: "_fullWidthChanged",
+        },
       },
       /**
        * Ready event.
@@ -848,8 +855,13 @@ A LRN element
         // scroll top into view
         setTimeout( () => {
           this._resetScroll();
-          Polymer.updateStyles();
         }, 500);
+      },
+      /**
+       * When element is told to be full width it'll close things.
+       */
+      _fullWidthChanged: function (newValue, oldValue) {
+        Polymer.updateStyles();
       },
       /**
        * Handle click on dashboard to trigger loading data.
@@ -895,7 +907,6 @@ A LRN element
        */
       _editModeChanged: function (newValue, oldValue) {
         if (typeof newValue !== typeof undefined) {
-          Polymer.updateStyles();
           if (newValue === true) {
             // update the button to be for saving state
             this.$.editbutton.icon = 'save';
@@ -1152,13 +1163,15 @@ A LRN element
        * Toggle the book drawer
        */
       toggleBook: function (e) {
-        this.$.bookdrawer.toggle();
-      },
-      /**
-       * notice the drawer changing value.
-       */
-      _drawerOpenedChanged: function (newValue, oldValue) {
-        Polymer.updateStyles();
+        // if we are in edit mode then we ned to close this
+        if (this.editMode) {
+          this.$.haxpanel.toggle();
+          this.fullWidth = !this.$.haxpanel.opened;
+        }
+        else {
+          this.$.bookdrawer.toggle();
+          this.fullWidth = !this.$.bookdrawer.opened;
+        }
       },
       /**
        * Handle the response.
