@@ -24,7 +24,9 @@ timestamp(){
 
 # set the branch via passed in command
 if [ -z $1 ]; then
-  elmslnwarn "Please select the code branch you want to update against (e.g. master, 0.9.x, etc)"
+  elmslnwarn "Please select the code branch you want to update against (e.g. master, 0.9.x, etc)."
+  elmslnwarn "You may want to leave Leafy and perform 'git checkout tags/TAG NUMBER'  or 'git pull origin master' beforehand in order to be sure you have got the most recent code from Git."  
+  elmslnwarn "Please also check upgrades documentation page at https://github.com/elmsln/elmsln/blob/master/docs/development/upgrades/How-do-I-run-upgrades.md"
   read branch
   if [ -z $branch ]; then
     exit 1
