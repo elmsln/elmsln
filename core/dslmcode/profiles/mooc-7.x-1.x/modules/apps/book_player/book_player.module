@@ -1,5 +1,8 @@
 <?php
-
+/**
+ * @file
+ * Code for the book player.
+ */
 
 /**
  * Implements hook_gbm_active_nid_alter().
