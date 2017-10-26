@@ -14,3 +14,10 @@ function cis_course_service_update_7001(&$sandbox) {
   module_enable(array('path', 'pathauto'));
   features_revert_module('cis_course_service');
 }
+
+/**
+ * Fix for https://github.com/elmsln/elmsln/issues/2313
+ */
+function cis_course_service_update_7002(&$sandbox) {
+  features_revert_module('cis_course_service');
+}
