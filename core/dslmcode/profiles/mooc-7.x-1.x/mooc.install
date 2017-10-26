@@ -192,3 +192,15 @@ function mooc_update_7014(&$sandbox) {
   field_purge_batch(1000);
   field_purge_batch(1000);
 }
+
+/**
+ * Prepare for the new world without the UI implemented... yet.
+ */
+function mooc_update_7015(&$sandbox) {
+  features_revert_module('mooc_cis_ux');
+  features_revert_module('mooc_content_theming');
+  features_revert_module('mooc_ux_defaults');
+  features_revert_module('mooc_theme_foundation');
+  // enable the modules to make it happen
+  module_enable(array('webcomponents_app', 'webcomponents_app_context', 'book_player'));
+}
