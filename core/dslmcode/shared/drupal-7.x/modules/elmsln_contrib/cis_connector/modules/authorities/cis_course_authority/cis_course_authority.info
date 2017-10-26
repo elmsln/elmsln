@@ -66,5 +66,7 @@ features[variable][] = pathauto_punctuation_semicolon
 features[variable][] = pathauto_punctuation_slash
 features[variable][] = pathauto_punctuation_tilde
 features[variable][] = pathauto_punctuation_underscore
+features[variable][] = pathauto_reduce_ascii
+features[variable][] = pathauto_transliterate
 features[views_view][] = cis_authority_courses
 features_exclude[dependencies][assessment_assignment] = assessment_assignment

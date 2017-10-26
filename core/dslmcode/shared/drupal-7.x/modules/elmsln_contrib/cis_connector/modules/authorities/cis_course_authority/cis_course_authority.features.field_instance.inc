@@ -10,7 +10,7 @@
 function cis_course_authority_field_default_field_instances() {
   $field_instances = array();
 
-  // Exported field_instance: 'node-cis_course-field_cis_course_uuid'
+  // Exported field_instance: 'node-cis_course-field_cis_course_uuid'.
   $field_instances['node-cis_course-field_cis_course_uuid'] = array(
     'bundle' => 'cis_course',
     'default_value' => NULL,
@@ -56,7 +56,7 @@ function cis_course_authority_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-cis_course-field_course_machine_name'
+  // Exported field_instance: 'node-cis_course-field_course_machine_name'.
   $field_instances['node-cis_course-field_course_machine_name'] = array(
     'bundle' => 'cis_course',
     'default_value' => NULL,
@@ -102,7 +102,7 @@ function cis_course_authority_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-cis_course-field_course_sections_ref'
+  // Exported field_instance: 'node-cis_course-field_course_sections_ref'.
   $field_instances['node-cis_course-field_course_sections_ref'] = array(
     'bundle' => 'cis_course',
     'default_value' => NULL,
@@ -168,7 +168,7 @@ function cis_course_authority_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-section-field_section_course_ref'
+  // Exported field_instance: 'node-section-field_section_course_ref'.
   $field_instances['node-section-field_section_course_ref'] = array(
     'bundle' => 'section',
     'default_value' => NULL,
