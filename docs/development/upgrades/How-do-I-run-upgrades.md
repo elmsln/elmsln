@@ -25,7 +25,7 @@ Server level upgrades run through advanced bash scripts that bring you on par wi
 
   `git reset --hard origin/master`
  
-and when repeat `git pull original master`
+and repeat `git pull original master` swapping out `master` for whatever branch you are using.
  
 ### 3. At this stage you should get a status message like this one:
   
@@ -45,6 +45,6 @@ and select an approptiate option, at the time it was written (Oct 2017) it is us
   ` drush @elmsln rr --y `
   ` drush @elmsln updb --y `
  
-### N.B. Word from ELMSLN developers for Drush user.  
+### A note from the core team for Drush users.  
  
-  `Never. and I mean NEVER, run drush @online up unless you are planning on forking the project and doing things on your own.` 
+Never. and I mean NEVER, run drush @online up unless you are planning on being out of sync with the rest of the project. ELMS:LN while Drupal based, places modules in different locations for better performance and developer experience across the many systems involved. `updb` is fine, we run database layer updates all the time. code updates should happen via `git` and not via direct drush `up` commands.
