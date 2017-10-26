@@ -365,6 +365,9 @@ A LRN element that will change the world.
       positionContextMenus: function(node) {
         this._positionContextMenu(this.$.textcontextmenu, node, '-48px', '-46px');
         this._positionContextMenu(this.$.platecontextmenu, node, '-48px', '-5px');
+        setTimeout( () => {
+	      this.$.textcontextmenu.scrollIntoView({block: "center", behavior: "smooth", inline: "center"});
+	    }, 200);
       },
       /**
        * Move grid plate around
