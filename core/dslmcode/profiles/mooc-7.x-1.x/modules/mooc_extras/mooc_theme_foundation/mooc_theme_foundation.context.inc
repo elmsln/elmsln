@@ -17,9 +17,9 @@ function mooc_theme_foundation_context_default_contexts() {
   $context->description = 'Compatibility with foundation';
   $context->tag = 'MOOC theme compat';
   $context->conditions = array(
-    'sitewide' => array(
+    'context' => array(
       'values' => array(
-        1 => 1,
+        '~webcomponents-app' => '~webcomponents-app',
       ),
     ),
   );

@@ -17,9 +17,9 @@ function mooc_ux_defaults_context_default_contexts() {
   $context->description = 'Content block placement';
   $context->tag = 'Content';
   $context->conditions = array(
-    'sitewide' => array(
+    'context' => array(
       'values' => array(
-        1 => 1,
+        '~webcomponents-app' => '~webcomponents-app',
       ),
     ),
   );

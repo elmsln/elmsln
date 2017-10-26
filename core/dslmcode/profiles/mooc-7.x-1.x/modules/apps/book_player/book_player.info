@@ -5,3 +5,4 @@ package = Book
 dependencies[] = book
 dependencies[] = book_cache
 dependencies[] = webcomponents_app
+dependencies[] = webcomponents_app_context

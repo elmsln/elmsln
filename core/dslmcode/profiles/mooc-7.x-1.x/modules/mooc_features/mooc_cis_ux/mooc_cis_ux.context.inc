@@ -20,11 +20,7 @@ function mooc_cis_ux_context_default_contexts() {
     'context' => array(
       'values' => array(
         '~mooc-themecompat-*' => '~mooc-themecompat-*',
-      ),
-    ),
-    'sitewide' => array(
-      'values' => array(
-        1 => 1,
+        '~webcomponents-app' => '~webcomponents-app',
       ),
     ),
   );

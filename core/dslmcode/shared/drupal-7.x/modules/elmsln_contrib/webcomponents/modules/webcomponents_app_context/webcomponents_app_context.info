@@ -1,0 +1,9 @@
+name = Webcomponents app context
+description = A simple context that can be used for integrating contexts with an app main page
+core = 7.x
+package = Webcomponents
+dependencies[] = context
+dependencies[] = webcomponents_app
+features[context][] = webcomponents-app
+features[ctools][] = context:context:3
+features[features_api][] = api:2
