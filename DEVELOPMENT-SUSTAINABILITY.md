@@ -1,4 +1,4 @@
-#ELMSLN - Sustainability Guide
+# ELMSLN - Sustainability Guide
 
 This is the way that project founder btopro keeps life manageable with how complex a product this is. The best way to use this and care for your ELMSLN instance is the following:
 
@@ -21,7 +21,7 @@ you'll want to deviate by referencing your in-house config repo
 
 NOW you can maintain the entire ELMSLN instance as 2 git repos. One for the project as a whole (/var/www/elmsln) and one as everything that's specific to this configuration (/var/www/elmsln/config).
 
-#=== THEORY ===
+# === THEORY ===
 Theorethetically (obviously more complex then this) you could go to any ELMSLN instance and swap out the repo for the config directory and drop another one in and (assuming db credentials work against a different server / things aren't localhost) then it'll "just work".
 
 This design pattern is also "targetable" so we can write automation scripts to get people's instances automatically upgraded with relative ease thanks to fractal design patterns and chain automation.
@@ -30,10 +30,10 @@ Chaining this together with knowledge of every instance being done this way, and
 
 By forming a way of maintaining an intentionally fragmented environment, everyone is able to branch off and innovate (at some level) while still ensuring that the "product" is
 
-#=== DRUPAL ===
+# === DRUPAL ===
 Unless you really understand Galaxy packaging format and what's at play with this application, then we don't recommend trying to maintain Drupal core directly. Part of this system's advantage is that the community is maintaining / testing the entire network of systems working together. If you want to add modules to the setup, this should happen in /var/www/elmsln/config/shared/{drupal core}/modules .  Placing modules here will bring them into scope of all sites you run (across domains).
 
-#=== NETWORK SCALE ===
+# === NETWORK SCALE ===
 A product that is effectively a multiple-multisite and be terrifying to say. That's a lot of domains, ips, certs, code and users hitting 1 location (OMG shared hosting). But, applying the principles of fractal design and chain automation, there's nothing saying that your code isn't mirrored across multiple nodes (servers) on a network.
 
 Transactions between systems are intentionally made via web services in the event that you'd branch out and (for example) maintain CIS / online on a dedicated server, and each of the other tools in the network on their own hardware. This can still be replicated (in travis-ci / vagrant) as a single package, developed as a single package, and through a simple spidering git push / pull can be rolled out to all systems in the network.
