@@ -78,6 +78,19 @@ A LRN element
       hax-panel ::shadow hax-panel-item {
         font-size: .72em;
       }
+      hax-panel {
+      --app-drawer-content-container: {
+          background-color: #fafafa;
+          padding: 0 10px;
+          border-right: 1px solid #c8c8c8;
+          overflow-y: scroll;
+          width: 279px !important;
+          box-shadow: 0 76px 8px 0 rgba(0, 0, 0, 0.4);
+          height: 100vh;
+          top: 0;
+          position: sticky;
+        }
+      }
 
       lrndesign-stepper-button {
         --lrndesign-stepper-btn-active: #f6f7f7;
@@ -165,7 +178,7 @@ A LRN element
       .content-body {
         position: relative;
         padding: 0;
-        margin: -3em 4em 0 4em;
+        margin: -3em 4em 5em 4em;
         font-size: 1.1em;
         transition:
           margin .4s ease,
@@ -199,6 +212,9 @@ A LRN element
         font-size: 1.4em;
         margin: 0;
         padding: .25em 0;
+        background-color: white;
+        top: 70px;
+        position: sticky;
       }
       .content-current {
         min-height: 100vh;
@@ -513,17 +529,17 @@ A LRN element
             </paper-tooltip>
           </div>
         </div>
-          <!-- edit mode if they have permissions -->
-        <paper-fab id="editbutton" icon="editor:mode-edit" class="red white-text" hidden$="[[!currentPageData.page.meta.canUpdate]]" data-voicecommand="Edit content" on-tap="_toggleEditMode" title="Tap to place content in edit mode."></paper-fab>
-        <paper-tooltip
-          for="editbutton"
-          position="bottom"
-          offset="8"
-          animation-delay="100">
-          <span id="fablabel">edit mode</span>
-        </paper-tooltip>
       </app-header-layout>
     </app-drawer-layout>
+    <!-- edit mode if they have permissions -->
+    <paper-fab id="editbutton" icon="editor:mode-edit" class="red white-text" hidden$="[[!currentPageData.page.meta.canUpdate]]" data-voicecommand="Edit content" on-tap="_toggleEditMode" title="Tap to place content in edit mode."></paper-fab>
+    <paper-tooltip
+      for="editbutton"
+      position="bottom"
+      offset="8"
+      animation-delay="100">
+      <span id="fablabel">edit mode</span>
+    </paper-tooltip>
     <paper-toast id="toast" horizontal-align="left"></paper-toast>
   </template>
   <script>

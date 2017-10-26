@@ -324,8 +324,10 @@ A LRN element that will change the world.
             content += children[i].outerHTML + "\n";
           }
         }
-        // remove the contenteditable property as it isn't needed on export
+        // remove the contenteditable property
         content = content.replace(/\scontenteditable=\"false\"/g, '');
+        // remove HAX specific classes / scoping classes
+        content = content.replace(/style-scope\slrnapp-book/g, '');
         // remove empty class structures
         content = content.replace(/\sclass=\"\"/g, '');
         // re-apply contenteditable if needed
