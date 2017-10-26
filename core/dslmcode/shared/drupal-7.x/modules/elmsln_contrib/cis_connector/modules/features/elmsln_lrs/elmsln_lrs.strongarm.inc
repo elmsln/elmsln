@@ -15,7 +15,7 @@ function elmsln_lrs_strongarm() {
   $strongarm->api_version = 1;
   $strongarm->name = 'tincanapi_content_types_view_modes';
   $strongarm->value = array(
-    'full' => 0,
+    'full' => 'full',
     'teaser' => 0,
     'rss' => 0,
     'print' => 0,
@@ -58,7 +58,7 @@ function elmsln_lrs_strongarm() {
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'tincanapi_simplify_id';
-  $strongarm->value = 1;
+  $strongarm->value = 0;
   $export['tincanapi_simplify_id'] = $strongarm;
 
   $strongarm = new stdClass();
