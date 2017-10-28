@@ -4,9 +4,9 @@ Interactive H5P Content
 ##Installation
 H5P lives in the media asset management side of elmsln but because of automation issues it can't be included on install. Until this issue is resolved by the H5P community (its in their roadmap) here's how to setup H5P after installation of ELMSLN.
 
-- Go to https://h5p.org/update-all-content-types and scroll down to Attachments area
-- Download the file with a name like "official-h5p-release-20160219.h5p"
-- Go to this page (your path relative to where you install) http://media.elmsln.local/admin/content/h5p and upload the file from H5P
+- Go to https://h5p.org/installation
+- Select your CMS & version: basically H5P has "plugins" available for Drupal 7 & 8, Wordpress and Moodle   
+- As for Drupal 7 it is as easy as download Drupal module form https://drupal.org/project/h5p and  install the H5P module as you usually install a Drupal module. You may want to enable "H5P" and "H5P Editor" modules. 
 
 You can customize from there but this has installed all types for you
 
