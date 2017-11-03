@@ -1116,7 +1116,7 @@ function foundation_access_link(&$variables) {
   $text = $variables['text'];
   $options = $variables['options'];
   // support for lrn icon
-  if ($variables['options']['fa_icon'] && !isset($variables['options']['identifier'])) {
+  if (isset($variables['options']['fa_icon']) && $variables['options']['fa_icon'] && !isset($variables['options']['identifier'])) {
     $options['html'] = TRUE;
     $text = '<lrn-icon icon="' . $variables['options']['fa_icon'] . '"></lrn-icon>' . $text;
   }

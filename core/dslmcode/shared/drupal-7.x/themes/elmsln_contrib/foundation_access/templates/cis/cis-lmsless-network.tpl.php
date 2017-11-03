@@ -22,7 +22,7 @@
         }
         $activetool = '';
         $iconcolor = $lmsless_classes[$service['distro']]['color'] . '-text text-darken-4';
-        if ($service['machine_name'] == $active['machine_name']) {
+        if (isset($active['machine_name']) && $service['machine_name'] == $active['machine_name']) {
           $activetool = $lmsless_classes[$service['distro']]['color'] . ' active-system white-text ';
           $iconcolor = $lmsless_classes[$service['distro']]['color'] . ' white-text ';
         }

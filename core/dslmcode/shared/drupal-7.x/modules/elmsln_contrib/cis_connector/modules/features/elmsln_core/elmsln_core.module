@@ -1290,7 +1290,7 @@ function elmsln_core_url_inbound_alter(&$path, $original_path, $path_language) {
       masquerade_switch_back();
     }
     // odd case but make sure we don't switch to ourselves before allowing a switch
-    else if ($masqname != $GLOBALS['user']->name) {
+    else if (isset($GLOBALS['user']->name) && $masqname != $GLOBALS['user']->name) {
       // convert name to uid if possible
       if ($tmp = user_load_by_name($masqname)) {
         // perform the masquerade of the account which automatically does permission checks
