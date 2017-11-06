@@ -40,14 +40,13 @@ A LRN element
         min-width: 1rem;
       }
 
-      hax-panel,
       hax-panel ::shadow app-drawer {
         padding: 0;
         top: 0;
         bottom: 0;
-        z-index: 1;
         position: absolute;
         box-sizing: content-box;
+        margin-left: -300px;
         --app-drawer-content-container: {
           background-color: #fafafa;
           padding: 0;
@@ -454,9 +453,9 @@ A LRN element
         tail="{{tail}}"
         query-params="{{queryParams}}">
     </app-route>
-    <hax-panel id="haxpanel"></hax-panel>
   <!-- body where most of the heavy lifting happens -->
     <app-drawer-layout>
+      <hax-panel id="haxpanel"></hax-panel>
       <app-drawer slot="drawer" id="bookdrawer" opened="{{drawerOpened}}" swipe-open transition-duration="150">
         <div id="bookdrawercontent" style="height: 100%; overflow: auto;" hidden$="[[!bookItems]]">
           <paper-search-bar hide-filter-button hidden$="[[!showSearch]]"></paper-search-bar>
