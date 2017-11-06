@@ -45,10 +45,23 @@
       .collapse-content {
         padding: 1em;
       }
+      .label-area {
+        display: inline-block;
+        width: 85%;
+      }
+      .collapse-icon-container {
+        display: inline-block;
+        width: 10%;
+      }
+      .collapse-icon {
+        width: 16px;
+        height: 16px;
+      }
     </style>
     <paper-button on-tap="collapseToggle" id="collapse-trigger">
       <span class="collapse-label">
-        <slot name="label"></slot>
+        <div class="label-area"><slot name="label"></slot></div>
+        <div class="collapse-icon-container"><iron-icon icon="[[stateIcon]]" class="collapse-icon"></iron-icon></div>
       </span>
     </paper-button>
     <iron-collapse id="collapse" opened="{{opened}}">
@@ -71,6 +84,22 @@
           reflectToAttribute: true,
           notify: true,
         },
+        /**
+         * Icon to show in order to reflect state of the collapse.
+         */
+        stateIcon: {
+          type: String,
+          computed: '_computeStateIcon(opened)',
+        },
+      },
+      /**
+       * Match icon to the current state of the collapse.
+       */
+      _computeStateIcon: function (opened) {
+        if (opened) {
+          return 'unfold-less';
+        }
+        return 'unfold-more';
       },
       /**
        * Toggling collapse on an iron element.
