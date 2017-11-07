@@ -193,7 +193,7 @@ A context menu that provides common text based authoring options.
             document.execCommand('strikeThrough');
           break;
           case 'text-link':
-            let url = prompt("Enter your URL for this text:");
+            let url = prompt("Enter a URL:");
             document.execCommand('createLink', false, url);
           break;
           case 'text-unlink':

@@ -82,7 +82,7 @@ as the events being bubbled up include HTML nodes to inject into something
               icon="editor:insert-link"
               icon-class="grey-text"
               label="Embed URL"
-              event-name="iframe"
+              event-name="embed-url"
               voice-command="insert url"></hax-panel-item>
             <hax-panel-item
               icon="editor:insert-photo"
@@ -239,6 +239,84 @@ as the events being bubbled up include HTML nodes to inject into something
             detail.tag = 'blockquote';
             detail.content = 'Quote';
             this.fire('hax-content-insert', detail);
+          break;
+          case 'embed-url':
+            // try and sniff out if this is embed of an image
+            // or a link
+            detail.content = '';
+            var url = prompt("URL to embed:");
+            if (url !== null && url !== '') {
+              let type = url.substring(url.length, url.length-4);
+              switch (type) {
+                case '.mp4':
+                  detail.tag = 'video';
+                  detail.properties = {
+                    'src': url,
+                    'preload': 'auto',
+                    'controls': true,
+                  };
+                break;
+                case '.wav':
+                case '.mp3':
+                  detail.tag = 'audio';
+                  detail.properties = {
+                    'src': url,
+                    'preload': 'auto',
+                    'controls': true,
+                  };
+                break;
+                case '.svg':
+                case '.jpg':
+                case '.gif':
+                case '.png':
+                  detail.tag = 'img';
+                  detail.properties = {
+                    'src': url,
+                  };
+                break;
+                default:
+                // specialized support for sources that are common
+                // stupid J-PEGs hanging around the internet
+                if (url.substring(url.length, url.length-5) == '.jpeg') {
+                  detail.tag = 'img';
+                  detail.properties = {
+                    'src': url,
+                  };
+                }
+                else {
+                  detail.tag = 'iframe';
+                  // test for youtube / vimeo
+                  if (
+                    url.indexOf('youtu.be') !== -1 ||
+                    url.indexOf('youtube.com') !== -1 ||
+                    url.indexOf('youtube-nocookie.com') !== -1 ||
+                    url.indexOf('vimeo.com') !== -1
+                  ) {
+                    detail.properties = {
+                      'src': url,
+                      'webkitallowfullscreen': true,
+                      'mozallowfullscreen': true,
+                      'allowfullscreen': true,
+                      'frameborder': 0,
+                    };
+                  }
+                  else if (url.indexOf('soundcloud.com') !== -1) {
+                    detail.properties = {
+                      'src': url,
+                      'frameborder': 0,
+                    };
+                  }
+                  else {
+                    detail.properties = {
+                      'src': url,
+                    };
+                  }
+                }
+
+                break;
+              }
+              this.fire('hax-content-insert', detail);
+            }
           break;
           case 'undo':
             document.execCommand('undo');

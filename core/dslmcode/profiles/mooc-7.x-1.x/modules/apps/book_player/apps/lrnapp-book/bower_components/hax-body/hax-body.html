@@ -42,37 +42,40 @@ A LRN element that will change the world.
       :host #bodycontainer ::slotted(.hax-context-visible:hover) {
         opacity: 1;
       }
-      :host #bodycontainer ::slotted(*.justify-center) {
+      :host #bodycontainer ::slotted(.justify-left) {
+        text-align: left;
+      }
+      :host #bodycontainer ::slotted(.justify-center) {
         text-align: center;
       }
-      :host #bodycontainer ::slotted(*.justify-right) {
+      :host #bodycontainer ::slotted(.justify-right) {
         text-align: right;
       }
-      :host #bodycontainer ::slotted(*.justify-text) {
+      :host #bodycontainer ::slotted(.justify-text) {
         text-align: justify;
       }
 
-      :host #bodycontainer ::slotted(*.image-justify-left) {
+      :host #bodycontainer ::slotted(.item-justify-left) {
         float: left;
       }
-      :host #bodycontainer ::slotted(*.image-justify-center) {
+      :host #bodycontainer ::slotted(.item-justify-center) {
         display: block;
         margin: 0 auto;
       }
-      :host #bodycontainer ::slotted(*.image-justify-right) {
+      :host #bodycontainer ::slotted(.item-justify-right) {
         float: right;
       }
 
-      :host #bodycontainer ::slotted(*.image-width-25) {
+      :host #bodycontainer ::slotted(.item-width-25) {
         width: 25%;
       }
-      :host #bodycontainer ::slotted(*.image-width-50) {
+      :host #bodycontainer ::slotted(.item-width-50) {
         width: 50%;
       }
-      :host #bodycontainer ::slotted(*.image-width-75) {
+      :host #bodycontainer ::slotted(.item-width-75) {
         width: 75%;
       }
-      :host #bodycontainer ::slotted(*.image-width-100) {
+      :host #bodycontainer ::slotted(.item-width-100) {
         width: 100%;
       }
 
@@ -229,6 +232,7 @@ A LRN element that will change the world.
     <div id="contextcontainer">
       <hax-text-context id="textcontextmenu" class="hax-context-menu ignore-activation"></hax-text-context>
       <hax-image-context id="imagecontextmenu" class="hax-context-menu ignore-activation"></hax-image-context>
+      <hax-iframe-context id="iframecontextmenu" class="hax-context-menu ignore-activation"></hax-iframe-context>
       <hax-plate-context id="platecontextmenu" class="hax-context-menu ignore-activation"></hax-plate-context>
     </div>
   </template>
@@ -289,7 +293,7 @@ A LRN element that will change the world.
           // if we've got new nodes, we have to react to that
           if (info.addedNodes.length > 0) {
             info.addedNodes.map((node) => {
-              if (typeof node.tagName !== typeof undefined && node.tagName !== 'HAX-TEXT-CONTEXT' && node.tagName !== 'HAX-IMAGE-CONTEXT' && node.tagName !== 'HAX-PLATE-CONTEXT') {
+              if (typeof node.tagName !== typeof undefined && node.tagName.substring(0, 4) !== "HAX-") {
                 node.contentEditable = this.editMode;
                 this.fire('hax-body-tag-added', {node: node});
               }
@@ -299,7 +303,7 @@ A LRN element that will change the world.
           if (info.removedNodes.length > 0) {
             // handle removing items... not sure we need to do anything here
             info.removedNodes.map((node) => {
-              if (typeof node.tagName !== typeof undefined && node.tagName !== 'HAX-TEXT-CONTEXT' && node.tagName !== 'HAX-IMAGE-CONTEXT' && node.tagName !== 'HAX-PLATE-CONTEXT') {
+              if (typeof node.tagName !== typeof undefined && node.tagName.substring(0, 4) !== "HAX-") {
                 if (!node.classList.contains('hax-active')) {
                   this.fire('hax-body-tag-removed', {node: node});
                 }
@@ -311,12 +315,18 @@ A LRN element that will change the world.
       /**
        * Insert new tag + content into the local DOM as a node.
        */
-      haxInsert: function(tag, content) {
+      haxInsert: function(tag, content, properties = {}) {
         var tags = this._validTags();
         // verify this tag is a valid one
         if (tags.includes(tag)) {
           var newNode = document.createElement(tag);
           newNode.innerHTML = content;
+          // support for properties if they exist
+          for (var property in properties) {
+            if (properties.hasOwnProperty(property)) {
+              newNode.setAttribute(property, properties[property]);
+            }
+          }
           // insert at active insert point if we have one
           if (this.activeNode !== null) {
             Polymer.dom(this).insertBefore(newNode, this.activeNode.nextElementSibling);
@@ -344,7 +354,7 @@ A LRN element that will change the world.
         let children = Polymer.dom(this.$.body).getDistributedNodes();
         var content = '';
         for (var i = 0, len = children.length; i < len; i++) {
-          if (typeof children[i].tagName !== typeof undefined && children[i].tagName !== 'HAX-TEXT-CONTEXT' && children[i].tagName !== 'HAX-IMAGE-CONTEXT' && children[i].tagName !== 'HAX-PLATE-CONTEXT') {
+          if (typeof children[i].tagName !== typeof undefined && children[i].tagName.substring(0, 4) !== "HAX-") {
             // delete this property since it's silly
             children[i].contentEditable = false;
             content += children[i].outerHTML + "\n";
@@ -386,6 +396,7 @@ A LRN element that will change the world.
       hideContextMenus: function() {
         this._hideContextMenu(this.$.textcontextmenu);
         this._hideContextMenu(this.$.imagecontextmenu);
+        this._hideContextMenu(this.$.iframecontextmenu);
         this._hideContextMenu(this.$.platecontextmenu);
       },
       /**
@@ -396,15 +407,21 @@ A LRN element that will change the world.
         switch (node.tagName) {
           case 'IMG':
             this.__activeContextType = this.$.imagecontextmenu;
-            this._positionContextMenu(this.__activeContextType, node, '-48px', '-46px');
+            this._positionContextMenu(this.__activeContextType, node, -48, -46);
+          break;
+          case 'IFRAME':
+          case 'VIDEO':
+          case 'AUDIO':
+            this.__activeContextType = this.$.iframecontextmenu;
+            this._positionContextMenu(this.__activeContextType, node, -48, -46);
           break;
           // @todo add support for other alternative menus here
           default:
             this.__activeContextType = this.$.textcontextmenu;
-            this._positionContextMenu(this.__activeContextType, node, '-48px', '-46px');
+            this._positionContextMenu(this.__activeContextType, node, -48, -46);
           break;
         }
-        this._positionContextMenu(this.$.platecontextmenu, node, '-48px', '-5px');
+        this._positionContextMenu(this.$.platecontextmenu, node, -48, -5);
         setTimeout( () => {
   	      this.__activeContextType.scrollIntoView({block: "center", behavior: "smooth", inline: "center"});
   	    }, 200);
@@ -544,34 +561,76 @@ A LRN element that will change the world.
           break;
           // image based operations
           case 'image-align-left':
-            this.activeNode.classList.add('image-justify-left');
-            this.$.imagecontextmenu.justifyValue = 'image-align-left';
-            this.activeNode.classList.remove('image-justify-center');
-            this.activeNode.classList.remove('image-justify-right');
+            this.activeNode.classList.add('item-justify-left');
+            this.$.imagecontextmenu.justifyValue = 'item-align-left';
+            this.activeNode.classList.remove('item-justify-center');
+            this.activeNode.classList.remove('item-justify-right');
             document.execCommand('justifyLeft', false, null);
           break;
           case 'image-align-center':
-            this.activeNode.classList.remove('image-justify-left');
-            this.activeNode.classList.add('image-justify-center');
-            this.$.imagecontextmenu.justifyValue = 'image-align-center';
-            this.activeNode.classList.remove('image-justify-right');
+            this.activeNode.classList.remove('item-justify-left');
+            this.activeNode.classList.add('item-justify-center');
+            this.$.imagecontextmenu.justifyValue = 'item-align-center';
+            this.activeNode.classList.remove('item-justify-right');
             document.execCommand('justifyCenter', false, null);
           break;
           case 'image-align-right':
-            this.activeNode.classList.remove('image-justify-left');
-            this.activeNode.classList.remove('image-justify-center');
-            this.activeNode.classList.add('image-justify-right');
-            this.$.imagecontextmenu.justifyValue = 'image-align-right';
+            this.activeNode.classList.remove('item-justify-left');
+            this.activeNode.classList.remove('item-justify-center');
+            this.activeNode.classList.add('item-justify-right');
+            this.$.imagecontextmenu.justifyValue = 'item-align-right';
             document.execCommand('justifyRight', false, null);
           break;
           case 'image-size-change':
-            this.activeNode.classList.remove('image-width-25');
-            this.activeNode.classList.remove('image-width-50');
-            this.activeNode.classList.remove('image-width-75');
-            this.activeNode.classList.remove('image-width-100');
-            this.activeNode.classList.add('image-width-' + detail.value);
+          case 'iframe-size-change':
+            this.activeNode.classList.remove('item-width-25');
+            this.activeNode.classList.remove('item-width-50');
+            this.activeNode.classList.remove('item-width-75');
+            this.activeNode.classList.remove('item-width-100');
+            this.activeNode.classList.add('item-width-' + detail.value);
+          break;
+          // iframe based operations
+          case 'iframe-align-left':
+            this.activeNode.classList.add('item-justify-left');
+            this.$.iframecontextmenu.justifyValue = 'item-align-left';
+            this.activeNode.classList.remove('item-justify-center');
+            this.activeNode.classList.remove('item-justify-right');
+            document.execCommand('justifyLeft', false, null);
+          break;
+          case 'iframe-align-center':
+            this.activeNode.classList.remove('item-justify-left');
+            this.activeNode.classList.add('item-justify-center');
+            this.$.iframecontextmenu.justifyValue = 'item-align-center';
+            this.activeNode.classList.remove('item-justify-right');
+            document.execCommand('justifyCenter', false, null);
+          break;
+          case 'iframe-align-right':
+            this.activeNode.classList.remove('item-justify-left');
+            this.activeNode.classList.remove('item-justify-center');
+            this.activeNode.classList.add('item-justify-right');
+            this.$.iframecontextmenu.justifyValue = 'item-align-right';
+            document.execCommand('justifyRight', false, null);
+          break;
+          case 'iframe-link':
+            var url = prompt("URL to embed:", this.activeNode.src);
+            if (url !== null && url !== '') {
+              this.activeNode.src = url;
+            }
+          break;
+          case 'image-src':
+            var url = prompt("Image URL:", this.activeNode.src);
+            if (url !== null && url !== '') {
+              this.activeNode.src = url;
+            }
+          break;
+          case 'image-alt':
+            var alt = prompt("Image alt information:", this.activeNode.alt);
+            if (alt !== null) {
+              this.activeNode.alt = alt;
+            }
           break;
           default:
+            // implies an event we haven't trapped for yet
             console.log(detail);
           break;
         }
@@ -592,7 +651,7 @@ A LRN element that will change the world.
        */
       _validTags: function(e) {
         // @todo need a global way of hijacking this for integrations
-        var tags = ['p', 'div', 'ol', 'ul', 'li', 'iframe', 'a', 'hr', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'code', 'img'];
+        var tags = ['p', 'div', 'ol', 'ul', 'li', 'a', 'hr', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'code', 'img', 'iframe', 'video', 'audio'];
         return tags;
       },
       /**
@@ -618,7 +677,7 @@ A LRN element that will change the world.
       _applyContentEditable: function(status) {
         let children = Polymer.dom(this.$.body).getDistributedNodes();
         for (var i = 0, len = children.length; i < len; i++) {
-          if (typeof children[i].tagName !== typeof undefined && children[i].tagName !== 'HAX-TEXT-CONTEXT' && children[i].tagName !== 'HAX-IMAGE-CONTEXT' && children[i].tagName !== 'HAX-PLATE-CONTEXT') {
+          if (typeof children[i].tagName !== typeof undefined && children[i].tagName.substring(0, 4) !== "HAX-") {
             children[i].contentEditable = status;
           }
         }
@@ -672,7 +731,7 @@ A LRN element that will change the world.
         // the grid plate context menu to show up
         if (typeof newValue !== typeof undefined && newValue !== null && this.activeNode === newValue) {
           // position the operations / in context element
-          this._positionContextMenu(this.$.platecontextmenu, newValue, '-48px', '-5px');
+          this._positionContextMenu(this.$.platecontextmenu, newValue, -48, -5);
         }
       },
       /**
@@ -681,8 +740,8 @@ A LRN element that will change the world.
       _positionContextMenu: function (menu, target, xoffset, yoffset) {
         menu.classList.add('hax-context-visible');
         Polymer.dom(this).insertBefore(menu, target);
-        menu.style["margin-left"] = xoffset;
-        menu.style["margin-top"] = yoffset;
+        menu.style["margin-left"] = (xoffset + target.offsetLeft) + 'px';
+        menu.style["margin-top"] = yoffset + 'px';
       },
       /**
        * Simple hide / reset of whatever menu it's handed.

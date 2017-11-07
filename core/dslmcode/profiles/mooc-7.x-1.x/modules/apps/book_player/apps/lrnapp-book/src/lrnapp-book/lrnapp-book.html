@@ -882,7 +882,12 @@ A LRN element
       },
       _haxContentInsert: function (e) {
         this.$.toast.show(e.detail.eventName);
-        this.$.haxbody.haxInsert(e.detail.tag, e.detail.content);
+        var properties = {};
+        // support for properties to be set automatically optionally
+        if (typeof e.detail.properties !== typeof undefined) {
+          properties = e.detail.properties;
+        }
+        this.$.haxbody.haxInsert(e.detail.tag, e.detail.content, properties);
       },
       /**
        * Calculate what would happen if we added a page here.

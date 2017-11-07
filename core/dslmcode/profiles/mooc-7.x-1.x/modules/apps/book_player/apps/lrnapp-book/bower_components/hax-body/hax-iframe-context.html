@@ -3,16 +3,16 @@
 <link rel="import" href="hax-context-item.html">
 
 <!--
-`hax-image-context`
-A context menu that provides common image based authoring options.
+`hax-iframe-context`
+A context menu that provides common iframe based authoring options.
 
 @demo demo/index.html
 
 @microcopy - the mental model for this element
- - context menu - this is a menu of image based buttons and events for use in a larger solution.
+ - context menu - this is a menu of iframe based buttons and events for use in a larger solution.
 -->
 
-<dom-module id="hax-image-context">
+<dom-module id="hax-iframe-context">
   <template>
     <style>
       :host {
@@ -46,54 +46,39 @@ A context menu that provides common image based authoring options.
         id="justify"
         icon="[[justifyIcon]]"
         label="Alignment">
-        <paper-item value="image-align-left">
+        <paper-item value="iframe-align-left">
           <iron-icon icon="editor:format-align-left"></iron-icon>
         </paper-item>
-        <paper-item value="image-align-center">
+        <paper-item value="iframe-align-center">
           <iron-icon icon="editor:format-align-center"></iron-icon>
         </paper-item>
-        <paper-item value="image-align-right">
+        <paper-item value="iframe-align-right">
           <iron-icon icon="editor:format-align-right"></iron-icon>
         </paper-item>
       </hax-context-item-menu>
-      <paper-slider pin min="25" step="25" max="100" value="{{imageSize}}"></paper-slider>
+      <paper-slider pin min="25" step="25" max="100" value="{{iframeSize}}"></paper-slider>
       <hax-context-item
         icon="editor:insert-link"
-        label="Source"
-        event-name="image-src"></hax-context-item>
-      <hax-context-item
-        icon="accessibility"
-        label="Alt information"
-        event-name="image-alt"></hax-context-item>
-      <hax-context-item-menu
-        selected-value="{{selectedValue}}"
-        id="formatsize"
-        icon="image:panorama"
-        label="Styles"
-        event-name="image-tag">
-        <paper-item value="image-style1">Style 1</paper-item>
-        <paper-item value="image-style2">Style 2</paper-item>
-        <paper-item value="image-style3">Style 3</paper-item>
-        <paper-item value="image-style4">Style 4</paper-item>
-      </hax-context-item-menu>
+        label="Link"
+        event-name="iframe-link"></hax-context-item>
     </app-toolbar>
   </template>
 
   <script>
     Polymer({
 
-      is: 'hax-image-context',
+      is: 'hax-iframe-context',
       listeners: {
         'hax-context-item-selected': '_haxContextOperation',
       },
       properties: {
         /**
-         * Image size.
+         * iframe size.
          */
-        imageSize: {
+        iframeSize: {
           type: Number,
           value: 50,
-          observer: '_imageSizeChanged',
+          observer: '_iframeSizeChanged',
         },
         /**
          * Justify icon to reflect state.
@@ -103,28 +88,20 @@ A context menu that provides common image based authoring options.
           value: 'editor:format-align-left',
         },
         /**
-         * Selected value to match format of the tag currently.
-         */
-        selectedValue: {
-          type: String,
-          value: 'style1',
-          notify: true,
-        },
-        /**
-         * Selected value to match image direction currently.
+         * Selected value to match iframe direction currently.
          */
         justifyValue: {
           type: String,
-          value: 'image-align-left',
+          value: 'iframe-align-left',
           notify: true,
         },
       },
       /**
-       * Image size changed.
+       * Iframe size changed.
        */
-      _imageSizeChanged: function(newValue, oldValue) {
+      _iframeSizeChanged: function(newValue, oldValue) {
         if (typeof newValue !== typeof undefined) {
-          this.fire('hax-context-item-selected', {eventName: 'image-size-change', value: newValue});
+          this.fire('hax-context-item-selected', {eventName: 'iframe-size-change', value: newValue});
         }
       },
       /**
@@ -134,13 +111,13 @@ A context menu that provides common image based authoring options.
         let detail = e.detail;
         // support a simple insert event to bubble up or everything else
         switch(detail.eventName) {
-          case 'image-align-left':
+          case 'iframe-align-left':
             this.justifyIcon = detail.target.children[0].attributes[0].nodeValue;
           break;
-          case 'image-align-center':
+          case 'iframe-align-center':
             this.justifyIcon = detail.target.children[0].attributes[0].nodeValue;
           break;
-          case 'image-align-right':
+          case 'iframe-align-right':
             this.justifyIcon = detail.target.children[0].attributes[0].nodeValue;
           break;
         }
