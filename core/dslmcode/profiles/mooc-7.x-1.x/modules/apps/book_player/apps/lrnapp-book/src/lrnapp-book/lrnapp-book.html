@@ -202,10 +202,14 @@ A LRN element
       paper-tooltip {
         --paper-tooltip-opacity: .96;
       }
-      :host[drawer-opened] .content-nav-buttons paper-icon-button,
-      :host[edit-mode] .content-nav-buttons paper-icon-button {
+      :host[drawer-opened] .content-nav-buttons paper-icon-button {
         width: 2.5em;
         height: 2.5em;
+      }
+      :host[edit-mode] .content-nav-buttons {
+        opacity: 0;
+        pointer-events: none;
+        visibility: hidden;
       }
       .content-title {
         font-size: 1.4em;

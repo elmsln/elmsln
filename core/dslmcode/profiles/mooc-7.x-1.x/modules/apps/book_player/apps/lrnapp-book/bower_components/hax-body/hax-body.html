@@ -42,42 +42,6 @@ A LRN element that will change the world.
       :host #bodycontainer ::slotted(.hax-context-visible:hover) {
         opacity: 1;
       }
-      :host #bodycontainer ::slotted(.justify-left) {
-        text-align: left;
-      }
-      :host #bodycontainer ::slotted(.justify-center) {
-        text-align: center;
-      }
-      :host #bodycontainer ::slotted(.justify-right) {
-        text-align: right;
-      }
-      :host #bodycontainer ::slotted(.justify-text) {
-        text-align: justify;
-      }
-
-      :host #bodycontainer ::slotted(.item-justify-left) {
-        float: left;
-      }
-      :host #bodycontainer ::slotted(.item-justify-center) {
-        display: block;
-        margin: 0 auto;
-      }
-      :host #bodycontainer ::slotted(.item-justify-right) {
-        float: right;
-      }
-
-      :host #bodycontainer ::slotted(.item-width-25) {
-        width: 25%;
-      }
-      :host #bodycontainer ::slotted(.item-width-50) {
-        width: 50%;
-      }
-      :host #bodycontainer ::slotted(.item-width-75) {
-        width: 75%;
-      }
-      :host #bodycontainer ::slotted(.item-width-100) {
-        width: 100%;
-      }
 
       :host[edit-mode] #bodycontainer ::slotted(p:hover),
       :host[edit-mode] #bodycontainer ::slotted(h1:hover),
@@ -85,7 +49,11 @@ A LRN element that will change the world.
       :host[edit-mode] #bodycontainer ::slotted(h3:hover),
       :host[edit-mode] #bodycontainer ::slotted(h4:hover),
       :host[edit-mode] #bodycontainer ::slotted(h5:hover),
-      :host[edit-mode] #bodycontainer ::slotted(h6:hover) {
+      :host[edit-mode] #bodycontainer ::slotted(h6:hover),
+      :host[edit-mode] #bodycontainer ::slotted(video:hover),
+      :host[edit-mode] #bodycontainer ::slotted(iframe:hover),
+      :host[edit-mode] #bodycontainer ::slotted(img:hover),
+      :host[edit-mode] #bodycontainer ::slotted(audio:hover) {
         box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14),
           0 1px 10px 0 rgba(0, 0, 0, 0.12),
           0 2px 4px -1px rgba(0, 0, 0, 0.4);
@@ -106,6 +74,9 @@ A LRN element that will change the world.
           0 2px 4px -1px rgba(0, 0, 0, 0.4);
         height: .1em;
         color: black;
+      }
+      :host[edit-mode] #bodycontainer ::slotted(iframe[contenteditable]) {
+        border: .75em solid grey;
       }
       /** Fix to support safari as it defaults to none */
       :host[edit-mode] #bodycontainer ::slotted(*[contenteditable]) {
@@ -243,6 +214,7 @@ A LRN element that will change the world.
       is: 'hax-body',
       listeners: {
         'focusin': '_focusIn',
+        'mousedown': '_focusIn',
         'hax-context-item-selected': '_haxContextOperation',
       },
       properties: {
@@ -511,36 +483,20 @@ A LRN element that will change the world.
             this.activeNode = this.haxChangeTagName(this.activeNode, detail.eventName);
           break;
           case 'text-align-left':
-            this.activeNode.classList.add('justify-left');
-            this.$.textcontextmenu.justifyValue = 'text-align-left';
-            this.activeNode.classList.remove('justify-center');
-            this.activeNode.classList.remove('justify-right');
-            this.activeNode.classList.remove('justify-text');
-            document.execCommand('justifyLeft', false, null);
+            this.activeNode.style.textAlign = 'left';
+            this.positionContextMenus(this.activeNode);
           break;
           case 'text-align-center':
-            this.activeNode.classList.remove('justify-left');
-            this.activeNode.classList.add('justify-center');
-            this.$.textcontextmenu.justifyValue = 'text-align-center';
-            this.activeNode.classList.remove('justify-right');
-            this.activeNode.classList.remove('justify-text');
-            document.execCommand('justifyCenter', false, null);
+            this.activeNode.style.textAlign = 'center';
+            this.positionContextMenus(this.activeNode);
           break;
           case 'text-align-right':
-            this.activeNode.classList.remove('justify-left');
-            this.activeNode.classList.remove('justify-center');
-            this.activeNode.classList.add('justify-right');
-            this.$.textcontextmenu.justifyValue = 'text-align-right';
-            this.activeNode.classList.remove('justify-text');
-            document.execCommand('justifyRight', false, null);
+            this.activeNode.style.textAlign = 'right';
+            this.positionContextMenus(this.activeNode);
           break;
           case 'text-justify-full':
-            this.activeNode.classList.remove('justify-left');
-            this.activeNode.classList.remove('justify-center');
-            this.activeNode.classList.remove('justify-right');
-            this.activeNode.classList.add('justify-text');
-            this.$.textcontextmenu.justifyValue = 'text-justify-full';
-            document.execCommand('justifyJustify', false, null);
+            this.activeNode.style.textAlign = 'justify';
+            this.positionContextMenus(this.activeNode);
           break;
           // grid plate based operations
           case 'grid-plate-duplicate':
@@ -559,74 +515,60 @@ A LRN element that will change the world.
             // this is the equivalent of hiding menus and resetting the board
             this.activeNode = null;
           break;
-          // image based operations
-          case 'image-align-left':
-            this.activeNode.classList.add('item-justify-left');
-            this.$.imagecontextmenu.justifyValue = 'item-align-left';
-            this.activeNode.classList.remove('item-justify-center');
-            this.activeNode.classList.remove('item-justify-right');
-            document.execCommand('justifyLeft', false, null);
-          break;
-          case 'image-align-center':
-            this.activeNode.classList.remove('item-justify-left');
-            this.activeNode.classList.add('item-justify-center');
-            this.$.imagecontextmenu.justifyValue = 'item-align-center';
-            this.activeNode.classList.remove('item-justify-right');
-            document.execCommand('justifyCenter', false, null);
-          break;
-          case 'image-align-right':
-            this.activeNode.classList.remove('item-justify-left');
-            this.activeNode.classList.remove('item-justify-center');
-            this.activeNode.classList.add('item-justify-right');
-            this.$.imagecontextmenu.justifyValue = 'item-align-right';
-            document.execCommand('justifyRight', false, null);
-          break;
-          case 'image-size-change':
-          case 'iframe-size-change':
-            this.activeNode.classList.remove('item-width-25');
-            this.activeNode.classList.remove('item-width-50');
-            this.activeNode.classList.remove('item-width-75');
-            this.activeNode.classList.remove('item-width-100');
-            this.activeNode.classList.add('item-width-' + detail.value);
-          break;
-          // iframe based operations
-          case 'iframe-align-left':
-            this.activeNode.classList.add('item-justify-left');
-            this.$.iframecontextmenu.justifyValue = 'item-align-left';
-            this.activeNode.classList.remove('item-justify-center');
-            this.activeNode.classList.remove('item-justify-right');
-            document.execCommand('justifyLeft', false, null);
-          break;
-          case 'iframe-align-center':
-            this.activeNode.classList.remove('item-justify-left');
-            this.activeNode.classList.add('item-justify-center');
-            this.$.iframecontextmenu.justifyValue = 'item-align-center';
-            this.activeNode.classList.remove('item-justify-right');
-            document.execCommand('justifyCenter', false, null);
-          break;
-          case 'iframe-align-right':
-            this.activeNode.classList.remove('item-justify-left');
-            this.activeNode.classList.remove('item-justify-center');
-            this.activeNode.classList.add('item-justify-right');
-            this.$.iframecontextmenu.justifyValue = 'item-align-right';
-            document.execCommand('justifyRight', false, null);
-          break;
-          case 'iframe-link':
-            var url = prompt("URL to embed:", this.activeNode.src);
-            if (url !== null && url !== '') {
-              this.activeNode.src = url;
-            }
-          break;
+          // image operations
           case 'image-src':
             var url = prompt("Image URL:", this.activeNode.src);
             if (url !== null && url !== '') {
               this.activeNode.src = url;
+              this.positionContextMenus(this.activeNode);
             }
           break;
           case 'image-alt':
             var alt = prompt("Image alt information:", this.activeNode.alt);
             if (alt !== null) {
               this.activeNode.alt = alt;
+            }
+          break;
+          // image/iframe based operations
+          case 'image-align-reset':
+          case 'iframe-align-reset':
+            this.activeNode.style.float = null;
+            this.activeNode.style.margin = null;
+            this.activeNode.style.display = null;
+            this.positionContextMenus(this.activeNode);
+          break;
+          case 'image-align-left':
+          case 'iframe-align-left':
+            this.activeNode.style.float = 'left';
+            this.activeNode.style.margin = null;
+            this.activeNode.style.display = null;
+            this.positionContextMenus(this.activeNode);
+          break;
+          case 'image-align-center':
+          case 'iframe-align-center':
+            this.activeNode.style.float = null;
+            this.activeNode.style.margin = '0 auto';
+            this.activeNode.style.display = 'block';
+            this.positionContextMenus(this.activeNode);
+          break;
+          case 'image-align-right':
+          case 'iframe-align-right':
+            this.activeNode.style.float = 'right';
+            this.activeNode.style.margin = null;
+            this.activeNode.style.display = null;
+            this.positionContextMenus(this.activeNode);
+          break;
+          case 'image-size-change':
+          case 'iframe-size-change':
+            this.activeNode.style.width = detail.value + '%';
+            this.positionContextMenus(this.activeNode);
+          break;
+          // iframe based operations
+          case 'iframe-link':
+            var url = prompt("URL to embed:", this.activeNode.src);
+            if (url !== null && url !== '') {
+              this.activeNode.src = url;
+              this.positionContextMenus(this.activeNode);
             }
           break;
           default:
@@ -639,11 +581,18 @@ A LRN element that will change the world.
        * Item has gained focus, change active element to match
        */
       _focusIn: function(e) {
-        var normalizedEvent = Polymer.dom(e);
-        var local = normalizedEvent.localTarget;
-        var tags = this._validTags();
-        if (tags.includes(e.target.tagName.toLowerCase()) && !local.classList.contains('ignore-activation')) {
-          this.activeNode = e.target;
+        // only worry about these when we are in edit mode
+        if (this.editMode) {
+          var normalizedEvent = Polymer.dom(e);
+          var local = normalizedEvent.localTarget;
+          var tags = this._validTags();
+          // ensure this is a tag we care about / have support for
+          if (tags.includes(e.target.tagName.toLowerCase()) && !local.classList.contains('ignore-activation')) {
+            this.activeNode = e.target;
+          }
+          if (local.classList.contains('ignore-activation')) {
+            e.stopPropagation();
+          }
         }
       },
       /**
@@ -699,21 +648,39 @@ A LRN element that will change the world.
           this.$.textcontextmenu.selectedValue = newValue.tagName.toLowerCase();
           // position the operations / in context element
           this.positionContextMenus(newValue);
-          if (newValue.classList.contains('justify-center')) {
+          if (newValue.style.textAlign == 'center') {
             this.$.textcontextmenu.justifyIcon = 'editor:format-align-center';
             this.$.textcontextmenu.justifyValue = 'text-align-center';
           }
-          else if (newValue.classList.contains('justify-right')) {
+          else if (newValue.style.textAlign == 'right') {
             this.$.textcontextmenu.justifyIcon = 'editor:format-align-right';
             this.$.textcontextmenu.justifyValue = 'text-align-right';
           }
-          else if (newValue.classList.contains('justify-text')) {
+          else if (newValue.style.textAlign == 'justify') {
             this.$.textcontextmenu.justifyIcon = 'editor:format-align-justify';
             this.$.textcontextmenu.justifyValue = 'text-justify-full';
           }
-          else {
+          else if (newValue.style.textAlign == 'left') {
             this.$.textcontextmenu.justifyIcon = 'editor:format-align-left';
             this.$.textcontextmenu.justifyValue = 'text-align-left';
+          }
+          else if (newValue.style.float == 'left') {
+            this.$.iframecontextmenu.justifyIcon = 'editor:format-align-left';
+            this.$.iframecontextmenu.justifyValue = 'iframe-align-left';
+            this.$.imagecontextmenu.justifyIcon = 'editor:format-align-left';
+            this.$.imagecontextmenu.justifyValue = 'image-align-left';
+          }
+          else if (newValue.style.float == 'right') {
+            this.$.iframecontextmenu.justifyIcon = 'editor:format-align-right';
+            this.$.iframecontextmenu.justifyValue = 'iframe-align-right';
+            this.$.imagecontextmenu.justifyIcon = 'editor:format-align-right';
+            this.$.imagecontextmenu.justifyValue = 'image-align-right';
+          }
+          else if (newValue.style.margin == '0 auto') {
+            this.$.iframecontextmenu.justifyIcon = 'editor:format-align-center';
+            this.$.iframecontextmenu.justifyValue = 'iframe-align-center';
+            this.$.imagecontextmenu.justifyIcon = 'editor:format-align-center';
+            this.$.imagecontextmenu.justifyValue = 'image-align-center';
           }
         }
         // just hide menus if we don't have an active item
@@ -739,7 +706,12 @@ A LRN element that will change the world.
        */
       _positionContextMenu: function (menu, target, xoffset, yoffset) {
         menu.classList.add('hax-context-visible');
-        Polymer.dom(this).insertBefore(menu, target);
+        try {
+          Polymer.dom(this).insertBefore(menu, target);
+        }
+        catch(err) {
+          Polymer.dom(target.parentNode).insertBefore(menu, target);
+        }
         menu.style["margin-left"] = (xoffset + target.offsetLeft) + 'px';
         menu.style["margin-top"] = yoffset + 'px';
       },

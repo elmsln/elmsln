@@ -143,6 +143,10 @@ A context menu that provides common image based authoring options.
           case 'image-align-right':
             this.justifyIcon = detail.target.children[0].attributes[0].nodeValue;
           break;
+          case 'close-menu':
+            this.$.justify.hideMenu();
+            this.$.formatsize.hideMenu();
+          break;
         }
       },
     });

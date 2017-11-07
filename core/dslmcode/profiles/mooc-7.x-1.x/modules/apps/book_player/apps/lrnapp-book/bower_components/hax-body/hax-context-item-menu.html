@@ -63,7 +63,7 @@ An icon / button that has support for multiple options via drop down.
         pointer-events: none;
       }
     </style>
-    <paper-menu-button>
+    <paper-menu-button id="menubutton">
       <paper-icon-button id="button" icon="[[icon]]" hidden$="[[!icon]]" slot="dropdown-trigger" class$="[[iconClass]]"></paper-icon-button>
       <paper-listbox id="listbox" slot="dropdown-content" selected="{{selected}}">
         <slot id="items"></slot>
@@ -82,7 +82,9 @@ An icon / button that has support for multiple options via drop down.
     Polymer({
 
       is: 'hax-context-item-menu',
-
+      listeners: {
+        'menubutton.tap': '_menubuttonTap',
+      },
       properties: {
         /**
          * Selected value to translate into numeric selection.
@@ -154,6 +156,18 @@ An icon / button that has support for multiple options via drop down.
         }
       },
       /**
+       * Ensure menu is visible / default'ed.
+       */
+      _menubuttonTap: function(e) {
+        this.$.listbox.style.display = 'inherit';
+      },
+      /**
+       * Ensure menu is hidden.
+       */
+      hideMenu: function() {
+        this.$.listbox.style.display = 'none';
+      },
+      /**
        * Notice the selected value has changed.
        */
       _selectedValueUpdated: function(newValue, oldValue) {
@@ -199,10 +213,10 @@ An icon / button that has support for multiple options via drop down.
           // equate to firing off a selected event.
           if (!this._blockEvent && typeof item.attributes.value.nodeValue !== typeof undefined) {
             // weird but this makes the menu close when we fire up an event
-            // that indicates soemthing higher should do something. This
+            // that indicates something higher should do something. This
             // avoids an annoying UX error where the menu stays open for
             // no reason.
-            this.$.button.click();
+            this.hideMenu();
             this.fire('hax-context-item-selected', {target: item, eventName: item.attributes.value.nodeValue});
           }
           // we only block 1 time if it's available

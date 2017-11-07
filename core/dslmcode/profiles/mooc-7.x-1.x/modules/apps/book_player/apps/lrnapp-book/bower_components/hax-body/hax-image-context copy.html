@@ -120,6 +120,9 @@ A context menu that provides common iframe based authoring options.
           case 'iframe-align-right':
             this.justifyIcon = detail.target.children[0].attributes[0].nodeValue;
           break;
+          case 'close-menu':
+            this.$.justify.hideMenu();
+          break;
         }
       },
     });
