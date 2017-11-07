@@ -1,0 +1,140 @@
+
+<link rel="import" href="hax-context-item-menu.html">
+<link rel="import" href="hax-context-item.html">
+
+<!--
+`hax-image-context`
+A context menu that provides common image based authoring options.
+
+@demo demo/index.html
+
+@microcopy - the mental model for this element
+ - context menu - this is a menu of image based buttons and events for use in a larger solution.
+-->
+
+<dom-module id="hax-image-context">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+      app-toolbar {
+        background-color: white;
+        padding: 0 8px 0 0;
+        height: 40px;
+      }
+      hax-context-item {
+        margin: 0 4px;
+        width: 40px;
+        height: 40px;
+      }
+      .close-cap {
+        margin: 0;
+        padding: 0 2px 0 0;
+        border-right: 1px solid black;
+      }
+    </style>
+    <app-toolbar>
+      <hax-context-item
+        icon="close"
+        label="Close menu"
+        event-name="close-menu"
+        class="close-cap"
+        direction="left"></hax-context-item>
+      <hax-context-item-menu
+        selected-value="{{justifyValue}}"
+        id="justify"
+        icon="[[justifyIcon]]"
+        label="Alignment">
+        <paper-item value="image-align-left">
+          <iron-icon icon="editor:format-align-left"></iron-icon>
+        </paper-item>
+        <paper-item value="image-align-center">
+          <iron-icon icon="editor:format-align-center"></iron-icon>
+        </paper-item>
+        <paper-item value="image-align-right">
+          <iron-icon icon="editor:format-align-right"></iron-icon>
+        </paper-item>
+      </hax-context-item-menu>
+      <paper-slider pin value="50" min="25" step="25" max="100" value="{{imageSize}}"></paper-slider>
+      <hax-context-item
+        icon="editor:insert-link"
+        label="Link"
+        event-name="image-link"></hax-context-item>
+      <hax-context-item
+        icon="mdextra:unlink"
+        label="Unlink"
+        event-name="image-unlink"></hax-context-item>
+      <hax-context-item-menu
+        selected-value="{{selectedValue}}"
+        id="formatsize"
+        icon="image:panorama"
+        label="Styles"
+        event-name="image-tag">
+        <paper-item value="image-style1">Style 1</paper-item>
+        <paper-item value="image-style2">Style 2</paper-item>
+        <paper-item value="image-style3">Style 3</paper-item>
+        <paper-item value="image-style4">Style 4</paper-item>
+      </hax-context-item-menu>
+    </app-toolbar>
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'hax-image-context',
+      listeners: {
+        'hax-context-item-selected': '_haxContextOperation',
+      },
+      properties: {
+        /**
+         * Image size.
+         */
+        imageSize: {
+          type: Number,
+        },
+        /**
+         * Justify icon to reflect state.
+         */
+        justifyIcon: {
+          type: String,
+          value: 'editor:format-align-left',
+        },
+        /**
+         * Selected value to match format of the tag currently.
+         */
+        selectedValue: {
+          type: String,
+          value: 'style1',
+          notify: true,
+        },
+        /**
+         * Selected value to match image direction currently.
+         */
+        justifyValue: {
+          type: String,
+          value: 'image-align-left',
+          notify: true,
+        },
+      },
+      /**
+       * Respond to simple modifications.
+       */
+      _haxContextOperation: function(e) {
+        let detail = e.detail;
+        // support a simple insert event to bubble up or everything else
+        switch(detail.eventName) {
+          case 'image-align-left':
+            this.justifyIcon = detail.target.children[0].attributes[0].nodeValue;
+          break;
+          case 'image-align-center':
+            this.justifyIcon = detail.target.children[0].attributes[0].nodeValue;
+          break;
+          case 'image-align-right':
+            this.justifyIcon = detail.target.children[0].attributes[0].nodeValue;
+          break;
+        }
+      },
+    });
+  </script>
+</dom-module>

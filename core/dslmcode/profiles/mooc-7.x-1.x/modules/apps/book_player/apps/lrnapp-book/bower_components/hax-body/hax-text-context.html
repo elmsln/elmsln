@@ -44,7 +44,7 @@ A context menu that provides common text based authoring options.
       <hax-context-item-menu
         selected-value="{{selectedValue}}"
         id="formatsize"
-        icon="editor:format-size"
+        icon="text-format"
         label="Styles"
         event-name="text-tag">
         <paper-item value="p">Normal text</paper-item>
@@ -72,14 +72,8 @@ A context menu that provides common text based authoring options.
         <paper-item value="text-align-left">
           <iron-icon icon="editor:format-align-left"></iron-icon>
         </paper-item>
-        <paper-item value="text-align-center">
-          <iron-icon icon="editor:format-align-center"></iron-icon>
-        </paper-item>
         <paper-item value="text-align-right">
           <iron-icon icon="editor:format-align-right"></iron-icon>
-        </paper-item>
-        <paper-item value="text-justify-full">
-          <iron-icon icon="editor:format-align-justify"></iron-icon>
         </paper-item>
       </hax-context-item-menu>
       <hax-context-item
@@ -91,13 +85,33 @@ A context menu that provides common text based authoring options.
         label="Bulleted list"
         event-name="text-list-bulleted"></hax-context-item>
       <hax-context-item
+        icon="editor:format-indent-increase"
+        label="Indent"
+        event-name="text-indent"></hax-context-item>
+      <hax-context-item
+        icon="editor:format-indent-decrease"
+        label="Outdent"
+        event-name="text-outdent"></hax-context-item>
+      <hax-context-item
         icon="editor:format-strikethrough"
         label="Cross out"
         event-name="text-strikethrough"></hax-context-item>
       <hax-context-item
-        icon="editor:format-underlined"
-        label="Underline"
-        event-name="text-underline"></hax-context-item>
+        icon="mdextra:subscript"
+        label="Subscript"
+        event-name="text-subscript"></hax-context-item>
+      <hax-context-item
+        icon="mdextra:superscript"
+        label="Superscript"
+        event-name="text-superscript"></hax-context-item>
+      <hax-context-item
+        icon="editor:insert-link"
+        label="Link"
+        event-name="text-link"></hax-context-item>
+      <hax-context-item
+        icon="mdextra:unlink"
+        label="Unlink"
+        event-name="text-unlink"></hax-context-item>
       <hax-context-item
         icon="editor:format-clear"
         label="Remove formatting"
@@ -160,11 +174,30 @@ A context menu that provides common text based authoring options.
           case 'text-underline':
             document.execCommand('underline');
           break;
+          case 'text-indent':
+            document.execCommand('indent');
+          break;
+          case 'text-outdent':
+            document.execCommand('outdent');
+          break;
+          case 'text-subscript':
+            document.execCommand('subscript');
+          break;
+          case 'text-superscript':
+            document.execCommand('superscript');
+          break;
           case 'text-remove-format':
             document.execCommand('removeFormat');
           break;
           case 'text-strikethrough':
             document.execCommand('strikeThrough');
+          break;
+          case 'text-link':
+            let url = prompt("Enter your URL for this text:");
+            document.execCommand('createLink', false, url);
+          break;
+          case 'text-unlink':
+            document.execCommand('unlink');
           break;
           case 'text-align-left':
             this.justifyIcon = detail.target.children[0].attributes[0].nodeValue;

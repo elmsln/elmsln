@@ -51,6 +51,18 @@ A LRN element that will change the world.
       :host[edit-mode] #bodycontainer ::slotted(*.justify-text) {
         text-align: justify;
       }
+
+      :host[edit-mode] #bodycontainer ::slotted(*.image-justify-left) {
+       float: left;
+      }
+      :host[edit-mode] #bodycontainer ::slotted(*.image-justify-center) {
+        left: 25%;
+        position: relative;
+      }
+      :host[edit-mode] #bodycontainer ::slotted(*.image-justify-right) {
+        float: right;
+      }
+
       :host[edit-mode] #bodycontainer ::slotted(p:hover),
       :host[edit-mode] #bodycontainer ::slotted(h1:hover),
       :host[edit-mode] #bodycontainer ::slotted(h2:hover),
@@ -203,6 +215,7 @@ A LRN element that will change the world.
     </vaadin-context-menu>
     <div id="contextcontainer">
       <hax-text-context id="textcontextmenu" class="hax-context-menu ignore-activation"></hax-text-context>
+      <hax-image-context id="imagecontextmenu" class="hax-context-menu ignore-activation"></hax-image-context>
       <hax-plate-context id="platecontextmenu" class="hax-context-menu ignore-activation"></hax-plate-context>
     </div>
   </template>
@@ -359,17 +372,29 @@ A LRN element that will change the world.
        */
       hideContextMenus: function() {
         this._hideContextMenu(this.$.textcontextmenu);
+        this._hideContextMenu(this.$.imagecontextmenu);
         this._hideContextMenu(this.$.platecontextmenu);
       },
       /**
        * Reposition context menus to match an element.
        */
       positionContextMenus: function(node) {
-        this._positionContextMenu(this.$.textcontextmenu, node, '-48px', '-46px');
+        // specialized menu based on the type of contextual menu we need
+        switch (node.tagName) {
+          case 'IMG':
+            this.__activeContextType = this.$.imagecontextmenu;
+            this._positionContextMenu(this.__activeContextType, node, '-48px', '-46px');
+          break;
+          // @todo add support for other alternative menus here
+          default:
+            this.__activeContextType = this.$.textcontextmenu;
+            this._positionContextMenu(this.__activeContextType, node, '-48px', '-46px');
+          break;
+        }
         this._positionContextMenu(this.$.platecontextmenu, node, '-48px', '-5px');
         setTimeout( () => {
-	      this.$.textcontextmenu.scrollIntoView({block: "center", behavior: "smooth", inline: "center"});
-	    }, 200);
+  	      this.__activeContextType.scrollIntoView({block: "center", behavior: "smooth", inline: "center"});
+  	    }, 200);
       },
       /**
        * Move grid plate around
@@ -442,6 +467,7 @@ A LRN element that will change the world.
         let detail = e.detail;
         // support a simple insert event to bubble up or everything else
         switch(detail.eventName) {
+          // text based operations
           case 'p':
           case 'h2':
           case 'h3':
@@ -486,6 +512,7 @@ A LRN element that will change the world.
             this.$.textcontextmenu.justifyValue = 'text-justify-full';
             document.execCommand('justifyJustify', false, null);
           break;
+          // grid plate based operations
           case 'grid-plate-duplicate':
             this.haxDuplicateNode(this.activeNode);
           break;
@@ -501,6 +528,28 @@ A LRN element that will change the world.
           case 'close-menu':
             // this is the equivalent of hiding menus and resetting the board
             this.activeNode = null;
+          break;
+          // image based operations
+          case 'image-align-left':
+            this.activeNode.classList.add('image-justify-left');
+            this.$.imagecontextmenu.justifyValue = 'image-align-left';
+            this.activeNode.classList.remove('image-justify-center');
+            this.activeNode.classList.remove('image-justify-right');
+            document.execCommand('justifyLeft', false, null);
+          break;
+          case 'image-align-center':
+            this.activeNode.classList.remove('image-justify-left');
+            this.activeNode.classList.add('image-justify-center');
+            this.$.imagecontextmenu.justifyValue = 'image-align-center';
+            this.activeNode.classList.remove('image-justify-right');
+            document.execCommand('justifyCenter', false, null);
+          break;
+          case 'image-align-right':
+            this.activeNode.classList.remove('image-justify-left');
+            this.activeNode.classList.remove('image-justify-center');
+            this.activeNode.classList.add('image-justify-right');
+            this.$.imagecontextmenu.justifyValue = 'image-align-right';
+            document.execCommand('justifyRight', false, null);
           break;
           default:
             console.log(detail);
@@ -523,7 +572,7 @@ A LRN element that will change the world.
        */
       _validTags: function(e) {
         // @todo need a global way of hijacking this for integrations
-        var tags = ['p', 'div', 'ol', 'ul', 'li', 'iframe', 'a', 'hr', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'code'];
+        var tags = ['p', 'div', 'ol', 'ul', 'li', 'iframe', 'a', 'hr', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'code', 'img'];
         return tags;
       },
       /**
@@ -534,7 +583,7 @@ A LRN element that will change the world.
         if (typeof oldValue !== typeof undefined) {
           this.fire('hax-body-state', {editMode: newValue});
           this._applyContentEditable(newValue);
-          if (typeof this.activeNode !== typeof undefined && this.activeNode !== null) {
+          if (newValue !== false && typeof this.activeNode !== typeof undefined && this.activeNode !== null) {
             this.positionContextMenus(this.activeNode);
           }
         }
@@ -562,7 +611,7 @@ A LRN element that will change the world.
         if (typeof oldValue !== typeof undefined && oldValue != null) {
           oldValue.classList.remove('hax-active');
         }
-        if (typeof newValue !== typeof undefined && newValue !== null) {
+        if (this.editMode && typeof newValue !== typeof undefined && newValue !== null) {
           // remove the menu, establish the new active, then reapply
           // this is nessecary because the context menu gets appended into
           // the document
