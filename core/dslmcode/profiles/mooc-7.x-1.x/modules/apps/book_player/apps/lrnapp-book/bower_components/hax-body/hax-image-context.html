@@ -124,7 +124,7 @@ A context menu that provides common image based authoring options.
        */
       _imageSizeChanged: function(newValue, oldValue) {
         if (typeof newValue !== typeof undefined) {
-          this.fire('hax-context-item-selected', {eventName: 'image-size-change', newValue: newValue, oldValue: oldValue});
+          this.fire('hax-context-item-selected', {eventName: 'image-size-change', value: newValue});
         }
       },
       /**

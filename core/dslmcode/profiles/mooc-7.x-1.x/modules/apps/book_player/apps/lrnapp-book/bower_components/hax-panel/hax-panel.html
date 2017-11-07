@@ -174,7 +174,7 @@ as the events being bubbled up include HTML nodes to inject into something
               voice-command="insert quiz"></hax-panel-item>
           </span>
         </lrnsys-collapselist-item>
-        <lrnsys-collapselist-item>
+        <lrnsys-collapselist-item hidden$="[[!showAdvanced]]">
           <span slot="label"><div class="label">Advanced</div></span>
           <span slot="content">
             <hax-panel-item
@@ -204,7 +204,14 @@ as the events being bubbled up include HTML nodes to inject into something
           reflectToAttribute: true,
           notify: true,
           value: false,
-        }
+        },
+        /**
+         * Showing advanced area.
+         */
+        showAdvanced: {
+          type: Boolean,
+          value: false,
+        },
       },
       /**
        * Process event for simple content inserts.
