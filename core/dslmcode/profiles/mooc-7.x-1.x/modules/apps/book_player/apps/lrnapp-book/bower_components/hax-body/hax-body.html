@@ -42,25 +42,38 @@ A LRN element that will change the world.
       :host #bodycontainer ::slotted(.hax-context-visible:hover) {
         opacity: 1;
       }
-      :host[edit-mode] #bodycontainer ::slotted(*.justify-center) {
+      :host #bodycontainer ::slotted(*.justify-center) {
         text-align: center;
       }
-      :host[edit-mode] #bodycontainer ::slotted(*.justify-right) {
+      :host #bodycontainer ::slotted(*.justify-right) {
         text-align: right;
       }
-      :host[edit-mode] #bodycontainer ::slotted(*.justify-text) {
+      :host #bodycontainer ::slotted(*.justify-text) {
         text-align: justify;
       }
 
-      :host[edit-mode] #bodycontainer ::slotted(*.image-justify-left) {
-       float: left;
+      :host #bodycontainer ::slotted(*.image-justify-left) {
+        float: left;
       }
-      :host[edit-mode] #bodycontainer ::slotted(*.image-justify-center) {
+      :host #bodycontainer ::slotted(*.image-justify-center) {
         left: 25%;
         position: relative;
       }
-      :host[edit-mode] #bodycontainer ::slotted(*.image-justify-right) {
+      :host #bodycontainer ::slotted(*.image-justify-right) {
         float: right;
+      }
+
+      :host #bodycontainer ::slotted(*.image-width-25) {
+        width: 25%;
+      }
+      :host #bodycontainer ::slotted(*.image-width-50) {
+        width: 50%;
+      }
+      :host #bodycontainer ::slotted(*.image-width-75) {
+        width: 75%;
+      }
+      :host #bodycontainer ::slotted(*.image-width-100) {
+        width: 100%;
       }
 
       :host[edit-mode] #bodycontainer ::slotted(p:hover),
@@ -550,6 +563,10 @@ A LRN element that will change the world.
             this.activeNode.classList.add('image-justify-right');
             this.$.imagecontextmenu.justifyValue = 'image-align-right';
             document.execCommand('justifyRight', false, null);
+          break;
+          case 'image-size-change':
+            this.activeNode.classList.remove('image-width-' + detail.oldValue);
+            this.activeNode.classList.add('image-width-' + detail.newValue);
           break;
           default:
             console.log(detail);

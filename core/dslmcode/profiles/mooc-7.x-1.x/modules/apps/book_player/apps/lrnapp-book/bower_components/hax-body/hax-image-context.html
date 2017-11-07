@@ -56,7 +56,7 @@ A context menu that provides common image based authoring options.
           <iron-icon icon="editor:format-align-right"></iron-icon>
         </paper-item>
       </hax-context-item-menu>
-      <paper-slider pin value="50" min="25" step="25" max="100" value="{{imageSize}}"></paper-slider>
+      <paper-slider pin min="25" step="25" max="100" value="{{imageSize}}"></paper-slider>
       <hax-context-item
         icon="editor:insert-link"
         label="Link"
@@ -92,6 +92,8 @@ A context menu that provides common image based authoring options.
          */
         imageSize: {
           type: Number,
+          value: 50,
+          observer: '_imageSizeChanged',
         },
         /**
          * Justify icon to reflect state.
@@ -116,6 +118,14 @@ A context menu that provides common image based authoring options.
           value: 'image-align-left',
           notify: true,
         },
+      },
+      /**
+       * Image size changed.
+       */
+      _imageSizeChanged: function(newValue, oldValue) {
+        if (typeof newValue !== typeof undefined) {
+          this.fire('hax-context-item-selected', {eventName: 'image-size-change', newValue: newValue, oldValue: oldValue});
+        }
       },
       /**
        * Respond to simple modifications.
