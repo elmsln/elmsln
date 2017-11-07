@@ -1147,6 +1147,7 @@ A LRN element
       _nextBtn: function (e) {
         // make sure we are able to move forward more
         if (this.activePage < this.outlineItems.length - 1) {
+          this.set('outlineItems.' + this.activePage + '.value', this.outlineItems[this.activePage].max);
           this.activePage = this.activePage + 1;
         }
       },
