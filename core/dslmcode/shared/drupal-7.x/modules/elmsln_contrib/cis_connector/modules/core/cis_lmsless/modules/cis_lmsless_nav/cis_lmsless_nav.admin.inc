@@ -131,20 +131,25 @@ function _cis_lmsless_nav_admin_form_elements() {
     '#type' => 'textfield',
     '#title' => t('Link title'),
     '#required' => TRUE,
+    '#description' => t('Title of the link, visible when the link is active or hovered over.'),
   );
   $form['cis_lmsless_nav_links']['path'] = array(
     '#type' => 'textfield',
     '#title' => t('Link path'),
     '#required' => TRUE,
+    '#description' => t('Full URL with https:// in front or an internal path to the course'),
   );
   $form['cis_lmsless_nav_links']['group'] = array(
     '#type' => 'textfield',
-    '#title' => t('Group name'),
+    '#title' => t('Grouping name'),
     '#required' => TRUE,
+    '#default_value' => t('Network'),
+    '#description' => t('Name of the group on the interface to show this link under. Defaults to `Network` which will make it display on the primary interface bar people see.'),
   );
   $form['cis_lmsless_nav_links']['machine_name'] = array(
     '#type' => 'textfield',
     '#title' => t('Icon name'),
+    '#default_value' => 'network',
     '#description' => t('Machine name of the icon you would like to display next to the link. Leave blank for no icon.'),
   );
   $options = array();
