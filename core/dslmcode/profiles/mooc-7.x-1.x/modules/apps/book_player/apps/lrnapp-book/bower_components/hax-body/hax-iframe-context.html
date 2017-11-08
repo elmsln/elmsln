@@ -20,17 +20,17 @@ A context menu that provides common iframe based authoring options.
       }
       app-toolbar {
         background-color: white;
-        padding: 0 8px 0 0;
+        padding: 0;
         height: 40px;
       }
       hax-context-item {
-        margin: 0 4px;
+        margin: 0;
         width: 40px;
         height: 40px;
       }
       .close-cap {
         margin: 0;
-        padding: 0 2px 0 0;
+        padding: 0;
         border-right: 1px solid black;
       }
     </style>
@@ -56,7 +56,13 @@ A context menu that provides common iframe based authoring options.
           <iron-icon icon="editor:format-align-right"></iron-icon>
         </paper-item>
       </hax-context-item-menu>
-      <paper-slider pin min="25" step="25" max="100" value="{{iframeSize}}"></paper-slider>
+      <paper-slider id="slider" pin min="25" step="25" max="100" value="{{iframeSize}}"></paper-slider>
+      <paper-tooltip
+        for="slider"
+        position="top"
+        offset="10">
+        Resize
+      </paper-tooltip>
       <hax-context-item
         icon="editor:insert-link"
         label="Link"

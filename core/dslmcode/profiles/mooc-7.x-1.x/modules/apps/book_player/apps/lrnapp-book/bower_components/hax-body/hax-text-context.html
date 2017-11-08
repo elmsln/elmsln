@@ -20,17 +20,17 @@ A context menu that provides common text based authoring options.
       }
       app-toolbar {
         background-color: white;
-        padding: 0 8px 0 0;
+        padding: 0;
         height: 40px;
       }
       hax-context-item {
-        margin: 0 4px;
+        margin: 0;
         width: 40px;
         height: 40px;
       }
       .close-cap {
         margin: 0;
-        padding: 0 2px 0 0;
+        padding: 0;
         border-right: 1px solid black;
       }
     </style>
@@ -45,7 +45,7 @@ A context menu that provides common text based authoring options.
         selected-value="{{selectedValue}}"
         id="formatsize"
         icon="text-format"
-        label="Styles"
+        label="Text style"
         event-name="text-tag">
         <paper-item value="p">Normal text</paper-item>
         <paper-item value="h2">Title</paper-item>
@@ -114,7 +114,7 @@ A context menu that provides common text based authoring options.
         event-name="text-unlink"></hax-context-item>
       <hax-context-item
         icon="editor:format-clear"
-        label="Remove formatting"
+        label="Remove format"
         event-name="text-remove-format"></hax-context-item>
     </app-toolbar>
   </template>

@@ -35,12 +35,9 @@ A LRN element that will change the world.
       }
       :host #bodycontainer ::slotted(.hax-context-visible) {
         visibility: visible;
-        opacity: .95;
+        opacity: 1;
         border: 1px solid black;
         display: block;
-      }
-      :host #bodycontainer ::slotted(.hax-context-visible:hover) {
-        opacity: 1;
       }
 
       :host[edit-mode] #bodycontainer ::slotted(p:hover),
@@ -50,28 +47,27 @@ A LRN element that will change the world.
       :host[edit-mode] #bodycontainer ::slotted(h4:hover),
       :host[edit-mode] #bodycontainer ::slotted(h5:hover),
       :host[edit-mode] #bodycontainer ::slotted(h6:hover),
+      :host[edit-mode] #bodycontainer ::slotted(blockquote:hover),
       :host[edit-mode] #bodycontainer ::slotted(video:hover),
       :host[edit-mode] #bodycontainer ::slotted(iframe:hover),
       :host[edit-mode] #bodycontainer ::slotted(img:hover),
       :host[edit-mode] #bodycontainer ::slotted(audio:hover) {
-        box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14),
-          0 1px 10px 0 rgba(0, 0, 0, 0.12),
-          0 2px 4px -1px rgba(0, 0, 0, 0.4);
+        -webkit-box-shadow: 0 0 0 3px #34e79a;
+        box-shadow: 0 0 0 3px #34e79a;
       }
       :host[edit-mode] #bodycontainer ::slotted(*.hax-active[contenteditable]) {
+        -webkit-box-shadow: 0 0 0 3px #03a87c !important;
+        box-shadow: 0 0 0 3px #03a87c !important;
+        cursor: text !important;
         padding: .5em;
-        box-shadow: 0 16px 24px 2px rgba(0, 0, 0, 0.14),
-          0  6px 30px 5px rgba(0, 0, 0, 0.12),
-          0  8px 10px -5px rgba(0, 0, 0, 0.4) !important;
-        cursor:text !important;
+        outline-color: #34e79a !important;
       }
       :host[edit-mode] #bodycontainer ::slotted(code.hax-active[contenteditable]) {
         display: block;
       }
       :host[edit-mode] #bodycontainer ::slotted(hr[contenteditable]) {
-        box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14),
-          0 1px 10px 0 rgba(0, 0, 0, 0.12),
-          0 2px 4px -1px rgba(0, 0, 0, 0.4);
+        -webkit-box-shadow: 0 0 0 3px #03a87c !important;
+        box-shadow: 0 0 0 3px #03a87c !important;
         height: .1em;
         color: black;
       }
@@ -201,10 +197,10 @@ A LRN element that will change the world.
     </div>
     </vaadin-context-menu>
     <div id="contextcontainer">
-      <hax-text-context id="textcontextmenu" class="hax-context-menu ignore-activation"></hax-text-context>
-      <hax-image-context id="imagecontextmenu" class="hax-context-menu ignore-activation"></hax-image-context>
-      <hax-iframe-context id="iframecontextmenu" class="hax-context-menu ignore-activation"></hax-iframe-context>
-      <hax-plate-context id="platecontextmenu" class="hax-context-menu ignore-activation"></hax-plate-context>
+      <hax-text-context tabindex="-1" id="textcontextmenu" class="hax-context-menu ignore-activation"></hax-text-context>
+      <hax-image-context tabindex="-1" id="imagecontextmenu" class="hax-context-menu ignore-activation"></hax-image-context>
+      <hax-iframe-context tabindex="-1" id="iframecontextmenu" class="hax-context-menu ignore-activation"></hax-iframe-context>
+      <hax-plate-context tabindex="-1" id="platecontextmenu" class="hax-context-menu ignore-activation"></hax-plate-context>
     </div>
   </template>
 
@@ -379,21 +375,21 @@ A LRN element that will change the world.
         switch (node.tagName) {
           case 'IMG':
             this.__activeContextType = this.$.imagecontextmenu;
-            this._positionContextMenu(this.__activeContextType, node, -48, -46);
+            this._positionContextMenu(this.__activeContextType, node, -46, -46);
           break;
           case 'IFRAME':
           case 'VIDEO':
           case 'AUDIO':
             this.__activeContextType = this.$.iframecontextmenu;
-            this._positionContextMenu(this.__activeContextType, node, -48, -46);
+            this._positionContextMenu(this.__activeContextType, node, -46, -46);
           break;
           // @todo add support for other alternative menus here
           default:
             this.__activeContextType = this.$.textcontextmenu;
-            this._positionContextMenu(this.__activeContextType, node, -48, -46);
+            this._positionContextMenu(this.__activeContextType, node, -46, -46);
           break;
         }
-        this._positionContextMenu(this.$.platecontextmenu, node, -48, -5);
+        this._positionContextMenu(this.$.platecontextmenu, node, -46, -5);
         setTimeout( () => {
   	      this.__activeContextType.scrollIntoView({block: "center", behavior: "smooth", inline: "center"});
   	    }, 200);
@@ -467,6 +463,7 @@ A LRN element that will change the world.
        */
       _haxContextOperation: function(e) {
         let detail = e.detail;
+        console.log(detail);
         // support a simple insert event to bubble up or everything else
         switch(detail.eventName) {
           // text based operations
@@ -560,6 +557,7 @@ A LRN element that will change the world.
           break;
           case 'image-size-change':
           case 'iframe-size-change':
+          console.log(detail);
             this.activeNode.style.width = detail.value + '%';
             this.positionContextMenus(this.activeNode);
           break;

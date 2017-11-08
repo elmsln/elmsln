@@ -46,15 +46,15 @@ An icon / button that has support for multiple options via drop down.
         min-width: 24px;
         display: flex;
         padding: 0;
+        border-radius: 0;
       }
       paper-icon-button ::shadow iron-icon {
-        padding: 2px 2px 0 2px;
-        margin: 4px 0 0 0;
+        padding: 8px;
         height: 24px;
+        margin: 0;
       }
       paper-icon-button:hover {
         background-color: var(--paper-grey-300, grey);
-        border-radius: 50%;
       }
       .flip-icon {
         transform: rotateY(180deg);
@@ -72,8 +72,8 @@ An icon / button that has support for multiple options via drop down.
 
     <paper-tooltip
       for="button"
-      position="bottom"
-      offset="14">
+      position="[[direction]]"
+      offset="10">
       [[label]]
     </paper-tooltip>
   </template>
@@ -119,6 +119,13 @@ An icon / button that has support for multiple options via drop down.
           type: Boolean,
           value: false,
           reflectToAttribute: true,
+        },
+        /**
+         * Direction for the tooltip
+         */
+        direction: {
+          type: String,
+          value: 'top',
         },
         /**
          * Icon for the button.

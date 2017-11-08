@@ -29,14 +29,15 @@ A single button in the hax panel for consistency.
         min-width: 40px;
         display: flex;
         padding: 0;
+        border-radius: 0;
       }
       paper-icon-button ::shadow iron-icon {
-        padding: 4px;
-        height: 32px;
+        padding: 8px;
+        height: 24px;
+        margin: 0;
       }
       paper-icon-button:hover {
         background-color: var(--paper-grey-300, grey);
-        border-radius: 50%;
       }
       :host[wide] paper-button {
         width: unset;
@@ -49,7 +50,7 @@ A single button in the hax panel for consistency.
     <paper-tooltip
       for="button"
       position="[[direction]]"
-      offset="14">
+      offset="10">
       [[label]]
     </paper-tooltip>
   </template>
@@ -73,7 +74,7 @@ A single button in the hax panel for consistency.
          */
         direction: {
           type: String,
-          value: 'bottom',
+          value: 'top',
         },
         /**
          * Icon for the button.
