@@ -64,26 +64,26 @@ A LRN element
         box-sizing: content-box;
         --app-drawer-content-container: {
           background-color: #fafafa;
-          padding: 0 10px;
+          padding: 0;
           border-right: 1px solid #c8c8c8;
           overflow-y: scroll;
-          width: 279px !important;
+          width: 300px !important;
           box-shadow: 0 76px 8px 0 rgba(0, 0, 0, 0.4);
           height: 100vh;
           top: 0;
           position: sticky;
         }
       }
-      hax-panel ::shadow hax-panel-item {
-        font-size: .72em;
+      hax-panel {
+        font-size: .8rem;
       }
       hax-panel {
       --app-drawer-content-container: {
           background-color: #fafafa;
-          padding: 0 10px;
+          padding: 0;
           border-right: 1px solid #c8c8c8;
           overflow-y: scroll;
-          width: 279px !important;
+          width: 300px !important;
           box-shadow: 0 76px 8px 0 rgba(0, 0, 0, 0.4);
           height: 100vh;
           top: 0;
@@ -459,7 +459,68 @@ A LRN element
     </app-route>
   <!-- body where most of the heavy lifting happens -->
     <app-drawer-layout>
-      <hax-panel id="haxpanel"></hax-panel>
+      <hax-panel id="haxpanel">
+        <span slot="post">
+          <lrnsys-collapselist-item>
+          <span slot="label"><div class="label">Engagements</div></span>
+          <span slot="content">
+            <hax-panel-item
+              icon="touch-app"
+              icon-class="blue-text"
+              label="Interactive video"
+              event-name="h5p-interactive-video"
+              voice-command="insert interactive video"></hax-panel-item>
+            <hax-panel-item
+              icon="hardware:videogame-asset"
+              icon-class="red-text"
+              label="Self-check"
+              event-name="h5p-multiple-choice"
+              voice-command="insert self check"></hax-panel-item>
+            <hax-panel-item
+              icon="timeline"
+              icon-class="yellow-text text-darken-4"
+              label="Timeline"
+              event-name="timeline"
+              voice-command="insert timeline"></hax-panel-item>
+            <hax-panel-item
+              icon="maps:place"
+              icon-class="green-text"
+              label="Map"
+              event-name="map"
+              voice-command="insert map"></hax-panel-item>
+            <hax-panel-item
+              icon="social:share"
+              icon-class="pink-text"
+              label="JMOL"
+              event-name="jmol"
+              voice-command="insert molecule"></hax-panel-item>
+            <hax-panel-item
+              icon="social:poll"
+              icon-class="orange-text"
+              label="Poll"
+              event-name="poll"
+              voice-command="insert poll"></hax-panel-item>
+          </span>
+        </lrnsys-collapselist-item>
+        <lrnsys-collapselist-item>
+          <span slot="label"><div class="label">Assessments</div></span>
+          <span slot="content">
+            <hax-panel-item
+              icon="assignment"
+              icon-class="yellow-text text-darken-2"
+              label="Assignment"
+              event-name="assignment"
+              voice-command="insert assignment"></hax-panel-item>
+            <hax-panel-item
+              icon="assessment"
+              icon-class="purple-text text-darken-2"
+              label="Quiz"
+              event-name="quiz"
+              voice-command="insert quiz"></hax-panel-item>
+          </span>
+        </lrnsys-collapselist-item>
+      </span>
+      </hax-panel>
       <app-drawer slot="drawer" id="bookdrawer" opened="{{drawerOpened}}" swipe-open transition-duration="150">
         <div id="bookdrawercontent" style="height: 100%; overflow: auto;" hidden$="[[!bookItems]]">
           <paper-search-bar hide-filter-button hidden$="[[!showSearch]]"></paper-search-bar>
@@ -970,6 +1031,7 @@ A LRN element
                 // set type and id data from routing and ship this off!
                 this.updatePageData.type = this.data.type;
                 this.updatePageData.id = this.data.id;
+                this.$.toast.show('Saving...');
                 this.$.pageupdateajax.generateRequest();
               }
             }

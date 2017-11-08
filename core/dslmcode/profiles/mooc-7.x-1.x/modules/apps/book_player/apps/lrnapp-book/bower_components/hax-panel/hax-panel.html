@@ -21,7 +21,7 @@ as the events being bubbled up include HTML nodes to inject into something
         display: block;
       }
       app-drawer {
-        --app-drawer-width: 264px;
+        --app-drawer-width: 300px;
         touch-action: auto;
         transition: all .3s ease;
       }
@@ -36,12 +36,12 @@ as the events being bubbled up include HTML nodes to inject into something
             <hax-panel-item
               icon="undo"
               icon-class="black-text"
-              label="Undo last action"
+              label="Undo"
               event-name="undo" wide></hax-panel-item>
             <hax-panel-item
               icon="redo"
               icon-class="black-text"
-              label="Redo last action"
+              label="Redo"
               event-name="redo" wide></hax-panel-item>
           </span>
         </lrnsys-collapselist-item>
@@ -64,7 +64,7 @@ as the events being bubbled up include HTML nodes to inject into something
             <hax-panel-item
               icon="editor:format-quote"
               icon-class="grey-text text-darken-2"
-              label="Block quote"
+              label="Quote"
               event-name="blockquote"
               voice-command="insert block quote"></hax-panel-item>
             <hax-panel-item
@@ -114,64 +114,6 @@ as the events being bubbled up include HTML nodes to inject into something
               label="File"
               event-name="file-upload"
               voice-command="insert file"></hax-panel-item>
-          </span>
-        </lrnsys-collapselist-item>
-        <lrnsys-collapselist-item>
-          <span slot="label"><div class="label">Engagements</div></span>
-          <span slot="content">
-            <hax-panel-item
-              icon="touch-app"
-              icon-class="blue-text"
-              label="Interactive video"
-              event-name="h5p-interactive-video"
-              voice-command="insert interactive video"></hax-panel-item>
-            <hax-panel-item
-              icon="hardware:videogame-asset"
-              icon-class="red-text"
-              label="Self-check"
-              event-name="h5p-multiple-choice"
-              voice-command="insert self check"></hax-panel-item>
-            <hax-panel-item
-              icon="timeline"
-              icon-class="yellow-text text-darken-4"
-              label="Timeline"
-              event-name="timeline"
-              voice-command="insert timeline"></hax-panel-item>
-            <hax-panel-item
-              icon="maps:place"
-              icon-class="green-text"
-              label="Map"
-              event-name="map"
-              voice-command="insert map"></hax-panel-item>
-            <hax-panel-item
-              icon="social:share"
-              icon-class="pink-text"
-              label="JMOL"
-              event-name="jmol"
-              voice-command="insert molecule"></hax-panel-item>
-            <hax-panel-item
-              icon="social:poll"
-              icon-class="orange-text"
-              label="Poll"
-              event-name="poll"
-              voice-command="insert poll"></hax-panel-item>
-          </span>
-        </lrnsys-collapselist-item>
-        <lrnsys-collapselist-item>
-          <span slot="label"><div class="label">Assessments</div></span>
-          <span slot="content">
-            <hax-panel-item
-              icon="assignment"
-              icon-class="yellow-text text-darken-2"
-              label="Assignment"
-              event-name="assignment"
-              voice-command="insert assignment"></hax-panel-item>
-            <hax-panel-item
-              icon="assessment"
-              icon-class="purple-text text-darken-2"
-              label="Quiz"
-              event-name="quiz"
-              voice-command="insert quiz"></hax-panel-item>
           </span>
         </lrnsys-collapselist-item>
         <lrnsys-collapselist-item hidden$="[[!showAdvanced]]">
