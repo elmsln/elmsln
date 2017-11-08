@@ -463,7 +463,6 @@ A LRN element that will change the world.
        */
       _haxContextOperation: function(e) {
         let detail = e.detail;
-        console.log(detail);
         // support a simple insert event to bubble up or everything else
         switch(detail.eventName) {
           // text based operations
@@ -557,7 +556,6 @@ A LRN element that will change the world.
           break;
           case 'image-size-change':
           case 'iframe-size-change':
-          console.log(detail);
             this.activeNode.style.width = detail.value + '%';
             this.positionContextMenus(this.activeNode);
           break;
