@@ -56,6 +56,12 @@ as the events being bubbled up include HTML nodes to inject into something
               event-name="text"
               voice-command="insert text"></hax-panel-item>
             <hax-panel-item
+              icon="view-quilt"
+              icon-class="black-text"
+              label="Layout"
+              event-name="layout"
+              voice-command="insert layout"></hax-panel-item>
+            <hax-panel-item
               icon="editor:title"
               icon-class="grey-text text-darken-1"
               label="Heading"
@@ -180,6 +186,14 @@ as the events being bubbled up include HTML nodes to inject into something
           case 'blockquote':
             detail.tag = 'blockquote';
             detail.content = 'Quote';
+            this.fire('hax-content-insert', detail);
+          break;
+          case 'layout':
+            detail.tag = 'hax-blox';
+            detail.content = '<p slot="area1">Column 1 content</p><p slot="area2">Column 2 content</p>';
+            detail.properties = {
+              'layout': 'cols-50',
+            };
             this.fire('hax-content-insert', detail);
           break;
           case 'embed-url':

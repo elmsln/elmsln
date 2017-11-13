@@ -1,0 +1,38 @@
+{
+  "name": "juicy-html",
+  "version": "2.0.1",
+  "description": "A custom element that lets you load HTML partials into your Web page. Declarative way for client-side includes.",
+  "homepage": "https://github.com/Juicy/juicy-html",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/Juicy/juicy-html.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Juicy/juicy-html/issues"
+  },
+  "author": {
+    "name": "Joachim Wester",
+    "email": "joachimwester@me.com",
+    "url": "http://www.starcounter.com/"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "http://www.opensource.org/licenses/MIT"
+    }
+  ],
+  "keywords": [
+    "include",
+    "partials",
+    "html",
+    "declarative",
+    "client-side",
+    "custom-element",
+    "web-components"
+  ],
+  "main": "./juicy-html.html",
+  "devDependencies": {
+    "grunt": "~0.4.5",
+    "grunt-bump": "^0.3.0"
+  }
+}

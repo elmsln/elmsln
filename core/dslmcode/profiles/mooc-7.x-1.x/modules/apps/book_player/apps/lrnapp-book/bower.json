@@ -24,7 +24,8 @@
     "lrnsys-layout": "LRNWebComponents/lrnsys-layout#^1.1.2",
     "lrndesign-mapmenu": "LRNWebComponents/lrndesign-mapmenu#^1.0.0",
     "material-progress": "vguillou/material-progress#^0.1.3",
-    "paper-slider": "PolymerElements/paper-slider#^2.0.2"
+    "paper-slider": "PolymerElements/paper-slider#^2.0.2",
+    "hax-blox": "LRNWebComponents/hax-blox"
   },
   "devDependencies": {
     "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",

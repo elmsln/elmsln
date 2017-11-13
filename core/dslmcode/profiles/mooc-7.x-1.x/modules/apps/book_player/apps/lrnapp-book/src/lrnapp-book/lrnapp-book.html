@@ -1316,7 +1316,7 @@ A LRN element
         if (typeof newValue !== typeof undefined && typeof newValue.content !== typeof undefined) {
           // set page title; easiest for sure
           this.set('currentTitle', newValue.title);
-          // when updating data we nee dto clear the slot's content
+          // when updating data we need to clear the slot's content
           // while maintaining the data model correctly
           let slot = Polymer.dom(this.$.haxbody);
           while (slot.firstChild !== null) {
@@ -1324,7 +1324,8 @@ A LRN element
           }
           // add HTML to a div which makes it's DOM unpack
           var tmp = document.createElement('div');
-          tmp.innerHTML = newValue.content;
+          let frag = document.createRange().createContextualFragment(newValue.content);
+          tmp.appendChild(frag)
           // trap for text without wrapping HTML tags
           if (tmp.firstChild == null) {
             var tmp2 = document.createElement('p');
@@ -1341,13 +1342,7 @@ A LRN element
           // same as above but in reverse; now take stuf from what
           // came across and correctly add it into the slot
           while (tmp.firstChild) {
-            //Polymer.dom(this.$.slottedarea).appendChild(tmp.firstChild);
             Polymer.dom(this.$.haxbody).appendChild(tmp.firstChild);
-            try {
-              tmp.removeChild(tmp.firstChild);
-            } catch(err) {
-              continue;
-            }
           }
           // reset scroll position back to top of this content
           this._resetScroll();

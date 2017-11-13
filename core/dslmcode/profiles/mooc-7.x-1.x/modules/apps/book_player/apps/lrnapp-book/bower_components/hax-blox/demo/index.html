@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+
+    <title>hax-blox demo</title>
+
+    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+    <script>
+      /* this script must run before Polymer is imported */
+      window.Polymer = {
+        dom: 'shady',
+        lazyRegister: true
+      };
+    </script>
+    <link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
+    <link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
+    <link rel="import" href="../hax-blox.html">
+
+    <style is="custom-style" include="demo-pages-shared-styles">
+    </style>
+  </head>
+  <body>
+    <div class="vertical-section-container centered">
+      <h3>Basic hax-blox demo - columns 50%</h3>
+      <demo-snippet>
+        <template>
+          <hax-blox layout="cols-50" demo-mode>
+            <img slot="area1" src="http://steam.psu.edu/user/themes/agency/img/header-bg.jpg" width="100%" height="100%" />
+            <p slot="area2">Whatever you want to do!</p>
+            <p slot="area3">Whatever you want to do!</p>
+            Whatever you want to do!
+          </hax-blox>
+        </template>
+      </demo-snippet>
+    </div>
+    <div class="vertical-section-container centered">
+      <h3>Basic hax-blox demo - columns 25/75%</h3>
+      <demo-snippet>
+        <template>
+          <hax-blox layout="cols-25-75">
+            <img slot="area1" src="https://btopro.com/data/images/headshot.jpg" width="100%" height="100%" />
+            <p slot="area2">Whatever you want to do!</p>
+            <p slot="area2">THINGS</p>
+            <p slot="area3">THINGS</p>
+            <p slot="area4">THINGS</p>
+            <p slot="area5">THINGS</p>
+          </hax-blox>
+        </template>
+      </demo-snippet>
+    </div>
+    <div class="vertical-section-container centered">
+      <h3>Basic hax-blox demo - cols-100-inline</h3>
+      <demo-snippet>
+        <template>
+          <hax-blox layout="cols-100-inline" demo-mode>
+            <img slot="area2" src="https://btopro.com/data/images/headshot.jpg" width="25%" height="25%" />
+            <p slot="area1">Whatever you want to do!Whatever you want to do!Whatever you want to do!Whatever you want to do!Whatever you want to do!Whatever you want to do!Whatever you want to do!Whatever you want to do!Whatever you want to do!Whattever you want to do!Whatever you want to do!</p>
+          </hax-blox>
+        </template>
+      </demo-snippet>
+    </div>
+        <div class="vertical-section-container centered">
+      <h3>Basic hax-blox demo - sandbox</h3>
+      <demo-snippet>
+        <template>
+          <hax-blox layout="sandbox">
+            <img slot="area1" src="https://btopro.com/data/images/headshot.jpg" width="100%" height="100%" />
+            <p>Whatever you want to do!</p>
+          </hax-blox>
+        </template>
+      </demo-snippet>
+    </div>
+  </body>
+</html>

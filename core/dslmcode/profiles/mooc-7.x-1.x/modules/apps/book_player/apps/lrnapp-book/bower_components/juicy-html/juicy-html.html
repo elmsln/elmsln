@@ -1,0 +1,225 @@
+<!--
+juicy-html.html
+(c) 2013-2015 Juicy
+MIT license
+https://github.com/Juicy/juicy-html
+version: 2.0.1
+-->
+<script>
+    (function(scope) {
+        /**
+         * Throw a warning to the console about deprecated content attribute
+         * @param  {JuicyHTMLElement} element reference to the element
+         */
+        function warnAboutDeprecatedContentOn(element){
+            console.warn(
+                '`content` attribute is deprecated! Please, use `href` or `html` instead.',
+                element,
+                'We will drop support for it in next release.'
+            );
+        }
+        /**
+         * Translate content tag changes to href and html attributes
+         * @param {JuicyHTMLElement} element to set attibutes on
+         * @param {String} value value of content attr
+         */
+        function forwardContentValue(element, value){
+            if (value && (value.indexOf('/') === 0 || value.indexOf('./') === 0 || value.indexOf('../') === 0)) {
+                //value is a URL, load the partial from external file
+                element.removeAttribute('html');
+                element.setAttribute('href', value);
+            } else if (value === null) {
+                element.removeAttribute('html');
+                element.removeAttribute('href');
+            } else {
+                //value is HTML code, insert the partial from the string
+                element.removeAttribute('href');
+                element.setAttribute('html', value);
+            }
+        }
+
+        var JuicyHTMLPrototype = Object.create((HTMLTemplateElement || HTMLElement).prototype);
+        var isSafari = navigator.vendor && navigator.vendor.indexOf("Apple") > -1 && navigator.userAgent && !navigator.userAgent.match("CriOS");
+
+        JuicyHTMLPrototype.createdCallback = function() {
+            var model = null; // XXX(tomalec): || this.model ? // to consider for https://github.com/Juicy/juicy-html/issues/30
+            Object.defineProperties(this, {
+                'model': {
+                    set: function(newValue) {
+                        model = newValue;
+                        this.attachModel(newValue);
+                    },
+                    get: function() {
+                        return model;
+                    }
+                },
+                'href': {
+                    set: function(newValue) {
+                        if(newValue === null){
+                            this.removeAttribute('href');
+                        } else {
+                            this.setAttribute('href', newValue);
+                        }
+                    },
+                    get: function() {
+                        return this.getAttribute('href');
+                    }
+                },
+                'html': {
+                    set: function(newValue) {
+                        if(newValue === null){
+                            this.removeAttribute('html');
+                        } else {
+                            this.setAttribute('html', newValue);
+                        }
+                    },
+                    get: function() {
+                        return this.getAttribute('html');
+                    }
+                }
+            });
+        };
+        /**
+         * Reference to pending request
+         * @type {XMLHttpRequest}
+         */
+        JuicyHTMLPrototype.pending = null;
+
+        JuicyHTMLPrototype.stampedNodes = null;
+        /**
+         * Skips/disregards pending request if any.
+         */
+        JuicyHTMLPrototype.skipStampingPendingFile = function() {
+            if(this.pending){
+                this.pending.onload = null;
+            }
+        };
+        /**
+         * Load the partial from the HTTP server/cache, via XHR.
+         * @param  {String} url relative/absolute string to load the resource
+         * @return {HTMLElement}     itself
+         */
+        JuicyHTMLPrototype._loadExternalFile = function(url){
+            var oReq = new XMLHttpRequest();
+            var that = this;
+            this.pending = oReq;
+            oReq.onload = function(event) {
+                that.pending = null;
+                that.reattachTemplate_(event.target.responseText, oReq.status);
+            };
+            oReq.open("GET", url, true);
+            oReq.send();
+        };
+
+        JuicyHTMLPrototype.reattachTemplate_ = function(html, statusCode) {
+            this.clear();
+            if(html === ''){
+                if(statusCode === 204){
+                    console.info('no content was returned for juicy-html', this);
+                } else {
+                    console.warn('content given for juicy-html is an empty file', this);
+                }
+            }
+            // fragmentFromString(strHTML) from http://stackoverflow.com/a/25214113/868184
+            var range = document.createRange();
+
+            // Safari does not support `createContextualFragment` without selecting a node.
+            if (isSafari) {
+                range.selectNode(this);
+            }
+
+            var fragment = range.createContextualFragment(html);
+            // convert dynamic NodeList to regullar array
+            this.stampedNodes = Array.prototype.slice.call(fragment.childNodes);
+            // attach models
+            this.attributeChangedCallback("model", undefined, this.model || this.getAttribute("model"));
+            this.parentNode.insertBefore(fragment, this.nextSibling);
+            this.dispatchEvent(new CustomEvent("stamped", {
+                detail: this.stampedNodes
+            }));
+
+        };
+
+        /**
+         * Remove stamped content.
+         */
+        JuicyHTMLPrototype.clear = function() {
+            var parent = this.parentNode;
+            var childNo = this.stampedNodes && this.stampedNodes.length || 0;
+            var child;
+            while (childNo--) {
+                // this.stampedNodes[childNo].remove();
+                child = this.stampedNodes[childNo];
+                if (child.parentNode) {
+                    child.parentNode.removeChild(child);
+                }
+            }
+            // forget the removed nodes
+            this.stampedNodes = null;
+        };
+
+        JuicyHTMLPrototype.isAttached = false;
+        JuicyHTMLPrototype.attachedCallback = function() {
+            this.isAttached = true;
+            // autostamp
+            // TODO(tomalec): read pre-upgrade properties in cheap manner
+            this.hasAttribute('href') && this.attributeChangedCallback('href', null, this.getAttribute('href'));
+            this.hasAttribute('html') && this.attributeChangedCallback('html', null, this.getAttribute('html'));
+            // translate legacy `content` attribute
+            this.hasAttribute('content') && this.attributeChangedCallback('content', null, this.getAttribute('content'));
+        };
+        JuicyHTMLPrototype.detachedCallback = function() {
+            this.isAttached = false;
+            this.clear();
+        };
+        JuicyHTMLPrototype.attributeChangedCallback = function(name, oldVal, newVal) {
+            if (this.isAttached) {
+                switch (name) {
+                    case "model":
+                        if (typeof newVal === "string") {
+                            newVal = newVal ? JSON.parse(newVal) : null;
+                        }
+                        this.model = newVal;
+                        break;
+                    case "content":
+                        warnAboutDeprecatedContentOn(this);
+                        forwardContentValue(this, newVal);
+                        break;
+                    case "href":
+                        // skip pending request
+                        this.skipStampingPendingFile();
+                        if(newVal !== null){
+                            this.removeAttribute('html');
+                            this._loadExternalFile(newVal);
+                        } else {
+                            this.clear();
+                        }
+                        break;
+                    case "html":
+                        if(newVal !== null){
+                            this.removeAttribute('href');
+                            this.reattachTemplate_(newVal);
+                        } else {
+                            this.clear();
+                        }
+                        break;
+                }
+            }
+        };
+
+        JuicyHTMLPrototype.attachModel = function(model, arrayOfElements) {
+            arrayOfElements || (arrayOfElements = this.stampedNodes);
+            if (model === null || !arrayOfElements) {
+                return;
+            }
+            for (var childNo = 0; childNo < arrayOfElements.length; childNo++) {
+                arrayOfElements[childNo].model = model;
+            }
+        };
+
+        scope.JuicyHTMLElement = document.registerElement('juicy-html', {
+            prototype: JuicyHTMLPrototype,
+            extends: "template"
+        });
+    })(window);
+</script>
