@@ -10,7 +10,7 @@ class CleOpenStudioAppCommentService {
     $comment->subject = t('Feedback from @name', array('@name' => $user->name));
     $comment->uid = $user->uid;
     $comment->name = $user->name;
-    $comment->status = 1;
+    $comment->status = 0;
     $comment->language = LANGUAGE_NONE;
     $comment->nid = $data['nid'];
     $comment->pid = $data['pid'];
@@ -250,6 +250,7 @@ class CleOpenStudioAppCommentService {
         }
         if ($payload->attributes->body) {
           $format = 'student_format';
+          $comment->status = COMMENT_PUBLISHED;
           $payload->attributes->body = _transliteration_process($payload->attributes->body);
           $comment->comment_body[LANGUAGE_NONE][0] = array(
             'format' => $format,
