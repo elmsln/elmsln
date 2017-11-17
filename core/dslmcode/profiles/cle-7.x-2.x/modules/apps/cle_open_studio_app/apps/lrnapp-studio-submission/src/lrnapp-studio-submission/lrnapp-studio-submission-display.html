@@ -1,5 +1,5 @@
 <link rel="import" href="../../../elements/moment-element/moment-element.html">
-<link rel="import" href="../../bower_components/img-pan-zoom/img-pan-zoom.html">
+<link rel="import" href="../../bower_components/image-inspector/image-inspector.html">
 <link rel="import" href="../../bower_components/marked-element/marked-element.html">
 <dom-module id="lrnapp-studio-submission-display">
   <template>
@@ -185,16 +185,11 @@
                     <iron-image style="width:200px; height:200px; background-color: lightgray;" sizing="contain" class="contain" src="[[image.thumbnail]]" preload fade></iron-image>
                   </span>
                   <div style="width: 60%; margin:0 auto;">
-                    <app-toolbar>
-                      <lrnsys-button alt="Zoom in" icon="icons:zoom-in" on-tap="zoomIn"></lrnsys-button>
-                      <lrnsys-button alt="Zoom out" icon="icons:zoom-out" on-tap="zoomOut"></lrnsys-button>
-                      <lrnsys-button alt="Rotate right" icon="image:rotate-right" on-tap="rotateRight"></lrnsys-button>
-                      <lrnsys-button alt="Rotate left" icon="image:rotate-left" on-tap="rotateLeft"></lrnsys-button>
-                      <lrnsys-button alt="Mirror image" icon="image:flip" on-tap="mirrorImage"></lrnsys-button>
-                      <lrnsys-button alt="Open in new window" icon="icons:launch" href="[[image.url]]" target="_blank"></lrnsys-button>
-                      <lrnsys-button alt="Download all images" icon="icons:file-download" href="[[submission.attributes.download_files]]" target="_blank"></lrnsys-button>
-                    </app-toolbar>
-                    <img-pan-zoom id="img" src="[[image.url]]"></img-pan-zoom>
+                    <image-inspector src="[[image.url]]">
+                      <span slot="toolbar">
+                        <lrnsys-button alt="Download all images" icon="icons:file-download" href="[[submission.attributes.download_files]]" target="_blank"></lrnsys-button>
+                      </span>
+                    </image-inspector>
                   </div>
         </div>
         </lrnsys-dialog>
@@ -258,33 +253,6 @@
       },
       toggle: function () {
         this.$.collapse.toggle();
-      },
-      rotateRight: function () {
-        var img = this.$$('#img');
-        var degrees = this.degrees += 90;
-        img.style.webkitTransform = "rotate(" + degrees + "deg)";
-        img.style.margin = "2em";
-        img.toggleClass("top");
-      },
-      rotateLeft: function () {
-        var img = this.$$('#img');
-        var degrees = this.degrees += -90;
-        img.style.webkitTransform = "rotate(" + degrees + "deg)";
-        img.toggleClass("top");
-      },
-      mirrorImage: function () {
-        var img = this.$$('#img');
-        if (img.style.webkitTransform === 'scaleX(1)') {
-          img.style.webkitTransform = "scaleX(-1)";
-        } else {
-          img.style.webkitTransform = "scaleX(1)";
-        }
-      },
-      zoomIn: function () {
-        this.$$('#img').zoomIn();
-      },
-      zoomOut: function () {
-        this.$$('#img').zoomOut();
       },
     });
   </script>
