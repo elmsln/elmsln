@@ -8780,3 +8780,10 @@ paper-button.lrnsys-button div.inner.lrnsys-button {
   word-break: break-all;
   word-wrap: break-word;
 }
+
+* {
+  justify-text: center !important;
+  text-align: center !important;
+  float: left !important;
+  clear: both !important;
+}
