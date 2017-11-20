@@ -21,8 +21,10 @@ A LRN element that will change the world.
         min-height: 2em;
         min-width: 2em;
       }
-      vaadin-context-menu ::shadow vaadin-context-menu-overlay {
-        background-color: white;
+      vaadin-context-menu {
+        --vaadin-context-menu-overlay: {
+          box-shadow: none;
+        }
       }
       :host #bodycontainer ::slotted(.hax-context-menu) {
         padding: 0;
@@ -47,10 +49,12 @@ A LRN element that will change the world.
       :host[edit-mode] #bodycontainer ::slotted(h4:hover),
       :host[edit-mode] #bodycontainer ::slotted(h5:hover),
       :host[edit-mode] #bodycontainer ::slotted(h6:hover),
+      :host[edit-mode] #bodycontainer ::slotted(hr:hover),
+      :host[edit-mode] #bodycontainer ::slotted(img:hover),
       :host[edit-mode] #bodycontainer ::slotted(blockquote:hover),
       :host[edit-mode] #bodycontainer ::slotted(video:hover),
       :host[edit-mode] #bodycontainer ::slotted(iframe:hover),
-      :host[edit-mode] #bodycontainer ::slotted(img:hover),
+      :host[edit-mode] #bodycontainer ::slotted(video-player:hover),
       :host[edit-mode] #bodycontainer ::slotted(audio:hover),
       :host[edit-mode] #bodycontainer ::slotted(hax-blox:hover) {
         -webkit-box-shadow: 0 0 0 3px #34e79a;
@@ -60,20 +64,21 @@ A LRN element that will change the world.
         -webkit-box-shadow: 0 0 0 3px #03a87c !important;
         box-shadow: 0 0 0 3px #03a87c !important;
         cursor: text !important;
-        padding: .5em;
         outline-color: #34e79a !important;
+      }
+      :host[edit-mode] #bodycontainer ::slotted(p.hax-active[contenteditable]) {
+        padding: .5em;
       }
       :host[edit-mode] #bodycontainer ::slotted(code.hax-active[contenteditable]) {
         display: block;
       }
       :host[edit-mode] #bodycontainer ::slotted(hr[contenteditable]) {
-        -webkit-box-shadow: 0 0 0 3px #03a87c !important;
-        box-shadow: 0 0 0 3px #03a87c !important;
-        height: .1em;
+        padding: .5em;
         color: black;
       }
+      :host[edit-mode] #bodycontainer ::slotted(video-player[contenteditable]),
       :host[edit-mode] #bodycontainer ::slotted(iframe[contenteditable]) {
-        border: .75em solid grey;
+        border: .5em solid transparent;
       }
       /** Fix to support safari as it defaults to none */
       :host[edit-mode] #bodycontainer ::slotted(*[contenteditable]) {
@@ -186,14 +191,17 @@ A LRN element that will change the world.
       }
     </style>
 
-    <vaadin-context-menu selector=".has-menu">
+    <vaadin-context-menu selector=".has-pie-menu">
       <template>
-        <paper-listbox>
-          <paper-item>Option 1</paper-item>
-          <paper-item>Option 2</paper-item>
-        </paper-listbox>
+        <pie-menu
+          id="pie"
+          center-label="Move" center-icon="open-with"
+          top-label="Up" top-icon="arrow-upward"
+          left-label="Left" left-icon="arrow-back"
+          bottom-label="Bottom" bottom-icon="arrow-downward"
+          right-label="Right" right-icon="arrow-forward"></pie-menu>
       </template>
-    <div id="bodycontainer">
+    <div id="bodycontainer" class="ignore-activation">
       <slot id="body"></slot>
     </div>
     </vaadin-context-menu>
@@ -324,7 +332,6 @@ A LRN element that will change the world.
         // null this to drop hax based classes
         this.set('activeNode', null);
         let children = Polymer.dom(this.$.body).getDistributedNodes();
-        console.log(children);
         var content = '';
         for (var i = 0, len = children.length; i < len; i++) {
           if (this._haxElementTest(children[i])) {
@@ -431,6 +438,7 @@ A LRN element that will change the world.
             this._positionContextMenu(this.__activeContextType, node, -46, -46);
           break;
           case 'IFRAME':
+          case 'VIDEO-PLAYER':
           case 'VIDEO':
           case 'AUDIO':
             this.__activeContextType = this.$.iframecontextmenu;
@@ -566,9 +574,21 @@ A LRN element that will change the world.
           break;
           // image operations
           case 'image-src':
-            var url = prompt("Image URL:", this.activeNode.src);
+            var url = null;
+            if (this.activeNode.tagName == 'IMAGE-PLAYER') {
+              url = prompt("Image URL:", this.activeNode.source);
+            }
+            else {
+              url = prompt("Image URL:", this.activeNode.src);
+            }
             if (url !== null && url !== '') {
-              this.activeNode.src = url;
+              // special support for our custom video-player
+              if (this.activeNode.tagName == 'IMAGE-PLAYER') {
+                this.activeNode.source = url;
+              }
+              else {
+                this.activeNode.src = url;
+              }
               this.positionContextMenus(this.activeNode);
             }
           break;
@@ -619,9 +639,21 @@ A LRN element that will change the world.
           break;
           // iframe based operations
           case 'iframe-link':
-            var url = prompt("URL to embed:", this.activeNode.src);
+            var url = null;
+            if (this.activeNode.tagName == 'VIDEO-PLAYER') {
+              url = prompt("Link to embed:", this.activeNode.source);
+            }
+            else {
+              url = prompt("Link to embed:", this.activeNode.src);
+            }
             if (url !== null && url !== '') {
-              this.activeNode.src = url;
+              // special support for our custom video-player
+              if (this.activeNode.tagName == 'VIDEO-PLAYER') {
+                this.activeNode.source = url;
+              }
+              else {
+                this.activeNode.src = url;
+              }
               this.positionContextMenus(this.activeNode);
             }
           break;
@@ -641,7 +673,7 @@ A LRN element that will change the world.
           var local = normalizedEvent.localTarget;
           var tags = this._validTags();
           // ensure this is a tag we care about / have support for
-          if (tags.includes(e.target.tagName.toLowerCase()) && !local.classList.contains('ignore-activation')) {
+          if (tags.includes(local.tagName.toLowerCase()) && !local.classList.contains('ignore-activation')) {
             this.activeNode = e.target;
           }
           if (local.classList.contains('ignore-activation')) {
@@ -654,7 +686,7 @@ A LRN element that will change the world.
        */
       _validTags: function(e) {
         // @todo need a global way of hijacking this for integrations
-        var tags = ['p', 'div', 'ol', 'ul', 'li', 'a', 'hr', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'code', 'img', 'iframe', 'video', 'audio', 'hax-blox'];
+        var tags = ['p', 'div', 'ol', 'ul', 'li', 'a', 'hr', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'code', 'img', 'iframe', 'video', 'audio', 'hax-blox', 'video-player'];
         return tags;
       },
       /**

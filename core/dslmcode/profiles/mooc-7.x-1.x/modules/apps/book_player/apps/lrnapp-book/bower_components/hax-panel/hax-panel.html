@@ -205,9 +205,9 @@ as the events being bubbled up include HTML nodes to inject into something
               let type = url.substring(url.length, url.length-4);
               switch (type) {
                 case '.mp4':
-                  detail.tag = 'video';
+                  detail.tag = 'video-player';
                   detail.properties = {
-                    'src': url,
+                    'source': url,
                     'preload': 'auto',
                     'controls': true,
                   };
@@ -248,12 +248,9 @@ as the events being bubbled up include HTML nodes to inject into something
                     url.indexOf('youtube-nocookie.com') !== -1 ||
                     url.indexOf('vimeo.com') !== -1
                   ) {
+                    detail.tag = 'video-player';
                     detail.properties = {
-                      'src': url,
-                      'webkitallowfullscreen': true,
-                      'mozallowfullscreen': true,
-                      'allowfullscreen': true,
-                      'frameborder': 0,
+                      'source': url,
                     };
                   }
                   else if (url.indexOf('soundcloud.com') !== -1) {

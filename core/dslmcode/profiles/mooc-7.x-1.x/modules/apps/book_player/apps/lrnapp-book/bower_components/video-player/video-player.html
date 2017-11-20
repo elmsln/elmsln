@@ -1,0 +1,291 @@
+
+<!--
+`video-player`
+A simple responsive video player
+
+@demo demo/index.html
+
+@microcopy - the mental model for this element
+ - video source - url / link to the video file
+
+-->
+
+<dom-module id="video-player">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+      :host[responsive] .responsive-video-container {
+        position: relative;
+        padding-bottom: 56.25%; /* 16:9 */
+        padding-top: 25px;
+        height: 0;
+      }
+      :host[responsive] .responsive-video-container iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+      }
+      :host[responsive] .responsive-video-container video {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+      }
+    </style>
+    <div class="responsive-video-container">
+      <template is="dom-if" if="[[iframed]]">
+        <iframe src="[[src]]" width="[[width]]" height="[[height]]" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+      </template>
+      <template is="dom-if" if="[[!iframed]]">
+        <video src="[[src]]" width="[[width]]" height="[[height]]" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen controls></video>
+      </template>
+    </div>
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'video-player',
+
+      properties: {
+        /**
+         * Source of the video
+         */
+        source: {
+          type: String,
+          reflectToAttribute: true,
+        },
+        /**
+         * Computed / cleaned up source.
+         */
+        src: {
+          type: String,
+          computed: '_computeSRC(source)',
+        },
+        /**
+         * Computesd if this should be iframed or not.
+         */
+        iframed: {
+          type: Boolean,
+          computed: '_computeIframed(source)',
+        },
+        /**
+         * Video width
+         */
+        width: {
+          type: String,
+          value: 560,
+        },
+        /**
+         * video height
+         */
+        height: {
+          type: String,
+          value: 315,
+        },
+        /**
+         * Responsive video, calculated from not-responsive.
+         */
+        responsive: {
+          type: Boolean,
+          reflectToAttribute: true,
+          computed: '_computeResponsive(notResponsive)',
+        },
+        /**
+         * Responsive video boolean
+         */
+        notResponsive: {
+          type: Boolean,
+          reflectToAttribute: true,
+          value: false,
+        },
+        /**
+         * Youtube cookie-less domain for privacy.
+         */
+        ytNocookie: {
+          type: Boolean,
+          value: true,
+        },
+        /**
+         * Youtube suggested option.
+         */
+        ytSuggested: {
+          type: Boolean,
+          value: false,
+        },
+        /**
+         * Youtube controls option.
+         */
+        ytControls: {
+          type: Boolean,
+          value: true,
+        },
+        /**
+         * Youtube title option.
+         */
+        ytTitle: {
+          type: Boolean,
+          value: false,
+        },
+        /**
+         * Vimeo option for title being displayed.
+         */
+        vimeoTitle: {
+          type: Boolean,
+          value: false,
+        },
+        /**
+         * Vimeo option for author being displayed.
+         */
+        vimeoByline: {
+          type: Boolean,
+          value: false,
+        },
+        /**
+         * Vimeo option for portrait mode.
+         */
+        vimeoPortrait: {
+          type: Boolean,
+          value: false,
+        },
+        /**
+         * Vimeo option for color.
+         */
+        vimeoColor: {
+          type: String,
+          value: 'FF031D',
+        },
+      },
+      /**
+       * Compute src from type / source combo.
+       * Type is set by source so this ensures a waterfall
+       * of valid values.
+       */
+      _computeSRC: function(source) {
+        if (typeof source !== typeof undefined) {
+          let type = this.getType(source);
+          // ensure that this is a valid url / cleaned up a bit
+          source = this.cleanSource(source, type);
+          if (type == 'vimeo') {
+            if (this.vimeoTitle) {
+              source += '?title=1';
+            }
+            else {
+              source += '?title=0';
+            }
+            if (this.vimeoByline) {
+              source += '&byline=1';
+            }
+            else {
+              source += '&byline=0';
+            }
+            if (this.vimeoPortrait) {
+              source += '&portrait=1';
+            }
+            else {
+              source += '&portrait=0';
+            }
+            if (typeof this.vimeoColor !== typeof undefined) {
+              source += '&color=' + this.vimeoColor;
+            }
+          }
+          else if (type == 'youtube') {
+            // ensure options are applied to the address
+            if (this.ytNocookie) {
+              source = source.replace('youtube.com/embed', 'youtube-nocookie.com/embed');
+            }
+            if (this.ytTitle) {
+              source += '?showinfo=1';
+            }
+            else {
+              source += '?showinfo=0';
+            }
+            if (this.ytControls) {
+              source += '&controls=1';
+            }
+            else {
+              source += '&controls=0';
+            }
+            if (this.ytSuggested) {
+              source += '&rel=1';
+            }
+            else {
+              source += '&rel=0';
+            }
+          }
+        }
+        return source;
+      },
+      /**
+       * Compute iframe or video tag for implementation.
+       */
+      _computeIframed: function(source) {
+        let type = this.getType(source);
+        if (type == 'youtube' || type == 'vimeo' || type == 'external') {
+          return true;
+        }
+        else {
+          return false;
+        }
+      },
+      /**
+       * Check source of the video, potentially correcting bad links.
+       */
+      cleanSource: function(input, type) {
+        if (type == 'vimeo' || type == 'youtube') {
+          // strip off the ? modifier for youtube/vimeo so we can build ourselves
+          var tmp = input.split('?');
+          var v = '';
+          input = tmp[0];
+          if (tmp.length == 2) {
+            args = tmp[1].split('=');
+            if (args[0] == 'v') {
+              v = args[1];
+            }
+          }
+          // link to the vimeo video instead of the embed player address
+          if (input.indexOf('player.vimeo.com') == -1 && input.indexOf('vimeo.com') != -1) {
+            return input.replace('vimeo.com/', 'player.vimeo.com/video/');
+          }
+          // copy and paste from the URL
+          else if (input.indexOf('youtube.com/watch') != -1) {
+            return input.replace('youtube.com/watch', 'youtube.com/embed/') + v;
+          }
+          // weird share-ly style version
+          else if (input.indexOf('youtu.be') != -1) {
+            return input.replace('youtu.be/', 'www.youtube.com/embed/') + v;
+          }
+        }
+        return input;
+      },
+      /**
+       * Figure out the type of video based on source.
+       */
+      getType: function(source) {
+        if (source.indexOf('vimeo') != -1) {
+          return 'vimeo';
+        }
+        else if (source.indexOf('youtube') != -1 || source.indexOf('youtu.be') != -1) {
+          return 'youtube';
+
+        }
+        return 'local';
+      },
+      /**
+       * Calculate responsive as inverse of not responsive. This lets us have a clean default.
+       */
+      _computeResponsive: function(notResponsive) {
+        return !notResponsive;
+      },
+      /**
+       * Need to notice the source change while still trickling this
+       * info down correctly.
+       */
+    });
+  </script>
+</dom-module>
