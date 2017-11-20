@@ -43,9 +43,9 @@ A context menu that provides common hax-blox based authoring options.
         direction="left"></hax-context-item>
       <hax-context-item-menu
         selected-value="{{bloxLayout}}"
-        id="justify"
+        id="layout"
         icon="[[bloxIcon]]"
-        label="Alignment">
+        label="Layout">
         <paper-item value="cols-100">1 column (100%)</paper-item>
         <paper-item value="cols-50-50">two column (50%)</paper-item>
         <paper-item value="cols-25-75">two column (25% - 75%)</paper-item>
@@ -53,21 +53,6 @@ A context menu that provides common hax-blox based authoring options.
         <paper-item value="cols-75-25">two column (75% - 25%)</paper-item>
         <paper-item value="cols-33-33-33">three column (33%)</paper-item>
         <paper-item value="cols-25-25-25-25">four column (25%)</paper-item>
-      </hax-context-item-menu>
-      <hax-context-item-menu
-        selected-value="{{justifyValue}}"
-        id="justify"
-        icon="[[justifyIcon]]"
-        label="Layout">
-        <paper-item value="left">
-          <iron-icon icon="editor:format-align-left"></iron-icon>
-        </paper-item>
-        <paper-item value="blox-align-center">
-          <iron-icon icon="editor:format-align-center"></iron-icon>
-        </paper-item>
-        <paper-item value="blox-align-right">
-          <iron-icon icon="editor:format-align-right"></iron-icon>
-        </paper-item>
       </hax-context-item-menu>
       <paper-slider id="slider" pin min="25" step="25" max="100" value="{{bloxSize}}"></paper-slider>
       <paper-tooltip
@@ -107,26 +92,11 @@ A context menu that provides common hax-blox based authoring options.
           value: 'cols-100',
         },
         /**
-         * Justify icon to reflect state.
-         */
-        justifyIcon: {
-          type: String,
-          value: 'editor:format-align-left',
-        },
-        /**
          * Layout icon to reflect state.
          */
         bloxIcon: {
           type: String,
           value: 'view-quilt',
-        },
-        /**
-         * Selected value to match blox direction currently.
-         */
-        justifyValue: {
-          type: String,
-          value: 'blox-align-left',
-          notify: true,
         },
       },
       /**
@@ -144,15 +114,6 @@ A context menu that provides common hax-blox based authoring options.
         let detail = e.detail;
         // support a simple insert event to bubble up or everything else
         switch(detail.eventName) {
-          case 'blox-align-left':
-            this.justifyIcon = detail.target.children[0].attributes[0].nodeValue;
-          break;
-          case 'blox-align-center':
-            this.justifyIcon = detail.target.children[0].attributes[0].nodeValue;
-          break;
-          case 'blox-align-right':
-            this.justifyIcon = detail.target.children[0].attributes[0].nodeValue;
-          break;
           case 'cols-100':
           case 'cols-50-50':
           case 'cols-25-75':
@@ -164,7 +125,7 @@ A context menu that provides common hax-blox based authoring options.
             this.fire('hax-context-item-selected', {eventName: 'blox-layout-change', value: detail.eventName});
           break;
           case 'close-menu':
-            this.$.justify.hideMenu();
+            this.$.layout.hideMenu();
           break;
         }
       },
