@@ -287,8 +287,12 @@ A LRN element that will change the world.
         var tags = this._validTags();
         // verify this tag is a valid one
         if (tags.includes(tag)) {
-          var newNode = document.createElement(tag);
-          newNode.innerHTML = content;
+          // create a new element fragment w/ content in it
+          // if this is a custom-element it won't expand though
+          var frag = document.createElement(tag);
+          frag.innerHTML = content;
+          // clone the fragment which will force an escalation to full node
+          var newNode = frag.cloneNode(true);
           // support for properties if they exist
           for (var property in properties) {
             if (properties.hasOwnProperty(property)) {
