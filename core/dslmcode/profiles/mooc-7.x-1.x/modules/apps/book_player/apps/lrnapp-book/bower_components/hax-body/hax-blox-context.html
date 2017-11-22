@@ -54,17 +54,11 @@ A context menu that provides common hax-blox based authoring options.
         <paper-item value="cols-33-33-33">three column (33%)</paper-item>
         <paper-item value="cols-25-25-25-25">four column (25%)</paper-item>
       </hax-context-item-menu>
-      <paper-slider id="slider" pin min="25" step="25" max="100" value="{{bloxSize}}"></paper-slider>
-      <paper-tooltip
-        for="slider"
-        position="top"
-        offset="10">
-        Resize
-      </paper-tooltip>
       <hax-context-item
-        icon="editor:insert-link"
-        label="Link"
-        event-name="blox-link"></hax-context-item>
+        icon="settings"
+        label="Settings"
+        modal
+        event-name="hax-modal-settings"></hax-context-item>
     </app-toolbar>
   </template>
 
@@ -76,14 +70,6 @@ A context menu that provides common hax-blox based authoring options.
         'hax-context-item-selected': '_haxContextOperation',
       },
       properties: {
-        /**
-         * Blox size.
-         */
-        bloxSize: {
-          type: Number,
-          value: 50,
-          observer: '_bloxSizeChanged',
-        },
         /**
          * Blox layout.
          */
@@ -98,14 +84,6 @@ A context menu that provides common hax-blox based authoring options.
           type: String,
           value: 'view-quilt',
         },
-      },
-      /**
-       * Blox size changed.
-       */
-      _bloxSizeChanged: function(newValue, oldValue) {
-        if (typeof newValue !== typeof undefined) {
-          this.fire('hax-context-item-selected', {eventName: 'blox-size-change', value: newValue});
-        }
       },
       /**
        * Respond to simple modifications.

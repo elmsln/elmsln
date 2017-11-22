@@ -1,3 +1,4 @@
+<link rel="import" href="../hax-body-behaviors/hax-body-behaviors.html">
 
 <!--
 `video-player`
@@ -51,7 +52,7 @@ A simple responsive video player
     Polymer({
 
       is: 'video-player',
-
+      behaviors: [HAXBehaviors.PropertiesBehaviors],
       properties: {
         /**
          * Source of the video
@@ -160,6 +161,36 @@ A simple responsive video player
           type: String,
           value: 'FF031D',
         },
+      },
+      /**
+       * Ready.
+       */
+      ready: function() {
+        // Establish hax properties if they exist
+        let props = {
+          'canScale': true,
+          'canPosition': true,
+          'settings': [
+            {
+              'property': 'caption',
+              'title': 'caption',
+              'description': 'Simple caption for under video',
+              'input': 'textfield',
+              'type': 'bar',
+              'icon': 'av:video-label',
+              'required': false
+            },
+            {
+              'property': 'responsive',
+              'title': 'Responsive',
+              'description': 'The video automatically fills the available area.',
+              'input': 'boolean',
+              'type': 'advanced',
+              'icon': 'image:photo-size-select-small'
+            }
+          ]
+        };
+        this.setHaxProperties(props);
       },
       /**
        * Compute src from type / source combo.

@@ -1,0 +1,146 @@
+<!--
+`hax-body-behaviors`
+A behavior for mixing-in structure for elements to communicate effectively
+with the hax-body element which manages elements.
+
+@microcopy - the mental model for this element
+ - context - hax-body has context menus to provide options related to the active element
+ - haxProperties - a mapping of properties to what input types to place on the menu
+
+-->
+<script>
+  /**
+   * In order to use this, the user must supply a haxProperties object
+   * which returns what settings are allowed as well as their format.
+   * For example, the default of:
+   *
+   *  {
+   *    'canScale': true,
+   *    'canPosition': true,
+   *    'settings': null,
+   *  }
+   *
+   *  Tells hax-body's context menu for custom-elements that this element
+   *  can use the scaling widget and the positioning widget as globals.
+   *
+   * Other settings can be expressed through beyond these simple layout modifiers.
+   * The following example expresses a citation property which creates a textfield
+   * on the context bar with a text-format icon for input. It also illustrates how
+   * this could be applied to slots for more flexible content input as well as a
+   * potential boolean value in an "Advanced" area.
+   * 'settings': [
+   *   {
+   *     'property': 'citation',
+   *     'title': 'Citation',
+   *     'description': 'Proper MLA or other standard citation format for the image.',
+   *     'input': 'textfield',
+   *     'type': 'bar',
+   *     'icon': 'text-format',
+   *     'required': true
+   *   },
+   *   {
+   *     'slot': 'area1',
+   *     'title': 'Section 1',
+   *     'description': 'Content that goes in the fist area in the layout.',
+   *     'input': 'textarea',
+   *     'type': 'settings',
+   *     'icon': 'layout'
+   *   },
+   *   {
+   *     'property': 'responsive',
+   *     'title': 'Responsive',
+   *     'description': 'The video automatically fills the available area.',
+   *     'input': 'boolean',
+   *     'type': 'advanced',
+   *     'icon': 'video'
+   *   }
+   * ]
+   */
+  // ensure HAXPropertiesBehaviors exists
+  window.HAXBehaviors = window.HAXBehaviors || {};
+  // ensure we have consistent reporting of haxBodyProperties
+  window.HAXBehaviors.PropertiesBehaviors = {
+    properties: {
+      /**
+       * haxProperties
+       */
+      haxProperties: {
+        type: Object,
+        value: {
+          'canScale': true,
+          'canPosition': true,
+          'settings': [],
+        },
+        readOnly: true,
+      },
+    },
+    /**
+     * Setter to bridge private haxProperties setter.
+     * This is to then be implemented by the ready state of whatever is supplying the
+     * properties in order to be able to bubble up the properties for a tag.
+     */
+    setHaxProperties: function (props) {
+      // validate properties to ensure each has defaults in place to match the model
+      for (i = 0; i < props.length; i++) {
+        // we don't have a property or slot so it's not valid.
+        if (typeof props[i].property === typeof undefined && typeof props[i].slot === typeof undefined) {
+          props.splice(i, 1);
+          continue;
+        }
+        // ensure there's a title
+        if (typeof props[i].title === typeof undefined) {
+          props[i].title = props[i].property;
+        }
+        // ensure there's at least an empty description
+        if (typeof props[i].description === typeof undefined) {
+          props[i].description = '';
+        }
+        // ensure there's at least an input format
+        if (typeof props[i].input === typeof undefined) {
+          props[i].input = 'textfield';
+        }
+        // ensure there's at least a type
+        if (typeof props[i].type === typeof undefined) {
+          props[i].type = 'settings';
+        }
+        // ensure there's at least an icon
+        if (typeof props[i].icon === typeof undefined) {
+          props[i].icon = 'android';
+        }
+        // ensure there's required set
+        if (typeof props[i].required === typeof undefined) {
+          props[i].required = false;
+        }
+      }
+      this._setHaxProperties(props);
+    },
+    /**
+     * Match convention for set.
+     */
+    getHaxProperties: function() {
+      return this.haxProperties;
+    },
+    /**
+     * Get a prototype settings property.
+     */
+    prototypeHaxProperties: function() {
+      // example properties valid for HAX context menu.
+      let props = {
+        'canScale': true,
+        'canPosition': true,
+        'settings': [
+          {
+            'property': 'title',
+            'title': 'Title',
+            'description': '',
+            'input': 'textfield',
+            'type': 'settings',
+            'icon': 'android',
+            'required': false
+          }
+        ]
+      };
+      return props;
+    },
+  };
+</script>

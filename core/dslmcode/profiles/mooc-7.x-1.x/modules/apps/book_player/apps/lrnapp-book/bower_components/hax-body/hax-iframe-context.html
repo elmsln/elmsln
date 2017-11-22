@@ -46,13 +46,13 @@ A context menu that provides common iframe based authoring options.
         id="justify"
         icon="[[justifyIcon]]"
         label="Alignment">
-        <paper-item value="iframe-align-left">
+        <paper-item value="hax-align-left">
           <iron-icon icon="editor:format-align-left"></iron-icon>
         </paper-item>
-        <paper-item value="iframe-align-center">
+        <paper-item value="hax-align-center">
           <iron-icon icon="editor:format-align-center"></iron-icon>
         </paper-item>
-        <paper-item value="iframe-align-right">
+        <paper-item value="hax-align-right">
           <iron-icon icon="editor:format-align-right"></iron-icon>
         </paper-item>
       </hax-context-item-menu>
@@ -98,7 +98,7 @@ A context menu that provides common iframe based authoring options.
          */
         justifyValue: {
           type: String,
-          value: 'iframe-align-left',
+          value: 'hax-align-left',
           notify: true,
         },
       },
@@ -107,7 +107,7 @@ A context menu that provides common iframe based authoring options.
        */
       _iframeSizeChanged: function(newValue, oldValue) {
         if (typeof newValue !== typeof undefined) {
-          this.fire('hax-context-item-selected', {eventName: 'iframe-size-change', value: newValue});
+          this.fire('hax-context-item-selected', {eventName: 'hax-size-change', value: newValue});
         }
       },
       /**
@@ -117,13 +117,13 @@ A context menu that provides common iframe based authoring options.
         let detail = e.detail;
         // support a simple insert event to bubble up or everything else
         switch(detail.eventName) {
-          case 'iframe-align-left':
+          case 'hax-align-left':
             this.justifyIcon = detail.target.children[0].attributes[0].nodeValue;
           break;
-          case 'iframe-align-center':
+          case 'hax-align-center':
             this.justifyIcon = detail.target.children[0].attributes[0].nodeValue;
           break;
-          case 'iframe-align-right':
+          case 'hax-align-right':
             this.justifyIcon = detail.target.children[0].attributes[0].nodeValue;
           break;
           case 'close-menu':
