@@ -35,6 +35,9 @@ A LRN element that will change the world.
         transition: visibility .4s ease, opacity .4s ease;
         z-index: 1;
       }
+      :host #bodycontainer ::slotted(#haxinputmixer) {
+        z-index: 2;
+      }
       :host #bodycontainer ::slotted(.hax-context-visible) {
         visibility: visible;
         opacity: 1;
@@ -198,6 +201,7 @@ A LRN element that will change the world.
       <hax-ce-context id="cecontextmenu" class="hax-context-menu ignore-activation"></hax-ce-context>
       <hax-blox-context id="bloxcontextmenu" class="hax-context-menu ignore-activation"></hax-blox-context>
       <hax-plate-context id="platecontextmenu" class="hax-context-menu ignore-activation"></hax-plate-context>
+      <hax-input-mixer id="haxinputmixer" class="hax-context-menu ignore-activation"></hax-input-mixer>
     </div>
   </template>
 
@@ -209,6 +213,7 @@ A LRN element that will change the world.
         'focusin': '_focusIn',
         'mousedown': '_focusIn',
         'hax-context-item-selected': '_haxContextOperation',
+        'hax-input-mixer-update': '_haxInputMixerOperation',
       },
       properties: {
         /**
@@ -412,9 +417,11 @@ A LRN element that will change the world.
         this._hideContextMenu(this.$.textcontextmenu);
         this._hideContextMenu(this.$.imagecontextmenu);
         this._hideContextMenu(this.$.iframecontextmenu);
-        this._hideContextMenu(this.$.cecontextmenu);
+
         this._hideContextMenu(this.$.bloxcontextmenu);
         this._hideContextMenu(this.$.platecontextmenu);
+        this._hideContextMenu(this.$.cecontextmenu);
+        this._hideContextMenu(this.$.haxinputmixer);
       },
       /**
        * Reposition context menus to match an element.
@@ -443,11 +450,12 @@ A LRN element that will change the world.
             // properties for the three settings areas.
             if (typeof node.getHaxProperties === "function") {
               this.__activeContextType = this.$.cecontextmenu;
-              this.__activeContextType.setHaxProperties(node.getHaxProperties());
+              let props = node.getHaxProperties();
+              props.element = this.activeNode;
+              this.__activeContextType.setHaxProperties(props);
             }
             else {
               this.__activeContextType = this.$.textcontextmenu;
-              this._positionContextMenu(this.__activeContextType, node, -46, -46);
             }
             this._positionContextMenu(this.__activeContextType, node, -46, -46);
           break;
@@ -528,7 +536,7 @@ A LRN element that will change the world.
         let detail = e.detail;
         // support a simple insert event to bubble up or everything else
         switch(detail.eventName) {
-          // text based operations
+          // text based operations for primatives
           case 'p':
           case 'h2':
           case 'h3':
@@ -566,31 +574,30 @@ A LRN element that will change the world.
             // this is the equivalent of hiding menus and resetting the board
             this.activeNode = null;
           break;
-          // image operations
-          case 'image-src':
-            var url = null;
-            if (this.activeNode.tagName == 'IMAGE-PLAYER') {
-              url = prompt("Image URL:", this.activeNode.source);
+          case 'hax-edit-property':
+            let haxInputMixer = this.$.haxinputmixer;
+            haxInputMixer.label = detail.target.label;
+            haxInputMixer.options = detail.target.options;
+            haxInputMixer.description = detail.target.description;
+            haxInputMixer.required = detail.target.required;
+            haxInputMixer.validation = detail.target.validation;
+            haxInputMixer.validationType = detail.target.validationType;
+            haxInputMixer.inputMethod = detail.target.inputMethod;
+            haxInputMixer.value = '';
+            // see if response should bind to the slot or property
+            if (typeof detail.target.propertyToBind !== typeof undefined) {
+              haxInputMixer.propertyToBind = detail.target.propertyToBind;
+              if (typeof this.activeNode[detail.target.propertyToBind] !== typeof undefined) {
+                haxInputMixer.value = this.activeNode[detail.target.propertyToBind];
+              }
             }
             else {
-              url = prompt("Image URL:", this.activeNode.src);
+              haxInputMixer.slotToBind = detail.target.slotToBind;
+              // @todo need a way of querying the slot's current value
+              //haxInputMixer.value = this.activeNode[detail.target.slotToBind];
             }
-            if (url !== null && url !== '') {
-              // special support for our custom video-player
-              if (this.activeNode.tagName == 'IMAGE-PLAYER') {
-                this.activeNode.source = url;
-              }
-              else {
-                this.activeNode.src = url;
-              }
-              this.positionContextMenus(this.activeNode);
-            }
-          break;
-          case 'image-alt':
-            var alt = prompt("Image alt information:", this.activeNode.alt);
-            if (alt !== null) {
-              this.activeNode.alt = alt;
-            }
+            // make input mixer show up
+            this._positionContextMenu(haxInputMixer, this.$.cecontextmenu, 0, -88);
           break;
           // image/iframe based operations
           case 'hax-align-left':
@@ -639,11 +646,63 @@ A LRN element that will change the world.
               this.positionContextMenus(this.activeNode);
             }
           break;
+          // image operations
+          case 'image-src':
+            var url = null;
+            if (this.activeNode.tagName == 'IMAGE-PLAYER') {
+              url = prompt("Image URL:", this.activeNode.source);
+            }
+            else {
+              url = prompt("Image URL:", this.activeNode.src);
+            }
+            if (url !== null && url !== '') {
+              // special support for our custom video-player
+              if (this.activeNode.tagName == 'IMAGE-PLAYER') {
+                this.activeNode.source = url;
+              }
+              else {
+                this.activeNode.src = url;
+              }
+              this.positionContextMenus(this.activeNode);
+            }
+          break;
+          // alt info, convert this in the future
+          case 'image-alt':
+            var alt = prompt("Image alt information:", this.activeNode.alt);
+            if (alt !== null) {
+              this.activeNode.alt = alt;
+            }
+          break;
           default:
             // implies an event we haven't trapped for yet
             console.log(detail);
           break;
         }
+      },
+      /**
+       * Respond to an input mixer call.
+       */
+      _haxInputMixerOperation: function(e) {
+        // this is a big deal how simple this part is in the end
+        let mixer = e.detail.inputMixer;
+        console.log(mixer);
+        // if we have a property to bind, set that value from the
+        // widget that was dictated by the element itself
+        if (mixer.propertyToBind != null) {
+          this.activeNode[mixer.propertyToBind] = mixer.value;
+        }
+        // if we're told instead to do a slot bind, make a span tag
+        // with height same as parent and then mix in the innerHTML
+        else if (mixer.slotToBind != null) {
+          item = document.createElement('span');
+          item.style.height = 'inherit';
+          item.innerHTML = mixer.value;
+          item.attribute.slot = mixer.slotToBind;
+          //item.slot = mixer.slotToBind;
+          this.activeNode.appendChild(item);
+        }
+        // hide mixer
+        this._hideContextMenu(this.$.haxinputmixer);
       },
       /**
        * Item has gained focus, change active element to match

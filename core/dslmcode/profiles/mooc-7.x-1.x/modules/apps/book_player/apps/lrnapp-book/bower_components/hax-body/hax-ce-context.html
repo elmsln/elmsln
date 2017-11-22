@@ -160,8 +160,14 @@ required for populating input.
               item = document.createElement('hax-context-item');
               item.eventName = 'hax-edit-property';
               item.label = setting.title;
+              item.options = setting.options;
               item.icon = setting.icon;
-              item.inputMethod = setting.input;
+              item.inputMethod = setting.inputMethod;
+              item.required = setting.required;
+              item.options = setting.options;
+              item.validation = setting.validation;
+              item.validationType = setting.validationType;
+              item.description = setting.description;
               // property or slot if it doesn't exist
               if (typeof setting.property !== typeof undefined) {
                 item.propertyToBind = setting.property;

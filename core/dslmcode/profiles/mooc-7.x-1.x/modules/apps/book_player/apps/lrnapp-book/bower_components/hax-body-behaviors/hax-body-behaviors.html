@@ -5,7 +5,7 @@ with the hax-body element which manages elements.
 
 @microcopy - the mental model for this element
  - context - hax-body has context menus to provide options related to the active element
- - haxProperties - a mapping of properties to what input types to place on the menu
+ - haxProperties - a mapping of properties to what inputMethod types to place on the menu
 
 -->
 <script>
@@ -25,15 +25,15 @@ with the hax-body element which manages elements.
    *
    * Other settings can be expressed through beyond these simple layout modifiers.
    * The following example expresses a citation property which creates a textfield
-   * on the context bar with a text-format icon for input. It also illustrates how
-   * this could be applied to slots for more flexible content input as well as a
+   * on the context bar with a text-format icon for inputMethod. It also illustrates how
+   * this could be applied to slots for more flexible content inputMethod as well as a
    * potential boolean value in an "Advanced" area.
    * 'settings': [
    *   {
    *     'property': 'citation',
    *     'title': 'Citation',
    *     'description': 'Proper MLA or other standard citation format for the image.',
-   *     'input': 'textfield',
+   *     'inputMethod': 'textfield',
    *     'type': 'bar',
    *     'icon': 'text-format',
    *     'required': true
@@ -42,7 +42,7 @@ with the hax-body element which manages elements.
    *     'slot': 'area1',
    *     'title': 'Section 1',
    *     'description': 'Content that goes in the fist area in the layout.',
-   *     'input': 'textarea',
+   *     'inputMethod': 'textarea',
    *     'type': 'settings',
    *     'icon': 'layout'
    *   },
@@ -50,7 +50,7 @@ with the hax-body element which manages elements.
    *     'property': 'responsive',
    *     'title': 'Responsive',
    *     'description': 'The video automatically fills the available area.',
-   *     'input': 'boolean',
+   *     'inputMethod': 'boolean',
    *     'type': 'advanced',
    *     'icon': 'video'
    *   }
@@ -95,9 +95,9 @@ with the hax-body element which manages elements.
         if (typeof props[i].description === typeof undefined) {
           props[i].description = '';
         }
-        // ensure there's at least an input format
-        if (typeof props[i].input === typeof undefined) {
-          props[i].input = 'textfield';
+        // ensure there's at least an input method
+        if (typeof props[i].inputMethod === typeof undefined) {
+          props[i].inputMethod = 'textfield';
         }
         // ensure there's at least a type
         if (typeof props[i].type === typeof undefined) {
@@ -107,9 +107,21 @@ with the hax-body element which manages elements.
         if (typeof props[i].icon === typeof undefined) {
           props[i].icon = 'android';
         }
+        // ensure there's at least an empty options area
+        if (typeof props[i].options === typeof undefined) {
+          props[i].options = {};
+        }
         // ensure there's required set
         if (typeof props[i].required === typeof undefined) {
           props[i].required = false;
+        }
+        // ensure there's validation or make it anything if none set
+        if (typeof props[i].validation === typeof undefined) {
+          props[i].validation = '*';
+        }
+        // ensure there's validation or make it anything if none set
+        if (typeof props[i].validationType === typeof undefined) {
+          props[i].validationType = '';
         }
       }
       this._setHaxProperties(props);
@@ -133,10 +145,12 @@ with the hax-body element which manages elements.
             'property': 'title',
             'title': 'Title',
             'description': '',
-            'input': 'textfield',
+            'inputMethod': 'textfield',
             'type': 'settings',
+            'options': {},
             'icon': 'android',
-            'required': false
+            'required': false,
+            'validation': '[a-zA-Z]'
           }
         ]
       };

@@ -13,7 +13,7 @@ A simple responsive video player
 
 <dom-module id="video-player">
   <template>
-    <style>
+    <style include="materializecss-styles">
       :host {
         display: block;
       }
@@ -37,6 +37,12 @@ A simple responsive video player
         width: 100%;
         height: 100%;
       }
+      .video-caption {
+        font-style: italic;
+        margin: 0;
+        padding: 0;
+        @apply --video-player-caption-theme;
+      }
     </style>
     <div class="responsive-video-container">
       <template is="dom-if" if="[[iframed]]">
@@ -46,13 +52,18 @@ A simple responsive video player
         <video src="[[src]]" width="[[width]]" height="[[height]]" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen controls></video>
       </template>
     </div>
+    <div id="videocaption" class$="video-caption [[secondaryColorClass]]">
+      [[caption]]
+    </div>
+    <div id="captionslot" class$="video-caption [[secondaryColorClass]]">
+      <slot name="caption"></slot>
+    </div>
   </template>
 
   <script>
     Polymer({
-
       is: 'video-player',
-      behaviors: [HAXBehaviors.PropertiesBehaviors],
+      behaviors: [HAXBehaviors.PropertiesBehaviors, MaterializeCSSBehaviors.ColorBehaviors],
       properties: {
         /**
          * Source of the video
@@ -95,15 +106,55 @@ A simple responsive video player
         responsive: {
           type: Boolean,
           reflectToAttribute: true,
-          computed: '_computeResponsive(notResponsive)',
+          value: true,
         },
         /**
-         * Responsive video boolean
+         * Simple caption for the video
          */
-        notResponsive: {
-          type: Boolean,
+        caption: {
+          type: String,
           reflectToAttribute: true,
-          value: false,
+        },
+        /**
+         * Primary Color.
+         */
+        primaryColor: {
+          type: String,
+          value: null,
+          reflectToAttribute: true,
+          observer: '_primaryColorChanged',
+        },
+        /**
+         * Secondary Color.
+         */
+        secondaryColor: {
+          type: String,
+          value: null,
+          reflectToAttribute: true,
+        },
+        /**
+         * Primary color class.
+         */
+        primaryColorClass: {
+          type: String,
+          reflectToAttribute: true,
+          computed: '_computeColorClass(primaryColor)',
+        },
+        /**
+         * Secondary color class.
+         */
+        secondaryColorClass: {
+          type: String,
+          reflectToAttribute: true,
+          computed: '_computeColorClass(secondaryColor)',
+        },
+        /**
+         * Simple video styles for consistent presentation.
+         */
+        videoStyle: {
+          type: String,
+          value: 'style1',
+          reflectToAttribute: true,
         },
         /**
          * Youtube cookie-less domain for privacy.
@@ -172,22 +223,61 @@ A simple responsive video player
           'canPosition': true,
           'settings': [
             {
+              'property': 'source',
+              'title': 'Source',
+              'description': 'The URL for this video.',
+              'inputMethod': 'textfield',
+              'type': 'bar',
+              'icon': 'link',
+              'required': true,
+              'validationType': 'url',
+            },
+            {
               'property': 'caption',
               'title': 'caption',
               'description': 'Simple caption for under video',
-              'input': 'textfield',
+              'inputMethod': 'textfield',
               'type': 'bar',
               'icon': 'av:video-label',
-              'required': false
+              'required': false,
+              'validationType': 'text',
             },
             {
               'property': 'responsive',
               'title': 'Responsive',
               'description': 'The video automatically fills the available area.',
-              'input': 'boolean',
-              'type': 'advanced',
-              'icon': 'image:photo-size-select-small'
-            }
+              'inputMethod': 'boolean',
+              'type': 'bar',
+              'icon': 'image:photo-size-select-small',
+            },
+            {
+              'property': 'primaryColor',
+              'title': 'Primary color',
+              'description': 'Select the primary color used in the video',
+              'inputMethod': 'colorpicker',
+              'type': 'bar',
+              'icon': 'editor:format-color-fill',
+            },
+            {
+              'property': 'secondaryColor',
+              'title': 'Secondary color',
+              'description': 'Select the secondary color used for the video',
+              'inputMethod': 'colorpicker',
+              'type': 'bar',
+              'icon': 'editor:format-color-fill',
+            },
+            {
+              'property': 'videoStyle',
+              'title': 'Style',
+              'description': 'Simple video presentation style.',
+              'inputMethod': 'select',
+              'options': {
+                'style1': 'Style 1',
+                'style2': 'Style 2',
+              },
+              'type': 'bar',
+              'icon': 'av:subscriptions',
+            },
           ]
         };
         this.setHaxProperties(props);
@@ -253,6 +343,29 @@ A simple responsive video player
         return source;
       },
       /**
+       * Primary color changed, spread into internals.
+       */
+      _primaryColorChanged: function(newValue, oldValue) {
+        if (newValue != null) {
+          this.vimeoColor = newValue.substring(1);
+          // aggressive rebuild of source so vimeo picks up
+          // the color change and updates the URL to match
+          if (this.getType(this.source) == 'vimeo') {
+            var source = this.source;
+            this.set('source', '');
+            this.set('source', source);
+          }
+        }
+      },
+      /**
+       * Make class from color value
+       */
+      _computeColorClass: function(color) {
+        if (color != null && color.substring(0, 1) == '#') {
+          return this._colorTransform(color, '', '');
+        }
+      },
+      /**
        * Compute iframe or video tag for implementation.
        */
       _computeIframed: function(source) {
@@ -307,16 +420,6 @@ A simple responsive video player
         }
         return 'local';
       },
-      /**
-       * Calculate responsive as inverse of not responsive. This lets us have a clean default.
-       */
-      _computeResponsive: function(notResponsive) {
-        return !notResponsive;
-      },
-      /**
-       * Need to notice the source change while still trickling this
-       * info down correctly.
-       */
     });
   </script>
 </dom-module>

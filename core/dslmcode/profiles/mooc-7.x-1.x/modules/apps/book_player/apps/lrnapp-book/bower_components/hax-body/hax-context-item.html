@@ -109,15 +109,45 @@ A single button in the hax panel for consistency.
           type: String,
           value: "button",
           reflectToAttribute: true,
-        }
+        },
+        /**
+         * Method of input to display when activated. This is
+         * only used when triggered as part of haxProperties
+         */
+        inputMethod: {
+          type: String,
+          value: null,
+          reflectToAttribute: true,
+        },
+        /**
+         * Optional slot to bind this value to.
+         */
+        propertyToBind: {
+          type: String,
+          value: null,
+          reflectToAttribute: true,
+        },
+        /**
+         * Optional slot to bind this value to.
+         */
+        slotToBind: {
+          type: String,
+          value: null,
+          reflectToAttribute: true,
+        },
+        /**
+         * Optional description for this item.
+         */
+        description: {
+          type: String,
+          reflectToAttribute: true,
+        },
       },
       /**
        * Fire an event that includes the eventName of what was just pressed.
        */
       _fireEvent: function(e) {
-        var normalizedEvent = Polymer.dom(e);
-        var local = normalizedEvent.localTarget;
-        this.fire('hax-context-item-selected', {target: local, eventName: this.eventName});
+        this.fire('hax-context-item-selected', {target: this, eventName: this.eventName});
       }
     });
   </script>

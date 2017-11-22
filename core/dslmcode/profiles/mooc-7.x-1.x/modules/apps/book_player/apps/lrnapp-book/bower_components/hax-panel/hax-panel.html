@@ -25,6 +25,11 @@ as the events being bubbled up include HTML nodes to inject into something
         touch-action: auto;
         transition: all .3s ease;
       }
+      hax-panel-item:hover,
+      hax-panel-item:focus {
+        -webkit-box-shadow: 0 0 0 3px #34e79a;
+        box-shadow: 0 0 0 3px #34e79a;
+      }
     </style>
     <app-drawer id="drawer" opened="{{opened}}" disable-swipe persistent transition-duration="300">
 
