@@ -197,7 +197,9 @@ required for populating input.
             this.justifyIcon = detail.target.children[0].attributes[0].nodeValue;
           break;
           case 'close-menu':
-            this.$$('#justify').hideMenu();
+            if (this.$$('#justify')) {
+              this.$$('#justify').hideMenu();
+            }
           break;
         }
       },

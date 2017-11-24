@@ -199,7 +199,6 @@ A LRN element that will change the world.
       <hax-image-context id="imagecontextmenu" class="hax-context-menu ignore-activation"></hax-image-context>
       <hax-iframe-context id="iframecontextmenu" class="hax-context-menu ignore-activation"></hax-iframe-context>
       <hax-ce-context id="cecontextmenu" class="hax-context-menu ignore-activation"></hax-ce-context>
-      <hax-blox-context id="bloxcontextmenu" class="hax-context-menu ignore-activation"></hax-blox-context>
       <hax-plate-context id="platecontextmenu" class="hax-context-menu ignore-activation"></hax-plate-context>
       <hax-input-mixer id="haxinputmixer" class="hax-context-menu ignore-activation"></hax-input-mixer>
     </div>
@@ -418,7 +417,6 @@ A LRN element that will change the world.
         this._hideContextMenu(this.$.imagecontextmenu);
         this._hideContextMenu(this.$.iframecontextmenu);
 
-        this._hideContextMenu(this.$.bloxcontextmenu);
         this._hideContextMenu(this.$.platecontextmenu);
         this._hideContextMenu(this.$.cecontextmenu);
         this._hideContextMenu(this.$.haxinputmixer);
@@ -429,11 +427,7 @@ A LRN element that will change the world.
       positionContextMenus: function(node) {
         // specialized menu based on the type of contextual menu we need
         switch (node.tagName) {
-          // our layout system for complex items
-          case 'HAX-BLOX':
-            this.__activeContextType = this.$.bloxcontextmenu;
-            this._positionContextMenu(this.__activeContextType, node, -46, -46);
-          break;
+          // HTML primatives need manually defined and built out
           case 'IMG':
             this.__activeContextType = this.$.imagecontextmenu;
             this._positionContextMenu(this.__activeContextType, node, -46, -46);
@@ -578,6 +572,7 @@ A LRN element that will change the world.
             let haxInputMixer = this.$.haxinputmixer;
             haxInputMixer.label = detail.target.label;
             haxInputMixer.options = detail.target.options;
+            haxInputMixer.icon = detail.target.icon;
             haxInputMixer.description = detail.target.description;
             haxInputMixer.required = detail.target.required;
             haxInputMixer.validation = detail.target.validation;
@@ -620,10 +615,6 @@ A LRN element that will change the world.
           break;
           case 'hax-size-change':
             this.activeNode.style.width = detail.value + '%';
-            this.positionContextMenus(this.activeNode);
-          break;
-          case 'blox-layout-change':
-            this.activeNode.layout = detail.value;
             this.positionContextMenus(this.activeNode);
           break;
           // iframe based operations
@@ -685,7 +676,6 @@ A LRN element that will change the world.
       _haxInputMixerOperation: function(e) {
         // this is a big deal how simple this part is in the end
         let mixer = e.detail.inputMixer;
-        console.log(mixer);
         // if we have a property to bind, set that value from the
         // widget that was dictated by the element itself
         if (mixer.propertyToBind != null) {

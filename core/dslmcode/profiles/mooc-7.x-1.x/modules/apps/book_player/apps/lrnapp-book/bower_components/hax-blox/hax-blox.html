@@ -1,4 +1,5 @@
 <link rel="import" href="../juicy-html/juicy-html.html">
+<link rel="import" href="../hax-body-behaviors/hax-body-behaviors.html">
 
 <!--
 `hax-blox`
@@ -48,6 +49,7 @@ A LRN element for managing layout systems and templates.
   <script>
     Polymer({
       is: 'hax-blox',
+      behaviors: [HAXBehaviors.PropertiesBehaviors],
       properties: {
         /**
          * Layout to render. This expects to import an associated template.
@@ -118,6 +120,52 @@ A LRN element for managing layout systems and templates.
           type: Object,
           computed: '_calcModel(layout, primaryColor, secondaryColor, breakpoint, breakpoint2)',
         }
+      },
+      /**
+       * Ready.
+       */
+      ready: function() {
+        // Establish hax properties if they exist
+        let props = {
+          'canScale': false,
+          'canPosition': false,
+          'settings': [
+            {
+              'property': 'primaryColor',
+              'title': 'Primary color',
+              'description': 'Select the primary color used in the video',
+              'inputMethod': 'colorpicker',
+              'type': 'bar',
+              'icon': 'editor:format-color-fill',
+            },
+            {
+              'property': 'secondaryColor',
+              'title': 'Secondary color',
+              'description': 'Select the secondary color used for the video',
+              'inputMethod': 'colorpicker',
+              'type': 'bar',
+              'icon': 'editor:format-color-fill',
+            },
+            {
+              'property': 'layout',
+              'title': 'Layout',
+              'description': 'The layout for this content block.',
+              'inputMethod': 'select',
+              'options': {
+                'cols-100': '1 column (100%)',
+                'cols-50-50': 'two column (50%)',
+                'cols-25-75': 'two column (25% - 75%)',
+                'cols-66-33': 'two column (33% - 66%)',
+                'cols-75-25': 'two column (75% - 25%)',
+                'cols-33-33-33': 'three column (33%)',
+                'cols-25-25-25-25': 'four column (25%)',
+              },
+              'type': 'bar',
+              'icon': 'view-quilt',
+            },
+          ]
+        };
+        this.setHaxProperties(props);
       },
       /**
        * Calculate the model to send down into our template shadowdom.

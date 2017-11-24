@@ -350,7 +350,7 @@ A simple responsive video player
           this.vimeoColor = newValue.substring(1);
           // aggressive rebuild of source so vimeo picks up
           // the color change and updates the URL to match
-          if (this.getType(this.source) == 'vimeo') {
+          if (typeof this.source !== typeof undefined && this.getType(this.source) == 'vimeo') {
             var source = this.source;
             this.set('source', '');
             this.set('source', source);

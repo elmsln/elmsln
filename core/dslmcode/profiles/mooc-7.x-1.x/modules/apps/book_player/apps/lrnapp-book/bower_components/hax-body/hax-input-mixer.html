@@ -42,9 +42,9 @@ required for populating input.
       <template is="dom-if" if="[[__inputselect]]">
         <span>[[label]]</span>
         <hax-context-item-menu
-        selected-value="{{value}}"
-        selected="{{_numberValue}}"
-        id="input">
+          selected="{{value}}"
+          icon="[[icon]]"
+          id="input">
           <slot></slot>
         </hax-context-item-menu>
       </template>
@@ -127,6 +127,14 @@ required for populating input.
         options: {
           type: Object,
           value: {},
+          reflectToAttribute: true,
+        },
+        /**
+         * Optional icon that represents the item mixing.
+         */
+        icon: {
+          type: String,
+          value: 'android',
           reflectToAttribute: true,
         },
         /**
@@ -232,29 +240,21 @@ required for populating input.
           case 'hax-update-tap':
             // minor dataType conversion for boolean
             if (this.inputMethod == 'boolean') {
-              if (this.value == 'on') {
-                this.value = true;
-              }
-              else {
-                this.value = false;
-              }
+                this.value = this.value;
             }
             // opposite value for a flip-boolean
             else if (this.inputMethod == 'flipboolean') {
-              if (this.value == 'off') {
-                this.value = true;
-              }
-              else {
-                this.value = false;
-              }
+              this.value = !this.value;
             }
             else if (this.inputMethod == 'select') {
+              var count = 0;
               // convert value into key value
               for (val in this.options) {
-                if (this.options[val] == this.value) {
+                if (count == this.value) {
                   this.value = val;
                   continue;
                 }
+                count++;
               }
             }
             let mixer = {
