@@ -1,5 +1,8 @@
 <template is="dom-bind">
   <style>
+    #hax-layout-[[model.layout]] .clearfix {
+      clear: both;
+    }
     @media (min-width:[[model.breakpoint]]) {
         #hax-layout-[[model.layout]] .cols-33-33-33 {
             padding: 0 -15px;
@@ -24,4 +27,5 @@
       <slot name="area3"></slot>
     </div>
   </div>
+  <div class="clearfix"></div>
 </template>
