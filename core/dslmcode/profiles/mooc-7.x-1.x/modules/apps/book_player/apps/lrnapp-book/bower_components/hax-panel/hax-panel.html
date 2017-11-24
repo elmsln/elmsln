@@ -230,9 +230,9 @@ as the events being bubbled up include HTML nodes to inject into something
                 case '.jpg':
                 case '.gif':
                 case '.png':
-                  detail.tag = 'img';
+                  detail.tag = 'media-image';
                   detail.properties = {
-                    'src': url,
+                    'source': url,
                   };
                 break;
                 default:

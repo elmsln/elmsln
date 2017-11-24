@@ -580,7 +580,7 @@ A LRN element that will change the world.
             haxInputMixer.inputMethod = detail.target.inputMethod;
             haxInputMixer.value = '';
             // see if response should bind to the slot or property
-            if (typeof detail.target.propertyToBind !== typeof undefined) {
+            if (typeof detail.target.propertyToBind !== typeof undefined && detail.target.propertyToBind != null && detail.target.propertyToBind != false) {
               haxInputMixer.propertyToBind = detail.target.propertyToBind;
               if (typeof this.activeNode[detail.target.propertyToBind] !== typeof undefined) {
                 haxInputMixer.value = this.activeNode[detail.target.propertyToBind];
@@ -640,7 +640,7 @@ A LRN element that will change the world.
           // image operations
           case 'image-src':
             var url = null;
-            if (this.activeNode.tagName == 'IMAGE-PLAYER') {
+            if (this.activeNode.tagName == 'MEDIA-IMAGE') {
               url = prompt("Image URL:", this.activeNode.source);
             }
             else {
@@ -648,7 +648,7 @@ A LRN element that will change the world.
             }
             if (url !== null && url !== '') {
               // special support for our custom video-player
-              if (this.activeNode.tagName == 'IMAGE-PLAYER') {
+              if (this.activeNode.tagName == 'MEDIA-IMAGE') {
                 this.activeNode.source = url;
               }
               else {
@@ -676,6 +676,7 @@ A LRN element that will change the world.
       _haxInputMixerOperation: function(e) {
         // this is a big deal how simple this part is in the end
         let mixer = e.detail.inputMixer;
+        console.log(mixer);
         // if we have a property to bind, set that value from the
         // widget that was dictated by the element itself
         if (mixer.propertyToBind != null) {
@@ -687,8 +688,8 @@ A LRN element that will change the world.
           item = document.createElement('span');
           item.style.height = 'inherit';
           item.innerHTML = mixer.value;
-          item.attribute.slot = mixer.slotToBind;
-          //item.slot = mixer.slotToBind;
+          //item.attribute.slot = mixer.slotToBind;
+          item.slot = mixer.slotToBind;
           this.activeNode.appendChild(item);
         }
         // hide mixer
@@ -717,7 +718,7 @@ A LRN element that will change the world.
        */
       _validTags: function(e) {
         // @todo need a global way of hijacking this for integrations
-        var tags = ['p', 'div', 'ol', 'ul', 'li', 'a', 'hr', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'code', 'img', 'iframe', 'video', 'audio', 'hax-blox', 'video-player'];
+        var tags = ['p', 'div', 'ol', 'ul', 'li', 'a', 'hr', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'code', 'img', 'iframe', 'video', 'audio', 'hax-blox', 'video-player', 'media-image'];
         return tags;
       },
       /**
