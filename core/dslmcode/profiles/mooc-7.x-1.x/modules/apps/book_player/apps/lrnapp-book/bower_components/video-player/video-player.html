@@ -52,10 +52,10 @@ A simple responsive video player
         <video src="[[src]]" width="[[width]]" height="[[height]]" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen controls></video>
       </template>
     </div>
-    <div id="videocaption" class$="video-caption [[secondaryColorClass]]">
+    <div id="videocaption" class$="video-caption [[secondaryColorClass]] [[textColorClass]]">
       [[caption]]
     </div>
-    <div id="captionslot" class$="video-caption [[secondaryColorClass]]">
+    <div id="captionslot" class$="video-caption [[secondaryColorClass]] [[textColorClass]]">
       <slot name="caption"></slot>
     </div>
   </template>
@@ -131,6 +131,15 @@ A simple responsive video player
           type: String,
           value: null,
           reflectToAttribute: true,
+          observer: '_secondaryColorChanged',
+        },
+        /**
+         * Text color.
+         */
+        textColor: {
+          type: String,
+          value: null,
+          reflectToAttribute: true,
         },
         /**
          * Primary color class.
@@ -147,6 +156,15 @@ A simple responsive video player
           type: String,
           reflectToAttribute: true,
           computed: '_computeColorClass(secondaryColor)',
+        },
+        /**
+         * Text color class.
+         */
+        textColorClass: {
+          type: String,
+          value: null,
+          reflectToAttribute: true,
+          computed: '_computeColorClass(textColor)',
         },
         /**
          * Simple video styles for consistent presentation.
@@ -283,6 +301,43 @@ A simple responsive video player
         this.setHaxProperties(props);
       },
       /**
+       * Notice secondary color changed
+       */
+      _secondaryColorChanged: function(newValue, oldValue) {
+        if (typeof newValue !== typeof undefined && newValue != null) {
+          // sees if there's enough contrast and adjusts them accordingly
+          this.validateTextColor('textColor', 'secondaryColor');
+        }
+      },
+      /**
+       * Validate and modify the text contrast to ensure the correct contrast
+       */
+      validateTextColor: function(textprop, bgprop) {
+        // verify the value is hex value
+        if (this[bgprop].includes('#')) {
+          let color = '';
+          // strip hash from string
+          const colorBuffer = this[bgprop].substring(1);
+          // convert rrggbb to decimal
+          const rgb = parseInt(colorBuffer, 16);
+          // extract RGB
+          const r = (rgb >> 16) & 0xff;
+          const g = (rgb >> 8) & 0xff;
+          const b = (rgb >> 0) & 0xff;
+          // calculate luma
+          const luma = 0.2126 * r + 0.7152 * g + 0.0722 * b; // per ITU-R BT.709
+          // if the luma is to low switch to white text
+          if (luma < 141) {
+            color = '#ffffff';
+          }
+          else {
+            color = '#000000';
+          }
+          // Set color and background color vars
+          this.set(textprop, color);
+        }
+      },
+      /**
        * Compute src from type / source combo.
        * Type is set by source so this ensures a waterfall
        * of valid values.
@@ -361,7 +416,13 @@ A simple responsive video player
        * Make class from color value
        */
       _computeColorClass: function(color) {
-        if (color != null && color.substring(0, 1) == '#') {
+        if (color.toLowerCase() == '#ffffff') {
+          return 'white-text';
+        }
+        else if (color == '#000000') {
+          return 'black-text';
+        }
+        else if (color != null && color.substring(0, 1) == '#') {
           return this._colorTransform(color, '', '');
         }
       },
