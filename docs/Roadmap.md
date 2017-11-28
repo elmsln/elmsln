@@ -2,26 +2,24 @@ These are some systems and functionalities on the long term roadmap with the Cor
 
 The Core Architecture: ELMSLN is a package deployment intended to run on its own server. There are also future plans for running "fractal networks" which span servers. The core architecture has been running relatively unmodified since Fall 2013 and is considered very stable.Status: **Production**
 
-##Versions
+## Versions
 The closer we get to a 1.0.0, the more people will adopt the platform. We’re currently keeping things at 0.x.x branches to imply that we’re still heavily in development. 
 
 1.0.0 - The system has all the capabilities that people think of in an LMS but without being one by any means due to the architectural superiority of the platform.
 
-**Course content outline (mooc / courses)** - Instructional outline, pacing of the course and textbook replacement type of material.
-**Status**: Has been in Production for years, minor UX tweaks to get it to the goal line. **Production** phase.
+### Production ready parts of ELMS:LN
+**Course content outline (mooc / courses)** - Instructional outline, pacing of the course and textbook replacement type of material. Enhancements in creation workflows and usability are happening regularly but it has been used in production since 2012.
 
-**Course Information System (cis / online)** - Hub to route all data through to power the learning experience. This has a lot of data that a traditional LMS structures everything around but CIS uses this to influence the course experience, not determine it. CIS has a 1.x (legacy) version that was for public / front facing sites. This scope has shifted as 2.x of CIS is a data / internal engine. Those that want a front facing site can utilize Publicize as it was built out of that hull.
-**Status**: 2.x has been in production for awhile. The UX of this needs refined for sure but it's functional.**.
-
-**Innovate (ulmus / innovate)** - We all have great ideas, but we don't all have the skill sets necessary to bring them to life. Innovate seeks to change that by empowering users to build whatever they want in Drupal as a site builder. Innovate is built on something we call "ulmus" which is a meta-distribution / system, it's the base-line that ALL of our tools share in common. We use this as the branching point to make any new tool in the network, and so we didn't want to be the only ones able to do it. Anyone who can request a course space, can request an innovate space which will create a blank slate ELMSLN tool which has sections, will sync w/ the CIS like anything else, does all the crazy web-services, enables all the modules, makes the roles, etc. We've automated the boring so you can rapid prototype on top. Surprise us, surprise yourself, build the future. **Production**
+**Course Information System (cis / online)** - Hub to route all data through to power the learning experience. This has a lot of data that a traditional LMS structures everything around but CIS uses this to influence the course experience, not determine it. This has been used since 2012.
 
 **Media / Asset management (elmsmedia / media)** - An asset management system to allow for the easy uploading, cataloging, and embedding of assets in course content. This is built on an award winning methodology for keeping media separate and tightly integrated from content / the rest of the setup.
 Status: This is still gaining functionality and Usability improvements as well as integrations currently only available in the 6.x version (3playmedia specifically). **Beta**.
 
+**Studio (cle / studio)** - Place for students to submit images, media, links and be able to get feedback / critique / community. The studio is based on an award winning concept of open critique. This has been used since 2015 and was reimagined in early 2017.
+
 **Interactive Course Object Repository (icor / interact)** - This is similar to an asset management system but think of a separate system for more complex, sticky types of assets. For example, a timeline. Not a flash / file that you upload to have embedded but that you actually assemble the timeline in ICOR by stitching together dates (content you create) and then are given an embed code you can put anywhere. Similar to ELMSMedia on the surface, but once you start making things in it it's clear that this is different. Some other things this does: Polls, a zip file that's unpacked for embedding for complex things that are interactions of their own. Anything that's overly specific and complex but still *sorta* media, goes here. **Beta**
 
-**Studio (cle / studio)** - Place for students to submit images, media, links and be able to get feedback / critique / community. The studio is based on an award winning concept of open critique.
-**Status**: This has a lot of functionality built out but needs a ton of usability work and testing. **Beta**
+**Innovate (ulmus / innovate)** - We all have great ideas, but we don't all have the skill sets necessary to bring them to life. Innovate seeks to change that by empowering users to build whatever they want in Drupal as a site builder. Innovate is built on something we call "ulmus" which is a meta-distribution / system, it's the base-line that ALL of our tools share in common. We use this as the branching point to make any new tool in the network, and so we didn't want to be the only ones able to do it. Anyone who can request a course space, can request an innovate space which will create a blank slate ELMSLN tool which has sections, will sync w/ the CIS like anything else, does all the crazy web-services, enables all the modules, makes the roles, etc. We've automated the boring so you can rapid prototype on top. Surprise us, surprise yourself, build the future. **Production**
 
 **Editorial / Journal / Blog (editorial / blog)** - A journaling / blog system. This could serve as a blog for the course for the student (or instructor) to make postings throughout the course, or as a way for the student to keep things in a more private journal area to reference / learn from for later.
 **Status**: Gaining functionality actively as it will be alpha in Fall 2015. **Beta**
