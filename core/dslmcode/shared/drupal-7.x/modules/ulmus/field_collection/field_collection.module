@@ -1430,7 +1430,7 @@ function field_collection_remove_submit($form, &$form_state) {
  *   The entity object or FALSE.
  */
 function field_collection_field_get_entity(&$item, $field_name = NULL) {
-  if (isset($item['entity'])) {
+  if (isset($item['entity']) && ($item['entity']->entityType() == 'field_collection_item')) {
     return $item['entity'];
   }
   elseif (isset($item['value'])) {
