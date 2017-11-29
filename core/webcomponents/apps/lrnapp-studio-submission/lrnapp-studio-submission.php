@@ -4,11 +4,11 @@
  * Require the submission service.
  */
 define('__ROOT__', dirname(dirname(dirname(__FILE__))));
-require_once(__ROOT__.'/services/CleOpenStudioAppSubmissionService.php');
-require_once(__ROOT__.'/services/CleOpenStudioAppProjectService.php');
-require_once(__ROOT__.'/services/CleOpenStudioAppAssignmentService.php');
-require_once(__ROOT__.'/services/CleOpenStudioAppFileService.php');
-require_once(__ROOT__.'/services/CleOpenStudioAppCommentService.php');
+require_once(__ROOT__.'/services/LRNAppOpenStudioSubmissionService.php');
+require_once(__ROOT__.'/services/LRNAppOpenStudioProjectService.php');
+require_once(__ROOT__.'/services/LRNAppOpenStudioAssignmentService.php');
+require_once(__ROOT__.'/services/LRNAppOpenStudioFileService.php');
+require_once(__ROOT__.'/services/LRNAppOpenStudioCommentService.php');
 
 function _cle_open_studio_app_submission_findone($machine_name, $app_route, $params, $args) {
   $return = array('status' => 200);
@@ -22,7 +22,7 @@ function _cle_open_studio_app_submission_findone($machine_name, $app_route, $par
         // if it's a GET method then we can return the node.
         switch ($method) {
           case 'GET':
-            $service = new CleOpenStudioAppSubmissionService();
+            $service = new LRNAppOpenStudioSubmissionService();
             $return['data'] = $service->getSubmission($args[2]);
             // update the last viewed history timestamp
             if ($GLOBALS['user']->uid && $return['data']->id) {
@@ -36,7 +36,7 @@ function _cle_open_studio_app_submission_findone($machine_name, $app_route, $par
              }
             break;
           case 'PUT':
-            $service = new CleOpenStudioAppSubmissionService();
+            $service = new LRNAppOpenStudioSubmissionService();
             $post_data = file_get_contents("php://input");
             $post_data = json_decode($post_data);
             // try to update the node
@@ -51,7 +51,7 @@ function _cle_open_studio_app_submission_findone($machine_name, $app_route, $par
             }
             break;
           case 'DELETE':
-            $service = new CleOpenStudioAppSubmissionService();
+            $service = new LRNAppOpenStudioSubmissionService();
             try {
               $delete = $service->deleteSubmission($args[2]);
             }
@@ -83,7 +83,7 @@ function _cle_open_studio_app_submission_create_stub($machine_name, $app_route, 
     $post_data = file_get_contents("php://input");
     if ($post_data) {
       $post_data = json_decode($post_data);
-      $service = new CleOpenStudioAppSubmissionService();
+      $service = new LRNAppOpenStudioSubmissionService();
       try {
         $submission = $service->createStubSubmission($post_data);
         $return['status'] = 201;
@@ -110,7 +110,7 @@ function _cle_open_studio_app_submission_create_stub($machine_name, $app_route, 
 function _cle_open_studio_app_submission_index($machine_name, $app_route, $params, $args) {
   $return = array();
   $status = 200;
-  $service = new CleOpenStudioAppSubmissionService();
+  $service = new LRNAppOpenStudioSubmissionService();
 
   $return = $service->getSubmissions();
 
@@ -123,7 +123,7 @@ function _cle_open_studio_app_submission_index($machine_name, $app_route, $param
 function _cle_open_studio_app_file_index($machine_name, $app_route, $params, $args) {
   $return = array('status' => 200);
   $method = $_SERVER['REQUEST_METHOD'];
-  $file_service = new CleOpenStudioAppFileService();
+  $file_service = new LRNAppOpenStudioFileService();
 
   if ($method == 'POST') {
     // check for a file upload
@@ -155,7 +155,7 @@ function _cle_open_studio_app_video_generate_source_url($machine_name, $app_rout
   $method = $_SERVER['REQUEST_METHOD'];
   if ($method == 'POST') {
     $post_data = file_get_contents("php://input");
-    $submission_service = new CleOpenStudioAppSubmissionService;
+    $submission_service = new LRNAppOpenStudioSubmissionService;
     $src_url = $submission_service->videoGenerateSourceUrl($post_data);
     if ($src_url) {
       $return['data'] = $src_url;
@@ -170,7 +170,7 @@ function _cle_open_studio_app_video_generate_source_url($machine_name, $app_rout
 
 function _cle_open_studio_app_submission_comments($machine_name, $app_route, $params, $args) {
 
-  $comments_service = new CleOpenStudioAppCommentService();
+  $comments_service = new LRNAppOpenStudioCommentService();
   $submission_id = $args[2];
   $options = new stdClass();
   $options->filter = array('submission' => $submission_id);
@@ -205,7 +205,7 @@ function _cle_open_studio_app_submission_comments_findone($machine_name, $app_ro
                   'pid' => 0
                 );
               }
-              $service = new CleOpenStudioAppCommentService();
+              $service = new LRNAppOpenStudioCommentService();
               try {
                 $comment = $service->createStubComment($data);
                 $return['data'] = $comment;
@@ -218,11 +218,11 @@ function _cle_open_studio_app_submission_comments_findone($machine_name, $app_ro
             }
           break;
           case 'GET':
-            $service = new CleOpenStudioAppCommentService();
+            $service = new LRNAppOpenStudioCommentService();
             $return['data'] = $service->getComment($args[4]);
           break;
           case 'PUT':
-            $service = new CleOpenStudioAppCommentService();
+            $service = new LRNAppOpenStudioCommentService();
             $post_data = file_get_contents("php://input");
             $post_data = json_decode($post_data);
             // try to update the node
@@ -237,7 +237,7 @@ function _cle_open_studio_app_submission_comments_findone($machine_name, $app_ro
             }
           break;
           case 'DELETE':
-            $service = new CleOpenStudioAppCommentService();
+            $service = new LRNAppOpenStudioCommentService();
             try {
               $delete = $service->deleteComment($args[4]);
               $return['data'] = $delete;
@@ -249,7 +249,7 @@ function _cle_open_studio_app_submission_comments_findone($machine_name, $app_ro
           break;
           // treat patch like a like statement
           case 'PATCH':
-            $service = new CleOpenStudioAppCommentService();
+            $service = new LRNAppOpenStudioCommentService();
             try {
               $like = $service->likeComment($args[4]);
               $return['data'] = $like;

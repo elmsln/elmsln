@@ -1,6 +1,6 @@
 <?php
 
-class CleOpenStudioAppCommentService {
+class LRNAppOpenStudioCommentService {
   /**
    * Create Stub Comment based on assignment
    */
@@ -66,7 +66,7 @@ class CleOpenStudioAppCommentService {
     }
     $items = _cis_connector_assemble_entity_list('comment', 'comment', 'cid', '_entity', $field_conditions, $property_conditions, $orderby, TRUE, $limit, array('node_access'));
     // sort the comments into a thread
-    usort($items, 'CleOpenStudioAppCommentService::sortComments');
+    usort($items, 'LRNAppOpenStudioCommentService::sortComments');
     $items = $this->encodeComments($items);
     return $items;
   }

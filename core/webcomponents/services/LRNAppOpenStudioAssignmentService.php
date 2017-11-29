@@ -1,8 +1,8 @@
 <?php
 
-include_once 'CleOpenStudioAppSubmissionService.php';
+include_once 'LRNAppOpenStudioSubmissionService.php';
 
-class CleOpenStudioAppAssignmentService {
+class LRNAppOpenStudioAssignmentService {
   /**
    * Create Stub Assignment based on assignment
    * @param string node ID of this assignments parent project
@@ -166,7 +166,7 @@ class CleOpenStudioAppAssignmentService {
    * @return boolean
    */
   public function assignmentComplete($assignment_id) {
-    $submission_service = new CleOpenStudioAppSubmissionService();
+    $submission_service = new LRNAppOpenStudioSubmissionService();
     $submission = $submission_service->getSubmissionByAssignment($assignment_id);
     if ($submission->field_submission_state[LANGUAGE_NONE][0]['value'] == 'submission_ready') {
       return TRUE;

@@ -1,7 +1,7 @@
 <?php
 
 
-class CleOpenStudioAppFileService {
+class LRNAppOpenStudioFileService {
 
   /**
    * Get a list of comments

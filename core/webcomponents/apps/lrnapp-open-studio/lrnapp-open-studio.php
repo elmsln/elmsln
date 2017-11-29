@@ -4,11 +4,11 @@
  * Require the submission service.
  */
 define('__ROOT__', dirname(dirname(dirname(__FILE__))));
-require_once(__ROOT__.'/services/CleOpenStudioAppSubmissionService.php');
-require_once(__ROOT__.'/services/CleOpenStudioAppProjectService.php');
-require_once(__ROOT__.'/services/CleOpenStudioAppAssignmentService.php');
-require_once(__ROOT__.'/services/CleOpenStudioAppFileService.php');
-require_once(__ROOT__.'/services/CleOpenStudioAppCommentService.php');
+require_once(__ROOT__.'/services/LRNAppOpenStudioSubmissionService.php');
+require_once(__ROOT__.'/services/LRNAppOpenStudioProjectService.php');
+require_once(__ROOT__.'/services/LRNAppOpenStudioAssignmentService.php');
+require_once(__ROOT__.'/services/LRNAppOpenStudioFileService.php');
+require_once(__ROOT__.'/services/LRNAppOpenStudioCommentService.php');
 
 /**
  * Callback for apps/open-studio/data.
@@ -25,10 +25,10 @@ function _cle_open_studio_app_data($machine_name, $app_route, $params, $args) {
   // @todo we need to pull only what we're asked for as a range
   // this way we don't destroy the UI in huge classes
   // invoke our submission service to get submissions
-  $service = new CleOpenStudioAppSubmissionService();
+  $service = new LRNAppOpenStudioSubmissionService();
   $data['submissions'] = $service->getSubmissions($options);
   // snag projects
-  $service = new CleOpenStudioAppProjectService();
+  $service = new LRNAppOpenStudioProjectService();
   $data['projects'] = $service->getProjects();
   return array(
     'status' => $status,

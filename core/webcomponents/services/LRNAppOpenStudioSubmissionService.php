@@ -1,16 +1,16 @@
 <?php
 
-include_once 'CleOpenStudioAppCommentService.php';
-include_once 'CleOpenStudioAppAssignmentService.php';
+include_once 'LRNAppOpenStudioCommentService.php';
+include_once 'LRNAppOpenStudioAssignmentService.php';
 
-class CleOpenStudioAppSubmissionService {
+class LRNAppOpenStudioSubmissionService {
 
   /**
    * Create Stub Submission based on assignment
    */
   public function createStubSubmission($assignment_id) {
     global $user;
-    $service = new CleOpenStudioAppAssignmentService();
+    $service = new LRNAppOpenStudioAssignmentService();
     $assignment = $service->getAssignment($assignment_id);
     $assignment = $service->encodeAssignment($assignment);
     $node = new stdClass();
@@ -415,7 +415,7 @@ class CleOpenStudioAppSubmissionService {
     global $user;
     $account = $user;
     $encoded_submission = new stdClass();
-    $assignment_service = new CleOpenStudioAppAssignmentService();
+    $assignment_service = new LRNAppOpenStudioAssignmentService();
     if (is_object($submission)) {
       $encoded_submission->type = $submission->type;
       $encoded_submission->id = $submission->nid;
@@ -567,7 +567,7 @@ class CleOpenStudioAppSubmissionService {
       $encoded_submission->meta->comment_count = (!empty($submission->comment_count) ? $submission->comment_count : 0);
       $encoded_submission->meta->comment_new = comment_num_new($submission->nid);
       if ($submission->comment_count > 0) {
-        $comments_service = new CleOpenStudioAppCommentService();
+        $comments_service = new LRNAppOpenStudioCommentService();
         $options = (object) array('filter' => array('submission' => $submission->nid));
         $comments = $comments_service->getComments($options);
         $encoded_submission->relationships->comments = new stdClass();

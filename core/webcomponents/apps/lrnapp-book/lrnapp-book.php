@@ -3,7 +3,6 @@
  * @file
  * Code for LRNApp book
  */
-
 // hook up the book service
 define('__ROOT__', dirname(dirname(dirname(__FILE__))));
 require_once(__ROOT__.'/services/LRNAppBookService.php');

@@ -4,11 +4,11 @@
  * Require the submission service.
  */
 define('__ROOT__', dirname(dirname(dirname(__FILE__))));
-require_once(__ROOT__.'/services/CleOpenStudioAppSubmissionService.php');
-require_once(__ROOT__.'/services/CleOpenStudioAppProjectService.php');
-require_once(__ROOT__.'/services/CleOpenStudioAppAssignmentService.php');
-require_once(__ROOT__.'/services/CleOpenStudioAppFileService.php');
-require_once(__ROOT__.'/services/CleOpenStudioAppCommentService.php');
+require_once(__ROOT__.'/services/LRNAppOpenStudioSubmissionService.php');
+require_once(__ROOT__.'/services/LRNAppOpenStudioProjectService.php');
+require_once(__ROOT__.'/services/LRNAppOpenStudioAssignmentService.php');
+require_once(__ROOT__.'/services/LRNAppOpenStudioFileService.php');
+require_once(__ROOT__.'/services/LRNAppOpenStudioCommentService.php');
 
 /**
  * Callback for apps/lrnapp-studio-kanban/project-data.
@@ -51,8 +51,8 @@ function _cle_studio_kanban_kanban_data($machine_name, $app_route, $params, $arg
     );
     $options = new stdClass();
     $options->order = array();
-    $service = new CleOpenStudioAppProjectService();
-    $assignmentservice = new CleOpenStudioAppAssignmentService();
+    $service = new LRNAppOpenStudioProjectService();
+    $assignmentservice = new LRNAppOpenStudioAssignmentService();
     $data['projects'] = $service->getProjects($options);
     if (!empty($data['projects'])) {
       $status = 200;
@@ -89,11 +89,11 @@ function _cle_studio_kanban_project_findone($machine_name, $app_route, $params, 
         // if it's a GET method then we can return the node.
         switch ($method) {
           case 'GET':
-            $service = new CleOpenStudioAppProjectService();
+            $service = new LRNAppOpenStudioProjectService();
             $return['data'] = $service->getProject($args[2]);
             break;
           case 'PUT':
-            $service = new CleOpenStudioAppProjectService();
+            $service = new LRNAppOpenStudioProjectService();
             $post_data = file_get_contents("php://input");
             $post_data = json_decode($post_data);
             // try to update the node
@@ -108,7 +108,7 @@ function _cle_studio_kanban_project_findone($machine_name, $app_route, $params, 
             }
             break;
           case 'DELETE':
-            $service = new CleOpenStudioAppProjectService();
+            $service = new LRNAppOpenStudioProjectService();
             try {
               $delete = $service->deleteProject($args[2]);
             }
@@ -137,7 +137,7 @@ function _cle_studio_kanban_project_create_stub($machine_name, $app_route, $para
 
   // Find out if there is a nid specified
   if ($method == 'POST') {
-    $service = new CleOpenStudioAppProjectService();
+    $service = new LRNAppOpenStudioProjectService();
     try {
       $project = $service->createStubProject();
       if ($project) {
@@ -166,7 +166,7 @@ function _cle_studio_kanban_project_create_stub($machine_name, $app_route, $para
 function _cle_studio_kanban_project_index($machine_name, $app_route, $params, $args) {
   $return = array();
   $status = 200;
-  $service = new CleOpenStudioAppProjectService();
+  $service = new LRNAppOpenStudioProjectService();
 
   $return = $service->getProjects();
 
@@ -188,11 +188,11 @@ function _cle_studio_kanban_assignment_findone($machine_name, $app_route, $param
         // if it's a GET method then we can return the node.
         switch ($method) {
           case 'GET':
-            $service = new CleOpenStudioAppAssignmentService();
+            $service = new LRNAppOpenStudioAssignmentService();
             $return['data'] = $service->getAssignment($nid);
             break;
           case 'PUT':
-            $service = new CleOpenStudioAppAssignmentService();
+            $service = new LRNAppOpenStudioAssignmentService();
             $post_data = file_get_contents("php://input");
             $post_data = json_decode($post_data);
             // try to update the node
@@ -207,7 +207,7 @@ function _cle_studio_kanban_assignment_findone($machine_name, $app_route, $param
             }
             break;
           case 'DELETE':
-            $service = new CleOpenStudioAppAssignmentService();
+            $service = new LRNAppOpenStudioAssignmentService();
             try {
               $delete = $service->deleteAssignment($nid);
               $return['data'] = $delete;
@@ -240,7 +240,7 @@ function _cle_studio_kanban_assignment_create_stub($machine_name, $app_route, $p
     $post_data = file_get_contents("php://input");
     if ($post_data) {
       $post_data = json_decode($post_data);
-      $service = new CleOpenStudioAppAssignmentService();
+      $service = new LRNAppOpenStudioAssignmentService();
       try {
         $assignment = $service->createStubAssignment($post_data);
         if (isset($assignment->nid)) {
@@ -273,7 +273,7 @@ function _cle_studio_kanban_assignment_create_stub($machine_name, $app_route, $p
 function _cle_studio_kanban_assignment_index($machine_name, $app_route, $params, $args) {
   $return = array();
   $status = 200;
-  $service = new CleOpenStudioAppAssignmentService();
+  $service = new LRNAppOpenStudioAssignmentService();
 
   $return = $service->getAssignments();
   $items = $this->encodeAssignments($items, $app_route);

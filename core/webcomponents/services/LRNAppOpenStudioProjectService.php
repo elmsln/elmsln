@@ -1,8 +1,8 @@
 <?php
 
-include_once 'CleOpenStudioAppAssignmentService.php';
+include_once 'LRNAppOpenStudioAssignmentService.php';
 
-class CleOpenStudioAppProjectService {
+class LRNAppOpenStudioProjectService {
   /**
    * Create Stub Project based on assignment
    */
@@ -138,7 +138,7 @@ class CleOpenStudioAppProjectService {
       if ($node && isset($node->type) && $node->type == 'cle_project' && entity_access('delete', 'node', $node)) {
         // unpublish the node
         $node->status = 0;
-        $service = new CleOpenStudioAppAssignmentService();
+        $service = new LRNAppOpenStudioAssignmentService();
         // clean up assignments if they exist
         if (!empty($node->field_project_steps['und'])) {
           // loop through and clone assignments based on what we found
