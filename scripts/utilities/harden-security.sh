@@ -82,6 +82,32 @@ for i in $(find $configsdir/stacks/*/sites/*/*/files -maxdepth 0 -type d); do
   chown $wwwuser:$webgroup $i -v
   chmod 2774 $i -v
 done
+# GRAVCMS!!
+for i in $(find $configsdir/stacks/*/user -maxdepth 0 -type d); do
+  chown -R $wwwuser:$webgroup $i
+  chown $wwwuser:$webgroup $i -v
+  chmod 2774 $i -v
+done
+for i in $(find $configsdir/stacks/*/tmp -maxdepth 0 -type d); do
+  chown -R $wwwuser:$webgroup $i
+  chown $wwwuser:$webgroup $i -v
+  chmod 2774 $i -v
+done
+for i in $(find $configsdir/stacks/*/logs -maxdepth 0 -type d); do
+  chown -R $wwwuser:$webgroup $i
+  chown $wwwuser:$webgroup $i -v
+  chmod 2774 $i -v
+done
+for i in $(find $configsdir/stacks/*/backup -maxdepth 0 -type d); do
+  chown -R $wwwuser:$webgroup $i
+  chown $wwwuser:$webgroup $i -v
+  chmod 2774 $i -v
+done
+for i in $(find $configsdir/stacks/*/cache -maxdepth 0 -type d); do
+  chown -R $wwwuser:$webgroup $i
+  chown $wwwuser:$webgroup $i -v
+  chmod 2774 $i -v
+done
 
 # much easier things to target :)
 # ensure script settings are secure and READ ONLY
