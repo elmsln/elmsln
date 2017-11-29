@@ -1,0 +1,42 @@
+// Footer styling
+#footer {
+	position: absolute;
+	background: $footer-bg;
+	height: $footer-height;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	@extend .padding-horiz;
+	color: $footer-text;
+	text-align: center;
+
+	a:hover {
+		color: #fff;
+	}
+
+	.totop {
+		position: absolute;
+		bottom: $footer-height - 1rem;
+		text-align: center;
+		left: 0;
+		right: 0;
+		span {
+			font-size: 1.7rem;
+			line-height: 2.5rem;
+			background: $footer-bg;
+			width: 3rem;
+			height: 2rem;
+			border-radius: $border-radius;
+			display: inline-block;
+			text-align: top;
+		}
+	}
+
+	p {
+		@extend %vertical-align;
+		margin: 0;
+		.fa {
+			color: #fff;
+		}
+	}
+}

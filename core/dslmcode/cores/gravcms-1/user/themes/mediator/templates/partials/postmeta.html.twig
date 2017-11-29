@@ -1,0 +1,21 @@
+<div class="post-meta">
+    {% if page.header.link %}
+      <h1 class="post-title"><i class="fa fa-angle-double-right"></i> <a href="{{ page.header.link }}">{{ page.title }}</a></h1>
+    {% else %}
+      <h1 class="post-title">{{ page.title }}</h1>
+    {% endif %}
+    {% if page.template == 'post' %}
+    <div class="cf post-meta-text">
+        <div class="author-image" style="background-image: url({{ base_url }}{{ site.author.image }})">Blog Logo</div>
+        <h4 class="author-name" itemprop="author" itemscope itemtype="http://schema.org/Person">{{ site.author.name }}</h4>
+        on
+        <time datetime="{{ page.date | date(site.date_short) }}">{{ page.date | date(site.date_short) }}</time>
+        {% if page.taxonomy.tag|length > 0 %}
+        <span class="post-tags-set">in {% for tag in page.taxonomy.tag %}<span class="post-tag-{{tag}}"><a href="{{ base_url }}/tag{{ config.system.param_sep }}{{ tag }}">{{ tag }}</a></span>{%if not loop.last %} + {% endif %}{% endfor %}</span>
+        {% endif %}
+    </div>
+    <div style="text-align:center">
+        <a href="#topofpage" class="topofpage"><i class="fa fa-angle-down"></i></a>
+    </div>
+    {% endif %}
+</div>
