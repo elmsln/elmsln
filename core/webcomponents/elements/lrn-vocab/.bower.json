@@ -1,0 +1,31 @@
+{
+  "name": "lrn-vocab",
+  "main": "lrn-vocab.html",
+  "dependencies": {
+    "polymer": "Polymer/polymer#^1.4.0",
+    "paper-card": "PolymerElements/paper-card#^2.0.0",
+    "lrn-icons": "LRNWebComponents/lrn-icons#^1.0.4",
+    "lrndesign-card": "LRNWebComponents/lrndesign-card",
+    "lrndesign-drawer": "LRNWebComponents/lrndesign-drawer",
+    "lrnsys-behaviors": "LRNWebComponents/lrnsys-behaviors#^1.0.0",
+    "lrndesign-blockquote": "LRNWebcomponents/lrndesign-blockquote#^1.0.0",
+    "lrndesign-panelcard": "LRNWebComponents/lrndesign-panelcard#^1.0.0"
+  },
+  "devDependencies": {
+    "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
+    "iron-demo-helpers": "PolymerElements/iron-demo-helpers#^1.0.0",
+    "web-component-tester": "^4.0.0",
+    "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0"
+  },
+  "homepage": "https://github.com/LRNWebComponents/lrn-vocab",
+  "version": "1.0.1",
+  "_release": "1.0.1",
+  "_resolution": {
+    "type": "version",
+    "tag": "1.0.1",
+    "commit": "ba768ff57ccc4f6bc2723a30cc8ce223893f6de2"
+  },
+  "_source": "https://github.com/LRNWebComponents/lrn-vocab.git",
+  "_target": "^1.0.1",
+  "_originalSource": "LRNWebComponents/lrn-vocab"
+}

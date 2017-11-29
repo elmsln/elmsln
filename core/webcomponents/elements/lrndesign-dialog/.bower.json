@@ -1,0 +1,28 @@
+{
+  "name": "lrndesign-dialog",
+  "description": "A LRN element",
+  "main": "lrndesign-dialog.html",
+  "dependencies": {
+    "polymer": "Polymer/polymer#^1.4.0",
+    "lrnsys-behaviors": "LRNWebComponents/lrnsys-behaviors#^1.0.0",
+    "paper-dialog-behavior": "PolymerElements/paper-dialog-behavior#^2.0.1",
+    "paper-button": "PolymerElements/paper-button#^2.0.0"
+  },
+  "devDependencies": {
+    "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
+    "iron-demo-helpers": "PolymerElements/iron-demo-helpers#^1.0.0",
+    "web-component-tester": "^4.0.0",
+    "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0"
+  },
+  "homepage": "https://github.com/LRNWebComponents/lrndesign-dialog",
+  "version": "1.0.0",
+  "_release": "1.0.0",
+  "_resolution": {
+    "type": "version",
+    "tag": "1.0.0",
+    "commit": "5ef9409c861f54c3f954e68a0d56a17103a338df"
+  },
+  "_source": "https://github.com/LRNWebComponents/lrndesign-dialog.git",
+  "_target": "^1.0.0",
+  "_originalSource": "LRNWebComponents/lrndesign-dialog"
+}

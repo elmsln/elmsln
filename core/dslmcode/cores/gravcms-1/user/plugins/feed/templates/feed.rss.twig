@@ -1,0 +1,29 @@
+{% set collection = collection|default(page.collection) %}
+<?xml version="1.0" encoding="utf-8"?>
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+    <channel>
+        <title>{{ page.title }}</title>
+        <link>{{ page.url(true) }}.{{ uri.extension() }}</link>
+        <description>{{ collection.params.description }}</description>
+        <language>{{ collection.params.lang }}</language>
+        <atom:link href="{{ uri.url(true) }}.{{  uri.extension }}" rel="self" type="application/rss+xml"/>
+        {% for item in collection %}
+        {% set banner = item.media.images|first %}
+        <item>
+            <title>{{ item.title|e }}</title>
+            <link>{{ item.url(true) }}</link>
+            <description>
+                <![CDATA[
+                {% if banner %}
+                {{ banner.cropZoom(600,400).html|absolute_url|raw }}
+                {% endif %}
+                {{ item.content|truncate_html(collection.params.length)|raw }}
+                ]]>
+            </description>
+            <category>{{ item.taxonomy.tag|join(',') }}</category>
+            <guid>{{ item.url(true) }}</guid>
+            <pubDate>{{ item.date|date('D, d M Y H:i:s O') }}</pubDate>
+        </item>
+        {% endfor %}
+    </channel>
+</rss>

@@ -1,0 +1,41 @@
+{
+  "name": "emoji-selector",
+  "version": "1.1.1",
+  "description": "A polymer element that adds an emoji selector button to a paper-input",
+  "main": "emoji-selector.html",
+  "author": [
+    "Monica Dinculescu <noms@google.com>"
+  ],
+  "keywords": [
+    "web-components",
+    "polymer",
+    "emoji",
+    "input"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/notwaldorf/emoji-selector"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/notwaldorf/emoji-selector",
+  "ignore": [
+    "bower_components"
+  ],
+  "dependencies": {
+    "polymer": "Polymer/polymer#^1.0.0",
+    "paper-styles": "PolymerElements/paper-styles#^1.0.0",
+    "paper-input": "PolymerElements/paper-input#^1.0.0",
+    "paper-menu-button": "PolymerElements/paper-menu-button#^1.0.0",
+    "iron-icon": "PolymerElements/iron-icon#^1.0.0",
+    "paper-tabs": "PolymerElements/paper-tabs#^1.0.0",
+    "iron-pages": "PolymerElements/iron-pages#^1.0.0",
+    "iron-media-query": "PolymerElements/iron-media-query#^1.0.0",
+    "emojilib": "~1.0.0"
+  },
+  "devDependencies": {
+    "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
+    "test-fixture": "PolymerElements/test-fixture#^1.0.0",
+    "web-component-tester": "*",
+    "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0"
+  }
+}

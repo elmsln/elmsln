@@ -1,0 +1,33 @@
+{% set collection = collection|default(page.collection) %}
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <title>{{ page.title }}</title>
+    <link href="{{ page.url(true) }}.{{ uri.extension() }}" rel="self" />
+    <subtitle>{{ collection.params.description }}</subtitle>
+    <updated>{{ collection|first.date|date("Y-m-d\\TH:i:sP") }}</updated>
+    <author>
+        <name>{{ site.author.name|default("Grav User") }}</name>
+    </author>
+    <id>{{ uri.rootUrl(true) }}{{ uri.route() }}</id>
+    {% for item in collection %}
+    {% set banner = item.media.images|first %}
+    <entry>
+        <title>{{ item.title|e }}</title>
+        <id>{{ item.url(true) }}</id>
+        <updated>{{ item.date|date("Y-m-d\\TH:i:sP") }}</updated>
+        <published>{{ item.date|date("Y-m-d\\TH:i:sP") }}</published>
+        <link href="{{ item.url(true) }}"/>
+        {% for tag in item.taxonomy.tag %}
+        <category term="{{ tag|lower }}" label="{{ tag|capitalize }}" />
+        {% endfor %}
+        <content type="html">
+            <![CDATA[
+            {% if banner %}
+            {{ banner.cropZoom(600,400).html|raw }}
+            {% endif %}
+            {{ item.content|truncate_html(collection.params.length)|raw }}
+            ]]>
+        </content>
+    </entry>
+    {% endfor %}
+</feed>

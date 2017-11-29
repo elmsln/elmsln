@@ -1,0 +1,17 @@
+.pagination {
+	list-style: none;
+	padding: 0;
+	margin: 3rem 0 1rem;
+	text-align: center;
+	color: #aaa;
+}
+
+.pagination li {
+	display: inline-block;
+	border: 1px solid #eee;
+}
+
+.pagination a, .pagination span {
+	display: inline-block;
+	padding: 4px 15px;
+}

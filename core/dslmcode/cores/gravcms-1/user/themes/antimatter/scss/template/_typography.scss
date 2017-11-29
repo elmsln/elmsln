@@ -1,0 +1,236 @@
+// Body Base
+html, body, button, input, select, textarea, .pure-g, .pure-g [class *= "pure-u"] {
+	font-family: $font-family-default;
+	font-weight: 400;
+}
+
+// Headings
+h1, h2, h3, h4, h5, h6 {
+	font-family: $font-family-header;
+	font-weight: 400;
+	text-rendering: optimizeLegibility;
+	letter-spacing: -0px;
+}
+
+h1 {
+	font-size: $h1-font-size;
+    @include breakpoint(mobile-only) {
+        font-size: 2.5rem;
+        line-height: 1.2;
+        margin-bottom: 2.5rem;
+    }
+}
+
+h2 {
+	@include breakpoint(tablet-range) {
+		font-size: $h2-font-size - .40;
+	}
+	@include breakpoint(mobile-only) {
+		font-size: $h2-font-size - .50;
+	}
+}
+
+h3 {
+	@include breakpoint(tablet-range) {
+		font-size: $h3-font-size - .40;
+	}
+	@include breakpoint(mobile-only) {
+		font-size: $h3-font-size - .50;
+	}
+}
+
+h4 {
+	@include breakpoint(tablet-range) {
+		font-size: $h4-font-size - .40;
+	}
+	@include breakpoint(mobile-only) {
+		font-size: $h4-font-size - .50;
+	}
+}
+
+h1 {
+	text-align: center;
+	letter-spacing: -3px;
+}
+
+h2 {
+	letter-spacing: -2px;
+}
+
+h3 {
+	letter-spacing: -1px;
+}
+
+h1 + h2 {
+	margin: -2rem 0 2rem 0;
+	font-size: 2rem;
+	@include breakpoint(tablet-range) {
+		font-size: 1.6rem;
+	}
+	@include breakpoint(mobile-only) {
+		font-size: 1.5rem;
+	}
+	line-height: 1;
+	text-align: center;
+	font-family: $font-family-default;
+	font-weight: 300;
+}
+
+h2 + h3 {
+	margin: 0.5rem 0 2rem 0;
+	font-size: 2rem;
+	@include breakpoint(tablet-range) {
+		font-size: 1.6rem;
+	}
+	@include breakpoint(mobile-only) {
+		font-size: 1.5rem;
+	}
+	line-height: 1;
+	text-align: center;
+	font-family: $font-family-default;
+	font-weight: 300;
+}
+
+
+// Blockquote
+blockquote {
+	border-left: 10px solid $rule-color;
+	p {
+		font-size: 1.1rem;
+		color: #999;
+	}
+	cite {
+		display: block;
+		text-align: right;
+		color: #666;
+		font-size: 1.2rem;
+	}
+}
+
+// NOTES!!!!
+blockquote > blockquote > blockquote {
+
+	margin: 0;
+
+	p {
+
+		padding: 15px;
+		display: block;
+		font-size: 1rem;
+		margin-top: 0rem;
+		margin-bottom: 0rem;
+	}
+
+	> p {
+		// Yellow
+		margin-left: -71px;
+		border-left: 10px solid $notes-info-border;
+		background: $notes-info-bg;
+		color: darken($notes-info-border,15%);
+		a {
+			color: darken($notes-info-border,25%);
+			&:hover {
+				color: lighten($notes-info-border,5%);
+			}
+		}
+	}
+
+	> blockquote > p {
+		// Red
+		margin-left: -94px;
+		border-left: 10px solid $notes-warning-border;
+		background: $notes-warning-bg;
+		color: darken($notes-warning-border,15%);
+		a {
+			color: darken($notes-warning-border,25%);
+			&:hover {
+				color: lighten($notes-warning-border,5%);
+			}
+		}
+	}
+
+	> blockquote > blockquote > p {
+		// Blue
+		margin-left: -118px;
+		border-left: 10px solid $notes-note-border;
+		background: $notes-note-bg;
+		color: darken($notes-note-border,15%);
+		a {
+			color: darken($notes-note-border,25%);
+			&:hover {
+				color: lighten($notes-note-border,5%);
+			}
+		}
+	}
+
+	> blockquote > blockquote > blockquote > p {
+		// Green
+		margin-left: -142px;
+		border-left: 10px solid $notes-success-border;
+		background: $notes-success-bg;
+		color: darken($notes-success-border,15%);
+		a {
+			color: darken($notes-success-border,25%);
+			&:hover {
+				color: lighten($notes-success-border,5%);
+			}
+		}
+	}
+
+}
+
+// Inline and Code
+code,
+kbd,
+pre,
+samp {
+	font-family: $font-family-mono;
+}
+
+code {
+	background: $code-bg;
+	color: darken($code-text,10%);
+}
+
+pre {
+	padding: 2rem;
+	background: $pre-bg;
+	border: 1px solid $core-border-color;
+	border-radius: 3px;
+	code {
+		color: $pre-text;
+		background: inherit;
+	}
+}
+
+// Extras
+hr {
+	border-bottom: 4px solid $rule-color;
+}
+
+// Page Title
+.page-title {
+	margin-top: -25px;
+	padding: 25px;
+	float: left;
+	clear: both;
+	background: $core-accent;
+	color: $white;
+}
+
+// Label
+.label {
+    vertical-align: middle;
+    background: $core-accent;
+    border-radius: 100%;
+    color: $white;
+    height: 1rem;
+    min-width: 1rem;
+    line-height: 1rem;
+    display: inline-block;
+    text-align: center;
+    font-size: $core-font-size - 0.3rem;
+    font-family: $font-family-header;
+    margin-right: 0.75rem;
+}
+

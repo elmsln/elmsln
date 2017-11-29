@@ -1,0 +1,27 @@
+{
+  "name": "wikipedia-query",
+  "description": "A LRN element",
+  "main": "wikipedia-query.html",
+  "dependencies": {
+    "polymer": "Polymer/polymer#^1.4.0",
+    "lrnsys-behaviors": "LRNWebComponents/lrnsys-behaviors#^1.0.0",
+    "iron-ajax": "PolymerElements/iron-ajax#^2.0.5"
+  },
+  "devDependencies": {
+    "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
+    "iron-demo-helpers": "PolymerElements/iron-demo-helpers#^1.0.0",
+    "web-component-tester": "^4.0.0",
+    "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0"
+  },
+  "homepage": "https://github.com/LRNWebComponents/wikipedia-query",
+  "version": "1.0.0",
+  "_release": "1.0.0",
+  "_resolution": {
+    "type": "version",
+    "tag": "1.0.0",
+    "commit": "ae29fc8d02f2bc302a2a1bfc95d0badc91f21416"
+  },
+  "_source": "https://github.com/LRNWebComponents/wikipedia-query.git",
+  "_target": "^1.0.0",
+  "_originalSource": "LRNWebComponents/wikipedia-query"
+}

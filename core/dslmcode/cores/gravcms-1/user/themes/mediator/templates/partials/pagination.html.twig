@@ -1,0 +1,15 @@
+{% if base_url == '' %}
+    {% set base_url = '/' %}
+{% endif %}
+
+<nav class="pagination" role="navigation">
+    {% if pagination.hasNext %}
+        {% set url = (base_url ~ pagination.params ~ pagination.nextUrl)|replace({'//':'/'}) %}
+        <a class="older-posts" href="{{ url }}">&larr; Older posts</a>
+    {% endif %}
+    <span class="page-number">Page {{ uri.currentPage }} of {{ pagination|length }}</span>
+    {% if pagination.hasPrev %}
+        {% set url =  (base_url ~ pagination.params ~ pagination.prevUrl)|replace({'//':'/'}) %}
+        <a class="newer-posts" href="{{ url }}">Newer posts &rarr;</a>
+    {% endif %}
+</nav>

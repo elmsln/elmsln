@@ -5,8 +5,8 @@
  */
 
 include_once 'cle_submission.features.inc';
-include_once drupal_get_path('module', 'cle_open_studio_app') . '/apps/services/CleOpenStudioAppSubmissionService.php';
-include_once drupal_get_path('module', 'cle_open_studio_app') . '/apps/services/CleOpenStudioAppAssignmentService.php';
+include_once drupal_get_path('module', 'cle_open_studio_app') . '/apps/services/LRNAppOpenStudioSubmissionService.php';
+include_once drupal_get_path('module', 'cle_open_studio_app') . '/apps/services/LRNAppOpenStudioAssignmentService.php';
 
 /**
  * Implements hook_menu().
@@ -382,7 +382,7 @@ function cle_submission_page_build(&$page) {
  * Implements hook_node_access().
  */
 function cle_submission_node_access($node, $op, $account) {
-  $submission_service = new CleOpenStudioAppSubmissionService();
+  $submission_service = new LRNAppOpenStudioSubmissionService();
   // allow for privacy value on the assignment to dictate who can see this
   if ($op == 'view' && !_cis_connector_role_groupings(array('teacher', 'staff', 'webservice'), $account) && $node->type == 'cle_submission' && $node->uid != $account->uid) {
     $visible = $submission_service->submissionVisibleToUser($node);
@@ -400,8 +400,8 @@ function cle_submission_node_access($node, $op, $account) {
 function cle_submission_node_presave($node) {
   // Check the parent assignment to find out what type of submission should be.
   if ($node->type == 'cle_submission') {
-    $submission_service = new CleOpenStudioAppSubmissionService();
-    $assignment_service = new CleOpenStudioAppAssignmentService();
+    $submission_service = new LRNAppOpenStudioSubmissionService();
+    $assignment_service = new LRNAppOpenStudioAssignmentService();
 
     // ensure we have a parent assignment
     if (!isset($node->field_assignment[LANGUAGE_NONE][0]['target_id'])) {

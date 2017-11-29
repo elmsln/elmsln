@@ -9,13 +9,13 @@
  * $ drush @studio.math033 scr submissionVisible.php 89 --user=4
  */
 
-include_once drupal_get_path('module', 'cle_open_studio_app') . '/apps/services/CleOpenStudioAppSubmissionService.php';
+include_once drupal_get_path('module', 'cle_open_studio_app') . '/apps/services/LRNAppOpenStudioSubmissionService.php';
 
 // Get the submission id from the drush arguments
 $submission_id = drush_shift();
 
 // Make sure that the submissions parent assignment has it's dependencies met.
-$submission_service = new CleOpenStudioAppSubmissionService();
+$submission_service = new LRNAppOpenStudioSubmissionService();
 $visible_to_class = $submission_service->submissionVisibleToClass($submission_id);
 $message = ($visible_to_class ? 'visible' : 'hidden');
 drush_print_r('Class Access: ' . $message);
