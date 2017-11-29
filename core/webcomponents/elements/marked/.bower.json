@@ -28,6 +28,6 @@
     "commit": "eddec20467c2d10c7769061ee9074e268500966f"
   },
   "_source": "https://github.com/chjj/marked.git",
-  "_target": "~0.3.3",
+  "_target": "~0.3.6",
   "_originalSource": "marked"
 }

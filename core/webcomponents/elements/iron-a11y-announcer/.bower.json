@@ -1,6 +1,6 @@
 {
   "name": "iron-a11y-announcer",
-  "version": "2.0.0",
+  "version": "2.0.0-lrn",
   "description": "A singleton element that simplifies announcing text to screen readers.",
   "keywords": [
     "web-components",
@@ -52,14 +52,14 @@
   "resolutions": {
     "webcomponentsjs": "^1.0.0"
   },
-  "homepage": "https://github.com/PolymerElements/iron-a11y-announcer",
-  "_release": "2.0.0",
+  "homepage": "https://github.com/LRNWebComponents/iron-a11y-announcer",
+  "_release": "2.0.0-lrn",
   "_resolution": {
     "type": "version",
-    "tag": "v2.0.0",
-    "commit": "d87178289c267b3c80c2dbd0060cb7ba9804bf53"
+    "tag": "v2.0.0-lrn",
+    "commit": "489202a3432df5f7243c9f4ef31e60255b9affa2"
   },
-  "_source": "https://github.com/PolymerElements/iron-a11y-announcer.git",
-  "_target": "1 - 2",
-  "_originalSource": "PolymerElements/iron-a11y-announcer"
+  "_source": "https://github.com/LRNWebComponents/iron-a11y-announcer.git",
+  "_target": "2.0.0-lrn",
+  "_originalSource": "LRNWebComponents/iron-a11y-announcer"
 }

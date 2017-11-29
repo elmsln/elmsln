@@ -1,9 +1,23 @@
+
+<!---
+
+This README is automatically generated from the comments in these files:
+iron-overlay-backdrop.html  iron-overlay-behavior.html
+
+Edit those files, and our readme bot will duplicate them over here!
+Edit this file, and the bot will squash your changes :)
+
+The bot does some handling of markdown. Please file a bug if it does the wrong
+thing! https://github.com/PolymerLabs/tedium/issues
+
+-->
+
 [![Build status](https://travis-ci.org/PolymerElements/iron-overlay-behavior.svg?branch=master)](https://travis-ci.org/PolymerElements/iron-overlay-behavior)
 
 _[Demo and API docs](https://elements.polymer-project.org/elements/iron-overlay-behavior)_
 
 
-## Polymer.IronOverlayBehavior
+##Polymer.IronOverlayBehavior
 
 Use `Polymer.IronOverlayBehavior` to implement an element that can be hidden or shown, and displays
 on top of other content. It includes an optional backdrop, and can be used to implement a variety
@@ -11,10 +25,6 @@ of UI controls including dialogs and drop downs. Multiple overlays may be displa
 
 See the [demo source code](https://github.com/PolymerElements/iron-overlay-behavior/blob/master/demo/simple-overlay.html)
 for an example.
-
-### Changes in 2.0
-- Focus wrapping is not guaranteed to work for elements with `tabindex > 0`, see more details [here](https://github.com/PolymerElements/iron-overlay-behavior/pull/241).
-Consider overriding [`_focusableNodes`](http://jsbin.com/siwutox/1/edit) or using the [Blocking Elements polyfill](https://github.com/PolymerLabs/blockingElements).
 
 ### Closing and canceling
 
@@ -47,7 +57,9 @@ The element is styled to appear on top of other content by setting its `z-index`
 must ensure no element has a stacking context with a higher `z-index` than its parent stacking
 context. You should place this element as a child of `<body>` whenever possible.
 
-## &lt;iron-overlay-backdrop&gt;
+
+
+##&lt;iron-overlay-backdrop&gt;
 
 `iron-overlay-backdrop` is a backdrop used by `Polymer.IronOverlayBehavior`. It should be a
 singleton.

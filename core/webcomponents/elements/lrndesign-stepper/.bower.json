@@ -6,8 +6,7 @@
     "polymer": "Polymer/polymer#^1.4.0",
     "lrnsys-behaviors": "LRNWebComponents/lrnsys-behaviors#^1.0.0",
     "hax-behaviors": "LRNWebComponents/hax-behaviors#^0.0.6",
-    "materializecss-styles": "LRNWebComponents/materializecss-styles#^0.0.5",
-    "iron-collapse": "PolymerElements/iron-collapse#^2.0.0"
+    "materializecss-styles": "LRNWebComponents/materializecss-styles#^0.0.5"
   },
   "devDependencies": {
     "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
@@ -16,14 +15,14 @@
     "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0"
   },
   "homepage": "https://github.com/LRNWebComponents/lrndesign-stepper",
-  "version": "0.0.6",
-  "_release": "0.0.6",
+  "version": "0.0.5",
+  "_release": "0.0.5",
   "_resolution": {
     "type": "version",
-    "tag": "0.0.6",
-    "commit": "08688b78c89406ba89edcce8bc0dc2a13740d3c8"
+    "tag": "0.0.5",
+    "commit": "717fa6cbe954a5199d7297830be7304ea2516c60"
   },
   "_source": "https://github.com/LRNWebComponents/lrndesign-stepper.git",
-  "_target": "^0.0.6",
+  "_target": "^0.0.5",
   "_originalSource": "LRNWebComponents/lrndesign-stepper"
 }

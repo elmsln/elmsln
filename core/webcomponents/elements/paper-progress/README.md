@@ -1,6 +1,6 @@
 [![Build status](https://travis-ci.org/PolymerElements/paper-progress.svg?branch=master)](https://travis-ci.org/PolymerElements/paper-progress)
 
-## &lt;paper-progress&gt;
+##&lt;paper-progress&gt;
 
 Material design: [Progress & activity](https://www.google.com/design/spec/components/progress-activity.html)
 
@@ -46,3 +46,4 @@ will take.
 
 There is also a secondary progress which is useful for displaying intermediate
 progress, such as the buffer level during a streaming playback progress bar.
+

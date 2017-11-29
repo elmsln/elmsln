@@ -22,15 +22,16 @@
     "web-component-tester": "^4.0.0",
     "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0"
   },
-  "homepage": "https://github.com/LRNWebComponents/lrnsys-layout",
-  "version": "1.1.2",
-  "_release": "1.1.2",
+  "homepage": "https://github.com/LRNWebcomponents/lrnsys-layout",
+  "version": "1.0.6",
+  "_release": "1.0.6",
   "_resolution": {
     "type": "version",
-    "tag": "1.1.2",
-    "commit": "b6b60de8b9556e05ca0777963ab685c60dfc3431"
+    "tag": "1.0.6",
+    "commit": "1ceba79eab7d35311a1d74fdb85ad526cf2df6e9"
   },
-  "_source": "https://github.com/LRNWebComponents/lrnsys-layout.git",
-  "_target": "^1.1.2",
-  "_originalSource": "LRNWebComponents/lrnsys-layout"
+  "_source": "https://github.com/LRNWebcomponents/lrnsys-layout.git",
+  "_target": "^1.0.6",
+  "_originalSource": "LRNWebcomponents/lrnsys-layout",
+  "_direct": true
 }

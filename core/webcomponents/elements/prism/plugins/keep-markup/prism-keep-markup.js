@@ -92,8 +92,6 @@
 					pos: 0
 				});
 			});
-			// Store new highlightedCode for later hooks calls
-			env.highlightedCode = env.element.innerHTML;
 		}
 	});
 }());

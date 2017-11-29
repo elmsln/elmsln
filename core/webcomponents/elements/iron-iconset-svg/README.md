@@ -1,23 +1,9 @@
-
-<!---
-
-This README is automatically generated from the comments in these files:
-iron-iconset-svg.html
-
-Edit those files, and our readme bot will duplicate them over here!
-Edit this file, and the bot will squash your changes :)
-
-The bot does some handling of markdown. Please file a bug if it does the wrong
-thing! https://github.com/PolymerLabs/tedium/issues
-
--->
-
 [![Build status](https://travis-ci.org/PolymerElements/iron-iconset-svg.svg?branch=master)](https://travis-ci.org/PolymerElements/iron-iconset-svg)
 
 _[Demo and API docs](https://elements.polymer-project.org/elements/iron-iconset-svg)_
 
 
-##&lt;iron-iconset-svg&gt;
+## &lt;iron-iconset-svg&gt;
 
 The `iron-iconset-svg` element allows users to define their own icon sets
 that contain svg icons. The svg icon elements should be children of the
@@ -52,5 +38,3 @@ element use the `applyIcon` method. For example:
 ```javascript
 iconset.applyIcon(iconNode, 'car');
 ```
-
-

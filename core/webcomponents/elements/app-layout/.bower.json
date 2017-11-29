@@ -1,6 +1,6 @@
 {
   "name": "app-layout",
-  "version": "2.0.3",
+  "version": "2.0.1",
   "description": "A set of layout elements for your app",
   "authors": [
     "The Polymer Authors"
@@ -50,7 +50,7 @@
       },
       "devDependencies": {
         "test-fixture": "PolymerElements/test-fixture#^1.0.0",
-        "web-component-tester": "^6.0.0",
+        "web-component-tester": "^4.0.0",
         "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0"
       },
       "resolutions": {
@@ -65,11 +65,11 @@
   "resolutions": {
     "webcomponentsjs": "^1.0.0"
   },
-  "_release": "2.0.3",
+  "_release": "2.0.1",
   "_resolution": {
     "type": "version",
-    "tag": "v2.0.3",
-    "commit": "168c2a4f98b4f4a7937dfa3c9dbb6c0bce6175e3"
+    "tag": "v2.0.1",
+    "commit": "63b5453e260d4fbe19513d02ca8a34a0555394dd"
   },
   "_source": "https://github.com/PolymerElements/app-layout.git",
   "_target": "^2.0.1",

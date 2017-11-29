@@ -6,8 +6,7 @@
     "polymer": "Polymer/polymer#^1.4.0",
     "lrnsys-behaviors": "LRNWebComponents/lrnsys-behaviors#^1.0.0",
     "hax-behaviors": "LRNWebComponents/hax-behaviors#^0.0.6",
-    "materializecss-styles": "LRNWebComponents/materializecss-styles#^0.0.5",
-    "iron-collapse": "PolymerElements/iron-collapse#^2.0.0"
+    "materializecss-styles": "LRNWebComponents/materializecss-styles#^0.0.5"
   },
   "devDependencies": {
     "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",

@@ -1,11 +1,11 @@
 [![Build status](https://travis-ci.org/PolymerElements/paper-ripple.svg?branch=master)](https://travis-ci.org/PolymerElements/paper-ripple)
 
-## &lt;paper-ripple&gt;
+##&lt;paper-ripple&gt;
 
 Material design: [Surface reaction](https://www.google.com/design/spec/animation/responsive-interaction.html#responsive-interaction-surface-reaction)
 
 `paper-ripple` provides a visual effect that other paper elements can
-use to simulate a rippling effect emanating from the point of contact. The
+use to simulate a rippling effect emanating from the point of contact.  The
 effect can be visualized as a concentric circle with motion.
 
 <!---

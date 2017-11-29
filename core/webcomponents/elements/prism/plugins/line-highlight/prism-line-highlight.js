@@ -44,12 +44,12 @@ function highlightLines(pre, lines, classes) {
 
 	for (var i=0, range; range = ranges[i++];) {
 		range = range.split('-');
-
+					
 		var start = +range[0],
 		    end = +range[1] || start;
-
+		
 		var line = document.createElement('div');
-
+		
 		line.textContent = Array(end - start + 2).join(' \n');
 		line.setAttribute('aria-hidden', 'true');
 		line.className = (classes || '') + ' line-highlight';
@@ -77,25 +77,25 @@ function highlightLines(pre, lines, classes) {
 
 function applyHash() {
 	var hash = location.hash.slice(1);
-
+	
 	// Remove pre-existing temporary lines
 	$$('.temporary.line-highlight').forEach(function (line) {
 		line.parentNode.removeChild(line);
 	});
-
+	
 	var range = (hash.match(/\.([\d,-]+)$/) || [,''])[1];
-
+	
 	if (!range || document.getElementById(hash)) {
 		return;
 	}
-
+	
 	var id = hash.slice(0, hash.lastIndexOf('.')),
 	    pre = document.getElementById(id);
 
 	if (!pre) {
 		return;
 	}
-
+	
 	if (!pre.hasAttribute('data-line')) {
 		pre.setAttribute('data-line', '');
 	}
@@ -107,46 +107,27 @@ function applyHash() {
 
 var fakeTimer = 0; // Hack to limit the number of times applyHash() runs
 
-Prism.hooks.add('before-sanity-check', function(env) {
+Prism.hooks.add('complete', function(env) {
 	var pre = env.element.parentNode;
 	var lines = pre && pre.getAttribute('data-line');
-
+	
 	if (!pre || !lines || !/pre/i.test(pre.nodeName)) {
 		return;
 	}
 	
-	/*
-	* Cleanup for other plugins (e.g. autoloader).
-	 *
-	 * Sometimes <code> blocks are highlighted multiple times. It is necessary
-	 * to cleanup any left-over tags, because the whitespace inside of the <div>
-	 * tags change the content of the <code> tag.
-	 */
-	var num = 0;
+	clearTimeout(fakeTimer);
+	
 	$$('.line-highlight', pre).forEach(function (line) {
-		num += line.textContent.length;
 		line.parentNode.removeChild(line);
 	});
-	// Remove extra whitespace
-	if (num && /^( \n)+$/.test(env.code.slice(-num))) {
-		env.code = env.code.slice(0, -num);
-	}
-});
-
-Prism.hooks.add('complete', function(env) {
-	var pre = env.element.parentNode;
-	var lines = pre && pre.getAttribute('data-line');
-
-	if (!pre || !lines || !/pre/i.test(pre.nodeName)) {
-		return;
-	}
-
-	clearTimeout(fakeTimer);
+	
 	highlightLines(pre, lines);
-
+	
 	fakeTimer = setTimeout(applyHash, 1);
 });
 
+if(window.addEventListener) {
 	window.addEventListener('hashchange', applyHash);
+}
 
 })();
