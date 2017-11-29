@@ -416,7 +416,7 @@ A simple responsive video player
        * Make class from color value
        */
       _computeColorClass: function(color) {
-        if (color.toLowerCase() == '#ffffff') {
+        if (color != null && color.toLowerCase() == '#ffffff') {
           return 'white-text';
         }
         else if (color == '#000000') {
