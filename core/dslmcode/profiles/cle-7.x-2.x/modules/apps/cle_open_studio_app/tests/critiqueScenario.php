@@ -1,12 +1,12 @@
 <?php
 
-include_once drupal_get_path('module', 'cle_open_studio_app') . '/apps/services/CleOpenStudioAppAssignmentService.php';
-include_once drupal_get_path('module', 'cle_open_studio_app') . '/apps/services/CleOpenStudioAppProjectService.php';
-include_once drupal_get_path('module', 'cle_open_studio_app') . '/apps/services/CleOpenStudioAppSubmissionService.php';
+include_once drupal_get_path('module', 'cle_open_studio_app') . '/apps/services/LRNAppOpenStudioAssignmentService.php';
+include_once drupal_get_path('module', 'cle_open_studio_app') . '/apps/services/LRNAppOpenStudioProjectService.php';
+include_once drupal_get_path('module', 'cle_open_studio_app') . '/apps/services/LRNAppOpenStudioSubmissionService.php';
 
-$project_service = new CleOpenStudioAppProjectService();
-$assignment_service = new CleOpenStudioAppAssignmentService();
-$submission_service = new CleOpenStudioAppSubmissionService();
+$project_service = new LRNAppOpenStudioProjectService();
+$assignment_service = new LRNAppOpenStudioAssignmentService();
+$submission_service = new LRNAppOpenStudioSubmissionService();
 
 // Delete Assignments
 $assignments = $assignment_service->getAssignments();
