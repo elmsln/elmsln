@@ -6,7 +6,7 @@
 
 // hook up the book service
 define('__ROOT__', dirname(dirname(__FILE__)));
-require_once(__ROOT__.'/services/LRNAppBookService.php');
+require_once(__ROOT__.'/../../services/LRNAppBookService.php');
 require_once(dirname(__FILE__).'/LRNAppBookProperties.php');
 
 /**

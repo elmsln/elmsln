@@ -4,11 +4,11 @@
  * Require the submission service.
  */
 define('__ROOT__', dirname(dirname(__FILE__)));
-require_once(__ROOT__.'/services/CleOpenStudioAppSubmissionService.php');
-require_once(__ROOT__.'/services/CleOpenStudioAppProjectService.php');
-require_once(__ROOT__.'/services/CleOpenStudioAppAssignmentService.php');
-require_once(__ROOT__.'/services/CleOpenStudioAppFileService.php');
-require_once(__ROOT__.'/services/CleOpenStudioAppCommentService.php');
+require_once(__ROOT__.'/../../services/CleOpenStudioAppSubmissionService.php');
+require_once(__ROOT__.'/../../services/CleOpenStudioAppProjectService.php');
+require_once(__ROOT__.'/../../services/CleOpenStudioAppAssignmentService.php');
+require_once(__ROOT__.'/../../services/CleOpenStudioAppFileService.php');
+require_once(__ROOT__.'/../../services/CleOpenStudioAppCommentService.php');
 
 /**
  * Callback for apps/open-studio/data.
