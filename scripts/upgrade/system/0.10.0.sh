@@ -14,6 +14,16 @@ mkdir $configsdir/stacks/_installer/user
 # move to user dir so our symlink is correct
 cd $configsdir/stacks/_installer/user
 ln -s ../../../core/webcomponents webcomponents
+
+mkdir $configsdir/stacks/_toplevel
+mkdir $configsdir/stacks/_toplevel/cache
+mkdir $configsdir/stacks/_toplevel/backup
+mkdir $configsdir/stacks/_toplevel/logs
+mkdir $configsdir/stacks/_toplevel/tmp
+mkdir $configsdir/stacks/_toplevel/user
+# move to user dir so our symlink is correct
+cd $configsdir/stacks/_toplevel/user
+ln -s ../../../core/webcomponents webcomponents
 # move back to origin and invoke security repair
 cd $DIR
 bash ../../utilities/harden-security.sh
