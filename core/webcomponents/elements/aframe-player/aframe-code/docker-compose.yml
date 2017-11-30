@@ -1,0 +1,13 @@
+version: '3'
+services:
+  sync:
+    image: ustwo/browser-sync
+    volumes:
+      - .:/usr/share/nginx/html
+    ports:
+      - '3000:3000'
+      - '3001:3001'
+    volumes:
+      - .:/source
+    working_dir: /source
+    command: "start --server --files '**.*'"

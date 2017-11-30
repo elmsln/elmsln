@@ -1,0 +1,20 @@
+{
+  "name": "aframe-player",
+  "description": "A LRN element",
+  "main": "aframe-player.html",
+  "dependencies": {
+    "polymer": "Polymer/polymer#^1.9.1",
+    "lrnsys-behaviors": "LRNWebComponents/lrnsys-behaviors#^1.0.0",
+    "hax-behaviors": "LRNWebComponents/hax-behaviors#^0.0.6",
+    "materializecss-styles": "LRNWebComponents/materializecss-styles#^0.0.5",
+    "paper-spinner": "PolymerElements/paper-spinner#^1.2.1",
+    "paper-tooltip": "PolymerElements/paper-tooltip#^1.1.4",
+    "hax-body-behaviors": "LRNWebComponents/hax-body-behaviors#^1.0.1"
+  },
+  "devDependencies": {
+    "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
+    "iron-demo-helpers": "PolymerElements/iron-demo-helpers#^1.0.0",
+    "web-component-tester": "^4.0.0",
+    "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0"
+  }
+}
