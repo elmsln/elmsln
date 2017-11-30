@@ -4,7 +4,8 @@
   "main": "hax-blox.html",
   "dependencies": {
     "polymer": "Polymer/polymer#^2.2.0",
-    "juicy-html": "Juicy/juicy-html#^2.0.1"
+    "juicy-html": "Juicy/juicy-html#^2.0.1",
+    "hax-body-behaviors": "LRNWebComponents/hax-body-behaviors#^1.0.1"
   },
   "devDependencies": {
     "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",

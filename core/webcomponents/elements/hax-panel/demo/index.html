@@ -22,7 +22,25 @@
       <demo-snippet>
         <template is="dom-bind">
           <paper-button id="button">Toggle</paper-button>
-          <hax-panel id="panel"></hax-panel>
+          <hax-panel id="panel">
+            <span slot="after-global">
+            <lrnsys-collapselist-item>
+              <span slot="label"><div class="label">Content outline</div></span>
+              <span slot="content" style="display:flex;">
+                <hax-panel-item
+                  icon="editor:linear-scale"
+                  icon-class="black-text"
+                  label="Add sibling page"
+                  event-name="add-page" wide></hax-panel-item>
+                <hax-panel-item
+                  icon="hardware:keyboard-return"
+                  icon-class="grey-text text-darken-2 flip-icon"
+                  label="Add child page"
+                  event-name="add-child-page" wide></hax-panel-item>
+              </span>
+            </lrnsys-collapselist-item>
+            </span>
+          </hax-panel>
 
           <paper-toast id="toast"></paper-toast>
           <script>
