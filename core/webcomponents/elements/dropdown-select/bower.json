@@ -1,0 +1,18 @@
+{
+  "name": "dropdown-select",
+  "description": "A LRN element",
+  "main": "dropdown-select.html",
+  "dependencies": {
+    "polymer": "Polymer/polymer#^1.10.1",
+    "paper-dropdown-menu": "PolymerElements/paper-dropdown-menu#^2.0.0",
+    "paper-listbox": "PolymerElements/paper-listbox#^2.0.0",
+    "paper-item": "PolymerElements/paper-item#^2.0.0",
+    "neon-animation": "PolymerElements/neon-animation#^2.0.2"
+  },
+  "devDependencies": {
+    "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
+    "iron-demo-helpers": "PolymerElements/iron-demo-helpers#^1.0.0",
+    "web-component-tester": "^4.0.0",
+    "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0"
+  }
+}

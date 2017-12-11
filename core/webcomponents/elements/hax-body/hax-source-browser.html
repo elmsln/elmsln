@@ -1,0 +1,129 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-list/iron-list.html">
+<link rel="import" href="../paper-input/paper-input.html">
+<link rel="import" href="../grafitto-filter/grafitto-filter.html">
+<link rel="import" href="../dropdown-select/dropdown-select.html">
+<link rel="import" href="../iron-pages/iron-pages.html">
+<link rel="import" href="hax-source-browser-item.html">
+
+<!--
+`hax-source-browser`
+Browse a list of sources. This provides a listing of our gizmos that we've integrated with.
+
+@demo demo/index.html
+
+@microcopy - the mental model for this element
+ - hax-source - a source of data
+ - gizmo - silly name for the general public when talking about hax-source and what it provides in the end
+-->
+
+<dom-module id="hax-source-browser">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+      hax-source-browser-item {
+        margin: 1em;
+      }
+    </style>
+    <app-toolbar>
+      <dropdown-select id="filtertype" label="Filter sources by" value="title">
+        <paper-item value="title">Title</paper-item>
+        <paper-item value="status">Tag</paper-item>
+        <paper-item value="description">Description</paper-item>
+      </dropdown-select>
+      <paper-input label="Filter" id="inputfilter" aria-controls="filter" value="" always-float-label></paper-input>
+    </app-toolbar>
+    <grafitto-filter id="filter" items="[[__sourceList]]" like=""  where="title" as="filtered">
+      <template>
+        <iron-list id="ironlist" items="[[filtered]]" as="source" grid>
+          <template>
+            <div class="source-container">
+            <hax-source-browser-item
+              index="[[index]]"
+              title="[[source.title]]"
+              icon="[[source.icon]]"
+              image="[[source.tag]]"
+              color="[[source.color]]"
+              meta="[[source.meta]]"
+              groups="[[source.groups]]"
+              handles="[[source.handles]]"
+              description="[[source.description]]"
+              tag="[[source.tag]]"></hax-source-browser-item>
+            </div>
+          </template>
+        </iron-list>
+      </template>
+    </grafitto-filter>
+    <iron-pages
+      id="activesources"
+      selected="{{activeSource}}">
+        <slot></slot>
+    </iron-pages>
+  </template>
+  <script>
+    Polymer({
+
+      is: 'hax-source-browser',
+
+      properties: {
+        /**
+         * Search term
+         */
+        search: {
+          type: String,
+        },
+        /**
+         * active source for displaying from iron-pages
+         */
+        activeSource: {
+          type: Number,
+        },
+      },
+      /**
+       * Attached
+       */
+      attached: function() {
+        this.resetBrowser();
+        this.$$('#inputfilter').addEventListener('change', (e) => {
+          this.$$('#filter').like = e.target.value;
+        });
+        this.$$('#filtertype').addEventListener('change', (e) => {
+          this.$$('#inputfilter').value = '';
+          this.$$('#filter').where = e.detail.value;
+          this.$$('#filter').like = '';
+        });
+        document.body.addEventListener('hax-source-selected', this._sourceSelected.bind(this));
+        document.body.addEventListener('hax-store-property-updated', this._haxStorePropertyUpdated.bind(this));
+      },
+      /**hax-source-selected
+       * Source has been selected.
+       */
+      _sourceSelected: function(e) {
+        // item bubbled up
+        this.set('activeSource', e.detail);
+      },
+      /**
+       * Store updated, sync.
+       */
+      _haxStorePropertyUpdated: function(e) {
+        if (e.detail && typeof e.detail.value !== typeof undefined && e.detail.property) {
+          this.set(e.detail.property, e.detail.value);
+        }
+      },
+      /**
+       * Reset this browser.
+       */
+      resetBrowser: function() {
+        this.set('__sourceList', Polymer.HaxStore.instance.sourceList);
+        this.$.filter.$$('#ironlist').fire('iron-resize');
+        this.$.filter.$$('#ironlist').filtered = this.__sourceList;
+        this.$.inputfilter.value = '';
+        this.$.filtertype.value = 'title';
+        this.$.filter.value = '';
+        this.$.filter.like = '';
+      },
+    });
+  </script>
+</dom-module>

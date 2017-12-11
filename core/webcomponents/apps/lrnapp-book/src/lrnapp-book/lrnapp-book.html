@@ -1,4 +1,39 @@
-<link rel="import" href="imports.html">
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../bower_components/iron-icons/hardware-icons.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/paper-styles/color.html">
+<link rel="import" href="../../bower_components/paper-search/paper-search-bar.html">
+<link rel="import" href="../../bower_components/paper-tooltip/paper-tooltip.html">
+<link rel="import" href="../../bower_components/paper-fab/paper-fab.html">
+<link rel="import" href="../../bower_components/paper-slider/paper-slider.html">
+
+<link rel="import" href="../../bower_components/app-layout/app-layout.html">
+<link rel="import" href="../../bower_components/app-layout/app-drawer/app-drawer.html">
+<link rel="import" href="../../bower_components/app-layout/app-header/app-header.html">
+<link rel="import" href="../../bower_components/app-layout/app-toolbar/app-toolbar.html">
+<link rel="import" href="../../bower_components/app-layout/app-scroll-effects/app-scroll-effects.html">
+<link rel="import" href="../../bower_components/app-route/app-location.html">
+<link rel="import" href="../../bower_components/app-route/app-route.html">
+
+<link rel="import" href="../../bower_components/materializecss-styles/materializecss-styles.html">
+<link rel="import" href="../../bower_components/lrndesign-stepper/lrndesign-stepper.html">
+
+<link rel="import" href="../../bower_components/lrnsys-progress/lrnsys-progress.html">
+<link rel="import" href="../../bower_components/elmsln-loading/elmsln-loading.html">
+<link rel="import" href="../../bower_components/page-scroll-position/page-scroll-position.html">
+<link rel="import" href="../../bower_components/material-progress/material-progress.html">
+<link rel="import" href="../../bower_components/lrndesign-mapmenu/lrndesign-mapmenu.html">
+
+<!-- HAX -->
+<link rel="import" href="../../bower_components/hax-body/hax-store.html">
+<link rel="import" href="../../bower_components/hax-body/hax-autoloader.html">
+<link rel="import" href="../../bower_components/hax-body/hax-source.html">
+<link rel="import" href="../../bower_components/hax-body/hax-manager.html">
+<link rel="import" href="../../bower_components/hax-body/hax-panel.html">
+<link rel="import" href="../../bower_components/hax-body/hax-body.html">
+
 <link rel="import" href="lrnapp-book-progress-dashboard.html">
 
 <!--
@@ -459,68 +494,153 @@ A LRN element
     </app-route>
   <!-- body where most of the heavy lifting happens -->
     <app-drawer-layout>
-      <hax-panel id="haxpanel">
-        <span slot="post">
-          <lrnsys-collapselist-item>
-          <span slot="label"><div class="label">Engagements</div></span>
-          <span slot="content">
-            <hax-panel-item
-              icon="touch-app"
-              icon-class="blue-text"
-              label="Interactive video"
-              event-name="h5p-interactive-video"
-              voice-command="insert interactive video"></hax-panel-item>
-            <hax-panel-item
-              icon="hardware:videogame-asset"
-              icon-class="red-text"
-              label="Self-check"
-              event-name="h5p-multiple-choice"
-              voice-command="insert self check"></hax-panel-item>
-            <hax-panel-item
-              icon="timeline"
-              icon-class="yellow-text text-darken-4"
-              label="Timeline"
-              event-name="timeline"
-              voice-command="insert timeline"></hax-panel-item>
-            <hax-panel-item
-              icon="maps:place"
-              icon-class="green-text"
-              label="Map"
-              event-name="map"
-              voice-command="insert map"></hax-panel-item>
-            <hax-panel-item
-              icon="social:share"
-              icon-class="pink-text"
-              label="JMOL"
-              event-name="jmol"
-              voice-command="insert molecule"></hax-panel-item>
-            <hax-panel-item
-              icon="social:poll"
-              icon-class="orange-text"
-              label="Poll"
-              event-name="poll"
-              voice-command="insert poll"></hax-panel-item>
-          </span>
-        </lrnsys-collapselist-item>
+      <hax-store></hax-store>
+        <hax-autoloader>
+          <video-player></video-player>
+          <wikipedia-query></wikipedia-query>
+          <pdf-element></pdf-element>
+          <lrn-table></lrn-table>
+          <media-image></media-image>
+        </hax-autoloader>
+        <hax-manager>
+          <hax-source
+            details='{
+            "title":"Media",
+            "icon":"perm-media",
+            "color":"blue",
+            "author": "ELMS: Learning Network",
+            "teaser": "Our media solution",
+            "description": "The backend for ELMS:LN that allows for asset management and recall. Allows for remote referencing of things as well as tagging them by course so that we know where things are used after the fact.",
+            "status": "available"
+            }'
+            name="ELMS:LN Media"
+            user="SERVICE_ELMSMEDIA_LN"
+            pass="106025726eea79168e7b9d3aff6330"
+            request-end-point="http://data-media.elmsln.local/node.json"
+            request-params='{
+            "deep-load-refs":"file",
+            "title":""}'
+            query-param="title"
+            response-map='{
+              "root": "list",
+              "gizmoType": "video",
+              "url": "http://media.elmsln.local/entity_iframe/node/",
+              "id": "nid",
+              "title": "title",
+              "description": "body",
+              "image": "field_image.url",
+              "customGizmoType": "type"}'></hax-source>
+          <hax-source
+            details='{
+            "title":"Youtube",
+            "icon":"av:play-arrow",
+            "color":"red",
+            "author": "Google, Youtube LLC",
+            "teaser": "Popular public video solution",
+            "description": "Remember that anything you place here though will be out in the open. Great for OER.",
+            "status": "available"
+            }'
+            request-end-point="https://www.googleapis.com/youtube/v3/search"
+            request-params='{
+            "part":"snippet",
+            "q":"",
+            "key": "AIzaSyAF9zKXv-fxus9GNqn40SHzTn6F8A7h-Yo",
+            "type": "video",
+            "maxResults":"12"}'
+            query-param="q"
+            response-map='{
+              "root": "items",
+              "gizmoType": "video",
+              "url": "https://www.youtube.com/watch?v=",
+              "id": "id.videoId",
+              "title": "snippet.title",
+              "description": "snippet.description",
+              "image": "snippet.thumbnails.high.url"}'></hax-source>
+          <hax-source
+            details='{
+            "title":"Vimeo",
+            "icon":"av:play-circle-filled",
+            "color":"blue",
+            "author": "Vimeo Inc.",
+            "teaser": "Popular video community",
+            "description": "Vimeo is a great place for artists and higher quality video. There is also the ability to have more control over the storage and delivery of media as needed.",
+            "status": "available"
+            }'
+            request-end-point="https://api.vimeo.com/videos"
+            request-params='{
+            "access_token": "0a718b853bad87571d52e9fb554e0a43",
+            "query": "",
+            "direction": "asc",
+            "sort": "alphabetical",
+            "filter": "CC",
+            "per_page":"12"
+            }'
+            query-param="query"
+            response-map='{
+              "root": "data",
+              "gizmoType": "video",
+              "url": "",
+              "id": "link",
+              "title": "name",
+              "description": "description",
+              "image": "pictures.sizes.1.link"}'></hax-source>
+        </hax-manager>
+      <hax-panel id="haxpanel" hide-panel-ops>
         <lrnsys-collapselist-item>
-          <span slot="label"><div class="label">Assessments</div></span>
-          <span slot="content">
-            <hax-panel-item
-              icon="assignment"
-              icon-class="yellow-text text-darken-2"
-              label="Assignment"
-              event-name="assignment"
-              voice-command="insert assignment"></hax-panel-item>
-            <hax-panel-item
-              icon="assessment"
-              icon-class="purple-text text-darken-2"
-              label="Quiz"
-              event-name="quiz"
-              voice-command="insert quiz"></hax-panel-item>
-          </span>
+        <span slot="label"><div class="label">Future</div></span>
+        <span slot="content">
+          <hax-panel-item
+            icon="touch-app"
+            icon-class="blue-text"
+            label="Interactive video"
+            event-name="h5p-interactive-video"
+            voice-command="insert interactive video"></hax-panel-item>
+          <hax-panel-item
+            icon="hardware:videogame-asset"
+            icon-class="red-text"
+            label="Self-check"
+            event-name="h5p-multiple-choice"
+            voice-command="insert self check"></hax-panel-item>
+          <hax-panel-item
+            icon="timeline"
+            icon-class="yellow-text text-darken-4"
+            label="Timeline"
+            event-name="timeline"
+            voice-command="insert timeline"></hax-panel-item>
+          <hax-panel-item
+            icon="maps:place"
+            icon-class="green-text"
+            label="Map"
+            event-name="map"
+            voice-command="insert map"></hax-panel-item>
+          <hax-panel-item
+            icon="social:share"
+            icon-class="pink-text"
+            label="JMOL"
+            event-name="jmol"
+            voice-command="insert molecule"></hax-panel-item>
+          <hax-panel-item
+            icon="social:poll"
+            icon-class="orange-text"
+            label="Poll"
+            event-name="poll"
+            voice-command="insert poll"></hax-panel-item>
+          <hax-panel-item
+            icon="assignment"
+            icon-class="yellow-text text-darken-2"
+            label="Assignment"
+            event-name="assignment"
+            voice-command="insert assignment"></hax-panel-item>
+          <hax-panel-item
+            icon="assessment"
+            icon-class="purple-text text-darken-2"
+            label="Quiz"
+            event-name="quiz"
+            voice-command="insert quiz"></hax-panel-item>
+        </span>
         </lrnsys-collapselist-item>
-      </span>
       </hax-panel>
+      <!-- LRNApp book we expect to navigate -->
       <app-drawer slot="drawer" id="bookdrawer" opened="{{drawerOpened}}" swipe-open transition-duration="150">
         <div id="bookdrawercontent" style="height: 100%; overflow: auto;" hidden$="[[!bookItems]]">
           <paper-search-bar hide-filter-button hidden$="[[!showSearch]]"></paper-search-bar>
@@ -991,10 +1111,9 @@ A LRN element
               this.$.bookdrawer.opened = false;
             }
             // open the haxpanel
-            this.$.haxpanel.opened = true;
+            Polymer.HaxStore.write('editMode', this.editMode, this);
             // play things in an editable state and let hax take over from here
             this.$.currenttitle.contentEditable = true;
-            this.$.haxbody.editMode = true;
             // block scroll tracking during edit mode
             this.resetScroll = true;
             // notification to user
@@ -1007,10 +1126,9 @@ A LRN element
             this.$.fablabel = 'edit mode';
             this.$.bookdrawer.opened = this.__bookdraweropened;
             // open the haxpanel
-            this.$.haxpanel.opened = false;
+            Polymer.HaxStore.write('editMode', this.editMode, this);
             // play things in an editable state and let hax take over from here
             this.$.currenttitle.contentEditable = false;
-            this.$.haxbody.editMode = false;
             // allow scrolling to take place now
             this.resetScroll = false;
             // we were in edit mode, now time to save for real

@@ -199,7 +199,7 @@ An icon / button that has support for multiple options via drop down.
           // check for tag match since we have to filter out text nodes
           for (var i = 0, len = children.length; i < len; i++) {
             if (children[i].tagName === 'PAPER-ITEM') {
-              if (typeof children[i].attributes.value !== typeof undefined && children[i].attributes.value.nodeValue === newValue) {
+              if (typeof children[i].attributes.value !== typeof undefined && children[i].attributes.value.value === newValue) {
                 this._blockEvent = true;
                 this.selected = j;
                 len = i;
@@ -232,13 +232,13 @@ An icon / button that has support for multiple options via drop down.
           // ensure we have a value; if so, this becomes the event to look for
           // also use our flag to ensure machine setting the tag default doesn't
           // equate to firing off a selected event.
-          if (!this._blockEvent && typeof item.attributes !== typeof undefined && typeof item.attributes.value !== typeof undefined && typeof item.attributes.value.nodeValue !== typeof undefined) {
+          if (!this._blockEvent && typeof item.attributes !== typeof undefined && typeof item.attributes.value !== typeof undefined && typeof item.attributes.value.value !== typeof undefined) {
             // weird but this makes the menu close when we fire up an event
             // that indicates something higher should do something. This
             // avoids an annoying UX error where the menu stays open for
             // no reason.
             this.hideMenu();
-            this.fire('hax-context-item-selected', {target: item, eventName: item.attributes.value.nodeValue});
+            this.fire('hax-context-item-selected', {target: item, eventName: item.attributes.value.value});
           }
           // we only block 1 time if it's available
           if (this._blockEvent) {

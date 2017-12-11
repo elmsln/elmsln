@@ -1,0 +1,135 @@
+<link rel="import" href="../polymer/polymer.html"/>
+<link rel="import" href="../iron-flex-layout/iron-flex-layout-classes.html"/>
+
+<dom-module id="eco-json-schema-enum">
+
+  <link rel="import" href="../paper-dropdown-menu/paper-dropdown-menu.html"/>
+  <link rel="import" href="../paper-menu/paper-menu.html"/>
+  <link rel="import" href="../paper-item/paper-item.html"/>
+  <link rel="import" href="../iron-validatable-behavior/iron-validatable-behavior.html"/>
+
+  <template>
+    <style is="custom-style"  include="iron-flex iron-flex-alignment">
+      paper-input {
+        --paper-input-container-label: {
+          white-space: normal;
+          position: static;
+          font-size: 22px;
+          color: #212121;
+        }
+      };
+
+      paper-dropdown-menu {
+        --paper-input-container-label: {
+          white-space: normal;
+          position: static;
+          font-size: 22px;
+          color: #212121;
+        }
+        --paper-dropdown-menu-button: {
+          padding: 2px;
+        }
+      }
+    </style>
+
+    <paper-dropdown-menu id="dropdown" class="layout horizontal vertical" value="{{value}}" required>
+      <paper-menu class="dropdown-content">
+        <template is="dom-repeat" items="[[_items]]">
+          <paper-item class="flex" label="[[item]]">[[item]]</paper-item>
+        </template>
+      </paper-menu>
+    </paper-dropdown-menu>
+
+  </template>
+
+  <script>
+    Polymer({
+      is: 'eco-json-schema-enum',
+      behaviors: [Polymer.IronValidatableBehavior],
+      properties: {
+        schema: {
+          type: Object,
+          observer: '_schemaChanged'
+        },
+        value: {
+          type: String,
+          notify: true,
+          value: null
+        },
+        error: {
+          type: String,
+          observer: '_errorChanged',
+          value: null
+        },
+        _items: {
+          type: Object,
+          value: function() {
+            return {};
+          }
+        }
+      },
+      ready: function () {
+
+      },
+      detached: function () {
+
+      },
+      _schemaChanged: function () {
+        var schema = this.schema;
+        var inputEl = this.$.dropdown;
+
+        if (schema.component && schema.component.properties) {
+          Object.keys(schema.component.properties).forEach(function(prop) {
+            inputEl[prop] = schema.component.properties[prop];
+          });
+        }
+
+        this._items = schema.enum.filter(function(item) {
+          return item !== null;
+        });
+
+        if (schema.title) {
+          inputEl.label = schema.title;
+        }
+      },
+      _errorChanged: function () {
+        if (this.error) {
+          this.$.dropdown.invalid = true;
+        } else {
+          this.$.dropdown.invalid = false;
+        }
+      },
+      _isSchemaValue: function (type) {
+        return this._isSchemaBoolean(type) || this._isSchemaNumber(type) || this._isSchemaString(type);
+      },
+      _isSchemaBoolean: function (type) {
+        if (Array.isArray(type)) {
+          return type.indexOf('boolean') !== -1;
+        } else {
+          return type === 'boolean';
+        }
+      },
+      _isSchemaNumber: function(type) {
+        if (Array.isArray(type)) {
+          return type.indexOf('number') !== -1 || type.indexOf('integer') !== -1;
+        } else {
+          return type === 'number' || type === 'integer';
+        }
+      },
+      _isSchemaString: function (type) {
+        if (Array.isArray(type)) {
+          return type.indexOf('string') !== -1;
+        } else {
+          return type === 'string';
+        }
+      },
+      _isSchemaObject: function (type) {
+        return type === 'object';
+      },
+      _isSchemaArray: function (type) {
+        return type === 'array';
+      }
+    });
+  </script>
+
+</dom-module>

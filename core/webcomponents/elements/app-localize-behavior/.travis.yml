@@ -1,0 +1,22 @@
+language: node_js
+sudo: required
+dist: trusty
+node_js: stable
+addons:
+  firefox: latest
+  apt:
+    sources:
+    - google-chrome
+    packages:
+    - google-chrome-stable
+before_script:
+- npm install -g bower polylint web-component-tester
+- bower install
+- polylint
+script:
+- xvfb-run wct
+- if [ "${TRAVIS_PULL_REQUEST}" = "false" ]; then wct -s default; fi
+env:
+  global:
+  - secure: DitCRBZSh4YLwnI3LjD1ukbftNDIx6RrUjEYwHi+RMt+OCAkKiY4N0FI9PujlGEnt7tNdaD0CTzLSu+R2vpNeMaqsrjyFKzLfWH8rFRQ1dHCvaqZ1upV92yadzqLW6dhFMMre1OzhMoU0r/4b7hUV93UYAxUZU70WYzJTSjKvv+1ul97UVLMThmulvMBDrOx8cA06SF3oRfZwdxRj7zc8knUZvRmub41exfVonEVYjXdhOstHGLvXBXxmUBOjaTdNNaIT4KvvwMMmMqyQpnoB1uZimTLAy4y4ogpnf9HttPHTSZSTdWI2avk75nlqQCFFCcBier0NWT3phgkQt0CKrKs62w2RwjAIij2/ZVhsUiGLezIuOilG3k3+UYzXHb86KtLMie573XfAsX6cC/DYozJB7NfPA79MOwa/BuzTlyDJdZfKKm8+6FCmh7xQj0OcXHdqqxzTZu40bXwjz32TLDNnkHBdJNjTQrBm//TTQsxZ8BiXiw2tg4r7vXMIr3NjiRLQSLuAiHHQ2MnryhJuvAeBf1cqgjZXxy4mG6ctdus7Fc8nl9GSkY/5VmT4BMGwxbUcdd5/EDf750jwgE/sXzYABABYXd1cwvYPwT5oPsIMOs3hUC5mls+DlTk6Y57EtezsGuvA+EWeyg0rRzuv/u3rfJtOvYV7I7kA9xe/ZU=
+  - secure: hSCnfwhOhq23wOyRk3vBz4Gz+KBYRaCsekoW9leSQ5LRt7QYF6gESoaiqQaqQ6aL0FX4tW6DCxGStFhwvOcR8EU9J1dz04Xku21bf3haLEFGTpOyDtQwisxw2TKp6ki95FIaBsx6435UvLXn77M3c4X5YW+1N+GKfZ62A/RqP12u6q8c2Sooe70V5E4J7oQS+CW20CvdcfrlEoHgJ89hF7hyu1A5GEj0Y4TJMsNfgqBC7t3k0YMIZ8yEgXRyzxsamKVFaa69U8435Wokol4zcgyVtirXZyKyqVLGk5j5dcUlzlwx4+dpoETrtTsUcIvLyxQ/SxsqBKr3j4u8CMAmKSRkMrDI/Pf6c4Q4H9N+CVOv+VW/TAqD/CnncI9eGaTJ3Ba2HZUMmHImPgBD1a6DqHvaFLbU5J9MHWvwCRBcOwQTAVqaOppgOvmu/mpwNnq9+NJFrwR6aTDgovYzi4TMA9DdoB7O3L6fvwYjqMYRahfukBPSYX5da4DHiQV0P6wEr/Sdub/ERQSgWqXLE6e/jpl4sXBY2rII4Ao3Tc/Xg9suwHjUKvmi8axOyfm0LjE9fmGj1bkFFPKU1JIAbGOaDInbpE6fMjbgpoOeqe6hxRxdrjDn5+/odQhhhUoGNk3YIKuLSeK82lW/ZMgH0/z/NubIQjchIuKDbLqmyX7ZZ2w=

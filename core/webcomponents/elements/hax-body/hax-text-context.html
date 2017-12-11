@@ -11,6 +11,7 @@
 <link rel="import" href="../iron-icons/iron-icons.html">
 <link rel="import" href="hax-context-item-menu.html">
 <link rel="import" href="hax-context-item.html">
+<link rel="import" href="hax-context-item-textop.html">
 <!--
 `hax-text-context`
 A context menu that provides common text based authoring options.
@@ -33,6 +34,11 @@ A context menu that provides common text based authoring options.
         height: 40px;
       }
       hax-context-item {
+        margin: 0;
+        width: 40px;
+        height: 40px;
+      }
+      hax-context-item-textop {
         margin: 0;
         width: 40px;
         height: 40px;
@@ -64,14 +70,14 @@ A context menu that provides common text based authoring options.
         <paper-item value="blockquote">Quote</paper-item>
         <paper-item value="code">Code</paper-item>
       </hax-context-item-menu>
-      <hax-context-item
+      <hax-context-item-textop
         icon="editor:format-bold"
         label="Bold"
-        event-name="text-bold"></hax-context-item>
-      <hax-context-item
+        event-name="text-bold"></hax-context-item-textop>
+      <hax-context-item-textop
         icon="editor:format-italic"
         label="Italic"
-        event-name="text-italic"></hax-context-item>
+        event-name="text-italic"></hax-context-item-textop>
 
       <hax-context-item-menu
         selected-value="{{justifyValue}}"
@@ -85,46 +91,52 @@ A context menu that provides common text based authoring options.
           <iron-icon icon="editor:format-align-right"></iron-icon>
         </paper-item>
       </hax-context-item-menu>
-      <hax-context-item
+
+      <hax-context-item-textop
         icon="editor:format-list-numbered"
         label="Numbered list"
-        event-name="text-list-numbered"></hax-context-item>
-      <hax-context-item
+        event-name="text-list-numbered"
+        hidden$="[[!polyfillSafe]]"></hax-context-item-textop>
+      <hax-context-item-textop
         icon="editor:format-list-bulleted"
         label="Bulleted list"
-        event-name="text-list-bulleted"></hax-context-item>
-      <hax-context-item
+        event-name="text-list-bulleted"
+        hidden$="[[!polyfillSafe]]"></hax-context-item-textop>
+      <hax-context-item-textop
         icon="editor:format-indent-increase"
         label="Indent"
-        event-name="text-indent"></hax-context-item>
-      <hax-context-item
+        event-name="text-indent"
+        hidden$="[[!polyfillSafe]]"></hax-context-item-textop>
+      <hax-context-item-textop
         icon="editor:format-indent-decrease"
         label="Outdent"
-        event-name="text-outdent"></hax-context-item>
-      <hax-context-item
+        event-name="text-outdent"
+        hidden$="[[!polyfillSafe]]"></hax-context-item-textop>
+
+      <hax-context-item-textop
         icon="editor:format-strikethrough"
         label="Cross out"
-        event-name="text-strikethrough"></hax-context-item>
-      <hax-context-item
+        event-name="text-strikethrough"></hax-context-item-textop>
+      <hax-context-item-textop
         icon="mdextra:subscript"
         label="Subscript"
-        event-name="text-subscript"></hax-context-item>
-      <hax-context-item
+        event-name="text-subscript"></hax-context-item-textop>
+      <hax-context-item-textop
         icon="mdextra:superscript"
         label="Superscript"
-        event-name="text-superscript"></hax-context-item>
-      <hax-context-item
+        event-name="text-superscript"></hax-context-item-textop>
+      <hax-context-item-textop
         icon="editor:insert-link"
         label="Link"
-        event-name="text-link"></hax-context-item>
-      <hax-context-item
+        event-name="text-link"></hax-context-item-textop>
+      <hax-context-item-textop
         icon="mdextra:unlink"
         label="Unlink"
-        event-name="text-unlink"></hax-context-item>
-      <hax-context-item
+        event-name="text-unlink"></hax-context-item-textop>
+      <hax-context-item-textop
         icon="editor:format-clear"
         label="Remove format"
-        event-name="text-remove-format"></hax-context-item>
+        event-name="text-remove-format"></hax-context-item-textop>
     </app-toolbar>
   </template>
 
@@ -144,6 +156,13 @@ A context menu that provides common text based authoring options.
           value: 'editor:format-align-left',
         },
         /**
+         * Polyfill safe; this helps remove options from polyfilled platforms
+         * as far as text manipulation operations.
+         */
+        polyfillSafe: {
+          type: Boolean,
+        },
+        /**
          * Selected value to match format of the tag currently.
          */
         selectedValue: {
@@ -161,9 +180,35 @@ A context menu that provides common text based authoring options.
         },
       },
       /**
+       * Ready.
+       */
+      ready: function() {
+        this.polyfillSafe = this._computePolyfillSafe();
+      },
+      /**
+       * Feature detect on the bar.
+       */
+      _computePolyfillSafe: function() {
+        /**
+         * These are our bad actors in polyfill'ed browsers.
+         * This means thathttps://github.com/webcomponents/webcomponentsjs/commit/ce464bb533bf39b544c312906499a6044ee0d30d
+         * explains things but basically if shadow-dom is polyfilled
+         * then we can't safely execute a DOM manipulating execCommand.
+         * This
+         */
+        if(document.head.createShadowRoot || document.head.attachShadow) {
+          return true;
+        }
+        else {
+          console.log('Shadow DOM missing, can\'t safely use list operations.');
+          return false;
+        }
+      },
+      /**
        * Respond to simple modifications.
        */
       _haxContextOperation: function(e) {
+        console.log(e);
         let detail = e.detail;
         // support a simple insert event to bubble up or everything else
         switch(detail.eventName) {
@@ -174,20 +219,8 @@ A context menu that provides common text based authoring options.
           case 'text-italic':
             document.execCommand('italic');
           break;
-          case 'text-list-numbered':
-            document.execCommand('insertOrderedList');
-          break;
-          case 'text-list-bulleted':
-            document.execCommand('insertUnorderedList');
-          break;
           case 'text-underline':
             document.execCommand('underline');
-          break;
-          case 'text-indent':
-            document.execCommand('indent');
-          break;
-          case 'text-outdent':
-            document.execCommand('outdent');
           break;
           case 'text-subscript':
             document.execCommand('subscript');
@@ -209,20 +242,35 @@ A context menu that provides common text based authoring options.
             document.execCommand('unlink');
           break;
           case 'text-align-left':
-            this.justifyIcon = detail.target.children[0].attributes[0].nodeValue;
+            this.justifyIcon = detail.target.children[0].attributes[0].value;
           break;
           case 'text-align-center':
-            this.justifyIcon = detail.target.children[0].attributes[0].nodeValue;
+            this.justifyIcon = detail.target.children[0].attributes[0].value;
           break;
           case 'text-align-right':
-            this.justifyIcon = detail.target.children[0].attributes[0].nodeValue;
+            this.justifyIcon = detail.target.children[0].attributes[0].value;
           break;
           case 'text-justify-full':
-            this.justifyIcon = detail.target.children[0].attributes[0].nodeValue;
+            this.justifyIcon = detail.target.children[0].attributes[0].value;
           break;
           case 'close-menu':
             this.$.justify.hideMenu();
             this.$.formatsize.hideMenu();
+          break;
+          /**
+           * Our bad actors in polyfill.
+           */
+          case 'text-indent':
+            document.execCommand('indent');
+          break;
+          case 'text-outdent':
+            document.execCommand('outdent');
+          break;
+          case 'text-list-numbered':
+            document.execCommand('insertOrderedList');
+          break;
+          case 'text-list-bulleted':
+            document.execCommand('insertUnorderedList');
           break;
         }
       },

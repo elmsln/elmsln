@@ -1,0 +1,314 @@
+<link rel="import" href="../polymer/polymer.html"/>
+<link rel="import" href="../iron-flex-layout/iron-flex-layout-classes.html"/>
+
+<!--
+`eco-json-schema-array` takes in a JSON schema of type array and builds a form,
+exposing a `value` property that represents an array described by the schema.
+
+Please see the `eco-json-schema-object` documentation for further information.
+
+@group eco Elements
+@element eco-json-schema-array
+@demo demo/index.html
+-->
+
+<dom-module id="eco-json-schema-array">
+
+  <link rel="import" href="../iron-icons/iron-icons.html"/>
+  <link rel="import" href="../paper-icon-button/paper-icon-button.html"/>
+  <link rel="import" href="../app-localize-behavior/app-localize-behavior.html">
+
+  <link rel="import" href="./eco-json-schema-boolean.html"/>
+  <link rel="import" href="./eco-json-schema-enum.html"/>
+  <link rel="import" href="./eco-json-schema-input.html"/>
+  <link rel="import" href="./eco-json-schema-object.html"/>
+  <link rel="import" href="./eco-json-schema-file.html"/>
+
+  <template>
+    <style is="custom-style" include="iron-flex iron-flex-alignment">
+      paper-input {
+        padding: 2px;
+
+        --paper-input-container-label: {
+          white-space: normal;
+          position: static;
+          font-size: 22px;
+          color: #212121;
+        }
+      }
+
+      .label {
+        @apply(--paper-input-container-label);
+        white-space: normal;
+        position: static;
+        font-size: 22px;
+        color: #212121;
+      }
+
+      :host {
+        display: block;
+
+        .label {
+          @apply(--paper-input-container-label);
+          white-space: normal;
+          position: static;
+          font-size: 22px;
+          color: #212121;
+        }
+      }
+    </style>
+
+    <div class="horizontal layout">
+      <div class="flex" hidden$="[[!label]]">[[label]]</div><paper-icon-button icon="add" on-click="_onAddItem"></paper-icon-button>
+    </div>
+
+    <div id="form" class="vertical flex layout"></div>
+
+  </template>
+
+  <script>
+    Polymer({
+      is: 'eco-json-schema-array',
+      properties: {
+        schema: {
+          type: Object,
+          observer: '_schemaChanged'
+        },
+        label: {
+          type: String
+        },
+        value: {
+          type: Array,
+          notify: true,
+          value: function() { return []; }
+        },
+        error: {
+          type: Object,
+          observer: '_errorChanged'
+        },
+        _schemaArrayItems: {
+          type: Array,
+          notify: true,
+          value: function() { return []; }
+        }
+      },
+      observers: [
+        '_schemaArraySplicesChanged(_schemaArrayItems.splices)'
+      ],
+      ready: function() {
+
+      },
+      detached: function() {
+        this._clearForm();
+      },
+      _buildSchemaArrayItems: function() {
+        this._schemaArrayItems = [];
+      },
+      _setValue: function() {
+        this.value = this._schemaArrayItems.map(function(item) {
+          return item.value;
+        });
+      },
+      _schemaArraySplicesChanged: function(detail) {
+
+        if (!detail) {
+          return console.warn('detail is undefined');
+        }
+
+        var ctx = this;
+
+        if (detail.keySplices) {
+          console.warn('Got keySplices, don\'t know what to do with them!');
+        }
+
+        detail.indexSplices.forEach(function(splice) {
+          var args = ['value', splice.index, splice.removed.length];
+
+          if (splice.removed && splice.removed.length) {
+            for (var i = splice.index, ii = splice.index + splice.removed.length; i < ii; i++) {
+              ctx._removeArrayEl(ctx.$.form.children[i]);
+            }
+          }
+
+          if (splice.addedCount) {
+            for (var i = splice.index, ii = splice.index + splice.addedCount; i < ii; i++) {
+              var item = splice.object[i];
+
+              var componentEl = ctx.create(item.component.name, {
+                label: item.label,
+                schema: item.schema,
+                schemaArrayItem: item
+              });
+
+              var containerEl = ctx.create('div');
+              var buttonEl = ctx.create('paper-icon-button', {icon: 'remove'});
+
+              ctx.listen(buttonEl, 'tap', '_onRemoveItem');
+
+              componentEl.classList.add('flex', 'horizontal', 'layout');
+
+              Polymer.dom(containerEl).appendChild(componentEl);
+              Polymer.dom(containerEl).appendChild(buttonEl);
+
+              var beforeEl = ctx.$.form.children[i];
+
+              if (beforeEl) {
+                Polymer.dom(ctx.$.form).insertBefore(containerEl, beforeEl);
+              } else {
+                Polymer.dom(ctx.$.form).appendChild(containerEl);
+              }
+
+              ctx.listen(componentEl, item.component.valueProperty.replace(/([A-Z])/g, '-$1').toLowerCase() + '-changed', '_schemaArrayItemChanged');
+
+              args.push(ctx._deepClone(componentEl[item.component.valueProperty]));
+            }
+          }
+          ctx.splice.apply(ctx, args);
+        });
+      },
+      _schemaArrayItemChanged: function(event, detail) {
+
+        if (detail.path && /\.length$/.test(detail.path)) {
+          return;
+        }
+
+        var ctx = this;
+        var item = event.target.schemaArrayItem;
+        var index = this._schemaArrayItems.indexOf(item);
+        var path = ['value', index];
+
+        if (detail.path && /\.splices$/.test(detail.path)) {
+          path = path.concat(detail.path.split('.').slice(1, -1));
+
+          if (detail.value.keySplices) {
+            console.warn('Got keySplices, don\'t know what to do with them!');
+          }
+
+          detail.value.indexSplices.forEach(function (splice) {
+            var args = [path.join('.'), splice.index, splice.removed.length];
+            if (splice.addedCount) {
+              for (var i = splice.index, ii = splice.index + splice.addedCount; i < ii; i++) {
+                args.push(ctx._deepClone(splice.object[i]));
+              }
+            }
+            ctx.splice.apply(ctx, args);
+          });
+        } else if (detail.path) {
+          path = path.concat(detail.path.split('.').slice(1));
+          this.set(path, this._deepClone(detail.value));
+        } else {
+          this.splice('value', index, 1, this._deepClone(detail.value));
+        }
+      },
+      _removeArrayEl: function(el) {
+        var polyEl = Polymer.dom(el);
+        this.unlisten(polyEl.childNodes[0], polyEl.firstChild.schemaArrayItem.component.valueProperty.replace(/([A-Z])/g, '-$1').toLowerCase() + '-changed', '_schemaArrayItemChanged');
+        this.unlisten(polyEl.childNodes[1], 'tap', '_onRemoveItem');
+        el.schemaArrayItem = null;
+        Polymer.dom(this.$.form).removeChild(el);
+      },
+      _clearForm: function() {
+        var formEl = Polymer.dom(this.$.form);
+        while (formEl.firstChild) {
+          this._removeArrayEl(formEl.firstChild);
+        }
+      },
+      _schemaChanged: function() {
+        this._clearForm();
+        this._buildSchemaArrayItems();
+        this._setValue();
+      },
+      _errorChanged: function() {
+        var ctx = this;
+        Polymer.dom(this.$.form).childNodes.forEach(function(rowEl, idx) {
+          if (ctx.error && ctx.error[idx]) {
+            Polymer.dom(rowEl).childNodes[0].error = ctx.error[idx];
+          } else {
+            Polymer.dom(rowEl).childNodes[0].error = null;
+          }
+        });
+      },
+      _onAddItem: function() {
+        var schema = this.schema.items;
+        var item = {
+          label: schema.title,
+          schema: schema,
+          component: schema.component || {}
+        };
+
+        if (!item.component.valueProperty) {
+          item.component.valueProperty = 'value';
+        }
+
+        if (!item.component.name) {
+          if (this._isSchemaEnum(schema)) {
+            item.component.name = 'eco-json-schema-enum';
+          } else if (this._isSchemaBoolean(schema.type)) {
+            item.component.name = 'eco-json-schema-boolean';
+          } else if (this._isSchemaFile(schema.type)) {
+            item.component.name = 'eco-json-schema-file';
+          } else if (this._isSchemaValue(schema.type)) {
+            item.component.name = 'eco-json-schema-input';
+          } else if (this._isSchemaObject(schema.type)) {
+            item.component.name = 'eco-json-schema-object';
+          } else if (this._isSchemaArray(schema.type)) {
+            item.component.name = 'eco-json-schema-array';
+          } else {
+            return console.error('Unknown item type %s', schema.type);
+          }
+        }
+
+        this.push('_schemaArrayItems', item);
+      },
+      _onRemoveItem: function(e) {
+        var item = Polymer.dom(e).localTarget.previousSibling.schemaArrayItem;
+        var index = this._schemaArrayItems.indexOf(item);
+        this.splice('_schemaArrayItems', index, 1);
+      },
+      _deepClone: function (o) {
+        return JSON.parse(JSON.stringify(o));
+      },
+      _isSchemaValue: function (type) {
+        return this._isSchemaBoolean(type) || this._isSchemaNumber(type) || this._isSchemaString(type) || this._isSchemaFile(type);
+      },
+      _isSchemaFile: function(type) {
+        if (Array.isArray(type)) {
+          return type.indexOf('file') !== -1;
+        } else {
+          return type === 'file';
+        }
+      },
+      _isSchemaBoolean: function (type) {
+        if (Array.isArray(type)) {
+          return type.indexOf('boolean') !== -1;
+        } else {
+          return type === 'boolean';
+        }
+      },
+      _isSchemaEnum: function (schema) {
+        return !!schema.enum;
+      },
+      _isSchemaNumber: function (type) {
+        if (Array.isArray(type)) {
+          return type.indexOf('number') !== -1 || type.indexOf('integer') !== -1;
+        } else {
+          return type === 'number' || type === 'integer';
+        }
+      },
+      _isSchemaString: function (type) {
+        if (Array.isArray(type)) {
+          return type.indexOf('string') !== -1;
+        } else {
+          return type === 'string';
+        }
+      },
+      _isSchemaObject: function (type) {
+        return type === 'object';
+      },
+      _isSchemaArray: function (type) {
+        return type === 'array';
+      }
+    });
+  </script>
+
+</dom-module>

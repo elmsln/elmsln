@@ -1,0 +1,138 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../app-layout/app-layout.html">
+<link rel="import" href="../paper-input/paper-input.html">
+<link rel="import" href="../paper-button/paper-button.html">
+<link rel="import" href="../paper-toggle-button/paper-toggle-button.html">
+<link rel="import" href="../iron-pages/iron-pages.html">
+<link rel="import" href="../iron-icons/iron-icons.html">
+<link rel="import" href="../paper-dialog/paper-dialog.html">
+<link rel="import" href="../mtz-file-download-behavior/mtz-file-download-behavior.html">
+
+<link rel="import" href="../materializecss-styles/materializecss-styles.html">
+
+<!--
+`hax-export-dialog`
+Export dialog with all export options and settings provided.
+
+@demo demo/index.html
+
+@microcopy - the mental model for this element
+ -
+
+-->
+
+<dom-module id="hax-export-dialog">
+  <template>
+    <style include="materializecss-styles">
+      :host {
+        display: block;
+      }
+      #dialog {
+        position: fixed;
+        top: 8%;
+        right: 8%;
+        bottom: 8%;
+        left: 8%;
+        overflow: auto;
+      }
+      #dialogcontent {
+        height: 100%;
+        padding:0;
+        margin:0;
+      }
+      #sourcebrowser {
+        height: 100vh;
+      }
+      #dialogheader {
+        margin: 0;
+        padding: 1.2em;
+        border-bottom: 1px solid black;
+      }
+      #dialogheader h2 {
+        margin: 0;
+        font-size: 1.8em
+      }
+      .page-area {
+        padding: 2em;
+      }
+      .add-url-are,
+      .add-upload-area {
+        margin: 1em 0;
+      }
+      .url-description {
+        font-size: .8em;
+        color:grey;
+      }
+    </style>
+    <paper-dialog id="dialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation" with-backdrop>
+      <div id="dialogheader" class="indigo white-text">
+        <h2>[[exportTitle]]</h2>
+      </div>
+      <div class="dialog-contents" id="dialogcontent">
+        <textarea id="textarea" rows="20" style="width:100%;"></textarea>
+        <div class="preview-buttons">
+          <paper-button id="download" confirm raised>Download</paper-button>
+          <paper-button id="copy" confirm raised>Copy</paper-button>
+          <paper-button id="close" raised>Close</paper-button>
+        </div>
+      </div>
+    </paper-dialog>
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'hax-export-dialog',
+      listeners: {
+        'close.tap': 'close',
+        'download.tap': 'download',
+        'copy.tap': 'selectBody',
+      },
+      behaviors: [mtz.FileDownloadBehavior],
+      properties: {
+        /**
+         * Title when open.
+         */
+        exportTitle: {
+          type: String,
+          value: 'Export',
+        },
+      },
+      /**
+       * Attached to the DOM, now fire that we exist.
+       */
+      attached: function() {
+        // fire an event that this is the manager
+        this.fire('hax-register-export', this);
+      },
+      /**
+       * Download file.
+       */
+      download: function(e) {
+        const data = Polymer.HaxStore.instance.haxBody.haxToContent();
+        this.downloadFromData(data, 'html', 'hax-file');
+      },
+      /**
+       * selectBody
+       */
+      selectBody: function() {
+        this.$.textarea.focus();
+        this.$.textarea.select();
+        document.execCommand('copy');
+      },
+      /**
+       * Toggle ourselves.
+       */
+      toggleDialog: function() {
+        this.$.textarea.innerHTML = Polymer.HaxStore.instance.haxBody.haxToContent();
+        this.$.dialog.toggle();
+      },
+      /**
+       * close
+       */
+      close: function() {
+        this.$.dialog.toggle();
+      }
+    });
+  </script>
+</dom-module>

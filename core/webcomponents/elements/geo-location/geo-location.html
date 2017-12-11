@@ -1,0 +1,218 @@
+<!-- Copyright Eric Bidelman <ebidel@gmail.com> -->
+
+<link rel="import" href="../polymer/polymer.html">
+
+<!-- TODO: decide if we need to cache results across instances. -->
+
+<!--
+Provides the current location using the [Geolocation API](https://developer.mozilla.org/en-US/docs/Web/API/Geolocation/Using_geolocation).
+
+<b>Example - basic</b>
+
+    <geo-location></geo-location>
+
+    <script>
+      var loc = document.querySelector('geo-location');
+      loc.addEventListener('geo-response', function(e) {
+        console.log('lat:' + this.latitude, 'lng:' + this.longitude);
+      });
+    </script>
+
+<b>Example</b> - continuous updates from the device using high accuracy:
+
+    <geo-location watch-pos high-accuracy></geo-location>
+
+<b>Example</b> - centering a [Google Map](https://github.com/GoogleWebComponents/google-map) marker to the current location, using data-binding:
+
+     <geo-location latitude="{{lat}}"
+                   longitude="{{lng}}"></geo-location>
+     <google-map latitude="[[lat]]" longitude="[[lng]]">
+       <google-map-marker latitude="[[lat]]" longitude="[[lng]]"></google-map-marker>
+     </google-map>
+
+@demo
+-->
+<script>
+  (function() {
+    var watch_ = null;
+
+    Polymer({
+
+      is: 'geo-location',
+
+      hostAttributes: {
+        hidden: true
+      },
+
+      properties: {
+        /**
+         * The latitude of the current position.
+         */
+        latitude: {
+          type: Number,
+          notify: true,
+          reflectToAttribute: true,
+          readOnly: true,
+          value: null
+        },
+
+        /**
+         * The longitude of the current position.
+         */
+        longitude: {
+          type: Number,
+          notify: true,
+          reflectToAttribute: true,
+          readOnly: true,
+          value: null
+        },
+
+        /**
+         * If true, the element won't be active at all
+         */
+        idle: {
+          type: Boolean,
+          value: false
+        },
+
+        /**
+         * If true, the latitude/longitude update as the device changes position.
+         * If not set, the latitude/longitude are provided once.
+         */
+        watchPos: {
+          type: Boolean,
+          value: false
+        },
+
+        /**
+         * If true, enables high accuracy GPS.
+         */
+        highAccuracy: {
+          type: Boolean,
+          value: false
+        },
+
+        /**
+         * The maximumAge option in the Gelocation API.
+         */
+        maximumAge: {
+          type: Number,
+          value: 0
+        },
+
+        /**
+         * The timeout option in the Gelocation API.
+         */
+        timeout: {
+          type: Number,
+          value: 5000
+        },
+
+        /**
+         * Geolocation API position object
+         */
+        position: {
+          type: Object,
+          notify: true,
+          readOnly: true,
+          value: null
+        }
+
+      },
+
+      observers: [
+        'fetch(idle, watchPos, highAccuracy, timeout, maximumAge)'
+      ],
+
+     /**
+       * Fired when the Geolocation API returns an error.
+       *
+       * @event geo-error
+       * @param {Object} detail
+       * @param {boolean} detail.error The error message.
+       */
+
+      /**
+       * Fired when the Geolocation API returns a position result.
+       *
+       * @event geo-response
+       * @param {Object} detail
+       *   @param {Position} position The raw position object returned by the Geolocation API.
+       *   @param {Number} detail.latitude Latitude of the current position.
+       *   @param {Number} detail.longitude Longitude of the current position.
+       */
+
+      detached: function () {
+        this._clearWatch(watch_);
+      },
+
+      /**
+       * Stop updating latitude/longitude as the device changes position.
+       * @param {Number} watch watch ID value.
+       */
+      _clearWatch: function (watch) {
+        if (watch !== null) {
+            navigator.geolocation.clearWatch(watch);
+            watch_ = null;   
+        }
+      },
+
+      clear: function () {
+        this._setPosition(null);
+        this._setLatitude(null);
+        this._setLongitude(null);
+      },
+
+      fetch: function () {
+        this._clearWatch(watch_);
+
+        if (this.idle) {
+          return;
+        }
+
+        var success = this._onPosition.bind(this);
+        var error = this._onError.bind(this);
+        var options = {
+          enableHighAccuracy: this.highAccuracy,
+          timeout: this.timeout,
+          maximumAge: this.maximumAge
+        };
+
+        if (this.watchPos) {
+          watch_ = navigator.geolocation.watchPosition(success, error, options);
+        } else {
+          navigator.geolocation.getCurrentPosition(success, error, options);
+        }
+      },
+
+      /**
+       * Success callback when the Geolocation API returns results.
+       *
+       * @param {Position} pos A position object from the Geolocation API.
+       */
+      _onPosition: function(pos) {
+        this._setPosition(pos);
+        this._setLatitude(pos.coords.latitude);
+        this._setLongitude(pos.coords.longitude);
+
+        this.fire('geo-response', {
+          latitude: this.latitude,
+          longitude: this.longitude,
+          position: pos
+        });
+      },
+
+      /**
+       * Error callback when the Geolocation API returns an error.
+       *
+       * @param {Position} err The error that was returned.
+       */
+      _onError: function(err) {
+        this.fire('geo-error', {
+          error: err.code + ': ' + err.message,
+          code: err.code
+        });
+      }
+    });
+  })();
+</script>

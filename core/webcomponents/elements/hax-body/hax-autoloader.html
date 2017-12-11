@@ -1,0 +1,65 @@
+<link rel="import" href="../polymer/polymer.html">
+
+<!--
+`hax-autoloader`
+Automatically load elements based on the most logical location with future fallback support for CDNs.
+
+@demo demo/index.html
+
+@microcopy - the mental model for this element
+ - hax-autoloader - autoloading of custom element imports which can then emmit events as needed
+-->
+
+<dom-module id="hax-autoloader">
+  <template>
+    <style>
+      :host {
+        display: none;
+      }
+    </style>
+    <div id="elements"><slot></slot></div>
+  </template>
+  <script>
+    Polymer({
+
+      is: 'hax-autoloader',
+      /**
+       * Ready.
+       */
+      ready: function() {
+        this._observer =
+        // notice elements when they update
+        Polymer.dom(this.$.elements).observeNodes( (info) => {
+          this.processNewElements(info.addedNodes);
+        });
+      },
+      /**
+       * Process new elements
+       */
+      processNewElements: function(e) {
+        // when new nodes show up in the slots then fire the needed pieces
+        var effectiveChildren = Polymer.dom(this.$.elements).getEffectiveChildNodes();
+        for (var i = 0; i < effectiveChildren.length; i++) {
+          // strip invalid tags / textnodes
+          if (typeof effectiveChildren[i].tagName !== typeof undefined) {
+            // attempt a dynamic import with graceful failure / fallback
+            try {
+              let name = effectiveChildren[i].tagName.toLowerCase();
+              // this is the most likely location
+              // @todo support CDN failover or a flag of some kind to ensure
+              // this delivers locally or from remote but this is way down the line
+              this.importHref(this.resolveUrl(`../${name}/${name}.html`), (e) => {
+                //e.target.import
+              }, (e) => {
+                //import failed
+              });
+            }
+            catch(err) {
+              // error in the event this is a double registration so we still work
+            }
+          }
+        }
+      },
+    });
+  </script>
+</dom-module>

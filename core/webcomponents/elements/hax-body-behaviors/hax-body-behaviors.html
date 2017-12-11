@@ -15,46 +15,89 @@ with the hax-body element which manages elements.
    * For example, the default of:
    *
    *  {
+   *    'api': '1',
    *    'canScale': true,
    *    'canPosition': true,
-   *    'settings': null,
+   *    'canEditSource': true,
+   *    'gizmo': {},
+   *    'settings': {
+   *      'quick': [],
+   *      'configure': [],
+   *      'advanced': [],
+   *    },
    *  }
    *
-   *  Tells hax-body's context menu for custom-elements that this element
-   *  can use the scaling widget and the positioning widget as globals.
+   * This tells hax-body's context menu for custom-elements that this element
+   * can use the scaling widget and the positioning widget as well as have a traditional source editor view when in an advanced form.
+   *
+   * So now you're probably saying "What's a gizmo???". Well, gizmo is what we call widgets or custom-elements when an end user of HAX places them in the page. It's our playful way of explaining what's happening to an end user as well as ensuring when developers talk to each other then don't use words that have duplicate meanings. It's also just a fun word.
+   * A gizmo helps describe the element to the HAX Gizmo manager so that a user can select the element they want to place in the page. Think of your custom-element as an app in an app store. Well, how would you describe your "app" or Gizmo to a store of apps (in our case the Gizmo manager).
+   *
+   * This is an example of th gizmo object that is expressed in the lrn-table tag:
+   * 'gizmo': {
+   *    'title': 'CSV Table',
+   *    'descrption': 'This can generate a table from a CSV file no matter where it is located.',
+   *     'icon': 'editor:border-all',
+   *     'color': 'green',
+   *     'groups': ['Presentation', 'Table', 'Data'],
+   *     'handles': [
+   *       {
+   *         'type': 'data',
+   *         'url': 'csvFile'
+   *       }
+   *     ],
+   *     'meta': {
+   *       'author': 'LRNWebComponents'
+   *     }
+   *   },
+   *
+   * Groups is like a filter that someone could search amongst dozens of gizmos for the type of one they are looking for. So if you said your gizmo is for presenting video then you could tag it as Video and people looking for ways to present videos could filter by just Video gizmos.
+   * handles has to do with hax-sources of gizmos (think remote app stores you are searching to bring in an app if that was even possible in cell phones);. This says that if a gizmo source claims to be able to supply 'data', that lrn-table is able to handle data and that the property to map to when producing a haxElement is called csvFile. If only 1 handler exists for a response type from a source then it'll auto select it, otherwise the user will have the option of which custom element / gizmo they want to use to render that source material.
+   * meta is typical meta data, these things will be printed in a table in the event anyone wants to see them. Author is a logical one so people know who an element came from; like if you wanted to have a core gizmo's vs 3rd party gizmo's concept.
    *
    * Other settings can be expressed through beyond these simple layout modifiers.
-   * The following example expresses a citation property which creates a textfield
-   * on the context bar with a text-format icon for inputMethod. It also illustrates how
-   * this could be applied to slots for more flexible content inputMethod as well as a
-   * potential boolean value in an "Advanced" area.
-   * 'settings': [
-   *   {
-   *     'property': 'citation',
-   *     'title': 'Citation',
-   *     'description': 'Proper MLA or other standard citation format for the image.',
-   *     'inputMethod': 'textfield',
-   *     'type': 'bar',
-   *     'icon': 'text-format',
-   *     'required': true
-   *   },
-   *   {
-   *     'slot': 'area1',
-   *     'title': 'Section 1',
-   *     'description': 'Content that goes in the fist area in the layout.',
-   *     'inputMethod': 'textarea',
-   *     'type': 'settings',
-   *     'icon': 'layout'
-   *   },
-   *   {
-   *     'property': 'responsive',
-   *     'title': 'Responsive',
-   *     'description': 'The video automatically fills the available area.',
-   *     'inputMethod': 'boolean',
-   *     'type': 'advanced',
-   *     'icon': 'video'
-   *   }
-   * ]
+   * This example illustrates how you can show forms in three different areas of HAX.
+   * Items in the 'quick' key group means that it would show up in hax's in-place editor
+   * on the context menu. Things keyed with 'configure' show up in a
+   * form / preview display mode in a modal above the interface. Things in 'advanced' will
+   * show up on a sub-set of the configure form for more advanced operations.
+   * 'settings': {
+   *   'quick': [
+   *     {
+   *       'property': 'responsive',
+   *       'title': 'Responsive',
+   *       'description': 'The video automatically fills the available area.',
+   *       'inputMethod': 'boolean',
+   *       'icon': 'video'
+   *     }
+   *   ],
+   *   'configure': [
+   *     {
+   *       'property': 'citation',
+   *       'title': 'Citation',
+   *       'description': 'Proper MLA or other standard citation format for the image.',
+   *       'inputMethod': 'textfield',
+   *       'icon': 'text-format',
+   *       'required': true
+   *     },
+   *     {
+   *       'property': 'responsive',
+   *       'title': 'Responsive',
+   *       'description': 'The video automatically fills the available area.',
+   *       'inputMethod': 'boolean',
+   *       'icon': 'video'
+   *     }
+   *   ],
+   *   'advanced': [
+   *     {
+   *       'slot': 'area1',
+   *       'title': 'Section 1',
+   *       'description': 'Content that goes in the fist area in the layout.',
+   *       'inputMethod': 'textarea',
+   *       'icon': 'layout'
+   *     }
+   *   ]
+   * }
    */
   // ensure HAXPropertiesBehaviors exists
   window.HAXBehaviors = window.HAXBehaviors || {};
@@ -67,9 +110,14 @@ with the hax-body element which manages elements.
       haxProperties: {
         type: Object,
         value: {
-          'canScale': true,
-          'canPosition': true,
-          'settings': [],
+          "canScale": false,
+          "canPosition": false,
+          "canEditSource": false,
+          "settings": {
+            "quick": [],
+            "configure": [],
+            "advanced": [],
+          },
         },
         readOnly: true,
       },
@@ -80,51 +128,119 @@ with the hax-body element which manages elements.
      * properties in order to be able to bubble up the properties for a tag.
      */
     setHaxProperties: function (props) {
-      // validate properties to ensure each has defaults in place to match the model
-      for (i = 0; i < props.length; i++) {
-        // we don't have a property or slot so it's not valid.
-        if (typeof props[i].property === typeof undefined && typeof props[i].slot === typeof undefined) {
-          props.splice(i, 1);
-          continue;
-        }
-        // ensure there's a title
-        if (typeof props[i].title === typeof undefined) {
-          props[i].title = props[i].property;
-        }
-        // ensure there's at least an empty description
-        if (typeof props[i].description === typeof undefined) {
-          props[i].description = '';
-        }
-        // ensure there's at least an input method
-        if (typeof props[i].inputMethod === typeof undefined) {
-          props[i].inputMethod = 'textfield';
-        }
-        // ensure there's at least a type
-        if (typeof props[i].type === typeof undefined) {
-          props[i].type = 'settings';
-        }
-        // ensure there's at least an icon
-        if (typeof props[i].icon === typeof undefined) {
-          props[i].icon = 'android';
-        }
-        // ensure there's at least an empty options area
-        if (typeof props[i].options === typeof undefined) {
-          props[i].options = {};
-        }
-        // ensure there's required set
-        if (typeof props[i].required === typeof undefined) {
-          props[i].required = false;
-        }
-        // ensure there's validation or make it anything if none set
-        if (typeof props[i].validation === typeof undefined) {
-          props[i].validation = '*';
-        }
-        // ensure there's validation or make it anything if none set
-        if (typeof props[i].validationType === typeof undefined) {
-          props[i].validationType = '';
-        }
+      // these are a core piece of hax capabilities
+      // set them in the event this got called without anything
+      // so we at least won't bomb
+      if (typeof props.api === typeof undefined) {
+        props.api = '1';
       }
-      this._setHaxProperties(props);
+      // sets us up for future API versioning of property validation
+      // and clean up.
+      if (props.api == '1') {
+        if (typeof props.canPosition === typeof undefined) {
+          props.canPosition = true;
+        }
+        if (typeof props.canScale === typeof undefined) {
+          props.canScale = true;
+        }
+        if (typeof props.canEditSource === typeof undefined) {
+          props.canEditSource = false;
+        }
+        if (typeof props.gizmo === typeof undefined) {
+          props.gizmo = false;
+        }
+        // while not required, this is where all the raw power of this
+        // approach really lies since this wires properties/slots to HAX's
+        // ability to manipulate things via contextual menus
+        if (typeof props.settings !== typeof undefined) {
+          // loop through any potential settings in each of the three
+          // groupings of possible settings and validate that each setting is accurate
+          if (typeof props.settings.quick === typeof undefined) {
+            props.settings.quick = [];
+          }
+          for (i = 0; i < props.settings.quick.length; i++) {
+            props.settings.quick[i] = this.validateSetting(props.settings.quick[i]);
+            // account for a bad property and remove it
+            if (!props.settings.quick[i]) {
+              props.settings.quick.splice(i, 1);
+            }
+          }
+          if (typeof props.settings.configure === typeof undefined) {
+            props.settings.configure = [];
+          }
+          for (i = 0; i < props.settings.configure.length; i++) {
+            props.settings.configure[i] = this.validateSetting(props.settings.configure[i]);
+            if (!props.settings.configure[i]) {
+              props.settings.configure.splice(i, 1);
+            }
+          }
+          if (typeof props.settings.advanced === typeof undefined) {
+            props.settings.advanced = [];
+          }
+          for (i = 0; i < props.settings.advanced.length; i++) {
+            props.settings.advanced[i] = this.validateSetting(props.settings.advanced[i]);
+            if (!props.settings.advanced[i]) {
+              props.settings.advanced.splice(i, 1);
+            }
+          }
+        }
+        // fire event so we know they have been set for the store to collect
+        this.fire('hax-register-properties', {'tag': this.tagName.toLowerCase(), 'properties': props});
+        this._setHaxProperties(props);
+      }
+      else {
+        // especially useful during development if we implement our own API
+        // incorrectly. Don't hard brick cause it'll still more or less work
+        // but would probably default to an iframe which is less then ideal
+        // but at least wouldn't brick the AX.
+        console.log('This is\'t a valid usage of hax-body-behaviors API. See hax-body-behaviors for more details on how to implement the API. Most likely your hax item just was placed in an iframe as a fallback as opposed to a custom element.');
+      }
+    },
+    /**
+     * Validate settings object.
+     */
+    validateSetting: function(setting) {
+      // we don't have a property or slot so it's not valid.
+      if (typeof setting.property === typeof undefined && typeof setting.slot === typeof undefined) {
+        return false;
+      }
+      // ensure there's a title
+      if (typeof setting.title === typeof undefined) {
+        setting.title = setting.property;
+      }
+      // ensure there's at least an empty description
+      if (typeof setting.description === typeof undefined) {
+        setting.description = '';
+      }
+      // ensure there's at least an input method
+      if (typeof setting.inputMethod === typeof undefined) {
+        setting.inputMethod = 'textfield';
+      }
+      // ensure there's at least a type
+      if (typeof setting.type === typeof undefined) {
+        setting.type = 'settings';
+      }
+      // ensure there's at least an icon
+      if (typeof setting.icon === typeof undefined) {
+        setting.icon = 'android';
+      }
+      // ensure there's at least an empty options area
+      if (typeof setting.options === typeof undefined) {
+        setting.options = {};
+      }
+      // ensure there's required set
+      if (typeof setting.required === typeof undefined) {
+        setting.required = false;
+      }
+      // ensure there's validation or make it anything if none set
+      if (typeof setting.validation === typeof undefined) {
+        setting.validation = '.*';
+      }
+      // ensure there's validation or make it anything if none set
+      if (typeof setting.validationType === typeof undefined) {
+        setting.validationType = '';
+      }
+      return setting;
     },
     /**
      * Match convention for set.
@@ -133,26 +249,207 @@ with the hax-body element which manages elements.
       return this.haxProperties;
     },
     /**
+     * Convert haxProperties structure to a simple json-schema.
+     * This allows for complex form building systems based on this data.
+     * type is configure or advanced
+     */
+    getHaxJSONSchema: function(type) {
+      if (typeof type === typeof undefined) {
+        type = 'configure';
+      }
+      let settings = this.haxProperties.settings[type];
+      var schema = {
+        "$schema": "http://json-schema.org/schema#",
+        "title": "HAX " + type + " form schema",
+        "type": "object",
+        "properties": {}
+      };
+      for (var value in settings) {
+        if (settings.hasOwnProperty(value)) {
+          schema.properties[settings[value].property] = {
+            "title": settings[value].title,
+            "type": this.getHaxJSONSchemaType(settings[value].inputMethod)
+          };
+          if (typeof this[settings[value].property] !== typeof undefined) {
+            schema.properties[settings[value].property].value = this[settings[value].property];
+          }
+          if (settings[value].validationType == 'url') {
+            schema.properties[settings[value].property].format = 'uri';
+          }
+          if (settings[value].inputMethod == 'datepicker') {
+            schema.properties[settings[value].property].format = 'date-time';
+          }
+          if (settings[value].validation != '.*') {
+            schema.properties[settings[value].property].pattern = settings[value].validation;
+          }
+          switch (settings[value].inputMethod) {
+            case 'number':
+              schema.properties[settings[value].property].component = {
+                "name": "paper-input",
+                "valueProperty": "selected",
+                "properties": {
+                  "required": settings[value].required
+                }
+              };
+            break;
+            case 'select':
+              schema.properties[settings[value].property].component = {
+                "name": "paper-dropdown-menu",
+                "valueProperty": "selected",
+                "properties": {
+                  "required": settings[value].required
+                }
+              };
+            break;
+            case 'textarea':
+              schema.properties[settings[value].property].component = {
+                "name": "paper-textarea",
+                "valueProperty": "value",
+                "properties": {
+                  "required": settings[value].required
+                }
+              };
+            break;
+            case 'textfield':
+              schema.properties[settings[value].property].component = {
+                "name": "paper-input",
+                "valueProperty": "value",
+                "properties": {
+                  "required": settings[value].required
+                }
+              };
+            break;
+            case 'colorpicker':
+              schema.properties[settings[value].property].component = {
+                "name": "paper-swatch-picker",
+                "valueProperty": "color",
+                "properties": {
+                  "required": settings[value].required
+                }
+              };
+            break;
+          }
+          // @todo need to map other forms of validation and input
+          // though this gets a lot of them to start
+        }
+      }
+      return schema;
+    },
+    /**
+     * Convert input method to schedma type
+     */
+    getHaxJSONSchemaType: function(inputMethod) {
+      var methods = this.validHAXPropertyInputMethod();
+      if (methods.includes(inputMethod)) {
+        switch (inputMethod) {
+          case 'flipboolean':
+          case 'boolean':
+            return 'boolean';
+          break;
+          case 'number':
+            return 'number';
+          break;
+          case 'select':
+          case 'textarea':
+          case 'colorpicker':
+          case 'datepicker':
+          case 'textfield':
+            return 'string';
+          break;
+          default:
+            return 'string';
+          break;
+        }
+      }
+    },
+    /**
+     * List valid input methods.
+     */
+    validHAXPropertyInputMethod: function() {
+      var methods = ['flipboolean', 'boolean', 'select', 'textfield', 'textarea', 'datepicker', 'colorpicker', 'number'];
+      return methods;
+    },
+    /**
      * Get a prototype settings property.
      */
     prototypeHaxProperties: function() {
       // example properties valid for HAX context menu.
       let props = {
+        'api': '1',
         'canScale': true,
         'canPosition': true,
-        'settings': [
-          {
-            'property': 'title',
-            'title': 'Title',
-            'description': '',
-            'inputMethod': 'textfield',
-            'type': 'settings',
-            'options': {},
-            'icon': 'android',
-            'required': false,
-            'validation': '[a-zA-Z]'
+        "canEditSource": false,
+        'gizmo': {
+          'title': 'Tag name',
+          'description': 'A description',
+          'icon': 'av:play-circle-filled',
+          'color': 'blue',
+          'groups': ['Content'],
+          'handles': [
+            {
+              'type': 'data',
+              'url': 'src'
+            }
+          ],
+          'meta': {
+            'author': ''
           }
-        ]
+        },
+        "settings": {
+          "quick": [
+            {
+              'property': 'title',
+              'title': 'Title',
+              'inputMethod': 'textfield',
+              'icon': 'android',
+            },
+            {
+              'property': 'primaryColor',
+              'title': 'Primary color',
+              'inputMethod': 'colorpicker',
+              'icon': 'color',
+            },
+          ],
+          "configure": [
+            {
+              'property': 'title',
+              'title': 'Title',
+              'description': '',
+              'inputMethod': 'textfield',
+              'icon': 'android',
+              'required': true,
+              'validationType': 'text',
+            },
+            {
+              'property': 'primaryColor',
+              'title': 'Title',
+              'description': '',
+              'inputMethod': 'textfield',
+              'icon': 'android',
+              'required': false,
+              'validation': '.*',
+              'validationType': 'text',
+            },
+          ],
+          "advanced": [
+            {
+              'property': 'secondaryColor',
+              'title': 'Secondary color',
+              'description': 'An optional secondary color used in certain edge cases.',
+              'inputMethod': 'colorpicker',
+              'icon': 'color',
+            },
+            {
+              'property': 'endPoint',
+              'title': 'API endpoint',
+              'description': 'An optional endpoint to hit and load in more data dymaically.',
+              'inputMethod': 'textfield',
+              'icon': 'android',
+              'validation': '[a-z0-9]',
+              'validationType': 'url',
+            },
+          ],
+        },
       };
       return props;
     },

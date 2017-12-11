@@ -1,9 +1,23 @@
+
+<!---
+
+This README is automatically generated from the comments in these files:
+iron-pages.html
+
+Edit those files, and our readme bot will duplicate them over here!
+Edit this file, and the bot will squash your changes :)
+
+The bot does some handling of markdown. Please file a bug if it does the wrong
+thing! https://github.com/PolymerLabs/tedium/issues
+
+-->
+
 [![Build status](https://travis-ci.org/PolymerElements/iron-pages.svg?branch=master)](https://travis-ci.org/PolymerElements/iron-pages)
 
 _[Demo and API docs](https://elements.polymer-project.org/elements/iron-pages)_
 
 
-## &lt;iron-pages&gt;
+##&lt;iron-pages&gt;
 
 `iron-pages` is used to select one of its children to show. One use is to cycle through a list of
 children "pages".
@@ -25,8 +39,4 @@ Example:
 </script>
 ```
 
-### Notable breaking changes between 1.x and 2.x (hybrid):
 
-IronSelectableBehavior and IronMultiSelectableBehavior, which are used by
-iron-pages, introduce multiple breaking changes. Please see the README for those
-behaviors for more detail.

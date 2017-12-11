@@ -1,0 +1,32 @@
+{
+  "name": "grafitto-filter",
+  "version": "1.0.0",
+  "authors": [
+    "Kevin Nderitu <nderitukelvin19@gmail.com>"
+  ],
+  "description": "An element providing a solution for fltering a list of items before displaying them.",
+  "keywords": [
+    "web-component",
+    "web-components",
+    "polymer",
+    "filter"
+  ],
+  "main": "grafitto-filter.html",
+  "license": "http://polymer.github.io/LICENSE.txt",
+  "homepage": "https://github.com/grafitto/grafitto-filter/",
+  "ignore": [
+    "/.*",
+    "/test/"
+  ],
+  "dependencies": {
+    "polymer": "Polymer/polymer#^1.0.0"
+  },
+  "devDependencies": {
+    "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
+    "web-component-tester": "*",
+    "iron-list": "^1.4.6",
+    "paper-input": "^2.0.0",
+    "paper-item": "^2.0.0",
+    "paper-checkbox": "^2.0.0"
+  }
+}

@@ -1,0 +1,275 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../app-layout/app-drawer/app-drawer.html">
+<link rel="import" href="../lrnsys-layout/lrnsys-collapselist-item.html">
+<link rel="import" href="../paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../iron-icons/iron-icons.html">
+<link rel="import" href="hax-panel-item.html">
+
+<!--
+`hax-panel`
+A LRN element that provides a panel / pallet of options to choose from.
+This is intended to be placed in a larger system for creating content quickly
+as the events being bubbled up include HTML nodes to inject into something
+
+@demo demo/index.html
+
+@microcopy - the mental model for this element
+ - panel - the flyout from left or right side that has elements that can be placed
+ - element - buttons on the panel which when pressed will trigger an event
+
+-->
+
+<dom-module id="hax-panel">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+      app-drawer {
+        --app-drawer-width: 100px;
+        touch-action: auto;
+        transition: all .3s ease;
+        z-index: 1;
+      }
+      hax-panel-item:hover,
+      hax-panel-item:focus {
+        -webkit-box-shadow: 0 0 0 3px #34e79a;
+        box-shadow: 0 0 0 3px #34e79a;
+      }
+      lrnsys-collapselist-item .label {
+        text-align: center;
+      }
+      #button {
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 2;
+        margin-left: 0;
+        transition: margin .3s;
+        background-color: #EEEEEE;
+        height: 38px;
+        width: 38px;
+        border: 1px solid #DDDDDD;
+      }
+      #button[data-opened] {
+        margin-left: 100px;
+      }
+      #htmlexport {
+        position: fixed;
+        top: 38px;
+        left: 0;
+        z-index: 2;
+        margin-left: 0;
+        transition: margin .3s;
+        background-color: #EEEEEE;
+        height: 38px;
+        width: 38px;
+        border: 1px solid #DDDDDD;
+      }
+      #htmlexport[data-opened] {
+        margin-left: 100px;
+      }
+    </style>
+    <div hidden$="[[hidePanelOps]]">
+      <paper-icon-button data-opened$="[[editMode]]" on-tap="_clickButton" icon="power-settings-new" id="button"></paper-icon-button>
+      <paper-tooltip
+        for="button"
+        position="right"
+        offset="10"
+        animation-delay="0">
+        [[__tipText]]
+      </paper-tooltip>
+      <paper-icon-button hidden$="[[!showHTMLExport]]" data-opened$="[[editMode]]" on-tap="_htmlExport" icon="code" id="htmlexport"></paper-icon-button>
+      <paper-tooltip
+        for="htmlexport"
+        position="right"
+        offset="10"
+        animation-delay="0">
+        Export
+      </paper-tooltip>
+    </div>
+    <app-drawer id="drawer" opened="{{editMode}}" disable-swipe persistent transition-duration="300">
+      <div style="height: 100%; overflow: auto;">
+        <lrnsys-collapselist-item opened>
+          <span slot="label"><div class="label">Create</div></span>
+          <span slot="content">
+            <hax-panel-item
+              icon="editor:title"
+              icon-class="green-text text-darken-1"
+              label="Heading"
+              event-name="header"
+              voice-command="insert heading"></hax-panel-item>
+            <hax-panel-item
+              icon="editor:text-fields"
+              icon-class="grey-text text-darken-1"
+              label="Text"
+              event-name="text"
+              voice-command="insert text"></hax-panel-item>
+            <hax-panel-item
+              icon="device:graphic-eq"
+              icon-class="amber-text text-darken-1"
+              label="Gizmo"
+              event-name="hax-manager-open"
+              voice-command="insert gizmo"></hax-panel-item>
+          </span>
+        </lrnsys-collapselist-item>
+        <lrnsys-collapselist-item>
+          <span slot="label"><div class="label">More</div></span>
+          <span slot="content">
+            <hax-panel-item
+              icon="view-quilt"
+              icon-class="red-text text-darken-1"
+              label="Blox"
+              event-name="layout"
+              voice-command="insert block"></hax-panel-item>
+            <hax-panel-item
+              icon="view-agenda"
+              icon-class="red-text text-darken-1"
+              label="Stax"
+              event-name="layout"
+              voice-command="insert stack"></hax-panel-item>
+            <hax-panel-item
+              icon="editor:space-bar"
+              icon-class="blue-text text-darken-1"
+              label="Divider"
+              event-name="divider"
+              voice-command="insert divider"></hax-panel-item>
+          </span>
+        </lrnsys-collapselist-item>
+        <slot></slot>
+      </div>
+    </app-drawer>
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'hax-panel',
+      listeners: {
+        'hax-item-selected': '_processItemEvent',
+      },
+      properties: {
+        /**
+         * State of the panel
+         */
+        editMode: {
+          type: Boolean,
+          reflectToAttribute: true,
+          observer: '_editModeChanged',
+        },
+        /**
+         * Showing advanced area.
+         */
+        showHTMLExport: {
+          type: Boolean,
+          value: true,
+        },
+        /**
+         * Showing button area at all.
+         */
+        hidePanelOps: {
+          type: Boolean,
+          value: false,
+        },
+      },
+      /**
+       * Attached to the DOM; now we can fire event to the store that
+       * we exist and are the thing being edited.
+       */
+      attached: function() {
+        this.fire('hax-register-panel', this);
+        document.body.addEventListener('hax-store-property-updated', this._haxStorePropertyUpdated.bind(this));
+      },
+      /**
+       * Store updated, sync.
+       */
+      _haxStorePropertyUpdated: function(e) {
+        if (e.detail && typeof e.detail.value !== typeof undefined && e.detail.property) {
+          this.set(e.detail.property, e.detail.value);
+        }
+      },
+      /**
+       * Process event for simple content inserts.
+       */
+      _processItemEvent: function(e) {
+        let detail = e.detail;
+        // support a simple insert event to bubble up or everything else
+        switch(detail.eventName) {
+          case 'text':
+            detail.tag = 'p';
+            detail.content = 'New paragraph';
+            this.fire('hax-insert-content', detail);
+          break;
+          case 'divider':
+            detail.tag = 'hr';
+            detail.content = '';
+            this.fire('hax-insert-content', detail);
+          break;
+          case 'header':
+            detail.tag = 'h2';
+            detail.content = 'Heading';
+            this.fire('hax-insert-content', detail);
+          break;
+          case 'blockquote':
+            detail.tag = 'blockquote';
+            detail.content = 'Quote';
+            this.fire('hax-insert-content', detail);
+          break;
+          case 'layout':
+            detail.tag = 'hax-blox';
+            detail.content = '<p slot="area1">Column 1 content</p><p slot="area2">Column 2 content</p>';
+            detail.properties = {
+              'layout': 'cols-50-50',
+            };
+            this.fire('hax-insert-content', detail);
+          break;
+          case 'hax-manager-open':
+            Polymer.HaxStore.instance.haxManager.resetManager();
+            Polymer.HaxStore.write('activeHaxElement', {}, this);
+            Polymer.HaxStore.instance.haxManager.toggleDialog();
+          break;
+          case 'undo':
+            document.execCommand('undo');
+          break;
+          case 'redo':
+            document.execCommand('redo');
+          break;
+          default:
+            // we sit on this, something else will have to handle it
+          break;
+        }
+      },
+      /**
+       * _editModeChanged
+       */
+      _editModeChanged: function(newValue, oldValue) {
+        if (typeof newValue !== typeof undefined && newValue) {
+          this.__tipText = 'save';
+        }
+        else {
+          this.__tipText = 'edit';
+        }
+      },
+      /**
+       * Toggle the drawer when the button is clicked.
+       */
+      _clickButton: function(e) {
+        this.toggle();
+      },
+      /**
+       * HTML Export trigger.
+       */
+      _htmlExport: function(e) {
+        //simple toggle
+        Polymer.HaxStore.instance.haxExport.toggleDialog();
+      },
+      /**
+       * Toggle the panel.
+       */
+      toggle: function(e) {
+        Polymer.HaxStore.write('editMode', !this.editMode, this);
+        this.$.drawer.opened = this.editMode;
+      }
+    });
+  </script>
+</dom-module>

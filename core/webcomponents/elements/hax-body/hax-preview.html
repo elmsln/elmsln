@@ -1,0 +1,295 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../eco-json-schema-form/eco-json-schema-wizard.html">
+<link rel="import" href="../paper-toggle-button/paper-toggle-button.html">
+<link rel="import" href="../paper-card/paper-card.html">
+<link rel="import" href="../vaadin-split-layout/vaadin-split-layout.html">
+<!--
+`hax-preview`
+An element that can generate a form
+
+@demo demo/index.html
+
+@microcopy - the mental model for this element
+ - element - the element to work against. an object that expresses enough information to create an element in the DOM. This is useful for remixing a tag via the json-form
+ - source - a json object from some place loaded in remotely which will then be in json-schema format. This will then be parsed into a form which can be used to manipulate the element.
+
+-->
+
+<dom-module id="hax-preview">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+      .step-toggle-wrapper {
+        margin: 0;
+        padding: .8em;
+        position: absolute;
+        top: 0;
+        right: 0;
+        font-size: 1.2em;
+      }
+      .step-toggle-wrapper paper-toggle-button {
+        display: inline-block;
+        vertical-align: middle;
+      }
+      .step-toggle-wrapper div {
+        display: inline-block;
+        vertical-align: middle;
+        padding: 0 .8em;
+      }
+      paper-card.form-wrapper {
+        margin: 3em 0;
+        width: 100%;
+        min-height: 10em;
+      }
+
+      vaadin-split-layout {
+        display: flex;
+        justify-content: space-around;
+      }
+      eco-json-schema-object {
+        width: 50%;
+      }
+
+      .vaadin-split-layout-panel {
+        flex: 1 1 auto;
+        width: 100%;
+        flex-wrap: nowrap;
+        margin: .3em;
+        height: 100%;
+      }
+      #form {
+        --eco-json-schema-object-form: {
+          display: block !important;
+        };
+      }
+    </style>
+    <vaadin-split-layout class="panel-wrapper">
+      <!-- critique panel -->
+      <div class="vaadin-split-layout-panel">
+        <div id="preview"></div>
+      </div>
+      <!-- critique panel -->
+      <div class="vaadin-split-layout-panel">
+        <div class="step-toggle-wrapper">
+          <div>Configure</div><paper-toggle-button id="step" checked="{{advancedForm}}" disabled="[[!haspreviewNode]]"></paper-toggle-button><div>Advanced</div>
+        </div>
+        <paper-card class="form-wrapper">
+          <eco-json-schema-object id="form" schema="[[schema]]" value="{{value}}"></eco-json-schema-object>
+        </paper-card>
+      </div>
+    </vaadin-split-layout>
+  </template>
+  <script>
+    Polymer({
+      is: 'hax-preview',
+      observers: [
+        '_valueChanged(value.*,formKey)'
+      ],
+      properties: {
+        /**
+         * Returned value from the form input.
+         */
+        value: {
+          type: Object,
+          notify: true,
+          value: {},
+        },
+        /**
+         * The element to work against expressing the structure of the DOM element
+         * to create in the preview area.
+         */
+        element: {
+          type: Object,
+          observer: '_elementChanged',
+        },
+        /**
+         * A reference to the previewNode so we can do data binding correctly.
+         */
+        previewNode: {
+          type: Object,
+          value: {},
+          observer: '_previewNodeChanged',
+        },
+        /**
+         * Boolean association for a preview node existing.
+         */
+        haspreviewNode: {
+          type: Boolean,
+          computed: '_computedHasPreviewNode(previewNode)',
+        },
+        /**
+         * JSON Schema.
+         */
+        schema: {
+          type: Object,
+          value: {
+            'schema': {},
+          },
+        },
+        /**
+         * If this is the advancedForm or not. Default to not but slider allows
+         * switching mode for the form to be presented.
+         */
+        advancedForm: {
+          type: Boolean,
+          value: false,
+        },
+        /**
+         * If we should show source view or not.
+         */
+        canEditSource: {
+          type: Boolean,
+          computed: '_computedEditSource(formKey)',
+        },
+        /**
+         * Form key from hax to target.
+         */
+        formKey: {
+          type: String,
+          computed: '_computedFormKey(advancedForm)',
+          observer: '_formKeyChanged',
+        },
+      },
+      /**
+       * Make a boolean to match the preview node's existance.
+       */
+      _computedHasPreviewNode: function(previewNode) {
+        if (typeof previewNode.tagName === typeof undefined) {
+          return false;
+        }
+        else {
+          return true;
+        }
+      },
+      /**
+       * Edit source.
+       */
+      _computedEditSource: function(newValue, oldValue) {
+        if (typeof newValue !== typeof undefined) {
+          let node = this.previewNode;
+          if (typeof node.getHaxProperties === "function") {
+            let props = node.getHaxProperties();
+            return props.canEditSource;
+          }
+        }
+        return true;
+      },
+      /**
+       * Compute form key to use.
+       */
+      _computedFormKey: function(advanced) {
+        if (advanced) {
+          return 'advanced';
+        }
+        else {
+          return 'configure';
+        }
+      },
+      /**
+       * Form key changed, rebuild schema for the form
+       * but don't update the element. Critical difference.
+       */
+      _formKeyChanged: function(newValue, oldValue) {
+        // ensure this doesn't run the 1st pass
+        if (typeof oldValue !== typeof undefined && newValue != oldValue) {
+          // see if we can get schema off of this.
+          if (typeof this.previewNode.getHaxJSONSchema === "function") {
+            let element = this.element;
+            let schema = this.previewNode.getHaxJSONSchema(newValue);
+            for (var property in element.properties) {
+              if (element.properties.hasOwnProperty(property)) {
+                if (typeof schema.properties[property] !== typeof undefined) {
+                  schema.properties[property].value = element.properties[property];
+                  // support custom element input
+                  if (typeof schema.properties[property].component !== typeof undefined) {
+                    schema.properties[property].component.properties.value = element.properties[property];
+                  }
+                }
+                this.previewNode.setAttribute(property, element.properties[property]);
+                this.set('value.' + property, element.properties[property]);
+              }
+            }
+            this.set('schema', {});
+            this.set('schema', schema);
+          }
+        }
+      },
+      /**
+       * When the preview node is updated, pull schema off it.
+       */
+      _previewNodeChanged: function(newValue, oldValue) {
+        // ensure this doesn't run the 1st pass
+        if (typeof oldValue !== typeof undefined && newValue != oldValue) {
+          // see if we can get schema off of this.
+          if (typeof newValue.getHaxJSONSchema === "function") {
+            let element = this.element;
+            let schema = newValue.getHaxJSONSchema(this.formKey);
+            for (var property in element.properties) {
+              if (element.properties.hasOwnProperty(property)) {
+                if (typeof schema.properties[property] !== typeof undefined) {
+                  schema.properties[property].value = element.properties[property];
+                  // support custom element input
+                  if (typeof schema.properties[property].component !== typeof undefined) {
+                    schema.properties[property].component.properties.value = element.properties[property];
+                  }
+                }
+                newValue.setAttribute(property, element.properties[property]);
+                this.set('value.' + property, element.properties[property]);
+              }
+            }
+            console.log(schema);
+            this.set('schema', {});
+            this.set('schema', schema);
+          }
+        }
+      },
+      /**
+       * Element changed, update the preview area.
+       */
+      _elementChanged: function(newValue, oldValue) {
+        if (typeof newValue !== typeof undefined && Object.keys(newValue).length > 0) {
+          // wipe the preview area and assocaited node
+          let preview = this.$.preview;
+          while (preview.firstChild !== null) {
+            preview.removeChild(preview.firstChild);
+          }
+          this.set('previewNode', {});
+          // if we have something, generate the new element inside it
+          if (newValue != null && newValue.length != 0) {
+            var frag = document.createElement(newValue.tag);
+            frag.innerHTML = newValue.content;
+            // clone the fragment which will force an escalation to full node
+            var newNode = frag.cloneNode(true);
+            // send this into the root, which should filter it back down into the slot
+            preview.appendChild(newNode);
+            this.set('previewNode', newNode);
+            // need to let append propagate, it probably takes like no time
+            setTimeout( () => {}, 100);
+          }
+        }
+      },
+      /**
+       * Value in the form has changed, reflect to the preview.
+       */
+      _valueChanged: function() {
+        let node = this.previewNode;
+        // sanity check and then get props and mesh with form value response
+        if (typeof node.getHaxProperties === "function") {
+          let props = node.getHaxProperties();
+          // loop through the properties for the form
+          for (var value in props.settings[this.formKey]) {
+            if (props.settings[this.formKey].hasOwnProperty(value) && typeof props.settings[this.formKey][value].property !== typeof undefined && typeof this.value[props.settings[this.formKey][value].property] !== typeof undefined) {
+              node.setAttribute(props.settings[this.formKey][value].property, this.value[props.settings[this.formKey][value].property]);
+            }
+            else {
+              // @todo add support for disabling based on not having advanced
+              // form
+            }
+          }
+        }
+      },
+    });
+  </script>
+</dom-module>

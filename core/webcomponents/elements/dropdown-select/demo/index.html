@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+
+    <title>dropdown-select demo</title>
+
+    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+
+    <link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
+    <link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
+    <link rel="import" href="../dropdown-select.html">
+
+    <style is="custom-style" include="demo-pages-shared-styles">
+    </style>
+    <script>
+      window.onload = function(){
+        if(document.getElementById('example') !== null) {
+          document.getElementById('example').addEventListener('change', function (e) {
+            if(e.detail !== null){
+              alert('You picked '+e.detail.value+'.');
+            }
+          });
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <div class="vertical-section-container centered">
+      <h3>Basic dropdown-select demo</h3>
+      <demo-snippet>
+        <template>
+          <dropdown-select id="example" value="cat" label="Select an animal." selected-index="3">
+            <paper-item value="bird">Bird</paper-item>
+            <paper-item value="cat">Cat</paper-item>
+            <paper-item value="dog">Dog</paper-item>
+            <paper-item value="fish">Fish</paper-item>
+          </dropdown-select>
+          <!-- Example script for getting the value. --
+          <script>
+            window.onload = function(){
+              if(document.getElementById('example') !== null) {
+                document.getElementById('example').addEventListener('change', function (e) {
+                  if(e.detail !== null){
+                    alert('You picked '+e.detail.value+'.');
+                  }
+                });
+              }
+            }
+          </script> -->
+        </template>
+      </demo-snippet>
+    </div>
+  </body>
+</html>

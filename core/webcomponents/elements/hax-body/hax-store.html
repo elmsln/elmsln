@@ -1,0 +1,428 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../paper-toast/paper-toast.html">
+<!--
+`hax-store`
+ The storage area for all valid custom elements to drop into HAX. This element lives at the top level and lazy-loads all the possible elements that could be added to the document. It also helps with building the hax-panel options as well as brokering what tags register as valid when doing sanitization requests.
+
+@demo demo/index.html
+
+@microcopy - the mental model for this element
+ - store - a location that is the source of truth for allowed hax custom elements.
+ - hax-body - the routing board doing all the work for the UI
+ - app - the level above hax-body that this and other tags live in
+ - hax-panel - a side pallet of options which allows one to select items that they want to add to hax-body.
+ - element - a custom element tag / node
+ - hax element - a simplified DOM node that is tag, properties, slot content as Object key names.
+
+-->
+
+<dom-module id="hax-store">
+  <template>
+    <style>
+      /**
+       * This shouldn't show up anywhere, it's just wiring.
+       */
+      :host {
+        display: none;
+      }
+    </style>
+  </template>
+  <script>
+
+    (function() {
+      'use strict';
+
+      Polymer.HaxStore = Polymer({
+        is: 'hax-store',
+
+        properties: {
+          /**
+           * Hax manager element.
+           */
+          haxManager: {
+            type: Object,
+          },
+          /**
+           * Hax manager element.
+           */
+          haxBody: {
+            type: Object,
+          },
+          /**
+           * HAX Toast message.
+           */
+          haxToast: {
+            type: Object,
+          },
+          /**
+           * Hax panel element.
+           */
+          haxPanel: {
+            type: Object,
+          },
+          /**
+           * Active HAX Element if we have one we are working on.
+           */
+          activeHaxElement: {
+            type: Object,
+          },
+          /**
+           * Active Node.
+           */
+          activeNode: {
+            type: Object,
+          },
+          /**
+           * editMode
+           */
+          editMode: {
+            type: Boolean,
+            value: false,
+          },
+          /**
+           * Available gizmos.
+           */
+          gizmoList: {
+            type: Array,
+            value: [],
+          },
+          /**
+           * Available elements keyed by tagName and with
+           * their haxProperties centrally registered.
+           */
+          elementList: {
+            type: Object,
+            value: {},
+          },
+          /**
+           * Available sources of things to search.
+           */
+          sourceList: {
+            type: Array,
+            value: [],
+          },
+          /**
+           * Valid tag list, tag only and including primatives for a baseline.
+           */
+          validTagList: {
+            type: Array,
+            value: ['p', 'div', 'ol', 'ul', 'li', 'a', 'hr', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'code', 'img', 'iframe', 'video', 'audio', 'section', 'hax-blox'],
+          },
+          /**
+           * Gizmo types which can be used to bridge sources to gizmos.
+           */
+          validGizmoTypes: {
+            type: Array,
+            value: ['data','video','audio','text','link','file','pdf','image','csv','doc'],
+          },
+        },
+        /**
+         * attached.
+         */
+        attached: function() {
+          this._injectToast();
+        },
+        /**
+         * Created life-cycle to ensure a single global store.
+         */
+        created: function() {
+          if (!Polymer.HaxStore.instance) {
+            Polymer.HaxStore.instance = this;
+          }
+          // write data to the store
+          document.body.addEventListener('hax-store-write', this._writeHaxStore.bind(this));
+          // notice hax property definitions coming from anywhere
+          document.body.addEventListener('hax-register-properties', this._haxStoreRegisterProperties.bind(this));
+          document.body.addEventListener('hax-register-manager', this._haxStoreRegisterManager.bind(this));
+          document.body.addEventListener('hax-register-body', this._haxStoreRegisterBody.bind(this));
+          document.body.addEventListener('hax-register-panel', this._haxStoreRegisterPanel.bind(this));
+          document.body.addEventListener('hax-register-source', this._haxStoreRegisterSource.bind(this));
+          document.body.addEventListener('hax-register-export', this._haxStoreRegisterExport.bind(this));
+          document.body.addEventListener('hax-source-selected', this._haxStoreSourceSelected.bind(this));
+          // notice content insert and help it along to the body
+          document.body.addEventListener('hax-insert-content', this._haxStoreInsertContent.bind(this));
+        },
+        /**
+         * inject a toast element to manage our messages
+         */
+        _injectToast: function() {
+          var toast = document.createElement('paper-toast');
+          toast.id = "haxtoast";
+          toast.duration = 5;
+          document.body.appendChild(toast);
+          this.haxToast = toast;
+        },
+        /**
+         * Source selected, pass this event to the manager.
+         */
+        _haxStoreSourceSelected: function(e) {
+          // we don't have to do anything yet for a soure being selected here
+        },
+        /**
+         * Set the haxManager node so we can interface with it.
+         * This also allows for using a different manager that supplies
+         * the same functions if that would be desired at some point.
+         */
+        _haxStoreRegisterManager: function(e) {
+          if (e.detail && typeof this.haxManager === typeof undefined) {
+            // move this object to the body level so it doesn't
+            // run into stack order context issues
+            // @todo this would move it up but it's blowing up the DOM...
+            //document.body.appendChild(e.detail);
+            this.haxManager = e.detail;
+          }
+        },
+        /**
+         * Insert content in the body.
+         */
+        _haxStoreInsertContent: function(e) {
+          if (e.detail) {
+            var properties = {};
+            // support for properties to be set automatically optionally
+            if (typeof e.detail.properties !== typeof undefined) {
+              properties = e.detail.properties;
+            }
+            // invoke insert or replacement on body, same function so it's easier to trace
+            if (e.detail.replace && e.detail.replacement) {
+              this.haxBody.haxReplaceNode(this.activeNode, e.detail.replacement);
+            }
+            else {
+              this.haxBody.haxInsert(e.detail.tag, e.detail.content, properties);
+            }
+          }
+        },
+        /**
+         * Set the haxBody so we know what to insert into.
+         */
+        _haxStoreRegisterBody: function(e) {
+          if (e.detail) {
+            this.haxBody = e.detail;
+            Polymer.HaxStore.write('editMode', this.editMode, this);
+          }
+        },
+        /**
+         * Set the haxPanel so we know what to insert into.
+         */
+        _haxStoreRegisterPanel: function(e) {
+          if (e.detail) {
+            this.haxPanel = e.detail;
+          }
+        },
+        /**
+         * Set the haxExport so we know what to insert into.
+         */
+        _haxStoreRegisterExport: function(e) {
+          if (e.detail) {
+            this.haxExport = e.detail;
+          }
+        },
+        /**
+         * Write store event callback.
+         */
+        _writeHaxStore: function(e) {
+          // ensure we have a valid store write
+          if (e.detail && typeof e.detail.value !== typeof undefined && e.detail.property && e.detail.owner) {
+            this.set(e.detail.property, e.detail.value);
+            this.fire('hax-store-property-updated',{property: e.detail.property, value: e.detail.value, owner: e.detail.owner});
+          }
+        },
+        /**
+         * Notice that a source was set in HAX some place; register it here
+         */
+        _haxStoreRegisterSource: function(e) {
+          if (e.detail) {
+            this.push('sourceList', e.detail);
+          }
+        },
+        /**
+         * Notice that a property off an element was set in HAX some place; register it here
+         */
+        _haxStoreRegisterProperties: function(e) {
+          if (e.detail && e.detail.properties && e.detail.tag) {
+            // only register tag if we don't know about it already
+            if (typeof this.elementList[e.detail.tag] === typeof undefined) {
+              // look for a gizmo; it's not required, technically.
+              let gizmo = e.detail.properties.gizmo;
+              if (gizmo) {
+                gizmo.tag = e.detail.tag;
+                let gizmos = this.gizmoList;
+                gizmos.push(gizmo);
+                Polymer.HaxStore.write('gizmoList', gizmos, this);
+              }
+              this.set('elementList.' + e.detail.tag, e.detail.properties);
+              this.push('validTagList', e.detail.tag);
+            }
+          }
+        },
+
+      });
+      /**
+       * Convert a node to a HAX element. Hax elements ensure
+       * a certain level of sanitization by verifying tags and
+       * properties / attributes that have values.
+       */
+      Polymer.HaxStore.nodeToHaxElement = (node) => {
+        // build out the properties to send along
+        let props = {};
+        let styles = '';
+        // support our simple shift around styles
+        if (typeof node.style !== typeof undefined) {
+          // ensure our supported inline styles come along
+          if (node.style.float != null && node.style.float != '') {
+            styles += 'float:' + node.style.float + '; ';
+          }
+          if (node.style.margin != null && node.style.margin != '') {
+            styles += 'margin:' + node.style.margin + '; ';
+          }
+          if (node.style.display != null && node.style.display != '') {
+            styles += 'display:' + node.style.display + '; ';
+          }
+          if (node.style.width != null && node.style.width != '') {
+            styles += 'width:' + node.style.width + '; ';
+          }
+          // only set styles if we have nothing
+          if (styles != '') {
+            props.style = styles;
+          }
+        }
+        for (var property in node.properties) {
+          // make sure we only set things that have a value
+          if (node.properties.hasOwnProperty(property) && typeof node[property] !== undefined && node[property] != null && node[property] != '') {
+            props[property] = node[property];
+          }
+        }
+        let element = {
+          "eventName": 'insert-element',
+          "tag": node.tagName.toLowerCase(),
+          "properties": props,
+          "content": Polymer.HaxStore.getHAXSlot(node),
+        };
+        return element;
+      };
+      /**
+       * Slot content w/ support for custom elements in slot.
+       */
+      Polymer.HaxStore.getHAXSlot = (node) => {
+        let content = '';
+        let slotnodes = Polymer.dom(node).getEffectiveChildNodes();
+        // ensure there's something inside of this
+        if (slotnodes.length > 0) {
+          // loop through everything found in the slotted area and put it back in
+          for (var j = 0, len2 = slotnodes.length; j < len2; j++) {
+            if (typeof slotnodes[j].tagName !== typeof undefined) {
+              // if we're a custom element, keep digging, otherwise a simple
+              // self append is fine.
+              if (slotnodes[j].tagName.indexOf('-') > 0) {
+                content += Polymer.HaxStore.getHAXSlot(slotnodes[j]);
+              }
+              else {
+                content += '  ' + slotnodes[j].outerHTML + "\n";
+              }
+            }
+          }
+        }
+        return content;
+      };
+      /**
+       * Shortcut to standardize the write / read process.
+       */
+      Polymer.HaxStore.write = (prop, value, obj) => {
+        obj.fire('hax-store-write', {property: prop, value: value, owner: obj});
+      };
+      /**
+       * Guess the type of Gizmo when given some information about what we have.
+       */
+      Polymer.HaxStore.guessGizmoType = (guess) => {
+        if (typeof guess.url !== typeof undefined) {
+          if (guess.url.indexOf('vimeo.com') != -1 || guess.url.indexOf('youtube.com') != -1 || guess.url.indexOf('youtube-nocookie.com') != -1 || guess.url.indexOf('youtu.be') != -1) {
+            return 'video';
+          }
+          else if (guess.url.indexOf('soundcloud.com') != -1) {
+            return 'audio';
+          }
+          else if (guess.url.indexOf('.jpg') != -1 || guess.url.indexOf('.jpeg') != -1 || guess.url.indexOf('.gif') != -1) {
+            return 'image';
+          }
+          else if (guess.url.indexOf('.pdf') != -1) {
+            return 'pdf';
+          }
+          else if (guess.url.indexOf('.svg') != -1) {
+            return 'svg';
+          }
+          else if (guess.url.indexOf('.csv') != -1) {
+            return 'csv';
+          }
+          else {
+            return 'data';
+          }
+        }
+      };
+      /**
+       * Try and guess the Gizmo based on what we were just handed
+       */
+      Polymer.HaxStore.guessGizmo = (guess, values) => {
+        if (typeof guess !== typeof undefined) {
+          let root = Polymer.HaxStore.instance;
+          // verify type
+          if (root.validGizmoTypes.includes(guess)) {
+            // now we can look through them
+            // look for a match
+            for (var gizmoposition in root.gizmoList) {
+              let gizmo = root.gizmoList[gizmoposition];
+              for (var i = 0; i < gizmo.handles.length; i++) {
+                // WHAT!??!?!?!?!
+                if (guess === gizmo.handles[i].type) {
+                  for (var property in gizmo.handles[i]) {
+                    // ignore type.. but again.. WHAT?!?!?!
+                    if (property !== 'type') {
+                      // check the values that came across to see if there's a match
+                      if (typeof values[property] !== typeof undefined) {
+                        let props = {};
+                        props[gizmo.handles[i][property]] = values[property];
+                        // omg... we just found a match on a property from who knows where!
+                        return Polymer.HaxStore.haxElementPrototype(gizmo.tag, props, '');
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+        return {};
+      };
+
+      /**
+       * Generate Hax Element prototype.
+       */
+      Polymer.HaxStore.haxElementPrototype = (tag, properties, content) => {
+        return {
+          'tag': tag,
+          'properties': properties,
+          'content': content,
+        };
+      };
+
+      /**
+       * Global toast
+       */
+      Polymer.HaxStore.toast = (message) => {
+        Polymer.HaxStore.instance.haxToast.show(message);
+      };
+      /**
+       * Trick to write the store to the DOM if it wasn't there already.
+       * This is not used yet but could be if you wanted to dynamically
+       * load the store based on something else calling for it. Like
+       * store lazy loading but it isn't tested.
+       */
+      Polymer.HaxStore.instance = null;
+      Polymer.HaxStore.requestAvailability = function() {
+        if (!Polymer.HaxStore.instance) {
+          Polymer.HaxStore.instance = document.createElement('hax-store');
+        }
+        document.body.appendChild(Polymer.HaxStore.instance);
+      };
+    })();
+
+  </script>
+</dom-module>

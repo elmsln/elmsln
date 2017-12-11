@@ -1,0 +1,199 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../juicy-html/juicy-html.html">
+<link rel="import" href="../hax-body-behaviors/hax-body-behaviors.html">
+<link rel="import" href="../schema-behaviors/schema-behaviors.html">
+
+<!--
+`hax-blox`
+A LRN element for managing layout systems and templates.
+
+@demo demo/index.html
+
+@microcopy - the mental model for this element
+ - blox - cute way of writing block. These are our building blocks of layout panel / area. Can be used anywhere,
+   make the most sense in HAX based systems for now.
+ - juicy-html - name of the template restamping system. This allows us to stamp template partials into the DOM and
+   evaluate them. We used that repo so gotta stick with the silly name.
+ - slot-pen - a holding pen for slots. This enables the parent to pass down elements to the right places
+   which then only show up if a layout implements them.
+ - layout - a layout relates to a file in the layouts directory of this project
+-->
+
+<dom-module id="hax-blox">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+      #slot-pen {
+        display: none;
+      }
+      :host[demo-mode] [id^="area"]:hover {
+        -webkit-box-shadow: 0 0 0 3px #03a87c !important;
+        box-shadow: 0 0 0 3px #03a87c !important;
+      }
+    </style>
+    <div id$="hax-layout-[[layout]]">
+      <template model="{{model}}" is="juicy-html" href="[[importFile]]"></template>
+    </div>
+    <div id="slot-pen">
+      <slot name="area1"></slot>
+      <slot name="area2"></slot>
+      <slot name="area3"></slot>
+      <slot name="area4"></slot>
+      <slot name="area5"></slot>
+      <slot name="area6"></slot>
+    </div>
+    <div id="wrapper">
+      <slot></slot>
+    </div>
+  </template>
+  <script>
+    Polymer({
+      is: 'hax-blox',
+      behaviors: [HAXBehaviors.PropertiesBehaviors, SchemaBehaviors.Schema],
+      properties: {
+        /**
+         * Layout to render. This expects to import an associated template.
+         */
+        layout: {
+          type: String,
+          value: 'cols-50-50',
+          reflectToAttribute: true,
+        },
+        /**
+         * primaryColor to render.
+         */
+        primaryColor: {
+          type: String,
+          value: '',
+          reflectToAttribute: true,
+        },
+        /**
+         * secondaryColor to render.
+         */
+        secondaryColor: {
+          type: String,
+          value: '',
+          reflectToAttribute: true,
+        },
+        /**
+         * breakpoint to render.
+         */
+        breakpoint: {
+          type: String,
+          value: '1000px',
+          reflectToAttribute: true,
+        },
+        /**
+         * breakpoint2 to render.
+         */
+        breakpoint2: {
+          type: String,
+          value: '600px',
+          reflectToAttribute: true,
+        },
+        /**
+         * Variation on location for templates; useful for customization.
+         */
+        basePath: {
+          type: String,
+          value: null,
+        },
+        /**
+         * Imported file path.
+         */
+        importFile: {
+          type: String,
+          computed: '_calcImportFile(layout, basePath)',
+        },
+        /**
+         * Demonstration mode for use in modals and previews of what the layout would look like.
+         */
+        demoMode: {
+          type: Boolean,
+          value: false,
+          reflectToAttribute: true,
+        },
+        /**
+         * Data to pass down into injected template
+         */
+        model: {
+          type: Object,
+          computed: '_calcModel(layout, primaryColor, secondaryColor, breakpoint, breakpoint2)',
+        }
+      },
+      /**
+       * attached.
+       */
+      attached: function() {
+        // Establish hax property binding
+        let props = {
+          'canScale': false,
+          'canPosition': false,
+          'canEditSource': false,
+          'gizmo': {
+            'title': 'Hax Blox',
+            'descrption': 'This allows you to group and organize content into a layout.',
+            'icon': 'editor:border-all',
+            'color': 'blue',
+            'groups': ['Content', 'Layout', 'Design'],
+            'handles': [
+              {
+                'type': 'content',
+                'slot': 'slot'
+              }
+            ],
+            'meta': {
+              'author': 'LRNWebComponents'
+            }
+          },
+          'settings': {
+            "quick": [
+              {
+                'property': 'layout',
+                'title': 'Layout',
+                'description': 'The layout for this content block.',
+                'inputMethod': 'select',
+                'options': {
+                  'cols-100': '1 column (100%)',
+                  'cols-50-50': 'two column (50%)',
+                  'cols-25-75': 'two column (25% - 75%)',
+                  'cols-66-33': 'two column (33% - 66%)',
+                  'cols-75-25': 'two column (75% - 25%)',
+                  'cols-33-33-33': 'three column (33%)',
+                  'cols-25-25-25-25': 'four column (25%)',
+                },
+                'icon': 'view-quilt',
+              },
+            ],
+          }
+        };
+        this.setHaxProperties(props);
+      },
+      /**
+       * Calculate the model to send down into our template shadowdom.
+       */
+      _calcModel: function(layout, primaryColor, secondaryColor, breakpoint, breakpoint2) {
+        return {
+          layout: layout,
+          primaryColor: primaryColor,
+          secondaryColor: secondaryColor,
+          breakpoint: breakpoint,
+          breakpoint2: breakpoint2,
+        };
+      },
+      /**
+       * Calculate the path to the imported file.
+       */
+      _calcImportFile: function(layout, basePath) {
+        let path = 'layouts/' + layout + '.html';
+        // support custom paths, useful for loading off of backends
+        if (typeof basePath !== typeof null) {
+          return basePath + path;
+        }
+        return this.resolveUrl(path);
+      },
+    });
+  </script>
+</dom-module>

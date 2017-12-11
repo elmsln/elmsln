@@ -1,0 +1,7 @@
+node_modules
+dist
+bower_components
+.tmp
+.publish/
+.idea
+.gulp-scss-cache
