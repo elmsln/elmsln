@@ -372,6 +372,7 @@ A LRN element for brokering the UI for api endpoints both in querying and upload
        * Toggle ourselves.
        */
       toggleDialog: function() {
+        document.body.appendChild(this.$.dialog);
         this.$.dialog.toggle();
         //this.$.url.focus();
         //this.$.url.select();

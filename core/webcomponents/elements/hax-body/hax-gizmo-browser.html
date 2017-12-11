@@ -102,6 +102,8 @@ Browse a list of gizmos. This provides a listing of custom elements for people t
         this.$.inputfilter.value = '';
         this.$.filtertype.value = 'title';
         this.$.filter.value = '';
+        this.$.filter.filter();
+        this.$.filter.where = 'title';
         this.$.filter.like = '';
       },
     });

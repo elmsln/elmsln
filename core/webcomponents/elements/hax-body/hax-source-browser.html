@@ -122,6 +122,8 @@ Browse a list of sources. This provides a listing of our gizmos that we've integ
         this.$.inputfilter.value = '';
         this.$.filtertype.value = 'title';
         this.$.filter.value = '';
+        this.$.filter.filter();
+        this.$.filter.where = 'title';
         this.$.filter.like = '';
       },
     });
