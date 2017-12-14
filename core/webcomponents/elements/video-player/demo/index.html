@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+
+    <title>video-player demo</title>
+
+    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+
+    <link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
+    <link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
+    <link rel="import" href="../video-player.html">
+
+    <style is="custom-style" include="demo-pages-shared-styles">
+    </style>
+  </head>
+  <body>
+    <div class="vertical-section-container centered">
+      <h3>video-player for youtube + repair to correctly normalize embed address</h3>
+      <demo-snippet>
+        <template>
+          <video-player source="https://www.youtube.com/watch?v=o9RypkhGqrg"></video-player>
+          <video-player source="https://www.youtube-nocookie.com/embed/o9RypkhGqrg"></video-player>
+          <video-player source="https://www.youtube.com/embed/o9RypkhGqrg"></video-player>
+          <video-player source="https://youtu.be/o9RypkhGqrg"></video-player>
+        </template>
+      </demo-snippet>
+    </div>
+    <div class="vertical-section-container centered">
+      <h3>video-player for vimeo + repair to correctly normalize embed address</h3>
+      <demo-snippet>
+        <template>
+          <video-player source="https://vimeo.com/144218562"></video-player>
+          <video-player source="https://player.vimeo.com/video/144218562"></video-player>
+        </template>
+      </demo-snippet>
+    </div>
+        <div class="vertical-section-container centered">
+      <h3>video-player for any address</h3>
+      <demo-snippet>
+        <template>
+          <video-player source="http://clips.vorwaerts-gmbh.de/big_buck_bunny.webm"></video-player>
+        </template>
+      </demo-snippet>
+    </div>
+    <div class="vertical-section-container">
+      <h3>video-player responsive, even if width/height defined</h3>
+      <demo-snippet>
+        <template>
+          <video-player source="https://vimeo.com/144218562"  width="400" height="200"></video-player>
+          <video-player source="https://www.youtube.com/watch?v=o9RypkhGqrg"></video-player>
+        </template>
+      </demo-snippet>
+    </div>
+    <div class="vertical-section-container">
+      <h3>video-player with not-responsive flag to disable it</h3>
+      <demo-snippet>
+        <template>
+          <video-player source="https://vimeo.com/144218562" not-responsive width="400" height="200"></video-player>
+          <video-player source="https://www.youtube.com/watch?v=o9RypkhGqrg" not-responsive></video-player>
+          <video-player source="http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4" not-responsive width="300" height="300"></video-player>
+        </template>
+      </demo-snippet>
+    </div>
+  </body>
+</html>

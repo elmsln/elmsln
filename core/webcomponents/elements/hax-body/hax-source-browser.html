@@ -24,7 +24,12 @@ Browse a list of sources. This provides a listing of our gizmos that we've integ
         display: block;
       }
       hax-source-browser-item {
-        margin: 1em;
+        margin: .6em;
+      }
+      @media screen and (max-width: 550px) {
+        hax-source-browser-item {
+          margin: .4em;
+        }
       }
     </style>
     <app-toolbar>
@@ -41,7 +46,7 @@ Browse a list of sources. This provides a listing of our gizmos that we've integ
           <template>
             <div class="source-container">
             <hax-source-browser-item
-              index="[[index]]"
+              index="[[source.index]]"
               title="[[source.title]]"
               icon="[[source.icon]]"
               image="[[source.tag]]"
@@ -86,7 +91,7 @@ Browse a list of sources. This provides a listing of our gizmos that we've integ
        */
       attached: function() {
         this.resetBrowser();
-        this.$$('#inputfilter').addEventListener('change', (e) => {
+        this.$$('#inputfilter').addEventListener('value-changed', (e) => {
           this.$$('#filter').like = e.target.value;
         });
         this.$$('#filtertype').addEventListener('change', (e) => {
@@ -103,6 +108,10 @@ Browse a list of sources. This provides a listing of our gizmos that we've integ
       _sourceSelected: function(e) {
         // item bubbled up
         this.set('activeSource', e.detail);
+        this.$.activesources.selectedItem.$.searchinput.focus();
+        setTimeout( () => {
+          this.$.activesources.scrollIntoView({block: "start", behavior: "smooth", inline: "nearest"});
+        }, 200);
       },
       /**
        * Store updated, sync.

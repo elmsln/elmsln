@@ -22,7 +22,12 @@ Browse a list of gizmos. This provides a listing of custom elements for people t
         display: block;
       }
       hax-gizmo-browser-item {
-        margin: 1em;
+        margin: .6em;
+      }
+      @media screen and (max-width: 550px) {
+        hax-gizmo-browser-item {
+          margin: .4em;
+        }
       }
     </style>
     <app-toolbar>
@@ -74,7 +79,7 @@ Browse a list of gizmos. This provides a listing of custom elements for people t
        */
       attached: function() {
         this.resetBrowser();
-        this.$$('#inputfilter').addEventListener('change', (e) => {
+        this.$$('#inputfilter').addEventListener('value-changed', (e) => {
           this.$$('#filter').like = e.target.value;
         });
         this.$$('#filtertype').addEventListener('change', (e) => {

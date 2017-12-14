@@ -41,7 +41,7 @@ A LRN element that will change the world.
       }
       :host[edit-mode] {
         border: 2px dotted #EEEEEE;
-      };
+      }
       :host #bodycontainer ::slotted(.hax-context-menu) {
         padding: 0;
         margin: 0;
@@ -49,10 +49,10 @@ A LRN element that will change the world.
         visibility: hidden;
         opacity: 0;
         transition: visibility .4s ease, opacity .4s ease;
-        z-index: 1;
+        z-index: 3;
       }
       :host #bodycontainer ::slotted(#haxinputmixer) {
-        z-index: 2;
+        z-index: 4;
       }
       :host #bodycontainer ::slotted(.hax-context-visible) {
         visibility: visible;
@@ -60,30 +60,74 @@ A LRN element that will change the world.
         border: 1px solid black;
         display: block;
       }
-
-      :host[edit-mode] #bodycontainer ::slotted(*[data-editable]:hover) {
-        -webkit-box-shadow: 0 0 0 3px #34e79a;
-        box-shadow: 0 0 0 3px #34e79a;
+      :host[edit-mode] #bodycontainer ::slotted(*) {
+        transition: background-color .3s, padding .3s, margin .3s, box-shadow .3s, -webkit-box-shadow .3s;
+        padding-left: 0;
+        margin-left: 0;
+      }
+      :host[edit-mode] #bodycontainer ::slotted(*[data-editable])::before {
+        background-color: transparent;
+        content: '';
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 2em;
+        transition: background-color .3s, padding .3s, margin .3s, box-shadow .3s, -webkit-box-shadow .3s;
+      }
+      :host[edit-mode] #bodycontainer ::slotted(*[data-editable]):hover::before {
+        background-color: #EEEEEE;
+        content: '';
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 2em;
+        transition: background-color .3s, padding .3s, margin .3s, box-shadow .3s, -webkit-box-shadow .3s;
+      }
+      :host[edit-mode] #bodycontainer ::slotted(*[data-editable]) {
+        padding-left: 2em;
+        margin-left : -2em;
+        position: relative;
       }
       :host[edit-mode] #bodycontainer ::slotted(*.hax-active[data-editable]) {
-        -webkit-box-shadow: 0 0 0 3px #03a87c !important;
-        box-shadow: 0 0 0 3px #03a87c !important;
         cursor: text !important;
         outline-color: #34e79a !important;
       }
-      :host[edit-mode] #bodycontainer ::slotted(p.hax-active[data-editable]) {
-        padding: .5em;
+      :host[edit-mode] #bodycontainer ::slotted(*.hax-active[data-editable])::before {
+        background-color: #EEEEEE;
+        content: '';
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 2em;
+        transition: background-color .3s, padding .3s, margin .3s, box-shadow .3s, -webkit-box-shadow .3s;
       }
       :host[edit-mode] #bodycontainer ::slotted(code.hax-active[data-editable]) {
         display: block;
       }
       :host[edit-mode] #bodycontainer ::slotted(hr[data-editable]) {
-        padding: .5em;
-        color: black;
+        height:.2em;
+        background-color: #EEEEEE;
+        padding-top: .5em;
+        padding-bottom: .5em;
       }
-      :host[edit-mode] #bodycontainer ::slotted(video-player[data-editable]),
-      :host[edit-mode] #bodycontainer ::slotted(iframe[data-editable]) {
-        border: .5em solid transparent;
+      :host[edit-mode] #bodycontainer ::slotted(hr[data-editable])::before {
+        color: #222222;
+        background-color: #EEEEEE;
+        padding: .1em;
+        z-index: 2;
+        content: '<hr/>';
+        font-size: .8em;
+        position: absolute;
+        margin-left: -2em;
+        margin-top:-.5em;
+        font-style: italic;
+        pointer-events: none;
       }
       /** Fix to support safari as it defaults to none */
       :host[edit-mode] #bodycontainer ::slotted(*[data-editable]) {
@@ -322,6 +366,21 @@ A LRN element that will change the world.
         }
       },
       /**
+       * Clear area.
+       */
+      haxClearBody: function(confirm = true) {
+        let status = true;
+        // only confirm if asked so we can support wipes without it
+        if (confirm) {
+          status = prompt('Are you sure you want to delete all content?');
+        }
+        // ensure they said yes
+        if (status) {
+          let body = this.$.body;
+          Polymer.HaxStore.wipeSlot(body);
+        }
+      },
+      /**
        * Insert new tag + content into the local DOM as a node.
        */
       haxInsert: function(tag, content, properties = {}) {
@@ -336,20 +395,32 @@ A LRN element that will change the world.
           var newNode = frag.cloneNode(true);
           // support for properties if they exist
           for (var property in properties) {
+            let attributeName = Polymer.HaxStore.camelToDash(property);
             if (properties.hasOwnProperty(property)) {
-              newNode.setAttribute(property, properties[property]);
+              // special supporting for boolean because html is weird :p
+              if (properties[property] === true) {
+                newNode.setAttribute(attributeName, properties[property]);
+              }
+              else if (properties[property] === false) {
+                newNode.removeAttribute(attributeName);
+              }
+              else {
+                newNode.setAttribute(attributeName, properties[property]);
+              }
             }
           }
           // insert at active insert point if we have one
           if (this.activeNode !== null) {
             Polymer.dom(this).insertBefore(newNode, this.activeNode.nextElementSibling);
-            Polymer.HaxStore.write('activeNode', newNode, this);
           }
           else {
             // send this into the root, which should filter it back down into the slot
             Polymer.dom(this).appendChild(newNode);
-            Polymer.HaxStore.write('activeNode', newNode, this);
           }
+          // wait so that the DOM can have the node to then attach to
+          setTimeout( () => {
+            Polymer.HaxStore.write('activeNode', newNode, this);
+          }, 100);
           return true;
         }
         return false;
@@ -507,7 +578,7 @@ A LRN element that will change the world.
         this._positionContextMenu(this.$.platecontextmenu, node, -46, -5);
         setTimeout( () => {
   	      this.__activeContextType.scrollIntoView({behavior: "smooth", inline: "nearest"});
-  	    }, 200);
+  	    }, 100);
       },
       /**
        * Move grid plate around

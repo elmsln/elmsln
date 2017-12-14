@@ -6,8 +6,10 @@
 <link rel="import" href="../iron-pages/iron-pages.html">
 <link rel="import" href="../iron-icons/iron-icons.html">
 <link rel="import" href="../paper-dialog/paper-dialog.html">
+<!-- <link rel="import" href="../paper-dialog-scrollable/paper-dialog-scrollable.html"> -->
 <link rel="import" href="../mtz-file-download-behavior/mtz-file-download-behavior.html">
-
+<link rel="import" href="../neon-animation/web-animations.html">
+<link rel="import" href="../neon-animation/neon-animations.html">
 <link rel="import" href="../materializecss-styles/materializecss-styles.html">
 
 <!--
@@ -29,19 +31,15 @@ Export dialog with all export options and settings provided.
       }
       #dialog {
         position: fixed;
-        top: 8%;
-        right: 8%;
-        bottom: 8%;
-        left: 8%;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
         overflow: auto;
       }
       #dialogcontent {
-        height: 100%;
         padding:0;
         margin:0;
-      }
-      #sourcebrowser {
-        height: 100vh;
       }
       #dialogheader {
         margin: 0;
@@ -63,18 +61,20 @@ Export dialog with all export options and settings provided.
         font-size: .8em;
         color:grey;
       }
+      .buttons {
+        color: black;
+      }
     </style>
-    <paper-dialog id="dialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation" with-backdrop>
-      <div id="dialogheader" class="indigo white-text">
-        <h2>[[exportTitle]]</h2>
-      </div>
-      <div class="dialog-contents" id="dialogcontent">
+    <paper-dialog id="dialog" entry-animation="slide-from-bottom-animation" exit-animation="slide-down-animation" with-backdrop>
+      <h2 id="dialogheader" class="indigo white-text">[[exportTitle]]</h2>
+      <paper-dialog-scrollable class="dialog-contents" id="dialogcontent">
         <textarea id="textarea" rows="20" style="width:100%;"></textarea>
-        <div class="preview-buttons">
-          <paper-button id="download" confirm raised>Download</paper-button>
-          <paper-button id="copy" confirm raised>Copy</paper-button>
-          <paper-button id="close" raised>Close</paper-button>
-        </div>
+      </paper-dialog-scrollable>
+      <div class="buttons">
+        <paper-button id="download" confirm raised>Download</paper-button>
+        <paper-button id="import" raised>Import</paper-button>
+        <paper-button id="copy" raised>Copy</paper-button>
+        <paper-button id="close" raised dialog-dismiss>Close</paper-button>
       </div>
     </paper-dialog>
   </template>
@@ -84,8 +84,8 @@ Export dialog with all export options and settings provided.
 
       is: 'hax-export-dialog',
       listeners: {
-        'close.tap': 'close',
         'download.tap': 'download',
+        'import.tap': 'import',
         'copy.tap': 'selectBody',
       },
       behaviors: [mtz.FileDownloadBehavior],
@@ -109,8 +109,16 @@ Export dialog with all export options and settings provided.
        * Download file.
        */
       download: function(e) {
-        const data = Polymer.HaxStore.instance.haxBody.haxToContent();
+        const data = this.contentToFile();
         this.downloadFromData(data, 'html', 'hax-file');
+      },
+      /**
+       * Download file.
+       */
+      import: function(e) {
+        Polymer.HaxStore.toast('Future functionality');
+        // @todo import content from the innerHTML
+        //Polymer.HaxStore.wipeSlot(Polymer.HaxStore.instance.haxBody.$.);
       },
       /**
        * selectBody
@@ -124,15 +132,44 @@ Export dialog with all export options and settings provided.
        * Toggle ourselves.
        */
       toggleDialog: function() {
-        this.$.textarea.innerHTML = Polymer.HaxStore.instance.haxBody.haxToContent();
+        this.$.textarea.innerHTML = this.contentToFile();
         this.$.dialog.toggle();
       },
       /**
-       * close
+       * Output entire thing as a file.
        */
-      close: function() {
-        this.$.dialog.toggle();
-      }
+      contentToFile: function() {
+        let elementList = Polymer.HaxStore.instance.elementList;
+        // @todo obviously not sustainable
+        let url = 'https://lrnwebcomponents.github.io/hax-body/components';
+        let content = `
+        <!doctype html>
+        <html lang="en">
+          <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+            <title>hax-body demo</title>
+          <script src="${url}/webcomponentsjs/webcomponents-lite.js"><\/script>
+          <style>
+          body {
+            padding: 2em;
+          }
+          </style>
+          <script>
+          /* this script must run before Polymer is imported */
+          window.Polymer = {
+            dom: 'shady',
+            lazyRegister: true
+          };
+        <\/script>`;
+        for (var index in elementList) {
+          content += `<link rel="import" href="${url}/${index}/${index}.html" />` + "\n";
+        }
+        content += '</head><body>';
+        content += Polymer.HaxStore.instance.haxBody.haxToContent();
+        content += '</body></html>';
+        return content;
+      },
     });
   </script>
 </dom-module>

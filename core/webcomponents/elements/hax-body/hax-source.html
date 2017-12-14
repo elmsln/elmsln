@@ -23,7 +23,6 @@
     <style>
       :host {
         display: block;
-        height: 100vh;
       };
       paper-button.item-wrapper {
         margin: 0;
@@ -31,9 +30,19 @@
       }
       paper-card {
         padding: 0;
-        margin: 1em;
-        height: 20em;
-        width: 20em;
+        margin: .5em;
+        height: 16em;
+        width: 16em;
+        font-size: 1em;
+      }
+      @media screen and (max-width: 550px) {
+        paper-card {
+          margin:.25em;
+          height: 18em;
+          width: 18em;
+          font-size: .7em;
+          overflow:scroll;
+        }
       }
       #loading[hidden] {
         visibility: hidden !important;
@@ -70,9 +79,16 @@
         display: block;
         height: 5em;
       }
+      .card-content {
+        padding: .1em;
+      }
+      .card-content p {
+        padding: 0;
+        margin: 0;
+      }
 
     </style>
-    <paper-input label="Search [[details.title]]" value="{{query}}" style="margin: 20px;"></paper-input>
+    <paper-input id="searchinput" label="Search [[details.title]]" value="{{query}}" style="margin: 20px;"></paper-input>
     <iron-ajax
       id="request"
       url="[[requestEndPoint]]"
@@ -85,9 +101,10 @@
       <elmsln-loading color="blue-text text-darken-4" size="large"></elmsln-loading>
       <h3 class="loading-text">Loading content..</h3>
     </div>
+
     <iron-list grid id="itemlist" items="[[media]]" as="item">
       <template>
-        <paper-button class="item-wrapper">
+        <paper-button data-gizmo-type$="[[item.gizmoType]]" data-value$="[[item.url]]" data-id$="[[item.id]]" on-tap="_itemSelected" class="item-wrapper">
           <paper-card data-gizmo-type$="[[item.gizmoType]]" data-value$="[[item.url]]" data-id$="[[item.id]]" image="[[item.image]]">
             <div class="card-content" style="height:5em;overflow:auto;">
               <p>[[item.title]]</p>
@@ -103,9 +120,6 @@
     Polymer({
 
       is: 'hax-source',
-      listeners: {
-        'itemlist.tap': '_itemSelected',
-      },
       properties: {
 
         /**

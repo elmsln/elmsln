@@ -148,7 +148,8 @@
         _injectToast: function() {
           var toast = document.createElement('paper-toast');
           toast.id = "haxtoast";
-          toast.duration = 5;
+          toast.duration = 3;
+          toast.classList.add("fit-bottom");
           document.body.appendChild(toast);
           this.haxToast = toast;
         },
@@ -231,6 +232,7 @@
          */
         _haxStoreRegisterSource: function(e) {
           if (e.detail) {
+            e.detail.index = this.sourceList.length;
             this.push('sourceList', e.detail);
           }
         },
@@ -256,6 +258,12 @@
         },
 
       });
+      /**
+       * Helper to convert camel case to dash; important when setting attributes.
+       */
+      Polymer.HaxStore.camelToDash = (str) => {
+        return str.replace(/\W+/g, '-').replace(/([a-z\d])([A-Z])/g, '$1-$2');
+      };
       /**
        * Convert a node to a HAX element. Hax elements ensure
        * a certain level of sanitization by verifying tags and
@@ -403,6 +411,14 @@
         };
       };
 
+      /**
+       * Wipe out the slot of an element.
+       */
+       Polymer.HaxStore.wipeSlot = (element) => {
+        while (element.firstChild !== null) {
+          element.removeChild(element.firstChild);
+        }
+       };
       /**
        * Global toast
        */

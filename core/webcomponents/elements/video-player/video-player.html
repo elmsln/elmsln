@@ -262,21 +262,26 @@ A simple responsive video player
           'settings': {
             'quick': [
               {
-                'property': 'source',
-                'title': 'Source',
-                'description': 'The URL for this video.',
-                'inputMethod': 'textfield',
-                'icon': 'link',
-                'required': true,
-                'validationType': 'url',
-              },
-              {
                 'property': 'responsive',
                 'title': 'Responsive',
                 'description': 'The video automatically fills the available area.',
                 'inputMethod': 'boolean',
                 'icon': 'image:photo-size-select-small',
               },
+              {
+                'property': 'primaryColor',
+                'title': 'Primary color',
+                'description': 'Select the primary color used in the video',
+                'inputMethod': 'colorpicker',
+                'icon': 'editor:format-color-fill',
+              },
+              {
+                'property': 'secondaryColor',
+                'title': 'Secondary color',
+                'description': 'Select the secondary color used for the video',
+                'inputMethod': 'colorpicker',
+                'icon': 'editor:format-color-fill',
+              }
             ],
             'configure': [
               {
@@ -305,19 +310,6 @@ A simple responsive video player
                 'icon': 'image:photo-size-select-small',
               },
               {
-                'property': 'videoStyle',
-                'title': 'Style',
-                'description': 'Simple video presentation style.',
-                'inputMethod': 'select',
-                'options': {
-                  'style1': 'Style 1',
-                  'style2': 'Style 2',
-                },
-                'icon': 'av:subscriptions',
-              },
-            ],
-            'advanced': [
-              {
                 'property': 'primaryColor',
                 'title': 'Primary color',
                 'description': 'Select the primary color used in the video',
@@ -330,8 +322,9 @@ A simple responsive video player
                 'description': 'Select the secondary color used for the video',
                 'inputMethod': 'colorpicker',
                 'icon': 'editor:format-color-fill',
-              },
-            ]
+              }
+            ],
+            'advanced': []
           }
         };
         this.setHaxProperties(props);

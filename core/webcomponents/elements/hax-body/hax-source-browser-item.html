@@ -19,7 +19,7 @@ A button on the hax-source-browser app display
 @demo demo/index.html
 
 @microcopy - the mental model for this element
- - 
+ -
 -->
 
 <dom-module id="hax-source-browser-item">
@@ -36,8 +36,8 @@ A button on the hax-source-browser app display
         text-transform: none;
         margin:0;
         background-color: #ffffff;
-        height: 8em;
-        width: 8em;
+        height: 6em;
+        width : 6em;
         display: flex;
         border-radius: 3px;
         border-style: solid;
@@ -60,7 +60,7 @@ A button on the hax-source-browser app display
       }
     </style>
     <paper-card id="card" elevation="2">
-      <paper-button id="button" on-tap="_fireEvent" data-voicecommand$="select [[title]]" class$="[[color]] lighten-5 [[color]]-border">
+      <paper-button id="button" data-voicecommand$="select [[title]]" class$="[[color]] lighten-5 [[color]]-border">
         <div class="button-inner">
           <iron-icon icon="[[icon]]" class$="[[color]]-text text-darken-3" hidden$="[[!icon]]"></iron-icon>
           <iron-image src="[[image]]" preload sizing="cover" hidden$="[[!image]]"></iron-image>
@@ -81,6 +81,7 @@ A button on the hax-source-browser app display
 
       is: 'hax-source-browser-item',
       listeners: {
+        'tap': '_fireEvent',
         'mousedown': 'tapEventOn',
         'mouseover': 'tapEventOn',
         'mouseout': 'tapEventOff',
@@ -148,12 +149,21 @@ A button on the hax-source-browser app display
           type: Array
         },
       },
+      /**
+       * special handling for taps on the thing
+       */
       tapEventOn: function(e) {
         this.$.card.elevation = 2;
       },
+      /**
+       * Hover off stop showing the deeper shadow.
+       */
       tapEventOff: function(e) {
         this.$.card.elevation = 1;
       },
+      /**
+       * Toggle through focus so keyboard gets same interactions.
+       */
       focusToggle: function(e) {
         if (this.$.card.elevation == 2) {
           this.$.card.elevation = 1;
@@ -166,10 +176,8 @@ A button on the hax-source-browser app display
        * Fire an event that includes the eventName of what was just pressed.
        */
       _fireEvent: function(e) {
-        var normalizedEvent = Polymer.dom(e);
-        var local = normalizedEvent.localTarget;
         this.fire('hax-source-selected', this.index);
-      }
+      },
     });
   </script>
 </dom-module>

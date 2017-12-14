@@ -124,13 +124,25 @@ as the events being bubbled up include HTML nodes to inject into something
               voice-command="insert block"></hax-panel-item>
             <hax-panel-item
               icon="view-agenda"
-              icon-class="red-text text-darken-1"
+              icon-class="orange-text text-darken-1"
               label="Stax"
               event-name="layout"
               voice-command="insert stack"></hax-panel-item>
             <hax-panel-item
-              icon="editor:space-bar"
+              icon="link"
               icon-class="blue-text text-darken-1"
+              label="Iframe"
+              event-name="iframe"
+              voice-command="insert i frame"></hax-panel-item>
+            <hax-panel-item
+              icon="image:panorama"
+              icon-class="amber-text text-darken-1"
+              label="Image"
+              event-name="image"
+              voice-command="insert image"></hax-panel-item>
+            <hax-panel-item
+              icon="editor:space-bar"
+              icon-class="green-text text-darken-1"
               label="Divider"
               event-name="divider"
               voice-command="insert divider"></hax-panel-item>
@@ -197,7 +209,7 @@ as the events being bubbled up include HTML nodes to inject into something
         switch(detail.eventName) {
           case 'text':
             detail.tag = 'p';
-            detail.content = 'New paragraph';
+            detail.content = 'New paragraph of text';
             this.fire('hax-insert-content', detail);
           break;
           case 'divider':
@@ -209,6 +221,28 @@ as the events being bubbled up include HTML nodes to inject into something
             detail.tag = 'h2';
             detail.content = 'Heading';
             this.fire('hax-insert-content', detail);
+          break;
+          case 'image':
+            detail.tag = 'img';
+            detail.content = '';
+            detail.properties = {
+              'src': prompt('Image URL:'),
+            };
+            // only fire if we got something
+            if (detail.properties.src != null && detail.properties.src != '') {
+              this.fire('hax-insert-content', detail);
+            }
+          break;
+          case 'iframe':
+            detail.tag = 'iframe';
+            detail.content = '';
+            detail.properties = {
+              'src': prompt('iframe URL:'),
+            };
+            // only fire if we got something
+            if (detail.properties.src != null && detail.properties.src != '') {
+              this.fire('hax-insert-content', detail);
+            }
           break;
           case 'blockquote':
             detail.tag = 'blockquote';

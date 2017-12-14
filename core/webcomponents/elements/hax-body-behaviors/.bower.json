@@ -1,0 +1,25 @@
+{
+  "name": "hax-body-behaviors",
+  "description": "A behavior for mixing-in structure for elements to communicate effectively with the hax-body element which manages elements.",
+  "main": "hax-body-behaviors.html",
+  "dependencies": {
+    "polymer": "Polymer/polymer#^1.10.1"
+  },
+  "devDependencies": {
+    "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
+    "iron-demo-helpers": "PolymerElements/iron-demo-helpers#^1.0.0",
+    "web-component-tester": "^4.0.0",
+    "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0"
+  },
+  "homepage": "https://github.com/LRNWebComponents/hax-body-behaviors",
+  "version": "1.3.0",
+  "_release": "1.3.0",
+  "_resolution": {
+    "type": "version",
+    "tag": "1.3.0",
+    "commit": "0c4ced8228322efa6f9c1b590185d93377fae4ec"
+  },
+  "_source": "https://github.com/LRNWebComponents/hax-body-behaviors.git",
+  "_target": "^1.1.0",
+  "_originalSource": "LRNWebComponents/hax-body-behaviors"
+}

@@ -47,6 +47,7 @@ An element that can generate a form
       vaadin-split-layout {
         display: flex;
         justify-content: space-around;
+        height: 100%;
       }
       eco-json-schema-object {
         width: 50%;
@@ -64,6 +65,18 @@ An element that can generate a form
           display: block !important;
         };
       }
+      @media screen and (max-width: 550px) {
+        .step-toggle-wrapper {
+          padding: .2em;
+          font-size: 1em;
+        }
+        .hide-on-mobile {
+          opacity: 0;
+          visibility: hidden;
+          position: absolute;
+          left: -999em;
+        }
+      }
     </style>
     <vaadin-split-layout class="panel-wrapper">
       <!-- critique panel -->
@@ -73,7 +86,7 @@ An element that can generate a form
       <!-- critique panel -->
       <div class="vaadin-split-layout-panel">
         <div class="step-toggle-wrapper">
-          <div>Configure</div><paper-toggle-button id="step" checked="{{advancedForm}}" disabled="[[!haspreviewNode]]"></paper-toggle-button><div>Advanced</div>
+          <div class="hide-on-mobile">Configure</div><paper-toggle-button id="step" checked="{{advancedForm}}" disabled="[[!haspreviewNode]]"></paper-toggle-button><div class="hide-on-mobile">Advanced</div>
         </div>
         <paper-card class="form-wrapper">
           <eco-json-schema-object id="form" schema="[[schema]]" value="{{value}}"></eco-json-schema-object>
@@ -239,7 +252,6 @@ An element that can generate a form
                 this.set('value.' + property, element.properties[property]);
               }
             }
-            console.log(schema);
             this.set('schema', {});
             this.set('schema', schema);
           }
@@ -252,9 +264,7 @@ An element that can generate a form
         if (typeof newValue !== typeof undefined && Object.keys(newValue).length > 0) {
           // wipe the preview area and assocaited node
           let preview = this.$.preview;
-          while (preview.firstChild !== null) {
-            preview.removeChild(preview.firstChild);
-          }
+          Polymer.HaxStore.wipeSlot(preview);
           this.set('previewNode', {});
           // if we have something, generate the new element inside it
           if (newValue != null && newValue.length != 0) {
@@ -264,9 +274,10 @@ An element that can generate a form
             var newNode = frag.cloneNode(true);
             // send this into the root, which should filter it back down into the slot
             preview.appendChild(newNode);
-            this.set('previewNode', newNode);
             // need to let append propagate, it probably takes like no time
-            setTimeout( () => {}, 100);
+            setTimeout( () => {
+              this.set('previewNode', newNode);
+            }, 100);
           }
         }
       },
@@ -280,8 +291,32 @@ An element that can generate a form
           let props = node.getHaxProperties();
           // loop through the properties for the form
           for (var value in props.settings[this.formKey]) {
+            // support property binding
             if (props.settings[this.formKey].hasOwnProperty(value) && typeof props.settings[this.formKey][value].property !== typeof undefined && typeof this.value[props.settings[this.formKey][value].property] !== typeof undefined) {
-              node.setAttribute(props.settings[this.formKey][value].property, this.value[props.settings[this.formKey][value].property]);
+              // support weirdness in camel vs non-camelcase setting
+              let attributeName = Polymer.HaxStore.camelToDash(props.settings[this.formKey][value].property);
+              // special supporting for boolean because html is weird :p
+              if (this.value[props.settings[this.formKey][value].property] === true) {
+                node.setAttribute(attributeName, props.settings[this.formKey][value].property);
+              }
+              else if (this.value[props.settings[this.formKey][value].property] === false) {
+                node.removeAttribute(attributeName);
+              }
+              else {
+                node.setAttribute(attributeName, this.value[props.settings[this.formKey][value].property]);
+              }
+            }
+            else if (typeof props.settings[this.formKey][value].slot !== typeof undefined) {
+              // this is slot binding though right now it'll just keep adding
+              var tmpel = document.createElement('span');
+              tmpel.slot = props.settings[this.formKey][value].slot;
+              tmpel.innerHTML = this.value[props.settings[this.formKey][value].property];
+              // @todo need to update existing instead of aggressive wipe
+              //while (node.firstChild !== null) {
+                //node.removeChild(node.firstChild);
+              //}
+              // inject the slotted content
+              node.appendChild(tmpel);
             }
             else {
               // @todo add support for disabling based on not having advanced

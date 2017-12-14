@@ -7,8 +7,10 @@
 <link rel="import" href="../iron-pages/iron-pages.html">
 <link rel="import" href="../iron-icons/iron-icons.html">
 <link rel="import" href="../paper-dialog/paper-dialog.html">
+<!-- <link rel="import" href="../paper-dialog-scrollable/paper-dialog-scrollable.html"> -->
 <link rel="import" href="../vaadin-upload/vaadin-upload.html">
-
+<link rel="import" href="../neon-animation/web-animations.html">
+<link rel="import" href="../neon-animation/neon-animations.html">
 <link rel="import" href="../materializecss-styles/materializecss-styles.html">
 <link rel="import" href="hax-preview.html">
 <link rel="import" href="hax-source-browser.html">
@@ -35,28 +37,24 @@ A LRN element for brokering the UI for api endpoints both in querying and upload
     <style include="materializecss-styles">
       :host {
         display: block;
-        --hax-manager-steps-color: #000000;
+        --hax-manager-steps-color: #ffb300;
         --hax-manager-tab-color: #0d47a1;
         --hax-manager-ink-color: #FFFFFF;
       }
       #dialog {
         position: fixed;
-        top: 8%;
-        right: 8%;
-        bottom: 8%;
-        left: 8%;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
         overflow: auto;
       }
       #dialogcontent {
-        height: 100%;
         padding:0;
         margin:0;
       }
-      #sourcebrowser {
-        height: 100vh;
-      }
       .preview-buttons {
-        position: sticky;
+        position: absolute;
         z-index: 2;
         bottom: 0;
         left: 0;
@@ -149,27 +147,69 @@ A LRN element for brokering the UI for api endpoints both in querying and upload
         font-size: .8em;
         color:grey;
       }
+      #preview {
+        height: 88vh;
+        max-height: 92%;
+      }
+      @media screen and (max-width: 550px) {
+        .hide-on-mobile {
+          opacity: 0;
+          visibility: hidden;
+          position: absolute;
+          left: -999em;
+        }
+        .preview-buttons {
+          position: sticky;
+        }
+        .page-area.hax-manager {
+          padding: .4em;
+        }
+        #newassetconfigure {
+          bottom: 0;
+          position: absolute;
+          width: 100%;
+          margin: 0;
+          padding: 1em;
+          background-color: #EEEEEE;
+        }
+        #insert {
+          bottom: 0;
+          position: absolute;
+          width: 50%;
+          margin: 0;
+          padding: 1em;
+          background-color: #AAFFAA;
+        }
+        #cancel {
+          bottom: 0;
+          right: 0;
+          position: absolute;
+          width: 50%;
+          margin: 0;
+          padding: 1em;
+          background-color: #FFDDDD;
+        }
+      }
     </style>
-    <paper-dialog id="dialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation" with-backdrop>
+    <paper-dialog id="dialog" entry-animation="slide-from-bottom-animation" exit-animation="slide-down-animation" with-backdrop>
       <div id="dialogheader" class="indigo white-text">
         <h2>[[managerTitle]]</h2>
         <div class="step-toggle-wrapper">
-          <div>Select</div><paper-toggle-button id="step" checked="{{activeStep}}" disabled></paper-toggle-button>
-          <div>Configure</div>
+          <paper-toggle-button id="step" checked="{{activeStep}}" disabled></paper-toggle-button>
         </div>
       </div>
-      <div class="dialog-contents" id="dialogcontent">
+      <paper-dialog-scrollable class="dialog-contents" id="dialogcontent">
         <iron-pages
           selected="{{activeStep}}"
           fallback-selection="select"
           role="main">
           <div data-value="select">
-            <paper-tabs class="pages-tabs" selected="{{activePage}}" autoselect>
-              <paper-tab><iron-icon icon="image:add-to-photos"></iron-icon>Add Something</paper-tab>
+            <paper-tabs id="pagetabs" class="pages-tabs" selected="{{activePage}}" autoselect>
+              <paper-tab><iron-icon icon="image:add-to-photos"></iron-icon><span class="hide-on-mobile">Add Something</span></paper-tab>
               <paper-tab hidden$="[[!sourceList.length]]">
-                <iron-icon icon="search"></iron-icon>Find Something</paper-tab>
+                <iron-icon icon="search"></iron-icon><span class="hide-on-mobile">Find Something</span></paper-tab>
               <paper-tab hidden$="[[!staxList.length]]">
-                <iron-icon icon="view-quilt"></iron-icon>Make Gizmo</paper-tab>
+                <iron-icon icon="view-quilt"></iron-icon><span class="hide-on-mobile">Make Gizmo</span></paper-tab>
             </paper-tabs>
             <iron-pages
               id="activepage"
@@ -203,7 +243,7 @@ A LRN element for brokering the UI for api endpoints both in querying and upload
             </div>
           </div>
         </iron-pages>
-      </div>
+      </paper-dialog-scrollable>
     </paper-dialog>
   </template>
 
@@ -261,6 +301,9 @@ A LRN element for brokering the UI for api endpoints both in querying and upload
           type: Array,
           value: [],
         },
+      },
+      ready: function() {
+        document.body.appendChild(this);
       },
       /**
        * Attached to the DOM, now fire that we exist.
@@ -374,6 +417,7 @@ A LRN element for brokering the UI for api endpoints both in querying and upload
       toggleDialog: function() {
         document.body.appendChild(this.$.dialog);
         this.$.dialog.toggle();
+        this.$$('#pagetabs').focus();
         //this.$.url.focus();
         //this.$.url.select();
       },

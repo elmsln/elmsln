@@ -65,10 +65,10 @@ required for populating input.
         <paper-input id="input" type="[[validationType]]" label="[[label]]" value="{{value}}" auto-validate pattern="[[validation]]" required="[[required]]"></paper-input>
       </template>
       <template is="dom-if" if="[[__inputboolean]]">
-        <paper-checkbox id="input" value="{{value}}">[[label]]</paper-checkbox>
+        <paper-checkbox id="input" checked="{{value}}">[[label]]</paper-checkbox>
       </template>
       <template is="dom-if" if="[[__inputflipboolean]]">
-        <paper-checkbox id="input" value="{{value}}">[[label]]</paper-checkbox>
+        <paper-checkbox id="input" checked="{{value}}">[[label]]</paper-checkbox>
       </template>
       <template is="dom-if" if="[[__inputcolorpicker]]">
         <span>[[label]]</span>
@@ -80,8 +80,8 @@ required for populating input.
         offset="14">
         [[description]]
       </paper-tooltip>
-
       <hax-context-item
+        id="updatebutton"
         icon="subdirectory-arrow-right"
         label$="Update [[label]]"
         event-name="hax-update-tap"></hax-context-item>
