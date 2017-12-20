@@ -70,6 +70,12 @@ function mooc_helper_menu() {
     'type' => MENU_CALLBACK,
     'access arguments' => array('access content'),
   );
+  $items['mooc/lrnapp-book'] = array(
+    'title' => 'Course Outline',
+    'page callback' => '_mooc_helper_book_lrnapp_book_redirect',
+    'type' => MENU_CALLBACK,
+    'access arguments' => array('access content'),
+  );
   return $items;
 }
 
@@ -450,48 +456,76 @@ function _mooc_helper_active_outline() {
  * page of the active section's book.
  */
 function _mooc_helper_book_homepage_redirect() {
-  // get the section id of the current section
-  $current_section = _cis_connector_section_context();
-
-  // look up that node based on the section id
-  $query = new EntityFieldQuery();
-  $query->entityCondition('entity_type', 'node')
-    ->entityCondition('bundle', 'section')
-    ->fieldCondition('field_section_id', 'value', $current_section, '=');
-  $result = $query->execute();
-
-  if (isset($result['node'])) {
-    $section_nids = array_keys($result['node']);
-    // there should only be one result so target the first item
-    // in the array and load it into an entity wrapper
-    $section_wrapper = entity_metadata_wrapper('node', array_shift($section_nids));
-    // if the section points to a book then find the path
-    // of the book and redirect the user
-    try {
-      if (isset($section_wrapper->field_instructional_outlines)) {
-        // drill into the field_instructional_outlines to get the
-        // referenced book nid
-        $book_nid = $section_wrapper->field_instructional_outlines[0]->nid->value();
-        // use a temporary 307 redirect to the books homepage
-        drupal_goto('node/' . $book_nid, array(), 307);
-      }
-    }
-    catch (EntityMetadataWrapperException $exc) {
-      watchdog(
-        'mooc_helper',
-        'EntityMetadataWrapper exception in %function() <pre>@trace</pre>',
-        array('%function' => __FUNCTION__, '@trace' => $exc->getTraceAsString()),
-        WATCHDOG_ERROR
-      );
-    }
+  $book_nid = _mooc_helper_get_active_book_homepage();
+  if ($book_nid) {
+    drupal_goto('node/' . $book_nid, array(), 307);
   }
   else {
-    // if there are no results then remove the section context and
-    // just redirect to the userpage
-    unset($_SESSION['cis_section_context']);
-    watchdog('mooc_helper', 'The %current_section context was unset for this user to prevent redirect loop.', array('%current_selection' => $current_section), WATCHDOG_NOTICE, 'link');
     drupal_goto('/', array(), 307);
   }
+}
+
+/**
+ * Callback for mooc/lrnapp-book to redirect the user to the first
+ * page of the active section's book and rendered through the lrnapp-book application.
+ */
+function _mooc_helper_book_lrnapp_book_redirect() {
+  $book_nid = _mooc_helper_get_active_book_homepage();
+  if ($book_nid) {
+    drupal_goto('apps/lrnapp-book/node/' . $book_nid, array(), 307);
+  }
+  else {
+    drupal_goto('/', array(), 307);
+  }
+}
+
+/**
+ * Helper function to find the active book's first page.
+ */
+function _mooc_helper_get_active_book_homepage() {
+   // get the section id of the current section
+   $current_section = _cis_connector_section_context();
+
+   // look up that node based on the section id
+   $query = new EntityFieldQuery();
+   $query->entityCondition('entity_type', 'node')
+     ->entityCondition('bundle', 'section')
+     ->fieldCondition('field_section_id', 'value', $current_section, '=');
+   $result = $query->execute();
+ 
+   if (isset($result['node'])) {
+     $section_nids = array_keys($result['node']);
+     // there should only be one result so target the first item
+     // in the array and load it into an entity wrapper
+     $section_wrapper = entity_metadata_wrapper('node', array_shift($section_nids));
+     // if the section points to a book then find the path
+     // of the book and redirect the user
+     try {
+       if (isset($section_wrapper->field_instructional_outlines)) {
+         // drill into the field_instructional_outlines to get the
+         // referenced book nid
+         $book_nid = $section_wrapper->field_instructional_outlines[0]->nid->value();
+         return $book_nid;
+       }
+     }
+     catch (EntityMetadataWrapperException $exc) {
+       watchdog(
+         'mooc_helper',
+         'EntityMetadataWrapper exception in %function() <pre>@trace</pre>',
+         array('%function' => __FUNCTION__, '@trace' => $exc->getTraceAsString()),
+         WATCHDOG_ERROR
+       );
+       return false;
+     }
+   }
+   else {
+     // if there are no results then remove the section context and
+     // just redirect to the userpage
+     unset($_SESSION['cis_section_context']);
+     watchdog('mooc_helper', 'The %current_section context was unset for this user to prevent redirect loop.', array('%current_selection' => $current_section), WATCHDOG_NOTICE, 'link');
+     drupal_goto('/', array(), 307);
+     return false;
+   }
 }
 
 /**
@@ -697,7 +731,8 @@ function mooc_helper_module_implements_alter(&$implementations, $hook) {
  */
 function mooc_helper_form_elmsln_core_service_settings_form_alter(&$form, &$form_state, $form_id) {
   // @see _mooc_helper_book_homepage_redirect()
-  $form['site_information_links']['site_frontpage']['#description'] .= '.  Use the "mooc/book-homepage" url to dynamically set the homepage based on active section';
+  $docs_link = t('<a href="@link">course routes documentation</a>', array('@link' => 'https://elmsln.readthedocs.io/en/latest/systems/service/courses/routes'));
+  $form['site_information_links']['site_frontpage']['#description'] .= '.  Refer to the '. $docs_link . ' for a complete list of dynamic routes.';
 
 }
 
