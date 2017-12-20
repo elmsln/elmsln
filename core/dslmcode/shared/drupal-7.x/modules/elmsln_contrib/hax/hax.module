@@ -31,6 +31,16 @@ function hax_menu() {
     'access callback' => '_hax_endpoint_access',
     'access arguments' => array(1, 2, 3, 4),
   );
+  $items['node/%node/hax'] = array(
+    'title' => 'HAX editor',
+    'description' => 'Edit the node with HAX',
+    'page callback' => '_hax_node_form',
+    'page arguments' => array(1),
+    'type' => MENU_LOCAL_TASK,
+    'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
+    'access callback' => '_hax_node_access',
+    'access arguments' => array('update', 1),
+  );
   return $items;
 }
 
@@ -52,6 +62,60 @@ function _hax_endpoint_access($op, $etype, $uuid, $token) {
     }
   }
   return FALSE;
+}
+
+/**
+ * Permission + Node access check.
+ */
+function _hax_node_access($op, $node) {
+  if (user_access('use hax') && node_access($op, $node)) {
+    return TRUE;
+  }
+  return FALSE;
+}
+
+/**
+ * Present the node form but wrap the content in hax-body tag
+ * @param  [type] $node [description]
+ * @return [type]       [description]
+ */
+function _hax_node_form($node) {
+  $elements = array('hax-store', 'hax-autoloader', 'hax-manager', 'hax-panel', 'hax-body');
+  foreach ($elements as $element) {
+    $component = new stdClass();
+    $component->machine_name = $element;
+    $component->file = drupal_get_path('module', 'hax') . '/bower_components/hax-body/' . $element . '.html';
+    _webcomponents_add_to_head($component, 10000);
+  }
+  drupal_set_title(t('HAX edit @title', array('@title' => $node->title)), PASS_THROUGH);
+  $form = array();
+  $form['#node'] = $node;
+  $content = '
+  <hax-store></hax-store>
+  <hax-autoloader>
+    <video-player></video-player>
+    <wikipedia-query></wikipedia-query>
+    <pdf-element></pdf-element>
+    <lrn-table></lrn-table>
+    <media-image></media-image>
+  </hax-autoloader>
+  <hax-manager></hax-manager>
+  <hax-panel id="haxpanel"></hax-panel>
+  <hax-body>' .   check_markup($node->body['und'][0]['value'], $node->body['und'][0]['format']) . '</hax-body>';
+  $form['body'] = array(
+    '#type' => 'markup',
+    '#markup' => $content,
+  );
+  // Add the buttons.
+  $form['actions'] = array('#type' => 'actions');
+  $form['actions']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save'),
+    '#weight' => 5,
+    '#submit' => array('node_form_submit'),
+  );
+  $form += array('#submit' => array());
+  return drupal_render($form);
 }
 
 /**
