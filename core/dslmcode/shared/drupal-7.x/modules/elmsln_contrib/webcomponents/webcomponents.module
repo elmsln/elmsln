@@ -319,7 +319,7 @@ function _webcomponents_rebuild($hide_messages = FALSE) {
 /**
  * Add webcomponent to the header of the site so it can work.
  */
-function _webcomponents_add_to_head($component) {
+function _webcomponents_add_to_head($component, $weight = 0) {
   // generate filename hash based on the size of the file
   // this is a quick and dirty way to do invalidation when it updates without local cache refreshes client side
   if (file_exists(DRUPAL_ROOT . '/' . $component->file)) {
@@ -330,6 +330,7 @@ function _webcomponents_add_to_head($component) {
         'href' => base_path() . $component->file . '?h' . $hash,
         'rel' => 'import',
       ),
+      '#weight' => $weight,
     );
     drupal_add_html_head($element, 'webcomponent-' . $component->machine_name);
   }
