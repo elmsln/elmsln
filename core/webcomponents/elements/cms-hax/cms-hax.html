@@ -5,6 +5,7 @@
 <link rel="import" href="../hax-body/hax-manager.html">
 <link rel="import" href="../hax-body/hax-source.html">
 <link rel="import" href="../hax-body/hax-panel.html">
+<link rel="import" href="../paper-toast/paper-toast.html">
 <!--
 `cms-hax`
 A LRN polymer app
@@ -41,6 +42,7 @@ A LRN polymer app
       content-type="application/json"
       handle-as="json"
       on-response="_handleUpdateResponse"></iron-ajax>
+    <paper-toast id="toast" horizontal-align="left"></paper-toast>
   </template>
 
   <script>
@@ -104,6 +106,12 @@ A LRN polymer app
           // send the request
           this.$.pageupdateajax.generateRequest();
         }
+      },
+      /**
+       * _handleUpdateResponse
+       */
+      _handleUpdateResponse: function(e) {
+        this.$.toast.show('Saved!');
       },
     });
   </script>
