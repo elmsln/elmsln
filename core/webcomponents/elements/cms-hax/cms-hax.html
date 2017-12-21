@@ -1,0 +1,110 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../hax-body/hax-store.html">
+<link rel="import" href="../hax-body/hax-body.html">
+<link rel="import" href="../hax-body/hax-autoloader.html">
+<link rel="import" href="../hax-body/hax-manager.html">
+<link rel="import" href="../hax-body/hax-source.html">
+<link rel="import" href="../hax-body/hax-panel.html">
+<!--
+`cms-hax`
+A LRN polymer app
+
+@demo ../../demo/index.html
+
+@microcopy - the mental model for this app
+ -
+ -
+
+-->
+<dom-module id="cms-hax">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+    <hax-store></hax-store>
+    <hax-autoloader>
+      <slot name="autoloader"></slot>
+    </hax-autoloader>
+    <hax-manager></hax-manager>
+    <hax-panel></hax-panel>
+    <hax-body context-offset-left="[[bodyOffsetLeft]]">
+      <slot name="body"></slot>
+    </hax-body>
+
+    <iron-ajax
+      id="pageupdateajax"
+      url="[[endPoint]]"
+      method="PUT"
+      body="[[updatePageData]]"
+      content-type="application/json"
+      handle-as="json"
+      on-response="_handleUpdateResponse"></iron-ajax>
+  </template>
+
+  <script>
+    Polymer({
+      is: 'cms-hax',
+      properties: {
+        /**
+         * Location to save content to.
+         */
+        endPoint: {
+          type: String,
+        },
+        /**
+         * Page data, body of text as a string.
+         */
+        updatePageData: {
+          type: String,
+        },
+        /**
+         * Offset from the left of the body field
+         */
+        bodyOffsetLeft: {
+          type: Number,
+          value: -164,
+        },
+        /**
+         * State of the panel
+         */
+        editMode: {
+          type: Boolean,
+          reflectToAttribute: true,
+          observer: '_editModeChanged',
+        },
+      },
+      /**
+       * Attached to the DOM; now we can fire event to the store that
+       * we exist and are the thing being edited.
+       */
+      attached: function() {
+        document.body.addEventListener('hax-store-property-updated', this._haxStorePropertyUpdated.bind(this));
+      },
+      /**
+       * Store updated, sync.
+       */
+      _haxStorePropertyUpdated: function(e) {
+        if (e.detail && typeof e.detail.value !== typeof undefined && e.detail.property) {
+          this.set(e.detail.property, e.detail.value);
+        }
+      },
+      /**
+       * _editModeChanged
+       */
+      _editModeChanged: function(newValue, oldValue) {
+        if (typeof newValue !== typeof undefined && newValue) {
+          this.__tipText = 'save';
+        }
+        // detect we DID have it in edit and then hit save
+        else if (oldValue && !newValue) {
+          // generate sanitized content
+          this.updatePageData = Polymer.HaxStore.instance.haxBody.haxToContent();
+          // send the request
+          this.$.pageupdateajax.generateRequest();
+        }
+      },
+    });
+  </script>
+</dom-module>

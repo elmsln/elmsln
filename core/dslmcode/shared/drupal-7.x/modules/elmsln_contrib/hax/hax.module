@@ -31,6 +31,13 @@ function hax_menu() {
     'access callback' => '_hax_endpoint_access',
     'access arguments' => array(1, 2, 3, 4),
   );
+  $items['hax-node-save/%node/%'] = array(
+    'page callback' => '_hax_node_save',
+    'page arguments' => array(1, 2),
+    'type' => MENU_CALLBACK,
+    'access callback' => '_hax_node_access',
+    'access arguments' => array('update', 1),
+  );
   $items['node/%node/hax'] = array(
     'title' => 'HAX editor',
     'description' => 'Edit the node with HAX',
@@ -44,6 +51,24 @@ function hax_menu() {
   return $items;
 }
 
+/**
+ * Callback to save just the body field.
+ */
+function _hax_node_save($node, $token) {
+  // ensure we had data PUT here and it is valid
+  if ($_SERVER['REQUEST_METHOD'] == 'PUT' && drupal_valid_token($token, 'hax')) {
+    // load the data from input stream
+    $post_data = file_get_contents("php://input");
+    $post_data = json_decode($post_data);
+    $node->body['und'][0]['value'] = $body;
+    node_save($node);
+    return array(
+      'status' => 200,
+      'message' => t('Save successful!'),
+      'data' => $node,
+    );
+  }
+}
 /**
  * Access callback to ensure hax can be used on this node
  */
@@ -80,42 +105,25 @@ function _hax_node_access($op, $node) {
  * @return [type]       [description]
  */
 function _hax_node_form($node) {
-  $elements = array('hax-store', 'hax-autoloader', 'hax-manager', 'hax-panel', 'hax-body');
-  foreach ($elements as $element) {
-    $component = new stdClass();
-    $component->machine_name = $element;
-    $component->file = drupal_get_path('module', 'hax') . '/bower_components/hax-body/' . $element . '.html';
-    _webcomponents_add_to_head($component, 10000);
-  }
+  // set page title
   drupal_set_title(t('HAX edit @title', array('@title' => $node->title)), PASS_THROUGH);
-  $form = array();
-  $form['#node'] = $node;
+  // fake a component to get it into the head of the document, heavy weighting
+  $component = new stdClass();
+  $component->machine_name = 'cms-hax';
+  $component->file = drupal_get_path('module', 'hax') . '/bower_components/cms-hax/cms-hax.html';
+  _webcomponents_add_to_head($component, 10000);
+  // @todo need support for these to get added dynamically by the module
+  $elements = array('video-player', 'wikipedia-query', 'pdf-element', 'lrn-table', 'media-image');
+  $components = '';
+  foreach ($elements as $element) {
+    $components .= '<' . $element . ' slot="autoloader">' . '</' . $element . '>';
+  }
+  // write content to screen, wrapped in tag to do all the work
   $content = '
-  <hax-store></hax-store>
-  <hax-autoloader>
-    <video-player></video-player>
-    <wikipedia-query></wikipedia-query>
-    <pdf-element></pdf-element>
-    <lrn-table></lrn-table>
-    <media-image></media-image>
-  </hax-autoloader>
-  <hax-manager></hax-manager>
-  <hax-panel id="haxpanel"></hax-panel>
-  <hax-body>' .   check_markup($node->body['und'][0]['value'], $node->body['und'][0]['format']) . '</hax-body>';
-  $form['body'] = array(
-    '#type' => 'markup',
-    '#markup' => $content,
-  );
-  // Add the buttons.
-  $form['actions'] = array('#type' => 'actions');
-  $form['actions']['submit'] = array(
-    '#type' => 'submit',
-    '#value' => t('Save'),
-    '#weight' => 5,
-    '#submit' => array('node_form_submit'),
-  );
-  $form += array('#submit' => array());
-  return drupal_render($form);
+  <cms-hax end-point="' . base_path() . 'hax-node-save/' . $node->nid . '/' . drupal_get_token('hax') . '">
+    <div slot="body">' .   check_markup($node->body['und'][0]['value'], $node->body['und'][0]['format']) . '</div>
+  </cms-hax>';
+  return $content;
 }
 
 /**
@@ -185,8 +193,8 @@ function _hax_endpoint($op, $etype, $uuid) {
           // if anything is left over it automatically will force an update
           // since we need to ensure that properties blob gets stored
           if (!empty($properties)) {
-          	$entity->webcomponents_additional[$view_mode] = $properties;
-          	$changed = TRUE;
+            $entity->webcomponents_additional[$view_mode] = $properties;
+            $changed = TRUE;
           }
           // only save if we actually got a match to save in the first place
           if ($changed) {

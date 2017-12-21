@@ -1,0 +1,17 @@
+{
+  "name": "cms-hax",
+  "version": "1.0.0",
+  "description": "A simple way of integrating HAX into any CMS to save a basic body of content.",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "post-install": "node post-install.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "replace": "^0.3.0"
+  }
+}
