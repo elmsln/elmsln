@@ -37,7 +37,7 @@ function hax_menu() {
     'access callback' => '_hax_node_access',
     'access arguments' => array('update', 1),
   );
-    $items['admin/config/content/hax'] = array(
+  $items['admin/config/content/hax'] = array(
     'title' => 'HAX',
     'description' => 'Settings for basic customizations to HAX.',
     'page callback' => 'drupal_get_form',
