@@ -732,7 +732,6 @@ A LRN element
         'menubutton.tap': 'toggleBook',
         'progress.node-percent-milestone': 'testMilestone',
         'route-change': '_routeChange',
-        'haxpanel.hax-item-selected': '_haxOperation',
         'haxpanel.hax-content-insert': '_haxContentInsert',
       },
       observers: [
@@ -1060,16 +1059,9 @@ A LRN element
         return sourcePath.replace('%', data.id);
       },
       /**
-       * Hax operation capture and UI routing.
-       */
-      _haxOperation: function (e) {
-        this.$.toast.show(e.detail.eventName);
-      },
-      /**
        * HAX Content Insert.
        */
       _haxContentInsert: function (e) {
-        this.$.toast.show(e.detail.eventName);
         var properties = {};
         // support for properties to be set automatically optionally
         if (typeof e.detail.properties !== typeof undefined) {

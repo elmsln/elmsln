@@ -1,5 +1,5 @@
-name = HAX
-description = A completely Headless Authoring eXperience, #haxtheweb.
-core = 7.x
+name = "HAX"
+description = "A completely Headless Authoring eXperience, #haxtheweb."
+core = "7.x"
 dependencies[] = webcomponents
-dependencies[] = entity
+configure = admin/config/content/hax

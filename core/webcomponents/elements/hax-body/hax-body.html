@@ -460,7 +460,14 @@ A LRN element that will change the world.
         // remove the data-editable attribute
         content = content.replace(/\sdata-editable=\"false\"/g, '');
         // remove HAX specific classes / scoping classes
-        content = content.replace(/style-scope\slrnapp-book/g, '');
+        let parentTag = this.parentNode.tagName.toLowerCase();
+        let string = 'style-scope ' + parentTag + ' x-scope';
+        let re = new RegExp(string, "g");
+        content = content.replace(re, '');
+        // remove without the deeeper scope as well for primitives
+        string = 'style-scope ' + parentTag;
+        re = new RegExp(string, "g");
+        content = content.replace(re, '');
         // remove empty class structures
         content = content.replace(/\sclass=\"\"/g, '');
         // re-apply contenteditable if needed

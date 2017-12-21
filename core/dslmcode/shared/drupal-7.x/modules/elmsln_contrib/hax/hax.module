@@ -20,17 +20,6 @@ function hax_permission() {
  * Implements hook_menu().
  */
 function hax_menu() {
-  // hax-endpoint/update/node/123-123-4342-11cd/1333f-ffdd223f-sfad-adsdsdd
-  // callback path, operation, entity type, uuid, session token
-  $items['hax-endpoint/%/%/%/%'] = array(
-    'title' => 'HAX API callback',
-    'description' => 'HAX API endpoint',
-    'page callback' => '_hax_endpoint',
-    'page arguments' => array(1, 2, 3),
-    'type' => MENU_CALLBACK,
-    'access callback' => '_hax_endpoint_access',
-    'access arguments' => array(1, 2, 3, 4),
-  );
   $items['hax-node-save/%node/%'] = array(
     'page callback' => '_hax_node_save',
     'page arguments' => array(1, 2),
@@ -39,7 +28,7 @@ function hax_menu() {
     'access arguments' => array('update', 1),
   );
   $items['node/%node/hax'] = array(
-    'title' => 'HAX authoring',
+    'title' => 'HAX mode',
     'description' => 'Edit the node with HAX',
     'page callback' => '_hax_node_form',
     'page arguments' => array(1),
@@ -48,7 +37,36 @@ function hax_menu() {
     'access callback' => '_hax_node_access',
     'access arguments' => array('update', 1),
   );
+    $items['admin/config/content/hax'] = array(
+    'title' => 'HAX',
+    'description' => 'Settings for basic customizations to HAX.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('hax_settings'),
+    'type' => MENU_NORMAL_ITEM,
+    'access arguments' => array('administer site configuration'),
+  );
   return $items;
+}
+
+
+/**
+ * Helper function to make outline designer settings more obvious.
+ */
+function hax_settings($form, &$form_state) {
+  $form['hax_offset_left'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Offset'),
+    '#default_value' => variable_get('hax_offset_left', 0),
+    '#description' => "Helps with theme compatibility when positioning the context menu. Adjust this if HAX context menu doesn't correctly align with the side of your content when editing. Value is in pixels but should not include px. Some themes that mess with box-model may or may not have this issue.",
+  );
+  // collapse default state
+  $form['hax_autoload_element_list'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Elements to autoload'),
+    '#default_value' => variable_get('hax_autoload_element_list', 'video-player wikipedia-query pdf-element lrn-table media-image'),
+    '#description' => "This allows for auto-loading elements known to play nice with HAX. If you've written any webcomponents that won't automatically be loaded into the page via that module this allows you to attempt to auto-load them when HAX loads. For example, if you have a video-player element in your bower_components directory and want it to load on this interface, this would be a simple way to do that. Spaces only between elements, no comma",
+  );
+  return system_settings_form($form);
 }
 
 /**
@@ -74,25 +92,6 @@ function _hax_node_save($node, $token) {
     print drupal_json_output($return);
   }
 }
-/**
- * Access callback to ensure hax can be used on this node
- */
-function _hax_endpoint_access($op, $etype, $uuid, $token) {
-  // most basic of checks for permission vars set and session token hash
-  if (user_access('use hax') && !empty($op) && !empty($etype) && !empty($uuid) && !empty($token) && drupal_valid_token($token, 'hax')) {
-    // try and load the entity by uuid, simplifies implementations
-    $entities = entity_uuid_load($etype, array($uuid));
-    // pop one off if we got anything, otherwise let this fail
-    if (is_array($entities) && !empty($entities)) {
-      $entity = array_pop($entities);
-      // ensure they have access to perform this operation on this entity in general
-      if (entity_access($op, $etype, $entity)) {
-        return TRUE;
-      }
-    }
-  }
-  return FALSE;
-}
 
 /**
  * Permission + Node access check.
@@ -117,167 +116,22 @@ function _hax_node_form($node) {
   $component->machine_name = 'cms-hax';
   $component->file = drupal_get_path('module', 'hax') . '/bower_components/cms-hax/cms-hax.html';
   _webcomponents_add_to_head($component, 10000);
-  // @todo need support for these to get added dynamically by the module
-  $elements = array('video-player', 'wikipedia-query', 'pdf-element', 'lrn-table', 'media-image');
+  // generate autoload list
+  $elementstring = variable_get('hax_autoload_element_list', 'video-player wikipedia-query pdf-element lrn-table media-image');
+  // blow up based on space
+  $elements = explode(' ', $elementstring);
   $components = '';
   foreach ($elements as $element) {
-    $components .= '<' . $element . ' slot="autoloader">' . '</' . $element . '>';
+    // sanity check
+    if (!empty($element)) {
+      $components .= '<' . $element . ' slot="autoloader">' . '</' . $element . '>';
+    }
   }
   // write content to screen, wrapped in tag to do all the work
   $content = '
-  <cms-hax end-point="' . base_path() . 'hax-node-save/' . $node->nid . '/' . drupal_get_token('hax') . '">
-    <div slot="body">' .   check_markup($node->body['und'][0]['value'], $node->body['und'][0]['format']) . '</div>
-  </cms-hax>';
+  <cms-hax end-point="' . base_path() . 'hax-node-save/' . $node->nid . '/' . drupal_get_token('hax') . '" body-offset-left="' . variable_get('hax_offset_left', 0) . '">'
+  . $components .
+    check_markup($node->body['und'][0]['value'], $node->body['und'][0]['format'])
+  .'</cms-hax>';
   return $content;
-}
-
-/**
- * Callback to perform the operation on the entity as per update
- * @return [type] [description]
- */
-function _hax_endpoint($op, $etype, $uuid) {
-  $vars = array('status' => 100);
-  $map = array();
-  $entity = new stdClass();
-  $info = entity_get_info($etype);
-  // silly check, ensure this has a concept of keys
-  if (isset($info['entity keys']['id'])) {
-    switch ($op) {
-      // update the only real one for now
-      case 'update':
-        $properties = _hax_sanitize($_GET);
-        unset($properties['q']);
-        // ensure we know about this display mode
-        if ($webcomponent = webcomponent_load_by_name($properties['tagName'])) {
-          // dump this now that it's a full object
-          unset($properties['tagName']);
-          $view_mode = $webcomponent->machine_name;
-          // starting to look like we might be able to do soemthing with all this..
-          $vars['status'] = 200;
-          // try and load the entity by uuid, simplifies implementations
-          $entities = entity_uuid_load($etype, array($uuid));
-          // pop one off if we got anything, otherwise let this fail
-          if (is_array($entities) && !empty($entities)) {
-            $entity = array_pop($entities);
-            // load an instance of the fields, it's already happened but closer here
-            $fieldinfo = field_info_instances($etype, $entity->{$info['bundle keys']['bundle']});
-            // loop through and see if we should pass this along to the webcomponent template
-            foreach ($fieldinfo as $field => $data) {
-              // only map to component if it has been told to via UIs
-              if ($data['display'][$view_mode]['type'] != 'hidden' && isset($data['display'][$view_mode]['settings'][$view_mode]) && !empty($data['display'][$view_mode]['settings'][$view_mode]) && isset($webcomponent->properties[$data['display'][$view_mode]['settings'][$view_mode]])) {
-                // strip the tags out and force it into the property
-                $map[$data['display'][$view_mode]['settings'][$view_mode]] = $field;
-              }
-            }
-            // fallback support for title property since this is pretty common
-            // and display modes often times don't have title on the field UI
-            if (isset($webcomponent->properties['title']) && isset($properties['title']) && !isset($map['title']) && isset($entity->title)) {
-              $map['title'] = 'title';
-            }
-          }
-          $changed = FALSE;
-          // now we run through the properties and do our map back
-          foreach ($map as $property => $field_name) {
-            // so our field map illustrates that there's soemthing rendered in a matching
-            // location for this, now we can dig into the array structure a bit
-            if (isset($properties[$property]) && isset($entity->{$field_name})) {
-              // @todo need to figure out the field's key name
-              if ($field_name == 'title') {
-                $entity->title = $properties[$property];
-              }
-              else {
-                $entity->{$field_name}[LANGUAGE_NONE][0]['value'] = $properties[$property];
-              }
-              // unset this from what came across since it's been stored in
-              // the entity.
-              unset($properties[$property]);
-              $changed = TRUE;
-            }
-          }
-          // store left overs if there were design things not mapped anywhere
-          // if anything is left over it automatically will force an update
-          // since we need to ensure that properties blob gets stored
-          if (!empty($properties)) {
-            $entity->webcomponents_additional[$view_mode] = $properties;
-            $changed = TRUE;
-          }
-          // only save if we actually got a match to save in the first place
-          if ($changed) {
-            entity_save($etype, $entity);
-            $vars['entity'] = $entity;
-          }
-        }
-      break;
-      // nothing to support this yet
-      case 'insert':
-      break;
-    }
-  }
-  drupal_add_http_header('Content-Type', 'application/json');
-  // define status
-  drupal_add_http_header('Status', $vars['status']);
-  // output the response as json
-  print drupal_json_output($vars);
-}
-
-/**
- * Ensure this is a simple array and nothing evil is there.
- * @param  array $properties array of values from the front end
- * @return array             cleaned out value set
- */
-function _hax_sanitize($properties) {
-  // filter out potentially nasty things coming back in house
-  foreach ($properties as $key => $value) {
-    // ensure this pass back is as simple as possible
-    if (!is_array($value)) {
-      unset($properties[$key]);
-      if ($key == 'innerHTML') {
-        $properties[filter_xss($key)] = $value;
-      }
-      else {
-        $properties[filter_xss($key)] = filter_xss($value);
-      }
-    }
-    else {
-      unset($properties[$value]);
-    }
-  }
-  return $properties;
-}
-
-/**
- * Implements hook_preprocess_node().
- */
-function hax_preprocess_node(&$vars) {
-  // make sure they can update if they have permission
-  if (user_access('use hax') && entity_access('update', 'node', $vars['node'])) {
-    $vars['properties']['show-hax'] = TRUE;
-  }
-  // apply tag wrapper so that this element knows it CAN use ajax to submit... most likely
-  $vars['wrap_tag'] = '<hax-ajax url="' . base_path() . 'hax-endpoint/update/node/'. $vars['node']->uuid .'/' . drupal_get_token('hax') . '">';
-  $vars['wrap_tag_close'] = '</hax-ajax>';
-}
-
-/**
- * variables callbacks
- */
-function _hax_entity_variables(&$vars) {
-  // Only alter entities that have been rendered by Display Suite.
-  if (isset($vars['rendered_by_ds'])) {
-    // make sure they can update
-    if (user_access('use hax') && entity_access('update', 'node', $vars['node'])) {
-      $vars['properties']['show-hax'] = TRUE;
-    }
-    // apply tag wrapper so that this element knows it CAN use ajax to submit... most likely
-    $vars['wrap_tag'] = '<hax-ajax url="' . base_path() . 'hax-endpoint/update/node/'. $vars['node']->uuid .'/' . drupal_get_token('hax') . '">';
-    $vars['wrap_tag_close'] = '</hax-ajax>';
-  }
-}
-
-/**
- * Implements hook_theme_registry_alter().
- */
-function hax_theme_registry_alter(&$theme_registry) {
-  $theme_registry['node']['preprocess functions'][] = '_hax_entity_variables';
-  $theme_registry['entity']['preprocess functions'][] = '_hax_entity_variables';
 }

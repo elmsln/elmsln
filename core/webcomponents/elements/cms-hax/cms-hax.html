@@ -25,17 +25,11 @@ A LRN polymer app
         font-size: 1em;
         box-sizing: content-box;
       }
-
-      [hidden] {
-        visibility: hidden !important;
-        opacity: 0 !important;
-        display: block !important;
-      }
     </style>
     <div id="autoloaderslot"><slot name="autoloader"></slot></div>
-    <div id="bodyslot"><slot name="body"></slot></div>
-    <hax-store></hax-store>
-    <hax-autoloader id="loader">
+    <div id="bodyslot"><slot></slot></div>
+    <hax-store hidden></hax-store>
+    <hax-autoloader id="loader" hidden>
     </hax-autoloader>
     <hax-manager></hax-manager>
     <hax-panel></hax-panel>
@@ -92,13 +86,37 @@ A LRN polymer app
       attached: function() {
         document.body.addEventListener('hax-store-property-updated', this._haxStorePropertyUpdated.bind(this));
         // @todo, step through slot for both areas injecting them CORRECTLY into the right area
-        while (this.$.autoloaderslot.firstChild !== null) {
-          this.$.loader.append(this.$.autoloaderslot.firstChild);
-          this.$.autoloaderslot.removeChild(this.$.autoloaderslot.firstChild);
+        this._slotRemap(this.$.autoloaderslot, this.$.loader);
+        this._slotRemap(this.$.bodyslot, Polymer.HaxStore.instance.haxBody);
+      },
+      /**
+       * Slot re-append correction. This helps translate shadow of one to another.
+       */
+      _slotRemap: function(from, to) {
+        // add HTML to a div which makes it's DOM unpack
+        let tmp = from;
+        // trap for text without wrapping HTML tags
+        if (tmp.firstChild == null) {
+          var tmp2 = document.createElement('p');
+          tmp2.innerHTML = tmp.innerHTML;
+          tmp = document.createElement('div');
+          tmp.innerHTML = tmp2.innerHTML;
         }
-        while (this.$.bodyslot.firstChild !== null) {
-          Polymer.HaxStore.instance.haxBody.append(this.$.bodyslot.firstChild);
-          this.$.bodyslot.removeChild(this.$.bodyslot.firstChild);
+        else if (typeof tmp.firstChild.length !== typeof undefined) {
+          var tmp2 = document.createElement('p');
+          tmp2.innerHTML = tmp.innerHTML;
+          tmp = document.createElement('div');
+          tmp.innerHTML = tmp2.innerHTML;
+        }
+        // same as above but in reverse; now take stuf from what
+        // came across and correctly add it into the slot
+        while (tmp.firstChild) {
+          Polymer.dom(to).appendChild(tmp.firstChild);
+        }
+        // clear from
+        let slot = Polymer.dom(from);
+        while (slot.firstChild !== null) {
+          slot.removeChild(slot.firstChild);
         }
       },
       /**
