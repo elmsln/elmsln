@@ -39,7 +39,7 @@ function hax_menu() {
     'access arguments' => array('update', 1),
   );
   $items['node/%node/hax'] = array(
-    'title' => 'HAX editor',
+    'title' => 'HAX authoring',
     'description' => 'Edit the node with HAX',
     'page callback' => '_hax_node_form',
     'page arguments' => array(1),
@@ -58,15 +58,20 @@ function _hax_node_save($node, $token) {
   // ensure we had data PUT here and it is valid
   if ($_SERVER['REQUEST_METHOD'] == 'PUT' && drupal_valid_token($token, 'hax')) {
     // load the data from input stream
-    $post_data = file_get_contents("php://input");
-    $post_data = json_decode($post_data);
+    $body = file_get_contents("php://input");
     $node->body['und'][0]['value'] = $body;
     node_save($node);
-    return array(
+    // send back happy headers
+    drupal_add_http_header('Content-Type', 'application/json');
+    // define status
+    drupal_add_http_header('Status', 200);
+    $return = array(
       'status' => 200,
       'message' => t('Save successful!'),
       'data' => $node,
     );
+    // output the response as json
+    print drupal_json_output($return);
   }
 }
 /**
