@@ -24,15 +24,14 @@ A LRN polymer app
         display: block;
       }
     </style>
+    <div id="autoloaderslot"><slot name="autoloader"></slot></div>
+    <div id="bodyslot"><slot name="body"></slot></div>
     <hax-store></hax-store>
-    <hax-autoloader>
-      <slot name="autoloader"></slot>
+    <hax-autoloader id="loader">
     </hax-autoloader>
     <hax-manager></hax-manager>
     <hax-panel></hax-panel>
-    <hax-body context-offset-left="[[bodyOffsetLeft]]">
-      <slot name="body"></slot>
-    </hax-body>
+    <hax-body id="body" context-offset-left="[[bodyOffsetLeft]]"></hax-body>
 
     <iron-ajax
       id="pageupdateajax"
@@ -42,6 +41,7 @@ A LRN polymer app
       content-type="application/json"
       handle-as="json"
       on-response="_handleUpdateResponse"></iron-ajax>
+
     <paper-toast id="toast" horizontal-align="left"></paper-toast>
   </template>
 
@@ -83,6 +83,15 @@ A LRN polymer app
        */
       attached: function() {
         document.body.addEventListener('hax-store-property-updated', this._haxStorePropertyUpdated.bind(this));
+        // @todo, step through slot for both areas injecting them CORRECTLY into the right area
+        while (this.$.autoloaderslot.firstChild !== null) {
+          this.$.loader.append(this.$.autoloaderslot.firstChild);
+          this.$.autoloaderslot.removeChild(this.$.autoloaderslot.firstChild);
+        }
+        while (this.$.bodyslot.firstChild !== null) {
+          Polymer.HaxStore.instance.haxBody.append(this.$.bodyslot.firstChild);
+          this.$.bodyslot.removeChild(this.$.bodyslot.firstChild);
+        }
       },
       /**
        * Store updated, sync.
