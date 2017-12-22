@@ -108,7 +108,7 @@ Browse a list of sources. This provides a listing of our gizmos that we've integ
       _sourceSelected: function(e) {
         // item bubbled up
         this.set('activeSource', e.detail);
-        this.$.activesources.selectedItem.$.searchinput.focus();
+        //this.$.activesources.selectedItem.$.searchinput.focus();
         setTimeout( () => {
           this.$.activesources.scrollIntoView({block: "start", behavior: "smooth", inline: "nearest"});
         }, 200);
