@@ -114,7 +114,7 @@ A LRN polymer app
           Polymer.dom(to).appendChild(tmp.firstChild);
         }
         // clear from
-        let slot = Polymer.dom(from);
+        let slot = from;
         while (slot.firstChild !== null) {
           slot.removeChild(slot.firstChild);
         }
