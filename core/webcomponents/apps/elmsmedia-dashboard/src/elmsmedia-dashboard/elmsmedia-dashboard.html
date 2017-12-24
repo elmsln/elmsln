@@ -1,0 +1,57 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/hax-body/hax-source.html">
+
+<dom-module id="elmsmedia-dashboard">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+    
+
+    <hax-source
+    prefetch
+    request-end-point="[[requestEndPoint]]"
+    response-map='{
+      "root": "data",
+      "gizmoType": "video",
+      "url": "http://media.elmsln.local/entity_iframe/node/",
+      "id": "id",
+      "title": "attributes.title",
+      "description": "attributes.body",
+      "image": "display.image",
+      "customGizmoType": "type"}'></hax-source>
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'elmsmedia-dashboard',
+
+      properties: {
+        requestEndPoint: {
+          type: String,
+          value: ''
+          // computed: '_computeRequestEndPoint(endPoint, csrfToken)'
+        }
+        // requestEndPoint: {
+        //   type: String,
+        //   computed: '_computeRequestEndPoint(endPoint, csrfToken)'
+        // }
+      },
+
+      /**
+       * A function to process the property for the link
+       */
+      _sourceMapLink: function (id) {
+        return 'test' + id;
+      },
+
+      _computeRequestEndPoint: function (endPoint, csrfToken) {
+        return `${endPoint}/api/data?token=${csrfToken}`
+      }
+
+    });
+  </script>
+</dom-module>
