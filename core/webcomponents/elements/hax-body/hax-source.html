@@ -5,6 +5,7 @@
 <link rel="import" href="../iron-list/iron-list.html">
 <link rel="import" href="../iron-ajax/iron-ajax.html">
 <link rel="import" href="../elmsln-loading/elmsln-loading.html">
+<link rel="import" href="hax-source-search.html">
 
 <!--
 `hax-source`
@@ -32,17 +33,12 @@
       paper-card {
         padding: 0;
         margin: .5em;
-        height: 16em;
-        width: 16em;
-        font-size: 1em;
+        width: 15em;
+        font-size: .8em;
       }
-      @media screen and (max-width: 550px) {
+      @media screen and (min-width: 800px) {
         paper-card {
-          margin:.25em;
-          height: 18em;
-          width: 18em;
-          font-size: .7em;
-          overflow:scroll;
+          font-size: .85em;
         }
       }
       #loading[hidden] {
@@ -89,7 +85,11 @@
       }
 
     </style>
-    <paper-input id="searchinput" label="Search [[details.title]]" value="{{query}}" style="margin: 20px;"></paper-input>
+
+    <template is="dom-if" if="[[search]]">
+      <hax-source-search label="[[details.title]]" query="{{query}}"></hax-source-search>
+    </template>
+
     <iron-ajax
       id="request"
       url="[[requestEndPoint]]"
@@ -117,13 +117,22 @@
     </iron-list>
   </template>
 
-
   <script>
     Polymer({
 
       is: 'hax-source',
       properties: {
-        prefetch: {
+        /**
+         * Immediatley performa a request.
+         */
+        auto: {
+          type: Boolean,
+          value: false
+        },
+        /**
+         * Enable the search functionality.
+         */
+        search: {
           type: Boolean,
           value: false
         },
@@ -238,8 +247,7 @@
         // their details for visualization in hax-source-browser as an item
         this.fire('hax-register-source', this.details);
 
-        // if the prefetch option was selected then generate a request
-        if (this.prefetch) {
+        if (this.auto) {
           this.$.request.generateRequest();
         }
       },
