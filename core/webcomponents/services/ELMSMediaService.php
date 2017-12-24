@@ -18,6 +18,43 @@ class ELMSMediaService {
     return $this->encodeMediaItems($return);
   }
 
+  /**
+   * Get the gizmo type
+   * 
+   * This will attempt to find the equivilent gizmo type
+   * based on the content type.
+   * 
+   * @param string $content_type
+   * @return string
+   */
+  public function getGizmoType($content_type) {
+    // 'data','video','audio','text','link','file','pdf','image','csv','doc';
+    switch ($content_type) {
+      case 'elmsmedia_image':
+        return 'image';
+        break;
+      case 'external_video':
+        return 'video';
+        break;
+      case 'video':
+        return 'video';
+        break;
+      case 'svg':
+        return 'image';
+        break;
+      case 'document':
+        return 'doc';
+        break;
+      case 'audio':
+        return 'audio';
+        break;
+      
+      default:
+        return 'doc';
+        break;
+    }
+  }
+
 
   /**
    * Prepare a list of projects to be outputed in json
