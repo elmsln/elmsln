@@ -19,7 +19,8 @@ abstract class ELMSRestService {
     $_order = (isset($options['order']) ? $options['order'] : 'DESC');
     $query->propertyOrderBy('changed', $order);
 
-    $_limit = (isset($options['limit']) ? $options['limit'] : 10);
+    // default limit is 50 if none is set, use zero to not specify a limit
+    $_limit = (isset($options['limit']) ? $options['limit'] : 50);
     // the pager will automatically look at the 'page' query param to see
     // what the specified page should be
     // https://api.drupal.org/api/drupal/includes%21pager.inc/function/pager_find_page/7.x
