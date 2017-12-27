@@ -7,18 +7,15 @@
   <template>
     <style>
       :host {
-        display: block;
-      }
-      paper-button[active] {
-        background: lightgray;
+        display: flex;
       }
     </style>
     <div id="container">
-      <paper-icon-button icon="first-page" data-event="first-page"></paper-icon-button>
+      <paper-icon-button icon="first-page" data-event="first-page" disabled="[[_isActive(start, current)]]"></paper-icon-button>
       <template is="dom-repeat" items="[[_rangeArray]]" as="page">
-        <paper-button data-event="page" data-page$="[[page]]" active$="[[_isActive(page, current)]]">[[page]]</paper-button>
+        <paper-button data-event="page" data-page$="[[page]]" disabled="[[_isActive(page, current)]]">[[page]]</paper-button>
       </template>
-      <paper-icon-button icon="last-page" data-event="last-page"></paper-icon-button>
+      <paper-icon-button icon="last-page" data-event="last-page" disabled="[[_isActive(range, current)]]"></paper-icon-button>
     </div>
   </template>
   <script>
@@ -50,6 +47,13 @@
          * Current page number
          */
         current: {
+          type: Number,
+          value: 0
+        },
+        /**
+         * How many results are currently being shown
+         */
+        count: {
           type: Number,
           value: 0
         },

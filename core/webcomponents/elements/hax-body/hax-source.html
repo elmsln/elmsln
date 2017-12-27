@@ -7,6 +7,8 @@
 <link rel="import" href="../elmsln-loading/elmsln-loading.html">
 <link rel="import" href="hax-source-search.html">
 <link rel="import" href="hax-source-pagination.html">
+<link ref="import" href="../app-route/app-route.html">
+<link ref="import" href="../app-route/app-location.html">
 
 <!--
 `hax-source`
@@ -85,7 +87,15 @@
         margin: 0;
       }
 
+      hax-source-pagination {
+        display: flex;
+        justify-content: flex-end;
+        justify-content: center;
+      }
     </style>
+
+    <app-location route="{{route}}"></app-location>
+    <app-route route="{{route}}" query-params="{{requestParams}}"></app-route>
 
     <template is="dom-if" if="[[search]]">
       <hax-source-search label="[[details.title]]" query="{{query}}"></hax-source-search>
@@ -104,8 +114,6 @@
       <h3 class="loading-text">Loading content..</h3>
     </div>
 
-    <hax-source-pagination id="pager" total="[[mediaList.total]]" range="[[mediaList.last]]" current="[[mediaList.current]]"></hax-source-pagination>
-
     <iron-list grid id="itemlist" items="[[media]]" as="item">
       <template>
         <paper-button data-gizmo-type$="[[item.gizmoType]]" data-value$="[[item.url]]" data-id$="[[item.id]]" on-tap="_itemSelected" class="item-wrapper">
@@ -118,6 +126,8 @@
         </paper-button>
       </template>
     </iron-list>
+
+    <hax-source-pagination id="pagerbottom" total="[[mediaList.total]]" range="[[mediaList.last]]" current="[[mediaList.current]]" count="[[mediaList.count]]"></hax-source-pagination>
   </template>
 
   <script>
@@ -255,9 +265,11 @@
           this.$.request.generateRequest();
         }
 
-        // attach event listeners
-        this.$.pager.addEventListener('change-page', (e) => {
-          this.changePage(e.detail.page);
+        // attach event listeners for pagination
+        this.querySelectorAll('hax-source-pagination').forEach(element => {
+          element.addEventListener('change-page', (e) => {
+            this.changePage(e.detail.page);
+          });
         });
       },
       /**
@@ -267,6 +279,7 @@
         const currentParams = this.requestParams || {};
         const newParams = Object.assign(currentParams, { page: page });
         this.requestParams = newParams;
+        this.$.loading.hidden = false;
         this.$.request.generateRequest();
       },
       /**
