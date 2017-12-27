@@ -1,21 +1,53 @@
 <?php
 
 class ELMSMediaService {
-
   /**
    * Get a list of projects
    */
-  public function getMedia($options = NULL) {
+  public function getMedia(array $options = NULL) {
     $return = array();
+    $list = array();
     $query = new EntityFieldQuery();
     $query->entityCondition('entity_type', 'node');
+    $query->entityCondition('bundle', array('elmsmedia_image', 'external_video', 'svg'));
+
+    // order by most recent
+    $_order = (isset($options['order']) ? $options['order'] : 'DESC');
+    $query->propertyOrderBy('changed', $order);
+
+    // range and pager do half of what we need, but they don't work great in combo with eachother.
+    // Range won't tell us how many total items there are and pager won't let us skip to a certain
+    // set of results. So we are going to run two queries to get the total count and the correct
+    // page range.
+    $_limit = (isset($options['limit']) ? $options['limit'] : 10);
+    $_page = (isset($options['page']) ? $options['page'] : 1);
+    // get the total count
+    $query->count = TRUE;
+    $totalcount = $query->execute();
+    // now unset count and add a range to get our results list
+    $query->count = FALSE;
+    // the begining of the range will be the limit times targeted page minus one to account
+    // for starting at zero.
+    $_rangestart = round($_limit * ($_page - 1));
+    $query->range($_rangestart, $_limit);
     $results = $query->execute();
+
+    // add the pageing information to the return array in the form of JSON spec
+    // http://jsonapi.org/format/#fetching-pagination
+    $return['total'] = round($totalcount);
+    $return['first'] = round('1');
+    $return['last'] = round($totalcount / $_limit);
+    $return['current'] = round($_page);
+
+    // loop through the nids and pull out the full nodes
     if (isset($results['node'])) {
       foreach ($results['node'] as $item) {
-        $return[] = node_load($item->nid);
+        $list[] = node_load($item->nid);
       }
     }
-    return $this->encodeMediaItems($return);
+    $return['list'] = $this->encodeMediaItems($list);
+
+    return $return;
   }
 
   /**

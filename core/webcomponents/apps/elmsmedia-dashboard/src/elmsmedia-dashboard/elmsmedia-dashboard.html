@@ -8,13 +8,12 @@
         display: block;
       }
     </style>
-    
 
     <hax-source
     auto
     request-end-point="[[requestEndPoint]]"
     response-map='{
-      "root": "data",
+      "root": "list",
       "gizmoType": "video",
       "url": "http://media.elmsln.local/entity_iframe/node/",
       "id": "id",
@@ -33,19 +32,7 @@
         requestEndPoint: {
           type: String,
           value: ''
-          // computed: '_computeRequestEndPoint(endPoint, csrfToken)'
         }
-        // requestEndPoint: {
-        //   type: String,
-        //   computed: '_computeRequestEndPoint(endPoint, csrfToken)'
-        // }
-      },
-
-      /**
-       * A function to process the property for the link
-       */
-      _sourceMapLink: function (id) {
-        return 'test' + id;
       },
 
       _computeRequestEndPoint: function (endPoint, csrfToken) {
