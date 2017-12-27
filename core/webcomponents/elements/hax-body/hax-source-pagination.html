@@ -9,15 +9,14 @@
       :host {
         display: block;
       }
-      paper-button {
-        --paper-button: {
-        }
+      paper-button[active] {
+        background: lightgray;
       }
     </style>
     <div id="container">
       <paper-icon-button icon="first-page" data-event="first-page"></paper-icon-button>
       <template is="dom-repeat" items="[[_rangeArray]]" as="page">
-        <paper-button data-event="page" data-page$="[[page]]">[[page]]</paper-button>
+        <paper-button data-event="page" data-page$="[[page]]" active$="[[_isActive(page, current)]]">[[page]]</paper-button>
       </template>
       <paper-icon-button icon="last-page" data-event="last-page"></paper-icon-button>
     </div>
@@ -71,8 +70,8 @@
         }
         return rangeArray;
       },
-      _isActive: function (page) {
-        return Number(page) === Number(this.current);
+      _isActive: function (page, current) {
+        return Number(page) === Number(current);
       },
       ready: function () {
         this.$.container.addEventListener('click', (e) => {
