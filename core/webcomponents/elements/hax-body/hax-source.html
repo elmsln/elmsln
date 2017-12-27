@@ -6,6 +6,7 @@
 <link rel="import" href="../iron-ajax/iron-ajax.html">
 <link rel="import" href="../elmsln-loading/elmsln-loading.html">
 <link rel="import" href="hax-source-search.html">
+<link rel="import" href="hax-source-pagination.html">
 
 <!--
 `hax-source`
@@ -102,6 +103,8 @@
       <elmsln-loading color="blue-text text-darken-4" size="large"></elmsln-loading>
       <h3 class="loading-text">Loading content..</h3>
     </div>
+
+    <hax-source-pagination id="pager" total="[[mediaList.total]]" range="[[mediaList.last]]" current="[[mediaList.current]]"></hax-source-pagination>
 
     <iron-list grid id="itemlist" items="[[media]]" as="item">
       <template>
@@ -247,9 +250,24 @@
         // their details for visualization in hax-source-browser as an item
         this.fire('hax-register-source', this.details);
 
+        // if auto is selected then run the request
         if (this.auto) {
           this.$.request.generateRequest();
         }
+
+        // attach event listeners
+        this.$.pager.addEventListener('change-page', (e) => {
+          this.changePage(e.detail.page);
+        });
+      },
+      /**
+       * Change the page
+       */
+      changePage(page) {
+        const currentParams = this.requestParams || {};
+        const newParams = Object.assign(currentParams, { page: page });
+        this.requestParams = newParams;
+        this.$.request.generateRequest();
       },
       /**
        * Set basic auth header if we have a u / p

@@ -36,7 +36,7 @@ abstract class ELMSRestService {
       $return['count'] = count($results['node']);
       $return['first'] = round('0');
       // find the last page based on total results and limit, account for pager starting at zero
-      $return['last'] = round($query->pager['total'] / $_limit);
+      $return['last'] = round(($query->pager['total'] / $_limit) - 1);
       $return['current'] = pager_find_page();
     }
     else {
