@@ -12,6 +12,15 @@
         lazyRegister: true
       };
     </script>
+    <!-- required for just about any app using HAX though them all being separate allows developers to replace or not use any one of the pieces and just implement the capabilities that the element is providing as far as elements and binding. -->
+    <link rel="import" href="../../polymer/polymer.html">
+    <link rel="import" href="../hax-store.html">
+    <link rel="import" href="../hax-body.html">
+    <link rel="import" href="../hax-autoloader.html">
+    <link rel="import" href="../hax-manager.html">
+    <link rel="import" href="../hax-source.html">
+    <link rel="import" href="../hax-panel.html">
+    <link rel="import" href="../hax-export-dialog.html">
     <!-- Adding Favicon -->
     <link rel="apple-touch-icon" sizes="57x57" href="assets/favicon/apple-icon-57x57.png">
     <link rel="apple-touch-icon" sizes="60x60" href="assets/favicon/apple-icon-60x60.png">
@@ -31,18 +40,7 @@
     <meta name="msapplication-TileImage" content="assets/favicon/ms-icon-144x144.png">
     <meta name="theme-color" content="#ffffff">
 
-    <link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
-    <link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
-    <!-- required for just about any app using HAX though them all being separate allows developers to replace or not use any one of the pieces and just implement the capabilities that the element is providing as far as elements and binding. -->
-    <link rel="import" href="../hax-store.html">
-    <link rel="import" href="../hax-autoloader.html">
-    <link rel="import" href="../hax-source.html">
-    <link rel="import" href="../hax-manager.html">
-    <link rel="import" href="../hax-panel.html">
-    <link rel="import" href="../hax-body.html">
-    <link rel="import" href="../hax-export-dialog.html">
-
-    <style is="custom-style" include="demo-pages-shared-styles">
+    <style>
       .vertical-section-container {
         max-width: 60em;
         margin-left: 10em;
@@ -71,114 +69,61 @@
     <div class="vertical-section-container">
       <template is="dom-bind">
         <hax-store></hax-store>
-        <hax-autoloader>
-          <video-player></video-player>
-          <wikipedia-query></wikipedia-query>
-          <pdf-element></pdf-element>
-          <lrn-table></lrn-table>
-          <media-image></media-image>
-        </hax-autoloader>
-        <hax-export-dialog></hax-export-dialog>
-        <hax-manager>
-          <hax-source
-            details='{
-            "title":"Media",
-            "icon":"perm-media",
-            "color":"blue",
-            "author": "ELMS: Learning Network",
-            "teaser": "Our media solution",
-            "description": "The backend for ELMS:LN that allows for asset management and recall. Allows for remote referencing of things as well as tagging them by course so that we know where things are used after the fact.",
-            "status": "available"
-            }'
-            name="ELMS:LN Media"
-            user="SERVICE_ELMSMEDIA_LN"
-            pass="106025726eea79168e7b9d3aff6330"
-            request-end-point="http://data-media.elmsln.local/node.json"
-            request-params='{
-            "deep-load-refs":"file",
-            "title":""}'
-            query-param="title"
-            response-map='{
-              "root": "list",
-              "gizmoType": "video",
-              "url": "http://media.elmsln.local/entity_iframe/node/",
-              "id": "nid",
-              "title": "title",
-              "description": "body",
-              "image": "field_image.url",
-              "customGizmoType": "type"}'></hax-source>
-          <hax-source
-            details='{
-            "title":"Youtube",
-            "icon":"av:play-arrow",
-            "color":"red",
-            "author": "Google, Youtube LLC",
-            "teaser": "Popular public video solution",
-            "description": "Remember that anything you place here though will be out in the open. Great for OER.",
-            "status": "available"
-            }'
-            request-end-point="https://www.googleapis.com/youtube/v3/search"
-            request-params='{
-            "part":"snippet",
-            "q":"",
-            "key": "AIzaSyAF9zKXv-fxus9GNqn40SHzTn6F8A7h-Yo",
-            "type": "video",
-            "maxResults":"12"}'
-            query-param="q"
-            response-map='{
-              "root": "items",
-              "gizmoType": "video",
-              "url": "https://www.youtube.com/watch?v=",
-              "id": "id.videoId",
-              "title": "snippet.title",
-              "description": "snippet.description",
-              "image": "snippet.thumbnails.high.url"}'></hax-source>
-          <hax-source
-            details='{
-            "title":"Vimeo",
-            "icon":"av:play-circle-filled",
-            "color":"blue",
-            "author": "Vimeo Inc.",
-            "teaser": "Popular video community",
-            "description": "Vimeo is a great place for artists and higher quality video. There is also the ability to have more control over the storage and delivery of media as needed.",
-            "status": "available"
-            }'
-            request-end-point="https://api.vimeo.com/videos"
-            request-params='{
-            "access_token": "0a718b853bad87571d52e9fb554e0a43",
-            "query": "",
-            "direction": "asc",
-            "sort": "alphabetical",
-            "filter": "CC",
-            "per_page":"12"
-            }'
-            query-param="query"
-            response-map='{
-              "root": "data",
-              "gizmoType": "video",
-              "url": "",
-              "id": "link",
-              "title": "name",
-              "description": "description",
-              "image": "pictures.sizes.1.link"}'></hax-source>
-        </hax-manager>
         <hax-body context-offset-left="-164">
           <h1>Click edit in the top left</h1>
+          <p>Project links:</p>
+          <div>
+            <ul>
+              <li><a href="https://github.com/LRNWebComponents/hax-body" target="_blank">HAX github project</a></li>
+              <li><a href="https://docs.google.com/presentation/d/1EcdcsY80HhXiiZOL1t1xPNo_6VPy1HoWRknwFziVdJ8/edit#slide=id.p" target="_blank">HAX slide presentation</a></li>
+              <li><a href="https://www.youtube.com/watch?v=eGV1XWzUko8" target="_blank">HAX developer deep dive (video)</a></li>
+              <li><a href="https://www.elmsln.org/" target="_blank">ELMS: Learning Network (why HAX exists)</a></li>
+              <li><a href="https://steam.psu.edu" target="_blank">Penn State STEAM Engine (collaborative Penn State dev / design group that envisioned HAX)</a></li>
+              <li><a href="https://www.twitter.com/elmsln" target="_blank">ELMS:LN twitter (keep up w/ our projects!)</a></li>
+            </ul>
+          </div>
           <p>Welcome to HAX. An entirely different way to author, edit and create content. HAX solves the problem your content contributors always complain about - getting things on the internet. It's 2017, and yet much of the internet is still constrained to WYSIWYG editors started in 2001. They are better then nothing; but we can build so much more then that now! HAX stands for Headless Authoring eXperience. Because authoring experience makes and breaks any platform!</p>
           <h2>Goals of HAX</h2>
-          <ul>
-            <li>Create a second to none content authoring experience (AX) that works in any platform</li>
-            <li>Make content that is accessible, mobile friendly, engaging, and schematized by default.</li>
-            <li>Create a second to none developer experience (DX) to extend HAX by simply extending the web as a platform via webcomponents</li>
-            <li>Further the mission of education through openly available toolsets</li>
-            <li>Create integrations with CMSs and static site generators that will have us power them</li>
-          </ul>
+          <div>
+            <ul>
+              <li>Create a second to none content authoring experience (AX) that works in any platform</li>
+              <li>Make content that is accessible, mobile friendly, engaging, and schematized by default.</li>
+              <li>Create a second to none developer experience (DX) to extend HAX by simply extending the web as a platform via webcomponents</li>
+              <li>Further the mission of education through openly available toolsets</li>
+              <li>Create integrations with CMSs and static site generators that will have us power them</li>
+            </ul>
+          </div>
           <h3>Technical bit</h3>
           <p>HAX is built on a browser standard called Webcomponents. Its utilizing Polymer 1.x.x to do much of the heavy lifting. In the future we may move to Polymer 3 or StencilJS or pure webcomponents. This was produced by a very small team so there's only so many hours in a day.</p>
-          <video-player source="https://www.youtube.com/watch?v=bzH4seWf8rQ" resource="#9bca8e1e-8b7b-5c41-0248" prefix="oer:http://oerschema.org/ schema:http://schema.org/ dc:http://purl.org/dc/terms/ foaf:http://xmlns.com/foaf/0.1/ cc:http://creativecommons.org/ns# bib:http://bib.schema.org " responsive="" video-style="style1" class="x-scope video-player-0">
+          <h3>A video diving into why this is so insane</h3>
+          <video-player source="https://www.youtube.com/watch?v=eGV1XWzUko8" resource="#9bca8e1e-8b7b-5c41-0248" prefix="oer:http://oerschema.org/ schema:http://schema.org/ dc:http://purl.org/dc/terms/ foaf:http://xmlns.com/foaf/0.1/ cc:http://creativecommons.org/ns# bib:http://bib.schema.org " responsive="" video-style="style1" class="x-scope video-player-0">
           </video-player>
+          <h3>Some sample things to import</h3>
+          <p>Here are some files to point to for use in the demo.</p>
+          <code><pre>
+            3d
+            https://raw.githubusercontent.com/LRNWebComponents/aframe-player/master/demo/animatedbox.gltf
+            https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Monster/glTF/Monster.gltf
+            https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Duck/glTF/Duck.gltf
 
+            csv
+            https://lrnwebcomponents.github.io/lrn-table/components/lrn-table/demo/demo.csv
+
+            jpg
+            http://btopro.com/user/images/avatar.jpg
+            https://www.elmsln.org/sites/redesign/files/styles/square-profile-portrait/public/img_1773-1-sq_720_1.jpg
+
+            gif
+            https://lrnwebcomponents.github.io/awesome-explosion/components/awesome-explosion/assets/explode.gif
+
+            Videos
+            https://www.youtube.com/watch?v=eGV1XWzUko8
+            https://www.youtube.com/watch?v=dLxBJSPpXO0
+            https://vimeo.com/144218562
+            http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4
+          </pre></code>
         </hax-body>
+        <hax-export-dialog></hax-export-dialog>
         <hax-panel>
           <lrnsys-collapselist-item>
           <span slot="label"><div class="label">Future</div></span>
@@ -234,6 +179,97 @@
           </span>
           </lrnsys-collapselist-item>
         </hax-panel>
+        <hax-autoloader hidden>
+          <video-player></video-player>
+          <wikipedia-query></wikipedia-query>
+          <pdf-element></pdf-element>
+          <lrn-table></lrn-table>
+          <media-image></media-image>
+          <a11y-gif-player></a11y-gif-player>
+          <aframe-player></aframe-player>
+        </hax-autoloader>
+        <hax-manager>
+          <hax-source
+            details='{
+            "title":"Media",
+            "icon":"perm-media",
+            "color":"blue",
+            "author": "ELMS: Learning Network",
+            "teaser": "Our media solution",
+            "description": "The backend for ELMS:LN that allows for asset management and recall. Allows for remote referencing of things as well as tagging them by course so that we know where things are used after the fact.",
+            "status": "available"
+            }'
+            name="ELMS:LN Media"
+            user="SERVICE_ELMSMEDIA_LN"
+            pass="106025726eea79168e7b9d3aff6330"
+            request-end-point="http://data-media.elmsln.local/node.json"
+            request-params='{
+            "deep-load-refs":"file",
+            "title":""}'
+            query-param="title"
+            response-map='{
+              "root": "list",
+              "gizmoType": "image",
+              "url": "",
+              "id": "field_image.url",
+              "title": "title",
+              "description": "body",
+              "image": "field_image.url"}'></hax-source>
+          <hax-source
+            details='{
+            "title":"Youtube",
+            "icon":"av:play-arrow",
+            "color":"red",
+            "author": "Google, Youtube LLC",
+            "teaser": "Popular public video solution",
+            "description": "Remember that anything you place here though will be out in the open. Great for OER.",
+            "status": "available"
+            }'
+            request-end-point="https://www.googleapis.com/youtube/v3/search"
+            request-params='{
+            "part":"snippet",
+            "q":"",
+            "key": "AIzaSyAF9zKXv-fxus9GNqn40SHzTn6F8A7h-Yo",
+            "type": "video",
+            "maxResults":"12"}'
+            query-param="q"
+            response-map='{
+              "root": "items",
+              "gizmoType": "video",
+              "url": "https://www.youtube.com/watch?v=",
+              "id": "id.videoId",
+              "title": "snippet.title",
+              "description": "snippet.description",
+              "image": "snippet.thumbnails.high.url"}'></hax-source>
+          <hax-source
+            details='{
+            "title":"Vimeo",
+            "icon":"av:play-circle-filled",
+            "color":"blue",
+            "author": "Vimeo Inc.",
+            "teaser": "Popular video community",
+            "description": "Vimeo is a great place for artists and higher quality video. There is also the ability to have more control over the storage and delivery of media as needed.",
+            "status": "available"
+            }'
+            request-end-point="https://api.vimeo.com/videos"
+            request-params='{
+            "access_token": "0a718b853bad87571d52e9fb554e0a43",
+            "query": "",
+            "direction": "asc",
+            "sort": "alphabetical",
+            "filter": "CC",
+            "per_page":"12"
+            }'
+            query-param="query"
+            response-map='{
+              "root": "data",
+              "gizmoType": "video",
+              "url": "",
+              "id": "link",
+              "title": "name",
+              "description": "description",
+              "image": "pictures.sizes.1.link"}'></hax-source>
+        </hax-manager>
       </template>
     </div>
   </body>

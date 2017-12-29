@@ -26,6 +26,12 @@ An application that uses HAX is made up of several custom elements working toget
 
 These elements all live at the "app level" that you will create in order to utilize these tags. They are separate so that you can swap them out or fork individual ones as you desire.
 
+## Systems that integrate with HAX
+- ELMS:LN - https://github.com/elmsln/elmsln
+- Drupal (6 and 7) - https://www.drupal.org/project/hax
+- Backdrop - https://backdropcms.org/project/hax
+- GravCMS - https://github.com/elmsln/grav-plugin-hax
+
 ## Definitions
 - *HAX* - Headless Authoring eXperience or HAX, will always and must always be system agnostic. It needs to be able to interface with HTML primatives as well as custom-element tags which provide a haxProperties object to the specification of a haxElement.
 - *HAX Element* - a sanitized simple object representation of a DOM node. HAX Elements can be translated into full DOM nodes easily because they express tag, properties and content. The element also allows for easy manipulation of an item prior to it ever existing in the DOM. Here's an example of a HAX Element to illustrate (using video-player as an example).
