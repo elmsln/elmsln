@@ -16,7 +16,7 @@
     <app-route route="{{route}}" pattern="/:page" data="{{data}}" tail="{{tail}}" query-params="{{queryParams}}"></app-route>
 
     <h3>Filter Media</h3>
-    <elmsmedia-dashboard-filters media-type="{{queryParams.media_type}}" order="{{queryParams.order}}"></elmsmedia-dashboard-filters>
+    <elmsmedia-dashboard-filters media-type="{{queryParams.media_type}}" order="{{queryParams.order}}" on-filter-changed="_filterChanged"></elmsmedia-dashboard-filters>
 
     <hax-source auto request-end-point="[[requestEndPoint]]" request-params="{{queryParams}}" response-map='{
       "root": "list",
@@ -46,8 +46,15 @@
       },
       _computeRequestEndPoint: function (endPoint, csrfToken) {
         return `${endPoint}/api/data?token=${csrfToken}`
+      },
+      /**
+       * Listen for filter changes and reset the page count
+       * @todo unsetting this object does not always work
+       */
+      _filterChanged: function (e) {
+        this.set('queryParams.page', null);
+        this.set('queryParams.page', undefined);
       }
-
     });
   </script>
 </dom-module>

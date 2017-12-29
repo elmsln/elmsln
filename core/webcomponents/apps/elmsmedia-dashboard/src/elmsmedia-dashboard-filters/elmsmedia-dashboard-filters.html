@@ -50,9 +50,25 @@
           notify: true
         }
       },
+      observers: [
+        '_filterChanged(mediaType, order)'
+      ],
+      _filterChanged(mediaType, order) {
+        // don't fire changes until properties have already
+        // been set up.
+        if (this.__attached === true) {
+          this.fire('filter-changed');
+        }
+      },
       clear: function (e) {
         this.mediaType = null;
         this.order = null;
+      },
+      created: function () {
+        this.__attached = false;
+      },
+      attached: function () {
+        this.__attached = true;
       }
     });
   </script>
