@@ -32,6 +32,12 @@ class ELMSMediaService extends ELMSRestService {
       if (count($verified_media_types) > 0) {
         $query->entityCondition('bundle', $verified_media_types);
       }
+      else {
+        // if there was no valid media types then set the bundle to none
+        // which will effectively return the correct empty results set along
+        // with the necessary pager information.
+        $query->entityCondition('bundle', 'none');
+      }
     }
     else {
       $query->entityCondition('bundle', $this->media_types);
