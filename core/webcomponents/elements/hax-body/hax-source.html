@@ -104,9 +104,11 @@
       headers="[[headers]]"
       params='[[requestParams]]'
       last-response="{{mediaList}}"
-      hidden></iron-ajax>
+      hidden
+      loading="{{loading}}"></iron-ajax>
 
-    <div id="loading" class="loading" hidden>
+
+    <div id="loading" class="loading" hidden$="[[!loading]]">
       <elmsln-loading color="blue-text text-darken-4" size="large"></elmsln-loading>
       <h3 class="loading-text">Loading content..</h3>
     </div>
@@ -244,11 +246,6 @@
         media: {
           type: Array,
           value: [],
-        },
-        loading: {
-          type: Boolean,
-          readOnly: true,
-          notify: true
         }
       },
       observers: ['_setBasicAuth(user, pass)'],
@@ -306,7 +303,6 @@
       _queryChanged: function(newValue, oldValue) {
         // ensure we don't fire immediately
         if (this.queryParam != '' && typeof newValue != '' && typeof oldValue !== typeof undefined) {
-          this.$.loading.hidden = false;
           let params = this.requestParams;
           // set the query param to the search value
           params[this.queryParam] = newValue;
@@ -317,12 +313,6 @@
             // make the ajax call now that we have this in our query
             this.$.request.generateRequest();
           }
-          else {
-            this.$.loading.hidden = true;
-          }
-        }
-        else {
-          this.$.loading.hidden = true;
         }
       },
       /**
@@ -359,7 +349,6 @@
             // this will trigger an aggressive repaint of the cards
             this.set('media', []);
             this.set('media', media);
-            this.$.loading.hidden = true;
             // trigger a repaint
             this._resizeList();
           }

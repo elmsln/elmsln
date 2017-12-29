@@ -9,18 +9,37 @@ require_once('ELMSRestService.php');
 class ELMSMediaService extends ELMSRestService {
 
   /**
+   * Define all of the possible media types.
+   * @todo this should be configurable
+   */
+  public $media_types = array('elmsmedia_image', 'external_video', 'svg', 'h5p_content', 'document', 'video', 'audio');
+
+  /**
    * Get a list of projects
    */
   public function getMedia(array $options = NULL) {
     $return = array();
     $query = new EntityFieldQuery();
     $query->entityCondition('entity_type', 'node');
-    /**
-     * @todo this should be configurable
-     */
-    $query->entityCondition('bundle', array('elmsmedia_image', 'external_video', 'svg', 'h5p_content', 'document', 'video', 'audio'));
+
+    // check if there was a media type specified
+    // if not, display all media types.
+    if (isset($options['media_type'])) {
+      // convert media into an array so that we can possibly use multiple media types
+      $filter_list = explode(',', $options['media_type']);
+      // security check to make sure that the specified media types are in the master list
+      $verified_media_types = array_intersect($this->media_types, $filter_list);
+      if (count($verified_media_types) > 0) {
+        $query->entityCondition('bundle', $verified_media_types);
+      }
+    }
+    else {
+      $query->entityCondition('bundle', $this->media_types);
+    }
+
     // Use the ELMS Rest Service to execute the query
     $return = $this->executeQuery($query, $options);
+
 
     // loop through the nids and pull out the full nodes
     $_list = array();
@@ -73,7 +92,6 @@ class ELMSMediaService extends ELMSRestService {
         break;
     }
   }
-
 
   /**
    * Prepare a list of projects to be outputed in json

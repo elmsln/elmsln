@@ -17,7 +17,7 @@ abstract class ELMSRestService {
 
     // order by most recent node changed
     $_order = (isset($options['order']) ? $options['order'] : 'DESC');
-    $query->propertyOrderBy('changed', $order);
+    $query->propertyOrderBy('changed', $_order);
 
     // default limit is 50 if none is set, use zero to not specify a limit
     $_limit = (isset($options['limit']) ? $options['limit'] : 50);
