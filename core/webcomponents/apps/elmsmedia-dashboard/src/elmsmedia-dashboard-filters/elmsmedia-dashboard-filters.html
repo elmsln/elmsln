@@ -1,0 +1,59 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/paper-tooltip/paper-tooltip.html">
+
+<dom-module id="elmsmedia-dashboard-filters">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+
+    <paper-dropdown-menu id="order" label="order">
+      <paper-listbox slot="dropdown-content" selected="{{order}}" attr-for-selected="name">
+        <paper-item name="ASC">Ascending</paper-item>
+        <paper-item name="DESC">Descending</paper-item>
+      </paper-listbox>
+    </paper-dropdown-menu>
+
+    <paper-dropdown-menu id="mediaType" label="Media Type">
+      <paper-listbox slot="dropdown-content" selected="{{mediaType}}" attr-for-selected="name">
+        <paper-item>Show All Types</paper-item>
+        <paper-item name="image">Image</paper-item>
+        <paper-item name="h5p">H5P</paper-item>
+        <paper-item name="video">Video</paper-item>
+        <paper-item name="external_video">External Video</paper-item>
+        <paper-item name="audio">audio</paper-item>
+      </paper-listbox>
+    </paper-dropdown-menu>
+
+    <paper-icon-button id="clear" icon="clear" title="Clear all filters" on-click="clear"></paper-icon-button>
+    <paper-tooltip for="clear" position="top" animation-delay="100" margin-top="5" aria-hidden="true">Clear all Filters</paper-tooltip>
+    
+  </template>
+  <script>
+    Polymer({
+      is: 'elmsmedia-dashboard-filters',
+      properties: {
+        mediaType: {
+          type: String,
+          value: "",
+          notify: true
+        },
+        order: {
+          type: String,
+          value: "",
+          notify: true
+        }
+      },
+      clear: function (e) {
+        this.mediaType = null;
+        this.order = null;
+      }
+    });
+  </script>
+</dom-module>

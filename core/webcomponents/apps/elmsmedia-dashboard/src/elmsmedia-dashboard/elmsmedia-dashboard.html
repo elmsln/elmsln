@@ -2,6 +2,7 @@
 <link rel="import" href="../../bower_components/hax-body/hax-source.html">
 <link rel="import" href="../../bower_components/app-route/app-route.html">
 <link rel="import" href="../../bower_components/app-route/app-location.html">
+<link rel="import" href="../elmsmedia-dashboard-filters/elmsmedia-dashboard-filters.html">
 
 <dom-module id="elmsmedia-dashboard">
   <template>
@@ -13,6 +14,9 @@
 
     <app-location route="{{route}}"></app-location>
     <app-route route="{{route}}" pattern="/:page" data="{{data}}" tail="{{tail}}" query-params="{{queryParams}}"></app-route>
+
+    <h3>Filter Media</h3>
+    <elmsmedia-dashboard-filters media-type="{{queryParams.media_type}}" order="{{queryParams.order}}"></elmsmedia-dashboard-filters>
 
     <hax-source auto request-end-point="[[requestEndPoint]]" request-params="{{queryParams}}" response-map='{
       "root": "list",
