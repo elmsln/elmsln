@@ -7,8 +7,6 @@
 <link rel="import" href="../elmsln-loading/elmsln-loading.html">
 <link rel="import" href="hax-source-search.html">
 <link rel="import" href="hax-source-pagination.html">
-<link ref="import" href="../app-route/app-route.html">
-<link ref="import" href="../app-route/app-location.html">
 
 <!--
 `hax-source`
@@ -94,14 +92,12 @@
       }
     </style>
 
-    <app-location route="{{route}}"></app-location>
-    <app-route route="{{route}}" query-params="{{requestParams}}"></app-route>
-
     <template is="dom-if" if="[[search]]">
       <hax-source-search label="[[details.title]]" query="{{query}}"></hax-source-search>
     </template>
 
     <iron-ajax
+      auto=[[auto]]
       id="request"
       url="[[requestEndPoint]]"
       handle-as="json"
@@ -109,6 +105,7 @@
       params='[[requestParams]]'
       last-response="{{mediaList}}"
       hidden></iron-ajax>
+
     <div id="loading" class="loading" hidden>
       <elmsln-loading color="blue-text text-darken-4" size="large"></elmsln-loading>
       <h3 class="loading-text">Loading content..</h3>
@@ -175,6 +172,7 @@
          */
         requestParams: {
           type: Object,
+          notify: true
         },
         /**
          * The key for the query parameter in the request param. This way
@@ -247,6 +245,11 @@
           type: Array,
           value: [],
         },
+        loading: {
+          type: Boolean,
+          readOnly: true,
+          notify: true
+        }
       },
       observers: ['_setBasicAuth(user, pass)'],
       /**
@@ -259,11 +262,6 @@
         // fire event so we know that sources exist and we can track
         // their details for visualization in hax-source-browser as an item
         this.fire('hax-register-source', this.details);
-
-        // if auto is selected then run the request
-        if (this.auto) {
-          this.$.request.generateRequest();
-        }
 
         // attach event listeners for pagination
         this.querySelectorAll('hax-source-pagination').forEach(element => {
@@ -278,9 +276,8 @@
       changePage(page) {
         const currentParams = this.requestParams || {};
         const newParams = Object.assign(currentParams, { page: page });
+        this.requestParams = {};
         this.requestParams = newParams;
-        this.$.loading.hidden = false;
-        this.$.request.generateRequest();
       },
       /**
        * Set basic auth header if we have a u / p

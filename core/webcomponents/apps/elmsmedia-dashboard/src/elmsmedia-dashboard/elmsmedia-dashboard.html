@@ -1,5 +1,7 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/hax-body/hax-source.html">
+<link rel="import" href="../../bower_components/app-route/app-route.html">
+<link rel="import" href="../../bower_components/app-route/app-location.html">
 
 <dom-module id="elmsmedia-dashboard">
   <template>
@@ -9,10 +11,10 @@
       }
     </style>
 
-    <hax-source
-    auto
-    request-end-point="[[requestEndPoint]]"
-    response-map='{
+    <app-location route="{{route}}"></app-location>
+    <app-route route="{{route}}" pattern="/:page" data="{{data}}" tail="{{tail}}" query-params="{{queryParams}}"></app-route>
+
+    <hax-source auto request-end-point="[[requestEndPoint]]" request-params="{{queryParams}}" response-map='{
       "root": "list",
       "gizmoType": "video",
       "url": "http://media.elmsln.local/entity_iframe/node/",
@@ -32,9 +34,12 @@
         requestEndPoint: {
           type: String,
           value: ''
+        },
+        queryParams: {
+          type: Object,
+          value: {},
         }
       },
-
       _computeRequestEndPoint: function (endPoint, csrfToken) {
         return `${endPoint}/api/data?token=${csrfToken}`
       }
