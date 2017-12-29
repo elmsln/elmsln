@@ -11,11 +11,17 @@
       }
     </style>
     <div id="container">
-      <paper-icon-button icon="first-page" data-event="first-page" disabled="[[_isActive(start, current)]]"></paper-icon-button>
-      <template is="dom-repeat" items="[[_rangeArray]]" as="page">
-        <paper-button data-event="page" data-page$="[[page]]" disabled="[[_isActive(page, current)]]">[[page]]</paper-button>
+
+      <template is="dom-if" if="[[_showPager(_rangeArray)]]">
+        <paper-icon-button icon="first-page" data-event="first-page" disabled="[[_isActive(start, current)]]"></paper-icon-button>
+
+        <template is="dom-repeat" items="[[_rangeArray]]" as="page">
+          <paper-button data-event="page" data-page$="[[page]]" disabled="[[_isActive(page, current)]]">[[page]]</paper-button>
+        </template>
+
+        <paper-icon-button icon="last-page" data-event="last-page" disabled="[[_isActive(range, current)]]"></paper-icon-button>
       </template>
-      <paper-icon-button icon="last-page" data-event="last-page" disabled="[[_isActive(range, current)]]"></paper-icon-button>
+
     </div>
   </template>
   <script>
@@ -76,6 +82,9 @@
       },
       _isActive: function (page, current) {
         return Number(page) === Number(current);
+      },
+      _showPager: function (rangeArray) {
+        return rangeArray.length > 0;
       },
       ready: function () {
         this.$.container.addEventListener('click', (e) => {
