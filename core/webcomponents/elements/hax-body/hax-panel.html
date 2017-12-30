@@ -79,7 +79,7 @@ as the events being bubbled up include HTML nodes to inject into something
         animation-delay="0">
         [[__tipText]]
       </paper-tooltip>
-      <paper-icon-button hidden$="[[!showHTMLExport]]" data-opened$="[[editMode]]" on-tap="_htmlExport" icon="code" id="htmlexport"></paper-icon-button>
+      <paper-icon-button hidden$="[[hideExportButton]]" data-opened$="[[editMode]]" on-tap="_htmlExport" icon="code" id="htmlexport"></paper-icon-button>
       <paper-tooltip
         for="htmlexport"
         position="right"
@@ -172,9 +172,9 @@ as the events being bubbled up include HTML nodes to inject into something
         /**
          * Showing advanced area.
          */
-        showHTMLExport: {
+        hideExportButton: {
           type: Boolean,
-          value: true,
+          value: false,
         },
         /**
          * Showing button area at all.

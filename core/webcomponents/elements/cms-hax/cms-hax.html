@@ -30,13 +30,12 @@ A LRN polymer app
         z-index: 100;
       }
     </style>
-    <div id="autoloaderslot"><slot name="autoloader"></slot></div>
-    <div id="bodyslot"><slot></slot></div>
+    <div id="autoloaderslot" hidden><slot name="autoloader"></slot></div>
+    <div id="bodyslot" hidden><slot></slot></div>
     <hax-store hidden></hax-store>
-    <hax-autoloader id="loader" hidden>
-    </hax-autoloader>
+    <hax-autoloader id="loader" hidden></hax-autoloader>
     <hax-manager></hax-manager>
-    <hax-panel></hax-panel>
+    <hax-panel hide-export-button></hax-panel>
     <hax-body id="body" context-offset-left="[[bodyOffsetLeft]]"></hax-body>
 
     <iron-ajax
@@ -82,16 +81,53 @@ A LRN polymer app
           reflectToAttribute: true,
           observer: '_editModeChanged',
         },
+        /**
+         * syncBody
+         */
+        syncBody: {
+          type: Boolean,
+          value: false,
+        },
+        /**
+         * Only available if syncBody is true; this allows data binding to the value being worked on in hax-body tag
+         */
+        bodyValue: {
+          type: String,
+          value: '',
+        },
+        /**
+         * Flag to hide the toast.
+         */
+        hideMessage: {
+          type: Boolean,
+          value: false,
+        },
       },
       /**
        * Attached to the DOM; now we can fire event to the store that
        * we exist and are the thing being edited.
        */
       attached: function() {
+        this.__lock = false;
         document.body.addEventListener('hax-store-property-updated', this._haxStorePropertyUpdated.bind(this));
         // @todo, step through slot for both areas injecting them CORRECTLY into the right area
-        this._slotRemap(this.$.autoloaderslot, this.$.loader);
-        this._slotRemap(this.$.bodyslot, Polymer.HaxStore.instance.haxBody);
+        setTimeout( () => {
+          this._slotRemap(this.$.autoloaderslot, this.$.loader);
+          this._slotRemap(this.$.bodyslot, Polymer.HaxStore.instance.haxBody);
+        }, 100);
+
+        // notice ANY change to body and bubble up, only when we are attached though
+        if (this.syncBody) {
+          Polymer.dom(this.$.body).observeNodes(function(info) {
+            if (!this.__lock) {
+              this.__lock = true;
+              this.fire('hax-body-content-changed', Polymer.HaxStore.instance.haxBody.haxToContent());
+              setTimeout( () => {
+                this.__lock = false;
+              }, 100);
+            }
+          });
+        }
       },
       /**
        * Slot re-append correction. This helps translate shadow of one to another.
@@ -150,7 +186,9 @@ A LRN polymer app
        * _handleUpdateResponse
        */
       _handleUpdateResponse: function(e) {
-        this.$.toast.show('Saved!');
+        if (!this.hideMessage) {
+          this.$.toast.show('Saved!');
+        }
       },
     });
   </script>
