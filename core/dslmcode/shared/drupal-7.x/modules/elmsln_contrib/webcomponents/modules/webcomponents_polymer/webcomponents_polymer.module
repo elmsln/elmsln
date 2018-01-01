@@ -105,7 +105,7 @@ function webcomponents_polymer_webcomponents() {
   $files = array();
   if (isset($libraries['webcomponents'])) {
     $dir = $libraries['webcomponents'] . '/' . WEBCOMPONENTS_POLYMER_LOCATION . '/';
-    $files = _webcomponents_find_html_includes($dir, array('apps'));
+    $files = _webcomponents_find_html_includes($dir, array('apps', 'apps-src'));
   }
   // now look in module sepecific areas
   $modulefiles = drupal_system_listing("/(.*?)-(.*?)\.html$/", "modules", 'uri', 2);

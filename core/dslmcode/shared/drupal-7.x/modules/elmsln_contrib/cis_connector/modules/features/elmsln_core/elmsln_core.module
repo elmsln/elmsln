@@ -2233,14 +2233,38 @@ function elmsln_core_cis_lmsless_color_alter(&$map) {
  * which would reduce the usefulness of the components
  */
 function elmsln_core_webcomponent_attached_files_alter(&$webcomponents) {
-  // remove the definitions from the node edit page for lrn components
-  // till we have a good alternative
-  if (arg(0) == 'node' && arg(2) == 'edit' && isset($webcomponents['sites/all/libraries/webcomponents/polymer/LRNWebComponents/build.html'])) {
-    $edit_path = drupal_get_path('module', 'elmsln_core') . '/LRNWebComponents/build_edit.html';
-    $webcomponents[$edit_path] = $webcomponents['sites/all/libraries/webcomponents/polymer/LRNWebComponents/build.html'];
-    $webcomponents[$edit_path]->file = $edit_path;
-    unset($webcomponents['sites/all/libraries/webcomponents/polymer/LRNWebComponents/build.html']);
+  // looks weird, but this gives us the best of both worlds
+  // we effectively wipe every webcomponent autoload reference and then
+  // force the build only to be included which ensures that we don't
+  // get conflicts between elements. It also gives us a big core element
+  // while allowing polymer.html to resolve to build correctly
+  // @todo (won't work on a complex edit form but that seems like it won't happen)
+  // @todo autoload webcomponents.json config file would enable us to simplify this to JUST edit needing to do something aggressive
+  $tmp = array();
+  $build_path = libraries_get_path('webcomponents') . '/polymer/bower_components/';
+  $build = $build_path . 'polymer/polymer.html';
+  // modify build path for node edit forms
+  if (arg(0) == 'node' && arg(2) == 'edit' && isset($webcomponents[$build])) {
+    $build = $build_path . '_build/build_edit.html';
   }
+  $tmp[$build] = new stdClass();
+  $tmp[$build]->file = $build;
+  $webcomponents = $tmp;
+}
+
+/**
+ * Implements hook_webcomponents_app_element_import_alter().
+ * rewrite app paths to resolve to our 'apps-resolver' address.
+ * This allows all bower_components to resolve correctly as well
+ * as correctly deduping assets on the front end. The reason for this
+ * is that if using multiple apps on a single page this would dedupe
+ * references to polymer (and other elements) incorrectly; effectively
+ * loading the assets underlying a request to (Number of elements * Number of apps).
+ * This allows global elements to resolve to the same as local ones.
+ */
+function elmsln_core_webcomponents_app_element_import_alter(&$link_element, $app, $machine_name, $hash) {
+  // we don't store our apps in the app path, we only use it for registration
+  $link_element['#attributes']['href'] = libraries_get_path('webcomponents', TRUE) . '/polymer/apps-src/' . $machine_name . '/' . $machine_name . '.html?h' . $hash;
 }
 
 /**

@@ -114,3 +114,16 @@ function hook_webcomponents_app_deliver_data_alter(&$return, $app) {
     $return['detail'] = t('I\'m a little tea pot short and stout');
   }
 }
+
+/**
+ * Implements hook_webcomponents_app_element_import_alter().
+ * @param  array  $link_element   an array to be added via drupal_add_html_head
+ * @param  array  $app            app manifest as loaded by drupal
+ * @param  string $machine_name   the name of the app
+ * @param  string $hash           hash value based on filesize for easy cache busting
+ * @see  drupal_add_html_head()
+ */
+function hook_webcomponents_app_element_import_alter(&$link_element, $app, $machine_name, $hash) {
+  // we don't store our apps in the app path, we only use it for registration
+  $link_element['#attributes']['href'] = libraries_get_path('webcomponents', TRUE) . '/polymer/apps-src/' . $machine_name . '/' . $machine_name . '.html?h' . $hash;
+}

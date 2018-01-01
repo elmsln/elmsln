@@ -217,16 +217,16 @@ function _webcomponents_app_load_app($machine_name = NULL, $debug = FALSE) {
     $hash = filesize(DRUPAL_ROOT . '/' . $app['path'] . 'manifest.json');
     // form the base path for loading the app
     $path = base_path() . $app['path'];
-    $element = array(
+    $link_element = array(
       '#tag' => 'link',
       '#attributes' => array(
         'href' => $path . 'manifest.json?h' . $hash,
         'rel' => 'manifest',
       ),
     );
-    drupal_add_html_head($element, 'app-' . $machine_name . '-manifest');
+    drupal_add_html_head($link_element, 'app-' . $machine_name . '-manifest');
     $hash = filesize(DRUPAL_ROOT . '/' . $app['path'] . 'src/' . $machine_name . '/' . $machine_name . '.html');
-    $element = array(
+    $link_element = array(
       '#tag' => 'link',
       '#attributes' => array(
         'href' => $path . 'src/' . $machine_name . '/' . $machine_name . '.html?h' . $hash,
@@ -234,7 +234,14 @@ function _webcomponents_app_load_app($machine_name = NULL, $debug = FALSE) {
       ),
       '#weight' => '99999',
     );
-    drupal_add_html_head($element, 'app-' . $machine_name);
+    // allow for customizations to the path as opposed to where it was discovered
+    // this is important when utilizing multiple apps in different areas on the
+    // same page. Hybrid drupal sites might need this
+    drupal_alter('webcomponents_app_element_import', $link_element, $app, $machine_name, $hash);
+    // possibiity alter decided to unset
+    if (!empty($link_element)) {
+      drupal_add_html_head($link_element, 'app-' . $machine_name);
+    }
     // construct the tag base to be written
     $vars = array(
       'tag' => $machine_name,
