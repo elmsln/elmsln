@@ -1,0 +1,116 @@
+<!doctype html>
+<html>
+	<head>
+		<title>paper-chips-search</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+		<script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+		<script src="../../web-component-tester/browser.js"></script>
+		<script src="../../test-fixture/test-fixture-mocha.js"></script>
+
+		<link rel="import" href="../paper-chips-search.html">
+		<link rel="import" href="../../test-fixture/test-fixture.html">
+	</head>
+	<body>
+
+		<test-fixture id="TrivialElement">
+			<template>
+				<paper-chips-search></paper-chips-search>
+			</template>
+		</test-fixture>
+
+		<script>
+			suite('<paper-chips>', function() {
+				var element;
+				var fixedItem = { name: 'Apples', fixed: true };
+				var deletableItem = { name: 'Pears' };
+
+				setup(function() {
+					element = fixture('TrivialElement');
+					element.items = [];
+				});
+
+				suite('basic behavior', function() {
+					test('adds chip', function() {
+						element.add(deletableItem);
+
+						expect(element.items.length).to.be.eql(1);
+						expect(element.items[0]).to.be.eql(deletableItem);
+					});
+
+					test('adds multiple chips', function() {
+						element.add(deletableItem);
+						element.add(fixedItem);
+
+						expect(element.items.length).to.be.eql(2);
+						expect(element.items[0]).to.be.eql(deletableItem);
+						expect(element.items[1]).to.be.eql(fixedItem);
+					});
+
+					test('add resets search', function() {
+						element.search = 'something';
+						element.add(deletableItem);
+
+						expect(element.search).to.be.eql('');
+					});
+				});
+
+				suite('remove behavior', function() {
+					test('_removeLastChip removes last item if deletable', function() {
+						element.add(fixedItem);
+						element.add(deletableItem);
+						element._removeLastChip();
+						expect(element.items.length).to.be.eql(1);
+						expect(element.items[0]).to.be.eql(fixedItem);
+					});
+
+					test('_removeLastChip retains last item if fixed', function() {
+						element.add(deletableItem);
+						element.add(fixedItem);
+						element._removeLastChip();
+						expect(element.items.length).to.be.eql(2);
+						expect(element.items[0]).to.be.eql(deletableItem);
+						expect(element.items[1]).to.be.eql(fixedItem);
+					});
+
+					test('_removeLastChip does nothing if empty items', function() {
+						element._removeLastChip();
+						expect(element.items.length).to.be.eql(0);
+					});
+
+					test('_removeLastChip does nothing if search is non-empty', function() {
+						element.add(deletableItem);
+						element.search = 'something';
+						element._removeLastChip();
+						expect(element.items.length).to.be.eql(1);
+						expect(element.items[0]).to.be.eql(deletableItem);
+					});
+				});
+
+				suite('placeholder behavior', function() {
+					test('placeholder is shown if no items are selected', function() {
+						expect(element._getPlaceholder(0, 'PLACEHOLDER')).to.be.eql('PLACEHOLDER');
+					});
+					test('placeholder is hidden if there are non-fixed selected items', function() {
+						element.items = [
+							{ id: 'apples', name: 'Apples', fixed: true },
+							{ id: 'pears', name: 'Pears' }
+						];
+
+						expect(element._getPlaceholder(1, 'PLACEHOLDER')).to.be.eql('');
+					});
+					test('placeholder is shown if there only fixed items', function() {
+						element.items = [
+							{ id: 'apples', name: 'Apples', fixed: true },
+							{ id: 'pears', name: 'Pears', fixed: true }
+						];
+
+						expect(element._getPlaceholder(1, 'PLACEHOLDER')).to.be.eql('PLACEHOLDER');
+					});
+				});
+			});
+		</script>
+
+	</body>
+</html>

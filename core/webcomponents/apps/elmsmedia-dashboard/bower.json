@@ -3,7 +3,8 @@
   "description": "A LRN app",
   "main": "elmsmedia-dashboard.html",
   "dependencies": {
-    "polymer": "Polymer/polymer#^1.10.1"
+    "polymer": "Polymer/polymer#^1.10.1",
+    "paper-chip": "Collaborne/paper-chip#^1"
   },
   "devDependencies": {
     "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",

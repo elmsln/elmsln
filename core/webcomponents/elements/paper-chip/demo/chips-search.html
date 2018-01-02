@@ -1,0 +1,28 @@
+<html>
+	<head>
+	    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+		<link rel="import" href="../../paper-styles/demo-pages.html">
+		<link rel="import" href="../paper-chips-search.html">
+	</head>
+
+	<body>
+		<template is="dom-bind">
+			<paper-chips-search id="chips" items="{{items}}" search="{{search}}"></paper-chips-search>
+			<button on-tap="onAdd">Add</button><br>
+			TODO: Show search results for "[[search]]".
+		</template>
+
+		<script>
+			var scope = document.querySelector('template[is=dom-bind]');
+			scope.items = [
+				{ id: 'apples', name: 'Apples', fixed: true },
+				{ id: 'pears', name: 'Pears' },
+				{ id: 'bananas', name: 'Bananas' }
+			];
+			scope.onAdd = function() {
+				this.$.chips.add({ name: this.search });
+			};
+		</script>
+
+	</body>
+</html>
