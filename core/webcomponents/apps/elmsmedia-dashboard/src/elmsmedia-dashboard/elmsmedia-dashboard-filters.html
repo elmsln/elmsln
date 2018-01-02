@@ -11,7 +11,15 @@
       :host {
         display: block;
       }
+
+      paper-dropdown-menu {
+        display: block;
+        width: 100%;
+      }
     </style>
+
+    <paper-icon-button id="clear" icon="clear" title="Clear all filters" on-click="clear"></paper-icon-button>
+    <paper-tooltip for="clear" position="top" animation-delay="100" margin-top="5" aria-hidden="true">Clear all Filters</paper-tooltip>
 
     <paper-dropdown-menu id="order" label="Order">
       <paper-listbox slot="dropdown-content" selected="{{order}}" attr-for-selected="name">
@@ -31,8 +39,6 @@
       </paper-listbox>
     </paper-dropdown-menu>
 
-    <paper-icon-button id="clear" icon="clear" title="Clear all filters" on-click="clear"></paper-icon-button>
-    <paper-tooltip for="clear" position="top" animation-delay="100" margin-top="5" aria-hidden="true">Clear all Filters</paper-tooltip>
     
   </template>
   <script>
@@ -57,7 +63,10 @@
         // don't fire changes until properties have already
         // been set up.
         if (this.__attached === true) {
-          this.fire('filter-changed');
+          this.fire('filter-changed', {
+            media_type: mediaType,
+            order: order
+          });
         }
       },
       clear: function (e) {

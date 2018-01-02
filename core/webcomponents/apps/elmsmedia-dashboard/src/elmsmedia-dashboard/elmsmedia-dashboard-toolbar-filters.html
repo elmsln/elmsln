@@ -1,0 +1,46 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="elmsmedia-dashboard-toolbar-filter.html">
+
+<dom-module id="elmsmedia-dashboard-toolbar-filters">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+    
+    <template is="dom-repeat" items="[[_filtersArray]]" as="item">
+      <elmsmedia-dashboard-toolbar-filter path="[[item.path]]" prop-value="[[item.propValue]]" title="[[item.title]]"></elmsmedia-dashboard-toolbar-filter>
+    </template>
+
+  </template>
+  <script>
+    Polymer({
+      is: 'elmsmedia-dashboard-toolbar-filters',
+      properties: {
+        filters: {
+          type: Object,
+          value: {}
+        },
+        _filtersArray: {
+          type: Array,
+          computed: '_filtersArrayCompute(filters)'
+        }
+      },
+      _filtersArrayCompute: function (filters) {
+        let filtersArray = [];
+        for (f in filters) {
+          const prop = f;
+          // account for mulitple filter values
+          const values = filters[f].split(',');
+          // ignore the page property
+          if (prop !== 'page') {
+            values.forEach(value => {
+              filtersArray.push({ path: prop, propValue: value, title: `${prop}: ${value}`});
+            });
+          }
+        }
+        return filtersArray;
+      }
+    });
+  </script>
