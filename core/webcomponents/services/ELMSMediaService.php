@@ -191,7 +191,7 @@ class ELMSMediaService extends ELMSRestService {
       $encoded_item->relationships->author->data->name = $item->name;
       // // Actions
       // $encoded_item->actions = null;
-      drupal_alter('cle_open_studio_app_encode_project', $encoded_item);
+      drupal_alter('elms_media_service_encode_media_item', $encoded_item);
       return $encoded_item;
     }
     return NULL;
