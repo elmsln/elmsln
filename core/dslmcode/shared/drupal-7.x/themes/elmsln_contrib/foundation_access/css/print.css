@@ -44,10 +44,6 @@
   h2,
   h3 {
     page-break-after: avoid; }
-
-  p {
-    -moz-column-count: 2;
-         column-count: 2; }
   h1 {
     font-size: 2rem;
     text-transform: uppercase; }
