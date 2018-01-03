@@ -28,7 +28,7 @@
         },
         _filtersArray: {
           type: Array,
-          computed: '_filtersArrayCompute(filters)'
+          computed: '_filtersArrayCompute(filters, filters.*)'
         }
       },
       _filtersArrayCompute: function (filters) {

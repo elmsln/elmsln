@@ -46,7 +46,7 @@
 
     <paper-dialog id="filterDialog" with-backdrop>
       <h3>Filter Media</h3>
-      <elmsmedia-dashboard-filters on-filter-changed="_filterChanged"></elmsmedia-dashboard-filters>
+      <elmsmedia-dashboard-filters form="{{queryParams}}" on-filter-changed="_filterChanged"></elmsmedia-dashboard-filters>
       <div class="buttons">
         <paper-button dialog-dismiss>Dismiss dialog</paper-button>
       </div>
@@ -113,22 +113,21 @@
       toggleFilters: function (e) {
         this.$.filterDialog.toggle();
       },
+      removeFilter: function (path, propValue) {
+        const currentParams = Object.assign({}, this.queryParams);
+        // get the current value of the filter
+        const currentValue = _.get(currentParams, path);
+        // remove the specified filter from the current value
+        // by converting to an array and filtering it
+        const newValue = currentValue.split(',').filter(v => v !== propValue).join(',');
+        const newParams = _.set(currentParams, path, newValue);
+        const newCleanParams = this._cleanParams(newParams);
+        this.set('queryParams', {});
+        this.set('queryParams', newCleanParams);
+      },
       ready: function () {
         this.addEventListener('remove-filter', (e) => {
-          const path = e.detail.path;
-          const deleteValue = e.detail.propValue;
-          if (path && deleteValue) {
-            const currentParams = Object.assign({}, this.queryParams);
-            // get the current value of the filter
-            const currentValue = _.get(currentParams, path);
-            // remove the specified filter from the current value
-            // by converting to an array and filtering it
-            const newValue = currentValue.split(',').filter(v => v !== deleteValue).join(',');
-            const newParams = _.set(currentParams, path, newValue);
-            const newCleanParams = this._cleanParams(newParams);
-            this.set('queryParams', {});
-            this.set('queryParams', newCleanParams);
-          }
+          this.removeFilter(e.detail.path, e.detail.propValue);
         });
       }
     });
