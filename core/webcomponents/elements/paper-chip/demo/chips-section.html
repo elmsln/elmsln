@@ -1,0 +1,19 @@
+<html>
+	<head>
+	    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+		<link rel="import" href="../../paper-styles/demo-pages.html">
+		<link rel="import" href="../paper-chips-section.html">
+	</head>
+
+	<body>
+		<template is="dom-bind">
+			<paper-chips-section id="section" header="Fruits" labels=[[label]]></paper-chips-section>
+		</template>
+
+		<script>
+			var scope = document.querySelector('template[is=dom-bind]');
+			scope.label = [ 'Apples', 'Pears', 'Oranges' ];
+		</script>
+
+	</body>
+</html>

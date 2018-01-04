@@ -5,6 +5,8 @@
 <link rel="import" href="../iron-list/iron-list.html">
 <link rel="import" href="../iron-ajax/iron-ajax.html">
 <link rel="import" href="../elmsln-loading/elmsln-loading.html">
+<link rel="import" href="hax-source-search.html">
+<link rel="import" href="hax-source-pagination.html">
 
 <!--
 `hax-source`
@@ -17,6 +19,7 @@
  - hax-manager - controlling the UI for selection of something
  - hax-body - the text are ultimately we are trying to insert this item into
 -->
+
 
 <dom-module id="hax-source">
   <template>
@@ -31,17 +34,15 @@
       paper-card {
         padding: 0;
         margin: .5em;
-        height: 16em;
-        width: 16em;
-        font-size: 1em;
+        width: 15em;
+        font-size: .8em;
+        --paper-card-header: {
+          max-height: 10em;
+        }
       }
-      @media screen and (max-width: 550px) {
+      @media screen and (min-width: 800px) {
         paper-card {
-          margin:.25em;
-          height: 18em;
-          width: 18em;
-          font-size: .7em;
-          overflow:scroll;
+          font-size: .85em;
         }
       }
       #loading[hidden] {
@@ -87,17 +88,30 @@
         margin: 0;
       }
 
+      hax-source-pagination {
+        display: flex;
+        justify-content: flex-end;
+        justify-content: center;
+      }
     </style>
-    <paper-input id="searchinput" label="Search [[details.title]]" value="{{query}}" style="margin: 20px;"></paper-input>
+
+    <template is="dom-if" if="[[search]]">
+      <hax-source-search label="[[details.title]]" query="{{query}}"></hax-source-search>
+    </template>
+
     <iron-ajax
+      auto=[[auto]]
       id="request"
       url="[[requestEndPoint]]"
       handle-as="json"
       headers="[[headers]]"
       params='[[requestParams]]'
       last-response="{{mediaList}}"
-      hidden></iron-ajax>
-    <div id="loading" class="loading" hidden>
+      hidden
+      loading="{{loading}}"></iron-ajax>
+
+
+    <div id="loading" class="loading" hidden$="[[!loading]]">
       <elmsln-loading color="blue-text text-darken-4" size="large"></elmsln-loading>
       <h3 class="loading-text">Loading content..</h3>
     </div>
@@ -114,6 +128,8 @@
         </paper-button>
       </template>
     </iron-list>
+
+    <hax-source-pagination id="pagerbottom" total="[[mediaList.total]]" range="[[mediaList.last]]" current="[[mediaList.current]]" count="[[mediaList.count]]"></hax-source-pagination>
   </template>
 
   <script>
@@ -121,7 +137,20 @@
 
       is: 'hax-source',
       properties: {
-
+        /**
+         * Immediatley performa a request.
+         */
+        auto: {
+          type: Boolean,
+          value: false
+        },
+        /**
+         * Enable the search functionality.
+         */
+        search: {
+          type: Boolean,
+          value: false
+        },
         /**
          * Basic auth user.
          */
@@ -148,6 +177,7 @@
          */
         requestParams: {
           type: Object,
+          notify: true
         },
         /**
          * The key for the query parameter in the request param. This way
@@ -219,7 +249,7 @@
         media: {
           type: Array,
           value: [],
-        },
+        }
       },
       observers: ['_setBasicAuth(user, pass)'],
       /**
@@ -232,6 +262,22 @@
         // fire event so we know that sources exist and we can track
         // their details for visualization in hax-source-browser as an item
         this.fire('hax-register-source', this.details);
+
+        // attach event listeners for pagination
+        this.querySelectorAll('hax-source-pagination').forEach(element => {
+          element.addEventListener('change-page', (e) => {
+            this.changePage(e.detail.page);
+          });
+        });
+      },
+      /**
+       * Change the page
+       */
+      changePage(page) {
+        const currentParams = this.requestParams || {};
+        const newParams = Object.assign(currentParams, { page: page });
+        this.requestParams = {};
+        this.requestParams = newParams;
       },
       /**
        * Set basic auth header if we have a u / p
@@ -260,23 +306,20 @@
       _queryChanged: function(newValue, oldValue) {
         // ensure we don't fire immediately
         if (this.queryParam != '' && typeof newValue != '' && typeof oldValue !== typeof undefined) {
-          this.$.loading.hidden = false;
           let params = this.requestParams;
           // set the query param to the search value
           params[this.queryParam] = newValue;
           // convert back into string
           this.requestParams = params;
-          // only make the call if we have more then 3 characters
-          if (newValue.length > 3) {
+          // only make the call if we have more then 3 characters or if the user
+          // just cleared out the search box.
+          if (newValue.length > 2) {
             // make the ajax call now that we have this in our query
             this.$.request.generateRequest();
           }
-          else {
-            this.$.loading.hidden = true;
+          else if (newValue == '' && oldValue != '') {
+            this.$.request.generateRequest();
           }
-        }
-        else {
-          this.$.loading.hidden = true;
         }
       },
       /**
@@ -313,9 +356,21 @@
             // this will trigger an aggressive repaint of the cards
             this.set('media', []);
             this.set('media', media);
-            this.$.loading.hidden = true;
+            // trigger a repaint
+            this._resizeList();
           }
         }
+      },
+      /**
+       * Helper to force iron list to paint all of the items
+       */
+      _resizeList: function () {
+        (setTimeout(() => {
+          const ironList = document.querySelector('iron-list');
+          if (ironList) {
+            ironList.fire('iron-resize');
+          }
+        }, 500))
       },
       /**
        * Handle media item selected.

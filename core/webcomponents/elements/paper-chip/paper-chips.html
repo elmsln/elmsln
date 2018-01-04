@@ -1,0 +1,147 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-icon/iron-icon.html">
+<link rel="import" href="paper-chip.html">
+<link rel="import" href="paper-chip-icons.html">
+
+<!--
+A list of chips that an be dynamically added/removed. This element can be used
+to let users enter a list of topics or names.
+
+### Example
+
+```html
+<paper-chips items=[[array]]></paper-chips>
+```
+
+@demo demo/chips.html
+-->
+<dom-module id="paper-chips">
+
+	<template>
+
+		<style>
+			.chip {
+				margin-right: 5px;
+				padding-right: 6px;
+			}
+
+			.delete {
+				--iron-icon-height: 20px;
+				--iron-icon-width: 20px;
+				color: var(--disabled-text-color);
+			}
+
+			.chip:hover .delete {
+				color: white;
+			}
+		</style>
+
+		<template is="dom-repeat" items="[[items]]">
+			<paper-chip class="chip" selectable>[[item.name]] <iron-icon icon="paper-chip:[[_getIcon(item)]]" class="delete" on-tap="_delete"></iron-icon></paper-chip>
+		</template>
+	</template>
+
+</dom-module>
+
+<script>
+
+(function() {
+
+	Polymer({
+		is: 'paper-chips',
+		properties: {
+			/**
+			 * Fired when the user deletes an item
+			 *
+			 * @event delete-item
+			 */
+
+			/**
+			 * Array of chips, e.g. [
+			 *  { id: 'apples', name: 'Apples'},
+			 *  { id: 'pears', name: 'Pears'},
+			 *  { id: 'bananas', name: 'Bananas', fixed: true}
+			 * ]
+			 */
+			items: {
+				type: Array,
+				notify: true,
+				value: []
+			},
+
+			/**
+			 * True if no items are currently known
+			 */
+			empty: {
+				type: Boolean,
+				notify: true,
+				computed: '_computeEmpty(items.length)'
+			}
+		},
+
+		/**
+		 * Adds a chip
+		 */
+		add: function(item) {
+			// Only chips with a visible name
+			if (typeof item.name === 'undefined' || item.name === '')  {
+				return;
+			}
+
+			// Needs to use Polymer push to trigger data binding
+			this.push('items', item);
+		},
+
+		/**
+		 * Removes a chip
+		 *
+		 * Note that this will also remove chips marked as 'fixed'.
+		 */
+		remove: function(itemIndex) {
+			// Needs to use Polymer splice to trigger data binding
+			this.splice('items', itemIndex, 1);
+
+			this.fire('delete-item');
+		},
+
+		/**
+		 * Removes the last chip
+		 *
+		 * Note that this will also remove chips marked as 'fixed'.
+		 */
+		removeLast: function() {
+			// Ignore if there are no chips left
+			if (this.items.length === 0) {
+				return;
+			}
+
+			this.remove(this.items.length - 1);
+		},
+
+		/**
+		 * Handles clicks on the delete icon
+		 */
+		_delete: function(e) {
+			if (e.model.item.fixed) {
+				// Cannot delete fixed items.
+				return;
+			}
+
+			var itemIndex = this.items.indexOf(e.model.item);
+			if (itemIndex > -1) {
+				this.remove(itemIndex);
+			}
+		},
+
+		_computeEmpty: function(nrItems) {
+			return nrItems === 0;
+		},
+
+		_getIcon: function(item) {
+			return item.fixed ? 'lock' : 'cancel';
+		}
+	});
+
+})();
+
+</script>
