@@ -8,6 +8,7 @@
 <link rel="import" href="../../bower_components/lrn-lodash/lrn-lodash.html">
 <link rel="import" href="elmsmedia-dashboard-filters.html">
 <link rel="import" href="elmsmedia-dashboard-toolbar-filters.html">
+<link rel="import" href="elmsmedia-dashboard-toolbar-button.html">
 
 <dom-module id="elmsmedia-dashboard">
   <template>
@@ -25,23 +26,15 @@
         justify-content: flex-end;
         align-items: center;
       }
-
-      #filters-title {
-        opacity: .7;
-        font-size: 1em;
-        margin: 0;
-        padding: 0;
-      }
     </style>
 
     <app-location route="{{route}}"></app-location>
     <app-route route="{{route}}" pattern="/:page" data="{{data}}" tail="{{tail}}" query-params="{{queryParams}}"></app-route>
 
     <div id="toolbar">
-      <h3 id="filters-title">Filters</h3>
       <elmsmedia-dashboard-toolbar-filters filters="[[queryParams]]"></elmsmedia-dashboard-toolbar-filters>
-      <paper-icon-button id="filterToggle" icon="filter-list" on-click="toggleFilters"></paper-icon-button>
-      <paper-tooltip for="filterToggle" position="top" animation-delay="100" margin-top="5" aria-hidden="true">Filters</paper-tooltip>
+      <elmsmedia-dashboard-toolbar-button icon="filter-list" title="Filter" on-click="toggleFilters"></elmsmedia-dashboard-toolbar-button>
+      <elmsmedia-dashboard-toolbar-button icon="search" title="Search" on-click="toggleSearch"></elmsmedia-dashboard-toolbar-button>
     </div>
 
     <paper-dialog id="filterDialog" with-backdrop>
@@ -52,7 +45,7 @@
       </div>
     </paper-dialog>
 
-    <hax-source auto request-end-point="[[requestEndPoint]]" request-params="{{queryParams}}" response-map='{
+    <hax-source id="haxSource" auto query-param="title" request-end-point="[[requestEndPoint]]" request-params="{{queryParams}}" response-map='{
       "root": "list",
       "gizmoType": "video",
       "url": "http://media.elmsln.local/entity_iframe/node/",
@@ -109,6 +102,10 @@
           }
         }
         return newParams;
+      },
+      toggleSearch: function (e) {
+        const searchEnabled = this.$.haxSource.search;
+        this.$.haxSource.search = !searchEnabled;
       },
       toggleFilters: function (e) {
         this.$.filterDialog.toggle();

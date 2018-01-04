@@ -19,6 +19,21 @@ abstract class ELMSRestService {
     $_order = (isset($options['order']) ? $options['order'] : 'DESC');
     $query->propertyOrderBy('changed', $_order);
 
+    // look for filtering by title
+    $_title = (isset($options['title']) ? $options['title'] : NULL);
+    if ($_title) {
+      // convert each word of the title into an array that contains
+      // wildcards to make the search fuzzy
+      $_titleArry = explode(' ', $_title);
+      foreach ($_titleArry as &$value) {
+        $value = '%'. $value .'%';
+      }
+      // convert back into a string to send into the property condition
+      $_titleStr = implode(' ', $_titleArry);
+      // add this to the query
+      $query->propertyCondition('title', $_titleStr, 'like');
+    }
+
     // default limit is 50 if none is set, use zero to not specify a limit
     $_limit = (isset($options['limit']) ? $options['limit'] : 50);
     // the pager will automatically look at the 'page' query param to see

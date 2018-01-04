@@ -311,9 +311,13 @@
           params[this.queryParam] = newValue;
           // convert back into string
           this.requestParams = params;
-          // only make the call if we have more then 3 characters
-          if (newValue.length > 3) {
+          // only make the call if we have more then 3 characters or if the user
+          // just cleared out the search box.
+          if (newValue.length > 2) {
             // make the ajax call now that we have this in our query
+            this.$.request.generateRequest();
+          }
+          else if (newValue == '' && oldValue != '') {
             this.$.request.generateRequest();
           }
         }

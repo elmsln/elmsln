@@ -18,7 +18,7 @@
  - hax-body - the text are ultimately we are trying to insert this item into
 -->
 
-<dom-module id="hax-source-search-search">
+<dom-module id="hax-source-search">
   <template>
     <style>
       :host {
@@ -45,7 +45,8 @@
          */
         query: {
           type: String,
-          value: ''
+          value: '',
+          notify: true
         },
       },
     });
