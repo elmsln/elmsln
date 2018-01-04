@@ -45,7 +45,7 @@ $links = render($content['links']);
   </div>
   <div class="clearfix">
     <div class="post-left post-user-profile text-center">
-      <?php print $user_profile; ?>
+      <a href="#"><?php print user_load($post->uid)->name; ?></a>
     </div>
     <div class="post-content post-left-offset">
       <?php print render($content); ?>
