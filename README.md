@@ -9,7 +9,7 @@ Learn more about ELMSLN @ [elmsln.org](https://www.elmsln.org/)
 
 | Version | PHP | Includes | Status |
 | ------- | --- | -------- | ------ |
-[0.9.0](https://github.com/elmsln/elmsln/archive/0.9.0.zip)  | 5.4+ & 7.x | Drupal 7.x | [![Build Status](https://travis-ci.org/elmsln/elmsln.svg?branch=master)](https://travis-ci.org/elmsln/elmsln) [![OpenCollective](https://opencollective.com/elmsln/backers/badge.svg)](#backers) [![OpenCollective](https://opencollective.com/elmsln/sponsors/badge.svg)](#sponsors)
+[0.9.0](https://github.com/elmsln/elmsln/archive/0.9.0.zip)  | 5.4+ & 7.x | Polymer 1.x.x, Drupal 7.x, GravCMS 1.x.x | [![Build Status](https://travis-ci.org/elmsln/elmsln.svg?branch=master)](https://travis-ci.org/elmsln/elmsln) [![OpenCollective](https://opencollective.com/elmsln/backers/badge.svg)](#backers) [![OpenCollective](https://opencollective.com/elmsln/sponsors/badge.svg)](#sponsors)
 
 Play quickly
 ==============
@@ -61,8 +61,11 @@ Become a sponsor and get your logo on our README on Github with a link to your s
 
 LICENSE
 ==============
-ELMSLN is a collection of many, many projects, all individually licensed, all open source. The myriad of License files is why this section is added to avoid confusion. If you have a licensing issue / question please raise it in the issue queue.
+ELMSLN is a collection of many, many projects, all individually licensed, all open source. The myriad of License files is why this section is added to avoid confusion. If you have a licensing question or concern please raise it in the issue queue.
 
 - The ELMS:LN top level repository is GPLv3, though most of the underlying code pulled in is not GPLv3. V3 enabled the greatest level of compatibility with our downstream repositories
 - Drupal core and contributed modules / themes are GPLv2 due to licensing requirements of the drupal.org community.
-- For other included libraries see their respective LICENSE.txt file included local to those libraries.
+- GravCMS is MIT licensed
+- Polymer core is BSD 3 clause
+- The majority of included Webcomponents (especially those from the [LRNWebComponents](https://github.com/LRNWebComponents) repos) are Apache 2.0
+- For other included libraries see their respective LICENSE.txt file included local to those projects and libraries.
