@@ -8529,14 +8529,19 @@ lrnsys-drawer app-drawer,
 .disabled.elmsln-more-menu-button {
   background-color: unset;
 }
-#etb-network-nav paper-button {
+#etb-network-nav paper-button.lrnsys-button {
   min-width: 3.25rem;
   padding: 0 .75rem;
   margin: 0;
-  height: 3.75rem;
+  height: 3.4rem;
   justify-content: flex-start;
   display: flex;
 }
+
+#etb-network-nav lrnsys-drawer.elmsln-network-button {
+  height: 3.4rem;
+}
+
 .elmsln-network-icon {
   display: inline-grid;
 }
