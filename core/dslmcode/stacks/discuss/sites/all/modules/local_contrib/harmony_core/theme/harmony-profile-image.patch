@@ -1,0 +1,25 @@
+diff --git a/core/dslmcode/stacks/discuss/sites/all/modules/local_contrib/harmony_core/theme/harmony-post.tpl.php b/core/dslmcode/stacks/discuss/sites/all/modules/local_contrib/harmony_core/theme/harmony-post.tpl.php
+index 0244b9dd6..e2092e096 100644
+--- a/core/dslmcode/stacks/discuss/sites/all/modules/local_contrib/harmony_core/theme/harmony-post.tpl.php
++++ b/core/dslmcode/stacks/discuss/sites/all/modules/local_contrib/harmony_core/theme/harmony-post.tpl.php
+@@ -45,7 +45,7 @@
+   </div>
+   <div class="clearfix">
+     <div class="post-left post-user-profile text-center">
+-      <?php print $user_profile; ?>
++      <a href="#" tabindex="-1"><?php print $username; ?></a>
+     </div>
+     <div class="post-content post-left-offset">
+       <?php print render($content); ?>
+diff --git a/core/dslmcode/stacks/discuss/sites/all/modules/local_contrib/harmony_core/theme/theme.inc b/core/dslmcode/stacks/discuss/sites/all/modules/local_contrib/harmony_core/theme/theme.inc
+index 6a257647c..5999d900b 100644
+--- a/core/dslmcode/stacks/discuss/sites/all/modules/local_contrib/harmony_core/theme/theme.inc
++++ b/core/dslmcode/stacks/discuss/sites/all/modules/local_contrib/harmony_core/theme/theme.inc
+@@ -105,6 +105,7 @@ function template_preprocess_harmony_post(&$variables) {
+ 
+   // Add in some useful variables.
+   $variables['title'] = check_plain($post->title);
++  $variables['username'] = _elmsln_core_get_user_name('full', $post->uid);
+   $variables['belongs_to_thread'] = FALSE;
+   if ($thread_id) {
+     $variables['thread_url'] = url("thread/$thread_id");
