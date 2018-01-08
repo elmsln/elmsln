@@ -225,7 +225,7 @@ function mooc_foundation_access_menu_tree__menu_elmsln_add($variables) {
   $links = '';
   // make sure nothing shows up if this is the new book
   if (arg(1) != 'lrnapp-book') {
-    if (_cis_connector_role_grouping('staff') && user_access('add item in context')) {
+    if (user_access('add item in context')) {
       $links = _elmsln_core_in_context_list();
       $links = implode("\n", $links);
     }
