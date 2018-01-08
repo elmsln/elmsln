@@ -7,7 +7,6 @@
 <link rel="import" href="../iron-pages/iron-pages.html">
 <link rel="import" href="../iron-icons/iron-icons.html">
 <link rel="import" href="../paper-dialog/paper-dialog.html">
-<!-- <link rel="import" href="../paper-dialog-scrollable/paper-dialog-scrollable.html"> -->
 <link rel="import" href="../vaadin-upload/vaadin-upload.html">
 <link rel="import" href="../neon-animation/web-animations.html">
 <link rel="import" href="../neon-animation/neon-animations.html">
@@ -47,11 +46,13 @@ A LRN element for brokering the UI for api endpoints both in querying and upload
         right: 0;
         bottom: 0;
         left: 0;
-        overflow: auto;
+        overflow:hidden;
       }
       #dialogcontent {
-        padding:0;
-        margin:0;
+        margin-top: 46px;
+        padding: 8px 0;
+        height: calc(100vh - 86px);
+        overflow: scroll;
       }
       .preview-buttons {
         position: absolute;
@@ -70,6 +71,12 @@ A LRN element for brokering the UI for api endpoints both in querying and upload
         --paper-toggle-button-unchecked-ink-color: var(--paper-amber-900);
       }
       .pages-tabs {
+        position: absolute;
+        left: 0;
+        right: 0;
+        z-index: 1;
+        -webkit-box-shadow: 0 0 10px -1px #222222;
+        box-shadow: 0 0 10px -1px #222222;
         --paper-tabs-selection-bar: {
           border-bottom: 3px solid var(--hax-manager-steps-color);
         };
@@ -110,7 +117,17 @@ A LRN element for brokering the UI for api endpoints both in querying and upload
       #dialogheader {
         margin: 0;
         padding: 1.2em;
-        border-bottom: 1px solid black;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 2;
+        border-bottom: 1px solid #222222;
+        -webkit-box-shadow: 0 0 10px -1px #222222;
+        box-shadow: 0 0 10px -1px #222222;
+      }
+      #activepage {
+        padding-top:48px;
       }
       #dialogheader h2 {
         margin: 0;
@@ -134,10 +151,10 @@ A LRN element for brokering the UI for api endpoints both in querying and upload
         border-color: #396;
       }
       .page-area {
-        padding: 0 2em;
+        padding: 0 16px;
       }
       .page-area.add-area {
-        padding: 2em;
+        padding: 16px;
       }
       .add-url-are,
       .add-upload-area {
@@ -198,7 +215,7 @@ A LRN element for brokering the UI for api endpoints both in querying and upload
           <paper-toggle-button id="step" checked="{{activeStep}}" disabled></paper-toggle-button>
         </div>
       </div>
-      <paper-dialog-scrollable class="dialog-contents" id="dialogcontent">
+      <div class="dialog-contents" id="dialogcontent">
         <iron-pages
           selected="{{activeStep}}"
           fallback-selection="select"
@@ -243,7 +260,7 @@ A LRN element for brokering the UI for api endpoints both in querying and upload
             </div>
           </div>
         </iron-pages>
-      </paper-dialog-scrollable>
+      </div>
     </paper-dialog>
   </template>
 
@@ -415,7 +432,6 @@ A LRN element for brokering the UI for api endpoints both in querying and upload
        * Toggle ourselves.
        */
       toggleDialog: function() {
-        document.body.appendChild(this.$.dialog);
         this.$.dialog.toggle();
         this.$$('#pagetabs').focus();
         //this.$.url.focus();

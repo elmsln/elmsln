@@ -138,7 +138,6 @@
           document.body.addEventListener('hax-register-panel', this._haxStoreRegisterPanel.bind(this));
           document.body.addEventListener('hax-register-source', this._haxStoreRegisterSource.bind(this));
           document.body.addEventListener('hax-register-export', this._haxStoreRegisterExport.bind(this));
-          document.body.addEventListener('hax-source-selected', this._haxStoreSourceSelected.bind(this));
           // notice content insert and help it along to the body
           document.body.addEventListener('hax-insert-content', this._haxStoreInsertContent.bind(this));
         },
@@ -154,12 +153,6 @@
           this.haxToast = toast;
         },
         /**
-         * Source selected, pass this event to the manager.
-         */
-        _haxStoreSourceSelected: function(e) {
-          // we don't have to do anything yet for a soure being selected here
-        },
-        /**
          * Set the haxManager node so we can interface with it.
          * This also allows for using a different manager that supplies
          * the same functions if that would be desired at some point.
@@ -168,8 +161,6 @@
           if (e.detail && typeof this.haxManager === typeof undefined) {
             // move this object to the body level so it doesn't
             // run into stack order context issues
-            // @todo this would move it up but it's blowing up the DOM...
-            //document.body.appendChild(e.detail);
             this.haxManager = e.detail;
           }
         },

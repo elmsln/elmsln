@@ -484,6 +484,11 @@ A simple responsive video player
           }
           // link to the vimeo video instead of the embed player address
           if (input.indexOf('player.vimeo.com') == -1 && input.indexOf('vimeo.com') != -1) {
+            // normalize what the API will return since it is API based
+            // and needs cleaned up for front-end
+            if (input.indexOf('/videos/') != -1) {
+              input = input.replace('/videos/', '/');
+            }
             return input.replace('vimeo.com/', 'player.vimeo.com/video/');
           }
           // copy and paste from the URL

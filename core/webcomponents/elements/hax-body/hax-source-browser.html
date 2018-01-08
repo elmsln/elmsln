@@ -102,16 +102,13 @@ Browse a list of sources. This provides a listing of our gizmos that we've integ
         document.body.addEventListener('hax-source-selected', this._sourceSelected.bind(this));
         document.body.addEventListener('hax-store-property-updated', this._haxStorePropertyUpdated.bind(this));
       },
-      /**hax-source-selected
+      /**
        * Source has been selected.
        */
       _sourceSelected: function(e) {
         // item bubbled up
         this.set('activeSource', e.detail);
         this.$.activesources.selectedItem.$.searchinput.focus();
-        setTimeout( () => {
-          this.$.activesources.scrollIntoView({block: "start", behavior: "smooth", inline: "nearest"});
-        }, 200);
       },
       /**
        * Store updated, sync.
