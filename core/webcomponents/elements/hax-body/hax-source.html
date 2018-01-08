@@ -87,6 +87,9 @@
         padding: 0;
         margin: 0;
       }
+      #itemlist {
+        overflow-y: unset !important;
+      }
 
       hax-source-pagination {
         display: flex;
@@ -255,7 +258,7 @@
       /**
        * Ready.
        */
-      attached: function() {
+      ready: function() {
         // This also allows stores to be added dynamically
         // and anywhere in the DOM, even though within hax-manager
         // makes the most sense since that's where it is presented
