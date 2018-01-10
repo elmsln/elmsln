@@ -8496,6 +8496,9 @@ paper-button#close-button {
 paper-button#close-button.lrnsys-dialog {
   padding: 1em;
 }
+.elmsln--page--operations #collapse-item-id-alternateformats + .collapsible-body a {
+  display: block;
+}
 .elmsln--page--operations li.page-op-button paper-button {
   margin: 0 .75rem 0 0;
   padding: .25rem;
