@@ -909,6 +909,15 @@ function mooc_helper_fa_a11y() {
   );
   // support print / book printing
   if (arg(0) == 'node' && is_numeric(arg(1)) && user_access('access printer-friendly version')) {
+    // load the node so we can access book oultine
+    $node = menu_get_object();
+    $bid = $node->book['bid'];
+    if ($bid) {
+      $a11y['formats']['print_outline'] = array(
+        '#markup' => '<a tabindex="-1" href="' . base_path() . 'book/export/html/' . $bid . '" aria-expanded="false"><paper-button class="paper-button-link"><iron-icon icon="print"></iron-icon>' . t('Print outline') . '</paper-button></a>',
+        '#weight' => -10,
+      );
+    }
     $a11y['formats']['print'] = array(
       '#markup' => '<a tabindex="-1" href="' . base_path() . 'book/export/html/' . arg(1) . '" aria-expanded="false"><paper-button class="paper-button-link"><iron-icon icon="print"></iron-icon>' . t('Print page') . '</paper-button></a>',
       '#weight' => -10,
