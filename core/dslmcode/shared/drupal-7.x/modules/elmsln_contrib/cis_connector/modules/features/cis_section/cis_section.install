@@ -119,4 +119,9 @@ function cis_section_update_7010(&$sandbox) {
  */
 function cis_section_update_7011(&$sandbox) {
   features_revert_module('cis_section');
+  field_delete_field('og_user_node1');
+  field_delete_field('og_user_node2');
+  // actually deletes the fields
+  field_purge_batch(1000);
+  field_purge_batch(1000);
 }
