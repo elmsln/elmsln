@@ -295,6 +295,7 @@ class CisSectionRosterProcessor {
     $values = array(
       'entity_type' => 'user',
       'entity' => $account,
+      'field_name' => 'og_user_node',
     );
     og_group('node', $gid, $values);
     // give them the special staff role if it exists

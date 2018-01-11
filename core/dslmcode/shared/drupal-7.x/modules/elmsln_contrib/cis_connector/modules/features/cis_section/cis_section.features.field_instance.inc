@@ -218,8 +218,8 @@ function cis_section_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'user-user-og_user_node1'.
-  $field_instances['user-user-og_user_node1'] = array(
+  // Exported field_instance: 'user-user-og_user_node'.
+  $field_instances['user-user-og_user_node'] = array(
     'bundle' => 'user',
     'default_value' => NULL,
     'default_value_function' => '',
@@ -237,7 +237,7 @@ function cis_section_field_default_field_instances() {
       ),
     ),
     'entity_type' => 'user',
-    'field_name' => 'og_user_node1',
+    'field_name' => 'og_user_node',
     'label' => 'Sections',
     'required' => 0,
     'settings' => array(
