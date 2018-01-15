@@ -47,6 +47,14 @@
         background-color: #ff6f00;
         color: white;
       }
+      .iron-list-container {
+        display: flex;
+        flex-direction: column;
+        min-height:50vh;
+      }
+      iron-list {
+        flex: 1 1 auto;
+      }
     </style>
     <iron-ajax auto
       url="[[sourcePath]]"
@@ -108,7 +116,7 @@
       attr-for-selected="name"
       fallback-selection="submissions"
       role="main">
-      <div name="submissions">
+      <div class="iron-list-container" name="submissions">
         <iron-list items="[[submissions]]" as="item" grid>
           <template>
           <paper-button data-submission-id$="[[item.id]]" class="gallerycard-wrapper" on-tap="_loadSubmissionUrl">
@@ -282,6 +290,10 @@
           }
           return true;
         });
+        // delay and repaint, can help with refresh issues
+        (setTimeout(() => {
+            document.querySelector('iron-list').fire('iron-resize');
+          }, 200));
         return filteredSubmissions;
       },
       /**
