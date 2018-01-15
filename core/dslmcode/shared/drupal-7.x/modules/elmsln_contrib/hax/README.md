@@ -30,6 +30,9 @@ This should give you the dependencies you need to get going. Enable the module a
 
 Click this, and then hit the power button in the top of the UI to get started. When your done editing hit the power button again and it'll save back to the server.
 
+### Developer functions
+By default, the auto-loaded elements will append to the page on node view mode full. To override this, set hax_autoload_element_node_view to false in settings.php
+
 ## Side note on Build routines
 If you are looking to use a build routine, that's great! You'll just want to make sure that you have all the elements in place needed to make HAX run. HAX paths and interface won't show up unless users have permissions so while not recommended to include HAX in your build routine, it won't hurt anything either (other then download size).
 

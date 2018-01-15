@@ -48,6 +48,25 @@ function hax_menu() {
   return $items;
 }
 
+/**
+ * Implements hook_node_view().
+ */
+function hax_node_view($node, $view_mode, $langcode) {
+  if ($view_mode == 'full' && variable_get('hax_autoload_element_node_view', TRUE)) {
+    // generate autoload list
+    $elementstring = variable_get('hax_autoload_element_list', 'video-player wikipedia-query pdf-element lrn-table media-image');
+    // blow up based on space
+    $elements = explode(' ', $elementstring);
+    foreach ($elements as $element) {
+      $component = new stdClass();
+      $component->machine_name = $element;
+      // pull in from webcomponents location
+      $component->file = libraries_get_path('webcomponents') . '/polymer/bower_components/' . $element . '/' . $element . '.html';
+      _webcomponents_add_to_head($component, 10001);
+    }
+  }
+}
+
 
 /**
  * Helper function to make outline designer settings more obvious.
