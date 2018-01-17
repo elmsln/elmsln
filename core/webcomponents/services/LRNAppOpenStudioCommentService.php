@@ -18,6 +18,7 @@ class LRNAppOpenStudioCommentService {
       try {
         comment_save($comment);
         if (isset($comment->cid)) {
+          $comment->_stub = TRUE;
           return $this->encodeComment($comment, TRUE);
         }
       }
@@ -102,7 +103,7 @@ class LRNAppOpenStudioCommentService {
         // load the comment from drupal
         $comment = comment_load($id);
         // make sure the comment is allowed to be updated
-        if ($comment && isset($comment->cid) && entity_access('update', 'comment', $comment)) {
+        if ($comment && isset($comment->cid) && user_access('post comments') && ((user_access('edit own comments') && $comment->uid == $GLOBALS['user']->uid) || entity_access('update', 'comment', $comment))) {
           // decode the payload comment to the drupal comment
           $decoded_comment = $this->decodeComment($payload, $comment);
           // save the comment
@@ -232,8 +233,14 @@ class LRNAppOpenStudioCommentService {
       }
       // @todo actually implement this, disabled globally for now
       $encoded_comments->actions->like = FALSE;
-      $encoded_comments->actions->edit = entity_access('update', 'comment', $comment);
-      $encoded_comments->actions->delete = entity_access('update', 'comment', $comment);
+      $edit_condition = FALSE;
+      // account for lower permission accounts needing to have initially unpublished things
+      if (entity_access('update', 'comment', $comment) || (isset($comment->_stub) && $comment->uid == $GLOBALS['user']->uid)) {
+        $edit_condition = TRUE;
+      }
+      $encoded_comments->actions->edit = $edit_condition;
+      // delete in our case is just unpublishing so we actually verify edit capabilities
+      $encoded_comments->actions->delete = $edit_condition;
 
       drupal_alter('cle_open_studio_app_encode_comments', $encoded_comments);
       return $encoded_comments;
