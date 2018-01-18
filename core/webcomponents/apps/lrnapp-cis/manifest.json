@@ -1,0 +1,21 @@
+{
+  "name": "lrnapp-cis",
+  "short_name": "lrnapp-cis",
+  "title": "New app",
+  "description": "A new app",
+  "start_url": "/",
+  "display": "standalone",
+  "app_integration": {
+    "title": "CIS Dashboard replacement",
+    "menu": {
+      "menu_name": "menu-elmsln-navigation",
+      "weight": 10
+    },
+    "endpoints": {
+      "data": {
+        "callback": "_lrnapp_cis_app_data",
+        "property": "source-path"
+      }
+    }
+  }
+}
