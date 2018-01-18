@@ -1412,13 +1412,6 @@ function foundation_access_breadcrumb($variables) {
 }
 
 /**
- * Implements hook_preprocess().
- */
-function foundation_access_preprocess_cis_dashbord(&$variables, $hook) {
-  $variables['theme_hook_suggestions'][] = 'cis_dashboard';
-}
-
-/**
  * Implements hook_form_alter().
  */
 function foundation_access_form_alter(&$form, &$form_state, $form_id) {
