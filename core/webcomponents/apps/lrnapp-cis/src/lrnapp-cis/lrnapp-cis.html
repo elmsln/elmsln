@@ -325,8 +325,21 @@ A learning application for visualizing course information and listing.
         var local = normalizedEvent.localTarget;
         // this will have the id of the current course
         var active = local.getAttribute('data-course-id');
-        // @todo need a cleaner integration but this at least goes the right place for now
-        window.location.href = this.basePath + this.courses[active].data.uri;
+        // find the course by it's unique id and filter just to it
+        let findCourse = this.originalCourses.filter(course => {
+          if (course.id !== active) {
+            return false;
+          }
+          return true;
+        });
+        // if we found one, make it the top level item
+        if (findCourse.length > 0) {
+          findCourse = findCourse.pop();
+        }
+        // double check we have a URI
+        if (typeof findCourse.data.uri !== typeof undefined) {
+          window.location.href = findCourse.data.uri;
+        }
       },
       /**
        * Compute the active list of courses

@@ -6,7 +6,7 @@
   "start_url": "/",
   "display": "standalone",
   "app_integration": {
-    "title": "CIS Dashboard replacement",
+    "title": "Courses",
     "menu": {
       "menu_name": "menu-elmsln-navigation",
       "weight": 10
