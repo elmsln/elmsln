@@ -147,6 +147,28 @@ function cle_helper_node_insert($node) {
 }
 
 /**
+ * Implements hook_node_presave().
+ */
+function cle_helper_node_presave($node) {
+  if ($node->type == 'cle_submission' && $node->uid != $GLOBALS['user']->uid) {
+    $account = user_load($node->uid);
+    // verify this account is a learner but probably being submitted by an admin
+    if (_cis_connector_role_grouping('learner', $account)) {
+      // account for BS
+      if (isset($account->og_user_node)) {
+        $node->og_group_ref['und'] = $account->og_user_node['und'];
+      }
+      else if (isset($account->og_user_node1)) {
+        $node->og_group_ref['und'] = $account->og_user_node1['und'];
+      }
+      else if (isset($account->og_user_node2)) {
+        $node->og_group_ref['und'] = $account->og_user_node2['und'];
+      }
+    }
+  }
+}
+
+/**
  * Implementation of hook_form_FORM_ID_alter().
  */
 function cle_helper_form_editableviews_entity_form_cle_assignment_bulk_alter(&$form, &$form_state, $form_id) {
