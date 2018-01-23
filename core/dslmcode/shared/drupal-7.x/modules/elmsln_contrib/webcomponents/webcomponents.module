@@ -286,7 +286,7 @@ function _webcomponents_rebuild($hide_messages = FALSE) {
                 foreach ($component as $key => $value) {
                   // see if any aspects changed
                   if ($key != 'file' && isset($entity->{$key}) && $entity->{$key} != $value) {
-                    if (!$hide_messages) {
+                    if (!$hide_messages && !variable_get('webcomponents_hide_messages', FALSE)) {
                       drupal_set_message(t('Web components have changed! Make sure that your attributes are correctly reflected in your site. @key changed on @machine from @old to @new', array('@key' => $key, '@old' => serialize($entity->{$key}), '@new' => serialize($value), '@machine' => $component->machine_name)), 'warning', TRUE);
                     }
                     $entity->{$key} = $value;
