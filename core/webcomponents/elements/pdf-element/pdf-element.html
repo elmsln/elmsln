@@ -11,11 +11,10 @@
 <script src="../pdfjs-dist/web/compatibility.js"></script>
 <script src="../pdfjs-dist/build/pdf.js"></script>
 <script src="../pdfjs-dist/build/pdf.worker.js"></script>
-<link rel="stylesheet" href="../pdfjs-dist/web/pdf_viewer.css">
+<link rel="stylesheet" href="pdf_viewer.css">
+<link rel="stylesheet" href="fonts.css">
 <script src="main.js"></script>
 
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
-<link rel="stylesheet" href="../pdfjs-dist/web/pdf_viewer.css">
 
 <!--
 Polymer element which renders PDF documents. It uses [PDF.js](https://mozilla.github.io/pdf.js/) library behind.
@@ -94,20 +93,17 @@ Another awesome feature is dynamically load PDF file. So you can change the `src
         margin-left: 0%;
       }
 
-      paper-input-container.pageselector {
-        --paper-input-container-underline: {
-          visibility: hidden;
+      .pageselector {
           width: 3ch;
+          background-color : black; 
+          font-size: 17px;
+          background-color:transparent;
+          border: 0px solid;
         }
-        ;
-        --paper-input-container-underline-focus: {
-          visibility: hidden;
+
+        .pageselector:focus{
+          outline:none;
         }
-        ;
-        display: inline-block;
-        padding: 0;
-        width: 3ch;
-      }
 
       #input {
         -webkit-margin-start: -3px;
@@ -148,9 +144,7 @@ Another awesome feature is dynamically load PDF file. So you can change the `src
             <paper-toolbar class="pdf-toolbar">
               <paper-icon-button icon="menu" on-click="sideBar"></paper-icon-button>
               <paper-icon-button icon="arrow-back" on-click="showPrev"></paper-icon-button>
-              <paper-input-container class="pageselector" no-label-float>
-                <input id="input" is="iron-input" value="{{currentPage}}" prevent-invalid-input allowed-pattern="\d" on-change="pageNoCommitted">
-              </paper-input-container>
+              <input class="pageselector" id="input" is="iron-input" value="{{currentPage}}" prevent-invalid-input allowed-pattern="\d" on-change="pageNoCommitted">
               <span id="slash">/</span><span id="totalPages"></span>
               <paper-icon-button icon="arrow-forward" on-click="showNext"></paper-icon-button>
               <span class="title" hidden="{{!showFileName}}">Testing</span>
@@ -354,18 +348,24 @@ Another awesome feature is dynamically load PDF file. So you can change the `src
         }
       },
       zoomIn: function() {
-        this.zoomInOut(0.1);
+        if(this.instance.pdfExists){
+          this.zoomInOut(0.1);
+        }
       },
       zoomOut: function() {
-        this.instance.zoomInOut(-0.1);
+        if(this.instance.pdfExists){
+          this.instance.zoomInOut(-0.1);
+        }
       },
       zoomFit: function() {
-        if (this.instance.currentZoomVal == this.instance.widthZoomVal) {
-          this.instance.zoomPageFit();
-          this.$.zoomIcon.icon = 'fullscreen';
-        } else {
-          this.instance.zoomWidthFit();
-          this.$.zoomIcon.icon = 'fullscreen-exit';
+        if(this.instance.pdfExists){
+          if (this.instance.currentZoomVal == this.instance.widthZoomVal) {
+            this.instance.zoomPageFit();
+            this.$.zoomIcon.icon = 'fullscreen';
+          } else {
+            this.instance.zoomWidthFit();
+            this.$.zoomIcon.icon = 'fullscreen-exit';
+          }
         }
       },
       pageNoCommitted: function() {
@@ -387,7 +387,7 @@ Another awesome feature is dynamically load PDF file. So you can change the `src
         var parsedFileName = currentThis.src.split('/').pop()
         var self = currentInstance;
         currentThis.sidebarOpen = true;
-        if ((1 <= page) && (page <= this.instance.totalPagesNum)) {
+        if ((1 <= page) && (page <= currentInstance.totalPagesNum)) {
           self.currentPage = page;
           self.queueRenderPage(self.currentPage);
           currentInstance.currentPage = page;
@@ -414,33 +414,37 @@ Another awesome feature is dynamically load PDF file. So you can change the `src
         }
       },
       sideBar: function(){
-        if(!this.fromChange){
-          this.$.container.style.height = this.$.test.style.height;
-          this.$.container.style.width = this.$.test.style.width;
-          if(this.$.main.style.marginLeft == "25%"){
-            this.sidebarOpen = false;
-            this.instance.setViewportPos(false);
-            this.$.main.style.marginLeft = "0%";
-            this.$.container.style.marginLeft = "-25%";
-            this.$.container.style.visibility = "hidden";
+        if(this.instance.pdfExists){
+          if(!this.fromChange){
+            this.$.container.style.height = this.$.test.style.height;
+            this.$.container.style.width = this.$.test.style.width;
+            if(this.$.main.style.marginLeft == "25%"){
+              this.sidebarOpen = false;
+              this.instance.setViewportPos(false);
+              this.$.main.style.marginLeft = "0%";
+              this.$.container.style.marginLeft = "-25%";
+              this.$.container.style.visibility = "hidden";
 
 
+            }
+            else{
+              this.sidebarOpen = true;
+              this.$.main.style.marginLeft = "25%";
+              this.$.container.style.marginLeft = "0%";
+              this.$.container.style.visibility = "visible";
+              this.instance.setViewportPos(true);
+            }
           }
-          else{
-            this.sidebarOpen = true;
-            this.$.main.style.marginLeft = "25%";
-            this.$.container.style.marginLeft = "0%";
-            this.$.container.style.visibility = "visible";
-            this.instance.setViewportPos(true);
-          }
+          this.fromChange = false;
+          this.instance.sidebarSetup(this);
+          this.changedSideBar = false;
         }
-        this.fromChange = false;
-        this.instance.sidebarSetup(this);
-        this.changedSideBar = false;
       },
 
       download: function() {
-        this.instance.download();
+        if(this.instance.pdfExists){
+          this.instance.download();
+        }
       }
     });
   </script>
