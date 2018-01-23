@@ -139,6 +139,7 @@ function foundation_access_preprocess_html(&$variables) {
   $variables['system_icon'] = $settings['icon'];
   $variables['lmsless_classes'] = _cis_lmsless_get_distro_classes(elmsln_core_get_profile_key());
   $variables['system_title'] = (isset($settings['default_title']) ? $settings['default_title'] : $variables['distro']);
+  $variables['course'] = _cis_connector_course_context();
   $css = _foundation_access_contextual_colors($variables['lmsless_classes']);
   $variables['theme_path'] = base_path() . drupal_get_path('theme', 'foundation_access');
 
