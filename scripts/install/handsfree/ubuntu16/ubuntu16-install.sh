@@ -39,6 +39,9 @@ add-apt-repository 'deb [arch=amd64,i386,ppc64el] http://ftp.utexas.edu/mariadb/
 apt-get update -y
 apt-get install mariadb-server -y
 
+# Install docker
+apt-get -y install docker docker.io
+
 # Install apache
 apt-get -y install apache2
 

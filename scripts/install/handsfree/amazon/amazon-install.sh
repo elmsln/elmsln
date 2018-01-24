@@ -23,7 +23,9 @@ yes | yum update
 yes | yum -y install curl uuid patch git nano gcc make mysql55-server httpd24
 # amazon packages on 56
 yes | yum -y install php56 php56-common php56-opcache php56-fpm php56-pecl-apcu php56-cli php56-pdo php56-mysqlnd php56-gd php56-mbstring php56-mcrypt php56-xml php56-devel php56-pecl-ssh2 --skip-broken
-
+# docker
+yes | yum install -y docker
+# developer tools
 yes | yum groupinstall 'Development Tools'
 pecl channel-update pecl.php.net
 
