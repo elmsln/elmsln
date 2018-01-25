@@ -168,22 +168,26 @@ function drush_elmsln_developer_elmsln_symlink_libraries() {
   $shared_libraries = $elmsln_dev . ELMSLN_D7_SHARED . '/libraries';
   $libraries = _drush_elmsln_directory_contents($shared_libraries);
   $stacks = _drush_elmsln_directory_contents($elmsln_dev . ELMSLN_STACKS);
-  // Look for folders that we want to include in sites/all/libraries
-  foreach ($stacks as $stack) {
-    $stack_lib = $elmsln_dev . ELMSLN_STACKS . "/$stack/sites/all/libraries";
-    $existing = _drush_elmsln_directory_contents($stack_lib);
-    foreach ($existing as $current) {
-      // unlink all and relink, this avoids cruft being left over
-      // while still should fail for things we forcibly are creating
-      // a local copy of (like a specific version of underscore.js)
-      unlink("$stack_lib/$current");
-    }
-    // loop through and rebuild
-    foreach ($libraries as $library) {
-      // if we don't have a link here yet then make one
-      if (!is_link("$stack_lib/$library")) {
-        $relpath = _drush_elmsln_relpath($shared_libraries, $stack_lib);
-        symlink("$relpath/$library", "$stack_lib/$library");
+  if ($libraries && $stacks) {
+    // Look for folders that we want to include in sites/all/libraries
+    foreach ($stacks as $stack) {
+      $stack_lib = $elmsln_dev . ELMSLN_STACKS . "/$stack/sites/all/libraries";
+      $existing = _drush_elmsln_directory_contents($stack_lib);
+      if ($existing) {
+        foreach ($existing as $current) {
+          // unlink all and relink, this avoids cruft being left over
+          // while still should fail for things we forcibly are creating
+          // a local copy of (like a specific version of underscore.js)
+          unlink("$stack_lib/$current");
+        }
+        // loop through and rebuild
+        foreach ($libraries as $library) {
+          // if we don't have a link here yet then make one
+          if (!is_link("$stack_lib/$library")) {
+            $relpath = _drush_elmsln_relpath($shared_libraries, $stack_lib);
+            symlink("$relpath/$library", "$stack_lib/$library");
+          }
+        }
       }
     }
   }
@@ -270,19 +274,22 @@ function drush_elmsln_developer_elmsln_add_stack($name = NULL, $profile = NULL) 
  * @return array        array of paths that are valid files/folders
  */
 function _drush_elmsln_directory_contents($path) {
-  // scan directory for items that we can symlink to
-  $d = dir($path);
-  $folders = array();
-  // while we have items, keep reading
-  while (FALSE !== ($entry = $d->read())) {
-    // Exclude . and .. and Mac .DS_Store file
-    if ($entry == '.' || $entry == '..' || $entry == '.DS_Store') {
-      continue;
+  if (is_dir($path)) {
+    // scan directory for items that we can symlink to
+    $d = dir($path);
+    $folders = array();
+    // while we have items, keep reading
+    while (FALSE !== ($entry = $d->read())) {
+      // Exclude . and .. and Mac .DS_Store file
+      if ($entry == '.' || $entry == '..' || $entry == '.DS_Store') {
+        continue;
+      }
+      $folders[] = $entry;
     }
-    $folders[] = $entry;
+    $d->close();
+    return $folders;
   }
-  $d->close();
-  return $folders;
+  return FALSE;
 }
 
 /**
