@@ -1,0 +1,19 @@
+<?php
+
+use Drupal\testmod_psr0_lib\Foo;
+use Drupal\xautoload\Tests\Util\StaticCallLog;
+
+function testmod_psr0_lib_enable() {
+  StaticCallLog::addCall();
+  new Foo;
+}
+
+function testmod_psr0_lib_install() {
+  StaticCallLog::addCall();
+  new Foo;
+}
+
+function testmod_psr0_lib_schema() {
+  StaticCallLog::addCall();
+  new Foo;
+}

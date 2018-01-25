@@ -1,0 +1,11 @@
+name = "X Autoload"
+description = "Autoload based on PSR-0, PSR-4 and a custom PHP 5.2 compatibility mode."
+core = 7.x
+php = 5.3
+
+; Information added by Drupal.org packaging script on 2016-04-22
+version = "7.x-5.7"
+core = "7.x"
+project = "xautoload"
+datestamp = "1461353641"
+

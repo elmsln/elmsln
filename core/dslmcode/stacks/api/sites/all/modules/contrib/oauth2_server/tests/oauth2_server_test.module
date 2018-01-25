@@ -1,0 +1,59 @@
+<?php
+
+/**
+ * @file
+ * Support module for OAuth2 Server testing.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function oauth2_server_test_menu() {
+  $items['oauth2_test/resource'] = array(
+    'page callback' => 'oauth2_server_test_resource',
+    'access arguments' => array('use oauth2 server'),
+  );
+
+  return $items;
+}
+
+/**
+ * Page callback: Provides access checking for an imaginary resource.
+ */
+function oauth2_server_test_resource($scope) {
+  oauth2_server_verify_access('test', $scope);
+}
+
+/**
+ * Implements hook_oauth2_server_user_claims_alter().
+ */
+function oauth2_server_test_oauth2_server_user_claims_alter(&$claims, $account, $requested_scopes) {
+  if (in_array('phone', $requested_scopes)) {
+    $claims['phone_number'] = '123456';
+    $claims['phone_number_verified'] = FALSE;
+  }
+}
+
+/**
+ * Implements oauth2_server_default_scope().
+ */
+function oauth2_server_test_oauth2_server_default_scope($server) {
+  // Grant "basic" and "admin" scopes by default.
+  if ($server->name == 'test') {
+    return array('basic', 'admin');
+  }
+}
+
+/**
+ * Implements hook_entity_query_alter().
+ */
+function oauth2_server_test_entity_query_alter($query) {
+  if (!empty($query->tags['oauth2_server_scope_access'])) {
+    $server = $query->metaData['oauth2_server'];
+
+    // Nobody should have access to the "forbidden" scope.
+    if ($server->name == 'test') {
+      $query->propertyCondition('name', 'forbidden', '<>');
+    }
+  }
+}

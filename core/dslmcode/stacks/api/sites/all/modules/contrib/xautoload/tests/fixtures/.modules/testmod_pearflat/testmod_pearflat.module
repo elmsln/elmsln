@@ -1,0 +1,18 @@
+<?php
+
+use Drupal\xautoload\Tests\Util\StaticCallLog;
+
+function testmod_pearflat_init() {
+  StaticCallLog::addCall();
+  new testmod_pearflat_Foo;
+}
+
+function testmod_pearflat_modules_enabled() {
+  StaticCallLog::addCall();
+  new testmod_pearflat_Foo;
+}
+
+function testmod_pearflat_watchdog() {
+  StaticCallLog::addCall();
+  new testmod_pearflat_Foo;
+}

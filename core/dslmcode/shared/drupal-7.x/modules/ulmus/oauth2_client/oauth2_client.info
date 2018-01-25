@@ -1,0 +1,13 @@
+name = OAuth2 Client
+description = Provides OAuth2 client functionality.
+package = "OAuth2"
+core = 7.x
+
+files[] = oauth2_client.inc
+
+; Information added by Drupal.org packaging script on 2017-06-02
+version = "7.x-2.0"
+core = "7.x"
+project = "oauth2_client"
+datestamp = "1496422445"
+

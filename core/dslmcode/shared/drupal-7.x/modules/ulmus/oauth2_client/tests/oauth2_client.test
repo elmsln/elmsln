@@ -1,0 +1,129 @@
+<?php
+
+/**
+ * @file
+ * OAuth2 Client tests.
+ */
+
+/**
+ * Test OAuth2 Client.
+ */
+class OAuth2ClientTestCase extends DrupalWebTestCase {
+  protected $profile = 'testing';
+
+  public static function getInfo() {
+    return array(
+      'name' => 'OAuth2 Client',
+      'description' => 'Tests basic OAuth2 Client functionality.',
+      'group' => 'OAuth2',
+    );
+  }
+
+  public function setUp() {
+    parent::setUp(array('oauth2_client_test', 'libraries'));
+  }
+
+  public function testGetAccessToken() {
+    $this->clientCredentialsFlow();
+    $this->userPasswordFlow();
+    $this->serverSideFlow();
+    $this->clientIntegration();
+    $this->errorCases();
+  }
+
+  /**
+   * Get and return a token from the given test client.
+   */
+  protected function getToken($client) {
+    $result = $this->drupalGet('oauth2/test/' . $client);
+    $this->assertPattern('/^access_token: /', $result);
+    $token = str_replace('access_token: ', '', $result);
+    $token = trim($token);
+    $this->assertNotEqual($token, '',  'Token is not empty.');
+    return $token;
+  }
+
+  /**
+   * Test the client-credentials flow.
+   */
+  public function clientCredentialsFlow() {
+    $token1 = $this->getToken('client-credentials');
+    $token2 = $this->getToken('client-credentials');
+    $this->assertEqual($token1, $token2, 'The same cached token is used, while it has not expired yet.');
+
+    sleep(10);  // wait for the token to expire
+    $token3 = $this->getToken('client-credentials');
+    $this->assertNotEqual($token1, $token3, 'Getting a new token, client-credential flow has no refresh token.');
+  }
+
+  /**
+   * Test the user-password flow.
+   */
+  public function userPasswordFlow() {
+    $token1 = $this->getToken('user-password');
+    $token2 = $this->getToken('user-password');
+    $this->assertEqual($token1, $token2, 'The same cached token is used, while it has not expired yet.');
+
+    sleep(10);  // wait for the token to expire
+    $token3 = $this->getToken('user-password');
+    $this->assertNotEqual($token1, $token3, 'Getting a new token from refresh_token.');
+
+    sleep(30);  // wait for the refresh_token to expire
+    $token4 = $this->getToken('user-password');
+  }
+
+  /**
+   * Test the server-side flow.
+   *
+   * For this test we are using 'client2' which has
+   * automatic authorization enabled.
+   */
+  public function serverSideFlow() {
+    $user = (object) array('name' => 'user1', 'pass_raw' => 'pass1');
+    $this->drupalLogin($user);
+    $token1 = $this->getToken('server-side-auto');
+    $token2 = $this->getToken('server-side-auto');
+    $this->assertEqual($token1, $token2, 'The same cached token is used, while it has not expired yet.');
+
+    sleep(10);  // wait for the token to expire
+    $token3 = $this->getToken('server-side-auto');
+    $this->assertNotEqual($token1, $token3, 'Getting a new token from refresh_token.');
+
+    sleep(30);  // wait for the refresh_token to expire
+    $token4 = $this->getToken('server-side-auto');
+  }
+
+  /**
+   * Test client integration.
+   */
+  public function clientIntegration() {
+    $result = $this->drupalGet('oauth2/test-client-integration');
+    $this->assertText('access_token: ');
+    $this->assertText('extra_param: This will be appended to the request on redirect.');
+  }
+
+  /**
+   * Test error cases.
+   */
+  public function errorCases() {
+    $error_cases = array(
+      'wrong-client-id',
+      'wrong-client-secret',
+      'wrong-token-endpoint',
+      'wrong-username',
+      'wrong-password',
+      'wrong-scope',
+    );
+    foreach ($error_cases as $error_case) {
+      $this->drupalGet('oauth2/test/' . $error_case);
+      $this->assertText('Failed to get an access token');
+    }
+
+    // wrong-auth-flow
+    $this->drupalGet('oauth2/test/wrong-auth-flow');
+    $this->assertText('Unknown authorization flow');
+
+    // wrong-authorization-endpoint
+    // wrong-redirect-uri
+  }
+}

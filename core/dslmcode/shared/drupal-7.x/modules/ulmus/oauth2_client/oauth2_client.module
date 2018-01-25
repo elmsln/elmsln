@@ -1,0 +1,160 @@
+<?php
+/**
+ * @file
+ * Provides OAuth2 client functionality.
+ */
+
+/**
+ * Get the class OAuth2\Client.
+ */
+include_once drupal_get_path('module', 'oauth2_client') . '/oauth2_client.inc';
+
+/**
+ * Gets all defined oauth2_clients.
+ */
+function oauth2_client_get_all() {
+  $data = array();
+  foreach (module_implements('oauth2_clients') as $module) {
+    $result = call_user_func($module . '_oauth2_clients');
+    if (isset($result) && is_array($result)) {
+      foreach ($result as $name => $item) {
+        $item += array('module' => $module);
+        $data[$name] = $item;
+      }
+    }
+  }
+  drupal_alter('oauth2_clients', $data);
+  return $data;
+}
+
+/**
+ * Load an oauth2 client.
+ *
+ * @param string $name
+ *   Name of the client.
+ *
+ * @return OAuth2\Client
+ *   Returns an OAuth2\Client object
+ */
+function oauth2_client_load($name) {
+  $oauth2_clients = oauth2_client_get_all();
+
+  if (!isset($oauth2_clients[$name])) {
+    throw new Exception("No client with name '$name' is defined.");
+  }
+  $oauth2_client = new OAuth2\Client($oauth2_clients[$name], $name);
+  return $oauth2_client;
+}
+
+/**
+ * Implements hook_menu().
+ */
+function oauth2_client_menu() {
+  $items = array();
+  $items['oauth2/authorized'] = array(
+    'page callback' => 'oauth2_client_authorized',
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+  return $items;
+}
+
+/**
+ * Callback for path oauth2/authorized.
+ *
+ * An authorized request in server-side flow
+ * will be redirected here (having variables
+ * 'code' and 'state').
+ */
+function oauth2_client_authorized() {
+  // If there is any error in the server response, display it.
+  if (isset($_GET['error'])) {
+    $error = $_GET['error'];
+    $error_description = $_GET['error_description'];
+    drupal_set_message("Error: $error: $error_description", 'error');
+  }
+
+  // Redirect to the client that started the authentication.
+  OAuth2\Client::redirect($clean = FALSE);
+}
+
+/**
+ * Return the redirect_uri of oauth2_client.
+ */
+function oauth2_client_get_redirect_uri() {
+  return url('oauth2/authorized', array('absolute' => TRUE));
+}
+
+/**
+ * Set a redirect request.
+ *
+ * This can be used by other oauth2 clients to integrate with
+ * oauth2_client, i.e. to use the same client that is registered
+ * on the server for the oauth2_client.
+ *
+ * The oauth2_server sends the authorization reply to the
+ * redirect_uri that is registered for the client, which is
+ * the one corresponding to oauth2_client. If another oauth2
+ * client would like to get this authorization reply, it has
+ * to set a redirect request with this function, and then
+ * oauth2_client will forward the reply to it.
+ *
+ * @param string $state
+ *   The random parameter that is used on the authentication url
+ *   in order to mittigate CSRF attacks. In this case it is used
+ *   as a key for identifying the authentication request.
+ *
+ * @param array $redirect
+ *  Associative array that contains the keys:
+ *   - 'uri': the uri of the oauth2 client that is requesting a redirect
+ *   - 'params': associative array of other parameters that should be
+ *     appended to the uri, along with the $_REQUEST
+ *
+ * Example:
+ *   $state = md5(uniqid(rand(), TRUE));
+ *   $hybridauth_config['state'] = $state;
+ *   $hybridauth_config['redirect_uri'] = oauth2_client_get_redirect_uri();
+ *   oauth2_client_set_redirect($state, array(
+ *       'uri' => 'hybridauth/endpoint',
+ *       'params' => array(
+ *         'hauth.done' => 'DrupalOAuth2',
+ *       )
+ *     ));
+ */
+function oauth2_client_set_redirect($state, $redirect) {
+  OAuth2\Client::setRedirect($state, $redirect);
+}
+
+/**
+ * Share an access token with oauth2_client.
+ *
+ * Another oauth2 client that has been successfully authenticated
+ * and has received an access_token, can share it with oauth2_client,
+ * so that oauth2_client does not have to repeat the authentication
+ * process again.
+ *
+ * Example:
+ *   $client_id = $hybridauth->api->client_id;
+ *   $token = array(
+ *     'access_token' => $hybridauth->api->access_token,
+ *     'refresh_token' => $hybridauth->api->refresh_token,
+ *     'expires_in' => $hybridauth->api->access_token_expires_in,
+ *     'expiration_time' => $hybridauth->api->access_token_expires_at,
+ *     'scope' => $hybridauth->scope,
+ *   );
+ *   $token_endpoint = $oauth2->api->token_endpoint;
+ *   $client_id = $oauth2->api->client_id;
+ *   $auth_flow = 'server-side';
+ *   $id = md5($token_endpoint . $client_id . $auth_flow);
+ *   oauth2_client_set_token($id, $token);
+ */
+function oauth2_client_set_token($id, $token) {
+  OAuth2\Client::storeToken($id, $token);
+}
+
+/**
+ * Returns the access token of the oauth2_client with the given $id.
+ */
+function oauth2_client_get_token($id) {
+  return OAuth2\Client::loadToken($id);
+}

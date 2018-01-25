@@ -1,0 +1,9 @@
+<?php
+
+/**
+ * Implements hook_module_enable()
+ */
+function xautoload_test_5_enable() {
+  // Call l() to trigger premature hook_theme().
+  l('Admin', 'admin');
+}

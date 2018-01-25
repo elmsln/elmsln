@@ -1,0 +1,19 @@
+<?php
+
+use Drupal\testmod_psr4_src\Foo;
+use Drupal\xautoload\Tests\Util\StaticCallLog;
+
+function testmod_psr4_src_init() {
+  StaticCallLog::addCall();
+  new Foo();
+}
+
+function testmod_psr4_src_modules_enabled() {
+  StaticCallLog::addCall();
+  new Foo;
+}
+
+function testmod_psr4_src_watchdog() {
+  StaticCallLog::addCall();
+  new Foo;
+}

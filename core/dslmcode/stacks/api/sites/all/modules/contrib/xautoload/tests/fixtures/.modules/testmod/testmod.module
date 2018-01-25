@@ -1,0 +1,91 @@
+<?php
+
+use Drupal\xautoload\Adapter\LocalDirectoryAdapter;
+use Drupal\xautoload\Tests\Util\StaticCallLog;
+
+/**
+ * Implements hook_init()
+ */
+function testmod_init() {
+  StaticCallLog::addCall();
+  new \Drupal\testmod\Foo();
+  # libraries_load('testlib');
+  new \Acme\TestLib\Foo();
+  new \ComposerTestLib\Other\Foo();
+  new \ComposerTestLib\Foo();
+  new \Acme\ComposerTargetDirTestLib\Foo();
+}
+
+/**
+ * Implements hook_modules_enabled()
+ */
+function testmod_modules_enabled() {
+  StaticCallLog::addCall();
+  # new \Drupal\testmod\Foo();
+  new \Acme\TestLib\Foo();
+  new \ComposerTestLib\Other\Foo();
+  new \ComposerTestLib\Foo();
+  new \Acme\ComposerTargetDirTestLib\Foo();
+}
+
+/**
+ * Implements hook_watchdog()
+ */
+function testmod_watchdog() {
+  StaticCallLog::addCall();
+  # new \Drupal\testmod\Foo();
+  # new \Acme\TestLib\Foo();
+}
+
+/**
+ * Implements hook_xautoload()
+ *
+ * @param LocalDirectoryAdapter $adapter
+ */
+function testmod_xautoload($adapter) {
+  StaticCallLog::addCall();
+  $adapter->addPsr4('Drupal\testmod\\', 'psr4');
+  new \Drupal\testmod\Foo();
+}
+
+/**
+ * Implements hook_libraries_info()
+ */
+function testmod_libraries_info() {
+  StaticCallLog::addCall();
+  new \Drupal\testmod\Foo();
+  return array(
+    'testlib' => array(
+      'name' => 'Test library',
+      'xautoload' => '_testmod_libraries_testlib_xautoload',
+    ),
+    'ComposerTestLib' => array(
+      'xautoload' => '_testmod_libraries_ComposerTestLib_xautoload',
+    ),
+    'ComposerTargetDirTestLib' => array(
+      'xautoload' => '_testmod_libraries_ComposerTargetDirTestLib_xautoload',
+    ),
+  );
+}
+
+/**
+ * @param LocalDirectoryAdapter $adapter
+ */
+function _testmod_libraries_testlib_xautoload($adapter) {
+  StaticCallLog::addCall();
+  $adapter->addPsr4('Acme\TestLib\\', 'src');
+}
+
+/**
+ * @param LocalDirectoryAdapter $adapter
+ */
+function _testmod_libraries_ComposerTestLib_xautoload($adapter) {
+  $adapter->composerJson('composer.json');
+}
+
+/**
+ * @param LocalDirectoryAdapter $adapter
+ */
+function _testmod_libraries_ComposerTargetDirTestLib_xautoload($adapter) {
+  $adapter->composerJson('composer.json');
+}

@@ -1,0 +1,198 @@
+<?php
+
+use Drupal\xautoload\ClassLoader\ApcClassLoader;
+use Drupal\xautoload\ClassLoader\ApcuClassLoader;
+use Drupal\xautoload\ClassLoader\ApcuQueuedCachedClassLoader;
+use Drupal\xautoload\ClassLoader\DbCacheClassLoader;
+use Drupal\xautoload\ClassLoader\WinCacheClassLoader;
+use Drupal\xautoload\ClassLoader\XCacheClassLoader;
+use Drupal\xautoload\CacheMissObserver\CacheMissLoaderSetFinder;
+
+/*
+ * When the module has just been installed,
+ * Drupal does not know yet this is a boot-level module.
+ *
+ * We can not rely on hook_boot() to fire, and instead register the autoloader
+ * on inclusion of this *.module file.
+ */
+_xautoload_register_drupal();
+
+
+// Hook implementations
+// -----------------------------------------------------------------------------
+
+/**
+ * Implements hook_boot()
+ *
+ * This is only to let Drupal know we want this module to load in bootstrap.
+ */
+function xautoload_boot() {}
+
+/**
+ * Implements hook_custom_theme()
+ *
+ * We only do this because that's the first hook to fire after bootstrap.
+ */
+function xautoload_custom_theme() {
+  xautoload()->phaseControl->enterMainPhase();
+}
+
+/**
+ * Implements hook_init()
+ *
+ * Note:
+ *   This is a first step to allow modules to register foreign namespaces.
+ *   We will probably change this, to allow bootstrap modules to register their
+ *   namespaces earlier in the request.
+ *   We might also find a solution to cache the result of this hook between
+ *   requests. This would require a different implementation of the InjectedAPI,
+ *   which would no longer have a direct reference to the finder object.
+ */
+function xautoload_init() {
+  xautoload()->phaseControl->enterMainPhase();
+}
+
+/**
+ * Implements hook_system_theme_info().
+ *
+ * This is the first hook to fire on update.php.
+ *
+ * Unfortunately, hook_custom_theme() and hook_init() are not called on
+ * update.php in _drupal_bootstrap_full().
+ *
+ * But in list_themes(), _system_rebuild_theme_data() is always called in
+ * maintenance mode. And from there, hook_system_theme_info().
+ *
+ * @see _drupal_bootstrap_full()
+ * @see list_themes()
+ */
+function xautoload_system_theme_info() {
+  xautoload()->phaseControl->enterMainPhase();
+}
+
+/**
+ * Implements hook_module_implements_alter()
+ *
+ * @param array &$implementations
+ * @param string $hook
+ */
+function xautoload_module_implements_alter(&$implementations, $hook) {
+
+  // Check if new modules have been enabled.
+  if ('boot' === $hook) {
+
+    # \Drupal\xautoload\Tests\HackyLog::log($hook);
+    // hook_module_implements_alter('boot') gets called (indirectly) from
+    // _system_update_bootstrap_status(), which happens each time a new module
+    // is enabled.
+    xautoload()->phaseControl->checkNewExtensions();
+  }
+
+  // Most hook implementations are in dedicated files.
+  switch ($hook) {
+    case 'init':
+    case 'custom_theme':
+    case 'system_theme_info':
+      // Move xautoload_$hook() to the start.
+      $implementations = array('xautoload' => FALSE) + $implementations;
+      break;
+    case 'form_system_performance_settings_alter':
+      // Specify that the implementation lives in xautoload.ui.inc.
+      $implementations['xautoload'] = 'ui';
+      require_once __DIR__ . '/xautoload.ui.inc';
+      break;
+    case 'modules_enabled':
+    case 'registry_files_alter':
+      // Move xautoload_$hook() to the start, and specify that the
+      // implementation lives in xautoload.system.inc.
+      $implementations = array('xautoload' => 'system') + $implementations;
+      require_once __DIR__ . '/xautoload.system.inc';
+      break;
+    case 'libraries_info_alter':
+      $implementations['xautoload'] = 'libraries';
+      require_once __DIR__ . '/xautoload.libraries.inc';
+      break;
+    default:
+      return;
+  }
+}
+
+
+// "Private" functions.
+// -----------------------------------------------------------------------------
+
+/**
+ * Registers Drupal-related namespaces and prefixes in the xautoload loader, and
+ * activates the APC (or similar) cache, if enabled.
+ */
+function _xautoload_register_drupal() {
+
+  // Check that this runs only once.
+  static $_first_run = TRUE;
+  if (!$_first_run) {
+    return;
+  }
+  $_first_run = FALSE;
+
+  // Register the class loader itself.
+  require_once __DIR__ . '/xautoload.early.lib.inc';
+  _xautoload_register();
+
+  $services = xautoload()->getServiceContainer();
+
+  if ($services->system->variableGet(XAUTOLOAD_VARNAME_REPLACE_CORE)) {
+    /**
+     * Completely take over.
+     *
+     * @see _drupal_bootstrap_database()
+     * @see drupal_autoload_class()
+     * @see drupal_autoload_interface()
+     */
+    spl_autoload_unregister('drupal_autoload_class');
+    spl_autoload_unregister('drupal_autoload_interface');
+  }
+
+  $lazy = $services->system->variableGet(XAUTOLOAD_VARNAME_CACHE_LAZY, FALSE);
+  $decorated = $lazy
+    ? $services->proxyFinder
+    : $services->proxyFinder->getFinder()
+  ;
+
+  // Activate a cache, if available and enabled.
+  $cache_types = $services->system->variableGet(XAUTOLOAD_VARNAME_CACHE_TYPES, array());
+  if (!empty($cache_types['apcu_q']) && extension_loaded('apcu') && function_exists('apcu_store')) {
+    $cached_loader = ApcuQueuedCachedClassLoader::create($decorated, $services->cacheManager);
+  }
+  elseif (!empty($cache_types['apc']) && extension_loaded('apc') && function_exists('apc_store')) {
+    $cached_loader = ApcClassLoader::create($decorated, $services->cacheManager);
+  }
+  /** @noinspection NotOptimalIfConditionsInspection */
+  elseif (!empty($cache_types['apcu']) && extension_loaded('apcu') && function_exists('apcu_store')) {
+    $cached_loader = ApcuClassLoader::create($decorated, $services->cacheManager);
+  }
+  elseif (!empty($cache_types['wincache']) && extension_loaded('wincache') && function_exists('wincache_ucache_get')) {
+    $cached_loader = WinCacheClassLoader::create($decorated, $services->cacheManager);
+  }
+  elseif (!empty($cache_types['xcache']) && extension_loaded('Xcache') && function_exists('xcache_get')) {
+    $cached_loader = XCacheClassLoader::create($decorated, $services->cacheManager);
+  }
+  elseif (!empty($cache_types['dbcache'])) {
+    $cached_loader = DbCacheClassLoader::create($decorated, $services->cacheManager);
+  }
+
+  if (isset($cached_loader)) {
+    if ($lazy) {
+      $decorated->observeFirstCacheMiss(new CacheMissLoaderSetFinder($cached_loader));
+    }
+    $cached_loader->register();
+    $services->finder->unregister();
+  }
+  else {
+    // No cache is active.
+    // Initialize the finder, to fire scheduled operations.
+    $services->proxyFinder->getFinder();
+  }
+
+  // Register prefixes and namespaces for enabled extensions.
+  $services->proxyFinder->observeFirstCacheMiss($services->phaseControl);
+}

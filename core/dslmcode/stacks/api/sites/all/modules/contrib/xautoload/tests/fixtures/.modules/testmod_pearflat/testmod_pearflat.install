@@ -1,0 +1,15 @@
+<?php
+function testmod_pearflat_enable() {
+  \Drupal\xautoload\Tests\Util\StaticCallLog::addCall();
+  new testmod_pearflat_Foo;
+}
+
+function testmod_pearflat_install() {
+  \Drupal\xautoload\Tests\Util\StaticCallLog::addCall();
+  new testmod_pearflat_Foo;
+}
+
+function testmod_pearflat_schema() {
+  \Drupal\xautoload\Tests\Util\StaticCallLog::addCall();
+  new testmod_pearflat_Foo;
+}

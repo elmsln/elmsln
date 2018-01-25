@@ -1,0 +1,14 @@
+name = X Autoload Test 3
+description = Test module for X Autoload
+core = 7.x
+php = 5.3
+hidden = 1
+
+dependencies[] = xautoload
+
+; Information added by Drupal.org packaging script on 2016-04-22
+version = "7.x-5.7"
+core = "7.x"
+project = "xautoload"
+datestamp = "1461353641"
+

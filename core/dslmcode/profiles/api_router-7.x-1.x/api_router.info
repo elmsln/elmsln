@@ -111,14 +111,6 @@ dependencies[] = elmsln_core
 dependencies[] = elmsln_advagg
 
 ; ----------
-; Service Dependencies
-; ----------
-dependencies[] = og
-dependencies[] = og_ui
-dependencies[] = cis_section
-dependencies[] = cis_course_service
-
-; ----------
 ; Authority Dependencies
 ; ----------
 dependencies[] = cis_course_authority
@@ -130,4 +122,5 @@ dependencies[] = cis_course_authority
 ; ----------
 ; api_router dependencies
 ; ----------
-;dependencies[] = ulmus_innovate
+dependencies[] = api_router_helper
+

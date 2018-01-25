@@ -1,0 +1,17 @@
+<?php
+
+use Drupal\xautoload_test_5\FooNamespace\Foo_Class;
+
+/**
+ * Implements hook_boot()
+ */
+function xautoload_test_5_boot() {
+  new Foo_Class();
+}
+
+/**
+ * Implements hook_theme()
+ */
+function xautoload_test_5_theme() {
+  new Foo_Class();
+}

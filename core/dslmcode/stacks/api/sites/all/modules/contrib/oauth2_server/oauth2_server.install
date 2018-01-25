@@ -1,0 +1,501 @@
+<?php
+
+/**
+ * @file
+ */
+
+/**
+ * Implements hook_requirements().
+ */
+function oauth2_server_requirements($phase = 'runtime') {
+  $requirements = array();
+  $t = get_t();
+
+  if ($phase == 'runtime') {
+    $found = FALSE;
+    $path = oauth2_server_get_library_path();
+    // Check for the existence of one file from the library.
+    if ($path && file_exists($path . '/src/OAuth2/Server.php')) {
+      $found = TRUE;
+    }
+    // Prepare the download instructions.
+    $description = $t('The OAuth2 server library is required for the OAuth2 module to function.
+      Download the library from <a href="https://github.com/bshaffer/oauth2-server-php" target="_blank">GitHub</a> and place it in <em>!path</em>.', array('!path' => $path));
+
+    $requirements['oauth2_server'] = array(
+      'title' => $t('OAuth2 server library'),
+      'value' => $found ? $t('Available') : $t('Unavailable'),
+      'description' => !$found ? $description : NULL,
+      'severity' => $found ? REQUIREMENT_OK : REQUIREMENT_ERROR,
+    );
+
+    if (!module_exists('xautoload')) {
+      $requirements['xautoload'] = array(
+        'title' => $t('OAuth2 server'),
+        'value' => $t('X Autoload is required by OAuth2 server'),
+        'severity' => REQUIREMENT_ERROR,
+      );
+    }
+    if (!version_compare(PHP_VERSION, '5.3.0', '>=')) {
+      $requirements['php'] = array(
+        'description' => $t('@name requires at least PHP @version.', array('@name' => 'OAuth2 server', '@version' => '5.3')),
+        'severity' => REQUIREMENT_ERROR,
+      );
+    }
+  }
+
+  return $requirements;
+}
+
+/**
+ * Implements hook_schema().
+ */
+function oauth2_server_schema() {
+  $schema['oauth2_server'] = array(
+    'description' => 'The base table for servers.',
+    'fields' => array(
+      'server_id' => array(
+        'description' => 'Primary key: numeric server id.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'name' => array(
+        'description' => 'The machine name for a server.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+      'label' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'description' => 'The label of the server.',
+        'default' => '',
+      ),
+      'settings' => array(
+        'description' => 'Settings passed to the server library.',
+        'type' => 'text',
+        'size' => 'big',
+        'not null' => TRUE,
+        'serialize' => TRUE,
+      ),
+      'status' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        // Set the default to ENTITY_CUSTOM without using the constant as it is
+        // not safe to use it at this point.
+        'default' => 0x01,
+        'size' => 'tiny',
+        'description' => 'The exportable status of the server.',
+      ),
+      'module' => array(
+        'description' => 'The name of the providing module if the server has been defined in code.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+      ),
+    ),
+    'primary key' => array('server_id'),
+    'unique keys' => array(
+      'name' => array('name'),
+    ),
+  );
+  $schema['oauth2_server_scope'] = array(
+    'description' => 'The base table for scopes.',
+    'fields' => array(
+      'scope_id' => array(
+        'description' => 'Primary key: numeric scope id.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'server' => array(
+        'description' => 'The {oauth2_server}.name of the parent server.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+      'name' => array(
+        'description' => 'The machine name of the scope.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+      'description' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'description' => 'The description used to describe the scope on the authorization form.',
+        'default' => '',
+      ),
+    ),
+    'primary key' => array('scope_id'),
+    'indexes' => array(
+      'name' => array('name'),
+      'server' => array('server'),
+    ),
+  );
+
+  $schema['oauth2_server_client'] = array(
+    'description' => 'The base table for clients',
+    'fields' => array(
+      'client_id' => array(
+        'description' => 'Primary key: numeric client id.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'server' => array(
+        'description' => 'The {oauth2_server}.name of the parent server.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+      'label' => array(
+        'description' => 'The label of the client.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      // The OAuth2 spec calls the client key "client_id", but we need that
+      // for the autoincrement.
+      'client_key' => array(
+        'description' => 'The client key',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+      'client_secret' => array(
+        'description' => 'The client secret.',
+        'type' => 'text',
+        'not null' => TRUE,
+      ),
+      'public_key' => array(
+        'description' => 'The public key.',
+        'type' => 'text',
+        'not null' => TRUE,
+      ),
+      'redirect_uri' => array(
+        'description' => 'The absolute URI to redirect to after authorization',
+        'type' => 'text',
+        'not null' => TRUE,
+      ),
+      'automatic_authorization' => array(
+        'description' => 'Whether authorization should be completed without user confirmation.',
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'settings' => array(
+        'description' => 'Client specific settings.',
+        'type' => 'text',
+        'size' => 'big',
+        'not null' => TRUE,
+        'serialize' => TRUE,
+      ),
+    ),
+    'primary key' => array('client_id'),
+    'unique keys' => array(
+      'client_key' => array('client_key'),
+    ),
+    'indexes' => array(
+      'server' => array('server'),
+    ),
+  );
+  $schema['oauth2_server_authorization_code'] = array(
+    'description' => 'The base table for authorization codes',
+    'fields' => array(
+      'code_id' => array(
+        'description' => 'Primary key: numeric code id.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'client_id' => array(
+        'description' => 'The {oauth2_server_client}.client_id of the client.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'uid' => array(
+        'description' => 'The {users}.uid of the resource owner.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'code' => array(
+        'description' => 'The authorization code.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+      'redirect_uri' => array(
+        'description' => 'The absolute URI to redirect to after authorization',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+      'expires' => array(
+        'description' => 'The Unix timestamp when the token expires.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'id_token' => array(
+        'description' => 'The id token, if OpenID Connect was used.',
+        'type' => 'text',
+      ),
+    ),
+    'primary key' => array('code_id'),
+    'unique keys' => array(
+      'code' => array('code'),
+    ),
+  );
+  $schema['oauth2_server_token'] = array(
+    'description' => 'The base table for tokens',
+    'fields' => array(
+      'token_id' => array(
+        'description' => 'Primary key: numeric token id.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'client_id' => array(
+        'description' => 'The {oauth2_server_client}.client_id of the client.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'uid' => array(
+        'description' => 'The {users}.uid of the resource owner.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'type' => array(
+        'description' => 'The type of the token (access, refresh).',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'token' => array(
+        'description' => 'The token.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+      'expires' => array(
+        'description' => 'The Unix timestamp when the token expires.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'last_access' => array(
+        'description' => 'The Unix timestamp when the token was last used.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'created' => array(
+        'description' => 'The Unix timestamp when the token was created.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('token_id'),
+    'unique keys' => array(
+      'token' => array('token'),
+    ),
+  );
+  $schema['oauth2_server_jti'] = array(
+    'description' => 'Stores JSON Token Identifiers, used to prevent JWT replay attacks.',
+    'fields' => array(
+      'jti_id' => array(
+        'description' => 'Primary key: numeric JTI id.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'client_id' => array(
+        'description' => 'The {oauth2_server_client}.client_id of the client.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'subject' => array(
+        'description' => 'The JWT subject, usually a username or email.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+      'jti' => array(
+        'description' => 'The JSON Token Identifier.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+      'expires' => array(
+        'description' => 'The Unix timestamp when the JTI expires.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('jti_id'),
+  );
+
+  return $schema;
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function oauth2_server_uninstall() {
+  drupal_load('module', 'oauth2_server');
+
+  // Delete attached fields.
+  field_attach_delete_bundle('oauth2_server_authorization_code', 'oauth2_server_authorization_code');
+  foreach (array_keys(oauth2_server_token_bundles()) as $bundle) {
+    field_attach_delete_bundle('oauth2_server_token', $bundle);
+  }
+
+  variable_del('oauth2_server_keys');
+  variable_del('oauth2_server_keys_last_generated');
+  variable_del('oauth2_server_next_certificate_id');
+  variable_del('oauth2_server_user_sub_property');
+  variable_del('oauth2_server_restful_server');
+  variable_del('oauth2_server_restful_scope');
+}
+
+/**
+ * Adds the {oauth2_server_jti} table, {oauth2_server_client}.public_key field.
+ */
+function oauth2_server_update_7100() {
+  $schema = oauth2_server_schema();
+  db_create_table('oauth2_server_jti', $schema['oauth2_server_jti']);
+
+  $spec = array(
+    'description' => 'The public key.',
+    'type' => 'text',
+    'not null' => TRUE,
+    'initial' => TRUE,
+  );
+  db_add_field('oauth2_server_client', 'public_key', $spec);
+}
+
+/**
+ * Adds the {oauth2_server_client}.settings field.
+ */
+function oauth2_server_update_7101() {
+  $spec = array(
+    'description' => 'Client specific settings.',
+    'type' => 'text',
+    'size' => 'big',
+    'not null' => TRUE,
+    'serialize' => TRUE,
+    'initial' => '',
+  );
+  db_add_field('oauth2_server_client', 'settings', $spec);
+}
+
+/**
+ * Adds the {oauth2_server_authorization_code}.id_token field.
+ */
+function oauth2_server_update_7102() {
+  $spec = array(
+    'description' => 'The id token, if OpenID Connect was used.',
+    'type' => 'text',
+  );
+  db_add_field('oauth2_server_authorization_code', 'id_token', $spec);
+}
+
+/**
+ * Convert the {oauth2_server_client}.redirect_uri field from varchar to text.
+ */
+function oauth2_server_update_7103() {
+  $spec = array(
+    'description' => 'The absolute URI to redirect to after authorization',
+    'type' => 'text',
+    'not null' => TRUE,
+  );
+  db_change_field('oauth2_server_client', 'redirect_uri', 'redirect_uri', $spec);
+}
+
+/**
+ * Adds the {oauth2_server_token}.last_access field.
+ */
+function oauth2_server_update_7104() {
+  $spec = array(
+    'description' => 'The Unix timestamp when the token was last used.',
+    'type' => 'int',
+    'not null' => TRUE,
+    'default' => 0,
+  );
+  db_add_field('oauth2_server_token', 'last_access', $spec);
+}
+
+/**
+ * Set the OpenID Connect 'sub' to the user name (the default for new installs
+ * is the UID).
+ */
+function oauth2_server_update_7105() {
+  variable_set('oauth2_server_user_sub_property', 'name');
+}
+
+/**
+ * Hash all client secrets.
+ */
+function oauth2_server_update_7106(&$sandbox) {
+  if (!isset($sandbox['progress'])) {
+    $query = new EntityFieldQuery();
+    $query->entityCondition('entity_type', 'oauth2_server_client');
+    $sandbox['max'] = $query->count()->execute();
+    $sandbox['progress'] = 0;
+  }
+
+  $query = new EntityFieldQuery();
+  $query->entityCondition('entity_type', 'oauth2_server_client');
+  $query->propertyOrderBy('client_id');
+  $query->range($sandbox['progress'], 50);
+  $result = $query->execute();
+
+  $clients = array();
+  if (!empty($result['oauth2_server_client'])) {
+    $clients = entity_load('oauth2_server_client', array_keys($result['oauth2_server_client']));
+  }
+
+  $client_controller = entity_get_controller('oauth2_server_client');
+  foreach ($clients as $client) {
+    if (!empty($client->client_secret)) {
+      $client->client_secret = oauth2_server_hash_client_secret($client->client_secret);
+      $client_controller->save($client);
+    }
+    $sandbox['progress']++;
+  }
+
+  $sandbox['#finished'] = $sandbox['progress'] >= $sandbox['max'];
+
+  return t('@func(): processed @progress of @max', array(
+    '@func' => __FUNCTION__,
+    '@progress' => $sandbox['progress'],
+    '@max' => $sandbox['max'],
+  ));
+}
+
+/**
+ * Add the {oauth2_server_token}.created field.
+ */
+function oauth2_server_update_7107() {
+  $spec = array(
+    'description' => 'The Unix timestamp when the token was created.',
+    'type' => 'int',
+    'not null' => TRUE,
+    'default' => 0,
+  );
+  db_add_field('oauth2_server_token', 'created', $spec);
+}
