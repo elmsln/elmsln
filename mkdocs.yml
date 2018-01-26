@@ -34,6 +34,7 @@ pages:
     - Grades: systems/authority/grades.md
   - Services:
     - Courses: systems/service/courses.md
+      - Routes: systems/service/courses/routes.md
     - Studio: systems/service/studio.md
     - Discuss: systems/service/discuss.md
     - Blog: systems/service/blog.md
