@@ -13,7 +13,7 @@ Learn more about ELMSLN @ [elmsln.org](https://www.elmsln.org/)
 
 Play quickly
 ==============
-Vagrant is the fastest way to get up and running quickly. See the [Vagrant installation documentation](https://elmsln.readthedocs.io/en/latest/development/Vagrant-Step-by-Step-setup/) on how to get up and running now!
+Vagrant is the fastest way to get up and running quickly. See the [Vagrant installation documentation](https://elmsln.readthedocs.io/en/latest/development/Vagrant-Step-by-Step-setup/) on how to get up and running now! elmsln.org also has some sponsored demos of the technology but the real deal is always best!
 
 Issues
 ==============
@@ -23,8 +23,13 @@ Documentation
 ==============
 See the Docs for questions and documentation either on our [docs site](https://elmsln.readthedocs.io/en/latest/) or [API site](http://api.elmsln.org).
 
+Vision and Governance
+==============
+See https://github.com/elmsln/elmsln/blob/master/GOVERNANCE.md for our ELMS:LN Vision and Governance statement.
+
 Code of Conduct
 ==============
+See https://github.com/elmsln/elmsln/blob/master/CONFLICT_RESOLUTION.md for our Conflict Resolution guide.
 See https://github.com/elmsln/elmsln/blob/master/CODE_OF_CONDUCT.md for our ELMS:LN code of conduct.
 
 How can I get more involved?
