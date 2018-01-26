@@ -5,30 +5,29 @@ how.
 
 Core Maintainers
 ------------------
-
-The ELMSLN Core maintainers oversee the development of ELMSLN as a whole.
+The ELMSLN Core maintainers oversee the development of ELMSLN as a whole, shaping it's direction and doing the heavy lifting in certain aspects of core maintenance and project management.
 The Core maintainers are:
 
 - Bryan Ollendyke `@btopro` https://www.elmsln.org/team/bryan-ollendyke-ms
 - Michael Potter `@hey__mp` https://www.elmsln.org/team/michael-potter
-- Michael Collins `@_mike_collins` https://www.elmsln.org/team/michael-collins-mfa
 
-Contributors
+Community Contributors (active)
 ---------------------
-All core contributors assume multiple roles as we are an all hands on deck project. These titles are based on what they primarily contribute to.
-- Bryan Ollendyke - Project lead, Backend developer
-- Michael Potter - Front end development lead
-- Michael Collins - Faculty, User Experience
-- Brad Fisher - SysOps developer
-- Mark Milutinovic - Student developer, testing and core bug fixes
+These contributors participate regularly in discussions, influence code produced, or contribute code directly.
+- Melissa Hicks - Instructional designer, Penn State Eberly College of Science: Office of Digital Learning
+- Michael Collins - Faculty, Penn State College of Arts and Architecture: School of Visual Arts
+- Rick Humphries - Instructional designer, Buttercups Training
+- Katrina Wehr - Instructional designer, Penn State Smeal College of Business: eLearning Digital Innovation Group
+- Charles Lavera - Developer, Penn State Eberly College of Science: Office of Digital Learning
+- Kate Miffit - Instructional designer, Penn State College of Arts and Architecture: Office of Digital Learning
+- Nikki Massaro Kauffman - Developer, Penn State College of Arts and Architecture: Office of Digital Learning
+- Patrick O’Connor - Developer, Penn State College of Arts and Architecture: Office of Digital Learning
+- Zane Sensenig - Developer, Penn State Smeal College of Business: eLearning Digital Innovation Group
+- Jack Davis - Developer, Buttercups Training
 
-Community Contributors Credit
+Contributor Credits (past)
 ---------------------
-While not core maintainers, these developers have been invaluable in getting ELMSLN's core development kickstarted.
-- Dann Bohn - Early DevOps contributor, sys admin
-- Melissa Hicks - Instructional designer, ELMS:LN Evangelist
-- Rick Humphries - Instructional designer / adopter, testing & issue contributor
-- Katrina Wehr - Instructional designer, issue contributor
-- Alex Boyce - Developer, issue contributor
-- Patrick O’Connor - Student developer, testing and core bug fixes
-
+- Dann Bohn - Developer
+- Alex Boyce - Developer
+- Brad Fisher - Developer
+- Mark Milutinovic - Developer
