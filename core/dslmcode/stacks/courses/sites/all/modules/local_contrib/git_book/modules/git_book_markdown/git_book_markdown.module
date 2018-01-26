@@ -42,6 +42,8 @@ function git_book_markdown_node_prepare($node) {
  */
 function git_book_markdown_filter_info_alter(&$info) {
   $info['filter_markdown']['process callback'] = '_git_book_filter_markdown';
+  // aggressive but then we know it actually will process our changes at run time correctly
+  $info['filter_markdown']['cache'] = FALSE;
 }
 
 /**
