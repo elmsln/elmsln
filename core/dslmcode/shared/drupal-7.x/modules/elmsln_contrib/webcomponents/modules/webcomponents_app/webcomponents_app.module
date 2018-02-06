@@ -119,6 +119,9 @@ function webcomponents_app_menu() {
     if (isset($app['menu'])) {
       // if we are making this a menu then make it normal so it shows up in lists
       $items[WEBCOMPONENTS_APP_PATH . '/' . $machine_name]['type'] = MENU_NORMAL_ITEM;
+      if (isset($app['menu']['title'])) {
+        $items[WEBCOMPONENTS_APP_PATH . '/' . $machine_name]['title'] = $app['menu']['title'];
+      }
       $items[WEBCOMPONENTS_APP_PATH . '/' . $machine_name]['menu_name'] = $app['menu']['menu_name'];
       $items[WEBCOMPONENTS_APP_PATH . '/' . $machine_name]['weight'] = $app['menu']['weight'];
     }

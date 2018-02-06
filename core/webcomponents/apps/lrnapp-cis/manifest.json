@@ -6,8 +6,9 @@
   "start_url": "/",
   "display": "standalone",
   "app_integration": {
-    "title": "Courses",
+    "title": "",
     "menu": {
+      "title": "Courses",
       "menu_name": "menu-elmsln-navigation",
       "weight": 10
     },
