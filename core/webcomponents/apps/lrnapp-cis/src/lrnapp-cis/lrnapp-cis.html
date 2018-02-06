@@ -242,7 +242,7 @@ A learning application for visualizing course information and listing.
       _routeChanged: function(route, endPoint) {
         if (typeof route.path === 'string') {
           if (typeof endPoint === 'string') {
-            if (route.path.startsWith(endPoint)) {
+            if (route.path.startsWith(endPoint) || route.path == '/') {
               return;
             }
           }
@@ -336,6 +336,8 @@ A learning application for visualizing course information and listing.
         if (findCourse.length > 0) {
           findCourse = findCourse.pop();
         }
+        console.log(findCourse.data);
+        // @todo trigger a modal that has details about the course in here
         // double check we have a URI
         if (typeof findCourse.data.uri !== typeof undefined) {
           window.location.href = findCourse.data.uri;
@@ -345,7 +347,7 @@ A learning application for visualizing course information and listing.
        * Compute the active list of courses
        */
       _coursesCompute: function(originalCourses, queryParams) {
-                console.log(originalCourses);
+        console.log(originalCourses);
         console.log(queryParams);
         // if we don't have an original courses object to work with then we need to bail
         if (typeof originalCourses === 'undefined') {
