@@ -3668,10 +3668,14 @@ body.page-node-edit.node-type-page .cke_focus .cke_top{
 .colorpicker {
   z-index: 10000;
 }
-article ul:not(.contextual-links):not(.collapsible):not(.footnotes):not(.browser-default):not(.dropdown-content):not(.h5p-answers):not(.table-of-contents):not(.menu) li,
-.ckeditor-edit-body ul:not(.contextual-links):not(.collapsible):not(.browser-default):not(.dropdown-content):not(.h5p-answers):not(.table-of-contents):not(.menu) li {
+article ul:not(.contextual-links):not(.collection):not(.collapsible):not(.footnotes):not(.browser-default):not(.dropdown-content):not(.h5p-answers):not(.table-of-contents):not(.menu) li,
+.ckeditor-edit-body ul:not(.contextual-links):not(.collection):not(.collapsible):not(.browser-default):not(.dropdown-content):not(.h5p-answers):not(.table-of-contents):not(.menu) li {
   list-style-type: disc;
   list-style-position: outside;
+}
+
+article ul.collection {
+  list-style:none;
 }
 
 .material-icon.elmsln-icon:before {
