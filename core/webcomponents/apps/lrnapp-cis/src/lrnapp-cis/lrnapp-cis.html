@@ -12,24 +12,24 @@
 <link rel="import" href="../../bower_components/app-route/app-route.html">
 <link rel="import" href="../../bower_components/app-route/app-location.html">
 
+<link rel="import" href="../../bower_components/lrndesign-avatar/lrndesign-avatar.html">
+<link rel="import" href="../../bower_components/responsive-grid/responsive-grid-row.html">
 <link rel="import" href="../../bower_components/lrnsys-button/lrnsys-button.html">
 <link rel="import" href="../../bower_components/lrnsys-layout/lrnsys-dialog.html">
 <link rel="import" href="../../bower_components/elmsln-loading/elmsln-loading.html">
 <link rel="import" href="lrnapp-cis-course-card.html">
 
 <!--
-`lrnapp-cis`
-A learning application for visualizing course information and listing.
+ `lrnapp-cis`
+ A learning application for visualizing course information and listing.
 
 @demo ../../demo/index.html
 
 @microcopy - the mental model for this app
  - cis - Course Information System
  -
- -
 
 -->
-
 <dom-module id="lrnapp-cis">
   <template>
     <style include="materializecss-styles"></style>
@@ -41,7 +41,8 @@ A learning application for visualizing course information and listing.
       #loading {
         width: 100%;
         z-index: 1000;
-        opacity: .8;
+        opacity: .9;
+        padding: 4em 0 0 0;
         text-align: center;
         align-content: center;
         justify-content: center;
@@ -58,6 +59,9 @@ A learning application for visualizing course information and listing.
       paper-button.coursecard-wrapper {
         margin: 0;
         padding: 0;
+      }
+      paper-button.coursecard-wrapper:focus {
+        outline: blue solid 1px;
       }
       lrnapp-cis-course-card {
         padding: 0;
@@ -81,14 +85,98 @@ A learning application for visualizing course information and listing.
       iron-list {
         flex: 1 1 auto;
       }
+      /**
+       * Dialog
+       */
+      .course-dialog-image {
+
+      }
+      .course-dialog-heading {
+        position: absolute;
+        background-color: rgba(30, 30, 30, .8);
+        width: 100%;
+        text-align: left;
+        margin: -5em 0 0 0;
+        padding: 1em;
+        color: #ffffff;
+      }
+      .course-dialog-avatar {
+        float: left;
+        display: inline-flex;
+        padding: 0 1em 0 0;
+      }
+      .course-dialog-name {
+        font-size: 2em;
+        line-height: 1em;
+      }
+      .course-dialog-title {
+        font-size: 1em;
+        line-height: 1em;
+      }
     </style>
     <iron-ajax auto
       url="[[sourcePath]]"
       params=''
       handle-as="json"
-      last-response="{{cisResponse}}"
+      last-response="{{_cisResponse}}"
       on-response="_handleResponse"></iron-ajax>
-
+    <iron-ajax
+      url="[[courseDataPath]]"
+      params='[[_courseDataParams]]'
+      handle-as="json"
+      id="courserequest"
+      last-response="{{_courseResponse}}"
+      on-response="_handleCourseResponse"></iron-ajax>
+    <div id="loading">
+      <elmsln-loading color="grey-text" size="large"></elmsln-loading>
+      <h3>Loading..</h3>
+    </div>
+    <app-toolbar class="">
+      <span main-title></span>
+      <span top-item style="text-align:right;font-size:.5em;padding-right:1em;">Displaying [[courses.length]] of [[originalCourses.length]]</span>
+      <paper-dropdown-menu label="Course" hidden$="[[!courses]]">
+        <paper-listbox slot="dropdown-content" class="dropdown-content" selected="{{queryParams.course}}" attr-for-selected="item-id">
+          <paper-item>-- Any --</paper-item>
+          <template is="dom-repeat" items="[[_toArray(originalCourses)]]" as="course">
+          <paper-item item-id="[[course.id]]">[[course.attributes.name]]</paper-item>
+          </template>
+        </paper-listbox>
+      </paper-dropdown-menu>
+      <paper-dropdown-menu label="Program" hidden$="[[!programs]]">
+        <paper-listbox slot="dropdown-content" class="dropdown-content" selected="{{queryParams.program}}" attr-for-selected="item-id">
+          <paper-item>-- Any --</paper-item>
+        <template is="dom-repeat" items="[[_toArray(programs)]]" as="program">
+          <paper-item item-id="[[program.id]]">[[program.attributes.name]]</paper-item>
+        </template>
+        </paper-listbox>
+      </paper-dropdown-menu>
+      <paper-dropdown-menu label="Academic home" hidden$="[[!academics]]">
+        <paper-listbox slot="dropdown-content" class="dropdown-content" selected="{{queryParams.academic}}" attr-for-selected="item-id">
+          <paper-item>-- Any --</paper-item>
+        <template is="dom-repeat" items="[[_toArray(academics)]]" as="academic">
+          <paper-item item-id="[[academic.id]]">[[academic.attributes.name]]</paper-item>
+        </template>
+        </paper-listbox>
+      </paper-dropdown-menu>
+    </app-toolbar>
+    <div class="courses-grid">
+      <iron-pages
+        selected="{{data.page}}"
+        attr-for-selected="name"
+        fallback-selection="courses"
+        role="main">
+        <div class="iron-list-container" name="courses">
+          <iron-list items="[[courses]]" as="course" grid>
+            <template>
+            <paper-button data-course-id$="[[course.id]]" class="coursecard-wrapper" on-tap="_loadCourseUrl">
+              <lrnapp-cis-course-card elevation="2" data-course-id$="[[course.id]]" name="[[course.attributes.name]]" image="[[course.attributes.image]]" title="[[course.attributes.title]]" color="[[course.attributes.color]]">
+              </lrnapp-cis-course-card>
+            </paper-button>
+            </template>
+          </iron-list>
+        </div>
+      </iron-pages>
+    </div>
     <app-location route="{{route}}" query-params="{{queryParams}}"></app-location>
     <app-route
         route="{{route}}"
@@ -97,83 +185,55 @@ A learning application for visualizing course information and listing.
         tail="{{tail}}"
         query-params="{{queryParams}}">
     </app-route>
-
-    <div id="loading">
-      <h3>Loading..</h3>
-      <elmsln-loading color="grey-text" size="large"></elmsln-loading>
-    </div>
-    <app-toolbar class="">
-      <span main-title></span>
-      <span top-item style="text-align:right;font-size:.5em;padding-right:1em;">Displaying [[courses.length]] of [[originalCourses.length]]</span>
-      <paper-dropdown-menu label="Course" hidden$="[[!courses]]">
-        <paper-listbox slot="dropdown-content" class="dropdown-content" selected="{{queryParams.course}}" attr-for-selected="item-id">
-          <paper-item></paper-item>
-          <template is="dom-repeat" items="[[_toArray(courses)]]" as="course">
-          <paper-item item-id="[[course.id]]">[[course.data.name]]</paper-item>
-          </template>
-        </paper-listbox>
-      </paper-dropdown-menu>
-      <paper-dropdown-menu label="Program" hidden$="[[!programs]]">
-        <paper-listbox slot="dropdown-content" class="dropdown-content" selected="{{queryParams.program}}" attr-for-selected="item-id">
-          <paper-item></paper-item>
-        <template is="dom-repeat" items="[[_toArray(programs)]]" as="program">
-          <paper-item item-id="[[program.id]]">[[program.data.name]]</paper-item>
-        </template>
-        </paper-listbox>
-      </paper-dropdown-menu>
-      <paper-dropdown-menu label="Academic home" hidden$="[[!academics]]">
-        <paper-listbox slot="dropdown-content" class="dropdown-content" selected="{{queryParams.academic}}" attr-for-selected="item-id">
-          <paper-item></paper-item>
-        <template is="dom-repeat" items="[[_toArray(academics)]]" as="academic">
-          <paper-item item-id="[[academic.id]]">[[academic.data.name]]</paper-item>
-        </template>
-        </paper-listbox>
-      </paper-dropdown-menu>
-    </app-toolbar>
-    <div class="courses-grid">
-    <iron-pages
-      selected="{{data.page}}"
-      attr-for-selected="name"
-      fallback-selection="courses"
-      role="main">
-      <div class="iron-list-container" name="courses">
-        <iron-list items="[[courses]]" as="course" grid>
-          <template>
-          <paper-button data-course-id$="[[course.id]]" class="coursecard-wrapper" on-tap="_loadCourseUrl">
-            <lrnapp-cis-course-card elevation="2" data-course-id$="[[course.id]]" name="[[course.data.name]]" image="[[course.data.image]]" title="[[course.data.title]]" color="[[course.data.color]]">
-            </lrnapp-cis-course-card>
-          </paper-button>
-          </template>
-        </iron-list>
+    <lrnsys-dialog tabindex="-1" id="dialog" body-append>
+      <div slot="content">
+        <div id="loadingCourse" class="loading">
+          <h3>Loading..</h3>
+          <elmsln-loading color="grey-text" size="large"></elmsln-loading>
+        </div>
       </div>
-    </iron-pages>
-    </div>
-    <lrnsys-dialog tabindex="-1" id="details-dialog" body-append header="[[activeCourse.data.name]]">
-        <div slot="content">
-          <template is="dom-if" if="[[!activeCourse]]">
-            <div id="loadingCourse" class="loading">
-              <h3>Loading..</h3>
-              <elmsln-loading color="grey-text" size="large"></elmsln-loading>
+      <div slot="header">
+        <iron-image class="course-dialog-image" style="width:100%; height:200px; background-color: lightgray;" sizing="cover" preload fade src$="[[activeCourse.attributes.image]]"></iron-image>
+        <div class="course-dialog-heading">
+          <lrndesign-avatar class="course-dialog-avatar" label="[[activeCourse.attributes.name]]" jdenticon color="[[activeCourse.attributes.color]] darken-4">
+          </lrndesign-avatar>
+          <div class="course-dialog-name">[[activeCourse.attributes.name]]</div>
+          <div class="course-dialog-title">[[activeCourse.attributes.title]]</div>
+        </div>
+      </div>
+      <div id="loadingContent" slot="content">
+        <responsive-grid-row gutter="5">
+          <responsive-grid-col xl="6" lg="6" md="6" sm="12" xs="12">
+            <div class="column">
+              <h4>Details</h4>
+              <ul>
+                <li hidden$="[[!activeCourse.relationships.academic.attributes.name]]">Academic unit: [[activeCourse.relationships.academic.attributes.name]]</li>
+                <li hidden$="[[!activeCourse.relationships.program.attributes.name]]">Program: [[activeCourse.relationships.program.attributes.name]]</li>
+              </ul>
+              <h4>Learning Network</h4>
+              <template is="dom-repeat" items="[[activeCourse.topology.Network]]" as="service">
+                <lrnsys-button raised href="[[service.url]]" hover-class="[[service.color]] lighten-4">
+                  <lrn-icon icon="[[service.icon]]" class="elmsln-hover-icon"></lrn-icon>
+                  <span>[[service.title]]</span>
+                </lrnsys-button>
+              </template>
             </div>
-          </template>
-        </div>
-        <div slot="header">
-          <template is="dom-if" if="[[activeCourse]]">
-            <template is="dom-if" if="[[activeCourse.image]]">
-              <iron-image style="width:100%; height:200px; background-color: lightgray;" sizing="cover" preload fade src$="[[activeCourse.image]]"></iron-image>
-            </template>
-            <span class="heading">
-            <span>Student count: [[activeCourse.student_count]]</span>
-            <span>SIS ID: [[activeCourse.sis_course_id]]</span>
-            <span>Term: [[activeCourse.term]]</span>
-            <span>Workflow: [[activeCourse.workflow_state]]</span>
-            </span>
-          </template>
-        </div>
-        <div id="loadingContent" slot="content">
-          <p>A BUNCH OF CONTENT</p>
-        </div>
-      </lrnsys-dialog>
+          </responsive-grid-col>
+          <responsive-grid-col xl="6" lg="6" md="6" sm="12" xs="12">
+            <div class="column">
+              <h4>Operations</h4>
+              <template is="dom-if" if="[[activeCourse.meta.canUpdate]]">
+                <lrnsys-button raised href="[[activeCourse.meta.edit_uri]]" label="Edit" hover-class="amber lighten-4" icon="create"></lrnsys-button>
+              </template>
+              <template is="dom-if" if="[[activeCourse.meta.canDelete]]">
+                <lrnsys-button raised href="[[activeCourse.meta.delete_uri]]" label="Delete" hover-class="amber lighten-4" icon="delete"></lrnsys-button>
+              </template>
+            </div>
+          </responsive-grid-col>
+        </responsive-grid-row>
+        <p>[[activeCourse.attributes.body]]</p>
+      </div>
+    </lrnsys-dialog>
     <paper-toast id="toast"></paper-toast>
   </template>
 
@@ -182,9 +242,15 @@ A learning application for visualizing course information and listing.
       is: 'lrnapp-cis',
       properties: {
         /**
-         * The cisResponse from server
+         * The load initial data
          */
-        cisResponse: {
+        _cisResponse: {
+          type: Object,
+        },
+        /**
+         * Load individual course data
+         */
+        _courseResponse: {
           type: Object,
         },
         /**
@@ -192,6 +258,7 @@ A learning application for visualizing course information and listing.
          */
         courses: {
           type: Array,
+          value: [],
           computed: '_coursesCompute(originalCourses, queryParams)'
         },
         /**
@@ -199,13 +266,8 @@ A learning application for visualizing course information and listing.
          */
         originalCourses: {
           type: Array,
-        },
-        /**
-         * The courses to render
-         */
-        courses: {
-          type: Array,
           value: [],
+          notify: true,
         },
         /**
          * The programs to render
@@ -228,6 +290,12 @@ A learning application for visualizing course information and listing.
           type: String,
         },
         /**
+         * pathway to access info about a single course.
+         */
+        courseDataPath: {
+          type: String,
+        },
+        /**
          * Endpoint for data.
          */
         endPoint: {
@@ -245,16 +313,12 @@ A learning application for visualizing course information and listing.
          * Active / clicked course.
          */
         activeCourse: {
-          type: String,
+          type: Array,
           value: null,
         },
         queryParams: {
           type: Object,
           notify: true,
-        },
-        _blockcycle: {
-          type: Boolean,
-          value: false,
         },
       },
       listeners: {
@@ -269,6 +333,7 @@ A learning application for visualizing course information and listing.
       _routeChanged: function(route, endPoint) {
         if (typeof route.path === 'string') {
           if (typeof endPoint === 'string') {
+            // ignore "home page" as well since that's our path
             if (route.path.startsWith(endPoint) || route.path == '/') {
               return;
             }
@@ -304,6 +369,20 @@ A learning application for visualizing course information and listing.
         });
       },
       /**
+       * Handle course response for additional details about the item
+       */
+      _handleCourseResponse: function(event) {
+        // get the CIS response's data and convert to array ahead of time
+        var course = this._courseResponse.data.course;
+        if (typeof course.topology.Network !== typeof undefined) {
+          course.topology.Network = this._toArray(course.topology.Network);
+        }
+        // original = active off the bat then we apply filters later to chang this
+        this.set('activeCourse', []);
+        this.set('activeCourse', course);
+        this.$.loadingCourse.hidden = true;
+      },
+      /**
        * Handle response for the whole courses object.
        */
       _handleResponse: function(event) {
@@ -318,7 +397,7 @@ A learning application for visualizing course information and listing.
         var programs = [];
         var academics = [];
         // get the CIS response's data and convert to array ahead of time
-        var courses = this._toArray(this.cisResponse.data.courses);
+        var courses = this._toArray(this._cisResponse.data.courses);
         // original = active off the bat then we apply filters later to chang this
         this.set('originalCourses', courses);
         // figure out courses, programs and academics
@@ -341,13 +420,13 @@ A learning application for visualizing course information and listing.
         this.$.loading.hidden = true;
         this.set('academics', academics);
         this.set('programs', programs);
-        this.set('courses', courses);
       },
       /**
        * Handle tap on paper-button above to redirect to the correct course url.
        */
       _loadCourseUrl: function(e) {
-        let root = this;
+        // reset dialog to appear to be loading
+        this.$.loadingCourse.hidden = false;
         var normalizedEvent = Polymer.dom(e);
         var local = normalizedEvent.localTarget;
         // this will have the id of the current course
@@ -363,20 +442,20 @@ A learning application for visualizing course information and listing.
         if (findCourse.length > 0) {
           findCourse = findCourse.pop();
         }
-        console.log(findCourse.data);
-        this.$$('#details-dialog').toggleDialog();
-        // @todo trigger a modal that has details about the course in here
-        // double check we have a URI
-        if (typeof findCourse.data.uri !== typeof undefined) {
-          //window.location.href = findCourse.data.uri;
-        }
+        this.activeCourse = findCourse;
+        // formulate the post data
+        this._courseDataParams = {
+          "id": this.activeCourse.id
+        };
+        // @todo look at query cache mechanism to skip calls
+        // if they've already happened. lrnapp-book has some stuff to do this
+        this.$.courserequest.generateRequest();
+        this.$.dialog.toggleDialog();
       },
       /**
        * Compute the active list of courses
        */
       _coursesCompute: function(originalCourses, queryParams) {
-        console.log(originalCourses);
-        console.log(queryParams);
         // if we don't have an original courses object to work with then we need to bail
         if (typeof originalCourses === 'undefined') {
           return [];
