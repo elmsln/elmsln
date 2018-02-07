@@ -117,23 +117,28 @@ class ELMSLNCourseService {
       $encoded->attributes->machine_name = $node->field_machine_name['und'][0]['value'];
       $encoded->attributes->image = file_create_url($node->field_banner['und'][0]['uri']);
       $encoded->attributes->color = (isset($node->field_primary_color['und'][0]['safe_value']) ? $node->field_primary_color['und'][0]['safe_value'] : 'red');
+      // links
+      $encoded->uris = new stdClass();
+      $encoded->uris->uri = base_path() . 'node/' . $node->nid;
+      $encoded->uris->offerings = $encoded->uris->uri .'/offerings' . $destination;
       // Meta Info
       $encoded->meta = new stdClass();
-      $encoded->meta->uri = base_path() . 'node/' . $node->nid;
       $encoded->meta->created = Date('c', $node->created);
       $encoded->meta->changed = Date('c', $node->changed);
       $encoded->meta->humandate = Date("F j, Y, g:i a", $node->changed);
       $encoded->meta->revision_timestamp = Date('c', $node->revision_timestamp);
       $encoded->meta->canUpdate = 0;
       $encoded->meta->canDelete = 0;
+      $destination = '?destination=' . arg(0) . '/' . arg(1);
       // see the operations they can perform here
       if (entity_access('update', 'node', $node)) {
         $encoded->meta->canUpdate = 1;
-        $encoded->meta->edit_uri = base_path() . 'node/' . $node->nid .'/edit?destination=' . arg(0) . '/' . arg(1);
+        $encoded->uris->edit = $encoded->uris->uri . '/edit' . $destination;
+        $encoded->uris->sync = $encoded->uris->uri . '/sync-roster' . $destination;
       }
       if (entity_access('delete', 'node', $node)) {
         $encoded->meta->canDelete = 1;
-        $encoded->meta->delete_uri = base_path() . 'node/' . $node->nid .'/delete?destination=' . arg(0) . '/' . arg(1);
+        $encoded->uris->delete = $encoded->uris->uri . '/delete' . $destination;
       }
       // Relationships
       $encoded->relationships = new stdClass();
