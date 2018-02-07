@@ -30,7 +30,7 @@ class LRNAppOpenStudioCommentService {
   }
   /**
    * Get a list of comments
-   * This will take into concideration what section the user is in and what section
+   * This will take into consideration what section the user is in and what section
    * they have access to.
    * @param object $options
    *                - filter
@@ -72,17 +72,20 @@ class LRNAppOpenStudioCommentService {
     return $items;
   }
 
+  /**
+   * Sort comment threads low to high.
+   */
   private static function sortComments($a, $b) {
     return $a->thread - $b->thread;
   }
 
   /**
    * Get a single comments
-   * This will take into concideration what section the user is in and what section
+   * This will take into consideration what section the user is in and what section
    * they have access to.
    *
    * @param string $id
-   *    Nid of the comments
+   *    cid of the comment
    *
    * @return object
    */
