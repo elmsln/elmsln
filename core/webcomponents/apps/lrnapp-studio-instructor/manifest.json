@@ -1,0 +1,24 @@
+{
+  "name": "lrnapp-studio-instructor",
+  "short_name": "lrnapp-studio-instructor",
+  "description": "Instructor displays and details",
+  "start_url": "/",
+  "display": "standalone",
+  "app_integration": {
+    "title": "Instructor view",
+    "menu": {
+      "menu_name": "menu-elmsln-navigation",
+      "weight": 12
+    },
+    "endpoints": {
+      "data": {
+        "callback": "_lrnapp_studio_instructor_data",
+        "property": "source-path"
+      }
+    },
+    "context": {
+      "distro": "cle",
+      "module": "cle_open_studio_app"
+    }
+  }
+}
