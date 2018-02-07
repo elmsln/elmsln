@@ -29,6 +29,9 @@ function _lrnapp_studio_instructor_data($machine_name, $app_route, $params, $arg
   // snag projects
   $service = new LRNAppOpenStudioProjectService();
   $data['projects'] = $service->getProjects();
+  $service = new LRNAppOpenStudioCommentService();
+  $options = new stdClass();
+  $data['comments'] = $service->getComments($options);
   return array(
     'status' => $status,
     'data' => $data
