@@ -112,6 +112,12 @@
       .course-dialog-title {
         font-size: 1em;
         line-height: 1em;
+        display: none;
+      }
+      @media screen and (min-width: 420px) {
+        .course-dialog-title {
+          display: block;
+        }
       }
     </style>
     <iron-ajax auto
@@ -222,11 +228,15 @@
           <responsive-grid-col xl="6" lg="6" md="6" sm="12" xs="12">
             <div class="column">
               <h4>Operations</h4>
+              <lrnsys-button raised href="[[activeCourse.meta.uri]]/offerings" label="Offerings" hover-class="amber lighten-4" icon="social:people"></lrnsys-button>
+              <lrnsys-button raised href="[[activeCourse.meta.uri]]/sync-roster" label="Sync Roster" hover-class="amber lighten-4" icon="notification:sync"></lrnsys-button>
+              <lrnsys-button raised href="[[activeCourse.meta.uri]]" label="Course page (legacy)" hover-class="brown lighten-4" icon="delete"></lrnsys-button>
               <template is="dom-if" if="[[activeCourse.meta.canUpdate]]">
-                <lrnsys-button raised href="[[activeCourse.meta.edit_uri]]" label="Edit" hover-class="amber lighten-4" icon="create"></lrnsys-button>
+                <lrnsys-button raised href="[[activeCourse.meta.edit_uri]]" label="Edit" hover-class="green lighten-4" icon="create"></lrnsys-button>
               </template>
+              <div style="height: 2em;width: 100%;display: block;"></div>
               <template is="dom-if" if="[[activeCourse.meta.canDelete]]">
-                <lrnsys-button raised href="[[activeCourse.meta.delete_uri]]" label="Delete" hover-class="amber lighten-4" icon="delete"></lrnsys-button>
+                <lrnsys-button raised href="[[activeCourse.meta.delete_uri]]" label="Delete" hover-class="red lighten-3" icon="delete"></lrnsys-button>
               </template>
             </div>
           </responsive-grid-col>
