@@ -13,6 +13,7 @@
 <link rel="import" href="../../bower_components/app-route/app-location.html">
 
 <link rel="import" href="../../bower_components/lrnsys-button/lrnsys-button.html">
+<link rel="import" href="../../bower_components/lrnsys-layout/lrnsys-dialog.html">
 <link rel="import" href="../../bower_components/elmsln-loading/elmsln-loading.html">
 <link rel="import" href="lrnapp-cis-course-card.html">
 
@@ -147,6 +148,32 @@ A learning application for visualizing course information and listing.
       </div>
     </iron-pages>
     </div>
+    <lrnsys-dialog tabindex="-1" id="details-dialog" body-append header="[[activeCourse.data.name]]">
+        <div slot="content">
+          <template is="dom-if" if="[[!activeCourse]]">
+            <div id="loadingCourse" class="loading">
+              <h3>Loading..</h3>
+              <elmsln-loading color="grey-text" size="large"></elmsln-loading>
+            </div>
+          </template>
+        </div>
+        <div slot="header">
+          <template is="dom-if" if="[[activeCourse]]">
+            <template is="dom-if" if="[[activeCourse.image]]">
+              <iron-image style="width:100%; height:200px; background-color: lightgray;" sizing="cover" preload fade src$="[[activeCourse.image]]"></iron-image>
+            </template>
+            <span class="heading">
+            <span>Student count: [[activeCourse.student_count]]</span>
+            <span>SIS ID: [[activeCourse.sis_course_id]]</span>
+            <span>Term: [[activeCourse.term]]</span>
+            <span>Workflow: [[activeCourse.workflow_state]]</span>
+            </span>
+          </template>
+        </div>
+        <div id="loadingContent" slot="content">
+          <p>A BUNCH OF CONTENT</p>
+        </div>
+      </lrnsys-dialog>
     <paper-toast id="toast"></paper-toast>
   </template>
 
@@ -337,10 +364,11 @@ A learning application for visualizing course information and listing.
           findCourse = findCourse.pop();
         }
         console.log(findCourse.data);
+        this.$$('#details-dialog').toggleDialog();
         // @todo trigger a modal that has details about the course in here
         // double check we have a URI
         if (typeof findCourse.data.uri !== typeof undefined) {
-          window.location.href = findCourse.data.uri;
+          //window.location.href = findCourse.data.uri;
         }
       },
       /**
