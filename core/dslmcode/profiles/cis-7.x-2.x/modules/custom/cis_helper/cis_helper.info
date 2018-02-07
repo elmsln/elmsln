@@ -4,3 +4,6 @@ description = "Tweaks for the course information system"
 core = 7.x
 package = CIS
 dependencies[] = httprl
+dependencies[] = webcomponents
+dependencies[] = webcomponents_polymer
+dependencies[] = webcomponents_app
