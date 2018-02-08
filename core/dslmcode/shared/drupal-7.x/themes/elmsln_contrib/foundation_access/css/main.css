@@ -8721,6 +8721,7 @@ button.btn paper-button {
   opacity: .8;
   float: left;
 }
+
 /* TOTAL HACK JOB SOLUTIONS */
 
 /* Hide group access controls, they should always be default of private */
@@ -8736,18 +8737,9 @@ select.date-clear.form-select.initialized {
   display: none;
 }
 
-.lrnsys-drawer-0 .drawer-header.lrnsys-drawer {
+.lrnsys-drawer-modal-0 .drawer-content.lrnsys-drawer-modal {
   margin: 0;
   padding: 0;
-}
-.app-drawer-0 #contentContainer.app-drawer {
-  margin-top: 7.5em;
-}
-
-#flyoutcontent #close-button {
-  position: absolute;
-  top: 0;
-  right: 0;
 }
 
 /**
@@ -8792,13 +8784,6 @@ div.autocomplete-deluxe-multiple {
  */
 .views-exposed-widget {
   overflow: hidden;
-}
-
-/**
- * Clipped content when it's too short
- */
-paper-dialog.lrnsys-dialog .paper-dialog-scrollable-0 .scrollable.paper-dialog-scrollable {
-  min-height: 400px;
 }
 
 /**

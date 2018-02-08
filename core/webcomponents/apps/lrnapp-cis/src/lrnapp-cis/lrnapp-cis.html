@@ -19,6 +19,7 @@
 <link rel="import" href="../../bower_components/lrnsys-button/lrnsys-button.html">
 <link rel="import" href="../../bower_components/lrnsys-layout/lrnsys-dialog.html">
 <link rel="import" href="../../bower_components/elmsln-loading/elmsln-loading.html">
+<link rel="import" href="../../bower_components/lrndesign-course-banner/lrndesign-course-banner.html">
 <link rel="import" href="lrnapp-cis-course-card.html">
 
 <!--
@@ -87,39 +88,16 @@
       iron-list {
         flex: 1 1 auto;
       }
-      /**
-       * Dialog
-       */
-      .course-dialog-image {
-
+      .dialog-header {
+        height: unset !important;
+        padding: 0 !important;
       }
-      .course-dialog-heading {
-        position: absolute;
-        background-color: rgba(30, 30, 30, .8);
-        width: 100%;
-        text-align: left;
-        margin: -5em 0 0 0;
-        padding: 1em;
-        color: #ffffff;
-      }
-      .course-dialog-avatar {
-        float: left;
-        display: inline-flex;
-        padding: 0 1em 0 0;
-      }
-      .course-dialog-name {
-        font-size: 2em;
-        line-height: 1em;
-      }
-      .course-dialog-title {
+      .course-dialog-heading.lrndesign-course-banner {
         font-size: 1em;
-        line-height: 1em;
-        display: none;
+        height: 4em !important;
       }
-      @media screen and (min-width: 420px) {
-        .course-dialog-title {
-          display: block;
-        }
+      #coursedetails {
+        margin-top: 1em;
       }
     </style>
     <iron-ajax auto
@@ -200,24 +178,18 @@
         tail="{{tail}}"
         query-params="{{queryParams}}">
     </app-route>
-    <lrnsys-dialog tabindex="-1" id="dialog" body-append>
+    <lrnsys-dialog tabindex="-1" id="dialog" disable-auto-focus>
       <div slot="content">
         <div id="loadingCourse" class="loading">
           <h3>Loading..</h3>
           <elmsln-loading color="grey-text" size="large"></elmsln-loading>
         </div>
       </div>
-      <div slot="header">
-        <!-- TODO make this it's own element -->
-        <iron-image class="course-dialog-image" style="width:100%; height:200px; background-color: lightgray;" sizing="cover" preload fade src$="[[activeCourse.attributes.image]]"></iron-image>
-        <div class="course-dialog-heading">
-          <lrndesign-avatar class="course-dialog-avatar" label="[[activeCourse.attributes.name]]" jdenticon color="[[activeCourse.attributes.color]] darken-4">
-          </lrndesign-avatar>
-          <div class="course-dialog-name">[[activeCourse.attributes.name]]</div>
-          <div class="course-dialog-title">[[activeCourse.attributes.title]]</div>
-        </div>
+      <div class="dialog-header" slot="header">
+        <lrndesign-course-banner image="[[activeCourse.attributes.image]]" name="[[activeCourse.attributes.name]]" title="[[activeCourse.attributes.title]]" color="[[activeCourse.attributes.color]] darken-4">
+        </lrndesign-course-banner>
       </div>
-      <div id="loadingContent" slot="content">
+      <div id="coursedetails" slot="content">
         <responsive-grid-row gutter="5">
           <responsive-grid-col xl="6" lg="6" md="6" sm="12" xs="12">
             <div class="column">
@@ -553,9 +525,24 @@
         this.$.makeservice.generateRequest();
       },
       /**
+       * Attached lifecycle
+       */
+      attached: function() {
+        // listen for focus event to have fired
+        document.body.addEventListener('lrnsys-dialog-modal-closed', this._accessibleFocus.bind(this));
+      },
+      /**
+       * Set ourselves as having focus after the modal closes.
+       */
+      _accessibleFocus: function(e) {
+        // focus on our dialog triggering button
+        this.__rememberClick.focus();
+      },
+      /**
        * Handle tap on paper-button above to redirect to the correct course url.
        */
       _loadCourseUrl: function(e) {
+        this.__rememberClick = e.target;
         // reset dialog to appear to be loading
         this.$.loadingCourse.hidden = false;
         var normalizedEvent = Polymer.dom(e);

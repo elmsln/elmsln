@@ -14,7 +14,7 @@
         <?php
           // account for roles that don't have access to this
           if (!empty($elmsln_main_menu)) {?>
-          <lrnsys-drawer alt="<?php print t('Settings menu');?>" header="<?php print t('Settings');?>" align="left" class="course-title elmsln-course-title middle-align-wrap black-text" title="" aria-expanded="false" data-jwerty-key="t" data-voicecommand="open settings (menu)">
+          <lrnsys-drawer alt="<?php print t('Settings menu');?>" header="<?php print t('Settings');?>" align="left" class="course-title elmsln-course-title middle-align-wrap" heading-class="black white-text" title="" aria-expanded="false" data-jwerty-key="t" data-voicecommand="open settings (menu)">
             <span slot="button">
               <lrndesign-avatar class="elmsln-course-avatar" label="<?php print $course_context; ?>" jdenticon color="grey darken-4"></lrndesign-avatar>
               <div class="course-title-group">
@@ -68,7 +68,7 @@
         <?php endif; ?>
         <?php if ($bar_elements['user']) : ?>
         <li class="elmsln-user-profile-menu-item">
-          <lrnsys-drawer body-append class="middle-align-wrap elmsln-user-button black-text" align="right" hover-class="<?php print $lmsless_classes[$network['active']['distro']]['color'] . ' ' . $lmsless_classes[$network['active']['distro']]['dark'];?> white-text">
+          <lrnsys-drawer body-append class="middle-align-wrap elmsln-user-button black-text" align="right" hover-class="<?php print $lmsless_classes[$network['active']['distro']]['color'] . ' ' . $lmsless_classes[$network['active']['distro']]['dark'];?> white-text" heading-class=" black-text">
             <span slot="button">
               <lrndesign-avatar style="display:inline-block; vertical-align: middle;" label="<?php print $username;?>" src="<?php print $userpicture;?>"></lrndesign-avatar>
               <span class="hide-on-med-and-down" style="display:inline-block; vertical-align: middle;"><?php print $username; ?></span>
@@ -127,7 +127,7 @@
   <?php endif; ?>
   <?php if ($bar_elements['network']) : ?>
     <li class="elmsln-network-menu-item right">
-      <lrnsys-drawer class="middle-align-wrap elmsln-network-button black-text" align="right" header="<?php print t('Applications'); ?>" data-jwerty-key="o+a" data-voicecommand="open applications" hover-class="<?php print $lmsless_classes[$network['active']['distro']]['color'] . ' ' . $lmsless_classes[$network['active']['distro']]['dark'];?> white-text">
+      <lrnsys-drawer class="middle-align-wrap elmsln-network-button" align="right" header="<?php print t('Applications'); ?>" data-jwerty-key="o+a" data-voicecommand="open applications" hover-class="<?php print $lmsless_classes[$network['active']['distro']]['color'] . ' ' . $lmsless_classes[$network['active']['distro']]['dark'];?> white-text" heading-class="black white-text">
         <span slot="button"><iron-icon icon="apps"></iron-icon><?php print t('More apps'); ?></span>
         <div slot="content" class="elmsln-modal-content elmsln-network-modal">
           <?php print $network_block;?>
