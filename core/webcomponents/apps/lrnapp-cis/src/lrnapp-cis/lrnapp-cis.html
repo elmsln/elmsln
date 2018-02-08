@@ -275,8 +275,8 @@
     <paper-dialog id="confirm"
       modal
       with-backdrop>
-      <div class="title">Are you sure?</div>
-      <div class="body">This will setup</div>
+      <div class="title">Add this to the <strong>[[activeCourse.attributes.title]]</strong> network?</div>
+      <div class="body">This will setup a new instance of <strong>[[_activeService.title]]</strong> and add it to <strong>[[activeCourse.attributes.title]]</strong>'s network. This will take a few moments.</div>
       <slot></slot>
       <div class="buttons">
         <paper-button dialog-dismiss>Cancel</paper-button>
@@ -437,6 +437,10 @@
         // get the CIS response's data and convert to array ahead of time
         var response = this._makeServiceResponse;
         this.$.toast.show(response.message);
+        // this seems odd but the act of confirming this button
+        // will kick off this service being a node so by doing this
+        // we should see the change reflected instantly
+        this.$.courserequest.generateRequest();
       },
       /**
        * Handle course response for additional details about the item
@@ -537,6 +541,7 @@
             'course': this.activeCourse.attributes.machine_name,
             'service': service.machine_name,
           };
+          this._activeService = service;
           // confirm via paper prompt
           this.$.confirm.open();
         }
