@@ -47,14 +47,25 @@ function _lrnapp_cis_course_data($machine_name, $app_route, $params, $args) {
  */
 function _lrnapp_cis_make_service($machine_name, $app_route, $params, $args) {
   $options = array();
+  $data = array();
+  $status = 500;
   $serviceService = new ELMSLNServiceService();
-  $course = null;
-  $course = $params['course'];
-  $service = $params['service'];
-  $data = $serviceService->createServiceInstance($course, $service);
+  if (isset($params['course']) && isset($params['service'])) {
+    $data = $serviceService->createServiceInstance($params['course'], $params['service']);
+    // test for success on creation of the node
+    if ($data) {
+      $status = 200;
+      // you might find yourself in a beautiful cache bin clear
+      // and you may ask yourself? How did I get here?
+      // You may say to yourself. This is not my beautiful cache bin clear function!?
+      // And you may wonder... how did we do anything without this level of pin prick
+      // granularity. As the days go by.. pin pricks flowing from the network.
+      cache_clear_all('elmsln:cis:node:type=service_instance:field_course=' . $data->field_course['und'][0]['target_id'], 'cache_cis_connector', TRUE);
+    }
+  }
   return array(
-    'status' => 200,
-    'message' => t(' request to create has been sent.'),
+    'status' => $status,
+    'message' => t('@service is currently being built for @course.', array('@service' => $params['service'], '@course' => $params['course'])),
     'data' => $data,
   );
 }
