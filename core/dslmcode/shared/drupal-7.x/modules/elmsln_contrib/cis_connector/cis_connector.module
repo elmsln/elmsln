@@ -757,17 +757,17 @@ function _cis_connector_transaction($request, $format = 'default', $query = arra
       if (!empty(_cis_connector_course_context()) && (_cis_connector_is_master($section) || in_array($section, array('default', NULL, FALSE)) !== FALSE)) {
         $query = array(
           'status' => 1,
-          'field_machine_name' => _cis_connector_course_context(),
           'type' => 'course',
+          'field_machine_name' => _cis_connector_course_context(),
         );
         $course = _cis_connection_query($query, 'node');
         if (isset($course['list'][0])) {
           $coursenid = $course['list'][0]['nid'];
           $query = array(
             'status' => 1,
+            'type' => 'service_instance',
             'field_course' => $coursenid,
             'deep-load-refs' => 'node',
-            'type' => 'service_instance',
           );
           $service_instances = _cis_connection_query($query, 'node');
           if (isset($service_instances['list'][0])) {
@@ -1040,18 +1040,18 @@ function _cis_connector_request($url, $options = array(), $bucket = 'cis', $cach
   $data = &drupal_static($call);
   if (!isset($data)) {
     // build a nice cid that's safe and targetable by pin-prick api
-    // cna hit just a bucket to destroy all entries
+    // can hit just a bucket to destroy all entries
     $cid_ary = array();
     if ($bucket != 'none') {
       $cid_ary[] = 'elmsln';
     }
     $cid_ary[] = $bucket;
     // break up the url if we can
-    $tmp = explode('?', $url);
-    if (count($tmp) == 2) {
+    $urlparts = explode('?', $url);
+    if (count($urlparts) == 2) {
       // try and abstract entity / entity id if possible
       // split the format off the request like .json
-      $tmp = explode('.', $tmp[0]);
+      $tmp = explode('.', $urlparts[0]);
       // split the address off
       $tmp = explode('/', $tmp[0]);
       // loop through remaining parts
@@ -1059,6 +1059,28 @@ function _cis_connector_request($url, $options = array(), $bucket = 'cis', $cach
         if ($cache_part != '') {
           $cid_ary[] = $cache_part;
         }
+      }
+      try {
+        // dig into the query params to make it even more granular
+        $queryparams = parse_url($url, PHP_URL_QUERY);
+        $queryparams = html_entity_decode($queryparams);
+        $queryparams = explode('&', $queryparams);
+        $arr = array();
+        // walk the params and see if we have anything
+        // that's useful for addtional cache granularity
+        foreach($queryparams as $param) {
+          $x = explode('=', $param);
+          switch ($x[0]) {
+            case 'type':
+            case 'field_course':
+            case 'field_machine_name':
+              $cid_ary[] = $param;
+            break;
+          }
+         }
+      }
+      catch (Exception $e) {
+        // do nothing, it wasn't there
       }
     }
     // salt this url since it might have sensitive data in it
