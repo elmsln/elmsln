@@ -1180,6 +1180,10 @@ function foundation_access_menu_link(&$variables) {
       $element['#localized_options']['query']['elmsln_course'] = _cis_connector_course_context();
       $element['#localized_options']['query']['elmsln_section'] = _cis_connector_section_context();
     }
+    // set destination to bounce back here when done
+    if (_cis_connector_system_type() != 'service') {
+      $element['#localized_options']['query']['destination'] = current_path();
+    }
     // load up a map of icons and color associations
     $icon_map = _elmsln_core_icon_map();
     $icon = str_replace(' ', '_', drupal_strtolower($title));
