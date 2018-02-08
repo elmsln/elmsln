@@ -116,15 +116,6 @@
         line-height: 1em;
         display: none;
       }
-      paper-dialog .title {
-        @apply --paper-font-title;
-      }
-      paper-dialog .body {
-        @apply --paper-font-body2;
-      }
-      paper-dialog .buttons {
-        margin-top: 16px;
-      }
       @media screen and (min-width: 420px) {
         .course-dialog-title {
           display: block;
@@ -217,6 +208,7 @@
         </div>
       </div>
       <div slot="header">
+        <!-- TODO make this it's own element -->
         <iron-image class="course-dialog-image" style="width:100%; height:200px; background-color: lightgray;" sizing="cover" preload fade src$="[[activeCourse.attributes.image]]"></iron-image>
         <div class="course-dialog-heading">
           <lrndesign-avatar class="course-dialog-avatar" label="[[activeCourse.attributes.name]]" jdenticon color="[[activeCourse.attributes.color]] darken-4">
@@ -436,28 +428,36 @@
       _handleMakeServiceResponse: function(event) {
         // get the CIS response's data and convert to array ahead of time
         var response = this._makeServiceResponse;
+        let activeCourse = this.__addServiceLinks(response.data.course);
+        this.set('activeCourse', []);
+        this.set('activeCourse', activeCourse);
         this.$.toast.show(response.message);
-        // this seems odd but the act of confirming this button
-        // will kick off this service being a node so by doing this
-        // we should see the change reflected instantly
-        this.$.courserequest.generateRequest();
       },
       /**
        * Handle course response for additional details about the item
        */
       _handleCourseResponse: function(event) {
         // get the CIS response's data and convert to array ahead of time
-        var course = this._courseResponse.data.course;
+        var activeCourse = this._courseResponse.data.course;
+        this.__addServiceLinks(activeCourse);
+        this.set('activeCourse', []);
+        this.set('activeCourse', activeCourse);
+        this.$.loadingCourse.hidden = true;
+      },
+      /**
+       * Helper to mash up services that exist with those that could.
+       */
+      __addServiceLinks: function(courseObject) {
         // ensure there's a part for the Network people can request
-        if (typeof course.topology.Network === typeof undefined) {
-          course.topology.Network = {};
+        if (typeof courseObject.topology.Network === typeof undefined) {
+          courseObject.topology.Network = {};
         }
         // loop our services to see what we should add as options
         for (var key in this.services) {
           // if it's not in the topology that means it can be added
-          if (typeof course.topology.Network[this.services[key].attributes.machine_name] === typeof undefined) {
+          if (typeof courseObject.topology.Network[this.services[key].attributes.machine_name] === typeof undefined) {
             // if we get a miss that means we should add a "Add this" version
-            course.topology.Network[this.services[key].attributes.machine_name] = {
+            courseObject.topology.Network[this.services[key].attributes.machine_name] = {
               'color': this.services[key].attributes.color,
               'distro': this.services[key].attributes.distro,
               'icon': this.services[key].attributes.icon,
@@ -470,16 +470,13 @@
           }
         }
         // convert to array after keys in place for the object
-        course.topology.Network = this._toArray(course.topology.Network);
+        courseObject.topology.Network = this._toArray(courseObject.topology.Network);
         // sort items based on weight of the things in the network
         // so we have a consistent order to things
-        course.topology.Network.sort(function(a, b) {
+        courseObject.topology.Network.sort(function(a, b) {
           return a.weight - b.weight;
         });
-        // original = active off the bat then we apply filters later to chang this
-        this.set('activeCourse', []);
-        this.set('activeCourse', course);
-        this.$.loadingCourse.hidden = true;
+        return courseObject;
       },
       /**
        * Handle response for the whole courses object.
