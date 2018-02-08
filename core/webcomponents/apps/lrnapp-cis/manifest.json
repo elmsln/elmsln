@@ -20,6 +20,10 @@
       "course": {
         "callback": "_lrnapp_cis_course_data",
         "property": "course-data-path"
+      },
+      "make-service": {
+        "callback": "_lrnapp_cis_make_service",
+        "property": "make-service-path"
       }
     }
   }

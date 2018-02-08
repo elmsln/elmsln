@@ -6,8 +6,10 @@
 <link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
 <link rel="import" href="../../bower_components/paper-styles/paper-styles.html">
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-styles/typography.html">
 <link rel="import" href="../../bower_components/paper-listbox/paper-listbox.html">
 <link rel="import" href="../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../../bower_components/app-route/app-route.html">
 <link rel="import" href="../../bower_components/app-route/app-location.html">
@@ -114,6 +116,15 @@
         line-height: 1em;
         display: none;
       }
+      paper-dialog .title {
+        @apply --paper-font-title;
+      }
+      paper-dialog .body {
+        @apply --paper-font-body2;
+      }
+      paper-dialog .buttons {
+        margin-top: 16px;
+      }
       @media screen and (min-width: 420px) {
         .course-dialog-title {
           display: block;
@@ -133,6 +144,13 @@
       id="courserequest"
       last-response="{{_courseResponse}}"
       on-response="_handleCourseResponse"></iron-ajax>
+    <iron-ajax
+      url="[[makeServicePath]]"
+      params=''
+      handle-as="json"
+      id="makeservice"
+      last-response="{{_makeServiceResponse}}"
+      on-response="_handleMakeServiceResponse"></iron-ajax>
     <div id="loading">
       <elmsln-loading color="grey-text" size="large"></elmsln-loading>
       <h3>Loading..</h3>
@@ -218,25 +236,35 @@
               </ul>
               <h4>Learning Network</h4>
               <template is="dom-repeat" items="[[activeCourse.topology.Network]]" as="service">
-                <lrnsys-button raised href="[[service.url]]" hover-class="[[service.color]] lighten-4">
-                  <lrn-icon icon="[[service.icon]]" class="elmsln-hover-icon"></lrn-icon>
-                  <span>[[service.title]]</span>
-                </lrnsys-button>
+                <template is="dom-if" if="[[!service._exists]]">
+                  <lrnsys-button raised on-tap="_makeService" color="grey lighten-4" icon-class="grey lighten-5" data-machine-name$="[[service.machine_name]]">
+                    <lrn-icon data-machine-name$="[[service.machine_name]]" icon="[[service.icon]]" class="elmsln-hover-icon"></lrn-icon>
+                    <span data-machine-name$="[[service.machine_name]]">Make the [[service.title]] service</span>
+                  </lrnsys-button>
+                </template>
+                <template is="dom-if" if="[[service._exists]]">
+                  <lrnsys-button raised href="[[service.url]]" hover-class="[[service.color]] lighten-4">
+                    <lrn-icon icon="[[service.icon]]" class="elmsln-hover-icon"></lrn-icon>
+                    <span>[[service.title]]</span>
+                  </lrnsys-button>
+                </template>
               </template>
             </div>
           </responsive-grid-col>
           <responsive-grid-col xl="6" lg="6" md="6" sm="12" xs="12">
             <div class="column">
               <h4>Operations</h4>
-              <lrnsys-button raised href="[[activeCourse.uris.offerings]]" label="Offerings" hover-class="amber lighten-4" icon="social:people"></lrnsys-button>
-              <lrnsys-button raised href="[[activeCourse.uris.sync]]" label="Sync Roster" hover-class="amber lighten-4" icon="notification:sync"></lrnsys-button>
-              <lrnsys-button raised href="[[activeCourse.uris.uri]]" label="Course page (legacy)" hover-class="brown lighten-4" icon="delete"></lrnsys-button>
               <template is="dom-if" if="[[activeCourse.meta.canUpdate]]">
                 <lrnsys-button raised href="[[activeCourse.uris.edit]]" label="Edit" hover-class="green lighten-4" icon="create"></lrnsys-button>
               </template>
-              <div style="height: 2em;width: 100%;display: block;"></div>
+              <lrnsys-button raised href="[[activeCourse.uris.offerings]]" label="Offerings" hover-class="amber lighten-4" icon="social:people"></lrnsys-button>
+              <lrnsys-button raised href="[[activeCourse.uris.sync]]" label="Sync Roster" hover-class="amber lighten-4" icon="notification:sync"></lrnsys-button>
+              <lrnsys-button raised href="[[activeCourse.uris.uri]]" label="Course page (legacy)" hover-class="brown lighten-4" icon="delete"></lrnsys-button>
               <template is="dom-if" if="[[activeCourse.meta.canDelete]]">
-                <lrnsys-button raised href="[[activeCourse.uris.delete]]" label="Delete" hover-class="red lighten-3" icon="delete"></lrnsys-button>
+                <div style="padding: 1em;width: 100%;margin: .5em 0;display: block;background-color:#FF2222;color:#ffffff;border: 1px solid #222222;">
+                  <h4>Danger zone</h4>
+                  <lrnsys-button raised href="[[activeCourse.uris.delete]]" label="Delete" hover-class="red lighten-1" color="red lighten-3" icon="delete"></lrnsys-button>
+                </div>
               </template>
             </div>
           </responsive-grid-col>
@@ -244,6 +272,17 @@
         <p>[[activeCourse.attributes.body]]</p>
       </div>
     </lrnsys-dialog>
+    <paper-dialog id="confirm"
+      modal
+      with-backdrop>
+      <div class="title">Are you sure?</div>
+      <div class="body">This will setup</div>
+      <slot></slot>
+      <div class="buttons">
+        <paper-button dialog-dismiss>Cancel</paper-button>
+        <paper-button dialog-confirm autofocus on-tap="_confirmBuild">Confirm</paper-button>
+      </div>
+    </paper-dialog>
     <paper-toast id="toast"></paper-toast>
   </template>
 
@@ -261,6 +300,12 @@
          * Load individual course data
          */
         _courseResponse: {
+          type: Object,
+        },
+        /**
+         * Load service creation response
+         */
+        _makeServiceResponse: {
           type: Object,
         },
         /**
@@ -306,6 +351,12 @@
           type: String,
         },
         /**
+         * pathway to creating new service instances
+         */
+        makeServicePath: {
+          type: String,
+        },
+        /**
          * Endpoint for data.
          */
         endPoint: {
@@ -348,6 +399,7 @@
               return;
             }
           }
+          this.$.loading.hidden = false;
           // reload the page which since route changed will load that page
           window.location.reload();
         }
@@ -381,12 +433,45 @@
       /**
        * Handle course response for additional details about the item
        */
+      _handleMakeServiceResponse: function(event) {
+        // get the CIS response's data and convert to array ahead of time
+        var response = this._makeServiceResponse;
+        this.$.toast.show(response.message);
+      },
+      /**
+       * Handle course response for additional details about the item
+       */
       _handleCourseResponse: function(event) {
         // get the CIS response's data and convert to array ahead of time
         var course = this._courseResponse.data.course;
-        if (typeof course.topology.Network !== typeof undefined) {
-          course.topology.Network = this._toArray(course.topology.Network);
+        // ensure there's a part for the Network people can request
+        if (typeof course.topology.Network === typeof undefined) {
+          course.topology.Network = {};
         }
+        // loop our services to see what we should add as options
+        for (var key in this.services) {
+          // if it's not in the topology that means it can be added
+          if (typeof course.topology.Network[this.services[key].attributes.machine_name] === typeof undefined) {
+            // if we get a miss that means we should add a "Add this" version
+            course.topology.Network[this.services[key].attributes.machine_name] = {
+              'color': this.services[key].attributes.color,
+              'distro': this.services[key].attributes.distro,
+              'icon': this.services[key].attributes.icon,
+              'machine_name': this.services[key].attributes.machine_name,
+              'title': this.services[key].attributes.title,
+              'url': this.services[key].attributes.url,
+              'weight': this.services[key].attributes.weight,
+              '_exists': false,
+            };
+          }
+        }
+        // convert to array after keys in place for the object
+        course.topology.Network = this._toArray(course.topology.Network);
+        // sort items based on weight of the things in the network
+        // so we have a consistent order to things
+        course.topology.Network.sort(function(a, b) {
+          return a.weight - b.weight;
+        });
         // original = active off the bat then we apply filters later to chang this
         this.set('activeCourse', []);
         this.set('activeCourse', course);
@@ -408,6 +493,7 @@
         var academics = [];
         // get the CIS response's data and convert to array ahead of time
         var courses = this._toArray(this._cisResponse.data.courses);
+        this.set('services', this._toArray(this._cisResponse.data.services));
         // original = active off the bat then we apply filters later to chang this
         this.set('originalCourses', courses);
         // figure out courses, programs and academics
@@ -430,6 +516,39 @@
         this.$.loading.hidden = true;
         this.set('academics', academics);
         this.set('programs', programs);
+      },
+      /**
+       * Request a new service to kick off.
+       */
+      _makeService: function(e) {
+        var normalizedEvent = Polymer.dom(e);
+        let active = normalizedEvent.localTarget.getAttribute('data-machine-name');
+        const network = this.activeCourse.topology.Network;
+        let service = network.filter(service => {
+          if (service.machine_name !== active) {
+            return false;
+          }
+          return true;
+        });
+        // if we found one, make it the top level item
+        if (service.length > 0) {
+          service = service.pop();
+          this.$.makeservice.params = {
+            'course': this.activeCourse.attributes.machine_name,
+            'service': service.machine_name,
+          };
+          // confirm via paper prompt
+          this.$.confirm.open();
+        }
+        else {
+          console.log('that was not a valid service..');
+        }
+      },
+      /**
+       * Confirm of build.
+       */
+      _confirmBuild: function(e) {
+        this.$.makeservice.generateRequest();
       },
       /**
        * Handle tap on paper-button above to redirect to the correct course url.

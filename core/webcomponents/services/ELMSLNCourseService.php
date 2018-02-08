@@ -182,6 +182,7 @@ class ELMSLNCourseService {
               'distro' => $service['field_distribution'],
               'weight' => $reg[$service['field_distribution']]['weight'],
               'icon' => $reg[$service['field_distribution']]['icon'],
+              '_exists' => TRUE,
             );
           }
         }
