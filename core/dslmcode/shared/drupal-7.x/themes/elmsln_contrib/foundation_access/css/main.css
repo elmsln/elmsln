@@ -5,12 +5,17 @@
  * If these aren't here we see the content inside off canvas items prior to them being enhanced by the
  * browser to full elements among other things. It also attempts to help these browsers have a less jerky load.
  */
-lrnsys-drawer,
+lrnsys-drawer-modal,
+lrnsys-dialog-modal,
+app-drawer,
 .elmsln-modal-content,
 paper-tooltip {
   display: none;
 }
-lrnsys-drawer.x-scope,
+
+lrnsys-drawer-modal.x-scope,
+lrnsys-dialog-modal.x-scope,
+app-drawer.x-scope,
 .x-scope .elmsln-modal-content,
 .elmsln-modal-container .elmsln-modal-content,
 paper-tooltip.x-scope {
