@@ -445,8 +445,10 @@ function _webcomponents_app_load_app_data($machine_name = NULL, $debug = FALSE) 
     // define status
     drupal_add_http_header('Status', $return['status']);
     // output the response as json
-    print drupal_json_output($return);
-    // official drupal exit routines
+    print drupal_json_encode($return);
+    // skip official drupal exit routine so we can exit faster and
+    // avoid possible integration issues with things like devel which
+    // inject data on the way out the door
     exit;
   }
   else {
