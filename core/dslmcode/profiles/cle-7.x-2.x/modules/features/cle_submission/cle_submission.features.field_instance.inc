@@ -334,22 +334,6 @@ function cle_submission_field_default_field_instances() {
     'deleted' => 0,
     'description' => '',
     'display' => array(
-      'critique' => array(
-        'label' => 'hidden',
-        'module' => 'colorbox',
-        'settings' => array(
-          'colorbox_caption' => 'auto',
-          'colorbox_caption_custom' => '',
-          'colorbox_gallery' => 'field_page',
-          'colorbox_gallery_custom' => '',
-          'colorbox_image_style' => '',
-          'colorbox_multivalue_index' => NULL,
-          'colorbox_node_style' => 'cle_submission',
-          'colorbox_node_style_first' => 'cle_submission',
-        ),
-        'type' => 'colorbox',
-        'weight' => 4,
-      ),
       'default' => array(
         'label' => 'hidden',
         'module' => 'file_entity',
@@ -367,22 +351,6 @@ function cle_submission_field_default_field_instances() {
         ),
         'type' => 'file_download_link',
         'weight' => 4,
-      ),
-      'gradebook_viewer' => array(
-        'label' => 'hidden',
-        'module' => 'colorbox',
-        'settings' => array(
-          'colorbox_caption' => 'auto',
-          'colorbox_caption_custom' => '',
-          'colorbox_gallery' => 'field_post',
-          'colorbox_gallery_custom' => '',
-          'colorbox_image_style' => '',
-          'colorbox_multivalue_index' => NULL,
-          'colorbox_node_style' => 'cle_square',
-          'colorbox_node_style_first' => '',
-        ),
-        'type' => 'colorbox',
-        'weight' => 3,
       ),
       'teaser' => array(
         'label' => 'above',

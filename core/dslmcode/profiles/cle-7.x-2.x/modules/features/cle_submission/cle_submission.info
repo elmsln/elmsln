@@ -6,7 +6,6 @@ dependencies[] = better_exposed_filters
 dependencies[] = blob
 dependencies[] = cis_section
 dependencies[] = cle_assignment
-dependencies[] = colorbox
 dependencies[] = comment
 dependencies[] = ctools
 dependencies[] = download
