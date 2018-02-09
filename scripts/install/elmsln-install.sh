@@ -62,28 +62,31 @@ stacklist=( $(find . -maxdepth 1 -type d | sed 's/\///' | sed 's/\.//') )
 for stack in "${stacklist[@]}"
 do
   cd $elmsln/core/dslmcode/stacks
-  cd "${stack}/profiles"
-  # pull the name of the profile in this stack by ignoring core ones
-  profile=$(find . -maxdepth 1 -type l \( ! -iname "testing" ! -iname "minimal" ! -iname "README.txt" ! -iname "standard" \) | sed 's/\///' | sed 's/\.//')
-  # add distros to our list
-  distros+=($profile)
-  cd $profile
-  # dig into the file in question for the type values we need
-  IFS=$'\n'
-  for next in `cat ${profile}.info`
-  do
-    IFS=' = ' read -a tmp <<< "$next"
-    # find the type
-    if [[ ${tmp[0]} == 'elmslntype' ]]; then
-      distrotype=${tmp[1]}
-      if [[ $distrotype == '"authority"' ]]; then
-        authoritydistros+=($profile)
-        authoritylist+=($stack)
-      else
-        buildlist+=($stack)
+  if [ -d "${stack}/profiles" ];
+  then
+    cd "${stack}/profiles"
+    # pull the name of the profile in this stack by ignoring core ones
+    profile=$(find . -maxdepth 1 -type l \( ! -iname "testing" ! -iname "minimal" ! -iname "README.txt" ! -iname "standard" \) | sed 's/\///' | sed 's/\.//')
+    # add distros to our list
+    distros+=($profile)
+    cd $profile
+    # dig into the file in question for the type values we need
+    IFS=$'\n'
+    for next in `cat ${profile}.info`
+    do
+      IFS=' = ' read -a tmp <<< "$next"
+      # find the type
+      if [[ ${tmp[0]} == 'elmslntype' ]]; then
+        distrotype=${tmp[1]}
+        if [[ $distrotype == '"authority"' ]]; then
+          authoritydistros+=($profile)
+          authoritylist+=($stack)
+        else
+          buildlist+=($stack)
+        fi
       fi
-    fi
-  done
+    done
+  fi
 done
 
 # support for hook architecture in bash call outs
