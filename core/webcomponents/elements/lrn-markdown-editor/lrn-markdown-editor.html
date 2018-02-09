@@ -25,9 +25,8 @@
       }
 
       paper-card {
-        width: 100%;
-        min-width: 500px;
-        padding: 20px;
+        padding: 1em;
+        width: calc(100% - 2em);
       }
 
       paper-tabs {
@@ -48,20 +47,17 @@
         flex-wrap: nowrap;
       }
 
-      .split-pane {
-        min-width: 35em;
-      }
-
       .split-pane .container-flex>* {
         width: 50%;
       }
 
       .split-pane marked-element {
-        width: 100%;
+        width: calc(100% - 2em);
         min-width: 150px;
-        margin: 40px 20px 0 40px;
-        padding: 0 20px;
+        margin: 0 1em;
+        padding: 0 1em;
         background: #FFF;
+        border-left: solid #DCDCDC 1px;
       }
     </style>
 
