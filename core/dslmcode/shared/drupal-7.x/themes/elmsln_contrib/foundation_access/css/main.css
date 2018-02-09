@@ -3325,9 +3325,9 @@ html.js .js-hide {
   visibility: hidden;
 }
 
-p {
-  line-height: 2.5rem;
-  margin-bottom: 1.25rem;
+.etb-book .field-name-body > p:not(.style-scope) {
+  line-height: 2.5em;
+  margin-bottom: 1.25em;
   text-rendering: optimizeLegibility;
 }
 button {
@@ -8801,4 +8801,9 @@ paper-button.lrnsys-button div.inner.lrnsys-button {
   text-overflow: ellipsis;
   word-break: break-all;
   word-wrap: break-word;
+}
+
+.etb-book .field-name-body lrndesign-sidenote {
+  margin-top: 1em;
+  margin-bottom: 1em;
 }
