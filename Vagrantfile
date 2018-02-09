@@ -9,6 +9,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   #config.vm.box = "bradallenfisher/centos7"
   # primed ubuntu 16.04 - 64 bit
   config.vm.box = "elmsln/ubuntu16"
+  config.vm.box_version = "1.0"
   if Vagrant.has_plugin?("vagrant-cachier")
     config.cache.scope = :box
   end
@@ -43,6 +44,17 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     v.customize ["modifyvm", :id, "--memory", mem]
     v.customize ["modifyvm", :id, "--cpus", 1]
     v.name = "elmsln"
+  end
+  # https://github.com/hashicorp/vagrant/issues/7508
+  # fix for ioctl error
+  config.vm.provision "fix-no-tty", type: "shell" do |s|
+    s.privileged = true
+    s.inline = "sed -i '/tty/!s/mesg n/tty -s \\&\\& mesg n \\|\\| true/' /root/.profile"
+  end
+  # fix apt lock error
+  config.vm.provision "disable-apt-periodic-updates", type: "shell" do |s|
+    s.privileged = true
+    s.inline = "echo 'APT::Periodic::Enable \"0\";' > /etc/apt/apt.conf.d/02periodic"
   end
   # run script as root
   config.vm.provision "shell",
