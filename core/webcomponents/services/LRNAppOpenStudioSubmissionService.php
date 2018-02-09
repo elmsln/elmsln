@@ -92,7 +92,7 @@ class LRNAppOpenStudioSubmissionService {
         $tags = $options->tags;
       }
     }
-    $items = _cis_connector_assemble_entity_list('node', 'cle_submission', 'nid', '_entity', $field_conditions, $property_conditions, $orderby, TRUE, $limit, $tags);
+    $items = _cis_connector_assemble_entity_list('node', 'cle_submission', 'uuid', '_entity', $field_conditions, $property_conditions, $orderby, TRUE, $limit, $tags);
     foreach ($items as $key => $item) {
       if (!node_access('view', $item, $account)) {
         unset($items[$key]);
