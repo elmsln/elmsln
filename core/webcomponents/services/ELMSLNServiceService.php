@@ -1,6 +1,7 @@
 <?php
 // this is one of the stupidest named things ever...
 class ELMSLNServiceService {
+  private $name = 'ELMSLNServiceService';
   private $bundle = 'service';
   private $etype = 'node';
   private $etid = 'nid';
@@ -48,7 +49,7 @@ class ELMSLNServiceService {
     }
     $items = _cis_connector_assemble_entity_list($this->etype, $this->bundle, $this->etid, '_entity', $field_conditions, $property_conditions, $orderby, TRUE, $limit, array('node_access'));
     // sort the items
-    usort ($items, $this->sortItems);
+    usort($items, $this->name . '::sortItems');
     $items = $this->encodeItems($items, $network);
     return $items;
   }
