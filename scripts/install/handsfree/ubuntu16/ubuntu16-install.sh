@@ -40,7 +40,7 @@ apt-get update -y
 apt-get install mariadb-server -y
 
 # Install docker
-apt-get -y install docker docker.io
+apt-get -y install docker docker.io docker-compose
 
 # Install apache
 apt-get -y install apache2

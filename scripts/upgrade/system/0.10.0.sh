@@ -27,10 +27,8 @@ ln -s ../../../core/webcomponents webcomponents
 # api setup
 mkdir $configsdir/stacks/api
 # try and install docker on Ubuntu / CentOS based targets
-sudo apt-get -y install docker
-sudo apt-get -y install docker.io
-sudo yum -y install docker
-sudo yum -y install docker-io
+sudo apt-get -y install docker docker.io docker-compose
+sudo yum -y install docker docker-io docker-compose
 # move back to origin and invoke security repair
 cd $DIR
 bash ../../utilities/harden-security.sh
