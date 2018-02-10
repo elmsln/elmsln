@@ -310,9 +310,15 @@ class MarkdownExtra extends \Michelf\Markdown {
 	/**
 	 * Tags which must not have their contents modified, no matter where
 	 * they appear
-	 * @var string
+	 * @return string
 	 */
-	protected $clean_tags_re = 'script|style|math|svg';
+	protected function clean_tags_re() {
+		$tags = 'script|style|math|svg';
+		// add elms specific tags
+		$webcomponents = _webcomponents_all_tags();
+		$tags .= implode('|', $webcomponents);
+		return $tags;
+	}
 	
 	/**
 	 * Tags that do not need to be closed.
@@ -402,7 +408,7 @@ class MarkdownExtra extends \Michelf\Markdown {
 						(?>				# Tag name.
 							' . $this->block_tags_re . '			|
 							' . $this->context_block_tags_re . '	|
-							' . $this->clean_tags_re . '        	|
+							' . $this->clean_tags_re() . '        	|
 							(?!\s)'.$enclosing_tag_re . '
 						)
 						(?:
@@ -542,7 +548,7 @@ class MarkdownExtra extends \Michelf\Markdown {
 			}
 			// Check for: Clean tag (like script, math)
 			//            HTML Comments, processing instructions.
-			else if (preg_match('{^<(?:' . $this->clean_tags_re . ')\b}', $tag) ||
+			else if (preg_match('{^<(?:' . $this->clean_tags_re() . ')\b}', $tag) ||
 				$tag{1} == '!' || $tag{1} == '?')
 			{
 				// Need to parse tag and following text using the HTML parser.
