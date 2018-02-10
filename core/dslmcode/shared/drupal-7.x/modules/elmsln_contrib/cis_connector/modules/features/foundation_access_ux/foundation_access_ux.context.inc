@@ -36,12 +36,6 @@ function foundation_access_ux_context_default_contexts() {
           'region' => 'cis_lmsless_modal',
           'weight' => '-10',
         ),
-        'cis_service_connection-ferpa_filter' => array(
-          'module' => 'cis_service_connection',
-          'delta' => 'ferpa_filter',
-          'region' => 'cis_lmsless_modal',
-          'weight' => '-8',
-        ),
       ),
     ),
   );
@@ -74,12 +68,6 @@ function foundation_access_ux_context_default_contexts() {
           'delta' => 'menu-elmsln-add',
           'region' => 'cis_lmsless_modal',
           'weight' => '-10',
-        ),
-        'masquerade-masquerade' => array(
-          'module' => 'masquerade',
-          'delta' => 'masquerade',
-          'region' => 'cis_lmsless_modal',
-          'weight' => '-9',
         ),
         'elmsln_core-elmsln_navigation_l2' => array(
           'module' => 'elmsln_core',

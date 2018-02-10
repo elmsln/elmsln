@@ -23,11 +23,21 @@
   <li><div class="divider"></div></li>
   <?php endif; ?>
   <?php if (!empty($ferpa_flter)) : ?>
-  <li><?php print $ferpa_flter; ?></li>
+  <li>
+    <lrnsys-dialog header="<?php print t('Privacy settings');?>" class="black-text" hover-class="<?php print $lmsless_classes[$distro]['color'] . ' ' . $lmsless_classes[$distro]['dark'];?> white-text">
+      <span slot="button">
+        <iron-icon icon="visibility"></iron-icon>
+        <span><?php print t('Privacy settings');?></span>
+      </span>
+      <span slot="content">
+        <?php print $ferpa_flter; ?>
+      </span>
+    </lrnsys-dialog>
+  </li>
   <?php endif; ?>
   <?php if (isset($user_section)) : ?>
   <li>
-    <lrnsys-dialog body-append header="<?php print t('Change section');?>" class="black-text" hover-class="<?php print $lmsless_classes[$distro]['color'] . ' ' . $lmsless_classes[$distro]['dark'];?> white-text">
+    <lrnsys-dialog header="<?php print t('Change section');?>" class="black-text" hover-class="<?php print $lmsless_classes[$distro]['color'] . ' ' . $lmsless_classes[$distro]['dark'];?> white-text">
       <span slot="button">
         <iron-icon icon="perm-identity"></iron-icon>
         <span><?php print t('Change section');?></span>
@@ -39,7 +49,20 @@
   </li>
   <?php endif; ?>
   <?php if (!empty($masquerade)) : ?>
-  <li><?php print $masquerade; ?></li>
+  <li>
+    <lrnsys-dialog header="<?php print t('Impersonate account');?>" class="black-text" hover-class="<?php print $lmsless_classes[$distro]['color'] . ' ' . $lmsless_classes[$distro]['dark'];?> white-text">
+      <span slot="button">
+        <iron-icon icon="supervisor-account"></iron-icon>
+        <span><?php print t('Impersonate account');?></span>
+      </span>
+      <span slot="content">
+        <?php print $masquerade; ?>
+      </span>
+    </lrnsys-dialog>
+  </li>
+  <?php endif; ?>
+  <?php if (!empty($masquerade_logout)) : ?>
+  <li><?php print $masquerade_logout; ?></li>
   <?php endif; ?>
   <li><div class="divider"></div></li>
   <li><?php print $userlink; ?></li>

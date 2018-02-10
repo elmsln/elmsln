@@ -341,6 +341,10 @@ function elmsln_core_block_info() {
       'info' => t('ELMSLN nav level 3'),
       'cache' => DRUPAL_CACHE_PER_ROLE,
     ),
+    'ferpa_filter' => array(
+      'info' => t('FERPA blur filter'),
+      'cache' => DRUPAL_CACHE_GLOBAL,
+    ),
   );
   return $blocks;
 }
@@ -537,8 +541,29 @@ function elmsln_core_block_view($delta = '') {
         }
       }
     break;
+    case 'ferpa_filter':
+      $block['subject'] = t('FERPA compliance');
+      $block['content'] = _elmsln_core_ferpa_filter();
+    break;
   }
   return $block;
+}
+
+/**
+ * Provides the javascript integration for a simple block
+ * @return [type] [description]
+ */
+function _elmsln_core_ferpa_filter() {
+  drupal_add_js(drupal_get_path('module', 'elmsln_core') .'/js/ferpa_filter.js');
+  $form = array();
+  $form['ferpa_filter'] = array(
+    '#type' => 'checkbox',
+    '#id' => 'ferpa_filter',
+    '#description' => t('This will provide a blur across all user specific content.'),
+    '#title' => t('Enable FERPA protection'),
+    '#default_value' => 0,
+  );
+  return render($form);
 }
 
 /**
