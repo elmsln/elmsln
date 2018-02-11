@@ -1,0 +1,218 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../bower_components/iron-icons/hardware-icons.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/paper-styles/color.html">
+<link rel="import" href="../../bower_components/paper-tooltip/paper-tooltip.html">
+
+<link rel="import" href="../../bower_components/app-route/app-location.html">
+<link rel="import" href="../../bower_components/app-route/app-route.html">
+
+<link rel="import" href="../../bower_components/materializecss-styles/materializecss-styles.html">
+<!--
+`lrnapp-book`
+A LRN element
+
+@demo demo/index.html
+
+@microcopy
+  node / circle - A progress circle on the line
+  nodes / items - the list of items in the progress bar
+  bubble - reserved for when events fire out of an element or value is tracking events
+  percentage - amount complete either in the bar or the nodes themselves
+  bar - the underlayed bar that's tracking overall progression
+  author mode - authoring mode
+-->
+
+<dom-module id="lrnapp-book">
+  <template>
+    <style include="materializecss-styles"></style>
+    <style>
+      :host {
+        display: block;
+        font-size: 1em;
+        box-sizing: content-box;
+      }
+      .loading {
+        width: 100%;
+        z-index: 1000;
+        opacity: .9;
+        text-align: center;
+        align-content: space-around;
+        justify-content: center;
+        position: absolute;
+        background-color: white;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        margin: 0 auto;
+        visibility: visible;
+        transition: visibility 1s, opacity 1s ease;
+      }
+      .loading elmsln-loading {
+        margin: 0 5em;
+        display: inline-flex;
+      }
+    </style>
+    <div id="anchor"></div>
+    <iron-ajax
+       id="pageajax"
+       params="[[requestParams]]"
+       url="[[sourcePath]]"
+       handle-as="json"
+       on-response="handleResponse"
+       last-response="{{pageData}}"></iron-ajax>
+    <app-location route="{{route}}" query-params="{{queryParams}}"></app-location>
+    <app-route
+        route="{{route}}"
+        pattern="[[endPoint]]/:type/:id"
+        data="{{data}}"
+        tail="{{tail}}"
+        query-params="{{queryParams}}">
+    </app-route>
+    <div id="navigation"><slot name="navigation"></slot></div>
+    <div id="outline"><slot name="outline"></slot></div>
+    <div id="content"><slot name="content"></slot></div>
+    <div id="pagination"><slot name="pagination"></slot></div>
+  </template>
+  <script>
+    Polymer({
+      is: 'lrnapp-book',
+      listeners: {
+        'route-change': '_routeChange',
+      },
+      observers: [
+        '_routeChanged(data, route, endPoint)',
+      ],
+      properties: {
+        /**
+         * Path for updating content.
+         */
+        pageUpdatePath: {
+          type: String,
+          computed: '_computePageUpdatePath(data, sourcePath)'
+        },
+        /**
+         * App route tracking.
+         */
+        route: {
+          type: Object,
+          notify: true,
+        },
+        /**
+         * Title for the content
+         */
+        currentTitle: {
+          type: String,
+        },
+        /**
+         * Params for the request for outline/book to load.
+         */
+        requestParams: {
+          type: Object,
+          notify: true,
+          value: {
+            "node": null
+          },
+        },
+        /**
+         * Returned data for processing.
+         */
+        pageData: {
+          type: Object,
+        },
+        /**
+         * Ensure scrolling doesn't influence during a transition.
+         */
+        resetScroll: {
+          type: Boolean,
+          value: false,
+        },
+        /**
+         * Store current page data.
+         */
+        responseData: {
+          type: Object,
+          value: {},
+        },
+      },
+      /**
+       * Ready event.
+       */
+      ready: function(e) {
+        this.$.bodyloading.hidden = true;
+        // fire an outline request to kick things off!
+        this.$.pageajax.generateRequest();
+
+        // scroll top into view
+        setTimeout( () => {
+          this._resetScroll();
+        }, 500);
+      },
+      /**
+       * If the current route is outside the scope of our app then allow
+       * the website to break out of the single page application routing.
+       */
+      _routeChanged: function(data, route, endPoint) {
+        if (typeof route.path === 'string') {
+          if (typeof endPoint === 'string') {
+            if (route.path.startsWith(endPoint)) {
+              // trigger change if data location changed
+              if (this.pageParams.load != false && typeof data.type !== typeof undefined && typeof data.id !== typeof undefined) {
+                // prime the page request parameters
+                this.pageParams[data.type] = data.id;
+                // test if we already have this request
+                if (typeof this.responseData[data.type + data.id] !== typeof undefined) {
+                  this.set('currentPageData', this.responseData[data.type + data.id]);
+                }
+                else {
+                  // send request out the door to the actual end point
+                  this.$.pageajax.generateRequest();
+                }
+                // support for being told to rebuild the outline
+                if (this.rebuildOutline) {
+                  // dirty rebuild of params
+                  this.set('requestParams', []);
+                  // our page params have the current page in scope
+                  this.set('requestParams', this.pageParams);
+                  // test if we already have this request
+                  if (typeof this.responseData[data.type + '.' + data.id + '.outline'] !== typeof undefined) {
+                    this.activePage = 0;
+                    this.set('outlineItems', []);
+                    this.set('outlineItems', this._toArray(this.responseData[data.type + '.' + data.id + '.outline'].items));
+                    this.set('outlineTitle', this.responseData[data.type + '.' + data.id + '.outline'].items.outlineTitle);
+                  }
+                  else {
+                    this.pageParams.load = false;
+                    // send request out the door to the actual end point
+                    this.$.outlineajax.generateRequest();
+                  }
+                  this.rebuildOutline = false;
+                }
+              }
+              return;
+            }
+          }
+          // reload the page which since route changed will load that page
+          window.location.reload();
+        }
+      },
+      /**
+       * Reset scroll position visually and internally data wise.
+       */
+      _resetScroll: function () {
+        this.resetScroll = true;
+        this.$.anchor.scrollIntoView({block: "start", behavior: "smooth", inline: "nearest"});
+      },
+      /**
+       * Simple way to convert from object to array.
+       */
+      _toArray: function(obj) {
+        return Object.keys(obj).map(function(key) {
+          return obj[key];
+        });
+      },
+    });
+  </script>
+</dom-module>

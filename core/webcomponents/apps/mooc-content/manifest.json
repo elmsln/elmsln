@@ -1,0 +1,21 @@
+{
+  "name": "mooc-content",
+  "short_name": "mooc-content",
+  "description": "Drop in MOOC content replacement but AJAX driven",
+  "start_url": "/",
+  "display": "standalone",
+  "app_integration": {
+    "title": "",
+    "endpoints": {
+      "data": {
+        "callback": "_mooc_content_data",
+        "property": "source-path"
+      }
+    },
+    "slots": {
+      "content" : {
+        "callback": "_mooc_content_render"
+      }
+    }
+  }
+}
