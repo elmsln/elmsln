@@ -8,10 +8,10 @@
   Drupal.voicecommander.bookNavigation = function(phrase) {
    // see if we should go to the previous page or next
    if (phrase.indexOf('previous') !== -1) {
-     window.location.href = $('a.page-previous').attr('href');
+     $('.page-previous').click();
    }
    else if (phrase.indexOf('next') !== -1) {
-     window.location.href = $('a.page-next').attr('href');
+     $('.page-next').click();
    }
   };
 })(jQuery);
