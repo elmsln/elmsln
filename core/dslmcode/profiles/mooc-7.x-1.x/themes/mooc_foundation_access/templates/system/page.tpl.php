@@ -1,3 +1,10 @@
+<?php
+  // support our method of awesome
+  if (variable_get('enable_mooc_ajax_content', FALSE) && arg(0) == 'node' && is_numeric(arg(1)) && arg(2) == '') {
+    print _webcomponents_app_load_app('mooc-content');
+  }
+  else {
+?>
 <main id="etb-tool-nav" data-offcanvas>
   <div class="inner-wrap">
     <?php if (!empty($messages)): ?>
@@ -119,6 +126,7 @@
   <a class="exit-off-canvas"></a>
   </div>
 </main>
+<?php } ?>
 <footer class="page-footer black white-text">
   <div class="container">
     <div class="row">
