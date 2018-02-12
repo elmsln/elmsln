@@ -334,7 +334,6 @@ function _cis_lmsless_theme_vars() {
       $vars['userpicture'] = $picture;
     }
     else {
-      $vars['userpicture'] = base_path() . drupal_get_path('theme', 'foundation_access') . '/img/user.png';
       $vars['usericon'] = 'social:person';
     }
     // available bar elements
