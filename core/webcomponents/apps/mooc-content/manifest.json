@@ -15,6 +15,9 @@
     "properties": {
       "outline-title": {
         "callback": "_mooc_content_outline_title"
+      },
+      "aliases": {
+        "callback": "_mooc_content_get_aliases"
       }
     },
     "slots": {

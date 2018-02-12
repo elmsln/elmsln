@@ -95,9 +95,6 @@ A LRN element
   <script>
     Polymer({
       is: 'mooc-content',
-      listeners: {
-        'route-change': '_routeChange',
-      },
       observers: [
         '_routeChanged(data, route, endPoint)',
       ],
@@ -193,11 +190,10 @@ A LRN element
           value: false,
         },
         /**
-         * Lock to ensure things needing to build.
+         * Aliases
          */
-        __notBuilt: {
-          type: Boolean,
-          value: true,
+        aliases: {
+          type: Array,
         },
       },
       /**
@@ -237,6 +233,7 @@ A LRN element
       _routeChanged: function(data, route, endPoint) {
         if (typeof route.path === 'string') {
           if (typeof route.path === 'string') {
+            let urlAlias = route.path.replace('/' + this.elmslnCourse + '/', '');
             if (route.path.startsWith('/' + this.elmslnCourse + '/node/')) {
               let tmp = route.path.split('/');
               // ensure this is a number.. should be
@@ -252,16 +249,12 @@ A LRN element
                 window.location.reload();
               }
             }
-            // allow initial to go through and locking it
-            else if (route.path.startsWith(endPoint) && this.__notBuilt) {
-              let tmp = route.path.split('/');
-              this.__notBuilt = false;
-              // ensure this is a number.. should be
-              if (!isNaN(parseFloat(tmp.length-1)) && isFinite(tmp.length-1)) {
-                this.nid = tmp[tmp.length-1];
-                // trigger change if data location changed
-                this.requestParams.node = this.nid;
-              }
+            // test for an node alias, then send off
+            else if (typeof this.aliases[urlAlias] !== typeof undefined) {
+              this.nid = this.aliases[urlAlias].replace('node/', '');
+              // trigger change if data location changed
+              this.requestParams.node = this.nid;
+              this.$.pageajax.generateRequest();
               return;
             }
             else if (route.path.startsWith(endPoint)) {

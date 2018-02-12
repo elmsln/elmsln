@@ -30,7 +30,6 @@ function _mooc_content_data($machine_name, $app_route, $params, $args) {
       'content' => $content,
       'bookOutline' => $outline,
       'options' => $options,
-      //'pageObject' => $service->getPage($node->nid),
     );
     $status = 200;
   }
@@ -38,6 +37,21 @@ function _mooc_content_data($machine_name, $app_route, $params, $args) {
     'status' => $status,
     'data' => $return
   );
+}
+
+/**
+ * Return all aliases for comparison in the event of them being clicked
+ * in the app so we know that routing should actually trigger a node id to load
+ */
+function _mooc_content_get_aliases() {
+  $aliases = &drupal_static(__FUNCTION__);
+  if (!$aliases) {
+    $result = db_query("SELECT source, alias FROM {url_alias} WHERE source LIKE 'node/%' AND language='und' ORDER BY pid ASC");
+    $aliases = $result->fetchAllKeyed();
+    // flip for easier front end targetting of the array keys
+    $aliases = array_flip($aliases);
+  }
+  return drupal_json_encode($aliases);
 }
 
 function _mooc_content_get_title() {
