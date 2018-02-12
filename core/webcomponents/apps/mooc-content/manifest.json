@@ -14,7 +14,7 @@
     },
     "slots": {
       "content" : {
-        "callback": "_mooc_content_render"
+        "callback": "_mooc_content_render_content"
       }
     }
   }

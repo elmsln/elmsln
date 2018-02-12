@@ -348,7 +348,7 @@ function foundation_access_preprocess_page(&$variables) {
     $variables['cis_shortcodes'] = '';
   }
   // wrap non-node content in an article tag
-  if (isset($variables['page']['content']['system_main']['main'])) {
+  if (isset($variables['page']['content']['system_main']['main']) && arg(1) != 'mooc-content') {
     $variables['page']['content']['system_main']['main']['#markup'] = '<article class="view-mode-full">' . $variables['page']['content']['system_main']['main']['#markup'] . '</article>';
   }
   /**

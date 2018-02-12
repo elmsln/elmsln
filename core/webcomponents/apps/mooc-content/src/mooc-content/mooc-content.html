@@ -25,7 +25,7 @@ A LRN element
   author mode - authoring mode
 -->
 
-<dom-module id="lrnapp-book">
+<dom-module id="mooc-content">
   <template>
     <style include="materializecss-styles"></style>
     <style>
@@ -33,26 +33,6 @@ A LRN element
         display: block;
         font-size: 1em;
         box-sizing: content-box;
-      }
-      .loading {
-        width: 100%;
-        z-index: 1000;
-        opacity: .9;
-        text-align: center;
-        align-content: space-around;
-        justify-content: center;
-        position: absolute;
-        background-color: white;
-        padding: 0;
-        margin: 0;
-        display: flex;
-        margin: 0 auto;
-        visibility: visible;
-        transition: visibility 1s, opacity 1s ease;
-      }
-      .loading elmsln-loading {
-        margin: 0 5em;
-        display: inline-flex;
       }
     </style>
     <div id="anchor"></div>
@@ -71,14 +51,41 @@ A LRN element
         tail="{{tail}}"
         query-params="{{queryParams}}">
     </app-route>
-    <div id="navigation"><slot name="navigation"></slot></div>
-    <div id="outline"><slot name="outline"></slot></div>
-    <div id="content"><slot name="content"></slot></div>
-    <div id="pagination"><slot name="pagination"></slot></div>
+    <main id="etb-tool-nav" data-offcanvas="">
+      <div class="inner-wrap">
+        <section class="main-section etb-book" style="min-height: 318px;">
+          <div class="r-header row">
+            <div class="r-header__left">
+              <div id="navigation" class="book-navigation-header col s12 m12 l12 book-sibling-nav-container book-navigation-header-2">
+                <slot name="navigation"></slot>
+              </div>
+            </div>
+            <div id="options" class="r-header__right">
+              <slot name="options"></slot>
+            </div>
+          </div>
+          <div class="elmsln-content-wrap row">
+            <div class="s12 push-m2 m10 push-l1 l11 col" role="main">
+              <div class="highlighted-block-area">
+                <section id="block-mooc-nav-block-mooc-nav-nav" class="mooc-nav-block-left block block-mooc-nav-block contextual-links-region block-mooc-nav-block-mooc-nav" role="navigation" aria-label$="[[outlineTitle]]">
+                  <div class="block-mooc-nav-block-mooc-title black white-text">[[outlineTitle]]</div>
+                  <div id="outline"><slot name="outline"></slot></div>
+                </section>
+              </div>
+              <div class="push-s1 s9 col">
+                <a id="main-content" class="scrollspy" data-scrollspy="scrollspy"></a>
+                <div id="content"><slot name="content"></slot></div>
+              </div>
+            </div>
+          </div>
+        </section>
+        <a class="exit-off-canvas"></a>
+      </div>
+    </main>
   </template>
   <script>
     Polymer({
-      is: 'lrnapp-book',
+      is: 'mooc-content',
       listeners: {
         'route-change': '_routeChange',
       },
@@ -87,11 +94,10 @@ A LRN element
       ],
       properties: {
         /**
-         * Path for updating content.
+         * Source of data
          */
-        pageUpdatePath: {
+        sourcePath: {
           type: String,
-          computed: '_computePageUpdatePath(data, sourcePath)'
         },
         /**
          * App route tracking.
@@ -121,6 +127,7 @@ A LRN element
          */
         pageData: {
           type: Object,
+          value: {},
         },
         /**
          * Ensure scrolling doesn't influence during a transition.
@@ -136,19 +143,55 @@ A LRN element
           type: Object,
           value: {},
         },
+        /**
+         * BasePath from drupal
+         */
+        basePath: {
+          type: String,
+        },
+        /**
+         * elmslnCourse from drupal
+         */
+        elmslnCourse: {
+          type: String,
+        },
+        /**
+         * nav title
+         */
+        outlineTitle: {
+          type: String,
+        },
+        /**
+         * Lock to ensure things needing to build.
+         */
+        __notBuilt: {
+          type: Boolean,
+          value: true,
+        },
       },
       /**
        * Ready event.
        */
       ready: function(e) {
-        this.$.bodyloading.hidden = true;
-        // fire an outline request to kick things off!
-        this.$.pageajax.generateRequest();
-
         // scroll top into view
         setTimeout( () => {
           this._resetScroll();
         }, 500);
+      },
+      /**
+       * Callback to push the data into the page.
+       */
+      handleResponse: function(e) {
+        // handle the HTML we just got
+        if (typeof this.pageData.data !== typeof undefined) {
+          let data = this.pageData.data;
+          this.$.content.innerHTML = data.content;
+          this.$.navigation.innerHTML = data.topNavigation;
+          this.outlineTitle = data.bookOutline.subject;
+          this.$.outline.innerHTML = data.bookOutline.content;
+          this.$.options.innerHTML = data.options;
+          this._resetScroll();
+        }
       },
       /**
        * If the current route is outside the scope of our app then allow
@@ -156,41 +199,26 @@ A LRN element
        */
       _routeChanged: function(data, route, endPoint) {
         if (typeof route.path === 'string') {
-          if (typeof endPoint === 'string') {
-            if (route.path.startsWith(endPoint)) {
+          if (typeof route.path === 'string') {
+            if (route.path.startsWith('/' + this.elmslnCourse + '/node/')) {
+              let tmp = route.path.split('/');
               // trigger change if data location changed
-              if (this.pageParams.load != false && typeof data.type !== typeof undefined && typeof data.id !== typeof undefined) {
-                // prime the page request parameters
-                this.pageParams[data.type] = data.id;
-                // test if we already have this request
-                if (typeof this.responseData[data.type + data.id] !== typeof undefined) {
-                  this.set('currentPageData', this.responseData[data.type + data.id]);
-                }
-                else {
-                  // send request out the door to the actual end point
-                  this.$.pageajax.generateRequest();
-                }
-                // support for being told to rebuild the outline
-                if (this.rebuildOutline) {
-                  // dirty rebuild of params
-                  this.set('requestParams', []);
-                  // our page params have the current page in scope
-                  this.set('requestParams', this.pageParams);
-                  // test if we already have this request
-                  if (typeof this.responseData[data.type + '.' + data.id + '.outline'] !== typeof undefined) {
-                    this.activePage = 0;
-                    this.set('outlineItems', []);
-                    this.set('outlineItems', this._toArray(this.responseData[data.type + '.' + data.id + '.outline'].items));
-                    this.set('outlineTitle', this.responseData[data.type + '.' + data.id + '.outline'].items.outlineTitle);
-                  }
-                  else {
-                    this.pageParams.load = false;
-                    // send request out the door to the actual end point
-                    this.$.outlineajax.generateRequest();
-                  }
-                  this.rebuildOutline = false;
-                }
-              }
+              this.requestParams.node = tmp[tmp.length-1];
+              // send request out the door to the actual end point
+              this.$.pageajax.generateRequest();
+              return;
+            }
+            // allow initial to go through and locking it
+            else if (route.path.startsWith(endPoint) && this.__notBuilt) {
+              let tmp = route.path.split('/');
+              this.__notBuilt = false;
+              // trigger change if data location changed
+              this.requestParams.node = tmp[tmp.length-1];
+              // send request out the door to the actual end point
+              this.$.pageajax.generateRequest();
+              return;
+            }
+            else if (route.path.startsWith(endPoint)) {
               return;
             }
           }
