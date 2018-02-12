@@ -17,21 +17,15 @@ function _mooc_content_data($machine_name, $app_route, $params, $args) {
   $return = array();
   $node = _mooc_content_get_active();
   if (isset($node->nid)) {
-    // render navigation
-    $vars = _mooc_helper_book_nav_build($node);
-    // output contents by passing through the wrapper theme function
-    $tmp = theme('book_sibling_nav_wrapper', $vars);
-    $navigation = render($tmp);
-
+    $navigation = _mooc_content_render_navigation();
     // render content
-    $content = drupal_render(node_view($node));
-
-    // render outline
+    $content = _mooc_content_render_content();
+    // render outline w/ array
     $outline = _mooc_nav_block_mooc_nav_block($node);
     // pull together the right side options
-    $options = _mooc_content_options();
+    $options = _mooc_content_render_options();
     $return = array(
-      'title' => $node->title,
+      'title' => _mooc_content_get_title(),
       'topNavigation' => $navigation,
       'content' => $content,
       'bookOutline' => $outline,
@@ -46,12 +40,38 @@ function _mooc_content_data($machine_name, $app_route, $params, $args) {
   );
 }
 
+function _mooc_content_get_title() {
+  $node = _mooc_content_get_active();
+  return $node->title;
+}
+
+function _mooc_content_render_outline(){
+  $node = _mooc_content_get_active();
+  $tmp = _mooc_nav_block_mooc_nav_block($node);
+  return $tmp['content'];
+}
+
+function _mooc_content_outline_title(){
+  $node = _mooc_content_get_active();
+  $tmp = _mooc_nav_block_get_nav($node);
+  return $tmp['label'];
+}
+
+function _mooc_content_render_navigation() {
+  $node = _mooc_content_get_active();
+  // render navigation
+  $vars = _mooc_helper_book_nav_build($node);
+  // output contents by passing through the wrapper theme function
+  $tmp = theme('book_sibling_nav_wrapper', $vars);
+  return render($tmp);
+}
+
 /**
  * Get the page options based on this user / path.
  */
-function _mooc_content_options() {
+function _mooc_content_render_options() {
   $node = _mooc_content_get_active();
-  $edit_path = 'node/' . $node->nid . '/edit';
+  $edit_path = base_path() . 'node/' . $node->nid . '/edit';
   $cis_lmsless = _cis_lmsless_get_distro_classes();
   $distro = elmsln_core_get_profile_key();
   // support for cis_shortcodes
@@ -141,7 +161,8 @@ function _mooc_content_options() {
  * Render content; stinking weird but basically the entire page.tpl.php
  */
 function _mooc_content_render_content() {
-  return '';
+  $node = _mooc_content_get_active();
+  return drupal_render(node_view($node));
 }
 
 /**

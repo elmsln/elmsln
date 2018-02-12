@@ -143,6 +143,10 @@ function foundation_access_preprocess_html(&$variables) {
   $css = _foundation_access_contextual_colors($variables['lmsless_classes']);
   $variables['theme_path'] = base_path() . drupal_get_path('theme', 'foundation_access');
 
+  // add css for admin pages
+  if (user_access('access administration menu')) {
+    drupal_add_css(drupal_get_path('theme', 'foundation_access') . '/css/admin.css', array('group' => CSS_THEME, 'weight' => 999));
+  }
   drupal_add_css($css, array('type' => 'inline', 'group' => CSS_THEME, 'weight' => 999));
   // google font / icons from google
   drupal_add_css('//fonts.googleapis.com/css?family=Material+Icons%7CDroid+Serif:400,700,400italic,700italic%7COpen+Sans:300,600,700%7CRoboto:300,400,500,700', array('type' => 'external', 'group' => CSS_THEME, 'weight' => 1000));
@@ -538,7 +542,9 @@ function foundation_access_css_alter(&$css) {
     if (strpos($path, 'modules/') === 0 && !in_array($path, array('modules/contextual/contextual.css'))) {
       unset($css[$path]);
     }
-    if ($path == 'sites/all/modules/ulmus/adminimal_admin_menu/adminimal_admin_menu.css') {
+    // remove admin menu css without hacking that project
+    $admin = drupal_get_path('module', 'adminimal_admin_menu');
+    if ($path == $admin . '/adminimal_admin_menu.css') {
       unset($css[$path]);
     }
   }
@@ -1381,6 +1387,16 @@ function foundation_access_html_head_alter(&$head_elements) {
       unset($head_elements[$key]);
     }
   }
+
+  $head_elements['fa_print_' . $key] = array(
+    '#type' => 'html_tag',
+    '#tag' => 'link',
+    '#attributes' => array(
+      'type' => 'text/css',
+      'rel' => 'stylesheet',
+      'href' => $file,
+    ),
+  );
   $args = arg();
   // account for print module and book print out
   if ($args[0] == 'book' && $args[1] = 'export' && $args[2] == 'html') {
@@ -1390,7 +1406,6 @@ function foundation_access_html_head_alter(&$head_elements) {
       $path . 'css/main.css',
       $path . 'fonts/elmsln/elmsln-font-styles.css',
       '//fonts.googleapis.com/css?family=Material+Icons%7CDroid+Serif:400,700,400italic,700italic%7COpen+Sans:300,600,700%7CRoboto:300,400,500,700)',
-
     );
     $css[] = $path . 'materialize_unwinding/css/materialize.css';
     // parse returned locations array and manually add to html head

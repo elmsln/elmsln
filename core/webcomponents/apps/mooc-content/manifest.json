@@ -12,9 +12,23 @@
         "property": "source-path"
       }
     },
+    "properties": {
+      "outline-title": {
+        "callback": "_mooc_content_outline_title"
+      }
+    },
     "slots": {
       "content" : {
         "callback": "_mooc_content_render_content"
+      },
+      "navigation" : {
+        "callback": "_mooc_content_render_navigation"
+      },
+      "options" : {
+        "callback": "_mooc_content_render_options"
+      },
+      "outline" : {
+        "callback": "_mooc_content_render_outline"
       }
     }
   }

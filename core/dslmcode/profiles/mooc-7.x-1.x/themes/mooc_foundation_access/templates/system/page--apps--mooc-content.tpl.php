@@ -1,4 +1,3 @@
-<?php print $messages; ?>
 <?php print render($page['content']); ?>
 <footer class="page-footer black white-text">
   <div class="container">
@@ -30,3 +29,4 @@
 <div class="elmsln-modal-container">
   <?php print render($page['cis_lmsless_modal']); ?>
 </div>
+<?php print $messages; ?>
