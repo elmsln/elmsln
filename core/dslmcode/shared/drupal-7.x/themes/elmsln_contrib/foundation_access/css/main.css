@@ -4217,7 +4217,7 @@ ul.dropdown-content {
   z-index: 1;
 }
 ul.dropdown-content li {
-  height: 2em;
+  height: 3em;
   width: 100%;
   display: block;
 }
