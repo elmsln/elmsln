@@ -8038,6 +8038,7 @@ lrnapp-fab-speed-dial-action.lrnapp-fab-speed-dial-action-0 {
   top: auto !important;
   max-height: 40vh !important;
   height: auto;
+  overflow: scroll;
 }
 .paper-toast-label {
   background: #3bab97;

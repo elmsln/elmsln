@@ -59,6 +59,7 @@ function mooc_nav_block_block_view($delta = '') {
  * @return array
  */
 function _mooc_nav_block_mooc_nav_block($node) {
+  drupal_add_js(drupal_get_path('theme', 'foundation_access') .'/js/materialize-scrollspy.js');
   $block = array();
   $output = '';
   // make sure nav isset at all
@@ -137,7 +138,6 @@ function _mooc_nav_block_mooc_nav_block($node) {
       else {
         $output .= $scrollspy;
       }
-      drupal_add_js(drupal_get_path('theme', 'foundation_access') .'/js/materialize-scrollspy.js');
     }
   }
   // @todo may need to hijack the theme suggestion here
