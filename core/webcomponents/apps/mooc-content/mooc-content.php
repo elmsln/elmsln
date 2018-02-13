@@ -79,9 +79,20 @@ function _mooc_content_render_navigation() {
   $node = _mooc_content_get_active();
   // render navigation
   $vars = _mooc_helper_book_nav_build($node);
+  $bookoutline = _mooc_helper_book_outline(TRUE);
+  $vars['content'] = drupal_render($bookoutline);
   // output contents by passing through the wrapper theme function
   $tmp = theme('book_sibling_nav_wrapper', $vars);
   return render($tmp);
+}
+
+/**
+ * Oddly specific I know but it's one of the heaviest calls
+ * in the entire system.
+ */
+function _mooc_content_render_outline_modal() {
+  $bookoutline = _mooc_helper_book_outline(TRUE);
+  return drupal_render($bookoutline);
 }
 
 /**

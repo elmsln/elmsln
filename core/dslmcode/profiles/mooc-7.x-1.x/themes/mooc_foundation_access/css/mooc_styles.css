@@ -512,12 +512,12 @@ ul.book-navigation-wrapper {
   border-radius: unset;
   padding: 0 1rem;
 }
-lrnsys-button.mooc-helper-toc paper-button {
+lrnsys-dialog.mooc-helper-toc paper-button {
   border-bottom: black solid 2px;
   border-radius: unset;
   padding: 0 1rem 0 0;
 }
-lrnsys-button.mooc-helper-toc {
+lrnsys-dialog.mooc-helper-toc {
   height: 2.875rem;
   line-height: 2.875rem;
 }

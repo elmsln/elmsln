@@ -21,6 +21,9 @@
       }
     },
     "slots": {
+      "outlinemodal": {
+        "callback": "_mooc_content_render_outline_modal"
+      },
       "content" : {
         "callback": "_mooc_content_render_content"
       },

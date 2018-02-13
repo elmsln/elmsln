@@ -147,7 +147,7 @@ function _mooc_helper_toc($type = NULL) {
   }
   switch ($type) {
     case 'book_outline':
-      return _mooc_helper_book_outline(TRUE);
+    return _mooc_helper_book_outline(TRUE);
     break;
     case 'learning_pathway':
       return _mooc_helper_learning_pathway();
@@ -162,7 +162,12 @@ function _mooc_helper_book_outline($asblock = FALSE) {
   $tree = array();
   $node = _mooc_helper_active_outline();
   // load the active outline
-  $active = menu_get_object();
+  if (isset($GLOBALS['moocappbook'])) {
+    $active = $GLOBALS['moocappbook'];
+  }
+  else {
+    $active = menu_get_object();
+  }
   // test for not being on a node as well as global setting overriding
   // outline to use
   if (!isset($active->book) || (isset($node->book) && $active->book['menu_name'] != $node->book['menu_name'])) {
@@ -881,6 +886,17 @@ function mooc_helper_admin_paths() {
  * Provides speedreader clickable link for accessibility menu.
  */
 function mooc_helper_fa_a11y() {
+  $lmsless_classes = _cis_lmsless_get_distro_classes(elmsln_core_get_profile_key());
+  $speedreader_block = module_invoke('speedreader', 'block_view', 'speedreader-block');
+  $speedreader = '<lrnsys-dialog data-voicecommand="open speed reader" header="' . t('Speed reader') . '" class="black-text" hover-class="' . $lmsless_classes['color'] . ' ' . $lmsless_classes['dark'] . ' white-text">
+      <span slot="button">
+        <iron-icon icon="chrome-reader-mode"></iron-icon>
+        <span>' . t('Speed reader') . '</span>
+      </span>
+      <span slot="content" id="block-speedreader-speedreader-block-nav-modal">
+        ' . render($speedreader_block['content']) . '
+      </span>
+    </lrnsys-dialog>';
   $a11y = array(
     'formats' => array(
       '#type' => 'fieldset',
@@ -902,7 +918,7 @@ function mooc_helper_fa_a11y() {
         'icon' => 'view-carousel',
       ),
       'speedreader' => array(
-        '#markup' => '<a tabindex="-1" data-voicecommand="open speed reader" class="elmsln-modal-trigger" href="#block-speedreader-speedreader-block-nav-modal" aria-controls="block-speedreader-speedreader-block-nav-modal" aria-expanded="false"><paper-button class="paper-button-link"><iron-icon icon="chrome-reader-mode"></iron-icon>' . t('Speed reader') . '</paper-button></a>',
+        '#markup' => $speedreader,
         '#weight' => 10,
       ),
     ),

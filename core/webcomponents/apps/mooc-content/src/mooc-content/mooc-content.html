@@ -34,10 +34,10 @@ A LRN element
         font-size: 1em;
         box-sizing: content-box;
       }
-      :host[loading] #content lrn-page {
+      :host[loading] #content {
         opacity: .2;
       }
-      #content lrn-page {
+      #content {
         opacity: 1;
         visibility: visible;
         transition: all .4s ease;
@@ -66,8 +66,20 @@ A LRN element
         <section class="main-section etb-book" style="min-height: 318px;">
           <div class="r-header row">
             <div class="r-header__left">
-              <div id="navigation" class="book-navigation-header col s12 m12 l12 book-sibling-nav-container book-navigation-header-2">
-                <slot name="navigation"></slot>
+              <div class="book-navigation-header col s12 m12 l12 book-sibling-nav-container book-navigation-header-2">
+                <div class="book-navigation-header col s12 m12 l12 book-sibling-nav-container book-navigation-header-<?php print $count ?>">
+                  <!-- TOC Icon -->
+                  <lrnsys-dialog id="outlinepopover" data-voicecommand="open outline" class="black-text" hover-class="blue darken-4 white-text" label="Outline" header="Outline">
+                    <span slot="button">
+                      <iron-icon icon="explore"></iron-icon>
+                      Outline
+                    </span>
+                    <div class="elmsln-modal-content" id="block-mooc-helper-mooc-helper-toc-nav-modal">
+                      <slot name="outlinemodal"></slot>
+                    </div>
+                  </lrnsys-dialog>
+                  <div id="navigation"><slot name="navigation"></slot></div>
+                </div>
               </div>
             </div>
             <div id="options" class="r-header__right">
@@ -254,6 +266,13 @@ A LRN element
                 this.requestParams.node = this.nid;
                 // send request out the door to the actual end point
                 this.$.pageajax.generateRequest();
+                // @todo better state management in the modal itself
+                // so that we can detect if it's open or not without
+                // something stupid like this
+                // close outline dialog if it's open
+                if (this.$.outlinepopover.$.modal.opened) {
+                  this.$.outlinepopover.$.modal.opened = false;
+                }
                return;
               }
               else if(tmp[tmp.length-1] == 'edit') {
@@ -266,6 +285,12 @@ A LRN element
               // trigger change if data location changed
               this.requestParams.node = this.nid;
               this.$.pageajax.generateRequest();
+              // @todo better state management in the modal itself
+              // so that we can detect if it's open or not without
+              // something stupid like this
+              if (this.$.outlinepopover.$.modal.opened) {
+                this.$.outlinepopover.$.modal.opened = false;
+              }
               return;
             }
             else if (route.path.startsWith(endPoint)) {
