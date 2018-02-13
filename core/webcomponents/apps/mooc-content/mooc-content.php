@@ -24,11 +24,17 @@ function _mooc_content_data($machine_name, $app_route, $params, $args) {
     $outline = _mooc_nav_block_mooc_nav_block($node);
     // pull together the right side options
     $options = _mooc_content_render_options();
+    // support custom colors / system level styling
+    if (module_exists('cis_lmsless')) {
+      $colors = _cis_lmsless_get_distro_classes(elmsln_core_get_profile_key());
+      $css = _foundation_access_contextual_colors($colors);
+    }
     $return = array(
       'title' => _mooc_content_get_title(),
       'topNavigation' => $navigation,
       'content' => $content,
       'bookOutline' => $outline,
+      'styles' => $css,
       'options' => $options,
     );
     $status = 200;
@@ -41,15 +47,13 @@ function _mooc_content_data($machine_name, $app_route, $params, $args) {
 
 /**
  * Return all aliases for comparison in the event of them being clicked
- * in the app so we know that routing should actually trigger a node id to load
+ * in the app so we know that routing should actually trigger a node id to load.
  */
 function _mooc_content_get_aliases() {
   $aliases = &drupal_static(__FUNCTION__);
   if (!$aliases) {
-    $result = db_query("SELECT source, alias FROM {url_alias} WHERE source LIKE 'node/%' AND language='und' ORDER BY pid ASC");
+    $result = db_query("SELECT alias,source FROM {url_alias} WHERE source LIKE 'node/%' AND language='und' ORDER BY pid ASC");
     $aliases = $result->fetchAllKeyed();
-    // flip for easier front end targetting of the array keys
-    $aliases = array_flip($aliases);
   }
   return drupal_json_encode($aliases);
 }
@@ -176,7 +180,13 @@ function _mooc_content_render_options() {
  */
 function _mooc_content_render_content() {
   $node = _mooc_content_get_active();
-  return drupal_render(node_view($node));
+  $content = '';
+  // support for banner block
+  if (module_exists('mooc_content_theming')) {
+    $content .= _mooc_content_theming_banner_block($node);
+  }
+  $content .= drupal_render(node_view($node));
+  return $content;
 }
 
 /**

@@ -32,18 +32,6 @@ function mooc_ux_defaults_context_default_contexts() {
           'region' => 'highlighted',
           'weight' => '-10',
         ),
-        'read_time-read_time' => array(
-          'module' => 'read_time',
-          'delta' => 'read_time',
-          'region' => 'highlighted',
-          'weight' => '-9',
-        ),
-        'system-main' => array(
-          'module' => 'system',
-          'delta' => 'main',
-          'region' => 'content',
-          'weight' => '-25',
-        ),
       ),
     ),
   );

@@ -140,14 +140,12 @@ function foundation_access_preprocess_html(&$variables) {
   $variables['lmsless_classes'] = _cis_lmsless_get_distro_classes(elmsln_core_get_profile_key());
   $variables['system_title'] = (isset($settings['default_title']) ? $settings['default_title'] : $variables['distro']);
   $variables['course'] = _cis_connector_course_context();
-  $css = _foundation_access_contextual_colors($variables['lmsless_classes']);
   $variables['theme_path'] = base_path() . drupal_get_path('theme', 'foundation_access');
 
   // add css for admin pages
   if (user_access('access administration menu')) {
     drupal_add_css(drupal_get_path('theme', 'foundation_access') . '/css/admin.css', array('group' => CSS_THEME, 'weight' => 999));
   }
-  drupal_add_css($css, array('type' => 'inline', 'group' => CSS_THEME, 'weight' => 999));
   // google font / icons from google
   drupal_add_css('//fonts.googleapis.com/css?family=Material+Icons%7CDroid+Serif:400,700,400italic,700italic%7COpen+Sans:300,600,700%7CRoboto:300,400,500,700', array('type' => 'external', 'group' => CSS_THEME, 'weight' => 1000));
   $libraries = libraries_get_libraries();
@@ -324,6 +322,7 @@ function foundation_access_preprocess_page(&$variables) {
     );
     $variables['a11y'] = drupal_render($a11y);
   }
+
   // sniff out if this is a view
   if ($menu_item['page_callback'] == 'views_page') {
     // try and auto append exposed filters to our local_subheader region
@@ -336,7 +335,7 @@ function foundation_access_preprocess_page(&$variables) {
   $variables['cis_lmsless'] = array('active' => array('title' => ''));
   // support for lmsless since we don't require it
   if (module_exists('cis_lmsless')) {
-    $variables['cis_lmsless'] = _cis_lmsless_theme_vars();
+    $variables['page']['content']['system_main']['main']['#markup'] = $css . $variables['page']['content']['system_main']['main']['#markup'];
   }
   // support for cis_shortcodes
   if (module_exists('cis_shortcodes')) {

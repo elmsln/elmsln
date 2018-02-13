@@ -204,3 +204,19 @@ function mooc_update_7015(&$sandbox) {
   // enable the modules to make it happen
   module_enable(array('webcomponents_app', 'webcomponents_app_context', 'book_player'));
 }
+
+/**
+ * Clean up more cruft we are dropping
+ */
+function mooc_update_7016(&$sandbox) {
+  // wipe modules we're no longer requiring for anything
+  $modules = array(
+    'mooc_theme_foundation',
+    'mooc_textbook_nrhi',
+    'nodereference_highlight',
+  );
+  db_delete('system')
+    ->condition('name', $modules, 'IN')
+    ->condition('type', 'module')
+    ->execute();
+}

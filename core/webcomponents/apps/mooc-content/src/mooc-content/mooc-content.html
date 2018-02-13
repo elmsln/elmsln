@@ -34,15 +34,16 @@ A LRN element
         font-size: 1em;
         box-sizing: content-box;
       }
-      :host[loading] #content {
+      :host[loading] #content lrn-page {
         opacity: .2;
       }
-      #content {
+      #content lrn-page {
         opacity: 1;
         visibility: visible;
         transition: all .4s ease;
       }
     </style>
+    <div id="hackycontainer"><style id="hackycsspotterhates"></style></div>
     <div id="anchor"></div>
     <iron-ajax
       id="pageajax"
@@ -220,6 +221,8 @@ A LRN element
           this.$.content.innerHTML = data.content;
           this.$.navigation.innerHTML = data.topNavigation;
           this.outlineTitle = data.bookOutline.subject;
+          // inject styles, destroying previous ones
+          this.__injectStyle(data.styles);
           this.$.outline.innerHTML = data.bookOutline.content;
           this.$.options.innerHTML = data.options;
           // fire drupal behaviors.. this is evil. Polymer is invoking Drupal behaviors..
@@ -229,14 +232,22 @@ A LRN element
       /**
        * If the current route is outside the scope of our app then allow
        * the website to break out of the single page application routing.
+       *
+       * This is really critical that we get happy paths that don't trigger a redirec
+       * loop so some of the logic will seem a bit repetative but we're trying to trap
+       * may different potentially valid addresses / use-cases which still must trigger
+       * a reload within the app (without looping) and still allow outbound links to go
+       * through as they should.
        */
       _routeChanged: function(data, route, endPoint) {
         if (typeof route.path === 'string') {
           if (typeof route.path === 'string') {
+            // target for url alias that might be delivered into content
+            // and menu items throughout the UI
             let urlAlias = route.path.replace('/' + this.elmslnCourse + '/', '');
             if (route.path.startsWith('/' + this.elmslnCourse + '/node/')) {
               let tmp = route.path.split('/');
-              // ensure this is a number.. should be
+              // ensure this is a number so we know what we're doing
               if (!isNaN(parseFloat(tmp[tmp.length-1])) && isFinite(tmp[tmp.length-1])) {
                 this.nid = tmp[tmp.length-1];
                 // trigger change if data location changed
@@ -279,6 +290,28 @@ A LRN element
         return Object.keys(obj).map(function(key) {
           return obj[key];
         });
+      },
+      /**
+       * Inject styles dynamically from inline CSS blocks.
+       * This is a function and capability that will drive Potter nuts.
+       * Because of this we're using the unheard of ___ convention. This
+       * means that it's such a private function that we wish we'd never
+       * actually have thought of it. Fortunately, it came from a stackoverflow
+       * article so we don't have to take credit for our own undoing with
+       * what this enables.
+       */
+      __injectStyle : function(style) {
+        // target and wipe our id area by force
+        if (this.$$('#hackycsspotterhates') != null) {
+          Polymer.dom(this.$.hackycontainer).innerHTML = '';
+        }
+        // construct a new style tag and inject it overtop of what was there previously
+        var customStyle = document.createElement('style', 'custom-style');
+        customStyle.id = 'hackycsspotterhates';
+        // inject our styles
+        customStyle.textContent = style;
+        // we have now successfully ruined something encapsulated and once beautiful
+        Polymer.dom(this.$.hackycontainer).appendChild(customStyle);
       },
     });
   </script>

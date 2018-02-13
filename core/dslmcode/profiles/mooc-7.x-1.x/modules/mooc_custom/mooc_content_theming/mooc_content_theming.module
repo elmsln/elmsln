@@ -61,8 +61,10 @@ function mooc_content_theming_block_view($delta = '') {
   $block = array();
   switch ($delta) {
     case 'mooc_content_theming_banner':
+      // try to get node from active menu item
+      $node = menu_get_object();
       $block['subject'] = '<none>';
-      $block['content'] = _mooc_content_theming_banner_block();
+      $block['content'] = _mooc_content_theming_banner_block($node);
     break;
   }
   return $block;
@@ -71,9 +73,8 @@ function mooc_content_theming_block_view($delta = '') {
 /**
  * Callback for the banner block.
  */
-function _mooc_content_theming_banner_block() {
-  // try to get node from active menu item
-  $node = menu_get_object();
+function _mooc_content_theming_banner_block($node) {
+  // make sure we have a node
   if (isset($node->book) && isset($node->book['depth'])) {
     $cid = 'content-theming-banner';
     for ($i = 0; $i< $node->book['depth']; $i++) {
@@ -243,7 +244,16 @@ function mooc_content_theming_foundation_access_ux_menu_item_icon_alter(&$icon, 
  * Implements hook_foundation_access_colors_alter().
  */
 function mooc_content_theming_foundation_access_colors_alter(&$color, $current) {
-  $node = menu_get_object('node');
+  // support global moocappbook override
+  // this is useful during AJAX callbacks when scope
+  // of the node is difficult to assemble since it's
+  // not a full page bootstrap
+  if (isset($GLOBALS['moocappbook'])) {
+    $node = $GLOBALS['moocappbook'];
+  }
+  else {
+    $node = menu_get_object('node');
+  }
   // allow pages to pass their styling down
   if (isset($node) && $node->type == 'page' && isset($node->book['depth']) && isset($node->{'field_fa_' . $current . '_color'})) {
     $cid = 'content-theming-colors';
