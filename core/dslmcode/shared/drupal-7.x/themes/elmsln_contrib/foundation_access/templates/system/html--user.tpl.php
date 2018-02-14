@@ -71,7 +71,7 @@
       text-align: center;
       max-width: 34rem;
       margin: 0 auto;
-      top: 15%;
+      top: 10%;
       position: relative;
       color: #EEEEEE;
       background-color: rgba(37,58,71,.8);
@@ -79,6 +79,7 @@
       border-radius: 10px;
       padding: .5em;
       box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12), 0 2px 4px -1px rgba(0, 0, 0, 0.4);
+      z-index: 2;
     }
     #user-login > div {
       color: #ffffff;
@@ -103,7 +104,7 @@
     #login-page {
       background: #253a47;
       position: relative;
-      top: 50%;
+      top: 38%;
       max-width: 36rem;
       margin: 0 auto;
       -webkit-transform: translateY(-50%);
@@ -165,6 +166,7 @@
     #toastdrawer {
       padding: 0;
       margin: 0;
+      max-width: 400px;
     }
     .paper-toast-label {
       background: #3bab97;

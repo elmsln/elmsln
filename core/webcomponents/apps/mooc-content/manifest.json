@@ -10,6 +10,10 @@
       "data": {
         "callback": "_mooc_content_data",
         "property": "source-path"
+      },
+      "full-outline": {
+        "callback": "_mooc_content_get_outline_data",
+        "property": "full-outline-path"
       }
     },
     "properties": {
@@ -17,24 +21,12 @@
         "callback": "_mooc_content_outline_title"
       },
       "aliases": {
-        "callback": "_mooc_content_get_aliases"
+        "callback": "_mooc_content_get_alias"
       }
     },
     "slots": {
-      "outlinemodal": {
-        "callback": "_mooc_content_render_outline_modal"
-      },
       "content" : {
         "callback": "_mooc_content_render_content"
-      },
-      "navigation" : {
-        "callback": "_mooc_content_render_navigation"
-      },
-      "options" : {
-        "callback": "_mooc_content_render_options"
-      },
-      "outline" : {
-        "callback": "_mooc_content_render_outline"
       }
     }
   }

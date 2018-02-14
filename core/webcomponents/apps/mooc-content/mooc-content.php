@@ -55,32 +55,41 @@ function _mooc_content_get_aliases() {
     $result = db_query("SELECT alias,source FROM {url_alias} WHERE source LIKE 'node/%' AND language='und' ORDER BY pid ASC");
     $aliases = $result->fetchAllKeyed();
   }
-  return drupal_json_encode($aliases);
+  return $aliases;
 }
 
+/**
+ * Get active title
+ */
 function _mooc_content_get_title() {
   $node = _mooc_content_get_active();
   return $node->title;
 }
-
-function _mooc_content_render_outline(){
+/**
+ * Get a single alias
+ */
+function _mooc_content_get_alias() {
   $node = _mooc_content_get_active();
-  $tmp = _mooc_nav_block_mooc_nav_block($node);
-  return $tmp['content'];
+  $aliases = array(drupal_get_path_alias('node/' . $node->nid) => 'node/' . $node->nid);
+  return drupal_json_encode($aliases);
 }
 
+/**
+ * Get the outline area title
+ */
 function _mooc_content_outline_title(){
   $node = _mooc_content_get_active();
   $tmp = _mooc_nav_block_get_nav($node);
   return $tmp['label'];
 }
 
+/**
+ * Top navigation
+ */
 function _mooc_content_render_navigation() {
   $node = _mooc_content_get_active();
   // render navigation
   $vars = _mooc_helper_book_nav_build($node);
-  $bookoutline = _mooc_helper_book_outline(TRUE);
-  $vars['content'] = drupal_render($bookoutline);
   // output contents by passing through the wrapper theme function
   $tmp = theme('book_sibling_nav_wrapper', $vars);
   return render($tmp);
@@ -90,9 +99,15 @@ function _mooc_content_render_navigation() {
  * Oddly specific I know but it's one of the heaviest calls
  * in the entire system.
  */
-function _mooc_content_render_outline_modal() {
+function _mooc_content_get_outline_data() {
   $bookoutline = _mooc_helper_book_outline(TRUE);
-  return drupal_render($bookoutline);
+  return array(
+    'status' => 200,
+    'data' => array(
+      'outline' => drupal_render($bookoutline),
+      'aliases' => _mooc_content_get_aliases(),
+    )
+  );
 }
 
 /**
@@ -100,7 +115,9 @@ function _mooc_content_render_outline_modal() {
  */
 function _mooc_content_render_options() {
   $node = _mooc_content_get_active();
-  $edit_path = base_path() . 'node/' . $node->nid . '/edit';
+  if (node_access('update', $node)) {
+    $edit_path = base_path() . 'node/' . $node->nid . '/edit';
+  }
   $cis_lmsless = _cis_lmsless_get_distro_classes();
   $distro = elmsln_core_get_profile_key();
   // support for cis_shortcodes
