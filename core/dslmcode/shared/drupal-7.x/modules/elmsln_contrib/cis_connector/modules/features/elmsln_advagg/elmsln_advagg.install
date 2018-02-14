@@ -45,3 +45,12 @@ function elmsln_advagg_update_7002() {
 function elmsln_advagg_update_7003() {
   variable_set('advagg_mod_js_footer', 1);
 }
+
+/**
+ * Now that we have this new way of doing business
+ * aggregation is going to crush page load times!
+ */
+function elmsln_advagg_update_7004() {
+  variable_set('advagg_bundler_max_css', 1);
+  variable_set('advagg_bundler_max_js', 1);
+}
