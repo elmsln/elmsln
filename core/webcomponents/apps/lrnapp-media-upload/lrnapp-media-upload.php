@@ -27,6 +27,7 @@ function _webcomponent_app_lrnapp_media_upload($machine_name, $app_route, $param
       // see if Drupal can load from this data source
       if ($file = file_save_data($data, $file_wrapper . '://' . $upload['name'])) {
         file_save($file);
+        $file->url = file_create_url($file->uri);
         $return = array('file' => $file);
         $status = 200;
       }
