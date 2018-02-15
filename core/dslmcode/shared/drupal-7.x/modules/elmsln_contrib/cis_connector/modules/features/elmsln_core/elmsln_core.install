@@ -358,3 +358,10 @@ function elmsln_core_update_7031(&$sandbox) {
     ->condition('name', 'chosen_%', 'LIKE')
     ->execute();
 }
+
+/**
+ * Enable JSON Schema Forms
+ */
+function elmsln_core_update_7032(&$sandbox) {
+  module_enable(array('json_schema_forms'));
+}

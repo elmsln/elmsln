@@ -153,12 +153,6 @@ function elmsln_core_menu() {
     'type' => MENU_LOCAL_TASK,
     'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
   );
-  $items['elmsln/form-as-json/%'] = array(
-    'title' => 'form as json',
-    'page callback' => '_elmsln_core_form_as_json',
-    'access arguments' => array('view form as json'),
-    'page arguments' => array(2),
-  );
   $items['admin/config/system/service-settings'] = array(
     'title' => 'Course settings',
     'description' => 'Change system settings for this service.',
@@ -181,6 +175,21 @@ function elmsln_core_menu() {
     'weight' => -10,
   );
   return $items;
+}
+
+/**
+ * Implements hook_elmsln_core_json_schema_forms_alter().
+ */
+function elmsln_core_json_schema_forms_alter(&$schema) {
+  foreach ($schema as $key => $value) {
+    if ($value['type'] == 'jquery_colorpicker') {
+      $schema[$key]['type'] = 'string';
+      $schema[$key]['component'] = array(
+        'name' => 'paper-swatch-picker',
+        'valueProperty' => 'color',
+      );
+    }
+  }
 }
 
 /**
@@ -634,17 +643,6 @@ function elmsln_core_user_view_alter(&$build) {
   // Remove default user history etc...
   $build['summary']['#title'] = '';
   $build['summary']['member_for'] = '';
-}
-
-/**
- * Callback to return form ID as json array
- * @param  string $form_id id of a form to load
- * @return json          json representation of render array
- */
-function _elmsln_core_form_as_json($form_id) {
-  $form = drupal_get_form($form_id);
-  drupal_json_output($form);
-  drupal_exit();
 }
 
 /**
