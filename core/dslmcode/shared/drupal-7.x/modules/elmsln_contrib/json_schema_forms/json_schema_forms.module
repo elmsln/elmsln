@@ -67,7 +67,12 @@ function _json_schema_forms_output($form_id, $etype = NULL, $etid = NULL) {
   else {
     $form = drupal_get_form($form_id);
   }
-  $schema = array();
+  $schema = array(
+    '$schema' => "http://json-schema.org/schema#",
+    'title' => t('@type form schema', array('@type' => $etype)),
+    'type' => "object",
+    'properties' => array(),
+  );
   // walk the form and pull out the parts we care about
   // Oh Drupal, your forms are so bold.
   foreach ($form as $key => $item) {
@@ -93,7 +98,7 @@ function _json_schema_forms_output($form_id, $etype = NULL, $etid = NULL) {
               $type = $item['#type'];
             break;
           }
-          $schema[$key] = array(
+          $schema['properties'][$key] = array(
             'title' => $item['#title'],
             'type' => $type,
             'value' => $item['#value'],
@@ -110,7 +115,7 @@ function _json_schema_forms_output($form_id, $etype = NULL, $etid = NULL) {
       foreach ($item['und'][0] as $key2 => $item2) {
         // make sure it's a value
         if (strpos($key2, '#') === FALSE && !in_array($form[$key]['und'][0][$key2]['#type'], array('submit', 'fieldset'))) {
-          $schema[$key] = array(
+          $schema['properties'][$key] = array(
             'title' => $form[$key]['und'][0][$key2]['#title'],
             'value' => $form[$key]['und'][0][$key2]['#value'],
             '_weight' => $form[$key]['und'][0][$key2]['#weight'],
@@ -123,7 +128,7 @@ function _json_schema_forms_output($form_id, $etype = NULL, $etid = NULL) {
             break;
             case 'textarea':
               $type = 'string';
-              $schema[$key]['component'] = array(
+              $schema['properties'][$key]['component'] = array(
                 'name' => 'paper-textarea',
                 'valueProperty' => 'value',
               );
@@ -132,20 +137,15 @@ function _json_schema_forms_output($form_id, $etype = NULL, $etid = NULL) {
               $type = $form[$key]['und'][0][$key2]['#type'];
             break;
           }
-          $schema[$key]['type'] = $type;
+          $schema['properties'][$key]['type'] = $type;
         }
       }
     }
   }
-  $tmp = array();
   // sort the schema now
-  usort($schema, "_json_schema_forms_sort");
-  foreach ($schema as $item) {
-    $tmp[$item['_key']] = $item;
-    unset($tmp[$item['_key']]['_key']);
-  }
+  usort($schema['properties'], "_json_schema_forms_sort");
   drupal_alter('json_schema_forms', $schema);
-  drupal_json_output($tmp);
+  drupal_json_output($schema);
   exit;
 }
 

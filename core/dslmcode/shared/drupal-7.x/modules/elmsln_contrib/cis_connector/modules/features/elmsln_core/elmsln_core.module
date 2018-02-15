@@ -181,10 +181,10 @@ function elmsln_core_menu() {
  * Implements hook_elmsln_core_json_schema_forms_alter().
  */
 function elmsln_core_json_schema_forms_alter(&$schema) {
-  foreach ($schema as $key => $value) {
+  foreach ($schema['properties'] as $key => $value) {
     if ($value['type'] == 'jquery_colorpicker') {
-      $schema[$key]['type'] = 'string';
-      $schema[$key]['component'] = array(
+      $schema['properties'][$key]['type'] = 'string';
+      $schema['properties'][$key]['component'] = array(
         'name' => 'paper-swatch-picker',
         'valueProperty' => 'color',
       );
