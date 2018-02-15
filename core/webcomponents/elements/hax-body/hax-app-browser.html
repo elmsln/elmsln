@@ -1,0 +1,139 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-list/iron-list.html">
+<link rel="import" href="../paper-input/paper-input.html">
+<link rel="import" href="../grafitto-filter/grafitto-filter.html">
+<link rel="import" href="../dropdown-select/dropdown-select.html">
+<link rel="import" href="../iron-pages/iron-pages.html">
+<link rel="import" href="hax-app-browser-item.html">
+<link rel="import" href="hax-app-search.html">
+
+<!--
+`hax-app-browser`
+Browse a list of apps. This provides a listing of our gizmos that we've integrated with.
+
+@demo demo/index.html
+
+@microcopy - the mental model for this element
+ - hax-app - expression of how to communicate and visualize a data source
+ - gizmo - silly name for the general public when talking about hax-app and what it provides in the end
+-->
+
+<dom-module id="hax-app-browser">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+      hax-app-browser-item {
+        margin: .6em;
+      }
+      @media screen and (max-width: 550px) {
+        hax-app-browser-item {
+          margin: .4em;
+        }
+      }
+    </style>
+    <app-toolbar>
+      <dropdown-select id="filtertype" label="Filter apps by" value="title">
+        <paper-item value="title">Title</paper-item>
+        <paper-item value="tag">Tag</paper-item>
+      </dropdown-select>
+      <paper-input label="Filter" id="inputfilter" aria-controls="filter" value="" always-float-label></paper-input>
+    </app-toolbar>
+    <grafitto-filter id="filter" items="[[__appList]]" like=""  where="title" as="filtered">
+      <template>
+        <iron-list id="ironlist" items="[[filtered]]" as="app" grid>
+          <template>
+            <div class="app-container">
+            <hax-app-browser-item
+              index="[[app.index]]"
+              title="[[app.details.title]]"
+              icon="[[app.details.icon]]"
+              image="[[app.details.tag]]"
+              color="[[app.details.color]]"
+              meta="[[app.details.meta]]"
+              groups="[[app.details.groups]]"
+              handles="[[app.details.handles]]"
+              description="[[app.details.description]]"
+              rating="[[app.details.rating]]"
+              tags="[[app.details.tags]]"></hax-app-browser-item>
+            </div>
+          </template>
+        </iron-list>
+      </template>
+    </grafitto-filter>
+    <hax-app-search hidden$="[[!__showSearch]]"></hax-app-search>
+    <slot></slot>
+  </template>
+  <script>
+    Polymer({
+
+      is: 'hax-app-browser',
+
+      properties: {
+        /**
+         * Search term
+         */
+        search: {
+          type: String,
+        },
+        /**
+         * Global activeApp object.
+         */
+        activeApp: {
+          type: Object,
+        },
+      },
+      /**
+       * Attached
+       */
+      attached: function() {
+        this.resetBrowser();
+        this.$.inputfilter.addEventListener('value-changed', (e) => {
+          this.$.filter.like = e.target.value;
+        });
+        this.$.filtertype.addEventListener('change', (e) => {
+          this.$.inputfilter.value = '';
+          this.$.filter.where = e.detail.value;
+          this.$.filter.like = '';
+        });
+        document.body.addEventListener('hax-app-selected', this._appSelected.bind(this));
+        document.body.addEventListener('hax-store-property-updated', this._haxStorePropertyUpdated.bind(this));
+      },
+      /**
+       * App has been selected.
+       */
+      _appSelected: function(e) {
+        // item bubbled up
+        if (typeof e.detail !== typeof undefined) {
+          this.set('__activeApp', e.detail);
+          this.__showSearch = true;
+          Polymer.HaxStore.write('activeApp', this.__appList[e.detail], this);
+        }
+      },
+      /**
+       * Store updated, sync.
+       */
+      _haxStorePropertyUpdated: function(e) {
+        if (e.detail && typeof e.detail.value !== typeof undefined && e.detail.property) {
+          this.set(e.detail.property, e.detail.value);
+        }
+      },
+      /**
+       * Reset this browser.
+       */
+      resetBrowser: function() {
+        this.__showSearch = false;
+        this.set('__appList', Polymer.HaxStore.instance.appList);
+        this.$.filter.$$('#ironlist').fire('iron-resize');
+        this.$.filter.$$('#ironlist').filtered = this.__appList;
+        this.$.inputfilter.value = '';
+        this.$.filtertype.value = 'title';
+        this.$.filter.value = '';
+        this.$.filter.filter();
+        this.$.filter.where = 'title';
+        this.$.filter.like = '';
+      },
+    });
+  </script>
+</dom-module>

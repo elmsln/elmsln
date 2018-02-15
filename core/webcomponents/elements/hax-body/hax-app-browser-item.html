@@ -10,19 +10,20 @@
 <link rel="import" href="../iron-icons/av-icons.html">
 <link rel="import" href="../iron-icons/maps-icons.html">
 <link rel="import" href="../iron-image/iron-image.html">
+<link rel="import" href="../paper-tooltip/paper-tooltip.html">
 <link rel="import" href="../materializecss-styles/colors.html">
 
 <!--
-`hax-source-browser-item`
-A button on the hax-source-browser app display
+`hax-app-browser-item`
+A button on the hax-app-browser display
 
 @demo demo/index.html
 
 @microcopy - the mental model for this element
- -
+ - hax-app - data wiring for an app, this element uses the visual side of this
 -->
 
-<dom-module id="hax-source-browser-item">
+<dom-module id="hax-app-browser-item">
   <template>
     <style include="materializecss-styles-colors">
       :host {
@@ -79,7 +80,7 @@ A button on the hax-source-browser app display
   <script>
     Polymer({
 
-      is: 'hax-source-browser-item',
+      is: 'hax-app-browser-item',
       listeners: {
         'tap': '_fireEvent',
         'mousedown': 'tapEventOn',
@@ -119,7 +120,7 @@ A button on the hax-source-browser app display
           type: String
         },
         /**
-         * Author related to this source
+         * Author related to this app
          */
         author: {
           type: String
@@ -176,7 +177,7 @@ A button on the hax-source-browser app display
        * Fire an event that includes the eventName of what was just pressed.
        */
       _fireEvent: function(e) {
-        this.fire('hax-source-selected', this.index);
+        this.fire('hax-app-selected', this.index);
       },
     });
   </script>

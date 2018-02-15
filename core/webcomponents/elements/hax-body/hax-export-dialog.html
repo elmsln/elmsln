@@ -166,7 +166,7 @@ Export dialog with all export options and settings provided.
           content += `<link rel="import" href="${url}/${index}/${index}.html" />` + "\n";
         }
         content += '</head><body>';
-        content += Polymer.HaxStore.instance.haxBody.haxToContent();
+        content += Polymer.HaxStore.instance.activeHaxBody.haxToContent();
         content += '</body></html>';
         return content;
       },

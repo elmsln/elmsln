@@ -1,0 +1,102 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../paper-card/paper-card.html">
+<link rel="import" href="../paper-button/paper-button.html">
+<link rel="import" href="../paper-styles/paper-styles.html">
+
+<!--
+`hax-source`
+ An element that brokers the visual display of a listing of material from an end point. The goal is to normalize data from some location which is media centric. This expects to get at least enough data in order to form a grid of items which are selectable. It's also generically implemented so that anything can be hooked up as a potential source for input (example: youtube API or custom in-house solution). The goal is to return enough info via fired event so that hax-manager can tell hax-body that the user selected a tag, properties, slot combination so that hax-body can turn the selection into a custom element / element injected into the hax-body slot.
+
+@demo demo/index.html
+
+@microcopy - the mental model for this element
+ - hax-app
+-->
+
+
+<dom-module id="hax-app-search-result">
+  <template>
+    <style>
+      :host {
+        display: block;
+      };
+      paper-button.button-wrapper {
+        margin: 0;
+        padding: 0;
+      }
+      paper-card {
+        padding: 0;
+        margin: .5em;
+        width: 15em;
+        height: 15em;
+        font-size: .8em;
+        --paper-card-header: {
+          max-height: 10em;
+        }
+      }
+      @media screen and (min-width: 800px) {
+        paper-card {
+          font-size: .85em;
+        }
+      }
+      .card-content {
+        padding: .1em;
+      }
+      .card-content p {
+        padding: 0;
+        margin: 0;
+      }
+    </style>
+
+    <paper-button on-tap="_itemSelected" class="button-wrapper">
+      <paper-card image="[[resultData.image]]">
+        <div class="card-content" style="height:5em;overflow:auto;">
+          <p>[[resultData.title]]</p>
+          <p>[[resultData.details]]</p>
+        </div>
+      </paper-card>
+    </paper-button>
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'hax-app-search-result',
+      properties: {
+        /**
+         * Preview object from hax-app originally.
+         */
+        resultData: {
+          type: Object,
+        },
+      },
+      /**
+       * Handle media item selected.
+       */
+      _itemSelected: function(e) {
+        var map = this.resultData.map;
+        var gizmoType = this.resultData.type;
+        // sanity check as well as guessing based on type if we absolutely have to
+        if ((gizmoType === null || gizmoType === '') && typeof map.source !== typeof undefined) {
+          gizmoType = Polymer.HaxStore.guessGizmoType(map.source);
+        }
+        let haxElements = Polymer.HaxStore.guessGizmo(gizmoType, map);
+        // see if we got anything
+        if (haxElements.length > 0) {
+          if (haxElements.length === 1) {
+            if (typeof haxElements[0].tag !== typeof undefined) {
+              Polymer.HaxStore.write('activeHaxElement', haxElements[0], this);
+            }
+          }
+          else {
+            // hand off to hax-app-picker to deal with the rest of this
+            Polymer.HaxStore.instance.haxAppPicker.presentOptions(haxElements, gizmoType, 'How would you like to display this ' + gizmoType + '?', 'gizmo');
+          }
+        }
+        else {
+          Polymer.HaxStore.toast("Sorry, I don't know how to handle that link yet.");
+        }
+      },
+    });
+  </script>
+</dom-module>

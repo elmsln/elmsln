@@ -150,90 +150,6 @@ A LRN element that will change the world.
         user-select: text;
       }
 
-      /* CSS grid overlay */
-      :host[show-grid] {
-        --offset: 0;
-        --max_width: 72rem;
-        --columns: 3;
-        --gutter: 1rem;
-        --baseline: 3rem;
-        --baseline-shift: 2rem;
-        --color: hsla(204, 80%, 72%, 0.25);
-        --color-text: hsla(204, 80%, 72%, 1);
-        --media-query: 'base';
-        cursor: crosshair !important;
-      }
-      @media (min-width: 35em) {
-        :host[show-grid] {
-          --color: hsla(286, 51%, 44%, 0.25);
-          --color-text: hsla(286, 51%, 44%, 1);
-          --media-query: 'small';
-        }
-      }
-      @media (min-width: 48em) {
-        :host[show-grid] {
-          --columns: 12;
-          --color: hsla(204, 80%, 72%, 0.25);
-          --color-text: hsla(204, 80%, 72%, 1);
-          --media-query: 'medium';
-        }
-      }
-      @media (min-width: 70em) {
-        :host[show-grid] {
-          --color: hsla(286, 51%, 44%, 0.25);
-          --color-text: hsla(286, 51%, 44%, 1);
-          --media-query: 'large';
-        }
-      }
-      :host[show-grid] {
-        --repeating-width: calc(100% / var(--columns));
-        --column-width: calc((100% / var(--columns)) - var(--gutter));
-        --background-width: calc(100% + var(--gutter));
-        --background-columns: repeating-linear-gradient(
-          to right,
-          var(--color),
-          var(--color) var(--column-width),
-          transparent var(--column-width),
-          transparent var(--repeating-width)
-        );
-        --background-baseline: repeating-linear-gradient(
-          to bottom,
-          var(--color),
-          var(--color) 1px,
-          transparent 1px,
-          transparent var(--baseline)
-        );
-        position: relative;
-      }
-      :host[show-grid]::before {
-        position: absolute;
-        top: 0; right: 0; bottom: 0; left: 0;
-        margin-right: auto;
-        margin-left: auto;
-        width: calc(100% - (2 * var(--offset)));
-        max-width: var(--max_width);
-        min-height: 100vh;
-        content: '';
-        background-image: var(--background-columns), var(--background-baseline);
-        background-size: var(--background-width) 100%;
-        background-position: 0 var(--baseline-shift);
-        z-index: 1000;
-        pointer-events: none;
-      }
-      :host[show-grid]::after {
-        content: var(--media-query);
-        position: fixed;
-        top: 1rem;
-        left: 1rem;
-        font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
-        color: var(--color-text);
-      }
-      #grid2 tile {
-          background-color: limegreen;
-      }
-      #grid2 [placeholder] {
-          background-color: lightgray;
-      }
       #contextcontainer {
         display: none;
       }
@@ -282,15 +198,6 @@ A LRN element that will change the world.
           value: false,
           reflectToAttribute: true,
           observer: '_editModeChanged',
-        },
-        /**
-         * Show grid on the screen.
-         */
-        showGrid: {
-          type: Boolean,
-          value: false,
-          reflectToAttribute: true,
-          notify: true,
         },
         /**
          * A reference to the active node in the slot.
@@ -694,7 +601,9 @@ A LRN element that will change the world.
             this.haxDuplicateNode(this.activeNode);
           break;
           case 'grid-plate-delete':
-            this.haxDeleteNode(this.activeNode);
+            if (window.confirm('Are you sure you want to delete this element?')) {
+              this.haxDeleteNode(this.activeNode);
+            }
           break;
           case 'grid-plate-up':
             this.haxMoveGridPlate('up', this.activeNode);

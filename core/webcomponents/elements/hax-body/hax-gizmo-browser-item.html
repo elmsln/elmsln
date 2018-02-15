@@ -174,7 +174,10 @@ A button on the hax-gizmo-browser app display
       _fireEvent: function(e) {
         var normalizedEvent = Polymer.dom(e);
         var local = normalizedEvent.localTarget;
-        let element = Polymer.HaxStore.haxElementPrototype(this.tag);
+        let gizmo = {
+          'tag': this.tag
+        };
+        let element = Polymer.HaxStore.haxElementPrototype(gizmo);
         Polymer.HaxStore.write('activeHaxElement', element, this);
       }
     });

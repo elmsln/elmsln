@@ -211,6 +211,7 @@ An element that can generate a form
           if (typeof this.previewNode.getHaxJSONSchema === "function") {
             let element = this.element;
             let schema = this.previewNode.getHaxJSONSchema(newValue);
+            console.log(schema);
             for (var property in element.properties) {
               if (element.properties.hasOwnProperty(property)) {
                 if (typeof schema.properties[property] !== typeof undefined) {

@@ -1,5 +1,9 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../paper-toast/paper-toast.html">
+<link rel="import" href="../media-behaviors/media-behaviors.html">
+<link rel="import" href="../iron-ajax/iron-ajax.html">
+<link rel="import" href="hax-app.html">
+
 <!--
 `hax-store`
  The storage area for all valid custom elements to drop into HAX. This element lives at the top level and lazy-loads all the possible elements that could be added to the document. It also helps with building the hax-panel options as well as brokering what tags register as valid when doing sanitization requests.
@@ -9,7 +13,7 @@
 @microcopy - the mental model for this element
  - store - a location that is the source of truth for allowed hax custom elements.
  - hax-body - the routing board doing all the work for the UI
- - app - the level above hax-body that this and other tags live in
+ - app - an end point / structure for an API that HAX knows how to interface with
  - hax-panel - a side pallet of options which allows one to select items that they want to add to hax-body.
  - element - a custom element tag / node
  - hax element - a simplified DOM node that is tag, properties, slot content as Object key names.
@@ -19,13 +23,18 @@
 <dom-module id="hax-store">
   <template>
     <style>
-      /**
-       * This shouldn't show up anywhere, it's just wiring.
-       */
       :host {
         display: none;
       }
     </style>
+    <iron-ajax
+    id="appstore"
+    url="[[appStore.url]]"
+    params="[[appStore.params]]"
+    method="GET"
+    content-type="application/json"
+    handle-as="json"
+    last-response="{{__appStoreData}}"></iron-ajax>
   </template>
   <script>
 
@@ -34,8 +43,23 @@
 
       Polymer.HaxStore = Polymer({
         is: 'hax-store',
-
+        behaviors: [
+          MediaBehaviors.Video,
+        ],
         properties: {
+          /**
+           * Internal app store data property after request
+           */
+          __appStoreData: {
+            type: Object,
+            observer: '_loadAppStoreData',
+          },
+          /**
+           * Hax app picker element.
+           */
+          haxAppPicker: {
+            type: Object,
+          },
           /**
            * Hax manager element.
            */
@@ -43,10 +67,24 @@
             type: Object,
           },
           /**
-           * Hax manager element.
+           * A list of all haxBodies that exist
            */
-          haxBody: {
+          haxBodies: {
+            type: Array,
+            value: [],
+          },
+          /**
+           * The hax-body that is currently active.
+           */
+          activeHaxBody: {
             type: Object,
+          },
+          /**
+           * Possible appStore endpoint for loading in things dynamically.
+           */
+          appStore: {
+            type: Object,
+            observer: '_appStoreChanged',
           },
           /**
            * HAX Toast message.
@@ -95,11 +133,18 @@
             value: {},
           },
           /**
-           * Available sources of things to search.
+           * Available apps of things supplying media / content.
            */
-          sourceList: {
+          appList: {
             type: Array,
             value: [],
+          },
+          /**
+           * Globally active app, used for brokering communications
+           */
+          activeApp: {
+            type: Object,
+            value: {},
           },
           /**
            * Valid tag list, tag only and including primatives for a baseline.
@@ -109,12 +154,34 @@
             value: ['p', 'div', 'ol', 'ul', 'li', 'a', 'hr', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'code', 'img', 'iframe', 'video', 'audio', 'section', 'hax-blox'],
           },
           /**
-           * Gizmo types which can be used to bridge sources to gizmos.
+           * Gizmo types which can be used to bridge apps to gizmos.
            */
           validGizmoTypes: {
             type: Array,
             value: ['data','video','audio','text','link','file','pdf','image','csv','doc'],
           },
+        },
+        /**
+         * Notice _appStore changed.
+         */
+        _appStoreChanged: function(newValue, oldValue) {
+          // if we have an endpoint defined, pull it
+          if (typeof newValue !== typeof undefined) {
+            this.$.appstore.generateRequest();
+          }
+        },
+        /**
+         * load and attach items from the app store.
+         */
+        _loadAppStoreData: function(newValue, oldValue) {
+          if (typeof newValue !== typeof undefined) {
+            var apps = newValue.apps;
+            for (var i = 0; i < apps.length; i++) {
+              let app = document.createElement('hax-app');
+              app.data = apps[i];
+              document.body.appendChild(app);
+            }
+          }
         },
         /**
          * attached.
@@ -136,19 +203,21 @@
           document.body.addEventListener('hax-register-manager', this._haxStoreRegisterManager.bind(this));
           document.body.addEventListener('hax-register-body', this._haxStoreRegisterBody.bind(this));
           document.body.addEventListener('hax-register-panel', this._haxStoreRegisterPanel.bind(this));
-          document.body.addEventListener('hax-register-source', this._haxStoreRegisterSource.bind(this));
+          document.body.addEventListener('hax-register-app', this._haxStoreRegisterApp.bind(this));
           document.body.addEventListener('hax-register-export', this._haxStoreRegisterExport.bind(this));
+          document.body.addEventListener('hax-register-app-picker', this._haxStoreRegisterAppPicker.bind(this));
           // notice content insert and help it along to the body
           document.body.addEventListener('hax-insert-content', this._haxStoreInsertContent.bind(this));
         },
         /**
-         * inject a toast element to manage our messages
+         * Inject a toast element to manage our messages
          */
         _injectToast: function() {
           var toast = document.createElement('paper-toast');
           toast.id = "haxtoast";
-          toast.duration = 3;
-          toast.classList.add("fit-bottom");
+          toast.duration = 5;
+          // move this object to the body level so it doesn't
+          // run into stack order context issues
           document.body.appendChild(toast);
           this.haxToast = toast;
         },
@@ -159,9 +228,17 @@
          */
         _haxStoreRegisterManager: function(e) {
           if (e.detail && typeof this.haxManager === typeof undefined) {
-            // move this object to the body level so it doesn't
-            // run into stack order context issues
             this.haxManager = e.detail;
+          }
+        },
+        /**
+         * Set the appPicker node so we can interface with it.
+         * This helps with picking between multiple options when we need the user
+         * to decide between a sub-set of options
+         */
+        _haxStoreRegisterAppPicker: function(e) {
+          if (e.detail && typeof this.haxAppPicker === typeof undefined) {
+            this.haxAppPicker = e.detail;
           }
         },
         /**
@@ -176,19 +253,21 @@
             }
             // invoke insert or replacement on body, same function so it's easier to trace
             if (e.detail.replace && e.detail.replacement) {
-              this.haxBody.haxReplaceNode(this.activeNode, e.detail.replacement);
+              this.activeHaxBody.haxReplaceNode(this.activeNode, e.detail.replacement);
             }
             else {
-              this.haxBody.haxInsert(e.detail.tag, e.detail.content, properties);
+              this.activeHaxBody.haxInsert(e.detail.tag, e.detail.content, properties);
             }
           }
         },
         /**
-         * Set the haxBody so we know what to insert into.
+         * Set the activeHaxBody and add to the list so we know what to insert into.
          */
         _haxStoreRegisterBody: function(e) {
           if (e.detail) {
-            this.haxBody = e.detail;
+            this.haxBodies.push(e.detail);
+            // default active the whatever is last here
+            this.activeHaxBody = e.detail;
             Polymer.HaxStore.write('editMode', this.editMode, this);
           }
         },
@@ -219,12 +298,12 @@
           }
         },
         /**
-         * Notice that a source was set in HAX some place; register it here
+         * Notice that an app was set in HAX; register it
          */
-        _haxStoreRegisterSource: function(e) {
+        _haxStoreRegisterApp: function(e) {
           if (e.detail) {
-            e.detail.index = this.sourceList.length;
-            this.push('sourceList', e.detail);
+            e.detail.index = this.appList.length;
+            this.push('appList', e.detail);
           }
         },
         /**
@@ -332,24 +411,25 @@
        * Guess the type of Gizmo when given some information about what we have.
        */
       Polymer.HaxStore.guessGizmoType = (guess) => {
-        if (typeof guess.url !== typeof undefined) {
-          if (guess.url.indexOf('vimeo.com') != -1 || guess.url.indexOf('youtube.com') != -1 || guess.url.indexOf('youtube-nocookie.com') != -1 || guess.url.indexOf('youtu.be') != -1) {
-            return 'video';
-          }
-          else if (guess.url.indexOf('soundcloud.com') != -1) {
+        if (typeof guess.source !== typeof undefined) {
+          if (guess.source.indexOf('.mp3') != -1) {
             return 'audio';
           }
-          else if (guess.url.indexOf('.jpg') != -1 || guess.url.indexOf('.jpeg') != -1 || guess.url.indexOf('.gif') != -1) {
+          else if (guess.source.indexOf('.png') != -1 || guess.source.indexOf('.jpg') != -1 || guess.source.indexOf('.jpeg') != -1 || guess.source.indexOf('.gif') != -1) {
             return 'image';
           }
-          else if (guess.url.indexOf('.pdf') != -1) {
+          else if (guess.source.indexOf('.pdf') != -1) {
             return 'pdf';
           }
-          else if (guess.url.indexOf('.svg') != -1) {
+          else if (guess.source.indexOf('.svg') != -1) {
             return 'svg';
           }
-          else if (guess.url.indexOf('.csv') != -1) {
+          else if (guess.source.indexOf('.csv') != -1) {
             return 'csv';
+          }
+          // if it's external we can't assume what it actually is
+          else if (Polymer.HaxStore.instance.getVideoType(guess.source) != 'external') {
+            return 'video';
           }
           else {
             return 'data';
@@ -360,45 +440,71 @@
        * Try and guess the Gizmo based on what we were just handed
        */
       Polymer.HaxStore.guessGizmo = (guess, values) => {
+        var matches = [];
         if (typeof guess !== typeof undefined) {
-          let root = Polymer.HaxStore.instance;
+          var store = Polymer.HaxStore.instance;
           // verify type
-          if (root.validGizmoTypes.includes(guess)) {
+          if (store.validGizmoTypes.includes(guess)) {
             // now we can look through them
             // look for a match
-            for (var gizmoposition in root.gizmoList) {
-              let gizmo = root.gizmoList[gizmoposition];
+            for (var gizmoposition in store.gizmoList) {
+              var gizmo = store.gizmoList[gizmoposition];
+              var props = {};
+              var match;
               for (var i = 0; i < gizmo.handles.length; i++) {
+                // reset match per potential handler though most things
+                // will only have 1 handler but still..
+                match = false;
                 // WHAT!??!?!?!?!
                 if (guess === gizmo.handles[i].type) {
                   for (var property in gizmo.handles[i]) {
                     // ignore type.. but again.. WHAT?!?!?!
                     if (property !== 'type') {
                       // check the values that came across to see if there's a match
+                      // of any kind, we only need one but can then bind to multiple
                       if (typeof values[property] !== typeof undefined) {
-                        let props = {};
+                        match = true;
                         props[gizmo.handles[i][property]] = values[property];
-                        // omg... we just found a match on a property from who knows where!
-                        return Polymer.HaxStore.haxElementPrototype(gizmo.tag, props, '');
                       }
                     }
+                  }
+                  // omg... we just found a match on a property from who knows where!
+                  if (match) {
+                    matches.push(Polymer.HaxStore.haxElementPrototype(gizmo, props, ''));
                   }
                 }
               }
             }
           }
         }
-        return {};
+        return matches;
+      };
+
+      /**
+       * Filter app store apps to those that accept this file source.
+       */
+      Polymer.HaxStore.getHaxAppStoreTargets = (type) => {
+        let targets = Polymer.HaxStore.instance.appList.filter(app => {
+          if (typeof app.connection.operations.add !== typeof undefined) {
+            let add = app.connection.operations.add;
+            if (typeof add.acceptsGizmoTypes !== typeof undefined && add.acceptsGizmoTypes.includes(type)) {
+              return true;
+            }
+          }
+          return false;
+        });
+        return targets;
       };
 
       /**
        * Generate Hax Element prototype.
        */
-      Polymer.HaxStore.haxElementPrototype = (tag, properties, content) => {
+      Polymer.HaxStore.haxElementPrototype = (gizmo, properties, content) => {
         return {
-          'tag': tag,
+          'tag': gizmo.tag,
           'properties': properties,
           'content': content,
+          'gizmo': gizmo,
         };
       };
 

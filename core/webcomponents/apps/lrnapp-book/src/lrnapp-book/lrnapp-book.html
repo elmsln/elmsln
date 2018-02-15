@@ -28,11 +28,12 @@
 
 <!-- HAX -->
 <link rel="import" href="../../bower_components/hax-body/hax-store.html">
-<link rel="import" href="../../bower_components/hax-body/hax-autoloader.html">
-<link rel="import" href="../../bower_components/hax-body/hax-source.html">
-<link rel="import" href="../../bower_components/hax-body/hax-manager.html">
-<link rel="import" href="../../bower_components/hax-body/hax-panel.html">
 <link rel="import" href="../../bower_components/hax-body/hax-body.html">
+<link rel="import" href="../../bower_components/hax-body/hax-autoloader.html">
+<link rel="import" href="../../bower_components/hax-body/hax-manager.html">
+<link rel="import" href="../../bower_components/hax-body/hax-app-picker.html">
+<link rel="import" href="../../bower_components/hax-body/hax-app.html">
+<link rel="import" href="../../bower_components/hax-body/hax-panel.html">
 
 <link rel="import" href="lrnapp-book-progress-dashboard.html">
 
@@ -75,19 +76,19 @@ A LRN element
         min-width: 1rem;
       }
 
-      hax-panel ::shadow app-drawer {
-        padding: 0;
-        top: 0;
-        bottom: 0;
-        position: absolute;
-        box-sizing: content-box;
-        margin-left: -300px;
-        --app-drawer-content-container: {
+      hax-panel {
+        font-size: .8rem;
+      }
+      hax-panel {
+      --app-drawer-content-container: {
           background-color: #fafafa;
           padding: 0;
           border-right: 1px solid #c8c8c8;
-          overflow: inherit;
-          width: 300px !important;
+          border-bottom: 1px solid #c8c8c8;
+          width: 100px !important;
+          box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.4);
+          height: 100vh;
+          position: fixed;
         }
       }
       app-drawer {
@@ -435,6 +436,9 @@ A LRN element
       .course-title-drawer {
         font-size: 1.2em;
       }
+      hax-autoloader {
+        display: none;
+      }
     </style>
     <page-scroll-position value="{{scrollPosition}}"></page-scroll-position>
     <div id="anchor"></div>
@@ -492,99 +496,10 @@ A LRN element
         tail="{{tail}}"
         query-params="{{queryParams}}">
     </app-route>
+    <hax-store app-store='{"url":"/sing100/sites/all/libraries/webcomponents/polymer/apps-src/lrnapp-book/appstore.json"}'></hax-store>
+    <hax-app-picker></hax-app-picker>
   <!-- body where most of the heavy lifting happens -->
     <app-drawer-layout>
-      <hax-store></hax-store>
-        <hax-autoloader>
-          <video-player></video-player>
-          <wikipedia-query></wikipedia-query>
-          <pdf-element></pdf-element>
-          <lrn-table></lrn-table>
-          <media-image></media-image>
-        </hax-autoloader>
-        <hax-manager>
-          <hax-source
-            details='{
-            "title":"Media",
-            "icon":"perm-media",
-            "color":"blue",
-            "author": "ELMS: Learning Network",
-            "teaser": "Our media solution",
-            "description": "The backend for ELMS:LN that allows for asset management and recall. Allows for remote referencing of things as well as tagging them by course so that we know where things are used after the fact.",
-            "status": "available"
-            }'
-            name="ELMS:LN Media"
-            user="SERVICE_ELMSMEDIA_LN"
-            pass="106025726eea79168e7b9d3aff6330"
-            request-end-point="http://data-media.elmsln.local/node.json"
-            request-params='{
-            "deep-load-refs":"file",
-            "title":""}'
-            query-param="title"
-            response-map='{
-              "root": "list",
-              "gizmoType": "video",
-              "url": "http://media.elmsln.local/entity_iframe/node/",
-              "id": "nid",
-              "title": "title",
-              "description": "body",
-              "image": "field_image.url",
-              "customGizmoType": "type"}'></hax-source>
-          <hax-source
-            details='{
-            "title":"Youtube",
-            "icon":"av:play-arrow",
-            "color":"red",
-            "author": "Google, Youtube LLC",
-            "teaser": "Popular public video solution",
-            "description": "Remember that anything you place here though will be out in the open. Great for OER.",
-            "status": "available"
-            }'
-            request-end-point="https://www.googleapis.com/youtube/v3/search"
-            request-params='{
-            "part":"snippet",
-            "q":"",
-            "key": "AIzaSyAF9zKXv-fxus9GNqn40SHzTn6F8A7h-Yo",
-            "type": "video",
-            "maxResults":"12"}'
-            query-param="q"
-            response-map='{
-              "root": "items",
-              "gizmoType": "video",
-              "url": "https://www.youtube.com/watch?v=",
-              "id": "id.videoId",
-              "title": "snippet.title",
-              "description": "snippet.description",
-              "image": "snippet.thumbnails.high.url"}'></hax-source>
-          <hax-source
-            details='{
-            "title":"Vimeo",
-            "icon":"av:play-circle-filled",
-            "color":"blue",
-            "author": "Vimeo Inc.",
-            "teaser": "Popular video community",
-            "description": "Vimeo is a great place for artists and higher quality video. There is also the ability to have more control over the storage and delivery of media as needed.",
-            "status": "available"
-            }'
-            request-end-point="https://api.vimeo.com/videos"
-            request-params='{
-            "access_token": "0a718b853bad87571d52e9fb554e0a43",
-            "query": "",
-            "direction": "asc",
-            "sort": "alphabetical",
-            "filter": "CC",
-            "per_page":"12"
-            }'
-            query-param="query"
-            response-map='{
-              "root": "data",
-              "gizmoType": "video",
-              "url": "",
-              "id": "link",
-              "title": "name",
-              "description": "description",
-              "image": "pictures.sizes.1.link"}'></hax-source>
-        </hax-manager>
       <hax-panel id="haxpanel" hide-panel-ops>
         <lrnsys-collapselist-item>
         <span slot="label"><div class="label">Future</div></span>
@@ -714,6 +629,7 @@ A LRN element
         </div>
       </app-header-layout>
     </app-drawer-layout>
+    <hax-manager></hax-manager>
     <!-- edit mode if they have permissions -->
     <paper-fab id="editbutton" icon="editor:mode-edit" class="red white-text" hidden$="[[!currentPageData.page.meta.canUpdate]]" data-voicecommand="Edit content" on-tap="_toggleEditMode" title="Tap to place content in edit mode."></paper-fab>
     <paper-tooltip
@@ -724,6 +640,16 @@ A LRN element
       <span id="fablabel">edit mode</span>
     </paper-tooltip>
     <paper-toast id="toast" horizontal-align="left"></paper-toast>
+    <hax-autoloader>
+      <video-player></video-player>
+      <wikipedia-query></wikipedia-query>
+      <lrn-table></lrn-table>
+      <media-image></media-image>
+      <meme-maker></meme-maker>
+      <lrndesign-blockquote></lrndesign-blockquote>
+      <a11y-gif-player></a11y-gif-player>
+      <paper-audio-player></paper-audio-player>
+    </hax-autoloader>
   </template>
   <script>
     Polymer({

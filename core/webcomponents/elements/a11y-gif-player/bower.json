@@ -1,14 +1,14 @@
 {
-  "name": "video-player",
-  "description": "A simple element for playing video from multiple sources",
-  "main": "video-player.html",
+  "name": "a11y-gif-player",
+  "description": "A LRN element",
+  "main": "a11y-gif-player.html",
   "dependencies": {
     "polymer": "Polymer/polymer#^1.10.1",
+    "paper-button": "PolymerElements/paper-button#^2.0.0",
+    "iron-a11y-keys": "PolymerElements/iron-a11y-keys#^2.0.0",
+    "schema-behaviors": "LRNWebComponents/schema-behaviors#^0.1.0",
     "hax-body-behaviors": "LRNWebComponents/hax-body-behaviors#^1.3.0",
-    "materializecss-styles": "LRNWebComponents/materializecss-styles#^1.0.0",
-    "schema-behaviors": "LRNWebComponents/schema-behaviors",
-    "a11y-behaviors": "LRNWebComponents/a11y-behaviors#^1.0.0",
-    "media-behaviors": "LRNWebComponents/media-behaviors#^1.1.1"
+    "iron-image": "PolymerElements/iron-image#^2.1.2"
   },
   "devDependencies": {
     "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
