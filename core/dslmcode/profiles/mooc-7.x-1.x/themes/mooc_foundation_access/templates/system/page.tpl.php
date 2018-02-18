@@ -36,13 +36,6 @@
               </lrnsys-drawer>
               </li>
             <?php endif; ?>
-            <?php if (!empty($a11y)) : ?>
-              <li class="page-op-button">
-              <lrnsys-drawer hover-class="<?php print $cis_lmsless['lmsless_classes'][$distro]['text'] . ' text-' . $cis_lmsless['lmsless_classes'][$distro]['dark'];?>" align="right" alt="<?php print t('Your preferences')?>" icon="accessibility" header="<?php print t('Preferences'); ?>" data-jwerty-key="a" data-voicecommand="open preferences (menu)">
-                <?php print $a11y; ?>
-              </lrnsys-drawer>
-              </li>
-            <?php endif; ?>
             <!-- end Edit Icon -->
             <li class="page-op-button">
             <?php if (!empty($tabs['#primary']) || !empty($tabs['#secondary']) || !empty($tabs_extras)): ?>

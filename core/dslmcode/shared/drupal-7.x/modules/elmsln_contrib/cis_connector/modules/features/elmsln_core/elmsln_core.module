@@ -350,10 +350,6 @@ function elmsln_core_block_info() {
       'info' => t('ELMSLN nav level 3'),
       'cache' => DRUPAL_CACHE_PER_ROLE,
     ),
-    'ferpa_filter' => array(
-      'info' => t('FERPA blur filter'),
-      'cache' => DRUPAL_CACHE_GLOBAL,
-    ),
   );
   return $blocks;
 }
@@ -549,10 +545,6 @@ function elmsln_core_block_view($delta = '') {
           $block['content'] = menu_tree_output($below);
         }
       }
-    break;
-    case 'ferpa_filter':
-      $block['subject'] = t('FERPA compliance');
-      $block['content'] = _elmsln_core_ferpa_filter();
     break;
   }
   return $block;
@@ -1438,7 +1430,30 @@ function elmsln_core_fa_a11y() {
           </div>
         </div>'
       ),
-    )
+    ),
+    'ferpa' => array(
+      '#type' => 'fieldset',
+      '#title' => t('FERPA filter'),
+      '#description' => t('Options to obscure content from view which has been marked FERPA in nature. This allows showcasing real work safely in screenshots and demonstrations.'),
+      '#collapsed' => TRUE,
+      '#collapsible' => TRUE,
+      '#weight' => -10,
+      '#attributes' => array(
+        'class' => array(
+          'collapsible',
+          'form-wrapper',
+          'collapsed',
+        ),
+        'data-voicecommand' => 'ferpa filter',
+      ),
+      '#materialize' => array(
+        'type' => 'collapsible',
+        'icon' => 'visibility',
+      ),
+      'ferpa' => array(
+        '#markup' => _elmsln_core_ferpa_filter(),
+      ),
+    ),
   );
 }
 
