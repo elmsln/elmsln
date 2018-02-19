@@ -238,9 +238,15 @@
   margin: 0 0 -3rem 0;
 }
 
-#block-mooc-nav-block-mooc-nav-nav li.elmsln-book-item paper-button{
-  padding-left: 1.75rem;
+#block-mooc-nav-block-mooc-nav-nav li.elmsln-book-item paper-button {
   border-radius: unset;
+  text-transform: unset;
+}
+#block-mooc-nav-block-mooc-nav-nav li.elmsln-book-item lrnsys-button {
+  padding-left: 0;
+}
+#block-mooc-nav-block-mooc-nav-nav li.elmsln-book-item lrnsys-button.x-scope {
+  padding-left: unset;
 }
 
 #block-mooc-nav-block-mooc-nav-nav li.elmsln-book-item.elmsln-icon paper-button,
@@ -305,24 +311,28 @@
   margin: -3rem 0 0 0 !important;
 }
 #scrollspy-nav .scrollspy-link {
-  padding: 0 .5rem;
-  margin: 0 0 0 .25rem;
-  width: calc(100% - .5rem);
+  padding: 0 0 0 1em;
+  margin: 0;
+  width: calc(100% - 2em);
 }
 
 #scrollspy-nav.pinned .scrollspy-label {
   display: block;
+  padding: 0;
 }
 #scrollspy-nav.pinned .scrollspy-label a {
   font-weight: bold;
   font-size: 1.1rem;
+  padding: 0;
+  margin: 0;
+  width: 100%;
 }
 #scrollspy-nav.pinned {
   left: 0;
+  padding: 0;
   width: calc(44vw - 21%);
   z-index: 2;
 }
-
 @media only screen and (max-width: 1300px) {
   #scrollspy-nav.pinned {
     width: calc(45vw - 21%);

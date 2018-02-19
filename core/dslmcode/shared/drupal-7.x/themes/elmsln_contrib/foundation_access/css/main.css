@@ -44,12 +44,6 @@ lrn-icon,iron-icon {
   height: unset;
   padding: unset;
 }
-#block-mooc-nav-block-mooc-nav-nav li.elmsln-book-item lrnsys-button {
-  padding-left: 1.75rem;
-}
-#block-mooc-nav-block-mooc-nav-nav li.elmsln-book-item lrnsys-button.x-scope {
-  padding-left: unset;
-}
 .elmsln-service-list li lrnsys-button {
   height: 3.6em;
   line-height: 3.6em;
