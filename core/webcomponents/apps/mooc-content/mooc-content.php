@@ -127,7 +127,7 @@ function _mooc_content_render_options() {
       <lrnsys-button id="edit-tip" href="' . $edit_path . '" class="r-header__icon elmsln-edit-button" data-jwerty-key="e" data-voicecommand="edit" hover-class="' . $cis_lmsless[$distro]['text'] . '" inner-class="no-padding" icon="editor:mode-edit" icon-class="blue-text" alt="' . t('Edit page') . '"><span class="element-invisible">' . t('Edit page') . '</span>
       </lrnsys-button>';
   }
-  $content .= '<paper-menu-button dynamic-align vertical-align="bottom">
+  $content .= '<paper-menu-button dynamic-align>
     <paper-icon-button id="printoptions" icon="print" slot="dropdown-trigger" alt="' . t('Print options') . '"></paper-icon-button>
     <paper-listbox slot="dropdown-content">
       <a target="_blank" href="' . base_path() . 'book/export/html/' . $node->nid . '" class="accessible-grey-text"><paper-item>' . t('Page') . '</paper-item></a>';

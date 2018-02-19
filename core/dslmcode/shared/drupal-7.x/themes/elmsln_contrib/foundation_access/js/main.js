@@ -214,6 +214,7 @@ var clipboardjs = require('./components/clipboardjs.js');
       window.location = Drupal.settings.basePath + 'users/' + $('#edit-masquerade-user-field').val();
     }
   });
+
   // attach events to the window
   $(document).ready(function(){
     // ensure height of the body is cool w/ this floating column if it exists

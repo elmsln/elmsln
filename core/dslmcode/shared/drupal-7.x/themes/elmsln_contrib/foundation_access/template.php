@@ -560,9 +560,6 @@ function foundation_access_button($variables) {
   if (!empty($element['#attributes']['disabled'])) {
     $element['#attributes']['class'][] = 'form-button-disabled';
   }
-  if (!isset($element['#attributes']['hover-class'])) {
-    $element['#attributes']['hover-class'] = $colors['color'] . ' ' . $colors['dark'];
-  }
   $element['#attributes']['class'][] = 'blue white-text';
   // wrap classes on an upload button
   if ($variables['element']['#value'] == 'Upload') {
@@ -572,7 +569,18 @@ function foundation_access_button($variables) {
     </div>';
   }
   else {
-    return '<button ' . drupal_attributes($element['#attributes']) . '><lrnsys-button ' . drupal_attributes($element['#attributes']) . '>' . $element['#value'] . '</lrnsys-button></button>';
+    $lrnsys = $element['#attributes'];
+    if (!isset($lrnsys['hover-class'])) {
+      $lrnsys['hover-class'] = $colors['color'] . ' ' . $colors['dark'];
+    }
+    // hate doing it this way but makes it easier to skip webcomponents issues
+    // w/ route grabbing
+    $js = ' ';
+    if ($element['#value'] == 'Emulate') {
+      $js = ' onclick="document.getElementById(\'masquerade-block-1\').submit();" ';
+    }
+    unset($lrnsys['id']);
+    return '<button' . $js . drupal_attributes($element['#attributes']) . '><lrnsys-button ' . drupal_attributes($lrnsys) . '>' . $element['#value'] . '</lrnsys-button></button>';
   }
 }
 

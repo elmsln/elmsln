@@ -343,8 +343,9 @@
 #scrollspy-nav.pinned {
   left: 0;
   padding: 0;
-  width: calc(44vw - 21%);
+  width: calc(44vw - 20%);
   z-index: 2;
+  min-height: 20vh;
 }
 @media only screen and (max-width: 1300px) {
   #scrollspy-nav.pinned {
