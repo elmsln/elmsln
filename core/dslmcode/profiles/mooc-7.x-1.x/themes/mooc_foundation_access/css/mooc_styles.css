@@ -319,13 +319,13 @@
 }
 #scrollspy-nav.pinned {
   left: 0;
-  width: calc(44vw - 27%);
+  width: calc(44vw - 21%);
   z-index: 2;
 }
 
 @media only screen and (max-width: 1300px) {
   #scrollspy-nav.pinned {
-    width: calc(45vw - 27%);
+    width: calc(45vw - 21%);
   }
 }
 
@@ -451,13 +451,13 @@ ul.book-navigation-wrapper {
   font-size: 0.8rem;
 }
 
-.row .row.book-navigation-footer {
-  margin: 2rem 0;
+.book-navigation-footer {
+  margin: 2em 0;
   clear:both;
 }
 
 .book-navigation-footer paper-button {
-  padding: 0 .5rem;
+  padding: 0 .5em;
 }
 
 .book-sibling-parent-pagination-previous {
@@ -494,12 +494,13 @@ ul.book-navigation-wrapper {
   display: inline-flex;
   height: 3rem;
   line-height: 3rem;
+  padding: 0 .8em 0 0;
 }
 
 .book-sibling-children a,
 .book-sibling-parent a {
-  height: 3rem;
-  line-height: 3rem;
+  height: 3em;
+  line-height: 3em;
   line-height: inherit;
   display: -webkit-box;
   display: -webkit-flex;
@@ -510,7 +511,7 @@ ul.book-navigation-wrapper {
 .book-sibling-parent lrnsys-button.elmsln-dropdown-button paper-button {
   border-bottom: black solid 2px;
   border-radius: unset;
-  padding: 0 1rem;
+  padding: 0 0 0 1em !important;
 }
 lrnsys-dialog.mooc-helper-toc paper-button {
   border-bottom: black solid 2px;

@@ -15,7 +15,7 @@
    */
   $output = implode('<li class="book-sibling-spacer">/</li>', $breadcrumbs);
 ?>
-<ul class="book-navigation-wrapper hide-on-med-and-down">
+<ul class="book-navigation-wrapper hide-on-small-only">
   <li class="book-sibling-spacer">/</li>
   <?php print $output ?>
 </ul>

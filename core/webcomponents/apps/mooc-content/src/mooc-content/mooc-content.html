@@ -5,10 +5,9 @@
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../bower_components/paper-styles/color.html">
 <link rel="import" href="../../bower_components/paper-tooltip/paper-tooltip.html">
-
 <link rel="import" href="../../bower_components/app-route/app-location.html">
 <link rel="import" href="../../bower_components/app-route/app-route.html">
-
+<link rel="import" href="../../bower_components/responsive-grid/responsive-grid-row.html">
 <link rel="import" href="../../bower_components/materializecss-styles/materializecss-styles.html">
 <!--
 `lrnapp-book`
@@ -44,7 +43,6 @@ A LRN element
       }
     </style>
     <div id="hackycontainer"><style id="hackycsspotterhates"></style></div>
-    <div id="anchor"></div>
     <iron-ajax
       id="fulloutlinepath"
       url="[[fullOutlinePath]]"
@@ -68,12 +66,13 @@ A LRN element
       query-params="{{queryParams}}">
     </app-route>
     <main id="etb-tool-nav" data-offcanvas="">
+      <div id="anchor"></div>
       <div class="inner-wrap">
         <section class="main-section etb-book" style="min-height: 318px;">
           <div class="r-header row">
             <div class="r-header__left">
-              <div class="book-navigation-header col s12 m12 l12 book-sibling-nav-container book-navigation-header-2">
-                <div class="book-navigation-header col s12 m12 l12 book-sibling-nav-container book-navigation-header-<?php print $count ?>">
+              <div class="book-navigation-header book-sibling-nav-container book-navigation-header-2">
+                <div class="book-navigation-header book-sibling-nav-container book-navigation-header-<?php print $count ?>">
                   <!-- TOC Icon -->
                   <lrnsys-dialog id="outlinepopover" data-voicecommand="open outline" class="black-text" hover-class="blue darken-4 white-text" label="Outline" header="Outline">
                     <span slot="button">
@@ -92,20 +91,21 @@ A LRN element
               <slot name="options"></slot>
             </div>
           </div>
-          <div class="elmsln-content-wrap row">
-            <div class="s12 push-m2 m10 push-l1 l11 col" role="main">
-              <div class="highlighted-block-area">
-                <section id="block-mooc-nav-block-mooc-nav-nav" class="mooc-nav-block-left block block-mooc-nav-block contextual-links-region block-mooc-nav-block-mooc-nav" role="navigation" aria-label$="[[outlineTitle]]">
-                  <div class="block-mooc-nav-block-mooc-title black white-text">[[outlineTitle]]</div>
-                  <div id="outline"><slot name="outline"></slot></div>
-                </section>
-              </div>
-              <div class="push-s1 s9 col">
-                <a id="main-content" class="scrollspy" data-scrollspy="scrollspy"></a>
+          <div class="elmsln-content-wrap" role="main">
+          <responsive-grid-row gutter="4">
+            <responsive-grid-col xl="3" lg="3" md="3" sm="4" xs="12">
+              <section id="block-mooc-nav-block-mooc-nav-nav" class="mooc-nav-block-left block block-mooc-nav-block contextual-links-region block-mooc-nav-block-mooc-nav column" role="navigation" aria-label$="[[outlineTitle]]">
+                <div class="block-mooc-nav-block-mooc-title black white-text">[[outlineTitle]]</div>
+                <div id="outline"><slot name="outline"></slot></div>
+              </section>
+            </responsive-grid-col>
+            <responsive-grid-col xl="8" lg="8" md="9" sm="7" xs="12">
+              <a id="main-content" class="scrollspy" data-scrollspy="scrollspy"></a>
+              <div class="column">
                 <div id="content"><slot name="content"></slot></div>
               </div>
-            </div>
-          </div>
+            </responsive-grid-col>
+          </responsive-grid-row>
         </section>
         <a class="exit-off-canvas"></a>
       </div>
@@ -249,7 +249,8 @@ A LRN element
         if (typeof newValue !== typeof undefined && !newValue) {
           setTimeout(() => {
             this.loading = false;
-            this._resetScroll();
+            this._resetScroll('anchor');
+            this.$['main-content'].focus();
           }, 500);
         }
         else {
@@ -352,9 +353,9 @@ A LRN element
       /**
        * Reset scroll position visually and internally data wise.
        */
-      _resetScroll: function () {
+      _resetScroll: function (item = 'anchor') {
         this.resetScroll = true;
-        this.$.anchor.scrollIntoView({block: "start", behavior: "smooth", inline: "nearest"});
+        this.$[item].scrollIntoView({block: "start", behavior: "smooth", inline: "nearest"});
       },
       /**
        * Simple way to convert from object to array.
