@@ -7306,6 +7306,9 @@ article.node div.body ul li,
 .custom-contextual-links ul.contextual-links li {
   list-style-type: none !important;
 }
+ul.contextual-links li a:hover {
+  background: none !important;
+}
 
 /* helps clean up form defaults */
 div.image-widget-data {
