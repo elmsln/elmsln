@@ -3451,7 +3451,7 @@ body.page-node-edit.node-type-page .cke_focus .cke_top{
     position: absolute;
     right: 90%;
     width: calc(55vw - 40%);
-    max-width: 20rem;
+    max-width: 14rem;
     min-width: 10rem;
     top: 0;
   }
@@ -3462,7 +3462,7 @@ body.page-node-edit.node-type-page .cke_focus .cke_top{
     position: absolute;
     right: 91%;
     width: calc(55vw - 44%);
-    max-width: 20rem;
+    max-width: 14rem;
     min-width: 10rem;
     top: 0;
   }
@@ -3474,7 +3474,7 @@ body.page-node-edit.node-type-page .cke_focus .cke_top{
     position: absolute;
     right: 92%;
     width: calc(55vw - 46%);
-    max-width: 20rem;
+    max-width: 14rem;
     min-width: 10rem;
     top: 0;
   }
@@ -3697,7 +3697,7 @@ input.cis_shortcodes_embed,
   height: 4.5em;
   background-color: #0074BD;
   padding: 1rem;
-  z-index: 100;
+  z-index: 10000;
 }
 #autosave-status #status {
   margin-left: 1rem;
@@ -4120,7 +4120,8 @@ ul.dropdown-content {
   margin: 0;
   overflow-x: hidden;
   border: .1rem solid #eeeeee;
-  z-index: 1;
+  z-index: 100;
+  padding: 0;
 }
 ul.dropdown-content li {
   height: 3em;
@@ -7625,9 +7626,15 @@ ul.header-menu-options li.active-trail {
     border-top: 1px solid #CCCCCC;
     width: 100%;
     left: 0;
-    padding: 1rem 1rem 0px;
+    padding: 1em 0 .5em 1em;
     margin: 0;
     z-index: 999;
+  }
+  .page-node-edit .form-actions.form-wrapper button,
+  .page-node-edit .form-actions.form-wrapper lrnsys-button,
+  .page-node-edit .form-actions.form-wrapper paper-button {
+    border-radius: .5em;
+    height: 2.5em;
   }
 }
 /* MaterializeCSS overrides to make Drupal / Zurb markup happy*/
@@ -8408,4 +8415,9 @@ paper-button.lrnsys-button div.inner.lrnsys-button {
 
 .white-text {
   color: #FFFFFF !important;
+}
+
+#edit-tip iron-icon {
+  width: 3em;
+  height: 3em;
 }

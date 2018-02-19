@@ -66,19 +66,22 @@
           </ul>
         </div>
       </div>
+      <?php if (!empty($page['highlighted'])): ?>
+        <div class="highlighted-block-area">
+          <?php print render($page['highlighted']); ?>
+        </div>
+      <?php endif; ?>
       <?php if ($contentwrappers): ?>
       <div class="elmsln-content-wrap row">
-        <div class="s12 col" role="main">
+        <?php if (current_path() == 'mooc/book-toc') : ?>
+        <div class="s9 col" role="main">
+        <?php else : ?>
+        <div class="push-s2 s8 col" role="main">
+        <?php endif; ?>
       <?php else : ?>
       <div class="elmsln-content-wrap">
         <div role="main">
       <?php endif; ?>
-          <?php if (!empty($page['highlighted'])): ?>
-            <div class="highlighted-block-area">
-              <?php print render($page['highlighted']); ?>
-            </div>
-          <?php endif; ?>
-
           <?php if ($breadcrumb) : ?>
             <div class="breadcrumb-wrapper">
             <?php print $breadcrumb; ?>

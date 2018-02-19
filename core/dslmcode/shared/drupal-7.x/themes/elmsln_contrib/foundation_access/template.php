@@ -555,12 +555,15 @@ function foundation_access_css_alter(&$css) {
 function foundation_access_button($variables) {
   $element = $variables['element'];
   $element['#attributes']['type'] = 'submit';
+  $colors = _cis_lmsless_get_distro_classes(elmsln_core_get_profile_key());
   element_set_attributes($element, array('id', 'name', 'value'));
   if (!empty($element['#attributes']['disabled'])) {
     $element['#attributes']['class'][] = 'form-button-disabled';
   }
-  $colors = _cis_lmsless_get_distro_classes(elmsln_core_get_profile_key());
-  $element['#attributes']['class'][] = $colors['color'] . ' ' . $colors['dark'] . ' white-text';
+  if (!isset($element['#attributes']['hover-class'])) {
+    $element['#attributes']['hover-class'] = $colors['color'] . ' ' . $colors['dark'];
+  }
+  $element['#attributes']['class'][] = 'blue white-text';
   // wrap classes on an upload button
   if ($variables['element']['#value'] == 'Upload') {
     return '
@@ -569,7 +572,7 @@ function foundation_access_button($variables) {
     </div>';
   }
   else {
-    return '<button ' . drupal_attributes($element['#attributes']) . '><paper-button>' . $element['#value'] . '</paper-button></button>';
+    return '<button ' . drupal_attributes($element['#attributes']) . '><lrnsys-button ' . drupal_attributes($element['#attributes']) . '>' . $element['#value'] . '</lrnsys-button></button>';
   }
 }
 
