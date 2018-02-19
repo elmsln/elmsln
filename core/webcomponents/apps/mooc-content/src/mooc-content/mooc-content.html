@@ -114,6 +114,9 @@ A LRN element
   <script>
     Polymer({
       is: 'mooc-content',
+      listeners: {
+        'outlinemodal.tap' : '_modalTap',
+      },
       observers: [
         '_routeChanged(data, route, endPoint)',
       ],
@@ -227,6 +230,17 @@ A LRN element
         aliases: {
           type: Array,
         },
+      },
+      /**
+       * Ensure modal is closed on tap of an item.
+       */
+      _modalTap: function(e) {
+        var normalizedEvent = Polymer.dom(e);
+        var local = normalizedEvent.localTarget;
+        // verify that it is a buttonß
+        if (local.tagName === 'LRNSYS-BUTTON') {
+          this.$.outlinepopover.toggleDialog();
+        }
       },
       /**
        * Notice loading state has changed.
