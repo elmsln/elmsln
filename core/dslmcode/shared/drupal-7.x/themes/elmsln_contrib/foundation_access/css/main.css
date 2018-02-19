@@ -3263,6 +3263,9 @@ body.page-node-edit.node-type-page .cke_focus .cke_top{
 .elmsln-content-wrap {
   padding: .4em;
 }
+article.node-view-mode-full .field-name-body {
+  min-height: 40vh;
+}
 
 /* ensure print view is better then defaults */
 @page {
@@ -7519,7 +7522,7 @@ ul.header-menu-options li.active-trail {
 .user-nav-masquerade div {
   padding: .25rem;
 }
-.view-user-button {
+button#edit-elmsln-view-user {
   margin-left: 2rem;
 }
 .user-nav-user-roles {
@@ -7941,7 +7944,7 @@ lrnapp-fab-speed-dial-action.lrnapp-fab-speed-dial-action-0 {
   padding: 0;
   margin: 0;
   z-index: 1000;
-  min-height: 10rem;
+  min-height: 8em;
   bottom: 0;
   top: auto !important;
   max-height: 40vh !important;
@@ -7949,7 +7952,6 @@ lrnapp-fab-speed-dial-action.lrnapp-fab-speed-dial-action-0 {
   overflow: scroll;
 }
 .paper-toast-label {
-  background: #3bab97;
   padding: 1em 2em;
   color: white;
   font-weight: 600;
@@ -7962,6 +7964,8 @@ lrnapp-fab-speed-dial-action.lrnapp-fab-speed-dial-action-0 {
 }
 #toastdrawer h2 {
   margin: 0;
+  border-top-left-radius: .8em;
+  border-top-right-radius: .8em;
 }
 #toastdrawer paper-button {
   margin: 0;
