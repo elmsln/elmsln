@@ -1,3 +1,14 @@
+#outlinepopover {
+  margin-top: -2px;
+}
+#outlinepopover paper-button {
+  text-transform: unset;
+  border-radius: 0;
+  border-bottom: 2px solid black;
+  padding-bottom: 2px;
+  margin-bottom: 2px;
+}
+
 .node-view-mode-full .card-panel, .card {
   box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2);
 }
@@ -315,6 +326,9 @@
   margin: 0;
   width: calc(100% - 2em);
 }
+#scrollspy-nav.pinned .scrollspy-link {
+  width: 100%;
+}
 
 #scrollspy-nav.pinned .scrollspy-label {
   display: block;
@@ -323,9 +337,8 @@
 #scrollspy-nav.pinned .scrollspy-label a {
   font-weight: bold;
   font-size: 1.1rem;
-  padding: 0;
+  padding: 0 0 0 .4em;
   margin: 0;
-  width: 100%;
 }
 #scrollspy-nav.pinned {
   left: 0;
@@ -367,7 +380,7 @@
 }
 
 #block-mooc-nav-block-mooc-nav-nav li.active-trail {
-  background-color: #eceff1;
+  background-color: #212121;
 }
 
 /* structure in media */
@@ -440,7 +453,7 @@ ul.book-navigation-wrapper {
 }
 
 .book-menu-item-active {
-  background-color: #0D47A1;
+  background-color: #212121;
   font-weight: bold;
   color: #FFFFFF;
 }
@@ -592,7 +605,7 @@ lrnsys-dialog.mooc-helper-toc {
 .page-mooc-book-toc article ul li a:hover,
 #block-mooc-helper-mooc-helper-toc-nav-modal .mooc-outline-modal-content a:hover {
   border: 1px solid #cfd8dc;
-  background-color: #eceff1;
+  background-color: #212121;
 }
 #block-mooc-helper-mooc-helper-toc-nav-modal .mooc-outline-modal-content a.active-trail {
   font-weight: bold;
@@ -709,7 +722,7 @@ section.main-section.etb-book a.elmsln-outline-button {
 @media all and (min-width: 720px) {
 
   .book-sibling-parent-1 a.active-trail .book-sibling-parent-text {
-    color: #3570bf;
+    color: #eceff1;
   }
 
   .book-sibling-parent-1 a.active-trail:hover {

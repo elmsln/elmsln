@@ -124,7 +124,7 @@ function _mooc_content_render_options() {
   $content = '';
   if (isset($edit_path)) {
     $content .= '
-      <lrnsys-button id="edit-tip" href="' . $edit_path . '" class="r-header__icon elmsln-edit-button" data-jwerty-key="e" data-voicecommand="edit" hover-class="' . $cis_lmsless['lmsless_classes'][$distro]['text'] . ' text-' . $cis_lmsless['lmsless_classes'][$distro]['dark'] . '" icon="editor:mode-edit" alt="' . t('Edit content') . '">
+      <lrnsys-button id="edit-tip" href="' . $edit_path . '" class="r-header__icon elmsln-edit-button" data-jwerty-key="e" data-voicecommand="edit" hover-class="' . $cis_lmsless['lmsless_classes'][$distro]['text'] . ' text-' . $cis_lmsless['lmsless_classes'][$distro]['dark'] . '" icon="editor:mode-edit" alt="' . t('Edit page') . '"><span class="element-invisible">' . t('Edit page') . '</span>
       </lrnsys-button>';
   }
   return $content;

@@ -19,7 +19,7 @@
               <lrndesign-avatar class="elmsln-course-avatar" label="<?php print $course_context; ?>" jdenticon color="grey darken-4"></lrndesign-avatar>
               <div class="course-title-group">
                 <span class="course-title hide-on-small-only"><?php print $slogan; ?></span>
-                <span class="course-abrv"><?php print $site_name; ?> <span class="accessible-grey-text lighten-1 section-label hide-on-small-only"><?php if (isset($section_title)) : print $section_title; endif; ?></span></span>
+                <span class="course-abrv"><?php print $site_name; ?> <span class="accessible-grey-text section-label hide-on-small-only"><?php if (isset($section_title)) : print $section_title; endif; ?></span></span>
               </div>
             </span>
             <div class="elmsln-modal-content">
@@ -33,7 +33,7 @@
 	          <lrndesign-avatar label="<?php print $course_context; ?>" class="elmsln-course-avatar" jdenticon color="grey darken-4"></lrndesign-avatar>
 	          <div class="course-title-group">
 	            <span class="hide-on-small-only course-title"><?php print $slogan; ?></span>
-	            <span class="course-abrv"><?php print $site_name; ?> <span class="grey-text lighten-1 section-label hide-on-small-only">  <?php if (isset($section_title)) : print $section_title; endif; ?></span></span>
+	            <span class="course-abrv"><?php print $site_name; ?> <span class="accessible-grey-text section-label hide-on-small-only">  <?php if (isset($section_title)) : print $section_title; endif; ?></span></span>
 	          </div>
           </div>
           <?php } ?>

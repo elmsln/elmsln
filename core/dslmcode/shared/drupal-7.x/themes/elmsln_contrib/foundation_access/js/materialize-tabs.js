@@ -118,7 +118,6 @@ Drupal.horizontalTab.prototype = {
         .end()
       .siblings(':hidden.horizontal-tabs-active-tab')
         .val(this.fieldset.attr('id'));
-    this.item.addClass('selected');
     // Mark the active tab for screen readers.
     $('#active-horizontal-tab').remove();
     this.link.append('<span id="active-horizontal-tab" class="element-invisible">' + Drupal.t('(active tab)') + '</span>');

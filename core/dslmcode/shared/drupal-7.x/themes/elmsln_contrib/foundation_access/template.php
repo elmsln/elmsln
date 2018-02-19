@@ -1663,9 +1663,6 @@ function foundation_access_status_messages($variables) {
 
 /**
  * Helper function to create a materialize toast notification.
- *
- * From the materialize docs:
- *   Materialize.toast(message, displayLength, className, completeCallback);
  */
 function _foundation_access_make_toast($message, $display_length = 4000, $class_name = NULL, $callback = NULL) {
   return '<paper-toast id="toastdrawer" class="fit-bottom" opened duration="0"><div class="paper-toast-label">' . t('Message center') . '<paper-button onclick="toastdrawer.toggle()" class="red darken-4 white-text close-button">' . t('Close') . '</paper-button></div><div class="toast-content-container">' . $message . '</div></paper-toast>';

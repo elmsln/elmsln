@@ -68,7 +68,7 @@
       </div>
       <?php if ($contentwrappers): ?>
       <div class="elmsln-content-wrap row">
-        <div class="s12 push-m2 m10 push-l1 l11 col" role="main">
+        <div class="s12 col" role="main">
       <?php else : ?>
       <div class="elmsln-content-wrap">
         <div role="main">
@@ -104,8 +104,8 @@
               <?php endif; ?>
             </div>
           <?php endif; ?>
-          <div class="push-s1 s9 col">
-          <?php if ($title && arg(0) != 'node'): ?>
+          <div>
+          <?php if ($title && arg(0) != 'node' && $title != t('Home')): ?>
             <?php print render($title_prefix); ?>
             <h2 id="page-title" class="title"><?php print $title; ?></h2>
             <?php print render($title_suffix); ?>

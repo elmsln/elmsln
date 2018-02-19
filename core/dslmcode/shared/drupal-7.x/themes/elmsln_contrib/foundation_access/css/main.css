@@ -870,90 +870,6 @@ table {
     display: table-cell;
     line-height: 1.125rem; }
 
-.tabs {
-  margin-bottom: 0 !important;
-  margin-left: 0; }
-  .tabs:before, .tabs.imagelightbox__close:after, .tabs:after {
-    content: " ";
-    display: table; }
-  .tabs:after {
-    clear: both; }
-  .tabs dd,
-  .tabs .tab-title {
-    float: left;
-    list-style: none;
-    margin-bottom: 0 !important;
-    position: relative; }
-    .tabs dd > a,
-    .tabs .tab-title > a {
-      display: block;
-      background-color: #EFEFEF;
-      color: #222222;
-      font-size: 1rem;
-      padding: 1rem 2rem; }
-      .tabs dd > a:hover,
-      .tabs .tab-title > a:hover {
-        background-color: #e1e1e1; }
-    .tabs dd.active > a,
-    .tabs .tab-title.active > a {
-      background-color: #FFFFFF;
-      color: #222222; }
-  .tabs.radius dd:first-child a,
-  .tabs.radius .tab:first-child a {
-    -webkit-border-bottom-left-radius: 3px;
-    -webkit-border-top-left-radius: 3px;
-    border-bottom-left-radius: 3px;
-    border-top-left-radius: 3px; }
-  .tabs.radius dd:last-child a,
-  .tabs.radius .tab:last-child a {
-    -webkit-border-bottom-right-radius: 3px;
-    -webkit-border-top-right-radius: 3px;
-    border-bottom-right-radius: 3px;
-    border-top-right-radius: 3px; }
-  .tabs.vertical dd,
-  .tabs.vertical .tab-title {
-    position: inherit;
-    float: none;
-    display: block;
-    top: auto; }
-
-.tabs-content {
-  margin-bottom: 1.5rem;
-  width: 100%; }
-  .tabs-content:before, .tabs-content.imagelightbox__close:after, .tabs-content:after {
-    content: " ";
-    display: table; }
-  .tabs-content:after {
-    clear: both; }
-  .tabs-content > .content {
-    display: none;
-    float: left;
-    padding: 0.9375rem 0;
-    width: 100%; }
-    .tabs-content > .content.active {
-      display: block;
-      float: none; }
-    .tabs-content > .content.contained {
-      padding: 0.9375rem; }
-  .tabs-content.vertical {
-    display: block; }
-    .tabs-content.vertical > .content {
-      padding: 0 0.9375rem; }
-
-@media only screen and (min-width: 1.063em) {
-  .tabs.vertical {
-    float: left;
-    margin: 0;
-    margin-bottom: 1.25rem !important;
-    max-width: 20%;
-    width: 20%; }
-  .tabs-content.vertical {
-    float: left;
-    margin-left: -1px;
-    max-width: 80%;
-    padding-left: 1rem;
-    width: 80%; } }
-
 .no-js .tabs-content > .content {
   display: block;
   float: none; }
@@ -1543,7 +1459,6 @@ a.modal-img-link {
     text-align: right;
     color: #000;
     font-size: 1em;
-    color: #626262;
     display: -ms-flexbox;
     display: flex;
     -ms-flex-align: center;
@@ -1558,7 +1473,6 @@ a.modal-img-link {
     text-align: right;
     line-height: 1rem;
     color: #000;
-    color: #333333;
     font-size: 1em;
     font-weight: bold; }
     @media only screen and (max-width: 40em) {
@@ -2826,50 +2740,6 @@ blockquote,
   .cis--course-item h3 {
     font-size: 1rem; }
 
-.tabs.cis--tabs__horizontal {
-  padding-left: 1rem;
-  border-color: #ebebeb;
-  border-style: solid;
-  border-width: 0 1px 0 1px;
-  margin-left: 0; }
-  .tabs.cis--tabs__horizontal dd > a, .tabs.cis--tabs__horizontal .tab-title > a {
-    background-color: transparent;
-    border-color: transparent;
-    border-style: solid;
-    border-width: 1px 1px 1px 1px; }
-
-.tabs.cis--tabs__horizontal dd.active a, .tabs.cis--tabs__horizontal .tab-title.active a {
-  border-style: solid;
-  background-color: #f5f5f5;
-  border-left: 1px #ebebeb solid;
-  border-top: 1px #ebebeb solid;
-  border-right: 1px #ebebeb solid;
-  border-bottom: 1px #f5f5f5 solid; }
-
-.tabs.cis--tabs__vertical dd > a, .tabs.cis--tabs__vertical .tab-title > a {
-  background-color: #f5f5f5;
-  border-left: 1px #f5f5f5 solid;
-  border-top: 1px #f5f5f5 solid;
-  border-right: 0 #999999 solid;
-  border-bottom: 1px #f5f5f5 solid; }
-
-.tabs.cis--tabs__vertical dd.active a, .tabs.cis--tabs__vertical .tab-title.active a {
-  background-color: #f5f5f5;
-  margin-left: 1px;
-  width: 100%;
-  border-left: 1px #999999 solid;
-  border-top: 1px #999999 solid;
-  border-right: 1px #f5f5f5 solid;
-  border-bottom: 1px #999999 solid; }
-
-.tabs.vertical.cis--tabs__vertical {
-  padding: 1rem 0;
-  border-style: solid;
-  border-color: #999999;
-  background-color: #f5f5f5;
-  border-width: 0 1px 0 0; }
-
-
 /**
  * @file
  * Our "tweaks" to make the styles correct. This file will eventually be
@@ -4058,15 +3928,8 @@ body.devel-show .devel-querylog {
 .tabs .tab a {
   line-height: 3rem;
 }
-.tabs .tab a:hover {
-  border-bottom-style: solid;
-  border-bottom-width: .2rem;
-  margin-bottom: -.2rem;
-}
-.tabs .tab a.active {
-  border-bottom-style: solid;
-  border-bottom-width: .2rem;
-  margin-bottom: -.2rem;
+.tabs .tab lrnsys-button paper-button {
+  padding: 0 1em;
 }
 /* cis lmsless nav */
 .left-nav-section {
@@ -6359,16 +6222,8 @@ ul.dropdown-content li {
   background-color: #000000 !important;
 }
 
-.black-text {
-  color: #000000 !important;
-}
-
 .white {
   background-color: #FFFFFF !important;
-}
-
-.white-text {
-  color: #FFFFFF !important;
 }
 
 .transparent {
@@ -6739,8 +6594,11 @@ table.sticky-header {
 }
 #scrollspy-nav .scrollspy-link.active {
   border: none;
-  transform: scale(1.07);
   transition: all .2s ease-in-out;
+}
+#scrollspy-nav .scrollspy-link.active paper-button {
+  transform: scale(1.06);
+  padding: 0 0 0 .5em;
 }
 .table-of-contents li {
   padding: 0;
@@ -8178,9 +8036,7 @@ lrnapp-fab-speed-dial-action.lrnapp-fab-speed-dial-action-0 {
 lrnsys-button paper-button {
   height: inherit;
 }
-.elmsln-tabs lrnsys-button.active-trail {
-  text-decoration: underline;
-}
+
 lrnsys-drawer paper-button {
   height: unset;
 }
@@ -8542,4 +8398,11 @@ paper-button.lrnsys-button div.inner.lrnsys-button {
 .etb-book .field-name-body lrndesign-sidenote {
   margin-top: 1em;
   margin-bottom: 1em;
+}
+.black-text {
+  color: #000000 !important;
+}
+
+.white-text {
+  color: #FFFFFF !important;
 }
