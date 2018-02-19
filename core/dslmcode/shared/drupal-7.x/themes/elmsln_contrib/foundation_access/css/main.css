@@ -2041,6 +2041,7 @@ p.txtbk-intro {
         align-items: center; }
   .r-header__right {
     width: 30%;
+    padding-right: .4em;
     float: right;
     text-align: right;
     margin-left: auto;
@@ -8334,6 +8335,9 @@ button.btn paper-button {
   z-index: 1;
   display: block;
 }
+.lrnsys-dialog-modal-0 {
+  z-index: 10000;
+}
 
 /* Hide group access controls, they should always be default of private */
 #edit-group-access {
@@ -8422,6 +8426,17 @@ paper-button.lrnsys-button div.inner.lrnsys-button {
 }
 
 #edit-tip iron-icon {
-  width: 3em;
-  height: 3em;
+  width: 2.2em;
+  height: 2.2em;
+  margin:0;
+}
+#edit-tip paper-button {
+  border-radius: 40em;
+  width: 2.3em;
+  height: 2.6em;
+  padding-left: .3em;
+}
+#edit-tip paper-button .inner.no-padding {
+  height: 2.6em;
+  line-height: 2.6em;
 }

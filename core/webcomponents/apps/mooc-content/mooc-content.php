@@ -124,9 +124,25 @@ function _mooc_content_render_options() {
   $content = '';
   if (isset($edit_path)) {
     $content .= '
-      <lrnsys-button id="edit-tip" href="' . $edit_path . '" class="r-header__icon elmsln-edit-button" data-jwerty-key="e" data-voicecommand="edit" hover-class="' . $cis_lmsless['lmsless_classes'][$distro]['text'] . ' text-' . $cis_lmsless['lmsless_classes'][$distro]['dark'] . '" icon="editor:mode-edit" alt="' . t('Edit page') . '"><span class="element-invisible">' . t('Edit page') . '</span>
+      <lrnsys-button id="edit-tip" href="' . $edit_path . '" class="r-header__icon elmsln-edit-button" data-jwerty-key="e" data-voicecommand="edit" hover-class="' . $cis_lmsless[$distro]['text'] . '" inner-class="no-padding" icon="editor:mode-edit" icon-class="blue-text" alt="' . t('Edit page') . '"><span class="element-invisible">' . t('Edit page') . '</span>
       </lrnsys-button>';
   }
+  $content .= '<paper-menu-button dynamic-align vertical-align="bottom">
+    <paper-icon-button id="printoptions" icon="print" slot="dropdown-trigger" alt="' . t('Print options') . '"></paper-icon-button>
+    <paper-listbox slot="dropdown-content">
+      <a target="_blank" href="' . base_path() . 'book/export/html/' . $node->nid . '" class="accessible-grey-text"><paper-item>' . t('Page') . '</paper-item></a>';
+  // support print / book printing
+  if (user_access('access printer-friendly version')) {
+    $bid = $node->book['bid'];
+    if ($bid) {
+      $content .= '<a tabindex="-1" target="_blank" href="' . base_path() . 'book/export/html/' . $bid . '" class="accessible-grey-text"><paper-item>' . t('Outline') . '</paper-item></a>';
+    }
+  }
+  // print to pdf
+  if (user_access('access PDF version')) {
+    $content .= '<a tabindex="-1" target="_blank" href="' . base_path() . 'printpdf/' . $node->nid . '" class="accessible-grey-text"><paper-item>' . t('PDF') . '</paper-item></a>';
+  }
+  $content .='</paper-listbox></paper-menu-button><paper-tooltip for="printoptions" animation-delay="200">' . t('Print options') . '</paper-tooltip>';
   return $content;
 }
 
