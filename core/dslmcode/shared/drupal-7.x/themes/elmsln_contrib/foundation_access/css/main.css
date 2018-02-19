@@ -8457,6 +8457,14 @@ button.btn paper-button {
 
 /* TOTAL HACK JOB SOLUTIONS */
 
+.lrnsys-dialog-modal-0 .dialog-header.lrnsys-dialog-modal {
+  position: sticky;
+  position: -webkit-sticky;
+  top: 0;
+  z-index: 1;
+  display: block;
+}
+
 /* Hide group access controls, they should always be default of private */
 #edit-group-access {
   display:none;
