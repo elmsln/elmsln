@@ -229,6 +229,13 @@ A LRN element
         aliases: {
           type: Array,
         },
+        /**
+         * active item for tracking reference after clicks.
+         */
+        activeNodeItem: {
+          type: Object,
+          value: null,
+        },
       },
       /**
        * Ensure modal is closed on tap of an item.
@@ -238,6 +245,11 @@ A LRN element
         var local = normalizedEvent.localTarget;
         // verify that it is a buttonß
         if (local.tagName === 'LRNSYS-BUTTON') {
+          if (this.activeNodeItem != null) {
+            this.activeNodeItem.classList.remove('book-menu-item-active');
+          }
+          this.activeNodeItem = local;
+          this.activeNodeItem.classList.add('book-menu-item-active');
           this.$.outlinepopover.toggleDialog();
         }
       },
