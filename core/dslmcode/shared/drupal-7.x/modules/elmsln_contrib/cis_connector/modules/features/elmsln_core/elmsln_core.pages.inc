@@ -350,6 +350,7 @@ function elmsln_core_data_form($form, $form_state) {
             'collapsible',
             'form-wrapper',
             'collapsed',
+            'elmsln-materialize-collapse-list',
           ),
         ),
         '#materialize' => array(

@@ -784,7 +784,7 @@ function cis_helper_form_views_exposed_form_alter(&$form, &$form_state, $form_id
         'type' => 'collapsible_wrapper'
       ),
       '#attributes' => array(
-        'class' => array('collapsible'),
+        'class' => array('collapsible', 'elmsln-materialize-collapse-list'),
         'data-collapsible' => 'accordion',
       )
     );

@@ -461,7 +461,7 @@ function _cis_lmsless_theme_vars() {
       'type' => 'collapsible_wrapper'
     );
     $a11y['#attributes'] = array(
-      'class' => array('collapsible'),
+      'class' => array('collapsible', 'elmsln-materialize-collapse-list'),
       'data-collapsible' => 'accordion',
     );
     $vars['a11y'] = drupal_render($a11y);

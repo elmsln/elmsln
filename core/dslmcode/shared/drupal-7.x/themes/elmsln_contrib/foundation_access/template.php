@@ -307,22 +307,6 @@ function foundation_access_fieldset($variables) {
 function foundation_access_preprocess_page(&$variables) {
   $variables['contentwrappers'] = _elmsln_core_path_is_wrapped(current_path());
   $menu_item = menu_get_item();
-  // allow modules to supply accessibility enhancements to the menu tho not in entity iframe mode
-  if (!_entity_iframe_mode_enabled()) {
-    $a11y = module_invoke_all('fa_a11y');
-    drupal_alter('fa_a11y', $a11y);
-    // add in the form api wrapper meta properties to render as materialize collapse
-    $a11y['#type'] = 'fieldset';
-    $a11y['#materialize'] = array(
-      'type' => 'collapsible_wrapper'
-    );
-    $a11y['#attributes'] = array(
-      'class' => array('collapsible'),
-      'data-collapsible' => 'accordion',
-    );
-    $variables['a11y'] = drupal_render($a11y);
-  }
-
   // sniff out if this is a view
   if ($menu_item['page_callback'] == 'views_page') {
     // try and auto append exposed filters to our local_subheader region

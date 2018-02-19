@@ -6655,12 +6655,6 @@ div.form-type-checkbox :last-child {
   padding: 0;
   margin: 0;
 }
-.spritz-word {
-  font-size: 5rem;
-  line-height: 8rem;
-  height: 10rem;
-  overflow: hidden;
-}
 .spritz {
   font-size: 5rem;
   line-height: 10rem;
@@ -6686,12 +6680,7 @@ div.form-type-checkbox :last-child {
   margin-left: -1px;
   background-color: black;
 }
-.night .spritz {
-  border-color: #555555;
-}
-.night .spritz:before, .night .spritz:after {
-  background-color: #555555;
-}
+
 .spritz:before {
   top: 0;
 }
@@ -6700,14 +6689,12 @@ div.form-type-checkbox :last-child {
 }
 
 .spritz-word {
-  font-size: 1.6em;
-  line-height: 1.6em;
-  height: 1.7em;
+  font-size: 5em;
+  line-height: 1.8em;
   font-weight: 600;
   color: black;
-}
-.night .spritz-word {
-  color: #bbbbbb;
+  height: 10rem;
+  overflow: hidden;
 }
 .spritz-word div {
   display: table-cell;
@@ -6718,9 +6705,6 @@ div.form-type-checkbox :last-child {
 }
 .spritz-word div:nth-child(2) {
   color: #e60000;
-}
-.night .spritz-word div:nth-child(2) {
-  color: #ff4d4d;
 }
 .spritz-word div:last-child {
   width: 60%;
@@ -6745,12 +6729,6 @@ div.form-type-checkbox :last-child {
 .controls a:hover, .controls a.active {
   color: #777777;
 }
-.night .controls a {
-  color: #444444;
-}
-.night .controls a:hover, .night .controls a.active {
-  color: #999999;
-}
 
 .settings input, .settings textarea, .settings button {
   box-sizing: border-box;
@@ -6758,9 +6736,7 @@ div.form-type-checkbox :last-child {
   color: black;
   background: transparent;
 }
-.night .settings input, .night .settings textarea, .night .settings button {
-  color: #888888;
-}
+
 .settings input:focus, .settings textarea:focus, .settings button:focus {
   outline: none;
 }
@@ -6876,15 +6852,6 @@ div.form-type-checkbox :last-child {
 }
 .words .demo-words::-webkit-scrollbar-thumb {
   background: #d4d4d4;
-}
-.night .words .demo-words {
-  background-color: #191919;
-}
-.night .words .demo-words::-webkit-scrollbar-thumb {
-  background: #2d2d2d;
-}
-.night .words .demo-words::-webkit-resizer {
-  background: #141414;
 }
 
 .progress-bar {
@@ -8328,6 +8295,9 @@ button.btn paper-button {
 
 /* TOTAL HACK JOB SOLUTIONS */
 
+.elmsln-materialize-collapse-list {
+  padding: 0;
+}
 .lrnsys-dialog-modal-0 .dialog-header.lrnsys-dialog-modal {
   position: sticky;
   position: -webkit-sticky;
