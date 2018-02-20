@@ -8121,6 +8121,12 @@ lrnsys-drawer app-drawer,
   line-height: 3.6em;
   border-radius: 0;
   margin: 0;
+  text-transform: unset;
+}
+#etb-network-nav lrnsys-drawer.elmsln-network-button iron-icon {
+  width: 1.8em;
+  height: 1.8em;
+  margin-top: -4px;
 }
 
 .elmsln-network-icon {

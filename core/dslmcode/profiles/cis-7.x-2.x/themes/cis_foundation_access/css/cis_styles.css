@@ -14,3 +14,12 @@
   margin: 1em;
   padding: .5em;
 }
+
+.service-confirm-icon paper-avatar {
+  width: 4em;
+  height: 4em;
+}
+.service-confirm-icon paper-avatar #jdenticon.paper-avatar {
+  width: 4em;
+  height: 4em;
+}

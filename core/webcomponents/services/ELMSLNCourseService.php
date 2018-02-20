@@ -135,6 +135,7 @@ class ELMSLNCourseService {
         $encoded->meta->canUpdate = 1;
         $encoded->uris->edit = $encoded->uris->uri . '/edit' . $destination;
         $encoded->uris->sync = $encoded->uris->uri . '/sync-roster' . $destination;
+        $encoded->uris->addOffering = base_path() . 'cis-add-offering' . $destination;
       }
       if (entity_access('delete', 'node', $node)) {
         $encoded->meta->canDelete = 1;
