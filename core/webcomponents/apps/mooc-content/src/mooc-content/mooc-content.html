@@ -353,7 +353,7 @@ A LRN element
               }
               return;
             }
-            else if (route.path.startsWith(endPoint)) {
+            else if (route.path.startsWith(endPoint) || route.path == '/') {
               return;
             }
           }
