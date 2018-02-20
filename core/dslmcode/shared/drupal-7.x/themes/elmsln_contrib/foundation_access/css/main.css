@@ -1442,7 +1442,6 @@ a.modal-img-link {
   #etb-course-nav .course-title-group {
     display: inline-block;
     float: left;
-    height: 2rem;
     margin: .25rem 0 0 0;
     width: 60%;
     vertical-align: top;
@@ -8174,6 +8173,9 @@ lrnsys-drawer app-drawer,
   display: inline-block;
   float: left;
   min-width: 39px;
+  height: 3.5em;
+  padding: .5em;
+  margin-right: .5em;
 }
 
 #etb-course-nav iron-dropdown .dropdown-content {
