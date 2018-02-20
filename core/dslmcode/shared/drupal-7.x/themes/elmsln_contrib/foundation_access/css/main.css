@@ -2352,7 +2352,12 @@ blockquote,
     display: flex;
     -ms-flex-item-align: center;
         align-self: center; }
-
+.image--boxed.image--boxed--left--lightboxed {
+  margin-right: 1em;
+}
+.image--boxed.image--boxed--right--lightboxed {
+  margin-left: 1em;
+}
 /**
  * Bugfix Need to prefix design components selectors. #547
  */
