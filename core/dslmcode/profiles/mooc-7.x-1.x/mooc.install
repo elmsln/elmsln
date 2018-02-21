@@ -220,3 +220,10 @@ function mooc_update_7016(&$sandbox) {
     ->condition('type', 'module')
     ->execute();
 }
+
+/**
+ * Correct permissions for book_player
+ */
+function mooc_update_7017(&$standbox) {
+  features_revert_module('book_player');
+}

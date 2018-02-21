@@ -9,3 +9,4 @@ dependencies[] = webcomponents_app
 dependencies[] = webcomponents_app_context
 features[features_api][] = api:2
 features[user_permission][] = access lrnapp-book app
+features[user_permission][] = access mooc-content app
