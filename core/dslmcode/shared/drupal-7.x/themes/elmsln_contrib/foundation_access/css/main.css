@@ -2080,6 +2080,7 @@ p.txtbk-intro {
           list-style: none;
         }
   .r-header ul.book-navigation-wrapper {
+    list-style: none;
     display: -ms-flexbox;
     display: flex;
     -ms-flex-align: center;

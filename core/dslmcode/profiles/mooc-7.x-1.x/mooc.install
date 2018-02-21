@@ -227,3 +227,11 @@ function mooc_update_7016(&$sandbox) {
 function mooc_update_7017(&$standbox) {
   features_revert_module('book_player');
 }
+
+/**
+ * Correct issues with context / block placement.
+ */
+function mooc_update_7018(&$standbox) {
+  features_revert_module('mooc_cis_ux');
+  features_revert_module('mooc_ux_defaults');
+}
