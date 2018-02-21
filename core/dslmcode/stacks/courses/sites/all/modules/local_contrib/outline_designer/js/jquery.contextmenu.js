@@ -45,8 +45,8 @@
         
     showTransition:'show',
     hideTransition:'hide',
-    showSpeed:'',
-    hideSpeed:'',
+    showSpeed:0,
+    hideSpeed:0,
     showCallback:null,
     hideCallback:null,
     

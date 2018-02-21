@@ -14,10 +14,7 @@ Drupal.behaviors.outline_designer_book = {
   }
   // usability function to set active item to whatever tr is clicked
   $('#book-outline tbody tr', context).bind('click', function(e){
-    if ($(this).children().children('img').length != 0) {
-      // set active when you click
-      Drupal.outline_designer.set_active($(this).children().children('img')[1]['id']);
-    }
+    Drupal.outline_designer.set_active($(this).children().children('lrnsys-button')[0]['id']);
   });
   // hover state class so you can see what you are working on
   $('#book-outline tr', context).bind({
@@ -34,13 +31,13 @@ Drupal.behaviors.outline_designer_book = {
   $('.od-toggle-open', context).bind('click', function(e){
     if ($(this).attr('alt') == 'open') {
       $(this).attr('alt','closed');
-      $(this).attr('src',$(this).attr('src').replace('images/open.png','images/closed.png'));
+      $(this).attr('icon', 'icons:expand-less');
       Drupal.settings.outline_designer.collapseList.push($(this).attr('id'));
       Drupal.outline_designer.toggle_expand($(this).parent().parent(),$(this).attr('alt'));
     }
     else {
       $(this).attr('alt','open');
-      $(this).attr('src',$(this).attr('src').replace('images/closed.png','images/open.png'));
+      $(this).attr('icon', 'icons:expand-more');
       Drupal.settings.outline_designer.collapseList.splice($.inArray($(this).attr('id'), Drupal.settings.outline_designer.collapseList), 1);
       Drupal.outline_designer.toggle_expand($(this).parent().parent(),$(this).attr('alt'));
       //if we opened something and pop-ed an item off the array we need to clean up for nested elements potentially being rendered as open
@@ -49,7 +46,7 @@ Drupal.behaviors.outline_designer_book = {
   });
   //set the active node id everytime an edit icon is clicked on
   $('.outline_designer_edit_button', context).bind('click',function(e){
-    Drupal.outline_designer.set_active($(this).attr('id'));
+    Drupal.outline_designer.set_active($(this)[0].parentNode.parentNode.id.replace('node-', '').replace('-icon', ''));
   });
   //whenever you doubleclick on a title, switch it to the rename state
   $("#book-outline span.od_title_span", context).bind('dblclick',function(e){
@@ -58,29 +55,29 @@ Drupal.behaviors.outline_designer_book = {
     $(this).parent().prev().css('display', 'block');
   });
   //whenever you aren't active on a field, remove it
-  $('#book-outline div.form-type-textfield input', context).blur(function(){
+  $('#book-outline div.form-type-textfield paper-input', context).blur(function(){
     $(this).next().children().css('display', 'block');
-    $(this).val(Drupal.outline_designer_ops.active('span').html());
+    $(this).value = Drupal.outline_designer_ops.active('span').html();
     $(this).css('display','none');
   });
   //if you hit enter, submit the title; if you hit esc then reset the field
   $('form').submit( function(){
    return false;
    } );
-  $('#book-outline input').keydown(function(e){
+  $('#book-outline paper-input').keydown(function(e){
     if(document.all) {
       e = event;
     }
-      if(e.keyCode==13){  // Enter pressed
-        Drupal.outline_designer_ops.rename_submit();
-        return false;
-      }
-      if(e.keyCode == 27){  // ESC pressed
-        Drupal.outline_designer_ops.active('span').css('display','');
-        Drupal.outline_designer_ops.active('input').val(Drupal.checkPlain(Drupal.outline_designer_ops.active('span').html()));
-        Drupal.outline_designer_ops.active('input').blur();
-      }
-    });
+    if(e.keyCode==13){  // Enter pressed
+      Drupal.outline_designer_ops.rename_submit();
+      return false;
+    }
+    if(e.keyCode == 27){  // ESC pressed
+      Drupal.outline_designer_ops.active('span').css('display','');
+      Drupal.outline_designer_ops.active('paper-input').value = Drupal.checkPlain(Drupal.outline_designer_ops.active('span').html());
+      Drupal.outline_designer_ops.active('paper-input').blur();
+    }
+  });
     //bind the context menu and set it's properties
   var unavailableContextMenuItems = Drupal.settings.outline_designer.unavailableContextMenuItems;
   var ContextOperations = Drupal.settings.outline_designer.operations;
@@ -106,7 +103,7 @@ Drupal.behaviors.outline_designer_book = {
       theme: Drupal.settings.outline_designer.theme,
       beforeShow: function () {
       if ($.inArray("nid", unavailableContextMenuItems) == -1) {
-        $(this.menu).find('.context-menu-item-inner:first').css('backgroundImage','url(' + $("#node-" + Drupal.settings.outline_designer.activeNid +"-icon").attr('src') +')').empty().append("nid " + Drupal.settings.outline_designer.activeNid);
+        $(this.menu).find('.context-menu-item-inner:first').empty().append("nid " + Drupal.settings.outline_designer.activeNid);
         }
       },
       useIframe: false,
@@ -125,30 +122,6 @@ Drupal.outline_designer.get_active_type = function() {
   return $("#node-" + Drupal.settings.outline_designer.activeNid +"-icon").attr('alt');
 };
 
-// scaling functionality that overloads default
-Drupal.outline_designer.scale = function(scale){
-  if(scale == 1 && Drupal.settings.outline_designer.factor != 2){
-  Drupal.settings.outline_designer.factor = Drupal.settings.outline_designer.factor + 0.25;
-  }else if(scale == -1 && Drupal.settings.outline_designer.factor != 1){
-    Drupal.settings.outline_designer.factor = Drupal.settings.outline_designer.factor - 0.25;
-  }else if(scale == 0){
-    Drupal.settings.outline_designer.factor = 1;
-  }
-  //account for initial page load, stupid IE thing
-  if(Drupal.settings.outline_designer.factor == null && scale == -2) {
-    Drupal.settings.outline_designer.factor = 1;
-  }
-  if(Drupal.settings.outline_designer.factor == 1){
-    $("#book-outline img").css('width','').css('height','');
-    $("#book-outline").css('font-size','');
-    $("#book-outline .form-item").css('margin-top','');
-  }else{
-    $("#book-outline img").css('width',Drupal.settings.outline_designer.factor + 'em').css('height',Drupal.settings.outline_designer.factor + 'em');
-    $("#book-outline").css('font-size',Drupal.settings.outline_designer.factor + 'em');
-    $("#book-outline .form-item").css('margin-top',(Drupal.settings.outline_designer.factor/4) + 'em');
-  }
-};
-
 // quazi theme function for popup rendering
 Drupal.outline_designer.render_popup = function(render_title) {
   var output = '';
@@ -162,7 +135,7 @@ Drupal.outline_designer.render_popup = function(render_title) {
     else {
       title = Drupal.outline_designer.get_active_title();
     }
-    output+= ' - <img src="'+  $("#node-" + Drupal.settings.outline_designer.activeNid +"-icon").attr('src') +'" class="od_statusbar_img" />'+ title + ' (nid:'+ Drupal.settings.outline_designer.activeNid +')';
+    output+= ' - <iron-icon icon="'+  $("#node-" + Drupal.settings.outline_designer.activeNid +"-icon").attr('icon') +'" class="od_statusbar_img"></iron-icon>'+ title + ' (nid:'+ Drupal.settings.outline_designer.activeNid +')';
   }
   else {
     output+= '<span class="tmpimage"></span><span class="tmptitle"></span>';
@@ -174,17 +147,17 @@ Drupal.outline_designer.render_popup = function(render_title) {
 }
 // define function for edit
   Drupal.outline_designer_ops.edit = function() {
-    window.open(Drupal.settings.basePath + '?q=node/' + Drupal.settings.outline_designer.activeNid + '/edit&destination=' + 'admin/content/book/' + Drupal.settings.outline_designer.rootNid,'_self');
+    window.open(Drupal.settings.basePath + '/node/' + Drupal.settings.outline_designer.activeNid + '/edit?destination=' + 'admin/content/book/' + Drupal.settings.outline_designer.rootNid,'_self');
   };
   // define function for view
   Drupal.outline_designer_ops.view = function() {
-    window.open(Drupal.settings.basePath + '?q=node/' + Drupal.settings.outline_designer.activeNid,'_blank');
+    window.open(Drupal.settings.basePath + '/node/' + Drupal.settings.outline_designer.activeNid,'_blank');
   };
   // define function for rename
   Drupal.outline_designer_ops.rename = function() {
     Drupal.outline_designer_ops.active('span').css('display','none');
-    Drupal.outline_designer_ops.active('input').css('display','block');
-    Drupal.outline_designer_ops.active('input').focus();
+    Drupal.outline_designer_ops.active('paper-input').css('display','block');
+    Drupal.outline_designer_ops.active('paper-input').click();
   };
   // define function for change_type
   Drupal.outline_designer_ops.change_type = function() {
@@ -214,12 +187,15 @@ Drupal.outline_designer.render_popup = function(render_title) {
   Drupal.outline_designer_ops.view_submit = function() {};
   Drupal.outline_designer_ops.rename_submit = function() {
     Drupal.outline_designer_ops.active('span').css('display','');
-    Drupal.outline_designer_ops.active('input').css('display','none');
-    if (Drupal.outline_designer_ops.active('span').html() != Drupal.outline_designer_ops.active('input').val()) {
-      var title = $.param(Drupal.outline_designer_ops.active('input'));
-      var titleary = title.split('=',1);
+    Drupal.outline_designer_ops.active('paper-input').css('display','none');
+    // @todo figure out why this won't reveal the html of the span
+    console.log(Drupal.outline_designer_ops.active('span').innerHTML);
+    console.log(Drupal.outline_designer_ops.active('paper-input'));
+    if (Drupal.outline_designer_ops.active('span').html() != Drupal.outline_designer_ops.active('paper-input').value) {
+      var title = $.param(Drupal.outline_designer_ops.active('paper-input'));
+      var titleary = title.split('=', 1);
       //need to remove the name space
-      title = title.replace(titleary,'');
+      title = title.replace(titleary, '');
       title = title.substr(1);
       title = title.replace(/%2F/g,"@2@F@"); //weird escape for ajax with /
       title = title.replace(/%23/g,"@2@3@"); //weird escape for ajax with #
@@ -236,7 +212,7 @@ Drupal.outline_designer.render_popup = function(render_title) {
       msg = jQuery.parseJSON(msg);
       msg = Drupal.checkPlain(msg);
       Drupal.outline_designer_ops.active('span').html(msg);
-      Drupal.outline_designer_ops.active('input').val(msg);
+      Drupal.outline_designer_ops.active('paper-input').value = msg;
       $("#reload_table").trigger('change');
     }
   };
@@ -295,7 +271,7 @@ Drupal.outline_designer.render_popup = function(render_title) {
     attach: function (context, settings) {
     $("#od_add_content_title", context).keyup(function(e){
       // filter xss
-      var titleval = Drupal.checkPlain($("#od_add_content_title").val());
+      var titleval = Drupal.checkPlain($("#od_add_content_title").value);
       $(".popup-statusbar .tmptitle").empty().append(titleval);
 });
     }
@@ -310,8 +286,8 @@ Drupal.outline_designer.render_popup = function(render_title) {
   };
   // establish active item
   Drupal.outline_designer_ops.active = function(return_item) {
-    var obj = $("input[name='table[book-admin-" + Drupal.settings.outline_designer.activeNid + "][title]']");
-    if (return_item == 'input') {
+    var obj = $("paper-input[name='table[book-admin-" + Drupal.settings.outline_designer.activeNid + "][title]']");
+    if (return_item == 'paper-input') {
       return obj;
     }
     else {

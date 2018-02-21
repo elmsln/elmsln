@@ -1633,6 +1633,11 @@ function foundation_access_status_messages($variables) {
       'color' => 'green darken-4 white-text',
       'heading' => t('Notifications'),
     ),
+    'toast' => array(
+      'icon' => 'info',
+      'color' => 'black white-text',
+      'heading' => '',
+    ),
   );
   foreach (drupal_get_messages($display) as $type => $messages) {
     if (!empty($status_mapping[$type])) {
@@ -1647,6 +1652,10 @@ function foundation_access_status_messages($variables) {
       $output .= " </ul>\n";
     }
     else {
+      // special case, single toast message
+      if ($type == 'toast') {
+        return '<paper-toast opened><div class="toast-content-container">' . $messages[0] . '</div></paper-toast>';
+      }
       $output .= $messages[0];
     }
     $output .= "</div>\n";

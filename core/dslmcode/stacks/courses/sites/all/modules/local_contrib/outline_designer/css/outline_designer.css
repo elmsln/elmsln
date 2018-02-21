@@ -16,7 +16,7 @@
  tr.draggable td:first-child {
   width:800px;
  }
- #book-outline div.form-type-textfield input {
+ #book-outline div.form-type-textfield paper-input {
    display:none;
  }
  #od_popup_toolbox {
@@ -47,7 +47,7 @@
   background-image:none !important;
  }
  #od_popup .popup-statusbar{
-  height:20px;
+  height:3em;
   margin-bottom:5px;
   border-bottom:solid 1px #C5C5C5;
   /*background-color:#EEE;*/
@@ -150,7 +150,7 @@
 /* Classic Windows Theme (default) */
 /* =============================== */
 #context_menu{
-  width:auto;
+  width:12em;
 }
 .context-menu-theme-default {
   border:2px outset white;
@@ -257,8 +257,6 @@
 /* ========= */
 .context-menu-theme-osx {
   background-color:white;
-  opacity: .93;
-  filter: alpha(opacity=93);
   zoom:1.0;
   border:1px solid #b2b2b2;
 }
@@ -269,8 +267,6 @@
   font-family:Lucida Grande,Arial;
   font-weight:700;
   font-size:12px;
-  opacity: 1.0;
-  filter: alpha(opacity=100);
   z-index:1;
 }
 .context-menu-theme-osx .context-menu-separator {
@@ -283,7 +279,7 @@
   color:white;
 }
 .context-menu-theme-osx .context-menu-item .context-menu-item-inner {
-  padding:2px 10px 2px 22px;
+  padding:.5em 0 .5em 2em;
   background-color:none;
   background-repeat:no-repeat;
   background-position:4px center;
@@ -405,6 +401,7 @@
   right:0;
   margin:-8px -8px 0px 0px;
   padding:0px;
+  border-radius: 40em;
 }
 
 .od-operation-icons {
@@ -425,7 +422,6 @@
   float:left;
   font-weight:bold;
 }
-
 #book-outline .tabledrag-handle-hover {
  color:#333;
  background:#AAA;

@@ -158,15 +158,20 @@ function _mooc_content_render_options() {
     $content .= '
       <lrnsys-button id="edit-tip" href="' . $node_path . '/edit" class="r-header__icon elmsln-edit-button" data-jwerty-key="e" data-voicecommand="edit" hover-class="' . $cis_lmsless[$distro]['text'] . '" inner-class="no-padding" icon="editor:mode-edit" icon-class="blue-text" alt="' . t('Edit page') . '"><span class="element-invisible">' . t('Edit page') . '</span>
       </lrnsys-button>
-      <lrnsys-button id="outline-tip" href="' . $node_path . '/outline/children" class="r-header__icon elmsln-edit-button" data-jwerty-key="e" data-voicecommand="outline" hover-class="' . $cis_lmsless[$distro]['text'] . '" inner-class="no-padding" icon="editor:linear-scale" icon-class="blue-text" alt="' . t('Edit outline') . '"><span class="element-invisible">' . t('Edit outline') . '</span>
-      </lrnsys-button>
-      <lrnsys-button id="book-outline-tip" href="' . base_path() . 'admin/content/book/' . $node->book['bid'] . '" class="r-header__icon elmsln-edit-button" data-jwerty-key="e" data-voicecommand="outline" hover-class="' . $cis_lmsless[$distro]['text'] . '" inner-class="no-padding" icon="icons:book" icon-class="blue-text" alt="' . t('Edit course outline') . '"><span class="element-invisible">' . t('Edit course outline') . '</span>
-      </lrnsys-button>';
+      <paper-menu-button dynamic-align>
+        <paper-icon-button id="outlineoptions" class="blue-text" icon="editor:linear-scale" slot="dropdown-trigger" alt="' . t('Edit outline') . '" title="' . t('Edit outline') . '"></paper-icon-button>
+        <paper-tooltip for="outlineoptions" animation-delay="200" offset="0">' . t('Outline options') . '</paper-tooltip>
+        <paper-listbox slot="dropdown-content">
+          <a tabindex="-1" href="' . $node_path . '/outline/children" class="accessible-grey-text"><paper-item>' . t('Child outline') . '</paper-item></a>
+          <a tabindex="-1" href="' . base_path() . 'admin/content/book/' . $node->book['bid'] . '" class="accessible-grey-text"><paper-item>' . t('Course outline') . '</paper-item></a>
+        </paper-listbox>
+      </paper-menu-button>';
   }
   $content .= '<paper-menu-button dynamic-align>
-    <paper-icon-button id="printoptions" icon="print" slot="dropdown-trigger" alt="' . t('Print options') . '"></paper-icon-button>
+    <paper-icon-button id="printoptions" icon="print" slot="dropdown-trigger" alt="' . t('Print options') . '" title="' . t('Print options') . '"></paper-icon-button>
+    <paper-tooltip for="printoptions" animation-delay="200" offset="0">' . t('Print options') . '</paper-tooltip>
     <paper-listbox slot="dropdown-content">
-      <a target="_blank" href="' . base_path() . 'book/export/html/' . $node->nid . '" class="accessible-grey-text"><paper-item>' . t('Page') . '</paper-item></a>';
+      <a tabindex="-1" target="_blank" href="' . base_path() . 'book/export/html/' . $node->nid . '" class="accessible-grey-text"><paper-item>' . t('Page') . '</paper-item></a>';
   // support print / book printing
   if (user_access('access printer-friendly version')) {
     $bid = $node->book['bid'];
@@ -178,7 +183,7 @@ function _mooc_content_render_options() {
   if (user_access('access PDF version')) {
     $content .= '<a tabindex="-1" target="_blank" href="' . base_path() . 'printpdf/' . $node->nid . '" class="accessible-grey-text"><paper-item>' . t('PDF') . '</paper-item></a>';
   }
-  $content .='</paper-listbox></paper-menu-button><paper-tooltip for="printoptions" animation-delay="200">' . t('Print options') . '</paper-tooltip>';
+  $content .='</paper-listbox></paper-menu-button>';
   return $content;
 }
 

@@ -149,20 +149,6 @@ Drupal.outline_designer.get_active_type = function() {
   // stub
 };
 
-//scaling functionality
-Drupal.outline_designer.scale = function(scale){
-  if(scale == 1 && Drupal.settings.outline_designer.factor != 2){
-  Drupal.settings.outline_designer.factor = Drupal.settings.outline_designer.factor + 0.25;
-  }else if(scale == -1 && Drupal.settings.outline_designer.factor != 1){
-    Drupal.settings.outline_designer.factor = Drupal.settings.outline_designer.factor - 0.25;
-  }else if(scale == 0){
-    Drupal.settings.outline_designer.factor = 1;
-  }
-  //account for initial page load, stupid IE thing
-  if(Drupal.settings.outline_designer.factor == null && scale == -2) {
-    Drupal.settings.outline_designer.factor = 1;
-  }
-};
 //expand / collapse functionality
 Drupal.outline_designer.toggle_expand = function(obj,state) {
   var depth = obj.children().children('div.indentation').size();
@@ -178,9 +164,9 @@ Drupal.outline_designer.toggle_expand = function(obj,state) {
       else {
         tmpobj.css('display','block');
         //if something's marked closed we want to flip that to open too to make things easier. Init is then run after the fact to make sure everything's closed that should be
-        if (tmpobj.children().children('img.od-toggle-open').attr('alt') == 'closed') {
-          tmpobj.children().children('img.od-toggle-open').attr('alt','open');
-          tmpobj.children().children('img.od-toggle-open').attr('src',tmpobj.children().children('img.od-toggle-open').attr('src').replace('images/closed.png','images/open.png'));
+        if (tmpobj.children().children('.od-toggle-open').attr('alt') == 'closed') {
+          tmpobj.children().children('.od-toggle-open').attr('alt','open');
+          tmpobj.children().children('.od-toggle-open').attr('icon', 'icons:expand-more');
         }
       }
     }
@@ -192,19 +178,17 @@ Drupal.outline_designer.collapseInit = function() {
   for(var i in Drupal.settings.outline_designer.collapseList) {
     if ($('#'+ Drupal.settings.outline_designer.collapseList[i]).length == 1) {
       $('#'+ Drupal.settings.outline_designer.collapseList[i]).attr('alt','closed');
-      $('#'+ Drupal.settings.outline_designer.collapseList[i]).attr('src',$('#'+ Drupal.settings.outline_designer.collapseList[i]).attr('src').replace('images/open.png','images/closed.png'));
+      $('#'+ Drupal.settings.outline_designer.collapseList[i]).attr('icon', 'icons:expand-less');
       Drupal.outline_designer.toggle_expand($('#'+ Drupal.settings.outline_designer.collapseList[i]).parent().parent(),$('#'+ Drupal.settings.outline_designer.collapseList[i]).attr('alt'));
     }
   }
-  //scale interface here as well. -2 is so that it ignores the scale and keeps the current global
-  Drupal.outline_designer.scale(-2);
 };
 
 //Collapse all branches
 Drupal.outline_designer.collapseAll = function() {
   $('.od-toggle-open').each(function(){
     $(this).attr('alt','closed');
-    $(this).attr('src',$(this).attr('src').replace('images/open.png','images/closed.png'));
+    $(this).attr('icon','icons:expand-less');
     //only push if it's not in the list already
     if ($.inArray($(this).attr('id'), Drupal.settings.outline_designer.collapseList) == -1) {
       Drupal.settings.outline_designer.collapseList.push($(this).attr('id'));
@@ -217,7 +201,7 @@ Drupal.outline_designer.collapseAll = function() {
 Drupal.outline_designer.openAll = function() {
   $('.od-toggle-open').each(function(){
     $(this).attr('alt','open');
-    $(this).attr('src',$(this).attr('src').replace('images/closed.png','images/open.png'));
+    $(this).attr('icon','icons:expand-more');
     Drupal.settings.outline_designer.collapseList = new Array();
     Drupal.outline_designer.toggle_expand($(this).parent().parent(),$(this).attr('alt'));
   });
@@ -250,6 +234,7 @@ Drupal.outline_designer.render_popup = function(render_title) {
 // helper function to set the active item
 Drupal.outline_designer.set_active = function(id) {
   // routine to set new focus id
+  console.log(id);
   $('.tabledrag-processed tr').removeClass('od-selected');
   Drupal.settings.outline_designer.activeNid = id.replace('node-', '');
   $('#' + id).parent().parent().addClass('od-selected');

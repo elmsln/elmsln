@@ -484,7 +484,7 @@ function hidden_nodes_outline_designer_hide_node($nid, $multiple, $status) {
         }
       }
     }
-    drupal_set_message(t('Content was marked hidden successfully'));
+    drupal_set_message(t('Content was marked hidden successfully'), 'toast');
     return 1;
   }
   return 0;

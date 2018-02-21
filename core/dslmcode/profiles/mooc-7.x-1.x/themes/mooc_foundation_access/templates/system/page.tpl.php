@@ -20,16 +20,19 @@
             <!-- Edit Icon -->
             <?php if (isset($edit_path)): ?>
             <li class="page-op-button">
-              <?php if (arg(2) == 'edit'): ?>
+            <?php if (arg(2) == 'edit'): ?>
               <lrnsys-button id="edit-tip" onclick="document.getElementById('edit-submit').click();" class="r-header__icon elmsln-edit-button accessible-green-text" inner-class="no-padding" hover-class="<?php print $cis_lmsless['lmsless_classes'][$distro]['text'] . ' text-' . $cis_lmsless['lmsless_classes'][$distro]['dark'];?>" icon="save" alt="<?php print t('Save content'); ?>">
               </lrnsys-button>
+            <?php elseif (arg(2) == 'outline'): ?>
+              <lrnsys-button id="edit-tip" href="<?php print base_path() . arg(0) . '/' . arg(1); ?>" class="r-header__icon elmsln-edit-button" inner-class="no-padding" hover-class="<?php print $cis_lmsless['lmsless_classes'][$distro]['text'] . ' text-' . $cis_lmsless['lmsless_classes'][$distro]['dark'];?>" icon="icons:visibility" alt="<?php print t('Back to content'); ?>">
+              </lrnsys-button>
             <?php else: ?>
-              <lrnsys-button id="edit-tip" href="<?php print $edit_path; ?>" class="r-header__icon elmsln-edit-button" data-jwerty-key="e" inner-class="no-padding" data-voicecommand="edit" hover-class="<?php print $cis_lmsless['lmsless_classes'][$distro]['text'] . ' text-' . $cis_lmsless['lmsless_classes'][$distro]['dark'];?>" icon="editor:mode-edit" alt="<?php print t('Edit content'); ?>">
+              <lrnsys-button id="edit-tip" class="r-header__icon elmsln-edit-button" data-jwerty-key="e" inner-class="no-padding" data-voicecommand="edit" hover-class="<?php print $cis_lmsless['lmsless_classes'][$distro]['text'] . ' text-' . $cis_lmsless['lmsless_classes'][$distro]['dark'];?>" icon="editor:mode-edit" alt="<?php print t('Edit content'); ?>">
               </lrnsys-button>
             <?php endif; ?>
             </li>
             <?php endif; ?>
-            <?php if (!empty($cis_shortcodes)) : ?>
+            <?php if (!empty($cis_shortcodes) && arg(2) == 'edit') : ?>
               <li class="page-op-button">
               <lrnsys-drawer hover-class="<?php print $cis_lmsless['lmsless_classes'][$distro]['text'] . ' text-' . $cis_lmsless['lmsless_classes'][$distro]['dark'];?>" align="right" alt="<?php print t('Embed this content')?>" icon="share" header="<?php print t('Embed this content'); ?>" data-jwerty-key="s" data-voicecommand="open embed (menu)">
                 <?php print $cis_shortcodes; ?>
@@ -75,6 +78,8 @@
       <div class="elmsln-content-wrap row">
         <?php if (current_path() == 'mooc/book-toc') : ?>
         <div class="s9 col" role="main">
+        <?php elseif (arg(2) == 'outline'): ?>
+        <div class="push-s1 s10 col" role="main">
         <?php else : ?>
         <div class="push-s2 s8 col" role="main">
         <?php endif; ?>
