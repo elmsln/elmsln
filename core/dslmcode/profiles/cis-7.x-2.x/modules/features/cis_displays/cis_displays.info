@@ -26,7 +26,6 @@ features[views_view][] = cis_programs
 features[views_view][] = cis_resources
 features[views_view][] = cis_services
 features[views_view][] = course_service_instances
-features[views_view][] = courses_overview
 features[views_view][] = user_type_lists
 features_exclude[dependencies][google_chart_tools_views] = google_chart_tools_views
 views_view[] = cis_course_charts

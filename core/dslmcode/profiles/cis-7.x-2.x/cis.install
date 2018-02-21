@@ -195,3 +195,10 @@ function cis_update_7018(&$sandbox) {
     variable_set('site_frontpage', 'apps/lrnapp-cis');
   }
 }
+
+/**
+ * Drop the "courses" view!!
+ */
+function cis_update_7019(&$sandbox) {
+  features_revert_module('cis_displays');
+}
