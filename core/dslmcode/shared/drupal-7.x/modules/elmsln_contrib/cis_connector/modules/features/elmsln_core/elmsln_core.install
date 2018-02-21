@@ -23,6 +23,8 @@ function elmsln_core_install() {
   ->condition('name', 'elmsln_core')
   ->condition('type', 'module')
   ->execute();
+  variable_set('preprocess_css', '1');
+  variable_set('preprocess_js', '1');
 }
 
 /**
