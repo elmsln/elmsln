@@ -17,14 +17,21 @@ function mooc_ux_defaults_context_default_contexts() {
   $context->description = 'Content block placement';
   $context->tag = 'Content';
   $context->conditions = array(
-    'context' => array(
+    'node' => array(
       'values' => array(
-        '~webcomponents-app' => '~webcomponents-app',
+        'git_book' => 'git_book',
+        'mooc_container' => 'mooc_container',
+        'page' => 'page',
+        'section' => 'section',
+      ),
+      'options' => array(
+        'node_form' => '2',
       ),
     ),
     'path' => array(
       'values' => array(
-        'node/*/edit' => 'node/*/edit',
+        '*' => '*',
+        '~node/*' => '~node/*',
       ),
     ),
   );
@@ -46,7 +53,7 @@ function mooc_ux_defaults_context_default_contexts() {
       ),
     ),
   );
-  $context->condition_mode = 1;
+  $context->condition_mode = 0;
 
   // Translatables
   // Included for use with string extractors like potx.
