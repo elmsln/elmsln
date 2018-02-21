@@ -148,15 +148,19 @@ function _mooc_content_get_outline_data() {
 function _mooc_content_render_options() {
   $node = _mooc_content_get_active();
   if (node_access('update', $node)) {
-    $edit_path = base_path() . 'node/' . $node->nid . '/edit';
+    $node_path = base_path() . 'node/' . $node->nid;
   }
   $cis_lmsless = _cis_lmsless_get_distro_classes();
   $distro = elmsln_core_get_profile_key();
   // ok, get all that ugly content together
   $content = '';
-  if (isset($edit_path)) {
+  if (isset($node_path)) {
     $content .= '
-      <lrnsys-button id="edit-tip" href="' . $edit_path . '" class="r-header__icon elmsln-edit-button" data-jwerty-key="e" data-voicecommand="edit" hover-class="' . $cis_lmsless[$distro]['text'] . '" inner-class="no-padding" icon="editor:mode-edit" icon-class="blue-text" alt="' . t('Edit page') . '"><span class="element-invisible">' . t('Edit page') . '</span>
+      <lrnsys-button id="edit-tip" href="' . $node_path . '/edit" class="r-header__icon elmsln-edit-button" data-jwerty-key="e" data-voicecommand="edit" hover-class="' . $cis_lmsless[$distro]['text'] . '" inner-class="no-padding" icon="editor:mode-edit" icon-class="blue-text" alt="' . t('Edit page') . '"><span class="element-invisible">' . t('Edit page') . '</span>
+      </lrnsys-button>
+      <lrnsys-button id="outline-tip" href="' . $node_path . '/outline/children" class="r-header__icon elmsln-edit-button" data-jwerty-key="e" data-voicecommand="outline" hover-class="' . $cis_lmsless[$distro]['text'] . '" inner-class="no-padding" icon="editor:linear-scale" icon-class="blue-text" alt="' . t('Edit outline') . '"><span class="element-invisible">' . t('Edit outline') . '</span>
+      </lrnsys-button>
+      <lrnsys-button id="book-outline-tip" href="' . base_path() . 'admin/content/book/' . $node->book['bid'] . '" class="r-header__icon elmsln-edit-button" data-jwerty-key="e" data-voicecommand="outline" hover-class="' . $cis_lmsless[$distro]['text'] . '" inner-class="no-padding" icon="icons:book" icon-class="blue-text" alt="' . t('Edit course outline') . '"><span class="element-invisible">' . t('Edit course outline') . '</span>
       </lrnsys-button>';
   }
   $content .= '<paper-menu-button dynamic-align>

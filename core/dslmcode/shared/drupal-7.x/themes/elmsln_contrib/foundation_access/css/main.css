@@ -8409,18 +8409,18 @@ paper-button.lrnsys-button div.inner.lrnsys-button {
   color: #FFFFFF !important;
 }
 
-#edit-tip iron-icon {
+.elmsln-edit-button iron-icon {
   width: 2.2em;
   height: 2.2em;
   margin:0;
 }
-#edit-tip paper-button {
+.elmsln-edit-button paper-button {
   border-radius: 40em;
   width: 2.3em;
   height: 2.6em;
   padding-left: .3em;
 }
-#edit-tip paper-button .inner.no-padding {
+.elmsln-edit-button paper-button .inner.no-padding {
   height: 2.6em;
   line-height: 2.6em;
 }
