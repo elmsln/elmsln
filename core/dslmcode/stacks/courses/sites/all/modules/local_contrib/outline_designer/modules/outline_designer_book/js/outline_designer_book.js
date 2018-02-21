@@ -57,7 +57,7 @@ Drupal.behaviors.outline_designer_book = {
   //whenever you aren't active on a field, remove it
   $('#book-outline div.form-type-textfield paper-input', context).blur(function(){
     $(this).next().children().css('display', 'block');
-    $(this).value = Drupal.outline_designer_ops.active('span').html();
+    $(this)[0].value = Drupal.checkPlain(Drupal.outline_designer_ops.active('span').html());
     $(this).css('display','none');
   });
   //if you hit enter, submit the title; if you hit esc then reset the field
@@ -74,7 +74,6 @@ Drupal.behaviors.outline_designer_book = {
     }
     if(e.keyCode == 27){  // ESC pressed
       Drupal.outline_designer_ops.active('span').css('display','');
-      Drupal.outline_designer_ops.active('paper-input').value = Drupal.checkPlain(Drupal.outline_designer_ops.active('span').html());
       Drupal.outline_designer_ops.active('paper-input').blur();
     }
   });
@@ -188,9 +187,6 @@ Drupal.outline_designer.render_popup = function(render_title) {
   Drupal.outline_designer_ops.rename_submit = function() {
     Drupal.outline_designer_ops.active('span').css('display','');
     Drupal.outline_designer_ops.active('paper-input').css('display','none');
-    // @todo figure out why this won't reveal the html of the span
-    console.log(Drupal.outline_designer_ops.active('span').innerHTML);
-    console.log(Drupal.outline_designer_ops.active('paper-input'));
     if (Drupal.outline_designer_ops.active('span').html() != Drupal.outline_designer_ops.active('paper-input').value) {
       var title = $.param(Drupal.outline_designer_ops.active('paper-input'));
       var titleary = title.split('=', 1);

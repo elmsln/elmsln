@@ -234,9 +234,8 @@ Drupal.outline_designer.render_popup = function(render_title) {
 // helper function to set the active item
 Drupal.outline_designer.set_active = function(id) {
   // routine to set new focus id
-  console.log(id);
   $('.tabledrag-processed tr').removeClass('od-selected');
-  Drupal.settings.outline_designer.activeNid = id.replace('node-', '');
+  Drupal.settings.outline_designer.activeNid = id.replace('node-', '').replace('-icon', '');
   $('#' + id).parent().parent().addClass('od-selected');
 };
 
