@@ -23,8 +23,10 @@ function _mooc_content_data($machine_name, $app_route, $params, $args) {
     // render outline w/ array
     $outline = _mooc_nav_block_mooc_nav_block($node);
     // we allow the left to have blocks so place them there
-    $blocks = block_get_blocks_by_region('sidebar_first');
-    $blocks = drupal_render($blocks);
+    $highlighted = block_get_blocks_by_region('highlighted');
+    $sidebar = block_get_blocks_by_region('sidebar_first');
+    $blocks = drupal_render($highlighted);
+    $blocks .= drupal_render($sidebar);
     // pull together the right side options
     $options = _mooc_content_render_options();
     // support custom colors / system level styling
