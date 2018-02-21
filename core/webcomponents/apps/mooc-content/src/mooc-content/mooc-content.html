@@ -97,6 +97,7 @@ A LRN element
                 <div class="block-mooc-nav-block-mooc-title black white-text">[[outlineTitle]]</div>
                 <div id="outline"><slot name="outline"></slot></div>
               </section>
+              <div id="blocks"><slot name="blocks"></slot></div>
             </responsive-grid-col>
             <responsive-grid-col xl="8" lg="8" md="9" sm="7" xs="12">
               <a id="main-content" class="scrollspy" data-scrollspy="scrollspy"></a>
@@ -279,6 +280,7 @@ A LRN element
           this.$.content.innerHTML = data.content;
           this.$.navigation.innerHTML = data.topNavigation;
           this.$.outline.innerHTML = data.bookOutline.content;
+          this.$.blocks.innerHTML = data.blocks;
           this.$.options.innerHTML = data.options;
           // inject styles, destroying previous ones
           this.__injectStyle(data.styles);
