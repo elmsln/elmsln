@@ -22,18 +22,6 @@ function _mooc_content_data($machine_name, $app_route, $params, $args) {
     $content = _mooc_content_render_content();
     // render outline w/ array
     $outline = _mooc_nav_block_mooc_nav_block($node);
-    // Get blocks from Drupal core, cause #reasons
-    $blocks = block_get_blocks_by_region('highlighted');
-    // Get blocks from the context module.
-    module_invoke_all('context_page_condition');
-    module_invoke_all('context_page_reaction');
-    if ($plugin = context_get_plugin('reaction', 'block')) {
-      $blocks += $plugin->block_get_blocks_by_region('highlighted');
-      $blocks += $plugin->block_get_blocks_by_region('sidebar_first');
-      drupal_static_reset('context_reaction_block_list');
-    }
-    $blocks += block_get_blocks_by_region('sidebar_first');
-    $block_render = drupal_render($blocks);
     // pull together the right side options
     $options = _mooc_content_render_options();
     // support custom colors / system level styling
@@ -46,7 +34,6 @@ function _mooc_content_data($machine_name, $app_route, $params, $args) {
       'topNavigation' => $navigation,
       'content' => $content,
       'bookOutline' => $outline,
-      'blocks' => $block_render,
       'styles' => $css,
       'options' => $options,
     );
@@ -58,6 +45,24 @@ function _mooc_content_data($machine_name, $app_route, $params, $args) {
   );
 }
 
+/**
+ * Load blocks for initial paint.
+ */
+function _mooc_content_get_blocks() {
+  // Get blocks from Drupal core, cause #reasons
+  $blocks = block_get_blocks_by_region('highlighted');
+  // Get blocks from the context module.
+  module_invoke_all('context_page_condition');
+  module_invoke_all('context_page_reaction');
+  if ($plugin = context_get_plugin('reaction', 'block')) {
+    $blocks += $plugin->block_get_blocks_by_region('highlighted');
+    $blocks += $plugin->block_get_blocks_by_region('sidebar_first');
+    drupal_static_reset('context_reaction_block_list');
+  }
+  $blocks += block_get_blocks_by_region('sidebar_first');
+  $block_render = drupal_render($blocks);
+  return $block_render;
+}
 /**
  * Return all aliases for comparison in the event of them being clicked
  * in the app so we know that routing should actually trigger a node id to load.
