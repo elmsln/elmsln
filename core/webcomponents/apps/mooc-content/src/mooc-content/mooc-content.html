@@ -353,7 +353,15 @@ A LRN element
               }
               return;
             }
-            else if (route.path.startsWith(endPoint) || route.path == '/') {
+            // implies front page on first load, so fix that
+            else if (urlAlias == '') {
+              this.requestParams.node = this.nid;
+              // ensure that we don't see this again
+              this.set('route.path', '/' + this.elmslnCourse + '/node/' + this.nid);
+              this.$.pageajax.generateRequest();
+              return;
+            }
+            else if (route.path.startsWith(endPoint)) {
               return;
             }
           }

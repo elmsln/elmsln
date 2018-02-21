@@ -22,6 +22,9 @@
       },
       "aliases": {
         "callback": "_mooc_content_get_alias"
+      },
+      "nid": {
+        "callback": "_mooc_content_get_nid"
       }
     },
     "slots": {

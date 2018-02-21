@@ -54,6 +54,13 @@ function _mooc_content_get_aliases() {
   if (!$aliases) {
     $result = db_query("SELECT alias,source FROM {url_alias} WHERE source LIKE 'node/%' AND language='und' ORDER BY pid ASC");
     $aliases = $result->fetchAllKeyed();
+    $front = variable_get('site_frontpage', 'node');
+    // special case for homepage that points to a node
+    if (strpos($front, 'node/') === 0) {
+      $aliases['/'] = $front;
+      $aliases[''] = $front;
+      $aliases[base_path()] = $front;
+    }
   }
   return $aliases;
 }
@@ -64,6 +71,13 @@ function _mooc_content_get_aliases() {
 function _mooc_content_get_title() {
   $node = _mooc_content_get_active();
   return $node->title;
+}
+/**
+ * Get active nid
+ */
+function _mooc_content_get_nid() {
+  $node = _mooc_content_get_active();
+  return $node->nid;
 }
 /**
  * Get a single alias
