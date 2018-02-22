@@ -202,3 +202,10 @@ function cis_update_7018(&$sandbox) {
 function cis_update_7019(&$sandbox) {
   features_revert_module('cis_displays');
 }
+
+/**
+ * Front page permissions
+ */
+function cis_update_7020(&$sandbox) {
+  features_revert_module('cis_ux');
+}
