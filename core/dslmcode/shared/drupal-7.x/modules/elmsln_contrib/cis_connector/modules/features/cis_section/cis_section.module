@@ -445,7 +445,7 @@ function _cis_section_activate_section($node) {
     // build the user accounts
     watchdog('roster', 'Roster synced for section @section', array('@section' => $node->field_section_id['und'][0]['value']));
     _cis_section_create_accounts($roster);
-    drupal_set_message(t('Roster synced for section @section', array('@section' => $node->field_section_id['und'][0]['value'])));
+    drupal_set_message(t('Roster synced for section @section', array('@section' => $node->field_section_id['und'][0]['value'])), 'toast');
   }
 }
 

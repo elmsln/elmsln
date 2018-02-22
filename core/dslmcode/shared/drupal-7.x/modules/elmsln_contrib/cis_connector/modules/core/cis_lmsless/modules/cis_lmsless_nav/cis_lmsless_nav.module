@@ -133,5 +133,5 @@ function _cis_lmsless_set_nav($values) {
   );
   // rebuild these requests for the active network
   _elmsln_api_network_request($requests, '1', TRUE);
-  drupal_set_message(t('Links have been successfully updated.'), 'status', FALSE);
+  drupal_set_message(t('Links have been successfully updated.'), 'toast', FALSE);
 }

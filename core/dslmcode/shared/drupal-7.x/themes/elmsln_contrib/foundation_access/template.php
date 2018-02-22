@@ -563,6 +563,9 @@ function foundation_access_button($variables) {
     if ($element['#value'] == 'Emulate') {
       $js = ' onclick="document.getElementById(\'masquerade-block-1\').submit();" ';
     }
+    else if ($element['#value'] == 'Switch section' || $element['#value'] == 'Reset section') {
+      $js = ' onclick="document.getElementById(\'cis-service-connection-block-section-context-changer-form\').submit();" ';
+    }
     unset($lrnsys['id']);
     return '<button' . $js . drupal_attributes($element['#attributes']) . '><lrnsys-button ' . drupal_attributes($lrnsys) . '>' . $element['#value'] . '</lrnsys-button></button>';
   }

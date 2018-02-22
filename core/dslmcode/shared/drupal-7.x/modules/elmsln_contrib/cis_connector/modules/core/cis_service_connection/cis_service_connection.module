@@ -165,7 +165,7 @@ function _cis_service_connection_edit_property($property) {
     _elmsln_core_remote_redirect('cis', 'field_sections', $section['item_id'], 'edit?destination=elmsln/redirect/' . elmsln_core_get_profile_key() . '/' . arg(0) .'&elmsln_course=' . _cis_connector_course_context());
   }
   else {
-    drupal_set_message(t('Currently viewing section %s', array('%s' => _cis_connector_section_context())));
+    drupal_set_message(t('Currently viewing section %s', array('%s' => _cis_connector_section_context())), 'toast');
     return t('Please choose a valid section in order to edit its contents in the CIS.');
   }
 }
@@ -250,7 +250,7 @@ function cis_service_connection_block_section_context_changer_form() {
     if (isset($_SESSION['cis_section_context'])) {
       $form['reset'] = array(
         '#type' => 'submit',
-        '#value' => t('Reset'),
+        '#value' => t('Reset section'),
       );
       $form['elmsln_share_section'] = array(
         '#type' => 'textfield',
@@ -269,11 +269,11 @@ function cis_service_connection_block_section_context_changer_form_submit($form,
   // set global state or unset the context switch
   if ($form_state['input']['op'] == 'Reset') {
     unset($_SESSION['cis_section_context']);
-    drupal_set_message(t('Section context reset to default.'));
+    drupal_set_message(t('Section context reset to default.'), 'toast');
   }
   else {
     $_SESSION['cis_section_context'] = $form_state['values']['section'];
-    drupal_set_message(t('Section context set to @section. You will now experience the course the same way students of this section do.', array('@section' => $form_state['values']['section'])));
+    drupal_set_message(t('Section context set to @section. You will now experience the course the same way students of this section do.', array('@section' => $form_state['values']['section'])), 'toast');
   }
   // when state changes redirect to the homepage and reflect a message
   $form_state['redirect'] = '<front>';
