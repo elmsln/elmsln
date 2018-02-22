@@ -360,8 +360,8 @@ function _webcomponents_app_load_app($machine_name = NULL, $debug = FALSE) {
  */
 function _webcomponents_app_load_app_data($machine_name = NULL, $debug = FALSE) {
   $return = array();
-  // validate CSRF token
-  if ($debug || drupal_valid_token($_GET['token'], 'webcomponentapp')) {
+  // validate CSRF token unless anonymous was allowed here
+  if ($debug || drupal_valid_token($_GET['token'], 'webcomponentapp') || $GLOBALS['user']->uid === 0) {
     $app = webcomponents_app_load_app_definitions($machine_name);
     $args = arg();
     // this ensures that apps/machine-name get shifted off
