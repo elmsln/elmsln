@@ -290,6 +290,7 @@
 }
 #block-mooc-nav-block-mooc-nav-nav ul#scrollspy-nav li {
   background-color: #FFFFFF;
+  overflow: hidden;
 }
 #scrollspy-nav li {
     padding: 0;
@@ -333,9 +334,6 @@
   padding: 0 0 0 1em;
   margin: 0;
   width: calc(100% - 2em);
-}
-#scrollspy-nav.pinned .scrollspy-link {
-  width: 100%;
 }
 
 #scrollspy-nav.pinned .scrollspy-label {
