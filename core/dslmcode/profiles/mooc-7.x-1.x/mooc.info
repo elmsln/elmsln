@@ -125,8 +125,6 @@ dependencies[] = cis_course_service
 dependencies[] = accessibility
 dependencies[] = accessibility_wysiwyg
 dependencies[] = accessibility_content
-; Book
-dependencies[] = book_title_override
 ; Feeds
 dependencies[] = feeds
 dependencies[] = feeds_node_helper

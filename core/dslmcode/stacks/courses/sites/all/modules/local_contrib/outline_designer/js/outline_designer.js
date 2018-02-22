@@ -15,6 +15,7 @@ Drupal.theme.tableDragChangedWarning = function () {
  * events to update interface
  */
 $(document).ready(function() {
+  window.renameLock = false;
   // account for cookie that could break the UI
   // always set it to not show the weights
   $.cookie('Drupal.tableDrag.showWeight', 0);

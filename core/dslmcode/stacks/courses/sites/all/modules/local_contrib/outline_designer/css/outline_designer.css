@@ -105,14 +105,21 @@
   width:100%;
   float:left;
 }
-#book-outline tr td div.form-item{
+#book-outline tr td div.form-item {
   float:left;
+  line-height: 3em;
+  height: 3em;
+  margin: 0;
+  padding: 0;
+}
+#book-outline tr td div.form-item paper-input{
+  margin-top: -3em;
 }
 #book-outline tr{
-  width:98%;
-  margin:0px;
+  width:100%;
+  margin:-2px;
   display: block;
-  padding: 2px 2px 1px 2px;
+  padding: 0;
   border-bottom:1px solid #DDDDDD;
   border-top:none;
 }
@@ -389,11 +396,11 @@
 }
 
 .od-toggle-open {
-  margin-left:10px;
+  margin-left:.5em;
 }
 
 .od-toggle-closed {
-  margin-left:10px;
+  margin-left:.5em;
 }
 .od_cancel_button {
   position:absolute;
@@ -427,10 +434,81 @@
  background:#AAA;
 }
 #book-outline .od-hover {
- border:2px #AEE solid !important;
+ outline:2px #AEE solid !important;
  padding: 0px;
+ transition: none;
 }
 #book-outline .od-selected {
- border:2px #0AA solid !important;
+ outline:2px #0AA solid !important;
  padding: 0px;
+transition: none;
+}
+#loadingoutline {
+  width: 100%;
+  z-index: 1000;
+  opacity: .9;
+  padding: 4em 0 0 0;
+  text-align: center;
+  align-content: center;
+  justify-content: center;
+  position:fixed;
+  top: 20vh;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: white;
+}
+.outline-designer-page-operations {
+  list-style: none;
+  padding: 0;
+}
+.outline-designer-page-operations li {
+  list-style: none;
+  display: inline-block;
+}
+#disable-outline-designer-auto {
+}
+table tbody td .outline_designer_edit_button a {
+  padding: 0;
+  margin: 0;
+}
+
+#ajax_table_replacement div.indentation {
+  float: left;
+  height: .5em;
+  width: 2em;
+  background-color: #EEEEEE;
+  padding: 0;
+  border: 1px solid #CCCCCC;
+  border-radius: 2px;
+  margin: 1.5em 2px 0 2px;
+}
+#ajax_table_replacement tr.od-hover div.indentation {
+  background-color: #5555AA;
+  border-color: #222222;
+}
+#book-outline thead {
+  display: none;
+}
+.tabledrag-handle {
+  margin-top: 1em;
+  float: left;
+}
+.od-toggle-open {
+  margin-top: 1em;
+}
+
+.outline_designer_edit_button {
+  padding: 0;
+  margin: 0;
+}
+.outline_designer_edit_button paper-button {
+  width: 3em;
+  height: 3em;
+  padding: 0;
+  margin: 0;
+}
+.outline_designer_edit_button iron-icon {
+  width: 1.5em !important;
+  height: 1.5em !important;
 }

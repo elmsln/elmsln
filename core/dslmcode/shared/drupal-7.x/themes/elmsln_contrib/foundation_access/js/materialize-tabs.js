@@ -201,10 +201,11 @@ Drupal.theme.prototype.horizontalTab = function (settings) {
 };
 
 $(document).ready(function(){
-  // TODO something more elegant for sure.
-  setTimeout(function () {
-    $('.horizontal-tabs-list').addClass('tabs');
-  }, 250);
+  if ($(".horizontal-tabs-list").length > 0) {
+    setTimeout(function () {
+      $('.horizontal-tabs-list').addClass('tabs');
+    }, 250);
+  }
 });
 
 })(jQuery);

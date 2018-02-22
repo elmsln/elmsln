@@ -234,4 +234,5 @@ function mooc_update_7017(&$standbox) {
 function mooc_update_7018(&$standbox) {
   features_revert_module('mooc_cis_ux');
   features_revert_module('mooc_ux_defaults');
+  module_disable(array('book_title_override'));
 }

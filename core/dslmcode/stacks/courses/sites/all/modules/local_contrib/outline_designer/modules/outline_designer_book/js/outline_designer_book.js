@@ -69,7 +69,9 @@ Drupal.behaviors.outline_designer_book = {
       e = event;
     }
     if(e.keyCode==13){  // Enter pressed
-      Drupal.outline_designer_ops.rename_submit();
+      if (!window.renameLock) {
+        Drupal.outline_designer_ops.rename_submit();
+      }
       return false;
     }
     if(e.keyCode == 27){  // ESC pressed
@@ -146,11 +148,11 @@ Drupal.outline_designer.render_popup = function(render_title) {
 }
 // define function for edit
   Drupal.outline_designer_ops.edit = function() {
-    window.open(Drupal.settings.basePath + '/node/' + Drupal.settings.outline_designer.activeNid + '/edit?destination=' + 'admin/content/book/' + Drupal.settings.outline_designer.rootNid,'_self');
+    window.open(Drupal.settings.basePath + 'node/' + Drupal.settings.outline_designer.activeNid + '/edit?destination=' + 'admin/content/book/' + Drupal.settings.outline_designer.rootNid,'_self');
   };
   // define function for view
   Drupal.outline_designer_ops.view = function() {
-    window.open(Drupal.settings.basePath + '/node/' + Drupal.settings.outline_designer.activeNid,'_blank');
+    window.open(Drupal.settings.basePath + 'node/' + Drupal.settings.outline_designer.activeNid,'_blank');
   };
   // define function for rename
   Drupal.outline_designer_ops.rename = function() {
@@ -185,6 +187,7 @@ Drupal.outline_designer.render_popup = function(render_title) {
   Drupal.outline_designer_ops.edit_submit = function() {};
   Drupal.outline_designer_ops.view_submit = function() {};
   Drupal.outline_designer_ops.rename_submit = function() {
+    window.renameLock = true;
     Drupal.outline_designer_ops.active('span').css('display','');
     Drupal.outline_designer_ops.active('paper-input').css('display','none');
     if (Drupal.outline_designer_ops.active('span').html() != Drupal.outline_designer_ops.active('paper-input').value) {
@@ -210,6 +213,7 @@ Drupal.outline_designer.render_popup = function(render_title) {
       Drupal.outline_designer_ops.active('span').html(msg);
       Drupal.outline_designer_ops.active('paper-input').value = msg;
       $("#reload_table").trigger('change');
+      window.renameLock = false;
     }
   };
   // submit handler for change type

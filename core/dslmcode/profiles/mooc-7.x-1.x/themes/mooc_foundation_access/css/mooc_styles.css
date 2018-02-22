@@ -1,6 +1,11 @@
 /**
  * Other code, probably hacks
  */
+
+.outline-designer-page-operations {
+  margin-top: -3em;
+}
+
 #outlinepopover {
   margin-top: -2px;
 }
