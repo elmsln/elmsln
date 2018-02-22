@@ -3,9 +3,16 @@
  */
 
 .outline-designer-page-operations {
-  margin-top: -3em;
+  margin: -3.5em 0 0 0;
+  display: table;
 }
-
+#outlineoptions {
+  padding: .2em;
+}
+#outline-tip paper-button {
+  padding: 0;
+  margin: 0;
+}
 #outlinepopover {
   margin-top: -2px;
 }

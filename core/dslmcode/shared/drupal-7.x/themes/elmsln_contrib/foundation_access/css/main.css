@@ -8077,7 +8077,7 @@ paper-button#close-button.lrnsys-dialog {
   display: block;
 }
 .elmsln--page--operations li.page-op-button paper-button {
-  margin: 0 .75rem 0 0;
+  margin: 0;
   padding: .25rem;
   min-width: unset;
   border: none;
@@ -8421,7 +8421,4 @@ paper-button.lrnsys-button div.inner.lrnsys-button {
   height: 2.2em !important;
   padding-left: .2em !important;
   padding-bottom: .2em !important;
-}
-#outlineoptions {
-  padding: .2em;
 }
