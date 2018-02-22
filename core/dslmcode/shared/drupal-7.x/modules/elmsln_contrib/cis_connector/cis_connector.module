@@ -473,6 +473,11 @@ function _cis_connector_course_context() {
   if (!isset($course)) {
     // build active registry so we know system type
     $settings = _cis_connector_build_registry(elmsln_core_get_profile_key());
+    // REALLLLLY old stuff could have had this at one time
+    if (!isset($settings['type'])) {
+      $course = str_replace('/', '', base_path());
+      return $course;
+    }
     switch ($settings['type']) {
       case 'service':
         // use the variable that's been set for the machine name

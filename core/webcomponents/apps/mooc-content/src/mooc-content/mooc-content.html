@@ -314,55 +314,57 @@ A LRN element
        */
       _routeChanged: function(data, route, endPoint) {
         if (typeof route.path === 'string') {
-          if (typeof route.path === 'string') {
-            // target for url alias that might be delivered into content
-            // and menu items throughout the UI
-            let urlAlias = route.path.replace('/' + this.elmslnCourse + '/', '');
-            if (route.path.startsWith('/' + this.elmslnCourse + '/node/')) {
-              let tmp = route.path.split('/');
-              // ensure this is a number so we know what we're doing
-              if (!isNaN(parseFloat(tmp[tmp.length-1])) && isFinite(tmp[tmp.length-1])) {
-                this.nid = tmp[tmp.length-1];
-                // trigger change if data location changed
-                this.requestParams.node = this.nid;
-                // send request out the door to the actual end point
-                this.$.pageajax.generateRequest();
-                // @todo better state management in the modal itself
-                // so that we can detect if it's open or not without
-                // something stupid like this
-                // close outline dialog if it's open
-                if (this.$.outlinepopover.$.modal.opened) {
-                  this.$.outlinepopover.$.modal.opened = false;
-                }
-               return;
-              }
-              else if(tmp[tmp.length-1] == 'edit') {
-                window.location.reload();
-              }
-            }
-            // test for an node alias, then send off
-            else if (typeof this.aliases[urlAlias] !== typeof undefined) {
-              this.nid = this.aliases[urlAlias].replace('node/', '');
+          // target for url alias that might be delivered into content
+          // and menu items throughout the UI
+          let urlAlias = route.path.replace('/' + this.elmslnCourse + '/', '');
+          if (route.path.startsWith('/' + this.elmslnCourse + '/node/')) {
+            let tmp = route.path.split('/');
+            // ensure this is a number so we know what we're doing
+            if (!isNaN(parseFloat(tmp[tmp.length-1])) && isFinite(tmp[tmp.length-1])) {
+              this.nid = tmp[tmp.length-1];
               // trigger change if data location changed
               this.requestParams.node = this.nid;
+              // send request out the door to the actual end point
               this.$.pageajax.generateRequest();
               // @todo better state management in the modal itself
               // so that we can detect if it's open or not without
               // something stupid like this
+              // close outline dialog if it's open
               if (this.$.outlinepopover.$.modal.opened) {
                 this.$.outlinepopover.$.modal.opened = false;
               }
-              return;
+             return;
             }
-            // implies front page on first load, so fix that
-            else if (urlAlias == '') {
-              this.requestParams.node = this.nid;
-              // ensure that we don't see this again
-              this.set('route.path', '/' + this.elmslnCourse + '/node/' + this.nid);
-              this.$.pageajax.generateRequest();
-              return;
+            else if(tmp[tmp.length-1] == 'edit') {
+              window.location.reload();
             }
           }
+          // test for an node alias, then send off
+          else if (typeof this.aliases[urlAlias] !== typeof undefined) {
+            this.nid = this.aliases[urlAlias].replace('node/', '');
+            // trigger change if data location changed
+            this.requestParams.node = this.nid;
+            this.$.pageajax.generateRequest();
+            // @todo better state management in the modal itself
+            // so that we can detect if it's open or not without
+            // something stupid like this
+            if (this.$.outlinepopover.$.modal.opened) {
+              this.$.outlinepopover.$.modal.opened = false;
+            }
+            return;
+          }
+          // implies front page on first load, so fix that
+          else if (urlAlias == '') {
+            this.requestParams.node = this.nid;
+            // ensure that we don't see this again
+            this.set('route.path', '/' + this.elmslnCourse + '/node/' + this.nid);
+            this.$.pageajax.generateRequest();
+            return;
+          }
+        }
+        // ensure nothing went super wrong which may be leading to a busted site
+        // so we can avoid an infinite loop
+        if (this.elmslnCourse != '') {
           // reload the page which since route changed will load that page
           window.location.reload();
         }
