@@ -204,3 +204,35 @@ function mooc_update_7015(&$sandbox) {
   // enable the modules to make it happen
   module_enable(array('webcomponents_app', 'webcomponents_app_context', 'book_player'));
 }
+
+/**
+ * Clean up more cruft we are dropping
+ */
+function mooc_update_7016(&$sandbox) {
+  // wipe modules we're no longer requiring for anything
+  $modules = array(
+    'mooc_theme_foundation',
+    'mooc_textbook_nrhi',
+    'nodereference_highlight',
+  );
+  db_delete('system')
+    ->condition('name', $modules, 'IN')
+    ->condition('type', 'module')
+    ->execute();
+}
+
+/**
+ * Correct permissions for book_player
+ */
+function mooc_update_7017(&$standbox) {
+  features_revert_module('book_player');
+}
+
+/**
+ * Correct issues with context / block placement.
+ */
+function mooc_update_7018(&$standbox) {
+  features_revert_module('mooc_cis_ux');
+  features_revert_module('mooc_ux_defaults');
+  module_disable(array('book_title_override'));
+}

@@ -71,7 +71,7 @@ as the events being bubbled up include HTML nodes to inject into something
       }
     </style>
     <div hidden$="[[hidePanelOps]]">
-      <paper-icon-button data-opened$="[[editMode]]" on-tap="_clickButton" icon="power-settings-new" id="button"></paper-icon-button>
+      <paper-icon-button data-opened$="[[editMode]]" on-tap="_clickButton" icon="create" id="button"></paper-icon-button>
       <paper-tooltip
         for="button"
         position="right"
@@ -94,12 +94,6 @@ as the events being bubbled up include HTML nodes to inject into something
           <span slot="label"><div class="label">Create</div></span>
           <span slot="content">
             <hax-panel-item
-              icon="editor:title"
-              icon-class="green-text text-darken-1"
-              label="Heading"
-              event-name="header"
-              voice-command="insert heading"></hax-panel-item>
-            <hax-panel-item
               icon="editor:text-fields"
               icon-class="grey-text text-darken-1"
               label="Text"
@@ -108,7 +102,7 @@ as the events being bubbled up include HTML nodes to inject into something
             <hax-panel-item
               icon="device:graphic-eq"
               icon-class="amber-text text-darken-1"
-              label="Gizmo"
+              label="Rich media"
               event-name="hax-manager-open"
               voice-command="insert gizmo"></hax-panel-item>
           </span>
@@ -117,15 +111,21 @@ as the events being bubbled up include HTML nodes to inject into something
           <span slot="label"><div class="label">More</div></span>
           <span slot="content">
             <hax-panel-item
+              icon="editor:title"
+              icon-class="green-text text-darken-1"
+              label="Heading"
+              event-name="header"
+              voice-command="insert heading"></hax-panel-item>
+            <hax-panel-item
               icon="view-quilt"
               icon-class="red-text text-darken-1"
-              label="Blox"
+              label="Block layout"
               event-name="layout"
               voice-command="insert block"></hax-panel-item>
             <hax-panel-item
               icon="view-agenda"
               icon-class="orange-text text-darken-1"
-              label="Stax"
+              label="Layout stack"
               event-name="layout"
               voice-command="insert stack"></hax-panel-item>
             <hax-panel-item
@@ -279,9 +279,11 @@ as the events being bubbled up include HTML nodes to inject into something
       _editModeChanged: function(newValue, oldValue) {
         if (typeof newValue !== typeof undefined && newValue) {
           this.__tipText = 'save';
+          this.$.button.icon = 'save';
         }
         else {
           this.__tipText = 'edit';
+          this.$.button.icon = 'create';
         }
       },
       /**

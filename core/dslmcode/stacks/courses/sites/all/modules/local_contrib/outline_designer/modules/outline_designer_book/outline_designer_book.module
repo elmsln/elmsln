@@ -106,7 +106,9 @@ function _outline_designer_book_admin_form_alter(&$form, $form_state, $form_id, 
       'effect' => 'none',
       'progress' => array(
         'type' => 'throbber',
-        'message' => t('Saving..'),
+        'message' => '<div id="loadingoutline">
+      <elmsln-loading color="grey-text" size="large"></elmsln-loading>
+      <h3>Loading..</h3></div>',
       ),
     ),
   );
@@ -197,7 +199,7 @@ function outline_designer_book_admin_overview() {
   $headers = array(t('View'), t('Outline'));
   // form simple add button
   drupal_add_css(drupal_get_path('module', 'outline_designer') .'/css/outline_designer.css');
-  $add_button = l('<div style="width:120px;" class="context-menu context-menu-theme-'. variable_get('outline_designer_theme', 'vista') .'"><div title="" class="context-menu-item"><div style="background-repeat:no-repeat;background-image: url('. base_path() . drupal_get_path('module', 'outline_designer') .'/images/add_content.png);" class="context-menu-item-inner">'. t('add book') . '</div></div></div>', 'node/add/'. variable_get('book_child_type', 'book'), array('html' => TRUE, 'query' => array('destination' => 'admin/content/book', 'parent' => 'new')));
+  $add_button = l('<div style="width:120px;" class="context-menu context-menu-theme-'. variable_get('outline_designer_theme', 'osx') .'"><div title="" class="context-menu-item"><div style="background-repeat:no-repeat;background-image: url('. base_path() . drupal_get_path('module', 'outline_designer') .'/images/add_content.png);" class="context-menu-item-inner">'. t('add book') . '</div></div></div>', 'node/add/'. variable_get('book_child_type', 'book'), array('html' => TRUE, 'query' => array('destination' => 'admin/content/book', 'parent' => 'new')));
   // support for copy button
   if (module_exists('book_copy') && user_access('copy books')) {
     $has['copy'] = TRUE;
@@ -422,7 +424,7 @@ function _outline_designer_book_settings_submit($form, &$form_state) {
       }
     }
   }
-  drupal_set_message(t('Settings saved'));
+  drupal_set_message(t('Settings saved'), 'toast');
 }
 
 /**
@@ -674,11 +676,10 @@ function outline_designer_book_process_add_content($title, $type, $parent_nid) {
   drupal_alter('new_book_object', $node);
   if (node_access('create', $node->type)) {
     node_save($node);
-    drupal_set_message(t('%title (%type) added (nid: %nid)', array('%title' => $node->title, '%type' => $node->type, '%nid' => $node->nid)));
-    watchdog('content', '%type: added %title.', array('%type' => $node->type, '%title' => $node->title));
+    drupal_set_message(t('%title created!', array('%title' => $node->title)), 'toast');
     return 1;
   }
-  drupal_set_message(t('Content creation access denied!'));
+  drupal_set_message(t('Content creation access denied!'), 'toast');
   return 0;
 }
 
@@ -703,11 +704,11 @@ function outline_designer_book_process_rename($nid, $newtitle, $var3) {
     // leave a trace that outline designer processed this
     $node->_outline_designer = TRUE;
     node_save($node);
-    drupal_set_message(t("Content renamed from %title to %newtitle", array('%title' => $oldtitle, '%newtitle' => $newtitle)));
+    drupal_set_message(t("Content renamed from %title to %newtitle", array('%title' => $oldtitle, '%newtitle' => $newtitle)), 'toast');
     return drupal_json_encode($node->title);
   }
   else {
-    drupal_set_message(t("You don't have permissions to rename this content"));
+    drupal_set_message(t("You don't have permissions to rename this content"), 'toast');
     return 0;
   }
 }
@@ -725,18 +726,18 @@ function outline_designer_book_process_delete($nid, $multiple, $var3) {
       $plid = $node->book['plid'];
       $mlid = $node->book['mlid'];
       node_delete($nid);
-      drupal_set_message(t('%title deleted (nid:%nid)', array('%title' => $node->title, '%nid' => $nid)));
+      drupal_set_message(t('%title deleted (nid:%nid)', array('%title' => $node->title, '%nid' => $nid)), 'toast');
       return 1;
     }
     else {
-      drupal_set_message(t('Access denied, you are not allowed to delete this content.'));
+      drupal_set_message(t('Access denied, you are not allowed to delete this content.'), 'toast');
       return 0;
     }
   }
   else {
     // verify access for delete condition or bail early
     if (!node_access('delete', $node)) {
-      drupal_set_message(t('Access denied, you are not allowed to delete this content.'));
+      drupal_set_message(t('Access denied, you are not allowed to delete this content.'), 'toast');
       return 0;
     }
     // hold onto parent so we can re-save it to rebuild the menu portion
@@ -765,16 +766,16 @@ function outline_designer_book_process_delete($nid, $multiple, $var3) {
     }
     // we didn't delete anything, return nothing
     if ($del_count == 0) {
-      drupal_set_message(t('%title was deleted but had no children to delete (nid:%nid)', array('%title' => $node->title, '%nid' => $nid)));
+      drupal_set_message(t('%title was deleted but had no children to delete (nid:%nid)', array('%title' => $node->title, '%nid' => $nid)), 'toast');
       return 1;
     }
     // verify that all content that was deleted matched selected amount
     elseif ($count != $del_count) {
-      drupal_set_message(t('%title was commited but you didn\'t have the permissions to delete all content so some remain. (nid:%nid)', array('%title' => $node->title, '%nid' => $nid)));
+      drupal_set_message(t('%title was commited but you didn\'t have the permissions to delete all content so some remain. (nid:%nid)', array('%title' => $node->title, '%nid' => $nid)), 'toast');
       return 1;
     }
     else {
-      drupal_set_message(t('%title and %count pieces of child content were deleted (nid:%nid)', array('%title' => $node->title, '%count' => ($del_count-1), '%nid' => $nid)));
+      drupal_set_message(t('%title and %count pieces of child content were deleted (nid:%nid)', array('%title' => $node->title, '%count' => ($del_count-1), '%nid' => $nid)), 'toast');
       return 1;
     }
   }
@@ -795,11 +796,11 @@ function outline_designer_book_process_change_type($nid, $new_type, $var3) {
     watchdog('content', $msg);
     node_save($node);
     // return to the screen
-    drupal_set_message($msg);
+    drupal_set_message($msg, 'toast');
     return 1;
   }
   else {
-    drupal_set_message(t("You don't have sufficient permissions!"));
+    drupal_set_message(t("You don't have sufficient permissions!"), 'toast');
     return 0;
   }
 }
@@ -821,11 +822,11 @@ function outline_designer_book_process_drag_drop($nid, $parent_nid, $weight) {
     $node->log = t("Outline Designer -- nid:%nid parent nid changed to %parent_nid", array('%nid' => $nid, '%parent_nid' => $parent_nid));
     $node->_block_read_time_update = TRUE;
     node_save($node);
-    drupal_set_message(t("Content position has been updated (nid:%nid)", array('%nid' => $nid)));
+    drupal_set_message(t("Content position has been updated (nid:%nid)", array('%nid' => $nid)), 'toast');
     return 1;
   }
   else {
-    drupal_set_message(t("Content position has not been updated due to invalid permissions!"));
+    drupal_set_message(t("Content position has not been updated due to invalid permissions!"), 'toast');
     return 0;
   }
 }
@@ -841,11 +842,11 @@ function outline_designer_book_process_reweight($nid, $weight, $var3) {
     $node->book['weight'] = $weight;
     node_save($node);
     $node->_block_read_time_update = TRUE;
-    drupal_set_message(t("Position has been updated (nid:%nid)", array('%nid' => $nid)));
+    drupal_set_message(t("Position has been updated (nid:%nid)", array('%nid' => $nid)), 'toast');
     return 1;
   }
   else {
-    drupal_set_message(t("Position has not been updated due to invalid permissions!"));
+    drupal_set_message(t("Position has not been updated due to invalid permissions!"), 'toast');
     return 0;
   }
 }
@@ -912,8 +913,12 @@ function theme_outline_designer_book_admin_table($variables) {
     $title = check_plain($title);
     // append span automatically instead of post render
     $form[$key]['title']['#field_suffix'] = '<span id="edit-table-book-admin-'. $nid .'-title-span" class="od_title_span">'. $title .'</span>';
+    $rendered_title = drupal_render($form[$key]['title']);
+    $rendered_title = str_replace('<input', '<paper-input', $rendered_title);
+    // UGH
+    $rendered_title = str_replace('/> <span class="field-suffix">', '></paper-input><span class="field-suffix">', $rendered_title);
     $data = array(
-      theme('indentation', array('size' => $form[$key]['depth']['#value'] - 2)) . drupal_render($form[$key]['title']),
+      theme('indentation', array('size' => $form[$key]['depth']['#value'] - 2)) . $rendered_title,
       drupal_render($form[$key]['weight']),
       drupal_render($form[$key]['plid']) . drupal_render($form[$key]['mlid']),
       l(t('view'), $href),

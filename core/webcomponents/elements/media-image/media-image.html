@@ -1,6 +1,8 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../hax-body-behaviors/hax-body-behaviors.html">
-
+<link rel="import" href="../schema-behaviors/schema-behaviors.html">
+<link rel="import" href="../iron-image/iron-image.html">
+<link rel="import" href="../iron-icons/iron-icons.html">
 <!--
 `media-image`
 A LRN element
@@ -71,24 +73,23 @@ A LRN element
       }
     </style>
 
-    <iron-image src$="[[source]]" alt$="[[alt]]"></iron-image>
+    <iron-image resource$="[[schemaResourceID]]-image" src$="[[source]]" alt$="[[alt]]"></iron-image>
     <div class="citation">[[citation]]</div>
-    <div class="caption">
-      <slot name="caption"></slot>
-    </div>
+    <div class="caption">[[caption]]</div>
 
   </template>
 
   <script>
     Polymer({
       is: 'media-image',
-      behaviors: [HAXBehaviors.PropertiesBehaviors],
+      behaviors: [HAXBehaviors.PropertiesBehaviors, SchemaBehaviors.Schema],
       properties: {
         /**
          * Image source.
         */
         source: {
           type: String,
+          value: "",
           reflectToAttribute: true,
         },
         /**
@@ -96,13 +97,21 @@ A LRN element
         */
         citation: {
           type: String,
-          reflectToAttribute: true,
+          value: "",
+        },
+        /**
+         * Image caption.
+        */
+        caption: {
+          type: String,
+          value: "",
         },
         /**
          * Image alt.
         */
         alt: {
           type: String,
+          value: "",
           reflectToAttribute: true,
         },
         /**
@@ -146,70 +155,106 @@ A LRN element
         let props = {
           'canScale': true,
           'canPosition': true,
-          'settings': [
-            {
-              'property': 'source',
-              'title': 'Source',
-              'description': 'The URL for the image.',
-              'inputMethod': 'textfield',
-              'type': 'bar',
-              'icon': 'link',
-              'required': true,
-            },
-            {
-              'slot': 'caption',
-              'title': 'Caption',
-              'description': 'A caption to describe the image usage',
-              'inputMethod': 'textarea',
-              'type': 'bar',
-              'icon': 'av:call-to-action',
-            },
-            {
-              'property': 'citation',
-              'title': 'Citation',
-              'description': 'Citation for the image.',
-              'inputMethod': 'textfield',
-              'type': 'bar',
-              'icon': 'text-format',
-              'required': false,
-            },
-            {
-              'property': 'alt',
-              'title': 'Alternative text',
-              'description': 'Text to describe the image to non-sighted users.',
-              'inputMethod': 'textfield',
-              'type': 'bar',
-              'icon': 'link',
-              'required': false,
-            },
-            {
-              'property': 'round',
-              'title': 'Round image',
-              'description': 'Crops the image appearance to be circle in shape.',
-              'inputMethod': 'boolean',
-              'type': 'bar',
-              'icon': 'account',
-              'required': false,
-            },
-            {
-              'property': 'card',
-              'title': 'Card',
-              'description': 'Apply a drop shadow to give the appearance of being a raised card.',
-              'inputMethod': 'boolean',
-              'type': 'bar',
-              'icon': 'check-box-outline-blank',
-              'required': false,
-            },
-            {
-              'property': 'box',
-              'title': 'Box',
-              'description': 'Apply a visual box around the image.',
-              'inputMethod': 'boolean',
-              'type': 'bar',
-              'icon': 'image:crop-square',
-              'required': false,
+          'canEditSource': false,
+          'gizmo': {
+            'title': 'Styled image',
+            'descrption': 'An image gizmo with the ability to provide simple, consistent styling and accessibility options.',
+            'icon': 'editor:insert-photo',
+            'color': 'indigo',
+            'groups': ['Image', 'Media'],
+            'handles': [
+              {
+                'type': 'image',
+                'source': 'source',
+                'title': 'alt',
+                'alt': 'alt',
+                'citation': 'citation',
+                'caption': 'caption'
+              }
+            ],
+            'meta': {
+              'author': 'LRNWebComponents'
             }
-          ]
+          },
+          'settings': {
+            "quick": [
+              {
+                'property': 'source',
+                'title': 'Source',
+                'description': 'The URL for the image.',
+                'inputMethod': 'textfield',
+                'icon': 'link',
+                'required': true,
+              },
+              {
+                'property': 'alt',
+                'title': 'Alternative text',
+                'description': 'Text to describe the image to non-sighted users.',
+                'inputMethod': 'textfield',
+                'icon': 'accessibility',
+                'required': true,
+              },
+            ],
+            "configure": [
+              {
+                'property': 'source',
+                'title': 'Source',
+                'description': 'The URL for the image.',
+                'inputMethod': 'textfield',
+                'icon': 'link',
+                'required': true,
+              },
+              {
+                'property': 'caption',
+                'title': 'Caption',
+                'description': 'A caption to describe the image usage',
+                'inputMethod': 'textarea',
+                'icon': 'av:call-to-action',
+              },
+              {
+                'property': 'alt',
+                'title': 'Alternative text',
+                'description': 'Text to describe the image to non-sighted users.',
+                'inputMethod': 'textfield',
+                'icon': 'accessibility',
+                'required': true,
+              },
+              {
+                'property': 'round',
+                'title': 'Round image',
+                'description': 'Crops the image appearance to be circle in shape.',
+                'inputMethod': 'boolean',
+                'icon': 'account',
+                'required': false,
+              },
+              {
+                'property': 'card',
+                'title': 'Card',
+                'description': 'Apply a drop shadow to give the appearance of being a raised card.',
+                'inputMethod': 'boolean',
+                'icon': 'check-box-outline-blank',
+                'required': false,
+              },
+              {
+                'property': 'box',
+                'title': 'Box',
+                'description': 'Apply a visual box around the image.',
+                'inputMethod': 'boolean',
+                'icon': 'image:crop-square',
+                'required': false,
+              }
+            ],
+            "advanced": [
+              {
+                'property': 'citation',
+                'title': 'Citation',
+                'description': 'Citation for the image.',
+                'inputMethod': 'textfield',
+                'icon': 'text-format',
+                'required': false,
+              }
+            ]
+          }
         };
         this.setHaxProperties(props);
       },

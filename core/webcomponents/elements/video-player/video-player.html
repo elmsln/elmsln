@@ -2,6 +2,8 @@
 <link rel="import" href="../materializecss-styles/materializecss-styles.html">
 <link rel="import" href="../hax-body-behaviors/hax-body-behaviors.html">
 <link rel="import" href="../schema-behaviors/schema-behaviors.html">
+<link rel="import" href="../a11y-behaviors/a11y-behaviors.html">
+<link rel="import" href="../media-behaviors/media-behaviors.html">
 
 <!--
 `video-player`
@@ -23,7 +25,7 @@ A simple responsive video player
       :host[responsive] .responsive-video-container {
         position: relative;
         padding-bottom: 56.25%; /* 16:9 */
-        padding-top: 25px;
+        margin-top: 16px;
         height: 0;
       }
       :host[responsive] .responsive-video-container iframe {
@@ -43,7 +45,7 @@ A simple responsive video player
       .video-caption {
         font-style: italic;
         margin: 0;
-        padding: 0;
+        padding: 8px;
         @apply --video-player-caption-theme;
       }
     </style>
@@ -57,8 +59,6 @@ A simple responsive video player
     </div>
     <div id="videocaption" class$="video-caption [[secondaryColorClass]] [[textColorClass]]">
       [[caption]]
-    </div>
-    <div id="captionslot" class$="video-caption [[secondaryColorClass]] [[textColorClass]]">
       <slot name="caption"></slot>
     </div>
   </template>
@@ -66,7 +66,13 @@ A simple responsive video player
   <script>
     Polymer({
       is: 'video-player',
-      behaviors: [HAXBehaviors.PropertiesBehaviors, MaterializeCSSBehaviors.ColorBehaviors, SchemaBehaviors.Schema],
+      behaviors: [
+        HAXBehaviors.PropertiesBehaviors,
+        MaterializeCSSBehaviors.ColorBehaviors,
+        SchemaBehaviors.Schema,
+        A11yBehaviors.A11y,
+        MediaBehaviors.Video,
+      ],
       properties: {
         /**
          * Source of the video
@@ -83,11 +89,11 @@ A simple responsive video player
           computed: '_computeSRC(source)',
         },
         /**
-         * Computesd if this should be iframed or not.
+         * Computed if this should be in an iframe or not.
          */
         iframed: {
           type: Boolean,
-          computed: '_computeIframed(source)',
+          computed: '_sourceIsIframe(source)',
         },
         /**
          * Video width
@@ -141,7 +147,7 @@ A simple responsive video player
          */
         textColor: {
           type: String,
-          value: null,
+          value: '#000000',
           reflectToAttribute: true,
         },
         /**
@@ -229,7 +235,7 @@ A simple responsive video player
         /**
          * Vimeo option for color.
          */
-        vimeoColor: {
+        videoColor: {
           type: String,
           value: 'FF031D',
         },
@@ -252,7 +258,11 @@ A simple responsive video player
             'handles': [
               {
                 'type': 'video',
-                'url': 'source'
+                'source': 'source',
+                'title': 'caption',
+                'caption': 'caption',
+                'description': 'caption',
+                'color': 'primaryColor'
               }
             ],
             'meta': {
@@ -330,52 +340,15 @@ A simple responsive video player
         this.setHaxProperties(props);
       },
       /**
-       * Notice secondary color changed
-       */
-      _secondaryColorChanged: function(newValue, oldValue) {
-        if (typeof newValue !== typeof undefined && newValue != null) {
-          // sees if there's enough contrast and adjusts them accordingly
-          this.validateTextColor('textColor', 'secondaryColor');
-        }
-      },
-      /**
-       * Validate and modify the text contrast to ensure the correct contrast
-       */
-      validateTextColor: function(textprop, bgprop) {
-        // verify the value is hex value
-        if (this[bgprop].includes('#')) {
-          let color = '';
-          // strip hash from string
-          const colorBuffer = this[bgprop].substring(1);
-          // convert rrggbb to decimal
-          const rgb = parseInt(colorBuffer, 16);
-          // extract RGB
-          const r = (rgb >> 16) & 0xff;
-          const g = (rgb >> 8) & 0xff;
-          const b = (rgb >> 0) & 0xff;
-          // calculate luma
-          const luma = 0.2126 * r + 0.7152 * g + 0.0722 * b; // per ITU-R BT.709
-          // if the luma is to low switch to white text
-          if (luma < 141) {
-            color = '#ffffff';
-          }
-          else {
-            color = '#000000';
-          }
-          // Set color and background color vars
-          this.set(textprop, color);
-        }
-      },
-      /**
        * Compute src from type / source combo.
        * Type is set by source so this ensures a waterfall
        * of valid values.
        */
       _computeSRC: function(source) {
         if (typeof source !== typeof undefined) {
-          let type = this.getType(source);
+          let type = this.getVideoType(source);
           // ensure that this is a valid url / cleaned up a bit
-          source = this.cleanSource(source, type);
+          source = this.cleanVideoSource(source, type);
           if (type == 'vimeo') {
             if (this.vimeoTitle) {
               source += '?title=1';
@@ -395,8 +368,8 @@ A simple responsive video player
             else {
               source += '&portrait=0';
             }
-            if (typeof this.vimeoColor !== typeof undefined) {
-              source += '&color=' + this.vimeoColor;
+            if (typeof this.videoColor !== typeof undefined) {
+              source += '&color=' + this.videoColor;
             }
           }
           else if (type == 'youtube') {
@@ -423,22 +396,38 @@ A simple responsive video player
               source += '&rel=0';
             }
           }
+          else if (type == 'dailymotion') {
+            source += '&ui-start-screen-info=false';
+            source += '&ui-logo=false';
+            source += '&sharing-enable=false';
+            source += '&endscreen-enable=false';
+            if (typeof this.videoColor !== typeof undefined) {
+              source += '&ui-highlight=' + this.videoColor;
+            }
+          }
         }
         return source;
+      },
+      /**
+       * Notice secondary color changed
+       */
+      _secondaryColorChanged: function(newValue, oldValue) {
+        if (typeof newValue !== typeof undefined && newValue != null) {
+          // sees if there's enough contrast and adjusts them accordingly
+          this.computeTextPropContrast('textColor', 'secondaryColor');
+        }
       },
       /**
        * Primary color changed, spread into internals.
        */
       _primaryColorChanged: function(newValue, oldValue) {
-        if (newValue != null) {
-          this.vimeoColor = newValue.substring(1);
+        if (newValue != null && typeof this.source !== typeof undefined) {
+          this.videoColor = newValue.substring(1);
           // aggressive rebuild of source so vimeo picks up
           // the color change and updates the URL to match
-          if (typeof this.source !== typeof undefined && this.getType(this.source) == 'vimeo') {
-            var source = this.source;
-            this.set('source', '');
-            this.set('source', source);
-          }
+          var source = this.source;
+          this.set('source', '');
+          this.set('source', source);
         }
       },
       /**
@@ -448,72 +437,12 @@ A simple responsive video player
         if (color != null && color.toLowerCase() == '#ffffff') {
           return 'white-text';
         }
-        else if (color == '#000000') {
+        else if (color != null && color == '#000000') {
           return 'black-text';
         }
         else if (color != null && color.substring(0, 1) == '#') {
-          return this._colorTransform(color, '', '');
+          return this._colorTransform(color.toLowerCase(), '', '');
         }
-      },
-      /**
-       * Compute iframe or video tag for implementation.
-       */
-      _computeIframed: function(source) {
-        let type = this.getType(source);
-        if (type == 'youtube' || type == 'vimeo' || type == 'external') {
-          return true;
-        }
-        else {
-          return false;
-        }
-      },
-      /**
-       * Check source of the video, potentially correcting bad links.
-       */
-      cleanSource: function(input, type) {
-        if (type == 'vimeo' || type == 'youtube') {
-          // strip off the ? modifier for youtube/vimeo so we can build ourselves
-          var tmp = input.split('?');
-          var v = '';
-          input = tmp[0];
-          if (tmp.length == 2) {
-            args = tmp[1].split('=');
-            if (args[0] == 'v') {
-              v = args[1];
-            }
-          }
-          // link to the vimeo video instead of the embed player address
-          if (input.indexOf('player.vimeo.com') == -1 && input.indexOf('vimeo.com') != -1) {
-            // normalize what the API will return since it is API based
-            // and needs cleaned up for front-end
-            if (input.indexOf('/videos/') != -1) {
-              input = input.replace('/videos/', '/');
-            }
-            return input.replace('vimeo.com/', 'player.vimeo.com/video/');
-          }
-          // copy and paste from the URL
-          else if (input.indexOf('youtube.com/watch') != -1) {
-            return input.replace('youtube.com/watch', 'youtube.com/embed/') + v;
-          }
-          // weird share-ly style version
-          else if (input.indexOf('youtu.be') != -1) {
-            return input.replace('youtu.be/', 'www.youtube.com/embed/') + v;
-          }
-        }
-        return input;
-      },
-      /**
-       * Figure out the type of video based on source.
-       */
-      getType: function(source) {
-        if (source.indexOf('vimeo') != -1) {
-          return 'vimeo';
-        }
-        else if (source.indexOf('youtube') != -1 || source.indexOf('youtu.be') != -1) {
-          return 'youtube';
-
-        }
-        return 'local';
       },
     });
   </script>

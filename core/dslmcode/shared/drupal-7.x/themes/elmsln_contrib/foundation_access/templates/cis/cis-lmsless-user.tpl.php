@@ -22,19 +22,17 @@
   <?php if (isset($user_section) || !empty($masquerade)) : ?>
   <li><div class="divider"></div></li>
   <?php endif; ?>
-  <?php if (!empty($ferpa_flter)) : ?>
   <li>
-    <lrnsys-dialog header="<?php print t('Privacy settings');?>" class="black-text" hover-class="<?php print $lmsless_classes[$distro]['color'] . ' ' . $lmsless_classes[$distro]['dark'];?> white-text">
+    <lrnsys-dialog header="<?php print t('Preferences'); ?>" class="black-text" hover-class="<?php print $lmsless_classes[$distro]['color'] . ' ' . $lmsless_classes[$distro]['dark'];?> white-text" data-jwerty-key="a" data-voicecommand="open preferences (menu)">
       <span slot="button">
-        <iron-icon icon="visibility"></iron-icon>
-        <span><?php print t('Privacy settings');?></span>
+        <iron-icon icon="accessibility"></iron-icon>
+        <span><?php print t('Preferences');?></span>
       </span>
       <span slot="content">
-        <?php print $ferpa_flter; ?>
+        <?php print $a11y; ?>
       </span>
     </lrnsys-dialog>
   </li>
-  <?php endif; ?>
   <?php if (isset($user_section)) : ?>
   <li>
     <lrnsys-dialog header="<?php print t('Change section');?>" class="black-text" hover-class="<?php print $lmsless_classes[$distro]['color'] . ' ' . $lmsless_classes[$distro]['dark'];?> white-text">

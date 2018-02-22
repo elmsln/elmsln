@@ -185,7 +185,10 @@ with the hax-body element which manages elements.
           }
         }
         // fire event so we know they have been set for the store to collect
-        this.fire('hax-register-properties', {'tag': this.tagName.toLowerCase(), 'properties': props});
+        // only fire if we haven't already so multiple elements don't keep bubbling
+        if (typeof Polymer.HaxStore.instance !== typeof undefined && typeof Polymer.HaxStore.instance.elementList[this.tagName.toLowerCase()] === typeof undefined) {
+          this.fire('hax-register-properties', {'tag': this.tagName.toLowerCase(), 'properties': props});
+        }
         this._setHaxProperties(props);
       }
       else {
@@ -257,6 +260,7 @@ with the hax-body element which manages elements.
       if (typeof type === typeof undefined) {
         type = 'configure';
       }
+      var slot = '';
       let settings = this.haxProperties.settings[type];
       var schema = {
         "$schema": "http://json-schema.org/schema#",
@@ -293,9 +297,16 @@ with the hax-body element which manages elements.
               };
             break;
             case 'select':
+              slot = '';
+              if (typeof settings[value].options !== typeof undefined) {
+                for (var val in settings[value].options) {
+                  slot += '<paper-item value="' + val + '">' + settings[value].options[val] + '</paper-item>' + "\n";
+                }
+              }
               schema.properties[settings[value].property].component = {
-                "name": "paper-dropdown-menu",
-                "valueProperty": "selected",
+                "name": "dropdown-select",
+                "valueProperty": "value",
+                "slot": slot,
                 "properties": {
                   "required": settings[value].required
                 }

@@ -34,67 +34,31 @@ var clipboardjs = require('./components/clipboardjs.js');
     }
   };
   /**
+   * Scrollspy behavior.
+   */
+  Drupal.behaviors.scrollSpy = {
+    attach: function(context, settings) {
+      if (typeof $('#scrollspy-nav').offset() !== typeof undefined) {
+        // target data property and convert to scrollspy class addition
+        $('h2[data-scrollspy="scrollspy"],h3[data-scrollspy="scrollspy"],h4[data-scrollspy="scrollspy"]').addClass('scrollspy');
+        // activate class
+        $('.scrollspy').scrollSpy();
+        $('.scrollspy-toc').pushpin({offset: 48, top: $('#scrollspy-nav').offset().top });
+      }
+    }
+  };
+  /**
    * behavior to make sure select lists are applied every time we do an ajax reload.
    */
   Drupal.behaviors.materializeCSS = {
     attach: function (context, settings) {
       // select lists but not the chosen ones
       $('select').not('.chosen').not('.cke_dialog_body select').not('.form-select.initialized').material_select();
-    }
-  };
-
-  Drupal.settings.activeSideNav = null;
-
-  // calculate the color difference between items
-  // based on https://www.sitepoint.com/javascript-generate-lighter-darker-color/
-  Drupal.ColorLuminance = function(hex, lum) {
-    // validate hex string
-    hex = String(hex).replace(/[^0-9a-f]/gi, '');
-    if (hex.length < 6) {
-      hex = hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2];
-    }
-    lum = lum || 0;
-
-    // convert to decimal and change luminosity
-    var rgb = "#", c, i;
-    for (i = 0; i < 3; i++) {
-      c = parseInt(hex.substr(i*2,2), 16);
-      c = Math.round(Math.min(Math.max(0, c + (c * lum)), 255)).toString(16);
-      rgb += ("00"+c).substr(c.length);
-    }
-
-    return rgb;
-  };
-  // add support for accessibility of materialized components
-  $(document).bind('keydown', function(event) {
-    if (event.keyCode == 27) {
-      $('.elmsln-dropdown-button.active').dropdown('close');
-      // try closing all lightboxes
-      var lightboxes = $('.lightbox--is-open .imagelightbox__close').trigger('click');
-      if (lightboxes.length == 0) {
-        var modals = $('.close-reveal-modal:visible').trigger('click');
-      }
-    }
-  });
-  // nice UI element to let us select users
-  $('#edit-elmsln-view-user').click(function(event) {
-    // prevent empty submission though this won't block incorrect submissions which would be page not found
-    if ($('#edit-masquerade-user-field').val() != '' && $('#edit-masquerade-user-field').val() != 'Anonymous') {
-      // force browser to this location, though we aren't garenteed this is a real place
-      // but should be most of the time unless someone mistypes
-      window.location = Drupal.settings.basePath + 'users/' + $('#edit-masquerade-user-field').val();
-    }
-  });
-  // attach events to the window 
-  $(document).ready(function(){
-    // ensure height of the body is cool w/ this floating column if it exists
-    $('.views-exposed-form').each(function(){
-      $('section.main-section').css('min-height', $('.views-exposed-form').outerHeight()+128);
-    });
-    $('.highlighted-block-area').each(function(){
-      $('section.main-section').css('min-height', $('.highlighted-block-area').outerHeight()+48);
-    });
-    // hide accessibility button
+      // collapsible sets
+      $('.collapsible').collapsible({
+        accordion : false // A setting that changes the collapsible behavior to expandable instead of the default accordion style
+      });
+      // hide accessibility button
     if ($('.cis_accessibility_check a').length == 0) {
       $('.accessibility-content-toggle a').appendTo('.cis_accessibility_check');
     }
@@ -144,10 +108,6 @@ var clipboardjs = require('./components/clipboardjs.js');
     $('.carousel').not('.carousel-slider').carousel();
     // full size slider carousel
     $('.carousel-slider').carousel({full_width: true});
-    // collapsible sets
-    $('.collapsible').collapsible({
-      accordion : false // A setting that changes the collapsible behavior to expandable instead of the default accordion style
-    });
     // dropdown items
     $('.elmsln-dropdown-button').dropdown({
       inDuration: 150,
@@ -208,6 +168,58 @@ var clipboardjs = require('./components/clipboardjs.js');
       if (wrapper.hasClass('open')) {
         wrapper.focus();
       }
+    });
+    }
+  };
+
+  Drupal.settings.activeSideNav = null;
+
+  // calculate the color difference between items
+  // based on https://www.sitepoint.com/javascript-generate-lighter-darker-color/
+  Drupal.ColorLuminance = function(hex, lum) {
+    // validate hex string
+    hex = String(hex).replace(/[^0-9a-f]/gi, '');
+    if (hex.length < 6) {
+      hex = hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2];
+    }
+    lum = lum || 0;
+
+    // convert to decimal and change luminosity
+    var rgb = "#", c, i;
+    for (i = 0; i < 3; i++) {
+      c = parseInt(hex.substr(i*2,2), 16);
+      c = Math.round(Math.min(Math.max(0, c + (c * lum)), 255)).toString(16);
+      rgb += ("00"+c).substr(c.length);
+    }
+
+    return rgb;
+  };
+  // add support for accessibility of materialized components
+  $(document).bind('keydown', function(event) {
+    if (event.keyCode == 27) {
+      $('.elmsln-dropdown-button.active').dropdown('close');
+      // try closing all lightboxes
+      var lightboxes = $('.lightbox--is-open .imagelightbox__close').trigger('click');
+      if (lightboxes.length == 0) {
+        var modals = $('.close-reveal-modal:visible').trigger('click');
+      }
+    }
+  });
+  // nice UI element to let us select users
+  $('#edit-elmsln-view-user').click(function(event) {
+    // prevent empty submission though this won't block incorrect submissions which would be page not found
+    if ($('#edit-masquerade-user-field').val() != '' && $('#edit-masquerade-user-field').val() != 'Anonymous') {
+      // force browser to this location, though we aren't garenteed this is a real place
+      // but should be most of the time unless someone mistypes
+      window.location = Drupal.settings.basePath + 'users/' + $('#edit-masquerade-user-field').val();
+    }
+  });
+
+  // attach events to the window
+  $(document).ready(function(){
+    // ensure height of the body is cool w/ this floating column if it exists
+    $('.views-exposed-form').each(function(){
+      $('section.main-section').css('min-height', $('.views-exposed-form').outerHeight()+128);
     });
   });
 })(jQuery);

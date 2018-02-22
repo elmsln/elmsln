@@ -15,12 +15,7 @@
    */
   $output = implode('<li class="book-sibling-spacer">/</li>', $breadcrumbs);
 ?>
-<div class="book-navigation-header col s12 m12 l12 book-sibling-nav-container book-navigation-header-<?php print $count ?>">
-  <!-- TOC Icon -->
-  <a tabindex="-1" aria-controls="block-mooc-helper-mooc-helper-toc-nav-modal" href="#block-mooc-helper-mooc-helper-toc-nav-modal" class="elmsln-modal-trigger">
-  <lrnsys-button class="mooc-helper-toc elmsln-outline-button black-text" hover-class="blue darken-4 white-text" aria-expanded="false" label="<?php print t('Outline'); ?>" data-jwerty-key="o" data-voicecommand="open outline" icon="explore"></lrnsys-button></a>
-  <ul class="book-navigation-wrapper hide-on-med-and-down">
-    <li class="book-sibling-spacer">/</li>
-    <?php print $output ?>
-  </ul>
-</div>
+<ul class="book-navigation-wrapper hide-on-small-only">
+  <li class="book-sibling-spacer">/</li>
+  <?php print $output ?>
+</ul>

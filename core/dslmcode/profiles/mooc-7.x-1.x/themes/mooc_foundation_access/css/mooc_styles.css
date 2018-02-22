@@ -1,3 +1,29 @@
+/**
+ * Other code, probably hacks
+ */
+
+.outline-designer-page-operations {
+  margin: -3.5em 0 0 0;
+  display: table;
+}
+#outlineoptions {
+  padding: .2em;
+}
+#outline-tip paper-button {
+  padding: 0;
+  margin: 0;
+}
+#outlinepopover {
+  margin-top: -2px;
+}
+#outlinepopover paper-button {
+  text-transform: unset;
+  border-radius: 0;
+  border-bottom: 2px solid black;
+  padding-bottom: 2px;
+  margin-bottom: 2px;
+}
+
 .node-view-mode-full .card-panel, .card {
   box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2);
 }
@@ -238,9 +264,15 @@
   margin: 0 0 -3rem 0;
 }
 
-#block-mooc-nav-block-mooc-nav-nav li.elmsln-book-item paper-button{
-  padding-left: 1.75rem;
+#block-mooc-nav-block-mooc-nav-nav li.elmsln-book-item paper-button {
   border-radius: unset;
+  text-transform: unset;
+}
+#block-mooc-nav-block-mooc-nav-nav li.elmsln-book-item lrnsys-button {
+  padding-left: 0;
+}
+#block-mooc-nav-block-mooc-nav-nav li.elmsln-book-item lrnsys-button.x-scope {
+  padding-left: unset;
 }
 
 #block-mooc-nav-block-mooc-nav-nav li.elmsln-book-item.elmsln-icon paper-button,
@@ -265,6 +297,7 @@
 }
 #block-mooc-nav-block-mooc-nav-nav ul#scrollspy-nav li {
   background-color: #FFFFFF;
+  overflow: hidden;
 }
 #scrollspy-nav li {
     padding: 0;
@@ -305,27 +338,31 @@
   margin: -3rem 0 0 0 !important;
 }
 #scrollspy-nav .scrollspy-link {
-  padding: 0 .5rem;
-  margin: 0 0 0 .25rem;
-  width: calc(100% - .5rem);
+  padding: 0 0 0 1em;
+  margin: 0;
+  width: calc(100% - 2em);
 }
 
 #scrollspy-nav.pinned .scrollspy-label {
   display: block;
+  padding: 0;
 }
 #scrollspy-nav.pinned .scrollspy-label a {
   font-weight: bold;
   font-size: 1.1rem;
+  padding: 0 0 0 .4em;
+  margin: 0;
 }
 #scrollspy-nav.pinned {
   left: 0;
-  width: calc(44vw - 27%);
+  padding: 0;
+  width: calc(44vw - 20%);
   z-index: 2;
+  min-height: 20vh;
 }
-
 @media only screen and (max-width: 1300px) {
   #scrollspy-nav.pinned {
-    width: calc(45vw - 27%);
+    width: calc(45vw - 21%);
   }
 }
 
@@ -357,7 +394,7 @@
 }
 
 #block-mooc-nav-block-mooc-nav-nav li.active-trail {
-  background-color: #eceff1;
+  background-color: #212121;
 }
 
 /* structure in media */
@@ -430,7 +467,7 @@ ul.book-navigation-wrapper {
 }
 
 .book-menu-item-active {
-  background-color: #0D47A1;
+  background-color: #212121;
   font-weight: bold;
   color: #FFFFFF;
 }
@@ -451,13 +488,13 @@ ul.book-navigation-wrapper {
   font-size: 0.8rem;
 }
 
-.row .row.book-navigation-footer {
-  margin: 2rem 0;
+.book-navigation-footer {
+  margin: 2em 0;
   clear:both;
 }
 
 .book-navigation-footer paper-button {
-  padding: 0 .5rem;
+  padding: 0 .5em;
 }
 
 .book-sibling-parent-pagination-previous {
@@ -494,12 +531,13 @@ ul.book-navigation-wrapper {
   display: inline-flex;
   height: 3rem;
   line-height: 3rem;
+  padding: 0 .8em 0 0;
 }
 
 .book-sibling-children a,
 .book-sibling-parent a {
-  height: 3rem;
-  line-height: 3rem;
+  height: 3em;
+  line-height: 3em;
   line-height: inherit;
   display: -webkit-box;
   display: -webkit-flex;
@@ -510,14 +548,14 @@ ul.book-navigation-wrapper {
 .book-sibling-parent lrnsys-button.elmsln-dropdown-button paper-button {
   border-bottom: black solid 2px;
   border-radius: unset;
-  padding: 0 1rem;
+  padding: 0 0 0 1em !important;
 }
-lrnsys-button.mooc-helper-toc paper-button {
+lrnsys-dialog.mooc-helper-toc paper-button {
   border-bottom: black solid 2px;
   border-radius: unset;
   padding: 0 1rem 0 0;
 }
-lrnsys-button.mooc-helper-toc {
+lrnsys-dialog.mooc-helper-toc {
   height: 2.875rem;
   line-height: 2.875rem;
 }
@@ -581,7 +619,7 @@ lrnsys-button.mooc-helper-toc {
 .page-mooc-book-toc article ul li a:hover,
 #block-mooc-helper-mooc-helper-toc-nav-modal .mooc-outline-modal-content a:hover {
   border: 1px solid #cfd8dc;
-  background-color: #eceff1;
+  background-color: #212121;
 }
 #block-mooc-helper-mooc-helper-toc-nav-modal .mooc-outline-modal-content a.active-trail {
   font-weight: bold;
@@ -698,7 +736,7 @@ section.main-section.etb-book a.elmsln-outline-button {
 @media all and (min-width: 720px) {
 
   .book-sibling-parent-1 a.active-trail .book-sibling-parent-text {
-    color: #3570bf;
+    color: #eceff1;
   }
 
   .book-sibling-parent-1 a.active-trail:hover {
@@ -754,4 +792,14 @@ section.main-section.etb-book a.elmsln-outline-button {
   padding: 0;
 }
 
-
+.highlighted-block-area {
+  position: absolute;
+  right: auto;
+  width: 17%;
+  margin: 0;
+  padding: 0 0 0 .4em;
+  left: 0;
+  top: 4em;
+  max-width: unset;
+  min-width: unset;
+}

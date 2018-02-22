@@ -147,7 +147,7 @@ function _mooc_helper_toc($type = NULL) {
   }
   switch ($type) {
     case 'book_outline':
-      return _mooc_helper_book_outline(TRUE);
+    return _mooc_helper_book_outline(TRUE);
     break;
     case 'learning_pathway':
       return _mooc_helper_learning_pathway();
@@ -162,7 +162,12 @@ function _mooc_helper_book_outline($asblock = FALSE) {
   $tree = array();
   $node = _mooc_helper_active_outline();
   // load the active outline
-  $active = menu_get_object();
+  if (isset($GLOBALS['moocappbook'])) {
+    $active = $GLOBALS['moocappbook'];
+  }
+  else {
+    $active = menu_get_object();
+  }
   // test for not being on a node as well as global setting overriding
   // outline to use
   if (!isset($active->book) || (isset($node->book) && $active->book['menu_name'] != $node->book['menu_name'])) {
@@ -638,7 +643,7 @@ function mooc_helper_node_view($node, $view_mode, $langcode) {
   // accidentally modify a book they aren't meaning to
   if (!empty($node->book['bid']) && $active_book && $node->book['bid'] != $active_book->nid && _cis_connector_role_groupings(array('staff', 'teacher'))) {
     $current_section = _cis_connector_section_context();
-    drupal_set_message(t('This page is not part of the section `@section` that you are currently viewing.', array('@section' => $current_section)), 'notice', FALSE);
+    drupal_set_message(t('This page is not part of the section `@section` that you are currently viewing.', array('@section' => $current_section)), 'toast', FALSE);
   }
 }
 
@@ -881,6 +886,17 @@ function mooc_helper_admin_paths() {
  * Provides speedreader clickable link for accessibility menu.
  */
 function mooc_helper_fa_a11y() {
+  $lmsless_classes = _cis_lmsless_get_distro_classes(elmsln_core_get_profile_key());
+  $speedreader_block = module_invoke('speedreader', 'block_view', 'speedreader-block');
+  $speedreader = '<lrnsys-dialog data-voicecommand="open speed reader" header="' . t('Speed reader') . '" class="black-text" hover-class="' . $lmsless_classes['color'] . ' ' . $lmsless_classes['dark'] . ' white-text">
+      <span slot="button">
+        <iron-icon icon="chrome-reader-mode"></iron-icon>
+        <span>' . t('Speed reader') . '</span>
+      </span>
+      <span slot="content" id="block-speedreader-speedreader-block-nav-modal">
+        ' . render($speedreader_block['content']) . '
+      </span>
+    </lrnsys-dialog>';
   $a11y = array(
     'formats' => array(
       '#type' => 'fieldset',
@@ -902,34 +918,11 @@ function mooc_helper_fa_a11y() {
         'icon' => 'view-carousel',
       ),
       'speedreader' => array(
-        '#markup' => '<a tabindex="-1" data-voicecommand="open speed reader" class="elmsln-modal-trigger" href="#block-speedreader-speedreader-block-nav-modal" aria-controls="block-speedreader-speedreader-block-nav-modal" aria-expanded="false"><paper-button class="paper-button-link"><iron-icon icon="chrome-reader-mode"></iron-icon>' . t('Speed reader') . '</paper-button></a>',
+        '#markup' => $speedreader,
         '#weight' => 10,
       ),
     ),
   );
-  // support print / book printing
-  if (arg(0) == 'node' && is_numeric(arg(1)) && user_access('access printer-friendly version')) {
-    // load the node so we can access book oultine
-    $node = menu_get_object();
-    $bid = $node->book['bid'];
-    if ($bid) {
-      $a11y['formats']['print_outline'] = array(
-        '#markup' => '<a tabindex="-1" href="' . base_path() . 'book/export/html/' . $bid . '" aria-expanded="false"><paper-button class="paper-button-link"><iron-icon icon="print"></iron-icon>' . t('Print outline') . '</paper-button></a>',
-        '#weight' => -10,
-      );
-    }
-    $a11y['formats']['print'] = array(
-      '#markup' => '<a tabindex="-1" href="' . base_path() . 'book/export/html/' . arg(1) . '" aria-expanded="false"><paper-button class="paper-button-link"><iron-icon icon="print"></iron-icon>' . t('Print page') . '</paper-button></a>',
-      '#weight' => -10,
-    );
-  }
-  // print to pdf
-  if (arg(0) == 'node' && is_numeric(arg(1)) && user_access('access PDF version')) {
-    $a11y['formats']['pdf'] = array(
-      '#markup' => '<a tabindex="-1" href="' . base_path() . 'printpdf/' . arg(1) . '" aria-expanded="false"><paper-button class="paper-button-link"><iron-icon icon="image:picture-as-pdf"></iron-icon>' . t('PDF page') . '</paper-button></a>',
-      '#weight' => -9,
-    );
-  }
   return $a11y;
 }
 

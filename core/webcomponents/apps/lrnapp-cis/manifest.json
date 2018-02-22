@@ -10,7 +10,7 @@
     "menu": {
       "title": "Courses",
       "menu_name": "menu-elmsln-navigation",
-      "weight": 10
+      "weight": -100
     },
     "endpoints": {
       "data": {

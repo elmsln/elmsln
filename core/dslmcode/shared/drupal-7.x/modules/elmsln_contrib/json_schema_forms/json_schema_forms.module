@@ -1,0 +1,160 @@
+<?php
+/**
+ * @file JSON Schema forms
+ */
+
+/**
+ * Implements hook_permission().
+ */
+function json_schema_forms_permission() {
+  return array(
+    'view json schema forms' =>  array(
+      'title' => t('View JSON Schema forms'),
+      'description' => t('Useful for building headless forms while still using the Drupal form system.'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function json_schema_forms_menu() {
+  $items = array();
+  $items['json-schema/%'] = array(
+    'title' => 'json-schema form',
+    'page callback' => '_json_schema_forms_output',
+    'page arguments' => array(1),
+    'access callback' => '_json_schema_forms_access',
+    'access arguments' => array(1),
+  );
+  $items['json-schema/%/%/%'] = array(
+    'title' => 'json-schema form',
+    'page callback' => '_json_schema_forms_output',
+    'page arguments' => array(1, 2, 3),
+    'access callback' => '_json_schema_forms_access',
+    'access arguments' => array(1, 2, 3),
+  );
+  return $items;
+}
+
+/**
+ * Access callback
+ */
+function _json_schema_forms_access($path, $etype = NULL, $etid = NULL) {
+  if (user_access('view json schema forms')) {
+    if (isset($etype) && isset($etid)) {
+      $entity = entity_load_single($etype, $etid);
+      return entity_access('view', $etype, $entity);
+    }
+    return TRUE;
+  }
+  return FALSE;
+}
+
+/**
+ * Callback to return form ID as json array
+ * @param  string $form_id id of a form to load
+ * @return json          json representation of render array
+ */
+function _json_schema_forms_output($form_id, $etype = NULL, $etid = NULL) {
+  // if type and id set then try to load it
+  if (isset($etype) && isset($etid)) {
+    // load the item and import the ref for the form
+    $entity = entity_load_single($etype, $etid);
+    module_load_include('inc', $etype, $etype . '.pages');
+    $form = drupal_get_form($form_id, $entity);
+  }
+  else {
+    $form = drupal_get_form($form_id);
+  }
+  $schema = array(
+    '$schema' => "http://json-schema.org/schema#",
+    'title' => t('@type form schema', array('@type' => $etype)),
+    'type' => "object",
+    'properties' => array(),
+  );
+  // walk the form and pull out the parts we care about
+  // Oh Drupal, your forms are so bold.
+  foreach ($form as $key => $item) {
+    if (strpos($key, '#') === 0) {
+      unset($form[$key]);
+    }
+    else {
+      switch ($item['#type']) {
+        case 'div':
+        case 'actions':
+        case 'value':
+        case 'hidden':
+        case 'horizontal_tabs':
+        case 'fieldset':
+          unset($form[$key]);
+        break;
+        case 'textfield':
+          switch ($item['#type']) {
+            case 'textfield':
+              $type = 'string';
+            break;
+            default:
+              $type = $item['#type'];
+            break;
+          }
+          $schema['properties'][$key] = array(
+            'title' => $item['#title'],
+            'type' => $type,
+            'value' => $item['#value'],
+            '_weight' => $item['#weight'],
+            '_key' => $key,
+          );
+        break;
+      }
+    }
+    // walk into things that look like field api items
+    if (is_array($item) && isset($item['und']) && isset($item['und'][0])) {
+      // step into the field definition
+      // @todo support more then single value fields
+      foreach ($item['und'][0] as $key2 => $item2) {
+        // make sure it's a value
+        if (strpos($key2, '#') === FALSE && !in_array($form[$key]['und'][0][$key2]['#type'], array('submit', 'fieldset'))) {
+          $schema['properties'][$key] = array(
+            'title' => $form[$key]['und'][0][$key2]['#title'],
+            'value' => $form[$key]['und'][0][$key2]['#value'],
+            '_weight' => $form[$key]['und'][0][$key2]['#weight'],
+            '_key' => $key,
+          );
+          // add the schema definition for this item
+          switch ($form[$key]['und'][0][$key2]['#type']) {
+            case 'textfield':
+              $type = 'string';
+            break;
+            case 'textarea':
+              $type = 'string';
+              $schema['properties'][$key]['component'] = array(
+                'name' => 'paper-textarea',
+                'valueProperty' => 'value',
+              );
+            break;
+            default:
+              $type = $form[$key]['und'][0][$key2]['#type'];
+            break;
+          }
+          $schema['properties'][$key]['type'] = $type;
+        }
+      }
+    }
+  }
+  // sort the schema now
+  usort($schema['properties'], "_json_schema_forms_sort");
+  drupal_alter('json_schema_forms', $schema);
+  drupal_json_output($schema);
+  exit;
+}
+
+/**
+ * Sort by weight
+ */
+function _json_schema_forms_sort($a, $b) {
+  if ($a['_weight'] == $b['_weight']) {
+    return 0;
+  }
+  return ($a['_weight'] < $b['_weight']) ? -1 : 1;
+}

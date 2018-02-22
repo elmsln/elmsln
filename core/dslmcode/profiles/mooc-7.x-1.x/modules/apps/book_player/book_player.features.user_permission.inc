@@ -26,5 +26,15 @@ function book_player_user_default_permissions() {
     'module' => 'webcomponents_app',
   );
 
+  // Exported permission: 'access mooc-content app'.
+  $permissions['access mooc-content app'] = array(
+    'name' => 'access mooc-content app',
+    'roles' => array(
+      'anonymous user' => 'anonymous user',
+      'authenticated user' => 'authenticated user',
+    ),
+    'module' => 'webcomponents_app',
+  );
+
   return $permissions;
 }

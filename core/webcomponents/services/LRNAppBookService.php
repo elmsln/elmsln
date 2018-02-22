@@ -24,6 +24,9 @@ class LRNAppBookService {
     else if (!empty($argfallback) && is_numeric($argfallback) ) {
       $node = node_load($argfallback);
     }
+    else {
+      $node = menu_get_object();
+    }
     return $node;
   }
   /**

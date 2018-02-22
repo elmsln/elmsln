@@ -153,12 +153,6 @@ function elmsln_core_menu() {
     'type' => MENU_LOCAL_TASK,
     'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
   );
-  $items['elmsln/form-as-json/%'] = array(
-    'title' => 'form as json',
-    'page callback' => '_elmsln_core_form_as_json',
-    'access arguments' => array('view form as json'),
-    'page arguments' => array(2),
-  );
   $items['admin/config/system/service-settings'] = array(
     'title' => 'Course settings',
     'description' => 'Change system settings for this service.',
@@ -181,6 +175,21 @@ function elmsln_core_menu() {
     'weight' => -10,
   );
   return $items;
+}
+
+/**
+ * Implements hook_elmsln_core_json_schema_forms_alter().
+ */
+function elmsln_core_json_schema_forms_alter(&$schema) {
+  foreach ($schema['properties'] as $key => $value) {
+    if ($value['type'] == 'jquery_colorpicker') {
+      $schema['properties'][$key]['type'] = 'string';
+      $schema['properties'][$key]['component'] = array(
+        'name' => 'paper-swatch-picker',
+        'valueProperty' => 'color',
+      );
+    }
+  }
 }
 
 /**
@@ -340,10 +349,6 @@ function elmsln_core_block_info() {
     'elmsln_navigation_l3' => array(
       'info' => t('ELMSLN nav level 3'),
       'cache' => DRUPAL_CACHE_PER_ROLE,
-    ),
-    'ferpa_filter' => array(
-      'info' => t('FERPA blur filter'),
-      'cache' => DRUPAL_CACHE_GLOBAL,
     ),
   );
   return $blocks;
@@ -541,10 +546,6 @@ function elmsln_core_block_view($delta = '') {
         }
       }
     break;
-    case 'ferpa_filter':
-      $block['subject'] = t('FERPA compliance');
-      $block['content'] = _elmsln_core_ferpa_filter();
-    break;
   }
   return $block;
 }
@@ -634,17 +635,6 @@ function elmsln_core_user_view_alter(&$build) {
   // Remove default user history etc...
   $build['summary']['#title'] = '';
   $build['summary']['member_for'] = '';
-}
-
-/**
- * Callback to return form ID as json array
- * @param  string $form_id id of a form to load
- * @return json          json representation of render array
- */
-function _elmsln_core_form_as_json($form_id) {
-  $form = drupal_get_form($form_id);
-  drupal_json_output($form);
-  drupal_exit();
 }
 
 /**
@@ -1440,7 +1430,30 @@ function elmsln_core_fa_a11y() {
           </div>
         </div>'
       ),
-    )
+    ),
+    'ferpa' => array(
+      '#type' => 'fieldset',
+      '#title' => t('FERPA filter'),
+      '#description' => t('Options to obscure content from view which has been marked FERPA in nature. This allows showcasing real work safely in screenshots and demonstrations.'),
+      '#collapsed' => TRUE,
+      '#collapsible' => TRUE,
+      '#weight' => -10,
+      '#attributes' => array(
+        'class' => array(
+          'collapsible',
+          'form-wrapper',
+          'collapsed',
+        ),
+        'data-voicecommand' => 'ferpa filter',
+      ),
+      '#materialize' => array(
+        'type' => 'collapsible',
+        'icon' => 'visibility',
+      ),
+      'ferpa' => array(
+        '#markup' => _elmsln_core_ferpa_filter(),
+      ),
+    ),
   );
 }
 

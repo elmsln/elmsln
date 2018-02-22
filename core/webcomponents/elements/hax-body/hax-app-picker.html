@@ -1,0 +1,217 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../paper-dialog/paper-dialog.html">
+<link rel="import" href="../paper-ripple/paper-ripple.html">
+<link rel="import" href="../paper-toast/paper-toast.html">
+<link rel="import" href="../paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../neon-animation/web-animations.html">
+<link rel="import" href="../neon-animation/neon-animation.html">
+<link rel="import" href="../neon-animation/animations/scale-up-animation.html">
+<link rel="import" href="../neon-animation/animations/scale-down-animation.html">
+<link rel="import" href="../materializecss-styles/materializecss-styles.html">
+<!--
+ `hax-app-picker`
+ A picker for selecting an item from a list of apps / hax gizmos which require
+ a decision to be made. This is used when multiple things match either on upload
+ in the add operation of the app or in the gizmo selection to render through,
+ such as having multiple ways of presenting an image.
+
+@demo demo/index.html
+
+@microcopy - the mental model for this element
+ - data - this is the app data model for an element which expresses itself to hax
+-->
+
+<dom-module id="hax-app-picker">
+  <template>
+    <style include="materializecss-styles">
+      :host {
+        display: block;
+      };
+      #dialog {
+        max-width: 480px;
+        @apply --hax-app-picker-dialog;
+        background-color: var(--hax-app-picker-dialog-background-color, white);
+      }
+      #title, .element-button > div {
+        color: var(--hax-app-picker-dialog-text-color, black);
+      }
+      #title {
+        padding: 16px;
+        margin: 0;
+        @apply --paper-font-title;
+        @apply --hax-app-picker-dialog-title;
+      }
+      #buttonlist {
+        border-top: 1px solid rgba(128, 128, 128, .5);
+        display: block;
+        text-align: center;
+        margin: auto;
+        padding: 8px;
+        overflow-x: hidden;
+        overflow-y: auto;
+        max-height: calc(100vh - 126px);
+      }
+      @media (orientation: landscape) {
+        #buttonlist {
+          max-height: 50vh;
+        }
+      }
+      @media (orientation: portrait) {
+        #buttonlist {
+          max-height: 60vh;
+        }
+      }
+      .element-button {
+        display: inline-block;
+        width: 72px;
+        margin: 8px 4px;
+        text-align: center;
+      }
+      .element-button > div {
+        @apply --paper-font-caption;
+        margin-top: 8px;
+        color: black;
+        width: 100%;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        @apply --hax-app-picker-hax-element-text;
+      }
+      .icon {
+        cursor: pointer;
+        width: 64px;
+        height: 64px;
+        padding: 16px;
+        color: white;
+        border-radius: 50%;
+        box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2);
+        -webkit-transition: box-shadow .2s;
+        -moz-transition: box-shadow .2s;
+        -ms-transition: box-shadow .2s;
+        -o-transition: box-shadow .2s;
+        transition: box-shadow .2s;
+        @apply --hax-app-picker-hax-element--icon;
+      }
+      .icon:hover, .icon:focus {
+        box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.14), 0 2px 10px 0 rgba(0, 0, 0, 0.12), 0 6px 2px -4px rgba(0, 0, 0, 0.2);
+      }
+      .icon:active {
+        box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2);
+      }
+    </style>
+    <paper-dialog id="dialog" entry-animation="scale-up-animation" exit-animation="scale-down-animation" modal>
+      <h2 id="title">[[title]]</h2>
+      <paper-dialog-scrollable id="buttonlist">
+      <template is="dom-repeat" items="[[selectionList]]" as="element">
+        <div class="element-button" on-tap="_selected" data-selected$="[[index]]" title="[[element.title]]">
+          <paper-icon-button on-tap="_selected" data-selected$="[[index]]" class$="icon [[element.color]]" icon="[[element.icon]]"></paper-icon-button>
+          <div>[[element.title]]</div>
+        </div>
+      </template>
+      </paper-dialog-scrollable>
+    </paper-dialog>
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'hax-app-picker',
+      properties: {
+        /**
+         * raw element set
+         */
+        _elements: {
+          type: Array,
+          value: [],
+        },
+        /**
+         * Refactored list for selection purposes
+         */
+        selectionList: {
+          type: Array,
+          value: [],
+        },
+        /**
+         * Title for the dialog
+         */
+        title: {
+          type: String,
+          value: "Pick an options",
+        },
+        /**
+         * Allow multiple uses
+         */
+        pickerType: {
+          type: String,
+          value: "gizmo",
+        },
+      },
+      /**
+       * Attached life cycle
+       */
+      attached: function() {
+        this.fire('hax-register-app-picker', this);
+      },
+      /**
+       * Present options to the user with a modal and selection method that
+       * shifts itself to be above everything (stack order)
+       * @param  [array] elements  a list of elements for presenting to the user
+       * to select between.
+       */
+      presentOptions: function(elements, type, title = 'Select an option', pickerType = 'gizmo') {
+        // wipe existing
+        this.title = title;
+        this.pickerType = pickerType;
+        this._elements = elements;
+        var tmp = [];
+        switch (pickerType) {
+          // hax gizmo selector
+          case 'gizmo':
+            for (var i in elements) {
+              tmp[i] = {
+                "icon" : elements[i].gizmo.icon,
+                "title" : elements[i].gizmo.title,
+                "color" : elements[i].gizmo.color
+              }
+            }
+          break;
+          // app selector
+          case 'app':
+            for (var i in elements) {
+              tmp[i] = {
+                "icon" : elements[i].details.icon,
+                "title" : elements[i].details.title,
+                "color" : elements[i].details.color,
+              }
+            }
+          break;
+          // we don't know what to do with this
+          default:
+            tmp = elements;
+          break;
+        }
+        this.set('selectionList', []);
+        this.set('selectionList', tmp);
+        this.$.dialog.open();
+      },
+      /**
+       * Handle the user selecting an app.
+       */
+      _selected: function(e) {
+        var normalizedEvent = Polymer.dom(event);
+        let key = normalizedEvent.localTarget.getAttribute('data-selected');
+        if (typeof this._elements[key] !== typeof undefined) {
+          // haxElement is a unique case
+          if (this.pickerType == 'gizmo') {
+            Polymer.HaxStore.write('activeHaxElement', this._elements[key], this);
+          }
+          else {
+            // bubble this up
+            this.fire('hax-app-picker-selection', this._elements[key]);
+          }
+        }
+        this.$.dialog.close();
+      },
+    });
+  </script>
+</dom-module>

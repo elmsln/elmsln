@@ -1,0 +1,4 @@
+name = JSON schema forms
+description = Create end point for producing drupal forms as JSON schema
+core = 7.x
+dependencies[] = entity

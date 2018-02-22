@@ -23,6 +23,8 @@ function elmsln_core_install() {
   ->condition('name', 'elmsln_core')
   ->condition('type', 'module')
   ->execute();
+  variable_set('preprocess_css', '1');
+  variable_set('preprocess_js', '1');
 }
 
 /**
@@ -357,4 +359,11 @@ function elmsln_core_update_7031(&$sandbox) {
   db_delete('variable')
     ->condition('name', 'chosen_%', 'LIKE')
     ->execute();
+}
+
+/**
+ * Enable JSON Schema Forms
+ */
+function elmsln_core_update_7032(&$sandbox) {
+  module_enable(array('json_schema_forms'));
 }

@@ -1,0 +1,321 @@
+@charset "UTF-8";
+/* admin-menu */
+body.admin-menu.adminimal-menu #admin-menu *::-moz-focus-inner {
+  border: 0;
+}
+
+body.admin-menu.adminimal-menu {
+  margin-top: 0px !important;
+  background-color: #444 !important;
+}
+body #admin-menu-wrapper {
+  background-color: #444 !important;
+  padding: 0;
+}
+
+body.admin-menu.adminimal-menu:before {
+  content: "";
+  display: block;
+  width: 100%;
+  height: 29px;
+  top: 0;
+  left: 0;
+}
+
+body.adminimal-menu div#admin-menu {
+  background: #333;
+  background: none repeat scroll 0 0 #202020;
+  border-bottom: 1px solid #111111;
+}
+
+body.adminimal-menu div#admin-menu li.admin-menu-toolbar-home-menu {
+  background: transparent;
+}
+
+body.adminimal-menu div#admin-menu ul.dropdown span.admin-menu-home-icon {
+  background: url(../img/home.svg) no-repeat scroll 0 0 transparent;
+  display: block;
+  margin: 0;
+  padding: 0;
+  width: 1rem;
+  height: 1rem;
+}
+
+body.adminimal-menu div#admin-menu a,
+body.adminimal-menu div#admin-menu span {
+  border: none !important;
+  font-family: sans-serif;
+  font-size: .9rem;
+  line-height: 2.5rem;
+  height: 2.5rem;
+  text-overflow: ellipsis;
+  overflow-x: hidden;
+}
+
+body.adminimal-menu #admin-menu .dropdown li li {
+  background-color: #1f1f1f;
+}
+
+body.adminimal-menu #admin-menu .dropdown li li.expandable ul {
+  margin: -2.75rem 0 0 12rem;
+}
+
+body.adminimal-menu #admin-menu .dropdown li li > li.admin-menu-toolbar-category {
+  background: #fff !important;
+}
+
+body.adminimal-menu #admin-menu .dropdown a {
+  border-right: none;
+}
+
+body.adminimal-menu #admin-menu .dropdown li.admin-menu-toolbar-category a {
+  line-height: 20px;
+}
+
+body.adminimal-menu #admin-menu #admin-menu-wrapper .dropdown li li {
+  opacity: 1;
+}
+
+body.adminimal-menu #admin-menu #admin-menu-wrapper .dropdown li li a {
+  border: none;
+}
+
+body.adminimal-menu #admin-menu #admin-menu-wrapper .dropdown li li.expandable {
+  background: #202020 url("../img/arrow.png") no-repeat 10rem 1rem;
+}
+
+body.adminimal-menu #admin-menu #admin-menu-wrapper .dropdown li li.expandable a {
+  background: transparent;
+  padding-right: 0;
+}
+
+/* Shortcuts bar */
+
+body.adminimal-menu div.toolbar-shortcuts {
+  float: left;
+}
+
+body.adminimal-menu div.shortcut-toolbar div#toolbar div.toolbar-shortcuts ul.menu {
+  margin: 0;
+  padding: 0;
+}
+
+body.adminimal-menu div.shortcut-toolbar div#toolbar div.toolbar-shortcuts ul.menu li {
+  float: left;
+  list-style: none outside none;
+  padding: 0;
+  margin: 0;
+}
+
+body.adminimal-menu div.shortcut-toolbar div#toolbar a#edit-shortcuts {
+  float: right;
+  line-height: 18px;
+  padding: 5px 10px;
+  text-decoration: none;
+}
+
+body.adminimal-menu #admin-menu .dropdown li ul {
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+}
+
+body.adminimal-menu #admin-menu .dropdown li ul {
+  border-top: 3px solid #0074BD;
+}
+body.adminimal-menu #admin-menu .dropdown li ul {
+  width: 12rem;
+}
+body.adminimal-menu #admin-menu .dropdown li li {
+  width: 12rem;
+}
+
+body.adminimal-menu #admin-menu .admin-menu-toolbar-category.expandable .dropdown li ul,
+body.adminimal-menu #admin-menu .dropdown.admin-menu-search-results li ul {
+  border-top: none;
+}
+
+body.adminimal-menu #admin-menu .dropdown li.admin-menu-action a {
+  border: none !important;
+}
+
+body.adminimal-menu #admin-menu .dropdown li.admin-menu-action:first-child a {
+  background: #444;
+  padding: 5px 10px;
+}
+
+body.adminimal-menu #admin-menu .dropdown li.admin-menu-action.admin-menu-users {
+  border-left: 1px solid #000;
+}
+
+body.adminimal-menu #admin-menu #admin-menu-wrapper div#toolbar div.toolbar-shortcuts ul li a {
+  background: url("../img/shortcut.png") no-repeat scroll 7px 7px transparent;
+  border-radius: 0 0 0 0;
+  display: block;
+  margin-right: 0;
+  padding: 5px 10px;
+  text-indent: 16px;
+}
+
+body.adminimal-menu #admin-menu #admin-menu-wrapper div#toolbar div.toolbar-shortcuts ul li a:hover {
+  background-color: #0074bd;
+  background-position: 7px -78px;
+}
+
+body.adminimal-menu #admin-menu .admin-menu-search input {
+  background: none no-repeat scroll right center #444;
+  border: medium none;
+  border-radius: 0 0 0 0;
+  color: #999999;
+  font-size: 12px;
+  margin: 0 !important;
+  outline: medium none;
+  padding: 5px 22px 3px 8px;
+  width: 110px;
+  height: 20px;
+}
+
+body.adminimal-menu #admin-menu .admin-menu-search input:focus,
+#admin-menu .admin-menu-search input:hover,
+#admin-menu .admin-menu-search input:active {
+  background: none no-repeat scroll right center #888;
+  color: #eee;
+}
+
+body.adminimal-menu li.admin-menu-search:hover {
+  background: transparent !important;
+}
+
+
+/* Newline render mode */
+
+body.adminimal-menu.admin-menu.menu-render-newline div#admin-menu div#admin-menu-wrapper div.shortcut-toolbar {
+  clear: both;
+  border-top: 1px solid #000;
+}
+
+body.adminimal-menu.admin-menu.menu-render-newline {
+  margin-top: 56px !important;
+}
+
+body.adminimal-menu.admin-menu.menu-render-newline #overlay-container,
+body.adminimal-menu.admin-menu.newline .overlay-modal-background,
+body.adminimal-menu.admin-menu.newline .overlay-element,
+body.adminimal-menu.admin-menu.newline #overlay {
+  padding-top: 30px !important;
+}
+
+
+/* Collapsed render mode */
+
+body.adminimal-menu.admin-menu.menu-render-collapsed div.shortcut-toolbar div#toolbar div.toolbar-shortcuts ul.menu {
+  position: absolute;
+}
+
+body.adminimal-menu.admin-menu.menu-render-collapsed div.shortcut-toolbar div#toolbar div.toolbar-shortcuts ul.menu li {
+  float: none;
+  display: none;
+  border: none;
+}
+
+body.adminimal-menu.admin-menu.menu-render-collapsed div.shortcut-toolbar div#toolbar div.toolbar-shortcuts ul.menu li.label {
+  display: block;
+  cursor: default;
+}
+
+body.adminimal-menu.admin-menu.menu-render-collapsed div.shortcut-toolbar div#toolbar div.toolbar-shortcuts ul.menu li.label a:hover {
+  background: url("../img/shortcut.png") no-repeat scroll 7px 7px #202020 !important;
+  color: #EEEEEE !important;
+}
+
+body.adminimal-menu.admin-menu.menu-render-collapsed div.shortcut-toolbar div#toolbar div.toolbar-shortcuts ul.menu:hover li {
+  display: block;
+  background: #202020;
+}
+
+
+/* Dropdown render mode */
+
+body.adminimal-menu.admin-menu.menu-render-dropdown .toolbar-shortcuts select#shortcut-menu {
+  -webkit-appearance: none;
+  background: url("../img/shortcut.png") no-repeat scroll 7px 7px #222222;
+  border: medium none;
+  color: #EEEEEE;
+  font-family: "Open Sans", "Segoe UI", "Helvetica", sans-serif;
+  font-size: 12px;
+  padding: 5px 4px 4px 24px;
+}
+
+body.adminimal-menu.admin-menu.menu-render-dropdown .toolbar-shortcuts select#shortcut-menu option:hover {
+  cursor: pointer;
+}
+
+body.adminimal-menu.admin-menu.menu-render-dropdown .toolbar-shortcuts select#shortcut-menu option:first-child {
+  display: none;
+}
+
+body.adminimal-menu #admin-menu .dropdown .admin-menu-tab {
+  background: #444;
+  padding-bottom: 2px;
+}
+
+
+/* Environment indicator 2.x */
+
+body.adminimal-menu #admin-menu #environment-indicator {
+  text-shadow: none;
+}
+
+body.adminimal-menu #admin-menu #environment-indicator .environment-indicator-name {
+  background-image: none;
+  border-left: 1px solid #323232;
+  border-radius: 0;
+  font-size: 12px;
+  line-height: 18px;
+  padding: 0;
+}
+
+body.adminimal-menu #admin-menu #admin-menu-wrapper div#toolbar div.toolbar-shortcuts ul,
+body.adminimal-menu #admin-menu #admin-menu-wrapper div#toolbar div.toolbar-shortcuts ul li {
+  margin: 0;
+  padding: 0;
+}
+
+body.adminimal-menu #admin-menu .admin-menu-search input {
+  background: none no-repeat scroll right center #444;
+  border: medium none;
+  -webkit-border-radius: 0 0 0 0;
+  -moz-border-radius: 0 0 0 0;
+  border-radius: 0 0 0 0;
+  color: #999999;
+  font-size: 12px;
+  margin: 0 !important;
+  outline: medium none;
+  padding: 5px 22px 3px 8px;
+  width: 110px;
+  line-height: 20px;
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+  height: 28px;
+  box-sizing: border-box;
+}
+
+#admin-menu-search .form-item.form-type-textfield label.control-label{
+  display: none;
+}
+
+#admin-menu .admin-menu-toolbar-category lrnsys-button a,
+body.adminimal-menu #admin-menu .dropdown a,
+body.adminimal-menu #admin-menu .dropdown li.admin-menu-toolbar-category a,
+#admin-menu lrnsys-button a {
+  padding: 0;
+}
+#admin-menu paper-button {
+  margin: 0;
+  padding: 0 0.5em;
+}
+#admin-menu .lrnsys-button-0 paper-button.lrnsys-button div.inner.lrnsys-button {
+  padding: 0;
+  line-height: unset;
+  height: unset;
+  font-size: 1rem;
+}

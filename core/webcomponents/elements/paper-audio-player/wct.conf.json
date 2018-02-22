@@ -1,0 +1,38 @@
+{
+  "plugins": {
+    "sauce": {
+      "disabled": false,
+      "browsers": [
+        {
+          "browserName": "microsoftedge",
+          "platform": "Windows 10",
+          "version": ""
+        }, {
+          "browserName": "firefox",
+          "platform": "Windows 10",
+          "version": ""
+        }, {
+          "browserName": "chrome",
+          "platform": "Windows 10",
+          "version": ""
+        }, {
+          "browserName": "safari",
+          "platform": "OS X 10.11",
+          "version": "9"
+        }, {
+          "browserName": "safari",
+          "platform": "OS X 10.10",
+          "version": "8"
+        }, {
+          "browserName": "firefox",
+          "platform": "OS X 10.11",
+          "version": ""
+        }, {
+          "browserName": "chrome",
+          "platform": "OS X 10.11",
+          "version": ""
+        }
+      ]
+    }
+  }
+}

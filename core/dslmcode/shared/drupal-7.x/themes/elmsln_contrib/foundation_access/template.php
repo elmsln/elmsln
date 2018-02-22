@@ -140,10 +140,12 @@ function foundation_access_preprocess_html(&$variables) {
   $variables['lmsless_classes'] = _cis_lmsless_get_distro_classes(elmsln_core_get_profile_key());
   $variables['system_title'] = (isset($settings['default_title']) ? $settings['default_title'] : $variables['distro']);
   $variables['course'] = _cis_connector_course_context();
-  $css = _foundation_access_contextual_colors($variables['lmsless_classes']);
   $variables['theme_path'] = base_path() . drupal_get_path('theme', 'foundation_access');
 
-  drupal_add_css($css, array('type' => 'inline', 'group' => CSS_THEME, 'weight' => 999));
+  // add css for admin pages
+  if (user_access('access administration menu')) {
+    drupal_add_css(drupal_get_path('theme', 'foundation_access') . '/css/admin.css', array('group' => CSS_THEME, 'weight' => 999));
+  }
   // google font / icons from google
   drupal_add_css('//fonts.googleapis.com/css?family=Material+Icons%7CDroid+Serif:400,700,400italic,700italic%7COpen+Sans:300,600,700%7CRoboto:300,400,500,700', array('type' => 'external', 'group' => CSS_THEME, 'weight' => 1000));
   $libraries = libraries_get_libraries();
@@ -305,21 +307,6 @@ function foundation_access_fieldset($variables) {
 function foundation_access_preprocess_page(&$variables) {
   $variables['contentwrappers'] = _elmsln_core_path_is_wrapped(current_path());
   $menu_item = menu_get_item();
-  // allow modules to supply accessibility enhancements to the menu tho not in entity iframe mode
-  if (!_entity_iframe_mode_enabled()) {
-    $a11y = module_invoke_all('fa_a11y');
-    drupal_alter('fa_a11y', $a11y);
-    // add in the form api wrapper meta properties to render as materialize collapse
-    $a11y['#type'] = 'fieldset';
-    $a11y['#materialize'] = array(
-      'type' => 'collapsible_wrapper'
-    );
-    $a11y['#attributes'] = array(
-      'class' => array('collapsible'),
-      'data-collapsible' => 'accordion',
-    );
-    $variables['a11y'] = drupal_render($a11y);
-  }
   // sniff out if this is a view
   if ($menu_item['page_callback'] == 'views_page') {
     // try and auto append exposed filters to our local_subheader region
@@ -332,7 +319,7 @@ function foundation_access_preprocess_page(&$variables) {
   $variables['cis_lmsless'] = array('active' => array('title' => ''));
   // support for lmsless since we don't require it
   if (module_exists('cis_lmsless')) {
-    $variables['cis_lmsless'] = _cis_lmsless_theme_vars();
+    $variables['page']['content']['system_main']['main']['#markup'] = $css . $variables['page']['content']['system_main']['main']['#markup'];
   }
   // support for cis_shortcodes
   if (module_exists('cis_shortcodes')) {
@@ -348,7 +335,7 @@ function foundation_access_preprocess_page(&$variables) {
     $variables['cis_shortcodes'] = '';
   }
   // wrap non-node content in an article tag
-  if (isset($variables['page']['content']['system_main']['main'])) {
+  if (isset($variables['page']['content']['system_main']['main']) && arg(1) != 'mooc-content') {
     $variables['page']['content']['system_main']['main']['#markup'] = '<article class="view-mode-full">' . $variables['page']['content']['system_main']['main']['#markup'] . '</article>';
   }
   /**
@@ -538,7 +525,9 @@ function foundation_access_css_alter(&$css) {
     if (strpos($path, 'modules/') === 0 && !in_array($path, array('modules/contextual/contextual.css'))) {
       unset($css[$path]);
     }
-    if ($path == 'sites/all/modules/ulmus/adminimal_admin_menu/adminimal_admin_menu.css') {
+    // remove admin menu css without hacking that project
+    $admin = drupal_get_path('module', 'adminimal_admin_menu');
+    if ($path == $admin . '/adminimal_admin_menu.css') {
       unset($css[$path]);
     }
   }
@@ -550,12 +539,12 @@ function foundation_access_css_alter(&$css) {
 function foundation_access_button($variables) {
   $element = $variables['element'];
   $element['#attributes']['type'] = 'submit';
+  $colors = _cis_lmsless_get_distro_classes(elmsln_core_get_profile_key());
   element_set_attributes($element, array('id', 'name', 'value'));
   if (!empty($element['#attributes']['disabled'])) {
     $element['#attributes']['class'][] = 'form-button-disabled';
   }
-  $colors = _cis_lmsless_get_distro_classes(elmsln_core_get_profile_key());
-  $element['#attributes']['class'][] = $colors['color'] . ' ' . $colors['dark'] . ' white-text';
+  $element['#attributes']['class'][] = 'blue white-text';
   // wrap classes on an upload button
   if ($variables['element']['#value'] == 'Upload') {
     return '
@@ -564,7 +553,18 @@ function foundation_access_button($variables) {
     </div>';
   }
   else {
-    return '<button ' . drupal_attributes($element['#attributes']) . '><paper-button>' . $element['#value'] . '</paper-button></button>';
+    $lrnsys = $element['#attributes'];
+    if (!isset($lrnsys['hover-class'])) {
+      $lrnsys['hover-class'] = $colors['color'] . ' ' . $colors['dark'];
+    }
+    // hate doing it this way but makes it easier to skip webcomponents issues
+    // w/ route grabbing
+    $js = ' ';
+    if ($element['#value'] == 'Emulate') {
+      $js = ' onclick="document.getElementById(\'masquerade-block-1\').submit();" ';
+    }
+    unset($lrnsys['id']);
+    return '<button' . $js . drupal_attributes($element['#attributes']) . '><lrnsys-button ' . drupal_attributes($lrnsys) . '>' . $element['#value'] . '</lrnsys-button></button>';
   }
 }
 
@@ -1381,6 +1381,16 @@ function foundation_access_html_head_alter(&$head_elements) {
       unset($head_elements[$key]);
     }
   }
+
+  $head_elements['fa_print_' . $key] = array(
+    '#type' => 'html_tag',
+    '#tag' => 'link',
+    '#attributes' => array(
+      'type' => 'text/css',
+      'rel' => 'stylesheet',
+      'href' => $file,
+    ),
+  );
   $args = arg();
   // account for print module and book print out
   if ($args[0] == 'book' && $args[1] = 'export' && $args[2] == 'html') {
@@ -1390,7 +1400,6 @@ function foundation_access_html_head_alter(&$head_elements) {
       $path . 'css/main.css',
       $path . 'fonts/elmsln/elmsln-font-styles.css',
       '//fonts.googleapis.com/css?family=Material+Icons%7CDroid+Serif:400,700,400italic,700italic%7COpen+Sans:300,600,700%7CRoboto:300,400,500,700)',
-
     );
     $css[] = $path . 'materialize_unwinding/css/materialize.css';
     // parse returned locations array and manually add to html head
@@ -1624,6 +1633,11 @@ function foundation_access_status_messages($variables) {
       'color' => 'green darken-4 white-text',
       'heading' => t('Notifications'),
     ),
+    'toast' => array(
+      'icon' => 'info',
+      'color' => 'black white-text',
+      'heading' => '',
+    ),
   );
   foreach (drupal_get_messages($display) as $type => $messages) {
     if (!empty($status_mapping[$type])) {
@@ -1638,6 +1652,10 @@ function foundation_access_status_messages($variables) {
       $output .= " </ul>\n";
     }
     else {
+      // special case, single toast message
+      if ($type == 'toast') {
+        return '<paper-toast opened><div class="toast-content-container">' . $messages[0] . '</div></paper-toast>';
+      }
       $output .= $messages[0];
     }
     $output .= "</div>\n";
@@ -1649,9 +1667,6 @@ function foundation_access_status_messages($variables) {
 
 /**
  * Helper function to create a materialize toast notification.
- *
- * From the materialize docs:
- *   Materialize.toast(message, displayLength, className, completeCallback);
  */
 function _foundation_access_make_toast($message, $display_length = 4000, $class_name = NULL, $callback = NULL) {
   return '<paper-toast id="toastdrawer" class="fit-bottom" opened duration="0"><div class="paper-toast-label">' . t('Message center') . '<paper-button onclick="toastdrawer.toggle()" class="red darken-4 white-text close-button">' . t('Close') . '</paper-button></div><div class="toast-content-container">' . $message . '</div></paper-toast>';
