@@ -8411,17 +8411,17 @@ paper-button.lrnsys-button div.inner.lrnsys-button {
 }
 
 .elmsln-edit-button iron-icon {
-  width: 2.2em;
-  height: 2.2em;
+  width: 2em;
+  height: 2em;
   margin:0;
 }
 .elmsln-edit-button paper-button {
-  border-radius: 40em;
-  width: 2.3em;
-  height: 2.6em;
-  padding-left: .3em;
+  border-radius: 40em !important;
+  width: 2.2em !important;
+  height: 2.2em !important;
+  padding-left: .2em !important;
+  padding-bottom: .2em !important;
 }
-.elmsln-edit-button paper-button .inner.no-padding {
-  height: 2.6em;
-  line-height: 2.6em;
+#outlineoptions {
+  padding: .2em;
 }
