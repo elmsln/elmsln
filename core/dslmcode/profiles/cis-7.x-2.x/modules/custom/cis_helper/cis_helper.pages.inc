@@ -884,7 +884,7 @@ function _cis_helper_checkbox_icon($elements) {
   foreach ($elements as $key => &$element) {
     if (is_numeric($key) && $element['#type'] == 'checkbox') {
       $icon = $elements['#cis_icon_map'][$key]['und'][0]['value'];
-      $element['#title'] .= '<div class="icon-' . $icon . '-black etb-modal-icons cis-checkbox-icon"></div>';
+      $element['#prefix'] .= '<lrn-icon icon="' . $icon . '" class="cis-checkbox-icon"></lrn-icon>';
     }
   }
   return $elements;

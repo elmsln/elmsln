@@ -23,6 +23,5 @@ body.page-cis-quick-setup div.form-item-course {
 }
 
 .cis-checkbox-icon {
-  margin-left:-.25rem;
-  margin-right:.5rem;
+  float: left;
 }
