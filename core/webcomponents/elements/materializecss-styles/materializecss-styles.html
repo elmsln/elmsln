@@ -22,7 +22,10 @@ Some styling helpers from the materializecss project
      * Get the Materialize color classes mapping based on defined parts
      * Example: getColorClasses('text')
      */
-    getColorClasses: function (parta = '', partb = '') {
+    getColorClasses: function () {
+      // weird but this allows IE compatibility
+      var parta = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
+      var partb = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
       var colorClasses = {
         '#ffffff': 'white',
         '#000000': 'black',

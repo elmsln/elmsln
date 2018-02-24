@@ -259,11 +259,12 @@ A LRN element
        * Notice loading state has changed.
        */
       _contentLoading: function(newValue, oldValue) {
+        var _this = this;
         if (typeof newValue !== typeof undefined && !newValue) {
-          setTimeout(() => {
-            this.loading = false;
-            this._resetScroll('anchor');
-            this.$['main-content'].focus();
+          setTimeout(function () {
+            _this.loading = false;
+            _this._resetScroll('anchor');
+            _this.$['main-content'].focus();
           }, 500);
         }
         else {
