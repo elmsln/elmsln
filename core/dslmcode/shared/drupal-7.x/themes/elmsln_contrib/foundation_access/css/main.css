@@ -3945,7 +3945,10 @@ body.devel-show .devel-querylog {
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  margin-left: -.6rem;
+  height: auto !important;
+  width: auto;
+  margin: 0;
+  padding: 0;
 }
 
 nav ul.left-nav-section a {

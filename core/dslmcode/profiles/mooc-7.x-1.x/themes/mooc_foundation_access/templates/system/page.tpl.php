@@ -10,12 +10,12 @@
     <?php if (!empty($messages)): ?>
     <?php endif; ?>
     <section class="main-section etb-book">
+      <h2 class="element-invisible"><?php print t('Navigation');?></h2>
       <div class="r-header row">
         <div class="r-header__left">
           <?php print render($page['header']); ?>
         </div>
         <div class="r-header__right">
-          <h2 class="element-invisible"><?php print t('Primary tabs');?></h2>
           <ul class="elmsln--page--operations">
             <!-- Edit Icon -->
             <?php if (isset($edit_path)): ?>

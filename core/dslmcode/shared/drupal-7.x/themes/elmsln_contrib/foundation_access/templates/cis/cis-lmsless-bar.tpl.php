@@ -10,7 +10,7 @@
      <section class="top-bar-section title-link">
         <h2 class="element-invisible"><?php print t('System navigation bar');?></h2>
         <!-- Left Nav Section -->
-        <ul class="left-nav-section">
+        <div class="left-nav-section">
         <?php
           // account for roles that don't have access to this
           if (!empty($elmsln_main_menu)) {?>
@@ -29,7 +29,7 @@
             </div>
           </lrnsys-drawer>
           <?php } else { ?>
-          <div class=" middle-align-wrap">
+          <div class="middle-align-wrap">
 	          <lrndesign-avatar label="<?php print $course_context; ?>" class="elmsln-course-avatar" jdenticon color="grey darken-4"></lrndesign-avatar>
 	          <div class="course-title-group">
 	            <span class="hide-on-small-only course-title"><?php print $slogan; ?></span>
@@ -37,6 +37,7 @@
 	          </div>
           </div>
           <?php } ?>
+      	</div>
       </section>
     </nav>
   </div>
