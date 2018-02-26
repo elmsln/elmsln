@@ -16,18 +16,18 @@
               <?php if (arg(2) == 'edit'): ?>
               <lrnsys-button id="edit-tip" onclick="document.getElementById('edit-submit').click();" class="r-header__icon elmsln-edit-button accessible-green-text" inner-class="no-padding" hover-class="<?php print $cis_lmsless['lmsless_classes'][$distro]['text'] . ' text-' . $cis_lmsless['lmsless_classes'][$distro]['dark'];?>" icon="save" alt="<?php print t('Save content'); ?>">
               </lrnsys-button>
+            <?php if (!empty($cis_shortcodes)) : ?>
+              </li>
+              <li class="page-op-button">
+              <lrnsys-drawer hover-class="<?php print $cis_lmsless['lmsless_classes'][$distro]['text'] . ' text-' . $cis_lmsless['lmsless_classes'][$distro]['dark'];?>" align="right" alt="<?php print t('Embed this content')?>" icon="share" header="<?php print t('Embed this content'); ?>" data-jwerty-key="s" data-voicecommand="open embed (menu)">
+                <?php print $cis_shortcodes; ?>
+              </lrnsys-drawer>
+            <?php endif; ?>
             <?php else: ?>
               <lrnsys-button id="edit-tip" href="<?php print $edit_path; ?>" class="r-header__icon elmsln-edit-button" inner-class="no-padding" data-jwerty-key="e" data-voicecommand="edit" hover-class="<?php print $cis_lmsless['lmsless_classes'][$distro]['text'] . ' text-' . $cis_lmsless['lmsless_classes'][$distro]['dark'];?>" icon="editor:mode-edit" alt="<?php print t('Edit content'); ?>">
               </lrnsys-button>
             <?php endif; ?>
             </li>
-            <?php endif; ?>
-            <?php if (!empty($cis_shortcodes)) : ?>
-              <li class="page-op-button">
-              <lrnsys-drawer hover-class="<?php print $cis_lmsless['lmsless_classes'][$distro]['text'] . ' text-' . $cis_lmsless['lmsless_classes'][$distro]['dark'];?>" align="right" alt="<?php print t('Embed this content')?>" icon="share" header="<?php print t('Embed this content'); ?>" data-jwerty-key="s" data-voicecommand="open embed (menu)">
-                <?php print $cis_shortcodes; ?>
-              </lrnsys-drawer>
-              </li>
             <?php endif; ?>
             <!-- end Edit Icon -->
             <li class="page-op-button">
