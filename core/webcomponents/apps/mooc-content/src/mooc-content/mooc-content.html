@@ -373,9 +373,8 @@ A LRN element
        */
       _resetScroll: function _resetScroll() {
         var item = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'anchor';
-
         this.resetScroll = true;
-        this.$[item].scrollIntoView({ block: "start", behavior: "smooth", inline: "nearest" });
+        this.$[item].scrollIntoView({ block: "nearest", behavior: "smooth" });
       },
       /**
        * Simple way to convert from object to array.
