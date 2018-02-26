@@ -586,58 +586,14 @@ lrnsys-dialog.mooc-helper-toc {
   font-weight: bold;
 }
 
-#block-mooc-helper-mooc-helper-toc-nav-modal {
-  margin:2rem auto;
-  width: 80%;
-  height: 80%;
-  padding: 0;
+#outlinemodal ul.menu {
+  padding-left: 0;
 }
-#block-mooc-helper-mooc-helper-toc-nav-modal .elmsln-book-item.elmsln-icon:before {
-  margin: 0;
-}
-.mooc-outline-modal-content {
-  padding: 2rem 2rem 0;
-  overflow: scroll;
-}
-.page-mooc-book-toc article ul li a,
-#block-mooc-helper-mooc-helper-toc-nav-modal .mooc-outline-modal-content a {
-  border: .1rem solid #eceff1;
-  font-size: 1rem;
-  color: #222222;
-  padding: 0 0 0 .25rem;
-  line-height: 2.5rem;
-  height: 2.5rem;
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  width: 100%;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.page-mooc-book-toc article ul li a:hover,
-#block-mooc-helper-mooc-helper-toc-nav-modal .mooc-outline-modal-content a:hover {
-  border: 1px solid #cfd8dc;
-  background-color: #212121;
-}
-#block-mooc-helper-mooc-helper-toc-nav-modal .mooc-outline-modal-content a.active-trail {
-  font-weight: bold;
-  background-color: #eceff1;
-}
-#block-mooc-helper-mooc-helper-toc-nav-modal .mooc-outline-modal-content a.active-trail.active {
-  background-color: #cccccc;
+#outlinemodal ul.menu li ul {
+  padding-left: 2em;
 }
 
-.page-mooc-book-toc article ul,
-#block-mooc-helper-mooc-helper-toc-nav-modal .mooc-outline-modal-content ul {
-  margin-left: 0;
-  list-style: none;
-}
-.page-mooc-book-toc article ul li ul,
-#block-mooc-helper-mooc-helper-toc-nav-modal .mooc-outline-modal-content ul li ul {
-  list-style: none;
-}
+
 
 .book-parent-tree {
   line-height: 3rem;
