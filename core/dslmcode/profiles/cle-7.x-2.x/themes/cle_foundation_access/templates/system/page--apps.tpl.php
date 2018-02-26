@@ -22,13 +22,6 @@
             <?php endif; ?>
             </li>
             <?php endif; ?>
-            <?php if (!empty($cis_shortcodes)) : ?>
-              <li class="page-op-button">
-              <lrnsys-drawer hover-class="<?php print $cis_lmsless['lmsless_classes'][$distro]['text'] . ' text-' . $cis_lmsless['lmsless_classes'][$distro]['dark'];?>" align="right" alt="<?php print t('Embed this content')?>" icon="share" header="<?php print t('Embed this content'); ?>" data-jwerty-key="s" data-voicecommand="open embed (menu)">
-                <?php print $cis_shortcodes; ?>
-              </lrnsys-drawer>
-              </li>
-            <?php endif; ?>
             <!-- end Edit Icon -->
             <li class="page-op-button">
             <?php if (!empty($tabs['#primary']) || !empty($tabs['#secondary']) || !empty($tabs_extras)): ?>
