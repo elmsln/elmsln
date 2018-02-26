@@ -42,8 +42,10 @@
     </nav>
   </div>
   <div class="top-bar-right-actions s7 m9 l7 col">
+    <?php if (count($bar_elements) > 0) : ?>
     <nav class="top-bar etb-nav flex-vertical-right center-align-wrap" data-options="is_hover: false" data-topbar>
      <section>
+      <h3 class="element-invisible"><?php print t('Course and user logistics');?></h3>
       <ul class="menu clearfix">
         <?php if ($bar_elements['help']) : ?>
         <li>
@@ -84,6 +86,7 @@
       </ul>
     </section>
     </nav>
+    <?php endif; ?>
   </div>
 </div>
 <div id="etb-network-nav" class="row full collapse white">
