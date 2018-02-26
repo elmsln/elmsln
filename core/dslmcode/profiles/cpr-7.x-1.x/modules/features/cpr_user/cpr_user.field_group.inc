@@ -141,7 +141,7 @@ function cpr_user_field_group_info() {
     'label' => 'Admin',
     'weight' => '3',
     'children' => array(
-      0 => 'og_user_node1',
+      0 => 'og_user_node',
       1 => 'masquerade',
       2 => 'timezone',
       3 => 'wysiwyg',

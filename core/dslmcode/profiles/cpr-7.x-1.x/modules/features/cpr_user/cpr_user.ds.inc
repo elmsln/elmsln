@@ -44,7 +44,7 @@ function cpr_user_ds_layout_settings_info() {
         4 => 'group_profile_admin',
         5 => 'wysiwyg',
         6 => 'timezone',
-        8 => 'og_user_node1',
+        8 => 'og_user_node',
         19 => 'masquerade',
       ),
       'hidden' => array(
@@ -60,7 +60,7 @@ function cpr_user_ds_layout_settings_info() {
       'wysiwyg' => 'footer',
       'timezone' => 'footer',
       'field_accessibility_preference' => 'right',
-      'og_user_node1' => 'footer',
+      'og_user_node' => 'footer',
       'field_display_name' => 'left',
       'group_profile_name' => 'left',
       'field_first_name' => 'left',

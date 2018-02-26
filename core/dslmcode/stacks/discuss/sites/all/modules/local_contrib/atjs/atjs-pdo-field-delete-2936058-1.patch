@@ -1,0 +1,13 @@
+diff --git a/atjs.module b/atjs.module
+index b518de4..067026c 100755
+--- a/atjs.module
++++ b/atjs.module
+@@ -1049,7 +1049,7 @@ function atjs_field_delete_instance($instance) {
+     return;
+   }
+ 
+-  db_query('DELETE FROM {atjs_listener_usage} WHERE source_entity_type = :type AND source_bundle = :bundle AND field_name = :field_name', array(
++  db_query('DELETE FROM {atjs_listener_usage} WHERE source_entity_type = :type AND source_bundle = :bundle AND source_field_name = :field_name', array(
+       ':type' => $instance['entity_type'],
+       ':bundle' => $instance['bundle'],
+       ':field_name' => $instance['field_name'],
