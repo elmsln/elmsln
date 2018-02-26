@@ -90,7 +90,11 @@
   </div>
 </div>
 <div id="etb-network-nav" class="row full collapse white">
+  <?php if ($bar_elements['network']) : ?>
   <ul class="elmsln-service-list col s9">
+  <?php else: ?>
+  <ul class="elmsln-service-list col s12">
+  <?php endif; ?>
   <?php if (isset($network['services']['Network'])) : ?>
     <?php
       foreach ($network['services']['Network'] as $service) :

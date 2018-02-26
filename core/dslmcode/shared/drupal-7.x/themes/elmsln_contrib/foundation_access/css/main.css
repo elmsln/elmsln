@@ -3629,6 +3629,7 @@ div.contextual-links-wrapper:not(.contextual-links-processed) {
   padding: 0 !important;
   height: 3.6em;
   display: flex;
+  overflow-y: scroll;
 }
 .elmsln-more-items {
   list-style: none;
