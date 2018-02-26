@@ -1384,16 +1384,6 @@ function foundation_access_html_head_alter(&$head_elements) {
       unset($head_elements[$key]);
     }
   }
-
-  $head_elements['fa_print_' . $key] = array(
-    '#type' => 'html_tag',
-    '#tag' => 'link',
-    '#attributes' => array(
-      'type' => 'text/css',
-      'rel' => 'stylesheet',
-      'href' => $file,
-    ),
-  );
   $args = arg();
   // account for print module and book print out
   if ($args[0] == 'book' && $args[1] = 'export' && $args[2] == 'html') {
