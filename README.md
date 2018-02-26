@@ -13,7 +13,7 @@ Learn more about ELMSLN @ [elmsln.org](https://www.elmsln.org/)
 
 Play quickly
 ==============
-Vagrant is the fastest way to get up and running quickly. See the [Vagrant installation documentation](https://elmsln.readthedocs.io/en/latest/development/Vagrant-Step-by-Step-setup/) on how to get up and running now! elmsln.org also has some sponsored demos of the technology but the real deal is always best!
+Vagrant is the fastest way to get up and running quickly. See the [Vagrant installation documentation](https://btopro.gitbooks.io/elmsln-documentation/content/developer-guide/vagrant-setup.html) on how to get up and running now! elmsln.org also has some sponsored demos of the technology but the real deal is always best!
 
 Issues
 ==============
@@ -21,7 +21,7 @@ If you notice an issue or have a question please file it in our [issue queue](ht
 
 Documentation
 ==============
-See the Docs for questions and documentation either on our [docs site](https://elmsln.readthedocs.io/en/latest/) or [API site](http://api.elmsln.org).
+See the Docs for questions and documentation either on our [docs site](https://btopro.gitbooks.io/elmsln-documentation/content/) or [API site](http://api.elmsln.org).
 
 Vision and Governance
 ==============
@@ -62,7 +62,6 @@ Support us with a monthly donation and help us continue our activities. [[Become
 
 ## Sponsors
 Become a sponsor and get your logo on our README on Github with a link to your site. [[Become a sponsor](https://opencollective.com/elmsln#sponsor)]
-
 
 LICENSE
 ==============
