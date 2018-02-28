@@ -92,12 +92,6 @@
         margin: 0 24px;
       }
 
-      vaadin-grid#material vaadin-grid-sorter {
-        --vaadin-grid-sorter-arrow: {
-          display: none !important;
-        };
-      }
-
       vaadin-grid#material vaadin-grid-sorter .cell {
         flex: 1;
         display: flex;
@@ -153,6 +147,7 @@
       .avatar-link paper-button {
         text-transform: unset;
       }
+
     </style>
     <iron-ajax auto
       id="projectrequest"
@@ -178,7 +173,7 @@
       <paper-item value$="[[project.id]]">[[project.attributes.title]]</paper-item>
     </template>
     </dropdown-select>
-    <vaadin-grid hidden$="[[!students]]" id="gradebook" aria-label="Student project list" items="[[students]]">
+    <vaadin-grid hidden$="[[!students]]" id="material" aria-label="Student project list" items="[[students]]">
       <vaadin-grid-column resizable>
         <template class="header">
           <vaadin-grid-sorter path="sis.sortable_name">Student</vaadin-grid-sorter>
