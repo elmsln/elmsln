@@ -11,9 +11,13 @@
       "weight": 12
     },
     "endpoints": {
-      "data": {
-        "callback": "_lrnapp_studio_instructor_data",
-        "property": "source-path"
+      "student": {
+        "callback": "_lrnapp_studio_instructor_student_data",
+        "property": "source-student-path"
+      },
+      "projects": {
+        "callback": "_lrnapp_studio_instructor_project_data",
+        "property": "source-project-path"
       }
     },
     "context": {

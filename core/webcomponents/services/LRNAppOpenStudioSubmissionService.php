@@ -208,7 +208,7 @@ class LRNAppOpenStudioSubmissionService {
    * @param [string] $uid  Specify user that you are looking for, defaults to active user
    * @return [node_object] Submission node object
    */
-  public function getSubmissionByAssignment($assignment_id, $uid = NULL) {
+  public function getSubmissionByAssignment($assignment_id, $uid = NULL, $encode = FALSE) {
     global $user;
     $return = FALSE;
     $section_id = _cis_connector_section_context();
@@ -232,6 +232,9 @@ class LRNAppOpenStudioSubmissionService {
        */
       $nids = array_keys($result['node']);
       $return = node_load(array_shift($nids));
+      if ($encode) {
+        $return = $this->encodeSubmission($return);
+      }
     }
     return $return;
   }

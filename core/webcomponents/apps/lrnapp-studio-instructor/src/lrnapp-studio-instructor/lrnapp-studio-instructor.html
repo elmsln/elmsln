@@ -3,9 +3,17 @@
 <link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid.html">
 <link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid-column-group.html">
 <link rel="import" href="../../bower_components/elmsln-loading/elmsln-loading.html">
+<link rel="import" href="../../bower_components/dropdown-select/dropdown-select.html">
+<link rel="import" href="../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../bower_components/paper-badge/paper-badge.html">
 <link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid-filter.html">
 <link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid-sorter.html">
 <link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid-selection-column.html">
+<style>
+.vaadin-grid-0 vaadin-grid-table-body.vaadin-grid .vaadin-grid-row.vaadin-grid .vaadin-grid-cell.vaadin-grid:not([detailscell]) > vaadin-grid-cell-content {
+  height: unset !important;
+}
+</style>
 
 <dom-module id="lrnapp-studio-instructor">
   <template>
@@ -115,28 +123,84 @@
       vaadin-grid-sorter {
         text-align: center;
       }
+
+      lrndesign-avatar {
+        display: inline-block;
+      }
+      .avatar-label {
+        display: inline-block;
+        margin-left: .2em;
+      }
+
+      .avatar-button {
+
+      }
+      .assignment-button {
+        height: 1em;
+      }
+      .project-button {
+        height: 1em;
+      }
+      paper-badge {
+        top: 0 !important;
+        left: unset !important;
+        right: 0;
+        z-index: 1;
+      }
     </style>
     <iron-ajax auto
-      url="[[sourcePath]]"
-      params=''
+      id="projectrequest"
+      url="[[sourceProjectPath]]"
+      params=""
       handle-as="json"
-      last-response="{{_data}}"
-      on-response="_handleResponse"></iron-ajax>
+      last-response="{{_projectData}}"
+      on-response="_handleProjectResponse"></iron-ajax>
+    <iron-ajax
+      id="studentrequest"
+      url="[[sourceStudentPath]]"
+      params='[[studentParams]]'
+      handle-as="json"
+      last-response="{{_studentData}}"
+      on-response="_handleStudentResponse"></iron-ajax>
     <div id="loading">
       <h3>Loading..</h3>
       <elmsln-loading color="grey-text" size="large"></elmsln-loading>
     </div>
-     <vaadin-grid column-reordering-allowed id="material" aria-label="Course list" items="{{students}}">
+    <dropdown-select id="selectedproject" label="Project">
+    <template is="dom-repeat" items="[[projects]]" as="project">
+      <paper-item value$="[[project.id]]">[[project.attributes.title]]</paper-item>
+    </template>
+    </dropdown-select>
+    <vaadin-grid hidden$="[[!students]]" column-reordering-allowed id="gradebook" aria-label="Student project list" items="[[students]]">
       <vaadin-grid-column resizable>
         <template class="header">
-          <vaadin-grid-sorter path="item.author.display_name">Student</vaadin-grid-sorter>
+          <vaadin-grid-sorter path="item.display_name">Student</vaadin-grid-sorter>
         </template>
         <template>
-          [[item.author.display_name]]
+          <paper-button class="avatar-button">
+            <lrndesign-avatar label="[[item.display_name]]" src="[[item.avatar]]"></lrndesign-avatar>
+            <span class="avatar-label">[[item.display_name]]</span>
+          </paper-button>
         </template>
       </vaadin-grid-column>
-      
-      
+      <template is="dom-repeat" items="[[assignments]]" as="assignment">
+        <vaadin-grid-column resizable>
+          <template class="header">
+            <vaadin-grid-sorter path="assignment.title">[[assignment.title]]</vaadin-grid-sorter>
+          </template>
+          <template>
+            <template is="dom-if" if="[[_submissionStatus(item, assignment)]]">
+              <lrnsys-button icon-class="[[_submissionPiece(item, assignment, 'color')]]" target="_blank" label="[[_submissionPiece(item, assignment, 'title')]]" icon="[[_submissionPiece(item, assignment, 'icon')]]" href="[[_submissionPiece(item, assignment, 'url')]]" id$="student-[[item.id]]-id-[[assignment.id]]"></lrnsys-button>
+            </template>
+            <template is="dom-if" if="[[!_submissionStatus(item, assignment)]]">
+              <paper-button disabled class="project-button" id$="student-[[item.id]]-id-[[assignment.id]]">[[assignment.title]]</paper-button>
+            </template>
+            <template is="dom-if" if="[[_commentCount(item, assignment)]]">
+              <paper-badge for="student-[[item.id]]-id-[[assignment.id]]" label="[[_commentCount(item, assignment)]]"></paper-badge>
+            </template>
+          </template>
+        </vaadin-grid-column>
+      </template>
     </vaadin-grid>
   </template>
 
@@ -144,18 +208,51 @@
   <script>
     Polymer({
       is: 'lrnapp-studio-instructor',
+      listeners: {
+        'selectedproject.change': '_projectChanged',
+      },
       properties: {
+        /**
+         * The projects to render
+         */
+        projects: {
+          type: Array,
+          notify: true,
+        },
+        /**
+         * The assignments to render
+         */
+        assignments: {
+          type: Array,
+          notify: true,
+        },
         /**
          * The submissions to render
          */
         students: {
           type: Array,
           notify: true,
+          value: false,
         },
         /**
          * Internal value for mapping the raw response data.
          */
-        _data: {
+        _projectData: {
+          type: Object,
+        },
+        /**
+         * studentParams for the request
+         */
+        studentParams: {
+          type: Object,
+          value: {
+            'id': null,
+          },
+        },
+        /**
+         * Internal value for mapping the raw response data.
+         */
+        _studentData: {
           type: Object,
         },
         /**
@@ -181,23 +278,71 @@
         },
       },
       /**
-       * Handle tap on paper-button above to redirect to the correct submission url.
+       * Project updated
        */
-      _loadSubmissionUrl: function(e) {
-        var normalizedEvent = Polymer.dom(e);
-        var local = normalizedEvent.localTarget;
-        // this will have the id of the current submission
-        var active = local.getAttribute('data-submission-id');
-        // @todo need a cleaner integration but this at least goes the right place for now
-        window.location.href = this.basePath + 'lrnapp-studio-submission/submissions/' + active;
+      _projectChanged: function(e) {
+        this.$.loading.hidden = false;
+        // this should fire off the new request
+        this.studentParams.id = e.detail.value;
+        this.$.studentrequest.generateRequest();
       },
       /**
        * Handle response for the whole projects object.
        */
-      _handleResponse: function(event) {
-        console.log(this._data);
+      _handleProjectResponse: function(event) {
         this.$.loading.hidden = true;
-        this.set('students', this._toArray(this._data.data.students));
+        this.set('projects', this._toArray(this._projectData.data.projects));
+      },
+      /**
+       * Handle response for the whole projects object.
+       */
+      _handleStudentResponse: function(event) {
+        this.$.loading.hidden = true;
+        this.set('students', []);
+        this.set('students', this._toArray(this._studentData.data.students));
+        this.set('assignments', []);
+        this.set('assignments', this._toArray(this._studentData.data.assignments));
+      },
+      /**
+       * Test student submission status relative to assignments
+       */
+      _submissionStatus: function(student, assignment) {
+        if (student != null && typeof student.assignments[assignment.id] !== typeof undefined && typeof student.assignments[assignment.id].id !== typeof undefined) {
+          return true;
+        }
+        return false;
+      },
+      /**
+       * Return a piece of the submission needed for visualization bc of template scope
+       */
+      _submissionPiece: function(student, assignment, piece) {
+        if (student != null && typeof student.assignments[assignment.id] !== typeof undefined && typeof student.assignments[assignment.id].id !== typeof undefined) {
+          var submission = student.assignments[assignment.id];
+          switch (piece) {
+            case 'url':
+              return this.basePath + 'lrnapp-studio-submission/submissions/' + submission.id;
+            break;
+            case 'title':
+              return submission.attributes.title;
+            break;
+            case 'icon':
+              return submission.meta.state_icon;
+            break;
+            case 'color':
+              return submission.meta.state_color;
+            break;
+          }
+        }
+        return '';
+      },
+      /**
+       * Return number of comments on an assignment for display.
+       */
+      _commentCount: function(student, assignment) {
+        if (student != null && typeof student.assignmentComments[assignment.id] !== typeof undefined) {
+          return student.assignmentComments[assignment.id]
+        }
+        return false;
       },
       /**
        * Simple way to convert from object to array.
