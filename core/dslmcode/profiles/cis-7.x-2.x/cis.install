@@ -187,6 +187,12 @@ function cis_update_7017(&$sandbox) {
  * Color field added as well as updating other values
  */
 function cis_update_7018(&$sandbox) {
+  // clean up from CIS 1.x rearing it's ugly head
+  field_delete_field('field_primary_color');
+  field_purge_batch(1000);
+  db_drop_table('field_data_field_primary_color');
+  db_drop_table('field_revision_field_primary_color');
+  // revert the types
   features_revert_module('cis_types');
   features_revert_module('cis_displays');
   module_enable(array('webcomponents', 'webcomponents_polymer', 'webcomponents_app'));

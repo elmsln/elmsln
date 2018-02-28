@@ -255,10 +255,6 @@ function cis_types_field_default_field_bases() {
     'locked' => 0,
     'module' => 'list',
     'settings' => array(
-      'allowed_values' => array(
-        'ca' => 'Campus A',
-        'cb' => 'Campus B',
-      ),
       'allowed_values_function' => '',
       'cis_connector_access' => FALSE,
       'cis_connector_disable' => FALSE,
