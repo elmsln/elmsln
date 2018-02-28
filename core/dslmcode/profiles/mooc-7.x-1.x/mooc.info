@@ -143,9 +143,6 @@ dependencies[] = footnotes
 dependencies[] = footnotes_wysiwyg
 dependencies[] = job_scheduler
 dependencies[] = linkchecker
-dependencies[] = read_time
-dependencies[] = read_time_media
-dependencies[] = read_time_book
 dependencies[] = elmsln_lrs
 ; Outline Designer
 dependencies[] = outline_designer

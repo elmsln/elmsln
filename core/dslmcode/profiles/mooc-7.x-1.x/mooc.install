@@ -236,3 +236,12 @@ function mooc_update_7018(&$standbox) {
   features_revert_module('mooc_ux_defaults');
   module_disable(array('book_title_override'));
 }
+
+/**
+ * Drop read time, it's too aggressive and front end can do this
+ */
+function mooc_update_7019(&$standbox) {
+  features_revert_module('mooc_cis_ux');
+  features_revert_module('mooc_ux_defaults');
+  module_disable(array('read_time','read_time_media','read_time_book',));
+}

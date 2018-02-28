@@ -414,17 +414,6 @@ class LRNAppBookService {
       }
       // get the icon
       $encoded_page->meta->icon = $this->significanceToIcon($node->field_instructional_significance[LANGUAGE_NONE][0]['value']);
-      // add in the read time stuff
-      if (module_exists('read_time')) {
-        if (!isset($node->read_time_total)) {
-        $node->read_time_total = read_time_node_get_properties($node, array(), 'read_time_total');
-        }
-        if (!isset($node->read_time)) {
-          $node->read_time = read_time_node_get_properties($node, array(), 'read_time');
-        }
-        // get read time mixed in
-        $encoded_page->meta->read_time = $node->read_time;
-      }
       // link for loading info
       $encoded_page->meta->link = 'node/' . $node->nid;
       // Relationships

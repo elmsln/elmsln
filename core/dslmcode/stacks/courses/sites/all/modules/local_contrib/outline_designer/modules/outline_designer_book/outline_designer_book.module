@@ -820,7 +820,6 @@ function outline_designer_book_process_drag_drop($nid, $parent_nid, $weight) {
     $node->book['weight'] = $weight;
     $node->revision = 1;
     $node->log = t("Outline Designer -- nid:%nid parent nid changed to %parent_nid", array('%nid' => $nid, '%parent_nid' => $parent_nid));
-    $node->_block_read_time_update = TRUE;
     node_save($node);
     drupal_set_message(t("Content position has been updated (nid:%nid)", array('%nid' => $nid)), 'toast');
     return 1;
@@ -841,7 +840,6 @@ function outline_designer_book_process_reweight($nid, $weight, $var3) {
     // set parent / weight
     $node->book['weight'] = $weight;
     node_save($node);
-    $node->_block_read_time_update = TRUE;
     drupal_set_message(t("Position has been updated (nid:%nid)", array('%nid' => $nid)), 'toast');
     return 1;
   }

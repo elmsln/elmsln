@@ -22,6 +22,5 @@ function mooc_cis_ux_update_7001(&$sandbox) {
  * Support Read time module and enable for people to see!
  */
 function mooc_cis_ux_update_7002(&$sandbox) {
-  module_enable(array('read_time', 'read_time_media', 'read_time_book'));
   features_revert_module('mooc_cis_ux');
 }
