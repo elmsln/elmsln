@@ -172,12 +172,13 @@
       <h3>Loading..</h3>
       <elmsln-loading color="grey-text" size="large"></elmsln-loading>
     </div>
+    <div hidden$="[[activeProject]]">Select a project to begin reviewing work</div>
     <dropdown-select id="selectedproject" label="Project">
     <template is="dom-repeat" items="[[projects]]" as="project">
       <paper-item value$="[[project.id]]">[[project.attributes.title]]</paper-item>
     </template>
     </dropdown-select>
-    <vaadin-grid hidden$="[[!students]]" column-reordering-allowed id="gradebook" aria-label="Student project list" items="[[students]]">
+    <vaadin-grid hidden$="[[!students]]" id="gradebook" aria-label="Student project list" items="[[students]]">
       <vaadin-grid-column resizable>
         <template class="header">
           <vaadin-grid-sorter path="sis.sortable_name">Student</vaadin-grid-sorter>
@@ -295,7 +296,7 @@
          */
         activeProject: {
           type: Number,
-          value: 0,
+          value: false,
         },
       },
       /**

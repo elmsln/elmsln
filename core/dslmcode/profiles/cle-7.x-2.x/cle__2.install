@@ -280,3 +280,10 @@ function cle__2_update_7022(&$sandbox) {
     ->condition('type', 'module')
     ->execute();
 }
+
+/**
+ * Instructors can now see the minor gradebook display
+ */
+function cle__2_update_7023(&$sandbox) {
+  features_revert_module('cle_perms');
+}
