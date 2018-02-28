@@ -2489,5 +2489,11 @@ function _elmsln_core_get_sis_user_data($uid = NULL) {
   if (isset($account->data['sis'])) {
     $sis = $account->data['sis'];
   }
+  else {
+    $sis = array(
+      'sortable_name' => $account->name,
+      'name' => $account->name,
+    );
+  }
   return $sis;
 }

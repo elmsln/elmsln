@@ -147,6 +147,12 @@
         right: 0;
         z-index: 1;
       }
+      .avatar-link {
+        color: black;
+      }
+      .avatar-link paper-button {
+        text-transform: unset;
+      }
     </style>
     <iron-ajax auto
       id="projectrequest"
@@ -174,29 +180,37 @@
     <vaadin-grid hidden$="[[!students]]" column-reordering-allowed id="gradebook" aria-label="Student project list" items="[[students]]">
       <vaadin-grid-column resizable>
         <template class="header">
-          <vaadin-grid-sorter path="item.display_name">Student</vaadin-grid-sorter>
+          <vaadin-grid-sorter path="sis.sortable_name">Student</vaadin-grid-sorter>
         </template>
         <template>
-          <paper-button class="avatar-button">
-            <lrndesign-avatar label="[[item.display_name]]" src="[[item.avatar]]"></lrndesign-avatar>
-            <span class="avatar-label">[[item.display_name]]</span>
-          </paper-button>
+          <a href$="[[basePath]]lrnapp-open-studio/projects?author=[[item.id]]&project=[[activeProject]]" tabindex="-1" target="_blank" class="avatar-link">
+            <paper-button class="avatar-button">
+              <lrndesign-avatar label="[[item.name]]" src="[[item.avatar]]"></lrndesign-avatar>
+              <span class="avatar-label">[[item.sis.sortable_name]]</span>
+            </paper-button>
+          </a>
+        </template>
+        <template class="footer">
+          <vaadin-grid-filter aria-label="Student" path="sis.sortable_name" value="[[_filterName]]">
+            <paper-input slot="filter" label="Student" value="{{_filterName::input}}" focus-target></paper-input>
+          </vaadin-grid-filter>
         </template>
       </vaadin-grid-column>
       <template is="dom-repeat" items="[[assignments]]" as="assignment">
         <vaadin-grid-column resizable>
           <template class="header">
-            <vaadin-grid-sorter path="assignment.title">[[assignment.title]]</vaadin-grid-sorter>
+            <span>[[assignment.title]]</span>
           </template>
           <template>
             <template is="dom-if" if="[[_submissionStatus(item, assignment)]]">
               <lrnsys-button icon-class="[[_submissionPiece(item, assignment, 'color')]]" target="_blank" label="[[_submissionPiece(item, assignment, 'title')]]" icon="[[_submissionPiece(item, assignment, 'icon')]]" href="[[_submissionPiece(item, assignment, 'url')]]" id$="student-[[item.id]]-id-[[assignment.id]]"></lrnsys-button>
             </template>
             <template is="dom-if" if="[[!_submissionStatus(item, assignment)]]">
-              <paper-button disabled class="project-button" id$="student-[[item.id]]-id-[[assignment.id]]">[[assignment.title]]</paper-button>
+              <paper-button disabled class="project-button" id$="student-[[item.id]]-id-[[assignment.id]]">X</paper-button>
             </template>
             <template is="dom-if" if="[[_commentCount(item, assignment)]]">
-              <paper-badge for="student-[[item.id]]-id-[[assignment.id]]" label="[[_commentCount(item, assignment)]]"></paper-badge>
+              <paper-badge id$="student-[[item.id]]-id-[[assignment.id]]-tip" for="student-[[item.id]]-id-[[assignment.id]]" label="[[_commentCount(item, assignment)]]"></paper-badge>
+              <paper-tooltip for="student-[[item.id]]-id-[[assignment.id]]-tip">Comments left on classmates [[assignment.title]]</paper-badge>
             </template>
           </template>
         </vaadin-grid-column>
@@ -276,14 +290,22 @@
           type: String,
           notify: true,
         },
+        /**
+         * Internal ID for active project
+         */
+        activeProject: {
+          type: Number,
+          value: 0,
+        },
       },
       /**
        * Project updated
        */
       _projectChanged: function(e) {
         this.$.loading.hidden = false;
+        this.activeProject = e.detail.value;
         // this should fire off the new request
-        this.studentParams.id = e.detail.value;
+        this.studentParams.id = this.activeProject;
         this.$.studentrequest.generateRequest();
       },
       /**

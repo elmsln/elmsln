@@ -80,6 +80,8 @@ function _lrnapp_studio_instructor_student_data($machine_name, $app_route, $para
       $students[$uid]->assignmentComments = array();
       $students[$uid]->assignments = array();
       $students[$uid]->id = $uid;
+      $tmp = user_load($uid);
+      $students[$uid]->name = $tmp->name;
       $students[$uid]->display_name = _elmsln_core_get_user_name('full', $uid);
       $students[$uid]->avatar = _elmsln_core_get_user_picture('avatar', $uid);
       $students[$uid]->visual = _elmsln_core_get_user_extras($uid);
