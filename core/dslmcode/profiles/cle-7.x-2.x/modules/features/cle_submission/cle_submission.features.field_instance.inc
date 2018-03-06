@@ -79,6 +79,7 @@ function cle_submission_field_default_field_instances() {
         'label' => 'inline',
         'module' => 'entityreference',
         'settings' => array(
+          'bypass_access' => FALSE,
           'link' => FALSE,
         ),
         'type' => 'entityreference_label',
@@ -88,6 +89,7 @@ function cle_submission_field_default_field_instances() {
         'label' => 'inline',
         'module' => 'entityreference',
         'settings' => array(
+          'bypass_access' => FALSE,
           'link' => FALSE,
         ),
         'type' => 'entityreference_label',
@@ -97,6 +99,7 @@ function cle_submission_field_default_field_instances() {
         'label' => 'inline',
         'module' => 'entityreference',
         'settings' => array(
+          'bypass_access' => FALSE,
           'link' => FALSE,
         ),
         'type' => 'entityreference_label',
@@ -106,6 +109,7 @@ function cle_submission_field_default_field_instances() {
         'label' => 'inline',
         'module' => 'entityreference',
         'settings' => array(
+          'bypass_access' => FALSE,
           'link' => FALSE,
         ),
         'type' => 'entityreference_label',
@@ -291,7 +295,7 @@ function cle_submission_field_default_field_instances() {
     'settings' => array(
       'description_field' => 0,
       'file_directory' => 'submission_files',
-      'file_extensions' => 'txt doc docx pdf zip md xls xlsx ppt pptx',
+      'file_extensions' => 'txt doc docx pdf zip md xls xlsx ppt pptx html rtf',
       'filefield_paths' => array(
         'active_updating' => 0,
         'file_name' => array(
@@ -878,6 +882,7 @@ function cle_submission_field_default_field_instances() {
         'label' => 'inline',
         'module' => 'entityreference',
         'settings' => array(
+          'bypass_access' => FALSE,
           'link' => FALSE,
         ),
         'type' => 'entityreference_label',
