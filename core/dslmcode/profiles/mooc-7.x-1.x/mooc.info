@@ -3,6 +3,7 @@ name = "MOOC"
 description = "Massively Open Online Course is a set of tools for building an online course"
 exclusive = "1"
 core = "7.x"
+project = "mooc"
 elmslndefaulttitle = "Course outline"
 elmslntype = "service"
 ; ----------
@@ -175,10 +176,3 @@ dependencies[] = mooc_nav_block
 dependencies[] = webcomponents_app
 dependencies[] = webcomponents_app_context
 dependencies[] = book_player
-; Information intentionally kept here to have a version w/ ELMSLN
-; Information added by Drupal.org packaging script on 2014-08-13
-version = "7.x-1.0-beta7+5-dev"
-core = "7.x"
-project = "mooc"
-datestamp = "1407970136"
-
