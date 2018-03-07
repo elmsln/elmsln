@@ -47,6 +47,20 @@ function imce_menu() {
 }
 
 /**
+ * Implements hook_admin_paths().
+ */
+function imce_admin_paths() {
+  if (variable_get('imce_settings_admin_theme', FALSE)) {
+    return array(
+      'imce' => TRUE,
+      'imce/*' => TRUE,
+      'file/imce/*' => TRUE,
+      'imce-filefield/*' => TRUE,
+    );
+  }
+}
+
+/**
  * Implements hook_permission().
  */
 function imce_permission() {
