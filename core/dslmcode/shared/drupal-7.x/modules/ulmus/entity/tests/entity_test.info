@@ -7,9 +7,9 @@ files[] = entity_test.install
 dependencies[] = entity
 hidden = TRUE
 
-; Information added by Drupal.org packaging script on 2016-09-22
-version = "7.x-1.8"
+; Information added by Drupal.org packaging script on 2018-02-14
+version = "7.x-1.9"
 core = "7.x"
 project = "entity"
-datestamp = "1474546503"
+datestamp = "1518620551"
 

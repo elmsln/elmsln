@@ -1088,9 +1088,10 @@ function entity_flush_caches() {
   // Care about entitycache tables.
   if (module_exists('entitycache')) {
     $tables = array();
-    foreach (entity_crud_get_info() as $entity_type => $entity_info) {
-      if (isset($entity_info['module']) && !empty($entity_info['entity cache'])) {
-        $tables[] = 'cache_entity_' . $entity_type;
+    $tables_created = variable_get('entity_cache_tables_created');
+    if (is_array($tables_created)) {
+      foreach ($tables_created as $module => $entity_cache_tables) {
+        $tables = array_merge($tables, $entity_cache_tables);
       }
     }
     return $tables;
