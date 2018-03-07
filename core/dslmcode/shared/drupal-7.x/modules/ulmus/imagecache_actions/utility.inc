@@ -143,7 +143,7 @@ function imagecache_actions_get_style_label($style_name) {
 }
 
 /**
- * Return an array with context information about the image.
+ * Returns an array with context information about the image.
  *
  * This information is called by effects that need contextual information or
  * that allow custom PHP:
@@ -222,6 +222,53 @@ function imagecache_actions_get_image_context($image, $data) {
   }
 
   return $image_context;
+}
+
+
+/**
+ * Returns information about the context, image style and image effect id, of
+ * the current image effect.
+ *
+ * Note that this information is not alterable, that is, it will not have any
+ * effect on the rest of the derivative image generation process including its
+ * subsequent effects.
+ *
+ * This information is called by effects that may need contextual information or
+ * that allow custom PHP:
+ * - Custom action.
+ * - Text from image alt or title.
+ * - Text with tokens.
+ * - Text from PHP code.
+ *
+ * This information is fetched by traversing the backtrace, looking for known
+ * functions that have the image style or effect as argument..
+ *
+ * @return array
+ *   Array with keys 'image_style' and 'image_effect_id' pointing to the current
+ *   image style (array) resp. image effect id (int).
+ */
+function imagecache_actions_get_image_effect_context() {
+  $result = array();
+  $backtrace = debug_backtrace();
+
+  foreach ($backtrace as $function_call) {
+    if ($function_call['function'] && $function_call['function'] === 'image_effect_apply') {
+      $result['image_effect_id'] = isset($function_call['args'][1]['ieid']) ? $function_call['args'][1]['ieid'] : NULL;
+    }
+    else if ($function_call['function'] && $function_call['function'] === 'image_style_create_derivative') {
+      $result['image_style'] = isset($function_call['args'][0]) ? $function_call['args'][0] : NULL;
+    }
+
+    if (count($result) === 2) {
+      break;
+    }
+  }
+
+  $result += array(
+    'image_effect_id' => NULL,
+    'image_style' => NULL,
+  );
+  return $result;
 }
 
 /**
@@ -369,11 +416,14 @@ function imagecache_actions_calculate_offset($keyword, $value, $base_size, $laye
   }
 
   // Handle % values.
-  if (substr($value, strlen($value) - 1, 1) == '%') {
-    $value = intval($value / 100 * $base_size);
+  if (substr($value, -1) === '%') {
+    // Explicitly convert $value to prevent warnings in PHP 7.1.
+    $value = intval((int) $value / 100 * $base_size);
     $offset = -1 * ($layer_size / 2);
   }
-  $value = $base + ($direction * $value);
+  // $value may contain 'px' at the end: explicitly convert to prevent warnings
+  // in PHP 7.1.
+  $value = $base + ($direction * (int) $value);
 
   // Add any extra offset to position the item.
   return $value + $offset;
@@ -468,12 +518,13 @@ function imagecache_actions_keyword_filter($value, $base_size, $layer_size) {
  * Computes a length based on a length specification and an actual length.
  *
  * Examples:
- *  (50, 400) returns 50; (50%, 400) returns 200;
+ *  (50, 400) returns 50; (50px, 400) returns 50; (50%, 400) returns 200;
  *  (50, null) returns 50; (50%, null) returns null;
  *  (null, null) returns null; (null, 100) returns null.
  *
  * @param string|null $length_specification
- *   The length specification. An integer constant or a % specification.
+ *   The length specification. An integer constant optionally followed by 'px'
+ *   or '%'.
  * @param int|null $current_length
  *   The current length. May be null.
  *
@@ -482,6 +533,10 @@ function imagecache_actions_keyword_filter($value, $base_size, $layer_size) {
 function imagecache_actions_percent_filter($length_specification, $current_length) {
   if (strpos($length_specification, '%') !== FALSE) {
     $length_specification = $current_length !== NULL ? str_replace('%', '', $length_specification) * 0.01 * $current_length : NULL;
+  }
+  else {
+    // Strips 'px' if available.
+    $length_specification = (int) $length_specification;
   }
   return $length_specification;
 }

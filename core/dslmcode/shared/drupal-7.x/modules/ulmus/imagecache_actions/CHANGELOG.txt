@@ -3,6 +3,21 @@ Imagecache Actions
 
 Imagecache Actions 7.x-1.x-dev
 ------------------------------
+- [#2917097]: PHP 7.1 Warning "A non-numeric value encountered".
+- [#2905130] by bserem, fietserwin: Remove animation from moving images.
+- [#2888678] by das-peter: ImageMagick: Add support for invert effect.
+- [#1099300]: Notice: A non well formed numeric value encountered in
+  image_gd_definecanvas() (line 381 of canvasactions.inc).
+- [#2719661] by SKAUGHT: Division by zero.
+- [#2717789]: Prevent exif_read_data() warnings.
+- Warning: Theme hook coloractions_invert_summary not found.
+- [#2696225] by mnlund, fietserwin: Add support for multiply color blending.
+- by fietserwin: image_styles_admin: sort image styles by label.
+- [#2039379]: Add some better examples for using custom actions.
+- Made more contextual information (image style and image effect) available in
+  the custom action and text image effects.
+- [#2690337] by Ajithlal, fietserwin: Would like a feature for converting case
+  in text effect.
 
 Imagecache Actions 7.x-1.7
 --------------------------

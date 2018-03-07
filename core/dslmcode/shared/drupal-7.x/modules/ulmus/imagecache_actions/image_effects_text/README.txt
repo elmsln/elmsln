@@ -150,8 +150,9 @@ PHP snippets to determine the text
 ----------------------------------
 Given the correct permission, you can write your own PHP snippet to compute the
 text to display. To ease this task, this module makes some information regarding
-the image being processed available in 2 variables: $image and $image_context.
-These variables are readily available in your snippet.
+the image being processed available in a number of variables: $image,
+$image_context, $image_style, and $image_effect_id. These variables are readily
+available in your snippet.
 
 $image is an object containing the following properties:
 - source: string, the source of the image, e.g. public://photo.jpg
@@ -213,6 +214,18 @@ $image_context is an associative array containing:
    - alt (string) ...
    - title (string) ...
    - ...
+
+$image_style is an associative array containing the current image style being
+processed. It ocntians a.o.:
+- isid: the unique image style id
+- name: machine name.
+- label: Human readable name.
+- effects: An array with the effects of this image style, ordered in the way
+  they should be applied.
+
+$image_effect_id is an int containng the unique id of the current image effect
+being applied. This can be used to look the current image effect up in the
+$image_style array.
 
 Of course there are many other possible useful globals. Think of:
 - base_url
