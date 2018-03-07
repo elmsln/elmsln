@@ -51,4 +51,5 @@ function environment_indicator_settings_submit($form, $form_state) {
     // Clear admin menu caches.
     admin_menu_flush_caches();
   }
+  cache_clear_all('environment_indicator', 'cache');
 }
