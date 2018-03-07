@@ -5,7 +5,11 @@
  * Advanced aggregation validation module.
  */
 
-// Define default variables.
+/**
+ * @addtogroup default_variables
+ * @{
+ */
+
 /**
  * Default css lint ignore settings.
  */
@@ -15,6 +19,15 @@ define('ADVAGG_VALIDATOR_CSSLINT_IGNORE', '');
  * Default js hint ignore settings.
  */
 define('ADVAGG_VALIDATOR_JSHINT_IGNORE', '');
+
+/**
+ * @} End of "addtogroup default_variables".
+ */
+
+/**
+ * @addtogroup hooks
+ * @{
+ */
 
 /**
  * Implements hook_menu().
@@ -95,3 +108,97 @@ function advagg_validator_menu_alter(&$items) {
     );
   }
 }
+
+/**
+ * @} End of "addtogroup hooks".
+ */
+
+/**
+ * @addtogroup 3rd_party_hooks
+ * @{
+ */
+
+/**
+ * Implements hook_libraries_info().
+ */
+function advagg_validator_libraries_info() {
+  $libraries['csslint'] = array(
+    'name' => 'csslint',
+    'vendor url' => 'https://github.com/CSSLint/csslint',
+    'download url' => 'https://github.com/CSSLint/csslint/archive/master.zip',
+    'version arguments' => array(
+      'file' => 'package.json',
+      'pattern' => '/"version":\\s+"([0-9\.]+)"/',
+      'lines' => 10,
+    ),
+    'remote' => array(
+      'callback' => 'advagg_get_github_version_json',
+      'url' => 'https://rawgit.com/CSSLint/csslint/master/package.json',
+    ),
+    'files' => array(
+      'js' => array(
+        'dist/csslint.js' => array(
+          'type' => 'file',
+        ),
+      ),
+    ),
+    'variants' => array(),
+  );
+  // Get the latest tagged version for external file loading.
+  $version = advagg_get_remote_libraries_version('csslint', $libraries['csslint']);
+  $libraries['csslint']['variants'] += array(
+    'external' => array(
+      'files' => array(
+        'js' => array(
+          "https://cdn.rawgit.com/CSSLint/csslint/v{$version}/dist/csslint.js" => array(
+            'type' => 'external',
+            'data' => "https://cdn.rawgit.com/CSSLint/csslint/v{$version}/dist/csslint.js",
+          ),
+        ),
+      ),
+    ),
+  );
+
+  $libraries['jshint'] = array(
+    'name' => 'jshint',
+    'vendor url' => 'https://github.com/jshint/jshint',
+    'download url' => 'https://github.com/jshint/jshint/archive/master.zip',
+    'version arguments' => array(
+      'file' => 'package.json',
+      'pattern' => '/"version":\\s+"([0-9\.]+)"/',
+      'lines' => 10,
+    ),
+    'remote' => array(
+      'callback' => 'advagg_get_github_version_json',
+      'url' => 'https://rawgit.com/jshint/jshint/master/package.json',
+    ),
+    'files' => array(
+      'js' => array(
+        'dist/jshint.js' => array(
+          'type' => 'file',
+        ),
+      ),
+    ),
+    'variants' => array(),
+  );
+  // Get the latest tagged version for external file loading.
+  $version = advagg_get_remote_libraries_version('jshint', $libraries['jshint']);
+  $libraries['jshint']['variants'] += array(
+    'external' => array(
+      'files' => array(
+        'js' => array(
+          "https://cdn.rawgit.com/jshint/jshint/{$version}/dist/jshint.js" => array(
+            'type' => 'external',
+            'data' => "https://cdn.rawgit.com/jshint/jshint/{$version}/dist/jshint.js",
+          ),
+        ),
+      ),
+    ),
+  );
+
+  return $libraries;
+}
+
+/**
+ * @} End of "addtogroup 3rd_party_hooks".
+ */

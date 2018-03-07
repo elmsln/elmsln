@@ -1,11 +1,11 @@
-name = AdvAgg Async Font Loader
-description = Allows one to load fonts in an async manner
+name = AdvAgg Critical CSS
+description = Control Critical CSS via UI and/or a 3rd party service.
 package = Advanced CSS/JS Aggregation
 core = 7.x
 dependencies[] = advagg
-recommends[] = libraries
+dependencies[] = advagg_mod
 
-configure = admin/config/development/performance/advagg/font
+configure = admin/config/development/performance/advagg/critical-css
 
 ; Information added by Drupal.org packaging script on 2018-02-23
 version = "7.x-2.32"

@@ -18,8 +18,7 @@ function advagg_run_check(key, value) {
   // Only run if window.FontFaceObserver is defined.
   if (window.FontFaceObserver) {
     // Only alpha numeric value.
-    key = key.replace(/[^a-zA-Z0-9\-]/g, '');
-
+    key = key.replace(/[^a-zA-Z0-9-]/g, '');
     if (typeof window.FontFaceObserver.prototype.load === 'function') {
       new window.FontFaceObserver(value).load().then(function () {
         advagg_run_check_inner(key, value);
@@ -50,15 +49,27 @@ function advagg_run_check(key, value) {
 function advagg_run_check_inner(key, value) {
   'use strict';
   // Set Class.
-  if (Drupal.settings.advagg_font_no_fout != 1) {
+  if (parseInt(Drupal.settings.advagg_font_no_fout, 10) !== 1) {
     window.document.documentElement.className += ' ' + key;
   }
 
-  // Set Cookie for a day.
-  if (Drupal.settings.advagg_font_cookie == 1) {
-    var expire_date = new Date(new Date().getTime() + 86400 * 1000);
+  // Set for a day.
+  var expire_date = new Date().getTime() + 86400 * 1000;
+
+  if (Storage !== void 0 && parseInt(Drupal.settings.advagg_font_storage, 10) === 1) {
+    // Use local storage.
+    var fonts = JSON.parse(localStorage.getItem('advagg_fonts'));
+    if (!fonts) {
+      fonts = {};
+    }
+    fonts[key] = expire_date;
+    localStorage.setItem('advagg_fonts', JSON.stringify(fonts));
+  }
+  else if (parseInt(Drupal.settings.advagg_font_cookie, 10) === 1) {
+    // Use cookies if enabled and local storage not available.
+    expire_date = new Date(expire_date).toUTCString();
     document.cookie = 'advaggfont_' + key + '=' + value
-      + '; expires=' + expire_date.toUTCString()
+      + '; expires=' + expire_date
       + '; domain=.' + document.location.hostname
       + '; path=/';
   }
@@ -82,11 +93,11 @@ function advagg_font_add_font_classes_on_load() {
 }
 
 /**
- * Make sure jQuery and Drupal.settings are defined before running.
+ * Make sure window.Drupal.settings.advagg_font is defined before running.
  */
 function advagg_font_check() {
   'use strict';
-  if (window.jQuery && window.Drupal && window.Drupal.settings) {
+  if (window.Drupal && window.Drupal.settings && window.Drupal.settings.advagg_font) {
     advagg_font_add_font_classes_on_load();
   }
   else {

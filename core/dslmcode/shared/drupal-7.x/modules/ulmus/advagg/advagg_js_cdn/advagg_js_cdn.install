@@ -6,6 +6,11 @@
  */
 
 /**
+ * @addtogroup hooks
+ * @{
+ */
+
+/**
  * Implements hook_requirements().
  */
 function advagg_js_cdn_requirements($phase) {
@@ -58,3 +63,7 @@ function advagg_js_cdn_requirements($phase) {
 
   return $requirements;
 }
+
+/**
+ * @} End of "addtogroup hooks".
+ */

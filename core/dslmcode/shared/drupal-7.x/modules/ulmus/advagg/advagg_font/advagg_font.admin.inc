@@ -14,23 +14,23 @@
  */
 function advagg_font_admin_settings_form() {
   drupal_set_title(t('AdvAgg: Async Font Loader'));
+  advagg_display_message_if_requirements_not_met();
   $form = array();
 
-  module_load_include('advagg.inc', 'advagg_font');
-  $version = advagg_update_github_versions('fontfaceobserver');
+  $library = advagg_get_library('fontfaceobserver', 'advagg_font');
+  $version = advagg_get_remote_libraries_version('fontfaceobserver', $library);
   $options = array(
     0 => t('Disabled'),
     6 => t('Externally load the latest from github (version: @version)', array('@version' => $version)),
   );
   $description = t('This will use the fallback font until the font has been downloaded. See <a href="@link">fontfaceobserver</a> for more info.', array(
-    '@link' => 'https://github.com/bramstein/fontfaceobserver',
+    '@link' => $library['vendor url'],
   ));
   if (function_exists('libraries_info')) {
-    $lib_info = libraries_detect('fontfaceobserver');
-    if ($lib_info['installed']) {
+    if ($library['installed']) {
       $options += array(
-        2 => t('Inline javascript (version: @version)', array('@version' => $lib_info['version'])),
-        4 => t('Local file included in aggregate (version: @version)', array('@version' => $lib_info['version'])),
+        2 => t('Inline javascript (version: @version)', array('@version' => $library['version'])),
+        4 => t('Local file included in aggregate (version: @version)', array('@version' => $library['version'])),
       );
     }
     elseif (!is_readable('sites/all/libraries/fontfaceobserver/fontfaceobserver.js')) {
@@ -72,11 +72,17 @@ function advagg_font_admin_settings_form() {
       ),
     ),
   );
+  $form['container']['advagg_font_storage'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Use localStorage so the flash of unstyled text (FOUT) only happens once.'),
+    '#default_value' => variable_get('advagg_font_storage', ADVAGG_FONT_STORAGE),
+    '#description' => t('Data is stored in localStorage under advagg_fonts. If this is a problem you can disable localStorage from being used; if doing so the FOUT (Flash of Unstyled Text) will happen on every page load if cookies is also not being used.', array('@cookie' => 'advaggfont_pt-sans=PT Sans')),
+  );
   $form['container']['advagg_font_cookie'] = array(
     '#type' => 'checkbox',
     '#title' => t('Set a cookie so the flash of unstyled text (FOUT) only happens once.'),
     '#default_value' => variable_get('advagg_font_cookie', ADVAGG_FONT_COOKIE),
-    '#description' => t('Cookies are name like <code>@cookie</code>. If this is a problem you can disable cookies from being set; if doing so the FOUT will happen on every page load.', array('@cookie' => 'advaggfont_pt-sans=PT Sans')),
+    '#description' => t('Cookies are name like <code>@cookie</code>. If this is a problem you can disable cookies from being set; if doing so the FOUT (Flash of Unstyled Text) will happen on every page load if localStorage is also not being used.', array('@cookie' => 'advaggfont_pt-sans=PT Sans')),
   );
   $form['container']['advagg_font_no_fout'] = array(
     '#type' => 'checkbox',
@@ -86,6 +92,7 @@ function advagg_font_admin_settings_form() {
     '#states' => array(
       'disabled' => array(
         '#edit-advagg-font-cookie' => array('checked' => FALSE),
+        '#edit-advagg-font-storage' => array('checked' => FALSE),
       ),
     ),
   );
@@ -95,28 +102,54 @@ function advagg_font_admin_settings_form() {
     '#type' => 'fieldset',
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,
-    '#title' => t('CSS files with external fonts'),
+    '#title' => t('Async Loaded fonts in CSS'),
+    '#description' => t('Assumes quoted fonts will be downloaded and unquoted fonts are fallbacks.'),
+  );
+  $form['fonts_not_async'] = array(
+    '#type' => 'fieldset',
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+    '#title' => t('NOT Async Loaded in CSS'),
+    '#description' => t('Assumes quoted fonts will be downloaded and unquoted fonts are fallbacks. If there is no fallback it will apear below.'),
   );
   // Get filename, filename_hash, and changes.
   $results = db_select('advagg_files', 'af')
     ->fields('af', array('filename', 'filename_hash', 'changes'))
     ->condition('filetype', 'css')
+    ->orderBy('filename', 'ASC')
     ->execute();
   while ($row = $results->fetchAssoc()) {
     if (!file_exists($row['filename'])) {
       continue;
     }
     // Get the file contents.
-    $file_contents = (string) @file_get_contents($row['filename']);
+    $file_contents = (string) @advagg_file_get_contents($row['filename']);
     // Get font names.
-    $replacements = advagg_font_get_replacements_array($file_contents);
+    list($replacements, $fonts_with_no_replacements) = advagg_font_get_replacements_array($file_contents);
     if (!empty($replacements)) {
       $fonts = array();
       foreach ($replacements as $key => $replacement) {
+        // Do not display !important after the fallback font name.
+        $replacement[5] = str_replace(' !important', '', $replacement[5]);
         $fonts[$key . ' ' . $replacement[3]] = $replacement[5];
       }
 
       $form['fonts'][$row['filename_hash']] = array(
+        '#markup' => '<div>' . t('%file - <code>@replacements</code><br />', array(
+          '@replacements' => str_ireplace('array', '', print_r($fonts, TRUE)),
+          '%file' => $row['filename'],
+        )) . '</div>',
+      );
+    }
+    if (!empty($fonts_with_no_replacements)) {
+      $fonts = array();
+      foreach ($fonts_with_no_replacements as $key => $replacement) {
+        // Do not display !important after the fallback font name.
+        $replacement = str_replace(' !important', '', $replacement);
+        $fonts[$key . ' ' . $replacement] = $replacement;
+      }
+
+      $form['fonts_not_async'][$row['filename_hash']] = array(
         '#markup' => '<div>' . t('%file - <code>@replacements</code><br />', array(
           '@replacements' => str_ireplace('array', '', print_r($fonts, TRUE)),
           '%file' => $row['filename'],
@@ -153,20 +186,24 @@ function advagg_font_admin_settings_form() {
   return system_settings_form($form);
 }
 
-// Submit callback.
 /**
- * Clear out the advagg cache bin when the save configuration button is pressed.
+ * Submit callback, clear out the advagg cache bin.
+ *
+ * @ingroup advagg_forms_callback
  */
 function advagg_font_admin_settings_form_submit($form, &$form_state) {
   // Clear caches.
   advagg_cache_clear_admin_submit();
 
-  // Disable cookie if ffo is disabled.
+  // Disable cookie and local storage if ffo is disabled.
   if (empty($form_state['values']['advagg_font_fontfaceobserver'])) {
     $form_state['values']['advagg_font_cookie'] = 0;
+    $form_state['values']['advagg_font_storage'] = 0;
   }
-  // Disable no fout if cookies are disabled.
-  if (empty($form_state['values']['advagg_font_cookie'])) {
+  // Disable no fout if cookies and local storage are disabled.
+  if (empty($form_state['values']['advagg_font_cookie'])
+    && empty($form_state['values']['advagg_font_storage'])
+  ) {
     $form_state['values']['advagg_font_no_fout'] = 0;
   }
 }

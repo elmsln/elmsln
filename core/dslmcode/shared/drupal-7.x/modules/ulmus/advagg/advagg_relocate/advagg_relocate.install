@@ -1,0 +1,23 @@
+<?php
+
+/**
+ * @file
+ * Handles AdvAgg Relocate installation and upgrade tasks.
+ */
+
+/**
+ * @addtogroup hooks
+ * @{
+ */
+
+/**
+ * Implements hook_install().
+ */
+function advagg_relocate_install() {
+  // New install gets a locked admin section.
+  variable_set('advagg_relocate_admin_mode', 0);
+}
+
+/**
+ * @} End of "addtogroup hooks".
+ */

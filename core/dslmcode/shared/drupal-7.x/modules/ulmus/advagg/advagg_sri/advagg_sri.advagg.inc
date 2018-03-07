@@ -5,20 +5,23 @@
  * Advanced aggregation sri module.
  */
 
-// AdvAgg hooks.
+/**
+ * @addtogroup advagg_hooks
+ * @{
+ */
+
 /**
  * Implements hook_advagg_save_aggregate_alter().
  *
  * Save the hash of the file.
- *
- * @param array $files_to_save
- *   Array($uri => $contents).
- * @param array $aggregate_settings
- *   Array of settings.
- * @param array $other_parameters
- *   Array of containing $files and $type.
  */
 function advagg_sri_advagg_save_aggregate_alter(array &$files_to_save, array $aggregate_settings, array $other_parameters) {
+  // * @param array $files_to_save
+  // *   Array($uri => $contents).
+  // * @param array $aggregate_settings
+  // *   Array of settings.
+  // * @param array $other_parameters
+  // *   Array of containing $files and $type.
   foreach ($files_to_save as $uri => $contents) {
     // Skip gzip/brotli files.
     $ext = strtolower(pathinfo($uri, PATHINFO_EXTENSION));
@@ -36,11 +39,10 @@ function advagg_sri_advagg_save_aggregate_alter(array &$files_to_save, array $ag
 
 /**
  * Implements hook_advagg_build_aggregate_plans_post_alter().
- *
- * @param array $plans
- *   Array of aggregate files.
  */
 function advagg_sri_advagg_build_aggregate_plans_post_alter(array &$plans) {
+  // * @param array $plans
+  // *   Array of aggregate files.
   $advagg_sri = variable_get('advagg_sri', ADVAGG_SRI);
   if (empty($advagg_sri)) {
     return;
@@ -123,7 +125,10 @@ function advagg_sri_advagg_removed_aggregates($kill_list) {
   }
 }
 
-// Helper functions.
+/**
+ * @} End of "addtogroup advagg_hooks".
+ */
+
 /**
  * Store settings associated with hash.
  *
@@ -188,6 +193,7 @@ function advagg_sri_get_filenames_hashes(array $filenames) {
   foreach ($not_in_db as $file) {
     $filepath = array_search($file, $filenames);
     if (is_readable($filepath)) {
+      // Do not use advagg_file_get_contents here.
       $contents = (string) @file_get_contents($filepath);
       if (!empty($contents)) {
         $hashes[$file] = advagg_sri_compute_hashes($contents);

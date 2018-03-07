@@ -6,6 +6,11 @@
  */
 
 /**
+ * @addtogroup advagg_hooks
+ * @{
+ */
+
+/**
  * Implements hook_advagg_get_css_file_contents_alter().
  */
 function advagg_font_advagg_get_css_file_contents_alter(&$contents, $file, $aggregate_settings) {
@@ -14,7 +19,7 @@ function advagg_font_advagg_get_css_file_contents_alter(&$contents, $file, $aggr
     return;
   }
 
-  $replacements = advagg_font_get_replacements_array($contents);
+  list($replacements) = advagg_font_get_replacements_array($contents);
   foreach ($replacements as $replace) {
     $contents = str_replace($replace[0], $replace[1] . $replace[2], $contents);
   }
@@ -34,10 +39,10 @@ function advagg_font_advagg_get_info_on_files_alter(&$return, $cached_data, $byp
         continue;
       }
       // Get the file contents.
-      $file_contents = (string) @file_get_contents($info['data']);
+      $file_contents = (string) @advagg_file_get_contents($info['data']);
       if (!empty($file_contents)) {
         // Get font names.
-        $replacements = advagg_font_get_replacements_array($file_contents);
+        list($replacements) = advagg_font_get_replacements_array($file_contents);
 
         // Remove old values.
         if (isset($info['advagg_font'])) {
@@ -54,14 +59,5 @@ function advagg_font_advagg_get_info_on_files_alter(&$return, $cached_data, $byp
 }
 
 /**
- * Implements hook_advagg_update_github_versions_alter().
+ * @} End of "addtogroup advagg_hooks".
  */
-function advagg_font_advagg_update_github_versions_alter(&$projects) {
-  $projects = array(
-    'fontfaceobserver' => array(
-      'callback' => 'advagg_get_github_version',
-      'url' => 'https://rawgit.com/bramstein/fontfaceobserver/master/package.json',
-      'variable_name' => 'advagg_font_github_version_fontfaceobserver',
-    ),
-  );
-}

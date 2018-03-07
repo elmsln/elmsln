@@ -6,6 +6,11 @@
  */
 
 /**
+ * @addtogroup default_variables
+ * @{
+ */
+
+/**
  * Default value to see if jquery should be grabbed from the Google CDN.
  */
 define('ADVAGG_JS_CDN_JQUERY', TRUE);
@@ -29,6 +34,15 @@ define('ADVAGG_JS_CDN_JQUERY_UI_VERSION', '1.8.7');
  * Default minification.
  */
 define('ADVAGG_JS_CDN_COMPRESSION', TRUE);
+
+/**
+ * @} End of "addtogroup default_variables".
+ */
+
+/**
+ * @addtogroup hooks
+ * @{
+ */
 
 /**
  * Implements hook_js_alter().
@@ -98,6 +112,10 @@ function advagg_js_cdn_js_alter(&$javascript) {
     }
   }
 }
+
+/**
+ * @} End of "addtogroup hooks".
+ */
 
 /**
  * Return an array of jquery ui files.
