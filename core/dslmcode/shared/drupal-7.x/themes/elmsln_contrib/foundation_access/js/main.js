@@ -81,26 +81,7 @@ var clipboardjs = require('./components/clipboardjs.js');
         $(this).addClass('luminance-' + luminance.replace('#', ''));
       });
     });
-    // load the next page if there is one and we see it on our screen
-    $('[data-prefetch-scrollfire="true"]:visible').each(function(){
-      var options = [
-        {selector: '[href="' + $(this).attr('href') + '"]', offset: 0, callback: function(el) {
-          $('head').append('<link rel="prefetch" href="' + $(el).attr('href')  + '?no-track">');
-        }}
-      ];
-      Materialize.scrollFire(options);
-    });
-    // allow for prefetch on hover to prime the request
-    $('[data-prefetch-hover="true"]').one('mouseenter', function(){
-      var href = $(this).attr('href');
-      if ($(this).attr('href').indexOf('?') == -1) {
-        href += '?no-track';
-      }
-      else {
-        href += '&no-track';
-      }
-      $('head').append('<link rel="prefetch" href="' + href + '"">');
-    });
+    
     // shortcode embed focus idea
     $('input#edit-elmsln-share-section,input.cis_shortcodes_embed').focus(function() { $(this).select() });
     $('input#edit-elmsln-share-section,input.cis_shortcodes_embed').mouseup(function(e){
