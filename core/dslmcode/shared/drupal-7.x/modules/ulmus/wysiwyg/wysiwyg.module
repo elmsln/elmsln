@@ -148,11 +148,11 @@ function wysiwyg_admin_menu_map() {
   }
 
   $profiles = wysiwyg_profile_load_all();
-  $map['admin/config/content/wysiwyg/profile/%wysiwyg_profile'] = array(
+  $map['admin/config/content/wysiwyg/profile/%wysiwyg_ui_profile_cache'] = array(
     'parent' => 'admin/config/content/wysiwyg',
     'hide' => 'admin/config/content/wysiwyg/list',
     'arguments' => array(
-      array('%wysiwyg_profile' => array_keys($profiles)),
+      array('%wysiwyg_ui_profile_cache' => array_keys($profiles)),
     ),
   );
   return $map;
@@ -275,7 +275,7 @@ function wysiwyg_pre_render_text_format($element) {
         'toggle' => 1,
       );
       $loaded = TRUE;
-      if (isset($profile->settings['add_to_summaries']) && !$profile->settings['add_to_summaries']) {
+      if (isset($profile->preferences['add_to_summaries']) && !$profile->preferences['add_to_summaries']) {
         $settings[$format]['skip_summary'] = 1;
       }
       $settings[$format]['editor'] = $profile->editor;
@@ -771,13 +771,13 @@ function wysiwyg_get_css($theme = NULL) {
  */
 function wysiwyg_themes_enabled($theme_list) {
   $cached = cache_get('wysiwyg_css');
-  foreach ($theme_list as $theme) {
-    if ($cached && !empty($cached->data)) {
-      $css = $cached->data;
+  if ($cached && !empty($cached->data)) {
+    $css = $cached->data;
+    foreach ($theme_list as $theme) {
       unset($css[$theme]);
     }
+    cache_set('wysiwyg_css', $css);
   }
-  cache_set('wysiwyg_css', $css);
 }
 
 /**
@@ -1099,6 +1099,17 @@ function wysiwyg_get_all_editors() {
     );
     // Check whether library is present.
     if (!($editors[$editor]['installed'] = file_exists($editors[$editor]['library path']))) {
+      // Find the latest supported version.
+      ksort($editors[$editor]['versions']);
+      $version = key($editors[$editor]['versions']);
+      foreach ($editors[$editor]['versions'] as $supported_version => $version_properties) {
+        if (version_compare($version, $supported_version, '<')) {
+          $version = $supported_version;
+        }
+      }
+      // Apply library version specific definitions and overrides.
+      // This is to show the newest installation instructions.
+      $editors[$editor] = array_merge($editors[$editor], $editors[$editor]['versions'][$version]);
       continue;
     }
     $installed_version = NULL;
