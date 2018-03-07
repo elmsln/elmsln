@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * @file
+ */
+
 if (module_exists('search')) {
   /**
    * Plugins are described by creating a $plugin array which will be used
@@ -35,10 +39,10 @@ function ctools_search_form_content_type_render($subtype, $conf, $panel_args, $c
   }
 
   // Build the content type block.
-  $block = new stdClass();
-  $block->module  = 'search';
-  $block->delta   = 'form';
-  $block->title   = '';
+  $block         = new stdClass();
+  $block->module = 'search';
+  $block->delta  = 'form';
+  $block->title  = '';
 
   switch ($conf['path_type']) {
     default:
@@ -49,6 +53,7 @@ function ctools_search_form_content_type_render($subtype, $conf, $panel_args, $c
       $path = $_GET['q'];
       $path = str_replace($keys, '', $path);
       break;
+
     case 'custom':
       $path = $conf['path'];
       break;

@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Plugin to provide access control/visibility based on specified context string matching user-specified string
+ * Plugin to provide access control/visibility based on specified context string matching user-specified string.
  */
 
 $plugin = array(
@@ -16,7 +16,7 @@ $plugin = array(
 );
 
 /**
- * Settings form
+ * Settings form.
  */
 function ctools_string_equal_ctools_access_settings($form, &$form_state, $conf) {
   $form['settings']['operator'] = array(
@@ -47,7 +47,7 @@ function ctools_string_equal_ctools_access_settings($form, &$form_state, $conf) 
 }
 
 /**
- * Check for access
+ * Check for access.
  */
 function ctools_string_equal_ctools_access_check($conf, $context) {
   if (empty($context) || empty($context->data)) {
@@ -66,29 +66,34 @@ function ctools_string_equal_ctools_access_check($conf, $context) {
   switch ($conf['operator']) {
     case '=':
       return $string === $value;
+
     case '!=':
       return $string !== $value;
+
     case 'regex':
       return preg_match($value, $string);
+
     case '!regex':
       return !preg_match($value, $string);
   }
 }
 
 /**
- * Provide a summary description based upon the specified context
+ * Provide a summary description based upon the specified context.
  */
 function ctools_string_equal_ctools_access_summary($conf, $context) {
   $values = array('@identifier' => $context->identifier, '@value' => $conf['value']);
   switch ($conf['operator']) {
     case '=':
       return t('@identifier is "@value"', $values);
+
     case '!=':
       return t('@identifier is not "@value"', $values);
+
     case 'regex':
       return t('@identifier matches "@value"', $values);
+
     case '!regex':
       return t('@identifier does not match "@value"', $values);
   }
 }
-

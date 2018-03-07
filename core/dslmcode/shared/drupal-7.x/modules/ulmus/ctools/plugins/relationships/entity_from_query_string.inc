@@ -44,7 +44,7 @@ function ctools_entity_from_query_string_context($context, $conf) {
  */
 function ctools_entity_from_query_string_settings_form($form, &$form_state) {
 
-  //Get all avalible enity types
+  // Get all avalible enity types.
   foreach (entity_get_info() as $key => $value) {
     $entity_types[$key] = $value['label'];
   }

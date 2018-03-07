@@ -1,4 +1,9 @@
 <?php
+
+/**
+ * @file
+ */
+
 /**
  * Specialized implementation of hook_page_manager_task_tasks(). See api-task.html for
  * more information.
@@ -9,7 +14,7 @@ function page_manager_comment_reply_page_manager_tasks() {
   }
 
   return array(
-    // This is a 'page' task and will fall under the page admin UI
+    // This is a 'page' task and will fall under the page admin UI.
     'task type' => 'page',
 
     'title' => t('Comment Reply page'),
@@ -45,13 +50,11 @@ function page_manager_comment_reply_enable($cache, $status) {
   }
 }
 
-
 /**
  * Entry point for our overridden comment.
- *
  */
-function page_manager_comment_reply_page($node, $pid = NULL){
-    // Load my task plugin
+function page_manager_comment_reply_page($node, $pid = NULL) {
+  // Load my task plugin.
   $task = page_manager_get_task('comment_reply');
 
   // Load the node into a context.
@@ -134,7 +137,7 @@ function page_manager_comment_reply_menu_alter(&$items, $task) {
     $items['comment/reply/%node']['file'] = $task['file'];
   }
   else {
-    // automatically disable this task if it cannot be enabled.
+    // Automatically disable this task if it cannot be enabled.
     variable_set('page_manager_comment_reply_disabled', TRUE);
     if (!empty($GLOBALS['page_manager_enabling_comment_reply'])) {
       drupal_set_message(t('Page manager module is unable to enable comment/reply/%node because some other module already has overridden with %callback.', array('%callback' => $callback)), 'error');
@@ -153,6 +156,7 @@ function page_manager_comment_reply_menu_alter(&$items, $task) {
  *   The subtask id
  * @param $contexts
  *   The contexts loaded for the task.
+ *
  * @return
  *   TRUE if the current user can access the page.
  */

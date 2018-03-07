@@ -22,7 +22,7 @@ $plugin = array(
 );
 
 /**
- * Settings form for the 'by term' access plugin
+ * Settings form for the 'by term' access plugin.
  */
 function ctools_term_ctools_access_settings($form, &$form_state, $conf) {
   // If no configuration was saved before, set some defaults.
@@ -51,7 +51,6 @@ function ctools_term_ctools_access_settings($form, &$form_state, $conf) {
   // A note: Dependency works strangely on these forms as they have never been
   // updated to a more modern system so they are not individual forms of their
   // own like the content types.
-
   $form['settings']['#tree'] = TRUE;
 
   // Loop over each of the configured vocabularies.
@@ -124,6 +123,8 @@ function ctools_term_ctools_access_summary($conf, $context) {
   return format_plural(count($terms),
     '@term can be the term "@terms"',
     '@term can be one of these terms: @terms',
-    array('@terms' => implode(', ', $terms),
-      '@term' => $context->identifier));
+    array(
+      '@terms' => implode(', ', $terms),
+      '@term' => $context->identifier,
+    ));
 }

@@ -26,7 +26,7 @@ The following information can be specified for each plugin type:
 <dd>If 'cache' is TRUE, then this value specifies the cache table where the cached plugin information will be stored.</dd>
 <dt>classes</dt>
 <dd><em>Defaults to:</em> <strong>array()</strong></dd>
-<dd>An array of <em>class identifiers</em>(i.e. plugin array keys) which a plugin of this type uses to provide classes to the CTools autoloader. For example, if <strong>classes</strong> is set to array('class'), then CTools will search each <strong>$plugin['class']</strong> for a class to autoload. Depending of the plugin structure, a <em>class identifier</em> may be either:</dd>
+<dd>An array of <em>class identifiers</em>(i.e. plugin array keys) which a plugin of this type uses to provide classes to the CTools autoloader. For example, if <strong>classes</strong> is set to array('class'), then CTools will search each <strong>$plugin['class']</strong> for a class to autoload. Depending of the plugin structure, a <em>class identifier</em> may be either:
 <dl>
 <dt>- a file name:</dt>
 <dd>the file which holds the class with the name structure as: <em>[filename].[class].php</em></dd>
@@ -35,6 +35,7 @@ The following information can be specified for each plugin type:
 <dd>if the class is in the same file as the $plugin</dd>
 <dd>the plugin <em>.inc</em> file can have a different name than the <em>class identifier</em></dd>
 </dl>
+<dd>
 <dt>defaults</dt>
 <dd><em>Defaults to:</em> <strong>array()</strong></dd>
 <dd>An array of defaults that should be added to each plugin; this can be used to ensure that every plugin has the basic data necessary. These defaults will not ovewrite data supplied by the plugin. This could also be a function name, in which case the callback will be used to provide defaults. NOTE, however, that the callback-based approach is deprecated as it is redundant with the 'process' callback, and as such will be removed in later versions. Consequently, you should only use the array form for maximum cross-version compatibility.</dd>

@@ -30,4 +30,3 @@ function ctools_page_messages_content_type_render($subtype, $conf, $panel_args) 
 
   return $block;
 }
-

@@ -1,8 +1,7 @@
 <?php
 
 /**
- * @file views_content.module
- *
+ * @file
  * Provides views as panels content, configurable by the administrator.
  * Each view provided as panel content must be configured in advance,
  * but once configured, building panels with views is a little bit simpler.
@@ -29,8 +28,9 @@ function views_content_menu() {
 }
 
 /**
- * Implementation of hook_ctools_plugin_dierctory() to let the system know
- * where our content_type plugins are.
+ * Implements hook_ctools_plugin_dierctory().
+ *
+ * To let the system know where our content_type plugins are.
  */
 function views_content_ctools_plugin_directory($owner, $plugin_type) {
   if ($owner == 'ctools') {
@@ -293,26 +293,5 @@ function views_content_get_pane_links_alter(&$links, $pane, $content_type) {
       'title' => t('Edit view'),
       'href' => url('admin/structure/views/view/' . $view_name . '/edit/' . $display_name, array('query' => $destination, 'absolute' => TRUE)),
     );
-  }
-}
-
-/**
- * Implements hook_module_implements_alter()
- */
-function views_content_module_implements_alter(&$implementations, $hook) {
-  if ($hook == 'views_pre_view') {
-    $group = $implementations['views_content'];
-    unset($implementations['views_content']);
-    $implementations = array('views_content' => $group) + $implementations;
-  }
-}
-
-/**
- * Implements hook_views_pre_view()
- */
-function views_content_views_pre_view(&$view) {
-  if (method_exists($view->display_handler, 'pane_process_conf')) {
-    // process the pane configuration to prevent loss when using ajax
-    $view->display_handler->pane_process_conf();
   }
 }

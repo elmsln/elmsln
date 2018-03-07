@@ -2,7 +2,7 @@
 
 /**
  * @file
- * ctools_access_ruleset module
+ * The ctools_access_ruleset module.
  *
  * This module allows styles to be created and managed on behalf of modules
  * that implement styles.
@@ -30,7 +30,7 @@ function ctools_access_ruleset_permission() {
  */
 function ctools_access_ruleset_ctools_plugin_directory($module, $plugin) {
   // Most of this module is implemented as an export ui plugin, and the
-  // rest is in ctools/includes/ctools_access_ruleset.inc
+  // rest is in ctools/includes/ctools_access_ruleset.inc.
   if ($module == 'ctools' && ($plugin == 'export_ui' || $plugin == 'access')) {
     return 'plugins/' . $plugin;
   }
@@ -47,7 +47,7 @@ function ctools_access_ruleset_panels_dashboard_blocks(&$vars) {
     'description' => t('Custom rulesets are combinations of access plugins you can use for access control, selection criteria and pane visibility.'),
   );
 
-   // Load all mini panels and their displays.
+  // Load all mini panels and their displays.
   ctools_include('export');
   $items = ctools_export_crud_load_all('ctools_access_ruleset');
   $count = 0;

@@ -44,20 +44,21 @@ function ctools_dropdown_theme(&$items) {
 /**
  * Create a dropdown menu.
  *
- * @param $title
- *   The text to place in the clickable area to activate the dropdown.
- * @param $links
- *   A list of links to provide within the dropdown, suitable for use
- *   in via Drupal's theme('links').
- * @param $image
- *   If true, the dropdown link is an image and will not get extra decorations
- *   that a text dropdown link will.
- * @param $class
- *   An optional class to add to the dropdown's container div to allow you
- *   to style a single dropdown however you like without interfering with
- *   other dropdowns.
+ * @param array $variables
+ *   An associative array containing:
+ *   - title: The text to place in the clickable area to activate the dropdown.
+ *   - links: A list of links to provide within the dropdown, suitable for use
+ *     in via Drupal's theme('links').
+ *   - image: If true, the dropdown link is an image and will not get extra
+ *     decorations that a text dropdown link will.
+ *   - class: An optional class to add to the dropdown's container div to allow
+ *     you to style a single dropdown however you like without interfering with
+ *     other dropdowns.
+ *
+ * @return string
+ *   Returns HTML for a language configuration form.
  */
-function theme_ctools_dropdown($vars) { 
+function theme_ctools_dropdown($vars) {
   // Provide a unique identifier for every dropdown on the page.
   static $id = 0;
   $id++;
@@ -67,9 +68,7 @@ function theme_ctools_dropdown($vars) {
   ctools_add_js('dropdown');
   ctools_add_css('dropdown');
 
-  $output = '';
-
-  $output .= '<div class="' . $class . '" id="ctools-dropdown-' . $id . '">';
+  $output = '<div class="' . $class . '" id="ctools-dropdown-' . $id . '">';
   $output .= '<div class="ctools-dropdown-link-wrapper">';
   if ($vars['image']) {
     $output .= '<a href="#" class="ctools-dropdown-link ctools-dropdown-image-link">' . $vars['title'] . '</a>';
@@ -77,14 +76,13 @@ function theme_ctools_dropdown($vars) {
   else {
     $output .= '<a href="#" class="ctools-dropdown-link ctools-dropdown-text-link">' . check_plain($vars['title']) . '</a>';
   }
-
-  $output .= '</div>'; // wrapper
+  $output .= '</div>';
   $output .= '<div class="ctools-dropdown-container-wrapper">';
   $output .= '<div class="ctools-dropdown-container">';
   $output .= theme_links(array('links' => $vars['links'], 'attributes' => array(), 'heading' => ''));
-  $output .= '</div>'; // container
-  $output .= '</div>'; // container wrapper
-  $output .= '</div>'; // dropdown
+  $output .= '</div>';
+  $output .= '</div>';
+  $output .= '</div>';
+
   return $output;
 }
-

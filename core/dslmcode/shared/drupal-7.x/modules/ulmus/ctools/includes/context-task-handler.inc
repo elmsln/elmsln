@@ -4,9 +4,9 @@
  * @file
  * Support for creating 'context' type task handlers.
  *
- * Context task handlers expect the task to provide 0 or more contexts. The
- * task handler should use those contexts as selection rules, as well as
- * rendering with them.
+ * Context task handlers expect the task to provide 0 or more contexts. The task
+ * handler should use those contexts as selection rules, as well as rendering
+ * with them.
  *
  * The functions and forms in this file should be common to every context type
  * task handler made.
@@ -31,6 +31,7 @@
  *   If TRUE then this renderer owns the page and can use theme('page')
  *   for no blocks; if false, output is returned regardless of any no
  *   blocks settings.
+ *
  * @return
  *   Either the output or NULL if there was output, FALSE if no handler
  *   accepted the task. If $page is FALSE then the $info block is returned instead.
@@ -84,7 +85,7 @@ function ctools_context_handler_get_render_handler($task, $subtask, $handlers, $
  */
 function ctools_context_handler_default_test($handler, $base_contexts, $args) {
   ctools_include('context');
-  // Add my contexts
+  // Add my contexts.
   $contexts = ctools_context_handler_get_handler_contexts($base_contexts, $handler);
 
   // Test.
@@ -128,7 +129,7 @@ function ctools_context_handler_render_handler($task, $subtask, $handler, $conte
     'contexts' => $contexts,
     'task' => $task,
     'subtask' => $subtask,
-    'handler' => $handler
+    'handler' => $handler,
   );
   drupal_alter('ctools_render', $info, $page, $context);
 
@@ -141,12 +142,15 @@ function ctools_context_handler_render_handler($task, $subtask, $handler, $conte
     switch ($info['response code']) {
       case 403:
         return MENU_ACCESS_DENIED;
+
       case 404:
         return MENU_NOT_FOUND;
+
       case 410:
         drupal_add_http_header('Status', '410 Gone');
         drupal_exit();
         break;
+
       case 301:
       case 302:
       case 303:
@@ -162,7 +166,7 @@ function ctools_context_handler_render_handler($task, $subtask, $handler, $conte
           'fragment' => $info['fragment'],
         );
         drupal_goto($info['destination'], $options, $info['response code']);
-      // @todo -- should other response codes be supported here?
+        // @todo -- should other response codes be supported here?
     }
   }
 
@@ -222,7 +226,7 @@ function ctools_context_handler_render_handler($task, $subtask, $handler, $conte
 }
 
 /**
- * Default function to provide contextual link for a task as defined by the handler.
+ * Provides contextual link for a task as defined by the handler.
  *
  * This provides a simple link to th main content operation and is suitable
  * for most normal handlers. Setting 'contextual link' to a function overrides
@@ -241,7 +245,7 @@ function ctools_task_handler_default_contextual_link($handler, $plugin, $context
     if (is_array($plugin['tab operation'])) {
       $trail = $plugin['tab operation'];
     }
-    else if (function_exists($plugin['tab operation'])) {
+    elseif (function_exists($plugin['tab operation'])) {
       $trail = $plugin['tab operation']($handler, $contexts, $args);
     }
   }
@@ -251,7 +255,8 @@ function ctools_task_handler_default_contextual_link($handler, $plugin, $context
     'href' => $path,
     'title' => $title,
     'query' => drupal_get_destination(),
-  ));
+  ),
+  );
 
   return $links;
 }
@@ -259,17 +264,22 @@ function ctools_task_handler_default_contextual_link($handler, $plugin, $context
 /**
  * Called to execute actions that should happen before a handler is rendered.
  */
-function ctools_context_handler_pre_render($handler, $contexts, $args) { }
+function ctools_context_handler_pre_render($handler, $contexts, $args) {
+  foreach (module_implements('ctools_context_handler_pre_render') as $module) {
+    $function = $module . '_ctools_context_handler_pre_render';
+    $function($handler, $contexts, $args);
+  }
+}
 
 /**
  * Compare arguments to contexts for selection purposes.
  *
- * @param $handler
+ * @param object $handler
  *   The handler in question.
- * @param $contexts
+ * @param object $contexts
  *   The context objects provided by the task.
  *
- * @return
+ * @return bool
  *   TRUE if these contexts match the selection rules. NULL or FALSE
  *   otherwise.
  */
@@ -288,12 +298,15 @@ function ctools_context_handler_select($handler, $contexts) {
  * These summary strings are used to communicate to the user what
  * arguments the task handlers are selecting.
  *
- * @param $task
+ * @param object $task
  *   The loaded task plugin.
- * @param $subtask
+ * @param object $subtask
  *   The subtask id.
- * @param $handler
+ * @param object $handler
  *   The handler to be checked.
+ *
+ * @return array
+ *   Returns array of summary strings for arguments selected by task handlers.
  */
 function ctools_context_handler_summary($task, $subtask, $handler) {
   if (empty($handler->conf['access']['plugins'])) {
@@ -320,7 +333,6 @@ function ctools_context_handler_summary($task, $subtask, $handler) {
 // the task handler, for example) but sometimes we need them separately
 // (when a task has contexts loaded and is trying out the task handlers,
 // for example). Therefore there are two paths we can take to getting contexts.
-
 /**
  * Load the contexts for a task, using arguments.
  *
@@ -368,7 +380,7 @@ function ctools_context_handler_get_all_contexts($task, $subtask, $handler) {
  * expects things in a certain, kind of clunky format.
  */
 function ctools_context_handler_get_handler_object($handler) {
-  $object = new stdClass;
+  $object = new stdClass();
   $object->name = $handler->name;
   $object->contexts = isset($handler->conf['contexts']) ? $handler->conf['contexts'] : array();
   $object->relationships = isset($handler->conf['relationships']) ? $handler->conf['relationships'] : array();
@@ -382,7 +394,7 @@ function ctools_context_handler_get_handler_object($handler) {
  * arguments from the task.
  */
 function ctools_context_handler_get_task_object($task, $subtask, $handler) {
-  $object = new stdClass;
+  $object = new stdClass();
   $object->name = !empty($handler->name) ? $handler->name : 'temp';
   $object->base_contexts = ctools_context_handler_get_base_contexts($task, $subtask, TRUE);
   $object->arguments = ctools_context_handler_get_task_arguments($task, $subtask);
@@ -456,7 +468,7 @@ function ctools_context_handler_edit_criteria($form, &$form_state) {
   ctools_modal_add_plugin_js(ctools_get_access_plugins());
   ctools_include('context-access-admin');
   $form_state['module'] = (isset($form_state['module'])) ? $form_state['module'] : 'page_manager_task_handler';
-  // Encode a bunch of info into the argument so we can get our cache later
+  // Encode a bunch of info into the argument so we can get our cache later.
   $form_state['callback argument'] = $form_state['task_name'] . '*' . $form_state['handler']->name;
   $form_state['access'] = $form_state['handler']->conf['access'];
   $form_state['no buttons'] = TRUE;
@@ -472,7 +484,7 @@ function ctools_context_handler_edit_criteria($form, &$form_state) {
 }
 
 /**
- * Submit handler for rules selection
+ * Submit handler for rules selection.
  */
 function ctools_context_handler_edit_criteria_submit(&$form, &$form_state) {
   $form_state['handler']->conf['access']['logic'] = $form_state['values']['logic'];
@@ -537,4 +549,3 @@ function ctools_context_handler_edit_context_submit(&$form, &$form_state) {
     unset($form_state['page']->context_cache[$cache_name]);
   }
 }
-

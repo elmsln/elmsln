@@ -22,7 +22,7 @@ if (module_exists('locale')) {
 }
 
 /**
- * Settings form for the 'by site_language' access plugin
+ * Settings form for the 'by site_language' access plugin.
  */
 function ctools_site_language_ctools_access_settings($form, &$form_state, $conf) {
   $options = array(
@@ -84,4 +84,3 @@ function ctools_site_language_ctools_access_summary($conf, $context) {
 
   return format_plural(count($names), 'Site language is "@languages"', 'Site language is one of "@languages"', array('@languages' => implode(', ', $names)));
 }
-

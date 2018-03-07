@@ -1,9 +1,11 @@
 <?php
 
 /**
+ * @file
  * Plugins are described by creating a $plugin array which will be used
  * by the system that includes this file.
  */
+
 $plugin = array(
   'single' => TRUE,
   'title' => t('Node title'),
@@ -23,7 +25,7 @@ $plugin = array(
  * Render the custom content type.
  */
 function ctools_node_title_content_type_render($subtype, $conf, $panel_args, $context) {
-  if (empty($context) || empty($context->data)) {
+  if (!empty($context) && (empty($context->data) || empty($context->data->nid))) {
     return;
   }
 
@@ -33,10 +35,10 @@ function ctools_node_title_content_type_render($subtype, $conf, $panel_args, $co
   // Load information about the node type.
   $type = node_type_get_type($node);
 
-  // Generate the title
+  // Generate the title.
   $content = !empty($conf['link']) ? l($node->title, 'node/' . $node->nid) : check_plain($node->title);
 
-  // Build any surrounding markup if so configured
+  // Build any surrounding markup if so configured.
   if (isset($conf['markup']) && $conf['markup'] != 'none') {
     $markup = '<' . $conf['markup'];
     if (!empty($conf['id'])) {
@@ -50,7 +52,7 @@ function ctools_node_title_content_type_render($subtype, $conf, $panel_args, $co
   }
 
   // Build the content type block.
-  $block = new stdClass();
+  $block          = new stdClass();
   $block->module  = 'node_title';
   $block->title   = $type->title_label;
   $block->content = $content;

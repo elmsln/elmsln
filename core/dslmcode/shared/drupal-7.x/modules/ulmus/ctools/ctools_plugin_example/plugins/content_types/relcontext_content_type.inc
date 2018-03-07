@@ -1,6 +1,5 @@
 <?php
 
-
 /**
  * @file
  * Content type that displays the relcontext context type.
@@ -27,9 +26,8 @@ $plugin = array(
   'category' => array(t('CTools Examples'), -9),
   'edit form' => 'relcontext_edit_form',
 
-  // this example does not provide 'admin info', which would populate the
+  // This example does not provide 'admin info', which would populate the
   // panels builder page preview.
-
 );
 
 /**
@@ -60,7 +58,7 @@ function relcontext_content_type_render($subtype, $conf, $args, $context) {
     In our case, the configuration form (\$conf) has just one field, 'config_item_1;
     and it's configured with:
     ");
-    if (!empty($conf)) {
+  if (!empty($conf)) {
     $block->content .= '<div style="border: 1px solid red;">' . var_export($conf['config_item_1'], TRUE) . '</div>';
   }
   if (!empty($context)) {
@@ -77,7 +75,6 @@ function relcontext_content_type_render($subtype, $conf, $args, $context) {
 /**
  * 'Edit' callback for the content type.
  * This example just returns a form.
- *
  */
 function relcontext_edit_form($form, &$form_state) {
   $conf = $form_state['conf'];

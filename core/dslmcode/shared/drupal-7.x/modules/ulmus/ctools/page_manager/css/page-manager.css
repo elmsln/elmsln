@@ -100,7 +100,7 @@ body form#page-manager-list-pages-form {
 
 #page-manager-edit .page-manager-edit-operations li {
   list-style: none;
-  background: #F6F6F6;
+  background: #f6f6f6;
   border-top: 1px solid #aaa;
   border-left: 1px solid #aaa;
   border-right: 1px solid #aaa;
@@ -111,7 +111,7 @@ body form#page-manager-list-pages-form {
 
 #page-manager-edit .page-manager-edit-operations li.active,
 #page-manager-edit .page-manager-edit-operations li.active-group .page-manager-group-title {
-  background: #FFFFFF url(../images/arrow-active.png) no-repeat scroll right center;
+  background: #ffffff url(../images/arrow-active.png) no-repeat scroll right center;
 }
 
 #page-manager-edit .page-manager-edit-operations li.changed,
@@ -123,7 +123,7 @@ body form#page-manager-list-pages-form {
 /** provide a reset for non active stray paths */
 #page-manager-edit .page-manager-edit-operations li.active-group li.not-active .page-manager-group-title,
 #page-manager-edit .page-manager-edit-operations li.changed-group li.not-changed .page-manager-group-title {
-  background: #F6F6F6;
+  background: #f6f6f6;
 }
 
 #page-manager-edit .page-manager-edit-operations li.active {
@@ -132,7 +132,7 @@ body form#page-manager-list-pages-form {
 
 #page-manager-edit .page-manager-edit-operations li.active a,
 #page-manager-edit .page-manager-edit-operations li.active a:hover {
-  background: #FFFFFF url(../images/arrow-active.png) no-repeat scroll right center;
+  background: #ffffff url(../images/arrow-active.png) no-repeat scroll right center;
   color: #000000;
   font-weight: bold;
 }
@@ -271,8 +271,8 @@ body form#page-manager-list-pages-form {
 #page-manager-edit .actions li a {
   display: block;
   padding: 0.2em 0.5em;
-  color:#0062A0;
-  background-color: #F6F6F6;
+  color: #0062a0;
+  background-color: #f6f6f6;
 }
 
 #page-manager-edit .page-manager-changed {

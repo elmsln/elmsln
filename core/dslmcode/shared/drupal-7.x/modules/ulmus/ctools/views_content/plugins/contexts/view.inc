@@ -2,7 +2,6 @@
 
 /**
  * @file
- *
  * Plugin to provide a node context. A node context is a node wrapped in a
  * context object that can be utilized by anything that accepts contexts.
  */
@@ -88,7 +87,7 @@ function views_content_context_view_create($empty, $data = NULL, $conf = FALSE, 
         $data->set_display($display_id);
       }
     }
-    else if (!empty($plugin['view name'])) {
+    elseif (!empty($plugin['view name'])) {
       $data = views_get_view($plugin['view name']);
       $data->set_display($plugin['view display id']);
     }
@@ -101,7 +100,7 @@ function views_content_context_view_create($empty, $data = NULL, $conf = FALSE, 
     // $output = views_content_context_get_output($context);
     // $view = $output['view'];
     // @endcode
-    $context->data     = array(
+    $context->data = array(
       'name' => $data->name,
       'display' => $data->current_display,
       'args' => $data->args,
@@ -158,8 +157,7 @@ function views_content_context_view_settings_form_validate($form, &$form_state) 
  * Provide a list of ways that this context can be converted to a string.
  */
 function views_content_context_view_convert_list() {
-  $list = array(
-  );
+  $list = array();
 
   return $list;
 }
@@ -171,4 +169,3 @@ function views_content_context_view_convert($context, $type) {
   switch ($type) {
   }
 }
-

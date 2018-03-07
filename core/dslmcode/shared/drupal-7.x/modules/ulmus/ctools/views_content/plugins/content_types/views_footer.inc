@@ -22,7 +22,7 @@ function views_content_views_footer_content_type_render($subtype, $conf, $panel_
   }
 
   // Build the content type block.
-  $block = new stdClass();
+  $block          = new stdClass();
   $block->module  = 'views_footer';
   $block->delta   = $context->argument;
   $block->title   = '';

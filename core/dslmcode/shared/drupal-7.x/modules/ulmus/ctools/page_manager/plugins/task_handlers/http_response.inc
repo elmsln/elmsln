@@ -2,14 +2,13 @@
 
 /**
  * @file
- *
  * This is the task handler plugin to handle generating 403, 404, 301 and 302
  * response codes.
  */
 
-// Plugin definition
+// Plugin definition.
 $plugin = array(
-  // is a 'context' handler type, meaning it supports the API of the
+  // Is a 'context' handler type, meaning it supports the API of the
   // context handlers provided by ctools context plugins.
   'handler type' => 'context',
   'visible' => TRUE, // may be added up front.
@@ -121,7 +120,7 @@ function page_manager_http_response_admin_summary($handler, $task, $subtask, $pa
   ctools_include('context');
   ctools_include('context-task-handler');
 
-  // Get the operations
+  // Get the operations.
   $operations = page_manager_get_operations($page);
 
   // Get operations for just this handler.
@@ -190,7 +189,7 @@ function page_manager_http_response_admin_summary($handler, $task, $subtask, $pa
 
   $output .= '<div class="clearfix">';
   if ($show_title) {
-  $output .= '<div class="handler-title clearfix">';
+    $output .= '<div class="handler-title clearfix">';
     $output .= '<div class="actions handler-actions">' . $rendered_operations['actions'] . '</div>';
     $output .= '<span class="title-label">' . $title . '</span>';
   }
@@ -215,7 +214,7 @@ function page_manager_http_response_title($handler, $task, $subtask) {
 }
 
 /**
- * General settings for the panel
+ * General settings for the panel.
  */
 function page_manager_http_response_edit_settings($form, &$form_state) {
   ctools_include('page_manager.admin', 'page_manager', '');
@@ -302,7 +301,7 @@ function page_manager_http_response_render($handler, $base_contexts, $args, $tes
   ctools_include('context');
   ctools_include('context-task-handler');
 
-  // Add my contexts
+  // Add my contexts.
   $contexts = ctools_context_handler_get_handler_contexts($base_contexts, $handler);
 
   // Test.

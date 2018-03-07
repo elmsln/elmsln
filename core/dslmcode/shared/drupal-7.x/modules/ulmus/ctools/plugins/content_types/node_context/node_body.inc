@@ -1,9 +1,11 @@
 <?php
 
 /**
+ * @file
  * Plugins are described by creating a $plugin array which will be used
  * by the system that includes this file.
  */
+
 $plugin = array(
   'single' => TRUE,
   'title' => t('Node body'),
@@ -28,7 +30,7 @@ function ctools_node_body_content_type_render($subtype, $conf, $panel_args, $con
  * Returns an edit form for custom type settings.
  */
 function ctools_node_body_content_type_edit_form($form, &$form_state) {
-  // provide a blank form so we have a place to have context setting.
+  // Provide a blank form so we have a place to have context setting.
   return $form;
 }
 

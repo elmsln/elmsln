@@ -67,4 +67,5 @@ if (!function_exists('uuid_is_valid')) {
   function uuid_is_valid($uuid) {
     return preg_match('/^' . UUID_PATTERN . '$/', $uuid);
   }
+
 }

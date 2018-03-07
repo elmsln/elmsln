@@ -202,7 +202,7 @@ function ctools_stylizer_get_settings_name($settings) {
 }
 
 /**
- * Get the path where images will be stored for a given style plugin and settings.
+ * Get the path where images will be stored for a style plugin and settings.
  *
  * This function will make sure the path exists.
  */
@@ -249,7 +249,7 @@ class ctools_stylizer_image_processor {
     if (is_string($plugin['actions']) && function_exists($plugin['actions'])) {
       $actions = $plugin['actions']($plugin, $settings);
     }
-    else if (is_array($plugin['actions'])) {
+    elseif (is_array($plugin['actions'])) {
       $actions = $plugin['actions'];
     }
 
@@ -318,7 +318,7 @@ class ctools_stylizer_image_processor {
   function command_load($name, $file) {
     $this->log("New workspace: $name (from $file)");
     if (!file_exists($file)) {
-      // Try it relative to the plugin
+      // Try it relative to the plugin.
       $file = $this->plugin['path'] . '/' . $file;
       if (!file_exists($file)) {
         $this->log("Unable to open $file");
@@ -336,7 +336,7 @@ class ctools_stylizer_image_processor {
   }
 
   /**
-   * Create a new workspace using the properties of an existing workspace
+   * Create a new workspace using the properties of an existing workspace.
    */
   function command_new_from($name, $workspace) {
     $this->log("New workspace: $name from existing $workspace");
@@ -372,7 +372,7 @@ class ctools_stylizer_image_processor {
   function command_merge_from($workspace, $x = 0, $y = 0) {
     $this->log("Merge from: $workspace ($x, $y)");
     if (empty($this->workspaces[$workspace])) {
-      $this->log("Workspace $name does not exist.", 'error');
+      $this->log("Workspace $workspace does not exist.", 'error');
       return;
     }
 
@@ -382,7 +382,7 @@ class ctools_stylizer_image_processor {
   function command_merge_to($workspace, $x = 0, $y = 0) {
     $this->log("Merge to: $workspace ($x, $y)");
     if (empty($this->workspaces[$workspace])) {
-      $this->log("Workspace $name does not exist.", 'error');
+      $this->log("Workspace $workspace does not exist.", 'error');
       return;
     }
 
@@ -822,7 +822,7 @@ function ctools_stylizer_add_plugin_forms(&$form_info, $plugin, $op) {
     if ($op == 'add' && isset($plugin['add form'])) {
       $id = $plugin['add form'];
     }
-    else if (isset($plugin['edit form'])) {
+    elseif (isset($plugin['edit form'])) {
       $id = $plugin['edit form'];
     }
     else {

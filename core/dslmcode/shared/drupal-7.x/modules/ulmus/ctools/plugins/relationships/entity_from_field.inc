@@ -140,7 +140,7 @@ function ctools_entity_from_field_get_children($parent_plugin, $parent) {
 
     $plugin_entities = array(
       'to' => array($to_entity => $to_entity_info),
-      'from' => array($from_entity => $from_entity_info)
+      'from' => array($from_entity => $from_entity_info),
     );
     drupal_alter('ctools_entity_context', $plugins[$key], $plugin_entities, $key);
   }

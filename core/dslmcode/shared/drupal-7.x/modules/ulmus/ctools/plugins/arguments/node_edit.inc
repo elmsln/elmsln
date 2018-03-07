@@ -2,8 +2,7 @@
 
 /**
  * @file
- *
- * Plugin to provide an argument handler for a Node edit form
+ * Plugin to provide an argument handler for a Node edit form.
  */
 
 /**
@@ -12,7 +11,7 @@
  */
 $plugin = array(
   'title' => t("Node edit form: node ID"),
-  // keyword to use for %substitution
+  // Keyword to use for %substitution.
   'keyword' => 'node',
   'description' => t('Creates a node edit form context from a node ID argument.'),
   'context' => 'ctools_node_edit_context',
@@ -48,4 +47,3 @@ function ctools_node_edit_context($arg = NULL, $conf = NULL, $empty = FALSE) {
   // This will perform a node_access check, so we don't have to.
   return ctools_context_create('node_edit_form', $node);
 }
-

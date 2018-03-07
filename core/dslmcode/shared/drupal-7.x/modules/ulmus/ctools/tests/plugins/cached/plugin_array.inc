@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * Chaos Tools plugin include using a plugin array to declare a plugin.
@@ -17,4 +18,5 @@ $plugin = array(
 /**
  * Plugin array function plugin.
  */
-function ctools_plugin_test_plugin_array_cached_test() {}
+function ctools_plugin_test_plugin_array_cached_test() {
+}

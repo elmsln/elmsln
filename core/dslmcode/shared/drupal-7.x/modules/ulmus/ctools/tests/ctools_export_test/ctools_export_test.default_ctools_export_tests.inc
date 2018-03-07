@@ -1,6 +1,10 @@
 <?php
 
 /**
+ * @file
+ */
+
+/**
  * Implements hook_default_export_tests().
  */
 function ctools_export_test_default_ctools_export_tests() {

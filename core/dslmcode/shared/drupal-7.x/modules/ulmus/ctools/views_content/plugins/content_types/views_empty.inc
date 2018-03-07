@@ -22,7 +22,7 @@ function views_content_views_empty_content_type_render($subtype, $conf, $panel_a
   }
 
   // Build the content type block.
-  $block = new stdClass();
+  $block          = new stdClass();
   $block->module  = 'views_empty';
   $block->delta   = $context->argument;
   $block->title   = '';

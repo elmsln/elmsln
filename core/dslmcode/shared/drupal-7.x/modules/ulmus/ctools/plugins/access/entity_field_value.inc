@@ -48,7 +48,7 @@ function ctools_entity_field_value_ctools_access_get_children($plugin, $parent) 
 }
 
 function _ctools_entity_field_value_ctools_access_get_child($plugin, $parent, $entity_type, $bundle_type, $field_name, $entity = NULL, $bundle = NULL, $field = NULL) {
-  // check that the entity, bundle and field arrays have a value.
+  // Check that the entity, bundle and field arrays have a value.
   // If not, load theme using machine names.
   if (empty($entity)) {
     $entity = entity_get_info($entity_type);
@@ -68,14 +68,14 @@ function _ctools_entity_field_value_ctools_access_get_child($plugin, $parent, $e
   $plugin['description'] = t('Control access by @entity entity bundle.', array('@entity' => $entity_type));
   $plugin['name'] = $parent . ':' . $entity_type . ':' . $bundle_type . ':' . $field_name;
   $plugin['required context'] = new ctools_context_required(t(ucfirst($entity_type)), $entity_type, array(
-      'type' => $bundle_type,
-    ));
+    'type' => $bundle_type,
+  ));
 
   return $plugin;
 }
 
 /**
- * Settings form for the 'by entity_bundle' access plugin
+ * Settings form for the 'by entity_bundle' access plugin.
  */
 function ctools_entity_field_value_ctools_access_settings($form, &$form_state, $conf) {
   $plugin = $form_state['plugin'];
@@ -88,7 +88,7 @@ function ctools_entity_field_value_ctools_access_settings($form, &$form_state, $
     $columns[$column] = _field_sql_storage_columnname($field_name, $column);
   }
   ctools_include('fields');
-  $entity = (object)array(
+  $entity = (object) array(
     $entity_info['entity keys']['bundle'] => $bundle_type,
   );
 
@@ -115,7 +115,7 @@ function ctools_entity_field_value_ctools_access_settings($form, &$form_state, $
   $form['#parents'] = array('settings');
   $langcode = field_valid_language(NULL);
   $form['settings'] += (array) ctools_field_invoke_field($instance, 'form', $entity_type, $entity, $form, $form_state, array('default' => TRUE, 'language' => $langcode));
-  // weight is really not important once this is populated and will only interfere with the form layout.
+  // Weight is really not important once this is populated and will only interfere with the form layout.
   foreach (element_children($form['settings']) as $element) {
     unset($form['settings'][$element]['#weight']);
   }
@@ -145,7 +145,8 @@ function ctools_entity_field_value_ctools_access_settings_submit($form, &$form_s
 function _ctools_entity_field_value_get_proper_form_items($field, $form_items, $columns) {
   $items = array();
 
-  if (!is_array($form_items)) { // Single value item.
+  // Single value item.
+  if (!is_array($form_items)) {
     foreach ($columns as $column) {
       $items[0][$column] = $form_items;
     }
@@ -175,7 +176,7 @@ function _ctools_entity_field_value_get_proper_form_items($field, $form_items, $
   foreach ($columns as $column) {
     if (isset($form_items[$column])) {
       $has_columns = TRUE;
-      $item[$column] =  $form_items[$column];
+      $item[$column] = $form_items[$column];
     }
     else {
       $item[$column] = '';
@@ -353,7 +354,7 @@ function ctools_entity_field_value_ctools_access_summary($conf, $context, $plugi
         $display['type'] = 'entityreference_label';
         break;
 
-      default :
+      default:
         // Use field instance formatter setting.
         break;
     }
@@ -381,7 +382,7 @@ function ctools_entity_field_value_ctools_access_summary($conf, $context, $plugi
     if (is_array($elements)) {
       foreach ($elements as $element_key => $element) {
         if (is_numeric($element_key)) {
-          $value_str= strip_tags(drupal_render($element));
+          $value_str = strip_tags(drupal_render($element));
           if (strlen($value_str) > 0) {
             $output[] = $value_str;
           }

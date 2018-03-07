@@ -31,7 +31,7 @@ function ctools_terms_from_node_context($context, $conf) {
   // Collect all terms for the chosen vocabulary and concatenate them.
   $node = $context->data;
   $terms = array();
-  
+
   $fields = field_info_instances('node', $node->type);
   foreach ($fields as $name => $info) {
     $field_info = field_info_field($name);
@@ -43,8 +43,24 @@ function ctools_terms_from_node_context($context, $conf) {
         }
       }
     }
+    elseif ($field_info['type'] == 'entityreference' && $field_info['settings']['target_type'] == 'taxonomy_term') {
+      $items = field_get_items('node', $node, $name);
+      if (is_array($items)) {
+        $tids = array();
+        foreach ($items as $item) {
+          $tids[] = $item['target_id'];
+        }
+
+        $term_objects = taxonomy_term_load_multiple($tids);
+        foreach ($term_objects as $term) {
+          if (empty($conf['vocabulary']) || in_array($term->vocabulary_machine_name, $conf['vocabulary'])) {
+            $terms[] = $term->tid;
+          }
+        }
+      }
+    }
   }
-  
+
   if (!empty($terms)) {
     $all_terms = ctools_break_phrase(implode($conf['concatenator'], $terms));
     return ctools_context_create('terms', $all_terms);

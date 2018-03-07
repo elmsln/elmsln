@@ -62,9 +62,8 @@ function ctools_content_autocomplete_entity($entity_type, $string = '') {
   }
 }
 
-/*
- * Use well known/tested entity reference code to build our search query
- * From EntityReference_SelectionHandler_Generic class
+/**
+ * Use EntityReference_SelectionHandler_Generic class to build our search query.
  */
 function _ctools_buildQuery($entity_type, $entity_info, $match = NULL, $match_operator = 'CONTAINS') {
   $base_table = $entity_info['base table'];
@@ -92,13 +91,13 @@ function _ctools_buildQuery($entity_type, $entity_info, $match = NULL, $match_op
   if ($entity_type == 'comment') {
     // Adding the 'comment_access' tag is sadly insufficient for comments: core 
     // requires us to also know about the concept of 'published' and 
-    // 'unpublished'. 
+    // 'unpublished'.
     if (!user_access('administer comments')) {
       $query->condition('comment.status', COMMENT_PUBLISHED);
     }
 
     // Join to a node if the user does not have node access bypass permissions 
-    // to obey node published permissions 
+    // to obey node published permissions.
     if (!user_access('bypass node access')) {
       $node_alias = $query->innerJoin('node', 'n', '%alias.nid = comment.nid');
       $query->condition($node_alias . '.status', NODE_PUBLISHED);
@@ -125,7 +124,7 @@ function _ctools_getReferencableEntities($entity_type, $entity_info, $match = NU
   global $user;
   $account = $user;
   $options = array();
-  // We're an entity ID, return the id
+  // We're an entity ID, return the id.
   if (is_numeric($match) && $match_operator == '=') {
     if ($entity = array_shift(entity_load($entity_type, array($match)))) {
       if (isset($entity_info['access callback']) && function_exists($entity_info['access callback'])) {
@@ -143,10 +142,10 @@ function _ctools_getReferencableEntities($entity_type, $entity_info, $match = NU
     // If you don't have access, or an access callback or a valid entity, just
     // Return back the Entity ID.
     return array(
-      $match =>  array(
+      $match => array(
         'label' => $match,
         'bundle' => NULL,
-        ),
+      ),
     );
   }
 

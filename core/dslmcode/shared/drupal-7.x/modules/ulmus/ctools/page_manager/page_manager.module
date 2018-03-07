@@ -205,7 +205,7 @@ function page_manager_menu_alter(&$items) {
     if ($function = ctools_plugin_get_function($task, 'hook menu alter')) {
       $function($items, $task);
     }
-    // let the subtasks alter the menu items too.
+    // Let the subtasks alter the menu items too.
     foreach (page_manager_get_task_subtasks($task) as $subtask_id => $subtask) {
       if ($function = ctools_plugin_get_function($subtask, 'hook menu alter')) {
         $function($items, $subtask);
@@ -240,7 +240,7 @@ function page_manager_menu_alter(&$items) {
   return $items;
 }
 
-/*
+/**
  * Implements hook_theme()
  */
 function page_manager_theme() {
@@ -333,7 +333,7 @@ function page_manager_get_page_cache($task_name) {
       }
     }
     else {
-      // ensure the task is loaded.
+      // Ensure the task is loaded.
       page_manager_get_task($cache->task_id);
     }
 
@@ -390,11 +390,10 @@ function page_manager_save_page_cache($cache) {
   foreach ($cache->handler_info as $id => $info) {
     $handler = &$cache->handlers[$id];
     // If it has been marked for deletion, delete it.
-
     if ($info['changed'] & PAGE_MANAGER_CHANGED_DELETED) {
       page_manager_delete_task_handler($handler);
     }
-    // If it has been somehow edited (or added), write the cached version
+    // If it has been somehow edited (or added), write the cached version.
     elseif ($info['changed'] & PAGE_MANAGER_CHANGED_CACHED) {
       // Make sure we get updated weight from the form for this.
       $handler->weight = $info['weight'];
@@ -427,7 +426,7 @@ function page_manager_save_page_cache($cache) {
  * Menu callback to load a page manager cache object for menu callbacks.
  */
 function page_manager_cache_load($task_name) {
-  // load context plugin as there may be contexts cached here.
+  // Load context plugin as there may be contexts cached here.
   ctools_include('context');
   return page_manager_get_page_cache($task_name);
 }
@@ -500,7 +499,6 @@ function page_manager_handler_add_to_page(&$page, &$handler, $title = NULL) {
 //
 // This includes fetching plugins and plugin info as well as specialized
 // fetch methods to get groups of task handlers per task.
-
 /**
  * Load a single task handler by name.
  *
@@ -582,7 +580,7 @@ function page_manager_get_default_task_handlers($task, $subtask_id) {
       $handlers = $subtask['default handlers'];
     }
   }
-  else if (isset($task['default handlers'])) {
+  elseif (isset($task['default handlers'])) {
     $handlers = $task['default handlers'];
   }
 
@@ -604,6 +602,7 @@ function page_manager_get_default_task_handlers($task, $subtask_id) {
  *   A list of handlers provided by the default task.
  * @param $name
  *   Which handler to compare.
+ *
  * @return
  *   Which handler to use, if any. May be NULL.
  */
@@ -615,10 +614,10 @@ function page_manager_compare_task_handlers($result, $handlers, $name) {
     $handlers[$name]->export_type = EXPORT_IN_CODE;
     return $handlers[$name];
   }
-  else if (isset($result[$name]) && !isset($handlers[$name])) {
+  elseif (isset($result[$name]) && !isset($handlers[$name])) {
     return $result[$name];
   }
-  else if (isset($result[$name]) && isset($handlers[$name])) {
+  elseif (isset($result[$name]) && isset($handlers[$name])) {
     if ($result[$name]->export_type & EXPORT_IN_DATABASE) {
       $result[$name]->type = t('Overridden');
       $result[$name]->export_type = $result[$name]->export_type | EXPORT_IN_CODE;
@@ -776,9 +775,8 @@ function page_manager_export_task_handler_load($name) {
 function page_manager_new_task_handler($plugin) {
   // Generate a unique name. Unlike most named objects, we don't let people choose
   // names for task handlers because they mostly don't make sense.
-
   // Create a new, empty handler object.
-  $handler          = new stdClass;
+  $handler          = new stdClass();
   $handler->title   = $plugin['title'];
   $handler->task    = NULL;
   $handler->subtask = NULL;
@@ -797,7 +795,7 @@ function page_manager_new_task_handler($plugin) {
     if (is_array($plugin['default conf'])) {
       $handler->conf = $plugin['default conf'];
     }
-    else if (function_exists($plugin['default conf'])) {
+    elseif (function_exists($plugin['default conf'])) {
       $handler->conf = $plugin['default conf']($handler);
     }
   }
@@ -822,7 +820,6 @@ function page_manager_update_task_handler_weight($handler, $weight) {
     ))
     ->execute();
 }
-
 
 /**
  * Shortcut function to get task plugins.
@@ -1200,7 +1197,7 @@ function page_manager_page_manager_pages_to_hook_code($names = array(), $name = 
     $code .= " */\n";
     $code .= "function " . $name . "_{$export['default hook']}() {\n";
     foreach ($objects as $object) {
-      // Have to implement our own because this export func sig requires it
+      // Have to implement our own because this export func sig requires it.
       $code .= $export['export callback']($object, TRUE, '  ');
       $code .= "  \${$export['identifier']}s['" . check_plain($object->{$export['key']}) . "'] = \${$export['identifier']};\n\n";
     }
@@ -1310,7 +1307,7 @@ function page_manager_addressable_content($address, $type) {
     $arguments = explode('..', $arguments);
   }
   else {
-    // implode does not return an empty array on an empty
+    // Implode does not return an empty array on an empty
     // string so do it specifically.
     $arguments = array();
   }

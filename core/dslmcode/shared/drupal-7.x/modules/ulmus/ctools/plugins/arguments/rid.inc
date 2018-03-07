@@ -2,8 +2,7 @@
 
 /**
  * @file
- *
- * Plugin to provide an argument handler for a node revision id
+ * Plugin to provide an argument handler for a node revision id.
  */
 
 /**
@@ -47,4 +46,3 @@ function ctools_argument_rid_context($arg = NULL, $conf = NULL, $empty = FALSE) 
 
   return ctools_context_create('node', $node);
 }
-

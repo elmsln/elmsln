@@ -17,9 +17,9 @@
  * Inform CTools about plugin types.
  *
  * @return array
- *  An array of plugin types, keyed by the type name.
- *  See the advanced help topic 'plugins-creating' for details of the array
- *  properties.
+ *   An array of plugin types, keyed by the type name.
+ *   See the advanced help topic 'plugins-creating' for details of the array
+ *   properties.
  */
 function hook_ctools_plugin_type() {
   $plugins['my_type'] = array(
@@ -65,6 +65,7 @@ function hook_ctools_plugin_type() {
  *   directory location is being requested.
  * @param string $plugin_type
  *   The name of the plugin type for which a base directory is being requested.
+ *
  * @return string
  *   The path where CTools' plugin system should search for plugin files,
  *   relative to your module's root. Omit leading and trailing slashes.
@@ -94,7 +95,7 @@ function hook_ctools_plugin_directory($owner, $plugin_type) {
     // Yes, this is exactly like Form 2 - just a different reasoning for it.
     return "plugins/$plugin_type";
   }
-  // Finally, if nothing matches, it's safe to return nothing at all (or NULL).
+  // Finally, if nothing matches, it's safe to return nothing at all (== NULL).
 }
 
 /**
@@ -155,7 +156,7 @@ function hook_ctools_api_hook_alter(&$list) {
  * allow to use it in the math expression api.
  *
  * @param $functions
- *    An array which has the functions as value.
+ *   An array which has the functions as value.
  */
 function hook_ctools_math_expression_functions_alter(&$functions) {
   // Allow to convert from degrees to radiant.
@@ -200,7 +201,10 @@ function hook_ctools_render_alter(&$info, &$page, &$context) {
  */
 function hook_ctools_content_subtype_alter($subtype, $plugin) {
   // Force a particular subtype of a particular plugin to render last.
-  if ($plugin['module'] == 'some_plugin_module' && $plugin['name'] == 'some_plugin_name' && $subtype['subtype_id'] == 'my_subtype_id') {
+  if ($plugin['module'] === 'some_plugin_module'
+    && $plugin['name'] === 'some_plugin_name'
+    && $subtype['subtype_id'] === 'my_subtype_id'
+  ) {
     $subtype['render last'] = TRUE;
   }
 }
@@ -225,6 +229,28 @@ function hook_ctools_entity_context_alter(&$plugin, &$entity, $plugin_id) {
       unset($plugin['no ui']);
       unset($plugin['no required context ui']);
       break;
+  }
+}
+
+/**
+ * Alter the conversion of context items by ctools context plugin convert()s.
+ *
+ * @param ctools_context $context
+ *   The current context plugin object. If this implemented a 'convert'
+ *   function, the value passed in has been processed by that function.
+ * @param string $converter
+ *   A string associated with the plugin type, identifying the operation.
+ * @param string $value
+ *   The value being converted; this is the only return from the function.
+ * @param $converter_options
+ *   Array of key-value pairs to pass to a converter function from higher
+ *   levels.
+ *
+ * @see ctools_context_convert_context()
+ */
+function hook_ctools_context_converter_alter($context, $converter, &$value, $converter_options) {
+  if ($converter === 'mystring') {
+    $value = 'fixed';
   }
 }
 
@@ -264,6 +290,22 @@ function hook_ctools_cleanstring_alter(&$settings) {
 function hook_ctools_cleanstring_CLEAN_ID_alter(&$settings) {
   // Convert all strings to lower case.
   $settings['lower case'] = TRUE;
+}
+
+/**
+ * Let other modules modify the context handler before it is rendered.
+ *
+ * @param object $handler
+ *   A handler for a current task and subtask.
+ * @param array $contexts
+ *   An associative array of contexts.
+ * @param array $args
+ *   An array for current args.
+ *
+ * @see ctools_context_handler_pre_render()
+ */
+function ctools_context_handler_pre_render($handler, $contexts, $args) {
+  $handler->conf['css_id'] = 'my-id';
 }
 
 /**

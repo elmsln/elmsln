@@ -1,9 +1,11 @@
 <?php
 
 /**
+ * @file
  * Plugins are described by creating a $plugin array which will be used
  * by the system that includes this file.
  */
+
 $plugin = array(
   'single' => TRUE,
   'title' => t('User links'),
@@ -29,7 +31,7 @@ function ctools_user_links_content_type_render($subtype, $conf, $panel_args, $co
   $account = clone $context->data;
   $block = new stdClass();
   $block->module = 'user';
-  $block->delta  = $account->uid;
+  $block->delta = $account->uid;
 
   if (empty($account)) {
     $block->delta   = 'placeholder';

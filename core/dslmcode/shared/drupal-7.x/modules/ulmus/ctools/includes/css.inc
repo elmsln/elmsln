@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  * @file
  * CSS filtering functions. Contains a disassembler, filter, compressor, and
  * decompressor.
@@ -149,11 +149,11 @@ function ctools_css_clear($id) {
  *
  * @param $css
  *   A chunk of well-formed CSS text to cache.
- * @param $filter
+ * @param bool $filter
  *   If TRUE the css will be filtered. If FALSE the text will be cached
  *   as-is.
  *
- * @return $filename
+ * @return string
  *   The filename the CSS will be cached in.
  */
 function ctools_css_cache($css, $filter = TRUE) {
@@ -164,7 +164,6 @@ function ctools_css_cache($css, $filter = TRUE) {
   // Create the css/ within the files folder.
   $path = 'public://ctools/css';
   if (!file_prepare_directory($path, FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS)) {
-//  if (!file_prepare_directory($path, FILE_CREATE_DIRECTORY)) {
     drupal_set_message(t('Unable to create CTools CSS cache directory. Check the permissions on your files directory.'), 'error');
     return;
   }
@@ -213,7 +212,7 @@ function ctools_css_filter($css, $compressed = TRUE) {
  *   An array of css data, as produced by @see ctools_css_disassemble()
  *   disassembler and the @see ctools_css_filter_css_data() filter.
  *
- * @return string $css
+ * @return string
  *   css optimized for human viewing.
  */
 function ctools_css_assemble($css_data) {
@@ -243,7 +242,7 @@ function ctools_css_assemble($css_data) {
  *   An array of css data, as produced by @see ctools_css_disassemble()
  *   disassembler and the @see ctools_css_filter_css_data() filter.
  *
- * @return string $css
+ * @return string
  *   css optimized for use.
  */
 function ctools_css_compress($css_data) {
@@ -279,7 +278,7 @@ function ctools_css_compress($css_data) {
  * @param string $css
  *   A string containing the css to be disassembled.
  *
- * @return array $disassembled_css
+ * @return array
  *   An array of disassembled, slightly cleaned-up/formatted css statements.
  */
 function ctools_css_disassemble($css) {
@@ -385,7 +384,6 @@ function _ctools_css_disassemble_declaration($declaration) {
  *   An array of disassembled, filtered CSS.
  */
 function ctools_css_filter_css_data($css, $allowed_properties = array(), $allowed_values = array(), $allowed_values_regex = '', $disallowed_values_regex = '') {
-//function ctools_css_filter_css_data($css, &$filtered = NULL, $allowed_properties = array(), $allowed_values = array(), $allowed_values_regex = '', $disallowed_values_regex = '') {
   // Retrieve the default list of allowed properties if none is provided.
   $allowed_properties = !empty($allowed_properties) ? $allowed_properties : ctools_css_filter_default_allowed_properties();
   // Retrieve the default list of allowed values if none is provided.
@@ -393,19 +391,18 @@ function ctools_css_filter_css_data($css, $allowed_properties = array(), $allowe
   // Define allowed values regex if none is provided.
   $allowed_values_regex = !empty($allowed_values_regex) ? $allowed_values_regex : '/(#[0-9a-f]+|rgb\(\d+%?,\d*%?,?\d*%?\)?|\d{0,2}\.?\d{0,2}(cm|em|ex|in|mm|pc|pt|px|%|,|\))?)/';
   // Define disallowed url() value contents, if none is provided.
-  // $disallowed_values_regex = !empty($disallowed_values_regex) ? $disallowed_values_regex : '/[url|expression]\s*\(\s*[^\s)]+?\s*\)\s*/';
   $disallowed_values_regex = !empty($disallowed_values_regex) ? $disallowed_values_regex : '/(url|expression)/';
 
   foreach ($css as $selector_str => $declaration) {
     foreach ($declaration as $property => $value) {
       if (!in_array($property, $allowed_properties)) {
-        // $filtered['properties'][$selector_str][$property] = $value;
+        // $filtered['properties'][$selector_str][$property] = $value;.
         unset($css[$selector_str][$property]);
         continue;
       }
       $value = str_replace('!important', '', $value);
       if (preg_match($disallowed_values_regex, $value) || !(in_array($value, $allowed_values) || preg_match($allowed_values_regex, $value))) {
-        // $filtered['values'][$selector_str][$property] = $value;
+        // $filtered['values'][$selector_str][$property] = $value;.
         unset($css[$selector_str][$property]);
         continue;
       }

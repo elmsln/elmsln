@@ -1,6 +1,10 @@
 <?php
 
 /**
+ * @file
+ */
+
+/**
  * Delegated implementation of hook_menu().
  */
 function ctools_export_ui_menu(&$items) {

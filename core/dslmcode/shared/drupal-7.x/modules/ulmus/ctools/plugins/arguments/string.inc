@@ -2,16 +2,16 @@
 
 /**
  * @file
- *
- * Plugin to provide an argument handler for a raw string
+ * Plugin to provide an argument handler for a raw string.
  */
+
 /**
  * Plugins are described by creating a $plugin array which will be used
  * by the system that includes this file.
  */
 $plugin = array(
   'title' => t("String"),
-  // keyword to use for %substitution
+  // Keyword to use for %substitution.
   'keyword' => 'string',
   'description' => t('A string is a minimal context that simply holds a string that can be used for some other purpose.'),
   'settings form' => 'ctools_string_settings_form',
@@ -20,7 +20,8 @@ $plugin = array(
     '#type' => 'textfield',
     '#description' => t('Enter a value for this argument'),
   ),
-  'path placeholder' => 'ctools_string_path_placeholder', // This is in pagemanager.
+// This is in pagemanager.
+  'path placeholder' => 'ctools_string_path_placeholder',
 );
 
 /**
@@ -39,7 +40,7 @@ function ctools_string_context($arg = NULL, $conf = NULL, $empty = FALSE) {
 }
 
 /**
- * Settings form for the argument
+ * Settings form for the argument.
  */
 function ctools_string_settings_form(&$form, &$form_state, $conf) {
   $form['settings']['use_tail'] = array(
@@ -48,7 +49,6 @@ function ctools_string_settings_form(&$form, &$form_state, $conf) {
     '#default_value' => !empty($conf['use_tail']),
     '#description' => t('If checked, this string will include all arguments. For example, if the path is "path/%" and the user visits "path/foo/bar", if this is not checked the string will be "foo". If it is checked the string will be "foo/bar".'),
   );
-//  return $form;
 }
 
 /**

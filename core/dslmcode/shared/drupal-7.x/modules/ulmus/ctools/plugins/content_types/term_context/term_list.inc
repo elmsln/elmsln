@@ -1,9 +1,11 @@
 <?php
 
 /**
+ * @file
  * Plugins are described by creating a $plugin array which will be used
  * by the system that includes this file.
  */
+
 $plugin = array(
   'single' => TRUE,
   'title' => t('List of related terms'),
@@ -40,7 +42,7 @@ function ctools_term_list_content_type_render($subtype, $conf, $panel_args, $con
     $block->delta = $conf['type'];
     switch ($conf['type']) {
       case 'related':
-        // FIXME this no longer exists, must be done with Field API
+        // @todo this no longer exists, must be done with Field API.
         // $terms = taxonomy_get_related($term->tid);
         break;
 
@@ -78,7 +80,7 @@ function ctools_term_list_content_type_render($subtype, $conf, $panel_args, $con
 
       case 'synonyms':
         // FIXME this no longer exists, must be done with Field API
-//        $terms = taxonomy_get_synonyms($term->tid);
+        //        $terms = taxonomy_get_synonyms($term->tid);.
         break;
     }
 
@@ -169,4 +171,3 @@ function ctools_term_list_content_type_edit_form_submit($form, &$form_state) {
     $form_state['conf'][$key] = $form_state['values'][$key];
   }
 }
-

@@ -24,7 +24,7 @@ $plugin = array(
 );
 
 /**
- * Settings form for the 'by node_access' access plugin
+ * Settings form for the 'by node_access' access plugin.
  */
 function ctools_node_access_ctools_access_settings($form, &$form_state, $conf) {
   $form['settings']['type'] = array(
@@ -86,4 +86,3 @@ function ctools_node_access_ctools_access_summary($conf, $context) {
       return t('@user can create nodes of the same type as @node.', $replacement);
   }
 }
-

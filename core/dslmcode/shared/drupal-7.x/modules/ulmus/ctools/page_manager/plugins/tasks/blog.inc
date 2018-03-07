@@ -1,6 +1,10 @@
 <?php
 
 /**
+ * @file
+ */
+
+/**
  * Specialized implementation of hook_page_manager_task_tasks(). See api-task.html for
  * more information.
  */
@@ -10,7 +14,7 @@ function page_manager_blog_page_manager_tasks() {
   }
 
   return array(
-    // This is a 'page' task and will fall under the page admin UI
+    // This is a 'page' task and will fall under the page admin UI.
     'task type' => 'page',
 
     'title' => t('All blogs'),
@@ -68,7 +72,7 @@ function page_manager_blog_menu_alter(&$items, $task) {
  * node edit, which is node_page_edit().
  */
 function page_manager_blog() {
-  // Load my task plugin
+  // Load my task plugin.
   $task = page_manager_get_task('blog');
 
   ctools_include('context');
@@ -113,6 +117,7 @@ function page_manager_blog_enable($cache, $status) {
  *   The subtask id
  * @param $contexts
  *   The contexts loaded for the task.
+ *
  * @return
  *   TRUE if the current user can access the page.
  */

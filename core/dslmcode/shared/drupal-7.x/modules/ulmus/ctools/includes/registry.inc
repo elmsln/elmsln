@@ -2,7 +2,6 @@
 
 /**
  * @file
- *
  * Registry magic. In a separate file to minimize unnecessary code loading.
  */
 

@@ -82,7 +82,7 @@ function ctools_modal_text_button($text, $dest, $alt, $class = '') {
     <li> <strong>modalSize</strong>: an array of data to control the sizing of the modal. It can contain:
   <ul>
   <li> <strong>type</strong>: Either <em>fixed</em> or <em>scale</em>. If fixed, the modal will always be a fixed size. If <em>scale</em> the modal will scale to a percentage of the browser window. <em>Default: scale</em>.
-<li> <strong>width</strong>: If </em>fixed</em> the width in pixels. If <em>scale</em> the percentage of the screen expressed as a number less than zero. (For 80 percent, use .8, for example). <em>Default: .8</em></li>
+<li> <strong>width</strong>: If <em>fixed</em> the width in pixels. If <em>scale</em> the percentage of the screen expressed as a number less than zero. (For 80 percent, use .8, for example). <em>Default: .8</em></li>
 <li> <strong>height</strong>: If <em>fixed</em> the height in pixels. If <em>scale</em> the percentage of the screen expressed as a number less than zero. (For 80 percent, use .8, for example). <em>Default: .8</em></li>
 <li> <strong>addWidth</strong>: Any additional width to add to the modal in pixels. Only useful if the type is scale. <em>Default: 0</em></li>
 <li> <strong>addHeight</strong>: Any additional height to add to the modal in pixels. Only useful if the type is scale. <em>Default: 0</em></li>
@@ -168,7 +168,7 @@ function ctools_ajax_sample_login($js) {
 <pre>
 function ctools_ajax_hello_world($js) {
   $title = t('Greetings');
-  $output = '&lt;p&gt;' . t('Hello world') . ''&lt;/p&gt;';
+  $output = '&lt;p&gt;' . t('Hello world') . '&lt;/p&gt;';
   if ($js) {
     ctools_modal_render($title, $output);
   }

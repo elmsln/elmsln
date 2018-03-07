@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * @file
+ */
+
 if (module_exists('profile') && !(defined('MAINTENANCE_MODE') && MAINTENANCE_MODE == 'update') && !is_null(profile_user_categories())) {
   /**
    * Plugins are described by creating a $plugin array which will be used
@@ -26,13 +30,13 @@ function ctools_profile_fields_content_type_render($subtype, $conf, $panel_args,
   $block->module = 'profile fields';
 
   if ($account) {
-    // Get the category from the options
+    // Get the category from the options.
     $category = str_replace("_", " ", $conf['category']);
 
-    // Set the subject to the name of the category
+    // Set the subject to the name of the category.
     $block->subject = $category;
 
-    // Put all the fields in the category into an array
+    // Put all the fields in the category into an array.
     profile_view_profile($account);
 
     if (is_array($account->content[$category])) {
@@ -46,11 +50,11 @@ function ctools_profile_fields_content_type_render($subtype, $conf, $panel_args,
     }
 
     if (count($vars) == 0) {
-      // Output the given empty text
+      // Output the given empty text.
       $output = $conf['empty'];
     }
     else {
-      // Call the theme function with the field vars
+      // Call the theme function with the field vars.
       $output = theme('profile_fields_pane', $category, $vars);
     }
 
@@ -65,6 +69,7 @@ function ctools_profile_fields_content_type_render($subtype, $conf, $panel_args,
 
   return $block;
 }
+
 /**
  * Helper function : build the list of categories for the 'edit' form.
  */

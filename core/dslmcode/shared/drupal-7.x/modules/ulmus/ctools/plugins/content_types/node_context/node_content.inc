@@ -1,9 +1,11 @@
 <?php
 
 /**
+ * @file
  * Plugins are described by creating a $plugin array which will be used
  * by the system that includes this file.
  */
+
 $plugin = array(
   'single' => TRUE,
   'title' => t('Node content'),
@@ -27,18 +29,18 @@ $plugin = array(
  * Render the node content.
  */
 function ctools_node_content_content_type_render($subtype, $conf, $panel_args, $context) {
-  if (!empty($context) && empty($context->data)) {
+  if (!empty($context) && (empty($context->data) || empty($context->data->nid))) {
     return;
   }
 
   $node = isset($context->data) ? clone $context->data : NULL;
   $block = new stdClass();
   $block->module = 'node';
-  $block->delta  = $node->nid;
+  $block->delta = $node->nid;
 
   if (empty($node)) {
     $block->delta   = 'placeholder';
-    $block->title = t('Node title.');
+    $block->title   = t('Node title.');
     $block->content = t('Node content goes here.');
   }
   else {
@@ -86,7 +88,7 @@ function ctools_node_content_render_node($node, $conf) {
       $links['node-readmore'] = array(
         'title' => t('Read more'),
         'href' => 'node/' . $node->nid,
-        'attributes' => array('rel' => 'tag', 'title' => strip_tags($node->title))
+        'attributes' => array('rel' => 'tag', 'title' => strip_tags($node->title)),
       );
     }
 
@@ -201,4 +203,3 @@ function ctools_node_content_content_type_edit_form_submit($form, &$form_state) 
 function ctools_node_content_content_type_admin_title($subtype, $conf, $context) {
   return t('"@s" content', array('@s' => $context->identifier));
 }
-

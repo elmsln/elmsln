@@ -1,6 +1,7 @@
 <?php
 
 /**
+ * @file
  * The default plugin exists only to provide the base class. Other plugins
  * which do not provide a class will get this class instead. Any classes
  * provided should use this class as their parent:
@@ -15,6 +16,7 @@
  * Using the above notation will ensure that this plugin's is loaded before
  * the child plugin's class and avoid whitescreens.
  */
+
 $plugin = array(
   // As this is the base class plugin, it shouldn't declare any menu items.
   'has menu' => FALSE,

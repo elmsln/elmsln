@@ -20,11 +20,11 @@ $plugin = array(
 );
 
 /**
- * Settings form for the 'by perm' access plugin
+ * Settings form for the 'by perm' access plugin.
  */
 function ctools_perm_ctools_access_settings($form, &$form_state, $conf) {
   $perms = array();
-  // Get list of permissions
+  // Get list of permissions.
   foreach (module_list(FALSE, FALSE, TRUE) as $module) {
     // By keeping them keyed by module we can use optgroups with the
     // 'select' type.
@@ -70,4 +70,3 @@ function ctools_perm_ctools_access_summary($conf, $context) {
   $permissions = module_invoke_all('permission');
   return t('@identifier has "@perm"', array('@identifier' => $context->identifier, '@perm' => $permissions[$conf['perm']]['title']));
 }
-

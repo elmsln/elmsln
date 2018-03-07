@@ -2,8 +2,7 @@
 
 /**
  * @file
- *
- * Plugin to provide an argument handler for a Taxonomy term
+ * Plugin to provide an argument handler for a Taxonomy term.
  */
 
 /**
@@ -12,7 +11,7 @@
  */
 $plugin = array(
   'title' => t("Taxonomy term (multiple): ID"),
-  // keyword to use for %substitution
+  // Keyword to use for %substitution.
   'keyword' => 'term',
   'description' => t('Creates a group of taxonomy terms from a list of tids separated by a comma or a plus sign. In general the first term of the list will be used for panes.'),
   'context' => 'ctools_terms_context',
@@ -45,7 +44,7 @@ function ctools_terms_context($arg = NULL, $conf = NULL, $empty = FALSE) {
 }
 
 /**
- * Settings form for the argument
+ * Settings form for the argument.
  */
 function ctools_terms_settings_form(&$form, &$form_state, $conf) {
   $form['settings']['breadcrumb'] = array(
@@ -54,7 +53,6 @@ function ctools_terms_settings_form(&$form, &$form_state, $conf) {
     '#default_value' => !empty($conf['breadcrumb']),
     '#description' => t('If checked, taxonomy term parents will appear in the breadcrumb trail.'),
   );
-//  return $form;
 }
 
 /**

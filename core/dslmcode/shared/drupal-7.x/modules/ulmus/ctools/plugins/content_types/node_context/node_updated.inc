@@ -1,9 +1,11 @@
 <?php
 
 /**
+ * @file
  * Plugins are described by creating a $plugin array which will be used
  * by the system that includes this file.
  */
+
 $plugin = array(
   'single' => TRUE,
   'title' => t('Node last updated date'),
@@ -28,7 +30,7 @@ function ctools_node_updated_content_type_render($subtype, $conf, $panel_args, $
   $node = $context->data;
 
   // Build the content type block.
-  $block = new stdClass();
+  $block          = new stdClass();
   $block->module  = 'node_updated';
   $block->title   = t('Last updated date');
   $block->content = format_date(!empty($node->changed) ? $node->changed : $node->created, $conf['format']);

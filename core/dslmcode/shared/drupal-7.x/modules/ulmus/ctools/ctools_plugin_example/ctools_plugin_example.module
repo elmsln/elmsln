@@ -1,9 +1,8 @@
 <?php
 
-/*
+/**
  * @file
- *
- * Working sample module to demonstrate CTools 3 plugins
+ * Working sample module to demonstrate CTools 3 plugins.
  *
  * This sample module is only intended to demonstrate how external modules can
  * provide ctools plugins. There is no useful functionality, and it's only
@@ -25,7 +24,7 @@
  */
 
 /**
- * Implements hook_menu
+ * Implements hook_menu.
  */
 function ctools_plugin_example_menu() {
   $items = array();
@@ -58,7 +57,7 @@ function ctools_plugin_example_ctools_plugin_directory($module, $plugin) {
  * Implement hook_ctools_plugin_api().
  *
  * If you do this, CTools will pick up default panels pages in
- * <modulename>.pages_default.inc
+ * <modulename>.pages_default.inc.
  */
 function ctools_plugin_example_ctools_plugin_api($module, $api) {
   // @todo -- this example should explain how to put it in a different file.
@@ -71,7 +70,8 @@ function ctools_plugin_example_ctools_plugin_api($module, $api) {
 }
 
 /**
- * Just provide an explanation page for the admin section
+ * Just provide an explanation page for the admin section.
+ *
  * @return unknown_type
  */
 function ctools_plugin_example_explanation_page() {

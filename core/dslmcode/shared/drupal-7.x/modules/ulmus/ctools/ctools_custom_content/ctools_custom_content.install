@@ -1,6 +1,10 @@
 <?php
 
 /**
+ * @file
+ */
+
+/**
  * Schema for CTools custom content.
  */
 function ctools_custom_content_schema() {

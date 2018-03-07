@@ -2,7 +2,7 @@
 
 class ctools_access_ruleset_ui extends ctools_export_ui {
 
-  function edit_form_context(&$form, &$form_state) {
+  public function edit_form_context(&$form, &$form_state) {
     ctools_include('context-admin');
     ctools_context_admin_includes();
     ctools_add_css('ruleset');
@@ -27,7 +27,7 @@ class ctools_access_ruleset_ui extends ctools_export_ui {
     ctools_context_add_relationship_form($module, $form, $form_state, $form['right']['relationships_table'], $form_state['item'], $name);
   }
 
-  function edit_form_rules(&$form, &$form_state) {
+  public function edit_form_rules(&$form, &$form_state) {
     // The 'access' UI passes everything via $form_state, unlike the 'context' UI.
     // The main difference is that one is about 3 years newer than the other.
     ctools_include('context');
@@ -43,11 +43,12 @@ class ctools_access_ruleset_ui extends ctools_export_ui {
     $form = ctools_access_admin_form($form, $form_state);
   }
 
-  function edit_form_rules_submit(&$form, &$form_state) {
+  public function edit_form_rules_submit(&$form, &$form_state) {
     $form_state['item']->access['logic'] = $form_state['values']['logic'];
   }
 
-  function edit_form_submit(&$form, &$form_state) {
+  public function edit_form_submit(&$form, &$form_state) {
     parent::edit_form_submit($form, $form_state);
   }
+
 }

@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * @file
+ */
+
 if (module_exists('book')) {
   /**
    * Plugins are described by creating a $plugin array which will be used
@@ -8,7 +12,7 @@ if (module_exists('book')) {
   $plugin = array(
     'single' => TRUE,
     'title' => t('Book navigation pager'),
-    'icon' => '../block/icon_core_booknavigation.png',
+    'icon' => drupal_get_path('module', 'ctools') . '/plugins/content_types/block/icon_core_booknavigation.png',
     'description' => t('The navigational pager and sub pages of the current book node.'),
     'required context' => new ctools_context_required(t('Node'), 'node'),
     'category' => t('Node'),
@@ -38,6 +42,6 @@ function ctools_node_book_nav_content_type_admin_title($subtype, $conf, $context
 }
 
 function ctools_node_book_nav_content_type_edit_form($form, &$form_state) {
-  // provide a blank form so we have a place to have context setting.
+  // Provide a blank form so we have a place to have context setting.
   return $form;
 }

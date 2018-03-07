@@ -5,7 +5,6 @@
  * "No context" sample content type. It operates with no context at all. It would
  * be basically the same as a 'custom content' block, but it's not even that
  * sophisticated.
- *
  */
 
 /**
@@ -33,7 +32,7 @@ $plugin = array(
   'icon' => 'icon_example.png',
   'category' => array(t('CTools Examples'), -9),
 
-  // this example does not provide 'admin info', which would populate the
+  // This example does not provide 'admin info', which would populate the
   // panels builder page preview.
 );
 
@@ -56,7 +55,7 @@ function no_context_content_type_render($subtype, $conf, $args, $context) {
   $ctools_help = theme('advanced_help_topic', array('module' => 'ctools', 'topic' => 'plugins', 'type' => 'title'));
   $ctools_plugin_example_help = theme('advanced_help_topic', array('module' => 'ctools_plugin_example', 'topic' => 'Chaos-Tools--CTools--Plugin-Examples', 'type' => 'title'));
 
-  // The title actually used in rendering
+  // The title actually used in rendering.
   $block->title = check_plain("No-context content type");
   $block->content = t("
   <div>Welcome to the CTools Plugin Example demonstration content type.
@@ -84,7 +83,6 @@ function no_context_content_type_render($subtype, $conf, $args, $context) {
  * Note that if we had not provided an entry for this in hook_content_types,
  * this could have had the default name
  * ctools_plugin_example_no_context_content_type_edit_form.
- *
  */
 function no_context_content_type_edit_form($form, &$form_state) {
   $conf = $form_state['conf'];

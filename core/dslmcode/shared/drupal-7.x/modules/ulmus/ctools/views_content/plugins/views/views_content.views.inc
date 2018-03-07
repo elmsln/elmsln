@@ -6,7 +6,7 @@
  */
 
 /**
- * Implements hook_views_plugins
+ * Implements hook_views_plugins().
  */
 function views_content_views_plugins() {
   return array(
