@@ -19,8 +19,11 @@
  * @see replicate_entity()
  */
 function replicate_entity_by_id($entity_type, $id) {
-  $original = entity_load_single($entity_type, $id);
-  return replicate_entity($entity_type, $original);
+  if (($original = entity_load_single($entity_type, $id)) !== FALSE) {
+    return replicate_entity($entity_type, $original);
+  }
+
+  return FALSE;
 }
 
 /**
@@ -39,9 +42,11 @@ function replicate_entity($entity_type, $entity) {
   $clone = replicate_clone_entity($entity_type, $entity);
   if ($clone) {
     entity_save($entity_type, $clone);
-      list($entity_id) = entity_extract_ids($entity_type, $clone);
+    list($entity_id) = entity_extract_ids($entity_type, $clone);
 
     if (isset($entity_id)) {
+      module_invoke_all('replicate_entity_after_save', $clone, $entity_type, $entity);
+
       return $entity_id;
     }
   }
@@ -65,8 +70,11 @@ function replicate_entity($entity_type, $entity) {
  * @see replicate_clone_entity()
  */
 function replicate_clone_entity_by_id($entity_type, $id) {
-  $original = entity_load_single($entity_type, $id);
-  return replicate_clone_entity($entity_type, $original);
+  if (($original = entity_load_single($entity_type, $id)) !== FALSE) {
+    return replicate_clone_entity($entity_type, $original);
+  }
+
+  return FALSE;
 }
 
 /**
@@ -94,6 +102,18 @@ function replicate_clone_entity($entity_type, $entity) {
 
     // Set the entity as new entity.
     $clone->is_new = TRUE;
+
+    // Reset entity id.
+    $entity_info = entity_get_info($entity_type);
+    $clone->{$entity_info['entity keys']['id']} = NULL;
+
+    // Reset UUID.
+    if (isset($entity_info['uuid']) && $entity_info['uuid'] == TRUE && !empty($entity_info['entity keys']['uuid'])) {
+      $clone->{$entity_info['entity keys']['uuid']} = NULL;
+      if (!empty($entity_info['entity keys']['revision uuid'])) {
+        $clone->{$entity_info['entity keys']['revision uuid']} = NULL;
+      }
+    }
 
     // Let other modules do special actions on each field.
     replicate_clone_fields($clone, $entity_type);
@@ -141,7 +161,6 @@ function replicate_help($path, $arg) {
  * Implements hook_replicate_entity_ENTITY_TYPE().
  */
 function replicate_replicate_entity_node(&$entity) {
-  $entity->nid = NULL;
   $entity->tnid = NULL;
   $entity->vid = NULL;
   $entity->created = NULL;
@@ -153,36 +172,7 @@ function replicate_replicate_entity_node(&$entity) {
 /**
  * Implements hook_replicate_entity_ENTITY_TYPE().
  */
-function replicate_replicate_entity_taxonomy_vocabulary(&$entity) {
-  $entity->vid = NULL;
-}
-
-/**
- * Implements hook_replicate_entity_ENTITY_TYPE().
- */
-function replicate_replicate_entity_taxonomy_term(&$entity) {
-  $entity->tid = NULL;
-}
-
-/**
- * Implements hook_replicate_entity_ENTITY_TYPE().
- */
-function replicate_replicate_entity_user(&$entity) {
-  $entity->uid = NULL;
-}
-
-/**
- * Implements hook_replicate_entity_ENTITY_TYPE().
- */
 function replicate_replicate_entity_comment(&$entity) {
-  $entity->cid = NULL;
   $entity->created = NULL;
   $entity->changed = NULL;
-}
-
-/**
- * Implements hook_replicate_entity_ENTITY_TYPE().
- */
-function replicate_replicate_entity_file(&$entity) {
-  $entity->fid = NULL;
 }
