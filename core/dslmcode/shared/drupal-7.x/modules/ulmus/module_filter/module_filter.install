@@ -19,6 +19,8 @@ function module_filter_uninstall() {
   variable_del('module_filter_track_recent_modules');
   variable_del('module_filter_remember_active_tab');
   variable_del('module_filter_remember_update_state');
+  variable_del('module_filter_version_column');
+  variable_del('module_filter_expanded_description');
 }
 
 /**

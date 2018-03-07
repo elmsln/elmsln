@@ -17,8 +17,8 @@ visibility of modules that are disabled and depend on module(s) that are
 missing.
 
 The update status report filter also contains four checkboxes: Up-to-Date,
-Update availabe, Security update, and Unknown. These directly affect the
-visibilty of each project; whether it is up-to-date, there is an update
+Update available, Security update, and Unknown. These directly affect the
+visibility of each project; whether it is up-to-date, there is an update
 available, a security update is available, or the status is unknown.
 
 Installation
