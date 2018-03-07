@@ -22,7 +22,7 @@ class GroupUITestCase extends DrupalWebTestCase {
     parent::setUp('field_test', 'field_group', 'field_group_test');
 
     // Create test user.
-    $admin_user = $this->drupalCreateUser(array('administer content types', 'administer nodes', 'access administration pages', 'bypass node access'));
+    $admin_user = $this->drupalCreateUser(array('administer content types', 'administer nodes', 'access administration pages', 'bypass node access', 'administer fields'));
     $this->drupalLogin($admin_user);
   }
 

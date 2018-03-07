@@ -1,6 +1,37 @@
 /* $Id*/
 CHANGELOG for field_group for Drupal 7
 
+Field Group origin/7.x-1.x, 2017-11-04
+--------------------------------------
+- Tests fail after new 'administer fields' permission.
+- Update CHANGELOG.txt to 7.x-1.5 Release.
+- Revert "Issue #2646106 by jribeiro: Update CHANGELOG.txt to 7.x-1.5 Release".
+- Update CHANGELOG.txt to 7.x-1.5 Release.
+- Fix whitespace between "&" and parameters for some functions.
+- Avoid bad code pattern (that is picked up by security scanners) when getting hash.
+- Should #array_parents be updated in field_group_fields_nest()?.
+- "Show" appears in horizontal tab title if node form submitted through ajax.
+- CSS breaks i18n string translation interface.
+- "uncaught exception: Syntax error, unrecognized expression: #" after 7.x-1.4 update.
+- PHP7 - Uniform Variable Syntax updates are causing exported field_groups to not have names.
+
+Field_group 7.x-1.5
+    o Added extra formatting on html element attributes.
+    o Fixed bug on automatic ID generation in javascript.
+    o Issue #2511960 by rrfegade: spelling errors in D7.
+    o Issue #2194279 by Georgique: Export translatables (label and descriptions) in Features.
+    o Issue #2386335 by Dubs: Integer Group Array Keys can create empty node forms.
+    o Issue #2269133 by sammuell: Accordion is always closed when using jQuery update module.
+    o Issue #2258939 by Snipon: Fixed Change to preventDefault on multipage controls.
+    o Issue #2173937 by jantoine, omerida | Bernieman: Fixed Accordion Element has fixed height in HTML.
+    o Issue #2311789 by eelkeblok: Fixed Group is incorrectly determined to be empty with nested form elements.
+    o Issue #2272003 by karolrybak | Kwb: Fixed Fieldgroup no longer renders after using more than one 'HTML Element' on the same level.
+    o Issue #2309219 by czigor: Fixed Proper CTools exportable loading.
+    o Issue #2283245 by stefan.r | jrb: Fixed New id functionality breaks tests and CSS on existing field groups.
+    o Issue #2295133 by boyan.borisov, interX: Fixed field_group_update_7007 error.
+    o Remove field_group.css, the css is not needed anymore.
+    o Fix horiziontal tabs when used as standalone element.
+
 Field_group 7.x-1.4
     o Issue #2129805 by RaF: Incorrect markup when open div & custom classes provided.
     o Issue #2037731 by maximpodorov, Zach Harkey: Remove id attribute from HTML elements.
