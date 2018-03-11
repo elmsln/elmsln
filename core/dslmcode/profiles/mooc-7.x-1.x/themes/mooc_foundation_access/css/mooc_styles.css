@@ -759,3 +759,11 @@ section.main-section.etb-book a.elmsln-outline-button {
   max-width: unset;
   min-width: unset;
 }
+
+/**
+ * Ensure that iframes are fitting into the content area and not
+ * spilling over.
+ */
+lrn-page iframe {
+  width: 100%;
+}
