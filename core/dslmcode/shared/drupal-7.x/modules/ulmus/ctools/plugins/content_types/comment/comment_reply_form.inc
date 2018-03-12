@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Ctools content-type plugin to provide a comment-reply form (replying either
+ * CTools content-type plugin to provide a comment-reply form (replying either
  * to a node or to another comment).
  */
 
@@ -14,12 +14,12 @@ if (module_exists('comment')) {
     'icon' => 'icon_comment.png',
     'description' => t('A form to add a new comment reply.'),
     'required context' => array(
-        new ctools_context_required(t('Node'), 'node'),
-        new ctools_context_optional(t('Comment'), 'comment'),
-        ),
+      new ctools_context_required(t('Node'), 'node'),
+      new ctools_context_optional(t('Comment'), 'comment'),
+    ),
     'category' => t('Comment'),
     'render callback'  => 'ctools_comment_reply_form_content_type_render',
-    'defaults' => array('anon_links' => false),
+    'defaults' => array('anon_links' => FALSE),
   );
 }
 
@@ -28,7 +28,9 @@ function ctools_comment_reply_form_content_type_render($subtype, $conf, $panel_a
   $comment = ($context[1]->identifier == t('No context')) ? NULL : clone $context[1]->data;
   $block = new stdClass();
   $block->module = 'comments';
-  if ($comment) $block->delta  = $comment->cid;
+  if ($comment) {
+    $block->delta = $comment->cid;
+  }
   $block->title = t('Add comment');
   $node = $context[0]->data;
 

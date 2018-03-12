@@ -59,7 +59,8 @@ function ctools_plugin_example_arg_length_ctools_access_check($conf, $context) {
  */
 function ctools_plugin_example_arg_length_ctools_access_summary($conf, $context) {
   return t('Simpletext argument must be !comp @length characters',
-    array('!comp' => $conf['greater_than'] ? 'greater than' : 'less than or equal to',
-      '@length' => $conf['arg_length']));
+    array(
+      '!comp' => $conf['greater_than'] ? 'greater than' : 'less than or equal to',
+      '@length' => $conf['arg_length'],
+    ));
 }
-

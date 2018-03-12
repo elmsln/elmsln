@@ -12,24 +12,25 @@
 function ctools_requirements($phase) {
   $requirements = array();
   if ($phase == 'runtime') {
+    $t = get_t();
     $requirements['ctools_css_cache'] = array(
-      'title' => t('CTools CSS Cache'),
+      'title' => $t('CTools CSS Cache'),
       'severity' => REQUIREMENT_OK,
-      'value' => t('Exists'),
+      'value' => $t('Exists'),
     );
 
     $path = 'public://ctools/css';
     if (!file_prepare_directory($path, FILE_CREATE_DIRECTORY)) {
-      $requirements['ctools_css_cache']['description'] = t('The CTools CSS cache directory, %path could not be created due to a misconfigured files directory. Please ensure that the files directory is correctly configured and that the webserver has permission to create directories.', array('%path' => file_uri_target($path)));
+      $requirements['ctools_css_cache']['description'] = $t('The CTools CSS cache directory, %path could not be created due to a misconfigured files directory. Please ensure that the files directory is correctly configured and that the webserver has permission to create directories.', array('%path' => file_uri_target($path)));
       $requirements['ctools_css_cache']['severity'] = REQUIREMENT_ERROR;
-      $requirements['ctools_css_cache']['value'] = t('Unable to create');
+      $requirements['ctools_css_cache']['value'] = $t('Unable to create');
     }
 
     if (!function_exists('error_get_last')) {
-      $requirements['ctools_php_52']['title'] = t('CTools PHP requirements');
-      $requirements['ctools_php_52']['description'] = t('CTools requires certain features only available in PHP 5.2.0 or higher.');
+      $requirements['ctools_php_52']['title'] = $t('CTools PHP requirements');
+      $requirements['ctools_php_52']['description'] = $t('CTools requires certain features only available in PHP 5.2.0 or higher.');
       $requirements['ctools_php_52']['severity'] = REQUIREMENT_WARNING;
-      $requirements['ctools_php_52']['value'] = t('PHP !version', array('!version' => phpversion()));
+      $requirements['ctools_php_52']['value'] = $t('PHP !version', array('!version' => phpversion()));
     }
   }
 
@@ -40,7 +41,19 @@ function ctools_requirements($phase) {
  * Implements hook_schema().
  */
 function ctools_schema() {
-  return ctools_schema_3();
+  return ctools_schema_4();
+}
+
+/**
+ * Version 4 of the CTools schema.
+ */
+function ctools_schema_4() {
+  $schema = ctools_schema_3();
+
+  // Removed due to alternative database configuration issues.
+  // @see https://www.drupal.org/project/ctools/issues/2941920
+
+  return $schema;
 }
 
 /**
@@ -49,7 +62,7 @@ function ctools_schema() {
 function ctools_schema_3() {
   $schema = ctools_schema_2();
 
-  // update the 'obj' field to be 128 bytes long:
+  // Update the 'obj' field to be 128 bytes long:
   $schema['ctools_object_cache']['fields']['obj']['length'] = 128;
 
   return $schema;
@@ -61,7 +74,7 @@ function ctools_schema_3() {
 function ctools_schema_2() {
   $schema = ctools_schema_1();
 
-  // update the 'name' field to be 128 bytes long:
+  // Update the 'name' field to be 128 bytes long:
   $schema['ctools_object_cache']['fields']['name']['length'] = 128;
 
   // Update the 'data' field to be type 'blob'.
@@ -95,10 +108,10 @@ function ctools_schema_2() {
         'serialize' => TRUE,
       ),
       'filter' => array(
-         'type' => 'int',
-         'size' => 'tiny',
-         'description' => 'Whether or not this CSS needs to be filtered.',
-       ),
+        'type' => 'int',
+        'size' => 'tiny',
+        'description' => 'Whether or not this CSS needs to be filtered.',
+      ),
     ),
     'primary key' => array('cid'),
   );
@@ -197,7 +210,7 @@ function ctools_update_6003() {
   if ($result) {
     db_delete('system')->condition('name', 'panels_views')->execute();
     module_enable(array('views_content'), TRUE);
- }
+  }
 }
 
 /**
@@ -216,7 +229,7 @@ function ctools_update_6005() {
 }
 
 /**
- * ctools_custom_content table was originally here, but is now moved to
+ * The ctools_custom_content table was originally here, but is now moved to
  * its own module.
  */
 function ctools_update_6007() {
@@ -230,18 +243,18 @@ function ctools_update_6007() {
 }
 
 /**
- * ctools_object_cache needs to be defined as a blob.
+ * The ctools_object_cache needs to be defined as a blob.
  */
 function ctools_update_6008() {
   db_delete('ctools_object_cache')
     ->execute();
 
   db_change_field('ctools_object_cache', 'data', 'data', array(
-      'type' => 'blob',
-      'size' => 'big',
-      'description' => 'Serialized data being stored.',
-      'serialize' => TRUE,
-    )
+    'type' => 'blob',
+    'size' => 'big',
+    'description' => 'Serialized data being stored.',
+    'serialize' => TRUE,
+  )
   );
 }
 
@@ -261,5 +274,26 @@ function ctools_update_7001() {
     'length' => '128',
     'not null' => TRUE,
     'description' => 'The type of the object this cache is attached to; this essentially represents the owner so that several sub-systems can use this cache.',
+  ));
+}
+
+/**
+ * Increase the length of the ctools_object_cache.name column to 255.
+ */
+function ctools_update_7002() {
+  // Removed due to alternative database configuration issues.
+  // @see https://www.drupal.org/project/ctools/issues/2941920
+}
+
+/**
+ * Revert the length of the ctools_object_cache.name column back to 128.
+ */
+function ctools_update_7003() {
+  db_delete('ctools_object_cache')->execute();
+  db_change_field('ctools_object_cache', 'name', 'name', array(
+    'type' => 'varchar',
+    'length' => '128',
+    'not null' => TRUE,
+    'description' => 'The name of the object this cache is attached to.',
   ));
 }

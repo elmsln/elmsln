@@ -52,9 +52,10 @@ function wysiwyg_features_export_render($module, $data, $export = NULL) {
 
   foreach ($data as $name) {
     if ($profile = wysiwyg_get_profile($name)) {
+      $profile = (array) $profile;
       $profile_export = features_var_export($profile, '  ');
-      $profile_identifier = features_var_export($profile->format);
-      $code[] = "  // Exported profile: {$profile->format}";
+      $profile_identifier = features_var_export($profile['format']);
+      $code[] = "  // Exported profile: {$profile['format']}.";
       $code[] = "  \$profiles[{$profile_identifier}] = {$profile_export};";
       $code[] = "";
     }
@@ -78,27 +79,44 @@ function wysiwyg_features_revert($module) {
 function wysiwyg_features_rebuild($module) {
   if ($defaults = features_get_default('wysiwyg', $module)) {
     foreach ($defaults as $profile) {
+      $profile = is_object($profile) ? (array) $profile : $profile;
       if (empty($profile['settings']['_profile_preferences'])) {
-        $settings = &$profile['settings'];
-        // Importing an older profile, move state to its own section.
+        if (!empty($profile['preferences'])) {
+          $settings = &$profile['preferences'];
+        }
+        else {
+          // Importing an older profile, move state to its own section.
+          $settings = &$profile['settings'];
+        }
+
         $preferences = array(
-          'add_to_summaries' => $settings['add_to_summaries'],
+          'add_to_summaries' => (!empty($settings['add_to_summaries']) ? $settings['add_to_summaries'] : FALSE),
           'default' => $settings['default'],
           'show_toggle' => $settings['show_toggle'],
           'user_choose' => $settings['user_choose'],
-          'version' => NULL,
+          'version' => (!empty($settings['version']) ? $settings['version'] : NULL),
         );
-        unset($settings['add_to_summaries'], $settings['default'], $settings['show_toggle'], $settings['user_choose']);
+        unset($settings['add_to_summaries'],
+          $settings['default'],
+          $settings['show_toggle'],
+          $settings['user_choose'],
+          $settings['version'],
+          $profile['preferences']
+        );
+
         if (!empty($settings['library'])) {
-          $prefereces['library'] = $settings['library'];
+          $preferences['library'] = $settings['library'];
           unset($settings['library']);
         }
-        $editor = wysiwyg_get_editor($profile->editor);
-        if ($editor['installed']) {
+
+        $editor = wysiwyg_get_editor($profile['editor']);
+        if (empty($preferences['version']) && !empty($editor['installed'])) {
           $preferences['version'] = $editor['installed version'];
         }
-        $settings['_profile_preferences'] = $preferences;
+
+        $profile['settings']['_profile_preferences'] = $preferences;
       }
+
       db_merge('wysiwyg')
         ->key(array('format' => $profile['format']))
         ->fields(array(
@@ -116,4 +134,3 @@ function wysiwyg_features_rebuild($module) {
     wysiwyg_profile_cache_clear();
   }
 }
-

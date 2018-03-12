@@ -1,0 +1,84 @@
+<?php
+
+/**
+ * @file
+ * Handles AdvAgg Critical CSS installation and upgrade tasks.
+ */
+
+/**
+ * @addtogroup hooks
+ * @{
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function advagg_critical_css_schema() {
+  // Create database table.
+  $schema['advagg_critical_css'] = array(
+    'description' => 'The critical css to inline.',
+    'fields' => array(
+      'theme' => array(
+        'description' => 'The theme name.',
+        'type' => 'varchar',
+        'length' => 255,
+        'default' => '',
+        'binary' => TRUE,
+      ),
+      'type' => array(
+        'description' => 'Type like url or node.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'user' => array(
+        'description' => 'User Type or UID.',
+        'type' => 'varchar',
+        'length' => 255,
+        'default' => '',
+        'binary' => TRUE,
+      ),
+      'lookup' => array(
+        'description' => 'Value from current_path if url or node type if node.',
+        'type' => 'varchar',
+        'length' => 255,
+        'default' => '',
+        'binary' => TRUE,
+      ),
+      'css' => array(
+        'description' => 'Critical CSS.',
+        'type' => 'blob',
+        'size' => 'big',
+      ),
+      'dns' => array(
+        'description' => 'Hosts for dns lookedup.',
+        'type' => 'blob',
+        'size' => 'big',
+      ),
+      'pre' => array(
+        'description' => 'URLs for preloading.',
+        'type' => 'blob',
+        'size' => 'big',
+      ),
+      'settings' => array(
+        'description' => 'Extra settings if desired.',
+        'type' => 'blob',
+        'size' => 'big',
+        'translatable' => TRUE,
+        'serialize' => TRUE,
+      ),
+    ),
+    'primary key' => array(
+      'lookup',
+      'user',
+      'type',
+      'theme',
+    ),
+  );
+
+  return $schema;
+}
+
+/**
+ * @} End of "addtogroup hooks".
+ */

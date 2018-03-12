@@ -6,9 +6,9 @@ dependencies[] = ctools
 core = 7.x
 files[] = tests/field_group.ui.test
 files[] = tests/field_group.display.test
-; Information added by Drupal.org packaging script on 2016-01-05
-version = "7.x-1.5"
+; Information added by Drupal.org packaging script on 2017-11-03
+version = "7.x-1.6"
 core = "7.x"
 project = "field_group"
-datestamp = "1452033709"
+datestamp = "1509751991"
 

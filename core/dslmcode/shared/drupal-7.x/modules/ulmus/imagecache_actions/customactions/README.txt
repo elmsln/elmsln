@@ -58,8 +58,9 @@ record so by changing $image->info['width'] and/or $image->info['height'].
 General
 -------
 To ease your task, this effect makes some information regarding the image being
-processed available in 2 variables: $image and $image_context. These variables
-are readily available in your snippet.
+processed available in a number of variables: $image, $image_context,
+$image_style, and $image_effect_id. These variables are readily available in
+your snippet.
 
 $image is an object containing the following properties:
 - source: string, the source of the image, e.g. public://photo.jpg
@@ -112,6 +113,18 @@ $image_context is an associative array containing:
    - title (string) ...
    - ...
 
+$image_style is an associative array containing the current image style being
+processed. It ocntians a.o.:
+- isid: the unique image style id
+- name: machine name.
+- label: Human readable name.
+- effects: An array with the effects of this image style, ordered in the way
+  they should be applied.
+
+$image_effect_id is an int containng the unique id of the current image effect
+being applied. This can be used to look the current image effect up in the
+$image_style array.
+
 Of course there are many other possible useful globals. Think of:
 - base_url
 - base_path
@@ -142,4 +155,42 @@ foreach ($referring_entities as $field_name => $field_referring_entities) {
     }
   }
 }
+?>
+
+"Dynamic" parameters
+--------------------
+Thee are many requests for adding token support or allowing for dynamic
+parameters in another way. However, the current image style processing does not
+easily allow for this. But for these cases we have the custom action to our
+rescue. It is quite easy to:
+- Create you own array of parameters.
+- Call the effect callback yourself
+
+Exanple, calling the watermark/canvas overlay effect:
+<?php
+$data = array(
+  'xpos' => 'center',
+  'ypos' => 'center',
+  'alpha' => '100',
+  'scale' => '',
+  'path' => 'module://imagecache_actions/tests/black-ribbon.gif',
+);
+return canvasactions_file2canvas_effect($image, $data);
+?>
+
+Or, to be on the safe side with effect info altering:
+<?php
+$definition = image_effect_definition_load('canvasactions_file2canvas');
+$callback = $definition['effect callback'];
+if (function_exists($callback)) {
+  $data = array(
+    'xpos' => 'center',
+    'ypos' => 'center',
+    'alpha' => '100',
+    'scale' => '',
+    'path' => 'module://imagecache_actions/tests/black-ribbon.gif',
+  );
+  return $callback($image, $data);
+}
+return FALSE;
 ?>

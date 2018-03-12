@@ -631,7 +631,7 @@ function page_manager_get_operations($page, $operations = NULL) {
       if (isset($plugin['add features'][$id])) {
         $result['actions']['children']['configure']['form']['order'][$id] = $plugin['add features'][$id];
       }
-      else if (isset($plugin['required forms'][$id])) {
+      elseif (isset($plugin['required forms'][$id])) {
         $result['actions']['children']['configure']['form']['order'][$id] = $plugin['required forms'][$id];
       }
     }
@@ -732,7 +732,7 @@ function page_manager_get_handler_operations(&$page) {
         ),
       );
     }
-    else if ($handler->export_type != EXPORT_IN_CODE) {
+    elseif ($handler->export_type != EXPORT_IN_CODE) {
       $actions['delete'] = array(
         'title' => t('Delete'),
         'description' => t('Remove this variant from the page completely.'),
@@ -1144,7 +1144,7 @@ function page_manager_render_operations(&$page, $operations, $active_trail, $att
       if ($id == $first) {
         $class[] = 'operation-first';
       }
-      else if ($id == $last) {
+      elseif ($id == $last) {
         $class[] = 'operation-last';
       }
 

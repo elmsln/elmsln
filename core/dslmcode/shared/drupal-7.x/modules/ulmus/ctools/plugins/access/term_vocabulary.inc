@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Plugin to provide access control based upon term vocabulary
+ * Plugin to provide access control based upon term vocabulary.
  */
 
 /**
@@ -20,12 +20,12 @@ $plugin = array(
   'required context' => new ctools_context_required(t('Vocabulary'), array(
     'taxonomy_term',
     'terms',
-    'taxonomy_vocabulary'
+    'taxonomy_vocabulary',
   )),
 );
 
 /**
- * Settings form for the 'by term_vocabulary' access plugin
+ * Settings form for the 'by term_vocabulary' access plugin.
  */
 function ctools_term_vocabulary_ctools_access_settings($form, &$form_state, $conf) {
   $options = array();
@@ -101,7 +101,7 @@ function ctools_term_vocabulary_ctools_access_summary($conf, $context) {
 
   return format_plural(count($names), '@identifier vocabulary is "@machine_names"', '@identifier vocabulary is one of "@machine_names"', array(
     '@machine_names' => implode(', ', $names),
-    '@identifier' => $context->identifier
+    '@identifier' => $context->identifier,
   ));
 }
 
@@ -123,5 +123,3 @@ function _ctools_term_vocabulary_ctools_access_map_vids(&$conf) {
     }
   }
 }
-
-

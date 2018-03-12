@@ -1,24 +1,29 @@
 <?php
 
 /**
- * @file
- * Contains \CtoolsMathExpressionTestCase.
- */
-
-/**
  * Tests the MathExpression library of ctools.
  */
 class CtoolsMathExpressionTestCase extends DrupalWebTestCase {
+
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
-      'name' => 'CTools math expression tests',
+      'name' => 'Math expressions',
       'description' => 'Test the math expression library of ctools.',
       'group' => 'ctools',
+      'dependencies' => array('ctools'),
     );
   }
 
-  public function setUp() {
-    parent::setUp('ctools', 'ctools_plugin_test');
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp(array $modules = array()) {
+    $modules[] = 'ctools';
+    $modules[] = 'ctools_plugin_test';
+    parent::setUp($modules);
   }
 
   /**
@@ -35,6 +40,9 @@ class CtoolsMathExpressionTestCase extends DrupalWebTestCase {
     return $this->assert(abs($first - $second) <= $delta, $message ? $message : t('Value @first is equal to value @second.', array('@first' => var_export($first, TRUE), '@second' => var_export($second, TRUE))), $group);
   }
 
+  /**
+   * Test some arithmetic handling.
+   */
   public function testArithmetic() {
     $math_expression = new ctools_math_expr();
 
@@ -66,10 +74,13 @@ class CtoolsMathExpressionTestCase extends DrupalWebTestCase {
     $this->assertEqual(pow($random_number_a, $random_number_b), $math_expression->e("$random_number_a ^ $random_number_b"));
   }
 
+  /**
+   * Test the basic built-in functions in the math expression library.
+   */
   public function testBuildInFunctions() {
     $math_expression = new ctools_math_expr();
 
-    // @todo: maybe run this code multiple times to test different values.
+    // @todo Maybe run this code multiple times to test different values.
     $random_double = $this->rand01();
     $random_int = rand(5, 10);
     $this->assertFloat(sin($random_double), $math_expression->e("sin($random_double)"));
@@ -94,6 +105,9 @@ class CtoolsMathExpressionTestCase extends DrupalWebTestCase {
 //    $this->assertFloat(min($random_double_a, $random_double_b), $math_expression->e("min($random_double_a, $random_double_b)"));
   }
 
+  /**
+   * Test variable handling.
+   */
   public function testVariables() {
     $math_expression = new ctools_math_expr();
 
@@ -108,6 +122,9 @@ class CtoolsMathExpressionTestCase extends DrupalWebTestCase {
     $this->assertEqual($random_number_a / $random_number_b, $math_expression->e("var / $random_number_b"));
   }
 
+  /**
+   * Test custom function handling.
+   */
   public function testCustomFunctions() {
     $math_expression = new ctools_math_expr();
 
@@ -126,4 +143,5 @@ class CtoolsMathExpressionTestCase extends DrupalWebTestCase {
     // Use a custom function in another function.
     $this->assertEqual(($random_number_a * 2 + $random_number_b) * 2, $math_expression->e("f(g($random_number_a, $random_number_b))"));
   }
+
 }

@@ -6,14 +6,19 @@
  */
 
 /**
+ * @addtogroup default_variables
+ * @{
+ */
+
+/**
  * Default for maximum number of CSS bundles used in a themes region.
  */
-define('ADVAGG_BUNDLER_MAX_CSS', 4);
+define('ADVAGG_BUNDLER_MAX_CSS', 2);
 
 /**
  * Default for maximum number of JS bundles used in a themes region.
  */
-define('ADVAGG_BUNDLER_MAX_JS', 4);
+define('ADVAGG_BUNDLER_MAX_JS', 5);
 
 /**
  * Default of the last used time before the bundle is considered outdated.
@@ -31,9 +36,23 @@ define('ADVAGG_BUNDLER_OUTDATED', 1209600);
 define('ADVAGG_BUNDLER_ACTIVE', TRUE);
 
 /**
- * Default value to for bundler, set to file count.
+ * Default value to for bundler, set to file size.
  */
-define('ADVAGG_BUNDLER_GROUPING_LOGIC', 0);
+define('ADVAGG_BUNDLER_GROUPING_LOGIC', 1);
+
+/**
+ * If 4 the admin section gets unlocked.
+ */
+define('ADVAGG_BUNDLER_ADMIN_MODE', 4);
+
+/**
+ * @} End of "addtogroup default_variables".
+ */
+
+/**
+ * @addtogroup hooks
+ * @{
+ */
 
 /**
  * Implements hook_menu().
@@ -85,6 +104,10 @@ function advagg_bundler_form_advagg_admin_settings_form_alter(&$form, $form_stat
     $form['global']['advagg_core_groups']['#states'] = array();
   }
 }
+
+/**
+ * @} End of "addtogroup hooks".
+ */
 
 /**
  * Returns TRUE if the bundler will run.

@@ -1,9 +1,11 @@
 <?php
 
 /**
+ * @file
  * Plugins are described by creating a $plugin array which will be used
  * by the system that includes this file.
  */
+
 $plugin = array(
   'single' => TRUE,
   'title' => t('Node terms'),
@@ -30,7 +32,7 @@ function ctools_node_terms_content_type_render($subtype, $conf, $panel_args, $co
   // Get a shortcut to the node.
   $node = $context->data;
 
-  // Load all terms for this node from all vocabularies
+  // Load all terms for this node from all vocabularies.
   $query = db_select('taxonomy_index', 't');
   $result = $query
     ->fields('t')
@@ -38,22 +40,22 @@ function ctools_node_terms_content_type_render($subtype, $conf, $panel_args, $co
     ->execute();
 
   $tids = array();
-  foreach ($result AS $term) {
+  foreach ($result as $term) {
     $tids[] = $term->tid;
   }
 
-  // Get the real term objects
+  // Get the real term objects.
   $term_objects = taxonomy_term_load_multiple($tids);
 
   $terms = array();
 
   if (empty($conf['vid'])) {
     // All terms.
-    foreach ($term_objects AS $term) {
+    foreach ($term_objects as $term) {
       $terms['taxonomy_term_' . $term->tid] = array(
         'title' => check_plain($term->name),
         'href' => 'taxonomy/term/' . $term->tid,
-        'attributes' => array('rel' => 'tag', 'title' => strip_tags($term->description))
+        'attributes' => array('rel' => 'tag', 'title' => strip_tags($term->description)),
       );
     }
   }
@@ -106,7 +108,7 @@ function ctools_node_terms_content_type_render($subtype, $conf, $panel_args, $co
   }
 
   // Build the content type block.
-  $block = new stdClass();
+  $block          = new stdClass();
   $block->module  = 'node_terms';
   $block->delta   = $node->nid;
   $block->title   = t('Terms');

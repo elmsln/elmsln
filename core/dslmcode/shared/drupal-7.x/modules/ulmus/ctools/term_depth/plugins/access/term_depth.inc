@@ -61,14 +61,14 @@ function term_depth_term_depth_ctools_access_settings($form, &$form_state, $conf
 function _term_depth_convert_config_vid_to_vocabulary_name(&$conf) {
   // Fallback on legacy 'vid', when no vocabularies are available.
   if (empty($conf['vocabulary']) && !empty($conf['vid'])) {
-    $conf['vocabulary'] = reset(_ctools_term_vocabulary_machine_name_convert(array($conf['vid'])));
-    unset($conf['vid']);
+    $vocabulary = _ctools_term_vocabulary_machine_name_convert(array($conf['vid']));
+    $conf['vocabulary'] = reset($vocabulary);
+    unset($conf['vid'], $vocabulary);
   }
 }
 
 /**
  * Submit function for the access plugins settings.
- *
  */
 function term_depth_term_depth_ctools_access_settings_submit($form, $form_state) {
   $form_state['conf']['depth'] = (integer) $form_state['values']['settings']['depth'];

@@ -15,7 +15,7 @@
  */
 function page_manager_node_view_page_manager_tasks() {
   return array(
-    // This is a 'page' task and will fall under the page admin UI
+    // This is a 'page' task and will fall under the page admin UI.
     'task type' => 'page',
 
     'title' => t('Node template'),
@@ -60,7 +60,7 @@ function page_manager_node_view_menu_alter(&$items, $task) {
     $items['node/%node']['file'] = $task['file'];
   }
   else {
-    // automatically disable this task if it cannot be enabled.
+    // Automatically disable this task if it cannot be enabled.
     variable_set('page_manager_node_view_disabled', TRUE);
     if (!empty($GLOBALS['page_manager_enabling_node_view'])) {
       drupal_set_message(t('Page manager module is unable to enable node/%node because some other module already has overridden with %callback.', array('%callback' => $callback)), 'error');
@@ -78,12 +78,29 @@ function page_manager_node_view_menu_alter(&$items, $task) {
  * node view, which is node_page_view().
  */
 function page_manager_node_view_page($node) {
-  // Load my task plugin
+  // Load my task plugin.
   $task = page_manager_get_task('node_view');
 
   // Load the node into a context.
   ctools_include('context');
   ctools_include('context-task-handler');
+
+  $uri = entity_uri('node', $node);
+  if (isset($uri['path'])) {
+    // Set the node path as the canonical URL to prevent duplicate content.
+    $meta_canon = array(
+      'rel' => 'canonical',
+      'href' => url($uri['path'], $uri['options']),
+    );
+    drupal_add_html_head_link($meta_canon, TRUE);
+
+    // Set the non-aliased path as a default shortlink.
+    $meta_short = array(
+      'rel' => 'shortlink',
+      'href' => url($uri['path'], array_merge($uri['options'], array('alias' => TRUE))),
+    );
+    drupal_add_html_head_link($meta_short, TRUE);
+  }
 
   // Load all contexts.
   $contexts = ctools_context_handler_get_task_contexts($task, '', array($node));
@@ -157,6 +174,7 @@ function page_manager_node_view_enable($cache, $status) {
  *   The subtask id
  * @param $contexts
  *   The contexts loaded for the task.
+ *
  * @return
  *   TRUE if the current user can access the page.
  */

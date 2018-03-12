@@ -2,8 +2,7 @@
 
 /**
  * @file
- *
- * Plugin to provide a term context
+ * Plugin to provide a term context.
  */
 
 /**
@@ -116,7 +115,7 @@ function ctools_context_term_settings_form($form, &$form_state) {
  * Validate a term.
  */
 function ctools_context_term_settings_form_validate($form, &$form_state) {
-  // Validate the autocomplete
+  // Validate the autocomplete.
   $vid = $form_state['values']['vid'];
   if (empty($form_state['values']['tid']) && empty($form_state['values']['taxonomy'][$vid])) {
     form_error($form['taxonomy'][$vid], t('You must select a term.'));
@@ -154,12 +153,16 @@ function ctools_context_term_convert($context, $type) {
   switch ($type) {
     case 'tid':
       return $context->data->tid;
+
     case 'name':
       return $context->data->name;
+
     case 'name_dashed':
       return drupal_strtolower(str_replace(' ', '-', $context->data->name));
+
     case 'vid':
       return $context->data->vid;
+
     case 'description':
       return $context->data->description;
   }

@@ -30,4 +30,3 @@ function ctools_node_status_ctools_access_check($conf, $context) {
 function ctools_node_status_ctools_access_summary($conf, $context) {
   return t('Returns true if the nodes status is "published".');
 }
-

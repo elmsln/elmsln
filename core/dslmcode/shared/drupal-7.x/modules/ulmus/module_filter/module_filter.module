@@ -18,8 +18,8 @@ function module_filter_permission() {
   return array(
     'administer module filter' => array(
       'title' => t('Administer Module Filter'),
-      'description' => t('Configure how Module Filter performs.')
-    )
+      'description' => t('Configure how Module Filter performs.'),
+    ),
   );
 }
 
@@ -33,7 +33,7 @@ function module_filter_menu() {
     'access arguments' => array('administer module filter'),
     'page callback' => 'drupal_get_form',
     'page arguments' => array('module_filter_settings'),
-    'file' => 'module_filter.admin.inc'
+    'file' => 'module_filter.admin.inc',
   );
   return $items;
 }
@@ -63,32 +63,32 @@ function module_filter_form_system_modules_alter(&$form, &$form_state, $form_id)
     '#type' => 'module_filter',
     '#attached' => array(
       'js' => array(
-        drupal_get_path('module', 'module_filter') . '/js/modules.js'
-      )
-    )
+        drupal_get_path('module', 'module_filter') . '/js/modules.js' => array('weight' => 1),
+      ),
+    ),
   );
   $checkbox_defaults = array(
     ((isset($_GET['enabled'])) ? $_GET['enabled'] : 1) ? 'enabled' : '',
     ((isset($_GET['disabled'])) ? $_GET['disabled'] : 1) ? 'disabled' : '',
     ((isset($_GET['required'])) ? $_GET['required'] : 1) ? 'required' : '',
-    ((isset($_GET['unavailable'])) ? $_GET['unavailable'] : 1) ? 'unavailable' : ''
+    ((isset($_GET['unavailable'])) ? $_GET['unavailable'] : 1) ? 'unavailable' : '',
   );
   $form['module_filter']['show'] = array(
     '#type' => 'checkboxes',
     '#default_value' => array_filter($checkbox_defaults),
     '#options' => array('enabled' => t('Enabled'), 'disabled' => t('Disabled'), 'required' => t('Required'), 'unavailable' => t('Unavailable')),
     '#prefix' => '<div id="module-filter-show-wrapper">',
-    '#suffix' => '</div>'
+    '#suffix' => '</div>',
   );
 
   if (variable_get('module_filter_tabs', 1)) {
-    $form['module_filter']['#attached']['css'][] = drupal_get_path('module', 'module_filter') .'/css/module_filter_tab.css';
+    $form['module_filter']['#attached']['css'][] = drupal_get_path('module', 'module_filter') . '/css/module_filter_tab.css';
     $form['module_filter']['#attached']['library'][] = array('system', 'jquery.bbq');
-    $form['module_filter']['#attached']['js'][] = drupal_get_path('module', 'module_filter') .'/js/module_filter_tab.js';
+    $form['module_filter']['#attached']['js'][drupal_get_path('module', 'module_filter') . '/js/module_filter_tab.js'] = array('weight' => 2);
 
     if (!module_exists('page_actions') && variable_get('module_filter_dynamic_save_position', 1)) {
-      $form['module_filter']['#attached']['css'][] = drupal_get_path('module', 'module_filter') .'/css/dynamic_position.css';
-      $form['module_filter']['#attached']['js'][] = drupal_get_path('module', 'module_filter') .'/js/dynamic_position.js';
+      $form['module_filter']['#attached']['css'][] = drupal_get_path('module', 'module_filter') . '/css/dynamic_position.css';
+      $form['module_filter']['#attached']['js'][drupal_get_path('module', 'module_filter') . '/js/dynamic_position.js'] = array('weight' => 3);
     }
 
     $form['#attached']['css'][] = drupal_get_path('module', 'module_filter') . '/css/modules.css';
@@ -128,7 +128,7 @@ function module_filter_element_info() {
     '#process' => array('form_process_module_filter', 'ajax_process_form'),
     '#weight' => -1,
     '#tree' => TRUE,
-    '#theme' => 'module_filter'
+    '#theme' => 'module_filter',
   );
   return $types;
 }
@@ -153,6 +153,18 @@ function module_filter_theme() {
   );
 }
 
+/**
+ * Create and add new textfield element.
+ *
+ * @param $element
+ *   An associative array containing the properties and children of the
+ *   form actions container.
+ * @param $form_state
+ *   The $form_state array for the form this element belongs to.
+ *
+ * @return
+ *   The processed element.
+ */
 function form_process_module_filter($element, &$form_state) {
   $element['name'] = array(
     '#type' => 'textfield',
@@ -163,7 +175,7 @@ function form_process_module_filter($element, &$form_state) {
     '#attributes' => ((isset($element['#attributes'])) ? $element['#attributes'] : array()) + array('autocomplete' => 'off'),
     '#attached' => array(
       'css' => array(
-        drupal_get_path('module', 'module_filter') . '/css/module_filter.css'
+        drupal_get_path('module', 'module_filter') . '/css/module_filter.css',
       ),
       'js' => array(
         'misc/jquery.cookie.js',
@@ -182,12 +194,13 @@ function form_process_module_filter($element, &$form_state) {
               'trackRecent' => variable_get('module_filter_track_recent_modules', 1),
               'rememberActiveTab' => variable_get('module_filter_remember_active_tab', 1),
               'rememberUpdateState' => variable_get('module_filter_remember_update_state', 0),
-            )
+              'expandedDescription' => variable_get('module_filter_expanded_description', 0),
+            ),
           ),
-          'type' => 'setting'
-        )
-      )
-    )
+          'type' => 'setting',
+        ),
+      ),
+    ),
   );
   if (isset($element['#description'])) {
     $element['name']['#description'] = $element['#description'];
@@ -195,15 +208,18 @@ function form_process_module_filter($element, &$form_state) {
   return $element;
 }
 
+/**
+ * Form submission handler to filters module list.
+ */
 function module_filter_system_modules_submit_redirect($form, &$form_state) {
   $query = array();
   if (!empty($form_state['values']['module_filter']['name'])) {
     $query['filter'] = $form_state['values']['module_filter']['name'];
   }
-  $query['enabled'] = (int)(!empty($form_state['values']['module_filter']['show']['enabled']));
-  $query['disabled'] = (int)(!empty($form_state['values']['module_filter']['show']['disabled']));
-  $query['required'] = (int)(!empty($form_state['values']['module_filter']['show']['required']));
-  $query['unavailable'] = (int)(!empty($form_state['values']['module_filter']['show']['unavailable']));
+  $query['enabled'] = (int) (!empty($form_state['values']['module_filter']['show']['enabled']));
+  $query['disabled'] = (int) (!empty($form_state['values']['module_filter']['show']['disabled']));
+  $query['required'] = (int) (!empty($form_state['values']['module_filter']['show']['required']));
+  $query['unavailable'] = (int) (!empty($form_state['values']['module_filter']['show']['unavailable']));
 
   $form_state['redirect'] = array(
     'admin/modules',
@@ -211,6 +227,9 @@ function module_filter_system_modules_submit_redirect($form, &$form_state) {
   );
 }
 
+/**
+ * Form submission handler to track recently enabled/disabled modules
+ */
 function module_filter_system_modules_submit_recent($form, &$form_state) {
   $recent_modules = variable_get('module_filter_recent_modules', array());
 
@@ -225,6 +244,11 @@ function module_filter_system_modules_submit_recent($form, &$form_state) {
   variable_set('module_filter_recent_modules', $recent_modules);
 }
 
+/**
+ * Create list of newly added modules (within a week)
+ * @return
+ *   An array of newly added modules.
+ */
 function module_filter_new_modules() {
   // Get current list of modules.
   $files = system_rebuild_module_data();
@@ -249,12 +273,24 @@ function module_filter_new_modules() {
   return $new_modules;
 }
 
+/**
+ * Function to replace special characters with hyphen.
+ * @param string $text
+ * @return
+ *   String
+ */
 function module_filter_get_id($text) {
   $id = strtolower($text);
   $id = preg_replace('/([^a-z0-9]+)/', '-', $id);
   return trim($id, '-');
 }
 
+/**
+ * Function to return true/false depending on module changed time and a week timestamp
+ * @param integer $var
+ * @return
+ *   Boolean indicating
+ */
 function module_filter_recent_filter($var) {
-  return (!($var < REQUEST_TIME - 60*60*24*7));
+  return (!($var < REQUEST_TIME - 60 * 60 * 24 * 7));
 }

@@ -6,7 +6,7 @@
  */
 
 $plugin = array(
-  // cache plugins are the rare plugin types that have no real UI but
+  // Cache plugins are the rare plugin types that have no real UI but
   // we're providing a title just in case.
   'title' => t('Export UI wizard cache'),
   'cache get' => 'ctools_cache_export_ui_cache_get',

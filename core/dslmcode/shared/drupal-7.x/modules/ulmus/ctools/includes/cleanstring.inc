@@ -1,5 +1,4 @@
 <?php
-// $Id $
 
 /**
  * @file
@@ -21,7 +20,7 @@
 /**
  * Matches Unicode character classes.
  *
- * See: http://www.unicode.org/Public/UNIDATA/UCD.html#General_Category_Values
+ * See: http://www.unicode.org/Public/UNIDATA/UCD.html#General_Category_Values.
  *
  * The index only contains the following character classes:
  *   Lu  Letter, Uppercase
@@ -129,13 +128,13 @@ function ctools_cleanstring($string, $settings = array()) {
     $output = transliteration_get($output);
   }
 
-  // Reduce to the subset of ASCII96 letters and numbers
+  // Reduce to the subset of ASCII96 letters and numbers.
   if ($settings['reduce ascii']) {
     $pattern = '/[^a-zA-Z0-9\/]+/';
     $output = preg_replace($pattern, $settings['separator'], $output);
   }
 
-  // Get rid of words that are on the ignore list
+  // Get rid of words that are on the ignore list.
   if (!empty($settings['ignore words'])) {
     $ignore_re = '\b' . preg_replace('/,/', '\b|\b', $settings['ignore words']) . '\b';
 
@@ -159,14 +158,14 @@ function ctools_cleanstring($string, $settings = array()) {
     else {
       $seppattern = '\\' . $settings['separator'];
     }
-    // Trim any leading or trailing separators (note the need to
+    // Trim any leading or trailing separators (note the need to.
     $output = preg_replace("/^$seppattern+|$seppattern+$/", '', $output);
 
-    // Replace multiple separators with a single one
+    // Replace multiple separators with a single one.
     $output = preg_replace("/$seppattern+/", $settings['separator'], $output);
   }
 
-  // Enforce the maximum component length
+  // Enforce the maximum component length.
   if (!empty($settings['max length'])) {
     $output = ctools_cleanstring_truncate($output, $settings['max length'], $settings['separator']);
   }
@@ -188,12 +187,14 @@ function ctools_cleanstring($string, $settings = array()) {
  *   A string which contains the word boundary such as - or _.
  *
  * @return
- *  The string truncated below the maxlength.
+ *   The string truncated below the maxlength.
  */
 function ctools_cleanstring_truncate($string, $length, $separator) {
   if (drupal_strlen($string) > $length) {
-    $string = drupal_substr($string, 0, $length + 1); // leave one more character
-    if ($last_break = strrpos($string, $separator)) { // space exists AND is not on position 0
+    // Leave one more character.
+    $string = drupal_substr($string, 0, $length + 1);
+    // Space exists AND is not on position 0.
+    if ($last_break = strrpos($string, $separator)) {
       $string = substr($string, 0, $last_break);
     }
     else {

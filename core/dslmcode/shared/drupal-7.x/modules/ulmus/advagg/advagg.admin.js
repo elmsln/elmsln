@@ -4,6 +4,7 @@
  */
 
 /* global Drupal:false */
+/* eslint-disable no-unused-vars */
 
 /**
  * Test to see if the given string contains unicode.
@@ -25,6 +26,7 @@ Drupal.formatInterval = function (interval, granularity, langcode) {
   langcode = typeof langcode !== 'undefined' ? langcode : null;
   var output = '';
 
+  /* eslint-disable key-spacing */
   while (granularity > 0) {
     var value = 0;
     if (interval >= 31536000) {
@@ -61,6 +63,7 @@ Drupal.formatInterval = function (interval, granularity, langcode) {
   }
 
   return output.length ? output : Drupal.t('0 sec', {}, {langcode : langcode});
+  /* eslint-enable key-spacing */
 };
 
 /**

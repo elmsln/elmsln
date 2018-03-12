@@ -167,9 +167,6 @@ html.js #module-filter-modules table td {
 .admin-version {
   white-space: nowrap;
 }
-.admin-operations {
-  float: right;
-}
 .admin-operations a.module-link {
   display: inline;
 }

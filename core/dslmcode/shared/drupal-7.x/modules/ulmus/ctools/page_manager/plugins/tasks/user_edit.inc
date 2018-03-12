@@ -9,7 +9,7 @@
  */
 function page_manager_user_edit_page_manager_tasks() {
   return array(
-    // This is a 'page' task and will fall under the page admin UI
+    // This is a 'page' task and will fall under the page admin UI.
     'task type' => 'page',
     'title' => t('User Edit Template'),
     'admin title' => t('User edit template'),
@@ -65,7 +65,7 @@ function page_manager_user_edit_menu_alter(&$items, $task) {
     }
   }
   else {
-    // automatically disable this task if it cannot be enabled.
+    // Automatically disable this task if it cannot be enabled.
     variable_set('page_manager_user_edit_disabled', TRUE);
     if (!empty($GLOBALS['page_manager_enabling_user_edit'])) {
       drupal_set_message(t('Page manager module is unable to enable user/%user/edit because some other module already has overridden with %callback.', array('%callback' => $items['user/%user']['page callback'])), 'error');
@@ -114,9 +114,9 @@ function page_manager_user_edit_page($account, $category = 'account') {
   // Otherwise, fall back.
   if ($function == 'drupal_get_form') {
 
-    //In order to ajax fields to work we need to run form_load_include.
-    //Hence we eschew drupal_get_form and manually build the info and
-    //call drupal_build_form.
+    // In order to ajax fields to work we need to run form_load_include.
+    // Hence we eschew drupal_get_form and manually build the info and
+    // call drupal_build_form.
     $form_state = array();
     $form_id = 'user_profile_form';
     $args = array($account, $category);
@@ -125,10 +125,9 @@ function page_manager_user_edit_page($account, $category = 'account') {
     $output = drupal_build_form($form_id, $form_state);
     return $output;
   }
-  //fire off "view" op so that triggers still work
+  // Fire off "view" op so that triggers still work.
   // @todo -- this doesn't work anymore, and the alternatives seem bad.
   // will have to figure out how to fix this.
-  // user_module_invoke('view', $array = array(), $account);
   return $function($account);
 }
 
@@ -178,6 +177,7 @@ function page_manager_user_edit_enable($cache, $status) {
  *   The subtask id
  * @param $contexts
  *   The contexts loaded for the task.
+ *
  * @return
  *   TRUE if the current user can access the page.
  */

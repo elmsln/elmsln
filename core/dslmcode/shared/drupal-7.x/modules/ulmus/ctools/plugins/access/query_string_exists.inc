@@ -23,7 +23,7 @@ function ctools_query_string_exists_ctools_access_settings($form, &$form_state, 
     '#description' => t('Enter the key of the query string.'),
     '#type' => 'textfield',
     '#required' => TRUE,
-    '#default_value' => $config['key']
+    '#default_value' => $config['key'],
   );
 
   return $form;

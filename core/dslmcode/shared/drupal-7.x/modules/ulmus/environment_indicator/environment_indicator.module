@@ -419,8 +419,7 @@ function environment_indicator_get_active() {
 
   // 3. Check if the indicator is in the db cache.
   if ($cached_env = cache_get('environment_indicator')) {
-    $env = $cached_env->data;
-    return environment_indicator_alter_and_cache($env);
+    return $cached_env->data;
   }
 
   // 4. Load all the environments and match them to the current environment.
@@ -463,10 +462,11 @@ function environment_indicator_get_active() {
  *   The altered environment.
  */
 function environment_indicator_alter_and_cache($env) {
+  // Only write to the cache if not already in the cache.
+  if (!cache_get('environment_indicator')) {
+    cache_set('environment_indicator', $env);
+  }
   drupal_alter('environment_indicator_matched_indicator', $env);
-
-  // Save it to the db cache.
-  cache_set('environment_indicator', $env);
   return $env;
 }
 
@@ -538,7 +538,7 @@ function _environment_indicator_regex_filter($item) {
  * Sort callback for environment_indicator_get_all().
  */
 function _environment_indicator_sort($a, $b) {
-  return $a->settings['weight'] - $b->settings['weight'];
+  return (int) $a->settings['weight'] - (int) $b->settings['weight'];
 }
 
 /**

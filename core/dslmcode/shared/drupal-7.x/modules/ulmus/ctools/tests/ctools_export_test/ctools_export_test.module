@@ -1,6 +1,10 @@
 <?php
 
 /**
+ * @file
+ */
+
+/**
  * Implements hook_ctools_plugin_api().
  */
 function ctools_export_test_ctools_plugin_api($module, $api) {

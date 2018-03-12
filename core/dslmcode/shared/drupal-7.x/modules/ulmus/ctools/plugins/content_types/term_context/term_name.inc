@@ -1,9 +1,11 @@
 <?php
 
 /**
+ * @file
  * Plugins are described by creating a $plugin array which will be used
  * by the system that includes this file.
  */
+
 $plugin = array(
   'single' => TRUE,
   'title' => t('Term name'),
@@ -19,7 +21,6 @@ $plugin = array(
   ),
 );
 
-
 /**
  * Render the custom content type.
  */
@@ -34,10 +35,10 @@ function ctools_term_name_content_type_render($subtype, $conf, $panel_args, $con
   // Load the vocabulary.
   $vocab = taxonomy_vocabulary_load($term->vid);
 
-  // Generate the title
+  // Generate the title.
   $content = !empty($conf['link']) ? l($term->name, 'taxonomy/term/' . $term->tid) : check_plain($term->name);
 
-  // Build any surrounding markup if so configured
+  // Build any surrounding markup if so configured.
   if (isset($conf['markup']) && $conf['markup'] != 'none') {
     $markup = '<' . $conf['markup'];
     if (!empty($conf['id'])) {
@@ -51,7 +52,7 @@ function ctools_term_name_content_type_render($subtype, $conf, $panel_args, $con
   }
 
   // Build the content type block.
-  $block = new stdClass();
+  $block          = new stdClass();
   $block->module  = 'term_name';
   $block->title   = t('Name');
   $block->content = $content;

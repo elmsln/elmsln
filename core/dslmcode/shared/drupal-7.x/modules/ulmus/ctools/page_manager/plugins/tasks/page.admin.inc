@@ -47,7 +47,7 @@ function page_manager_page_menu(&$items, $task) {
     'type' => MENU_CALLBACK,
   ) + $base;
 
-  // Add menu entries for each subtask
+  // Add menu entries for each subtask.
   foreach (page_manager_page_load_all() as $subtask_id => $subtask) {
     if (!empty($subtask->disabled)) {
       continue;
@@ -102,12 +102,12 @@ function page_manager_page_menu(&$items, $task) {
         $page_arguments[]   = $position;
         $access_arguments[] = $position;
       }
-      else if ($bit[0] != '!') {
+      elseif ($bit[0] != '!') {
         $path[] = $bit;
       }
 
       // Increment position. We do it like this to skip empty items that
-      // could happen from erroneous paths like: this///that
+      // could happen from erroneous paths like: this///that.
       $position++;
     }
 
@@ -171,7 +171,7 @@ function page_manager_page_menu_item($task, $menu, $access_arguments, $page_argu
 
     case 'normal':
       $item['type'] = MENU_NORMAL_ITEM;
-      // Insert item into the proper menu
+      // Insert item into the proper menu.
       $item['menu_name'] = $menu['name'];
       break;
 
@@ -261,10 +261,10 @@ function page_manager_page_add_subtask($task_name = NULL, $step = NULL) {
         if (isset($form_info['add order'][$id])) {
           $form_info['order'][$id] = $form_info['add order'][$id];
         }
-        else if (isset($handler_plugin['add features'][$id])) {
+        elseif (isset($handler_plugin['add features'][$id])) {
           $form_info['order'][$id] = $handler_plugin['add features'][$id];
         }
-        else if (isset($handler_plugin['required forms'][$id])) {
+        elseif (isset($handler_plugin['required forms'][$id])) {
           $form_info['order'][$id] = $handler_plugin['required forms'][$id];
         }
       }
@@ -279,7 +279,7 @@ function page_manager_page_add_subtask($task_name = NULL, $step = NULL) {
     // our questions determined would be next.
     if ($step == 'next') {
       $keys = array_keys($form_info['order']);
-      // get rid of 'basic' from the list of forms.
+      // Get rid of 'basic' from the list of forms.
       array_shift($keys);
       $step = array_shift($keys);
 
@@ -416,7 +416,7 @@ function page_manager_page_form_basic($form, &$form_state) {
     '#default_value' => $page->admin_description,
   );
 
-  // path
+  // Path.
   $form['path'] = array(
     '#type' => 'textfield',
     '#title' => t('Path'),
@@ -452,7 +452,7 @@ function page_manager_page_form_basic($form, &$form_state) {
       '#description' => t('Admin overlays are used in many places in Drupal 7 and administrative custom pages should probably utilize this feature.'),
     );
   }
-  else if ($path == $frontpage) {
+  elseif ($path == $frontpage) {
     $form['frontpage_markup'] = array(
       '#value' => '<b>' . t('This page is currently set to be your site home page. This can be modified on the !siteinfo configuration form.', array('!siteinfo' => l(t('Site Information'), 'admin/settings/site-information'))) . '</b>',
     );
@@ -516,7 +516,7 @@ function page_manager_page_form_basic_validate(&$form, &$form_state) {
   $path = array();
   if (empty($form_state['values']['path'])) {
     form_error($form['path'], t('Path is required.'));
-    // stop processing here if there is no path.
+    // Stop processing here if there is no path.
     return;
   }
 
@@ -542,7 +542,7 @@ function page_manager_page_form_basic_validate(&$form, &$form_state) {
 
       $path[] = '%';
     }
-    else if ($bit[0] == '!') {
+    elseif ($bit[0] == '!') {
       $found = TRUE;
     }
     else {
@@ -620,9 +620,10 @@ function page_manager_page_form_basic_submit(&$form, &$form_state) {
     $title = !empty($form_state['values']['title']) ? $form_state['values']['title'] : $plugin['title'];
     page_manager_handler_add_to_page($cache, $handler, $title);
 
-    // Figure out which forms to present them with
+    // Figure out which forms to present them with.
     $cache->forms = array();
-    $cache->forms[] = 'basic'; // This one is always there.
+    // This one is always there.
+    $cache->forms[] = 'basic';
     if (!empty($form_state['arguments'])) {
       $cache->forms[] = 'argument';
     }
@@ -787,7 +788,6 @@ function page_manager_page_form_menu($form, &$form_state) {
 function page_manager_page_form_menu_validate(&$form, &$form_state) {
   // If setting a 'normal' menu entry, make sure that any placeholders
   // support the to_arg stuff.
-
   if ($form_state['values']['menu']['type'] == 'normal') {
     $page = $form_state['page']->subtask['subtask'];
 
@@ -876,7 +876,7 @@ function page_manager_page_form_argument($form, &$form_state) {
     if (isset($page->temporary_arguments[$keyword]) && !empty($form_state['allow temp'])) {
       $conf = $page->temporary_arguments[$keyword];
     }
-    else if (isset($page->arguments[$keyword])) {
+    elseif (isset($page->arguments[$keyword])) {
       $conf = $page->arguments[$keyword];
     }
 
@@ -896,7 +896,7 @@ function page_manager_page_form_argument($form, &$form_state) {
     $form['table']['argument'][$keyword]['#position'] = $position;
     $form['table']['argument'][$keyword]['#context'] = $context;
 
-    // The URL for this ajax button
+    // The URL for this ajax button.
     $form['table']['argument'][$keyword]['change-url'] = array(
       '#attributes' => array('class' => array("page-manager-context-$keyword-change-url")),
       '#type' => 'hidden',
@@ -913,7 +913,7 @@ function page_manager_page_form_argument($form, &$form_state) {
 
     // Only show the button if this has a settings form available:
     if (!empty($plugin)) {
-      // The URL for this ajax button
+      // The URL for this ajax button.
       $form['table']['argument'][$keyword]['settings-url'] = array(
         '#attributes' => array('class' => array("page-manager-context-$keyword-settings-url")),
         '#type' => 'hidden',
@@ -970,7 +970,7 @@ function theme_page_manager_page_form_argument_table($vars) {
 }
 
 /**
- * Ajax entry point to edit an item
+ * Ajax entry point to edit an item.
  */
 function page_manager_page_subtask_argument_ajax($step = NULL, $task_name = NULL, $keyword = NULL) {
   ctools_include('ajax');
@@ -995,7 +995,7 @@ function page_manager_page_subtask_argument_ajax($step = NULL, $task_name = NULL
     return ctools_ajax_render_error(t('Invalid keyword.'));
   }
 
-  // Set up wizard info
+  // Set up wizard info.
   $form_info = array(
     'id' => 'page_manager_page_argument',
     'path' => "admin/structure/pages/argument/%step/$task_name/$keyword",
@@ -1032,7 +1032,7 @@ function page_manager_page_subtask_argument_ajax($step = NULL, $task_name = NULL
   if (!empty($form_state['cancel'])) {
     $commands = array(ctools_modal_command_dismiss());
   }
-  else if (!empty($form_state['complete'])) {
+  elseif (!empty($form_state['complete'])) {
     if (isset($page->temporary_arguments[$keyword])) {
       $page->arguments[$keyword] = $page->temporary_arguments[$keyword];
     }
@@ -1051,7 +1051,6 @@ function page_manager_page_subtask_argument_ajax($step = NULL, $task_name = NULL
     // fully processed, but is guaranteed to produce the same form we
     // started with so we don't have to do crazy stuff to rerender
     // just part of it.
-
     // @todo should there be a tool to do this?
 
     $clone_state = $form_state;
@@ -1174,7 +1173,7 @@ function page_manager_page_argument_form_change_submit(&$form, &$form_state) {
     if (is_array($plugin['default'])) {
       $settings = $plugin['default'];
     }
-    else if (function_exists($plugin['default'])) {
+    elseif (function_exists($plugin['default'])) {
       $settings = $plugin['default']();
     }
   }
@@ -1201,7 +1200,7 @@ function page_manager_page_argument_form_settings($form, &$form_state) {
   if (isset($page->temporary_arguments[$keyword])) {
     $conf = $page->temporary_arguments[$keyword];
   }
-  else if (isset($page->arguments[$keyword])) {
+  elseif (isset($page->arguments[$keyword])) {
     $conf = $page->temporary_arguments[$keyword] = $page->arguments[$keyword];
   }
 
@@ -1271,7 +1270,7 @@ function page_manager_page_argument_form_settings_submit(&$form, &$form_state) {
 }
 
 /**
- * Import a task handler from cut & paste
+ * Import a task handler from cut & paste.
  */
 function page_manager_page_import_subtask($form, &$form_state, $task_name) {
   $form_state['task'] = page_manager_get_task($task_name);
@@ -1414,7 +1413,7 @@ function page_manager_page_form_clone($form, &$form_state) {
     '#description' => t('Enter the name to the new page It must be unique and contain only alphanumeric characters and underscores.'),
   );
 
-  // path
+  // Path.
   $form['path'] = array(
     '#type' => 'textfield',
     '#title' => t('Path'),
@@ -1449,7 +1448,7 @@ function page_manager_page_form_clone_validate(&$form, &$form_state) {
 }
 
 /**
- * submit clone page form.
+ * Submit clone page form.
  *
  * Load the page, change the name(s) to protect the innocent, and if
  * requested, load all the task handlers so that they get saved properly too.

@@ -1,0 +1,6 @@
+.wym_skin_compact .wym_dropdown ul {
+  margin-top: 0;
+}
+.wym_skin_compact .wym_iframe iframe {
+  height: 400px !important;
+}

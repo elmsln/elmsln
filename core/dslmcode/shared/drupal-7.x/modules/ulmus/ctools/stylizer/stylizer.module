@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Stylizer module
+ * Stylizer module.
  *
  * This module allows styles to be created and managed on behalf of modules
  * that implement styles.
@@ -30,7 +30,7 @@ function stylizer_permission() {
  */
 function stylizer_ctools_plugin_directory($module, $plugin) {
   // Most of this module is implemented as an export ui plugin, and the
-  // rest is in ctools/includes/stylizer.inc
+  // rest is in ctools/includes/stylizer.inc.
   if ($module == 'ctools' && $plugin == 'export_ui') {
     return 'plugins/' . $plugin;
   }
@@ -59,7 +59,7 @@ function stylizer_panels_dashboard_blocks(&$vars) {
     'description' => t('Custom styles can be applied to Panel regions and Panel panes.'),
   );
 
-   // Load all mini panels and their displays.
+  // Load all mini panels and their displays.
   ctools_include('export');
   ctools_include('stylizer');
   $items = ctools_export_crud_load_all('stylizer');
@@ -122,14 +122,14 @@ function stylizer_theme() {
         'path' => $plugin['path'],
       );
 
-      // if no theme function exists, assume template.
+      // If no theme function exists, assume template.
       if (!function_exists("theme_$plugin[theme]")) {
         $theme[$plugin['theme']]['template'] = str_replace('_', '-', $plugin['theme']);
-        $theme[$plugin['theme']]['file'] = $plugin['file']; // for preprocess.
+        // For preprocess.
+        $theme[$plugin['theme']]['file'] = $plugin['file'];
       }
     }
   }
 
   return $theme;
 }
-

@@ -66,15 +66,6 @@ function image_effects_text_form_inc(array $data) {
   // - Change the 'PHP code' textarea.
   $allow_php = module_exists('php') && user_access('use PHP for settings');
   $defaults = array(
-    'size' => 50,
-    'angle' => 0,
-    'xpos' => '0',
-    'ypos' => '0',
-    'halign' => 'left',
-    'valign' => 'top',
-    'RGB' => array('HEX' => '#000000'),
-    'alpha' => 100,
-    'fontfile' => drupal_get_path('module', 'image_effects_text') . '/Komika_display.ttf',
     'text_source' => 'text',
     'text' => t('Hello World!'),
     'php' => 'if (!$image_context[\'entity\']) {
@@ -88,77 +79,21 @@ if ($field) {
   return isset($field[0][\'value\']) ? $field[0][\'value\'] : \'' . t('No field value') . '\';
 }
 ',
+    'text_case' => 'none',
+    'fontfile' => drupal_get_path('module', 'image_effects_text') . '/Komika_display.ttf',
+    'size' => 50,
+    'RGB' => array('HEX' => '#000000'),
+    'alpha' => 100,
+    'xpos' => '0',
+    'ypos' => '0',
+    'halign' => 'left',
+    'valign' => 'top',
+    'angle' => 0,
   );
   $data += $defaults;
   $tokens = token_info();
   $tokens = array_keys($tokens['types']);
   $form = array(
-    'size' => array(
-      '#type' => 'textfield',
-      '#title' => t('Font size'),
-      '#default_value' => $data['size'],
-      '#description' => t('The font size in points. Only in GD1 this is in pixels.'),
-      '#size' => 3,
-    ),
-    'xpos' => array(
-      '#type' => 'textfield',
-      '#title' => t('X offset'),
-      '#default_value' => $data['xpos'],
-      '#description' => t('Enter an offset in pixels or use a keyword: <em>left</em>, <em>center</em>, or <em>right</em>. Syntax like <em>right-20</em> is also valid.'),
-      '#size' => 10,
-    ),
-    'ypos' => array(
-      '#type' => 'textfield',
-      '#title' => t('Y offset'),
-      '#default_value' => $data['ypos'],
-      '#description' => t('Enter an offset in pixels or use a keyword: <em>top</em>, <em>center</em>, or <em>bottom</em>. Syntax like <em>bottom-20</em> is also valid.'),
-      '#size' => 10,
-    ),
-    'halign' => array(
-      '#type' => 'select',
-      '#title' => t('Horizontal alignment'),
-      '#default_value' => $data['halign'],
-      '#description' => t('The horizontal alignment of the text around the given %xpos.', array('%xpos' => t('X offset'))),
-      '#options' => array(
-        'left' => t('Left'),
-        'center' => t('Center'),
-        'right' => t('Right')
-      ),
-    ),
-    'valign' => array(
-      '#type' => 'select',
-      '#title' => t('Vertical alignment'),
-      '#default_value' => $data['valign'],
-      '#description' => t('The vertical alignment of the text around the given %ypos.', array('%ypos' => t('Y offset'))),
-      '#options' => array(
-        'top' => t('Top'),
-        'center' => t('Center'),
-        'bottom' => t('Bottom')
-      ),
-    ),
-    'RGB' => imagecache_rgb_form($data['RGB']),
-    'alpha' => array(
-      '#type' => 'textfield',
-      '#title' => t('Opacity'),
-      '#default_value' => $data['alpha'] ? $data['alpha'] : 100,
-      '#size' => 3,
-      '#description' => t('Opacity: 1-100.'),
-    ),
-    'angle' => array(
-      '#type' => 'textfield',
-      '#title' => t('Angle'),
-      '#default_value' => $data['angle'],
-      '#description' => t('Angle: The angle in degrees, with 0 degrees being left-to-right reading text. Higher values represent a counter-clockwise rotation. For example, a value of 90 would result in bottom-to-top reading text.'),
-      '#size' => 3,
-    ),
-    'fontfile' => array(
-      '#type' => 'textfield',
-      '#title' => t('Font file name'),
-      '#default_value' => $data['fontfile'],
-      '#description' => imagecache_actions_file_field_description(),
-      '#element_validate' => array('image_effects_text_validate_font'),
-      '#size' => 80,
-    ),
     'text_help' => array(
       '#type' => 'item',
       '#title' => t('Text'),
@@ -220,6 +155,85 @@ if ($field) {
         'visible' => array(':input[name="data[text_source]"]' => array('value' => 'php')),
       ),
       '#wysiwyg' => FALSE,
+    ),
+    'text_case' => array(
+      '#title' => t('Capitalization'),
+      '#type' => 'select',
+      '#options' => array(
+        'none' => t('No transform'),
+        'upper' => t('Upper case'),
+        'lower' => t('Lower case'),
+        'ucfirst' => t('Capitalize first letter'),
+        'ucwords' => t('Capitalize each word'),
+      ),
+      '#default_value' => $data['text_case'],
+      '#description' => t('Defines if and how to transform the case of the text to render.'),
+    ),
+    'fontfile' => array(
+      '#type' => 'textfield',
+      '#title' => t('Font file name'),
+      '#default_value' => $data['fontfile'],
+      '#description' => imagecache_actions_file_field_description(),
+      '#element_validate' => array('image_effects_text_validate_font'),
+      '#size' => 80,
+    ),
+    'size' => array(
+      '#type' => 'textfield',
+      '#title' => t('Font size'),
+      '#default_value' => $data['size'],
+      '#description' => t('The font size in points. Only in GD1 this is in pixels.'),
+      '#size' => 3,
+    ),
+    'RGB' => imagecache_rgb_form($data['RGB']),
+    'alpha' => array(
+      '#type' => 'textfield',
+      '#title' => t('Opacity'),
+      '#default_value' => $data['alpha'],
+      '#size' => 3,
+      '#description' => t('Opacity: 1-100.'),
+    ),
+    'xpos' => array(
+      '#type' => 'textfield',
+      '#title' => t('X offset'),
+      '#default_value' => $data['xpos'],
+      '#description' => t('Enter an offset in pixels or use a keyword: <em>left</em>, <em>center</em>, or <em>right</em>. Syntax like <em>right-20</em> is also valid.'),
+      '#size' => 10,
+    ),
+    'ypos' => array(
+      '#type' => 'textfield',
+      '#title' => t('Y offset'),
+      '#default_value' => $data['ypos'],
+      '#description' => t('Enter an offset in pixels or use a keyword: <em>top</em>, <em>center</em>, or <em>bottom</em>. Syntax like <em>bottom-20</em> is also valid.'),
+      '#size' => 10,
+    ),
+    'halign' => array(
+      '#type' => 'select',
+      '#title' => t('Horizontal alignment'),
+      '#default_value' => $data['halign'],
+      '#description' => t('The horizontal alignment of the text around the given %xpos.', array('%xpos' => t('X offset'))),
+      '#options' => array(
+        'left' => t('Left'),
+        'center' => t('Center'),
+        'right' => t('Right')
+      ),
+    ),
+    'valign' => array(
+      '#type' => 'select',
+      '#title' => t('Vertical alignment'),
+      '#default_value' => $data['valign'],
+      '#description' => t('The vertical alignment of the text around the given %ypos.', array('%ypos' => t('Y offset'))),
+      '#options' => array(
+        'top' => t('Top'),
+        'center' => t('Center'),
+        'bottom' => t('Bottom')
+      ),
+    ),
+    'angle' => array(
+      '#type' => 'textfield',
+      '#title' => t('Angle'),
+      '#default_value' => $data['angle'],
+      '#description' => t('Angle: The angle in degrees, with 0 degrees being left-to-right reading text. Higher values represent a counter-clockwise rotation. For example, a value of 90 would result in bottom-to-top reading text.'),
+      '#size' => 3,
     ),
   );
   if (!$allow_php && $data['text_source'] !== 'php') {
@@ -717,12 +731,64 @@ function image_effects_text_get_text(stdClass $image, array $data) {
     // variables, so they can be passed successfully.
     $GLOBALS['image_context'] = $image_context;
     $GLOBALS['image'] = $image;
+
+    // Get (non-alterable) context about the image style and image effect.
+    $execution_info = imagecache_actions_get_image_effect_context();
+    $GLOBALS['image_style'] = $execution_info['image_style'];
+    $GLOBALS['image_effect_id'] = $execution_info['image_effect_id'];
+
     // We don't need to check_plain() the resulting text, as the text is not
     // rendered in a browser but processed on the server.
     $text = module_exists('php') ? php_eval('<' . '?php global $image, $image_context; ' . $data['php'] . ' ?' . '>') : '';
 
+    unset($GLOBALS['image_effect_id']);
+    unset($GLOBALS['image_style']);
     unset($GLOBALS['image']);
     unset($GLOBALS['image_context']);
   }
+
+  // Convert case.
+  $text = image_effect_text_case_transform($text, isset($data['text_case']) ? $data['text_case'] : 'none');
+
   return $text;
 }
+
+/**
+ * Transform a string by a certain method.
+ *
+ * Proudly copied from module://views/includes/handlers.inc.
+ *
+ * @param $string
+ *    The input you want to transform.
+ * @param $option
+ *    How do you want to transform it, possible values:
+ *      - upper: Uppercase the string.
+ *      - lower: lowercase the string.
+ *      - ucfirst: Make the first char uppercase.
+ *      - ucwords: Make each word in the string uppercase.
+ *
+ * @return string
+ *    The transformed string.
+ */
+function image_effect_text_case_transform($string, $option) {
+  global $multibyte;
+
+  switch ($option) {
+    default:
+      return $string;
+    case 'upper':
+      return drupal_strtoupper($string);
+    case 'lower':
+      return drupal_strtolower($string);
+    case 'ucfirst':
+      return drupal_strtoupper(drupal_substr($string, 0, 1)) . drupal_substr($string, 1);
+    case 'ucwords':
+      if ($multibyte == UNICODE_MULTIBYTE) {
+        return mb_convert_case($string, MB_CASE_TITLE);
+      }
+      else {
+        return ucwords($string);
+      }
+  }
+}
+

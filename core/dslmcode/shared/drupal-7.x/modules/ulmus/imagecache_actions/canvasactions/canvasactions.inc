@@ -329,10 +329,10 @@ function canvasactions_definecanvas_effect(stdClass $image, array $data) {
   }
   else {
     // Calculate relative size.
-    $targetsize['width'] = $image->info['width'] + $data['relative']['leftdiff'] + $data['relative']['rightdiff'];
-    $targetsize['height'] = $image->info['height'] + $data['relative']['topdiff'] + $data['relative']['bottomdiff'];
-    $targetsize['left'] = $data['relative']['leftdiff'];
-    $targetsize['top'] = $data['relative']['topdiff'];
+    $targetsize['width'] = $image->info['width'] + ((int) $data['relative']['leftdiff']) + ((int) $data['relative']['rightdiff']);
+    $targetsize['height'] = $image->info['height'] + ((int) $data['relative']['topdiff']) + ((int) $data['relative']['bottomdiff']);
+    $targetsize['left'] = (int) $data['relative']['leftdiff'];
+    $targetsize['top'] = (int) $data['relative']['topdiff'];
   }
 
   // Convert from hex (as it is stored in the UI).
@@ -935,7 +935,7 @@ function canvasactions_aspect_effect(stdClass $image, array $data) {
  *   An associative array containing the effect data.
  */
 function canvasactions_aspect_dimensions(array &$dimensions, array $data) {
-  if (!isset($dimensions['width']) || !isset($dimensions['height'])) {
+  if (empty($dimensions['width']) || empty($dimensions['height'])) {
     // We cannot know which preset would be executed and thus cannot know the
     // resulting dimensions, unless both styles return the same dimensions:
     $landscape_dimensions = $portrait_dimensions = $dimensions;

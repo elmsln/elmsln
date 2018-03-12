@@ -46,10 +46,10 @@ function ctools_node_content_type_render($subtype, $conf, $panel_args) {
     }
   }
 
-  // Support node translation
+  // Support node translation.
   if (module_exists('translation')) {
     if ($translations = module_invoke('translation', 'node_get_translations', $nid)) {
-      if (isset($translations[$GLOBALS['language']->language]))  {
+      if (isset($translations[$GLOBALS['language']->language])) {
         $nid = $translations[$GLOBALS['language']->language]->nid;
       }
     }
@@ -121,7 +121,6 @@ function ctools_node_content_type_edit_form($form, &$form_state) {
     '#description' => t('Check this box if you would like your pane title to link to the node.'),
   );
 
-
   if ($form_state['op'] == 'add') {
     $form['nid'] = array(
       '#prefix' => '<div class="no-float">',
@@ -179,7 +178,7 @@ function ctools_node_content_type_edit_form($form, &$form_state) {
 /**
  * Validate the node selection.
  */
-function  ctools_node_content_type_edit_form_validate(&$form, &$form_state) {
+function ctools_node_content_type_edit_form_validate(&$form, &$form_state) {
   if ($form_state['op'] != 'add') {
     return;
   }
@@ -205,7 +204,7 @@ function  ctools_node_content_type_edit_form_validate(&$form, &$form_state) {
   }
 
   if (!($node || preg_match('/^[@%]\d+$/', $nid)) ||
-      // Do not allow unpublished nodes to be selected by unprivileged users
+      // Do not allow unpublished nodes to be selected by unprivileged users.
       (empty($node->status) && !user_access('administer nodes'))) {
     form_error($form['nid'], t('Invalid node'));
   }

@@ -7,6 +7,9 @@
 #system-modules th.name {
   width: 25%;
 }
+#system-modules th.version {
+  width: 10%;
+}
 #system-modules th.links {
   width: 15%;
 }
@@ -14,12 +17,12 @@
   vertical-align: top;
 }
 #system-modules .expand.inner {
-  background: transparent url(/misc/menu-collapsed.png) left 0.6em no-repeat;
+  background: transparent url(../images/collapsed.png) left 0.6em no-repeat;
   margin-left: -12px;
   padding-left: 12px;
 }
 #system-modules .expanded.expand.inner {
-  background: transparent url(/misc/menu-expanded.png) left 0.6em no-repeat;
+  background: transparent url(../images/expanded.png) left 0.6em no-repeat;
 }
 #system-modules .description {
   cursor: pointer;
@@ -28,6 +31,9 @@
   overflow: hidden; /* truncates descriptions if too long */
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+#system-modules .description .inner.expanded > * {
+  cursor: auto;
 }
 #system-modules .description .requirements,
 #system-modules .description .links {

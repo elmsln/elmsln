@@ -29,7 +29,7 @@ function ctools_page_logo_content_type_render($subtype, $conf, $panel_args) {
   $block = new stdClass();
 
   if (!empty($logo)) {
-    $image = '<img src="' . $logo . '" alt="' . t('Home') . '" />';
+    $image = theme('image', array('path' => $logo, 'alt' => t('Home')));
     $block->content = l($image, '', array('html' => TRUE, 'attributes' => array('rel' => 'home', 'id' => 'logo', 'title' => t('Home'))));
   }
 

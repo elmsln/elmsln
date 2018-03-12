@@ -1,27 +1,38 @@
-Module Filter 7.x-2.x, 2015-02-20
+Module Filter 7.x-2.1, 2017-06-09
+---------------------------------
+Issue #2437439 by mikhail.krainiuk, greenSkin, jayhawkfan75: Module Filter does
+  not care about anchors in permission links.
+Issue #2866236 by Munavijayalakshmi, dhruveshdtripathi: Typo error in
+  README.TXT file.
+Issue #2452067 by Madis: Option to show description expanded as default
+  not working.
+Issue #2580791 by makbul_khan8: Coding standards and few function without
+  help comments.
+Issue #2153697 by annya: Disabling option "Number of enabled modules" breaks
+  tabs functionality.
+Issue #1710230 by willvincent: On | Off buttons does not change state with
+  jquery_update module active.
+Added option to show description as expanded by default.
+Improved description field so when it is open, interacting with it's contents
+  does not make it collapse.
+Placed collapsed/expanded images inside of module for easier, more reliable
+  access.
+Added option to place version in own column.
+Issue #2113191 by joelpittet: Category tabs not working.
+
+
+Module Filter 7.x-2.0, 2015-02-22
 ---------------------------------
 Simplifying the table rows by hiding version and requirements until a
   particular description is clicked.
-
-
-Module Filter 7.x-2.x, 2014-09-01
----------------------------------
 #2235553 by greenSkin: Fixed latest jquery_update breaks module filter.
 #2304687 by mpdonadio: Fixed Remove hardcoded operations.
 #2293029 by topsitemakers: Fixed Take header offset into account when selecting
   a tab.
 #2290213 by topsitemakers: Minor typo in description - "has no affect" -> "has
   no effect".
-
-
-Module Filter 7.x-2.0-alpha2, 2013-12-06
-----------------------------------------
 #2141743, #2141743 by greenSkin: Fixed issues related to the new dynamically
   positioned tabs and using the dynamically positioned save button.
-
-
-Module Filter 7.x-2.0-alpha1, 2013-11-18
-----------------------------------------
 by greenSkin: Tabs now should always be visible while scrolling large lists of
   modules.
 #1854348 by alexweber, greenSkin: Make filter textfield wider on modules page

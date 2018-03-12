@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @file query_string.inc
+ * @file
  * Context plugin that can extract arbitrary values from the query string.
  */
 
@@ -52,7 +52,7 @@ function ctools_context_query_string_settings_form($form, &$form_state) {
     '#title' => t('Query string key'),
     '#description' => t('Enter the key of the value that must be returned from the query string.'),
     '#type' => 'textfield',
-    '#required' => TRUE
+    '#required' => TRUE,
   );
   if (isset($form_state['conf']['key'])) {
     $form['key']['#default_value'] = $form_state['conf']['key'];
@@ -83,6 +83,7 @@ function ctools_context_query_string_convert($context, $type) {
   switch ($type) {
     case 'raw':
       return $context->data;
+
     case 'html_safe':
       return check_plain($context->data);
   }

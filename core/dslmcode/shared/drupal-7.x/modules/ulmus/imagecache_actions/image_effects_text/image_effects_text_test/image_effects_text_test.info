@@ -8,9 +8,9 @@ dependencies[] = image_effects_text
 dependencies[] = imagecache_canvasactions
 dependencies[] = system_stream_wrapper
 
-; Information added by Drupal.org packaging script on 2016-02-19
-version = "7.x-1.7"
+; Information added by Drupal.org packaging script on 2017-12-18
+version = "7.x-1.8"
 core = "7.x"
 project = "imagecache_actions"
-datestamp = "1455872655"
+datestamp = "1513596497"
 

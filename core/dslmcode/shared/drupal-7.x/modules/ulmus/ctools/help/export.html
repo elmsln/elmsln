@@ -154,7 +154,7 @@ function mymodule_schema() {
 <dd>Bulk export callback to provide a list of exportable objects to be chosen for bulk exporting. Defaults to $module . '_' . $table . '_list' if the function exists. If it is not, a default listing function will be provided that will make a best effort to list the titles. See ctools_export_default_list().</dd>
 
 <dt>to hook code callback</dt>
-<dd>Function used to generate an export for the bulk export process. This is only necessary if the export is more complicated than simply listing the fields. Defaults to $module . '_' . $table . '_to_hook_code'.</dt>
+<dd>Function used to generate an export for the bulk export process. This is only necessary if the export is more complicated than simply listing the fields. Defaults to $module . '_' . $table . '_to_hook_code'.</dd>
 
 <dt>boolean</dt>
 <dd>Explicitly indicate if a table field contains a boolean or not. The Schema API does not model the

@@ -5,7 +5,6 @@
  * Extend core fields with some helper functions to reduce code complexity within views and ctools plugins.
  */
 
-
 /**
  * Fake an instance of a field.
  *
@@ -75,27 +74,30 @@ function ctools_fields_get_field_formatter_settings_form($field, $formatter_type
     $conf['formatter_settings'] += $formatter['settings'];
   }
   $function = $formatter['module'] . '_field_formatter_settings_form';
-  if (function_exists($function)) {
-    $instance = ctools_fields_fake_field_instance($field['field_name'], $view_mode, $formatter_type, $conf['formatter_settings']);
-    $settings_form = $function($field, $instance, $view_mode, $form, $form_state);
-    if ($settings_form) {
-      // Allow other modules to alter the formatter settings form.
-      $context = array(
-        'module' => $formatter['module'],
-        'formatter' => $formatter,
-        'field' => $field,
-        'instance' => $instance,
-        'view_mode' => $view_mode,
-        'form' => $form,
-        'form_state' => $form_state,
-      );
-      drupal_alter('field_formatter_settings_form', $settings_form, $context);
 
-      $settings_form['#tree'] = TRUE;
-      $form['ctools_field_list']['#value'][] = $field;
-      $form += $settings_form;
-    }
+  $instance = ctools_fields_fake_field_instance($field['field_name'], $view_mode, $formatter_type, $conf['formatter_settings']);
+  if (function_exists($function)) {
+    $settings_form = $function($field, $instance, $view_mode, $form, $form_state);
   }
+  if (empty($settings_form)) {
+    $settings_form = array();
+  }
+
+  // Allow other modules to alter the formatter settings form.
+  $context = array(
+    'module' => $formatter['module'],
+    'formatter' => $formatter,
+    'field' => $field,
+    'instance' => $instance,
+    'view_mode' => $view_mode,
+    'form' => $form,
+    'form_state' => $form_state,
+  );
+  drupal_alter('field_formatter_settings_form', $settings_form, $context);
+
+  $settings_form['#tree'] = TRUE;
+  $form['ctools_field_list']['#value'][] = $field;
+  $form += $settings_form;
 
   if (isset($field['cardinality']) && $field['cardinality'] != 1) {
     list($prefix, $suffix) = explode('@count', t('Skip the first @count item(s)'));
@@ -208,15 +210,15 @@ function ctools_field_label($field_name) {
  *   - Otherwise NULL.
  * @param $options
  *   An associative array of additional options, with the following keys:
- *  - 'field_name': The name of the field whose operation should be
+ *   - 'field_name': The name of the field whose operation should be
  *    invoked. By default, the operation is invoked on all the fields
  *    in the entity's bundle. NOTE: This option is not compatible with
  *    the 'deleted' option; the 'field_id' option should be used
  *    instead.
- *  - 'field_id': The id of the field whose operation should be
+ *   - 'field_id': The id of the field whose operation should be
  *    invoked. By default, the operation is invoked on all the fields
  *    in the entity's' bundles.
- *  - 'default': A boolean value, specifying which implementation of
+ *   - 'default': A boolean value, specifying which implementation of
  *    the operation should be invoked.
  *    - if FALSE (default), the field types implementation of the operation
  *      will be invoked (hook_field_[op])
@@ -224,10 +226,10 @@ function ctools_field_label($field_name) {
  *      will be invoked (field_default_[op])
  *    Internal use only. Do not explicitely set to TRUE, but use
  *    _field_invoke_default() instead.
- *  - 'deleted': If TRUE, the function will operate on deleted fields
+ *   - 'deleted': If TRUE, the function will operate on deleted fields
  *    as well as non-deleted fields. If unset or FALSE, only
  *    non-deleted fields are operated on.
- *  - 'language': A language code or an array of language codes keyed by field
+ *   - 'language': A language code or an array of language codes keyed by field
  *    name. It will be used to narrow down to a single value the available
  *    languages to act on.
  *
@@ -340,7 +342,7 @@ function ctools_field_foreign_keys($field_name) {
       $foreign_keys[$field_name] = $field['foreign keys'];
     }
     else {
-      // try to fetch foreign keys from schema, as not everything
+      // Try to fetch foreign keys from schema, as not everything
       // stores foreign keys properly in the field info.
       $module = $field['module'];
 

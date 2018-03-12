@@ -1,6 +1,10 @@
 <?php
 
 /**
+ * @file
+ */
+
+/**
  * Schema for stylizer.
  */
 function stylizer_schema() {

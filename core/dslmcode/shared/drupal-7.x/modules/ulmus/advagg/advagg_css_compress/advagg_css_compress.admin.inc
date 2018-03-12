@@ -14,12 +14,23 @@
  */
 function advagg_css_compress_admin_settings_form($form, $form_state) {
   drupal_set_title(t('AdvAgg: CSS Compression Settings'));
+  advagg_display_message_if_requirements_not_met();
   $config_path = advagg_admin_config_root_path();
 
   $form = array();
   if (variable_get('advagg_cache_level', ADVAGG_CACHE_LEVEL) < 0) {
     $form['advagg_devel_msg'] = array(
       '#markup' => '<p>' . t('The settings below will not have any effect because AdvAgg is currently in <a href="@devel">development mode</a>. Once the cache settings have been set to normal or aggressive, CSS minification will take place.', array('@devel' => url($config_path . '/advagg', array('fragment' => 'edit-advagg-cache-level')))) . '</p>',
+    );
+  }
+
+  // Tell user to update library if a new version is available.
+  $library_name = 'YUI-CSS-compressor-PHP-port';
+  $module_name = 'advagg_css_compress';
+  list($description) = advagg_get_version_description($library_name, $module_name);
+  if (!empty($description)) {
+    $form['advagg_version_msg'] = array(
+      '#markup' => "<p>{$description}</p>",
     );
   }
 
@@ -67,7 +78,7 @@ function advagg_css_compress_admin_settings_form($form, $form_state) {
   $results = db_select('advagg_files', 'af')
     ->fields('af', array('filename'))
     ->condition('filetype', 'css')
-    ->orderBy('af.filename', 'ASC')
+    ->orderBy('filename', 'ASC')
     ->execute();
   $file_settings = variable_get('advagg_css_compressor_file_settings', array());
   foreach ($results as $row) {
@@ -104,11 +115,12 @@ function advagg_css_compress_admin_settings_form($form, $form_state) {
   return system_settings_form($form);
 }
 
-// Submit callback.
 /**
- * Clear out the advagg cache bin when the save configuration button is pressed.
+ * Submit callback that clears out the advagg cache bin.
  *
  * Also remove default settings inside of the per_file_settings fieldgroup.
+ *
+ * @ingroup advagg_forms_callback
  */
 function advagg_css_compress_admin_settings_form_submit($form, &$form_state) {
   // Clear caches.

@@ -84,7 +84,7 @@ Drupal.behaviors.moduleFilterTabs = {
                 summary += '<span>' + Drupal.t('No modules were enabled or disabled within the last week.') + '</span>';
               }
               break;
-            default: 
+            default:
               var $row = $('#' + id + '-package');
               name = $.trim($row.text());
               $row.remove();
@@ -242,15 +242,12 @@ Drupal.behaviors.moduleFilterTabs = {
               if (!$(this).hasClass('disabled')) {
                 if (Drupal.ModuleFilter.jQueryIsNewer()) {
                   $checkbox.click();
+                  $switch.toggleClass('off');
                 }
                 else {
                   $checkbox.click().change();
+                  $switch.toggleClass('off');
                 }
-              }
-            });
-            $checkbox.click(function() {
-              if (!$switch.hasClass('disabled')) {
-                $switch.toggleClass('off');
               }
             });
           });

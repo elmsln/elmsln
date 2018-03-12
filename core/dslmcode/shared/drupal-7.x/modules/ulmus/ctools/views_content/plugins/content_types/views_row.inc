@@ -35,7 +35,7 @@ function views_content_views_row_content_type_render($subtype, $conf, $panel_arg
   }
 
   // Build the content type block.
-  $block = new stdClass();
+  $block          = new stdClass();
   $block->module  = 'views_row';
   $block->delta   = $context->argument;
   $block->title   = '';
@@ -91,7 +91,7 @@ function views_content_views_row_content_type_render($subtype, $conf, $panel_arg
         'view' => $view,
         'options' => $plugin->options,
         'rows' => $rows,
-        'title' => $title
+        'title' => $title,
       )
     );
   }

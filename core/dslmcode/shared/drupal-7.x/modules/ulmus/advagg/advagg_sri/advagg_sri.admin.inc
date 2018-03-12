@@ -14,8 +14,9 @@
  */
 function advagg_sri_admin_settings_form() {
   drupal_set_title(t('AdvAgg: Subresource Integrity'));
-  $form = array();
+  advagg_display_message_if_requirements_not_met();
 
+  $form = array();
   $form['advagg_sri'] = array(
     '#type' => 'radios',
     '#title' => t('Subresource Integrity Level'),
@@ -43,9 +44,10 @@ function advagg_sri_admin_settings_form() {
   return system_settings_form($form);
 }
 
-// Submit callback.
 /**
- * Clear out the advagg cache bin when the save configuration button is pressed.
+ * Submit callback, clears out the advagg cache bin.
+ *
+ * @ingroup advagg_forms_callback
  */
 function advagg_sri_admin_settings_form_submit($form, &$form_state) {
   // Clear caches.

@@ -849,7 +849,7 @@ dateFormat: "dd-mm-yy"
 
       $secondary = array(
         '#type' => 'fieldset',
-        '#title' => $settings['general']['secondary_label'],
+        '#title' => filter_xss_admin($settings['general']['secondary_label']),
         '#collapsible' => TRUE,
         '#collapsed' => $secondary_collapse,
         '#theme' => 'secondary_exposed_elements',
@@ -1048,7 +1048,7 @@ dateFormat: "dd-mm-yy"
           '#type' => 'fieldset',
           '#collapsible' => TRUE,
           '#collapsed' => TRUE,
-          '#title' => $settings['sort']['advanced']['collapsible_label'],
+          '#title' => filter_xss_admin($settings['sort']['advanced']['collapsible_label']),
         );
         foreach ($sort_elems as $elem) {
           $form['bef_sort_options'][$elem] = $form[$elem];

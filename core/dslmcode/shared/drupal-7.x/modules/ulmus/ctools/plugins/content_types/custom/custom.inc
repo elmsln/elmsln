@@ -178,11 +178,10 @@ function ctools_custom_content_type_render($subtype, $conf, $args, $contexts) {
 
   static $delta = 0;
 
-  $block          = new stdClass();
-  $block->subtype = ++$delta;
-  $block->title   = filter_xss_admin($settings['title']);
+  $block                = new stdClass();
+  $block->subtype       = ++$delta;
+  $block->title         = filter_xss_admin($settings['title']);
   $block->title_heading = isset($settings['title_heading']) ? $settings['title_heading'] : 'h2';
-
 
   // Add keyword substitutions if we were configured to do so.
   $content = $settings['body'];
@@ -270,7 +269,8 @@ function ctools_custom_content_type_edit_form($form, &$form_state) {
   $form_state['settings'] = $settings;
 
   if ($settings['custom_type'] == 'fixed') {
-    return $form; // no form for this case.
+    // No form for this case.
+    return $form;
   }
 
   $form['admin_title'] = array(
@@ -320,7 +320,7 @@ function ctools_custom_content_type_edit_form($form, &$form_state) {
   );
 
   if (!empty($form_state['contexts'])) {
-    // Set extended description if both CCK and Token modules are enabled, notifying of unlisted keywords
+    // Set extended description if both CCK and Token modules are enabled, notifying of unlisted keywords.
     if (module_exists('content') && module_exists('token')) {
       $description = t('If checked, context keywords will be substituted in this content. Note that CCK fields may be used as keywords using patterns like <em>%node:field_name-formatted</em>.');
     }
@@ -417,7 +417,7 @@ function ctools_custom_content_type_edit_form_validate(&$form, &$form_state) {
       form_error($form['name'], t('Name is required.'));
     }
 
-    // Check for string identifier sanity
+    // Check for string identifier sanity.
     if (!preg_match('!^[a-z0-9_]+$!', $form_state['values']['name'])) {
       form_error($form['name'], t('The name can only consist of lowercase letters, underscores, and numbers.'));
       return;
@@ -427,7 +427,7 @@ function ctools_custom_content_type_edit_form_validate(&$form, &$form_state) {
       return;
     }
 
-    // Check for name collision
+    // Check for name collision.
     if ($form_state['values']['name'] == 'custom' || (ctools_export_crud_load('ctools_custom_content', $form_state['values']['name']))) {
       form_error($form['name'], t('Content with this name already exists. Please choose another name or delete the existing item before creating a new one.'));
     }
@@ -447,7 +447,7 @@ function ctools_custom_content_type_edit_form_submit($form, &$form_state) {
   }
   // If the 'reusable' checkbox was checked, we will create a new
   // custom content and give it the proper values.
-  else if (!empty($form_state['values']['reusable'])) {
+  elseif (!empty($form_state['values']['reusable'])) {
     $content = ctools_export_crud_new('ctools_custom_content');
     $content->name = $form_state['values']['name'];
     _ctools_custom_content_type_edit_save($content, $form_state);
@@ -455,7 +455,6 @@ function ctools_custom_content_type_edit_form_submit($form, &$form_state) {
   }
   else {
     // Otherwise, just save values into $conf normally.
-
     foreach (array_keys($form_state['plugin']['defaults']) as $key) {
       $form_state['conf'][$key] = isset($form_state['values'][$key]) ? $form_state['values'][$key] : $form_state['plugin']['defaults'][$key];
     }

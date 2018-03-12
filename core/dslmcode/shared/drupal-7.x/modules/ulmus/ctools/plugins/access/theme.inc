@@ -19,7 +19,7 @@ $plugin = array(
 );
 
 /**
- * Settings form for the 'by theme' access plugin
+ * Settings form for the 'by theme' access plugin.
  */
 function ctools_theme_ctools_access_settings($form, &$form_state, $conf) {
   $themes = array();
@@ -44,10 +44,10 @@ function ctools_theme_ctools_access_check($conf, $context) {
   if (!empty($GLOBALS['theme'])) {
     $theme = $GLOBALS['theme'];
   }
-  else if (!empty($GLOBALS['custom_theme'])) {
+  elseif (!empty($GLOBALS['custom_theme'])) {
     $theme = $GLOBALS['custom_theme'];
   }
-  else if (!empty($GLOBALS['user']->theme)) {
+  elseif (!empty($GLOBALS['user']->theme)) {
     $theme = $GLOBALS['user']->theme;
   }
   else {

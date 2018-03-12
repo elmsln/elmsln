@@ -1,9 +1,11 @@
 <?php
 
 /**
+ * @file
  * Plugins are described by creating a $plugin array which will be used
  * by the system that includes this file.
  */
+
 $plugin = array(
   'single' => TRUE,
   'title' => t('Node links'),
@@ -32,7 +34,7 @@ function ctools_node_links_content_type_render($subtype, $conf, $panel_args, $co
   $node = isset($context->data) ? clone $context->data : NULL;
   $block = new stdClass();
   $block->module = 'node';
-  $block->delta  = $node->nid;
+  $block->delta = $node->nid;
 
   if (empty($node)) {
     $block->delta   = 'placeholder';
@@ -102,4 +104,3 @@ function ctools_node_links_content_type_edit_form_submit($form, &$form_state) {
 function ctools_node_links_content_type_admin_title($subtype, $conf, $context) {
   return t('"@s" links', array('@s' => $context->identifier));
 }
-

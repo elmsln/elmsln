@@ -1,10 +1,8 @@
 <?php
 
-
 /**
  * @file
  * Sample ctools context type plugin that shows how to create a context from an arg.
- *
  */
 
 /**
@@ -14,7 +12,8 @@
 $plugin = array(
   'title' => t("Simplecontext"),
   'description' => t('A single "simplecontext" context, or data element.'),
-  'context' => 'ctools_plugin_example_context_create_simplecontext',  // func to create context
+// Func to create context.
+  'context' => 'ctools_plugin_example_context_create_simplecontext',
   'context name' => 'simplecontext',
   'settings form' => 'simplecontext_settings_form',
   'keyword' => 'simplecontext',
@@ -69,7 +68,7 @@ function ctools_plugin_example_context_create_simplecontext($empty, $data = NULL
     // This is used for keyword.
     $context->title = $data;
     $context->argument = $data;
-    // Make up a bogus context
+    // Make up a bogus context.
     $context->data = new stdClass();
     $context->data->item1 = t("Item1");
     $context->data->item2 = t("Item2");
@@ -102,8 +101,6 @@ function simplecontext_settings_form($conf, $external = FALSE) {
   return $form;
 }
 
-
-
 /**
  * Provide a list of sub-keywords.
  *
@@ -125,10 +122,11 @@ function simplecontext_convert($context, $type) {
   switch ($type) {
     case 'item1':
       return $context->data->item1;
+
     case 'item2':
       return $context->data->item2;
+
     case 'description':
       return $context->data->description;
   }
 }
-

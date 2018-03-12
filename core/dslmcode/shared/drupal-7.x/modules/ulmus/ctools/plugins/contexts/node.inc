@@ -2,7 +2,6 @@
 
 /**
  * @file
- *
  * Plugin to provide a node context. A node context is a node wrapped in a
  * context object that can be utilized by anything that accepts contexts.
  */
@@ -106,7 +105,7 @@ function ctools_context_node_settings_form($form, &$form_state) {
  * Validate a node.
  */
 function ctools_context_node_settings_form_validate($form, &$form_state) {
-  // Validate the autocomplete
+  // Validate the autocomplete.
   if (empty($form_state['values']['nid']) && empty($form_state['values']['node'])) {
     form_error($form['node'], t('You must select a node.'));
     return;
@@ -133,7 +132,7 @@ function ctools_context_node_settings_form_validate($form, &$form_state) {
     $node = db_query('SELECT nid, status FROM {node} WHERE LOWER(title) = LOWER(:title)', array(':title' => $nid))->fetchObject();
   }
 
-  // Do not allow unpublished nodes to be selected by unprivileged users
+  // Do not allow unpublished nodes to be selected by unprivileged users.
   if (!$node || (empty($node->status) && !(user_access('administer nodes')))) {
     form_error($form['node'], t('Invalid node selected.'));
   }

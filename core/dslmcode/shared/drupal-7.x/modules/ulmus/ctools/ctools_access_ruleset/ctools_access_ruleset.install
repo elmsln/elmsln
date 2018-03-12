@@ -1,6 +1,10 @@
 <?php
 
 /**
+ * @file
+ */
+
+/**
  * Schema for customizable access rulesets.
  */
 function ctools_access_ruleset_schema() {

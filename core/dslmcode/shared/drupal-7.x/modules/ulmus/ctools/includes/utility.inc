@@ -23,7 +23,7 @@ function ctools_passthrough($module, $type, &$items) {
     require_once DRUPAL_ROOT . '/' . $file->uri;
     list($tool) = explode('.', $file->name, 2);
 
-    $function = $module . '_' . str_replace ('-', '_', $tool) . '_' . str_replace('-', '_', $type);
+    $function = $module . '_' . str_replace('-', '_', $tool) . '_' . str_replace('-', '_', $type);
     if (function_exists($function)) {
       $function($items);
     }

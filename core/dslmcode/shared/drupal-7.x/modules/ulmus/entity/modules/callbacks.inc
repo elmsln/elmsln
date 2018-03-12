@@ -676,7 +676,7 @@ function entity_metadata_no_hook_node_access($op, $node = NULL, $account = NULL)
     if (empty($node->vid) && in_array($op, array('create', 'update'))) {
       // This is a new node or the original node.
       if (isset($node->type)) {
-        $op = !empty($node->is_new) && $node->is_new ? 'create' : 'update';
+        $op = empty($node->nid) || !empty($node->is_new) ? 'create' : 'update';
         return node_access($op, $op == 'create' ? $node->type : $node, $account);
       }
       else {

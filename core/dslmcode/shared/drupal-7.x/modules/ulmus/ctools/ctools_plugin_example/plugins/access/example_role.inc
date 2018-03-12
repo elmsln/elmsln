@@ -4,7 +4,7 @@
  * @file
  * Plugin to provide access control based upon role membership.
  * This is directly from the ctools module, but serves as a good
- * example of an access plugin
+ * example of an access plugin.
  */
 
 /**
@@ -73,4 +73,3 @@ function ctools_plugin_example_example_role_ctools_access_summary($conf, $contex
   }
   return format_plural(count($names), '@identifier must have role "@roles"', '@identifier can be one of "@roles"', array('@roles' => implode(', ', $names), '@identifier' => $context->identifier));
 }
-

@@ -265,6 +265,9 @@ $.fn.moduleFilter = function(selector, options) {
   if (Drupal.settings.moduleFilter.setFocus) {
     filterInput.focus();
   }
+  if (Drupal.settings.moduleFilter.expandedDescription) {
+    $('#system-modules td.description .inner.expand').addClass('expanded');
+  }
   filterInput.data('moduleFilter', new Drupal.ModuleFilter.Filter(this, selector, options));
 };
 

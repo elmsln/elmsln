@@ -6,7 +6,7 @@
  */
 
 $plugin = array(
-  // cache plugins are the rare plugin types that have no real UI but
+  // Cache plugins are the rare plugin types that have no real UI but
   // we're providing a title just in case.
   'title' => t('Simple'),
   'cache get' => 'ctools_cache_simple_cache_get',

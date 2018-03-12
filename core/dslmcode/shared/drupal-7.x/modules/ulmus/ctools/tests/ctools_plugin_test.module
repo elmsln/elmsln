@@ -1,10 +1,12 @@
 <?php
+
 /**
- * Define some plugin systems to test ctools plugin includes.
+ * @file
+ * Define some plugin systems to test CTools plugin includes.
  */
 
 /**
- * Implementation of hook_ctools_plugin_dierctory()
+ * Implementation of hook_ctools_plugin_directory().
  */
 function ctools_plugin_test_ctools_plugin_directory($module, $plugin) {
   if ($module == 'ctools_plugin_test') {
@@ -12,11 +14,14 @@ function ctools_plugin_test_ctools_plugin_directory($module, $plugin) {
   }
 }
 
+/**
+ * Implements hook_ctools_plugin_type().
+ */
 function ctools_plugin_test_ctools_plugin_type() {
   return array(
     'extra_defaults' => array(
       'defaults' => array(
-        'bool' => true,
+        'bool' => TRUE,
         'string' => 'string',
         'array' => array('some value'),
       ),
@@ -50,6 +55,11 @@ function ctools_plugin_test_ctools_plugin_type() {
   );
 }
 
+/**
+ * Plugin callback.
+ *
+ * @see ctools_plugin_test_ctools_plugin_type()
+ */
 function ctools_plugin_test_ctools_plugin_test_big_hook_cached() {
   return array(
     'test1' => array(
@@ -59,6 +69,11 @@ function ctools_plugin_test_ctools_plugin_test_big_hook_cached() {
   );
 }
 
+/**
+ * Plugin callback.
+ *
+ * @see ctools_plugin_test_ctools_plugin_type()
+ */
 function ctools_plugin_test_ctools_plugin_test_big_hook_not_cached() {
   return array(
     'test1' => array(
@@ -68,5 +83,18 @@ function ctools_plugin_test_ctools_plugin_test_big_hook_not_cached() {
   );
 }
 
-function ctools_plugin_test_hook_cached_test() {}
-function ctools_plugin_test_hook_not_cached_test() {}
+/**
+ * Callback for the big_hook_cached plugin.
+ *
+ * @see ctools_plugin_test_ctools_plugin_test_big_hook_cached
+ */
+function ctools_plugin_test_hook_cached_test() {
+}
+
+/**
+ * Callback for the big_hook_not_cached plugin.
+ *
+ * @see ctools_plugin_test_ctools_plugin_test_big_hook_not_cached()
+ */
+function ctools_plugin_test_hook_not_cached_test() {
+}

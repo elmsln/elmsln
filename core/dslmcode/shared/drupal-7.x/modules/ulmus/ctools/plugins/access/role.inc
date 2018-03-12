@@ -21,7 +21,7 @@ $plugin = array(
 );
 
 /**
- * Settings form for the 'by role' access plugin
+ * Settings form for the 'by role' access plugin.
  */
 function ctools_role_ctools_access_settings($form, &$form_state, $conf) {
   $form['settings']['rids'] = array(
@@ -76,4 +76,3 @@ function ctools_role_ctools_access_summary($conf, $context) {
 
   return format_plural(count($names), '@identifier has role "@roles"', '@identifier has one of "@roles"', array('@roles' => implode(', ', $names), '@identifier' => $context->identifier));
 }
-

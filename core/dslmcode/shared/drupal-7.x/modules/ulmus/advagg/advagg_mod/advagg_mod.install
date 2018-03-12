@@ -6,6 +6,19 @@
  */
 
 /**
+ * @addtogroup hooks
+ * @{
+ */
+
+/**
+ * Implements hook_install().
+ */
+function advagg_mod_install() {
+  // New install gets a locked admin section.
+  variable_set('advagg_mod_admin_mode', 0);
+}
+
+/**
  * Merge advagg_mod_css_defer_rel_preload into advagg_mod_css_defer.
  */
 function advagg_mod_update_7201(&$sandbox) {
@@ -38,4 +51,37 @@ function advagg_mod_update_7202(&$sandbox) {
   }
   variable_set('advagg_mod_js_inline_resource_hints', $advagg_mod_js_inline_resource_hints);
   return t('Variable has been moved.');
+}
+
+/**
+ * @} End of "addtogroup hooks".
+ */
+
+/**
+ * Implements hook_requirements().
+ */
+function advagg_mod_requirements($phase) {
+  $requirements = array();
+  // Ensure translations don't break at install time.
+  $t = get_t();
+
+  // If not at runtime, return here.
+  if ($phase !== 'runtime') {
+    return $requirements;
+  }
+
+  // Check version.
+  $lib_name = 'loadCSS';
+  $module_name = 'advagg_mod';
+  list($description, $info) = advagg_get_version_description($lib_name, $module_name);
+  if (!empty($description)) {
+    $requirements["{$module_name}_{$lib_name}_updates"] = array(
+      'title' => $t('@module_name', array('@module_name' => $info['name'])),
+      'severity' => REQUIREMENT_WARNING,
+      'value' => $t('The @name library needs to be updated.', array('@name' => $lib_name)),
+      'description' => $description,
+    );
+  }
+
+  return $requirements;
 }

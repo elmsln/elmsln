@@ -2,7 +2,7 @@
 
 /**
  * @file
- * ctools_custom_content module
+ * The ctools_custom_content module.
  *
  * This module allows styles to be created and managed on behalf of modules
  * that implement styles.
@@ -30,7 +30,7 @@ function ctools_custom_content_permission() {
  */
 function ctools_custom_content_ctools_plugin_directory($module, $plugin) {
   // Most of this module is implemented as an export ui plugin, and the
-  // rest is in ctools/includes/ctools_custom_content.inc
+  // rest is in ctools/includes/ctools_custom_content.inc.
   if ($module == 'ctools' && $plugin == 'export_ui') {
     return 'plugins/' . $plugin;
   }
@@ -41,7 +41,7 @@ function ctools_custom_content_ctools_plugin_directory($module, $plugin) {
  */
 function ctools_custom_content_get_pane_links_alter(&$links, $pane, $content_type) {
   if ($pane->type == 'custom') {
-    if(!isset($pane->configuration['name'])) {
+    if (!isset($pane->configuration['name'])) {
       $name_of_pane = $pane->subtype;
     }
     else {
@@ -80,7 +80,7 @@ function ctools_custom_content_panels_dashboard_blocks(&$vars) {
     'description' => t('Custom content panes are basic HTML you enter that can be reused in all of your panels.'),
   );
 
-   // Load all mini panels and their displays.
+  // Load all mini panels and their displays.
   ctools_include('export');
   $items = ctools_export_crud_load_all('ctools_custom_content');
   $count = 0;
