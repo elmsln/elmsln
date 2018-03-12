@@ -15,11 +15,17 @@ require_once(__ROOT__.'/services/LRNAppBookService.php');
 function _mooc_content_data($machine_name, $app_route, $params, $args) {
   $status = 404;
   $return = array();
+  $ops = array();
   $node = _mooc_content_get_active();
   if (isset($node->nid)) {
     $navigation = _mooc_content_render_navigation();
     // render content
     $content = _mooc_content_render_content();
+    // test for array meaning we have an advanced op going on
+    if (is_array($content)) {
+      $ops = $content;
+      $content = '';
+    }
     // render outline w/ array
     $outline = _mooc_nav_block_mooc_nav_block($node);
     // pull together the right side options
@@ -36,6 +42,7 @@ function _mooc_content_data($machine_name, $app_route, $params, $args) {
       'bookOutline' => $outline,
       'styles' => $css,
       'options' => $options,
+      'ops' => $ops,
     );
     $status = 200;
   }
@@ -194,10 +201,42 @@ function _mooc_content_render_content() {
   $node = _mooc_content_get_active();
   $content = '';
   // support for banner block
-  if (module_exists('mooc_content_theming')) {
-    $content .= _mooc_content_theming_banner_block($node);
+  if (isset($node->body) && !empty($node->body['und'][0]['value'])) {
+    if (module_exists('mooc_content_theming')) {
+      $content .= _mooc_content_theming_banner_block($node);
+    }
+    $content .= drupal_render(node_view($node));
   }
-  $content .= drupal_render(node_view($node));
+  else {
+    // try to skip to the next item if they don't have edit rights
+    $next = book_next($node->book);
+    // ensure we have a next item and it's in this one
+    if ($next && $node->book['mlid'] == $next['plid']) {
+      if (entity_access('update', 'node', $node)) {
+        $node->body = array(
+          'und' => array(
+            0 => array(
+              'value' => '<div class="blue-text"><em>' . t('This page is empty, so students will automatically be taken to the next page. You have not been redirected so you can edit this content if desired.') . '</em></div>',
+              'format' => 'textbook_editor',
+            ),
+          ),
+        );
+        $content .= drupal_render(node_view($node));
+      }
+      else {
+      // if the user is a standard user then take them to the next book page
+        $content = array(
+          'redirect' => base_path() . $next['link_path'],
+        );
+      }
+    }
+    else {
+      if (module_exists('mooc_content_theming')) {
+        $content .= _mooc_content_theming_banner_block($node);
+      }
+      $content .= drupal_render(node_view($node));
+    }
+  }
   return $content;
 }
 
