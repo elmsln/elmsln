@@ -542,7 +542,14 @@ lrnsys-dialog-toolbar {
        * Helper to move back and forth in an object like you can an array
        */
       _getObjectByPosition: function(items, key, i) {
-        var keys = Object.keys(items).sort(function(a,b){return a.id-b.id;});
+        var keys = Object.keys(items).sort(function(a,b){
+          if (typeof items[a].sis !== typeof undefined) {
+            return items[a].sis.sortable_name-items[b].sis.sortable_name;
+          }
+          else {
+            return a-b;
+          }
+          });
         if (key !== undefined) {
           key = key.toString();
         }
