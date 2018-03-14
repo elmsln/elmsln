@@ -295,6 +295,9 @@ A LRN element
             if (_typeof(this.outlineData.data) === (typeof undefined === 'undefined' ? 'undefined' : _typeof(undefined))) {
               this.$.fulloutlinepath.generateRequest();
             }
+            this.async(function() {
+              window.dispatchEvent(new Event('resize'));
+            });
           }
         }
       },
