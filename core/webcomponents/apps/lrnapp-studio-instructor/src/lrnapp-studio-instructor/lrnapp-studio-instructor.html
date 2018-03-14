@@ -230,13 +230,15 @@ lrnsys-dialog-toolbar {
     </vaadin-grid>
     <lrnsys-dialog id="dialog" style="overflow: visible;">
       <span slot="toolbar-primary">
-        <paper-icon-button id="prevstudent" icon="arrow-back" title="previous student"></paper-icon-button>
-        <lrndesign-avatar label="[[activeData.student.name]]" src="[[activeData.student.avatar]]" style="display:inline-block;vertical-align:middle;"></lrndesign-avatar>
-        <span class="avatar-label" style="margin-left:1em;">[[activeData.student.sis.sortable_name]]</span>
-        <paper-icon-button id="nextstudent" icon="arrow-forward" title="next student"></paper-icon-button>
+        <span style="width:15em;">
+          <paper-icon-button id="prevstudent" icon="arrow-back" title="previous student"></paper-icon-button>
+          <paper-icon-button id="nextstudent" icon="arrow-forward" title="next student"></paper-icon-button>
+          <lrndesign-avatar label="[[activeData.student.name]]" src="[[activeData.student.avatar]]" style="display:inline-block;vertical-align:middle;"></lrndesign-avatar>
+          <span class="avatar-label" style="margin-left:1em;">[[activeData.student.sis.sortable_name]]</span>
+        </span>
         <paper-icon-button id="prevassignment" icon="arrow-back" title="previous assignment" style="margin-left:1em;"></paper-icon-button>
-        <span style="font-weight:bold;">Assignment: [[activeData.assignment.title]]</span>
         <paper-icon-button id="nextassignment" icon="arrow-forward" title="next assignment"></paper-icon-button>
+        <span style="font-weight:bold;">Assignment: [[activeData.assignment.title]]</span>
       </span>
       <span slot="content">
         <template is="dom-if" if="[[activeData.submission]]">

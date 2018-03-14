@@ -1,8 +1,0 @@
-.vaadin-grid-0 vaadin-grid-table-body.vaadin-grid .vaadin-grid-row.vaadin-grid .vaadin-grid-cell.vaadin-grid:not([detailscell]) > vaadin-grid-cell-content {
-  height: unset !important;
-}
-lrnsys-dialog-toolbar {
-  top: 0;
-  position: sticky !important;
-  z-index: 1;
-}
