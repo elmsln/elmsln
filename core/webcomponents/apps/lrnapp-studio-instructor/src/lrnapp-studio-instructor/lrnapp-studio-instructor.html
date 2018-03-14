@@ -191,7 +191,7 @@ lrnsys-dialog-toolbar {
     <vaadin-grid hidden$="[[!students]]" id="material" aria-label="Student project list" items="[[_toArray(students)]]">
       <vaadin-grid-column resizable>
         <template class="header">
-          <vaadin-grid-sorter path="sis.sortable_name">Student</vaadin-grid-sorter>
+          <vaadin-grid-sorter id="sorter" path="sis.sortable_name">Student</vaadin-grid-sorter>
         </template>
         <template>
           <a href$="[[basePath]]lrnapp-open-studio/projects?author=[[item.id]]&project=[[activeProject]]" tabindex="-1" target="_blank" class="avatar-link">
@@ -470,6 +470,10 @@ lrnsys-dialog-toolbar {
         this.set('students', this._studentData.data.students);
         this.set('assignments', []);
         this.set('assignments', this._studentData.data.assignments);
+        // make sure default is asc data
+        setTimeout(() => {
+          this.$$('#sorter').direction = 'asc';
+        }, 200);
       },
       /**
        * Pie menu operation handler based on which was clicked.
