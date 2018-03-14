@@ -35,7 +35,7 @@ SVG Menu based on the excellent resource at : https://sarasoueidan.com/tools/cir
       :host > div svg [role="button"] {
         fill: transparent;
       }
-      :host > div svg [role="button"]:focus, 
+      :host > div svg [role="button"]:focus,
       :host > div svg [role="button"]:hover {
         stroke: #017ec2;
         cursor: pointer;
@@ -47,8 +47,8 @@ SVG Menu based on the excellent resource at : https://sarasoueidan.com/tools/cir
         stroke: #ddd;
       }
       :host > div svg .outer-shapes.focus,
-      :host > div svg .outer-shapes.hover, 
-      :host > div svg .inner-shape.focus, 
+      :host > div svg .outer-shapes.hover,
+      :host > div svg .inner-shape.focus,
       :host > div svg .inner-shape.hover {
         fill: #cef4ff;
       }
@@ -74,6 +74,7 @@ SVG Menu based on the excellent resource at : https://sarasoueidan.com/tools/cir
       :host > div .icon-label {
         font-size: 10px;
         text-transform: lowercase;
+        line-height: 10px;
       }
       :host > div[data-hide-label-text="true"] .icon-label {
         display: none;
@@ -259,7 +260,7 @@ SVG Menu based on the excellent resource at : https://sarasoueidan.com/tools/cir
           }
         });
       },
-      '_getButtonElements': function(menu,button){          
+      '_getButtonElements': function(menu,button){
         return menu.querySelectorAll('[data-button="'+button.getAttribute('data-button')+'"]');
       },
       /**

@@ -2,6 +2,7 @@
 <link rel="import" href="lrnapp-studio-submission-comments.html">
 <link rel="import" href="lrnapp-studio-submission-comment.html">
 <link rel="import" href="../../bower_components/lrnsys-comment/lrnsys-comment-list.html">
+<link rel="import" href="../../bower_components/elmsln-loading/elmsln-loading.html">
 <link rel="import" href="../../bower_components/marked-element/marked-element.html">
 <link rel="import" href="../../bower_components/vaadin-split-layout/vaadin-split-layout.html">
 
@@ -175,7 +176,7 @@
     <iron-ajax id="ajaxDeleteRequest" url="[[reqUrl]]" method="DELETE" params="[[reqParams]]" content-type="application/json"
       handle-as="json" on-response="_handleDeleteResponse"></iron-ajax>
 
-    <app-toolbar class="amber lighten-3">
+    <app-toolbar class="amber lighten-3" hidden$="[[hideMenuBar]]">
       <template is="dom-if" if="[[showComments]]">
         <lrnsys-button on-tap="_backToStudio" icon="arrow-back" label="See in studio" hover-class="amber darken-4 white-text"></lrnsys-button>
       </template>
@@ -246,6 +247,10 @@
       properties: {
         id: {
           type: String
+        },
+        hideMenuBar: {
+          type: Boolean,
+          value: false,
         },
         endPoint: {
           type: String
@@ -357,9 +362,9 @@
         if (data.detail.response.data) {
           this.set('submission', []);
           this.set('submission', data.detail.response.data);
-        }
-        else {
-          window.location.href = this.basePath + 'lrnapp-open-studio?deletetoast=error';
+          this.async(function() {
+            window.dispatchEvent(new Event('resize'));
+          });
         }
       },
       _isReply: function (data) {

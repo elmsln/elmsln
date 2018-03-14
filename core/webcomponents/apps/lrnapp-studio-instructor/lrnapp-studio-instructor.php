@@ -88,7 +88,7 @@ function _lrnapp_studio_instructor_student_data($machine_name, $app_route, $para
       $students[$uid]->sis = _elmsln_core_get_sis_user_data($uid);
       // establish 0 for all assignment commenting and either submission
       // data or FALSE to indicate if they have submitted the assignment
-      foreach ($project->attributes->steps as $key => $assignment) {
+      foreach ($project->attributes->steps as $assignment) {
         $students[$uid]->assignmentComments[$assignment->id] = 0;
         $submission = $submissionService->getSubmissionByAssignment($assignment->id, $uid, TRUE);
         $students[$uid]->assignments[$assignment->id] = $submission;
@@ -105,7 +105,11 @@ function _lrnapp_studio_instructor_student_data($machine_name, $app_route, $para
       }
     }
     $data['students'] = $students;
-    $data['assignments'] = $project->attributes->steps;
+    $steps = array();
+    foreach ($project->attributes->steps as $step) {
+      $steps[$step->id] = $step;
+    }
+    $data['assignments'] = $steps;
   }
   return array(
     'status' => $status,

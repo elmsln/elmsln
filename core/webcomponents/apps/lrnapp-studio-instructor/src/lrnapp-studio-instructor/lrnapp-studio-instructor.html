@@ -1,4 +1,6 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/app-route/app-location.html">
+<link rel="import" href="../../bower_components/app-route/app-route.html">
 <link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid.html">
 <link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid.html">
 <link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid-column-group.html">
@@ -6,15 +8,22 @@
 <link rel="import" href="../../bower_components/dropdown-select/dropdown-select.html">
 <link rel="import" href="../../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../../bower_components/paper-badge/paper-badge.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/paper-tooltip/paper-tooltip.html">
 <link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid-filter.html">
 <link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid-sorter.html">
 <link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid-selection-column.html">
+<link rel="import" href="../lrnapp-studio-submission/lrnapp-studio-submission-page.html">
 <style>
 .vaadin-grid-0 vaadin-grid-table-body.vaadin-grid .vaadin-grid-row.vaadin-grid .vaadin-grid-cell.vaadin-grid:not([detailscell]) > vaadin-grid-cell-content {
   height: unset !important;
 }
+lrnsys-dialog-toolbar {
+  top: 0;
+  position: sticky !important;
+  z-index: 1;
+}
 </style>
-
 <dom-module id="lrnapp-studio-instructor">
   <template>
     <style include="materializecss-styles"></style>
@@ -147,8 +156,14 @@
       .avatar-link paper-button {
         text-transform: unset;
       }
-
     </style>
+    <app-location route="{{route}}"></app-location>
+    <app-route
+        route="{{route}}"
+        pattern="[[endPoint]]/submissions/:submission"
+        data="{{data}}"
+        tail="{{tail}}">
+    </app-route>
     <iron-ajax auto
       id="projectrequest"
       url="[[sourceProjectPath]]"
@@ -173,7 +188,7 @@
       <paper-item value$="[[project.id]]">[[project.attributes.title]]</paper-item>
     </template>
     </dropdown-select>
-    <vaadin-grid hidden$="[[!students]]" id="material" aria-label="Student project list" items="[[students]]">
+    <vaadin-grid hidden$="[[!students]]" id="material" aria-label="Student project list" items="[[_toArray(students)]]">
       <vaadin-grid-column resizable>
         <template class="header">
           <vaadin-grid-sorter path="sis.sortable_name">Student</vaadin-grid-sorter>
@@ -192,35 +207,64 @@
           </vaadin-grid-filter>
         </template>
       </vaadin-grid-column>
-      <template is="dom-repeat" items="[[assignments]]" as="assignment">
+      <template is="dom-repeat" items="[[_toArray(assignments)]]" as="assignment">
         <vaadin-grid-column resizable>
           <template class="header">
             <span>[[assignment.title]]</span>
           </template>
           <template>
             <template is="dom-if" if="[[_submissionStatus(item, assignment)]]">
-              <lrnsys-button icon-class="[[_submissionPiece(item, assignment, 'color')]]" target="_blank" label="[[_submissionPiece(item, assignment, 'title')]]" icon="[[_submissionPiece(item, assignment, 'icon')]]" href="[[_submissionPiece(item, assignment, 'url')]]" id$="student-[[item.id]]-id-[[assignment.id]]"></lrnsys-button>
+              <lrnsys-button icon="[[_submissionPiece(item, assignment, 'icon')]]" id$="student-[[item.id]]-assignment-[[assignment.id]]-submission-[[_submissionID(item, assignment)]]" label="[[_submissionPiece(item, assignment, 'title')]]" on-tap="_setActiveSubmission">
+            </lrnsys-button>
             </template>
             <template is="dom-if" if="[[!_submissionStatus(item, assignment)]]">
-              <paper-button disabled class="project-button" id$="student-[[item.id]]-id-[[assignment.id]]">X</paper-button>
+              <paper-button disabled class="project-button" id$="student-[[item.id]]-assignment-[[assignment.id]]-submission-null">X</paper-button>
             </template>
             <template is="dom-if" if="[[_commentCount(item, assignment)]]">
-              <paper-badge id$="student-[[item.id]]-id-[[assignment.id]]-tip" for="student-[[item.id]]-id-[[assignment.id]]" label="[[_commentCount(item, assignment)]]"></paper-badge>
-              <paper-tooltip for="student-[[item.id]]-id-[[assignment.id]]-tip">Comments left on classmates [[assignment.title]]</paper-badge>
+              <paper-badge id$="student-[[item.id]]-assignment-[[assignment.id]]-tip" for="student-[[item.id]]-assignment-[[assignment.id]]" label="[[_commentCount(item, assignment)]]"></paper-badge>
+              <paper-tooltip for="student-[[item.id]]-assignment-[[assignment.id]]-tip">Comments left on classmates [[assignment.title]]</paper-badge>
             </template>
           </template>
         </vaadin-grid-column>
       </template>
     </vaadin-grid>
+    <lrnsys-dialog id="dialog" style="overflow: visible;">
+      <span slot="toolbar-primary">
+        <paper-icon-button id="prevstudent" icon="arrow-back" title="previous student"></paper-icon-button>
+        <lrndesign-avatar label="[[activeData.student.name]]" src="[[activeData.student.avatar]]" style="display:inline-block;vertical-align:middle;"></lrndesign-avatar>
+        <span class="avatar-label" style="margin-left:1em;">[[activeData.student.sis.sortable_name]]</span>
+        <paper-icon-button id="nextstudent" icon="arrow-forward" title="next student"></paper-icon-button>
+        <paper-icon-button id="prevassignment" icon="arrow-back" title="previous assignment" style="margin-left:1em;"></paper-icon-button>
+        <span style="font-weight:bold;">Assignment: [[activeData.assignment.title]]</span>
+        <paper-icon-button id="nextassignment" icon="arrow-forward" title="next assignment"></paper-icon-button>
+      </span>
+      <span slot="content">
+        <template is="dom-if" if="[[activeData.submission]]">
+          <lrnapp-studio-submission-page base-path="[[basePath]]" route="{{tail}}" id="[[data.submission]]" end-point="[[basePath]]lrnapp-studio-submission" csrf-token="[[csrfToken]]" data="[[data]]" hide-menu-bar></lrnapp-studio-submission-page>
+        </template>
+        <template is="dom-if" if="[[!activeData.submission]]">
+          <div>
+            <h3>No submission for this assignment</h3>
+            <p>This student has not submitted anything for this assignment at this time.</p>
+          </div>
+        </template>
+      </span>
+    </lrnsys-dialog>
   </template>
-
-
   <script>
     Polymer({
       is: 'lrnapp-studio-instructor',
       listeners: {
         'selectedproject.change': '_projectChanged',
+        'nextassignment.tap': '_changeActiveItem',
+        'prevassignment.tap': '_changeActiveItem',
+        'nextstudent.tap': '_changeActiveItem',
+        'prevstudent.tap': '_changeActiveItem',
       },
+      observers: [
+        '_routeChanged(route, endPoint)',
+        '_activeDataChanged(activeData.student, activeData.assignment)',
+      ],
       properties: {
         /**
          * The projects to render
@@ -233,14 +277,14 @@
          * The assignments to render
          */
         assignments: {
-          type: Array,
+          type: Object,
           notify: true,
         },
         /**
          * The submissions to render
          */
         students: {
-          type: Array,
+          type: Object,
           notify: true,
           value: false,
         },
@@ -249,6 +293,7 @@
          */
         _projectData: {
           type: Object,
+          value: {},
         },
         /**
          * studentParams for the request
@@ -287,12 +332,100 @@
           notify: true,
         },
         /**
+         * routing variable for url
+         */
+        route: {
+          type: String,
+        },
+        /**
+         * Security token
+         */
+        csrfToken: {
+          type: String,
+        },
+        /**
+         * course
+         */
+        elmslnCourse: {
+          type: String,
+        },
+        /**
+         * section
+         */
+        elmslnSection: {
+          type: String,
+        },
+        /**
+         * Data binding object for the submission render
+         */
+        data: {
+          type: Object,
+        },
+        /**
          * Internal ID for active project
          */
         activeProject: {
           type: Number,
           value: false,
         },
+        /**
+         * Active Data based on selection
+         */
+        activeData: {
+          type: Object,
+          value: {
+            'student': {},
+            'assignment': {},
+            'submission': {},
+          },
+        },
+      },
+      /**
+       * If the current route is outside the scope of our app
+       * then allow the website to break out of the single page
+       * application routing
+       */
+      _routeChanged: function(route, endPoint) {
+        if (typeof route.path === 'string') {
+          if (typeof endPoint === 'string') {
+            if (route.path.startsWith(endPoint)) {
+              return;
+            }
+          }
+          // reload the page which since route changed will load that page
+          window.location.reload();
+        }
+      },
+      /**
+       * Test if buttons should be visible or not
+       */
+      _activeDataChanged: function(student, assignment) {
+        if (typeof student.id !== typeof undefined) {
+          if (this._getObjectByPosition(this.students, student.id, -1) == -1) {
+            this.$.prevstudent.disabled = true;
+          }
+          else {
+            this.$.prevstudent.disabled = false;
+          }
+          if (this._getObjectByPosition(this.students, student.id, 1) == -1) {
+            this.$.nextstudent.disabled = true;
+          }
+          else {
+            this.$.nextstudent.disabled = false;
+          }
+          if (this._getObjectByPosition(this.assignments, assignment.id, -1) == -1) {
+            this.$.prevassignment.disabled = true;
+          }
+          else {
+            this.$.prevassignment.disabled = false;
+          }
+          if (this._getObjectByPosition(this.assignments, assignment.id, 1) == -1) {
+            this.$.nextassignment.disabled = true;
+          }
+          else {
+            this.$.nextassignment.disabled = false;
+          }
+        }
       },
       /**
        * Project updated
@@ -303,6 +436,21 @@
         // this should fire off the new request
         this.studentParams.id = this.activeProject;
         this.$.studentrequest.generateRequest();
+      },
+      /**
+       * Attached lifecycle
+       */
+      attached: function() {
+        // listen for focus event to have fired
+        document.body.addEventListener('lrnsys-dialog-modal-closed', this._accessibleFocus.bind(this));
+      },
+      /**
+       * Set ourselves as having focus after the modal closes.
+       */
+      _accessibleFocus: function(e) {
+        document.body.classList.remove('scroll-disabled');
+        // focus on our dialog triggering button
+        this.__rememberClick.focus();
       },
       /**
        * Handle response for the whole projects object.
@@ -317,9 +465,92 @@
       _handleStudentResponse: function(event) {
         this.$.loading.hidden = true;
         this.set('students', []);
-        this.set('students', this._toArray(this._studentData.data.students));
+        this.set('students', this._studentData.data.students);
         this.set('assignments', []);
-        this.set('assignments', this._toArray(this._studentData.data.assignments));
+        this.set('assignments', this._studentData.data.assignments);
+      },
+      /**
+       * Pie menu operation handler based on which was clicked.
+       */
+      _changeActiveItem: function(e) {
+        document.body.classList.add('scroll-disabled');
+        var normalizedEvent = Polymer.dom(e);
+        var local = normalizedEvent.localTarget;
+        var newstudent;
+        var newassignment;
+        // use button id in order to move around in the grid as far as active
+        switch (local.id) {
+          case 'prevstudent':
+            newstudent = this._getObjectByPosition(this.students, this.activeData.student.id, -1);
+            if (newstudent != -1 && typeof newstudent.assignments[this.activeData.assignment.id] !== typeof undefined) {
+              this.set('activeData.student', {});
+              this.set('activeData.student', newstudent);
+              this.set('activeData.submission', {});
+              this.set('activeData.submission', newstudent.assignments[this.activeData.assignment.id]);
+              this.set('route.path', this.endPoint + '/submissions/' + this.activeData.submission.id);
+            }
+          break;
+          case 'nextstudent':
+            newstudent = this._getObjectByPosition(this.students, this.activeData.student.id, 1);
+            if (newstudent != -1 && typeof newstudent.assignments[this.activeData.assignment.id] !== typeof undefined) {
+              this.set('activeData.student', {});
+              this.set('activeData.student', newstudent);
+              this.set('activeData.submission', {});
+              this.set('activeData.submission', newstudent.assignments[this.activeData.assignment.id]);
+              this.set('route.path', this.endPoint + '/submissions/' + this.activeData.submission.id);
+            }
+          break;
+          case 'prevassignment':
+            newassignment = this._getObjectByPosition(this.assignments, this.activeData.assignment.id, -1);
+            if (newassignment != -1) {
+              this.set('activeData.assignment', {});
+              this.set('activeData.assignment', newassignment);
+              if (typeof this.activeData.student.assignments[newassignment.id].id !== typeof undefined) {
+              this.set('activeData.submission', this.activeData.student.assignments[newassignment.id]);
+              this.set('activeData.submission', {});
+              this.set('route.path', this.endPoint + '/submissions/' + this.activeData.student.assignments[newassignment.id].id);
+              }
+              else {
+                this.set('activeData.submission', false);
+              }
+            }
+          break;
+          case 'nextassignment':
+            newassignment = this._getObjectByPosition(this.assignments, this.activeData.assignment.id, 1);
+            if (newassignment != -1) {
+              this.set('activeData.assignment', {});
+              this.set('activeData.assignment', newassignment);
+              if (typeof this.activeData.student.assignments[newassignment.id].id !== typeof undefined) {
+                this.set('activeData.submission', {});
+                this.set('activeData.submission', this.activeData.student.assignments[newassignment.id]);
+                this.set('route.path', this.endPoint + '/submissions/' + this.activeData.student.assignments[newassignment.id].id);
+              }
+              else {
+                this.set('activeData.submission', false);
+              }
+            }
+          break;
+        }
+      },
+      /**
+       * Helper to move back and forth in an object like you can an array
+       */
+      _getObjectByPosition: function(items, key, i) {
+        var keys = Object.keys(items).sort(function(a,b){return a.id-b.id;});
+        if (key !== undefined) {
+          key = key.toString();
+        }
+        var index = keys.indexOf(key);
+        // try fallback for type issues
+        if (index == -1) {
+          index = keys.indexOf(parseInt(key));
+        }
+        if ((i == -1 && index > 0) || (i == 1 && index<keys.length-1)) {
+          return items[keys[index+i]];
+        }
+        else {
+          return -1;
+        }
       },
       /**
        * Test student submission status relative to assignments
@@ -327,6 +558,15 @@
       _submissionStatus: function(student, assignment) {
         if (student != null && typeof student.assignments[assignment.id] !== typeof undefined && typeof student.assignments[assignment.id].id !== typeof undefined) {
           return true;
+        }
+        return false;
+      },
+      /**
+       * Test student submission status relative to assignments
+       */
+      _submissionID: function(student, assignment) {
+        if (student != null && typeof student.assignments[assignment.id] !== typeof undefined && typeof student.assignments[assignment.id].id !== typeof undefined) {
+          return student.assignments[assignment.id].id;
         }
         return false;
       },
@@ -361,6 +601,22 @@
           return student.assignmentComments[assignment.id]
         }
         return false;
+      },
+      /**
+       * Set route for active submission to load
+       */
+      _setActiveSubmission: function(e) {
+        var normalizedEvent = Polymer.dom(e);
+        var local = normalizedEvent.localTarget;
+        this.__rememberClick = local;
+        var item = local.id.split('-');
+        // find the active elements
+        this.set('activeData.student', this.students[item[1]]);
+        this.set('activeData.assignment', this.assignments[item[3]]);
+        this.set('activeData.submission', this.students[item[1]].assignments[item[3]]);
+        this.set('route.path', this.endPoint + '/submissions/' + item[item.length-1]);
+        document.body.classList.add('scroll-disabled');
+        this.$.dialog.toggleDialog();
       },
       /**
        * Simple way to convert from object to array.
