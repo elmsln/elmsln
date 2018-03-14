@@ -148,10 +148,10 @@ function theme_outline_designer_ui_prefix($variables) {
   }
   $output .= '
         <li>
-          <lrnsys-button hover-class="blue-text" icon="icons:chrome-reader-mode" alt="' . t('Open all children') . '" onclick="Drupal.outline_designer.openAll();"></lrnsys-button>
+          <lrnsys-button hover-class="blue-text" icon="icons:chrome-reader-mode" alt="' . t('Open all children') . '" onclick="Drupal.outline_designer.openAll();" href=""></lrnsys-button>
         </li>
         <li>
-          <lrnsys-button hover-class="blue-text" icon="icons:book" alt="' . t('Close all children') . '" onclick="Drupal.outline_designer.collapseAll();"></lrnsys-button>
+          <lrnsys-button hover-class="blue-text" icon="icons:book" alt="' . t('Close all children') . '" onclick="Drupal.outline_designer.collapseAll();" href=""></lrnsys-button>
         </li>
         <li>' .  l(t('Disable auto-update'), $disable_path, array('query' => array('disable-outline-designer' => TRUE), 'attributes' => array('icon' => 'icons:cloud-off', 'id' => 'disable-outline-designer-auto'))) . '</li>
       </ul>';
