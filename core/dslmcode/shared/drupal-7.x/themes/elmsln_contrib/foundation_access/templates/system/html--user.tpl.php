@@ -195,6 +195,9 @@
       top: 4px;
       text-transform: uppercase;
     }
+    .lrnsys-button-0 paper-button.lrnsys-button div.inner.lrnsys-button {
+      line-height: unset;
+    }
   </style>
   <?php print _foundation_access_drop_whitespace($head); ?>
   <!--/end cross platform favicons and tweaks-->
