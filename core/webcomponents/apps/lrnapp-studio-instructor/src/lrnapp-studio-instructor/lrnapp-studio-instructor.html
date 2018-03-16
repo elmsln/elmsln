@@ -217,7 +217,7 @@ lrnsys-dialog-toolbar {
           <vaadin-grid-sorter id="sorter" path="sis.sortable_name">Student</vaadin-grid-sorter>
         </template>
         <template>
-          <a href$="[[basePath]]lrnapp-open-studio/projects?author=[[item.id]]&project=[[activeProject]]" tabindex="-1" target="_blank" class="avatar-link">
+          <a href$="[[basePath]]lrnapp-open-studio/projects?author=[[item.id]]&project=[[activeProject]]" tabindex="-1" target="_blank" class="avatar-link ferpa-protect">
             <paper-button class="avatar-button">
               <lrndesign-avatar label="[[item.name]]" src="[[item.avatar]]"></lrndesign-avatar>
               <span class="avatar-label">[[item.sis.sortable_name]]</span>
@@ -268,8 +268,8 @@ lrnsys-dialog-toolbar {
         <span style="width:15em;">
           <paper-icon-button id="prevstudent" icon="arrow-upward" title="previous student"></paper-icon-button>
           <paper-icon-button id="nextstudent" icon="arrow-downward" title="next student"></paper-icon-button>
-          <lrndesign-avatar label="[[activeData.student.name]]" src="[[activeData.student.avatar]]" style="display:inline-block;vertical-align:middle;"></lrndesign-avatar>
-          <span class="avatar-label" style="margin-left:1em;">[[activeData.student.sis.sortable_name]]</span>
+          <lrndesign-avatar class="ferpa-protect" label="[[activeData.student.name]]" src="[[activeData.student.avatar]]" style="display:inline-block;vertical-align:middle;"></lrndesign-avatar>
+          <span class="avatar-label ferpa-protect" style="margin-left:1em;">[[activeData.student.sis.sortable_name]]</span>
         </span>
         <paper-icon-button id="prevassignment" icon="arrow-back" title="previous assignment" style="margin-left:1em;"></paper-icon-button>
         <paper-icon-button id="nextassignment" icon="arrow-forward" title="next assignment"></paper-icon-button>
