@@ -55,7 +55,7 @@ function _lrnapp_studio_instructor_project_data($machine_name, $app_route, $para
 function _lrnapp_studio_instructor_student_data($machine_name, $app_route, $params, $args) {
   $status = 403;
   $data = array();
-  if (is_numeric($params['id'])) {
+  if (is_numeric($params['projectId'])) {
     $status = 200;
     $options = new stdClass();
     $submissionService = new LRNAppOpenStudioSubmissionService();
@@ -63,7 +63,7 @@ function _lrnapp_studio_instructor_student_data($machine_name, $app_route, $para
     $assignmentService = new LRNAppOpenStudioAssignmentService();
     $projectService = new LRNAppOpenStudioProjectService();
     // load project
-    $project = $projectService->getProject($params['id']);
+    $project = $projectService->getProject($params['projectId']);
     // load section
     $section_id = _cis_connector_section_context();
     // try and load by id since og_context wants a node id not our primary key
@@ -89,7 +89,7 @@ function _lrnapp_studio_instructor_student_data($machine_name, $app_route, $para
       // establish 0 for all assignment commenting and either submission
       // data or FALSE to indicate if they have submitted the assignment
       foreach ($project->attributes->steps as $assignment) {
-        $students[$uid]->assignmentComments[$assignment->id] = 0;
+        $students[$uid]->assignmentComments[$assignment->id] = array();
         $submission = $submissionService->getSubmissionByAssignment($assignment->id, $uid, TRUE);
         $students[$uid]->assignments[$assignment->id] = $submission;
       }
@@ -101,7 +101,7 @@ function _lrnapp_studio_instructor_student_data($machine_name, $app_route, $para
       // regroup based on assignment, related to the submission
       foreach ($comments as $id => $comment) {
         $submission = node_load($comment->relationships->node->data->id);
-        $students[$uid]->assignmentComments[$submission->field_assignment['und'][0]['target_id']]++;
+        $students[$uid]->assignmentComments[$submission->field_assignment['und'][0]['target_id']][$submission->nid] = $submission->nid;
       }
     }
     $data['students'] = $students;

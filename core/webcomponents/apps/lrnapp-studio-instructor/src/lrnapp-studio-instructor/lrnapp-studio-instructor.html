@@ -4,6 +4,7 @@
 <link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid.html">
 <link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid.html">
 <link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid-column-group.html">
+<link rel="import" href="../../bower_components/paper-toggle-button/paper-toggle-button.html">
 <link rel="import" href="../../bower_components/elmsln-loading/elmsln-loading.html">
 <link rel="import" href="../../bower_components/dropdown-select/dropdown-select.html">
 <link rel="import" href="../../bower_components/paper-item/paper-item.html">
@@ -156,6 +157,25 @@ lrnsys-dialog-toolbar {
       .avatar-link paper-button {
         text-transform: unset;
       }
+      #selectedproject {
+        display: inline-block;
+      }
+      #datatype {
+        display: inline-block;
+        vertical-align: middle;
+        --paper-toggle-button-checked-bar-color:  var(--paper-green-500);
+        --paper-toggle-button-checked-button-color:  var(--paper-green-500);
+        --paper-toggle-button-checked-ink-color: var(--paper-green-500);
+        --paper-toggle-button-unchecked-bar-color:  var(--paper-amber-900);
+        --paper-toggle-button-unchecked-button-color:  var(--paper-amber-900);
+        --paper-toggle-button-unchecked-ink-color: var(--paper-amber-900);
+      }
+      .comment-list {
+        list-style-image: none;
+        display: inline-block;
+        padding: 0;
+        margin: 0;
+      }
     </style>
     <app-location route="{{route}}"></app-location>
     <app-route
@@ -184,10 +204,13 @@ lrnsys-dialog-toolbar {
     </div>
     <div hidden$="[[activeProject]]">Select a project to begin reviewing work</div>
     <dropdown-select id="selectedproject" label="Project">
-    <template is="dom-repeat" items="[[projects]]" as="project">
-      <paper-item value$="[[project.id]]">[[project.attributes.title]]</paper-item>
-    </template>
+      <template is="dom-repeat" items="[[projects]]" as="project">
+        <paper-item value$="[[project.id]]">[[project.attributes.title]]</paper-item>
+      </template>
     </dropdown-select>
+    <paper-toggle-button id="datatype" checked="{{dataType}}" disabled>
+      [[dataTypeText]]
+    </paper-toggle-button>
     <vaadin-grid hidden$="[[!students]]" id="material" aria-label="Student project list" items="[[_toArray(students)]]">
       <vaadin-grid-column resizable>
         <template class="header">
@@ -213,15 +236,27 @@ lrnsys-dialog-toolbar {
             <span>[[assignment.title]]</span>
           </template>
           <template>
-            <template is="dom-if" if="[[_submissionStatus(item, assignment)]]">
-              <lrnsys-button icon="[[_submissionPiece(item, assignment, 'icon')]]" id$="student-[[item.id]]-assignment-[[assignment.id]]-submission-[[_submissionID(item, assignment)]]" label="[[_submissionPiece(item, assignment, 'title')]]" on-tap="_setActiveSubmission">
-            </lrnsys-button>
+            <template is="dom-if" if="[[_submissionStatus(item, assignment, dataType)]]">
+              <template is="dom-if" if="[[!dataType]]">
+                <lrnsys-button icon="[[_submissionPiece(item, assignment, 'icon')]]" id$="student-[[item.id]]-assignment-[[assignment.id]]-submission-[[_submissionID(item, assignment)]]" label="[[_submissionPiece(item, assignment, 'title')]]" on-tap="_setActiveSubmission">
+                </lrnsys-button>
+              </template>
+              <template is="dom-if" if="[[dataType]]">
+                <ul class="comment-list">
+                <template is="dom-repeat" items="[[_submissionPiece(item, assignment, 'comments')]]" as="commented">
+                  <li>
+                    <lrnsys-button icon="communication:comment" id$="student-[[item.id]]-assignment-[[assignment.id]]-submission-[[commented]]" label="#[[_commentIndex(index)]]" on-tap="_setActiveComment">
+                    </lrnsys-button>
+                  </li>
+                </template>
+                </ul>
+              </template>
             </template>
-            <template is="dom-if" if="[[!_submissionStatus(item, assignment)]]">
+            <template is="dom-if" if="[[!_submissionStatus(item, assignment, dataType)]]">
               <paper-button disabled class="project-button" id$="student-[[item.id]]-assignment-[[assignment.id]]-submission-null">X</paper-button>
             </template>
-            <template is="dom-if" if="[[_commentCount(item, assignment)]]">
-              <paper-badge id$="student-[[item.id]]-assignment-[[assignment.id]]-tip" for="student-[[item.id]]-assignment-[[assignment.id]]" label="[[_commentCount(item, assignment)]]"></paper-badge>
+            <template is="dom-if" if="[[_commentCount(item, assignment, dataType)]]">
+              <paper-badge id$="student-[[item.id]]-assignment-[[assignment.id]]-tip" for="student-[[item.id]]-assignment-[[assignment.id]]" label="[[_commentCount(item, assignment, dataType)]]"></paper-badge>
               <paper-tooltip for="student-[[item.id]]-assignment-[[assignment.id]]-tip">Comments left on classmates [[assignment.title]]</paper-badge>
             </template>
           </template>
@@ -269,6 +304,19 @@ lrnsys-dialog-toolbar {
       ],
       properties: {
         /**
+         * Type of data to display, either submission centric or comment centric.
+         * False = submission, true = comment
+         */
+        dataType: {
+          type: Boolean,
+          value: false,
+          observer: '_dataTypeChanged',
+        },
+        dataTypeText: {
+          type: String,
+          value: 'Submissions',
+        },
+        /**
          * The projects to render
          */
         projects: {
@@ -303,7 +351,8 @@ lrnsys-dialog-toolbar {
         studentParams: {
           type: Object,
           value: {
-            'id': null,
+            'projectId': null,
+            'type': 'submission',
           },
         },
         /**
@@ -383,6 +432,32 @@ lrnsys-dialog-toolbar {
         },
       },
       /**
+       * When type changes, make sure we adjust what the request going
+       * out the door will be. For simplicity, false / true for the two
+       * modes are binded to submission (default) and comment methods
+       * of data return. This allows us to leverage the same endpoint
+       * and render things more or less using much of the same code
+       * and event
+       */
+      _dataTypeChanged: function(newValue, oldValue) {
+        // if type changes values and not from undefined to defined
+        // then we should execute the request for data after setting type
+        if (typeof oldValue !== typeof undefined) {
+          if (newValue) {
+            this.dataTypeText = 'Comments';
+          }
+          else {
+            this.dataTypeText = 'Submissions';
+          }
+        }
+      },
+      /**
+       * Stupid thing to make it go from array position 0 to 1.
+       */
+      _commentIndex: function(index) {
+        return index+1;
+      },
+      /**
        * If the current route is outside the scope of our app
        * then allow the website to break out of the single page
        * application routing
@@ -434,9 +509,10 @@ lrnsys-dialog-toolbar {
        */
       _projectChanged: function(e) {
         this.$.loading.hidden = false;
+        this.$.datatype.disabled = false;
         this.activeProject = e.detail.value;
         // this should fire off the new request
-        this.studentParams.id = this.activeProject;
+        this.studentParams.projectId = this.activeProject;
         this.$.studentrequest.generateRequest();
       },
       /**
@@ -574,9 +650,14 @@ lrnsys-dialog-toolbar {
       /**
        * Test student submission status relative to assignments
        */
-      _submissionStatus: function(student, assignment) {
-        if (student != null && typeof student.assignments[assignment.id] !== typeof undefined && typeof student.assignments[assignment.id].id !== typeof undefined) {
-          return true;
+      _submissionStatus: function(student, assignment, dataType) {
+        if (student != null) {
+          if (!dataType && typeof student.assignments[assignment.id] !== typeof undefined && typeof student.assignments[assignment.id].id !== typeof undefined) {
+            return true;
+          }
+          else if (dataType && typeof student.assignmentComments[assignment.id] !== typeof undefined && this._toArray(student.assignmentComments[assignment.id]).length > 0) {
+            return true;
+          }
         }
         return false;
       },
@@ -608,6 +689,9 @@ lrnsys-dialog-toolbar {
             case 'color':
               return submission.meta.state_color;
             break;
+            case 'comments':
+              return this._toArray(student.assignmentComments[assignment.id]);
+            break;
           }
         }
         return '';
@@ -615,9 +699,9 @@ lrnsys-dialog-toolbar {
       /**
        * Return number of comments on an assignment for display.
        */
-      _commentCount: function(student, assignment) {
-        if (student != null && typeof student.assignmentComments[assignment.id] !== typeof undefined) {
-          return student.assignmentComments[assignment.id]
+      _commentCount: function(student, assignment, dataType) {
+        if (!dataType && student != null && typeof student.assignmentComments[assignment.id] !== typeof undefined) {
+          return this._toArray(student.assignmentComments[assignment.id]).length;
         }
         return false;
       },
@@ -625,6 +709,27 @@ lrnsys-dialog-toolbar {
        * Set route for active submission to load
        */
       _setActiveSubmission: function(e) {
+        var normalizedEvent = Polymer.dom(e);
+        var local = normalizedEvent.localTarget;
+        this.__rememberClick = local;
+        var item = local.id.split('-');
+        // find the active elements
+        this.set('activeData.student', this.students[item[1]]);
+        this.set('activeData.assignment', this.assignments[item[3]]);
+        this.set('activeData.submission', this.students[item[1]].assignments[item[3]]);
+        this.set('route.path', this.endPoint + '/submissions/' + item[item.length-1]);
+        document.body.classList.add('scroll-disabled');
+        this.$.dialog.toggleDialog();
+      },
+      /**
+       * Set route for active submission via comment click
+       */
+      _setActiveComment: function(e) {
+        // disable all buttons for in modal nav
+        this.$.nextassignment.disabled = true;
+        this.$.prevassignment.disabled = true;
+        this.$.nextstudent.disabled = true;
+        this.$.prevstudent.disabled = true;
         var normalizedEvent = Polymer.dom(e);
         var local = normalizedEvent.localTarget;
         this.__rememberClick = local;
