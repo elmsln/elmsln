@@ -176,6 +176,14 @@ lrnsys-dialog-toolbar {
         padding: 0;
         margin: 0;
       }
+      .stats-text {
+        font-size: .8em;
+        font-style: italic;
+        line-height: 1em;
+        padding: 0 0 0 2em;
+        display: inline-block;
+        text-align: right;
+      }
     </style>
     <app-location route="{{route}}"></app-location>
     <app-route
@@ -211,6 +219,7 @@ lrnsys-dialog-toolbar {
     <paper-toggle-button id="datatype" checked="{{dataType}}" disabled>
       [[dataTypeText]]
     </paper-toggle-button>
+    <span class="stats-text">[[statsText]]</span>
     <vaadin-grid hidden$="[[!students]]" id="material" aria-label="Student project list" items="[[_toArray(students)]]">
       <vaadin-grid-column resizable>
         <template class="header">
@@ -430,6 +439,13 @@ lrnsys-dialog-toolbar {
             'submission': {},
           },
         },
+        /**
+         * Quick stats.
+         */
+        statsText: {
+          type: String,
+          value: '',
+        },
       },
       /**
        * When type changes, make sure we adjust what the request going
@@ -546,6 +562,7 @@ lrnsys-dialog-toolbar {
         this.set('students', this._studentData.data.students);
         this.set('assignments', []);
         this.set('assignments', this._studentData.data.assignments);
+        this.statsText = this._studentData.data.statsText;
         // make sure default is asc data
         setTimeout(() => {
           this.$$('#sorter').direction = 'asc';

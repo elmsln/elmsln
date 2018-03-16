@@ -55,6 +55,8 @@ function _lrnapp_studio_instructor_project_data($machine_name, $app_route, $para
 function _lrnapp_studio_instructor_student_data($machine_name, $app_route, $params, $args) {
   $status = 403;
   $data = array();
+  $numComments = 0;
+  $numSubmissions = 0;
   if (is_numeric($params['projectId'])) {
     $status = 200;
     $options = new stdClass();
@@ -92,6 +94,9 @@ function _lrnapp_studio_instructor_student_data($machine_name, $app_route, $para
         $students[$uid]->assignmentComments[$assignment->id] = array();
         $submission = $submissionService->getSubmissionByAssignment($assignment->id, $uid, TRUE);
         $students[$uid]->assignments[$assignment->id] = $submission;
+        if ($submission) {
+          $numSubmissions++;
+        }
       }
       // change service to get things per user
       $options = new stdClass();
@@ -102,6 +107,9 @@ function _lrnapp_studio_instructor_student_data($machine_name, $app_route, $para
       foreach ($comments as $id => $comment) {
         $submission = node_load($comment->relationships->node->data->id);
         $students[$uid]->assignmentComments[$submission->field_assignment['und'][0]['target_id']][$submission->nid] = $submission->nid;
+        if (isset($students[$uid]->assignments[$submission->field_assignment['und'][0]['target_id']])) {
+          $numComments++;
+        }
       }
     }
     $data['students'] = $students;
@@ -110,6 +118,8 @@ function _lrnapp_studio_instructor_student_data($machine_name, $app_route, $para
       $steps[$step->id] = $step;
     }
     $data['assignments'] = $steps;
+    // return some nice simple stats for reference
+    $data['statsText'] = t('Currently showing work of @stucount students that have produced @subcount submissions and @ccount comments in accomplishing @acount assignments.', array('@acount' => count($steps), '@stucount' => count($students), '@subcount' => $numSubmissions, '@ccount' => $numComments));
   }
   return array(
     'status' => $status,
