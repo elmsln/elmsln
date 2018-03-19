@@ -57,6 +57,20 @@ function _lrnapp_studio_instructor_student_data($machine_name, $app_route, $para
   $data = array();
   $numComments = 0;
   $numSubmissions = 0;
+  $stats = array(
+    'byassignment' => array(
+      'comments' => array(),
+      'submissions' => array(),
+      'commenters' => array(),
+    ),
+    'bystudent' => array(
+      'assignments' => array(),
+      'comments' => array(),
+    ),
+    'bysubmission' => array(
+      'comments' => array(),
+    ),
+  );
   if (is_numeric($params['projectId'])) {
     $status = 200;
     $options = new stdClass();
@@ -66,6 +80,10 @@ function _lrnapp_studio_instructor_student_data($machine_name, $app_route, $para
     $projectService = new LRNAppOpenStudioProjectService();
     // load project
     $project = $projectService->getProject($params['projectId']);
+    // make sure 0 is for all these to start off
+    foreach ($project->attributes->steps as $step) {
+      $stats['byassignment']['comments'][$step->id] = 0;
+    }
     // load section
     $section_id = _cis_connector_section_context();
     // try and load by id since og_context wants a node id not our primary key
@@ -96,6 +114,8 @@ function _lrnapp_studio_instructor_student_data($machine_name, $app_route, $para
         $students[$uid]->assignments[$assignment->id] = $submission;
         if ($submission) {
           $numSubmissions++;
+          $stats['byassignment']['submissions'][$assignment->id]++;
+          $stats['bystudent']['assignments'][$uid]++;
         }
       }
       // change service to get things per user
@@ -107,19 +127,46 @@ function _lrnapp_studio_instructor_student_data($machine_name, $app_route, $para
       foreach ($comments as $id => $comment) {
         $submission = node_load($comment->relationships->node->data->id);
         $students[$uid]->assignmentComments[$submission->field_assignment['und'][0]['target_id']][$submission->nid] = $submission->nid;
+        // helps ensure we're only capturing info about assignments in the
+        // active project since prior filtering is rather complex ahead of time
         if (isset($students[$uid]->assignments[$submission->field_assignment['und'][0]['target_id']])) {
           $numComments++;
+          // ensure we have 0s here to start
+          if (!isset($stats['byassignment']['comments'][$submission->field_assignment['und'][0]['target_id']])) {
+              $stats['byassignment']['comments'][$submission->field_assignment['und'][0]['target_id']] = 0;
+            }
+          // only comment comments NOT to their own submission
+          // these we don't even care if it's back and forth as
+          // we are looking for trends in people talking to each other
+          // or discussing work not their own
+          if ($submission->uid != $comment->relationships->author->data->id) {
+            $stats['byassignment']['comments'][$submission->field_assignment['und'][0]['target_id']]++;
+            $stats['bysubmission']['comments'][$submission->nid]++;
+            if (!isset($stats['byassignment']['commenters'][$submission->field_assignment['und'][0]['target_id']])) {
+              $stats['byassignment']['commenters'][$submission->field_assignment['und'][0]['target_id']] = array();
+            }
+            // we can pull count from this point to see how many unique there are
+            $stats['byassignment']['commenters'][$submission->field_assignment['und'][0]['target_id']][$submission->uid] = $submission->uid;
+            $stats['bystudent']['comments'][$submission->uid]++;
+          }
         }
       }
     }
     $data['students'] = $students;
     $steps = array();
+    // ensure assignments come across as a simple object
     foreach ($project->attributes->steps as $step) {
       $steps[$step->id] = $step;
     }
+    // normalize the unique commenters data
+    foreach ($stats['byassignment']['commenters'] as $nid => $counter) {
+      $stats['byassignment']['commenters'][$nid] = count($stats['byassignment']['commenters'][$nid]);
+    }
     $data['assignments'] = $steps;
+    $data['stats'] = new stdClass();
+    $data['stats']->stats = $stats;
     // return some nice simple stats for reference
-    $data['statsText'] = t('Currently showing work of @stucount students that have produced @subcount submissions and @ccount comments in accomplishing @acount assignments.', array('@acount' => count($steps), '@stucount' => count($students), '@subcount' => $numSubmissions, '@ccount' => $numComments));
+    $data['stats']->overview = t('@stucount students that have produced @subcount submissions and made @ccount comments across @acount assignments.', array('@acount' => count($steps), '@stucount' => count($students), '@subcount' => $numSubmissions, '@ccount' => $numComments));
   }
   return array(
     'status' => $status,

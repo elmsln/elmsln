@@ -6,6 +6,9 @@
 <link rel="import" href="../../bower_components/vaadin-grid/vaadin-grid-column-group.html">
 <link rel="import" href="../../bower_components/paper-toggle-button/paper-toggle-button.html">
 <link rel="import" href="../../bower_components/elmsln-loading/elmsln-loading.html">
+<link rel="import" href="../../bower_components/lrndesign-chart/lrndesign-bar.html">
+<link rel="import" href="../../bower_components/lrndesign-chart/lrndesign-line.html">
+<link rel="import" href="../../bower_components/lrndesign-chart/lrndesign-pie.html">
 <link rel="import" href="../../bower_components/dropdown-select/dropdown-select.html">
 <link rel="import" href="../../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../../bower_components/paper-badge/paper-badge.html">
@@ -219,7 +222,24 @@ lrnsys-dialog-toolbar {
     <paper-toggle-button id="datatype" checked="{{dataType}}" disabled>
       [[dataTypeText]]
     </paper-toggle-button>
-    <span class="stats-text">[[statsText]]</span>
+    <lrnsys-dialog id="statsdialog" disabled>
+      <span slot="button"><iron-icon icon="editor:show-chart"></iron-icon> Statistics</span>
+      <span slot="toolbar-primary">
+        <span class="stats-text">[[stats.header]]</span>
+      </span>
+    <span slot="content">
+        <div style="padding: 2em 4em;">
+          [[stats.overview]]
+          <dropdown-select id="selectedchart" label="Graph style">
+            <paper-item value="byassignment-submissions">Submissions by Assignment</paper-item>
+            <paper-item value="byassignment-comments">Comments by Assignment</paper-item>
+            <paper-item value="byassignment-commenters">Commenters by Assignment</paper-item>
+            <paper-item value="bystudent-comments">Comments by Student</paper-item>
+          </dropdown-select>
+          <lrndesign-bar chart-title="[[activeChart.title]]" chart-desc="[[activeChart.description]]" data="[[activeChart.data]]"></lrndesign-bar>
+        </div>
+      </span>
+    </lrnsys-dialog>
     <vaadin-grid hidden$="[[!students]]" id="material" aria-label="Student project list" items="[[_toArray(students)]]">
       <vaadin-grid-column resizable>
         <template class="header">
@@ -306,6 +326,7 @@ lrnsys-dialog-toolbar {
         'prevassignment.tap': '_changeActiveItem',
         'nextstudent.tap': '_changeActiveItem',
         'prevstudent.tap': '_changeActiveItem',
+        'selectedchart.change': '_chartChanged',
       },
       observers: [
         '_routeChanged(route, endPoint)',
@@ -440,12 +461,59 @@ lrnsys-dialog-toolbar {
           },
         },
         /**
-         * Quick stats.
+         * raw Stats data from backend.
          */
-        statsText: {
-          type: String,
-          value: '',
+        stats: {
+          type: Object,
+          value: {},
         },
+        /**
+         * Selected chart with data cleaned up to match formatting.
+         */
+        activeChart: {
+          type: Object,
+          value: {},
+        },
+      },
+      /**
+       * Rebuild the chart whenever the select list is changed.
+       */
+      _chartChanged: function(e) {
+        this.set('activeChart.title', e.detail.value);
+        this.set('activeChart.description', 'Chart of values relative to ' + e.detail.value);
+        // calculate the valid charting options relative to selected chart style
+        this.set('activeChart.data', this._formatChartData(e.detail.value));
+      },
+      /**
+       * Format data in a way that chartist likes and that matches
+       * the currently active display mechanism
+       */
+      _formatChartData: function(type) {
+        var labels = [];
+        var series = [[]];
+        const stats = this.stats.stats;
+        const assignments = this._toArray(this.assignments);
+        let parts = type.split('-');
+        if (typeof stats[parts[0]] !== typeof undefined && typeof stats[parts[0]][parts[1]] !== typeof undefined) {
+          // make sure the data aligns now w/ the IDs in question
+          // or we'll start mixing up our data.
+          for (var i in assignments) {
+            let title = assignments[i].title;
+            if (typeof stats[parts[0]][parts[1]][assignments[i].id] !== typeof undefined) {
+              series[0].push(stats[parts[0]][parts[1]][assignments[i].id]);
+              title += ` (${stats[parts[0]][parts[1]][assignments[i].id]})`;
+            }
+            else {
+              series[0].push(0);
+              title += ' (0)';
+            }
+            labels.push(title);
+          }
+        }
+        return {
+          'labels': labels,
+          'series': series,
+        };;
       },
       /**
        * When type changes, make sure we adjust what the request going
@@ -525,8 +593,12 @@ lrnsys-dialog-toolbar {
        */
       _projectChanged: function(e) {
         this.$.loading.hidden = false;
+        // default a11y positioning back to the stats dialog
+        this.__rememberClick = this.$.statsdialog;
+        this.$.statsdialog.disabled = false;
         this.$.datatype.disabled = false;
         this.activeProject = e.detail.value;
+        this.stats.header = 'Statistics for ' + this.projects[this.activeProject].title;
         // this should fire off the new request
         this.studentParams.projectId = this.activeProject;
         this.$.studentrequest.generateRequest();
@@ -562,7 +634,7 @@ lrnsys-dialog-toolbar {
         this.set('students', this._studentData.data.students);
         this.set('assignments', []);
         this.set('assignments', this._studentData.data.assignments);
-        this.statsText = this._studentData.data.statsText;
+        this.stats = this._studentData.data.stats;
         // make sure default is asc data
         setTimeout(() => {
           this.$$('#sorter').direction = 'asc';

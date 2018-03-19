@@ -185,10 +185,7 @@ with the hax-body element which manages elements.
           }
         }
         // fire event so we know they have been set for the store to collect
-        // only fire if we haven't already so multiple elements don't keep bubbling
-        if (typeof Polymer.HaxStore.instance !== typeof undefined && typeof Polymer.HaxStore.instance.elementList[this.tagName.toLowerCase()] === typeof undefined) {
-          this.fire('hax-register-properties', {'tag': this.tagName.toLowerCase(), 'properties': props});
-        }
+        this.fire('hax-register-properties', {'tag': this.tagName.toLowerCase(), 'properties': props});
         this._setHaxProperties(props);
       }
       else {
