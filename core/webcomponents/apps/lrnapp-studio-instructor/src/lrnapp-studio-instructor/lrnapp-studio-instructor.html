@@ -215,7 +215,7 @@ lrnsys-dialog-toolbar {
     </div>
     <div hidden$="[[activeProject]]">Select a project to begin reviewing work</div>
     <dropdown-select id="selectedproject" label="Project">
-      <template is="dom-repeat" items="[[projects]]" as="project">
+      <template is="dom-repeat" items="[[_toArray(projects)]]" as="project">
         <paper-item value$="[[project.id]]">[[project.attributes.title]]</paper-item>
       </template>
     </dropdown-select>
@@ -225,11 +225,11 @@ lrnsys-dialog-toolbar {
     <lrnsys-dialog id="statsdialog" disabled>
       <span slot="button"><iron-icon icon="editor:show-chart"></iron-icon> Statistics</span>
       <span slot="toolbar-primary">
-        <span class="stats-text">[[stats.header]]</span>
+        [[stats.header]]
       </span>
     <span slot="content">
         <div style="padding: 2em 4em;">
-          [[stats.overview]]
+          <span class="stats-text">[[stats.overview]]</span>
           <dropdown-select id="selectedchart" label="Graph style">
             <paper-item value="byassignment-submissions">Submissions by Assignment</paper-item>
             <paper-item value="byassignment-comments">Comments by Assignment</paper-item>
@@ -350,7 +350,7 @@ lrnsys-dialog-toolbar {
          * The projects to render
          */
         projects: {
-          type: Array,
+          type: Object,
           notify: true,
         },
         /**
@@ -598,7 +598,6 @@ lrnsys-dialog-toolbar {
         this.$.statsdialog.disabled = false;
         this.$.datatype.disabled = false;
         this.activeProject = e.detail.value;
-        this.stats.header = 'Statistics for ' + this.projects[this.activeProject].title;
         // this should fire off the new request
         this.studentParams.projectId = this.activeProject;
         this.$.studentrequest.generateRequest();
@@ -623,7 +622,7 @@ lrnsys-dialog-toolbar {
        */
       _handleProjectResponse: function(event) {
         this.$.loading.hidden = true;
-        this.set('projects', this._toArray(this._projectData.data.projects));
+        this.set('projects', this._projectData.data.projects);
       },
       /**
        * Handle response for the whole projects object.
@@ -635,6 +634,7 @@ lrnsys-dialog-toolbar {
         this.set('assignments', []);
         this.set('assignments', this._studentData.data.assignments);
         this.stats = this._studentData.data.stats;
+        this.set('stats.header', 'Statistics for ' + this.projects['project-' + this.activeProject].attributes.title);
         // make sure default is asc data
         setTimeout(() => {
           this.$$('#sorter').direction = 'asc';
