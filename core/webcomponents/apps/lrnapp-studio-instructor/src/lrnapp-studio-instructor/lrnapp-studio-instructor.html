@@ -223,7 +223,7 @@ lrnsys-dialog-toolbar {
       [[dataTypeText]]
     </paper-toggle-button>
     <lrnsys-dialog id="statsdialog" disabled>
-      <span slot="button"><iron-icon icon="editor:show-chart"></iron-icon> Statistics</span>
+      <span slot="button"><iron-icon icon="editor:show-chart"></iron-icon> Statistics (beta)</span>
       <span slot="toolbar-primary">
         [[stats.header]]
       </span>
@@ -234,7 +234,6 @@ lrnsys-dialog-toolbar {
             <paper-item value="byassignment-submissions">Submissions by Assignment</paper-item>
             <paper-item value="byassignment-comments">Comments by Assignment</paper-item>
             <paper-item value="byassignment-commenters">Commenters by Assignment</paper-item>
-            <paper-item value="bystudent-comments">Comments by Student</paper-item>
           </dropdown-select>
           <lrndesign-bar chart-title="[[activeChart.title]]" chart-desc="[[activeChart.description]]" data="[[activeChart.data]]"></lrndesign-bar>
         </div>
