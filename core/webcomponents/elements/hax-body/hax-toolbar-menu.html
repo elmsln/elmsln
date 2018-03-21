@@ -1,0 +1,134 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../paper-item/paper-item.html">
+<link rel="import" href="../iron-icon/iron-icon.html">
+<link rel="import" href="../iron-icons/iron-icons.html">
+<link rel="import" href="../iron-icons/editor-icons.html">
+<link rel="import" href="../iron-icons/device-icons.html">
+<link rel="import" href="../iron-icons/hardware-icons.html">
+<link rel="import" href="../iron-icons/social-icons.html">
+<link rel="import" href="../iron-icons/av-icons.html">
+<link rel="import" href="../iron-icons/maps-icons.html">
+<link rel="import" href="../paper-listbox/paper-listbox.html">
+<link rel="import" href="../paper-menu-button/paper-menu-button.html">
+<link rel="import" href="../paper-icon-button/paper-icon-button.html">
+
+<dom-module id="hax-toolbar-menu">
+  <template>
+    <style>
+      :host {
+        display: block;
+        box-sizing: border-box;
+      }
+      paper-menu-button {
+        color: rgba(0, 0, 0, 0.66);
+        margin: 0;
+        padding: 0;
+        text-transform: none;
+        background-color: #ffffff;
+        display: flex;
+        min-width: 24px;
+      }
+
+      paper-menu-button .label {
+        font-size: 12px;
+        margin-top: 4px;
+      }
+
+      paper-menu-button .button-inner {
+        padding-top: 8px;
+        text-align: center;
+      }
+
+      paper-icon-button {
+        color: rgba(0, 0, 0, 0.66);
+        margin: 0;
+        text-transform: none;
+        background-color: #ffffff;
+        min-width: 24px;
+        display: flex;
+        padding: 0;
+        border-radius: 0;
+      }
+
+      paper-icon-button ::shadow iron-icon {
+        padding: 8px;
+        margin: 0;
+        box-sizing: border-box;
+      }
+
+      paper-icon-button:hover {
+        background-color: var(--paper-grey-300, grey);
+      }
+
+      .flip-icon {
+        transform: rotateY(180deg);
+      }
+
+      paper-tooltip {
+        pointer-events: none;
+      }
+      paper-listbox {
+        padding: 0;
+      }
+    </style>
+    <paper-menu-button>
+      <hax-toolbar-item id="button" slot="dropdown-trigger" icon="[[icon]]" hidden$="[[!icon]]" slot="dropdown-trigger" class$="[[iconClass]]" tooltip="[[tooltip]]"></hax-toolbar-item>
+      <paper-listbox id="listbox" slot="dropdown-content" selected="{{selected}}">
+        <slot></slot>
+      </paper-listbox>
+    </paper-menu-button>
+  </template>
+  <script>
+    Polymer({
+      is: 'hax-toolbar-menu',
+      listeners: {
+        'button.tap': '_menubuttonTap',
+      },
+      properties: {
+        /**
+         * Should we reset the selection after it is made
+         * @type {Object}
+         */
+        resetOnSelect: {
+          type: Boolean,
+          value: false,
+        },
+        tooltip: {
+          type: String,
+          value: ''
+        },
+        tooltipDirection: {
+          type: String,
+          value: ''
+        },
+        selected: {
+          type: String,
+          value: '',
+          notify: true,
+          observer: '_selectChanged',
+        }
+      },
+      /**
+       * Select changed to trip button.
+       */
+      _selectChanged: function(e) {
+        this.$.button.focus();
+      },
+      /**
+       * Ensure menu is visible / default'ed.
+       */
+      _menubuttonTap: function (e) {
+        this.$.listbox.style.display = 'inherit';
+        if (this.resetOnSelect) {
+          this.selected = '';
+        }
+      },
+      /**
+       * Ensure menu is hidden.
+       */
+      hideMenu: function () {
+        this.$.listbox.style.display = 'none';
+      },
+    });
+  </script>
+</dom-module>

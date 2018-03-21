@@ -1,17 +1,14 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../md-extra-icons/md-extra-icons.html">
 <link rel="import" href="../app-layout/app-toolbar/app-toolbar.html">
-<link rel="import" href="../paper-input/paper-textarea.html">
-<link rel="import" href="../paper-input/paper-input.html">
-<link rel="import" href="../paper-checkbox/paper-checkbox.html">
-<link rel="import" href="../paper-swatch-picker/paper-swatch-picker.html">
-<link rel="import" href="../paper-slider/paper-slider.html">
-<link rel="import" href="../paper-tooltip/paper-tooltip.html">
 <link rel="import" href="../paper-item/paper-item.html">
+<link rel="import" href="../materializecss-styles/colors.html">
 <link rel="import" href="../iron-icons/iron-icons.html">
 <link rel="import" href="hax-context-item-menu.html">
 <link rel="import" href="hax-context-item.html">
 <link rel="import" href="hax-context-item-textop.html">
+<link rel="import" href="hax-toolbar.html">
+<link rel="import" href="hax-toolbar-item.html">
 <!--
 `hax-text-context`
 A context menu that provides common text based authoring options.
@@ -24,43 +21,22 @@ A context menu that provides common text based authoring options.
 
 <dom-module id="hax-text-context">
   <template>
-    <style>
+    <style include="materializecss-styles-colors">
       :host {
         display: block;
       }
-      app-toolbar {
-        background-color: white;
-        padding: 0;
-        height: 40px;
-      }
-      hax-context-item {
-        margin: 0;
-        width: 40px;
-        height: 40px;
-      }
-      hax-context-item-textop {
-        margin: 0;
-        width: 40px;
-        height: 40px;
-      }
-      .close-cap {
-        margin: 0;
-        padding: 0;
-        border-right: 1px solid black;
+      paper-item:hover {
+        background-color: #d3d3d3;
+        cursor: pointer;
       }
     </style>
-    <app-toolbar>
-      <hax-context-item
-        icon="close"
-        label="Close menu"
-        event-name="close-menu"
-        class="close-cap"
-        direction="left"></hax-context-item>
+    <hax-toolbar>
       <hax-context-item-menu
+        slot="primary"
         selected-value="{{selectedValue}}"
         id="formatsize"
         icon="text-format"
-        label="Text style"
+        label="Format"
         event-name="text-tag">
         <paper-item value="p">Normal text</paper-item>
         <paper-item value="h2">Title</paper-item>
@@ -71,19 +47,32 @@ A context menu that provides common text based authoring options.
         <paper-item value="code">Code</paper-item>
       </hax-context-item-menu>
       <hax-context-item-textop
+        slot="primary"
         icon="editor:format-bold"
         label="Bold"
         event-name="text-bold"></hax-context-item-textop>
       <hax-context-item-textop
+        slot="primary"
         icon="editor:format-italic"
         label="Italic"
         event-name="text-italic"></hax-context-item-textop>
-
+      <hax-context-item-textop
+        slot="primary"
+        icon="editor:insert-link"
+        label="Link"
+        event-name="text-link"></hax-context-item-textop>
+      <hax-context-item-textop
+        slot="primary"
+        icon="mdextra:unlink"
+        label="Unlink"
+        event-name="text-unlink"></hax-context-item-textop>
       <hax-context-item-menu
+        slot="primary"
         selected-value="{{justifyValue}}"
         id="justify"
         icon="[[justifyIcon]]"
         label="Alignment">
+        <paper-item value="" hidden></paper-item>
         <paper-item value="text-align-left">
           <iron-icon icon="editor:format-align-left"></iron-icon>
         </paper-item>
@@ -91,53 +80,54 @@ A context menu that provides common text based authoring options.
           <iron-icon icon="editor:format-align-right"></iron-icon>
         </paper-item>
       </hax-context-item-menu>
-
       <hax-context-item-textop
+        slot="primary"
         icon="editor:format-list-numbered"
         label="Numbered list"
         event-name="text-list-numbered"
         hidden$="[[!polyfillSafe]]"></hax-context-item-textop>
       <hax-context-item-textop
+        slot="primary"
         icon="editor:format-list-bulleted"
         label="Bulleted list"
         event-name="text-list-bulleted"
         hidden$="[[!polyfillSafe]]"></hax-context-item-textop>
       <hax-context-item-textop
+        slot="primary"
         icon="editor:format-indent-increase"
         label="Indent"
         event-name="text-indent"
         hidden$="[[!polyfillSafe]]"></hax-context-item-textop>
       <hax-context-item-textop
+        slot="primary"
         icon="editor:format-indent-decrease"
         label="Outdent"
         event-name="text-outdent"
         hidden$="[[!polyfillSafe]]"></hax-context-item-textop>
-
       <hax-context-item-textop
-        icon="editor:format-strikethrough"
-        label="Cross out"
-        event-name="text-strikethrough"></hax-context-item-textop>
-      <hax-context-item-textop
-        icon="mdextra:subscript"
-        label="Subscript"
-        event-name="text-subscript"></hax-context-item-textop>
-      <hax-context-item-textop
-        icon="mdextra:superscript"
-        label="Superscript"
-        event-name="text-superscript"></hax-context-item-textop>
-      <hax-context-item-textop
-        icon="editor:insert-link"
-        label="Link"
-        event-name="text-link"></hax-context-item-textop>
-      <hax-context-item-textop
-        icon="mdextra:unlink"
-        label="Unlink"
-        event-name="text-unlink"></hax-context-item-textop>
-      <hax-context-item-textop
+        slot="primary"
         icon="editor:format-clear"
         label="Remove format"
         event-name="text-remove-format"></hax-context-item-textop>
-    </app-toolbar>
+      <hax-context-item-textop
+        menu
+        slot="more"
+        label=""
+        icon="mdextra:subscript"
+        event-name="text-subscript">Subscript</hax-context-item-textop>
+      <hax-context-item-textop
+        menu
+        slot="more"
+        label=""
+        icon="mdextra:superscript"
+        event-name="text-superscript">Superscript</hax-context-item-textop>
+      <hax-context-item-textop
+        menu
+        slot="more"
+        icon="editor:format-strikethrough"
+        label=""
+        event-name="text-strikethrough">Cross out</hax-context-item-textop>
+    </hax-toolbar>
   </template>
 
   <script>
@@ -208,7 +198,6 @@ A context menu that provides common text based authoring options.
        * Respond to simple modifications.
        */
       _haxContextOperation: function(e) {
-        console.log(e);
         let detail = e.detail;
         // support a simple insert event to bubble up or everything else
         switch(detail.eventName) {
@@ -254,8 +243,8 @@ A context menu that provides common text based authoring options.
             this.justifyIcon = detail.target.children[0].attributes[0].value;
           break;
           case 'close-menu':
-            this.$.justify.hideMenu();
-            this.$.formatsize.hideMenu();
+            this.$.justify.$.menu.hideMenu();
+            this.$.formatsize.$.menu.hideMenu();
           break;
           /**
            * Our bad actors in polyfill.

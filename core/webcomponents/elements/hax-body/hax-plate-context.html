@@ -19,42 +19,77 @@ A context menu that provides common grid plate based authoring options.
     <style>
       :host {
         display: block;
-        background-color: white;
-        width: 40px;
+        width: 64px;
       }
-      hax-context-item-menu,
+      :host:hover {
+        opacity: 1;
+      }
       hax-context-item {
         display: block;
-        margin: 0;
-        width: 40px;
-        height: 40px;
+        margin: 6px 0;
+        width: 32px;
       }
-      hax-context-item ::shadow paper-icon-button {
-        height: 40px;
+      .area {
+        width: 32px;
+        float: left;
+        opacity: .3;
+        visibility: visible;
+        transition: .8s all ease;
+      }
+      .area:hover {
+        opacity: 1;
       }
     </style>
-    <hax-context-item
-      icon="arrow-upward"
-      label="Move element up"
-      event-name="grid-plate-up"
-      direction="left"></hax-context-item>
-    <hax-context-item
-      icon="arrow-downward"
-      label="Move element down"
-      event-name="grid-plate-down"
-      direction="left"></hax-context-item>
-    <hax-context-item
-      icon="content-copy"
-      icon-class="green-text text-lighten-2"
-      label="Duplcate element"
-      event-name="grid-plate-duplicate"
-      direction="left"></hax-context-item>
-    <hax-context-item
-      icon="delete"
-      icon-class="red-text text-darken-2"
-      label="Delete element"
-      event-name="grid-plate-delete"
-      direction="left"></hax-context-item>
+    <div class="area">
+      <hax-context-item
+        light
+        mini
+        icon="image:add-to-photos"
+        label="Add"
+        event-name="hax-manager-open"
+        value="0"
+        direction="left"></hax-context-item>
+      <hax-context-item
+        light
+        mini
+        icon="search"
+        label="Find"
+        event-name="hax-manager-open"
+        value="1"
+        direction="left"></hax-context-item>
+      <hax-context-item
+        light
+        mini
+        icon="view-quilt"
+        label="Make"
+        event-name="hax-manager-open"
+        value="2"
+        direction="left"></hax-context-item>
+    </div>
+    <div class="area">
+      <hax-context-item
+        light
+        mini
+        icon="arrow-upward"
+        label="Move up"
+        event-name="grid-plate-up"
+        direction="left"></hax-context-item>
+      <hax-context-item
+        light
+        mini
+        disabled
+        icon="editor:drag-handle"
+        label="Drag"
+        event-name="hax-make-draggable"
+        direction="right"></hax-context-item>
+      <hax-context-item
+        light
+        mini
+        icon="arrow-downward"
+        label="Move down"
+        event-name="grid-plate-down"
+        direction="left"></hax-context-item>
+    </div>
   </template>
 
   <script>

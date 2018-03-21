@@ -1,0 +1,170 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../paper-slider/paper-slider.html">
+<link rel="import" href="../paper-tooltip/paper-tooltip.html">
+<link rel="import" href="../paper-item/paper-item.html">
+<link rel="import" href="../iron-icons/iron-icons.html">
+<link rel="import" href="../materializecss-styles/colors.html">
+<link rel="import" href="../iron-icons/editor-icons.html">
+<link rel="import" href="hax-toolbar-item.html">
+<link rel="import" href="hax-toolbar-menu.html">
+<link rel="import" href="hax-context-item.html">
+<link rel="import" href="hax-context-item-menu.html">
+<dom-module id="hax-toolbar">
+  <template>
+    <style include="materializecss-styles-colors">
+      :host {
+        display: flex;
+        font-family: "Roboto", sans-serif;
+        justify-content: flex-start;
+        opacity: .9;
+        visibility: visible;
+        transition: .6s all ease;
+        box-sizing: border-box;
+        height: 40px;
+      }
+      :host ::slotted(*) {
+        font-family: "Roboto", sans-serif;
+      }
+      :host:hover {
+        opacity: 1;
+      }
+      .hax-arrowclip {
+        position: absolute;
+        bottom: -10px;
+        left: 48px;
+        clip: rect(10px 20px 20px 0);
+      }
+      .hax-arrowclip .hax-arrow {
+        display: block;
+        width: 20px;
+        height: 20px;
+        background-color: #2e2e2e;
+        -webkit-transform: rotate(45deg) scale(.5);
+        transform: rotate(45deg) scale(.5);
+      }
+      .close-cap {
+        margin: 10px;
+        padding: 0;
+      }
+      paper-item:hover {
+        background-color: #d3d3d3;
+        cursor: pointer;
+      }
+      paper-slider {
+        background-color: #3e3e3e;
+        color: #c5c5c5;
+        height: 40px;
+      }
+      .duplicate-button {
+        border-bottom: 1px solid #d3d3d3;
+      }
+    </style>
+    <hax-context-item
+      mini
+      icon="close"
+      label="Close menu"
+      event-name="close-menu"
+      class="close-cap"
+      direction="left"></hax-context-item>
+    <hax-context-item-menu
+      hidden$="[[!haxProperties.canPosition]]"
+      selected-value="{{justifyValue}}"
+      id="justify"
+      icon="[[justifyIcon]]"
+      label="Alignment">
+      <paper-item value="hax-align-left">
+        <iron-icon icon="editor:format-align-left"></iron-icon>
+      </paper-item>
+      <paper-item value="hax-align-center">
+        <iron-icon icon="editor:format-align-center"></iron-icon>
+      </paper-item>
+      <paper-item value="hax-align-right">
+        <iron-icon icon="editor:format-align-right"></iron-icon>
+      </paper-item>
+    </hax-context-item-menu>
+    <paper-slider hidden$="[[!haxProperties.canScale]]" id="slider" pin min="25" step="25" max="100" value="{{size}}"></paper-slider>
+    <paper-tooltip
+      for="slider"
+      position="top"
+      offset="10">
+      Resize
+    </paper-tooltip>
+    <slot name="primary"></slot>
+    <hax-context-item
+      icon="delete"
+      icon-class="red-text text-darken-1"
+      label="Delete"
+      event-name="grid-plate-delete"></hax-context-item>
+    <hax-context-item-menu
+      icon="more-vert"
+      label="More"
+      event-name="grid-plate-op"
+      reset-on-select>
+      <paper-item value="" hidden></paper-item>
+      <paper-item value="grid-plate-duplicate" class="duplicate-button"><iron-icon icon="content-copy" class="green-text"></iron-icon>Duplicate</paper-item>
+      <slot name="more"></slot>
+    </hax-context-item-menu>
+    <div class="hax-arrowclip"><span class="hax-arrow"></span></div>
+  </template>
+  <script>
+    Polymer({
+      is: 'hax-toolbar',
+      listeners: {
+        'hax-context-item-selected': '_haxContextOperation',
+      },
+      properties: {
+        /**
+         * Selected value to match ce direction currently.
+         */
+        haxProperties: {
+          type: Object,
+          value: {},
+        },
+        /**
+         * size of the slider if it exists.
+         */
+        size: {
+          type: Number,
+          value: 100,
+          notify: true,
+        },
+        /**
+         * Justify icon to reflect state.
+         */
+        justifyIcon: {
+          type: String,
+          value: 'editor:format-align-left',
+        },
+        /**
+         * Selected value to match ce direction currently.
+         */
+        justifyValue: {
+          type: String,
+          value: '',
+          notify: true,
+        },
+      },
+      /**
+       * Respond to simple modifications.
+       */
+      _haxContextOperation: function(e) {
+        let detail = e.detail;
+        // support a simple insert event to bubble up or everything else
+        switch(detail.eventName) {
+          case 'hax-align-left':
+            this.justifyIcon = detail.target.children[0].attributes[0].value;
+          break;
+          case 'hax-align-center':
+            this.justifyIcon = detail.target.children[0].attributes[0].value;
+          break;
+          case 'hax-align-right':
+            this.justifyIcon = detail.target.children[0].attributes[0].value;
+          break;
+          case 'close-menu':
+            this.$.justify.$.menu.hideMenu();
+          break;
+        }
+      },
+    });
+  </script>
+</dom-module>

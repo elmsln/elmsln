@@ -24,7 +24,7 @@ paper-tooltip.x-scope {
 
 .webcomponent-module-selector,
 .webcomponent-module-selector * {
-  box-sizing: content-box;
+  box-sizing: border-box;
 }
 
 lrnsys-button,paper-button {

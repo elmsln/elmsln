@@ -1,14 +1,6 @@
 <link rel="import" href="../app-layout/app-toolbar/app-toolbar.html">
-<link rel="import" href="../paper-input/paper-textarea.html">
-<link rel="import" href="../paper-input/paper-input.html">
-<link rel="import" href="../paper-checkbox/paper-checkbox.html">
-<link rel="import" href="../paper-swatch-picker/paper-swatch-picker.html">
-<link rel="import" href="../paper-slider/paper-slider.html">
-<link rel="import" href="../paper-tooltip/paper-tooltip.html">
-<link rel="import" href="../paper-item/paper-item.html">
-<link rel="import" href="../iron-icons/iron-icons.html">
-<link rel="import" href="hax-context-item-menu.html">
 <link rel="import" href="hax-context-item.html">
+<link rel="import" href="hax-toolbar.html">
 
 <!--
 `hax-iframe-context`
@@ -26,88 +18,39 @@ A context menu that provides common iframe based authoring options.
       :host {
         display: block;
       }
-      app-toolbar {
-        background-color: white;
-        padding: 0;
-        height: 40px;
-      }
-      hax-context-item {
-        margin: 0;
-        width: 40px;
-        height: 40px;
-      }
-      .close-cap {
-        margin: 0;
-        padding: 0;
-        border-right: 1px solid black;
-      }
     </style>
-    <app-toolbar>
+    <hax-toolbar hax-properties="[[haxProperties]]" size="{{iframeSize}}">
       <hax-context-item
-        icon="close"
-        label="Close menu"
-        event-name="close-menu"
-        class="close-cap"
-        direction="left"></hax-context-item>
-      <hax-context-item-menu
-        selected-value="{{justifyValue}}"
-        id="justify"
-        icon="[[justifyIcon]]"
-        label="Alignment">
-        <paper-item value="hax-align-left">
-          <iron-icon icon="editor:format-align-left"></iron-icon>
-        </paper-item>
-        <paper-item value="hax-align-center">
-          <iron-icon icon="editor:format-align-center"></iron-icon>
-        </paper-item>
-        <paper-item value="hax-align-right">
-          <iron-icon icon="editor:format-align-right"></iron-icon>
-        </paper-item>
-      </hax-context-item-menu>
-      <paper-slider id="slider" pin min="25" step="25" max="100" value="{{iframeSize}}"></paper-slider>
-      <paper-tooltip
-        for="slider"
-        position="top"
-        offset="10">
-        Resize
-      </paper-tooltip>
-      <hax-context-item
+        slot="primary"
         icon="editor:insert-link"
         label="Link"
         event-name="iframe-link"></hax-context-item>
-    </app-toolbar>
+    </hax-toolbar>
   </template>
 
   <script>
     Polymer({
 
       is: 'hax-iframe-context',
-      listeners: {
-        'hax-context-item-selected': '_haxContextOperation',
-      },
       properties: {
         /**
          * iframe size.
          */
         iframeSize: {
           type: Number,
-          value: 50,
+          value: 100,
           observer: '_iframeSizeChanged',
         },
         /**
-         * Justify icon to reflect state.
+         * So we can get it to add our bars we need
          */
-        justifyIcon: {
-          type: String,
-          value: 'editor:format-align-left',
-        },
-        /**
-         * Selected value to match iframe direction currently.
-         */
-        justifyValue: {
-          type: String,
-          value: 'hax-align-left',
-          notify: true,
+        haxProperties: {
+          type: Object,
+          value: {
+            'canScale': true,
+            'canPosition': true,
+            'canEditSource': true,
+          },
         },
       },
       /**
@@ -116,27 +59,6 @@ A context menu that provides common iframe based authoring options.
       _iframeSizeChanged: function(newValue, oldValue) {
         if (typeof newValue !== typeof undefined) {
           this.fire('hax-context-item-selected', {eventName: 'hax-size-change', value: newValue});
-        }
-      },
-      /**
-       * Respond to simple modifications.
-       */
-      _haxContextOperation: function(e) {
-        let detail = e.detail;
-        // support a simple insert event to bubble up or everything else
-        switch(detail.eventName) {
-          case 'hax-align-left':
-            this.justifyIcon = detail.target.children[0].attributes[0].value;
-          break;
-          case 'hax-align-center':
-            this.justifyIcon = detail.target.children[0].attributes[0].value;
-          break;
-          case 'hax-align-right':
-            this.justifyIcon = detail.target.children[0].attributes[0].value;
-          break;
-          case 'close-menu':
-            this.$.justify.hideMenu();
-          break;
         }
       },
     });

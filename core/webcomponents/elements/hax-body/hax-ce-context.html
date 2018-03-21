@@ -3,12 +3,9 @@
 <link rel="import" href="../paper-input/paper-input.html">
 <link rel="import" href="../paper-checkbox/paper-checkbox.html">
 <link rel="import" href="../paper-swatch-picker/paper-swatch-picker.html">
-<link rel="import" href="../paper-slider/paper-slider.html">
-<link rel="import" href="../paper-tooltip/paper-tooltip.html">
-<link rel="import" href="../paper-item/paper-item.html">
-<link rel="import" href="../iron-icons/iron-icons.html">
 <link rel="import" href="hax-context-item-menu.html">
 <link rel="import" href="hax-context-item.html">
+<link rel="import" href="hax-toolbar.html">
 
 <!--
 `hax-ce-context`
@@ -27,99 +24,35 @@ required for populating input.
     <style>
       :host {
         display: block;
-      }
-      app-toolbar {
-        background-color: white;
-        padding: 0;
         height: 40px;
       }
       hax-context-item {
         margin: 0;
-        width: 40px;
         height: 40px;
       }
-      .close-cap {
-        margin: 0;
-        padding: 0;
-        border-right: 1px solid black;
-      }
-      #elementoptions {
-        height: inherit;
-      }
     </style>
-    <app-toolbar>
+    <hax-toolbar hax-properties="[[haxProperties]]" size="{{ceSize}}">
+      <slot></slot>
       <hax-context-item
-        icon="close"
-        label="Close menu"
-        event-name="close-menu"
-        class="close-cap"
-        direction="left"></hax-context-item>
-      <template is="dom-if" if="[[haxProperties.canPosition]]">
-        <hax-context-item-menu
-          selected-value="{{justifyValue}}"
-          id="justify"
-          icon="[[justifyIcon]]"
-          label="Alignment">
-          <paper-item value="hax-align-left">
-            <iron-icon icon="editor:format-align-left"></iron-icon>
-          </paper-item>
-          <paper-item value="hax-align-center">
-            <iron-icon icon="editor:format-align-center"></iron-icon>
-          </paper-item>
-          <paper-item value="hax-align-right">
-            <iron-icon icon="editor:format-align-right"></iron-icon>
-          </paper-item>
-        </hax-context-item-menu>
-      </template>
-      <template is="dom-if" if="[[haxProperties.canScale]]">
-        <paper-slider id="slider" pin min="25" step="25" max="100" value="{{ceSize}}"></paper-slider>
-        <paper-tooltip
-          for="slider"
-          position="top"
-          offset="10">
-          Resize
-        </paper-tooltip>
-      </template>
-      <span id="elementoptions">
-        <slot></slot>
-      </span>
-      <hax-context-item
+        slot="primary"
         icon="settings"
         label="Settings"
         event-name="hax-manager-configure" hidden$="[[!__hasSettingsForm]]"></hax-context-item>
-    </app-toolbar>
+    </hax-toolbar>
   </template>
 
   <script>
     Polymer({
 
       is: 'hax-ce-context',
-      listeners: {
-        'hax-context-item-selected': '_haxContextOperation',
-      },
       properties: {
         /**
          * ce size.
          */
         ceSize: {
           type: Number,
-          value: 50,
+          value: 100,
           observer: '_ceSizeChanged',
-        },
-        /**
-         * Justify icon to reflect state.
-         */
-        justifyIcon: {
-          type: String,
-          value: 'editor:format-align-left',
-        },
-        /**
-         * Selected value to match ce direction currently.
-         */
-        justifyValue: {
-          type: String,
-          value: 'hax-align-left',
-          notify: true,
         },
         /**
          * Selected value to match ce direction currently.
@@ -152,7 +85,7 @@ required for populating input.
       _haxPropertiesChanged: function(newValue, oldValue) {
         if (typeof oldValue !== typeof undefined && typeof newValue.settings !== typeof undefined) {
           // clear current slot for the tag
-          let slot = Polymer.dom(this.$.elementoptions);
+          let slot = Polymer.dom(this);
           while (slot.firstChild !== null) {
             slot.removeChild(slot.firstChild);
           }
@@ -176,6 +109,7 @@ required for populating input.
             item = document.createElement('hax-context-item');
             item.eventName = 'hax-edit-property';
             item.label = setting.title;
+            item.slot = 'primary';
             item.options = setting.options;
             item.icon = setting.icon;
             item.inputMethod = setting.inputMethod;
@@ -193,29 +127,6 @@ required for populating input.
             }
             slot.appendChild(item);
           }
-        }
-      },
-      /**
-       * Respond to simple modifications.
-       */
-      _haxContextOperation: function(e) {
-        let detail = e.detail;
-        // support a simple insert event to bubble up or everything else
-        switch(detail.eventName) {
-          case 'hax-align-left':
-            this.justifyIcon = detail.target.children[0].attributes[0].value;
-          break;
-          case 'hax-align-center':
-            this.justifyIcon = detail.target.children[0].attributes[0].value;
-          break;
-          case 'hax-align-right':
-            this.justifyIcon = detail.target.children[0].attributes[0].value;
-          break;
-          case 'close-menu':
-            if (this.$$('#justify')) {
-              this.$$('#justify').hideMenu();
-            }
-          break;
         }
       },
     });

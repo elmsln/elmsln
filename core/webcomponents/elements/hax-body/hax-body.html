@@ -31,8 +31,8 @@ A LRN element that will change the world.
     <style>
       :host {
         display: block;
-        min-height: 2em;
-        min-width: 2em;
+        min-height: 32px;
+        min-width: 32px;
       }
       vaadin-context-menu {
         --vaadin-context-menu-overlay: {
@@ -40,92 +40,91 @@ A LRN element that will change the world.
         }
       }
       :host[edit-mode] {
-        border: 2px dotted #EEEEEE;
+        /* border: 2px dotted #EEEEEE; */
       }
       :host #bodycontainer ::slotted(.hax-context-menu) {
         padding: 0;
         margin: 0;
-        position: absolute;
+        position: relative;
         visibility: hidden;
         opacity: 0;
-        transition: visibility .4s ease, opacity .4s ease;
+        transition: all .6s ease;
         z-index: 3;
+      }
+      :host #bodycontainer ::slotted(#platecontextmenu) {
+        position: absolute;
       }
       :host #bodycontainer ::slotted(#haxinputmixer) {
         z-index: 4;
+        position: absolute;
       }
       :host #bodycontainer ::slotted(.hax-context-visible) {
         visibility: visible;
         opacity: 1;
-        border: 1px solid black;
         display: block;
-      }
-      :host[edit-mode] #bodycontainer ::slotted(*) {
-        transition: background-color .3s, padding .3s, margin .3s, box-shadow .3s, -webkit-box-shadow .3s;
-        padding-left: 0;
-        margin-left: 0;
-      }
-      :host[edit-mode] #bodycontainer ::slotted(*[data-editable])::before {
-        background-color: transparent;
-        content: '';
-        display: block;
-        position: absolute;
-        top: 0;
-        left: 0;
-        bottom: 0;
-        width: 2em;
-        transition: background-color .3s, padding .3s, margin .3s, box-shadow .3s, -webkit-box-shadow .3s;
-      }
-      :host[edit-mode] #bodycontainer ::slotted(*[data-editable]):hover::before {
-        background-color: #EEEEEE;
-        content: '';
-        display: block;
-        position: absolute;
-        top: 0;
-        left: 0;
-        bottom: 0;
-        width: 2em;
-        transition: background-color .3s, padding .3s, margin .3s, box-shadow .3s, -webkit-box-shadow .3s;
       }
       :host[edit-mode] #bodycontainer ::slotted(*[data-editable]) {
-        padding-left: 2em;
-        margin-left : -2em;
-        position: relative;
+        outline: none;
+        transition: .3 outline ease;
+      }
+      :host[edit-mode] #bodycontainer ::slotted(*[data-editable]):hover {
+        outline: 2px dashed #d3d3d3;
+        outline-offset: 4px;
+      }
+      :host[edit-mode] #bodycontainer ::slotted(*[data-editable])::before {
+        content: '';
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 32px;
+        transition: .6s all ease;
+      }
+      :host[edit-mode] #bodycontainer ::slotted(*[data-editable]):hover::before {
+        content: '';
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 32px;
+        transition: .6s all ease;
       }
       :host[edit-mode] #bodycontainer ::slotted(*.hax-active[data-editable]) {
         cursor: text !important;
-        outline-color: #34e79a !important;
+        outline: 2px dashed #c3c3c3 !important;
+        outline-offset: 4px;
       }
       :host[edit-mode] #bodycontainer ::slotted(*.hax-active[data-editable])::before {
-        background-color: #EEEEEE;
         content: '';
         display: block;
         position: absolute;
         top: 0;
         left: 0;
         bottom: 0;
-        width: 2em;
-        transition: background-color .3s, padding .3s, margin .3s, box-shadow .3s, -webkit-box-shadow .3s;
+        width: 32px;
+        transition: .6s all ease;
       }
       :host[edit-mode] #bodycontainer ::slotted(code.hax-active[data-editable]) {
         display: block;
       }
       :host[edit-mode] #bodycontainer ::slotted(hr[data-editable]) {
-        height:.2em;
+        height:4px;
         background-color: #EEEEEE;
-        padding-top: .5em;
-        padding-bottom: .5em;
+        padding-top: 8px;
+        padding-bottom: 8px;
       }
       :host[edit-mode] #bodycontainer ::slotted(hr[data-editable])::before {
         color: #222222;
         background-color: #EEEEEE;
-        padding: .1em;
+        padding: 2px;
         z-index: 2;
         content: '<hr/>';
-        font-size: .8em;
+        font-size: 12px;
         position: absolute;
-        margin-left: -2em;
-        margin-top:-.5em;
+        margin-left: -32px;
+        margin-top:-8px;
         font-style: italic;
         pointer-events: none;
       }
@@ -238,9 +237,11 @@ A LRN element that will change the world.
               if (this._haxElementTest(node)) {
                 if (this._HTMLPrimativeTest(node)) {
                   node.contentEditable = this.editMode;
+                  node.draggable = this.editMode;
                 }
                 // this does the real targetting
                 node.setAttribute('data-editable', this.editMode);
+                node.setAttribute('data-draggable', this.editMode);
                 this.fire('hax-body-tag-added', {node: node});
               }
             });
@@ -347,9 +348,11 @@ A LRN element that will change the world.
         for (var i = 0, len = children.length; i < len; i++) {
           if (this._haxElementTest(children[i])) {
             children[i].setAttribute('data-editable', false);
+            children[i].setAttribute('data-draggable', false);
             // see if this is a custom element
             if (this._HTMLPrimativeTest(children[i])) {
               children[i].contentEditable = false;
+              children[i].draggable = false;
               content += children[i].outerHTML + "\n";
             }
             else {
@@ -366,6 +369,10 @@ A LRN element that will change the world.
         content = content.replace(/\sdata-editable=\"true\"/g, '');
         // remove the data-editable attribute
         content = content.replace(/\sdata-editable=\"false\"/g, '');
+        // remove the data-editable attribute
+        content = content.replace(/\sdata-draggable=\"true\"/g, '');
+        // remove the data-editable attribute
+        content = content.replace(/\sdata-draggable=\"false\"/g, '');
         // remove HAX specific classes / scoping classes
         let parentTag = this.parentNode.tagName.toLowerCase();
         let string = 'style-scope ' + parentTag + ' x-scope';
@@ -445,7 +452,7 @@ A LRN element that will change the world.
         return true;
       },
       /**
-       * Hide both context menus.
+       * Hide all context menus.
        */
       hideContextMenus: function() {
         this._hideContextMenu(this.$.textcontextmenu);
@@ -465,13 +472,13 @@ A LRN element that will change the world.
           // HTML primatives need manually defined and built out
           case 'IMG':
             this.__activeContextType = this.$.imagecontextmenu;
-            this._positionContextMenu(this.__activeContextType, node, -46, -46);
+            this._positionContextMenu(this.__activeContextType, node, -16, -40);
           break;
           case 'IFRAME':
           case 'VIDEO':
           case 'AUDIO':
             this.__activeContextType = this.$.iframecontextmenu;
-            this._positionContextMenu(this.__activeContextType, node, -46, -46);
+            this._positionContextMenu(this.__activeContextType, node, -16, -40);
           break;
           default:
             // check and see if we have a haxproperties function in place
@@ -486,10 +493,10 @@ A LRN element that will change the world.
             else {
               this.__activeContextType = this.$.textcontextmenu;
             }
-            this._positionContextMenu(this.__activeContextType, node, -46, -46);
+            this._positionContextMenu(this.__activeContextType, node, -16, -40);
           break;
         }
-        this._positionContextMenu(this.$.platecontextmenu, node, -46, -5);
+        this._positionContextMenu(this.$.platecontextmenu, node, -72, -8);
         setTimeout( () => {
   	      this.__activeContextType.scrollIntoView({behavior: "smooth", inline: "nearest"});
   	    }, 100);
@@ -598,7 +605,7 @@ A LRN element that will change the world.
           break;
           // grid plate based operations
           case 'grid-plate-duplicate':
-            this.haxDuplicateNode(this.activeNode);
+              this.haxDuplicateNode(this.activeNode);
           break;
           case 'grid-plate-delete':
             if (window.confirm('Are you sure you want to delete this element?')) {
@@ -607,6 +614,11 @@ A LRN element that will change the world.
           break;
           case 'grid-plate-up':
             this.haxMoveGridPlate('up', this.activeNode);
+          break;
+          case 'hax-manager-open':
+            Polymer.HaxStore.write('activeHaxElement', {}, this);
+            Polymer.HaxStore.instance.haxManager.resetManager(parseInt(detail.value));
+            Polymer.HaxStore.instance.haxManager.toggleDialog();
           break;
           case 'grid-plate-down':
             this.haxMoveGridPlate('down', this.activeNode);
@@ -639,7 +651,7 @@ A LRN element that will change the world.
               //haxInputMixer.value = this.activeNode[detail.target.slotToBind];
             }
             // make input mixer show up
-            this._positionContextMenu(haxInputMixer, this.$.cecontextmenu, 0, -88);
+            this._positionContextMenu(haxInputMixer, this.$.cecontextmenu, 34, -104);
           break;
           // image/iframe based operations
           case 'hax-align-left':
@@ -826,10 +838,12 @@ A LRN element that will change the world.
           // we have to tell the browser that primatives are editable
           if (this._HTMLPrimativeTest(children[i])) {
             children[i].contentEditable = status;
+            children[i].draggable = status;
           }
           // this does the real targetting
           if (this._haxElementTest(children[i])) {
             children[i].setAttribute('data-editable', status);
+            children[i].setAttribute('data-draggable', status);
           }
         }
       },
@@ -900,7 +914,7 @@ A LRN element that will change the world.
         // the grid plate context menu to show up
         if (typeof newValue !== typeof undefined && newValue !== null && this.activeNode === newValue) {
           // position the operations / in context element
-          this._positionContextMenu(this.$.platecontextmenu, newValue, -48, -5);
+          this._positionContextMenu(this.$.platecontextmenu, newValue, -72, -8);
         }
       },
       /**
@@ -918,8 +932,12 @@ A LRN element that will change the world.
         if (target.offsetLeft != 0) {
           offset = target.offsetLeft + this.contextOffsetLeft;
         }
-        menu.style["margin-left"] = (xoffset + offset ) + 'px';
-        menu.style["margin-top"] = yoffset + 'px';
+        if (xoffset != null) {
+          menu.style["margin-left"] = (xoffset + offset ) + 'px';
+        }
+        if (yoffset != null) {
+          menu.style["margin-top"] = yoffset + 'px';
+        }
       },
       /**
        * Simple hide / reset of whatever menu it's handed.

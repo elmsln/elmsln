@@ -10,9 +10,8 @@
 <link rel="import" href="../iron-icons/av-icons.html">
 <link rel="import" href="../iron-icons/image-icons.html">
 <link rel="import" href="../iron-icons/maps-icons.html">
-<link rel="import" href="../materializecss-styles/colors.html">
 <link rel="import" href="../neon-animation/web-animations.html">
-
+<link rel="import" href="hax-toolbar-item.html">
 <!--
 `hax-context-item`
 A single button in the hax context menu for consistency.
@@ -27,45 +26,18 @@ A single button in the hax context menu for consistency.
 
 <dom-module id="hax-context-item">
   <template>
-    <style include="materializecss-styles-colors">
+    <style>
       :host {
         display: inline-flex;
       }
-      :host[wide] {
-        width: 50%;
-      }
-      paper-icon-button {
-        color: rgba(0,0,0,0.66);
-        margin: 0;
-        text-transform: none;
-        background-color: #ffffff;
-        min-width: 40px;
+      :host[menu] {
         display: flex;
-        padding: 0;
-        border-radius: 0;
-      }
-      paper-icon-button ::shadow iron-icon {
-        padding: 8px;
-        margin: 0;
-        box-sizing: border-box;
-      }
-      paper-icon-button:hover {
-        background-color: var(--paper-grey-300, grey);
-      }
-      :host[wide] paper-button {
-        width: unset;
-      }
-      .flip-icon {
-        transform: rotateY(180deg);
+        width: 100%;
       }
     </style>
-    <paper-icon-button id="button" icon="[[icon]]" hidden$="[[!icon]]" class$="[[iconClass]]" on-tap="_fireEvent"></paper-icon-button>
-    <paper-tooltip
-      for="button"
-      position="[[direction]]"
-      offset="10">
-      [[label]]
-    </paper-tooltip>
+    <hax-toolbar-item disabled="[[disabled]]" light="[[light]]" mini="[[mini]]" id="button" icon="[[icon]]" hidden$="[[!icon]]" icon-class="[[iconClass]]" on-tap="_fireEvent" tooltip="[[label]]" tooltip-direction="[[direction]]" default="[[default]]" menu="[[menu]]">
+      <slot></slot>
+    </hax-toolbar-item>
   </template>
 
   <script>
@@ -75,12 +47,33 @@ A single button in the hax context menu for consistency.
 
       properties: {
         /**
-         * Modifier that makes the button wider
+         * Light theme for toolbar item.
          */
-        wide: {
+        light: {
+          type: Boolean,
+          value: false,
+        },
+        /**
+         * disabled state
+         */
+        disabled: {
           type: Boolean,
           value: false,
           reflectToAttribute: true,
+        },
+        /**
+         * Mini theme for making things small and round.
+         */
+        mini: {
+          type: Boolean,
+          value: false,
+        },
+        /**
+         * Style to be presented in a menu
+         */
+        menu: {
+          type: Boolean,
+          value: false,
         },
         /**
          * Direction for the tooltip
@@ -88,7 +81,7 @@ A single button in the hax context menu for consistency.
         direction: {
           type: String,
           value: 'top',
-      },
+        },
         /**
          * Icon for the button.
          */
@@ -102,7 +95,7 @@ A single button in the hax context menu for consistency.
          */
         iconClass: {
           type: String,
-          value: "black-text",
+          value: "",
           reflectToAttribute: true,
         },
         /**
@@ -155,12 +148,27 @@ A single button in the hax context menu for consistency.
           type: String,
           reflectToAttribute: true,
         },
+        /**
+         * Is this button concidered a primary interaction
+         */
+        default: {
+          type: Boolean,
+          value: false
+        },
+        /**
+         * an optional value to send along in the press. Allows for
+         * reusing events more easily
+         */
+        value: {
+          type: String,
+          value: '',
+        },
       },
       /**
        * Fire an event that includes the eventName of what was just pressed.
        */
       _fireEvent: function(e) {
-        this.fire('hax-context-item-selected', {target: this, eventName: this.eventName});
+        this.fire('hax-context-item-selected', {target: this, eventName: this.eventName, value: this.value});
       }
     });
   </script>

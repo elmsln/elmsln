@@ -73,23 +73,7 @@ A LRN element
       paper-button {
         padding: 0;
         margin: 0;
-        min-width: 1rem;
-      }
-
-      hax-panel {
-        font-size: .8rem;
-      }
-      hax-panel {
-      --app-drawer-content-container: {
-          background-color: #fafafa;
-          padding: 0;
-          border-right: 1px solid #c8c8c8;
-          border-bottom: 1px solid #c8c8c8;
-          width: 100px !important;
-          box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.4);
-          height: 100vh;
-          position: fixed;
-        }
+        min-width: 1em;
       }
       app-drawer {
         padding: 0;
@@ -110,23 +94,6 @@ A LRN element
           position: sticky;
         }
       }
-      hax-panel {
-        font-size: .8rem;
-      }
-      hax-panel {
-      --app-drawer-content-container: {
-          background-color: #fafafa;
-          padding: 0;
-          border-right: 1px solid #c8c8c8;
-          overflow-y: scroll;
-          width: 300px !important;
-          box-shadow: 0 76px 8px 0 rgba(0, 0, 0, 0.4);
-          height: 100vh;
-          top: 0;
-          position: sticky;
-        }
-      }
-
       lrndesign-stepper-button {
         --lrndesign-stepper-btn-active: #f6f7f7;
       }
@@ -497,66 +464,12 @@ A LRN element
         query-params="{{queryParams}}">
     </app-route>
     <hax-store app-store='{"url":"/sing100/sites/all/libraries/webcomponents/polymer/apps-src/lrnapp-book/appstore.json"}'></hax-store>
+    <hax-panel id="haxpanel" hide-panel-ops hide-export-button></hax-panel>
     <hax-app-picker></hax-app-picker>
   <!-- body where most of the heavy lifting happens -->
     <app-drawer-layout>
-      <hax-panel id="haxpanel" hide-panel-ops>
-        <lrnsys-collapselist-item>
-        <span slot="label"><div class="label">Future</div></span>
-        <span slot="content">
-          <hax-panel-item
-            icon="touch-app"
-            icon-class="blue-text"
-            label="Interactive video"
-            event-name="h5p-interactive-video"
-            voice-command="insert interactive video"></hax-panel-item>
-          <hax-panel-item
-            icon="hardware:videogame-asset"
-            icon-class="red-text"
-            label="Self-check"
-            event-name="h5p-multiple-choice"
-            voice-command="insert self check"></hax-panel-item>
-          <hax-panel-item
-            icon="timeline"
-            icon-class="yellow-text text-darken-4"
-            label="Timeline"
-            event-name="timeline"
-            voice-command="insert timeline"></hax-panel-item>
-          <hax-panel-item
-            icon="maps:place"
-            icon-class="green-text"
-            label="Map"
-            event-name="map"
-            voice-command="insert map"></hax-panel-item>
-          <hax-panel-item
-            icon="social:share"
-            icon-class="pink-text"
-            label="JMOL"
-            event-name="jmol"
-            voice-command="insert molecule"></hax-panel-item>
-          <hax-panel-item
-            icon="social:poll"
-            icon-class="orange-text"
-            label="Poll"
-            event-name="poll"
-            voice-command="insert poll"></hax-panel-item>
-          <hax-panel-item
-            icon="assignment"
-            icon-class="yellow-text text-darken-2"
-            label="Assignment"
-            event-name="assignment"
-            voice-command="insert assignment"></hax-panel-item>
-          <hax-panel-item
-            icon="assessment"
-            icon-class="purple-text text-darken-2"
-            label="Quiz"
-            event-name="quiz"
-            voice-command="insert quiz"></hax-panel-item>
-        </span>
-        </lrnsys-collapselist-item>
-      </hax-panel>
       <!-- LRNApp book we expect to navigate -->
-      <app-drawer slot="drawer" id="bookdrawer" opened="{{drawerOpened}}" swipe-open transition-duration="150">
+      <app-drawer slot="drawer" id="bookdrawer" opened="{{drawerOpened}}" swipe-open transition-duration="300">
         <div id="bookdrawercontent" style="height: 100%; overflow: auto;" hidden$="[[!bookItems]]">
           <paper-search-bar hide-filter-button hidden$="[[!showSearch]]"></paper-search-bar>
           <lrndesign-mapmenu id="mapmenu" on-tap="_bookOutlineTap">
@@ -1022,12 +935,6 @@ A LRN element
             this.$.editbutton.icon = 'save';
             this.$.editbutton.title = 'Tap to save content and exit edit mode';
             this.$.fablabel = 'save changes';
-            // simple way to remember state of opened drawer
-            this.__bookdraweropened = this.$.bookdrawer.opened;
-            // close the menu to give us more room to work
-            if (this.$.bookdrawer.opened) {
-              this.$.bookdrawer.opened = false;
-            }
             // open the haxpanel
             Polymer.HaxStore.write('editMode', this.editMode, this);
             // play things in an editable state and let hax take over from here
@@ -1042,7 +949,6 @@ A LRN element
             this.$.editbutton.icon = 'editor:mode-edit';
             this.$.editbutton.title = 'Tap to place content in edit mode.';
             this.$.fablabel = 'edit mode';
-            this.$.bookdrawer.opened = this.__bookdraweropened;
             // open the haxpanel
             Polymer.HaxStore.write('editMode', this.editMode, this);
             // play things in an editable state and let hax take over from here
@@ -1274,14 +1180,8 @@ A LRN element
        */
       toggleBook: function (e) {
         // if we are in edit mode then we ned to close this
-        if (this.editMode) {
-          this.$.haxpanel.toggle();
-          this.fullWidth = !this.$.haxpanel.opened;
-        }
-        else {
-          this.$.bookdrawer.toggle();
-          this.fullWidth = !this.$.bookdrawer.opened;
-        }
+        this.$.bookdrawer.toggle();
+        this.fullWidth = !this.$.bookdrawer.opened;
       },
       /**
        * Handle the response.

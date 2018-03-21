@@ -13,6 +13,7 @@
 <link rel="import" href="../iron-icons/maps-icons.html">
 <link rel="import" href="../materializecss-styles/colors.html">
 <link rel="import" href="../neon-animation/web-animations.html">
+<link rel="import" href="hax-toolbar-item.html">
 
 <!--
 `hax-context-item-textop`
@@ -31,44 +32,17 @@ A single button in the hax context menus for consistency. This one uses the mous
     <style include="materializecss-styles-colors">
       :host {
         display: inline-flex;
-      }
-      :host[wide] {
-        width: 50%;
-      }
-      paper-icon-button {
-        color: rgba(0,0,0,0.66);
-        margin: 0;
-        text-transform: none;
-        background-color: #ffffff;
-        min-width: 40px;
-        display: flex;
-        padding: 0;
-        border-radius: 0;
-      }
-      paper-icon-button ::shadow iron-icon {
-        padding: 8px;
-        margin: 0;
         box-sizing: border-box;
       }
-      paper-icon-button:hover {
-        background-color: var(--paper-grey-300, grey);
-      }
-      :host[wide] paper-button {
-        width: unset;
-      }
-      .flip-icon {
-        transform: rotateY(180deg);
+      :host[menu] {
+        display: flex;
+        width: 100%;
       }
     </style>
-    <iron-a11y-keys id="a11y" target="[[target]]" keys="enter"
-                    on-keys-pressed="_fireEvent"></iron-a11y-keys>
-    <paper-icon-button id="button" icon="[[icon]]" hidden$="[[!icon]]" class$="[[iconClass]]" on-mousedown="_fireEvent"></paper-icon-button>
-    <paper-tooltip
-      for="button"
-      position="[[direction]]"
-      offset="10">
-      [[label]]
-    </paper-tooltip>
+    <iron-a11y-keys id="a11y" target="[[target]]" keys="enter" on-keys-pressed="_fireEvent"></iron-a11y-keys>
+    <hax-toolbar-item id="button" icon="[[icon]]" hidden$="[[!icon]]" tooltip-direction="[[direction]]" tooltip="[[label]]" class$="[[iconClass]]" on-mousedown="_fireEvent" icon-class="[[iconClass]]" mini="[[mini]]" menu="[[menu]]" light="[[light]]">
+      <slot></slot>
+    </hax-toolbar-item>
   </template>
 
   <script>
@@ -84,12 +58,25 @@ A single button in the hax context menus for consistency. This one uses the mous
           type: Object
         },
         /**
-         * Modifier that makes the button wider
+         * Light theme for toolbar item.
          */
-        wide: {
+        light: {
           type: Boolean,
           value: false,
-          reflectToAttribute: true,
+        },
+        /**
+         * Mini theme for making things small and round.
+         */
+        mini: {
+          type: Boolean,
+          value: false,
+        },
+        /**
+         * Style to be presented in a menu
+         */
+        menu: {
+          type: Boolean,
+          value: false,
         },
         /**
          * Direction for the tooltip
@@ -111,7 +98,7 @@ A single button in the hax context menus for consistency. This one uses the mous
          */
         iconClass: {
           type: String,
-          value: "black-text",
+          value: "",
           reflectToAttribute: true,
         },
         /**

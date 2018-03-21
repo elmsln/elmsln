@@ -26,21 +26,21 @@
       }
       paper-card {
         padding: 0;
-        margin: .5em;
-        width: 15em;
-        height: 15em;
-        font-size: .8em;
+        margin: 8px;
+        width: 240px;
+        height: 240px;
+        font-size: 12px;
         --paper-card-header: {
-          max-height: 10em;
+          max-height: 160px;
         }
       }
       @media screen and (min-width: 800px) {
         paper-card {
-          font-size: .85em;
+          font-size: 14px;
         }
       }
       .card-content {
-        padding: .1em;
+        padding: 2px;
       }
       .card-content p {
         padding: 0;
@@ -50,7 +50,7 @@
 
     <paper-button on-tap="_itemSelected" class="button-wrapper">
       <paper-card image="[[resultData.image]]">
-        <div class="card-content" style="height:5em;overflow:auto;">
+        <div class="card-content" style="height:80px;overflow:auto;">
           <p>[[resultData.title]]</p>
           <p>[[resultData.details]]</p>
         </div>

@@ -27,41 +27,58 @@ A single button in the hax panel for consistency.
     <style include="materializecss-styles-colors">
       :host {
         display: inline-flex;
-        margin: .25em 0;
-        border-radius: 3px;
-      }
-      :host[wide] {
-        width: 50%;
+        margin: 0;
+        padding: 0;
+        height: 64px;
+        --hax-panel-hover: #34e79a;
       }
       paper-button {
         color: rgba(0,0,0,0.66);
         margin: 0;
         text-transform: none;
-        background-color: #ffffff;
-        height: 5em;
-        width: 4em;
+        background-color: #2e2e2e !important;
+        color: #eeeeee;
         display: flex;
+        padding: 0;
+        border-radius: 0;
+        border: none;
+        min-width: 5.14em;
       }
-      :host[wide] paper-button {
-        width: unset;
+      :host[edged="left"] paper-button {
+        border-bottom-right-radius: 16px;
+      }
+      :host[edged="right"] paper-button {
+        border-bottom-left-radius: 16px;
       }
       paper-button .label {
-        font-size: .75em;
-        margin-top: .25em;
+        font-size: 12px;
+        margin: 0;
+        max-height: 16px;
       }
       paper-button .button-inner {
-        padding-top: .5em;
+        padding: 0;
         text-align: center;
       }
       paper-button iron-icon {
-        height: 3em;
-        width: 2.5em;
+        height: 32px;
+        width: 24px;
+      }
+      paper-button:hover,
+      paper-button:focus {
+        border-bottom: 4px solid var(--hax-panel-hover);
+        margin-bottom: -4px;
+      }
+      paper-button:hover .label {
+        color: var(--hax-panel-hover);
+      }
+      paper-button[disabled] {
+        opacity: .5;
       }
       .flip-icon {
         transform: rotateY(180deg);
       }
     </style>
-    <paper-button on-tap="_fireEvent" data-voicecommand$="[[voiceCommand]]">
+    <paper-button disabled="[[disabled]]" on-tap="_fireEvent" data-voicecommand$="[[voiceCommand]]">
       <div class="button-inner">
         <iron-icon icon="[[icon]]" class$="[[iconClass]]"></iron-icon>
         <div class="label">[[label]]</div>
@@ -76,18 +93,26 @@ A single button in the hax panel for consistency.
 
       properties: {
         /**
-         * Modifier that makes the button wider
-         */
-        wide: {
-          type: Boolean,
-          value: false,
-          reflectToAttribute: true,
-        },
-        /**
          * Voice command to append for things that support data-voicecommand.
          */
         voiceCommand: {
           type: String,
+        },
+        /**
+         * Support for disabled state buttons
+         */
+        disabled: {
+          type: Boolean,
+          value: false,
+        },
+        /**
+         * If we should apply a rounded edge to the button, opposite
+         * to the direction that it's came from.
+         */
+        edged: {
+          type: String,
+          value: '',
+          reflectToAttribute: true,
         },
         /**
          * Icon for the button.
@@ -102,7 +127,7 @@ A single button in the hax panel for consistency.
          */
         iconClass: {
           type: String,
-          value: "black-text",
+          value: "white-text",
           reflectToAttribute: true,
         },
         /**

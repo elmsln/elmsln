@@ -9,6 +9,7 @@
 <link rel="import" href="../iron-icons/iron-icons.html">
 <link rel="import" href="hax-context-item-menu.html">
 <link rel="import" href="hax-context-item.html">
+<link rel="import" href="hax-toolbar.html">
 
 <!--
 `hax-image-context`
@@ -26,111 +27,44 @@ A context menu that provides common image based authoring options.
       :host {
         display: block;
       }
-      app-toolbar {
-        background-color: white;
-        padding: 0;
-        height: 40px;
-      }
-      hax-context-item {
-        margin: 0;
-        width: 40px;
-        height: 40px;
-      }
-      .close-cap {
-        margin: 0;
-        padding: 0;
-        border-right: 1px solid black;
-      }
     </style>
-    <app-toolbar>
+    <hax-toolbar hax-properties="[[haxProperties]]" size="{{imageSize}}">
       <hax-context-item
-        icon="close"
-        label="Close menu"
-        event-name="close-menu"
-        class="close-cap"
-        direction="left"></hax-context-item>
-      <hax-context-item-menu
-        selected-value="{{justifyValue}}"
-        id="justify"
-        icon="[[justifyIcon]]"
-        label="Alignment">
-        <paper-item value="hax-align-left">
-          <iron-icon icon="editor:format-align-left"></iron-icon>
-        </paper-item>
-        <paper-item value="hax-align-center">
-          <iron-icon icon="editor:format-align-center"></iron-icon>
-        </paper-item>
-        <paper-item value="hax-align-right">
-          <iron-icon icon="editor:format-align-right"></iron-icon>
-        </paper-item>
-      </hax-context-item-menu>
-      <paper-slider id="slider" pin min="25" step="25" max="100" value="{{imageSize}}"></paper-slider>
-      <paper-tooltip
-        for="slider"
-        position="top"
-        offset="10">
-        Resize
-      </paper-tooltip>
-      <hax-context-item
+        slot="primary"
         icon="editor:insert-link"
         label="Source"
         event-name="image-src"></hax-context-item>
       <hax-context-item
+        slot="primary"
         icon="accessibility"
         label="Alt information"
         event-name="image-alt"></hax-context-item>
-      <!-- <hax-context-item-menu
-        selected-value="{{selectedValue}}"
-        id="formatsize"
-        icon="image:panorama"
-        label="Styles"
-        event-name="image-tag">
-        <paper-item value="image-style1">Style 1</paper-item>
-        <paper-item value="image-style2">Style 2</paper-item>
-        <paper-item value="image-style3">Style 3</paper-item>
-        <paper-item value="image-style4">Style 4</paper-item>
-      </hax-context-item-menu> -->
-    </app-toolbar>
+    </hax-toolbar>
   </template>
 
   <script>
     Polymer({
 
       is: 'hax-image-context',
-      listeners: {
-        'hax-context-item-selected': '_haxContextOperation',
-      },
       properties: {
         /**
          * Image size.
          */
         imageSize: {
           type: Number,
-          value: 50,
+          value: 100,
           observer: '_imageSizeChanged',
         },
         /**
-         * Justify icon to reflect state.
+         * So we can get it to add our bars we need
          */
-        justifyIcon: {
-          type: String,
-          value: 'editor:format-align-left',
-        },
-        /**
-         * Selected value to match format of the tag currently.
-         */
-        selectedValue: {
-          type: String,
-          value: 'style1',
-          notify: true,
-        },
-        /**
-         * Selected value to match image direction currently.
-         */
-        justifyValue: {
-          type: String,
-          value: 'hax-align-left',
-          notify: true,
+        haxProperties: {
+          type: Object,
+          value: {
+            'canScale': true,
+            'canPosition': true,
+            'canEditSource': true,
+          },
         },
       },
       /**
@@ -139,28 +73,6 @@ A context menu that provides common image based authoring options.
       _imageSizeChanged: function(newValue, oldValue) {
         if (typeof newValue !== typeof undefined) {
           this.fire('hax-context-item-selected', {eventName: 'hax-size-change', value: newValue});
-        }
-      },
-      /**
-       * Respond to simple modifications.
-       */
-      _haxContextOperation: function(e) {
-        let detail = e.detail;
-        // support a simple insert event to bubble up or everything else
-        switch(detail.eventName) {
-          case 'hax-align-left':
-            this.justifyIcon = detail.target.children[0].attributes[0].value;
-          break;
-          case 'hax-align-center':
-            this.justifyIcon = detail.target.children[0].attributes[0].value;
-          break;
-          case 'hax-align-right':
-            this.justifyIcon = detail.target.children[0].attributes[0].value;
-          break;
-          case 'close-menu':
-            this.$.justify.hideMenu();
-            this.$.formatsize.hideMenu();
-          break;
         }
       },
     });

@@ -35,6 +35,7 @@ Export dialog with all export options and settings provided.
         right: 0;
         bottom: 0;
         left: 0;
+        margin: 68px;
         overflow: auto;
       }
       #dialogcontent {
@@ -43,35 +44,40 @@ Export dialog with all export options and settings provided.
       }
       #dialogheader {
         margin: 0;
-        padding: 1.2em;
-        border-bottom: 1px solid black;
+        padding: 16px;
+        height: 32px;
+        color: #e5e5e5;
+        background: #2e2e2e;
       }
       #dialogheader h2 {
         margin: 0;
-        font-size: 1.8em
+        font-size: 28px;
       }
       .page-area {
-        padding: 2em;
+        padding: 32px;
       }
       .add-url-are,
       .add-upload-area {
-        margin: 1em 0;
+        margin: 16px 0;
       }
       .url-description {
-        font-size: .8em;
+        font-size: 14px;
         color:grey;
       }
       .buttons {
         color: black;
       }
     </style>
-    <paper-dialog id="dialog" entry-animation="slide-from-bottom-animation" exit-animation="slide-down-animation" with-backdrop>
-      <h2 id="dialogheader" class="indigo white-text">[[exportTitle]]</h2>
+    <paper-dialog id="dialog" entry-animation="slide-from-top-animation" exit-animation="slide-up-animation" with-backdrop>
+      <div id="dialogheader" class="grey darken-3 grey-text text-lighten-3">
+        <h2>[[exportTitle]]</h2>
+      </div>
       <paper-dialog-scrollable class="dialog-contents" id="dialogcontent">
         <textarea id="textarea" rows="20" style="width:100%;"></textarea>
       </paper-dialog-scrollable>
       <div class="buttons">
         <paper-button id="download" confirm raised>Download</paper-button>
+        <paper-button id="downloadfull" confirm raised>Download (stand alone file)</paper-button>
         <paper-button id="import" raised>Import</paper-button>
         <paper-button id="copy" raised>Copy</paper-button>
         <paper-button id="close" raised dialog-dismiss>Close</paper-button>
@@ -85,6 +91,7 @@ Export dialog with all export options and settings provided.
       is: 'hax-export-dialog',
       listeners: {
         'download.tap': 'download',
+        'downloadfull.tap': 'downloadfull',
         'import.tap': 'import',
         'copy.tap': 'selectBody',
       },
@@ -109,8 +116,15 @@ Export dialog with all export options and settings provided.
        * Download file.
        */
       download: function(e) {
-        const data = this.contentToFile();
-        this.downloadFromData(data, 'html', 'hax-file');
+        const data = this.contentToFile(false);
+        this.downloadFromData(data, 'html', 'my-new-code');
+      },
+      /**
+       * Download file.
+       */
+      downloadfull: function(e) {
+        const data = this.contentToFile(true);
+        this.downloadFromData(data, 'html', 'my-new-webpage');
       },
       /**
        * Download file.
@@ -132,42 +146,49 @@ Export dialog with all export options and settings provided.
        * Toggle ourselves.
        */
       toggleDialog: function() {
-        this.$.textarea.innerHTML = this.contentToFile();
+        this.$.textarea.innerHTML = this.contentToFile(false);
         this.$.dialog.toggle();
       },
       /**
        * Output entire thing as a file.
        */
-      contentToFile: function() {
-        let elementList = Polymer.HaxStore.instance.elementList;
-        // @todo obviously not sustainable
-        let url = 'https://lrnwebcomponents.github.io/hax-body/components';
-        let content = `
-        <!doctype html>
-        <html lang="en">
-          <head>
-            <meta charset="utf-8">
-            <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
-            <title>hax-body demo</title>
-          <script src="${url}/webcomponentsjs/webcomponents-lite.js"><\/script>
-          <style>
-          body {
-            padding: 2em;
+      contentToFile: function(full) {
+        var content = '';
+        // if you want full HTML headers or not
+        if (full) {
+          let elementList = Polymer.HaxStore.instance.elementList;
+          // @todo obviously not sustainable
+          let url = 'https://lrnwebcomponents.github.io/hax-body/components';
+          content = `
+          <!doctype html>
+          <html lang="en">
+            <head>
+              <meta charset="utf-8">
+              <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+              <title>hax-body demo</title>
+            <script src="${url}/webcomponentsjs/webcomponents-lite.js"><\/script>
+            <style>
+            body {
+              padding: 32px;
+            }
+            </style>
+            <script>
+            /* this script must run before Polymer is imported */
+            window.Polymer = {
+              dom: 'shady',
+              lazyRegister: true
+            };
+          <\/script>`;
+          for (var index in elementList) {
+            content += `<link rel="import" href="${url}/${index}/${index}.html" />` + "\n";
           }
-          </style>
-          <script>
-          /* this script must run before Polymer is imported */
-          window.Polymer = {
-            dom: 'shady',
-            lazyRegister: true
-          };
-        <\/script>`;
-        for (var index in elementList) {
-          content += `<link rel="import" href="${url}/${index}/${index}.html" />` + "\n";
+          content += '</head><body>';
+          content += Polymer.HaxStore.instance.activeHaxBody.haxToContent();
+          content += '</body></html>';
         }
-        content += '</head><body>';
-        content += Polymer.HaxStore.instance.activeHaxBody.haxToContent();
-        content += '</body></html>';
+        else {
+          content = Polymer.HaxStore.instance.activeHaxBody.haxToContent();
+        }
         return content;
       },
     });

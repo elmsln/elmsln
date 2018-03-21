@@ -1,6 +1,5 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../app-layout/app-drawer/app-drawer.html">
-<link rel="import" href="../lrnsys-layout/lrnsys-collapselist-item.html">
 <link rel="import" href="../paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../iron-icons/iron-icons.html">
 <link rel="import" href="hax-panel-item.html">
@@ -26,133 +25,138 @@ as the events being bubbled up include HTML nodes to inject into something
         display: block;
       }
       app-drawer {
-        --app-drawer-width: 100px;
+        z-index: 10001;
+        height: 64px;
+        left: 0;
+        top: 0;
         touch-action: auto;
-        transition: all .3s ease;
-        z-index: 1;
+        visibility: hidden;
+        opacity: 0;
+        display: flex;
+        --app-drawer-width: 100%;
+        --app-drawer-content-container: {
+          height:unset;
+          width: 100%;
+          left: 0;
+          right: 0;
+          background-color: #2e2e2e;
+          padding: unset;
+          display: flex;
+          touch-action: auto;
+        }
       }
-      hax-panel-item:hover,
-      hax-panel-item:focus {
-        -webkit-box-shadow: 0 0 0 3px #34e79a;
-        box-shadow: 0 0 0 3px #34e79a;
+      :host[align="right"] app-drawer {
+        right: 0;
+        left: unset;
       }
-      lrnsys-collapselist-item .label {
-        text-align: center;
+      :host[edit-mode] app-drawer {
+        visibility: visible;
+        opacity: .95;
+        right: 0;
+        left: 0;
+        top: 0;
+      }
+      :host[edit-mode] app-drawer:hover {
+        opacity: 1;
       }
       #button {
         position: fixed;
         top: 0;
         left: 0;
-        z-index: 2;
+        visibility: visible;
+        z-index: 10000;
         margin-left: 0;
-        transition: margin .3s;
-        background-color: #EEEEEE;
-        height: 38px;
-        width: 38px;
-        border: 1px solid #DDDDDD;
+        transition: all 0;
+        opacity: .9;
+        border-radius: 50%;
       }
-      #button[data-opened] {
-        margin-left: 100px;
+      :host[edit-mode] #button {
+        visibility: hidden;
+        opacity: 0;
+        transition: all .8s ease;
       }
-      #htmlexport {
-        position: fixed;
-        top: 38px;
-        left: 0;
-        z-index: 2;
-        margin-left: 0;
-        transition: margin .3s;
-        background-color: #EEEEEE;
-        height: 38px;
-        width: 38px;
-        border: 1px solid #DDDDDD;
+      #button:hover {
+        opacity: 1;
       }
-      #htmlexport[data-opened] {
-        margin-left: 100px;
+      :host[align="right"] #button {
+        right: 0;
+        left: unset;
       }
     </style>
     <div hidden$="[[hidePanelOps]]">
-      <paper-icon-button data-opened$="[[editMode]]" on-tap="_clickButton" icon="create" id="button"></paper-icon-button>
-      <paper-tooltip
-        for="button"
-        position="right"
-        offset="10"
-        animation-delay="0">
-        [[__tipText]]
-      </paper-tooltip>
-      <paper-icon-button hidden$="[[hideExportButton]]" data-opened$="[[editMode]]" on-tap="_htmlExport" icon="code" id="htmlexport"></paper-icon-button>
-      <paper-tooltip
-        for="htmlexport"
-        position="right"
-        offset="10"
-        animation-delay="0">
-        Export
-      </paper-tooltip>
+      <hax-panel-item
+      data-opened$="[[editMode]]"
+      on-tap="_clickButton"
+      icon="power-settings-new"
+      id="button"
+      edged="[[align]]"
+      label="[[__tipText]]"></hax-panel-item>
     </div>
-    <app-drawer id="drawer" opened="{{editMode}}" disable-swipe persistent transition-duration="300">
-      <div style="height: 100%; overflow: auto;">
-        <lrnsys-collapselist-item opened>
-          <span slot="label"><div class="label">Create</div></span>
-          <span slot="content">
-            <hax-panel-item
-              icon="editor:text-fields"
-              icon-class="grey-text text-darken-1"
-              label="Text"
-              event-name="text"
-              voice-command="insert text"></hax-panel-item>
-            <hax-panel-item
-              icon="device:graphic-eq"
-              icon-class="amber-text text-darken-1"
-              label="Rich media"
-              event-name="hax-manager-open"
-              voice-command="insert gizmo"></hax-panel-item>
-          </span>
-        </lrnsys-collapselist-item>
-        <lrnsys-collapselist-item>
-          <span slot="label"><div class="label">More</div></span>
-          <span slot="content">
-            <hax-panel-item
-              icon="editor:title"
-              icon-class="green-text text-darken-1"
-              label="Heading"
-              event-name="header"
-              voice-command="insert heading"></hax-panel-item>
-            <hax-panel-item
-              icon="view-quilt"
-              icon-class="red-text text-darken-1"
-              label="Block layout"
-              event-name="layout"
-              voice-command="insert block"></hax-panel-item>
-            <hax-panel-item
-              icon="view-agenda"
-              icon-class="orange-text text-darken-1"
-              label="Layout stack"
-              event-name="layout"
-              voice-command="insert stack"></hax-panel-item>
-            <hax-panel-item
-              icon="link"
-              icon-class="blue-text text-darken-1"
-              label="Iframe"
-              event-name="iframe"
-              voice-command="insert i frame"></hax-panel-item>
-            <hax-panel-item
-              icon="image:panorama"
-              icon-class="amber-text text-darken-1"
-              label="Image"
-              event-name="image"
-              voice-command="insert image"></hax-panel-item>
-            <hax-panel-item
-              icon="editor:space-bar"
-              icon-class="green-text text-darken-1"
-              label="Divider"
-              event-name="divider"
-              voice-command="insert divider"></hax-panel-item>
-          </span>
-        </lrnsys-collapselist-item>
-        <slot></slot>
-      </div>
+    <app-drawer id="drawer" opened="{{editMode}}" disable-swipe persistent transition-duration="800" align="[[align]]">
+      <hax-panel-item
+        hidden$="[[hidePanelOps]]"
+        on-tap="_clickButton"
+        icon="save"
+        label="[[__tipText]]"
+        event-name="save"
+        voice-command="save content"></hax-panel-item>
+      <hax-panel-item
+        icon="device:graphic-eq"
+        icon-class="amber-text text-darken-1"
+        label="Rich media"
+        event-name="hax-manager-open"
+        voice-command="insert gizmo"></hax-panel-item>
+      <hax-panel-item
+        icon="editor:text-fields"
+        label="Text"
+        event-name="text"
+        voice-command="insert text"></hax-panel-item>
+      <hax-panel-item
+        icon="editor:title"
+        label="Heading"
+        event-name="header"
+        voice-command="insert heading"></hax-panel-item>
+      <hax-panel-item
+        icon="image:panorama"
+        icon-class="amber-text text-darken-1"
+        label="Image"
+        event-name="image"
+        voice-command="insert image"></hax-panel-item>
+      <hax-panel-item
+        icon="link"
+        icon-class="blue-text text-darken-1"
+        label="Iframe"
+        event-name="iframe"
+        voice-command="insert i frame"></hax-panel-item>
+      <hax-panel-item
+        icon="editor:space-bar"
+        icon-class="green-text text-darken-1"
+        label="Divider"
+        event-name="divider"
+        voice-command="insert divider"></hax-panel-item>
+      <slot></slot>
+      <hax-panel-item
+        disabled
+        icon="view-quilt"
+        icon-class="red-text text-darken-1"
+        label="Block layout"
+        event-name="layout"
+        voice-command="insert block"></hax-panel-item>
+      <hax-panel-item
+        disabled
+        icon="view-agenda"
+        icon-class="orange-text text-darken-1"
+        label="Layout stack"
+        event-name="layout"
+        voice-command="insert stack"></hax-panel-item>
+      <hax-panel-item
+        hidden$="[[hideExportButton]]"
+        data-opened$="[[editMode]]"
+        on-tap="_htmlExport"
+        icon="code"
+        label="Export"></hax-panel-item>
     </app-drawer>
   </template>
-
   <script>
     Polymer({
 
@@ -161,6 +165,14 @@ as the events being bubbled up include HTML nodes to inject into something
         'hax-item-selected': '_processItemEvent',
       },
       properties: {
+        /**
+         * Display to the right corner instead of the left (default)
+         */
+        align: {
+          type: String,
+          reflectToAttribute: true,
+          value: 'left',
+        },
         /**
          * State of the panel
          */
@@ -278,11 +290,11 @@ as the events being bubbled up include HTML nodes to inject into something
        */
       _editModeChanged: function(newValue, oldValue) {
         if (typeof newValue !== typeof undefined && newValue) {
-          this.__tipText = 'save';
+          this.__tipText = 'Save';
           this.$.button.icon = 'save';
         }
         else {
-          this.__tipText = 'edit';
+          this.__tipText = 'Edit';
           this.$.button.icon = 'create';
         }
       },
