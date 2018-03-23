@@ -2282,7 +2282,7 @@ function elmsln_core_webcomponent_attached_files_alter(&$webcomponents) {
   $build_path = libraries_get_path('webcomponents') . '/polymer/bower_components/';
   $build = $build_path . 'polymer/polymer.html';
   // modify build path for node edit forms
-  if (arg(0) == 'node' && arg(2) == 'edit' && isset($webcomponents[$build])) {
+  if (arg(0) == 'node' && arg(2) == 'edit') {
     $build = $build_path . '_build/build_edit.html';
   }
   $tmp[$build] = new stdClass();
