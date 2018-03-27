@@ -23,12 +23,18 @@ Go to polymer directory :
 Run the following:
 `bower install --save LRNWebComponents/cms-hax`
 
-Answer any questions bearing in mind that hax currently is written against webcomponentsjs 0.7.x and polymer 1.x.x as of this writing. You will have the dependencies needed.
+Answer any questions bearing in mind that hax currently is written against webcomponentsjs 0.7.x and polymer 1.11.x as of this writing. You will have the dependencies needed.
 
 ## Usage
 This should give you the dependencies you need to get going. Enable the module and go to the permissions page to ensure uses have the 'use hax' permission checked. Once this is checked then people will start to see a 'HAX Authoring' local menu item / tab / contextual option show up when they have access to edit a node.
 
-Click this, and then hit the power button in the top of the UI to get started. When your done editing hit the power button again and it'll save back to the server.
+## Settings
+
+The settings page has ways of hooking up youtube, vimeo and more via the "App store" concept built into HAX. You can also make small tweaks to your needs on this page.
+
+## End user
+
+Go to the node's hax tab, then hit the pencil in the top right. When your done editing hit the power button again and it should confirm that it has saved back to the server. Congratulations on destoying the modules you need to build an awesome site!
 
 ### Developer functions
 By default, the auto-loaded elements will append to the page on node view mode full. To override this, set hax_autoload_element_node_view to false in settings.php
