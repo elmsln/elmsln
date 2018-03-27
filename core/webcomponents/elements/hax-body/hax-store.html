@@ -1,6 +1,7 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../paper-toast/paper-toast.html">
 <link rel="import" href="../media-behaviors/media-behaviors.html">
+<link rel="import" href="../hax-body-behaviors/hax-body-behaviors.html">
 <link rel="import" href="../iron-ajax/iron-ajax.html">
 <link rel="import" href="hax-app.html">
 
@@ -45,6 +46,7 @@
         is: 'hax-store',
         behaviors: [
           MediaBehaviors.Video,
+          HAXBehaviors.PropertiesBehaviors,
         ],
         properties: {
           /**
@@ -99,6 +101,18 @@
             type: Object,
           },
           /**
+           * Hax export dialog element.
+           */
+          haxExport: {
+            type: Object,
+          },
+          /**
+           * Hax preferences dialog element.
+           */
+          haxPreferences: {
+            type: Object,
+          },
+          /**
            * Active HAX Element if we have one we are working on.
            */
           activeHaxElement: {
@@ -116,6 +130,21 @@
           editMode: {
             type: Boolean,
             value: false,
+          },
+          /**
+           * Default settings that can be overridden as needed
+           */
+          defaults: {
+            type: Object,
+            value: {
+              image: {
+                'src': 'stock.jpg',
+                'alt': 'A beachfront deep in the heart of Alaska.',
+              },
+              iframe: {
+                'src': 'https://www.wikipedia.org/',
+              },
+            },
           },
           /**
            * Available gizmos.
@@ -138,6 +167,14 @@
           appList: {
             type: Array,
             value: [],
+          },
+          /**
+           * Global preferences that HAX can write to and
+           * other elements can use to go off of.
+           */
+          globalPreferences: {
+            type: Object,
+            value: {},
           },
           /**
            * Globally active app, used for brokering communications
@@ -188,6 +225,8 @@
          */
         attached: function() {
           this._injectToast();
+          // register built in primitive definitions
+          this._buildPrimitiveDefinitions();
         },
         /**
          * Created life-cycle to ensure a single global store.
@@ -204,10 +243,165 @@
           document.body.addEventListener('hax-register-body', this._haxStoreRegisterBody.bind(this));
           document.body.addEventListener('hax-register-panel', this._haxStoreRegisterPanel.bind(this));
           document.body.addEventListener('hax-register-app', this._haxStoreRegisterApp.bind(this));
-          document.body.addEventListener('hax-register-export', this._haxStoreRegisterExport.bind(this));
           document.body.addEventListener('hax-register-app-picker', this._haxStoreRegisterAppPicker.bind(this));
           // notice content insert and help it along to the body
           document.body.addEventListener('hax-insert-content', this._haxStoreInsertContent.bind(this));
+          document.body.addEventListener('hax-register-preferences', this._haxStoreRegisterPreferences.bind(this));
+          document.body.addEventListener('hax-register-export', this._haxStoreRegisterExport.bind(this));
+        },
+        /**
+         * Build HAX property definitions for primitives that we support.
+         */
+        _buildPrimitiveDefinitions: function() {
+          let iframe = {
+            'canScale': true,
+            'canPosition': true,
+            'canEditSource': true,
+            'gizmo': {
+              'title': 'iframe',
+              'description': 'A basic iframe',
+              'icon': 'icons:fullscreen',
+              'color': 'grey',
+              'groups': ['Content'],
+              'handles': [
+                {
+                  'type': 'link',
+                  'source': 'src',
+                  'height': 'height',
+                  'width': 'width',
+                },
+              ],
+              'meta': {
+                'author': 'W3C'
+              }
+            },
+            'settings': {
+              'quick': [
+                {
+                  'property': 'src',
+                  'title': 'Source',
+                  'description': 'The URL for this video.',
+                  'inputMethod': 'textfield',
+                  'icon': 'link',
+                  'required': true,
+                  'validationType': 'url',
+                },
+              ],
+              'configure': [
+                {
+                  'property': 'src',
+                  'title': 'Source',
+                  'description': 'The URL for this video.',
+                  'inputMethod': 'textfield',
+                  'icon': 'link',
+                  'required': true,
+                  'validationType': 'url',
+                },
+              ],
+              'advanced': []
+            }
+          };
+          this.setHaxProperties(iframe, 'iframe');
+          let img = {
+            'canScale': true,
+            'canPosition': true,
+            'canEditSource': false,
+            'gizmo': {
+              'title': 'Basic image',
+              'description': 'A basic img tag',
+              'icon': 'image:image',
+              'color': 'grey',
+              'groups': ['Image', 'Media'],
+              'handles': [
+                {
+                  'type': 'link',
+                  'source': 'src'
+                },
+                {
+                  'type': 'image',
+                  'source': 'src',
+                  'height': 'height',
+                  'width': 'width',
+                },
+              ],
+              'meta': {
+                'author': 'W3C'
+              }
+            },
+            'settings': {
+              'quick': [
+                {
+                  'property': 'src',
+                  'title': 'Source',
+                  'description': 'The URL for this video.',
+                  'inputMethod': 'textfield',
+                  'icon': 'link',
+                  'required': true,
+                  'validationType': 'url',
+                },
+                {
+                  'property': 'alt',
+                  'title': 'Alt text',
+                  'description': 'Useful for screen readers and improved SEO.',
+                  'inputMethod': 'textfield',
+                  'icon': 'accessibility',
+                },
+              ],
+              'configure': [
+                {
+                  'property': 'src',
+                  'title': 'Source',
+                  'description': 'The URL for this video.',
+                  'inputMethod': 'textfield',
+                  'icon': 'link',
+                  'required': true,
+                  'validationType': 'url',
+                },
+                {
+                  'property': 'alt',
+                  'title': 'Alt text',
+                  'description': 'Useful for screen readers and improved SEO.',
+                  'inputMethod': 'textfield',
+                  'icon': 'accessibility',
+                },
+              ],
+              'advanced': []
+            }
+          };
+          this.setHaxProperties(img, 'img');
+          let p = {
+            'canScale': true,
+            'canPosition': true,
+            'canEditSource': true,
+            'settings': {
+              'quick': [
+              ],
+              'configure': [
+                {
+                  'slot': '',
+                  'title': 'Content',
+                  'description': 'Content of the paragraph',
+                  'inputMethod': 'textfield',
+                  'icon': 'editor:short-text',
+                  'required': true,
+                },
+              ],
+              'advanced': []
+            }
+          };
+          this.setHaxProperties(p, 'p');
+          let hr = {
+            'canScale': true,
+            'canPosition': false,
+            'canEditSource': false,
+            'settings': {
+              'quick': [
+              ],
+              'configure': [],
+              'advanced': []
+            }
+          };
+          this.setHaxProperties(hr, 'hr');
         },
         /**
          * Inject a toast element to manage our messages
@@ -280,11 +474,38 @@
           }
         },
         /**
-         * Set the haxExport so we know what to insert into.
+         * Set the haxExport so we know who to call for exporting
          */
         _haxStoreRegisterExport: function(e) {
           if (e.detail) {
             this.haxExport = e.detail;
+          }
+        },
+        /**
+         * Set the haxPreferences so we know what has global preferences
+         */
+        _haxStoreRegisterPreferences: function(e) {
+          if (e.detail) {
+            this.haxPreferences = e.detail;
+          }
+        },
+        /**
+         * Feature detect on the bar.
+         */
+        computePolyfillSafe: function() {
+          /**
+           * These are our bad actors in polyfill'ed browsers.
+           * This means that https://github.com/webcomponents/webcomponentsjs/commit/ce464bb533bf39b544c312906499a6044ee0d30d
+           * explains things but basically if shadow-dom is polyfilled
+           * then we can't safely execute a DOM manipulating execCommand.
+           * This
+           */
+          if(document.head.createShadowRoot || document.head.attachShadow) {
+            return true;
+          }
+          else {
+            console.log('Shadow DOM missing, can\'t safely use list operations.');
+            return false;
           }
         },
         /**
@@ -363,9 +584,21 @@
             props.style = styles;
           }
         }
+        // test if a class exists, not everything scopes
+        if (typeof node.attributes.class !== typeof undefined) {
+          props.class = node.attributes.class.nodeValue.replace('hax-active', '');
+        }
+        // run through attributes, though non-reflected props won't be here
+        for (var attribute in node.attributes) {
+          // make sure we only set things that have a value
+          if (node.attributes[attribute].name != 'class' && node.attributes[attribute].name != 'style' && node.attributes.hasOwnProperty(attribute) && typeof node.attributes[attribute].value !== undefined && node.attributes[attribute].value != null && node.attributes[attribute].value != '') {
+            props[node.attributes[attribute].name] = node.attributes[attribute].value;
+          }
+        }
+        // run through properties, we always defer to property values
         for (var property in node.properties) {
           // make sure we only set things that have a value
-          if (node.properties.hasOwnProperty(property) && typeof node[property] !== undefined && node[property] != null && node[property] != '') {
+          if (property != 'class' && property != 'style' && node.properties.hasOwnProperty(property) && typeof node[property] !== undefined && node[property] != null && node[property] != '') {
             props[property] = node[property];
           }
         }
@@ -511,9 +744,12 @@
       /**
        * Wipe out the slot of an element.
        */
-       Polymer.HaxStore.wipeSlot = (element) => {
-        while (element.firstChild !== null) {
-          element.removeChild(element.firstChild);
+       Polymer.HaxStore.wipeSlot = (element, slot = '') => {
+        for (var i in Polymer.dom(element).childNodes) {
+          // test for element nodes to be safe
+          if (typeof Polymer.dom(element).childNodes[i] !== typeof undefined && Polymer.dom(element).childNodes[i].nodeType === 1 && Polymer.dom(element).childNodes[i].slot === slot) {
+            Polymer.dom(element).removeChild(Polymer.dom(element).childNodes[i]);
+          }
         }
        };
       /**

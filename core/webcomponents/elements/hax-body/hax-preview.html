@@ -2,6 +2,7 @@
 <link rel="import" href="../eco-json-schema-form/eco-json-schema-wizard.html">
 <link rel="import" href="../paper-toggle-button/paper-toggle-button.html">
 <link rel="import" href="../paper-card/paper-card.html">
+<link rel="import" href="../paper-input/paper-textarea.html">
 <link rel="import" href="../vaadin-split-layout/vaadin-split-layout.html">
 <!--
 `hax-preview`
@@ -77,6 +78,20 @@ An element that can generate a form
           left: -9999px;
         }
       }
+
+      paper-tabs {
+        --paper-tabs-selection-bar-color: #34e79a;
+        --paper-tabs: {
+          background: #f8f8f8;
+        }
+      }
+
+      paper-tab {
+        --paper-tab-ink: #34e79a;
+        --paper-tab: {
+          font-size: .8em;
+        }
+      }
     </style>
     <vaadin-split-layout class="panel-wrapper">
       <!-- critique panel -->
@@ -85,8 +100,15 @@ An element that can generate a form
       </div>
       <!-- critique panel -->
       <div class="vaadin-split-layout-panel">
+
+        <!-- editor mode -->
+        <template is="dom-if" if="[[haspreviewNode]]">
+          <paper-tabs id="modetabs" selected="{{modeTab}}" attr-for-selected="data-mode" on-selected-changed="_editorModeChanged">
+            <paper-tab data-mode="configure">Configure</paper-tab>
+            <paper-tab data-mode="advanced">Advanced</paper-tab>
+          </paper-tabs>
+        </template>
         <div class="step-toggle-wrapper">
-          <div class="hide-on-mobile">Configure</div><paper-toggle-button id="step" checked="{{advancedForm}}" disabled="[[!haspreviewNode]]"></paper-toggle-button><div class="hide-on-mobile">Advanced</div>
         </div>
         <paper-card class="form-wrapper">
           <eco-json-schema-object id="form" schema="[[schema]]" value="{{value}}"></eco-json-schema-object>
@@ -108,6 +130,13 @@ An element that can generate a form
           type: Object,
           notify: true,
           value: {},
+        },
+        /**
+         * State of mode tabs.
+         */
+        modeTab: {
+          type: String,
+          value: 'configure',
         },
         /**
          * The element to work against expressing the structure of the DOM element
@@ -181,10 +210,8 @@ An element that can generate a form
        */
       _computedEditSource: function(newValue, oldValue) {
         if (typeof newValue !== typeof undefined) {
-          let node = this.previewNode;
-          if (typeof node.getHaxProperties === "function") {
-            let props = node.getHaxProperties();
-            return props.canEditSource;
+          if (typeof this.previewNode.tagName !== typeof undefined && Polymer.HaxStore.instance.elementList[this.previewNode.tagName.toLowerCase()]) {
+            return Polymer.HaxStore.instance.elementList[this.previewNode.tagName.toLowerCase()].canEditSource;
           }
         }
         return true;
@@ -206,12 +233,13 @@ An element that can generate a form
        */
       _formKeyChanged: function(newValue, oldValue) {
         // ensure this doesn't run the 1st pass
-        if (typeof oldValue !== typeof undefined && newValue != oldValue) {
+        if (typeof oldValue !== typeof undefined) {
+          var schema = {};
           // see if we can get schema off of this.
-          if (typeof this.previewNode.getHaxJSONSchema === "function") {
+          if (typeof this.previewNode.tagName !== typeof undefined && typeof Polymer.HaxStore.instance.elementList[this.previewNode.tagName.toLowerCase()] !== typeof undefined) {
             let element = this.element;
-            let schema = this.previewNode.getHaxJSONSchema(newValue);
-            console.log(schema);
+            let props = Polymer.HaxStore.instance.elementList[this.previewNode.tagName.toLowerCase()];
+            schema = Polymer.HaxStore.instance.getHaxJSONSchema(newValue, props);
             for (var property in element.properties) {
               if (element.properties.hasOwnProperty(property)) {
                 if (typeof schema.properties[property] !== typeof undefined) {
@@ -225,21 +253,22 @@ An element that can generate a form
                 this.set('value.' + property, element.properties[property]);
               }
             }
-            this.set('schema', {});
-            this.set('schema', schema);
           }
+          this.set('schema', {});
+          this.set('schema', schema);
         }
       },
       /**
-       * When the preview node is updated, pull schema off it.
+       * When the preview node is updated, pull schema associated with it
        */
       _previewNodeChanged: function(newValue, oldValue) {
         // ensure this doesn't run the 1st pass
         if (typeof oldValue !== typeof undefined && newValue != oldValue) {
           // see if we can get schema off of this.
-          if (typeof newValue.getHaxJSONSchema === "function") {
+          if (typeof newValue.tagName !== typeof undefined && typeof Polymer.HaxStore.instance.elementList[newValue.tagName.toLowerCase()] !== typeof undefined) {
             let element = this.element;
-            let schema = newValue.getHaxJSONSchema(this.formKey);
+            let props = Polymer.HaxStore.instance.elementList[this.previewNode.tagName.toLowerCase()];
+            let schema = Polymer.HaxStore.instance.getHaxJSONSchema(this.formKey, props);
             for (var property in element.properties) {
               if (element.properties.hasOwnProperty(property)) {
                 if (typeof schema.properties[property] !== typeof undefined) {
@@ -251,6 +280,20 @@ An element that can generate a form
                 }
                 newValue.setAttribute(property, element.properties[property]);
                 this.set('value.' + property, element.properties[property]);
+              }
+            }
+            // need to specifically walk through slots if there is anything
+            // that says it has to come from a slot
+            for (var prop in props.settings[this.formKey]) {
+              if (typeof props.settings[this.formKey][prop].slot !== typeof undefined) {
+                // walk through the slots looking for the value of it
+                for (var i in Polymer.dom(newValue).getEffectiveChildNodes()) {
+                  // test for element nodes to be safe
+                  if (typeof Polymer.dom(newValue).getEffectiveChildNodes()[i] !== typeof undefined && Polymer.dom(newValue).getEffectiveChildNodes()[i].nodeType === 1 && Polymer.dom(newValue).getEffectiveChildNodes()[i].slot === props.settings[this.formKey][prop].slot) {
+                    schema.properties[props.settings[this.formKey][prop].slot].value = Polymer.dom(newValue).getEffectiveChildNodes()[i].innerHTML;
+                    this.set('value.' + props.settings[this.formKey][prop].slot, Polymer.dom(newValue).getEffectiveChildNodes()[i].innerHTML);
+                  }
+                }
               }
             }
             this.set('schema', {});
@@ -267,6 +310,7 @@ An element that can generate a form
           let preview = this.$.preview;
           Polymer.HaxStore.wipeSlot(preview);
           this.set('previewNode', {});
+          this.modeTab = 'configure';
           // if we have something, generate the new element inside it
           if (newValue != null && newValue.length != 0) {
             var frag = document.createElement(newValue.tag);
@@ -288,8 +332,8 @@ An element that can generate a form
       _valueChanged: function() {
         let node = this.previewNode;
         // sanity check and then get props and mesh with form value response
-        if (typeof node.getHaxProperties === "function") {
-          let props = node.getHaxProperties();
+        if (typeof node.tagName !== typeof undefined && typeof Polymer.HaxStore.instance.elementList[node.tagName.toLowerCase()] !== typeof undefined) {
+          let props = Polymer.HaxStore.instance.elementList[node.tagName.toLowerCase()];
           // loop through the properties for the form
           for (var value in props.settings[this.formKey]) {
             // support property binding
@@ -307,22 +351,51 @@ An element that can generate a form
                 node.setAttribute(attributeName, this.value[props.settings[this.formKey][value].property]);
               }
             }
+            else if (props.settings[this.formKey].hasOwnProperty(value) && typeof props.settings[this.formKey][value].attribute !== typeof undefined && typeof this.value[props.settings[this.formKey][value].attribute] !== typeof undefined) {
+              let attributeName = Polymer.HaxStore.camelToDash(props.settings[this.formKey][value].attribute);
+              // special supporting for boolean because html is weird :p
+              if (this.value[props.settings[this.formKey][value].attribute] === true) {
+                node.setAttribute(attributeName, props.settings[this.formKey][value].attribute);
+              }
+              else if (this.value[props.settings[this.formKey][value].attribute] === false) {
+                node.removeAttribute(attributeName);
+              }
+              else {
+                node.setAttribute(attributeName, this.value[props.settings[this.formKey][value].attribute]);
+              }
+            }
             else if (typeof props.settings[this.formKey][value].slot !== typeof undefined) {
               // this is slot binding though right now it'll just keep adding
               var tmpel = document.createElement('span');
-              tmpel.slot = props.settings[this.formKey][value].slot;
-              tmpel.innerHTML = this.value[props.settings[this.formKey][value].property];
-              // @todo need to update existing instead of aggressive wipe
-              //while (node.firstChild !== null) {
-                //node.removeChild(node.firstChild);
-              //}
+              // support unnamed slots
+              if (props.settings[this.formKey][value].slot !== '') {
+                tmpel.slot = props.settings[this.formKey][value].slot;
+              }
+              tmpel.innerHTML = this.value[props.settings[this.formKey][value].slot];
+              // wipe just the slot in question
+              Polymer.HaxStore.wipeSlot(node, props.settings[this.formKey][value].slot);
               // inject the slotted content
-              node.appendChild(tmpel);
+              Polymer.dom(node).appendChild(tmpel);
             }
             else {
               // @todo add support for disabling based on not having advanced
-              // form
             }
+          }
+        }
+      },
+
+      /**
+       * Editor mode changed handler
+       */
+      _editorModeChanged: function (e, detail) {
+        const mode = detail.value;
+        if (mode) {
+          // if it's the advanced setting then toggle the advancedForm setting
+          if (mode === 'advanced') {
+            this.advancedForm = true;
+          }
+          else {
+            this.advancedForm = false;
           }
         }
       },

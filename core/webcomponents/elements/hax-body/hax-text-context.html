@@ -46,26 +46,6 @@ A context menu that provides common text based authoring options.
         <paper-item value="blockquote">Quote</paper-item>
         <paper-item value="code">Code</paper-item>
       </hax-context-item-menu>
-      <hax-context-item-textop
-        slot="primary"
-        icon="editor:format-bold"
-        label="Bold"
-        event-name="text-bold"></hax-context-item-textop>
-      <hax-context-item-textop
-        slot="primary"
-        icon="editor:format-italic"
-        label="Italic"
-        event-name="text-italic"></hax-context-item-textop>
-      <hax-context-item-textop
-        slot="primary"
-        icon="editor:insert-link"
-        label="Link"
-        event-name="text-link"></hax-context-item-textop>
-      <hax-context-item-textop
-        slot="primary"
-        icon="mdextra:unlink"
-        label="Unlink"
-        event-name="text-unlink"></hax-context-item-textop>
       <hax-context-item-menu
         slot="primary"
         selected-value="{{justifyValue}}"
@@ -104,32 +84,8 @@ A context menu that provides common text based authoring options.
         label="Outdent"
         event-name="text-outdent"
         hidden$="[[!polyfillSafe]]"></hax-context-item-textop>
-      <hax-context-item-textop
-        slot="primary"
-        icon="editor:format-clear"
-        label="Remove format"
-        event-name="text-remove-format"></hax-context-item-textop>
-      <hax-context-item-textop
-        menu
-        slot="more"
-        label=""
-        icon="mdextra:subscript"
-        event-name="text-subscript">Subscript</hax-context-item-textop>
-      <hax-context-item-textop
-        menu
-        slot="more"
-        label=""
-        icon="mdextra:superscript"
-        event-name="text-superscript">Superscript</hax-context-item-textop>
-      <hax-context-item-textop
-        menu
-        slot="more"
-        icon="editor:format-strikethrough"
-        label=""
-        event-name="text-strikethrough">Cross out</hax-context-item-textop>
     </hax-toolbar>
   </template>
-
   <script>
     Polymer({
 
@@ -170,29 +126,10 @@ A context menu that provides common text based authoring options.
         },
       },
       /**
-       * Ready.
+       * Ready, figure out polyfill
        */
       ready: function() {
-        this.polyfillSafe = this._computePolyfillSafe();
-      },
-      /**
-       * Feature detect on the bar.
-       */
-      _computePolyfillSafe: function() {
-        /**
-         * These are our bad actors in polyfill'ed browsers.
-         * This means thathttps://github.com/webcomponents/webcomponentsjs/commit/ce464bb533bf39b544c312906499a6044ee0d30d
-         * explains things but basically if shadow-dom is polyfilled
-         * then we can't safely execute a DOM manipulating execCommand.
-         * This
-         */
-        if(document.head.createShadowRoot || document.head.attachShadow) {
-          return true;
-        }
-        else {
-          console.log('Shadow DOM missing, can\'t safely use list operations.');
-          return false;
-        }
+        this.polyfillSafe = Polymer.HaxStore.instance.computePolyfillSafe();
       },
       /**
        * Respond to simple modifications.
@@ -202,34 +139,6 @@ A context menu that provides common text based authoring options.
         // support a simple insert event to bubble up or everything else
         switch(detail.eventName) {
           // wow these are way too easy
-          case 'text-bold':
-            document.execCommand('bold');
-          break;
-          case 'text-italic':
-            document.execCommand('italic');
-          break;
-          case 'text-underline':
-            document.execCommand('underline');
-          break;
-          case 'text-subscript':
-            document.execCommand('subscript');
-          break;
-          case 'text-superscript':
-            document.execCommand('superscript');
-          break;
-          case 'text-remove-format':
-            document.execCommand('removeFormat');
-          break;
-          case 'text-strikethrough':
-            document.execCommand('strikeThrough');
-          break;
-          case 'text-link':
-            let url = prompt("Enter a URL:");
-            document.execCommand('createLink', false, url);
-          break;
-          case 'text-unlink':
-            document.execCommand('unlink');
-          break;
           case 'text-align-left':
             this.justifyIcon = detail.target.children[0].attributes[0].value;
           break;
@@ -247,7 +156,8 @@ A context menu that provides common text based authoring options.
             this.$.formatsize.$.menu.hideMenu();
           break;
           /**
-           * Our bad actors in polyfill.
+           * Our bad actors when it comes to polyfill'ed shadowDOM.
+           * Naughty, naughty shadyDOM.
            */
           case 'text-indent':
             document.execCommand('indent');

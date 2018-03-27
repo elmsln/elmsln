@@ -38,6 +38,7 @@ A LRN element for brokering the UI for api endpoints both in querying and upload
         --hax-manager-steps-color: #e5e5e5;
         --hax-manager-tab-color: #e5e5e5;
         --hax-manager-ink-color: #2e2e2e;
+        --hax-accent: #34e79a;
       }
       #dialog {
         position: fixed;
@@ -47,6 +48,8 @@ A LRN element for brokering the UI for api endpoints both in querying and upload
         left: 0;
         margin: 68px;
         overflow: auto;
+        border-bottom-left-radius: 16px;
+        border-bottom-right-radius: 16px;
       }
       #dialogcontent {
         margin-top: 0;
@@ -62,9 +65,9 @@ A LRN element for brokering the UI for api endpoints both in querying and upload
       }
       #step {
         display: inline-block;
-        --paper-toggle-button-checked-bar-color:  var(--paper-green-500);
-        --paper-toggle-button-checked-button-color:  var(--paper-green-500);
-        --paper-toggle-button-checked-ink-color: var(--paper-green-500);
+        --paper-toggle-button-checked-bar-color:  var(--hax-accent);
+        --paper-toggle-button-checked-button-color:  var(--hax-accent);
+        --paper-toggle-button-checked-ink-color: var(--hax-accent);
         --paper-toggle-button-unchecked-bar-color:  var(--paper-amber-900);
         --paper-toggle-button-unchecked-button-color:  var(--paper-amber-900);
         --paper-toggle-button-unchecked-ink-color: var(--paper-amber-900);
@@ -76,8 +79,9 @@ A LRN element for brokering the UI for api endpoints both in querying and upload
         z-index: 1;
         -webkit-box-shadow: 0 0 10px -1px #222222;
         box-shadow: 0 0 10px -1px #222222;
+        --paper-tabs-selection-bar-color: var(--hax-accent);
         --paper-tabs-selection-bar: {
-          border-bottom: 3px solid var(--hax-manager-steps-color);
+          border-bottom: 3px solid var(--hax-accent);
         };
         --paper-tabs-container: {
           margin: 0;
@@ -85,15 +89,16 @@ A LRN element for brokering the UI for api endpoints both in querying and upload
           color: var(--hax-manager-ink-color);
           transition: opacity .3s ease;
         };
+      }
+      .pages-tabs paper-tab {
         --paper-tab-content-unselected: {
           opacity: .9;
           color: grey;
         };
-        --paper-tab-ink: var(--hax-manager-ink-color);
+        --paper-tab-ink: var(--hax-accent);
         --paper-tab: {
           font-family: 'Roboto', 'Noto', sans-serif;
           -webkit-font-smoothing: antialiased;
-          text-transform: uppercase;
         };
       }
       .step-toggle-wrapper {
@@ -133,10 +138,10 @@ A LRN element for brokering the UI for api endpoints both in querying and upload
         font-size: 28px;
       }
       paper-tab iron-icon  {
-        padding-right: 16px;
+        margin-right: 16px;
       }
       vaadin-upload.thick-border {
-        --primary-color: #3f51b5;
+        --primary-color: var(--hax-accent);
         --dark-primary-color: #063;
         --light-primary-color: #6c9;
         --error-color: darkred;
@@ -209,7 +214,7 @@ A LRN element for brokering the UI for api endpoints both in querying and upload
     </style>
     <paper-dialog id="dialog" entry-animation="slide-from-top-animation" exit-animation="slide-up-animation" with-backdrop>
       <div id="dialogheader" class="grey darken-3 grey-text text-lighten-3">
-        <h2>[[managerTitle]]</h2>
+        <h2 class="grey-text text-lighten-3">[[managerTitle]]</h2>
         <div class="step-toggle-wrapper">
           <paper-toggle-button id="step" checked="{{activeStep}}" disabled></paper-toggle-button>
         </div>

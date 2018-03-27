@@ -1,0 +1,161 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../eco-json-schema-form/eco-json-schema-wizard.html">
+<link rel="import" href="../app-layout/app-layout.html">
+<link rel="import" href="../paper-input/paper-input.html">
+<link rel="import" href="../paper-button/paper-button.html">
+<link rel="import" href="../paper-toggle-button/paper-toggle-button.html">
+<link rel="import" href="../iron-pages/iron-pages.html">
+<link rel="import" href="../iron-icons/iron-icons.html">
+<link rel="import" href="../paper-dialog/paper-dialog.html">
+<link rel="import" href="../neon-animation/web-animations.html">
+<link rel="import" href="../neon-animation/neon-animations.html">
+<link rel="import" href="../materializecss-styles/materializecss-styles.html">
+
+<!--
+`hax-export-dialog`
+Export dialog with all export options and settings provided.
+
+@demo demo/index.html
+
+@microcopy - the mental model for this element
+ -
+
+-->
+
+<dom-module id="hax-preferences-dialog">
+  <template>
+    <style include="materializecss-styles">
+      :host {
+        display: block;
+      }
+      #dialog {
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        margin: 68px;
+        overflow: auto;
+        border-bottom-left-radius: 16px;
+        border-bottom-right-radius: 16px;
+      }
+      #dialogcontent {
+        padding:16px;
+        margin:0;
+      }
+      #dialogheader {
+        margin: 0;
+        padding: 16px;
+        height: 32px;
+      }
+      #dialogheader h2 {
+        margin: 0;
+        font-size: 28px;
+      }
+      .page-area {
+        padding: 32px;
+      }
+      .add-url-are,
+      .add-upload-area {
+        margin: 16px 0;
+      }
+      .url-description {
+        font-size: 14px;
+        color:grey;
+      }
+      .buttons {
+        color: black;
+      }
+    </style>
+    <paper-dialog id="dialog" entry-animation="slide-from-top-animation" exit-animation="slide-up-animation" with-backdrop>
+      <div id="dialogheader" class="grey darken-3 grey-text text-lighten-3">
+        <h2>[[title]]</h2>
+      </div>
+      <div class="dialog-contents" id="dialogcontent">
+        <eco-json-schema-object schema="[[schema]]" value="{{preferences}}"></eco-json-schema-object>
+      </div>
+    </paper-dialog>
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'hax-preferences-dialog',
+      observers: [
+        '_preferencesChanged(preferences.*)'
+      ],
+      properties: {
+        /**
+         * Title when open.
+         */
+        title: {
+          type: String,
+          value: 'Preferences (alpha)',
+        },
+        /**
+         * Schema that has all of inputs / manages state
+         */
+        schema: {
+          type: Object,
+          value: {
+            "$schema": "http://json-schema.org/schema#",
+            "title": "HAX preferences",
+            "type": "object",
+            "properties": {
+              "haxRayMode": {
+                "title": "X-Ray vision",
+                "type": "boolean",
+                "value": false,
+              },
+              "haxDeveloperMode": {
+                "title": "Developer mode",
+                "type": "boolean",
+                "value": false,
+              },
+              "voice": {
+                "title": "Voice commands (dev)",
+                "type": "boolean",
+                "value": false,
+              },
+            }
+          },
+        },
+        /**
+         * Preferences managed for everything global about HAX.
+         */
+        preferences: {
+          type: Object,
+          value: {},
+        },
+      },
+      /**
+       * Attached to the DOM; now we can fire event to the store that
+       * we exist and are the thing being edited.
+       */
+      attached: function() {
+        this.fire('hax-register-preferences', this);
+        document.body.addEventListener('hax-store-property-updated', this._haxStorePropertyUpdated.bind(this));
+      },
+      /**
+       * Store updated, sync.
+       */
+      _haxStorePropertyUpdated: function(e) {
+        if (e.detail && typeof e.detail.value !== typeof undefined && e.detail.property) {
+          this.set(e.detail.property, e.detail.value);
+        }
+      },
+      /**
+       * Notice preferences have changed.
+       */
+      _preferencesChanged: function() {
+        Polymer.HaxStore.write('globalPreferences', this.preferences, this);
+      },
+      /**
+       * Toggle ourselves.
+       */
+      toggleDialog: function() {
+        this.$.dialog.toggle();
+      },
+    });
+  </script>
+</dom-module>

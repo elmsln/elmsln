@@ -95,7 +95,7 @@ required for populating input.
           // support things that could technically have no configuration
           // or advanced form but have quick settings
           // This doesn't make a ton of sense but it is possible
-          if (configure.length || advanced.length) {
+          if ((configure.length || advanced.length) && newValue.element.tagName !== 'HR') {
             this.__hasSettingsForm = true;
           }
           else {

@@ -28,7 +28,7 @@ An icon / button that has support for multiple options via drop down.
         background-color: #cccccc;
       };
     </style>
-    <hax-toolbar-menu id="menu" icon="[[icon]]" tooltip="[[label]]" tooltip-direction="[[direction]]" selected="{{selectedValue}}">
+    <hax-toolbar-menu id="menu" icon="[[icon]]" tooltip="[[label]]" tooltip-direction="[[direction]]" selected="{{selectedValue}}" reset-on-select="[[resetOnSelect]]">
       <slot id="items"></slot>
     </hax-toolbar-menu>
   </template>
@@ -42,6 +42,13 @@ An icon / button that has support for multiple options via drop down.
          * Internal flag to allow blocking the event firing if machine selects tag.
          */
         _blockEvent: {
+          type: Boolean,
+          value: false,
+        },
+        /**
+         * Should we reset the selection after it is made
+         */
+        resetOnSelect: {
           type: Boolean,
           value: false,
         },

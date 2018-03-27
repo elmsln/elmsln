@@ -31,6 +31,7 @@
         max-width: 480px;
         @apply --hax-app-picker-dialog;
         background-color: var(--hax-app-picker-dialog-background-color, white);
+        border-radius: 16px;
       }
       #title, .element-button > div {
         color: var(--hax-app-picker-dialog-text-color, black);
@@ -104,7 +105,7 @@
       <paper-dialog-scrollable id="buttonlist">
       <template is="dom-repeat" items="[[selectionList]]" as="element">
         <div class="element-button" on-tap="_selected" data-selected$="[[index]]" title="[[element.title]]">
-          <paper-icon-button on-tap="_selected" data-selected$="[[index]]" class$="icon [[element.color]]" icon="[[element.icon]]"></paper-icon-button>
+          <paper-icon-button id$="picker-item-[[index]]" on-tap="_selected" data-selected$="[[index]]" class$="icon [[element.color]]" icon="[[element.icon]]"></paper-icon-button>
           <div>[[element.title]]</div>
         </div>
       </template>
@@ -159,6 +160,8 @@
        * to select between.
        */
       presentOptions: function(elements, type, title = 'Select an option', pickerType = 'gizmo') {
+        // lock the background
+        document.body.style.overflow = 'hidden';
         // wipe existing
         this.title = title;
         this.pickerType = pickerType;
@@ -193,23 +196,33 @@
         this.set('selectionList', []);
         this.set('selectionList', tmp);
         this.$.dialog.open();
+        // try to focus on option 0
+        setTimeout( () => {
+          this.$$('#picker-item-0').focus();
+        }, 100);
       },
       /**
        * Handle the user selecting an app.
        */
       _selected: function(e) {
-        var normalizedEvent = Polymer.dom(event);
+        var normalizedEvent = Polymer.dom(e);
         let key = normalizedEvent.localTarget.getAttribute('data-selected');
         if (typeof this._elements[key] !== typeof undefined) {
           // haxElement is a unique case
           if (this.pickerType == 'gizmo') {
             Polymer.HaxStore.write('activeHaxElement', this._elements[key], this);
           }
+          else if (this.pickerType == 'delete') {
+            if (this._elements[key]['title'] === 'Yes') {
+              Polymer.HaxStore.instance.activeHaxBody.haxDeleteNode(Polymer.HaxStore.instance.activeHaxBody.activeNode);
+            }
+          }
           else {
             // bubble this up
             this.fire('hax-app-picker-selection', this._elements[key]);
           }
         }
+        document.body.style.overflow = null;
         this.$.dialog.close();
       },
     });

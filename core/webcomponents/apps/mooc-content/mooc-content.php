@@ -164,7 +164,15 @@ function _mooc_content_render_options() {
   if (isset($node_path)) {
     $content .= '
       <lrnsys-button id="edit-tip" href="' . $node_path . '/edit" class="r-header__icon elmsln-edit-button" data-jwerty-key="e" data-voicecommand="edit" hover-class="' . $cis_lmsless[$distro]['text'] . '" inner-class="no-padding" icon="editor:mode-edit" icon-class="blue-text" alt="' . t('Edit page') . '"><span class="element-invisible">' . t('Edit page') . '</span>
-      </lrnsys-button>
+      </lrnsys-button>';
+    // @todo make this show up for everyone, right now just user 1 till
+    // we do some serious testing
+    if (user_access('use hax') && $GLOBALS['user']->uid == 1) {
+      $content .= '
+      <lrnsys-button id="hax-edit-tip" href="' . $node_path . '/hax" class="r-header__icon elmsln-edit-button" data-jwerty-key="h" data-voicecommand="hax" hover-class="' . $cis_lmsless[$distro]['text'] . '" inner-class="no-padding" icon="maps:layers" icon-class="blue-text" alt="' . t('HAX (alpha)') . '"><span class="element-invisible">' . t('HAX (alpha)') . '</span>
+      </lrnsys-button>';
+    }
+    $content .= '
       <paper-menu-button dynamic-align>
         <paper-icon-button id="outlineoptions" class="blue-text" icon="editor:linear-scale" slot="dropdown-trigger" alt="' . t('Edit outline') . '" title="' . t('Edit outline') . '"></paper-icon-button>
         <paper-tooltip for="outlineoptions" animation-delay="200" offset="0">' . t('Outline options') . '</paper-tooltip>

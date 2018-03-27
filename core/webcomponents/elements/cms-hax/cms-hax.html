@@ -3,8 +3,9 @@
 <link rel="import" href="../hax-body/hax-body.html">
 <link rel="import" href="../hax-body/hax-autoloader.html">
 <link rel="import" href="../hax-body/hax-manager.html">
-<link rel="import" href="../hax-body/hax-source.html">
 <link rel="import" href="../hax-body/hax-panel.html">
+<link rel="import" href="../hax-body/hax-app-picker.html">
+<link rel="import" href="../hax-body/hax-app.html">
 <link rel="import" href="../paper-toast/paper-toast.html">
 <!--
 `cms-hax`
@@ -32,12 +33,12 @@ A LRN polymer app
     </style>
     <div id="autoloaderslot" hidden><slot name="autoloader"></slot></div>
     <div id="bodyslot" hidden><slot></slot></div>
-    <hax-store hidden></hax-store>
-    <hax-autoloader id="loader" hidden></hax-autoloader>
+    <hax-store hidden app-store="[[appStoreConnection]]"></hax-store>
+    <hax-app-picker></hax-app-picker>
     <hax-manager></hax-manager>
-    <hax-panel hide-export-button></hax-panel>
+    <hax-panel id="panel" hide-export-button align="right"></hax-panel>
     <hax-body id="body" context-offset-left="[[bodyOffsetLeft]]"></hax-body>
-
+    <hax-autoloader id="loader" hidden></hax-autoloader>
     <iron-ajax
       id="pageupdateajax"
       url="[[endPoint]]"
@@ -55,6 +56,13 @@ A LRN polymer app
       is: 'cms-hax',
       properties: {
         /**
+         * Default the panel to open
+         */
+        openDefault: {
+          type: Boolean,
+          value: true,
+        },
+        /**
          * Location to save content to.
          */
         endPoint: {
@@ -65,6 +73,12 @@ A LRN polymer app
          */
         updatePageData: {
           type: String,
+        },
+        /**
+         * Connection object for talking to an app store.
+         */
+        appStoreConnection: {
+          type: Object,
         },
         /**
          * Offset from the left of the body field
@@ -108,12 +122,17 @@ A LRN polymer app
        * we exist and are the thing being edited.
        */
       attached: function() {
+        console.log(this.appStoreConnection);
+        // open things by default
+        if (this.openDefault) {
+          this.$.panel.toggle();
+        }
         this.__lock = false;
         document.body.addEventListener('hax-store-property-updated', this._haxStorePropertyUpdated.bind(this));
         // @todo, step through slot for both areas injecting them CORRECTLY into the right area
         setTimeout( () => {
           this._slotRemap(this.$.autoloaderslot, this.$.loader);
-          this._slotRemap(this.$.bodyslot, Polymer.HaxStore.instance.haxBody);
+          this._slotRemap(this.$.bodyslot, Polymer.HaxStore.instance.activeHaxBody);
         }, 100);
 
         // notice ANY change to body and bubble up, only when we are attached though
@@ -121,7 +140,7 @@ A LRN polymer app
           Polymer.dom(this.$.body).observeNodes(function(info) {
             if (!this.__lock) {
               this.__lock = true;
-              this.fire('hax-body-content-changed', Polymer.HaxStore.instance.haxBody.haxToContent());
+              this.fire('hax-body-content-changed', Polymer.HaxStore.instance.activeHaxBody.haxToContent());
               setTimeout( () => {
                 this.__lock = false;
               }, 100);
@@ -177,7 +196,7 @@ A LRN polymer app
         // detect we DID have it in edit and then hit save
         else if (oldValue && !newValue) {
           // generate sanitized content
-          this.updatePageData = Polymer.HaxStore.instance.haxBody.haxToContent();
+          this.updatePageData = Polymer.HaxStore.instance.activeHaxBody.haxToContent();
           // send the request
           this.$.pageupdateajax.generateRequest();
         }

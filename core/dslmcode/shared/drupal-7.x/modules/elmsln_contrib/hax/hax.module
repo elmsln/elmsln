@@ -27,6 +27,13 @@ function hax_menu() {
     'access callback' => '_hax_node_access',
     'access arguments' => array('update', 1),
   );
+  $items['hax-app-store/%'] = array(
+    'page callback' => '_hax_load_app_store',
+    'page arguments' => array(1),
+    'type' => MENU_CALLBACK,
+    'access callback' => 'user_access',
+    'access arguments' => array('use hax'),
+  );
   $items['node/%node/hax'] = array(
     'title' => 'HAX mode',
     'description' => 'Edit the node with HAX',
@@ -85,6 +92,20 @@ function hax_settings($form, &$form_state) {
     '#default_value' => variable_get('hax_autoload_element_list', 'video-player wikipedia-query pdf-element lrn-table media-image'),
     '#description' => "This allows for auto-loading elements known to play nice with HAX. If you've written any webcomponents that won't automatically be loaded into the page via that module this allows you to attempt to auto-load them when HAX loads. For example, if you have a video-player element in your bower_components directory and want it to load on this interface, this would be a simple way to do that. Spaces only between elements, no comma",
   );
+  // collapse default state
+  $form['hax_yt_key'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Youtube API key'),
+    '#default_value' => variable_get('hax_yt_key', ''),
+    '#description' => 'See ' . l(t('YouTube developer docs'), 'https://developers.google.com/youtube/v3/getting-started') . ' for details.',
+  );
+  // collapse default state
+  $form['hax_memegen_key'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Meme generator API key'),
+    '#default_value' => variable_get('hax_memegen_key', ''),
+    '#description' => 'See ' . l(t('Meme generator developer docs'), 'https://memegenerator.net/Api') . ' for details.',
+  );
   return system_settings_form($form);
 }
 
@@ -106,6 +127,27 @@ function _hax_node_save($node, $token) {
       'status' => 200,
       'message' => t('Save successful!'),
       'data' => $node,
+    );
+    // output the response as json
+    print drupal_json_output($return);
+  }
+}
+
+/**
+ * Callback to assemble the hax app store
+ */
+function _hax_load_app_store($token) {
+  // ensure we had data PUT here and it is valid
+  if (drupal_valid_token($token, 'hax')) {
+    $appStore = module_invoke_all('hax_app_store');
+    drupal_alter('hax_app_store', $appStore);
+    // send back happy headers
+    drupal_add_http_header('Content-Type', 'application/json');
+    // define status
+    drupal_add_http_header('Status', 200);
+    $return = array(
+      'status' => 200,
+      'apps' => $appStore,
     );
     // output the response as json
     print drupal_json_output($return);
@@ -147,11 +189,153 @@ function _hax_node_form($node) {
       $components .= '<' . $element . ' slot="autoloader">' . '</' . $element . '>';
     }
   }
+  $appStoreConnection = array(
+    'url' => base_path() . 'hax-app-store/' . drupal_get_token('hax'),
+  );
   // write content to screen, wrapped in tag to do all the work
   $content = '
-  <cms-hax end-point="' . base_path() . 'hax-node-save/' . $node->nid . '/' . drupal_get_token('hax') . '" body-offset-left="' . variable_get('hax_offset_left', 0) . '">'
+  <cms-hax open-default end-point="' . base_path() . 'hax-node-save/' . $node->nid . '/' . drupal_get_token('hax') . '" body-offset-left="' . variable_get('hax_offset_left', 0) . '" app-store-connection=' . "'" . json_encode($appStoreConnection) . "'" . '>'
   . $components .
     check_markup($node->body['und'][0]['value'], $node->body['und'][0]['format'])
   .'</cms-hax>';
   return $content;
+}
+
+/**
+ * Implements hook_hax_app_store().
+ */
+function hax_hax_app_store() {
+  $json = array();
+  // test for youtube being activated
+  if (variable_get('hax_yt_key', '') != '') {
+    $jsonstring = '{
+      "details": {
+        "title": "Youtube",
+        "icon": "av:play-arrow",
+        "color": "red",
+        "author": "Google, Youtube LLC",
+        "description": "The most popular online video sharing and remix site.",
+        "status": "available",
+        "tags": ["video", "crowdsourced"]
+      },
+      "connection": {
+          "protocol": "https",
+          "url": "www.googleapis.com/youtube/v3",
+          "data": {
+            "key": "' . variable_get('hax_yt_key', '') . '"
+          },
+          "operations": {
+            "browse": {
+              "method": "GET",
+              "endPoint": "search",
+              "pagination": {
+                "style": "page",
+                "props": {
+                  "previous": "prevPageToken",
+                  "next": "nextPageToken",
+                  "total_items": "pageInfo.totalResults"
+                }
+              },
+              "search": {
+                "q": {
+                  "title": "Search",
+                  "type": "string"
+                }
+              },
+              "data": {
+                "part": "snippet",
+                "type": "video",
+                "maxResults": "20"
+              },
+
+                "url": "https://www.youtube.com/watch?v=",
+
+              "resultMap": {
+                "defaultGizmoType": "video",
+                "items": "items",
+                "preview": {
+                  "title": "snippet.title",
+                  "details": "snippet.description",
+                  "image": "snippet.thumbnails.default.url",
+                  "id": "id.videoId"
+                },
+                "gizmo": {
+                  "title": "snippet.title",
+                  "description": "snippet.description",
+                  "id": "id.videoId",
+                  "_url_source": "https://www.youtube.com/watch?v=<%= id %>",
+                  "caption": "snippet.description",
+                  "citation": "snippet.channelTitle"
+                }
+              }
+            }
+          }
+      }
+    }';
+    $tmp = json_decode($jsonstring);
+    array_push($json, $tmp);
+  }
+  // test for youtube being activated
+  if (variable_get('hax_memegen_key', '') != '') {
+    $jsonstring = '{
+      "details": {
+        "title": "Meme generator",
+        "icon": "android",
+        "color": "blue",
+        "author": "Meme generator",
+        "description": "A search engine of popular memes.",
+        "status": "available",
+        "tags": ["picture", "crowdsourced", "image", "meme"]
+      },
+      "connection": {
+        "protocol": "http",
+        "url": "version1.api.memegenerator.net",
+        "data": {
+          "apiKey": "' . variable_get('hax_memegen_key', '') . '"
+        },
+        "operations": {
+          "browse": {
+            "method": "GET",
+            "endPoint": "Generators_Search",
+            "pagination": {
+              "style": "page",
+              "props": {
+                "previous": "prevPageToken",
+                "next": "nextPageToken",
+                "total_items": "pageInfo.totalResults"
+              }
+            },
+            "search": {
+              "q": {
+                "title": "Search",
+                "type": "string"
+              }
+            },
+            "data": {
+              "pageIndex":"0",
+              "pageSize":"20"
+            },
+            "resultMap": {
+              "defaultGizmoType": "image",
+              "items": "result",
+              "preview": {
+                "title": "displayName",
+                "details": "",
+                "image": "imageUrl",
+                "id": "imageID"
+              },
+              "gizmo": {
+                "title": "displayName",
+                "id": "imageID",
+                "source": "imageUrl"
+              }
+            }
+          }
+        }
+      }
+    }';
+    $tmp = json_decode($jsonstring);
+    array_push($json, $tmp);
+  }
+  return $json;
 }
