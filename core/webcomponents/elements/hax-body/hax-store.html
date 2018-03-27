@@ -204,7 +204,14 @@
         _appStoreChanged: function(newValue, oldValue) {
           // if we have an endpoint defined, pull it
           if (typeof newValue !== typeof undefined) {
-            this.$.appstore.generateRequest();
+            // support having the request or remote loading
+            // depending on the integration type
+            if (typeof newValue.apps === typeof undefined) {
+              this.$.appstore.generateRequest();
+            }
+            else {
+              this.__appStoreData = newValue;
+            }
           }
         },
         /**

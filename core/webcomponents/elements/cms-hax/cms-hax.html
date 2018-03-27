@@ -60,7 +60,7 @@ A LRN polymer app
          */
         openDefault: {
           type: Boolean,
-          value: true,
+          value: false,
         },
         /**
          * Location to save content to.
@@ -122,10 +122,6 @@ A LRN polymer app
        * we exist and are the thing being edited.
        */
       attached: function() {
-        // open things by default
-        if (this.openDefault) {
-          this.$.panel.toggle();
-        }
         this.__lock = false;
         document.body.addEventListener('hax-store-property-updated', this._haxStorePropertyUpdated.bind(this));
         // @todo, step through slot for both areas injecting them CORRECTLY into the right area
@@ -145,6 +141,11 @@ A LRN polymer app
               }, 100);
             }
           });
+        }
+        // open things by default and set state for edit mode
+        if (this.openDefault) {
+          this.$.panel.toggle();
+          Polymer.HaxStore.write('editMode', true, this);
         }
       },
       /**
