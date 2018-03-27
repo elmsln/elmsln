@@ -68,9 +68,9 @@ A LRN element for brokering the UI for api endpoints both in querying and upload
         --paper-toggle-button-checked-bar-color:  var(--hax-accent);
         --paper-toggle-button-checked-button-color:  var(--hax-accent);
         --paper-toggle-button-checked-ink-color: var(--hax-accent);
-        --paper-toggle-button-unchecked-bar-color:  var(--paper-amber-900);
-        --paper-toggle-button-unchecked-button-color:  var(--paper-amber-900);
-        --paper-toggle-button-unchecked-ink-color: var(--paper-amber-900);
+        --paper-toggle-button-unchecked-bar-color:  var(--hax-manager-tab-color);
+        --paper-toggle-button-unchecked-button-color:  var(--hax-manager-tab-color);
+        --paper-toggle-button-unchecked-ink-color: var(--hax-manager-tab-color);
       }
       .pages-tabs {
         position: absolute;
@@ -137,22 +137,55 @@ A LRN element for brokering the UI for api endpoints both in querying and upload
         margin: 0;
         font-size: 28px;
       }
-      paper-tab iron-icon  {
+      paper-tab iron-icon {
         margin-right: 16px;
+        border-radius: 50%;
+        color: #222222;
+        width: 24px;
+        height: 24px;
+        padding: 4px;
+        --webkit-box-shadow: 0 0 1px 1px #222222;
+        box-shadow: 0 0 1px 1px #222222;
+        box-sizing: content-box;
       }
-      vaadin-upload.thick-border {
+      vaadin-upload {
         --primary-color: var(--hax-accent);
-        --dark-primary-color: #063;
-        --light-primary-color: #6c9;
+        --primary-font-color: #222222;
+        --dark-primary-color: #222222;
+        --light-primary-color: var(--hax-accent);
         --error-color: darkred;
-
         border: 2px solid #ccc;
-        padding: 14px;
-        background: #eee;
-        border-radius: 0;
+        background: var(--hax-manager-tab-color);
+        color: #222222;
+        padding: 8px;
+        border-radius: 4px;
+        --vaadin-upload-button-add-wrapper: {
+          padding: 16px 32px;
+          border: 1px solid #222222;
+          background-color: var(--hax-accent);
+          color: #222222;
+        };
+        --vaadin-upload-button-add: {
+          color: #222222;
+          --webkit-box-shadow: 0 0 2px 2px #e5e5e5;
+          box-shadow: 0 0 2px 2px #e5e5e5;
+        }
+        --vaadin-upload-drop-label: {
+          color: #222222;
+        };
+        --vaadin-upload-drop-label-dragover: {
+          color: #222222;
+        };
+        --vaadin-upload-file-list: {
+          padding: 16px;
+          margin: 16px;
+        };
       }
-      vaadin-upload.thick-border[dragover] {
+      vaadin-upload[dragover] {
         border-color: #396;
+      }
+      vaadin-upload-file {
+        --disabled-text-color: #222222;
       }
       .page-area {
         padding: 0 16px;
@@ -169,10 +202,36 @@ A LRN element for brokering the UI for api endpoints both in querying and upload
         color:grey;
       }
       #preview {
-        height: 88vh;
-        max-height: 92%;
+        height: 84vh;
+      }
+      .or-text {
+        font-size: 32px;
+        margin: 4px;
+        width: 100%;
+        display: block;
+        line-height: 32px;
+        height: 32px;
+        text-align: center;
+      }
+      #newassetconfigure {
+        bottom: 0;
+        left: 0;
+        right: 0;
+        position: absolute;
+        width: 100%;
+        margin: 0;
+        padding: 16px;
+        background-color: #e2e2e2;
+        -webkit-box-shadow: 0 -1px 4px 0px #222222;
+        box-shadow: 0 -1px 4px 0px #222222;
       }
       @media screen and (max-width: 550px) {
+        #dialog {
+          margin: 0;
+          overflow: auto;
+          border-bottom-left-radius: 0px;
+          border-bottom-right-radius: 0px;
+        }
         .hide-on-mobile {
           opacity: 0;
           visibility: hidden;
@@ -185,21 +244,13 @@ A LRN element for brokering the UI for api endpoints both in querying and upload
         .page-area.hax-manager {
           padding: 6px;
         }
-        #newassetconfigure {
-          bottom: 0;
-          position: absolute;
-          width: 100%;
-          margin: 0;
-          padding: 16px;
-          background-color: #EEEEEE;
-        }
         #insert {
           bottom: 0;
           position: absolute;
           width: 50%;
           margin: 0;
           padding: 16px;
-          background-color: #AAFFAA;
+          background-color: #34e79a;
         }
         #cancel {
           bottom: 0;
@@ -208,7 +259,10 @@ A LRN element for brokering the UI for api endpoints both in querying and upload
           width: 50%;
           margin: 0;
           padding: 16px;
-          background-color: #FFDDDD;
+          background-color: #EEEEEE;
+        }
+        .or-text {
+          display: none;
         }
       }
     </style>
@@ -226,11 +280,11 @@ A LRN element for brokering the UI for api endpoints both in querying and upload
           role="main">
           <div data-value="select">
             <paper-tabs id="pagetabs" class="pages-tabs" selected="{{activePage}}" autoselect>
-              <paper-tab><iron-icon icon="image:add-to-photos"></iron-icon><span class="hide-on-mobile">Add Something</span></paper-tab>
+              <paper-tab><iron-icon icon="icons:add" class="blue accent-2"></iron-icon><span class="hide-on-mobile">Add Something</span></paper-tab>
               <paper-tab hidden$="[[!appList.length]]">
-                <iron-icon icon="search"></iron-icon><span class="hide-on-mobile">Find Something</span></paper-tab>
+                <iron-icon icon="search" class="yellow accent-2"></iron-icon><span class="hide-on-mobile">Find Something</span></paper-tab>
               <paper-tab hidden$="[[!staxList.length]]">
-                <iron-icon icon="view-quilt"></iron-icon><span class="hide-on-mobile">Make Gizmo</span></paper-tab>
+                <iron-icon icon="hardware:toys" class="red accent-3"></iron-icon><span class="hide-on-mobile">Make Gizmo</span></paper-tab>
             </paper-tabs>
             <iron-pages
               id="activepage"
@@ -241,6 +295,7 @@ A LRN element for brokering the UI for api endpoints both in querying and upload
                   <paper-input id="url" label="URL" type="url" auto-validate></paper-input>
                 <div class="url-description">A full URL with http:// referencing a link that already exists on the web.</div>
                 </div>
+                <div class="or-text">OR</div>
                 <div class="add-upload-area">
                   <vaadin-upload form-data-name="file-upload" id="fileupload"></vaadin-upload>
                 </div>
