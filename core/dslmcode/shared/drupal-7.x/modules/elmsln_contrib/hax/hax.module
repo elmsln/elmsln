@@ -119,6 +119,7 @@ function _hax_load_app_store($token) {
     );
     // output the response as json
     print drupal_json_output($return);
+    exit;
   }
 }
 
