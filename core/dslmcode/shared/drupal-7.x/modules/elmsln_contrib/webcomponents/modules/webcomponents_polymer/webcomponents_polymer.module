@@ -201,3 +201,22 @@ function _webcomponents_polymer_process_components($file) {
   }
   return FALSE;
 }
+
+/**
+ * Implements hook_webcomponent_attached_files_alter().
+ */
+function webcomponents_polymer_webcomponent_attached_files_alter(&$files) {
+  $libraries = libraries_get_libraries();
+  $polymer = $libraries['webcomponents'] . '/polymer/bower_components/polymer/polymer.html';
+  // support for a webcomponents.json file to tell us what to append
+  if (file_exists(DRUPAL_ROOT . '/' . $polymer)) {
+    $component = new stdClass();
+    $component->machine_name = 'polymer';
+    $component->tag = 'polymer';
+    $component->title = 'polymer';
+    $component->file = $polymer;
+    $component->type = 'polymer';
+    $component->properties = array();
+    $files[$polymer] = $component;
+  }
+}
