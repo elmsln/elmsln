@@ -257,7 +257,7 @@ Drupal.tableDrag.prototype.makeDraggable = function (item) {
   var self = this;
 
   // Create the handle.
-  var handle = $('<a href="#" class="tabledrag-handle"><div class="handle">&nbsp;</div></a>').attr('title', Drupal.t('Drag to re-order'));
+  var handle = $('<iron-icon icon="editor:drag-handle" class="tabledrag-handle"></iron-icon>').attr('title', Drupal.t('Drag to re-order'));
   // Insert the handle after indentations (if any).
   if ($('td:first .indentation:last', item).length) {
     $('td:first .indentation:last', item).after(handle);
