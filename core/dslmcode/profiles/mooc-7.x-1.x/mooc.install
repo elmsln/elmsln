@@ -245,3 +245,11 @@ function mooc_update_7019(&$standbox) {
   features_revert_module('mooc_ux_defaults');
   module_disable(array('read_time','read_time_media','read_time_book',));
 }
+
+/**
+ * HAX here to start playing
+ */
+function mooc_update_7020(&$sandbox) {
+  // enable the modules to make it happen
+  module_enable(array('hax', 'mooc_hax'));
+}

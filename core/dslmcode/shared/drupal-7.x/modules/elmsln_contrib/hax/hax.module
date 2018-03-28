@@ -7,6 +7,8 @@ include_once 'HAXService.php';
  * Headless Authoring eXperience, all we do is accept calls and make things haxable in the first place.
  */
 
+define('HAX_DEFAULT_ELEMENTS', 'video-player wikipedia-query pdf-element lrn-table media-image');
+
 /**
  * Implements hook_permission().
  */
@@ -29,6 +31,13 @@ function hax_menu() {
     'type' => MENU_CALLBACK,
     'access callback' => '_hax_node_access',
     'access arguments' => array('update', 1),
+  );
+  $items['hax-file-save/%'] = array(
+    'page callback' => '_hax_file_save',
+    'page arguments' => array(1),
+    'type' => MENU_CALLBACK,
+    'access callback' => '_hax_file_access',
+    'access arguments' => array('create'),
   );
   $items['hax-app-store/%'] = array(
     'page callback' => '_hax_load_app_store',
@@ -64,7 +73,7 @@ function hax_menu() {
 function hax_node_view($node, $view_mode, $langcode) {
   if ($view_mode == 'full' && variable_get('hax_autoload_element_node_view', TRUE)) {
     // generate autoload list
-    $elementstring = variable_get('hax_autoload_element_list', 'video-player wikipedia-query pdf-element lrn-table media-image');
+    $elementstring = variable_get('hax_autoload_element_list', HAX_DEFAULT_ELEMENTS);
     // blow up based on space
     $elements = explode(' ', $elementstring);
     foreach ($elements as $element) {
@@ -134,6 +143,59 @@ function _hax_node_access($op, $node) {
 }
 
 /**
+ * Permission + File access check.
+ */
+function _hax_file_access($op) {
+  if (user_access('use hax') && entity_access('create', 'file', $_FILES['file-upload']['type'])) {
+    return TRUE;
+  }
+  return FALSE;
+}
+
+/**
+ * Save a file to the file system.
+ */
+function _hax_file_save($token) {
+  $status = 403;
+  // check for the uploaded file from our 1-page-uploader app
+  // and ensure there are entity permissions to create a file of this type
+  if (drupal_valid_token($token, 'hax') && isset($_FILES['file-upload']) && entity_access('create', 'file', $_FILES['file-upload']['type'])) {
+    $upload = $_FILES['file-upload'];
+    // check for a file upload
+    if (isset($upload['tmp_name']) && is_uploaded_file($upload['tmp_name'])) {
+      // get contents of the file if it was uploaded into a variable
+      $data = file_get_contents($upload['tmp_name']);
+      $params = filter_var_array($_GET, FILTER_SANITIZE_STRING);
+      // see if we had a file_wrapper defined, otherwise this is public
+      if (isset($params['file_wrapper'])) {
+        $file_wrapper = $params['file_wrapper'];
+      }
+      else {
+        $file_wrapper = 'public';
+      }
+      // see if Drupal can load from this data source
+      if ($file = file_save_data($data, $file_wrapper . '://' . $upload['name'])) {
+        file_save($file);
+        $file->url = file_create_url($file->uri);
+        $return = array('file' => $file);
+        $status = 200;
+      }
+    }
+  }
+  // send back happy headers
+  drupal_add_http_header('Content-Type', 'application/json');
+  // define status
+  drupal_add_http_header('Status', 200);
+  $return = array(
+    'status' => $status,
+    'data' => $return,
+  );
+  // output the response as json
+  print drupal_json_output($return);
+  exit;
+}
+
+/**
  * Present the node form but wrap the content in hax-body tag
  * @param  [type] $node [description]
  * @return [type]       [description]
@@ -148,7 +210,7 @@ function _hax_node_form($node) {
   $component->file = libraries_get_path('webcomponents') . '/polymer/bower_components/cms-hax/cms-hax.html';
   _webcomponents_add_to_head($component, 10000);
   // generate autoload list
-  $elementstring = variable_get('hax_autoload_element_list', 'video-player wikipedia-query pdf-element lrn-table media-image');
+  $elementstring = variable_get('hax_autoload_element_list', HAX_DEFAULT_ELEMENTS);
   // blow up based on space
   $elements = explode(' ', $elementstring);
   $components = '';
@@ -178,14 +240,14 @@ function hax_settings($form, &$form_state) {
     '#type' => 'textfield',
     '#title' => t('Offset'),
     '#default_value' => variable_get('hax_offset_left', 0),
-    '#description' => "Helps with theme compatibility when positioning the context menu. Adjust this if HAX context menu doesn't correctly align with the side of your content when editing. Value is in pixels but should not include px. Some themes that mess with box-model may or may not have this issue.",
+    '#description' => t("Helps with theme compatibility when positioning the context menu. Adjust this if HAX context menu doesn't correctly align with the side of your content when editing. Value is in pixels but should not include px. Some themes that mess with box-model may or may not have this issue."),
   );
   // collapse default state
   $form['hax_autoload_element_list'] = array(
     '#type' => 'textfield',
     '#title' => t('Elements to autoload'),
-    '#default_value' => variable_get('hax_autoload_element_list', 'video-player wikipedia-query pdf-element lrn-table media-image'),
-    '#description' => "This allows for auto-loading elements known to play nice with HAX. If you've written any webcomponents that won't automatically be loaded into the page via that module this allows you to attempt to auto-load them when HAX loads. For example, if you have a video-player element in your bower_components directory and want it to load on this interface, this would be a simple way to do that. Spaces only between elements, no comma",
+    '#default_value' => variable_get('hax_autoload_element_list', HAX_DEFAULT_ELEMENTS),
+    '#description' => t("This allows for auto-loading elements known to play nice with HAX. If you've written any webcomponents that won't automatically be loaded into the page via that module this allows you to attempt to auto-load them when HAX loads. For example, if you have a video-player element in your bower_components directory and want it to load on this interface, this would be a simple way to do that. Spaces only between elements, no comma"),
   );
   $hax = new HAXService();
   $baseApps = $hax->baseSupportedApps();
@@ -213,5 +275,90 @@ function hax_hax_app_store() {
     }
   }
   $json = $hax->loadBaseAppStore($apikeys);
+  // pull in the core ones we supply
+  if (module_exists('file_entity') && module_exists('restws')) {
+    $tmp = json_decode(_hax_site_connection());
+    array_push($json, $tmp);
+  }
+  return $json;
+}
+
+/**
+ * Connection details for this site. This is where
+ * all the really important stuff is that will
+ * make people freak out.
+ */
+function _hax_site_connection() {
+  global $base_url;
+  $parts = explode('://', $base_url);
+  // built in support when file_entity and restws is in place
+  $json = '{
+    "details": {
+      "title": "' . t('Internal files') . '",
+      "icon": "perm-media",
+      "color": "light-blue",
+      "author": "Drupal",
+      "description": "Drupal site integration for HAX",
+      "tags": ["media", "drupal"]
+    },
+    "connection": {
+      "protocol": "' . $parts[0] . '",
+      "url": "' . $parts[1] . '",
+      "operations": {
+        "browse": {
+          "method": "GET",
+          "endPoint": "file.json",
+          "pagination": {
+            "style": "link",
+            "props": {
+              "first": "page.first",
+              "next": "page.next",
+              "previous": "page.previous",
+              "last": "page.last"
+            }
+          },
+          "search": {
+          },
+          "data": {
+          },
+          "resultMap": {
+            "defaultGizmoType": "image",
+            "items": "list",
+            "preview": {
+              "title": "name",
+              "details": "mime",
+              "image": "url",
+              "id": "uuid"
+            },
+            "gizmo": {
+              "source": "url",
+              "id": "uuid",
+              "title": "name",
+              "type": "type"
+            }
+          }
+        },
+        "add": {
+          "method": "POST",
+          "endPoint": "hax-file-save/' . drupal_get_token('hax') . '",
+          "acceptsGizmoTypes": [
+            "image",
+            "video",
+            "audio",
+            "pdf",
+            "svg"
+          ],
+          "resultMap": {
+            "item": "data.file",
+            "defaultGizmoType": "image",
+            "gizmo": {
+              "source": "url",
+              "id": "uuid"
+            }
+          }
+        }
+      }
+    }
+  }';
   return $json;
 }

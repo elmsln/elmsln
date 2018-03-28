@@ -137,44 +137,45 @@ A LRN element for brokering the UI for api endpoints both in querying and upload
         margin: 0;
         font-size: 28px;
       }
+      paper-tab {
+        --webkit-box-shadow: 0 0 0 1px #424242;
+        box-shadow: 0 0 0 1px #424242;
+      }
       paper-tab iron-icon {
         margin-right: 16px;
-        border-radius: 50%;
-        color: #222222;
+        color: #424242;
         width: 24px;
         height: 24px;
         padding: 4px;
-        --webkit-box-shadow: 0 0 1px 1px #222222;
-        box-shadow: 0 0 1px 1px #222222;
         box-sizing: content-box;
       }
       vaadin-upload {
         --primary-color: var(--hax-accent);
-        --primary-font-color: #222222;
-        --dark-primary-color: #222222;
+        --primary-font-color: #424242;
+        --dark-primary-color: #424242;
         --light-primary-color: var(--hax-accent);
         --error-color: darkred;
-        border: 2px solid #ccc;
+        border: 2px solid #424242;
         background: var(--hax-manager-tab-color);
-        color: #222222;
+        color: #424242;
         padding: 8px;
         border-radius: 4px;
         --vaadin-upload-button-add-wrapper: {
           padding: 16px 32px;
-          border: 1px solid #222222;
+          border: 1px solid #424242;
           background-color: var(--hax-accent);
-          color: #222222;
+          color: #424242;
         };
         --vaadin-upload-button-add: {
-          color: #222222;
+          color: #424242;
           --webkit-box-shadow: 0 0 2px 2px #e5e5e5;
           box-shadow: 0 0 2px 2px #e5e5e5;
         }
         --vaadin-upload-drop-label: {
-          color: #222222;
+          color: #424242;
         };
         --vaadin-upload-drop-label-dragover: {
-          color: #222222;
+          color: #424242;
         };
         --vaadin-upload-file-list: {
           padding: 16px;
@@ -280,11 +281,11 @@ A LRN element for brokering the UI for api endpoints both in querying and upload
           role="main">
           <div data-value="select">
             <paper-tabs id="pagetabs" class="pages-tabs" selected="{{activePage}}" autoselect>
-              <paper-tab><iron-icon icon="icons:add" class="blue accent-2"></iron-icon><span class="hide-on-mobile">Add Something</span></paper-tab>
+              <paper-tab><iron-icon icon="icons:add"></iron-icon><span class="hide-on-mobile">Add Something</span></paper-tab>
               <paper-tab hidden$="[[!appList.length]]">
-                <iron-icon icon="search" class="yellow accent-2"></iron-icon><span class="hide-on-mobile">Find Something</span></paper-tab>
+                <iron-icon icon="search"></iron-icon><span class="hide-on-mobile">Find Something</span></paper-tab>
               <paper-tab hidden$="[[!staxList.length]]">
-                <iron-icon icon="hardware:toys" class="red accent-3"></iron-icon><span class="hide-on-mobile">Make Gizmo</span></paper-tab>
+                <iron-icon icon="hardware:toys"></iron-icon><span class="hide-on-mobile">Make Gizmo</span></paper-tab>
             </paper-tabs>
             <iron-pages
               id="activepage"
