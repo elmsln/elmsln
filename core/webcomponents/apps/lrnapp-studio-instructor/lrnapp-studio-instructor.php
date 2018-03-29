@@ -89,8 +89,7 @@ function _lrnapp_studio_instructor_student_data($machine_name, $app_route, $para
     // try and load by id since og_context wants a node id not our primary key
     $nid = _cis_section_load_section_by_id($section_id);
     // roster of current section
-    $role = user_role_load_by_name(CIS_SECTION_STUDENT);
-    $roster = _cis_section_load_users_by_gid($nid, $role->rid);
+    $roster = _cis_section_load_users_by_gid($nid);
     // student centric data to return
     $students = Array();
     $options = new stdClass();
