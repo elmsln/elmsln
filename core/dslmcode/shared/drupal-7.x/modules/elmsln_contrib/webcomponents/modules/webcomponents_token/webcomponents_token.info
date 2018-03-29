@@ -1,0 +1,6 @@
+name = Webcomponents: Token
+description = Support for the drupal-token web component to do remote token render.
+core = 7.x
+package = Webcomponents
+dependencies[] = webcomponents
+dependencies[] = token

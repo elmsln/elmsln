@@ -1,0 +1,85 @@
+<?php
+/**
+ * @file Web components token processing callback
+ */
+
+/**
+ * Implements hook_permission().
+ */
+function webcomponents_token_permission() {
+  return array(
+    'use webcomponents token' =>  array(
+      'title' => t('Web components token'),
+      'description' => t('Allow for rendering tokens via callback.'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function webcomponents_token_menu() {
+  $items = array();
+  $items['webcomponents/drupal-token/%/%'] = array(
+    'title' => 'Web components drupal token render',
+    'page callback' => '_webcomponents_token_render',
+    'page arguments' => array(2, 3),
+    'access arguments' => array('use webcomponents token'),
+    'type' => MENU_CALLBACK,
+  );
+  return $items;
+}
+
+/**
+ * Render a token remotely
+ */
+function _webcomponents_token_render($token, $text) {
+  $return = array(
+    'status' => 403,
+    'content' => '',
+  );
+  drupal_add_http_header('Content-Type', 'application/json');
+  // define status
+  drupal_add_http_header('Status', 200);
+  // validate the token
+  if (drupal_valid_token($key, 'webcomponent_token')) {
+    // replace the content
+    $content = token_replace($text);
+    $return = array(
+      'status' => 200,
+      'content' => $content,
+    );
+  }
+  // output the response as json
+  print drupal_json_output($return);
+  exit;
+}
+
+/**
+ * Implements hook_filter_info().
+ */
+function webcomponents_token_filter_info() {
+  $filters = array();
+  $filters['webcomponents_token'] = array(
+    'title' => t('Webcomponents filter'),
+    'description' => t('Fake substitute for the drupal-token tag'),
+    'process callback' => '_webcomponents_token_process',
+    'tips callback' => '_webcomponents_token_tips',
+    'weight' => -100,
+  );
+  return $filters;
+}
+
+/**
+ * Helper function to provide on screen tips for using the filter
+ */
+function _webcomponents_token_tips($filter, $format, $long = FALSE) {
+  return t('This filter will ensure that drupal-token gets injected correctly');
+}
+
+/**
+ * Callback function to perform the content processing.
+ */
+function _webcomponents_token_process($text, $filter, $format, $langcode, $cache, $cache_id) {
+  
+}
