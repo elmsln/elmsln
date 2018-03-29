@@ -1,0 +1,172 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-ajax/iron-ajax.html">
+<link rel="import" href="../hax-body-behaviors/hax-body-behaviors.html">
+<link rel="import" href="../elmsln-loading/elmsln-loading.html">
+<!--
+`drupal-token`
+A LRN element
+
+@demo demo/index.html
+
+@microcopy - the mental model for this element
+ -
+ -
+
+-->
+
+<dom-module id="drupal-token">
+  <template>
+    <style>
+      :host {
+        display: block;
+        min-width: 200px;
+        min-height: 200px;
+        visibility: visible;
+        opacity: 1;
+        transition: 1s ease all;
+        background-color: transparent;
+      }
+      :host[loading] {
+        background-color: #EEEEEE;
+        opacity: .6;
+        text-align: center;
+      }
+      :host[loading] elmsln-loading {
+        padding: calc(25% - 2.5em) 0 0 0;
+      }
+    </style>
+    <iron-ajax
+       id="tokenrequest"
+       body="[[token]]"
+       url="[[tokenEndPoint]]"
+       handle-as="json"
+       last-response="{{tokenData}}"></iron-ajax>
+    <elmsln-loading hidden$="[[!loading]]" color="black-text" size="large"></elmsln-loading>
+    <slot></slot>
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'drupal-token',
+      behaviors: [HAXBehaviors.PropertiesBehaviors],
+      properties: {
+        /**
+         * Loading state
+         */
+        loading: {
+          type: Boolean,
+          reflectToAttribute: true,
+          value: false,
+        },
+        /**
+         * Token changed (somehow) do the token processing.
+         */
+        token: {
+          type: String,
+          reflectToAttribute: true,
+          observer: '_tokenChanged',
+        },
+        /**
+         * Token end point updated, change the way we do processing.
+         */
+        tokenEndPoint: {
+          type: String,
+          observer: '_tokenChanged',
+        },
+        /**
+         * Token data from the end point.
+         */
+        tokenData: {
+          type: String,
+          value: {},
+          observer: '_handleTokenResponse',
+        },
+      },
+      /**
+       * Handle the response from the token processing endpoint
+       */
+      _handleTokenResponse: function(newValue, oldValue) {
+        if (newValue !== null && typeof newValue.detail !== typeof undefined) {
+          // wipe our own slot here
+          this.wipeSlot(Polymer.dom(this));
+          // now inject the content we got
+          this.async(() => {
+            let frag = document.createElement('span');
+            frag.innerHTML = newValue.detail.content;
+            let newNode = frag.cloneNode(true);
+            Polymer.dom(this).appendChild(newNode);
+            this.$.loading = false;
+          });
+        }
+      },
+      /**
+       * wipe out the slot
+       */
+      wipeSlot: function(element) {
+        while (element.firstChild !== null) {
+          element.removeChild(element.firstChild);
+        }
+      },
+      /**
+       * Token end point changed
+       */
+      _tokenChanged: function(newValue, oldValue) {
+        if (newValue !== '') {
+          this.$.tokenrequest.generateRequest();
+        }
+      },
+      /**
+       * Attached to the DOM, now fire.
+       */
+      attached: function() {
+        let slot = Polymer.dom(this).getEffectiveChildNodes();
+        // only kick off request if there's nothing in it
+        // if it has something in it that means we did some
+        // remote rendering ahead of time
+        if (slot.length === 0) {
+          this.loading = true;
+          this.$.tokenrequest.generateRequest();
+        }
+        // Establish hax property binding
+        let props = {
+          'canScale': true,
+          'canPosition': true,
+          'canEditSource': false,
+          'gizmo': {
+            'title': 'Token',
+            'description': 'Drupal token loaded from some place else',
+            'icon': 'av:play-circle-filled',
+            'color': 'grey',
+            'groups': ['Media', 'Content'],
+            'handles': [
+              {
+                'type': 'token',
+                'token': 'token'
+              }
+            ],
+            'meta': {
+              'author': 'LRNWebComponents'
+            }
+          },
+          'settings': {
+            'quick': [
+            ],
+            'configure': [
+              {
+                'property': 'token',
+                'title': 'Token',
+                'description': 'Token from drupal',
+                'inputMethod': 'textfield',
+                'icon': 'editor:title',
+              },
+            ],
+            'advanced': [
+            ]
+          }
+        };
+        this.setHaxProperties(props);
+      },
+    });
+  </script>
+</dom-module>
