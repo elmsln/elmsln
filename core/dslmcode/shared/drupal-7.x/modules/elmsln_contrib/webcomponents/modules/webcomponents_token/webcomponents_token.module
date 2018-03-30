@@ -33,7 +33,8 @@ function webcomponents_token_menu() {
 /**
  * Render a token remotely
  */
-function _webcomponents_token_render($token, $text) {
+function _webcomponents_token_render($security_token, $format) {
+  // get text from the request body
   $return = array(
     'status' => 403,
     'content' => '',
@@ -42,12 +43,19 @@ function _webcomponents_token_render($token, $text) {
   // define status
   drupal_add_http_header('Status', 200);
   // validate the token
-  if (drupal_valid_token($key, 'webcomponent_token')) {
+  if (drupal_valid_token($security_token, 'webcomponents_token')) {
+    $params = filter_var_array($_GET, FILTER_SANITIZE_STRING);
+    $token = $params['token'];
+    // set global to skip our drupal token processor!
+    $GLOBALS['skip_drupal_token'] = TRUE;
     // replace the content
-    $content = token_replace($text);
+    // @todo... why oh why won't you process
+    $content = check_markup($token, $format);
     $return = array(
       'status' => 200,
       'content' => $content,
+      'token' => $token,
+      'format' => $format,
     );
   }
   // output the response as json
@@ -81,5 +89,30 @@ function _webcomponents_token_tips($filter, $format, $long = FALSE) {
  * Callback function to perform the content processing.
  */
 function _webcomponents_token_process($text, $filter, $format, $langcode, $cache, $cache_id) {
-  
+  // see if we need to skip
+  if (!isset($GLOBALS['skip_drupal_token']) && user_access('use webcomponents token')) {
+    // statically cache future calls
+    $evaluatedtext = &drupal_static(hash('md5', $text . $filter->format));
+    if (empty($evaluatedtext)) {
+      // match anything that seems like it's a token with no white space
+      // @todo make sure this doesn't match other things
+      $regex = '/\[\S*\]/';
+      if (preg_match_all($regex, $text, $matches)) {
+        $patterns = array();
+        $media = array();
+        // Have to process multiple matches since more than one player can be on a node.
+        foreach ($matches[0] as $key => $match) {
+          $tmptoken = str_replace(']', '', str_replace('[', '', $match));
+          $patterns[] = $regex;
+          $media[] = '<drupal-token token="' . $tmptoken . '" token-end-point="' . base_path() . 'webcomponents/drupal-token/' . drupal_get_token('webcomponents_token') . '/' . $filter->format . '"></drupal-token>';
+        }
+        $text = preg_replace($patterns, $media, $text, 1);
+      }
+      $evaluatedtext = $text;
+    }
+    return $evaluatedtext;
+  }
+  else {
+    return $text;
+  }
 }

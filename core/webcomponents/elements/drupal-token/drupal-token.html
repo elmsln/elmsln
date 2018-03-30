@@ -19,30 +19,42 @@ A LRN element
     <style>
       :host {
         display: block;
-        min-width: 200px;
-        min-height: 200px;
+        min-width: 100px;
+        min-height: 100px;
+        transition: .6s ease all;
+        background-color: transparent;
+      }
+      elmsln-loading {
+        visibility: hidden;
+        opacity: 0;
+      }
+      #replacementcontent {
         visibility: visible;
         opacity: 1;
-        transition: 1s ease all;
-        background-color: transparent;
       }
       :host[loading] {
         background-color: #EEEEEE;
-        opacity: .6;
         text-align: center;
       }
       :host[loading] elmsln-loading {
         padding: calc(25% - 2.5em) 0 0 0;
+        visibility: visible;
+        opacity: 1;
+      }
+      :host[loading] #replacementcontent {
+        opacity: 0;
+        visibility: hidden;
       }
     </style>
     <iron-ajax
        id="tokenrequest"
-       body="[[token]]"
+       method="GET"
+       params="[[bodyData]]"
        url="[[tokenEndPoint]]"
        handle-as="json"
        last-response="{{tokenData}}"></iron-ajax>
-    <elmsln-loading hidden$="[[!loading]]" color="black-text" size="large"></elmsln-loading>
-    <slot></slot>
+    <elmsln-loading color="black-text" size="large"></elmsln-loading>
+    <span id="replacementcontent"><slot></slot></span>
   </template>
 
   <script>
@@ -64,14 +76,21 @@ A LRN element
          */
         token: {
           type: String,
+          value: null,
           reflectToAttribute: true,
-          observer: '_tokenChanged',
         },
         /**
          * Token end point updated, change the way we do processing.
          */
         tokenEndPoint: {
           type: String,
+        },
+        /**
+         * Body data which is just token with some encapsulation.
+         */
+        bodyData: {
+          type: Object,
+          computed: '_generateBodyData(token)',
           observer: '_tokenChanged',
         },
         /**
@@ -84,19 +103,29 @@ A LRN element
         },
       },
       /**
+       * Generate body data.
+       */
+      _generateBodyData: function(token) {
+        return {
+          'token': `[${token}]`,
+        };
+      },
+      /**
        * Handle the response from the token processing endpoint
        */
       _handleTokenResponse: function(newValue, oldValue) {
-        if (newValue !== null && typeof newValue.detail !== typeof undefined) {
+        if (newValue !== null && typeof newValue.content !== typeof undefined) {
           // wipe our own slot here
-          this.wipeSlot(Polymer.dom(this));
+          this.wipeSlot(this);
           // now inject the content we got
           this.async(() => {
             let frag = document.createElement('span');
-            frag.innerHTML = newValue.detail.content;
+            frag.innerHTML = newValue.content;
             let newNode = frag.cloneNode(true);
             Polymer.dom(this).appendChild(newNode);
-            this.$.loading = false;
+            setTimeout( () => {
+              this.loading = false;
+            }, 600);
           });
         }
       },
@@ -112,7 +141,8 @@ A LRN element
        * Token end point changed
        */
       _tokenChanged: function(newValue, oldValue) {
-        if (newValue !== '') {
+        if (newValue !== '' && !this.loading) {
+          this.loading = true;
           this.$.tokenrequest.generateRequest();
         }
       },
@@ -120,13 +150,15 @@ A LRN element
        * Attached to the DOM, now fire.
        */
       attached: function() {
-        let slot = Polymer.dom(this).getEffectiveChildNodes();
-        // only kick off request if there's nothing in it
-        // if it has something in it that means we did some
-        // remote rendering ahead of time
-        if (slot.length === 0) {
-          this.loading = true;
-          this.$.tokenrequest.generateRequest();
+        if (this.token !== null) {
+          let slot = Polymer.dom(this).getEffectiveChildNodes();
+          // only kick off request if there's nothing in it
+          // if it has something in it that means we did some
+          // remote rendering ahead of time
+          if (slot.length === 0 && !this.loading) {
+            this.loading = true;
+            this.$.tokenrequest.generateRequest();
+          }
         }
         // Establish hax property binding
         let props = {
