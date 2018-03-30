@@ -199,6 +199,19 @@
           },
         },
         /**
+         * If this is a text node or not so we know if the inline context
+         * operations are valid.
+         */
+        isTextElement: function(node) {
+          let tag = node.tagName.toLowerCase();
+          if (this.validTagList.includes(tag)) {
+            if (['p', 'ol', 'ul', 'li', 'a', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'code'].includes(tag)) {
+              return true;
+            }
+          }
+          return false;
+        },
+        /**
          * Notice _appStore changed.
          */
         _appStoreChanged: function(newValue, oldValue) {

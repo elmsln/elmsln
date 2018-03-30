@@ -377,7 +377,22 @@ A LRN element that will change the world.
             if (this._HTMLPrimativeTest(children[i])) {
               children[i].contentEditable = false;
               children[i].draggable = false;
+              // @todo this will break custom elements that are in primatives
+              // such as <p> tags that have <media-image> in them
               content += children[i].outerHTML + "\n";
+              /*
+              let children2 = children[i].children;
+              // need to ensure there's nothing more advanced in here
+              for (var j = 0, len = children2.length; j < len; j++) {
+                if (children2[j].nodeType === 1) {
+                  content += this.haxNodeToContent(children2[j]);
+                }
+                else {
+                  children2[j].contentEditable = false;
+                  children2[j].draggable = false;
+                  content += children2[j].outerHTML + "\n";
+                }
+              }*/
             }
             else {
               // dig into the light dom and make sure we ONLY save that or else

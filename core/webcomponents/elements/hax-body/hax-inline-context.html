@@ -152,57 +152,55 @@ A context menu that provides common text based authoring options.
        * Attached life cycle.
        */
       attached: function() {
-        document.addEventListener('selectionchange', function() {
+        document.addEventListener('selectstart', function() {
           // make sure we are in an edit mode
-          if (Polymer.HaxStore.instance.editMode) {
+          if (typeof window.__selectionLock === typeof undefined || !window.__selectionLock && Polymer.HaxStore.instance.editMode && typeof Polymer.HaxStore.instance.activeNode !== typeof undefined && Polymer.HaxStore.instance.activeNode !== null && typeof Polymer.HaxStore.instance.activeNode.tagName !== typeof undefined && Polymer.HaxStore.instance.isTextElement(Polymer.HaxStore.instance.activeNode)) {
             // simple smart lock to ensure event flooding doesn't happen
-            if (typeof window.__selectionLock === typeof undefined || !window.__selectionLock) {
-              setTimeout( () => {
-                var selection = window.getSelection();
-                var offset = 0;
-                var range;
+            setTimeout( () => {
+              var selection = window.getSelection();
+              var offset = 0;
+              var range;
+              try {
+                range = selection.getRangeAt(0);
+                offset = range.startOffset - range.endOffset;
+                // account for backwards selection method by the user
+                if (offset < 0) {
+                  offset = offset * -1;
+                }
+              }
+              catch(e) {
+
+              }
+              // if we have no offset (caret is positioned but no selection) then
+              // do nothing and hide the menu
+              if (offset === 0) {
+                Polymer.HaxStore.instance.activeHaxBody.$.inlinecontextmenu.opened = false;
+              }
+              else {
+                let newRange = document.createRange();
+                // calculate 1/2 way between what's been highlighted
+                let midpoint = Math.ceil((offset) / 2) + range.startOffset;
+                // try to find this, sometimes drag highlighting can break this
                 try {
-                  range = selection.getRangeAt(0);
-                  offset = range.startOffset - range.endOffset;
-                  // account for backwards selection method by the user
-                  if (offset < 0) {
-                    offset = offset * -1;
-                  }
+                  newRange.setStart(selection.focusNode, midpoint);
+                  // move tracker and inject it invisibly at the mid point of
+                  // the selection
+                  newRange.insertNode(Polymer.HaxStore.instance.activeHaxBody.$.inlinetracker);
                 }
                 catch(e) {
-
+                  // do nothing, this is so hard to generate
+                  // basically someone has to click and drag really fast
+                  // but only after it's already been established that
+                  // there is a selection made.
                 }
-                // if we have no offset (caret is positioned but no selection) then
-                // do nothing and hide the menu
-                if (offset === 0) {
-                  Polymer.HaxStore.instance.activeHaxBody.$.inlinecontextmenu.opened = false;
-                }
-                else {
-                  let newRange = document.createRange();
-                  // calculate 1/2 way between what's been highlighted
-                  let midpoint = Math.ceil((offset) / 2) + range.startOffset;
-                  // try to find this, sometimes drag highlighting can break this
-                  try {
-                    newRange.setStart(selection.focusNode, midpoint);
-                    // move tracker and inject it invisibly at the mid point of
-                    // the selection
-                    newRange.insertNode(Polymer.HaxStore.instance.activeHaxBody.$.inlinetracker);
-                  }
-                  catch(e) {
-                    // do nothing, this is so hard to generate
-                    // basically someone has to click and drag really fast
-                    // but only after it's already been established that
-                    // there is a selection made.
-                  }
-                  Polymer.HaxStore.instance.async(function() {
-                    Polymer.HaxStore.instance.activeHaxBody.$.inlinecontextmenu.style.left = (Polymer.HaxStore.instance.activeHaxBody.$.inlinetracker.offsetLeft - (Polymer.HaxStore.instance.activeHaxBody.$.inlinecontextmenu.offsetWidth / 2)) + 'px';
-                    Polymer.HaxStore.instance.activeHaxBody.$.inlinecontextmenu.style.top = Polymer.HaxStore.instance.activeHaxBody.$.inlinetracker.offsetTop + 'px';
-                    Polymer.HaxStore.instance.activeHaxBody.$.inlinecontextmenu.opened = true;
-                  });
-                }
-                window.__selectionLock = false;
-              }, 10);
-            }
+                Polymer.HaxStore.instance.async(function() {
+                  Polymer.HaxStore.instance.activeHaxBody.$.inlinecontextmenu.style.left = (Polymer.HaxStore.instance.activeHaxBody.$.inlinetracker.offsetLeft - (Polymer.HaxStore.instance.activeHaxBody.$.inlinecontextmenu.offsetWidth / 2)) + 'px';
+                  Polymer.HaxStore.instance.activeHaxBody.$.inlinecontextmenu.style.top = Polymer.HaxStore.instance.activeHaxBody.$.inlinetracker.offsetTop + 'px';
+                  Polymer.HaxStore.instance.activeHaxBody.$.inlinecontextmenu.opened = true;
+                });
+              }
+              window.__selectionLock = false;
+            }, 100);
             window.__selectionLock = true;
           }
         });
