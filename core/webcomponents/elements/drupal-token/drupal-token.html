@@ -76,7 +76,6 @@ A LRN element
          */
         token: {
           type: String,
-          value: null,
           reflectToAttribute: true,
         },
         /**
@@ -98,7 +97,6 @@ A LRN element
          */
         tokenData: {
           type: String,
-          value: {},
           observer: '_handleTokenResponse',
         },
       },
@@ -106,9 +104,11 @@ A LRN element
        * Generate body data.
        */
       _generateBodyData: function(token) {
-        return {
-          'token': `[${token}]`,
-        };
+        if (token !== null && token !== '') {
+          return {
+            'token': `[${token}]`,
+          };
+        }
       },
       /**
        * Handle the response from the token processing endpoint
@@ -116,7 +116,7 @@ A LRN element
       _handleTokenResponse: function(newValue, oldValue) {
         if (newValue !== null && typeof newValue.content !== typeof undefined) {
           // wipe our own slot here
-          this.wipeSlot(this);
+          this.wipeSlot(Polymer.dom(this));
           // now inject the content we got
           this.async(() => {
             let frag = document.createElement('span');
@@ -141,23 +141,40 @@ A LRN element
        * Token end point changed
        */
       _tokenChanged: function(newValue, oldValue) {
-        if (newValue !== '' && !this.loading) {
-          this.loading = true;
-          this.$.tokenrequest.generateRequest();
+        // ensure we have something and are not loading currently
+        if (typeof newValue !== typeof undefined && newValue !== '' && !this.loading) {
+          // support going from a null element to a real one
+          if (typeof this.tokenEndPoint === typeof undefined && typeof Drupal.settings.webcomponentsTokenEndPoint !== typeof undefined) {
+            this.tokenEndPoint = Drupal.settings.webcomponentsTokenEndPoint;
+          }
+          if (this.tokenEndPoint) {
+            this.loading = true;
+            this.async(() => {
+              this.$.tokenrequest.generateRequest();
+            });
+          }
         }
       },
       /**
        * Attached to the DOM, now fire.
        */
       attached: function() {
-        if (this.token !== null) {
+        if (typeof this.token !== typeof undefined && this.token !== null && this.token !== '') {
           let slot = Polymer.dom(this).getEffectiveChildNodes();
           // only kick off request if there's nothing in it
           // if it has something in it that means we did some
           // remote rendering ahead of time
           if (slot.length === 0 && !this.loading) {
-            this.loading = true;
-            this.$.tokenrequest.generateRequest();
+            // support for autoloading the token data needed for the request
+            // off of Drupal globals.
+            if (typeof this.tokenEndPoint === typeof undefined && typeof Drupal.settings.webcomponentsTokenEndPoint !== typeof undefined) {
+              this.tokenEndPoint = Drupal.settings.webcomponentsTokenEndPoint;
+            }
+            if (this.tokenEndPoint) {
+              this.loading = true;
+              this.async(() => {
+                this.$.tokenrequest.generateRequest();
+              });            }
           }
         }
         // Establish hax property binding
