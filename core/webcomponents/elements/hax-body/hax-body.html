@@ -23,7 +23,7 @@ A LRN element that will change the world.
 -->
 
 <dom-module id="hax-body">
-  <template>
+  <template strip-whitespace>
     <style>
       :host {
         display: block;
@@ -56,7 +56,11 @@ A LRN element that will change the world.
       }
       :host[edit-mode] #bodycontainer ::slotted(*[data-editable]) {
         outline: none;
-        transition: .3 outline ease;
+        transition:
+          .6s width ease-in-out,
+          .6s height ease-in-out,
+          .6s margin ease-in-out,
+          .3s outline linear;
       }
       :host[edit-mode] #bodycontainer ::slotted(*[data-editable]):hover {
         outline: 2px dashed #d3d3d3;
@@ -155,7 +159,7 @@ A LRN element that will change the world.
       <slot id="body"></slot>
     </div>
     <div id="contextcontainer">
-      <span id="inlinetracker" style="pointer-events: none; visibility: none; opacity: 0; width:0;height:0;" class="ignore-activation" draggable="false" contenteditable="false"></span>
+      <span id="inlinetracker" style="pointer-events: none; visibility: none; opacity: 0; width:0;height:0;" class="ignore-activation hax-inline-tracker-element" draggable="false" contenteditable="false"></span>
       <hax-inline-context id="inlinecontextmenu" class="hax-context-menu ignore-activation"></hax-inline-context>
       <hax-text-context id="textcontextmenu" class="hax-context-menu ignore-activation"></hax-text-context>
       <hax-ce-context id="cecontextmenu" class="hax-context-menu ignore-activation"></hax-ce-context>
@@ -365,6 +369,9 @@ A LRN element that will change the world.
         // null this to drop hax based classes
         Polymer.HaxStore.write('activeNode', null, this);
         let children = Polymer.dom(this.$.body).getDistributedNodes();
+        if (this.globalPreferences.haxDeveloperMode) {
+          console.log(children);
+        }
         var content = '';
         for (var i = 0, len = children.length; i < len; i++) {
           // see if this is a valid element or not, providing
@@ -373,33 +380,9 @@ A LRN element that will change the world.
             children[i].setAttribute('data-editable', false);
             children[i].setAttribute('data-draggable', false);
             children[i].removeAttribute('data-hax-ray');
-            // see if this is a custom element
-            if (this._HTMLPrimativeTest(children[i])) {
-              children[i].contentEditable = false;
-              children[i].draggable = false;
-              // @todo this will break custom elements that are in primatives
-              // such as <p> tags that have <media-image> in them
-              content += children[i].outerHTML + "\n";
-              /*
-              let children2 = children[i].children;
-              // need to ensure there's nothing more advanced in here
-              for (var j = 0, len = children2.length; j < len; j++) {
-                if (children2[j].nodeType === 1) {
-                  content += this.haxNodeToContent(children2[j]);
-                }
-                else {
-                  children2[j].contentEditable = false;
-                  children2[j].draggable = false;
-                  content += children2[j].outerHTML + "\n";
-                }
-              }*/
-            }
-            else {
-              // dig into the light dom and make sure we ONLY save that or else
-              // we'll save things in that weird shadow / light DOM cross over
-              // which then will keep unpacking over and over again
-              content += this.haxNodeToContent(children[i]);
-            }
+            children[i].contentEditable = false;
+            children[i].draggable = false;
+            content += this.haxNodeToContent(children[i]);
           }
           // keep comments with a special case since they need wrapped
           else if (children[i].nodeType === 8) {
@@ -448,7 +431,7 @@ A LRN element that will change the world.
           string = 'x-scope ' + tags[i] + '-0';
           re = new RegExp(string, "g");
           content = content.replace(re, '');
-        }
+      }
         // remove empty class structures
         content = content.replace(/\sclass=\"\"/g, '');
         content = content.replace(/\sclass=\"\s\"/g, '');
@@ -456,12 +439,25 @@ A LRN element that will change the world.
         this._applyContentEditable(this.editMode);
         // set active again
         Polymer.HaxStore.write('activeNode', __active, this);
+        if (this.globalPreferences.haxDeveloperMode) {
+          console.log(content);
+        }
         return content;
       },
       /**
        * Convert a node to the correct content object for saving.
        */
       haxNodeToContent: function(node) {
+        if (this.globalPreferences.haxDeveloperMode) {
+          console.log(node);
+        }
+        // ensure we have access to all the member functions of the custom element
+        let prototype = Object.getPrototypeOf(node);
+        // support for deep API call
+        if (typeof prototype.preProcessHaxNodeToContent !== typeof undefined) {
+          let clone = node.cloneNode(true);
+          node = prototype.preProcessHaxNodeToContent(clone);
+        }
         var content = '';
         // start to rebuild the same tag we got in a generalized way
         content += '<' + node.tagName.toLowerCase();
@@ -472,40 +468,64 @@ A LRN element that will change the world.
           content += ' ' + nodeName + '="' + value + '"';
         }
         // set the opening tag
-        content += '>' + "\n";
-        // get content that is in the slots
-        let slotnodes = Polymer.dom(node).getEffectiveChildNodes();
-        // ensure there's something inside of this
-        if (slotnodes.length > 0) {
-          // loop through everything found in the slotted area and put it back in
-          for (var j = 0, len2 = slotnodes.length; j < len2; j++) {
-            if (typeof slotnodes[j].tagName !== typeof undefined) {
-              // if we're a custom element, keep digging, otherwise a simple
-              // self append is fine.
-              if (slotnodes[j].tagName.indexOf('-') > 0) {
-                content += this.haxNodeToContent(slotnodes[j]);
+        content += '>';
+        // account for things that say NOT to save slot values
+        let props = Polymer.HaxStore.instance.elementList[node.tagName.toLowerCase()];
+        // try and work against anything NOT a P tag
+        if (typeof props === typeof undefined || !props.saveOptions.wipeSlot) {
+          // get content that is in the slots
+          let slotnodes = Polymer.dom(node).getEffectiveChildNodes();
+          // ensure there's something inside of this
+          if (slotnodes.length > 0) {
+            // loop through everything found in the slotted area and put it back in
+            for (var j = 0, len2 = slotnodes.length; j < len2; j++) {
+              if (typeof slotnodes[j].tagName !== typeof undefined) {
+                // if we're a custom element, keep digging, otherwise a simple
+                // self append is fine.
+                if (!this._HTMLPrimativeTest(slotnodes[j].tagName)) {
+                  content += this.haxNodeToContent(slotnodes[j]);
+                }
+                else {
+                  // possible copy and paste glitch, ignore this at all costs
+                  if (slotnodes[j].tagName === 'SPAN' && slotnodes[j].id === 'inlinetracker') {
+                  }
+                  else {
+                    slotnodes[j].setAttribute('data-editable', false);
+                    slotnodes[j].setAttribute('data-draggable', false);
+                    slotnodes[j].removeAttribute('data-hax-ray');
+                    slotnodes[j].contentEditable = false;
+                    slotnodes[j].draggable = false;
+                    content += slotnodes[j].outerHTML;
+                  }
+                }
               }
-              else {
-                content += '  ' + slotnodes[j].outerHTML + "\n";
+              // keep comments with a special case since they need wrapped
+              else if (slotnodes[j].nodeType === 8) {
+                content += '<!-- ' + slotnodes[j].textContent + ' -->';
+              }
+              // keep everything NOT an element at this point, this helps
+              // preserve whitespace because we're crazy about accuracy
+              else if (slotnodes[j].nodeType !== 1) {
+                content += slotnodes[j].textContent;
               }
             }
-            // keep comments with a special case since they need wrapped
-            else if (slotnodes[j].nodeType === 8) {
-              content += '<!-- ' + slotnodes[j].textContent + ' -->';
-            }
-            // keep everything NOT an element at this point, this helps
-            // preserve whitespace because we're crazy about accuracy
-            else if (slotnodes[j].nodeType !== 1) {
-              content += slotnodes[j].textContent;
-            }
-            else {
-              content += slotnodes[j];
-            }
-
           }
         }
-        // close the tag
-        content += '</' + node.tagName.toLowerCase() + '>' + "\n";
+        // close the tag, placing a return in output for block elements
+        if (node.tagName.toLowerCase() === 'span') {
+          content += '</' + node.tagName.toLowerCase() + '>';
+        }
+        else {
+          content += '</' + node.tagName.toLowerCase() + '>' + "\n";
+        }
+        if (this.globalPreferences.haxDeveloperMode) {
+          console.log(content);
+        }
+        // support postProcess text rewriting for the node that's been
+        // converted to a string for storage
+        if (node.postProcesshaxNodeToContent === 'function') {
+          content = node.postProcesshaxNodeToContent(content);
+        }
         return content;
       },
       /**

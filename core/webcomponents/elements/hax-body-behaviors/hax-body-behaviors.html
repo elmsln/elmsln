@@ -30,8 +30,8 @@ with the hax-body element which manages elements.
    * This tells hax-body's context menu for custom-elements that this element
    * can use the scaling widget and the positioning widget as well as have a traditional source editor view when in an advanced form.
    *
-   * So now you're probably saying "What's a gizmo???". Well, gizmo is what we call widgets or custom-elements when an end user of HAX places them in the page. It's our playful way of explaining what's happening to an end user as well as ensuring when developers talk to each other then don't use words that have duplicate meanings. It's also just a fun word.
-   * A gizmo helps describe the element to the HAX Gizmo manager so that a user can select the element they want to place in the page. Think of your custom-element as an app in an app store. Well, how would you describe your "app" or Gizmo to a store of apps (in our case the Gizmo manager).
+   * So now you're probably saying 'What's a gizmo???'. Well, gizmo is what we call widgets or custom-elements when an end user of HAX places them in the page. It's our playful way of explaining what's happening to an end user as well as ensuring when developers talk to each other then don't use words that have duplicate meanings. It's also just a fun word.
+   * A gizmo helps describe the element to the HAX Gizmo manager so that a user can select the element they want to place in the page. Think of your custom-element as an app in an app store. Well, how would you describe your 'app' or Gizmo to a store of apps (in our case the Gizmo manager).
    *
    * This is an example of th gizmo object that is expressed in the lrn-table tag:
    * 'gizmo': {
@@ -110,13 +110,13 @@ with the hax-body element which manages elements.
       haxProperties: {
         type: Object,
         value: {
-          "canScale": false,
-          "canPosition": false,
-          "canEditSource": false,
-          "settings": {
-            "quick": [],
-            "configure": [],
-            "advanced": [],
+          'canScale': false,
+          'canPosition': false,
+          'canEditSource': false,
+          'settings': {
+            'quick': [],
+            'configure': [],
+            'advanced': [],
           },
         },
         readOnly: true,
@@ -230,6 +230,12 @@ with the hax-body element which manages elements.
             'inputMethod': 'textfield',
           });
         }
+        // support for advanced save options
+        if (typeof props.saveOptions === typeof undefined) {
+          props.saveOptions = {
+            'wipeSlot': false,
+          };
+        }
         // fire event so we know they have been set for the store to collect
         // only fire if we haven't already so multiple elements don't keep bubbling
         if (tag !== '' && typeof Polymer.HaxStore !== typeof undefined && typeof Polymer.HaxStore.instance !== typeof undefined && typeof Polymer.HaxStore.instance.elementList[tag.toLowerCase()] === typeof undefined) {
@@ -323,17 +329,17 @@ with the hax-body element which manages elements.
       var slot = '';
       let settings = haxProperties.settings[type];
       var schema = {
-        "$schema": "http://json-schema.org/schema#",
-        "title": "HAX " + type + " form schema",
-        "type": "object",
-        "properties": {}
+        '$schema': 'http://json-schema.org/schema#',
+        'title': 'HAX ' + type + ' form schema',
+        'type': 'object',
+        'properties': {}
       };
       for (var value in settings) {
         if (settings.hasOwnProperty(value)) {
           if (typeof settings[value].property !== typeof undefined) {
             schema.properties[settings[value].property] = {
-              "title": settings[value].title,
-              "type": this.getHaxJSONSchemaType(settings[value].inputMethod)
+              'title': settings[value].title,
+              'type': this.getHaxJSONSchemaType(settings[value].inputMethod)
             };
             if (typeof this[settings[value].property] !== typeof undefined) {
               schema.properties[settings[value].property].value = this[settings[value].property];
@@ -350,10 +356,10 @@ with the hax-body element which manages elements.
             switch (settings[value].inputMethod) {
               case 'number':
                 schema.properties[settings[value].property].component = {
-                  "name": "paper-input",
-                  "valueProperty": "selected",
-                  "properties": {
-                    "required": settings[value].required
+                  'name': 'paper-input',
+                  'valueProperty': 'selected',
+                  'properties': {
+                    'required': settings[value].required
                   }
                 };
               break;
@@ -361,42 +367,42 @@ with the hax-body element which manages elements.
                 slot = '';
                 if (typeof settings[value].options !== typeof undefined) {
                   for (var val in settings[value].options) {
-                    slot += '<paper-item value="' + val + '">' + settings[value].options[val] + '</paper-item>' + "\n";
+                    slot += '<paper-item value="' + val + '">' + settings[value].options[val] + '</paper-item>' + '\n';
                   }
                 }
                 schema.properties[settings[value].property].component = {
-                  "name": "dropdown-select",
-                  "valueProperty": "value",
-                  "slot": slot,
-                  "properties": {
-                    "required": settings[value].required
+                  'name': 'dropdown-select',
+                  'valueProperty': 'value',
+                  'slot': slot,
+                  'properties': {
+                    'required': settings[value].required
                   }
                 };
               break;
               case 'textarea':
                 schema.properties[settings[value].property].component = {
-                  "name": "paper-textarea",
-                  "valueProperty": "value",
-                  "properties": {
-                    "required": settings[value].required
+                  'name': 'paper-textarea',
+                  'valueProperty': 'value',
+                  'properties': {
+                    'required': settings[value].required
                   }
                 };
               break;
               case 'textfield':
                 schema.properties[settings[value].property].component = {
-                  "name": "paper-input",
-                  "valueProperty": "value",
-                  "properties": {
-                    "required": settings[value].required
+                  'name': 'paper-input',
+                  'valueProperty': 'value',
+                  'properties': {
+                    'required': settings[value].required
                   }
                 };
               break;
               case 'colorpicker':
                 schema.properties[settings[value].property].component = {
-                  "name": "paper-swatch-picker",
-                  "valueProperty": "color",
-                  "properties": {
-                    "required": settings[value].required
+                  'name': 'paper-swatch-picker',
+                  'valueProperty': 'color',
+                  'properties': {
+                    'required': settings[value].required
                   }
                 };
               break;
@@ -404,8 +410,8 @@ with the hax-body element which manages elements.
           }
           else if (this.hasAttribute(settings[value].attribute) || ['id', 'class', 'style', 'property', 'prefix', 'typeof', 'resource'].includes(settings[value].attribute)) {
             schema.properties[settings[value].attribute] = {
-              "title": settings[value].title,
-              "type": this.getHaxJSONSchemaType(settings[value].inputMethod)
+              'title': settings[value].title,
+              'type': this.getHaxJSONSchemaType(settings[value].inputMethod)
             };
             // special support for className
             if (settings[value].attribute === 'class') {
@@ -433,10 +439,10 @@ with the hax-body element which manages elements.
             switch (settings[value].inputMethod) {
               case 'number':
                 schema.properties[settings[value].attribute].component = {
-                  "name": "paper-input",
-                  "valueProperty": "selected",
-                  "properties": {
-                    "required": settings[value].required
+                  'name': 'paper-input',
+                  'valueProperty': 'selected',
+                  'properties': {
+                    'required': settings[value].required
                   }
                 };
               break;
@@ -444,42 +450,42 @@ with the hax-body element which manages elements.
                 slot = '';
                 if (typeof settings[value].options !== typeof undefined) {
                   for (var val in settings[value].options) {
-                    slot += '<paper-item value="' + val + '">' + settings[value].options[val] + '</paper-item>' + "\n";
+                    slot += '<paper-item value="' + val + '">' + settings[value].options[val] + '</paper-item>' + '\n';
                   }
                 }
                 schema.properties[settings[value].attribute].component = {
-                  "name": "dropdown-select",
-                  "valueProperty": "value",
-                  "slot": slot,
-                  "properties": {
-                    "required": settings[value].required
+                  'name': 'dropdown-select',
+                  'valueProperty': 'value',
+                  'slot': slot,
+                  'properties': {
+                    'required': settings[value].required
                   }
                 };
               break;
               case 'textarea':
                 schema.properties[settings[value].attribute].component = {
-                  "name": "paper-textarea",
-                  "valueProperty": "value",
-                  "properties": {
-                    "required": settings[value].required
+                  'name': 'paper-textarea',
+                  'valueProperty': 'value',
+                  'properties': {
+                    'required': settings[value].required
                   }
                 };
               break;
               case 'textfield':
                 schema.properties[settings[value].attribute].component = {
-                  "name": "paper-input",
-                  "valueProperty": "value",
-                  "properties": {
-                    "required": settings[value].required
+                  'name': 'paper-input',
+                  'valueProperty': 'value',
+                  'properties': {
+                    'required': settings[value].required
                   }
                 };
               break;
               case 'colorpicker':
                 schema.properties[settings[value].attribute].component = {
-                  "name": "paper-swatch-picker",
-                  "valueProperty": "color",
-                  "properties": {
-                    "required": settings[value].required
+                  'name': 'paper-swatch-picker',
+                  'valueProperty': 'color',
+                  'properties': {
+                    'required': settings[value].required
                   }
                 };
               break;
@@ -487,9 +493,9 @@ with the hax-body element which manages elements.
           }
           else {
             schema.properties[settings[value].slot] = {
-              "title": settings[value].title,
-              "type": this.getHaxJSONSchemaType(settings[value].inputMethod),
-              "value": '',
+              'title': settings[value].title,
+              'type': this.getHaxJSONSchemaType(settings[value].inputMethod),
+              'value': '',
             };
             // test for slotted content values names is tricky
             for (var i in Polymer.dom(this).childNodes) {
@@ -546,7 +552,7 @@ with the hax-body element which manages elements.
         'api': '1',
         'canScale': true,
         'canPosition': true,
-        "canEditSource": false,
+        'canEditSource': false,
         'gizmo': {
           'title': 'Tag name',
           'description': 'A description',
@@ -563,8 +569,8 @@ with the hax-body element which manages elements.
             'author': ''
           }
         },
-        "settings": {
-          "quick": [
+        'settings': {
+          'quick': [
             {
               'property': 'title',
               'title': 'Title',
@@ -578,7 +584,7 @@ with the hax-body element which manages elements.
               'icon': 'color',
             },
           ],
-          "configure": [
+          'configure': [
             {
               'slot': '',
               'title': 'Inner content',
@@ -617,7 +623,7 @@ with the hax-body element which manages elements.
               'validationType': 'text',
             },
           ],
-          "advanced": [
+          'advanced': [
             {
               'property': 'secondaryColor',
               'title': 'Secondary color',
@@ -635,6 +641,9 @@ with the hax-body element which manages elements.
               'validationType': 'url',
             },
           ],
+        },
+        'saveOptions': {
+          'wipeSlot': false,
         },
       };
       return props;

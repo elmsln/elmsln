@@ -15,13 +15,13 @@ A LRN element
 -->
 
 <dom-module id="drupal-token">
-  <template>
+  <template strip-whitespace>
     <style>
       :host {
         display: block;
         min-width: 100px;
         min-height: 100px;
-        transition: .6s ease all;
+        transition: .6s all ease;
         background-color: transparent;
       }
       elmsln-loading {
@@ -212,9 +212,26 @@ A LRN element
             ],
             'advanced': [
             ]
-          }
+          },
+          'saveOptions': {
+            'wipeSlot': true,
+          },
         };
         this.setHaxProperties(props);
+      },
+      /**
+       * Standard internal callback for responding to
+       * a request from hax-body to convert it to content.
+       * This can be used just prior to that callback in order to clean up
+       * the element. Calls to make modifications are against a clone
+       * of the element.
+       */
+      preProcessHaxNodeToContent: function(clone) {
+        clone.removeAttribute('loading');
+        clone.removeAttribute('token-data');
+        clone.removeAttribute('body-data');
+        clone.removeAttribute('token-end-point');
+        return clone;
       },
     });
   </script>

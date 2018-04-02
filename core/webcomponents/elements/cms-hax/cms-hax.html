@@ -36,7 +36,7 @@ A LRN polymer app
     <hax-store hidden app-store="[[appStoreConnection]]"></hax-store>
     <hax-app-picker></hax-app-picker>
     <hax-manager></hax-manager>
-    <hax-panel id="panel" hide-export-button align="right"></hax-panel>
+    <hax-panel id="panel" hide-export-button="[[hideExportButton]]" align="right"></hax-panel>
     <hax-body id="body" context-offset-left="[[bodyOffsetLeft]]"></hax-body>
     <hax-autoloader id="loader" hidden></hax-autoloader>
     <iron-ajax
@@ -61,6 +61,14 @@ A LRN polymer app
         openDefault: {
           type: Boolean,
           value: false,
+        },
+        /**
+         * Hide the export button, not a common thing to show
+         * in this mode but it's possible for debugging
+         */
+        hideExportButton: {
+          type: Boolean,
+          value: true,
         },
         /**
          * Location to save content to.
