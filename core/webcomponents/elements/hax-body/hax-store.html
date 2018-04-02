@@ -188,7 +188,7 @@
            */
           validTagList: {
             type: Array,
-            value: ['p', 'div', 'ol', 'ul', 'li', 'a', 'hr', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'code', 'img', 'iframe', 'video', 'audio', 'section', 'hax-blox'],
+            value: ['p', 'div', 'ol', 'ul', 'li', 'a', 'hr', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'code', 'figure', 'img', 'iframe', 'video', 'audio', 'section', 'hax-blox'],
           },
           /**
            * Gizmo types which can be used to bridge apps to gizmos.
@@ -205,7 +205,7 @@
         isTextElement: function(node) {
           let tag = node.tagName.toLowerCase();
           if (this.validTagList.includes(tag)) {
-            if (['p', 'ol', 'ul', 'li', 'a', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'code'].includes(tag)) {
+            if (['p', 'ol', 'ul', 'li', 'a', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'code', 'figure'].includes(tag)) {
               return true;
             }
           }
