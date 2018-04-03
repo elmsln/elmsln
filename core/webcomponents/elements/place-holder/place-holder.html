@@ -153,13 +153,14 @@ A LRN element
       ready: function() {
         if (typeof this.__dropAdded === typeof undefined) {
           this.__dropAdded = true;
+          // detect the act of dragging and it being over top of the item
           this.addEventListener('dragover', function(e) {
             this.dragOver = true;
             e.preventDefault();
             e.stopPropagation();
             this.classList.add('dragover');
           });
-
+          // detect when the user moves off of the item
           this.addEventListener('dragleave', function(e) {
             this.dragOver = false;
             e.preventDefault();

@@ -412,9 +412,17 @@ A LRN element for brokering the UI for api endpoints both in querying and upload
        * A file event was detected from a drag and drop in the interface
        */
       _placeHolderFileDrop: function(event) {
+        // reset the manager back to the first page
         this.resetManager();
+        // trigger a self open request
         this.open();
+        // reference the active place holder element since place holders are
+        // the only things possible for seeing these
         Polymer.HaxStore.instance.activePlaceHolder = event.detail.placeHolderElement;
+        // I can't believe this actually works. This takes the event
+        // that was a drop event else where on the page and then repoints
+        // it to simulate the drop event using the same event structure that
+        // would have happened if they had used this element in the first place
         this.$.fileupload._onDrop(event.detail);
       },
       /**
