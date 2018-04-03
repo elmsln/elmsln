@@ -599,7 +599,7 @@ A LRN element for brokering the UI for api endpoints both in querying and upload
        */
       cancel: function(e) {
         // reset and close dialog
-        this.resetManager();
+        Polymer.HaxStore.write('activeHaxElement', {}, this);
         this.toggleDialog();
         document.body.style.overflow = null;
       },
@@ -608,8 +608,8 @@ A LRN element for brokering the UI for api endpoints both in querying and upload
        */
       close: function(e) {
         if (e.target === this) {
-          // reset and close dialog
-          this.resetManager();
+          // reset the active element which will force this to reset the manager
+          Polymer.HaxStore.write('activeHaxElement', {}, this);
         }
         document.body.style.overflow = null;
       },

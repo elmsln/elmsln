@@ -12,7 +12,7 @@
      */
     _sourceIsIframe: function(source) {
       let type = this.getVideoType(source);
-      if (type == 'internal') {
+      if (type == 'local') {
         return false;
       }
       else {
@@ -23,7 +23,7 @@
      * Check source of the video, potentially correcting bad links.
      */
     cleanVideoSource: function(input, type) {
-      if (type != 'internal') {
+      if (type != 'local') {
         // strip off the ? modifier for youtube/vimeo so we can build ourselves
         var tmp = input.split('?');
         var v = '';
