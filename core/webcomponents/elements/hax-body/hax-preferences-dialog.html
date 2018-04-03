@@ -29,6 +29,7 @@ Export dialog with all export options and settings provided.
         display: block;
       }
       #dialog {
+        z-index: 10000;
         position: fixed;
         top: 0;
         right: 0;
@@ -46,10 +47,10 @@ Export dialog with all export options and settings provided.
       #dialogheader {
         margin: 0;
         padding: 16px;
-        height: 32px;
       }
       #dialogheader h2 {
         margin: 0;
+        color: #FFFFFF;
         font-size: 28px;
       }
       .page-area {
@@ -127,6 +128,12 @@ Export dialog with all export options and settings provided.
           type: Object,
           value: {},
         },
+      },
+      /**
+       * Created life cycle.
+       */
+      created: function() {
+        document.body.appendChild(this);
       },
       /**
        * Attached to the DOM; now we can fire event to the store that

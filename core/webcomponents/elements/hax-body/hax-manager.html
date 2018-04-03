@@ -41,6 +41,7 @@ A LRN element for brokering the UI for api endpoints both in querying and upload
         --hax-accent: #34e79a;
       }
       #dialog {
+        z-index: 10000;
         position: fixed;
         top: 0;
         right: 0;
@@ -390,7 +391,7 @@ A LRN element for brokering the UI for api endpoints both in querying and upload
         },
       },
       /**
-       * Ready life cycle.
+       * Created life cycle.
        */
       ready: function() {
         document.body.appendChild(this);

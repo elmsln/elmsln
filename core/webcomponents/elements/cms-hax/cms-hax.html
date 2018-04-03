@@ -6,6 +6,7 @@
 <link rel="import" href="../hax-body/hax-panel.html">
 <link rel="import" href="../hax-body/hax-app-picker.html">
 <link rel="import" href="../hax-body/hax-app.html">
+<link rel="import" href="../iron-ajax/iron-ajax.html">
 <link rel="import" href="../paper-toast/paper-toast.html">
 <!--
 `cms-hax`
@@ -26,17 +27,13 @@ A LRN polymer app
         font-size: 1em;
         box-sizing: content-box;
       }
-      hax-panel {
-        position: absolute;
-        z-index: 100;
-      }
     </style>
     <div id="autoloaderslot" hidden><slot name="autoloader"></slot></div>
     <div id="bodyslot" hidden><slot></slot></div>
     <hax-store hidden app-store="[[appStoreConnection]]"></hax-store>
     <hax-app-picker></hax-app-picker>
     <hax-manager></hax-manager>
-    <hax-panel id="panel" hide-export-button="[[hideExportButton]]" align="right"></hax-panel>
+    <hax-panel id="panel" hide-export-button="[[hideExportButton]]" align="[[align]]"></hax-panel>
     <hax-body id="body" context-offset-left="[[bodyOffsetLeft]]"></hax-body>
     <hax-autoloader id="loader" hidden></hax-autoloader>
     <iron-ajax
@@ -50,7 +47,6 @@ A LRN polymer app
 
     <paper-toast id="toast" horizontal-align="left"></paper-toast>
   </template>
-
   <script>
     Polymer({
       is: 'cms-hax',
@@ -69,6 +65,13 @@ A LRN polymer app
         hideExportButton: {
           type: Boolean,
           value: true,
+        },
+        /**
+         * Direction to align the hax edit panel
+         */
+        align: {
+          type: String,
+          value: 'right',
         },
         /**
          * Location to save content to.
@@ -136,6 +139,10 @@ A LRN polymer app
         setTimeout( () => {
           this._slotRemap(this.$.autoloaderslot, this.$.loader);
           this._slotRemap(this.$.bodyslot, Polymer.HaxStore.instance.activeHaxBody);
+          // open things by default and set state for edit mode
+          if (this.openDefault) {
+            Polymer.HaxStore.write('editMode', true, this);
+          }
         }, 100);
 
         // notice ANY change to body and bubble up, only when we are attached though
@@ -149,11 +156,6 @@ A LRN polymer app
               }, 100);
             }
           });
-        }
-        // open things by default and set state for edit mode
-        if (this.openDefault) {
-          this.$.panel.toggle();
-          Polymer.HaxStore.write('editMode', true, this);
         }
       },
       /**

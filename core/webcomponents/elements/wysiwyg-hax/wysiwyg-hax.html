@@ -14,7 +14,7 @@ Integration of wysiwyg edit form for a page with HAX.
       }
     </style>
     <textarea id$="[[fieldId]]" name="[[fieldName]]" hidden>[[bodyValue]]</textarea>
-    <cms-hax hide-message sync-body body-offset-left="[[bodyOffsetLeft]]" update-page-data="[[updatePageData]]" end-point="[[endPoint]]" app-store-connection="[[appStoreConnection]]"><slot name="autoloader"></slot><slot></slot></cms-hax>
+    <cms-hax open-default="[[openDefault]]" hide-message sync-body body-offset-left="[[bodyOffsetLeft]]" update-page-data="[[updatePageData]]" end-point="[[endPoint]]" app-store-connection="[[appStoreConnection]]" hide-export-button="[[hideExportButton]]" align="[[align]]"><slot name="autoloader"></slot><slot></slot></cms-hax>
   </template>
 
   <script>
@@ -22,6 +22,28 @@ Integration of wysiwyg edit form for a page with HAX.
 
       is: 'wysiwyg-hax',
       properties: {
+        /**
+         * Default the panel to open
+         */
+        openDefault: {
+          type: Boolean,
+          value: false,
+        },
+        /**
+         * Hide the export button, not a common thing to show
+         * in this mode but it's possible for debugging
+         */
+        hideExportButton: {
+          type: Boolean,
+          value: true,
+        },
+        /**
+         * Direction to align the hax edit panel
+         */
+        align: {
+          type: String,
+          value: 'right',
+        },
         /**
          * Data binding of a hidden text area with the value from the hax-body tag
          */

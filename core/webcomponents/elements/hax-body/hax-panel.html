@@ -24,6 +24,8 @@ as the events being bubbled up include HTML nodes to inject into something
     <style>
       :host {
         display: block;
+        position: absolute;
+        z-index: 1000000;
       }
       app-drawer {
         z-index: 100001;
@@ -205,6 +207,12 @@ as the events being bubbled up include HTML nodes to inject into something
           type: Boolean,
           value: false,
         },
+      },
+      /**
+       * Created life cycle.
+       */
+      ready: function() {
+        document.body.appendChild(this);
       },
       /**
        * Attached to the DOM; now we can fire event to the store that
