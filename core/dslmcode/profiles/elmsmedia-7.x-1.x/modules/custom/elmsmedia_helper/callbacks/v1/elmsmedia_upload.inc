@@ -29,7 +29,8 @@ function elmsmedia_helper_elmsln_api_callback_elmsmedia_upload() {
       $file->filemime = file_get_mimetype($params['file_data']);
       $file->uid = $account->uid;
       // move from tempory location to real directory
-      file_copy($file, $file_wrapper . '://' . $upload['name']);
+      $file = file_copy($file, $file_wrapper . '://' . $upload['name']);
+      $file->url = file_create_url($file->uri);
     }
     else {
       // get contents of the file if it was uploaded into a variable
