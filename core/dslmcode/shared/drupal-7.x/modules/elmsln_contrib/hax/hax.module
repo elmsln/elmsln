@@ -107,6 +107,7 @@ function _hax_node_save($node, $token) {
     );
     // output the response as json
     print drupal_json_output($return);
+    exit;
   }
 }
 

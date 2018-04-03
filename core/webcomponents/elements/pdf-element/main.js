@@ -34,8 +34,6 @@
 
     this.SRC = el.src;
 
-    // this.loadPDF();
-    // this.renderPages();
     this.pageRendering = false;
     this.pageNumPending = null;
 
@@ -83,6 +81,10 @@
     }
   };
 
+  /*
+  * Gets the pdf, sets pdfExists to false if it doesn't exist
+  * Set attributes of the pdf including the current page, total pages, and zoom values
+  */
   Reader.prototype.loadPDF = function(pageNum) {
     this.setSize();
     pageNum = 1;
@@ -120,10 +122,14 @@
     });
   };
 
+  /*
+  * Sets up the sidebar for the pdf passed in
+  * 
+  */
   Reader.prototype.sidebarSetup = function(currentThis){
     var self = this;
     var pdfName = currentThis.src;
-    var currPage = 1; //Pages are 1-based not 0-based
+    var currPage = 1; //Pages start at 1
     var numPages = 0;
     var pdfObj = null;
 
@@ -172,6 +178,10 @@
         self.setViewportPos(true);
       }
     
+      /*
+      * Creates a separate canvas for each page
+      * Adds the eventListeneer for when the page is selected to know what page to change to 
+      */
       function handlePages(page){
         var scale = 0.14;
         var scaleWidth = 0;
@@ -208,8 +218,8 @@
         //Add event listener for selecting that page.
         var addPage = Polymer.dom(self.container).childNodes[page.pageIndex];
         addPage.addEventListener('click',function(){
-          var testPage = page.pageIndex + 1;
-          click.sideBarClick(testPage, currentThis.instance, currentThis);
+          var nextPage = page.pageIndex + 1;
+          click.sideBarClick(nextPage, currentThis.instance, currentThis);
         });
 
         var context = canvas.getContext('2d');
@@ -296,9 +306,6 @@
           textLayer.className = "textLayer";
 
           var ctx = canvas.getContext('2d');
-
-          // canvas.height = viewerViewport.height;
-          // canvas.width = viewerViewport.width;
 
           textLayer.height = viewerViewport.height;
           textLayer.width = viewerViewport.width;

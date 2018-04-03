@@ -125,6 +125,12 @@ as the events being bubbled up include HTML nodes to inject into something
         event-name="header"
         voice-command="insert heading"></hax-panel-item>
       <hax-panel-item
+        icon="image:transform"
+        icon-class="green-text text-darken-1"
+        label="Placeholder"
+        event-name="placeholder"
+        voice-command="insert placeholder"></hax-panel-item>
+      <hax-panel-item
         icon="image:panorama"
         icon-class="amber-text text-darken-1"
         label="Image"
@@ -253,6 +259,14 @@ as the events being bubbled up include HTML nodes to inject into something
           case 'header':
             detail.tag = 'h2';
             detail.content = 'Header';
+            this.fire('hax-insert-content', detail);
+          break;
+          case 'placeholder':
+            detail.tag = 'place-holder';
+            detail.content = '';
+            detail.properties = {
+              'style': 'width:50%;',
+            };
             this.fire('hax-insert-content', detail);
           break;
           case 'image':

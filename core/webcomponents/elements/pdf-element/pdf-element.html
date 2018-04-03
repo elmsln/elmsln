@@ -144,7 +144,7 @@ Another awesome feature is dynamically load PDF file. So you can change the `src
             <paper-toolbar class="pdf-toolbar">
               <paper-icon-button icon="menu" on-click="sideBar"></paper-icon-button>
               <paper-icon-button icon="arrow-back" on-click="showPrev"></paper-icon-button>
-              <input class="pageselector" id="input" is="iron-input" value="{{currentPage}}" prevent-invalid-input allowed-pattern="\d" on-change="pageNoCommitted">
+              <input class="pageselector" id="input" is="iron-input" value="{{currentPage}}" prevent-invalid-input allowed-pattern="\d" on-change="pageNumSearch">
               <span id="slash">/</span><span id="totalPages"></span>
               <paper-icon-button icon="arrow-forward" on-click="showNext"></paper-icon-button>
               <span class="title" hidden="{{!showFileName}}">Testing</span>
@@ -224,6 +224,9 @@ Another awesome feature is dynamically load PDF file. So you can change the `src
             type: Boolean,
             value: false
         },
+        /*
+        * If provided then the width will be set.
+        */
         width:{
           type: Number,
           value: 500
@@ -249,7 +252,13 @@ Another awesome feature is dynamically load PDF file. So you can change the `src
             'handles': [
               {
                 'type': 'pdf',
-                'url': 'src'
+                'url': 'src',
+                'source': 'src'
+              },
+              {
+                'type': 'document',
+                'url': 'src',
+                'source': 'src'
               }
             ],
             'meta': {
@@ -304,6 +313,10 @@ Another awesome feature is dynamically load PDF file. So you can change the `src
         this.setHaxProperties(props);
       },
 
+      /* 
+      * For the first time the pdf is loaded.
+      * The inital page is set to 1 and it sets the total Pages
+      */
       loadPDF: function() {
         if (!this.getAttribute("src")) return;
         this.instance.changePDFSource(this.getAttribute("src"));
@@ -314,6 +327,9 @@ Another awesome feature is dynamically load PDF file. So you can change the `src
         this.$.zoomIcon.icon = 'fullscreen';
       },
 
+      /*
+      * When a new pdf is selected and loaded, this sets the properties for the switch
+      */
       attributeChanged: function(name, type) {
         if (name === 'src') {
           if (typeof this.instance == 'undefined') this._initializeReader();
@@ -337,6 +353,10 @@ Another awesome feature is dynamically load PDF file. So you can change the `src
       _setFitWidth: function() {
           this.instance.setFitWidth(this.fitWidth);
       },
+
+      /*
+      * Is called from zoomIn function to control the zoom in
+      */
       zoomInOut: function(step) {
         if (this.instance.currentZoomVal >= 2) {
           this.instance.currentZoomVal = 2;
@@ -347,16 +367,28 @@ Another awesome feature is dynamically load PDF file. So you can change the `src
           this.instance.zoomInOut(step);
         }
       },
+
+      /*
+      * Zoom in to the pdf as long as it is loaded
+      */
       zoomIn: function() {
         if(this.instance.pdfExists){
           this.zoomInOut(0.1);
         }
       },
+
+      /*
+      * Zoom out of the pdf as long as it is loaded
+      */
       zoomOut: function() {
         if(this.instance.pdfExists){
           this.instance.zoomInOut(-0.1);
         }
       },
+
+      /*
+      * When the zoom in/out button is selected. Reformats the pdf to the original display
+      */
       zoomFit: function() {
         if(this.instance.pdfExists){
           if (this.instance.currentZoomVal == this.instance.widthZoomVal) {
@@ -368,7 +400,14 @@ Another awesome feature is dynamically load PDF file. So you can change the `src
           }
         }
       },
-      pageNoCommitted: function() {
+
+      /*
+      * Controls the page search functionality.
+      * When a number is input it checks to see if it is a valid page
+      * If it is valid then it will change the view to that page 
+      * as well as update the page number
+      */
+      pageNumSearch: function() {
         var page = parseInt(this.$.input.value);
 
         if ((1 <= page) && (page <= this.instance.totalPagesNum)) {
@@ -382,6 +421,11 @@ Another awesome feature is dynamically load PDF file. So you can change the `src
         }
       },
 
+      /*
+      * Is called when a page is selected from the sidebar
+      * Checks to make sure a valid page is selected, then changes the page
+      * The currentInstance is passed in to make sure it is changing the proper pdf if multiple are loaded
+      */
       sideBarClick: function(page, currentInstance, currentThis) {
         //this.instance = currentInstance;
         var parsedFileName = currentThis.src.split('/').pop()
@@ -399,6 +443,9 @@ Another awesome feature is dynamically load PDF file. So you can change the `src
         }
       },
 
+      /*
+      * Is called to show the previous page and update page number
+      */
       showPrev: function() {
         if (1 < this.instance.currentPage) {
           this.instance.currentPage--;
@@ -406,6 +453,10 @@ Another awesome feature is dynamically load PDF file. So you can change the `src
           this.currentPage--;
         }
       },
+
+      /*
+      * Is called to show the next page and update page number
+      */
       showNext: function() {
         if (this.instance.totalPagesNum > this.instance.currentPage) {
           this.instance.currentPage++;
@@ -413,6 +464,13 @@ Another awesome feature is dynamically load PDF file. So you can change the `src
           this.currentPage++;
         }
       },
+
+      /*
+      * The sidebar is a scrollable bar on the side of the page that allows you to scroll and select a page to change to
+      * Checks if the pdf loaded changed
+      * Then checks if the sidebar is open or not
+      * If it is open, close. Else open sidebar. Set sidebarOpen to either T or F
+      */
       sideBar: function(){
         if(this.instance.pdfExists){
           if(!this.fromChange){
@@ -441,6 +499,9 @@ Another awesome feature is dynamically load PDF file. So you can change the `src
         }
       },
 
+      /*
+      * Is called when the download pdf button is selected
+      */
       download: function() {
         if(this.instance.pdfExists){
           this.instance.download();

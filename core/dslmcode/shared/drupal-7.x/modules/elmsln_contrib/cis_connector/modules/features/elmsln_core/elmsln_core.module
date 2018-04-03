@@ -162,6 +162,13 @@ function elmsln_core_menu() {
     'access callback' => '_cis_connector_role_groupings',
     'access arguments' => array(array('teacher', 'staff')),
   );
+  $items['elmsmedia-file-save/%'] = array(
+    'page callback' => '_elmsmedia_file_save',
+    'page arguments' => array(1),
+    'type' => MENU_CALLBACK,
+    'access callback' => '_hax_file_access',
+    'access arguments' => array('create'),
+  );
 
   $items['elmsln/course-settings'] = array(
     'title' => 'Settings',
@@ -2496,4 +2503,146 @@ function _elmsln_core_get_sis_user_data($uid = NULL) {
     );
   }
   return $sis;
+}
+
+/**
+ * Implements hook_hax_app_store().
+ */
+function elmsln_core_hax_app_store() {
+  global $base_url;
+  $parts = explode('://', $base_url);
+  // built in support when file_entity and restws is in place
+  $json = '{
+    "details": {
+      "title": "' . t('ELMSMedia') . '",
+      "icon": "perm-media",
+      "color": "green",
+      "author": "ELMSLN",
+      "description": "ELMS:LN media integration for HAX",
+      "tags": ["media", "elmsln"]
+    },
+    "connection": {
+      "protocol": "' . $parts[0] . '",
+      "url": "' . $parts[1] . '",
+      "operations": {
+        "browse": {
+          "method": "GET",
+          "endPoint": "file.json",
+          "pagination": {
+            "style": "link",
+            "props": {
+              "first": "page.first",
+              "next": "page.next",
+              "previous": "page.previous",
+              "last": "page.last"
+            }
+          },
+          "search": {
+          },
+          "data": {
+          },
+          "resultMap": {
+            "defaultGizmoType": "image",
+            "items": "list",
+            "preview": {
+              "title": "name",
+              "details": "mime",
+              "image": "url",
+              "id": "uuid"
+            },
+            "gizmo": {
+              "source": "url",
+              "id": "uuid",
+              "title": "name",
+              "type": "type"
+            }
+          }
+        },
+        "add": {
+          "method": "POST",
+          "endPoint": "elmsmedia-file-save/' . drupal_get_token('elmsln') . '",
+          "acceptsGizmoTypes": [
+            "image",
+            "video",
+            "audio",
+            "pdf",
+            "svg"
+          ],
+          "resultMap": {
+            "item": "data.file",
+            "defaultGizmoType": "image",
+            "gizmo": {
+              "source": "url",
+              "id": "uuid",
+              "title": "filename",
+              "type": "type"
+            }
+          }
+        }
+      }
+    }
+  }';
+  return json_decode($json);
+}
+
+/**
+ * Save the file to the media system
+ */
+function _elmsmedia_file_save($token) {
+  $status = 403;
+  // check for the uploaded file from our 1-page-uploader app
+  // and ensure there are entity permissions to create a file of this type
+  if (drupal_valid_token($token, 'elmsln') && isset($_FILES['file-upload'])) {
+    $upload = $_FILES['file-upload'];
+    // check for a file upload
+    if (isset($upload['tmp_name']) && is_uploaded_file($upload['tmp_name'])) {
+      $upload['type'] = explode('/', $upload['type']);
+      if ($upload['type'][0] == 'application') {
+        $upload['type'][0] = 'document';
+      }
+      // get contents of the file if it was uploaded into a variable
+      if ($upload['type'][0] == 'video' || $upload['type'][0] == 'audio') {
+        $data = $upload['tmp_name'];
+      }
+      else {
+        $data = file_get_contents($upload['tmp_name']);
+        $data = base64_encode($data);
+      }
+      // post against elmsmedia
+      $request = array(
+        'bucket' => 'elmsmedia',
+        'path' => '/',
+        'method' => 'POST',
+        'api' => 1,
+        'data' => array(
+          'elmsln_module' => 'elmsmedia_helper',
+          'elmsln_callback' => 'elmsmedia_upload',
+          '__course_context' => _cis_connector_course_context(),
+          'upload' => $upload,
+          'file_data' => $data,
+          'user' => $GLOBALS['user']->name,
+          'file_wrapper' => 'public',
+        ),
+      );
+      $return = _elmsln_api_request($request);
+      // decode the response since it's double encoded json
+      $return = json_decode($return);
+      // look for a response code and set it as status if we find one
+      if (isset($return->response->code)) {
+        $status = $return->response->code;
+      }
+    }
+  }
+  // send back happy headers
+  drupal_add_http_header('Content-Type', 'application/json');
+  // define status
+  drupal_add_http_header('Status', $status);
+  $return = array(
+    'status' => $status,
+    'message' => t('Upload successful!'),
+    'data' => $return,
+  );
+  // output the response as json
+  print drupal_json_output($return);
+  exit;
 }

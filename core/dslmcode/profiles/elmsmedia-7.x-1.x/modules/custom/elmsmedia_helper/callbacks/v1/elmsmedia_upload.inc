@@ -37,6 +37,7 @@ function elmsmedia_helper_elmsln_api_callback_elmsmedia_upload() {
       $file = file_save_data($data, $file_wrapper . '://' . $upload['name']);
       $file->uid = $account->uid;
       file_save($file);
+      $file->url = file_create_url($file->uri);
     }
     // see if Drupal can load from this data source
     if ($file) {
