@@ -404,6 +404,18 @@ A LRN element for brokering the UI for api endpoints both in querying and upload
         this.fire('hax-register-manager', this);
         document.body.addEventListener('hax-store-property-updated', this._haxStorePropertyUpdated.bind(this));
         document.body.addEventListener('hax-app-picker-selection', this._haxAppPickerSelection.bind(this));
+        // specialized support for the place-holder tag
+        // and a drag and drop event
+        document.body.addEventListener('place-holder-file-drop', this._placeHolderFileDrop.bind(this));
+      },
+      /**
+       * A file event was detected from a drag and drop in the interface
+       */
+      _placeHolderFileDrop: function(event) {
+        this.resetManager();
+        this.open();
+        Polymer.HaxStore.instance.activePlaceHolder = event.detail.placeHolderElement;
+        this.$.fileupload._onDrop(event.detail);
       },
       /**
        * Respond to uploading a file
@@ -592,6 +604,12 @@ A LRN element for brokering the UI for api endpoints both in querying and upload
           this.resetManager();
         }
         document.body.style.overflow = null;
+      },
+      /**
+       * Open the dialog
+       */
+      open: function(e) {
+        this.$.dialog.opened = true;
       },
       /**
        * Configure asset after upload or URL passed in.

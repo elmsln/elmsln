@@ -247,6 +247,7 @@ function hax_settings($form, &$form_state) {
     '#type' => 'textfield',
     '#title' => t('Elements to autoload'),
     '#default_value' => variable_get('hax_autoload_element_list', HAX_DEFAULT_ELEMENTS),
+    '#maxlength' => 1000,
     '#description' => t("This allows for auto-loading elements known to play nice with HAX. If you've written any webcomponents that won't automatically be loaded into the page via that module this allows you to attempt to auto-load them when HAX loads. For example, if you have a video-player element in your bower_components directory and want it to load on this interface, this would be a simple way to do that. Spaces only between elements, no comma"),
   );
   $hax = new HAXService();

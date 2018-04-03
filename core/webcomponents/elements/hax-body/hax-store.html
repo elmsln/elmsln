@@ -76,6 +76,15 @@
             value: [],
           },
           /**
+           * An active place holder item reference. This is used
+           * for inline drag and drop event detection so that we
+           * know what element replace in context.
+           */
+          activePlaceHolder: {
+            type: Object,
+            value: null,
+          },
+          /**
            * The hax-body that is currently active.
            */
           activeHaxBody: {

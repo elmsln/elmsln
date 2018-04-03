@@ -338,8 +338,19 @@ A LRN element that will change the world.
               }
             }
           }
+          // special support for a drag and drop into a place-holder tag
+          // as this is a more aggressive operation then the others
+          if (Polymer.HaxStore.instance.activePlaceHolder !== null) {
+            // replicate styles so that it doesn't jar the UI
+            newNode.style.width = Polymer.HaxStore.instance.activePlaceHolder.style.width;
+            newNode.style.float = Polymer.HaxStore.instance.activePlaceHolder.style.float;
+            newNode.style.margin = Polymer.HaxStore.instance.activePlaceHolder.style.margin;
+            newNode.style.display = Polymer.HaxStore.instance.activePlaceHolder.style.display;
+            this.haxReplaceNode(Polymer.HaxStore.instance.activePlaceHolder, newNode);
+            Polymer.HaxStore.instance.activePlaceHolder = null;
+          }
           // insert at active insert point if we have one
-          if (this.activeNode !== null) {
+          else if (this.activeNode !== null) {
             Polymer.dom(this).insertBefore(newNode, this.activeNode.nextElementSibling);
           }
           else {
