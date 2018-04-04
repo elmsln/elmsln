@@ -119,6 +119,8 @@ function _hax_load_app_store($token) {
   if (drupal_valid_token($token, 'hax')) {
     $appStore = module_invoke_all('hax_app_store');
     drupal_alter('hax_app_store', $appStore);
+    $staxList = module_invoke_all('hax_stax');
+    drupal_alter('hax_stax', $staxList);
     // send back happy headers
     drupal_add_http_header('Content-Type', 'application/json');
     // define status
@@ -126,6 +128,7 @@ function _hax_load_app_store($token) {
     $return = array(
       'status' => 200,
       'apps' => $appStore,
+      'stax' => $staxList,
     );
     // output the response as json
     print drupal_json_output($return);

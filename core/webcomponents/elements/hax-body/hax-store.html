@@ -4,6 +4,7 @@
 <link rel="import" href="../hax-body-behaviors/hax-body-behaviors.html">
 <link rel="import" href="../iron-ajax/iron-ajax.html">
 <link rel="import" href="hax-app.html">
+<link rel="import" href="hax-stax.html">
 
 <!--
 `hax-store`
@@ -60,6 +61,12 @@
            * Hax app picker element.
            */
           haxAppPicker: {
+            type: Object,
+          },
+          /**
+           * Hax stax picker element.
+           */
+          haxStaxPicker: {
             type: Object,
           },
           /**
@@ -178,6 +185,13 @@
             value: [],
           },
           /**
+           * Available hax stax which are just re-usable templates
+           */
+          staxList: {
+            type: Array,
+            value: [],
+          },
+          /**
            * Global preferences that HAX can write to and
            * other elements can use to go off of.
            */
@@ -241,11 +255,21 @@
          */
         _loadAppStoreData: function(newValue, oldValue) {
           if (typeof newValue !== typeof undefined) {
-            var apps = newValue.apps;
-            for (var i = 0; i < apps.length; i++) {
-              let app = document.createElement('hax-app');
-              app.data = apps[i];
-              document.body.appendChild(app);
+            if (typeof newValue.apps !== typeof undefined) {
+              var apps = newValue.apps;
+              for (var i = 0; i < apps.length; i++) {
+                let app = document.createElement('hax-app');
+                app.data = apps[i];
+                document.body.appendChild(app);
+              }
+            }
+            if (typeof newValue.stax !== typeof undefined) {
+              var staxs = newValue.stax;
+              for (var i = 0; i < staxs.length; i++) {
+                let stax = document.createElement('hax-stax');
+                stax.data = staxs[i];
+                document.body.appendChild(stax);
+              }
             }
           }
         },
@@ -273,6 +297,8 @@
           document.body.addEventListener('hax-register-panel', this._haxStoreRegisterPanel.bind(this));
           document.body.addEventListener('hax-register-app', this._haxStoreRegisterApp.bind(this));
           document.body.addEventListener('hax-register-app-picker', this._haxStoreRegisterAppPicker.bind(this));
+          document.body.addEventListener('hax-register-stax', this._haxStoreRegisterStax.bind(this));
+          document.body.addEventListener('hax-register-stax-picker', this._haxStoreRegisterStaxPicker.bind(this));
           // notice content insert and help it along to the body
           document.body.addEventListener('hax-insert-content', this._haxStoreInsertContent.bind(this));
           document.body.addEventListener('hax-register-preferences', this._haxStoreRegisterPreferences.bind(this));
@@ -465,6 +491,15 @@
           }
         },
         /**
+         * Set the stax picker so that we have an element in charge
+         * of the listing of available stax.
+         */
+        _haxStoreRegisterStaxPicker: function(e) {
+          if (e.detail && typeof this.haxStaxPicker === typeof undefined) {
+            this.haxStaxPicker = e.detail;
+          }
+        },
+        /**
          * Insert content in the body.
          */
         _haxStoreInsertContent: function(e) {
@@ -554,6 +589,16 @@
           if (e.detail) {
             e.detail.index = this.appList.length;
             this.push('appList', e.detail);
+          }
+        },
+        /**
+         * Notice that a stax was set in HAX; register it
+         */
+        _haxStoreRegisterStax: function(e) {
+          if (e.detail) {
+            e.detail.index = this.staxList.length;
+            this.push('staxList', e.detail);
+            Polymer.HaxStore.write('staxList', this.staxList, this);
           }
         },
         /**

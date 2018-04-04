@@ -4,6 +4,8 @@
 <link rel="import" href="../iron-icons/iron-icons.html">
 <link rel="import" href="hax-panel-item.html">
 <link rel="import" href="hax-preferences-dialog.html">
+<link rel="import" href="hax-stax-picker.html">
+
 
 <!--
 `hax-panel`
@@ -148,21 +150,20 @@ as the events being bubbled up include HTML nodes to inject into something
         label="Divider"
         event-name="divider"
         voice-command="insert divider"></hax-panel-item>
-      <slot></slot>
+      <hax-panel-item
+        icon="view-agenda"
+        icon-class="orange-text text-darken-1"
+        label="Layout stax"
+        event-name="hax-stax-picker-open"
+        voice-command="insert stack"></hax-panel-item>
       <hax-panel-item
         disabled
         icon="view-quilt"
         icon-class="red-text text-darken-1"
-        label="Block layout"
+        label="Block"
         event-name="layout"
         voice-command="insert block"></hax-panel-item>
-      <hax-panel-item
-        disabled
-        icon="view-agenda"
-        icon-class="orange-text text-darken-1"
-        label="Layout stack"
-        event-name="layout"
-        voice-command="insert stack"></hax-panel-item>
+      <slot></slot>
       <hax-panel-item
         hidden$="[[hideExportButton]]"
         on-tap="_htmlExportDialog"
@@ -174,6 +175,7 @@ as the events being bubbled up include HTML nodes to inject into something
         label="Preferences"></hax-panel-item>
     </app-drawer>
     <hax-preferences-dialog></hax-preferences-dialog>
+    <hax-stax-picker></hax-stax-picker>
   </template>
   <script>
     Polymer({
@@ -307,6 +309,9 @@ as the events being bubbled up include HTML nodes to inject into something
             Polymer.HaxStore.instance.haxManager.resetManager();
             Polymer.HaxStore.write('activeHaxElement', {}, this);
             Polymer.HaxStore.instance.haxManager.toggleDialog();
+          break;
+          case 'hax-stax-picker-open':
+            Polymer.HaxStore.instance.haxStaxPicker.toggleDialog();
           break;
           case 'undo':
             document.execCommand('undo');

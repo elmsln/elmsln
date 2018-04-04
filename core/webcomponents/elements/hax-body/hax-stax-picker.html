@@ -1,0 +1,134 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../paper-dialog/paper-dialog.html">
+<link rel="import" href="../paper-ripple/paper-ripple.html">
+<link rel="import" href="../paper-toast/paper-toast.html">
+<link rel="import" href="../paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../neon-animation/web-animations.html">
+<link rel="import" href="../neon-animation/neon-animation.html">
+<link rel="import" href="../neon-animation/animations/scale-up-animation.html">
+<link rel="import" href="../neon-animation/animations/scale-down-animation.html">
+<link rel="import" href="../materializecss-styles/materializecss-styles.html">
+<link rel="import" href="hax-stax-browser.html">
+
+<!--
+ `hax-stax-picker`
+ A picker for selecting an item from a list of apps / hax stax which require
+ a decision to be made. This is used when multiple things match either on upload
+ in the add operation of the app or in the stax selection to render through,
+ such as having multiple ways of presenting an image.
+
+@demo demo/index.html
+
+@microcopy - the mental model for this element
+ - data - this is the app data model for an element which expresses itself to hax
+-->
+
+<dom-module id="hax-stax-picker">
+  <template>
+    <style include="materializecss-styles">
+      :host {
+        display: block;
+        --hax-stax-picker-tab-color: #e5e5e5;
+        --hax-stax-picker-ink-color: #2e2e2e;
+        --hax-accent: #34e79a;
+      }
+      #dialog {
+        z-index: 10000;
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        margin: 68px;
+        overflow: auto;
+        border-bottom-left-radius: 16px;
+        border-bottom-right-radius: 16px;
+        @apply --hax-stax-picker-dialog;
+      }
+      #dialogcontent {
+        margin-top: 0;
+        padding: 0;
+        overflow: scroll;
+      }
+      #dialogheader {
+        margin: 0;
+        padding: 20px;
+        position: sticky;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 2;
+        border-bottom: 1px solid #222222;
+        -webkit-box-shadow: 0 0 10px -1px #222222;
+        box-shadow: 0 0 10px -1px #222222;
+      }
+      #dialogheader h2 {
+        margin: 0;
+        font-size: 28px;
+        text-align: left;
+      }
+    </style>
+    <paper-dialog id="dialog" entry-animation="slide-from-top-animation" exit-animation="slide-up-animation" with-backdrop opened="{{opened}}">
+      <div id="dialogheader" class="grey darken-3 grey-text text-lighten-3">
+        <h2 class="grey-text text-lighten-3">[[header]]</h2>
+      </div>
+      <div class="dialog-contents" id="dialogcontent">
+        <hax-stax-browser id="staxbrowser"></hax-stax-browser>
+      </div>
+    </paper-dialog>
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'hax-stax-picker',
+      properties: {
+        /**
+         * Header so it's variable
+         */
+        header: {
+          type: String,
+          value: 'Stax Browser',
+        },
+        /**
+         * Opened status to map to dialog
+         */
+        opened: {
+          type: Boolean,
+          value: false,
+        },
+      },
+      /**
+       * Ready life cycle.
+       */
+      ready: function() {
+        document.body.appendChild(this);
+      },
+      /**
+       * Attached life cycle
+       */
+      attached: function() {
+        this.fire('hax-register-stax-picker', this);
+      },
+      /**
+       * Open the dialog
+       */
+      open: function() {
+        this.opened = true;
+        this.$.staxbrowser.resetBrowser();
+      },
+      /**
+       * Close the dialog
+       */
+      close: function() {
+        this.opened = false;
+      },
+      /**
+       * Toggle state.
+       */
+      toggleDialog: function() {
+        this.opened = !this.opened;
+      },
+    });
+  </script>
+</dom-module>

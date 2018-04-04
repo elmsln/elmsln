@@ -2586,6 +2586,79 @@ function elmsln_core_hax_app_store() {
 }
 
 /**
+ * Implements hook_hax_stax().
+ */
+function elmsln_core_hax_stax() {
+  $json = '[
+    {
+      "details": {
+        "title": "Topic page",
+        "image": "topic-page.jpg",
+        "author": "ELMS:LN",
+        "description": "A well made topic page",
+        "status": "available",
+        "rating": "0",
+        "tags": ["instructional design", "list"]
+      },
+      "stax": [
+        {
+          "tag": "h2",
+          "properties": {},
+          "content": "Step 1: Complete the Topic Readings"
+        },
+        {
+          "tag": "p",
+          "properties": {},
+          "content": "This topic uses one or more required readings and one or more optional readings. By completing these readings before studying the lecture, you will make the most effective use of both. As you read, remember to take good notes using your study sheets."
+        },
+        {
+          "tag": "div",
+          "properties": {
+            "class": "textbook_box textbook_box_required"
+          },
+          "content": "<h3>Required</h3><ol><li><a href=\"https://wikipedia.org/\" target=\"_blank\">The encyclopedia of the internet</a></li></ol>"
+        },
+        {
+          "tag": "div",
+          "properties": {
+            "class": "textbook_box textbook_box_optional"
+          },
+          "content": "<h3>Optional</h3><ol><li><a href=\"https://wikipedia.org/\" target=\"_blank\">The encyclopedia of the internet</a></li></ol>"
+        },
+        {
+          "tag": "h2",
+          "properties": {},
+          "content": "Step 2: Topic activity"
+        },
+        {
+          "tag": "p",
+          "properties": {},
+          "content": "Go to your documents area and complete the activity."
+        },
+        {
+          "tag": "h2",
+          "properties": {},
+          "content": "Step 3: Take Notes on the Lecture"
+        },
+        {
+          "tag": "p",
+          "properties": {},
+          "content": "Watch the following lecture and take notes using your study sheets."
+        },
+        {
+          "tag": "place-holder",
+          "properties": {
+            "type": "video"
+          },
+          "content": ""
+        }
+      ]
+    }
+  ]';
+  return json_decode($json);
+}
+
+/**
  * Save the file to the media system
  */
 function _elmsmedia_file_save($token) {
