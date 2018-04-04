@@ -5,7 +5,7 @@
 <link rel="import" href="../hax-body/hax-manager.html">
 <link rel="import" href="../hax-body/hax-panel.html">
 <link rel="import" href="../hax-body/hax-app-picker.html">
-<link rel="import" href="../hax-body/hax-app.html">
+<link rel="import" href="../hax-body/hax-export-dialog.html">
 <link rel="import" href="../iron-ajax/iron-ajax.html">
 <link rel="import" href="../paper-toast/paper-toast.html">
 <!--
@@ -31,11 +31,12 @@ A LRN polymer app
     <div id="autoloaderslot" hidden><slot name="autoloader"></slot></div>
     <div id="bodyslot" hidden><slot></slot></div>
     <hax-store hidden app-store="[[appStoreConnection]]"></hax-store>
-    <hax-app-picker></hax-app-picker>
-    <hax-manager></hax-manager>
-    <hax-panel id="panel" hide-export-button="[[hideExportButton]]" align="[[align]]"></hax-panel>
+    <hax-panel id="panel" hide-export-button="{{hideExportButton}}" align="[[align]]"></hax-panel>
     <hax-body id="body" context-offset-left="[[bodyOffsetLeft]]"></hax-body>
     <hax-autoloader id="loader" hidden></hax-autoloader>
+    <hax-manager></hax-manager>
+    <hax-app-picker></hax-app-picker>
+    <hax-export-dialog></hax-export-dialog>
     <iron-ajax
       id="pageupdateajax"
       url="[[endPoint]]"

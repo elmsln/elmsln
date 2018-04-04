@@ -184,6 +184,9 @@ as the events being bubbled up include HTML nodes to inject into something
       listeners: {
         'hax-item-selected': '_processItemEvent',
       },
+      observers: [
+        '_globalPreferencesChanged(globalPreferences.*)',
+      ],
       properties: {
         /**
          * Display to the right corner instead of the left (default)
@@ -215,6 +218,12 @@ as the events being bubbled up include HTML nodes to inject into something
           type: Boolean,
           value: false,
         },
+        /**
+         * Global preferences for HAX overall
+         */
+        globalPreferences: {
+          type: Object,
+        },
       },
       /**
        * Created life cycle.
@@ -231,10 +240,23 @@ as the events being bubbled up include HTML nodes to inject into something
         document.body.addEventListener('hax-store-property-updated', this._haxStorePropertyUpdated.bind(this));
       },
       /**
+       * Global preference changed.
+       */
+      _globalPreferencesChanged: function(value) {
+        if (typeof value !== typeof undefined) {
+          if (value.value != null && typeof value.value.haxShowExportButton !== typeof undefined) {
+            this.hideExportButton = !value.value.haxShowExportButton;
+          }
+        }
+      },
+      /**
        * Store updated, sync.
        */
       _haxStorePropertyUpdated: function(e) {
         if (e.detail && typeof e.detail.value !== typeof undefined && e.detail.property) {
+          if (typeof e.detail.value === 'object') {
+            this.set(e.detail.property, null);
+          }
           this.set(e.detail.property, e.detail.value);
         }
       },

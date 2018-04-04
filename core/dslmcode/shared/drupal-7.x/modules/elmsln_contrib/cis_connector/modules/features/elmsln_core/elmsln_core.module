@@ -2566,7 +2566,9 @@ function elmsln_core_hax_app_store() {
             "video",
             "audio",
             "pdf",
-            "svg"
+            "svg",
+            "document",
+            "csv"
           ],
           "resultMap": {
             "item": "data.file",

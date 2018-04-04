@@ -28,11 +28,13 @@ A context menu that provides common text based authoring options.
         transition: .6s all ease;
         visibility: hidden !important;
         opacity: 0 !important;
+        display: none !important;
       }
       :host[opened] {
         visibility: visible !important;
         z-index: 1000 !important;
         opacity: 1 !important;
+        display: block !important;
       }
       paper-item:hover {
         background-color: #d3d3d3;
@@ -159,13 +161,17 @@ A context menu that provides common text based authoring options.
             setTimeout( () => {
               var selection = window.getSelection();
               var offset = 0;
-              var range;
+              var range,start;
               try {
                 range = selection.getRangeAt(0);
                 offset = range.startOffset - range.endOffset;
                 // account for backwards selection method by the user
                 if (offset < 0) {
                   offset = offset * -1;
+                  start = range.startOffset;
+                }
+                else {
+                  start = range.startOffset;
                 }
               }
               catch(e) {
@@ -178,11 +184,9 @@ A context menu that provides common text based authoring options.
               }
               else {
                 let newRange = document.createRange();
-                // calculate 1/2 way between what's been highlighted
-                let midpoint = Math.ceil((offset) / 2) + range.startOffset;
                 // try to find this, sometimes drag highlighting can break this
                 try {
-                  newRange.setStart(selection.focusNode, midpoint);
+                  newRange.setStart(selection.focusNode, start);
                   // move tracker and inject it invisibly at the mid point of
                   // the selection
                   newRange.insertNode(Polymer.HaxStore.instance.activeHaxBody.$.inlinetracker);
@@ -193,14 +197,14 @@ A context menu that provides common text based authoring options.
                   // but only after it's already been established that
                   // there is a selection made.
                 }
-                Polymer.HaxStore.instance.async(function() {
+                setTimeout( () => {
                   Polymer.HaxStore.instance.activeHaxBody.$.inlinecontextmenu.style.left = (Polymer.HaxStore.instance.activeHaxBody.$.inlinetracker.offsetLeft - (Polymer.HaxStore.instance.activeHaxBody.$.inlinecontextmenu.offsetWidth / 2)) + 'px';
                   Polymer.HaxStore.instance.activeHaxBody.$.inlinecontextmenu.style.top = Polymer.HaxStore.instance.activeHaxBody.$.inlinetracker.offsetTop + 'px';
                   Polymer.HaxStore.instance.activeHaxBody.$.inlinecontextmenu.opened = true;
-                });
+                }, 100);
               }
               window.__selectionLock = false;
-            }, 100);
+            }, 500);
             window.__selectionLock = true;
           }
         });
@@ -214,6 +218,7 @@ A context menu that provides common text based authoring options.
         switch(detail.eventName) {
           case 'close-inline-context':
             this.opened = false;
+            Polymer.HaxStore.instance.activeHaxBody._hideContextMenu(Polymer.HaxStore.instance.activeHaxBody.$.inlinetracker);
           break;
           // wow these are way too easy
           case 'text-bold':

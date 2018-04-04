@@ -41,6 +41,7 @@ A LRN element that will change the world.
         opacity: 0;
         transition: all .6s ease;
         z-index: 3;
+        display: none;
       }
       :host #bodycontainer ::slotted(#platecontextmenu) {
         position: absolute;
@@ -158,7 +159,7 @@ A LRN element that will change the world.
       <slot id="body"></slot>
     </div>
     <div id="contextcontainer">
-      <span id="inlinetracker" style="pointer-events: none; visibility: none; opacity: 0; width:0;height:0;" class="ignore-activation hax-inline-tracker-element" draggable="false" contenteditable="false"></span>
+      <span id="inlinetracker" style="pointer-events: none; visibility: none; opacity: 0; width:0;height:0;" class="ignore-activation hax-inline-tracker-element" contenteditable="false"></span>
       <hax-inline-context id="inlinecontextmenu" class="hax-context-menu ignore-activation"></hax-inline-context>
       <hax-text-context id="textcontextmenu" class="hax-context-menu ignore-activation"></hax-text-context>
       <hax-ce-context id="cecontextmenu" class="hax-context-menu ignore-activation"></hax-ce-context>
@@ -248,11 +249,9 @@ A LRN element that will change the world.
               if (this._haxElementTest(node)) {
                 if (this._HTMLPrimativeTest(node)) {
                   node.contentEditable = this.editMode;
-                  node.draggable = this.editMode;
                 }
                 // this does the real targetting
                 node.setAttribute('data-editable', this.editMode);
-                node.setAttribute('data-draggable', this.editMode);
                 node.setAttribute('data-hax-ray', node.tagName);
                 this.fire('hax-body-tag-added', {node: node});
               }
@@ -388,10 +387,8 @@ A LRN element that will change the world.
           // some mild front-end sanitization
           if (this._haxElementTest(children[i])) {
             children[i].setAttribute('data-editable', false);
-            children[i].setAttribute('data-draggable', false);
             children[i].removeAttribute('data-hax-ray');
             children[i].contentEditable = false;
-            children[i].draggable = false;
             content += this.haxNodeToContent(children[i]);
           }
           // keep comments with a special case since they need wrapped
@@ -406,16 +403,10 @@ A LRN element that will change the world.
         }
         // remove the contenteditable attribute
         content = content.replace(/\scontenteditable=\"false\"/g, '');
-        // remove the draggable attribute
-        content = content.replace(/\sdraggable=\"false\"/g, '');
         // remove the data-editable attribute
         content = content.replace(/\sdata-editable=\"true\"/g, '');
         // remove the data-editable attribute
         content = content.replace(/\sdata-editable=\"false\"/g, '');
-        // remove the data-draggable attribute
-        content = content.replace(/\sdata-draggable=\"true\"/g, '');
-        // remove the data-draggable attribute
-        content = content.replace(/\sdata-draggable=\"false\"/g, '');
         // remove HAX specific classes / scoping classes
         let parentTag = this.parentNode.tagName.toLowerCase();
         let string = 'style-scope ' + parentTag + ' x-scope';
@@ -501,10 +492,8 @@ A LRN element that will change the world.
                   }
                   else {
                     slotnodes[j].setAttribute('data-editable', false);
-                    slotnodes[j].setAttribute('data-draggable', false);
                     slotnodes[j].removeAttribute('data-hax-ray');
                     slotnodes[j].contentEditable = false;
-                    slotnodes[j].draggable = false;
                     content += slotnodes[j].outerHTML;
                   }
                 }
@@ -897,12 +886,10 @@ A LRN element that will change the world.
           // we have to tell the browser that primatives are editable
           if (this._HTMLPrimativeTest(children[i])) {
             children[i].contentEditable = status;
-            children[i].draggable = status;
           }
           // this does the real targetting
           if (this._haxElementTest(children[i])) {
             children[i].setAttribute('data-editable', status);
-            children[i].setAttribute('data-draggable', status);
             children[i].setAttribute('data-hax-ray', children[i].tagName);
           }
         }
