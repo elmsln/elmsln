@@ -255,8 +255,16 @@ A context menu that provides common text based authoring options.
             this.$.toolbar.$.moremenu.$.menu.hideMenu();
           break;
           case 'text-link':
-            let url = prompt("Enter a URL:");
-            document.execCommand('createLink', false, url);
+            var selection = window.getSelection();
+            var href = '';
+            if (typeof selection.focusNode.parentNode.href !== typeof undefined) {
+              href = selection.focusNode.parentNode.href;
+            }
+            //@todo put in a dialog instead of this
+            let url = prompt("Enter a URL:", href);
+            if (url) {
+              document.execCommand('createLink', false, url);
+            }
           break;
           case 'text-unlink':
             document.execCommand('unlink');
