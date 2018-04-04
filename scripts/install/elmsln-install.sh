@@ -174,6 +174,7 @@ for tool in "${authoritylist[@]}"
   # enable the cis_settings registry, set private path, temporary path, then execute clean up routines
   drush -y --uri=$protocol://$site_domain vset file_private_path ${drupal_priv}/$tool/$tool
   drush -y --uri=$protocol://$site_domain vset file_temporary_path ${drupal_tmp}
+  drush -y --uri=$protocol://$site_domain vset file_public_path sites/$tool/$host/files
   # distro specific additional install routine
   drush -y --uri=$protocol://$site_domain cook elmsln_$dist --quiet
   # clean up tasks per distro here
