@@ -2,17 +2,17 @@
 <link rel="import" href="../paper-dropdown-menu/paper-dropdown-menu.html">
 <link rel="import" href="../paper-item/paper-item.html">
 <link rel="import" href="../paper-listbox/paper-listbox.html">
+<link rel="import" href="../web-animations-js/web-animations-next-lite.min.html">
 
 <!--
 `dropdown-select`
-A LRN element
+An easy to use, works as expected dropdown menu. Add slotted items like follows:
+
+  <paper-item value="100">100 things</paper-item>
+  <paper-item value="1000">Another value</paper-item>
+  <paper-item value="10">Value is 10, but you will see this text</paper-item>
 
 @demo demo/index.html
-
-@microcopy - the mental model for this element
- -
- -
- -
 
 -->
 
@@ -22,8 +22,24 @@ A LRN element
       :host {
         display: block;
       }
+      paper-listbox ::slotted(paper-item) {
+        display: block;
+        width: 100%;
+        min-height: 2em;
+        vertical-align: text-top;
+        line-height: 2em;
+        @apply --dropdown-select-items;
+      }
+      paper-listbox paper-listbox {
+        @apply --dropdown-listbox;
+      }
     </style>
-    <paper-dropdown-menu id="menu" label$="[[label]]" on-selected-item-changed="_setSelectedValue">
+    <paper-dropdown-menu 
+      always-float-label$="[[alwaysFloatLabel]]"
+      id="menu" 
+      label$="[[label]]" 
+      no-label-float$="[[noLabelFloat]]"
+      on-selected-item-changed="_setSelectedValue">
       <paper-listbox id="listbox" slot="dropdown-content" selected$="[[selectedIndex]]">
         <slot></slot>
       </paper-listbox>
@@ -34,25 +50,23 @@ A LRN element
     Polymer({
 
       is: 'dropdown-select',
-      /*listeners: {
-        'menubutton.tap': '_menubuttonTap',
-      },*/
       properties: {
-        /** 
+        /**
          * The label of the select menu
          */
         label: {
           type: String,
           value: 'Select an option.'
         },
-        /** 
+        /**
          * The default value
          */
         value: {
           type: String,
-          value: null
+          value: null,
+          notify: true,
         },
-        /** 
+        /**
          * The index of the selected item
          */
         selectedIndex: {
@@ -60,7 +74,21 @@ A LRN element
           reflectToAttribute: true,
           notify: true,
           computed: '_getSelectedIndex(value)',
-        }
+        },
+        /**
+         * Set to true to always float the label.
+         */
+        alwaysFloatLabel: {
+          type: Boolean,
+          value: false
+        },
+        /**
+         * Set to true to disable the floating label. 
+         */
+        noLabelFloat: {
+          type: Boolean,
+          value: false
+        },
       },
       /**
        * Get the value of the selected item.
