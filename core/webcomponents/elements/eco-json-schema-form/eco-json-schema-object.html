@@ -363,6 +363,9 @@ el.error = {
           if (!property.component.valueProperty) {
             property.component.valueProperty = 'value';
           }
+          if (!property.component.slot) {
+            property.component.slot = '';
+          }
 
           if (ctx._isSchemaEnum(schema)) {
             property.component.name = property.component.name || 'eco-json-schema-enum';
@@ -493,7 +496,6 @@ el.error = {
       _buildForm: function() {
         var ctx = this;
         this._schemaProperties.forEach(function(property) {
-
           var el = ctx.create(property.component.name, {
             label: property.label,
             schema: property.schema,
@@ -507,6 +509,12 @@ el.error = {
           el[property.component.valueProperty] = property.value;
           ctx.listen(el, property.component.valueProperty.replace(/([A-Z])/g, '-$1').toLowerCase() + '-changed', '_schemaPropertyChanged');
           Polymer.dom(ctx.$.form).appendChild(el);
+          // support for slot injection too!
+          if (property.component.slot != '') {
+            var temp = document.createElement('template');
+            temp.innerHTML = property.component.slot;
+            Polymer.dom(el).appendChild(temp.content);
+          }
         });
       },
       _removePropertyEl: function (el) {

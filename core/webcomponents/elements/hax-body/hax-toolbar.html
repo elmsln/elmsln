@@ -21,9 +21,11 @@
         transition: .6s all ease;
         box-sizing: border-box;
         height: 40px;
+        pointer-events: none;
       }
       :host ::slotted(*) {
         font-family: "Roboto", sans-serif;
+        pointer-events: all;
       }
       :host:hover {
         opacity: 1;
