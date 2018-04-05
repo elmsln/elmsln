@@ -42,13 +42,10 @@ A LRN element that will change the world.
         transition: all .6s ease;
         z-index: 3;
         display: none;
-      }
-      :host #bodycontainer ::slotted(#platecontextmenu) {
-        position: absolute;
+        float: left;
       }
       :host #bodycontainer ::slotted(#haxinputmixer) {
-        z-index: 4;
-        position: absolute;
+        z-index: 10000000;
       }
       :host #bodycontainer ::slotted(.hax-context-visible) {
         visibility: visible;
@@ -227,14 +224,6 @@ A LRN element that will change the world.
           notify: true,
           observer: '_activeHoverChanged',
         },
-        /**
-         * Property to help w/ alignment in different layouts.
-         */
-        contextOffsetLeft: {
-          type: Number,
-          reflectToAttribute: true,
-          value: 0,
-        },
       },
       /**
        * Ready state to tee everything up.
@@ -407,6 +396,8 @@ A LRN element that will change the world.
         content = content.replace(/\sdata-editable=\"true\"/g, '');
         // remove the data-editable attribute
         content = content.replace(/\sdata-editable=\"false\"/g, '');
+        // remove copy and paste glitch
+        content = content.replace(/<span id=\"inlinetracker\" class=\"ignore-activation hax-inline-tracker-element style-scope hax-body\" style=\"font-size: 19.2px; pointer-events: none; opacity: 0; width: 0px; height: 0px;\"><\/span>/g, '');
         // remove HAX specific classes / scoping classes
         let parentTag = this.parentNode.tagName.toLowerCase();
         let string = 'style-scope ' + parentTag + ' x-scope';
@@ -579,10 +570,10 @@ A LRN element that will change the world.
           // currently been set. it's by no means perfect but it'll
           // be a really good start
           this.__activeContextType = this.$.textcontextmenu;
-          this._positionContextMenu(this.$.inlinecontextmenu, node, 0, -48);
+          this._positionContextMenu(this.$.inlinecontextmenu, node, -44, -44);
         }
-        this._positionContextMenu(this.__activeContextType, node, -16, -40);
-        this._positionContextMenu(this.$.platecontextmenu, node, -72, -8);
+        this._positionContextMenu(this.__activeContextType, node, -44, -54);
+        this._positionContextMenu(this.$.platecontextmenu, node, -66, -8, false);
         setTimeout( () => {
   	      this.__activeContextType.scrollIntoView({behavior: "smooth", inline: "nearest"});
   	    }, 100);
@@ -750,7 +741,7 @@ A LRN element that will change the world.
               }
             }
             // make input mixer show up
-            this._positionContextMenu(haxInputMixer, this.$.cecontextmenu, 34, -104);
+            this._positionContextMenu(haxInputMixer, this.$.cecontextmenu, -6, -116);
           break;
           // directional / proportion operations
           case 'hax-align-left':
@@ -949,13 +940,13 @@ A LRN element that will change the world.
         // the grid plate context menu to show up
         if (typeof newValue !== typeof undefined && newValue !== null && this.activeNode === newValue) {
           // position the operations / in context element
-          this._positionContextMenu(this.$.platecontextmenu, newValue, -72, -8);
+          this._positionContextMenu(this.$.platecontextmenu, newValue, -66, -8, false);
         }
       },
       /**
        * Handle display and position of the context menu
        */
-      _positionContextMenu: function (menu, target, xoffset, yoffset) {
+      _positionContextMenu: function (menu, target, xoffset, yoffset, matchStyle = true) {
         menu.classList.add('hax-context-visible');
         try {
           Polymer.dom(this).insertBefore(menu, target);
@@ -963,12 +954,13 @@ A LRN element that will change the world.
         catch(err) {
           Polymer.dom(target.parentNode).insertBefore(menu, target);
         }
-        let offset = 0;
-        if (target.offsetLeft != 0) {
-          offset = target.offsetLeft + this.contextOffsetLeft;
+        // account for the target using these layout busters
+        if (matchStyle) {
+          menu.style.width = target.style.width;
+          menu.style.float = target.style.float;
         }
         if (xoffset != null) {
-          menu.style["margin-left"] = (xoffset + offset ) + 'px';
+          menu.style["margin-left"] = xoffset + 'px';
         }
         if (yoffset != null) {
           menu.style["margin-top"] = yoffset + 'px';

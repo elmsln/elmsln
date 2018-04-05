@@ -260,7 +260,7 @@ A context menu that provides common text based authoring options.
             if (typeof selection.focusNode.parentNode.href !== typeof undefined) {
               href = selection.focusNode.parentNode.href;
             }
-            //@todo put in a dialog instead of this
+            // @todo put in a dialog instead of this
             let url = prompt("Enter a URL:", href);
             if (url) {
               document.execCommand('createLink', false, url);
