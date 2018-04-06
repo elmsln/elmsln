@@ -209,6 +209,8 @@
       _selected: function(e) {
         var normalizedEvent = Polymer.dom(e);
         let key = normalizedEvent.localTarget.getAttribute('data-selected');
+        e.preventDefault();
+        e.stopPropagation();
         if (typeof this._elements[key] !== typeof undefined) {
           // haxElement is a unique case
           if (this.pickerType == 'gizmo') {
