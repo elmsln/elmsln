@@ -19,37 +19,40 @@
           <ul class="elmsln--page--operations">
             <!-- Edit Icon -->
             <?php if (isset($edit_path)): ?>
+            <?php if (arg(2) == 'hax'): ?>
             <li class="page-op-button">
-            <?php if (arg(2) == 'edit'): ?>
-              <lrnsys-button id="edit-tip" onclick="document.getElementById('edit-submit').click();" class="r-header__icon elmsln-edit-button accessible-green-text" inner-class="no-padding" hover-class="<?php print $cis_lmsless['lmsless_classes'][$distro]['text'] . ' text-' . $cis_lmsless['lmsless_classes'][$distro]['dark'];?>" icon="save" alt="<?php print t('Save content'); ?>">
-              </lrnsys-button>
-            <?php elseif (arg(2) == 'hax'): ?>
-              <lrnsys-button id="hax-edit-tip" onclick="document.getElementById('haxsavebutton').click();" class="r-header__icon elmsln-edit-button accessible-green-text" inner-class="no-padding" hover-class="<?php print $cis_lmsless['lmsless_classes'][$distro]['text'] . ' text-' . $cis_lmsless['lmsless_classes'][$distro]['dark'];?>" icon="save" alt="<?php print t('Save'); ?>" href="<?php print base_path() . arg(0) . '/' . arg(1); ?>">
+              <lrnsys-button id="outline-tip" icon-class="blue-text" href="<?php print base_path() . arg(0) . '/' . arg(1); ?>" class="r-header__icon elmsln-edit-button" inner-class="no-padding" hover-class="<?php print $cis_lmsless['lmsless_classes'][$distro]['text'] . ' text-' . $cis_lmsless['lmsless_classes'][$distro]['dark'];?>" icon="icons:visibility" alt="<?php print t('Back to content'); ?>">
               </lrnsys-button>
             </li>
             <li class="page-op-button">
-              <lrnsys-button id="outline-tip" href="<?php print base_path() . arg(0) . '/' . arg(1); ?>" class="r-header__icon elmsln-edit-button" inner-class="no-padding" hover-class="<?php print $cis_lmsless['lmsless_classes'][$distro]['text'] . ' text-' . $cis_lmsless['lmsless_classes'][$distro]['dark'];?>" icon="icons:visibility" alt="<?php print t('Back to content'); ?>">
+              <lrnsys-button href="<?php print base_path() . arg(0) . '/' . arg(1); ?>/edit" id="edit-tip" icon-class="blue-text" class="r-header__icon elmsln-edit-button" data-jwerty-key="e" inner-class="no-padding" data-voicecommand="edit" hover-class="<?php print $cis_lmsless['lmsless_classes'][$distro]['text'] . ' text-' . $cis_lmsless['lmsless_classes'][$distro]['dark'];?>" icon="editor:mode-edit" alt="<?php print t('Legacy edit form'); ?>">
               </lrnsys-button>
             <?php elseif (arg(2) == 'outline'): ?>
-              <lrnsys-button id="outline-tip" href="<?php print base_path() . arg(0) . '/' . arg(1); ?>" class="r-header__icon elmsln-edit-button" inner-class="no-padding" hover-class="<?php print $cis_lmsless['lmsless_classes'][$distro]['text'] . ' text-' . $cis_lmsless['lmsless_classes'][$distro]['dark'];?>" icon="icons:visibility" alt="<?php print t('Back to content'); ?>">
+              <lrnsys-button id="outline-tip" href="<?php print base_path() . arg(0) . '/' . arg(1); ?>" class="r-header__icon elmsln-edit-button" inner-class="no-padding" icon-class="blue-text" hover-class="<?php print $cis_lmsless['lmsless_classes'][$distro]['text'] . ' text-' . $cis_lmsless['lmsless_classes'][$distro]['dark'];?>" icon="icons:visibility" alt="<?php print t('Back to content'); ?>">
               </lrnsys-button>
             <?php else: ?>
-              <lrnsys-button id="edit-tip" class="r-header__icon elmsln-edit-button" data-jwerty-key="e" inner-class="no-padding" data-voicecommand="edit" hover-class="<?php print $cis_lmsless['lmsless_classes'][$distro]['text'] . ' text-' . $cis_lmsless['lmsless_classes'][$distro]['dark'];?>" icon="editor:mode-edit" alt="<?php print t('Edit content'); ?>">
+               <lrnsys-button id="outline-tip" href="<?php print base_path() . arg(0) . '/' . arg(1); ?>" class="r-header__icon elmsln-edit-button" inner-class="no-padding" icon-class="blue-text" hover-class="<?php print $cis_lmsless['lmsless_classes'][$distro]['text'] . ' text-' . $cis_lmsless['lmsless_classes'][$distro]['dark'];?>" icon="icons:visibility" alt="<?php print t('Back to content'); ?>">
               </lrnsys-button>
+              </li>
+              <li class="page-op-button">
+              <?php if (user_access('use hax')) : ?>
+                <lrnsys-button id="hax-edit-tip" href="<?php print base_path() . arg(0) . '/' . arg(1); ?>/hax"  class="r-header__icon elmsln-edit-button" inner-class="no-padding" icon-class="blue-text" hover-class="<?php print $cis_lmsless['lmsless_classes'][$distro]['text'] . ' text-' . $cis_lmsless['lmsless_classes'][$distro]['dark'];?>" icon="maps:layers" alt="<?php print t('HAX (alpha)'); ?>"><span class="element-invisible"><?php print t('HAX (alpha)'); ?></span>
+                </lrnsys-button>';
+              <?php endif; ?>
             <?php endif; ?>
             </li>
             <?php endif; ?>
             <?php if (!empty($cis_shortcodes) && arg(2) == 'edit') : ?>
               <li class="page-op-button">
-              <lrnsys-drawer hover-class="<?php print $cis_lmsless['lmsless_classes'][$distro]['text'] . ' text-' . $cis_lmsless['lmsless_classes'][$distro]['dark'];?>" align="right" alt="<?php print t('Embed this content')?>" icon="share" header="<?php print t('Embed this content'); ?>" data-jwerty-key="s" data-voicecommand="open embed (menu)">
+              <lrnsys-drawer hover-class="<?php print $cis_lmsless['lmsless_classes'][$distro]['text'] . ' text-' . $cis_lmsless['lmsless_classes'][$distro]['dark'];?>" align="right" alt="<?php print t('Embed this content')?>" icon="share" class="blue-text" header="<?php print t('Embed this content'); ?>" data-jwerty-key="s" data-voicecommand="open embed (menu)">
                 <?php print $cis_shortcodes; ?>
               </lrnsys-drawer>
               </li>
             <?php endif; ?>
             <!-- end Edit Icon -->
             <li class="page-op-button">
-            <?php if (!empty($tabs['#primary']) || !empty($tabs['#secondary']) || !empty($tabs_extras)): ?>
-              <lrnsys-button id="more-options-tip" class="r-header__icon elmsln-more-button elmsln-dropdown-button" data-activates="elmsln-more-menu" aria-controls="elmsln-more-menu" aria-expanded="false" data-jwerty-key="m" data-voicecommand="open more (menu)" hover-class="<?php print $cis_lmsless['lmsless_classes'][$distro]['text'] . ' text-' . $cis_lmsless['lmsless_classes'][$distro]['dark'];?>" icon="more-vert" alt="<?php print t('Less common operations'); ?>">
+            <?php if (arg(2) == 'edit' && (!empty($tabs['#primary']) || !empty($tabs['#secondary']) || !empty($tabs_extras))): ?>
+              <lrnsys-button id="more-options-tip" inner-class="no-padding" class="blue-text r-header__icon elmsln-more-button elmsln-dropdown-button" data-activates="elmsln-more-menu" aria-controls="elmsln-more-menu" aria-expanded="false" data-jwerty-key="m" data-voicecommand="open more (menu)" hover-class="<?php print $cis_lmsless['lmsless_classes'][$distro]['text'] . ' text-' . $cis_lmsless['lmsless_classes'][$distro]['dark'];?>" icon="more-vert" alt="<?php print t('Less common operations'); ?>">
               </lrnsys-button>
               <ul id="elmsln-more-menu" class="dropdown-content" aria-hidden="true" tabindex="-1">
               <?php if (!empty($tabs)): ?>
