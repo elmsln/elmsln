@@ -135,7 +135,7 @@ function theme_outline_designer_ui_prefix($variables) {
   if ($can_add) {
     $output .= '
     <li>
-      <lrnsys-button hover-class="blue-text" icon="add" label="' . t('Add content') . '" onclick="Drupal.settings.outline_designer.activeNid=' . $nid . ';Drupal.outline_designer.form_render(\'add_content\');"></lrnsys-button>
+      <lrnsys-button href="" hover-class="blue-text" icon="add" label="' . t('Add content') . '" onclick="Drupal.settings.outline_designer.activeNid=' . $nid . ';Drupal.outline_designer.form_render(\'add_content\');"></lrnsys-button>
     </li>';
   }
 
