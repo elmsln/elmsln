@@ -327,14 +327,13 @@ A LRN element that will change the world.
           }
           // special support for a drag and drop into a place-holder tag
           // as this is a more aggressive operation then the others
-          if (Polymer.HaxStore.instance.activePlaceHolder !== null) {
+          if (Polymer.HaxStore.instance.activePlaceHolder !== null && typeof Polymer.HaxStore.instance.activePlaceHolder.style !== typeof undefined) {
             // replicate styles so that it doesn't jar the UI
             newNode.style.width = Polymer.HaxStore.instance.activePlaceHolder.style.width;
             newNode.style.float = Polymer.HaxStore.instance.activePlaceHolder.style.float;
             newNode.style.margin = Polymer.HaxStore.instance.activePlaceHolder.style.margin;
             newNode.style.display = Polymer.HaxStore.instance.activePlaceHolder.style.display;
             this.haxReplaceNode(Polymer.HaxStore.instance.activePlaceHolder, newNode);
-            Polymer.HaxStore.instance.activePlaceHolder = null;
           }
           // insert at active insert point if we have one
           else if (this.activeNode !== null) {
@@ -344,6 +343,7 @@ A LRN element that will change the world.
             // send this into the root, which should filter it back down into the slot
             Polymer.dom(this).appendChild(newNode);
           }
+          this.$.inlinecontextmenu.opened = false;
           // wait so that the DOM can have the node to then attach to
           setTimeout( () => {
             Polymer.HaxStore.write('activeNode', newNode, this);
@@ -651,6 +651,8 @@ A LRN element that will change the world.
         else {
           Polymer.HaxStore.write('activeNode', null, this);
         }
+        // close this menu just to be sure
+        this.$.inlinecontextmenu.opened = false;
         // @todo figure out why this is complaining
         try {
           return Polymer.dom(this).removeChild(node);

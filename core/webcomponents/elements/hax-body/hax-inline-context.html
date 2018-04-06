@@ -176,7 +176,7 @@ A context menu that provides common text based authoring options.
                 let range = selection.getRangeAt(0);
                 // if we have no offset (caret is positioned but no selection) then
                 if (range.startOffset - range.endOffset === 0) {
-                  // do nothing, the menu will hide
+                  // do nothing, it's gone
                 }
                 else {
                   let newRange = document.createRange();
@@ -224,6 +224,8 @@ A context menu that provides common text based authoring options.
         // set to close now
         if (oldValue && !newValue) {
           Polymer.HaxStore.instance.activeHaxBody._hideContextMenu(Polymer.HaxStore.instance.activeHaxBody.$.inlinetracker);
+          // unset the active placeholder to avoid conflicts as the object
+          Polymer.HaxStore.instance.activePlaceHolder = null;
         }
         else if (newValue && !oldValue) {
           Polymer.HaxStore.instance.activeHaxBody.$.inlinecontextmenu.style.left = (Polymer.HaxStore.instance.activeHaxBody.$.inlinetracker.offsetLeft - (Polymer.HaxStore.instance.activeHaxBody.$.inlinecontextmenu.offsetWidth / 3)) + 'px';
