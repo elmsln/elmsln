@@ -507,6 +507,14 @@ el.error = {
           el.className = 'flex start-justified';
           // set the element's default value to be what was passed into the schema
           el[property.component.valueProperty] = property.value;
+          // support component attribute overrides
+          for (var attr in property.component.attributes) {
+            el.setAttribute(attr, property.component.attributes[attr]);
+          }
+          // support component property overrides
+          for (var prop in property.component.properties) {
+            el[prop] = property.component.properties[prop];
+          }
           ctx.listen(el, property.component.valueProperty.replace(/([A-Z])/g, '-$1').toLowerCase() + '-changed', '_schemaPropertyChanged');
           Polymer.dom(ctx.$.form).appendChild(el);
           // support for slot injection too!
