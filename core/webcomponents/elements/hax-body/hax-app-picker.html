@@ -32,6 +32,7 @@
         @apply --hax-app-picker-dialog;
         background-color: var(--hax-app-picker-dialog-background-color, white);
         border-radius: 16px;
+        z-index: 1000000;
       }
       #title, .element-button > div {
         color: var(--hax-app-picker-dialog-text-color, black);
@@ -165,12 +166,12 @@
         // wipe existing
         this.title = title;
         this.pickerType = pickerType;
-        this._elements = elements;
         var tmp = [];
         switch (pickerType) {
           // hax gizmo selector
           case 'gizmo':
             for (var i in elements) {
+              elements[i].__type = type;
               tmp[i] = {
                 "icon" : elements[i].gizmo.icon,
                 "title" : elements[i].gizmo.title,
@@ -193,6 +194,7 @@
             tmp = elements;
           break;
         }
+        this._elements = elements;
         this.set('selectionList', []);
         this.set('selectionList', tmp);
         this.$.dialog.open();
@@ -211,6 +213,9 @@
           // haxElement is a unique case
           if (this.pickerType == 'gizmo') {
             Polymer.HaxStore.write('activeHaxElement', this._elements[key], this);
+            // ensure this is open even though it should be
+            Polymer.HaxStore.instance.haxManager.open();
+            Polymer.HaxStore.instance.haxManager.selectStep('configure');
           }
           else if (this.pickerType == 'delete') {
             if (this._elements[key]['title'] === 'Yes') {

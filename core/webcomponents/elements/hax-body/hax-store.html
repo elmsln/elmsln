@@ -218,7 +218,7 @@
            */
           validGizmoTypes: {
             type: Array,
-            value: ['data','video','audio','text','link','file','pdf','image','csv','doc'],
+            value: ['data','video','audio','text','link','file','pdf','image','csv','doc','content','text','inline'],
           },
         },
         /**
@@ -513,6 +513,18 @@
             if (e.detail.replace && e.detail.replacement) {
               this.activeHaxBody.haxReplaceNode(this.activeNode, e.detail.replacement);
             }
+            else if (typeof e.detail.__type !== typeof undefined && e.detail.__type === 'inline') {
+              let node = Polymer.HaxStore.haxElementToNode(e.detail.tag, e.detail.content, properties);
+              // inserts where it needs to go!!!!!
+              Polymer.HaxStore.instance.activeHaxBody.$.inlinetracker.insertAdjacentElement('beforebegin', node);
+              // removes the selection even if the user lost focus
+              // which will appear to wipe the old text and replace it with the new
+              this.activePlaceHolder.extractContents();
+              // set it to nothing
+              this.activePlaceHolder = null;
+              // hide the inline context menu
+              Polymer.HaxStore.instance.activeHaxBody.$.inlinecontextmenu.opened = false;
+            }
             else {
               this.activeHaxBody.haxInsert(e.detail.tag, e.detail.content, properties);
             }
@@ -683,6 +695,32 @@
           "content": Polymer.HaxStore.getHAXSlot(node),
         };
         return element;
+      };
+      /**
+       * Convert a haxElement to a DOM node.
+       */
+      Polymer.HaxStore.haxElementToNode = (tag, content, properties) => {
+        var frag = document.createElement(tag);
+        frag.innerHTML = content;
+        // clone the fragment which will force an escalation to full node
+        var newNode = frag.cloneNode(true);
+        // support for properties if they exist
+        for (var property in properties) {
+          let attributeName = Polymer.HaxStore.camelToDash(property);
+          if (properties.hasOwnProperty(property)) {
+            // special supporting for boolean because html is weird :p
+            if (properties[property] === true) {
+              newNode.setAttribute(attributeName, properties[property]);
+            }
+            else if (properties[property] === false) {
+              newNode.removeAttribute(attributeName);
+            }
+            else {
+              newNode.setAttribute(attributeName, properties[property]);
+            }
+          }
+        }
+        return newNode;
       };
       /**
        * Slot content w/ support for custom elements in slot.

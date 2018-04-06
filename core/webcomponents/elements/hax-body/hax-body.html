@@ -156,7 +156,7 @@ A LRN element that will change the world.
       <slot id="body"></slot>
     </div>
     <div id="contextcontainer">
-      <span id="inlinetracker" style="pointer-events: none; visibility: none; opacity: 0; width:0;height:0;" class="ignore-activation hax-inline-tracker-element" contenteditable="false"></span>
+      <span id="inlinetracker" style="pointer-events: none; visibility: hidden; opacity: 0; width:0;height:0;" class="ignore-activation hax-inline-tracker-element" contenteditable="false"></span>
       <hax-inline-context id="inlinecontextmenu" class="hax-context-menu ignore-activation"></hax-inline-context>
       <hax-text-context id="textcontextmenu" class="hax-context-menu ignore-activation"></hax-text-context>
       <hax-ce-context id="cecontextmenu" class="hax-context-menu ignore-activation"></hax-ce-context>
@@ -423,7 +423,7 @@ A LRN element that will change the world.
           string = 'x-scope ' + tags[i] + '-0';
           re = new RegExp(string, "g");
           content = content.replace(re, '');
-      }
+        }
         // remove empty class structures
         content = content.replace(/\sclass=\"\"/g, '');
         content = content.replace(/\sclass=\"\s\"/g, '');

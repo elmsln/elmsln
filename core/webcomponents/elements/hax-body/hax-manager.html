@@ -570,6 +570,9 @@ A LRN element for brokering the UI for api endpoints both in querying and upload
         let previewNode = this.$.preview.previewNode;
         let element = Polymer.HaxStore.nodeToHaxElement(previewNode);
         element.replace = this.editExistingNode;
+        if (typeof this.activeHaxElement.__type !== typeof undefined) {
+          element.__type = this.activeHaxElement.__type;
+        }
         element.replacement = previewNode;
         this.fire('hax-insert-content', element);
         // reset self

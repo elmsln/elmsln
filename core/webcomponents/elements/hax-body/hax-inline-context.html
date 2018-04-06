@@ -44,7 +44,12 @@ A context menu that provides common text based authoring options.
     </style>
     <hax-toolbar id="toolbar" inline hide-more="[[isSafari()]]">
       <template is="dom-if" if="[[!isSafari()]]">
-        <hax-context-item
+      <hax-context-item
+        slot="primary"
+        icon="device:graphic-eq"
+        label="Inline gizmo"
+        event-name="insert-inline-gizmo"></hax-context-item>
+      <hax-context-item
         slot="primary"
         icon="editor:format-bold"
         label="Bold"
@@ -89,6 +94,11 @@ A context menu that provides common text based authoring options.
         event-name="text-strikethrough">Cross out</hax-context-item-textop>
       </template>
       <template is="dom-if" if="[[isSafari()]]">
+      <hax-context-item-textop
+        slot="primary"
+        icon="device:graphic-eq"
+        label="Inline gizmo"
+        event-name="insert-inline-gizmo"></hax-context-item-textop>
       <hax-context-item-textop
         slot="primary"
         icon="editor:format-bold"
@@ -148,6 +158,7 @@ A context menu that provides common text based authoring options.
           type: Boolean,
           value: false,
           reflectToAttribute: true,
+          observer: '_openedChanged',
         },
       },
       /**
@@ -159,66 +170,89 @@ A context menu that provides common text based authoring options.
           if (typeof window.__selectionLock === typeof undefined || !window.__selectionLock && Polymer.HaxStore.instance.editMode && typeof Polymer.HaxStore.instance.activeNode !== typeof undefined && Polymer.HaxStore.instance.activeNode !== null && typeof Polymer.HaxStore.instance.activeNode.tagName !== typeof undefined && Polymer.HaxStore.instance.isTextElement(Polymer.HaxStore.instance.activeNode)) {
             // simple smart lock to ensure event flooding doesn't happen
             setTimeout( () => {
-              var selection = window.getSelection();
-              var offset = 0;
-              var range,start;
               try {
-                range = selection.getRangeAt(0);
-                offset = range.startOffset - range.endOffset;
-                // account for backwards selection method by the user
-                if (offset < 0) {
-                  offset = offset * -1;
-                  start = range.startOffset;
+                Polymer.HaxStore.instance.activeHaxBody.$.inlinecontextmenu.opened = false;
+                var selection = window.getSelection();
+                let range = selection.getRangeAt(0);
+                // if we have no offset (caret is positioned but no selection) then
+                if (range.startOffset - range.endOffset === 0) {
+                  // do nothing, the menu will hide
                 }
                 else {
-                  start = range.startOffset;
+                  let newRange = document.createRange();
+                  // try to find this, sometimes drag highlighting can break this
+                  try {
+                    newRange.setStart(selection.focusNode, range.startOffset);
+                    // inject the tracking element directly in front of this clone of a range
+                    newRange.insertNode(Polymer.HaxStore.instance.activeHaxBody.$.inlinetracker);
+                    setTimeout( () => {
+                      // shift the range over now that the tracking pixel has been inserted.
+                      // all this in order to replace it with something new.
+                      // The web is stupid at times.
+                      range.setStartAfter(Polymer.HaxStore.instance.activeHaxBody.$.inlinetracker);
+                      // store placeholder because if this all goes through we'll want
+                      // to kill the originating text
+                      Polymer.HaxStore.write('activePlaceHolder', range, Polymer.HaxStore.instance.activeHaxBody.$.inlinecontextmenu);
+                      // now position the menu appropriately
+                      Polymer.HaxStore.instance.activeHaxBody.$.inlinecontextmenu.opened = true;
+                    }, 200);
+                  }
+                  catch (e) {
+                    // do nothing, this is so hard to generate
+                    // basically someone has to click and drag really fast
+                    // but only after it's already been established that
+                    // there is a selection made.
+                  }
                 }
               }
-              catch(e) {
-
-              }
-              // if we have no offset (caret is positioned but no selection) then
-              // do nothing and hide the menu
-              if (offset === 0) {
-                Polymer.HaxStore.instance.activeHaxBody.$.inlinecontextmenu.opened = false;
-              }
-              else {
-                let newRange = document.createRange();
-                // try to find this, sometimes drag highlighting can break this
-                try {
-                  newRange.setStart(selection.focusNode, start);
-                  // move tracker and inject it invisibly at the mid point of
-                  // the selection
-                  newRange.insertNode(Polymer.HaxStore.instance.activeHaxBody.$.inlinetracker);
-                }
-                catch(e) {
-                  // do nothing, this is so hard to generate
-                  // basically someone has to click and drag really fast
-                  // but only after it's already been established that
-                  // there is a selection made.
-                }
-                setTimeout( () => {
-                  Polymer.HaxStore.instance.activeHaxBody.$.inlinecontextmenu.style.left = (Polymer.HaxStore.instance.activeHaxBody.$.inlinetracker.offsetLeft - (Polymer.HaxStore.instance.activeHaxBody.$.inlinecontextmenu.offsetWidth / 2)) + 'px';
-                  Polymer.HaxStore.instance.activeHaxBody.$.inlinecontextmenu.style.top = Polymer.HaxStore.instance.activeHaxBody.$.inlinetracker.offsetTop + 'px';
-                  Polymer.HaxStore.instance.activeHaxBody.$.inlinecontextmenu.opened = true;
-                }, 100);
+              catch (e) {
+                // do nothing, this is so hard to generate
+                // basically someone has to click and drag really fast
+                // but only after it's already been established that
+                // there is a selection made.
               }
               window.__selectionLock = false;
-            }, 500);
+            }, 100);
             window.__selectionLock = true;
           }
         });
+      },
+      /**
+       * Notice open or close state
+       */
+      _openedChanged: function(newValue, oldValue) {
+        // set to close now
+        if (oldValue && !newValue) {
+          Polymer.HaxStore.instance.activeHaxBody._hideContextMenu(Polymer.HaxStore.instance.activeHaxBody.$.inlinetracker);
+        }
+        else if (newValue && !oldValue) {
+          Polymer.HaxStore.instance.activeHaxBody.$.inlinecontextmenu.style.left = (Polymer.HaxStore.instance.activeHaxBody.$.inlinetracker.offsetLeft - (Polymer.HaxStore.instance.activeHaxBody.$.inlinecontextmenu.offsetWidth / 3)) + 'px';
+          Polymer.HaxStore.instance.activeHaxBody.$.inlinecontextmenu.style.top = Polymer.HaxStore.instance.activeHaxBody.$.inlinetracker.offsetTop + 'px';
+        }
       },
       /**
        * Respond to simple modifications.
        */
       _haxContextOperation: function(e) {
         let detail = e.detail;
+        let selection = window.getSelection();
         // support a simple insert event to bubble up or everything else
         switch(detail.eventName) {
           case 'close-inline-context':
             this.opened = false;
-            Polymer.HaxStore.instance.activeHaxBody._hideContextMenu(Polymer.HaxStore.instance.activeHaxBody.$.inlinetracker);
+          break;
+          case 'insert-inline-gizmo':
+            let range = selection.getRangeAt(0);
+            let values = {
+              text: range.toString(),
+            };
+            let type = 'inline';
+            let haxElements = Polymer.HaxStore.guessGizmo(type, values);
+            // see if we got anything
+            if (haxElements.length > 0) {
+              // hand off to hax-app-picker to deal with the rest of this
+              Polymer.HaxStore.instance.haxAppPicker.presentOptions(haxElements, type, 'Pick how to present this inline gizmo', 'gizmo');
+            }
           break;
           // wow these are way too easy
           case 'text-bold':
@@ -255,7 +289,6 @@ A context menu that provides common text based authoring options.
             this.$.toolbar.$.moremenu.$.menu.hideMenu();
           break;
           case 'text-link':
-            var selection = window.getSelection();
             var href = '';
             if (typeof selection.focusNode.parentNode.href !== typeof undefined) {
               href = selection.focusNode.parentNode.href;

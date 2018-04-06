@@ -3,6 +3,7 @@
 <link rel="import" href="../paper-toggle-button/paper-toggle-button.html">
 <link rel="import" href="../paper-card/paper-card.html">
 <link rel="import" href="../paper-input/paper-textarea.html">
+<link rel="import" href="../code-editor/code-editor.html">
 <link rel="import" href="../vaadin-split-layout/vaadin-split-layout.html">
 <!--
 `hax-preview`
@@ -64,7 +65,7 @@ An element that can generate a form
       #form {
         --eco-json-schema-object-form: {
           display: block !important;
-        };
+        }
       }
       @media screen and (max-width: 550px) {
         .step-toggle-wrapper {
@@ -365,8 +366,13 @@ An element that can generate a form
               }
             }
             else if (typeof props.settings[this.formKey][value].slot !== typeof undefined) {
-              // this is slot binding though right now it'll just keep adding
-              var tmpel = document.createElement('span');
+              let slotTag = 'span';
+              // slot binding, special support for code editor which needs a template tag
+              // @todo need a tag that implies slot wrapper if it should at all.
+              if (node.tagName.toLowerCase() === 'code-editor') {
+                slotTag = 'template';
+              }
+              var tmpel = document.createElement(slotTag);
               // support unnamed slots
               if (props.settings[this.formKey][value].slot !== '') {
                 tmpel.slot = props.settings[this.formKey][value].slot;
