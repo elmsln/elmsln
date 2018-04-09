@@ -240,8 +240,8 @@ An element that can generate a form
           if (typeof this.previewNode.tagName !== typeof undefined && typeof Polymer.HaxStore.instance.elementList[this.previewNode.tagName.toLowerCase()] !== typeof undefined) {
             let element = this.element;
             let props = Polymer.HaxStore.instance.elementList[this.previewNode.tagName.toLowerCase()];
-            if (this.previewNode.getHaxJSONSchemaType === 'function') {
-            schema = Polymer.HaxStore.instance.getHaxJSONSchema(newValue, props, this.previewNode);
+            if (typeof this.previewNode.getHaxJSONSchemaType === 'function') {
+              schema = Polymer.HaxStore.instance.getHaxJSONSchema(newValue, props, this.previewNode);
             }
             else {
               schema = Polymer.HaxStore.instance.getHaxJSONSchema(newValue, props);
@@ -254,8 +254,16 @@ An element that can generate a form
                   if (typeof schema.properties[property].component !== typeof undefined) {
                     schema.properties[property].component.properties.value = element.properties[property];
                   }
+                  if (element.properties[property] === true) {
+                    this.previewNode.setAttribute(property, property);
+                  }
+                  else if (element.properties[property] === false) {
+                    this.previewNode.removeAttribute(property);
+                  }
+                  else {
+                    this.previewNode.setAttribute(property, element.properties[property]);
+                  }
                 }
-                this.previewNode.setAttribute(property, element.properties[property]);
                 this.set('value.' + property, element.properties[property]);
               }
             }
@@ -290,7 +298,7 @@ An element that can generate a form
             let element = this.element;
             let props = Polymer.HaxStore.instance.elementList[this.previewNode.tagName.toLowerCase()];
             let schema = {};
-            if (newValue.getHaxJSONSchemaType === 'function') {
+            if (typeof newValue.getHaxJSONSchemaType === 'function') {
               schema = Polymer.HaxStore.instance.getHaxJSONSchema(this.formKey, props, newValue);
             }
             else {
@@ -349,7 +357,7 @@ An element that can generate a form
         if (typeof newValue !== typeof undefined && Object.keys(newValue).length > 0) {
           // wipe the preview area and assocaited node
           let preview = this.$.preview;
-          Polymer.HaxStore.wipeSlot(preview);
+          Polymer.HaxStore.wipeSlot(preview, '*');
           this.set('previewNode', {});
           this.modeTab = 'configure';
           // if we have something, generate the new element inside it

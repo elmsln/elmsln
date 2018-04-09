@@ -420,6 +420,7 @@ A LRN element that will change the world.
         content = content.replace(re, '');
         // now all tags we have defined as valid
         let tags = Polymer.HaxStore.instance.validTagList;
+        tags.push('hax-preview');
         for (var i in tags) {
           string = 'style-scope ' + tags[i];
           re = new RegExp(string, "g");
@@ -480,8 +481,10 @@ A LRN element that will change the world.
             for (var j = 0, len2 = slotnodes.length; j < len2; j++) {
               if (typeof slotnodes[j].tagName !== typeof undefined) {
                 // if we're a custom element, keep digging, otherwise a simple
-                // self append is fine.
-                if (!this._HTMLPrimativeTest(slotnodes[j].tagName)) {
+                // self append is fine unless template tag cause it's a special
+                // case for the web in general as it'll register as not a primative
+                // even though it is...
+                if (!this._HTMLPrimativeTest(slotnodes[j].tagName) && slotnodes[j].tagName !== 'TEMPLATE') {
                   content += this.haxNodeToContent(slotnodes[j]);
                 }
                 else {

@@ -844,10 +844,18 @@
        * Wipe out the slot of an element.
        */
        Polymer.HaxStore.wipeSlot = (element, slot = '') => {
-        for (var i in Polymer.dom(element).childNodes) {
-          // test for element nodes to be safe
-          if (typeof Polymer.dom(element).childNodes[i] !== typeof undefined && Polymer.dom(element).childNodes[i].nodeType === 1 && Polymer.dom(element).childNodes[i].slot === slot) {
-            Polymer.dom(element).removeChild(Polymer.dom(element).childNodes[i]);
+        // 100% clean slate
+        if (slot === '*') {
+          while (Polymer.dom(element).firstChild !== null) {
+            Polymer.dom(element).removeChild(Polymer.dom(element).firstChild);
+          }
+        }
+        else {
+          for (var i in Polymer.dom(element).childNodes) {
+            // test for element nodes to be safe
+            if (typeof Polymer.dom(element).childNodes[i] !== typeof undefined && Polymer.dom(element).childNodes[i].slot === slot) {
+              Polymer.dom(element).removeChild(Polymer.dom(element).childNodes[i]);
+            }
           }
         }
        };
