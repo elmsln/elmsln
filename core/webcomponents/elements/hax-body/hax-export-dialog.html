@@ -161,7 +161,7 @@ Export dialog with all export options and settings provided.
        * Toggle ourselves.
        */
       toggleDialog: function() {
-        this.$.textarea.innerHTML = this.contentToFile(false);
+        this.$.textarea.value = this.contentToFile(false);
         this.$.dialog.toggle();
       },
       /**
