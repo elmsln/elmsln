@@ -511,7 +511,8 @@
             }
             // invoke insert or replacement on body, same function so it's easier to trace
             if (e.detail.replace && e.detail.replacement) {
-              this.activeHaxBody.haxReplaceNode(this.activeNode, e.detail.replacement);
+              let node = Polymer.HaxStore.haxElementToNode(e.detail.tag, e.detail.content, properties);
+              this.activeHaxBody.haxReplaceNode(this.activeNode, node);
             }
             else if (typeof e.detail.__type !== typeof undefined && e.detail.__type === 'inline') {
               let node = Polymer.HaxStore.haxElementToNode(e.detail.tag, e.detail.content, properties);
@@ -519,7 +520,9 @@
               Polymer.HaxStore.instance.activeHaxBody.$.inlinetracker.insertAdjacentElement('beforebegin', node);
               // removes the selection even if the user lost focus
               // which will appear to wipe the old text and replace it with the new
-              this.activePlaceHolder.extractContents();
+              if (this.activePlaceHolder !== null) {
+                this.activePlaceHolder.extractContents();
+              }
               // set it to nothing
               this.activePlaceHolder = null;
               // hide the inline context menu
@@ -650,42 +653,26 @@
         // build out the properties to send along
         let props = {};
         let styles = '';
-        // support our simple shift around styles
+        // support basic styles
         if (typeof node.style !== typeof undefined) {
-          // ensure our supported inline styles come along
-          if (node.style.float != null && node.style.float != '') {
-            styles += 'float:' + node.style.float + '; ';
-          }
-          if (node.style.margin != null && node.style.margin != '') {
-            styles += 'margin:' + node.style.margin + '; ';
-          }
-          if (node.style.display != null && node.style.display != '') {
-            styles += 'display:' + node.style.display + '; ';
-          }
-          if (node.style.width != null && node.style.width != '') {
-            styles += 'width:' + node.style.width + '; ';
-          }
-          // only set styles if we have nothing
-          if (styles != '') {
-            props.style = styles;
-          }
+          props.style = node.getAttribute('style');
         }
         // test if a class exists, not everything scopes
         if (typeof node.attributes.class !== typeof undefined) {
           props.class = node.attributes.class.nodeValue.replace('hax-active', '');
         }
         // run through attributes, though non-reflected props won't be here
-        for (var attribute in node.attributes) {
-          // make sure we only set things that have a value
-          if (node.attributes[attribute].name != 'class' && node.attributes[attribute].name != 'style' && node.attributes.hasOwnProperty(attribute) && typeof node.attributes[attribute].value !== undefined && node.attributes[attribute].value != null && node.attributes[attribute].value != '') {
-            props[node.attributes[attribute].name] = node.attributes[attribute].value;
-          }
-        }
         // run through properties, we always defer to property values
         for (var property in node.properties) {
           // make sure we only set things that have a value
           if (property != 'class' && property != 'style' && node.properties.hasOwnProperty(property) && typeof node[property] !== undefined && node[property] != null && node[property] != '') {
             props[property] = node[property];
+          }
+        }
+        for (var attribute in node.attributes) {
+          // make sure we only set things that have a value
+          if (node.attributes[attribute].name != 'class' && node.attributes[attribute].name != 'style' && node.attributes.hasOwnProperty(attribute) && typeof node.attributes[attribute].value !== undefined && node.attributes[attribute].value != null && node.attributes[attribute].value != '' && typeof props[node.attributes[attribute].name] === undefined && typeof props[Polymer.HaxStore.camelToDash(node.attributes[attribute].name)] === undefined) {
+            props[Polymer.HaxStore.camelToDash(node.attributes[attribute].name)] = node.attributes[attribute].value;
           }
         }
         let element = {

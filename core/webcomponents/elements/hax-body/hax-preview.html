@@ -121,7 +121,7 @@ An element that can generate a form
     Polymer({
       is: 'hax-preview',
       observers: [
-        '_valueChanged(value.*,formKey)'
+        '_valueChanged(value.*, formKey)'
       ],
       properties: {
         /**
@@ -240,7 +240,12 @@ An element that can generate a form
           if (typeof this.previewNode.tagName !== typeof undefined && typeof Polymer.HaxStore.instance.elementList[this.previewNode.tagName.toLowerCase()] !== typeof undefined) {
             let element = this.element;
             let props = Polymer.HaxStore.instance.elementList[this.previewNode.tagName.toLowerCase()];
-            schema = Polymer.HaxStore.instance.getHaxJSONSchema(newValue, props);
+            if (this.previewNode.getHaxJSONSchemaType === 'function') {
+            schema = Polymer.HaxStore.instance.getHaxJSONSchema(newValue, props, this.previewNode);
+            }
+            else {
+              schema = Polymer.HaxStore.instance.getHaxJSONSchema(newValue, props);
+            }
             for (var property in element.properties) {
               if (element.properties.hasOwnProperty(property)) {
                 if (typeof schema.properties[property] !== typeof undefined) {
@@ -252,6 +257,21 @@ An element that can generate a form
                 }
                 this.previewNode.setAttribute(property, element.properties[property]);
                 this.set('value.' + property, element.properties[property]);
+              }
+            }
+            for (var prop in props.settings[newValue]) {
+              let previewNode = this.previewNode;
+              if (typeof props.settings[this.formKey][prop].slot !== typeof undefined) {
+                // walk through the slots looking for the value of it
+                for (var i in Polymer.dom(previewNode).getEffectiveChildNodes()) {
+                  // test for element nodes to be safe
+                  if (typeof Polymer.dom(previewNode).getEffectiveChildNodes()[i] !== typeof undefined && Polymer.dom(previewNode).getEffectiveChildNodes()[i].nodeType === 1 && Polymer.dom(previewNode).getEffectiveChildNodes()[i].slot === props.settings[this.formKey][prop].slot) {
+                    if (typeof Polymer.dom(previewNode).getEffectiveChildNodes()[i].innerHTML !== typeof undefined) {
+                      schema.properties[props.settings[this.formKey][prop].slot].value = Polymer.dom(previewNode).getEffectiveChildNodes()[i].innerHTML;
+                      this.set('value.' + props.settings[this.formKey][prop].slot, Polymer.dom(previewNode).getEffectiveChildNodes()[i].innerHTML);
+                    }
+                  }
+                }
               }
             }
           }
@@ -269,7 +289,14 @@ An element that can generate a form
           if (typeof newValue.tagName !== typeof undefined && typeof Polymer.HaxStore.instance.elementList[newValue.tagName.toLowerCase()] !== typeof undefined) {
             let element = this.element;
             let props = Polymer.HaxStore.instance.elementList[this.previewNode.tagName.toLowerCase()];
-            let schema = Polymer.HaxStore.instance.getHaxJSONSchema(this.formKey, props);
+            let schema = {};
+            if (newValue.getHaxJSONSchemaType === 'function') {
+              schema = Polymer.HaxStore.instance.getHaxJSONSchema(this.formKey, props, newValue);
+            }
+            else {
+              schema = Polymer.HaxStore.instance.getHaxJSONSchema(this.formKey, props);
+            }
+            // first, allow element properties to dictate defaults
             for (var property in element.properties) {
               if (element.properties.hasOwnProperty(property)) {
                 if (typeof schema.properties[property] !== typeof undefined) {
@@ -283,6 +310,17 @@ An element that can generate a form
                 this.set('value.' + property, element.properties[property]);
               }
             }
+            // then, let the node itself dictate defaults if things are not set
+            for (var property in newValue.properties) {
+              if ((typeof element.properties === typeof undefined || typeof element.properties[property] === typeof undefined || element.properties[property] == '' || element.properties[property] == null) && newValue.properties.hasOwnProperty(property) && typeof schema.properties[property] !== typeof undefined && typeof newValue.properties[property].value !== typeof undefined && newValue.properties[property].value !== null) {
+                schema.properties[property].value = newValue.properties[property].value;
+                // support custom element input
+                if (typeof schema.properties[property].component !== typeof undefined) {
+                  schema.properties[property].component.properties.value = newValue.properties[property].value;
+                }
+                this.set('value.' + property, newValue.properties[property].value);
+              }
+            }
             // need to specifically walk through slots if there is anything
             // that says it has to come from a slot
             for (var prop in props.settings[this.formKey]) {
@@ -291,8 +329,10 @@ An element that can generate a form
                 for (var i in Polymer.dom(newValue).getEffectiveChildNodes()) {
                   // test for element nodes to be safe
                   if (typeof Polymer.dom(newValue).getEffectiveChildNodes()[i] !== typeof undefined && Polymer.dom(newValue).getEffectiveChildNodes()[i].nodeType === 1 && Polymer.dom(newValue).getEffectiveChildNodes()[i].slot === props.settings[this.formKey][prop].slot) {
-                    schema.properties[props.settings[this.formKey][prop].slot].value = Polymer.dom(newValue).getEffectiveChildNodes()[i].innerHTML;
-                    this.set('value.' + props.settings[this.formKey][prop].slot, Polymer.dom(newValue).getEffectiveChildNodes()[i].innerHTML);
+                    if (typeof Polymer.dom(newValue).getEffectiveChildNodes()[i].innerHTML !== typeof undefined) {
+                      schema.properties[props.settings[this.formKey][prop].slot].value = Polymer.dom(newValue).getEffectiveChildNodes()[i].innerHTML;
+                      this.set('value.' + props.settings[this.formKey][prop].slot, Polymer.dom(newValue).getEffectiveChildNodes()[i].innerHTML);
+                    }
                   }
                 }
               }
@@ -326,6 +366,10 @@ An element that can generate a form
             }, 100);
           }
         }
+        else {
+          this.modeTab = 'advanced';
+          this.set('previewNode', {});
+        }
       },
       /**
        * Value in the form has changed, reflect to the preview.
@@ -351,6 +395,7 @@ An element that can generate a form
               else {
                 node.setAttribute(attributeName, this.value[props.settings[this.formKey][value].property]);
               }
+              this.set('element.properties.' + props.settings[this.formKey][value].property, this.value[props.settings[this.formKey][value].property]);
             }
             else if (props.settings[this.formKey].hasOwnProperty(value) && typeof props.settings[this.formKey][value].attribute !== typeof undefined && typeof this.value[props.settings[this.formKey][value].attribute] !== typeof undefined) {
               let attributeName = Polymer.HaxStore.camelToDash(props.settings[this.formKey][value].attribute);
@@ -364,8 +409,9 @@ An element that can generate a form
               else {
                 node.setAttribute(attributeName, this.value[props.settings[this.formKey][value].attribute]);
               }
+              this.set('element.properties.' + props.settings[this.formKey][value].attribute, this.value[props.settings[this.formKey][value].attribute]);
             }
-            else if (typeof props.settings[this.formKey][value].slot !== typeof undefined) {
+            else if (typeof props.settings[this.formKey][value].slot !== typeof undefined && typeof this.value[props.settings[this.formKey][value].slot] !== typeof undefined) {
               let slotTag = 'span';
               // slot binding, special support for code editor which needs a template tag
               // @todo need a tag that implies slot wrapper if it should at all.
@@ -382,6 +428,7 @@ An element that can generate a form
               Polymer.HaxStore.wipeSlot(node, props.settings[this.formKey][value].slot);
               // inject the slotted content
               Polymer.dom(node).appendChild(tmpel);
+              this.set('element.content', '<template>' + tmpel.innerHTML + '</template>');
             }
             else {
               // @todo add support for disabling based on not having advanced

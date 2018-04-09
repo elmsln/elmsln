@@ -151,6 +151,11 @@ A LRN element that will change the world.
         margin: 0;
         z-index: 1;
       }
+      /*#inlinetracker {
+        border: 1px solid green;
+        width: 10px;
+        height: 10px;
+      }*/
     </style>
     <div id="bodycontainer" class="ignore-activation">
       <slot id="body"></slot>
@@ -349,6 +354,8 @@ A LRN element that will change the world.
             Polymer.HaxStore.write('activeNode', newNode, this);
             // attempt to focus on the new node, may not always work
             newNode.focus();
+            // scroll to it
+            newNode.scrollIntoView({behavior: "smooth", inline: "nearest"});
           }, 100);
           return true;
         }
@@ -558,6 +565,15 @@ A LRN element that will change the world.
        */
       positionContextMenus: function(node) {
         let props = Polymer.HaxStore.instance.elementList[node.tagName.toLowerCase()];
+        // get width from window size and do very minor responsive inline support
+        let w = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+        let offsetmenu = -44;
+        let offsetplate = -66;
+        // if we go below 800 break point, change menu positioning
+        if ( w < 800) {
+          offsetmenu = 0;
+          offsetplate = 0;
+        }
         // try and work against anything NOT a P tag
         if (typeof props !== typeof undefined && node.tagName !== 'P') {
           this.__activeContextType = this.$.cecontextmenu;
@@ -570,13 +586,10 @@ A LRN element that will change the world.
           // currently been set. it's by no means perfect but it'll
           // be a really good start
           this.__activeContextType = this.$.textcontextmenu;
-          this._positionContextMenu(this.$.inlinecontextmenu, node, -44, -44);
+          this._positionContextMenu(this.$.inlinecontextmenu, node, offsetmenu, -44);
         }
-        this._positionContextMenu(this.__activeContextType, node, -44, -54);
-        this._positionContextMenu(this.$.platecontextmenu, node, -66, -8, false);
-        setTimeout( () => {
-  	      this.__activeContextType.scrollIntoView({behavior: "smooth", inline: "nearest"});
-  	    }, 100);
+        this._positionContextMenu(this.__activeContextType, node, offsetmenu, -54);
+        this._positionContextMenu(this.$.platecontextmenu, node, offsetplate, -8, false);
       },
       /**
        * Move grid plate around
@@ -592,12 +605,18 @@ A LRN element that will change the world.
               Polymer.dom(this).insertBefore(node, node.previousElementSibling);
             }
             this.positionContextMenus(node);
+            setTimeout( () => {
+              node.scrollIntoView({behavior: "smooth", inline: "nearest"});
+            }, 150);
           break;
           case 'down':
             if (node.nextElementSibling !== null) {
               this.hideContextMenus();
               Polymer.dom(this).insertBefore(node.nextElementSibling, node);
               this.positionContextMenus(node);
+              setTimeout( () => {
+                node.scrollIntoView({behavior: "smooth", inline: "nearest"});
+              }, 150);
             }
           break;
           // @todo support other directions for when inside of an element
@@ -954,7 +973,11 @@ A LRN element that will change the world.
           Polymer.dom(this).insertBefore(menu, target);
         }
         catch(err) {
-          Polymer.dom(target.parentNode).insertBefore(menu, target);
+          try {
+            Polymer.dom(target.parentNode).insertBefore(menu, target);
+          }
+          catch(err2) {
+          }
         }
         // account for the target using these layout busters
         if (matchStyle) {

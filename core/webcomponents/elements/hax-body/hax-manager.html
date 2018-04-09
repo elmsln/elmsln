@@ -268,7 +268,7 @@ A LRN element for brokering the UI for api endpoints both in querying and upload
         }
       }
     </style>
-    <paper-dialog id="dialog" entry-animation="slide-from-top-animation" exit-animation="slide-up-animation" with-backdrop>
+    <paper-dialog id="dialog" entry-animation="slide-from-top-animation" exit-animation="slide-up-animation" with-backdrop opened="{{opened}}">
       <div id="dialogheader" class="grey darken-3 grey-text text-lighten-3">
         <h2 class="grey-text text-lighten-3">[[managerTitle]]</h2>
         <div class="step-toggle-wrapper">
@@ -339,6 +339,15 @@ A LRN element for brokering the UI for api endpoints both in querying and upload
         'fileupload.upload-response': '_fileUploadResponse',
       },
       properties: {
+        /**
+         * Track visibility status.
+         */
+        opened: {
+          type: Boolean,
+          value: false,
+          reflectToAttribute: true,
+          observer: '_openedChanged',
+        },
         /**
          * Title when open.
          */
@@ -575,11 +584,8 @@ A LRN element for brokering the UI for api endpoints both in querying and upload
         }
         element.replacement = previewNode;
         this.fire('hax-insert-content', element);
-        // reset self
-        this.resetManager();
         // close window
-        this.toggleDialog();
-        document.body.style.overflow = null;
+        this.close();
       },
       /**
        * Reset things on the display to their defaults.
@@ -602,25 +608,38 @@ A LRN element for brokering the UI for api endpoints both in querying and upload
        */
       cancel: function(e) {
         // reset and close dialog
-        Polymer.HaxStore.write('activeHaxElement', {}, this);
-        this.toggleDialog();
-        document.body.style.overflow = null;
+        this.close();
+      },
+      /**
+       * Open state change.
+       */
+      _openedChanged: function(newValue, oldValue) {
+        if (oldValue && !newValue) {
+          document.body.style.overflow = null;
+        }
+        else if (newValue && !oldValue) {
+          this.$$('#pagetabs').focus();
+          document.body.style.overflow = 'hidden';
+        }
       },
       /**
        * Respond to the modal closing
        */
       close: function(e) {
-        if (e.target === this) {
+        var normalizedEvent = Polymer.dom(e);
+        var local = normalizedEvent.localTarget;
+        if (typeof e === typeof undefined || local === this.$.dialog) {
           // reset the active element which will force this to reset the manager
           Polymer.HaxStore.write('activeHaxElement', {}, this);
+          this.opened = false;
+          this.resetManager();
         }
-        document.body.style.overflow = null;
       },
       /**
        * Open the dialog
        */
       open: function(e) {
-        this.$.dialog.opened = true;
+        this.opened = true;
       },
       /**
        * Configure asset after upload or URL passed in.
@@ -652,11 +671,7 @@ A LRN element for brokering the UI for api endpoints both in querying and upload
        * Toggle ourselves.
        */
       toggleDialog: function() {
-        this.$.dialog.toggle();
-        this.$$('#pagetabs').focus();
-        document.body.style.overflow = 'hidden';
-        //this.$.url.focus();
-        //this.$.url.select();
+        this.opened = !this.opened;
       },
       /**
        * Set step to configure or insert
