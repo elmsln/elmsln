@@ -21,7 +21,7 @@ A button on the hax-gizmo-browser app display
         display: inline-flex;
       }
       paper-card {
-        margin: .25em 0;
+        margin: 4px 0;
       }
       paper-button {
         color: rgba(0,0,0,0.66);
@@ -45,6 +45,19 @@ A button on the hax-gizmo-browser app display
       }
       .flip-icon {
         transform: rotateY(180deg);
+      }
+      @media screen and (max-width: 550px) {
+        paper-button {
+          height: 96px !important;
+          width: 96px !important;
+        }
+        paper-button .item-title {
+          font-size: 10px;
+          margin-top: 0px;
+        }
+        paper-button .button-inner {
+          padding-top: 2px;
+        }
       }
     </style>
     <paper-card id="card" elevation="2">

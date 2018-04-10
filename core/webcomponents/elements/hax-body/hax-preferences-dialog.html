@@ -67,6 +67,14 @@ Export dialog with all export options and settings provided.
       .buttons {
         color: black;
       }
+      @media screen and (max-width: 550px) {
+        #dialog {
+          margin: 0;
+          overflow: auto;
+          border-bottom-left-radius: 0px;
+          border-bottom-right-radius: 0px;
+        }
+      }
     </style>
     <paper-dialog id="dialog" entry-animation="slide-from-top-animation" exit-animation="slide-up-animation" with-backdrop>
       <div id="dialogheader" class="grey darken-3 grey-text text-lighten-3">

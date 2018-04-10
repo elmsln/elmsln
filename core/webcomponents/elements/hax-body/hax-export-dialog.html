@@ -68,6 +68,20 @@ Export dialog with all export options and settings provided.
       .buttons {
         color: black;
       }
+      @media screen and (max-width: 550px) {
+        #dialog {
+          margin: 0;
+          overflow: auto;
+          border-bottom-left-radius: 0px;
+          border-bottom-right-radius: 0px;
+        }
+        paper-button {
+          min-width: unset;
+          margin: 0;
+          min-height: unset;
+          height: 32px;
+        }
+      }
     </style>
     <paper-dialog id="dialog" entry-animation="slide-from-top-animation" exit-animation="slide-up-animation" with-backdrop>
       <div id="dialogheader" class="grey darken-3 grey-text text-lighten-3">
@@ -77,8 +91,8 @@ Export dialog with all export options and settings provided.
         <textarea id="textarea" rows="20" style="width:100%;"></textarea>
       </paper-dialog-scrollable>
       <div class="buttons">
-        <paper-button id="download" confirm raised>Download</paper-button>
-        <paper-button id="downloadfull" confirm raised>Download (stand alone file)</paper-button>
+        <paper-button id="download" confirm raised>Download HTML</paper-button>
+        <paper-button id="downloadfull" confirm raised>Download file</paper-button>
         <paper-button id="import" raised>Import</paper-button>
         <paper-button id="copy" raised>Copy</paper-button>
         <paper-button id="close" raised dialog-dismiss>Close</paper-button>

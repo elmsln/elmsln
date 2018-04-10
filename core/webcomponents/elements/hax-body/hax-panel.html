@@ -238,6 +238,7 @@ as the events being bubbled up include HTML nodes to inject into something
       attached: function() {
         this.fire('hax-register-panel', this);
         document.body.addEventListener('hax-store-property-updated', this._haxStorePropertyUpdated.bind(this));
+        document.body.addEventListener('hax-panel-operation', this._processItemEvent.bind(this));
       },
       /**
        * Global preference changed.
@@ -267,6 +268,9 @@ as the events being bubbled up include HTML nodes to inject into something
         let detail = e.detail;
         // support a simple insert event to bubble up or everything else
         switch(detail.eventName) {
+          case 'open-panel':
+            this._clickButton();
+          break;
           case 'text':
             detail.tag = 'p';
             detail.content = '';

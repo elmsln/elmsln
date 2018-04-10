@@ -18,7 +18,7 @@
   <template>
     <style>
       :host {
-        display: inline-block;
+        display: block;
       }
       :host #gifbutton > * {
         position: relative;
@@ -38,10 +38,9 @@
         display: none;
       }
     </style>
-    <div id="gifbutton" aria-role="button" aria-controls="gif" tabindex="0" width$="[[width]]" height$="[[height]]">
+    <div id="gifbutton" aria-role="button" aria-controls="gif" tabindex="0">
       <div>
-        <iron-image id="gif" width$="[[width]]" height$="[[height]]" style$="width:[[width]]; height:[[height]]; background-color: lightgray;"
-        preload fade alt$="[[alt]]" src$="[[srcWithoutAnimation]]"></iron-image>
+        <img id="gif" alt$="[[alt]]" src$="[[srcWithoutAnimation]]" style="width:100%;height:100%;" />
         <svg id="svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"  width="30%" height="30%">
           <g opacity=".5">
             <polygon points="30,20 30,180 170,100" fill="#000000" stroke="#ffffff" stroke-width="15px"/>
@@ -51,7 +50,7 @@
       </div>
     </div>
     <iron-image id="preload" src$="[[src]]" hidden></iron-image>
-    <iron-a11y-keys id="a11y" keys="enter" target$="[[target]]"
+    <iron-a11y-keys id="a11y" keys="enter space"
     on-keys-pressed="toggleAnimation"></iron-a11y-keys>
   </template>
 
@@ -86,52 +85,32 @@
           type: String,
           value: null,
         },
-        /**
-        * Optional: the width of the gif
-        */
-        width: {
-          type: String,
-          value: '100%',
-        },
-        /**
-        * Optional: the height of the gif
-        */
-        height: {
-          type: String,
-          value: '100%',
-        },
-        /**
-        * Play/Pause button
-        */
-        target: {
-          type: Object,
-        },
       },
-
-      ready: function(){
+      /**
+       * Ready life cycle
+       */
+      ready: function() {
         this.stop();
-        this.target = this.$.gifbutton;
+        this.$.a11y.target = this.$.gifbutton;
       },
       /**
        * plays the animation regarless of previous state
        */
-      play: function(){
+      play: function() {
         this.__stopped = true;
         this.toggleAnimation();
       },
-
       /**
        * stops the animation regarless of previous state
        */
-      stop: function(){
+      stop: function() {
         this.__stopped = false;
         this.toggleAnimation();
       },
-
       /**
        * toggles the animation based on current state
        */
-      toggleAnimation: function(){
+      toggleAnimation: function() {
         if (this.__stopped) {
           this.__stopped = false;
           this.$.svg.style.visibility = "hidden";
@@ -149,7 +128,6 @@
           this.$.gif.alt = this.alt + ' (Play animation.)';
         }
       },
-
       /**
        * wire it for hax-body
        */
@@ -232,20 +210,6 @@
                 'inputMethod': 'textfield',
                 'icon': 'accessibility',
                 'required': true,
-              },
-              {
-                'property': 'width',
-                'title': 'Width',
-                'description': 'The width of the GIF.',
-                'inputMethod': 'textfield',
-                'icon': 'text-field',
-              },
-              {
-                'property': 'height',
-                'title': 'Height',
-                'description': 'The height of the GIF.',
-                'inputMethod': 'textfield',
-                'icon': 'text-field',
               },
             ],
             'advanced': []

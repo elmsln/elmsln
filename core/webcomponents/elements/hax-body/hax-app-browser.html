@@ -65,7 +65,7 @@ Browse a list of apps. This provides a listing of our gizmos that we've integrat
         </iron-list>
       </template>
     </grafitto-filter>
-    <hax-app-search hidden$="[[!__showSearch]]"></hax-app-search>
+    <hax-app-search id="haxappsearch" hidden$="[[!__showSearch]]"></hax-app-search>
     <slot></slot>
   </template>
   <script>
@@ -85,6 +85,8 @@ Browse a list of apps. This provides a listing of our gizmos that we've integrat
          */
         activeApp: {
           type: Object,
+          value: null,
+          observer: '_activeAppChanged',
         },
       },
       /**
@@ -112,6 +114,16 @@ Browse a list of apps. This provides a listing of our gizmos that we've integrat
           this.set('__activeApp', e.detail);
           this.__showSearch = true;
           Polymer.HaxStore.write('activeApp', this.__appList[e.detail], this);
+        }
+      },
+      /**
+       * Active app updated, so scroll it into view
+       */
+      _activeAppChanged: function(newValue, oldValue) {
+        if (typeof oldValue !== typeof undefined && newValue != null) {
+          setTimeout( () => {
+            this.$.haxappsearch.scrollIntoView({behavior: "smooth", inline: "nearest"});
+          }, 250);
         }
       },
       /**

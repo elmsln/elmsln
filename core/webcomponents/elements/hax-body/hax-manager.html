@@ -248,19 +248,20 @@ A LRN element for brokering the UI for api endpoints both in querying and upload
         }
         #insert {
           bottom: 0;
-          position: absolute;
-          width: 50%;
+          left:0;
+          position: fixed;
+          width: 25%;
           margin: 0;
-          padding: 16px;
+          padding: 8px;
           background-color: #34e79a;
         }
         #cancel {
           bottom: 0;
           right: 0;
-          position: absolute;
-          width: 50%;
+          position: fixed;
+          width: 25%;
           margin: 0;
-          padding: 16px;
+          padding: 8px;
           background-color: #EEEEEE;
         }
         .or-text {
@@ -671,7 +672,12 @@ A LRN element for brokering the UI for api endpoints both in querying and upload
        * Toggle ourselves.
        */
       toggleDialog: function() {
-        this.opened = !this.opened;
+        if (this.opened) {
+          this.close();
+        }
+        else {
+          this.open();
+        }
       },
       /**
        * Set step to configure or insert
