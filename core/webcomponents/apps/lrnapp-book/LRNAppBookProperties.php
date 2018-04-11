@@ -92,3 +92,13 @@ function _lrnapp_book_render_active_params() {
   }
   return drupal_json_encode($return);
 }
+
+/**
+ * App store JSON feed
+ */
+function _lrnapp_book_app_store() {
+  $appStoreConnection = array(
+    'url' => base_path() . 'hax-app-store/' . drupal_get_token('hax'),
+  );
+  return json_encode($appStoreConnection);
+}

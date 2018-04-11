@@ -34,6 +34,7 @@
 <link rel="import" href="../../bower_components/hax-body/hax-app-picker.html">
 <link rel="import" href="../../bower_components/hax-body/hax-app.html">
 <link rel="import" href="../../bower_components/hax-body/hax-panel.html">
+<link rel="import" href="../../bower_components/hax-body/hax-export-dialog.html">
 
 <link rel="import" href="lrnapp-book-progress-dashboard.html">
 
@@ -463,9 +464,10 @@ A LRN element
         tail="{{tail}}"
         query-params="{{queryParams}}">
     </app-route>
-    <hax-store app-store='{"url":"/sing100/sites/all/libraries/webcomponents/polymer/apps-src/lrnapp-book/appstore.json"}'></hax-store>
+    <hax-store app-store='[[appStoreConnection]]'></hax-store>
     <hax-panel id="haxpanel" hide-panel-ops hide-export-button></hax-panel>
     <hax-app-picker></hax-app-picker>
+    <hax-export-dialog></hax-export-dialog>
   <!-- body where most of the heavy lifting happens -->
     <app-drawer-layout>
       <!-- LRNApp book we expect to navigate -->
@@ -554,14 +556,22 @@ A LRN element
     </paper-tooltip>
     <paper-toast id="toast" horizontal-align="left"></paper-toast>
     <hax-autoloader>
+      <magazine-cover></magazine-cover>
       <video-player></video-player>
-      <wikipedia-query></wikipedia-query>
       <lrn-table></lrn-table>
       <media-image></media-image>
-      <meme-maker></meme-maker>
       <lrndesign-blockquote></lrndesign-blockquote>
+      <meme-maker></meme-maker>
       <a11y-gif-player></a11y-gif-player>
       <paper-audio-player></paper-audio-player>
+      <wikipedia-query></wikipedia-query>
+      <wave-player></wave-player>
+      <pdf-element></pdf-element>
+      <place-holder></place-holder>
+      <lrn-vocab></lrn-vocab>
+      <code-editor></code-editor>
+      <lrn-math></lrn-math>
+      <citation-element></citation-element>
     </hax-autoloader>
   </template>
   <script>
@@ -577,6 +587,13 @@ A LRN element
         '_routeChanged(data, route, endPoint)',
       ],
       properties: {
+      	/**
+      	 * App store connection.
+      	 */
+      	appStoreConnection: {
+      		type: Object,
+      		value: {"url":"/sing100/sites/all/libraries/webcomponents/polymer/apps-src/lrnapp-book/appstore.json"},
+      	},
         /**
          * Path for getting progress dashboard data
          */

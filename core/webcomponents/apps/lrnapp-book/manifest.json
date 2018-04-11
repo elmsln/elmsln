@@ -50,6 +50,9 @@
       },
       "finished-sound" : {
         "callback": "_lrnapp_book_finish_sound"
+      },
+      "app-store-connection": {
+        "callback": "_lrnapp_book_app_store"
       }
     },
     "slots": {
