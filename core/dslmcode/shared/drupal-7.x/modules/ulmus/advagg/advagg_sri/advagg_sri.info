@@ -6,9 +6,9 @@ dependencies[] = advagg
 
 configure = admin/config/development/performance/advagg/sri
 
-; Information added by Drupal.org packaging script on 2018-02-23
-version = "7.x-2.32"
+; Information added by Drupal.org packaging script on 2018-03-20
+version = "7.x-2.33"
 core = "7.x"
 project = "advagg"
-datestamp = "1519359188"
+datestamp = "1521515592"
 

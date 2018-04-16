@@ -378,6 +378,37 @@ define('ADVAGG_DISABLE_ON_LISTED_PAGES', '');
  */
 
 /**
+ * Implements hook_help().
+ */
+function advagg_help($path, $arg) {
+  switch ($path) {
+    case 'admin/help#advagg':
+      $filepath = dirname(__FILE__) . '/README.txt';
+      if (file_exists($filepath)) {
+        $readme = file_get_contents($filepath);
+      }
+      if (!isset($readme)) {
+        return NULL;
+      }
+      if (module_exists('markdown')) {
+        $filters = module_invoke('markdown', 'filter_info');
+        $info = $filters['filter_markdown'];
+
+        if (function_exists($info['process callback'])) {
+          $output = $info['process callback']($readme, NULL);
+        }
+        else {
+          $output = '<pre>' . $readme . '</pre>';
+        }
+      }
+      else {
+        $output = '<pre>' . $readme . '</pre>';
+      }
+      return $output;
+  }
+}
+
+/**
  * Implements hook_block_view_alter().
  */
 function advagg_block_view_alter(&$data, $block) {
@@ -1152,7 +1183,7 @@ function advagg_ajax_render_alter(&$commands) {
     $commands = array_merge($extra_commands, $commands);
   }
   if (!empty($settings)) {
-    array_unshift($commands, ajax_command_settings(advagg_cleanup_settings_array(drupal_array_merge_deep_array($settings['data'])), TRUE));
+    array_unshift($commands, ajax_command_settings(advagg_cleanup_settings_array(drupal_array_merge_deep_array(array_filter($settings['data'], 'is_array'))), TRUE));
   }
 }
 
@@ -2095,7 +2126,7 @@ function _advagg_process_html(&$variables) {
 
         // Replace cached Drupal.settings with current Drupal.settings for this
         // page.
-        $merged = advagg_cleanup_settings_array(drupal_array_merge_deep_array($js_scope_settings_array_copy[$scope_settings]['settings']['data']));
+        $merged = advagg_cleanup_settings_array(drupal_array_merge_deep_array(array_filter($js_scope_settings_array_copy[$scope_settings]['settings']['data'], 'is_array')));
         $json_data = advagg_json_encode($merged);
         if (!empty($json_data)) {
           // Record that this is being used.
@@ -2484,11 +2515,34 @@ function advagg_add_resource_hints_array(array $values) {
  *   TRUE if it was added to the head.
  */
 function advagg_add_dns_prefetch($url) {
+  // Keep the order.
   $advagg_resource_hints_location = variable_get('advagg_resource_hints_location', ADVAGG_RESOURCE_HINTS_LOCATION);
+  static $weight = -1001;
+  if ($advagg_resource_hints_location == 3) {
+    $weight = -999.9;
+  }
+  $weight += 0.0001;
+
   // Get the host.
   $parse = @parse_url($url);
   if (empty($parse['host'])) {
-    return FALSE;
+    // If just the hostname was given, build proper url.
+    if (strpos($url, '.') && strpos($url, '/') === FALSE) {
+      $parse['scheme'] = '//';
+      $parse['host'] = $url;
+      // Check for fragment.
+      $pos = strpos($url, '#');
+      if ($pos !== FALSE) {
+        $parse['fragment'] = substr($url, $pos + 1);
+        $parse['host'] = substr($url, 0, $pos);
+      }
+      // Put it back together and parse again.
+      $url = advagg_glue_url($parse);
+      $parse = @parse_url($url);
+    }
+    if (empty($parse['host'])) {
+      return FALSE;
+    }
   }
   // Filter out local host.
   $host = @parse_url($GLOBALS['base_root'], PHP_URL_HOST);
@@ -2511,7 +2565,7 @@ function advagg_add_dns_prefetch($url) {
         'rel' => 'dns-prefetch',
         'href' => '//' . $parse['host'],
       ),
-      '#weight' => $advagg_resource_hints_location == 3 ? -1001 : -999.9,
+      '#weight' => $weight,
     );
     // Add markup for dns-prefetch to html_head.
     drupal_add_html_head($element, 'advagg_resource_hints_dns_prefetch:' . $parse['host']);
@@ -2530,7 +2584,7 @@ function advagg_add_dns_prefetch($url) {
         'rel' => 'preconnect',
         'href' => $href,
       ),
-      '#weight' => $advagg_resource_hints_location == 3 ? -1001 : -999.9,
+      '#weight' => $weight,
     );
     if (!empty($parse['fragment']) && $parse['fragment'] === 'crossorigin') {
       $element['#attributes']['crossorigin'] = '';
@@ -2541,6 +2595,7 @@ function advagg_add_dns_prefetch($url) {
 
   // Build render array. Goes after charset tag.
   if (!empty($parse['fragment']) && $parse['fragment'] === 'prefetch') {
+    // Hacky way to open up a connection to the remote host.
     $element = array(
       '#type' => 'html_tag',
       '#tag' => 'link',
@@ -2548,7 +2603,7 @@ function advagg_add_dns_prefetch($url) {
         'rel' => 'prefetch',
         'href' => '//' . $parse['host'] . '/robots.txt',
       ),
-      '#weight' => $advagg_resource_hints_location == 3 ? -1001 : -999.9,
+      '#weight' => $weight,
     );
     drupal_add_html_head($element, 'advagg_prefetch:' . $parse['host']);
   }
@@ -5990,17 +6045,19 @@ function advagg_insert_into_array_at_location(array $input_array, array $new_val
  *
  * @param string $url
  *   The url.
+ * @param string $strict
+ *   If FALSE then slashes will be kept.
  *
  * @return string
  *   The filename.
  */
-function advagg_url_to_filename($url) {
+function advagg_url_to_filename($url, $strict = TRUE) {
   // Keep filtering till there are no more changes.
-  $decoded1 = _advagg_url_to_filename_filter($url);
-  $decoded2 = _advagg_url_to_filename_filter($decoded1);
+  $decoded1 = _advagg_url_to_filename_filter($url, $strict);
+  $decoded2 = _advagg_url_to_filename_filter($decoded1, $strict);
   while ($decoded1 != $decoded2) {
-    $decoded1 = _advagg_url_to_filename_filter($decoded2);
-    $decoded2 = _advagg_url_to_filename_filter($decoded1);
+    $decoded1 = _advagg_url_to_filename_filter($decoded2, $strict);
+    $decoded2 = _advagg_url_to_filename_filter($decoded1, $strict);
   }
   $filename = $decoded1;
 
@@ -6014,11 +6071,13 @@ function advagg_url_to_filename($url) {
  *
  * @param string $url
  *   The url.
+ * @param string $strict
+ *   If FALSE then slashes will be kept.
  *
  * @return string
  *   The filename.
  */
-function _advagg_url_to_filename_filter($url) {
+function _advagg_url_to_filename_filter($url, $strict = TRUE) {
   // URL Decode if needed.
   $decoded1 = $url;
   $decoded2 = rawurldecode($decoded1);
@@ -6040,7 +6099,12 @@ function _advagg_url_to_filename_filter($url) {
   // https://tools.ietf.org/html/rfc3986#section-2.2
   // Remove URL unsafe characters
   // https://www.ietf.org/rfc/rfc1738.txt
-  $filename = preg_replace('~[<>:"/\\|?*]|[\x00-\x1F]|[\x7F\xA0\xAD]|[#\[\]@!$&\'()+,;=%]|[{}^\~`]~x', '-', $filename);
+  if ($strict) {
+    $filename = preg_replace('~[<>:"/\\|?*]|[\x00-\x1F]|[\x7F\xA0\xAD]|[#\[\]@!$&\'()+,;=%]|[{}^\~`]~x', '-', $filename);
+  }
+  else {
+    $filename = preg_replace('~[<>:"\\|?*]|[\x00-\x1F]|[\x7F\xA0\xAD]|[#\[\]@!$&\'()+,;=%]|[{}^\~`]~x', '-', $filename);
+  }
 
   // Replce all white spaces with a dash.
   $filename = preg_replace('/[\r\n\t -]+/', '-', $filename);
@@ -6059,6 +6123,7 @@ function _advagg_url_to_filename_filter($url) {
   // Lowercase for windows/unix interoperability
   // http://support.microsoft.com/kb/100625.
   $filename = mb_strtolower($filename, 'UTF-8');
+  // Remove ? \ ..
   $filename = str_replace(array('?', '\\', '..'), '', $filename);
 
   // ".file-name.-" becomes "file-name".
@@ -6403,6 +6468,9 @@ function advagg_get_preload_info_from_url($url, $as = '', $type = '', $crossorig
     if ($file_ext === 'svg') {
       $type .= '+xml';
     }
+    if ($file_ext === 'js') {
+      $type = 'text/javascript';
+    }
   }
   if ($as === 'font' && is_null($crossorigin)) {
     $crossorigin = 'anonymous';
@@ -6425,9 +6493,22 @@ function advagg_get_preload_info_from_url($url, $as = '', $type = '', $crossorig
  *   Preload cross-origin resources; fonts always need to be CORS.
  */
 function advagg_add_preload_link($url, $media = '', $as = '', $type = '', $crossorigin = NULL) {
+  static $weight = -2000;
+  $weight += 0.0001;
+
+  $href = advagg_file_create_url($url);
+  $key = "advagg_preload:{$href}";
+
+  // Return here if url has already been added.
+  $stored_head = drupal_static('drupal_add_html_head');
+  if (isset($stored_head[$key])) {
+    return TRUE;
+  }
+
+  // Add basic attributes.
   $attributes = array(
     'rel' => 'preload',
-    'href' => advagg_file_create_url($url),
+    'href' => $href,
   );
 
   // Fill in missing info.
@@ -6456,9 +6537,9 @@ function advagg_add_preload_link($url, $media = '', $as = '', $type = '', $cross
     '#type' => 'html_tag',
     '#tag' => 'link',
     '#attributes' => $attributes,
-    '#weight' => -2000,
+    '#weight' => $weight,
   );
-  drupal_add_html_head($element, "advagg_preload:{$url}");
+  drupal_add_html_head($element, $key);
   return TRUE;
 }
 
@@ -6719,11 +6800,20 @@ function advagg_set_admin_form_defaults_recommended(array &$form_state, $trigger
     }
 
     // Let user know what changed.
-    drupal_set_message(t('%before -> %after for %title', array(
-      '%title' => $all_titles_descriptions[$key],
-      '%before' => var_export($values[1], TRUE),
-      '%after' => var_export($values[0], TRUE),
-    )));
+    if (empty($all_titles_descriptions[$key])) {
+      drupal_set_message(t('%before -> %after for %title', array(
+        '%title' => $key,
+        '%before' => var_export($values[1], TRUE),
+        '%after' => var_export($values[0], TRUE),
+      )));
+    }
+    else {
+      drupal_set_message(t('%before -> %after for %title', array(
+        '%title' => $all_titles_descriptions[$key],
+        '%before' => var_export($values[1], TRUE),
+        '%after' => var_export($values[0], TRUE),
+      )));
+    }
   }
 
   return $changed;

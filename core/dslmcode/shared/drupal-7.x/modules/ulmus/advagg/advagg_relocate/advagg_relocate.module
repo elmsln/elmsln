@@ -395,162 +395,178 @@ function advagg_relocate_js_post_alter(array &$js, $force_check = FALSE) {
   }
 
   // Move inline code to external if possible.
-  if (module_exists('googleanalytics')) {
-    foreach ($js as $key => $value) {
-      if ($value['type'] !== 'inline'
-        || !$aggregate_settings['variables']['advagg_relocate_js_ga_local']
-      ) {
-        continue;
-      }
-      // Handle analytics.js.
-      $start = strpos($value['data'], '(function(i,s,o,g,r,a,m){i["GoogleAnalyticsObject"]=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date()');
-      $middle = strpos($value['data'], '})(window,document,"script",');
-      $end = strpos($value['data'], ',"ga");ga("create",');
-      // Skip if not the GA code.
-      if ($start === FALSE || $middle === FALSE || $end === FALSE) {
-        continue;
-      }
+  // Google Analytics.
+  foreach ($js as $key => $value) {
+    if ($value['type'] !== 'inline'
+      || !$aggregate_settings['variables']['advagg_relocate_js_ga_local']
+    ) {
+      continue;
+    }
+    // Handle analytics.js.
+    $start = strpos($value['data'], '(function(i,s,o,g,r,a,m){i["GoogleAnalyticsObject"]=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date()');
+    $middle = strpos($value['data'], '})(window,document,"script",');
+    $end = strpos($value['data'], ',"ga");ga("create",');
+    // Skip if not the GA code.
+    if ($start === FALSE || $middle === FALSE || $end === FALSE) {
+      continue;
+    }
 
-      // Get analytics.js URL and add it to the js array.
-      $analytics_js_url = substr($value['data'], $middle + 29, $end - strlen($value['data']) - 1);
-      $js[$analytics_js_url] = array(
-        'data' => $analytics_js_url,
+    // Get analytics.js URL and add it to the js array.
+    $analytics_js_url = substr($value['data'], $middle + 29, $end - strlen($value['data']) - 1);
+    $js[$analytics_js_url] = array(
+      'data' => $analytics_js_url,
+      'type' => 'external',
+      'async' => TRUE,
+      'defer' => TRUE,
+      'noasync' => FALSE,
+      'nodefer' => FALSE,
+    );
+    $js[$analytics_js_url] += $value;
+
+    // Fix if analytics.js is already local.
+    $http_pos = strpos($analytics_js_url, 'http://');
+    $https_pos = strpos($analytics_js_url, 'https://');
+    $double_slash_pos = strpos($analytics_js_url, '//');
+    if ($http_pos !== 0
+      && $https_pos !== 0
+      && $double_slash_pos !== 0
+    ) {
+      $value['type'] = 'file';
+    }
+
+    // Shorten function arguments.
+    $value['data'] = substr($value['data'], 0, $middle + 27) . substr($value['data'], $end);
+    // Strip loader string.
+    $value['data'] = substr($value['data'], 0, $start + 132) . substr($value['data'], $middle);
+    // Shorten function parameters.
+    $value['data'] = str_replace('function(i,s,o,g,r,a,m){i["GoogleAnalyticsObject"]', 'function(i,s,o,r){i["GoogleAnalyticsObject"]', $value['data']);
+    $js[$key]['pre_relocate_data'] = $js[$key]['data'];
+    $js[$key]['data'] = $value['data'];
+    // Pin to header as the js expects ga to be there.
+    $js[$key]['scope'] = 'header';
+    $js[$key]['scope_lock'] = TRUE;
+
+    // Handle ga("require", ...) calls for external scripts to be loaded.
+    $matches = array();
+    preg_match_all('/ga\([\'"]require[\'"],\s*[\'"][a-zA-Z0-9_ ]*[\'"],\s*[\'"](.*?)[\'"]\)/', $value['data'], $matches, PREG_SET_ORDER);
+    foreach ($matches as $match) {
+      // Remove inline js loader code.
+      $start = strpos($js[$key]['data'], $match[0]);
+      if ($start === FALSE) {
+        continue;
+      }
+      $strlen = strlen($match[0]);
+      $js[$key]['data'] = substr($js[$key]['data'], 0, $start) . substr($js[$key]['data'], $start + $strlen);
+
+      // Add script to the drupal js array.
+      $url = '//www.google-analytics.com/plugins/ua/' . $match[1];
+      $js[$url] = array(
+        'data' => $url,
         'type' => 'external',
         'async' => TRUE,
         'defer' => TRUE,
         'noasync' => FALSE,
         'nodefer' => FALSE,
       );
-      $js[$analytics_js_url] += $value;
-
-      // Fix if analytics.js is already local.
-      $http_pos = strpos($analytics_js_url, 'http://');
-      $https_pos = strpos($analytics_js_url, 'https://');
-      $double_slash_pos = strpos($analytics_js_url, '//');
-      if ($http_pos !== 0
-        && $https_pos !== 0
-        && $double_slash_pos !== 0
-      ) {
-        $value['type'] = 'file';
-      }
-
-      // Shorten function arguments.
-      $value['data'] = substr($value['data'], 0, $middle + 27) . substr($value['data'], $end);
-      // Strip loader string.
-      $value['data'] = substr($value['data'], 0, $start + 132) . substr($value['data'], $middle);
-      // Shorten function parameters.
-      $value['data'] = str_replace('function(i,s,o,g,r,a,m){i["GoogleAnalyticsObject"]', 'function(i,s,o,r){i["GoogleAnalyticsObject"]', $value['data']);
-      $js[$key]['pre_relocate_data'] = $js[$key]['data'];
-      $js[$key]['data'] = $value['data'];
-      // Pin to header as the js expects ga to be there.
-      $js[$key]['scope'] = 'header';
-      $js[$key]['scope_lock'] = TRUE;
-
-      // Handle ga("require", ...) calls for external scripts to be loaded.
-      $matches = array();
-      preg_match_all('/ga\([\'"]require[\'"],\s*[\'"][a-zA-Z0-9_ ]*[\'"],\s*[\'"](.*?)[\'"]\)/', $value['data'], $matches, PREG_SET_ORDER);
-      foreach ($matches as $match) {
-        // Remove inline js loader code.
-        $start = strpos($js[$key]['data'], $match[0]);
-        if ($start === FALSE) {
-          continue;
-        }
-        $strlen = strlen($match[0]);
-        $js[$key]['data'] = substr($js[$key]['data'], 0, $start) . substr($js[$key]['data'], $start + $strlen);
-
-        // Add script to the drupal js array.
-        $url = '//www.google-analytics.com/plugins/ua/' . $match[1];
-        $js[$url] = array(
-          'data' => $url,
-          'type' => 'external',
-          'async' => TRUE,
-          'defer' => TRUE,
-          'noasync' => FALSE,
-          'nodefer' => FALSE,
-        );
-        $js[$url] += $value;
-      }
-      break;
+      $js[$url] += $value;
     }
+    break;
   }
-  // Move inline code to external if possible.
-  if (module_exists('piwik')) {
-    foreach ($js as $key => $value) {
-      if ($value['type'] !== 'inline'
-        || !$aggregate_settings['variables']['advagg_relocate_js_piwik_local']
-      ) {
-        continue;
-      }
+  // Piwik.
+  foreach ($js as $key => $value) {
+    if ($value['type'] !== 'inline'
+      || !$aggregate_settings['variables']['advagg_relocate_js_piwik_local']
+    ) {
+      continue;
+    }
 
-      // Handle piwik.js.
-      $start = strpos($value['data'], 'var _paq');
-      $middle = strpos($value['data'], '_paq.push(["setTrackerUrl", u+"piwik.php"]);');
-      $end = strpos($value['data'], ';s.parentNode.insertBefore(g,s);})();');
-      // Skip if not the paq code.
-      if ($start === FALSE || $middle === FALSE || $end === FALSE) {
-        continue;
-      }
+    // Handle piwik.js.
+    $start = strpos($value['data'], 'var _paq');
+    $middle = strpos($value['data'], '_paq.push(["setTrackerUrl"');
+    // Skip if not the paq code.
+    if ($start === FALSE || $middle === FALSE) {
+      continue;
+    }
 
-      // Get URL.
-      $url = variable_get('piwik_url_http', '');
-      if (variable_get('piwik_cache', 0) && $piwik_cache = _piwik_cache($url . 'piwik.js')) {
-        // Try cache.
-        $url = $piwik_cache;
+    // Get URL.
+    $url = variable_get('piwik_url_http', '');
+    if ($GLOBALS['is_https']) {
+      // Use HTTPS.
+      $url = variable_get('piwik_url_https', '');
+    }
+    if (is_callable('_piwik_cache')
+      && variable_get('piwik_cache', 0)
+      && $piwik_cache = _piwik_cache($url . 'piwik.js')
+    ) {
+      // Try cache.
+      $url = $piwik_cache;
+    }
+    if (empty($url)) {
+      // Extract info from inline script.
+      // "https:" == document.location.protocol ? "https://.../piwik/" : "http://.../piwik/".
+      $pattern = '/[\'"]https\:[\'"]\s*==\s*document\.location\.protocol.*?[\'"](.*?)[\'"]\s*\:\s*[\'"](.*?)[\'"]/';
+      preg_match($pattern, $value['data'], $matches);
+      if ($GLOBALS['is_https'] && !empty($matches[1])) {
+        $url = $matches[1];
       }
-      elseif ($GLOBALS['is_https']) {
-        // Use HTTPS.
-        $url = check_url(variable_get('piwik_url_https', '')) . 'piwik.js';
+      elseif (empty($GLOBALS['is_https']) && !empty($matches[2])) {
+        $url = $matches[2];
       }
-      else {
-        // Use HTTP.
-        $url = check_url($url) . 'piwik.js';
-      }
+    }
+    if (!empty($url)) {
+      // Use HTTP.
+      $url = check_url($url) . 'piwik.js';
+    }
 
-      // Final checks.
-      if (empty($url)) {
-        continue;
-      }
-      $scope = variable_get('piwik_js_scope', 'header');
-      $url = advagg_convert_abs_to_rel($url, TRUE);
-      $type = 'file';
-      if (advagg_is_external($url)) {
-        $parsed = parse_url($url);
-        if (strpos($parsed['path'], $GLOBALS['base_path']) === 0) {
-          $path = substr($parsed['path'], strlen($GLOBALS['base_path']));
-          if (file_exists($path)) {
-            $url = $path;
-          }
-          else {
-            $type = 'external';
-          }
+    // Final checks.
+    if (empty($url)) {
+      continue;
+    }
+    $scope = variable_get('piwik_js_scope', $value['scope']);
+    $url = advagg_convert_abs_to_rel($url, TRUE);
+    $type = 'file';
+    if (advagg_is_external($url)) {
+      $parsed = parse_url($url);
+      if (strpos($parsed['path'], $GLOBALS['base_path']) === 0) {
+        $path = substr($parsed['path'], strlen($GLOBALS['base_path']));
+        if (file_exists($path)) {
+          $url = $path;
         }
         else {
           $type = 'external';
         }
       }
-
-      // Add to js array.
-      $js[$url] = array(
-        'scope' => $scope,
-        'data' => $url,
-        'type' => $type,
-        'async' => TRUE,
-        'defer' => TRUE,
-        'noasync' => FALSE,
-        'nodefer' => FALSE,
-      );
-
-      // Strip loader string.
-      $value['data'] = substr($value['data'], 0, $end) . substr($value['data'], $end + 31);
-      $js[$key]['pre_relocate_data'] = $js[$key]['data'];
-      $js[$key]['data'] = $value['data'];
-      // Pin to header as the js expects paq to be loaded before the file.
-      $js[$key]['scope'] = 'header';
-      $js[$key]['scope_lock'] = TRUE;
-      $js[$key]['weight'] = -50000;
-      $js[$key]['movable'] = FALSE;
-      break;
+      else {
+        $type = 'external';
+      }
     }
+
+    // Add to js array.
+    $js[$url] = array(
+      'scope' => $scope,
+      'data' => $url,
+      'type' => $type,
+      'async' => TRUE,
+      'defer' => TRUE,
+      'noasync' => FALSE,
+      'nodefer' => FALSE,
+    );
+
+    $matches = array();
+    // s.parentNode.insertBefore(g,s);.
+    $pattern = '/\,?\s*[\w]{1,2}\.parentNode\.insertBefore\(\s*[\w]{1,2}\s*,\s*[\w]{1,2}\s*\)\s*\;*/';
+    preg_match($pattern, $value['data'], $matches);
+    // Strip loader string.
+    $value['data'] = str_replace($matches[0], '', $value['data']);
+
+    $js[$key]['pre_relocate_data'] = $js[$key]['data'];
+    $js[$key]['data'] = $value['data'];
+    // Pin to header as the js expects paq to be loaded before the file.
+    $js[$key]['scope'] = 'header';
+    $js[$key]['scope_lock'] = TRUE;
+    $js[$key]['weight'] = -50000;
+    $js[$key]['movable'] = FALSE;
+    break;
   }
   foreach ($js as $key => $value) {
     if ($value['type'] !== 'inline'

@@ -624,6 +624,8 @@ function advagg_mod_page_alter() {
     // Call hook_advagg_get_css_file_contents_alter().
     drupal_alter('advagg_get_css_file_contents', $inline_css, $filenames[0]);
   }
+  $preload_from_inline_css = array();
+  $domains_from_inline_css = array();
   // Add inline critical css for front page.
   if (!empty($inline_css)) {
     // Remove !important from all CSS rules.
@@ -638,6 +640,33 @@ function advagg_mod_page_alter() {
     if (stripos($inline_css, '</style>') === $len - 8) {
       $inline_css = trim(substr($inline_css, 0, $len - 8));
     }
+
+    // Extract url() references to add to the preloaded links.
+    $matches = array();
+    // Match url ( "' ... '" ).
+    $pattern = '/url\s*\(\s*[\'"]?(.+?)[\'"]?\s*\)/i';
+    preg_match_all($pattern, $inline_css, $matches);
+    if (!empty($matches[1])) {
+      foreach ($matches[1] as $key => $url) {
+        $parsed = parse_url($url);
+        // Remove data URIs.
+        if (!empty($parsed['scheme']) && $parsed['scheme'] === 'data') {
+          unset($matches[1][$key]);
+          continue;
+        }
+        // Remote paths without a period.
+        if (empty($parsed['path']) || strpos($parsed['path'], '.') === FALSE) {
+          unset($matches[1][$key]);
+          continue;
+        }
+
+        if (isset($parsed['host'])) {
+          $domains_from_inline_css[] = $url;
+        }
+      }
+      $preload_from_inline_css = $matches[1];
+    }
+
     // Add critical css.
     drupal_add_css($inline_css, array(
       'type' => 'inline',
@@ -661,6 +690,7 @@ function advagg_mod_page_alter() {
   ) {
     $domains = file($filenames[1], FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
   }
+  $domains = array_merge($domains, $domains_from_inline_css);
   // Remove duplicates and empty sets.
   $domains = array_filter(array_unique($domains));
   if (!empty($domains)) {
@@ -680,6 +710,9 @@ function advagg_mod_page_alter() {
   ) {
     $preload = file($filenames[2], FILE_IGNORE_NEW_LINES);
   }
+  $preload = array_merge($preload, $preload_from_inline_css);
+  // Remove duplicates and empty sets.
+  $preload = array_filter(array_unique($preload));
   if (!empty($preload)) {
     $preload_array = array();
     $counter = 0;
@@ -851,6 +884,7 @@ function advagg_mod_advagg_modify_js_pre_render_alter(&$children, &$elements) {
           $src = substr($values['#attributes']['src'], 0, $pos);
         }
         $holdready_count[$src] = TRUE;
+        break;
       }
     }
 
@@ -870,9 +904,9 @@ function advagg_mod_advagg_modify_js_pre_render_alter(&$children, &$elements) {
         if ($found) {
           $holdready_string = '';
           if (!empty($holdready_count)) {
-            $holdready_string .= str_repeat('jQuery.holdReady(false);', 1);
+            $holdready_string = "\nif(jQuery.isFunction(jQuery.holdReady)){jQuery.holdReady(false);}";
           }
-          $values['#value'] = "function init_drupal_core_settings() {{$values['#value']}\nif(jQuery.isFunction(jQuery.holdReady)){{$holdready_string}}} if(window.jQuery && window.Drupal){init_drupal_core_settings();}";
+          $values['#value'] = "function init_drupal_core_settings() {{$values['#value']} {$holdready_string}} if(window.jQuery && window.Drupal){init_drupal_core_settings();}";
         }
       }
     }
@@ -967,10 +1001,22 @@ function advagg_mod_advagg_modify_css_pre_render_alter(&$children, &$elements) {
   // Get the key of the last css file that will use loadcss.
   $last_key = NULL;
   foreach ($children as $children_key => $values) {
-    // Do not defer inline styles.
-    if ($values['#tag'] === 'style' || empty($values['#attributes']['href'])) {
+    // Do not count inline styles.
+    if ($values['#tag'] === 'style' || empty($values['#attributes']['href'])
+    ) {
       continue;
     }
+    // Only use if no browser conditionals.
+    if (isset($values['#browsers']['!IE'])
+      && $values['#browsers']['!IE'] === TRUE
+      && isset($values['#browsers']['IE'])
+      && $values['#browsers']['IE'] === TRUE
+    ) {
+      $last_key = $children_key;
+    }
+  }
+  // If all css uses a browser conditional, then use the last one to release.
+  if ($last_key === NULL) {
     $last_key = $children_key;
   }
 
@@ -1652,6 +1698,15 @@ function advagg_mod_add_loadcss_js_lib(array $js = array(), array $css = array()
  */
 function advagg_mod_find_critical_css_file() {
   $filename = FALSE;
+
+  // Normalize request uri.
+  $base_path = base_path();
+  $request_uri = request_uri();
+  $pos = strpos($request_uri, $base_path);
+  if ($pos === 0) {
+    $request_uri = substr($request_uri, strlen($base_path));
+  }
+
   $dirs = array(
     0 => drupal_get_path('theme', $GLOBALS['theme']) . '/',
     1 => 'critical-css/',
@@ -1661,9 +1716,17 @@ function advagg_mod_find_critical_css_file() {
     // Use urls or object_type.
     4 => 'urls/',
     5 => 'type/',
+    // Different variations of the current URL.
     6 => current_path(),
+    7 => advagg_url_to_filename($request_uri, FALSE),
+    8 => advagg_url_to_filename(request_path(), FALSE),
+    9 => $request_uri,
+    10 => request_path(),
   );
   $front_page = drupal_is_front_page();
+  if (!$front_page) {
+    $front_page = drupal_get_path_alias() == variable_get('site_frontpage', 'node');
+  }
   $object = menu_get_object();
   $params = array($dirs, $front_page, $object);
   $inline_strings = array('', '', '');
@@ -1687,6 +1750,16 @@ function advagg_mod_find_critical_css_file() {
       $filename = "{$dirs[0]}{$dirs[1]}{$dirs[2]}{$dirs[4]}{$dirs[6]}";
     }
     if (!$filename
+      && is_readable("{$dirs[0]}{$dirs[1]}{$dirs[2]}{$dirs[4]}{$dirs[7]}.css")
+    ) {
+      $filename = "{$dirs[0]}{$dirs[1]}{$dirs[2]}{$dirs[4]}{$dirs[7]}";
+    }
+    if (!$filename
+      && is_readable("{$dirs[0]}{$dirs[1]}{$dirs[2]}{$dirs[4]}{$dirs[8]}.css")
+    ) {
+      $filename = "{$dirs[0]}{$dirs[1]}{$dirs[2]}{$dirs[4]}{$dirs[8]}";
+    }
+    if (!$filename
       && isset($object->type)
       && is_readable("{$dirs[0]}{$dirs[1]}{$dirs[2]}{$dirs[5]}{$object->type}.css")
     ) {
@@ -1704,6 +1777,16 @@ function advagg_mod_find_critical_css_file() {
       && is_readable("{$dirs[0]}{$dirs[1]}{$dirs[3]}{$dirs[4]}{$dirs[6]}.css")
     ) {
       $filename = "{$dirs[0]}{$dirs[1]}{$dirs[3]}{$dirs[4]}{$dirs[6]}";
+    }
+    if (!$filename
+      && is_readable("{$dirs[0]}{$dirs[1]}{$dirs[3]}{$dirs[4]}{$dirs[7]}.css")
+    ) {
+      $filename = "{$dirs[0]}{$dirs[1]}{$dirs[3]}{$dirs[4]}{$dirs[7]}";
+    }
+    if (!$filename
+      && is_readable("{$dirs[0]}{$dirs[1]}{$dirs[3]}{$dirs[4]}{$dirs[8]}.css")
+    ) {
+      $filename = "{$dirs[0]}{$dirs[1]}{$dirs[3]}{$dirs[4]}{$dirs[8]}";
     }
     if (!$filename
       && isset($object->type)

@@ -1334,7 +1334,7 @@ function advagg_install_check_via_http(array &$requirements) {
       // Set arguments for drupal_http_request().
       // Make a 404 request to the advagg menu callback.
       $url = file_create_url($url_path . '/' . $type . ADVAGG_SPACE . REQUEST_TIME . '.' . $type);
-      $options = array();
+      $options = array('timeout' => 8);
 
       if (empty($url)) {
         $filename = advagg_install_get_first_advagg_file($file_path, $type);
@@ -1663,6 +1663,7 @@ location ~* files/advagg_(?:css|js)/ {
       ),
       'version' => '1.0',
       '#advagg_path' => "{$file_path}/{$filename}",
+      'timeout' => 8,
     );
     // Test http 1.0.
     $old_requirements = $requirements;
@@ -1693,6 +1694,7 @@ location ~* files/advagg_(?:css|js)/ {
           'Accept-Encoding' => 'br',
         ),
         'version' => '1.0',
+        'timeout' => 8,
       );
       // Test http 1.0.
       $old_requirements = $requirements;
@@ -1742,6 +1744,10 @@ function advagg_install_chk_urls(array &$requirements, array $urls, array $optio
 
   list($css_path, $js_path) = advagg_get_root_files_dir();
   $config_path = advagg_admin_config_root_path();
+
+  $options += array(
+    'timeout' => 8,
+  );
 
   $is_apache = FALSE;
   if (stripos($_SERVER['SERVER_SOFTWARE'], 'apache') !== FALSE || function_exists('apache_get_modules')) {

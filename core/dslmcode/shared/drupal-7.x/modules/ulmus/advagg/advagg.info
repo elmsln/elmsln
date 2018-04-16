@@ -1,4 +1,4 @@
-name = Advanced CSS/JS Aggregation
+name = Advanced CSS/JS Aggregation (AdvAgg)
 description = Aggregates multiple CSS/JS files in a way that prevents 404 from happening when accessing a CSS or JS file.
 package = Advanced CSS/JS Aggregation
 core = 7.x
@@ -6,9 +6,9 @@ files[] = tests/advagg.test
 
 configure = admin/config/development/performance/advagg
 
-; Information added by Drupal.org packaging script on 2018-02-23
-version = "7.x-2.32"
+; Information added by Drupal.org packaging script on 2018-03-20
+version = "7.x-2.33"
 core = "7.x"
 project = "advagg"
-datestamp = "1519359188"
+datestamp = "1521515592"
 

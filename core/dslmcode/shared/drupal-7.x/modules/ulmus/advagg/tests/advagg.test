@@ -12,6 +12,14 @@
  * Advanced Aggregates testing functionality.
  */
 
+// Include all files in the project for simple sanity checking.
+$files = file_scan_directory(drupal_get_path('module', 'advagg'), "/.*\.(inc|module|install|php)$/", array(
+  'nomask' => '/(\\.\\.?|CVS|tpl\.php)$/',
+));
+foreach ($files as $file) {
+  include_once DRUPAL_ROOT . '/' . $file->uri;
+}
+
 /**
  * Resets static variables related to adding CSS to a page.
  */

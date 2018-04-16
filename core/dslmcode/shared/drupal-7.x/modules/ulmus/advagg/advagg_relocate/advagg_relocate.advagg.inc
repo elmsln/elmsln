@@ -212,7 +212,9 @@ function _advagg_relocate_callback(array $matches = array(), array $files = arra
   }
   foreach ($_args['files'] as $filename => $values) {
     $form_api_filename = str_replace(array('/', '.'), array('__', '--'), $filename);
-    if (isset($_args['aggregate_settings']['variables']['advagg_relocate_css_file_settings'][$form_api_filename])) {
+    if (isset($_args['aggregate_settings']['variables']['advagg_relocate_css_file_settings'][$form_api_filename])
+      && is_array($_args['aggregate_settings']['variables']['advagg_relocate_css_file_settings'][$form_api_filename])
+    ) {
       foreach ($_args['aggregate_settings']['variables']['advagg_relocate_css_file_settings'][$form_api_filename] as $key => $value) {
         if ($key !== $value && $key === $matches[1]) {
           // Do not replace.

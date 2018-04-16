@@ -6,6 +6,10 @@ ADVANCED CSS/JS AGGREGATION MODULE
 CONTENTS OF THIS FILE
 ---------------------
 
+ - Introduction
+ - Requirements
+ - Recommended modules
+ - Installation
  - How to get a high PageSpeed score
  - JSMin PHP Extension
  - Brotli PHP Extension
@@ -17,6 +21,37 @@ CONTENTS OF THIS FILE
  - Configuration
  - Additional options for `drupal_add_css/js` functions
  - Technical Details & Hooks
+
+
+INTRODUCTION
+------------
+
+The Advanced CSS/JS Aggregation allows you to improve the frontend performance
+of your site. Be sure to do a before and after comparison by using Google's
+PageSpeed Insights and WebPagetest.org.
+https://developers.google.com/speed/pagespeed/insights/
+http://www.webpagetest.org/easy
+
+
+REQUIREMENTS
+------------
+
+No special requirements.
+
+
+RECOMMENDED MODULES
+-------------------
+
+ - Libraries (https://www.drupal.org/project/libraries)
+   Allows for 3rd party code for minification to be used by AdvAgg.
+
+
+INSTALLATION
+------------
+
+ - Install as you would normally install a contributed Drupal module. Visit:
+   https://drupal.org/documentation/install/modules-themes/modules-7
+   for further information.
 
 
 HOW TO GET A HIGH PAGESPEED SCORE
@@ -37,7 +72,8 @@ Install AdvAgg Compress Javascript if not enabled and go to
 
  - Select JSMin if available; otherwise select JSMin+
  - Select Strip everything (smallest files)
- - Click the batch compress link to process these files
+ - Save configuration
+ - Click the batch compress link to process these files at the top.
 
 #### AdvAgg Async Font Loader ####
 Install AdvAgg Async Font Loader if not enabled and go to
@@ -46,35 +82,15 @@ Install AdvAgg Async Font Loader if not enabled and go to
  - Select Local file included in aggregate (version: X.X.X). If this option is
    not available follow the directions right below the options on how to install
    it.
- - Check "Use localStorage so the flash of unstyled text (FOUT) only happens
-   once."
- - Check "Set a cookie so the flash of unstyled text (FOUT) only happens once."
+
+Keep the 2 checkboxes checked.
 
 #### AdvAgg Bundler ####
 Install AdvAgg Bundler if not enabled and go to
 `admin/config/development/performance/advagg/bundler`
 
-*HTTP/2.0 Settings*
-
- - Under "Target Number Of CSS Bundles Per Page" select 25
- - Under "Target Number Of JS Bundles Per Page" select 25
- - Under "Grouping logic" select "File size"
-
-*HTTP/1.1 Settings (default)*
-
- - Under "Target Number Of CSS Bundles Per Page" select 2
- - Under "Target Number Of JS Bundles Per Page" select 5
- - Under "Grouping logic" select "File size"
-
-25 bundles vs 2 and 5 has to do with browser caching. More files equals a better
-chance of the browser having that combo in its cache, but more files means more
-connections being established and opened in HTTP 1.1. Use 2 for CSS as this
-number doesn't wait for any new connections; JS is 5 as most browsers have a
-concurrent connections limit of 6. This number for bundles was picked after many
-tests. In HTTP 2.0 there is one streaming connection and the penalty for
-multiple CSS and JS files is almost non existent; thus optimizing for the
-browser cache is the best choice; thus 25 should be used for CSS and JS when
-serving HTTP/2.0.
+If your server supports HTTP 2 then select "Use HTTP 2.0 settings"; otherwise
+leave it at the "Use HTTP 1.1 settings".
 
 #### AdvAgg Relocate ####
 Install AdvAgg Relocate if not enabled and go to
@@ -88,51 +104,28 @@ Install AdvAgg Modifier if not enabled and go to
 
 Select "Use recommended (optimized) settings"
 
-##### Generating Critical CSS Files #####
-Go to https://www.sitelocity.com/critical-path-css-generator and input as many
-landing pages as needed for critical css; the top 10 is usually a good start.
-If you have Google Analytics this will show you how to find your top landing
-pages
+#### AdvAgg Critical CSS module ####
+Install AdvAgg Critical CSS if not enabled and go to
+`admin/config/development/performance/advagg/critical-css`
+
+These are the directions for the front page of your site.
+
+Under Add Critical CSS
+- Select the theme that is your front page; usually the default is correct.
+- User type should be set to 'anonymous' under most circumstances.
+- Type of lookup, select URL
+- Value to lookup, type in `<front>`
+- Critical CSS, paste in the generated CSS from running your homepage url
+through https://www.sitelocity.com/critical-path-css-generator which is inside
+of the 'Critical Path CSS' textarea on the sitelocity page.
+- Click Save Configuration.
+
+Other landing pages should have their critical CSS added as well. If you have
+Google Analytics this will show you how to find your top landing pages
 https://developers.google.com/analytics/devguides/reporting/core/v3/common-queries#top-landing-pages
-or for Piwik https://piwik.org/faq/how-to/faq_160/. If you don't know what page
-to start with do your site's homepage. You can also us this to generate css
+or for Piwik https://piwik.org/faq/how-to/faq_160/. You can also use this
+chrome browser plugin to generate critical CSS
 https://chrome.google.com/webstore/detail/critical-style-snapshot/gkoeffcejdhhojognlonafnijfkcepob?hl=en
-
-Example filenames and paths below are for the "bootstrap" theme; they all start
-with `sites/all/themes/bootstrap/critical-css/`; in your theme create the
-`critical-css/` directory. The next directory is based on the user;
-`anonymous/`,  `all/`, or `authenticated/` can be used; anonymous is usually
-what you want to use.
-
-The next directory can be `urls/` or `type/`. Looking at `urls/`; front is a
-special case for the front page, all other paths use current_path() as the
-directory and filename with `.css` added to the end; See
-https://api.drupal.org/api/drupal/includes%21path.inc/function/current_path/7.x
-
-Looking at `type/` this is a special case for node types. Use the machine name
-and add `.css` to the end. Any node of this type will then have this critical
-css file applied and inlined. Below are some examples showing how this works.
-
-valid example file locations for the "front" page:
-sites/all/themes/bootstrap/critical-css/anonymous/urls/front.css
-
-valid example file locations for "node/1" current_path() page:
-sites/all/themes/bootstrap/critical-css/anonymous/urls/node/1.css
-
-valid example file locations for the node type of "page":
-sites/all/themes/bootstrap/critical-css/anonymous/type/page.css
-
-If you want some sort of automated way to generate these css files fourkitchens
-has an excellent article on how to set that up:
-https://fourword.fourkitchens.com/article/use-grunt-and-advagg-inline-critical-css-drupal-7-theme
-
-##### Other things to consider #####
-On the `admin/config/development/performance/advagg/mod` page there is the
-setting "Remove unused JavaScript tags if possible". This is a backport of D8
-where it will not add any JS to the page if it is not being used. This might
-help to reduce the number of bytes transferred if your site doesn't use a lot of
-JavaScript.
-https://drupal.org/node/1279226
 
 
 JSMIN PHP EXTENSION
@@ -354,6 +347,10 @@ correctly serve gzip compressed CSS and JS files.`
         </FilesMatch>
       </IfModule>
 
+
+If you are having 5 minute or longer timeouts on the admin/reports/status page
+then you might need to use an alternative to drupal_httP_request(). The cURL
+HTTP Request module https://www.drupal.org/project/chr might fix this issue.
 
 
 FEATURES & BENEFITS

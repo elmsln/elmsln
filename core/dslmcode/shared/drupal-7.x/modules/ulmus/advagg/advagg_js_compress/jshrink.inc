@@ -119,7 +119,7 @@ class Minifier
     /**
      * These characters are used to define strings.
      */
-    protected $stringDelimiters = ['\'', '"', '`'];
+    protected $stringDelimiters = array("'", '"', '`');
 
     /**
      * Contains the default options for minification. This array is merged with

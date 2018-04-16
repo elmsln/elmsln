@@ -23,7 +23,7 @@ define('ADVAGG_FONT_STORAGE', 1);
 /**
  * Default value to use a cookie in order to prevent the FOUT.
  */
-define('ADVAGG_FONT_COOKIE', 0);
+define('ADVAGG_FONT_COOKIE', 1);
 
 /**
  * Default value to only replace the font if it's been downloaded.

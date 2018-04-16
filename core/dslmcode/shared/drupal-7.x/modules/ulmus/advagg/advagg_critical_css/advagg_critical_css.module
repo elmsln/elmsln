@@ -64,6 +64,8 @@ function advagg_critical_css_advagg_mod_critical_css_file_pre_alter(&$filename, 
   if ($front_page) {
     $lookup = array('<front>');
   }
+  $lookup[] = $dirs[9];
+  $lookup[] = $dirs[10];
   if (!empty($object->type)) {
     $lookup[] = $object->type;
   }
