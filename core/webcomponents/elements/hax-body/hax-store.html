@@ -645,6 +645,12 @@
         return str.replace(/\W+/g, '-').replace(/([a-z\d])([A-Z])/g, '$1-$2');
       };
       /**
+       * Helper to convert dash to camel; important when reading attributes.
+       */
+      Polymer.HaxStore.dashToCamel = (str) => {
+        return str.replace(/-([a-z])/g, function (g) { return g[1].toUpperCase(); });
+      };
+      /**
        * Convert a node to a HAX element. Hax elements ensure
        * a certain level of sanitization by verifying tags and
        * properties / attributes that have values.

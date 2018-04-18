@@ -465,7 +465,45 @@ A LRN element that will change the world.
         for(var j = 0, l = node.attributes.length; j < l; ++j){
           var nodeName  = node.attributes.item(j).nodeName;
           var value = node.attributes.item(j).value;
-          content += ' ' + nodeName + '="' + value + '"';
+          var nodeNameTest = Polymer.HaxStore.dashToCamel(nodeName);
+          // check for property binding which is more accurate here
+          if (typeof node.properties !== typeof undefined && typeof node.properties[nodeNameTest] !== typeof undefined && nodeNameTest != 'style') {
+            if (value === '' && typeof node.properties[nodeNameTest].value !== typeof undefined) {
+              value = node.properties[nodeNameTest].value;
+            }
+          }
+          // encode objects and arrays because they are special
+          if (nodeName != 'style' && (typeof value === typeof Object || typeof value === typeof Array)) {
+            content += ' ' + nodeName + '="' + JSON.stringify(value).replace(new RegExp('"', 'g'), '&quot;') + '"';
+          }
+          // only write things that aren't empty
+          else if (value != null && value != 'null') {
+            if (value === true || value === "true") {
+              content += ' ' + nodeName;
+            }
+            else if (value === false) {
+              // do nothing, no reason to record false unless written as text
+              // in which case below will capture it
+            }
+            else {
+              // ensure that value doesn't have " in it unencoded
+              if (typeof value === 'string' && value !== '') {
+                value = value.replace(new RegExp('"', 'g'), '&quot;');
+                content += ' ' + nodeName + '="' + value + '"';
+              }
+              // special handling for empty string cause it might mean boolean
+              // or it might be a string
+              else if (value === '') {
+                if (value == '' && node.attributes.item(j).value != '') {
+                  value = node.attributes.item(j).value;
+                }
+                content += ' ' + nodeName + '="' + value + '"';
+              }
+              else {
+                content += ' ' + nodeName + '="' + value + '"';
+              }
+            }
+          }
         }
         // set the opening tag
         content += '>';
@@ -516,7 +554,7 @@ A LRN element that will change the world.
           content += '</' + node.tagName.toLowerCase() + '>';
         }
         else {
-          content += '</' + node.tagName.toLowerCase() + '>' + "\n";
+          content += '</' + node.tagName.toLowerCase() + '>';
         }
         if (this.globalPreferences.haxDeveloperMode) {
           console.log(content);
