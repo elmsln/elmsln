@@ -20,7 +20,7 @@ function webcomponents_token_permission() {
  */
 function webcomponents_token_menu() {
   $items = array();
-  $items['webcomponents/drupal-token/%/%'] = array(
+  $items['webcomponents/cms-token/%/%'] = array(
     'title' => 'Web components drupal token render',
     'page callback' => '_webcomponents_token_render',
     'page arguments' => array(2, 3),
@@ -28,6 +28,19 @@ function webcomponents_token_menu() {
     'type' => MENU_CALLBACK,
   );
   return $items;
+}
+
+/**
+ * Implements hook_page_build().
+ */
+function webcomponents_token_page_build(&$page) {
+  if (arg(2) != 'edit') {
+    $component = new stdClass();
+    $component->machine_name = $element;
+    // pull in from webcomponents location
+    $component->file = libraries_get_path('webcomponents') . '/polymer/bower_components/cms-hax/cms-token.html';
+    _webcomponents_add_to_head($component, 10002);
+  }
 }
 
 /**
@@ -70,7 +83,7 @@ function webcomponents_token_filter_info() {
   $filters = array();
   $filters['webcomponents_token'] = array(
     'title' => t('Webcomponents filter'),
-    'description' => t('Fake substitute for the drupal-token tag'),
+    'description' => t('Fake substitute for the cms-token tag'),
     'process callback' => '_webcomponents_token_process',
     'tips callback' => '_webcomponents_token_tips',
     'weight' => -100,
@@ -82,7 +95,7 @@ function webcomponents_token_filter_info() {
  * Helper function to provide on screen tips for using the filter
  */
 function _webcomponents_token_tips($filter, $format, $long = FALSE) {
-  return t('This filter will ensure that drupal-token gets injected correctly');
+  return t('This filter will ensure that cms-token gets injected correctly');
 }
 
 /**
@@ -92,8 +105,8 @@ function _webcomponents_token_process($text, $filter, $format, $langcode, $cache
   // ensure we only apply this once based on the input format
   if (!isset($GLOBALS['webcomponentsTokenEndPoint'])) {
     $GLOBALS['webcomponentsTokenEndPoint'] = TRUE;
-    $js_vars['webcomponentsTokenEndPoint'] = base_path() . 'webcomponents/drupal-token/' . drupal_get_token('webcomponents_token') . '/' . $filter->format;
-    drupal_add_js($js_vars, "setting");
+    $js = 'window.cmsTokenEndPoint="' . base_path() . 'webcomponents/cms-token/' . drupal_get_token('webcomponents_token') . '/' . $filter->format . '";';
+    drupal_add_js($js, "inline");
   }
   // see if we need to skip
   if (!isset($GLOBALS['skip_drupal_token']) && user_access('use webcomponents token')) {
@@ -110,7 +123,7 @@ function _webcomponents_token_process($text, $filter, $format, $langcode, $cache
         foreach ($matches[0] as $key => $match) {
           $tmptoken = str_replace(']', '', str_replace('[', '', $match));
           $patterns[] = $regex;
-          $media[] = '<drupal-token token="' . $tmptoken . '"></drupal-token>';
+          $media[] = '<cms-token token="' . $tmptoken . '"></cms-token>';
         }
         $text = preg_replace($patterns, $media, $text, 1);
       }

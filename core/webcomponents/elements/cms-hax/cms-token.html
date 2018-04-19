@@ -3,8 +3,8 @@
 <link rel="import" href="../hax-body-behaviors/hax-body-behaviors.html">
 <link rel="import" href="../elmsln-loading/elmsln-loading.html">
 <!--
-`drupal-token`
-A LRN element
+`cms-token`
+Render and process a shortcode / token from a content management system.
 
 @demo demo/index.html
 
@@ -14,13 +14,13 @@ A LRN element
 
 -->
 
-<dom-module id="drupal-token">
+<dom-module id="cms-token">
   <template strip-whitespace>
     <style>
       :host {
         display: block;
-        min-width: 20px;
-        min-height: 20px;
+        min-width: 100px;
+        min-height: 100px;
         transition: .6s all ease;
         background-color: transparent;
       }
@@ -33,7 +33,7 @@ A LRN element
         opacity: 1;
       }
       :host[loading] {
-        background-color: #EEEEEE;
+        background-color: #FEFEFE;
         text-align: center;
       }
       :host[loading] elmsln-loading {
@@ -53,14 +53,14 @@ A LRN element
        url="[[tokenEndPoint]]"
        handle-as="json"
        last-response="{{tokenData}}"></iron-ajax>
-    <elmsln-loading color="black-text" size="large"></elmsln-loading>
+    <elmsln-loading color="[[loaderColor]]" size="large"></elmsln-loading>
     <span id="replacementcontent"><slot></slot></span>
   </template>
 
   <script>
     Polymer({
 
-      is: 'drupal-token',
+      is: 'cms-token',
       behaviors: [HAXBehaviors.PropertiesBehaviors],
       properties: {
         /**
@@ -70,6 +70,13 @@ A LRN element
           type: Boolean,
           reflectToAttribute: true,
           value: false,
+        },
+        /**
+         * Color of the loader.
+         */
+        loaderColor: {
+          type: String,
+          value: 'black-text',
         },
         /**
          * Token changed (somehow) do the token processing.
@@ -99,6 +106,20 @@ A LRN element
           type: String,
           observer: '_handleTokenResponse',
         },
+        /**
+         * Prefix for the token to be processed
+         */
+        tokenPrefix: {
+          type: String,
+          observer: '[',
+        },
+        /**
+         * Suffix for the token to be processed
+         */
+        tokenSuffix: {
+          type: String,
+          observer: ']',
+        },
       },
       /**
        * Generate body data.
@@ -106,7 +127,7 @@ A LRN element
       _generateBodyData: function(token) {
         if (token !== null && token !== '') {
           return {
-            'token': `[${token}]`,
+            'token': `${tokenPrefix}${token}${tokenSuffix}`,
           };
         }
       },
@@ -144,8 +165,8 @@ A LRN element
         // ensure we have something and are not loading currently
         if (typeof newValue !== typeof undefined && newValue !== '' && !this.loading) {
           // support going from a null element to a real one
-          if (typeof this.tokenEndPoint === typeof undefined && typeof Drupal.settings.webcomponentsTokenEndPoint !== typeof undefined) {
-            this.tokenEndPoint = Drupal.settings.webcomponentsTokenEndPoint;
+          if (typeof this.tokenEndPoint === typeof undefined && typeof window.cmsTokenEndPoint !== typeof undefined) {
+            this.tokenEndPoint = window.cmsTokenEndPoint;
           }
           if (this.tokenEndPoint) {
             this.loading = true;
@@ -165,10 +186,9 @@ A LRN element
           // if it has something in it that means we did some
           // remote rendering ahead of time
           if (slot.length === 0 && !this.loading) {
-            // support for autoloading the token data needed for the request
-            // off of Drupal globals.
-            if (typeof this.tokenEndPoint === typeof undefined && typeof Drupal.settings.webcomponentsTokenEndPoint !== typeof undefined) {
-              this.tokenEndPoint = Drupal.settings.webcomponentsTokenEndPoint;
+            // support for autoloading the token data needed for the request from globals
+            if (typeof this.tokenEndPoint === typeof undefined && typeof window.cmsTokenEndPoint !== typeof undefined) {
+              this.tokenEndPoint = window.cmsTokenEndPoint;
             }
             if (this.tokenEndPoint) {
               this.loading = true;
@@ -184,7 +204,7 @@ A LRN element
           'canEditSource': false,
           'gizmo': {
             'title': 'Token',
-            'description': 'Drupal token loaded from some place else',
+            'description': 'CMS token rendered on the backend',
             'icon': 'av:play-circle-filled',
             'color': 'grey',
             'groups': ['Media', 'Content'],
@@ -205,7 +225,7 @@ A LRN element
               {
                 'property': 'token',
                 'title': 'Token',
-                'description': 'Token from drupal',
+                'description': 'Token from our CMS',
                 'inputMethod': 'textfield',
                 'icon': 'editor:title',
               },
