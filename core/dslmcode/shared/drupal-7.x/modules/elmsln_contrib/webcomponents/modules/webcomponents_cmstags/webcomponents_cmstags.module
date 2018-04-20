@@ -107,10 +107,6 @@ function webcomponents_cmstags_page_build(&$page) {
       _webcomponents_add_to_head($component, 10002);
     }
   }
-  $component->machine_name = 'person-testimonial';
-  // pull in from webcomponents location
-  $component->file = libraries_get_path('webcomponents') . '/polymer/bower_components/person-testimonial/person-testimonial.html';
-  _webcomponents_add_to_head($component, 10002);
   // write the little endPoint shims we use for the other 3 things to decouple
   $js = 'window.cmsviewsEndPoint="' . base_path() . 'webcomponents/cms-views/' . drupal_get_token('webcomponents_cmstags_views') . '";' . "\n";
   $js .= 'window.cmsentityEndPoint="' . base_path() . 'webcomponents/cms-entity/' . drupal_get_token('webcomponents_cmstags_entity') . '";' . "\n";
