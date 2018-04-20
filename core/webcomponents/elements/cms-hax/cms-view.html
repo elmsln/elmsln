@@ -3,8 +3,8 @@
 <link rel="import" href="../hax-body-behaviors/hax-body-behaviors.html">
 <link rel="import" href="../paper-spinner/paper-spinner.html">
 <!--
-`cms-token`
-Render and process a shortcode / token from a content management system.
+`cms-view`
+Render and process a  / view from a content management system.
 
 @demo demo/index.html
 
@@ -14,17 +14,19 @@ Render and process a shortcode / token from a content management system.
 
 -->
 
-<dom-module id="cms-token">
+<dom-module id="cms-view">
   <template strip-whitespace>
     <style>
       :host {
-        display: block;
+        display: view;
         min-width: 112px;
         min-height: 112px;
-        transition: .8s all ease;
+        transition: .6s all ease;
         background-color: transparent;
       }
       paper-spinner {
+        visibility: hidden;
+        opacity: 0;
         height: 80px;
         width: 80px;
         padding: 16px;
@@ -36,18 +38,22 @@ Render and process a shortcode / token from a content management system.
       :host[loading] {
         text-align: center;
       }
+      :host[loading] paper-spinner {
+        visibility: visible;
+        opacity: 1;
+      }
       :host[loading] #replacementcontent {
         opacity: 0;
         visibility: hidden;
       }
     </style>
     <iron-ajax
-      id="tokenrequest"
+      id="viewrequest"
       method="GET"
       params="[[bodyData]]"
-      url="[[tokenEndPoint]]"
+      url="[[viewEndPoint]]"
       handle-as="json"
-      last-response="{{tokenData}}"></iron-ajax>
+      last-response="{{viewData}}"></iron-ajax>
     <paper-spinner active="[[loading]]"></paper-spinner>
     <span id="replacementcontent"><slot></slot></span>
   </template>
@@ -55,7 +61,7 @@ Render and process a shortcode / token from a content management system.
   <script>
     Polymer({
 
-      is: 'cms-token',
+      is: 'cms-view',
       behaviors: [HAXBehaviors.PropertiesBehaviors],
       properties: {
         /**
@@ -67,64 +73,62 @@ Render and process a shortcode / token from a content management system.
           value: false,
         },
         /**
-         * Token changed (somehow) do the token processing.
+         * view selected changed (somehow) do the processing.
          */
-        token: {
+        view: {
           type: String,
           reflectToAttribute: true,
         },
         /**
-         * Token end point updated, change the way we do processing.
+         * view end point updated, change the way we do processing.
          */
-        tokenEndPoint: {
+        viewEndPoint: {
           type: String,
         },
         /**
-         * Body data which is just token with some encapsulation.
+         * Body data which is just view with some encapsulation.
          */
         bodyData: {
           type: Object,
-          computed: '_generateBodyData(token)',
-          observer: '_tokenChanged',
+          computed: '_generateBodyData(view)',
+          observer: '_viewChanged',
         },
         /**
-         * Token data from the end point.
+         * view data from the end point.
          */
-        tokenData: {
+        viewData: {
           type: String,
-          observer: '_handleTokenResponse',
+          observer: '_handleviewResponse',
         },
         /**
-         * Prefix for the token to be processed
+         * Prefix for the view to be processed
          */
-        tokenPrefix: {
+        viewPrefix: {
           type: String,
-          value: '[',
+          observer: '[',
         },
         /**
-         * Suffix for the token to be processed
+         * Suffix for the view to be processed
          */
-        tokenSuffix: {
+        viewSuffix: {
           type: String,
-          value: ']',
+          observer: ']',
         },
       },
       /**
        * Generate body data.
        */
-      _generateBodyData: function(token) {
-        if (token !== null && token !== '') {
-          let tokenPrefix = this.tokenPrefix;
-          let tokenSuffix = this.tokenSuffix;
+      _generateBodyData: function(view) {
+        if (view !== null && view !== '') {
           return {
-            'token': `${tokenPrefix}${token}${tokenSuffix}`,
+            'view': `${view}`,
           };
         }
       },
       /**
-       * Handle the response from the token processing endpoint
+       * Handle the response from the view processing endpoint
        */
-      _handleTokenResponse: function(newValue, oldValue) {
+      _handleviewResponse: function(newValue, oldValue) {
         if (newValue !== null && typeof newValue.content !== typeof undefined) {
           // wipe our own slot here
           this.wipeSlot(Polymer.dom(this));
@@ -149,19 +153,19 @@ Render and process a shortcode / token from a content management system.
         }
       },
       /**
-       * Token end point changed
+       * view end point changed
        */
-      _tokenChanged: function(newValue, oldValue) {
+      _viewChanged: function(newValue, oldValue) {
         // ensure we have something and are not loading currently
         if (typeof newValue !== typeof undefined && newValue !== '' && !this.loading) {
           // support going from a null element to a real one
-          if (typeof this.tokenEndPoint === typeof undefined && typeof window.cmstokenEndPoint !== typeof undefined) {
-            this.tokenEndPoint = window.cmstokenEndPoint;
+          if (typeof this.viewEndPoint === typeof undefined && typeof window.cmsviewEndPoint !== typeof undefined) {
+            this.viewEndPoint = window.cmsviewEndPoint;
           }
-          if (this.tokenEndPoint) {
+          if (this.viewEndPoint) {
             this.loading = true;
             this.async(() => {
-              this.$.tokenrequest.generateRequest();
+              this.$.viewrequest.generateRequest();
             });
           }
         }
@@ -170,20 +174,20 @@ Render and process a shortcode / token from a content management system.
        * Attached to the DOM, now fire.
        */
       attached: function() {
-        if (typeof this.token !== typeof undefined && this.token !== null && this.token !== '') {
+        if (typeof this.view !== typeof undefined && this.view !== null && this.view !== '') {
           let slot = Polymer.dom(this).getEffectiveChildNodes();
           // only kick off request if there's nothing in it
           // if it has something in it that means we did some
           // remote rendering ahead of time
           if (slot.length === 0 && !this.loading) {
-            // support for autoloading the token data needed for the request from globals
-            if (typeof this.tokenEndPoint === typeof undefined && typeof window.cmstokenEndPoint !== typeof undefined) {
-              this.tokenEndPoint = window.cmstokenEndPoint;
+            // support for autoloading the view data needed for the request from globals
+            if (typeof this.viewEndPoint === typeof undefined && typeof window.cmsviewEndPoint !== typeof undefined) {
+              this.viewEndPoint = window.cmsviewEndPoint;
             }
-            if (this.tokenEndPoint) {
+            if (this.viewEndPoint) {
               this.loading = true;
               this.async(() => {
-                this.$.tokenrequest.generateRequest();
+                this.$.viewrequest.generateRequest();
               });            }
           }
         }
@@ -193,15 +197,15 @@ Render and process a shortcode / token from a content management system.
           'canPosition': true,
           'canEditSource': false,
           'gizmo': {
-            'title': 'Token',
-            'description': 'CMS token rendered on the backend',
+            'title': 'View',
+            'description': 'CMS view rendered on the backend',
             'icon': 'av:play-circle-filled',
             'color': 'grey',
             'groups': ['CMS'],
             'handles': [
               {
-                'type': 'cmstoken',
-                'token': 'token'
+                'type': 'cmsview',
+                'view': 'view'
               }
             ],
             'meta': {
@@ -213,9 +217,9 @@ Render and process a shortcode / token from a content management system.
             ],
             'configure': [
               {
-                'property': 'token',
-                'title': 'Token',
-                'description': 'Token from our CMS',
+                'property': 'view',
+                'title': 'view',
+                'description': 'view from our CMS',
                 'inputMethod': 'textfield',
                 'icon': 'editor:title',
               },
@@ -238,9 +242,9 @@ Render and process a shortcode / token from a content management system.
        */
       preProcessHaxNodeToContent: function(clone) {
         clone.removeAttribute('loading');
-        clone.removeAttribute('token-data');
+        clone.removeAttribute('view-data');
         clone.removeAttribute('body-data');
-        clone.removeAttribute('token-end-point');
+        clone.removeAttribute('view-end-point');
         return clone;
       },
     });

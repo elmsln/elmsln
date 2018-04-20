@@ -105,7 +105,7 @@ function _webcomponents_token_process($text, $filter, $format, $langcode, $cache
   // ensure we only apply this once based on the input format
   if (!isset($GLOBALS['webcomponentsTokenEndPoint'])) {
     $GLOBALS['webcomponentsTokenEndPoint'] = TRUE;
-    $js = 'window.cmsTokenEndPoint="' . base_path() . 'webcomponents/cms-token/' . drupal_get_token('webcomponents_token') . '/' . $filter->format . '";';
+    $js = 'window.cmstokenEndPoint="' . base_path() . 'webcomponents/cms-token/' . drupal_get_token('webcomponents_token') . '/' . $filter->format . '";';
     drupal_add_js($js, "inline");
   }
   // see if we need to skip
