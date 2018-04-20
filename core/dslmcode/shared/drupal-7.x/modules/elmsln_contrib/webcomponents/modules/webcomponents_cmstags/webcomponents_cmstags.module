@@ -107,11 +107,28 @@ function webcomponents_cmstags_page_build(&$page) {
       _webcomponents_add_to_head($component, 10002);
     }
   }
+  $component->machine_name = 'person-testimonial';
+  // pull in from webcomponents location
+  $component->file = libraries_get_path('webcomponents') . '/polymer/bower_components/person-testimonial/person-testimonial.html';
+  _webcomponents_add_to_head($component, 10002);
   // write the little endPoint shims we use for the other 3 things to decouple
   $js = 'window.cmsviewsEndPoint="' . base_path() . 'webcomponents/cms-views/' . drupal_get_token('webcomponents_cmstags_views') . '";' . "\n";
   $js .= 'window.cmsentityEndPoint="' . base_path() . 'webcomponents/cms-entity/' . drupal_get_token('webcomponents_cmstags_entity') . '";' . "\n";
   $js .= 'window.cmsblockEndPoint="' . base_path() . 'webcomponents/cms-block/' . drupal_get_token('webcomponents_cmstags_block') . '";' . "\n";
-  drupal_add_js($js, "inline");
+  $js .= 'window.cmstokenEndPoint="' . base_path() . 'webcomponents/cms-token/' . drupal_get_token('webcomponents_cmstags_token') . '/';
+  // see if there's a node
+  if ($node = menu_get_object()) {
+    if (isset($node->body['und'][0]['format'])) {
+      $js.= $node->body['und'][0]['format'];
+    }
+  }
+  $js .= '";' . "\n";
+  $inline = "<script type='text/javascript'>$js</script>";
+  $element = array(
+    '#type' => 'markup',
+    '#markup' => $inline,
+  );
+  drupal_add_html_head($element, 'webcomponents-cmstags');
 }
 
 /**
@@ -259,7 +276,11 @@ function _webcomponents_cmstags_process($text, $filter, $format, $langcode, $cac
   if (!isset($GLOBALS['webcomponentsTokenEndPoint'])) {
     $GLOBALS['webcomponentsTokenEndPoint'] = TRUE;
     $js = 'window.cmstokenEndPoint="' . base_path() . 'webcomponents/cms-token/' . drupal_get_token('webcomponents_cmstags_token') . '/' . $filter->format . '";';
-    drupal_add_js($js, "inline");
+    drupal_add_js($js, array(
+      'type' => 'inline',
+      'group' => JS_LIBRARY,
+      'weight' => -10000)
+    );
   }
   // see if we need to skip
   if (!isset($GLOBALS['skip_drupal_token'])) {
