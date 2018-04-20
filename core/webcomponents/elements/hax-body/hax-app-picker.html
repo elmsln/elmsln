@@ -133,6 +133,10 @@
     Polymer({
 
       is: 'hax-app-picker',
+      listeners: {
+        'dialog.iron-overlay-canceled': 'close',
+        'dialog.iron-overlay-closed': 'close',
+      },
       properties: {
         /**
          * raw element set
@@ -168,6 +172,12 @@
        */
       attached: function() {
         this.fire('hax-register-app-picker', this);
+      },
+      /**
+       * Close the picker and ensure body locking is off.
+       */
+      close: function() {
+        document.body.style.overflow = null;
       },
       /**
        * Present options to the user with a modal and selection method that
@@ -244,7 +254,6 @@
             this.fire('hax-app-picker-selection', this._elements[key]);
           }
         }
-        document.body.style.overflow = null;
         this.$.dialog.close();
       },
     });

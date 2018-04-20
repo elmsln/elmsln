@@ -9,9 +9,12 @@ Render and process a shortcode / token from a content management system.
 @demo demo/index.html
 
 @microcopy - the mental model for this element
- -
- -
-
+ - cms - Content management system, while writen against Drupal should be
+         abstract enough to work with just about anything.
+ - token - a snippet / shortcode of logic to unpack and turn into something
+           more complex. Usually of the form [actual:thing:here] or
+           [[action|thing=stuff|here=place]] style. Either way, it's a
+           snippet which will get sent to a backend and dynamically replaced.
 -->
 
 <dom-module id="cms-token">
@@ -21,10 +24,12 @@ Render and process a shortcode / token from a content management system.
         display: block;
         min-width: 112px;
         min-height: 112px;
-        transition: .8s all ease;
+        transition: .6s all ease;
         background-color: transparent;
       }
       paper-spinner {
+        visibility: hidden;
+        opacity: 0;
         height: 80px;
         width: 80px;
         padding: 16px;
@@ -35,6 +40,10 @@ Render and process a shortcode / token from a content management system.
       }
       :host[loading] {
         text-align: center;
+      }
+      :host[loading] paper-spinner {
+        visibility: visible;
+        opacity: 1;
       }
       :host[loading] #replacementcontent {
         opacity: 0;

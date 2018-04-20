@@ -277,6 +277,12 @@
          * attached.
          */
         attached: function() {
+          window.onbeforeunload = function() {
+            // ensure we don't leave DURING edit mode
+            if (Polymer.HaxStore.instance.editMode) {
+              return 'Are you sure you want to leave? Your work will not be saved!';
+            }
+          }
           this._injectToast();
           // register built in primitive definitions
           this._buildPrimitiveDefinitions();
