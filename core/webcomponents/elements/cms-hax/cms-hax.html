@@ -8,6 +8,10 @@
 <link rel="import" href="../hax-body/hax-export-dialog.html">
 <link rel="import" href="../iron-ajax/iron-ajax.html">
 <link rel="import" href="../paper-toast/paper-toast.html">
+<link rel="import" href="cms-token.html">
+<link rel="import" href="cms-block.html">
+<link rel="import" href="cms-views.html">
+<link rel="import" href="cms-entity.html">
 <!--
 `cms-hax`
 A LRN polymer app
@@ -46,6 +50,9 @@ A LRN polymer app
       handle-as="json"
       on-response="_handleUpdateResponse"></iron-ajax>
     <cms-token></cms-token>
+    <cms-views></cms-views>
+    <cms-block></cms-block>
+    <cms-entity></cms-entity>
     <paper-toast id="toast" horizontal-align="left"></paper-toast>
   </template>
   <script>

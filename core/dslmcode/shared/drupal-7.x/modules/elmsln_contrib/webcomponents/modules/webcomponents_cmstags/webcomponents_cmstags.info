@@ -1,0 +1,6 @@
+name = Webcomponents: CMS Tags
+description = Support for cms-* tags which can decouple a CMS quickly.
+core = 7.x
+package = Webcomponents
+dependencies[] = webcomponents
+dependencies[] = token

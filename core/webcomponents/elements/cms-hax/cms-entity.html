@@ -18,7 +18,7 @@ Render and process a  / entity from a content management system.
   <template strip-whitespace>
     <style>
       :host {
-        display: entity;
+        display: block;
         min-width: 112px;
         min-height: 112px;
         transition: .6s all ease;
@@ -73,9 +73,23 @@ Render and process a  / entity from a content management system.
           value: false,
         },
         /**
-         * entity selected changed (somehow) do the processing.
+         * Type of entity to load
          */
-        entity: {
+        entityType: {
+          type: String,
+          reflectToAttribute: true,
+        },
+        /**
+         * ID of the item to load
+         */
+        entityId: {
+          type: String,
+          reflectToAttribute: true,
+        },
+        /**
+         * Display mode of the entity
+         */
+        entityDisplayMode: {
           type: String,
           reflectToAttribute: true,
         },
@@ -90,7 +104,7 @@ Render and process a  / entity from a content management system.
          */
         bodyData: {
           type: Object,
-          computed: '_generateBodyData(entity)',
+          computed: '_generateBodyData(entityType, entityId, entityDisplayMode)',
           observer: '_entityChanged',
         },
         /**
@@ -98,7 +112,7 @@ Render and process a  / entity from a content management system.
          */
         entityData: {
           type: String,
-          observer: '_handleentityResponse',
+          observer: '_handleEntityResponse',
         },
         /**
          * Prefix for the entity to be processed
@@ -118,17 +132,19 @@ Render and process a  / entity from a content management system.
       /**
        * Generate body data.
        */
-      _generateBodyData: function(entity) {
-        if (entity !== null && entity !== '') {
+      _generateBodyData: function(entityType, entityId, entityDisplayMode) {
+        if (entityType !== null && entityType !== '' && entityId !== null && entityId !== '') {
           return {
-            'entity': `${entity}`,
+            'type': `${entityType}`,
+            'id': `${entityId}`,
+            'display_mode': `${entityDisplayMode}`,
           };
         }
       },
       /**
        * Handle the response from the entity processing endpoint
        */
-      _handleentityResponse: function(newValue, oldValue) {
+      _handleEntityResponse: function(newValue, oldValue) {
         if (newValue !== null && typeof newValue.content !== typeof undefined) {
           // wipe our own slot here
           this.wipeSlot(Polymer.dom(this));
@@ -197,10 +213,10 @@ Render and process a  / entity from a content management system.
           'canPosition': true,
           'canEditSource': false,
           'gizmo': {
-            'title': 'entity',
+            'title': 'CMS Entity',
             'description': 'CMS entity rendered on the backend',
-            'icon': 'av:play-circle-filled',
-            'color': 'grey',
+            'icon': 'places:spa',
+            'color': 'light-blue',
             'groups': ['CMS'],
             'handles': [
               {
@@ -217,9 +233,28 @@ Render and process a  / entity from a content management system.
             ],
             'configure': [
               {
-                'property': 'entity',
-                'title': 'entity',
-                'description': 'entity from our CMS',
+                'property': 'entityType',
+                'title': 'Type',
+                'description': 'type from our CMS',
+                'inputMethod': 'select',
+                'options': {
+                  'node': 'Node',
+                  'user': 'User',
+                  'file': 'File',
+                },
+                'icon': 'editor:title',
+              },
+              {
+                'property': 'entityID',
+                'title': 'ID',
+                'description': 'id from our CMS',
+                'inputMethod': 'textfield',
+                'icon': 'editor:title',
+              },
+              {
+                'property': 'entityDisplayMode',
+                'title': 'Display mode',
+                'description': 'display mode from our CMS',
                 'inputMethod': 'textfield',
                 'icon': 'editor:title',
               },

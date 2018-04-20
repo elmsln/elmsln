@@ -3,8 +3,8 @@
 <link rel="import" href="../hax-body-behaviors/hax-body-behaviors.html">
 <link rel="import" href="../paper-spinner/paper-spinner.html">
 <!--
-`cms-view`
-Render and process a  / view from a content management system.
+`cms-views`
+Render and process a  / views from a content management system.
 
 @demo demo/index.html
 
@@ -14,11 +14,11 @@ Render and process a  / view from a content management system.
 
 -->
 
-<dom-module id="cms-view">
+<dom-module id="cms-views">
   <template strip-whitespace>
     <style>
       :host {
-        display: view;
+        display: block;
         min-width: 112px;
         min-height: 112px;
         transition: .6s all ease;
@@ -48,12 +48,12 @@ Render and process a  / view from a content management system.
       }
     </style>
     <iron-ajax
-      id="viewrequest"
+      id="viewsrequest"
       method="GET"
       params="[[bodyData]]"
-      url="[[viewEndPoint]]"
+      url="[[viewsEndPoint]]"
       handle-as="json"
-      last-response="{{viewData}}"></iron-ajax>
+      last-response="{{viewsData}}"></iron-ajax>
     <paper-spinner active="[[loading]]"></paper-spinner>
     <span id="replacementcontent"><slot></slot></span>
   </template>
@@ -61,7 +61,7 @@ Render and process a  / view from a content management system.
   <script>
     Polymer({
 
-      is: 'cms-view',
+      is: 'cms-views',
       behaviors: [HAXBehaviors.PropertiesBehaviors],
       properties: {
         /**
@@ -73,44 +73,51 @@ Render and process a  / view from a content management system.
           value: false,
         },
         /**
-         * view selected changed (somehow) do the processing.
+         * Name of the views to render
          */
-        view: {
+        viewsName: {
           type: String,
           reflectToAttribute: true,
         },
         /**
-         * view end point updated, change the way we do processing.
+         * Display from the views
          */
-        viewEndPoint: {
+        viewsDisplay: {
+          type: String,
+          reflectToAttribute: true,
+        },
+        /**
+         * views end point updated, change the way we do processing.
+         */
+        viewsEndPoint: {
           type: String,
         },
         /**
-         * Body data which is just view with some encapsulation.
+         * Body data which is just views with some encapsulation.
          */
         bodyData: {
           type: Object,
-          computed: '_generateBodyData(view)',
-          observer: '_viewChanged',
+          computed: '_generateBodyData(viewsName, viewsDisplay)',
+          observer: '_viewsChanged',
         },
         /**
-         * view data from the end point.
+         * views data from the end point.
          */
-        viewData: {
+        viewsData: {
           type: String,
-          observer: '_handleviewResponse',
+          observer: '_handleviewsResponse',
         },
         /**
-         * Prefix for the view to be processed
+         * Prefix for the views to be processed
          */
-        viewPrefix: {
+        viewsPrefix: {
           type: String,
           observer: '[',
         },
         /**
-         * Suffix for the view to be processed
+         * Suffix for the views to be processed
          */
-        viewSuffix: {
+        viewsSuffix: {
           type: String,
           observer: ']',
         },
@@ -118,17 +125,18 @@ Render and process a  / view from a content management system.
       /**
        * Generate body data.
        */
-      _generateBodyData: function(view) {
-        if (view !== null && view !== '') {
+      _generateBodyData: function(name, display) {
+        if (name !== null && name !== '') {
           return {
-            'view': `${view}`,
+            'name': `${name}`,
+            'display': `${display}`,
           };
         }
       },
       /**
-       * Handle the response from the view processing endpoint
+       * Handle the response from the views processing endpoint
        */
-      _handleviewResponse: function(newValue, oldValue) {
+      _handleviewsResponse: function(newValue, oldValue) {
         if (newValue !== null && typeof newValue.content !== typeof undefined) {
           // wipe our own slot here
           this.wipeSlot(Polymer.dom(this));
@@ -153,19 +161,19 @@ Render and process a  / view from a content management system.
         }
       },
       /**
-       * view end point changed
+       * views end point changed
        */
-      _viewChanged: function(newValue, oldValue) {
+      _viewsChanged: function(newValue, oldValue) {
         // ensure we have something and are not loading currently
         if (typeof newValue !== typeof undefined && newValue !== '' && !this.loading) {
           // support going from a null element to a real one
-          if (typeof this.viewEndPoint === typeof undefined && typeof window.cmsviewEndPoint !== typeof undefined) {
-            this.viewEndPoint = window.cmsviewEndPoint;
+          if (typeof this.viewsEndPoint === typeof undefined && typeof window.cmsviewsEndPoint !== typeof undefined) {
+            this.viewsEndPoint = window.cmsviewsEndPoint;
           }
-          if (this.viewEndPoint) {
+          if (this.viewsEndPoint) {
             this.loading = true;
             this.async(() => {
-              this.$.viewrequest.generateRequest();
+              this.$.viewsrequest.generateRequest();
             });
           }
         }
@@ -174,20 +182,20 @@ Render and process a  / view from a content management system.
        * Attached to the DOM, now fire.
        */
       attached: function() {
-        if (typeof this.view !== typeof undefined && this.view !== null && this.view !== '') {
+        if (typeof this.viewsName !== typeof undefined && this.viewsName !== null && this.viewsName !== '') {
           let slot = Polymer.dom(this).getEffectiveChildNodes();
           // only kick off request if there's nothing in it
           // if it has something in it that means we did some
           // remote rendering ahead of time
           if (slot.length === 0 && !this.loading) {
-            // support for autoloading the view data needed for the request from globals
-            if (typeof this.viewEndPoint === typeof undefined && typeof window.cmsviewEndPoint !== typeof undefined) {
-              this.viewEndPoint = window.cmsviewEndPoint;
+            // support for autoloading the views data needed for the request from globals
+            if (typeof this.viewsEndPoint === typeof undefined && typeof window.cmsviewsEndPoint !== typeof undefined) {
+              this.viewsEndPoint = window.cmsviewsEndPoint;
             }
-            if (this.viewEndPoint) {
+            if (this.viewsEndPoint) {
               this.loading = true;
               this.async(() => {
-                this.$.viewrequest.generateRequest();
+                this.$.viewsrequest.generateRequest();
               });            }
           }
         }
@@ -197,15 +205,15 @@ Render and process a  / view from a content management system.
           'canPosition': true,
           'canEditSource': false,
           'gizmo': {
-            'title': 'View',
-            'description': 'CMS view rendered on the backend',
-            'icon': 'av:play-circle-filled',
-            'color': 'grey',
+            'title': 'CMS View',
+            'description': 'CMS views rendered on the backend',
+            'icon': 'icons:view-module',
+            'color': 'light-blue',
             'groups': ['CMS'],
             'handles': [
               {
-                'type': 'cmsview',
-                'view': 'view'
+                'type': 'cmsviews',
+                'views': 'views'
               }
             ],
             'meta': {
@@ -217,9 +225,16 @@ Render and process a  / view from a content management system.
             ],
             'configure': [
               {
-                'property': 'view',
-                'title': 'view',
-                'description': 'view from our CMS',
+                'property': 'viewsName',
+                'title': 'Name',
+                'description': 'Name of the view from our CMS',
+                'inputMethod': 'textfield',
+                'icon': 'editor:title',
+              },
+              {
+                'property': 'viewsDisplay',
+                'title': 'Display',
+                'description': 'Display within that view from our CMS',
                 'inputMethod': 'textfield',
                 'icon': 'editor:title',
               },
@@ -242,9 +257,9 @@ Render and process a  / view from a content management system.
        */
       preProcessHaxNodeToContent: function(clone) {
         clone.removeAttribute('loading');
-        clone.removeAttribute('view-data');
+        clone.removeAttribute('views-data');
         clone.removeAttribute('body-data');
-        clone.removeAttribute('view-end-point');
+        clone.removeAttribute('views-end-point');
         return clone;
       },
     });

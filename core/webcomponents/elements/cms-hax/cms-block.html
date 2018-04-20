@@ -73,9 +73,16 @@ Render and process a  / block from a content management system.
           value: false,
         },
         /**
-         * block selected changed (somehow) do the processing.
+         * Module supplying the block
          */
-        block: {
+        blockModule: {
+          type: String,
+          reflectToAttribute: true,
+        },
+        /**
+         * A delta value relative to the module
+         */
+        blockDelta: {
           type: String,
           reflectToAttribute: true,
         },
@@ -90,7 +97,7 @@ Render and process a  / block from a content management system.
          */
         bodyData: {
           type: Object,
-          computed: '_generateBodyData(block)',
+          computed: '_generateBodyData(blockModule, blockDelta)',
           observer: '_blockChanged',
         },
         /**
@@ -118,10 +125,11 @@ Render and process a  / block from a content management system.
       /**
        * Generate body data.
        */
-      _generateBodyData: function(block) {
-        if (block !== null && block !== '') {
+      _generateBodyData: function(blockModule, blockDelta) {
+        if (blockModule !== null && blockModule !== '' && blockDelta !== null && blockDelta !== '') {
           return {
-            'block': `${block}`,
+            'module': `${blockModule}`,
+            'delta': `${blockDelta}`,
           };
         }
       },
@@ -174,7 +182,7 @@ Render and process a  / block from a content management system.
        * Attached to the DOM, now fire.
        */
       attached: function() {
-        if (typeof this.block !== typeof undefined && this.block !== null && this.block !== '') {
+        if (typeof this.blockModule !== typeof undefined && this.blockModule !== null && this.blockModule !== '') {
           let slot = Polymer.dom(this).getEffectiveChildNodes();
           // only kick off request if there's nothing in it
           // if it has something in it that means we did some
@@ -197,10 +205,10 @@ Render and process a  / block from a content management system.
           'canPosition': true,
           'canEditSource': false,
           'gizmo': {
-            'title': 'Block',
+            'title': 'CMS Block',
             'description': 'CMS block rendered on the backend',
-            'icon': 'av:play-circle-filled',
-            'color': 'grey',
+            'icon': 'image:crop-square',
+            'color': 'light-blue',
             'groups': ['CMS'],
             'handles': [
               {
@@ -217,9 +225,16 @@ Render and process a  / block from a content management system.
             ],
             'configure': [
               {
-                'property': 'block',
-                'title': 'block',
-                'description': 'block from our CMS',
+                'property': 'blockModule',
+                'title': 'Module',
+                'description': 'Module to load from our CMS',
+                'inputMethod': 'textfield',
+                'icon': 'editor:title',
+              },
+              {
+                'property': 'blockDelta',
+                'title': 'Delta',
+                'description': 'Delta of the block to load from our CMS',
                 'inputMethod': 'textfield',
                 'icon': 'editor:title',
               },
