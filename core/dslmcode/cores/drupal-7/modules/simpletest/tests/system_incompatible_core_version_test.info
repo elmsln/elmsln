@@ -5,8 +5,7 @@ version = VERSION
 core = 5.x
 hidden = TRUE
 
-; Information added by Drupal.org packaging script on 2018-03-28
-version = "7.58"
+; Information added by Drupal.org packaging script on 2018-04-25
+version = "7.59"
 project = "drupal"
-datestamp = "1522264019"
-
+datestamp = "1524673284"
