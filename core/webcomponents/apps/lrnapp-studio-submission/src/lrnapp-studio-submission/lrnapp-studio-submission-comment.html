@@ -1,3 +1,4 @@
+
 <dom-module id="lrnapp-studio-submission-comment">
     <template>
         <style>
@@ -82,7 +83,7 @@
         <paper-card class$="paper-card-length-[[comment.attributes.threadDepth]]">
             <div id="body" class="comment-body nowrap">
                 <h4>{{comment.relationships.author.data.name}} <span class="grey-said"> said:</span></h4>
-                <p>{{comment.attributes.body}}</p>
+                <word-count>{{comment.attributes.body}}</word-count>
             </div>
             <div class$="card-actions">
                 <paper-icon-button class="right-actions" id="reply" icon="icons:reply"></paper-icon-button>
