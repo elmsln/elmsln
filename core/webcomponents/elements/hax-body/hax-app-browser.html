@@ -33,7 +33,7 @@ Browse a list of apps. This provides a listing of our gizmos that we've integrat
         }
       }
       #ironlist {
-        min-height: 50vh;
+        min-height: 125px;
       }
     </style>
     <app-toolbar>
@@ -122,7 +122,12 @@ Browse a list of apps. This provides a listing of our gizmos that we've integrat
       _activeAppChanged: function(newValue, oldValue) {
         if (typeof oldValue !== typeof undefined && newValue != null) {
           setTimeout( () => {
-            this.$.haxappsearch.scrollIntoView({behavior: "smooth", inline: "nearest"});
+            if (typeof this.$.haxappsearch.scrollIntoViewIfNeeded === 'function') {
+                  this.$.haxappsearch.scrollIntoViewIfNeeded(true);
+                }
+                else {
+                  this.$.haxappsearch.scrollIntoView({behavior: "smooth", inline: "center"});
+                }
           }, 250);
         }
       },

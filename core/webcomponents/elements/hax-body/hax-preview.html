@@ -5,6 +5,7 @@
 <link rel="import" href="../paper-input/paper-textarea.html">
 <link rel="import" href="../code-editor/code-editor.html">
 <link rel="import" href="../app-datepicker/app-datepicker.html">
+<link rel="import" href="../paper-icon-picker/paper-icon-picker.html">
 <link rel="import" href="../vaadin-split-layout/vaadin-split-layout.html">
 <!--
 `hax-preview`
@@ -105,7 +106,7 @@ An element that can generate a form
 
         <!-- editor mode -->
         <template is="dom-if" if="[[haspreviewNode]]">
-          <paper-tabs id="modetabs" selected="{{modeTab}}" attr-for-selected="data-mode" on-selected-changed="_editorModeChanged">
+          <paper-tabs id="modetabs" selected="{{modeTab}}" attr-for-selected="data-mode">
             <paper-tab data-mode="configure">Configure</paper-tab>
             <paper-tab data-mode="advanced">Advanced</paper-tab>
           </paper-tabs>
@@ -126,6 +127,14 @@ An element that can generate a form
       ],
       properties: {
         /**
+         * A reference to the previewNode so we can do data binding correctly.
+         */
+        previewNode: {
+          type: Object,
+          value: {},
+          observer: '_previewNodeChanged',
+        },
+        /**
          * Returned value from the form input.
          */
         value: {
@@ -139,6 +148,7 @@ An element that can generate a form
         modeTab: {
           type: String,
           value: 'configure',
+          observer: '_editorModeChanged',
         },
         /**
          * The element to work against expressing the structure of the DOM element
@@ -147,14 +157,6 @@ An element that can generate a form
         element: {
           type: Object,
           observer: '_elementChanged',
-        },
-        /**
-         * A reference to the previewNode so we can do data binding correctly.
-         */
-        previewNode: {
-          type: Object,
-          value: {},
-          observer: '_previewNodeChanged',
         },
         /**
          * Boolean association for a preview node existing.
@@ -238,7 +240,7 @@ An element that can generate a form
         if (typeof oldValue !== typeof undefined) {
           var schema = {};
           // see if we can get schema off of this.
-          if (typeof this.previewNode.tagName !== typeof undefined && typeof Polymer.HaxStore.instance.elementList[this.previewNode.tagName.toLowerCase()] !== typeof undefined) {
+          if (typeof this.previewNode !== typeof undefined && typeof this.previewNode.tagName !== typeof undefined && typeof Polymer.HaxStore.instance.elementList[this.previewNode.tagName.toLowerCase()] !== typeof undefined) {
             let element = this.element;
             let props = Polymer.HaxStore.instance.elementList[this.previewNode.tagName.toLowerCase()];
             if (typeof this.previewNode.getHaxJSONSchemaType === 'function') {
@@ -315,7 +317,25 @@ An element that can generate a form
                     schema.properties[property].component.properties.value = element.properties[property];
                   }
                 }
-                newValue.setAttribute(property, element.properties[property]);
+                if (element.properties[property] != null && element.properties[property].constructor === Array && !element.properties[property].readOnly) {
+                  try {
+                    newValue.set(property, element.properties[property]);
+                  }
+                  catch(e) {
+
+                  }
+                }
+                else if (element.properties[property] != null && element.properties[property].constructor === Object && !element.properties[property].readOnly) {
+                  try {
+                    newValue.set(property, element.properties[property]);
+                  }
+                  catch(e) {
+
+                  }
+                }
+                else {
+                  newValue.setAttribute(property, element.properties[property]);
+                }
                 this.set('value.' + property, element.properties[property]);
               }
             }
@@ -402,7 +422,16 @@ An element that can generate a form
                 node.removeAttribute(attributeName);
               }
               else {
-                node.setAttribute(attributeName, this.value[props.settings[this.formKey][value].property]);
+                // account for Array based values
+                if (this.value[props.settings[this.formKey][value].property] != null && this.value[props.settings[this.formKey][value].property].constructor === Array) {
+                  node.set(attributeName, Polymer.HaxStore.toArray(this.value[props.settings[this.formKey][value].property]));
+                }
+                else if (this.value[props.settings[this.formKey][value].property] != null && this.value[props.settings[this.formKey][value].property].constructor === Object) {
+                  node.set(attributeName, this.value[props.settings[this.formKey][value].property]);
+                }
+                else {
+                  node.setAttribute(attributeName, this.value[props.settings[this.formKey][value].property]);
+                }
               }
               this.set('element.properties.' + props.settings[this.formKey][value].property, this.value[props.settings[this.formKey][value].property]);
             }
@@ -416,7 +445,13 @@ An element that can generate a form
                 node.removeAttribute(attributeName);
               }
               else {
-                node.setAttribute(attributeName, this.value[props.settings[this.formKey][value].attribute]);
+                // special support for innerText which is an html attribute...sorta
+                if (attributeName === 'inner-text') {
+                  node.innerText = this.value[props.settings[this.formKey][value].attribute];
+                }
+                else {
+                  node.setAttribute(attributeName, this.value[props.settings[this.formKey][value].attribute]);
+                }
               }
               this.set('element.properties.' + props.settings[this.formKey][value].attribute, this.value[props.settings[this.formKey][value].attribute]);
             }
@@ -449,8 +484,7 @@ An element that can generate a form
       /**
        * Editor mode changed handler
        */
-      _editorModeChanged: function (e, detail) {
-        const mode = detail.value;
+      _editorModeChanged: function (mode) {
         if (mode) {
           // if it's the advanced setting then toggle the advancedForm setting
           if (mode === 'advanced') {

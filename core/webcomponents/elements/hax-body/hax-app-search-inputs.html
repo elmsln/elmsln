@@ -20,8 +20,13 @@
       :host {
         display: block;
       }
+      .search-label {
+        font-size: 20px;
+        font-weight: bold;
+        margin: 0;
+      }
     </style>
-    <h3>Search [[label]]</h3>
+    <div class="search-label">Search [[label]]</div>
     <eco-json-schema-object id="form" schema="[[schema]]" value="{{values}}"></eco-json-schema-object>
   </template>
 

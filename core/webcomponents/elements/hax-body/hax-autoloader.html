@@ -17,20 +17,38 @@ Automatically load elements based on the most logical location with future fallb
         display: none;
       }
     </style>
-    <div id="elements"><slot></slot></div>
+    <slot></slot>
   </template>
   <script>
     Polymer({
 
       is: 'hax-autoloader',
+      properties: {
+        /**
+         * List of elements processed so we don't double process
+         */
+        processedList: {
+          type: Object,
+          value: {},
+        },
+      },
+      /**
+       * Attached to the DOM, now fire that we exist.
+       */
+      attached: function() {
+        // fire an event that this is the manager
+        this.fire('hax-register-autoloader', this);
+      },
       /**
        * Ready.
        */
       ready: function() {
-        this._observer =
         // notice elements when they update
-        Polymer.dom(this.$.elements).observeNodes( (info) => {
-          this.processNewElements(info.addedNodes);
+        this._observer = Polymer.dom(this).observeNodes(function(info) {
+          // if we've got new nodes, we have to react to that
+          if (info.addedNodes.length > 0) {
+            this.processNewElements(info.addedNodes);
+          }
         });
       },
       /**
@@ -38,16 +56,16 @@ Automatically load elements based on the most logical location with future fallb
        */
       processNewElements: function(e) {
         // when new nodes show up in the slots then fire the needed pieces
-        var effectiveChildren = Polymer.dom(this.$.elements).getEffectiveChildNodes();
+        var effectiveChildren = Polymer.dom(this).getEffectiveChildNodes();
         for (var i = 0; i < effectiveChildren.length; i++) {
           // strip invalid tags / textnodes
-          if (typeof effectiveChildren[i].tagName !== typeof undefined) {
+          if (typeof effectiveChildren[i].tagName !== typeof undefined && typeof this.processedList[effectiveChildren[i].tagName] === typeof undefined) {
             // attempt a dynamic import with graceful failure / fallback
             try {
               let name = effectiveChildren[i].tagName.toLowerCase();
-              // this is the most likely location
+              this.processedList[name] = name;
               // @todo support CDN failover or a flag of some kind to ensure
-              // this delivers locally or from remote but this is way down the line
+              // this delivers locally or from remote
               this.importHref(this.resolveUrl(`../${name}/${name}.html`), (e) => {
                 //e.target.import
               }, (e) => {
@@ -55,7 +73,7 @@ Automatically load elements based on the most logical location with future fallb
               });
             }
             catch(err) {
-              // error in the event this is a double registration so we still work
+              // error in the event this is a double registration
             }
           }
         }

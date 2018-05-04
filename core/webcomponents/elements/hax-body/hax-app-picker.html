@@ -52,6 +52,9 @@
         overflow-x: hidden;
         overflow-y: auto;
         max-height: calc(100vh - 126px);
+        --paper-dialog-scrollable: {
+          padding: 0;
+        }
       }
       @media (orientation: landscape) {
         #buttonlist {
@@ -166,6 +169,14 @@
           type: String,
           value: "gizmo",
         },
+        /**
+         * Opened status to bind to the dialog box being open
+         */
+        opened: {
+          type: Boolean,
+          value: false,
+          observer: '_openedChanged',
+        },
       },
       /**
        * Attached life cycle
@@ -177,7 +188,23 @@
        * Close the picker and ensure body locking is off.
        */
       close: function() {
-        document.body.style.overflow = null;
+        this.opened = false;
+      },
+      /**
+       * Open status changed
+       */
+      _openedChanged: function(newValue, oldValue) {
+        if (typeof newValue !== typeof undefined) {
+          if (newValue) {
+            this.$.dialog.open();
+            // lock the background
+            document.body.style.overflow = 'hidden';
+          }
+          else {
+            this.$.dialog.close();
+            document.body.style.overflow = null;
+          }
+        }
       },
       /**
        * Present options to the user with a modal and selection method that
@@ -186,8 +213,6 @@
        * to select between.
        */
       presentOptions: function(elements, type, title = 'Select an option', pickerType = 'gizmo') {
-        // lock the background
-        document.body.style.overflow = 'hidden';
         // wipe existing
         this.title = title;
         this.pickerType = pickerType;
@@ -222,7 +247,7 @@
         this._elements = elements;
         this.set('selectionList', []);
         this.set('selectionList', tmp);
-        this.$.dialog.open();
+        this.opened = true;
         // try to focus on option 0
         setTimeout( () => {
           this.$$('#picker-item-0').focus();
@@ -254,7 +279,7 @@
             this.fire('hax-app-picker-selection', this._elements[key]);
           }
         }
-        this.$.dialog.close();
+        this.opened = false;
       },
     });
   </script>

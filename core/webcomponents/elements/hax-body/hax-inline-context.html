@@ -61,11 +61,6 @@ A context menu that provides common text based authoring options.
         event-name="text-italic"></hax-context-item>
       <hax-context-item
         slot="primary"
-        icon="editor:insert-link"
-        label="Link"
-        event-name="text-link"></hax-context-item>
-      <hax-context-item
-        slot="primary"
         icon="mdextra:unlink"
         label="Unlink"
         event-name="text-unlink"></hax-context-item>
@@ -172,8 +167,8 @@ A context menu that provides common text based authoring options.
             setTimeout( () => {
               try {
                 Polymer.HaxStore.instance.activeHaxBody.$.inlinecontextmenu.opened = false;
-                var selection = window.getSelection();
-                let range = selection.getRangeAt(0);
+                let selection = window.getSelection();
+                let range = selection.getRangeAt(0).cloneRange();
                 // if we have no offset (caret is positioned but no selection) then
                 if (range.startOffset - range.endOffset === 0) {
                   // do nothing, it's gone
@@ -187,7 +182,7 @@ A context menu that provides common text based authoring options.
                     setTimeout( () => {
                       // now position the menu appropriately
                       Polymer.HaxStore.instance.activeHaxBody.$.inlinecontextmenu.opened = true;
-                    }, 200);
+                    }, 250);
                   }
                   catch (e) {
                     // do nothing, this is so hard to generate
@@ -204,7 +199,7 @@ A context menu that provides common text based authoring options.
                 // there is a selection made.
               }
               window.__selectionLock = false;
-            }, 200);
+            }, 250);
             window.__selectionLock = true;
           }
         });

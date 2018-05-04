@@ -6,7 +6,6 @@
 <link rel="import" href="hax-preferences-dialog.html">
 <link rel="import" href="hax-stax-picker.html">
 
-
 <!--
 `hax-panel`
 A LRN element that provides a panel / pallet of options to choose from.
@@ -91,12 +90,17 @@ as the events being bubbled up include HTML nodes to inject into something
         right: 0;
         left: unset;
       }
+      @media screen and (max-width: 550px) {
+        app-drawer {
+          height: 40px;
+        }
+      }
     </style>
     <div hidden$="[[hidePanelOps]]">
       <hax-panel-item
       data-opened$="[[editMode]]"
       on-tap="_clickButton"
-      icon="power-settings-new"
+      icon="create"
       id="button"
       edged="[[align]]"
       label="[[__tipText]]"></hax-panel-item>
@@ -111,68 +115,78 @@ as the events being bubbled up include HTML nodes to inject into something
         event-name="save"
         voice-command="save content"></hax-panel-item>
       <hax-panel-item
-        icon="device:graphic-eq"
-        icon-class="amber-text text-darken-1"
-        label="Rich media"
+        icon="image:add-to-photos"
+        icon-class="amber-text"
+        label="Add"
         event-name="hax-manager-open"
-        voice-command="insert gizmo"></hax-panel-item>
+        value="0"></hax-panel-item>
+      <hax-panel-item
+        icon="search"
+        icon-class="amber-text"
+        label="Find"
+        event-name="hax-manager-open"
+        value="1"></hax-panel-item>
+      <hax-panel-item
+        icon="hardware:toys"
+        icon-class="amber-text"
+        label="Make"
+        event-name="hax-manager-open"
+        value="2"></hax-panel-item>
+      <hax-panel-item
+        disabled
+        icon="view-quilt"
+        icon-class="amber-text text-darken-3"
+        label="Layout"
+        event-name="layout"
+        voice-command="insert block"></hax-panel-item>
+      <hax-panel-item
+        icon="view-agenda"
+        icon-class="amber-text"
+        label="Template"
+        event-name="hax-stax-picker-open"
+        voice-command="insert stack"></hax-panel-item>
       <hax-panel-item
         icon="editor:text-fields"
+        icon-class="light-blue-text"
         label="Text"
         event-name="text"
         voice-command="insert text"></hax-panel-item>
       <hax-panel-item
         icon="editor:title"
+        icon-class="light-blue-text"
         label="Heading"
         event-name="header"
         voice-command="insert heading"></hax-panel-item>
       <hax-panel-item
         icon="image:transform"
-        icon-class="green-text text-darken-1"
+        icon-class="light-blue-text"
         label="Placeholder"
         event-name="placeholder"
         voice-command="insert placeholder"></hax-panel-item>
       <hax-panel-item
-        icon="image:panorama"
-        icon-class="amber-text text-darken-1"
-        label="Image"
-        event-name="image"
-        voice-command="insert image"></hax-panel-item>
-      <hax-panel-item
-        icon="link"
-        icon-class="blue-text text-darken-1"
-        label="Iframe"
-        event-name="iframe"
-        voice-command="insert i frame"></hax-panel-item>
-      <hax-panel-item
         icon="editor:space-bar"
-        icon-class="green-text text-darken-1"
+        icon-class="light-blue-text text-darken-1"
         label="Divider"
         event-name="divider"
         voice-command="insert divider"></hax-panel-item>
-      <hax-panel-item
-        icon="view-agenda"
-        icon-class="orange-text text-darken-1"
-        label="Layout stax"
-        event-name="hax-stax-picker-open"
-        voice-command="insert stack"></hax-panel-item>
-      <hax-panel-item
-        disabled
-        icon="view-quilt"
-        icon-class="red-text text-darken-1"
-        label="Block"
-        event-name="layout"
-        voice-command="insert block"></hax-panel-item>
       <slot></slot>
+      <hax-panel-item
+        hidden$="[[hidePreferencesButton]]"
+        on-tap="_preferencesDialog"
+        icon="settings"
+        label="Preferences"></hax-panel-item>
       <hax-panel-item
         hidden$="[[hideExportButton]]"
         on-tap="_htmlExportDialog"
         icon="code"
         label="Export"></hax-panel-item>
       <hax-panel-item
-        on-tap="_preferencesDialog"
-        icon="settings"
-        label="Preferences"></hax-panel-item>
+        hidden$="[[hidePanelOps]]"
+        icon="cancel"
+        id="haxcancelbutton"
+        label="Cancel"
+        event-name="cancel"
+        voice-command="cancel hax"></hax-panel-item>
     </app-drawer>
     <hax-preferences-dialog></hax-preferences-dialog>
     <hax-stax-picker></hax-stax-picker>
@@ -205,14 +219,22 @@ as the events being bubbled up include HTML nodes to inject into something
           observer: '_editModeChanged',
         },
         /**
-         * Showing advanced area.
+         * Showing export area.
          */
         hideExportButton: {
           type: Boolean,
           value: false,
         },
         /**
-         * Showing button area at all.
+         * Showing preferences area.
+         */
+        hidePreferencesButton: {
+          type: Boolean,
+          value: false,
+        },
+        /**
+         * Showing button area at all a well as internal
+         * state managing buttons like cancel and save
          */
         hidePanelOps: {
           type: Boolean,
@@ -270,6 +292,9 @@ as the events being bubbled up include HTML nodes to inject into something
         switch(detail.eventName) {
           case 'open-panel':
             this._clickButton();
+          break;
+          case 'cancel':
+            this.toggle();
           break;
           case 'text':
             detail.tag = 'p';
@@ -332,8 +357,8 @@ as the events being bubbled up include HTML nodes to inject into something
             this.fire('hax-insert-content', detail);
           break;
           case 'hax-manager-open':
-            Polymer.HaxStore.instance.haxManager.resetManager();
             Polymer.HaxStore.write('activeHaxElement', {}, this);
+            Polymer.HaxStore.instance.haxManager.resetManager(parseInt(detail.value));
             Polymer.HaxStore.instance.haxManager.toggleDialog();
           break;
           case 'hax-stax-picker-open':

@@ -29,7 +29,6 @@ A single button in the hax panel for consistency.
         display: inline-flex;
         margin: 0;
         padding: 0;
-        height: 64px;
         --hax-panel-hover: #34e79a;
       }
       paper-button {
@@ -42,7 +41,9 @@ A single button in the hax panel for consistency.
         padding: 0;
         border-radius: 0;
         border: none;
-        min-width: 5.14em;
+        height: 64px;
+        width: 80px;
+        min-width: unset;
       }
       :host[edged="left"] paper-button {
         border-bottom-right-radius: 16px;
@@ -73,11 +74,6 @@ A single button in the hax panel for consistency.
         height: 32px;
         width: 24px;
       }
-      paper-button:hover,
-      paper-button:focus {
-        border-bottom: 4px solid var(--hax-panel-hover);
-        margin-bottom: -4px;
-      }
       paper-button:hover .label {
         color: var(--hax-panel-hover);
       }
@@ -86,6 +82,21 @@ A single button in the hax panel for consistency.
       }
       .flip-icon {
         transform: rotateY(180deg);
+      }
+      @media screen and (max-width: 550px) {
+        paper-button {
+          height: 40px;
+          width: 48px;
+          overflow: hidden;
+        }
+        paper-button iron-icon {
+          height: 20px;
+          width: 20px;
+        }
+        paper-button .label {
+          max-height: 8px;
+          font-size: 10px;
+        }
       }
     </style>
     <paper-button disabled="[[disabled]]" on-tap="_fireEvent" data-voicecommand$="[[voiceCommand]]">
@@ -157,7 +168,17 @@ A single button in the hax panel for consistency.
           type: String,
           value: "button",
           reflectToAttribute: true,
-        }
+        },
+        /**
+         * Possible value to send along as well with the event.
+         * Can help with normalized event names / selection of
+         * options.
+         */
+        value: {
+          type: String,
+          value: '',
+          reflectToAttribute: true,
+        },
       },
       /**
        * Fire an event that includes the eventName of what was just pressed.
@@ -165,7 +186,7 @@ A single button in the hax panel for consistency.
       _fireEvent: function(e) {
         var normalizedEvent = Polymer.dom(e);
         var local = normalizedEvent.localTarget;
-        this.fire('hax-item-selected', {target: local, eventName: this.eventName});
+        this.fire('hax-item-selected', {target: local, value: this.value, eventName: this.eventName});
       }
     });
   </script>

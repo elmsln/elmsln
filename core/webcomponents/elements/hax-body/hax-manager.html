@@ -156,21 +156,16 @@ A LRN element for brokering the UI for api endpoints both in querying and upload
         --dark-primary-color: #424242;
         --light-primary-color: var(--hax-accent);
         --error-color: darkred;
-        border: 2px solid #424242;
-        background: var(--hax-manager-tab-color);
+        border: 2px dashed #424242 !important;
         color: #424242;
-        padding: 8px;
-        border-radius: 4px;
+        padding: 32px !important;
         --vaadin-upload-button-add-wrapper: {
-          padding: 16px 32px;
-          border: 1px solid #424242;
+          border: 2px solid #424242;
           background-color: var(--hax-accent);
           color: #424242;
         };
         --vaadin-upload-button-add: {
           color: #424242;
-          --webkit-box-shadow: 0 0 2px 2px #e5e5e5;
-          box-shadow: 0 0 2px 2px #e5e5e5;
         }
         --vaadin-upload-drop-label: {
           color: #424242;
@@ -180,7 +175,7 @@ A LRN element for brokering the UI for api endpoints both in querying and upload
         };
         --vaadin-upload-file-list: {
           padding: 16px;
-          margin: 16px;
+          margin: 0;
         };
       }
       vaadin-upload[dragover] {
@@ -283,11 +278,11 @@ A LRN element for brokering the UI for api endpoints both in querying and upload
           role="main">
           <div data-value="select">
             <paper-tabs id="pagetabs" class="pages-tabs" selected="{{activePage}}" autoselect>
-              <paper-tab><iron-icon icon="icons:add"></iron-icon><span class="hide-on-mobile">Add Something</span></paper-tab>
+              <paper-tab><iron-icon icon="image:add-to-photos"></iron-icon><span class="hide-on-mobile">Add Something</span></paper-tab>
               <paper-tab hidden$="[[!appList.length]]">
                 <iron-icon icon="search"></iron-icon><span class="hide-on-mobile">Find Something</span></paper-tab>
               <paper-tab hidden$="[[!staxList.length]]">
-                <iron-icon icon="hardware:toys"></iron-icon><span class="hide-on-mobile">Make Gizmo</span></paper-tab>
+                <iron-icon icon="hardware:toys"></iron-icon><span class="hide-on-mobile">Make Something</span></paper-tab>
             </paper-tabs>
             <iron-pages
               id="activepage"
@@ -568,6 +563,7 @@ A LRN element for brokering the UI for api endpoints both in querying and upload
             this.resetManager();
           }
           else {
+            this.$.dialog.scrollTop = 0;
             this.selectStep('configure');
           }
         }

@@ -30,9 +30,6 @@ A LRN element that will change the world.
         min-height: 32px;
         min-width: 32px;
       }
-      :host[edit-mode] {
-        /* border: 2px dotted #EEEEEE; */
-      }
       :host #bodycontainer ::slotted(.hax-context-menu) {
         padding: 0;
         margin: 0;
@@ -168,11 +165,10 @@ A LRN element that will change the world.
       <hax-plate-context id="platecontextmenu" class="hax-context-menu ignore-activation"></hax-plate-context>
       <hax-input-mixer id="haxinputmixer" class="hax-context-menu ignore-activation"></hax-input-mixer>
     </div>
-    <iron-a11y-keys target="[[activeNode]]" keys="enter" on-keys-pressed="_enterKeyPressed"></iron-a11y-keys>
-    <iron-a11y-keys target="[[activeNode]]" keys="esc" on-keys-pressed="_escKeyPressed"></iron-a11y-keys>
+    <iron-a11y-keys target="[[activeNode]]" keys="esc" on-keys-pressed="_escKeyPressed" stop-keyboard-event-propagation></iron-a11y-keys>
     <iron-a11y-keys target="[[activeNode]]" keys="del backspace" on-keys-pressed="_delKeyPressed"></iron-a11y-keys>
-    <iron-a11y-keys target="[[activeNode]]" keys="tab" on-keys-pressed="_tabKeyPressed" stop-keyboard-event-propagation></iron-a11y-keys>
-    <iron-a11y-keys target="[[activeNode]]" keys="shift+tab" on-keys-pressed="_tabBackKeyPressed" stop-keyboard-event-propagation></iron-a11y-keys>
+    <iron-a11y-keys target="[[activeNode]]" keys="shift+tab" on-keys-pressed="_tabBackKeyPressed" stop-keyboard-event-propagation></iron-a11y-keys>    <iron-a11y-keys target="[[activeNode]]" keys="tab" on-keys-pressed="_tabKeyPressed" stop-keyboard-event-propagation></iron-a11y-keys>
+
   </template>
 
   <script>
@@ -270,6 +266,9 @@ A LRN element that will change the world.
         this.fire('hax-register-body', this);
         document.body.addEventListener('hax-store-property-updated', this._haxStorePropertyUpdated.bind(this));
       },
+      /**
+       * Global prefs updated, let's visualize stuff from hax-ray
+       */
       _globalPreferencesUpdated: function(newValue, oldValue) {
         if (typeof newValue !== typeof undefined && newValue != null) {
           this.haxRayMode = newValue.haxRayMode;
@@ -297,8 +296,7 @@ A LRN element that will change the world.
         }
         // ensure they said yes
         if (status) {
-          let body = this.$.body;
-          Polymer.HaxStore.wipeSlot(body);
+          Polymer.HaxStore.wipeSlot(this);
         }
       },
       /**
@@ -324,6 +322,12 @@ A LRN element that will change the world.
               }
               else if (properties[property] === false) {
                 newNode.removeAttribute(attributeName);
+              }
+              else if (properties[property] != null && properties[property].constructor === Array && !newNode.properties[property].readOnly) {
+                newNode.set(attributeName, properties[property]);
+              }
+              else if (properties[property] != null && properties[property].constructor === Object && !newNode.properties[property].readOnly) {
+                newNode.set(attributeName, properties[property]);
               }
               else {
                 newNode.setAttribute(attributeName, properties[property]);
@@ -355,7 +359,12 @@ A LRN element that will change the world.
             // attempt to focus on the new node, may not always work
             newNode.focus();
             // scroll to it
-            newNode.scrollIntoView({behavior: "smooth", inline: "nearest"});
+            if (typeof newNode.scrollIntoViewIfNeeded === 'function') {
+              newNode.scrollIntoViewIfNeeded(true);
+            }
+            else {
+              newNode.scrollIntoView({behavior: "smooth", inline: "center"});
+            }
           }, 100);
           return true;
         }
@@ -461,25 +470,19 @@ A LRN element that will change the world.
         var content = '';
         // start to rebuild the same tag we got in a generalized way
         content += '<' + node.tagName.toLowerCase();
+        var propvals = {};
         // grab all of the original's attributes, and pass them to the replacement
-        for(var j = 0, l = node.attributes.length; j < l; ++j){
+        for (var j = 0, l = node.attributes.length; j < l; ++j){
           var nodeName  = node.attributes.item(j).nodeName;
           var value = node.attributes.item(j).value;
-          var nodeNameTest = Polymer.HaxStore.dashToCamel(nodeName);
-          // check for property binding which is more accurate here
-          if (typeof node.properties !== typeof undefined && typeof node.properties[nodeNameTest] !== typeof undefined && nodeNameTest != 'style') {
-            if (value === '' && typeof node.properties[nodeNameTest].value !== typeof undefined) {
-              value = node.properties[nodeNameTest].value;
-            }
-          }
           // encode objects and arrays because they are special
-          if (nodeName != 'style' && (typeof value === typeof Object || typeof value === typeof Array)) {
-            content += ' ' + nodeName + '="' + JSON.stringify(value).replace(new RegExp('"', 'g'), '&quot;') + '"';
+          if (nodeName != 'style' && (typeof value === typeof Object || value.constructor === Array)) {
+            propvals[nodeName] = JSON.stringify(value).replace(new RegExp('"', 'g'), '&quot;');
           }
           // only write things that aren't empty
           else if (value != null && value != 'null') {
             if (value === true || value === "true") {
-              content += ' ' + nodeName;
+              propvals[nodeName] = true;
             }
             else if (value === false) {
               // do nothing, no reason to record false unless written as text
@@ -489,7 +492,7 @@ A LRN element that will change the world.
               // ensure that value doesn't have " in it unencoded
               if (typeof value === 'string' && value !== '') {
                 value = value.replace(new RegExp('"', 'g'), '&quot;');
-                content += ' ' + nodeName + '="' + value + '"';
+                propvals[nodeName] = value;
               }
               // special handling for empty string cause it might mean boolean
               // or it might be a string
@@ -497,16 +500,73 @@ A LRN element that will change the world.
                 if (value == '' && node.attributes.item(j).value != '') {
                   value = node.attributes.item(j).value;
                 }
-                content += ' ' + nodeName + '="' + value + '"';
+                propvals[nodeName] = value;
               }
               else {
-                content += ' ' + nodeName + '="' + value + '"';
+                propvals[nodeName] = value;
               }
             }
           }
         }
-        // set the opening tag
-        content += '>';
+        // now look through properties
+        if (typeof node.properties !== typeof undefined) {
+          for (var j in node.properties){
+            var nodeName = Polymer.HaxStore.camelToDash(j);
+            var value = null;
+            // prefer local value over properties object if possible
+            if (typeof node[j] !== typeof undefined) {
+              value = node[j];
+            }
+            // encode objects and arrays because they are special
+            if (value != null && (typeof value === typeof Object || value.constructor === Array)) {
+              propvals[nodeName] = JSON.stringify(value).replace(new RegExp('"', 'g'), '&quot;');
+            }
+            // only write things that aren't empty
+            else if (value != null && value != 'null') {
+              if (value === true || value === "true") {
+                propvals[nodeName] = true;
+              }
+              else if (value === false) {
+                // do nothing, no reason to record false unless written as text
+                // in which case below will capture it
+              }
+              else {
+                // ensure that value doesn't have " in it unencoded
+                if (typeof value === 'string' && value !== '') {
+                  value = value.replace(new RegExp('"', 'g'), '&quot;');
+                  propvals[nodeName] = value;
+                }
+                // special handling for empty string cause it might mean boolean
+                // or it might be a string
+                else if (value === '') {
+                  if (value == '' && node.properties[j].value != '') {
+                    value = node.properties[j].value;
+                  }
+                  propvals[nodeName] = value;
+                }
+                else {
+                  propvals[nodeName] = value;
+                }
+              }
+            }
+          }
+        }
+        // run through the properties
+        for (var i in propvals) {
+          if (propvals[i] === true) {
+            content += ' ' + i;
+          }
+          else {
+            content += ' ' + i + '="' + propvals[i] + '"';
+          }
+        }
+        // set the opening tag, support self-closing tags
+        if (node.tagName.toLowerCase() === 'hr' || node.tagName.toLowerCase() === 'br' || node.tagName.toLowerCase() === 'img') {
+          content += '/>';
+        }
+        else {
+          content += '>';
+        }
         // account for things that say NOT to save slot values
         let props = Polymer.HaxStore.instance.elementList[node.tagName.toLowerCase()];
         // try and work against anything NOT a P tag
@@ -549,12 +609,16 @@ A LRN element that will change the world.
             }
           }
         }
-        // close the tag, placing a return in output for block elements
+        // don't put return for span since it's an inline tag
         if (node.tagName.toLowerCase() === 'span') {
           content += '</' + node.tagName.toLowerCase() + '>';
         }
+        else if (node.tagName.toLowerCase() === 'hr' || node.tagName.toLowerCase() === 'br' || node.tagName.toLowerCase() === 'img') {
+          // do nothing for self-closing tags they'll resolve themselves
+        }
+        // close the tag, placing a return in output for block elements
         else {
-          content += '</' + node.tagName.toLowerCase() + '>';
+          content += '</' + node.tagName.toLowerCase() + '>' + "\n";
         }
         if (this.globalPreferences.haxDeveloperMode) {
           console.log(content);
@@ -627,7 +691,7 @@ A LRN element that will change the world.
           // currently been set. it's by no means perfect but it'll
           // be a really good start
           this.__activeContextType = this.$.textcontextmenu;
-          this._positionContextMenu(this.$.inlinecontextmenu, node, offsetmenu, -44);
+          this._positionContextMenu(this.$.inlinecontextmenu, node, offsetmenu, -54, false);
         }
         this._positionContextMenu(this.__activeContextType, node, offsetmenu, -54);
         this._positionContextMenu(this.$.platecontextmenu, node, offsetplate, -8, false);
@@ -647,7 +711,12 @@ A LRN element that will change the world.
             }
             this.positionContextMenus(node);
             setTimeout( () => {
-              node.scrollIntoView({behavior: "smooth", inline: "nearest"});
+              if (typeof node.scrollIntoViewIfNeeded === 'function') {
+                node.scrollIntoViewIfNeeded(true);
+              }
+              else {
+                node.scrollIntoView({behavior: "smooth", inline: "center"});
+              }
             }, 150);
           break;
           case 'down':
@@ -656,7 +725,12 @@ A LRN element that will change the world.
               Polymer.dom(this).insertBefore(node.nextElementSibling, node);
               this.positionContextMenus(node);
               setTimeout( () => {
-                node.scrollIntoView({behavior: "smooth", inline: "nearest"});
+                if (typeof node.scrollIntoViewIfNeeded === 'function') {
+                  node.scrollIntoViewIfNeeded(true);
+                }
+                else {
+                  node.scrollIntoView({behavior: "smooth", inline: "center"});
+                }
               }, 150);
             }
           break;
@@ -698,14 +772,24 @@ A LRN element that will change the world.
        * Delete the node passed in
        */
       haxDeleteNode: function(node) {
-        // move the context menu before duplicating!!!!
+        // move the context menu before deleting!!!!
         this.hideContextMenus();
         this._hideContextMenu(this.$.inlinetracker);
         // shift active to a viable replacement
-        if (this.activeNode.previousElementSibling !== null) {
+        if (this.activeNode != null && this.activeNode.previousElementSibling !== null) {
           this.activeNode.previousElementSibling.focus();
+          // @todo cursor at the END of the element
+          /*setTimeout( () => {
+            if (this.activeNode.tagName === 'P') {
+              // select everything
+              this.activeNode.select();
+              var sel = window.getSelection();
+              let range = selection.getRangeAt(0);
+              range.setStart(this.activeNode, range.endOffset);
+            }
+          }, 250);*/
         }
-        else if (this.activeNode.nextElementSibling !== null) {
+        else if (this.activeNode != null && this.activeNode.nextElementSibling !== null) {
           this.activeNode.nextElementSibling.focus();
         }
         else {
@@ -721,6 +805,32 @@ A LRN element that will change the world.
           console.log(e);
           return {};
         }
+      },
+      /**
+       * Bulk import HTML with option to clear what is currently
+       * in the slot of this tag. This also validates tags
+       * that are being inserted for security based on the
+       * internal whitelist.
+       */
+      importContent: function(html, clear = true) {
+        const validTags = Polymer.HaxStore.instance.validTagList;
+        let fragment = document.createElement('div');
+        fragment.innerHTML = html;
+        const children = fragment.childNodes;
+        // kill the slot of the active body, all of it
+        if (clear) {
+          Polymer.HaxStore.wipeSlot(this, '*');
+        }
+        // pause quickly to ensure wipe goes through successfully
+        setTimeout( () => {
+          // loop over the new nodes
+          for (var i=0; i<children.length; i++) {
+            // verify this tag is a valid one
+            if (typeof children[i].tagName !== typeof undefined && validTags.includes(children[i].tagName.toLowerCase())) {
+              Polymer.dom(this).appendChild(children[i]);
+            }
+          }
+        }, 250);
       },
       /**
        * Respond to hax operations.
@@ -1040,29 +1150,20 @@ A LRN element that will change the world.
         Polymer.dom(this.$.contextcontainer).appendChild(menu);
       },
       /**
-       * When the user hits enter look to see if we are in a p
-       * tag and create a new block
-       */
-      _enterKeyPressed: function (e) {
-        if (this.editMode) {
-          const activeNodeTagName = this.activeNode.tagName;
-          if (['P','H1','H2','H3','H4','H5','H6'].includes(activeNodeTagName)) {
-            e.preventDefault();
-            this.fire('hax-insert-content', {
-              tag: 'p',
-              content: '',
-            });
-          }
-        }
-      },
-      /**
        * When the user hits escape key, let's deselect what we have now
        */
       _escKeyPressed: function (e) {
         if (this.editMode) {
           e.preventDefault();
-          const activeNodeTagName = this.activeNode.tagName;
-          Polymer.HaxStore.write('activeNode', null, this);
+          e.stopPropagation();
+          // support 1st press only closing the inline context menu
+          if (this.$.inlinecontextmenu.opened) {
+            this.$.inlinecontextmenu.opened = false;
+          }
+          else {
+            Polymer.HaxStore.write('activeNode', null, this);
+            document.body.focus();
+          }
         }
       },
       /**
@@ -1075,6 +1176,7 @@ A LRN element that will change the world.
           const activeNodeTextContent = Polymer.dom(this.activeNode).textContent;
           if (activeNodeTextContent === '') {
             e.preventDefault();
+            e.stopPropagation();
             this.haxDeleteNode(this.activeNode);
           }
         }
@@ -1089,7 +1191,7 @@ A LRN element that will change the world.
           let focus = false;
           let node = this.activeNode;
           const activeNodeTagName = this.activeNode.tagName;
-          if (['UL','OL'].includes(node.tagName)) {
+          if (['UL','OL'].includes(activeNodeTagName)) {
             if (this.polyfillSafe) {
               document.execCommand('indent');
             }
@@ -1120,7 +1222,8 @@ A LRN element that will change the world.
           e.stopPropagation();
           let focus = false;
           let node = Polymer.dom(this.activeNode).previousSibling;
-          if (['UL','OL'].includes(node.tagName)) {
+          const activeNodeTagName = this.activeNode.tagName;
+          if (['UL','OL'].includes(activeNodeTagName)) {
             if (this.polyfillSafe) {
               document.execCommand('outdent');
             }
@@ -1133,7 +1236,9 @@ A LRN element that will change the world.
               }
             }
             if (node != null) {
-              node.focus();
+              setTimeout( () => {
+                node.focus();
+              }, 100);
             }
           }
         }

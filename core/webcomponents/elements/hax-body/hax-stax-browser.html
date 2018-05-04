@@ -103,6 +103,10 @@ Browse a list of stax. This provides a listing of custom elements for people to 
        */
       _haxStorePropertyUpdated: function(e) {
         if (e.detail && typeof e.detail.value !== typeof undefined && e.detail.property) {
+          // make sure we set array's empty first to force a repaint of paths
+          if (typeof this[e.detail.property] !== typeof undefined && this[e.detail.property] != null && typeof this[e.detail.property].length !== typeof undefined) {
+            this.set(e.detail.property, []);
+          }
           this.set(e.detail.property, e.detail.value);
         }
       },

@@ -107,7 +107,7 @@ Export dialog with all export options and settings provided.
       listeners: {
         'download.tap': 'download',
         'downloadfull.tap': 'downloadfull',
-        'import.tap': 'import',
+        'import.tap': 'importContent',
         'copy.tap': 'selectBody',
       },
       behaviors: [mtz.FileDownloadBehavior],
@@ -150,18 +150,10 @@ Export dialog with all export options and settings provided.
       /**
        * Download file.
        */
-      import: function(e) {
-        // set the content in the tetarea to that of a fake element
+      importContent: function(e) {
+        // import contents of this text area into the activeHaxBody
         const htmlBody = this.$.textarea.value;
-        let range = document.createRange();
-        // make the parent of the first div in the document becomes the context node
-        range.selectNode(document.getElementsByTagName("div").item(0));
-        var documentFragment = range.createContextualFragment(htmlBody);
-        // kill the slot of the active body, all of it
-        Polymer.HaxStore.wipeSlot(Polymer.HaxStore.instance.activeHaxBody, '*');
-        setTimeout( () => {
-            Polymer.dom(Polymer.HaxStore.instance.activeHaxBody).appendChild(documentFragment);
-        }, 200);
+        return Polymer.HaxStore.instance.activeHaxBody.importContent(htmlBody);
       },
       /**
        * selectBody
