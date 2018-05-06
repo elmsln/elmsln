@@ -134,7 +134,7 @@ A LRN element that will change the world.
         outline-offset: 4px;
       }
       :host[edit-mode][hax-ray-mode] #bodycontainer ::slotted(*[data-editable])::before {
-        content: attr(data-hax-ray) " " attr(resource) " " attr(prefix);
+        content: attr(data-hax-ray) " " attr(resource) " " attr(typeof) " " attr(property) " " attr(content);
         font-size: 16px;
         font-style: italic;
         left: unset;
@@ -402,7 +402,7 @@ A LRN element that will change the world.
           }
           // keep everything NOT an element at this point, this helps
           // preserve whitespace because we're crazy about accuracy
-          else if (children[i].nodeType !== 1) {
+          else if (children[i].nodeType !== 1 && typeof children[i].textContent !== typeof undefined && children[i].textContent !== 'undefined') {
             content += children[i].textContent;
           }
         }
@@ -603,7 +603,7 @@ A LRN element that will change the world.
               }
               // keep everything NOT an element at this point, this helps
               // preserve whitespace because we're crazy about accuracy
-              else if (slotnodes[j].nodeType !== 1) {
+              else if (slotnodes[j].nodeType !== 1 && typeof slotnodes[j].textContent !== typeof undefined && slotnodes[j].textContent !== 'undefined') {
                 content += slotnodes[j].textContent;
               }
             }

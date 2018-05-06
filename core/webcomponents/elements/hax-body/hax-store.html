@@ -1034,7 +1034,7 @@
             }
             // keep everything NOT an element at this point, this helps
             // preserve whitespace because we're crazy about accuracy
-            else if (slotnodes[j].nodeType !== 1) {
+            else if (slotnodes[j].nodeType !== 1 && typeof slotnodes[j].textContent !== typeof undefined && slotnodes[j].textContent !== 'undefined') {
               content += slotnodes[j].textContent;
             }
           }
@@ -1139,7 +1139,7 @@
       /**
        * Generate Hax Element prototype.
        */
-      Polymer.HaxStore.haxElementPrototype = (gizmo, properties, content) => {
+      Polymer.HaxStore.haxElementPrototype = (gizmo, properties, content = '') => {
         return {
           'tag': gizmo.tag,
           'properties': properties,
