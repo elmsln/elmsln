@@ -49,7 +49,7 @@
       <ul class="menu clearfix">
         <?php if ($bar_elements['help']) : ?>
         <li>
-          <lrnsys-button data-jwerty-key="h" data-voicecommand="help" href="<?php print $help_link;?>" class="elmsln-help-button middle-align-wrap black-text" hover-class="<?php print $lmsless_classes[$network['active']['distro']]['color'] . ' ' . $lmsless_classes[$network['active']['distro']]['dark'];?> white-text">
+          <lrnsys-button data-jwerty-key="h" data-voicecommand="help" href="<?php print $help_link;?>" class="elmsln-help-button middle-align-wrap" button-class="black-text" hover-class="<?php print $lmsless_classes[$network['active']['distro']]['color'] . ' ' . $lmsless_classes[$network['active']['distro']]['dark'];?> white-text">
             <lrn-icon icon="help"></lrn-icon>
             <span class="hide-on-small-only"><?php print t('Help'); ?></span>
           </lrnsys-button>
@@ -57,14 +57,14 @@
         <?php endif; ?>
         <?php if (isset($bar_elements['resources']) && $bar_elements['resources']) : ?>
         <li>
-          <lrnsys-button data-jwerty-key="r" data-voicecommand="resources" href="<?php print $resources_link;?>" class="elmsln-resource-button middle-align-wrap black-text" icon="maps:local-library" hover-class="<?php print $lmsless_classes[$network['active']['distro']]['color'] . ' ' . $lmsless_classes[$network['active']['distro']]['dark'];?> white-text">
+          <lrnsys-button data-jwerty-key="r" data-voicecommand="resources" href="<?php print $resources_link;?>" class="elmsln-resource-button middle-align-wrap" button-class="black-text" icon="maps:local-library" hover-class="<?php print $lmsless_classes[$network['active']['distro']]['color'] . ' ' . $lmsless_classes[$network['active']['distro']]['dark'];?> white-text">
             <span class="hide-on-small-only"><?php print t('Resources'); ?></span>
           </lrnsys-button>
         </li>
         <?php endif; ?>
         <?php if ($bar_elements['syllabus']) : ?>
           <li>
-          <lrnsys-button data-jwerty-key="y" data-voicecommand="syllabus" href="<?php print $syllabus_link;?>" class="elmsln-syllabus-button middle-align-wrap black-text" icon="info-outline" hover-class="<?php print $lmsless_classes[$network['active']['distro']]['color'] . ' ' . $lmsless_classes[$network['active']['distro']]['dark'];?> white-text">
+          <lrnsys-button data-jwerty-key="y" data-voicecommand="syllabus" href="<?php print $syllabus_link;?>" class="elmsln-syllabus-button middle-align-wrap" button-class="black-text" icon="info-outline" hover-class="<?php print $lmsless_classes[$network['active']['distro']]['color'] . ' ' . $lmsless_classes[$network['active']['distro']]['dark'];?> white-text">
             <span class="hide-on-small-only"><?php print t('Syllabus'); ?></span>
           </lrnsys-button>
         </li>
@@ -121,7 +121,7 @@
       }
       ?>
       <li>
-      <lrnsys-button id="lmsless-<?php print $service['machine_name'];?>" data-prefetch-hover="true" href="<?php print token_replace($service['url']); ?>" class="black-text <?php print $activetool . $service['icon']; ?>-icon"  data-jwerty-key="ctrl+<?php print drupal_strtolower(substr($stitle, 0, 1)); ?>" data-voicecommand="<?php print t('go to ') . drupal_strtolower($stitle); ?>" hover-class="<?php print $hover;?>">
+      <lrnsys-button id="lmsless-<?php print $service['machine_name'];?>" data-prefetch-hover="true" href="<?php print token_replace($service['url']); ?>" class="<?php print $activetool . $service['icon']; ?>-icon" button-class="black-text <?php print $activetool . $service['icon']; ?>-icon" data-jwerty-key="ctrl+<?php print drupal_strtolower(substr($stitle, 0, 1)); ?>" data-voicecommand="<?php print t('go to ') . drupal_strtolower($stitle); ?>" hover-class="<?php print $hover;?>">
         <?php if (isset($service['icon_library']) && $service['icon_library'] == 'material'): ?>
         <i class="material-icons"><?php print $service['icon']; ?></i>
         <?php else: ?>

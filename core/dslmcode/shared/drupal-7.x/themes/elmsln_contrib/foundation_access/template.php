@@ -554,6 +554,9 @@ function foundation_access_button($variables) {
   }
   else {
     $lrnsys = $element['#attributes'];
+    if (is_array($lrnsys['class'])) {
+      $lrnsys['button-class'] = implode(' ', $lrnsys['class']);
+    }
     if (!isset($lrnsys['hover-class'])) {
       $lrnsys['hover-class'] = $colors['color'] . ' ' . $colors['dark'];
     }

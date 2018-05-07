@@ -30,11 +30,11 @@
     ?>
     <li>
     <?php if (isset($service['icon_library']) && $service['icon_library'] == 'material'): ?>
-      <lrnsys-button href="<?php print token_replace($service['url']); ?>" class="black-text" hover-class="<?php print $lmsless_classes[$service['distro']]['color'];?> <?php print $lmsless_classes[$service['distro']]['dark'];?> white-text" data-prefetch-hover="true" data-jwerty-key="ctrl+<?php print drupal_strtolower(substr($stitle, 0, 1)); ?>" data-voicecommand="<?php print t('go to ') . drupal_strtolower($stitle); ?>" icon="<?php print $service['icon'];?>">
+      <lrnsys-button href="<?php print token_replace($service['url']); ?>" button-class="black-text" hover-class="<?php print $lmsless_classes[$service['distro']]['color'];?> <?php print $lmsless_classes[$service['distro']]['dark'];?> white-text" data-prefetch-hover="true" data-jwerty-key="ctrl+<?php print drupal_strtolower(substr($stitle, 0, 1)); ?>" data-voicecommand="<?php print t('go to ') . drupal_strtolower($stitle); ?>" icon="<?php print $service['icon'];?>">
         <span class="elmsln-network-label"><?php print $stitle; ?></span>
       </lrnsys-button>
     <?php else: ?>
-      <lrnsys-button href="<?php print token_replace($service['url']); ?>" class="black-text" hover-class="<?php print $lmsless_classes[$service['distro']]['color'];?> <?php print $lmsless_classes[$service['distro']]['dark'];?> white-text" data-prefetch-hover="true" data-jwerty-key="ctrl+<?php print drupal_strtolower(substr($stitle, 0, 1)); ?>" data-voicecommand="<?php print t('go to ') . drupal_strtolower($stitle); ?>">
+      <lrnsys-button href="<?php print token_replace($service['url']); ?>" button-class="black-text" hover-class="<?php print $lmsless_classes[$service['distro']]['color'];?> <?php print $lmsless_classes[$service['distro']]['dark'];?> white-text" data-prefetch-hover="true" data-jwerty-key="ctrl+<?php print drupal_strtolower(substr($stitle, 0, 1)); ?>" data-voicecommand="<?php print t('go to ') . drupal_strtolower($stitle); ?>">
         <lrn-icon icon="<?php print $service['icon'];?>"></lrn-icon>
         <span class="elmsln-network-label"><?php print $stitle; ?></span>
       </lrnsys-button>
