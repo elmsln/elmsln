@@ -15,7 +15,7 @@ Usage:
       }
     </style>
 
-    <lrnsys-button on-tap="_createAssignment" icon-class="[[iconClass]]" alt="[[alt]]" class$="[[classes]]" hover-class="[[hoverClass]]" icon="[[icon]]"></lrnsys-button>
+    <lrnsys-button on-tap="_createAssignment" icon-class="[[iconClass]]" alt="[[alt]]" class$="[[classes]]" button-class$="[[classes]]" hover-class="[[hoverClass]]" icon="[[icon]]"></lrnsys-button>
     <iron-ajax id="ajaxCreateStub" url="[[createAssignmentUrl]]" method="POST" body="[[projectId]]" handle-as="json" on-response="_ajaxCreateStubHandler"></iron-ajax>
     <template is="dom-if" if="[[displayErrors]]">
       <paper-toast id="toast"></paper-toast>

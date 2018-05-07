@@ -218,7 +218,7 @@
                 <lrnsys-button id$="project-[[project.id]]-delete" alt="Delete project!" class="circle operation" hover-class="red darken-2 white-text"
                   header="Delete project!" hidden="[[!project.meta.canDelete]]" icon="delete-forever" on-tap="_deleteProjectDialog"
                   icon-class="no-margin">
-                  </lrnsys-dialog>
+                  </lrnsys-button>
               </div>
               <div class="card-content">
                 <iron-list items="[[_toArray(project.relationships.assignments)]]" as="assignment">

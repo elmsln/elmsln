@@ -3708,6 +3708,11 @@ lrnsys-dialog-modal.lrnsys-dialog-modal-0 paper-dialog.lrnsys-dialog-modal{
   padding:0;
   border-radius: 1em;
 }
+lrnsys-dialog-modal .dialog-heading {
+  font-size: 20px;
+  padding: 16px !important;
+  text-align: center;
+}
 @media screen and (max-width: 60em) {
   lrnsys-drawer-modal #contentContainer {
     width: 50% !important;

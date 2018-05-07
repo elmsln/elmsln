@@ -26,7 +26,7 @@
         width: 100%;
         text-transform: unset;
         border-radius: 0;
-        border-bottom: 1px solid var(--lrnsys-collapselist-item-border, --paper-grey-300);
+        border: 1px solid var(--lrnsys-collapselist-item-border, --paper-grey-300);
         background-color: var(--lrnsys-collapselist-item-color, --paper-grey-100)
       }
       paper-button span {
@@ -48,7 +48,7 @@
         padding: 1em;
       }
     </style>
-    <paper-button on-tap="collapseToggle" id="collapse-trigger">
+    <paper-button on-tap="collapseToggle" id="collapse-trigger" aria-controls="collapse">
       <span class="collapse-label">
         <slot name="label"></slot>
       </span>

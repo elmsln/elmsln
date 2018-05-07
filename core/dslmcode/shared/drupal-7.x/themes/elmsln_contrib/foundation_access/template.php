@@ -1151,6 +1151,9 @@ function _foundation_access_lrnsys_button($label, $path, $options) {
   if ($path != NULL) {
     $options['attributes']['href'] = check_plain(url($path, $options));
   }
+  if (is_array($options['attributes']['class'])) {
+    $options['attributes']['button-class'] = implode(' ', $options['attributes']['class']);
+  }
   // if HTML is set to true then we can't handle this at the moment
   if ($options['html']) {
     return '<lrnsys-button ' . drupal_attributes($options['attributes']) . '>' . $label . '</lrnsys-button>';

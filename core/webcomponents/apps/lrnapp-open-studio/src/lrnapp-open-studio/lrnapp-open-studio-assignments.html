@@ -49,7 +49,7 @@
       <h1 class="assignment-title black-text">[[activeAssignment.attributes.title]]</h1>
       <div class="submission-list">
         <template is="dom-repeat" items="[[submissions]]" as="submission">
-        <lrnsys-button on-tap="_scrollToTarget" raised class="submission-list-item" hover-class="blue white-text" data-submission-id$="[[submission.id]]">
+        <lrnsys-button on-tap="_scrollToTarget" raised class="submission-list-item" button-class="submission-list-item" hover-class="blue white-text" data-submission-id$="[[submission.id]]">
           <span slot="button">
             <lrndesign-avatar src="[[submission.relationships.author.data.avatar]]" label="[[submission.relationships.author.data.name]]" style="display:inline-block;" data-submission-id$="[[submission.id]]"></lrndesign-avatar>
           </span>

@@ -79,10 +79,10 @@
     </div>
     <app-toolbar class="amber lighten-3">
       <iron-selector selected="{{data.page}}" attr-for-selected="name" role="navigation">
-        <a tabindex="-1" name="submissions" on-tap="_submissionsClicked"><lrnsys-button icon="apps" label="Submission display" hover-class="amber darken-4 white-text" class="display-mode"></lrnsys-button></a>
-        <a tabindex="-1" name="projects" on-tap="_projectsClicked"><lrnsys-button icon="folder" label="Project board" hover-class="amber darken-4 white-text" class="display-mode"></lrnsys-button></a>
-        <a tabindex="-1" name="assignments" on-tap="_assignmentsClicked"><lrnsys-button icon="list" label="Assignment centric" hover-class="amber darken-4 white-text" class="display-mode"></lrnsys-button></a>
-        <a tabindex="-1" name="table" on-tap="_tableClicked"><lrnsys-button icon="view-list" label="Table view" hover-class="amber darken-4 white-text" class="display-mode"></lrnsys-button></a>
+        <a tabindex="-1" name="submissions" on-tap="_submissionsClicked"><lrnsys-button icon="apps" label="Submission display" hover-class="amber darken-4 white-text" class="display-mode" button-class="display-mode"></lrnsys-button></a>
+        <a tabindex="-1" name="projects" on-tap="_projectsClicked"><lrnsys-button icon="folder" label="Project board" hover-class="amber darken-4 white-text" class="display-mode" button-class="display-mode"></lrnsys-button></a>
+        <a tabindex="-1" name="assignments" on-tap="_assignmentsClicked"><lrnsys-button icon="list" label="Assignment centric" hover-class="amber darken-4 white-text" class="display-mode" button-class="display-mode"></lrnsys-button></a>
+        <a tabindex="-1" name="table" on-tap="_tableClicked"><lrnsys-button icon="view-list" label="Table view" hover-class="amber darken-4 white-text" class="display-mode" button-class="display-mode"></lrnsys-button></a>
       </iron-selector>
       <span main-title></span>
       <span top-item style="text-align:right;font-size:.5em;padding-right:1em;">Displaying [[submissions.length]] of [[originalSubmissions.length]]</span>

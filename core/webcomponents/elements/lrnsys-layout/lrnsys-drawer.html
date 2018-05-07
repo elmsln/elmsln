@@ -1,12 +1,12 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../app-layout/app-layout.html">
 <link rel="import" href="../paper-avatar/paper-avatar.html">
-<link rel="import" href="../lrn-icons/lrn-icons.html">
 <link rel="import" href="../paper-tooltip/paper-tooltip.html">
 <link rel="import" href="../paper-button/paper-button.html">
-<link rel="import" href="../neon-animation/web-animations.html">
 <link rel="import" href="../materializecss-styles/colors.html">
 <link rel="import" href="../iron-icons/iron-icons.html">
+<link rel="import" href="lrnsys-button-inner.html">
+<link rel="import" href="lrnsys-drawer-modal.html">
 
 <!--
 `lrnsys-drawer`
@@ -20,73 +20,21 @@
     <style include="materializecss-styles-colors">
       :host {
         display: block;
+      }
+      lrnsys-drawer-modal {
         --lrnsys-drawer-width: 30%;
       }
-      app-drawer {
-        --app-drawer-width: var(--lrnsys-drawer-width);
-        --app-drawer-content-container: {
-          padding: 0;
-          overflow-y: scroll;
-          margin-top: 8em;
-        }
-      }
-      .drawer-header {
-        width: 100%;
-        padding: 0 0 .5em 0;
-        margin: 0 0 .5em 0;
-        text-align: -webkit-center;
-        text-align: center;
-        @apply --lrnsys-drawer-header;
-      }
-      .drawer-heading {
-        font-size: 1.5em;
-        padding: 0;
-        margin: 0;
-        height: 2.5em;
-        line-height: 3em;
-      }
-      .text-label {
-        margin-left: 1em;
-      }
-      #close-button {
-        position: absolute;
-        right: 0;
-        top: 0;
-        padding: .5em .5em 0 0;
-        margin: 0;
-        min-width: .1em;
-        text-transform: none;
-      }
     </style>
-    <paper-button class$="[[class]]" id="flyout-trigger" on-tap="toggleDrawer" raised="[[raised]]" disabled$="[[disabled]]" title="[[alt]]">
-      <template is="dom-if" if="[[avatar]]">
-        <paper-avatar src$="[[avatar]]"></paper-avatar>
-      </template>
-      <template is="dom-if" if="[[icon]]">
-        <lrn-icon icon="[[icon]]"></lrn-icon>
-      </template>
-      <template is="dom-if" if="[[text]]">
-        <span class="text-label">[[text]]</span>
-      </template>
-      <slot name="button"></slot>
+    <paper-button class$="[[class]]" id="flyouttrigger" on-tap="toggleDrawer" raised="[[raised]]" disabled$="[[disabled]]" title="[[alt]]">
+      <lrnsys-button-inner avatar="[[avatar]]" icon="[[icon]]" text="[[text]]">
+        <slot name="button"></slot>
+      </lrnsys-button-inner>
     </paper-button>
-    <template is="dom-if" if="[[alt]]">
-      <paper-tooltip for="flyout-trigger" animation-delay="0">[[alt]]</paper-tooltip>
-    </template>
-    <app-drawer id="flyoutcontent" opened="[[opened]]" align="[[align]]" role="dialog">
-      <div class="drawer-contents">
-        <div class="drawer-header">
-          <slot name="header"></slot>
-          <template is="dom-if" if="[[header]]">
-            <h3 class="white-text black drawer-heading">[[header]]</h3>
-          </template>
-        </div>
-        <div class="drawer-content">
-          <slot></slot>
-        </div>
-        <paper-button id="close-button" class="black white-text" on-tap="toggleDrawer"><iron-icon icon="close"></iron-icon>Close</paper-button>
-      </div>
-    </app-drawer>
+    <paper-tooltip for="flyouttrigger" animation-delay="0">[[alt]]</paper-tooltip>
+    <lrnsys-drawer-modal id="modal" body-append="[[bodyAppend]]" opened="[[opened]]" align="[[align]]" header="[[header]]" heading-class="[[headingClass]]">
+      <slot name="header" slot="header"></slot>
+      <slot></slot>
+    </lrnsys-drawer-modal>
   </template>
   <script>
     Polymer({
@@ -95,7 +43,7 @@
         'mousedown': 'tapEventOn',
         'mouseover': 'tapEventOn',
         'mouseout': 'tapEventOff',
-        'flyout-trigger.focused-changed': 'focusToggle',
+        'flyouttrigger.focused-changed': 'focusToggle',
       },
       properties: {
         /**
@@ -103,38 +51,40 @@
          */
         opened: {
           type: Boolean,
-          value: false
+          value: false,
+          reflectToAttribute: true,
         },
         /**
          * If the button should be visually lifted off the UI.
          */
         raised: {
           type: Boolean,
+          reflectToAttribute: true,
         },
         /**
          * Icon to present for clicking.
          */
         icon: {
-          type: String
+          type: String,
         },
         /**
          * Icon to present for clicking.
          */
         avatar: {
-          type: String
+          type: String,
         },
         /**
          * Text to present for clicking.
          */
         text: {
-          type: String
+          type: String,
         },
         /**
          * Side of the screen to align the flyout (right or left)
          */
         align: {
           type: String,
-          value: 'left'
+          value: 'left',
         },
         /**
          * Alt / hover text for this link
@@ -147,7 +97,7 @@
          * Header for the drawer
          */
         header: {
-          type: String
+          type: String,
         },
         /**
          * Disabled state.
@@ -155,6 +105,7 @@
         disabled: {
           type: Boolean,
           value: false,
+          reflectToAttribute: true,
         },
         /**
          * Classes to add / subtract based on the item being hovered
@@ -163,12 +114,19 @@
           type: String,
         },
         /**
+         * Heading classes to apply downstream.
+         */
+        headingClass: {
+          type: String,
+          value: 'white-text black',
+        },
+        /**
          * Support for body-appending which is a hack for stacking context
          * correction but breaks scoped styles / shadowDOM
          */
         bodyAppend: {
           type: Boolean,
-          value: false
+          value: true,
         },
         /**
          * Tracks if focus state is applied
@@ -179,16 +137,41 @@
         }
       },
       /**
+       * Ready lifecycle
+       */
+      ready: function() {
+        this.__modal = this.$.modal;
+      },
+      /**
+       * Attached lifecycle
+       */
+      attached: function() {
+        document.body.addEventListener('lrnsys-drawer-modal-closed', this._accessibleFocus.bind(this));
+      },
+    /**
+       * Set ourselves as having focus after the modal closes.
+       */
+      _accessibleFocus: function(e) {
+        // this is OUR modal, we found her, oh modal, We've missed
+        // you so much. thank you for coming home. We're so, so, so
+        // sorry that we appended you to the body. We'll never do it
+        // again (until the next time you open).
+        if (e.detail === this.__modal) {
+          // focus on our flyout triggering button
+          this.$.flyouttrigger.focus();
+        }
+      },
+      /**
        * Handle a mouse on event and add the hoverclasses
        * to the classList array for paper-button.
        */
       tapEventOn: function(e) {
-        let root = this;
+        const root = this;
         if (typeof root.hoverClass !== typeof undefined) {
           var classes = root.hoverClass.split(' ');
           classes.forEach(function(item, index) {
             if (item != '') {
-              root.$$('#flyout-trigger').classList.add(item);
+              root.$.flyouttrigger.classList.add(item);
             }
           });
         }
@@ -198,12 +181,12 @@
        * from the classList array for paper-button.
        */
       tapEventOff: function(e) {
-        let root = this;
+        const root = this;
         if (typeof root.hoverClass !== typeof undefined) {
           var classes = root.hoverClass.split(' ');
           classes.forEach(function(item, index) {
             if (item != '') {
-              root.$$('#flyout-trigger').classList.remove(item);
+              root.$.flyouttrigger.classList.remove(item);
             }
           });
         }
@@ -212,19 +195,14 @@
        * Toggle the drawer to open / close.
        */
       toggleDrawer: function() {
-        let root = this;
-        // support for appending to the light document
-        if (root.bodyAppend) {
-          document.body.appendChild(root.$.flyoutcontent);
-        }
-        root.$.flyoutcontent.toggle();
+        this.$.modal.open();
       },
       /**
        * Handle toggle for mouse class and manage classList array for paper-button.
        */
       focusToggle: function(e) {
-        let root = this;
-        this.fire('focus-changed', {focus: root.focusState});
+        const root = this;
+        root.fire('focus-changed', {focus: root.focusState});
         // see if it has hover classes
         if (typeof root.hoverClass !== typeof undefined) {
           // break class into array
@@ -233,15 +211,25 @@
           classes.forEach(function(item, index) {
             if (item != '') {
               if (root.focusState) {
-                root.$$('#flyout-trigger').classList.add(item);
+                root.$.flyouttrigger.classList.add(item);
               }
               else {
-                root.$$('#flyout-trigger').classList.remove(item);
+                root.$.flyouttrigger.classList.remove(item);
               }
             }
           });
         }
         root.focusState = !root.focusState;
+      },
+      /**
+       * Find out if the text does not have an avatar or an icon to the left,
+       * and add a class to remove the left margin.
+       */
+       _getTextLabelClass: function() {
+        if(!this.avatar && !this.icon){
+          return 'text-label-only';
+        }
+        return 'text-label';
       },
     });
   </script>

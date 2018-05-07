@@ -16,7 +16,7 @@ Usage:
         }
       </style>
       <template is="dom-if" if="[[createProjectsUrl]]">
-        <lrnsys-button raised class$="[[classes]]" icon="[[icon]]" on-tap="_createProject" label="Create project" on-tap="[[_createProject]]"></lrnsys-button>
+        <lrnsys-button raised class$="[[classes]]" button-class$="[[classes]]" icon="[[icon]]" on-tap="_createProject" label="Create project" on-tap="[[_createProject]]"></lrnsys-button>
         <iron-ajax id="ajaxCreateStub" url="[[createProjectsUrl]]" method="POST" handle-as="json" on-response="_ajaxCreateStubHandler"></iron-ajax>
       </template>
       <template is="dom-if" if="[[displayErrors]]">
