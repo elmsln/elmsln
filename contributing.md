@@ -12,6 +12,9 @@ _**Please Note:** These guidelines are adapted from [Chosen](https://github.com/
 [issue-guidelines](https://github.com/harvesthq/chosen/blob/master/contributing.md) and serve as
 an excellent starting point for contributing to any open source project._
 
+## Apereo process
+When making a significant contribution to ELMS:LN we ask that you fill out a [ICLA](https://www.apereo.org/licensing/agreements/icla). The Individual Contributor License Agreement from Apereo (who helps foster ELMS:LN and educational technology projects more generally) helps us maintain good legal standing through due diligence that everyone involved in contribution has aknowledged that they are allowed to contribute the work they have performed.
+
 ## Copyright / Licensing
 The ELMS:LN main repo is GPLv3 which may be seen as very aggressive but effectively it's to ensure validity of the entire project's pieces working together from a license compatibility perspective. All sub-repos defer to their respective licensing (always defer to local LICENSE.md / LICENSE.txt when in question).
 
