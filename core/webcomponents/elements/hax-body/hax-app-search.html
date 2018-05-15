@@ -50,7 +50,7 @@
         display: block !important;
       }
       .loading {
-        width: 100%;
+        width: calc(100% - 32px);
         z-index: 1000;
         opacity: .9;
         text-align: center;
@@ -93,11 +93,7 @@
       hax-app-search-inputs {
         min-height: 150px;
         padding: 16px 16px 0 16px;
-        background-color: #EEEEEE;
         color: #222222;
-        border-top: 1px solid #222222;
-        border-left: 1px solid #222222;
-        border-right: 1px solid #222222;
       }
       hax-app-pagination {
         min-height: 32px;
@@ -105,11 +101,7 @@
         display: none;
         justify-content: flex-end;
         justify-content: center;
-        background-color: #EEEEEE;
         color: #222222;
-        border-bottom: 1px solid #222222;
-        border-left: 1px solid #222222;
-        border-right: 1px solid #222222;
       }
     </style>
 
@@ -226,7 +218,7 @@
        * Active app has changed.
        */
       _resetAppSearch: function(newValue, oldValue) {
-        if (typeof newValue !== typeof undefined) {
+        if (typeof newValue !== typeof undefined && newValue !== null) {
           let app = newValue;
           var requestParams = {};
           this.label = app.details.title;

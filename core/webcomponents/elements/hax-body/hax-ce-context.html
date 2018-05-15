@@ -122,6 +122,9 @@ required for populating input.
             if (typeof setting.property !== typeof undefined) {
               item.propertyToBind = setting.property;
             }
+            else if (typeof setting.attribute !== typeof undefined) {
+              item.propertyToBind = setting.attribute;
+            }
             else {
               item.slotToBind = setting.slot;
             }

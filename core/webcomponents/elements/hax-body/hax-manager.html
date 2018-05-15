@@ -1,15 +1,10 @@
 <link rel="import" href="../polymer/polymer.html">
-<link rel="import" href="../app-layout/app-layout.html">
-<link rel="import" href="../paper-tabs/paper-tabs.html">
+<link rel="import" href="../app-layout/app-drawer/app-drawer.html">
 <link rel="import" href="../paper-input/paper-input.html">
 <link rel="import" href="../paper-button/paper-button.html">
-<link rel="import" href="../paper-toggle-button/paper-toggle-button.html">
 <link rel="import" href="../iron-pages/iron-pages.html">
 <link rel="import" href="../iron-icons/iron-icons.html">
-<link rel="import" href="../paper-dialog/paper-dialog.html">
 <link rel="import" href="../vaadin-upload/vaadin-upload.html">
-<link rel="import" href="../neon-animation/web-animations.html">
-<link rel="import" href="../neon-animation/neon-animations.html">
 <link rel="import" href="../materializecss-styles/materializecss-styles.html">
 <link rel="import" href="hax-preview.html">
 <link rel="import" href="hax-app-browser.html">
@@ -36,119 +31,58 @@ A LRN element for brokering the UI for api endpoints both in querying and upload
       :host {
         display: block;
         --hax-manager-steps-color: #e5e5e5;
-        --hax-manager-tab-color: #e5e5e5;
         --hax-manager-ink-color: #2e2e2e;
         --hax-accent: #34e79a;
       }
       #dialog {
         z-index: 10000;
+        margin-top: 64px;
+      }
+      :host[active-page="0"] {
+        --app-drawer-width: 300px;
+      }
+      :host[active-page="1"] {
+        --app-drawer-width: 300px;
+      }
+      :host[active-page="2"] {
+        --app-drawer-width: 800px;
+      }
+      :host[active-step] {
+        --app-drawer-width: 1000px;
+      }
+      :host[searching] {
+        --app-drawer-width: 1000px;
+      }
+      .manager-title {
         position: fixed;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        left: 0;
-        margin: 68px;
-        overflow: auto;
-        border-bottom-left-radius: 16px;
-        border-bottom-right-radius: 16px;
-      }
-      #dialogcontent {
-        margin-top: 0;
-        padding: 0;
-        overflow: scroll;
-      }
-      .preview-buttons {
-        position: absolute;
-        z-index: 2;
-        bottom: 0;
-        left: 0;
-        background-color: white;
-      }
-      #step {
-        display: inline-block;
-        --paper-toggle-button-checked-bar-color:  var(--hax-accent);
-        --paper-toggle-button-checked-button-color:  var(--hax-accent);
-        --paper-toggle-button-checked-ink-color: var(--hax-accent);
-        --paper-toggle-button-unchecked-bar-color:  var(--hax-manager-tab-color);
-        --paper-toggle-button-unchecked-button-color:  var(--hax-manager-tab-color);
-        --paper-toggle-button-unchecked-ink-color: var(--hax-manager-tab-color);
-      }
-      .pages-tabs {
-        position: absolute;
-        left: 0;
-        right: 0;
-        z-index: 1;
-        -webkit-box-shadow: 0 0 10px -1px #222222;
-        box-shadow: 0 0 10px -1px #222222;
-        --paper-tabs-selection-bar-color: var(--hax-accent);
-        --paper-tabs-selection-bar: {
-          border-bottom: 3px solid var(--hax-accent);
-        };
-        --paper-tabs-container: {
-          margin: 0;
-          background: var(--hax-manager-tab-color);
-          color: var(--hax-manager-ink-color);
-          transition: opacity .3s ease;
-        };
-      }
-      .pages-tabs paper-tab {
-        --paper-tab-content-unselected: {
-          opacity: .9;
-          color: grey;
-        };
-        --paper-tab-ink: var(--hax-accent);
-        --paper-tab: {
-          font-family: 'Roboto', 'Noto', sans-serif;
-          -webkit-font-smoothing: antialiased;
-        };
-      }
-      .step-toggle-wrapper {
+        background-color: #ffffff;
+        width: calc(100% - 32px);
+        text-align: left;
+        padding: 8px 16px;
         margin: 0;
-        padding: 12px;
-        position: absolute;
-        top: 0;
-        right: 0;
-        font-size: 20px;
-      }
-      paper-toggle-button {
-        display: inline-block;
-        vertical-align: middle;
-      }
-      .step-toggle-wrapper div {
-        display: inline-block;
-        padding: 0 12px;
-        vertical-align: middle;
-      }
-      #dialogheader {
-        margin: 0;
-        padding: 20px;
-        position: sticky;
-        top: 0;
-        left: 0;
-        right: 0;
+        font-size: 24px;
+        font-weight: bold;
         z-index: 2;
-        border-bottom: 1px solid #222222;
-        -webkit-box-shadow: 0 0 10px -1px #222222;
-        box-shadow: 0 0 10px -1px #222222;
+        margin-top: -32px;
       }
       #activepage {
-        padding-top:48px;
+        margin-top: 32px;
       }
-      #dialogheader h2 {
-        margin: 0;
-        font-size: 28px;
+      .preview-buttons {
+        height: 48px;
+        padding: 16px;
+        color: #222222;
+        border-bottom: 1px var(--hax-manager-steps-color) solid;
+        background-color: #f8f8f8;
+        margin: 0 auto;
+        text-align: center;
       }
-      paper-tab {
-        --webkit-box-shadow: 0 0 0 1px #424242;
-        box-shadow: 0 0 0 1px #424242;
+      .preview-buttons paper-button {
+        min-width: unset;
+        width: 40%;
       }
-      paper-tab iron-icon {
-        margin-right: 16px;
-        color: #424242;
-        width: 24px;
-        height: 24px;
-        padding: 4px;
-        box-sizing: content-box;
+      #preview {
+        height: 100%;
       }
       vaadin-upload {
         --primary-color: var(--hax-accent);
@@ -156,19 +90,31 @@ A LRN element for brokering the UI for api endpoints both in querying and upload
         --dark-primary-color: #424242;
         --light-primary-color: var(--hax-accent);
         --error-color: darkred;
-        border: 2px dashed #424242 !important;
         color: #424242;
+        display: block;
         padding: 32px !important;
         --vaadin-upload-button-add-wrapper: {
           border: 2px solid #424242;
           background-color: var(--hax-accent);
           color: #424242;
+          display: block;
+        };
+        --vaadin-upload-buttons-primary: {
+          display: block;
+          width: 100%;
+          flex: unset;
+          -webkit-flex: unset;
         };
         --vaadin-upload-button-add: {
           color: #424242;
-        }
+          display: block;
+          flex: unset;
+          -webkit-flex: unset;
+        };
         --vaadin-upload-drop-label: {
           color: #424242;
+          display: block;
+          padding: 16px;
         };
         --vaadin-upload-drop-label-dragover: {
           color: #424242;
@@ -188,102 +134,46 @@ A LRN element for brokering the UI for api endpoints both in querying and upload
         padding: 0 16px;
       }
       .page-area.add-area {
-        padding: 16px;
+        padding: 0 16px;
       }
       .add-url-are,
       .add-upload-area {
-        margin: 1em 0;
+        margin: 16px 0;
       }
       .url-description {
         font-size: 12px;
         color:grey;
       }
-      #preview {
-        height: 84vh;
-      }
-      .or-text {
-        font-size: 32px;
-        margin: 4px;
-        width: 100%;
-        display: block;
-        line-height: 32px;
-        height: 32px;
-        text-align: center;
+      #steppages {
+        height: 100%;
       }
       #newassetconfigure {
-        bottom: 0;
-        left: 0;
-        right: 0;
-        position: absolute;
         width: 100%;
         margin: 0;
         padding: 16px;
         background-color: #e2e2e2;
-        -webkit-box-shadow: 0 -1px 4px 0px #222222;
-        box-shadow: 0 -1px 4px 0px #222222;
       }
       @media screen and (max-width: 550px) {
-        #dialog {
-          margin: 0;
-          overflow: auto;
-          border-bottom-left-radius: 0px;
-          border-bottom-right-radius: 0px;
-        }
         .hide-on-mobile {
           opacity: 0;
           visibility: hidden;
           position: absolute;
           left: -9999px;
         }
-        .preview-buttons {
-          position: sticky;
-        }
         .page-area.hax-manager {
           padding: 6px;
         }
-        #insert {
-          bottom: 0;
-          left:0;
-          position: fixed;
-          width: 25%;
-          margin: 0;
-          padding: 8px;
-          background-color: #34e79a;
-        }
-        #cancel {
-          bottom: 0;
-          right: 0;
-          position: fixed;
-          width: 25%;
-          margin: 0;
-          padding: 8px;
-          background-color: #EEEEEE;
-        }
-        .or-text {
-          display: none;
-        }
       }
     </style>
-    <paper-dialog id="dialog" entry-animation="slide-from-top-animation" exit-animation="slide-up-animation" with-backdrop opened="{{opened}}">
-      <div id="dialogheader" class="grey darken-3 grey-text text-lighten-3">
-        <h2 class="grey-text text-lighten-3">[[managerTitle]]</h2>
-        <div class="step-toggle-wrapper">
-          <paper-toggle-button id="step" checked="{{activeStep}}" disabled></paper-toggle-button>
-        </div>
-      </div>
-      <div class="dialog-contents" id="dialogcontent">
+    <app-drawer id="dialog" opened="{{opened}}" disable-swipe>
+      <div class="dialog-contents" id="dialogcontent" style="height: 100%; overflow: auto;">
         <iron-pages
+          id="steppages"
           selected="{{activeStep}}"
           fallback-selection="select"
           role="main">
           <div data-value="select">
-            <paper-tabs id="pagetabs" class="pages-tabs" selected="{{activePage}}" autoselect>
-              <paper-tab><iron-icon icon="image:add-to-photos"></iron-icon><span class="hide-on-mobile">Add Something</span></paper-tab>
-              <paper-tab hidden$="[[!appList.length]]">
-                <iron-icon icon="search"></iron-icon><span class="hide-on-mobile">Find Something</span></paper-tab>
-              <paper-tab hidden$="[[!staxList.length]]">
-                <iron-icon icon="hardware:toys"></iron-icon><span class="hide-on-mobile">Make Something</span></paper-tab>
-            </paper-tabs>
+            <h3 class="manager-title">[[activeTitle]]</h3>
             <iron-pages
               id="activepage"
               selected="{{activePage}}"
@@ -293,11 +183,10 @@ A LRN element for brokering the UI for api endpoints both in querying and upload
                   <paper-input id="url" label="URL" type="url" auto-validate></paper-input>
                 <div class="url-description">A full URL with http:// referencing a link that already exists on the web.</div>
                 </div>
-                <div class="or-text">OR</div>
                 <div class="add-upload-area">
                   <vaadin-upload form-data-name="file-upload" id="fileupload"></vaadin-upload>
                 </div>
-                <paper-button id="newassetconfigure" confirm raised>Configure item</paper-button>
+                <paper-button id="newassetconfigure" raised>Configure item</paper-button>
               </div>
               <div class="page-area">
                 <hax-app-browser id="appbrowser">
@@ -309,16 +198,18 @@ A LRN element for brokering the UI for api endpoints both in querying and upload
               </div>
             </iron-pages>
           </div>
-          <div>
-            <hax-preview id="preview" element="{{activeHaxElement}}"></hax-preview>
-            <div class="preview-buttons">
-              <paper-button id="insert" confirm raised>Insert</paper-button>
-              <paper-button id="cancel" raised>Cancel</paper-button>
-            </div>
+          <div style="height:100%;">
+            <hax-preview id="preview" element="{{activeHaxElement}}">
+              <div class="preview-buttons">
+                <paper-button id="insert" raised>[[editTitle]]</paper-button>
+                <paper-button id="cancel" raised>Cancel</paper-button>
+              </div>
+            </hax-preview>
           </div>
         </iron-pages>
       </div>
-    </paper-dialog>
+    </app-drawer
+    >
   </template>
 
   <script>
@@ -347,22 +238,39 @@ A LRN element for brokering the UI for api endpoints both in querying and upload
         /**
          * Title when open.
          */
-        managerTitle: {
-          type: String,
-          computed: '_computeManagerTitle(activeStep)',
+        editExistingNode: {
+          type: Boolean,
+          value: false,
         },
         /**
          * Title when open.
          */
-        editExistingNode: {
-          type: Boolean,
-          value: false,
+        editTitle: {
+          type: String,
+          computed: '_computeEditTitle(editExistingNode)',
+        },
+        /**
+         * Active title
+         */
+        activeTitle: {
+          type: String,
+          value: 'Add content',
         },
         /**
          * Active step currently selected
          */
         activeStep: {
           type: Boolean,
+          reflectToAttribute: true,
+          value: false,
+          observer: '_activeStepChanged',
+        },
+        /**
+         * Searching mode
+         */
+        searching: {
+          type: Boolean,
+          reflectToAttribute: true,
           value: false,
         },
         /**
@@ -370,6 +278,7 @@ A LRN element for brokering the UI for api endpoints both in querying and upload
          */
         activePage: {
           type: String,
+          reflectToAttribute: true,
           value: 0,
           observer: '_activePageChanged',
         },
@@ -381,7 +290,7 @@ A LRN element for brokering the UI for api endpoints both in querying and upload
           observer: '_activeHaxElementChanged',
         },
         /**
-         * List of apps so they can be added as tabs.
+         * List of apps so they can be added
          */
         appList: {
           type: Array,
@@ -412,6 +321,25 @@ A LRN element for brokering the UI for api endpoints both in querying and upload
         // specialized support for the place-holder tag
         // and a drag and drop event
         document.body.addEventListener('place-holder-file-drop', this._placeHolderFileDrop.bind(this));
+      },
+      /**
+       * Toggle panel size
+       */
+      togglePanelSize: function(e) {
+        this.$.dialog.classList.toggle('grow');
+        this.updateStyles();
+        window.dispatchEvent(new Event('resize'));
+      },
+      /**
+       * compute title for edit mode
+       */
+      _computeEditTitle: function(updateExisting) {
+        if (typeof this.activeHaxElement !== typeof undefined && updateExisting) {
+          return 'Update';
+        }
+        else {
+          return 'Insert';
+        }
       },
       /**
        * A file event was detected from a drag and drop in the interface
@@ -525,11 +453,18 @@ A LRN element for brokering the UI for api endpoints both in querying and upload
        */
       _activePageChanged: function(newValue, oldValue) {
         if (typeof newValue !== typeof undefined) {
+          this.searching = false;
+          this.updateStyles();
           if (newValue === 1) {
+            this.activeTitle = 'Find content';
             this.$.appbrowser.resetBrowser();
           }
           else if (newValue === 2) {
+            this.activeTitle = 'Make content';
             this.$.gizmobrowser.resetBrowser();
+          }
+          else {
+            this.activeTitle = 'Add content';
           }
         }
       },
@@ -542,23 +477,11 @@ A LRN element for brokering the UI for api endpoints both in querying and upload
         }
       },
       /**
-       * Form title of the modal based on the step.
-       */
-      _computeManagerTitle: function(step) {
-        if (!step) {
-          return 'Select';
-        }
-        else {
-          return 'Configure Gizmo';
-        }
-      },
-      /**
        * Notice active element changed.
        */
       _activeHaxElementChanged: function(newValue, oldValue) {
         if (typeof oldValue !== typeof undefined) {
           this.$.preview.advancedForm = false;
-          this.$.step.disabled = false;
           if (typeof newValue.tag === typeof undefined) {
             this.resetManager();
           }
@@ -581,6 +504,11 @@ A LRN element for brokering the UI for api endpoints both in querying and upload
         }
         element.replacement = previewNode;
         this.fire('hax-insert-content', element);
+        let toast = "New element added!";
+        if (this.editExistingNode) {
+          toast = "Element updated!";
+        }
+        Polymer.HaxStore.toast(toast, 2000);
         // close window
         this.close();
       },
@@ -588,17 +516,19 @@ A LRN element for brokering the UI for api endpoints both in querying and upload
        * Reset things on the display to their defaults.
        */
       resetManager: function(activePage = 0) {
+        this.selectStep('select');
+        this.activePage = activePage;
         document.body.style.overflow = null;
         this.appList = Polymer.HaxStore.instance.appList;
-        this.__allowUpload = false;
+        this.searching = false;
+        Polymer.HaxStore.write('activeApp', null, this);
+        window.dispatchEvent(new Event('resize'));
         this.editExistingNode = false;
         this.$.url.value = '';
-        this.$.step.disabled = true;
         this.$.fileupload.headers = '';
         this.$.fileupload.method = '';
         this.$.fileupload.target = '';
-        this.selectStep('select');
-        this.activePage = activePage;
+        this.__allowUpload = false;
       },
       /**
        * Cancel interaction with the modal
@@ -615,7 +545,6 @@ A LRN element for brokering the UI for api endpoints both in querying and upload
           document.body.style.overflow = null;
         }
         else if (newValue && !oldValue) {
-          this.$$('#pagetabs').focus();
           document.body.style.overflow = 'hidden';
         }
       },
@@ -667,12 +596,12 @@ A LRN element for brokering the UI for api endpoints both in querying and upload
       /**
        * Toggle ourselves.
        */
-      toggleDialog: function() {
-        if (this.opened) {
+      toggleDialog: function(toggle = true) {
+        if (this.opened && toggle) {
           this.close();
         }
         else {
-          this.open();
+          Polymer.HaxStore.instance.closeAllDrawers(this);
         }
       },
       /**
@@ -684,6 +613,15 @@ A LRN element for brokering the UI for api endpoints both in querying and upload
         }
         else {
           this.activeStep = false;
+        }
+      },
+      /**
+       * Notice step changes
+       */
+      _activeStepChanged: function(newValue, oldValue) {
+        if (newValue || !newValue) {
+          this.updateStyles();
+          window.dispatchEvent(new Event('resize'));
         }
       },
       /**

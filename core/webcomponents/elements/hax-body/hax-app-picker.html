@@ -28,11 +28,12 @@
         display: block;
       };
       #dialog {
-        max-width: 480px;
-        @apply --hax-app-picker-dialog;
+        min-width: 25vw;
+        min-height: 25vh;
         background-color: var(--hax-app-picker-dialog-background-color, white);
         border-radius: 16px;
         z-index: 1000000;
+        @apply --hax-app-picker-dialog;
       }
       #title, .element-button > div {
         color: var(--hax-app-picker-dialog-text-color, black);
@@ -51,7 +52,6 @@
         padding: 8px;
         overflow-x: hidden;
         overflow-y: auto;
-        max-height: calc(100vh - 126px);
         --paper-dialog-scrollable: {
           padding: 0;
         }
@@ -60,10 +60,16 @@
         #buttonlist {
           max-height: 50vh;
         }
+        #dialog {
+          max-width: 30vw;
+        }
       }
       @media (orientation: portrait) {
         #buttonlist {
           max-height: 60vh;
+        }
+        #dialog {
+          max-width: 40vw;
         }
       }
       .element-button {
@@ -119,7 +125,7 @@
         }
       }
     </style>
-    <paper-dialog id="dialog" entry-animation="scale-up-animation" exit-animation="scale-down-animation">
+    <paper-dialog id="dialog">
       <h2 id="title">[[title]]</h2>
       <paper-dialog-scrollable id="buttonlist">
       <template is="dom-repeat" items="[[selectionList]]" as="element">
@@ -265,13 +271,22 @@
           // haxElement is a unique case
           if (this.pickerType == 'gizmo') {
             Polymer.HaxStore.write('activeHaxElement', this._elements[key], this);
+            if (this._elements[key].__type === '__convert') {
+              Polymer.HaxStore.instance.haxManager.editExistingNode = true;
+            }
             // ensure this is open even though it should be
-            Polymer.HaxStore.instance.haxManager.open();
             Polymer.HaxStore.instance.haxManager.selectStep('configure');
+            Polymer.HaxStore.instance.haxManager.open();
           }
           else if (this.pickerType == 'delete') {
             if (this._elements[key]['title'] === 'Yes') {
-              Polymer.HaxStore.instance.activeHaxBody.haxDeleteNode(Polymer.HaxStore.instance.activeHaxBody.activeNode);
+              if (Polymer.HaxStore.instance.activeHaxBody.activeNode !== Polymer.HaxStore.instance.activeHaxBody.activeContainerNode) {
+                Polymer.HaxStore.instance.activeHaxBody.haxDeleteNode(Polymer.HaxStore.instance.activeHaxBody.activeNode, Polymer.HaxStore.instance.activeHaxBody.activeContainerNode);
+              }
+              else {
+                Polymer.HaxStore.instance.activeHaxBody.haxDeleteNode(Polymer.HaxStore.instance.activeHaxBody.activeNode);
+              }
+              Polymer.HaxStore.toast('Element deleted', 2000);
             }
           }
           else {

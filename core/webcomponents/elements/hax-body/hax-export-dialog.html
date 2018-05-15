@@ -1,16 +1,8 @@
 <link rel="import" href="../polymer/polymer.html">
-<link rel="import" href="../app-layout/app-layout.html">
+<link rel="import" href="../app-layout/app-drawer/app-drawer.html">
 <link rel="import" href="../paper-input/paper-input.html">
 <link rel="import" href="../paper-button/paper-button.html">
-<link rel="import" href="../paper-toggle-button/paper-toggle-button.html">
-<link rel="import" href="../iron-pages/iron-pages.html">
-<link rel="import" href="../iron-icons/iron-icons.html">
-<link rel="import" href="../paper-dialog/paper-dialog.html">
-<!-- <link rel="import" href="../paper-dialog-scrollable/paper-dialog-scrollable.html"> -->
 <link rel="import" href="../mtz-file-download-behavior/mtz-file-download-behavior.html">
-<link rel="import" href="../neon-animation/web-animations.html">
-<link rel="import" href="../neon-animation/neon-animations.html">
-<link rel="import" href="../materializecss-styles/materializecss-styles.html">
 
 <!--
 `hax-export-dialog`
@@ -25,77 +17,48 @@ Export dialog with all export options and settings provided.
 
 <dom-module id="hax-export-dialog">
   <template>
-    <style include="materializecss-styles">
+    <style>
       :host {
         display: block;
       }
       #dialog {
-        z-index: 10000;
-        position: fixed;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        left: 0;
-        margin: 68px;
-        overflow: auto;
-        border-bottom-left-radius: 16px;
-        border-bottom-right-radius: 16px;
+        --app-drawer-width: 500px;
+        z-index: 1000;
+        margin-top: 64px;
       }
-      #dialogcontent {
-        padding:16px;
-        margin:0;
-      }
-      #dialogheader {
+      .pref-title {
+        text-align: left;
+        padding: 8px 16px;
         margin: 0;
+        font-size: 24px;
+        font-weight: bold;
+      }
+      .pref-container {
+        text-align: left;
         padding: 16px;
       }
-      #dialogheader h2 {
-        margin: 0;
-        color: #FFFFFF;
-        font-size: 28px;
-      }
-      .page-area {
-        padding: 32px;
-      }
-      .add-url-are,
-      .add-upload-area {
-        margin: 16px 0;
-      }
-      .url-description {
-        font-size: 14px;
-        color:grey;
-      }
-      .buttons {
+      .buttons paper-button {
         color: black;
+        font-size: 12px;
+        font-weight: bold;
+        text-transform: none;
       }
-      @media screen and (max-width: 550px) {
-        #dialog {
-          margin: 0;
-          overflow: auto;
-          border-bottom-left-radius: 0px;
-          border-bottom-right-radius: 0px;
-        }
-        paper-button {
-          min-width: unset;
-          margin: 0;
-          min-height: unset;
-          height: 32px;
-        }
+      #textarea {
+        margin-bottom: 16px;
       }
     </style>
-    <paper-dialog id="dialog" entry-animation="slide-from-top-animation" exit-animation="slide-up-animation" with-backdrop>
-      <div id="dialogheader" class="grey darken-3 grey-text text-lighten-3">
-        <h2>[[exportTitle]]</h2>
-      </div>
-      <paper-dialog-scrollable class="dialog-contents" id="dialogcontent">
+    <app-drawer id="dialog" align="right">
+      <h3 class="pref-title">[[exportTitle]]</h3>
+      <div style="height: 100%; overflow: auto;" class="pref-container">
         <textarea id="textarea" rows="20" style="width:100%;"></textarea>
-      </paper-dialog-scrollable>
-      <div class="buttons">
-        <paper-button id="download" confirm raised>Download HTML</paper-button>
-        <paper-button id="downloadfull" confirm raised>Download file</paper-button>
-        <paper-button id="import" raised>Import</paper-button>
-        <paper-button id="copy" raised>Copy</paper-button>
-        <paper-button id="close" raised dialog-dismiss>Close</paper-button>
+        <div class="buttons">
+          <paper-button id="download" raised>Download HTML</paper-button>
+          <paper-button id="downloadfull" raised>Download file</paper-button>
+          <paper-button id="copy" raised>Copy</paper-button>
+          <paper-button id="import" raised hidden$="[[!globalPreferences.haxDeveloperMode]]">Import</paper-button>
+          <paper-button id="elementexport" raised hidden$="[[!globalPreferences.haxDeveloperMode]]">HAX Element export</paper-button>
+          <paper-button id="close" raised>Close</paper-button>
+        </div>
       </div>
     </paper-dialog>
   </template>
@@ -109,6 +72,8 @@ Export dialog with all export options and settings provided.
         'downloadfull.tap': 'downloadfull',
         'import.tap': 'importContent',
         'copy.tap': 'selectBody',
+        'close.tap': 'close',
+        'elementexport.tap': 'htmlToHaxElements',
       },
       behaviors: [mtz.FileDownloadBehavior],
       properties: {
@@ -118,6 +83,13 @@ Export dialog with all export options and settings provided.
         exportTitle: {
           type: String,
           value: 'Export',
+        },
+        /**
+         * Access to the global properties object.
+         */
+        globalPreferences: {
+          type: Object,
+          value: {},
         },
       },
       /**
@@ -132,6 +104,18 @@ Export dialog with all export options and settings provided.
       attached: function() {
         // fire an event that this is the manager
         this.fire('hax-register-export', this);
+        document.body.addEventListener('hax-store-property-updated', this._haxStorePropertyUpdated.bind(this));
+      },
+      /**
+       * Store updated, sync.
+       */
+      _haxStorePropertyUpdated: function(e) {
+        if (e.detail && typeof e.detail.value !== typeof undefined && e.detail.property) {
+          if (typeof e.detail.value === 'object') {
+            this.set(e.detail.property, null);
+          }
+          this.set(e.detail.property, e.detail.value);
+        }
       },
       /**
        * Download file.
@@ -158,17 +142,23 @@ Export dialog with all export options and settings provided.
       /**
        * selectBody
        */
-      selectBody: function() {
+      selectBody: function(e) {
         this.$.textarea.focus();
         this.$.textarea.select();
         document.execCommand('copy');
       },
       /**
-       * Toggle ourselves.
+       * HTML to HAX Elements
        */
-      toggleDialog: function() {
-        this.$.textarea.value = this.contentToFile(false);
-        this.$.dialog.toggle();
+      htmlToHaxElements: function(e) {
+        let elements = Polymer.HaxStore.htmlToHaxElements(this.$.textarea.value);
+        var str = JSON.stringify(elements, null, 2);
+        let val = this.$.textarea.value;
+        this.$.textarea.value = str;
+        this.$.textarea.focus();
+        this.$.textarea.select();
+        document.execCommand('copy');
+        this.$.textarea.value = val;
       },
       /**
        * Output entire thing as a file.
@@ -211,6 +201,30 @@ Export dialog with all export options and settings provided.
           content = Polymer.HaxStore.instance.activeHaxBody.haxToContent();
         }
         return content;
+      },
+      /**
+       * Toggle ourselves.
+       */
+      toggleDialog: function() {
+        if (this.$.dialog.opened) {
+          this.close();
+        }
+        else {
+          this.$.textarea.value = this.contentToFile(false);
+          Polymer.HaxStore.instance.closeAllDrawers(this);
+        }
+      },
+      /**
+       * open the dialog
+       */
+      open: function() {
+        this.$.dialog.open();
+      },
+      /**
+       * close the dialog
+       */
+      close: function() {
+        this.$.dialog.close();
       },
     });
   </script>

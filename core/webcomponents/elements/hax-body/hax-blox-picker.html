@@ -1,12 +1,12 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../app-layout/app-drawer/app-drawer.html">
-<link rel="import" href="hax-stax-browser.html">
+<link rel="import" href="hax-blox-browser.html">
 
 <!--
- `hax-stax-picker`
- A picker for selecting an item from a list of apps / hax stax which require
+ `hax-blox-picker`
+ A picker for selecting an item from a list of apps / hax blox which require
  a decision to be made. This is used when multiple things match either on upload
- in the add operation of the app or in the stax selection to render through,
+ in the add operation of the app or in the blox selection to render through,
  such as having multiple ways of presenting an image.
 
 @demo demo/index.html
@@ -15,7 +15,7 @@
  - data - this is the app data model for an element which expresses itself to hax
 -->
 
-<dom-module id="hax-stax-picker">
+<dom-module id="hax-blox-picker">
   <template>
     <style>
       :host {
@@ -25,7 +25,7 @@
         --app-drawer-width: 320px;
         z-index: 1000;
         margin-top: 64px;
-        @apply --hax-stax-picker-dialog;
+        @apply --hax-blox-picker-dialog;
       }
       .pref-title {
         text-align: left;
@@ -45,20 +45,20 @@
     <app-drawer id="dialog" align="left">
       <h3 class="pref-title">[[header]]</h3>
       <div style="height: 100%; overflow: auto;" class="pref-container">
-        <hax-stax-browser id="staxbrowser"></hax-stax-browser>
+        <hax-blox-browser id="bloxbrowser"></hax-blox-browser>
       </div>
     </app-drawer>
   </template>
   <script>
     Polymer({
-      is: 'hax-stax-picker',
+      is: 'hax-blox-picker',
       properties: {
         /**
          * Header so it's variable
          */
         header: {
           type: String,
-          value: 'Template browser',
+          value: 'Layouts (experimental)',
         },
       },
       /**
@@ -71,13 +71,13 @@
        * Attached life cycle
        */
       attached: function() {
-        this.fire('hax-register-stax-picker', this);
+        this.fire('hax-register-blox-picker', this);
       },
       /**
        * Open the dialog
        */
       open: function() {
-        this.$.staxbrowser.resetBrowser();
+        this.$.bloxbrowser.resetBrowser();
       },
       /**
        * open the dialog

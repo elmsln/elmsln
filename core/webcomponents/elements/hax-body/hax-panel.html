@@ -5,6 +5,7 @@
 <link rel="import" href="hax-panel-item.html">
 <link rel="import" href="hax-preferences-dialog.html">
 <link rel="import" href="hax-stax-picker.html">
+<link rel="import" href="hax-blox-picker.html">
 
 <!--
 `hax-panel`
@@ -133,18 +134,18 @@ as the events being bubbled up include HTML nodes to inject into something
         event-name="hax-manager-open"
         value="2"></hax-panel-item>
       <hax-panel-item
-        disabled
-        icon="view-quilt"
-        icon-class="amber-text text-darken-3"
-        label="Layout"
-        event-name="layout"
-        voice-command="insert block"></hax-panel-item>
-      <hax-panel-item
         icon="view-agenda"
         icon-class="amber-text"
-        label="Template"
+        label="Templates"
         event-name="hax-stax-picker-open"
         voice-command="insert stack"></hax-panel-item>
+      <hax-panel-item
+        disabled$="[[!haxDeveloperMode]]"
+        icon="view-quilt"
+        icon-class="amber-text"
+        label="Layouts"
+        event-name="hax-blox-picker-open"
+        voice-command="insert block"></hax-panel-item>
       <hax-panel-item
         icon="editor:text-fields"
         icon-class="light-blue-text"
@@ -188,8 +189,9 @@ as the events being bubbled up include HTML nodes to inject into something
         event-name="cancel"
         voice-command="cancel hax"></hax-panel-item>
     </app-drawer>
-    <hax-preferences-dialog></hax-preferences-dialog>
     <hax-stax-picker></hax-stax-picker>
+    <hax-blox-picker></hax-blox-picker>
+    <hax-preferences-dialog></hax-preferences-dialog>
   </template>
   <script>
     Polymer({
@@ -222,6 +224,13 @@ as the events being bubbled up include HTML nodes to inject into something
          * Showing export area.
          */
         hideExportButton: {
+          type: Boolean,
+          value: false,
+        },
+        /**
+         * Show developer mode
+         */
+        haxDeveloperMode: {
           type: Boolean,
           value: false,
         },
@@ -269,6 +278,9 @@ as the events being bubbled up include HTML nodes to inject into something
         if (typeof value !== typeof undefined) {
           if (value.value != null && typeof value.value.haxShowExportButton !== typeof undefined) {
             this.hideExportButton = !value.value.haxShowExportButton;
+          }
+          if (value.value != null && typeof value.value.haxDeveloperMode !== typeof undefined) {
+            this.haxDeveloperMode = value.value.haxDeveloperMode;
           }
         }
       },
@@ -348,21 +360,16 @@ as the events being bubbled up include HTML nodes to inject into something
             detail.content = '';
             this.fire('hax-insert-content', detail);
           break;
-          case 'layout':
-            detail.tag = 'hax-blox';
-            detail.content = '<p slot="area1">Column 1 content</p><p slot="area2">Column 2 content</p>';
-            detail.properties = {
-              'layout': 'cols-50-50',
-            };
-            this.fire('hax-insert-content', detail);
-          break;
           case 'hax-manager-open':
             Polymer.HaxStore.write('activeHaxElement', {}, this);
             Polymer.HaxStore.instance.haxManager.resetManager(parseInt(detail.value));
-            Polymer.HaxStore.instance.haxManager.toggleDialog();
+            Polymer.HaxStore.instance.haxManager.toggleDialog(false);
           break;
           case 'hax-stax-picker-open':
             Polymer.HaxStore.instance.haxStaxPicker.toggleDialog();
+          break;
+          case 'hax-blox-picker-open':
+            Polymer.HaxStore.instance.haxBloxPicker.toggleDialog();
           break;
           case 'undo':
             document.execCommand('undo');
@@ -412,6 +419,9 @@ as the events being bubbled up include HTML nodes to inject into something
       toggle: function(e) {
         Polymer.HaxStore.write('editMode', !this.editMode, this);
         this.$.drawer.opened = this.editMode;
+        if (!this.$.drawer.opened) {
+          Polymer.HaxStore.instance.closeAllDrawers();
+        }
       }
     });
   </script>

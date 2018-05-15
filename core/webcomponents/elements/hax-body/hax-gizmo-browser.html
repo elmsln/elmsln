@@ -36,8 +36,6 @@ Browse a list of gizmos. This provides a listing of custom elements for people t
     <app-toolbar>
       <dropdown-select id="filtertype" label="Filter gizmos by" value="title">
         <paper-item value="title">Title</paper-item>
-        <paper-item value="status">Status</paper-item>
-        <paper-item value="description">Description</paper-item>
       </dropdown-select>
       <paper-input label="Filter" id="inputfilter" aria-controls="filter" value="" always-float-label></paper-input>
     </app-toolbar>
@@ -105,7 +103,6 @@ Browse a list of gizmos. This provides a listing of custom elements for people t
        */
       resetBrowser: function() {
         this.set('__gizmoList', Polymer.HaxStore.instance.gizmoList);
-        this.$.filter.$$('#ironlist').fire('iron-resize');
         this.$.filter.$$('#ironlist').filtered = this.__gizmoList;
         this.$.inputfilter.value = '';
         this.$.filtertype.value = 'title';
@@ -113,6 +110,10 @@ Browse a list of gizmos. This provides a listing of custom elements for people t
         this.$.filter.filter();
         this.$.filter.where = 'title';
         this.$.filter.like = '';
+        setTimeout( () => {
+          this.$.filter.$$('#ironlist').fire('iron-resize');
+          window.dispatchEvent(new Event('resize'));
+        }, 100);
       },
     });
   </script>

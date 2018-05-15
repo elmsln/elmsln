@@ -23,32 +23,30 @@ Browse a list of apps. This provides a listing of our gizmos that we've integrat
     <style>
       :host {
         display: block;
-      }
-      hax-app-browser-item {
-        margin: 10px;
-      }
-      @media screen and (max-width: 550px) {
-        hax-app-browser-item {
-          margin: 6px;
-        }
+        --hax-accent: #34e79a;
       }
       #ironlist {
-        min-height: 125px;
+        min-height: 72px;
+      }
+      hax-app-browser-item {
+        margin: 6px;
+        -webkit-transition: .3s all linear;
+        transition: .3s all linear;
       }
     </style>
     <app-toolbar>
-      <dropdown-select id="filtertype" label="Filter apps by" value="title">
-        <paper-item value="title">Title</paper-item>
-        <paper-item value="tag">Tag</paper-item>
+      <dropdown-select id="filtertype" label="Filter apps by" value="details.title">
+        <paper-item value="details.title">Title</paper-item>
       </dropdown-select>
       <paper-input label="Filter" id="inputfilter" aria-controls="filter" value="" always-float-label></paper-input>
     </app-toolbar>
-    <grafitto-filter id="filter" items="[[__appList]]" like=""  where="title" as="filtered">
+    <grafitto-filter id="filter" items="[[__appList]]" like=""  where="details.title" as="filtered">
       <template>
         <iron-list id="ironlist" items="[[filtered]]" as="app" grid>
           <template>
             <div class="app-container">
             <hax-app-browser-item
+              small
               index="[[app.index]]"
               title="[[app.details.title]]"
               icon="[[app.details.icon]]"
@@ -65,7 +63,7 @@ Browse a list of apps. This provides a listing of our gizmos that we've integrat
         </iron-list>
       </template>
     </grafitto-filter>
-    <hax-app-search id="haxappsearch" hidden$="[[!__showSearch]]"></hax-app-search>
+    <hax-app-search id="haxappsearch" hidden$="[[!searching]]"></hax-app-search>
     <slot></slot>
   </template>
   <script>
@@ -79,6 +77,14 @@ Browse a list of apps. This provides a listing of our gizmos that we've integrat
          */
         search: {
           type: String,
+        },
+        /**
+         * Searching mode
+         */
+        searching: {
+          type: Boolean,
+          reflectToAttribute: true,
+          value: false,
         },
         /**
          * Global activeApp object.
@@ -112,7 +118,7 @@ Browse a list of apps. This provides a listing of our gizmos that we've integrat
         // item bubbled up
         if (typeof e.detail !== typeof undefined) {
           this.set('__activeApp', e.detail);
-          this.__showSearch = true;
+          this.searching = true;
           Polymer.HaxStore.write('activeApp', this.__appList[e.detail], this);
         }
       },
@@ -121,14 +127,11 @@ Browse a list of apps. This provides a listing of our gizmos that we've integrat
        */
       _activeAppChanged: function(newValue, oldValue) {
         if (typeof oldValue !== typeof undefined && newValue != null) {
+          Polymer.HaxStore.instance.haxManager.searching = true;
           setTimeout( () => {
-            if (typeof this.$.haxappsearch.scrollIntoViewIfNeeded === 'function') {
-                  this.$.haxappsearch.scrollIntoViewIfNeeded(true);
-                }
-                else {
-                  this.$.haxappsearch.scrollIntoView({behavior: "smooth", inline: "center"});
-                }
-          }, 250);
+            Polymer.HaxStore.instance.haxManager.updateStyles();
+            window.dispatchEvent(new Event('resize'));
+          }, 100);
         }
       },
       /**
@@ -143,16 +146,19 @@ Browse a list of apps. This provides a listing of our gizmos that we've integrat
        * Reset this browser.
        */
       resetBrowser: function() {
-        this.__showSearch = false;
+        this.searching = false;
         this.set('__appList', Polymer.HaxStore.instance.appList);
-        this.$.filter.$$('#ironlist').fire('iron-resize');
         this.$.filter.$$('#ironlist').filtered = this.__appList;
         this.$.inputfilter.value = '';
-        this.$.filtertype.value = 'title';
+        this.$.filtertype.value = 'details.title';
         this.$.filter.value = '';
         this.$.filter.filter();
-        this.$.filter.where = 'title';
+        this.$.filter.where = 'details.title';
         this.$.filter.like = '';
+        setTimeout( () => {
+          this.$.filter.$$('#ironlist').fire('iron-resize');
+          window.dispatchEvent(new Event('resize'));
+        }, 100);
       },
     });
   </script>

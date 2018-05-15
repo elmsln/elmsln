@@ -4,8 +4,10 @@
 <link rel="import" href="../paper-card/paper-card.html">
 <link rel="import" href="../paper-input/paper-textarea.html">
 <link rel="import" href="../code-editor/code-editor.html">
+<link rel="import" href="../iron-icons/iron-icons.html">
 <link rel="import" href="../app-datepicker/app-datepicker.html">
 <link rel="import" href="../paper-icon-picker/paper-icon-picker.html">
+<link rel="import" href="../paper-input-flagged/paper-input-flagged.html">
 <link rel="import" href="../vaadin-split-layout/vaadin-split-layout.html">
 <!--
 `hax-preview`
@@ -25,25 +27,9 @@ An element that can generate a form
       :host {
         display: block;
       }
-      .step-toggle-wrapper {
-        margin: 0;
-        padding: 12px;
-        position: absolute;
-        top: 0;
-        right: 0;
-        font-size: 18px;
-      }
-      .step-toggle-wrapper paper-toggle-button {
-        display: inline-block;
-        vertical-align: middle;
-      }
-      .step-toggle-wrapper div {
-        display: inline-block;
-        vertical-align: middle;
-        padding: 0 12px;
-      }
       paper-card.form-wrapper {
-        margin: 48px 0;
+        margin: 0;
+        padding: 8px;
         width: 100%;
         min-height: 160px;
       }
@@ -52,6 +38,9 @@ An element that can generate a form
         display: flex;
         justify-content: space-around;
         height: 100%;
+        --vaadin-split-layout-splitter: {
+          background-color: #f8f8f8;
+        };
       }
       eco-json-schema-object {
         width: 50%;
@@ -61,7 +50,7 @@ An element that can generate a form
         flex: 1 1 auto;
         width: 100%;
         flex-wrap: nowrap;
-        margin: 5px;
+        margin: 0;
         height: 100%;
       }
       #form {
@@ -69,11 +58,28 @@ An element that can generate a form
           display: block !important;
         }
       }
+      #preview {
+        padding:8px;
+      }
+      .preview-text {
+        font-size: 11px;
+        font-family: sans-serif;
+        color: #CCCCCC;
+        font-style: italic;
+        width: 100%;
+        height: 24px;
+        line-height: 16px;
+        border-bottom: 1px solid #CCCCCC;
+        text-align: center;
+      }
+      .preview-text iron-icon {
+        margin: 0 8px;
+      }
+      .preview-text-bottom {
+        border-bottom: unset;
+        border-top: 1px solid #CCCCCC;
+      }
       @media screen and (max-width: 550px) {
-        .step-toggle-wrapper {
-          padding: 4px;
-          font-size: 16px;
-        }
         .hide-on-mobile {
           opacity: 0;
           visibility: hidden;
@@ -82,24 +88,33 @@ An element that can generate a form
         }
       }
 
-      paper-tabs {
+      #modetabs {
+        height: 80px;
+        border-bottom: 1px #e5e5e5 solid;
         --paper-tabs-selection-bar-color: #34e79a;
         --paper-tabs: {
           background: #f8f8f8;
         }
       }
 
-      paper-tab {
+      #modetabs paper-tab {
         --paper-tab-ink: #34e79a;
         --paper-tab: {
-          font-size: .8em;
+          font-size: 16px;
         }
+      }
+      #modetabs paper-tab paper-button {
+        min-width: unset;
+        width: 100%;
       }
     </style>
     <vaadin-split-layout class="panel-wrapper">
       <!-- critique panel -->
       <div class="vaadin-split-layout-panel">
+        <slot></slot>
+        <div class="preview-text"><iron-icon icon="icons:arrow-drop-down"></iron-icon><iron-icon icon="icons:arrow-drop-down"></iron-icon><iron-icon icon="icons:arrow-drop-down"></iron-icon>start preview<iron-icon icon="icons:arrow-drop-down"></iron-icon><iron-icon icon="icons:arrow-drop-down"></iron-icon><iron-icon icon="icons:arrow-drop-down"></iron-icon></div>
         <div id="preview"></div>
+        <div class="preview-text preview-text-bottom"><iron-icon icon="icons:arrow-drop-up"></iron-icon><iron-icon icon="icons:arrow-drop-up"></iron-icon><iron-icon icon="icons:arrow-drop-up"></iron-icon>end preview<iron-icon icon="icons:arrow-drop-up"></iron-icon><iron-icon icon="icons:arrow-drop-up"></iron-icon><iron-icon icon="icons:arrow-drop-up"></iron-icon></div>
       </div>
       <!-- critique panel -->
       <div class="vaadin-split-layout-panel">
@@ -107,12 +122,10 @@ An element that can generate a form
         <!-- editor mode -->
         <template is="dom-if" if="[[haspreviewNode]]">
           <paper-tabs id="modetabs" selected="{{modeTab}}" attr-for-selected="data-mode">
-            <paper-tab data-mode="configure">Configure</paper-tab>
-            <paper-tab data-mode="advanced">Advanced</paper-tab>
+            <paper-tab data-mode="configure"><paper-button raised noink>Configure</paper-button></paper-tab>
+            <paper-tab data-mode="advanced"><paper-button raised noink>Advanced</paper-button></paper-tab>
           </paper-tabs>
         </template>
-        <div class="step-toggle-wrapper">
-        </div>
         <paper-card class="form-wrapper">
           <eco-json-schema-object id="form" schema="[[schema]]" value="{{value}}"></eco-json-schema-object>
         </paper-card>
@@ -257,14 +270,15 @@ An element that can generate a form
                   if (typeof schema.properties[property].component !== typeof undefined) {
                     schema.properties[property].component.properties.value = element.properties[property];
                   }
-                  if (element.properties[property] === true) {
-                    this.previewNode.setAttribute(property, property);
-                  }
-                  else if (element.properties[property] === false) {
-                    this.previewNode.removeAttribute(property);
-                  }
-                  else {
-                    this.previewNode.setAttribute(property, element.properties[property]);
+                  // attempt to set the property in the preview node
+                  if (element.properties[property] != null && !element.properties[property].readOnly) {
+                    // attempt to set it, should be no problem but never know
+                    try {
+                      this.previewNode.set(property, element.properties[property]);
+                    }
+                    catch(e) {
+                      console.log(e);
+                    }
                   }
                 }
                 this.set('value.' + property, element.properties[property]);
@@ -299,7 +313,7 @@ An element that can generate a form
           // see if we can get schema off of this.
           if (typeof newValue.tagName !== typeof undefined && typeof Polymer.HaxStore.instance.elementList[newValue.tagName.toLowerCase()] !== typeof undefined) {
             let element = this.element;
-            let props = Polymer.HaxStore.instance.elementList[this.previewNode.tagName.toLowerCase()];
+            let props = Polymer.HaxStore.instance.elementList[newValue.tagName.toLowerCase()];
             let schema = {};
             if (typeof newValue.getHaxJSONSchemaType === 'function') {
               schema = Polymer.HaxStore.instance.getHaxJSONSchema(this.formKey, props, newValue);
@@ -317,35 +331,26 @@ An element that can generate a form
                     schema.properties[property].component.properties.value = element.properties[property];
                   }
                 }
-                if (element.properties[property] != null && element.properties[property].constructor === Array && !element.properties[property].readOnly) {
+                // ensure this isn't read only
+                if (element.properties[property] != null && !element.properties[property].readOnly) {
+                  // attempt to set it, should be no problem but never know
                   try {
                     newValue.set(property, element.properties[property]);
                   }
                   catch(e) {
 
                   }
-                }
-                else if (element.properties[property] != null && element.properties[property].constructor === Object && !element.properties[property].readOnly) {
-                  try {
-                    newValue.set(property, element.properties[property]);
-                  }
-                  catch(e) {
-
-                  }
-                }
-                else {
-                  newValue.setAttribute(property, element.properties[property]);
                 }
                 this.set('value.' + property, element.properties[property]);
               }
             }
             // then, let the node itself dictate defaults if things are not set
-            for (var property in newValue.properties) {
-              if ((typeof element.properties === typeof undefined || typeof element.properties[property] === typeof undefined || element.properties[property] == '' || element.properties[property] == null) && newValue.properties.hasOwnProperty(property) && typeof schema.properties[property] !== typeof undefined && typeof newValue.properties[property].value !== typeof undefined && newValue.properties[property].value !== null) {
+            for (var property in newValue) {
+              if (newValue.hasOwnProperty(property) && typeof schema.properties[property] !== typeof undefined && typeof newValue[property].value !== typeof undefined && newValue[property].value !== null) {
                 schema.properties[property].value = newValue.properties[property].value;
                 // support custom element input
                 if (typeof schema.properties[property].component !== typeof undefined) {
-                  schema.properties[property].component.properties.value = newValue.properties[property].value;
+                    schema.properties[property].component.properties.value = newValue.properties[property].value;
                 }
                 this.set('value.' + property, newValue.properties[property].value);
               }
@@ -412,25 +417,24 @@ An element that can generate a form
           for (var value in props.settings[this.formKey]) {
             // support property binding
             if (props.settings[this.formKey].hasOwnProperty(value) && typeof props.settings[this.formKey][value].property !== typeof undefined && typeof this.value[props.settings[this.formKey][value].property] !== typeof undefined) {
-              // support weirdness in camel vs non-camelcase setting
-              let attributeName = Polymer.HaxStore.camelToDash(props.settings[this.formKey][value].property);
               // special supporting for boolean because html is weird :p
               if (this.value[props.settings[this.formKey][value].property] === true) {
-                node.setAttribute(attributeName, props.settings[this.formKey][value].property);
+                node[props.settings[this.formKey][value].property] = true;
               }
               else if (this.value[props.settings[this.formKey][value].property] === false) {
-                node.removeAttribute(attributeName);
+                node[props.settings[this.formKey][value].property] = false;
               }
               else {
                 // account for Array based values
                 if (this.value[props.settings[this.formKey][value].property] != null && this.value[props.settings[this.formKey][value].property].constructor === Array) {
-                  node.set(attributeName, Polymer.HaxStore.toArray(this.value[props.settings[this.formKey][value].property]));
+                  node.set(props.settings[this.formKey][value].property, Polymer.HaxStore.toArray(this.value[props.settings[this.formKey][value].property]));
                 }
                 else if (this.value[props.settings[this.formKey][value].property] != null && this.value[props.settings[this.formKey][value].property].constructor === Object) {
-                  node.set(attributeName, this.value[props.settings[this.formKey][value].property]);
+                  node.set(props.settings[this.formKey][value].property, this.value[props.settings[this.formKey][value].property]);
                 }
                 else {
-                  node.setAttribute(attributeName, this.value[props.settings[this.formKey][value].property]);
+                  // string most likely
+                  node.set(props.settings[this.formKey][value].property, this.value[props.settings[this.formKey][value].property]);
                 }
               }
               this.set('element.properties.' + props.settings[this.formKey][value].property, this.value[props.settings[this.formKey][value].property]);
@@ -439,7 +443,7 @@ An element that can generate a form
               let attributeName = Polymer.HaxStore.camelToDash(props.settings[this.formKey][value].attribute);
               // special supporting for boolean because html is weird :p
               if (this.value[props.settings[this.formKey][value].attribute] === true) {
-                node.setAttribute(attributeName, props.settings[this.formKey][value].attribute);
+                node.setAttribute(attributeName, attributeName);
               }
               else if (this.value[props.settings[this.formKey][value].attribute] === false) {
                 node.removeAttribute(attributeName);
@@ -448,12 +452,18 @@ An element that can generate a form
                 // special support for innerText which is an html attribute...sorta
                 if (attributeName === 'inner-text') {
                   node.innerText = this.value[props.settings[this.formKey][value].attribute];
+                  node.removeAttribute('innertext');
                 }
-                else {
+                else if (this.value[props.settings[this.formKey][value].attribute] !== null && this.value[props.settings[this.formKey][value].attribute] !== 'null') {
                   node.setAttribute(attributeName, this.value[props.settings[this.formKey][value].attribute]);
                 }
               }
-              this.set('element.properties.' + props.settings[this.formKey][value].attribute, this.value[props.settings[this.formKey][value].attribute]);
+              // have to specially ignore this since it's not really an
+              // attribute that we want to keep but HTML4 that brought us
+              // this was never meant to be used how developers now do it...
+              if (attributeName !== 'inner-text' && this.value[props.settings[this.formKey][value].attribute] !== null && this.value[props.settings[this.formKey][value].attribute] !== 'null') {
+                this.set('element.properties.' + props.settings[this.formKey][value].attribute, this.value[props.settings[this.formKey][value].attribute]);
+              }
             }
             else if (typeof props.settings[this.formKey][value].slot !== typeof undefined && typeof this.value[props.settings[this.formKey][value].slot] !== typeof undefined) {
               let slotTag = 'span';
