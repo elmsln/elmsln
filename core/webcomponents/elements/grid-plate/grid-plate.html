@@ -1,0 +1,115 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../hax-body-behaviors/hax-body-behaviors.html">
+<link rel="import" href="../responsive-grid/responsive-grid-row.html">
+<link rel="import" href="../responsive-grid/responsive-grid-col.html">
+<!--
+`grid-plate`
+A LRN element
+
+@demo demo/index.html
+
+@microcopy - the mental model for this element
+ -
+ -
+
+-->
+
+<dom-module id="grid-plate">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+    <responsive-grid-row gutter="0">
+      <responsive-grid-col xl$="[[size.area1]]" lg$="[[size.area1]]" md$="[[size.area1]]" sm$="[[size.area1]]" xs$="[[size.area1]]">
+        <slot name="area1"></slot>
+      </responsive-grid-col>
+      <responsive-grid-col xl$="[[size.area2]]" lg$="[[size.area2]]" md$="[[size.area2]]" sm$="[[size.area2]]" xs$="[[size.area2]]">
+        <slot name="area2"></slot>
+      </responsive-grid-col>
+      <responsive-grid-col xl$="[[size.area3]]" lg$="[[size.area3]]" md$="[[size.area3]]" sm$="[[size.area3]]" xs$="[[size.area3]]">
+        <slot name="area3"></slot>
+      </responsive-grid-col>
+    </responsive-grid-row>
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'grid-plate',
+      behaviors: [HAXBehaviors.PropertiesBehaviors],
+      properties: {
+        /**
+         * areas
+         */
+        areas: {
+          type: Number,
+          value: 3,
+        },
+        /**
+         * Size description
+         */
+        size: {
+          type: Object,
+          computed: '_computeSize(areas)',
+        },
+      },
+      /**
+       * Get size relative to areas in a base 12 grid
+       */
+      _computeSize: function(areas) {
+        switch (areas) {
+          case 1:
+            return {
+              'area1': 12,
+              'area2': 12,
+              'area3': 12,
+            };
+          break;
+          case 2:
+            return {
+              'area1': 5,
+              'area2': 5,
+              'area3': 12,
+            };
+          break;
+          case 3:
+            return {
+              'area1': 3,
+              'area2': 3,
+              'area3': 3,
+            };
+          break;
+        }
+      },
+      /**
+       * Attached to the DOM, now fire.
+       */
+      attached: function() {
+        // Establish hax property binding
+        let props = {
+          'canScale': true,
+          'canPosition': true,
+          'canEditSource': false,
+          'settings': {
+            'quick': [
+              {
+                'property': 'areas',
+                'title': 'Grid setting',
+                'description': 'Number of grid areas',
+                'inputMethod': 'textfield',
+                'icon': 'image:grid-on',
+              },
+            ],
+            'configure': [
+            ],
+            'advanced': [
+            ]
+          }
+        };
+        this.setHaxProperties(props);
+      },
+    });
+  </script>
+</dom-module>

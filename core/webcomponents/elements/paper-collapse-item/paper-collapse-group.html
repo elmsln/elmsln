@@ -1,0 +1,102 @@
+<link rel="import" href="../polymer/polymer.html">
+
+<!--
+An element which is able to group a set of paper-collapse-items , where only one
+item can be opened.
+
+### Example
+
+```html
+<paper-collapse-group>
+	<paper-collapse-item icon="icons:favorite" header="Item 1" opened>
+		Only on item will be opened inside groups
+	</paper-collapse-item>
+	<paper-collapse-item icon="icons:info" header="Item 2">
+		Only on item will be opened inside groups
+	</paper-collapse-item>
+	<paper-collapse-item icon="icons:help" header="<b>Header <u>with</u> HTML</b>">
+		Only on item will be opened inside groups
+	</paper-collapse-item>
+</paper-collapse-group>
+```
+
+@demo demo/index.html
+-->
+<dom-module id="paper-collapse-group">
+	<template>
+		<slot id="content"></slot>
+	</template>
+</dom-module>
+
+<script>
+
+(function() {
+
+	Polymer({
+		is: 'paper-collapse-group',
+
+		properties: {
+			/**
+			 * Array of observed paper-collapse-items
+			 *
+			 * @type {Array}
+			 */
+			_items: {
+				type: Array,
+				notify: true,
+				value: []
+			}
+		},
+
+		listeners: {
+			'toggle': '_onToggle'
+		},
+
+		/**
+		 * Setup content observer
+		 */
+		ready: function(){
+			this._observeItems();
+		},
+
+		/**
+		 * Observe Items
+		 *
+		 * Setup an observer for newly added items
+		 */
+		_observeItems: function() {
+			Polymer.dom(this.$.content).observeNodes(function(info) {
+				var addedItems = info.addedNodes.filter(function(node) {
+					return node.nodeName.toLowerCase() === 'paper-collapse-item';
+				});
+
+				if (addedItems.length > 0) {
+					this._items = this._items.concat(addedItems);
+
+					this.fire('update');
+				}
+			}.bind(this));
+		},
+
+		/**
+		 * On Toggle
+		 *
+		 * Listen to fired toggle events from items and update the groups
+		 *
+		 * @param  {Event} e
+		 */
+		_onToggle: function(e){
+			this._items.forEach(function(item) {
+				// Force all other items (aside the one triggering the event) to
+				// get closed
+				if (item !== e.target && e.target.opened === true) {
+					item.opened = false;
+				}
+			});
+		}
+
+	});
+
+})();
+
+</script>
