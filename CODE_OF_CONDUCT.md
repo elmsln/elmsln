@@ -18,7 +18,6 @@ How you will keep our community awesome:
 * Being respectful of differing viewpoints and experiences
 * Accepting constructive criticism
 * Acting in the best interests of the community
-* Only promoting and utilizing Free Open Source Solutions (FOSS)
 
 Behaviors our community will not tolerate:
 
