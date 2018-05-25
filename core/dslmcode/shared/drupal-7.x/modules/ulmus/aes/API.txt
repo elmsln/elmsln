@@ -61,7 +61,7 @@ Function:
 string|false aes_get_password($uid, $decrypt = false)
 
 Description:
-Gets a users password, in plain text, or in it's encrypted form.
+Gets a users password, in plain text, or in its encrypted form.
 
 Arguments:
 int $uid The user ID.

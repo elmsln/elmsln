@@ -135,7 +135,7 @@ class Minifier
 
     /**
      * Takes a string containing javascript and removes unneeded characters in
-     * order to shrink the code without altering it's functionality.
+     * order to shrink the code without altering its functionality.
      *
      * @param  string      $js      The raw javascript to be minified
      * @param  array       $options Various runtime options in an associative array
@@ -449,7 +449,7 @@ class Minifier
     /**
      * Pushes the index ahead to the next instance of the supplied string. If it
      * is found the first character of the string is returned and the index is set
-     * to it's position.
+     * to its position.
      *
      * @param  string       $string
      * @return string|false Returns the first character of the string or false.

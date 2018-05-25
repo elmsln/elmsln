@@ -37,7 +37,7 @@ function drush_ecl_drush_command() {
 /**
  * Load the cache bin with content from the various entities.
  * @param $type Optional. The specific type of entity that should
- *   get it's content cached.
+ *   get its content cached.
  */
 function drush_ecl_load_cache($type = '') {
   $types = entity_get_info();

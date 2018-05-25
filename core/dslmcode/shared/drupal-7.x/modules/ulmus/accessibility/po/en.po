@@ -650,7 +650,7 @@ msgstr[body] "Any image that is not used decorativey or which is purely for layo
 msgctxt "imgAltTextNotRedundant"
 msgid "imgAltTextNotRedundant"
 msgstr[title] "Unless the image files are the same, no image should contain redundant alt text"
-msgstr[body] "Every distinct image on a page should have it's own <em>alt</em> text which is different than all the others on the page to avoid redundancy and confusion."
+msgstr[body] "Every distinct image on a page should have its own <em>alt</em> text which is different than all the others on the page to avoid redundancy and confusion."
 
 
 msgctxt "imgGifNoFlicker"

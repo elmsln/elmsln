@@ -135,7 +135,7 @@ Version 7.x-2.3
 - Date Tools is defaulting to creating a calendar even if Calendar module is not enabled.
 - Issue #1472148 by arlinsandbulte: wvega jQuery time-picker doesn't show scrollbar.
 - Issue #1392128 by kidrobot, tim.plunkett, willvincent: Fixed Repeats tab shows on nodes with non-repeating dates.
-- Issue #1452882 by coredumperror: Fixed Date Migrate Example doesn't deregister it's migration when disabled.
+- Issue #1452882 by coredumperror: Fixed Date Migrate Example doesn't deregister its migration when disabled.
 - Issue #1452408 by reglogge: Fixed Trailing dots are removed from date formats even if they are needed for the format.
 - Issue #1285260 by Steven Jones: Fixed 'Starting from' display option.
 - Issue #1467244 by bluetegu: Fixed Recurring Sunday errors.
