@@ -38,7 +38,7 @@ Guidelines for bug reports:
 2. **Check if the bug has already been fixed** &mdash; try to reproduce it using the
    repository's latest `master` changes.
 
-3. **Isolate the problem** &mdash; ideally reproducing this issue in our (vagrant environment)[https://github.com/elmsln/elmsln-vagrant]
+3. **Isolate the problem** &mdash; ideally reproducing this issue in our [vagrant environment](https://github.com/elmsln/elmsln-vagrant)
 
 A good bug report shouldn't leave others needing to contact you for more
 information. Please try to be as detailed as possible in your report. What is
