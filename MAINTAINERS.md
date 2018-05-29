@@ -5,7 +5,7 @@ how.
 
 Core Maintainers
 ------------------
-The ELMSLN Core maintainers oversee the development of ELMSLN as a whole, shaping it's direction and doing the heavy lifting in certain aspects of core maintenance and project management.
+The ELMSLN Core maintainers oversee the development of ELMSLN as a whole, shaping its direction and doing the heavy lifting in certain aspects of core maintenance and project management.
 The Core maintainers are:
 
 - Bryan Ollendyke `@btopro` https://www.elmsln.org/team/bryan-ollendyke-ms
