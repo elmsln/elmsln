@@ -286,7 +286,7 @@ class views_plugin_display_system extends views_plugin_display {
         // documentation purposes and clarity.)
         $child += array_intersect_key($parent, $defaults);
         // Unset the child 'file' property if its implementing module doesn't
-        // match it's parent and it didn't have a 'file' preoperty specified
+        // match its parent and it didn't have a 'file' preoperty specified
         // before. Otherwise, for example, example_module could inherit a 'file'
         // property of 'node.admin.inc', so the actual include path would be
         // something like .../modules/example_module/node.admin.inc.

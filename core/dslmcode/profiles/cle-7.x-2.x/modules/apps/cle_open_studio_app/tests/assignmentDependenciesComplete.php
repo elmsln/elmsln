@@ -4,7 +4,7 @@ include_once drupal_get_path('module', 'cle_open_studio_app') . '/apps/services/
 
 $assignment_id = drush_shift();
 
-// Make sure that the submissions parent assignment has it's dependencies met.
+// Make sure that the submissions parent assignment has its dependencies met.
 $assignment_service = new CleOpenStudioAppAssignmentService();
 $unmet = $assignment_service->assignmentHasUnmetDependencies($assignment_id);
 

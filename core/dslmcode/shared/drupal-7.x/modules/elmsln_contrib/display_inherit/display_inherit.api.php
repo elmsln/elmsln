@@ -29,7 +29,7 @@ function mytheme_preprocess_node(&$variables) {
  * @param  string $bundle       bundle machine name
  * @param  string $viewmode     viewmode of the entity
  * @param  string $theme_name   name of the theme that will have access to the preprocess functions
- * @param  array  &$variables   list of attributes and values associated to the entity, found in it's preprocess function
+ * @param  array  &$variables   list of attributes and values associated to the entity, found in its preprocess function
  *
  * @return  an array containing one or more inheritance stack arrays.
  */

@@ -719,7 +719,7 @@ function _backup_migrate_destination_pulldown_validate($element, &$form_state, $
 }
 
 /**
- * Set the value of a form field given it's parent array.
+ * Set the value of a form field given its parent array.
  */
 function _backup_migrate_destination_pulldown_set_value(&$values, $parents, $value) {
   $key = array_shift($parents);

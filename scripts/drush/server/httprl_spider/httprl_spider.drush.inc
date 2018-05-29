@@ -169,7 +169,7 @@ function drush_httprl_spider_httprl_self_request($path = '', $delay_request = FA
 /**
  * Load the cache bin with content from the various entities.
  * @param $type Optional. The specific type of entity that should
- *   get it's content cached.
+ *   get its content cached.
  */
 function drush_httprl_spider_httprl_self_spider($type = '') {
   $info = entity_get_info();
@@ -212,7 +212,7 @@ function drush_httprl_spider_httprl_self_spider($type = '') {
 /**
  * Load the cache bin with content from the various entities.
  * @param $type Optional. The specific type of entity that should
- *   get it's content cached.
+ *   get its content cached.
  */
 function drush_httprl_spider_httprl_user_self_spider($type = '') {
   $query = new EntityFieldQuery();

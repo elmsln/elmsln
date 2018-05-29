@@ -637,7 +637,7 @@ class backup_migrate_item {
       $this->{$key} = NULL;    
     }
 
-    // If the item doesn't have an ID or if it's id is already taken, generate random one.
+    // If the item doesn't have an ID or if its id is already taken, generate random one.
     if (!$id || $this->item($id)) {
       $this->set_id($this->generate_id());
     }
