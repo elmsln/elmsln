@@ -11,7 +11,7 @@ A button on the hax-gizmo-browser app display
 @demo demo/index.html
 
 @microcopy - the mental model for this element
- - 
+ -
 -->
 
 <dom-module id="hax-blox-browser-item">
@@ -137,10 +137,10 @@ A button on the hax-gizmo-browser app display
           type: Array
         },
         /**
-         * Number of areas this has
+         * Layout string to use
          */
-        areas: {
-          type: Number
+        layout: {
+          type: String
         },
         /**
          * Tag
@@ -176,7 +176,7 @@ A button on the hax-gizmo-browser app display
         let blox = {
           'tag': 'grid-plate',
           'properties': {
-            'areas': this.areas
+            'layout': this.layout
           },
           'content': content,
         };

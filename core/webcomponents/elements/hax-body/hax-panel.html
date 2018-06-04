@@ -100,7 +100,7 @@ as the events being bubbled up include HTML nodes to inject into something
     <div hidden$="[[hidePanelOps]]">
       <hax-panel-item
       data-opened$="[[editMode]]"
-      on-tap="_clickButton"
+      on-tap="_clickEditButton"
       icon="create"
       id="button"
       edged="[[align]]"
@@ -109,7 +109,7 @@ as the events being bubbled up include HTML nodes to inject into something
     <app-drawer id="drawer" opened="{{editMode}}" disable-swipe persistent transition-duration="800" align="[[align]]">
       <hax-panel-item
         hidden$="[[hidePanelOps]]"
-        on-tap="_clickButton"
+        on-tap="_clickSaveButton"
         icon="save"
         id="haxsavebutton"
         label="[[__tipText]]"
@@ -307,6 +307,7 @@ as the events being bubbled up include HTML nodes to inject into something
           break;
           case 'cancel':
             this.toggle();
+            this.fire('hax-cancel', detail);
           break;
           case 'text':
             detail.tag = 'p';
@@ -398,8 +399,15 @@ as the events being bubbled up include HTML nodes to inject into something
       /**
        * Toggle the drawer when the button is clicked.
        */
-      _clickButton: function(e) {
+      _clickEditButton: function(e) {
         this.toggle();
+      },
+      /**
+       * Toggle the drawer when the button is clicked.
+       */
+      _clickSaveButton: function(e) {
+        this.toggle();
+        this.fire('hax-save', e.detail);
       },
       /**
        * HTML Export trigger.

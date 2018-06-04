@@ -115,7 +115,8 @@
       params='[[requestParams]]'
       last-response="{{requestData}}"
       hidden
-      loading="{{loading}}"></iron-ajax>
+      loading="{{loading}}"
+      debounce-duration="250"></iron-ajax>
     <hax-app-search-inputs label="[[label]]" schema="{{searchSchema}}" values="{{searchValues}}"></hax-app-search-inputs>
     <hax-app-pagination id="pagerbottom" request-data="[[requestData]]" pagination="[[pagination]]"></hax-app-pagination>
     <div id="loading" class="loading" hidden$="[[!loading]]">

@@ -69,13 +69,14 @@ A LRN element for brokering the UI for api endpoints both in querying and upload
         margin-top: 32px;
       }
       .preview-buttons {
-        height: 48px;
+        height: 80px;
         padding: 16px;
         color: #222222;
         border-bottom: 1px var(--hax-manager-steps-color) solid;
         background-color: #f8f8f8;
         margin: 0 auto;
         text-align: center;
+        box-sizing: content-box;
       }
       .preview-buttons paper-button {
         min-width: unset;
@@ -352,10 +353,10 @@ A LRN element for brokering the UI for api endpoints both in querying and upload
         // reference the active place holder element since place holders are
         // the only things possible for seeing these
         Polymer.HaxStore.instance.activePlaceHolder = event.detail.placeHolderElement;
-        // I can't believe this actually works. This takes the event
-        // that was a drop event else where on the page and then repoints
-        // it to simulate the drop event using the same event structure that
-        // would have happened if they had used this element in the first place
+        // ! I can't believe this actually works. This takes the event
+        // ! that was a drop event else where on the page and then repoints
+        // ! it to simulate the drop event using the same event structure that
+        // ! would have happened if they had used this element in the first place
         this.$.fileupload._onDrop(event.detail);
       },
       /**
@@ -380,8 +381,7 @@ A LRN element for brokering the UI for api endpoints both in querying and upload
             Polymer.HaxStore.instance.haxAppPicker.presentOptions(targets, type, 'Where would you like to upload this ' + type + '?', 'app');
           }
           else {
-            // @todo there isn't anything that supports this
-            console.log('we can\'t support that yet');
+            Polymer.HaxStore.toast('Sorry, you don\'t have a storage location that can handle ' + type + ' uploads!', 5000);
           }
         }
         else {
@@ -446,6 +446,15 @@ A LRN element for brokering the UI for api endpoints both in querying and upload
           item.type = this._resolveObjectPath(map.gizmo.type, data);
         }
         this.$.url.value = item.url;
+        // @todo put in logic to support the response actually
+        // just outright returning a haxElement. This is rare
+        // but if the HAX developer has control over the endpoint
+        // then they could get HAX to streamline some workflows
+        // or by-pass the gizmo selection step to improve UX
+        // for end users even further. Examples could be a media
+        // management system that has remote rendering (cms-token)
+        // or a highly specific endpoint that we know we can only
+        // present in one way effectively Box / Google doc viewer.
         this.newAssetConfigure();
       },
       /**
@@ -590,7 +599,7 @@ A LRN element for brokering the UI for api endpoints both in querying and upload
           }
         }
         else {
-          Polymer.HaxStore.toast("Sorry, I don't know how to handle that link yet.");
+          Polymer.HaxStore.toast("Sorry, HAX doesn't know how to handle that type of link yet.");
         }
       },
       /**

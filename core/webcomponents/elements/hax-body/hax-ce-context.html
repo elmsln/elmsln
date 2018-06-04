@@ -109,7 +109,7 @@ required for populating input.
             item = document.createElement('hax-context-item');
             item.eventName = 'hax-edit-property';
             item.label = setting.title;
-            item.slot = 'primary';
+            item.setAttribute('slot', 'primary');
             item.options = setting.options;
             item.icon = setting.icon;
             item.inputMethod = setting.inputMethod;

@@ -274,6 +274,7 @@ A LRN element that will change the world.
        * we exist and are the thing being edited.
        */
       attached: function() {
+        this.__tabTrap = false;
         this.fire('hax-register-body', this);
         document.body.addEventListener('hax-store-property-updated', this._haxStorePropertyUpdated.bind(this));
       },
@@ -940,7 +941,7 @@ A LRN element that will change the world.
        */
       _focusIn: function(e) {
         // only worry about these when we are in edit mode
-        if (this.editMode) {
+        if (this.editMode && !this.__tabTrap) {
           var normalizedEvent = Polymer.dom(e);
           var local = normalizedEvent.localTarget;
           var tags = Polymer.HaxStore.instance.validTagList;
@@ -988,6 +989,9 @@ A LRN element that will change the world.
               e.stopPropagation();
             }
           }
+        }
+        else {
+          this.__tabTrap = false;
         }
       },
       /**
@@ -1193,6 +1197,7 @@ A LRN element that will change the world.
         if (this.editMode) {
           e.preventDefault();
           e.stopPropagation();
+          e.stopImmediatePropagation();
           let focus = false;
           let node = this.activeContainerNode;
           const activeNodeTagName = this.activeContainerNode.tagName;
@@ -1205,6 +1210,7 @@ A LRN element that will change the world.
           if (['UL','OL','LI'].includes(activeNodeTagName) || ['UL','OL','LI'].includes(tagTest)) {
             if (this.polyfillSafe) {
               document.execCommand('indent');
+              this.__tabTrap = true;
             }
           }
           else {
@@ -1231,6 +1237,7 @@ A LRN element that will change the world.
         if (this.editMode) {
           e.preventDefault();
           e.stopPropagation();
+          e.stopImmediatePropagation();
           let node = Polymer.dom(this.activeContainerNode).previousSibling;
           const activeNodeTagName = this.activeContainerNode.tagName;
           var selection = window.getSelection();
@@ -1238,6 +1245,7 @@ A LRN element that will change the world.
           if (['UL','OL','LI'].includes(activeNodeTagName) || ['UL','OL','LI'].includes(range.commonAncestorContainer.parentElement.tagName)) {
             if (this.polyfillSafe) {
               document.execCommand('outdent');
+              this.__tabTrap = true;
             }
           }
           else {

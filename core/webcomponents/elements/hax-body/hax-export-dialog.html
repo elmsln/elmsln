@@ -60,7 +60,7 @@ Export dialog with all export options and settings provided.
           <paper-button id="close" raised>Close</paper-button>
         </div>
       </div>
-    </paper-dialog>
+    </app-drawer>
   </template>
 
   <script>
@@ -177,7 +177,10 @@ Export dialog with all export options and settings provided.
               <meta charset="utf-8">
               <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
               <title>hax-body demo</title>
-            <script src="${url}/webcomponentsjs/webcomponents-lite.js"><\/script>
+            <script src="${url}/webcomponentsjs/webcomponents-lite.js">`;
+          content += '</';
+          content += 'script>';
+          content += `
             <style>
             body {
               padding: 32px;
@@ -189,9 +192,14 @@ Export dialog with all export options and settings provided.
               dom: 'shady',
               lazyRegister: true
             };
-          <\/script>`;
+          `;
+          content += '</';
+          content += 'script>';
+          var ignoreList = ['iframe', 'a', 'img', 'hr', 'p'];
           for (var index in elementList) {
-            content += `<link rel="import" href="${url}/${index}/${index}.html" />` + "\n";
+            if (ignoreList.indexOf(index) === -1) {
+              content += '<link rel="import" href="' + url + '/' + index + '/' + index + '.html" />' + "\n";
+            }
           }
           content += '</head><body>';
           content += Polymer.HaxStore.instance.activeHaxBody.haxToContent();
