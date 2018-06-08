@@ -67,13 +67,10 @@
       }
       .date {
         color: #555;
-        font-size: 1.5rem;
-        font-weight: 500;
+        font-size: 16px;
         font-style: normal;
-        line-height: 1rem;
         padding: 0.25rem 0 0.5rem 0;
         margin: 0;
-        text-transform: capitalize;
       }
       .flex-wrap {
         display: flex;
@@ -105,9 +102,8 @@
           <lrndesign-avatar class="center" label="{{submission.relationships.author.data.name}}" src="{{submission.relationships.author.data.avatar}}"></lrndesign-avatar>
           <div class="author center">{{submission.relationships.author.data.display_name}}</div>
           <h2 class="title center">{{submission.attributes.title}}</h2>
-          <h3 class="date center">Submitted:
-            <moment-element output-format="MMM DD[,] YYYY" datetime="{{submission.meta.created}}">
-          </h3>
+          <div class="date center">Created: [[date(submission.meta.created)]]</div>
+          <div class="date center">Last updated: [[date(submission.meta.changed)]]</div>
           <!-- ----- Text Submission -----  -->
           <template is="dom-if" if="[[submission.attributes.body]]">
            <word-count><marked-element markdown="[[submission.attributes.body]]"></marked-element></word-count>
@@ -180,6 +176,15 @@
           type: Object,
           notify: true
         },
+      },
+      date: function(time) {
+        if (time) {
+          var parts = time.split('-');
+          let times = time.split('T');
+          let month = parts[2].split('T');
+          times = times[1].split('-');
+          return parts[1] + '/' + month[0] + ' - ' + times[0];
+        }
       },
       /**
        * Simple way to convert from object to array.
