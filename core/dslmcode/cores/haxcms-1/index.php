@@ -11,7 +11,10 @@
   // configure it
   include_once 'config.php';
   // Set session variables
-  $_SESSION["favcolor"] = "green";
+  //$_SESSION["favcolor"] = "green";
+  //$project = $GLOBALS['HAXCMS']->loadProject('current', TRUE);
+  //$project->addPage();
+  //$project->addPage();
 ?>
 <!doctype html>
 <html lang="en">
