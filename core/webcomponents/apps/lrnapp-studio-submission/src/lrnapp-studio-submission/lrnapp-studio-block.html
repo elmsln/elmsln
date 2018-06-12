@@ -1,3 +1,6 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+
 <dom-module id="lrnapp-studio-block">
   <template>
     <style>
@@ -33,7 +36,7 @@
       <h3 hidden$="[[!title]]">[[title]]</h3>
     </div>
     <div class="studio-block__content">
-      <content></content>
+      <slot></slot>
     </div>
   </template>
   <script>

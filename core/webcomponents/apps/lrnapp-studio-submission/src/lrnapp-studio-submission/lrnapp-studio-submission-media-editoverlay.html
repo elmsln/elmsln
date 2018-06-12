@@ -1,3 +1,7 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../bower_components/paper-dialog-scrollable/paper-dialog-scrollable.html">
 <dom-module id="lrnapp-studio-submission-media-editoverlay">
   <template>
     <style>
@@ -44,9 +48,9 @@
     </style>
 
     <div class="wrapper">
-      <content></content>
+      <slot></slot>
       <div class="actions">
-        <template is="dom-if" if="{{embedcode}}">
+        <template is="dom-if" if="[[embedcode]]">
           <paper-icon-button icon="code" class="embed" on-click="_embedClicked"></paper-icon-button>
         </template>
         <paper-icon-button icon="delete" class="delete" on-click="_deleteClicked"></paper-icon-button>
@@ -54,7 +58,7 @@
       </div>
     </div>
 
-    <template is="dom-if" if="{{embedcode}}">
+    <template is="dom-if" if="[[embedcode]]">
       <paper-dialog id="dialog" entry-animation="scale-up-animation" exit-animation="fade-out-animation" with-backdrop>
         <h2>Embed Code</h2>
         <p>Paste this into the text area and your image will appear.</p>

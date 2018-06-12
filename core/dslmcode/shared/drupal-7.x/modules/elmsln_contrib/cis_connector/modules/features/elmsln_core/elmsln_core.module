@@ -2291,7 +2291,7 @@ function elmsln_core_webcomponent_attached_files_alter(&$webcomponents) {
   // @todo autoload webcomponents.json config file would enable us to simplify this to JUST edit needing to do something aggressive
   $tmp = array();
   $build_path = libraries_get_path('webcomponents') . '/polymer/bower_components/';
-  $build = $build_path . 'polymer/polymer.html';
+  $build = $build_path . '_build/build.html';
   // modify build path for node edit forms
   if (arg(0) == 'node' && arg(2) == 'edit') {
     $build = $build_path . '_build/build_edit.html';
