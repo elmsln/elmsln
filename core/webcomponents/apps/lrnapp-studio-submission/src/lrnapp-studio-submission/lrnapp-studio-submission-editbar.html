@@ -1,4 +1,4 @@
-<!--   -->
+<link rel="import" href="../../bower_components/paper-tooltip/paper-tooltip.html">
 <link rel="import" href="lrnapp-studio-submission-editbar-message.html">
 
 <dom-module id="lrnapp-studio-submission-editbar">
@@ -10,9 +10,9 @@
     </style>
 
     <paper-tooltip position="top" animation-delay="0" offset="-20">
-      <content select="lrnapp-studio-submission-editbar-message"></content>
+      <slot name="lrnapp-studio-submission-editbar-message"></slot>
     </paper-tooltip>
-    <content></content>
+    <slot></slot>
 
   </template>
   <script>
