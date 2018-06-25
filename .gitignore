@@ -6,6 +6,7 @@ config/**
 _elmsln_env_config/**
 .git
 .vagrant
+.vscode
 sftp-config.json
 .validate_pre_commit
 .idea
