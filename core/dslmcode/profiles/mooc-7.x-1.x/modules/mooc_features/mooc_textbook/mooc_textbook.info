@@ -19,7 +19,6 @@ features[features_overrides][] = filter.textbook_editor.filters|filter_footnotes
 features[features_overrides][] = filter.textbook_editor.filters|filter_tokens
 features[features_overrides][] = filter.textbook_editor.filters|video_filter|settings|video_filter_codecs
 features[features_overrides][] = filter.textbook_editor.filters|video_filter|settings|video_filter_multiple_sources
-features[features_overrides][] = filter.textbook_editor.filters|webcomponents_cmstags
 features[features_overrides][] = wysiwyg.textbook_editor.settings|buttons|drupal
 features[features_overrides][] = wysiwyg.textbook_editor.settings|buttons|footnotes
 features[variable][] = accessibility_content_show_toggle

@@ -70,11 +70,6 @@ function mooc_textbook_features_override_default_overrides() {
     'youtube_playlist' => 0,
   );
   $overrides["filter.textbook_editor.filters|video_filter|settings|video_filter_multiple_sources"] = 1;
-  $overrides["filter.textbook_editor.filters|webcomponents_cmstags"] = array(
-    'settings' => array(),
-    'status' => 1,
-    'weight' => -50,
-  );
 
   // Exported overrides for: wysiwyg
   $overrides["wysiwyg.textbook_editor.settings|buttons|drupal"] = array(
