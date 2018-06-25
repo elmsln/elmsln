@@ -2313,7 +2313,7 @@ function elmsln_core_webcomponent_attached_files_alter(&$webcomponents) {
  */
 function elmsln_core_webcomponents_app_element_import_alter(&$link_element, $app, $machine_name, $hash) {
   // we don't store our apps in the app path, we only use it for registration
-  $link_element['#attributes']['href'] = libraries_get_path('webcomponents', TRUE) . '/polymer/apps-src/' . $machine_name . '/' . $machine_name . '.html?h' . $hash;
+  $link_element['#attributes']['href'] = _webcomponents_base_path() . libraries_get_path('webcomponents') . '/polymer/apps-src/' . $machine_name . '/' . $machine_name . '.html?h' . $hash;
 }
 
 /**
