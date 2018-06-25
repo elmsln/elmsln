@@ -127,10 +127,18 @@ function _hax_node_save($node, $token) {
 function _hax_load_app_store($token) {
   // ensure we had data PUT here and it is valid
   if (drupal_valid_token($token, 'hax')) {
+    // pull in apps
     $appStore = module_invoke_all('hax_app_store');
     drupal_alter('hax_app_store', $appStore);
+    // pull in stax / templates
     $staxList = module_invoke_all('hax_stax');
     drupal_alter('hax_stax', $staxList);
+    // pull in blox / layouts
+    $bloxList = module_invoke_all('hax_blox');
+    drupal_alter('hax_blox', $bloxList);
+    // pull in autoloader assets
+    $autoloaderList = module_invoke_all('hax_autoloader');
+    drupal_alter('hax_autoloader', $autoloaderList);
     // send back happy headers
     drupal_add_http_header('Content-Type', 'application/json');
     // define status
@@ -139,6 +147,8 @@ function _hax_load_app_store($token) {
       'status' => 200,
       'apps' => $appStore,
       'stax' => $staxList,
+      'blox' => $bloxList,
+      'autoloader' => $autoloaderList,
     );
     // output the response as json
     print drupal_json_output($return);
@@ -228,25 +238,13 @@ function _hax_node_form($node) {
     $component->file = libraries_get_path('webcomponents') . '/polymer/bower_components/cms-hax/cms-hax.html';
   }
   _webcomponents_add_to_head($component, 10000);
-  // generate autoload list
-  $elementstring = variable_get('hax_autoload_element_list', HAX_DEFAULT_ELEMENTS);
-  // blow up based on space
-  $elements = explode(' ', $elementstring);
-  $components = '';
-  foreach ($elements as $element) {
-    // sanity check
-    if (!empty($element)) {
-      $components .= '<' . $element . ' slot="autoloader">' . '</' . $element . '>';
-    }
-  }
   $appStoreConnection = array(
     'url' => base_path() . 'hax-app-store/' . drupal_get_token('hax'),
   );
   // write content to screen, wrapped in tag to do all the work
   $content = '
-  <cms-hax open-default end-point="' . base_path() . 'hax-node-save/' . $node->nid . '/' . drupal_get_token('hax') . '" body-offset-left="' . variable_get('hax_offset_left', 0) . '" app-store-connection=' . "'" . json_encode($appStoreConnection) . "'" . '>'
-  . $components .
-    check_markup($node->body['und'][0]['value'], $node->body['und'][0]['format'])
+<cms-hax open-default end-point="' . base_path() . 'hax-node-save/' . $node->nid . '/' . drupal_get_token('hax') . '" body-offset-left="' . variable_get('hax_offset_left', 0) . '" app-store-connection=' . "'" . json_encode($appStoreConnection) . "'" . '>'
+  . check_markup($node->body['und'][0]['value'], $node->body['und'][0]['format'])
   .'</cms-hax>';
   return $content;
 }
@@ -313,6 +311,35 @@ function hax_hax_app_store() {
     array_push($json, $tmp);
   }
   return $json;
+}
+
+/**
+ * Implements hook_hax_blox().
+ */
+function hax_hax_blox() {
+  $hax = new HAXService();
+  $blox = $hax->loadBaseBlox();
+  return $blox;
+}
+
+/**
+ * Implements hook_hax_stax().
+ */
+function hax_hax_stax() {
+  $hax = new HAXService();
+  $stax = $hax->loadBaseStax();
+  return $stax;
+}
+
+/**
+ * Implements hook_hax_autoloader().
+ */
+function hax_hax_autoloader() {
+  // generate autoload list
+  $autoloaderstring = variable_get('hax_autoload_element_list', HAX_DEFAULT_ELEMENTS);
+  // blow up based on space
+  $autoloader = explode(' ', $autoloaderstring);
+  return $autoloader;
 }
 
 /**
