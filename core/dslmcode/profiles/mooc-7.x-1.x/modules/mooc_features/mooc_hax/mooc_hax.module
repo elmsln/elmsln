@@ -1,5 +1,7 @@
 <?php
 /**
  * @file
- * Drupal needs this blank file.
+ * Code for the MOOC HAX feature.
  */
+
+include_once 'mooc_hax.features.inc';
