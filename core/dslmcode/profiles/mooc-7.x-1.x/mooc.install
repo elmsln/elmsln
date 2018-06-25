@@ -263,3 +263,19 @@ function mooc_update_7021(&$sandbox) {
   features_revert_module('mooc_hax');
   features_revert_module('mooc_textbook');
 }
+
+/**
+ * Forcibly set this to enabled in input filter
+ */
+function mooc_update_7022(&$sandbox) {
+  db_update('filter')
+  ->fields(array(
+    'status' => 1,
+  ))
+  ->condition('format', 'textbook_editor', '=')
+  ->condition('module', 'webcomponents_cmstags', '=')
+  ->condition('name', 'webcomponents_cmstags', '=')
+  ->execute();
+  // clear cache in order to ensure input filter is rebuild
+  cache_clear_all('filter_', 'cache', TRUE);
+}
