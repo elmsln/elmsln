@@ -219,7 +219,7 @@ function _webcomponents_app_load_app($machine_name = NULL, $debug = FALSE) {
   if (!empty($machine_name) && !empty($app)) {
     $hash = filesize(DRUPAL_ROOT . '/' . $app['path'] . 'manifest.json');
     // form the base path for loading the app
-    $path = base_path() . $app['path'];
+    $path = _webcomponents_base_path() . $app['path'];
     $link_element = array(
       '#tag' => 'link',
       '#attributes' => array(

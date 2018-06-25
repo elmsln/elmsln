@@ -39,7 +39,7 @@ window.onload = function() {
   else {
     // polyfill the platform!
     var e = document.createElement('script');
-    e.src = '" . base_path() . $libraries['webcomponents'] . "/webcomponentsjs/webcomponents-lite.min.js';
+    e.src = '" . _webcomponents_base_path() . $libraries['webcomponents'] . "/webcomponentsjs/webcomponents-lite.min.js';
     document.head.appendChild(e);
   }
 };
@@ -327,13 +327,24 @@ function _webcomponents_add_to_head($component, $weight = 0) {
     $element = array(
       '#tag' => 'link', // The #tag is the html tag
       '#attributes' => array( // Set up an array of attributes inside the tag
-        'href' => base_path() . $component->file . '?h' . $hash,
+        'href' => _webcomponents_base_path() . $component->file . '?h' . $hash,
         'rel' => 'import',
       ),
       '#weight' => $weight,
     );
     drupal_add_html_head($element, 'webcomponent-' . $component->machine_name);
   }
+}
+
+/**
+ * Get path and allow people to override it, this helps with supporting
+ * CDNs and other things.
+ */
+function _webcomponents_base_path() {
+  $path = base_path();
+  // allow other developers to modify this from base path to another directory
+  drupal_alter('webcomponents_base_path', $path);
+  return $path;
 }
 
 /**
