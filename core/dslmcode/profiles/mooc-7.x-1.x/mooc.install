@@ -253,3 +253,13 @@ function mooc_update_7020(&$sandbox) {
   // enable the modules to make it happen
   module_enable(array('hax', 'mooc_hax'));
 }
+
+/**
+ * Enable HAX for real dealz!!
+ */
+function mooc_update_7021(&$sandbox) {
+  // enable the modules to make it happen
+  module_enable(array('webcomponents_cmstags'));
+  features_revert_module('mooc_hax');
+  features_revert_module('mooc_textbook');
+}

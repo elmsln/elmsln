@@ -21,20 +21,19 @@ function mooc_textbook_filter_default_formats_alter(&$data) {
     $data['textbook_editor']['filters']['cis_filter'] = array(
       'settings' => array(),
       'status' => 1,
-      'weight' => -48,
+      'weight' => -49,
     ); /* WAS: '' */
     $data['textbook_editor']['filters']['filter_footnotes'] = array(
       'settings' => array(
         'footnotes_collapse' => 0,
       ),
       'status' => 1,
-      'weight' => -45,
+      'weight' => -40,
     ); /* WAS: '' */
-    $data['textbook_editor']['filters']['filter_htmlcorrector']['weight'] = -50; /* WAS: -45 */
     $data['textbook_editor']['filters']['filter_tokens'] = array(
       'settings' => array(),
       'status' => 1,
-      'weight' => -44,
+      'weight' => -42,
     ); /* WAS: '' */
     $data['textbook_editor']['filters']['video_filter']['settings']['video_filter_codecs'] = array(
       'archive' => 0,
@@ -77,8 +76,11 @@ function mooc_textbook_filter_default_formats_alter(&$data) {
       'youtube_playlist' => 0,
     ); /* WAS: '' */
     $data['textbook_editor']['filters']['video_filter']['settings']['video_filter_multiple_sources'] = 1; /* WAS: '' */
-    $data['textbook_editor']['filters']['video_filter']['weight'] = -47; /* WAS: -48 */
-    unset($data['textbook_editor']['filters']['ckeditor_link_filter']);
+    $data['textbook_editor']['filters']['webcomponents_cmstags'] = array(
+      'settings' => array(),
+      'status' => 1,
+      'weight' => -50,
+    ); /* WAS: '' */
   }
 }
 
