@@ -880,6 +880,10 @@ function _elmsln_core_remote_redirect($tool, $type, $etid, $op) {
     elseif (isset($_GET['elmsln_course'])) {
       $address .= '?elmsln_course=' . _cis_connector_course_context();
     }
+    // support for iframe based redirecting
+    elseif (isset($_GET['entity_iframe'])) {
+      $address .= '?entity_iframe=1&modal=1';
+    }
     // figure out the redirect path as dictated by forms
     if (isset($_GET['redirectPath'])) {
       $tmp = explode('/', $_GET['redirectPath']);
@@ -2328,6 +2332,37 @@ function elmsln_core_webcomponents() {
   }
   // group these all as files found to match polymer format
   return array(WEBCOMPONENTS_POLYMER_NAME => $files);
+}
+
+/**
+ * Implements hook_webcomponents_cmstags_editendpoint_alter().
+ */
+function elmsln_core_webcomponents_cmstags_editendpoint_alter(&$url, &$params, $type) {
+  // build out the correct end point based on getting a cis_connector cached response
+  if ($type == 'token') {
+    // try to pull ciscode out of it
+    $code = array();
+    $tmp = preg_replace("/\[(\s)*ciscode(\s)*(\||\])/", "", $params['token']);
+    $tmp = str_replace("]", "", $tmp);
+    $args = preg_split("/\|/", $tmp);
+    // For the current match, process each parameter.
+    foreach ($args as $fvar) {
+      $key_val = preg_split("/=/", $fvar, 2);
+      if ($key_val[0] != "") {
+        $code[trim($key_val[0])] = trim($key_val[1]);
+      }
+    }
+    
+    // if we have a tool, this can be assumed to be a remote render item
+    if (isset($code['tool'])) {
+      $url = base_path() . 'elmsln/redirect/' . $code['tool'] . '/' . $code['entity_type'] . '/' . $code['item'] . '/edit?entity_iframe=1';
+    }
+    // if we're told NOT to send a cached response then we should frag this cache entry
+    // this callback happens JUST before rendering out content just for this possibility :)
+    if (isset($params['cachedResponse']) && $params['cachedResponse'] == 'false') {
+      cache_clear_all('elmsln:' . $code['tool'] . ':' . $code['entity_type'] . ':' . $code['item'] . ':', 'cache_cis_connector', TRUE);
+    }
+  }
 }
 
 /**

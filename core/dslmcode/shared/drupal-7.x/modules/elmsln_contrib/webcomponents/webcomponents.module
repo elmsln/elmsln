@@ -319,15 +319,17 @@ function _webcomponents_rebuild($hide_messages = FALSE) {
 /**
  * Add webcomponent to the header of the site so it can work.
  */
-function _webcomponents_add_to_head($component, $weight = 0) {
+function _webcomponents_add_to_head($component, $weight = 0, $hashSize = FALSE) {
   // generate filename hash based on the size of the file
   // this is a quick and dirty way to do invalidation when it updates without local cache refreshes client side
   if (file_exists(DRUPAL_ROOT . '/' . $component->file)) {
-    $hash = filesize(DRUPAL_ROOT . '/' . $component->file);
+    if ($hashSize) {
+      $hash = '?h' . filesize(DRUPAL_ROOT . '/' . $component->file);
+    }
     $element = array(
       '#tag' => 'link', // The #tag is the html tag
       '#attributes' => array( // Set up an array of attributes inside the tag
-        'href' => _webcomponents_base_path() . $component->file . '?h' . $hash,
+        'href' => _webcomponents_base_path() . $component->file . $hash,
         'rel' => 'import',
       ),
       '#weight' => $weight,

@@ -143,6 +143,21 @@ function _webcomponents_cmstags_token_render($format) {
   $token = $params['token'];
   // set global to skip our drupal token processor!
   $GLOBALS['skip_drupal_token'] = TRUE;
+  // see if we can generate a url from a simple token parse
+  $url = '';
+  $tokentmp = str_replace(']', '', $token);
+  $tokentmp = str_replace('[', '', $tokentmp);
+  $tmp = explode(':', $tokentmp);
+  // only if we get a simple one can we proceed here
+  if (count($tmp) == 5) {
+    $url = base_path() . $tmp[3] . '/' . $tmp[4] . '/edit';
+  }
+  // url from a token is.... a pain in the ass so let's allow for some fallbacks
+  // namely if you supply custom token patterns we'll never know unless
+  // the developer defines the end point directly.
+  // @see elmsln_core for an example implementation of this hook
+  $tokentype = 'token';
+  drupal_alter('webcomponents_cmstags_editendpoint', $url, $params, $tokentype);
   // replace the content
   $content = check_markup($token, $format);
   $return = array(
@@ -150,6 +165,8 @@ function _webcomponents_cmstags_token_render($format) {
     'content' => $content,
     'token' => $token,
     'format' => $format,
+    'editEndpoint' => $url,
+    'editText' => t('Edit this content'),
   );
   // output the response as json
   print drupal_json_output($return);
@@ -170,11 +187,18 @@ function _webcomponents_cmstags_views_render() {
   );
   $params = filter_var_array($_GET, FILTER_SANITIZE_STRING);
   $content = views_embed_view($params['name'], $params['display'], $params['arg1'], $params['arg2'], $params['arg3']);
+  // build path to the views administration for this display
+  $url = base_path() . 'admin/structure/views/view/' . $params['name'] . '/edit/' . $params['display'];
+  // allow developers to jump in as needed
+  $tokentype = 'views';
+  drupal_alter('webcomponents_cmstags_editendpoint', $url, $params, $tokentype);
   $return = array(
     'status' => 200,
     'content' => $content,
-    'token' => $token,
+    'token' => $params,
     'format' => $format,
+    'editEndpoint' => $url,
+    'editText' => t('Edit this view'),
   );
   // output the response as json
   print drupal_json_output($return);
@@ -200,14 +224,23 @@ function _webcomponents_cmstags_entity_render() {
   $entity = entity_load_single($type, $id);
   // render array the entity based on viewing it
   $render_array = entity_view($type, array($entity), $display_mode);
+  // assemble the path based on entity type
+  $path_array = entity_uri($type, $entity);
   // replace the content
   $content = drupal_render($render_array);
+  // build path to the entity end point for editing
+  $url = base_path() . $path_array['path'];
+  // allow developers to jump in as needed
+  $tokentype = 'entity';
+  drupal_alter('webcomponents_cmstags_editendpoint', $url, $params, $tokentype);
   $return = array(
     'status' => 200,
     'content' => $content,
     'type' => $type,
     'id' => $id,
     'display_mode' => $display_mode,
+    'editEndpoint' => $url,
+    'editText' => t('Edit this content'),
   );
   // output the response as json
   print drupal_json_output($return);
@@ -231,11 +264,18 @@ function _webcomponents_cmstags_block_render() {
   $delta = $params['delta'];
   $block = module_invoke($module, 'block_view', $delta);
   $content = render($block['content']);
+  // build path to the block admin page
+  $url = base_path() . 'admin/structure/block/manage/' . $module . '/' . $delta . '/configure';
+  // allow developers to jump in here
+  $tokentype = 'block';
+  drupal_alter('webcomponents_cmstags_editendpoint', $url, $params, $tokentype);
   $return = array(
     'status' => 200,
     'content' => $content,
     'module' => $module,
     'delta' => $delta,
+    'editEndpoint' => $url,
+    'editText' => t('Edit this block'),
   );
   // output the response as json
   print drupal_json_output($return);

@@ -32,6 +32,14 @@ function elmsmedia_helper_elmsln_api_info() {
  */
 function elmsmedia_helper_page_build(&$page) {
   drupal_add_css(drupal_get_path('module', 'elmsmedia_helper') . '/elmsmedia_helper.css');
+  if (arg(0) == 'node' && is_numeric(arg(1)) && arg(2) != 'edit' && isset($_GET['modal'])) {
+    $js = 'setTimeout(() => {window.close();}, 1000);';
+    drupal_add_js($js, array(
+      'type' => 'inline',
+      'group' => JS_LIBRARY,
+      'weight' => -10000)
+    );
+  }
 }
 
 /**
