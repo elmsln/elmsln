@@ -3536,8 +3536,8 @@ article.node-view-mode-full .field-name-body {
 .colorpicker {
   z-index: 10000;
 }
-article ul:not(.contextual-links):not(.collection):not(.collapsible):not(.footnotes):not(.browser-default):not(.dropdown-content):not(.h5p-answers):not(.table-of-contents):not(.menu) li,
-.ckeditor-edit-body ul:not(.contextual-links):not(.collection):not(.collapsible):not(.browser-default):not(.dropdown-content):not(.h5p-answers):not(.table-of-contents):not(.menu) li {
+article ul:not(.collection):not(.collapsible):not(.footnotes):not(.browser-default):not(.dropdown-content):not(.h5p-answers):not(.table-of-contents):not(.menu) li,
+.ckeditor-edit-body ul:not(.collection):not(.collapsible):not(.browser-default):not(.dropdown-content):not(.h5p-answers):not(.table-of-contents):not(.menu) li {
   list-style-type: disc;
   list-style-position: outside;
 }
@@ -3550,17 +3550,6 @@ article ul.collection {
   content:"";
 }
 
-.contextual-container-left div.contextual-links-wrapper {
-  position: relative;
-  margin-left: -2rem;
-}
-.contextual-container-left div.custom-contextual-links {
-  float: left;
-}
-/* See https://github.com/elmsln/elmsln/issues/1900 for how this fixes inception race conditions. */
-div.contextual-links-wrapper:not(.contextual-links-processed) {
-  display:none;
-}
 
 #etb-course-nav .top-bar-section.title-link li a.active-trail {
   background-color: #eeeeee;
@@ -7276,12 +7265,6 @@ article div div div p.elmsln-core-in-context,
 article.node div.body ul li,
 .ckeditor-edit-body.node div.body ul li {
   list-style-type: initial;
-}
-.custom-contextual-links ul.contextual-links li {
-  list-style-type: none !important;
-}
-ul.contextual-links li a:hover {
-  background: none !important;
 }
 
 /* helps clean up form defaults */

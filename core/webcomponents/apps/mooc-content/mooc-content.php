@@ -212,7 +212,10 @@ function _mooc_content_render_content() {
     if (module_exists('mooc_content_theming')) {
       $content .= _mooc_content_theming_banner_block($node);
     }
-    $content .= drupal_render(node_view($node));
+    $content_ary = node_view($node);
+    // ax contextual links as we don't use this paradigm :)
+    unset($content_ary['#contextual_links']);
+    $content .= drupal_render($content_ary);
   }
   else {
     // try to skip to the next item if they don't have edit rights
