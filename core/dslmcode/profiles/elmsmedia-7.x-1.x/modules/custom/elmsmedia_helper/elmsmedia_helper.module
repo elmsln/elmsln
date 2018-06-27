@@ -23,6 +23,12 @@ function elmsmedia_helper_elmsln_api_info() {
     'bootstrap' => DRUPAL_BOOTSTRAP_FULL,
     'file' => 'callbacks/v1/elmsmedia_upload.inc',
   );
+  // get display modes
+  $callbacks['elmsmedia_display_modes'] = array(
+    'methods' => array('POST'),
+    'bootstrap' => DRUPAL_BOOTSTRAP_FULL,
+    'file' => 'callbacks/v1/elmsmedia_display_modes.inc',
+  );
 
   return $callbacks;
 }

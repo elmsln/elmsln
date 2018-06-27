@@ -165,12 +165,20 @@ function _webcomponents_cmstags_token_render($format) {
     'content' => $content,
     'token' => $token,
     'format' => $format,
+    'schema' => module_invoke_all('webcomponents_cmstags_schema', $params, $tokentype),
     'editEndpoint' => $url,
     'editText' => t('Edit this content'),
   );
   // output the response as json
   print drupal_json_output($return);
   exit;
+}
+
+/**
+ * Implements hook_webcomponents_cmstags_schema().
+ */
+function webcomponents_cmstags_webcomponents_cmstags_schema($params, $tokentype) {
+  return array();
 }
 
 /**

@@ -1,8 +1,6 @@
 <?php
-
 /**
- * Callback to propagate course network.
- * @return bool if it was successfully cleared
+ * Upload a file and convert it into a node and return it.
  */
 function elmsmedia_helper_elmsln_api_callback_elmsmedia_upload() {
   global $_elmsln;

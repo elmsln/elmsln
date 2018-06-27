@@ -2335,6 +2335,65 @@ function elmsln_core_webcomponents() {
 }
 
 /**
+ * Implements hook_webcomponents_cmstags_schema().
+ */
+function elmsln_core_webcomponents_cmstags_schema($params, $type) {
+  if ($type == 'token') {
+    // try to pull ciscode out of it
+    $code = array();
+    $tmp = preg_replace("/\[(\s)*ciscode(\s)*(\||\])/", "", $params['token']);
+    $tmp = str_replace("]", "", $tmp);
+    $args = preg_split("/\|/", $tmp);
+    // For the current match, process each parameter.
+    foreach ($args as $fvar) {
+      $key_val = preg_split("/=/", $fvar, 2);
+      if ($key_val[0] != "") {
+        $code[trim($key_val[0])] = trim($key_val[1]);
+      }
+    }
+    // only request display modes for thing that are in the media system
+    if ($code['tool'] == 'elmsmedia') {
+      // sync the service but do it non-blocking
+      $request = array(
+        'method' => 'POST',
+        'api' => '1',
+        'bucket' => 'elmsmedia',
+        'path' => '/',
+        'data' => array(
+          'elmsln_module' => 'elmsmedia_helper',
+          'elmsln_callback' => 'elmsmedia_display_modes',
+          'nid' => $code['item'],
+        ),
+      );
+      $response = _elmsln_api_request($request);
+      $data = drupal_json_decode($response);
+      $slot = '';
+      // ensure we have display modes in response
+      if (isset($data['display_modes'])) {
+        // options as pulled across from the media system per node type
+        foreach ($data['display_modes'] as $key => $value) {
+          $slot .= '<paper-item value="' . $key . '">' . $value . '</paper-item>';
+        }
+        // return json schema back to the front end, woah
+        return array(
+          '_displayMode' => array(
+            'response' => $data,
+            'request' => $request,
+            'type' => 'string',
+            'title' => t('Display mode'),
+            'component' => array(
+              'name' => 'dropdown-select',
+              'valueProperty' => 'value',
+              'slot' => $slot,
+            ),
+          )
+        );
+      }
+    }
+  }
+}
+
+/**
  * Implements hook_webcomponents_cmstags_editendpoint_alter().
  */
 function elmsln_core_webcomponents_cmstags_editendpoint_alter(&$url, &$params, $type) {
