@@ -706,14 +706,15 @@ class HAXService {
         "protocol": "https",
         "url": "en.wikipedia.org",
         "data": {
-          "action":"query",
-          "list":"search",
-          "format":"json"
+          "action": "query",
+          "list": "search",
+          "format": "json",
+          "origin": "*"
         },
         "operations": {
           "browse": {
             "method": "GET",
-            "endPoint": "w/api.php",
+            "endPoint": "w\/api.php",
             "pagination": {
               "style": "offset",
               "props": {
@@ -726,16 +727,15 @@ class HAXService {
                 "type": "string"
               }
             },
-            "data": {
-            },
+            "data": {},
             "resultMap": {
+              "image": "https://en.wikipedia.org/static/images/project-logos/enwiki.png",
               "defaultGizmoType": "content",
               "items": "query.search",
               "preview": {
                 "title": "title",
                 "details": "snippet",
-                "image": "pageid",
-                "id": "pageid"
+                "id": "title"
               },
               "gizmo": {
                 "_url_source": "https://en.wikipedia.org/wiki/<%= id %>",
@@ -879,6 +879,260 @@ class HAXService {
 
     return $json;
   }
+
+  /**
+   * Returns some example / default BLOX definitions, which are
+   * the layouts as defined by HAX to go in a grid-plate element.
+   * This is the specification required by the HAX appstore in
+   * order to correctly present the listing of layouts in their 
+   * associated layout drawer.
+   * @return array           HAX blox specification
+   */
+  public function loadBaseBlox() {
+    $jsonstring = '[
+    {
+      "details": {
+        "title": "50% columns",
+        "author": "ELMS:LN",
+        "icon": "hax:6/6",
+        "status": "available",
+        "layout": "6/6"
+      },
+      "blox": [
+        {
+          "tag": "h2",
+          "properties": {
+            "slot": "col-1"
+          },
+          "content": "Heading"
+        },
+        {
+          "tag": "p",
+          "properties": {
+            "slot": "col-1"
+          },
+          "content": "A paragraph of text would go here to describe the work."
+        },
+        {
+          "tag": "place-holder",
+          "properties": {
+            "slot": "col-2",
+            "type": "image"
+          },
+          "content": ""
+        }
+      ]
+    },
+    {
+      "details": {
+        "title": "66 / 33 columns",
+        "author": "ELMS:LN",
+        "icon": "hax:8/4",
+        "status": "available",
+        "layout": "8/4"
+      },
+      "blox": [{
+          "tag": "place-holder",
+          "properties": {
+            "slot": "col-1",
+            "type": "text"
+          },
+          "content": ""
+        },
+        {
+          "tag": "place-holder",
+          "properties": {
+            "slot": "col-2",
+            "type": "image"
+          },
+          "content": ""
+        }
+      ]
+    },
+    {
+      "details": {
+        "title": "33% columns",
+        "author": "ELMS:LN",
+        "icon": "hax:4/4/4",
+        "status": "available",
+        "layout": "4/4/4"
+      },
+      "blox": [
+        {
+          "tag": "place-holder",
+          "properties": {
+            "slot": "col-1",
+            "type": "image"
+          },
+          "content": ""
+        },
+        {
+          "tag": "place-holder",
+          "properties": {
+            "slot": "col-2",
+            "type": "image"
+          },
+          "content": ""
+        },
+        {
+          "tag": "place-holder",
+          "properties": {
+            "slot": "col-3",
+            "type": "image"
+          },
+          "content": ""
+        }
+      ]
+    },
+    {
+      "details": {
+        "title": "33 / 66 columns",
+        "author": "ELMS:LN",
+        "icon": "hax:4/8",
+        "status": "available",
+        "layout": "4/8"
+      },
+      "blox": [
+        {
+          "tag": "place-holder",
+          "properties": {
+            "slot": "col-2",
+            "type": "text"
+          },
+          "content": ""
+        },
+        {
+          "tag": "place-holder",
+          "properties": {
+            "slot": "col-1",
+            "type": "image"
+          },
+          "content": ""
+        },
+        {
+          "tag": "place-holder",
+          "properties": {
+            "slot": "col-1",
+            "type": "image"
+          },
+          "content": ""
+        },
+        {
+          "tag": "place-holder",
+          "properties": {
+            "slot": "col-1",
+            "type": "image"
+          },
+          "content": ""
+        }
+      ]
+    },
+    {
+      "details": {
+        "title": "25% columns",
+        "author": "ELMS:LN",
+        "icon": "hax:3/3/3/3",
+        "status": "available",
+        "layout": "3/3/3/3"
+      },
+      "blox": [
+        {
+          "tag": "place-holder",
+          "properties": {
+            "slot": "col-1",
+            "type": "image"
+          },
+          "content": ""
+        },
+        {
+          "tag": "place-holder",
+          "properties": {
+            "slot": "col-2",
+            "type": "image"
+          },
+          "content": ""
+        },
+        {
+          "tag": "place-holder",
+          "properties": {
+            "slot": "col-3",
+            "type": "image"
+          },
+          "content": ""
+        }, 
+        {
+          "tag": "place-holder",
+          "properties": {
+            "slot": "col-4",
+            "type": "image"
+          },
+          "content": ""
+        }
+      ]
+    }
+    ]';
+    return json_decode($jsonstring);
+  }
+
+  /**
+   * Returns some example STAX definitions, which are
+   * predefined sets of items which can be broken apart
+   * after the fact. This is like a template in traditional WYSIWYGs.
+   * @return array           HAX stax specification
+   */
+  public function loadBaseStax() {
+    $jsonstring = '[{
+      "details": {
+        "title": "Example Lesson",
+        "author": "ELMS:LN",
+        "description": "An example of what HAX can do",
+        "status": "available",
+        "rating": "0",
+        "tags": ["example"]
+      },
+      "stax": [
+        {
+          "tag": "h2",
+          "properties": {},
+          "content": "Introduction to ELMS: Learning Network"
+        },
+        {
+          "tag": "p",
+          "properties": {},
+          "content": "What is ELMS: Learning Network? How is it fundamentally different from other learning technologies? Why is it your reading this when it\'s example text that you\'ve just added to see how to make a really solid introduction to a new unit of instruction? Let\'s keep reading to find out!"
+        },
+        {
+          "tag": "video-player",
+          "properties": {
+            "style": "width: 75%; margin: 0px auto; display: block;",
+            "source": "https://www.youtube.com/watch?v=pKLPQ4ufo64",
+            "src": "https://www.youtube-nocookie.com/embed/pKLPQ4ufo64?showinfo=0&controls=1&rel=0",
+            "iframed": true,
+            "sandboxed": false,
+            "width": "560",
+            "height": "315",
+            "responsive": true,
+            "caption": "What is ELMS:LN? Why is it fundamentally different from any other educational technology that\'s ever existed? What is sustainable innovation? Why is this so ...",
+            "secondaryColor": "#fff9c4",
+            "textColor": "#000000",
+            "secondaryColorClass": "yellow lighten-4",
+            "textColorClass": "black-text",
+            "ytNocookie": true,
+            "ytSuggested": false,
+            "ytControls": true,
+            "ytTitle": false,
+            "vimeoTitle": false,
+            "vimeoByline": false,
+            "vimeoPortrait": false,
+            "videoColor": "FF031D"
+          },
+          "content": ""
+        }
+      ]
+    }]';
+    return json_decode($jsonstring);
+  }
+
   /**
    * Return an array of the base app keys we support. This
    * can reduce the time to integrate with other solutions.
