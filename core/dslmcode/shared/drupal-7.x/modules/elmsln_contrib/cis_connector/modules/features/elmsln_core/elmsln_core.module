@@ -2697,7 +2697,6 @@ function elmsln_core_hax_stax() {
     {
       "details": {
         "title": "Topic page",
-        "image": "topic-page.jpg",
         "author": "ELMS:LN",
         "description": "A well made topic page",
         "status": "available",
