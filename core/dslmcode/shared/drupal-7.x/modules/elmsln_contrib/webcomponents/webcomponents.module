@@ -28,6 +28,13 @@ function webcomponents_page_build(&$page) {
   // load webcomponentsjs polyfill library if it exists
   $libraries = libraries_get_libraries();
   if (isset($libraries['webcomponents']) && is_dir(DRUPAL_ROOT . '/' . $libraries['webcomponents'] . '/webcomponentsjs')) {
+    // option to use full polyfill.. tho it's not recommended
+    if (variable_get('webcomponents_lite_polyfill', TRUE)) {
+      $polyfill = 'webcomponents-lite.min.js';
+    }
+    else {
+      $polyfill = 'webcomponents.min.js';
+    }
     $inline = "
 <script type='text/javascript'>
 window.onload = function() {
@@ -38,15 +45,24 @@ window.onload = function() {
   }
   else {
     // polyfill the platform!
-    var e = document.createElement('script');
-    e.src = '" . _webcomponents_base_path() . $libraries['webcomponents'] . "/webcomponentsjs/webcomponents-lite.min.js';
-    document.head.appendChild(e);
-  }
+    var wjs = document.createElement('script');
+    wjs.src = '" . _webcomponents_base_path() . $libraries['webcomponents'] . "/webcomponentsjs/" . $polyfill . "';
+    document.head.appendChild(wjs);
+  }";
+    // support for custom element v0 -> v1 polyfill
+    if (isset($libraries['webcomponents']) && is_dir(DRUPAL_ROOT . '/' . $libraries['webcomponents'] . '/document-register-element')) {
+      $inline .="
+  var dre = document.createElement('script');
+  dre.src = '" . _webcomponents_base_path() . $libraries['webcomponents'] . "/document-register-element/build/document-register-element.js';
+  document.head.appendChild(dre);";
+    }
+    $inline .="
 };
 </script>";
     $element = array(
       '#type' => 'markup',
       '#markup' => $inline,
+      '#weight' => -10000000,
     );
     drupal_add_html_head($element, 'webcomponents-lite');
   }

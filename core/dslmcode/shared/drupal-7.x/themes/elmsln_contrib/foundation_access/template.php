@@ -1129,7 +1129,14 @@ function foundation_access_link(&$variables) {
   if (isset($variables['options']['has-children']) && $variables['options']['has-children']) {
     $options['attributes']['icon'] = 'chevron-right';
   }
-  return _foundation_access_lrnsys_button($text, $path, $options);
+  // account for admin menu link and don't bother styling it w/ custom elements
+  if ($text != 'Edit network links' && isset($options['attributes']['class'][0]) && $options['attributes']['class'][0] == 'admin-menu-destination' || (!isset($variables['options']['identifier']) && (strpos($variables['path'], 'admin') === 0 || strpos($variables['path'], 'devel') === 0 || strpos($variables['path'], 'node/add') === 0 || strpos($variables['path'], 'http://drupal.org') === 0 || strpos($variables['path'], 'update.php') === 0))) {
+    return '<a href="' . check_plain(url($path, $options)) . '"' . drupal_attributes($options['attributes']) . '>' . ($options['html'] ? $text : check_plain($text)) . '</a>';
+  }
+  else {
+
+    return _foundation_access_lrnsys_button($text, $path, $options);
+  }
 }
 
 /**

@@ -41,13 +41,17 @@ body.adminimal-menu div#admin-menu ul.dropdown span.admin-menu-home-icon {
   height: 1rem;
 }
 
+body.adminimal-menu a {
+  height: 40px;
+}
+
 body.adminimal-menu div#admin-menu a,
 body.adminimal-menu div#admin-menu span {
   border: none !important;
   font-family: sans-serif;
   font-size: .9rem;
-  line-height: 2.5rem;
-  height: 2.5rem;
+  line-height: 32px;
+  height: 40px;
   text-overflow: ellipsis;
   overflow-x: hidden;
 }
@@ -66,10 +70,22 @@ body.adminimal-menu #admin-menu .dropdown li li > li.admin-menu-toolbar-category
 
 body.adminimal-menu #admin-menu .dropdown a {
   border-right: none;
+  padding: 4px;
+}
+#admin-menu a:hover, #admin-menu li > span:hover,
+body.adminimal-menu #admin-menu .dropdown li a:hover {
+  background-color: #0074bd;
+  background-position: 7px -78px;
+
 }
 
 body.adminimal-menu #admin-menu .dropdown li.admin-menu-toolbar-category a {
-  line-height: 20px;
+  line-height: 32px;
+}
+body.adminimal-menu #admin-menu #admin-menu-wrapper .dropdown li li a:hover,
+body.adminimal-menu #admin-menu .dropdown li.admin-menu-toolbar-category a:hover {
+  background-color: #0074bd;
+  background-position: 7px -78px;
 }
 
 body.adminimal-menu #admin-menu #admin-menu-wrapper .dropdown li li {
@@ -78,15 +94,11 @@ body.adminimal-menu #admin-menu #admin-menu-wrapper .dropdown li li {
 
 body.adminimal-menu #admin-menu #admin-menu-wrapper .dropdown li li a {
   border: none;
+
 }
 
 body.adminimal-menu #admin-menu #admin-menu-wrapper .dropdown li li.expandable {
   background: #202020 url("../img/arrow.png") no-repeat 10rem 1rem;
-}
-
-body.adminimal-menu #admin-menu #admin-menu-wrapper .dropdown li li.expandable a {
-  background: transparent;
-  padding-right: 0;
 }
 
 /* Shortcuts bar */
@@ -218,7 +230,7 @@ body.adminimal-menu.admin-menu.menu-render-collapsed div.shortcut-toolbar div#to
 
 body.adminimal-menu.admin-menu.menu-render-collapsed div.shortcut-toolbar div#toolbar div.toolbar-shortcuts ul.menu li.label {
   display: block;
-  cursor: default;
+  cursor: pointer;
 }
 
 body.adminimal-menu.admin-menu.menu-render-collapsed div.shortcut-toolbar div#toolbar div.toolbar-shortcuts ul.menu li.label a:hover {
@@ -303,12 +315,6 @@ body.adminimal-menu #admin-menu .admin-menu-search input {
   display: none;
 }
 
-#admin-menu .admin-menu-toolbar-category lrnsys-button a,
-body.adminimal-menu #admin-menu .dropdown a,
-body.adminimal-menu #admin-menu .dropdown li.admin-menu-toolbar-category a,
-#admin-menu lrnsys-button a {
-  padding: 0;
-}
 #admin-menu paper-button {
   margin: 0;
   padding: 0 0.5em;

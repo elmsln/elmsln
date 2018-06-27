@@ -2234,6 +2234,20 @@ function elmsln_core_wrapped_paths() {
 }
 
 /**
+ * Implements hook_webcomponents_base_path_alter().
+ */
+function elmsln_core_webcomponents_base_path_alter(&$path) {
+  // see if we can hit one of our own paths to serve from
+  // ELMS:LN administrators can hijack this if needed but we are now
+  // defaulting to all domains serving via elmsmedia since it already
+  // should be configured to allow for javascript and other remote connectivity
+  $tool = variable_get('elmsln_webcomponents_cdn_tool', 'elmsmedia');
+  if ($tool && $settings = _cis_connector_build_registry($tool)) {
+    $path = _cis_connector_format_address($settings, '/', 'front');
+  }
+}
+
+/**
  * Implements hook_register_webcomponent_apps_alter().
  */
 function elmsln_core_register_webcomponent_apps_alter(&$apps) {
