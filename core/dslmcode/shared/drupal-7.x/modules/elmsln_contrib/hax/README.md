@@ -14,6 +14,14 @@ Run bower install to get dependencies in place:
 `cd sites/all/libraries/webcomponents/polymer`
 `bower install`
 
+Copy the polyfill dependencies from polymer to a webcomponentsjs directory.
+
+`cd sites/all/libraries/webcomponents`
+
+`mkdir webcomponentsjs`
+
+`cp polymer/bower_components/webcomponentsjs/* webcomponentsjs/`
+
 Skip the next heading
 
 ## What if I already had webcomponents?
