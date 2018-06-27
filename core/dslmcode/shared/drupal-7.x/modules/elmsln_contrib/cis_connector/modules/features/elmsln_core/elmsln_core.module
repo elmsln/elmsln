@@ -2380,11 +2380,15 @@ function elmsln_core_webcomponents_cmstags_schema($params, $type) {
             'response' => $data,
             'request' => $request,
             'type' => 'string',
+            'value' => $code['display_mode'],
             'title' => t('Display mode'),
             'component' => array(
               'name' => 'dropdown-select',
               'valueProperty' => 'value',
               'slot' => $slot,
+              'properties' => array(
+                'value' => $code['display_mode'],
+              ),
             ),
           )
         );
