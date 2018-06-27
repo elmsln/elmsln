@@ -2372,7 +2372,7 @@ function elmsln_core_webcomponents_cmstags_schema($params, $type) {
       if (isset($data['display_modes'])) {
         // options as pulled across from the media system per node type
         foreach ($data['display_modes'] as $key => $value) {
-          $slot .= '<paper-item value="' . $key . '">' . $value . '</paper-item>';
+          $slot .= '<paper-item value="' . $key . '">' . ucfirst(str_replace('_', ' ', $value)) . '</paper-item>';
         }
         // return json schema back to the front end, woah
         return array(
