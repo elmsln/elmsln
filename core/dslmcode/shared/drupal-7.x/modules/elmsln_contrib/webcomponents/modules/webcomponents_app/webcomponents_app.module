@@ -226,6 +226,7 @@ function _webcomponents_app_load_app($machine_name = NULL, $debug = FALSE) {
         'href' => $path . 'manifest.json?h' . $hash,
         'rel' => 'manifest',
       ),
+      '#weight' => '1',
     );
     drupal_add_html_head($link_element, 'app-' . $machine_name . '-manifest');
     $hash = filesize(DRUPAL_ROOT . '/' . $app['path'] . 'src/' . $machine_name . '/' . $machine_name . '.html');
@@ -235,7 +236,7 @@ function _webcomponents_app_load_app($machine_name = NULL, $debug = FALSE) {
         'href' => $path . 'src/' . $machine_name . '/' . $machine_name . '.html?h' . $hash,
         'rel' => 'import',
       ),
-      '#weight' => '99999',
+      '#weight' => '1',
     );
     // allow for customizations to the path as opposed to where it was discovered
     // this is important when utilizing multiple apps in different areas on the
