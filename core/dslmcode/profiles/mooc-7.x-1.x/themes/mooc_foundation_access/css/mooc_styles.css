@@ -2,6 +2,48 @@
  * Other code, probably hacks
  */
 
+cms-hax {
+  outline: 1px dashed #CCCCCC;
+  outline-offset: 16px;
+  transition: .6s all linear;
+  -webkit-transition: .6s all linear;
+  -moz-transition: .6s all linear;
+  -ms-transition: .6s all linear;
+  -o-transition: .6s all linear;
+}
+
+cms-hax::before {
+  transition: .3s all linear;
+  content: "Content area";
+  top: 0;
+  left: 0;
+  font-size: 10px;
+  font-style: italic;
+  display: block;
+  position: absolute;
+  z-index: 1;
+  margin: -34px 0 0 -5px;
+  background-color: #CCCCCC;
+  color: #000000;
+  padding: 4px;
+  line-height: 10px;
+  opacity: 1;
+  visibility: visible;
+  -webkit-transition: .3s all linear;
+  -moz-transition: .3s all linear;
+  -ms-transition: .3s all linear;
+  -o-transition: .3s all linear;
+}
+
+cms-hax:hover {
+  outline: 1px dashed #FFFFFF;
+}
+cms-hax:hover::before {
+ background-color: #FFFFFF;
+ color: #FFFFFF;
+ visibility: hidden;
+ opacity: 0;
+}
 .outline-designer-page-operations {
   margin: -3.5em 0 0 0;
   display: table;
