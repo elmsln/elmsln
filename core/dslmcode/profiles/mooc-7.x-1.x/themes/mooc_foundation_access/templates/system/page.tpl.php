@@ -36,7 +36,7 @@
               </li>
               <li class="page-op-button">
               <?php if (user_access('use hax')) : ?>
-                <lrnsys-button id="hax-edit-tip" href="<?php print base_path() . arg(0) . '/' . arg(1); ?>/hax"  class="r-header__icon elmsln-edit-button" inner-class="no-padding" icon-class="blue-text" hover-class="<?php print $cis_lmsless['lmsless_classes'][$distro]['text'] . ' text-' . $cis_lmsless['lmsless_classes'][$distro]['dark'];?>" icon="maps:layers" alt="<?php print t('HAX (alpha)'); ?>"><span class="element-invisible"><?php print t('HAX (alpha)'); ?></span>
+                <lrnsys-button id="hax-edit-tip" href="<?php print base_path() . arg(0) . '/' . arg(1); ?>/hax"  class="r-header__icon elmsln-edit-button" inner-class="no-padding" icon-class="blue-text" hover-class="<?php print $cis_lmsless['lmsless_classes'][$distro]['text'] . ' text-' . $cis_lmsless['lmsless_classes'][$distro]['dark'];?>" icon="maps:layers" alt="<?php print t('HAX editor'); ?>"><span class="element-invisible"><?php print t('HAX (alpha)'); ?></span>
                 </lrnsys-button>';
               <?php endif; ?>
             <?php endif; ?>
