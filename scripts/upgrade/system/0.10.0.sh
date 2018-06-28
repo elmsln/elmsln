@@ -2,6 +2,9 @@
 # where am i? move to where I am. This ensures source is properly sourced
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd $DIR
+# may not actually resolve it but worth attempting to auto set this for media domains
+# now that we are going to serve all webcomponents from this domain for a massive performance bump
+echo 'Header set Access-Control-Allow-Origin "*"' >> /var/www/elmsln/config/stacks/media/.htaccess
 # include our config settings
 source ../../../config/scripts/drush-create-site/config.cfg
 # generate gravCMS place holders in the config directory for
