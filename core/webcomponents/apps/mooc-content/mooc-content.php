@@ -26,6 +26,9 @@ function _mooc_content_data($machine_name, $app_route, $params, $args) {
       $ops = $content;
       $content = '';
     }
+    else{
+      $content = preg_replace('~>\s+<~', '><', $content);
+    }
     // render outline w/ array
     $outline = _mooc_nav_block_mooc_nav_block($node);
     // pull together the right side options
