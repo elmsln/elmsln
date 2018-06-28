@@ -268,14 +268,47 @@ function mooc_update_7021(&$sandbox) {
  * Forcibly set this to enabled in input filter
  */
 function mooc_update_7022(&$sandbox) {
-  db_update('filter')
-  ->fields(array(
-    'status' => 1,
-  ))
-  ->condition('format', 'textbook_editor', '=')
-  ->condition('module', 'webcomponents_cmstags', '=')
-  ->condition('name', 'webcomponents_cmstags', '=')
-  ->execute();
+
+}
+
+/**
+ * Ensure this value is in the DB since it's hard to know
+ * ahead of time
+ */
+function mooc_update_7023(&$sandbox) {
+  // test to see if this is already set
+  $result = db_select('filter', 'f')
+    ->fields('f')
+    ->condition('format', 'textbook_editor', '=')
+    ->condition('module', 'webcomponents_cmstags', '=')
+    ->condition('name', 'webcomponents_cmstags', '=')
+    ->execute()
+    ->fetchAssoc();
+    // if we have an array, force an update to enable it
+    if (is_array($result)) {
+      db_update('filter')
+      ->fields(array(
+        'status' => 1,
+        'weight' => -50,
+      ))
+      ->condition('format', 'textbook_editor', '=')
+      ->condition('module', 'webcomponents_cmstags', '=')
+      ->condition('name', 'webcomponents_cmstags', '=')
+      ->execute();
+    }
+    else {
+      // we didn't have an array, create a new entry
+      $filter = db_insert('filter')
+      ->fields(array(
+        'format' => 'textbook_editor',
+        'module' => 'webcomponents_cmstags',
+        'name' => 'webcomponents_cmstags',
+        'weight' => -50,
+        'status' => 1,
+        'settings' => 'a:0:{}'
+      ))
+      ->execute();
+    }
   // clear cache in order to ensure input filter is rebuild
   cache_clear_all('filter_', 'cache', TRUE);
 }
