@@ -20,6 +20,16 @@
             <!-- Edit Icon -->
             <?php if (isset($edit_path)): ?>
             <?php if (arg(2) == 'hax'): ?>
+            <li class="page-op-button" style="margin-right:16px;">
+              <lrnsys-button href="" id="savetip" icon-class="green-text" onclick="(function(){
+    var event = document.createEvent('HTMLEvents');
+    event.initEvent('hax-save', true, true);
+    event.eventName = 'hax-save';
+    document.body.dispatchEvent(event);
+    return false;
+})();return false;" class="r-header__icon elmsln-save-button" inner-class="no-padding" hover-class="<?php print $cis_lmsless['lmsless_classes'][$distro]['text'] . ' text-' . $cis_lmsless['lmsless_classes'][$distro]['dark'];?>" icon="icons:save" alt="<?php print t('Save'); ?>">
+              </lrnsys-button>
+            </li>
             <li class="page-op-button">
               <lrnsys-button id="outline-tip" icon-class="blue-text" href="<?php print base_path() . arg(0) . '/' . arg(1); ?>" class="r-header__icon elmsln-edit-button" inner-class="no-padding" hover-class="<?php print $cis_lmsless['lmsless_classes'][$distro]['text'] . ' text-' . $cis_lmsless['lmsless_classes'][$distro]['dark'];?>" icon="icons:visibility" alt="<?php print t('Back to content'); ?>">
               </lrnsys-button>
@@ -36,7 +46,7 @@
               </li>
               <li class="page-op-button">
               <?php if (user_access('use hax')) : ?>
-                <lrnsys-button id="hax-edit-tip" href="<?php print base_path() . arg(0) . '/' . arg(1); ?>/hax"  class="r-header__icon elmsln-edit-button" inner-class="no-padding" icon-class="blue-text" hover-class="<?php print $cis_lmsless['lmsless_classes'][$distro]['text'] . ' text-' . $cis_lmsless['lmsless_classes'][$distro]['dark'];?>" icon="maps:layers" alt="<?php print t('HAX editor'); ?>"><span class="element-invisible"><?php print t('HAX (alpha)'); ?></span>
+                <lrnsys-button id="hax-edit-tip" href="<?php print base_path() . arg(0) . '/' . arg(1); ?>/hax"  class="r-header__icon elmsln-edit-button" inner-class="no-padding" icon-class="blue-text" hover-class="<?php print $cis_lmsless['lmsless_classes'][$distro]['text'] . ' text-' . $cis_lmsless['lmsless_classes'][$distro]['dark'];?>" icon="maps:layers" alt="<?php print t('HAX editor'); ?>"><span class="element-invisible"><?php print t('HAX editor'); ?></span>
                 </lrnsys-button>';
               <?php endif; ?>
             <?php endif; ?>

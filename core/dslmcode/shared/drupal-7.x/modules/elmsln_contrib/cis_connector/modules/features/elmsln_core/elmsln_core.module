@@ -2622,6 +2622,14 @@ function _elmsln_core_get_sis_user_data($uid = NULL) {
 }
 
 /**
+ * Implements hook_hax_cms_hax_attributes_alter().
+ */
+function elmsln_core_hax_cms_hax_attributes_alter(&$attributes) {
+  // hide panel operations, ELMS handles saving in HAX
+  $attributes['hide-panel-ops'] = TRUE;
+}
+
+/**
  * Implements hook_hax_app_store().
  */
 function elmsln_core_hax_app_store() {
