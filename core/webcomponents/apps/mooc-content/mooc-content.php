@@ -171,7 +171,7 @@ function _mooc_content_render_options() {
     // show hax link if you have access to it
     if (user_access('use hax')) {
       $content .= '
-      <lrnsys-button id="hax-edit-tip" href="' . $node_path . '/hax" class="r-header__icon elmsln-edit-button" data-jwerty-key="h" data-voicecommand="hax" hover-class="' . $cis_lmsless[$distro]['text'] . '" inner-class="no-padding" icon="maps:layers" icon-class="blue-text" alt="' . t('HAX (alpha)') . '"><span class="element-invisible">' . t('HAX (alpha)') . '</span>
+      <lrnsys-button id="hax-edit-tip" href="' . $node_path . '/hax" class="r-header__icon elmsln-edit-button" data-jwerty-key="h" data-voicecommand="hax" hover-class="' . $cis_lmsless[$distro]['text'] . '" inner-class="no-padding" icon="maps:layers" icon-class="blue-text" alt="' . t('HAX editor') . '"><span class="element-invisible">' . t('HAX editor') . '</span>
       </lrnsys-button>';
     }
     $content .= '
