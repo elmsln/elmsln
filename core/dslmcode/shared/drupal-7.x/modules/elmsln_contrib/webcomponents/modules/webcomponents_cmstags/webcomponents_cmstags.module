@@ -340,8 +340,14 @@ function _webcomponents_cmstags_process($text, $filter, $format, $langcode, $cac
         // Have to process multiple matches since more than one player can be on a node.
         foreach ($matches[0] as $key => $match) {
           $tmptoken = str_replace(']', '', str_replace('[', '', $match));
-          $patterns[] = $regex;
-          $media[] = '<cms-token token="' . $tmptoken . '"></cms-token>';
+          // support by passing some tokens and leaving as is
+          // this is up to developers to implement special cases
+          $process = TRUE;
+          drupal_alter('webcomponents_cmstagsprocess', $process, $tmptoken);
+          if ($process) {
+            $patterns[] = $regex;
+            $media[] = '<cms-token token="' . $tmptoken . '"></cms-token>';
+          }
         }
         $text = preg_replace($patterns, $media, $text, 1);
       }

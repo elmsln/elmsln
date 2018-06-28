@@ -241,8 +241,9 @@ function _hax_node_form($node) {
   $autoloaderstring = variable_get('hax_autoload_element_list', HAX_DEFAULT_ELEMENTS);
   $autoloader = explode(' ', $autoloaderstring);
   // push on HTML primatives
-  // @todo add support for overriding this list
   array_push($autoloader, 'cms-token', 'cms-views', 'cms-block', 'cms-entity', 'p', 'div', 'ol', 'ul', 'li', 'a', 'strong', 'kbd', 'em', 'i', 'b', 'hr', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'code', 'figure', 'img', 'iframe', 'video', 'audio', 'section', 'grid-plate', 'template', 'webview');
+  // allow hijacking these defaults
+  drupal_alter('hax_allowed_tags', $autoloader);
   $attributes['allowed-tags'] = json_encode($autoloader);
   // can't reflect attributes to false so just don't add if they are FALSE
   if (variable_get('hax_hide_panel_ops', FALSE)) {

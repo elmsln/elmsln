@@ -2630,6 +2630,29 @@ function elmsln_core_hax_cms_hax_attributes_alter(&$attributes) {
 }
 
 /**
+ * Implements hook_webcomponents_cmstagsprocess_alter().
+ */
+function elmsln_core_webcomponents_cmstagsprocess_alter(&$process, &$token) {
+  // skip elmsln specific tokens
+  if (strpos($token, 'elmsln_') === 0) {
+    $process = FALSE;
+  }
+}
+/**
+ * Implements hook_tokens_alter().
+ */
+function elmsln_core_tokens_alter(&$replacements, $context) {
+  // check for hax loading the content and ensure we gut the elmsln_ tokens
+  if (arg(2) == 'hax') {
+    foreach ($replacements as $token => $value) {
+      if (strpos($token, '[elmsln_') === 0) {
+        $replacements[$token] = $token;
+      }
+    }
+  }
+}
+
+/**
  * Implements hook_hax_app_store().
  */
 function elmsln_core_hax_app_store() {
