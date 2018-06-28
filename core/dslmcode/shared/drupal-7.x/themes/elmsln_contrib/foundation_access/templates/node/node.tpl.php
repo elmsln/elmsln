@@ -75,7 +75,6 @@
  * @see template_process()
  */
 ?>
-<lrn-page>
 <article typeof="oer:SupportingMaterial" resource="node-<?php print $node->nid; ?>" id="node-<?php print $node->nid; ?>" class="node s12 col <?php print $classes; ?>"<?php print $attributes; ?>>
   <?php if ($title && arg(2) != 'edit' && arg(0) != 'users' && arg(0) != 'user'): ?>
     <?php print render($title_prefix); ?>
@@ -105,4 +104,3 @@
   <?php endif; ?>
   <?php print render($content['comments']); ?>
 </article>
-</lrn-page>
