@@ -1,1 +1,58 @@
-<html><head><link rel="import" href="../polymer/polymer.html"><link rel="import" href="../mtz-marked-editor/mtz-marked-editor.html"><link rel="import" href="../mtz-marked-editor/mtz-marked-control-generic-wrap.html"><link rel="import" href="../mtz-marked-editor/mtz-marked-control-generic-line.html"><link rel="import" href="../mtz-marked-editor/controls/mtz-marked-control-link.html"><link rel="import" href="../iron-icons/editor-icons.html"><link rel="import" href="../iron-icons/places-icons.html"><link rel="import" href="../iron-icon/iron-icon.html"><link rel="import" href="../paper-input/paper-textarea.html"><link rel="import" href="../paper-input/paper-input.html"><link rel="prefetch" href="../polymer/polymer-mini.html"><link rel="prefetch" href="../polymer/polymer-micro.html"><link rel="prefetch" href="../iron-form-element-behavior/iron-form-element-behavior.html"><link rel="prefetch" href="../iron-validatable-behavior/iron-validatable-behavior.html"><link rel="prefetch" href="../iron-meta/iron-meta.html"><link rel="prefetch" href="../iron-a11y-keys/iron-a11y-keys.html"><link rel="prefetch" href="../iron-a11y-keys-behavior/iron-a11y-keys-behavior.html"><link rel="prefetch" href="../paper-icon-button/paper-icon-button.html"><link rel="prefetch" href="../iron-flex-layout/iron-flex-layout.html"><link rel="prefetch" href="../paper-behaviors/paper-inky-focus-behavior.html"><link rel="prefetch" href="../iron-behaviors/iron-button-state.html"><link rel="prefetch" href="../iron-behaviors/iron-control-state.html"><link rel="prefetch" href="../paper-behaviors/paper-ripple-behavior.html"><link rel="prefetch" href="../paper-ripple/paper-ripple.html"><link rel="prefetch" href="../paper-styles/default-theme.html"><link rel="prefetch" href="../paper-styles/color.html"><link rel="prefetch" href="../mtz-marked-editor/mtz-marked-control-wrapper-behavior.html"><link rel="prefetch" href="../mtz-marked-editor/mtz-marked-control-behavior.html"><link rel="prefetch" href="../mtz-marked-editor/mtz-marked-control-line-behavior.html"><link rel="prefetch" href="../iron-iconset-svg/iron-iconset-svg.html"><link rel="prefetch" href="../iron-autogrow-textarea/iron-autogrow-textarea.html"><link rel="prefetch" href="../paper-input/paper-input-behavior.html"><link rel="prefetch" href="../paper-input/paper-input-char-counter.html"><link rel="prefetch" href="../paper-styles/typography.html"><link rel="prefetch" href="../font-roboto/roboto.html"><link rel="prefetch" href="../paper-input/paper-input-addon-behavior.html"><link rel="prefetch" href="../paper-input/paper-input-container.html"><link rel="prefetch" href="../paper-input/paper-input-error.html"><link rel="prefetch" href="../iron-input/iron-input.html"><link rel="prefetch" href="../iron-a11y-announcer/iron-a11y-announcer.html"></head><body><dom-module id="lrn-markdown-editor-editor"><template><style>:host{display:block;}.mtz-controls{display:flex;width:100%;}.mtz-toolbar{flex-grow:5;}</style><mtz-marked-editor id="markededitor"><div slot="controls" class="mtz-controls"><mtz-marked-control-generic-wrap icon="editor:format-bold" title="Bold" syntax-prefix="**" syntax-suffix="**" keys="ctrl+b"></mtz-marked-control-generic-wrap><mtz-marked-control-generic-wrap icon="editor:format-italic" title="Italic" syntax-prefix="_" syntax-suffix="_" keys="ctrl+i"></mtz-marked-control-generic-wrap><mtz-marked-control-generic-line icon="editor:format-size" title="Heading" syntax-prefix="# "></mtz-marked-control-generic-line><mtz-marked-control-generic-line icon="editor:format-list-numbered" title="Ordered List" syntax-prefix="1. "></mtz-marked-control-generic-line><mtz-marked-control-generic-line icon="editor:format-list-bulleted" title="Unordered List" syntax-prefix="- "></mtz-marked-control-generic-line><mtz-marked-control-generic-line hidden$="[[!mathjax]]" icon="places:all-inclusive" title="Mathjax" syntax-prefix="$$" syntax-suffix="$$"></mtz-marked-control-generic-line><mtz-marked-control-link icon="editor:insert-link" title="Link"></mtz-marked-control-link></div><paper-textarea slot="textarea" label="Start typing..." value="{{content}}"></paper-textarea></mtz-marked-editor></template><script>Polymer({is:'lrn-markdown-editor-editor',properties:{content:{type:String,notify:!0,observer:'_changed'},mathjax:{type:Boolean,value:!1}},_changed:function(){var a=this.$.markededitor.getContent();this.mathjax&&this._updatedMathjax(),this.set('content',a),this.fire('content-updated',{content:this.content})},_updatedMathjax:function(){MathJax.Hub.Queue(['Typeset',MathJax.Hub])},ready:function(){this.mathjax&&MathJax.Hub.Queue(['Typeset',MathJax.Hub])}});</script></dom-module></body></html>
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../mtz-marked-editor/mtz-marked-editor.html">
+<link rel="import" href="../mtz-marked-editor/mtz-marked-control-generic-wrap.html">
+<link rel="import" href="../mtz-marked-editor/mtz-marked-control-generic-line.html">
+<link rel="import" href="../mtz-marked-editor/controls/mtz-marked-control-link.html">
+<link rel="import" href="../iron-icons/editor-icons.html">
+<link rel="import" href="../iron-icons/places-icons.html">
+<link rel="import" href="../iron-icon/iron-icon.html">
+<link rel="import" href="../paper-input/paper-textarea.html">
+<link rel="import" href="../paper-input/paper-input.html">
+
+<dom-module id="lrn-markdown-editor-editor">
+  <template>
+    <style>
+       :host {
+        display: block;
+      }
+
+      .mtz-controls {
+        display: flex;
+        width: 100%;
+      }
+
+      .mtz-toolbar {
+        flex-grow: 5;
+      }
+
+    </style>
+    <mtz-marked-editor id="markededitor">
+      <div slot="controls" class="mtz-controls">
+        <mtz-marked-control-generic-wrap icon="editor:format-bold" title="Bold" syntax-prefix="**" syntax-suffix="**" keys="ctrl+b"></mtz-marked-control-generic-wrap>
+        <mtz-marked-control-generic-wrap icon="editor:format-italic" title="Italic" syntax-prefix="_" syntax-suffix="_" keys="ctrl+i"></mtz-marked-control-generic-wrap>
+        <mtz-marked-control-generic-line icon="editor:format-size" title="Heading" syntax-prefix="# "></mtz-marked-control-generic-line>
+        <mtz-marked-control-generic-line icon="editor:format-list-numbered" title="Ordered List" syntax-prefix="1. "></mtz-marked-control-generic-line>
+        <mtz-marked-control-generic-line icon="editor:format-list-bulleted" title="Unordered List" syntax-prefix="- "></mtz-marked-control-generic-line>
+        <mtz-marked-control-link icon="editor:insert-link" title="Link"></mtz-marked-control-link>
+      </div>
+      <paper-textarea slot="textarea" label="Start typing..." value="{{content}}"></paper-textarea>
+    </mtz-marked-editor>
+  </template>
+  <script>
+    Polymer({
+      is: 'lrn-markdown-editor-editor',
+      properties: {
+        content: {
+          type: String,
+          notify: true
+        }
+      },
+      _changed: function (e)  {
+        var content = this.$.markededitor.getContent();
+        console.log('changed');
+        this.set('content', content);
+        this.fire('content-updated', {content: this.content});
+      }
+    });
+  </script>
+</dom-module>
