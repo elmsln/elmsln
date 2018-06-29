@@ -1,4 +1,13 @@
-ELMSLN 0.9.0, 2017-09-20 - Birth
+ELMS:LN 0.10.0 - 2018-06-29 - #haxtheelms
+3 years after the idea was expressed, the team finally has build a truly decoupled, transformative authoring experience. After months of development, testing, and talk, action is materialized. We present you with the HAX authoring system baked into ELMS:LN, out of the box, highly preformance optimized, with tons of great elements and integrations from day 1. For the moment, there are effectively two editing modes while we engage in deeper, production level testing and broader UX testing of HAX. There's traditional edit mode, and HAX editor which unleashes the power of web components for the masses. #haxtheweb is also bringing together people across multiple platforms to unite on front-end based UX patterns and design assets.
+
+This is a game changer for quality of what can be produced and is the beginning of realization of the web component promise and buy-in from all team members. This release closes 118 issues with HAX being it's own repo that has 131 issues of its own closed towards this release. There is also a massive performance gain over 0.9.0 on page to page and perception of performance as well as resource optimization. Meaning ELMS:LN sends less data, sends it faster, uses what it has more wisely, and lazy loads all dynamic content that's been previously created.
+
+This also positions the team for doing more iterative releases w/ more features as we've adopted an enhanced build routine that is more accountable then previous methods of releasing components. The next push is towards much deserved vacations for the team, gathering UX feedback, and working on a next generation content presentation engine leveraging the skills we've all learned to this point.
+
+To read about the changes in this release see: https://github.com/elmsln/elmsln/milestone/12?closed=1
+
+ELMS:LN 0.9.0, 2017-09-20 - Birth
 This is the biggest design release of the platform to date. It takes a bold new step into the web components world and the world of one page apps through the creation of our first production Polymer application in the Open Studio. It realizes the paradygm shift away from traditional page transactions to AJAX and web component based application development.
 
 The new studio is in production usage already and is seeing incredibly promising early results from students and faculty using it (over 100 using it currently). This release closes 157 issues, many related to studio and UX bug fixes. The changes pushed in 0.8.1 are also reflected, meaning that we now have a concept of near infinite scale as far as section size during roster synchronization.
@@ -13,10 +22,10 @@ We celebrate today for tomorrow marks the dawn of a new era.
 
 To read about the changes in this release see: https://github.com/elmsln/elmsln/milestone/11?closed=1
 
-ELMSLN 0.8.1, 2017-09-19 - Snake it
+ELMS:LN 0.8.1, 2017-09-19 - Snake it
 Only #1945 added so that older builds can complete without our design enhancements yet. This was asked for by the community and is not the issue finished but gets this contributed functionality into production systems running 0.8.0 previously.
 
-ELMSLN 0.8.0, 2017-05-26 - Kunitz
+ELMS:LN 0.8.0, 2017-05-26 - Kunitz
 This release fixes 53 issues since the last release, with 99 since 0.7.0. This is a the beginning of a paradigm shift for the project with regard to design. The system is starting to take on the UX patterns of Material more directly through the core adoption of Web Component architecture across the entire platform. The theme hasn't been completely replaced but it has had major design overhauls since 0.7.x and is drastically easier to navigate / learn.
 
 We've also started to get the build process down for Polymer / Webcomponent architecture and now have 100s of web components available for usage, many of which have experimental support for HAX. There have been a lot of minor bugs fixed associated with the studio, network wide communications edge cases, and performance improvements related to syncing. Git book based workflows for markdow ingestion have also been drastically improved and are now being utilized in production deploys (at PSU).
@@ -34,23 +43,23 @@ Minor and Medium bug fixes in edge cases in CIS, Assessment, Discuss, and Media 
 
 To read about the changes in this release see: https://github.com/elmsln/elmsln/milestone/17?closed=1
 
-ELMSLN 0.7.0, 2017-01-30 - Redux
+ELMS:LN 0.7.0, 2017-01-30 - Redux
 This release fixes over 100 issues since the last release (200ish since 0.6.0). Major improvements in stability to Studio which has graduated as the 1st angular2 based system in the network, as well as lots of UX improvements in all levels of the system. Media, Online, and Courses see major improvements in usability as well. All other systems are a lot easier to access and system context is being maintained between systems much better. Multiple demonstrations of this release are starting to make believers of the approach.
 
 To read about the changes in this release see: https://github.com/elmsln/elmsln/milestone/13?closed=1
 
-ELMSLN 0.6.3, 2016-12-18 - Evergreen
+ELMS:LN 0.6.3, 2016-12-18 - Evergreen
 This release now adds support for CAS, cleans up multiple minor installation issues with Ubuntu 16, fixes some minor UX issues and enhances the internal ELMSLNJS API for building Angular apps against ELMSLN.
 
 To read about the changes in this release see: https://github.com/elmsln/elmsln/milestone/16?closed=1
 
-ELMSLN 0.6.2, 2016-12-02 - Dominant
+ELMS:LN 0.6.2, 2016-12-02 - Dominant
 This release includes lots of edge-case performance, edge-case stability, usability and minor bug fixes noticed after deployment of 0.6.1.
 
 To read about the changes present in this release see: https://github.com/elmsln/elmsln/milestone/15?closed=1
 
 
-ELMSLN 0.6.1, 2016-11-22 - Gravy
+ELMS:LN 0.6.1, 2016-11-22 - Gravy
 This release includes minor fixes noticed after deploying 0.6.0 in the wild on multiple servers. This is a minor release based on scope of the issues and upgrading from 0.6.0 should be minimally invasive. There is a server level upgrade to apply at this version marker but it is not critical. This also includes additional work towards the Angular version of the studio which is close to working.
 
 Thanks to these reporters & contributors to this release:
@@ -76,7 +85,7 @@ Settings Cog is Inaccessible for some Shortcoded Media bug Staff Experience #149
 List style type set to 'none' for bullet points bug style guide / theme #1500
 Scrollspy error bug #1494
 
-ELMSLN 0.6.0, 2016-11-20 - Turkey
+ELMS:LN 0.6.0, 2016-11-20 - Turkey
 This release has major improvements to infrastructure deployment, migration and QA workflows. It also drops previously produced keychain requirements which had username and passwords and replaces them with a hash based methodology which can be updated and random at will. These are specific to each service account running commands on user's behalfs so it was never a serious security issue but always good to do house cleaning. Also includes many bug fixes, vastly improved developer UX in vagrant via the `sh developer` command and other PHP7 compatibility improvements.
 
 User profile borked in firefox bug style guide / theme #1446
@@ -111,7 +120,7 @@ Add better banner style guide / theme #1451
 elmsln api callback for 'what content types can this user create' infrastructure #1461
 Make upgrade hook in elmsln_core for temporary directory setting infrastructure #1459
 
-ELMSLN 0.5.0, 2016-11-08 - Pumpkin
+ELMS:LN 0.5.0, 2016-11-08 - Pumpkin
 Another release, another big release. This update has massive performance, accessibility and usability enhancemnets. There's also built in support for mapping, xAPI visualization and tracking, read time statistical generation is now stable, PDF / Print mode printing, more refined media and testing work. The usability improvements associated with color and design now give greater context of where people are and what they are doing. MaterializeCSS has also been fully implemented, replacing our 2 year long run with Zurb Foundation / hacky / some materialize code. Materialize nets us a larger design community and really clean visualization / design patterns to start from. There's also a lot of work under the hood in stability and improvements people won't notice but that put us on better footing going forward, including Ubuntu 16 with PHP 7, MariaDB, and HTTP2 support for the fastest page delivery currently possible by web-stacks. There's also some experimental work for Angular 2.0 apps in the 2.x version of the Studio. The next release will focus more on getting this and other Angular experiments graduated to full usage. This release has the most issues stomped and functionality added since the project initially got a 0.0.0 release marker.
 
 Cut a 0.5.0 release after 1 last build #1453
