@@ -367,3 +367,10 @@ function elmsln_core_update_7031(&$sandbox) {
 function elmsln_core_update_7032(&$sandbox) {
   module_enable(array('json_schema_forms'));
 }
+
+/**
+ * Enable File entity
+ */
+function elmsln_core_update_7033(&$sandbox) {
+  module_enable(array('file_entity'));
+}

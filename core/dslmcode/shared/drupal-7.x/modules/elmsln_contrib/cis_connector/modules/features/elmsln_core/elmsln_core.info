@@ -47,6 +47,7 @@ dependencies[] = webcomponents_polymer
 dependencies[] = menu
 dependencies[] = menu_attributes
 dependencies[] = special_menu_items
+dependencies[] = file_entity
 features[ctools][] = strongarm:strongarm:1
 features[features_api][] = api:2
 features[image][] = elmsln_gray
