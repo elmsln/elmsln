@@ -155,9 +155,15 @@ function elmsln_core_user_default_permissions() {
   $permissions['create files'] = array(
     'name' => 'create files',
     'roles' => array(
+      'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
+      'activation code holder' => 'activation code holder',
       'administrator' => 'administrator',
+      'guest' => 'guest',
       'instructor' => 'instructor',
+      'past student' => 'past student',
       'staff' => 'staff',
+      'student' => 'student',
+      'teaching assistant' => 'teaching assistant',
     ),
     'module' => 'file_entity',
   );
