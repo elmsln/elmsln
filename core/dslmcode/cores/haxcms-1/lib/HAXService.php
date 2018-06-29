@@ -335,7 +335,7 @@ class HAXService {
                 "defaultGizmoType": "image",
                 "items": "results",
                 "preview": {
-                  "title": "",
+                  "title": "tags.0.title",
                   "details": "description",
                   "image": "urls.thumb",
                   "id": "id"
@@ -495,6 +495,87 @@ class HAXService {
                   "title": "tags",
                   "caption": "tags",
                   "citation": "user.name"
+                }
+              }
+            }
+          }
+        }
+      }';
+      $tmp = json_decode($jsonstring);
+      array_push($json, $tmp);
+    }
+    // Google Poly
+    if (isset($apikeys['googlepoly'])) {
+      $jsonstring = '{
+        "details": {
+          "title": "Google Poly",
+          "icon": "icons:3d-rotation",
+          "color": "red",
+          "author": "Google",
+          "description": "Google 3D object sharing service",
+          "status": "available",
+          "tags": ["3D", "creative commons", "crowdsourced"]
+        },
+        "connection": {
+          "protocol": "https",
+          "url": "poly.googleapis.com/v1",
+          "data": {
+            "key": "' . $apikeys['googlepoly'] . '"
+          },
+          "operations": {
+            "browse": {
+              "method": "GET",
+              "endPoint": "assets",
+              "pagination": {
+                "style": "page",
+                "props": {
+                  "previous": "prevPageToken",
+                  "next": "nextPageToken",
+                  "total_items": "pageInfo.totalResults"
+                }
+              },
+              "search": {
+                "keywords": {
+                  "title": "Search",
+                  "type": "string"
+                },
+                "category": {
+                  "title": "Category",
+                  "type": "string",
+                  "value": "",
+                  "component": {
+                    "name": "dropdown-select",
+                    "valueProperty": "value",
+                    "slot": "<paper-item value=\'\'>Any</paper-item><paper-item value=\'animals\'>Animals</paper-item><paper-item value=\'architecture\'>Architecture</paper-item><paper-item value=\'art\'>Art</paper-item><paper-item value=\'food\'>Food</paper-item><paper-item value=\'nature\'>Nature</paper-item><paper-item value=\'objects\'>Objects</paper-item><paper-item value=\'people\'>People</paper-item><paper-item value=\'scenes\'>Scenes</paper-item><paper-item value=\'technology\'>Technology</paper-item><paper-item value=\'transport\'>Transport</paper-item>"
+                  }
+                }
+              },
+              "data": {
+                "pageSize": "20"
+              },
+              "resultMap": {
+                "defaultGizmoType": "video",
+                "items": "assets",
+                "preview": {
+                  "title": "displayName",
+                  "details": "description",
+                  "image": "thumbnail.url",
+                  "id": "name"
+                },
+                "gizmo": {
+                  "title": "displayName",
+                  "description": "description",
+                  "id": {
+                    "property": "name",
+                    "op": "split",
+                    "delimiter": "/",
+                    "position": "1"
+                  },
+                  "image": "thumbnail.url",
+                  "_url_source": "https://poly.google.com/view/<%= id %>/embed",
+                  "caption": "description",
+                  "citation": "authorName",
+                  "license": "license"
                 }
               }
             }
@@ -1143,6 +1224,10 @@ class HAXService {
       'youtube' => array(
         'name' => 'YouTube',
         'docs' => 'https://developers.google.com/youtube/v3/getting-started',
+      ),
+      'googlepoly' => array(
+        'name' => 'Google Poly',
+        'docs' => 'https://developers.google.com/poly/develop/api',
       ),
       'memegenerator' => array(
         'name' => 'Meme generator',
