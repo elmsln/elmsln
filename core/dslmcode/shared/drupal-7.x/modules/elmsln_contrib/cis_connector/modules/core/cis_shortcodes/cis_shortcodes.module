@@ -95,6 +95,7 @@ function _cis_shortcode_render_codes($entity, $type) {
       'class' => array(
         'form-wrapper',
         'collapsible',
+        'elmsln-materialize-collapse-list',
       ),
       'data-collapsible' => 'accordion',
     ),

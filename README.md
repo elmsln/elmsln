@@ -9,11 +9,11 @@ Learn more about ELMSLN @ [elmsln.org](https://www.elmsln.org/)
 
 | Version | PHP | Includes | Status |
 | ------- | --- | -------- | ------ |
-[0.9.0](https://github.com/elmsln/elmsln/archive/0.9.0.zip)  | 5.4+ & 7.x | Polymer 1.x.x, Drupal 7.x, GravCMS 1.x.x | [![Build Status](https://travis-ci.org/elmsln/elmsln.svg?branch=master)](https://travis-ci.org/elmsln/elmsln) [![OpenCollective](https://opencollective.com/elmsln/backers/badge.svg)](#backers) [![OpenCollective](https://opencollective.com/elmsln/sponsors/badge.svg)](#sponsors)
+[0.10.0](https://github.com/elmsln/elmsln/archive/0.10.0.zip)  | 5.4+ & 7.x | Polymer 1.x.x, Drupal 7.x, GravCMS 1.x.x | [![Build Status](https://travis-ci.org/elmsln/elmsln.svg?branch=master)](https://travis-ci.org/elmsln/elmsln) [![OpenCollective](https://opencollective.com/elmsln/backers/badge.svg)](#backers) [![OpenCollective](https://opencollective.com/elmsln/sponsors/badge.svg)](#sponsors)
 
-Play quickly
+Contributing
 ==============
-Vagrant is the fastest way to get up and running quickly. See the [Vagrant installation documentation](https://elmsln.readthedocs.io/en/latest/development/Vagrant-Step-by-Step-setup/) on how to get up and running now! elmsln.org also has some sponsored demos of the technology but the real deal is always best!
+You can learn more about contributing to ELMS:LN in our [CONTRIBUTING.md](CONTRIBUTING.md) guide. Vagrant is the fastest way to get up and running quickly. See the [Vagrant installation documentation](https://btopro.gitbooks.io/elmsln-documentation/content/developer-guide/vagrant-setup.html) on how to get up and running now! elmsln.org also has some sponsored demos of the technology but the real deal is always best!
 
 Issues
 ==============
@@ -21,7 +21,7 @@ If you notice an issue or have a question please file it in our [issue queue](ht
 
 Documentation
 ==============
-See the Docs for questions and documentation either on our [docs site](https://elmsln.readthedocs.io/en/latest/) or [API site](http://api.elmsln.org).
+See the Docs for questions and documentation either on our [docs site](https://btopro.gitbooks.io/elmsln-documentation/content/) or [API site](http://api.elmsln.org).
 
 Vision and Governance
 ==============
@@ -41,28 +41,8 @@ Test, ask, jump in on the issue queues on github, drupal.org, twitter, email, ph
 ## Backers
 Support us with a monthly donation and help us continue our activities. [[Become a backer](https://opencollective.com/elmsln#backer)]
 
-<a href="https://opencollective.com/elmsln/backer/0/website" target="_blank"><img src="https://opencollective.com/elmsln/backer/0/avatar.svg"></a>
-<a href="https://opencollective.com/elmsln/backer/1/website" target="_blank"><img src="https://opencollective.com/elmsln/backer/1/avatar.svg"></a>
-<a href="https://opencollective.com/elmsln/backer/2/website" target="_blank"><img src="https://opencollective.com/elmsln/backer/2/avatar.svg"></a>
-<a href="https://opencollective.com/elmsln/backer/3/website" target="_blank"><img src="https://opencollective.com/elmsln/backer/3/avatar.svg"></a>
-<a href="https://opencollective.com/elmsln/backer/4/website" target="_blank"><img src="https://opencollective.com/elmsln/backer/4/avatar.svg"></a>
-<a href="https://opencollective.com/elmsln/backer/5/website" target="_blank"><img src="https://opencollective.com/elmsln/backer/5/avatar.svg"></a>
-<a href="https://opencollective.com/elmsln/backer/6/website" target="_blank"><img src="https://opencollective.com/elmsln/backer/6/avatar.svg"></a>
-<a href="https://opencollective.com/elmsln/backer/7/website" target="_blank"><img src="https://opencollective.com/elmsln/backer/7/avatar.svg"></a>
-<a href="https://opencollective.com/elmsln/backer/8/website" target="_blank"><img src="https://opencollective.com/elmsln/backer/8/avatar.svg"></a>
-<a href="https://opencollective.com/elmsln/backer/9/website" target="_blank"><img src="https://opencollective.com/elmsln/backer/9/avatar.svg"></a>
-<a href="https://opencollective.com/elmsln/backer/10/website" target="_blank"><img src="https://opencollective.com/elmsln/backer/10/avatar.svg"></a>
-<a href="https://opencollective.com/elmsln/backer/11/website" target="_blank"><img src="https://opencollective.com/elmsln/backer/11/avatar.svg"></a>
-<a href="https://opencollective.com/elmsln/backer/12/website" target="_blank"><img src="https://opencollective.com/elmsln/backer/12/avatar.svg"></a>
-<a href="https://opencollective.com/elmsln/backer/13/website" target="_blank"><img src="https://opencollective.com/elmsln/backer/13/avatar.svg"></a>
-<a href="https://opencollective.com/elmsln/backer/14/website" target="_blank"><img src="https://opencollective.com/elmsln/backer/14/avatar.svg"></a>
-<a href="https://opencollective.com/elmsln/backer/15/website" target="_blank"><img src="https://opencollective.com/elmsln/backer/15/avatar.svg"></a>
-<a href="https://opencollective.com/elmsln/backer/16/website" target="_blank"><img src="https://opencollective.com/elmsln/backer/16/avatar.svg"></a>
-
-
 ## Sponsors
 Become a sponsor and get your logo on our README on Github with a link to your site. [[Become a sponsor](https://opencollective.com/elmsln#sponsor)]
-
 
 LICENSE
 ==============
@@ -73,4 +53,4 @@ ELMSLN is a collection of many, many projects, all individually licensed, all op
 - GravCMS is MIT licensed
 - Polymer core is BSD 3 clause
 - The majority of included Webcomponents (especially those from the [LRNWebComponents](https://github.com/LRNWebComponents) repos) are Apache 2.0
-- For other included libraries see their respective LICENSE.txt file included local to those projects and libraries.
+- For other included libraries see their respective LICENSE.txt / LICENSE.md file included local to those projects and libraries.

@@ -1,9 +1,11 @@
 <?php
 
 /**
+ * @file
  * Plugins are described by creating a $plugin array which will be used
  * by the system that includes this file.
  */
+
 $plugin = array(
   'single' => TRUE,
   'title' => t('Node created date'),
@@ -20,7 +22,7 @@ $plugin = array(
  * Render the custom content type.
  */
 function ctools_node_created_content_type_render($subtype, $conf, $panel_args, $context) {
-  if (empty($context) || empty($context->data)) {
+  if (!empty($context) && (empty($context->data) || empty($context->data->nid))) {
     return;
   }
 
@@ -28,7 +30,7 @@ function ctools_node_created_content_type_render($subtype, $conf, $panel_args, $
   $node = $context->data;
 
   // Build the content type block.
-  $block = new stdClass();
+  $block          = new stdClass();
   $block->module  = 'node_created';
   $block->title   = t('Created date');
   $block->content = format_date($node->created, $conf['format']);

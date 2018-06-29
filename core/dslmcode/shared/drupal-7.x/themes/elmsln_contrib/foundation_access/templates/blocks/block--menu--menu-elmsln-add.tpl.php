@@ -26,10 +26,10 @@
  */
 // sort so the items are weighted
 ?>
+<?php if ($content): ?>
 <div class="elmsln-fixed-action-btn" style="bottom: 2rem; right: 1rem;">
   <lrnapp-fab-menu>
-    <?php if ($content): ?>
   <?php print $content; ?>
-<?php endif; ?>
 </lrnapp-fab-menu>
 </div>
+<?php endif; ?>

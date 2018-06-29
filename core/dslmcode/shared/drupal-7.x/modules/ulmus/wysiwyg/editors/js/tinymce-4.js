@@ -47,7 +47,7 @@ Drupal.wysiwyg.editor.update.tinymce = function (settings, pluginInfo) {
 /**
  * Attach this editor to a target element.
  *
- * See Drupal.wysiwyg.editor.attach.none() for a full desciption of this hook.
+ * See Drupal.wysiwyg.editor.attach.none() for a full description of this hook.
  */
 Drupal.wysiwyg.editor.attach.tinymce = function (context, params, settings) {
   // Remove TinyMCE's internal mceItem class, which was incorrectly added to
@@ -77,7 +77,7 @@ Drupal.wysiwyg.editor.attach.tinymce = function (context, params, settings) {
 /**
  * Detach a single or all editors.
  *
- * See Drupal.wysiwyg.editor.detach.none() for a full desciption of this hook.
+ * See Drupal.wysiwyg.editor.detach.none() for a full description of this hook.
  */
 Drupal.wysiwyg.editor.detach.tinymce = function (context, params, trigger) {
   var instance;

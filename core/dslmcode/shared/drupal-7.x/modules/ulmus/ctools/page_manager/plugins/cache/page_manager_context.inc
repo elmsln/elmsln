@@ -7,7 +7,7 @@
  */
 
 $plugin = array(
-  // cache plugins are the rare plugin types that have no real UI but
+  // Cache plugins are the rare plugin types that have no real UI but
   // we're providing a title just in case.
   'title' => t('Page manager context'),
   'cache get' => 'page_manager_cache_page_manager_context_cache_get',
@@ -46,7 +46,7 @@ function page_manager_cache_page_manager_context_cache_set($data, $key, $object)
 }
 
 /**
- * Copy temporary data from the page manager cache
+ * Copy temporary data from the page manager cache.
  */
 function page_manager_cache_page_manager_context_cache_finalize($data, $key, $object) {
   // Statically cached so there shouldn't be any worries. It's an object so

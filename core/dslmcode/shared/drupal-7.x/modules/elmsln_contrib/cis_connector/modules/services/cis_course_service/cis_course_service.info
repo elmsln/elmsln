@@ -18,4 +18,6 @@ features[variable][] = path_alias_whitelist
 features[variable][] = pathauto_node_pattern
 features[variable][] = pathauto_node_section_pattern
 features[variable][] = pathauto_punctuation_hyphen
+features[variable][] = pathauto_reduce_ascii
+features[variable][] = pathauto_transliterate
 features[variable][] = pathauto_user_pattern

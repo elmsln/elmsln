@@ -1,0 +1,102 @@
+#!/bin/bash
+# you should be able to copy and paste these 3 lines into a bash
+# prompt and effectively install and completely optimize elmsln
+# on a new machine that has just been created
+# no dependencies to worry about, just take the red pill and copy
+# and paste on a fresh server.
+# The 3rd line you'll want to fill out with your own values if you
+# are spinning this up to actually run somewhere, but the example input
+# will work to give you a taste of what its about to do when your ready for
+# the real deal to be deployed somewhere.
+#
+# @todo piece through and gut this stuff so it lives in the other container files
+# @todo create an alias file so calls to apache and mysql get routed correctly to the right container
+apt-get update
+apt-get -y install wget git
+git clone https://github.com/elmsln/elmsln.git /var/www/elmsln
+cd /var/www/elmsln
+git checkout master
+export DEBIAN_FRONTEND=noninteractive
+# make sure we're up to date with 5.6 repos
+apt-get update -y
+
+# Needed to make sure that we have mcrypt which apparently is ok again.
+apt-get upgrade -y
+
+#Install Mariadb
+apt-get install software-properties-common -y
+apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0xF1656F24C74CD1D8
+add-apt-repository 'deb [arch=amd64,i386,ppc64el] http://ftp.utexas.edu/mariadb/repo/10.1/ubuntu xenial main'
+
+#update again after new repo and install the db server.
+apt-get update -y
+apt-get install mariadb-server -y
+
+# Install apache
+apt-get -y install apache2
+
+# using apt-get to install the main packages
+apt-get -y install sendmail uuid uuid-runtime curl policycoreutils unzip patch git nano gcc make mcrypt
+
+#install php
+apt-get -y install php php-fpm php-common php-mysql php-ldap php-cgi php-pear php7.0-mbstring php7.0-zip php-xml-parser php-curl php-gd php-cli php-apcu php-dev php-mcrypt mcrypt
+a2enmod proxy_fcgi setenvif
+a2enconf php7.0-fpm
+
+# enable apache headers
+a2enmod ssl rewrite headers
+pecl channel-update pecl.php.net
+
+# install uploadprogress
+pecl install uploadprogress
+
+# adding uploadprogresss to php conf files
+touch /etc/php/7.0/mods-available/uploadprogress.ini
+echo extension=uploadprogress.so > /etc/php/7.0/mods-available/uploadprogress.ini
+
+# Sanity Logs
+mkdir /var/log/php-fpm/
+echo slowlog = /var/log/php-fpm/www-slow.log >> /etc/php/7.0/fpm/pool.d/www.conf
+echo request_slowlog_timeout = 2s >> /etc/php/7.0/fpm/pool.d/www.conf
+echo php_admin_value[error_log] = /var/log/php-fpm/www-error.log >> /etc/php/7.0/fpm/pool.d/www.conf
+
+# restart fpm so we have access to these things
+service php7.0-fpm restart
+
+# set httpd_can_sendmail so drupal mails go out
+setsebool -P httpd_can_sendmail on
+
+# start mysql to ensure that it is running
+service mariadb restart
+service apache2 restart
+
+# make an admin group
+groupadd admin
+groupadd elmsln
+
+# get base mysql tables established
+#mysql_install_db
+# run the handsfree installer that's the same for all deployments
+
+# Not sure why but run this at the end...
+apt-get install libyaml-dev -y
+yes '' | pecl install -f yaml-2.0.0
+echo "extension=yaml.so" > /etc/php/7.0/mods-available/yaml.ini
+phpenmod yaml
+service php7.0-fpm restart
+# these are supposed to be installed but aren't for whatever reason...
+apt-get -y install php7.0-mbstring php7.0-zip
+
+# the actual command that does anything and everything
+bash /var/www/elmsln/scripts/install/handsfree/docker/docker-install.sh elmsln ln elmsln.dev http admin@elmsln.dev yes
+cd $HOME
+source .bashrc
+
+# for production usage:
+# describing the values a bit more; all of these are machine_name input
+# elmsln: college/university deployment
+# ln: 2 letter to represent organizational unit
+# elmsln.dev: domain to use as the base for the networ
+# http: protocol; http or https for all communications
+# email@elmsln.dev: admin email address
+# yes: report to our anonymous analytics program when we start it yes/no

@@ -1,15 +1,9 @@
 /* CSS Document */
-.dialog-header.lrnsys-dialog {
+.paper-dialog-scrollable-0 .scrollable.paper-dialog-scrollable {
   padding: 0;
   margin: 0;
 }
-paper-dialog.lrnsys-dialog paper-dialog-scrollable {
-  margin: 0;
-}
-paper-dialog.lrnsys-dialog paper-dialog-scrollable .scrollable.paper-dialog-scrollable {
-  padding: 0;
-}
-paper-dialog.lrnsys-dialog paper-dialog-scrollable .status-rationale {
+.paper-dialog-scrollable-0 .scrollable.paper-dialog-scrollable .status-rationale {
   font-size: .6em;
   text-align: right;
 }

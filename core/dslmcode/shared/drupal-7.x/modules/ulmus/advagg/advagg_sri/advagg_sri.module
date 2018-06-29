@@ -5,7 +5,11 @@
  * Advanced aggregation sri module.
  */
 
-// Define default variables.
+/**
+ * @addtogroup default_variables
+ * @{
+ */
+
 /**
  * Default value of the SHA hash level.
  */
@@ -16,7 +20,15 @@ define('ADVAGG_SRI', 0);
  */
 define('ADVAGG_SRI_FILE_GENERATION', FALSE);
 
-// Core hook implementations.
+/**
+ * @} End of "addtogroup default_variables".
+ */
+
+/**
+ * @addtogroup hooks
+ * @{
+ */
+
 /**
  * Implements hook_menu().
  */
@@ -62,3 +74,7 @@ function advagg_sri_form_advagg_admin_settings_form_alter(&$form, $form_state) {
     $form['global']['advagg_use_httprl']['#description'] = t('The Subresource Integrity submodule has disabled httprl usage. This is the "Always output the page with the subresource integrity attribute" checkbox.');
   }
 }
+
+/**
+ * @} End of "addtogroup hooks".
+ */

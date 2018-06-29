@@ -62,8 +62,8 @@ function ctools_token_content_type_content_types() {
 }
 
 /**
-* Render the custom content type.
-*/
+ * Render the custom content type.
+ */
 function ctools_token_content_type_render($subtype, $conf, $panel_args, $context) {
   if (empty($context) || empty($context->data)) {
     return FALSE;
@@ -81,7 +81,7 @@ function ctools_token_content_type_render($subtype, $conf, $panel_args, $context
   }
 
   // Build the content type block.
-  $block = new stdClass();
+  $block          = new stdClass();
   $block->module  = 'ctools';
   $block->title   = $info['tokens'][$entity_type][$name]['name'];
   $block->content = $values[$name];
@@ -91,8 +91,8 @@ function ctools_token_content_type_render($subtype, $conf, $panel_args, $context
 }
 
 /**
-* Returns an edit form for custom type settings.
-*/
+ * Returns an edit form for custom type settings.
+ */
 function ctools_token_content_type_edit_form($form, &$form_state) {
   $conf = $form_state['conf'];
 
@@ -113,10 +113,9 @@ function ctools_token_content_type_edit_form_submit($form, &$form_state) {
   $form_state['conf']['sanitize'] = $form_state['values']['sanitize'];
 }
 
-
 /**
-* Returns the administrative title for a type.
-*/
+ * Returns the administrative title for a type.
+ */
 function ctools_token_content_type_admin_title($subtype, $conf, $context) {
   return t('"@s" @name', array('@s' => $context->identifier, '@name' => $subtype));
 }

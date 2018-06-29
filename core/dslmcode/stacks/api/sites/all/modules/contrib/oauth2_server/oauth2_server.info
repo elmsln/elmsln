@@ -1,0 +1,39 @@
+name = OAuth2 Server
+description = Provides OAuth2 server functionality
+package = "OAuth2"
+dependencies[] = entity
+dependencies[] = entityreference
+dependencies[] = xautoload
+core = 7.x
+configure = admin/structure/oauth2-servers
+php = 5.3.9
+
+; Metadata controllers
+files[] = oauth2_server.info.inc
+
+; Admin UI controllers
+files[] = includes/oauth2_server.server_admin.inc
+files[] = includes/oauth2_server.scope_admin.inc
+files[] = includes/oauth2_server.client_admin.inc
+
+; Entity controllers
+files[] = includes/oauth2_server.server_controller.inc
+files[] = includes/oauth2_server.scope_i18n.inc
+files[] = includes/oauth2_server.token_controller.inc
+
+; Entity classes.
+files[] = includes/oauth2_server.server.inc
+files[] = includes/oauth2_server.scope.inc
+files[] = includes/oauth2_server.client.inc
+files[] = includes/oauth2_server.authorization_code.inc
+files[] = includes/oauth2_server.token.inc
+
+; Tests
+files[] = tests/oauth2_server.test
+
+; Information added by Drupal.org packaging script on 2016-11-01
+version = "7.x-1.7"
+core = "7.x"
+project = "oauth2_server"
+datestamp = "1477993757"
+

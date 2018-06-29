@@ -1,0 +1,1 @@
+./../../cores/drupal-7/index.php

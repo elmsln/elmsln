@@ -18,7 +18,7 @@ CKEDITOR.editorConfig = function( config ) {
   // and automatical <p> wrapping
   config.autoParagraph = false;
   // protected source
-  config.protectedSource = [/<(\S*?)-(\S*?)\s*>[\s\S]*?<\/(\S*?)-(\S*?)>/g];
+  config.protectedSource = [/<(!-{2,}|(\S*?)-(\S*?)\s*>)[\s\S]*?(<\/(\S*?)-(\S*?)|(-{2,}))>/g];
   // config.styleSet is an array of objects that define each style available
   // in the font styles tool in the ckeditor toolbar
   config.disableNativeSpellChecker = false;

@@ -1,1 +1,0 @@
-This is here so that things can be added that aren't Drupal. At one time this was piwik but it also allows us to nicely add headless apps into the whole package while having some place for it to live.

@@ -1,0 +1,19 @@
+<?php
+/**
+ * @file
+ * Code for the book player.
+ */
+
+/**
+ * Implements hook_gbm_active_nid_alter().
+ * This helps add support for markdown selection of what's active
+ */
+function book_player_gbm_active_nid_alter(&$nid) {
+  // test for not being an int; that's a good sign it was wrong
+  if (!is_int($nid) && arg(1) == 'lrnapp-book') {
+    // load active from our service and set nid
+    $service = new LRNAppBookService();
+    $node = $service->loadActiveNode();
+    $nid = $node->nid;
+  }
+}

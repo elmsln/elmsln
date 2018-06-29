@@ -192,3 +192,123 @@ function mooc_update_7014(&$sandbox) {
   field_purge_batch(1000);
   field_purge_batch(1000);
 }
+
+/**
+ * Prepare for the new world without the UI implemented... yet.
+ */
+function mooc_update_7015(&$sandbox) {
+  features_revert_module('mooc_cis_ux');
+  features_revert_module('mooc_content_theming');
+  features_revert_module('mooc_ux_defaults');
+  features_revert_module('mooc_theme_foundation');
+  // enable the modules to make it happen
+  module_enable(array('webcomponents_app', 'webcomponents_app_context', 'book_player'));
+}
+
+/**
+ * Clean up more cruft we are dropping
+ */
+function mooc_update_7016(&$sandbox) {
+  // wipe modules we're no longer requiring for anything
+  $modules = array(
+    'mooc_theme_foundation',
+    'mooc_textbook_nrhi',
+    'nodereference_highlight',
+  );
+  db_delete('system')
+    ->condition('name', $modules, 'IN')
+    ->condition('type', 'module')
+    ->execute();
+}
+
+/**
+ * Correct permissions for book_player
+ */
+function mooc_update_7017(&$standbox) {
+  features_revert_module('book_player');
+}
+
+/**
+ * Correct issues with context / block placement.
+ */
+function mooc_update_7018(&$standbox) {
+  features_revert_module('mooc_cis_ux');
+  features_revert_module('mooc_ux_defaults');
+  module_disable(array('book_title_override'));
+}
+
+/**
+ * Drop read time, it's too aggressive and front end can do this
+ */
+function mooc_update_7019(&$standbox) {
+  features_revert_module('mooc_cis_ux');
+  features_revert_module('mooc_ux_defaults');
+  module_disable(array('read_time','read_time_media','read_time_book',));
+}
+
+/**
+ * HAX here to start playing
+ */
+function mooc_update_7020(&$sandbox) {
+  // enable the modules to make it happen
+  module_enable(array('hax', 'mooc_hax'));
+}
+
+/**
+ * Enable HAX for real dealz!!
+ */
+function mooc_update_7021(&$sandbox) {
+  // enable the modules to make it happen
+  module_enable(array('webcomponents_cmstags'));
+  features_revert_module('mooc_hax');
+  features_revert_module('mooc_textbook');
+}
+
+/**
+ * Forcibly set this to enabled in input filter
+ */
+function mooc_update_7022(&$sandbox) {
+
+}
+
+/**
+ * Ensure this value is in the DB since it's hard to know
+ * ahead of time
+ */
+function mooc_update_7023(&$sandbox) {
+  // test to see if this is already set
+  $result = db_select('filter', 'f')
+    ->fields('f')
+    ->condition('format', 'textbook_editor', '=')
+    ->condition('module', 'webcomponents_cmstags', '=')
+    ->condition('name', 'webcomponents_cmstags', '=')
+    ->execute()
+    ->fetchAssoc();
+    // if we have an array, force an update to enable it
+    if (is_array($result)) {
+      db_update('filter')
+      ->fields(array(
+        'status' => 1,
+        'weight' => -50,
+      ))
+      ->condition('format', 'textbook_editor', '=')
+      ->condition('module', 'webcomponents_cmstags', '=')
+      ->condition('name', 'webcomponents_cmstags', '=')
+      ->execute();
+    }
+    else {
+      // we didn't have an array, create a new entry
+      $filter = db_insert('filter')
+      ->fields(array(
+        'format' => 'textbook_editor',
+        'module' => 'webcomponents_cmstags',
+        'name' => 'webcomponents_cmstags',
+        'weight' => -50,
+        'status' => 1,
+        'settings' => 'a:0:{}'
+      ))
+      ->execute();
+    }
+  // clear cache in order to ensure input filter is rebuild
+  cache_clear_all('filter_', 'cache', TRUE);
+}

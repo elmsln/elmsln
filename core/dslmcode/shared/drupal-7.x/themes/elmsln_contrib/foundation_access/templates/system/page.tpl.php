@@ -1,10 +1,5 @@
-<?php print $messages; ?>
 <main id="etb-tool-nav" data-offcanvas>
   <div class="inner-wrap">
-    <!-- progress bar -->
-    <div class="page-scroll progress white">
-      <span class="meter <?php print $cis_lmsless['lmsless_classes'][$distro]['color'] . ' ' .$cis_lmsless['lmsless_classes'][$distro]['dark'];?>" style="width: 0%"></span>
-    </div>
     <?php if (!empty($messages)): ?>
     <?php endif; ?>
     <section class="main-section etb-book">
@@ -19,27 +14,20 @@
             <?php if (isset($edit_path)): ?>
             <li class="page-op-button">
               <?php if (arg(2) == 'edit'): ?>
-              <lrnsys-button id="edit-tip" onclick="document.getElementById('edit-submit').click();" class="r-header__icon elmsln-edit-button accessible-green-text" hover-class="<?php print $cis_lmsless['lmsless_classes'][$distro]['text'] . ' text-' . $cis_lmsless['lmsless_classes'][$distro]['dark'];?>" icon="save" alt="<?php print t('Save content'); ?>">
+              <lrnsys-button id="edit-tip" onclick="document.getElementById('edit-submit').click();" class="r-header__icon elmsln-edit-button accessible-green-text" inner-class="no-padding" hover-class="<?php print $cis_lmsless['lmsless_classes'][$distro]['text'] . ' text-' . $cis_lmsless['lmsless_classes'][$distro]['dark'];?>" icon="save" alt="<?php print t('Save content'); ?>">
               </lrnsys-button>
-            <?php else: ?>
-              <lrnsys-button id="edit-tip" href="<?php print $edit_path; ?>" class="r-header__icon elmsln-edit-button" data-jwerty-key="e" data-voicecommand="edit" hover-class="<?php print $cis_lmsless['lmsless_classes'][$distro]['text'] . ' text-' . $cis_lmsless['lmsless_classes'][$distro]['dark'];?>" icon="editor:mode-edit" alt="<?php print t('Edit content'); ?>">
-              </lrnsys-button>
-            <?php endif; ?>
-            </li>
-            <?php endif; ?>
             <?php if (!empty($cis_shortcodes)) : ?>
+              </li>
               <li class="page-op-button">
               <lrnsys-drawer hover-class="<?php print $cis_lmsless['lmsless_classes'][$distro]['text'] . ' text-' . $cis_lmsless['lmsless_classes'][$distro]['dark'];?>" align="right" alt="<?php print t('Embed this content')?>" icon="share" header="<?php print t('Embed this content'); ?>" data-jwerty-key="s" data-voicecommand="open embed (menu)">
                 <?php print $cis_shortcodes; ?>
               </lrnsys-drawer>
-              </li>
             <?php endif; ?>
-            <?php if (!empty($a11y)) : ?>
-              <li class="page-op-button">
-              <lrnsys-drawer hover-class="<?php print $cis_lmsless['lmsless_classes'][$distro]['text'] . ' text-' . $cis_lmsless['lmsless_classes'][$distro]['dark'];?>" align="right" alt="<?php print t('Your preferences')?>" icon="accessibility" header="<?php print t('Preferences'); ?>" data-jwerty-key="a" data-voicecommand="open preferences (menu)">
-                <?php print $a11y; ?>
-              </lrnsys-drawer>
-              </li>
+            <?php else: ?>
+              <lrnsys-button id="edit-tip" href="<?php print $edit_path; ?>" class="r-header__icon elmsln-edit-button" inner-class="no-padding" data-jwerty-key="e" data-voicecommand="edit" hover-class="<?php print $cis_lmsless['lmsless_classes'][$distro]['text'] . ' text-' . $cis_lmsless['lmsless_classes'][$distro]['dark'];?>" icon="editor:mode-edit" alt="<?php print t('Edit content'); ?>">
+              </lrnsys-button>
+            <?php endif; ?>
+            </li>
             <?php endif; ?>
             <!-- end Edit Icon -->
             <li class="page-op-button">
@@ -154,3 +142,4 @@
 <div class="elmsln-modal-container">
   <?php print render($page['cis_lmsless_modal']); ?>
 </div>
+<?php print $messages; ?>

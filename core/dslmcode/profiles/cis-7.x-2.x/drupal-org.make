@@ -98,13 +98,6 @@ projects[views_data_export][subdir] = "contrib"
 projects[views_fluid_grid][version] = "3.x-dev"
 projects[views_fluid_grid][subdir] = "contrib"
 
-; ColorBox
-libraries[colorbox][directory_name] = "colorbox"
-libraries[colorbox][type] = "library"
-libraries[colorbox][destination] = "libraries"
-libraries[colorbox][download][type] = "get"
-libraries[colorbox][download][url] = "https://github.com/jackmoore/colorbox/archive/master.zip"
-
 ; jQuery Colorpicker
 libraries[colorpicker][directory_name] = "colorpicker"
 libraries[colorpicker][type] = "library"

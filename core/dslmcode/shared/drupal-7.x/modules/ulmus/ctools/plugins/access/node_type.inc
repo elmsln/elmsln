@@ -22,7 +22,7 @@ $plugin = array(
 );
 
 /**
- * Settings form for the 'by node_type' access plugin
+ * Settings form for the 'by node_type' access plugin.
  */
 function ctools_node_type_ctools_access_settings($form, &$form_state, $conf) {
   $types = node_type_get_types();
@@ -114,4 +114,3 @@ function ctools_node_type_ctools_access_summary($conf, $context) {
 
   return format_plural(count($names), '@identifier is type "@types"', '@identifier type is one of "@types"', array('@types' => implode(', ', $names), '@identifier' => $context->identifier));
 }
-

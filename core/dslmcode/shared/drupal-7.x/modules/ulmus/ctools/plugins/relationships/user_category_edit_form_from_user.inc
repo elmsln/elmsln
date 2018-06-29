@@ -27,7 +27,7 @@ function ctools_user_category_edit_form_from_user_context($context, $conf) {
     return ctools_context_create_empty('user_edit_form', NULL);
   }
 
-  if(!empty($conf['category'])) {
+  if (!empty($conf['category'])) {
     return ctools_context_create('user_edit_form', $context->data, array('category' => $conf['category']));
   }
 
@@ -46,7 +46,7 @@ function ctools_user_category_edit_form_from_user_settings_form($form, &$form_st
 
   $categories = _user_categories();
   $options = array();
-  foreach($categories as $category) {
+  foreach ($categories as $category) {
     $options[$category['name']] = $category['title'];
   }
   $form['category'] = array(

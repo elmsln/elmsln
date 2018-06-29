@@ -1,0 +1,361 @@
+<?php
+/**
+ * @file Web components token processing callback
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function webcomponents_cmstags_menu() {
+  $items = array();
+  $items['webcomponents/cms-token/%/%'] = array(
+    'title' => 'Web components drupal token render',
+    'page callback' => '_webcomponents_cmstags_token_render',
+    'page arguments' => array(3),
+    'access callback' => '_webcomponents_cmstags_access',
+    'access arguments' => array('token', 2),
+    'type' => MENU_CALLBACK,
+  );
+  $items['webcomponents/cms-views/%'] = array(
+    'title' => 'Web components drupal views render',
+    'page callback' => '_webcomponents_cmstags_views_render',
+    'page arguments' => array(),
+    'access callback' => '_webcomponents_cmstags_access',
+    'access arguments' => array('views', 2),
+    'type' => MENU_CALLBACK,
+  );
+  $items['webcomponents/cms-entity/%'] = array(
+    'title' => 'Web components drupal entity render',
+    'page callback' => '_webcomponents_cmstags_entity_render',
+    'page arguments' => array(),
+    'access callback' => '_webcomponents_cmstags_access',
+    'access arguments' => array('entity', 2),
+    'type' => MENU_CALLBACK,
+  );
+  $items['webcomponents/cms-block/%'] = array(
+    'title' => 'Web components drupal block render',
+    'page callback' => '_webcomponents_cmstags_block_render',
+    'page arguments' => array(),
+    'access callback' => '_webcomponents_cmstags_access',
+    'access arguments' => array('block', 2),
+    'type' => MENU_CALLBACK,
+  );
+  return $items;
+}
+
+/**
+ * Access callback to verify that user can access the end point data
+ */
+function _webcomponents_cmstags_access($type, $security_token) {
+  // validate each security_token based on the type requested
+  if (drupal_valid_token($security_token, 'webcomponents_cmstags_' . $type)) {
+    $params = filter_var_array($_GET, FILTER_SANITIZE_STRING);
+    switch ($type) {
+      case 'token':
+        return user_access('access content');
+      break;
+      case 'block':
+        // no real block access check to perform
+        return user_access('access content');
+      break;
+      case 'views':
+        // load view object to test access to it
+        $view = views_get_view($params['name']);
+        // ensure we have an argument or force to default
+        if (!isset($params['display'])) {
+          $params['display'] = 'default';
+        }
+        // support admins always having access
+        if (user_access('access all views') || $view->access($params['display'])) {
+          return true;
+        }
+        return false;
+      break;
+      case 'entity':
+        if (isset($params['type'])) {
+          $entity = NULL;
+          // allow specific entity access check vs lazy
+          if (isset($params['id'])) {
+            $entity = entity_load_single($params['type'], $params['id']);
+          }
+          // make sure they can see this
+          if (entity_access('view', $params['type'], $entity)) {
+            return true;
+          }
+        }
+        return false;
+      break;
+    }
+  }
+  return false;
+}
+
+/**
+ * Implements hook_page_build().
+ */
+function webcomponents_cmstags_page_build(&$page) {
+  // only append these to the header if we aren't on a traditional edit page
+  // Traditional edit forms will have WYSIWYG fields which will unpack
+  // these assets and make things angry as a result
+  if (arg(2) != 'edit' && arg(2) != 'hax') {
+    $component = new stdClass();
+    $cms_tags = array('token', 'views', 'block', 'entity');
+    foreach ($cms_tags as $tag) {
+      $component->machine_name = 'cms-' . $tag;
+      // pull in from webcomponents location
+      $component->file = libraries_get_path('webcomponents') . '/polymer/bower_components/cms-hax/cms-' . $tag . '.html';
+      _webcomponents_add_to_head($component, 10002);
+    }
+  }
+  // write the little endPoint shims we use for the other 3 things to decouple
+  $js = 'window.cmsviewsEndPoint="' . base_path() . 'webcomponents/cms-views/' . drupal_get_token('webcomponents_cmstags_views') . '";' . "\n";
+  $js .= 'window.cmsentityEndPoint="' . base_path() . 'webcomponents/cms-entity/' . drupal_get_token('webcomponents_cmstags_entity') . '";' . "\n";
+  $js .= 'window.cmsblockEndPoint="' . base_path() . 'webcomponents/cms-block/' . drupal_get_token('webcomponents_cmstags_block') . '";' . "\n";
+  $js .= 'window.cmstokenEndPoint="' . base_path() . 'webcomponents/cms-token/' . drupal_get_token('webcomponents_cmstags_token') . '/';
+  // see if there's a node
+  if ($node = menu_get_object()) {
+    if (isset($node->body['und'][0]['format'])) {
+      $js.= $node->body['und'][0]['format'];
+    }
+  }
+  $js .= '";' . "\n";
+  $inline = "<script type='text/javascript'>$js</script>";
+  $element = array(
+    '#type' => 'markup',
+    '#markup' => $inline,
+  );
+  drupal_add_html_head($element, 'webcomponents-cmstags');
+}
+
+/**
+ * Render a token remotely
+ */
+function _webcomponents_cmstags_token_render($format) {
+  drupal_add_http_header('Content-Type', 'application/json');
+  // define status
+  drupal_add_http_header('Status', 200);
+  // get text from the request body
+  $return = array(
+    'status' => 403,
+    'content' => '',
+  );
+  $params = filter_var_array($_GET, FILTER_SANITIZE_STRING);
+  $token = $params['token'];
+  // set global to skip our drupal token processor!
+  $GLOBALS['skip_drupal_token'] = TRUE;
+  // see if we can generate a url from a simple token parse
+  $url = '';
+  $tokentmp = str_replace(']', '', $token);
+  $tokentmp = str_replace('[', '', $tokentmp);
+  $tmp = explode(':', $tokentmp);
+  // only if we get a simple one can we proceed here
+  if (count($tmp) == 5) {
+    $url = base_path() . $tmp[3] . '/' . $tmp[4] . '/edit';
+  }
+  // url from a token is.... a pain in the ass so let's allow for some fallbacks
+  // namely if you supply custom token patterns we'll never know unless
+  // the developer defines the end point directly.
+  // @see elmsln_core for an example implementation of this hook
+  $tokentype = 'token';
+  drupal_alter('webcomponents_cmstags_editendpoint', $url, $params, $tokentype);
+  // replace the content
+  $content = check_markup($token, $format);
+  $return = array(
+    'status' => 200,
+    'content' => $content,
+    'token' => $token,
+    'format' => $format,
+    'schema' => module_invoke_all('webcomponents_cmstags_schema', $params, $tokentype),
+    'editEndpoint' => $url,
+    'editText' => t('Edit this content'),
+  );
+  // output the response as json
+  print drupal_json_output($return);
+  exit;
+}
+
+/**
+ * Implements hook_webcomponents_cmstags_schema().
+ */
+function webcomponents_cmstags_webcomponents_cmstags_schema($params, $tokentype) {
+  return array();
+}
+
+/**
+ * Render a views remotely
+ */
+function _webcomponents_cmstags_views_render() {
+  drupal_add_http_header('Content-Type', 'application/json');
+  // define status
+  drupal_add_http_header('Status', 200);
+  // get text from the request body
+  $return = array(
+    'status' => 403,
+    'content' => '',
+  );
+  $params = filter_var_array($_GET, FILTER_SANITIZE_STRING);
+  $content = views_embed_view($params['name'], $params['display'], $params['arg1'], $params['arg2'], $params['arg3']);
+  // build path to the views administration for this display
+  $url = base_path() . 'admin/structure/views/view/' . $params['name'] . '/edit/' . $params['display'];
+  // allow developers to jump in as needed
+  $tokentype = 'views';
+  drupal_alter('webcomponents_cmstags_editendpoint', $url, $params, $tokentype);
+  $return = array(
+    'status' => 200,
+    'content' => $content,
+    'token' => $params,
+    'format' => $format,
+    'editEndpoint' => $url,
+    'editText' => t('Edit this view'),
+  );
+  // output the response as json
+  print drupal_json_output($return);
+  exit;
+}
+
+/**
+ * Render a entity remotely
+ */
+function _webcomponents_cmstags_entity_render() {
+  drupal_add_http_header('Content-Type', 'application/json');
+  // define status
+  drupal_add_http_header('Status', 200);
+  // get text from the request body
+  $return = array(
+    'status' => 403,
+    'content' => '',
+  );
+  $params = filter_var_array($_GET, FILTER_SANITIZE_STRING);
+  $type = $params['type'];
+  $id = $params['id'];
+  $display_mode = $params['display_mode'];
+  $entity = entity_load_single($type, $id);
+  // render array the entity based on viewing it
+  $render_array = entity_view($type, array($entity), $display_mode);
+  // assemble the path based on entity type
+  $path_array = entity_uri($type, $entity);
+  // replace the content
+  $content = drupal_render($render_array);
+  // build path to the entity end point for editing
+  $url = base_path() . $path_array['path'];
+  // allow developers to jump in as needed
+  $tokentype = 'entity';
+  drupal_alter('webcomponents_cmstags_editendpoint', $url, $params, $tokentype);
+  $return = array(
+    'status' => 200,
+    'content' => $content,
+    'type' => $type,
+    'id' => $id,
+    'display_mode' => $display_mode,
+    'editEndpoint' => $url,
+    'editText' => t('Edit this content'),
+  );
+  // output the response as json
+  print drupal_json_output($return);
+  exit;
+}
+
+/**
+ * Render a block remotely
+ */
+function _webcomponents_cmstags_block_render() {
+  drupal_add_http_header('Content-Type', 'application/json');
+  // define status
+  drupal_add_http_header('Status', 200);
+  // get text from the request body
+  $return = array(
+    'status' => 403,
+    'content' => '',
+  );
+  $params = filter_var_array($_GET, FILTER_SANITIZE_STRING);
+  $module = $params['module'];
+  $delta = $params['delta'];
+  $block = module_invoke($module, 'block_view', $delta);
+  $content = render($block['content']);
+  // build path to the block admin page
+  $url = base_path() . 'admin/structure/block/manage/' . $module . '/' . $delta . '/configure';
+  // allow developers to jump in here
+  $tokentype = 'block';
+  drupal_alter('webcomponents_cmstags_editendpoint', $url, $params, $tokentype);
+  $return = array(
+    'status' => 200,
+    'content' => $content,
+    'module' => $module,
+    'delta' => $delta,
+    'editEndpoint' => $url,
+    'editText' => t('Edit this block'),
+  );
+  // output the response as json
+  print drupal_json_output($return);
+  exit;
+}
+
+/**
+ * Implements hook_filter_info().
+ */
+function webcomponents_cmstags_filter_info() {
+  $filters = array();
+  $filters['webcomponents_cmstags'] = array(
+    'title' => t('Webcomponents filter'),
+    'description' => t('Fake substitute for the cms-token tag'),
+    'process callback' => '_webcomponents_cmstags_process',
+    'tips callback' => '_webcomponents_cmstags_tips',
+    'weight' => -100,
+  );
+  return $filters;
+}
+
+/**
+ * Helper function to provide on screen tips for using the filter
+ */
+function _webcomponents_cmstags_tips($filter, $format, $long = FALSE) {
+  return t('This filter will ensure that cms-token gets injected correctly');
+}
+
+/**
+ * Callback function to perform the content processing.
+ */
+function _webcomponents_cmstags_process($text, $filter, $format, $langcode, $cache, $cache_id) {
+  // ensure we only apply this once based on the input format
+  if (!isset($GLOBALS['webcomponentsTokenEndPoint'])) {
+    $GLOBALS['webcomponentsTokenEndPoint'] = TRUE;
+    $js = 'window.cmstokenEndPoint="' . base_path() . 'webcomponents/cms-token/' . drupal_get_token('webcomponents_cmstags_token') . '/' . $filter->format . '";';
+    drupal_add_js($js, array(
+      'type' => 'inline',
+      'group' => JS_LIBRARY,
+      'weight' => -10000)
+    );
+  }
+  // see if we need to skip
+  if (!isset($GLOBALS['skip_drupal_token'])) {
+    // statically cache future calls
+    $evaluatedtext = &drupal_static(hash('md5', $text . $filter->format));
+    if (empty($evaluatedtext)) {
+      // match anything that seems like it's a token with no white space
+      // @todo make sure this doesn't match other things
+      $regex = '/\[\S*\]/';
+      if (preg_match_all($regex, $text, $matches)) {
+        $patterns = array();
+        $media = array();
+        // Have to process multiple matches since more than one player can be on a node.
+        foreach ($matches[0] as $key => $match) {
+          $tmptoken = str_replace(']', '', str_replace('[', '', $match));
+          // support by passing some tokens and leaving as is
+          // this is up to developers to implement special cases
+          $process = TRUE;
+          drupal_alter('webcomponents_cmstagsprocess', $process, $tmptoken);
+          if ($process) {
+            $patterns[] = $regex;
+            $media[] = '<cms-token token="' . $tmptoken . '"></cms-token>';
+          }
+        }
+        $text = preg_replace($patterns, $media, $text, 1);
+      }
+      $evaluatedtext = $text;
+    }
+    return $evaluatedtext;
+  }
+  else {
+    return $text;
+  }
+}

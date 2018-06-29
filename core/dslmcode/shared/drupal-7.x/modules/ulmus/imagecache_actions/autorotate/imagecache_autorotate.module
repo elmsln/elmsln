@@ -129,7 +129,14 @@ function image_gd_imagecache_autorotate(stdClass $image) {
     watchdog('imagecache_actions', 'Image %file could not be auto-rotated: !message', array('%file' => $image->source, '!message' => t('The exif_read_data() function is not available in this PHP installation. You probably have to enable the exif extension.')));
     return FALSE;
   }
-  $exif = exif_read_data(drupal_realpath($image->source));
+
+  // Read and check result.
+  $exif = @exif_read_data(drupal_realpath($image->source));
+  if ($exif === FALSE && $image->extension === 'jpg') {
+    watchdog('imagecache_actions', 'Image %file could not be auto-rotated: !message', array('%file' => $image->source, '!message' => t('The exif_read_data() function returned FALSE.')));
+    return FALSE;
+  }
+
   if (isset($exif['Orientation'])) {
     // http://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/EXIF.html:
     // 1 = Horizontal (normal)
@@ -181,7 +188,7 @@ function image_imagemagick_imagecache_autorotate(stdClass $image) {
   // image when it should not, we only pass the auto-orient argument when the
   // exif extension could detect the 'Orientation' tag.
   if (function_exists('exif_read_data')) {
-    $exif = exif_read_data(drupal_realpath($image->source));
+    $exif = @exif_read_data(drupal_realpath($image->source));
     if (isset($exif['Orientation'])) {
       switch ($exif['Orientation']) {
         case 1:
@@ -204,13 +211,18 @@ function image_imagemagick_imagecache_autorotate(stdClass $image) {
           break;
       }
     }
+    elseif ($exif === FALSE && $image->extension === 'jpg') {
+      watchdog('imagecache_actions', 'Image %file could not be auto-rotated: !message', array('%file' => $image->source, '!message' => t('The exif_read_data() function returned FALSE.')));
+    }
   }
   else {
     // We do add the auto-orient argument to IM. IM will determine itself
     // whether to rotate or not.
     $image->ops[] = '-auto-orient';
     // However we cannot keep track of the dimensions anymore.
-    $image->info['width'] = $image->info['height'] = NULL;
+    if ($image->info['width'] !== $image->info['height']) {
+      $image->info['width'] = $image->info['height'] = NULL;;
+    }
   }
   return TRUE;
 }

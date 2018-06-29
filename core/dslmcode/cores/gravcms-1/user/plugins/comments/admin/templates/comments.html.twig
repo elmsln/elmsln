@@ -1,0 +1,133 @@
+{% extends 'partials/base.html.twig' %}
+
+{% if admin.route %}
+    {% set context = admin.page(true) %}
+{% endif %}
+
+{% block titlebar %}
+    <h1><i class="fa fa-fw fa-file-text-o"></i> {{ "PLUGIN_COMMENTS.COMMENTS"|tu }}</h1>
+{% endblock %}
+
+{% block content %}
+    <style>
+        td.comments-actions {
+            flex: 0.1;
+        }
+
+        .pages-list .row {
+            padding-right: 1rem;
+        }
+
+        .comment-text {
+            line-height: 1.5rem;
+            display: inline-block;
+        }
+
+        .pages-list .row p.page-route {
+            margin: 0px 0 10px 0px;
+        }
+
+        th { background: #d9d9d9; }
+
+        .comment { flex: 3 }
+        .details { flex: 1.5 }
+
+        .center {
+            margin: 0 auto;
+            text-align: center;
+            display: block;
+        }
+
+        .button:active { margin: 0 auto;}
+    </style>
+
+    <script>
+        $(function() {
+            var currentPage = 0;
+
+            $(document).on('click tap', '.js__load-more', function(event) {
+               $.getJSON(window.location + '/page:' + (currentPage + 1))
+                .success(function(response) {
+                    currentPage = parseInt(response.page);
+
+                    response.comments.forEach(function(comment) {
+                        $('.js__comments-container').append('<tr>' +
+                                '<td class="e author">' + comment.author + '</td>' +
+                                '<td class="v comment">' + comment.text + '</td>' +
+                                '<td class="v details"><strong>Page</strong>: ' + comment.pageTitle + '<br>' +
+                                '<strong>Date</strong>: ' + comment.date + '</td>' +
+                            '</tr>');
+                    })
+
+                    var totalRetrieved = response.totalRetrieved * (parseInt(response.page) + 1);
+
+                    $('.totalRetrieved').html(totalRetrieved);
+                    $('.totalAvailable').html(response.totalAvailable);
+
+                    if (totalRetrieved == response.totalAvailable) {
+                        $('.js__load-more').hide();
+                    }
+                })
+                .error(function() {
+                    alert('Unexpected error');
+                });
+            });
+        });
+    </script>
+
+    <h1>Comments in the last 7 days</h1>
+
+    <div class="admin-block">
+        <table>
+            <tbody class="js__comments-container">
+                <tr class="h">
+                    <th class="author">Author</th>
+                    <th class="comment">Comment</th>
+                    <th class="details">Details</th>
+                </tr>
+                {% for comment in grav.twig.comments.comments %}
+                    <tr>
+                        <td class="author">{{comment.author}}</td>
+                        <td class="comment">{{comment.text}}</td>
+                        <td class="details"><strong>Page</strong>: {{comment.pageTitle}}<br>
+                        <strong>Date</strong>: {{comment.date}}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        {% if grav.twig.comments.totalRetrieved < grav.twig.comments.totalAvailable %}
+            <button type="button" class="button center js__load-more">
+                Load more
+            </button>
+        {% endif %}
+
+        <p class="center">Showing <span class="totalRetrieved">{{grav.twig.comments.totalRetrieved}}</span> comments of <span class="totalAvailable">{{grav.twig.comments.totalAvailable}}</span></p>
+    </div>
+
+    {% if grav.twig.pages %}
+        <h1>Recently commented pages</h1>
+
+        <div class="admin-block">
+            <table>
+                <tbody class="js__pages-container">
+                    <tr class="h">
+                        <th class="page">Page</th>
+                        <th class="number-of-comments">Number of comments</th>
+                        <th class="last-comment-date">Last commented on</th>
+                    </tr>
+                    {% for page in grav.twig.pages %}
+                        <tr>
+                            <td class="page">{{page.title}}</td>
+                            <td class="number-of-comments">{{page.commentsCount}}</td>
+                            <td class="last-comment-date">{{page.lastCommentDate}}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+
+{% endblock %}
+
+

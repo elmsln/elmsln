@@ -1,32 +1,34 @@
 <?php
 
 /**
- * @file
  * Tests for the CTools export system.
- */
-
-/**
- * Tests export CRUD.
  */
 class CtoolsExportCrudTestCase extends DrupalWebTestCase {
 
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
-      'name' => 'CTools export CRUD tests',
+      'name' => 'Export CRUD',
       'description' => 'Test the CRUD functionality for the ctools export system.',
       'group' => 'ctools',
     );
   }
 
-  protected function setUp() {
-    parent::setUp('ctools_export_test');
-    $this->resetAll();
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp(array $modules = array()) {
+    $modules[] = 'ctools';
+    $modules[] = 'ctools_export_test';
+    parent::setUp($modules);
   }
 
   /**
    * Tests CRUD operation: Load.
    */
-  function testCrudExportLoad() {
+  public function testCrudExportLoad() {
     $loaded_export = ctools_export_crud_load('ctools_export_test', 'database_test');
 
     $expected_export = new stdClass();
@@ -47,7 +49,7 @@ class CtoolsExportCrudTestCase extends DrupalWebTestCase {
   /**
    * Tests CRUD operation: Load multiple.
    */
-  function testCrudExportLoadMultiple() {
+  public function testCrudExportLoadMultiple() {
     $exportable_names = array('database_test', 'overridden_test', 'default_test');
     $loaded_exports = ctools_export_crud_load_multiple('ctools_export_test', $exportable_names);
 
@@ -57,7 +59,7 @@ class CtoolsExportCrudTestCase extends DrupalWebTestCase {
   /**
    * Tests CRUD operation: Load all.
    */
-  function testCrudExportLoadAll() {
+  public function testCrudExportLoadAll() {
     $loaded_exports = ctools_export_crud_load_all('ctools_export_test');
 
     $this->assertEqual(count($loaded_exports), 3, 'All exportables have been loaded.');
@@ -66,10 +68,10 @@ class CtoolsExportCrudTestCase extends DrupalWebTestCase {
   /**
    * Tests CRUD operation: Save.
    */
-  function testCrudExportSave() {
+  public function testCrudExportSave() {
     $default_export = ctools_export_crud_load('ctools_export_test', 'default_test');
 
-    $this->assertTrue($default_export->in_code_only,'The loaded exportable is in code only.');
+    $this->assertTrue($default_export->in_code_only, 'The loaded exportable is in code only.');
 
     ctools_export_crud_save('ctools_export_test', $default_export);
 
@@ -84,7 +86,7 @@ class CtoolsExportCrudTestCase extends DrupalWebTestCase {
   /**
    * Tests CRUD operation: New.
    */
-  function testCrudExportNew() {
+  public function testCrudExportNew() {
     // Default exportable with defualt values.
     $new_export = ctools_export_crud_new('ctools_export_test');
 
@@ -113,7 +115,7 @@ class CtoolsExportCrudTestCase extends DrupalWebTestCase {
   /**
    * Tests CRUD operation: Revert.
    */
-  function testCrudExportRevert() {
+  public function testCrudExportRevert() {
     // Load exportable, will come from database.
     $original_export = ctools_export_crud_load('ctools_export_test', 'overridden_test');
 
@@ -135,14 +137,15 @@ class CtoolsExportCrudTestCase extends DrupalWebTestCase {
     // Check the exportable is now in_code_only.
     $this->assertTrue($default_export->in_code_only, 'The loaded exportable is in the database only.');
 
-    // Make sure the default object loaded matches the same overridden one in the database.
+    // Make sure the default object loaded matches the same overridden one in
+    // the database.
     $this->assertEqual($original_export->machine, $default_export->machine, 'The default exportable has been loaded and matches the overridden exportable.');
   }
 
   /**
    * Tests CRUD operation: Delete.
    */
-  function testCrudExportDelete() {
+  public function testCrudExportDelete() {
     // Create a stub entry save it and delete it from the database.
     $new_export = ctools_export_crud_new('ctools_export_test');
     ctools_export_crud_save('ctools_export_test', $new_export);
@@ -158,6 +161,7 @@ class CtoolsExportCrudTestCase extends DrupalWebTestCase {
 
     $machine = $database_export->machine;
     ctools_export_crud_delete('ctools_export_test', $database_export);
+
     // Clear the exportable caches as it's been loaded above.
     ctools_export_load_object_reset('ctools_export_test');
     $result = ctools_export_crud_load('ctools_export_test', $machine);
@@ -168,7 +172,7 @@ class CtoolsExportCrudTestCase extends DrupalWebTestCase {
   /**
    * Tests CRUD operation: Set status.
    */
-  function testCrudExportSetStatus() {
+  public function testCrudExportSetStatus() {
     // Database only object.
     $database_export = ctools_export_crud_load('ctools_export_test', 'database_test');
     ctools_export_crud_disable('ctools_export_test', $database_export);

@@ -13,7 +13,7 @@
     <?php print _foundation_access_drop_whitespace($styles); ?>
     <?php print _foundation_access_drop_whitespace($scripts); ?>
     <!-- tell IE versions to render as high as possible -->
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!--cross platform favicons and tweaks-->
     <link rel="shortcut icon" href="<?php print $favicon_path;?>">

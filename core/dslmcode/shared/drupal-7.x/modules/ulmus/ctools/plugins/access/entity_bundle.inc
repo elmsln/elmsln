@@ -43,7 +43,7 @@ function ctools_entity_bundle_ctools_access_get_children($plugin, $parent) {
 }
 
 /**
- * Settings form for the 'by entity_bundle' access plugin
+ * Settings form for the 'by entity_bundle' access plugin.
  */
 function ctools_entity_bundle_ctools_access_settings($form, &$form_state, $conf) {
   $plugin = $form_state['plugin'];
@@ -133,4 +133,3 @@ function ctools_entity_bundle_ctools_access_summary($conf, $context, $plugin) {
 
   return format_plural(count($names), '@identifier is bundle "@types"', '@identifier bundle is one of "@types"', array('@types' => implode(', ', $names), '@identifier' => $context->identifier));
 }
-

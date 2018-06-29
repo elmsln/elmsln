@@ -25,6 +25,7 @@ function imce_uninstall() {
   variable_del('imce_settings_replace');
   variable_del('imce_settings_thumb_method');
   variable_del('imce_settings_disable_private');
+  variable_del('imce_settings_admin_theme');
   variable_del('imce_custom_content');
   variable_del('imce_custom_process');
   variable_del('imce_custom_init');

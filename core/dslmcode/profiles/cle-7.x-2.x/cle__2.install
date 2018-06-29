@@ -266,3 +266,24 @@ function cle__2_update_7020(&$sandbox) {
 function cle__2_update_7021(&$sandbox) {
   features_revert_module('cle_submission');
 }
+
+/**
+ * Remove colorbox reference since we killed it.
+ */
+function cle__2_update_7022(&$sandbox) {
+  // wipe colorbox
+  $modules = array(
+    'colorbox',
+  );
+  db_delete('system')
+    ->condition('name', $modules, 'IN')
+    ->condition('type', 'module')
+    ->execute();
+}
+
+/**
+ * Instructors can now see the minor gradebook display
+ */
+function cle__2_update_7023(&$sandbox) {
+  features_revert_module('cle_perms');
+}

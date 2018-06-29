@@ -6,6 +6,8 @@
  */
 
 /**
+ * Advanced Aggreggates API & development documentation.
+ *
  * @mainpage Advanced Aggreggates API & Developer Documentation
  * Welcome to the Advanced Aggreggates API & development documentation.
  *
@@ -25,15 +27,15 @@
  *   - @link advagg_hooks Hooks @endlink
  *   - @link advagg_tests Test Suite @endlink
  * - Advanced Aggregate sub-modules:
- *   - @link advagg_bundler/advagg_bundler.module Advanced Aggregates Bundler @endlink
- *   - @link advagg_css_cdn/advagg_css_cdn.module Advanced Aggregates CSS CDN @endlink
- *   - @link advagg_css_compress/advagg_css_compress.module Advanced Aggregates CSS Compress @endlink
- *   - @link advagg_ext_compress/advagg_ext_compress.module Advanced Aggregates External Compress @endlink
- *   - @link advagg_font/advagg_font.module Advanced Aggregates Font @endlink
- *   - @link advagg_js_cdn/advagg_js_cdn.module Advanced Aggregates JS CDN @endlink
- *   - @link advagg_js_compress/advagg_js_compress.module Advanced Aggregates JS Compress @endlink
- *   - @link advagg_mod/advagg_mod.module Advanced Aggregates Modifier @endlink
- *   - @link advagg_relocate/advagg_relocate.module Advanced Aggregates Relocate @endlink
- *   - @link advagg_sri/advagg_sri.module Advanced Aggregates SRI @endlink
- *   - @link advagg_validator/advagg_validator.module Advanced Aggregates Validator @endlink
+ *   - @link advagg_bundler/advagg_bundler.module AdvAgg Bundler @endlink
+ *   - @link advagg_css_cdn/advagg_css_cdn.module AdvAgg CSS CDN @endlink
+ *   - @link advagg_css_compress/advagg_css_compress.module AdvAgg CSS Compress @endlink
+ *   - @link advagg_ext_compress/advagg_ext_compress.module AdvAgg External Compress @endlink
+ *   - @link advagg_font/advagg_font.module AdvAgg Font @endlink
+ *   - @link advagg_js_cdn/advagg_js_cdn.module AdvAgg JS CDN @endlink
+ *   - @link advagg_js_compress/advagg_js_compress.module AdvAgg JS Compress @endlink
+ *   - @link advagg_mod/advagg_mod.module AdvAgg Modifier @endlink
+ *   - @link advagg_relocate/advagg_relocate.module AdvAgg Relocate @endlink
+ *   - @link advagg_sri/advagg_sri.module AdvAgg SRI @endlink
+ *   - @link advagg_validator/advagg_validator.module AdvAgg Validator @endlink
  */

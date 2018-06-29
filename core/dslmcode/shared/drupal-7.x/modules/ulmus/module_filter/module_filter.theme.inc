@@ -37,6 +37,9 @@ function theme_module_filter_system_modules_tabs($variables) {
     array('data' => t('Description'), 'class' => array('description')),
     array('data' => t('Links'), 'class' => array('links')),
   );
+  if (variable_get('module_filter_version_column', 0)) {
+    array_splice($header, 2, 0, array(array('data' => t('Version'), 'class' => array('version'))));
+  }
   $package_ids = array('all');
   $enabled['all'] = array();
 
@@ -101,11 +104,18 @@ function theme_module_filter_system_modules_tabs($variables) {
       }
       $row[] = array('class' => array('name'), 'data' => $label . '><strong>' . drupal_render($module['name']) . '</strong> <span class="module-machine-name">(' . $key . ')</span></label>');
 
+      if (variable_get('module_filter_version_column', 0) && $version) {
+        $row[] = array('class' => array('version'), 'data' => drupal_render($module['version']));
+      }
+
       // Add the description, along with any modules it requires.
+      if (empty($module['description']['#markup'])) {
+        $module['description']['#markup'] = '<em>' . t('No description available.') . '</em>';
+      }
       $description = '<span class="details"><span class="text">' . drupal_render($module['description']) . '</span></span>';
-      if ($version || $requires || $required_by) {
+      if ($requires || $required_by || (!variable_get('module_filter_version_column', 0) && $version)) {
         $description .= '<div class="requirements">';
-        if ($version) {
+        if (!variable_get('module_filter_version_column', 0) && $version) {
           $description .= '<div class="admin-requirements">' . t('Version: !module-version', array('!module-version' => drupal_render($module['version']))) . '</div>';
         }
         if ($requires) {
@@ -136,21 +146,20 @@ function theme_module_filter_system_modules_tabs($variables) {
     $form['modules'][$package]['#printed'] = TRUE;
   }
 
-  if (variable_get('module_filter_count_enabled', 1)) {
-    $enabled_counts = array();
-    foreach ($enabled as $package_id => $value) {
-      $enabled_counts[$package_id] = array(
-        'enabled' => count(array_filter($value)),
-        'total' => count($value),
-      );
-    }
-    drupal_add_js(array(
-      'moduleFilter' => array(
-        'packageIDs' => $package_ids,
-        'enabledCounts' => $enabled_counts,
-      )
-    ), 'setting');
+  //Get packages and count number of modules
+  $enabled_counts = array();
+  foreach ($enabled as $package_id => $value) {
+    $enabled_counts[$package_id] = array(
+      'enabled' => count(array_filter($value)),
+      'total' => count($value),
+    );
   }
+  drupal_add_js(array(
+    'moduleFilter' => array(
+      'packageIDs' => $package_ids,
+      'enabledCounts' => $enabled_counts,
+    )
+  ), 'setting');
 
   // Add first and last class to rows.
   $rows[0]['class'][] = 'first';
@@ -165,6 +174,12 @@ function theme_module_filter_system_modules_tabs($variables) {
   return $output;
 }
 
+/**
+ * Theme function for module filter operations.
+ * @param $variables
+ * @return
+ *   HTML for admin status operations.
+ */
 function theme_module_filter_operations(&$vars) {
   $links = &$vars['links'];
   $dropbutton = $vars['dropbutton'];
@@ -174,16 +189,19 @@ function theme_module_filter_operations(&$vars) {
     if ($dropbutton) {
       hide($links[$key]);
       if (!empty($links[$key]['#href'])) {
-        $operations[] = array(
+        $operations[$key] = array(
           'title' => $links[$key]['#title'],
           'href' => $links[$key]['#href'],
         );
+        if (isset($links[$key]['#options'])) {
+          $operations[$key] += $links[$key]['#options'];
+        }
       }
     }
     else {
       $data = drupal_render($links[$key]);
       if (!empty($data)) {
-        $operations[] = array('data' => $data);
+        $operations[$key] = array('data' => $data);
       }
     }
   }

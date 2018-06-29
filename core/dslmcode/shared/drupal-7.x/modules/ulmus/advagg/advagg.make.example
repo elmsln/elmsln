@@ -1,0 +1,50 @@
+; Rename this file to advagg.make to have it included within a drush make
+; command.
+
+api = 2
+core = 7.x
+
+; Contrib module: libraries
+; ---------------------------------------
+projects[libraries][version] = "2"
+
+; JavaScript libraries
+; ---------------------------------------
+
+; Library: CSSLint.
+libraries[csslint][download][type] = git
+libraries[csslint][download][url] = https://github.com/CSSLint/csslint
+
+; Library: fontfaceobserver.
+libraries[fontfaceobserver][download][type] = git
+libraries[fontfaceobserver][download][url] = https://github.com/bramstein/fontfaceobserver.git
+
+; Library: jshint.
+libraries[jshint][download][type] = git
+libraries[jshint][download][url] = https://github.com/jshint/jshint
+
+; Library: JShrink.
+libraries[JShrink][download][type] = git
+libraries[JShrink][download][url] = https://github.com/tedious/JShrink
+
+; Library: JSMinPlus.
+libraries[jsminplus][download][type] = git
+libraries[jsminplus][download][url] = https://github.com/JSMinPlus/JSMinPlus
+libraries[jsminplus][directory_name] = "jsminplus"
+
+; Library: jspacker.
+libraries[jspacker][download][type] = git
+libraries[jspacker][download][url] = https://github.com/tholu/php-packer
+libraries[jspacker][directory_name] = "jspacker"
+
+; Library: jsqueeze.
+libraries[jsqueeze][download][type] = git
+libraries[jsqueeze][download][url] = https://github.com/tchwork/jsqueeze
+
+; Library: loadCSS.
+libraries[loadCSS][download][type] = git
+libraries[loadCSS][download][url] = https://github.com/filamentgroup/loadCSS
+
+; Library: YUI-CSS-compressor-PHP-port.
+libraries[YUI-CSS-compressor-PHP-port][download][type] = git
+libraries[YUI-CSS-compressor-PHP-port][download][url] = https://github.com/tubalmartin/YUI-CSS-compressor-PHP-port

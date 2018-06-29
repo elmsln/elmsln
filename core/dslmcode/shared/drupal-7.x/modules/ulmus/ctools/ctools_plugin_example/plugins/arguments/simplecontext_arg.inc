@@ -2,7 +2,6 @@
 
 /**
  * @file
- *
  * Sample plugin to provide an argument handler for a simplecontext.
  *
  * Given any argument to the page, simplecontext will get it
@@ -18,14 +17,12 @@
  */
 $plugin = array(
   'title' => t("Simplecontext arg"),
-  // keyword to use for %substitution
+  // Keyword to use for %substitution.
   'keyword' => 'simplecontext',
   'description' => t('Creates a "simplecontext" from the arg.'),
   'context' => 'simplecontext_arg_context',
-  // 'settings form' => 'simplecontext_arg_settings_form',
-
   // placeholder_form is used in panels preview, for example, so we can
-  // preview without getting the arg from a URL
+  // preview without getting the arg from a URL.
   'placeholder form' => array(
     '#type' => 'textfield',
     '#description' => t('Enter the simplecontext arg'),

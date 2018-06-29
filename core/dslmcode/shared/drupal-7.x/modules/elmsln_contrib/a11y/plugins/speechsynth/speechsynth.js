@@ -1,8 +1,16 @@
 (function ($) {
   $(document).ready(function(){
     $('#a11y_speechsynth_checkbox').click(function(){
-      Drupal.a11y.speechSynth(this.checked);
+      if (this.checked) {
+        Drupal.a11y.speechSynth(this.checked);
+      }
+      else {
+        window.speechSynthesis.cancel();
+      }
     });
+    if (typeof window.speechSynthesis !== "undefined") {
+      window.speechSynthesis.cancel();
+    }
     // @todo make a setting for automatically going to the next page
     // to basically keep reading along with you
     // @todo ability to underline word it is saying as well as scroll the page for it to be in view

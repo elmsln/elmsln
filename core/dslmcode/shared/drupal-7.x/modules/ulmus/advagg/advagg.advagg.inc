@@ -8,18 +8,22 @@
  */
 
 /**
+ * @addtogroup advagg_hooks
+ * @{
+ */
+
+/**
  * Implements hook_advagg_save_aggregate_alter().
  *
  * Used to add in a .gz file if none exits.
- *
- * @param array $files_to_save
- *   Array($uri => $contents).
- * @param array $aggregate_settings
- *   Array of settings.
- * @param array $other_parameters
- *   Array of containing $files and $type.
  */
 function advagg_advagg_save_aggregate_alter(array &$files_to_save, array $aggregate_settings, array $other_parameters) {
+  // * @param array $files_to_save
+  // *   Array($uri => $contents).
+  // * @param array $aggregate_settings
+  // *   Array of settings.
+  // * @param array $other_parameters
+  // *   Array of containing $files and $type.
   $file_types = array();
   // Handle gzip.
   if (!empty($aggregate_settings['variables']['advagg_gzip'])) {
@@ -46,6 +50,17 @@ function advagg_advagg_save_aggregate_alter(array &$files_to_save, array $aggreg
 
   if (empty($file_types)) {
     return;
+  }
+
+  // Special S3 handling.
+  $s3fs = FALSE;
+  $files_to_save_keys = array_keys($files_to_save);
+  foreach ($files_to_save_keys as $uri) {
+    $wrapper = file_stream_wrapper_get_instance_by_uri($uri);
+    if ($wrapper && get_class($wrapper) === 'S3fsStreamWrapper') {
+      $s3fs = TRUE;
+      break;
+    }
   }
 
   foreach ($file_types as $ext => $settings) {
@@ -79,7 +94,17 @@ function advagg_advagg_save_aggregate_alter(array &$files_to_save, array $aggreg
       $settings[0] = $data;
       $compressed = call_user_func_array($callback, $settings);
       if (!empty($compressed)) {
-        $files_to_save[$uri . $ext] = $compressed;
+        if ($s3fs && $ext === '.gz') {
+          // Only serve gzip files from S3.
+          $files_to_save[$uri] = $compressed;
+        }
+        elseif ($s3fs && $ext === '.br' && !isset($file_types['.gz'])) {
+          // Only serve br files from S3.
+          $files_to_save[$uri] = $compressed;
+        }
+        else {
+          $files_to_save[$uri . $ext] = $compressed;
+        }
       }
     }
   }
@@ -89,15 +114,15 @@ function advagg_advagg_save_aggregate_alter(array &$files_to_save, array $aggreg
  * Implements hook_advagg_build_aggregate_plans_alter().
  *
  * Used to alter the plan so it has the same grouping as cores.
- *
- * @param array $files
- *   List of files in the aggregate as well as the aggregate name.
- * @param bool $modified
- *   Change this to TRUE if $files has been changed.
- * @param string $type
- *   String containing css or js.
  */
 function advagg_advagg_build_aggregate_plans_alter(array &$files, &$modified, $type) {
+  // * @param array $files
+  // *   List of files in the aggregate as well as the aggregate name.
+  // * @param bool $modified
+  // *   Change this to TRUE if $files has been changed.
+  // * @param string $type
+  // *   String containing css or js.
+  //
   // Do nothing if core grouping is disabled.
   if (!variable_get('advagg_core_groups', ADVAGG_CORE_GROUPS)) {
     return;
@@ -282,7 +307,8 @@ function advagg_advagg_get_info_on_files_alter(&$return, $cached_data, $bypass_c
         continue;
       }
       // Get the file contents.
-      $file_contents = (string) @file_get_contents($info['data']);
+      $file_contents = (string) @advagg_file_get_contents($info['data']);
+      $file_contents = advagg_load_css_stylesheet($info['data'], FALSE, $aggregate_settings, $file_contents);
 
       // Get domain names and external assets in this css file.
       $hosts = array();
@@ -320,7 +346,6 @@ function advagg_advagg_get_info_on_files_alter(&$return, $cached_data, $bypass_c
 
       // Get local files to preload in this css file.
       if (variable_get('advagg_resource_hints_preload', ADVAGG_RESOURCE_HINTS_PRELOAD)) {
-        $file_contents = advagg_load_css_stylesheet($info['data'], FALSE, $aggregate_settings, $file_contents);
         $matches = array();
         $pattern = '/url\(\s*+[\'"]?(.*?)[\'"\s]?+\)/i';
         preg_match_all($pattern, $file_contents, $matches);
@@ -347,13 +372,16 @@ function advagg_advagg_get_info_on_files_alter(&$return, $cached_data, $bypass_c
  *
  * If the color module is enabled regenerate color module css when it changes.
  * If a responsive file inside an adaptive theme has changed, regenerate it.
- *
- * @param array $files
- *   List of files that have changed.
- * @param array $types
- *   Array with the css and or the js key.
  */
 function advagg_advagg_changed_files(array $files, array $types) {
+  // * @param array $files
+  // *   List of files that have changed.
+  // * @param array $types
+  // *   Array with the css and or the js key.
+  if (module_exists('locale')) {
+    _advagg_locale_changed_files($files, $types);
+  }
+
   // Keep track of what themes have been done.
   static $themes_done;
   if (!isset($themes_done)) {
@@ -489,49 +517,6 @@ function advagg_advagg_changed_files(array $files, array $types) {
 }
 
 /**
- * Implements hook_advagg_changed_files().
- *
- * If the locale module is enabled regenerate locale translations.
- *
- * @param array $files
- *   List of files that have changed.
- * @param array $types
- *   Array with the css and or the js key.
- */
-function locale_advagg_changed_files(array $files, array $types) {
-  // Skip if no js changed.
-  if (empty($types['js'])) {
-    return;
-  }
-
-  $javascript = array();
-  foreach ($files as $filename => $meta_data) {
-    // Only care about js files.
-    $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
-    if ($ext !== 'js') {
-      continue;
-    }
-    $javascript[] = array(
-      'type' => 'file',
-      'data' => $filename,
-    );
-  }
-  if (!empty($javascript)) {
-    $javascript_before = $javascript;
-    $language_before = $GLOBALS['language'];
-    $language_list = language_list();
-    foreach ($language_list as $lang) {
-      if ($lang->enabled) {
-        $GLOBALS['language'] = $lang;
-        $javascript = $javascript_before;
-        locale_js_alter($javascript);
-      }
-    }
-    $GLOBALS['language'] = $language_before;
-  }
-}
-
-/**
  * Implements hook_advagg_scan_for_changes().
  *
  * Used to see if the responsive files inside an adaptive theme has changed.
@@ -590,6 +575,51 @@ function advagg_advagg_scan_for_changes($filename, $save_changes = FALSE) {
   }
 
   return $file_changed;
+}
+
+/**
+ * @} End of "addtogroup advagg_hooks".
+ */
+
+/**
+ * If the locale module is enabled regenerate locale translations.
+ *
+ * @param array $files
+ *   List of files that have changed.
+ * @param array $types
+ *   Array with the css and or the js key.
+ */
+function _advagg_locale_changed_files(array $files, array $types) {
+  // Skip if no js changed.
+  if (empty($types['js'])) {
+    return;
+  }
+
+  $javascript = array();
+  foreach ($files as $filename => $meta_data) {
+    // Only care about js files.
+    $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+    if ($ext !== 'js') {
+      continue;
+    }
+    $javascript[] = array(
+      'type' => 'file',
+      'data' => $filename,
+    );
+  }
+  if (!empty($javascript)) {
+    $javascript_before = $javascript;
+    $language_before = $GLOBALS['language'];
+    $language_list = language_list();
+    foreach ($language_list as $lang) {
+      if ($lang->enabled) {
+        $GLOBALS['language'] = $lang;
+        $javascript = $javascript_before;
+        _advagg_locale_js_alter($javascript);
+      }
+    }
+    $GLOBALS['language'] = $language_before;
+  }
 }
 
 /**

@@ -1,0 +1,35 @@
+<?php
+
+// Due to https://www.drupal.org/node/2228825, it can happen that
+// xautoload.module is not included yet, so xautoload() would not work.
+require_once __DIR__ . '/xautoload.module';
+
+/**
+ * Implements hook_install()
+ */
+function xautoload_install() {
+  // Set module weight for xautoload to run before other modules.
+  // This has to work in unit tests!
+  xautoload()->system->installSetModuleWeight(-90);
+}
+
+/**
+ * Implements hook_uninstall()
+ */
+function xautoload_uninstall() {
+  variable_del(XAUTOLOAD_VARNAME_CACHE_TYPES);
+  variable_del(XAUTOLOAD_VARNAME_CACHE_LAZY);
+  variable_del(XAUTOLOAD_VARNAME_REPLACE_CORE);
+  variable_del(XAUTOLOAD_VARNAME_CACHE_PREFIX);
+
+  // The following variable is a leftover from previous versions.
+  variable_del('xautoload_cache_mode');
+}
+
+/**
+ * Implements hook_update_N()
+ */
+function xautoload_update_7000() {
+  // Set module weight for xautoload to run before other modules.
+  db_query("UPDATE {system} SET weight = -90 WHERE name = 'xautoload' AND type = 'module'");
+}

@@ -67,8 +67,6 @@ projects[masonry_views][version] = "1.0"
 projects[masonry_views][subdir] = "contrib"
 projects[rubric][version] = "1.x-dev"
 projects[rubric][subdir] = "contrib"
-projects[colorbox][version] = "2.8"
-projects[colorbox][subdir] = "contrib"
 projects[multiupload_imagefield_widget][version] = "1.3"
 projects[multiupload_imagefield_widget][subdir] = "contrib"
 projects[file_entity][version] = "2.x-dev"
@@ -97,14 +95,6 @@ projects[textformatter][version] = "1.3"
 projects[textformatter][subdir] = "contrib"
 projects[multiupload_filefield_widget][version] = "1.13"
 projects[multiupload_filefield_widget][subdir] = "contrib"
-
-
-; ColorBox
-libraries[colorbox][directory_name] = "colorbox"
-libraries[colorbox][type] = "library"
-libraries[colorbox][destination] = "libraries"
-libraries[colorbox][download][type] = "get"
-libraries[colorbox][download][url] = "https://github.com/jackmoore/colorbox/archive/master.zip"
 
 ; jQuery Colorpicker
 libraries[colorpicker][directory_name] = "colorpicker"

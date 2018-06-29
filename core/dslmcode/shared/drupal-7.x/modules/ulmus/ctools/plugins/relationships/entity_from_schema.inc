@@ -88,7 +88,7 @@ function ctools_entity_from_schema_get_children($parent_plugin, $parent) {
               $plugin_entities = array('to' => $from_entity_info, 'from' => $to_entity_info);
               $plugin_entities = array('to' => array($from_entity => $from_entity_info), 'from' => array($to_entity => $to_entity_info));
               drupal_alter('ctools_entity_context', $plugin, $plugin_entities, $plugin_id);
-               $plugins[$plugin_id] = $plugin;
+              $plugins[$plugin_id] = $plugin;
 
             }
           }

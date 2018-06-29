@@ -41,9 +41,15 @@ function image_styles_admin_menu() {
  * Implements hook_preprocess_HOOK for theme image_style_list.
  */
 function image_styles_admin_preprocess_image_style_list(&$variables) {
+  // Sort the image styles by name.
+  uasort($variables['styles'], function ($a, $b) {
+    return strcasecmp($a['label'], $b['label']);
+  });
+
   // Tell imagecache_actions_preprocess_table to preprocess the next call to
-  // theme_table()
+  // theme_table().
   $image_styles = array_values($variables['styles']);
+
   image_styles_admin_preprocess_table($image_styles);
 
   // Add CSS and JS files.

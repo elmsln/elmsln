@@ -1,26 +1,34 @@
 <?php
 
 /**
- * @file
- * Contains \CtoolsMathExpressionStackTestCase
- */
-
-/**
  * Tests the simple MathExpressionStack class.
  */
 class CtoolsMathExpressionStackTestCase extends DrupalWebTestCase {
+
+  /**
+   * {@inheritdoc}
+   */
   public static function getInfo() {
     return array(
-      'name' => 'CTools math expression stack tests',
+      'name' => 'Math expressions stack',
       'description' => 'Test the stack class of the math expression library.',
       'group' => 'ctools',
+      'dependencies' => array('ctools'),
     );
   }
 
-  public function setUp() {
-    parent::setUp('ctools', 'ctools_plugin_test');
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp(array $modules = array()) {
+    $modules[] = 'ctools';
+    $modules[] = 'ctools_plugin_test';
+    parent::setUp($modules);
   }
 
+  /**
+   * Test the math expression stack system.
+   */
   public function testStack() {
     $stack = new ctools_math_expr_stack();
 
@@ -35,13 +43,15 @@ class CtoolsMathExpressionStackTestCase extends DrupalWebTestCase {
     $this->assertIdentical($value, $stack->pop());
     $this->assertNull($stack->pop());
 
-    // Add multiple elements and see whether they are returned in the right order.
+    // Add multiple elements and see whether they are returned in the right
+    // order.
     $values = array($this->randomName(), $this->randomName(), $this->randomName());
     foreach ($values as $value) {
       $stack->push($value);
     }
 
-    // Test the different elements at different positions with the last() method.
+    // Test the different elements at different positions with the last()
+    // method.
     $count = count($values);
     foreach ($values as $key => $value) {
       $this->assertEqual($value, $stack->last($count - $key));
@@ -58,6 +68,6 @@ class CtoolsMathExpressionStackTestCase extends DrupalWebTestCase {
       $this->assertEqual($stack->pop(), $value);
     }
     $this->assertNull($stack->pop());
-
   }
+
 }

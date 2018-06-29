@@ -1,0 +1,160 @@
+<?php
+/**
+ * @file
+ * Enable and disable hook functions.
+ */
+
+/**
+ * Implements hook_enable().
+ */
+function oauth2_client_test_enable() {
+  oauth2_client_test_disable();
+
+  _oauth2_client_test_create();
+  _oauth2_client_test_grant_permissions();
+}
+
+/**
+ * Implements hook_disable().
+ */
+function oauth2_client_test_disable() {
+  _oauth2_client_test_delete();
+  //_oauth2_client_test_revoke_permissions();
+}
+
+/**
+ * Create a test server, along with test clients and scopes.
+ */
+function _oauth2_client_test_create() {
+  // Create the server and client.
+  $server = entity_create('oauth2_server', array());
+  $server->name = 'test_oauth2_server';
+  $server->label = 'Test';
+  $server->settings = array(
+    'default_scope' => 'scope1',
+    'enforce_state' => TRUE,
+    'allow_implicit' => TRUE,
+    'require_exact_redirect_uri' => FALSE,
+    'grant_types' => array(
+      'authorization_code' => 'authorization_code',
+      'client_credentials' => 'client_credentials',
+      'refresh_token' => 'refresh_token',
+      'password' => 'password',
+    ),
+    'always_issue_new_refresh_token' => TRUE,
+    // For testing purposes, set short expire times.
+    'access_lifetime' => 20,
+    'refresh_token_lifetime' => 30,
+  );
+  $server->save();
+
+  // Add a client.
+  $client = entity_create('oauth2_server_client', array());
+  $client->server = $server->name;
+  $client->label = 'Client 1';
+  $client->client_key = 'client1';
+  $client->client_secret = 'secret1';
+  $client->redirect_uri = url('oauth2/authorized', array('absolute' => TRUE));
+  $client->automatic_authorization = FALSE;
+  $client->save();
+
+  // The second client has automatic_authorization TRUE.
+  $client = entity_create('oauth2_server_client', array());
+  $client->server = $server->name;
+  $client->label = 'Client 2';
+  $client->client_key = 'client2';
+  $client->client_secret = 'secret2';
+  $client->redirect_uri = url('oauth2/authorized', array('absolute' => TRUE));
+  $client->automatic_authorization = TRUE;
+  $client->save();
+
+  // Creates some scopes.
+  $scopes = array(
+    'scope1' => 'Scope 1',
+    'scope2' => 'Scope 2',
+  );
+  foreach ($scopes as $scope_name => $scope_label) {
+    $scope = entity_create('oauth2_server_scope', array());
+    $scope->server = $server->name;
+    $scope->name = $scope_name;
+    $scope->description = $scope_label;
+    $scope->save();
+  }
+
+  // Create a test user.
+  user_save('', array(
+      'name' => 'user1',
+      'pass' => 'pass1',
+      'status' => 1,
+    ));
+}
+
+/**
+ * Delete test servers, clients and scopes.
+ */
+function _oauth2_client_test_delete() {
+  $server_name = 'test_oauth2_server';
+
+  // Delete the test clients.
+  $clients = array('client1', 'client2');
+  foreach ($clients as $client_key) {
+    $query = new EntityFieldQuery();
+    $clients = $query->entityCondition('entity_type', 'oauth2_server_client')
+      ->propertyCondition('client_key', $client_key)
+      ->execute();
+    if (isset($clients['oauth2_server_client'])) {
+      $ids = array_keys($clients['oauth2_server_client']);
+      foreach ($ids as $id) {
+        entity_delete('oauth2_server_client', $id);
+      }
+    }
+  }
+
+  // Delete the test scopes.
+  $scopes = array('scope1', 'scope2');
+  foreach ($scopes as $scope_name) {
+    $query = new EntityFieldQuery();
+    $scopes = $query->entityCondition('entity_type', 'oauth2_server_scope')
+      ->propertyCondition('name', $scope_name)
+      ->execute();
+    if (isset($scopes['oauth2_server_scope'])) {
+      $ids = array_keys($scopes['oauth2_server_scope']);
+      foreach ($ids as $id) {
+        entity_delete('oauth2_server_scope', $id);
+      }
+    }
+  }
+
+  // Delete the test oauth2 server.
+  $query = new EntityFieldQuery();
+  $servers = $query->entityCondition('entity_type', 'oauth2_server')
+    ->propertyCondition('name', $server_name)
+    ->execute();
+  if (isset($servers['oauth2_server'])) {
+    $ids = array_keys($servers['oauth2_server']);
+    foreach ($ids as $id) {
+      entity_delete('oauth2_server', $id);
+    }
+  }
+
+  // Delete the test user.
+  if ($user = user_load_by_name('user1')) {
+    user_delete($user->uid);
+  }
+}
+
+function _oauth2_client_test_grant_permissions() {
+  // Make sure that users have the permission to use the oauth2 server.
+  foreach (array('anonymous user', 'authenticated user') as $role_name) {
+    $role = user_role_load_by_name($role_name);
+    user_role_grant_permissions($role->rid, array('use oauth2 server'));
+  }
+}
+
+function _oauth2_client_test_revoke_permissions() {
+  // Remove the permission for using the oauth2 server.
+  foreach (array('anonymous user', 'authenticated user') as $role_name) {
+    $role = user_role_load_by_name($role_name);
+    user_role_revoke_permissions($role->rid, array('use oauth2 server'));
+  }
+}

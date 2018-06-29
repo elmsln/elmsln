@@ -331,3 +331,10 @@ function elmsmedia_update_7027(&$sandbox) {
   drupal_uninstall_modules(array('og_access', 'og_context', 'og_ui'));
   drupal_uninstall_modules(array('og'));
 }
+
+/**
+ * Fix display options list for video
+ */
+function elmsmedia_update_7028(&$sandbox) {
+  features_revert_module('elmsmedia_image');
+}

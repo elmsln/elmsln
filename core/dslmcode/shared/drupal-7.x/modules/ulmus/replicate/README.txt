@@ -48,8 +48,8 @@ But there already is a Node Clone module!
 -----------------------------------------
 The Node Clone module focus on cloning using the administration interface and is
 designed only for nodes replication, whereas Replicate can clone any entities
-(nodes, taxonomy terms, users, ...). Replicate is developer-oriented, and let
-you manage the cloning process the way you want.
+(nodes, taxonomy terms, ...). Replicate is developer-oriented, and let you
+manage the cloning process the way you want.
 Node Clone has also only one hook to alter cloned nodes, Replicate provides
 several hooks to be able to work on a specific entity type or field type and
 thus writing the smallest amount of code required.
@@ -84,13 +84,12 @@ Drupal core entities:
 -Nodes
 -Taxonomy Vocabularies
 -Taxonomy Terms
--Users
 -Comments
 -Files
 
 See also:
-Replicate Field Collection (https://drupal.org/sandbox/jgalletta/1782226)
+Replicate Field Collection (https://drupal.org/project/replicate_field_collection)
 
 Thanks:
-Thanks to Vincent Bouchet for his help on the coding and testing of this module.
+Thanks to Vincent Bouchet (https://drupal.org/u/vbouchet) for his help on the coding and testing of this module.
 Module development sponsorized by Capgemini Drupal Factory.

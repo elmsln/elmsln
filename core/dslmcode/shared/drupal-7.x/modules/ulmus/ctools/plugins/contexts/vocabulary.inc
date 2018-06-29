@@ -2,8 +2,7 @@
 
 /**
  * @file
- *
- * Plugin to provide a vocabulary context
+ * Plugin to provide a vocabulary context.
  */
 
 /**

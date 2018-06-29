@@ -5,7 +5,11 @@
  * Advanced CSS/JS aggregation external compression module.
  */
 
-// Core hook implementations.
+/**
+ * @addtogroup hooks
+ * @{
+ */
+
 /**
  * Implements hook_menu().
  */
@@ -28,7 +32,15 @@ function advagg_ext_compress_menu() {
   return $items;
 }
 
-// Contrib hook implemtations.
+/**
+ * @} End of "addtogroup hooks".
+ */
+
+/**
+ * @addtogroup advagg_hooks
+ * @{
+ */
+
 /**
  * Implements hook_advagg_js_compress_configuration_alter().
  */
@@ -62,7 +74,10 @@ function advagg_ext_compress_advagg_css_compress_configuration_alter(&$options_d
   $options_desc = array($options, $description);
 }
 
-// Helper functions.
+/**
+ * @} End of "addtogroup advagg_hooks".
+ */
+
 /**
  * Compress Javascript using via command line.
  *
@@ -71,12 +86,17 @@ function advagg_ext_compress_advagg_css_compress_configuration_alter(&$options_d
  * @param string $ext
  *   The string css or js.
  * @param array $debug
- *   Optinal debug array.
+ *   Optional debug array.
  *
  * @return string
- *   The filename containting the compressed css/js data.
+ *   The filename containing the compressed css/js data.
  */
 function advagg_ext_compress_execute_cmd($input_file, $ext = '', array &$debug = array()) {
+  $run = variable_get("advagg_ext_compress_{$ext}_cmd", '');
+  if (empty($run)) {
+    return FALSE;
+  }
+
   // Get file extension.
   if (empty($ext)) {
     $ext = strtolower(pathinfo($input_file, PATHINFO_EXTENSION));
@@ -104,7 +124,6 @@ function advagg_ext_compress_execute_cmd($input_file, $ext = '', array &$debug =
   $output = advagg_get_relative_path($new_temp_file);
 
   // Create command to run.
-  $run = variable_get("advagg_ext_compress_{$ext}_cmd", '');
   $cmd = str_replace(array(
     '{%CWD%}',
     '{%IN%}',
@@ -122,6 +141,11 @@ function advagg_ext_compress_execute_cmd($input_file, $ext = '', array &$debug =
   $return_var = 0;
   $shell = exec($cmd, $shell_output, $return_var);
   $debug = array($cmd, $shell_output, $return_var, $shell);
+
+  // Cleanup leftover files.
+  if (file_exists($temp_file)) {
+    @unlink($temp_file);
+  }
   return $output;
 }
 
@@ -176,7 +200,7 @@ function advagg_ext_compress_string(&$contents, $type, $log_errors) {
   else {
     $dir = $js_path[0];
   }
-  $new_temp_file = $dir . '/advagg_file_' . md5(getmypid() . microtime(TRUE) . mt_rand()) . '.' . $type;
+  $new_temp_file = $dir . '/advagg_file_' . drupal_hash_base64(microtime(TRUE) . mt_rand()) . '.' . $type;
   $temp_file_full = advagg_get_relative_path($new_temp_file);
 
   file_put_contents($new_temp_file, $contents);
@@ -184,7 +208,10 @@ function advagg_ext_compress_string(&$contents, $type, $log_errors) {
   drupal_chmod($new_temp_file);
   $debug = array();
   $output = advagg_ext_compress_execute_cmd($temp_file_full, $type, $debug);
-  $new_contents = file_get_contents($output);
+  if (empty($output)) {
+    return FALSE;
+  }
+  $new_contents = advagg_file_get_contents($output);
   if (strpos($new_contents, 'Error') === 0) {
     if ($log_errors) {
       watchdog('advagg_ext_compress', "@a \n<br>\n<br> @b", array(

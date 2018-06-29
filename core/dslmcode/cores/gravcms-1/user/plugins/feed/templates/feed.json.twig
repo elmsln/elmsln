@@ -1,0 +1,16 @@
+{% set collection = collection|default(page.collection) %}
+{% set jsonfeed = {"version" : "https://jsonfeed.org/version/1", "title" : "Your blog name", "home_page_url" : "https://yoursiteurl.com/", "feed_url" : "http://www.yoursiteurl.com/blog"} %}
+{% set jsonfeed = jsonfeed|merge({"author" : {"url"  : "link to your social media", "name"  : "Your Name"} }) %}
+{% set itemList = [] %}
+{% for item in collection %}
+	{%- set post = {"title": item.title|e } %}
+    {%- set post = post|merge({"date_published": item.date|date('Y-m-d') }) %}
+    {%- set post = post|merge({"date_modified": item.date|date('Y-m-d') }) %}
+    {%- set post = post|merge({"id": item.url(true) }) %}
+    {%- set post = post|merge({"url": item.url(true) }) %}
+    {%- set post = post|merge({"author": {"name" : "Your Name"}}) %}
+    {%- set post = post|merge({"content_html": item.content }) %}
+    {%- set itemList = itemList|merge([post]) %}
+{% endfor %}
+{% set jsonfeed = jsonfeed|merge({"items": itemList}) %}
+{{- jsonfeed|json_encode }}

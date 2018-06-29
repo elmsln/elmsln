@@ -51,7 +51,7 @@ function ctools_block_content_type_content_types() {
     if ($module_blocks) {
       foreach ($module_blocks as $delta => $block) {
         $info = _ctools_block_content_type_content_type($module, $delta, $block);
-        // this check means modules can remove their blocks; particularly useful
+        // This check means modules can remove their blocks; particularly useful
         // if they offer the block some other way (like we do for views)
         if ($info) {
           $types["$module-$delta"] = $info;
@@ -168,7 +168,7 @@ function ctools_block_content_type_render($subtype, $conf) {
     if ($module == 'block' && !empty($info) && isset($info->title)) {
       $block->title = $info->title;
     }
-    else if (isset($block->subject)) {
+    elseif (isset($block->subject)) {
       $block->title = $block->subject;
     }
     else {
@@ -207,70 +207,6 @@ function ctools_block_content_type_edit_form_submit($form, &$form_state) {
     unset($form_state['conf']['delta']);
   }
 }
-
-/**
- * Returns an edit form for a block.
- */
-//function ctools_block_content_type_edit_form($id, $parents, $conf) {
-//  if (user_access('administer advanced pane settings')) {
-//    $form['block_visibility'] = array(
-//      '#type' => 'checkbox',
-//      '#title' => t('Use block visibility settings (see block config)'),
-//      '#default_value' => !empty($conf['block_visibility']),
-//      '#description' => t('If checked, the block visibility settings for this block will apply to this block.'),
-//    );
-//    // Module-specific block configurations.
-//    if ($settings = module_invoke($module, 'block', 'configure', $delta)) {
-//      // Specifically modify a couple of core block forms.
-//      if ($module == 'block') {
-//        unset($settings['submit']);
-//        $settings['info']['#type'] = 'value';
-//        $settings['info']['#value'] = $settings['info']['#default_value'];
-//      }
-//      ctools_admin_fix_block_tree($settings);
-//      $form['block_settings'] = array(
-//        '#type' => 'fieldset',
-//        '#title' => t('Block settings'),
-//        '#description' => t('Settings in this section are global and are for all blocks of this type, anywhere in the system.'),
-//        '#tree' => FALSE,
-//      );
-//
-//
-//      $form['block_settings'] += $settings;
-//    }
-//  }
-//
-//  return $form;
-//}
-
-//function ctools_admin_submit_block(&$form_values) {
-//  if (!empty($form_values['block_settings'])) {
-//    module_invoke($form_values['module'], 'block', 'save', $form_values['delta'], $form_values['block_settings']);
-//  }
-//}
-//
-///**
-// * Because form api cannot collapse just part of a tree, and the block settings
-// * assume no tree, we have to collapse the tree ourselves.
-// */
-//function ctools_admin_fix_block_tree(&$form, $key = NULL) {
-//  if ($key) {
-//    if (!empty($form['#parents'])) {
-//      $form['#parents'] = array_merge(array('configuration', 'block_settings'), $form['#parents']);
-//    }
-//    else if (empty($form['#tree'])) {
-//      $form['#parents'] = array('configuration', 'block_settings', $key);
-//    }
-//  }
-//
-//  if (isset($form['#type']) && $form['#type'] == 'textarea' && !empty($form['#rows']) && $form['#rows'] > 10) {
-//    $form['#rows'] = 10;
-//  }
-//
-//  foreach (element_children($form) as $key) {
-//    ctools_admin_fix_block_tree($form[$key], $key);
-//  }
-//}
 
 /**
  * Returns the administrative title for a type.
@@ -338,8 +274,10 @@ function ctools_default_block_info($module, $delta, &$info) {
   }
 }
 
-// These are all on behalf of modules that don't implement ctools but that
-// we care about.
+/**
+ * These are all on behalf of modules that don't implement ctools but that
+ * we care about.
+ */
 function menu_ctools_block_info($module, $delta, &$info) {
   $info['icon'] = 'icon_core_block_menu.png';
   $info['category'] = t('Menus');
@@ -360,7 +298,7 @@ function forum_ctools_block_info($module, $delta, &$info) {
       break;
 
     default:
-      // safety net
+      // Safety net.
       ctools_default_block_info($module, $delta, $info);
   }
 }
@@ -455,7 +393,7 @@ function user_ctools_block_info($module, $delta, &$info) {
       break;
 
     default:
-      // safety net
+      // Safety net.
       ctools_default_block_info($module, $delta, $info);
   }
 }
@@ -508,7 +446,7 @@ function ctools_user_login_pane_render($subtype, $conf, $panel_args, $contexts) 
     return;
   }
 
-  $info = new stdClass;
+  $info = new stdClass();
   $info->module = $module;
   $info->delta = $delta;
 
@@ -537,7 +475,7 @@ function ctools_user_login_pane_render($subtype, $conf, $panel_args, $contexts) 
   if ($module == 'block') {
     $block->title = $info->title;
   }
-  else if (isset($block->subject)) {
+  elseif (isset($block->subject)) {
     $block->title = $block->subject;
   }
   else {

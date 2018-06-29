@@ -105,6 +105,7 @@ function template_preprocess_harmony_post(&$variables) {
 
   // Add in some useful variables.
   $variables['title'] = check_plain($post->title);
+  $variables['username'] = _elmsln_core_get_user_name('full', $post->uid);
   $variables['belongs_to_thread'] = FALSE;
   if ($thread_id) {
     $variables['thread_url'] = url("thread/$thread_id");

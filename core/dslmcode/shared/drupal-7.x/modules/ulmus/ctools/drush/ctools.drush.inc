@@ -140,13 +140,14 @@ function ctools_drush_help($section) {
   switch ($section) {
     case 'meta:ctools:title':
       return dt('CTools commands');
+
     case 'meta:entity:summary':
       return dt('CTools drush commands.');
   }
 }
 
 /**
- * Drush callback: export
+ * Drush callback: export.
  */
 function ctools_drush_export($module = 'foo') {
   $error = FALSE;
@@ -338,7 +339,7 @@ function _ctools_drush_selection_screen(array $tables = array()) {
       $build[$table_choice]['count'] = count($multi_select);
       $selections[$table_choice] = array();
       foreach ($multi_select as $key) {
-         $selections[$table_choice][$key] = $key;
+        $selections[$table_choice][$key] = $key;
       }
     }
   }
@@ -445,6 +446,7 @@ function ctools_drush_export_info() {
     }
   }
 }
+
 /**
  * Drush callback: Acts as the hub for all op commands to keep
  * all arg handling etc in one place.
@@ -457,17 +459,20 @@ function ctools_drush_export_op_command() {
   switch ($command['command']) {
     case 'ctools-export-view':
       $op = 'view';
-    break;
+      break;
+
     case 'ctools-export-revert':
       // Revert is same as deleting. As any objects in the db are deleted.
       $op = 'delete';
-    break;
+      break;
+
     case 'ctools-export-enable':
       $op = 'enable';
-    break;
+      break;
+
     case 'ctools-export-disable':
       $op = 'disable';
-    break;
+      break;
   }
 
   if (!$op) {
@@ -475,7 +480,7 @@ function ctools_drush_export_op_command() {
   }
 
   if (drush_get_option('all', FALSE)) {
-    $info = _ctools_drush_export_info('', TRUE);
+    $info = _ctools_drush_export_info(array(), TRUE);
     $exportable_info = $info['exportables'];
 
     $all = drush_confirm(dt('Are you sure you would like to !op all exportables on the system?',
@@ -512,7 +517,6 @@ function ctools_drush_export_op_command() {
  * @param $op
  * @param $table_name
  * @param $exportables
- *
  */
 function ctools_drush_export_op($op = '', $table_name = '', $exportables = NULL) {
   $objects = ctools_export_crud_load_multiple($table_name, array_keys($exportables));
@@ -538,7 +542,7 @@ function ctools_drush_export_op($op = '', $table_name = '', $exportables = NULL)
  * @param $object_names
  *
  * @return
- *    Array of exportable objects (filtered if necessary, by name etc..) or FALSE if not.
+ *   Array of exportable objects (filtered if necessary, by name etc..) or FALSE if not.
  */
 function _ctools_drush_export_op_command_logic($op = '', $table_name = NULL, array $object_names = array()) {
   if (!$table_name) {
@@ -644,7 +648,7 @@ function _ctools_drush_export_info(array $table_names = array(), $load = FALSE) 
   return array('exportables' => $exportables, 'schemas' => $schemas);
 }
 
-/*
+/**
  * View a single object.
  *
  * @param $table_name
@@ -662,7 +666,7 @@ function _ctools_drush_export_view($table_name, $object) {
   }
 }
 
-/*
+/**
  * Revert a single object.
  *
  * @param $table_name
@@ -681,7 +685,7 @@ function _ctools_drush_export_delete($table_name, $object) {
   }
 }
 
-/*
+/**
  * Enable a single object.
  *
  * @param $table_name
@@ -701,7 +705,7 @@ function _ctools_drush_export_enable($table_name, $object) {
   }
 }
 
-/*
+/**
  * Disable a single object.
  *
  * @param $table_name
@@ -723,9 +727,9 @@ function _ctools_drush_export_disable($table_name, $object) {
 /**
  * Filter a nested array of exportables by export module.
  *
- * @param $exportables array
+ * @param array $exportables
  *   Passed by reference. A nested array of exportables, keyed by table name.
- * @param $export_module string
+ * @param string $export_module
  *   The name of the export module providing the exportable.
  */
 function _ctools_drush_export_module_filter($exportables, $export_module) {
@@ -778,7 +782,7 @@ function _ctools_drush_object_is_disabled($object) {
 /**
  * Determine if an object is enabled.
  *
- * @see _ctools_drush_object_is_disabled.
+ * @see _ctools_drush_object_is_disabled()
  */
 function _ctools_drush_object_is_enabled($object) {
   return (empty($object->disabled)) ? TRUE : FALSE;
@@ -835,7 +839,7 @@ function _ctools_drush_object_is_not_code_only($object) {
  *   Array of exportables to count.
  *
  * @return
- *    Array of count data containing the following:
+ *   Array of count data containing the following:
  *     'total' - A total count of all exportables.
  *     'exportables' - An array of exportable counts per table.
  */
@@ -867,26 +871,32 @@ function _ctools_drush_filter_exportables($exportables, $filter) {
       // Show enabled exportables only.
       case 'enabled':
         $eval = '_ctools_drush_object_is_disabled';
-      break;
+        break;
+
       // Show disabled exportables only.
       case 'disabled':
         $eval = '_ctools_drush_object_is_enabled';
-      break;
+        break;
+
       // Show overridden exportables only.
       case 'overridden':
         $eval = '_ctools_drush_object_is_not_overridden';
-      break;
+        break;
+
       // Show database only exportables.
       case 'database':
         $eval = '_ctools_drush_object_is_not_db_only';
-      break;
+        break;
+
       // Show code only exportables.
       case 'code':
         $eval = '_ctools_drush_object_is_not_code_only';
-      break;
+        break;
+
       // Do nothing.
       case 'all':
         break;
+
       default:
         drush_log(dt('Invalid filter option. Available options are: enabled, disabled, overridden, database, and code.'), 'error');
         return;
@@ -983,33 +993,42 @@ class shellColours {
     'light_gray' => '47',
   );
 
+  /**
+   * shellColours constructor.
+   */
   private function __construct() {}
 
-  // Returns coloured string
+  /**
+   * Returns coloured string.
+   */
   public static function getColouredOutput($string, $foreground_colour = NULL, $background_colour = NULL) {
     $coloured_string = "";
 
-    // Check if given foreground colour found
+    // Check if given foreground colour found.
     if ($foreground_colour) {
       $coloured_string .= "\033[" . self::$foreground_colours[$foreground_colour] . "m";
     }
-    // Check if given background colour found
+    // Check if given background colour found.
     if ($background_colour) {
       $coloured_string .= "\033[" . self::$background_colours[$background_colour] . "m";
     }
 
-    // Add string and end colouring
-    $coloured_string .=  $string . "\033[0m";
+    // Add string and end colouring.
+    $coloured_string .= $string . "\033[0m";
 
     return $coloured_string;
   }
 
-  // Returns all foreground colour names
+  /**
+   * Returns all foreground colour names.
+   */
   public static function getForegroundColours() {
     return array_keys(self::$foreground_colours);
   }
 
-  // Returns all background colour names
+  /**
+   * Returns all background colour names.
+   */
   public static function getBackgroundColours() {
     return array_keys(self::$background_colours);
   }

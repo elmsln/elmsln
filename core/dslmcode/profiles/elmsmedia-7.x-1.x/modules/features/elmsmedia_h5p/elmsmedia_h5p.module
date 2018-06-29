@@ -6,15 +6,6 @@
 
 include_once 'elmsmedia_h5p.features.inc';
 
-
-/**
- * Implementation of hook_form_h5p_library_upload_form_alter().
- */
-function elmsmedia_h5p_form_h5p_library_upload_form_alter(&$form, &$form_state, $form_id) {
-  /* Your code here */
-  drupal_set_message(t('You can get the latest copy of H5P <a href="@link">from here</a>.', array('@link' => 'https://h5p.org/sites/default/files/official-h5p-release-20170313.h5p')), 'status');
-}
-
 /**
  * Implements hook_page_build().
  */
@@ -42,10 +33,54 @@ function elmsmedia_h5p_page_build(&$page) {
 /**
  * Implements hook_embedded_h5p_alter().
  */
-function elmsmedia_h5p_embedded_h5p_alter(&$node) {
+function elmsmedia_h5p_embedded_h5p_alter(&$head, $node) {
   // append domain partcial if we can for avoiding XSS blocking on same origin root
   if ($domain = _cis_connector_parent_domain()) {
-    print '<script>document.domain = "' . $domain . '"</script>';
+    $head .= "\n" . '<script>document.domain = "' . $domain . '"</script>';
+  }
+  // load all the components so we can use webcomponents in H5P
+  $components = webcomponents_load_all();
+  $files = array();
+  // ensure files w/ multiple elements are only
+  // imported once
+  foreach ($components as $component) {
+    // if it matches multiple to same file
+    // it doesn't matter since it'll still be available
+    $files[$component->file] = $component;
+  }
+  // let developers modify which files are appended to the document
+  // right before we do so
+  drupal_alter('webcomponent_attached_files', $files);
+  // write the component file reference to the screen
+  foreach ($files as $component) {
+    // @see _webcomponents_add_to_head
+    // generate filename hash based on the size of the file
+    // this is a quick and dirty way to do invalidation when it updates without local cache refreshes client side
+    if (file_exists(DRUPAL_ROOT . '/' . $component->file)) {
+      $hash = filesize(DRUPAL_ROOT . '/' . $component->file);
+      $head .= "\n" . '<link rel="import" href="' . base_path() . $component->file . '?h' . $hash . '"/>';
+    }
+
+  }
+  // load webcomponentsjs polyfill library if it exists
+  $libraries = libraries_get_libraries();
+  if (isset($libraries['webcomponents']) && is_dir(DRUPAL_ROOT . '/' . $libraries['webcomponents'] . '/webcomponentsjs')) {
+    $head .= "\n" . "
+      <script type='text/javascript'>
+      window.onload = function() {
+        if ('registerElement' in document
+          && 'import' in document.createElement('link')
+          && 'content' in document.createElement('template')) {
+          // platform is good!
+        }
+        else {
+          // polyfill the platform!
+          var e = document.createElement('script');
+          e.src = '" . base_path() . $libraries['webcomponents'] . "/webcomponentsjs/webcomponents-lite.min.js';
+          document.head.appendChild(e);
+        }
+      };
+      </script>";
   }
 }
 
@@ -60,49 +95,70 @@ function elmsmedia_h5p_replicate_ui_access_check_alter(&$access, $type, $entity)
 }
 
 /**
- * Impliments hook_h5p_filtered_params_alter
+ * Implements hook_h5p_filtered_params_alter
  *
  * Replace H5P's text filter with Drupal's xss filter.
  */
 function elmsmedia_h5p_h5p_filtered_params_alter(&$filtered) {
-  // Get the list of allowed tags
-  $allowed_tags = variable_get('elmsmedia_h5p_allowed_tags', array());
-  $allowed_tags = _elmsmedia_variable_formatter($allowed_tags);
-  drupal_alter('elmsmedia_h5p_allowed_tags', $allowed_tags);
-  // support filtering questions
-  if (isset($filtered->questions)) {
-    // find questions and answers
-    foreach ($filtered->questions as &$choice) {
-      // decode H5P's escaping
-      if (is_string($choice->params->question)) {
-        $choice->params->question = html_entity_decode($choice->params->question);
-        // run it through drupal's xss filter but whitelist our allowed tags
-        $choice->params->question = filter_xss($choice->params->question, $allowed_tags);
+  _elmsmedia_h5p_recursively_add_drupal_filter($filtered);
+}
+
+function _elmsmedia_h5p_recursively_add_drupal_filter(&$fields) {
+  // make sure that we are either an object or an array
+  if (is_object($fields) || is_array($fields)) {
+    // loop through the object or array to attempt to find a text field.
+    // if we find an object or an array then we need to run through this
+    // function again.
+    foreach ($fields as $key => &$field) {
+      if (is_object($field)) {
+        _elmsmedia_h5p_recursively_add_drupal_filter($field);
       }
-      if (isset($choice->params->answers)) {
-        foreach ($choice->params->answers as &$answer) {
-          // decode H5P's escaping
-          $answer->text = html_entity_decode($answer->text);
-          // run it through drupal's xss filter but whitelist our allowed tags
-          $answer->text = filter_xss($answer->text, $allowed_tags);
+      else if (is_array($field)) {
+        _elmsmedia_h5p_recursively_add_drupal_filter($field);
+      }
+      else {
+        // if this is of type string, run it through the drupal filter
+        if (gettype($field) == 'string') {
+          _elmsmedia_h5p_add_drupal_filter($field);
         }
       }
     }
   }
-  else if (isset($filtered->question)) {
-    // decode H5P's escaping
-    $filtered->question = html_entity_decode($filtered->question);
-    // run it through drupal's xss filter but whitelist our allowed tags
-    $filtered->question = filter_xss($filtered->question, $allowed_tags);
-    if (isset($filtered->answers)) {
-      foreach ($filtered->answers as &$answer) {
-        // decode H5P's escaping
-        $answer->text = html_entity_decode($answer->text);
-        // run it through drupal's xss filter but whitelist our allowed tags
-        $answer->text = filter_xss($answer->text, $allowed_tags);
-      }
-    }
+}
+
+/**
+ * Implements elmsmedia_h5p_allowed_tags_alter().
+ */
+function elmsmedia_h5p_h5p_allowed_tags_alter(&$allowed_tags) {
+  $allowed_tags = array_merge($allowed_tags, _webcomponents_all_tags());
+}
+
+/**
+ * Assemble (and static cache cause it's called a lot on) allowed tags.
+ */
+function _elmsmedia_h5p_allowed_tags() {
+  $allowed_tags = &drupal_static(__FUNCTION__);
+  if (!$allowed_tags) {
+    // Get the list of allowed tags
+    $allowed_tags = variable_get('elmsmedia_h5p_allowed_tags', array('a', 'em', 'strong', 'cite', 'code', 'ul', 'ol', 'li', 'dl', 'dt', 'dd', 'p', 'div', 'h2', 'h3', 'sup', 'sub'));
+    $allowed_tags = _elmsmedia_variable_formatter($allowed_tags);
+    drupal_alter('h5p_allowed_tags', $allowed_tags);
   }
+  return $allowed_tags;
+}
+
+/**
+ * [_elmsmedia_h5p_add_drupal_filter description]
+ */
+function _elmsmedia_h5p_add_drupal_filter(&$field) {
+  $allowed_tags = _elmsmedia_h5p_allowed_tags();
+
+  $value = '';
+  // decode H5P's escaping
+  $value = html_entity_decode($field);
+  // run it through drupal's xss filter but whitelist our allowed tags
+  $value = filter_xss($value, $allowed_tags);
+  $field = $value;
 }
 
 /**

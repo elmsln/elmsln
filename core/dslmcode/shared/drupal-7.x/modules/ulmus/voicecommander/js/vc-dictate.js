@@ -6,6 +6,7 @@
 
 (function ($) {
   Drupal.voicecommander.dictate = function(wildcard) {
+    document.execCommand("insertText", false, wildcard);
     // place holder because the resultMatch has the real data we care about
   };
   // @todo this is not a long term solution, we need to match userSaid

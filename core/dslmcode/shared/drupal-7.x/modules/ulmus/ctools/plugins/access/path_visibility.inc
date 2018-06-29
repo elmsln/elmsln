@@ -11,12 +11,12 @@ $plugin = array(
   'callback' => 'ctools_path_visibility_ctools_access_check',
   'settings form' => 'ctools_path_visibility_ctools_access_settings',
   'summary' => 'ctools_path_visibility_ctools_access_summary',
-  'required context' =>  new ctools_context_optional(t('Path'), 'string'),
+  'required context' => new ctools_context_optional(t('Path'), 'string'),
   'default' => array('visibility_setting' => 1, 'paths' => ''),
 );
 
 /**
- * Settings form
+ * Settings form.
  */
 function ctools_path_visibility_ctools_access_settings($form, &$form_state, $conf) {
   $form['settings']['note'] = array(

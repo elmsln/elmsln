@@ -11,36 +11,6 @@ include_once 'mooc_helper.features.inc';
  */
 
 /**
- * Implements hook_menu_contextual_links_alter().
- */
-function mooc_helper_menu_contextual_links_alter(&$links, $router_item, $root_path) {
-  // Add a link to all contextual links for nodes.
-  if ($root_path == 'node/%') {
-    unset($links['cis_lmsless-delete']);
-    $tmp = explode('/', $router_item['href']);
-    $entity_id = array_pop($tmp);
-    // link to print the outline
-    $links['cis_lmsless_print_outline'] = array(
-      'title' => t('Print'),
-      'href' => 'book/export/html/' . $entity_id,
-      'localized_options' => array(),
-    );
-    // outline below here
-    $links['cis_lmsless_outline_designer'] = array(
-      'title' => t('Outline'),
-      'href' => 'node/' . $entity_id . '/outline/children',
-      'localized_options' => array(),
-    );
-    // duplicate this part
-    $links['cis_lmsless_duplicate_outline'] = array(
-      'title' => t('Duplicate'),
-      'href' => 'node/' . $entity_id . '/outline/copy',
-      'localized_options' => array(),
-    );
-  }
-}
-
-/**
  * Implements hook_menu().
  */
 function mooc_helper_menu() {
@@ -70,14 +40,13 @@ function mooc_helper_menu() {
     'type' => MENU_CALLBACK,
     'access arguments' => array('access content'),
   );
+  $items['mooc/lrnapp-book'] = array(
+    'title' => 'Course Outline',
+    'page callback' => '_mooc_helper_book_lrnapp_book_redirect',
+    'type' => MENU_CALLBACK,
+    'access arguments' => array('access content'),
+  );
   return $items;
-}
-
-/**
- * Implements hook_menu_alter().
- */
-function mooc_helper_menu_alter(&$items) {
-  $items['read_time/rebuild']['menu_name'] = 'menu-elmsln-settings';
 }
 
 /**
@@ -141,7 +110,7 @@ function _mooc_helper_toc($type = NULL) {
   }
   switch ($type) {
     case 'book_outline':
-      return _mooc_helper_book_outline(TRUE);
+    return _mooc_helper_book_outline(TRUE);
     break;
     case 'learning_pathway':
       return _mooc_helper_learning_pathway();
@@ -156,7 +125,12 @@ function _mooc_helper_book_outline($asblock = FALSE) {
   $tree = array();
   $node = _mooc_helper_active_outline();
   // load the active outline
-  $active = menu_get_object();
+  if (isset($GLOBALS['moocappbook'])) {
+    $active = $GLOBALS['moocappbook'];
+  }
+  else {
+    $active = menu_get_object();
+  }
   // test for not being on a node as well as global setting overriding
   // outline to use
   if (!isset($active->book) || (isset($node->book) && $active->book['menu_name'] != $node->book['menu_name'])) {
@@ -176,14 +150,6 @@ function _mooc_helper_book_outline($asblock = FALSE) {
       $tree = $tree['below'];
       $output['menu_tree'] = array('#weight' => 1);
       $output['menu_tree'][] = menu_tree_output($tree);
-      // support displaying of read_time stats here too
-      if (module_exists('read_time') && !$asblock) {
-        $output['read_time'] = array(
-          '#type' => 'markup',
-          '#weight' => 0,
-          '#markup' => theme('read_time', array('node' => $active))
-        );
-      }
       return $output;
     }
   }
@@ -450,48 +416,76 @@ function _mooc_helper_active_outline() {
  * page of the active section's book.
  */
 function _mooc_helper_book_homepage_redirect() {
-  // get the section id of the current section
-  $current_section = _cis_connector_section_context();
-
-  // look up that node based on the section id
-  $query = new EntityFieldQuery();
-  $query->entityCondition('entity_type', 'node')
-    ->entityCondition('bundle', 'section')
-    ->fieldCondition('field_section_id', 'value', $current_section, '=');
-  $result = $query->execute();
-
-  if (isset($result['node'])) {
-    $section_nids = array_keys($result['node']);
-    // there should only be one result so target the first item
-    // in the array and load it into an entity wrapper
-    $section_wrapper = entity_metadata_wrapper('node', array_shift($section_nids));
-    // if the section points to a book then find the path
-    // of the book and redirect the user
-    try {
-      if (isset($section_wrapper->field_instructional_outlines)) {
-        // drill into the field_instructional_outlines to get the
-        // referenced book nid
-        $book_nid = $section_wrapper->field_instructional_outlines[0]->nid->value();
-        // use a temporary 307 redirect to the books homepage
-        drupal_goto('node/' . $book_nid, array(), 307);
-      }
-    }
-    catch (EntityMetadataWrapperException $exc) {
-      watchdog(
-        'mooc_helper',
-        'EntityMetadataWrapper exception in %function() <pre>@trace</pre>',
-        array('%function' => __FUNCTION__, '@trace' => $exc->getTraceAsString()),
-        WATCHDOG_ERROR
-      );
-    }
+  $book_nid = _mooc_helper_get_active_book_homepage();
+  if ($book_nid) {
+    drupal_goto('node/' . $book_nid, array(), 307);
   }
   else {
-    // if there are no results then remove the section context and
-    // just redirect to the userpage
-    unset($_SESSION['cis_section_context']);
-    watchdog('mooc_helper', 'The %current_section context was unset for this user to prevent redirect loop.', array('%current_selection' => $current_section), WATCHDOG_NOTICE, 'link');
     drupal_goto('/', array(), 307);
   }
+}
+
+/**
+ * Callback for mooc/lrnapp-book to redirect the user to the first
+ * page of the active section's book and rendered through the lrnapp-book application.
+ */
+function _mooc_helper_book_lrnapp_book_redirect() {
+  $book_nid = _mooc_helper_get_active_book_homepage();
+  if ($book_nid) {
+    drupal_goto('apps/lrnapp-book/node/' . $book_nid, array(), 307);
+  }
+  else {
+    drupal_goto('/', array(), 307);
+  }
+}
+
+/**
+ * Helper function to find the active book's first page.
+ */
+function _mooc_helper_get_active_book_homepage() {
+   // get the section id of the current section
+   $current_section = _cis_connector_section_context();
+
+   // look up that node based on the section id
+   $query = new EntityFieldQuery();
+   $query->entityCondition('entity_type', 'node')
+     ->entityCondition('bundle', 'section')
+     ->fieldCondition('field_section_id', 'value', $current_section, '=');
+   $result = $query->execute();
+ 
+   if (isset($result['node'])) {
+     $section_nids = array_keys($result['node']);
+     // there should only be one result so target the first item
+     // in the array and load it into an entity wrapper
+     $section_wrapper = entity_metadata_wrapper('node', array_shift($section_nids));
+     // if the section points to a book then find the path
+     // of the book and redirect the user
+     try {
+       if (isset($section_wrapper->field_instructional_outlines)) {
+         // drill into the field_instructional_outlines to get the
+         // referenced book nid
+         $book_nid = $section_wrapper->field_instructional_outlines[0]->nid->value();
+         return $book_nid;
+       }
+     }
+     catch (EntityMetadataWrapperException $exc) {
+       watchdog(
+         'mooc_helper',
+         'EntityMetadataWrapper exception in %function() <pre>@trace</pre>',
+         array('%function' => __FUNCTION__, '@trace' => $exc->getTraceAsString()),
+         WATCHDOG_ERROR
+       );
+       return false;
+     }
+   }
+   else {
+     // if there are no results then remove the section context and
+     // just redirect to the userpage
+     unset($_SESSION['cis_section_context']);
+     watchdog('mooc_helper', 'The %current_section context was unset for this user to prevent redirect loop.', array('%current_selection' => $current_section), WATCHDOG_NOTICE, 'link');
+     drupal_goto('/', array(), 307);
+     return false;
+   }
 }
 
 /**
@@ -604,7 +598,17 @@ function mooc_helper_node_view($node, $view_mode, $langcode) {
   // accidentally modify a book they aren't meaning to
   if (!empty($node->book['bid']) && $active_book && $node->book['bid'] != $active_book->nid && _cis_connector_role_groupings(array('staff', 'teacher'))) {
     $current_section = _cis_connector_section_context();
-    drupal_set_message(t('This page is not part of the section `@section` that you are currently viewing.', array('@section' => $current_section)), 'notice', FALSE);
+    drupal_set_message(t('This page is not part of the section `@section` that you are currently viewing.', array('@section' => $current_section)), 'toast', FALSE);
+  }
+}
+
+/**
+ * Implements hook_page_build().
+ */
+function mooc_helper_page_build(&$page) {
+  // helper to deal w/ transition between route and non-route dictated pages
+  if (arg(0) != 'node' || (arg(0) == 'node' && arg(2) != '')) {
+    drupal_add_js('window.onpopstate = function(e){if (window.location.hash === "") { window.location.reload();}};', 'inline');
   }
 }
 
@@ -697,7 +701,8 @@ function mooc_helper_module_implements_alter(&$implementations, $hook) {
  */
 function mooc_helper_form_elmsln_core_service_settings_form_alter(&$form, &$form_state, $form_id) {
   // @see _mooc_helper_book_homepage_redirect()
-  $form['site_information_links']['site_frontpage']['#description'] .= '.  Use the "mooc/book-homepage" url to dynamically set the homepage based on active section';
+  $docs_link = t('<a href="@link">course routes documentation</a>', array('@link' => 'https://elmsln.readthedocs.io/en/latest/systems/service/courses/routes'));
+  $form['site_information_links']['site_frontpage']['#description'] .= '.  Refer to the '. $docs_link . ' for a complete list of dynamic routes.';
 
 }
 
@@ -846,6 +851,17 @@ function mooc_helper_admin_paths() {
  * Provides speedreader clickable link for accessibility menu.
  */
 function mooc_helper_fa_a11y() {
+  $lmsless_classes = _cis_lmsless_get_distro_classes(elmsln_core_get_profile_key());
+  $speedreader_block = module_invoke('speedreader', 'block_view', 'speedreader-block');
+  $speedreader = '<lrnsys-dialog data-voicecommand="open speed reader" header="' . t('Speed reader') . '" class="black-text" hover-class="' . $lmsless_classes['color'] . ' ' . $lmsless_classes['dark'] . ' white-text">
+      <span slot="button">
+        <iron-icon icon="chrome-reader-mode"></iron-icon>
+        <span>' . t('Speed reader') . '</span>
+      </span>
+      <span slot="content" id="block-speedreader-speedreader-block-nav-modal">
+        ' . render($speedreader_block['content']) . '
+      </span>
+    </lrnsys-dialog>';
   $a11y = array(
     'formats' => array(
       '#type' => 'fieldset',
@@ -867,88 +883,13 @@ function mooc_helper_fa_a11y() {
         'icon' => 'view-carousel',
       ),
       'speedreader' => array(
-        '#markup' => '<a tabindex="-1" data-voicecommand="open speed reader" class="elmsln-modal-trigger" href="#block-speedreader-speedreader-block-nav-modal" aria-controls="block-speedreader-speedreader-block-nav-modal" aria-expanded="false"><paper-button class="paper-button-link"><iron-icon icon="chrome-reader-mode"></iron-icon>' . t('Speed reader') . '</paper-button></a>',
+        '#markup' => $speedreader,
         '#weight' => 10,
       ),
     ),
   );
-  // support print / book printing
-  if (arg(0) == 'node' && is_numeric(arg(1)) && user_access('access printer-friendly version')) {
-    $a11y['formats']['print'] = array(
-      '#markup' => '<a tabindex="-1" href="' . base_path() . 'book/export/html/' . arg(1) . '" aria-expanded="false"><paper-button class="paper-button-link"><iron-icon icon="print"></iron-icon>' . t('Print page') . '</paper-button></a>',
-      '#weight' => -10,
-    );
-  }
-  // print to pdf
-  if (arg(0) == 'node' && is_numeric(arg(1)) && user_access('access PDF version')) {
-    $a11y['formats']['pdf'] = array(
-      '#markup' => '<a tabindex="-1" href="' . base_path() . 'printpdf/' . arg(1) . '" aria-expanded="false"><paper-button class="paper-button-link"><iron-icon icon="image:picture-as-pdf"></iron-icon>' . t('PDF page') . '</paper-button></a>',
-      '#weight' => -9,
-    );
-  }
   return $a11y;
 }
-
-/**
- * Implements hook_read_time_evaluate_alter().
- */
-function mooc_helper_read_time_evaluate_alter(&$read_time, $node, $field_data) {
-  $preg = '/<iframe(.*?)>/s';
-  // pregmatch iframes
-  preg_match_all($preg, $field_data, $results);
-  foreach ($results[0] as $result) {
-    // sniff out video
-    if (_read_time_strpos_arr($result, array('elmsmedia_video', 'elmsmedia_external_video'))) {
-      $read_time['video']++;
-      if (!isset($read_time['metadata']['video']['internal'])) {
-        $read_time['metadata']['video']['internal'] = 0;
-      }
-      $read_time['metadata']['video']['internal']++;
-      // look for our magic duration attribute
-      $preg2 = '/data-duration="(.*?)"/s';
-      preg_match_all($preg2, $result, $results2);
-      if (isset($results2[1]) && !empty($results2[1][0])) {
-        if (!isset($read_time['metadata']['video']['duration'])) {
-          $read_time['metadata']['video']['duration'] = 0;
-        }
-        $parts = explode(':', $results2[1][0]);
-        // strip off a 0:0:0 style time stamp and convert it to seconds.. wow
-        foreach ($parts as $key => $part) {
-          $read_time['metadata']['video']['duration'] += ($part * pow(60, count($parts)-1-$key));
-        }
-      }
-    }
-    if (_read_time_strpos_arr($result, array('elmsmedia_audio'))) {
-      $read_time['audio']++;
-      if (!isset($read_time['metadata']['audio']['internal'])) {
-        $read_time['metadata']['audio']['internal'] = 0;
-      }
-      $read_time['metadata']['audio']['internal']++;
-      // look for our magic duration attribute
-      $preg2 = '/data-duration="(.*?)"/s';
-      preg_match_all($preg2, $result, $results2);
-      if (isset($results2[1]) && !empty($results2[1][0])) {
-        if (!isset($read_time['metadata']['audio']['duration'])) {
-          $read_time['metadata']['audio']['duration'] = 0;
-        }
-        $parts = explode(':', $results2[1][0]);
-        // strip off a 0:0:0 style time stamp and convert it to seconds.. wow
-        foreach ($parts as $key => $part) {
-          $read_time['metadata']['audio']['duration'] += ($part * pow(60, count($parts)-1-$key));
-        }
-      }
-    }
-    // h5p as interactive stuff under SVG
-    if (_read_time_strpos_arr($result, array('elmsmedia_h5p', 'elmsmedia_svg'))) {
-      $read_time['svg']++;
-      if (!isset($read_time['metadata']['svg']['internal'])) {
-        $read_time['metadata']['svg']['internal'] = 0;
-      }
-      $read_time['metadata']['svg']['internal']++;
-    }
-  }
-}
-
 
 /**
  * Implement hook_ecd_asset_type_alter().
@@ -971,5 +912,15 @@ function mooc_helper_theme($existing, $type, $theme, $path) {
       ),
     ),
   );
+}
+
+/**
+ * Implements hook_wrapped_paths().
+ */
+function mooc_helper_wrapped_paths() {
+  $paths = array(
+    'apps/*' => FALSE,
+  );
+  return $paths;
 }
 

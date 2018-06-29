@@ -37,6 +37,5 @@ function elmsln_core_menu_default_menu_custom() {
   t('Navigational links for using this tool');
   t('Settings menu');
 
-
   return $menus;
 }

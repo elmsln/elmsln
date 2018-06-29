@@ -19,24 +19,24 @@ function ctools_plugin_example_default_panel_pages() {
   $page->load_flags = 1;
   $page->css_id = '';
   $page->arguments = array(
-  0 =>
+    0 =>
   array(
-      'name' => 'simplecontext_arg',
-      'id' => 1,
-      'default' => '404',
-      'title' => '',
-      'identifier' => 'Simplecontext arg',
-      'keyword' => 'simplecontext',
+    'name' => 'simplecontext_arg',
+    'id' => 1,
+    'default' => '404',
+    'title' => '',
+    'identifier' => 'Simplecontext arg',
+    'keyword' => 'simplecontext',
   ),
   );
   $page->relationships = array(
-  0 =>
+    0 =>
   array(
-      'context' => 'argument_simplecontext_arg_1',
-      'name' => 'relcontext_from_simplecontext',
-      'id' => 1,
-      'identifier' => 'Relcontext from Simplecontext',
-      'keyword' => 'relcontext',
+    'context' => 'argument_simplecontext_arg_1',
+    'name' => 'relcontext_from_simplecontext',
+    'id' => 1,
+    'identifier' => 'Relcontext from Simplecontext',
+    'keyword' => 'relcontext',
   ),
   );
   $page->no_blocks = '0';
@@ -58,14 +58,14 @@ function ctools_plugin_example_default_panel_pages() {
   $pane->subtype = 'custom';
   $pane->access = array();
   $pane->configuration = array(
-      'style' => 'default',
-      'override_title' => 0,
-      'override_title_text' => '',
-      'css_id' => '',
-      'css_class' => '',
-      'title' => '"No Context Item"',
-      'body' => 'The "no context item" content type is here to demonstrate that you can create a content_type that does not require a context. This is probably the same as just creating a custom php block on the fly, and might serve the same purpose.',
-      'format' => '1',
+    'style' => 'default',
+    'override_title' => 0,
+    'override_title_text' => '',
+    'css_id' => '',
+    'css_class' => '',
+    'title' => '"No Context Item"',
+    'body' => 'The "no context item" content type is here to demonstrate that you can create a content_type that does not require a context. This is probably the same as just creating a custom php block on the fly, and might serve the same purpose.',
+    'format' => '1',
   );
   $pane->cache = array();
   $display->content['new-1'] = $pane;
@@ -78,14 +78,14 @@ function ctools_plugin_example_default_panel_pages() {
   $pane->subtype = 'description';
   $pane->access = array();
   $pane->configuration = array(
-      'style' => 'default',
-      'override_title' => 0,
-      'override_title_text' => '',
-      'css_id' => '',
-      'css_class' => '',
-      'item1' => 'one',
-      'item2' => 'two',
-      'item3' => 'three',
+    'style' => 'default',
+    'override_title' => 0,
+    'override_title_text' => '',
+    'css_id' => '',
+    'css_class' => '',
+    'item1' => 'one',
+    'item2' => 'two',
+    'item3' => 'three',
   );
   $pane->cache = array();
   $display->content['new-2'] = $pane;
@@ -98,16 +98,16 @@ function ctools_plugin_example_default_panel_pages() {
   $pane->subtype = 'custom';
   $pane->access = array();
   $pane->configuration = array(
-      'style' => 'default',
-      'override_title' => 0,
-      'override_title_text' => '',
-      'css_id' => '',
-      'css_class' => '',
-      'title' => 'Simplecontext',
-      'body' => 'The "Simplecontext" content and content type demonstrate a very basic context and how to display it.
+    'style' => 'default',
+    'override_title' => 0,
+    'override_title_text' => '',
+    'css_id' => '',
+    'css_class' => '',
+    'title' => 'Simplecontext',
+    'body' => 'The "Simplecontext" content and content type demonstrate a very basic context and how to display it.
 
     Simplecontext includes configuration, so it can get info from the config. It can also get its information to run from a simplecontext context, generated either from an arg to the panels page or via explicitly adding a context to the page.',
-      'format' => '1',
+    'format' => '1',
   );
   $pane->cache = array();
   $display->content['new-3'] = $pane;
@@ -119,17 +119,17 @@ function ctools_plugin_example_default_panel_pages() {
   $pane->shown = '1';
   $pane->subtype = 'description';
   $pane->access = array(
-  0 => '2',
-  1 => '4',
+    0 => '2',
+    1 => '4',
   );
   $pane->configuration = array(
-      'context' => 'argument_simplecontext_arg_1',
-      'style' => 'default',
-      'override_title' => 0,
-      'override_title_text' => '',
-      'css_id' => '',
-      'css_class' => '',
-      'config_item_1' => 'simplecontext called from arg',
+    'context' => 'argument_simplecontext_arg_1',
+    'style' => 'default',
+    'override_title' => 0,
+    'override_title_text' => '',
+    'css_id' => '',
+    'css_class' => '',
+    'config_item_1' => 'simplecontext called from arg',
   );
   $pane->cache = array();
   $display->content['new-4'] = $pane;
@@ -142,14 +142,14 @@ function ctools_plugin_example_default_panel_pages() {
   $pane->subtype = 'custom';
   $pane->access = array();
   $pane->configuration = array(
-      'style' => 'default',
-      'override_title' => 0,
-      'override_title_text' => '',
-      'css_id' => '',
-      'css_class' => '',
-      'title' => 'Relcontext',
-      'body' => 'The relcontext content_type gets its data from a relcontext, which is an example of a relationship. This panel should be run with an argument like "/xxx", which allows the simplecontext to get its context, and then the relcontext is configured in this panel to get (create) its data from the simplecontext.',
-      'format' => '1',
+    'style' => 'default',
+    'override_title' => 0,
+    'override_title_text' => '',
+    'css_id' => '',
+    'css_class' => '',
+    'title' => 'Relcontext',
+    'body' => 'The relcontext content_type gets its data from a relcontext, which is an example of a relationship. This panel should be run with an argument like "/xxx", which allows the simplecontext to get its context, and then the relcontext is configured in this panel to get (create) its data from the simplecontext.',
+    'format' => '1',
   );
   $pane->cache = array();
   $display->content['new-5'] = $pane;
@@ -162,13 +162,13 @@ function ctools_plugin_example_default_panel_pages() {
   $pane->subtype = 'description';
   $pane->access = array();
   $pane->configuration = array(
-      'context' => 'relationship_relcontext_from_simplecontext_1',
-      'style' => 'default',
-      'override_title' => 0,
-      'override_title_text' => '',
-      'css_id' => '',
-      'css_class' => '',
-      'config_item_1' => 'default1',
+    'context' => 'relationship_relcontext_from_simplecontext_1',
+    'style' => 'default',
+    'override_title' => 0,
+    'override_title_text' => '',
+    'css_id' => '',
+    'css_class' => '',
+    'config_item_1' => 'default1',
   );
   $pane->cache = array();
   $display->content['new-6'] = $pane;
@@ -181,13 +181,13 @@ function ctools_plugin_example_default_panel_pages() {
   $pane->subtype = 'custom_php';
   $pane->access = array();
   $pane->configuration = array(
-      'style' => 'default',
-      'override_title' => 0,
-      'override_title_text' => '',
-      'css_id' => '',
-      'css_class' => '',
-      'title' => '',
-      'body' => '$arg = arg(1);
+    'style' => 'default',
+    'override_title' => 0,
+    'override_title_text' => '',
+    'css_id' => '',
+    'css_class' => '',
+    'title' => '',
+    'body' => '$arg = arg(1);
     $arg0 = arg(0);
     if (!$arg) {
     $block->content = <<<END
@@ -208,7 +208,6 @@ END;
   $page->display = $display;
   $page->displays = array();
   $pages['ctools_plugin_example'] = $page;
-
 
   return $pages;
 }

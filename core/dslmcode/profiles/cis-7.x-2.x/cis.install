@@ -21,7 +21,7 @@ function cis_install() {
   // standard clean up
   _elmsln_installer_post_install_cleanup();
   // especially for now, once you login, this is what you want to do
-  variable_set('site_frontpage', 'courses');
+  variable_set('site_frontpage', 'apps/lrnapp-cis');
   // we don't need these on authority systems
   variable_set('cis_help_page', '');
   variable_set('cis_resource_page', '');
@@ -181,4 +181,37 @@ function cis_update_7016(&$sandbox) {
 function cis_update_7017(&$sandbox) {
   features_revert_module('cis_competencies');
   features_revert_module('cis_types');
+}
+
+/**
+ * Color field added as well as updating other values
+ */
+function cis_update_7018(&$sandbox) {
+  // clean up from CIS 1.x rearing it's ugly head
+  field_delete_field('field_primary_color');
+  field_purge_batch(1000);
+  db_drop_table('field_data_field_primary_color');
+  db_drop_table('field_revision_field_primary_color');
+  // revert the types
+  features_revert_module('cis_types');
+  features_revert_module('cis_displays');
+  module_enable(array('webcomponents', 'webcomponents_polymer', 'webcomponents_app'));
+  // set to new default if they haven't modified
+  if (variable_get('site_frontpage', 'courses') == 'courses' || variable_get('site_frontpage', 'courses') == 'courses/list') {
+    variable_set('site_frontpage', 'apps/lrnapp-cis');
+  }
+}
+
+/**
+ * Drop the "courses" view!!
+ */
+function cis_update_7019(&$sandbox) {
+  features_revert_module('cis_displays');
+}
+
+/**
+ * Front page permissions
+ */
+function cis_update_7020(&$sandbox) {
+  features_revert_module('cis_ux');
 }

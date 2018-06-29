@@ -119,19 +119,6 @@ function _cis_filter_process($text, $filter, $format, $langcode, $cache, $cache_
         $render_array = array(
           '#markup' => $rendered,
         );
-        // ensure this is something we can apply the contextual link to
-        if (isset($item_path[1])) {
-          $render_array = array(
-            '#markup' => $rendered,
-            '#theme_wrappers' => array('contextual_container'),
-            '#contextual_links' => array(
-              'cis_filter' => array('elmsln/redirect', array($code['tool'], $item_path[0], $item_path[1])),
-            ),
-          );
-          if(isset($code['display_mode']) && strpos($code['display_mode'], '__left') != 0) {
-            $render_array['#classes'] = 'contextual-container-left';
-          }
-        }
         $wrapper = drupal_render($render_array);
         $media[] = $wrapper;
       }
@@ -249,14 +236,6 @@ function cis_filter_theme() {
         'id' => '',
       ),
       'template' => 'templates/cis-filter-render--iframe',
-    ),
-    'cis_filter_contextual_links' => array(
-      'render element' => 'element',
-      'template' => 'templates/cis-filter-contextual-links',
-    ),
-    'contextual_container' => array(
-      'render element' => 'element',
-      'template' => 'templates/contextual-container',
     ),
   );
 }
@@ -457,7 +436,7 @@ function cis_filter_preprocess_cis_filter_render__submit(&$vars) {
     $vars['class'] .= ' elmsln-action-required';
   }
   else {
-    // allow for tokens that turn themselves into the correct submission contextually
+    // allow for tokens that turn themselves into the correct submission
     // this is one of the more ridiculous capabilities of this system
     $target_found = FALSE;
     $section = _cis_connector_section_context();
@@ -527,11 +506,6 @@ function cis_filter_preprocess_cis_filter_render__submit(&$vars) {
               // so we should provide a link to the resource they submitted
               // if we don't then that means we need to present a for the submission modal
               _cis_filter_attach_modal();
-              // cancel saving this page to authcache as a result of having a highly contextual widget
-              // loaded in the page
-              if (function_exists('authcache_cancel')) {
-                authcache_cancel(t('CIS Filter applied with submit widget which needs to be user specific.'));
-              }
               if (isset($response['list'][0])) {
                 if ($code['submit_type'] == 'harmony_post') {
                   $link = 'cis/service/render/1/' . $code['tool'] . '/thread/' . $item[$code['entity_key']] . '#' . $code['submit_endpoint'] . '-' . $response['list'][0]['id'];
@@ -864,43 +838,4 @@ function _cis_filter_modal_page($js = NULL, $tool = NULL, $a1 = NULL, $a2 = NULL
     $contents = '<div class="modal-iframe-container"><iframe id="' . $id . '" class="' . $classes . '" src="' . $link . '" width="100%" height="80%"></iframe></div>';
   }
   return ctools_modal_render('Submission', $contents) ;
-}
-
-/**
- * Implements preprocess_cis_filter_contextual_links()
- */
-function cis_filter_preprocess_cis_filter_contextual_links(&$variables) {
-  $variables['classes_array'][] = $variables['element']['class'];
-  $variables['title'] = $variables['element']['title'];
-  $variables['content'] = $variables['element']['#children'];
-  $variables['more'] = $variables['element']['more'];
-}
-
-/**
- * Implements hook_preprocess_contextual_container()
- */
-function cis_filter_preprocess_contextual_container(&$variables) {
-  if (isset($variables['element']['#classes'])) {
-    $variables['classes_array'][] = $variables['element']['#classes'];
-  }
-  $variables['content'] = $variables['element']['#markup'];
-}
-
-/**
- * Implements hook_menu_contextual_links_alter().
- */
-
-function cis_filter_menu_contextual_links_alter(&$links, $router_item, $root_path) {
-  // hook on a contextual path so we can redirect back here after
-  // the operation takes place on the other end, assuming they hit edit
-  if (in_array($root_path, array('elmsln/redirect/%/%/%'))) {
-    foreach ($links as &$link) {
-      $link['localized_options'] = array(
-        'query' => array(
-          'elmsln_course' => 1,
-          'destination' => 'elmsln/redirect/' . elmsln_core_get_profile_key() .  '/' . arg(0) . '/' . arg(1),
-        )
-      );
-    }
-  }
 }

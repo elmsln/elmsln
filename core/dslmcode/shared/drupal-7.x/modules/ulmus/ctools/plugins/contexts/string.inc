@@ -2,8 +2,7 @@
 
 /**
  * @file
- *
- * Plugin to provide a string context
+ * Plugin to provide a string context.
  */
 
 /**
@@ -38,7 +37,6 @@ $plugin = array(
 function ctools_context_create_string($empty, $data = NULL, $conf = FALSE) {
   // The input is expected to be an object as created by ctools_break_phrase
   // which contains a group of string.
-
   $context = new ctools_context('string');
   $context->plugin = 'string';
 
@@ -46,7 +44,7 @@ function ctools_context_create_string($empty, $data = NULL, $conf = FALSE) {
     return $context;
   }
 
-  if ($data !== FALSE ) {
+  if ($data !== FALSE) {
     // Support the array storage from the settings form but also handle direct input from arguments.
     $context->data = is_array($data) ? $data['string'] : $data;
     $context->title = ($conf) ? check_plain($data['identifier']) : check_plain($data);
@@ -61,8 +59,10 @@ function ctools_context_string_convert($context, $type) {
   switch ($type) {
     case 'raw':
       return $context->data;
+
     case 'html_safe':
       return check_plain($context->data);
+
     case 'uppercase_words_html_safe':
       return ucwords(str_replace('-', ' ', check_plain($context->data)));
   }

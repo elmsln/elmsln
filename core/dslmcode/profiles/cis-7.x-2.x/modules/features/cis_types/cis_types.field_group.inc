@@ -181,6 +181,7 @@ function cis_types_field_group_info() {
       5 => 'field_method_of_access',
       6 => 'field_program_classification',
       7 => 'title',
+      8 => 'field_primary_color',
     ),
     'format_type' => 'fieldset',
     'format_settings' => array(
@@ -327,8 +328,8 @@ function cis_types_field_group_info() {
     'label' => 'Internal logistics',
     'weight' => '1',
     'children' => array(
-      0 => 'field_elmsln_course_competencies',
-      1 => 'field_sis_course_id',
+      0 => 'field_sis_course_id',
+      1 => 'field_elmsln_course_competencies',
     ),
     'format_type' => 'fieldset',
     'format_settings' => array(

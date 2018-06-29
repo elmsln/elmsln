@@ -255,10 +255,6 @@ function cis_types_field_default_field_bases() {
     'locked' => 0,
     'module' => 'list',
     'settings' => array(
-      'allowed_values' => array(
-        'ca' => 'Campus A',
-        'cb' => 'Campus B',
-      ),
       'allowed_values_function' => '',
       'cis_connector_access' => FALSE,
       'cis_connector_disable' => FALSE,
@@ -1234,6 +1230,29 @@ function cis_types_field_default_field_bases() {
     ),
     'translatable' => 0,
     'type' => 'phone',
+  );
+
+  // Exported field_base: 'field_primary_color'.
+  $field_bases['field_primary_color'] = array(
+    'active' => 1,
+    'cardinality' => 1,
+    'deleted' => 0,
+    'entity_types' => array(),
+    'field_name' => 'field_primary_color',
+    'indexes' => array(
+      'format' => array(
+        0 => 'format',
+      ),
+    ),
+    'locked' => 0,
+    'module' => 'text',
+    'settings' => array(
+      'cis_connector_access' => FALSE,
+      'cis_connector_disable' => FALSE,
+      'max_length' => 255,
+    ),
+    'translatable' => 0,
+    'type' => 'text',
   );
 
   // Exported field_base: 'field_professional_title'.

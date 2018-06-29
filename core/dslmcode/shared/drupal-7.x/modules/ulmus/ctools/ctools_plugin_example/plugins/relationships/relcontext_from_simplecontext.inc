@@ -1,9 +1,7 @@
 <?php
 
-
 /**
  * @file
- *
  * Sample relationship plugin.
  *
  * We take a simplecontext, look in it for what we need to make a relcontext, and make it.
@@ -33,7 +31,6 @@ function ctools_relcontext_from_simplecontext_context($context = NULL, $conf) {
   }
 
   // You should do error-checking here.
-
   // Create the new context from some element of the parent context.
   // In this case, we'll pass in the whole context so it can be used to
   // create the relcontext.
@@ -47,4 +44,3 @@ function ctools_relcontext_from_simplecontext_settings_form($conf) {
   // We won't configure it in this case.
   return array();
 }
-

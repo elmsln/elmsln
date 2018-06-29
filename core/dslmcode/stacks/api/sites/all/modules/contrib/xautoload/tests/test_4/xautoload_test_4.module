@@ -1,0 +1,26 @@
+<?php
+
+/**
+ * Implements hook_xautoload().
+ *
+ * @param \Drupal\xautoload\Adapter\LocalDirectoryAdapter $adapter
+ */
+function xautoload_test_4_xautoload($adapter) {
+  // Ensure the testlib library can be autoloaded.
+  $adapter->addPsr4('Drupal\xautoload_test_4\testlib\\', 'testlib/src');
+}
+
+/**
+ * Implements hook_menu()
+ */
+function xautoload_test_4_menu() {
+  // Let's see if this breaks.
+  new \Drupal\xautoload_test_4\testlib\TestClass();
+}
+
+/**
+ * Implements hook_theme()
+ */
+function xautoload_test_4_theme() {
+  new \Drupal\xautoload_test_4\testlib\TestClass();
+}

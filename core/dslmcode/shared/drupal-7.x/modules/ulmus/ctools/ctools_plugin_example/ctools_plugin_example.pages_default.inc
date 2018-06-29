@@ -6,7 +6,7 @@
  */
 
 /**
- * Default panels pages for CTools Plugin Example
+ * Default panels pages for CTools Plugin Example.
  *
  * To pick up this file, your module needs to implement
  * hook_ctools_plugin_api() - See ctools_plugin_example_ctools_plugin_api() in
@@ -23,12 +23,10 @@
  * @return
  *   Array of pages, normally exported from Panels.
  */
-
 function ctools_plugin_example_default_page_manager_pages() {
 
-  // begin exported panel.
-
-  $page = new stdClass;
+  // Begin exported panel.
+  $page = new stdClass();
   $page->disabled = FALSE; /* Edit this to true to make a default page disabled initially */
   $page->api_version = 1;
   $page->name = 'ctools_plugin_example';
@@ -37,31 +35,31 @@ function ctools_plugin_example_default_page_manager_pages() {
   $page->admin_description = 'This panel provides no functionality to a working Drupal system. It\'s intended to display the various sample plugins provided by the CTools Plugin Example module. ';
   $page->path = 'ctools_plugin_example/%sc';
   $page->access = array(
-  'logic' => 'and',
+    'logic' => 'and',
   );
   $page->menu = array(
-  'type' => 'normal',
-  'title' => 'CTools plugin example',
-  'name' => 'navigation',
-  'weight' => '0',
-  'parent' => array(
-    'type' => 'none',
-    'title' => '',
+    'type' => 'normal',
+    'title' => 'CTools plugin example',
     'name' => 'navigation',
     'weight' => '0',
-  ),
+    'parent' => array(
+      'type' => 'none',
+      'title' => '',
+      'name' => 'navigation',
+      'weight' => '0',
+    ),
   );
   $page->arguments = array(
-  'sc' => array(
-    'id' => 2,
-    'identifier' => 'simplecontext-arg',
-    'name' => 'simplecontext_arg',
-    'settings' => array(),
-  ),
+    'sc' => array(
+      'id' => 2,
+      'identifier' => 'simplecontext-arg',
+      'name' => 'simplecontext_arg',
+      'settings' => array(),
+    ),
   );
   $page->conf = array();
   $page->default_handlers = array();
-  $handler = new stdClass;
+  $handler = new stdClass();
   $handler->disabled = FALSE; /* Edit this to true to make a default handler disabled initially */
   $handler->api_version = 1;
   $handler->name = 'page_ctools_panel_context';
@@ -70,44 +68,44 @@ function ctools_plugin_example_default_page_manager_pages() {
   $handler->handler = 'panel_context';
   $handler->weight = 0;
   $handler->conf = array(
-  'title' => 'Panel',
-  'no_blocks' => FALSE,
-  'css_id' => '',
-  'css' => '',
-  'contexts' => array(
-    '0' => array(
-      'name' => 'simplecontext',
-      'id' => 1,
-      'identifier' => 'Configured simplecontext (not from argument)',
-      'keyword' => 'configured_simplecontext',
-      'context_settings' => array(
-        'sample_simplecontext_setting' => 'default simplecontext setting',
-  ),
-  ),
-  ),
-  'relationships' => array(
-    '0' => array(
-      'context' => 'argument_simplecontext_arg_2',
-      'name' => 'relcontext_from_simplecontext',
-      'id' => 1,
-      'identifier' => 'Relcontext from simplecontext (from relationship)',
-      'keyword' => 'relcontext',
-  ),
-  ),
-  'access' => array(
-    'logic' => 'and',
-  ),
+    'title' => 'Panel',
+    'no_blocks' => FALSE,
+    'css_id' => '',
+    'css' => '',
+    'contexts' => array(
+      '0' => array(
+        'name' => 'simplecontext',
+        'id' => 1,
+        'identifier' => 'Configured simplecontext (not from argument)',
+        'keyword' => 'configured_simplecontext',
+        'context_settings' => array(
+          'sample_simplecontext_setting' => 'default simplecontext setting',
+        ),
+      ),
+    ),
+    'relationships' => array(
+      '0' => array(
+        'context' => 'argument_simplecontext_arg_2',
+        'name' => 'relcontext_from_simplecontext',
+        'id' => 1,
+        'identifier' => 'Relcontext from simplecontext (from relationship)',
+        'keyword' => 'relcontext',
+      ),
+    ),
+    'access' => array(
+      'logic' => 'and',
+    ),
   );
-  $display = new panels_display;
+  $display = new panels_display();
   $display->layout = 'threecol_33_34_33_stacked';
   $display->layout_settings = array();
   $display->panel_settings = array(
-  'style' => 'rounded_corners',
-  'style_settings' => array(
-    'default' => array(
-      'corner_location' => 'pane',
-  ),
-  ),
+    'style' => 'rounded_corners',
+    'style_settings' => array(
+      'default' => array(
+        'corner_location' => 'pane',
+      ),
+    ),
   );
   $display->cache = array();
   $display->title = 'CTools plugin example panel';
@@ -115,7 +113,7 @@ function ctools_plugin_example_default_page_manager_pages() {
   $display->title_pane = 1;
   $display->content = array();
   $display->panels = array();
-  $pane = new stdClass;
+  $pane = new stdClass();
   $pane->pid = 'new-1';
   $pane->panel = 'left';
   $pane->type = 'no_context_content_type';
@@ -135,7 +133,7 @@ function ctools_plugin_example_default_page_manager_pages() {
   $pane->position = 0;
   $display->content['new-1'] = $pane;
   $display->panels['left'][0] = 'new-1';
-  $pane = new stdClass;
+  $pane = new stdClass();
   $pane->pid = 'new-2';
   $pane->panel = 'left';
   $pane->type = 'custom';
@@ -148,10 +146,10 @@ function ctools_plugin_example_default_page_manager_pages() {
         'settings' => array(
           'greater_than' => '1',
           'arg_length' => '4',
-  ),
+        ),
         'context' => 'argument_simplecontext_arg_2',
-  ),
-  ),
+      ),
+    ),
   );
   $pane->configuration = array(
     'title' => 'Long Arg Visibility Block',
@@ -166,7 +164,7 @@ function ctools_plugin_example_default_page_manager_pages() {
   $pane->position = 1;
   $display->content['new-2'] = $pane;
   $display->panels['left'][1] = 'new-2';
-  $pane = new stdClass;
+  $pane = new stdClass();
   $pane->pid = 'new-3';
   $pane->panel = 'left';
   $pane->type = 'custom';
@@ -179,10 +177,10 @@ function ctools_plugin_example_default_page_manager_pages() {
         'settings' => array(
           'greater_than' => '0',
           'arg_length' => '4',
-  ),
+        ),
         'context' => 'argument_simplecontext_arg_2',
-  ),
-  ),
+      ),
+    ),
   );
   $pane->configuration = array(
     'title' => 'Short Arg Visibility',
@@ -197,7 +195,7 @@ function ctools_plugin_example_default_page_manager_pages() {
   $pane->position = 2;
   $display->content['new-3'] = $pane;
   $display->panels['left'][2] = 'new-3';
-  $pane = new stdClass;
+  $pane = new stdClass();
   $pane->pid = 'new-4';
   $pane->panel = 'middle';
   $pane->type = 'simplecontext_content_type';
@@ -241,7 +239,7 @@ function ctools_plugin_example_default_page_manager_pages() {
   $pane->position = 0;
   $display->content['new-4'] = $pane;
   $display->panels['middle'][0] = 'new-4';
-  $pane = new stdClass;
+  $pane = new stdClass();
   $pane->pid = 'new-5';
   $pane->panel = 'middle';
   $pane->type = 'simplecontext_content_type';
@@ -285,7 +283,7 @@ function ctools_plugin_example_default_page_manager_pages() {
   $pane->position = 1;
   $display->content['new-5'] = $pane;
   $display->panels['middle'][1] = 'new-5';
-  $pane = new stdClass;
+  $pane = new stdClass();
   $pane->pid = 'new-6';
   $pane->panel = 'middle';
   $pane->type = 'custom';
@@ -309,7 +307,7 @@ function ctools_plugin_example_default_page_manager_pages() {
   $pane->position = 2;
   $display->content['new-6'] = $pane;
   $display->panels['middle'][2] = 'new-6';
-  $pane = new stdClass;
+  $pane = new stdClass();
   $pane->pid = 'new-7';
   $pane->panel = 'right';
   $pane->type = 'relcontext_content_type';
@@ -353,7 +351,7 @@ function ctools_plugin_example_default_page_manager_pages() {
   $pane->position = 0;
   $display->content['new-7'] = $pane;
   $display->panels['right'][0] = 'new-7';
-  $pane = new stdClass;
+  $pane = new stdClass();
   $pane->pid = 'new-8';
   $pane->panel = 'top';
   $pane->type = 'custom';
@@ -378,12 +376,11 @@ function ctools_plugin_example_default_page_manager_pages() {
   $handler->conf['display'] = $display;
   $page->default_handlers[$handler->name] = $handler;
 
-  // end of exported panel.
+  // End of exported panel.
   $pages['ctools_plugin_example_demo_page'] = $page;
 
-  // begin exported panel
-
-  $page = new stdClass;
+  // Begin exported panel.
+  $page = new stdClass();
   $page->disabled = FALSE; /* Edit this to true to make a default page disabled initially */
   $page->api_version = 1;
   $page->name = 'ctools_plugin_example_base';
@@ -396,7 +393,7 @@ function ctools_plugin_example_default_page_manager_pages() {
   $page->arguments = array();
   $page->conf = array();
   $page->default_handlers = array();
-  $handler = new stdClass;
+  $handler = new stdClass();
   $handler->disabled = FALSE; /* Edit this to true to make a default handler disabled initially */
   $handler->api_version = 1;
   $handler->name = 'page_ctools_plugin_example_base_panel_context';
@@ -405,14 +402,14 @@ function ctools_plugin_example_default_page_manager_pages() {
   $handler->handler = 'panel_context';
   $handler->weight = 0;
   $handler->conf = array(
-  'title' => 'Panel',
-  'no_blocks' => FALSE,
-  'css_id' => '',
-  'css' => '',
-  'contexts' => array(),
-  'relationships' => array(),
+    'title' => 'Panel',
+    'no_blocks' => FALSE,
+    'css_id' => '',
+    'css' => '',
+    'contexts' => array(),
+    'relationships' => array(),
   );
-  $display = new panels_display;
+  $display = new panels_display();
   $display->layout = 'onecol';
   $display->layout_settings = array();
   $display->panel_settings = array();
@@ -421,7 +418,7 @@ function ctools_plugin_example_default_page_manager_pages() {
   $display->hide_title = FALSE;
   $display->content = array();
   $display->panels = array();
-  $pane = new stdClass;
+  $pane = new stdClass();
   $pane->pid = 'new-1';
   $pane->panel = 'middle';
   $pane->type = 'custom';
@@ -443,8 +440,7 @@ function ctools_plugin_example_default_page_manager_pages() {
   $display->panels['middle'][0] = 'new-1';
   $handler->conf['display'] = $display;
   $page->default_handlers[$handler->name] = $handler;
-  // end exported panel.
-
+  // End exported panel.
   $pages['base_page'] = $page;
 
   return $pages;

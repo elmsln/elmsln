@@ -300,7 +300,7 @@ class FieldCollectionItemEntity extends Entity {
   }
 
   protected function fetchHostDetails() {
-    if (!isset($this->hostEntityId)) {
+    if (!isset($this->hostEntityId) || (!$this->hostEntityId && $this->hostEntityRevisionId)) {
       if ($this->item_id) {
         // For saved field collections, query the field data to determine the
         // right host entity.
@@ -310,16 +310,20 @@ class FieldCollectionItemEntity extends Entity {
           $query->age(FIELD_LOAD_REVISION);
         }
         $result = $query->execute();
-        list($this->hostEntityType, $data) = each($result);
+        if ($result) {
+          list($this->hostEntityType, $data) = each($result);
+        }
 
         if ($this->isInUse()) {
-          $this->hostEntityId = $data ? key($data) : FALSE;
+          $data_array_keys = array_keys($data);
+          $this->hostEntityId = $data ? end($data_array_keys) : FALSE;
           $this->hostEntityRevisionId = FALSE;
         }
         // If we are querying for revisions, we get the revision ID.
         else {
+          $data_array_keys = array_keys($data);
           $this->hostEntityId = FALSE;
-          $this->hostEntityRevisionId = $data ? key($data) : FALSE;
+          $this->hostEntityRevisionId = $data ? end($data_array_keys) : FALSE;
         }
       }
       else {

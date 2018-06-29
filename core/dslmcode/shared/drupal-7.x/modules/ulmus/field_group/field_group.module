@@ -258,8 +258,6 @@ function field_group_field_attach_delete_bundle($entity_type, $bundle) {
  * Implements hook_field_attach_form().
  */
 function field_group_field_attach_form($entity_type, $entity, &$form, &$form_state, $langcode) {
-
-  $form['#attached']['css'][] = drupal_get_path('module', 'field_group') . '/field_group.field_ui.css';
   field_group_attach_groups($form, 'form', $form_state);
   $form['#pre_render'][] = 'field_group_form_pre_render';
 }
@@ -1110,7 +1108,7 @@ function field_group_pre_render_tab(&$element, $group, &$form) {
  * Implements hook_field_group_build_pre_render_alter().
  * @param Array $elements by address.
  */
-function field_group_field_group_build_pre_render_alter(& $element) {
+function field_group_field_group_build_pre_render_alter(&$element) {
 
   // Someone is doing a node view, in a node view. Reset content.
   // TODO Check if this breaks something else.
@@ -2027,6 +2025,19 @@ function field_group_fields_nest(&$element, &$vars = NULL) {
       // Construct own weight, as some fields (for example preprocess fields) don't have weight set.
       $element[$group_name] = array();
       $group_references[$group_name] = &$element[$group_name];
+      // Get group parents
+      $parents = array();
+      $current_group = $group;
+      while (!empty($current_group)) {
+        array_unshift($parents, $current_group->group_name);
+        $current_group = isset($element['#fieldgroups'][$current_group->parent_name]) ?
+          $element['#fieldgroups'][$current_group->parent_name] : NULL;
+      }
+      $group_references[$group_name]['#array_parents'] = $parents;
+      $element['#fieldgroups'][$group_name]->array_parents = $parents;
+      // Remove self from parents and set #field_parents
+      array_pop($parents);
+      $group_references[$group_name]['#field_parents'] = $parents;
     }
   }
 
@@ -2077,6 +2088,19 @@ function field_group_fields_nest(&$element, &$vars = NULL) {
         // list intact (but if it is a field we don't mind).
         $group_references[$parent_name][$child_name] = &$element[$child_name];
         $group_references[$parent_name]['#weight'] = $element['#fieldgroups'][$parent_name]->weight;
+        // Prepend #array_parents & #field_parents of group child element & its element_children
+        // if those keys are set, and don't already include the group parents
+        $group_child = &$group_references[$parent_name][$child_name];
+        $group_parents = $group_references[$parent_name]['#array_parents'];
+        $process_elements = array_merge(array(&$group_child), _field_group_element_children_recursive_ref($group_child));
+        foreach ($process_elements as $key => $current_element) {
+          if (isset($current_element['#array_parents']) && !in_array($group_parents[0], $current_element['#array_parents'])) {
+            $process_elements[$key]['#array_parents'] = array_merge($group_parents, $current_element['#array_parents']);
+          }
+          if (isset($current_element['#field_parents']) && !in_array($group_parents[0], $current_element['#field_parents'])) {
+            $process_elements[$key]['#field_parents'] = array_merge($group_parents, $current_element['#field_parents']);
+          }
+        }
       }
 
       // The child has been copied to its parent: remove it from the root element.
@@ -2091,6 +2115,23 @@ function field_group_fields_nest(&$element, &$vars = NULL) {
     field_group_pre_render($group_references[$group_name], $group, $element);
   }
 
+}
+
+/**
+ * Recursive element_children, returns children by reference
+ */
+function _field_group_element_children_recursive_ref(&$element) {
+  $results = array();
+  $children = element_children($element);
+  foreach ($children as $key) {
+    $child = &$element[$key];
+    if (is_array($child)) {
+      $results[] = &$child;
+      $results = array_merge($results, _field_group_element_children_recursive_ref($child));
+    }
+    unset($child);
+  }
+  return $results;
 }
 
 /**

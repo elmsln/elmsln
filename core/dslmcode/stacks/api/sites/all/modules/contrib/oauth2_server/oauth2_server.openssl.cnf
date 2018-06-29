@@ -1,0 +1,20 @@
+#
+# OpenSSL configuration file.
+# Used by oauth2_server to generate certificates.
+#
+
+[ req ]
+default_bits = 2048
+default_keyfile = key.pem
+default_md = sha1
+string_mask = utf8only
+distinguished_name = req_distinguished_name
+x509_extensions = v3_ca
+
+[ req_distinguished_name ]
+CN = Common Name
+
+[ v3_ca ]
+basicConstraints = critical,CA:FALSE
+keyUsage = critical,digitalSignature
+extendedKeyUsage = critical,clientAuth

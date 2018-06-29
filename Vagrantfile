@@ -20,6 +20,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.hostname = "elmsln.local"
   config.hostsupdater.aliases = ["courses.elmsln.local", "media.elmsln.local", "online.elmsln.local", "analytics.elmsln.local", "studio.elmsln.local", "interact.elmsln.local", "blog.elmsln.local", "comply.elmsln.local", "discuss.elmsln.local", "inbox.elmsln.local", "people.elmsln.local", "innovate.elmsln.local", "grades.elmsln.local", "hub.elmsln.local", "lq.elmsln.local", "cdn1.elmsln.local", "cdn2.elmsln.local", "cdn3.elmsln.local", "data-courses.elmsln.local", "data-media.elmsln.local", "data-online.elmsln.local", "data-studio.elmsln.local", "data-interact.elmsln.local", "data-blog.elmsln.local", "data-comply.elmsln.local", "data-discuss.elmsln.local", "data-inbox.elmsln.local", "data-people.elmsln.local", "data-innovate.elmsln.local", "data-grades.elmsln.local", "data-hub.elmsln.local", "data-lq.elmsln.local"]
   config.vm.boot_timeout = 600
+  config.ssh.shell = "bash -c 'BASH_ENV=/etc/profile exec bash'"
   # automatically carve out 1/4 of RAM for this VM
   config.vm.provider "virtualbox" do |v|
     host = RbConfig::CONFIG['host_os']
@@ -44,9 +45,20 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     v.customize ["modifyvm", :id, "--cpus", 1]
     v.name = "elmsln"
   end
+  # https://github.com/hashicorp/vagrant/issues/7508
+  # fix for ioctl error
+  config.vm.provision "fix-no-tty", type: "shell" do |s|
+    s.privileged = true
+    s.inline = "sed -i '/tty/!s/mesg n/tty -s \\&\\& mesg n \\|\\| true/' /root/.profile"
+  end
+  # fix apt lock error
+  config.vm.provision "disable-apt-periodic-updates", type: "shell" do |s|
+    s.privileged = true
+    s.inline = "echo 'APT::Periodic::Enable \"0\";' > /etc/apt/apt.conf.d/02periodic"
+  end
   # run script as root
   config.vm.provision "shell",
-    args: "https://github.com/elmsln/elmsln.git 0.10.x https://github.com/elmsln/elmsln-config-vagrant.git",
+    args: "https://github.com/elmsln/elmsln.git 0.11.x https://github.com/elmsln/elmsln-config-vagrant.git",
     path: "scripts/vagrant/handsfree-vagrant.sh"
 
   # run as the vagrant user

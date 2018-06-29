@@ -1,8 +1,8 @@
 <?php
+
 /**
  * @file
- *
- * Plugin to provide a user_edit_form context
+ * Plugin to provide a user_edit_form context.
  */
 
 /**
@@ -81,7 +81,7 @@ function ctools_context_create_user_edit_form($empty, $user = NULL, $conf = FALS
 
     $form = drupal_build_form($form_id, $form_state);
 
-    // Fill in the 'node' portion of the context
+    // Fill in the 'node' portion of the context.
     $context->data     = $user;
     $context->title    = isset($user->name) ? $user->name : '';
     $context->argument = $user->uid;
@@ -133,7 +133,7 @@ function ctools_context_user_edit_form_settings_form($form, &$form_state) {
  * Validate a node.
  */
 function ctools_context_user_edit_form_settings_form_validate($form, &$form_state) {
-  // Validate the autocomplete
+  // Validate the autocomplete.
   if (empty($form_state['values']['uid']) && empty($form_state['values']['user'])) {
     form_error($form['user'], t('You must select a user.'));
     return;
@@ -162,6 +162,7 @@ function ctools_context_user_edit_form_settings_form_validate($form, &$form_stat
 
   form_set_value($form['uid'], $user->uid, $form_state);
 }
+
 function ctools_context_user_edit_form_settings_form_submit($form, &$form_state) {
   if ($form_state['values']['set_identifier']) {
     $user = user_load($form_state['values']['uid']);

@@ -1,0 +1,12 @@
+name = Book player
+description = Single page app for viewing book based content
+core = 7.x
+package = Book
+dependencies[] = book
+dependencies[] = book_cache
+dependencies[] = features
+dependencies[] = webcomponents_app
+dependencies[] = webcomponents_app_context
+features[features_api][] = api:2
+features[user_permission][] = access lrnapp-book app
+features[user_permission][] = access mooc-content app

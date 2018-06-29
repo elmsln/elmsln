@@ -69,6 +69,10 @@ function webcomponents_polymer_register_webcomponent_apps() {
         if (isset($app['properties'])) {
           $return[$manifest['name']]['properties'] = $app['properties'];
         }
+        // support for additional slots
+        if (isset($app['slots'])) {
+          $return[$manifest['name']]['slots'] = $app['slots'];
+        }
         // support for a endpoint paths for getting data into the app
         if (isset($app['endpoints'])) {
           $return[$manifest['name']]['endpoints'] = $app['endpoints'];
@@ -101,7 +105,7 @@ function webcomponents_polymer_webcomponents() {
   $files = array();
   if (isset($libraries['webcomponents'])) {
     $dir = $libraries['webcomponents'] . '/' . WEBCOMPONENTS_POLYMER_LOCATION . '/';
-    $files = _webcomponents_find_html_includes($dir, array('apps'));
+    $files = _webcomponents_find_html_includes($dir, array('apps', 'apps-src'));
   }
   // now look in module sepecific areas
   $modulefiles = drupal_system_listing("/(.*?)-(.*?)\.html$/", "modules", 'uri', 2);
@@ -165,6 +169,7 @@ function _webcomponents_polymer_process_components($file) {
       $component->type = 'polymer';
       $component->properties = array('innerHTML' => 'String');
       // match {{}} and [[]] based properties
+      // @todo add optional support for hitting a polmer-analyzer.json style file
       preg_match_all('/({{.*?}}|\[\[.*?\]\])/', $rawmatch->innertext, $matches);
       // find matches for custom properties so we know how to tokenize this
       if (isset($matches[0])) {
@@ -182,6 +187,8 @@ function _webcomponents_polymer_process_components($file) {
           }
         }
       }
+      // @todo need a match for slots based on <slot name="whatever"></slot>
+
     }
     $components[$machine_name] = $component;
   }
@@ -193,4 +200,23 @@ function _webcomponents_polymer_process_components($file) {
   	return $components;
   }
   return FALSE;
+}
+
+/**
+ * Implements hook_webcomponent_attached_files_alter().
+ */
+function webcomponents_polymer_webcomponent_attached_files_alter(&$files) {
+  $libraries = libraries_get_libraries();
+  $polymer = $libraries['webcomponents'] . '/polymer/bower_components/polymer/polymer.html';
+  // support for a webcomponents.json file to tell us what to append
+  if (file_exists(DRUPAL_ROOT . '/' . $polymer)) {
+    $component = new stdClass();
+    $component->machine_name = 'polymer';
+    $component->tag = 'polymer';
+    $component->title = 'polymer';
+    $component->file = $polymer;
+    $component->type = 'polymer';
+    $component->properties = array();
+    $files[$polymer] = $component;
+  }
 }

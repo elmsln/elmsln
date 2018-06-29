@@ -1,6 +1,10 @@
 <?php
 
 /**
+ * @file
+ */
+
+/**
  * Wrapper function for update_status().
  *
  * @see update_status().
@@ -12,20 +16,23 @@ function module_filter_update_status() {
   return array(
     'module_filter' => drupal_get_form('module_filter_update_status_form'),
     'update_report' => array(
-      '#markup' => $update_report
-    )
+      '#markup' => $update_report,
+    ),
   );
 }
 
+/**
+ * Form builder for the module filter form.
+ */
 function module_filter_update_status_form($form, &$form_state) {
   $form['module_filter'] = array(
     '#type' => 'module_filter',
     '#attached' => array(
       'css' => array(
-        drupal_get_path('module', 'module_filter') . '/css/update_status.css'
+        drupal_get_path('module', 'module_filter') . '/css/update_status.css',
       ),
       'js' => array(
-        drupal_get_path('module', 'module_filter') . '/js/update_status.js'
+        drupal_get_path('module', 'module_filter') . '/js/update_status.js',
       ),
     ),
   );
@@ -34,7 +41,7 @@ function module_filter_update_status_form($form, &$form_state) {
     '#default_value' => (isset($_GET['show']) && in_array($_GET['show'], array('all', 'updates', 'security', 'unknown'))) ? $_GET['show'] : 'all',
     '#options' => array('all' => t('All'), 'updates' => t('Update available'), 'security' => t('Security update'), 'unknown' => t('Unknown')),
     '#prefix' => '<div id="module-filter-show-wrapper">',
-    '#suffix' => '</div>'
+    '#suffix' => '</div>',
   );
   if (module_exists('update_advanced')) {
     $options = $form['module_filter']['show']['#options'];

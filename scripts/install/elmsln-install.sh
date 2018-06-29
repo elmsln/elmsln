@@ -62,28 +62,31 @@ stacklist=( $(find . -maxdepth 1 -type d | sed 's/\///' | sed 's/\.//') )
 for stack in "${stacklist[@]}"
 do
   cd $elmsln/core/dslmcode/stacks
-  cd "${stack}/profiles"
-  # pull the name of the profile in this stack by ignoring core ones
-  profile=$(find . -maxdepth 1 -type l \( ! -iname "cle__2" ! -iname "testing" ! -iname "minimal" ! -iname "README.txt" ! -iname "standard" \) | sed 's/\///' | sed 's/\.//')
-  # add distros to our list
-  distros+=($profile)
-  cd $profile
-  # dig into the file in question for the type values we need
-  IFS=$'\n'
-  for next in `cat ${profile}.info`
-  do
-    IFS=' = ' read -a tmp <<< "$next"
-    # find the type
-    if [[ ${tmp[0]} == 'elmslntype' ]]; then
-      distrotype=${tmp[1]}
-      if [[ $distrotype == '"authority"' ]]; then
-        authoritydistros+=($profile)
-        authoritylist+=($stack)
-      else
-        buildlist+=($stack)
+  if [ -d "${stack}/profiles" ];
+  then
+    cd "${stack}/profiles"
+    # pull the name of the profile in this stack by ignoring core ones
+    profile=$(find . -maxdepth 1 -type l \( ! -iname "testing" ! -iname "minimal" ! -iname "README.txt" ! -iname "standard" \) | sed 's/\///' | sed 's/\.//')
+    # add distros to our list
+    distros+=($profile)
+    cd $profile
+    # dig into the file in question for the type values we need
+    IFS=$'\n'
+    for next in `cat ${profile}.info`
+    do
+      IFS=' = ' read -a tmp <<< "$next"
+      # find the type
+      if [[ ${tmp[0]} == 'elmslntype' ]]; then
+        distrotype=${tmp[1]}
+        if [[ $distrotype == '"authority"' ]]; then
+          authoritydistros+=($profile)
+          authoritylist+=($stack)
+        else
+          buildlist+=($stack)
+        fi
       fi
-    fi
-  done
+    done
+  fi
 done
 
 # support for hook architecture in bash call outs
@@ -171,6 +174,7 @@ for tool in "${authoritylist[@]}"
   # enable the cis_settings registry, set private path, temporary path, then execute clean up routines
   drush -y --uri=$protocol://$site_domain vset file_private_path ${drupal_priv}/$tool/$tool
   drush -y --uri=$protocol://$site_domain vset file_temporary_path ${drupal_tmp}
+  drush -y --uri=$protocol://$site_domain vset file_public_path sites/$tool/$host/files
   # distro specific additional install routine
   drush -y --uri=$protocol://$site_domain cook elmsln_$dist --quiet
   # clean up tasks per distro here

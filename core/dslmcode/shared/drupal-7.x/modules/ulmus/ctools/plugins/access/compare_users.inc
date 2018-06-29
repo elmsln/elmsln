@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Ctools access plugin to provide access/visiblity if two user contexts are equal.
+ * CTools access plugin to provide access/visiblity if two user contexts are equal.
  */
 
 /**
@@ -20,12 +20,12 @@ $plugin = array(
   'summary' => 'ctools_compare_users_ctools_access_summary',
   'required context' => array(
     new ctools_context_required(t('First User'), 'user'),
-    new ctools_context_required(t("Second User"), 'user')
+    new ctools_context_required(t("Second User"), 'user'),
   ),
 );
 
 /**
- * Settings form for the 'by perm' access plugin
+ * Settings form for the 'by perm' access plugin.
  */
 function ctools_compare_users_settings($form, &$form_state, $conf) {
 

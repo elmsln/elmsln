@@ -122,3 +122,12 @@ function read_time_book_node_update($node) {
     }
   }
 }
+
+/**
+ * Implements hook_read_time_book_git_book_make_node_alter().
+ * This helps prevent read times from being updated while gitbook
+ * is creating the book. This can cause major issues.
+ */
+function read_time_book_git_book_make_node_alter(&$node) {
+  $node->_block_read_time_update = TRUE;
+}

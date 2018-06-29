@@ -112,7 +112,7 @@ function outline_designer_outline_designer_ops_js($ajax_path, $nid = NULL) {
   $js_variables = array(
     'outline_designer' => array(
       'path' => base_path() . drupal_get_path('module', 'outline_designer') . '/',
-      'theme' => variable_get('outline_designer_theme', 'vista'),
+      'theme' => variable_get('outline_designer_theme', 'osx'),
       'collapseToggle' => variable_get('outline_designer_collapse_toggle', 1),
       'collapseList' => array(),
       'token' => drupal_get_token(),
@@ -130,15 +130,13 @@ function theme_outline_designer_ui_prefix($variables) {
   $nid = $node->nid;
   $icon_path = $variables['icon_path'];
   $can_add = $variables['can_add'];
-  $output = '<fieldset class="collapsible"><div>';
+  $output = '<ul class="outline-designer-page-operations">';
   // only append the add form if it is allowed
   if ($can_add) {
-    $output .= '<div style="width:120px; float:left; height:30px; margin-right:6px;" class="context-menu context-menu-theme-' . variable_get('outline_designer_theme', 'vista') . '"><div title="Add Content" alt="Add Content" class="context-menu-item">
-          <div style="background-image: url(' . $icon_path . 'add_content.png);" class="context-menu-item-inner" onclick="Drupal.settings.outline_designer.activeNid=' . $nid . ';Drupal.outline_designer.form_render(' . "'add_content'" . ');">
-            ' . t('Add content') . '
-          </div>
-        </div>
-      </div>';
+    $output .= '
+    <li>
+      <lrnsys-button href="" hover-class="blue-text" icon="add" label="' . t('Add content') . '" onclick="Drupal.settings.outline_designer.activeNid=' . $nid . ';Drupal.outline_designer.form_render(\'add_content\');"></lrnsys-button>
+    </li>';
   }
 
   // form a disable path
@@ -148,26 +146,15 @@ function theme_outline_designer_ui_prefix($variables) {
   else {
     $disable_path = 'node/' . $nid . '/outline/children';
   }
-  $output .= '<div style="height:30px; float:left;">
-        <a href="#" onclick="Drupal.outline_designer.scale(-1);" class="od-operation-icons od-decrease">
-          <img alt="' . t('Decrease interface') . '" title="' . t('Decrease interface') . '" src="' . $icon_path . 'text-decrease.png" />
-        </a>
-        <a href="#" onclick="Drupal.outline_designer.scale(1);" class="od-operation-icons od-increase">
-          <img alt="' . t('Increase interface') . '" title="' . t('Increase interface') . '" src="' . $icon_path . 'text-increase.png" />
-        </a>
-        <a href="#" onclick="Drupal.outline_designer.scale(0);" class="od-operation-icons od-reset">
-          <img alt="' . t('Reset interface') . '" title="' . t('Reset interface') . '" src="' . $icon_path . 'text-reset.png" />
-        </a>
-        <a href="#" onclick="Drupal.outline_designer.openAll();"  class="od-operation-icons od-open-all">
-          <img alt="' . t('Open all branches') . '" title="' . t('Open all branches') . '" src="' . $icon_path . 'open-all.png" />
-        </a>
-        <a href="#" onclick="Drupal.outline_designer.collapseAll();" class="od-operation-icons od-close-all">
-          <img alt="' . t('Close all branches') . '" title="' . t('Close all branches') . '" src="' . $icon_path . 'close-all.png" />
-        </a>
-        ' .  l(t('Disable auto-update'), $disable_path, array('query' => array('disable-outline-designer' => TRUE))) . '
-      </div>
-    </div>
-  </fieldset>';
+  $output .= '
+        <li>
+          <lrnsys-button hover-class="blue-text" icon="icons:chrome-reader-mode" alt="' . t('Open all children') . '" onclick="Drupal.outline_designer.openAll();" href=""></lrnsys-button>
+        </li>
+        <li>
+          <lrnsys-button hover-class="blue-text" icon="icons:book" alt="' . t('Close all children') . '" onclick="Drupal.outline_designer.collapseAll();" href=""></lrnsys-button>
+        </li>
+        <li>' .  l(t('Disable auto-update'), $disable_path, array('query' => array('disable-outline-designer' => TRUE), 'attributes' => array('icon' => 'icons:cloud-off', 'id' => 'disable-outline-designer-auto'))) . '</li>
+      </ul>';
   return $output;
 }
 
@@ -185,7 +172,7 @@ function outline_designer_settings($form, &$form_state) {
   $form["ui"]["outline_designer_theme"] = array(
     '#type' => 'select',
     '#title' => t('Menu theme'),
-    '#default_value' => variable_get('outline_designer_theme', 'vista'),
+    '#default_value' => variable_get('outline_designer_theme', 'osx'),
     '#options' => array(
       'vista' => 'Vista',
       'xp' => 'XP',
@@ -243,13 +230,13 @@ function theme_outline_designer_overlay_suffix($variables) {
   $render = $variables['render'];
   return '
     <div id="od_popup_overlay"></div>
-    <div id="od_popup" class="context-menu context-menu-theme-' . variable_get('outline_designer_theme', 'vista') . '">
+    <div id="od_popup" class="context-menu context-menu-theme-' . variable_get('outline_designer_theme', 'osx') . '">
       <div class="popup-statusbar"></div>
       <div class="popup-content"></div>
       <div class="popup-buttons">
         <input type="button" name="Save" value="Save" class="od_submit_button" />
       </div>
-      <img src="' . base_path() . drupal_get_path('module', 'outline_designer') . '/images/close.png" class="od_cancel_button" />
+      <paper-icon-button icon="close" class="od_cancel_button white"></paper-icon-button>
     </div>
     <div id="od_popup_toolbox">' . $render . '</div>';
 }
@@ -296,7 +283,7 @@ function theme_outline_designer_prefix($variables) {
   $type = $variables['type'];
   $nid = $variables['nid'];
   $icon_path = $variables['icon_path'];
-  return '<img alt="' . $type . '" id="node-' . $nid . '-icon" src="' . base_path() . variable_get("outline_designer_" . $type . "_icon", drupal_get_path('module', 'outline_designer') . "/images/page.png") . '"  alt="Nid: ' . $nid . '" title="Nid: ' . $nid . '" style="float:left; margin:2px;" /><img src="' . $icon_path . 'settings.png" alt="' . t('Content operations') . '" title="' . t('Content operations') . '" id="node-' . $nid . '" class="outline_designer_edit_button" />';
+  return '<lrnsys-button title="' . t('edit @type', array('@type' => $type)) . '" id="node-' . $nid . '-icon" icon="icons:settings" class="outline_designer_edit_button"></lrnsys-button>';
 }
 
 /**
@@ -305,7 +292,7 @@ function theme_outline_designer_prefix($variables) {
 function theme_outline_designer_suffix($variables) {
   $nid = $variables['nid'];
   $icon_path = $variables['icon_path'];
-  return '<img src="' . $icon_path . 'open.png"  alt="open" class="od-toggle-open" id="collapse-' . $nid . '" />';
+  return '<iron-icon icon="icons:expand-more" alt="open" class="od-toggle-open" id="collapse-' . $nid . '"></iron-icon>';
 }
 
 /**

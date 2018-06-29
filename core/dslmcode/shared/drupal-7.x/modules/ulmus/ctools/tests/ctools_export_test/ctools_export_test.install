@@ -1,12 +1,16 @@
 <?php
 
 /**
- * Implements hook_schema();
+ * @file
+ */
+
+/**
+ * Implements hook_schema().
  */
 function ctools_export_test_schema() {
   $schema['ctools_export_test'] = array(
-   'description' => 'CTools export test data table',
-   'export' => array(
+    'description' => 'CTools export test data table',
+    'export' => array(
       'key' => 'machine',
       'identifier' => 'ctools_export_test',
       'default hook' => 'default_ctools_export_tests',
@@ -53,7 +57,7 @@ function ctools_export_test_schema() {
 }
 
 /**
- * Implments hook_install();
+ * Implements hook_install().
  */
 function ctools_export_test_install() {
   $ctools_export_tests = array();

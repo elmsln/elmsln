@@ -6,21 +6,124 @@
  */
 
 /**
+ * @addtogroup default_variables
+ * @{
+ */
+
+/**
+ * Default value to see if JS is loaded locally.
+ */
+define('ADVAGG_RELOCATE_JS', FALSE);
+
+/**
+ * If the external file has a longer TTL then this value do not cache locally.
+ */
+define('ADVAGG_RELOCATE_JS_TTL', 604800);
+
+/**
+ * Minimum cache lifetime, 600 seconds by default.
+ */
+define('ADVAGG_RELOCATE_JS_MIN_TTL', 600);
+
+/**
+ * Default value to see if GA JS is loaded locally.
+ */
+define('ADVAGG_RELOCATE_JS_GA_LOCAL', FALSE);
+
+/**
+ * Default value to see if GTM JS is loaded locally.
+ */
+define('ADVAGG_RELOCATE_JS_GTM_LOCAL', FALSE);
+
+/**
+ * Default value to see if fbds JS is loaded locally.
+ */
+define('ADVAGG_RELOCATE_JS_FBDS_LOCAL', FALSE);
+
+/**
+ * Default value to see if fbevents JS is loaded locally.
+ */
+define('ADVAGG_RELOCATE_JS_FBEVENTS_LOCAL', FALSE);
+
+/**
+ * Default value to see if piwik JS is loaded locally.
+ */
+define('ADVAGG_RELOCATE_JS_PIWIK_LOCAL', FALSE);
+
+/**
+ * Default value to see if CSS is loaded locally.
+ */
+define('ADVAGG_RELOCATE_CSS', FALSE);
+
+/**
+ * If the external file has a longer TTL then this value do not cache locally.
+ */
+define('ADVAGG_RELOCATE_CSS_TTL', 604800);
+
+/**
+ * Minimum cache lifetime, 600 seconds by default.
+ */
+define('ADVAGG_RELOCATE_CSS_MIN_TTL', 600);
+
+/**
  * Default value to see if css inlining import is enabled.
  */
-define('ADVAGG_RELOCATE_CSS_INLINE_IMPORT', TRUE);
+define('ADVAGG_RELOCATE_CSS_INLINE_IMPORT', FALSE);
 
 /**
  * Default value to see if css inlining external css is enabled.
  */
-define('ADVAGG_RELOCATE_CSS_INLINE_EXTERNAL', TRUE);
+define('ADVAGG_RELOCATE_CSS_INLINE_EXTERNAL', FALSE);
 
 /**
- * Default value for supported domains.
+ * Default value for blacklisted JS domains.
  */
-define('ADVAGG_RELOCATE_CSS_FILE_DOMAINS', 'fonts.googleapis.com');
+define('ADVAGG_RELOCATE_JS_DOMAINS_BLACKLIST', "js.stripe.com\n");
 
-// Core hook implementations.
+/**
+ * Default value for blacklisted JS files.
+ */
+define('ADVAGG_RELOCATE_JS_FILES_BLACKLIST', '');
+
+/**
+ * Default value for list of fbevents.js pixel ids.
+ */
+define('ADVAGG_RELOCATE_JS_FBEVENTS_LOCAL_IDS', '');
+
+/**
+ * Default value for supported CSS font domains.
+ */
+define('ADVAGG_RELOCATE_CSS_FONT_DOMAINS', "fonts.googleapis.com");
+
+/**
+ * Default value for blacklisted CSS domains.
+ */
+define('ADVAGG_RELOCATE_CSS_DOMAINS_BLACKLIST', '');
+
+/**
+ * Default value for blacklisted CSS files.
+ */
+define('ADVAGG_RELOCATE_CSS_FILES_BLACKLIST', '');
+
+/**
+ * Default value for where relocated files are kept.
+ */
+define('ADVAGG_RELOCATE_DIRECTORY', 'public://advagg_relocate/');
+
+/**
+ * If 4 the admin section gets unlocked.
+ */
+define('ADVAGG_RELOCATE_ADMIN_MODE', 4);
+
+/**
+ * @} End of "addtogroup default_variables".
+ */
+
+/**
+ * @addtogroup hooks
+ * @{
+ */
+
 /**
  * Implements hook_menu().
  */
@@ -47,20 +150,31 @@ function advagg_relocate_menu() {
  * Implements hook_css_alter().
  */
 function advagg_relocate_css_alter(&$css) {
-  // Check external css setting.
-  if (!variable_get('advagg_relocate_css_inline_external', ADVAGG_RELOCATE_CSS_INLINE_EXTERNAL)) {
+  if (!module_exists('advagg') || !advagg_enabled()) {
     return;
   }
+
   $aggregate_settings = advagg_current_hooks_hash_array();
+  // Check external css setting.
+  if (empty($aggregate_settings['variables']['advagg_relocate_css_inline_external'])) {
+    return;
+  }
+
+  // Handle fonts.
+  $replacements = array();
   foreach ($css as $key => &$values) {
     if ($values['type'] !== 'external') {
       continue;
     }
-    module_load_include('advagg.inc', 'advagg_relocate');
-    if (!advagg_relocate_check_domain_of_url($key, $aggregate_settings)) {
+    if (!advagg_relocate_check_domain_of_font_url($key, $aggregate_settings)) {
       continue;
     }
-    $font_faces = advagg_relocate_get_remote_data($key, $aggregate_settings);
+
+    module_load_include('advagg.inc', 'advagg_relocate');
+    $font_faces = advagg_relocate_get_remote_font_data($key, $aggregate_settings);
+    if (empty($font_faces)) {
+      continue;
+    }
     $new_css = advagg_relocate_font_face_parser($font_faces);
     $values['data'] = $new_css;
     $values['type'] = 'inline';
@@ -73,19 +187,638 @@ function advagg_relocate_css_alter(&$css) {
       $values['preload'] = 'https://fonts.gstatic.com/#crossorigin';
     }
     // Move this css to the top.
-    if (module_exists('advagg_mod') && variable_get('advagg_mod_css_adjust_sort_external', ADVAGG_MOD_CSS_ADJUST_SORT_EXTERNAL)) {
+    if (module_exists('advagg_mod') && $aggregate_settings['variables']['advagg_mod_css_adjust_sort_external']) {
       $values['group'] = CSS_SYSTEM - 1;
       $values['weight'] = -50000;
       $values['movable'] = FALSE;
     }
     // Do not move this css to the bottom.
-    if (module_exists('advagg_mod') && variable_get('advagg_mod_css_adjust_sort_inline', ADVAGG_MOD_CSS_ADJUST_SORT_INLINE)) {
+    if (module_exists('advagg_mod') && $aggregate_settings['variables']['advagg_mod_css_adjust_sort_inline']) {
       $values['movable'] = FALSE;
     }
+
+    $replacements[basename($key)] = $key;
+  }
+  if (!empty($replacements)) {
+    $css = advagg_relocate_key_rename($css, $replacements);
   }
 }
 
-// Contrib hook implementations.
+/**
+ * Implements hook_cron().
+ */
+function advagg_relocate_cron() {
+  // Get filenames in directory.
+  $dir = rtrim(variable_get('advagg_relocate_directory', ADVAGG_RELOCATE_DIRECTORY), '/');
+  $files = file_scan_directory($dir, '/.*/');
+
+  // Get cached objects from filenames.
+  $cids = array();
+  foreach ($files as $info) {
+    $ext = strtolower(pathinfo($info->filename, PATHINFO_EXTENSION));
+    $cids["advagg_relocate_{$ext}_external:{$info->filename}"] = "advagg_relocate_{$ext}_external:{$info->filename}";
+  }
+  $cached_data = cache_get_multiple($cids, 'cache_advagg_info');
+
+  // Build css and js arrays.
+  $css = array();
+  $js = array();
+  foreach ($cached_data as $values) {
+    $url = $values->data->url;
+    $ext = strtolower(pathinfo($url, PATHINFO_EXTENSION));
+    if ($ext === "css") {
+      $css[$url]['data'] = $url;
+      $css[$url]['type'] = 'external';
+    }
+    elseif ($ext === "js") {
+      $js[$url]['data'] = $url;
+      $js[$url]['type'] = 'external';
+    }
+    elseif (!empty($values->headers['content-type']) && stripos($values->headers['content-type'], 'css')) {
+      $css[$url]['data'] = $url;
+      $css[$url]['type'] = 'external';
+    }
+    elseif (!empty($values->headers['content-type']) && stripos($values->headers['content-type'], 'javascript')) {
+      $js[$url]['data'] = $url;
+      $js[$url]['type'] = 'external';
+    }
+  }
+
+  // Refresh cached data.
+  if (!empty($js)) {
+    advagg_relocate_js_post_alter($js, TRUE);
+  }
+  if (!empty($css)) {
+    advagg_relocate_css_post_alter($css, TRUE);
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * Give advice on how to temporarily disable css/js aggregation.
+ */
+function advagg_relocate_form_advagg_admin_operations_form_alter(&$form, &$form_state) {
+  module_load_include('admin.inc', 'advagg_relocate');
+  advagg_relocate_admin_form_advagg_admin_operations_form($form, $form_state);
+}
+
+/**
+ * @} End of "addtogroup hooks".
+ */
+
+/**
+ * @addtogroup advagg_hooks
+ * @{
+ */
+
+/**
+ * Alter the css array.
+ *
+ * @param array $css
+ *   CSS array.
+ * @param bool $force_check
+ *   TRUE if you want to force check the external source.
+ */
+function advagg_relocate_css_post_alter(array &$css, $force_check = FALSE) {
+  if (!module_exists('advagg') || !advagg_enabled()) {
+    return;
+  }
+
+  $aggregate_settings = advagg_current_hooks_hash_array();
+
+  // Check external css setting.
+  if (empty($aggregate_settings['variables']['advagg_relocate_css'])) {
+    return;
+  }
+
+  // Get all external css files.
+  $urls = _advagg_relocate_get_urls($css, 'css', $aggregate_settings);
+  if (empty($urls)) {
+    return;
+  }
+
+  // Make advagg_save_data() available.
+  module_load_include('inc', 'advagg', 'advagg.missing');
+  module_load_include('advagg.inc', 'advagg_relocate');
+  $responses = advagg_relocate_get_remote_data($urls, 'css', array(), $force_check);
+
+  $filenames = array();
+  $advagg_relocate_css_ttl = variable_get('advagg_relocate_css_ttl', ADVAGG_RELOCATE_CSS_TTL);
+  foreach ($responses as $value) {
+    if (!empty($advagg_relocate_css_ttl) && $value->ttl >= $advagg_relocate_css_ttl) {
+      continue;
+    }
+
+    $rehash = FALSE;
+    // Handle @import statements.
+    if (strpos($value->data, '@import') !== FALSE) {
+      // Handle "local" import statements.
+      advagg_relocate_load_stylesheet_local(array(), dirname($value->url) . '/');
+      $value->data = preg_replace_callback('%@import\s*+(?:url\(\s*+)?+[\'"]?+(?![a-z]++:|/)([^\'"()\s]++)[\'"]?+\s*+\)?+\s*+;%i', 'advagg_relocate_load_stylesheet_local', $value->data);
+
+      // Replace external import statements with the contents of them.
+      $value->data = preg_replace_callback('%@import\s*+(?:url\(\s*+)?+[\'"]?+((?:http:\/\/|https:\/\/|\/\/)(?:[^\'"()\s]++))[\'"]?+\s*+\)?+\s*+;%i', 'advagg_relocate_load_stylesheet_external', $value->data);
+      $rehash = TRUE;
+    }
+    // Fix external url references.
+    if (strpos($value->data, 'url(') !== FALSE) {
+      module_load_include('inc', 'advagg', 'advagg');
+      // Set anchor point for local url() statements in the css.
+      _advagg_build_css_path(array(), dirname($value->url) . '/');
+      // Anchor all paths in the CSS with its base URL, ignoring external,
+      // absolute paths, and urls that start with # or %23 (SVG).
+      $value->data = preg_replace_callback('%url\(\s*+[\'"]?+(?![a-z]++:|/|\#|\%23+)([^\'"\)]++)[\'"]?+\s*+\)%i', '_advagg_build_css_path', $value->data);
+      $rehash = TRUE;
+    }
+
+    if ($rehash) {
+      $value->hash = drupal_hash_base64($value->data);
+    }
+
+    // Save remote data.
+    list($full_filename, $errors, $saved) = _advagg_relocate_save_remote_asset($value->options['filename'], $value->data, $value->local_cache, $value->hash);
+    if (!empty($errors)) {
+      continue;
+    }
+
+    // Replace remote data with local data.
+    $relative_path = advagg_get_relative_path($full_filename);
+    $key = $urls[$value->options['filename']];
+    $css = advagg_relocate_key_rename($css, array($relative_path => $key));
+    $css[$relative_path]['pre_relocate_data'] = $css[$relative_path]['data'];
+    $css[$relative_path]['data'] = $relative_path;
+    $css[$relative_path]['type'] = 'file';
+    if (defined('ADVAGG_MOD_CSS_PREPROCESS') && variable_get('advagg_mod_css_preprocess', ADVAGG_MOD_CSS_PREPROCESS) && empty($css[$relative_path]['preprocess_lock'])) {
+      $css[$relative_path]['preprocess'] = TRUE;
+    }
+
+    // Handle domain prefectch.
+    $key_host = parse_url($key, PHP_URL_HOST);
+    if (!empty($css[$relative_path]['dns_prefetch'])) {
+      foreach ($css[$relative_path]['dns_prefetch'] as $key => $domain_name) {
+        if (strpos($domain_name, $key_host) !== FALSE && strpos($value->data, $key_host)) {
+          unset($css[$relative_path]['dns_prefetch'][$key]);
+        }
+      }
+    }
+    // List of files that need the cache cleared.
+    if ($saved) {
+      $filenames[] = $relative_path;
+    }
+  }
+  if (!empty($filenames)) {
+    module_load_include('inc', 'advagg');
+    module_load_include('cache.inc', 'advagg');
+    $files = advagg_get_info_on_files($filenames, TRUE);
+    advagg_push_new_changes($files);
+  }
+}
+
+/**
+ * Alter the js array.
+ *
+ * @param array $js
+ *   JS array.
+ * @param bool $force_check
+ *   TRUE if you want to force check the external source.
+ */
+function advagg_relocate_js_post_alter(array &$js, $force_check = FALSE) {
+  if (!module_exists('advagg') || !advagg_enabled()) {
+    return;
+  }
+
+  $aggregate_settings = advagg_current_hooks_hash_array();
+  // Check external js setting.
+  if (empty($aggregate_settings['variables']['advagg_relocate_js'])) {
+    return;
+  }
+
+  // Move inline code to external if possible.
+  // Google Analytics.
+  foreach ($js as $key => $value) {
+    if ($value['type'] !== 'inline'
+      || !$aggregate_settings['variables']['advagg_relocate_js_ga_local']
+    ) {
+      continue;
+    }
+    // Handle analytics.js.
+    $start = strpos($value['data'], '(function(i,s,o,g,r,a,m){i["GoogleAnalyticsObject"]=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date()');
+    $middle = strpos($value['data'], '})(window,document,"script",');
+    $end = strpos($value['data'], ',"ga");ga("create",');
+    // Skip if not the GA code.
+    if ($start === FALSE || $middle === FALSE || $end === FALSE) {
+      continue;
+    }
+
+    // Get analytics.js URL and add it to the js array.
+    $analytics_js_url = substr($value['data'], $middle + 29, $end - strlen($value['data']) - 1);
+    $js[$analytics_js_url] = array(
+      'data' => $analytics_js_url,
+      'type' => 'external',
+      'async' => TRUE,
+      'defer' => TRUE,
+      'noasync' => FALSE,
+      'nodefer' => FALSE,
+    );
+    $js[$analytics_js_url] += $value;
+
+    // Fix if analytics.js is already local.
+    $http_pos = strpos($analytics_js_url, 'http://');
+    $https_pos = strpos($analytics_js_url, 'https://');
+    $double_slash_pos = strpos($analytics_js_url, '//');
+    if ($http_pos !== 0
+      && $https_pos !== 0
+      && $double_slash_pos !== 0
+    ) {
+      $value['type'] = 'file';
+    }
+
+    // Shorten function arguments.
+    $value['data'] = substr($value['data'], 0, $middle + 27) . substr($value['data'], $end);
+    // Strip loader string.
+    $value['data'] = substr($value['data'], 0, $start + 132) . substr($value['data'], $middle);
+    // Shorten function parameters.
+    $value['data'] = str_replace('function(i,s,o,g,r,a,m){i["GoogleAnalyticsObject"]', 'function(i,s,o,r){i["GoogleAnalyticsObject"]', $value['data']);
+    $js[$key]['pre_relocate_data'] = $js[$key]['data'];
+    $js[$key]['data'] = $value['data'];
+    // Pin to header as the js expects ga to be there.
+    $js[$key]['scope'] = 'header';
+    $js[$key]['scope_lock'] = TRUE;
+
+    // Handle ga("require", ...) calls for external scripts to be loaded.
+    $matches = array();
+    preg_match_all('/ga\([\'"]require[\'"],\s*[\'"][a-zA-Z0-9_ ]*[\'"],\s*[\'"](.*?)[\'"]\)/', $value['data'], $matches, PREG_SET_ORDER);
+    foreach ($matches as $match) {
+      // Remove inline js loader code.
+      $start = strpos($js[$key]['data'], $match[0]);
+      if ($start === FALSE) {
+        continue;
+      }
+      $strlen = strlen($match[0]);
+      $js[$key]['data'] = substr($js[$key]['data'], 0, $start) . substr($js[$key]['data'], $start + $strlen);
+
+      // Add script to the drupal js array.
+      $url = '//www.google-analytics.com/plugins/ua/' . $match[1];
+      $js[$url] = array(
+        'data' => $url,
+        'type' => 'external',
+        'async' => TRUE,
+        'defer' => TRUE,
+        'noasync' => FALSE,
+        'nodefer' => FALSE,
+      );
+      $js[$url] += $value;
+    }
+    break;
+  }
+  // Piwik.
+  foreach ($js as $key => $value) {
+    if ($value['type'] !== 'inline'
+      || !$aggregate_settings['variables']['advagg_relocate_js_piwik_local']
+    ) {
+      continue;
+    }
+
+    // Handle piwik.js.
+    $start = strpos($value['data'], 'var _paq');
+    $middle = strpos($value['data'], '_paq.push(["setTrackerUrl"');
+    // Skip if not the paq code.
+    if ($start === FALSE || $middle === FALSE) {
+      continue;
+    }
+
+    // Get URL.
+    $url = variable_get('piwik_url_http', '');
+    if ($GLOBALS['is_https']) {
+      // Use HTTPS.
+      $url = variable_get('piwik_url_https', '');
+    }
+    if (is_callable('_piwik_cache')
+      && variable_get('piwik_cache', 0)
+      && $piwik_cache = _piwik_cache($url . 'piwik.js')
+    ) {
+      // Try cache.
+      $url = $piwik_cache;
+    }
+    if (empty($url)) {
+      // Extract info from inline script.
+      // "https:" == document.location.protocol ? "https://.../piwik/" : "http://.../piwik/".
+      $pattern = '/[\'"]https\:[\'"]\s*==\s*document\.location\.protocol.*?[\'"](.*?)[\'"]\s*\:\s*[\'"](.*?)[\'"]/';
+      preg_match($pattern, $value['data'], $matches);
+      if ($GLOBALS['is_https'] && !empty($matches[1])) {
+        $url = $matches[1];
+      }
+      elseif (empty($GLOBALS['is_https']) && !empty($matches[2])) {
+        $url = $matches[2];
+      }
+    }
+    if (!empty($url)) {
+      // Use HTTP.
+      $url = check_url($url) . 'piwik.js';
+    }
+
+    // Final checks.
+    if (empty($url)) {
+      continue;
+    }
+    $scope = variable_get('piwik_js_scope', $value['scope']);
+    $url = advagg_convert_abs_to_rel($url, TRUE);
+    $type = 'file';
+    if (advagg_is_external($url)) {
+      $parsed = parse_url($url);
+      if (strpos($parsed['path'], $GLOBALS['base_path']) === 0) {
+        $path = substr($parsed['path'], strlen($GLOBALS['base_path']));
+        if (file_exists($path)) {
+          $url = $path;
+        }
+        else {
+          $type = 'external';
+        }
+      }
+      else {
+        $type = 'external';
+      }
+    }
+
+    // Add to js array.
+    $js[$url] = array(
+      'scope' => $scope,
+      'data' => $url,
+      'type' => $type,
+      'async' => TRUE,
+      'defer' => TRUE,
+      'noasync' => FALSE,
+      'nodefer' => FALSE,
+    );
+
+    $matches = array();
+    // s.parentNode.insertBefore(g,s);.
+    $pattern = '/\,?\s*[\w]{1,2}\.parentNode\.insertBefore\(\s*[\w]{1,2}\s*,\s*[\w]{1,2}\s*\)\s*\;*/';
+    preg_match($pattern, $value['data'], $matches);
+    // Strip loader string.
+    $value['data'] = str_replace($matches[0], '', $value['data']);
+
+    $js[$key]['pre_relocate_data'] = $js[$key]['data'];
+    $js[$key]['data'] = $value['data'];
+    // Pin to header as the js expects paq to be loaded before the file.
+    $js[$key]['scope'] = 'header';
+    $js[$key]['scope_lock'] = TRUE;
+    $js[$key]['weight'] = -50000;
+    $js[$key]['movable'] = FALSE;
+    break;
+  }
+  foreach ($js as $key => $value) {
+    if ($value['type'] !== 'inline'
+      || (!module_exists('google_tag') && !$aggregate_settings['variables']['advagg_relocate_js_gtm_local'])
+    ) {
+      continue;
+    }
+    // Handle gtm.js.
+    $start = strpos($value['data'], '(function(w,d,s,l,i){');
+    $middle = strpos($value['data'], 'var f=d.getElementsByTagName(s)[0]');
+    $end = strpos($value['data'], '})(window,document,');
+    // Skip if not the GTM code.
+    if ($start === FALSE || $middle === FALSE || $end === FALSE) {
+      continue;
+    }
+
+    // Get URL for script.
+    $matches_a = array();
+    preg_match('/j.src\s*=\s*[\'"](.*?);/', $value['data'], $matches_a);
+    $matches_b = array();
+    preg_match('/\}\)\(window,document,[\'"]script[\'"],[\'"](.*?)[\'"],[\'"](.*?)[\'"]\);/', $value['data'], $matches_b);
+    if (empty($matches_a[1]) || empty($matches_b[1])) {
+      continue;
+    }
+    if ($matches_b[1] !== 'dataLayer') {
+      $matches_b[1] = '&l=' . $matches_b[1];
+    }
+    else {
+      $matches_b[1] = '';
+    }
+    $gtm_url = trim(str_replace(array(
+      "'+i",
+      "+dl+'",
+      "+dl",
+    ), array(
+      $matches_b[2],
+      $matches_b[1],
+      $matches_b[1],
+    ), $matches_a[1]), "'");
+
+    // Add script to the drupal js array.
+    $js[$gtm_url] = array(
+      'data' => $gtm_url,
+      'type' => 'external',
+      'async' => TRUE,
+      'defer' => TRUE,
+      'noasync' => FALSE,
+      'nodefer' => FALSE,
+    );
+    $js[$gtm_url] += $value;
+
+    // Shorten function arguments.
+    $args = explode(',', substr($value['data'], $end + 3, -2));
+    $value['data'] = substr($value['data'], 0, $end + 9) . ",{$args[3]});";
+    // Strip loader string.
+    $value['data'] = substr($value['data'], 0, $middle) . substr($value['data'], $end);
+    // Shorten function parameters.
+    $value['data'] = str_replace('(function(w,d,s,l,i){', '(function(w,l){', $value['data']);
+    // Add back.
+    $js[$key]['pre_relocate_data'] = $js[$key]['data'];
+    $js[$key]['data'] = $value['data'];
+    // Pin to header as the js expects dataLayer to be there.
+    $js[$key]['scope'] = 'header';
+    $js[$key]['scope_lock'] = TRUE;
+    break;
+  }
+  foreach ($js as $key => $value) {
+    if ($value['type'] !== 'inline' || !$aggregate_settings['variables']['advagg_relocate_js_fbds_local']) {
+      continue;
+    }
+
+    $start = strpos($value['data'], 'var _fbq');
+    $middle = strpos($value['data'], '(!_fbq.loaded)');
+    $end = strpos($value['data'], 's.parentNode.insertBefore(fbds');
+    // Skip if not the fbds code.
+    if ($start === FALSE || $middle === FALSE || $end === FALSE) {
+      continue;
+    }
+
+    // Get URL for script.
+    $matches = array();
+    preg_match('/fbds.src\s*=\s*[\'"](.*?)[\'"];/', $value['data'], $matches);
+    if (empty($matches[1])) {
+      continue;
+    }
+    $url = trim($matches[1]);
+
+    // Add script to the drupal js array.
+    $js[$url] = array(
+      'data' => $url,
+      'type' => 'external',
+      'async' => TRUE,
+      'defer' => TRUE,
+      'noasync' => FALSE,
+      'nodefer' => FALSE,
+    );
+    $js[$url] += $value;
+
+    // Strip loader string.
+    $matches = array();
+    preg_match('/if\s*\(!_fbq.loaded\)\s*\{/', $value['data'], $matches, PREG_OFFSET_CAPTURE);
+    $new_js = substr($value['data'], 0, $matches[0][1]);
+    // Set loaded TRUE.
+    $matches = array();
+    preg_match('/_fbq.loaded\s*=\s*true/', $value['data'], $matches, PREG_OFFSET_CAPTURE);
+    $new_js .= $matches[0][0] . ';';
+    // Get the rest of the JS string.
+    $end = strpos($value['data'], '}', $matches[0][1]);
+    $new_js .= trim(substr($value['data'], $end + 1));
+    $js[$key]['pre_relocate_data'] = $js[$key]['data'];
+    $js[$key]['data'] = $new_js;
+    // Pin to header as the js expects _fbq to be there.
+    $js[$key]['scope'] = 'header';
+    $js[$key]['scope_lock'] = TRUE;
+    break;
+  }
+  foreach ($js as $key => $value) {
+    if ($value['type'] !== 'inline' || !$aggregate_settings['variables']['advagg_relocate_js_fbevents_local']) {
+      continue;
+    }
+
+    $end = strpos($value['data'], 'connect.facebook.net/en_US/fbevents.js');
+    // Skip if not the fbds code.
+    if ($end === FALSE) {
+      continue;
+    }
+    // Get middle of string.
+    $matches = array();
+    preg_match('/fbq\s*=\s*function\(\)/', $value['data'], $matches, PREG_OFFSET_CAPTURE);
+    if (empty($matches[0][1])) {
+      continue;
+    }
+    $middle = $matches[0][1];
+
+    // Get start of string.
+    $matches = array();
+    preg_match('/\!\s*function\(/', $value['data'], $matches, PREG_OFFSET_CAPTURE);
+    if (!isset($matches[0][1])) {
+      continue;
+    }
+    $start = $matches[0][1];
+    if ($middle - $start > 90) {
+      continue;
+    }
+
+    // Add script to the drupal js array.
+    $url = 'https://connect.facebook.net/en_US/fbevents.js';
+    $js[$url] = array(
+      'data' => $url,
+      'type' => 'external',
+      'async' => TRUE,
+      'defer' => TRUE,
+      'noasync' => FALSE,
+      'nodefer' => FALSE,
+    );
+    $js[$url] += $value;
+
+    $before = substr($value['data'], 0, $start);
+    $after = ltrim(substr($value['data'], $end + 40), ';');
+
+    // Get all facebook pixel ids.
+    $fb_ids = array_filter(array_map('trim', explode("\n", variable_get('advagg_relocate_js_fbevents_local_ids', ADVAGG_RELOCATE_JS_FBEVENTS_LOCAL_IDS))));
+    $matches = array();
+    preg_match('/fbq\(\s*[\'"]init[\'"]\s*,\s*[\'"](\d+)[\'"]\s*\)/', $value['data'], $matches);
+    if (!empty($matches[1])) {
+      $fb_ids[] = $matches[1];
+    }
+    $fb_ids = array_filter($fb_ids);
+    // Update in place the ids if any others were found inline.
+    $GLOBALS['conf']['advagg_relocate_js_fbevents_local_ids'] = implode("\n", $fb_ids);
+
+    // Get scripts before and after; replace middle of script.
+    $new_js = $before . "!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0]}(window,document,'script','//connect.facebook.net/en_US/fbevents.js');" . $after;
+    $js[$key]['pre_relocate_data'] = $js[$key]['data'];
+    $js[$key]['data'] = $new_js;
+    // Pin to header as the js expects fbq to be there.
+    $js[$key]['scope'] = 'header';
+    $js[$key]['scope_lock'] = TRUE;
+    break;
+  }
+
+  // Get all external js files.
+  $urls = _advagg_relocate_get_urls($js, 'js', $aggregate_settings);
+  if (empty($urls)) {
+    return;
+  }
+
+  // Make advagg_save_data() available.
+  module_load_include('inc', 'advagg', 'advagg.missing');
+  module_load_include('advagg.inc', 'advagg_relocate');
+  $responses = advagg_relocate_get_remote_data($urls, 'js', array(), $force_check);
+
+  $filenames = array();
+  $advagg_relocate_js_ttl = variable_get('advagg_relocate_js_ttl', ADVAGG_RELOCATE_JS_TTL);
+  foreach ($responses as $value) {
+    // If the external file has a longer TTL than 1 week, do not cache.
+    if (!empty($advagg_relocate_js_ttl) && $value->ttl >= $advagg_relocate_js_ttl) {
+      continue;
+    }
+
+    list($full_filename, $errors, $saved) = _advagg_relocate_save_remote_asset($value->options['filename'], $value->data, $value->local_cache, $value->hash);
+    if (!empty($errors)) {
+      continue;
+    }
+
+    // Replace remote data with local data.
+    $relative_path = advagg_get_relative_path($full_filename);
+    $key = $urls[$value->options['filename']];
+    $js = advagg_relocate_key_rename($js, array($relative_path => $key));
+    $js[$relative_path]['pre_relocate_data'] = $js[$relative_path]['data'];
+    $js[$relative_path]['data'] = $relative_path;
+    $js[$relative_path]['type'] = 'file';
+    if (defined('ADVAGG_MOD_JS_PREPROCESS') && variable_get('advagg_mod_js_preprocess', ADVAGG_MOD_JS_PREPROCESS) && empty($js[$relative_path]['preprocess_lock'])) {
+      $js[$relative_path]['preprocess'] = TRUE;
+    }
+
+    // Check for any .write( statements in the JS code.
+    if (strpos($value->data, '.write(') !== FALSE) {
+      if ((!isset($js[$relative_path]['noasync']) || $js[$relative_path]['noasync'] !== FALSE)
+        || (!isset($js[$relative_path]['nodefer']) || $js[$relative_path]['nodefer'] !== FALSE)
+      ) {
+        $js[$relative_path]['async'] = FALSE;
+        $js[$relative_path]['defer'] = FALSE;
+        $js[$relative_path]['noasync'] = TRUE;
+        $js[$relative_path]['nodefer'] = TRUE;
+      }
+    }
+
+    // Handle domain prefectch.
+    $key_host = parse_url($key, PHP_URL_HOST);
+    if (!empty($js[$relative_path]['dns_prefetch'])) {
+      foreach ($js[$relative_path]['dns_prefetch'] as $key => $domain_name) {
+        if (strpos($domain_name, $key_host) !== FALSE && strpos($value->data, $key_host)) {
+          unset($js[$relative_path]['dns_prefetch'][$key]);
+        }
+      }
+    }
+
+    // List of files that need the cache cleared.
+    if ($saved) {
+      $filenames[] = $relative_path;
+    }
+  }
+
+  if (!empty($filenames)) {
+    module_load_include('inc', 'advagg');
+    module_load_include('cache.inc', 'advagg');
+    $files = advagg_get_info_on_files($filenames, TRUE);
+    advagg_push_new_changes($files);
+  }
+}
+
 /**
  * Implements hook_advagg_current_hooks_hash_array_alter().
  */
@@ -101,5 +834,228 @@ function advagg_relocate_advagg_current_hooks_hash_array_alter(&$aggregate_setti
 
   $aggregate_settings['variables']['advagg_relocate_css_file_settings'] = variable_get('advagg_relocate_css_file_settings', array());
 
-  $aggregate_settings['variables']['advagg_relocate_css_file_domains'] = variable_get('advagg_relocate_css_file_domains', ADVAGG_RELOCATE_CSS_FILE_DOMAINS);
+  $aggregate_settings['variables']['advagg_relocate_css_font_domains'] = variable_get('advagg_relocate_css_font_domains', ADVAGG_RELOCATE_CSS_FONT_DOMAINS);
+
+  $types = array('css' => 'CSS', 'js' => 'JS');
+  foreach ($types as $type_lower => $type_upper) {
+    $domains_blacklist = array_filter(array_map('trim', explode("\n", variable_get("advagg_relocate_{$type_lower}_domains_blacklist", constant("ADVAGG_RELOCATE_{$type_upper}_DOMAINS_BLACKLIST")))));
+    $aggregate_settings['variables']["advagg_relocate_{$type_lower}_domains_blacklist"] = $domains_blacklist;
+
+    $files_blacklist = array_filter(array_map('trim', explode("\n", variable_get("advagg_relocate_{$type_lower}_files_blacklist", constant("ADVAGG_RELOCATE_{$type_upper}_FILES_BLACKLIST")))));
+    $aggregate_settings['variables']["advagg_relocate_{$type_lower}_files_blacklist"] = $files_blacklist;
+  }
+
+  $aggregate_settings['variables']['advagg_relocate_css_inline_external'] = variable_get('advagg_relocate_css_inline_external', ADVAGG_RELOCATE_CSS_INLINE_EXTERNAL);
+
+  $aggregate_settings['variables']['advagg_relocate_css'] = variable_get('advagg_relocate_css', ADVAGG_RELOCATE_CSS);
+
+  $aggregate_settings['variables']['advagg_relocate_js'] = variable_get('advagg_relocate_js', ADVAGG_RELOCATE_JS);
+  $aggregate_settings['variables']['advagg_relocate_js_ga_local'] = variable_get('advagg_relocate_js_ga_local', ADVAGG_RELOCATE_JS_GA_LOCAL);
+  $aggregate_settings['variables']['advagg_relocate_js_gtm_local'] = variable_get('advagg_relocate_js_gtm_local', ADVAGG_RELOCATE_JS_GTM_LOCAL);
+  $aggregate_settings['variables']['advagg_relocate_js_fbds_local'] = variable_get('advagg_relocate_js_fbds_local', ADVAGG_RELOCATE_JS_FBDS_LOCAL);
+  $aggregate_settings['variables']['advagg_relocate_js_fbevents_local'] = variable_get('advagg_relocate_js_fbevents_local', ADVAGG_RELOCATE_JS_FBEVENTS_LOCAL);
+  $aggregate_settings['variables']['advagg_relocate_js_piwik_local'] = variable_get('advagg_relocate_js_piwik_local', ADVAGG_RELOCATE_JS_PIWIK_LOCAL);
+
+}
+
+/**
+ * @} End of "addtogroup advagg_hooks".
+ */
+
+/**
+ * Convert local @import statements to external.
+ *
+ * @param array $matches
+ *   Array of matched items from preg_replace_callback().
+ * @param string $url
+ *   URL of where the original CSS is located.
+ *
+ * @return string
+ *   New import statement.
+ */
+function advagg_relocate_load_stylesheet_local(array $matches, $url = '') {
+  $_url = &drupal_static(__FUNCTION__, '');
+  // Store base path for preg_replace_callback.
+  if (!empty($url)) {
+    $_url = $url;
+  }
+  // Short circuit if no matches were passed in.
+  if (empty($matches)) {
+    return '';
+  }
+
+  $css_url = $_url . $matches[1];
+  return "@import \"{$css_url}\";";
+}
+
+/**
+ * Convert external @import statements to be local.
+ *
+ * @param array $matches
+ *   Array of matched items from preg_replace_callback().
+ *
+ * @return string
+ *   Contents of the import statement or new import statement.
+ */
+function advagg_relocate_load_stylesheet_external(array $matches) {
+  // Build css array.
+  $css = array(
+    $matches[1] => array(
+      'type' => 'external',
+      'data' => $matches[1],
+    ),
+  );
+  // Recursively pull in imported fonts.
+  advagg_relocate_css_alter($css);
+
+  // Remove '../' segments where possible.
+  $values = reset($css);
+  if ($values['type'] !== 'inline') {
+    $last = '';
+    $url = $values['data'];
+    while ($url != $last) {
+      $last = $url;
+      $url = preg_replace('`(^|/)(?!\.\./)([^/]+)/\.\./`', '$1', $url);
+    }
+    // Build css array.
+    $css = array(
+      $url => array(
+        'type' => $values['type'],
+        'data' => $url,
+      ),
+    );
+  }
+  // Recursively pull in external references.
+  advagg_relocate_css_post_alter($css);
+
+  $values = reset($css);
+  $key = key($css);
+  if ($values['type'] === 'inline') {
+    return "/* Contents of $key */\n{$values['data']}";
+  }
+  else {
+    if (!advagg_is_external($values['data'])) {
+      $dir = variable_get('advagg_relocate_directory', ADVAGG_RELOCATE_DIRECTORY);
+      $path = advagg_get_relative_path($dir) . '/';
+      $values['data'] = str_replace($path, '', $values['data']);
+    }
+    return "@import \"{$values['data']}\";";
+  }
+}
+
+/**
+ * Return a filename => url array for external assets.
+ *
+ * @param array $data
+ *   CSS or JS data array.
+ * @param string $type
+ *   Either css or js.
+ * @param array $aggregate_settings
+ *   Array of settings.
+ *
+ * @return array
+ *   Array of external assets to be served locally.
+ */
+function _advagg_relocate_get_urls(array $data, $type, array $aggregate_settings) {
+  $domains_blacklist = $aggregate_settings['variables']["advagg_relocate_{$type}_domains_blacklist"];
+  $files_blacklist = $aggregate_settings['variables']["advagg_relocate_{$type}_files_blacklist"];
+  $urls = array();
+  foreach ($data as $key => $value) {
+    // Get all external js files.
+    if ($value['type'] !== 'external') {
+      continue;
+    }
+    // If no_relocate=TRUE, do not move it to be local.
+    if (!empty($value['no_relocate'])) {
+      continue;
+    }
+    if (empty($value['data'])) {
+      $value['data'] = $key;
+    }
+    $host = parse_url($value['data'], PHP_URL_HOST);
+    if (!empty($domains_blacklist)) {
+      foreach ($domains_blacklist as $domain) {
+        if ($domain === $host) {
+          continue 2;
+        }
+      }
+    }
+    if (!empty($files_blacklist)) {
+      foreach ($files_blacklist as $file) {
+        if (strpos($file, $host) !== FALSE) {
+          continue 2;
+        }
+      }
+    }
+
+    // Encode the URL into a filename. Force HTTPS.
+    $filename = advagg_url_to_filename(advagg_force_https_path($value['data']));
+    // Make sure it ends with .css or .js.
+    if (stripos(strrev($filename), strrev($type)) !== 0) {
+      $filename .= ".$type";
+    }
+    $urls[$filename] = $key;
+  }
+  return $urls;
+}
+
+/**
+ * Verifies that the external CSS file is from a domain we allow for inlining.
+ *
+ * @param string $url
+ *   The full URL of the css file.
+ * @param array $aggregate_settings
+ *   Array of settings.
+ *
+ * @return bool
+ *   TRUE if the URL can be inlined.
+ */
+function advagg_relocate_check_domain_of_font_url($url, array $aggregate_settings) {
+  // Bail if the host or path and query string are empty.
+  $parse = @parse_url($url);
+  if (empty($parse)
+    || empty($parse['host'])
+    || (empty($parse['path']) && empty($parse['query']))
+  ) {
+    return FALSE;
+  }
+
+  // Bail if the host doesn't match one of the listed domains.
+  if (!isset($aggregate_settings['variables']['advagg_relocate_css_font_domains'])) {
+    $aggregate_settings['variables']['advagg_relocate_css_font_domains'] = variable_get('advagg_relocate_css_font_domains', ADVAGG_RELOCATE_CSS_FONT_DOMAINS);
+  }
+  if (strpos($aggregate_settings['variables']['advagg_relocate_css_font_domains'], $parse['host']) === FALSE) {
+    return FALSE;
+  }
+  return TRUE;
+}
+
+/**
+ * Replace JS key with another key.
+ *
+ * @param array $input
+ *   Input array.
+ * @param array $replacements
+ *   Key value pair; key is the new key, value is the old key.
+ */
+function advagg_relocate_key_rename(array $input, array $replacements) {
+  $output = array();
+  foreach ($input as $k => $v) {
+    $replacement_key = array_search($k, $replacements, TRUE);
+    if ($replacement_key !== FALSE) {
+      $output[$replacement_key] = $v;
+    }
+    else {
+      $output[$k] = $v;
+    }
+  }
+  return $output;
+}
+
+/**
+ * Perform a cache flush of the advagg relocate module.
+ */
+function advagg_relocate_flush_cache_button() {
+  cache_clear_all('advagg_relocate_', 'cache_advagg_info', TRUE);
+  drupal_set_message(t('AdvAgg Relocate Cache Cleared.'));
 }

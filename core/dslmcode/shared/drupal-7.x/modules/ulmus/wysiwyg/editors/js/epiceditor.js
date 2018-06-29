@@ -27,7 +27,7 @@ Drupal.wysiwyg.editor.attach.epiceditor = function (context, params, settings) {
 };
 
 /**
- * Detach a single edtor instance.
+ * Detach a single editor instance.
  */
 Drupal.wysiwyg.editor.detach.epiceditor = function (context, params, trigger) {
   var $target = $('#' + params.field, context);

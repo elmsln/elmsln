@@ -337,28 +337,6 @@ function elmsln_core_data_form($form, $form_state) {
       'data' => $data,
       'aggregates' => $aggregates,
     );
-    // load up read time if it exists
-    if ($etype == 'node' && module_exists('read_time') && user_access('view read time')) {
-      $filters['read_time'] = array(
-        '#type' => 'fieldset',
-        '#title' => t('Read time stats'),
-        '#collapsed' => TRUE,
-        '#collapsible' => TRUE,
-        '#weight' => -10,
-        '#attributes' => array(
-          'class' => array(
-            'collapsible',
-            'form-wrapper',
-            'collapsed',
-          ),
-        ),
-        '#materialize' => array(
-          'type' => 'collapsible',
-          'icon' => 'access_time',
-        ),
-        '#markup' => theme('read_time', array('node' => $entity)),
-      );
-    }
     drupal_add_js(drupal_get_path('module', 'elmsln_core') . '/js/elmsln-core-lrs-data-display.js');
     // kick out as table
     if ($visualization == 'table') {

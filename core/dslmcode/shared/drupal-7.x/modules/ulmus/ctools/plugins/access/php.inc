@@ -20,7 +20,7 @@ $plugin = array(
 );
 
 /**
- * Settings form for the 'by perm' access plugin
+ * Settings form for the 'by perm' access plugin.
  *
  * @todo Need a way to provide a list of all available contexts to be used by
  *       the eval-ed PHP.
@@ -38,7 +38,7 @@ function ctools_php_ctools_access_settings($form, &$form_state, $conf) {
     '#type' => 'textarea',
     '#title' => t('PHP Code'),
     '#default_value' => $conf['php'],
-    '#description' =>  t('Access will be granted if the following PHP code returns <code>TRUE</code>. Do not include &lt;?php ?&gt;. Note that executing incorrect PHP-code can break your Drupal site. All contexts will be available in the <em>$contexts</em> variable.'),
+    '#description' => t('Access will be granted if the following PHP code returns <code>TRUE</code>. Do not include &lt;?php ?&gt;. Note that executing incorrect PHP-code can break your Drupal site. All contexts will be available in the <em>$contexts</em> variable.'),
   );
   if (!user_access('use PHP for settings')) {
     $form['settings']['php']['#disabled'] = TRUE;

@@ -61,7 +61,7 @@ function ctools_page_site_name_content_type_render($subtype, $conf, $panel_args)
 
   // Optionally link the site name to the homepage.
   if (!empty($conf['linked'])) {
-    $block->content = l($block->content, '<front>');
+    $block->content = l($block->content, '<front>', array('html' => TRUE));
   }
 
   return $block;

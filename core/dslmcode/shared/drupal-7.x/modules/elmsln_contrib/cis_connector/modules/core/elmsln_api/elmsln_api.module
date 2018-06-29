@@ -7,7 +7,7 @@
  * drupal requests.
  *
  * This lets you do advanced changes that really are just pinpricks
- * in multiple systems across th'e network to keep them in sync.
+ * in multiple systems across the network to keep them in sync.
  * For example, if you need to let the user modify a form in one
  * system but have it impact the databases of several in the course
  * network, then ELMSLN API can do the hardwork, reducing your

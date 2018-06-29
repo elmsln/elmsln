@@ -17,9 +17,9 @@ function mooc_content_theming_context_default_contexts() {
   $context->description = 'This provides visualization of the uploaded image to be rendered in the header';
   $context->tag = 'Foundation Access';
   $context->conditions = array(
-    'sitewide' => array(
+    'context' => array(
       'values' => array(
-        1 => 1,
+        '~webcomponents-app' => '~webcomponents-app',
       ),
     ),
   );
@@ -30,7 +30,7 @@ function mooc_content_theming_context_default_contexts() {
           'module' => 'mooc_content_theming',
           'delta' => 'mooc_content_theming_banner',
           'region' => 'content',
-          'weight' => '-27',
+          'weight' => '-26',
         ),
       ),
     ),

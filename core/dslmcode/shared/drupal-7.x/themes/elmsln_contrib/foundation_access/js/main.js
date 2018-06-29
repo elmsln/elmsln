@@ -1,3 +1,7 @@
+/*! modernizr 3.5.0 (Custom Build) | MIT *
+ * https://modernizr.com/download/?-arrow-es6array-es6collections-es6math-es6number-es6object-es6string-generators-promises-setclasses !*/
+!function(window,document,undefined){function is(e,n){return typeof e===n}function testRunner(){var e,n,r,t,o,i,s;for(var a in tests)if(tests.hasOwnProperty(a)){if(e=[],n=tests[a],n.name&&(e.push(n.name.toLowerCase()),n.options&&n.options.aliases&&n.options.aliases.length))for(r=0;r<n.options.aliases.length;r++)e.push(n.options.aliases[r].toLowerCase());for(t=is(n.fn,"function")?n.fn():n.fn,o=0;o<e.length;o++)i=e[o],s=i.split("."),1===s.length?Modernizr[s[0]]=t:(!Modernizr[s[0]]||Modernizr[s[0]]instanceof Boolean||(Modernizr[s[0]]=new Boolean(Modernizr[s[0]])),Modernizr[s[0]][s[1]]=t),classes.push((t?"":"no-")+s.join("-"))}}function setClasses(e){var n=docElement.className,r=Modernizr._config.classPrefix||"";if(isSVG&&(n=n.baseVal),Modernizr._config.enableJSClass){var t=new RegExp("(^|\\s)"+r+"no-js(\\s|$)");n=n.replace(t,"$1"+r+"js$2")}Modernizr._config.enableClasses&&(n+=" "+r+e.join(" "+r),isSVG?docElement.className.baseVal=n:docElement.className=n)}var classes=[],tests=[],ModernizrProto={_version:"3.5.0",_config:{classPrefix:"",enableClasses:!0,enableJSClass:!0,usePrefixes:!0},_q:[],on:function(e,n){var r=this;setTimeout(function(){n(r[e])},0)},addTest:function(e,n,r){tests.push({name:e,fn:n,options:r})},addAsyncTest:function(e){tests.push({name:null,fn:e})}},Modernizr=function(){};Modernizr.prototype=ModernizrProto,Modernizr=new Modernizr,Modernizr.addTest("es6object",!!(Object.assign&&Object.is&&Object.setPrototypeOf)),Modernizr.addTest("es6array",!!(Array.prototype&&Array.prototype.copyWithin&&Array.prototype.fill&&Array.prototype.find&&Array.prototype.findIndex&&Array.prototype.keys&&Array.prototype.entries&&Array.prototype.values&&Array.from&&Array.of)),Modernizr.addTest("arrow",function(){try{eval("()=>{}")}catch(e){return!1}return!0}),Modernizr.addTest("es6collections",!!(window.Map&&window.Set&&window.WeakMap&&window.WeakSet)),Modernizr.addTest("generators",function(){try{new Function("function* test() {}")()}catch(e){return!1}return!0}),Modernizr.addTest("es6math",!!(Math&&Math.clz32&&Math.cbrt&&Math.imul&&Math.sign&&Math.log10&&Math.log2&&Math.log1p&&Math.expm1&&Math.cosh&&Math.sinh&&Math.tanh&&Math.acosh&&Math.asinh&&Math.atanh&&Math.hypot&&Math.trunc&&Math.fround)),Modernizr.addTest("es6number",!!(Number.isFinite&&Number.isInteger&&Number.isSafeInteger&&Number.isNaN&&Number.parseInt&&Number.parseFloat&&Number.isInteger(Number.MAX_SAFE_INTEGER)&&Number.isInteger(Number.MIN_SAFE_INTEGER)&&Number.isFinite(Number.EPSILON))),Modernizr.addTest("promises",function(){return"Promise"in window&&"resolve"in window.Promise&&"reject"in window.Promise&&"all"in window.Promise&&"race"in window.Promise&&function(){var e;return new window.Promise(function(n){e=n}),"function"==typeof e}()});var docElement=document.documentElement,isSVG="svg"===docElement.nodeName.toLowerCase();Modernizr.addTest("es6string",!!(String.fromCodePoint&&String.raw&&String.prototype.codePointAt&&String.prototype.repeat&&String.prototype.startsWith&&String.prototype.endsWith&&String.prototype.includes)),testRunner(),setClasses(classes),delete ModernizrProto.addTest,delete ModernizrProto.addAsyncTest;for(var i=0;i<Modernizr._q.length;i++)Modernizr._q[i]();window.Modernizr=Modernizr}(window,document);
+if (!String.prototype.startsWith) {String.prototype.startsWith = function(searchString, position){position = position || 0;return this.substr(position, searchString.length) === searchString;};}
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 /**
  * This file will be compiled into foundation_access/js/dist/app.js
@@ -33,35 +37,20 @@ var clipboardjs = require('./components/clipboardjs.js');
       $(".accessibility-content-toggle").hide();
     }
   };
-  Drupal.settings.progressScroll ={scroll:0, total:0, scrollPercent:0, windowDividedByDocumentPercent:($(window).height() / $(document).height()) * 100,};
-  // sticky stuff
-  Drupal.behaviors.stickyStuff = {
-    attach: function (context, settings) {
-      $('.r-header').pushpin({offset: 4, top: $('.main-section').offset().top });
-      $('.page-scroll.progress').pushpin({offset: 0, top: $('.main-section').offset().top });
-    }
-  };
-  // Page Scrolling Progress Bar
-  Drupal.progressScroll = {
-    attach: function (context, settings) {
-      // Only show the progressScoll if the height of the browser viewport / height of the html document is less than or equal to 50%.
-      // (The page is at least 2x the height of the monitor.)
-      if (Drupal.settings.progressScroll.windowDividedByDocumentPercent <= 50) {
-        // don't use the top bar in the calculation
-        if ($(window).height() > $("#etb-tool-nav .inner-wrap", context)[0].offsetHeight) {
-          Drupal.settings.progressScroll.scroll = $(window).scrollTop();
-          Drupal.settings.progressScroll.total = $("#etb-tool-nav", context)[0].offsetTop;
-        }
-        else {
-          Drupal.settings.progressScroll.scroll = $(window).scrollTop() - $("#etb-tool-nav", context)[0].offsetTop;
-          Drupal.settings.progressScroll.total = $("#etb-tool-nav .inner-wrap", context)[0].offsetHeight - $(window).height();
-        }
-        Drupal.settings.progressScroll.scrollPercent = (Drupal.settings.progressScroll.scroll / Drupal.settings.progressScroll.total)*100;
-        // set percentage of the meter to the scroll down the screen
-        $(".page-scroll.progress .meter", context).css({"width": Drupal.settings.progressScroll.scrollPercent+"%"});
+  /**
+   * Scrollspy behavior.
+   */
+  Drupal.behaviors.scrollSpy = {
+    attach: function(context, settings) {
+      if (typeof $('#scrollspy-nav').offset() !== typeof undefined) {
+        // target data property and convert to scrollspy class addition
+        $('h2[data-scrollspy="scrollspy"],h3[data-scrollspy="scrollspy"],h4[data-scrollspy="scrollspy"]').addClass('scrollspy');
+        // activate class
+        $('.scrollspy').scrollSpy();
+        $('.scrollspy-toc').pushpin({offset: 48, top: $('#scrollspy-nav').offset().top });
       }
-    }
-  };
+    }
+  };
   /**
    * behavior to make sure select lists are applied every time we do an ajax reload.
    */
@@ -69,64 +58,11 @@ var clipboardjs = require('./components/clipboardjs.js');
     attach: function (context, settings) {
       // select lists but not the chosen ones
       $('select').not('.chosen').not('.cke_dialog_body select').not('.form-select.initialized').material_select();
-    }
-  };
-
-  Drupal.settings.activeSideNav = null;
-
-  // calculate the color difference between items
-  // based on https://www.sitepoint.com/javascript-generate-lighter-darker-color/
-  Drupal.ColorLuminance = function(hex, lum) {
-    // validate hex string
-    hex = String(hex).replace(/[^0-9a-f]/gi, '');
-    if (hex.length < 6) {
-      hex = hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2];
-    }
-    lum = lum || 0;
-
-    // convert to decimal and change luminosity
-    var rgb = "#", c, i;
-    for (i = 0; i < 3; i++) {
-      c = parseInt(hex.substr(i*2,2), 16);
-      c = Math.round(Math.min(Math.max(0, c + (c * lum)), 255)).toString(16);
-      rgb += ("00"+c).substr(c.length);
-    }
-
-    return rgb;
-  };
-  // add support for accessibility of materialized components
-  $(document).bind('keydown', function(event) {
-    if (event.keyCode == 27) {
-      $('.elmsln-dropdown-button.active').dropdown('close');
-      // try closing all lightboxes
-      var lightboxes = $('.lightbox--is-open .imagelightbox__close').trigger('click');
-      if (lightboxes.length == 0) {
-        var modals = $('.close-reveal-modal:visible').trigger('click');
-      }
-    }
-  });
-  // nice UI element to let us select users
-  $('#edit-elmsln-view-user').click(function(event) {
-    // prevent empty submission though this won't block incorrect submissions which would be page not found
-    if ($('#edit-masquerade-user-field').val() != '' && $('#edit-masquerade-user-field').val() != 'Anonymous') {
-      // force browser to this location, though we aren't garenteed this is a real place
-      // but should be most of the time unless someone mistypes
-      window.location = Drupal.settings.basePath + 'users/' + $('#edit-masquerade-user-field').val();
-    }
-  });
-  // attach events to the window resizing / scrolling
-  $(document).ready(function(){
-    $(window).scroll(function () {
-      Drupal.progressScroll.attach();
-    });
-    // ensure height of the body is cool w/ this floating column if it exists
-    $('.views-exposed-form').each(function(){
-      $('section.main-section').css('min-height', $('.views-exposed-form').outerHeight()+128);
-    });
-    $('.highlighted-block-area').each(function(){
-      $('section.main-section').css('min-height', $('.highlighted-block-area').outerHeight()+48);
-    });
-    // hide accessibility button
+      // collapsible sets
+      $('.collapsible').collapsible({
+        accordion : false // A setting that changes the collapsible behavior to expandable instead of the default accordion style
+      });
+      // hide accessibility button
     if ($('.cis_accessibility_check a').length == 0) {
       $('.accessibility-content-toggle a').appendTo('.cis_accessibility_check');
     }
@@ -145,26 +81,7 @@ var clipboardjs = require('./components/clipboardjs.js');
         $(this).addClass('luminance-' + luminance.replace('#', ''));
       });
     });
-    // load the next page if there is one and we see it on our screen
-    $('[data-prefetch-scrollfire="true"]:visible').each(function(){
-      var options = [
-        {selector: '[href="' + $(this).attr('href') + '"]', offset: 0, callback: function(el) {
-          $('head').append('<link rel="prefetch" href="' + $(el).attr('href')  + '?no-track">');
-        }}
-      ];
-      Materialize.scrollFire(options);
-    });
-    // allow for prefetch on hover to prime the request
-    $('[data-prefetch-hover="true"]').one('mouseenter', function(){
-      var href = $(this).attr('href');
-      if ($(this).attr('href').indexOf('?') == -1) {
-        href += '?no-track';
-      }
-      else {
-        href += '&no-track';
-      }
-      $('head').append('<link rel="prefetch" href="' + href + '"">');
-    });
+    
     // shortcode embed focus idea
     $('input#edit-elmsln-share-section,input.cis_shortcodes_embed').focus(function() { $(this).select() });
     $('input#edit-elmsln-share-section,input.cis_shortcodes_embed').mouseup(function(e){
@@ -176,10 +93,6 @@ var clipboardjs = require('./components/clipboardjs.js');
     $('.carousel').not('.carousel-slider').carousel();
     // full size slider carousel
     $('.carousel-slider').carousel({full_width: true});
-    // collapsible sets
-    $('.collapsible').collapsible({
-      accordion : false // A setting that changes the collapsible behavior to expandable instead of the default accordion style
-    });
     // dropdown items
     $('.elmsln-dropdown-button').dropdown({
       inDuration: 150,
@@ -240,6 +153,58 @@ var clipboardjs = require('./components/clipboardjs.js');
       if (wrapper.hasClass('open')) {
         wrapper.focus();
       }
+    });
+    }
+  };
+
+  Drupal.settings.activeSideNav = null;
+
+  // calculate the color difference between items
+  // based on https://www.sitepoint.com/javascript-generate-lighter-darker-color/
+  Drupal.ColorLuminance = function(hex, lum) {
+    // validate hex string
+    hex = String(hex).replace(/[^0-9a-f]/gi, '');
+    if (hex.length < 6) {
+      hex = hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2];
+    }
+    lum = lum || 0;
+
+    // convert to decimal and change luminosity
+    var rgb = "#", c, i;
+    for (i = 0; i < 3; i++) {
+      c = parseInt(hex.substr(i*2,2), 16);
+      c = Math.round(Math.min(Math.max(0, c + (c * lum)), 255)).toString(16);
+      rgb += ("00"+c).substr(c.length);
+    }
+
+    return rgb;
+  };
+  // add support for accessibility of materialized components
+  $(document).bind('keydown', function(event) {
+    if (event.keyCode == 27) {
+      $('.elmsln-dropdown-button.active').dropdown('close');
+      // try closing all lightboxes
+      var lightboxes = $('.lightbox--is-open .imagelightbox__close').trigger('click');
+      if (lightboxes.length == 0) {
+        var modals = $('.close-reveal-modal:visible').trigger('click');
+      }
+    }
+  });
+  // nice UI element to let us select users
+  $('#edit-elmsln-view-user').click(function(event) {
+    // prevent empty submission though this won't block incorrect submissions which would be page not found
+    if ($('#edit-masquerade-user-field').val() != '' && $('#edit-masquerade-user-field').val() != 'Anonymous') {
+      // force browser to this location, though we aren't garenteed this is a real place
+      // but should be most of the time unless someone mistypes
+      window.location = Drupal.settings.basePath + 'users/' + $('#edit-masquerade-user-field').val();
+    }
+  });
+
+  // attach events to the window
+  $(document).ready(function(){
+    // ensure height of the body is cool w/ this floating column if it exists
+    $('.views-exposed-form').each(function(){
+      $('section.main-section').css('min-height', $('.views-exposed-form').outerHeight()+128);
     });
   });
 })(jQuery);
@@ -335,179 +300,6 @@ module.exports = function() {
   })(jQuery);
 };
 },{}]},{},[1]);
-
-// Sticky Plugin v1.0.0 for jQuery
-// =============
-// Author: Anthony Garand
-// Improvements by German M. Bravo (Kronuz) and Ruud Kamphuis (ruudk)
-// Improvements by Leonardo C. Daronco (daronco)
-// Created: 2/14/2011
-// Date: 2/12/2012
-// Website: http://labs.anthonygarand.com/sticky
-// Description: Makes an element on the page stick on the screen as you scroll
-//       It will only set the 'top' and 'position' of your element, you
-//       might need to adjust the width in some cases.
-
-(function($) {
-  var defaults = {
-      topSpacing: 0,
-      bottomSpacing: 0,
-      className: 'is-sticky',
-      wrapperClassName: 'sticky-wrapper',
-      center: false,
-      getWidthFrom: '',
-      responsiveWidth: false
-    },
-    $window = $(window),
-    $document = $(document),
-    sticked = [],
-    windowHeight = $window.height(),
-    scroller = function() {
-      var scrollTop = $window.scrollTop(),
-        documentHeight = $document.height(),
-        dwh = documentHeight - windowHeight,
-        extra = (scrollTop > dwh) ? dwh - scrollTop : 0;
-
-      for (var i = 0; i < sticked.length; i++) {
-        var s = sticked[i],
-          elementTop = s.stickyWrapper.offset().top,
-          etse = elementTop - s.topSpacing - extra;
-
-        if (scrollTop <= etse) {
-          if (s.currentTop !== null) {
-            s.stickyElement
-              .css('width', '')
-              .css('position', '')
-              .css('top', '');
-            s.stickyElement.trigger('sticky-end', [s]).parent().removeClass(s.className);
-            s.currentTop = null;
-          }
-        }
-        else {
-          var newTop = documentHeight - s.stickyElement.outerHeight()
-            - s.topSpacing - s.bottomSpacing - scrollTop - extra;
-          if (newTop < 0) {
-            newTop = newTop + s.topSpacing;
-          } else {
-            newTop = s.topSpacing;
-          }
-          if (s.currentTop != newTop) {
-            s.stickyElement
-              .css('width', s.stickyElement.width())
-              .css('position', 'fixed')
-              .css('top', newTop);
-
-            if (typeof s.getWidthFrom !== 'undefined') {
-              s.stickyElement.css('width', $(s.getWidthFrom).width());
-            }
-
-            s.stickyElement.trigger('sticky-start', [s]).parent().addClass(s.className);
-            s.currentTop = newTop;
-          }
-        }
-      }
-    },
-    resizer = function() {
-      windowHeight = $window.height();
-
-      for (var i = 0; i < sticked.length; i++) {
-        var s = sticked[i];
-        if (typeof s.getWidthFrom !== 'undefined' && s.responsiveWidth === true) {
-          s.stickyElement.css('width', $(s.getWidthFrom).width());
-        }
-      }
-    },
-    methods = {
-      init: function(options) {
-        var o = $.extend({}, defaults, options);
-        return this.each(function() {
-          var stickyElement = $(this);
-
-          var stickyId = stickyElement.attr('id');
-          var wrapperId = stickyId ? stickyId + '-' + defaults.wrapperClassName : defaults.wrapperClassName 
-          var wrapper = $('<div></div>')
-            .attr('id', stickyId + '-sticky-wrapper')
-            .addClass(o.wrapperClassName);
-          stickyElement.wrapAll(wrapper);
-
-          if (o.center) {
-            stickyElement.parent().css({width:stickyElement.outerWidth(),marginLeft:"auto",marginRight:"auto"});
-          }
-
-          if (stickyElement.css("float") == "right") {
-            stickyElement.css({"float":"none"}).parent().css({"float":"right"});
-          }
-
-          var stickyWrapper = stickyElement.parent();
-          stickyWrapper.css('height', stickyElement.outerHeight());
-          sticked.push({
-            topSpacing: o.topSpacing,
-            bottomSpacing: o.bottomSpacing,
-            stickyElement: stickyElement,
-            currentTop: null,
-            stickyWrapper: stickyWrapper,
-            className: o.className,
-            getWidthFrom: o.getWidthFrom,
-            responsiveWidth: o.responsiveWidth
-          });
-        });
-      },
-      update: scroller,
-      unstick: function(options) {
-        return this.each(function() {
-          var unstickyElement = $(this);
-
-          var removeIdx = -1;
-          for (var i = 0; i < sticked.length; i++)
-          {
-            if (sticked[i].stickyElement.get(0) == unstickyElement.get(0))
-            {
-                removeIdx = i;
-            }
-          }
-          if(removeIdx != -1)
-          {
-            sticked.splice(removeIdx,1);
-            unstickyElement.unwrap();
-            unstickyElement.removeAttr('style');
-          }
-        });
-      }
-    };
-
-  // should be more efficient than using $window.scroll(scroller) and $window.resize(resizer):
-  if (window.addEventListener) {
-    window.addEventListener('scroll', scroller, false);
-    window.addEventListener('resize', resizer, false);
-  } else if (window.attachEvent) {
-    window.attachEvent('onscroll', scroller);
-    window.attachEvent('onresize', resizer);
-  }
-
-  $.fn.sticky = function(method) {
-    if (methods[method]) {
-      return methods[method].apply(this, Array.prototype.slice.call(arguments, 1));
-    } else if (typeof method === 'object' || !method ) {
-      return methods.init.apply( this, arguments );
-    } else {
-      $.error('Method ' + method + ' does not exist on jQuery.sticky');
-    }
-  };
-
-  $.fn.unstick = function(method) {
-    if (methods[method]) {
-      return methods[method].apply(this, Array.prototype.slice.call(arguments, 1));
-    } else if (typeof method === 'object' || !method ) {
-      return methods.unstick.apply( this, arguments );
-    } else {
-      $.error('Method ' + method + ' does not exist on jQuery.sticky');
-    }
-
-  };
-  $(function() {
-    setTimeout(scroller, 0);
-  });
-})(jQuery);
 
 /*
   By Osvaldas Valutis, www.osvaldas.info

@@ -22,7 +22,7 @@ function views_content_views_exposed_content_type_render($subtype, $conf, $panel
   }
 
   // Build the content type block.
-  $block = new stdClass();
+  $block          = new stdClass();
   $block->module  = 'views_exposed';
   $block->delta   = $context->argument;
   $block->title   = '';

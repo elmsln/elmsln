@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * @file
+ */
+
 if (module_exists('book')) {
   /**
    * Plugins are described by creating a $plugin array which will be used
@@ -8,7 +12,7 @@ if (module_exists('book')) {
   $plugin = array(
     'single' => TRUE,
     'title' => t('Book navigation menu'),
-    'icon' => '../block/icon_core_block_menu.png',
+    'icon' => drupal_get_path('module', 'ctools') . '/plugins/content_types/block/icon_core_block_menu.png',
     'description' => t('The book menu belonging to the current book node.'),
     'required context' => new ctools_context_required(t('Node'), 'node'),
     'category' => t('Node'),
@@ -16,7 +20,7 @@ if (module_exists('book')) {
 }
 
 function ctools_node_book_menu_content_type_render($subtype, $conf, $panel_args, $context) {
-  $node = isset($context->data) ? clone($context->data) : NULL;
+  $node = isset($context->data) ? clone $context->data : NULL;
   $block = new stdClass();
   $block->module = 'book_menu';
 
@@ -61,16 +65,16 @@ function ctools_node_book_menu_content_type_render($subtype, $conf, $panel_args,
     elseif ($current_bid) {
       // Only display this block when the user is browsing a book.
       $select = db_select('node', 'n')
-          ->fields('n', array('title'))
-          ->condition('n.nid', $node->book['bid'])
-          ->addTag('node_access');
+        ->fields('n', array('title'))
+        ->condition('n.nid', $node->book['bid'])
+        ->addTag('node_access');
       $title = $select->execute()->fetchField();
       // Only show the block if the user has view access for the top-level node.
       if ($title) {
         $tree = menu_tree_all_data($node->book['menu_name'], $node->book);
         // There should only be one element at the top level.
         $data = array_shift($tree);
-        // TODO: subject is not rendered
+        // TODO: subject is not rendered.
         $block->subject = theme('book_title_link', array('link' => $data['link']));
         $block->content = ($data['below']) ? menu_tree_output($data['below']) : '';
       }
@@ -92,7 +96,7 @@ function ctools_node_book_menu_content_type_edit_form($form, &$form_state) {
   // Grab block form from the book module.
   $block_form = book_block_configure($delta = '');
   // TODO: this does not work yet.
-  //       See TODO in: ctools_node_book_menu_content_type_render
+  //       See TODO in: ctools_node_book_menu_content_type_render.
   if (isset($form_state['input']['book_block_mode'])) {
     $block_form['book_block_mode']['#default_value'] = $form_state['input']['book_block_mode'];
   }

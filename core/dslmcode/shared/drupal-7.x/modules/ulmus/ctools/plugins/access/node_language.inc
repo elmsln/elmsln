@@ -23,7 +23,7 @@ if (module_exists('locale')) {
 }
 
 /**
- * Settings form for the 'by node_language' access plugin
+ * Settings form for the 'by node_language' access plugin.
  */
 function ctools_node_language_ctools_access_settings($form, &$form_state, $conf) {
   $options = array(
@@ -111,4 +111,3 @@ function ctools_node_language_ctools_access_summary($conf, $context) {
 
   return format_plural(count($names), '@identifier language is "@languages"', '@identifier language is one of "@languages"', array('@languages' => implode(', ', $names), '@identifier' => $context->identifier));
 }
-

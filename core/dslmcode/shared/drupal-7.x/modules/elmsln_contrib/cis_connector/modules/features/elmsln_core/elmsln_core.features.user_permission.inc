@@ -130,6 +130,16 @@ function elmsln_core_user_default_permissions() {
     'module' => 'system',
   );
 
+  // Exported permission: 'bypass file access'.
+  $permissions['bypass file access'] = array(
+    'name' => 'bypass file access',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'staff' => 'staff',
+    ),
+    'module' => 'file_entity',
+  );
+
   // Exported permission: 'bypass node access'.
   $permissions['bypass node access'] = array(
     'name' => 'bypass node access',
@@ -139,6 +149,17 @@ function elmsln_core_user_default_permissions() {
       'staff' => 'staff',
     ),
     'module' => 'node',
+  );
+
+  // Exported permission: 'create files'.
+  $permissions['create files'] = array(
+    'name' => 'create files',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'instructor' => 'instructor',
+      'staff' => 'staff',
+    ),
+    'module' => 'file_entity',
   );
 
   // Exported permission: 'delete revisions'.
@@ -274,6 +295,25 @@ function elmsln_core_user_default_permissions() {
       'staff' => 'staff',
     ),
     'module' => 'elmsln_core',
+  );
+
+  // Exported permission: 'view files'.
+  $permissions['view files'] = array(
+    'name' => 'view files',
+    'roles' => array(
+      'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
+      'activation code holder' => 'activation code holder',
+      'administrator' => 'administrator',
+      'anonymous user' => 'anonymous user',
+      'authenticated user' => 'authenticated user',
+      'guest' => 'guest',
+      'instructor' => 'instructor',
+      'past student' => 'past student',
+      'staff' => 'staff',
+      'student' => 'student',
+      'teaching assistant' => 'teaching assistant',
+    ),
+    'module' => 'file_entity',
   );
 
   // Exported permission: 'view form as json'.

@@ -1,0 +1,45 @@
+<?php
+
+use Drupal\xautoload\Tests\EnvironmentSnapshotMaker;
+
+xautoload()->registerModule(__FILE__);
+
+/**
+ * Implements hook_boot()
+ *
+ * This turns xautoload_test_2 into a boot module.
+ */
+function xautoload_test_2_boot() {
+  _xautoload_test_2_early_boot_observations('boot');
+}
+
+_xautoload_test_2_early_boot_observations('early');
+
+/**
+ * Test the current state, and remember it.
+ */
+function _xautoload_test_2_early_boot_observations($phase = NULL) {
+  EnvironmentSnapshotMaker::takeSnapshot('xautoload_test_2', $phase, array('xautoload_test_2_ExampleClass'));
+}
+
+/**
+ * Implements hook_menu()
+ */
+function xautoload_test_2_menu() {
+  return array(
+    'xautoload_test_2.json' => array(
+      'page callback' => '_xautoload_test_2_json',
+      'access callback' => TRUE,
+      'type' => MENU_CALLBACK,
+    ),
+  );
+}
+
+/**
+ * Page callback for "xautoload-example/json"
+ */
+function _xautoload_test_2_json() {
+  $all = EnvironmentSnapshotMaker::getSnapshots('xautoload_test_2');
+  drupal_json_output($all);
+  exit();
+}

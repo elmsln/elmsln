@@ -24,19 +24,23 @@ function _ctools_entity_access(&$entity_info, $entity_type) {
       // Sad panda, we don't use Entity API, lets manually add access callbacks.
       $entity_info['access callback'] = 'ctools_metadata_no_hook_node_access';
       break;
+
     case 'user':
       $entity_info['access callback'] = 'ctools_metadata_user_access';
       break;
+
     case 'comment':
       if (module_exists('comment')) {
         $entity_info['access callback'] = 'ctools_metadata_comment_access';
       }
       break;
+
     case 'taxonomy_term':
       if (module_exists('taxonomy')) {
         $entity_info['access callback'] = 'ctools_metadata_taxonomy_access';
       }
       break;
+
     case 'taxonomy_vocabulary':
       if (module_exists('taxonomy')) {
         $entity_info['access callback'] = 'ctools_metadata_taxonomy_access';
@@ -64,7 +68,7 @@ function _ctools_entity_access(&$entity_info, $entity_type) {
  *
  * @throws EntityMalformedException
  *
- * @return boolean
+ * @return bool
  *   TRUE if access is allowed, FALSE otherwise.
  */
 function ctools_metadata_no_hook_node_access($op, $node = NULL, $account = NULL) {

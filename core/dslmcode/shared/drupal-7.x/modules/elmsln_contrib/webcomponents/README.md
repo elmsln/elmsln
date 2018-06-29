@@ -23,10 +23,9 @@ These are your dependencies to get this development workflow going. Install node
 ```
 sudo npm install -g bower
 sudo npm install -g vulcanize
-sudo npm install -g polymer-cli@next
+sudo npm install -g polymer-cli
 
 ```
-@next flag on polymer-cli gets you 2.0 cli (at time of this writing). It allows you to do 1.0 and 2.0 development so don't worry if you are concerned about the version.
 
 Next steps:
 - Find some webcomponents you like (in this example we'll use LRNWebcomponents/lrn-icons)
@@ -118,6 +117,10 @@ return array(
 );
 ```
 
-## A note on Performance
+### A note on Performance
 You can add elements directly though it is highly recommended to follow the above workflow because of how many gains in performance there are by removing needless files from version control as well as combining potentially dozens or 100+ html files (1 per element typically) into a single file. This will drastically speed up initial download of your site by doing this. The webcomponent module can discover in multiple nested files if you want to use the raw items as part of your setup.
 
+You will see gains on the delivery of a page though as you'll be skipping a lot of the render / template system in the process of using these workflows.
+
+### A note on development
+There's a hidden variabel webcomponents_hide_messages which if you set it to TRUE (default is FALSE) it will stop printing messages when you clear caches / rebuild theme. This is important when in active development or if this message provides you no real value and you want it disabled.

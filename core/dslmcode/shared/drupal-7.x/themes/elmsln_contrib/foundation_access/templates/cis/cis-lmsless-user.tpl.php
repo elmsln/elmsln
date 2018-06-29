@@ -22,12 +22,20 @@
   <?php if (isset($user_section) || !empty($masquerade)) : ?>
   <li><div class="divider"></div></li>
   <?php endif; ?>
-  <?php if (!empty($ferpa_flter)) : ?>
-  <li><?php print $ferpa_flter; ?></li>
-  <?php endif; ?>
+  <li>
+    <lrnsys-dialog header="<?php print t('Preferences'); ?>" class="black-text" hover-class="<?php print $lmsless_classes[$distro]['color'] . ' ' . $lmsless_classes[$distro]['dark'];?> white-text" data-jwerty-key="a" data-voicecommand="open preferences (menu)">
+      <span slot="button">
+        <iron-icon icon="accessibility"></iron-icon>
+        <span><?php print t('Preferences');?></span>
+      </span>
+      <span slot="content">
+        <?php print $a11y; ?>
+      </span>
+    </lrnsys-dialog>
+  </li>
   <?php if (isset($user_section)) : ?>
   <li>
-    <lrnsys-dialog body-append header="<?php print t('Change section');?>" class="black-text" hover-class="<?php print $lmsless_classes[$distro]['color'] . ' ' . $lmsless_classes[$distro]['dark'];?> white-text">
+    <lrnsys-dialog header="<?php print t('Change section');?>" class="black-text" hover-class="<?php print $lmsless_classes[$distro]['color'] . ' ' . $lmsless_classes[$distro]['dark'];?> white-text">
       <span slot="button">
         <iron-icon icon="perm-identity"></iron-icon>
         <span><?php print t('Change section');?></span>
@@ -39,7 +47,20 @@
   </li>
   <?php endif; ?>
   <?php if (!empty($masquerade)) : ?>
-  <li><?php print $masquerade; ?></li>
+  <li>
+    <lrnsys-dialog header="<?php print t('Impersonate account');?>" class="black-text" hover-class="<?php print $lmsless_classes[$distro]['color'] . ' ' . $lmsless_classes[$distro]['dark'];?> white-text">
+      <span slot="button">
+        <iron-icon icon="supervisor-account"></iron-icon>
+        <span><?php print t('Impersonate account');?></span>
+      </span>
+      <span slot="content">
+        <?php print $masquerade; ?>
+      </span>
+    </lrnsys-dialog>
+  </li>
+  <?php endif; ?>
+  <?php if (!empty($masquerade_logout)) : ?>
+  <li><?php print $masquerade_logout; ?></li>
   <?php endif; ?>
   <li><div class="divider"></div></li>
   <li><?php print $userlink; ?></li>

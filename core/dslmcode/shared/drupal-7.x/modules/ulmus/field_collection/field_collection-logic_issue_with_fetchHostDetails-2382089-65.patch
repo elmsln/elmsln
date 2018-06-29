@@ -1,0 +1,50 @@
+diff --git a/field_collection.entity.inc b/field_collection.entity.inc
+index 2e8a11be..b99c5b37 100644
+--- a/field_collection.entity.inc
++++ b/field_collection.entity.inc
+@@ -289,7 +289,7 @@ class FieldCollectionItemEntity extends Entity {
+   }
+ 
+   protected function fetchHostDetails() {
+-    if (!isset($this->hostEntityId)) {
++    if (!isset($this->hostEntityId) || (!$this->hostEntityId && $this->hostEntityRevisionId)) {
+       if ($this->item_id) {
+         // For saved field collections, query the field data to determine the
+         // right host entity.
+@@ -299,16 +299,20 @@ class FieldCollectionItemEntity extends Entity {
+           $query->age(FIELD_LOAD_REVISION);
+         }
+         $result = $query->execute();
+-        list($this->hostEntityType, $data) = each($result);
++        if ($result) {
++          list($this->hostEntityType, $data) = each($result);
++        }
+ 
+         if ($this->isInUse()) {
+-          $this->hostEntityId = $data ? key($data) : FALSE;
++          $data_array_keys = array_keys($data);
++          $this->hostEntityId = $data ? end($data_array_keys) : FALSE;
+           $this->hostEntityRevisionId = FALSE;
+         }
+         // If we are querying for revisions, we get the revision ID.
+         else {
++          $data_array_keys = array_keys($data);
+           $this->hostEntityId = FALSE;
+-          $this->hostEntityRevisionId = $data ? key($data) : FALSE;
++          $this->hostEntityRevisionId = $data ? end($data_array_keys) : FALSE;
+         }
+       }
+       else {
+diff --git a/field_collection.module b/field_collection.module
+index db7b8595..9d1a4a6c 100644
+--- a/field_collection.module
++++ b/field_collection.module
+@@ -1164,7 +1164,7 @@ function field_collection_remove_submit($form, &$form_state) {
+  *   The entity object or FALSE.
+  */
+ function field_collection_field_get_entity(&$item, $field_name = NULL) {
+-  if (isset($item['entity'])) {
++  if (isset($item['entity']) && ($item['entity']->entityType() == 'field_collection_item')) {
+     return $item['entity'];
+   }
+   elseif (isset($item['value'])) {

@@ -5,9 +5,9 @@ package = "Entity"
 
 dependencies[] = entity
 
-; Information added by Drupal.org packaging script on 2014-06-24
-version = "7.x-1.1"
+; Information added by Drupal.org packaging script on 2017-05-02
+version = "7.x-1.2"
 core = "7.x"
 project = "replicate"
-datestamp = "1403621034"
+datestamp = "1493739489"
 

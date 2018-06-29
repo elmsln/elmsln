@@ -25,7 +25,7 @@ function views_content_views_attachments_content_type_render($subtype, $conf, $p
   }
 
   // Build the content type block.
-  $block = new stdClass();
+  $block          = new stdClass();
   $block->module  = 'views_attachments';
   $block->delta   = $context->argument;
   $block->title   = '';
@@ -40,7 +40,6 @@ function views_content_views_attachments_content_type_render($subtype, $conf, $p
 
   return $block;
 }
-
 
 function views_content_views_attachments_content_type_edit_form($form, &$form_state) {
   $conf = $form_state['conf'];

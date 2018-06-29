@@ -23,6 +23,7 @@ features[user_permission][] = access lrnapp-gallery-grid app
 features[user_permission][] = access lrnapp-media-upload app
 features[user_permission][] = access lrnapp-open-studio app
 features[user_permission][] = access lrnapp-studio-dashboard app
+features[user_permission][] = access lrnapp-studio-instructor app
 features[user_permission][] = access lrnapp-studio-kanban app
 features[user_permission][] = access lrnapp-studio-submission app
 features[user_permission][] = administer comments

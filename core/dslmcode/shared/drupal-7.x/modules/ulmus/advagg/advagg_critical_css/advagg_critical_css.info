@@ -1,0 +1,15 @@
+name = AdvAgg Critical CSS
+description = Control Critical CSS via UI and/or a 3rd party service.
+package = Advanced CSS/JS Aggregation
+core = 7.x
+dependencies[] = advagg
+dependencies[] = advagg_mod
+
+configure = admin/config/development/performance/advagg/critical-css
+
+; Information added by Drupal.org packaging script on 2018-03-20
+version = "7.x-2.33"
+core = "7.x"
+project = "advagg"
+datestamp = "1521515592"
+

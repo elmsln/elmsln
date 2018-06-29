@@ -2,7 +2,6 @@
 
 /**
  * @file
- *
  * Contains code related to the ctools system of 'context'.
  *
  * Context, originally from Panels, is a method of packaging objects into
@@ -28,28 +27,104 @@
  * of the context is important.
  */
 class ctools_context {
-  var $type = NULL;
-  var $data = NULL;
-  // The title of this object.
-  var $title = '';
-  // The title of the page if this object exists
-  var $page_title = '';
-  // The identifier (in the UI) of this object
-  var $identifier = '';
-  var $argument = NULL;
-  var $keyword = '';
-  var $original_argument = NULL;
-  var $restrictions = array();
-  var $empty = FALSE;
+  /**
+   * @var string|array
+   *   A string naming this specific context type. The values 'any' and 'none'
+   *   are special:
+   *    - 'any': used in is_type() to match any other type.
+   *    - 'none': used to signal the type is not defined.
+   */
+  public $type;
 
-  function __construct($type = 'none', $data = NULL) {
-    $this->type  = $type;
-    $this->data  = $data;
+  /**
+   * @var mixed
+   *   The data payload for this context object.
+   */
+  public $data;
+
+  /**
+   * @var string
+   *   The title of this object.
+   */
+  public $title;
+
+  /**
+   * @var string
+   *   The title of the page if this object exists
+   */
+  public $page_title;
+
+  /**
+   * @var string
+   *   The identifier (in the UI) of this object.
+   */
+  public $identifier;
+
+  /**
+   * @var
+   */
+  public $argument;
+
+  /**
+   * @var string
+   */
+  public $keyword;
+
+  /**
+   * @var
+   */
+  public $original_argument;
+
+  /**
+   * @var array
+   */
+  public $restrictions;
+
+  /**
+   * @var bool
+   */
+  public $empty;
+
+  /**
+   * The ctools_context constructor.
+   *
+   * @param string $type
+   *   The type name of this context. Should be unique. Use the machine_name
+   *   conventions: lowercase, short, underscores and no spaces.
+   * @param mixed $data
+   *   The data payload, if required for this context.
+   */
+  public function __construct($type = 'none', $data = NULL) {
+    $this->type = $type;
+    $this->data = $data;
     $this->title = t('Unknown context');
+    $this->page_title = '';
+    $this->identifier = '';
+    $this->keyword = '';
+    $this->restrictions = array();
+    $this->empty = FALSE;
+    // Other vars are NULL.
   }
 
-  function is_type($type) {
-    if ($type == 'any' || $this->type == 'any') {
+  /**
+   * Determine whether this object is of type @var $type .
+   *
+   * Both the internal value ($this->type) and the supplied value ($type) can
+   * be a string or an array of strings, and if one or both are arrays the match
+   * succeeds if at least one common element is found.
+   *
+   * Type names
+   *
+   * @param string|array $type
+   *   'type' can be:
+   *    - 'any' to match all types (this is true of the internal value too).
+   *    - an array of type name strings, when more than one type is acceptable.
+   *
+   * @return bool
+   *   True if the type matches, False otherwise.
+   */
+  public function is_type($type) {
+    if ($type === 'any' || $this->type === 'any') {
       return TRUE;
     }
 
@@ -58,32 +133,71 @@ class ctools_context {
     return (bool) array_intersect($a, $b);
   }
 
-  function get_argument() {
+  /**
+   * Return the argument.
+   *
+   * @return mixed
+   *   The value of $argument.
+   */
+  public function get_argument() {
     return $this->argument;
   }
 
-  function get_original_argument() {
+  /**
+   * Return the value of argument (or arg) variable as it was passed in.
+   *
+   * For example see ctools_plugin_load_function() and ctools_terms_context().
+   *
+   * @return mixed
+   *   The original arg value.
+   */
+  public function get_original_argument() {
     if (!is_null($this->original_argument)) {
       return $this->original_argument;
     }
     return $this->argument;
   }
 
-  function get_keyword() {
+  /**
+   * Return the keyword.
+   *
+   * @return mixed
+   *   The value of $keyword.
+   */
+  public function get_keyword() {
     return $this->keyword;
   }
 
-  function get_identifier() {
+  /**
+   * Return the identifier.
+   *
+   * @return mixed
+   *   The value of $identifier.
+   */
+  public function get_identifier() {
     return $this->identifier;
   }
 
-  function get_title() {
+  /**
+   * Return the title.
+   *
+   * @return mixed
+   *   The value of $title.
+   */
+  public function get_title() {
     return $this->title;
   }
 
-  function get_page_title() {
+  /**
+   * Return the page title.
+   *
+   * @return mixed
+   *   The value of $page_title.
+   */
+  public function get_page_title() {
     return $this->page_title;
   }
+
 }
 
 /**
@@ -91,39 +205,57 @@ class ctools_context {
  * match a required context type.
  */
 class ctools_context_required {
-  var $keywords = '';
+  /**
+   * @var array
+   *   Keyword strings associated with the context.
+   */
+  public $keywords;
 
   /**
    * If set, the title will be used in the selector to identify
    * the context. This is very useful when multiple contexts
    * are required to inform the user will be used for what.
    */
-  var $title = NULL;
+  public $title;
 
   /**
    * Test to see if this context is required.
    */
-  var $required = TRUE;
+  public $required = TRUE;
 
   /**
    * If TRUE, skip the check in ctools_context_required::select()
    * for contexts whose names may have changed.
    */
-  var $skip_name_check = FALSE;
+  public $skip_name_check = FALSE;
 
   /**
+   * The ctools_context_required constructor.
    *
-   * @param $title
-   *   The first parameter should be the 'title' of the context for use
-   *   in UYI selectors when multiple contexts qualify.
-   * @param ...
+   * Note: Constructor accepts a variable number of arguments, with optional
+   * type-dependent args at the end of the list and one required argument,
+   * the title. Note in particular that skip_name_check MUST be passed in as
+   * a boolean (and not, for example, as an integer).
+   *
+   * @param string $title
+   *   The title of the context for use in UI selectors when multiple contexts
+   *   qualify.
+   * @param string $keywords
    *   One or more keywords to use for matching which contexts are allowed.
+   * @param array $restrictions
+   *   Array of context restrictions.
+   * @param bool $skip_name_check
+   *   If True, skip the check in select() for contexts whose names may have
+   *   changed.
    */
-  function __construct($title) {
+  public function __construct($title) {
+    // If it was possible, using variadic syntax this should be:
+    // __construct($title, string ...$keywords, array $restrictions = NULL, bool $skip = NULL)
+    // but that form isn't allowed.
     $args = func_get_args();
     $this->title = array_shift($args);
 
-    // If we have a boolean value at the end for $skip_name_check, store it
+    // If we have a boolean value at the end for $skip_name_check, store it.
     if (is_bool(end($args))) {
       $this->skip_name_check = array_pop($args);
     }
@@ -133,20 +265,44 @@ class ctools_context_required {
       $this->restrictions = array_pop($args);
     }
 
-    if (count($args) == 1) {
+    if (count($args) === 1) {
       $args = array_shift($args);
     }
     $this->keywords = $args;
   }
 
-  function filter($contexts) {
+  /**
+   * Filter the contexts to determine which apply in the current environment.
+   *
+   * A context passes the filter if:
+   *  - the context matches 'type' of the required keywords (uses
+   *    ctools_context::is_type(), so includes 'any' matches, etc).
+   *  - AND if restrictions are present, there are some common elements between
+   *    the requirement and the context.
+   *
+   * @param array $contexts
+   *   An array of ctools_context objects (or something which will cast to an
+   *   array of them). The contexts to apply the filter on.
+   *
+   * @return array
+   *   An array of context objects, keyed with the same keys used for $contexts,
+   *   which pass the filter.
+   *
+   * @see ctools_context::is_type()
+   */
+  public function filter($contexts) {
     $result = array();
 
-    // See which of these contexts are valid
+    /**
+     * See which of these contexts are valid.
+     * @var ctools_context $context
+     */
     foreach ((array) $contexts as $cid => $context) {
       if ($context->is_type($this->keywords)) {
+
         // Compare to see if our contexts were met.
         if (!empty($this->restrictions) && !empty($context->restrictions)) {
+
           foreach ($this->restrictions as $key => $values) {
             // If we have a restriction, the context must either not have that
             // restriction listed, which means we simply don't know what it is,
@@ -155,11 +311,16 @@ class ctools_context_required {
             if (!is_array($values)) {
               $values = array($values);
             }
-            if (!empty($context->restrictions[$key]) && !array_intersect($values, $context->restrictions[$key])) {
+
+            if (!empty($context->restrictions[$key])
+              && !array_intersect($values, $context->restrictions[$key])
+            ) {
+              // Break out to check next context; this one fails the filter.
               continue 2;
             }
           }
         }
+        // This context passes the filter.
         $result[$cid] = $context;
       }
     }
@@ -167,7 +328,28 @@ class ctools_context_required {
     return $result;
   }
 
-  function select($contexts, $context) {
+  /**
+   * Select one context from the list of contexts, accounting for changed IDs.
+   *
+   * Fundamentally, this returns $contexts[$context] or FALSE if that does not
+   * exist. Additional logic accounts for changes in context names and dealing
+   * with a $contexts parameter that is not an array.
+   *
+   * If we had requested a $context but that $context doesn't exist in our
+   * context list, there is a good chance that what happened is the context
+   * IDs changed. Look for another context that satisfies our requirements,
+   * unless $skip_name_check is set.
+   *
+   * @param ctools_context|array $contexts
+   *   A context, or an array of ctools_context.
+   * @param string $context
+   *   A context ID.
+   *
+   * @return bool|ctools_context
+   *   The matching ctools_context, or False if no such context was found.
+   */
+  public function select($contexts, $context) {
+    // Easier to deal with a standalone object as a 1-element array of objects.
     if (!is_array($contexts)) {
       if (is_object($contexts) && $contexts instanceof ctools_context) {
         $contexts = array($contexts->id => $contexts);
@@ -177,11 +359,12 @@ class ctools_context_required {
       }
     }
 
-    // If we had requested a $context but that $context doesn't exist
-    // in our context list, there is a good chance that what happened
-    // is our context IDs changed. See if there's another context
-    // that satisfies our requirements.
-    if (!$this->skip_name_check && !empty($context) && !isset($contexts[$context])) {
+    // If we had requested a $context but that $context doesn't exist in our
+    // context list, there is a good chance that what happened is the context
+    // IDs changed. Check for another context that satisfies our requirements.
+    if (!$this->skip_name_check
+      && !empty($context) && !isset($contexts[$context])
+    ) {
       $choices = $this->filter($contexts);
 
       // If we got a hit, take the first one that matches.
@@ -196,6 +379,7 @@ class ctools_context_required {
     }
     return $contexts[$context];
   }
+
 }
 
 /**
@@ -203,24 +387,73 @@ class ctools_context_required {
  * can produce empty contexts to use as placeholders.
  */
 class ctools_context_optional extends ctools_context_required {
-  var $required = FALSE;
 
   /**
-   * Add the 'empty' context which is possible for optional
+   * {@inheritdoc}
    */
-  function add_empty(&$contexts) {
+  public $required = FALSE;
+
+  /**
+   * Add the 'empty' context to the existing set.
+   *
+   * @param array &$contexts
+   *   An array of ctools_context objects.
+   */
+  public function add_empty(&$contexts) {
     $context = new ctools_context('any');
-    $context->title      = t('No context');
+    $context->title = t('No context');
     $context->identifier = t('No context');
     $contexts['empty'] = $context;
   }
 
-  function filter($contexts) {
+  /**
+   * Filter the contexts to determine which apply in the current environment.
+   *
+   * As for ctools_context_required, but we add the empty context to those
+   * passed in so the check is optional (i.e. if nothing else matches, the
+   * empty context will, and so there will always be at least one matched).
+   *
+   * @param array $contexts
+   *   An array of ctools_context objects (or something which will cast to an
+   *   array of them). The contexts to apply the filter on.
+   *
+   * @return array
+   *   An array of context objects, keyed with the same keys used for $contexts,
+   *   which pass the filter.
+   *
+   * @see ctools_context::is_type()
+   */
+  public function filter($contexts) {
+    /**
+     * @todo We are assuming here that $contexts is actually an array, whereas
+     * ctools_context_required::filter only requires $contexts is convertible
+     * to an array.
+     */
     $this->add_empty($contexts);
     return parent::filter($contexts);
   }
 
-  function select($contexts, $context) {
+  /**
+   * Select and return one context from the list of applicable contexts.
+   *
+   * Fundamentally, this returns $contexts[$context] or the empty context if
+   * that does not exist.
+   *
+   * @param array $contexts
+   *   The applicable contexts to check.
+   * @param string $context
+   *   The context id to check for.
+   *
+   * @return bool|ctools_context
+   *   The matching ctools_context, or False if no such context was found.
+   *
+   * @see ctools_context_required::select()
+   */
+  public function select($contexts, $context) {
+    /**
+     * @todo We are assuming here that $contexts is actually an array, whereas
+     * ctools_context_required::select permits ctools_context objects as well.
+     */
     $this->add_empty($contexts);
     if (empty($context)) {
       return $contexts['empty'];
@@ -230,11 +463,12 @@ class ctools_context_optional extends ctools_context_required {
 
     // Don't flip out if it can't find the context; this is optional, put
     // in an empty.
-    if ($result == FALSE) {
+    if ($result === FALSE) {
       $result = $contexts['empty'];
     }
     return $result;
   }
+
 }
 
 /**
@@ -249,20 +483,20 @@ class ctools_context_optional extends ctools_context_required {
  * Since multiple contexts can be required, this function will accept either
  * an array of all required contexts, or just a single required context object.
  *
- * @param $contexts
+ * @param array $contexts
  *   A keyed array of all available contexts.
- * @param $required
- *   A ctools_context_required or ctools_context_optional object, or an array
- *   of such objects.
+ * @param array|ctools_context_required|ctools_context_optional $required
+ *   A *_required or *_optional object, or an array of such objects, which
+ *   define the selection condition.
  *
- * @return
+ * @return array
  *   A keyed array of contexts that match the filter.
  */
 function ctools_context_filter($contexts, $required) {
   if (is_array($required)) {
     $result = array();
-    foreach ($required as $r) {
-      $result = array_merge($result, _ctools_context_filter($contexts, $r));
+    foreach ($required as $item) {
+      $result = array_merge($result, _ctools_context_filter($contexts, $item));
     }
     return $result;
   }
@@ -270,6 +504,21 @@ function ctools_context_filter($contexts, $required) {
   return _ctools_context_filter($contexts, $required);
 }
 
+/**
+ * Helper function for ctools_context_filter().
+ *
+ * Used to transform the required context during the merge into the final array.
+ *
+ * @internal This function DOES NOT form part of the CTools API.
+ *
+ * @param array $contexts
+ *   A keyed array of all available contexts.
+ * @param ctools_context_required|ctools_context_optional $required
+ *   A ctools_context_required or ctools_context_optional object, although if
+ *   given something else will return an empty array.
+ *
+ * @return array
+ */
 function _ctools_context_filter($contexts, $required) {
   $result = array();
 
@@ -289,12 +538,17 @@ function _ctools_context_filter($contexts, $required) {
  * If an array of required contexts is provided, one selector will be
  * provided for each context.
  *
- * @param $contexts
+ * @param array $contexts
  *   A keyed array of all available contexts.
- * @param $required
+ * @param array|ctools_context_required|ctools_context_optional $required
  *   The required context object or array of objects.
+ * @param array|string $default
+ *   The default value for the select object, suitable for a #default_value
+ *   render key. Where $required is an array, this is an array keyed by the
+ *   same key values as $required for all keys where an empty string is not a
+ *   suitable default. Otherwise it is just the default value.
  *
- * @return
+ * @return array
  *   A form element, or NULL if there are no contexts that satisfy the
  *   requirements.
  */
@@ -302,8 +556,10 @@ function ctools_context_selector($contexts, $required, $default) {
   if (is_array($required)) {
     $result = array('#tree' => TRUE);
     $count = 1;
-    foreach ($required as $id => $r) {
-      $result[] = _ctools_context_selector($contexts, $r, isset($default[$id]) ? $default[$id] : '', $count++);
+    foreach ($required as $id => $item) {
+      $result[] = _ctools_context_selector(
+        $contexts, $item, isset($default[$id]) ? $default[$id] : '', $count++
+      );
     }
     return $result;
   }
@@ -311,6 +567,27 @@ function ctools_context_selector($contexts, $required, $default) {
   return _ctools_context_selector($contexts, $required, $default);
 }
 
+/**
+ * Helper function for ctools_context_selector().
+ *
+ * @internal This function DOES NOT form part of the CTools API. Use the API
+ * function ctools_context_selector() instead.
+ *
+ * @param array $contexts
+ *   A keyed array of all available contexts.
+ * @param ctools_context_required|ctools_context_optional $required
+ *   The required context object.
+ * @param $default
+ *   The default value for the select object, suitable for a #default_value
+ *   render key.
+ * @param int $num
+ *   If supplied and non-zero, the title of the select form element will be
+ *   "Context $num", otherwise it will be "Context".
+ *
+ * @return array
+ *   A form element, or NULL if there are no contexts that satisfy the
+ *   requirements.
+ */
 function _ctools_context_selector($contexts, $required, $default, $num = 0) {
   $filtered = ctools_context_filter($contexts, $required);
   $count = count($filtered);
@@ -354,8 +631,8 @@ function _ctools_context_selector($contexts, $required, $default, $num = 0) {
  * @param $required
  *   The required context object or array of objects.
  *
- * @return
- *   TRUE if there are enough contexts, FALSE if there are not.
+ * @return bool
+ *   True if there are enough contexts, otherwise False.
  */
 function ctools_context_match_requirements($contexts, $required) {
   if (!is_array($required)) {
@@ -388,8 +665,13 @@ function ctools_context_match_requirements($contexts, $required) {
  *   A keyed array of all available contexts.
  * @param $required
  *   The required context object or array of objects.
+ * @param array|string $default
+ *   The default value for the select object, suitable for a #default_value
+ *   render key. Where $required is an array, this is an array keyed by the
+ *   same key values as $required for all keys where an empty string is not a
+ *   suitable default. Otherwise it is just the default value.
  *
- * @return
+ * @return array
  *   A form element, or NULL if there are no contexts that satisfy the
  *   requirements.
  */
@@ -397,8 +679,11 @@ function ctools_context_converter_selector($contexts, $required, $default) {
   if (is_array($required)) {
     $result = array('#tree' => TRUE);
     $count = 1;
-    foreach ($required as $id => $r) {
-      $result[] = _ctools_context_converter_selector($contexts, $r, isset($default[$id]) ? $default[$id] : '', $count++);
+    foreach ($required as $id => $dependency) {
+      $default_id = isset($default[$id]) ? $default[$id] : '';
+      $result[] = _ctools_context_converter_selector(
+        $contexts, $dependency, $default_id, $count++
+      );
     }
     return $result;
   }
@@ -406,17 +691,36 @@ function ctools_context_converter_selector($contexts, $required, $default) {
   return _ctools_context_converter_selector($contexts, $required, $default);
 }
 
+/**
+ * Helper function for ctools_context_converter_selector().
+ *
+ * @internal This function DOES NOT form part of the CTools API. Use the API
+ * function ctools_context_converter_selector() instead.
+ *
+ * @param array $contexts
+ *   A keyed array of all available contexts.
+ * @param ctools_context $required
+ *   The required context object.
+ * @param $default
+ *   The default value for the select object, suitable for a #default_value
+ *   render key.
+ * @param int $num
+ *   If supplied and non-zero, the title of the select form element will be
+ *   "Context $num", otherwise it will be "Context".
+ *
+ * @return array|null
+ *   A form element, or NULL if there are no contexts that satisfy the
+ *   requirements.
+ */
 function _ctools_context_converter_selector($contexts, $required, $default, $num = 0) {
   $filtered = ctools_context_filter($contexts, $required);
   $count = count($filtered);
-
-  $form = array();
 
   if ($count > 1) {
     // If there's more than one to choose from, create a select widget.
     $options = array();
     foreach ($filtered as $cid => $context) {
-      if ($context->type == 'any') {
+      if ($context->type === 'any') {
         $options[''] = t('No context');
         continue;
       }
@@ -446,10 +750,22 @@ function _ctools_context_converter_selector($contexts, $required, $default, $num
       '#default_value' => $default,
     );
   }
+  else {
+    // Not enough choices to need a selector, so don't make one.
+    return NULL;
+  }
 }
 
 /**
  * Get a list of converters available for a given context.
+ *
+ * @param string $cid
+ *   A context ID.
+ * @param ctools_context $context
+ *   The context for which converters are needed.
+ *
+ * @return array
+ *   A list of context converters.
  */
 function ctools_context_get_converters($cid, $context) {
   if (empty($context->plugin)) {
@@ -461,6 +777,17 @@ function ctools_context_get_converters($cid, $context) {
 
 /**
  * Get a list of converters available for a given context.
+ *
+ * @internal This function DOES NOT form part of the CTools API. Use the API
+ * function ctools_context_get_converters() instead.
+ *
+ * @param string $id
+ *   A context ID.
+ * @param string $plugin_name
+ *   The name of the context plugin.
+ *
+ * @return array
+ *   A list of context converters.
  */
 function _ctools_context_get_converters($id, $plugin_name) {
   $plugin = ctools_get_context($plugin_name);
@@ -472,7 +799,7 @@ function _ctools_context_get_converters($id, $plugin_name) {
   if (is_array($plugin['convert list'])) {
     $converters = $plugin['convert list'];
   }
-  else if ($function = ctools_plugin_get_function($plugin, 'convert list')) {
+  elseif ($function = ctools_plugin_get_function($plugin, 'convert list')) {
     $converters = (array) $function($plugin);
   }
 
@@ -492,7 +819,13 @@ function _ctools_context_get_converters($id, $plugin_name) {
 }
 
 /**
- * Get a list of all contexts + converters available.
+ * Get a list of all contexts converters available.
+ *
+ * For all contexts returned by ctools_get_contexts(), return the converter
+ * for all contexts that have one.
+ *
+ * @return array
+ *   A list of context converters, keyed by the title of the converter.
  */
 function ctools_context_get_all_converters() {
   $contexts = ctools_get_contexts();
@@ -512,21 +845,24 @@ function ctools_context_get_all_converters() {
 /**
  * Let the context convert an argument based upon the converter that was given.
  *
- * @param $context
- *   The context object
- * @param $converter
- *   The converter to use, which should be a string provided by the converter list.
- * @param $converter_options
- *   A n array of options to pass on to the generation function. For contexts
+ * @param ctools_context $context
+ *   The context object.
+ * @param string $converter
+ *   The type of converter to use, which should be a string provided by the
+ *   converter list function.
+ * @param array $converter_options
+ *   An array of options to pass on to the generation function. For contexts
  *   that use token module, of particular use is 'sanitize' => FALSE which can
  *   get raw tokens. This should ONLY be used in values that will later be
  *   treated as unsafe user input since these values are by themselves unsafe.
  *   It is particularly useful to get raw values from Field API.
+ *
+ * @return string|null
  */
 function ctools_context_convert_context($context, $converter, $converter_options = array()) {
   // Contexts without plugins might be optional placeholders.
   if (empty($context->plugin)) {
-    return;
+    return NULL;
   }
 
   $value = $context->argument;
@@ -547,22 +883,35 @@ function ctools_context_convert_context($context, $converter, $converter_options
  * Choose a context or contexts based upon the selection made via
  * ctools_context_filter.
  *
- * @param $contexts
- *   A keyed array of all available contexts
- * @param $required
- *   The required context object provided by the plugin
+ * @param array $contexts
+ *   A keyed array of all available contexts.
+ * @param array|ctools_context_required $required
+ *   The required context object(s) provided by the plugin.
  * @param $context
- *   The selection made using ctools_context_selector
+ *   The selection made using ctools_context_selector().
+ *
+ * @return ctools_context|array|false
+ *   Returns FALSE if $required is not an object, or array of objects, or
+ *   the value of $required->select() for the context, or an array of those (if
+ *   passed an array in $required).
  */
 function ctools_context_select($contexts, $required, $context) {
   if (is_array($required)) {
+
+    /**
+     * @var array $required
+     *   Array of required context objects.
+     * @var ctools_context_required $item
+     *   A required context object.
+     */
     $result = array();
-    foreach ($required as $id => $r) {
+    foreach ($required as $id => $item) {
+      // @todo What's the difference between the following and "empty($item)" ?
       if (empty($required[$id])) {
         continue;
       }
 
-      if (($result[] = _ctools_context_select($contexts, $r, $context[$id])) === FALSE) {
+      if (($result[] = _ctools_context_select($contexts, $item, $context[$id])) === FALSE) {
         return FALSE;
       }
     }
@@ -572,6 +921,22 @@ function ctools_context_select($contexts, $required, $context) {
   return _ctools_context_select($contexts, $required, $context);
 }
 
+/**
+ * Helper function for calling the required context object's selection function.
+ *
+ * This function DOES NOT form part of the CTools API.
+ *
+ * @param array $contexts
+ *   A keyed array of all available contexts.
+ * @param ctools_context_required $required
+ *   The required context object provided by the plugin.
+ * @param $context
+ *   The selection made using ctools_context_selector().
+ *
+ * @return ctools_context|bool
+ *   FALSE if the $required is not an object. A ctools_context object if one
+ *   matched.
+ */
 function _ctools_context_select($contexts, $required, $context) {
   if (!is_object($required)) {
     return FALSE;
@@ -583,16 +948,14 @@ function _ctools_context_select($contexts, $required, $context) {
 /**
  * Create a new context object.
  *
- * @param $type
+ * @param string $type
  *   The type of context to create; this loads a plugin.
- * @param $data
+ * @param mixed $data
  *   The data to put into the context.
- * @param $empty
- *   Whether or not this context is specifically empty.
  * @param $conf
  *   A configuration structure if this context was created via UI.
  *
- * @return
+ * @return ctools_context
  *   A $context or NULL if one could not be created.
  */
 function ctools_context_create($type, $data = NULL, $conf = FALSE) {
@@ -615,7 +978,7 @@ function ctools_context_create($type, $data = NULL, $conf = FALSE) {
  * @param $type
  *   The type of context to create; this loads a plugin.
  *
- * @return
+ * @return ctools_context
  *   A $context or NULL if one could not be created.
  */
 function ctools_context_create_empty($type) {
@@ -632,8 +995,21 @@ function ctools_context_create_empty($type) {
 
 /**
  * Perform keyword and context substitutions.
+ *
+ * @param string $string
+ *   The string in which to replace keywords.
+ * @param array $keywords
+ *   Array of keyword-replacement pairs.
+ * @param array $contexts
+ *
+ * @param array $converter_options
+ *   Options to pass on to ctools_context_convert_context(), defaults to an
+ *   empty array.
+ *
+ * @return string
+ *   The returned string, with substitutions performed.
  */
-function ctools_context_keyword_substitute($string, $keywords, $contexts, $converter_options = array()) {
+function ctools_context_keyword_substitute($string, $keywords, $contexts, array $converter_options = array()) {
   // Ensure a default keyword exists:
   $keywords['%%'] = '%';
 
@@ -656,7 +1032,7 @@ function ctools_context_keyword_substitute($string, $keywords, $contexts, $conve
 
       // If the keyword is already set by something passed in, don't try to
       // overwrite it.
-      if (!empty($keywords['%' . $keyword])) {
+      if (array_key_exists('%' . $keyword, $keywords)) {
         continue;
       }
 
@@ -683,11 +1059,13 @@ function ctools_context_keyword_substitute($string, $keywords, $contexts, $conve
         if (empty($context_keywords[$context]) || !empty($context_keywords[$context]->empty)) {
           $keywords['%' . $keyword] = '';
         }
-        else if (!empty($converter)) {
-          $keywords['%' . $keyword] = ctools_context_convert_context($context_keywords[$context], $converter, $converter_options);
-        }
         else {
-          $keywords['%' . $keyword] = $context_keywords[$keyword]->title;
+          if (!empty($converter)) {
+            $keywords['%' . $keyword] = ctools_context_convert_context($context_keywords[$context], $converter, $converter_options);
+          }
+          else {
+            $keywords['%' . $keyword] = $context_keywords[$keyword]->title;
+          }
         }
       }
     }
@@ -696,18 +1074,22 @@ function ctools_context_keyword_substitute($string, $keywords, $contexts, $conve
 }
 
 /**
- * Determine a unique context ID for a context
+ * Determine a unique context ID for a context.
  *
  * Often contexts of many different types will be placed into a list. This
  * ensures that even though contexts of multiple types may share IDs, they
  * are unique in the final list.
  */
 function ctools_context_id($context, $type = 'context') {
-  if (!$context['id']) {
+  // If not set, FALSE or empty.
+  if (!isset($context['id']) || !$context['id']) {
     $context['id'] = 1;
   }
 
-  return $type . '_' . $context['name'] . '_' . $context['id'];
+  // @todo is '' the appropriate default value?
+  $name = isset($context['name']) ? $context['name'] : '';
+
+  return $type . '_' . $name . '_' . $context['id'];
 }
 
 /**
@@ -715,42 +1097,46 @@ function ctools_context_id($context, $type = 'context') {
  *
  * This finds the next id available for the named object.
  *
- * @param $objects
- *   A list of context descriptor objects, i.e, arguments, relationships, contexts, etc.
- * @param $name
+ * @param array $objects
+ *   A list of context descriptor objects, i.e, arguments, relationships,
+ *   contexts, etc.
+ * @param string $name
  *   The name being used.
+ *
+ * @return int
+ *   The next integer id available.
  */
 function ctools_context_next_id($objects, $name) {
   $id = 0;
-  // Figure out which instance of this argument we're creating
+  // Figure out which instance of this argument we're creating.
   if (!$objects) {
     return $id + 1;
   }
 
   foreach ($objects as $object) {
-    if (isset($object['name']) && $object['name'] == $name) {
-      if ($object['id'] > $id) {
+    if (isset($object['name']) && $object['name'] === $name) {
+      if (isset($object['id']) && $object['id'] > $id) {
         $id = $object['id'];
       }
+      // @todo If obj has no 'id', should we increment local id? $id = $id + 1;
     }
   }
 
   return $id + 1;
 }
 
-
 // ---------------------------------------------------------------------------
 // Functions related to contexts from arguments.
-
 /**
- * Fetch metadata on a specific argument plugin.
+ * Fetch metadata for a specific argument plugin.
  *
  * @param $argument
  *   Name of an argument plugin.
  *
- * @return
+ * @return array
  *   An array with information about the requested argument plugin.
  */
+
 function ctools_get_argument($argument) {
   ctools_include('plugins');
   return ctools_get_plugins('ctools', 'arguments', $argument);
@@ -759,7 +1145,7 @@ function ctools_get_argument($argument) {
 /**
  * Fetch metadata for all argument plugins.
  *
- * @return
+ * @return array
  *   An array of arrays with information about all available argument plugins.
  */
 function ctools_get_arguments() {
@@ -779,22 +1165,23 @@ function ctools_get_arguments() {
  *   - keyword: The keyword used for this argument for substitutions.
  *
  * @param $arg
- *   The actual argument received. This is expected to be a string from a URL but
- *   this does not have to be the only source of arguments.
+ *   The actual argument received. This is expected to be a string from a URL
+ *   but this does not have to be the only source of arguments.
  * @param $empty
  *   If true, the $arg will not be used to load the context. Instead, an empty
  *   placeholder context will be loaded.
  *
- * @return
+ * @return ctools_context
  *   A context object if one can be loaded.
  */
 function ctools_context_get_context_from_argument($argument, $arg, $empty = FALSE) {
   ctools_include('plugins');
   if (empty($argument['name'])) {
-    return;
+    return NULL;
   }
 
-  if ($function = ctools_plugin_load_function('ctools', 'arguments', $argument['name'], 'context')) {
+  $function = ctools_plugin_load_function('ctools', 'arguments', $argument['name'], 'context');
+  if ($function) {
     // Backward compatibility: Merge old style settings into new style:
     if (!empty($argument['settings'])) {
       $argument += $argument['settings'];
@@ -806,8 +1193,8 @@ function ctools_context_get_context_from_argument($argument, $arg, $empty = FALS
     if (is_object($context)) {
       $context->identifier = $argument['identifier'];
       $context->page_title = isset($argument['title']) ? $argument['title'] : '';
-      $context->keyword    = $argument['keyword'];
-      $context->id         = ctools_context_id($argument, 'argument');
+      $context->keyword = $argument['keyword'];
+      $context->id = ctools_context_id($argument, 'argument');
       $context->original_argument = $arg;
 
       if (!empty($context->empty)) {
@@ -823,6 +1210,12 @@ function ctools_context_get_context_from_argument($argument, $arg, $empty = FALS
 
 /**
  * Retrieve a list of empty contexts for all arguments.
+ *
+ * @param array $arguments
+ *
+ * @return array
+ *
+ * @see ctools_context_get_context_from_arguments()
  */
 function ctools_context_get_placeholders_from_argument($arguments) {
   $contexts = array();
@@ -838,19 +1231,21 @@ function ctools_context_get_placeholders_from_argument($arguments) {
 /**
  * Load the contexts for a given list of arguments.
  *
- * @param $arguments
+ * @param array $arguments
  *   The array of argument definitions.
- * @param &$contexts
+ * @param array &$contexts
  *   The array of existing contexts. New contexts will be added to this array.
- * @param $args
+ * @param array $args
  *   The arguments to load.
  *
- * @return
- *   FALSE if an argument wants to 404.
+ * @return bool
+ *   TRUE if all is well, FALSE if an argument wants to 404.
+ *
+ * @see ctools_context_get_context_from_argument()
  */
 function ctools_context_get_context_from_arguments($arguments, &$contexts, $args) {
   foreach ($arguments as $argument) {
-    // pull the argument off the list.
+    // Pull the argument off the list.
     $arg = array_shift($args);
     $id = ctools_context_id($argument, 'argument');
 
@@ -865,7 +1260,10 @@ function ctools_context_get_context_from_arguments($arguments, &$contexts, $args
       $context = $contexts[$id];
     }
 
-    if ((empty($context) || empty($context->data)) && !empty($argument['default']) && $argument['default'] == '404') {
+    if ((empty($context) || empty($context->data))
+      && !empty($argument['default'])
+      && $argument['default'] === '404'
+    ) {
       return FALSE;
     }
   }
@@ -874,16 +1272,18 @@ function ctools_context_get_context_from_arguments($arguments, &$contexts, $args
 
 // ---------------------------------------------------------------------------
 // Functions related to contexts from relationships.
-
 /**
- * Fetch metadata on a specific relationship plugin.
+ * Fetch plugin metadata for a specific relationship plugin.
  *
- * @param $content type
+ * @param $relationship
  *   Name of a panel content type.
  *
- * @return
+ * @return array
  *   An array with information about the requested relationship.
+ *
+ * @see ctools_get_relationships()
  */
+
 function ctools_get_relationship($relationship) {
   ctools_include('plugins');
   return ctools_get_plugins('ctools', 'relationships', $relationship);
@@ -892,8 +1292,10 @@ function ctools_get_relationship($relationship) {
 /**
  * Fetch metadata for all relationship plugins.
  *
- * @return
+ * @return array
  *   An array of arrays with information about all available relationships.
+ *
+ * @see ctools_get_relationship()
  */
 function ctools_get_relationships() {
   ctools_include('plugins');
@@ -901,8 +1303,9 @@ function ctools_get_relationships() {
 }
 
 /**
+ * Return a context from a relationship.
  *
- * @param $relationship
+ * @param array $relationship
  *   The configuration of a relationship. It must contain the following data:
  *   - name: The name of the relationship plugin being used.
  *   - relationship_settings: The configuration based upon the plugin forms.
@@ -910,18 +1313,21 @@ function ctools_get_relationships() {
  *     defined by the UI.
  *   - keyword: The keyword used for this relationship for substitutions.
  *
- * @param $source_context
+ * @param ctools_context $source_context
  *   The context this relationship is based upon.
- *
- * @param $placeholders
+ * @param bool $placeholders
  *   If TRUE, placeholders are acceptable.
  *
- * @return
- *   A context object if one can be loaded.
+ * @return ctools_context|null
+ *   A context object if one can be loaded, otherwise NULL.
+ *
+ * @see ctools_context_get_relevant_relationships()
+ * @see ctools_context_get_context_from_relationships()
  */
 function ctools_context_get_context_from_relationship($relationship, $source_context, $placeholders = FALSE) {
   ctools_include('plugins');
-  if ($function = ctools_plugin_load_function('ctools', 'relationships', $relationship['name'], 'context')) {
+  $function = ctools_plugin_load_function('ctools', 'relationships', $relationship['name'], 'context');
+  if ($function) {
     // Backward compatibility: Merge old style settings into new style:
     if (!empty($relationship['relationship_settings'])) {
       $relationship += $relationship['relationship_settings'];
@@ -932,7 +1338,7 @@ function ctools_context_get_context_from_relationship($relationship, $source_con
     if ($context) {
       $context->identifier = $relationship['identifier'];
       $context->page_title = isset($relationship['title']) ? $relationship['title'] : '';
-      $context->keyword    = $relationship['keyword'];
+      $context->keyword = $relationship['keyword'];
       if (!empty($context->empty)) {
         $context->placeholder = array(
           'type' => 'relationship',
@@ -942,6 +1348,7 @@ function ctools_context_get_context_from_relationship($relationship, $source_con
       return $context;
     }
   }
+  return NULL;
 }
 
 /**
@@ -955,18 +1362,24 @@ function ctools_context_get_context_from_relationship($relationship, $source_con
  * @param $contexts
  *   An array of contexts used to figure out which relationships are relevant.
  *
- * @return
+ * @return array
  *   An array of relationship keys that are relevant for the given set of
  *   contexts.
+ *
+ * @see ctools_context_filter()
+ * @see ctools_context_get_context_from_relationship()
+ * @see ctools_context_get_context_from_relationships()
  */
 function ctools_context_get_relevant_relationships($contexts) {
   $relevant = array();
   $relationships = ctools_get_relationships();
 
-  // Go through each relationship
+  // Go through each relationship.
   foreach ($relationships as $rid => $relationship) {
     // For each relationship, see if there is a context that satisfies it.
-    if (empty($relationship['no ui']) && ctools_context_filter($contexts, $relationship['required context'])) {
+    if (empty($relationship['no ui'])
+      && ctools_context_filter($contexts, $relationship['required context'])
+    ) {
       $relevant[$rid] = $relationship['title'];
     }
   }
@@ -975,7 +1388,7 @@ function ctools_context_get_relevant_relationships($contexts) {
 }
 
 /**
- * Fetch all active relationships
+ * Fetch all active relationships.
  *
  * @param $relationships
  *   An keyed array of relationship data including:
@@ -990,10 +1403,11 @@ function ctools_context_get_relevant_relationships($contexts) {
  *
  * @param $placeholders
  *   If TRUE, placeholders are acceptable.
+ *
+ * @see ctools_context_get_context_from_relationship()
+ * @see ctools_context_get_relevant_relationships()
  */
 function ctools_context_get_context_from_relationships($relationships, &$contexts, $placeholders = FALSE) {
-  $return = array();
-
   foreach ($relationships as $rdata) {
     if (!isset($rdata['context'])) {
       continue;
@@ -1024,16 +1438,16 @@ function ctools_context_get_context_from_relationships($relationships, &$context
 
 // ---------------------------------------------------------------------------
 // Functions related to loading contexts from simple context definitions.
-
 /**
  * Fetch metadata on a specific context plugin.
  *
- * @param $context
+ * @param string $context
  *   Name of a context.
  *
- * @return
+ * @return array
  *   An array with information about the requested panel context.
  */
+
 function ctools_get_context($context) {
   static $gate = array();
   ctools_include('plugins');
@@ -1057,7 +1471,7 @@ function ctools_get_context($context) {
 /**
  * Fetch metadata for all context plugins.
  *
- * @return
+ * @return array
  *   An array of arrays with information about all available panel contexts.
  */
 function ctools_get_contexts() {
@@ -1066,27 +1480,38 @@ function ctools_get_contexts() {
 }
 
 /**
+ * Return a context object from a context definition array.
  *
- * @param $context
+ * The input $context contains the information needed to identify and invoke
+ * the context plugin and create the plugin context from that.
+ *
+ * @param array $context
  *   The configuration of a context. It must contain the following data:
  *   - name: The name of the context plugin being used.
  *   - context_settings: The configuration based upon the plugin forms.
  *   - identifier: The human readable identifier for this context, usually
  *     defined by the UI.
  *   - keyword: The keyword used for this context for substitutions.
- * @param $type
+ * @param string $type
  *   This is either 'context' which indicates the context will be loaded
- *   from data in the settings, or 'required_context' which means the
+ *   from data in the settings, or 'requiredcontext' which means the
  *   context must be acquired from an external source. This is the method
  *   used to pass pure contexts from one system to another.
+ * @param mixed $argument
+ *   Optional information passed to the plugin context via the arg defined in
+ *   the plugin's "placeholder name" field.
  *
- * @return
+ * @return ctools_context|null
  *   A context object if one can be loaded.
+ *
+ * @see ctools_get_context()
+ * @see ctools_plugin_get_function()
  */
 function ctools_context_get_context_from_context($context, $type = 'context', $argument = NULL) {
   ctools_include('plugins');
   $plugin = ctools_get_context($context['name']);
-  if ($function = ctools_plugin_get_function($plugin, 'context')) {
+  $function = ctools_plugin_get_function($plugin, 'context');
+  if ($function) {
     // Backward compatibility: Merge old style settings into new style:
     if (!empty($context['context_settings'])) {
       $context += $context['context_settings'];
@@ -1101,7 +1526,7 @@ function ctools_context_get_context_from_context($context, $type = 'context', $a
     if ($return) {
       $return->identifier = $context['identifier'];
       $return->page_title = isset($context['title']) ? $context['title'] : '';
-      $return->keyword    = $context['keyword'];
+      $return->keyword = $context['keyword'];
 
       if (!empty($context->empty)) {
         $context->placeholder = array(
@@ -1113,6 +1538,8 @@ function ctools_context_get_context_from_context($context, $type = 'context', $a
       return $return;
     }
   }
+
+  return NULL;
 }
 
 /**
@@ -1126,7 +1553,10 @@ function ctools_context_get_context_from_context($context, $type = 'context', $a
  *   Either 'context' or 'requiredcontext', which indicates whether the contexts
  *   are loaded from internal data or copied from an external source.
  * @param $placeholders
- *   If true, placeholders are acceptable.
+ *   If True, placeholders are acceptable.
+ *
+ * @return array
+ *   Array of contexts, keyed by context ID.
  */
 function ctools_context_get_context_from_contexts($contexts, $type = 'context', $placeholders = FALSE) {
   $return = array();
@@ -1145,17 +1575,20 @@ function ctools_context_get_context_from_contexts($contexts, $type = 'context', 
 /**
  * Match up external contexts to our required contexts.
  *
- * This function is used to create a list of contexts with proper
- * IDs based upon a list of required contexts.
+ * This function is used to create a list of contexts with proper IDs based
+ * upon a list of required contexts.
  *
- * These contexts passed in should match the numeric positions of the
- * required contexts. The caller must ensure this has already happened
- * correctly as this function will not detect errors here.
+ * These contexts passed in should match the numeric positions of the required
+ * contexts. The caller must ensure this has already happened correctly as this
+ * function will not detect errors here.
  *
  * @param $required
  *   A list of required contexts as defined by the UI.
  * @param $contexts
  *   A list of matching contexts as passed in from the calling system.
+ *
+ * @return array
+ *   Array of contexts, keyed by context ID.
  */
 function ctools_context_match_required_contexts($required, $contexts) {
   $return = array();
@@ -1167,7 +1600,7 @@ function ctools_context_match_required_contexts($required, $contexts) {
     $context = clone array_shift($contexts);
     $context->identifier = $r['identifier'];
     $context->page_title = isset($r['title']) ? $r['title'] : '';
-    $context->keyword    = $r['keyword'];
+    $context->keyword = $r['keyword'];
     $return[ctools_context_id($r, 'requiredcontext')] = $context;
   }
 
@@ -1179,31 +1612,35 @@ function ctools_context_match_required_contexts($required, $contexts) {
  *
  * Not all of the types need to be supported by this object.
  *
- * This function is not used to load contexts from external data, but may
- * be used to load internal contexts and relationships. Otherwise it can also
- * be used to generate a full set of placeholders for UI purposes.
+ * This function is not used to load contexts from external data, but may be
+ * used to load internal contexts and relationships. Otherwise it can also be
+ * used to generate a full set of placeholders for UI purposes.
  *
- * @param $object
+ * @param object $object
  *   An object that contains some or all of the following variables:
  *
- * - requiredcontexts: A list of UI configured contexts that are required
- *   from an external source. Since these require external data, they will
- *   only be added if $placeholders is set to TRUE, and empty contexts will
- *   be created.
- * - arguments: A list of UI configured arguments that will create contexts.
- *   Since these require external data, they will only be added if $placeholders
- *   is set to TRUE.
- * - contexts: A list of UI configured contexts that have no external source,
- *   and are essentially hardcoded. For example, these might configure a
- *   particular node or a particular taxonomy term.
- * - relationships: A list of UI configured contexts to be derived from other
- *   contexts that already exist from other sources. For example, these might
- *   be used to get a user object from a node via the node author relationship.
- * @param $placeholders
- *   If TRUE, this will generate placeholder objects for types this function
+ *   - requiredcontexts: A list of UI configured contexts that are required
+ *     from an external source. Since these require external data, they will
+ *     only be added if $placeholders is set to TRUE, and empty contexts will
+ *     be created.
+ *   - arguments: A list of UI configured arguments that will create contexts.
+ *     As these require external data, they will only be added if $placeholders
+ *     is set to TRUE.
+ *   - contexts: A list of UI configured contexts that have no external source,
+ *     and are essentially hardcoded. For example, these might configure a
+ *     particular node or a particular taxonomy term.
+ *   - relationships: A list of UI configured contexts to be derived from other
+ *     contexts that already exist from other sources. For example, these might
+ *     be used to get a user object from a node via the node author
+ *     relationship.
+ * @param bool $placeholders
+ *   If True, this will generate placeholder objects for any types this function
  *   cannot load.
- * @param $contexts
+ * @param array $contexts
  *   An array of pre-existing contexts that will be part of the return value.
+ *
+ * @return array
+ *   Merged output of all results of ctools_context_get_context_from_contexts().
  */
 function ctools_context_load_contexts($object, $placeholders = TRUE, $contexts = array()) {
   if (!empty($object->base_contexts)) {
@@ -1227,7 +1664,7 @@ function ctools_context_load_contexts($object, $placeholders = TRUE, $contexts =
     $contexts += ctools_context_get_context_from_contexts($object->contexts, 'context', $placeholders);
   }
 
-  // add contexts from relationships
+  // Add contexts from relationships.
   if (!empty($object->relationships) && is_array($object->relationships)) {
     ctools_context_get_context_from_relationships($object->relationships, $contexts, $placeholders);
   }
@@ -1246,7 +1683,7 @@ function ctools_context_load_contexts($object, $placeholders = TRUE, $contexts =
 function ctools_context_get_form($contexts) {
   if (!empty($contexts)) {
     foreach ($contexts as $id => $context) {
-      // if a form shows its id as being a 'required context' that means the
+      // If a form shows its id as being a 'required context' that means the
       // the context is external to this display and does not count.
       if (!empty($context->form_id) && substr($id, 0, 15) != 'requiredcontext') {
         return $context;
@@ -1265,7 +1702,7 @@ function ctools_context_get_form($contexts) {
  *   The arguments. These will be acquired from $form_state['values'] and the
  *   keys must match the context IDs.
  *
- * @return
+ * @return array
  *   A new $contexts array containing the replaced contexts. Not all contexts
  *   may be replaced if, for example, an argument was unable to be converted
  *   into a context.
@@ -1284,12 +1721,14 @@ function ctools_context_replace_placeholders($contexts, $arguments) {
           $new_context = ctools_context_get_context_from_relationship($relationship, $contexts[$relationship['context']]);
         }
         break;
+
       case 'argument':
         if (isset($arguments[$cid]) && $arguments[$cid] !== '') {
           $argument = $context->placeholder['conf'];
           $new_context = ctools_context_get_context_from_argument($argument, $arguments[$cid]);
         }
         break;
+
       case 'context':
         if (!empty($arguments[$cid])) {
           $context_info = $context->placeholder['conf'];
@@ -1338,32 +1777,37 @@ function ctools_context_replace_form(&$form, $contexts) {
       if (is_array($plugin['placeholder form'])) {
         $form[$cid] = $plugin['placeholder form'];
       }
-      else if (function_exists($plugin['placeholder form'])) {
-        $widget = $plugin['placeholder form']($info);
-        if ($widget) {
-          $form[$cid] = $widget;
+      else {
+        if (function_exists($plugin['placeholder form'])) {
+          $widget = $plugin['placeholder form']($info);
+          if ($widget) {
+            $form[$cid] = $widget;
+          }
         }
       }
 
       if (!empty($form[$cid])) {
-        $form[$cid]['#title'] = t('@identifier (@keyword)', array('@keyword' => '%' . $context->keyword, '@identifier' => $context->identifier));
+        $form[$cid]['#title'] = t('@identifier (@keyword)', array(
+          '@keyword' => '%' . $context->keyword,
+          '@identifier' => $context->identifier,
+        ));
       }
     }
   }
 }
 
 // ---------------------------------------------------------------------------
-// Functions related to loading access control plugins
-
+// Functions related to loading access control plugins.
 /**
  * Fetch metadata on a specific access control plugin.
  *
  * @param $name
  *   Name of a plugin.
  *
- * @return
+ * @return array
  *   An array with information about the requested access control plugin.
  */
+
 function ctools_get_access_plugin($name) {
   ctools_include('plugins');
   return ctools_get_plugins('ctools', 'access', $name);
@@ -1372,7 +1816,7 @@ function ctools_get_access_plugin($name) {
 /**
  * Fetch metadata for all access control plugins.
  *
- * @return
+ * @return array
  *   An array of arrays with information about all available access control plugins.
  */
 function ctools_get_access_plugins() {
@@ -1384,8 +1828,14 @@ function ctools_get_access_plugins() {
  * Fetch a list of access plugins that are available for a given list of
  * contexts.
  *
- * if 'logged-in-user' is not in the list of contexts, it will be added as
+ * If 'logged-in-user' is not in the list of contexts, it will be added as
  * this is required.
+ *
+ * @param array $contexts
+ *   Array of ctools_context objects with which to select access plugins.
+ *
+ * @return array
+ *   Array of applicable access plugins. Can be empty.
  */
 function ctools_get_relevant_access_plugins($contexts) {
   if (!isset($contexts['logged-in-user'])) {
@@ -1395,7 +1845,9 @@ function ctools_get_relevant_access_plugins($contexts) {
   $all_plugins = ctools_get_access_plugins();
   $plugins = array();
   foreach ($all_plugins as $id => $plugin) {
-    if (!empty($plugin['required context']) && !ctools_context_match_requirements($contexts, $plugin['required context'])) {
+    if (!empty($plugin['required context'])
+      && !ctools_context_match_requirements($contexts, $plugin['required context'])
+    ) {
       continue;
     }
     $plugins[$id] = $plugin;
@@ -1410,14 +1862,17 @@ function ctools_get_relevant_access_plugins($contexts) {
 function ctools_access_get_loggedin_context() {
   $context = ctools_context_create('entity:user', array('type' => 'current'), TRUE);
   $context->identifier = t('Logged in user');
-  $context->keyword    = 'viewer';
-  $context->id         = 0;
+  $context->keyword = 'viewer';
+  $context->id = 0;
 
   return $context;
 }
 
 /**
  * Get a summary of an access plugin's settings.
+ *
+ * @return string
+ *   The summary text.
  */
 function ctools_access_summary($plugin, $contexts, $test) {
   if (!isset($contexts['logged-in-user'])) {
@@ -1427,8 +1882,9 @@ function ctools_access_summary($plugin, $contexts, $test) {
   $description = '';
   if ($function = ctools_plugin_get_function($plugin, 'summary')) {
     $required_context = isset($plugin['required context']) ? $plugin['required context'] : array();
-    $context          = isset($test['context']) ? $test['context'] : array();
-    $description      = $function($test['settings'], ctools_context_select($contexts, $required_context, $context), $plugin);
+    $context = isset($test['context']) ? $test['context'] : array();
+    $selected_context = ctools_context_select($contexts, $required_context, $context);
+    $description = $function($test['settings'], $selected_context, $plugin);
   }
 
   if (!empty($test['not'])) {
@@ -1440,10 +1896,23 @@ function ctools_access_summary($plugin, $contexts, $test) {
 
 /**
  * Get a summary of a group of access plugin's settings.
+ *
+ * @param $access
+ *   An array of settings theoretically set by the user, including the array
+ *   of plugins to check:
+ *    - 'plugins': the array of plugin metadata info to check
+ *    - 'logic': (optional) either 'and' or 'or', indicating how to combine
+ *      restrictions. Defaults to 'or'.
+ * @param array $contexts
+ *   An array of zero or more contexts that may be used to determine if
+ *   the user has access.
+ *
+ * @return string
+ *   The summary text. Can be NULL if there are no plugins defined.
  */
 function ctools_access_group_summary($access, $contexts) {
-  if (empty($access['plugins'])) {
-    return;
+  if (empty($access['plugins']) || !is_array($access['plugins'])) {
+    return NULL;
   }
 
   $descriptions = array();
@@ -1452,21 +1921,29 @@ function ctools_access_group_summary($access, $contexts) {
     $descriptions[] = ctools_access_summary($plugin, $contexts, $test);
   }
 
-  $separator = (isset($access['logic']) && $access['logic'] == 'and') ? t(', and ') : t(', or ');
+  $separator =
+    (isset($access['logic']) && $access['logic'] === 'and')
+      ? t(', and ') : t(', or ');
   return implode($separator, $descriptions);
 }
 
 /**
- * Determine if the current user has access via  plugin.
+ * Determine if the current user has access via a plugin.
  *
- * @param $settings
- *   An array of settings theoretically set by the user.
- * @param $contexts
+ * @param array $settings
+ *   An array of settings theoretically set by the user, including the array
+ *   of plugins to check:
+ *    - 'plugins': the array of plugin metadata info to check
+ *    - 'logic': (optional) either 'and' or 'or', indicating how to combine
+ *      restrictions. The 'or' case is not fully implemented and returns the
+ *      input contexts unchanged.
+ *
+ * @param array $contexts
  *   An array of zero or more contexts that may be used to determine if
  *   the user has access.
  *
- * @return
- *   TRUE if access is granted, false if otherwise.
+ * @return bool
+ *   TRUE if access is granted, FALSE if otherwise.
  */
 function ctools_access($settings, $contexts = array()) {
   if (empty($settings['plugins'])) {
@@ -1505,7 +1982,7 @@ function ctools_access($settings, $contexts = array()) {
       // Pass if 'or' and this rule passed.
       return TRUE;
     }
-    else if (!$pass && $settings['logic'] == 'and') {
+    elseif (!$pass && $settings['logic'] == 'and') {
       // Fail if 'and' and this rule failed.
       return FALSE;
     }
@@ -1513,7 +1990,7 @@ function ctools_access($settings, $contexts = array()) {
 
   // Return TRUE if logic was and, meaning all rules passed.
   // Return FALSE if logic was or, meaning no rule passed.
-  return $settings['logic'] == 'and';
+  return ($settings['logic'] === 'and');
 }
 
 /**
@@ -1522,7 +1999,7 @@ function ctools_access($settings, $contexts = array()) {
  * @param $plugin
  *   The access plugin being used.
  *
- * @return
+ * @return array
  *   A default configured test that should be placed in $access['plugins'];
  */
 function ctools_access_new_test($plugin) {
@@ -1544,7 +2021,6 @@ function ctools_access_new_test($plugin) {
     }
   }
 
-
   $default = NULL;
   if (isset($plugin['default'])) {
     $default = $plugin['default'];
@@ -1558,7 +2034,7 @@ function ctools_access_new_test($plugin) {
     if (is_array($default)) {
       $test['settings'] = $default;
     }
-    else if (function_exists($default)) {
+    elseif (function_exists($default)) {
       $test['settings'] = $default();
     }
     else {
@@ -1572,11 +2048,23 @@ function ctools_access_new_test($plugin) {
 /**
  * Apply restrictions to contexts based upon the access control configured.
  *
- * These restrictions allow the UI to not show content that may not
- * be relevant to all types of a particular context.
+ * These restrictions allow the UI to not show content that may not be relevant
+ * to all types of a particular context.
+ *
+ * @param array $settings
+ *   Array of keys specifying the settings:
+ *    - 'plugins': the array of plugin metadata info to check. If not set, or
+ *      not an array, the function returns with no action.
+ *    - 'logic': (optional) either 'and' or 'or', indicating how to combine
+ *      restrictions. Defaults to 'and'.
+ *      The 'or' case is not fully implemented and returns with no action if
+ *      there is more than one plugin.
+ *
+ * @param array $contexts
+ *   Array of available contexts.
  */
 function ctools_access_add_restrictions($settings, $contexts) {
-  if (empty($settings['plugins'])) {
+  if (empty($settings['plugins']) || !is_array($settings['plugins'])) {
     return;
   }
 
@@ -1585,16 +2073,20 @@ function ctools_access_add_restrictions($settings, $contexts) {
   }
 
   // We're not going to try to figure out restrictions on the or.
-  if ($settings['logic'] == 'or' && count($settings['plugins']) > 1) {
+  if ($settings['logic'] === 'or' && count($settings['plugins']) > 1) {
     return;
   }
 
   foreach ($settings['plugins'] as $test) {
     $plugin = ctools_get_access_plugin($test['name']);
-    if ($plugin && $function = ctools_plugin_get_function($plugin, 'restrictions')) {
+    // $plugin is 'array()' on error.
+    if ($plugin
+      && $function = ctools_plugin_get_function($plugin, 'restrictions')
+    ) {
       $required_context = isset($plugin['required context']) ? $plugin['required context'] : array();
       $context = isset($test['context']) ? $test['context'] : array();
       $contexts = ctools_context_select($contexts, $required_context, $context);
+
       if ($contexts !== FALSE) {
         $function($test['settings'], $contexts);
       }

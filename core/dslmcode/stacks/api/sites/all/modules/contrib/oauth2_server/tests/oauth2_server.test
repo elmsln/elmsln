@@ -1,0 +1,1172 @@
+<?php
+
+/**
+ * @file
+ * OAuth2 tests.
+ */
+
+/**
+ * Test basic API.
+ */
+class OAuth2ServerTestCase extends DrupalWebTestCase {
+
+  protected $profile = 'testing';
+
+  /**
+   * The client key of the test client.
+   *
+   * @var string
+   */
+  protected $client_key = 'test_client';
+
+  /**
+   * The client secret of the test client.
+   *
+   * @var string
+   */
+  protected $client_secret = 'test_secret';
+
+  /**
+   * The public key X.509 certificate used for all tests with encryption.
+   *
+   * @var string
+   */
+  protected $public_key = '-----BEGIN CERTIFICATE-----
+MIIDMDCCApmgAwIBAgIBADANBgkqhkiG9w0BAQQFADB0MS0wKwYDVQQDEyRodHRw
+czovL21hcmtldHBsYWNlLmludGVybmFsLmMtZy5pby8xCzAJBgNVBAYTAkFVMRMw
+EQYDVQQIEwpTb21lLVN0YXRlMSEwHwYDVQQKExhJbnRlcm5ldCBXaWRnaXRzIFB0
+eSBMdGQwHhcNMTQwMTIxMTYyMzAyWhcNMTQwMTIzMTYyMzAyWjB0MS0wKwYDVQQD
+EyRodHRwczovL21hcmtldHBsYWNlLmludGVybmFsLmMtZy5pby8xCzAJBgNVBAYT
+AkFVMRMwEQYDVQQIEwpTb21lLVN0YXRlMSEwHwYDVQQKExhJbnRlcm5ldCBXaWRn
+aXRzIFB0eSBMdGQwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBANVMpjmyWlaD
+6N1x1O4cf5PB6fXjq4dx1zKh/znG/zMJhkaT0TNJDD+3zfpJYFFxZGrbde+dYinL
+jDK+ROvq7+h+93r0eWrld+R/kNWgILJtWwXQACPDd0pVtdOiSSd90QSEfRZyyYCl
+n8RvVIPdPbGiPtDQGDwV5Dc5WcupdJNBAgMBAAGjgdEwgc4wHQYDVR0OBBYEFO4C
+ZtCI7/REm9UO+PFpbAAsHHOUMIGeBgNVHSMEgZYwgZOAFO4CZtCI7/REm9UO+PFp
+bAAsHHOUoXikdjB0MS0wKwYDVQQDEyRodHRwczovL21hcmtldHBsYWNlLmludGVy
+bmFsLmMtZy5pby8xCzAJBgNVBAYTAkFVMRMwEQYDVQQIEwpTb21lLVN0YXRlMSEw
+HwYDVQQKExhJbnRlcm5ldCBXaWRnaXRzIFB0eSBMdGSCAQAwDAYDVR0TBAUwAwEB
+/zANBgkqhkiG9w0BAQQFAAOBgQCSCeFzNdUeFh0yNVatOdQpm2du1v7A4NXpdWL5
+tXJQpv3Vgohc9f2GrVr1np270aJ3rzmSrWugZRHx0A3zhuYTNsapacvIOqmffPHd
+0IZVnRgXnHPqwnWqMWuNtb8DglEEjKarjnOos/RbGvbirWsAJObxnt9kfI5wUOoA
+0mYehA==
+-----END CERTIFICATE-----';
+
+  /**
+   * The private key used for all tests with encryption.
+   *
+   * @var string
+   */
+  protected $private_key = '-----BEGIN RSA PRIVATE KEY-----
+MIICXgIBAAKBgQDVTKY5slpWg+jdcdTuHH+Twen146uHcdcyof85xv8zCYZGk9Ez
+SQw/t836SWBRcWRq23XvnWIpy4wyvkTr6u/ofvd69Hlq5Xfkf5DVoCCybVsF0AAj
+w3dKVbXTokknfdEEhH0WcsmApZ/Eb1SD3T2xoj7Q0Bg8FeQ3OVnLqXSTQQIDAQAB
+AoGAa/aEHKgd+bSC5bN8Z5mdKZj5ZzB53fDNUB+XJBOJkLe9c3PWa/MJdCcA5zLE
+wfR3M28p3sL2sNkKeZS9JfyguU0QQzMhrnJZMSwPzrcUEVcRI/3vCvgnWr/4UFBW
+JQpdWGvmk9MNg83y/ddnIBHEQRI9POz/dt/4L58Vq5YUy8ECQQDuWHV2nMmvuAiW
+/s+D+S8arhfUyupNEVhNvpqMxK/25s4rUHGadIWm2TPStWEyxQGE4Om4bcw8KOLw
+iAeKQ/qFAkEA5RlDJHz0CEgW4+bM+rOIi+tLB2C+TLzKH0eDGpeImAdsk4Z53Lxm
+22iZm3DtkEqrrl+bYiaQVFovtbd5wmS4jQJBALFlcXfo1kxNA0evO7CUZLTM4rvk
+k2LtB/ZFaS5grj9sJgMjCorVMyyt+N5ZVZC+BJVr+Ujln98e51nzRPlqAykCQQC/
+9rT94/2O2ujjOcdT4g9uPk/19KhAIIi0QPWn2IVJ7h6aVrnRrcP54OGlD7DfkNHe
+IJpQWcPiClejygMqUb8ZAkEA6SFArj46gwFaERr+D8wMizfZdxhzEuMMG3angAuV
+1VPFI7qyv4rtDVATTk8RXeXUcP7l3JaQbqh+Jf0d1eSUpg==
+-----END RSA PRIVATE KEY-----';
+
+  public static function getInfo() {
+    return array(
+      'name' => 'OAuth2 Server',
+      'description' => 'Tests basic OAuth2 Server functionality.',
+      'group' => 'OAuth2',
+    );
+  }
+
+  public function setUp() {
+    parent::setUp('oauth2_server', 'oauth2_server_test');
+
+    // Set the keys so that the module can see them.
+    $keys = array(
+      'public_key' => $this->public_key,
+      'private_key' => $this->private_key,
+    );
+    variable_set('oauth2_server_keys', $keys);
+    variable_set('oauth2_server_keys_last_generated', REQUEST_TIME);
+
+    // Create the server and client.
+    $server = entity_create('oauth2_server', array());
+    $server->name = 'test';
+    $server->label = 'Test';
+    $server->settings = array(
+      'default_scope' => 'basic',
+      'enforce_state' => TRUE,
+      'allow_implicit' => TRUE,
+      'use_openid_connect' => TRUE,
+      'use_crypto_tokens' => FALSE,
+      'store_encrypted_token_string' => FALSE,
+      'require_exact_redirect_uri' => TRUE,
+      'grant_types' => array(
+        'authorization_code' => 'authorization_code',
+        'client_credentials' => 'client_credentials',
+        'urn:ietf:params:oauth:grant-type:jwt-bearer' => 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+        'refresh_token' => 'refresh_token',
+        'password' => 'password',
+      ),
+      'always_issue_new_refresh_token' => TRUE,
+      'access_lifetime' => 3600,
+      'id_lifetime' => 3600,
+      'refresh_token_lifetime' => 1209600,
+    );
+    $server->save();
+
+    $client = entity_create('oauth2_server_client', array());
+    $client->server = $server->name;
+    $client->label = 'Test client';
+    $client->client_key = $this->client_key;
+    $client->client_secret = oauth2_server_hash_client_secret($this->client_secret);
+    $client->public_key = $this->public_key;
+    // The module supports entering multiple redirect uris separated by a
+    // newline. Both a dummy and the real uri are specified to confirm that
+    // validation passes.
+    $client->redirect_uri = 'https://google.com' . "\n" . url('authorized', array('absolute' => TRUE));
+    $client->automatic_authorization = TRUE;
+    $client->save();
+
+    $scopes = array(
+      'basic' => 'Basic',
+      'admin' => 'Admin',
+      'forbidden' => 'Forbidden',
+      'openid' => 'OpenID Connect',
+      'email' => 'email',
+      'phone' => 'phone',
+      'profile' => 'Profile',
+      'offline_access' => 'Offline Access',
+    );
+    foreach ($scopes as $scope_name => $scope_label) {
+      $scope = entity_create('oauth2_server_scope', array());
+      $scope->server = $server->name;
+      $scope->name = $scope_name;
+      $scope->description = '';
+      $scope->save();
+    }
+  }
+
+  /**
+   * Performs an authorization request and returns it.
+   *
+   * Used to test authorization, the implicit flow, and the authorization_code
+   * grant type.
+   *
+   * @return
+   *   The return value of $this->httpRequest().
+   */
+  protected function authorizationCodeRequest($response_type, $scope = NULL) {
+    $query = array(
+      'response_type' => $response_type,
+      'client_id' => $this->client_key,
+      'state' => drupal_get_token($this->client_key),
+      // The "authorized" url doesn't actually exist, but we don't need it.
+      'redirect_uri' => url('authorized', array('absolute' => TRUE)),
+      // OpenID Connect requests require a nonce. Others ignore it.
+      'nonce' => 'test',
+    );
+    if ($scope) {
+      $query['scope'] = $scope;
+    }
+
+    $authorize_url = url('oauth2/authorize', array('absolute' => TRUE, 'query' => $query));
+    return $this->httpRequest($authorize_url);
+  }
+
+  /**
+   * Tests the authorization part of the flow.
+   */
+  public function testAuthorization() {
+    // Create a user, log him in, and retry the request.
+    $user = $this->drupalCreateUser(array('use oauth2 server'));
+    $this->drupalLogin($user);
+    $result = $this->authorizationCodeRequest('code');
+
+    // Test the redirect_uri and authorization code.
+    $redirect_url_parts = explode('?', $result->redirect_url);
+    $authorize_redirect = FALSE;
+    $redirect_uri = url('authorized', array('absolute' => TRUE));
+    if ($result->code == 302 && $redirect_url_parts[0] == $redirect_uri) {
+      $authorize_redirect = TRUE;
+    }
+    $this->assertTrue($authorize_redirect, 'User was properly redirected to the "redirect_uri".');
+    $redirect_url_params = drupal_get_query_array($redirect_url_parts[1]);
+    $redirect_url_params += array('code' => '');
+    $this->assertTrue($redirect_url_params['code'], 'The server returned an authorization code');
+    $valid_token = drupal_valid_token($redirect_url_params['state'], $this->client_key);
+    $this->assertTrue($valid_token, 'The server returned a valid state');
+  }
+
+  /**
+   * Tests the implicit flow.
+   */
+  function testImplicitFlow() {
+    $user = $this->drupalCreateUser(array('use oauth2 server'));
+    $this->drupalLogin($user);
+    $result = $this->authorizationCodeRequest('token');
+
+    $this->assertEqual($result->code, 302, 'The implicit flow request completed successfully');
+    $redirect_url_parts = explode('#', $result->redirect_url);
+    $response = drupal_get_query_array($redirect_url_parts[1]);
+    $this->assertTokenResponse($response, FALSE);
+
+    // We have received an access token. Verify it.
+    // See http://drupal.org/node/1958718.
+    if (!empty($response['access_token'])) {
+      $verification_url = url('oauth2/tokens/' . $response['access_token'], array('absolute' => TRUE));
+      $result = $this->httpRequest($verification_url);
+      $verification_response = json_decode($result->data);
+      $this->assertEqual($result->code, 200, 'The provided access token was successfully verified.');
+      $this->assertEqual($verification_response->scope, urldecode($response['scope']), 'The provided scope matches the scope of the verified access token.');
+    }
+  }
+
+  /**
+   * Tests the "Authorization code" grant type.
+   */
+  public function testAuthorizationCodeGrantType() {
+    $user = $this->drupalCreateUser(array('use oauth2 server'));
+    $this->drupalLogin($user);
+    // Perform authorization and get the code.
+    $result = $this->authorizationCodeRequest('code');
+    $redirect_url_parts = explode('?', $result->redirect_url);
+    $redirect_url_params = drupal_get_query_array($redirect_url_parts[1]);
+    $authorization_code = $redirect_url_params['code'];
+
+    $token_url = url('oauth2/token', array('absolute' => TRUE));
+    $data = array(
+      'grant_type' => 'authorization_code',
+      'code' => $authorization_code,
+      'redirect_uri' => url('authorized', array('absolute' => TRUE)),
+    );
+    $options = array(
+      'method' => 'POST',
+      'data' => http_build_query($data),
+      'headers' => array(
+        'Content-Type' => 'application/x-www-form-urlencoded',
+        // Instead of the Authorization header, the server also supports
+        // passing the client key and client secret inside the request body
+        // ($data['client_id'] and $data['client_secret']) for all grant types,
+        // but it is not recommended and should be limited to clients unable
+        // to directly utilize the HTTP Basic authentication scheme.
+        'Authorization' => 'Basic ' . base64_encode($this->client_key . ':' . $this->client_secret),
+      ),
+    );
+    $result = $this->httpRequest($token_url, $options);
+
+    $this->assertEqual($result->code, 200, 'The token request completed successfully');
+    $response = json_decode($result->data);
+    $this->assertTokenResponse($response);
+  }
+
+  /**
+   * Tests the "Client credentials" grant type.
+   */
+  public function testClientCredentialsGrantType() {
+    $user = $this->drupalCreateUser(array('use oauth2 server'));
+    $this->drupalLogin($user);
+    $token_url = url('oauth2/token', array('absolute' => TRUE));
+    $data = array(
+      'grant_type' => 'client_credentials',
+    );
+    $options = array(
+      'method' => 'POST',
+      'data' => http_build_query($data),
+      'headers' => array(
+        'Content-Type' => 'application/x-www-form-urlencoded',
+        'Authorization' => 'Basic ' . base64_encode($this->client_key . ':' . $this->client_secret),
+      ),
+    );
+    $result = $this->httpRequest($token_url, $options);
+
+    $this->assertEqual($result->code, 200, 'The token request completed successfully');
+    $response = json_decode($result->data);
+    $this->assertTokenResponse($response, FALSE);
+  }
+
+  /**
+   * Tests the "JWT bearer" grant type.
+   */
+  public function testJwtBearerGrantType() {
+    $jwt_util = new OAuth2\Encryption\Jwt();
+    $user = $this->drupalCreateUser(array('use oauth2 server'));
+    $this->drupalLogin($user);
+
+    $token_url = url('oauth2/token', array('absolute' => TRUE));
+    $jwt_data = array(
+      'iss' => $this->client_key,
+      'exp' => time() + 1000,
+      'iat' => time(),
+      'sub' => $user->uid,
+      'aud' => $token_url,
+      'jti' => '123456',
+    );
+    $data = array(
+      'grant_type' => 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+      'assertion' => $jwt_util->encode($jwt_data, $this->private_key, 'RS256'),
+    );
+    $options = array(
+      'method' => 'POST',
+      'data' => http_build_query($data),
+      'headers' => array(
+        'Content-Type' => 'application/x-www-form-urlencoded',
+      ),
+    );
+    $result = $this->httpRequest($token_url, $options);
+
+    $this->assertEqual($result->code, 200, 'The token request completed successfully');
+    $response = json_decode($result->data);
+    $this->assertTokenResponse($response, FALSE);
+  }
+
+  /**
+   * Tests the "User credentials" grant type.
+   */
+  public function testPasswordGrantType() {
+    $result = $this->passwordGrantRequest();
+    $this->assertEqual($result->code, 200, 'The token request completed successfully');
+    $response = json_decode($result->data);
+    $this->assertTokenResponse($response);
+  }
+
+  /**
+   * Tests the "Refresh token" grant type.
+   */
+  public function testRefreshTokenGrantType() {
+    // Do a password grant first, in order to get the refresh token.
+    $result = $this->passwordGrantRequest();
+    $response = json_decode($result->data);
+    $refresh_token = $response->refresh_token;
+
+    $token_url = url('oauth2/token', array('absolute' => TRUE));
+    $data = array(
+      'grant_type' => 'refresh_token',
+      'refresh_token' => $refresh_token,
+    );
+    $options = array(
+      'method' => 'POST',
+      'data' => http_build_query($data),
+      'headers' => array(
+        'Content-Type' => 'application/x-www-form-urlencoded',
+        'Authorization' => 'Basic ' . base64_encode($this->client_key . ':' . $this->client_secret),
+      ),
+    );
+    $result = $this->httpRequest($token_url, $options);
+
+    $this->assertEqual($result->code, 200, 'The token request completed successfully');
+    $response = json_decode($result->data);
+    // The response will include a new refresh_token because
+    // always_issue_new_refresh_token is TRUE.
+    $this->assertTokenResponse($response);
+  }
+
+  /**
+   * Tests scopes.
+   */
+  public function testScopes() {
+    // The default scope returned by oauth2_server_default_scope().
+    $result = $this->passwordGrantRequest();
+    $response = json_decode($result->data);
+    $this->assertEqual($response->scope, 'basic admin', 'The correct default scope was returned.');
+
+    // A non-existent scope.
+    $result = $this->passwordGrantRequest('invalid_scope');
+    $response = json_decode($result->data);
+    $error = isset($response->error) && $response->error == 'invalid_scope';
+    $this->assertTrue($error, 'Invalid scope correctly detected.');
+
+    // A scope forbidden by oauth2_server_scope_access.
+    // @see oauth2_server_test_entity_query_alter()
+    $result = $this->passwordGrantRequest('forbidden');
+    $response = json_decode($result->data);
+    $error = isset($response->error) && $response->error == 'invalid_scope';
+    $this->assertTrue($error, 'Inaccessible scope correctly detected.');
+
+    // A specific requested scope.
+    $result = $this->passwordGrantRequest('admin');
+    $response = json_decode($result->data);
+    $this->assertEqual($response->scope, 'admin', 'The correct scope was returned.');
+  }
+
+  /**
+   * Tests the OpenID Connect authorization code flow.
+   */
+  function testOpenIdConnectAuthorizationCodeFlow() {
+    $user = $this->drupalCreateUser(array('use oauth2 server'));
+    $this->drupalLogin($user);
+
+    // Perform authorization without the offline_access scope.
+    // No refresh_token should be returned from the /token endpoint.
+    $result = $this->authorizationCodeRequest('code', 'openid');
+    $redirect_url_parts = explode('?', $result->redirect_url);
+    $redirect_url_params = drupal_get_query_array($redirect_url_parts[1]);
+    $authorization_code = $redirect_url_params['code'];
+
+    $token_url = url('oauth2/token', array('absolute' => TRUE));
+    $data = array(
+      'grant_type' => 'authorization_code',
+      'code' => $authorization_code,
+      'redirect_uri' => url('authorized', array('absolute' => TRUE)),
+    );
+    $options = array(
+      'method' => 'POST',
+      'data' => http_build_query($data),
+      'headers' => array(
+        'Content-Type' => 'application/x-www-form-urlencoded',
+        'Authorization' => 'Basic ' . base64_encode($this->client_key . ':' . $this->client_secret),
+      ),
+    );
+    $result = $this->httpRequest($token_url, $options);
+
+    $this->assertEqual($result->code, 200, 'The token request completed successfully');
+    $response = json_decode($result->data);
+    $this->assertTokenResponse($response, FALSE);
+    if (!empty($response->id_token)) {
+      $this->assertIdToken($response->id_token);
+    }
+    else {
+      $this->assertTrue(FALSE, 'The token request returned an id_token.');
+    }
+
+    // Perform authorization witho the offline_access scope.
+    // A refresh_token should be returned from the /token endpoint.
+    $result = $this->authorizationCodeRequest('code', 'openid offline_access');
+    $redirect_url_parts = explode('?', $result->redirect_url);
+    $redirect_url_params = drupal_get_query_array($redirect_url_parts[1]);
+    $authorization_code = $redirect_url_params['code'];
+
+    $token_url = url('oauth2/token', array('absolute' => TRUE));
+    $data = array(
+      'grant_type' => 'authorization_code',
+      'code' => $authorization_code,
+      'redirect_uri' => url('authorized', array('absolute' => TRUE)),
+    );
+    $options = array(
+      'method' => 'POST',
+      'data' => http_build_query($data),
+      'headers' => array(
+        'Content-Type' => 'application/x-www-form-urlencoded',
+        'Authorization' => 'Basic ' . base64_encode($this->client_key . ':' . $this->client_secret),
+      ),
+    );
+    $result = $this->httpRequest($token_url, $options);
+
+    $this->assertEqual($result->code, 200, 'The token request completed successfully');
+    $response = json_decode($result->data);
+    $this->assertTokenResponse($response);
+    if (!empty($response->id_token)) {
+      $this->assertIdToken($response->id_token);
+    }
+    else {
+      $this->assertTrue(FALSE, 'The token request returned an id_token.');
+    }
+  }
+
+  /**
+   * Tests the OpenID Connect implicit flow.
+   */
+  function testOpenIdConnectImplicitFlow() {
+    $account = $this->drupalCreateUser(array('use oauth2 server'));
+    $this->drupalLogin($account);
+    $result = $this->authorizationCodeRequest('id_token', 'openid email');
+    $this->assertEqual($result->code, 302, 'The "id_token" implicit flow request completed successfully');
+    $redirect_url_parts = explode('#', $result->redirect_url);
+    $response = drupal_get_query_array($redirect_url_parts[1]);
+    if (!empty($response['id_token'])) {
+      $this->assertIdToken($response['id_token'], FALSE, $account);
+    }
+    else {
+      $this->assertTrue(FALSE, 'The token request returned an id_token.');
+    }
+
+    $result = $this->authorizationCodeRequest('token id_token', 'openid email profile phone');
+    $this->assertEqual($result->code, 302, 'The "token id_token" implicit flow request completed successfully');
+    $redirect_url_parts = explode('#', $result->redirect_url);
+    $response = drupal_get_query_array($redirect_url_parts[1]);
+    $this->assertTokenResponse($response, FALSE);
+    if (!empty($response['id_token'])) {
+      $this->assertIdToken($response['id_token'], TRUE);
+    }
+    else {
+      $this->assertTrue(FALSE, 'The token request returned an id_token.');
+    }
+
+    // Add a timezone to the account, to test the 'zoneinfo' claim.
+    user_save($account, array(
+      'timezone' => 'Europe/London',
+    ));
+
+    // Request OpenID Connect user information (claims).
+    $query = array(
+      'access_token' => $response['access_token'],
+    );
+    $info_url = url('oauth2/UserInfo', array('absolute' => TRUE, 'query' => $query));
+    $result = $this->httpRequest($info_url);
+    $response = json_decode($result->data);
+
+    $expected_claims = array(
+      'sub' => $account->uid,
+      'email' => $account->mail,
+      'email_verified' => TRUE,
+      'phone_number' => '123456',
+      'phone_number_verified' => FALSE,
+      'preferred_username' => $account->name,
+      'name' => format_username($account),
+      'zoneinfo' => $account->timezone,
+    );
+
+    foreach ($expected_claims as $claim => $expected_value) {
+      $this->assertEqual($response->$claim, $expected_value, 'The UserInfo endpoint returned a valid "' . $claim . '" claim');
+    }
+  }
+
+  /**
+   * Tests that the OpenID Connect 'sub' property affects user info 'sub' claim.
+   */
+  public function testOpenIdConnectNonDefaultSub() {
+    variable_set('oauth2_server_user_sub_property', 'name');
+    $result = $this->passwordGrantRequest('openid');
+    $response = json_decode($result->data);
+    $access_token = $response->access_token;
+
+    $query = array(
+      'access_token' => $access_token,
+    );
+    $info_url = url('oauth2/UserInfo', array('absolute' => TRUE, 'query' => $query));
+    $result = $this->httpRequest($info_url);
+    $response = json_decode($result->data, TRUE);
+    $this->assertEqual($this->loggedInUser->name, $response['sub'], 'The UserInfo "sub" is now the user\'s name.');
+  }
+
+  /**
+   * Tests that the OpenID Connect 'sub' property affects ID token 'sub' claim.
+   */
+  public function testOpenIdConnectNonDefaultSubInIdToken() {
+    variable_set('oauth2_server_user_sub_property', 'name');
+
+    // This is the authorization code grant type flow.
+    $user = $this->drupalCreateUser(array('use oauth2 server'));
+    $this->drupalLogin($user);
+    $result = $this->authorizationCodeRequest('code', 'openid offline_access');
+    $redirect_url_parts = explode('?', $result->redirect_url);
+    $redirect_url_params = drupal_get_query_array($redirect_url_parts[1]);
+    $authorization_code = $redirect_url_params['code'];
+
+    // Get tokens using the authorization code.
+    $token_url = url('oauth2/token', array('absolute' => TRUE));
+    $data = array(
+      'grant_type' => 'authorization_code',
+      'code' => $authorization_code,
+      'redirect_uri' => url('authorized', array('absolute' => TRUE)),
+    );
+    $options = array(
+      'method' => 'POST',
+      'data' => http_build_query($data),
+      'headers' => array(
+        'Content-Type' => 'application/x-www-form-urlencoded',
+        'Authorization' => 'Basic ' . base64_encode($this->client_key . ':' . $this->client_secret),
+      ),
+    );
+    $result = $this->httpRequest($token_url, $options);
+    $response = json_decode($result->data);
+
+    $parts = explode('.', $response->id_token);
+    $claims = json_decode(oauth2_server_base64url_decode($parts[1]), TRUE);
+    $this->assertEqual($this->loggedInUser->name, $claims['sub'], 'The ID token "sub" is now the user\'s name.');
+  }
+
+  /**
+   * Tests crypto tokens.
+   */
+  public function testCryptoTokens() {
+    // Enable crypto tokens.
+    $server = oauth2_server_load('test');
+    $server->settings['use_crypto_tokens'] = TRUE;
+    $server->save();
+
+    $result = $this->passwordGrantRequest();
+    $this->assertEqual($result->code, 200, 'The token request completed successfully');
+    $response = json_decode($result->data);
+    // The refresh token is contained inside the crypto token.
+    $this->assertTokenResponse($response, FALSE);
+
+    $verified = FALSE;
+    if (substr_count($response->access_token, '.') == 2) {
+      // Verify the JTW Access token following the instructions from
+      // http://bshaffer.github.io/oauth2-server-php-docs/overview/jwt-access-tokens
+      list($header, $payload, $signature) = explode('.', $response->access_token);
+      // The signature is "url safe base64 encoded".
+      $signature = base64_decode(strtr($signature, '-_,', '+/'));
+      $payload_to_verify = utf8_decode($header . '.' . $payload);
+      $verified = openssl_verify($payload_to_verify, $signature, $this->public_key, 'sha256');
+    }
+    $this->assertTrue($verified, 'The JWT Access Token is valid.');
+  }
+
+  /**
+   * Tests revoking an access token.
+   */
+  public function testRevoke() {
+    $result = $this->passwordGrantRequest();
+    $response = json_decode($result->data);
+    $access_token = $response->access_token;
+
+    $resource_request_options = array(
+      'headers' => array(
+        'Authorization' => 'Bearer ' . $access_token,
+      ),
+    );
+    $resource_url = url('oauth2_test/resource/admin', array('absolute' => TRUE));
+
+    $result = $this->httpRequest($resource_url, $resource_request_options);
+    $this->assertEqual($result->code, 200, 'Token works before revocation.');
+
+    // Revoke the access token.
+    $revoke_url = url('oauth2/revoke', array('absolute' => TRUE));
+    $revoke_options = array(
+      'method' => 'POST',
+      'data' => http_build_query(array(
+        'token' => $access_token,
+        'token_type_hint' => 'access_token',
+      )),
+      'headers' => array(
+        'Content-Type' => 'application/x-www-form-urlencoded',
+        'Authorization' => 'Basic ' . base64_encode($this->client_key . ':' . $this->client_secret),
+      ),
+    );
+    $result = $this->httpRequest($revoke_url, $revoke_options);
+    // Note: a valid revoke request will always return 200 even if the token was
+    // invalid (see https://tools.ietf.org/html/rfc7009#section-2.2).
+    $this->assertEqual(200, $result->code, 'Revoke request succeeded');
+
+    $result = $this->httpRequest($resource_url, $resource_request_options);
+    $this->assertEqual($result->code, 401, 'Token no longer works after revocation.');
+  }
+
+  /**
+   * Tests resource requests.
+   */
+  public function testResourceRequests() {
+    $result = $this->passwordGrantRequest('admin');
+    $response = json_decode($result->data);
+    $access_token = $response->access_token;
+
+    // Check resource access with no access token.
+    $resource_url = url('oauth2_test/resource/admin', array('absolute' => TRUE));
+    $result = $this->httpRequest($resource_url);
+    $this->assertEqual($result->code, 401, 'Missing access token correctly detected.');
+
+    // Check resource access with an insufficient scope.
+    $query = array(
+      'access_token' => $access_token,
+    );
+    $resource_url = url('oauth2_test/resource/forbidden', array('absolute' => TRUE, 'query' => $query));
+    $result = $this->httpRequest($resource_url);
+    $response = json_decode($result->data);
+    $error = isset($response->error) && $response->error == 'insufficient_scope';
+    $this->assertTrue($error, 'Insufficient scope correctly detected.');
+
+    // Check resource access with the access token in the url.
+    $query = array(
+      'access_token' => $access_token,
+    );
+    $resource_url = url('oauth2_test/resource/admin', array('absolute' => TRUE, 'query' => $query));
+    $result = $this->httpRequest($resource_url);
+    $this->assertEqual($result->code, 200, 'Access token in the URL correctly detected.');
+
+    // Check resource access with the access token in the header.
+    $resource_url = url('oauth2_test/resource/admin', array('absolute' => TRUE));
+    $options = array(
+      'headers' => array(
+        'Authorization' => 'Bearer ' . $access_token,
+      ),
+    );
+    $result = $this->httpRequest($resource_url, $options);
+    $this->assertEqual($result->code, 200, 'Access token in the header correctly detected.');
+  }
+
+  /**
+   * Test that access is denied when using a token for a blocked user.
+   */
+  public function testBlockedUserTokenFails() {
+    // Get a normal access token for a normal user.
+    $result = $this->passwordGrantRequest('admin');
+    $response = json_decode($result->data);
+    $access_token = $response->access_token;
+
+    // Check resource access while the user is active.
+    $resource_url = url('oauth2_test/resource/admin', array('absolute' => TRUE));
+    $options = array(
+      'headers' => array(
+        'Authorization' => 'Bearer ' . $access_token,
+      ),
+    );
+    $result = $this->httpRequest($resource_url, $options);
+    $this->assertEqual($result->code, 200, 'An active user is correctly authenticated.');
+
+    // Block the user.
+    user_save($this->loggedInUser, array('status' => 0));
+
+    // Check resource access while the user is blocked.
+    $resource_url = url('oauth2_test/resource/admin', array('absolute' => TRUE));
+    $options = array(
+      'headers' => array(
+        'Authorization' => 'Bearer ' . $access_token,
+      ),
+    );
+    $result = $this->httpRequest($resource_url, $options);
+    $this->assertEqual($result->code, 403, 'A blocked user is denied access with 403 Forbidden.');
+  }
+
+  /**
+   * Performs a password grant request and returns it.
+   *
+   * Used to test the grant itself, as well as a helper for other tests
+   * (since it's a fast way of getting an access token).
+   *
+   * @param $scope
+   *   An optional scope to request.
+   *
+   * @return
+   *   The return value of $this->httpRequest().
+   */
+  protected function passwordGrantRequest($scope = NULL) {
+    $user = $this->drupalCreateUser(array('use oauth2 server'));
+    $this->drupalLogin($user);
+
+    $token_url = url('oauth2/token', array('absolute' => TRUE));
+    $data = array(
+      'grant_type' => 'password',
+      'username' => $user->name,
+      'password' => $user->pass_raw,
+    );
+    if ($scope) {
+      $data['scope'] = $scope;
+    }
+
+    $options = array(
+      'method' => 'POST',
+      'data' => http_build_query($data),
+      'headers' => array(
+        'Content-Type' => 'application/x-www-form-urlencoded',
+        'Authorization' => 'Basic ' . base64_encode($this->client_key . ':' . $this->client_secret),
+      ),
+    );
+
+    return $this->httpRequest($token_url, $options);
+  }
+
+  /**
+   * Performs a drupal_http_request() with additional parameters.
+   *
+   * Passes along all cookies. This ensures that the test user has access
+   * to the oauth2 endpoints.
+   *
+   * @param $url
+   *   $url: A string containing a fully qualified URI.
+   * @param $options
+   *   The options array passed along to drupal_http_request().
+   *
+   * @return
+   *   The result object as returned by drupal_http_request().
+   */
+  protected function httpRequest($url, array $options = array()) {
+    // Forward cookies.
+    $cookie_string = '';
+
+    foreach ($this->cookies as $name => $data) {
+      $cookie_string .= $name . '=' . $data['value'] . ';';
+    }
+
+    $options['headers']['Cookie'] = $cookie_string;
+
+    // Set other general options.
+    $options += array(
+      'max_redirects' => 0,
+    );
+
+    return drupal_http_request($url, $options);
+  }
+
+  /**
+   * Assert that the given id_token response has the expected values.
+   *
+   * @param $id_token
+   *   The id_token.
+   * @param $has_at_hash
+   *   Whether the token is supposed to contain the at_hash claim.
+   * @param $account
+   *   The account of the authenticated user, if the id_token is supposed
+   *   to contain user claims.
+   */
+  protected function assertIdToken($id_token, $has_at_hash = FALSE, $account = NULL) {
+    $parts = explode('.', $id_token);
+    list($headerb64, $claims64, $signatureb64) = $parts;
+    $claims = json_decode(oauth2_server_base64url_decode($claims64), TRUE);
+    $signature = oauth2_server_base64url_decode($signatureb64);
+
+    $payload = utf8_decode($headerb64 . '.' . $claims64);
+    $verified = openssl_verify($payload, $signature, $this->public_key, 'sha256');
+    $this->assertTrue($verified, 'The id_token has a valid signature.');
+
+    $this->assertTrue(array_key_exists('iss', $claims), 'The id_token contains an "iss" claim.');
+    $this->assertTrue(array_key_exists('sub', $claims), 'The id_token contains a "sub" claim.');
+    $this->assertTrue(array_key_exists('aud', $claims), 'The id_token contains an "aud" claim.');
+    $this->assertTrue(array_key_exists('iat', $claims), 'The id_token contains an "iat" claim.');
+    $this->assertTrue(array_key_exists('exp', $claims), 'The id_token contains an "exp" claim.');
+    $this->assertTrue(array_key_exists('auth_time', $claims), 'The id_token contains an "auth_time" claim.');
+    $this->assertTrue(array_key_exists('nonce', $claims), 'The id_token contains a "nonce" claim');
+    if ($has_at_hash) {
+      $this->assertTrue(array_key_exists('at_hash', $claims), 'The id_token contains an "at_hash" claim.');
+    }
+    if ($account) {
+      $this->assertTrue(array_key_exists('email', $claims), 'The id_token contains an "email" claim.');
+      $this->assertTrue(array_key_exists('email_verified', $claims), 'The id_token contains an "email_verified" claim.');
+    }
+
+    $this->assertEqual($claims['aud'], $this->client_key, 'The id_token "aud" claim contains the expected client_id.');
+    $this->assertEqual($claims['nonce'], 'test', 'The id_token "nonce" claim contains the expected nonce.');
+    if ($account) {
+      $this->assertEqual($claims['email'], $account->mail);
+    }
+  }
+
+  /**
+   * Assert that the given token response has the expected values.
+   *
+   * @param $response
+   *   The response (either an object decoded from a json string or the
+   *   query string taken from the url in case of the implicit flow).
+   * @param $has_refresh_token
+   *   A boolean indicating whether this response should have a refresh token.
+   */
+  protected function assertTokenResponse($response, $has_refresh_token = TRUE) {
+    // Make sure we have an array.
+    $response = (array) $response;
+
+    $this->assertTrue(array_key_exists('access_token', $response), 'The "access token" value is present in the return values');
+    $this->assertTrue(array_key_exists('expires_in', $response), 'The "expires_in" value is present in the return values');
+    $this->assertTrue(array_key_exists('token_type', $response), 'The "token_type" value is present in the return values');
+    $this->assertTrue(array_key_exists('scope', $response), 'The "scope" value is present in the return values');
+    if ($has_refresh_token) {
+      $this->assertTrue(array_key_exists('refresh_token', $response), 'The "refresh_token" value is present in the return values');
+    }
+  }
+}
+
+/**
+ * Test \Drupal\oauth2_server\Storage.
+ */
+class OAuth2ServerStorageTestCase extends DrupalWebTestCase {
+  protected $profile = 'testing';
+
+  /**
+   * The client key of the test client.
+   *
+   * @var string
+   */
+  protected $client_key = 'test_client';
+
+  /**
+   * The client secret of the test client.
+   *
+   * @var string
+   */
+  protected $client_secret = 'test_secret';
+
+  /**
+   * The storage instance to be tested.
+   *
+   * @var \Drupal\oauth2_server\Storage
+   */
+  protected $storage;
+
+  /**
+   * The test client.
+   *
+   * @var OAuth2ServerClient
+   */
+  protected $client;
+
+  public static function getInfo() {
+    return array(
+      'name' => 'OAuth2 Server Storage',
+      'description' => 'Tests the Storage implementation for the oauth2-server-php library.',
+      'group' => 'OAuth2',
+    );
+  }
+
+  public function setUp() {
+    parent::setUp('oauth2_server');
+
+    // Create the server and client.
+    $server = entity_create('oauth2_server', array());
+    $server->name = 'test';
+    $server->label = 'Test';
+    $server->settings = array(
+      'default_scope' => '',
+      'allow_implicit' => TRUE,
+      'require_exact_redirect_uri' => TRUE,
+      'grant_types' => array(
+        'authorization_code' => 'authorization_code',
+        'client_credentials' => 'client_credentials',
+        'refresh_token' => 'refresh_token',
+        'password' => 'password',
+      ),
+      'always_issue_new_refresh_token' => TRUE,
+    );
+    $server->save();
+
+    $this->client = entity_create('oauth2_server_client', array());
+    $this->client->server = $server->name;
+    $this->client->label = 'Test client';
+    $this->client->client_key = $this->client_key;
+    $this->client->client_secret = oauth2_server_hash_client_secret($this->client_secret);
+    $this->client->redirect_uri = url('authorized', array('absolute' => TRUE));
+    $this->client->automatic_authorization = TRUE;
+    $this->client->save();
+
+    $this->storage = new Drupal\oauth2_server\Storage();
+  }
+
+  public function testCheckClientCredentials() {
+    // Nonexistent client_id.
+    $result = $this->storage->checkClientCredentials('fakeclient', 'testpass');
+    $this->assertFalse($result, 'Invalid client credentials correctly detected.');
+
+    // Invalid client_secret.
+    $result = $this->storage->checkClientCredentials($this->client_key, 'invalidcredentials');
+    $this->assertFalse($result, 'Invalid client_secret correctly detected.');
+
+    // Valid credentials.
+    $result = $this->storage->checkClientCredentials($this->client_key, $this->client_secret);
+    $this->assertTrue($result, 'Valid client credentials correctly detected.');
+
+    // No client secret.
+    $result = $this->storage->checkClientCredentials($this->client_key, '');
+    $this->assertFalse($result, 'Empty client secret not accepted.');
+
+    // Allow empty client secret, try again.
+    $this->client->client_secret = '';
+    $this->client->save();
+    $result = $this->storage->checkClientCredentials($this->client_key, '');
+    $this->assertTrue($result, 'Empty client secret accepted if none required.');
+
+    // Try again with a NULL client secret. This should be accepted too.
+    $result = $this->storage->checkClientCredentials($this->client_key, NULL);
+    $this->assertTrue($result, 'Null client secret accepted if none required.');
+  }
+
+  public function testGetClientDetails() {
+    // Nonexistent client_id.
+    $details = $this->storage->getClientDetails('fakeclient');
+    $this->assertFalse($details, 'Invalid client_id correctly detected.');
+
+    // Valid client_id.
+    $details = $this->storage->getClientDetails($this->client_key);
+    $this->assertNotNull($details, 'Client details successfully returned.');
+    $this->assertTrue(array_key_exists('client_id', $details), 'The "client_id" value is present in the client details.');
+    $this->assertTrue(array_key_exists('client_secret', $details), 'The "client_secret" value is present in the client details.');
+    $this->assertTrue(array_key_exists('redirect_uri', $details), 'The "redirect_uri" value is present in the client details.');
+  }
+
+  public function testAccessToken() {
+    $user = $this->drupalCreateUser(array('use oauth2 server'));
+
+    $token = $this->storage->getAccessToken('newtoken');
+    $this->assertFalse($token, 'Trying to load a nonexistent token is unsuccessful.');
+
+    $expires = time() + 20;
+    $success = $this->storage->setAccessToken('newtoken', $this->client_key, $user->uid, $expires);
+    $this->assertTrue($success, 'A new access token has been successfully created.');
+
+    // Verify the return format of getAccessToken().
+    $token = $this->storage->getAccessToken('newtoken');
+    $this->assertTrue($token, 'An access token was successfully returned.');
+    $this->assertTrue(array_key_exists('access_token', $token), 'The "access_token" value is present in the token array.');
+    $this->assertTrue(array_key_exists('client_id', $token), 'The "client_id" value is present in the token array.');
+    $this->assertTrue(array_key_exists('user_id', $token), 'The "user_id" value is present in the token array.');
+    $this->assertTrue(array_key_exists('expires', $token), 'The "expires" value is present in the token array.');
+    $this->assertEqual($token['access_token'], 'newtoken', 'The "access_token" key has the expected value.');
+    $this->assertEqual($token['client_id'], $this->client_key, 'The "client_id" key has the expected value.');
+    $this->assertEqual($token['user_id'], $user->uid, 'The "user_id" key has the expected value.');
+    $this->assertEqual($token['expires'], $expires, 'The "expires" key has the expected value.');
+
+    // Update the token.
+    $expires = time() + 42;
+    $success = $this->storage->setAccessToken('newtoken', $this->client_key, $user->uid, $expires);
+    $this->assertTrue($success, 'The access token was successfully updated.');
+
+    $token = $this->storage->getAccessToken('newtoken');
+    $this->assertTrue($token, 'An access token was successfully returned.');
+    $this->assertEqual($token['expires'], $expires, 'The expires timestamp matches the new value.');
+  }
+
+  public function testSetRefreshToken() {
+    $user = $this->drupalCreateUser(array('use oauth2 server'));
+
+    $token = $this->storage->getRefreshToken('refreshtoken');
+    $this->assertFalse($token, 'Trying to load a nonexistent token is unsuccessful.');
+
+    $expires = time() + 20;
+    $success = $this->storage->setRefreshToken('refreshtoken', $this->client_key, $user->uid, $expires);
+    $this->assertTrue($success, 'A new refresh token has been successfully created.');
+
+    // Verify the return format of getRefreshToken().
+    $token = $this->storage->getRefreshToken('refreshtoken');
+    $this->assertTrue($token, 'A refresh token was successfully returned.');
+    $this->assertTrue(array_key_exists('refresh_token', $token), 'The "refresh_token" value is present in the token array.');
+    $this->assertTrue(array_key_exists('client_id', $token), 'The "client_id" value is present in the token array.');
+    $this->assertTrue(array_key_exists('user_id', $token), 'The "user_id" value is present in the token array.');
+    $this->assertTrue(array_key_exists('expires', $token), 'The "expires" value is present in the token array.');
+    $this->assertEqual($token['refresh_token'], 'refreshtoken', 'The "refresh_token" key has the expected value.');
+    $this->assertEqual($token['client_id'], $this->client_key, 'The "client_id" key has the expected value.');
+    $this->assertEqual($token['user_id'], $user->uid, 'The "user_id" key has the expected value.');
+    $this->assertEqual($token['expires'], $expires, 'The "expires" key has the expected value.');
+  }
+
+  public function testAuthorizationCode() {
+    $user = $this->drupalCreateUser(array('use oauth2 server'));
+
+    $code = $this->storage->getAuthorizationCode('newcode');
+    $this->assertFalse($code, 'Trying to load a nonexistent authorization code is unsuccessful.');
+
+    $expires = time() + 20;
+    $success = $this->storage->setAuthorizationCode('newcode', $this->client_key, $user->uid, 'http://example.com', $expires);
+    $this->assertTrue($success, 'A new authorization code was successfully created.');
+
+    // Verify the return format of getAuthorizationCode().
+    $code = $this->storage->getAuthorizationCode('newcode');
+    $this->assertTrue($code, 'An authorization code was successfully returned.');
+    $this->assertTrue(array_key_exists('authorization_code', $code), 'The "authorization_code" value is present in the code array.');
+    $this->assertTrue(array_key_exists('client_id', $code), 'The "client_id" value is present in the code array.');
+    $this->assertTrue(array_key_exists('user_id', $code), 'The "user_id" value is present in the code array.');
+    $this->assertTrue(array_key_exists('redirect_uri', $code), 'The "redirect_uri" value is present in the code array.');
+    $this->assertTrue(array_key_exists('expires', $code), 'The "expires" value is present in the code array.');
+    $this->assertEqual($code['authorization_code'], 'newcode', 'The "authorization_code" key has the expected value.');
+    $this->assertEqual($code['client_id'], $this->client_key, 'The "client_id" key has the expected value.');
+    $this->assertEqual($code['user_id'], $user->uid, 'The "user_id" key has the expected value.');
+    $this->assertEqual($code['redirect_uri'], 'http://example.com', 'The "redirect_uri" key has the expected value.');
+    $this->assertEqual($code['expires'], $expires, 'The "expires" key has the expected value.');
+
+    // Change an existing code
+    $expires = time() + 42;
+    $success = $this->storage->setAuthorizationCode('newcode', $this->client_key, $user->uid, 'http://example.org', $expires);
+    $this->assertTrue($success, 'The authorization code was successfully updated.');
+
+    $code = $this->storage->getAuthorizationCode('newcode');
+    $this->assertTrue($code, 'An authorization code was successfully returned.');
+    $this->assertEqual($code['expires'], $expires, 'The expires timestamp matches the new value.');
+  }
+
+  public function testCheckUserCredentials() {
+    $user = $this->drupalCreateUser(array('use oauth2 server'));
+
+    // Correct credentials
+    $result = $this->storage->checkUserCredentials($user->name, $user->pass_raw);
+    $this->assertTrue($result, 'Valid user credentials correctly detected.');
+    // Invalid username.
+    $result = $this->storage->checkUserCredentials('fakeusername', $user->pass_raw);
+    $this->assertFalse($result, 'Invalid username correctly detected.');
+    // Invalid password.
+    $result = $this->storage->checkUserCredentials($user->name, 'fakepass');
+    $this->assertFalse($result, 'Invalid password correctly detected');
+  }
+}
+
+/**
+ * Test administration forms.
+ */
+class OAuth2ServerAdminTestCase extends DrupalWebTestCase {
+
+  public static function getInfo() {
+    return array(
+      'name' => 'OAuth2 Server Admin',
+      'description' => 'Tests administration functionality for OAuth2 Server.',
+      'group' => 'OAuth2',
+    );
+  }
+
+  public function setUp() {
+    parent::setUp('oauth2_server');
+  }
+
+  public function testEditingClientSecret() {
+    $account = $this->drupalCreateUser(array('administer oauth2 server'));
+    $this->drupalLogin($account);
+
+    $server_name = strtolower($this->randomName());
+
+    // Create a server in the UI.
+    $this->drupalPost('admin/structure/oauth2-servers/add', array(
+      'label' => $this->randomString(),
+      'name' => $server_name,
+    ), t('Save server'));
+
+    // Create a client of the server in the UI, with a random secret.
+    $client_key = strtolower($this->randomName());
+    $secret = $this->randomString(32);
+    $this->drupalPost('admin/structure/oauth2-servers/manage/' . $server_name . '/clients/add', array(
+      'label' => $this->randomString(),
+      'client_key' => $client_key,
+      'redirect_uri' => 'http://localhost',
+      'require_client_secret' => TRUE,
+      'client_secret' => $secret,
+    ), t('Save client'));
+
+    // Test that the raw secret does not match the saved (hashed) one.
+    $client = oauth2_server_client_load($client_key);
+    $this->assertNotEqual($secret, $client->client_secret, 'Raw secret does not match hashed secret.');
+
+    // Test that the secret can be matched.
+    $this->assertTrue(oauth2_server_check_client_secret($client->client_secret, $secret), 'Hashes match for known secret and stored secret.');
+
+    // Edit the client, and do not set a new secret. It should stay the same.
+    $old_hashed_secret = $client->client_secret;
+    $this->updateClient($client, array(
+      'label' => $this->randomString(),
+    ));
+    $client_controller = entity_get_controller('oauth2_server_client');
+    $client_controller->resetCache();
+    $client = oauth2_server_client_load($client_key);
+    $this->assertEqual($old_hashed_secret, $client->client_secret, 'Secret is not changed accidentally when editing the client.');
+
+    // Edit the client, and set an empty secret.
+    $this->updateClient($client, array(
+      'require_client_secret' => FALSE,
+    ));
+    $client_controller->resetCache();
+    $client = oauth2_server_client_load($client_key);
+    $this->assertTrue($client->client_secret === '', 'Secret is set to empty if it is not required.');
+
+    // Edit the client, and set a new, non-empty secret.
+    $new_secret = $this->randomString(32);
+    $this->updateClient($client, array(
+      'require_client_secret' => TRUE,
+      'client_secret' => $new_secret,
+    ));
+    $client_controller->resetCache();
+    $client = oauth2_server_client_load($client_key);
+    $this->assertTrue(oauth2_server_check_client_secret($client->client_secret, $new_secret), 'Hashes match for new secret and stored secret.');
+  }
+
+  /**
+   * Edit a client in the UI.
+   *
+   * @param \OAuth2ServerClient $client
+   *   The client entity.
+   * @param array $values
+   *   New values.
+   */
+  protected function updateClient(\OAuth2ServerClient $client, array $values) {
+    $this->drupalPost(
+      'admin/structure/oauth2-servers/manage/' . $client->server . '/clients/' . $client->internalIdentifier() . '/edit',
+      $values,
+      t('Save client')
+    );
+  }
+}

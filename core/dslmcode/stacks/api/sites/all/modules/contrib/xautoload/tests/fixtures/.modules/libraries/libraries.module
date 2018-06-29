@@ -1,0 +1,12 @@
+<?php
+
+use Drupal\xautoload\Tests\VirtualDrupal\DrupalEnvironment;
+
+/**
+ * @param string $name
+ *
+ * @see libraries_load()
+ */
+function libraries_load($name) {
+  DrupalEnvironment::getInstance()->librariesLoad($name);
+}

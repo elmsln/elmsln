@@ -10,7 +10,7 @@
 function elmsln_core_menu_default_menu_links() {
   $menu_links = array();
 
-  // Exported menu link: menu-elmsln-settings_admin:admin
+  // Exported menu link: menu-elmsln-settings_admin:admin.
   $menu_links['menu-elmsln-settings_admin:admin'] = array(
     'menu_name' => 'menu-elmsln-settings',
     'link_path' => 'admin',
@@ -34,7 +34,7 @@ function elmsln_core_menu_default_menu_links() {
     'customized' => 1,
     'parent_identifier' => 'menu-elmsln-settings_administration-tools:<nolink>',
   );
-  // Exported menu link: menu-elmsln-settings_administration-tools:<nolink>
+  // Exported menu link: menu-elmsln-settings_administration-tools:<nolink>.
   $menu_links['menu-elmsln-settings_administration-tools:<nolink>'] = array(
     'menu_name' => 'menu-elmsln-settings',
     'link_path' => '<nolink>',
@@ -57,7 +57,7 @@ function elmsln_core_menu_default_menu_links() {
     'weight' => -50,
     'customized' => 1,
   );
-  // Exported menu link: menu-elmsln-settings_service-tools:<nolink>
+  // Exported menu link: menu-elmsln-settings_service-tools:<nolink>.
   $menu_links['menu-elmsln-settings_service-tools:<nolink>'] = array(
     'menu_name' => 'menu-elmsln-settings',
     'link_path' => '<nolink>',

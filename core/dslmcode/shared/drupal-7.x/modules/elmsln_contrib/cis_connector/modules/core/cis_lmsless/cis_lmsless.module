@@ -452,6 +452,19 @@ function _cis_lmsless_theme_vars() {
         $vars['userbackground'] = '<img class="background" src="' .  base_path() . $libraries['materialize'] . '/images/office.jpg" alt="">';
       }
     }
+    // load up the a11y stuff
+    $a11y = module_invoke_all('fa_a11y');
+    drupal_alter('fa_a11y', $a11y);
+    // add in the form api wrapper meta properties to render as materialize collapse
+    $a11y['#type'] = 'fieldset';
+    $a11y['#materialize'] = array(
+      'type' => 'collapsible_wrapper'
+    );
+    $a11y['#attributes'] = array(
+      'class' => array('collapsible', 'elmsln-materialize-collapse-list'),
+      'data-collapsible' => 'accordion',
+    );
+    $vars['a11y'] = drupal_render($a11y);
     // set a login link if we don't have a user name
     if ($vars['username'] == '') {
       $vars['userlink'] = '<lrnsys-button label="' . t('Log in') . '" href="' . url('user/login') . '" class="account-login" icon="power-settings-new" hover-class="' . $vars['lmsless_classes'][$vars['distro']]['color'] . ' ' . $vars['lmsless_classes'][$vars['distro']]['dark'] . ' white-text"></lrnsys-button>';
@@ -466,18 +479,17 @@ function _cis_lmsless_theme_vars() {
       if ($section) {
         // ensure they can see the section switcher link
         if (user_access('switch section context')) {
-          // support for the FERPA filter block
-          $vars['ferpa_flter'] = '<a tabindex="-1" class="elmsln-modal-trigger" href="#block-cis-service-connection-ferpa-filter-nav-modal"><lrnsys-button icon="visibility" label="' . t('Privacy settings') . '" hover-class="' . $vars['lmsless_classes'][$vars['distro']]['color'] . ' ' . $vars['lmsless_classes'][$vars['distro']]['dark'] . ' white-text"></lrnsys-button></a>';
           $section_form = drupal_get_form('cis_service_connection_block_section_context_changer_form');
           $vars['user_section'] = drupal_render($section_form);
         }
       }
       // render differently if the user is already masquerading
       if (isset($_SESSION['masquerading'])) {
-        $vars['masquerade'] = '<lrnsys-button label="' . t('revert (@name)', array('@name' => $GLOBALS['user']->name)) . '" href="' . url('masquerade/unswitch', array('query' => array('destination' => current_path(), 'token' => drupal_get_token('masquerade/unswitch')))) . '" icon="supervisor-account" hover-class="' . $vars['lmsless_classes'][$vars['distro']]['color'] . ' ' . $vars['lmsless_classes'][$vars['distro']]['dark'] . ' white-text"></lrnsys-button>';
+        $vars['masquerade_logout'] = '<lrnsys-button label="' . t('revert (@name)', array('@name' => $GLOBALS['user']->name)) . '" href="' . url('masquerade/unswitch', array('query' => array('destination' => current_path(), 'token' => drupal_get_token('masquerade/unswitch')))) . '" icon="supervisor-account" hover-class="' . $vars['lmsless_classes'][$vars['distro']]['color'] . ' ' . $vars['lmsless_classes'][$vars['distro']]['dark'] . ' white-text"></lrnsys-button>';
       }
       else {
-        $vars['masquerade'] = '<a tabindex="-1" href="#block-masquerade-masquerade-nav-modal" class="elmsln-modal-trigger"><lrnsys-button label="' . t('Impersonate account') . '" icon="supervisor-account" hover-class="' . $vars['lmsless_classes'][$vars['distro']]['color'] . ' ' . $vars['lmsless_classes'][$vars['distro']]['dark'] . ' white-text"></lrnsys-button></a>';
+        $tmp = module_invoke('masquerade', 'block_view', 'masquerade');
+        $vars['masquerade'] = render($tmp['content']);
       }
       // calculate roles
       $tmproles = $GLOBALS['user']->roles;
@@ -511,7 +523,6 @@ function cis_lmsless_theme() {
         'userpicturebig' => '<div class="ferpa-protect elmsln-icon icon-user"></div>',
         'userbackground' => '<img class="background" src="' . $GLOBALS['base_url'] . '/sites/all/libraries/materialize/images/office.jpg" alt="">',
         'masquerade' => '',
-        'ferpa_flter' => '',
         'user_roles' => '',
         'user_section_form' => '',
         ),

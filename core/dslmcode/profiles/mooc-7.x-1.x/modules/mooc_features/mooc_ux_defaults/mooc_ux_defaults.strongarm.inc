@@ -562,20 +562,6 @@ function mooc_ux_defaults_strongarm() {
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
-  $strongarm->name = 'read_time_node_view_mooc_container';
-  $strongarm->value = 0;
-  $export['read_time_node_view_mooc_container'] = $strongarm;
-
-  $strongarm = new stdClass();
-  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
-  $strongarm->api_version = 1;
-  $strongarm->name = 'read_time_node_view_page';
-  $strongarm->value = 0;
-  $export['read_time_node_view_page'] = $strongarm;
-
-  $strongarm = new stdClass();
-  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
-  $strongarm->api_version = 1;
   $strongarm->name = 'simplify_blocks_global';
   $strongarm->value = array(
     0 => 'format',

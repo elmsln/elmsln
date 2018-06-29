@@ -81,7 +81,6 @@ function ctools_export_ui_process(&$plugin, $info) {
   // Add some default fields that appear often in exports
   // If these use different keys they can easily be specified in the
   // $plugin.
-
   if (empty($plugin['export']['admin_title']) && !empty($schema['fields']['admin_title'])) {
     $plugin['export']['admin_title'] = 'admin_title';
   }
@@ -297,7 +296,6 @@ function ctools_export_ui_process(&$plugin, $info) {
   );
 
   // Define strings.
-
   // For all strings, %title may be filled in at a later time via str_replace
   // since we do not know the title now.
   $plugin['strings'] += array(
@@ -414,6 +412,7 @@ function ctools_export_ui_plugin_base_path($plugin) {
  *   The id in the menu items from the plugin.
  * @param $export_key
  *   The export key of the item being edited, if it exists.
+ *
  * @return
  *   The menu path to the plugin's list.
  */
@@ -429,12 +428,11 @@ function ctools_export_ui_plugin_menu_path($plugin, $item_id, $export_key = NULL
  * Helper function to include CTools plugins and get an export-ui exportable.
  *
  * @param $plugin_name
- *   The plugin that should be laoded.
+ *   The plugin that should be loaded.
  */
 function ctools_get_export_ui($plugin_name) {
   ctools_include('plugins');
   return ctools_get_plugins('ctools', 'export_ui', $plugin_name);
-
 }
 
 /**
@@ -456,14 +454,14 @@ function ctools_export_ui_switcher_page($plugin_name, $op) {
   $args = func_get_args();
   $js = !empty($_REQUEST['js']);
 
-  // Load the $plugin information
+  // Load the $plugin information.
   $plugin = ctools_get_export_ui($plugin_name);
   $handler = ctools_export_ui_get_handler($plugin);
 
   if ($handler) {
     $method = $op . '_page';
     if (method_exists($handler, $method)) {
-      // replace the first two arguments:
+      // Replace the first two arguments:
       $args[0] = $js;
       $args[1] = $_POST;
       return call_user_func_array(array($handler, $method), $args);

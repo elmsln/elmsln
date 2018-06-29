@@ -1,0 +1,67 @@
+{% extends 'partials/base.html.twig' %}
+
+{% set collection = page.collection() %}
+
+{% block content %}
+    <div class="page-content">
+      <div class="wrapper">
+        <div class="teaserimage">
+            <div class="teaserimage-image" {% if page.header.cover %}style="background-image: url({{ page.media[page.header.cover].url }})"{% endif %}>
+                Teaser Image
+            </div>
+        </div>
+      </div>
+    </div>
+
+    <header class="blog-header">
+        {% if site.logo %}
+          <a class="blog-logo" href="{{ base_url_relative }}" style="background-image: url({{ base_url_relative }}{{ site.logo }})">{{ site.title }}</a>
+        {% endif %}
+        <h1 class="blog-title">{{ site.title }}</h1>
+        <h2 class="blog-description">{{ site.description }}</h2>
+        <div class="custom-links">
+        &nbsp;&nbsp;·&nbsp;&nbsp;
+        <a href="{{ base_url_relative }}/about">About</a>
+        &nbsp;&nbsp;·&nbsp;&nbsp;
+          {% for social in site.social %}
+            {% if social.url %}
+                <a class="icon-{{ social.icon }}" href="{{ social.url }}">
+                  <i class="fa fa-{{ social.icon }}"></i>
+                </a>
+                &nbsp;&nbsp;·&nbsp;&nbsp;
+            {% endif %}
+          {% endfor %}
+          <a href="https://btopro.wordpress.com/" target="_blank">Old blog</a>
+          &nbsp;&nbsp;·&nbsp;&nbsp;
+        </div>
+    </header>
+
+    <main class="content" role="main">
+
+        {% set featured = taxonomy.findTaxonomy({'tag':'featured'}) %}
+
+        {% if featured and featured|length > 0 and uri.currentPage == 1 %}
+        <h5 class="index-headline featured"><span>Featured</span></h5>
+
+        <div class="container featured">
+            {% for post in featured %}
+                {% include 'partials/article.html.twig' %}
+            {% endfor %}
+        </div>
+
+        <h5 class="index-headline normal"><span>Regular</span></h5>
+        {% endif %}
+
+        <div class="cf frame">
+            {% for post in collection %}
+                {% include 'partials/article.html.twig' %}
+            {% endfor %}
+        </div>
+
+
+        {% if config.plugins.pagination.enabled and collection.params.pagination %}
+        {% include 'partials/pagination.html.twig' with {'base_url': page.url, 'pagination':collection.params.pagination} %}
+        {% endif %}
+
+    </main>
+{% endblock %}

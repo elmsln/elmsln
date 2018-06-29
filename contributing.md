@@ -12,6 +12,36 @@ _**Please Note:** These guidelines are adapted from [Chosen](https://github.com/
 [issue-guidelines](https://github.com/harvesthq/chosen/blob/master/contributing.md) and serve as
 an excellent starting point for contributing to any open source project._
 
+## Apereo process
+When making a significant contribution to ELMS:LN we ask that you fill out a [ICLA](https://www.apereo.org/licensing/agreements/icla). The Individual Contributor License Agreement from Apereo (who helps foster ELMS:LN and educational technology projects more generally) helps us maintain good legal standing through due diligence that everyone involved in contribution has aknowledged that they are allowed to contribute the work they have performed.
+
+## Copyright / Licensing
+The ELMS:LN main repo is GPLv3 which may be seen as very aggressive but effectively it's to ensure validity of the entire project's pieces working together from a license compatibility perspective. All sub-repos defer to their respective licensing (always defer to local LICENSE.md / LICENSE.txt when in question).
+
+## Quality controls
+The following methodologies are how we help ensure quality of tagged ELMS:LN releases. While core developers often roll their own systems against whatever the latest test branch is, this is not recommended beyond core developers. Part of this methodology on the part of the core team forces the integrity and quality of even our development branches to be exceedingly high.
+
+Other ways we ensure quality:
+- Travis CI tests all commits and pull requests
+- We use local git precommit hooks to ensure JS/PHP code is tested to ensure it doesn't break (see the [developer](developer) script in the main repo for how we work on the project in core)
+- Web components help scope and encapsulate work, minimizing issues that could possibly occur visually
+- We are working on a google lighthouse / accessibility / visual diff quality control system (based on our web component library)
+- Only core team members have the ability to commit code and the majority of development happens in pull requests with all commits needing to be tied to an issue in the issue queue
+
+No new library is added to core without at least two core memebers understanding how it works and all code is checked for license compatibility prior to inclusion to ensure legal compliance.
+
+## Coding standards
+While we use Travis CI to improve build quality, there are some other steps you can take to help ensure you meet our code quality standards:
+- When developing code, use git at all times. This is the only VC system we support
+- When using git to develop and push changes, utilize this pre-commit script to help stop broken code from bleeding into commits: `https://github.com/elmsln/elmsln/blob/master/scripts/git/pre-commit.sh`
+- PHP code seeks to pass [Drupal coding standards](https://www.drupal.org/docs/develop/standards) while not all parts of this project are Drupal, these serve as a useful baseline
+- Javascript code we attempt to stick to [Google's style guide](https://google.github.io/styleguide/jsguide.html) though this can get tricky. As the majority of our JS development is in Webcomponents it's important to follow the conventions of modularity in that methodology of development.
+- Webcomponents have a "Gold standard checklist" which we attempt to follow when developing our elements regardless of how we produce them. [The Gold Standard Checklist for Web Components](https://github.com/webcomponents/gold-standard/wiki)
+
+## Documentation
+All documentation for ELMS:LN can be found and pull requested from the following repo: [ELMS:LN Documentation](https://github.com/elmsln/documentation)
+
+We use HAX Desktop App to manage our documentation which if you'd like to speed up contributions and testing to our docs then check out: [Hax Desktop App](https://github.com/LRNWebComponents/hax-desktop-app)
 
 ## Using the issue tracker
 
@@ -154,3 +184,11 @@ these guidelines is the best way to get your work included in ELMSLN.
 
 **IMPORTANT**: By submitting a patch, you agree to allow the project owner to
 license your work under the [GPL License](http://en.wikipedia.org/wiki/GNU_General_Public_License).
+
+### Change is deemed unsuitable
+If a change suggested via the PR workflow above ultimately is deemed not to be valid by the core team, the following will occur:
+- Reason for why it was rejected / has not been accepted will be given
+- Ways of cleaning it up or suggestions of how to accomplish the given change via another repo / patch will be recommended
+- Contributor will be told to keep being awesome. We reject work, not people.
+
+Any change that falls outside the goals of the project or meeting the project's goals will be rejected or redirected elsewhere. ELMS:LN's project goals can be found in our [governance document](GOVERNANCE.md).

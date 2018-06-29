@@ -335,7 +335,7 @@ function book_copy_update_internal_links($queue_id, &$context) {
  */
 function _book_copy_copy_finished($success, $results, $operations) {
   if ($success) {
-    drupal_set_message(t('The outline has been copied successfully!'));
+    drupal_set_message(t('The outline has been copied successfully!'), 'toast');
   }
   else {
     drupal_set_message(t('An error occurred and processing did not complete.'), 'error');
@@ -456,7 +456,7 @@ function book_copy_book_process_book_copy($nid, $new_title) {
     return 1;
   }
   else {
-    drupal_set_message(t('Outline copy denied because of permissions (need admin outline, create / view on the node, add to books and ability to copy).'));
+    drupal_set_message(t('Outline copy denied because of permissions (need admin outline, create / view on the node, add to books and ability to copy).'), 'toast');
     return 0;
   }
 }

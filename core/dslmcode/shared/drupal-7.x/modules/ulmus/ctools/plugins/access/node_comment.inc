@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * Plugin to provide access control based upon node comment status.

@@ -2,7 +2,6 @@
 
 /**
  * @file
- *
  * Plugin to provide an argument handler for all entity ids.
  */
 

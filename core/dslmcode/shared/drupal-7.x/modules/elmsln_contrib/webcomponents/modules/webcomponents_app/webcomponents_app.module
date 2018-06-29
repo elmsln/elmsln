@@ -63,9 +63,15 @@ function webcomponents_app_permission() {
   // load app definitions
   $apps = webcomponents_app_load_app_definitions(NULL, TRUE);
   foreach ($apps as $machine_name => $app) {
+    if (empty($app['title'])){
+      $human = $machine_name;
+    }
+    else {
+      $human = $app['title'];
+    }
     $perms['access ' . $machine_name . ' app'] = array(
-      'title' => t('Access @name', array('@name' => $app['title'])),
-      'description' => t('Allow user to access the one page app called @name', array('@name' => $app['title'])),
+      'title' => t('Access @name', array('@name' => $human)),
+      'description' => t('Allow user to access the one page app called @name', array('@name' => $human)),
     );
   }
   return $perms;
@@ -113,6 +119,9 @@ function webcomponents_app_menu() {
     if (isset($app['menu'])) {
       // if we are making this a menu then make it normal so it shows up in lists
       $items[WEBCOMPONENTS_APP_PATH . '/' . $machine_name]['type'] = MENU_NORMAL_ITEM;
+      if (isset($app['menu']['title'])) {
+        $items[WEBCOMPONENTS_APP_PATH . '/' . $machine_name]['title'] = $app['menu']['title'];
+      }
       $items[WEBCOMPONENTS_APP_PATH . '/' . $machine_name]['menu_name'] = $app['menu']['menu_name'];
       $items[WEBCOMPONENTS_APP_PATH . '/' . $machine_name]['weight'] = $app['menu']['weight'];
     }
@@ -210,25 +219,33 @@ function _webcomponents_app_load_app($machine_name = NULL, $debug = FALSE) {
   if (!empty($machine_name) && !empty($app)) {
     $hash = filesize(DRUPAL_ROOT . '/' . $app['path'] . 'manifest.json');
     // form the base path for loading the app
-    $path = base_path() . $app['path'];
-    $element = array(
+    $path = _webcomponents_base_path() . $app['path'];
+    $link_element = array(
       '#tag' => 'link',
       '#attributes' => array(
         'href' => $path . 'manifest.json?h' . $hash,
         'rel' => 'manifest',
       ),
+      '#weight' => '1',
     );
-    drupal_add_html_head($element, 'app-' . $machine_name . '-manifest');
+    drupal_add_html_head($link_element, 'app-' . $machine_name . '-manifest');
     $hash = filesize(DRUPAL_ROOT . '/' . $app['path'] . 'src/' . $machine_name . '/' . $machine_name . '.html');
-    $element = array(
+    $link_element = array(
       '#tag' => 'link',
       '#attributes' => array(
         'href' => $path . 'src/' . $machine_name . '/' . $machine_name . '.html?h' . $hash,
         'rel' => 'import',
       ),
-      '#weight' => '99999',
+      '#weight' => '1',
     );
-    drupal_add_html_head($element, 'app-' . $machine_name);
+    // allow for customizations to the path as opposed to where it was discovered
+    // this is important when utilizing multiple apps in different areas on the
+    // same page. Hybrid drupal sites might need this
+    drupal_alter('webcomponents_app_element_import', $link_element, $app, $machine_name, $hash);
+    // possibiity alter decided to unset
+    if (!empty($link_element)) {
+      drupal_add_html_head($link_element, 'app-' . $machine_name);
+    }
     // construct the tag base to be written
     $vars = array(
       'tag' => $machine_name,
@@ -262,6 +279,34 @@ function _webcomponents_app_load_app($machine_name = NULL, $debug = FALSE) {
         }
       }
     }
+    // support for slots to be mixed in automatically
+    if (isset($app['slots'])) {
+      foreach ($app['slots'] as $key => $slot) {
+        // support for simple function based callbacks for slots from functions
+        if (is_array($slot) && isset($slot['callback'])) {
+          // ensure it exists of that would be bad news bears
+          if (function_exists($slot['callback'])) {
+            // only allow for simple function callbacks
+            $vars['slots'][$key] = call_user_func($slot['callback']);
+          }
+          else {
+            // well it failed but at least set it to nothing
+            $vars['slots'][$key] = NULL;
+            // missing function, let's log this to the screen or watchdog if its debug mode
+            if ($debug) {
+              dpm(t('The @machine app wants to hit the callback @callback for slot @key but this function could not be found', array('@key' => $key, '@machine' => $machine_name, '@callback' => $slot['callback'])));
+            }
+            else {
+              // report to the watchdog soemthing is missing
+              watchdog('webcomponents_app', t('The @machine app wants to hit the callback @callback for slot @key but this function could not be found', array('@key' => $key, '@machine' => $machine_name, '@callback' => $slot['callback'])), array(), WATCHDOG_ERROR, 'link');
+            }
+          }
+        }
+        else {
+          $vars['slots'][$key] = $slot;
+        }
+      }
+    }
     // special properties that register endpoints
     if (isset($app['endpoints'])) {
       // all end points will be able to use this for simple, secure construction
@@ -281,6 +326,27 @@ function _webcomponents_app_load_app($machine_name = NULL, $debug = FALSE) {
       $vars['properties']['csrf-token'] = drupal_get_token('webcomponentapp');
       $vars['properties']['base-path'] = base_path() . WEBCOMPONENTS_APP_PATH . '/';
     }
+    // support compressing slots into the innerHTML tag
+    if (isset($vars['slots'])) {
+      // support single slot name
+      if (is_string($vars['slots'])) {
+        $vars['innerHTML'] = $vars['slots'];
+      }
+      // support for multiple slot names
+      else if (is_array($vars['slots'])) {
+        $vars['innerHTML'] = '';
+        foreach ($vars['slots'] as $name => $content) {
+          $vars['innerHTML'] .= '<span slot="' . $name . '">' . $content . '</span>';
+        }
+      }
+    }
+    // add on custom class to help idenfity that drupal delivered this
+    if (!isset($vars['properties']['class'])) {
+      $vars['properties']['class'] = WEBCOMPONENTS_CLASS_IDENTIFIER;
+    }
+    else {
+      $vars['properties']['class'] .= ' ' . WEBCOMPONENTS_CLASS_IDENTIFIER;
+    }
     // allow for modifying the app prior to render
     drupal_alter('webcomponent_render', $vars, $app);
     $return = theme('webcomponent', $vars);
@@ -295,8 +361,8 @@ function _webcomponents_app_load_app($machine_name = NULL, $debug = FALSE) {
  */
 function _webcomponents_app_load_app_data($machine_name = NULL, $debug = FALSE) {
   $return = array();
-  // validate CSRF token
-  if ($debug || drupal_valid_token($_GET['token'], 'webcomponentapp')) {
+  // validate CSRF token unless anonymous was allowed here
+  if ($debug || drupal_valid_token($_GET['token'], 'webcomponentapp') || $GLOBALS['user']->uid === 0) {
     $app = webcomponents_app_load_app_definitions($machine_name);
     $args = arg();
     // this ensures that apps/machine-name get shifted off
@@ -380,8 +446,10 @@ function _webcomponents_app_load_app_data($machine_name = NULL, $debug = FALSE) 
     // define status
     drupal_add_http_header('Status', $return['status']);
     // output the response as json
-    print drupal_json_output($return);
-    // official drupal exit routines
+    print drupal_json_encode($return);
+    // skip official drupal exit routine so we can exit faster and
+    // avoid possible integration issues with things like devel which
+    // inject data on the way out the door
     exit;
   }
   else {

@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * @file
+ */
+
 if (module_exists('contact')) {
   /**
    * Plugins are described by creating a $plugin array which will be used
@@ -22,10 +26,10 @@ function ctools_contact_content_type_render($subtype, $conf, $panel_args, $conte
     return;
   }
   // Build the content type block.
-  $block = new stdClass();
-  $block->module  = 'contact';
-  $block->delta   = 'form';
-  $block->title   = t('Contact');
+  $block         = new stdClass();
+  $block->module = 'contact';
+  $block->delta  = 'form';
+  $block->title  = t('Contact');
 
   module_load_include('inc', 'contact', 'contact.pages');
   $block->content = drupal_get_form('contact_site_form');
@@ -45,11 +49,6 @@ function ctools_contact_content_type_edit_form($form, &$form_state) {
  */
 function ctools_contact_content_type_edit_form_submit($form, &$form_state) {
   // Copy everything from our defaults.
-/*
-  foreach (array_keys($form_state['plugin']['defaults']) as $key) {
-    $form_state['conf'][$key] = $form_state['values'][$key];
-  }
-*/
 }
 
 /**

@@ -44,7 +44,7 @@
  *
  * A fuller example, that hides the menu title when no menu is selected:
  * @code
- *function ctools_dependent_example() {
+ * function ctools_dependent_example() {
  *  $form = array();
  *  $form['menu'] = array(
  *    '#type' => 'fieldset',
@@ -72,12 +72,12 @@
  *   );
  *
  *  return system_settings_form($form);
- *}
+ * }
  * @endcode
  *
  * An example for hiding checkboxes using #prefix and #suffix:
  * @code
- *function ctools_dependent_example_checkbox() {
+ * function ctools_dependent_example_checkbox() {
  *  $form = array();
  *  $form['object'] = array(
  *    '#type' => 'fieldset',
@@ -111,7 +111,7 @@
  *   );
  *
  *  return system_settings_form($form);
- *}
+ * }
  * @endcode
  *
  * Deprecated:
@@ -125,7 +125,6 @@
 
 /**
  * Process callback to add dependency to form items.
- *
  */
 function ctools_dependent_process($element, &$form_state, &$form) {
   return $element;

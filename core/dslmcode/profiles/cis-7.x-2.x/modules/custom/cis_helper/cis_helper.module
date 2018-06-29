@@ -578,36 +578,6 @@ function cis_helper_page_build(&$page) {
 }
 
 /**
- * Implements hook_page_alter().
- */
-function cis_helper_page_alter(&$page) {
- // build shortcuts to create other services, excluding current ones
-  if (arg(2) == 'service-instances' && is_numeric(arg(1))) {
-    $key = array('field_services', 'target_id');
-    $fields = array('field_course' => array('target_id', arg(1)));
-    // build a list of current services
-    $current = _cis_connector_assemble_entity_list('node', 'service_instance', $key, 'title', $fields);
-    $services = _cis_connector_assemble_entity_list('node', 'service', 'nid', 'title');
-    foreach ($current as $k => $t) {
-      unset($services[$k]);
-    }
-    $links = '<div class="cis-create-additional-services">' . "\n<ul>\n";
-    foreach ($services as $snid => $name) {
-      $options = array(
-        'query' => array(
-          'field_services' => $snid,
-          'field_course' => arg(1),
-          'destination' => current_path(),
-        )
-      );
-      $links .= '<li>' . l(t('Add `@service` service', array('@service' => $name)), 'node/add/service-instance', $options) . "</li>\n";
-    }
-    $links .= "\n</ul>\n</div>";
-    $page['content']['system_main']['main']['#markup'] .= $links;
-  }
-}
-
-/**
  * Implements hook_theme().
  */
 function cis_helper_theme($existing, $type, $theme, $path) {
@@ -814,7 +784,7 @@ function cis_helper_form_views_exposed_form_alter(&$form, &$form_state, $form_id
         'type' => 'collapsible_wrapper'
       ),
       '#attributes' => array(
-        'class' => array('collapsible'),
+        'class' => array('collapsible', 'elmsln-materialize-collapse-list'),
         'data-collapsible' => 'accordion',
       )
     );

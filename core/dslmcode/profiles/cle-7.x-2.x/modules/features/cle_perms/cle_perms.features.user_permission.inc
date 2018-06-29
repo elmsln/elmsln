@@ -97,6 +97,18 @@ function cle_perms_user_default_permissions() {
     'module' => 'webcomponents_app',
   );
 
+  // Exported permission: 'access lrnapp-studio-instructor app'.
+  $permissions['access lrnapp-studio-instructor app'] = array(
+    'name' => 'access lrnapp-studio-instructor app',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'instructor' => 'instructor',
+      'staff' => 'staff',
+      'teaching assistant' => 'teaching assistant',
+    ),
+    'module' => 'webcomponents_app',
+  );
+
   // Exported permission: 'access lrnapp-studio-kanban app'.
   $permissions['access lrnapp-studio-kanban app'] = array(
     'name' => 'access lrnapp-studio-kanban app',

@@ -72,7 +72,7 @@ audio:not([controls]) {
  */
 [hidden],
 template {
-  display: none;
+  display: none !important;
 }
 
 /* Text-level semantics
@@ -2060,259 +2060,14 @@ small {
   font-size: 75%;
 }
 
-.thin {
-  font-weight: 200;
-}
-
-.flow-text {
-  font-weight: 300;
-}
-
-@media only screen and (min-width: 360px) {
-  .flow-text {
-    font-size: 1.2rem;
-  }
-}
-
-@media only screen and (min-width: 390px) {
-  .flow-text {
-    font-size: 1.224rem;
-  }
-}
-
-@media only screen and (min-width: 420px) {
-  .flow-text {
-    font-size: 1.248rem;
-  }
-}
-
-@media only screen and (min-width: 450px) {
-  .flow-text {
-    font-size: 1.272rem;
-  }
-}
-
-@media only screen and (min-width: 480px) {
-  .flow-text {
-    font-size: 1.296rem;
-  }
-}
-
-@media only screen and (min-width: 510px) {
-  .flow-text {
-    font-size: 1.32rem;
-  }
-}
-
-@media only screen and (min-width: 540px) {
-  .flow-text {
-    font-size: 1.344rem;
-  }
-}
-
-@media only screen and (min-width: 570px) {
-  .flow-text {
-    font-size: 1.368rem;
-  }
-}
-
-@media only screen and (min-width: 600px) {
-  .flow-text {
-    font-size: 1.392rem;
-  }
-}
-
-@media only screen and (min-width: 630px) {
-  .flow-text {
-    font-size: 1.416rem;
-  }
-}
-
-@media only screen and (min-width: 660px) {
-  .flow-text {
-    font-size: 1.44rem;
-  }
-}
-
-@media only screen and (min-width: 690px) {
-  .flow-text {
-    font-size: 1.464rem;
-  }
-}
-
-@media only screen and (min-width: 720px) {
-  .flow-text {
-    font-size: 1.488rem;
-  }
-}
-
-@media only screen and (min-width: 750px) {
-  .flow-text {
-    font-size: 1.512rem;
-  }
-}
-
-@media only screen and (min-width: 780px) {
-  .flow-text {
-    font-size: 1.536rem;
-  }
-}
-
-@media only screen and (min-width: 810px) {
-  .flow-text {
-    font-size: 1.56rem;
-  }
-}
-
-@media only screen and (min-width: 840px) {
-  .flow-text {
-    font-size: 1.584rem;
-  }
-}
-
-@media only screen and (min-width: 870px) {
-  .flow-text {
-    font-size: 1.608rem;
-  }
-}
-
-@media only screen and (min-width: 900px) {
-  .flow-text {
-    font-size: 1.632rem;
-  }
-}
-
-@media only screen and (min-width: 930px) {
-  .flow-text {
-    font-size: 1.656rem;
-  }
-}
-
-@media only screen and (min-width: 960px) {
-  .flow-text {
-    font-size: 1.68rem;
-  }
-}
-
-@media only screen and (max-width: 360px) {
-  .flow-text {
-    font-size: 1.2rem;
-  }
-}
-
-#toast-container {
-  display: block;
-  position: fixed;
-  z-index: 10000;
-}
-
-@media only screen and (max-width: 600px) {
-  #toast-container {
-    min-width: 100%;
-    bottom: 0%;
-  }
-}
-
-@media only screen and (min-width: 601px) and (max-width: 992px) {
-  #toast-container {
-    left: 5%;
-    bottom: 7%;
-    max-width: 90%;
-  }
-}
-
-@media only screen and (min-width: 993px) {
-  #toast-container {
-    top: 10%;
-    right: 7%;
-    max-width: 86%;
-  }
-}
-
-.toast {
-  border-radius: 2px;
-  top: 0;
-  width: auto;
-  clear: both;
-  margin-top: 10px;
-  position: relative;
-  max-width: 100%;
-  height: auto;
-  min-height: 48px;
-  line-height: 1.5em;
-  word-break: break-all;
-  background-color: #323232;
-  padding: 10px 25px;
-  font-size: 1.1rem;
-  font-weight: 300;
-  color: #fff;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-align-items: center;
-      -ms-flex-align: center;
-          align-items: center;
-  -webkit-justify-content: space-between;
-      -ms-flex-pack: justify;
-          justify-content: space-between;
-}
-
-.toast .btn, .toast .btn-large, .toast .btn-flat {
-  margin: 0;
-  margin-left: 3rem;
-}
-
-.toast.rounded {
-  border-radius: 24px;
-}
-
-@media only screen and (max-width: 600px) {
-  .toast {
-    width: 100%;
-    border-radius: 0;
-  }
-}
-
-@media only screen and (min-width: 601px) and (max-width: 992px) {
-  .toast {
-    float: left;
-  }
-}
-
-@media only screen and (min-width: 993px) {
-  .toast {
-    float: right;
-  }
-}
-
 .tabs {
   position: relative;
   overflow-x: auto;
   overflow-y: hidden;
   height: 48px;
   width: 100%;
-  background-color: #fff;
   margin: 0 auto;
   white-space: nowrap;
-}
-
-.tabs.tabs-transparent {
-  background-color: transparent;
-}
-
-.tabs.tabs-transparent .tab a,
-.tabs.tabs-transparent .tab.disabled a,
-.tabs.tabs-transparent .tab.disabled a:hover {
-  color: rgba(255, 255, 255, 0.7);
-}
-
-.tabs.tabs-transparent .tab a:hover,
-.tabs.tabs-transparent .tab a.active {
-  color: #fff;
-}
-
-.tabs.tabs-transparent .indicator {
-  background-color: #fff;
 }
 
 .tabs.tabs-fixed-width {
@@ -2335,38 +2090,23 @@ small {
   height: 48px;
   padding: 0;
   margin: 0;
-  text-transform: uppercase;
 }
 
 .tabs .tab a {
-  color: rgba(238, 110, 115, 0.7);
   display: block;
   width: 100%;
   height: 100%;
-  padding: 0 24px;
-  font-size: 14px;
+  padding: 0;
+  font-size: 1em;
   text-overflow: ellipsis;
+  text-decoration: none;
   overflow: hidden;
   transition: color .28s ease;
 }
 
-.tabs .tab a:hover, .tabs .tab a.active {
-  background-color: transparent;
-  color: #ee6e73;
-}
-
 .tabs .tab.disabled a,
 .tabs .tab.disabled a:hover {
-  color: rgba(238, 110, 115, 0.7);
   cursor: default;
-}
-
-.tabs .indicator {
-  position: absolute;
-  bottom: 0;
-  height: 2px;
-  background-color: #f6b2b5;
-  will-change: left, right;
 }
 
 @media only screen and (max-width: 992px) {
@@ -2764,22 +2504,6 @@ input[type=search][readonly="readonly"] + label,
 textarea.materialize-textarea:disabled + label,
 textarea.materialize-textarea[readonly="readonly"] + label {
   color: rgba(0, 0, 0, 0.26);
-}
-
-input:not([type]):focus:not([readonly]) + label,
-input[type=text]:focus:not([readonly]) + label,
-input[type=password]:focus:not([readonly]) + label,
-input[type=email]:focus:not([readonly]) + label,
-input[type=url]:focus:not([readonly]) + label,
-input[type=time]:focus:not([readonly]) + label,
-input[type=date]:focus:not([readonly]) + label,
-input[type=datetime]:focus:not([readonly]) + label,
-input[type=datetime-local]:focus:not([readonly]) + label,
-input[type=tel]:focus:not([readonly]) + label,
-input[type=number]:focus:not([readonly]) + label,
-input[type=search]:focus:not([readonly]) + label,
-textarea.materialize-textarea:focus:not([readonly]) + label {
-  color: #26a69a;
 }
 
 input:not([type]).valid, input:not([type]):focus.valid,

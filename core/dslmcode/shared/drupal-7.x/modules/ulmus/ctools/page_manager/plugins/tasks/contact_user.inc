@@ -1,6 +1,10 @@
 <?php
 
 /**
+ * @file
+ */
+
+/**
  * Specialized implementation of hook_page_manager_task_tasks(). See api-task.html for
  * more information.
  */
@@ -9,7 +13,7 @@ function page_manager_contact_user_page_manager_tasks() {
     return;
   }
   return array(
-    // This is a 'page' task and will fall under the page admin UI
+    // This is a 'page' task and will fall under the page admin UI.
     'task type' => 'page',
     'title' => t('User contact'),
     'admin title' => t('User contact'),
@@ -56,7 +60,7 @@ function page_manager_contact_user_menu_alter(&$items, $task) {
     $items['user/%user/contact']['file'] = $task['file'];
   }
   else {
-    // automatically disable this task if it cannot be enabled.
+    // Automatically disable this task if it cannot be enabled.
     variable_set('page_manager_contact_user_disabled', TRUE);
     if (!empty($GLOBALS['page_manager_enabling_contact_user'])) {
       drupal_set_message(t('Page manager module is unable to enable user/%user/contact because some other module already has overridden with %callback.', array('%callback' => $callback)), 'error');
@@ -146,6 +150,7 @@ function page_manager_contact_user_enable($cache, $status) {
  *   The subtask id
  * @param $contexts
  *   The contexts loaded for the task.
+ *
  * @return
  *   TRUE if the current user can access the page.
  */

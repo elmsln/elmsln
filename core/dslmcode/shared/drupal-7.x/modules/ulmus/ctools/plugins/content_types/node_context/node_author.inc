@@ -1,9 +1,11 @@
 <?php
 
 /**
+ * @file
  * Plugins are described by creating a $plugin array which will be used
  * by the system that includes this file.
  */
+
 $plugin = array(
   'single' => TRUE,
   'title' => t('Node author'),
@@ -29,7 +31,7 @@ function ctools_node_author_content_type_render($subtype, $conf, $panel_args, $c
   $user = user_load($node->uid);
 
   // Build the content type block.
-  $block = new stdClass();
+  $block          = new stdClass();
   $block->module  = 'node_author';
   $block->title   = t('Author');
   $block->content = !empty($conf['link']) ? theme('username', array('account' => $user, 'link_path' => 'user/' . $node->uid)) : check_plain(format_username($node));

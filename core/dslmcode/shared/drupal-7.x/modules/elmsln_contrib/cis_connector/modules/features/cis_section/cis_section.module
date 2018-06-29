@@ -384,7 +384,7 @@ function cis_section_node_insert($node) {
       $values = array(
         'entity_type' => 'user',
         'entity' => $member,
-        'field_name' => 'og_user_node1',
+        'field_name' => 'og_user_node',
       );
       // add user to the group as a member
       og_group('node', $node->nid, $values);
@@ -445,7 +445,7 @@ function _cis_section_activate_section($node) {
     // build the user accounts
     watchdog('roster', 'Roster synced for section @section', array('@section' => $node->field_section_id['und'][0]['value']));
     _cis_section_create_accounts($roster);
-    drupal_set_message(t('Roster synced for section @section', array('@section' => $node->field_section_id['und'][0]['value'])));
+    drupal_set_message(t('Roster synced for section @section', array('@section' => $node->field_section_id['und'][0]['value'])), 'toast');
   }
 }
 
@@ -579,6 +579,8 @@ function _cis_section_load_users_by_gid($gid, $rid = NULL) {
   $query->innerJoin('users_roles', 'ur', 'u.uid = ur.uid');
   // where entity type is user
   $query->condition('ogm.entity_type', 'user');
+  // where field name matches our global
+  $query->condition('ogm.field_name', 'og_user_node');
   // and group is the one requested
   $query->condition('ogm.gid', $gid);
   // limit to a certain role if set
@@ -650,7 +652,7 @@ function cis_section_user_insert(&$edit, $account, $category) {
         $values = array(
           'entity_type' => 'user',
           'entity' => $account,
-          'field_name' => 'og_user_node1',
+          'field_name' => 'og_user_node',
         );
         // add user to the group
         og_group('node', $section->nid, $values);

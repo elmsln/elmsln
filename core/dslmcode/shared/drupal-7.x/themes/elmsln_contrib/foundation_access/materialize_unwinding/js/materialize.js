@@ -420,6 +420,9 @@ if (jQuery) {
                 function() {
                   $(this).css('height', '');
                   execCallbacks($(this).siblings('.collapsible-header'));
+                  var evt = document.createEvent('UIEvents');
+				  evt.initUIEvent('resize', true, false,window,0);
+				  window.dispatchEvent(evt);
                 }
             });
           }
@@ -518,10 +521,6 @@ if (jQuery) {
 
     });
   };
-
-  $(document).ready(function(){
-    $('.collapsible').collapsible();
-  });
 }( jQuery ));;(function ($) {
 
   // Add posibility to scroll to selected option

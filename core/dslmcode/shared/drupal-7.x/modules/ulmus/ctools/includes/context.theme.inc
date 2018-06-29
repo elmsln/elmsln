@@ -19,7 +19,6 @@ function ctools_context_theme(&$theme) {
   );
   $theme['ctools_context_item_form'] = array(
     'render element' => 'form',
-//    'variables' => array('form' => NULL),
     'file' => 'includes/context.theme.inc',
   );
   $theme['ctools_context_item_row'] = array(
@@ -27,7 +26,7 @@ function ctools_context_theme(&$theme) {
     'file' => 'includes/context.theme.inc',
   );
 
-  // For the access plugin
+  // For the access plugin.
   $theme['ctools_access_admin_add'] = array(
     'render element' => 'form',
     'file' => 'includes/context-access-admin.inc',
@@ -62,10 +61,10 @@ function theme_ctools_context_item_row($vars) {
 function theme_ctools_context_item_form($vars) {
   $form = $vars['form'];
 
-  $output = '';
-  $type   = $form['#ctools_context_type'];
-  $module = $form['#ctools_context_module'];
-  $cache_key   = $form['#cache_key'];
+  $output    = '';
+  $type      = $form['#ctools_context_type'];
+  $module    = $form['#ctools_context_module'];
+  $cache_key = $form['#cache_key'];
 
   $type_info = ctools_context_info($type);
 
@@ -104,17 +103,17 @@ function theme_ctools_context_item_form($vars) {
 
   if (!empty($form['buttons'])) {
     // Display the add context item.
-    $row   = array();
-    $row[] = array('data' => render($form['buttons'][$type]['item']), 'class' => array('title'));
-    $row[] = array('data' => render($form['buttons'][$type]['add']), 'class' => array('add'), 'width' => "60%");
-    $output .= '<div class="buttons">';
-    $output .= render($form['buttons'][$type]);
-    $theme_vars = array();
-    $theme_vars['header'] = array();
-    $theme_vars['rows'] = array($row);
+    $row                      = array();
+    $row[]                    = array('data' => render($form['buttons'][$type]['item']), 'class' => array('title'));
+    $row[]                    = array('data' => render($form['buttons'][$type]['add']), 'class' => array('add'), 'width' => "60%");
+    $output                  .= '<div class="buttons">';
+    $output                  .= render($form['buttons'][$type]);
+    $theme_vars               = array();
+    $theme_vars['header']     = array();
+    $theme_vars['rows']       = array($row);
     $theme_vars['attributes'] = array('id' => $type . '-add-table');
-    $output .= theme('table', $theme_vars);
-    $output .= '</div>';
+    $output                  .= theme('table', $theme_vars);
+    $output                  .= '</div>';
   }
   if (!empty($form['description'])) {
     $output .= render($form['description']);
@@ -139,7 +138,7 @@ function theme_ctools_context_list($vars) {
   $description = (!empty($vars['description'])) ? $vars['description'] : NULL;
   $titles = array();
   $output = '';
-  $count  = 1;
+  $count = 1;
 
   $contexts = ctools_context_load_contexts($object);
 
@@ -209,7 +208,7 @@ function theme_ctools_context_list($vars) {
     }
   }
 
-  // And relationships
+  // And relationships.
   if (!empty($object->relationships)) {
     foreach ($object->relationships as $relationship) {
       $output .= '<tr>';
@@ -253,15 +252,15 @@ function theme_ctools_context_list($vars) {
 }
 
 /**
- * ctools_context_list() but not in a table format because tabledrag
- * won't let us have tables within tables and still drag.
+ * The ctools_context_list() function but not in a table format because
+ * tabledrag won't let us have tables within tables and still drag.
  */
 function theme_ctools_context_list_no_table($vars) {
   $object = $vars['object'];
   ctools_add_css('context');
   $titles = array();
   $output = '';
-  $count  = 1;
+  $count = 1;
   // Describe 'built in' contexts.
   if (!empty($object->base_contexts)) {
     foreach ($object->base_contexts as $id => $context) {
@@ -312,7 +311,7 @@ function theme_ctools_context_list_no_table($vars) {
       $count++;
     }
   }
-  // And relationships
+  // And relationships.
   if (!empty($object->relationships)) {
     foreach ($object->relationships as $relationship) {
       $output .= '<div class="ctools-context-holder clearfix">';
@@ -341,4 +340,3 @@ function theme_ctools_context_list_no_table($vars) {
 
   return $output;
 }
-

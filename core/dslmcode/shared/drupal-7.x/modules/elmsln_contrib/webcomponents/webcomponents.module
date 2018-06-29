@@ -3,6 +3,8 @@
  * @file Web components integration
  */
 
+define('WEBCOMPONENTS_CLASS_IDENTIFIER', 'webcomponent-module-selector');
+
 /**
  * Implements hook_page_build().
  */
@@ -26,6 +28,13 @@ function webcomponents_page_build(&$page) {
   // load webcomponentsjs polyfill library if it exists
   $libraries = libraries_get_libraries();
   if (isset($libraries['webcomponents']) && is_dir(DRUPAL_ROOT . '/' . $libraries['webcomponents'] . '/webcomponentsjs')) {
+    // option to use full polyfill.. tho it's not recommended
+    if (variable_get('webcomponents_lite_polyfill', TRUE)) {
+      $polyfill = 'webcomponents-lite.min.js';
+    }
+    else {
+      $polyfill = 'webcomponents.min.js';
+    }
     $inline = "
 <script type='text/javascript'>
 window.onload = function() {
@@ -36,15 +45,24 @@ window.onload = function() {
   }
   else {
     // polyfill the platform!
-    var e = document.createElement('script');
-    e.src = '" . base_path() . $libraries['webcomponents'] . "/webcomponentsjs/webcomponents-lite.min.js';
-    document.head.appendChild(e);
-  }
+    var wjs = document.createElement('script');
+    wjs.src = '" . _webcomponents_base_path() . $libraries['webcomponents'] . "/webcomponentsjs/" . $polyfill . "';
+    document.head.appendChild(wjs);
+  }";
+    // support for custom element v0 -> v1 polyfill
+    if (isset($libraries['webcomponents']) && is_dir(DRUPAL_ROOT . '/' . $libraries['webcomponents'] . '/document-register-element')) {
+      $inline .="
+  var dre = document.createElement('script');
+  dre.src = '" . _webcomponents_base_path() . $libraries['webcomponents'] . "/document-register-element/build/document-register-element.js';
+  document.head.appendChild(dre);";
+    }
+    $inline .="
 };
 </script>";
     $element = array(
       '#type' => 'markup',
       '#markup' => $inline,
+      '#weight' => -10000000,
     );
     drupal_add_html_head($element, 'webcomponents-lite');
   }
@@ -103,6 +121,26 @@ function _webcomponents_render_component($component) {
       'tag' => $component->machine_name,
       'properties' => $component->properties,
     );
+    // support compressing slots into the innerHTML tag
+    if (isset($component->slots)) {
+      // support single slot name
+      if (is_string($component->slots)) {
+        $vars['innerHTML'] = $component->slots;
+      }
+      // support for multiple slot names
+      else if (is_array($component->slots)) {
+        $vars['innerHTML'] = '';
+        foreach ($component->slots as $name => $content) {
+          $vars['innerHTML'] .= '<span slot="' . $name . '">' . $content . '</span>';
+        }
+      }
+    }
+    if (!isset($vars['properties']['class'])) {
+      $vars['properties']['class'] = WEBCOMPONENTS_CLASS_IDENTIFIER;
+    }
+    else {
+      $vars['properties']['class'] .= ' ' . WEBCOMPONENTS_CLASS_IDENTIFIER;
+    }
     // allow other projects to add onto and modify the webcomponent before it renders
     // useful for tag wrapping for systems like HAX
     drupal_alter('webcomponent_render', $vars, $component);
@@ -226,6 +264,18 @@ function webcomponents_load_all($force_rebuild = FALSE) {
 }
 
 /**
+ * Helper function to return all components as an array of tag names.
+ */
+function _webcomponents_all_tags() {
+  $tags = array();
+  $components = webcomponents_load_all();
+  foreach ($components as $component) {
+    $tags[] = $component->machine_name;
+  }
+  return $tags;
+}
+
+/**
  * Rebuild webcomponents from the file system.
  */
 function _webcomponents_rebuild($hide_messages = FALSE) {
@@ -252,7 +302,7 @@ function _webcomponents_rebuild($hide_messages = FALSE) {
                 foreach ($component as $key => $value) {
                   // see if any aspects changed
                   if ($key != 'file' && isset($entity->{$key}) && $entity->{$key} != $value) {
-                    if (!$hide_messages) {
+                    if (!$hide_messages && !variable_get('webcomponents_hide_messages', FALSE)) {
                       drupal_set_message(t('Web components have changed! Make sure that your attributes are correctly reflected in your site. @key changed on @machine from @old to @new', array('@key' => $key, '@old' => serialize($entity->{$key}), '@new' => serialize($value), '@machine' => $component->machine_name)), 'warning', TRUE);
                     }
                     $entity->{$key} = $value;
@@ -285,20 +335,34 @@ function _webcomponents_rebuild($hide_messages = FALSE) {
 /**
  * Add webcomponent to the header of the site so it can work.
  */
-function _webcomponents_add_to_head($component) {
+function _webcomponents_add_to_head($component, $weight = 0, $hashSize = FALSE) {
   // generate filename hash based on the size of the file
   // this is a quick and dirty way to do invalidation when it updates without local cache refreshes client side
   if (file_exists(DRUPAL_ROOT . '/' . $component->file)) {
-    $hash = filesize(DRUPAL_ROOT . '/' . $component->file);
+    if ($hashSize) {
+      $hash = '?h' . filesize(DRUPAL_ROOT . '/' . $component->file);
+    }
     $element = array(
       '#tag' => 'link', // The #tag is the html tag
       '#attributes' => array( // Set up an array of attributes inside the tag
-        'href' => base_path() . $component->file . '?h' . $hash,
+        'href' => _webcomponents_base_path() . $component->file . $hash,
         'rel' => 'import',
       ),
+      '#weight' => $weight,
     );
     drupal_add_html_head($element, 'webcomponent-' . $component->machine_name);
   }
+}
+
+/**
+ * Get path and allow people to override it, this helps with supporting
+ * CDNs and other things.
+ */
+function _webcomponents_base_path() {
+  $path = base_path();
+  // allow other developers to modify this from base path to another directory
+  drupal_alter('webcomponents_base_path', $path);
+  return $path;
 }
 
 /**
@@ -329,8 +393,18 @@ function webcomponents_load_webcomponents_files() {
  * @return object       fully loaded entity
  */
 function webcomponent_load_by_name($name) {
-  $entity = entity_load('webcomponent', FALSE, array('machine_name' => $name));
-  $entity = array_pop($entity);
+  $entity = FALSE;
+  $query = new EntityFieldQuery();
+  $result = $query
+  ->entityCondition('entity_type', 'webcomponent')
+  ->propertyCondition('machine_name', $name)
+  ->range(0, 1)
+  ->execute();
+  // flip the results if it found them
+  if (isset($result['webcomponent'])) {
+    $tmp = array_pop($result['webcomponent']);
+    $entity = entity_load_single('webcomponent', $tmp->wid);
+  }
   return $entity;
 }
 
@@ -377,4 +451,27 @@ function _webcomponents_find_html_includes($dir, $ignore = array(), $find = '.ht
     }
   }
   return $files;
+}
+
+/**
+ * Implements hook_webcomponent_attached_files_alter().
+ */
+function webcomponents_webcomponent_attached_files_alter(&$files) {
+  $libraries = libraries_get_libraries();
+  $configfile = DRUPAL_ROOT . '/' . $libraries['webcomponents'] . '/webcomponents.json';
+  // support for a webcomponents.json file to tell us what to append
+  if (file_exists($configfile)) {
+    $file = file_get_contents($configfile);
+    $config = json_decode($file);
+    foreach ($files as $fname => $file) {
+      // ensure name is NOT relative to this site for comparison
+      // as the webcomponents.json file will be relative to where
+      // it was placed and not the site it's being utilized in
+      $nameTest = str_replace($libraries['webcomponents'] . '/', '', $fname);
+      // remove things if they don't appear
+      if (!in_array($nameTest, $config->elements)) {
+        unset($files[$fname]);
+      }
+    }
+  }
 }

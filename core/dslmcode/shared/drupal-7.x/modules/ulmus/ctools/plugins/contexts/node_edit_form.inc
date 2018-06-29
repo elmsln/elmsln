@@ -2,8 +2,7 @@
 
 /**
  * @file
- *
- * Plugin to provide a node_edit_form context
+ * Plugin to provide a node_edit_form context.
  */
 
 /**
@@ -32,7 +31,7 @@ $plugin = array(
  */
 function ctools_context_create_node_edit_form($empty, $node = NULL, $conf = FALSE) {
   static $creating = FALSE;
-  $context = new ctools_context(array('form', 'node_edit', 'node_form',  'node_edit_form', 'node', 'entity:node'));
+  $context = new ctools_context(array('form', 'node_edit', 'node_form', 'node_edit_form', 'node', 'entity:node'));
   $context->plugin = 'node_edit_form';
 
   if ($empty || ($creating)) {
@@ -69,7 +68,7 @@ function ctools_context_create_node_edit_form($empty, $node = NULL, $conf = FALS
 
     $form = drupal_build_form($form_id, $form_state);
 
-    // Fill in the 'node' portion of the context
+    // Fill in the 'node' portion of the context.
     $context->data     = $node;
     $context->title    = isset($node->title) ? $node->title : '';
     $context->argument = isset($node->nid) ? $node->nid : $node->type;
@@ -126,7 +125,7 @@ function ctools_context_node_edit_form_settings_form($form, &$form_state) {
  * Validate a node.
  */
 function ctools_context_node_edit_form_settings_form_validate($form, &$form_state) {
-  // Validate the autocomplete
+  // Validate the autocomplete.
   if (empty($form_state['values']['nid']) && empty($form_state['values']['node'])) {
     form_error($form['node'], t('You must select a node.'));
     return;
@@ -153,7 +152,7 @@ function ctools_context_node_edit_form_settings_form_validate($form, &$form_stat
     $node = db_query('SELECT nid, status FROM {node} WHERE LOWER(title) = LOWER(:title)', array(':title' => $nid))->fetchObject();
   }
 
-  // Do not allow unpublished nodes to be selected by unprivileged users
+  // Do not allow unpublished nodes to be selected by unprivileged users.
   if (!$node || (empty($node->status) && !(user_access('administer nodes')))) {
     form_error($form['node'], t('Invalid node selected.'));
   }

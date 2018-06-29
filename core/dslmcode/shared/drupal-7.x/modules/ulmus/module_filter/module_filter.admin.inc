@@ -25,44 +25,44 @@ function module_filter_settings() {
     '#type' => 'checkbox',
     '#title' => t('Enhance the modules page with tabs'),
     '#description' => t('Alternate tabbed theme that restructures packages into tabs.'),
-    '#default_value' => variable_get('module_filter_tabs', 1)
+    '#default_value' => variable_get('module_filter_tabs', 1),
   );
   $form['tabs'] = array(
     '#type' => 'fieldset',
     '#title' => t('Tabs'),
     '#description' => t('Settings used with the tabs view of the modules page.'),
     '#collapsible' => TRUE,
-    '#collapsed' => FALSE
+    '#collapsed' => FALSE,
   );
   $form['tabs']['module_filter_count_enabled'] = array(
     '#type' => 'checkbox',
     '#title' => t('Number of enabled modules'),
     '#description' => t('Display the number of enabled modules in the active tab along with the total number of modules.'),
-    '#default_value' => variable_get('module_filter_count_enabled', 1)
+    '#default_value' => variable_get('module_filter_count_enabled', 1),
   );
   $form['tabs']['module_filter_visual_aid'] = array(
     '#type' => 'checkbox',
     '#title' => t('Visual aids'),
     '#description' => t('When enabling/disabling modules, the module name will display in the tab summary.<br />When filtering, a count of results for each tab will be presented.'),
-    '#default_value' => variable_get('module_filter_visual_aid', 1)
+    '#default_value' => variable_get('module_filter_visual_aid', 1),
   );
   $form['tabs']['module_filter_hide_empty_tabs'] = array(
     '#type' => 'checkbox',
     '#title' => t('Hide tabs with no results'),
     '#description' => t('When a filter returns no results for a tab, the tab is hidden. This is dependent on visual aids being enabled.'),
-    '#default_value' => variable_get('module_filter_hide_empty_tabs', 0)
+    '#default_value' => variable_get('module_filter_hide_empty_tabs', 0),
   );
   $form['tabs']['module_filter_dynamic_save_position'] = array(
     '#type' => 'checkbox',
     '#title' => t('Dynamically position Save button'),
     '#description' => t("For sites with lots of tabs, enable to help keep the 'Save configuration' button more accessible."),
-    '#default_value' => variable_get('module_filter_dynamic_save_position', 1)
+    '#default_value' => variable_get('module_filter_dynamic_save_position', 1),
   );
   $form['tabs']['module_filter_use_url_fragment'] = array(
     '#type' => 'checkbox',
     '#title' => t('Use URL fragment'),
     '#description' => t('Use URL fragment when navigating between tabs. This lets you use the browsers back/forward buttons to navigate through the tabs you selected.') . '<br />' . t('When the Overlay module is enabled this functionality will not be used since overlay relies on the URL fragment.'),
-    '#default_value' => variable_get('module_filter_use_url_fragment', 1)
+    '#default_value' => variable_get('module_filter_use_url_fragment', 1),
   );
   $form['tabs']['module_filter_use_switch'] = array(
     '#type' => 'checkbox',
@@ -81,6 +81,18 @@ function module_filter_settings() {
     '#title' => t('Remember active tab.'),
     '#description' => t('When enabled, the active tab will be remembered.'),
     '#default_value' => variable_get('module_filter_remember_active_tab', 1),
+  );
+  $form['tabs']['module_filter_version_column'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Place version in own column'),
+    '#description' => t("Moves the version out of the description and into it's own column"),
+    '#default_value' => variable_get('module_filter_version_column', 0),
+  );
+  $form['tabs']['module_filter_expanded_description'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Expand description by default'),
+    '#description' => t('When enabled, the description will be expanded by default.'),
+    '#default_value' => variable_get('module_filter_expanded_description', 0),
   );
 
   $form['update'] = array(

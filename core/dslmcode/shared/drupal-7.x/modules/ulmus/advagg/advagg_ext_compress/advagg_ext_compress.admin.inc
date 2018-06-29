@@ -14,6 +14,7 @@
  */
 function advagg_ext_compress_admin_settings_form($form, $form_state) {
   drupal_set_title(t('AdvAgg: External Compressor'));
+  advagg_display_message_if_requirements_not_met();
 
   $form = array();
   // CSS command line.

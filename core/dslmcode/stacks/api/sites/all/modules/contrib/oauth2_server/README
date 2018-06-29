@@ -1,0 +1,9 @@
+OAuth2 Server
+-------------
+
+Provides OAuth 2.0 server functionality, based on the
+oauth2-server-php (https://github.com/bshaffer/oauth2-server-php) library.
+
+Requires v1.4 (minimum) to v1.8 (maximum) of the library.
+
+See http://drupal.org/node/1938218 for information on getting started.

@@ -42,6 +42,7 @@ function hook_cis_service_registry() {
     // this example is from how CIS uses this
     'cis' => array(// Course Information System distribution
       'protocol' => 'https',// base protocol for address calls; commonly https or http
+      'service_protocol' => 'http', // optional base protocol for backend web service calls. This scenario would be that your internal calls reroute local anyway via /etc/hosts rewrite and therefore don't need encryption. This is not common but still possible.
       'service_address' => 'data.online.example.com',// address to make calls over, this can be the same as address but for added security an alternate domain is recommended
       'address' => 'online.example.com',// address to connect to for CIS data
       'user' => 'SERVICE_CIS_YZ',// special user account with HTTP authentication access

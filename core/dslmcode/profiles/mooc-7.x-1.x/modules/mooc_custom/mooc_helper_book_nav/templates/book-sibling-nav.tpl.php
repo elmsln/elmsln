@@ -12,11 +12,9 @@
   // support for ... with screen readers
   if ($parent['mlid'] == -1) {
     $ptitle = t('Pages nested below the current one.');
-    $plabel = t('Jump to page');
   }
   else {
     $ptitle = t('Pages on the same level as @name', array('@name' => $parent_title));
-    $plabel = t('@name sibling content', array('@name' => $parent_title));
   }
   // support for count on the lowest level parent
   if (isset($outline_count) && $outline_count) {
@@ -30,10 +28,10 @@
   }
 ?>
 <li id="book-sibling-children-<?php print $parent['mlid'] ?>-container" class="toolbar-menu-icon book-sibling-parent book-sibling-parent-<?php print $count ?>">
-  <lrnsys-button href="#" title="<?php print $ptitle ?>" class="black-text elmsln-dropdown-button <?php print (isset($parent['_class']) ? $parent['_class'] : ''); ?> no-padding" aria-controls="book-sibling-children-<?php print $parent['mlid'] ?>" aria-expanded="false" data-activates="book-sibling-children-<?php print $parent['mlid'] ?>" hover-class="blue darken-4 white-text" inner-class="no-padding">
+  <lrnsys-button href="#" class="black-text elmsln-dropdown-button <?php print (isset($parent['_class']) ? $parent['_class'] : ''); ?> no-padding" aria-controls="book-sibling-children-<?php print $parent['mlid'] ?>" aria-expanded="false" data-activates="book-sibling-children-<?php print $parent['mlid'] ?>" hover-class="grey darken-3 white-text" inner-class="no-padding">
+    <span class="element-invisible"><?php print $ptitle ?></span>
     <span class="book-sibling-parent-text"><?php print $outline_label; ?> <?php print $parent_count; ?> <?php print $parent_title ?></span>
   </lrnsys-button>
-  <paper-tooltip animation-delay="0" for="book-sibling-children-<?php print $parent['mlid'] ?>-container"><?php print $plabel; ?></paper-tooltip>
 </li>
 <li>
   <ul id="book-sibling-children-<?php print $parent['mlid'] ?>" class="content dropdown-content book-sibling-children elmsln-scroll-bar" aria-hidden="true" tabindex="-1">

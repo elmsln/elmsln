@@ -345,7 +345,7 @@ class JavaScriptPacker {
         $decode = preg_replace($ENCODE, $inline, $decode);
       }
       // special case: when $count==0 there are no keywords. I want to keep
-//  the basic shape of the unpacking funcion so i'll frig the code...
+      //  the basic shape of the unpacking function so i'll frig the code...
       if ($count == 0) {
         $decode = preg_replace($this->_safeRegExp('($count)\\s*=\\s*1'), '$1=0', $decode, 1);
       }

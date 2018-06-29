@@ -113,3 +113,15 @@ function cis_section_update_7009(&$sandbox) {
 function cis_section_update_7010(&$sandbox) {
   features_revert_module('cis_section');
 }
+
+/**
+ * Clean up OG section field_name once and for all
+ */
+function cis_section_update_7011(&$sandbox) {
+  features_revert_module('cis_section');
+  field_delete_field('og_user_node1');
+  field_delete_field('og_user_node2');
+  // actually deletes the fields
+  field_purge_batch(1000);
+  field_purge_batch(1000);
+}

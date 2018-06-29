@@ -6,26 +6,23 @@
  */
 
 /**
+ * @addtogroup hooks
+ * @{
+ */
+
+/**
  * Implements hook_requirements().
  */
 function advagg_font_requirements($phase) {
   $requirements = array();
-  // Ensure translations don't break at install time.
-  $t = get_t();
-
   // If not at runtime, return here.
   if ($phase !== 'runtime') {
     return $requirements;
   }
 
-  // Get local and external fontfaceobserver version numbers.
-  module_load_include('advagg.inc', 'advagg_font');
-  $version = advagg_update_github_versions('fontfaceobserver');
-
-  $lib_info = array();
-  if (function_exists('libraries_info')) {
-    $lib_info = libraries_detect('fontfaceobserver');
-  }
+  // Ensure translations don't break at install time.
+  $t = get_t();
+  // Get config path.
   $config_path = advagg_admin_config_root_path();
 
   // See if module is on.
@@ -43,52 +40,22 @@ function advagg_font_requirements($phase) {
     );
   }
 
-  // See if locally hosted if not in dev mode.
-  if (empty($lib_info)
-    || (variable_get('advagg_font_fontfaceobserver', ADVAGG_FONT_FONTFACEOBSERVER) == 6
-    && variable_get('advagg_cache_level', ADVAGG_CACHE_LEVEL) >= 0
-    )
-  ) {
-    $requirements['advagg_font_rawgithub'] = array(
-      'title' => $t('AdvAgg Font - Host locally'),
-      'severity' => REQUIREMENT_WARNING,
-      'value' => $t('The fontfaceobserver.js file should be local for better performance.'),
-      'description' => empty($lib_info['version']) ?
-        $t('Directions on how to install it can be found on the <a href="@url">Async Font Loader</a> settings page', array(
-          '@url' => url($config_path . '/advagg/font'),
-        )) :
-        $t('Please go to the <a href="@url">Async Font Loader</a> settings page and choose inline or local.', array(
-          '@url' => url($config_path . '/advagg/font'),
-        )),
-    );
-  }
-
   // Check version.
-  if (isset($lib_info['version'])
-    && !empty($version)
-    && version_compare($version, $lib_info['version']) >= 1
-  ) {
-    $requirements['advagg_font_old_library'] = array(
-      'title' => $t('AdvAgg Font - Version is out of date'),
+  $lib_name = 'fontfaceobserver';
+  $module_name = 'advagg_css_compress';
+  list($description, $info) = advagg_get_version_description($lib_name, $module_name);
+  if (!empty($description)) {
+    $requirements["{$module_name}_{$lib_name}_updates"] = array(
+      'title' => $t('@module_name', array('@module_name' => $info['name'])),
       'severity' => REQUIREMENT_WARNING,
-      'value' => $t('Local version of font face observer is old'),
-      'description' => $t('Please upgrade your current version (@local-ver) of <a href="@url">font face observer</a> to the latest (@remote-ver). The local copy of font face observer is located in the %dir directory', array(
-        '@local-ver' => $lib_info['version'],
-        '@remote-ver' => $version,
-        '%dir' => $lib_info['library path'],
-        '@url' => 'https://github.com/bramstein/fontfaceobserver',
-      )),
-    );
-  }
-
-  if (empty($requirements)) {
-    $requirements['advagg_font'] = array(
-      'title' => $t('AdvAgg Font'),
-      'severity' => REQUIREMENT_OK,
-      'value' => $t('OK'),
-      'description' => empty($version) ? $t('The font face observer JavaScript should be working.') : $t('The font face observer JavaScript library is up to date (%version).', array('%version' => isset($lib_info['version']) ? $lib_info['version'] : $$version)),
+      'value' => $t('The @name library needs to be updated.', array('@name' => $lib_name)),
+      'description' => $description,
     );
   }
 
   return $requirements;
 }
+
+/**
+ * @} End of "addtogroup hooks".
+ */

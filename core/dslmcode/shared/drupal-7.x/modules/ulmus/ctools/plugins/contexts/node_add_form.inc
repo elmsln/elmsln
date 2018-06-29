@@ -2,8 +2,7 @@
 
 /**
  * @file
- *
- * Plugin to provide a node_add_form context
+ * Plugin to provide a node_add_form context.
  */
 
 /**
@@ -65,8 +64,8 @@ function ctools_context_create_node_add_form($empty, $data = NULL, $conf = FALSE
       $form_state = array(
         'want form' => TRUE,
         'build_info' => array(
-          'args' => array($node)
-        )
+          'args' => array($node),
+        ),
       );
 
       // Use module_load_include so that caches and stuff can know to load this.
@@ -81,10 +80,10 @@ function ctools_context_create_node_add_form($empty, $data = NULL, $conf = FALSE
 
       // These are specific pieces of data to this form.
       // All forms should place the form here.
-      $context->form       = $form;
-      $context->form_id    = $form_id;
-      $context->form_title = t('Submit @name', array('@name' => $types[$type]->name));
-      $context->node_type  = $type;
+      $context->form                 = $form;
+      $context->form_id              = $form_id;
+      $context->form_title           = t('Submit @name', array('@name' => $types[$type]->name));
+      $context->node_type            = $type;
       $context->restrictions['type'] = array($type);
       $context->restrictions['form'] = array('form');
 

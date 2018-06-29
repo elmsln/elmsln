@@ -1,9 +1,11 @@
 <?php
 
 /**
+ * @file
  * Plugins are described by creating a $plugin array which will be used
  * by the system that includes this file.
  */
+
 $plugin = array(
   'single' => TRUE,
   'title' => t('Comment created date'),
@@ -28,7 +30,7 @@ function ctools_comment_created_content_type_render($subtype, $conf, $panel_args
   $comment = $context->data;
 
   // Build the content type block.
-  $block = new stdClass();
+  $block          = new stdClass();
   $block->module  = 'comment_created';
   $block->title   = t('Created date');
   $block->content = format_date($comment->created, $conf['format']);

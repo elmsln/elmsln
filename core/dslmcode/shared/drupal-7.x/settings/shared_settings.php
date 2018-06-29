@@ -3,6 +3,8 @@
 // you can override them in your config version of shared_settings
 // but it is highly recommended against for system stability
 
+// hide webcomponents messaging about cache rebuilds
+$conf['webcomponents_hide_messages'] = TRUE;
 // fix for core change in 7.50+
 $conf['x_frame_options'] = '';
 // allow image cache derivatives without itok token

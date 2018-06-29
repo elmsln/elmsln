@@ -1,6 +1,10 @@
 <?php
 
 /**
+ * @file
+ */
+
+/**
  * Fetch metadata on a specific page_wizard plugin.
  *
  * @param $page_wizard
@@ -53,7 +57,7 @@ function page_manager_get_wizard_cache($plugin) {
 }
 
 function page_manager_make_wizard_cache($plugin) {
-  $cache = new stdClass;
+  $cache = new stdClass();
   $cache->plugin = $plugin;
   if ($function = ctools_plugin_get_function($plugin, 'default cache')) {
     $function($cache);

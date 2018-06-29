@@ -1,8 +1,14 @@
-# Changelog
+## ELMS:LN 0.10.0 - 2018-06-29 - #haxtheelms
+3 years after the idea was expressed, the team finally has build a truly decoupled, transformative authoring experience. After months of development, testing, and talk, action is materialized. We present you with the HAX authoring system baked into ELMS:LN, out of the box, highly preformance optimized, with tons of great elements and integrations from day 1. For the moment, there are effectively two editing modes while we engage in deeper, production level testing and broader UX testing of HAX. There's traditional edit mode, and HAX editor which unleashes the power of web components for the masses. #haxtheweb is also bringing together people across multiple platforms to unite on front-end based UX patterns and design assets.
 
-## ELMSLN 0.9.0, 2017-09-20 - Birth
+This is a game changer for quality of what can be produced and is the beginning of realization of the web component promise and buy-in from all team members. This release closes 118 issues with HAX being it's own repo that has 131 issues of its own closed towards this release. There is also a massive performance gain over 0.9.0 on page to page and perception of performance as well as resource optimization. Meaning ELMS:LN sends less data, sends it faster, uses what it has more wisely, and lazy loads all dynamic content that's been previously created.
 
-This is the biggest design release of the platform to date. It takes a bold new step into the web components world and the world of one page apps through the creation of our first production Polymer application in the Open Studio. It realizes the paradigm shift away from traditional page transactions to AJAX and web component based application development.
+This also positions the team for doing more iterative releases w/ more features as we've adopted an enhanced build routine that is more accountable then previous methods of releasing components. The next push is towards much deserved vacations for the team, gathering UX feedback, and working on a next generation content presentation engine leveraging the skills we've all learned to this point.
+
+To read about the changes in this release see: https://github.com/elmsln/elmsln/milestone/12?closed=1
+
+## ELMS:LN 0.9.0, 2017-09-20 - Birth
+This is the biggest design release of the platform to date. It takes a bold new step into the web components world and the world of one page apps through the creation of our first production Polymer application in the Open Studio. It realizes the paradygm shift away from traditional page transactions to AJAX and web component based application development.
 
 The new studio is in production usage already and is seeing incredibly promising early results from students and faculty using it (over 100 using it currently). This release closes 157 issues, many related to studio and UX bug fixes. The changes pushed in 0.8.1 are also reflected, meaning that we now have a concept of near infinite scale as far as section size during roster synchronization.
 
@@ -16,12 +22,10 @@ We celebrate today for tomorrow marks the dawn of a new era.
 
 To read about the changes in this release see: https://github.com/elmsln/elmsln/milestone/11?closed=1
 
-## ELMSLN 0.8.1, 2017-09-19 - Snake it
-
+## ELMS:LN 0.8.1, 2017-09-19 - Snake it
 Only #1945 added so that older builds can complete without our design enhancements yet. This was asked for by the community and is not the issue finished but gets this contributed functionality into production systems running 0.8.0 previously.
 
-## ELMSLN 0.8.0, 2017-05-26 - Kunitz
-
+## ELMS:LN 0.8.0, 2017-05-26 - Kunitz
 This release fixes 53 issues since the last release, with 99 since 0.7.0. This is a the beginning of a paradigm shift for the project with regard to design. The system is starting to take on the UX patterns of Material more directly through the core adoption of Web Component architecture across the entire platform. The theme hasn't been completely replaced but it has had major design overhauls since 0.7.x and is drastically easier to navigate / learn.
 
 We've also started to get the build process down for Polymer / Webcomponent architecture and now have 100s of web components available for usage, many of which have experimental support for HAX. There have been a lot of minor bugs fixed associated with the studio, network wide communications edge cases, and performance improvements related to syncing. Git book based workflows for markdown ingestion have also been drastically improved and are now being utilized in production deploys (at PSU).
@@ -32,7 +36,7 @@ A community note attached to this release cycle: ELMS:LN has also been formally 
 
 To read about the changes in this release see: https://github.com/elmsln/elmsln/milestone/18?closed=1
 
-## ELMSLN 0.7.1, 2017-02-22 - MileHigh
+## ELMS:LN 0.7.1, 2017-02-22 - MileHigh
 
 This release fixes 46 issues since the last release. Major improvements in stability to Studio which is starting to gain critique capabilities. We're also seeing improved ability to maintain and establish course / section context when jumping domains. We're starting to improve data visualization on dashboards for xAPI data which now can be visible everywhere.
 
@@ -40,50 +44,28 @@ Minor and Medium bug fixes in edge cases in CIS, Assessment, Discuss, and Media 
 
 To read about the changes in this release see: https://github.com/elmsln/elmsln/milestone/17?closed=1
 
-## ELMSLN 0.7.0, 2017-01-30 - Redux
-
+## ELMS:LN 0.7.0, 2017-01-30 - Redux
 This release fixes over 100 issues since the last release (200ish since 0.6.0). Major improvements in stability to Studio which has graduated as the 1st angular2 based system in the network, as well as lots of UX improvements in all levels of the system. Media, Online, and Courses see major improvements in usability as well. All other systems are a lot easier to access and system context is being maintained between systems much better. Multiple demonstrations of this release are starting to make believers of the approach.
 
 To read about the changes in this release see: https://github.com/elmsln/elmsln/milestone/13?closed=1
 
-## ELMSLN 0.6.3, 2016-12-18 - Evergreen
-
+## ELMS:LN 0.6.3, 2016-12-18 - Evergreen
 This release now adds support for CAS, cleans up multiple minor installation issues with Ubuntu 16, fixes some minor UX issues and enhances the internal ELMSLNJS API for building Angular apps against ELMSLN.
 
 To read about the changes in this release see: https://github.com/elmsln/elmsln/milestone/16?closed=1
 
-## ELMSLN 0.6.2, 2016-12-02 - Dominant
+## ELMS:LN 0.6.2, 2016-12-02 - Dominant
 
 This release includes lots of edge-case performance, edge-case stability, usability and minor bug fixes noticed after deployment of 0.6.1.
 
 To read about the changes present in this release see: https://github.com/elmsln/elmsln/milestone/15?closed=1
 
-## ELMSLN 0.6.1, 2016-11-22 - Gravy
+## ELMS:LN 0.6.1, 2016-11-22 - Gravy
 
 This release includes minor fixes noticed after deploying 0.6.0 in the wild on multiple servers. This is a minor release based on scope of the issues and upgrading from 0.6.0 should be minimally invasive. There is a server level upgrade to apply at this version marker but it is not critical. This also includes additional work towards the Angular version of the studio which is close to working.
 
 Thanks to these reporters & contributors to this release:
 @djfusco @rickhumphries @Deb-G @mmilutinovic1313 @btopro @bradallenfisher @heyMP
-
-* Tab menu doesn't horizontally scroll on mobile bug style guide / theme #1514
-* Documentation page for DNS / domain name request documentation infrastructure #1288
-* Update Drupal core drupal related #1508
-* Scrollspy menu links on long pages bug style guide / theme #1504
-* install run and remove https://www.drupal.org/project/module_missing_message_fixer #1486
-* Edit from the Welcome Page in Course Outline doesn't redirect to CIS bug #1503
-* 'View' link in Impersonate not working. bug #1506
-* H5P errors on fresh install bug drupal related #1507
-* voicecommander + a11y + entity iframe = sad #1502
-* Shop Safety-Quiz Tool assessment / quiz #1476
-* Icon Not Showing Up bug easy minor style guide / theme User Experience #1488
-* Material Icon Link in Network List Display Error bug minor style guide / theme #1495
-* Read time information sitting hidden in table of contents bug minor #1496
-* Unable to change favicon bug minor #1501
-* Keyboard Shortcuts don't work accessibility bug #1498
-* Colour blindness simulator glitch question #1499
-* Settings Cog is Inaccessible for some Shortcoded Media bug Staff Experience #1497
-* List style type set to 'none' for bullet points bug style guide / theme #1500
-* Scrollspy error bug #1494
 
 ## ELMSLN 0.6.0, 2016-11-20 - Turkey
 
@@ -287,7 +269,6 @@ Another release, another big release. This update has massive performance, acces
 * read time stuff bug #1189
 
 ## ELMSLN 0.4.0, 2016-08-18 - Jarvis
-
 This is our biggest enhancement yet. With massive improvements in stability, usability, accessibility and sets us on good ground going forward with futuristic capabilities. There are too manu feature additions to list but among them include automatic media / course time analytics generation, background http snaking call structures, ableplayer for the most accessible video experience anywhere, early work on quizing/testing, greater xAPI coverage with custom metadata and in-browser voice and keyboard command support.
 
 * poster image should override what youtube delivers for poster #1177 an hour agolink missing on ckeditor link page #1179

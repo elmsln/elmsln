@@ -1,0 +1,253 @@
+<?php
+/**
+ * @file
+ * Testing OAuth2 client functionality.
+ */
+
+/**
+ * Implements hook_boot().
+ *
+ * Outputs debug information to the file: /tmp/btr.log
+ */
+function oauth2_client_test_boot() {
+  function _oauth2_client_test_log($var, $comment ='') {
+    $file = '/tmp/btr.log';
+    $content = "\n==> $comment: " . print_r($var, true);
+    file_put_contents($file, $content, FILE_APPEND);
+  }
+
+  _oauth2_client_test_log('= = = = = = = = = = = = = = = = = = = = = = =');
+  _oauth2_client_test_log($_GET, '$_GET');
+  _oauth2_client_test_log($_POST, '$_POST');
+  if (isset($_SESSION['oauth2_client'])) {
+    _oauth2_client_test_log($_SESSION['oauth2_client'], '$_SESSION[oauth2_client]');
+  }
+}
+
+/**
+ * Implements hook_oauth2_clients().
+ */
+function oauth2_client_test_oauth2_clients() {
+  $oauth2_clients = array();
+
+  $common = array(
+    'token_endpoint' => url('oauth2/token', array('absolute' => TRUE)),
+    'client_id' => 'client1',
+    'client_secret' => 'secret1',
+  );
+
+  // For testing client-credentials flow.
+  $oauth2_clients['client-credentials'] = array(
+    'auth_flow' => 'client-credentials',
+  ) + $common;
+
+  // For testing user-password flow.
+  $oauth2_clients['user-password'] = array(
+    'auth_flow' => 'user-password',
+    'username' => 'user1',
+    'password' => 'pass1',
+  ) + $common;
+
+  // For testing server-side flow.
+  $oauth2_clients['server-side'] = array(
+    'auth_flow' => 'server-side',
+    'authorization_endpoint' => url('oauth2/authorize', array('absolute' => TRUE)),
+    'redirect_uri' => url('oauth2/authorized',  array('absolute' => TRUE)),
+    'scope' => 'scope1 scope2',
+  ) + $common;
+
+  // For testing server-side flow with automatic authorization client..
+  $oauth2_clients['server-side-auto'] = array(
+    'token_endpoint' => url('oauth2/token', array('absolute' => TRUE)),
+    'client_id' => 'client2',
+    'client_secret' => 'secret2',
+    'auth_flow' => 'server-side',
+    'authorization_endpoint' => url('oauth2/authorize', array('absolute' => TRUE)),
+    'redirect_uri' => url('oauth2/authorized',  array('absolute' => TRUE)),
+    'scope' => 'scope1 scope2',
+  );
+
+  // Test error handling.
+
+  $oauth2_clients['wrong-client-id'] = array(
+    'token_endpoint' => url('oauth2/token', array('absolute' => TRUE)),
+    'client_id' => 'client_1',
+    'client_secret' => 'secret1',
+    'auth_flow' => 'client-credentials',
+  );
+
+  $oauth2_clients['wrong-client-secret'] = array(
+    'token_endpoint' => url('oauth2/token', array('absolute' => TRUE)),
+    'client_id' => 'client1',
+    'client_secret' => 'secret_1',
+    'auth_flow' => 'client-credentials',
+  );
+
+  $oauth2_clients['wrong-token-endpoint'] = array(
+    'token_endpoint' => url('oauth2/token_1', array('absolute' => TRUE)),
+    'client_id' => 'client1',
+    'client_secret' => 'secret1',
+    'auth_flow' => 'client-credentials',
+  );
+
+  $oauth2_clients['wrong-auth-flow'] = array(
+    'auth_flow' => 'client-credentials-1',
+  ) + $common;
+
+  $oauth2_clients['wrong-username'] = array(
+    'auth_flow' => 'user-password',
+    'username' => 'user_1',
+    'password' => 'pass1',
+  ) + $common;
+
+  $oauth2_clients['wrong-password'] = array(
+    'auth_flow' => 'user-password',
+    'username' => 'user1',
+    'password' => 'pass_1',
+  ) + $common;
+
+  $oauth2_clients['wrong-scope'] = array(
+    'token_endpoint' => url('oauth2/token', array('absolute' => TRUE)),
+    'client_id' => 'client1',
+    'client_secret' => 'secret1',
+    'auth_flow' => 'client-credentials',
+    'scope' => 'scope1 scope2 scope3',
+  ) + $common;
+
+  $oauth2_clients['wrong-authorization-endpoint'] = array(
+    'auth_flow' => 'server-side',
+    'authorization_endpoint' => url('oauth2/authorize_1', array('absolute' => TRUE)),
+    'redirect_uri' => url('oauth2/authorized',  array('absolute' => TRUE)),
+  ) + $common;
+
+  $oauth2_clients['wrong-redirect-uri'] = array(
+    'auth_flow' => 'server-side',
+    'authorization_endpoint' => url('oauth2/authorize', array('absolute' => TRUE)),
+    'redirect_uri' => url('oauth2/authorized_1',  array('absolute' => TRUE)),
+  ) + $common;
+
+  return $oauth2_clients;
+}
+
+/**
+ * Implements hook_menu().
+ */
+function oauth2_client_test_menu() {
+  $items = array();
+  $items['oauth2/test'] = array(
+    'page callback' => 'oauth2_client_test_callback',
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+  $items['oauth2/test-client-integration'] = array(
+    'page callback' => 'oauth2_client_test_client_integration',
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+  $items['oauth2/test-authorized'] = array(
+    'page callback' => 'oauth2_client_test_authorized',
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+  return $items;
+}
+
+/**
+ * Trying test clients.
+ *
+ * Call them by opening in browser:
+ *   - $base_url/oauth2/test/client-credentials
+ *   - $base_url/oauth2/test/user-password
+ *   - $base_url/oauth2/test/server-side
+ *   - $base_url/oauth2/test/server-side-auto
+ *   - $base_url/oauth2/test/wrong-client-id
+ *   - $base_url/oauth2/test/wrong-client-secret
+ *   - $base_url/oauth2/test/wrong-token-endpoint
+ *   - $base_url/oauth2/test/wrong-auth-flow
+ *   - $base_url/oauth2/test/wrong-username
+ *   - $base_url/oauth2/test/wrong-password
+ *   - $base_url/oauth2/test/wrong-scope
+ *   - $base_url/oauth2/test/wrong-authorization-endpoint
+ *   - $base_url/oauth2/test/wrong-redirect-uri
+ */
+function oauth2_client_test_callback($client_name) {
+  try {
+    // Get an access token and output it.
+    $oauth2_client = oauth2_client_load($client_name);
+    $access_token = $oauth2_client->getAccessToken();
+    print "access_token: $access_token";
+  }
+  catch (Exception $e) {
+    print $e->getMessage();
+  }
+}
+
+/**
+ * Use the client 'client2' for getting an authorization code.
+ * This is done with the help of the module oauth2_client,
+ * because 'client2' is registered for it (its return_uri belongs
+ * to oauth2_client).
+ * Before jumping to $authentication_uri, register an internal
+ * redirect with oauth2_client.
+ *
+ * Try it by opening in browser:
+ *   - $base_url/oauth2/test-client-integration
+ */
+function oauth2_client_test_client_integration() {
+  $state = drupal_get_token('test_client');
+  oauth2_client_set_redirect($state, array(
+      'uri' => 'oauth2/test-authorized',
+      'params' => array(
+        'extra_param' => 'This will be appended to the request on redirect.',
+      )
+    ));
+
+  $query_params = array(
+    'response_type' => 'code',
+    'client_id'     => 'client2',
+    'redirect_uri'  => oauth2_client_get_redirect_uri(),
+    'state' => $state,
+  );
+  $endpoint = url('oauth2/authorize', array('absolute' => TRUE));
+  $authentication_uri = $endpoint . '?' . http_build_query($query_params);
+  drupal_goto($authentication_uri);
+}
+
+/**
+ * The oauth2 server will redirect to the registered redirect_uri,
+ * which is handled by the oauth2_client, but then oauth2_client
+ * will redirect to the path 'oauth2/test/authorized', which comes
+ * here. This is because we registered a redirect on the oauth2_client
+ * before jumping to $authentication_uri. While redirecting, oauth2_client
+ * will also append to the request the 'extra_param'.
+ */
+function oauth2_client_test_authorized() {
+  if (!drupal_valid_token($_GET['state'], 'test_client')) {
+    print "The parameter 'state' is wrong.\n";
+    return;
+  }
+  $extra_param = $_GET['extra_param'];
+  print "extra_param: $extra_param <br/>\n";
+
+  $options = array(
+    'method' => 'POST',
+    'data' => http_build_query(array(
+              'grant_type' => 'authorization_code',
+              'code' => $_GET['code'],
+              'redirect_uri' => oauth2_client_get_redirect_uri(),
+            )),
+    'headers' => array(
+      'Content-Type' => 'application/x-www-form-urlencoded',
+      'Authorization' => 'Basic ' . base64_encode('client2:secret2'),
+    ),
+    'context' => stream_context_create(array(
+                 'ssl' => array(
+                   'verify_peer' => FALSE,
+                   'verify_peer_name' => FALSE,
+                 ))),
+  );
+  $token_endpoint = url('oauth2/token', array('absolute' => TRUE));
+  $result = drupal_http_request($token_endpoint, $options);
+  $token = json_decode($result->data);
+  print 'access_token: ' . $token->access_token;
+}

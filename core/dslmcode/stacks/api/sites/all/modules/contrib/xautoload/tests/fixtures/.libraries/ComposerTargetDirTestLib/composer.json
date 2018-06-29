@@ -1,0 +1,8 @@
+{
+  "autoload": {
+    "psr-0": {
+      "Acme\\ComposerTargetDirTestLib\\": ""
+    }
+  },
+  "target-dir": "Acme/ComposerTargetDirTestLib/"
+}

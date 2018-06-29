@@ -96,19 +96,12 @@ function cle_encyclopedia_field_default_field_instances() {
     'display' => array(
       'default' => array(
         'label' => 'hidden',
-        'module' => 'colorbox',
+        'module' => 'file_entity',
         'settings' => array(
-          'colorbox_caption' => 'auto',
-          'colorbox_caption_custom' => '',
-          'colorbox_gallery' => 'post',
-          'colorbox_gallery_custom' => '',
-          'colorbox_image_style' => '',
-          'colorbox_multivalue_index' => NULL,
-          'colorbox_node_style' => 'cle_submission',
-          'colorbox_node_style_first' => '',
+          'text' => 'Download [file:name]',
         ),
-        'type' => 'colorbox',
-        'weight' => 2,
+        'type' => 'file_download_link',
+        'weight' => 1,
       ),
     ),
     'entity_type' => 'node',

@@ -4,9 +4,9 @@ core = 7.x
 files[] = elements.module
 files[] = elements.theme.inc
 
-; Information added by drupal.org packaging script on 2013-06-08
-version = "7.x-1.4"
+; Information added by Drupal.org packaging script on 2018-02-26
+version = "7.x-1.5"
 core = "7.x"
 project = "elements"
-datestamp = "1370667652"
+datestamp = "1519680498"
 

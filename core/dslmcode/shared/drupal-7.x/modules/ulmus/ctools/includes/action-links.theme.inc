@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * Theme function for wrapping menu local actions.

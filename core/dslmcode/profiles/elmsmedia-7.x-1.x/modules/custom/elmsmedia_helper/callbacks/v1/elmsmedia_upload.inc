@@ -1,8 +1,6 @@
 <?php
-
 /**
- * Callback to propagate course network.
- * @return bool if it was successfully cleared
+ * Upload a file and convert it into a node and return it.
  */
 function elmsmedia_helper_elmsln_api_callback_elmsmedia_upload() {
   global $_elmsln;
@@ -29,7 +27,8 @@ function elmsmedia_helper_elmsln_api_callback_elmsmedia_upload() {
       $file->filemime = file_get_mimetype($params['file_data']);
       $file->uid = $account->uid;
       // move from tempory location to real directory
-      file_copy($file, $file_wrapper . '://' . $upload['name']);
+      $file = file_copy($file, $file_wrapper . '://' . $upload['name']);
+      $file->url = file_create_url($file->uri);
     }
     else {
       // get contents of the file if it was uploaded into a variable
@@ -37,6 +36,7 @@ function elmsmedia_helper_elmsln_api_callback_elmsmedia_upload() {
       $file = file_save_data($data, $file_wrapper . '://' . $upload['name']);
       $file->uid = $account->uid;
       file_save($file);
+      $file->url = file_create_url($file->uri);
     }
     // see if Drupal can load from this data source
     if ($file) {
