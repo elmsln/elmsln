@@ -753,6 +753,21 @@ function cle_perms_user_default_permissions() {
     'module' => 'comment',
   );
 
+  // Exported permission: 'use text format student_markdown'.
+  $permissions['use text format student_markdown'] = array(
+    'name' => 'use text format student_markdown',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'guest' => 'guest',
+      'instructor' => 'instructor',
+      'past student' => 'past student',
+      'staff' => 'staff',
+      'student' => 'student',
+      'teaching assistant' => 'teaching assistant',
+    ),
+    'module' => 'filter',
+  );
+
   // Exported permission: 'skip comment approval'.
   $permissions['skip comment approval'] = array(
     'name' => 'skip comment approval',

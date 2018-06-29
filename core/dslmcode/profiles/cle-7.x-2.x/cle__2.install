@@ -242,7 +242,7 @@ function cle__2_update_7018(&$sandbox) {
       $submission->field_submission_text[LANGUAGE_NONE][0]['value'] = $submission->body[LANGUAGE_NONE][0]['value'];
       $submission->field_submission_text[LANGUAGE_NONE][0]['format'] = 'student_markdown';
     }
-    node_save($submission);
+    node_save($submission); 
   }
 }
 /**
@@ -285,5 +285,13 @@ function cle__2_update_7022(&$sandbox) {
  * Instructors can now see the minor gradebook display
  */
 function cle__2_update_7023(&$sandbox) {
+  features_revert_module('cle_perms');
+}
+
+
+/**
+ * Permissions clean up for students
+ */
+function cle__2_update_7024(&$sandbox) {
   features_revert_module('cle_perms');
 }
