@@ -303,6 +303,15 @@ function foundation_access_fieldset($variables) {
  * Implements template_preprocess_page.
  */
 function foundation_access_preprocess_page(&$variables) {
+  $element = array(
+    '#tag' => 'link',
+    '#attributes' => array(
+      'href' => '//fonts.googleapis.com/icon?family=Material+Icons', 
+      'rel' => 'stylesheet',
+      'type' => 'text/css',
+    ),
+  );
+  drupal_add_html_head($element, 'google_material_icons');
   $variables['contentwrappers'] = _elmsln_core_path_is_wrapped(current_path());
   $menu_item = menu_get_item();
   // sniff out if this is a view
