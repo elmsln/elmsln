@@ -7051,9 +7051,7 @@ div.error {
 .elmsln-gallery-image {
   margin-top: 1rem;
 }
-.elmsln-gallery-image a {
-  float: left;
-}
+
 .image--parallax {
   align-items: initial;
 }
