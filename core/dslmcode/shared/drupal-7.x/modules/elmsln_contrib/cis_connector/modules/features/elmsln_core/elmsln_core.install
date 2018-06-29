@@ -373,4 +373,5 @@ function elmsln_core_update_7032(&$sandbox) {
  */
 function elmsln_core_update_7033(&$sandbox) {
   module_enable(array('file_entity'));
+  features_revert_module('elmsln_core');
 }
