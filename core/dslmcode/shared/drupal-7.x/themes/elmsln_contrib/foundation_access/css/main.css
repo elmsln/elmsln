@@ -7901,7 +7901,18 @@ lrnapp-fab-speed-dial-action.lrnapp-fab-speed-dial-action-0 {
   max-height: 40vh !important;
   height: auto;
   overflow: scroll;
+  background-color: rgba(0, 0, 0, .8);
+  transition: all linear .3s;
+  -webkit-transition: all linear .3s;
+  -moz-transition: all linear .3s;
+  -ms-transition: all linear .3s;
+  -o-transition: all linear .3s;
 }
+
+#toastdrawer:hover {
+  background-color: rgba(0, 0, 0, 1);
+}
+
 .paper-toast-label {
   padding: 1em 2em;
   color: white;
@@ -7918,19 +7929,16 @@ lrnapp-fab-speed-dial-action.lrnapp-fab-speed-dial-action-0 {
   border-top-left-radius: .8em;
   border-top-right-radius: .8em;
 }
+#toastdrawer lrnsys-button {
+  display: inline-flex;
+}
 #toastdrawer paper-button {
-  margin: 0;
   color: rgba(255,255,255,0.85);
   border-radius: 4px;
   background: #41bea8;
   font-weight: 900;
-  font-size: 1rem;
-  line-height: 1.7;
-  padding: 0.5rem 1.5rem;
+  padding: 8px 24px;
   box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12), 0 2px 4px -1px rgba(0, 0, 0, 0.4);
-  right: 4px;
-  position: absolute;
-  top: 4px;
 }
 .alert-box {
   background-color: #FFB428;
@@ -8191,7 +8199,8 @@ lrn-aside p {
   line-height: 2rem;
 }
 lrn-aside div.card-panel.lrndesign-panelcard {
-  padding: .75rem;
+  padding: 12px;
+  margin: 0;
 }
 
 button.btn paper-button {
