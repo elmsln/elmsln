@@ -11,12 +11,20 @@ class HAXCMS {
   public $salt = "haxTheWeb";
   public $privateKey;
   public $appStoreConnection;
-  public $projectDirectory;
+  public $superUser;
+  public $user;
+  public $projectsDirectory;
   /**
    * Establish defaults for HAXCMS
    */
   public function __construct() {
     $this->appStoreConnection = new stdClass();
+    $this->superUser = new stdClass();
+    $this->superUser->name = NULL;
+    $this->superUser->password = NULL;
+    $this->user = new stdClass();
+    $this->user->name = NULL;
+    $this->user->password = NULL;
     $this->appStoreConnection->url = $this->appStoreFile;
     // ensure appstore file is there, then make salt size of this file
     if (file_exists(HAXCMS_ROOT . '/' . $this->appStoreFile)) {
@@ -28,9 +36,9 @@ class HAXCMS {
    */
   public function loadProject($name, $create = FALSE) {
     // check if this exists, load but fallback for creating on the fly
-    if (is_dir($this->projectDirectory . '/' . $name)) {
+    if (is_dir($this->projectsDirectory . '/' . $name)) {
       $project = new HAXCMSProject();
-      $project->load($this->projectDirectory, $name);
+      $project->load($this->projectsDirectory, $name);
       return $project;
     }
     else if ($create) {
@@ -46,7 +54,7 @@ class HAXCMS {
   private function createNewProject($name) {
     // try and make the folder
     $project = new HAXCMSProject();
-    if ($project->newProject($this->projectDirectory, $name)) {
+    if ($project->newProject($this->projectsDirectory, $name)) {
       return $project;
     }
     return FALSE;
@@ -56,6 +64,21 @@ class HAXCMS {
    */
   public function validateToken($token, $value = '') {
     if ($token == $this->getToken($value)) {
+      return TRUE;
+    }
+    return FALSE;
+  }
+  /**
+   * test the active user login based on session.
+   */
+  public function testLogin($adminFallback = FALSE) {
+    if ($this->user->name == $_SERVER['PHP_AUTH_USER'] && $this->user->password == $_SERVER['PHP_AUTH_PW']) {
+      return TRUE;
+    }
+    // if fallback is allowed, meaning the super admin then let them in
+    // the default is to strictly test for the login in question
+    // the fallback being allowable is useful for managed environments
+    else if ($adminFallback && $this->superUser->name == $_SERVER['PHP_AUTH_USER'] && $this->superUser->password == $_SERVER['PHP_AUTH_PW']) {
       return TRUE;
     }
     return FALSE;

@@ -1,5 +1,9 @@
 <?php
 // a private key to do an additional hash via
-$GLOBALS['HAXCMS']->privateKey = '123-ddd-223d-dd2s';
+$HAXCMS->privateKey = 'hax-the-web-key';
 // no trailing slash
-$GLOBALS['HAXCMS']->projectDirectory = HAXCMS_ROOT . '/projects';
+$HAXCMS->projectsDirectory = HAXCMS_ROOT . '/projects';
+// super admin account
+$HAXCMS->superUser->name = 'admin';
+// super admin password, you must set this in order for HAX to work
+#$HAXCMS->superUser->password = '';

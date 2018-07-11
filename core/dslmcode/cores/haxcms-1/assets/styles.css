@@ -30,3 +30,7 @@ ul li {
 ul li:last-child {
   padding-bottom:1em;
 }
+
+hax-body {
+  margin: 128px 48px 48px 48px;
+}

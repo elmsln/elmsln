@@ -1,15 +1,33 @@
 <?php
-  define('HAXCMS_ROOT', getcwd());
-  include_once 'lib/bootstrapHAX.php';
-  include_once 'config.php';
-  $project = $HAXCMS->loadProject('current', TRUE);
+  // if we don't have a user and the don't answer, bail
+  if (!isset($_SERVER['PHP_AUTH_USER'])) {
+    header('WWW-Authenticate: Basic realm="Private"');
+    header('HTTP/1.0 401 Unauthorized');
+    print 'Login is required';
+    exit;
+  }
+  else {
+    define('HAXCMS_ROOT', getcwd() . '/..');
+    include_once '../lib/bootstrapHAX.php';
+    include_once '../config.php';
+    // test if this is a valid user login
+    if (!$HAXCMS->testLogin(TRUE)) {
+      print 'Access denied';
+      exit;
+    }
+    else {
+      // woohoo we can edit this thing!
+      $project = $HAXCMS->loadProject('current', TRUE);
+    }
+  }
 ?>
 <!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
-    <title>hax-body demo</title>
+    <base href="../">
+    <title>Admin</title>
     <script>
       /* this script must run before Polymer is imported */
       window.Polymer = {

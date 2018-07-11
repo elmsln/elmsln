@@ -11,7 +11,7 @@ class HAXCMSProject {
   public function load($directory, $name) {
     $this->directory = $directory;
     $this->name = $name;
-    $this->manifest = json_decode(file_get_contents($directory . '/' . $name . '/site.json'));
+    $this->manifest = json_decode(file_get_contents($this->directory . '/' . $name . '/site.json'));
     // @todo look for pages on the file system and read them in
     $this->pages = array();
   }
@@ -32,9 +32,13 @@ class HAXCMSProject {
     // attempt to shift it on the file system
     $this->recurseCopy(HAXCMS_ROOT . '/boilerplate/page', $this->directory . '/' . $this->name . '/' . count($this->pages));
     $page = new stdClass();
-    $page->manifest = json_decode(file_get_contents($this->directory . '/' . $this->name . '/' . count($this->pages) . '/page.json'));
-    array_unshift($this->pages, $page);
-    return $page;
+    try {
+      $page->manifest = json_decode(file_get_contents($this->directory . '/' . $this->name . '/' . count($this->pages) . '/page.json'));
+      array_unshift($this->pages, $page);
+      return $page;
+    }
+    catch (Exception $e) {
+    }
   }
   /**
    * Change the directory this project is located in
