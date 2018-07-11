@@ -1,0 +1,52 @@
+{
+  "id": "123-ddc-d321d-d2e-dd2",
+  "title": "My outline",
+  "author": "LRNWebComponents",
+  "description": "A series of related material to teach you about the structure of content.",
+  "license": "by-sa",
+  "metadata": {},
+  "items": [
+    {
+      "id": "item-1",
+      "indent": "0",
+      "location": "_sites/potter/index.html",
+      "order": "0",
+      "parent": null,
+      "title": "Potter",
+      "metadata": {
+        "siteName": "potter",
+        "description": "A series of related material to teach you about the structure of content.",
+        "image": "_sites/potter/assets/banner.jpg",
+        "icon": "icons:view-quilt"
+      }
+    },
+    {
+      "id": "item-2",
+      "indent": "0",
+      "location": "_sites/jordan/index.html",
+      "order": "1",
+      "parent": "item-1",
+      "title": "Jordan",
+      "metadata": {
+        "siteName": "jordan",
+        "description": "A series of related material to teach you about the structure of content.",
+        "image": "_sites/potter/assets/banner.jpg",
+        "icon": "icons:view-quilt"
+      }
+    },
+    {
+      "id": "item-3",
+      "indent": "0",
+      "location": "_sites/aa100/index.html",
+      "order": "2",
+      "parent": "item-1",
+      "title": "AA 100",
+      "metadata": {
+        "siteName": "aa100",
+        "description": "A series of related material to teach you about the structure of content.",
+        "image": "_sites/potter/assets/banner.jpg",
+        "icon": "icons:save"
+      }
+    }
+  ]
+}

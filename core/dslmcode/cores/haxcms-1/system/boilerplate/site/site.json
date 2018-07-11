@@ -1,0 +1,39 @@
+{
+  "id": "123-ddc-d321d-d2e-dd2",
+  "title": "My outline",
+  "author": "LRNWebComponents",
+  "description": "A series of related material to teach you about the structure of content.",
+  "license": "by-sa",
+  "metadata": {},
+  "items": [
+    {
+      "id": "item-1",
+      "indent": "0",
+      "location": "outline.html",
+      "order": "0",
+      "parent": null,
+      "title": "Outline",
+      "metadata": {
+        "icon": "icons:view-quilt"
+      }
+    },
+    {
+      "id": "item-2",
+      "indent": "0",
+      "location": "introduction.html",
+      "order": "1",
+      "parent": "item-1",
+      "title": "Introduction to outlines",
+      "metadata": {}
+    },
+    {
+      "id": "item-3",
+      "indent": "0",
+      "location": "files/a-2nd-page-item.html",
+      "order": "2",
+      "parent": "item-1",
+      "title": "An item in an outline",
+      "metadata": {}
+    }
+  ]
+}

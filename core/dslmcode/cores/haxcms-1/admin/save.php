@@ -7,9 +7,8 @@
     exit;
   }
   else {
-    define('HAXCMS_ROOT', getcwd() . '/..');
-    include_once '../lib/bootstrapHAX.php';
-    include_once '../config.php';
+    include_once '../system/lib/bootstrapHAX.php';
+    include_once $HAXCMS->configDirectory . '/config.php';
     // test if this is a valid user login
     if (!$HAXCMS->testLogin(TRUE)) {
       print 'Access denied';
@@ -17,7 +16,7 @@
     }
     else {
       // woohoo we can edit this thing!
-      $project = $HAXCMS->loadProject('current', TRUE);
+      $site = $HAXCMS->loadSite('current', TRUE);
       // @todo figure out the active page we were modifying
       // @todo get the data off the wire, validate it, save it
     }
