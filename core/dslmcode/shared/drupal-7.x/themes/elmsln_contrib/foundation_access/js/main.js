@@ -56,8 +56,6 @@ var clipboardjs = require('./components/clipboardjs.js');
    */
   Drupal.behaviors.materializeCSS = {
     attach: function (context, settings) {
-      // select lists but not the chosen ones
-      $('select').not('.chosen').not('.cke_dialog_body select').not('.form-select.initialized').material_select();
       // collapsible sets
       $('.collapsible').collapsible({
         accordion : false // A setting that changes the collapsible behavior to expandable instead of the default accordion style
