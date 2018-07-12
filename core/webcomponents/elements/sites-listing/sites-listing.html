@@ -53,7 +53,8 @@ A LRN element
         visibility: hidden;
       }
       site-card {
-        padding: 16px;
+        margin: 16px;
+        padding: 0;
         width: 250px;
       }
       paper-button.site-card-wrapper {
@@ -127,9 +128,15 @@ A LRN element
         if (findSite.length > 0) {
           findSite = findSite.pop();
         }
-        // double check we have a URI
-        if (typeof findSite.location !== typeof undefined) {
-          window.location.href = findSite.location;
+        // special case for item-new since it is to add something
+        if (active === 'item-new') {
+          this.fire('sites-listing-add-item', findSite);
+        }
+        else {
+          // double check we have a URI
+          if (typeof findSite.location !== typeof undefined) {
+            window.location.href = findSite.location;
+          }
         }
       },
     });

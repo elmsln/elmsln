@@ -15,19 +15,17 @@ A simple card for representing a site
     <style>
       :host {
         display: inline-flex;
+        transition: all linear .6s;
       }
       :host:focus {
         outline: none;
       }
-    
       :host[size="micro"] {
         transform: scale(.5);
       }
-    
       :host[size="small"] {
         transform: scale(.8);
       }
-    
       paper-card {
         border-radius: 4px;
         margin: 0;
@@ -128,9 +126,22 @@ A simple card for representing a site
         margin: 0;
         overflow: hidden;
       }
-    
-      .inline {
-        display: inline;
+      :host[data-site-id="item-new"] {
+        opacity: .5;
+      }
+      :host[data-site-id="item-new"]:hover,
+      :host[data-site-id="item-new"]:focus {
+        opacity: 1;
+      }
+      :host[data-site-id="item-new"] .site-icon {
+        color: black;
+        width: 70%;
+        height: 70%;
+        top: 0;
+        left: 15%;
+        border: none;
+        margin: 0;
+        padding: 0;
       }
     </style>
     <paper-card elevation="[[elevation]]">

@@ -1,0 +1,119 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../paper-input/paper-input.html">
+<link rel="import" href="../paper-dialog/paper-dialog.html">
+<link rel="import" href="../app-layout/app-header/app-header.html">
+<link rel="import" href="../app-layout/app-toolbar/app-toolbar.html">
+<link rel="import" href="../app-layout/app-drawer/app-drawer.html">
+<link rel="import" href="sites-listing.html">
+<!--
+`sites-listing`
+A LRN element
+
+@demo demo/index.html
+
+@microcopy - the mental model for this element
+ -
+ -
+
+-->
+
+<dom-module id="hax-cms-site-listing">
+  <template>
+    <style>
+      app-toolbar {
+        background-color: #4285f4;
+        color: #fff;
+      }
+    
+      paper-icon-button {
+        --paper-icon-button-ink-color: white;
+      }
+    
+      paper-icon-button+[main-title] {
+        margin-left: 24px;
+      }
+    
+      paper-progress {
+        display: block;
+        width: 100%;
+        --paper-progress-active-color: rgba(255, 255, 255, 0.5);
+        --paper-progress-container-color: transparent;
+      }
+    
+      app-header {
+        @apply --layout-fixed-top;
+        color: #fff;
+        --app-header-background-rear-layer: {
+          background-color: #ef6c00;
+        }
+        ;
+      }
+      app-drawer {
+        --app-drawer-scrim-background: rgba(0, 0, 100, 0.8);
+        --app-drawer-content-container: {
+          background-color: #B0BEC5;
+        }
+      }
+      sites-listing {
+        display: block;
+        margin: 100px 16px 0px 16px;
+      }
+      #dialog {
+        width: 300px;
+      }
+    </style>
+    <sites-listing data-source="[[dataSource]]"></sites-listing>
+    <app-header reveals>
+      <app-toolbar>
+        <paper-icon-button icon="menu" onclick="drawer.toggle()"></paper-icon-button>
+        <div main-title>[[title]]</div>
+        <paper-icon-button icon="icons:search"></paper-icon-button>
+        <paper-icon-button icon="icons:account-circle"></paper-icon-button>
+        <paper-icon-button icon="icons:build"></paper-icon-button>
+      </app-toolbar>
+    </app-header>
+    <app-drawer id="drawer" swipe-open></app-drawer>
+    <paper-dialog id="dialog" modal>
+      <h2>Create new site</h2>
+      <paper-input label="Name"></paper-input>
+      <div class="buttons">
+        <paper-button dialog-confirm>Let's go!</paper-button>
+        <paper-button dialog-dismiss>cancel</paper-button>
+      </div>
+    </paper-dialog>
+  </template>
+
+  <script>
+    Polymer({
+      is: 'hax-cms-site-listing',
+      properties: {
+        /**
+         * Title
+         */
+        title: {
+          type: String,
+          value: 'Site list'
+        },
+        /**
+         * Data Source to power the loading of sites in JSON Outline Schema format.
+         */
+        dataSource: {
+          type: String,
+        },
+      },
+      /**
+       * Attached life cycle
+       */
+      attached: function () {
+        document.body.addEventListener('sites-listing-add-item', this._newClicked.bind(this));
+      },
+      /**
+       * New button clicked, open modal
+       */
+      _newClicked: function () {
+        this.$.dialog.toggle();
+      },
+    });
+  </script>
+</dom-module>

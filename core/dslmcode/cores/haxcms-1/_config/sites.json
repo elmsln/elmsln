@@ -8,9 +8,9 @@
   "items": [
     {
       "id": "item-1",
-      "indent": "0",
+      "indent": 0,
       "location": "_sites/potter/index.html",
-      "order": "0",
+      "order": 0,
       "parent": null,
       "title": "Potter",
       "metadata": {
@@ -22,10 +22,10 @@
     },
     {
       "id": "item-2",
-      "indent": "0",
+      "indent": 0,
       "location": "_sites/jordan/index.html",
-      "order": "1",
-      "parent": "item-1",
+      "order": 1,
+      "parent": null,
       "title": "Jordan",
       "metadata": {
         "siteName": "jordan",
@@ -36,16 +36,30 @@
     },
     {
       "id": "item-3",
-      "indent": "0",
+      "indent": 0,
       "location": "_sites/aa100/index.html",
-      "order": "2",
-      "parent": "item-1",
+      "order": 2,
+      "parent": null,
       "title": "AA 100",
       "metadata": {
         "siteName": "aa100",
         "description": "A series of related material to teach you about the structure of content.",
         "image": "_sites/potter/assets/banner.jpg",
         "icon": "icons:save"
+      }
+    },
+    {
+      "id": "item-new",
+      "indent": 0,
+      "location": "",
+      "order": 10000,
+      "parent": null,
+      "title": "Add new site",
+      "metadata": {
+        "siteName": "new",
+        "description": "Click to create a new site",
+        "image": "",
+        "icon": "icons:add-circle-outline"
       }
     }
   ]
