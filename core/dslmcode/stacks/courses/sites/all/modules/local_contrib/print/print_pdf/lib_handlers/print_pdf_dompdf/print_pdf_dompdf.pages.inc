@@ -15,6 +15,7 @@
  */
 function print_pdf_dompdf_print_pdf_generate($html, $meta, $paper_size = NULL, $page_orientation = NULL) {
   module_load_include('inc', 'print', 'includes/print');
+  drupal_load('module', 'print_pdf_dompdf');
 
   $pdf_tool = explode('|', variable_get('print_pdf_pdf_tool', PRINT_PDF_PDF_TOOL_DEFAULT));
   if (empty($paper_size)) {
