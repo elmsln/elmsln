@@ -141,35 +141,8 @@ function foundation_access_preprocess_html(&$variables) {
   $variables['system_title'] = (isset($settings['default_title']) ? $settings['default_title'] : $variables['distro']);
   $variables['course'] = _cis_connector_course_context();
   $variables['theme_path'] = base_path() . drupal_get_path('theme', 'foundation_access');
-
-  // add css for admin pages
-  if (user_access('access administration menu')) {
-    drupal_add_css(drupal_get_path('theme', 'foundation_access') . '/css/admin.css', array('group' => CSS_THEME, 'weight' => 999));
-  }
-  $libraries = libraries_get_libraries();
-  if (!_entity_iframe_mode_enabled()) {
-    // gifs need to be done as a player for accessibility reasons
-    if (isset($libraries['freezeframe.js'])) {
-      drupal_add_js($libraries['freezeframe.js'] .'/src/js/vendor/imagesloaded.pkgd.js');
-      drupal_add_js($libraries['freezeframe.js'] .'/build/js/freezeframe.js');
-      drupal_add_css($libraries['freezeframe.js'] .'/build/css/freezeframe_styles.min.css');
-      drupal_add_js(drupal_get_path('theme', 'foundation_access') . '/js/freezeframe-enable.js');
-    }
-  }
-  drupal_add_css(drupal_get_path('theme', 'foundation_access') . '/materialize_unwinding/css/materialize.css', array('weight' => -1000));
-  drupal_add_js(drupal_get_path('theme', 'foundation_access') . '/materialize_unwinding/js/materialize.js', array('scope' => 'footer', 'weight' => 1000));
-  // support for legacy, stock materializeCSS implementation
-  if (variable_get('materializecss_legacy', FALSE)) {
-    drupal_add_css($libraries['materialize'] . '/css/materialize.css', array('weight' => -1000));
-    drupal_add_js($libraries['materialize'] . '/js/materialize.js', array('scope' => 'footer', 'weight' => 1000));
-  }
-  // support for our legacy; adding in css/js for foundation; this requires a forcible override in shared_settings.php
-  if (variable_get('foundation_access_legacy', FALSE)) {
-    drupal_add_css(drupal_get_path('theme', 'foundation_access') . '/legacy_zurb/css/foundation.min.css', array('weight' => -1000));
-    drupal_add_js(drupal_get_path('theme', 'foundation_access') . '/legacy_zurb/js/modernizr.js', array('scope' => 'footer', 'weight' => 1000));
-    drupal_add_js(drupal_get_path('theme', 'foundation_access') . '/legacy_zurb/js/foundation.min.js', array('scope' => 'footer', 'weight' => 1001));
-    drupal_add_js(drupal_get_path('theme', 'foundation_access') . '/legacy_zurb/js/enable-foundation.js', array('scope' => 'footer', 'weight' => 2000));
-  }
+  // add in all styles / js
+  _foundation_access_add_cssjs();
   // theme path shorthand should be handled here
   foreach ($variables['user']->roles as $role){
     $variables['classes_array'][] = 'role-' . drupal_html_class($role);
@@ -219,6 +192,40 @@ function foundation_access_preprocess_html(&$variables) {
         'class' => array('logo__img'),
       ),
     ));
+  }
+}
+
+/**
+ * Add css / js to the page so we have it all in one block to manage.
+ */
+function _foundation_access_add_cssjs() {
+  // add css for admin pages
+  if (user_access('access administration menu')) {
+    drupal_add_css(drupal_get_path('theme', 'foundation_access') . '/css/admin.css', array('group' => CSS_THEME, 'weight' => 999));
+  }
+  $libraries = libraries_get_libraries();
+  if (!_entity_iframe_mode_enabled()) {
+    // gifs need to be done as a player for accessibility reasons
+    if (isset($libraries['freezeframe.js'])) {
+      drupal_add_js($libraries['freezeframe.js'] .'/src/js/vendor/imagesloaded.pkgd.js');
+      drupal_add_js($libraries['freezeframe.js'] .'/build/js/freezeframe.js');
+      drupal_add_css($libraries['freezeframe.js'] .'/build/css/freezeframe_styles.min.css');
+      drupal_add_js(drupal_get_path('theme', 'foundation_access') . '/js/freezeframe-enable.js');
+    }
+  }
+  drupal_add_css(drupal_get_path('theme', 'foundation_access') . '/materialize_unwinding/css/materialize.css', array('weight' => -1000));
+  drupal_add_js(drupal_get_path('theme', 'foundation_access') . '/materialize_unwinding/js/materialize.js', array('scope' => 'footer', 'weight' => 1000));
+  // support for legacy, stock materializeCSS implementation
+  if (variable_get('materializecss_legacy', FALSE)) {
+    drupal_add_css($libraries['materialize'] . '/css/materialize.css', array('weight' => -1000));
+    drupal_add_js($libraries['materialize'] . '/js/materialize.js', array('scope' => 'footer', 'weight' => 1000));
+  }
+  // support for our legacy; adding in css/js for foundation; this requires a forcible override in shared_settings.php
+  if (variable_get('foundation_access_legacy', FALSE)) {
+    drupal_add_css(drupal_get_path('theme', 'foundation_access') . '/legacy_zurb/css/foundation.min.css', array('weight' => -1000));
+    drupal_add_js(drupal_get_path('theme', 'foundation_access') . '/legacy_zurb/js/modernizr.js', array('scope' => 'footer', 'weight' => 1000));
+    drupal_add_js(drupal_get_path('theme', 'foundation_access') . '/legacy_zurb/js/foundation.min.js', array('scope' => 'footer', 'weight' => 1001));
+    drupal_add_js(drupal_get_path('theme', 'foundation_access') . '/legacy_zurb/js/enable-foundation.js', array('scope' => 'footer', 'weight' => 2000));
   }
 }
 
@@ -1393,6 +1400,28 @@ function foundation_access_menu_local_task(&$variables) {
 }
 
 /**
+ * Implements theme_preprocess_book_export_html().
+ */
+function foundation_access_preprocess_book_export_html(&$variables) {
+  global $base_url, $language;
+  $var = array();
+  @module_invoke_all('page_init');
+  @drupal_alter('page_init', $var);
+  @module_invoke_all('page_build');
+  @drupal_alter('page_build', $var);
+  @module_invoke_all('preprocess_html');
+  $js = drupal_get_js() . drupal_get_js('footer');
+  $variables['title'] = check_plain($variables['title']);
+  $variables['base_url'] = $base_url;
+  $variables['language'] = $language;
+  $variables['language_rtl'] = ($language->direction == LANGUAGE_RTL);
+  $variables['head'] = drupal_get_html_head();
+  $variables['scripts'] = $js;
+  $variables['styles'] = drupal_get_css();
+  $variables['dir'] = $language->direction ? 'rtl' : 'ltr';
+}
+
+/**
  * Implements hook_html_head_alter()
  */
 function foundation_access_html_head_alter(&$head_elements) {
@@ -1402,29 +1431,6 @@ function foundation_access_html_head_alter(&$head_elements) {
   foreach ($head_elements as $key => $value) {
     if (strpos($key, 'drupal_add_html_head_link:shortcut icon:') === 0) {
       unset($head_elements[$key]);
-    }
-  }
-  $args = arg();
-  // account for print module and book print out
-  if ($args[0] == 'book' && $args[1] = 'export' && $args[2] == 'html') {
-    $path = base_path() . drupal_get_path('theme', 'foundation_access') . '/';
-    $css = array(
-      $path . 'css/system.base.css',
-      $path . 'css/main.css',
-      $path . 'fonts/elmsln/elmsln-font-styles.css'
-    );
-    $css[] = $path . 'materialize_unwinding/css/materialize.css';
-    // parse returned locations array and manually add to html head
-    foreach ($css as $key => $file) {
-      $head_elements['fa_print_' . $key] = array(
-        '#type' => 'html_tag',
-        '#tag' => 'link',
-        '#attributes' => array(
-          'type' => 'text/css',
-          'rel' => 'stylesheet',
-          'href' => $file,
-        ),
-      );
     }
   }
 }
