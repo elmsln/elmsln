@@ -47,6 +47,6 @@
     </style>
   </head>
   <body>
-    <hax-cms-site-listing data-source="<?php print $HAXCMS->sitesJSON;?>"></hax-cms-site-listing>
+    <hax-cms-site-listing create-params='{"token":"<?php print $HAXCMS->getToken($HAXCMS->user->name);?>"}' base-path="<?php print $HAXCMS->basePath;?>" data-source="<?php print $HAXCMS->sitesJSON;?>"></hax-cms-site-listing>
   </body>
 </html>

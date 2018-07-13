@@ -1,7 +1,16 @@
 <link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../map-menu/map-menu.html">
+<link rel="import" href="../simple-colors/simple-colors.html">
 <link rel="import" href="../paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../paper-input/paper-input.html">
+<link rel="import" href="../magazine-cover/magazine-cover.html">
+<link rel="import" href="../paper-toast/paper-toast.html">
+<link rel="import" href="../dropdown-select/dropdown-select.html">
+<link rel="import" href="../paper-item/paper-item.html">
 <link rel="import" href="../paper-dialog/paper-dialog.html">
+<link rel="import" href="../paper-icon-picker/paper-icon-picker.html">
+<link rel="import" href="../paper-dialog-scrollable/paper-dialog-scrollable.html">
+<link rel="import" href="../paper-tooltip/paper-tooltip.html">
 <link rel="import" href="../app-layout/app-header/app-header.html">
 <link rel="import" href="../app-layout/app-toolbar/app-toolbar.html">
 <link rel="import" href="../app-layout/app-drawer/app-drawer.html">
@@ -22,71 +31,136 @@ A LRN element
   <template>
     <style>
       app-toolbar {
-        background-color: #4285f4;
-        color: #fff;
+        background-color: #3a0063;
+        color: #ffffff;
       }
-    
       paper-icon-button {
-        --paper-icon-button-ink-color: white;
+        --paper-icon-button-ink-color: #ffffff;
       }
-    
       paper-icon-button+[main-title] {
         margin-left: 24px;
       }
-    
-      paper-progress {
-        display: block;
-        width: 100%;
-        --paper-progress-active-color: rgba(255, 255, 255, 0.5);
-        --paper-progress-container-color: transparent;
-      }
-    
       app-header {
         @apply --layout-fixed-top;
-        color: #fff;
+        color: #ffffff;
         --app-header-background-rear-layer: {
           background-color: #ef6c00;
         }
-        ;
       }
       app-drawer {
-        --app-drawer-scrim-background: rgba(0, 0, 100, 0.8);
+        --app-drawer-scrim-background: rgba(0, 0, 0, 0.6);
         --app-drawer-content-container: {
-          background-color: #B0BEC5;
+          background-color: rgba(93, 0, 159, .8);
+          overflow: scroll;
+          color: #ffffff;
+          padding-left: 8px;
+          padding-right: 8px;
         }
       }
       sites-listing {
         display: block;
         margin: 100px 16px 0px 16px;
       }
-      #dialog {
-        width: 300px;
+      paper-dialog {
+        width: 60%;
+        top: 25%;
+        border-radius: 16px;
+      }
+      paper-input {
+        --paper-input-container-focus-color: #3a0063;
+      }
+      #closedrawer {
+        float: left;
+        margin: 12px -20px 0 8px;
+      }
+      #add {
+        float: right;
+        margin: 12px 8px 0 -20px;
+      }
+      #activeimage {
+
+      }
+      #activeicon {
+        color: black;
+        width: 40%;
+        height: 40%;
+        top: 0;
+        left: 15%;
+        border: none;
+        margin: 0;
+        padding: 0;
       }
     </style>
-    <sites-listing data-source="[[dataSource]]"></sites-listing>
+    <iron-ajax
+      id="createrequest"
+      method="GET"
+      params="[[createParams]]"
+      url="[[basePath]]admin/createNewSite.php"
+      handle-as="json"
+      on-response="handleCreateResponse"></iron-ajax>
+    <sites-listing id="siteslisting" sites="{{__sites}}" data-source="[[dataSource]]"></sites-listing>
     <app-header reveals>
       <app-toolbar>
         <paper-icon-button icon="menu" onclick="drawer.toggle()"></paper-icon-button>
         <div main-title>[[title]]</div>
-        <paper-icon-button icon="icons:search"></paper-icon-button>
-        <paper-icon-button icon="icons:account-circle"></paper-icon-button>
-        <paper-icon-button icon="icons:build"></paper-icon-button>
+        <paper-icon-button id="settings" icon="icons:settings"></paper-icon-button>
+        <paper-tooltip for="settings" position="bottom" offset="12" animation-delay="200">Settings</paper-tooltip>
       </app-toolbar>
     </app-header>
-    <app-drawer id="drawer" swipe-open></app-drawer>
-    <paper-dialog id="dialog" modal>
-      <h2>Create new site</h2>
-      <paper-input label="Name"></paper-input>
+    <app-drawer id="drawer" swipe-open>
+      <paper-icon-button id="closedrawer" icon="icons:close" onclick="drawer.toggle()"></paper-icon-button>
+      <paper-tooltip for="closedrawer" position="bottom" offset="12" animation-delay="200">Close</paper-tooltip>
+      <paper-icon-button id="add" icon="icons:add"></paper-icon-button>
+      <paper-tooltip for="add" position="bottom" offset="12" animation-delay="200">Add site</paper-tooltip>
+      <h3 style="margin: 18px; padding: 6px; border-bottom: 1px solid #ffffff; text-align: center; font-weight: normal;">Site list</h3>
+      <map-menu id="mapmenu" items="{{outline}}" data="[[__sites]]" selected="{{activeItemID}}"></map-menu>
+    </app-drawer>
+    <paper-dialog id="newdialog" with-backdrop>
+      <h3>Create new site</h3>
+      <paper-dialog-scrollable>
+        <paper-input id="newsitename" label="Name" required autofocus></paper-input>
+        <paper-input id="newsitedescription" label="Description"></paper-input>
+        <paper-input id="newsiteimage" label="Image" value="[[activeItem.metadata.image]]"></paper-input>
+        <paper-input id="newsitecolor" label="Color" value="[[activeItem.metadata.color]]"></paper-input>
+        <dropdown-select id="newsitetheme" label="Theme" value="[[activeItem.metadata.theme]]">
+          <paper-item value="default">Default theme</paper-item>
+        </dropdown-select>
+        <label for="newsiteicon">Select an icon:</label>
+        <paper-icon-picker id="newsiteicon" icon="[[activeItem.metadata.icon]]"></paper-icon-picker>
+      </paper-dialog-scrollable>
       <div class="buttons">
-        <paper-button dialog-confirm>Let's go!</paper-button>
+        <paper-button dialog-confirm id="create" raised>Let's go!</paper-button>
         <paper-button dialog-dismiss>cancel</paper-button>
       </div>
     </paper-dialog>
+    <paper-dialog id="itemdialog" with-backdrop>
+      <paper-dialog-scrollable>
+      <magazine-cover
+       image="[[activeItem.metadata.image]]"
+       header="[[activeItem.title]]" subheader="[[activeItem.description]]"
+      action="Access site" icon="[[activeItem.metadata.icon]]" event-data="[[activeItem]]" event-name="hax-cms-load-site">
+      </magazine-cover>
+      </paper-dialog-scrollable>
+      <div class="buttons">
+        <div>color: [[activeItem.metadata.color]]</div>
+        <div>Theme: [[activeItem.metadata.theme]]</div>
+        <paper-icon-button id="edit" icon="icons:settings" style="color:black"></paper-icon-button>
+        <paper-tooltip for="edit" position="bottom" offset="12" animation-delay="200">change details</paper-tooltip>
+        <paper-icon-button id="archivesite" icon="icons:archive" dialog-dismiss style="color:grey"></paper-icon-button>
+        <paper-tooltip for="archivesite" position="top" offset="12" animation-delay="200">archive site</paper-tooltip>
+      </div>
+    </paper-dialog>
+    <paper-toast id="toast"></paper-toast>
   </template>
-
   <script>
     Polymer({
       is: 'hax-cms-site-listing',
+      listeners: {
+        'create.tap': '_createSite',
+        'add.tap': '_addClicked',
+        'mapmenu.selected': '_mapMenuSelection',
+        'newsitetheme.change': '_themeChanged',
+      },
       properties: {
         /**
          * Title
@@ -96,23 +170,129 @@ A LRN element
           value: 'Site list'
         },
         /**
+         * Base path of where this is located.
+         */
+        basePath: {
+          type: String,
+        },
+        /**
          * Data Source to power the loading of sites in JSON Outline Schema format.
          */
         dataSource: {
           type: String,
         },
+        /**
+         * Request params for creating a new site
+         */
+        createParams: {
+          type: Object,
+          value: {},
+        },
+        /**
+         * Active item that's being reviewed / has bubbled up.
+         */
+        activeItem: {
+          type: Object,
+          notify: true,
+          observer: '_activeItemChanged',
+        },
+      },
+      /**
+       * Use events for real value in theme.
+       */
+      _themeChanged: function (e) {
+        this.set('activeItem.metadata.theme', e.detail.value);
+      },
+      /**
+       * Add button clicked, trick DOM into clicking the add new site item.
+       */
+      _addClicked: function (e) {
+        this.$.siteslisting.$.list.querySelector('[data-site-id="item-new"]').click();
+      },
+      /**
+       * User clicked on the flyout menu, set that item to active.
+       */
+      _mapMenuSelection: function (e) {
+        // run through available sites and find the matching ID
+        let findSite = this.__sites.filter(site => {
+          if (site.id !== e.detail) {
+            return false;
+          }
+          return true;
+        });
+        // if we found one, make it the top level item
+        if (findSite.length > 0) {
+          this.set('activeItem', {});
+          this.set('activeItem', findSite.pop());
+        }
+      },
+      /**
+       * Selected item has changed
+       */
+      _activeItemChanged: function (newValue, oldvalue) {
+        if (typeof newValue !== typeof undefined && typeof newValue.id !== typeof undefined) {
+          // for new items we need the new item form
+          if (newValue.id === 'item-new') {
+            this.$.newdialog.opened = true;
+            this.$.itemdialog.opened = false;
+          }
+          else {
+            this.$.newdialog.opened = false;
+            this.$.itemdialog.opened = true;
+          }
+        }
+        // it's possible to have NO item in scope, ensure everything closes :)
+        else if (typeof newValue !== typeof undefined && typeof newValue.id !== typeof undefined) {
+          this.$.newdialog.opened = false;
+          this.$.itemdialog.opened = false;
+          this.$.drawer.opened = false;
+        }
       },
       /**
        * Attached life cycle
        */
       attached: function () {
-        document.body.addEventListener('sites-listing-add-item', this._newClicked.bind(this));
+        // @todo support state routing for loadActiveSite
+        document.body.addEventListener('sites-listing-item-selected', this._itemSelected.bind(this));
+        document.body.addEventListener('hax-cms-load-site', this.loadActiveSite.bind(this));
+      },
+      /**
+       * Simple method of loading whatever's been dictated as active.
+       */
+      loadActiveSite: function (e) {
+        // @todo load the site somehow.
+        window.location.href = e.detail.location;
       },
       /**
        * New button clicked, open modal
        */
-      _newClicked: function () {
-        this.$.dialog.toggle();
+      _itemSelected: function (e) {
+        this.set('activeItem', {});
+        this.set('activeItem', e.detail);
+      },
+      /**
+       * Create a new site button was clicked
+       */
+      _createSite: function (e) {
+        // ship off a new call
+        this.set('createParams.siteName', this.$.newsitename.value);
+        this.set('createParams.description', this.$.newsitedescription.value);
+        // need to pull this from the active item bc of data binding silly
+        this.set('createParams.theme', this.activeItem.metadata.theme);
+        this.set('createParams.color', this.$.newsitecolor.value);
+        this.set('createParams.image', this.$.newsiteimage.value);
+        this.set('createParams.icon', this.$.newsiteicon.icon);
+        this.$.newsitename.value = null;
+        this.$.newsitedescription.value = null;
+        this.$.createrequest.generateRequest();
+      },
+      /**
+       * Create a new site button was clicked
+       */
+      handleCreateResponse: function (e) {
+        // update the listing data
+        this.fire('update-sites-listing-data', e.detail.response);
+        this.$.toast.show(e.detail.response.title + ' created successfully!');
       },
     });
   </script>

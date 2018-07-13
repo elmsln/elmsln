@@ -29,14 +29,17 @@ A LRN element
         flex: 1 1 auto;
       }
       #loading {
-        width:100%;
+        width: 50vw;
         z-index: 1000;
         opacity: .8;
-        padding: 16px;
         text-align: center;
         align-content: center;
         justify-content: center;
-        height: 100vh;
+        height: 50vh;
+        top: 50%;
+        left: 50%;
+        margin-top: -25vh;
+        margin-left: -25vw;
         position: absolute;
         background-color: rgba(250, 250, 250, .8);
         transition: all linear .8s;
@@ -63,12 +66,12 @@ A LRN element
         text-transform: none;
       }
     </style>
-    <iron-ajax auto loading="{{__loading}}" url="[[dataSource]]" handle-as="json" debounce-duration="250" last-response="{{sites}}"></iron-ajax>
+    <iron-ajax id="request" auto loading="{{__loading}}" url="[[dataSource]]" handle-as="json" debounce-duration="250" last-response="{{sitesResponse}}"></iron-ajax>
     <div id="loading" data-loading$="[[!__loading]]">
       <elmsln-loading></elmsln-loading>
       <div>Loading..</div>
     </div>
-    <iron-list items="[[sites.items]]" as="site" grid>
+    <iron-list id="list" items="[[sites]]" as="site" grid>
       <template>
         <paper-button tabindex="-1" data-site-id$="[[site.id]]" class="site-card-wrapper" on-tap="_siteClicked">
           <site-card
@@ -77,7 +80,7 @@ A LRN element
           image="[[site.metadata.image]]"
           icon="[[site.metadata.icon]]"
           name="[[site.title]]"
-          title="[[site.metadata.description]]"></site-card>
+          title="[[site.description]]"></site-card>
         </paper-button>
       </template>
     </iron-list>
@@ -93,6 +96,14 @@ A LRN element
          */
         sites: {
           type: Array,
+          notify: true,
+        },
+        /**
+         * sites response data
+         */
+        sitesResponse: {
+          type: Object,
+          observer: '_sitesResponseChanged',
         },
         /**
          * Size of the cards
@@ -109,6 +120,68 @@ A LRN element
         },
       },
       /**
+       * Attached to the DOM, now fire.
+       */
+      attached: function () {
+        document.body.addEventListener('update-sites-listing-data', this.updateSitesListingData.bind(this));
+      },
+      /**
+       * Sites response has changed.
+       */
+      _sitesResponseChanged: function (newValue, oldValue) {
+        if (typeof newValue !== typeof undefined) {
+          this.set('sites', []);
+          let sortedItems = newValue.items.sort(this.sortOrder);
+          this.set('sites', sortedItems);
+        }
+      },
+      /**
+       * Array comparison function
+       */
+      sortOrder: function (a, b) {
+        let comparison = 0;
+        if(a.order > b.order) {
+          comparison = 1;
+        }
+        else if (b.order > a.order) {
+          comparison = -1;
+        }
+        else if (b.order === a.order) {
+          if (a.title == null) {
+            console.log(a);
+          }
+          if (b.title == null) {
+            console.log(b);
+          }
+          if (a.title == null) {
+            a.title = '';
+          }
+          if (b.title == null) {
+            b.title = '';
+          }
+          if (a.title.toLowerCase() > b.title.toLowerCase()) {
+            comparison = 1;
+          }
+          else if (b.title.toLowerCase() > a.title.toLowerCase()) {
+            comparison = -1;
+          }
+        }
+        return comparison;
+      },
+      /**
+       * Update sites listing data when event is tapped from anywhere
+       */
+      updateSitesListingData: function (e) {
+        this.$.request.generateRequest();
+        setTimeout(() => {
+          const item = this.$.list.querySelector('[data-site-id="' + e.detail.id + '"]');
+          // shift the item into view
+          item.scrollIntoView();
+          // click the item to pop 'er up
+          item.click();
+        }, 500);
+      },
+      /**
        * Handle tap on paper-button above to redirect to the correct data.
        */
       _siteClicked: function (e) {
@@ -118,7 +191,7 @@ A LRN element
         // this will have the id of the current course
         var active = local.getAttribute('data-site-id');
         // find the course by it's unique id and filter just to it
-        let findSite = this.sites.items.filter(site => {
+        let findSite = this.sites.filter(site => {
           if (site.id !== active) {
             return false;
           }
@@ -127,16 +200,8 @@ A LRN element
         // if we found one, make it the top level item
         if (findSite.length > 0) {
           findSite = findSite.pop();
-        }
-        // special case for item-new since it is to add something
-        if (active === 'item-new') {
-          this.fire('sites-listing-add-item', findSite);
-        }
-        else {
-          // double check we have a URI
-          if (typeof findSite.location !== typeof undefined) {
-            window.location.href = findSite.location;
-          }
+          // fire that we found something and it's details
+          this.fire('sites-listing-item-selected', findSite);
         }
       },
     });

@@ -11,23 +11,25 @@ include_once 'JSONOutlineSchemaItem.php';
 
 class JSONOutlineSchema {
   public $file;
-  public $outline;
+  public $id;
+  public $title;
+  public $author;
+  public $description;
+  public $license;
+  public $metadata;
   public $items;
-  public $data;
   /**
    * Establish defaults
    */
   public function __construct() {
     $this->file = NULL;
+    $this->id = $this->generateUUID();
+    $this->title = 'New site';
+    $this->author = '';
+    $this->description = '';
+    $this->license = 'by-sa';
+    $this->metadata = new stdClass();
     $this->items = array();
-    $this->outline = array();
-    $this->data = new stdClass();
-    $this->data->id = uniqid('outline-');
-    $this->data->title = 'New outline';
-    $this->data->author = 'Individual';
-    $this->data->description = '';
-    $this->data->license = 'by-sa';
-    $this->data->metadata = new stdClass();
   }
   /**
    * Get a new item matching schema standards
@@ -53,7 +55,6 @@ class JSONOutlineSchema {
       }
     }
     $count = array_push($this->items, $item);
-    $this->updateHierarchy();
     return $count;
   }
   /**
@@ -63,10 +64,12 @@ class JSONOutlineSchema {
     if (file_exists($location)) {
       $this->file = $location;
       $fileData = json_decode(file_get_contents($location));
-      $this->data = $fileData;
-      $this->items = $this->data->items;
-      unset($this->data->items);
-      $this->updateHierarchy();
+      $vars = get_object_vars($fileData);
+      foreach ($vars as $key => $var) {
+        if (isset($this->{$key})) {
+          $this->{$key} = $var;
+        }
+      }
       return TRUE;
     }
     return FALSE;
@@ -75,21 +78,33 @@ class JSONOutlineSchema {
    * Save data back to the file system location
    */
   public function save() {
-    $schema = get_object_vars($this->data);
+    $schema = get_object_vars($this);
+    unset($schema['file']);
     $schema['items'] = array();
     foreach ($this->items as $item) {
       $newItem = get_object_vars($item);
-      array_push($newItem, $schema['items']);
+      array_push($schema['items'], $newItem);
     }
-    return @file_put_contents($this->file, json_encode($schema));
+    return @file_put_contents($this->file, json_encode($schema, JSON_PRETTY_PRINT));
   }
   /**
-   * Update the outline variable to be a multidimensional
-   * array, based on the items array (which is flat for simplicity)
+   * Generate a UUID
    */
-  private function updateHierarchy() {
-    $outline = array();
-    $this->outline = $outline;
-    return TRUE;
+  private function generateUUID() {
+    return sprintf( '%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
+        // 32 bits for "time_low"
+        mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff ),
+        // 16 bits for "time_mid"
+        mt_rand( 0, 0xffff ),
+        // 16 bits for "time_hi_and_version",
+        // four most significant bits holds version number 4
+        mt_rand( 0, 0x0fff ) | 0x4000,
+        // 16 bits, 8 bits for "clk_seq_hi_res",
+        // 8 bits for "clk_seq_low",
+        // two most significant bits holds zero and one for variant DCE1.1
+        mt_rand( 0, 0x3fff ) | 0x8000,
+        // 48 bits for "node"
+        mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff )
+    );
   }
 }

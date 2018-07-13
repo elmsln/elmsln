@@ -19,10 +19,12 @@ class HAXCMS {
   public $data;
   public $configDirectory;
   public $sitesJSON;
+  public $basePath;
   /**
    * Establish defaults for HAXCMS
    */
   public function __construct() {
+    $this->basePath = '/';
     $this->appStoreConnection = new stdClass();
     $this->superUser = new stdClass();
     $this->superUser->name = NULL;
@@ -32,7 +34,7 @@ class HAXCMS {
     $this->user->password = NULL;
     // set default sites directory to look in if there
     if (is_dir(HAXCMS_ROOT . '/_sites')) {
-      $this->sitesDirectory = HAXCMS_ROOT . '/_sites';
+      $this->sitesDirectory = '_sites';
     }
     // set default config directory to look in if there
     if (is_dir(HAXCMS_ROOT . '/_config')) {
@@ -48,8 +50,8 @@ class HAXCMS {
       }
       if (file_exists($this->configDirectory . '/sites.json')) {
         $this->sitesJSON = '_config/sites.json';
-        $schema = new JSONOutlineSchema();
-        if ($schema->load($this->configDirectory . '/sites.json')) {
+        $this->outlineSchema = new JSONOutlineSchema();
+        if ($this->outlineSchema->load($this->configDirectory . '/sites.json')) {
           // @todo
         }
         else {
@@ -61,16 +63,16 @@ class HAXCMS {
   /**
    * Load a site off the file system with option to create
    */
-  public function loadSite($name, $create = FALSE) {
+  public function loadSite($name, $create = FALSE, $theme = 'default') {
     // check if this exists, load but fallback for creating on the fly
-    if (is_dir($this->sitesDirectory . '/' . $name)) {
+    if (is_dir(HAXCMS_ROOT . '/' . $this->sitesDirectory . '/' . $name)) {
       $site = new HAXCMSSite();
-      $site->load($this->sitesDirectory, $name);
+      $site->load(HAXCMS_ROOT . '/' . $this->sitesDirectory, $name);
       return $site;
     }
     else if ($create) {
       // attempt to create site
-      return $this->createNewSite($name);
+      return $this->createNewSite($name, $theme);
     }
     return FALSE;
   }
@@ -78,10 +80,10 @@ class HAXCMS {
    * Attempt to create a new site on the file system
    * @return boolean true for success, false for failed
    */
-  private function createNewSite($name) {
+  private function createNewSite($name, $theme = 'default') {
     // try and make the folder
     $site = new HAXCMSSite();
-    if ($site->newSite($this->sitesDirectory, $name)) {
+    if ($site->newSite(HAXCMS_ROOT . '/' . $this->sitesDirectory, $this->basePath . $this->sitesDirectory . '/', $name, $theme)) {
       return $site;
     }
     return FALSE;
@@ -114,7 +116,7 @@ class HAXCMS {
    * Get a secure key based on session and two private values
    */
   public function getToken($value = '') {
-    return hmacBase64($value, session_id() . $this->privateKey . $this->salt);
+    return $this->hmacBase64($value, session_id() . $this->privateKey . $this->salt);
   }
   /**
    * Generate a base 64 hash
