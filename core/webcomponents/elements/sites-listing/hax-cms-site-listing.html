@@ -260,8 +260,8 @@ A LRN element
        * Simple method of loading whatever's been dictated as active.
        */
       loadActiveSite: function (e) {
-        // @todo load the site somehow.
-        window.location.href = e.detail.location;
+        // @todo load the site via routing when we wire that up
+        window.open(e.detail.location);
       },
       /**
        * New button clicked, open modal
