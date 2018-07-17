@@ -1,7 +1,8 @@
 <link rel="import" href="../polymer/polymer.html">
-<link rel="import" href="../materializecss-styles/materializecss-styles.html">
 <link rel="import" href="../schema-behaviors/schema-behaviors.html">
+<link rel="import" href="../simple-colors/simple-colors.html">
 <link rel="import" href="../map-menu/map-menu.html">
+<link rel="import" href="../lrnsys-outline/lrnsys-outline.html">
 <link rel="import" href="../iron-ajax/iron-ajax.html">
 <link rel="import" href="../app-layout/app-header/app-header.html">
 <link rel="import" href="../app-layout/app-toolbar/app-toolbar.html">
@@ -11,6 +12,8 @@
 <link rel="import" href="../paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../paper-progress/paper-progress.html">
 <link rel="import" href="../paper-tooltip/paper-tooltip.html">
+<link rel="import" href="../iron-icons/editor-icons.html">
+
 <!--
 `outline-player`
 A LRN element
@@ -20,13 +23,13 @@ A LRN element
 -->
 <dom-module id="outline-player">
   <template>
-    <style include="materializecss-styles">
+    <style>
       :host {
         display: block;
         font-family:libre baskerville;
         --app-drawer-width: 300px;
-        --outline-player-dark: #222222;
-        --outline-player-light: #F8F8F8;
+        --outline-player-dark: var(--simple-colors-dark-theme-background5);
+        --outline-player-light: var(--simple-colors-light-theme-background5);
       }
       :host[closed] {
         --app-drawer-width: 0px;
@@ -118,7 +121,7 @@ A LRN element
       auto
       url="[[outlineLocation]][[outlineFile]]"
       handle-as="json"
-      last-response="{{_outlineData}}"></iron-ajax>
+      last-response="{{manifest}}"></iron-ajax>
     <iron-ajax
       auto
       url="[[outlineLocation]][[activeItem.location]]"
@@ -128,7 +131,8 @@ A LRN element
     <app-drawer-layout>
       <app-drawer id="drawer" swipe-open slot="drawer">
         <h2 class="outline-title">[[outlineTitle]]</h2>
-        <map-menu id="menu" items="{{outline}}" data="[[_outlineData.items]]" selected="{{selected}}"></map-menu>
+        <map-menu hidden$="[[editMode]]" id="menu" items="{{outline}}" data="[[manifest.items]]" selected="{{selected}}"></map-menu>
+        <lrnsys-outline hidden$="[[!editMode]]" id="outline"></lrnsys-outline>
       </app-drawer>
       <app-header-layout>
       <app-header reveals slot="header">
@@ -149,6 +153,13 @@ A LRN element
             offset="14">
             Next Page
           </paper-tooltip>
+          <paper-icon-button id="editmode" disabled="[[!showEditTools]]" icon="editor:mode-edit" on-click="nextPage"></paper-icon-button>
+          <paper-tooltip
+            for="editmode"
+            position="bottom"
+            offset="14">
+            Edit
+          </paper-tooltip>
           <paper-progress hidden$="[[!__loadingContent]]" value="10" indeterminate bottom-item></paper-progress>
         </app-toolbar>
       </app-header>
@@ -161,9 +172,10 @@ A LRN element
   <script>
     Polymer({
       is: 'outline-player',
+
       behaviors: [
-        MaterializeCSSBehaviors.ColorBehaviors,
-        SchemaBehaviors.Schema
+        SchemaBehaviors.Schema,
+        window.simpleColorsBehaviors,
       ],
       properties: {
         /**
@@ -172,6 +184,21 @@ A LRN element
         outlineFile: {
           type: String,
           value: 'outline.json',
+        },
+        /**
+         * show or hide the edit button
+         */
+        showEditTools: {
+          type: Boolean,
+          value: false,
+        },
+        /**
+         * editting state for the page
+         */
+        editMode: {
+          type: Boolean,
+          value: false,
+          observer: '_editModeChanged',
         },
         /**
          * Outline JSON location
@@ -216,7 +243,18 @@ A LRN element
           observer: '_activeItemContentChanged',
         },
         /**
-         * Outline structured via JSON Outline Schema off the wire
+         * a manifest json file decoded, in JSON Outline Schema format
+         */
+        manifest: {
+          type: Object,
+          observer: '_manifestChanged',
+        },
+        color: {
+          type: String,
+          reflectToAttribute: true,
+        },
+        /**
+         * Outline processed and ordered outline
          */
         outline: {
           type: Array,
@@ -267,6 +305,33 @@ A LRN element
           ],
           observer: '_autoLoadChanged',
         },
+      },
+      /**
+       * Attached life cycle
+       */
+      attached: function () {
+        this.$.editmode.addEventListener('tap', this._editButtonTap.bind(this));
+        // @todo see if we have a token for admin mode
+        this.showEditTools = true;
+      },
+      /**
+       * toggle state on button tap
+       */
+      _editButtonTap: function (e) {
+        this.editMode = !this.editMode;
+      },
+      /**
+       * Edit state has changed.
+       */
+      _editModeChanged: function (newValue, oldValue) {
+        if (newValue) {
+          // enable it some how
+          console.log('activate edit mode');
+        }
+        else {
+          // disable it some how
+          console.log('disable edit mod')
+        }
       },
       /**
        * Link menu button to open and closing the side panel.
@@ -345,8 +410,10 @@ A LRN element
           }
           // support controlling the meta-data of the page dynamically based on route
           if (this.controlMetaData) {
-            document.title = this._outlineData.title + ' - ' + this.activeItem.title;
+            document.title = this.manifest.title + ' - ' + this.activeItem.title;
           }
+          // @todo review color by reading off the associated metaData in the JSON
+          
         }
       },
       /**
@@ -371,7 +438,7 @@ A LRN element
        * disableNextPage
        */
       disableNextPage: function(index) {
-        if (index === (this._outlineData.items.length - 1)) {
+        if (index === (this.manifest.items.length - 1)) {
           return true;
         }
         return false;
@@ -392,11 +459,11 @@ A LRN element
        * Go forward a page
        */
       changePage: function(direction) {
-        if (direction == 'next' && this.__activeIndex < (this._outlineData.items.length - 1)) {
-          this.selected = this._outlineData.items[this.__activeIndex+1].id;
+        if (direction == 'next' && this.__activeIndex < (this.manifest.items.length - 1)) {
+          this.selected = this.manifest.items[this.__activeIndex+1].id;
         }
         else if (direction == 'previous' && this.__activeIndex > 0) {
-          this.selected = this._outlineData.items[this.__activeIndex-1].id;
+          this.selected = this.manifest.items[this.__activeIndex-1].id;
         }
       },
       /**
@@ -404,13 +471,23 @@ A LRN element
        */
       _selectedPageChanged: function(newValue, oldValue) {
         if (typeof newValue !== typeof undefined) {
-          const item = this._outlineData.items.filter((d,i) => {
+          const item = this.manifest.items.filter((d,i) => {
             if (newValue === d.id) {
               this.__activeIndex = i;
               return d;
             }
           }).pop();
           this.set('activeItem', item);
+        }
+      },
+      /**
+       * Manifest has changed
+       */
+      _manifestChanged: function (newValue, oldValue) {
+        if (typeof newValue.metadata !== typeof undefined && typeof newValue.metadata.color !== typeof undefined) {
+          this.color = this.manifest.metadata.color;
+          this.accentColor = this.color;
+          this.reset();
         }
       },
     });

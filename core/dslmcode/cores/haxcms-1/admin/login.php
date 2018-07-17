@@ -4,6 +4,7 @@
     header('WWW-Authenticate: Basic realm="Private"');
     header('HTTP/1.0 401 Unauthorized');
     print 'Login is required';
+    header('Status: 403');
     exit;
   }
   else {
@@ -12,12 +13,13 @@
     // test if this is a valid user login
     if (!$HAXCMS->testLogin(TRUE)) {
       print 'Access denied';
+      header('Status: 403');
       exit;
     }
     else {
-      // woohoo we can edit this thing!
-      $site = $HAXCMS->loadSite('current', TRUE);
-      // @todo figure out the active page we were modifying
-      // @todo get the data off the wire, validate it, save it
+      header('Content-Type: application/json');
+      header('Status: 200');
+      print json_encode($HAXCMS->getJWT());
+      exit;
     }
   }

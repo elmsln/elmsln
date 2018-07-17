@@ -14,6 +14,13 @@
 <link rel="import" href="../app-layout/app-header/app-header.html">
 <link rel="import" href="../app-layout/app-toolbar/app-toolbar.html">
 <link rel="import" href="../app-layout/app-drawer/app-drawer.html">
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-icons/iron-icons.html">
+<link rel="import" href="../iron-icons/editor-icons.html">
+<link rel="import" href="../iron-icons/notification-icons.html">
+<link rel="import" href="../iron-icons/av-icons.html">
+<link rel="import" href="../iron-icons/device-icons.html">
+<link rel="import" href="../iron-icons/image-icons.html">
 <link rel="import" href="sites-listing.html">
 <!--
 `sites-listing`
@@ -77,9 +84,6 @@ A LRN element
         float: right;
         margin: 12px 8px 0 -20px;
       }
-      #activeimage {
-
-      }
       #activeicon {
         color: black;
         width: 40%;
@@ -91,10 +95,14 @@ A LRN element
         padding: 0;
       }
     </style>
+    <iron-ajax id="loginrequest" method="GET" url="[[basePath]]admin/login.php" handle-as="json"
+      on-response="loginBridge"></iron-ajax>
     <iron-ajax
       id="createrequest"
-      method="GET"
-      params="[[createParams]]"
+      method="POST"
+      body="[[createParams]]"
+      headers='{"Authorization": "Bearer [[jwt]]"}'
+      content-type="application/json"
       url="[[basePath]]admin/createNewSite.php"
       handle-as="json"
       on-response="handleCreateResponse"></iron-ajax>
@@ -103,8 +111,8 @@ A LRN element
       <app-toolbar>
         <paper-icon-button icon="menu" onclick="drawer.toggle()"></paper-icon-button>
         <div main-title>[[title]]</div>
-        <paper-icon-button id="settings" icon="icons:settings"></paper-icon-button>
-        <paper-tooltip for="settings" position="bottom" offset="12" animation-delay="200">Settings</paper-tooltip>
+        <paper-icon-button id="login" icon="[[getLoginIcon(jwt)]]"></paper-icon-button>
+        <paper-tooltip for="login" position="bottom" offset="12" animation-delay="200">[[getLoginText(jwt)]]</paper-tooltip>
       </app-toolbar>
     </app-header>
     <app-drawer id="drawer" swipe-open>
@@ -122,7 +130,7 @@ A LRN element
         <paper-input id="newsitedescription" label="Description"></paper-input>
         <paper-input id="newsiteimage" label="Image" value="[[activeItem.metadata.image]]"></paper-input>
         <paper-input id="newsitecolor" label="Color" value="[[activeItem.metadata.color]]"></paper-input>
-        <dropdown-select id="newsitetheme" label="Theme" value="[[activeItem.metadata.theme]]">
+        <dropdown-select id="newsitetheme" label="Theme" value="default">
           <paper-item value="default">Default theme</paper-item>
         </dropdown-select>
         <label for="newsiteicon">Select an icon:</label>
@@ -142,8 +150,8 @@ A LRN element
       </magazine-cover>
       </paper-dialog-scrollable>
       <div class="buttons">
-        <div>color: [[activeItem.metadata.color]]</div>
-        <div>Theme: [[activeItem.metadata.theme]]</div>
+        <iron-icon icon="editor:format-color-fill" style$="color:[[activeItem.metadata.color]]"></iron-icon>[[activeItem.metadata.color]]
+        <iron-icon icon="av:web"></iron-icon>Theme: [[activeItem.metadata.theme]]
         <paper-icon-button id="edit" icon="icons:settings" style="color:black"></paper-icon-button>
         <paper-tooltip for="edit" position="bottom" offset="12" animation-delay="200">change details</paper-tooltip>
         <paper-icon-button id="archivesite" icon="icons:archive" dialog-dismiss style="color:grey"></paper-icon-button>
@@ -160,6 +168,7 @@ A LRN element
         'add.tap': '_addClicked',
         'mapmenu.selected': '_mapMenuSelection',
         'newsitetheme.change': '_themeChanged',
+        'login.tap': '_loginUserRoutine',
       },
       properties: {
         /**
@@ -182,6 +191,12 @@ A LRN element
           type: String,
         },
         /**
+         * JSON Web token
+         */
+        jwt: {
+          type: String,
+        },
+        /**
          * Request params for creating a new site
          */
         createParams: {
@@ -196,6 +211,29 @@ A LRN element
           notify: true,
           observer: '_activeItemChanged',
         },
+      },
+      /**
+       * Request a user login if we need one or log out
+       */
+      _loginUserRoutine: function (e) {
+        // null is default, if we don't have anything go get one
+        if (this.jwt == null) {
+          this.$.loginrequest.generateRequest();
+        }
+        else {
+          localStorage.removeItem('jwt');
+          this.jwt = null;
+          this.$.toast.show('You have logged out');
+        }
+      },
+      /**
+       * Login icon test, show login or logou depending
+       */
+      getLoginIcon: function (jwt) {
+        if (jwt == null) {
+          return 'icons:power-settings-new';
+        }
+        return 'icons:account-circle';
       },
       /**
        * Use events for real value in theme.
@@ -257,6 +295,22 @@ A LRN element
         document.body.addEventListener('hax-cms-load-site', this.loadActiveSite.bind(this));
       },
       /**
+       * Ready life cycle
+       */
+      ready: function () {
+        // set jwt from local storage bin
+        this.jwt = localStorage.getItem('jwt');
+      },
+      /**
+       * Login bridge to get a JWT and hang onto it
+       */
+      loginBridge: function (e) {
+        this.jwt = e.detail.response;
+        // set the jwt into local storage so we can reference later
+        localStorage.setItem('jwt', this.jwt);
+        this.$.toast.show('Welcome, log in successful!');
+      },
+      /**
        * Simple method of loading whatever's been dictated as active.
        */
       loadActiveSite: function (e) {
@@ -282,6 +336,8 @@ A LRN element
         this.set('createParams.color', this.$.newsitecolor.value);
         this.set('createParams.image', this.$.newsiteimage.value);
         this.set('createParams.icon', this.$.newsiteicon.icon);
+        // pass along the jwt for user "session" purposes
+        this.set('createParams.jwt', this.jwt);
         this.$.newsitename.value = null;
         this.$.newsitedescription.value = null;
         this.$.createrequest.generateRequest();

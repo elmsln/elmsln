@@ -2,8 +2,6 @@
   // basic global debugging
   function hax500Debug(){ if(($err=error_get_last())) die('<pre>'.print_r($err,true).'</pre>'); }
   register_shutdown_function('hax500Debug');
-  // Start the session
-  session_start();
   // register our global CMS variable for the whole damn thing
   global $HAXCMS;
   // calculate where we are in the file system, accurately
@@ -13,5 +11,7 @@
   include_once 'HAXService.php';
   // the whole CMS as one object
   include_once 'HAXCMS.php';
+  // JSON web tokens
+  include_once 'JWT.php';
   // invoke the CMS
   $HAXCMS = new HAXCMS();  

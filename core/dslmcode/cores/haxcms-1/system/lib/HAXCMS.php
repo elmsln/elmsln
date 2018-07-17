@@ -6,6 +6,7 @@
 
 include_once 'HAXCMSSite.php';
 include_once 'JSONOutlineSchema.php';
+include_once 'JWT.php';
 
 class HAXCMS {
   public $appStoreFile;
@@ -20,10 +21,19 @@ class HAXCMS {
   public $configDirectory;
   public $sitesJSON;
   public $basePath;
+  public $safePost;
+  public $safeGet;
   /**
    * Establish defaults for HAXCMS
    */
   public function __construct() {
+    // stupid session less handling thing
+    $_POST = (array)json_decode(file_get_contents('php://input'));
+    // handle sanitization on request data, drop security things
+    $this->safePost = filter_var_array($_POST, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_HIGH);
+    unset($this->safePost['jwt']);
+    unset($this->safePost['token']);
+    $this->safeGet = filter_var_array($_GET, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_HIGH);
     $this->basePath = '/';
     $this->appStoreConnection = new stdClass();
     $this->superUser = new stdClass();
@@ -91,8 +101,12 @@ class HAXCMS {
   /**
    * Validate a security token
    */
-  public function validateToken($token, $value = '') {
-    if ($token == $this->getToken($value)) {
+  public function validateRequestToken($token = NULL, $value = '') {
+    // default token is POST
+    if ($token == NULL) {
+      $token = $_POST['token'];
+    }
+    if ($token == $this->getRequestToken($value)) {
       return TRUE;
     }
     return FALSE;
@@ -115,9 +129,37 @@ class HAXCMS {
   /**
    * Get a secure key based on session and two private values
    */
-  public function getToken($value = '') {
-    return $this->hmacBase64($value, session_id() . $this->privateKey . $this->salt);
+  public function getRequestToken($value = '') {
+    return $this->hmacBase64($value, $this->privateKey . $this->salt);
   }
+  /**
+   * Get user's JWT
+   */
+  public function getJWT() {
+    $token = array();
+    $token['id'] = $this->getRequestToken('user');
+    $token['user'] = $_SERVER['PHP_AUTH_USER'];
+    return JWT::encode($token, $this->privateKey . $this->salt);
+  }
+  /**
+   * Validate a JTW during POST
+   */
+  public function validateJWT($endOnInvalid = TRUE) {
+    if ($_POST['jwt'] != NULL) {
+      $post = JWT::decode($_POST['jwt'], $this->privateKey);
+      if ($post->id == $this->getRequestToken('user')) {
+        return TRUE;
+      }
+    }
+    // kick back the end if its invalid
+    if ($endOnInvalid) {
+      print 'Invalid token';
+      header('Status: 403');
+      exit;
+    }
+    return FALSE;
+  }
+
   /**
    * Generate a base 64 hash
    */
