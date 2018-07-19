@@ -1,1 +1,165 @@
-<html><head><link rel="import" href="../polymer/polymer.html"><link rel="import" href="simple-colors-behaviors.html"><link rel="prefetch" href="../polymer/polymer-mini.html"><link rel="prefetch" href="../polymer/polymer-micro.html"></head><body><dom-module id="simple-colors"><script>(function(){'use strict';Polymer.SimpleColorsUtility=Polymer({is:'simple-colors',properties:{hexCodes:{type:Object,value:{grey:['#000000','#111111','#222222','#444444','#666666','#999999','#bbbbbb','#dddddd','#eeeeee','#ffffff'],accent:['#000000','#111111','#222222','#dddddd','#eeeeee','#ffffff'],red:['#a00000','#c70000','#ee0000','#ff2222','#ff4444','#ff6666'],pink:['#9a006e','#bb0080','#da0099','#ff2077','#ff4089','#ff5b9a'],purple:['#44006f','#6300a0','#7200ba','#dd22ee','#e75cff','#ea75ff'],deepPurple:['#1d005c','#2b0082','#32009d','#7f5fff','#9175FF','#9e86ff'],indigo:['#000f72','#00149a','#001dc4','#2277ff','#428BFF','#5da1ff'],blue:['#002b63','#0041a2','#0156c6','#0091ff','#199fff','#30aaff'],lightBlue:['#002f50','#00547e','#0075a7','#00c0ff','#22cbff','#3cd2ff'],cyan:['#00393c','#005b61','#017f8a','#22f0f0','#4fffff','#6affff'],teal:['#003930','#006559','#018e7b','#00ffa6','#1bffaf','#5dffc1'],green:['#022709','#105e26','#128737','#00f956','#38FF61','#7bff86'],lightGreen:['#122d09','#2f5c16','#438316','#6fff00','#89FF2E','#A0FF52'],lime:['#594700','#716000','#877000','#aeff00','#b4ff18','#beff4d'],yellow:['#634200','#855400','#965c00','#f6f600','#fcfc38','#ffff60'],amber:['#673800','#8F4F00','#a85c00','#dfa400','#e3b030','#ffcb62'],orange:['#8c2a00','#a83500','#bf3900','#ff9625','#ff8800','#ff9625'],deepOrange:['#820400','#a70800','#c61400','#ff7b42','#ff7738','#ff7b42'],brown:['#442d26','#5D4037','#85574a','#a47060','#b67f6f','#c28a7b'],blueGrey:['#2f4149','#455a64','#56707c','#699096','#75989F','#81a3a9']}}},ready:function(){var a=this,b='',c=function(a,b){return a+': '+b+'; \n'},d=function(d,e,f){for(var g in b+=d+' { ',a.hexCodes)if(a.hexCodes.hasOwnProperty(g)){var h=f?a.hexCodes[g].slice().reverse():a.hexCodes[g].slice(),i='grey'===g?'--simple-colors'+e:'--simple-colors'+e+'-'+g.replace(/([a-z])([A-Z])/g,'$1-$2').toLowerCase();b+=c(i+'-foreground1',h[0]),b+=c(i+'-foreground2',h[1]),b+=c(i+'-foreground3',h[2]),'grey'===g?(b+=c(i+'-foreground4',h[3]),b+=c(i+'-foreground5',h[4]),b+=c(i+'-background5',h[5]),b+=c(i+'-background4',h[6]),b+=c(i+'-background3',h[7]),b+=c(i+'-background2',h[8]),b+=c(i+'-background1',h[9])):(b+=c(i+'-background3',h[3]),b+=c(i+'-background2',h[4]),b+=c(i+'-background1',h[5]))}b+=' } \n\n'},e=function(a,c){b+=f(a,'-foreground1',c),b+=f(a,'-foreground2',c),b+=f(a,'-foreground3',c),b+=f(a,'-background1',c),b+=f(a,'-background2',c),b+=f(a,'-background3',c)},f=function(a,b,d){return'grey'===d?c(a+'-accent'+b,'var('+a+b+')'):c(a+'-accent'+b,'var('+a+d+b+')')},g=['red','pink','purple','deep-purple','indigo','blue','light-blue','cyan','teal','green','light-green','lime','yellow','amber','orange','deep-orange','brown','blue-grey',''],h=document.head||document.getElementsByTagName('head')[0],j=document.createElement('style');d('html','-light-theme',!1),d('html','-dark-theme',!0),d('html, *[dark="false"]','',!1),d('*[dark]','',!0);for(var k=0;k<g.length;k++){var i=''===g[k]?'':'-'+g[k],l=''===g[k]?'none':g[k];b+='*[accent-color="'+l+'"] { ',e('--simple-colors',i),e('--simple-colors-light-theme',i),e('--simple-colors-dark-theme',i),b+=' } \n\n'}j.type='text/css',j.styleSheet?j.styleSheet.cssText=b:j.appendChild(document.createTextNode(b)),h.appendChild(j)}}),Polymer.SimpleColorsUtility.instance=null,Polymer.SimpleColorsUtility.requestAvailability=function(){Polymer.SimpleColorsUtility.instance||(Polymer.SimpleColorsUtility.instance=document.createElement('simple-colors')),document.body.appendChild(Polymer.SimpleColorsUtility.instance)}})();</script></dom-module></body></html>
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="simple-colors-behaviors.html">
+
+<!--
+`simple-colors`
+Utily to control
+
+@demo demo/index.html
+
+@microcopy - the mental model for this element
+
+-->
+
+<dom-module id="simple-colors">
+  <script>
+    (function() {
+      'use strict';
+  
+      Polymer.SimpleColorsUtility = Polymer({
+
+        is: 'simple-colors',
+        
+        properties: {
+          /**
+           * Stores hex codes for accessible colors.
+           */
+          hexCodes: {
+            type: Object,
+            value: {
+              "colorLevels": [
+                "foreground1",
+                "foreground2",
+                "foreground3",
+                "foreground4",
+                "foreground5",
+                "background5",
+                "background4",
+                "background3",
+                "background2",
+                "background1"
+              ],
+              "grey":["#000000","#111111","#222222","#444444","#666666","#999999","#bbbbbb","#dddddd","#eeeeee","#ffffff"]
+              ,"accent":["#000000","#111111","#222222","#444444","#666666","#999999","#bbbbbb","#dddddd","#eeeeee","#ffffff"]
+              ,"red":["#520000","#670000","#850000","#ac0000","#ee0000","#ff2222","#fd5151","#ff7474","#ff8f8f","#ffaeae"]
+              ,"pink":["#5a0020","#78002b","#980036","#b80042","#da004e","#ff3996","#fd60aa","#ff73b5","#ff87c0","#ffa5cf"]
+              ,"purple":["#33003a","#490052","#6c0079","#8a009b","#a500ba","#e200ff","#ed61ff","#f07cff","#f394ff","#f4affd"]
+              ,"deepPurple":["#2a0049","#3a0063","#4c0081","#5d009f","#7e00d8","#a931ff","#b44aff","#bb63f9","#c97eff","#ddacff"]
+              ,"indigo":["#100049","#160063","#20008c","#2801b0","#3a00ff","#835fff","#9373ff","#9e82ff","#af97ff","#c3b2ff"]
+              ,"blue":["#001947","#002569","#003494","#0041bb","#0059ff","#4083ff","#5892fd","#74a5ff","#95baff","#acc9ff"]
+              ,"lightBlue":["#002850","#003f7d","#0055a8","#0066ca","#007ffc","#41a1ff","#58adff","#65b3ff","#92c9ff","#a1d1ff"]
+              ,"cyan":["#002c38","#003f50","#005970","#007999","#009dc7","#00c9ff","#1ccfff","#33d4ff","#77e2ff","#9beaff"]
+              ,"teal":["#002a20","#003829","#004e3a","#007658","#009d75","#00ff9c","#29ffac","#56ffbd","#79ffcb","#98ffd7"]
+              ,"green":["#002a11","#003d18","#005a23","#00762e","#008c37","#00f961","#24ff70","#49ff88","#79ffa7","#acffc9"]
+              ,"lightGreen":["#143000","#1b3f00","#296100","#357f00","#429d00","#6fff00","#8efd38","#a1fd5a","#b1ff75","#c7ff9b"]
+              ,"lime":["#223400","#293f00","#3b5a00","#4d7600","#649900","#aeff00","#bdff2d","#caff58","#d4ff77","#dfff9b"]
+              ,"yellow":["#303000","#454400","#585700","#787700","#929100","#f6f600","#ffff3a","#ffff7c","#ffff90","#ffffac"]
+              ,"amber":["#302500","#413200","#614b00","#876800","#b28900","#ffc500","#ffc235","#ffcf5e","#ffd677","#ffdf92"]
+              ,"orange":["#3d1c00","#612d00","#833d00","#ae5100","#e56a00","#ff9625","#ff9e36","#ffb05c","#ffbd75","#ffca92"]
+              ,"deepOrange":["#3a0c00","#561100","#8a1c00","#b92500","#f53100","#ff6c3c","#ff7649","#ff8a64","#ffa588","#ffb299"]
+              ,"brown":["#2c140e","#3b1e15","#5b3328","#724539","#85574a","#a47060","#ac7868","#b68373","#c59485","#e5b8aa"]
+              ,"blueGrey":["#182023","#1e282c","#2f3e45","#40535b","#56707c","#718892","#7a8f98","#8d9fa7","#9badb6","#b1c5ce"]  
+            },
+          },
+          variables: {
+            type: Object,
+            value: {}
+          }
+        },
+        
+        /** 
+        * Append a stylesheet of variables. (Needed for slotted content.)
+        */
+        ready: function() {
+          let root = this, css = '', addProp = function(prop,val){
+            return prop+': '+val+'; \n';
+          // writes the CSS for a theme and load the theme variables into the variables property
+          }, addTheme = function(selector,prefix,reverse){
+            css += selector+' { ';
+            for (var property in root.hexCodes) {
+              if (property !== "colorLevels" && root.hexCodes.hasOwnProperty(property)) {
+                let val = reverse ? root.hexCodes[property].slice().reverse() : root.hexCodes[property].slice();
+                let prop = (property!== 'grey') ? '--simple-colors'+prefix+'-'+property.replace( /([a-z])([A-Z])/g, '$1-$2' ).toLowerCase(): '--simple-colors'+prefix;
+                for(let i = 0; i < 10; i++){
+                  let suffix = '-'+root.hexCodes.colorLevels[i];
+                  css += prop+suffix+': '+val[i]+';';
+                  root.variables[prop+suffix] = val[i];
+                }
+              }
+            }
+            css += ' } \n\n';
+            return css;
+          // add CSS to update CSS variables for accent colors
+          },  addClasses = function(prefix){
+            for (var property in root.hexCodes) {
+              if (property !== "colorLevels" && root.hexCodes.hasOwnProperty(property)) {
+                let val = root.hexCodes[property].slice();
+                let prefix = 'simple-colors-', prop = (property!== 'grey') ? property.replace( /([a-z])([A-Z])/g, '$1-$2' ).toLowerCase(): '';
+                for(let i = 0; i < 10; i++){
+                  let suffix = root.hexCodes.colorLevels[i];
+                  css += addClass(prop,prefix,suffix,'','background-color',val[i]);
+                  css += addClass(prop,prefix,suffix,'-text','color',val[i]);
+                  css += addClass(prop,prefix,suffix,'-border','border-color',val[i]);
+                }
+              }
+            }
+            css += '\n';
+            return css;
+          // add CSS to update CSS variables for accent colors
+          }, addClass = function(prop,prefix,suffix,type,style,hex){
+            let color = prop === '' ? 'none' : prop, accent = prefix+'accent-'+suffix+type, varName = prop === '' ? prefix+prop+suffix : prefix+prop+'-'+suffix;
+            let grey = prop === '' ? '.'+accent+', \n' : '';
+            let css = prop === 'accent' ? '' : '.'+varName+type+', \n'+grey+'[accent-color="'+color+'"] .'+accent+' { \n\t'+style+': var(--'+varName+', '+hex+'); \n}\n';
+            return css;
+          },addAccent = function(prefix,color){
+            for(var i=0; i<10;i++){
+              let suffix = i < 5 ? '-foreground' : '-background', level = i < 5 ? i+1 : i-4, val = color !== 'grey' ? prefix+color+suffix+level : prefix+suffix+level;
+              css += prefix+'-accent'+suffix+level+': var('+val+');';
+            }
+          }, head = document.head || document.getElementsByTagName('head')[0], style = document.createElement('style');
+          // writes the CSS for each theme
+          addTheme('html','-light-theme',false);
+          addTheme('html','-dark-theme',true);
+          addTheme('html, *[dark="false"]','',false);
+          addTheme('*[dark]','',true);
+          addClasses('');
+
+          // writes the CSS to update CSS variables for accent colors
+          for (var property in root.hexCodes) {
+            if (property !== 'accent' && property !== "colorLevels") {
+              property = property.replace( /([a-z])([A-Z])/g, '$1-$2' ).toLowerCase();
+              let color = property !== 'grey' ? '-'+property : '', selector = property !== 'grey' ? property : 'none';
+              css+= '*[accent-color="'+selector+'"] { ';
+              addAccent('--simple-colors',color);
+              addAccent('--simple-colors-light-theme',color);
+              addAccent('--simple-colors-dark-theme',color);
+              css+= ' } \n\n';
+            }
+          }
+          // adds the CSS to the document
+          style.type = 'text/css';
+          if (style.styleSheet){
+            style.styleSheet.cssText = css;
+          } else {
+            style.appendChild(document.createTextNode(css));
+          }
+          head.appendChild(style);
+        }
+      });
+
+      Polymer.SimpleColorsUtility.instance = null;
+
+      /**
+       * Checks to see if there is an instance available, and if not appends one
+       */
+      Polymer.SimpleColorsUtility.requestAvailability = function() {
+        if (!Polymer.SimpleColorsUtility.instance) {
+          Polymer.SimpleColorsUtility.instance = document.createElement('simple-colors');
+        }
+
+        document.body.appendChild(Polymer.SimpleColorsUtility.instance);
+      };
+
+    })();
+  </script>
+</dom-module>

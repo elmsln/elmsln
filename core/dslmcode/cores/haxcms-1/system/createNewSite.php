@@ -23,8 +23,9 @@
       $schema->metadata->theme = $params['theme'];
       // icon to express the concept / visually identify site
       $schema->metadata->icon = $params['icon'];
-      // color to slightly style the site
-      $schema->metadata->color = $params['color'];
+      // slightly style the site based on css vars and hexcode
+      $schema->metadata->hexCode = $params['hexCode'];
+      $schema->metadata->cssVariable = $params['cssVariable'];
       // add the item back into the outline schema
       $HAXCMS->outlineSchema->addItem($schema);
       $HAXCMS->outlineSchema->save();

@@ -53,7 +53,7 @@
     <link rel="stylesheet" href="assets/styles.css">
   </head>
   <body>
-    <hax-store app-store='<?php print json_encode($GLOBALS['HAXCMS']->appStoreConnection);?>'></hax-store>
+    <hax-store app-store='<?php print json_encode($HAXCMS->appStoreConnection());?>'></hax-store>
     <hax-body></hax-body>
     <hax-autoloader hidden></hax-autoloader>
     <hax-panel align="left"></hax-panel>

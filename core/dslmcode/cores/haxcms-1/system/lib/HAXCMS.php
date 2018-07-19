@@ -12,7 +12,6 @@ class HAXCMS {
   public $appStoreFile;
   public $salt;
   public $privateKey;
-  public $appStoreConnection;
   public $superUser;
   public $user;
   public $sitesDirectory;
@@ -30,12 +29,11 @@ class HAXCMS {
     // stupid session less handling thing
     $_POST = (array)json_decode(file_get_contents('php://input'));
     // handle sanitization on request data, drop security things
-    $this->safePost = filter_var_array($_POST, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_HIGH);
+    $this->safePost = filter_var_array($_POST, FILTER_SANITIZE_STRING);
     unset($this->safePost['jwt']);
     unset($this->safePost['token']);
-    $this->safeGet = filter_var_array($_GET, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_HIGH);
+    $this->safeGet = filter_var_array($_GET, FILTER_SANITIZE_STRING);
     $this->basePath = '/';
-    $this->appStoreConnection = new stdClass();
     $this->superUser = new stdClass();
     $this->superUser->name = NULL;
     $this->superUser->password = NULL;
@@ -52,7 +50,6 @@ class HAXCMS {
       // ensure appstore file is there, then make salt size of this file
       if (file_exists(HAXCMS_ROOT . '/_config/appstore.json')) {
         $this->appStoreFile = '_config/appstore.json';
-        $this->appStoreConnection->url = $this->appStoreFile;
       }
       // ensure appstore file is there, then make salt size of this file
       if (file_exists(HAXCMS_ROOT . '/SALT.txt')) {
@@ -71,13 +68,22 @@ class HAXCMS {
     }
   }
   /**
+   * Generate appstore connection information. This has to happen at run time.
+   * to get into account _config / environmental overrides
+   */
+  public function appStoreConnection() {
+    $connection = new stdClass();
+    $connection->url = $this->basePath . $this->appStoreFile;
+    return $connection;
+  }
+  /**
    * Load a site off the file system with option to create
    */
   public function loadSite($name, $create = FALSE, $theme = 'default') {
     // check if this exists, load but fallback for creating on the fly
     if (is_dir(HAXCMS_ROOT . '/' . $this->sitesDirectory . '/' . $name)) {
       $site = new HAXCMSSite();
-      $site->load(HAXCMS_ROOT . '/' . $this->sitesDirectory, $name);
+      $site->load(HAXCMS_ROOT . '/' . $this->sitesDirectory, $this->basePath . $this->sitesDirectory . '/', $name);
       return $site;
     }
     else if ($create) {
@@ -103,11 +109,13 @@ class HAXCMS {
    */
   public function validateRequestToken($token = NULL, $value = '') {
     // default token is POST
-    if ($token == NULL) {
+    if ($token == NULL && isset($_POST['token'])) {
       $token = $_POST['token'];
     }
-    if ($token == $this->getRequestToken($value)) {
-      return TRUE;
+    if ($token != NULL) {
+      if ($token == $this->getRequestToken($value)) {
+        return TRUE;
+      }
     }
     return FALSE;
   }

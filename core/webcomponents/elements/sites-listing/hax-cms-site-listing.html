@@ -1,6 +1,8 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../map-menu/map-menu.html">
+<link rel="import" href="../jwt-login/jwt-login.html">
 <link rel="import" href="../simple-colors/simple-colors.html">
+<link rel="import" href="../simple-colors/simple-colors-picker.html">
 <link rel="import" href="../paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../paper-input/paper-input.html">
 <link rel="import" href="../magazine-cover/magazine-cover.html">
@@ -70,6 +72,7 @@ A LRN element
       }
       paper-dialog {
         width: 60%;
+        min-height: 50%;
         top: 25%;
         border-radius: 16px;
       }
@@ -84,26 +87,27 @@ A LRN element
         float: right;
         margin: 12px 8px 0 -20px;
       }
-      #activeicon {
-        color: black;
-        width: 40%;
-        height: 40%;
-        top: 0;
-        left: 15%;
-        border: none;
+      #newsitecolor {
+        padding: 4px;
         margin: 0;
-        padding: 0;
+        display: inline-flex;
+        vertical-align: middle;
+      }
+      #newsitecolor > * {
+        display: inline-flex;
+        align-self: center;
+        margin-right: 0.5em;
+        --simple-colors-picker-preview-size: 1.25em;
       }
     </style>
-    <iron-ajax id="loginrequest" method="GET" url="[[basePath]]admin/login.php" handle-as="json"
-      on-response="loginBridge"></iron-ajax>
+    <jwt-login id="jwt" url="[[basePath]]system/login.php"  logout-url="[[basePath]]system/logout.php" jwt="{{jwt}}"></jwt-login>
     <iron-ajax
       id="createrequest"
       method="POST"
       body="[[createParams]]"
       headers='{"Authorization": "Bearer [[jwt]]"}'
       content-type="application/json"
-      url="[[basePath]]admin/createNewSite.php"
+      url="[[basePath]]system/createNewSite.php"
       handle-as="json"
       on-response="handleCreateResponse"></iron-ajax>
     <sites-listing id="siteslisting" sites="{{__sites}}" data-source="[[dataSource]]"></sites-listing>
@@ -111,8 +115,8 @@ A LRN element
       <app-toolbar>
         <paper-icon-button icon="menu" onclick="drawer.toggle()"></paper-icon-button>
         <div main-title>[[title]]</div>
-        <paper-icon-button id="login" icon="[[getLoginIcon(jwt)]]"></paper-icon-button>
-        <paper-tooltip for="login" position="bottom" offset="12" animation-delay="200">[[getLoginText(jwt)]]</paper-tooltip>
+        <paper-icon-button id="login" icon="[[__loginIcon]]"></paper-icon-button>
+        <paper-tooltip for="login" position="bottom" offset="12" animation-delay="200">[[__loginText]]</paper-tooltip>
       </app-toolbar>
     </app-header>
     <app-drawer id="drawer" swipe-open>
@@ -129,7 +133,8 @@ A LRN element
         <paper-input id="newsitename" label="Name" required autofocus></paper-input>
         <paper-input id="newsitedescription" label="Description"></paper-input>
         <paper-input id="newsiteimage" label="Image" value="[[activeItem.metadata.image]]"></paper-input>
-        <paper-input id="newsitecolor" label="Color" value="[[activeItem.metadata.color]]"></paper-input>
+        <label for="newsitecolor">Select a color:</label>
+        <simple-colors-picker id="newsitecolor"></simple-colors-picker>
         <dropdown-select id="newsitetheme" label="Theme" value="default">
           <paper-item value="default">Default theme</paper-item>
         </dropdown-select>
@@ -150,7 +155,7 @@ A LRN element
       </magazine-cover>
       </paper-dialog-scrollable>
       <div class="buttons">
-        <iron-icon icon="editor:format-color-fill" style$="color:[[activeItem.metadata.color]]"></iron-icon>[[activeItem.metadata.color]]
+        <iron-icon icon="editor:format-color-fill" style$="color:[[activeItem.metadata.hexCode]]"></iron-icon>[[activeItem.metadata.hexCode]]
         <iron-icon icon="av:web"></iron-icon>Theme: [[activeItem.metadata.theme]]
         <paper-icon-button id="edit" icon="icons:settings" style="color:black"></paper-icon-button>
         <paper-tooltip for="edit" position="bottom" offset="12" animation-delay="200">change details</paper-tooltip>
@@ -168,8 +173,13 @@ A LRN element
         'add.tap': '_addClicked',
         'mapmenu.selected': '_mapMenuSelection',
         'newsitetheme.change': '_themeChanged',
+        'newsitecolor.change': '_colorChanged',
         'login.tap': '_loginUserRoutine',
+        'jwt.jwt-logged-in': '_loginStateChange',
       },
+      behaviors: [
+        window.simpleColorsBehaviors,
+      ],
       properties: {
         /**
          * Title
@@ -195,6 +205,7 @@ A LRN element
          */
         jwt: {
           type: String,
+          observer: '_jwtChanged',
         },
         /**
          * Request params for creating a new site
@@ -215,31 +226,49 @@ A LRN element
       /**
        * Request a user login if we need one or log out
        */
-      _loginUserRoutine: function (e) {
-        // null is default, if we don't have anything go get one
-        if (this.jwt == null) {
-          this.$.loginrequest.generateRequest();
+      _loginStateChange: function(e) {
+        if (e.detail) {
+          this.__loginText = 'Log out';
+          this.__loginIcon = 'icons:account-circle';
+          this.$.toast.show('Welcome, log in successful!');
         }
         else {
-          localStorage.removeItem('jwt');
-          this.jwt = null;
-          this.$.toast.show('You have logged out');
+          this.__loginText = 'Log in';
+          this.__loginIcon = 'icons:power-settings-new';
+          this.$.toast.show('You logged out');
         }
       },
       /**
-       * Login icon test, show login or logou depending
+       * Request a user login if we need one or log out
        */
-      getLoginIcon: function (jwt) {
-        if (jwt == null) {
-          return 'icons:power-settings-new';
+      _jwtChanged: function (newValue, oldValue) {
+        if (newValue) {
+          this.__loginText = 'Log out';
+          this.__loginIcon = 'icons:account-circle';
         }
-        return 'icons:account-circle';
+        else {
+          this.__loginText = 'Log in';
+          this.__loginIcon = 'icons:power-settings-new';
+        }
+      },
+      /**
+       * Request a user login if we need one or log out
+       */
+      _loginUserRoutine: function (e) {
+        this.$.jwt.toggleLogin();
       },
       /**
        * Use events for real value in theme.
        */
       _themeChanged: function (e) {
         this.set('activeItem.metadata.theme', e.detail.value);
+      },
+      /**
+       * Use events for real value in color area.
+       */
+      _colorChanged: function (e) {
+        this.set('activeItem.metadata.cssVariable', e.detail.cssVariable);
+        this.set('activeItem.metadata.hexCode', e.detail.hexCode);
       },
       /**
        * Add button clicked, trick DOM into clicking the add new site item.
@@ -302,15 +331,6 @@ A LRN element
         this.jwt = localStorage.getItem('jwt');
       },
       /**
-       * Login bridge to get a JWT and hang onto it
-       */
-      loginBridge: function (e) {
-        this.jwt = e.detail.response;
-        // set the jwt into local storage so we can reference later
-        localStorage.setItem('jwt', this.jwt);
-        this.$.toast.show('Welcome, log in successful!');
-      },
-      /**
        * Simple method of loading whatever's been dictated as active.
        */
       loadActiveSite: function (e) {
@@ -333,7 +353,8 @@ A LRN element
         this.set('createParams.description', this.$.newsitedescription.value);
         // need to pull this from the active item bc of data binding silly
         this.set('createParams.theme', this.activeItem.metadata.theme);
-        this.set('createParams.color', this.$.newsitecolor.value);
+        this.set('createParams.hexCode', this.activeItem.metadata.hexCode);
+        this.set('createParams.cssVariable', this.activeItem.metadata.cssVariable);
         this.set('createParams.image', this.$.newsiteimage.value);
         this.set('createParams.icon', this.$.newsiteicon.icon);
         // pass along the jwt for user "session" purposes

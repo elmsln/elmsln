@@ -8,8 +8,9 @@ class HAXCMSSite {
   /**
    * Load a site based on directory and name
    */
-  public function load($directory, $name) {
+  public function load($directory, $siteBasePath, $name) {
     $this->name = $name;
+    $this->basePath = $siteBasePath;
     $this->directory = $directory;
     $this->manifest = new JSONOutlineSchema();
     $this->manifest->load($this->directory . '/' . $this->name . '/site.json');
@@ -78,6 +79,17 @@ class HAXCMSSite {
     return $page;
   }
   /**
+   * Load page by unique id
+   */
+  public function loadPage($uuid) {
+    foreach ($this->manifest->items as $item) {
+      if ($item->id == $uuid) {
+        return $item;
+      }
+    }
+    return FALSE;
+  }
+  /**
    * Change the directory this site is located in
    */
   public function changeName($new) {
@@ -89,7 +101,7 @@ class HAXCMSSite {
   /**
    * Recursive copy to rename high level but copy all files
    */
-  private function recurseCopy($src, $dst) {
+  public function recurseCopy($src, $dst) {
     $dir = opendir($src);
     // see if we can make the directory to start off
     if (!is_dir($dst) && @mkdir($dst)) {

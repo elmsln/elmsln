@@ -26,9 +26,18 @@ class JSONOutlineSchemaItem {
   /**
    * Load data from the location specified
    */
-  public function loadLocation() {
+  public function readLocation() {
     if (file_exists($this->location)) {
       return file_get_contents($this->location);
+    }
+    return FALSE;
+  }
+  /**
+   * Load data from the location specified
+   */
+  public function writeLocation($body) {
+    if (file_exists($this->location)) {
+      return file_put_contents($this->location, $body);
     }
     return FALSE;
   }

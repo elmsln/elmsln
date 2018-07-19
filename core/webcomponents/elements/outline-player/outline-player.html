@@ -1,4 +1,5 @@
 <link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../jwt-login/jwt-login.html">
 <link rel="import" href="../schema-behaviors/schema-behaviors.html">
 <link rel="import" href="../simple-colors/simple-colors.html">
 <link rel="import" href="../map-menu/map-menu.html">
@@ -12,7 +13,6 @@
 <link rel="import" href="../paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../paper-progress/paper-progress.html">
 <link rel="import" href="../paper-tooltip/paper-tooltip.html">
-<link rel="import" href="../iron-icons/editor-icons.html">
 
 <!--
 `outline-player`
@@ -26,10 +26,10 @@ A LRN element
     <style>
       :host {
         display: block;
-        font-family:libre baskerville;
+        font-family: sans-serif;
         --app-drawer-width: 300px;
-        --outline-player-dark: var(--simple-colors-dark-theme-background5);
-        --outline-player-light: var(--simple-colors-light-theme-background5);
+        --outline-player-dark: var(--simple-colors-foreground1);
+        --outline-player-light: var(--simple-colors-accent-background1);
       }
       :host[closed] {
         --app-drawer-width: 0px;
@@ -79,6 +79,10 @@ A LRN element
       }
       #menu {
         padding: 8px;
+        color: var(--outline-player-dark);
+      }
+      #outline {
+        color: var(--outline-player-dark);
       }
 
       paper-icon-button {
@@ -98,6 +102,7 @@ A LRN element
         @apply --layout-fixed-top;
         color: var(--outline-player-dark);
         --app-header-background-rear-layer: {
+          color: var(--outline-player-dark);
           background-color: var(--outline-player-light);
         };
       }
@@ -108,6 +113,7 @@ A LRN element
         --app-drawer-scrim-background: rgba(80, 80, 80, 0.8);
         --app-drawer-content-container: {
           overflow:scroll;
+          color: var(--outline-player-dark);
           background-color: var(--outline-player-light);
         }
       }
@@ -116,68 +122,82 @@ A LRN element
         max-width: 65em;
         margin: auto;
       }
+      :host[edit-mode] #slot {
+        display: none;
+      }
     </style>
+    <jwt-login id="jwt" url="[[jwtLoginLocation]]" url-logout="[[jwtLogoutLocation]]" jwt="{{jwt}}"></jwt-login>
     <iron-ajax
       auto
+      id="manifest"
       url="[[outlineLocation]][[outlineFile]]"
       handle-as="json"
       last-response="{{manifest}}"></iron-ajax>
     <iron-ajax
-      auto
+      id="activecontent"
       url="[[outlineLocation]][[activeItem.location]]"
       handle-as="text"
       loading="{{__loadingContent}}"
+      debounce-duration="250"
       last-response="{{_activeItemContent}}"></iron-ajax>
     <app-drawer-layout>
       <app-drawer id="drawer" swipe-open slot="drawer">
         <h2 class="outline-title">[[outlineTitle]]</h2>
         <map-menu hidden$="[[editMode]]" id="menu" items="{{outline}}" data="[[manifest.items]]" selected="{{selected}}"></map-menu>
-        <lrnsys-outline hidden$="[[!editMode]]" id="outline"></lrnsys-outline>
+        <lrnsys-outline hidden$="[[!editMode]]" items="[[outline]]" id="outline"></lrnsys-outline>
       </app-drawer>
       <app-header-layout>
-      <app-header reveals slot="header">
-        <app-toolbar>
-          <paper-icon-button icon="menu" on-click="_toggleMenu"></paper-icon-button>
-          <div main-title>[[activeItem.title]]</div>
-          <paper-icon-button id="prevpage" disabled="[[disablePrevPage(__activeIndex)]]" icon="icons:arrow-back" on-click="prevPage"></paper-icon-button>
-          <paper-tooltip
-            for="prevpage"
-            position="bottom"
-            offset="14">
-            Previous Page
+        <app-header reveals slot="header">
+          <app-toolbar>
+            <paper-icon-button icon="menu" on-click="_toggleMenu"></paper-icon-button>
+            <div main-title>[[activeItem.title]]</div>
+            <paper-icon-button id="prevpage" disabled="[[disablePrevPage(__activeIndex)]]" icon="icons:arrow-back" on-click="prevPage"></paper-icon-button>
+            <paper-tooltip
+              for="prevpage"
+              position="bottom"
+              offset="14">
+              Previous Page
+            </paper-tooltip>
+            <paper-icon-button id="nextpage" disabled="[[disableNextPage(__activeIndex)]]" icon="icons:arrow-forward" on-click="nextPage"></paper-icon-button>
+            <paper-tooltip
+              for="nextpage"
+              position="bottom"
+              offset="14">
+              Next Page
           </paper-tooltip>
-          <paper-icon-button id="nextpage" disabled="[[disableNextPage(__activeIndex)]]" icon="icons:arrow-forward" on-click="nextPage"></paper-icon-button>
-          <paper-tooltip
-            for="nextpage"
-            position="bottom"
-            offset="14">
-            Next Page
-          </paper-tooltip>
-          <paper-icon-button id="editmode" disabled="[[!showEditTools]]" icon="editor:mode-edit" on-click="nextPage"></paper-icon-button>
-          <paper-tooltip
-            for="editmode"
-            position="bottom"
-            offset="14">
-            Edit
-          </paper-tooltip>
-          <paper-progress hidden$="[[!__loadingContent]]" value="10" indeterminate bottom-item></paper-progress>
-        </app-toolbar>
-      </app-header>
-      <div id="slot">
-        <slot></slot>
-      </div>
+            <paper-progress hidden$="[[!__loadingContent]]" value="10" indeterminate bottom-item></paper-progress>
+          </app-toolbar>
+        </app-header>
+        <div id="contentcontainer">
+          <div id="slot">
+            <slot></slot>
+          </div>
+        </div>
       </app-header-layout>
     </app-drawer-layout>
   </template>
   <script>
     Polymer({
       is: 'outline-player',
-
       behaviors: [
         SchemaBehaviors.Schema,
-        window.simpleColorsBehaviors,
+        simpleColorsBehaviors,
       ],
       properties: {
+        /**
+         * Location of what endpoint to hit for
+         */
+        jwtLoginLocation: {
+          type: String,
+          value: '../../system/login.php',
+        },
+        /**
+         * Location of what endpoint to hit for logging out
+         */
+        jwtLogoutLocation: {
+          type: String,
+          value: '../../system/logout.php',
+        },
         /**
          * Outline JSON file name
          */
@@ -197,8 +217,8 @@ A LRN element
          */
         editMode: {
           type: Boolean,
+          reflectToAttribute: true,
           value: false,
-          observer: '_editModeChanged',
         },
         /**
          * Outline JSON location
@@ -242,13 +262,6 @@ A LRN element
           type: String,
           observer: '_activeItemContentChanged',
         },
-        /**
-         * a manifest json file decoded, in JSON Outline Schema format
-         */
-        manifest: {
-          type: Object,
-          observer: '_manifestChanged',
-        },
         color: {
           type: String,
           reflectToAttribute: true,
@@ -267,6 +280,7 @@ A LRN element
         activeItem: {
           type: Object,
           notify: true,
+          observer: '_activeItemChanged',
         },
         /**
          * Autoloader to ensure other components are there to work with
@@ -305,32 +319,54 @@ A LRN element
           ],
           observer: '_autoLoadChanged',
         },
+        /**
+         * JSON Web token
+         */
+        jwt: {
+          type: String,
+          observer: '_jwtChanged',
+        },
+        /**
+         * a manifest json file decoded, in JSON Outline Schema format
+         */
+        manifest: {
+          type: Object,
+          observer: '_manifestChanged',
+        },
+      },
+      /**
+       * Required name for HAXCMS integration
+       */
+      haxCMSRefesh: function () {
+        this.__tmpselected = this.selected;
+        this.$.manifest.generateRequest();
+        this.$.activecontent.generateRequest();
       },
       /**
        * Attached life cycle
        */
       attached: function () {
-        this.$.editmode.addEventListener('tap', this._editButtonTap.bind(this));
-        // @todo see if we have a token for admin mode
-        this.showEditTools = true;
+        document.body.addEventListener('edit-mode-changed', this._editModeChanged.bind(this));
+        this.updateStyles();
+        this.$.activecontent.generateRequest();
       },
       /**
-       * toggle state on button tap
+       * Toggle edit mode
        */
-      _editButtonTap: function (e) {
-        this.editMode = !this.editMode;
+      _editModeChanged: function(e) {
+        this.editMode = e.detail;
       },
       /**
-       * Edit state has changed.
+       * JWT changed, user can't login but if we have one
+       * from an administrative interface.
        */
-      _editModeChanged: function (newValue, oldValue) {
-        if (newValue) {
-          // enable it some how
-          console.log('activate edit mode');
-        }
-        else {
-          // disable it some how
-          console.log('disable edit mod')
+      _jwtChanged: function (newValue, oldValue) {
+        if (newValue != null) {
+          this.showEditTools = true;
+          // this implies there's the possibility of an authoring experience
+          if (typeof Polymer.haxCmsSiteEditor !== typeof undefined) {
+            Polymer.haxCmsSiteEditor.requestAvailability(this.$.contentcontainer, this);
+          }
         }
       },
       /**
@@ -399,6 +435,15 @@ A LRN element
         }
       },
       /**
+       * Notice that active item has changed.
+       */
+      _activeItemChanged: function (newValue, oldValue) {
+        if (newValue && typeof oldValue !== typeof undefined) {
+          this.$.activecontent.generateRequest();
+          this.fire('outline-player-active-item-changed', newValue);
+        }
+      },
+      /**
        * active item content changed.
        */
       _activeItemContentChanged: function(newValue, oldValue) {
@@ -407,13 +452,12 @@ A LRN element
           if (newValue !== null) {
             let frag = document.createRange().createContextualFragment(newValue);
             Polymer.dom(this).appendChild(frag);
+            this.fire('haxcms-body-changed', newValue);
           }
           // support controlling the meta-data of the page dynamically based on route
-          if (this.controlMetaData) {
+          if (this.controlMetaData && typeof this.activeItem !== typeof undefined) {
             document.title = this.manifest.title + ' - ' + this.activeItem.title;
           }
-          // @todo review color by reading off the associated metaData in the JSON
-          
         }
       },
       /**
@@ -484,10 +528,32 @@ A LRN element
        * Manifest has changed
        */
       _manifestChanged: function (newValue, oldValue) {
-        if (typeof newValue.metadata !== typeof undefined && typeof newValue.metadata.color !== typeof undefined) {
-          this.color = this.manifest.metadata.color;
-          this.accentColor = this.color;
-          this.reset();
+        if (typeof newValue.metadata !== typeof undefined && typeof newValue.metadata.cssVariable !== typeof undefined) {
+          let color = this.manifest.metadata.cssVariable.replace('--simple-colors-', '');
+          let ary = color.split('-');
+          if (ary.length == 2) {
+            color = ary[0];
+            this.accentColor = color;
+          }
+          else if (ary.length == 3) {
+            color = ary[0] + ' ' + ary[1];
+            this.accentColor = color;
+          }
+          // @todo figure out wtf is up here as to why we can't get
+          // a good color for text
+          if (color == 'brown' || color == 'purple') {
+            //this.dark = true;
+          }
+          // set this directly instead of messing w/ accentColor
+          this.customStyle['--outline-player-light'] = this.customStyle[this.manifest.metadata.cssVariable];
+          this.updateStyles();
+          // set initially selected item if available
+          if (this.__tmpselected) {
+            this.selected = this.__tmpselected;
+          }
+          else if (typeof this.manifest.items[0] !== typeof undefined) {
+            this.selected = this.manifest.items[0].id;
+          }
         }
       },
     });

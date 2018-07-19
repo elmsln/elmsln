@@ -66,8 +66,24 @@ class JSONOutlineSchema {
       $fileData = json_decode(file_get_contents($location));
       $vars = get_object_vars($fileData);
       foreach ($vars as $key => $var) {
-        if (isset($this->{$key})) {
+        if (isset($this->{$key}) && $key != 'items') {
           $this->{$key} = $var;
+        }
+      }
+      // check for items and escalate to full JSONOutlineSchemaItem object
+      // also ensures data matches only what is supported
+      if (isset($vars['items'])) {
+        foreach ($vars['items'] as $key => $item) {
+          $newItem = new JSONOutlineSchemaItem();
+          $newItem->id = $item->id;
+          $newItem->indent = $item->indent;
+          $newItem->location = $item->location;
+          $newItem->order = $item->order;
+          $newItem->parent = $item->parent;
+          $newItem->title = $item->title;
+          // metadata can be anything so whatever
+          $newItem->metadata = $item->metadata;
+          $this->items[$key] = $newItem;
         }
       }
       return TRUE;

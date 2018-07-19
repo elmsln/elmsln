@@ -14,7 +14,7 @@ Generate `.html` files which have only "content" in them. Meaning the contents o
 Download, checkout and get this package on a server (this is a PHP based implementation so your server should have PHP and Apache or Nginx at minimum). Go to `config.php` and fill in the information requested.
 
 ## Usage
-Go to `{{yoursite.com}}`/admin and login with the username and password you entered in the `config.php`
+Go to `{{yoursite.com}}` and login with the username and password you entered in the `config.php` by clicking on the login icon
 
 ## License
 [Apache 2.0](LICENSE.md)
