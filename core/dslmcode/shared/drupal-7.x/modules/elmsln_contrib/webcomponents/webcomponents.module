@@ -342,6 +342,9 @@ function _webcomponents_add_to_head($component, $weight = 0, $hashSize = FALSE) 
     if ($hashSize) {
       $hash = '?h' . filesize(DRUPAL_ROOT . '/' . $component->file);
     }
+    else {
+      $hash = '';
+    }
     $element = array(
       '#tag' => 'link', // The #tag is the html tag
       '#attributes' => array( // Set up an array of attributes inside the tag
