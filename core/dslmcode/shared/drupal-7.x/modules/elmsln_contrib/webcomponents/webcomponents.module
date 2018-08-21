@@ -298,7 +298,7 @@ function _webcomponents_rebuild($hide_messages = FALSE) {
           if (!empty($processed[$file]) && is_array($processed[$file])) {
             foreach ($processed[$file] as $component) {
               // try and load webcomponent by machine name
-              if ($entity = webcomponent_load_by_name($component->machine_name)) {
+              if (isset($component->machine_name) && $entity = webcomponent_load_by_name($component->machine_name)) {
                 foreach ($component as $key => $value) {
                   // see if any aspects changed
                   if ($key != 'file' && isset($entity->{$key}) && $entity->{$key} != $value) {

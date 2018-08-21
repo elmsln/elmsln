@@ -118,6 +118,7 @@ function webcomponents_cmstags_page_build(&$page) {
       $js.= $node->body['und'][0]['format'];
     }
   }
+  drupal_alter('webcomponents_cmstokenendpoint', $js);
   $js .= '";' . "\n";
   $inline = "<script type='text/javascript'>$js</script>";
   $element = array(
