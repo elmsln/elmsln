@@ -171,6 +171,17 @@ function cle_perms_user_default_permissions() {
     'module' => 'file_entity',
   );
 
+  // Exported permission: 'administer group'.
+  $permissions['administer group'] = array(
+    'name' => 'administer group',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'instructor' => 'instructor',
+      'staff' => 'staff',
+    ),
+    'module' => 'og',
+  );
+
   // Exported permission: 'bypass file access'.
   $permissions['bypass file access'] = array(
     'name' => 'bypass file access',
