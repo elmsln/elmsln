@@ -7,11 +7,7 @@
   // calculate where we are in the file system, accurately
   $here = __FILE__;
   define('HAXCMS_ROOT', str_replace('/system/lib/bootstrapHAX.php', '', $here));
-  // service library
-  include_once 'HAXService.php';
   // the whole CMS as one object
   include_once 'HAXCMS.php';
-  // JSON web tokens
-  include_once 'JWT.php';
   // invoke the CMS
   $HAXCMS = new HAXCMS();  

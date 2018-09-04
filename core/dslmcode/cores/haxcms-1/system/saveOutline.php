@@ -39,11 +39,14 @@
       }
       else {
         // build a location and copy the associated boilerplate files there for it
-        $page->location = $site->basePath . $site->name . '/' . $page->order . '/index.html';
-        $site->recurseCopy(HAXCMS_ROOT . '/system/boilerplate/page', $site->directory . '/' . $site->name . '/' . $page->order);
+        $page->location = 'pages/' . $page->id . '/index.html';
+        $site->recurseCopy(HAXCMS_ROOT . '/system/boilerplate/page', $site->directory . '/' . $site->manifest->metadata->siteName . '/pages/' . $page->id);
       }
+      $page->metadata->created = time();
+      $page->metadata->updated = time();
       $site->manifest->addItem($page);
     }
+    $site->manifest->metadata->updated = time();
     $site->manifest->save();
     header('Status: 200');
     print json_encode($site->manifest->items);

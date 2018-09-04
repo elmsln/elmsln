@@ -10,6 +10,7 @@ class JSONOutlineSchemaItem {
   public $order;
   public $parent;
   public $title;
+  public $description;
   public $metadata;
   /**
    * Establish defaults for a new item
@@ -17,27 +18,28 @@ class JSONOutlineSchemaItem {
   public function __construct() {
     $this->id = 'item-' . $this->generateUUID();
     $this->indent = 0;
-    $this->location = NULL;
+    $this->location = '';
     $this->order = 0;
-    $this->parent = NULL;
+    $this->parent = '';
     $this->title = 'New item';
+    $this->description = '';
     $this->metadata = new stdClass();
   }
   /**
    * Load data from the location specified
    */
-  public function readLocation() {
-    if (file_exists($this->location)) {
-      return file_get_contents($this->location);
+  public function readLocation($basePath = '') {
+    if (file_exists($basePath . $this->location)) {
+      return file_get_contents($basePath . $this->location);
     }
     return FALSE;
   }
   /**
    * Load data from the location specified
    */
-  public function writeLocation($body) {
-    if (file_exists($this->location)) {
-      return file_put_contents($this->location, $body);
+  public function writeLocation($body, $basePath = '') {
+    if (file_exists($basePath . $this->location)) {
+      return file_put_contents($basePath . $this->location, $body);
     }
     return FALSE;
   }

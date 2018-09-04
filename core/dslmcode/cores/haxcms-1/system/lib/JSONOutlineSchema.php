@@ -45,17 +45,66 @@ class JSONOutlineSchema {
    * @return count of items in the array
    */
   public function addItem($item) {
-    $item2 = new JSONOutlineSchemaItem();
+    $safeItem = $this->validateItem($item);
+    $count = array_push($this->items, $safeItem);
+    return $count;
+  }
+  /**
+   * Validate that an item matches JSONOutlineSchemaItem format
+   * @var $item JSONOutlineSchemaItem
+   * @return JSONOutlineSchemaItem matching the specification
+   */
+  private function validateItem($item) {
+    // create a generic schema item
+    $tmp = new JSONOutlineSchemaItem();
+    // crush the item given into a stdClass object
     $ary = get_object_vars($item);
     foreach ($ary as $key => $value) {
-      // a form of validation, only set what the spec allows
-      // back into a new object just to be safe
-      if (isset($item2->{$key})) {
-        $item2->{$key} = $value;
+      // only set what the element from spec allows into a new object
+      if (isset($tmp->{$key})) {
+        $tmp->{$key} = $value;
       }
     }
-    $count = array_push($this->items, $item);
-    return $count;
+    return $tmp;
+  }
+  /**
+   * Remove an item from the outline if it exists
+   * @var $id an id that's in the array of items
+   * @return JSONOutlineSchemaItem or FALSE if not found
+   */
+  public function removeItem($id) {
+    foreach ($this->items as $key => $item) {
+      if ($item->id == $id) {
+        $tmp = $this->items[$key];
+        unset($this->items[$key]);
+        return $tmp;
+      }
+    }
+    return FALSE;
+  }
+    /**
+   * Remove an item from the outline if it exists
+   * @var $id an id that's in the array of items
+   * @return JSONOutlineSchemaItem or FALSE if not found
+   */
+  public function updateItem($item, $save = FALSE) {
+    // verify this is a legit item
+    $safeItem = $this->validateItem($item);
+    foreach ($this->items as $key => $tmpItem) {
+      // match the current item's ID to our safeItem passed in
+      if ($tmpItem->id == $safeItem->id) {
+        // overwrite the item
+        $this->items[$key] = $safeItem;
+        // if we save, then we let that return the whole file
+        if ($save) {
+          return $this->save();
+        }
+        // this was successful
+        return TRUE;
+      }
+    }
+    // we didn't find a match on the ID to bother saving an update
+    return FALSE;
   }
   /**
    * Load a schema from a file
@@ -81,6 +130,7 @@ class JSONOutlineSchema {
           $newItem->order = $item->order;
           $newItem->parent = $item->parent;
           $newItem->title = $item->title;
+          $newItem->description = $item->description;
           // metadata can be anything so whatever
           $newItem->metadata = $item->metadata;
           $this->items[$key] = $newItem;

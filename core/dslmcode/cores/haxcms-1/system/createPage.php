@@ -10,17 +10,18 @@
       // woohoo we can edit this thing!
       $site = $HAXCMS->loadSite(strtolower($params['siteName']), TRUE);
       // get a new item prototype
-      $site = $HAXCMS->outlineSchema->newItem();
+      $item = $HAXCMS->outlineSchema->newItem();
       // set the title
-      $site->title = $params['siteName'];
-      $site->metadata->siteName = strtolower($params['siteName']);
-      $site->metadata->description = $params['description'];
-      $site->metadata->image = $params['image'];
-      $site->metadata->icon = $params['icon'];
+      $item->title = $params['siteName'];
+      $item->metadata->siteName = strtolower($params['siteName']);
+      $item->description = $params['description'];
+      $item->metadata->image = $params['image'];
+      $item->metadata->created = time();
+      $item->metadata->updated = time();
       // add the item back into the outline schema
-      $HAXCMS->outlineSchema->addItem($site);
-      $HAXCMS->outlineSchema->save();
-      print json_encode($site);      
+      $site->manifest->addItem($item);
+      $site->manifest->save();
+      print json_encode($item);      
     }
     else {
       header('Status: 403');
