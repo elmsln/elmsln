@@ -297,9 +297,16 @@ function cle__2_update_7024(&$sandbox) {
 }
 
 /**
- * Project reordering, permission for assigning sections
+ * Assignment reordering, permission for assigning sections
  */
 function cle__2_update_7025(&$sandbox) {
   features_revert_module('cle_perms');
   features_revert_module('cle_project');
+}
+
+/**
+ * Project reordering
+ */
+function cle__2_update_7026(&$sandbox) {
+  features_revert_module('cle_section');
 }
