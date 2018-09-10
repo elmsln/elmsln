@@ -28,6 +28,7 @@ function elmsmedia_external_video_field_default_field_instances() {
         'label' => 'above',
         'module' => 'entityreference',
         'settings' => array(
+          'bypass_access' => FALSE,
           'link' => 1,
         ),
         'type' => 'entityreference_label',
@@ -269,46 +270,30 @@ function elmsmedia_external_video_field_default_field_instances() {
     'display' => array(
       'default' => array(
         'label' => 'hidden',
-        'module' => 'elmsmedia_helper',
-        'settings' => array(
-          'description' => 1,
-          'description_position' => 'bottom',
-          'video_style' => 'normal',
-        ),
-        'type' => 'video_embed_field',
+        'module' => 'video_embed_field',
+        'settings' => array(),
+        'type' => 'video_embed_field_url',
         'weight' => 0,
       ),
       'full' => array(
         'label' => 'hidden',
-        'module' => 'elmsmedia_helper',
-        'settings' => array(
-          'description' => 1,
-          'description_position' => 'bottom',
-          'video_style' => 'normal',
-        ),
-        'type' => 'video_embed_field',
+        'module' => 'video_embed_field',
+        'settings' => array(),
+        'type' => 'video_embed_field_url',
         'weight' => 4,
       ),
       'iframe' => array(
         'label' => 'hidden',
-        'module' => 'elmsmedia_helper',
-        'settings' => array(
-          'description' => 1,
-          'description_position' => 'bottom',
-          'video_style' => 'normal',
-        ),
-        'type' => 'video_embed_field',
+        'module' => 'video_embed_field',
+        'settings' => array(),
+        'type' => 'video_embed_field_url',
         'weight' => 0,
       ),
       'mediavideo' => array(
         'label' => 'hidden',
-        'module' => 'elmsmedia_helper',
-        'settings' => array(
-          'description' => 1,
-          'description_position' => 'bottom',
-          'video_style' => 'normal',
-        ),
-        'type' => 'video_embed_field',
+        'module' => 'video_embed_field',
+        'settings' => array(),
+        'type' => 'video_embed_field_url',
         'weight' => 0,
       ),
       'mediavideo__poster' => array(

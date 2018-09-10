@@ -30,10 +30,10 @@ function elmsmedia_video_field_default_field_instances() {
         'weight' => 6,
       ),
       'iframe' => array(
-        'label' => 'inline',
+        'label' => 'hidden',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 5,
+        'weight' => 1,
       ),
       'mediavideo' => array(
         'label' => 'inline',
@@ -119,6 +119,7 @@ function elmsmedia_video_field_default_field_instances() {
         'label' => 'above',
         'module' => 'entityreference',
         'settings' => array(
+          'bypass_access' => FALSE,
           'link' => 1,
         ),
         'type' => 'entityreference_label',
@@ -128,7 +129,7 @@ function elmsmedia_video_field_default_field_instances() {
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 4,
+        'weight' => 7,
       ),
       'mediavideo' => array(
         'label' => 'above',
@@ -219,7 +220,7 @@ function elmsmedia_video_field_default_field_instances() {
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 0,
+        'weight' => 4,
       ),
     ),
     'entity_type' => 'node',
@@ -286,7 +287,7 @@ function elmsmedia_video_field_default_field_instances() {
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 0,
+        'weight' => 5,
       ),
     ),
     'entity_type' => 'node',
@@ -452,7 +453,7 @@ function elmsmedia_video_field_default_field_instances() {
         'label' => 'above',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 2,
+        'weight' => 6,
       ),
       'mediavideo' => array(
         'label' => 'above',
@@ -541,10 +542,10 @@ function elmsmedia_video_field_default_field_instances() {
         'weight' => 7,
       ),
       'iframe' => array(
-        'label' => 'inline',
+        'label' => 'hidden',
         'settings' => array(),
         'type' => 'hidden',
-        'weight' => 6,
+        'weight' => 2,
       ),
       'mediavideo' => array(
         'label' => 'inline',
@@ -607,32 +608,23 @@ function elmsmedia_video_field_default_field_instances() {
     'display' => array(
       'default' => array(
         'label' => 'hidden',
-        'module' => 'elmsmedia_helper',
-        'settings' => array(
-          'height' => '400px',
-        ),
-        'type' => 'ableplayer_video',
+        'module' => 'file',
+        'settings' => array(),
+        'type' => 'file_url_plain',
         'weight' => 0,
       ),
       'full' => array(
         'label' => 'hidden',
-        'module' => 'elmsmedia_helper',
-        'settings' => array(
-          'height' => '400px',
-        ),
-        'type' => 'ableplayer_video',
+        'module' => 'file',
+        'settings' => array(),
+        'type' => 'file_url_plain',
         'weight' => 4,
       ),
       'iframe' => array(
         'label' => 'hidden',
-        'module' => 'elmsmedia_helper',
-        'settings' => array(
-          'controls' => 1,
-          'download_link' => 0,
-          'download_text' => 'Download',
-          'height' => '400px',
-        ),
-        'type' => 'ableplayer_video',
+        'module' => 'file',
+        'settings' => array(),
+        'type' => 'file_url_plain',
         'weight' => 0,
       ),
       'mediavideo' => array(

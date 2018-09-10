@@ -7,10 +7,15 @@
   <?php endif; ?>
 
   <div class="mediavideo__video-wrapper">
-    <?php if ($video_url && !$poster): ?>
-      <iframe src="<?php print _elmsln_api_video_url($video_url); ?>" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen <?php if (isset($competency)): ?>data-course-competency="<?php print $competency;?>"<?php endif;?>></iframe>
-    <?php elseif($video_url && $poster): ?>
-      <iframe src="<?php print _elmsln_api_video_url($video_url); ?>" data-mediavideo-src="<?php print _elmsln_api_video_url($video_url); ?>" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+    <?php if ($video_url): ?>
+      <video-player
+      id="node-<?php print $node->nid; ?>"
+      thumbnail-src="<?php print $poster;?>"
+      source="<?php print _elmsln_api_video_url($video_url); ?>"
+      class="iframe"
+      accent-color="red"
+      sticky-corner="none">
+      <?php if (isset($competency)): ?>data-course-competency="<?php print $competency;?>"<?php endif;?>></video-player>
     <?php else: ?>
       <?php print render($content); ?>
     <?php endif; ?>
