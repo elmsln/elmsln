@@ -1,5 +1,4 @@
 <link rel="import" href="../polymer/polymer.html">
-<link rel="import" href="a11y-media-youtube-api.html">
 
 <!--
 `a11y-media-youtube-utility`
@@ -12,6 +11,16 @@ Utility to insert, init and control YouTube iframe embeds with a11y-media-player
 -->
 
 <dom-module id="a11y-media-youtube-utility">
+  <template>
+    <script src="https://www.youtube.com/iframe_api"></script>
+    <script>
+      function onYouTubeIframeAPIReady() {
+        console.log('youtube-api-ready');
+        var event = new CustomEvent('youtube-api-ready');
+        document.dispatchEvent(event);
+      }
+    </script>
+  </template>
   <script>
     (function() {
       'use strict';
