@@ -231,7 +231,7 @@ Advanced styles for sliders:
       :host[responsive-size*="xs"] #youtubecc {
         font-size: 10px;
       }
-      :host[sticky] #youtubecc {
+      :host[sticky]:not([sticky-corner="none"]) #youtubecc {
         display: none;
       }
       :host #youtubecctxt {
@@ -348,7 +348,7 @@ Advanced styles for sliders:
           top: unset;
           bottom: 5px;
         }
-        :host[sticky]:not([no-height]):not([stacked-layout]):not([responsive-size*="s"]) #controls {
+        :host[sticky]:not([sticky-corner="none"]):not([no-height]):not([stacked-layout]):not([responsive-size*="s"]) #controls {
           display: none;
         }
         :host .print-only {
@@ -365,7 +365,7 @@ Advanced styles for sliders:
           outline: 1px solid #aaaaaa; 
           background-color: #ffffff;
         }
-        :host[sticky] #outerplayer {
+        :host[sticky]:not([sticky-corner="none"]) #outerplayer {
           height: unset !important;
         }
         :host .screen-only {
