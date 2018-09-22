@@ -55,6 +55,9 @@ A button used in a11y-media-controls
         width: 0;
         overflow: hidden;
       }
+      :host paper-tooltip {
+        z-index: 100;
+      }
     </style>
     <button id="button" aria-role="button" aria-pressed$="[[toggle]]" tabindex="0" aria-label$="[[label]]" controls="[[controls]]" disabled$="[[disabled]]" toggle$="[[toggle]]">
       <iron-icon icon$="[[icon]]"></iron-icon>

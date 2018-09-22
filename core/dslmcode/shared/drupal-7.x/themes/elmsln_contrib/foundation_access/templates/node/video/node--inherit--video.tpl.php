@@ -7,14 +7,13 @@
   if (isset($node->field_video['und'][0]['uri'])) {
     $video = file_create_url($node->field_video['und'][0]['uri']);
   }
-  $tracks = array();
+  $track = '';
   if (isset($node->field_caption['und'][0]['uri'])) {
-    $tracks[] = array(
-      'src' => file_create_url($node->field_caption['und'][0]['uri']),
-      'label' => 'English',
-      'srclang' => 'en',
-      'kind' => 'subtitles',
-    );
+    $track = '<track
+  src="' . file_create_url($node->field_caption['und'][0]['uri']) . '"
+  kind="subtitles"
+  label="English"
+  slot="track" />';
   }
 ?>
 <video-player
@@ -24,6 +23,7 @@
  class="iframe <?php print $classes; ?>"
  accent-color="red"
  sticky-corner="none"
- tracks='<?php print json_encode($tracks); ?>'
+ crossorigin
  <?php if (isset($competency)): ?>data-course-competency="<?php print $competency;?>"<?php endif;?>>
+<?php print $track;?>
 </video-player>

@@ -415,6 +415,7 @@ Advanced styles for sliders:
             <a11y-media-video-loader id="loader" 
               autoplay$="[[autoplay]]" 
               cc$="[[cc]]"
+              crossorigin$="[[crossorigin]]"
               hidden$="[[isYoutube]]"
               lang$="[[lang]]"
               loop$="[[loop]]" 
@@ -523,7 +524,7 @@ Advanced styles for sliders:
 
       listeners: {
         'controls-change': '_onControlsChanged',
-        'play-button-tapped': 'play',
+        'play-button-tapped': 'play'
       },
       properties: {
         mediaCaption: {
@@ -616,25 +617,25 @@ Advanced styles for sliders:
         }
         // handles dragging with a mouse
         root.$.slider.addEventListener('dragging-changed', (e) => {
-          // when dragging stops, seeks to that value and 
-          // if the video was playing before the dragging, resumes it
-          if (!root.$.slider.dragging) { 
-            root.seek(root.$.slider.immediateValue);
-            root.__resumePlaying = false;
-          }
+          this._toggleSliderSeek(root.$.slider.dragging,root.$.slider.immediateValue);
         });
         // handles slider focus
         root.$.slider.addEventListener('focused-changed', (e) => {
-          // temporarily pauses playback so that a value can be selected, 
-          // but notes if playing should be resumed
-          if(root.$.slider.focused){
-            if (root.__playing) root.__resumePlaying = true;
-            root.pause();
-          } else {
-            root.seek(root.$.slider.value);
-            root.__resumePlaying = false;
-          }
+          this._toggleSliderSeek(root.$.slider.focused,root.$.slider.value);
         });
+      },
+
+      /**
+        * handles slider seeking via mouse or keyboard
+        */ 
+      _toggleSliderSeek: function(seeking,value){
+        if(seeking){
+          if (this.__playing) this.__resumePlaying = true;
+          this.pause();
+        } else {
+          this.seek(value);
+          this.__resumePlaying = false;
+        }  
       },
 
       /**

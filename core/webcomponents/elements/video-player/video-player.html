@@ -57,7 +57,7 @@ A simple responsive video player with ridiculously powerful backing
       }
     </style>
     
-    <template is="dom-if" if="[[isA11yMedia]]">
+    <template is="dom-if" if="[[isA11yMedia]]" restamp>
       <a11y-media-player 
         accent-color$="[[accentColor]]" 
         dark$="[[dark]]"
@@ -71,14 +71,17 @@ A simple responsive video player with ridiculously powerful backing
         stand-alone$="[[__standAlone]]" 
         sticky-corner$="[[stickyCorner]]" 
         thumbnail-src$="[[thumbnailSrc]]"
+        crossorigin$="[[crossorigin]]"
         youtube-id$="[[youtubeId]]">
-        <slot name="caption"></slot>
+        <slot name="source"></slot>
+        <slot name="track"></slot>
         <template id="sources" is="dom-repeat" items="[[sourceData]]" as="sd">
           <source src$="[[sd.src]]" type$="[[sd.type]]">
         </template>
         <template id="tracks" is="dom-repeat" items="[[tracks]]" as="track">
           <track src$="[[track.src]]" kind$="[[track.kind]]" label$="[[track.label]]" srclang$="[[track.lang]]">
         </template>
+        <slot name="caption"></slot>
       </a11y-media-player>
     </template>
     <template is="dom-if" if="[[!isA11yMedia]]">
@@ -297,6 +300,13 @@ A simple responsive video player with ridiculously powerful backing
         width: {
           type: String,
           value: null
+        },
+        /**
+         * Cross origin flag for transcripts to load
+         */
+        crossorigin: {
+          type: String,
+          value: false,
         },
       },
       /**
@@ -556,7 +566,8 @@ A simple responsive video player with ridiculously powerful backing
       /**
        * Gets source and added to sources list
        */
-       _getSourceData: function(source, sources, tracks) {
+      _getSourceData: function(source, sources, tracks) {
+        let root = this, slotted = Polymer.dom(root).querySelector('track');
         let temp = sources.slice();
         for(let i = 0; i<temp.length; i++){
           temp[i].type = temp[i].type !== undefined && temp[i].type !== null ? temp[i].type : this._computeMediaType(temp[i].src);
@@ -566,8 +577,8 @@ A simple responsive video player with ridiculously powerful backing
           let src = this._computeSRC(source);
           this.sourceType = this._computeSourceType(src);
           if (this.sourceType !== 'youtube') temp.unshift({"src": src,"type": this._computeMediaType(src)});
-        } 
-        this.__standAlone = tracks === undefined || tracks === null || tracks.length === 0;
+        }
+        this.__standAlone = tracks === undefined || tracks === null || tracks.length === 0 && slotted === null;
         return temp;
       },
       /**
@@ -609,8 +620,12 @@ A simple responsive video player with ridiculously powerful backing
        * Compute video type based on source
        */
       _computeSourceType: function(sourceData) {
+        let root = this, slotted = Polymer.dom(root).querySelector('source');
         if (sourceData.length > 0 && sourceData[0] !== undefined && typeof sourceData[0].src !== typeof undefined) {
-          return this.getVideoType(sourceData[0].src);
+          return root.getVideoType(sourceData[0].src);
+        }  else if(slotted !== null){
+          let src = root._computeSRC(slotted.getAttribute('src'));
+          return root.getVideoType(src);
         } else {
           return null;
         }
