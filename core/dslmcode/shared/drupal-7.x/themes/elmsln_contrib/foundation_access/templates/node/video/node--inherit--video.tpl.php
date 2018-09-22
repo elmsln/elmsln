@@ -13,7 +13,7 @@
   src="' . file_create_url($node->field_caption['und'][0]['uri']) . '"
   kind="subtitles"
   label="English"
-  slot="track" />';
+  slot="track">';
   }
 ?>
 <video-player
