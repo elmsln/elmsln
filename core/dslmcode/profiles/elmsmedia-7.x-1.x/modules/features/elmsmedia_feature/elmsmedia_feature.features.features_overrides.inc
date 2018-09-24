@@ -70,7 +70,7 @@ function elmsmedia_feature_features_override_default_overrides() {
     'default' => 1,
     'show_toggle' => 0,
     'user_choose' => 0,
-    'version' => NULL,
+    'version' => '4.5.6.91e81fe',
   );
   $overrides["wysiwyg.textbook_editor.settings|add_to_summaries"]["DELETED"] = TRUE;
   $overrides["wysiwyg.textbook_editor.settings|default"]["DELETED"] = TRUE;

@@ -252,6 +252,24 @@ function elmsmedia_video_strongarm() {
       'document' => array(
         'custom_settings' => FALSE,
       ),
+      'mediasvg__stretch__medium__lightboxed' => array(
+        'custom_settings' => FALSE,
+      ),
+      'mediasvg__stretch__small__lightboxed' => array(
+        'custom_settings' => FALSE,
+      ),
+      'mediasvg__left__medium__lightboxed' => array(
+        'custom_settings' => FALSE,
+      ),
+      'mediasvg__left__small__lightboxed' => array(
+        'custom_settings' => FALSE,
+      ),
+      'mediasvg__right__medium__lightboxed' => array(
+        'custom_settings' => FALSE,
+      ),
+      'mediasvg__right__small__lightboxed' => array(
+        'custom_settings' => FALSE,
+      ),
     ),
     'extra_fields' => array(
       'form' => array(
