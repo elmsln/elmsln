@@ -348,3 +348,11 @@ function elmsmedia_update_7029(&$sandbox) {
   features_revert_module('elmsmedia_video');
   features_revert_module('elmsmedia_view_mode_tabs');
 }
+
+/**
+ * Ensure 'full' mode is the first one for video
+ */
+function elmsmedia_update_7030(&$sandbox) {
+  features_revert_module('elmsmedia_image');
+  features_revert_module('elmsmedia_view_mode_tabs');
+}

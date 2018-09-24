@@ -314,7 +314,7 @@ function elmsmedia_view_mode_tabs_strongarm() {
   $strongarm->api_version = 1;
   $strongarm->name = 'view_mode_tab_settings__external_video';
   $strongarm->value = array(
-    'full' => 0,
+    'full' => 1,
     'teaser' => 0,
     'rss' => 0,
     'diff_standard' => 0,
@@ -679,7 +679,7 @@ function elmsmedia_view_mode_tabs_strongarm() {
   $strongarm->api_version = 1;
   $strongarm->name = 'view_mode_tab_settings__video';
   $strongarm->value = array(
-    'full' => 0,
+    'full' => 1,
     'teaser' => 0,
     'rss' => 0,
     'diff_standard' => 0,
