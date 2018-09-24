@@ -1760,11 +1760,6 @@ img.svg {
   .etb-book .main h2 {
     padding-left: 8%; } }
 
-.etb-book hr {
-  margin: 2rem 4rem 2rem; }
-  .etb-book hr.full {
-    margin: 2rem 0rem 2rem; }
-
 .etb-book span.dropcap {
   float: left;
   color: #333333;
@@ -2843,7 +2838,7 @@ hr {
   border-width: 1px 0 0;
   clear: both;
   height: 0;
-  margin: 1.25rem 0 1.1875rem; }
+  margin: 20px auto}
 
 /* Helpful Typography Defaults */
 em,
