@@ -1,3 +1,4 @@
+<media-video>
 <figure id="node-<?php print $node->nid; ?>" class="mediavideo <?php print $classes; ?>"<?php print $attributes; ?>>
   <?php if (isset($content['field_figurelabel_ref'])): ?>
     <?php print render($content['field_figurelabel_ref'][0]); ?>
@@ -32,3 +33,4 @@
     </div>
   <?php endif; ?>
 </figure>
+</media-video>
