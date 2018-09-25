@@ -49,9 +49,27 @@ function _elmsmedia_view_mode_tab_load($node) {
         );
       }
     }
+    $proprender = _entity_iframe_render_codes($node, 'node', 'block');
+    $proprender['entity_iframe']['#title'] = t('HTML based embedding');
+    $proprender['entity_iframe']['#description'] = t('Use these if embedding outside of ELMS:LN');
+    $proprender['entity_iframe']['#materialize'] = array(
+      'type' => 'collapsible',
+      'icon' => 'device:settings-system-daydream',
+    );
+
+    $fieldset = array(
+      '#type' => 'fieldset',
+      '#materialize' => array('type' => 'collapsible_wrapper'),
+      'entity_iframe' => $proprender['entity_iframe'],
+      '#attributes' => array(
+        'class' => array('collapsible', 'elmsln-materialize-collapse-list'),
+        'data-collapsible' => 'accordion',
+      )
+    );
     $output .= '<div id="scrollspy-nav" class="' . $lmsless_classes['color'] . '-border"><h2 class="element-invisible">' . t('Modes') . '</h2>';
     $output .= '<div class="scrollspy-toc ' . $lmsless_classes['color'] . '-border">' . theme('item_list', array('items' => $header, 'attributes' => array('class' => array('table-of-contents')))) . '</div>';
     $output .= '</div>';
+    $output .= drupal_render($fieldset);
     $output .= theme('view_mode_tab_display', array('view_modes' => $rendered_node, 'node' => $node));
   }
   return $output;

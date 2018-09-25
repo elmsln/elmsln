@@ -76,7 +76,7 @@ function foundation_access_preprocess_user_profile(&$vars) {
     else {
       // fallback on user profile fallback image
       $photolink = url(drupal_get_path('theme', 'foundation_access') . '/img/user.png', array('absolute' => TRUE));
-      $vars['photo'] = '<img src="' . $photolink . '" class="ferpa-protect circle" />';
+      $vars['photo'] = '<img src="' . $photolink . '" class="ferpa-protect circle" alt="" />';
     }
     // set a banner if we have it
     if (isset($vars['field_user_banner'][0]) && !empty($vars['field_user_banner'])) {
