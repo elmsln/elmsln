@@ -356,3 +356,10 @@ function elmsmedia_update_7030(&$sandbox) {
   features_revert_module('elmsmedia_image');
   features_revert_module('elmsmedia_view_mode_tabs');
 }
+
+/**
+ * Ensure 'full' mode is the first one for audio
+ */
+function elmsmedia_update_7031(&$sandbox) {
+  features_revert_module('elmsmedia_audio');
+}
