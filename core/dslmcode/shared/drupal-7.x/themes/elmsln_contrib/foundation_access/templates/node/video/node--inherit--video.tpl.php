@@ -17,6 +17,7 @@
   }
 ?>
 <video-player
+ media-title="<?php print $node->title; ?>"
  id="node-<?php print $node->nid; ?>"
  thumbnail-src="<?php print $poster; ?>"
  source="<?php print $video; ?>"

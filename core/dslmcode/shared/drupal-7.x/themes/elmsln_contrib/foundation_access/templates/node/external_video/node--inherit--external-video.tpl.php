@@ -4,6 +4,7 @@
  */
 ?>
 <video-player
+ media-title="<?php print $node->title; ?>"
  id="node-<?php print $node->nid; ?>"
  source="<?php print $content['field_external_media']['#items'][0]['video_url']; ?>"
  class="iframe <?php print $classes; ?>"

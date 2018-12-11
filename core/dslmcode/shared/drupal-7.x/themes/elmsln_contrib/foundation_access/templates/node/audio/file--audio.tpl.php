@@ -1,4 +1,6 @@
-<a11y-media-player accent-color="indigo" audio-only
+<a11y-media-player
+media-title="<?php print $referencing_entity->title; ?>"
+accent-color="indigo" audio-only
 <?php if (isset($referencing_entity->field_poster['und'][0]['uri'])): ?> thumbnail-src="<?php print file_create_url($referencing_entity->field_poster['und'][0]['uri']); ?>"<?php endif;?>
 >
   <source src="<?php print file_create_url($referencing_entity->field_audio['und'][0]['uri']); ?>" type="audio/mp3">

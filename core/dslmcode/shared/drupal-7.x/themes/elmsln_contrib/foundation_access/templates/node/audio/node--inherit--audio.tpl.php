@@ -1,5 +1,8 @@
 
-<a11y-media-player accent-color="indigo" audio-only
+<a11y-media-player
+media-title="<?php print $node->title; ?>"
+accent-color="indigo"
+audio-only
 <?php if (isset($node->field_poster['und'][0]['uri'])): ?> thumbnail-src="<?php print file_create_url($node->field_poster['und'][0]['uri']); ?>"<?php endif;?>
 >
   <source src="<?php print file_create_url($node->field_audio['und'][0]['uri']); ?>" type="audio/mp3">
