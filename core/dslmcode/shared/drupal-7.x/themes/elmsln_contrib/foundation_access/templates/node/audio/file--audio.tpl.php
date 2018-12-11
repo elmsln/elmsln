@@ -8,5 +8,3 @@ accent-color="indigo" audio-only
     <track label="English" kind="subtitles" srclang="en" src="<?php print file_create_url($referencing_entity->field_caption['und'][0]['uri']); ?>" default>
   <?php endif;?>
 </a11y-media-player>
-
-

@@ -17,8 +17,9 @@
       source="<?php print _elmsln_api_video_url($video_url); ?>"
       class="iframe"
       accent-color="red"
-      sticky-corner="none">
-      <?php if (isset($competency)): ?>data-course-competency="<?php print $competency;?>"<?php endif;?>></video-player>
+      sticky-corner="none"
+      <?php if (isset($competency)): ?>data-course-competency="<?php print $competency;?>"<?php endif;?>
+      ></video-player>
     <?php else: ?>
       <?php print render($content); ?>
     <?php endif; ?>
