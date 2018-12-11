@@ -1,3 +1,4 @@
+hax-store.html CAN NOT BE COMPRESSED due to build errors
 juicy-ace-editor.html CAN NOT BE COMPRESSED due to build errors
 lrn-markdown-editor-editor.html CAN NOT BE COMPRESSED due to build errors
 lrn-markdown-editor.html CAN NOT BE COMPRESSED due to build errors
