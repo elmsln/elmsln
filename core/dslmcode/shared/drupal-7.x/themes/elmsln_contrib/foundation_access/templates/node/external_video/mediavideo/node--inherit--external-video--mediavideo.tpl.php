@@ -7,7 +7,7 @@
     <a href="#close-dialog" class="mediavideo__close icon-close-black" title="Click to stop and close video."></a>
   <?php endif; ?>
 
-  <div class="mediavideo__video-wrapper">
+  <div>
     <?php if ($video_url): ?>
       <video-player
       id="node-<?php print $node->nid; ?>"
