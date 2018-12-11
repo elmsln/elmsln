@@ -8,12 +8,12 @@
       "type": "script",
       "weight": 1
     },
-    "bower_components/neon-animation/web-animations.html": {
-      "type": "document",
-      "weight": 1
-    },
     "bower_components/web-animations-js/web-animations-next-lite.min.js": {
       "type": "script",
+      "weight": 1
+    },
+    "bower_components/neon-animation/web-animations.html": {
+      "type": "document",
       "weight": 1
     },
     "bower_components/secure-request/secure-request.html": {
