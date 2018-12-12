@@ -4,7 +4,7 @@
   "description": "Get caret position and offset from inputor",
   "main": "index.js",
   "dependencies": {
-    "grunt": "~0.4.1"
+    "grunt": "~1.0.0"
   },
   "devDependencies": {
     "grunt-contrib-uglify": "~0.2.0",
