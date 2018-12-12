@@ -27,7 +27,7 @@
     },
     "require": {
         "php": ">=5.4.0",
-        "birke/rememberme": "1.*"
+        "birke/rememberme": "2.*"
     },
     "autoload": {
         "psr-4": {
