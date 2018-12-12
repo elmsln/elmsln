@@ -7,7 +7,7 @@
     "grunt-contrib-watch": "~0.6.1",
     "grunt-sass": "^0.18.0",
     "grunt-drush": "*",
-    "node-bourbon": "1.2.3",
+    "node-bourbon": "4.2.8",
     "grunt-contrib-jshint": "~0.10.0",
     "grunt-contrib-uglify": "~0.5.0",
     "grunt-contrib-copy": "~0.5.0",
