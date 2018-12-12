@@ -3,7 +3,7 @@
         "composer/semver": "^1.4",
         "fguillot/picofeed": "@stable",
         "robthree/twofactorauth": "^1.6",
-        "bacon/bacon-qr-code": "^1.0"
+        "bacon/bacon-qr-code": "^2.0.0"
     },
     "require-dev": {
         "codeception/codeception": "^2.1",
