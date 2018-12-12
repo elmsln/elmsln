@@ -13,7 +13,7 @@
   "author": "RocketTheme, LLC",
   "license": "MIT",
   "dependencies": {
-    "dropzone": "^4.3.0"
+    "dropzone": "^5.0.0"
   },
   "devDependencies": {
     "babel-core": "^6.14.0",
