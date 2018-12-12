@@ -13,7 +13,7 @@
   "author": "RocketTheme, LLC",
   "license": "MIT",
   "dependencies": {
-    "bootstrap": "^3.3.7",
+    "bootstrap": "^4.0.0",
     "chartist": "0.11.0",
     "codemirror": "^5.30.0",
     "cookies-js": "^1.2.3",
