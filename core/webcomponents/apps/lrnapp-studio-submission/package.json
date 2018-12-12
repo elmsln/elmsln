@@ -13,7 +13,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "replace-in-file": "^2.5.3"
+    "replace-in-file": "3.4.2"
   },
   "dependencies": {
     "glob": "^7.1.2"
