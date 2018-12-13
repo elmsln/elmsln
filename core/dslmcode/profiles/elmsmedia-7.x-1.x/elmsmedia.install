@@ -363,3 +363,10 @@ function elmsmedia_update_7030(&$sandbox) {
 function elmsmedia_update_7031(&$sandbox) {
   features_revert_module('elmsmedia_audio');
 }
+
+/**
+ * Add comparison slider view mode
+ */
+function elmsmedia_update_7032(&$sandbox) {
+  features_revert_module('elmsmedia_view_mode_tabs');
+}

@@ -591,6 +591,7 @@ function elmsmedia_view_mode_tabs_strongarm() {
     'image_gallery__carousel' => 1,
     'image_gallery__carousel__slider' => 1,
     'image_gallery__comparison' => 1,
+    'image_gallery__wc_slider' => 1,
     'image_gallery__basic_gallery' => 1,
     'image_gallery__basic_gallery__circle' => 1,
     'accessible_fallback' => 0,

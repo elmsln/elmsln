@@ -7840,6 +7840,10 @@ div.horizontal-tabs ul li.horizontal-tab-button strong {
 }
 
 /* ALL LRN / WEB COMPONENT BASED DESIGN MODIFICATIONS */
+image-compare-slider .container.image-compare-slider {
+  margin: unset;
+  margin-bottom: 315px;
+}
 ul.pagination paper-button {
     margin: 0;
     padding: 0;
