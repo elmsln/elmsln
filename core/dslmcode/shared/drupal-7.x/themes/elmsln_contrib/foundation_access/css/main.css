@@ -2870,7 +2870,10 @@ ul,
 ol,
 dl {
   list-style-position: outside;
-  margin-bottom: 1.5rem; }
+  line-height: 40px;
+  margin-bottom: 32px;
+  text-rendering: optimizeLegibility;
+}
 
 ul {
   margin-left: 1.4rem; }
@@ -7237,14 +7240,7 @@ article p:not([class]),
 article p.elmsln-core-in-context,
 .ckeditor-edit-body p:not([class]),
 .ckeditor-edit-body p.elmsln-core-in-context {
-  max-width: 85%;
-}
-article div div div p,
-cite p,
-article div div div p.elmsln-core-in-context,
-.ckeditor-edit-body div p,
-.ckeditor-edit-body div p.elmsln-core-in-context{
-  max-width: 100%;
+  max-width: 70%;
 }
 @media (max-width: 50rem) {
   article p:not([class]),
