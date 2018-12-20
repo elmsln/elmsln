@@ -1,5 +1,4 @@
 <a11y-media-player
-media-title="<?php print $referencing_entity->title; ?>"
 accent-color="indigo" audio-only
 <?php if (isset($referencing_entity->field_poster['und'][0]['uri'])): ?> thumbnail-src="<?php print file_create_url($referencing_entity->field_poster['und'][0]['uri']); ?>"<?php endif;?>
 >

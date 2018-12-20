@@ -1,6 +1,5 @@
 
 <a11y-media-player
-media-title="<?php print $node->title; ?>"
 accent-color="indigo"
 audio-only
 <?php if (isset($node->field_poster['und'][0]['uri'])): ?> thumbnail-src="<?php print file_create_url($node->field_poster['und'][0]['uri']); ?>"<?php endif;?>
