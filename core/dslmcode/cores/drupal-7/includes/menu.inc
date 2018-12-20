@@ -3874,6 +3874,10 @@ function _menu_router_save($menu, $masks) {
   $num_records = 0;
 
   foreach ($menu as $path => $item) {
+    // avoid database integrity constraint fault
+    if ($item['title'] == null) {
+      $item['title'] = '';
+    }
     // Fill in insert object values.
     $insert->values(array(
       'path' => $item['path'],
