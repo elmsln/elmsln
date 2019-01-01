@@ -12,6 +12,6 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "replace": "^0.3.0"
+    "replace": "0.3.0"
   }
 }

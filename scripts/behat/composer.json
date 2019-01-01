@@ -1,6 +1,6 @@
 {
     "require-dev": {
-        "behat/behat": "~3.0",
+        "behat/behat": "~3.5",
         "behat/mink": "1.5.*@stable",
         "behat/mink-goutte-driver": "*",
         "behat/mink-extension": "*",
