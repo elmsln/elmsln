@@ -408,7 +408,7 @@ function _cis_lmsless_theme_vars() {
     }
     $vars['network_block'] = theme('cis_lmsless_network', $vars);
     // USER AND USER BLOCK
-    $vars['username'] = (isset($GLOBALS['user']->name) ? check_plain($GLOBALS['user']->name) : '');
+    $vars['username'] = (isset($GLOBALS['user']->name) ? check_plain($GLOBALS['user']->name) : t("Anonymous"));
     $elmsln_global_profile = variable_get('elmsln_global_profile', 'cpr');
     $uri = 'elmslnauthority://' . $elmsln_global_profile . '/users/photos/' . $vars['username'] .'.jpg';
     // load in the user picture if it exists
@@ -466,7 +466,7 @@ function _cis_lmsless_theme_vars() {
     );
     $vars['a11y'] = drupal_render($a11y);
     // set a login link if we don't have a user name
-    if ($vars['username'] == '') {
+    if ($vars['username'] == t("Anonymous")) {
       $vars['userlink'] = '<lrnsys-button label="' . t('Log in') . '" href="' . url('user/login') . '" class="account-login" icon="power-settings-new" hover-class="' . $vars['lmsless_classes'][$vars['distro']]['color'] . ' ' . $vars['lmsless_classes'][$vars['distro']]['dark'] . ' white-text"></lrnsys-button>';
     }
     else {
