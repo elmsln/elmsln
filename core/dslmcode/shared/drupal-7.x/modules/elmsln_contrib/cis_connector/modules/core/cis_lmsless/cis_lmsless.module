@@ -328,7 +328,7 @@ function _cis_lmsless_theme_vars() {
     }
     $vars['resources'] = $resources;
     // throw in username
-    $vars['username'] = (isset($GLOBALS['user']->name) ? check_plain($GLOBALS['user']->name) : '');
+    $vars['username'] = (isset($GLOBALS['user']->name) ? check_plain($GLOBALS['user']->name) : t("Anonymous"));
     // build the remote banner URI, this is the best solution for an image
     if ($picture = _elmsln_core_get_user_picture('avatar', $GLOBALS['user']->uid)) {
       $vars['userpicture'] = $picture;
