@@ -140,3 +140,11 @@ function icor_update_7011(&$sandbox) {
 function icor_update_7012(&$sandbox) {
   module_enable(array('display_inherit', 'view_mode_tab'));
 }
+
+/**
+ * Clean up view mode tabs UI to provide same UX as media
+ */
+function icor_update_7013(&$sandbox) {
+  module_enable(array('icor_view_mode_tabs'));
+  features_revert_module('icor_view_mode_tabs');
+}
