@@ -604,8 +604,7 @@ function cis_shortcodes_preprocess_view_mode_tab_display(&$variables) {
 
       // Build the form or render element usin theme_clipboardjs
       $clipboard = theme('clipboardjs', $clipboard_vars);
-
-      $view_mode['view_mode']['#prefix'] = render($clipboard);
+      $view_mode['view_mode']['#prefix'] = '<pre style="font-size:10px;font-weight:bold;">' . $clipboard_vars['text'] . '</pre>' . render($clipboard);
     }
   }
 }
