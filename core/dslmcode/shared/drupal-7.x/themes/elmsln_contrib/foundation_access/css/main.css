@@ -2654,7 +2654,7 @@ blockquote,
   opacity: 0;
   position: absolute;
   top: 0;
-  right: 0;
+  right: -50px;
   z-index: 50;
   transition: all .2s ease-in;
   margin-top: -1px;
