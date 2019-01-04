@@ -146,5 +146,12 @@ function icor_update_7012(&$sandbox) {
  */
 function icor_update_7013(&$sandbox) {
   module_enable(array('icor_view_mode_tabs', 'clipboardjs'));
+}
+
+/**
+ * View mode clean up
+ */
+function icor_update_7014(&$sandbox) {
+  features_revert_module('icor_poll');
   features_revert_module('icor_view_mode_tabs');
 }
