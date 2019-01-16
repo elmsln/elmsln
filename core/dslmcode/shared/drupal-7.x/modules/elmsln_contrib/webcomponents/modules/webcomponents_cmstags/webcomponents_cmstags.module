@@ -336,8 +336,8 @@ function _webcomponents_cmstags_process($text, $filter, $format, $langcode, $cac
       // @todo make sure this doesn't match other things
       $regex = '/\[\S*\]/';
       if (preg_match_all($regex, $text, $matches)) {
-        $patterns = array();
-        $media = array();
+        // replacement will consist of patterns and replacements
+        $replacements = array();
         // Have to process multiple matches since more than one player can be on a node.
         foreach ($matches[0] as $key => $match) {
           $tmptoken = str_replace(']', '', str_replace('[', '', $match));
@@ -346,11 +346,16 @@ function _webcomponents_cmstags_process($text, $filter, $format, $langcode, $cac
           $process = TRUE;
           drupal_alter('webcomponents_cmstagsprocess', $process, $tmptoken);
           if ($process) {
-            $patterns[] = $regex;
-            $media[] = '<cms-token token="' . $tmptoken . '"></cms-token>';
+            // add a new replacement
+            $replacements[] = array(
+              'search' => $match,
+              'replace' => '<cms-token token="' . $tmptoken . '"></cms-token>',
+            );
           }
         }
-        $text = preg_replace($patterns, $media, $text, 1);
+        foreach ($replacements as $key => $replacement) {
+          $text = str_replace($replacement['search'], $replacement['replace'], $text);
+        }
       }
       $evaluatedtext = $text;
     }
