@@ -47,7 +47,7 @@ $node = $element['#object'];
 ?>
 <video-player
  id="node-<?php print $node->nid; ?>"
- source="<?php print $node->field_external_media['#items'][0]['video_url']; ?>"
+ source="<?php print $node->field_external_media['und'][0]['video_url']; ?>"
  class="iframe <?php print $classes; ?>"
  accent-color="red"
  sticky-corner="none"
