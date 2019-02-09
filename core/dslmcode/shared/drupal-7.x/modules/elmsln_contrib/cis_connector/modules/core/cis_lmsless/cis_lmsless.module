@@ -381,6 +381,8 @@ function _cis_lmsless_theme_vars() {
     }
     // NETWORK AND NETWORK BLOCK
     $vars['network'] = _cis_lmsless_assemble_network();
+    // add custom network links
+    drupal_alter('cis_lmsless_network', $vars);
     if (isset($vars['network']['services'])) {
       foreach ($vars['network']['services'] as $category => $items) {
         foreach ($items as $key => $item) {
