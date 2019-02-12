@@ -503,9 +503,9 @@ function _cis_lmsless_theme_vars() {
         $vars['user_roles'] = filter_xss(implode(', ', $tmproles));
       }
     }
-    $vars['user_block'] = theme('cis_lmsless_user', $vars);
     // allow other projects to alter these values
     drupal_alter('cis_lmsless_theme_vars', $vars);
+    $vars['user_block'] = theme('cis_lmsless_user', $vars);
   }
   return $vars;
 }
