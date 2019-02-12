@@ -17,7 +17,9 @@
     </div>
   </li>
   <?php if (!empty($username)) : ?>
-  <li><?php print $userprofile; ?></li>
+  <li>
+    <lrnsys-button label="<?php print $userprofile['label']; ?>" href="<?php print $userprofile['href']; ?>" class="<?php print implode(' ', $userprofile['label']); ?>" icon="<?php print $userprofile['icon']; ?>" hover-class="<?php print implode(' ', $userprofile['label']); ?>"></lrnsys-button>
+  </li>
   <?php endif; ?>
   <?php if (isset($user_section) || !empty($masquerade)) : ?>
   <li><div class="divider"></div></li>
@@ -63,5 +65,7 @@
   <li><?php print $masquerade_logout; ?></li>
   <?php endif; ?>
   <li><div class="divider"></div></li>
-  <li><?php print $userlink; ?></li>
+  <li>
+    <lrnsys-button label="<?php print $userlink['label']; ?>" href="<?php print $userlink['href']; ?>" class="<?php print implode(' ', $userlink['label']); ?>" icon="<?php print $userlink['icon']; ?>" hover-class="<?php print implode(' ', $userlink['label']); ?>"></lrnsys-button>
+  </li>
 </ul>
