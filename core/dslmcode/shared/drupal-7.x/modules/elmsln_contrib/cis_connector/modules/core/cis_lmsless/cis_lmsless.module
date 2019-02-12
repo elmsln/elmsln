@@ -469,12 +469,43 @@ function _cis_lmsless_theme_vars() {
     $vars['a11y'] = drupal_render($a11y);
     // set a login link if we don't have a user name
     if ($vars['username'] == t("Anonymous")) {
-      $vars['userlink'] = '<lrnsys-button label="' . t('Log in') . '" href="' . url('user/login') . '" class="account-login" icon="power-settings-new" hover-class="' . $vars['lmsless_classes'][$vars['distro']]['color'] . ' ' . $vars['lmsless_classes'][$vars['distro']]['dark'] . ' white-text"></lrnsys-button>';
+      $vars['userlink'] = array(
+        'label' => t('Log in'),
+        'href'  => url('user/login'),
+        'class' => array(),
+        'hover-class' => array(
+          $vars['lmsless_classes'][$vars['distro']]['color'],
+          $vars['lmsless_classes'][$vars['distro']]['dark'],
+          'white-text'
+        ),
+      );
     }
     else {
-      $vars['userlink'] = '<lrnsys-button label="' . t('Log out') . '" href="' . url('user/logout') . '" class="account-logout" icon="power-settings-new" hover-class="' . $vars['lmsless_classes'][$vars['distro']]['color'] . ' ' . $vars['lmsless_classes'][$vars['distro']]['dark'] . ' white-text"></lrnsys-button>';
+      $vars['userlink'] = array(
+        'label' => t('Log out'),
+        'href'  => url('user/logout'),
+        'class' => array(
+          'account-logout'
+        ),
+        'icon'  => 'power-settings-new',
+        'hover-class' => array(
+          $vars['lmsless_classes'][$vars['distro']]['color'],
+          $vars['lmsless_classes'][$vars['distro']]['dark'],
+          'white-text'
+        ),
+      );
 
-      $vars['userprofile'] = '<lrnsys-button label="' . t('My profile') . '" href="' . url('user/' . $GLOBALS['user']->uid) . '" icon="account-circle" hover-class="' . $vars['lmsless_classes'][$vars['distro']]['color'] . ' ' . $vars['lmsless_classes'][$vars['distro']]['dark'] . ' white-text"></lrnsys-button>';
+      $vars['userprofile'] = array(
+        'label' => t('My Profile'),
+        'href'  => url('user/' . $GLOBALS['user']->uid),
+        'class' => array(),
+        'icon'  => 'account-circle',
+        'hover-class' => array(
+          $vars['lmsless_classes'][$vars['distro']]['color'],
+          $vars['lmsless_classes'][$vars['distro']]['dark'],
+          'white-text'
+        ),
+      );
     }
     if (_cis_connector_role_groupings(array('staff','teacher')) || isset($_SESSION['masquerading'])) {
       // account for systems without sections (like authorities)
