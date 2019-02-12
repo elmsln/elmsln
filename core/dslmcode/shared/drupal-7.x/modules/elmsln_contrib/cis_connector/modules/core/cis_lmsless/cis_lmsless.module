@@ -472,6 +472,7 @@ function _cis_lmsless_theme_vars() {
       $vars['userlink'] = array(
         'label' => t('Log in'),
         'href'  => url('user/login'),
+        'class' => array(),
         'hover-class' => array(
           $vars['lmsless_classes'][$vars['distro']]['color'],
           $vars['lmsless_classes'][$vars['distro']]['dark'],
@@ -483,7 +484,9 @@ function _cis_lmsless_theme_vars() {
       $vars['userlink'] = array(
         'label' => t('Log out'),
         'href'  => url('user/logout'),
-        'class' => 'account-logout',
+        'class' => array(
+          'account-logout'
+        ),
         'icon'  => 'power-settings-new',
         'hover-class' => array(
           $vars['lmsless_classes'][$vars['distro']]['color'],
@@ -491,7 +494,7 @@ function _cis_lmsless_theme_vars() {
           'white-text'
         ),
       );
-      
+
       $vars['userprofile'] = array(
         'label' => t('My Profile'),
         'href'  => url('user/' . $GLOBALS['user']->uid),
