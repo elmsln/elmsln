@@ -473,6 +473,7 @@ function _cis_lmsless_theme_vars() {
         'label' => t('Log in'),
         'href'  => url('user/login'),
         'class' => array(),
+        'icon'  => 'power-settings-new',
         'hover-class' => array(
           $vars['lmsless_classes'][$vars['distro']]['color'],
           $vars['lmsless_classes'][$vars['distro']]['dark'],
