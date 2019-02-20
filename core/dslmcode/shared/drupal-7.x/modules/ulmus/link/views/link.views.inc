@@ -1,4 +1,7 @@
 <?php
+
+// @codingStandardsIgnoreFile
+
 /**
  * @file
  * Contains functions handling views integration.

@@ -2,11 +2,20 @@
 
 /**
  * @file
- * Basic CRUD simpletests for the link module, based off of content.crud.test in CCK.
+ * File for Crud Tests.
+ *
+ * Basic CRUD simpletests for the link module, based off of content.crud.test in
+ * CCK.
  */
 
+/**
+ * Content Crud.
+ */
 class LinkContentCrudTest extends DrupalWebTestCase {
 
+  /**
+   * Get Info.
+   */
   public static function getInfo() {
     return array(
       'name' => 'Link CRUD - Basic API tests',
@@ -15,21 +24,31 @@ class LinkContentCrudTest extends DrupalWebTestCase {
     );
   }
 
-  function setUp() {
+  /**
+   * Setup.
+   */
+  public function setUp() {
     parent::setUp('field_ui', 'link');
   }
 
   /**
-   * All we're doing here is creating a content type, creating a simple link field
-   * on that content type.
+   * Create Field API.
+   *
+   * All we're doing here is creating a content type, creating a simple link
+   * field on that content type.
+   *
+   * @codingStandardsIgnoreStart
    */
-  function testLinkCreateFieldAPI() {
+  public function testLinkCreateFieldAPI() {
+    // @codingStandardsIgnoreEnd
     $content_type_friendly = $this->randomName(20);
     $content_type_machine = strtolower($this->randomName(10));
-    $title = $this->randomName(20);
 
     // Create and login user.
-    $this->web_user = $this->drupalCreateUser(array('administer content types'));
+    $this->web_user = $this->drupalCreateUser(array(
+      'administer content types',
+      'administer fields',
+    ));
     $this->drupalLogin($this->web_user);
 
     $this->drupalGet('admin/structure/types');
@@ -69,4 +88,5 @@ class LinkContentCrudTest extends DrupalWebTestCase {
     $type_exists = db_query('SELECT 1 FROM {node_type} WHERE type = :type', array(':type' => $content_type_machine))->fetchField();
     $this->assertTrue($type_exists, 'The new content type has been created in the database.');
   }
+
 }

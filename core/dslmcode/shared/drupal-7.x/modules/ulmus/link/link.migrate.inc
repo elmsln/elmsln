@@ -11,11 +11,9 @@
  * $this->addFieldMapping('field_my_link', 'source_url');
  * $this->addFieldMapping('field_my_link:title', 'source_title');
  * $this->addFieldMapping('field_my_link:attributes', 'source_attributes');
- * @endcode
  *
- * With earlier versions of Migrate, you must pass an arguments array:
+ * # With earlier versions of Migrate, you must pass an arguments array:
  *
- * @code
  * $link_args = array(
  *   'title' => array('source_field' => 'source_title'),
  *   'attributes' => array('source_field' => 'source_attributes'),
@@ -24,6 +22,10 @@
  *      ->arguments($link_args);
  * @endcode
  */
+
+if (!class_exists('MigrateFieldHandler')) {
+  return;
+}
 
 /**
  * Implements hook_migrate_api().
@@ -35,12 +37,20 @@ function link_migrate_api() {
   );
 }
 
+// @codingStandardsIgnoreLine
 class MigrateLinkFieldHandler extends MigrateFieldHandler {
+
+  /**
+   * Construct.
+   */
   public function __construct() {
     $this->registerTypes(array('link_field'));
   }
 
-  static function arguments($title = NULL, $attributes = NULL, $language = NULL) {
+  /**
+   * Arguments.
+   */
+  public static function arguments($title = NULL, $attributes = NULL, $language = NULL) {
     $arguments = array();
     if (!is_null($title)) {
       $arguments['title'] = $title;
@@ -57,16 +67,21 @@ class MigrateLinkFieldHandler extends MigrateFieldHandler {
   /**
    * Implementation of MigrateFieldHandler::fields().
    *
-   * @param $type
-   *  The field type.
-   * @param $instance
-   *  Instance info for the field.
+   * @param array $type
+   *   The field type.
+   * @param array $instance
+   *   Instance info for the field.
    * @param Migration $migration
-   *  The migration context for the parent field. We can look at the mappings
-   *  and determine which subfields are relevant.
+   *   The migration context for the parent field. We can look at the mappings
+   *   and determine which subfields are relevant.
+   *
    * @return array
+   *   Array with values.
+   *
+   * @codingStandardsIgnoreStart
    */
   public function fields($type, $instance, $migration = NULL) {
+    // @codingStandardsIgnoreEnd
     return array(
       'title' => t('Subfield: The link title attribute'),
       'attributes' => t('Subfield: The attributes for this link'),
@@ -74,6 +89,9 @@ class MigrateLinkFieldHandler extends MigrateFieldHandler {
     );
   }
 
+  /**
+   * Prepare.
+   */
   public function prepare($entity, array $field_info, array $instance, array $values) {
     if (isset($values['arguments'])) {
       $arguments = $values['arguments'];
@@ -105,9 +123,17 @@ class MigrateLinkFieldHandler extends MigrateFieldHandler {
         }
       }
       $item['url'] = $value;
-      $return[$language][$delta] = $item;
+
+      if (is_array($language)) {
+        $current_language = $language[$delta];
+      }
+      else {
+        $current_language = $language;
+      }
+      $return[$current_language][$delta] = $item;
     }
 
     return isset($return) ? $return : NULL;
   }
+
 }

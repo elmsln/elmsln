@@ -6,10 +6,13 @@
  */
 
 /**
- * Testing that tokens can be used in link titles
+ * Testing that tokens can be used in link titles.
  */
 class LinkEntityTokenTest extends LinkBaseTestClass {
 
+  /**
+   * Get Info.
+   */
   public static function getInfo() {
     return array(
       'name' => 'Link entity tokens test',
@@ -19,24 +22,27 @@ class LinkEntityTokenTest extends LinkBaseTestClass {
     );
   }
 
-  function setUp($modules = array()) {
+  /**
+   * Setup.
+   */
+  public function setUp($modules = array()) {
     parent::setUp(array('token', 'entity', 'entity_token'));
   }
-  
+
   /**
    * Creates a link field, fills it, then uses a loaded node to test tokens.
    */
-  function testFieldTokenNodeLoaded() {
-    // create field
+  public function testFieldTokenNodeLoaded() {
+    // Create field.
     $settings = array(
       'instance[settings][enable_tokens]' => 0,
     );
     $field_name = $this->createLinkField('page',
-                                        $settings);
+      $settings);
 
-    // create page form
+    // Create page form.
     $this->drupalGet('node/add/page');
-    //$field_name = 'field_' . $name;
+    // $field_name = 'field_' . $name;.
     $this->assertField($field_name . '[und][0][title]', 'Title found');
     $this->assertField($field_name . '[und][0][url]', 'URL found');
 
@@ -58,11 +64,11 @@ class LinkEntityTokenTest extends LinkBaseTestClass {
         'label' => $this->randomName(),
       ),
     );
-    //$this->assert('pass', '<pre>' . print_r($token_url_tests, TRUE) . '<pre>');
-
+    // @codingStandardsIgnoreLine
+    // $this->assert('pass', '<pre>' . print_r($token_url_tests, TRUE) . '<pre>');.
     foreach ($token_url_tests as &$input) {
       $this->drupalGet('node/add/page');
-  
+
       $edit = array(
         'title' => $input['label'],
         $field_name . '[und][0][title]' => $input['label'],
@@ -73,34 +79,37 @@ class LinkEntityTokenTest extends LinkBaseTestClass {
       $input['url'] = $url;
     }
 
-    // change to anonymous user
+    // Change to anonymous user.
     $this->drupalLogout();
-    
+
     foreach ($token_url_tests as $index => $input2) {
       $node = node_load($index);
       $this->assertNotEqual(NULL, $node, "Do we have a node?");
       $this->assertEqual($node->nid, $index, "Test that we have a node.");
       $token_name = '[node:' . str_replace('_', '-', $field_name) . ':url]';
       $assert_data = token_replace($token_name,
-                      array('node' => $node));
+        array('node' => $node));
       $this->assertEqual($input2['href'], $assert_data, "Test that the url token has been set to " . $input2['href'] . ' - ' . $assert_data);
     }
   }
-  
+
   /**
-   * Creates a link field, fills it, then uses a loaded and node_view'd node to test tokens.
+   * Field Token Node Viewed.
+   *
+   * Creates a link field, fills it, then uses a loaded and node_view'd node to
+   * test tokens.
    */
-  function testFieldTokenNodeViewed() {
-    // create field
+  public function testFieldTokenNodeViewed() {
+    // Create field.
     $settings = array(
       'instance[settings][enable_tokens]' => 0,
     );
     $field_name = $this->createLinkField('page',
-                                        $settings);
+      $settings);
 
-    // create page form
+    // Create page form.
     $this->drupalGet('node/add/page');
-    //$field_name = 'field_' . $name;
+    // $field_name = 'field_' . $name;.
     $this->assertField($field_name . '[und][0][title]', 'Title found');
     $this->assertField($field_name . '[und][0][url]', 'URL found');
 
@@ -122,11 +131,12 @@ class LinkEntityTokenTest extends LinkBaseTestClass {
         'label' => $this->randomName(),
       ),
     );
-    //$this->assert('pass', '<pre>' . print_r($token_url_tests, TRUE) . '<pre>');
 
+    //@codingStandardsIgnoreLine
+    // $this->assert('pass', '<pre>' . print_r($token_url_tests, TRUE) . '<pre>');.
     foreach ($token_url_tests as &$input) {
       $this->drupalGet('node/add/page');
-  
+
       $edit = array(
         'title' => $input['label'],
         $field_name . '[und][0][title]' => $input['label'],
@@ -137,19 +147,18 @@ class LinkEntityTokenTest extends LinkBaseTestClass {
       $input['url'] = $url;
     }
 
-    // change to anonymous user
+    // Change to anonymous user.
     $this->drupalLogout();
-    
+
     foreach ($token_url_tests as $index => $input2) {
       $node = node_load($index);
-      $node_array = node_view($node, 'full');
       $this->assertNotEqual(NULL, $node, "Do we have a node?");
       $this->assertEqual($node->nid, $index, "Test that we have a node.");
       $token_name = '[node:' . str_replace('_', '-', $field_name) . ':url]';
       $assert_data = token_replace($token_name,
-                      array('node' => $node));
+        array('node' => $node));
       $this->assertEqual($input2['href'], $assert_data, "Test that the url token has been set to " . $input2['href'] . ' - ' . $assert_data);
     }
   }
-  
+
 }
