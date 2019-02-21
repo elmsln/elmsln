@@ -6,9 +6,37 @@
  */
 
 /**
- * Upgrade notes:
- * Things we need to make sure work when upgrading from Drupal 6 to Drupal 7:
+ * Upgrade notes.
+ *
+ * Things we need to make sure work when upgrading from Drupal 6 to Drupal 7:.
  */
+
+/**
+ * Implements hook_uninstall().
+ */
+function link_install() {
+  // Notify the user they may want to install token.
+  if (!module_exists('token')) {
+    $t = get_t();
+    drupal_set_message($t('If you install the <a href="!url" target="blank">Token</a>, static title can use any other entity field as its value.', array(
+      '!url' => 'http://drupal.org/project/token',
+    )));
+  }
+}
+
+/**
+ * Removes unused link_extra_domains variable.
+ */
+function link_update_7002() {
+  variable_del('link_extra_domains');
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function link_uninstall() {
+  variable_del('link_allowed_domains');
+}
 
 /**
  * Implements hook_field_schema().
@@ -46,19 +74,21 @@ function link_update_last_removed() {
 }
 
 /**
- * Handles moving settings data from field_config.data to field_config_instance.data.
+ * Implements hook_update_N().
+ *
+ * Handles moving settings data from field_config.data to
+ * field_config_instance.data.
  */
 function link_update_7000() {
-  
-  // For each field that is a link field, we need to copy the settings from the general field level down to the instance.
-  //$field_data = array();
+
+  // For each field that is a link field, we need to copy the settings from the
+  // general field level down to the instance.
   $result = db_query("SELECT id, field_name, data FROM {field_config} WHERE module = 'link' AND type = 'link_field'");
   foreach ($result as $field) {
-    $field_id = $field->id;
-    $name = $field->field_name;
+
     $field_data = unserialize($field->data);
-    
-    $instances = db_query("SELECT id, data FROM {field_config_instance} WHERE field_id = :field_id", array(':field_id' => $field_id));
+
+    $instances = db_query("SELECT id, data FROM {field_config_instance} WHERE field_id = :field_id", array(':field_id' => $field->id));
     foreach ($instances as $instance) {
       // If this field has been updated already, we want to skip it.
       $instance_data = unserialize($instance->data);
@@ -71,8 +101,8 @@ function link_update_7000() {
           }
         }
         if ($update_instance) {
-          // update the database.
-          $num_updated = db_update('field_config_instance')
+          // Update the database.
+          db_update('field_config_instance')
             ->fields(array('data' => serialize($instance_data)))
             ->condition('id', $instance->id)
             ->execute();
@@ -80,22 +110,19 @@ function link_update_7000() {
       }
     }
   }
-  
+
   return t("Instance settings have been set with the data from the field settings.");
 }
 
 /**
- * Renames all displays from foobar to link_foobar
+ * Renames all displays from foobar to link_foobar.
  */
 function link_update_7001() {
   // Update the display type for each link field type.
   $result = db_query("SELECT id, field_name, data FROM {field_config} WHERE module = 'link' AND type = 'link_field'");
   foreach ($result as $field) {
-    $field_id = $field->id;
-    $name = $field->field_name;
-    $field_data = unserialize($field->data);
-    
-    $instances = db_query("SELECT id, data FROM {field_config_instance} WHERE field_id = :field_id", array(':field_id' => $field_id));
+
+    $instances = db_query("SELECT id, data FROM {field_config_instance} WHERE field_id = :field_id", array(':field_id' => $field->id));
     foreach ($instances as $instance) {
       // If this field has been updated already, we want to skip it.
       $instance_data = unserialize($instance->data);
