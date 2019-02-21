@@ -44,6 +44,14 @@
  * @ingroup themeable
  */
 $node = $element['#object'];
+  $track = '';
+  if (isset($node->field_caption['und'][0]['uri'])) {
+    $track = '<track
+  src="' . file_create_url($node->field_caption['und'][0]['uri']) . '"
+  kind="subtitles"
+  label="English"
+  slot="track">';
+  }
 ?>
 <video-player
  id="node-<?php print $node->nid; ?>"
@@ -51,4 +59,6 @@ $node = $element['#object'];
  class="iframe <?php print $classes; ?>"
  accent-color="red"
  sticky-corner="none"
- <?php print $attributes; ?>></video-player>
+ <?php print $attributes; ?>>
+<?php print $track;?>
+</video-player>
