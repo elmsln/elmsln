@@ -370,3 +370,10 @@ function elmsmedia_update_7031(&$sandbox) {
 function elmsmedia_update_7032(&$sandbox) {
   features_revert_module('elmsmedia_view_mode_tabs');
 }
+
+/**
+ * External video caption support
+ */
+function elmsmedia_update_7033(&$sandbox) {
+  features_revert_module('elmsmedia_external_video');
+}

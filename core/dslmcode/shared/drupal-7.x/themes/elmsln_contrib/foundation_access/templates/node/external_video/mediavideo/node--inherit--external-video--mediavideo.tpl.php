@@ -1,3 +1,13 @@
+<?php
+  $track = '';
+  if (isset($node->field_caption['und'][0]['uri'])) {
+    $track = '<track
+  src="' . file_create_url($node->field_caption['und'][0]['uri']) . '"
+  kind="subtitles"
+  label="English"
+  slot="track">';
+  }
+?>
 <media-video>
 <figure id="node-<?php print $node->nid; ?>" class="mediavideo <?php print $classes; ?>"<?php print $attributes; ?>>
   <?php if (isset($content['field_figurelabel_ref'])): ?>
@@ -12,7 +22,9 @@
       class="iframe"
       accent-color="red"
       sticky-corner="none"
-      <?php if (isset($competency)): ?>data-course-competency="<?php print $competency;?>"<?php endif;?>></video-player>
+      <?php if (isset($competency)): ?>data-course-competency="<?php print $competency;?>"<?php endif;?>>
+    <?php print $track;?>
+    </video-player>
     <?php else: ?>
       <?php print render($content); ?>
     <?php endif; ?>
