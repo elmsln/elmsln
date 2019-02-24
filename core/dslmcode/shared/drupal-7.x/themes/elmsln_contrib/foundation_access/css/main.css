@@ -6594,6 +6594,18 @@ table.sticky-header {
   transform: scale(1.06);
   padding: 0 0 0 .5em;
 }
+/* Add micro interaction for when the scrollspy gets pinned */
+#scrollspy-nav.pinned {
+  animation: scrollspyPinnedAnimation 0.3s;
+}
+@keyframes scrollspyPinnedAnimation {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
 .table-of-contents li {
   padding: 0;
 }
