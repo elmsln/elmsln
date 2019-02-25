@@ -14,6 +14,10 @@ include_once 'elmsln_core.features.inc';
 // elmsln file stream wrapper
 include_once 'includes/elmsln_stream_wrappers.inc';
 
+function elmsln_core_webcomponent_app_files() {
+  $libraries['webcomponents'] . '/' . WEBCOMPONENTS_POLYMER_LOCATION . '/apps/';
+  $files = _webcomponents_find_includes($dir, array(), '.json');
+}
 /**
  * Implements hook_stream_wrappers().
  */
@@ -2342,7 +2346,7 @@ function elmsln_core_webcomponents() {
   $files = array();
   if (isset($libraries['webcomponents'])) {
     $dir = DRUPAL_ROOT . '/sites/all/libraries/_my_libraries/my_webcomponents/';
-    $files = _webcomponents_find_html_includes($dir);
+    $files = _webcomponents_find_includes($dir);
   }
   // group these all as files found to match polymer format
   return array(WEBCOMPONENTS_POLYMER_NAME => $files);
