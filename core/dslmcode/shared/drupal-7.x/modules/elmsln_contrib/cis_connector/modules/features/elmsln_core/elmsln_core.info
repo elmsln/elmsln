@@ -47,7 +47,6 @@ dependencies[] = user
 dependencies[] = uuid
 dependencies[] = views_content_cache
 dependencies[] = webcomponents
-dependencies[] = webcomponents_polymer
 features[ctools][] = strongarm:strongarm:1
 features[features_api][] = api:2
 features[image][] = elmsln_gray

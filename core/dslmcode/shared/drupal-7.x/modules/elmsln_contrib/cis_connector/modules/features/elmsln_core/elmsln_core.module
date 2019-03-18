@@ -14,10 +14,6 @@ include_once 'elmsln_core.features.inc';
 // elmsln file stream wrapper
 include_once 'includes/elmsln_stream_wrappers.inc';
 
-function elmsln_core_webcomponent_app_files() {
-  $libraries['webcomponents'] . '/' . WEBCOMPONENTS_POLYMER_LOCATION . '/apps/';
-  $files = _webcomponents_find_includes($dir, array(), '.json');
-}
 /**
  * Implements hook_stream_wrappers().
  */
@@ -2310,35 +2306,6 @@ function elmsln_core_webcomponents_build_file_location_alter(&$buildFile) {
   if (arg(0) == 'node' && arg(2) == 'edit') {
     $buildFile = 'dist/elmsln-build-edit.js';
   }
-}
-
-/**
- * Implements hook_webcomponents_app_element_import_alter().
- * rewrite app paths to resolve to our 'apps-resolver' address.
- * This allows all bower_components to resolve correctly as well
- * as correctly deduping assets on the front end. The reason for this
- * is that if using multiple apps on a single page this would dedupe
- * references to polymer (and other elements) incorrectly; effectively
- * loading the assets underlying a request to (Number of elements * Number of apps).
- * This allows global elements to resolve to the same as local ones.
- */
-function elmsln_core_webcomponents_app_element_import_alter(&$link_element, $app, $machine_name, $hash) {
-  // we don't store our apps in the app path, we only use it for registration
-  $link_element['#attributes']['href'] = _webcomponents_base_path() . libraries_get_path('webcomponents') . '/polymer/apps-src/' . $machine_name . '/' . $machine_name . '.html?h' . $hash;
-}
-
-/**
- * Implements hook_webcomponents().
- */
-function elmsln_core_webcomponents() {
-  // look for polymer elements in sites/all/libraries/_my_libraries/my_webcomponents/
-  $files = array();
-  if (isset($libraries['webcomponents'])) {
-    $dir = DRUPAL_ROOT . '/sites/all/libraries/_my_libraries/my_webcomponents/';
-    $files = _webcomponents_find_includes($dir);
-  }
-  // group these all as files found to match polymer format
-  return array(WEBCOMPONENTS_POLYMER_NAME => $files);
 }
 
 /**

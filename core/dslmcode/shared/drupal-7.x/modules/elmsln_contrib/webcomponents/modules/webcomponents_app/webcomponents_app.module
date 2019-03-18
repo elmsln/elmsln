@@ -51,6 +51,14 @@ function webcomponents_app_load_app_definitions($machine_name = NULL, $force_reb
 }
 
 /**
+ * Implements hook_webcomponent_app_files().
+ */
+function webcomponents_ap_webcomponent_app_files() {
+  $dir = libraries_get_path('webcomponents'). '/' . WEBCOMPONENTS_APP_PATH . '/';
+  return _webcomponents_find_includes($dir, array(), '.json');
+}
+
+/**
  * Implements hook_register_webcomponent_apps().
  */
 function webcomponents_register_webcomponent_apps() {

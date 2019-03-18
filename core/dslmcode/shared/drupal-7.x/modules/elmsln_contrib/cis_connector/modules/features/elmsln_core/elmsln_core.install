@@ -243,7 +243,7 @@ function elmsln_core_update_7022(&$sandbox) {
  * the process in general.
  */
 function elmsln_core_update_7023(&$sandbox) {
-  module_enable(array('webcomponents', 'webcomponents_polymer'));
+  module_enable(array('webcomponents'));
 }
 
 /**
@@ -374,4 +374,17 @@ function elmsln_core_update_7032(&$sandbox) {
 function elmsln_core_update_7033(&$sandbox) {
   module_enable(array('file_entity'));
   features_revert_module('elmsln_core');
+}
+
+/**
+ * Remove webcomponents polymer name as that no longer exists
+ */
+function elmsln_core_update_7034(&$sandbox) {
+  $modules = array(
+    'webcomponents_polymer',
+  );
+  db_delete('system')
+    ->condition('name', $modules, 'IN')
+    ->condition('type', 'module')
+    ->execute();
 }
