@@ -868,6 +868,266 @@
       "type": "script",
       "weight": 1
     },
+    "dist/elmsln-build-edit.js": {
+      "type": "script",
+      "weight": 1
+    },
+    "node_modules/%40lrnwebcomponents/lrn-page/lrn-page.js": {
+      "type": "script",
+      "weight": 1
+    },
+    "node_modules/%40lrnwebcomponents/oer-schema/oer-schema.js": {
+      "type": "script",
+      "weight": 1
+    },
+    "node_modules/%40lrnwebcomponents/schema-behaviors/schema-behaviors.js": {
+      "type": "script",
+      "weight": 1
+    },
+    "node_modules/%40lrnwebcomponents/lrn-content/lrn-content.js": {
+      "type": "script",
+      "weight": 1
+    },
+    "node_modules/%40polymer/paper-tabs/paper-tabs.js": {
+      "type": "script",
+      "weight": 1
+    },
+    "node_modules/%40polymer/paper-tabs/paper-tabs-icons.js": {
+      "type": "script",
+      "weight": 1
+    },
+    "node_modules/%40polymer/paper-tabs/paper-tab.js": {
+      "type": "script",
+      "weight": 1
+    },
+    "node_modules/%40polymer/iron-menu-behavior/iron-menubar-behavior.js": {
+      "type": "script",
+      "weight": 1
+    },
+    "node_modules/%40polymer/paper-toggle-button/paper-toggle-button.js": {
+      "type": "script",
+      "weight": 1
+    },
+    "node_modules/%40polymer/paper-badge/paper-badge.js": {
+      "type": "script",
+      "weight": 1
+    },
+    "node_modules/%40polymer/paper-slider/paper-slider.js": {
+      "type": "script",
+      "weight": 1
+    },
+    "node_modules/%40polymer/paper-spinner/paper-spinner.js": {
+      "type": "script",
+      "weight": 1
+    },
+    "node_modules/%40polymer/paper-spinner/paper-spinner-styles.js": {
+      "type": "script",
+      "weight": 1
+    },
+    "node_modules/%40polymer/paper-spinner/paper-spinner-behavior.js": {
+      "type": "script",
+      "weight": 1
+    },
+    "node_modules/%40lrnwebcomponents/lrnsys-layout/lib/lrnsys-drawer.js": {
+      "type": "script",
+      "weight": 1
+    },
+    "node_modules/%40lrnwebcomponents/simple-drawer/simple-drawer.js": {
+      "type": "script",
+      "weight": 1
+    },
+    "node_modules/%40polymer/neon-animation/neon-animation.js": {
+      "type": "script",
+      "weight": 1
+    },
+    "node_modules/%40polymer/neon-animation/neon-animated-pages.js": {
+      "type": "script",
+      "weight": 1
+    },
+    "node_modules/%40polymer/neon-animation/neon-animatable.js": {
+      "type": "script",
+      "weight": 1
+    },
+    "node_modules/%40polymer/neon-animation/neon-animations.js": {
+      "type": "script",
+      "weight": 1
+    },
+    "node_modules/%40polymer/neon-animation/animations/cascaded-animation.js": {
+      "type": "script",
+      "weight": 1
+    },
+    "node_modules/%40polymer/neon-animation/animations/hero-animation.js": {
+      "type": "script",
+      "weight": 1
+    },
+    "node_modules/%40polymer/neon-animation/neon-shared-element-animation-behavior.js": {
+      "type": "script",
+      "weight": 1
+    },
+    "node_modules/%40polymer/neon-animation/animations/opaque-animation.js": {
+      "type": "script",
+      "weight": 1
+    },
+    "node_modules/%40polymer/neon-animation/animations/ripple-animation.js": {
+      "type": "script",
+      "weight": 1
+    },
+    "node_modules/%40polymer/neon-animation/animations/reverse-ripple-animation.js": {
+      "type": "script",
+      "weight": 1
+    },
+    "node_modules/%40polymer/neon-animation/animations/scale-down-animation.js": {
+      "type": "script",
+      "weight": 1
+    },
+    "node_modules/%40polymer/neon-animation/animations/slide-from-left-animation.js": {
+      "type": "script",
+      "weight": 1
+    },
+    "node_modules/%40polymer/neon-animation/animations/slide-from-right-animation.js": {
+      "type": "script",
+      "weight": 1
+    },
+    "node_modules/%40polymer/neon-animation/animations/slide-from-top-animation.js": {
+      "type": "script",
+      "weight": 1
+    },
+    "node_modules/%40polymer/neon-animation/animations/slide-from-bottom-animation.js": {
+      "type": "script",
+      "weight": 1
+    },
+    "node_modules/%40polymer/neon-animation/animations/slide-left-animation.js": {
+      "type": "script",
+      "weight": 1
+    },
+    "node_modules/%40polymer/neon-animation/animations/slide-right-animation.js": {
+      "type": "script",
+      "weight": 1
+    },
+    "node_modules/%40polymer/neon-animation/animations/slide-up-animation.js": {
+      "type": "script",
+      "weight": 1
+    },
+    "node_modules/%40polymer/neon-animation/animations/slide-down-animation.js": {
+      "type": "script",
+      "weight": 1
+    },
+    "node_modules/%40polymer/neon-animation/animations/transform-animation.js": {
+      "type": "script",
+      "weight": 1
+    },
+    "node_modules/%40polymer/neon-animation/neon-shared-element-animatable-behavior.js": {
+      "type": "script",
+      "weight": 1
+    },
+    "node_modules/%40polymer/app-layout/app-layout.js": {
+      "type": "script",
+      "weight": 1
+    },
+    "node_modules/%40polymer/app-layout/app-drawer-layout/app-drawer-layout.js": {
+      "type": "script",
+      "weight": 1
+    },
+    "node_modules/%40polymer/iron-media-query/iron-media-query.js": {
+      "type": "script",
+      "weight": 1
+    },
+    "node_modules/%40polymer/app-layout/app-grid/app-grid-style.js": {
+      "type": "script",
+      "weight": 1
+    },
+    "node_modules/%40polymer/app-layout/app-header-layout/app-header-layout.js": {
+      "type": "script",
+      "weight": 1
+    },
+    "node_modules/%40polymer/app-layout/app-box/app-box.js": {
+      "type": "script",
+      "weight": 1
+    },
+    "node_modules/%40lrnwebcomponents/lrnsys-layout/lib/lrnsys-button-inner.js": {
+      "type": "script",
+      "weight": 1
+    },
+    "node_modules/%40lrnwebcomponents/lrnsys-layout/lib/lrnsys-collapselist.js": {
+      "type": "script",
+      "weight": 1
+    },
+    "node_modules/%40lrnwebcomponents/lrnsys-layout/lib/lrnsys-dialog.js": {
+      "type": "script",
+      "weight": 1
+    },
+    "node_modules/%40lrnwebcomponents/lrnsys-button/lrnsys-button.js": {
+      "type": "script",
+      "weight": 1
+    },
+    "node_modules/%40lrnwebcomponents/lrnapp-fab-menu/lrnapp-fab-menu.js": {
+      "type": "script",
+      "weight": 1
+    },
+    "node_modules/%40lrnwebcomponents/paper-fab-speed-dial/paper-fab-speed-dial.js": {
+      "type": "script",
+      "weight": 1
+    },
+    "node_modules/%40lrnwebcomponents/paper-fab-speed-dial/lib/paper-fab-speed-dial-overlay.js": {
+      "type": "script",
+      "weight": 1
+    },
+    "node_modules/%40lrnwebcomponents/lrn-icon/lrn-icon.js": {
+      "type": "script",
+      "weight": 1
+    },
+    "node_modules/%40polymer/iron-icons/communication-icons.js": {
+      "type": "script",
+      "weight": 1
+    },
+    "node_modules/%40polymer/iron-icons/hardware-icons.js": {
+      "type": "script",
+      "weight": 1
+    },
+    "node_modules/%40polymer/iron-icons/maps-icons.js": {
+      "type": "script",
+      "weight": 1
+    },
+    "node_modules/%40polymer/iron-icons/social-icons.js": {
+      "type": "script",
+      "weight": 1
+    },
+    "node_modules/%40polymer/iron-icons/places-icons.js": {
+      "type": "script",
+      "weight": 1
+    },
+    "node_modules/%40lrnwebcomponents/dropdown-select/dropdown-select.js": {
+      "type": "script",
+      "weight": 1
+    },
+    "dist/elmsln-build.js": {
+      "type": "script",
+      "weight": 1
+    },
+    "node_modules/%40lrnwebcomponents/lrndesign-drawer/lrndesign-drawer.js": {
+      "type": "script",
+      "weight": 1
+    },
+    "node_modules/%40lrnwebcomponents/lrndesign-panelcard/lrndesign-panelcard.js": {
+      "type": "script",
+      "weight": 1
+    },
+    "node_modules/%40lrnwebcomponents/lrndesign-blockquote/lrndesign-blockquote.js": {
+      "type": "script",
+      "weight": 1
+    },
+    "node_modules/%40lrnwebcomponents/lrndesign-abbreviation/lrndesign-abbreviation.js": {
+      "type": "script",
+      "weight": 1
+    },
+    "node_modules/%40lrnwebcomponents/lrndesign-paperstack/lrndesign-paperstack.js": {
+      "type": "script",
+      "weight": 1
+    },
+    "node_modules/%40lrnwebcomponents/a11y-behaviors/a11y-behaviors.js": {
+      "type": "script",
+      "weight": 1
+    },
     "node_modules/%40lrnwebcomponents/haxcms-elements/lib/core/backends/haxcms-backend-beaker.js": {
       "type": "script",
       "weight": 1
@@ -969,22 +1229,6 @@
       "weight": 1
     },
     "node_modules/%40lrnwebcomponents/hax-body/lib/hax-panel.js": {
-      "type": "script",
-      "weight": 1
-    },
-    "node_modules/%40polymer/iron-icons/hardware-icons.js": {
-      "type": "script",
-      "weight": 1
-    },
-    "node_modules/%40polymer/iron-icons/communication-icons.js": {
-      "type": "script",
-      "weight": 1
-    },
-    "node_modules/%40polymer/iron-icons/social-icons.js": {
-      "type": "script",
-      "weight": 1
-    },
-    "node_modules/%40polymer/iron-icons/maps-icons.js": {
       "type": "script",
       "weight": 1
     },
@@ -1104,26 +1348,6 @@
       "type": "script",
       "weight": 1
     },
-    "node_modules/%40polymer/paper-toggle-button/paper-toggle-button.js": {
-      "type": "script",
-      "weight": 1
-    },
-    "node_modules/%40polymer/paper-tabs/paper-tabs.js": {
-      "type": "script",
-      "weight": 1
-    },
-    "node_modules/%40polymer/paper-tabs/paper-tabs-icons.js": {
-      "type": "script",
-      "weight": 1
-    },
-    "node_modules/%40polymer/paper-tabs/paper-tab.js": {
-      "type": "script",
-      "weight": 1
-    },
-    "node_modules/%40polymer/iron-menu-behavior/iron-menubar-behavior.js": {
-      "type": "script",
-      "weight": 1
-    },
     "node_modules/%40vaadin/vaadin-split-layout/vaadin-split-layout.js": {
       "type": "script",
       "weight": 1
@@ -1144,10 +1368,6 @@
       "type": "script",
       "weight": 1
     },
-    "node_modules/%40lrnwebcomponents/schema-behaviors/schema-behaviors.js": {
-      "type": "script",
-      "weight": 1
-    },
     "node_modules/%40lrnwebcomponents/code-editor/lib/monaco-element/monaco-element.js": {
       "type": "script",
       "weight": 1
@@ -1161,10 +1381,6 @@
       "weight": 1
     },
     "node_modules/%40polymer/iron-selector/iron-selector.js": {
-      "type": "script",
-      "weight": 1
-    },
-    "node_modules/%40polymer/neon-animation/neon-animated-pages.js": {
       "type": "script",
       "weight": 1
     },
@@ -1185,10 +1401,6 @@
       "weight": 1
     },
     "node_modules/%40lrnwebcomponents/grafitto-filter/grafitto-filter.js": {
-      "type": "script",
-      "weight": 1
-    },
-    "node_modules/%40lrnwebcomponents/dropdown-select/dropdown-select.js": {
       "type": "script",
       "weight": 1
     },
@@ -1224,10 +1436,6 @@
       "type": "script",
       "weight": 1
     },
-    "node_modules/%40polymer/iron-icons/places-icons.js": {
-      "type": "script",
-      "weight": 1
-    },
     "node_modules/%40lrnwebcomponents/hax-body/lib/hax-autoloader.js": {
       "type": "script",
       "weight": 1
@@ -1256,86 +1464,6 @@
       "type": "script",
       "weight": 1
     },
-    "node_modules/%40polymer/neon-animation/neon-animation.js": {
-      "type": "script",
-      "weight": 1
-    },
-    "node_modules/%40polymer/neon-animation/neon-animatable.js": {
-      "type": "script",
-      "weight": 1
-    },
-    "node_modules/%40polymer/neon-animation/neon-animations.js": {
-      "type": "script",
-      "weight": 1
-    },
-    "node_modules/%40polymer/neon-animation/animations/cascaded-animation.js": {
-      "type": "script",
-      "weight": 1
-    },
-    "node_modules/%40polymer/neon-animation/animations/hero-animation.js": {
-      "type": "script",
-      "weight": 1
-    },
-    "node_modules/%40polymer/neon-animation/neon-shared-element-animation-behavior.js": {
-      "type": "script",
-      "weight": 1
-    },
-    "node_modules/%40polymer/neon-animation/animations/opaque-animation.js": {
-      "type": "script",
-      "weight": 1
-    },
-    "node_modules/%40polymer/neon-animation/animations/ripple-animation.js": {
-      "type": "script",
-      "weight": 1
-    },
-    "node_modules/%40polymer/neon-animation/animations/reverse-ripple-animation.js": {
-      "type": "script",
-      "weight": 1
-    },
-    "node_modules/%40polymer/neon-animation/animations/scale-down-animation.js": {
-      "type": "script",
-      "weight": 1
-    },
-    "node_modules/%40polymer/neon-animation/animations/slide-from-left-animation.js": {
-      "type": "script",
-      "weight": 1
-    },
-    "node_modules/%40polymer/neon-animation/animations/slide-from-right-animation.js": {
-      "type": "script",
-      "weight": 1
-    },
-    "node_modules/%40polymer/neon-animation/animations/slide-from-top-animation.js": {
-      "type": "script",
-      "weight": 1
-    },
-    "node_modules/%40polymer/neon-animation/animations/slide-from-bottom-animation.js": {
-      "type": "script",
-      "weight": 1
-    },
-    "node_modules/%40polymer/neon-animation/animations/slide-left-animation.js": {
-      "type": "script",
-      "weight": 1
-    },
-    "node_modules/%40polymer/neon-animation/animations/slide-right-animation.js": {
-      "type": "script",
-      "weight": 1
-    },
-    "node_modules/%40polymer/neon-animation/animations/slide-up-animation.js": {
-      "type": "script",
-      "weight": 1
-    },
-    "node_modules/%40polymer/neon-animation/animations/slide-down-animation.js": {
-      "type": "script",
-      "weight": 1
-    },
-    "node_modules/%40polymer/neon-animation/animations/transform-animation.js": {
-      "type": "script",
-      "weight": 1
-    },
-    "node_modules/%40polymer/neon-animation/neon-shared-element-animatable-behavior.js": {
-      "type": "script",
-      "weight": 1
-    },
     "node_modules/%40lrnwebcomponents/hax-body/lib/hax-toolbar-menu.js": {
       "type": "script",
       "weight": 1
@@ -1353,10 +1481,6 @@
       "weight": 1
     },
     "node_modules/%40lrnwebcomponents/hax-body/lib/hax-toolbar.js": {
-      "type": "script",
-      "weight": 1
-    },
-    "node_modules/%40polymer/paper-slider/paper-slider.js": {
       "type": "script",
       "weight": 1
     },
@@ -1496,18 +1620,6 @@
       "type": "script",
       "weight": 1
     },
-    "node_modules/%40polymer/app-layout/app-drawer-layout/app-drawer-layout.js": {
-      "type": "script",
-      "weight": 1
-    },
-    "node_modules/%40polymer/iron-media-query/iron-media-query.js": {
-      "type": "script",
-      "weight": 1
-    },
-    "node_modules/%40polymer/app-layout/app-header-layout/app-header-layout.js": {
-      "type": "script",
-      "weight": 1
-    },
     "node_modules/%40lrnwebcomponents/simple-blog/simple-blog.js": {
       "type": "script",
       "weight": 1
@@ -1556,19 +1668,11 @@
       "type": "script",
       "weight": 1
     },
-    "node_modules/%40lrnwebcomponents/a11y-behaviors/a11y-behaviors.js": {
-      "type": "script",
-      "weight": 1
-    },
     "node_modules/%40lrnwebcomponents/image-compare-slider/image-compare-slider.js": {
       "type": "script",
       "weight": 1
     },
     "node_modules/%40lrnwebcomponents/lrn-aside/lrn-aside.js": {
-      "type": "script",
-      "weight": 1
-    },
-    "node_modules/%40lrnwebcomponents/lrndesign-panelcard/lrndesign-panelcard.js": {
       "type": "script",
       "weight": 1
     },
@@ -1580,27 +1684,7 @@
       "type": "script",
       "weight": 1
     },
-    "node_modules/%40lrnwebcomponents/lrnsys-layout/lib/lrnsys-button-inner.js": {
-      "type": "script",
-      "weight": 1
-    },
     "node_modules/%40lrnwebcomponents/lrnsys-layout/lib/lrnsys-collapselist-item.js": {
-      "type": "script",
-      "weight": 1
-    },
-    "node_modules/%40lrnwebcomponents/lrnsys-layout/lib/lrnsys-collapselist.js": {
-      "type": "script",
-      "weight": 1
-    },
-    "node_modules/%40polymer/app-layout/app-layout.js": {
-      "type": "script",
-      "weight": 1
-    },
-    "node_modules/%40polymer/app-layout/app-grid/app-grid-style.js": {
-      "type": "script",
-      "weight": 1
-    },
-    "node_modules/%40polymer/app-layout/app-box/app-box.js": {
       "type": "script",
       "weight": 1
     },
@@ -1609,18 +1693,6 @@
       "weight": 1
     },
     "node_modules/%40lrnwebcomponents/lrnsys-layout/lib/lrnsys-dialog-toolbar.js": {
-      "type": "script",
-      "weight": 1
-    },
-    "node_modules/%40lrnwebcomponents/lrnsys-layout/lib/lrnsys-dialog.js": {
-      "type": "script",
-      "weight": 1
-    },
-    "node_modules/%40lrnwebcomponents/lrnsys-layout/lib/lrnsys-drawer.js": {
-      "type": "script",
-      "weight": 1
-    },
-    "node_modules/%40lrnwebcomponents/simple-drawer/simple-drawer.js": {
       "type": "script",
       "weight": 1
     },
@@ -1637,18 +1709,6 @@
       "weight": 1
     },
     "node_modules/%40lrnwebcomponents/csv-render/csv-render.js": {
-      "type": "script",
-      "weight": 1
-    },
-    "node_modules/%40polymer/paper-spinner/paper-spinner.js": {
-      "type": "script",
-      "weight": 1
-    },
-    "node_modules/%40polymer/paper-spinner/paper-spinner-styles.js": {
-      "type": "script",
-      "weight": 1
-    },
-    "node_modules/%40polymer/paper-spinner/paper-spinner-behavior.js": {
       "type": "script",
       "weight": 1
     },
@@ -1669,10 +1729,6 @@
       "weight": 1
     },
     "node_modules/%40polymer/marked-element/node_modules/marked/lib/marked.js": {
-      "type": "script",
-      "weight": 1
-    },
-    "node_modules/%40lrnwebcomponents/lrndesign-blockquote/lrndesign-blockquote.js": {
       "type": "script",
       "weight": 1
     },
