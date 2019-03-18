@@ -2305,10 +2305,10 @@ function elmsln_core_cis_lmsless_color_alter(&$map) {
  */
 function elmsln_core_webcomponents_build_file_location_alter(&$buildFile) {
   // point to the elmsln build
-  $buildFile = 'dist/elmsln-build.js';
+  $buildFile = 'elmsln-build.js';
   // modify build path for node edit forms
   if (arg(0) == 'node' && arg(2) == 'edit') {
-    $buildFile = 'dist/elmsln-build-edit.js';
+    $buildFile = 'elmsln-build-edit.js';
   }
 }
 
