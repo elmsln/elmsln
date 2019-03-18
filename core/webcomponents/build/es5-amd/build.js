@@ -1,0 +1,1 @@
+define(["./dist/build.js"],function(){"use strict"});

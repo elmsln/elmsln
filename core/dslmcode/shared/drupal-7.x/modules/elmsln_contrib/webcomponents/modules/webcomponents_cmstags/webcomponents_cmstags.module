@@ -97,16 +97,6 @@ function webcomponents_cmstags_page_build(&$page) {
   // only append these to the header if we aren't on a traditional edit page
   // Traditional edit forms will have WYSIWYG fields which will unpack
   // these assets and make things angry as a result
-  if (arg(2) != 'edit' && arg(2) != 'hax') {
-    $component = new stdClass();
-    $cms_tags = array('token', 'views', 'block', 'entity');
-    foreach ($cms_tags as $tag) {
-      $component->machine_name = 'cms-' . $tag;
-      // pull in from webcomponents location
-      $component->file = libraries_get_path('webcomponents') . '/polymer/bower_components/cms-hax/cms-' . $tag . '.html';
-      _webcomponents_add_to_head($component, 10002);
-    }
-  }
   // write the little endPoint shims we use for the other 3 things to decouple
   $js = 'window.cmsviewsEndPoint="' . base_path() . 'webcomponents/cms-views/' . drupal_get_token('webcomponents_cmstags_views') . '";' . "\n";
   $js .= 'window.cmsentityEndPoint="' . base_path() . 'webcomponents/cms-entity/' . drupal_get_token('webcomponents_cmstags_entity') . '";' . "\n";
@@ -336,8 +326,8 @@ function _webcomponents_cmstags_process($text, $filter, $format, $langcode, $cac
       // @todo make sure this doesn't match other things
       $regex = '/\[\S*\]/';
       if (preg_match_all($regex, $text, $matches)) {
-        // replacement will consist of patterns and replacements
-        $replacements = array();
+        $patterns = array();
+        $media = array();
         // Have to process multiple matches since more than one player can be on a node.
         foreach ($matches[0] as $key => $match) {
           $tmptoken = str_replace(']', '', str_replace('[', '', $match));
@@ -346,16 +336,11 @@ function _webcomponents_cmstags_process($text, $filter, $format, $langcode, $cac
           $process = TRUE;
           drupal_alter('webcomponents_cmstagsprocess', $process, $tmptoken);
           if ($process) {
-            // add a new replacement
-            $replacements[] = array(
-              'search' => $match,
-              'replace' => '<cms-token token="' . $tmptoken . '"></cms-token>',
-            );
+            $patterns[] = $regex;
+            $media[] = '<cms-token token="' . $tmptoken . '"></cms-token>';
           }
         }
-        foreach ($replacements as $key => $replacement) {
-          $text = str_replace($replacement['search'], $replacement['replace'], $text);
-        }
+        $text = preg_replace($patterns, $media, $text, 1);
       }
       $evaluatedtext = $text;
     }

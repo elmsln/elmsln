@@ -1,0 +1,1 @@
+"use strict";const templateMap={};export default templateMap;
