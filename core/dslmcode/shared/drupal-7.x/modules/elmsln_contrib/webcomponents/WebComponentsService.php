@@ -33,12 +33,12 @@ class WebComponentsService {
         define([
           "' . $directory . 'babel/babel-top.js",
           "' . $directory . 'build/es6/node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js",
-          "' . $directory . 'build/es5-amd/dist/' . $buildFile . '"], function () { "use strict" }
+          "' . $directory . 'build/es5-amd/' . $buildFile . '"], function () { "use strict" }
         );
         document.write("<!--")
       }
     </script>
-    <script type="module" src="' . $directory . 'build/es6/dist/' . $buildFile . '"></script>
+    <script type="module" src="' . $directory . 'build/es6/' . $buildFile . '"></script>
     <!--! do not remove -->
     <!-- / web component build -->';
   }
