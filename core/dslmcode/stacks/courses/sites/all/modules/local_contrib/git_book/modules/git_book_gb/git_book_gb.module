@@ -67,6 +67,7 @@ function git_book_gb_construct_path($path, $node) {
 
 /**
  * Callback to parse git_book_gb_git_book_parser.
+ * @todo need to filter i18n characters better
  */
 function git_book_gb_git_book_parse($path, $node) {
   // Get the contents of what is in the summary file in repo.
@@ -95,6 +96,8 @@ function git_book_gb_git_book_parse($path, $node) {
   $data = preg_replace('/<a href="(.*?)">(.*?)<\/a>/s', '<title>${2}</title><link>${1}</link>', $data);
   //// make empty bottom title items without children to match our previous method
   $data = preg_replace('/<nodes>([^<>]*)<\/nodes>/s', '<nodes><title>${1}</title><link>null</link></nodes>', $data);
+  //// make sure all internationalization charaters are converted
+  $data = str_replace('&eacute;', 'é', $data);
   //// cheat to make this xml
   $xml = simplexml_load_string($data, 'SimpleXMLElement');
   //// cheat to convert simpleXML object into a nested array
