@@ -1,0 +1,14 @@
+<?php
+
+/**
+ * @file
+ * UUID module installation functions.
+ */
+
+/**
+ * Implements hook_uninstall().
+ */
+function uuid_services_uninstall() {
+  variable_del('uuid_services_support_all_entity_types');
+  variable_del('uuid_services_allowed_media_mimes');
+}

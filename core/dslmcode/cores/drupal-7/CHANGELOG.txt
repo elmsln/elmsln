@@ -1,3 +1,29 @@
+Drupal 7.xx, xxxx-xx-xx (development version)
+-----------------------
+
+Drupal 7.67, 2019-05-08
+-----------------------
+- Fixed security issues:
+   - SA-CORE-2019-007
+
+Drupal 7.66, 2019-04-17
+-----------------------
+- Fixed security issues:
+   - SA-CORE-2019-006
+
+Drupal 7.65, 2019-03-20
+-----------------------
+- Fixed security issues:
+   - SA-CORE-2019-004
+
+Drupal 7.64, 2019-02-06
+-----------------------
+- [regression] Unset the 'host' header in drupal_http_request() during redirect
+- Fixed: 7.x does not have Phar protection and Phar tests are failing on Drupal 7
+- Fixed: Notice: Undefined index: display_field in file_field_widget_value() (line 582 of /module/file/file.field.inc)
+- Performance improvement: Registry rebuild should not parse the same file twice in the same request
+- Fixed _registry_update() to clear caches after transaction is committed
+
 Drupal 7.63, 2019-01-16
 -----------------------
 - Fixed a fatal error for some Drush users introduced by SA-CORE-2019-002.

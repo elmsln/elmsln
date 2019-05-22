@@ -94,11 +94,27 @@ function context_theme_registry_alter(&$theme_registry) {
  */
 function context_ctools_render_alter($info, $page, $data) {
   extract($data);
-  if ($page && in_array($task['name'], array('node_view', 'node_edit'), TRUE)) {
-    foreach ($contexts as $ctools_context) {
-      if (in_array('node', $ctools_context->type) && !empty($ctools_context->data)) {
-        context_node_condition($ctools_context->data, $task['name'] === 'node_view' ? 'view' : 'form');
-        break;
+
+  // Check for page handlers.
+  if ($page) {
+    // Check for node page handler.
+    if (in_array($task['name'], array('node_view', 'node_edit'), TRUE)) {
+      foreach ($contexts as $ctools_context) {
+        if (in_array('node', $ctools_context->type) && !empty($ctools_context->data)) {
+          context_node_condition($ctools_context->data, $task['name'] === 'node_view' ? 'view' : 'form');
+          break;
+        }
+      }
+    }
+    // Check for taxonomy term page handler.
+    elseif (in_array($task['name'], array('term_view', 'term_edit'), TRUE)) {
+      foreach ($contexts as $ctools_context) {
+        if (in_array('taxonomy_term', $ctools_context->type) && !empty($ctools_context->data)) {
+          if ($plugin = context_get_plugin('condition', 'taxonomy_term')) {
+            $plugin->execute($ctools_context->data, $task['name'] === 'term_view' ? 'view' : 'form');
+          }
+          break;
+        }
       }
     }
   }
