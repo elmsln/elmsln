@@ -1,0 +1,223 @@
+<?php
+/**
+ * @file Web components ingestion helpers
+ */
+
+
+define('WEBCOMPONENTS_POLYMER_NAME', 'polymer1');
+define('WEBCOMPONENTS_POLYMER_LOCATION', 'polymer');
+/**
+ * Impements hook_register_component_format().
+ */
+function webcomponents_polymer_register_component_format() {
+  return array(
+    'polymer1' => array(
+      'process' => '_webcomponents_polymer_process_components',
+    ),
+  );
+}
+
+/**
+ * Implements hook_register_webcomponent_apps().
+ */
+function webcomponents_polymer_register_webcomponent_apps() {
+  $files = array();
+  $return = array();
+  $libraries = libraries_get_libraries();
+  // look in libraries directory for global elements
+  if (isset($libraries['webcomponents'])) {
+    $dir = $libraries['webcomponents'] . '/' . WEBCOMPONENTS_POLYMER_LOCATION . '/apps/';
+    $files = _webcomponents_find_html_includes($dir, array(), '.json');
+  }
+  // now look in module sepecific areas
+  $modulefiles = drupal_system_listing("/polymer\.json$/", "modules", 'uri', 2);
+  // replace with manifest and check if it exists, silly but works
+  foreach ($modulefiles as $file) {
+    $tmp = str_replace('polymer.json', 'manifest.json', $file->uri);
+    // include the reference if we find it
+    if (file_exists($tmp)) {
+      $files[] = $tmp;
+    }
+  }
+  // walk the files
+  foreach ($files as $file) {
+    // read in the manifest file
+    if (strpos($file, 'manifest.json')) {
+      // load the manifest json file
+      $manifest = drupal_json_decode(file_get_contents($file));
+      $return[$manifest['name']] = array(
+        'title' => $manifest['short_name'],
+        'description' => $manifest['description'],
+        'path' => str_replace('manifest.json', '', $file),
+      );
+      // support for drupal specific properties to be set in manifest
+      if (isset($manifest['app_integration'])) {
+        $app = $manifest['app_integration'];
+        // support for more expressive title specific to integrations
+        if (isset($app['title'])) {
+          $return[$manifest['name']]['title'] = $app['title'];
+        }
+        // support for opa-root integrations
+        if (isset($app['opa-root'])) {
+          $return[$manifest['name']]['opa-root'] = $app['opa-root'];
+        }
+        // support for generating a visualized menu item in drupal's menu system
+        if (isset($app['menu'])) {
+          $return[$manifest['name']]['menu'] = $app['menu'];
+        }
+        // support for additional properties
+        if (isset($app['properties'])) {
+          $return[$manifest['name']]['properties'] = $app['properties'];
+        }
+        // support for additional slots
+        if (isset($app['slots'])) {
+          $return[$manifest['name']]['slots'] = $app['slots'];
+        }
+        // support for a endpoint paths for getting data into the app
+        if (isset($app['endpoints'])) {
+          $return[$manifest['name']]['endpoints'] = $app['endpoints'];
+        }
+        // support for discovering and autoloading an element-name.php file
+        // to make decoupled development even easier!
+        if (file_exists(str_replace('manifest.json', $manifest['name'] . '.php', $file))) {
+          $return[$manifest['name']]['autoload'] = TRUE;
+        }
+        // support automatically making a block for this element
+        if (isset($app['block'])) {
+          $return[$manifest['name']]['block'] = $app['block'];
+        }
+        // general support for anything you want to store for context
+        if (isset($app['context'])) {
+          $return[$manifest['name']]['context'] = $app['context'];
+        }
+      }
+    }
+  }
+  return $return;
+}
+
+/**
+ * Implements hook_webcomponents().
+ */
+function webcomponents_polymer_webcomponents() {
+  // look for polymer elements in sites/all/libraries/webcomponents/polymer
+  $libraries = libraries_get_libraries();
+  $files = array();
+  if (isset($libraries['webcomponents'])) {
+    $dir = $libraries['webcomponents'] . '/' . WEBCOMPONENTS_POLYMER_LOCATION . '/';
+    $files = _webcomponents_find_html_includes($dir, array('apps', 'apps-src'));
+  }
+  // now look in module sepecific areas
+  $modulefiles = drupal_system_listing("/(.*?)-(.*?)\.html$/", "modules", 'uri', 2);
+  // replace with manifest and check if it exists, silly but works
+  foreach ($modulefiles as $file) {
+    // DO NOT INCLUDE APPS
+    $tmp1 = dirname($file->uri) . '/polymer.json';
+    $tmp2 = dirname($file->uri) . '/manifest.json';
+    // include the reference if we find it
+    if (file_exists($tmp1) && !file_exists($tmp2)) {
+      // check polymer.json for a import statement
+      $json = file_get_contents($tmp1);
+      $json = json_decode($json);
+      // only import things that claim import
+      if (isset($json->drupal_import)) {
+        $items = explode('/', $file->uri);
+        // work our way down to the module location
+        do {
+          $item = array_pop($items);
+        } while ($item != 'webcomponents' && !empty($items));
+        $module = array_pop($items);
+        // see if this module is enabled and only add if it is
+        if (module_exists($module)) {
+          $files[] = $file->uri;
+        }
+      }
+    }
+  }
+  // group these all as files found to match polymer format
+  return array(WEBCOMPONENTS_POLYMER_NAME => $files);
+}
+
+/**
+ * Callback to do the processing for polymer components
+ * @param  string $file reference to a file on the file system
+ * @return array       a webcomponent engineered from the file
+ */
+function _webcomponents_polymer_process_components($file) {
+  $html = file_get_contents($file);
+  // Create a DOM object.
+  $html_obj = new simple_html_dom();
+  // Load HTML from a string.
+  $html_obj->load($html);
+  // find dom-module, it's the machine_name
+  foreach ($html_obj->find('dom-module') as $modulematch ) {
+    $machine_name = $modulematch->{'id'};
+    $dommodule_obj = new simple_html_dom();
+    // Load HTML from a string.
+    $dommodule_obj->load($modulematch->innertext);
+    $component = new stdClass();
+    // Remove all plain text fragments.
+    foreach ($dommodule_obj->find('template') as $rawmatch ) {
+      // abstract machine name for the new component
+      $title = drupal_ucfirst(str_replace('-', ' ', $machine_name));
+      $tag = $rawmatch->tag;
+      // estblish the component we found
+      $component = new stdClass();
+      $component->machine_name = $machine_name;
+      $component->tag = $tag;
+      $component->title = $title;
+      $component->file = $file;
+      $component->type = 'polymer';
+      $component->properties = array('innerHTML' => 'String');
+      // match {{}} and [[]] based properties
+      // @todo add optional support for hitting a polmer-analyzer.json style file
+      preg_match_all('/({{.*?}}|\[\[.*?\]\])/', $rawmatch->innertext, $matches);
+      // find matches for custom properties so we know how to tokenize this
+      if (isset($matches[0])) {
+        // loop through properties
+        foreach ($matches[0] as $match) {
+          // strip off the edges of the data binding markers
+          $value = str_replace('{{', '', str_replace('}}', '', $match));
+          $value = str_replace('[[', '', str_replace(']]', '', $value));
+          // strip off false case
+          $value = str_replace('!', '', $value);
+          // only save the property value if it doesn't have () implying function
+          if (strpos($value, '(') === FALSE) {
+            // @todo read value type from polymer directly
+            $component->properties[$value] = 'String';
+          }
+        }
+      }
+      // @todo need a match for slots based on <slot name="whatever"></slot>
+
+    }
+    $components[$machine_name] = $component;
+  }
+  // Release resources to avoid memory leak in some versions.
+  $html_obj->clear();
+  unset($html_obj);
+  // make sure we found components in here
+  if (isset($components)) {
+  	return $components;
+  }
+  return FALSE;
+}
+
+/**
+ * Implements hook_webcomponent_attached_files_alter().
+ */
+function webcomponents_polymer_webcomponent_attached_files_alter(&$files) {
+  $libraries = libraries_get_libraries();
+  $polymer = $libraries['webcomponents'] . '/polymer/bower_components/polymer/polymer.html';
+  // support for a webcomponents.json file to tell us what to append
+  if (file_exists(DRUPAL_ROOT . '/' . $polymer)) {
+    $component = new stdClass();
+    $component->machine_name = 'polymer';
+    $component->tag = 'polymer';
+    $component->title = 'polymer';
+    $component->file = $polymer;
+    $component->type = 'polymer';
+    $component->properties = array();
+    $files[$polymer] = $component;
+  }
+}

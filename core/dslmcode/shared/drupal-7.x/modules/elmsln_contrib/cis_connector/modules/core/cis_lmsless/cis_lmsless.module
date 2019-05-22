@@ -614,7 +614,6 @@ function _cis_lmsless_get_distro_classes($distro = NULL) {
     'text' => 'black-text',
     'outline' => 'blue-outline',
     'code' => '#2196f3',
-    'color_code_dark' => '#0D47A1',
     'code_text' => '#085390',
   );
   // statically cache future calls

@@ -7,7 +7,7 @@ include_once 'HAXService.php';
  * Headless Authoring eXperience, all we do is accept calls and make things haxable in the first place.
  */
 
-define('HAX_DEFAULT_ELEMENTS', 'oer-schema lrn-aside grid-plate tab-list magazine-cover video-player image-compare-slider license-element self-check multiple-choice lrn-table hero-banner task-list media-image lrndesign-blockquote meme-maker a11y-gif-player paper-audio-player wikipedia-query lrn-vocab lrn-math person-testimonial citation-element code-editor place-holder stop-note q-r wave-player');
+define('HAX_DEFAULT_ELEMENTS', 'video-player wikipedia-query lrn-table media-image');
 /**
  * Implements hook_permission().
  */
@@ -64,6 +64,27 @@ function hax_menu() {
     'access arguments' => array('administer site configuration'),
   );
   return $items;
+}
+
+/**
+ * Implements hook_node_view().
+ */
+function hax_node_view($node, $view_mode, $langcode) {
+  if ($view_mode == 'full' && variable_get('hax_autoload_element_node_view', TRUE)) {
+    // generate autoload list
+    $elementstring = variable_get('hax_autoload_element_list', HAX_DEFAULT_ELEMENTS);
+    // blow up based on space
+    $elements = explode(' ', $elementstring);
+    // pull in from webcomponents location
+    $base = libraries_get_path('webcomponents') . '/polymer/bower_components/';
+    foreach ($elements as $element) {
+      $component = new stdClass();
+      $component->machine_name = $element;
+      // pull in from webcomponents location
+      $component->file = $base . $element . '/' . $element . '.html';
+      _webcomponents_add_to_head($component, 10001);
+    }
+  }
 }
 
 /**
@@ -208,6 +229,10 @@ function _hax_node_form($node) {
   // set page title
   drupal_set_title(t('HAX edit @title', array('@title' => $node->title)), PASS_THROUGH);
   // fake a component to get it into the head of the document, heavy weighting
+  $component = new stdClass();
+  $component->machine_name = 'cms-hax';
+  $component->file = libraries_get_path('webcomponents') . '/polymer/bower_components/cms-hax/cms-hax.html';
+  _webcomponents_add_to_head($component, 10000);
   $appStoreConnection = array(
     'url' => base_path() . 'hax-app-store/' . drupal_get_token('hax'),
   );

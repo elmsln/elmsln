@@ -62,6 +62,10 @@ var clipboardjs = require('./components/clipboardjs.js');
    */
   Drupal.behaviors.materializeCSS = {
     attach: function (context, settings) {
+      // collapsible sets
+      $('.collapsible').collapsible({
+        accordion : false // A setting that changes the collapsible behavior to expandable instead of the default accordion style
+      });
       // hide accessibility button
     if ($('.cis_accessibility_check a').length == 0) {
       $('.accessibility-content-toggle a').appendTo('.cis_accessibility_check');
@@ -87,6 +91,8 @@ var clipboardjs = require('./components/clipboardjs.js');
     $('input#edit-elmsln-share-section,input.cis_shortcodes_embed').mouseup(function(e){
       e.preventDefault();
     });
+    // enable parallax
+    $('.parallax').parallax();
     // normal carousel
     $('.carousel').not('.carousel-slider').carousel();
     // full size slider carousel

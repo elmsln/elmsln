@@ -300,9 +300,9 @@ function cle_submission_field_default_field_instances() {
         'active_updating' => 0,
         'file_name' => array(
           'options' => array(
-            'pathauto' => 1,
+            'pathauto' => 0,
             'slashes' => 0,
-            'transliterate' => 1,
+            'transliterate' => 0,
           ),
           'value' => '[file:ffp-name-only-original].[file:ffp-extension-original]',
         ),
@@ -310,9 +310,9 @@ function cle_submission_field_default_field_instances() {
           'options' => array(
             'pathauto' => 0,
             'slashes' => 0,
-            'transliterate' => 1,
+            'transliterate' => 0,
           ),
-          'value' => 'submission_files/[current-user:name]',
+          'value' => 'submission_files',
         ),
         'redirect' => FALSE,
         'retroactive_update' => 0,

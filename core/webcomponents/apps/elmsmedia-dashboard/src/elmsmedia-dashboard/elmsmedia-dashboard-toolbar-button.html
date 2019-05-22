@@ -1,0 +1,40 @@
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+
+<dom-module id="elmsmedia-dashboard-toolbar-button">
+  <template>
+    <style>
+      :host {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: .7;
+      }
+      #title {
+        font-size: 1em;
+        margin: 0;
+        margin-right: .3em;
+        padding: 0;
+      }
+    </style>
+    <paper-button id="button">
+      <h3 id="title">[[title]]</h3>
+      <iron-icon id="icon" icon="[[icon]]"></iron-icon>
+    </paper-button>
+  </template>
+  <script>
+    Polymer({
+      is: 'elmsmedia-dashboard-toolbar-button',
+      properties: {
+        title: {
+          type: String,
+          value: '',
+        },
+        icon: {
+          type: String,
+          value: '',
+        },
+      }
+    });
+  </script>
+</dom-module>

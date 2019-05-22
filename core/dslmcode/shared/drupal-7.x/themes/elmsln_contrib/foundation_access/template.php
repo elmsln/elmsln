@@ -236,7 +236,6 @@ function foundation_access_fieldset($variables) {
   $element = $variables['element'];
   element_set_attributes($element, array('id'));
   _form_set_class($element, array('form-wrapper'));
-  
   // allow for materialization if it exists, otherwise serve default
   if (isset($element['#materialize'])) {
     switch ($element['#materialize']['type']) {
@@ -273,14 +272,16 @@ function foundation_access_fieldset($variables) {
         // form the fieldset as a collapse element
         $output = '
         <li class="collapsible-li">
-          <lrnsys-collapselist-item>
-              <div slot="label">
-                ' . $icon . '
-                <span>' . $element['#title'] . '</span>
-              </div>
-            <div slot="content"> ' . $body . ' </div>
-          </lrnsys-collapselist-item>
-          <div class="divider"></div>
+          <a tabindex="-1" id="collapse-item-id-' . $anchor . '" href="#collapse-item-' . $anchor . '" class="collapsible-header' . $collapse . '"' . drupal_attributes($element['#attributes']) .'><paper-button>' .
+            $icon . $element['#title'] .
+          '</paper-button>
+          </a>
+          <div class="collapsible-body">
+            <div class="elmsln-collapsible-body" aria-labelledby="collapse-item-id-' . $anchor . '" role="tabpanel">
+              ' . $body . '
+            </div>
+            <div class="divider"></div>
+          </div>
         </li>';
       break;
     }
@@ -557,7 +558,7 @@ function foundation_access_button($variables) {
   if (!empty($element['#attributes']['disabled'])) {
     $element['#attributes']['class'][] = 'form-button-disabled';
   }
-  $element['#attributes']['class'][] = 'blue darken-2 white-text';
+  $element['#attributes']['class'][] = 'blue white-text';
   // wrap classes on an upload button
   if ($variables['element']['#value'] == 'Upload') {
     return '
@@ -1149,6 +1150,7 @@ function foundation_access_link(&$variables) {
     return '<a href="' . check_plain(url($path, $options)) . '"' . drupal_attributes($options['attributes']) . '>' . ($options['html'] ? $text : check_plain($text)) . '</a>';
   }
   else {
+
     return _foundation_access_lrnsys_button($text, $path, $options);
   }
 }
@@ -1166,14 +1168,14 @@ function _foundation_access_lrnsys_button($label, $path, $options) {
     $colors = _cis_lmsless_get_distro_classes(elmsln_core_get_profile_key());
     $options['attributes']['hover-class'] = $colors['color'] . ' ' . $colors['dark'] . ' white-text';
   }
-  if (strpos($path, 'apps/') === 0) {
-    $options['attributes']['prefetch'] = true;  
-  }
   // support links without a path
   if ($path != NULL) {
     $options['attributes']['href'] = check_plain(url($path, $options));
   }
-  // if HTML is set to true then we can't handle this at the moment, stuff in light dom
+  if (is_array($options['attributes']['class'])) {
+    $options['attributes']['button-class'] = implode(' ', $options['attributes']['class']);
+  }
+  // if HTML is set to true then we can't handle this at the moment
   if ($options['html']) {
     return '<lrnsys-button ' . drupal_attributes($options['attributes']) . '>' . $label . '</lrnsys-button>';
   }
@@ -1636,17 +1638,17 @@ function foundation_access_status_messages($variables) {
   $status_mapping = array(
     'error' => array(
       'icon' => 'error',
-      'color' => 'white-text',
+      'color' => 'red darken-4 white-text',
       'heading' => t('Errors'),
     ),
     'warning' => array(
       'icon' => 'warning',
-      'color' => 'white-text',
+      'color' => 'yellow darken-4 white-text',
       'heading' => t('Warnings'),
     ),
     'status' => array(
       'icon' => 'info',
-      'color' => 'white-text',
+      'color' => 'green darken-4 white-text',
       'heading' => t('Notifications'),
     ),
     'toast' => array(

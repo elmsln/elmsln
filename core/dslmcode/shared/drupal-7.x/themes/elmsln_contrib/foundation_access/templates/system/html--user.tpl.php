@@ -45,6 +45,13 @@
     </div>
     <?php print _foundation_access_drop_whitespace($page); ?>
   </body>
+  <script>
+    /* this script must run before Polymer is imported */
+    window.Polymer = {
+      dom: 'shady',
+      lazyRegister: true
+    };
+  </script>
   <style>
     html, body {
       height: 100%;
