@@ -584,7 +584,7 @@ function foundation_access_button($variables) {
       $js = ' onclick="document.getElementById(\'cis-service-connection-block-section-context-changer-form\').submit();" ';
     }
     unset($lrnsys['id']);
-    return '<button' . $js . drupal_attributes($element['#attributes']) . '><lrnsys-button ' . drupal_attributes($lrnsys) . '>' . $element['#value'] . '</lrnsys-button></button>';
+    return '<button' . $js . drupal_attributes($element['#attributes']) . '><paper-button ' . drupal_attributes($lrnsys) . '>' . $element['#value'] . '</paper-button></button>';
   }
 }
 
