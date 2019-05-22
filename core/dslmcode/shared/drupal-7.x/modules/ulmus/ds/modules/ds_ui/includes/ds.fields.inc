@@ -445,6 +445,12 @@ function ds_edit_block_field_form($form, &$form_state, $custom_block = '') {
     '#required' => TRUE,
     '#default_value' => isset($custom_block->properties['block']) ? $custom_block->properties['block'] : '',
   );
+  $form['block_identity']['block_visibility'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Respect Block Visibility'),
+    '#description' => t('Toggle this checkbox if you would like this field to respect the same visibility settings configured for the block.'),
+    '#default_value' => isset($custom_block->properties['block_visibility']) ? $custom_block->properties['block_visibility'] : FALSE,
+  );
   $form['block_identity']['block_render'] = array(
     '#type' => 'select',
     '#options' => array(
@@ -470,6 +476,7 @@ function ds_block_field_form_validate($form, &$form_state) {
   $form_state['field']->properties = array();
   $form_state['field']->properties['block'] = $form_state['values']['block'];
   $form_state['field']->properties['block_render'] = $form_state['values']['block_render'];
+  $form_state['field']->properties['block_visibility'] = $form_state['values']['block_visibility'];
 }
 
 /**

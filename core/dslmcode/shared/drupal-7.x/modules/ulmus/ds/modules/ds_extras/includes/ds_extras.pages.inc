@@ -38,6 +38,11 @@ function ds_extras_node_page_view($node) {
   // It's also possible to use $_GET['v'] to switch view modes.
   if (isset($_GET['v']) && !empty($_GET['v'])) {
     $view_mode = $_GET['v'];
+    // Check if this is a valid view mode, switch to default otherwise.
+    $view_modes = ds_extras_get_bundle_view_modes('node', $node->type);
+    if (!isset($view_modes[$view_mode])) {
+      $view_mode = 'full';
+    }
   }
   drupal_static('ds_extras_view_mode', $view_mode);
 

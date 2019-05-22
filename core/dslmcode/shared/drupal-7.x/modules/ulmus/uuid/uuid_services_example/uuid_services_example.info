@@ -11,9 +11,8 @@ features[ctools][] = services:services:3
 features[features_api][] = api:2
 features[services_endpoint][] = uuid_services_example
 
-; Information added by Drupal.org packaging script on 2017-04-27
-version = "7.x-1.0"
+; Information added by Drupal.org packaging script on 2018-07-19
+version = "7.x-1.2"
 core = "7.x"
 project = "uuid"
-datestamp = "1493291958"
-
+datestamp = "1531990689"

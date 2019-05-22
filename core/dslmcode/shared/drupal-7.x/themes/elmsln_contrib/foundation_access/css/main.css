@@ -6659,6 +6659,18 @@ simple-modal[opened] .elmsln-modal-content {
   transform: scale(1.06);
   padding: 0 0 0 .5em;
 }
+/* Add micro interaction for when the scrollspy gets pinned */
+#scrollspy-nav.pinned {
+  animation: scrollspyPinnedAnimation 0.3s;
+}
+@keyframes scrollspyPinnedAnimation {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
 .table-of-contents li {
   padding: 0;
 }
@@ -7935,6 +7947,7 @@ div.horizontal-tabs ul li.horizontal-tab-button strong {
 /* ALL LRN / WEB COMPONENT BASED DESIGN MODIFICATIONS */
 video-player {
   z-index: 0;
+  font-size: 12px;
 }
 image-compare-slider .container.image-compare-slider {
   margin: unset;

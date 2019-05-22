@@ -20,6 +20,9 @@ function ds_install() {
  */
 function ds_uninstall() {
   variable_del('ds_classes_regions');
+  variable_del('ds_disable');
+  variable_del('ds_extras_region_blocks');
+  variable_del('menu_rebuild_needed');
 }
 
 /**
