@@ -8,9 +8,8 @@ files[] = tests/context.test
 files[] = tests/context.conditions.test
 files[] = tests/context.reactions.test
 
-; Information added by Drupal.org packaging script on 2016-05-18
-version = "7.x-3.7"
+; Information added by Drupal.org packaging script on 2019-02-26
+version = "7.x-3.10"
 core = "7.x"
 project = "context"
-datestamp = "1463605446"
-
+datestamp = "1551220089"
