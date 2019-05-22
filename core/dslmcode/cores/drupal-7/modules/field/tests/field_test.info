@@ -6,7 +6,7 @@ files[] = field_test.entity.inc
 version = VERSION
 hidden = TRUE
 
-; Information added by Drupal.org packaging script on 2019-01-16
-version = "7.63"
+; Information added by Drupal.org packaging script on 2019-05-08
+version = "7.67"
 project = "drupal"
-datestamp = "1547681965"
+datestamp = "1557336079"
