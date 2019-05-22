@@ -7,6 +7,22 @@
 define('WEBCOMPONENTS_APP_PATH', 'apps');
 
 /**
+ * Implements hook_webcomponents_build_file_location_alter().
+ */
+function webcomponents_app_webcomponents_build_file_location_alter(&$locations) {
+  // figure out the app that should also be autoloaded into the build
+  if (arg(0) == WEBCOMPONENTS_APP_PATH && arg(1) != '' && _webcomponents_app_access(arg(1))) {
+    $apps = webcomponents_app_load_app_definitions(NULL);
+    if (isset($apps[arg(1)])) {
+      $app = $apps[arg(1)];
+      // support dynamic app file loading
+      if ($app['element']) {
+        array_push($locations, $app['element']);
+      }
+    }
+  }
+}
+/**
  * Load all apps we can find or a specific one if requested.
  * @param  string $machine_name optional name of an element to load
  * the registry for from it's manifest.json file (most likely)
@@ -48,6 +64,82 @@ function webcomponents_app_load_app_definitions($machine_name = NULL, $force_reb
   }
   // nothing at this point, return nothing
   return array();
+}
+
+/**
+ * Implements hook_webcomponent_app_files().
+ */
+function webcomponents_app_webcomponent_app_files() {
+  $dir = libraries_get_path('webcomponents'). '/' . WEBCOMPONENTS_APP_PATH . '/';
+  return _webcomponents_find_includes($dir, array(), '.json');
+}
+
+/** 
+ * Implements hook_register_webcomponent_apps().
+ */
+function webcomponents_app_register_webcomponent_apps() {
+  $return = array();
+  $files = module_invoke_all('webcomponent_app_files');
+  drupal_alter('webcomponent_app_files', $files);
+  // walk the files
+  foreach ($files as $file) {
+    // read in the manifest file
+    if (strpos($file, 'manifest.json')) {
+      // load the manifest json file
+      $manifest = drupal_json_decode(file_get_contents($file));
+      $return[$manifest['name']] = array(
+        'title' => $manifest['short_name'],
+        'description' => $manifest['description'],
+        'path' => str_replace('manifest.json', '', $file),
+      );
+      // support for drupal specific properties to be set in manifest
+      if (isset($manifest['app_integration'])) {
+        $app = $manifest['app_integration'];
+        // support for more expressive title specific to integrations
+        if (isset($app['title'])) {
+          $return[$manifest['name']]['title'] = $app['title'];
+        }
+        // support for opa-root integrations
+        if (isset($app['opa-root'])) {
+          $return[$manifest['name']]['opa-root'] = $app['opa-root'];
+        }
+        // support for generating a visualized menu item in drupal's menu system
+        if (isset($app['menu'])) {
+          $return[$manifest['name']]['menu'] = $app['menu'];
+        }
+        // support for additional properties
+        if (isset($app['properties'])) {
+          $return[$manifest['name']]['properties'] = $app['properties'];
+        }
+        // support for additional slots
+        if (isset($app['slots'])) {
+          $return[$manifest['name']]['slots'] = $app['slots'];
+        }
+        // support for a endpoint paths for getting data into the app
+        if (isset($app['endpoints'])) {
+          $return[$manifest['name']]['endpoints'] = $app['endpoints'];
+        }
+        // support for element to dynamically import / reference
+        if (isset($app['element'])) {
+          $return[$manifest['name']]['element'] = $app['element'];
+        }
+        // support for discovering and autoloading an element-name.php file
+        // to make decoupled development even easier!
+        if (file_exists(str_replace('manifest.json', $manifest['name'] . '.php', $file))) {
+          $return[$manifest['name']]['autoload'] = TRUE;
+        }
+        // support automatically making a block for this element
+        if (isset($app['block'])) {
+          $return[$manifest['name']]['block'] = $app['block'];
+        }
+        // general support for anything you want to store for context
+        if (isset($app['context'])) {
+          $return[$manifest['name']]['context'] = $app['context'];
+        }
+      }
+    }
+  }
+  return $return;
 }
 
 /**
@@ -217,35 +309,8 @@ function _webcomponents_app_load_app($machine_name = NULL, $debug = FALSE) {
   $app['is_app'] = TRUE;
   // ensure this exists
   if (!empty($machine_name) && !empty($app)) {
-    $hash = filesize(DRUPAL_ROOT . '/' . $app['path'] . 'manifest.json');
     // form the base path for loading the app
     $path = _webcomponents_base_path() . $app['path'];
-    $link_element = array(
-      '#tag' => 'link',
-      '#attributes' => array(
-        'href' => $path . 'manifest.json?h' . $hash,
-        'rel' => 'manifest',
-      ),
-      '#weight' => '1',
-    );
-    drupal_add_html_head($link_element, 'app-' . $machine_name . '-manifest');
-    $hash = filesize(DRUPAL_ROOT . '/' . $app['path'] . 'src/' . $machine_name . '/' . $machine_name . '.html');
-    $link_element = array(
-      '#tag' => 'link',
-      '#attributes' => array(
-        'href' => $path . 'src/' . $machine_name . '/' . $machine_name . '.html?h' . $hash,
-        'rel' => 'import',
-      ),
-      '#weight' => '1',
-    );
-    // allow for customizations to the path as opposed to where it was discovered
-    // this is important when utilizing multiple apps in different areas on the
-    // same page. Hybrid drupal sites might need this
-    drupal_alter('webcomponents_app_element_import', $link_element, $app, $machine_name, $hash);
-    // possibiity alter decided to unset
-    if (!empty($link_element)) {
-      drupal_add_html_head($link_element, 'app-' . $machine_name);
-    }
     // construct the tag base to be written
     $vars = array(
       'tag' => $machine_name,

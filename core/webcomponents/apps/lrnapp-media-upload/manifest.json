@@ -5,6 +5,7 @@
   "start_url": "/",
   "display": "standalone",
   "app_integration": {
+    "element": "node_modules/@lrnwebcomponents/elmsln-apps/lib/lrnapp-media-upload/lrnapp-media-upload.js",
     "block": true,
     "title": "Media upload",
     "endpoints": {

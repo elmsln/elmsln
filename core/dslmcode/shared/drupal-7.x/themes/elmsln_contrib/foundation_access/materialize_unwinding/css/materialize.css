@@ -1807,8 +1807,6 @@ nav {
   color: #fff;
   background-color: #ee6e73;
   width: 100%;
-  height: 56px;
-  line-height: 56px;
 }
 
 nav.nav-extended {
@@ -1969,16 +1967,6 @@ nav .input-field label.active {
 
 .navbar-fixed nav {
   position: fixed;
-}
-
-@media only screen and (min-width: 601px) {
-  nav, nav .nav-wrapper i, nav a.button-collapse, nav a.button-collapse i {
-    height: 64px;
-    line-height: 64px;
-  }
-  .navbar-fixed {
-    height: 64px;
-  }
 }
 
 a {

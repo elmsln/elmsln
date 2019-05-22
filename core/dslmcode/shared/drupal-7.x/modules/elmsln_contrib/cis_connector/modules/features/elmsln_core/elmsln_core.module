@@ -1042,6 +1042,22 @@ function elmsln_core_preprocess(&$variables, $hook) {
  * Implements hook_page_build().
  */
 function elmsln_core_page_build(&$page) {
+  // some additional clean up / settings
+  $colors = _cis_lmsless_get_distro_classes(elmsln_core_get_profile_key());
+  $preconnect = array(
+    '#type' => 'markup',
+    '#markup' => '
+    <link rel="preconnect" crossorigin href="https://fonts.googleapis.com">
+    <style>
+    :root {
+      --elmsln-system-color-text:' . $colors['code_text'] . ';
+      --elmsln-system-color-dark:' . $colors['color_code_dark'] . ';
+      --elmsln-system-color:' . $colors['code'] . ';
+    }
+  </style>',
+  );
+  drupal_add_html_head($colorcssvars, 'webcomponents');
+  drupal_add_html_head($preconnect, 'elmsln_core');
   if (user_access('access contextual links')) {
     drupal_add_library('contextual', 'contextual-links');
   }
@@ -1052,8 +1068,10 @@ function elmsln_core_page_build(&$page) {
   drupal_add_library('system', 'jquery.cookie');
   // resizable library
   drupal_add_library('system', 'ui.resizable');
-  // jwerty / voice support
-  drupal_add_js(drupal_get_path('module', 'elmsln_core') . '/js/elmsln-core.js');
+  // voice support if enabled
+  if (module_exists('voicecommander')) {
+    drupal_add_js(drupal_get_path('module', 'elmsln_core') . '/js/elmsln-core.js');
+  }
   // xapi context iframe sniffer
   if (module_exists('tincanapi') && !path_is_admin(current_path())) {
     drupal_add_js(drupal_get_path('module', 'elmsln_core') . '/js/elmsln-core-xapi-context.js', array('weight' => 1000));
@@ -2288,64 +2306,27 @@ function elmsln_core_cis_lmsless_color_alter(&$map) {
         'text' => (isset($settings['color_text']) ? $settings['color_text'] : $map['_default_']['text']),
         'outline' => (isset($settings['color_outline']) ? $settings['color_outline'] : $map['_default_']['outline']),
         'code' => (isset($settings['color_code']) ? $settings['color_code'] : $map['_default_']['code']),
+        'color_code_dark' => (isset($settings['color_code_dark']) ? $settings['color_code_dark'] : $map['_default_']['color_code_dark']),
         'code_text' => (isset($settings['color_code_text']) ? $settings['color_code_text'] : $map['_default_']['code_text']),
       );
     }
   }
 }
 /**
- * Implements hook_webcomponent_attached_files_alter().
+ * Implements hook_webcomponents_build_file_location_alter().
  * Remove things on the node edit page that are lrn- prefixed
  * this ensures that assets don't unpack when rendered by CKEditor
  * which would reduce the usefulness of the components
  */
-function elmsln_core_webcomponent_attached_files_alter(&$webcomponents) {
-  // looks weird, but this gives us the best of both worlds
-  // we effectively wipe every webcomponent autoload reference and then
-  // force the build only to be included which ensures that we don't
-  // get conflicts between elements. It also gives us a big core element
-  // while allowing polymer.html to resolve to build correctly
-  // @todo (won't work on a complex edit form but that seems like it won't happen)
-  // @todo autoload webcomponents.json config file would enable us to simplify this to JUST edit needing to do something aggressive
-  $tmp = array();
-  $build_path = libraries_get_path('webcomponents') . '/polymer/bower_components/';
-  $build = $build_path . '_build/build.html';
-  // modify build path for node edit forms
-  if (arg(0) == 'node' && arg(2) == 'edit') {
-    $build = $build_path . '_build/build_edit.html';
+function elmsln_core_webcomponents_build_file_location_alter(&$files) {
+  // point to the elmsln build
+  if ($files[0] == 'build.js') {
+    $files[0] = 'dist/elmsln-build.js';
+    // modify build path for node edit forms
+    if (arg(0) == 'node' && arg(2) == 'edit') {
+      $files[0] = 'dist/elmsln-build-edit.js';
+    }
   }
-  $tmp[$build] = new stdClass();
-  $tmp[$build]->file = $build;
-  $webcomponents = $tmp;
-}
-
-/**
- * Implements hook_webcomponents_app_element_import_alter().
- * rewrite app paths to resolve to our 'apps-resolver' address.
- * This allows all bower_components to resolve correctly as well
- * as correctly deduping assets on the front end. The reason for this
- * is that if using multiple apps on a single page this would dedupe
- * references to polymer (and other elements) incorrectly; effectively
- * loading the assets underlying a request to (Number of elements * Number of apps).
- * This allows global elements to resolve to the same as local ones.
- */
-function elmsln_core_webcomponents_app_element_import_alter(&$link_element, $app, $machine_name, $hash) {
-  // we don't store our apps in the app path, we only use it for registration
-  $link_element['#attributes']['href'] = _webcomponents_base_path() . libraries_get_path('webcomponents') . '/polymer/apps-src/' . $machine_name . '/' . $machine_name . '.html?h' . $hash;
-}
-
-/**
- * Implements hook_webcomponents().
- */
-function elmsln_core_webcomponents() {
-  // look for polymer elements in sites/all/libraries/_my_libraries/my_webcomponents/
-  $files = array();
-  if (isset($libraries['webcomponents'])) {
-    $dir = DRUPAL_ROOT . '/sites/all/libraries/_my_libraries/my_webcomponents/';
-    $files = _webcomponents_find_html_includes($dir);
-  }
-  // group these all as files found to match polymer format
-  return array(WEBCOMPONENTS_POLYMER_NAME => $files);
 }
 
 /**
@@ -2656,8 +2637,8 @@ function elmsln_core_tokens_alter(&$replacements, $context) {
  * Implements hook_hax_app_store().
  */
 function elmsln_core_hax_app_store() {
-  global $base_url;
-  $parts = explode('://', $base_url);
+  //global $base_url;
+  /*$parts = explode('://', $base_url);
   // built in support when file_entity and restws is in place
   $json = '{
     "details": {
@@ -2730,8 +2711,8 @@ function elmsln_core_hax_app_store() {
         }
       }
     }
-  }';
-  return json_decode($json);
+}';*/
+ // return json_decode($json);
 }
 
 /**
