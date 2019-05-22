@@ -11,6 +11,20 @@ include_once 'mooc_helper.features.inc';
  */
 
 /**
+ * Implements hook_webcomponents_build_file_location_alter().
+ */
+function mooc_helper_webcomponents_build_file_location_alter(&$locations) {
+  // figure out the app that should also be autoloaded into the build
+  if (arg(0) == 'node' && is_numeric(arg(1)) && arg(2) == '' && _webcomponents_app_access(variable_get('mooc-app-element', 'mooc-content'))) {
+    $app = webcomponents_app_load_app_definitions(variable_get('mooc-app-element', 'mooc-content'));
+    // support dynamic app file loading
+    if ($app['element']) {
+      array_push($locations, $app['element']);
+    }
+  }
+}
+
+/**
  * Implements hook_menu().
  */
 function mooc_helper_menu() {
@@ -844,51 +858,6 @@ function mooc_helper_admin_paths() {
     'admin/content/book/sar' => FALSE,
   );
   return $paths;
-}
-
-/**
- * Implements hook_fa_a11y().
- * Provides speedreader clickable link for accessibility menu.
- */
-function mooc_helper_fa_a11y() {
-  $lmsless_classes = _cis_lmsless_get_distro_classes(elmsln_core_get_profile_key());
-  $speedreader_block = module_invoke('speedreader', 'block_view', 'speedreader-block');
-  $speedreader = '<lrnsys-dialog data-voicecommand="open speed reader" header="' . t('Speed reader') . '" class="black-text" hover-class="' . $lmsless_classes['color'] . ' ' . $lmsless_classes['dark'] . ' white-text">
-      <span slot="button">
-        <iron-icon icon="chrome-reader-mode"></iron-icon>
-        <span>' . t('Speed reader') . '</span>
-      </span>
-      <span slot="content" id="block-speedreader-speedreader-block-nav-modal">
-        ' . render($speedreader_block['content']) . '
-      </span>
-    </lrnsys-dialog>';
-  $a11y = array(
-    'formats' => array(
-      '#type' => 'fieldset',
-      '#title' => t('Alternate formats'),
-      '#description' => t('Get this content in an alternate format.'),
-      '#collapsed' => TRUE,
-      '#collapsible' => TRUE,
-      '#weight' => -10,
-      '#attributes' => array(
-        'class' => array(
-          'collapsible',
-          'form-wrapper',
-          'collapsed',
-        ),
-        'data-voicecommand' => 'alternate formats',
-      ),
-      '#materialize' => array(
-        'type' => 'collapsible',
-        'icon' => 'view-carousel',
-      ),
-      'speedreader' => array(
-        '#markup' => $speedreader,
-        '#weight' => 10,
-      ),
-    ),
-  );
-  return $a11y;
 }
 
 /**

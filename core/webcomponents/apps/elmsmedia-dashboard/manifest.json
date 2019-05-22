@@ -5,12 +5,16 @@
   "start_url": "/",
   "display": "standalone",
   "app_integration": {
+    "element": "node_modules/@lrnwebcomponents/elmsln-apps/lib/elmsmedia-dashboard/elmsmedia-dashboard.js",
     "title": "Media dashboard",
     "endpoints": {
       "api/data": {
         "callback": "_elmsmedia_dashboard_data",
         "property": "request-end-point"
       }
+    },
+    "context": {
+      "distro": "elmsmedia"
     }
   }
 }

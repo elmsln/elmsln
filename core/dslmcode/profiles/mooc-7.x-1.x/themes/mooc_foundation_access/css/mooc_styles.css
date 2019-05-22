@@ -1,7 +1,12 @@
 /**
  * Other code, probably hacks
  */
-
+mooc-content {
+  min-height:90vh;
+}
+mooc-content article {
+  margin: 2em 0 0 .5em;
+}
 cms-hax {
   outline: 1px dashed #CCCCCC;
   outline-offset: 16px;
@@ -44,6 +49,13 @@ cms-hax:hover::before {
  visibility: hidden;
  opacity: 0;
 }
+.page-op-button lrnsys-drawer#embedcontent {
+  --lrnsys-drawer-button-padding: 0 16px;
+  width: 64px;
+  height: 48px;
+  text-align: center;
+  line-height: 48px;
+}
 .outline-designer-page-operations {
   margin: -3.5em 0 0 0;
   display: table;
@@ -56,7 +68,16 @@ cms-hax:hover::before {
   margin: 0;
 }
 #outlinepopover {
-  margin-top: -2px;
+  height: 48px;
+  vertical-align: middle;
+  line-height: 48px;
+  padding: 0 .75em;
+}
+#outlinepopover:hover,
+#outlinepopover:focus,
+#outlinepopover:active {
+  background-color: var(--elmsln-system-color-text);
+  color: white;
 }
 #outlinepopover paper-button {
   text-transform: unset;
@@ -299,12 +320,6 @@ cms-hax:hover::before {
 }
 
 /* Special accounting for the page layout when on the lrnapp-book */
-.page-apps-lrnapp-book .elmsln-content-wrap {
-  margin: 5px 0 0 0;
-}
-.page-apps-lrnapp-book .r-header {
-  margin: 0 0 -3rem 0;
-}
 
 #block-mooc-nav-block-mooc-nav-nav li.elmsln-book-item paper-button {
   border-radius: unset;
@@ -340,6 +355,7 @@ cms-hax:hover::before {
 #block-mooc-nav-block-mooc-nav-nav ul#scrollspy-nav li {
   background-color: #FFFFFF;
   overflow: hidden;
+  padding-left: 3em;
 }
 #scrollspy-nav li {
     padding: 0;
@@ -378,7 +394,6 @@ body.page-node-edit #scrollspy-nav {
 
 #scrollspy-nav .scrollspy-label {
   display: none;
-  font-size: 1rem;
   font-weight: bold;
   padding-top: .5rem !important;
   margin: -3rem 0 0 0 !important;
@@ -394,8 +409,8 @@ body.page-node-edit #scrollspy-nav {
 }
 #scrollspy-nav.pinned .scrollspy-label a {
   font-weight: bold;
-  font-size: 1.1rem;
-  padding: 0 0 0 .4em;
+  font-size: 1.5rem;
+  padding: 0;
   margin: 0;
 }
 #scrollspy-nav.pinned {
@@ -504,9 +519,7 @@ ul.book-navigation-wrapper {
 }
 
 .book-menu-item-active {
-  background-color: #212121;
   font-weight: bold;
-  color: #FFFFFF;
 }
 .book-navigation-header {
   display: -webkit-box;
@@ -568,7 +581,6 @@ ul.book-navigation-wrapper {
   display: inline-flex;
   height: 3rem;
   line-height: 3rem;
-  padding: 0 .8em 0 0;
 }
 
 .book-sibling-children a,
@@ -610,7 +622,6 @@ lrnsys-dialog.mooc-helper-toc {
   height: 3rem;
   line-height: 3rem;
   padding: 0 .25rem;
-  margin: 0 .5rem;
 }
 
 .book-sibling-parent-text {
@@ -790,9 +801,8 @@ section.main-section.etb-book a.elmsln-outline-button {
   right: auto;
   width: 17%;
   margin: 0;
-  padding: 0 0 0 .4em;
   left: 0;
-  top: 4em;
+  top: 3em;
   max-width: unset;
   min-width: unset;
 }

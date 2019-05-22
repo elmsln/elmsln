@@ -5,6 +5,7 @@
   "start_url": "/",
   "display": "standalone",
   "app_integration": {
+    "element": "node_modules/@lrnwebcomponents/elmsln-apps/lib/mooc-content/mooc-content.js",
     "title": "",
     "endpoints": {
       "data": {
@@ -27,13 +28,8 @@
         "callback": "_mooc_content_get_nid"
       }
     },
-    "slots": {
-      "content" : {
-        "callback": "_mooc_content_render_content"
-      },
-      "blocks" : {
-        "callback": "_mooc_content_get_blocks"
-      }
+    "context": {
+      "distro": "mooc"
     }
   }
 }

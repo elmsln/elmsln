@@ -1042,6 +1042,22 @@ function elmsln_core_preprocess(&$variables, $hook) {
  * Implements hook_page_build().
  */
 function elmsln_core_page_build(&$page) {
+  // some additional clean up / settings
+  $colors = _cis_lmsless_get_distro_classes(elmsln_core_get_profile_key());
+  $preconnect = array(
+    '#type' => 'markup',
+    '#markup' => '
+    <link rel="preconnect" crossorigin href="https://fonts.googleapis.com">
+    <style>
+    :root {
+      --elmsln-system-color-text:' . $colors['code_text'] . ';
+      --elmsln-system-color-dark:' . $colors['color_code_dark'] . ';
+      --elmsln-system-color:' . $colors['code'] . ';
+    }
+  </style>',
+  );
+  drupal_add_html_head($colorcssvars, 'webcomponents');
+  drupal_add_html_head($preconnect, 'elmsln_core');
   if (user_access('access contextual links')) {
     drupal_add_library('contextual', 'contextual-links');
   }
@@ -1052,8 +1068,10 @@ function elmsln_core_page_build(&$page) {
   drupal_add_library('system', 'jquery.cookie');
   // resizable library
   drupal_add_library('system', 'ui.resizable');
-  // jwerty / voice support
-  drupal_add_js(drupal_get_path('module', 'elmsln_core') . '/js/elmsln-core.js');
+  // voice support if enabled
+  if (module_exists('voicecommander')) {
+    drupal_add_js(drupal_get_path('module', 'elmsln_core') . '/js/elmsln-core.js');
+  }
   // xapi context iframe sniffer
   if (module_exists('tincanapi') && !path_is_admin(current_path())) {
     drupal_add_js(drupal_get_path('module', 'elmsln_core') . '/js/elmsln-core-xapi-context.js', array('weight' => 1000));
@@ -2288,6 +2306,7 @@ function elmsln_core_cis_lmsless_color_alter(&$map) {
         'text' => (isset($settings['color_text']) ? $settings['color_text'] : $map['_default_']['text']),
         'outline' => (isset($settings['color_outline']) ? $settings['color_outline'] : $map['_default_']['outline']),
         'code' => (isset($settings['color_code']) ? $settings['color_code'] : $map['_default_']['code']),
+        'color_code_dark' => (isset($settings['color_code_dark']) ? $settings['color_code_dark'] : $map['_default_']['color_code_dark']),
         'code_text' => (isset($settings['color_code_text']) ? $settings['color_code_text'] : $map['_default_']['code_text']),
       );
     }
@@ -2299,12 +2318,14 @@ function elmsln_core_cis_lmsless_color_alter(&$map) {
  * this ensures that assets don't unpack when rendered by CKEditor
  * which would reduce the usefulness of the components
  */
-function elmsln_core_webcomponents_build_file_location_alter(&$buildFile) {
+function elmsln_core_webcomponents_build_file_location_alter(&$files) {
   // point to the elmsln build
-  $buildFile = 'dist/elmsln-build.js';
-  // modify build path for node edit forms
-  if (arg(0) == 'node' && arg(2) == 'edit') {
-    $buildFile = 'dist/elmsln-build-edit.js';
+  if ($files[0] == 'build.js') {
+    $files[0] = 'dist/elmsln-build.js';
+    // modify build path for node edit forms
+    if (arg(0) == 'node' && arg(2) == 'edit') {
+      $files[0] = 'dist/elmsln-build-edit.js';
+    }
   }
 }
 
@@ -2616,8 +2637,8 @@ function elmsln_core_tokens_alter(&$replacements, $context) {
  * Implements hook_hax_app_store().
  */
 function elmsln_core_hax_app_store() {
-  global $base_url;
-  $parts = explode('://', $base_url);
+  //global $base_url;
+  /*$parts = explode('://', $base_url);
   // built in support when file_entity and restws is in place
   $json = '{
     "details": {
@@ -2690,8 +2711,8 @@ function elmsln_core_hax_app_store() {
         }
       }
     }
-  }';
-  return json_decode($json);
+}';*/
+ // return json_decode($json);
 }
 
 /**

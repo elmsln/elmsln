@@ -44,13 +44,13 @@ function webcomponents_page_build(&$page) {
   if (strpos($location, 'http') === FALSE) {
     $location = base_path() . $location;
   }
-  $buildFile = 'build.js';
-  drupal_alter('webcomponents_build_file_location', $buildFile);
+  $files = array('build.js');
+  drupal_alter('webcomponents_build_file_location', $files);
   // load webcomponentsjs polyfill library if it exists
   $wc = new WebComponentsService();
   $element = array(
     '#type' => 'markup',
-    '#markup' => $wc->applyWebcomponents($location, $buildFile),
+    '#markup' => $wc->applyWebcomponents($location, $files),
   );
   drupal_add_html_head($element, 'webcomponents');
 }

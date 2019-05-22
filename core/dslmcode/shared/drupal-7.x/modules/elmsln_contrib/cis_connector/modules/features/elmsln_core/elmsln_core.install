@@ -388,3 +388,11 @@ function elmsln_core_update_7034(&$sandbox) {
     ->condition('type', 'module')
     ->execute();
 }
+
+/**
+ * Disable voice and speed reader stuff
+ */
+function elmsln_core_update_7035(&$sandbox) {
+  module_disable(array("elmsln_voice", "voicecommander", "jwerty"));
+  features_revert_module('elmsln_core');
+}
