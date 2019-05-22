@@ -1,0 +1,150 @@
+<?php
+
+/**
+ * @file
+ * Test the UUID File Services integration.
+ */
+
+ /**
+  * Test the UUID File Services integration.
+  */
+class UuidFileServicesTest extends ServicesWebTestCase {
+
+  protected $priviledgedUser = NULL;
+
+  protected $endpoint = NULL;
+
+  /**
+   * Implementation of getInfo().
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'UUID File Services tests',
+      'description' => 'Test the file services resource UUID methods and actions.',
+      'group' => 'UUID',
+    );
+  }
+
+  /**
+   * Implementation of setUp().
+   */
+  public function setUp() {
+    parent::setUp(
+      'ctools',
+      'services',
+      'rest_server',
+      'uuid_services',
+      'entity',
+      'file',
+      'field',
+      'file_entity'
+    );
+    $this->endpoint = $this->saveNewEndpoint();
+
+    variable_set('file_entity_default_allowed_extensions', 'jpg jpeg gif png txt doc docx xls xlsx pdf ppt pptx pps ppsx odt ods odp mp3 mov mp4 m4a m4v mpeg avi ogg oga ogv weba webp webm');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function saveNewEndpoint() {
+    $edit = $this->populateEndpointFAPI();
+    $endpoint = new stdClass();
+    $endpoint->disabled = FALSE;
+    $endpoint->api_version = 3;
+    $endpoint->name = $edit['name'];
+    $endpoint->server = $edit['server'];
+    $endpoint->path = $edit['path'];
+    $endpoint->authentication = array(
+      'services' => 'services',
+    );
+    $endpoint->server_settings = array(
+      'formatters' => array(
+        'json' => TRUE,
+        'bencode' => TRUE,
+        'rss' => TRUE,
+        'plist' => TRUE,
+        'xmlplist' => TRUE,
+        'php' => TRUE,
+        'yaml' => TRUE,
+        'jsonp' => FALSE,
+        'xml' => FALSE,
+      ),
+      'parsers' => array(
+        'application/x-yaml' => TRUE,
+        'application/json' => TRUE,
+        'application/vnd.php.serialized' => TRUE,
+        'application/plist' => TRUE,
+        'application/plist+xml' => TRUE,
+        'application/x-www-form-urlencoded' => TRUE,
+        'multipart/form-data' => TRUE,
+      ),
+    );
+    $endpoint->resources = array(
+      'file' => array(
+        'operations' => array(
+          'retrieve' => array(
+            'enabled' => '1',
+          ),
+          'delete' => array(
+            'enabled' => '1',
+          ),
+          'index' => array(
+            'enabled' => '1',
+          ),
+          'update' => array(
+            'enabled' => '1',
+          ),
+        ),
+        'actions' => array(
+          'create_raw' => array(
+            'enabled' => '1',
+          ),
+        ),
+      ),
+    );
+    $endpoint->debug = 1;
+    $endpoint->export_type = FALSE;
+    services_endpoint_save($endpoint);
+    $endpoint = services_endpoint_load($endpoint->name);
+    $this->assertTrue($endpoint->name == $edit['name'], 'Endpoint successfully created');
+    return $endpoint;
+  }
+
+  /**
+   * Tests file creation.
+   */
+  public function testFileUpdate() {
+    $this->privilegedUser = $this->drupalCreateUser(array('create files'));
+    $this->drupalLogin($this->privilegedUser);
+
+    // Get a test file.
+    $testfiles = $this->drupalGetTestFiles('php');
+    $testfile = current($testfiles);
+
+    // Setup file to be created.
+    $filepath = file_default_scheme() . '://' . rand() . '/' . rand() . '/' . $testfile->filename;
+    $file_data = array(
+      'uid' => '0',
+      'filesize' => filesize($testfile->uri),
+      'filename' => $testfile->filename,
+      'filepath' => $filepath,
+      'file' => base64_encode(file_get_contents($testfile->uri)),
+      'uuid' => 'ee26fe5d-f781-4a38-bfe0-8bb350b90073',
+      'type' => 'image',
+      'filemime' => 'text/plain',
+      'uri' => $testfile->uri,
+    );
+
+    $response = $this->servicesPut($this->endpoint->path . '/file/create', $file_data);
+
+    // Get the saved file's extension.
+    $file = file_load($response['body']->fid);
+    $name = explode('.', $file->filename);
+    $last = array_pop($name);
+    $extension = strtolower($last);
+
+    $this->assertNotEqual('php', $extension, 'File was not created with a "php" extension.', 'UUID: File Create');
+  }
+
+}
