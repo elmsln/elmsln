@@ -57,7 +57,7 @@ Drupal.behaviors.moduleFilterTabs = {
         // Build tabs from package title rows.
         var tabs = '<ul>';
         for (var i in Drupal.settings.moduleFilter.packageIDs) {
-          var id = Drupal.settings.moduleFilter.packageIDs[i];
+          var id = Drupal.checkPlain(Drupal.settings.moduleFilter.packageIDs[i]);
 
           var name = id;
           var tabClass = 'project-tab';
@@ -85,8 +85,8 @@ Drupal.behaviors.moduleFilterTabs = {
               }
               break;
             default:
-              var $row = $('#' + id + '-package');
-              name = $.trim($row.text());
+              var $row = $('#' + id + '-package', this);
+              name = Drupal.checkPlain($.trim($row.text()));
               $row.remove();
               break;
           }
@@ -233,8 +233,8 @@ Drupal.behaviors.moduleFilterTabs = {
         }
 
         if (Drupal.settings.moduleFilter.useSwitch) {
-          $('td.checkbox div.form-item').hide();
-          $('td.checkbox').each(function(i) {
+          $('td.checkbox div.form-item', table).hide();
+          $('td.checkbox', table).each(function(i) {
             var $cell = $(this);
             var $checkbox = $(':checkbox', $cell);
             var $switch = $('.toggle-enable', $cell);
@@ -517,7 +517,7 @@ Drupal.ModuleFilter.updateVisualAid = function(type, $row) {
   }
 
   var tab = Drupal.ModuleFilter.tabs[id];
-  var name = $('td:nth(1) strong', $row).text();
+  var name = Drupal.checkPlain($('td:nth(1) strong', $row).text());
   switch (type) {
     case 'enable':
       if (Drupal.ModuleFilter.disabling[id + name] != undefined) {
