@@ -42,18 +42,12 @@ var clipboardjs = require('./components/clipboardjs.js');
    */
   Drupal.behaviors.scrollSpy = {
     attach: function(context, settings) {
-      const scrollSpyNav = $('#scrollspy-nav').offset()
-      if (typeof scrollSpyNav !== typeof undefined) {
+      if (typeof $('#scrollspy-nav').offset() !== typeof undefined) {
         // target data property and convert to scrollspy class addition
         $('h2[data-scrollspy="scrollspy"],h3[data-scrollspy="scrollspy"],h4[data-scrollspy="scrollspy"]').addClass('scrollspy');
         // activate class
         $('.scrollspy').scrollSpy();
-        // the pushpin should start after the user has scrolled past
-        // the navigation block. This is mainly to prevent the scrollspy-toc
-        // from covering up the navigation items below it.
-        const nav = $('#block-mooc-nav-block-mooc-nav-nav')
-        const pushpinStart = Math.ceil(scrollSpyNav.top + nav.height())
-        $('.scrollspy-toc').pushpin({ offset: 48, top: pushpinStart });
+        $('.scrollspy-toc').pushpin({offset: 48, top: $('#scrollspy-nav').offset().top });
       }
     }
   };

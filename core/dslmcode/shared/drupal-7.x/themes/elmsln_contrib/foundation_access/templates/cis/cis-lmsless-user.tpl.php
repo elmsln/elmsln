@@ -16,7 +16,7 @@
       </div>
     </div>
   </li>
-  <?php if (!empty($username) && $username !== t("Anonymous")) : ?>
+  <?php if (!empty($username)) : ?>
   <li>
     <lrnsys-button label="<?php print $userprofile['label']; ?>" href="<?php print $userprofile['href']; ?>" class="<?php if (is_array($userprofile['class'])) { print implode(' ', $userprofile['class']); } ?>" icon="<?php print $userprofile['icon']; ?>" hover-class="<?php if(is_array($userprofile['hover-class'])) {print implode(' ', $userprofile['hover-class']);} ?>"></lrnsys-button>
   </li>
