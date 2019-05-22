@@ -5,8 +5,9 @@ package = "Display Suite"
 dependencies[] = ds_extras
 hidden = TRUE
 
-; Information added by Drupal.org packaging script on 2018-07-03
-version = "7.x-2.16"
+; Information added by Drupal.org packaging script on 2016-04-26
+version = "7.x-2.14"
 core = "7.x"
 project = "ds"
-datestamp = "1530614326"
+datestamp = "1461696967"
+

@@ -400,17 +400,13 @@ class context_reaction_block extends context_reaction {
       unset($_context_blocks);
 
       foreach ($context_blocks as $r => $blocks) {
-        // Only render blocks in an active region.
+        //only render blocks in an active region
         if (array_key_exists($r, $active_regions)) {
           $context_blocks[$r] = _block_render_blocks($blocks);
 
-          $editable = $this->is_editable_region($r);
-          foreach ($context_blocks[$r] as $key => $block) {
-            // Add the region property to each block.
-            $context_blocks[$r][$key]->region = $r;
-
-            // Make blocks editable if allowed.
-            if ($editable) {
+          // Make blocks editable if allowed.
+          if ($this->is_editable_region($r)) {
+            foreach ($context_blocks[$r] as $key => $block) {
               $context_blocks[$r][$key] = $this->editable_block($block);
             }
           }
@@ -454,9 +450,12 @@ class context_reaction_block extends context_reaction {
    */
   protected function max_block_weight() {
     $blocks = $this->get_blocks();
-
-    // Add 2 to make sure there's space at either end of the block list.
-    return round((count($blocks) + 2) / 2);
+    $block_count = 0;
+    foreach ($blocks as $region => $block_list) {
+      $block_count += count($block_list);
+    }
+    // Add 2 to make sure there's space at either end of the block list
+    return round(($block_count + 2) / 2);
   }
 
   /**
