@@ -42,7 +42,7 @@ function admin_theme_list() {
   $options = array();
   foreach (module_list() as $module) {
     $module_options = module_invoke($module, 'admin_theme_info');
-    if (count($module_options) > 0) {
+    if (is_array($module_options) && count($module_options) > 0) {
       foreach ($module_options as $option => $info) {
         $info['option'] = $option;
         $info['module'] = $module;
