@@ -155,6 +155,7 @@ function _webcomponents_polymer_process_components($file) {
     $dommodule_obj = new simple_html_dom();
     // Load HTML from a string.
     $dommodule_obj->load($modulematch->innertext);
+    $component = new stdClass();
     // Remove all plain text fragments.
     foreach ($dommodule_obj->find('template') as $rawmatch ) {
       // abstract machine name for the new component

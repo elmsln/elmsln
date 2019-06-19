@@ -243,6 +243,11 @@ function context_preprocess_menu_link(&$variables) {
         //   css class to the link of this menu.
         // - Do not add class twice on current page.
         if (in_array($variables['element']['#href'], $reaction_menu_paths) && $variables['element']['#href'] != $_GET['q']) {
+          // Initialize classes array if not set.
+          if (!isset($variables['element']['#localized_options']['attributes']['class'])) {
+            $variables['element']['#localized_options']['attributes']['class'] = array();
+          }
+
           // Do not add the 'active' class twice in views tabs.
           if (!in_array('active', $variables['element']['#localized_options']['attributes']['class'])) {
             $variables['element']['#localized_options']['attributes']['class'][] = 'active';

@@ -18,7 +18,6 @@ dependencies[] = mooc_nav_block
 dependencies[] = outline_designer
 dependencies[] = outline_designer_book
 dependencies[] = print
-dependencies[] = print_pdf
 dependencies[] = print_ui
 dependencies[] = simplify
 dependencies[] = strongarm

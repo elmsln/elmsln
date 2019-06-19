@@ -168,6 +168,7 @@ function uuid_entities_rebuild($module_name = '', $op = 'rebuild') {
     foreach ($entities as $plan_name => $entities) {
       // Let other modules do things before default entities are created.
       module_invoke_all("uuid_entities_pre_$op", $plan_name);
+      drupal_alter("uuid_entities_pre_$op", $entities, $plan_name);
       foreach ($entities as $entity) {
         entity_uuid_save($entity->__metadata['type'], $entity);
       }

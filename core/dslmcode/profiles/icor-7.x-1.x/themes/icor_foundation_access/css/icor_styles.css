@@ -1,1 +1,41 @@
 /* CSS Document */
+#scrollspy-nav {
+  display: none;
+}
+
+@media screen and (min-width: 80rem) {
+  #scrollspy-nav {
+    position: absolute !important;
+    left: 100%;
+    width: calc(52vw - 52%);
+    max-width: 14em;
+    min-width: 8rem;
+    display: block;
+    max-height: 65vh;
+    overflow-y: scroll;
+  }
+}
+
+#scrollspy-nav,
+#scrollspy-nav .scrollspy-toc {
+  border-bottom-style: solid;
+  border-bottom-width: .1rem;
+}
+
+#scrollspy-nav .item-list ul li {
+  margin: 0;
+  padding: 0;
+}
+
+#scrollspy-nav ul li a {
+  font-size: .8rem;
+  font-weight: bold;
+}
+
+#scrollspy-nav ul li a:hover {
+  font-size: 1rem;
+}
+
+#scrollspy-nav ul li a:active {
+  background-color: #FFAA44;
+}

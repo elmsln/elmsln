@@ -197,7 +197,7 @@ function _mooc_content_render_options() {
     }
   }
   // print to pdf
-  if (user_access('access PDF version')) {
+  if (user_access('access PDF version') && module_exists('print_pdf')) {
     $content .= '<a tabindex="-1" target="_blank" href="' . base_path() . 'printpdf/' . $node->nid . '" class="accessible-grey-text"><paper-item>' . t('PDF') . '</paper-item></a>';
   }
   $content .='</paper-listbox></paper-menu-button>';

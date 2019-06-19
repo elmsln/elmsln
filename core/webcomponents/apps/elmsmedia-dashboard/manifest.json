@@ -5,7 +5,7 @@
   "start_url": "/",
   "display": "standalone",
   "app_integration": {
-    "title": "",
+    "title": "Media dashboard",
     "endpoints": {
       "api/data": {
         "callback": "_elmsmedia_dashboard_data",

@@ -1,0 +1,15 @@
+diff --git a/includes/menu.inc b/includes/menu.inc
+index ca37ba509d..a6e28fe760 100644
+--- a/includes/menu.inc
++++ b/includes/menu.inc
+@@ -3868,6 +3868,10 @@ function _menu_router_save($menu, $masks) {
+   $num_records = 0;
+ 
+   foreach ($menu as $path => $item) {
++    // avoid database integrity constraint fault
++    if ($item['title'] == null) {
++      $item['title'] = '';
++    }
+     // Fill in insert object values.
+     $insert->values(array(
+       'path' => $item['path'],

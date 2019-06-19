@@ -1,0 +1,210 @@
+<link rel="import" href="../polymer/polymer.html">
+
+<script>
+(function() {
+  'use strict';
+  /**
+   * Helper behavior exposing a private API for observing mutations
+   * in the element's light DOM. (click on 'Show private API' for more detail)
+   * 
+   * _If you only want to detect addition/removal of children, please use
+   * <a href="https://www.polymer-project.org/1.0/docs/devguide/local-dom#observe-nodes">Polymer's
+   * DOM API's</a> `observeNodes` method._
+   *
+   * _Note that, under the shady DOM, mutations in the local DOM will also
+   * trigger a `dom-mutation` event._
+   * 
+   * @homepage https://github.com/vguillou/mutation-observer-behavior
+   * @polymerBehavior
+   */
+  Polymer.MutationObserverBehavior = {
+
+    /**
+     * Fired when there is a mutation of the light DOM of the element
+     * according to the specified options (`_mutationOptions` property).
+     *
+     * The `event.detail` consists of an array
+     * of all mutations for which the `_mutationFilter` returned `true`.
+     *
+     * _If you only want to detect addition/removal of children, please use
+     * <a href="https://www.polymer-project.org/1.0/docs/devguide/local-dom#observe-nodes">Polymer's
+     * DOM API's</a> `observeNodes` method._
+     *
+     * @event dom-mutation
+     */
+
+    properties: {
+      /**
+       * The mutation observer instance.
+       */
+      _mutationObserver: {
+        type: MutationObserver,
+        value: undefined
+      },
+
+      /**
+       * Set to true to pause the mutation observer.
+       */
+      _mutationObserverPaused: {
+        type: Boolean,
+        value: false,
+        observer: '_observe'
+      },
+
+      /**
+       * <a href="https://developer.mozilla.org/fr/docs/Web/API/MutationObserver#MutationObserverInit">Mutation options.</a>
+       */
+      _mutationOptions: {
+        type: Object,
+        value: function() {
+          return {
+            childList: true,
+            subtree: true,
+            attributes: true,
+            characterData: false
+          };
+        },
+        observer: '_observe'
+      },
+
+      /**
+       * Flag set to `true` when the mutation observer `_mutationObserver` is observing DOM mutations. 
+       */
+      _mutationObserverConnected: {
+        type: Boolean,
+        value: false,
+        notify: true,
+        readOnly: true
+      },
+
+      /**
+       * Debounce delay (in millisaconds) to handle mutations.
+       */
+      _mutationDebounceDelay: {
+        type: Number,
+        value: 10,
+        observer: '_observe'
+      }
+    },
+
+    _currentMutations: [],
+
+    ready: function() {
+      this._observe();
+    },
+
+    detached: function() {
+      this._disconnect();
+      this._mutationObserver = null;
+    },
+
+    /**
+     * Start observing DOM mutations.
+     * Automatically called when the element is ready or the `_mutationOptions` are changed.
+     */
+    _observe: function() {
+      if (!this._mutationObserver) {
+        this._mutationObserver = new MutationObserver(this._mutationCallback.bind(this));
+      } else {
+        this._disconnect();
+      }
+      if (!this._mutationObserverPaused && this._mutationOptions) {
+        this._mutationObserver.observe(this, this._mutationOptions);
+        this._set_mutationObserverConnected(true);
+      }
+    },
+
+    /**
+     * Stop observing DOM mutations.
+     * Automatically called when the element is detached from the document.
+     */
+    _disconnect: function() {
+      if (this._mutationObserver) {
+        this._mutationObserver.disconnect();
+        this._set_mutationObserverConnected(false);
+      }
+    },
+
+    /**
+     * Callback handling mutations.
+     */
+    _mutationCallback: function(mutations) {
+      this._currentMutations = this._currentMutations.concat(mutations);
+      this.debounce('_mutationCallback', function() {
+        // Pre fitler unwanted local DOM mutations
+        var children = Polymer.dom(this).getEffectiveChildNodes();
+
+        var lightDomMutations = [];
+        var mut, target, isLightDomMutation;
+        for (var i=0, len=this._currentMutations.length; i < len; i++) {
+          mut = this._currentMutations[i];
+          target = mut.target;
+          // Check the mutation involves the light DOM. We can't determine that for 'childList' mutations
+          isLightDomMutation = mut.type === 'childList';
+          while (target !== this && !isLightDomMutation) {
+            if (children.indexOf(target) >= 0) {
+              isLightDomMutation = true;
+            }
+            target = target.parentNode;
+          }
+          if (isLightDomMutation) {
+            lightDomMutations.push(mut);
+          }
+        }
+        this._currentMutations.splice(0, this._currentMutations.length);
+
+        // Filter API => this._mutationFilter
+        var filteredMutations;
+        if (!this._mutationFilter || !lightDomMutations.length) {
+          filteredMutations = lightDomMutations;
+        } else {
+          filteredMutations = lightDomMutations.filter(this._mutationFilter, this);
+        }
+        if (filteredMutations && filteredMutations.length) {
+          this.fire('dom-mutation', filteredMutations);
+        }
+      }, this._mutationDebounceDelay || 0);
+    },
+
+
+
+    /**
+     * Define this 'array filter' function in order to filter the mutations dispatched with the `dom-mutation` event.
+     * 
+     * Takes a parameter {MutationRecord} `mutation` (plus optional index and source array parameters) and must
+     * return `true` for the `mutation` to be dispatched through the `dom-mutation` event.
+     * 
+     * @method _mutationFilter
+     */
+    _mutationFilter: function(mutation, index, arr) {
+      return true;
+    },
+
+    /**
+     * Helper method to determine if the `mutation` describes addition/removal
+     * of chidren to a given `parentNode` (optional) or the element itself.
+     */
+    _mutationIsChildList: function(mutation, parentNode) {
+      return mutation.type === 'childList' && (!parentNode ||
+        (mutation.target === this || mutation.target === parentNode));
+    },
+
+    /**
+     * Helper method to determine if the `mutation` describes changes
+     * to attributes of a given `node`.
+     */
+    _mutationIsAttributes: function(mutation, node) {
+      return mutation.type === 'attributes' && mutation.target === node;
+    },
+
+    /**
+     * Helper method to determine if the `mutation` describes changes
+     * to attributes of a child of a `parentNode` (optional) or the element itself.
+     */
+    _mutationIsChildAttributes: function(mutation, parentNode) {
+      return mutation.type === 'attributes' && (!parentNode ||
+        (mutation.target.parentNode === this || mutation.target.parentNode === parentNode));
+    }
+  };
+})();
+</script>

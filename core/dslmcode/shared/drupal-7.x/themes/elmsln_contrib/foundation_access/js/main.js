@@ -42,12 +42,18 @@ var clipboardjs = require('./components/clipboardjs.js');
    */
   Drupal.behaviors.scrollSpy = {
     attach: function(context, settings) {
-      if (typeof $('#scrollspy-nav').offset() !== typeof undefined) {
+      const scrollSpyNav = $('#scrollspy-nav').offset()
+      if (typeof scrollSpyNav !== typeof undefined) {
         // target data property and convert to scrollspy class addition
         $('h2[data-scrollspy="scrollspy"],h3[data-scrollspy="scrollspy"],h4[data-scrollspy="scrollspy"]').addClass('scrollspy');
         // activate class
         $('.scrollspy').scrollSpy();
-        $('.scrollspy-toc').pushpin({offset: 48, top: $('#scrollspy-nav').offset().top });
+        // the pushpin should start after the user has scrolled past
+        // the navigation block. This is mainly to prevent the scrollspy-toc
+        // from covering up the navigation items below it.
+        const nav = $('#block-mooc-nav-block-mooc-nav-nav')
+        const pushpinStart = Math.ceil(scrollSpyNav.top + nav.height())
+        $('.scrollspy-toc').pushpin({ offset: 48, top: pushpinStart });
       }
     }
   };
@@ -56,8 +62,6 @@ var clipboardjs = require('./components/clipboardjs.js');
    */
   Drupal.behaviors.materializeCSS = {
     attach: function (context, settings) {
-      // select lists but not the chosen ones
-      $('select').not('.chosen').not('.cke_dialog_body select').not('.form-select.initialized').material_select();
       // collapsible sets
       $('.collapsible').collapsible({
         accordion : false // A setting that changes the collapsible behavior to expandable instead of the default accordion style

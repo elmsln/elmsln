@@ -749,7 +749,7 @@ function _cis_connector_transaction($request, $format = 'default', $query = arra
       // query access string based on section context
       $query = $base_query;
       // request the section of the user
-      $cis_section_item = _cis_connection_query($query, 'field_collection_item');
+      $cis_section_item = _cis_connection_query($query, 'field_collection_item', 'json', 'GET', 'cis', '', FALSE);
       // return an array with input format and textual content of contact info
       if (isset($cis_section_item['list'][0]['field_contact_info'])) {
         $output = $cis_section_item['list'][0]['field_contact_info'];
@@ -824,7 +824,7 @@ function _cis_connector_transaction($request, $format = 'default', $query = arra
       // query access string based on section context
       $query = $base_query;
       // request the section of the user
-      $cis_section_item = _cis_connection_query($query, 'field_collection_item');
+      $cis_section_item = _cis_connection_query($query, 'field_collection_item', 'json', 'GET', 'cis', '', FALSE);
       // make sure it got data
       if (!empty($cis_section_item)) {
         $list = '';
@@ -884,7 +884,7 @@ function _cis_connector_transaction($request, $format = 'default', $query = arra
       // query access string based on section context
       $query = $base_query;
       // request the section of the user
-      $cis_section_item = _cis_connection_query($query, 'field_collection_item');
+      $cis_section_item = _cis_connection_query($query, 'field_collection_item', 'json', 'GET', 'cis', '', FALSE);
       $output = '';
       if (!empty($cis_section_item)) {
         // make sure a file was uploaded for this request
@@ -914,7 +914,7 @@ function _cis_connector_transaction($request, $format = 'default', $query = arra
       // query access string based on section context
       $query = $base_query;
       // request the section of the user
-      $cis_section_item = _cis_connection_query($query, 'field_collection_item');
+      $cis_section_item = _cis_connection_query($query, 'field_collection_item', 'json', 'GET', 'cis', '', FALSE);
       // make sure it got data
       if (!empty($cis_section_item)) {
         // make sure a file was uploaded for this request

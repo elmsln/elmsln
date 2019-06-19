@@ -44,6 +44,8 @@ $conf['cache_default_class']    = 'APDQCache';
 // THIS MUST BE SERVED FROM DB FOR STABILITY
 $conf['cache_class_cache_cis_connector'] = 'DrupalDatabaseCache';
 $conf['cache_class_cache_form'] = 'DrupalDatabaseCache';
+// CIS stability
+$conf['cache_class_cache_entity_field_collection_item'] = 'DrupalDatabaseCache';
 // issue with APDQC and books / big menus
 $conf['cache_class_cache_book'] = 'DrupalDatabaseCache';
 $conf['cache_class_cache_mooc_helper_book_nav'] = 'DrupalDatabaseCache';

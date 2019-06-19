@@ -70,6 +70,8 @@ function elmsmedia_image_strongarm() {
     'image_gallery_override' => 1,
     'elmsmedia_list_override' => 1,
     'video_override' => 1,
+    'figurelabel_override' => 1,
+    'document_override' => 1,
   );
   $export['bulk_photo_node_types'] = $strongarm;
 

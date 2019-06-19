@@ -1,0 +1,158 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="map-menu-container.html">
+<link rel="import" href="map-menu-builder.html">
+
+<dom-module id="map-menu">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+    <div id="itemslist">
+      <map-menu-container>
+        <map-menu-builder id="builder" items="[[items]]"></map-menu-builder>
+      </map-menu-container>
+    </div>
+  </template>
+
+  <script>
+    Polymer({
+      is: 'map-menu',
+
+      properties: {
+        title: {
+          type: String,
+          value: 'Content Outline',
+        },
+        data: {
+          type: Array,
+          value: null,
+        },
+        items: {
+          type: Array,
+          value: null,
+          notify: true,
+        },
+        /**
+         * Current selected item.
+         */
+        selected: {
+          type: String,
+          notify: true,
+          observer: '__selectedChanged'
+        }
+      },
+
+      observers: [
+        '_dataChanged(data)'
+      ],
+      listeners: {
+        'link-clicked': '__linkClickedHandler',
+        'child-attached': '__childAttached'
+      },
+
+      __selectedChanged: function (newSelected, oldSelected) {
+        if (newSelected !== oldSelected) {
+          this.refreshActiveChildren(newSelected);
+        };
+      },
+
+      /**
+       * Set and unset active properties on children
+       * @param {string} activeItem
+       */
+      refreshActiveChildren: function (activeItem) {
+        // find active items and unactivate them
+        const oldActiveItem = this.querySelector('[active]');
+        if (oldActiveItem) {
+          oldActiveItem.removeAttribute('active');
+        }
+        
+        if (activeItem && activeItem !== '') {
+          const newActiveItem = this.querySelector(`#${activeItem}`);
+          if (newActiveItem) {
+            newActiveItem.setAttribute('active', true);
+          }
+        }
+      },
+
+      /**
+       * Set data property
+       */
+      setData: function (data) {
+        this.set('data', []);
+        this.set('data', data)
+      },
+
+      /**
+       * Convert data from a linear array
+       * to a nested array for template rendering
+       */
+      _dataChanged: function (data) {
+        const items = [];
+        if (!data) return;
+        // find parents
+        data.forEach(element => {
+          // find top level parents
+          if (!element.parent) {
+            items.push(element);
+          }
+        });
+        // Recursively find and set children
+        items.forEach((item, i) => {
+          this._setChildren(item, data);
+        });
+        // Update items array
+        this.set('items', []);
+        this.set('items', items);
+      },
+
+      /**
+       * Recursively search through a data to find children
+       * of a specified item.
+       * @param {object} item item of an array to search on. Passed by reference.
+       * @param {array} data linear array of the data set.
+       * @return {void}
+       */
+      _setChildren: function (item, data) {
+        // find all children
+        const children = data.filter(d => item.id === d.parent);
+        item.children = children;
+        if (item.children.length > 0) {
+          item.children.forEach(child => {
+            // recursively call itself
+            this._setChildren(child, data);
+          });
+        }
+      },
+
+      /** 
+       * Determine if a menu item has children
+       */
+      __hasChildren: function (item) {
+        return item.children.length > 0;
+      },
+
+      /**
+       * asdf
+       */
+      __linkClickedHandler: function (e) {
+        this.selected = e.detail.id;
+        this.fire('selected', e.detail.id);
+      },
+
+      /**
+       * When the children are attached find out if they
+       * have the same id as a selected and 
+       */
+      __childAttached: function (e) {
+        const childId = e.detail.id;
+        if (childId === this.selected) {
+          this.refreshActiveChildren(this.selected);
+        }
+      },
+
+    });
+  </script>
+</dom-module>

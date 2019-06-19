@@ -41,7 +41,7 @@ body.adminimal-menu div#admin-menu ul.dropdown span.admin-menu-home-icon {
   height: 1rem;
 }
 
-body.adminimal-menu a {
+body.adminimal-menu div#admin-menu a {
   height: 40px;
 }
 

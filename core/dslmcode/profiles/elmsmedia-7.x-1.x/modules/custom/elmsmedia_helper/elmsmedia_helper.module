@@ -489,6 +489,7 @@ function elmsmedia_helper_entity_info_alter(&$entity_info) {
         '__slider' => array(),
       ),
       '__comparison' => array(),
+      '__wc_slider' => array(),
       '__basic_gallery' => array(
         '__circle' => array(),
       ),

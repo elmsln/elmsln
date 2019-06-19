@@ -15,7 +15,7 @@ function mooc_foundation_access_preprocess_page(&$variables) {
         unset($variables['tabs']['#primary'][$key]);
       }
     }
-    // fornow drop secondary entirely for nodes
+    // for now drop secondary entirely for nodes
     if (arg(0) == 'node' && isset($variables['tabs']['#secondary'])) {
       unset($variables['tabs']['#secondary']);
     }
@@ -27,7 +27,6 @@ function mooc_foundation_access_preprocess_page(&$variables) {
     $variables['tabs_extras'][200][] = '<span class="nolink cis-lmsless-text">' . t('Operations') . '</span>';
     $variables['tabs_extras'][200][] = l(t('Edit child outline'), 'node/' . $node->book['nid'] . '/outline/children');
     $variables['tabs_extras'][200][] = l(t('Edit course outline'), 'admin/content/book/' . $node->book['bid']);
-
   }
   // support hiding the accessibility check UI which is poorly located
   if ($node && user_access('view accessibility tests')) {

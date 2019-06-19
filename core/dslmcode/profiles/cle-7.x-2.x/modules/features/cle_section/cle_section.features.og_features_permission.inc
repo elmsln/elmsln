@@ -13,27 +13,27 @@ function cle_section_og_features_default_permissions() {
   // Exported og permission: 'node:section:create cle_assignment content'
   $permissions['node:section:create cle_assignment content'] = array(
     'roles' => array(
+      'administrator member' => 'administrator member',
       'instructor' => 'instructor',
       'lead instructor' => 'lead instructor',
-      'administrator member' => 'administrator member',
     ),
   );
 
   // Exported og permission: 'node:section:create cle_project content'
   $permissions['node:section:create cle_project content'] = array(
     'roles' => array(
+      'administrator member' => 'administrator member',
       'instructor' => 'instructor',
       'lead instructor' => 'lead instructor',
-      'administrator member' => 'administrator member',
     ),
   );
 
   // Exported og permission: 'node:section:create cle_submission content'
   $permissions['node:section:create cle_submission content'] = array(
     'roles' => array(
+      'administrator member' => 'administrator member',
       'instructor' => 'instructor',
       'lead instructor' => 'lead instructor',
-      'administrator member' => 'administrator member',
       'member' => 'member',
     ),
   );
@@ -41,54 +41,54 @@ function cle_section_og_features_default_permissions() {
   // Exported og permission: 'node:section:delete any cle_assignment content'
   $permissions['node:section:delete any cle_assignment content'] = array(
     'roles' => array(
+      'administrator member' => 'administrator member',
       'instructor' => 'instructor',
       'lead instructor' => 'lead instructor',
-      'administrator member' => 'administrator member',
     ),
   );
 
   // Exported og permission: 'node:section:delete any cle_project content'
   $permissions['node:section:delete any cle_project content'] = array(
     'roles' => array(
+      'administrator member' => 'administrator member',
       'instructor' => 'instructor',
       'lead instructor' => 'lead instructor',
-      'administrator member' => 'administrator member',
     ),
   );
 
   // Exported og permission: 'node:section:delete any cle_submission content'
   $permissions['node:section:delete any cle_submission content'] = array(
     'roles' => array(
+      'administrator member' => 'administrator member',
       'instructor' => 'instructor',
       'lead instructor' => 'lead instructor',
-      'administrator member' => 'administrator member',
     ),
   );
 
   // Exported og permission: 'node:section:delete own cle_assignment content'
   $permissions['node:section:delete own cle_assignment content'] = array(
     'roles' => array(
+      'administrator member' => 'administrator member',
       'instructor' => 'instructor',
       'lead instructor' => 'lead instructor',
-      'administrator member' => 'administrator member',
     ),
   );
 
   // Exported og permission: 'node:section:delete own cle_project content'
   $permissions['node:section:delete own cle_project content'] = array(
     'roles' => array(
+      'administrator member' => 'administrator member',
       'instructor' => 'instructor',
       'lead instructor' => 'lead instructor',
-      'administrator member' => 'administrator member',
     ),
   );
 
   // Exported og permission: 'node:section:delete own cle_submission content'
   $permissions['node:section:delete own cle_submission content'] = array(
     'roles' => array(
+      'administrator member' => 'administrator member',
       'instructor' => 'instructor',
       'lead instructor' => 'lead instructor',
-      'administrator member' => 'administrator member',
       'member' => 'member',
     ),
   );
@@ -96,54 +96,54 @@ function cle_section_og_features_default_permissions() {
   // Exported og permission: 'node:section:update any cle_assignment content'
   $permissions['node:section:update any cle_assignment content'] = array(
     'roles' => array(
+      'administrator member' => 'administrator member',
       'instructor' => 'instructor',
       'lead instructor' => 'lead instructor',
-      'administrator member' => 'administrator member',
     ),
   );
 
   // Exported og permission: 'node:section:update any cle_project content'
   $permissions['node:section:update any cle_project content'] = array(
     'roles' => array(
+      'administrator member' => 'administrator member',
       'instructor' => 'instructor',
       'lead instructor' => 'lead instructor',
-      'administrator member' => 'administrator member',
     ),
   );
 
   // Exported og permission: 'node:section:update any cle_submission content'
   $permissions['node:section:update any cle_submission content'] = array(
     'roles' => array(
+      'administrator member' => 'administrator member',
       'instructor' => 'instructor',
       'lead instructor' => 'lead instructor',
-      'administrator member' => 'administrator member',
     ),
   );
 
   // Exported og permission: 'node:section:update own cle_assignment content'
   $permissions['node:section:update own cle_assignment content'] = array(
     'roles' => array(
+      'administrator member' => 'administrator member',
       'instructor' => 'instructor',
       'lead instructor' => 'lead instructor',
-      'administrator member' => 'administrator member',
     ),
   );
 
   // Exported og permission: 'node:section:update own cle_project content'
   $permissions['node:section:update own cle_project content'] = array(
     'roles' => array(
+      'administrator member' => 'administrator member',
       'instructor' => 'instructor',
       'lead instructor' => 'lead instructor',
-      'administrator member' => 'administrator member',
     ),
   );
 
   // Exported og permission: 'node:section:update own cle_submission content'
   $permissions['node:section:update own cle_submission content'] = array(
     'roles' => array(
+      'administrator member' => 'administrator member',
       'instructor' => 'instructor',
       'lead instructor' => 'lead instructor',
-      'administrator member' => 'administrator member',
       'member' => 'member',
     ),
   );

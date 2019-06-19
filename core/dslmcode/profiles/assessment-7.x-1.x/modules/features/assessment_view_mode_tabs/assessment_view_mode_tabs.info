@@ -1,0 +1,15 @@
+name = assessment View mode tabs
+description = View mode tab settings
+core = 7.x
+package = Assessment
+dependencies[] = ctools
+dependencies[] = display_inherit
+dependencies[] = features
+dependencies[] = strongarm
+dependencies[] = view_mode_tab
+features[ctools][] = strongarm:strongarm:1
+features[features_api][] = api:2
+features[user_permission][] = access view mode tab
+features[user_permission][] = administer view mode tab
+features[variable][] = view_mode_enable_by_default
+features[variable][] = view_mode_tab_settings__assessment_quiz

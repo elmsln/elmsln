@@ -2,15 +2,21 @@
 /**
  * For Media Poster, we will add put the poster within the video wrapper to accomidate intrinsic ratio.
  */
+  $track = '';
+  if (isset($node->field_caption['und'][0]['uri'])) {
+    $track = '<track
+  src="' . file_create_url($node->field_caption['und'][0]['uri']) . '"
+  kind="subtitles"
+  label="English"
+  slot="track">';
+  }
 ?>
-<figure id="node-<?php print $node->nid; ?>" class="iframe <?php print $classes; ?>"<?php print $attributes; ?>>
-  <?php if (isset($content['field_figurelabel_ref'])): ?>
-    <?php print render($content['field_figurelabel_ref'][0]); ?>
-  <?php endif; ?>
-  <?php print render($content); ?>
-  <?php if (isset($duration)): ?>
-    <div class="mediavideo__duration">
-      <?php print $duration; ?>
-    </div>
-  <?php endif; ?>
-</figure>
+<video-player
+ id="node-<?php print $node->nid; ?>"
+ source="<?php print $content['field_external_media']['#items'][0]['video_url']; ?>"
+ class="iframe <?php print $classes; ?>"
+ accent-color="red"
+ sticky-corner="none"
+ <?php print $attributes; ?>>
+<?php print $track;?>
+</video-player>
