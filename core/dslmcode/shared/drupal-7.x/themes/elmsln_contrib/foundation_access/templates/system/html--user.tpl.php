@@ -148,7 +148,7 @@
       box-sizing: border-box;
       font-family: 'Roboto', 'Noto', sans-serif;
       box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12), 0 2px 4px -1px rgba(0, 0, 0, 0.4);
-      height: 40px;
+      height: auto;
       border: 0;
       margin: 0;
       -webkit-font-smoothing: auto;
@@ -194,9 +194,6 @@
       position: absolute;
       top: 4px;
       text-transform: uppercase;
-    }
-    .lrnsys-button-0 paper-button.lrnsys-button div.inner.lrnsys-button {
-      line-height: unset;
     }
   </style>
   <?php print _foundation_access_drop_whitespace($head); ?>

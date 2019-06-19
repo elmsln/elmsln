@@ -736,7 +736,7 @@ function ds_entity_variables(&$vars) {
     if (!empty($layout['settings']['layout_attributes_merge'])) {
       // Handle classes separately.
       if (isset($vars['attributes_array']['class'])) {
-        $vars['classes_array'] += $vars['attributes_array']['class'];
+        $vars['classes_array'] = array_unique(array_merge($vars['classes_array'], $vars['attributes_array']['class']));
         unset($vars['attributes_array']['class']);
       }
       $vars['layout_attributes'] .= ' ' . drupal_attributes($vars['attributes_array']);
@@ -925,90 +925,48 @@ function ds_render_ctools_field($field) {
  * Render a block field.
  */
 function ds_render_block_field($field) {
-  // Invoke the block_view hook of the module.
+  global $theme_key;
   list($module, $delta) = explode('|', $field['properties']['block']);
-  $block = module_invoke($module, 'block_view', $delta);
 
-  // Get contextual links.
-  $contextual_links = array();
-  $contextual = module_exists('contextual') && user_access('access contextual links');
-  if ($contextual) {
-    if (isset($block['content']) && is_array($block['content']) && isset($block['content']['#contextual_links'])) {
-      $contextual_links = $block['content']['#contextual_links'];
-    }
+  // Load the block
+  $result = db_select('block', 'b')
+    ->fields('b')->condition('b.theme', $theme_key)->condition('b.module', $module)->condition('b.delta', $delta)->addTag('block_load')->addTag('translatable')->execute();
+  $block_info = $result->fetchAllAssoc('bid');
+
+  // Enable the block
+  if ($block_info[key($block_info)]->status == 0) {
+    $block_info[key($block_info)]->status = 1;
   }
 
-  // Render the block content.
-  if (isset($block['content']) && is_array($block['content'])) {
-    $block['content'] = drupal_render($block['content']);
+  // Process the block if it respects visibility settings
+  if (isset($field['properties']['block_visibility']) && $field['properties']['block_visibility']) {
+    drupal_alter('block_list', $block_info);
   }
 
-  // Go through in case we have actual content.
-  if (!empty($block['content'])) {
+  // Simulate _block_load_blocks() return, containing only our block.
+  $block = array_shift($block_info);
 
-    // Make sure subject is set.
-    if (!isset($block['subject'])) {
-      $block['subject'] = '';
-    }
-
-    global $theme_key;
+  // Render the block field
+  if (isset($block)) {
+    $key = $module . '_' . $delta;
     if (module_exists('block')) {
-      $full_block = db_query("SELECT * FROM {block} WHERE module = :module AND delta = :delta AND theme = :theme", array(':module' => $module, ':delta' => $delta, ':theme' => $theme_key))->fetchObject();
-    }
-    if (!empty($full_block)) {
-      if ($full_block->title == '<none>') {
-        $block['subject'] = '';
+      $region_blocks = _block_render_blocks(array($key => $block));
+      switch ($field['properties']['block_render']) {
+        case DS_BLOCK_TEMPLATE:
+          $renderable_block = _block_get_renderable_array($region_blocks);
+          return drupal_render($renderable_block);
+          break;
+        case DS_BLOCK_TITLE_CONTENT:
+          if (isset($block->subject) && isset($block->content) && $block->content) {
+            return '<h2 class="block-title">' . $block->subject . '</h2>' . drupal_render($block->content);
+          }
+          break;
+        case DS_BLOCK_CONTENT:
+          if (isset($block->content) && $block->content) {
+            return drupal_render($block->content);
+          }
+          break;
       }
-      elseif (!empty($full_block->title)) {
-        $block['subject'] = $full_block->title;
-      }
-    }
-
-    // i18n support.
-    if (function_exists('i18n_block_block_view_alter')) {
-
-      // Check language visibility.
-      global $language;
-      static $block_languages = FALSE;
-      if (!$block_languages) {
-        $block_languages = array();
-        $result = db_query('SELECT module, delta, language FROM {i18n_block_language}');
-        foreach ($result as $record) {
-          $block_languages[$record->module][$record->delta][$record->language] = TRUE;
-        }
-      }
-      if (isset($block_languages[$module][$delta]) && !isset($block_languages[$module][$delta][$language->language])) {
-        return;
-      }
-
-      // Translate.
-      if (!empty($full_block->i18n_mode)) {
-        i18n_block_block_view_alter($block, $full_block);
-        if (!empty($block['title'])) {
-          $block['subject'] = $block['title'];
-        }
-      }
-    }
-
-    $block = (object) $block;
-    switch ($field['properties']['block_render']) {
-      case DS_BLOCK_TEMPLATE:
-        $block->region = NULL;
-        $block->module = $module;
-        $block->delta = $delta;
-        $elements = array('elements' => array('#block' => $block, '#children' => $block->content));
-        // Add contextual links.
-        if ($contextual) {
-          $elements['elements'] += array('#contextual_links' => array_merge($contextual_links, array('block' => array('admin/structure/block/manage', array($block->module, $block->delta)))));
-        }
-        return theme('block', $elements);
-        break;
-      case DS_BLOCK_TITLE_CONTENT:
-        return '<h2 class="block-title">' . $block->subject . '</h2>' . $block->content;
-        break;
-      case DS_BLOCK_CONTENT:
-        return $block->content;
-        break;
     }
   }
 }

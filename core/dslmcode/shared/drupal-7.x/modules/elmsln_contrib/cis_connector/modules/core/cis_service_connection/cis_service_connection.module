@@ -171,6 +171,18 @@ function _cis_service_connection_edit_property($property) {
 }
 
 /**
+ * Implements hook_webcomponents_cmstokenendpoint_alter().
+ */
+function cis_service_connection_webcomponents_cmstokenendpoint_alter(&$js) {
+  $vals = _cis_service_connection_links();
+  foreach ($vals as $val) {
+    if (arg(0) == $val) {
+      $js .= 'textbook_editor';
+    }
+  }
+}
+
+/**
  * Callback to assemble pages correctly.
  */
 function _cis_service_connection_page($request) {

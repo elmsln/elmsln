@@ -10,6 +10,61 @@
 function elmsmedia_external_video_field_default_field_instances() {
   $field_instances = array();
 
+  // Exported field_instance: 'node-external_video-field_caption'.
+  $field_instances['node-external_video-field_caption'] = array(
+    'bundle' => 'external_video',
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'file',
+        'settings' => array(),
+        'type' => 'file_default',
+        'weight' => 8,
+      ),
+      'full' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+      'iframe' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+      'mediavideo' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'fences_wrapper' => 'div',
+    'field_name' => 'field_caption',
+    'label' => 'Caption',
+    'required' => 0,
+    'settings' => array(
+      'description_field' => 0,
+      'file_directory' => 'captions',
+      'file_extensions' => 'txt srt xml vtt',
+      'max_filesize' => '',
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'file',
+      'settings' => array(
+        'progress_indicator' => 'bar',
+      ),
+      'type' => 'file_generic',
+      'weight' => 5,
+    ),
+  );
+
   // Exported field_instance: 'node-external_video-field_cis_course_ref'.
   $field_instances['node-external_video-field_cis_course_ref'] = array(
     'bundle' => 'external_video',
@@ -28,6 +83,7 @@ function elmsmedia_external_video_field_default_field_instances() {
         'label' => 'above',
         'module' => 'entityreference',
         'settings' => array(
+          'bypass_access' => FALSE,
           'link' => 1,
         ),
         'type' => 'entityreference_label',
@@ -269,46 +325,30 @@ function elmsmedia_external_video_field_default_field_instances() {
     'display' => array(
       'default' => array(
         'label' => 'hidden',
-        'module' => 'elmsmedia_helper',
-        'settings' => array(
-          'description' => 1,
-          'description_position' => 'bottom',
-          'video_style' => 'normal',
-        ),
-        'type' => 'video_embed_field',
+        'module' => 'video_embed_field',
+        'settings' => array(),
+        'type' => 'video_embed_field_url',
         'weight' => 0,
       ),
       'full' => array(
         'label' => 'hidden',
-        'module' => 'elmsmedia_helper',
-        'settings' => array(
-          'description' => 1,
-          'description_position' => 'bottom',
-          'video_style' => 'normal',
-        ),
-        'type' => 'video_embed_field',
+        'module' => 'video_embed_field',
+        'settings' => array(),
+        'type' => 'video_embed_field_url',
         'weight' => 4,
       ),
       'iframe' => array(
         'label' => 'hidden',
-        'module' => 'elmsmedia_helper',
-        'settings' => array(
-          'description' => 1,
-          'description_position' => 'bottom',
-          'video_style' => 'normal',
-        ),
-        'type' => 'video_embed_field',
+        'module' => 'video_embed_field',
+        'settings' => array(),
+        'type' => 'video_embed_field_url',
         'weight' => 0,
       ),
       'mediavideo' => array(
         'label' => 'hidden',
-        'module' => 'elmsmedia_helper',
-        'settings' => array(
-          'description' => 1,
-          'description_position' => 'bottom',
-          'video_style' => 'normal',
-        ),
-        'type' => 'video_embed_field',
+        'module' => 'video_embed_field',
+        'settings' => array(),
+        'type' => 'video_embed_field_url',
         'weight' => 0,
       ),
       'mediavideo__poster' => array(
@@ -500,7 +540,7 @@ function elmsmedia_external_video_field_default_field_instances() {
         ),
       ),
       'type' => 'inline_entity_form',
-      'weight' => 7,
+      'weight' => 8,
     ),
   );
 
@@ -598,7 +638,7 @@ function elmsmedia_external_video_field_default_field_instances() {
         'progress_indicator' => 'throbber',
       ),
       'type' => 'image_image',
-      'weight' => 5,
+      'weight' => 6,
     ),
   );
 
@@ -692,12 +732,13 @@ function elmsmedia_external_video_field_default_field_instances() {
         'size' => 60,
       ),
       'type' => 'autocomplete_deluxe_taxonomy',
-      'weight' => 6,
+      'weight' => 7,
     ),
   );
 
   // Translatables
   // Included for use with string extractors like potx.
+  t('Caption');
   t('Citation');
   t('Competency');
   t('Course');

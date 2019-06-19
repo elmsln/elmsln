@@ -52,7 +52,7 @@
             <?php endif; ?>
             </li>
             <?php endif; ?>
-            <?php if (!empty($cis_shortcodes) && arg(2) == 'edit') : ?>
+            <?php if (!empty($cis_shortcodes)) : ?>
               <li class="page-op-button">
               <lrnsys-drawer hover-class="<?php print $cis_lmsless['lmsless_classes'][$distro]['text'] . ' text-' . $cis_lmsless['lmsless_classes'][$distro]['dark'];?>" align="right" alt="<?php print t('Embed this content')?>" icon="share" class="blue-text" header="<?php print t('Embed this content'); ?>" data-jwerty-key="s" data-voicecommand="open embed (menu)">
                 <?php print $cis_shortcodes; ?>
@@ -61,7 +61,7 @@
             <?php endif; ?>
             <!-- end Edit Icon -->
             <li class="page-op-button">
-            <?php if (arg(2) == 'edit' && (!empty($tabs['#primary']) || !empty($tabs['#secondary']) || !empty($tabs_extras))): ?>
+            <?php if ((!empty($tabs['#primary']) || !empty($tabs['#secondary']) || !empty($tabs_extras))): ?>
               <lrnsys-button id="more-options-tip" inner-class="no-padding" class="blue-text r-header__icon elmsln-more-button elmsln-dropdown-button" data-activates="elmsln-more-menu" aria-controls="elmsln-more-menu" aria-expanded="false" data-jwerty-key="m" data-voicecommand="open more (menu)" hover-class="<?php print $cis_lmsless['lmsless_classes'][$distro]['text'] . ' text-' . $cis_lmsless['lmsless_classes'][$distro]['dark'];?>" icon="more-vert" alt="<?php print t('Less common operations'); ?>">
               </lrnsys-button>
               <ul id="elmsln-more-menu" class="dropdown-content" aria-hidden="true" tabindex="-1">

@@ -2675,8 +2675,7 @@ textarea.materialize-textarea + label:after {
   margin-left: 5px;
 }
 
-.input-field.inline input,
-.input-field.inline .select-dropdown {
+.input-field.inline input {
   margin-bottom: 1rem;
 }
 
@@ -3105,13 +3104,6 @@ form p:last-child {
 
 /* Select Field
    ========================================================================== */
-select {
-  display: none;
-}
-
-select.browser-default {
-  display: block;
-}
 
 select {
   background-color: rgba(255, 255, 255, 0.9);
@@ -3122,111 +3114,15 @@ select {
   height: 3rem;
 }
 
-.select-label {
-  position: absolute;
-}
-
-.select-wrapper {
-  position: relative;
-}
-
-.select-wrapper input.select-dropdown {
-  position: relative;
-  cursor: pointer;
-  background-color: transparent;
-  border: none;
-  border-bottom: 1px solid #9e9e9e;
-  outline: none;
-  height: 3rem;
-  line-height: 3rem;
-  width: 100%;
-  font-size: 1rem;
-  margin: 0 0 20px 0;
-  padding: 0;
-  display: block;
-}
-
-.select-wrapper span.caret {
-  color: initial;
-  position: absolute;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  height: 10px;
-  margin: auto 0;
-  font-size: 10px;
-  line-height: 10px;
-}
-
-.select-wrapper span.caret.disabled {
-  color: rgba(0, 0, 0, 0.26);
-}
-
-.select-wrapper + label {
-  position: absolute;
-  top: -14px;
-  font-size: 0.8rem;
-}
-
 select:disabled {
   color: rgba(0, 0, 0, 0.3);
 }
 
-.select-wrapper input.select-dropdown:disabled {
-  color: rgba(0, 0, 0, 0.3);
-  cursor: default;
-  -webkit-user-select: none;
-  /* webkit (safari, chrome) browsers */
-  -moz-user-select: none;
-  /* mozilla browsers */
-  -ms-user-select: none;
-  /* IE10+ */
-  border-bottom: 1px solid rgba(0, 0, 0, 0.3);
-}
-
-.select-wrapper i {
-  color: rgba(0, 0, 0, 0.3);
-}
-
-.select-dropdown li.disabled,
-.select-dropdown li.disabled > span,
-.select-dropdown li.optgroup {
-  color: rgba(0, 0, 0, 0.3);
-  background-color: transparent;
-}
-
-.prefix ~ .select-wrapper {
-  margin-left: 3rem;
-  width: 92%;
-  width: calc(100% - 3rem);
-}
 
 .prefix ~ label {
   margin-left: 3rem;
 }
 
-.select-dropdown li img {
-  height: 40px;
-  width: 40px;
-  margin: 5px 15px;
-  float: right;
-}
-
-.select-dropdown li.optgroup {
-  border-top: 1px solid #eee;
-}
-
-.select-dropdown li.optgroup.selected > span {
-  color: rgba(0, 0, 0, 0.7);
-}
-
-.select-dropdown li.optgroup > span {
-  color: rgba(0, 0, 0, 0.4);
-}
-
-.select-dropdown li.optgroup ~ li.optgroup-option {
-  padding-left: 1rem;
-}
 
 .side-nav {
   position: fixed;

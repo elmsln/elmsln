@@ -5,8 +5,14 @@
  * Tests that exercise the validation functions in the link module.
  */
 
+/**
+ * Validate Test Case.
+ */
 class LinkValidateTestCase extends LinkBaseTestClass {
 
+  /**
+   * Create Link.
+   */
   protected function createLink($url, $title, $attributes = array()) {
     return array(
       'url' => $url,
@@ -17,8 +23,11 @@ class LinkValidateTestCase extends LinkBaseTestClass {
 
   /**
    * Takes a url, and sees if it can validate that the url is valid.
+   *
+   * @codingStandardsIgnoreStart
    */
   protected function link_test_validate_url($url) {
+    // @codingStandardsIgnoreEnd
 
     $field_name = $this->createLinkField();
 
@@ -26,11 +35,11 @@ class LinkValidateTestCase extends LinkBaseTestClass {
     $settings = array(
       'title' => $label,
       $field_name => array(
-        LANGUAGE_NONE=> array(
+        LANGUAGE_NONE => array(
           array(
             'title' => $label,
             'url' => $url,
-          )
+          ),
         ),
       ),
     );
@@ -41,10 +50,17 @@ class LinkValidateTestCase extends LinkBaseTestClass {
 
     $this->assertEqual($url, $node->{$field_name}[LANGUAGE_NONE][0]['url']);
   }
+
 }
 
+/**
+ * Class for Validate Test.
+ */
 class LinkValidateTest extends LinkValidateTestCase {
 
+  /**
+   * Get Info.
+   */
   public static function getInfo() {
     return array(
       'name' => 'Link Validation Tests',
@@ -53,23 +69,35 @@ class LinkValidateTest extends LinkValidateTestCase {
     );
   }
 
-  function test_link_validate_basic_url() {
+  /**
+   * Validate basic URL.
+   *
+   * @codingStandardsIgnoreStart
+   */
+  public function test_link_validate_basic_url() {
+    // @codingStandardsIgnoreEnd
     $this->link_test_validate_url('http://www.example.com');
   }
 
   /**
    * Test if we're stopped from posting a bad url on default validation.
+   *
+   * @codingStandardsIgnoreStart
    */
-  function test_link_validate_bad_url_validate_default() {
-    $this->web_user = $this->drupalCreateUser(array('administer content types',
-                                             'administer nodes',
-                                             'administer filters',
-                                             'access content',
-                                             'create page content',
-                                             'access administration pages'));
+  public function test_link_validate_bad_url_validate_default() {
+    // @codingStandardsIgnoreEnd
+    $this->web_user = $this->drupalCreateUser(array(
+      'administer content types',
+      'administer fields',
+      'administer nodes',
+      'administer filters',
+      'access content',
+      'create page content',
+      'access administration pages',
+    ));
     $this->drupalLogin($this->web_user);
 
-    // create field
+    // Create field.
     $name = strtolower($this->randomName());
     $edit = array(
       'fields[_add_new_field][label]' => $name,
@@ -86,12 +114,11 @@ class LinkValidateTest extends LinkValidateTestCase {
     node_types_rebuild();
     menu_rebuild();
 
-    // create page form
+    // Create page form.
     $this->drupalGet('node/add/page');
     $field_name = 'field_' . $name;
     $this->assertField('edit-field-' . $name . '-und-0-title', 'Title found');
     $this->assertField('edit-field-' . $name . '-und-0-url', 'URL found');
-
 
     $edit = array(
       'title' => 'Simple Title',
@@ -99,22 +126,31 @@ class LinkValidateTest extends LinkValidateTestCase {
     );
 
     $this->drupalPost(NULL, $edit, t('Save'));
-    $this->assertText(t('The value @value provided for @field is not a valid URL.', array('@value' => 'edik:naw', '@field' => $name)));
+    $this->assertText(t('The value @value provided for @field is not a valid URL.', array(
+      '@value' => 'edik:naw',
+      '@field' => $name,
+    )));
   }
 
   /**
    * Test if we're stopped from posting a bad url with validation on.
+   *
+   * @codingStandardsIgnoreStart
    */
-  function test_link_validate_bad_url_validate_on() {
-    $this->web_user = $this->drupalCreateUser(array('administer content types',
-                                             'administer nodes',
-                                             'administer filters',
-                                             'access content',
-                                             'create page content',
-                                             'access administration pages'));
+  public function test_link_validate_bad_url_validate_on() {
+    // @codingStandardsIgnoreEnd
+    $this->web_user = $this->drupalCreateUser(array(
+      'administer content types',
+      'administer fields',
+      'administer nodes',
+      'administer filters',
+      'access content',
+      'create page content',
+      'access administration pages',
+    ));
     $this->drupalLogin($this->web_user);
 
-    // create field
+    // Create field.
     $name = strtolower($this->randomName());
     $edit = array(
       'fields[_add_new_field][label]' => $name,
@@ -131,12 +167,11 @@ class LinkValidateTest extends LinkValidateTestCase {
     node_types_rebuild();
     menu_rebuild();
 
-    // create page form
+    // Create page form.
     $this->drupalGet('node/add/page');
     $field_name = 'field_' . $name;
     $this->assertField('edit-field-' . $name . '-und-0-title', 'Title found');
     $this->assertField('edit-field-' . $name . '-und-0-url', 'URL found');
-
 
     $edit = array(
       'title' => 'Simple Title',
@@ -144,23 +179,32 @@ class LinkValidateTest extends LinkValidateTestCase {
     );
 
     $this->drupalPost(NULL, $edit, t('Save'));
-    $this->assertText(t('The value @value provided for @field is not a valid URL.', array('@field' => $name, '@value' => 'edik:naw')));
+    $this->assertText(t('The value @value provided for @field is not a valid URL.', array(
+      '@field' => $name,
+      '@value' => 'edik:naw',
+    )));
 
   }
 
   /**
    * Test if we can post a bad url if the validation is expressly turned off.
+   *
+   * @codingStandardsIgnoreStart
    */
-  function test_link_validate_bad_url_validate_off() {
-    $this->web_user = $this->drupalCreateUser(array('administer content types',
-                                             'administer nodes',
-                                             'administer filters',
-                                             'access content',
-                                             'create page content',
-                                             'access administration pages'));
+  public function test_link_validate_bad_url_validate_off() {
+    // @codingStandardsIgnoreEnd
+    $this->web_user = $this->drupalCreateUser(array(
+      'administer content types',
+      'administer fields',
+      'administer nodes',
+      'administer filters',
+      'access content',
+      'create page content',
+      'access administration pages',
+    ));
     $this->drupalLogin($this->web_user);
 
-    // create field
+    // Create field.
     $name = strtolower($this->randomName());
     $edit = array(
       'fields[_add_new_field][label]' => $name,
@@ -172,6 +216,7 @@ class LinkValidateTest extends LinkValidateTestCase {
     $this->drupalPost(NULL, array(), t('Save field settings'));
     $this->drupalPost(NULL, array('instance[settings][validate_url]' => FALSE), t('Save settings'));
 
+    // @codingStandardsIgnoreLine
     /*$instance_details = db_query("SELECT * FROM {field_config_instance} WHERE field_name = :field_name AND bundle = 'page'", array(':field_name' => 'field_'. $name))->fetchObject();
     $this->fail('<pre>'. print_r($instance_details, TRUE) .'</pre>');
     $this->fail('<pre>'. print_r(unserialize($instance_details->data), TRUE) .'</pre>');*/
@@ -181,12 +226,11 @@ class LinkValidateTest extends LinkValidateTestCase {
     node_types_rebuild();
     menu_rebuild();
 
-    // create page form
+    // Create page form.
     $this->drupalGet('node/add/page');
     $field_name = 'field_' . $name;
     $this->assertField('edit-field-' . $name . '-und-0-title', 'Title found');
     $this->assertField('edit-field-' . $name . '-und-0-url', 'URL found');
-
 
     $edit = array(
       'title' => 'Simple Title',
@@ -194,37 +238,49 @@ class LinkValidateTest extends LinkValidateTestCase {
     );
 
     $this->drupalPost(NULL, $edit, t('Save'));
-    $this->assertNoText(t('The value %value provided for %field is not a valid URL.', array('%field' => $name, '%value' => 'edik:naw')));
+    $this->assertNoText(t('The value %value provided for %field is not a valid URL.', array(
+      '%field' => $name,
+      '%value' => 'edik:naw',
+    )));
   }
 
   /**
-   * Test if a bad url can sneak through un-filtered if we play with the validation...
+   * Validate switching between validation status.
+   *
+   * Test if a bad url can sneak through un-filtered if we play with the
+   * validation...
+   *
+   * @codingStandardsIgnoreStart
    */
-  function x_test_link_validate_switching_between_validation_status() {
+  public function x_test_link_validate_switching_between_validation_status() {
+    // @codingStandardsIgnoreEnd
     $this->acquireContentTypes(1);
-    $this->web_user = $this->drupalCreateUser(array('administer content types',
-                                             'administer nodes',
-                                             'access administration pages',
-                                             'access content',
-                                             'create ' . $this->content_types[0]->type . ' content',
-                                             'edit any ' . $this->content_types[0]->type . ' content'));
+    $this->web_user = $this->drupalCreateUser(array(
+      'administer content types',
+      'administer fields',
+      'administer nodes',
+      'access administration pages',
+      'access content',
+      'create ' . $this->content_types[0]->type . ' content',
+      'edit any ' . $this->content_types[0]->type . ' content',
+    ));
     $this->drupalLogin($this->web_user);
-    variable_set('node_options_' . $this->content_types[0]->name, array('status', 'promote'));
+    variable_set('node_options_' . $this->content_types[0]->name, array(
+      'status',
+      'promote',
+    ));
     $field_settings = array(
       'type' => 'link',
       'widget_type' => 'link',
       'type_name' => $this->content_types[0]->name,
-      'attributes' => array(), // <-- This is needed or we have an error
+      // <-- This is needed or we have an error.
+      'attributes' => array(),
       'validate_url' => 0,
     );
 
     $field = $this->createField($field_settings, 0);
-    //$this->fail('<pre>'. print_r($field, TRUE) .'</pre>');
-    $field_db_info = content_database_info($field);
 
     $this->acquireNodes(2);
-
-    $node = node_load($this->nodes[0]->nid);
 
     $this->drupalGet('node/' . $this->nodes[0]->nid);
 
@@ -235,8 +291,12 @@ class LinkValidateTest extends LinkValidateTestCase {
     $edit[$field['field_name'] . '[0][title]'] = $title;
 
     $this->drupalPost('node/' . $this->nodes[0]->nid . '/edit', $edit, t('Save'));
-    //$this->pass($this->content);
-    $this->assertNoText(t('The value %value provided for %field is not a valid URL.', array('%field' => $name, '%value' => trim($url))));
+    // $this->pass($this->content);.
+    // @codingStandardsIgnoreLine
+    $this->assertNoText(t('The value %value provided for %field is not a valid URL.', array(
+      '%field' => $name,
+      '%value' => trim($url),
+    )));
 
     // Make sure we get a new version!
     $node = node_load($this->nodes[0]->nid, NULL, TRUE);
@@ -248,8 +308,9 @@ class LinkValidateTest extends LinkValidateTestCase {
     // Turn the array validation back _on_.
     $edit = array('validate_url' => TRUE);
     $node_type_link = str_replace('_', '-', $node->type);
-    //$this->drupalGet('admin/content/node-type/'. $node_type_link .'/fields'); ///'. $field['field_name']);
-    //$this->fail($this->content);
+    // @codingStandardsIgnoreLine
+    // $this->drupalGet('admin/content/node-type/'. $node_type_link .'/fields'); ///'. $field['field_name']);
+    // $this->fail($this->content);.
     $this->drupalPost('admin/content/node-type/' . $node_type_link . '/fields/' . $field['field_name'], $edit, t('Save field settings'));
 
     $this->drupalGet('node/' . $node->nid);
@@ -257,17 +318,26 @@ class LinkValidateTest extends LinkValidateTestCase {
     // url() function.  But we should have a test that makes sure it continues
     // to work.
     $this->assertNoRaw($url, 'Make sure Javascript does not display.');
-    //$this->fail($this->content);
-
+    // $this->fail($this->content);.
   }
 
-  // Validate that '<front>' is a valid url.
-  function test_link_front_url() {
+  /**
+   * Validate that '<front>' is a valid url.
+   *
+   * @codingStandardsIgnoreStart
+   */
+  public function test_link_front_url() {
+    // @codingStandardsIgnoreEnd
     $this->link_test_validate_url('<front>');
   }
 
-  // Validate that an internal url would be accepted.
-  function test_link_internal_url() {
+  /**
+   * Validate that an internal url would be accepted.
+   *
+   * @codingStandardsIgnoreStart
+   */
+  public function test_link_internal_url() {
+    // @codingStandardsIgnoreEnd
     // Create the content first.
     $node = $this->drupalCreateNode();
 
@@ -277,22 +347,46 @@ class LinkValidateTest extends LinkValidateTestCase {
     $this->assertEqual(LINK_INTERNAL, $type, 'Test ' . $link . ' is an internal link.');
   }
 
-  // Validate a simple mailto.
-  function test_link_mailto() {
+  /**
+   * Validate a simple mailto.
+   *
+   * @codingStandardsIgnoreStart
+   */
+  public function test_link_mailto() {
+    // @codingStandardsIgnoreEnd
     $this->link_test_validate_url('mailto:jcfiala@gmail.com');
   }
 
-  function test_link_external_https() {
+  /**
+   * Check link external https.
+   *
+   * @codingStandardsIgnoreStart
+   */
+  public function test_link_external_https() {
+    // @codingStandardsIgnoreEnd
     $this->link_test_validate_url('https://www.example.com/');
   }
 
-  function test_link_ftp() {
+  /**
+   * Check link FTP.
+   *
+   * @codingStandardsIgnoreStart
+   */
+  public function test_link_ftp() {
+    // @codingStandardsIgnoreEnd
     $this->link_test_validate_url('ftp://www.example.com/');
   }
+
 }
 
+/**
+ * Validate Test News.
+ */
 class LinkValidateTestNews extends LinkValidateTestCase {
 
+  /**
+   * Get Info.
+   */
   public static function getInfo() {
     return array(
       'name' => 'Link News Validation Tests',
@@ -301,18 +395,36 @@ class LinkValidateTestNews extends LinkValidateTestCase {
     );
   }
 
-  // Validate a news link to a message group
-  function test_link_news() {
+  /**
+   * Validate a news link to a message group.
+   *
+   * @codingStandardsIgnoreStart
+   */
+  public function test_link_news() {
+    // @codingStandardsIgnoreEnd
     $this->link_test_validate_url('news:comp.infosystems.www.misc');
   }
 
-  // Validate a news link to a message id.  Said ID copied off of google groups.
-  function test_link_news_message() {
+  /**
+   * Validate a news link to a message id.  Said ID copied off of google groups.
+   *
+   * @codingStandardsIgnoreStart
+   */
+  public function test_link_news_message() {
+    // @codingStandardsIgnoreEnd
     $this->link_test_validate_url('news:hj0db8$vrm$1@news.eternal-september.org');
   }
+
 }
 
+/**
+ * Validate Specific URL.
+ */
 class LinkValidateSpecificURL extends LinkValidateTestCase {
+
+  /**
+   * Get Info.
+   */
   public static function getInfo() {
     return array(
       'name' => 'Link Specific URL Validation Tests',
@@ -321,24 +433,53 @@ class LinkValidateSpecificURL extends LinkValidateTestCase {
     );
   }
 
-  // Lets throw in a lot of umlouts for testing!
-  function test_umlout_url() {
+  /**
+   * Lets throw in a lot of umlouts for testing!
+   *
+   * @codingStandardsIgnoreStart
+   */
+  public function test_umlout_url() {
+    // @codingStandardsIgnoreEnd
     $this->link_test_validate_url('http://üÜü.exämple.com/nöde');
   }
 
-  function test_umlout_mailto() {
+  /**
+   * Check umlout mailto.
+   *
+   * @codingStandardsIgnoreStart
+   */
+  public function test_umlout_mailto() {
+    // @codingStandardsIgnoreEnd
     $this->link_test_validate_url('mailto:Üser@exÅmple.com');
   }
 
-  function test_german_b_url() {
+  /**
+   * Check german b in url.
+   *
+   * @codingStandardsIgnoreStart
+   */
+  public function test_german_b_url() {
+    // @codingStandardsIgnoreEnd
     $this->link_test_validate_url('http://www.test.com/ßstuff');
   }
 
-  function test_special_n_url() {
+  /**
+   * Check Special in url.
+   *
+   * @codingStandardsIgnoreStart
+   */
+  public function test_special_n_url() {
+    // @codingStandardsIgnoreEnd
     $this->link_test_validate_url('http://www.testÑñ.com/');
   }
 
-  function test_curly_brackets_in_query() {
+  /**
+   * Curly Brackets in query.
+   *
+   * @codingStandardsIgnoreStart
+   */
+  public function test_curly_brackets_in_query() {
+    // @codingStandardsIgnoreEnd
     $this->link_test_validate_url('http://www.healthyteennetwork.org/index.asp?Type=B_PR&SEC={2AE1D600-4FC6-4B4D-8822-F1D5F072ED7B}&DE={235FD1E7-208D-4363-9854-4E6775EB8A4C}');
   }
 
@@ -346,8 +487,11 @@ class LinkValidateSpecificURL extends LinkValidateTestCase {
    * Here, we're testing that a very long url is stored properly in the db.
    *
    * Basically, trying to test http://drupal.org/node/376818
+   *
+   * @codingStandardsIgnoreStart
    */
-  function testLinkURLFieldIsBig() {
+  public function testLinkURLFieldIsBig() {
+    // @codingStandardsIgnoreEnd
     $long_url = 'http://th.wikipedia.org/wiki/%E0%B9%82%E0%B8%A3%E0%B8%87%E0%B9%80%E0%B8%A3%E0%B8%B5%E0%B8%A2%E0%B8%99%E0%B9%80%E0%B8%9A%E0%B8%8D%E0%B8%88%E0%B8%A1%E0%B8%A3%E0%B8%B2%E0%B8%8A%E0%B8%B9%E0%B8%97%E0%B8%B4%E0%B8%A8_%E0%B8%99%E0%B8%84%E0%B8%A3%E0%B8%A8%E0%B8%A3%E0%B8%B5%E0%B8%98%E0%B8%A3%E0%B8%A3%E0%B8%A1%E0%B8%A3%E0%B8%B2%E0%B8%8A';
     $this->link_test_validate_url($long_url);
   }
@@ -355,12 +499,18 @@ class LinkValidateSpecificURL extends LinkValidateTestCase {
 }
 
 /**
- * A series of tests of links, only going against the link_validate_url function in link.module.
+ * Validate Url Light.
+ *
+ * A series of tests of links, only going against the link_validate_url function
+ * in link.module.
  *
  * Validation is guided by the rules in http://tools.ietf.org/html/rfc1738 !
  */
 class LinkValidateUrlLight extends DrupalWebTestCase {
 
+  /**
+   * Get Info.
+   */
   public static function getInfo() {
     return array(
       'name' => 'Link Light Validation Tests',
@@ -368,72 +518,107 @@ class LinkValidateUrlLight extends DrupalWebTestCase {
       'group' => 'Link',
     );
   }
-  
-  function setUp() {
+
+  /**
+   * Setup.
+   */
+  public function setUp() {
     parent::setUp('link');
   }
 
   /**
-   * Translates the LINK type constants to english for display and debugging of tests
+   * Name Link Type.
+   *
+   * Translates the LINK type constants to english for display and debugging of
+   * tests.
+   *
+   * @codingStandardsIgnoreStart
    */
-  function name_Link_Type($type) {
+  public function name_Link_Type($type) {
+    // @codingStandardsIgnoreEnd
     switch ($type) {
       case LINK_FRONT:
         return "Front";
+
       case LINK_EMAIL:
         return "Email";
+
       case LINK_NEWS:
         return "Newsgroup";
+
       case LINK_INTERNAL:
         return "Internal Link";
+
       case LINK_EXTERNAL:
         return "External Link";
+
       case FALSE:
         return "Invalid Link";
+
       default:
         return "Bad Value:" . $type;
     }
   }
 
-  // Make sure that a link labeled <front> works.
-  function testValidateFrontLink() {
+  /**
+   * Make sure that a link labeled <front> works.
+   */
+  public function testValidateFrontLink() {
     $valid = link_validate_url('<front>');
     $this->assertEqual(LINK_FRONT, $valid, 'Make sure that front link is verified and identified');
   }
 
-  function testValidateEmailLink() {
+  /**
+   * Validate Email Link.
+   */
+  public function testValidateEmailLink() {
     $valid = link_validate_url('mailto:bob@example.com');
     $this->assertEqual(LINK_EMAIL, $valid, "Make sure a basic mailto is verified and identified");
   }
 
-  function testValidateEmailLinkBad() {
+  /**
+   * Validate Email Link Bad.
+   */
+  public function testValidateEmailLinkBad() {
     $valid = link_validate_url(':bob@example.com');
     $this->assertEqual(FALSE, $valid, 'Make sure just a bad address is correctly failed');
   }
 
-  function testValidateNewsgroupLink() {
+  /**
+   * Validate Newsgroup Link.
+   */
+  public function testValidateNewsgroupLink() {
     $valid = link_validate_url('news:comp.infosystems.www.misc');
     $this->assertEqual(LINK_NEWS, $valid, 'Make sure link to newsgroup validates as news.');
   }
 
-  function testValidateNewsArticleLink() {
+  /**
+   * Validate News Article Link.
+   */
+  public function testValidateNewsArticleLink() {
     $valid = link_validate_url('news:hj0db8$vrm$1@news.eternal-september.org');
     $this->assertEqual(LINK_NEWS, $valid, 'Make sure link to specific article validates as news.');
   }
 
-  function testValidateBadNewsgroupLink() {
+  /**
+   * Validate Bad Newsgroup Link.
+   */
+  public function testValidateBadNewsgroupLink() {
     $valid = link_validate_url('news:comp.bad_name.misc');
     $this->assertEqual(FALSE, $valid, 'newsgroup names can\'t contain underscores, so it should come back as invalid.');
   }
 
-  function testValidateInternalLinks() {
+  /**
+   * Validate Internal Links.
+   */
+  public function testValidateInternalLinks() {
     $tempfile = drupal_tempnam('public://files', 'test');
     $links = array(
       'rss.xml',
       file_uri_target($tempfile),
       drupal_realpath($tempfile),
     );
-    
+
     foreach ($links as $link) {
       $type = link_url_type($link);
       $this->assertEqual(LINK_INTERNAL, $type, 'Test ' . $link . ' is an internal link.');
@@ -442,7 +627,10 @@ class LinkValidateUrlLight extends DrupalWebTestCase {
     }
   }
 
-  function testValidateExternalLinks() {
+  /**
+   * Validate External Links.
+   */
+  public function testValidateExternalLinks() {
     $links = array(
       'http://localhost:8080/',
       'www.example.com',
@@ -458,7 +646,7 @@ class LinkValidateUrlLight extends DrupalWebTestCase {
       'www.test-site.com',
       'http://example.com/index.php?q=node/123',
       'http://example.com/?first_name=Joe Bob&last_name=Smith',
-      // Anchors
+      // Anchors.
       'http://www.example.com/index.php#test',
       'http://www.example.com/index.php#this@that.',
       'http://www.example.com/index.php#',
@@ -466,8 +654,22 @@ class LinkValidateUrlLight extends DrupalWebTestCase {
       'http://www.archive.org/stream/aesopsfables00aesorich#page/n7/mode/2up',
       'http://www.example.com/blah/#this@that?',
     );
+
     // Test all of the protocols.
-    $allowed_protocols = variable_get('filter_allowed_protocols', array('http', 'https', 'ftp', 'news', 'nntp', 'telnet', 'mailto', 'irc', 'ssh', 'sftp', 'webcal'));
+    $allowed_protocols = variable_get('filter_allowed_protocols', array(
+      'http',
+      'https',
+      'ftp',
+      'news',
+      'nntp',
+      'telnet',
+      'mailto',
+      'irc',
+      'ssh',
+      'sftp',
+      'webcal',
+    ));
+
     foreach ($allowed_protocols as $protocol) {
       if ($protocol !== 'news' && $protocol !== 'mailto') {
         $links[] = $protocol . '://www.example.com';
@@ -478,25 +680,28 @@ class LinkValidateUrlLight extends DrupalWebTestCase {
       $this->assertEqual(LINK_EXTERNAL, $type, 'Testing that ' . $link . ' is an external link.');
       $valid = link_validate_url($link);
       $this->assertTrue($valid, 'Test ' . $link . ' is valid external link.');
-      // The following two lines are commented out and only used for comparisons.
-      //$valid2 = valid_url($link, TRUE);
-      //$this->assertEqual(TRUE, $valid2, "Using valid_url() on $link.");
+      // The following two lines are commented out and only used for
+      // comparisons.
+      // $valid2 = valid_url($link, TRUE);
+      // $this->assertEqual(TRUE, $valid2, "Using valid_url() on $link.");.
     }
-    // Test if we can make a tld valid:
-    variable_set('link_extra_domains', array('frog'));
-    $valid = link_validate_url('http://www.example.frog');
-    $this->assertEqual(LINK_EXTERNAL, $valid, "Testing that http://www.example.frog is a valid external link if we've added 'frog' to the list of valid domains.");
   }
 
-  function testInvalidExternalLinks() {
+  /**
+   * Check Invalid External Links.
+   */
+  public function testInvalidExternalLinks() {
     $links = array(
       'http://www.ex ample.com/',
-      'http://25.0.0/', // bad ip!
+      // Bad ip!
+      'http://25.0.0/',
       'http://4827.0.0.2/',
-      '//www.example.com/',
-      'http://www.testß.com/', // ß not allowed in domain names!
-      'http://www.example.frog/', // Bad TLD
-      //'http://www.-fudge.com/', // domains can't have sections starting with a dash.
+      // ß not allowed in domain names!
+      'http://www.testß.com/',
+      // Bad TLD.
+      'http://.www.foo.bar./',
+      // Domains can't have sections starting with a dash.
+      // 'http://www.-fudge.com/',
       'http://example.com/index.php?page=this\that',
       'example@example.com',
     );
@@ -505,4 +710,5 @@ class LinkValidateUrlLight extends DrupalWebTestCase {
       $this->assertEqual(FALSE, $valid, 'Testing that ' . $link . ' is not a valid link.');
     }
   }
+
 }

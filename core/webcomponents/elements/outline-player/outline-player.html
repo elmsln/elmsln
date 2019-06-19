@@ -1,0 +1,560 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../jwt-login/jwt-login.html">
+<link rel="import" href="../schema-behaviors/schema-behaviors.html">
+<link rel="import" href="../simple-colors/simple-colors.html">
+<link rel="import" href="../map-menu/map-menu.html">
+<link rel="import" href="../lrnsys-outline/lrnsys-outline.html">
+<link rel="import" href="../iron-ajax/iron-ajax.html">
+<link rel="import" href="../app-layout/app-header/app-header.html">
+<link rel="import" href="../app-layout/app-toolbar/app-toolbar.html">
+<link rel="import" href="../app-layout/app-drawer/app-drawer.html">
+<link rel="import" href="../app-layout/app-drawer-layout/app-drawer-layout.html">
+<link rel="import" href="../app-layout/app-header-layout/app-header-layout.html">
+<link rel="import" href="../paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../paper-progress/paper-progress.html">
+<link rel="import" href="../paper-tooltip/paper-tooltip.html">
+
+<!--
+`outline-player`
+A LRN element
+
+@demo demo/index.html
+
+-->
+<dom-module id="outline-player">
+  <template>
+    <style>
+      :host {
+        display: block;
+        font-family: sans-serif;
+        --app-drawer-width: 300px;
+        --outline-player-dark: var(--simple-colors-foreground1);
+        --outline-player-light: var(--simple-colors-accent-background1);
+      }
+      :host[closed] {
+        --app-drawer-width: 0px;
+      }
+      h1 {
+        font-size:3em;
+        line-height:1em;
+      }
+      h2 {
+        font-size:2em;
+      }
+      h3 {
+        font-size:1.75em;
+      }
+      p {
+        line-height:26px;
+        min-height: 26px;
+      }
+      a, a:visited, a:active {
+        color:#000;
+      }
+      a:hover {
+        color:#2196f3;
+      }
+      ul li {
+        padding-bottom:1.5em;
+        line-height:1.5;
+        color:#424242;
+        max-width:28em;
+      }
+      ul li:last-child {
+        padding-bottom:1em;
+      }
+      app-toolbar {
+        background-color: var(--outline-player-light);
+        color: var(--outline-player-dark);
+        font-weight: bold;
+        border-bottom: solid 1px var(--outline-player-dark);
+        -webkit-box-shadow: 0 0 6px -1px var(--outline-player-dark);
+        box-shadow: 0 0 6px -1px var(--outline-player-dark);
+      }
+      .outline-title {
+        font-size: 24px;
+        height: 64px;
+        padding: 16px;
+        margin: 0;
+      }
+      #menu {
+        padding: 8px;
+        color: var(--outline-player-dark);
+      }
+      #outline {
+        color: var(--outline-player-dark);
+      }
+
+      paper-icon-button {
+        --paper-icon-button-ink-color: var(--outline-player-dark);
+      }
+
+      paper-icon-button + [main-title] {
+        margin-left: 24px;
+      }
+      paper-progress {
+        display: block;
+        width: 100%;
+        --paper-progress-active-color: rgba(255, 255, 255, 0.5);
+        --paper-progress-container-color: transparent;
+      }
+      app-header {
+        @apply --layout-fixed-top;
+        color: var(--outline-player-dark);
+        --app-header-background-rear-layer: {
+          color: var(--outline-player-dark);
+          background-color: var(--outline-player-light);
+        };
+      }
+      app-drawer {
+        border-bottom: solid 1px var(--outline-player-dark);
+        -webkit-box-shadow: 0 0 6px -1px var(--outline-player-dark);
+        box-shadow: 0 0 6px -1px var(--outline-player-dark);
+        --app-drawer-scrim-background: rgba(80, 80, 80, 0.8);
+        --app-drawer-content-container: {
+          overflow:scroll;
+          color: var(--outline-player-dark);
+          background-color: var(--outline-player-light);
+        }
+      }
+      #slot {
+        padding: 1em;
+        max-width: 65em;
+        margin: auto;
+      }
+      :host[edit-mode] #slot {
+        display: none;
+      }
+    </style>
+    <jwt-login id="jwt" url="[[jwtLoginLocation]]" url-logout="[[jwtLogoutLocation]]" jwt="{{jwt}}"></jwt-login>
+    <iron-ajax
+      auto
+      id="manifest"
+      url="[[outlineLocation]][[outlineFile]]"
+      handle-as="json"
+      last-response="{{manifest}}"></iron-ajax>
+    <iron-ajax
+      id="activecontent"
+      url="[[outlineLocation]][[activeItem.location]]"
+      handle-as="text"
+      loading="{{__loadingContent}}"
+      debounce-duration="250"
+      last-response="{{_activeItemContent}}"></iron-ajax>
+    <app-drawer-layout>
+      <app-drawer id="drawer" swipe-open slot="drawer">
+        <h2 class="outline-title">[[outlineTitle]]</h2>
+        <map-menu hidden$="[[editMode]]" id="menu" items="{{outline}}" data="[[manifest.items]]" selected="{{selected}}"></map-menu>
+        <lrnsys-outline hidden$="[[!editMode]]" items="[[outline]]" id="outline"></lrnsys-outline>
+      </app-drawer>
+      <app-header-layout>
+        <app-header reveals slot="header">
+          <app-toolbar>
+            <paper-icon-button icon="menu" on-click="_toggleMenu"></paper-icon-button>
+            <div main-title>[[activeItem.title]]</div>
+            <paper-icon-button id="prevpage" disabled="[[disablePrevPage(__activeIndex)]]" icon="icons:arrow-back" on-click="prevPage"></paper-icon-button>
+            <paper-tooltip
+              for="prevpage"
+              position="bottom"
+              offset="14">
+              Previous Page
+            </paper-tooltip>
+            <paper-icon-button id="nextpage" disabled="[[disableNextPage(__activeIndex)]]" icon="icons:arrow-forward" on-click="nextPage"></paper-icon-button>
+            <paper-tooltip
+              for="nextpage"
+              position="bottom"
+              offset="14">
+              Next Page
+          </paper-tooltip>
+            <paper-progress hidden$="[[!__loadingContent]]" value="10" indeterminate bottom-item></paper-progress>
+          </app-toolbar>
+        </app-header>
+        <div id="contentcontainer">
+          <div id="slot">
+            <slot></slot>
+          </div>
+        </div>
+      </app-header-layout>
+    </app-drawer-layout>
+  </template>
+  <script>
+    Polymer({
+      is: 'outline-player',
+      behaviors: [
+        SchemaBehaviors.Schema,
+        simpleColorsBehaviors,
+      ],
+      properties: {
+        /**
+         * Location of what endpoint to hit for
+         */
+        jwtLoginLocation: {
+          type: String,
+          value: '../../system/login.php',
+        },
+        /**
+         * Location of what endpoint to hit for logging out
+         */
+        jwtLogoutLocation: {
+          type: String,
+          value: '../../system/logout.php',
+        },
+        /**
+         * Outline JSON file name
+         */
+        outlineFile: {
+          type: String,
+          value: 'outline.json',
+        },
+        /**
+         * show or hide the edit button
+         */
+        showEditTools: {
+          type: Boolean,
+          value: false,
+        },
+        /**
+         * editting state for the page
+         */
+        editMode: {
+          type: Boolean,
+          reflectToAttribute: true,
+          value: false,
+        },
+        /**
+         * Outline JSON location
+         */
+        outlineLocation: {
+          type: String,
+        },
+        /**
+         * Ability to control entire page meta data state info.
+         */
+        controlMetaData: {
+          type: Boolean,
+          reflectToAttribute: true,
+        },
+        /**
+         * Title of the outline.
+         */
+        outlineTitle: {
+          type: String,
+          value: 'Outline',
+        },
+        /**
+         * acitvely selected item
+         */
+        selected: {
+          type: String,
+          observer: '_selectedPageChanged',
+        },
+        /**
+         * Closed status for the drawer
+         */
+        closed: {
+          type: Boolean,
+          reflectToAttribute: true,
+          value: false,
+        },
+        /**
+         * Active item content
+         */
+        _activeItemContent: {
+          type: String,
+          observer: '_activeItemContentChanged',
+        },
+        color: {
+          type: String,
+          reflectToAttribute: true,
+        },
+        /**
+         * Outline processed and ordered outline
+         */
+        outline: {
+          type: Array,
+          notify: true,
+          observer: '_outlineChanged',
+        },
+        /**
+         * Active item which is in JSON Outline Schema
+         */
+        activeItem: {
+          type: Object,
+          notify: true,
+          observer: '_activeItemChanged',
+        },
+        /**
+         * Autoloader to ensure other components are there to work with
+         */
+        autoloader: {
+          type: Array,
+          value: [
+            "license-element",
+            "grid-plate",
+            "q-r",
+            "self-check",
+            "tab-list",
+            "multiple-choice",
+            "oer-schema",
+            "hero-banner",
+            "magazine-cover",
+            "task-list",
+            "video-player",
+            "lrn-table",
+            "media-image",
+            "lrndesign-blockquote",
+            "meme-maker",
+            "a11y-gif-player",
+            "paper-audio-player",
+            "wikipedia-query",
+            "wave-player",
+            "pdf-element",
+            "lrn-vocab",
+            "lrn-math",
+            "person-testimonial",
+            "citation-element",
+            "lrn-calendar",
+            "code-editor",
+            "place-holder",
+            "aframe-player"
+          ],
+          observer: '_autoLoadChanged',
+        },
+        /**
+         * JSON Web token
+         */
+        jwt: {
+          type: String,
+          observer: '_jwtChanged',
+        },
+        /**
+         * a manifest json file decoded, in JSON Outline Schema format
+         */
+        manifest: {
+          type: Object,
+          observer: '_manifestChanged',
+        },
+      },
+      /**
+       * Required name for HAXCMS integration
+       */
+      haxCMSRefesh: function () {
+        this.__tmpselected = this.selected;
+        this.$.manifest.generateRequest();
+      },
+      /**
+       * Attached life cycle
+       */
+      attached: function () {
+        document.body.addEventListener('edit-mode-changed', this._editModeChanged.bind(this));
+        this.updateStyles();
+        this.$.activecontent.generateRequest();
+      },
+      /**
+       * Toggle edit mode
+       */
+      _editModeChanged: function(e) {
+        this.editMode = e.detail;
+      },
+      /**
+       * JWT changed, user can't login but if we have one
+       * from an administrative interface.
+       */
+      _jwtChanged: function (newValue, oldValue) {
+        if (newValue != null) {
+          this.showEditTools = true;
+          // this implies there's the possibility of an authoring experience
+          if (typeof Polymer.haxCmsSiteEditor !== typeof undefined) {
+            Polymer.haxCmsSiteEditor.requestAvailability(this.$.contentcontainer, this);
+          }
+        }
+      },
+      /**
+       * Link menu button to open and closing the side panel.
+       */
+      _toggleMenu: function(e) {
+        this.$.drawer.toggle();
+        // allow styling to trigger based on open status
+        this.closed = !this.$.drawer.opened;
+        // kind of silly it doesn't just work this way but
+        // app-panel doesn't make any assumptions about how
+        // to handle the layout when it closes
+        this.async(function() {
+          // trick browser into thinking we just reized
+          window.dispatchEvent(new Event('resize'));
+          // forcibly update styles via css variables
+          Polymer.updateStyles();
+        });
+      },
+      /**
+       * Process only new elements
+       */
+      _autoLoadChanged: function(newValue, oldValue) {
+        if (typeof newValue !== typeof undefined && newValue.constructor === Array) {
+          if (typeof this.__processedList === typeof undefined) {
+            this.__processedList = {};
+          }
+          // when new nodes show up in the slots then fire the needed pieces
+          for (var i in newValue) {
+            let tag = newValue[i].toLowerCase();
+            // see if we added this before
+            if (typeof this.__processedList[tag] === typeof undefined) {
+              // attempt a dynamic import with graceful failure / fallback
+              try {
+                this.__processedList[tag] = tag;
+                this.importHref(this.resolveUrl(`../${tag}/${tag}.html`), (e) => {
+                  //e.target.import
+                }, (e) => {
+                  //import failed
+                });
+              }
+              catch(err) {
+                // error in the event this is a double registration
+              }
+            }
+          }
+        }
+      },
+      /**
+       * Wipe slotted content
+       */
+      wipeSlot: function(element, slot = '*') {
+        // 100% clean slate
+        if (slot === '*') {
+          while (Polymer.dom(element).firstChild !== null) {
+            Polymer.dom(element).removeChild(Polymer.dom(element).firstChild);
+          }
+        }
+        else {
+          for (var i in Polymer.dom(element).childNodes) {
+            // test for element nodes to be safe
+            if (typeof Polymer.dom(element).childNodes[i] !== typeof undefined && Polymer.dom(element).childNodes[i].slot === slot) {
+              Polymer.dom(element).removeChild(Polymer.dom(element).childNodes[i]);
+            }
+          }
+        }
+      },
+      /**
+       * Notice that active item has changed.
+       */
+      _activeItemChanged: function (newValue, oldValue) {
+        if (newValue && typeof oldValue !== typeof undefined) {
+          this.$.activecontent.generateRequest();
+          this.fire('outline-player-active-item-changed', newValue);
+        }
+      },
+      /**
+       * active item content changed.
+       */
+      _activeItemContentChanged: function(newValue, oldValue) {
+        if (typeof newValue !== typeof undefined) {
+          this.wipeSlot(this, '*');
+          if (newValue !== null) {
+            let frag = document.createRange().createContextualFragment(newValue);
+            Polymer.dom(this).appendChild(frag);
+            this.fire('haxcms-body-changed', newValue);
+          }
+          // support controlling the meta-data of the page dynamically based on route
+          if (this.controlMetaData && typeof this.activeItem !== typeof undefined) {
+            document.title = this.manifest.title + ' - ' + this.activeItem.title;
+          }
+        }
+      },
+      /**
+       * When outline changes let's do this.
+       */
+      _outlineChanged: function(newValue, oldValue) {
+        if (typeof newValue !== typeof undefined && typeof oldValue !== typeof undefined && newValue.constructor === Array && typeof newValue[0] !== typeof undefined) {
+          this.set('activeItem', newValue[0]);
+          this.__activeIndex = 0;
+        }
+      },
+      /**
+       * disablePrevPage
+       */
+      disablePrevPage: function(index) {
+        if (index === 0) {
+          return true;
+        }
+        return false;
+      },
+      /**
+       * disableNextPage
+       */
+      disableNextPage: function(index) {
+        if (index === (this.manifest.items.length - 1)) {
+          return true;
+        }
+        return false;
+      },
+      /**
+       * Go back a page (if we can)
+       */
+      prevPage: function(e) {
+        this.changePage('previous');
+      },
+      /**
+       * Advance a page
+       */
+      nextPage: function(e) {
+        this.changePage('next');
+      },
+      /**
+       * Go forward a page
+       */
+      changePage: function(direction) {
+        if (direction == 'next' && this.__activeIndex < (this.manifest.items.length - 1)) {
+          this.selected = this.manifest.items[this.__activeIndex+1].id;
+        }
+        else if (direction == 'previous' && this.__activeIndex > 0) {
+          this.selected = this.manifest.items[this.__activeIndex-1].id;
+        }
+      },
+      /**
+       * Selected page has changed.
+       */
+      _selectedPageChanged: function(newValue, oldValue) {
+        if (typeof newValue !== typeof undefined) {
+          const item = this.manifest.items.filter((d,i) => {
+            if (newValue === d.id) {
+              this.__activeIndex = i;
+              return d;
+            }
+          }).pop();
+          this.set('activeItem', item);
+        }
+      },
+      /**
+       * Manifest has changed
+       */
+      _manifestChanged: function (newValue, oldValue) {
+        if (typeof newValue.metadata !== typeof undefined && typeof newValue.metadata.cssVariable !== typeof undefined) {
+          let color = this.manifest.metadata.cssVariable.replace('--simple-colors-', '');
+          let ary = color.split('-');
+          if (ary.length == 2) {
+            color = ary[0];
+            this.accentColor = color;
+          }
+          else if (ary.length == 3) {
+            color = ary[0] + ' ' + ary[1];
+            this.accentColor = color;
+          }
+          // @todo figure out wtf is up here as to why we can't get
+          // a good color for text
+          if (color == 'brown' || color == 'purple') {
+            //this.dark = true;
+          }
+          // set this directly instead of messing w/ accentColor
+          this.customStyle['--outline-player-light'] = this.customStyle[this.manifest.metadata.cssVariable];
+          this.updateStyles();
+          // set initially selected item if available
+          if (this.__tmpselected) {
+            this.selected = this.__tmpselected;
+          }
+          else if (typeof this.manifest.items[0] !== typeof undefined) {
+            this.selected = this.manifest.items[0].id;
+          }
+        }
+      },
+    });
+  </script>
+</dom-module>

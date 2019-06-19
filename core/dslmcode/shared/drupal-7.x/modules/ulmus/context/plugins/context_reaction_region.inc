@@ -17,7 +17,7 @@ class context_reaction_region extends context_reaction {
           '#type' => 'fieldset',
           '#title' => "Disable Regions in {$theme->name} Theme",
           '#collapsible' => TRUE,
-          '#collapsed' => !array_reduce($default, create_function('$a, $b', 'return $a || $b;')),
+          '#collapsed' => !array_reduce($default, 'context_reaction_region::collapseRegion'),
         );
         $form[$theme->name]['disable'] = array(
           '#type' => 'checkboxes',
@@ -28,6 +28,10 @@ class context_reaction_region extends context_reaction {
       }
     }
     return $form;
+  }
+
+  function collapseRegion($a, $b) {
+    return $a || $b;
   }
   
   function execute(&$page) {  

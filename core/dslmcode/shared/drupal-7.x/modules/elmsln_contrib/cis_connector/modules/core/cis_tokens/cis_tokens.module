@@ -58,36 +58,41 @@ function cis_tokens_tokens($type, $tokens, $data = array(), $options = array()) 
     $section_tokens = _cis_tokens_get_token_scope();
     $section_scope = _cis_tokens_get_token_scope(TRUE);
     foreach ($tokens as $name => $original) {
+      // look out for tokens with the 'raw' flag either as a prefix or at the end of the token.
+      // turn into array so we can search it
+      $raw = _cis_token_find_flag($name, 'raw');
+      // remove raw from token
       $hash = 'token-' . rand(0, 10000);
       // elements we know about ahead of time
       switch ($name) {
         case 'section_context':
           $replacements[$original] = _cis_connector_section_context();
-          if ($GLOBALS['user']->uid == 1 || array_intersect(array('administrator', 'instructor', 'staff'), array_values($GLOBALS['user']->roles))) {
-            $replacements[$original] = '<span tabindex="0" id="' . $hash . '" class="cis_token_dynamic_value">' . $replacements[$name] . '</span>
-              <paper-tooltip
-                for="' . $hash . '"
-                position="bottom"
-                delay="0"
-                offset="0">' . t('Scope: Current section') . '<br/>' . t('Token: @token', array('@token' => strip_tags($original))) . '
-              </paper-tooltip>';
+          if (!$raw) {
+            if ($GLOBALS['user']->uid == 1 || array_intersect(array('administrator', 'instructor', 'staff'), array_values($GLOBALS['user']->roles))) {
+              $replacements[$original] = '<span tabindex="0" id="' . $hash . '" class="cis_token_dynamic_value">' . $replacements[$name] . '</span>
+                <paper-tooltip
+                  for="' . $hash . '"
+                  position="bottom"
+                  delay="0"
+                  offset="0">' . t('Scope: Current section') . '<br/>' . t('Token: @token', array('@token' => strip_tags($original))) . '
+                </paper-tooltip>';
+            }
           }
         break;
         default:
-          // see if one of our global tokens is matched
           if (isset($section_tokens[$name])) {
-            if ($GLOBALS['user']->uid == 1 || array_intersect(array('administrator', 'instructor', 'staff'), array_values($GLOBALS['user']->roles))) {
-              $replacements[$original] = '<span tabindex="0" id="' . $hash . '" class="cis_token_dynamic_value">' . $section_tokens[$name] . '</span>
-              <paper-tooltip
-                for="' . $hash . '"
-                position="bottom"
-                delay="0"
-                offset="0">' .
-                t('Scope: @section', array('@section' => $section_scope[$name])) . '<br/>' . t('Token: @token', array('@token' => strip_tags($original))) . '
-              </paper-tooltip>';
-            }
-            else {
-              $replacements[$original] = $section_tokens[$name];
+            $replacements[$original] = $section_tokens[$name];
+            if (!$raw) {
+              if ($GLOBALS['user']->uid == 1 || array_intersect(array('administrator', 'instructor', 'staff'), array_values($GLOBALS['user']->roles))) {
+                $replacements[$original] = '<span tabindex="0" id="' . $hash . '" class="cis_token_dynamic_value">' . $section_tokens[$name] . '</span>
+                <paper-tooltip
+                  for="' . $hash . '"
+                  position="bottom"
+                  delay="0"
+                  offset="0">' .
+                  t('Scope: @section', array('@section' => $section_scope[$name])) . '<br/>' . t('Token: @token', array('@token' => strip_tags($original))) . '
+                </paper-tooltip>';
+              }
             }
           }
         break;
@@ -334,4 +339,38 @@ function _cis_tokens_sane_defaults() {
   $defaults .= 'module_date_4|9/29 - 10/12' . "\n";
   $defaults .= 'module_date_5|10/13 - 10/26';
   return $defaults;
+}
+
+/**
+ * Find a token in a token and optional remove the
+ * flag from the token
+ * @param string token
+ * @param string flag
+ * @return boolean does the token contain the flag
+ */
+function _cis_token_find_flag(&$token, $flag, $options = array('filter' => TRUE)) {
+  $t = $token;
+  // remove the brackets if they are there.
+  $t = str_replace('[', '', $t);
+  $t = str_replace(']', '', $t);
+  $t_array = explode(':', $t);
+  $has_flag = in_array($flag, $t_array);
+
+  if ($options['filter']) {
+    $t_array = array_flip($t_array);
+    unset($t_array[$flag]);
+    $t_array = array_flip($t_array);
+    $t = implode(':', $t_array);
+    // add the brackets back if they were
+    // previously there.
+    if (strpos($token, '[')) {
+      $t .= '[' . $t;
+    }
+    if (strpos($token, ']')) {
+      $t .= $t . ']';
+    }
+    $token = $t;
+  }
+
+  return $has_flag;
 }

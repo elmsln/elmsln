@@ -1760,11 +1760,6 @@ img.svg {
   .etb-book .main h2 {
     padding-left: 8%; } }
 
-.etb-book hr {
-  margin: 2rem 4rem 2rem; }
-  .etb-book hr.full {
-    margin: 2rem 0rem 2rem; }
-
 .etb-book span.dropcap {
   float: left;
   color: #333333;
@@ -2659,7 +2654,7 @@ blockquote,
   opacity: 0;
   position: absolute;
   top: 0;
-  right: 0;
+  right: -50px;
   z-index: 50;
   transition: all .2s ease-in;
   margin-top: -1px;
@@ -2843,7 +2838,7 @@ hr {
   border-width: 1px 0 0;
   clear: both;
   height: 0;
-  margin: 1.25rem 0 1.1875rem; }
+  margin: 20px auto}
 
 /* Helpful Typography Defaults */
 em,
@@ -2875,7 +2870,10 @@ ul,
 ol,
 dl {
   list-style-position: outside;
-  margin-bottom: 1.5rem; }
+  line-height: 40px;
+  margin-bottom: 32px;
+  text-rendering: optimizeLegibility;
+}
 
 ul {
   margin-left: 1.4rem; }
@@ -3198,8 +3196,8 @@ html.js .js-hide {
 }
 
 .etb-book .field-name-body > p:not(.style-scope) {
-  line-height: 2.5em;
-  margin-bottom: 1.25em;
+  line-height: 40px;
+  margin-bottom: 32px;
   text-rendering: optimizeLegibility;
 }
 button {
@@ -6596,6 +6594,18 @@ table.sticky-header {
   transform: scale(1.06);
   padding: 0 0 0 .5em;
 }
+/* Add micro interaction for when the scrollspy gets pinned */
+#scrollspy-nav.pinned {
+  animation: scrollspyPinnedAnimation 0.3s;
+}
+@keyframes scrollspyPinnedAnimation {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
 .table-of-contents li {
   padding: 0;
 }
@@ -7051,9 +7061,7 @@ div.error {
 .elmsln-gallery-image {
   margin-top: 1rem;
 }
-.elmsln-gallery-image a {
-  float: left;
-}
+
 .image--parallax {
   align-items: initial;
 }
@@ -7244,14 +7252,7 @@ article p:not([class]),
 article p.elmsln-core-in-context,
 .ckeditor-edit-body p:not([class]),
 .ckeditor-edit-body p.elmsln-core-in-context {
-  max-width: 85%;
-}
-article div div div p,
-cite p,
-article div div div p.elmsln-core-in-context,
-.ckeditor-edit-body div p,
-.ckeditor-edit-body div p.elmsln-core-in-context{
-  max-width: 100%;
+  max-width: 70%;
 }
 @media (max-width: 50rem) {
   article p:not([class]),
@@ -7851,6 +7852,14 @@ div.horizontal-tabs ul li.horizontal-tab-button strong {
 }
 
 /* ALL LRN / WEB COMPONENT BASED DESIGN MODIFICATIONS */
+video-player {
+  z-index: 0;
+  font-size: 12px;
+}
+image-compare-slider .container.image-compare-slider {
+  margin: unset;
+  margin-bottom: 315px;
+}
 ul.pagination paper-button {
     margin: 0;
     padding: 0;
@@ -7903,7 +7912,18 @@ lrnapp-fab-speed-dial-action.lrnapp-fab-speed-dial-action-0 {
   max-height: 40vh !important;
   height: auto;
   overflow: scroll;
+  background-color: rgba(0, 0, 0, .8);
+  transition: all linear .3s;
+  -webkit-transition: all linear .3s;
+  -moz-transition: all linear .3s;
+  -ms-transition: all linear .3s;
+  -o-transition: all linear .3s;
 }
+
+#toastdrawer:hover {
+  background-color: rgba(0, 0, 0, 1);
+}
+
 .paper-toast-label {
   padding: 1em 2em;
   color: white;
@@ -7920,19 +7940,16 @@ lrnapp-fab-speed-dial-action.lrnapp-fab-speed-dial-action-0 {
   border-top-left-radius: .8em;
   border-top-right-radius: .8em;
 }
+#toastdrawer lrnsys-button {
+  display: inline-flex;
+}
 #toastdrawer paper-button {
-  margin: 0;
   color: rgba(255,255,255,0.85);
   border-radius: 4px;
   background: #41bea8;
   font-weight: 900;
-  font-size: 1rem;
-  line-height: 1.7;
-  padding: 0.5rem 1.5rem;
+  padding: 8px 24px;
   box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12), 0 2px 4px -1px rgba(0, 0, 0, 0.4);
-  right: 4px;
-  position: absolute;
-  top: 4px;
 }
 .alert-box {
   background-color: #FFB428;
@@ -8193,7 +8210,8 @@ lrn-aside p {
   line-height: 2rem;
 }
 lrn-aside div.card-panel.lrndesign-panelcard {
-  padding: .75rem;
+  padding: 12px;
+  margin: 0;
 }
 
 button.btn paper-button {

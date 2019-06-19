@@ -242,7 +242,7 @@ function cle__2_update_7018(&$sandbox) {
       $submission->field_submission_text[LANGUAGE_NONE][0]['value'] = $submission->body[LANGUAGE_NONE][0]['value'];
       $submission->field_submission_text[LANGUAGE_NONE][0]['format'] = 'student_markdown';
     }
-    node_save($submission);
+    node_save($submission); 
   }
 }
 /**
@@ -286,4 +286,27 @@ function cle__2_update_7022(&$sandbox) {
  */
 function cle__2_update_7023(&$sandbox) {
   features_revert_module('cle_perms');
+}
+
+
+/**
+ * Permissions clean up for students
+ */
+function cle__2_update_7024(&$sandbox) {
+  features_revert_module('cle_perms');
+}
+
+/**
+ * Assignment reordering, permission for assigning sections
+ */
+function cle__2_update_7025(&$sandbox) {
+  features_revert_module('cle_perms');
+  features_revert_module('cle_project');
+}
+
+/**
+ * Project reordering
+ */
+function cle__2_update_7026(&$sandbox) {
+  features_revert_module('cle_section');
 }

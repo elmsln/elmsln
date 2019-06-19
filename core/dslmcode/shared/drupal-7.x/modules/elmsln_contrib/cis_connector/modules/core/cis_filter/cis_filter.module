@@ -71,7 +71,8 @@ function _cis_filter_process($text, $filter, $format, $langcode, $cache, $cache_
         $template = '';
         if ($vars['rev'] == 1) {
           $code = array_merge(array(
-            'render' => 'iframe',
+            'render' => 'display_mode',
+            'display_mode' => 'iframe',
             'item_type' => 'id',
             'entity_type' => 'node',
             'entity_bundle' => NULL,

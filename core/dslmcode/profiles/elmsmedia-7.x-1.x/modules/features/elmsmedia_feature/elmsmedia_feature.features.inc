@@ -89,7 +89,7 @@ function elmsmedia_feature_wysiwyg_default_profiles_alter(&$data) {
       'default' => 1,
       'show_toggle' => 0,
       'user_choose' => 0,
-      'version' => NULL,
+      'version' => '4.5.6.91e81fe',
     ); /* WAS: '' */
     unset($data['textbook_editor']['settings']['add_to_summaries']);
     unset($data['textbook_editor']['settings']['default']);

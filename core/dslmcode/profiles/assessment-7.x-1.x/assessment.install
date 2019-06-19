@@ -72,3 +72,10 @@ function assessment_update_7006(&$sandbox) {
   features_revert_module('assessment_perms');
 }
 
+/**
+ * Add support for same capabilities as media system in rendering
+ */
+function assessment_update_7007(&$sandbox) {
+  module_enable(array('display_inherit', 'view_mode_tab', 'clipboardjs', 'assessment_view_mode_tabs'));
+}
+

@@ -1,0 +1,98 @@
+# THIS IS NOT YET SUPPORTED
+APIVersion: v1.0.0
+name: elmsln
+type: php
+docroot: domains
+php_version: "7.0"
+router_http_port: "80"
+router_https_port: "443"
+xdebug_enabled: false
+additional_hostnames: []
+additional_fqdns: 
+  - courses.elmsln.local
+  - media.elmsln.local
+  - online.elmsln.local
+  - analytics.elmsln.local
+  - studio.elmsln.local
+  - interact.elmsln.local
+  - blog.elmsln.local
+  - comply.elmsln.local
+  - discuss.elmsln.local
+  - inbox.elmsln.local
+  - people.elmsln.local
+  - innovate.elmsln.local
+  - grades.elmsln.local
+  - hub.elmsln.local
+  - data-courses.elmsln.local
+  - data-media.elmsln.local
+  - data-online.elmsln.local
+  - data-studio.elmsln.local
+  - data-interact.elmsln.local
+  - data-blog.elmsln.local
+  - data-comply.elmsln.local
+  - data-discuss.elmsln.local
+  - data-inbox.elmsln.local
+  - data-people.elmsln.local
+  - data-innovate.elmsln.local
+  - data-grades.elmsln.local
+  - data-hub.elmsln.local
+  - data-lq.elmsln.local
+provider: default
+
+# This config.yaml was created with ddev version v1.0.0 
+# webimage: drud/ddev-webserver:v1.0.0
+# dbimage: drud/ddev-dbserver:v1.0.0
+# dbaimage: drud/phpmyadmin:v1.0.0
+# However we do not recommend explicitly wiring these images into the
+# config.yaml as they may break future versions of ddev.
+# You can update this config.yaml using 'ddev config'.
+
+# Key features of ddev's config.yaml:
+
+# name: <projectname> # Name of the project, automatically provides 
+#   http://projectname.ddev.local and https://projectname.ddev.local
+
+# type: <projecttype>  # drupal6/7/8, backdrop, typo3, wordpress, php
+
+# docroot: <relative_path> # Relative path to the directory containing index.php.
+
+# php_version: "7.1"  # PHP version to use, "5.6", "7.0", "7.1", "7.2"
+
+# You can explicitly specify the webimage, dbimage, dbaimage lines but this 
+# is not recommended, as the images are often closely tied to ddev's' behavior,
+# so this can break upgrades.
+
+# webimage: <docker_image>  # nginx/php docker image. 
+# dbimage: <docker_image>  # mariadb docker image. 
+# dbaimage: <docker_image>
+
+# router_http_port: <port>  # Port to be used for http (defaults to port 80)
+# router_https_port: <port> # Port for https (defaults to 443)
+
+# xdebug_enabled: false  # Set to true to enable xdebug and "ddev start" or "ddev restart"
+
+#additional_hostnames:
+# - somename
+# - someothername
+# would provide http and https URLs for "somename.ddev.local"
+# and "someothername.ddev.local".
+
+#additional_fqdns:
+# - example.com
+# - sub1.example.com
+# would provide http and https URLs for "example.com" and "sub1.example.com"
+# Please take care with this because it can cause great confusion.
+
+# provider: default # Currently either "default" or "pantheon"
+#
+# Many ddev commands can be extended to run tasks after the ddev command is
+# executed.
+# See https://ddev.readthedocs.io/en/latest/users/extending-commands/ for more
+# information on the commands that can be extended and the tasks you can define
+# for them. Example:
+hooks:
+  post-start:
+    - exec: "sudo ln -s /var/www/html /var/www/elmsln"
+    - exec: "sudo bash /var/www/elmsln/scripts/vagrant/handsfree-vagrant.sh https://github.com/elmsln/elmsln.git 0.11.x https://github.com/elmsln/elmsln-config-vagrant.git"
+    - exec: "bash /var/www/elmsln/scripts/vagrant/cleanup.sh"
+    - exec: "echo 'finished! go to http://online.elmsln.local and login with username admin and password admin.'"
