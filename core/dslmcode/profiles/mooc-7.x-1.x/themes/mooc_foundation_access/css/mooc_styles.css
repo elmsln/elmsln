@@ -401,6 +401,7 @@ body.page-node-edit #scrollspy-nav {
 #scrollspy-nav .scrollspy-link {
   padding: 0 0 0 1em;
   margin: 0;
+  height: unset;
 }
 
 #scrollspy-nav.pinned .scrollspy-label {
@@ -412,6 +413,7 @@ body.page-node-edit #scrollspy-nav {
   font-size: 1.5rem;
   padding: 0;
   margin: 0;
+  height: unset;
 }
 #scrollspy-nav.pinned {
   left: 0;
