@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit bootstrap="vendor/autoload.php" colors="true" backupGlobals="false" 
+         backupStaticAttributes="false" syntaxCheck="false">
+    <testsuites>
+        <testsuite name="Tests">
+            <directory suffix="Test.php">test</directory>
+        </testsuite>
+    </testsuites>
+    <filter>
+        <whitelist processUncoveredFilesFromWhitelist="false">
+            <directory suffix=".php">lib</directory>
+        </whitelist>
+    </filter>
+</phpunit>
