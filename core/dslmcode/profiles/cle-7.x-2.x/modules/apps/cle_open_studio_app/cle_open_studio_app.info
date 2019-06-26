@@ -7,3 +7,4 @@ dependencies[] = cle_project
 dependencies[] = cle_submission
 dependencies[] = transliteration
 dependencies[] = webcomponents_app
+dependencies[] = webcomponents_polymer

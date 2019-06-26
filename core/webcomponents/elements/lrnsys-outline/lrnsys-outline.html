@@ -1,0 +1,342 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../paper-input/paper-input.html">
+<link rel="import" href="../paper-dialog/paper-dialog.html">
+<link rel="import" href="../paper-icon-button/paper-icon-button.html">
+<link rel="import" href="lrnsys-outline-item.html">
+
+<!--
+`lrnsys-outline`
+A LRN element
+
+@demo demo/index.html
+
+@microcopy - the mental model for this element
+ -
+ -
+ -
+
+-->
+
+<dom-module id="lrnsys-outline">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+    <h3>[[title]]<paper-icon-button title="Keyboard directions" id="dialogtrigger" icon="icons:help" on-tap="openDirections"></paper-icon-button></h3>
+    <paper-dialog id="modal" with-backdrop>
+      <h2>Keyboard shortcuts</h2>
+      <div>
+        <paper-icon-button title="close directions" style="position: absolute;top: 0; right:0;" icon="icons:cancel" on-tap="closeDirections"></paper-icon-button>
+        <style>
+          kbd {
+            display: inline-block;
+            background: #333;
+            color: white;
+            border-radius: 0.25em;
+            margin: 0.25em 0.25em 0.25em 0;
+            padding: 0.5em;
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+            font-size:85%;
+          }
+        </style>
+        <ul>
+          <li><kbd>Enter</kbd> to <strong>add</strong> an item</li>
+          <li><kbd>Backspace</kbd> <em>with entire item selected</em> to <strong>delete</strong> an item.</li>
+          <li><kbd>&uarr;</kbd> / <kbd>&darr;</kbd> / <kbd>&larr;</kbd> / <kbd>&rarr;</kbd> to <strong>navigate</strong> through items</li>
+          <li><kbd>Tab</kbd> / <kbd>Shift+Tab</kbd> <em>at the beginning of a line</em> to <strong>indent/outdent</strong></li>
+          <li><kbd>Alt+&uarr;</kbd> / <kbd>Alt+&darr;</kbd> to <strong>move</strong> an item up/down</li>
+          <li><kbd>Shift+&uarr;</kbd> / <kbd>Shift+&darr;</kbd> to <strong>move a group</strong> of items up/down</li>
+        </ul>
+      </div>
+    </paper-dialog>
+    <div id="itemslist">
+      <template id="domRepeat" is="dom-repeat" items$="[[items]]" as="item">
+        <lrnsys-outline-item id$="{{item.id}}" title$="{{item.title}}" indent$="{{item.indent}}" parent$="{{item.parent}}"></lrnsys-outline-item>
+      </template>
+    </div>
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'lrnsys-outline',
+      listeners: {
+        'delete-item': '_handleRemoveItem',
+        'indent-item': '_handleIndentItem',
+        'focus-item': '_handleFocusItem',
+        'add-item': '_handleAddItem',
+        'move-item': '_handleMoveItem',
+        'change-item': '_handleChangeItem',
+      },
+
+      properties: {
+        title: {
+          type: String,
+          value: 'Content Outline',
+        },
+        data: {
+          type: Array,
+          value: null,
+        },
+        items: {
+          type: Array,
+          value: null,
+          notify: true,
+        },
+      },
+      /**
+       * Display directions for keyboard usage
+       */
+      openDirections: function(e) {
+        this.$.modal.opened = true;
+      },
+      /**
+       * Display directions for keyboard usage
+       */
+      closeDirections: function(e) {
+        this.$.modal.opened = false;
+        this.$.dialogtrigger.focus();
+      },
+      /**
+       * Attached lifecycle
+       */
+      attached: function() {
+        this.__modal = this.$.modal;
+        document.body.addEventListener('iron-overlay-canceled', this._accessibleFocus.bind(this));
+        // fix stack order
+        document.body.appendChild(this.$.modal);
+      },
+      /**
+       * Set ourselves as having focus after the modal closes.
+       */
+      _accessibleFocus: function(e) {
+        // this is OUR modal, we found her, oh modal, We've missed
+        // you so much. thank you for coming home. We're so, so, so
+        // sorry that we appended you to the body. We'll never do it
+        // again (until the next time you open).
+        if (e.detail === this.__modal) {
+          // focus on our dialog triggering button
+          this.$.dialogtrigger.focus();
+        }
+      },
+      ready: function(){
+        if (this.data === null || this.data.length < 1) {
+          this.__tempid = this.__tempid === undefined ? 0 : this.__tempid + 1;
+          this.data = [
+            {id: 'outline-item-'+this.__tempid, title: '', order: 0, parent: null}
+          ];
+        }
+        console.log('readysetData',this.data);
+        this.setData(this.data);
+      },
+      /**
+       * gets a nested array of items to convert & updates the dom-repeat
+       */
+      setData: function(data){
+        this.items = [];
+        if(data !== undefined && data.length > 0){
+          for (i in data) {
+            this.__tempid = this.__tempid === undefined ? 0 : this.__tempid + 1;
+            data[i].indent = this._getIndent(data,i);
+            data[i].id === data[i].id === undefined ? 'outline-item-'+this.__tempid : data[i].id;
+          }
+        }
+        console.log('setData',this.items);
+        this.items = data;
+      },
+      /**
+       * gets a flat array of items to convert & updates it to a nested array
+       */
+      getData: function(){
+        for (i in this.items){
+          this.items[i].order = this._getOrder(this.items[i]);
+        }
+        return this.items;
+      },
+      /**
+       * adds a new item
+       */
+       addItem: function(item){
+        let items = this.items, i = this.items.findIndex(j => j.id === item.id);
+        this.__tempid = this.__tempid+1;
+        items.splice(i+1, 0, {id: 'outline-item-'+this.__tempid, title: '', indent: item.indent, parent: item.parent});
+        this._refreshData();
+        this.async(function() {
+          Polymer.dom(this.root).querySelectorAll('lrnsys-outline-item')[i+1].focus();
+        });
+      },
+      /**
+       * removes an item
+       */
+       removeItem: function(item){
+        console.log('removeItem',item);
+        let i = this.items.findIndex(j => j.id === item.id), items;
+        if (confirm('Do you really want to delete '+this.items[i].title+'?')) {
+          for (k in this.items){
+            if(this.items[k].parent == this.items[i].id) {
+              this.items[k].parent = this.items[i].parent;
+            }
+          }
+          this.items.splice(i, 1);
+          this._refreshData();
+          this.$$('#itemslist').querySelectorAll('lrnsys-outline-item')[i-1].focus();
+        }
+      },
+      /**
+       * moves an grop of items down
+       */
+      moveItem: function(item,moveUp,byGroup){
+        console.log('moveItem',item,moveUp,byGroup);
+        let start = this.items.findIndex(j => j.id === item.id), children = byGroup ? this._getNextSibling(item): start+1;
+        let target = moveUp ? start-1 : start+1, total = children > -1 ? Math.abs(children-start) : Math.abs(this.items.length-1-start); 
+        let items, items2, items3, items4;
+        console.log('moveItem',start,target);
+        if(target > -1) {
+          items = this.items.slice(start,total+1)
+          items2 = this.items.splice(start,total);
+          items3 = this.items.splice(target,0,...items2);
+          items4 = this.items;
+          this.setData(items4);
+          this.$$('#itemslist').querySelectorAll('lrnsys-outline-item')[target].focus();
+        }
+      },
+      /**
+       * refresh the array
+       */
+      _refreshData: function(){
+        let items = this.items;
+        this.items = [];
+        this.items = items;
+      },
+      /**
+       * increase indent
+       */
+      _increaseIndent: function(item){
+        console.log('_increaseIndent',item);
+        let prev = this._getItemById(item.id,-1), next = this._getItemById(item.id,1), indent = item.indent;
+        if(item !== undefined && prev !== undefined && item.indent - prev.indent <= 0) {
+          item.indent = indent + 1;
+          item.parent = this._getItemById(item.id,-1).id;
+          while(next !== undefined && indent < next.indent){
+            next.indent = next.indent + 1;
+            next = this._getItemById(next.id,1);
+          }
+          this._refreshData();
+        }
+      },
+      /**
+       * decrease indent
+       */
+      _decreaseIndent: function(item){
+        console.log('_decreaseIndent',item);
+        let next = this._getItemById(item.id,1), indent = item.indent;
+        if(indent > 0) {
+          item.indent = item.indent - 1;
+          item.parent = this._getItemById(item.parent).parent;
+          while(next !== undefined && indent < next.indent){
+            next.indent = next.indent - 1;
+            next = this._getItemById(next.id,1);
+          }
+          this._refreshData();
+        }
+      },
+      /**
+       * converts a nested array of items and returns a flat list with indents
+       */
+      _getIndent: function(data,i){
+        if (data[i].parent !== undefined) {
+          let k = data.findIndex(j => j.id === data[i].parent);
+          if (data[k] !== undefined && data[k].indent !== undefined){
+            return data[k].indent+1;
+          }
+        }
+        return 0;
+      },
+      /**
+       * returns order relative to siblings
+       */
+      _getOrder: function(item){
+        let ctr = 0,order = 0;
+        for (i in this.items){
+          if(this.items[i].parent == item.parent && this.items[i].id == item.id) {
+            order = ctr;
+          } else if (this.items[i].parent == item.parent) {
+            ctr++;
+          }
+        }
+        return order;
+      },
+      /**
+       * returns previous sibling
+       */
+      _getNextSibling: function(item){
+        let ctr = 0,found = false,current= -1;
+        for (i in this.items){
+          if(this.items[i].id == item.id) {
+            current = parseInt(i);
+          } else if (current > -1 && this.items[i].indent <= item.indent) {
+            return parseInt(i);
+          }
+        }
+        return current > -1 ? current + 1 : current;
+      },
+      /**
+       * get an item by item id
+       */
+      _getItemById: function(id,offset){
+        let i = this.items.findIndex(j => j.id === id);
+        offset = offset === undefined ? 0 : offset;
+        if (this.items[i+offset] !== undefined){
+          return this.items[i+offset];
+        } else {
+          return undefined;
+        }
+      },
+      /**
+       * listener to add an item
+       */
+      _handleAddItem: function(e){
+        this.addItem(e.detail.item);
+      },
+      /**
+       * listener to delete an item
+       */
+      _handleRemoveItem: function(e){
+        this.removeItem(e.detail.item);
+      },
+      /**
+       * listener to move an item
+       */
+      _handleMoveItem: function(e){
+        this.moveItem(e.detail.item,e.detail.moveUp,e.detail.byGroup);
+      },
+      /**
+       * listener to move focus up or down
+       */
+      _handleFocusItem: function(e){
+        let item = e.detail.moveUp ? e.detail.item.previousElementSibling : e.detail.item.nextElementSibling;
+        item.setSelection();
+      },
+      /**
+       * listener to increase or decrease indent
+       */
+      _handleIndentItem: function(e){
+        if (e.detail.increase){
+          this._increaseIndent(this._getItemById(e.detail.item.id));
+        } else {
+          this._decreaseIndent(this._getItemById(e.detail.item.id));
+        }
+        this._refreshData();
+      },
+      /**
+       * listener to handle changes to text inputs
+       */
+      _handleChangeItem: function(e){
+        this._getItemById(e.detail.item.id).title = e.detail.value;
+        this._refreshData();
+      },
+    });
+  </script>
+</dom-module>

@@ -195,7 +195,7 @@ function cis_update_7018(&$sandbox) {
   // revert the types
   features_revert_module('cis_types');
   features_revert_module('cis_displays');
-  module_enable(array('webcomponents', 'webcomponents_app'));
+  module_enable(array('webcomponents', 'webcomponents_polymer', 'webcomponents_app'));
   // set to new default if they haven't modified
   if (variable_get('site_frontpage', 'courses') == 'courses' || variable_get('site_frontpage', 'courses') == 'courses/list') {
     variable_set('site_frontpage', 'apps/lrnapp-cis');

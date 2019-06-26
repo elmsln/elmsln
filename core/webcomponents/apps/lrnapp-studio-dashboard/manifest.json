@@ -5,7 +5,6 @@
   "start_url": "/",
   "display": "standalone",
   "app_integration": {
-    "element": "node_modules/@lrnwebcomponents/elmsln-apps/lib/lrnapp-studio-dashboard/lrnapp-studio-dashboard.js",
     "title": "Recent activity",
     "menu": {
       "menu_name": "menu-elmsln-navigation",
@@ -33,10 +32,6 @@
         "callback": "_lrnapp_studio_dashboard_need_feedback",
         "property": "source-path"
       }
-    },
-    "context": {
-      "distro": "cle",
-      "module": "cle_open_studio_app"
     }
   }
 }

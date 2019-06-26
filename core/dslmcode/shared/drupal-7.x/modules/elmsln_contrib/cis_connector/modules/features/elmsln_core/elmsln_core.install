@@ -243,7 +243,7 @@ function elmsln_core_update_7022(&$sandbox) {
  * the process in general.
  */
 function elmsln_core_update_7023(&$sandbox) {
-  module_enable(array('webcomponents'));
+  module_enable(array('webcomponents', 'webcomponents_polymer'));
 }
 
 /**
@@ -373,26 +373,5 @@ function elmsln_core_update_7032(&$sandbox) {
  */
 function elmsln_core_update_7033(&$sandbox) {
   module_enable(array('file_entity'));
-  features_revert_module('elmsln_core');
-}
-
-/**
- * Remove webcomponents polymer name as that no longer exists
- */
-function elmsln_core_update_7034(&$sandbox) {
-  $modules = array(
-    'webcomponents_polymer',
-  );
-  db_delete('system')
-    ->condition('name', $modules, 'IN')
-    ->condition('type', 'module')
-    ->execute();
-}
-
-/**
- * Disable voice and speed reader stuff
- */
-function elmsln_core_update_7035(&$sandbox) {
-  module_disable(array("elmsln_voice", "voicecommander", "jwerty"));
   features_revert_module('elmsln_core');
 }

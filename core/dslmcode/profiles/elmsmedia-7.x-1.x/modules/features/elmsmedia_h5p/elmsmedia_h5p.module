@@ -5,7 +5,6 @@
  */
 
 include_once 'elmsmedia_h5p.features.inc';
-include_once DRUPAL_ROOT . '/sites/all/modules/elmsln_contrib/webcomponents/WebComponentsService.php';
 
 /**
  * Implements hook_page_build().
@@ -39,15 +38,50 @@ function elmsmedia_h5p_embedded_h5p_alter(&$head, $node) {
   if ($domain = _cis_connector_parent_domain()) {
     $head .= "\n" . '<script>document.domain = "' . $domain . '"</script>';
   }
-  // @todo appends this stuff to the head like a normal web components domain
-  $location = variable_get('webcomponents_project_location', 'sites/all/libraries/webcomponents/');
-  // append base_path if this site has a url to start it
-  if (strpos($location, 'http') === FALSE) {
-    $location = base_path() . $location;
+  // load all the components so we can use webcomponents in H5P
+  $components = webcomponents_load_all();
+  $files = array();
+  // ensure files w/ multiple elements are only
+  // imported once
+  foreach ($components as $component) {
+    // if it matches multiple to same file
+    // it doesn't matter since it'll still be available
+    $files[$component->file] = $component;
+  }
+  // let developers modify which files are appended to the document
+  // right before we do so
+  drupal_alter('webcomponent_attached_files', $files);
+  // write the component file reference to the screen
+  foreach ($files as $component) {
+    // @see _webcomponents_add_to_head
+    // generate filename hash based on the size of the file
+    // this is a quick and dirty way to do invalidation when it updates without local cache refreshes client side
+    if (file_exists(DRUPAL_ROOT . '/' . $component->file)) {
+      $hash = filesize(DRUPAL_ROOT . '/' . $component->file);
+      $head .= "\n" . '<link rel="import" href="' . base_path() . $component->file . '?h' . $hash . '"/>';
+    }
+
   }
   // load webcomponentsjs polyfill library if it exists
-  $wc = new WebComponentsService();
-  $head .= $wc->applyWebcomponents($location);
+  $libraries = libraries_get_libraries();
+  if (isset($libraries['webcomponents']) && is_dir(DRUPAL_ROOT . '/' . $libraries['webcomponents'] . '/webcomponentsjs')) {
+    $head .= "\n" . "
+      <script type='text/javascript'>
+      window.onload = function() {
+        if ('registerElement' in document
+          && 'import' in document.createElement('link')
+          && 'content' in document.createElement('template')) {
+          // platform is good!
+        }
+        else {
+          // polyfill the platform!
+          var e = document.createElement('script');
+          e.src = '" . base_path() . $libraries['webcomponents'] . "/webcomponentsjs/webcomponents-lite.min.js';
+          document.head.appendChild(e);
+        }
+      };
+      </script>";
+  }
 }
 
 /**

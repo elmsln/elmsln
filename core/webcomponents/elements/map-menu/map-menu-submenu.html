@@ -1,0 +1,103 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../paper-button/paper-button.html">
+<link rel="import" href="map-menu-item.html">
+<link rel="import" href="map-menu-header.html">
+
+<dom-module id="map-menu-submenu">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+
+      :host([collapsable])>map-menu-header {
+        cursor: pointer;
+        display: block;
+      }
+
+      #container {
+        padding: 1em;
+        position: relative;
+      }
+
+      #line {
+        display: block;
+        position: absolute;
+        height: 100%;
+        top: 0;
+        left: .8em;
+        width: 1px;
+        background: rgba(0, 0, 0, .2);
+      }
+
+      #container ::slotted(map-menu-item) {
+        margin-top: .4em;
+      }
+    </style>
+    <map-menu-header on-tap="_headerClickHandler" avatar-label="[[avatarLabel]]" id="[[id]]" title="[[title]]" label="[[label]]"
+      opened="[[opened]]" url="[[url]]"></map-menu-header>
+    <iron-collapse id="container">
+      <div id="line"></div>
+      <slot id="slot"></slot>
+    </iron-collapse>
+  </template>
+  <script>
+    Polymer({
+      is: 'map-menu-submenu',
+      properties: {
+        id: {
+          type: String
+        },
+        title: {
+          type: String
+        },
+        avatarLabel: {
+          type: String
+        },
+        label: {
+          type: String
+        },
+        opened: {
+          type: Boolean,
+          value: false
+        },
+        collapsable: {
+          type: Boolean,
+          value: true
+        },
+        expandChildren: {
+          type: Boolean,
+          value: false
+        }
+      },
+
+      observers: [
+        '_openChanged(opened)',
+      ],
+
+      listeners: {
+        'child-deactivated': '__childDeactivated',
+        'child-activated': '__childActivated',
+        'active-item': '__activeChanged',
+      },
+
+      _openChanged: function (opened) {
+        var target = this.$.container;
+        if (opened) target.show();
+        if (!opened) target.hide();
+      },
+      _headerClickHandler: function (e) {
+        if (this.collapsable) {
+          this.opened = !this.opened;
+        }
+      },
+
+      __activeChanged: function (e) {
+          this.opened = true;
+      },
+
+      ready: function () {
+      }
+    });
+  </script>
+</dom-module>

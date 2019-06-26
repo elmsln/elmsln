@@ -1,0 +1,97 @@
+<html><head><link rel="import" href="../polymer/polymer.html"><script src="../jarallax/dist/jarallax.min.js"></script><script src="../jarallax/dist/jarallax-video.min.js"></script><script src="../jarallax/dist/jarallax-element.min.js"></script><link rel="prefetch" href="../polymer/polymer-mini.html"><link rel="prefetch" href="../polymer/polymer-micro.html"></head><body><dom-module id="parallax-effect"><template><style>:host{display:block;}.jarallax{position:relative;z-index:0;height:400px;overflow:hidden;}.jarallax>.jarallax-img{position:absolute;object-fit:cover;font-family:'object-fit: cover;';top:0;left:0;width:100%;height:100%;z-index:-1;}#title_contain{display:flex;justify-content:center;padding-top:170px;}.title{background:rgba(0, 0, 0, 0.3);display:block;padding:20px 15px;text-align:center;width:40%;color:#fff;font-size:2em;position:absolute;border:solid 1px;}</style><a href="[[url]]" target$="[[_urlTarget(url)]]"><div class="parallax_contain"><div class="jarallax"><template is="dom-if" if="[[title]]"><div id="title_contain"><div class="title">[[title]]</div></div></template></div></div></a></template><script>
+    Polymer({
+
+      is: 'parallax-effect',
+
+      properties: {
+        /**
+          * Types of parallax (image / video)
+          */
+        type: {
+          type: String,
+          value: 'image',
+          reflectToAttribute: true,
+        },
+        /**
+          * Source of (image / video)
+          */
+        src: {
+          type: String,
+          value: '',
+          reflectToAttribute: true,
+        },
+
+        /**
+          * Alt text for image
+          */
+        alt: {
+          type: String,
+          value: '',
+          reflectToAttribute: true,
+        },
+        /**
+          * Title for parallax panel
+          */
+        title: {
+          type: String,
+          value: '',
+          reflectToAttribute: true,
+        },
+        /**
+          * Url for parallax panel
+          */
+        url: {
+          type: String,
+          value: '',
+          reflectToAttribute: true,
+        },
+      },
+
+      attached: function () {
+        const targets = this.querySelectorAll('.jarallax')
+        // console.log(targets);
+        const options = {
+          speed: .2,
+          videoStartTime: 06,
+          videoEndTime: 23,
+          // disableParallax: /iPad|iPhone|iPod|Android/,
+        }
+
+        switch (this.type) {
+          case 'image':
+            options.imgSrc = this.src;
+            break;
+
+          case 'video':
+            options.videoSrc = this.src;
+            break;
+
+          default:
+            options.imgSrc = this.src;
+            break;
+        }
+
+        jarallax(targets, options);
+      },
+
+      /**
+       * Internal function to check if a url is external
+       */
+      _outsideLink: function (url) {
+        if (url.indexOf('http') != 0) return false;
+        var loc = location.href, path = location.pathname,
+          root = loc.substring(0, loc.indexOf(path));
+        return url.indexOf(root) != 0;
+      },
+
+      _urlTarget: function (url) {
+        if (url) {
+          const external = this._outsideLink(url);
+          if (external) {
+            return "_blank";
+          }
+        }
+        return false;
+      },
+    });
+  </script></dom-module></body></html>

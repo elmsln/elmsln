@@ -5,7 +5,6 @@
   "start_url": "/",
   "display": "standalone",
   "app_integration": {
-    "element": "node_modules/@lrnwebcomponents/elmsln-apps/lib/lrnapp-studio-root/lrnapp-studio-root.js",
     "opa-root": true,
     "title": "Open studio"
   }

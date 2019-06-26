@@ -23,8 +23,14 @@ function mooc_foundation_access_preprocess_page(&$variables) {
   $child_type = variable_get('book_child_type', 'book');
   $node = menu_get_object();
   if ($node && !empty($node->book) && (user_access('add content to books') || user_access('administer book outlines')) && node_access('create', $child_type) && $node->status == 1 && isset($node->book['depth']) && $node->book['depth'] < MENU_MAX_DEPTH) {
+    $variables['tabs_extras'][200][] = '<div class="divider"></div>';
+    $variables['tabs_extras'][200][] = '<span class="nolink cis-lmsless-text">' . t('Operations') . '</span>';
     $variables['tabs_extras'][200][] = l(t('Edit child outline'), 'node/' . $node->book['nid'] . '/outline/children');
     $variables['tabs_extras'][200][] = l(t('Edit course outline'), 'admin/content/book/' . $node->book['bid']);
+  }
+  // support hiding the accessibility check UI which is poorly located
+  if ($node && user_access('view accessibility tests')) {
+    $variables['tabs_extras'][200][] = '<span class="cis_accessibility_check"></span>';
   }
   // remove the prefix that provides a link to the home page
   // as MOOC is the thing that currently provides support directly for this

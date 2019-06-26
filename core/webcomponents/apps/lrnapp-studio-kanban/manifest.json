@@ -5,7 +5,6 @@
   "start_url": "/",
   "display": "standalone",
   "app_integration": {
-    "element": "node_modules/@lrnwebcomponents/elmsln-apps/lib/lrnapp-studio-kanban/lrnapp-studio-kanban.js",
     "title": "Project management",
     "menu": {
       "menu_name": "menu-elmsln-navigation",
@@ -40,10 +39,6 @@
         "callback": "_cle_studio_kanban_kanban_data",
         "property": "source-path"
       }
-    },
-    "context": {
-      "distro": "cle",
-      "module": "cle_open_studio_app"
     }
   }
 }

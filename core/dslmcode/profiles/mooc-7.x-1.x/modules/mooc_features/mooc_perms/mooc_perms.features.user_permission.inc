@@ -175,6 +175,18 @@ function mooc_perms_user_default_permissions() {
     'module' => 'outline_designer',
   );
 
+  // Exported permission: 'view accessibility tests'.
+  $permissions['view accessibility tests'] = array(
+    'name' => 'view accessibility tests',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'instructor' => 'instructor',
+      'staff' => 'staff',
+      'teaching assistant' => 'teaching assistant',
+    ),
+    'module' => 'accessibility',
+  );
+
   // Exported permission: 'view hidden content'.
   $permissions['view hidden content'] = array(
     'name' => 'view hidden content',

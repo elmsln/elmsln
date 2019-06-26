@@ -1,0 +1,17 @@
+{
+  "name": "boiler-plate-app",
+  "version": "1.0.0",
+  "description": "A LRN element",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "post-install": "node post-install.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "replace": "^0.3.0"
+  }
+}

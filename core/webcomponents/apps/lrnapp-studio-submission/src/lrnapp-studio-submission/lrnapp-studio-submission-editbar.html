@@ -1,0 +1,23 @@
+<link rel="import" href="../../bower_components/paper-tooltip/paper-tooltip.html">
+<link rel="import" href="lrnapp-studio-submission-editbar-message.html">
+
+<dom-module id="lrnapp-studio-submission-editbar">
+  <template>
+    <style>
+       :host {
+        display: block;
+      }
+    </style>
+
+    <paper-tooltip position="top" animation-delay="0" offset="-20">
+      <slot name="lrnapp-studio-submission-editbar-message"></slot>
+    </paper-tooltip>
+    <slot></slot>
+
+  </template>
+  <script>
+    Polymer({
+      is: 'lrnapp-studio-submission-editbar'
+    });
+  </script>
+</dom-module>
