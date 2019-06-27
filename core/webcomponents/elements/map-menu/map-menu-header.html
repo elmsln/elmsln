@@ -1,0 +1,141 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../lrndesign-avatar/lrndesign-avatar.html">
+<link rel="import" href="../iron-collapse/iron-collapse.html">
+<link rel="import" href="../iron-icon/iron-icon.html">
+<link rel="import" href="../iron-behaviors/iron-button-state.html">
+
+<dom-module id="map-menu-header">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+
+      :host[active] {
+        background: rgba(0, 0, 255, .1);
+      }
+
+      #container {
+        display: flex;
+        align-items: center;
+      }
+
+      #icon {
+        margin-right: 10px;
+      }
+
+      #center {
+        flex: 1 1 auto;
+      }
+
+      lrndesign-avatar {
+        display: inline-block;
+        background: #fff;
+        border-radius: 50%;
+        box-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
+        padding: 2px;
+        position: relative;
+        margin-top: -2px;
+      }
+
+      lrndesign-avatar ::shadow>* {
+        transform: translateY(2px);
+      }
+
+      #link {
+        display: flex;
+        justify-content: flex-start;
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      #title {
+        font-size: 1.0em;
+      }
+
+      #right iron-icon {
+        color: gray;
+      }
+    </style>
+    <div id="container">
+      <template is="dom-if" if="[[avatarLabel]]">
+        <div id="icon">
+          <lrndesign-avatar label="[[avatarLabel]]"></lrndesign-avatar>
+        </div>
+      </template>
+      <div id="center">
+        <paper-button id="title" noink role$="[[__titleRole()]]" on-tap="__linkClickHandler">
+          <div id="label">[[label]]</div>
+          <div id="title">[[title]]</div>
+        </paper-button>
+      </div>
+      <div id="right">
+        <template is="dom-if" if="[[!opened]]">
+          <iron-icon icon="arrow-drop-down"></iron-icon>
+        </template>
+        <template is="dom-if" if="[[opened]]">
+          <iron-icon icon="arrow-drop-up"></iron-icon>
+        </template>
+      </div>
+    </div>
+  </template>
+  <script>
+    Polymer({
+      is: 'map-menu-header',
+      properties: {
+        title: {
+          type: String
+        },
+        label: {
+          type: String
+        },
+        avatarLabel: {
+          type: String,
+          value: ''
+        },
+        opened: {
+          type: Boolean
+        },
+        url: {
+          type: String,
+          value: ''
+        },
+        id: {
+          type: String,
+          reflectToAttribute: true,
+        },
+        active: {
+          type: Boolean,
+          value: false,
+          observer: '__activeChanged',
+        },
+      },
+
+      __titleRole: function () {
+        if (this.url) {
+          return 'link';
+        }
+        else {
+          return false;
+        }
+      },
+
+      __linkClickHandler: function () {
+        if (this.id) {
+          this.fire('link-clicked', { id: this.id });
+        }
+      },
+
+      attached: function () {
+        this.fire('child-attached', { id: this.id });
+      },
+
+      __activeChanged: function (active, oldActive) {
+        if (active === oldActive) return;
+        if (active === true) {
+          this.fire('active-item', { id: this.id });
+        }
+      },
+    });
+  </script>
+</dom-module>

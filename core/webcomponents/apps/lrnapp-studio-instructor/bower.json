@@ -1,0 +1,8 @@
+{
+  "name": "lrnapp-studio-instructor",
+  "description": "open studio application",
+  "main": "index.html",
+  "dependencies": {
+    "build": "LRNWebComponents/build"
+  }
+}

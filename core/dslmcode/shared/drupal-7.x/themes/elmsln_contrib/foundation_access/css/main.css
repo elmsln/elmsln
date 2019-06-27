@@ -1,39 +1,30 @@
 @charset "UTF-8";
 
-:root {
-  --simple-drawer-header-background: var(--elmsln-system-color-dark);
-  --simple-drawer-header-color: white;
-  --simple-modal-titlebar-background: var(--elmsln-system-color-dark);
-  --simple-modal-titlebar-color: white;
-}
-simple-modal {
-  --simple-modal-min-width: 50vw;
-  --simple-modal-min-height: 50vh;
-}
-*:not(:defined) {
+/**
+ * These selectors with the x-scope help ensure progressive enhancement on Safari and firefox is less ridiculous looking.
+ * If these aren't here we see the content inside off canvas items prior to them being enhanced by the
+ * browser to full elements among other things. It also attempts to help these browsers have a less jerky load.
+ */
+lrnsys-drawer-modal,
+lrnsys-dialog-modal,
+app-drawer,
+.elmsln-modal-content,
+paper-tooltip {
   display: none;
 }
 
-simple-modal:not(:defined),
-simple-drawer:not(:defined),
-lrnsys-dialog:not(:defined),
-lrnsys-drawer:not(:defined) {
-  display: none;
-}
-.elmsln-modal-content ul,
-.elmsln-modal-content ol {
-  margin: 0;
+lrnsys-drawer-modal.x-scope,
+lrnsys-dialog-modal.x-scope,
+app-drawer.x-scope,
+.x-scope .elmsln-modal-content,
+.elmsln-modal-container .elmsln-modal-content,
+paper-tooltip.x-scope {
+  display: unset;
 }
 
 .webcomponent-module-selector,
 .webcomponent-module-selector * {
   box-sizing: border-box;
-}
-
-.page-post-add .elmsln-content-wrap,
-.page-node-add .elmsln-content-wrap,
-.page-node-edit .elmsln-content-wrap {
-  margin-top: 2em;
 }
 
 lrnsys-button,paper-button {
@@ -42,21 +33,25 @@ lrnsys-button,paper-button {
   min-width: 3rem;
   line-height: 3rem;
 }
-paper-button.coursecard-wrapper {
-  height: unset;
-}
 #etb-course-nav .top-bar li lrnsys-button {
-  height: 3em;
-  line-height: 3em;
-  padding: 0;
-  font-size: 14px;
+  height: 5rem;
+  padding: 0 1.5rem;
 }
 lrn-icon,iron-icon {
   display: inline-block;
 }
+#etb-course-nav .top-bar li lrnsys-button.x-scope {
+  height: unset;
+  padding: unset;
+}
 .elmsln-service-list li lrnsys-button {
-  height: 3em;
-  line-height: 3em;
+  height: 3.6em;
+  line-height: 3.6em;
+}
+lrnsys-button.x-scope,paper-button.x-scope {
+  height: initial;
+  min-width: initial;
+  line-height: initial;
 }
 
 *,
@@ -925,6 +920,9 @@ table {
       z-index: 98; }
 
 .top-bar {
+  background: #333333;
+  height: 2.8125rem;
+  line-height: 2.8125rem;
   margin-bottom: 0;
   overflow: hidden;
   position: relative; }
@@ -1024,9 +1022,7 @@ table {
   left: 0;
   position: relative;
   width: auto;
-  background-color: black;
-  margin: -1px 0 0 -12px;
-}
+  transition: left 300ms ease-out; }
   .top-bar-section ul {
     display: block;
     font-size: 16px;
@@ -1163,6 +1159,9 @@ table {
       top: 0.53125rem; }
     .top-bar.expanded {
       background: #333333; }
+  .top-bar-section {
+    transition: none 0 0;
+    left: 0 !important; }
     .top-bar-section ul {
       display: inline;
       height: auto !important;
@@ -1319,44 +1318,44 @@ table {
 h1.title {
   text-transform: uppercase; }
 
-#etb-course-nav .course-title {
+#etb-course-nav span.course-title {
   text-transform: uppercase; }
 
-#etb-course-nav .course-abrv {
+#etb-course-nav span.course-abrv {
   text-transform: uppercase; }
 
 
-.course-section-label {
+span.course-section-label {
   font-size: 0.8rem;
   padding: 0 0 0 0.5rem;
   color: #000;
   text-transform: uppercase; }
 
-.course-section {
+span.course-section {
   font-size: 0.8rem;
   padding: 0 0.5rem 0 0;
   color: #5CB61F;
   text-transform: uppercase; }
 
-.user-role-label {
+span.user-role-label {
   font-size: 0.8rem;
   padding: 0 0 0 0.5rem;
   color: #000;
   text-transform: uppercase; }
 
-.user-role {
+span.user-role {
   font-size: 0.8rem;
   padding: 0 0.5rem 0 0;
   color: #5CB61F;
   text-transform: uppercase; }
 
-.current-user-id-label {
+span.current-user-id-label {
   font-size: 0.8rem;
   padding: 0 0 0 0.5rem;
   color: #000;
   text-transform: uppercase; }
 
-.current-user-id {
+span.current-user-id {
   font-size: 0.8rem;
   padding: 0 0.5rem 0 0;
   color: #5CB61F;
@@ -1377,9 +1376,23 @@ a.modal-img-link {
   .etb-nav li a.etb-icon:hover, .etb-nav li a.etb-icon:focus {
     transition: all 0.2s cubic-bezier(0.01, 0.94, 0.46, 1);
     background-color: #FFFFFF; }
+
+#etb-course-nav {
+  background-color: #efefef;
+  border-bottom: 0.0625rem solid #efefef; }
+  @media only screen and (max-width: 40em) {
+    #etb-course-nav {
+      border-bottom: 0.125rem solid #FFFFFF; } }
   #etb-course-nav .top-bar-section .has-dropdown > a:after {
     border-color: #333333 transparent transparent transparent;
     top: 50%; }
+  #etb-course-nav .top-bar {
+    background-color: transparent;
+    height: 4.375rem;
+    overflow: visible; }
+    @media only screen and (max-width: 40em) {
+      #etb-course-nav .top-bar {
+        border-bottom: 0.0625rem solid #e2e2e2; } }
     #etb-course-nav .top-bar input {
       background-color: #fff;
       border-top: 0;
@@ -1427,14 +1440,20 @@ a.modal-img-link {
     -ms-flex-pack: center;
         justify-content: center; }
   #etb-course-nav .course-title-group {
+    display: inline-block;
+    float: left;
+    margin: .25rem 0 0 0;
+    width: 60%;
+    vertical-align: top;
+    line-height: 2rem;
     overflow: hidden;
-    padding: 16px 16px 16px 32px;
-    margin: -16px 0 0 0;
+    padding: 0;
   }
-  #etb-course-nav .course-title {
+  #etb-course-nav span.course-title {
     display: block;
     margin: 0;
     padding: 0;
+    min-width: 200px;
     line-height: 1rem;
     text-align: right;
     color: #000;
@@ -1445,7 +1464,10 @@ a.modal-img-link {
         align-items: center;
     -ms-flex-pack: center;
         justify-content: center; }
-  #etb-course-nav .course-abrv {
+    @media only screen and (max-width: 40em) {
+      #etb-course-nav span.course-title {
+        text-align: center; } }
+  #etb-course-nav span.course-abrv {
     display: block;
     text-align: right;
     line-height: 1rem;
@@ -1453,9 +1475,9 @@ a.modal-img-link {
     font-size: 1em;
     font-weight: bold; }
     @media only screen and (max-width: 40em) {
-      #etb-course-nav .course-abrv {
+      #etb-course-nav span.course-abrv {
         text-align: center; } }
-  #etb-course-nav .course-section {
+  #etb-course-nav span.course-section {
     display: block;
     text-align: right;
     line-height: 1rem;
@@ -1464,7 +1486,7 @@ a.modal-img-link {
     padding: 0;
     font-weight: bold; }
     @media only screen and (max-width: 40em) {
-      #etb-course-nav .course-section {
+      #etb-course-nav span.course-section {
         text-align: center; } }
   #etb-course-nav .icon--dropdown {
     color: black;
@@ -2805,13 +2827,11 @@ h6 {
   font-size: 1rem; }
 
 .subheader {
-  line-height: 1.8;
-  color: #212121;
-  font-weight: 500;
-  margin-top: .5em;
-  margin-bottom: 0.5em;
-  font-size: 1.1em;
-}
+  line-height: 1.4;
+  color: #6f6f6f;
+  font-weight: normal;
+  margin-top: 0.2rem;
+  margin-bottom: 0.5rem;}
 
 hr {
   border: solid #DDDDDD;
@@ -3233,7 +3253,7 @@ button paper-button.paper-button-0 {
 }
 
 .elmsln-content-wrap {
-  padding: 0;
+  padding: .4em;
 }
 article.node-view-mode-full .field-name-body {
   min-height: 40vh;
@@ -3538,41 +3558,34 @@ article ul.collection {
 }
 #etb-course-nav .top-bar-right-actions ul {
   padding: 0;
+  width: 100%;
   text-align: right;
-  display: flex;
-  float:right;
-  justify-content: flex-end;
 }
-#etb-course-nav .top-bar li lrnsys-button {
-  opacity: .8;
-  transition: .3s linear all;
-  -webkit-transition: .3s linear all;
-  -moz-transition: .3s linear all;
-  -ms-transition: .3s linear all;
-  -o-transition: .3s linear all;
-}
-#etb-course-nav .top-bar li lrnsys-button:hover,
-#etb-course-nav .top-bar li lrnsys-button:focus,
-#etb-course-nav .top-bar li lrnsys-button:active {
-  opacity: 1;
+#etb-course-nav .top-bar {
+  height: 5rem;
 }
 
 #etb-course-nav .top-bar li {
+  height: 5rem;
   display: inline-flex;
   float: unset;
 }
 
 #etb-course-nav .top-bar li a {
   border: 0;
+  height: 5rem;
   padding: 0;
   margin: 0;
 }
 #etb-course-nav .top-bar li a i {
   padding-right:.5rem;
+  line-height: 5rem;
+  height: 5rem;
 }
 
 #etb-course-nav .top-bar li a img,
 #etb-course-nav .top-bar li a div {
+  line-height: 5rem;
   margin: 1rem 1rem 1rem 0;
 }
 
@@ -3581,45 +3594,15 @@ article ul.collection {
 }
 
 #etb-network-nav {
-  background-image: linear-gradient(-60deg, rgba(221,221,221,.8) 32%, rgba(238,238,238,.8) 32%) !important;
-  border-top: 2px solid var(--elmsln-system-color, #484848) !important;
-  height: 3em !important;
-  border-bottom: none;
+  padding: 0 0 0 0.5em;
   margin: 0;
-}
-.elmsln-user-profile-button-inner {
-  height: 48px;
-  margin: 0;
-  padding: 0 8px 0 0;
-  background-color: black;
-  color: white;
-}
-.elmsln-user-profile-button-inner:hover,
-.elmsln-user-profile-button-inner:focus,
-.elmsln-user-profile-button-inner:active {
-  background-color: var(--elmsln-system-color-dark);
-}
-.elmsln-course-title-inner {
-  background-color: black;
-  color: white;
-}
-.elmsln-course-title-inner:hover,
-.elmsln-course-title-inner:focus,
-.elmsln-course-title-inner:active {
-  background-color: var(--elmsln-system-color-dark);
-}
-.etb-network-nav-under {
-  background-color: var(--elmsln-system-color, #dddddd);
-  position: absolute;
-  width: 100%;
-  height: 3em !important;
-  z-index: -1;
-  top: 48px;
+  border-top: solid 1px #efefef;
+  border-bottom: solid 2px #212121;
 }
 .elmsln-service-list {
   margin: 0;
   padding: 0 !important;
-  height: 3em;
+  height: 3.6em;
   display: flex;
   overflow-y: scroll;
 }
@@ -3627,24 +3610,24 @@ article ul.collection {
   list-style: none;
   margin: 0;
   padding: 0 !important;
-  height: 3em;
+  height: 3.6em;
 }
 
 .elmsln-service-list li {
   padding: 0;
   margin: 0;
   display: inline-flex;
-  line-height: 3em;
-  height: 3em;
+  line-height: 3.6em;
+  height: 3.6em;
 }
 
 .elmsln-service-list li a {
-  height: 3em;
+  height: 3.6em;
   display: block;
 }
 .elmsln-service-list paper-button.lrnsys-button div.inner.lrnsys-button {
-  height: 3em;
-  line-height: 3em;
+  height: 3.6em;
+  line-height: 3.6em;
 }
 
 .is-active {
@@ -3660,16 +3643,12 @@ article ul.collection {
 
 
 .elmsln-service-list li.elmsln-network-menu-item {
-  height: 3em;
+  height: 3.6em;
   padding: 0;
-}
-.elmsln-network-menu-item lrnsys-drawer {
-  --lrnsys-drawer-button-padding: 0;
-  --lrnsys-drawer-button-margin: 0;
 }
 
 .elmsln-service-list li.elmsln-network-menu-item a {
-  height: 3em;
+  height: 3.6em;
 }
 
 .elmsln-service-list li.elmsln-network-menu-item a:hover {
@@ -3699,27 +3678,17 @@ input.cis_shortcodes_embed,
 /* save form state */
 
 #autosave-status {
-  width: 30%;
-  height: 75px;
+  width: 35%;
+  height: 4.5em;
   background-color: #0074BD;
-  padding: .25rem 0 0 0.5rem;
+  padding: 1rem;
   z-index: 10000;
 }
 #autosave-status #status {
-  margin-left: 0;
-  display:block;
-}
-
-#autosave-status #operations {
-  display: block;
-  text-align: center;
-}
-#autosave-status #operations lrnsys-button {
-  display: inline-flex;
-  background-color: white;
-  border: 1px solid black;
-  margin: 0 16px;
-  height: 36px;
+  margin-left: 1rem;
+  width: 100%;
+  height: 5rem;
+  line-height: 1rem;
 }
 
 lrnsys-dialog-modal.lrnsys-dialog-modal-0 paper-dialog.lrnsys-dialog-modal{
@@ -3924,9 +3893,6 @@ body.devel-show .devel-querylog {
  outline-style: solid;
 }
 
-.r-header__left .elmsln-tabs {
-  display: flex;
-}
 /* basic gallery style */
 .elmsln-basic-gallery-list .col {
   margin:2rem auto;
@@ -3941,6 +3907,7 @@ body.devel-show .devel-querylog {
 }
 .r-header__left .tabs li {
   width: unset;
+  min-width: 120px;
 }
 
 .r-local-header-wrapper.row {
@@ -3959,7 +3926,10 @@ body.devel-show .devel-querylog {
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
+  height: auto !important;
   width: auto;
+  margin: 0;
+  padding: 0;
 }
 
 nav ul.left-nav-section a {
@@ -4103,17 +4073,9 @@ ul.dropdown-content ul {
     line-height: 1rem;
     padding: .5rem;
 }
-.dropdown-content li:focus,
-.dropdown-content li:active,
 .dropdown-content li:hover,
-.dropdown-content li a:focus,
-.dropdown-content li a:active,
-.dropdown-content li a:hover,
-#etb-course-nav .top-bar-section.title-link ul li ul li.leaf:focus,
-#etb-course-nav .top-bar-section.title-link ul li ul li.leaf:active,
 #etb-course-nav .top-bar-section.title-link ul li ul li.leaf:hover {
-  background-color: var(--elmsln-system-color-dark, #eeeeee);
-  color: white;
+  background-color: #eeeeee;
 }
 .dropdown-content li {
   background-color: #ffffff;
@@ -4172,58 +4134,35 @@ ul.dropdown-content li {
   margin: 0;
   position: relative;
   overflow: hidden;
-  height: 5rem;
-  min-height: 6rem;
+  height: 8rem;
+  min-height: 8rem;
   z-index: -1;
 }
 @media screen and (max-width: 600px) {
-  .etb-network-nav-under {
-    top: 48px;
-  }
-  #etb-course-nav {
-    margin-top: -47px !important;
-  }
   .header-image-container {
-    height: 49px;
-    min-height: 49px;
+    height: 3rem;
+    min-height: 3rem;
   }
 }
 @media screen and (min-width: 600px) {
-  #etb-course-nav .course-abrv {
-    min-width: 175px;
-  }
   .header-image-container {
     height: 4rem;
     min-height: 4rem;
   }
 }
 @media screen and (min-width: 800px) {
-  .etb-network-nav-under {
-    top: 64px;
-  }
   .header-image-container {
     height: 5rem;
     min-height: 5rem;
   }
 }
 @media screen and (min-width: 992px) {
-  .etb-network-nav-under {
-    top: 95px;
-  }
-  #etb-course-nav {
-    margin-top: -47px !important;
-    min-height: 45px !important;
-  }
   .header-image-container {
     height: 6rem;
     min-height: 6rem;
   }
-
 }
 @media screen and (min-width: 1200px) {
-  .etb-network-nav-under {
-    top: 126px;
-  }
   .header-image-container {
     height: 8rem;
     min-height: 8rem;
@@ -4232,14 +4171,12 @@ ul.dropdown-content li {
 .header-image-container img {
   display: block;
   top:0;
-  min-height: 13rem;
+  min-height: 3rem;
   height: auto;
   max-width: 100%;
-  max-height: 136px;
   position: fixed;
   z-index: 0;
   clip: rect(auto, auto, 8rem, auto);
-  overflow: hidden;
 }
 
 /* MaterializeCSS based color class structures */
@@ -6535,6 +6472,27 @@ ul.dropdown-content li {
   background-color: initial;
 }
 
+.collapsible-body p{
+  padding: 0;
+}
+
+.collapsible-body .elmsln-collapsible-body {
+  padding: 1rem;
+  line-height: 1rem;
+  overflow: hidden;
+}
+
+.collapsible-body .elmsln-collapsible-body .a11y-textsize-controls a {
+  display: inline-block;
+  margin: 0;
+  padding: .5rem;
+  border-radius: 4px;
+  border: 1px solid black;
+}
+.collapsible-body .elmsln-collapsible-body .a11y-textsize-controls a img {
+  margin-top:.25em;
+}
+
 .form-item .description {
   margin: 0;
   padding: 0 1rem .5rem 1rem;
@@ -6588,11 +6546,10 @@ table.sticky-header {
   width: 100%;
 }
 .elmsln-modal-content {
-  display:none
-}
-simple-drawer[opened] .elmsln-modal-content,
-simple-modal[opened] .elmsln-modal-content {
-  display:unset;
+  padding: 2rem;
+  margin-bottom:7em;
+  height: 100%;
+  overflow: auto;
 }
 .elmsln-network-modal {
   padding: 0;
@@ -6600,43 +6557,21 @@ simple-modal[opened] .elmsln-modal-content {
 .elmsln-modal-content ul:not(.dropdown-content) {
   display: block;
   margin: 0;
-  padding: 0;
 }
 .elmsln-modal-content ul li {
   height: unset;
   float: unset;
   display: block;
 }
-.elmsln-modal-content ul li lrnsys-dialog {
-  display: flex;
-  padding: 0 16px;
-}
-.elmsln-modal-content ul li lrnsys-dialog:hover,
-.elmsln-modal-content ul li lrnsys-dialog:active,
-.elmsln-modal-content ul li lrnsys-dialog:focus {
-  background-color: var(--elmsln-system-color-dark);
-  --lrnsys-button-link-color: white;
-  color: white;
-}
-.page-op-button lrnsys-button:hover,
-.page-op-button lrnsys-button:active,
-.page-op-button lrnsys-button:focus,
-.page-op-button lrnsys-drawer:hover,
-.page-op-button lrnsys-drawer:active,
-.page-op-button lrnsys-drawer:focus {
-  background-color: var(--elmsln-system-color-dark);
-  --lrnsys-button-link-color: white;
-  color: white;
-}
 .elmsln-modal-content .nolink {
-  line-height: 1.8;
-  color: #212121;
-  font-weight: 500;
-  margin-top: .5em;
-  margin-bottom: 0.5em;
+  line-height: 1.4;
+  color: #6f6f6f;
+  font-weight: bold;
+  margin-top: 0.2rem;
+  margin-bottom: 0.5rem;
   display: block;
-  border-bottom: 1px #9e9e9e solid;
-  font-size: 1.1em;
+  text-align: right;
+  border-bottom: 1px #6f6f6f solid;
 }
 
 .elmsln-modal.modal {
@@ -7027,7 +6962,6 @@ main {
   -webkit-flex: 1 0 auto; /* Safari 6.1+ */
   -ms-flex: 1 0 auto; /* IE 10 */
   background-color: #ffffff;
-  min-height: 50vh;
 }
 
 main li a {
@@ -7174,13 +7108,12 @@ div.read-time-wrapper div.chip i {
   form.node-form div.field-group-htabs-wrapper.group-settings {
     position: absolute !important;
     left: 100%;
-    width: calc(58vw - 57%);
+    width: calc(55vw - 58%);
     top: 0;
     max-width: 30em;
     display: block;
     height: 100%;
     overflow-y: scroll;
-    top: -2em;
   }
 }
 form.node-form div.field-group-htabs-wrapper.group-settings legend + .fieldset-wrapper {
@@ -7406,60 +7339,29 @@ a.add-menu-drop {
 
 #etb-course-nav {
   margin: 0;
+  border-bottom: none;
+  border-top-width: .2rem;
+  border-top-style: solid;
   padding: 0;
-  margin-top: -64px;
-  height: auto;
-  min-height: 44px;
 }
-.etb-course-nav-inner {
-  margin:0;
-  padding: 0 !important;
-}
-#etb-course-nav .top-bar {
-  background-color: transparent;
-  overflow: visible;
-}
-.r-header {
-  background: #eaeaea !important;
-  display: flex;
-  border: none !important;
-  border-bottom: 2px solid #484848 !important;
-  border-top: 2px solid #484848 !important;
-  margin: 0 !important;
-  z-index: 1;
-  position: relative;
-  padding: 0 1em;
-}
-#etb-course-nav .course-title,
-#etb-course-nav .course-abrv,
-#etb-course-nav .section-label {
+
+#etb-course-nav span.course-title,
+#etb-course-nav span.course-abrv,
+#etb-course-nav span.section-label {
   justify-content: flex-start;
   text-align: left;
-  color: white;
 }
 
-#etb-course-nav lrnsys-drawer.course-title {
-  --lrnsys-drawer-button-padding: 0;
-  --lrnsys-drawer-button-margin: 0;
-  height: 46px;
-  margin-top: -2px;
-}
 #etb-course-nav span.course-title {
-  font-size: 1rem;
-  line-height: 1rem;
-  height: 1rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font-size: 1.2rem;
+  line-height: 1.2rem;
 }
 
-#etb-course-nav .course-abrv {
+#etb-course-nav span.course-abrv {
   font-weight: lighter;
-  height: 1rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
-#etb-course-nav .section-label {
+#etb-course-nav span.section-label {
   font-size: 0.825rem;
   font-style: italic;
 }
@@ -7532,11 +7434,6 @@ ul.header-menu-options li.active-trail {
   border-right: 1px solid #333333;
   border-top: 1px solid #333333;
   border-bottom: transparent;
-}
-.elmsln-tabs .tab .active-trail {
-  --lrnsys-button-link-color: #FFFFFF !important;
-  background-color: var(--elmsln-system-color-dark);
-  font-weight: bold;
 }
 
 .r-header ul.header-menu-options li.active-trail {
@@ -7644,6 +7541,10 @@ button#edit-elmsln-view-user {
   float: none;
   margin: 0;
 }
+.collapsible-body .read-time {
+  float: none;
+  margin-top: 0;
+}
 .etb-book h2 {
   font-size: 2.25rem;
   font-weight: bold;
@@ -7682,9 +7583,15 @@ button#edit-elmsln-view-user {
     border-top: 1px solid #CCCCCC;
     width: 100%;
     left: 0;
-    padding: .75em 0 .75em 1em;
+    padding: 1em 0 .5em 1em;
     margin: 0;
     z-index: 999;
+  }
+  .page-node-edit .form-actions.form-wrapper button,
+  .page-node-edit .form-actions.form-wrapper lrnsys-button,
+  .page-node-edit .form-actions.form-wrapper paper-button {
+    border-radius: .5em;
+    height: 2.5em;
   }
 }
 /* MaterializeCSS overrides to make Drupal / Zurb markup happy*/
@@ -7968,24 +7875,13 @@ lrnapp-fab-speed-dial-action.lrnapp-fab-speed-dial-action-0 {
   padding: 0;
   margin: 0;
 }
-.elmsln-user-profile-menu-item {
-  margin-top: -3px;
-  margin-right: -3px;
+.elmsln-user-button {
+  height: 100%;
 }
-.elmsln-user-profile-menu-item lrnsys-drawer {
-  --lrnsys-drawer-button-padding: 0;
-  --lrnsys-drawer-button-margin: 0;
-  opacity: .8;
-  transition: .3s all linear;
-  -webkit-transition: .3s all linear;
-  -moz-transition: .3s all linear;
-  -ms-transition: .3s all linear;
-  -o-transition: .3s all linear;
-}
-.elmsln-user-profile-menu-item lrnsys-drawer:hover,
-.elmsln-user-profile-menu-item lrnsys-drawer:focus,
-.elmsln-user-profile-menu-item lrnsys-drawer:active {
-  opacity: 1;
+#etb-course-nav .elmsln-user-button paper-button {
+  height: 100%;
+  padding-right: .6em;
+  border-radius: 0;
 }
 
 .elmsln-user-button app-drawer a {
@@ -8002,14 +7898,9 @@ lrnapp-fab-speed-dial-action.lrnapp-fab-speed-dial-action-0 {
   top: 10%;
   left: 10%;
 }
-.user-drawer-block .user-details-image {
-  display: inline-flex;
-  vertical-align: top;
-  margin: 3em;
-}
+.user-drawer-block .user-details-image,
 .user-drawer-block .user-details-text {
   display: inline-block;
-  padding: 0 16px 0 0;
 }
 #toastdrawer {
   padding: 0;
@@ -8018,10 +7909,9 @@ lrnapp-fab-speed-dial-action.lrnapp-fab-speed-dial-action-0 {
   min-height: 8em;
   bottom: 0;
   top: auto !important;
-  max-height: 30vh !important;
+  max-height: 40vh !important;
   height: auto;
   overflow: scroll;
-  width: 30vw;
   background-color: rgba(0, 0, 0, .8);
   transition: all linear .3s;
   -webkit-transition: all linear .3s;
@@ -8035,12 +7925,12 @@ lrnapp-fab-speed-dial-action.lrnapp-fab-speed-dial-action-0 {
 }
 
 .paper-toast-label {
-  padding: .5em;
+  padding: 1em 2em;
   color: white;
   font-weight: 600;
 }
 .toast-content-container {
-  padding: .5em;
+  padding: 1em 2em;
 }
 #toastdrawer a {
   color: #3bab97;
@@ -8054,13 +7944,12 @@ lrnapp-fab-speed-dial-action.lrnapp-fab-speed-dial-action-0 {
   display: inline-flex;
 }
 #toastdrawer paper-button {
-  top: 0;
-  right: 0;
-  position: absolute;
-  height: 40px;
-  line-height: 40px;
-  padding: 0;
-  margin: 0;
+  color: rgba(255,255,255,0.85);
+  border-radius: 4px;
+  background: #41bea8;
+  font-weight: 900;
+  padding: 8px 24px;
+  box-shadow: 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12), 0 2px 4px -1px rgba(0, 0, 0, 0.4);
 }
 .alert-box {
   background-color: #FFB428;
@@ -8135,20 +8024,6 @@ lrnsys-button paper-button {
 lrnsys-drawer paper-button {
   height: unset;
 }
-.elmsln-modal-content li a {
-  display: block;
-  height: 3rem;
-  min-width: 3rem;
-  line-height: 3rem;
-  padding: 0 16px;
-  color: black;
-}
-.elmsln-modal-content li a:hover,
-.elmsln-modal-content li a:active,
-.elmsln-modal-content li a:focus {
-  background-color: var(--elmsln-system-color-dark);
-  color: white;
-}
 #etb-course-nav lrnsys-drawer .elmsln-modal-content li {
   height: unset;
   line-height: 2em;
@@ -8195,6 +8070,9 @@ paper-button#close-button {
 paper-button#close-button.lrnsys-dialog {
   padding: 1em;
 }
+.elmsln--page--operations #collapse-item-id-alternateformats + .collapsible-body a {
+  display: block;
+}
 .elmsln--page--operations li.page-op-button paper-button {
   margin: 0;
   padding: .25rem;
@@ -8230,27 +8108,27 @@ lrnsys-drawer app-drawer,
 .disabled.elmsln-more-menu-button {
   background-color: unset;
 }
-#etb-network-navpaper-button.lrnsys-button {
+#etb-network-nav paper-button.lrnsys-button {
   min-width: 3.25em;
   padding: 0 .75em;
   margin: 0;
-  height: 3em;
+  height: 3.6em;
   justify-content: flex-start;
   display: flex;
 }
 
-#etb-network-nav lrnsys-drawer.elmsln-network-button {
-  height: 3em;
-  line-height: 3em;
+#etb-network-nav lrnsys-drawer.elmsln-network-button,
+#etb-network-nav lrnsys-drawer.elmsln-network-button paper-button {
+  height: 3.6em;
+  line-height: 3.6em;
   border-radius: 0;
   margin: 0;
   text-transform: unset;
 }
-#etb-network-nav lrnsys-drawer.elmsln-network-button:focus,
-#etb-network-nav lrnsys-drawer.elmsln-network-button:active,
-#etb-network-nav lrnsys-drawer.elmsln-network-button:hover {
-  background-color: var(--elmsln-system-color-dark);
-  color: white;
+#etb-network-nav lrnsys-drawer.elmsln-network-button iron-icon {
+  width: 1.8em;
+  height: 1.8em;
+  margin-top: -4px;
 }
 
 .elmsln-network-icon {
@@ -8282,16 +8160,20 @@ lrnsys-drawer app-drawer,
   height: 5rem;
 }
 #etb-course-nav lrndesign-avatar {
-  margin: 4px 0 0 0;
-  padding: 0 .25rem;
-  line-height: 60px;
-  height: 48px;
-  --lrndesign-avatar-width: 26px;
-  --lrndesign-avatar-height: 26px;
+  margin: 0;
+  padding: 0 .75rem;
+  line-height: 1rem;
 }
 #etb-course-nav lrndesign-avatar.elmsln-course-avatar {
+  width: 18%;
   margin: 0;
+  padding: 0;
+  display: inline-block;
   float: left;
+  min-width: 39px;
+  height: 3.5em;
+  padding: .5em;
+  margin-right: .5em;
 }
 
 #etb-course-nav iron-dropdown .dropdown-content {
@@ -8300,26 +8182,9 @@ lrnsys-drawer app-drawer,
   display: block;
 }
 
-#etb-tool-nav paper-icon-button {
+#etb-course-nav paper-menu-button {
   margin: 0;
   padding: 0;
-  height: 32px;
-  width: 48px;
-}
-#etb-tool-nav paper-menu-button:hover,
-#etb-tool-nav paper-menu-button:active,
-#etb-tool-nav paper-menu-button:focus {
-  background-color: var(--elmsln-system-color-dark);
-  color: white;
-}
-#etb-tool-nav paper-menu-button a {
-  outline: none;
-}
-#etb-tool-nav paper-menu-button paper-item:hover,
-#etb-tool-nav paper-menu-button paper-item:active,
-#etb-tool-nav paper-menu-button paper-item:focus {
-  background-color: var(--elmsln-system-color-dark);
-  color: white;
 }
 
 lrnapp-fab-menu paper-fab {
@@ -8445,7 +8310,6 @@ button.btn paper-button {
 
 .elmsln-materialize-collapse-list {
   padding: 0;
-  max-width: 50vw;
 }
 .lrnsys-dialog-modal-0 .dialog-header.lrnsys-dialog-modal {
   position: sticky;

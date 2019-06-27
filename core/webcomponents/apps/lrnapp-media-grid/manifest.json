@@ -5,8 +5,7 @@
   "description": "Media elements presented as a visual grid",
   "start_url": "/",
   "display": "standalone",
-  "app_integration": {
-    "element": "node_modules/@lrnwebcomponents/elmsln-apps/lib/lrnapp-media-grid/lrnapp-media-grid.js", 
+  "drupal": {
     "menu": {
       "menu_name": "menu-elmsln-navigation",
       "weight": 11
@@ -14,9 +13,6 @@
     "data": {
       "callback": "_webcomponent_app_lrnapp_media_grid",
       "property": "source-path"
-    },
-    "context": {
-      "distro": "elmsmedia"
     }
   }
 }

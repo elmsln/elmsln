@@ -2,6 +2,13 @@
 <html class="no-js" lang="<?php print $language->language ?>" dir="<?php print $language->dir ?>">
   <head>
     <title><?php print $head_title; ?></title>
+    <script>
+      /* this script must run before Polymer is imported */
+      window.Polymer = {
+        dom: 'shady',
+        lazyRegister: true
+      };
+    </script>
     <?php print _foundation_access_drop_whitespace($head); ?>
     <?php print _foundation_access_drop_whitespace($styles); ?>
     <?php print _foundation_access_drop_whitespace($scripts); ?>

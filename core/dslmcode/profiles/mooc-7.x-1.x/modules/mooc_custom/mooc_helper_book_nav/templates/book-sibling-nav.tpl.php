@@ -27,7 +27,7 @@
     $outline_label = '';
   }
 ?>
-<li id="book-sibling-children-<?php print $parent['mlid'] ?>-container" class="toolbar-menu-icon book-sibling-parent book-sibling-parent-<?php print $parent_count ?>">
+<li id="book-sibling-children-<?php print $parent['mlid'] ?>-container" class="toolbar-menu-icon book-sibling-parent book-sibling-parent-<?php print $count ?>">
   <lrnsys-button href="#" class="black-text elmsln-dropdown-button <?php print (isset($parent['_class']) ? $parent['_class'] : ''); ?> no-padding" aria-controls="book-sibling-children-<?php print $parent['mlid'] ?>" aria-expanded="false" data-activates="book-sibling-children-<?php print $parent['mlid'] ?>" hover-class="grey darken-3 white-text" inner-class="no-padding">
     <span class="element-invisible"><?php print $ptitle ?></span>
     <span class="book-sibling-parent-text"><?php print $outline_label; ?> <?php print $parent_count; ?> <?php print $parent_title ?></span>

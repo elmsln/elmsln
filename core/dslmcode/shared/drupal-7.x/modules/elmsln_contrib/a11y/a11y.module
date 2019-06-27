@@ -195,7 +195,7 @@ function a11y_a11y_block($render = TRUE) {
     $output['alters'] = $alters;
   }
   // add in the simulations if they are allowed to see them
-  if (user_access('view a11y simulations') && (variable_get('a11y_sim_dyslexia', 1) || variable_get('a11y_sim_field_loss', 1) || variable_get('a11y_sim_colorblind', 1))) {
+  if (user_access('view a11y simulations')) {
     $sim = array(
       '#type' => 'fieldset',
       '#title' => t('Simulators'),
