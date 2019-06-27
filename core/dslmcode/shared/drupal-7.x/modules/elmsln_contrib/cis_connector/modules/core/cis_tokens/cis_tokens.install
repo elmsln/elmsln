@@ -1,0 +1,8 @@
+<?php
+
+/**
+ * New default ordering
+ */
+function cis_tokens_update_7000(&$sandbox) {
+  features_revert_module('cis_tokens');
+}

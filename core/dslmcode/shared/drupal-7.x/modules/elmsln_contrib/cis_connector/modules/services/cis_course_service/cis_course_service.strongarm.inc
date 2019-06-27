@@ -57,6 +57,7 @@ function cis_course_service_strongarm() {
   $strongarm->api_version = 1;
   $strongarm->name = 'path_alias_whitelist';
   $strongarm->value = array(
+    'file' => TRUE,
     'node' => TRUE,
     'user' => TRUE,
   );

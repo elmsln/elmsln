@@ -1,0 +1,18 @@
+version: "2.1"
+
+services:
+  blackfire:
+    image: blackfire/blackfire
+    environment:
+      # Uses host's BLACKFIRE_SERVER_ID and BLACKFIRE_SERVER_TOKEN environment variables.
+      - BLACKFIRE_SERVER_ID=<insert blackfire server ID here>
+      - BLACKFIRE_SERVER_TOKEN=<insert blackfire server token here>
+      # Log verbosity level (4: debug, 3: info, 2: warning, 1: error).
+      #- BLACKFIRE_LOG_LEVEL=4
+  cli:
+    environment:
+      # Exposes host's BLACKFIRE_CLIENT_ID and BLACKFIRE_CLIENT_TOKEN environment variables.
+      - BLACKFIRE_CLIENT_ID=<insert your blackfire client ID here>
+      - BLACKFIRE_CLIENT_TOKEN=<insert your blackfire client token here>
+      # Additional config if needed for xdebug.
+      - PHP_IDE_CONFIG=serverName=${VIRTUAL_HOST}

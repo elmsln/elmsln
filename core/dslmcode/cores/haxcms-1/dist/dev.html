@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="HAXCMS">
+  <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+  <title>HAXCMS</title>
+  <meta name="description" content="My HAXCMS site description">
+  <base href="../" />
+  
+  <link rel="icon" href="assets/favicon.ico">
+  
+  <meta name="theme-color" content="#3f51b5">
+  
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="application-name" content="My site">
+  
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="My App">
+  
+  <link rel="apple-touch-icon" href="assets/icon-48x48.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="assets/icon-72x72.png">
+  <link rel="apple-touch-icon" sizes="96x96" href="assets/icon-96x96.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="assets/icon-144x144.png">
+  <link rel="apple-touch-icon" sizes="192x192" href="assets/icon-192x192.png">
+  
+  <meta name="msapplication-TileImage" content="assets/icon-144x144.png">
+  <meta name="msapplication-TileColor" content="#3f51b5">
+  <meta name="msapplication-tap-highlight" content="no">
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:site" content="@elmsln">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="books-app">
+  <meta property="og:image" content="assets/icon-144x144.png" />
+  
+  <link rel="preconnect" crossorigin href="https://fonts.googleapis.com">
+  <link rel="preconnect" crossorigin href="https://cdnjs.cloudflare.com">
+  <link rel="preconnect" crossorigin href="https://i.creativecommons.org">
+  <link rel="preconnect" crossorigin href="https://licensebuttons.net">
+  <link rel="prefetch" href="site.json">
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+    }
+    haxcms-site-builder {
+      transition: all 1s linear;
+      display: block;
+    }
+    haxcms-site-builder:not(:defined) div.loading {
+      width: 100vw;
+      display: block;
+      position: initial;
+      height: 100vh;
+      background: orange;
+    }
+    haxcms-site-builder:not(:defined) div {
+      font-size: 6vw;
+      line-height: 1;
+      margin: 0 auto;
+      top: calc(50vh - 8vw);
+      width: 100%;
+      justify-content: center;
+      display: grid;
+      text-align: center;
+      padding: 0;
+      position: relative;
+      font-family: "Courier New", Courier, monospace;
+      color: black;
+    }
+    body[no-js] haxcms-site-builder{
+      display: none !important;
+    }
+  </style>
+</head>
+
+<body>
+  <haxcms-site-builder id="site" file="site.json"><div class="loading"><div>Site</div><div>loading</div></div></haxcms-site-builder>
+  <div id="haxcmsoutdatedfallback">
+    <haxcms-legacy-player file="site.json"></haxcms-legacy-player>
+    <div id="haxcmsoutdatedfallbacksuperold"> 
+      <iframe id="outline" style="width:18%;float:left;height:500px;padding:0;margin:0;" name="outline" id="frame1"
+        src="legacy-outline.html"></iframe>
+      <iframe id="content" style="width:80%;float:left;height:500px;padding:0;margin:0;" name="content" id="frame2" src=""></iframe>
+      <div style="float:left;padding:16px 0;font-size:32px;text-align: center;width:100%;">Please use a modern browser to
+        view our website correctly. <a href="http://outdatedbrowser.com/">Update my browser now</a></div>
+    </div>
+  </div>
+  <script>document.body.removeAttribute('no-js');</script>
+  <script src="node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
+  <script type="module" src="dist/build.js"></script>
+  <script async src="node_modules/web-animations-js/web-animations-next-lite.min.js"></script>
+  <!-- use this to test the legacy build
+    <script type="module" src="dist/build-legacy.js"></script>
+  -->
+  <script>
+    // set this in order to simulate the published form of the site
+    // window.__haxCMSContextPublished = true;
+    // set the below to simulate running a demo / end points to load data
+    // this will let you simulate more operations without having a backend
+    window.__haxCMSContextDemo = true;
+    window.appSettings = {
+      "login": "dist\/dev\/login.json",
+      "logout": "dist\/dev\/logout.json",
+      "saveNodePath": "dist\/dev\/saveNode.json",
+      "saveManifestPath": "dist\/dev\/saveManifestPath.json",
+      "createNodePath": "dist\/dev\/saveNode.json",
+      "deleteNodePath": "dist\/dev\/saveNode.json",
+      "saveOutlinePath": "dist\/dev\/saveNode.json",
+      "publishSitePath": "dist\/dev\/saveNode.json",
+      "getNodeFieldsPath": "dist\/dev\/getNodeFieldsPath.json",
+      "getSiteFieldsPath": "dist\/dev\/getSiteFieldsPath.json",
+      "revertSitePath": "dist\/dev\/saveNode.json",
+      "getFieldsToken": "adskjadshjudfu823u823u8fu8fij",
+      "appStore": {
+        "url": "dist\/dev\/appstore.json"
+      },
+      // add your custom theme here if testing locally and wanting to emulate the theme selector
+      // this isn't really nessecary though
+      "themes": { 
+        "haxcms-dev-theme": { 
+          "element": "haxcms-dev-theme", 
+          "path": "@lrnwebcomponents/haxcms-elements/lib/haxcms-dev-theme.js", 
+          "name": "Developer theme"
+        }
+      }
+    };
+    // append global base styles
+    var link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'node_modules/@lrnwebcomponents/haxcms-elements/lib/base.css';
+    link.type = 'text/css';
+    var def = document.getElementsByTagName('link')[0];
+    def.parentNode.insertBefore(link, def);
+  </script>
+</body>
+
+</html>

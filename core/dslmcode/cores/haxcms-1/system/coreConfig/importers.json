@@ -1,0 +1,27 @@
+{
+  "evolution": {
+    "name": "Evolution",
+    "script": "system/importers/evolution/importEvolution.php",
+    "image": "system/importers/evolution/evolution.png"
+  },
+  "git": {
+    "name": "Git repo",
+    "script": "system/importers/git/importGit.php",
+    "image": "system/importers/git/git.png"
+  },
+  "gitbook": {
+    "name": "Git book",
+    "script": "system/importers/gitbook/importGitbook.php",
+    "image": "system/importers/gitbook/gitbook.png"
+  },
+  "gravcms": {
+    "name": "Grav CMS",
+    "script": "system/importers/gravcms/importGravcms.php",
+    "image": "system/importers/gravcms/gravcms.png"
+  },
+  "rtd": {
+    "name": "Read the docs",
+    "script": "system/importers/rtd/importRtd.php",
+    "image": "system/importers/rtd/rtd.png"
+  }
+}

@@ -10,7 +10,7 @@
 function cis_tokens_field_default_field_instances() {
   $field_instances = array();
 
-  // Exported field_instance: 'node-section-field_cis_tokens'
+  // Exported field_instance: 'node-section-field_cis_tokens'.
   $field_instances['node-section-field_cis_tokens'] = array(
     'bundle' => 'section',
     'default_value' => NULL,

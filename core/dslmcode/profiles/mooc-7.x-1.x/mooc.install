@@ -312,3 +312,17 @@ function mooc_update_7023(&$sandbox) {
   // clear cache in order to ensure input filter is rebuild
   cache_clear_all('filter_', 'cache', TRUE);
 }
+/**
+ * Drop accessibility modular set as HAX handles much of what this could have done poorly
+ */
+function mooc_update_7024(&$sandbox) {
+  module_disable(array("autosave", "mooc_autosave","speedreader", "accessibility", "accessibility_content", "accessibility_wysiwyg"));
+  features_revert_module('mooc_perms');
+}
+
+/**
+ * Get things up to speed with fixing input filters
+ */
+function mooc_update_7025(&$sandbox) {
+  features_revert_module('mooc_hax', 'mooc_textbook', 'mooc_ux_defaults');
+}

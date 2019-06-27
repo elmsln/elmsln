@@ -1,0 +1,737 @@
+{
+  "id": "123-123-123-123",
+  "title": "My sites",
+  "author": "me",
+  "description": "All of my micro sites I know and love.",
+  "license": "by-sa",
+  "metadata": [],
+  "items": [
+    {
+      "id": "0a69b261-be07-4df2-a0c7-72577ef5825d",
+      "title": "Py4E",
+      "author": "Bryan Ollendyke",
+      "description": "Python for everyone!",
+      "license": "by-sa",
+      "metadata": {
+        "siteName": "testtesttest",
+        "created": 1550610491,
+        "updated": 1555003967,
+        "domain": "https://btopro.github.io/testtesttest",
+        "theme": {
+          "element": "haxcms-basic-theme",
+          "path": "@lrnwebcomponents/haxcms-elements/lib/core/themes/haxcms-basic-theme.js",
+          "name": "Basic theme"
+        },
+        "author": {
+          "name": "Bryan Ollendyke",
+          "image": "https://btopro.com/assets/banner.jpg",
+          "bio": "Crazy, dreaming the world into existance we need, not what we have.",
+          "socialLink": "https://twitter.com/btopro"
+        },
+        "image": "assets/banner.jpg",
+        "hexCode": "#ee0000",
+        "cssVariable": "red",
+        "publishing": {
+          "git": {
+            "vendor": "github",
+            "branch": "gh-pages",
+            "url": "git@github.com:btopro/testtesttest.git",
+            "cdn": "cdn.waxam.io"
+          }
+        },
+        "dynamicElementLoader": {
+          "a11y-gif-player": "@lrnwebcomponents/a11y-gif-player/a11y-gif-player.js",
+          "citation-element": "@lrnwebcomponents/citation-element/citation-element.js",
+          "hero-banner": "@lrnwebcomponents/hero-banner/hero-banner.js",
+          "image-compare-slider": "@lrnwebcomponents/image-compare-slider/image-compare-slider.js",
+          "license-element": "@lrnwebcomponents/license-element/license-element.js",
+          "lrn-aside": "@lrnwebcomponents/lrn-aside/lrn-aside.js",
+          "lrn-calendar": "@lrnwebcomponents/lrn-calendar/lrn-calendar.js",
+          "lrn-math": "@lrnwebcomponents/lrn-math/lrn-math.js",
+          "lrn-table": "@lrnwebcomponents/lrn-table/lrn-table.js",
+          "lrn-vocab": "@lrnwebcomponents/lrn-vocab/lrn-vocab.js",
+          "lrndesign-blockquote": "@lrnwebcomponents/lrndesign-blockquote/lrndesign-blockquote.js",
+          "magazine-cover": "@lrnwebcomponents/magazine-cover/magazine-cover.js",
+          "media-behaviors": "@lrnwebcomponents/media-behaviors/media-behaviors.js",
+          "media-image": "@lrnwebcomponents/media-image/media-image.js",
+          "meme-maker": "@lrnwebcomponents/meme-maker/meme-maker.js",
+          "multiple-choice": "@lrnwebcomponents/multiple-choice/multiple-choice.js",
+          "paper-audio-player": "@lrnwebcomponents/paper-audio-player/paper-audio-player.js",
+          "person-testimonial": "@lrnwebcomponents/person-testimonial/person-testimonial.js",
+          "place-holder": "@lrnwebcomponents/place-holder/place-holder.js",
+          "q-r": "@lrnwebcomponents/q-r/q-r.js",
+          "full-width-image": "@lrnwebcomponents/full-width-image/full-width-image.js",
+          "self-check": "@lrnwebcomponents/self-check/self-check.js",
+          "simple-concept-network": "@lrnwebcomponents/simple-concept-network/simple-concept-network.js",
+          "stop-note": "@lrnwebcomponents/stop-note/stop-note.js",
+          "tab-list": "@lrnwebcomponents/tab-list/tab-list.js",
+          "task-list": "@lrnwebcomponents/task-list/task-list.js",
+          "video-player": "@lrnwebcomponents/video-player/video-player.js",
+          "wave-player": "@lrnwebcomponents/wave-player/wave-player.js",
+          "wikipedia-query": "@lrnwebcomponents/wikipedia-query/wikipedia-query.js",
+          "md-block": "@lrnwebcomponents/md-block/md-block.js",
+          "grid-plate": "@lrnwebcomponents/grid-plate/grid-plate.js",
+          "lrndesign-gallery": "@lrnwebcomponents/lrndesign-gallery/lrndesign-gallery.js",
+          "lrndesign-timeline": "@lrnwebcomponents/lrndesign-timeline/lrndesign-timeline.js"
+        },
+        "lastPublished": 1554046052,
+        "icon": "icons:save",
+        "fields": {
+          "configure": [
+            {
+              "property": "images",
+              "description": "List of images",
+              "required": false,
+              "icon": "image:collections",
+              "title": "Other sources",
+              "inputMethod": "array",
+              "properties": [
+                {
+                  "property": "src",
+                  "title": "Source",
+                  "description": "The URL for the image",
+                  "inputMethod": "haxupload"
+                },
+                {
+                  "property": "alt",
+                  "title": "Alt",
+                  "description": "Alt text",
+                  "inputMethod": "textfield"
+                }
+              ]
+            },
+            {
+              "property": "subtitle",
+              "title": "Subtitle",
+              "description": "An additional subtitle",
+              "inputMethod": "textfield",
+              "icon": "editor:text-fields"
+            },
+            {
+              "property": "tags",
+              "description": "Tags for the page",
+              "required": false,
+              "icon": "image:collections",
+              "title": "Tags",
+              "inputMethod": "array",
+              "properties": [
+                {
+                  "property": "tag",
+                  "title": "Tag",
+                  "description": "Individual tag",
+                  "inputMethod": "textfield"
+                }
+              ]
+            }
+          ],
+          "advanced": [
+            {
+              "inputMethod": "number",
+              "property": "sads",
+              "title": "dsdasads",
+              "description": "asdadsasd",
+              "required": true,
+              "icon": "editor:format-color-fill"
+            }
+          ]
+        },
+        "pageCount": 17
+      },
+      "location": "/_sites/testtesttest/"
+    },
+    {
+      "id": "2f53f1c5-5d3f-4c53-abc0-b717aa7a4fa0",
+      "title": "zombies",
+      "author": "",
+      "description": "Some of them arent so bad",
+      "license": "by-sa",
+      "metadata": {
+        "siteName": "zombies",
+        "domain": "https://btopro.github.io/zombies",
+        "created": 1557422844,
+        "updated": 1557422872,
+        "theme": {
+          "element": "haxcms-basic-theme",
+          "path": "@lrnwebcomponents/haxcms-elements/lib/core/themes/haxcms-basic-theme.js",
+          "name": "Basic site"
+        },
+        "image": "assets/banner.jpg",
+        "hexCode": "#009dc7",
+        "cssVariable": "cyan",
+        "publishing": {
+          "git": {
+            "vendor": "github",
+            "branch": "gh-pages",
+            "url": "git@github.com:elmsln/zombies.git",
+            "cdn": "cdn.waxam.io"
+          }
+        },
+        "dynamicElementLoader": {
+          "a11y-gif-player": "@lrnwebcomponents/a11y-gif-player/a11y-gif-player.js",
+          "code-sample": "@lrnwebcomponents/code-sample/code-sample.js",
+          "citation-element": "@lrnwebcomponents/citation-element/citation-element.js",
+          "hero-banner": "@lrnwebcomponents/hero-banner/hero-banner.js",
+          "image-compare-slider": "@lrnwebcomponents/image-compare-slider/image-compare-slider.js",
+          "license-element": "@lrnwebcomponents/license-element/license-element.js",
+          "lrn-aside": "@lrnwebcomponents/lrn-aside/lrn-aside.js",
+          "lrn-calendar": "@lrnwebcomponents/lrn-calendar/lrn-calendar.js",
+          "lrn-math": "@lrnwebcomponents/lrn-math/lrn-math.js",
+          "lrn-table": "@lrnwebcomponents/lrn-table/lrn-table.js",
+          "lrn-vocab": "@lrnwebcomponents/lrn-vocab/lrn-vocab.js",
+          "lrndesign-blockquote": "@lrnwebcomponents/lrndesign-blockquote/lrndesign-blockquote.js",
+          "magazine-cover": "@lrnwebcomponents/magazine-cover/magazine-cover.js",
+          "media-behaviors": "@lrnwebcomponents/media-behaviors/media-behaviors.js",
+          "media-image": "@lrnwebcomponents/media-image/media-image.js",
+          "meme-maker": "@lrnwebcomponents/meme-maker/meme-maker.js",
+          "grid-plate": "@lrnwebcomponents/grid-plate/grid-plate.js",
+          "md-block": "@lrnwebcomponents/md-block/md-block.js",
+          "multiple-choice": "@lrnwebcomponents/multiple-choice/multiple-choice.js",
+          "paper-audio-player": "@lrnwebcomponents/paper-audio-player/paper-audio-player.js",
+          "person-testimonial": "@lrnwebcomponents/person-testimonial/person-testimonial.js",
+          "place-holder": "@lrnwebcomponents/place-holder/place-holder.js",
+          "q-r": "@lrnwebcomponents/q-r/q-r.js",
+          "full-width-image": "@lrnwebcomponents/full-width-image/full-width-image.js",
+          "self-check": "@lrnwebcomponents/self-check/self-check.js",
+          "simple-concept-network": "@lrnwebcomponents/simple-concept-network/simple-concept-network.js",
+          "stop-note": "@lrnwebcomponents/stop-note/stop-note.js",
+          "tab-list": "@lrnwebcomponents/tab-list/tab-list.js",
+          "task-list": "@lrnwebcomponents/task-list/task-list.js",
+          "video-player": "@lrnwebcomponents/video-player/video-player.js",
+          "wave-player": "@lrnwebcomponents/wave-player/wave-player.js",
+          "wikipedia-query": "@lrnwebcomponents/wikipedia-query/wikipedia-query.js",
+          "lrndesign-gallery": "@lrnwebcomponents/lrndesign-gallery/lrndesign-gallery.js",
+          "lrndesign-timeline": "@lrnwebcomponents/lrndesign-timeline/lrndesign-timeline.js"
+        },
+        "pageCount": 6
+      },
+      "location": "/_sites/zombies/"
+    },
+    {
+      "id": "eafdefa1-fc9a-4bde-baa8-58454a9c5b56",
+      "title": "waxam",
+      "author": "",
+      "description": "waxam homepage",
+      "license": "by-sa",
+      "metadata": {
+        "siteName": "waxam",
+        "domain": "https://btopro.github.io/waxam",
+        "created": 1554054788,
+        "updated": 1554054949,
+        "theme": {
+          "element": "haxcms-basic-theme",
+          "path": "@lrnwebcomponents/haxcms-elements/lib/core/themes/haxcms-basic-theme.js",
+          "name": "Basic site"
+        },
+        "image": "assets/banner.jpg",
+        "hexCode": "#aeff00",
+        "cssVariable": "--simple-colors-default-theme-light-blue-7",
+        "publishing": {
+          "git": {
+            "vendor": "github",
+            "branch": "gh-pages",
+            "url": "git@github.com:waxam/waxam.io.git",
+            "cdn": "cdn.waxam.io"
+          }
+        },
+        "dynamicElementLoader": {
+          "a11y-gif-player": "@lrnwebcomponents/a11y-gif-player/a11y-gif-player.js",
+          "citation-element": "@lrnwebcomponents/citation-element/citation-element.js",
+          "hero-banner": "@lrnwebcomponents/hero-banner/hero-banner.js",
+          "image-compare-slider": "@lrnwebcomponents/image-compare-slider/image-compare-slider.js",
+          "license-element": "@lrnwebcomponents/license-element/license-element.js",
+          "lrn-aside": "@lrnwebcomponents/lrn-aside/lrn-aside.js",
+          "lrn-calendar": "@lrnwebcomponents/lrn-calendar/lrn-calendar.js",
+          "lrn-math": "@lrnwebcomponents/lrn-math/lrn-math.js",
+          "lrn-table": "@lrnwebcomponents/lrn-table/lrn-table.js",
+          "lrn-vocab": "@lrnwebcomponents/lrn-vocab/lrn-vocab.js",
+          "lrndesign-blockquote": "@lrnwebcomponents/lrndesign-blockquote/lrndesign-blockquote.js",
+          "magazine-cover": "@lrnwebcomponents/magazine-cover/magazine-cover.js",
+          "media-behaviors": "@lrnwebcomponents/media-behaviors/media-behaviors.js",
+          "media-image": "@lrnwebcomponents/media-image/media-image.js",
+          "meme-maker": "@lrnwebcomponents/meme-maker/meme-maker.js",
+          "grid-plate": "@lrnwebcomponents/grid-plate/grid-plate.js",
+          "md-block": "@lrnwebcomponents/md-block/md-block.js",
+          "multiple-choice": "@lrnwebcomponents/multiple-choice/multiple-choice.js",
+          "paper-audio-player": "@lrnwebcomponents/paper-audio-player/paper-audio-player.js",
+          "person-testimonial": "@lrnwebcomponents/person-testimonial/person-testimonial.js",
+          "place-holder": "@lrnwebcomponents/place-holder/place-holder.js",
+          "q-r": "@lrnwebcomponents/q-r/q-r.js",
+          "full-width-image": "@lrnwebcomponents/full-width-image/full-width-image.js",
+          "self-check": "@lrnwebcomponents/self-check/self-check.js",
+          "simple-concept-network": "@lrnwebcomponents/simple-concept-network/simple-concept-network.js",
+          "stop-note": "@lrnwebcomponents/stop-note/stop-note.js",
+          "tab-list": "@lrnwebcomponents/tab-list/tab-list.js",
+          "task-list": "@lrnwebcomponents/task-list/task-list.js",
+          "video-player": "@lrnwebcomponents/video-player/video-player.js",
+          "wave-player": "@lrnwebcomponents/wave-player/wave-player.js",
+          "wikipedia-query": "@lrnwebcomponents/wikipedia-query/wikipedia-query.js",
+          "lrndesign-gallery": "@lrnwebcomponents/lrndesign-gallery/lrndesign-gallery.js",
+          "lrndesign-timeline": "@lrnwebcomponents/lrndesign-timeline/lrndesign-timeline.js"
+        },
+        "lastPublished": 1554055230,
+        "pageCount": 8
+      },
+      "location": "/_sites/waxam/"
+    },
+    {
+      "id": "2a41988b-f670-47d0-ad12-36d944108145",
+      "title": "Apereo webinar",
+      "author": "Bryan Ollendyke",
+      "description": "Apereo HAXcms webinar",
+      "license": "by-sa",
+      "metadata": {
+        "siteName": "apereo-haxcms-webinar",
+        "created": 1552449560,
+        "updated": 1552485128,
+        "theme": {
+          "element": "learn-two-theme",
+          "path": "@lrnwebcomponents/learn-two-theme/learn-two-theme.js",
+          "name": "Learn2"
+        },
+        "image": "assets/banner.jpg",
+        "hexCode": "#0059ff",
+        "cssVariable": "blue",
+        "publishing": {
+          "git": {
+            "vendor": "github",
+            "branch": "gh-pages",
+            "url": "git@github.com:btopro/apereo-haxcms-webinar.git",
+            "cdn": "cdn.waxam.io"
+          }
+        },
+        "dynamicElementLoader": {
+          "a11y-gif-player": "@lrnwebcomponents/a11y-gif-player/a11y-gif-player.js",
+          "citation-element": "@lrnwebcomponents/citation-element/citation-element.js",
+          "hero-banner": "@lrnwebcomponents/hero-banner/hero-banner.js",
+          "image-compare-slider": "@lrnwebcomponents/image-compare-slider/image-compare-slider.js",
+          "license-element": "@lrnwebcomponents/license-element/license-element.js",
+          "lrn-aside": "@lrnwebcomponents/lrn-aside/lrn-aside.js",
+          "lrn-calendar": "@lrnwebcomponents/lrn-calendar/lrn-calendar.js",
+          "lrn-math": "@lrnwebcomponents/lrn-math/lrn-math.js",
+          "lrn-table": "@lrnwebcomponents/lrn-table/lrn-table.js",
+          "lrn-vocab": "@lrnwebcomponents/lrn-vocab/lrn-vocab.js",
+          "lrndesign-blockquote": "@lrnwebcomponents/lrndesign-blockquote/lrndesign-blockquote.js",
+          "magazine-cover": "@lrnwebcomponents/magazine-cover/magazine-cover.js",
+          "media-behaviors": "@lrnwebcomponents/media-behaviors/media-behaviors.js",
+          "media-image": "@lrnwebcomponents/media-image/media-image.js",
+          "meme-maker": "@lrnwebcomponents/meme-maker/meme-maker.js",
+          "grid-plate": "@lrnwebcomponents/grid-plate/grid-plate.js",
+          "md-block": "@lrnwebcomponents/md-block/md-block.js",
+          "multiple-choice": "@lrnwebcomponents/multiple-choice/multiple-choice.js",
+          "paper-audio-player": "@lrnwebcomponents/paper-audio-player/paper-audio-player.js",
+          "person-testimonial": "@lrnwebcomponents/person-testimonial/person-testimonial.js",
+          "place-holder": "@lrnwebcomponents/place-holder/place-holder.js",
+          "q-r": "@lrnwebcomponents/q-r/q-r.js",
+          "full-width-image": "@lrnwebcomponents/full-width-image/full-width-image.js",
+          "self-check": "@lrnwebcomponents/self-check/self-check.js",
+          "simple-concept-network": "@lrnwebcomponents/simple-concept-network/simple-concept-network.js",
+          "stop-note": "@lrnwebcomponents/stop-note/stop-note.js",
+          "tab-list": "@lrnwebcomponents/tab-list/tab-list.js",
+          "task-list": "@lrnwebcomponents/task-list/task-list.js",
+          "video-player": "@lrnwebcomponents/video-player/video-player.js",
+          "wave-player": "@lrnwebcomponents/wave-player/wave-player.js",
+          "wikipedia-query": "@lrnwebcomponents/wikipedia-query/wikipedia-query.js"
+        },
+        "lastPublished": 1552488863,
+        "pageCount": 24
+      },
+      "location": "/_sites/apereo-haxcms-webinar/"
+    },
+    {
+      "id": "95f2b045-cfdb-4e35-b29b-e7f71c859987",
+      "title": "HAX-the-web",
+      "author": "elmsln",
+      "description": "Documentation and learning about how we HAX the web",
+      "license": "by-sa",
+      "metadata": {
+        "siteName": "haxtheweb",
+        "image": "assets/banner.jpg",
+        "theme": {
+          "element": "learn-two-theme",
+          "path": "@lrnwebcomponents/learn-two-theme/learn-two-theme.js",
+          "name": "Learn"
+        },
+        "icon": "lrn:network",
+        "domain": "https://haxtheweb.org/",
+        "hexCode": "#009d75",
+        "cssVariable": "teal",
+        "created": 1547138719,
+        "updated": 1554496047,
+        "dynamicElementLoader": {
+          "a11y-gif-player": "@lrnwebcomponents/a11y-gif-player/a11y-gif-player.js",
+          "citation-element": "@lrnwebcomponents/citation-element/citation-element.js",
+          "hero-banner": "@lrnwebcomponents/hero-banner/hero-banner.js",
+          "image-compare-slider": "@lrnwebcomponents/image-compare-slider/image-compare-slider.js",
+          "license-element": "@lrnwebcomponents/license-element/license-element.js",
+          "lrn-aside": "@lrnwebcomponents/lrn-aside/lrn-aside.js",
+          "lrn-calendar": "@lrnwebcomponents/lrn-calendar/lrn-calendar.js",
+          "lrn-math": "@lrnwebcomponents/lrn-math/lrn-math.js",
+          "lrn-table": "@lrnwebcomponents/lrn-table/lrn-table.js",
+          "lrn-vocab": "@lrnwebcomponents/lrn-vocab/lrn-vocab.js",
+          "lrndesign-blockquote": "@lrnwebcomponents/lrndesign-blockquote/lrndesign-blockquote.js",
+          "magazine-cover": "@lrnwebcomponents/magazine-cover/magazine-cover.js",
+          "media-behaviors": "@lrnwebcomponents/media-behaviors/media-behaviors.js",
+          "media-image": "@lrnwebcomponents/media-image/media-image.js",
+          "meme-maker": "@lrnwebcomponents/meme-maker/meme-maker.js",
+          "multiple-choice": "@lrnwebcomponents/multiple-choice/multiple-choice.js",
+          "paper-audio-player": "@lrnwebcomponents/paper-audio-player/paper-audio-player.js",
+          "person-testimonial": "@lrnwebcomponents/person-testimonial/person-testimonial.js",
+          "place-holder": "@lrnwebcomponents/place-holder/place-holder.js",
+          "q-r": "@lrnwebcomponents/q-r/q-r.js",
+          "full-width-image": "@lrnwebcomponents/full-width-image/full-width-image.js",
+          "self-check": "@lrnwebcomponents/self-check/self-check.js",
+          "simple-concept-network": "@lrnwebcomponents/simple-concept-network/simple-concept-network.js",
+          "stop-note": "@lrnwebcomponents/stop-note/stop-note.js",
+          "tab-list": "@lrnwebcomponents/tab-list/tab-list.js",
+          "task-list": "@lrnwebcomponents/task-list/task-list.js",
+          "video-player": "@lrnwebcomponents/video-player/video-player.js",
+          "wave-player": "@lrnwebcomponents/wave-player/wave-player.js",
+          "wikipedia-query": "@lrnwebcomponents/wikipedia-query/wikipedia-query.js",
+          "md-block": "@lrnwebcomponents/md-block/md-block.js",
+          "grid-plate": "@lrnwebcomponents/grid-plate/grid-plate.js"
+        },
+        "publishing": {
+          "git": {
+            "vendor": "github",
+            "branch": "gh-pages",
+            "url": "git@github.com:elmsln/haxtheweb.org.git",
+            "cdn": "haxtheweb.org"
+          }
+        },
+        "lastPublished": 1556305364,
+        "publishedLocation": "https://haxtheweb.org/",
+        "pageCount": 57
+      },
+      "location": "/_sites/haxtheweb/"
+    },
+    {
+      "id": "a8e3f679-5f78-4fe1-acac-908343e4673c",
+      "title": "elmsln",
+      "author": "",
+      "description": "a blog about elms stuff",
+      "license": "by-sa",
+      "metadata": {
+        "siteName": "elmsln",
+        "image": "assets/banner.jpg",
+        "theme": {
+          "element": "outline-player",
+          "path": "@lrnwebcomponents/outline-player/outline-player.js",
+          "name": "Outline player"
+        },
+        "icon": "lrn:network",
+        "domain": "https://elmsln.surge.sh",
+        "hexCode": "#aeff00",
+        "created": 1547243917,
+        "updated": 1548420907,
+        "cssVariable": "--simple-colors-lime-background5",
+        "pageCount": 3
+      },
+      "location": "/_sites/elmsln/"
+    },
+    {
+      "id": "7a003206-4d64-47fb-8a44-d575d760cfab",
+      "title": "wccourse",
+      "author": "",
+      "description": "",
+      "license": "by-sa",
+      "metadata": {
+        "siteName": "wccourse",
+        "theme": {
+          "element": "outline-player",
+          "path": "@lrnwebcomponents/outline-player/outline-player.js",
+          "name": "Outline player"
+        },
+        "hexCode": "#aeff00",
+        "created": 1550525808,
+        "updated": 1550525811,
+        "cssVariable": "--simple-colors-default-theme-light-blue-7",
+        "dynamicElementLoader": {
+          "a11y-gif-player": "@lrnwebcomponents/a11y-gif-player/a11y-gif-player.js",
+          "citation-element": "@lrnwebcomponents/citation-element/citation-element.js",
+          "hero-banner": "@lrnwebcomponents/hero-banner/hero-banner.js",
+          "image-compare-slider": "@lrnwebcomponents/image-compare-slider/image-compare-slider.js",
+          "license-element": "@lrnwebcomponents/license-element/license-element.js",
+          "lrn-aside": "@lrnwebcomponents/lrn-aside/lrn-aside.js",
+          "lrn-calendar": "@lrnwebcomponents/lrn-calendar/lrn-calendar.js",
+          "lrn-math": "@lrnwebcomponents/lrn-math/lrn-math.js",
+          "lrn-table": "@lrnwebcomponents/lrn-table/lrn-table.js",
+          "lrn-vocab": "@lrnwebcomponents/lrn-vocab/lrn-vocab.js",
+          "lrndesign-blockquote": "@lrnwebcomponents/lrndesign-blockquote/lrndesign-blockquote.js",
+          "magazine-cover": "@lrnwebcomponents/magazine-cover/magazine-cover.js",
+          "media-behaviors": "@lrnwebcomponents/media-behaviors/media-behaviors.js",
+          "media-image": "@lrnwebcomponents/media-image/media-image.js",
+          "meme-maker": "@lrnwebcomponents/meme-maker/meme-maker.js",
+          "multiple-choice": "@lrnwebcomponents/multiple-choice/multiple-choice.js",
+          "paper-audio-player": "@lrnwebcomponents/paper-audio-player/paper-audio-player.js",
+          "person-testimonial": "@lrnwebcomponents/person-testimonial/person-testimonial.js",
+          "place-holder": "@lrnwebcomponents/place-holder/place-holder.js",
+          "q-r": "@lrnwebcomponents/q-r/q-r.js",
+          "full-width-image": "@lrnwebcomponents/full-width-image/full-width-image.js",
+          "self-check": "@lrnwebcomponents/self-check/self-check.js",
+          "simple-concept-network": "@lrnwebcomponents/simple-concept-network/simple-concept-network.js",
+          "stop-note": "@lrnwebcomponents/stop-note/stop-note.js",
+          "tab-list": "@lrnwebcomponents/tab-list/tab-list.js",
+          "task-list": "@lrnwebcomponents/task-list/task-list.js",
+          "video-player": "@lrnwebcomponents/video-player/video-player.js",
+          "wave-player": "@lrnwebcomponents/wave-player/wave-player.js",
+          "wikipedia-query": "@lrnwebcomponents/wikipedia-query/wikipedia-query.js"
+        },
+        "pageCount": 59
+      },
+      "location": "/_sites/wccourse/"
+    },
+    {
+      "id": "83ba379b-b5a9-4180-b018-7b72735a8420",
+      "title": "wcfactory",
+      "author": "",
+      "description": "Documentation and tutorials on using WCFactory",
+      "license": "by-sa",
+      "metadata": {
+        "siteName": "wcfactory",
+        "domain": "https://wcfactory.js.org",
+        "created": 1554401406,
+        "updated": 1556294575,
+        "theme": {
+          "element": "outline-player",
+          "path": "@lrnwebcomponents/outline-player/outline-player.js",
+          "name": "Documentation"
+        },
+        "image": "assets/banner.jpg",
+        "hexCode": "#009d75",
+        "cssVariable": "teal",
+        "publishing": {
+          "git": {
+            "vendor": "github",
+            "branch": "gh-pages",
+            "url": "git@github.com:elmsln/wcfactory.js.org.git",
+            "cdn": "cdn.waxam.io"
+          }
+        },
+        "dynamicElementLoader": {
+          "a11y-gif-player": "@lrnwebcomponents/a11y-gif-player/a11y-gif-player.js",
+          "citation-element": "@lrnwebcomponents/citation-element/citation-element.js",
+          "hero-banner": "@lrnwebcomponents/hero-banner/hero-banner.js",
+          "image-compare-slider": "@lrnwebcomponents/image-compare-slider/image-compare-slider.js",
+          "license-element": "@lrnwebcomponents/license-element/license-element.js",
+          "lrn-aside": "@lrnwebcomponents/lrn-aside/lrn-aside.js",
+          "lrn-calendar": "@lrnwebcomponents/lrn-calendar/lrn-calendar.js",
+          "lrn-math": "@lrnwebcomponents/lrn-math/lrn-math.js",
+          "lrn-table": "@lrnwebcomponents/lrn-table/lrn-table.js",
+          "lrn-vocab": "@lrnwebcomponents/lrn-vocab/lrn-vocab.js",
+          "lrndesign-blockquote": "@lrnwebcomponents/lrndesign-blockquote/lrndesign-blockquote.js",
+          "magazine-cover": "@lrnwebcomponents/magazine-cover/magazine-cover.js",
+          "media-behaviors": "@lrnwebcomponents/media-behaviors/media-behaviors.js",
+          "media-image": "@lrnwebcomponents/media-image/media-image.js",
+          "meme-maker": "@lrnwebcomponents/meme-maker/meme-maker.js",
+          "grid-plate": "@lrnwebcomponents/grid-plate/grid-plate.js",
+          "md-block": "@lrnwebcomponents/md-block/md-block.js",
+          "multiple-choice": "@lrnwebcomponents/multiple-choice/multiple-choice.js",
+          "paper-audio-player": "@lrnwebcomponents/paper-audio-player/paper-audio-player.js",
+          "person-testimonial": "@lrnwebcomponents/person-testimonial/person-testimonial.js",
+          "place-holder": "@lrnwebcomponents/place-holder/place-holder.js",
+          "q-r": "@lrnwebcomponents/q-r/q-r.js",
+          "full-width-image": "@lrnwebcomponents/full-width-image/full-width-image.js",
+          "self-check": "@lrnwebcomponents/self-check/self-check.js",
+          "simple-concept-network": "@lrnwebcomponents/simple-concept-network/simple-concept-network.js",
+          "stop-note": "@lrnwebcomponents/stop-note/stop-note.js",
+          "tab-list": "@lrnwebcomponents/tab-list/tab-list.js",
+          "task-list": "@lrnwebcomponents/task-list/task-list.js",
+          "code-sample": "@lrnwebcomponents/code-sample/code-sample.js",
+          "video-player": "@lrnwebcomponents/video-player/video-player.js",
+          "wave-player": "@lrnwebcomponents/wave-player/wave-player.js",
+          "wikipedia-query": "@lrnwebcomponents/wikipedia-query/wikipedia-query.js",
+          "lrndesign-gallery": "@lrnwebcomponents/lrndesign-gallery/lrndesign-gallery.js",
+          "lrndesign-timeline": "@lrnwebcomponents/lrndesign-timeline/lrndesign-timeline.js"
+        },
+        "lastPublished": 1556152720,
+        "publishedLocation": "https://wcfactory.js.org",
+        "pageCount": 8
+      },
+      "location": "/_sites/wcfactory/"
+    },
+    {
+      "id": "29fc2438-0cef-424e-b99b-391cce0b215c",
+      "title": "govsummit",
+      "author": "",
+      "description": "",
+      "license": "by-sa",
+      "metadata": {
+        "siteName": "govsummit",
+        "domain": "https://btopro.github.io/govsummit",
+        "created": 1554429805,
+        "updated": 1556285265,
+        "theme": {
+          "element": "simple-blog",
+          "path": "@lrnwebcomponents/simple-blog/simple-blog.js",
+          "name": "Simple blog"
+        },
+        "image": "files/scale-50/ngdle-elms.png",
+        "hexCode": "#009dc7",
+        "cssVariable": "cyan",
+        "publishing": {
+          "git": {
+            "vendor": "github",
+            "branch": "gh-pages",
+            "url": "git@github.com:elmsln/govsummit.git",
+            "cdn": "cdn.waxam.io"
+          }
+        },
+        "dynamicElementLoader": {
+          "a11y-gif-player": "@lrnwebcomponents/a11y-gif-player/a11y-gif-player.js",
+          "citation-element": "@lrnwebcomponents/citation-element/citation-element.js",
+          "hero-banner": "@lrnwebcomponents/hero-banner/hero-banner.js",
+          "image-compare-slider": "@lrnwebcomponents/image-compare-slider/image-compare-slider.js",
+          "license-element": "@lrnwebcomponents/license-element/license-element.js",
+          "lrn-aside": "@lrnwebcomponents/lrn-aside/lrn-aside.js",
+          "lrn-calendar": "@lrnwebcomponents/lrn-calendar/lrn-calendar.js",
+          "lrn-math": "@lrnwebcomponents/lrn-math/lrn-math.js",
+          "lrn-table": "@lrnwebcomponents/lrn-table/lrn-table.js",
+          "lrn-vocab": "@lrnwebcomponents/lrn-vocab/lrn-vocab.js",
+          "lrndesign-blockquote": "@lrnwebcomponents/lrndesign-blockquote/lrndesign-blockquote.js",
+          "magazine-cover": "@lrnwebcomponents/magazine-cover/magazine-cover.js",
+          "media-behaviors": "@lrnwebcomponents/media-behaviors/media-behaviors.js",
+          "media-image": "@lrnwebcomponents/media-image/media-image.js",
+          "meme-maker": "@lrnwebcomponents/meme-maker/meme-maker.js",
+          "grid-plate": "@lrnwebcomponents/grid-plate/grid-plate.js",
+          "md-block": "@lrnwebcomponents/md-block/md-block.js",
+          "multiple-choice": "@lrnwebcomponents/multiple-choice/multiple-choice.js",
+          "paper-audio-player": "@lrnwebcomponents/paper-audio-player/paper-audio-player.js",
+          "person-testimonial": "@lrnwebcomponents/person-testimonial/person-testimonial.js",
+          "place-holder": "@lrnwebcomponents/place-holder/place-holder.js",
+          "q-r": "@lrnwebcomponents/q-r/q-r.js",
+          "full-width-image": "@lrnwebcomponents/full-width-image/full-width-image.js",
+          "self-check": "@lrnwebcomponents/self-check/self-check.js",
+          "simple-concept-network": "@lrnwebcomponents/simple-concept-network/simple-concept-network.js",
+          "stop-note": "@lrnwebcomponents/stop-note/stop-note.js",
+          "tab-list": "@lrnwebcomponents/tab-list/tab-list.js",
+          "task-list": "@lrnwebcomponents/task-list/task-list.js",
+          "video-player": "@lrnwebcomponents/video-player/video-player.js",
+          "wave-player": "@lrnwebcomponents/wave-player/wave-player.js",
+          "wikipedia-query": "@lrnwebcomponents/wikipedia-query/wikipedia-query.js",
+          "lrndesign-gallery": "@lrnwebcomponents/lrndesign-gallery/lrndesign-gallery.js",
+          "lrndesign-timeline": "@lrnwebcomponents/lrndesign-timeline/lrndesign-timeline.js"
+        },
+        "icon": "communication:call-end",
+        "pageCount": 740
+      },
+      "location": "/_sites/govsummit/"
+    },
+    {
+      "id": "deea4d65-63cb-4e0d-8270-4beccd662063",
+      "title": "btopro",
+      "author": "",
+      "description": "Crazy, abrasive, caring, dreaming the future into existence.",
+      "license": "by-sa",
+      "metadata": {
+        "siteName": "btopro",
+        "image": "assets/banner.jpg",
+        "theme": {
+          "element": "haxor-slevin",
+          "path": "@lrnwebcomponents/haxor-slevin/haxor-slevin.js",
+          "name": "Coder blog"
+        },
+        "icon": "icons:record-voice-over",
+        "hexCode": "#da004e",
+        "domain": "https://btopro.com",
+        "created": 1548653466,
+        "updated": 1556155481,
+        "cssVariable": "pink",
+        "publishing": {
+          "git": {
+            "vendor": "github",
+            "branch": "gh-pages",
+            "url": "git@github.com:btopro/blog.git",
+            "cdn": "cdn.waxam.io"
+          }
+        },
+        "dynamicElementLoader": {
+          "a11y-gif-player": "@lrnwebcomponents/a11y-gif-player/a11y-gif-player.js",
+          "citation-element": "@lrnwebcomponents/citation-element/citation-element.js",
+          "hero-banner": "@lrnwebcomponents/hero-banner/hero-banner.js",
+          "image-compare-slider": "@lrnwebcomponents/image-compare-slider/image-compare-slider.js",
+          "license-element": "@lrnwebcomponents/license-element/license-element.js",
+          "lrn-aside": "@lrnwebcomponents/lrn-aside/lrn-aside.js",
+          "lrn-calendar": "@lrnwebcomponents/lrn-calendar/lrn-calendar.js",
+          "lrn-math": "@lrnwebcomponents/lrn-math/lrn-math.js",
+          "lrn-table": "@lrnwebcomponents/lrn-table/lrn-table.js",
+          "lrn-vocab": "@lrnwebcomponents/lrn-vocab/lrn-vocab.js",
+          "lrndesign-blockquote": "@lrnwebcomponents/lrndesign-blockquote/lrndesign-blockquote.js",
+          "magazine-cover": "@lrnwebcomponents/magazine-cover/magazine-cover.js",
+          "media-behaviors": "@lrnwebcomponents/media-behaviors/media-behaviors.js",
+          "media-image": "@lrnwebcomponents/media-image/media-image.js",
+          "meme-maker": "@lrnwebcomponents/meme-maker/meme-maker.js",
+          "multiple-choice": "@lrnwebcomponents/multiple-choice/multiple-choice.js",
+          "paper-audio-player": "@lrnwebcomponents/paper-audio-player/paper-audio-player.js",
+          "person-testimonial": "@lrnwebcomponents/person-testimonial/person-testimonial.js",
+          "place-holder": "@lrnwebcomponents/place-holder/place-holder.js",
+          "q-r": "@lrnwebcomponents/q-r/q-r.js",
+          "full-width-image": "@lrnwebcomponents/full-width-image/full-width-image.js",
+          "self-check": "@lrnwebcomponents/self-check/self-check.js",
+          "simple-concept-network": "@lrnwebcomponents/simple-concept-network/simple-concept-network.js",
+          "stop-note": "@lrnwebcomponents/stop-note/stop-note.js",
+          "tab-list": "@lrnwebcomponents/tab-list/tab-list.js",
+          "task-list": "@lrnwebcomponents/task-list/task-list.js",
+          "video-player": "@lrnwebcomponents/video-player/video-player.js",
+          "wave-player": "@lrnwebcomponents/wave-player/wave-player.js",
+          "md-block": "@lrnwebcomponents/md-block/md-block.js",
+          "grid-plate": "@lrnwebcomponents/grid-plate/grid-plate.js",
+          "wikipedia-query": "@lrnwebcomponents/wikipedia-query/wikipedia-query.js"
+        },
+        "lastPublished": 1556910071,
+        "publishedLocation": "https://btopro.com",
+        "fields": {
+          "configure": [
+            {
+              "property": "images",
+              "description": "List of images",
+              "required": false,
+              "icon": "image:collections",
+              "title": "Other sources",
+              "inputMethod": "array",
+              "properties": [
+                {
+                  "property": "src",
+                  "title": "Source",
+                  "description": "The URL for the image",
+                  "inputMethod": "haxupload"
+                },
+                {
+                  "property": "alt",
+                  "title": "Alt",
+                  "description": "Alt text",
+                  "inputMethod": "textfield"
+                }
+              ]
+            },
+            {
+              "property": "subtitle",
+              "title": "Subtitle",
+              "description": "An additional subtitle",
+              "inputMethod": "textfield",
+              "icon": "editor:text-fields"
+            },
+            {
+              "property": "tags",
+              "description": "Tags for the page",
+              "required": false,
+              "icon": "image:collections",
+              "title": "Tags",
+              "inputMethod": "array",
+              "properties": [
+                {
+                  "property": "tag",
+                  "title": "Tag",
+                  "description": "Individual tag",
+                  "inputMethod": "textfield"
+                }
+              ]
+            }
+          ],
+          "advanced": []
+        },
+        "pageCount": 51
+      },
+      "location": "/_sites/btopro/"
+    }
+  ]
+}
