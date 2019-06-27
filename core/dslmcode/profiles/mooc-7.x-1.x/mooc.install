@@ -312,6 +312,7 @@ function mooc_update_7023(&$sandbox) {
   // clear cache in order to ensure input filter is rebuild
   cache_clear_all('filter_', 'cache', TRUE);
 }
+
 /**
  * Drop accessibility modular set as HAX handles much of what this could have done poorly
  */

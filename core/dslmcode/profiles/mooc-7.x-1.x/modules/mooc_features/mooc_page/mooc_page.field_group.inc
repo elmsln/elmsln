@@ -42,6 +42,9 @@ function mooc_page_field_group_info() {
       ),
       'formatter' => 'open',
     ),
+    '#materialize' => array(
+      'type' => 'collapsible',
+    ),
   );
   $field_groups['group_advanced_tabs|node|page|form'] = $field_group;
 
@@ -157,6 +160,9 @@ function mooc_page_field_group_info() {
         'classes' => 'group-settings field-group-htabs',
         'id' => '',
       ),
+    ),
+    '#materialize' => array(
+      'type' => 'collapsible',
     ),
   );
   $field_groups['group_settings|node|page|form'] = $field_group;

@@ -13,13 +13,11 @@ lrnapp-studio-dashboard .lrnsys-button-0 paper-button.lrnsys-button div.inner.lr
 lrnapp-studio-dashboard lrndesign-gallerycard {
   width: 18em;
 }
-.elmsln-tabs .tab .active-trail {
-  background-color: #ff6f00;
-  color: #FFFFFF !important;
-  font-weight: bold;
-}
 lrnapp-open-studio {
   border-top: solid 2px #ff6f00;
+}
+.node-cle_project-form {
+  margin: 0 2em;
 }
 
 .card-actions lrnsys-button iron-icon {
