@@ -2,7 +2,9 @@ language: php
 
 php:
   - 7.2
-
+dist: bionic
+os:
+  - linux
 matrix:
   env:
     global:
@@ -36,7 +38,7 @@ before_install:
   - sudo apt-get update -qq
   - sudo apt-get install -y -qq postfix
 install:
-  - sudo apt-get install -y --force-yes php7.2-fpm php7.2-zip php7.2-gd php-dom git php7.2-mysql
+  - sudo apt-get install -y --force-yes php7.2-fpm php7.2-zip php7.2-gd php7.2-xml git php7.2-mysql apache2
   # install drush globally
   - composer global require drush/drush:7.*
   # add composer's global bin directory to the path
