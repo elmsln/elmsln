@@ -1,46 +1,31 @@
-# Webcomponents module
-
-This family of modules is intended to replace our reliance on the Drupal theme system by instead routing as much as possible through webcomponent architecture. We currently support polymer based elements but it would be easy enough to find and implement others
-
-## Background
-Webcomponents currently require a polyfill to get broad browser support beyond Chrome (which has fully implemented the specification). Webcomponent is a combination of 4 W3C agreed upon specifications for how to handle Custom Elements appropriately.
-
-## Install
-Enable the module and any submodules you want. We recommend webcomponents_polymer and webcomponents_display_modes. Then go to sites/all/libraries and create a webcomponents directory here. Then inside make two more directories:
--sites/all/libraries
-  - webcomponents
-    - polymer
-    - webcomponentsjs
-
-The polymer directory is where we will place all our custom webcomponents we've gotten from webcomponents.org and elsewhere.
-
-the webcomponentsjs directory is where we'll store the polyfills. You can typically get the right one from copying the contents of a polymer / other webcomponent bower dependency from polymer/{yourelement}/bower_components/webcomponentsjs/
-
-Currently for performance and simplicity, only the webcomponents-lite.min.js file is required if you are going to use this (which is recommended for browser support).
-
-## Usage / Workflow (with Polymer)
-These are your dependencies to get this development workflow going. Install node & npm then run the following:
+## Getting dependencies
+You need polymer cli (not polymer but the CLI library) in order to interface with web components in grav. Get polymer cli installed prior to usage of this (and (yarn)[https://yarnpkg.com/lang/en/docs/install/#mac-stable] / an npm client of some kind)
+```bash
+$ yarn global add polymer-cli
+# or...
+$ npm install -g polymer-cli
 ```
-sudo npm install -g bower
-sudo npm install -g vulcanize
-sudo npm install -g polymer-cli
+Perform this on your computer locally, this doesn't have to be installed on your server.
 
+## Usage
+
+Find the `CopyThisStuff` directory in `/sites/all/modues/webcomponents` and copy the files in there over to `/sites/all/libraries/webcomponents`.
+
+Then run the following (from the directory you copied it over to) in order to get dependencies:
+```bash
+$ yarn install
+# or...
+$ npm install
 ```
+Now run `polymer build` and you'll have files in `build/` which contain everything you'll need to get wired up to web components in your grav site. Modifying build.js or package.json can be used in order to get new elements and have them be implemented.
 
-Next steps:
-- Find some webcomponents you like (in this example we'll use LRNWebcomponents/lrn-icons)
-- make a working directory for this drupal project outside drupal:
-- `cd ~/git/myproject` then `polymer init`
-follow the prompts to get a baseline item created.
-- Now do `bower install --save LRNWebcomponents/lrn-icons` (and other you want)
-- edit `index.html` and add the component into the requirements
-- `<link rel="import" href="../lrn-icons/lrn-icons.html">` (and others you want)
-- remove the reference to `webomponents-lite.min.js` and save the file
-- now perform a `polymer build`
-- `cd build/default` then do `vulcanize index.html > build.html` (build can be whatever you want)
-- copy `build.html` to `sites/all/libraries/webcomponents/polymer/our-build`
-- Wipe your theme cache in your drupal site
-- You are good to go in your quest for TPL-less development!
+### Shouldn't I put web components in my theme?
+We don't think so. While it may seem counter intuitive, the theme layer should be effectively implementing what Grav is saying is available. If you think of standard HTML tags are being part of this (p, div, a, etc) then it makes a bit more sense. You don't want functional HTML components to ONLY be supplied if your theme is there, you want your theme to implement and leverage the components.
+
+## New to web components?
+We built our own tooling to take the guess work out of creating, publishing and testing web components for HAX and other projects. We highly recommend you use this tooling though it's not required:
+- https://github.com/elmsln/wcfactory - Build your own web component library
+- https://github.com/elmsln/lrnwebcomponents - Our invoking of this tooling to see what a filled out repo looks like
 
 ## Single Page app development (webcomponents_app sub-module)
 You can turbo charge you single page app development workflows with Drupal and the webcomponents_app sub-module! The workflow involving this is that you can do all of your development via a one-page polymer app and then integration into Drupal comes in the form of writing a single data callback function (for simple apps, obviously). So, here's the workflow for an example app called `phone-book`:
@@ -116,11 +101,3 @@ return array(
   'data' => $phone_book
 );
 ```
-
-### A note on Performance
-You can add elements directly though it is highly recommended to follow the above workflow because of how many gains in performance there are by removing needless files from version control as well as combining potentially dozens or 100+ html files (1 per element typically) into a single file. This will drastically speed up initial download of your site by doing this. The webcomponent module can discover in multiple nested files if you want to use the raw items as part of your setup.
-
-You will see gains on the delivery of a page though as you'll be skipping a lot of the render / template system in the process of using these workflows.
-
-### A note on development
-There's a hidden variabel webcomponents_hide_messages which if you set it to TRUE (default is FALSE) it will stop printing messages when you clear caches / rebuild theme. This is important when in active development or if this message provides you no real value and you want it disabled.
