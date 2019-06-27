@@ -327,6 +327,7 @@ cms-hax:hover::before {
 }
 #block-mooc-nav-block-mooc-nav-nav li.elmsln-book-item lrnsys-button {
   padding-left: 0;
+  overflow: hidden;
 }
 #block-mooc-nav-block-mooc-nav-nav li.elmsln-book-item lrnsys-button.x-scope {
   padding-left: unset;
