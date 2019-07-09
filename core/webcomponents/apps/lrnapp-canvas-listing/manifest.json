@@ -7,18 +7,11 @@
   "app_integration": {
     "element": "node_modules/@lrnwebcomponents/elmsln-apps/lib/lrnapp-canvas-listing/lrnapp-canvas-listing.js",
     "title": "Canvas course list",
-    "menu": {
-      "menu_name": "menu-elmsln-navigation",
-      "weight": 10
-    },
     "endpoints": {
       "data": {
         "callback": "_elmsln_canvas_course_list",
         "property": "source-path"
       }
-    },
-    "context": {
-      "distro": "cis"
     }
   }
 }
