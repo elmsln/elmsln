@@ -24,17 +24,6 @@
   <?php if (isset($user_section) || !empty($masquerade)) : ?>
   <li><div class="divider"></div></li>
   <?php endif; ?>
-  <li>
-    <lrnsys-dialog header="<?php print t('Preferences'); ?>" data-jwerty-key="a" data-voicecommand="open preferences (menu)">
-      <span slot="button">
-        <iron-icon icon="accessibility"></iron-icon>
-        <span><?php print t('Preferences');?></span>
-      </span>
-      <span slot="content">
-        <?php print $a11y; ?>
-      </span>
-    </lrnsys-dialog>
-  </li>
   <?php if (isset($user_section)) : ?>
   <li>
     <lrnsys-dialog header="<?php print t('Change section');?>">

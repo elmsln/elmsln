@@ -454,19 +454,6 @@ function _cis_lmsless_theme_vars() {
         $vars['userbackground'] = '<img class="background" src="' .  base_path() . $libraries['materialize'] . '/images/office.jpg" alt="">';
       }
     }
-    // load up the a11y stuff
-    $a11y = module_invoke_all('fa_a11y');
-    drupal_alter('fa_a11y', $a11y);
-    // add in the form api wrapper meta properties to render as materialize collapse
-    $a11y['#type'] = 'fieldset';
-    $a11y['#materialize'] = array(
-      'type' => 'collapsible_wrapper'
-    );
-    $a11y['#attributes'] = array(
-      'class' => array('collapsible', 'elmsln-materialize-collapse-list'),
-      'data-collapsible' => 'accordion',
-    );
-    $vars['a11y'] = drupal_render($a11y);
     // set a login link if we don't have a user name
     if ($vars['username'] == t("Anonymous")) {
       $vars['userlink'] = array(
