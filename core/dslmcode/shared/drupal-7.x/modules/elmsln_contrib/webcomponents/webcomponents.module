@@ -36,9 +36,9 @@ function webcomponents_admin_settings($form, &$form_state) {
 }
 
 /**
- * Implements hook_page_build().
+ * Implements hook_process_html().
  */
-function webcomponents_page_build(&$page) {
+function webcomponents_process_html(&$variables) {
   $location = variable_get('webcomponents_project_location', 'sites/all/libraries/webcomponents/');
   // append base_path if this site has a url to start it
   if (strpos($location, 'http') === FALSE) {
@@ -52,7 +52,7 @@ function webcomponents_page_build(&$page) {
     '#type' => 'markup',
     '#markup' => $wc->applyWebcomponents($location, $files),
   );
-  drupal_add_html_head($element, 'webcomponents');
+  $variables['page_bottom'] .= drupal_render($element);
 }
 
 /**
