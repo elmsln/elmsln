@@ -1,0 +1,66 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the game_show_quiz module.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function game_show_quiz_schema() {
+  $schema['game_show_quiz'] = array(
+  'description' => 'Stores game_show_quiz information. Used to present graded data',
+    'fields' => array(
+      'uuid' => array(
+        'type' => 'char',
+        'length' => 36,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => 'The Universally Unique Identifier.',
+      ),
+      'game' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => 'Game show name / title',
+      ),
+      'section' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => 'Section the user took this in, helps with multiple section filtering',
+      ),
+      'uid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => "user id in drupal",
+      ),
+      'dates' => array(
+        'type' => 'text',
+        'size' => 'normal',
+        'not null' => FALSE,
+        'description' => 'blob storage for the json of the user scores',
+      ),
+      'scores' => array(
+        'type' => 'text',
+        'size' => 'normal',
+        'not null' => FALSE,
+        'description' => 'blob storage for the json of the user scores',
+      ),
+    ),
+    'primary key' => array('uuid'),
+    'unique keys' => array(
+      'uuid' => array('uuid'),
+    ),
+    'indexes' => array(
+      'game' => array('game'),
+    ),
+  );
+
+  return $schema;
+}

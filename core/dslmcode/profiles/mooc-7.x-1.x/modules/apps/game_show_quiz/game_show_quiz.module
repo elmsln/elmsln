@@ -1,0 +1,74 @@
+<?php
+/**
+ * @file
+ * Code for the game show backend / some end point logic for saving
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function game_show_quiz_menu() {
+  $items = array();
+  $items['apps/game-show-scoreboard/save-score'] = array(
+    'title' => 'save score',
+    'page callback' => '_game_show_quiz_save_score',
+    'page arguments' => array(3, 4),
+    'access callback' => 'user_is_logged_in',
+    'access arguments' => array(1),
+    'type' => MENU_CALLBACK,
+  );
+  return $items;
+}
+
+/**
+ * Callback to save score
+ */
+function _game_show_quiz_save_score($game, $score) {
+  // todo need to verify session token for spam / cheating purposes
+  global $user;
+  $section = _cis_connector_section_context();
+  // check if this user has a record already for this quiz
+  $result = db_select('game_show_quiz', 'gsq')
+    ->fields('gsq')
+    ->condition('uid', $user->uid, '=') // this user
+    ->condition('section', $section, '=') // in this section
+    ->condition('game', $game, '=') // taking this quiz
+    ->execute()
+    ->fetchAssoc();
+  // if we have anything, then we update
+  if (!$result) {
+    $scores = array();
+    $dates = array();
+    $scores[] = $score;
+    $dates[] = time();
+    db_insert('game_show_quiz')
+    ->fields(array(
+      'uuid' => uuid_generate(),
+      'game' => $game,
+      'section' => $section,
+      'uid' => $user->uid,
+      'dates' => json_encode($dates),
+      'scores' => json_encode($scores),
+    ))
+    ->execute();
+  }
+  else {
+    $scores = json_decode($result['scores']);
+    $dates = json_decode($result['dates']);
+    $scores[] = $score;
+    $dates[] = time();
+    db_update('game_show_quiz')
+      ->fields(array(
+        'dates' => json_encode($dates),
+        'scores' => json_encode($scores),
+      ))
+      ->condition('uid', $user->uid, '=') // this user
+      ->condition('section', $section, '=') // in this section
+      ->condition('game', $game, '=') // taking this quiz
+      ->execute();
+  }
+  return array(
+    'response' => 200,
+    'data' => t('Score recorded')
+  );
+}
