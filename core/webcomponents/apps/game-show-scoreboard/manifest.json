@@ -19,6 +19,7 @@
       }
     },
     "menu": {
+      "title": "Jeopardy scoreboard",
       "menu_name": "menu-elmsln-settings",
       "weight": -100
     },
