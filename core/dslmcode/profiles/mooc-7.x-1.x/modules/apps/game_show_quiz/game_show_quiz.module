@@ -26,6 +26,16 @@ function game_show_quiz_menu() {
   return $items;
 }
 
+/**
+ * Implements hook_hax_autoloader().
+ */
+function game_show_quiz_hax_autoloader() {
+  return array('game-show-quiz');
+}
+
+/**
+ * Backend to deliver directions for the game
+ */
 function _game_show_quiz_load_directions() {
   print "<strong>Important:</strong> Please read <strong>all</strong> of the following directions before starting the
 quiz. <strong>Continue taking Jeopardy until you have attempted all 30 points and all open bonus questions.</strong>
