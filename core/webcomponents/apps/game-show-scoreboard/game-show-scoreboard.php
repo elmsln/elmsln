@@ -11,9 +11,13 @@ function _game_show_scoreboard_options($machine_name, $app_route, $params, $args
   $sections = array_merge(array("" => t("All")), _cis_connector_assemble_entity_list('node', 'section', 'field_section_id', 'title', $field_conditions, $property_conditions, $orderby));
   $jeopardys = array(
     "" => t("All"),
-    'Number One' => 'Number One',
-    "Number two" => "Number two"
   );
+  $query = db_select('game_show_quiz', 'gsq')
+    ->fields('gsq', array('game'));
+  $result = $query->execute()->fetchAllAssoc('game');
+  foreach($result as $values) {
+    $jeopardys[$values->game] = $values->game;
+  }
   return array(
     'status' => 200,
     'data' => array(
