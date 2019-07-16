@@ -27,7 +27,7 @@ function game_show_quiz_menu() {
 }
 
 function _game_show_quiz_load_directions() {
-  return `<strong>Important:</strong> Please read <strong>all</strong> of the following directions before starting the
+  print "<strong>Important:</strong> Please read <strong>all</strong> of the following directions before starting the
 quiz. <strong>Continue taking Jeopardy until you have attempted all 30 points and all open bonus questions.</strong>
 <ul>
   <li>Questions come in four categories...</li>
@@ -40,7 +40,7 @@ attempted all 30 points and all open bonus questions.</strong>
 <li>Questions come in four categories, <strong>Slide Identification, Terminology, Reading</strong> (which can also include video) and
 <strong>Lecture</strong> (concept-based).</li>
 
-<li>All questions have 1 "answer" and 5 possible "questions", using the Jeopardy game show format.</li>
+<li>All questions have 1 \"answer\" and 5 possible \"questions\", using the Jeopardy game show format.</li>
 
 <li>Questions are worth 1, 2, or 3 points, as indicated on the board.</li>
 
@@ -79,7 +79,8 @@ ability to apply what you know to deduce the correct answer.</li>
 selection of questions. Even if you repeated your selections exactly, you wouldn't see an identical set of questions.
 Some will be new. As you gain knowledge, you may attempt more challenging strategies than you did at first. That is the
 beauty of Jeopardy!</li>
-</ol>`;
+</ol>";
+exit;
 }
 
 /**
