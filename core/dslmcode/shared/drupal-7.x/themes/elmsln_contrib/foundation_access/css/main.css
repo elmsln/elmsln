@@ -8261,11 +8261,6 @@ lrnsys-drawer app-drawer,
   padding: 0;
   margin: 0;
 }
-#etb-course-nav .top-bar li a lrn-icon {
-  margin-right:.5rem;
-  line-height: 5rem;
-  height: 5rem;
-}
 #etb-course-nav lrndesign-avatar {
   margin: 4px 0 0 0;
   padding: 0 .25rem;
