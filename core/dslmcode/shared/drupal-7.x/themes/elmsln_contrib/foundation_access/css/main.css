@@ -38,9 +38,6 @@ lrnsys-drawer:not(:defined) {
 
 lrnsys-button,paper-button {
   display: block;
-  height: 3rem;
-  min-width: 3rem;
-  line-height: 3rem;
 }
 paper-button.coursecard-wrapper {
   height: unset;
