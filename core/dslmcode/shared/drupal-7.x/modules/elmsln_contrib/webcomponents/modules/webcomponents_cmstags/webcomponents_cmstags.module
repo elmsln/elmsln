@@ -349,8 +349,12 @@ function _webcomponents_cmstags_process($text, $filter, $format, $langcode, $cac
             if (@json_decode(html_entity_decode($match))) {
               $media[] = str_replace(']', '""``""', str_replace('[', '``""``', $match));
             }
-            else {
+            elseif ($tmptoken != '') {
+              // trap juuuuust to make sure this isn't actually an empty []
               $media[] = '<cms-token token="' . $tmptoken . '"></cms-token>';
+            }
+            else {
+              $media[] = $match;
             }
           }
           else {
