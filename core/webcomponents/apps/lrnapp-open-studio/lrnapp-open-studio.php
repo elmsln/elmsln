@@ -22,6 +22,11 @@ function _cle_open_studio_app_data($machine_name, $app_route, $params, $args) {
   $options = new stdClass();
   // only show things marked ready for feedback
   $options->filter['state'] = array('submission_ready', '=');
+  $options->truncate = array(
+    'images' => 'images',
+    'comments' => 'comments',
+    'relatedSubmissions' => 'relatedSubmissions',
+  );
   // @todo we need to pull only what we're asked for as a range
   // this way we don't destroy the UI in huge classes
   // invoke our submission service to get submissions

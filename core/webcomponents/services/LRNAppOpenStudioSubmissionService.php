@@ -63,6 +63,7 @@ class LRNAppOpenStudioSubmissionService {
     $orderby = array('property' => array(array('changed', 'DESC')));
     $limit = NULL;
     $tags = array();
+    $truncate = array();
     $property_conditions = array('status' => array(COMMENT_PUBLISHED, '='));
     if (isset($options)) {
       if (isset($options->filter)) {
@@ -91,6 +92,9 @@ class LRNAppOpenStudioSubmissionService {
       if (isset($options->tags)) {
         $tags = $options->tags;
       }
+      if (isset($options->truncate)) {
+        $truncate = $options->truncate;
+      }
     }
     $items = _cis_connector_assemble_entity_list('node', 'cle_submission', 'uuid', '_entity', $field_conditions, $property_conditions, $orderby, TRUE, $limit, $tags);
     foreach ($items as $key => $item) {
@@ -98,7 +102,7 @@ class LRNAppOpenStudioSubmissionService {
         unset($items[$key]);
       }
     }
-    $items = $this->encodeSubmissions($items);
+    $items = $this->encodeSubmissions($items, $truncate);
     return $items;
   }
 
@@ -394,10 +398,10 @@ class LRNAppOpenStudioSubmissionService {
    *
    * @return array
    */
-  protected function encodeSubmissions($submissions) {
+  protected function encodeSubmissions($submissions, $truncate = array()) {
     if (is_array($submissions)) {
       foreach ($submissions as &$submission) {
-        $submission = $this->encodeSubmission($submission);
+        $submission = $this->encodeSubmission($submission, $truncate);
       }
       return $submissions;
     }
@@ -414,7 +418,7 @@ class LRNAppOpenStudioSubmissionService {
    *
    * @return Object
    */
-  protected function encodeSubmission($submission) {
+  protected function encodeSubmission($submission, $truncate = array()) {
     global $user;
     $account = $user;
     $encoded_submission = new stdClass();
@@ -476,11 +480,18 @@ class LRNAppOpenStudioSubmissionService {
             $file_output['url'] = $file_output['image_styles']['elmsln_normalize'];
             $file_output['thumbnail'] = $file_output['image_styles']['elmsln_small'];
           }
-          $encoded_submission->attributes->images[] = $file_output;
+          if (!isset($truncate['images'])) {
+            $encoded_submission->attributes->images[] = $file_output;
+          }
+          else {
+            $encoded_submission->attributes->images[] = $file_output['thumbnail'];
+          }
         }
         $images = $encoded_submission->attributes->images;
         $encoded_submission->display->image = array_pop($images);
-        $encoded_submission->display->image = $encoded_submission->display->image['image_styles']['elmsln_small'];
+        if (!isset($truncate['images'])) {
+          $encoded_submission->display->image = $encoded_submission->display->image['image_styles']['elmsln_small'];
+        }
         $encoded_submission->display->icon = FALSE;
       }
       // Meta Info
@@ -536,7 +547,7 @@ class LRNAppOpenStudioSubmissionService {
       $project = node_load($assignment->field_assignment_project[LANGUAGE_NONE][0]['target_id']);
       // assignment
       if ($assignment) {
-        $encoded_submission->relationships->assignment = $assignment_service->encodeAssignment($assignment);
+        $encoded_submission->relationships->assignment = $assignment_service->encodeAssignment($assignment, '', $truncate);
       }
       // project
       $encoded_submission->relationships->project = new stdClass();
@@ -569,7 +580,7 @@ class LRNAppOpenStudioSubmissionService {
       $encoded_submission->relationships->comments = null;
       $encoded_submission->meta->comment_count = (!empty($submission->comment_count) ? $submission->comment_count : 0);
       $encoded_submission->meta->comment_new = comment_num_new($submission->nid);
-      if ($submission->comment_count > 0) {
+      if ($submission->comment_count > 0 && !isset($truncate['comments'])) {
         $comments_service = new LRNAppOpenStudioCommentService();
         $options = (object) array('filter' => array('submission' => $submission->nid));
         $comments = $comments_service->getComments($options);
