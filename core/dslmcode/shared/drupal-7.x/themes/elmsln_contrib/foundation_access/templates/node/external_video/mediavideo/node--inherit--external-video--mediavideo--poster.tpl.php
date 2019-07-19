@@ -4,11 +4,7 @@
  */
   $track = '';
   if (isset($node->field_caption['und'][0]['uri'])) {
-    $track = '<track
-  src="' . file_create_url($node->field_caption['und'][0]['uri']) . '"
-  kind="subtitles"
-  label="English"
-  slot="track">';
+    $track = file_create_url($node->field_caption['und'][0]['uri']);
   }
 ?>
 <figure id="node-<?php print $node->nid; ?>" class="mediavideo <?php print $classes; ?>"<?php print $attributes; ?>>
@@ -18,14 +14,15 @@
   <div>
     <?php if ($video_url): ?>
       <video-player
+      crossorigin="anonymous"
       id="node-<?php print $node->nid; ?>"
       thumbnail-src="<?php print $poster;?>"
       source="<?php print _elmsln_api_video_url($video_url); ?>"
+      track="<?php print $track;?>"
       class="iframe"
       accent-color="red"
       sticky-corner="none"
       <?php if (isset($competency)): ?>data-course-competency="<?php print $competency;?>"<?php endif;?>>
-      <?php print $track;?>
     </video-player>
     <?php else: ?>
       <?php print render($content); ?>

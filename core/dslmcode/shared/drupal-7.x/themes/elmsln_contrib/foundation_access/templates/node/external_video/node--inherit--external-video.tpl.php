@@ -4,11 +4,7 @@
  */
   $track = '';
   if (isset($node->field_caption['und'][0]['uri'])) {
-    $track = '<track
-  src="' . file_create_url($node->field_caption['und'][0]['uri']) . '"
-  kind="subtitles"
-  label="English"
-  slot="track">';
+    $track = file_create_url($node->field_caption['und'][0]['uri']);
   }
 ?>
 <video-player
@@ -17,6 +13,7 @@
  class="iframe <?php print $classes; ?>"
  accent-color="red"
  sticky-corner="none"
+ track="<?php print $track;?>"
+ crossorigin="anonymous"
  <?php print $attributes; ?>>
-<?php print $track;?>
 </video-player>
