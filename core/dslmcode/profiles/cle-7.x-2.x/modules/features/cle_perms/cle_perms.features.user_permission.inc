@@ -182,16 +182,6 @@ function cle_perms_user_default_permissions() {
     'module' => 'og',
   );
 
-  // Exported permission: 'bypass file access'.
-  $permissions['bypass file access'] = array(
-    'name' => 'bypass file access',
-    'roles' => array(
-      'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
-      'administrator' => 'administrator',
-    ),
-    'module' => 'file_entity',
-  );
-
   // Exported permission: 'create cle_assignment content'.
   $permissions['create cle_assignment content'] = array(
     'name' => 'create cle_assignment content',
@@ -230,22 +220,6 @@ function cle_perms_user_default_permissions() {
       'teaching assistant' => 'teaching assistant',
     ),
     'module' => 'node',
-  );
-
-  // Exported permission: 'create files'.
-  $permissions['create files'] = array(
-    'name' => 'create files',
-    'roles' => array(
-      'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
-      'administrator' => 'administrator',
-      'guest' => 'guest',
-      'instructor' => 'instructor',
-      'past student' => 'past student',
-      'staff' => 'staff',
-      'student' => 'student',
-      'teaching assistant' => 'teaching assistant',
-    ),
-    'module' => 'file_entity',
   );
 
   // Exported permission: 'delete any audio files'.
@@ -439,8 +413,11 @@ function cle_perms_user_default_permissions() {
     'roles' => array(
       'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
       'administrator' => 'administrator',
+      'guest' => 'guest',
       'instructor' => 'instructor',
+      'past student' => 'past student',
       'staff' => 'staff',
+      'student' => 'student',
       'teaching assistant' => 'teaching assistant',
     ),
     'module' => 'file_entity',
@@ -452,8 +429,11 @@ function cle_perms_user_default_permissions() {
     'roles' => array(
       'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
       'administrator' => 'administrator',
+      'guest' => 'guest',
       'instructor' => 'instructor',
+      'past student' => 'past student',
       'staff' => 'staff',
+      'student' => 'student',
       'teaching assistant' => 'teaching assistant',
     ),
     'module' => 'file_entity',
@@ -465,8 +445,11 @@ function cle_perms_user_default_permissions() {
     'roles' => array(
       'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
       'administrator' => 'administrator',
+      'guest' => 'guest',
       'instructor' => 'instructor',
+      'past student' => 'past student',
       'staff' => 'staff',
+      'student' => 'student',
       'teaching assistant' => 'teaching assistant',
     ),
     'module' => 'file_entity',
@@ -478,8 +461,11 @@ function cle_perms_user_default_permissions() {
     'roles' => array(
       'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
       'administrator' => 'administrator',
+      'guest' => 'guest',
       'instructor' => 'instructor',
+      'past student' => 'past student',
       'staff' => 'staff',
+      'student' => 'student',
       'teaching assistant' => 'teaching assistant',
     ),
     'module' => 'file_entity',
@@ -764,21 +750,6 @@ function cle_perms_user_default_permissions() {
     'module' => 'comment',
   );
 
-  // Exported permission: 'use text format student_markdown'.
-  $permissions['use text format student_markdown'] = array(
-    'name' => 'use text format student_markdown',
-    'roles' => array(
-      'administrator' => 'administrator',
-      'guest' => 'guest',
-      'instructor' => 'instructor',
-      'past student' => 'past student',
-      'staff' => 'staff',
-      'student' => 'student',
-      'teaching assistant' => 'teaching assistant',
-    ),
-    'module' => 'filter',
-  );
-
   // Exported permission: 'skip comment approval'.
   $permissions['skip comment approval'] = array(
     'name' => 'skip comment approval',
@@ -794,14 +765,11 @@ function cle_perms_user_default_permissions() {
     'module' => 'comment',
   );
 
-  // Exported permission: 'view files'.
-  $permissions['view files'] = array(
-    'name' => 'view files',
+  // Exported permission: 'use text format student_markdown'.
+  $permissions['use text format student_markdown'] = array(
+    'name' => 'use text format student_markdown',
     'roles' => array(
-      'SERVICE ACCOUNT' => 'SERVICE ACCOUNT',
       'administrator' => 'administrator',
-      'anonymous user' => 'anonymous user',
-      'authenticated user' => 'authenticated user',
       'guest' => 'guest',
       'instructor' => 'instructor',
       'past student' => 'past student',
@@ -809,7 +777,7 @@ function cle_perms_user_default_permissions() {
       'student' => 'student',
       'teaching assistant' => 'teaching assistant',
     ),
-    'module' => 'file_entity',
+    'module' => 'filter',
   );
 
   // Exported permission: 'view own files'.

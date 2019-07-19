@@ -310,3 +310,10 @@ function cle__2_update_7025(&$sandbox) {
 function cle__2_update_7026(&$sandbox) {
   features_revert_module('cle_section');
 }
+
+/**
+ * Fix ability to download others work
+ */
+function cle__2_update_7027(&$sandbox) {
+  features_revert_module('cle_perms');
+}
