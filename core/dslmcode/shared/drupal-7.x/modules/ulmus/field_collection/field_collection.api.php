@@ -16,7 +16,7 @@
  * This hook allows modules to determine whether a field collection is empty
  * before it is saved.
  *
- * @param boolean $empty
+ * @param bool $is_empty
  *   Whether or not the field should be considered empty.
  * @param FieldCollectionItemEntity $item
  *   The field collection we are currently operating on.
@@ -182,7 +182,7 @@ function hook_field_collection_item_label($item, $host, $field) {
     case 'field_my_first_collection':
       $item_wrapper = entity_metadata_wrapper('field_collection_item', $item);
 
-      $title  = $item_wrapper->field_title->value();
+      $title = $item_wrapper->field_title->value();
       $author = $item_wrapper->field_author->value();
 
       return "{$title} by {$author}";

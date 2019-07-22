@@ -12,7 +12,11 @@ function field_collections_overview() {
   $instances = field_info_instances();
   $field_types = field_info_field_types();
   $bundles = field_info_bundles();
-  $header = array(t('Field name'), t('Used in'), array('data' => t('Operations'), 'colspan' => '2'));
+  $header = array(
+    t('Field name'),
+    t('Used in'),
+    array('data' => t('Operations'), 'colspan' => '2'),
+  );
   $rows = array();
   foreach ($instances as $entity_type => $type_bundles) {
     foreach ($type_bundles as $bundle => $bundle_instances) {

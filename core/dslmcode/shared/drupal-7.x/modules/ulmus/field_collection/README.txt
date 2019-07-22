@@ -44,3 +44,12 @@ field collection item may also be viewed and edited separately.
     are set to translatable or not, they will all be translatable as every
     language for the host will have a completely separate copy of the field
     collection item(s).
+
+  * When using nested field collections the configuration of the fields and
+    field collections is very important. The recommended approach is to first
+    enable entity translation as defined in step 1, and set the outer 
+    field collection field as translatable, and all it’s sub-fields to language
+    undefined. Also the sub-field collections and it’s sub-fields should be
+    set to language undefined. This will ensure that every language of the host
+    will have a completely separate copy of the field collection item(s) and
+    it’s fields.

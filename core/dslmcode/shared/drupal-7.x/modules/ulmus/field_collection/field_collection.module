@@ -40,7 +40,7 @@ function field_collection_form_alter(&$form, &$form_state) {
  */
 function field_collection_form_field_ui_field_overview_form_alter(&$form, &$form_state) {
   if (count($form['#fields'])) {
-    foreach($form['fields'] as $fieldname => $field) {
+    foreach ($form['fields'] as $fieldname => $field) {
       if (!isset($field['type']['#title'])) {
         continue;
       }
@@ -87,7 +87,7 @@ function field_collection_entity_info() {
       'full' => array(
         'label' => t('Full content'),
         'custom settings' => FALSE,
-       ),
+      ),
     ),
     'access callback' => 'field_collection_item_access',
     'deletion callback' => 'field_collection_item_delete',
@@ -145,7 +145,7 @@ function field_collection_entity_info() {
  * @param $entity_type
  * @param $entity
  *
- * @return
+ * @return string
  *   A language code
  */
 function field_collection_entity_language($entity_type, $entity) {
@@ -172,7 +172,7 @@ function field_collection_field_name_load($arg) {
 /**
  * Loads a field collection item.
  *
- * @return field_collection_item
+ * @return
  *   The field collection item entity or FALSE.
  */
 function field_collection_item_load($item_id, $reset = FALSE) {
@@ -322,7 +322,7 @@ function field_collection_admin_paths() {
  */
 function field_collection_permission() {
   return array(
-    'administer field collections' =>  array(
+    'administer field collections' => array(
       'title' => t('Administer field collections'),
       'description' => t('Create and delete fields on field collections.'),
     ),
@@ -558,7 +558,7 @@ function field_collection_field_update($host_entity_type, $host_entity, $field, 
           if (!isset($cleared_host_entity_cache)) {
             list($entity_id) = entity_extract_ids($host_entity_type, $host_entity);
             entity_get_controller($host_entity_type)->resetCache(array($entity_id));
-            $cleared_host_entity_cache = true;
+            $cleared_host_entity_cache = TRUE;
           }
           $is_default = entity_revision_is_default($host_entity_type, $host_entity);
           // If an entity type does not support saving non-default entities,
@@ -761,7 +761,7 @@ function field_collection_field_formatter_info() {
     'field_collection_list' => array(
       'label' => t('Links to field collection items'),
       'field types' => array('field_collection'),
-      'settings' =>  array(
+      'settings' => array(
         'edit' => t('Edit'),
         'translate' => t('Translate'),
         'delete' => t('Delete'),
@@ -772,8 +772,9 @@ function field_collection_field_formatter_info() {
     'field_collection_view' => array(
       'label' => t('Field collection items'),
       'field types' => array('field_collection'),
-      'settings' =>  array(
+      'settings' => array(
         'edit' => t('Edit'),
+        'translate' => t('Translate'),
         'delete' => t('Delete'),
         'add' => t('Add'),
         'description' => TRUE,
@@ -783,7 +784,7 @@ function field_collection_field_formatter_info() {
     'field_collection_fields' => array(
       'label' => t('Fields only'),
       'field types' => array('field_collection'),
-      'settings' =>  array(
+      'settings' => array(
         'view_mode' => 'full',
       ),
     ),
@@ -814,7 +815,7 @@ function field_collection_field_formatter_settings_form($field, $instance, $view
     $elements['translate'] = array(
       '#type' => 'textfield',
       '#title' => t('Translate link title'),
-      '#default_value' => $settings['translate'],
+      '#default_value' => isset($settings['translate']) ? $settings['translate'] : '',
       '#description' => t('Leave the title empty, to hide the link.'),
       '#access' => field_collection_item_is_translatable(),
     );
@@ -874,7 +875,7 @@ function field_collection_field_formatter_settings_summary($field, $instance, $v
   if ($display['type'] !== 'field_collection_list') {
     $entity_type = entity_get_info('field_collection_item');
     if (!empty($entity_type['view modes'][$settings['view_mode']]['label'])) {
-      $output[] =  t('View mode: @mode', array('@mode' => $entity_type['view modes'][$settings['view_mode']]['label']));
+      $output[] = t('View mode: @mode', array('@mode' => $entity_type['view modes'][$settings['view_mode']]['label']));
     }
   }
 
@@ -915,7 +916,7 @@ function field_collection_field_formatter_view($entity_type, $entity, $field, $i
       $view_mode = !empty($display['settings']['view_mode']) ? $display['settings']['view_mode'] : 'full';
       foreach ($items as $delta => $item) {
         if ($field_collection = field_collection_field_get_entity($item)) {
-          $element[$delta]['entity'] = $field_collection->view($view_mode);
+          $element[$delta]['entity'] = $field_collection->view($view_mode, $langcode);
           $element[$delta]['#theme_wrappers'] = array('field_collection_view');
           $element[$delta]['#attributes']['class'][] = 'field-collection-view';
           $element[$delta]['#attributes']['class'][] = 'clearfix';
@@ -948,7 +949,7 @@ function field_collection_field_formatter_view($entity_type, $entity, $field, $i
       $view_mode = !empty($display['settings']['view_mode']) ? $display['settings']['view_mode'] : 'full';
       foreach ($items as $delta => $item) {
         if ($field_collection = field_collection_field_get_entity($item)) {
-          $element[$delta]['entity'] = $field_collection->view($view_mode);
+          $element[$delta]['entity'] = $field_collection->view($view_mode, $langcode);
         }
       }
       break;
@@ -997,7 +998,7 @@ function field_collection_field_formatter_links(&$element, $entity_type, $entity
       $path = field_collection_field_get_path($field);
       list($id) = entity_extract_ids($entity_type, $entity);
       $element['#suffix'] = '';
-      if (!empty($settings['description'])) {
+      if (!empty($settings['description']) && $entity_type != 'node') {
         $element['#suffix'] .= '<div class="description field-collection-description">' . field_filter_xss($instance['description']) . '</div>';
       }
       $title = entity_i18n_string("field:{$field['field_name']}:{$instance['bundle']}:setting_add", $settings['add']);
@@ -1177,6 +1178,7 @@ function field_collection_field_widget_form(&$form, &$form_state, $field, $insta
           '#value' => t('Remove'),
           '#validate' => array(),
           '#submit' => array('field_collection_remove_submit'),
+          '#attributes' => array('class' => array('remove-button')),
           '#limit_validation_errors' => array(),
           '#ajax' => array(
             // 'wrapper' is filled in field_collection_field_attach_form().
@@ -1530,7 +1532,8 @@ function field_collection_field_widget_embed_validate($element, &$form_state, $c
 
       // Copied from _form_validate().
       if (isset($elements['#needs_validation'])) {
-        $is_empty_multiple = (!count($elements['#value']));
+        $is_countable = is_array($elements['#value']) || $elements['#value'] instanceof Countable;
+        $is_empty_multiple = $is_countable && (!count($elements['#value']));
         $is_empty_string = (is_string($elements['#value']) && drupal_strlen(trim($elements['#value'])) == 0);
         $is_empty_value = ($elements['#value'] === 0);
         $is_empty_option = (isset($elements['#options']['_none']) && $elements['#value'] == '_none');

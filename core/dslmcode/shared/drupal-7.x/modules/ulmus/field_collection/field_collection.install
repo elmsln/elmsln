@@ -124,7 +124,7 @@ function field_collection_update_7001() {
     ->expression('revision_id', 'item_id')
     ->execute();
 
-  // Add the archived column
+  // Add the archived column.
   $archived_spec = array(
     'description' => 'Boolean indicating whether the field collection item is archived.',
     'type' => 'int',
@@ -365,7 +365,7 @@ function field_collection_update_7008() {
     if ($field['translatable'] == 1 && isset($field['bundles']['field_collection_item'])) {
       $query = new EntityFieldQuery();
       $query->entityCondition('entity_type', 'field_collection_item')
-            ->fieldLanguageCondition($f_name, LANGUAGE_NONE);
+        ->fieldLanguageCondition($f_name, LANGUAGE_NONE);
       $query_result = $query->execute();
       if (isset($query_result['field_collection_item'])) {
         $results = $results + $query_result['field_collection_item'];
@@ -373,11 +373,23 @@ function field_collection_update_7008() {
     }
   }
   if (count($results)) {
+    $orphans = array();
     $ids = array_keys($results);
     $field_collection_items = entity_load('field_collection_item', $ids);
     foreach ($field_collection_items as $item) {
-      $item->copyTranslations(LANGUAGE_NONE);
-      $item->save();
+      /** @var FieldCollectionItemEntity $item */
+      if ($item->hostEntity()) {
+        $item->copyTranslations(LANGUAGE_NONE);
+        $item->save(TRUE);
+      }
+      else {
+        $orphans[] = $item->identifier();
+      }
+    }
+    if ($orphans) {
+      $count = count($orphans);
+      entity_delete_multiple('field_collection_item', $orphans);
+      drupal_set_message("Deleted $count orphaned field collection items.");
     }
   }
 }
