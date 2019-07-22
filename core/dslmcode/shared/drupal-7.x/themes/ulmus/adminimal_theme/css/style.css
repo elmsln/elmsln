@@ -22,12 +22,20 @@ body.adminimal-theme *::-moz-focus-inner {
   border: 0;
 }
 
+* {-webkit-overflow-scrolling: touch;}
+
 body.adminimal-theme * {
-  -moz-box-sizing: inherit;
-  -webkit-box-sizing: inherit;
-  box-sizing: inherit;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+body.adminimal-theme .panel-panel {
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 body {
@@ -1642,6 +1650,11 @@ body.adminimal-theme .views-admin .icon {
   width: 16px;
 }
 
+body.adminimal-theme .views-admin .views-field-excluded,
+body.adminimal-theme .views-admin .views-display-disabled-link {
+  opacity: .5;
+}
+
 #simplenews-admin-filter .spacer {
   float: left;
   margin-top: 10px;
@@ -1771,7 +1784,6 @@ body.adminimal-theme .token-tree th {
 }
 
 .ui-widget table th {
-  text-align: center;
   font-weight: bold;
   font-size: 12px;
 }
@@ -1781,9 +1793,11 @@ body.adminimal-theme .token-tree th {
   background: white;
   padding: 0;
   margin: 0;
+  width: auto;
 }
 
-.ui-widget table thead th {
+.ui-widget table thead th,
+.mac .ui-widget table thead th {
   background: #555;
   color: white;
 }
@@ -2023,7 +2037,6 @@ div.ui-dialog.ui-widget.ui-widget-content.ui-corner-all.media-wrapper {
     color: #111;
     border: none;
     font-size: 16px;
-    line-height: 8px;
     margin: 0;
     padding: 10px 20px;
 }
@@ -2249,6 +2262,10 @@ body.adminimal-theme .views-displays .secondary .action-list li {
 
 body.adminimal-theme .views-displays .secondary .action-list li.last  {
   padding-bottom: 5px;
+}
+
+body.adminimal-theme .views-display-top ul#views-display-menu-tabs li a.error {
+  background: #f2dede;
 }
 
 body.adminimal-theme .views-display-top ul#views-display-menu-tabs li a.active {
@@ -2812,6 +2829,17 @@ body.sticky-actions .form-actions.form-wrapper {
   margin: 0;
   z-index: 999;
 }
+body.sticky-actions .ajax-new-content .form-actions.form-wrapper {
+  position: initial;
+  bottom: initial;
+  background: initial;
+  border-top: none;
+  width: initial;
+  left: initial;
+  padding: 0;
+  margin: 20px 0 0;
+  z-index: initial;
+}
 
 body.sticky-actions #page {
   margin-bottom: 60px;
@@ -3004,6 +3032,10 @@ body.sticky-actions #module-filter-submit.fixed.fixed-bottom .form-actions.form-
   right: 0;
 }
 
+[dir="rtl"] body.sticky-actions .ajax-new-content .form-actions.form-wrapper {
+  right: initial;
+}
+
 html[dir="rtl"].js input.form-autocomplete {
   text-indent: 1em;
 }
@@ -3043,15 +3075,77 @@ body.adminimal-skin-alternative.adminimal-theme.page-admin-structure-features #e
   padding-left: 0;
 }
 
+/* Fix Views Responsive Grid module see #2680767 */
+body.page-admin-structure-views-view #views-ui-edit-display-form #edit-options input.form-text {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -ms-box-sizing: border-box;
+  -o-box-sizing: border-box;
+  box-sizing: border-box;
+  max-width: 100%;
+  -webkit-padding-end: 8px;
+}
+
 .page-admin-structure-features-create form div.buttons {
   text-align: left;
 }
-
 
 /**
  * Hide dummy checkbox in Fast Permissions Administration (FPA) see #2653436.
  * by @rcodina.
  */
-.fpa-container .dummy-checkbox {
+.adminimal-theme .fpa-container .dummy-checkbox {
   display: none !important;
+}
+
+.adminimal-theme.page-admin-reports-dblog #block-system-help .content {
+  margin-bottom: 3em;
+}
+
+/* Fix Views main-content display issue see #1820494 */
+body.page-admin-structure-views-view #content-wrapper #main-content {
+  display: initial;
+}
+
+/* Diff revisions view */
+table.diff th a {
+  display: inline;
+}
+
+table.diff th,
+table.diff td,
+div.diff-section-title,
+.page-node-revisions-view .node {
+  padding: 0.5em;
+}
+
+table.diff .diff-prevlink,
+table.diff .diff-nextlink,
+table.diff .diff-links {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+table.diff .diff-prevlink a,
+table.diff .diff-nextlink a {
+  padding: 0.5em 0.75em;
+  background-color: #eee;
+}
+
+table.diff .diff-links a {
+  display: inline-block;
+  padding: 0.25em 0.75em;
+  background-color: #efefef;
+}
+
+table.diff .diff-links a.active {
+  background-color: #eee;
+  font-weight: bold;
+  display: inline-block;
+  padding: 0.25em 0.75em;
+}
+
+table.diff td.diff-section-title,
+div.diff-section-title {
+  font-size: 1em;
 }

@@ -80,7 +80,7 @@ body.adminimal-skin-material table.tableheader-processed {
 
 body.adminimal-skin-material tr.even,
 body.adminimal-skin-material tr.odd {
-    background: #FFF;
+  background: #FFF;
 }
 
 body.adminimal-skin-material .messages ul {
@@ -158,6 +158,12 @@ body.adminimal-menu #admin-menu .admin-menu-search input:focus {
 
 body.adminimal-menu #admin-menu .dropdown li.admin-menu-action.admin-menu-account a {
   background: #1B2327 !important;
+}
+
+body.adminimal-skin-material ul li a {
+  -webkit-user-select: all;  /* Chrome 49+ */
+  -moz-user-select: all;     /* Firefox 43+ */
+  -ms-user-select: all;      /* No support yet */
 }
 
 body.adminimal-skin-material ul.primary li.active a,
@@ -267,7 +273,6 @@ body.adminimal-skin-material fieldset {
 }
 
 body.adminimal-skin-material .fieldset-description {
-  padding-top: 28px;
   padding-bottom: 20px;
   color: #909090;
 }
@@ -276,6 +281,10 @@ body.adminimal-skin-material .text-format-wrapper fieldset.filter-wrapper {
   box-shadow: none;
   border: 1px solid #DDD;
   border-radius: 0;
+}
+
+body.adminimal-skin-material .vertical-tabs-panes fieldset {
+  padding-top: 42px;
 }
 
 body.adminimal-skin-material .vertical-tabs-panes fieldset.vertical-tabs-pane {
@@ -287,12 +296,28 @@ body.adminimal-skin-material .exposed-filters .form-item label {
   font-family: Roboto, sans-serif;
 }
 
+body.adminimal-skin-material .form-item label {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+body.adminimal-skin-material .form-item label.option {
+  font-size: 16px;
+  font-weight: 100;
+}
+
 body.adminimal-skin-material fieldset legend {
   font-family: Roboto, sans-serif;
-  font-size: 20px;
-  font-weight: 500;
+  font-size: 22px;
+  font-weight: 100;
   position: absolute;
   top: 14px;
+  left: 9px;
+  color: #455a64;
+}
+
+body.adminimal-skin-material fieldset .fieldset-wrapper {
+  margin-top: 5px;
 }
 
 body.adminimal-skin-material .features-export-parent fieldset legend {
@@ -313,8 +338,8 @@ body.page-admin-appearance-settings-omega.adminimal-skin-material fieldset {
 /* Apperance page */
 body.page-admin-appearance.adminimal-skin-material fieldset legend {
   font-family: Roboto, sans-serif !important;
-  font-size: 20px !important;
-  font-weight: 500 !important;
+  font-size: 22px !important;
+  font-weight: 100 !important;
   top: 16px;
 }
 
@@ -469,6 +494,14 @@ body.adminimal-skin-material.style-checkboxes input[type=radio]:disabled:hover {
   cursor: default;
   /*cursor: not-allowed;*/
   }
+}
+
+body.adminimal-skin-material.style-checkboxes input[type=checkbox]:disabled:checked,
+body.adminimal-skin-material.style-checkboxes input[type=checkbox]:disabled:checked:hover,
+body.adminimal-skin-material.style-checkboxes input[type=radio]:disabled:checked,
+body.adminimal-skin-material.style-checkboxes input[type=radio]:disabled:checked:hover {
+  background-color: #999;
+  border-color: #999;
 }
 
 /* Waves plugin (Ripple effect) */
@@ -655,6 +688,11 @@ body.adminimal-skin-material table tbody td a.module-link {
   padding: .5em 10px .5em 30px;
 }
 
+body.adminimal-skin-material table tbody td a.tabledrag-handle {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
 body.adminimal-skin-material table tbody td a.module-link {
     background-position-x: 10px;
 }
@@ -709,6 +747,7 @@ div.exposed-filters input#edit-submit:focus {
 
 
 /* Green Button */
+a.button-green,
 input[type="submit"][id^="edit-submit"],
 input#edit-actions-submit,
 input[id^="save-continue"],
@@ -733,6 +772,7 @@ input.add-new-condition,
   border-radius: 0.2rem;
 }
 
+a.button-green:hover,
 input[type="submit"][id^="edit-submit"]:hover,
 input#edit-actions-submit:hover,
 input[id^="save-continue"]:hover,
@@ -746,6 +786,7 @@ input.add-new-condition:hover,
   box-shadow: 0 2px 6px rgba(0,0,0,.3);
 }
 
+a.button-green:active,
 input[type="submit"][id^="edit-submit"]:active,
 input#edit-actions-submit:active,
 input[id^="save-continue"]:active,
@@ -760,6 +801,7 @@ input.add-new-condition:active,
   box-shadow: inset 0 0px 8px rgba(0,0,0,0.4);
 }
 
+a.button-green:focus,
 input[type="submit"][id^="edit-submit"]:focus,
 input#edit-actions-submit:focus,
 input[id^="save-continue"]:focus,
@@ -775,6 +817,7 @@ input.add-new-condition:focus,
 }
 
 /* Red Button */
+a.button-red,
 input#edit-delete,
 input#remove-button,
 input#edit-remove,
@@ -800,6 +843,7 @@ input[id*="remove-button"],
   transition: all, 0.3s;
 }
 
+a.button-red:hover,
 input#edit-delete:hover,
 input#remove-button:hover,
 input#edit-remove:hover,
@@ -813,6 +857,7 @@ body.page-admin-modules-uninstall input#edit-submit:hover,
   box-shadow: 0 2px 6px rgba(0,0,0,.3);
 }
 
+a.button-red:active,
 input#edit-delete:active,
 input#remove-button:active,
 input#edit-remove:active,
@@ -826,6 +871,7 @@ body.page-admin-modules-uninstall input#edit-submit:active,
   box-shadow: inset 0 0px 8px rgba(0,0,0,0.4);
 }
 
+a.button-red:focus,
 input#edit-delete:focus,
 input#remove-button:focus,
 input#edit-remove:focus,
@@ -840,6 +886,7 @@ body.page-admin-modules-uninstall input#edit-submit:focus,
 }
 
 /* Blue Button */
+a.button-blue,
 input#edit-preview,
 input#edit-next,
 input#preview-submit,
@@ -861,6 +908,7 @@ input[type="submit"][id^="edit-return"],
   transition: all, 0.3s;
 }
 
+a.button-blue:hover,
 input#edit-preview:hover,
 input#edit-next:hover,
 input#preview-submit:hover,
@@ -870,6 +918,7 @@ input[type="submit"][id^="edit-return"]:hover,
   box-shadow: 0 2px 6px rgba(0,0,0,.3);
 }
 
+a.button-blue:active,
 input#edit-preview:active,
 input#edit-next:active,
 input#preview-submit:active,
@@ -882,6 +931,7 @@ input[type="submit"][id^="edit-return"]:active,
   box-shadow: inset 0 0px 8px rgba(0,0,0,0.4);
 }
 
+a.button-blue:focus,
 input#edit-preview:focus,
 input#edit-next:focus,
 input#preview-submit:focus,
@@ -895,6 +945,7 @@ input[type="submit"][id^="edit-return"]:focus,
 }
 
 /* Orange Button */
+a.button-orange,
 #edit-cancel,
 #edit-actions-cancel,
 input#edit-buttons-revert,
@@ -918,6 +969,7 @@ a#edit-cancel,a#edit-actions-cancel {
   border: none;
 }
 
+a.button-orange:hover,
 #edit-cancel:hover,
 #edit-actions-cancel:hover,
 input#edit-buttons-revert:hover,
@@ -926,6 +978,7 @@ input#edit-buttons-revert:hover,
   box-shadow: 0 2px 6px rgba(0,0,0,.3);
 }
 
+a.button-orange:active,
 #edit-cancel:active,
 #edit-actions-cancel:active,
 input#edit-buttons-revert:active,
@@ -937,6 +990,7 @@ input#edit-buttons-revert:active,
   box-shadow: inset 0 0px 8px rgba(0,0,0,0.4);
 }
 
+a.button-orange:focus,
 #edit-cancel:focus,
 #edit-actions-cancel:focus,
 input#edit-buttons-revert:focus,
@@ -1059,19 +1113,19 @@ body.adminimal-skin-material.overlay ul.secondary {
 body.adminimal-skin-material .rules-elements-add ul.action-links a,
 body.adminimal-skin-material ul.rules-operations a,
 body.adminimal-skin-material .rules-elements-add ul.action-links a {
-    background: transparent;
-    color: #2196F3;
-    box-shadow: none;
-    padding: 8px 18px;
-    margin: 5px 0 0 0;
+  background: transparent;
+  color: #2196F3;
+  box-shadow: none;
+  padding: 8px 18px;
+  margin: 5px 0 0 0;
 }
 
 body.adminimal-skin-material .rules-elements-add ul.action-links a:hover,
 body.adminimal-skin-material ul.rules-operations a:hover,
 body.adminimal-skin-material .rules-elements-add ul.action-links a:hover {
-    background: transparent;
-    color: #2196F3;
-    box-shadow: none;
+  background: transparent;
+  color: #2196F3;
+  box-shadow: none;
 }
 
 body.adminimal-skin-material .rules-elements-add ul.action-links a:focus,
@@ -1086,6 +1140,39 @@ body.sticky-actions.adminimal-skin-material .form-actions.form-wrapper {
   border-bottom: none;
 }
 
+body.sticky-actions.adminimal-skin-material .ajax-new-content .form-actions.form-wrapper {
+  padding: 0;
+  box-shadow: none;
+}
+
 body.sticky-actions.adminimal-skin-material #page {
-    margin-bottom: 80px;
+  margin-bottom: 80px;
+}
+
+html.js .module-filter-inputs-wrapper .form-item {
+  padding-bottom: 0;
+  margin-bottom: 10px;
+  background: #fff;
+}
+
+html.js .module-filter-inputs-wrapper .form-item.form-type-checkbox,
+html.js .module-filter-inputs-wrapper .form-item.form-type-radio {
+  background: transparent;
+}
+
+body.adminimal-skin-material .ctools-twisty {
+  border-bottom-color: transparent;
+  border-left-color: transparent;
+  border-right-color: transparent;
+  border-style: solid;
+  border-width: 4px 4px 0;
+  line-height: 0;
+  right: 6px;
+  position: absolute;
+  padding: 0;
+  top: 16px;
+}
+
+body.adminimal-skin-material .ctools-dropbutton-processed.open .ctools-twisty {
+  top: 12px;
 }

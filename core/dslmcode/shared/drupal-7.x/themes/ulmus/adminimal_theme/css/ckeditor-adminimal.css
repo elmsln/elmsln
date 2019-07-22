@@ -107,7 +107,6 @@ body.adminimal-theme .cke_reset_all .cke_dialog_body {
 
 body.adminimal-theme .cke_reset_all fieldset {
   border: 1px solid #DDDDDD;
-  border-top: 3px solid #0074BD;
   padding: 10px;
 }
 
@@ -116,6 +115,7 @@ body.adminimal-theme .cke_reset_all legend {
   font-size: 18px;
   font-weight: 100;
   padding: 0 0.5em;
+  background-color: #FFFFFF;
 }
 
 body.adminimal-theme .cke_combopanel {
@@ -191,7 +191,7 @@ body.adminimal-theme a.cke_dialog_ui_button:active span {
 body.adminimal-theme .cke_ltr .cke_dialog_close_button {
   background: url("images/x-white.png") scroll no-repeat 50% 2px #B73939;
   right: 10px;
-  top: 1px;
+  top: 9px;
   width: 45px;
 }
 

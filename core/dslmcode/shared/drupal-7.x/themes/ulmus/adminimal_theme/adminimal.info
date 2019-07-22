@@ -1,8 +1,9 @@
 name = Adminimal
 description = Minimalist administration theme.
 core = 7.x
-scripts[] = js/jRespond.js
+scripts[] = js/jrespond.js
 scripts[] = js/adminimal_theme.js
+settings[use_bootstrap_grids] = 1
 settings[shortcut_module_link] = 1
 settings[style_checkboxes] = 1
 settings[display_icons_config] = 1
@@ -24,9 +25,8 @@ regions[help] = Help
 regions[page_top] = Page top
 regions[page_bottom] = Page bottom
 
-; Information added by Drupal.org packaging script on 2016-02-23
-version = "7.x-1.24"
+; Information added by Drupal.org packaging script on 2019-05-23
+version = "7.x-1.26"
 core = "7.x"
 project = "adminimal_theme"
-datestamp = "1456190957"
-
+datestamp = "1558584494"
