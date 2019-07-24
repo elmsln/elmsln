@@ -70,6 +70,7 @@ interface RulesEventHandlerInterface {
    * Returns an array of default settings.
    *
    * @return array
+   *   The array of default settings.
    */
   public function getDefaults();
 
@@ -145,6 +146,7 @@ interface RulesEventHandlerInterface {
    *   The info array of the event the event handler belongs to.
    */
   public function getEventInfo();
+
 }
 
 /**
@@ -169,6 +171,7 @@ interface RulesEventDispatcherInterface extends RulesEventHandlerInterface {
    *   TRUE if the event dispatcher is currently active, FALSE otherwise.
    */
   public function isWatching();
+
 }
 
 /**
@@ -198,7 +201,7 @@ abstract class RulesEventHandlerBase implements RulesEventHandlerInterface {
   protected $settings = array();
 
   /**
-   * Implements RulesEventHandlerInterface::__construct()
+   * Implements RulesEventHandlerInterface::__construct().
    */
   public function __construct($event_name, $info) {
     $this->eventName = $event_name;
@@ -207,14 +210,14 @@ abstract class RulesEventHandlerBase implements RulesEventHandlerInterface {
   }
 
   /**
-   * Implements RulesEventHandlerInterface::getSettings()
+   * Implements RulesEventHandlerInterface::getSettings().
    */
   public function getSettings() {
     return $this->settings;
   }
 
   /**
-   * Implements RulesEventHandlerInterface::setSettings()
+   * Implements RulesEventHandlerInterface::setSettings().
    */
   public function setSettings(array $settings) {
     $this->settings = $settings + $this->getDefaults();
@@ -222,14 +225,14 @@ abstract class RulesEventHandlerBase implements RulesEventHandlerInterface {
   }
 
   /**
-   * Implements RulesEventHandlerInterface::validate()
+   * Implements RulesEventHandlerInterface::validate().
    */
   public function validate() {
     // Nothing to check by default.
   }
 
   /**
-   * Implements RulesEventHandlerInterface::extractFormValues()
+   * Implements RulesEventHandlerInterface::extractFormValues().
    */
   public function extractFormValues(array &$form, array &$form_state) {
     foreach ($this->getDefaults() as $key => $setting) {
@@ -238,66 +241,68 @@ abstract class RulesEventHandlerBase implements RulesEventHandlerInterface {
   }
 
   /**
-   * Implements RulesEventHandlerInterface::availableVariables()
+   * Implements RulesEventHandlerInterface::availableVariables().
    */
   public function availableVariables() {
     return isset($this->eventInfo['variables']) ? $this->eventInfo['variables'] : array();
   }
 
   /**
-   * Implements RulesEventHandlerInterface::getEventName()
+   * Implements RulesEventHandlerInterface::getEventName().
    */
   public function getEventName() {
     return $this->eventName;
   }
 
   /**
-   * Implements RulesEventHandlerInterface::getEventInfo()
+   * Implements RulesEventHandlerInterface::getEventInfo().
    */
   public function getEventInfo() {
     return $this->eventInfo;
   }
+
 }
 
 /**
  * A handler for events having no settings. This is the default handler.
  */
-class RulesEventDefaultHandler extends RulesEventHandlerBase  {
+class RulesEventDefaultHandler extends RulesEventHandlerBase {
 
   /**
-   * Implements RulesEventHandlerInterface::buildForm()
+   * Implements RulesEventHandlerInterface::buildForm().
    */
   public function buildForm(array &$form_state) {
     return array();
   }
 
   /**
-   * Implements RulesEventHandlerInterface::getConfiguredEventName()
+   * Implements RulesEventHandlerInterface::getConfiguredEventName().
    */
   public function getEventNameSuffix() {
     return '';
   }
 
   /**
-   * Implements RulesEventHandlerInterface::summary()
+   * Implements RulesEventHandlerInterface::summary().
    */
   public function summary() {
     return check_plain($this->eventInfo['label']);
   }
 
   /**
-   * Implements RulesEventHandlerInterface::getDefaults()
+   * Implements RulesEventHandlerInterface::getDefaults().
    */
   public function getDefaults() {
     return array();
   }
 
   /**
-   * Implements RulesEventHandlerInterface::getSettings()
+   * Implements RulesEventHandlerInterface::getSettings().
    */
   public function getSettings() {
     return NULL;
   }
+
 }
 
 /**
@@ -305,10 +310,12 @@ class RulesEventDefaultHandler extends RulesEventHandlerBase  {
  */
 class RulesEventHandlerEntityBundle extends RulesEventHandlerBase {
 
-  protected $entityType, $entityInfo, $bundleKey;
+  protected $entityType;
+  protected $entityInfo;
+  protected $bundleKey;
 
   /**
-   * Implements RulesEventHandlerInterface::__construct()
+   * Implements RulesEventHandlerInterface::__construct().
    */
   public function __construct($event_name, $info) {
     parent::__construct($event_name, $info);
@@ -321,7 +328,7 @@ class RulesEventHandlerEntityBundle extends RulesEventHandlerBase {
   }
 
   /**
-   * Implements RulesEventHandlerInterface::summary()
+   * Implements RulesEventHandlerInterface::summary().
    */
   public function summary() {
     $bundle = &$this->settings['bundle'];
@@ -331,7 +338,7 @@ class RulesEventHandlerEntityBundle extends RulesEventHandlerBase {
   }
 
   /**
-   * Implements RulesEventHandlerInterface::buildForm()
+   * Implements RulesEventHandlerInterface::buildForm().
    */
   public function buildForm(array &$form_state) {
     $form['bundle'] = array(
@@ -340,6 +347,7 @@ class RulesEventHandlerEntityBundle extends RulesEventHandlerBase {
       '#description' => t('If you need to filter for multiple values, either add multiple events or use the "Entity is of bundle" condition instead.'),
       '#default_value' => $this->settings['bundle'],
       '#empty_value' => '',
+      '#options' => array(),
     );
     foreach ($this->entityInfo['bundles'] as $name => $bundle_info) {
       $form['bundle']['#options'][$name] = $bundle_info['label'];
@@ -351,20 +359,21 @@ class RulesEventHandlerEntityBundle extends RulesEventHandlerBase {
    * Returns the label to use for the bundle property.
    *
    * @return string
+   *   The label to use for the bundle property.
    */
   protected function getBundlePropertyLabel() {
     return $this->entityInfo['entity keys']['bundle'];
   }
 
   /**
-   * Implements RulesEventHandlerInterface::extractFormValues()
+   * Implements RulesEventHandlerInterface::extractFormValues().
    */
   public function extractFormValues(array &$form, array &$form_state) {
     $this->settings['bundle'] = !empty($form_state['values']['bundle']) ? $form_state['values']['bundle'] : NULL;
   }
 
   /**
-   * Implements RulesEventHandlerInterface::validate()
+   * Implements RulesEventHandlerInterface::validate().
    */
   public function validate() {
     if ($this->settings['bundle'] && empty($this->entityInfo['bundles'][$this->settings['bundle']])) {
@@ -373,19 +382,19 @@ class RulesEventHandlerEntityBundle extends RulesEventHandlerBase {
           '%bundle' => $this->settings['bundle'],
           '%entity_type' => $this->entityInfo['label'],
           '@bundle' => $this->getBundlePropertyLabel(),
-      )), array(NULL, 'bundle'));
+        )), array(NULL, 'bundle'));
     }
   }
 
   /**
-   * Implements RulesEventHandlerInterface::getConfiguredEventName()
+   * Implements RulesEventHandlerInterface::getConfiguredEventName().
    */
   public function getEventNameSuffix() {
     return $this->settings['bundle'];
   }
 
   /**
-   * Implements RulesEventHandlerInterface::getDefaults()
+   * Implements RulesEventHandlerInterface::getDefaults().
    */
   public function getDefaults() {
     return array(
@@ -394,7 +403,7 @@ class RulesEventHandlerEntityBundle extends RulesEventHandlerBase {
   }
 
   /**
-   * Implements RulesEventHandlerInterface::availableVariables()
+   * Implements RulesEventHandlerInterface::availableVariables().
    */
   public function availableVariables() {
     $variables = $this->eventInfo['variables'];
@@ -408,4 +417,5 @@ class RulesEventHandlerEntityBundle extends RulesEventHandlerBase {
     }
     return $variables;
   }
+
 }

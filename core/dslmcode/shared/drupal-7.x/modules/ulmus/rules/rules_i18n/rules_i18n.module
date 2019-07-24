@@ -5,7 +5,6 @@
  * Rules i18n integration.
  */
 
-
 /**
  * Implements hook_menu().
  */
@@ -111,7 +110,10 @@ function rules_i18n_rules_config_update($rules_config, $original = NULL) {
  * Implements hook_rules_config_delete().
  */
 function rules_i18n_rules_config_delete($rules_config) {
-  i18n_string_object_remove('rules_config', $rules_config);
+  // Only react on real delete, not revert.
+  if (!$rules_config->hasStatus(ENTITY_IN_CODE)) {
+    i18n_string_object_remove('rules_config', $rules_config);
+  }
 }
 
 /**

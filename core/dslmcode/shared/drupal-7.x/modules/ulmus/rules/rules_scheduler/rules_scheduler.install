@@ -31,7 +31,8 @@ function rules_scheduler_schema() {
         'not null' => TRUE,
       ),
       'data' => array(
-        'type' => 'text',
+        'type' => 'blob',
+        'size' => 'big',
         'not null' => FALSE,
         'serialize' => TRUE,
         'description' => 'The whole, serialized evaluation data.',
@@ -47,7 +48,7 @@ function rules_scheduler_schema() {
         'type' => 'varchar',
         'length' => '255',
         'not null' => FALSE,
-        'description' => 'The fully qualified class name of a the queue item handler.',
+        'description' => 'The fully-qualified class name of the queue item handler.',
       ),
     ),
     'primary key' => array('tid'),
@@ -59,6 +60,24 @@ function rules_scheduler_schema() {
     ),
   );
   return $schema;
+}
+
+/**
+ * Implements hook_install().
+ */
+function rules_scheduler_install() {
+  // Create the queue to hold scheduled tasks.
+  $queue = DrupalQueue::get('rules_scheduler_tasks', TRUE);
+  $queue->createQueue();
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function rules_scheduler_uninstall() {
+  // Clean up after ourselves by deleting the queue and all items in it.
+  $queue = DrupalQueue::get('rules_scheduler_tasks');
+  $queue->deleteQueue();
 }
 
 /**
@@ -136,7 +155,7 @@ function rules_scheduler_update_7203() {
     'type' => 'varchar',
     'length' => '255',
     'not null' => FALSE,
-    'description' => 'The fully qualified class name of a the queue item handler.',
+    'description' => 'The fully-qualified class name of the queue item handler.',
   ));
 }
 
@@ -147,6 +166,21 @@ function rules_scheduler_update_7204() {
   if (db_field_exists('rules_scheduler', 'state')) {
     db_change_field('rules_scheduler', 'state', 'data', array(
       'type' => 'text',
+      'not null' => FALSE,
+      'serialize' => TRUE,
+      'description' => 'The whole, serialized evaluation data.',
+    ));
+  }
+}
+
+/**
+ * Use blob:big for rules_scheduler.data for compatibility with PostgreSQL.
+ */
+function rules_scheduler_update_7205() {
+  if (db_field_exists('rules_scheduler', 'data')) {
+    db_change_field('rules_scheduler', 'data', 'data', array(
+      'type' => 'blob',
+      'size' => 'big',
       'not null' => FALSE,
       'serialize' => TRUE,
       'description' => 'The whole, serialized evaluation data.',

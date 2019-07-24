@@ -5,11 +5,12 @@
  * Contains rules integration for the user module needed during evaluation.
  *
  * @addtogroup rules
+ *
  * @{
  */
 
 /**
- * Condition user: condition to check whether user has particular roles
+ * Condition user: condition to check whether user has particular roles.
  */
 function rules_condition_user_has_role($account, $roles, $operation = 'AND') {
   switch ($operation) {
@@ -43,7 +44,7 @@ function rules_condition_user_is_blocked($account) {
  */
 function rules_action_user_add_role($account, $roles) {
   if ($account->uid || !empty($account->is_new)) {
-    // Get role list (minus the anonymous)
+    // Get role list (minus the anonymous).
     $role_list = user_roles(TRUE);
 
     foreach ($roles as $rid) {

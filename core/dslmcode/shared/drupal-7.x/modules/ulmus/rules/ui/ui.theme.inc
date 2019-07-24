@@ -1,9 +1,9 @@
 <?php
 
 /**
- * @file Rules theme functions
+ * @file
+ * Rules theme functions.
  */
-
 
 /**
  * Themes a tree of rule elements in a draggable table.
@@ -58,13 +58,20 @@ function theme_rules_elements($variables) {
  * Themes the rules form for editing the used variables.
  *
  * @see RulesPluginUI::getVariableForm()
+ *
  * @ingroup themeable
  */
 function theme_rules_ui_variable_form($variables) {
   $elements = $variables['element'];
 
   $table['#theme'] = 'table';
-  $table['#header'] = array(t('Data type'), t('Label'), t('Machine name'), t('Usage'), array('data' => t('Weight'), 'class' => array('tabledrag-hide')));
+  $table['#header'] = array(
+    t('Data type'),
+    t('Label'),
+    t('Machine name'),
+    t('Usage'),
+    array('data' => t('Weight'), 'class' => array('tabledrag-hide')),
+  );
   $table['#attributes']['id'] = 'rules-' . drupal_html_id($elements['#title']) . '-id';
 
   foreach (element_children($elements['items']) as $key) {
@@ -107,6 +114,7 @@ function theme_rules_ui_variable_form($variables) {
 
 /**
  * Themes a view of multiple configuration items.
+ *
  * @ingroup themeable
  */
 function theme_rules_content_group($variables) {
@@ -125,6 +133,7 @@ function theme_rules_content_group($variables) {
 
 /**
  * Themes the view of a single parameter configuration.
+ *
  * @ingroup themeable
  */
 function theme_rules_parameter_configuration($variables) {
@@ -149,6 +158,7 @@ function theme_rules_parameter_configuration($variables) {
 
 /**
  * Themes info about variables.
+ *
  * @ingroup themeable
  */
 function theme_rules_variable_view($variables) {
@@ -169,6 +179,7 @@ function theme_rules_variable_view($variables) {
 
 /**
  * Themes help for using the data selector.
+ *
  * @ingroup themeable
  */
 function theme_rules_data_selector_help($variables) {
@@ -193,13 +204,18 @@ function theme_rules_data_selector_help($variables) {
   );
   foreach (RulesData::matchingDataSelector($variables_info, $param_info) as $selector => $info) {
     $info += array('label' => '', 'description' => '');
-    $render['table']['#rows'][] = array(check_plain($selector), check_plain(drupal_ucfirst($info['label'])), check_plain($info['description']));
+    $render['table']['#rows'][] = array(
+      check_plain($selector),
+      check_plain(drupal_ucfirst($info['label'])),
+      check_plain($info['description']),
+    );
   }
   return drupal_render($render);
 }
 
 /**
  * Themes the rules log debug output.
+ *
  * @ingroup themeable
  */
 function theme_rules_log($variables) {
@@ -230,6 +246,7 @@ function theme_rules_log($variables) {
 
 /**
  * Theme rules debug log elements.
+ *
  * @ingroup themeable
  */
 function theme_rules_debug_element($variables) {
@@ -248,6 +265,7 @@ function theme_rules_debug_element($variables) {
 
 /**
  * Themes rules autocomplete forms.
+ *
  * @ingroup themeable
  */
 function theme_rules_autocomplete($variables) {
@@ -278,6 +296,7 @@ function theme_rules_autocomplete($variables) {
 
 /**
  * General theme function for displaying settings related help.
+ *
  * @ingroup themeable
  */
 function theme_rules_settings_help($variables) {

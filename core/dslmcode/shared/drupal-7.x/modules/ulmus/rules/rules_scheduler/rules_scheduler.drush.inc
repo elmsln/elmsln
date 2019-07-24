@@ -12,7 +12,7 @@ function rules_scheduler_drush_command() {
   $items = array();
 
   $items['rules-scheduler-tasks'] = array(
-    'description' => 'Checks for scheduled tasks to be added to the queue.',
+    'description' => 'Check for scheduled tasks to be added to the queue.',
     'options' => array(
       'claim' => 'Optionally claim tasks from the queue to work on. Any value set will override the default time spent on this queue.',
     ),
@@ -21,7 +21,7 @@ function rules_scheduler_drush_command() {
     'examples' => array(
       'drush rusch' => 'Add scheduled tasks to the queue.',
       'drush rusch --claim' => 'Add scheduled tasks to the queue and claim items for the default amount of time.',
-      'drush rusch --claim=30' => 'Add schedules tasks to the queue and claim items for 30 seconds.',
+      'drush rusch --claim=30' => 'Add scheduled tasks to the queue and claim items for 30 seconds.',
     ),
   );
 
@@ -41,8 +41,8 @@ function rules_scheduler_drush_help($section) {
 /**
  * Command callback for processing the rules_scheduler_tasks queue.
  *
- * @see rules_scheduler_cron_queue_info().
- * @see rules_scheduler_cron().
+ * @see rules_scheduler_cron_queue_info()
+ * @see rules_scheduler_cron()
  */
 function drush_rules_scheduler_tasks() {
   if (rules_scheduler_queue_tasks()) {

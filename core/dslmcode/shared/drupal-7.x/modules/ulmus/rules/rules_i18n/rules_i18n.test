@@ -10,6 +10,9 @@
  */
 class RulesI18nTestCase extends DrupalWebTestCase {
 
+  /**
+   * Declares test metadata.
+   */
   public static function getInfo() {
     return array(
       'name' => 'Rules I18n',
@@ -19,7 +22,10 @@ class RulesI18nTestCase extends DrupalWebTestCase {
     );
   }
 
-  public function setUp() {
+  /**
+   * Overrides DrupalWebTestCase::setUp().
+   */
+  protected function setUp() {
     parent::setUp('rules_i18n');
     $this->admin_user = $this->drupalCreateUser(array('bypass node access', 'administer nodes', 'administer languages', 'administer content types', 'administer blocks', 'access administration pages'));
     $this->drupalLogin($this->admin_user);
@@ -52,11 +58,11 @@ class RulesI18nTestCase extends DrupalWebTestCase {
     }
     elseif ($this->xpath('//input[@type="checkbox" and @name=:name and @checked="checked"]', array(':name' => 'enabled[' . $language_code . ']'))) {
       // It's installed and enabled. No need to do anything.
-      $this->assertTrue(true, 'Language [' . $language_code . '] already installed and enabled.');
+      $this->assertTrue(TRUE, 'Language [' . $language_code . '] already installed and enabled.');
     }
     else {
       // It's installed but not enabled. Enable it.
-      $this->assertTrue(true, 'Language [' . $language_code . '] already installed.');
+      $this->assertTrue(TRUE, 'Language [' . $language_code . '] already installed.');
       $this->drupalPost(NULL, array('enabled[' . $language_code . ']' => TRUE), t('Save configuration'));
       $this->assertRaw(t('Configuration saved.'), t('Language successfully enabled.'));
     }
@@ -139,7 +145,7 @@ class RulesI18nTestCase extends DrupalWebTestCase {
     $messages = drupal_get_messages();
     $this->assertEqual($messages['status'][0], 'text-de', 'Text has been successfully translated.');
 
-    // Enable the PHP module and make sure PHP in translations is not evaluted.
+    // Enable the PHP module and make sure PHP in translations is not evaluated.
     module_enable(array('php'));
     i18n_string_textgroup('rules')->update_translation("rules_config:{$set->name}:$id:text", 'de', 'text <?php echo "eval";?>');
 
@@ -162,9 +168,9 @@ class RulesI18nTestCase extends DrupalWebTestCase {
 
     $set = rules_action_set(array('node' => array('type' => 'node')));
     $set->action('rules_i18n_select', array(
-        'data:select' => 'node:body:value',
-        'language' => 'de',
-        'data_translated:var' => 'body',
+      'data:select' => 'node:body:value',
+      'language' => 'de',
+      'data_translated:var' => 'body',
     ));
     $set->action('drupal_message', array('message:select' => 'body'));
     $set->save();
@@ -180,4 +186,5 @@ class RulesI18nTestCase extends DrupalWebTestCase {
     $messages = drupal_get_messages();
     $this->assertEqual($messages['status'][0], "German body.\n", 'Translated text has been selected.');
   }
+
 }

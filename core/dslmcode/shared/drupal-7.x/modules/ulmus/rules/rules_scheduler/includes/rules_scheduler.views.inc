@@ -6,8 +6,9 @@
  */
 
 /**
- * Implements hook_views_data(). Specifies the list of future scheduled
- * tasks displayed on the schedule page.
+ * Implements hook_views_data().
+ *
+ * Specifies the list of future scheduled tasks displayed on the schedule page.
  */
 function rules_scheduler_views_data() {
   $table = array(

@@ -1,7 +1,8 @@
 <?php
 
 /**
- * @file Rules test module.
+ * @file
+ * Rules test module.
  */
 
 /**
@@ -49,6 +50,9 @@ function rules_test_get_referenced_node($node) {
   return array($node->nid);
 }
 
+/**
+ * Access callback. Returns TRUE except when $op == 'edit'.
+ */
 function rules_test_no_access($op) {
   return $op == 'edit' ? FALSE : TRUE;
 }
